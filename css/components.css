@@ -408,6 +408,37 @@ transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
 #toast[data-state~="action"] { display: flex; align-items: center; gap: var(--sp-12); padding-inline-end: var(--sp-10); pointer-events: auto; }
 .k-toast-act { background: var(--s1); }
 
+/* ---------- the persistent notice (KOS.ui.banner): data at risk ---------- */
+.k-banners {
+position: fixed;
+inset-block-start: env(safe-area-inset-top);
+inset-inline: 0;
+z-index: var(--z-toast);
+display: flex;
+flex-direction: column;
+gap: var(--sp-6);
+padding: var(--sp-8) var(--sp-16);
+pointer-events: none;
+}
+.k-banner {
+display: flex;
+flex-wrap: wrap;
+align-items: center;
+gap: var(--sp-8) var(--sp-12);
+margin-inline: auto;
+max-inline-size: min(var(--toast-max), 100%);
+padding: var(--sp-10) var(--sp-14);
+border-radius: var(--r-14);
+background: var(--s2);
+color: var(--text);
+font-size: var(--fs-13);
+box-shadow: var(--elev-3);
+pointer-events: auto;
+}
+.k-banner[data-tone="danger"] { background: var(--alarm-wash); }
+.k-banner-text { flex: 1 1 16em; margin: 0; }
+.k-banner-actions { display: flex; gap: var(--sp-8); }
+
 /* ---------- fields: a label over an inset control ---------- */
 .k-field { display: flex; flex-direction: column; gap: var(--sp-6); min-inline-size: 0; }
 .k-field-label { font-size: var(--fs-12); color: var(--muted); }

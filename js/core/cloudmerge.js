@@ -394,10 +394,30 @@
     return out;
   }
 
+  /* the document, or an object on the way to an ADDITIVE counter */
+  function holdsAdditive(path) {
+    if (path === "") return true;
+    if (typeof path !== "string") return false;
+    for (var k in ADDITIVE) if (k.indexOf(path + ".") === 0) return true;
+    return false;
+  }
+
   /* ---------------- the generic three-way merge ---------------- */
   function mergeValue(b, l, r, ctx, path) {
-    if (deepEqual(l, r)) return l;
     var hasBase = b !== undefined;
+    /* two TABS that each earned the same amount (store.js, RC5): equal is
+       not "the same change" for a counter. Only the tab merge asks for this
+       (opts.sumEqual): its base is always the document the tab last wrote
+       or read, so equal values cannot be an echo of its own write — which
+       is exactly what the cloud's base cannot promise. */
+    if (ctx.sumEqual && hasBase && path !== null && ADDITIVE[path] && typeof l === "number" && typeof r === "number" &&
+        typeof b === "number" && l === r && l !== b) {
+      var ar = ADDITIVE[path], av = b + (l - b) + (r - b);
+      if (ar.min !== undefined) av = Math.max(ar.min, av);
+      if (ar.max !== undefined) av = Math.min(ar.max, av);
+      return av;
+    }
+    if (deepEqual(l, r) && !(ctx.sumEqual && hasBase && holdsAdditive(path) && isPlain(l) && !deepEqual(l, b))) return l;
     if (hasBase && deepEqual(l, b)) return r;      // only remote moved
     if (hasBase && deepEqual(r, b)) return l;      // only local moved
 
@@ -473,9 +493,11 @@
     });
   }
 
-  /* merge(base, local, remote) → { doc, stats, rekeyed }
-     `base` may be null (no common ancestor). Inputs are not mutated. */
-  function merge(base, local, remote) {
+  /* merge(base, local, remote[, opts]) → { doc, stats, rekeyed }
+     `base` may be null (no common ancestor). Inputs are not mutated.
+     opts.sumEqual: an additive counter moved by the SAME amount on both
+     sides is summed, not taken as one change (the tab merge only). */
+  function merge(base, local, remote, opts) {
     var B = isPlain(base) ? clone(base) : null;
     var L = clone(isPlain(local) ? local : {});
     var R = clone(isPlain(remote) ? remote : {});
@@ -487,7 +509,7 @@
       var rs = Array.isArray(R.sessions) ? R.sessions.length : 0;
       preferRemote = rs > ls;
     }
-    var ctx = { preferRemote: preferRemote, stats: stats };
+    var ctx = { preferRemote: preferRemote, stats: stats, sumEqual: !!(opts && opts.sumEqual) };
     var doc = mergeValue(B === null ? undefined : B, L, R, ctx, "");
     reconcileProgress(doc);
     return { doc: doc, stats: stats, rekeyed: rekeyed };

@@ -87,8 +87,20 @@
     navigator.serviceWorker.register("sw.js").then(watchRegistration).catch(function (e) {
       console.warn("Kurenai OS: service worker registration failed —", e && e.message);
     });
+    /* EVERY open tab reloads onto the new version once the user has
+       confirmed it in one of them (RC5): the confirmed worker's
+       skipWaiting + clients.claim changes the controller of every tab, and
+       a tab that already had a controller is running the old scripts. A
+       first install (no controller before) changes nothing on screen.
+       skipWaiting still runs only on that confirmation (invariant 38). */
+    var hadController = !!navigator.serviceWorker.controller;
     navigator.serviceWorker.addEventListener("controllerchange", function () {
-      if (reloadOnControl) { reloadOnControl = false; window.location.reload(); }
+      if (reloadOnControl || hadController) {
+        reloadOnControl = false; hadController = false;
+        KOS.pwa.reloadPage();
+        return;
+      }
+      hadController = !!navigator.serviceWorker.controller;   // the first install: the next change is an update
     });
     /* SW sync event → run a cloud cycle in this page */
     navigator.serviceWorker.addEventListener("message", function (e) {
@@ -127,6 +139,11 @@
   KOS.pwa = {
     supported: swSupported,
     requestPersistence: requestPersistence,
-    registration: function () { return reg; }
+    registration: function () { return reg; },
+    /* the reload onto a new version: the state written first, at once */
+    reloadPage: function () {
+      if (KOS.store && KOS.store.flush) KOS.store.flush();
+      window.location.reload();
+    }
   };
 })();
