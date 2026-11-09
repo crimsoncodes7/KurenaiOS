@@ -414,6 +414,17 @@ show on Account & Cloud Sync (DI-20).
   choice, smoke104 — the menu's layering is left to W3's menus-in-dialogs
   work). Gate 127/128: smoke17 flakes under heavy parallel load (it passes
   alone; at the pre-W1 commit it flakes more) — AP-16 remainder, backlog.
+- **The saved-reports rebuild (B1; HR-02, HR-31), built 9 Nov (`9dfed9d`,
+  not yet deployed or run):** a consent repair, surgical and exact (see
+  `js/core/repair-reports.js`). A 3-agent review of the first version found
+  2 P0s (a second correction of items saved after the clean-up; replacing a
+  whole Collection section would erase real titles whose rows left the
+  vault) and P1/P2s (rest streak, levels of rebuilt-empty weeks, the next
+  report's comparison, an old-version device pushing old copies back, the
+  reports store missing from the full backup, checkpoint rotation) — all
+  fixed and tested (smoke129). Left as saved, by design: terms and years,
+  and words Kurenai wrote. Every other device must run the new version
+  before it runs.
 - Still to do in W1: RC21 receipts, §A4 two tabs, §A5 storage, the store
   registry, Todoist/Google bookkeeping, side replicators, the remaining
   P1s; the Reports rebuild waits for HR-31's fix.
