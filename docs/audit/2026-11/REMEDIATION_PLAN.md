@@ -427,8 +427,8 @@ show on Account & Cloud Sync (DI-20).
   Left as saved, by design: terms and years,
   and words Kurenai wrote. Every other device must run the new version
   before it runs.
-- **Rewards with receipts (RC21), built 9 Nov (`f6a0ef3`, gate 132/132, not
-  deployed):** ST-20, HR-18 (the Daily goal seals from evidence and pays
+- **Rewards with receipts (RC21), RELEASED 9 Nov (sw `kos-integrity-5`,
+  `6c04c6e`; checked on staging first):** ST-20, HR-18 (the Daily goal seals from evidence and pays
   nothing; no hand tick), HR-21 and PR-27 (Undo on Home's reminder and habit
   ticks and on repeating reminders, through one correction that also takes
   back the HP), PR-24 (a min day topped up once), PR-23 (an all-optional
@@ -440,7 +440,9 @@ show on Account & Cloud Sync (DI-20).
   a 3-agent review found 2 P1s (Creatives pieces reused across projects; a
   Japanese lesson passing around earlier misses), 3 P2s and 8 P3s — all
   fixed with failing-first tests (smoke130–132). Past pay is not clawed
-  back (decision B2: going forward only).
+  back (decision B2: going forward only). Found on staging and fixed in
+  the same release: a second Check on a Japanese question recorded, scheduled
+  and paid it again (40 presses made 40 reviews) — smoke132 I.
 - **New backlog item (found 9 Nov, not scheduled):** a Collection status
   changed back and forth (quick-edit, the editor) logs a paid media session
   each time (4 XP, 1 gold), with no receipt. No audit finding covers it.
