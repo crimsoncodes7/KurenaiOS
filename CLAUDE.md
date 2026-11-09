@@ -17,7 +17,12 @@ chronological diary here.
   `5bece3e`). `ai-chat` is deployed as version 6 (images for Gemini, 26 October 2026); the
   `kos_reports` migration `20261012000001` is applied; so is `kos_money`
   (`20261019000001`, 19 October 2026), live since the Money and Goals release.
-- Latest release: sw `kos-integrity-2` (9 November 2026): the DI-27
+- Latest release: sw `kos-integrity-3` (9 November 2026): three W1 fixes —
+  streak-milestone gold pays once per run (HR-16, smoke128), an invalid IT
+  mark writes nothing and clearing one asks first (ST-26, smoke58), and
+  Focus's "General study — no link" stays unlinked through About to Study,
+  whose "Just start" starts exactly the Focus page's choice (PR-03,
+  smoke104). Before it sw `kos-integrity-2` (9 November 2026): the DI-27
   journal scrub also removes the flips that lasted days (any status or
   progress step to or from the anime's value, only among events before the
   fix), approved by the user after the live run. Before it sw
@@ -204,7 +209,7 @@ chronological diary here.
   it `3b39ae1` (21 October 2026; the Exams & Deadlines hub),
   https://e94eede7.kurenai-os.pages.dev.
 - Last milestone tag: `milestone/graphite-ui-rebuild`
-- Service-worker version: `kos-integrity-2`
+- Service-worker version: `kos-integrity-3`
 - Required smoke gate: 128 / 128 suites (`""` and 2–128, or `npm test`, which runs them in parallel through `tools/run_smoke.mjs`; 124–126 are W1's: repairs run safely and Import backup asks first, the P0s (JM-06, ST-25, MG-01/MG-23, SY-18), and the DI-27 clean-up on test data; 127 activity, not any event (HR-31, CL-45) and the per-device journal scrub; 128 streak-milestone gold once per run (HR-16); 120–123 are the quality programme's safety net — the 04:00 day across DST, the service-worker update across two versions, offline, and the verified backup `KOS.backup`; 116–119 are ratcheted gates over content, cosmetics, menus in dialogs and CSS collisions, each failing only on a violation not in its `tools/baselines/smoke11x-*.json`; 115 is Mind Journal replication; 114 is provider identity per module (DI-27); 113 is the Badge Wall's; 80–83 are Japanese's, 99 is Code's SQL runner, 100 the ink engine, 101–104 Routines and the Daily Review, 105 the rest of the iPad build and Files R0, 106 Files R1–R4, airing on a closed app, Rider CI evidence and habits several times a day, 107 the Pencil fixes, 108 Creatives', 109–111 Mind's, 112 Google Calendar, Google Tasks and Todoist).
 - Branches: `main` is the line. On 20 October 2026 it was fast-forwarded to
   `feat/money-goals` (Money and Goals), then to `feat/fsrs` (FSRS), on 21

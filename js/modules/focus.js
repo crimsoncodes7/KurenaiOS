@@ -2250,7 +2250,9 @@
          this device — or unless this form already holds the first action,
          since the form is then the pre-flight; it hands back the same cfg */
       if (KOS.routinePlayer && (store.state.ui || {}).focusPreflight !== false && !String(cfg.objective || "").trim()) {
-        KOS.routinePlayer.preflight({ subject: cfg.subject, refs: cfg.refs, assignmentId: cfg.assignmentId, objective: cfg.objective, cfg: cfg,
+        /* explicit: the form's choice stands, "General study — no link"
+           included (PR-03) */
+        KOS.routinePlayer.preflight({ subject: cfg.subject, refs: cfg.refs, assignmentId: cfg.assignmentId, objective: cfg.objective, cfg: cfg, explicit: true,
           onStart: function (c) { start(c); } });
         return;
       }

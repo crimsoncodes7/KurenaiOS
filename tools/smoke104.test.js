@@ -178,6 +178,23 @@ step("F · About to Study", async () => {
   eq(f2.KOS.focus.session().objective, "Already planned", "with it as the objective");
 });
 
+step("F2 · General study — no link stays unlinked, and Just start starts the page's choice (PR-03)", async () => {
+  const f3 = await boot({ clock: TODAY + "T16:50:00" }), d3 = f3.document, K3 = f3.KOS;
+  const q = (sel) => d3.querySelector(sel), tap = (n) => { assert(n, "nothing to click"); n.dispatchEvent(new f3.window.MouseEvent("click", { bubbles: true })); };
+  K3.assignments.add({ title: "Stats coursework", subject: "maths", due: K3.srs.addDays(K3.srs.todayISO(), 2) });
+  K3.store.state.ui.focusPreflight = true;
+  K3.show("focus"); await f3.settle();
+  const subj = q("select[aria-label='Link to subject']");
+  assert(subj && subj.value === "", "the form is on General study — no link");
+  tap(q("[data-ui~='focus.start']")); await f3.settle();
+  const sheet = q("[data-ui~='preflight.sheet']");
+  assert(sheet && /General study/.test(sheet.textContent), "the sheet keeps General study: " + (sheet && sheet.textContent.slice(0, 120)));
+  tap(q("[data-ui~='preflight.just-start']")); await f3.settle();
+  const s = K3.focus.session();
+  assert(s, "a session started");
+  eq([s.subject || null, s.assignmentId == null ? null : s.assignmentId], [null, null], "no subject and no assignment attached");
+});
+
 step("G · Home", async () => {
   K.show("home"); await app.settle();
   assert($("[data-ui~='home.three-start']"), "Today's three with its Start in the hero");

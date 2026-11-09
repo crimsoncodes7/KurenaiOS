@@ -254,6 +254,9 @@
         var pre = R().all().filter(function (r) { return r.anchor === "focus"; })[0];
         if (pre) R().tickAll(pre.id);
       }
+      /* "Just start" from the Focus page starts exactly what the page was
+         set to — its link, mode and length — never the sheet's pick (PR-03) */
+      if (skip && ctx.cfg) { startFocus(Object.assign({}, ctx, { cfg: ctx.cfg }), ctx.objective || ""); return; }
       startFocus(Object.assign({}, ctx, task, { cfg: cfg }), skip ? (ctx.objective || "") : action.value || "");
     }
     var box = el("div", { class: "k-dialog k-rpl-pre", "data-ui": "preflight.sheet" }, [
@@ -282,6 +285,9 @@
       if (a) return { title: a.title, subject: a.subject, assignmentId: a.id, refs: KOS.assignments.refsOf(a), sub: "Assignment" + (a.due ? " · due " + U().dayLabel(a.due, { weekday: "short", day: "numeric", month: "short" }) : "") };
     }
     if (ctx.title || ctx.subject) return { title: ctx.title || (KOS.subjects.meta(ctx.subject) || {}).name, subject: ctx.subject, refs: ctx.refs || [], sub: ctx.refs && ctx.refs.length ? (KOS.spec && KOS.spec.label ? KOS.spec.label(ctx.refs[0]) : ctx.refs[0]) : "" };
+    /* Focus said "General study — no link": that is a choice, not a gap to
+       fill with a suggestion (PR-03); Change still offers them */
+    if (ctx.explicit) return { title: "General study", subject: null, refs: [], assignmentId: null, sub: "No link · Change to pick one", general: true };
     var three = taskChoices()[0];
     return three || { title: "", subject: null, refs: [] };
   }
@@ -303,7 +309,7 @@
     return out;
   }
   function suggestAction(task) {
-    if (!task || !task.title) return "Open the material and do the first small thing";
+    if (!task || !task.title || task.general) return "Open the material and do the first small thing";
     if (task.assignmentId != null) {
       var a = KOS.assignments.get(task.assignmentId), sub = a && KOS.assignments.nextSubtask ? KOS.assignments.nextSubtask(a) : null;
       if (sub) return sub.text;
