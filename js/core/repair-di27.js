@@ -231,7 +231,8 @@
     });
   }
   if (KOS.repairs) KOS.repairs.register("di27-journal-scrub", {
-    title: "Tidy the DI-27 traces from this device's journals", scope: "device", repeat: true, plan: scrubPlan
+    title: "Tidy the DI-27 traces from this device's journals", scope: "device", repeat: true, plan: scrubPlan,
+    ready: function () { var rc = KOS.repairs.receipt("di27-phantom-sync"); return !!(rc && !rc.noop); }
   });
   KOS.repairDi27 = { plan: plan, classify: classify, collided: collided, traces: traces, scrubPlan: scrubPlan };
 })();

@@ -271,11 +271,12 @@
      it, and with no js/env.local.js it stays silently unconfigured. */
   /* one-off repairs that need no decision run first (KOS.repairs, quality
      W1): the DI-27 journal scrub must tidy this device's copy BEFORE the
-     first pull, or the cloud's union would carry it straight back. Each
-     is a no-op when there is nothing to do; sync waits 20 s at most. */
+     first pull, or the cloud's union would carry it straight back. Sync
+     waits only when one could have work (autoPending, synchronous); a
+     stuck store holds it 20 s at most. */
   var syncStarted = false;
   function startCloud() { if (syncStarted) return; syncStarted = true; if (KOS.cloudsync) KOS.cloudsync.start(); }
-  if (KOS.repairs && KOS.mediadb.available() && !KOS.dataMode.mode) {
+  if (KOS.repairs && KOS.mediadb.available() && !KOS.dataMode.mode && KOS.repairs.autoPending()) {
     KOS.repairs.runAuto().then(startCloud, startCloud);
     /* a stuck store must not keep sync off for good — but never start it
        while a repair is writing (it waits and looks again) */

@@ -8,6 +8,8 @@
        title,                       // what it fixes, in a few words
        consent: true|false,         // true: runs only with an approved preview
        repeat: true,                // (device) no receipt: runs whenever its data needs it
+       ready: () => bool,           // (optional) cheap synchronous gate: false = nothing
+                                    // can be due, so start-up need not wait
        scope: "account"|"device",   // where the receipt lives (default account:
                                     // state.repairs, synced; device: media kv
                                     // `repair.done.<id>`, for a fix to a
@@ -145,9 +147,18 @@
   /* the repairs that need no consent (an internal fix with nothing to
      decide), once each, in the order registered; never two at once */
   var autoRun = null;
+  function isReady(id) { var r = defs[id].ready; return typeof r !== "function" || !!r(); }
+  /* could start-up have repair work? (synchronous, so boot waits only then) */
+  function autoPending() {
+    return order.some(function (id) {
+      var d = defs[id];
+      if (d.consent || !isReady(id)) return false;
+      return d.scope === "device" || !receipts()[id];
+    });
+  }
   function runAuto() {
     if (autoRun) return autoRun;
-    autoRun = order.filter(function (id) { return !defs[id].consent; }).reduce(function (p, id) {
+    autoRun = order.filter(function (id) { return !defs[id].consent && isReady(id); }).reduce(function (p, id) {
       return p.then(function (out) {
         return run(id).catch(function (e) { return { ok: false, reason: (e && e.message) || String(e) }; })
           .then(function (r) { out[id] = r; return out; });
@@ -159,6 +170,7 @@
   KOS.repairs = {
     register: register, preview: preview, run: run, runAuto: runAuto,
     applying: function () { return applying > 0; },
+    autoPending: autoPending,
     list: function () { return order.map(function (id) { return { id: id, title: defs[id].title || id, consent: !!defs[id].consent, scope: defs[id].scope || "account" }; }); },
     receipt: function (id) { return defs[id] && defs[id].scope === "device" ? null : receipts()[id] || null; },
     receiptOf: getReceipt,
