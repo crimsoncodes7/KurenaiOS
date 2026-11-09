@@ -25,12 +25,21 @@
     var labels = ["Revise for " + ev.title, "Revise for: " + ev.title, "Prepare: " + ev.title];
     var leaves = KOS.spec && KOS.calendar.refsOf ? KOS.spec.resolve(KOS.calendar.refsOf(ev)) : [];
     var asg = ev.assignmentId != null ? ev.assignmentId : null;
+    /* a deadline that names no topic and no assignment (an Exams-hub
+       deadline, an NEA milestone) is worked on by time in its subject, or
+       by a session whose objective names it (RC21) — else nothing could
+       ever seal it */
+    var bySubject = !leaves.length && asg == null && ev.type !== "exam" && ev.subject ? ev.subject : null;
+    var title = String(ev.title || "").trim().toLowerCase();
     return Math.round((store.state.sessions || []).reduce(function (sum, x) {
       if (x.date !== day || x.type === "media" || x.type === "todo" || x.type === "correction" || !x.dur) return sum;
-      if (x.metrics && labels.indexOf(x.metrics.objective) !== -1) return sum + x.dur;
+      var obj = x.metrics && x.metrics.objective;
+      if (obj && labels.indexOf(obj) !== -1) return sum + x.dur;
+      if (obj && title && !leaves.length && asg == null && String(obj).toLowerCase().indexOf(title) !== -1) return sum + x.dur;
       /* by stretch: a switched session counts only its time on this */
       return sum + KOS.sessions.parts(x).reduce(function (n, p) {
         if (asg != null && p.assignmentId === asg) return n + p.secs;
+        if (bySubject) return p.subject === bySubject ? n + p.secs : n;
         if (!leaves.length) return n;
         var mine = KOS.spec.resolve(p.refs || []);
         return mine.some(function (k) { return leaves.indexOf(k) !== -1; }) ? n + p.secs : n;
@@ -117,6 +126,23 @@
     return out;
   }
 
+  /* `state.todo.autoChecked` ("YYYY-MM-DD|blk<id>", written by Focus when
+     a study block is marked) is read only for today: keys older than 14
+     days go (RC21). Called from write paths and at boot, never on render;
+     returns how many went. */
+  var AUTO_KEEP_DAYS = 14;
+  function pruneAuto(save) {
+    var t = T(), m = t && t.autoChecked, n = 0;
+    if (!m || typeof m !== "object") return 0;
+    var cut = KOS.srs.addDays(KOS.srs.todayISO(), -AUTO_KEEP_DAYS);
+    Object.keys(m).forEach(function (k) {
+      var d = k.slice(0, 10);
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(d) || d < cut) { delete m[k]; n++; }
+    });
+    if (n && save) store.save();
+    return n;
+  }
+
   function isChecked(key) {
     var it = autoItems().filter(function (a) { return a.key === key; })[0];
     return !!(it && it.done);
@@ -146,6 +172,7 @@
   function toggleManual(id, val, label) {
     var m = T().manual.find(function (x) { return x.id === id; });
     if (!m) return;
+    pruneAuto();
     m.done = val;
     if (val && m.paidOn !== KOS.srs.todayISO()) { m.paidOn = KOS.srs.todayISO(); KOS.sessions.log({ type: "todo", metrics: { item: label } }); }
     else store.save();
@@ -251,6 +278,7 @@
        reads the same figure) */
     minsFor: minsFor,
     goalMinsFor: goalMinsFor,
+    pruneAuto: pruneAuto,
     addManual: addManual,
     toggleManual: toggleManual,
     deleteManual: deleteManual,

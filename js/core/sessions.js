@@ -133,8 +133,26 @@
      either direction. They feed only the rest streak below. */
   function hasActivity(dateISO, sid) {
     return store.state.sessions.some(function (e) {
-      return e.date === dateISO && (!sid || hasSubject(e, sid)) && e.type !== "media" && e.type !== "correction";
+      return e.date === dateISO && (!sid || hasSubject(e, sid)) && e.type !== "media" && e.type !== "correction" && !undone(e);
     });
+  }
+  /* RC21: an entry an Undo reversed is marked `metrics.undone` (the entry
+     itself stays, invariant 1); it is no longer the day's activity, nor a
+     paid completion counted against a daily cap */
+  function undone(e) { return !!(e && e.metrics && e.metrics.undone); }
+  /* RC21: Undo what one ledger entry paid — ONE correction entry for its
+     XP, gold (its streak bonus left alone) and the HP it restored — and
+     mark the entry undone. Once only: a second call finds it marked and
+     returns null, so a double Undo never takes back more than was paid. */
+  function undo(entryId, title) {
+    var e = (store.state.sessions || []).filter(function (x) { return x.id === entryId; })[0];
+    if (!e || undone(e)) return null;
+    e.metrics = e.metrics || {};
+    e.metrics.undone = true;
+    var a = e.award || {};
+    var xp = Math.max(0, a.xp || 0), gold = Math.max(0, (a.gold || 0) - (a.ms || 0)), hp = Math.max(0, a.hp || 0);
+    if (!xp && !gold && !hp) { store.save(); return null; }
+    return log({ type: "correction", metrics: { xp: -xp, gold: -gold, hp: -hp, title: title, note: "Undo", reverses: entryId } });
   }
   /* streak integrity (2c): an early-stopped focus session stays in the log as
      evidence (and still counts as "activity" for the HP day-drain), but only
@@ -225,6 +243,7 @@
     all: function () { return store.state.sessions; },
     forDate: forDate,
     hasActivity: hasActivity,
+    undo: undo, undone: undone,
     hasStreakActivity: hasStreakActivity,
     streak: streak,
     streaks: streaks,

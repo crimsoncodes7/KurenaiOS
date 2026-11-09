@@ -237,6 +237,146 @@ step("H · RC21: tick → untick → re-tick pays once", async () => {
   eq(app.errors, [], "no page errors");
 });
 
+/* ---------- the review's findings on the RC21 work ---------- */
+function ex(name, args) { return new Promise((res) => K.ai.tools.execute(name, args, (err, result, undo) => res({ err, result, undo }))); }
+function corrections() { return K.store.state.sessions.filter((e) => e.type === "correction").length; }
+
+step("I · an undone reminder gives back its place in the day's reward cap", async () => {
+  K.store.state.reminders.rewardLog = {};
+  for (let i = 0; i < 8; i++) {
+    const r = K.reminders.add({ title: "Cycle " + i });
+    K.reminders.completeUndoable(r.id).undo();
+    K.reminders.remove(r.id);
+  }
+  const r = K.reminders.add({ title: "The real one" });
+  eq(K.reminders.rewardState(K.reminders.get(r.id)).pays, true, "a real completion still pays after eight Undos");
+  const xp = G().xp;
+  K.reminders.complete(r.id, true);
+  eq(G().xp - xp, 5, "and it is paid");
+  K.reminders.remove(r.id);
+});
+
+step("J · an undone routine completion gives back its place in the eight a day", async () => {
+  const made = [];
+  for (let i = 0; i < 8; i++) {
+    const h = K.routines.addHabit("Cycle habit " + i); made.push(h.id);
+    const res = K.routines.tick(h.id, K.routines.get(h.id).steps[0].id, true);
+    K.routines.undoTick(res.undo);
+  }
+  const h = K.routines.addHabit("The real habit"); made.push(h.id);
+  const res = K.routines.tick(h.id, K.routines.get(h.id).steps[0].id, true);
+  assert(res.award && res.award.xp > 0, "the real habit is paid: " + JSON.stringify(res.award));
+  assert(!last().metrics.capped, "and not as capped");
+  made.forEach((id) => K.routines.remove(id));
+});
+
+step("K · a tick undone at once is not the day's activity", async () => {
+  K.store.state.sessions = [];
+  const r = K.reminders.add({ title: "Undo me" });
+  K.store.state.reminders.rewardLog = {};
+  K.reminders.completeUndoable(r.id).undo();
+  eq(K.sessions.hasActivity(today), false, "no activity left for the day-drain");
+  K.reminders.complete(r.id, true);
+  eq(K.sessions.hasActivity(today), true, "a kept tick still is");
+  K.reminders.remove(r.id);
+});
+
+step("L · Undo runs once: a second press takes back nothing more", async () => {
+  K.store.state.reminders.rewardLog = {};
+  const r = K.reminders.add({ title: "Twice" });
+  const g0 = [G().xp, G().gold, G().hp], c0 = corrections();
+  const res = K.reminders.completeUndoable(r.id);
+  res.undo(); res.undo();
+  eq([G().xp, G().gold, G().hp], g0, "a reminder: back exactly to where it was");
+  eq(corrections() - c0, 1, "one correction");
+  K.reminders.remove(r.id);
+  const h = K.routines.addHabit("Twice habit");
+  const g1 = [G().xp, G().gold, G().hp], c1 = corrections();
+  const t = K.routines.tick(h.id, K.routines.get(h.id).steps[0].id, true);
+  eq(K.routines.undoTick(t.undo), true, "the first Undo runs");
+  eq(K.routines.undoTick(t.undo), false, "the second does nothing");
+  eq([G().xp, G().gold, G().hp], g1, "a habit: back exactly");
+  eq(corrections() - c1, 1, "one correction");
+  K.routines.remove(h.id);
+});
+
+step("M · Undo takes back only what its tick changed", async () => {
+  const rt = K.routines.add({ name: "Evening", kind: "custom", days: [], steps: [{ text: "Teeth" }, { text: "Read", optional: true }] });
+  const s = K.routines.get(rt.id).steps, rday = K.routines.routineDay();
+  const t = K.routines.tick(rt.id, s[0].id, true);
+  eq(t.state, "done", "kept");
+  K.routines.tick(rt.id, s[1].id, true);
+  K.routines.undoTick(t.undo);
+  const e = K.routines.entry(rt.id, rday);
+  assert(e && e.steps[s[1].id], "the optional step ticked after it survives the Undo");
+  assert(!e.steps[s[0].id], "the undone step is unticked");
+  assert(!e.paid, "and the day is no longer paid");
+  K.routines.remove(rt.id);
+  /* a repeating reminder completed twice; the FIRST completion undone */
+  K.store.state.reminders.rewardLog = {};
+  const r = K.reminders.add({ title: "Feed the cat", due: today, recur: "daily" });
+  const first = K.reminders.completeUndoable(r.id);
+  K.reminders.completeUndoable(r.id);
+  eq(K.reminders.get(r.id).due, day(2), "rolled twice");
+  first.undo();
+  eq(K.reminders.get(r.id).due, day(2), "the second completion's date stays");
+  eq(K.reminders.get(r.id).completions.length, 1, "only the first completion's record goes");
+  K.reminders.remove(r.id);
+});
+
+step("N · a day paid in full on another device is never topped up again", async () => {
+  const r = K.routines.add({ name: "Wind down 2", kind: "custom", days: [], steps: [{ text: "Teeth", minimum: true }, { text: "Read" }] });
+  const s = K.routines.get(r.id).steps, rday = K.routines.routineDay();
+  K.routines.tick(r.id, s[0].id, true);
+  /* the other device's full pay for the same routine day, merged in */
+  K.store.state.sessions.push({ id: 99001, ts: Date.now(), date: today, type: "todo", subject: null, ref: null, dur: null,
+    metrics: { item: "Routine kept: Wind down 2", routine: r.id, rday, req: 2, min: false, kind: "custom" }, award: { xp: 20, gold: 2, hp: 2 } });
+  const xp = G().xp, n = count("todo");
+  const res = K.routines.tick(r.id, s[1].id, true);
+  eq(res.state, "done", "kept in full here too");
+  eq([G().xp - xp, count("todo") - n], [0, 0], "no top-up: the day was already paid in full");
+  K.routines.remove(r.id);
+});
+
+step("O · a deadline with no topics seals from work in its subject", async () => {
+  const ev = K.calendar.addEvent({ title: "NEA draft", date: day(2), type: "deadline", subject: "compsci" });
+  const find = () => K.todo.autoItems().find((a) => a.kind === "ev" && a.ev && a.ev.title === "NEA draft");
+  assert(find(), "the directive is offered");
+  eq(find().done, false, "not sealed before the work");
+  K.sessions.log({ type: "focus", subject: "compsci", dur: 1800, metrics: { complete: true, mode: "custom" } });
+  eq(find().done, true, "sealed by half an hour of Computer Science");
+  K.calendar.deleteEvent(ev.id);
+});
+
+step("P · the Assistant's Undo of a habit tick takes the pay back", async () => {
+  const h = K.routines.addHabit("Assistant habit");
+  const g = [G().xp, G().gold, G().hp];
+  const res = await ex("routine_tick_step", { id: String(h.id), done: true });
+  assert(!res.err, "the tool ran: " + JSON.stringify(res.err));
+  assert(G().xp > g[0], "paid");
+  await new Promise((ok) => res.undo.run(ok));
+  eq([G().xp, G().gold, G().hp], g, "the Undo reverses the pay");
+  const e = K.routines.entry(h.id, K.routines.routineDay());
+  assert(!e || !e.paid, "and the day is not left paid");
+  K.routines.remove(h.id);
+});
+
+step("Q · the study-block marks keep a fortnight, pruned off render", async () => {
+  const m = K.store.state.todo.autoChecked = {};
+  m[day(-30) + "|blk1"] = true; m[day(-15) + "|blk2"] = true; m[day(-3) + "|blk3"] = true; m[today + "|blk4"] = true;
+  K.show("home"); await app.settle();
+  eq(Object.keys(K.store.state.todo.autoChecked).length, 4, "a render prunes nothing");
+  K.todo.pruneAuto(true);
+  eq(Object.keys(K.store.state.todo.autoChecked).sort(), [day(-3) + "|blk3", today + "|blk4"].sort(), "older than 14 days go");
+});
+
+step("R · Help no longer says directives earn XP", async () => {
+  const src = require("fs").readFileSync(require("path").join(__dirname, "../js/modules/help.js"), "utf8");
+  assert(!/Ticks earn XP/.test(src), "the old line is gone");
+  assert(/sealed by the work itself/.test(src), "it says how a directive is sealed");
+  eq(app.errors, [], "no page errors");
+});
+
 (async () => {
   let failed = 0;
   for (const [name, fn] of steps) {
