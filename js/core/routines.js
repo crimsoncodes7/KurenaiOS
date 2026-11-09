@@ -376,8 +376,11 @@
     var e0 = entry(id, day);
     var steps = stepsFor(r, e0);
     if (!steps.some(function (s) { return s.id === stepId; })) return { ok: false, why: "No such step on that day." };
-    /* the day as it was, so an Undo can put it back exactly (HR-21) */
-    var before = e0 ? clone(e0) : null, logged = null;
+    /* what this tick is about to change, so an Undo takes back exactly
+       that and nothing done since (HR-21, RC21) */
+    var was = { created: !e0, step: e0 && e0.steps ? e0.steps[stepId] : undefined,
+      no: e0 && e0.no ? e0.no[stepId] : undefined, rest: e0 ? e0.rest : undefined,
+      paid: e0 ? e0.paid : undefined, paidAs: e0 ? e0.paidAs : undefined }, logged = null, how = null;
     var e = writeEntry(r, day);
     if (on === false) delete e.steps[stepId];
     else { e.steps[stepId] = now; if (e.no) delete e.no[stepId]; }
@@ -387,34 +390,45 @@
     e.min = !!v.min;
     var award = null;
     lastPaid = null;
-    if ((v.done || v.min) && !e.paid && r.days !== null) { award = pay(r, e, day, v, now); logged = lastPaid; }
+    if ((v.done || v.min) && !e.paid && r.days !== null) { award = pay(r, e, day, v, now); logged = lastPaid; how = "pay"; }
     /* PR-24: a day paid at its minimum that is now kept in full is topped
        up by the difference, once (paidAs moves to "done"); unticking never
        refunds by itself */
-    else if (v.done && e.paid && e.paidAs === "min" && r.days !== null) { award = topUp(r, e, day, v, now); logged = lastPaid; }
+    else if (v.done && e.paid && e.paidAs === "min" && r.days !== null) { award = topUp(r, e, day, v, now); logged = lastPaid; how = "topUp"; }
     store.save();
     return { ok: true, state: v.done ? "done" : v.min ? "min" : "partial", award: award,
-      undo: { id: id, day: day, before: before, entryId: logged ? logged.id : null } };
+      undo: { id: id, day: day, step: stepId, set: e.steps[stepId], was: was, how: how, entryId: logged ? logged.id : null } };
   }
-  /* HR-21: Undo a tick — the day's log entry goes back exactly as it was
-     (its `paid` receipt with it) and any pay the tick logged is reversed by
-     ONE correction entry; the session itself is never deleted */
+  /* HR-21: Undo a tick — the step goes back as it was (only while it still
+     holds what the tick wrote), with the `paid` receipt the tick set, and
+     any pay the tick logged is reversed by ONE correction entry (the
+     session itself is never deleted, KOS.sessions.undo). Other steps
+     ticked since, an edit or a merged tick are left alone (RC21). Once
+     only: a second call does nothing. */
   function undoTick(u) {
-    if (!u || !u.id || !u.day) return false;
-    var s = R(), k = key(u.id, u.day);
-    if (u.before) s.log[k] = clone(u.before); else delete s.log[k];
-    var r = get(u.id);
-    if (u.entryId != null) reverse(u.entryId, (r ? r.name : "Routine") + " · undone");
+    if (!u || !u.id || !u.day || u.used) return false;
+    u.used = true;
+    var s = R(), k = key(u.id, u.day), e = s.log[k], w = u.was || {}, r = get(u.id);
+    if (e && u.step) {
+      if (!e.steps || typeof e.steps !== "object") e.steps = {};
+      if (e.steps[u.step] === u.set) {
+        if (w.step === undefined) delete e.steps[u.step]; else e.steps[u.step] = w.step;
+        if (w.no !== undefined) { e.no = e.no || {}; e.no[u.step] = w.no; }
+      }
+      if (w.rest && !e.rest && !Object.keys(e.steps).length) e.rest = w.rest;
+      if (u.how === "pay") {
+        if (w.paid) e.paid = w.paid; else delete e.paid;
+        if (w.paidAs !== undefined) e.paidAs = w.paidAs; else delete e.paidAs;
+      } else if (u.how === "topUp" && e.paidAs === "done") e.paidAs = "min";
+      var v = r ? verdict(r, e) : { done: false, min: false };
+      e.done = v.done ? (e.done || Date.now()) : null;
+      e.min = !!v.min;
+      /* a day this tick began, now holding nothing, goes as it came */
+      if (w.created && !Object.keys(e.steps).length && !e.rest && !(e.no && Object.keys(e.no).length) && !e.paid && !e.mins) delete s.log[k];
+    }
+    if (u.entryId != null) KOS.sessions.undo(u.entryId, (r ? r.name : "Routine") + " · undone");
     store.save();
     return true;
-  }
-  /* one correction for what a ledger entry paid, its streak bonus left alone */
-  function reverse(entryId, title) {
-    var e = (store.state.sessions || []).filter(function (x) { return x.id === entryId; })[0];
-    if (!e || !e.award) return null;
-    var xp = Math.max(0, e.award.xp || 0), gold = Math.max(0, (e.award.gold || 0) - (e.award.ms || 0)), hp = Math.max(0, e.award.hp || 0);
-    if (!xp && !gold && !hp) return null;
-    return KOS.sessions.log({ type: "correction", metrics: { xp: -xp, gold: -gold, hp: -hp, title: title, note: "Undo" } });
   }
   /* a step checked in the morning, answered No: recorded, never ticked */
   function answerNo(id, stepId, opts) {
@@ -455,8 +469,18 @@
   function paidToday(now) {
     var today = KOS.srs.todayISO();
     return (store.state.sessions || []).filter(function (e) {
-      return e.date === today && e.type === "todo" && e.metrics && e.metrics.routine && !e.metrics.capped && !e.metrics.topUp;
+      /* a completion an Undo took back gives its place back (RC21) */
+      return e.date === today && e.type === "todo" && e.metrics && e.metrics.routine && !e.metrics.capped && !e.metrics.topUp && !e.metrics.undone;
     }).length;
+  }
+  /* has the ledger already paid this routine day IN FULL (a full pay or a
+     top-up, not undone)? Two devices offline can merge to a day paid at
+     its minimum on one and in full on the other: no top-up then (RC21) */
+  function paidInFull(rid, day) {
+    return (store.state.sessions || []).some(function (e) {
+      var m = e.metrics;
+      return e.type === "todo" && m && m.routine === rid && m.rday === day && !m.undone && !m.capped && (m.topUp || !m.min);
+    });
   }
   var lastPaid = null;
   function pay(r, e, day, v, now) {
@@ -475,6 +499,7 @@
   /* the minimum day now kept in full: ONE todo entry for the difference */
   function topUp(r, e, day, v, now) {
     e.paidAs = "done";
+    if (paidInFull(r.id, day)) return null;
     var m = { item: (r.kind === "habit" ? "Habit kept: " : "Routine kept: ") + r.name + " · in full", routine: r.id, rday: day,
       req: v.of, topUp: true, kind: r.kind };
     if (day !== routineDay(now)) m.late = true;
@@ -880,7 +905,7 @@
         var res = tick(r.id, stepId, args.done, { day: day });
         if (!res.ok) { cb(fail(res.why)); return; }
         cb(null, Object.assign(brief(r, day), { award: res.award || undefined }),
-          { label: "undo the tick", run: function (ucb) { tick(r.id, stepId, !args.done, { day: day }); ucb(null); } });
+          { label: "undo the tick", run: function (ucb) { undoTick(res.undo); ucb(null); } });
       } });
     T.define("routine_rest_day", {
       desc: "Plan (or cancel) a rest day for a routine today: it neither breaks nor adds to the streak; one in any seven days.",
@@ -901,6 +926,8 @@
     migrate();
     compact();
     autoSync();
+    /* the old to-do's per-day study-block marks keep a fortnight (RC21) */
+    if (KOS.todo && KOS.todo.pruneAuto) KOS.todo.pruneAuto(true);
   }
   /* the notification kind joins the bell, the feed and its filters only
      once routines are on (until then the filters would show a switch for

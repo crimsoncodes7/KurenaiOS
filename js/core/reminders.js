@@ -225,19 +225,34 @@
     r.undo = function () { return undoComplete(id, r); };
     return r;
   }
+  /* Undo takes back only what THIS completion changed (RC21): its own
+     entry in the history; the item's state only while it still shows this
+     completion (the rolled-forward date, or done at this completion's
+     time) — a later completion, edit or merged change is left alone. Once
+     only: a second call does nothing. */
   function undoComplete(id, r) {
     var item = get(id);
-    if (!item || !r || !r.prev) return null;
-    var p = clone(r.prev);
-    Object.keys(p).forEach(function (k) { item[k] = p[k]; });
+    if (!item || !r || !r.prev || r.used) return null;
+    r.used = true;
+    var p = clone(r.prev), a = r.after || {};
+    var still = a.recur ? item.due === a.due && !item.done : item.done && item.completedAt === a.completedAt;
+    if (still) {
+      ["done", "completedAt", "due", "alerted", "subs"].forEach(function (k) { item[k] = p[k]; });
+    }
+    if (a.stamp != null && Array.isArray(item.completions)) {
+      var i = item.completions.lastIndexOf(a.stamp);
+      if (i !== -1) item.completions.splice(i, 1);
+    }
     item.updatedAt = Date.now();
-    /* the pay goes back through ONE correction entry; the session stays */
-    var e = r.entryId != null ? (store.state.sessions || []).filter(function (x) { return x.id === r.entryId; })[0] : null;
-    var xp = e && e.award ? Math.max(0, e.award.xp || 0) : 0;
-    var gold = e && e.award ? Math.max(0, (e.award.gold || 0) - (e.award.ms || 0)) : 0;
-    var hp = e && e.award ? Math.max(0, e.award.hp || 0) : 0;
-    if (xp || gold || hp) KOS.sessions.log({ type: "correction", metrics: { xp: -xp, gold: -gold, hp: -hp, title: item.title + " · undone", note: "Undo" } });
-    else store.save();
+    /* the pay goes back through ONE correction entry (the session stays,
+       marked undone), and its place in the day's reward cap with it */
+    if (r.entryId != null) {
+      if (item.lastRewardedOn === a.rewardedOn) item.lastRewardedOn = p.lastRewardedOn;
+      var s = R(), e = (store.state.sessions || []).filter(function (x) { return x.id === r.entryId; })[0];
+      var d = e ? e.date : a.rewardedOn;
+      if (d && s.rewardLog[d]) s.rewardLog[d] = Math.max(0, s.rewardLog[d] - 1);
+      if (!KOS.sessions.undo(r.entryId, item.title + " · undone")) store.save();
+    } else store.save();
     noteExt();
     return item;
   }
@@ -258,9 +273,9 @@
       return { item: item, prev: prev, entryId: null };
     }
 
-    var pays = rewardState(item).pays, entry = null;
+    var pays = rewardState(item).pays, entry = null, rolled = !!(item.recur && item.due);
 
-    if (item.recur && item.due) {
+    if (rolled) {
       /* a repeating reminder rolls forward instead of closing: the instance
          is done, the commitment is not */
       item.due = nextDueAfterCompletion(item);
@@ -275,7 +290,8 @@
     item.updatedAt = Date.now();
     /* a small history of completions (PR-27): a repeating reminder rolls
        forward and would otherwise leave no record it was ever done */
-    item.completions = (Array.isArray(item.completions) ? item.completions : []).concat([Date.now()]).slice(-COMPLETIONS_KEEP);
+    var stamp = Date.now();
+    item.completions = (Array.isArray(item.completions) ? item.completions : []).concat([stamp]).slice(-COMPLETIONS_KEEP);
 
     if (pays) {
       item.lastRewardedOn = d;
@@ -286,7 +302,9 @@
       store.save();
     }
     noteExt();
-    return { item: item, prev: prev, entryId: entry ? entry.id : null };
+    return { item: item, prev: prev, entryId: entry ? entry.id : null,
+      after: { recur: rolled,
+        due: item.due, completedAt: item.completedAt, stamp: stamp, rewardedOn: pays ? d : null } };
   }
 
   /* ---------------- sub-tasks (never rewarded) ---------------- */
