@@ -83,3 +83,15 @@ finished on 22 Aug 2025 and Death Note started in 2024, so no genuine
 event exists in either journal. A report built now still lists Aku no
 Kyouten in last week (its `0→36` reads as a finish). Removing them leaves
 both journals empty. NOT done: it goes beyond what was approved.
+
+## The 63 further traces (approved 9 Nov, removed ~00:59 UTC)
+- Rule widened (commit `c8989d8`, sw `kos-integrity-2`, production
+  https://007c575b.kurenai-os.pages.dev, gate 127/127): any status or
+  progress step to or from the anime's value, when the manga's differs —
+  and only among events before 9 Nov 00:00 UTC, so nothing done after the
+  fix is ever touched (smoke127 E).
+- On the Mac's next start: verified checkpoint `bk-1794185971116-p3z21s`,
+  then Aku no Kyouten 40 and Death Note 23 removed (both journals now
+  empty). Last week's report no longer lists Aku no Kyouten (15 titles).
+- Other devices tidy their own copies on their next start.
+- Checkpoints kept on the Mac: the clean-up's and both scrubs'.
