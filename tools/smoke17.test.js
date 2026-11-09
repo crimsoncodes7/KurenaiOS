@@ -450,6 +450,15 @@ step("noteRestore tombstones remote rows absent locally and re-pushes the vault"
 console.log("== per-device keys: ui + Collection view prefs ==");
 
 const sv5 = makeServer();
+/* A first link that combines two histories takes a VERIFIED checkpoint of
+   this device first (DI-03, smoke135). The attachments section above left
+   records whose blobs fake-indexeddb's structured clone has stripped (the
+   quirk smoke13 documents), so the real backup cannot read them back here
+   and would refuse the link. The checkpoint still runs for real; only that
+   one test-store artefact is let through. */
+const realCheckpoint = KOS.backup.checkpoint;
+KOS.backup.checkpoint = label => realCheckpoint(label).then(cp =>
+  cp.ok || !/Attachment content is not readable/.test(cp.reason || "") ? cp : { ok: true, id: "jsdom-blob-quirk" });
 step("the pushed state document carries no ui / view-preference keys", async () => {
   /* seed a meaningful remote so the first link classifies as "both" and
      exercises the automatic combine */

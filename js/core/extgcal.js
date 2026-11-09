@@ -410,7 +410,7 @@
 
   function push(tok, counts) {
     return own().reduce(function (chain, ev) {
-      return chain.then(function () {
+      return chain.then(function () { return X().heartbeat("google"); }).then(function () {
         var l = linkOf(ev), L = fromLocal(ev);
         if (l) {
           var diff = FIELDS.filter(function (f) { return !X().same(L[f], l.base ? l.base[f] : null); });
@@ -492,7 +492,7 @@
         var put = Object.keys(want).filter(function (id) { return known.ids[id] !== want[id].h; });
         var gone = Object.keys(known.ids).filter(function (id) { return !want[id]; });
         return put.reduce(function (chain, id) {
-          return chain.then(function () {
+          return chain.then(function () { return X().heartbeat("google"); }).then(function () {
             var body = Object.assign({ status: "confirmed" }, want[id].body);
             return req(tok, "PUT", base + id, body).then(function (r) {
               if (r.ok) { known.ids[id] = want[id].h; counts.exported++; return null; }
