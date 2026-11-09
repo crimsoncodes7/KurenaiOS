@@ -22,7 +22,9 @@ journal on any day, so no batch is ambiguous.
 - **Kept: 107 mixed batches** (they also name 81 other titles; real
   activity). Estimated phantom share inside them: about 4,494 XP and
   1,138 gold (each batch's price less its price without the 36 units and
-  2 advances the pair adds). Decision needed: keep, or deduct the estimate.
+  2 advances the pair adds). **Decided 9 Nov: keep them** — the entries
+  stay as they are and nothing is deducted for them (the classifier's
+  behaviour as built).
 - Kept: 0 ambiguous.
 
 ## The pay to take back
