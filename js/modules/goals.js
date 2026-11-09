@@ -65,6 +65,69 @@
       var opt = el("option", { value: o[0], text: o[1] }); if (String(o[0]) === String(value)) opt.selected = true; return opt;
     }));
   }
+  /* THE LINKED TITLE (GO-25). A search over the WHOLE vault, any status
+     and any module, as the Collection's own link picker does (the
+     Wishlist's): mediadb.query({search}) from two characters, eight hits
+     shown (invariant 8). With nothing typed it offers what is in progress.
+     The goal's current title is always shown and kept: Save writes back
+     exactly what is picked, so editing a goal whose title is completed,
+     planned or past any list's end never moves its link.
+     → {node, value} — `value` is the picked entry id as a string, "" for none. */
+  var LINK_MOD = { anime: "Anime", books: "Books", vn: "Visual novel", game: "Game" };
+  function titlePicker(currentId) {
+    var out = { value: currentId != null && currentId !== "" ? String(currentId) : "" };
+    var lid = "gl-linked-" + Math.random().toString(36).slice(2, 8);
+    var search = el("input", { type: "search", class: "k-input", "data-ui": "goal.link-search",
+      placeholder: "Search your whole vault…", "aria-label": "Search your vault for the linked title" });
+    var cur = el("div", { class: "k-pl-linkcur", "data-ui": "goal.link-current", "aria-live": "polite" });
+    var hits = el("div", { class: "k-pl-linkhits", "data-ui": "goal.link-results" });
+    var seq = 0;
+    function hit(entry) {
+      var b = el("button", { type: "button", class: "k-pl-linkhit", "data-ui": "goal.link-hit", "data-id": String(entry.id), onclick: function () {
+        out.value = String(entry.id);
+        search.value = "";
+        paint(entry);
+        list("");
+      } }, [
+        el("span", { class: "k-pl-linkhit-t", text: entry.title }),
+        el("span", { class: "k-muted k-gl-small", text: [LINK_MOD[entry.module], KOS.media && KOS.media.STATUS_LABEL ? KOS.media.STATUS_LABEL[entry.status] : null].filter(Boolean).join(" · ") })
+      ]);
+      if (String(entry.id) === out.value) b.setAttribute("aria-current", "true");
+      return b;
+    }
+    function paint(entry) {
+      cur.textContent = "";
+      if (!out.value) { cur.appendChild(el("span", { class: "k-muted", text: "No title chosen yet." })); return; }
+      if (entry) { cur.appendChild(el("span", { class: "k-mchip", "data-tone": "linked", "data-ui": "goal.link-chosen", text: "⇄ " + entry.title })); return; }
+      cur.appendChild(el("span", { class: "k-mchip", "data-tone": "linked", "data-ui": "goal.link-chosen", text: "⇄ Title #" + out.value }));
+      if (KOS.mediadb) KOS.mediadb.get(Number(out.value), function (e, row) {
+        if (String(row && row.id) !== out.value) { if (!row && !e) { cur.textContent = ""; cur.appendChild(el("span", { class: "k-mchip", "data-tone": "linked", "data-ui": "goal.link-chosen", text: "⇄ A title no longer in your vault" })); } return; }
+        paint(row);
+      });
+    }
+    function list(q) {
+      var my = ++seq;
+      hits.textContent = "";
+      if (!KOS.mediadb) return;
+      if (q && q.length < 2) return;
+      KOS.mediadb.query(q ? { search: q, sort: "title" } : { status: "inProgress", sort: "title" }, function (e, rows) {
+        if (my !== seq) return;
+        hits.textContent = "";
+        (rows || []).slice(0, 8).forEach(function (r) { hits.appendChild(hit(r)); });
+        if (!(rows || []).length) hits.appendChild(el("p", { class: "k-muted k-gl-small", text: q ? "No title in your vault matches." : "Nothing in progress — search for any title." }));
+      });
+    }
+    search.addEventListener("input", KOS.ui.debounce ? KOS.ui.debounce(function () { list(search.value.trim()); }, 200) : function () { list(search.value.trim()); });
+    paint(null);
+    list("");
+    out.node = el("div", { class: "k-field", "data-ui": "ui.field", role: "group", "aria-labelledby": lid }, [
+      el("span", { class: "k-field-label", "data-ui": "ui.field-label", id: lid, text: "Linked title" }),
+      el("div", { class: "k-pl-linkbox", "data-ui": "goal.link-box" }, [cur, search, hits]),
+      el("span", { class: "k-field-hint", text: "Any title in your vault; what is in progress is listed until you search." })
+    ]);
+    out.search = function (q) { search.value = q; list(String(q || "").trim()); };
+    return out;
+  }
   function seg(items, current, onPick, label, cls) {
     return U.tabs(items.map(function (it) { return { label: it[1], count: it[2], active: it[0] === current, onSelect: function () { onPick(it[0]); } }; }),
       { variant: "workspace", label: label, className: "k-seg--quiet" + (cls ? " " + cls : "") });
@@ -862,13 +925,8 @@
         form.appendChild(field("Media", extra.module));
       }
       if (def.fields.linked) {
-        extra.linked = select([["", "Searching your vault…"]], g.linkedEntryId || "", { "aria-label": "Linked title" });
-        form.appendChild(field("Linked title", extra.linked, "From what is in progress in your vault."));
-        if (KOS.mediadb) KOS.mediadb.query({ status: "inProgress", sort: "title" }, function (e, rows) {
-          extra.linked.textContent = "";
-          (rows || []).slice(0, 60).forEach(function (r) { var o = el("option", { value: String(r.id), text: r.title }); if (String(r.id) === String(g.linkedEntryId)) o.selected = true; extra.linked.appendChild(o); });
-          if (!(rows || []).length) extra.linked.appendChild(el("option", { value: "", text: "Nothing in progress" }));
-        });
+        extra.linked = titlePicker(g.linkedEntryId);
+        form.appendChild(extra.linked.node);
       }
       if (def.fields.filter) {
         extra.filterKind = select([["list", "Custom list"], ["tag", "Tag"], ["genre", "Genre"]], g.filterKind || "list", { "aria-label": "Filter" });
