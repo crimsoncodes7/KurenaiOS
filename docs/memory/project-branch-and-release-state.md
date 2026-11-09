@@ -1,12 +1,15 @@
 ---
 name: project-branch-and-release-state
-description: "Which git branch is live, what is deployed, what is unpushed — check git before trusting this; it was true on 2026-10-20"
+description: "Which git branch is live, what is deployed — check git before trusting this; latest entry 2026-11-09 (kos-integrity-1)"
 metadata:
   node_type: memory
   type: project
   originSessionId: 2e2dc728-9366-4708-9ad8-6718d38edac2
   modified: 2026-10-20T16:16:29.892Z
 ---
+
+**Latest (2026-11-09):** production is sw `kos-integrity-1`, commit `c5aac79` (quality programme W0 + first W1 pass), immutable https://0dc52dbb.kurenai-os.pages.dev; `origin/main` fast-forwarded to it (branches `feat/w0-safety-net` → `feat/w1-integrity`). The DI-27 clean-up RAN on the live account on 9 Nov (record: docs/audit/2026-11/qa/w1/di27-reconciliation-2026-11-09.md on the audit branch). Before it: `kos-malfix-1` (9fecf63).
+
 
 On 2026-10-20, `main` was fast-forwarded to `feat/money-goals` and pushed for the Money and Goals release, so `main` is now the line. `claude/roadmap-code-study-space` is still at `771e967`: it is behind `main` and has nothing of its own.
 
@@ -63,3 +66,5 @@ Related: [[money-goals]], [[code-study-space]], [[japanese-study-space]], [[two-
 2026-10-30: main merged into feat/creatives (Connections, kos-connect-2), then main fast-forwarded to feat/creatives at f4fa493; release sw kos-creatives-1, https://1e058d00.kurenai-os.pages.dev (Creatives Platform 1 + Art 1–3; gate is now 112 suites).
 2026-10-31: main fast-forwarded to feat/art-review; release sw kos-achievements-1, https://65c61e27.kurenai-os.pages.dev (Achievements, the Badge Wall; gate 113 suites).
 2026-10-31: sw kos-artshop-1 (2026-11-01, 87dad81e, main = feat/art-shop at 7371325)
+
+8 Nov 2026: hotfix sw kos-malfix-1 (DI-27: bulkUpsert provider ids matched per module), main fast-forwarded to 9fecf63, deployed https://d088dc59.kurenai-os.pages.dev; the audit branch merged main. Gate is now 114 suites (smoke114).

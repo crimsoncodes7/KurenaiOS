@@ -7,7 +7,7 @@
 - [Code study space](code-study-space.md) — core path complete; Track T2 RELEASED (kos-code-22); whole of T1 RELEASED 2026-10-23 (kos-code-24)
 - [No dead space in layouts](no-dead-space-layout.md) — every view fills its width; no empty right column, gaps or misalignment; reuse existing components
 - [Japanese study space](japanese-study-space.md) — roadmap 5.5; platform RELEASED 2026-10-22 (d061169), review fixes ee1a746 (kos-japanese-2); F1 (kos-japanese-3) and F2 (kos-japanese-4) RELEASED; next F3
-- [Branch and release state](project-branch-and-release-state.md) — main is the line; last release kos-artshop-1 (2026-11-01, 87dad81e, main = feat/art-shop); fetch first
+- [Branch and release state](project-branch-and-release-state.md) — main is the line; last release kos-integrity-1 (2026-11-09, c5aac79, W0+W1 pass; DI-27 clean-up ran); fetch first
 - [Two-account workflow](two-account-workflow.md) — second Pro account added 2026-10-19; shared copy of this memory is docs/memory/, sync with tools/sync_memory.sh
 - [Stage by name](git-stage-by-name.md) — never commit -a; leave Live2D art, .claude/ and untracked scratch alone
 - [Money and Goals](money-goals.md) — roadmap 5.4 RELEASED 2026-10-20 (084a628, sw kos-money-1); smoke84–87; gate adds 84–87
@@ -25,3 +25,5 @@
 - [Google/Todoist integrations](integrations-google-todoist.md) — 5.15 RELEASED 2026-10-30 (kos-connect-1, d47701df), smoke112; real sign-in not yet tried
 - [Design handoffs are a guide](design-handoff-not-1to1.md) — never 1:1; match Code's desk; minimal text; side column never taller than the hero
 - [Achievements badge wall](achievements-badge-wall.md) — 5.16/5.17 RELEASED 2026-10-31 (kos-achievements-1, 65c61e27); all art imported; left: showcase drag-reorder, leave-with-changes prompt
+- [Quality audit 2026-11](quality-audit-2026-11.md) — AUDIT in progress (branch audit/quality-2026-11, docs/audit/2026-11/HANDOFF.md); no fixes until the user approves the plan
+- [Max three agents](max-three-agents.md) — never >5 concurrent agents/auditors; aim for 3 (weekly limit hit 8 Nov)
