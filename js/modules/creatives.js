@@ -612,11 +612,11 @@
   /* a milestone's work: a piece already in the Practice Log, or a new one (CR-20) */
   function attachDialog(uid, i) {
     var p = CR().project(uid); if (!p) return;
-    var pick = CR().works(function (w) { return !(w.unit === uid && w.ms === i); }).slice(0, 30);
+    var pick = CR().works(function (w) { return CR().attachable(w, uid, i); }).slice(0, 30);
     var list = pick.length ? el("ul", { class: "k-cr-attach", "data-ui": "cr.attach-list" }, pick.map(function (w) {
       return el("li", {}, [el("button", { type: "button", class: "k-link", "data-ui": "cr.attach-pick", text: w.title + " · " + dateShort(w.at), onclick: function () {
         d.close(); CR().attachWork(w.id, uid, i); announce("Attached."); KOS.rerender(); } })]);
-    })) : el("p", { class: "k-muted", text: "Nothing in the Practice Log yet." });
+    })) : el("p", { class: "k-muted", text: "No piece to attach: a piece already on a milestone stays there." });
     var d = dialog({ title: "Add your work", body: el("div", { class: "k-cr-form" }, [
       el("p", { text: p.milestones[i] }),
       el("span", { class: "k-kicker", text: "Attach a piece from the Practice Log" }), list]),

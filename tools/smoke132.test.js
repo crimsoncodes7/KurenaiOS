@@ -15,6 +15,9 @@
      D · redoing a passed lesson pays nothing: a second pass, a failed redo and an empty redo
          session add no lesson pay.
      E · finishLesson without answers, or with a miss left, writes nothing.
+     F · RC21 review P2. A learn session with a miss is logged and paid at the end of its first
+         round, before the re-ask: leaving the re-ask loses nothing and logs nothing more.
+     G · a re-ask finished right pays the lesson; the session stays ONE entry, its pay shown once.
 
    Run: node tools/smoke132.test.js */
 "use strict";
@@ -141,6 +144,50 @@ step("E · finishLesson without a pass writes nothing", async () => {
   eq(JSON.stringify(K.store.state.japanese.lessons.H3), before, "the lesson record is untouched");
   eq(jaEntries().length, n0, "no entry");
   eq(K.ja.lessonPass([{ key: "x", verdict: "wrong" }, { key: "x", verdict: "correct" }]).pass, true, "right once, after a miss, passes");
+});
+
+/* the label of what is on screen ("Again · …" in the re-ask round) */
+const family = () => { const s = q(".k-ja-run-skill .k-muted"); return s ? s.textContent : ""; };
+async function firstRoundWithOneMiss() {
+  await app.settle();
+  assert(await answerOne(false), "the first answer, wrong");
+  let n = 0;
+  while (!/^Again · /.test(family())) {
+    assert(await answerOne(true), "the first round goes on to the re-ask");
+    await app.settle();
+    if (++n > 200) throw new Error("runaway session");
+  }
+}
+
+step("F · leaving the re-ask round keeps the session logged and paid (RC21 review P2)", async () => {
+  const x0 = gov().xp, n0 = jaEntries().length;
+  K.show("japanese", { page: "session", id: "learn-H3" }); await app.settle();
+  await firstRoundWithOneMiss();
+  eq(jaEntries().length, n0 + 1, "the first round is logged before the re-ask");
+  const e = jaEntries()[jaEntries().length - 1];
+  assert(e.metrics.kind === "session" && e.metrics.lesson === "H3" && e.metrics.passed >= 1, "the session entry: " + JSON.stringify(e.metrics));
+  assert(e.metrics.paid > 0, "under today's cap, so it pays: " + e.metrics.paid);
+  eq(gov().xp - x0, e.metrics.paid, "its passed facets paid");
+  K.show("home"); await app.settle();
+  eq(jaEntries().length, n0 + 1, "leaving logs nothing more");
+  assert(!(K.ja.peek().lessons.H3 || {}).doneAt, "the lesson is not finished");
+  eq(app.errors, [], "no page errors");
+});
+
+step("G · a re-ask finished right pays the lesson; the session is ONE entry and its pay is shown once", async () => {
+  const sessions = () => jaEntries().filter((e) => e.metrics && e.metrics.kind === "session").length;
+  const s0 = sessions(), L0 = lessonEntries().length;
+  K.show("japanese", { page: "session", id: "learn-H4" }); await app.settle();
+  await firstRoundWithOneMiss();
+  const paid = jaEntries()[jaEntries().length - 1].metrics.paid;
+  await answerAll(true);
+  const done = q('[data-ui~="ja.session-done"]');
+  assert(done && done.getAttribute("data-state") !== "not-passed", "passed: " + (done && done.textContent));
+  eq(sessions() - s0, 1, "ONE session entry");
+  eq(lessonEntries().length, L0 + 1, "one lesson entry");
+  const pay = q('[data-ui~="ja.pay"]');
+  assert(pay && (!paid || pay.textContent.indexOf("+" + paid + " XP") >= 0) && /\+15 XP/.test(pay.textContent), "the end screen shows the pay: " + (pay && pay.textContent));
+  eq(app.errors, [], "no page errors");
 });
 
 (async () => {
