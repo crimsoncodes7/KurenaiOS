@@ -809,3 +809,56 @@ Not a Claude Design pass: the pictures are made by hand in the Gemini app from a
 | The eleven unit sets | their subject's existing palette | as made | one scene each (the manifest) |
 
 Each badge's subject is in its manifest prompt (tools/gen_ach_manifest.py `MOTIF`), e.g. Bookshelf "a short shelf of books with blank spines, a bookend", Know thyself "a hand mirror reflecting a small star", Bug catcher "a butterfly net with a tiny beetle caught inside".
+
+## 20 · Quality programme, end of W1: held pages, the topic tier, the Agenda
+
+Written 9 November 2026 (plan §3 and §A8 of docs/audit/2026-11/REMEDIATION_PLAN.md, branch `audit/quality-2026-11`). Three separate prompts, each sent alone; they come before W2 and W3 are built. Every one opens with the same preamble:
+
+```text
+Continue the approved KurenaiOS design in this project (Graphite and Dawn 7a–14c and 21a–21h, phone 15a–15n, design part 2 15–23, Reports 24–25, Code 26, Money and Goals 27, Japanese 28, the Exams hub 29, the iPad 30, Creatives 31, Mind 32, Routines 33, art and shop 34, the Badge Wall 35). The GitHub repository is linked: treat css/tokens.css, css/themes.css and css/components.css as the source of truth and read the invariants in CLAUDE.md. Use only existing tokens, type, cards, chips, sheets and tabs; no new hue. Draw desktop 1440, MacBook 1470 × 956, iPad 1180 × 820 and 820 × 1180, and phone 390 × 844 where named, and Dawn for one frame of each. The standing layout rule holds everywhere: no dead space, no empty column beside a capped block, consistent alignment. Minimal text: a label, not a sentence.
+```
+
+### 20.1 · D-Held page: "Updated on another device" (frames 36a–36e; SY-26, decision B4)
+
+```text
+[preamble]
+
+THE PROBLEM. While you study (a topic, a Code/Japanese/Mind lesson, a flashcard or quiz run, Focus), a change from another device or tab is HELD so the page never jumps under you (decision B4: hold on task pages, while typing or in a dialog; apply on leaving or finishing). Today nothing on screen says newer data arrived, so the inspector, the due queue and Code evidence look current when they are not.
+
+36a THE CHIP. One quiet chip in the page header's action slot (invariant 50b), never a banner over the work: "Updated on another device · Refresh". Its states: arrived (a soft teal dot, no motion), several changes ("3 updates"), applying (a short progress line, then gone), and nothing pending (absent; no empty slot). Show it on a topic page with the inspector open, at 1440 and 820, and on the phone (it rides the header, 44 px target).
+36b WHAT CHANGED. Tapping the chip opens a small popover (the shared menu): the areas that changed in one line each ("Flashcards · 12 reviewed on MacBook", "This topic's status → Completed", "Code · 1 task passed"), the device name, the time, and Refresh / Later. No record contents, only counts and areas.
+36c IN A RUN. During a flashcard or quiz run the chip is replaced by a line under the progress bar: "Updated on another device · it applies when this run ends", and a card already rated elsewhere is skipped with a quiet "Already reviewed on iPad" for one beat. Draw the line and the skipped card.
+36d SAFE MOMENTS. The update applies by itself at a safe boundary (run ends, page turn, tab change, two idle minutes with no draft): a 1-second fade of the changed values only, then the chip is gone. Draw the before and after of the inspector (RAG band, status, the four checks) with the changed values marked for that second.
+36e TWO TABS ON ONE DEVICE. The same chip with "Updated in another window"; and the rare save warning (localStorage full): a persistent strip at the top of the page, alarm tones (--alarm), "Saving to backup storage — free some space" with "Open Storage". And the unreadable-save notice: "Your saved data couldn't be read; a copy was kept" with "Download the copy" and "Got it".
+```
+
+### 20.2 · D-Topic tier: the topic page between 700 and 1240, and the phone's tab row (frames 37a–37f; ST-06, ST-17)
+
+```text
+[preamble]
+
+THE PROBLEM. Between 700 and 1240 the topic page's inspector (status, the four checks, RAG and recall, the quick note, Ask Kurenai / Make flashcards / Test me — invariant 52's ONE state surface) is stacked under the whole tab, 1,700–2,600 px down on iPad portrait, behind a right-pointing chevron; and on the iPad and iPhone tapping an assignment opens its detail 1,300–2,700 px below the list with nothing scrolling to it.
+
+37a iPad PORTRAIT 820 × 1180, a CS topic on Notes: a compact STATE STRIP under the page header and above the tabs — status pill, the four check dots, the RAG band and recall % — one line, filled edge to edge; and an "Inspector" button that opens the full inspector as an overlay SIDE SHEET from the right (as the spine drawer opens from the left), with the quick note and the three actions. Draw the strip, the sheet open, and the sheet over Side by side ink (30e).
+37b iPad LANDSCAPE 1180 × 820 and a 1080 laptop: decide whether the inspector stays a side column or becomes the sheet; show both columns' widths and that the notes keep a readable measure without a dead column.
+37c THE PHONE 390: the topic tab row (Spec · Notes · Flashcards · Quiz · Exam · Simulate · Files · Handwritten · Practice) as a declared scroller with the edge fade, the active tab always in view, and the state strip folded to status + check dots; the inspector as a bottom sheet.
+37d SPLIT VIEW 590 and SLIDE OVER 375 on the iPad: the same strip and sheet; no layout jumps when crossing 700.
+37e ASSIGNMENTS at 820 and 390: tapping a row opens its detail as a side sheet (iPad) or bottom sheet (phone) with Edit, subtasks, attachments, Focus on this and Complete; the list stays where it was; closing returns focus to the row.
+37f Code, Japanese and Mind lessons use the same topic page: show the strip with their own checks (Code's four, Mind's ladder) on one of them at 820.
+```
+
+### 20.3 · D-Agenda: the Calendar's Agenda on Mac and iPad, and the minimised Focus page (frames 38a–38e; PR-06, PR-12)
+
+```text
+[preamble]
+
+THE PROBLEM. The Calendar offers only Month and Week above 700 px; its Agenda list exists only on the phone, so the MacBook and iPad can't get it, and the same stored mode means "Week grid" on desktop and "Agenda" on the phone. Separately, the Focus page while a session is minimised is one banner over an empty page.
+
+38a THE MODE SWITCH: Month · Week · Agenda (and Day, if it earns its place — judge it) in the page header's action slot, remembered per device; the same three on the phone.
+38b AGENDA at 1470 and 1180: two scrolling weeks of day lists (today pinned at the top, past days folded), each item with its time, category hue (--ev-hue), and the DERIVED chips (assignments due, start-by, bills, Google read-only, routines) visually distinct from stored events and never editable as events; beside it the existing Today / Countdowns side column so there is no dead space. Empty days collapse to one thin line, not a gap.
+38c AGENDA at 820 portrait and Split View 590: one column, the side column folded into a strip above the list.
+38d An item opened from the Agenda uses the one event modal (invariant 45); an assessment opens the Exams hub; an assignment its detail sheet (37e).
+38e FOCUS, MINIMISED (#/focus while a session runs in the mini-player): keep the idle page's right column (Your record with today's live total; The deal with the running session's live award preview) and in place of the setup card a compact LIVE card — the clock, the cycle bar, the objective, Switch…, notes, End early and Return to the stage. At 1440 and 820; Dawn for one.
+```
+
+Gemini art for this pass: none. The plan's art entries (SH-19, an empty-state spot; SC-20, the shop's purchase art) wait for W3 and W5's decisions, and go through the art manifests then.
