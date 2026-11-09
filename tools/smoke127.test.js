@@ -159,7 +159,9 @@ step("D · the scrub waits for the clean-up's approval", async () => {
     [T("2026-09-04", 23), "status", "onHold", "planned"],    /* trace: a flip … */
     [T("2026-09-05", 1), "status", "planned", "onHold"],     /* … and back after midnight */
     [T("2026-09-10"), "status", "inProgress", "onHold"],     /* real: paused */
-    [T("2026-09-11"), "volumes", null, 8]                    /* trace */
+    [T("2026-09-11"), "volumes", null, 8],                   /* trace */
+    [T("2026-10-01"), "status", "onHold", "planned"],        /* trace: a flip that lasted days … */
+    [T("2026-10-06"), "status", "planned", "onHold"]         /* … and back (found live, 9 Nov) */
   ];
   await cb((c) => K.mediadb.replaceJournal(dn.syncId, dnJournal, c));
   ids.dn = dn.syncId;
@@ -172,7 +174,7 @@ step("D · the scrub waits for the clean-up's approval", async () => {
   assert(r2.ok && r2.noop, "a no-op receipt does not start the scrub");
   delete K.store.state.repairs["di27-phantom-sync"];
   const now = (await cb((c) => K.mediadb.query({ module: "books" }, c))).find((x) => x.syncId === ids.dn);
-  eq(now.journal.length, 7, "the journal is untouched");
+  eq(now.journal.length, 9, "the journal is untouched");
 });
 
 step("E · after approval: exactly the traces go; again only if they come back", async () => {
@@ -180,7 +182,7 @@ step("E · after approval: exactly the traces go; again only if they come back",
   K.store.state.repairs["di27-phantom-sync"] = { at: Date.now(), hash: "approved-in-test" };
   const nb = (await wait(K.backup.list())).length;
   const pv = await wait(K.repairs.preview(SCRUB));
-  eq(pv.summary, { rows: 1, events: 5 }, "five traces on one row");
+  eq(pv.summary, { rows: 1, events: 7 }, "seven traces on one row, the long flip included");
   const r = await wait(K.repairs.runAuto());
   assert(r[SCRUB] && r[SCRUB].ok && !r[SCRUB].noop, "the auto run scrubbed: " + JSON.stringify(r[SCRUB]));
   const now = (await cb((c) => K.mediadb.query({ module: "books" }, c))).find((x) => x.syncId === ids.dn);
@@ -197,6 +199,13 @@ step("E · after approval: exactly the traces go; again only if they come back",
   assert(back.ok && !back.noop, "traces that came back are tidied again");
   const after = (await cb((c) => K.mediadb.query({ module: "books" }, c))).find((x) => x.syncId === ids.dn);
   eq(after.journal.length, 2, "only the real history");
+  /* never an event after the fix: a genuine move to planned (the anime's
+     status) made today survives every later start */
+  await cb((c) => K.mediadb.replaceJournal(ids.dn, (rec) => rec.journal.concat([[Date.parse("2026-11-20T10:00:00Z"), "status", "onHold", "planned"]]), c));
+  const later = await wait(K.repairs.run(SCRUB));
+  assert(later.ok && later.noop, "nothing to tidy: the new event is after the fix");
+  const kept = (await cb((c) => K.mediadb.query({ module: "books" }, c))).find((x) => x.syncId === ids.dn);
+  eq(kept.journal.length, 3, "the genuine post-fix event is kept");
   eq(app.errors, [], "no page errors");
 });
 

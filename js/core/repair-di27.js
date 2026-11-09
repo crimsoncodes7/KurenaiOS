@@ -57,33 +57,39 @@
       return { syncId: x.row.syncId, title: x.row.title, malId: x.row.externalIds.malId, anime: x.partner.title };
     });
   }
-  /* THE JOURNAL'S TRACES on one collided Books row (this device's copy):
+  /* THE JOURNAL'S TRACES on one collided Books row (this device's copy),
+     only among events made before the fix shipped (the scrub runs again on
+     later starts, so it must never touch what you do from then on):
      - a progress or volumes step FROM NOTHING: a Books row's own facts are
        always numbers, so `from: null` only arises when the row had just
        been the anime (the daily "volumes null → 8");
-     - a status move to the anime's status and straight back within a day
-       (a flip that crossed midnight; same-day flips already cancelled).
-     Readers ignore both since HR-31; this only tidies the history. */
+     - any status or progress step that goes TO or comes FROM the anime's
+       own value, when the manga's value is a different one: the row
+       becoming the anime and coming back, however long it stayed (found
+       on the live account, 9 Nov 2026: flips that lasted days, e.g.
+       Aku no Kyouten 36 → 0 → 36 and completed → planned → completed).
+     Readers ignore steps from nothing since HR-31; the flips they would
+     read as a finish, so they go too. */
+  var FIX_END = Date.parse("2026-11-09T00:00:00Z");
   function traces(row, partner) {
-    var j = Array.isArray(row.journal) ? row.journal : [], drop = {};
-    j.forEach(function (ev, i) {
-      if ((ev[1] === "volumes" || ev[1] === "progress") && ev[2] == null) drop[i] = true;
+    var j = Array.isArray(row.journal) ? row.journal : [];
+    var mine = { status: row.status, progress: (row.progress && row.progress.current) || 0 };
+    var pp = partner.progress;
+    var theirs = { status: partner.status, progress: (pp && typeof pp === "object" ? pp.current : pp) || 0 };
+    var keep = j.filter(function (ev) {
+      if (!(ev[0] < FIX_END)) return true;
+      if ((ev[1] === "volumes" || ev[1] === "progress") && ev[2] == null) return false;
+      if ((ev[1] === "status" || ev[1] === "progress") && mine[ev[1]] !== theirs[ev[1]] &&
+          (ev[2] === theirs[ev[1]] || ev[3] === theirs[ev[1]])) return false;
+      return true;
     });
-    var st = [];
-    j.forEach(function (ev, i) { if (ev[1] === "status" && !drop[i]) st.push(i); });
-    for (var k = 0; k + 1 < st.length; k++) {
-      var a = j[st[k]], b = j[st[k + 1]];
-      if (a[3] === partner.status && b[2] === partner.status && b[3] === a[2] && b[0] - a[0] < 864e5 && row.status !== partner.status) {
-        drop[st[k]] = true; drop[st[k + 1]] = true; k++;
-      }
-    }
-    var keep = j.filter(function (ev, i) { return !drop[i]; });
     return { removed: j.length - keep.length, keep: keep };
   }
   function scrubFind(rows) {
     return pairs(rows).map(function (x) {
       var t = traces(x.row, x.partner);
-      return { syncId: x.row.syncId, title: x.row.title, removed: t.removed, keep: t.keep, partner: { status: x.partner.status } };
+      return { syncId: x.row.syncId, title: x.row.title, removed: t.removed, keep: t.keep,
+        partner: { status: x.partner.status, progress: (x.partner.progress && x.partner.progress.current) || 0 } };
     }).filter(function (x) { return x.removed > 0; });
   }
   /* the hotfix shipped on this day (sw kos-malfix-1): no phantom after it */
