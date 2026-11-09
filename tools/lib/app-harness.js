@@ -23,6 +23,8 @@
 
      const app = await boot();       // { window, document, KOS, errors, fetches, settle }
      boot({ clock, seed, storage })  // storage: localStorage preset {key: string}
+     boot({ localStorage, indexedDB, locks })   // two "tabs" over shared stores:
+                                     //   sharedStorage(), a shared IDBFactory, fakeLocks()
      await app.settle();             // run queued timers and IndexedDB work out
      await seedAccount(app);         // tools/lib/seed.js
                                                                            */
@@ -72,6 +74,11 @@ async function boot(opts = {}) {
   }
   window.Date = FixedDate;
   window.Math.random = prng(opts.seed || 20260924);
+  /* opts.localStorage: a store SHARED with another boot (sharedStorage()),
+     so two boots are two tabs of one origin; its storage events are
+     delivered when the suite says (ls.deliver()) */
+  if (opts.localStorage) opts.localStorage._attach(window);
+  if (opts.locks) Object.defineProperty(window.navigator, "locks", { value: opts.locks, configurable: true });
   /* opts.storage: localStorage as a returning user left it ({key: string}),
      written before any script runs — for suites that prove a boot migration */
   Object.keys(opts.storage || {}).forEach((k) => window.localStorage.setItem(k, opts.storage[k]));
@@ -137,7 +144,7 @@ async function boot(opts = {}) {
   };
 
   const fake = require("fake-indexeddb");
-  window.indexedDB = new fake.IDBFactory();
+  window.indexedDB = opts.indexedDB || new fake.IDBFactory();
   window.IDBKeyRange = fake.IDBKeyRange;
 
   /* ---- the app, in document order ---- */
@@ -153,4 +160,84 @@ async function boot(opts = {}) {
   return { window, document: window.document, KOS, errors, consoleErrors, fetches, settle };
 }
 
-module.exports = { boot, ROOT, CLOCK };
+/* a localStorage two boots can share (two tabs). A write queues a storage
+   event for every OTHER attached window; deliver() dispatches them, so a
+   suite decides when a tab hears of another's write (or that it never
+   does). quota: the most characters (keys + values) it holds before a
+   write throws QuotaExceededError, as a full browser store does. */
+function sharedStorage(opts = {}) {
+  const data = new Map();
+  const wins = [];
+  const queue = [];
+  let quota = opts.quota || Infinity;
+  const size = () => { let n = 0; data.forEach((v, k) => { n += k.length + v.length; }); return n; };
+  const store = {
+    get length() { return data.size; },
+    key: (i) => [...data.keys()][i] ?? null,
+    getItem: (k) => (data.has(String(k)) ? data.get(String(k)) : null),
+    setItem(k, v, from) {
+      k = String(k); v = String(v);
+      const old = data.has(k) ? data.get(k) : null;
+      if (size() - (old == null ? 0 : k.length + old.length) + k.length + v.length > quota) {
+        const e = new Error("The quota has been exceeded."); e.name = "QuotaExceededError"; e.code = 22; throw e;
+      }
+      data.set(k, v);
+      queue.push({ k, old, v, from: store._writer });
+    },
+    removeItem(k) { k = String(k); const old = data.get(k) ?? null; data.delete(k); queue.push({ k, old, v: null, from: store._writer }); },
+    clear() { data.clear(); },
+    _attach(win) {
+      wins.push(win);
+      /* every call the app makes from this window is that tab's */
+      const view = new Proxy(store, { get: (t, p) => (typeof t[p] === "function" ? (...a) => { store._writer = win; try { return t[p](...a); } finally { store._writer = null; } } : t[p]) });
+      Object.defineProperty(win, "localStorage", { value: view, configurable: true });
+    },
+    deliver() {
+      const q = queue.splice(0);
+      q.forEach(({ k, old, v, from }) => wins.forEach((w) => {
+        if (w === from) return;
+        const ev = new w.StorageEvent("storage", { key: k, oldValue: old, newValue: v, url: "http://localhost/index.html" });
+        w.dispatchEvent(ev);
+      }));
+      return q.length;
+    },
+    drop() { queue.length = 0; },
+    setQuota(n) { quota = n; },
+    raw: data
+  };
+  return store;
+}
+
+/* navigator.locks for tabs that share it: one holder per name, FIFO */
+function fakeLocks() {
+  const held = new Map();
+  const log = [];
+  function next(name) {
+    const q = held.get(name);
+    if (!q || q.busy || !q.waiting.length) return;
+    const { cb, resolve, reject } = q.waiting.shift();
+    q.busy = true;
+    log.push("grant " + name);
+    Promise.resolve().then(() => cb({ name })).then((v) => { q.busy = false; resolve(v); next(name); },
+      (e) => { q.busy = false; reject(e); next(name); });
+  }
+  return {
+    log,
+    pending: (name) => (held.get(name) ? held.get(name).waiting.length : 0),
+    request(name, a, b) {
+      const cb = typeof a === "function" ? a : b;
+      if (!held.has(name)) held.set(name, { busy: false, waiting: [] });
+      log.push("request " + name);
+      return new Promise((resolve, reject) => { held.get(name).waiting.push({ cb, resolve, reject }); Promise.resolve().then(() => next(name)); });
+    },
+    /* hold the lock from outside (another tab's long write) until release() */
+    hold(name) {
+      let release;
+      const p = new Promise((r) => { release = r; });
+      this.request(name, () => p);
+      return () => release();
+    }
+  };
+}
+
+module.exports = { boot, ROOT, CLOCK, sharedStorage, fakeLocks };

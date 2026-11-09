@@ -314,9 +314,40 @@
     return v.toLocaleString(undefined, { maximumFractionDigits: Math.abs(v) < 10 && v % 1 ? 1 : 0 });
   }
 
+  /* a PERSISTENT notice across the top of the page, for what a toast is too
+     brief for: data at risk (the state document's storage, store.js RC5).
+     banner(id, {text, tone, actions: [{label, run}]}) shows or replaces it;
+     banner(id, null) removes it. It stays until its owner removes it. The
+     words are spoken once through the live region (invariant 66). */
+  function banner(id, opts) {
+    var host = document.getElementById("kos-banners");
+    var old = host && host.querySelector('[data-banner="' + id + '"]');
+    if (!opts) { if (old) old.remove(); if (host && !host.firstChild) host.remove(); return null; }
+    if (!host) {
+      host = el("div", { id: "kos-banners", class: "k-banners", "data-ui": "shell.banners" });
+      document.body.insertBefore(host, document.body.firstChild);
+    }
+    var node = el("section", { class: "k-banner", "data-ui": "shell.banner", "data-banner": id,
+      "data-tone": opts.tone || null, "aria-label": opts.label || "Notice" }, [
+      el("p", { class: "k-banner-text", text: opts.text }),
+      el("div", { class: "k-banner-actions" }, (opts.actions || []).map(function (a) {
+        return el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "shell.banner-action", text: a.label,
+          onclick: function () { if (a.run) a.run(); } });
+      }))
+    ]);
+    if (old) host.replaceChild(node, old);
+    else {
+      host.appendChild(node);
+      if (KOS.a11y) KOS.a11y.announce(opts.text, { assertive: opts.tone === "danger" });
+    }
+    return node;
+  }
+
   KOS.ui = { el: el, toast: toast, flashSaved: flashSaved, esc: esc, debounce: debounce,
     confirm: confirmModal, openDialog: openDialog, topDialog: topDialog, num: num,
-    setClass: setClass, state: state, hasState: hasState, hookify: hookify, hook: hook };
+    setClass: setClass, state: state, hasState: hasState, hookify: hookify, hook: hook, banner: banner };
+  /* notices the store raised before this file loaded */
+  if (KOS.store && KOS.store._showNotices) KOS.store._showNotices();
 
   // ---- view registry: each module registers render functions ----
   KOS.views = {};
