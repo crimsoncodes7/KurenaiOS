@@ -15,6 +15,8 @@ Read this first, then CLAUDE.md, docs/memory/MEMORY.md and the audit plan
 
 - Added after the handoff: `17d24aa` design prompts 20.1–20.3 (D-Held, D-Topic tier, D-Agenda), and `fc55d49` the W3 RC2 root fix pulled forward: menus and the topic picker opened inside a dialog now paint above it (`--z-popover` 125; smoke118 baseline `primitiveBehind: false`). Not yet checked in a real browser; menus clipped by an `overflow` container (absolute popovers such as `.k-mlists-menu`, `.k-gv-tools-pop`) are a separate W3 item.
 
+- **Reported by the user, 9 Nov (not diagnosed):** in the PDF/file viewer (`KOS.pdfView`, js/core/pdfview.js) the ink toolbar's size and colour options are "completely broken". The options are drawn INLINE in the bar's slot (`.k-ink-swatches`, `.k-ink-widths` in css/views/ink.css), not as a `KOS.ui.menu`, so the `--z-popover` fix does not touch them. Reproduce on the iPad (1180 × 820 and 820 × 1180) and the Mac with a PDF open in the viewer: docked bar and floating palette (`.k-ink-pal`, over-modal state), check the slot's layout, clipping by the viewer's `overflow` containers and whether taps reach it. Ask the user for a screenshot.
+
 ## Next steps (in order)
 1. Fix the findings below, failing-first tests in smoke133/134/135 (one fixer per area: store/cloudmerge/focus; profilepics/ja/mined; cloudsync/backup/ext/goals). The intended design for each is in the "Fix" line; for the P0, sum equal counter deltas only when both sides added DISJOINT session ids (an applied cloud doc brings the same ids to both → collapse).
 2. Run `npm test` (gate 135/135), resolve smoke45.
