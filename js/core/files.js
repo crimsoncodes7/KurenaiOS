@@ -66,7 +66,11 @@
   }
   function build(att, pap) {
     var out = [], hashes = {};
-    att.forEach(function (m) { var r = fromAttach(m); out.push(r); if (r.hash) hashes[r.hash] = r; });
+    att.forEach(function (m) {
+      /* your profile picture and banner (KOS.profilePics) are not library files */
+      if (typeof m.origin === "string" && /^profile:/.test(m.origin)) return;
+      var r = fromAttach(m); out.push(r); if (r.hash) hashes[r.hash] = r;
+    });
     pap.forEach(function (p) {
       if (/^f:/.test(p.id)) return;                       // a cloud copy: already an attachment
       var r = fromPaper(p), twin = r.hash && hashes[r.hash];

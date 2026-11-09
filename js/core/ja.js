@@ -6,7 +6,8 @@
      facets[item|skill]   the facet's memory (KOS.jaSrs: s, d, ivl, due, last, reps, lapses, firstAt)
      lessons[id]          { pages: {i: ts}, startAt, doneAt, paidAt }   evidence only
      checkpoints[id]      { scores: {R, W, L, S}, at, passAt, paidAt }
-     mined[id]            { text, reading, en, src: {kind, title}, at }  a line kept to study
+     (mined lines are NOT here: they stay on this device, KOS.jaMined, invariant 115, DI-25;
+      a line's facet x:<id> is, and carries no text)
      input[YYYY-MM-DD]    { read, listen, raw, jpSub }  minutes — tallies, never text
      settings             { furigana, dailyMin, speech }
    Per device (state.ui.japanese): view choices and drafts.
@@ -55,11 +56,15 @@
   }
   function normalise(j) {
     j = obj(j);
-    return {
+    var out = {
       v: 1,
       facets: obj(j.facets), lessons: obj(j.lessons), checkpoints: obj(j.checkpoints),
-      mined: obj(j.mined), input: obj(j.input), settings: settings(j.settings), fluency: obj(j.fluency)
+      input: obj(j.input), settings: settings(j.settings), fluency: obj(j.fluency)
     };
+    /* mined lines moved to this device's store (KOS.jaMined, DI-25): an empty map is
+       dropped; lines still here are kept for the repair "ja-mined-to-local" to move */
+    if (Object.keys(obj(j.mined)).length) out.mined = obj(j.mined);
+    return out;
   }
   function S() {
     var st = store.state;
@@ -323,12 +328,12 @@
     if (KOS.achievements) KOS.achievements.touch("ja");   // the Badge Wall (roadmap 5.16)
     var text = String((line && line.text) || "").trim(); if (!text) return null;
     var id = "m" + hash(text).toString(36), st = S();
-    if (!st.mined[id]) {
-      st.mined[id] = { text: text, reading: line.reading || null, en: line.en || null, src: obj(line.src), at: Date.now() };
-      var k = "x:" + id;
-      st.facets = T().introduce(st.facets, k, today(), opts(k));
-      store.save();
-    }
+    /* the line itself stays on this device (KOS.jaMined, invariant 115); only its facet,
+       which carries no text, is in the synced state */
+    var k = "x:" + id;
+    if (KOS.jaMined && !KOS.jaMined.has(id)) KOS.jaMined.put({ id: id, text: text, reading: line.reading || null, en: line.en || null, src: obj(line.src), at: Date.now() });
+    var next = T().introduce(st.facets, k, today(), opts(k));   /* fills only what is missing */
+    if (Object.keys(next).length !== Object.keys(st.facets).length) { st.facets = next; store.save(); }
     return id;
   }
   /* addInput(kind, minutes, day) — read · listen · raw · jpSub; tallies only */

@@ -145,6 +145,7 @@
       cb(s);
     }, function () { cb(null); });
   }
+  function isProfileOrigin(o) { return typeof o === "string" && /^profile:/.test(o); }
   function notifyFiles() {
     try { window.dispatchEvent(new window.CustomEvent("kos-files")); } catch (e) { /* old engine */ }
   }
@@ -159,7 +160,9 @@
      ONE COPY (invariant 150): a file whose SHA-256 is already stored is
      linked again, not stored again; its name and kind are kept, the new
      filename joins `aliases`, and `kind` only moves up. opts: {kind,
-     origin, links, local} */
+     origin, links, local, name, fileId, fresh}. A profile picture
+     (`origin` "profile:…", KOS.profilePics) is never linked onto and never
+     links onto a library file: it is added `fresh`, under its own id. */
   function add(sid, ref, file, cb, opts) {
     opts = opts || {};
     if (file.size > MAX_BYTES) { cb(new Error("Over the 25 MB per-file limit — link it as a resource instead")); return; }
@@ -169,10 +172,10 @@
         tx("readwrite", function (err, os) {
           if (err) { cb(err); return; }
           var rec = {
-            subject: sid, ref: ref, name: file.name || "file",
+            subject: sid, ref: ref, name: opts.name || file.name || "file",
             mime: file.type || "application/octet-stream",
             size: file.size, blob: file, note: "", added: Date.now(),
-            fileId: genId(), updatedAt: Date.now(),
+            fileId: opts.fileId || genId(), updatedAt: Date.now(),
             hash: hash, kind: opts.kind || guessKind(file.name, file.type), aliases: [],
             links: cleanLinks(opts.links || []), origin: opts.origin || null
           };
@@ -183,12 +186,13 @@
           rq.onerror = function () { cb(rq.error); };
         });
       }
-      if (!hash) { fresh(); return; }
+      if (!hash || opts.fresh) { fresh(); return; }
       tx("readwrite", function (err, os) {
         if (err) { cb(err); return; }
-        var q = os.index("hash").get(window.IDBKeyRange.only(hash));
+        var q = os.index("hash").getAll(window.IDBKeyRange.only(hash));
         q.onsuccess = function () {
-          var rec = q.result;
+          /* a profile picture is not a library file to link onto */
+          var rec = (q.result || []).filter(function (r) { return !isProfileOrigin(r.origin); })[0];
           if (!rec) { fresh(); return; }
           var have = keysOf(rec), added = want.filter(function (l) { return have.indexOf(l.kind + ":" + l.id) < 0; });
           var nm = file.name || "";

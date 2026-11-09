@@ -479,8 +479,11 @@
      One object store, "files", keyed by a work's id (or "doc:<id>" for a Writing Desk draft):
      { id, text | dataUrl, versions: [{at, text, words}], at }. Local first, in the full backup,
      never in the state document (invariant 156). */
-  var DB_NAME = "kurenai-os-creatives", DB_VER = 1, dbp = null;
+  /* the data namespace's suffix like every store (DI-18): empty for the real
+     account, so its database is still "kurenai-os-creatives" */
+  var DB_NAME = "kurenai-os-creatives" + ((KOS.dataMode && KOS.dataMode.suffix) || ""), DB_VER = 1, dbp = null;
   var files = {
+    name: DB_NAME,
     available: function () { return !!window.indexedDB; },
     open: function (cb) {
       if (!files.available()) { cb(new Error("IndexedDB unavailable")); return; }

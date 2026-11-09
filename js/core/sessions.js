@@ -71,7 +71,11 @@
     /* the oldest entries are about to fall off: fold their months into the
        Badge Wall's rollup first, so a lifetime count never falls (5.16) */
     if (list.length > CAP && KOS.achievements) KOS.achievements.rollup(true);
-    if (list.length > CAP) list.splice(0, list.length - CAP);
+    /* ... and are ARCHIVED, not lost (DI-10): kurenai-os-ledger, in the full backup */
+    if (list.length > CAP) {
+      if (KOS.ledgerArchive) KOS.ledgerArchive.archive(list.slice(0, list.length - CAP)).catch(function () { /* history only; the ledger itself is unchanged */ });
+      list.splice(0, list.length - CAP);
+    }
     store.save();
     /* the governor feeds on the same event — awards XP/gold/HP */
     if (KOS.governor) KOS.governor.onSession(e);

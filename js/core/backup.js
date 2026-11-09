@@ -33,7 +33,7 @@
      checkpoint taken in the Sample or a review namespace never lands beside
      — or rotates out — the real account's */
   var DB = "kurenai-os-backups" + ((KOS.dataMode && KOS.dataMode.suffix) || ""), STORE = "backups", KEEP = 5, TRIES = 2;
-  var PARTS = ["state", "mediaEntries", "mediaKV", "attachments", "money", "reviews", "mind", "ink", "creatives"];
+  var PARTS = ["state", "mediaEntries", "mediaKV", "attachments", "money", "reviews", "mind", "ink", "creatives", "ledger", "jaMined"];
   /* the kv keys a backup must never carry (mediadb's TOKEN_KV_KEYS, and the
      cloud's own watermarks); checked on every checkpoint as a guard */
   var SECRET_KV = /^(anilist\.(clientId|token|viewer)|vndb\.(token|user)|github\.token|code\.github\.(outbox|status)|cloudsync\.)/;
@@ -124,6 +124,9 @@
   function differs(a, b) {
     for (var i = 0; i < PARTS.length; i++) {
       var k = PARTS[i];
+      /* a checkpoint saved before a part existed (the ledger archive and the mined
+         lines, RC5) did not hash it: that part is not compared */
+      if (!Object.prototype.hasOwnProperty.call(a.hashes || {}, k)) continue;
       if (a.counts[k] !== b.counts[k]) return k + " count " + b.counts[k] + " ≠ " + a.counts[k];
       if (a.hashes[k] !== b.hashes[k]) return k + " content differs";
     }
