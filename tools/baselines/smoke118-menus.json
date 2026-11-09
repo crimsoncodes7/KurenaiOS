@@ -1,6 +1,6 @@
 {
   "_about": "smoke118: KOS.ui.menu inside KOS.ui.openDialog. `primitiveBehind` records that today the panel is painted BEHIND the dialog (PR-01/UR-24, fixed in W3 RC2); `sites` are the menu call sites (file · label) a static scan finds that can open inside a dialog. While the primitive is behind, a call site not listed here fails. Re-record with --write-baseline.",
-  "primitiveBehind": true,
+  "primitiveBehind": false,
   "sites": [
     "js/core/inkpad.js · (label || \"Earlier answers\") + \" · \" + list.length",
     "js/core/inkui.js · (I.PAPERS.filter(function (p) { return p[0] === cur;",

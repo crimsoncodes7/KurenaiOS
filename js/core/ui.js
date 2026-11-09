@@ -906,7 +906,7 @@
     function open() {
       if (openMenu && openMenu.btn === btn) { closeOpenMenu(true); return; }
       closeOpenMenu(false);
-      var panel = el("div", { class: "k-menu-panel" + (opts.panelClass ? " " + opts.panelClass : ""), "data-ui": "ui.menu-panel" });
+      var panel = el("div", { class: "k-menu-panel" + (opts.panelClass ? " " + opts.panelClass : ""), "data-ui": "ui.menu-panel", "data-keys-local": "" });
       var focusables = [];
       if (opts.items) {
         panel.setAttribute("role", "menu");

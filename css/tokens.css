@@ -1030,6 +1030,7 @@ color-scheme: dark;
 --z-focus: 60;
 --z-menu: 110;
 --z-modal: 120;
+--z-popover: 125;   /* a menu or picker panel opened from inside a dialog paints above it (PR-01/UR-24) */
 --z-toast: 130;
 
 /* ---------- Reports (design turns 24–25, css/views/reports.css) ---------- */
