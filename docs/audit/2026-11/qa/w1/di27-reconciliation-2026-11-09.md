@@ -54,3 +54,32 @@ Each device tidies its own copy at start-up after approval.
    go and one correction is logged; the receipt syncs.
 4. Each device scrubs its journals on its next start.
 5. The one-off Reports rebuild (HR-02, HR-31) follows separately.
+
+## The run (9 Nov 2026, ~00:51 UTC)
+- Deployed: sw `kos-integrity-1`, commit `c5aac79` (staging
+  https://e2303c3a.kurenai-os.pages.dev, checked; production
+  https://0dc52dbb.kurenai-os.pages.dev). Gate 127/127.
+- In-app preview on the Mac matched this record exactly (1,628 entries,
+  74,888 XP, 19,536 gold, 107 mixed and 0 ambiguous kept, 222 milestone
+  gold kept, the same before/after, 334 journal traces). Hash
+  `682472274ffd61d00da9abaa6bef8f16f44f4bcce5baed780597f72be3a09472`.
+- Run with that hash: verified checkpoint `bk-1794185462471-94ix5w`
+  (37.3 MB; state 2,000, media 1,951, kv 28, attachments 18, money 393,
+  reviews 243, ink 152), then 1,628 entries removed and one correction
+  logged (−74,888 XP, −19,536 gold). 8 seconds.
+- After: XP 149,288 (level 76), gold 26,458, ledger 373, no phantom left,
+  the re-plan finds nothing, the receipt synced, the checkpoint still
+  verifies, the audit record holds all 1,628 items. Streak 15, 38 badges.
+- Journal scrub on the Mac at the next start: its own verified checkpoint,
+  then 158 + 176 = 334 traces removed, as approved.
+
+## Found after the run: traces the rule did not catch
+63 events remain (Aku no Kyouten 40, Death Note 23), every one touching
+the anime's value: Aku `progress 36→0` ×18, `completed→planned` ×17,
+`0→36` ×3, `planned→completed` ×2; Death Note `onHold→planned` ×21,
+`planned→onHold` ×2 — flips that lasted longer than a day. Both rows were
+imported on 2 Jul 2026 (an import journals nothing); Aku no Kyouten was
+finished on 22 Aug 2025 and Death Note started in 2024, so no genuine
+event exists in either journal. A report built now still lists Aku no
+Kyouten in last week (its `0→36` reads as a finish). Removing them leaves
+both journals empty. NOT done: it goes beyond what was approved.
