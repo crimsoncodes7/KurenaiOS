@@ -65,8 +65,8 @@ step("boot, seed, and plant the bug's traces", async () => {
   const planted = [];
   for (let d = 1; d <= 20; d++) {
     const date = "2026-09-" + String(d).padStart(2, "0");
-    planted.push(entry(id++, date, { module: "books", action: "sync-reward", entries: 1, units: 8, advances: 1, titles: ["Death Note"] }, { xp: 46, gold: 12 }));
-    planted.push(entry(id++, date, { module: "integrations", modules: ["anime", "books"], action: "sync-reward", entries: 2, units: 9, advances: 1, titles: ["Aku no Kyouten", "Death Note"] }, { xp: 46, gold: 12 }));
+    planted.push(entry(id++, date, { module: "books", action: "sync-reward", entries: 1, units: 36, advances: 2, titles: ["Death Note"] }, d === 7 ? { xp: 46, gold: 22 } : { xp: 46, gold: 12 }));
+    planted.push(entry(id++, date, { module: "integrations", modules: ["anime", "books"], action: "sync-reward", entries: 2, units: 36, advances: 2, titles: ["Aku no Kyouten", "Death Note"] }, { xp: 46, gold: 12 }));
   }
   planted.push(entry(id++, "2026-09-05", { module: "books", action: "sync-reward", entries: 1, units: 3, advances: 0, titles: ["Death Note"] }));   /* no award: priced */
   planted.push(entry(id++, "2026-09-06", { module: "integrations", modules: ["anime", "books"], action: "sync-reward", entries: 2, units: 4, advances: 0, titles: ["Death Note", "Clannad"] }, { xp: 8, gold: 2 }));   /* mixed */
@@ -91,9 +91,10 @@ step("A · the classifier finds exactly the phantom entries", async () => {
   eq(s.entries, 40, "39 planted + the unpriced one: the 10 Sep batch is ambiguous (the anime moved that day)");
   eq(s.mixedKept, 4, "kept: the mixed entry, the batch with an unnamed sixth title, the anime's own reward, the one after the fix");
   eq(s.ambiguousKept, 2, "kept: the autosync batches naming Death Note on the day the anime moved");
-  eq(s.pricedWithoutAward, 1, "one priced by the Governor's rule");
-  eq(s.phantomXp, 39 * 46 + (4 + 3), "XP from the recorded awards (+ the priced one: 4 + 3 units)");
-  eq(s.phantomGold, 39 * 12 + 1, "gold likewise");
+  eq(s.withoutRecordedAward, 1, "one carried no recorded award");
+  eq(s.milestoneGoldKept, 10, "the 10-gold milestone bonus on 7 Sep is kept");
+  eq(s.phantomXp, 39 * 46 + (4 + 3), "XP: each entry's sync-reward price (46; the unrecorded one 4 + 3 units)");
+  eq(s.phantomGold, 39 * 12 + 1, "gold likewise — never the milestone bonus");
   eq([s.from, s.to], ["2026-09-01", "2026-09-20"], "the date range");
   eq(preview.items.length, 40, "every entry listed for the audit");
 });

@@ -15,8 +15,9 @@
      Books rows, and every title named (`entries` equals the titles listed,
      so nothing else was in the batch). An entry that ALSO names another
      title is MIXED: its pay cannot be split, so it is kept and counted.
-   - THE PAY: the sum of their recorded `award`s (invariant 100); an entry
-     with no award is priced by the Governor's own sync-reward rule.
+   - THE PAY: each entry's sync-reward price by the Governor's own rule
+     (the same for every entry, recorded award or not); a streak-milestone
+     bonus that rode on a phantom entry is genuine and is kept.
 
    WHAT IT DOES (consent: it runs only with the preview you approved, after
    a verified checkpoint; KOS.repairs):
@@ -123,13 +124,20 @@
     });
     return { rowsHit: rowsHit, titles: titles, otherTitles: otherTitles };
   }
+  /* what the SYNC REWARD paid: its own price by the Governor's rule. Not
+     the entry's whole recorded award — a streak-milestone bonus the
+     Governor added to whichever session came first is genuine and stays
+     (found on the live account: 18 entries, 222 gold). The recorded award
+     is compared only to report that difference. */
   function tally(list) {
-    var xp = 0, gold = 0, priced = 0;
+    var xp = 0, gold = 0, noAward = 0, milestoneGold = 0;
     list.forEach(function (e) {
-      var a = e.award && (e.award.xp != null || e.award.gold != null) ? e.award : (priced++, price(e.metrics));
-      xp += +a.xp || 0; gold += +a.gold || 0;
+      var p = price(e.metrics);
+      xp += p.xp; gold += p.gold;
+      if (!e.award) noAward++;
+      else if (+e.award.gold > p.gold) milestoneGold += +e.award.gold - p.gold;
     });
-    return { xp: xp, gold: gold, priced: priced };
+    return { xp: xp, gold: gold, noAward: noAward, milestoneGold: milestoneGold };
   }
 
   function plan() {
@@ -150,7 +158,8 @@
       var summary = {
         rows: ts.rowsHit,
         entries: c.phantom.length, byTitle: byTitle, from: first, to: last,
-        pricedWithoutAward: t.priced,
+        withoutRecordedAward: t.noAward,
+        milestoneGoldKept: t.milestoneGold,
         mixedKept: c.mixed.length,
         ambiguousKept: c.ambiguous.length,
         /* shown with the approval; each device then tidies its own copy
