@@ -422,7 +422,9 @@ show on Account & Cloud Sync (DI-20).
   vault) and P1/P2s (rest streak, levels of rebuilt-empty weeks, the next
   report's comparison, an old-version device pushing old copies back, the
   reports store missing from the full backup, checkpoint rotation) — all
-  fixed and tested (smoke129). Left as saved, by design: terms and years,
+  fixed and tested (smoke129). **RAN on the live account on 9 Nov after
+  approval (6 snapshots, 9 reports; record `qa/w1/reports-rebuild-preview-2026-11-09.md`). B1 is complete.**
+  Left as saved, by design: terms and years,
   and words Kurenai wrote. Every other device must run the new version
   before it runs.
 - Still to do in W1: RC21 receipts, §A4 two tabs, §A5 storage, the store

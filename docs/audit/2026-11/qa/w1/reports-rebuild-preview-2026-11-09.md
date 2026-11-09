@@ -55,3 +55,17 @@ re-derived (`prev`). No week was frozen empty.
 Every other device (the iPad) must open kos-integrity-4 once (open, close
 fully, open again): an older version would push the uncorrected copies
 back. Every original is kept in the media kv before writing.
+
+## The run (9 Nov 2026, approved; the iPad updated first)
+- Re-preview on the Mac matched the approved hash exactly.
+- Run with that hash: verified checkpoint `bk-1794211081478-ajh9zq`
+  (37.1 MB), every original kept in the media kv
+  (`repair.originals.reports-rebuild-di27`: 9 reports, 6 snapshots), then
+  6 snapshots and 9 reports written with `factsRev`/`rev` 1. 3 seconds.
+- After: w/c 19 Oct earned 1,828 XP / 666 gold, level 75, rest 12, 18
+  titles; w/c 26 Oct 2,216 / 596, level 76, rest 19, 43 titles, no Death
+  Note; w/c 12 Oct 27 titles, rest 5; October 72 titles, level 76, rest
+  18; the 9 Nov snapshot 149,283 XP, 26,433 gold, level 76, rest 1. w/c 2
+  Nov untouched. The re-plan finds nothing; receipt and audit settled;
+  synced to the cloud. The Reports page, w/c 26 Oct and October render.
+- October's words are still Kurenai's: switch to Template or regenerate.
