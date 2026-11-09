@@ -83,10 +83,12 @@ step("B · the daily cap is 30 XP across sessions", () => {
 /* ---------------- C ---------------- */
 step("C · a lesson pays once; a checkpoint passes at 80% and pays once", () => {
   const x0 = xp(), g0 = K.store.state.governor.gold;
-  const a = K.ja.finishLesson("H1");
+  /* a lesson finishes on a pass: every facet its session asked, right once (smoke132) */
+  const asked = Object.keys(K.store.state.japanese.facets).filter((k) => /^k:(あ|い|う|え|お|か|き|く|け|こ)\|/.test(k)).map((k) => ({ key: k, verdict: "correct" }));
+  const a = K.ja.finishLesson("H1", asked);
   eq([a.paid, a.pay], [true, { xp: 15, gold: 2, hp: 3 }], "first finish");
   eq([xp() - x0, K.store.state.governor.gold - g0], [15, 2], "paid by the Governor");
-  const b = K.ja.finishLesson("H1");
+  const b = K.ja.finishLesson("H1", asked);
   eq([b.paid, b.why], [false, "already finished"], "second finish");
   eq(xp() - x0, 15, "nothing more");
   const miss = K.ja.recordCheckpoint("cp-H", { R: 0.95, W: 0.7, L: 0.9 });

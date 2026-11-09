@@ -16,8 +16,12 @@
    A render writes nothing.
 
    WHAT PAYS (award(), the one definition the Governor calls, type "ja"):
-     a review session          +1 XP for each facet passed (Hard or better), at most 30 a day
-     a lesson's first finish   15 XP, 2 gold, +3 HP — once
+     a review session          +1 XP for each facet passed (its answer correct or accepted — a
+                               hint still counts; a near or a wrong pays nothing), at most 30 a day
+     a lesson's first PASS     15 XP, 2 gold, +3 HP — once: every facet the learn session asked
+                               answered right at least once (the misses are asked again at the
+                               end); a session with a miss left is "not passed yet" and pays,
+                               dates and ticks nothing (W1, RC21, JM-13)
      a unit checkpoint passed  60 XP, 15 gold, +5 HP — once (every skill at 80% or more)
      a stage gate passed       150 XP, 40 gold, +10 HP — once
    A self-marked result (shadowing) moves no schedule and pays nothing. Immersion pays only
@@ -174,7 +178,9 @@
 
   /* record(facetKey, result) → { grade, facet, unlocked } — one answer, scheduled. result is the
      validator's: { verdict, hints, ms, selfMarked }. A self-marked result moves nothing. */
+  var lastVerdict = {};   // facet → the verdict of its last answer on this page (memory only)
   function record(k, result) {
+    if (result && !result.selfMarked) lastVerdict[k] = result.verdict;
     var st = S(), p = T().split(k), g = T().gradeOf(result, (item(p.item) && item(p.item).targetMs) || TARGET[p.skill]);
     if (g == null) return { grade: null, facet: st.facets[k] || null, unlocked: [] };
     var o = opts(k), before = st.facets[k] || {};
@@ -215,13 +221,21 @@
       return n + (e.date === t && e.type === "ja" && e.metrics && e.metrics.kind === "session" ? (e.metrics.paid || 0) : 0);
     }, 0);
   }
+  /* passedVerdict(v): a correct or accepted answer; a near or a wrong is not a pass */
+  function passedVerdict(v) { return v === "correct" || v === "accepted"; }
+  /* passedResult(r): r.verdict when the caller kept it, else the verdict record() saw, else the
+     grade (Good or better) */
+  function passedResult(r) {
+    var v = r.verdict || lastVerdict[r.key];
+    return v ? passedVerdict(v) : r.grade >= 3;
+  }
   /* finishSession(results) — ONE ledger entry for a session (invariant 5).
-     results: [{ key, grade }] as record() returned them. → { passed, paid, capped } */
+     results: [{ key, grade, verdict? }] as record() returned them. → { passed, paid, capped } */
   function finishSession(results, o) {
     o = o || {};
     var graded = (results || []).filter(function (r) { return r && r.grade; });
     if (!graded.length) return { passed: 0, paid: 0, capped: false };
-    var passed = graded.filter(function (r) { return r.grade > 1; }).length;
+    var passed = graded.filter(passedResult).length;
     var room = Math.max(0, REVIEW_CAP - paidToday()), paid = Math.min(room, passed * REVIEW_XP);
     var skills = {};
     graded.forEach(function (r) { var s = T().split(r.key).skill; skills[s] = (skills[s] || 0) + 1; });
@@ -230,16 +244,32 @@
     return { passed: passed, paid: paid, capped: paid < passed * REVIEW_XP };
   }
 
-  /* finishLesson(id): the lesson's learn session is done; pays once */
-  function finishLesson(id) {
+  /* lessonPass(answers) → { pass, asked, right, misses } — a pure read of a learn session's
+     answers [{ key, verdict, selfMarked }], first tries and re-asks alike: it passes when every
+     facet asked was answered right (correct or accepted) at least once */
+  function lessonPass(answers) {
+    var asked = [], right = {};
+    (answers || []).forEach(function (a) {
+      if (!a || !a.key || a.selfMarked) return;
+      if (asked.indexOf(a.key) < 0) asked.push(a.key);
+      if (passedVerdict(a.verdict)) right[a.key] = 1;
+    });
+    var misses = asked.filter(function (k) { return !right[k]; });
+    return { pass: asked.length > 0 && !misses.length, asked: asked.length, right: asked.length - misses.length, misses: misses };
+  }
+  /* finishLesson(id, answers): the lesson's learn session is done. Only a PASS (lessonPass)
+     finishes it (doneAt, the check) and pays, once; anything else writes nothing */
+  function finishLesson(id, answers) {
     var l = lesson(id); if (!l) return null;
+    var p = lessonPass(answers);
+    if (!p.pass) return { paid: false, passed: false, why: "not passed", misses: p.misses, asked: p.asked, right: p.right };
     var rec = S().lessons[id] = obj(S().lessons[id]);
     if (!rec.doneAt) rec.doneAt = Date.now();
-    if (rec.paidAt) { store.save(); return { paid: false, why: "already finished", at: rec.paidAt }; }
+    if (rec.paidAt) { store.save(); return { paid: false, passed: true, why: "already finished", at: rec.paidAt }; }
     rec.paidAt = Date.now();
     KOS.sessions.log({ type: "ja", subject: SID, ref: id, metrics: { kind: "lesson", id: id, first: true } });
     syncChecks(id);
-    return { paid: true, pay: LESSON_PAY };
+    return { paid: true, passed: true, pay: LESSON_PAY };
   }
 
   /* recordCheckpoint(id, scores) — scores { R, W, L, S } as fractions; passes at 80% in every skill
@@ -400,7 +430,7 @@
   KOS.ja = {
     SID: SID, knows: knows, normalise: normalise, item: item, lesson: lesson, lessons: lessons, produces: produces,
     startLesson: startLesson, markPage: markPage, markHeard: markHeard, evidence: evidence, syncChecks: syncChecks,
-    unitState: unitState, checkpointState: checkpointState, stats: stats, content: content, CHECKS: CHECKS, record: record, finishSession: finishSession, finishLesson: finishLesson,
+    unitState: unitState, checkpointState: checkpointState, stats: stats, content: content, CHECKS: CHECKS, record: record, finishSession: finishSession, finishLesson: finishLesson, lessonPass: lessonPass,
     recordCheckpoint: recordCheckpoint, award: award, paidToday: paidToday,
     mine: mine, addInput: addInput, setSettings: setSettings,
     noteSpeed: noteSpeed, fluency: fluency, rework: rework,

@@ -6,7 +6,10 @@
      s:<pair>|L    a listening minimal pair — hear one, pick which (vowel length, っ, voicing live here,
                    because a typed or picked answer can be checked reliably)
    Every answer goes through KOS.ja.record (a derived grade, invariant 113); a session ends with ONE
-   ledger entry (KOS.ja.finishSession, invariant 5) and a learn session finishes its lesson once.
+   ledger entry (KOS.ja.finishSession, invariant 5), logged once however the session ends. A learn
+   session asks its misses again at the end (not scheduled again: an Again comes back tomorrow)
+   and finishes its lesson only on a pass — every facet right at least once (KOS.ja.lessonPass);
+   otherwise it says "Not passed yet" and offers the misses again.
    One polite live region per runner (KOS.a11y.announce).                                          */
 (function () {
   "use strict";
@@ -387,7 +390,7 @@
         return [{ key: item + "|meet", kind: "meet", skill: ex.skill, item: ex.item, family: "New · meet it", meet: true }, ex];
       }));
     }
-    var results = [], i = 0;
+    var results = [], answers = [], i = 0, round = 0, logged = null;
     var title = lessonId ? "New · " + lessonId + " " + KOS.ja.lesson(lessonId).title : "Reviews";
     var head = el("div", { class: "k-ja-run-head" }, [
       el("button", { type: "button", class: "k-iconbtn", "data-ui": "ja.exit", "aria-label": "Leave the session", text: "✕",
@@ -407,7 +410,11 @@
     }
     function show() {
       foot.innerHTML = "";
-      if (i >= list.length) { end(false); return; }
+      if (i >= list.length) {
+        /* a learn session asks its misses once more before it ends */
+        if (lessonId && round === 0 && KOS.ja.lessonPass(answers).misses.length) { reask(); return; }
+        end(false); return;
+      }
       var ex = list[i];
       head.querySelector("[data-ui~='ja.progress']").textContent = (i + 1) + " / " + list.length;
       stage.innerHTML = "";
@@ -416,8 +423,9 @@
       stage.appendChild(host);
       mount(host, ex, function (res) {
         if (ex.meet) { i++; show(); return; }
-        var rec = KOS.ja.record(ex.key, res);
-        results.push({ key: ex.key, grade: rec.grade });
+        answers.push({ key: ex.key, verdict: res.verdict, selfMarked: !!res.selfMarked });
+        var rec = ex.reask ? { grade: null } : KOS.ja.record(ex.key, res);
+        if (!ex.reask) results.push({ key: ex.key, grade: rec.grade, verdict: res.selfMarked ? null : res.verdict });
         if (rec.grade) {
           host.appendChild(el("p", { class: "k-ja-verdict-g", "data-ui": "ja.grade" }, [el("span", { class: "k-muted", text: "Grade, from your answer · " }),
             el("b", { text: GRADE[rec.grade] }), " · next " + nextText(rec.facet)]));
@@ -429,20 +437,48 @@
         nx.focus();
       });
     }
+    /* reask(): the misses again, as practice — their schedule was set by the first answer */
+    function reask() {
+      round++;
+      list = KOS.ja.lessonPass(answers).misses.map(function (k) {
+        var ex = exercise(k); if (!ex) return null;
+        ex.reask = true; ex.family = "Again · " + ex.family; return ex;
+      }).filter(Boolean);
+      i = 0;
+      box.removeAttribute("data-done");
+      if (!list.length) { end(false); return; }
+      announce("Again: the ones you missed.");
+      show();
+    }
     function end(early) {
       box.setAttribute("data-done", "1");
-      var fin = KOS.ja.finishSession(results, { lesson: lessonId });
-      var paidLesson = null;
-      if (lessonId && !early && results.length) paidLesson = KOS.ja.finishLesson(lessonId);
+      /* ONE ledger entry, however many times the session ends (a retry of the misses ends again) */
+      var firstEnd = !logged, fin = logged || (logged = KOS.ja.finishSession(results, { lesson: lessonId }));
+      var paidLesson = null, pass = lessonId ? KOS.ja.lessonPass(answers) : null;
+      if (lessonId && !early && results.length) paidLesson = KOS.ja.finishLesson(lessonId, answers);
       stage.innerHTML = ""; foot.innerHTML = "";
+      if (lessonId && !early && pass.asked && !pass.pass) {
+        stage.appendChild(el("div", { class: "k-ja-run-end", "data-ui": "ja.session-done", "data-state": "not-passed" }, [
+          el("h2", { text: "Not passed yet" }),
+          el("p", { text: pass.right + " of " + pass.asked + " right. Try the misses again to finish the lesson." }),
+          el("p", { class: "k-muted", text: fin.paid && firstEnd ? "◆ +" + fin.paid + " XP for the answers you got right" : "No reward until the lesson is passed" }),
+          el("div", { class: "k-ja-ex-act" }, [
+            el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "ja.retry-misses", text: "Try the misses again", onclick: function () { reask(); } }),
+            el("button", { type: "button", class: "k-btn", text: "Back to the desk", onclick: function () { KOS.show("subject", "ja"); } })
+          ])
+        ]));
+        head.querySelector("[data-ui~='ja.progress']").textContent = "";
+        announce("Not passed yet. " + pass.right + " of " + pass.asked + " right.");
+        return;
+      }
       var good = results.filter(function (r) { return r.grade >= 3; }).length;
       var pay = [];
-      if (fin.paid) pay.push("+" + fin.paid + " XP");
+      if (fin.paid && firstEnd) pay.push("+" + fin.paid + " XP");
       if (paidLesson && paidLesson.paid) pay.push("+" + paidLesson.pay.xp + " XP · +" + paidLesson.pay.gold + " gold · +" + paidLesson.pay.hp + " HP");
       stage.appendChild(el("div", { class: "k-ja-run-end", "data-ui": "ja.session-done" }, [
         el("h2", { text: results.length ? KOS.ui.num(results.length) + " answered" : "Nothing due right now" }),
         results.length ? el("p", { text: good + " Good or Easy" + (fin.capped ? " · past today's review cap, so no more XP today" : "") }) : null,
-        pay.length ? el("p", { class: "k-ja-pay", "data-ui": "ja.pay", text: "◆ " + pay.join(" · ") }) : results.length ? el("p", { class: "k-muted", text: "No reward · " + (fin.capped ? "today's review cap reached" : "nothing passed") }) : null,
+        pay.length ? el("p", { class: "k-ja-pay", "data-ui": "ja.pay", text: "◆ " + pay.join(" · ") }) : results.length ? el("p", { class: "k-muted", text: "No reward · " + (!firstEnd ? "already counted" : fin.capped ? "today's review cap reached" : "nothing passed") }) : null,
         el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "Back to the desk", onclick: function () { KOS.show("subject", "ja"); } })
       ].filter(Boolean)));
       head.querySelector("[data-ui~='ja.progress']").textContent = "";
