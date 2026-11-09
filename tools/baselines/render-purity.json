@@ -11,156 +11,52 @@
    "controls": [
     {
      "key": {
-      "ctx": "habit.panel",
-      "hooks": "habit.tick",
-      "name": "Seal directive: Clear 198 due flashcards (154 overdue)",
+      "ctx": "home.hero",
+      "hooks": "art.chip",
+      "name": "Home's picture: change or rotate",
       "tag": "button"
      },
      "occurrence": 0,
      "effects": {
-      "state": [
-       "achievements.earned.early-bird",
-       "achievements.earned.kept-going",
-       "achievements.earned.level",
-       "achievements.earned.regular",
-       "achievements.earned.witching",
-       "governor.gold",
-       "governor.hp",
-       "governor.milestones",
-       "governor.xp",
-       "sessions[]",
-       "todo.autoChecked.2026-09-24|due"
-      ],
-      "ui": [
-       "achSeen.ahead-of-time",
-       "achSeen.caught-up",
-       "achSeen.done-and-dusted",
-       "achSeen.early-bird",
-       "achSeen.every-time",
-       "achSeen.first-light",
-       "achSeen.gold",
-       "achSeen.habit-former",
-       "achSeen.handed-in",
-       "achSeen.in-step",
-       "achSeen.kept-going",
-       "achSeen.level",
-       "achSeen.morning-person",
-       "achSeen.night-owl",
-       "achSeen.on-the-plan",
-       "achSeen.perfect-week",
-       "achSeen.regular",
-       "achSeen.rest-is-work",
-       "achSeen.routine",
-       "achSeen.synced",
-       "achSeen.wind-down",
-       "achSeen.witching"
-      ],
-      "announce": [
-       "+5 XP · +55 gold · 43-day streak, 43-day streak, 43-day streak, 43-day streak"
-      ],
-      "toast": "+5 XP · +55 gold · 43-day streak, 43-day streak, 43-day streak, 43-day streak"
-     }
-    },
-    {
-     "key": {
-      "ctx": "habit.panel",
-      "hooks": "habit.tick",
-      "name": "Seal directive: Revise for: Revision block 18 — 3d away",
-      "tag": "button"
-     },
-     "occurrence": 0,
-     "effects": {
-      "state": [
-       "achievements.earned.early-bird",
-       "achievements.earned.kept-going",
-       "achievements.earned.level",
-       "achievements.earned.regular",
-       "achievements.earned.witching",
-       "governor.gold",
-       "governor.hp",
-       "governor.milestones",
-       "governor.xp",
-       "sessions[]",
-       "todo.autoChecked.2026-09-24|ev18"
-      ],
-      "ui": [
-       "achSeen.ahead-of-time",
-       "achSeen.caught-up",
-       "achSeen.done-and-dusted",
-       "achSeen.early-bird",
-       "achSeen.every-time",
-       "achSeen.first-light",
-       "achSeen.gold",
-       "achSeen.habit-former",
-       "achSeen.handed-in",
-       "achSeen.in-step",
-       "achSeen.kept-going",
-       "achSeen.level",
-       "achSeen.morning-person",
-       "achSeen.night-owl",
-       "achSeen.on-the-plan",
-       "achSeen.perfect-week",
-       "achSeen.regular",
-       "achSeen.rest-is-work",
-       "achSeen.routine",
-       "achSeen.synced",
-       "achSeen.wind-down",
-       "achSeen.witching"
-      ],
-      "announce": [
-       "+5 XP · +55 gold · 43-day streak, 43-day streak, 43-day streak, 43-day streak"
+      "dialog": [
+       "Home's hero"
       ]
      }
     },
     {
      "key": {
       "ctx": "habit.panel",
-      "hooks": "habit.tick",
-      "name": "Seal directive: 11:30 · AQA 7517 Paper 2 — Data structures and algorithms mock",
+      "hooks": "habit.tick home.directive",
+      "name": "Open: Clear 198 due flashcards (154 overdue)",
       "tag": "button"
      },
      "occurrence": 0,
      "effects": {
-      "state": [
-       "achievements.earned.early-bird",
-       "achievements.earned.kept-going",
-       "achievements.earned.level",
-       "achievements.earned.regular",
-       "achievements.earned.witching",
-       "governor.gold",
-       "governor.hp",
-       "governor.milestones",
-       "governor.xp",
-       "sessions[]",
-       "todo.autoChecked.2026-09-24|blk19"
-      ],
-      "ui": [
-       "achSeen.ahead-of-time",
-       "achSeen.caught-up",
-       "achSeen.done-and-dusted",
-       "achSeen.early-bird",
-       "achSeen.every-time",
-       "achSeen.first-light",
-       "achSeen.gold",
-       "achSeen.habit-former",
-       "achSeen.handed-in",
-       "achSeen.in-step",
-       "achSeen.kept-going",
-       "achSeen.level",
-       "achSeen.morning-person",
-       "achSeen.night-owl",
-       "achSeen.on-the-plan",
-       "achSeen.perfect-week",
-       "achSeen.regular",
-       "achSeen.rest-is-work",
-       "achSeen.routine",
-       "achSeen.synced",
-       "achSeen.wind-down",
-       "achSeen.witching"
-      ],
-      "announce": [
-       "+5 XP · +55 gold · 43-day streak, 43-day streak, 43-day streak, 43-day streak"
-      ]
+      "nav": "#/due"
+     }
+    },
+    {
+     "key": {
+      "ctx": "habit.panel",
+      "hooks": "habit.tick home.directive",
+      "name": "Open: Revise for: Revision block 18 — 3d away",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/calendar"
+     }
+    },
+    {
+     "key": {
+      "ctx": "habit.panel",
+      "hooks": "habit.tick home.directive",
+      "name": "Open: 11:30 · AQA 7517 Paper 2 — Data structures and algorithms mock",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/calendar"
      }
     },
     {
@@ -274,8 +170,10 @@
        "achSeen.witching"
       ],
       "announce": [
-       "+5 XP · +55 gold · 43-day streak, 43-day streak, 43-day streak, 43-day streak"
-      ]
+       "+5 XP · +31 gold · 30-day streak",
+       "Reminder 2 · done · +5 XP · +31 gold"
+      ],
+      "toast": "Reminder 2 · done · +5 XP · +31 goldUndo"
      }
     },
     {
@@ -326,8 +224,10 @@
        "achSeen.witching"
       ],
       "announce": [
-       "+5 XP · +55 gold · 43-day streak, 43-day streak, 43-day streak, 43-day streak"
-      ]
+       "+5 XP · +31 gold · 30-day streak",
+       "Reminder 14 · done · +5 XP · +31 gold"
+      ],
+      "toast": "Reminder 14 · done · +5 XP · +31 goldUndo"
      }
     },
     {
@@ -5240,8 +5140,9 @@
        "achSeen.witching"
       ],
       "announce": [
-       "+5 XP · +55 gold · 43-day streak, 43-day streak, 43-day streak, 43-day streak"
-      ]
+       "+5 XP · +31 gold · 30-day streak"
+      ],
+      "toast": "+5 XP · +31 gold · 30-day streak"
      }
     }
    ]
@@ -6260,8 +6161,10 @@
        "achSeen.witching"
       ],
       "announce": [
-       "+5 XP · +55 gold · 43-day streak, 43-day streak, 43-day streak, 43-day streak"
-      ]
+       "+5 XP · +31 gold · 30-day streak",
+       "Reminder 2 · done · +5 XP · +31 gold"
+      ],
+      "toast": "Reminder 2 · done · +5 XP · +31 goldUndo"
      }
     },
     {
@@ -6336,8 +6239,10 @@
        "achSeen.witching"
       ],
       "announce": [
-       "+5 XP · +55 gold · 43-day streak, 43-day streak, 43-day streak, 43-day streak"
-      ]
+       "+5 XP · +31 gold · 30-day streak",
+       "Reminder 14 · done · +5 XP · +31 gold"
+      ],
+      "toast": "Reminder 14 · done · +5 XP · +31 goldUndo"
      }
     },
     {
@@ -6412,8 +6317,10 @@
        "achSeen.witching"
       ],
       "announce": [
-       "+5 XP · +55 gold · 43-day streak, 43-day streak, 43-day streak, 43-day streak"
-      ]
+       "+5 XP · +31 gold · 30-day streak",
+       "Reminder 3 · done · +5 XP · +31 gold"
+      ],
+      "toast": "Reminder 3 · done · +5 XP · +31 goldUndo"
      }
     },
     {
@@ -6488,8 +6395,10 @@
        "achSeen.witching"
       ],
       "announce": [
-       "+5 XP · +55 gold · 43-day streak, 43-day streak, 43-day streak, 43-day streak"
-      ]
+       "+5 XP · +31 gold · 30-day streak",
+       "Reminder 4 · done · +5 XP · +31 gold"
+      ],
+      "toast": "Reminder 4 · done · +5 XP · +31 goldUndo"
      }
     },
     {
@@ -6564,8 +6473,10 @@
        "achSeen.witching"
       ],
       "announce": [
-       "+5 XP · +55 gold · 43-day streak, 43-day streak, 43-day streak, 43-day streak"
-      ]
+       "+5 XP · +31 gold · 30-day streak",
+       "Reminder 5 · done · +5 XP · +31 gold"
+      ],
+      "toast": "Reminder 5 · done · +5 XP · +31 goldUndo"
      }
     },
     {
@@ -6640,8 +6551,10 @@
        "achSeen.witching"
       ],
       "announce": [
-       "+5 XP · +55 gold · 43-day streak, 43-day streak, 43-day streak, 43-day streak"
-      ]
+       "+5 XP · +31 gold · 30-day streak",
+       "Email the exams officer about the November resit window · done · +5 XP · +31 gol"
+      ],
+      "toast": "Email the exams officer about the November resit window · done · +5 XP · +31 gol"
      }
     },
     {
@@ -6716,8 +6629,10 @@
        "achSeen.witching"
       ],
       "announce": [
-       "+5 XP · +55 gold · 43-day streak, 43-day streak, 43-day streak, 43-day streak"
-      ]
+       "+5 XP · +31 gold · 30-day streak",
+       "Reminder 8 · done · +5 XP · +31 gold"
+      ],
+      "toast": "Reminder 8 · done · +5 XP · +31 goldUndo"
      }
     },
     {
@@ -6792,8 +6707,10 @@
        "achSeen.witching"
       ],
       "announce": [
-       "+5 XP · +55 gold · 43-day streak, 43-day streak, 43-day streak, 43-day streak"
-      ]
+       "+5 XP · +31 gold · 30-day streak",
+       "Reminder 9 · done · +5 XP · +31 gold"
+      ],
+      "toast": "Reminder 9 · done · +5 XP · +31 goldUndo"
      }
     },
     {
@@ -6868,8 +6785,10 @@
        "achSeen.witching"
       ],
       "announce": [
-       "+5 XP · +55 gold · 43-day streak, 43-day streak, 43-day streak, 43-day streak"
-      ]
+       "+5 XP · +31 gold · 30-day streak",
+       "Reminder 10 · done · +5 XP · +31 gold"
+      ],
+      "toast": "Reminder 10 · done · +5 XP · +31 goldUndo"
      }
     },
     {
@@ -6954,8 +6873,10 @@
        "achSeen.witching"
       ],
       "announce": [
-       "+5 XP · +55 gold · 43-day streak, 43-day streak, 43-day streak, 43-day streak"
-      ]
+       "+5 XP · +31 gold · 30-day streak",
+       "Reminder 12 · done · +5 XP · +31 gold"
+      ],
+      "toast": "Reminder 12 · done · +5 XP · +31 goldUndo"
      }
     },
     {
@@ -7836,7 +7757,7 @@
      },
      "occurrence": 0,
      "effects": {
-      "nav": "#/routines/edit/r_f2rmrfjcw",
+      "nav": "#/routines/edit/r_w909cviiw",
       "state": [
        "routines"
       ],
@@ -11678,9 +11599,9 @@
        "entry~journal[],progress,reward,updatedAt"
       ],
       "announce": [
-       "+4 XP · +55 gold · 43-day streak, 43-day streak, 43-day streak, 43-day streak"
+       "+4 XP · +31 gold · 30-day streak"
       ],
-      "toast": "+4 XP · +55 gold · 43-day streak, 43-day streak, 43-day streak, 43-day streak"
+      "toast": "+4 XP · +31 gold · 30-day streak"
      }
     },
     {
@@ -12272,7 +12193,7 @@
        "entry~journal[],progress,reward,updatedAt"
       ],
       "announce": [
-       "+4 XP · +55 gold · 43-day streak, 43-day streak, 43-day streak, 43-day streak"
+       "+4 XP · +31 gold · 30-day streak"
       ]
      }
     },
@@ -13666,9 +13587,9 @@
        "entry~journal[],playtimeHours,progress,reward,updatedAt"
       ],
       "announce": [
-       "+4 XP · +55 gold · 43-day streak, 43-day streak, 43-day streak, 43-day streak"
+       "+4 XP · +31 gold · 30-day streak"
       ],
-      "toast": "+4 XP · +55 gold · 43-day streak, 43-day streak, 43-day streak, 43-day streak"
+      "toast": "+4 XP · +31 gold · 30-day streak"
      }
     },
     {
@@ -17148,6 +17069,21 @@
     {
      "key": {
       "ctx": "asst.presence",
+      "hooks": "asst.hide-kurenai",
+      "name": "Hide Kurenai",
+      "tag": "button"
+     },
+     "occurrence": 0,
+     "effects": {
+      "nav": "#/assistant/chat",
+      "ui": [
+       "kurenaiHidden"
+      ]
+     }
+    },
+    {
+     "key": {
+      "ctx": "asst.presence",
       "hooks": "",
       "name": "Voice off",
       "tag": "button"
@@ -20462,7 +20398,7 @@
      "key": {
       "ctx": "shell.rail-foot",
       "hooks": "gov.hud",
-      "name": "Your profile — Level 53, Healthy, 12,531 gold",
+      "name": "Your profile — Level 53, Healthy, 12,507 gold",
       "tag": "button"
      },
      "occurrence": 0,

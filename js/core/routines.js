@@ -16,7 +16,9 @@
             archived, order, legacyHabit, createdAt, updatedAt}]
      log    {"<routine>|<routine day>": {steps {stepId: ts}, no {stepId: ts},
             done ts|null, min bool, rest bool, snap [[id, text, optional,
-            minimum, checkMorning]], paid bool, startedAt, mins}}
+            minimum, checkMorning]], paid bool, paidAs "min"|"done"|"capped"
+            (how it was paid: a minimum day kept in full later is topped
+            up by the difference once, PR-24), startedAt, mins}}
    A keyed map, so the cloud merge folds two devices per key and per step.
 
    THE SNAPSHOT (invariant 142). The first write of a day freezes the
@@ -228,7 +230,15 @@
     var s = peek();
     return (s && Array.isArray(s.items) ? s.items : []).filter(function (r) { return r.id === id; })[0] || null;
   }
+  /* PR-23: a routine whose steps are all optional could never be kept, so
+     add and update refuse it (null) and say why through check() */
+  var NEED_REQUIRED = "At least one step must be required";
+  function check(steps) {
+    var list = Array.isArray(steps) ? steps.map(normaliseStep) : [];
+    return list.length && !required(list).length ? NEED_REQUIRED : null;
+  }
   function add(spec) {
+    if (spec && spec.steps !== undefined && check(spec.steps)) return null;
     var s = R(), rec = normalise(spec || {});
     while (get(rec.id)) rec.id = rid("r");
     rec.order = s.items.length;
@@ -239,6 +249,7 @@
   function update(id, patch) {
     var s = R(), cur = get(id);
     if (!cur) return null;
+    if (patch && patch.steps !== undefined && check(patch.steps)) return null;
     var next = normalise(Object.assign({}, patch || {}, { id: id, createdAt: cur.createdAt }), cur);
     s.items[s.items.indexOf(cur)] = next;
     store.save();
@@ -365,6 +376,8 @@
     var e0 = entry(id, day);
     var steps = stepsFor(r, e0);
     if (!steps.some(function (s) { return s.id === stepId; })) return { ok: false, why: "No such step on that day." };
+    /* the day as it was, so an Undo can put it back exactly (HR-21) */
+    var before = e0 ? clone(e0) : null, logged = null;
     var e = writeEntry(r, day);
     if (on === false) delete e.steps[stepId];
     else { e.steps[stepId] = now; if (e.no) delete e.no[stepId]; }
@@ -373,9 +386,35 @@
     e.done = v.done ? (e.done || now) : null;
     e.min = !!v.min;
     var award = null;
-    if ((v.done || v.min) && !e.paid && r.days !== null) award = pay(r, e, day, v, now);
+    lastPaid = null;
+    if ((v.done || v.min) && !e.paid && r.days !== null) { award = pay(r, e, day, v, now); logged = lastPaid; }
+    /* PR-24: a day paid at its minimum that is now kept in full is topped
+       up by the difference, once (paidAs moves to "done"); unticking never
+       refunds by itself */
+    else if (v.done && e.paid && e.paidAs === "min" && r.days !== null) { award = topUp(r, e, day, v, now); logged = lastPaid; }
     store.save();
-    return { ok: true, state: v.done ? "done" : v.min ? "min" : "partial", award: award };
+    return { ok: true, state: v.done ? "done" : v.min ? "min" : "partial", award: award,
+      undo: { id: id, day: day, before: before, entryId: logged ? logged.id : null } };
+  }
+  /* HR-21: Undo a tick — the day's log entry goes back exactly as it was
+     (its `paid` receipt with it) and any pay the tick logged is reversed by
+     ONE correction entry; the session itself is never deleted */
+  function undoTick(u) {
+    if (!u || !u.id || !u.day) return false;
+    var s = R(), k = key(u.id, u.day);
+    if (u.before) s.log[k] = clone(u.before); else delete s.log[k];
+    var r = get(u.id);
+    if (u.entryId != null) reverse(u.entryId, (r ? r.name : "Routine") + " · undone");
+    store.save();
+    return true;
+  }
+  /* one correction for what a ledger entry paid, its streak bonus left alone */
+  function reverse(entryId, title) {
+    var e = (store.state.sessions || []).filter(function (x) { return x.id === entryId; })[0];
+    if (!e || !e.award) return null;
+    var xp = Math.max(0, e.award.xp || 0), gold = Math.max(0, (e.award.gold || 0) - (e.award.ms || 0));
+    if (!xp && !gold) return null;
+    return KOS.sessions.log({ type: "correction", metrics: { xp: -xp, gold: -gold, title: title, note: "Undo" } });
   }
   /* a step checked in the morning, answered No: recorded, never ticked */
   function answerNo(id, stepId, opts) {
@@ -416,9 +455,10 @@
   function paidToday(now) {
     var today = KOS.srs.todayISO();
     return (store.state.sessions || []).filter(function (e) {
-      return e.date === today && e.type === "todo" && e.metrics && e.metrics.routine && !e.metrics.capped;
+      return e.date === today && e.type === "todo" && e.metrics && e.metrics.routine && !e.metrics.capped && !e.metrics.topUp;
     }).length;
   }
+  var lastPaid = null;
   function pay(r, e, day, v, now) {
     e.paid = true;
     var capped = paidToday(now) >= CAP;
@@ -426,8 +466,21 @@
       req: v.of, min: !v.done && !!v.min, kind: r.kind };
     if (capped) m.capped = true;
     if (day !== routineDay(now)) m.late = true;
+    /* how the day was paid (PR-24): a capped day earns no top-up either */
+    e.paidAs = capped ? "capped" : m.min ? "min" : "done";
     var award = KOS.governor && KOS.governor.routineAward ? KOS.governor.routineAward(m) : { xp: 0, gold: 0, hp: 0 };
-    KOS.sessions.log({ type: "todo", metrics: m });
+    lastPaid = KOS.sessions.log({ type: "todo", metrics: m });
+    return award;
+  }
+  /* the minimum day now kept in full: ONE todo entry for the difference */
+  function topUp(r, e, day, v, now) {
+    e.paidAs = "done";
+    var m = { item: (r.kind === "habit" ? "Habit kept: " : "Routine kept: ") + r.name + " · in full", routine: r.id, rday: day,
+      req: v.of, topUp: true, kind: r.kind };
+    if (day !== routineDay(now)) m.late = true;
+    var award = KOS.governor && KOS.governor.routineAward ? KOS.governor.routineAward(m) : { xp: 0, gold: 0, hp: 0 };
+    if (!award.xp && !award.gold && !award.hp) return null;
+    lastPaid = KOS.sessions.log({ type: "todo", metrics: m });
     return award;
   }
 
@@ -613,6 +666,7 @@
       if (!e || e.compact || day >= cut) return;
       var r = get(k.split("|")[0]), v = verdict(r, e);
       var c = { compact: 1, n: v.n, of: v.of, paid: !!e.paid };
+      if (e.paidAs) c.paidAs = e.paidAs;
       if (v.done) c.done = e.done || 1;
       if (v.min) c.min = true;
       if (e.rest) c.rest = true;
@@ -865,6 +919,7 @@
     AUTO: AUTO, enable: enable, enabled: isEnabled, boot: boot,
     autoMeasure: autoMeasure, autoText: autoText, autoSync: autoSync, onSession: onSession,
     normalise: normalise, all: all, get: get, add: add, update: update, remove: remove, archive: archive,
+    check: check, undoTick: undoTick, NEED_REQUIRED: NEED_REQUIRED,
     addHabit: addHabit, templates: templates, template: template, fromTemplate: fromTemplate,
     dayStart: dayStart, routineDay: routineDay, scheduledOn: scheduledOn, windowOn: windowOn,
     entry: entry, verdict: verdict, stateOn: stateOn, canTick: canTick,

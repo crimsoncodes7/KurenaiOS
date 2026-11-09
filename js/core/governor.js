@@ -124,6 +124,12 @@
   function routineAward(m) {
     m = m || {};
     if (m.capped) return { xp: 0, gold: 0, hp: 0 };
+    /* PR-24: a day first kept at its minimum, then in full, is topped up
+       ONCE by the difference (KOS.routines records how the day was paid) */
+    if (m.topUp) {
+      var full = routineAward({ req: m.req }), least = routineAward({ req: m.req, min: true });
+      return { xp: Math.max(0, full.xp - least.xp), gold: Math.max(0, full.gold - least.gold), hp: Math.max(0, full.hp - least.hp) };
+    }
     var req = Math.max(1, +m.req || 1);
     if (m.min || req === 1) return { xp: 5, gold: 1, hp: 2 };
     if (req <= 4) return { xp: Math.min(14, 5 + 3 * (req - 1)), gold: 1, hp: 3 };
@@ -350,18 +356,26 @@
        from today, its key slid a day, and the bonus paid again (HR-16).
        A key one day off is the old reckoning of the same run: a new run
        cannot reach the milestone again within a day. */
+    /* ST-20: when several milestones are new at once (records missing on
+       a fresh device, say) only the HIGHEST pays; the lower ones are
+       recorded as reached without pay. The note names the milestone paid,
+       once, never the run's length per milestone. `ms` on the award is the
+       bonus gold, so an Undo of the tick can reverse the tick's own pay and
+       leave the milestone alone. */
     var stk = KOS.sessions.streak(null);
     var today = KOS.srs.todayISO();
     var runEnd = KOS.sessions.hasStreakActivity(today) ? today : KOS.srs.addDays(today, -1);
+    var msNew = 0;
+    g.milestones = g.milestones || {};
     [3, 7, 14, 30, 60, 100].forEach(function (ms) {
       var key = "streak" + ms;
-      g.milestones = g.milestones || {};
       if (stk < ms) return;
       var reached = KOS.srs.addDays(runEnd, -(stk - ms)), have = g.milestones[key];
       if (have && (have === reached || have === KOS.srs.addDays(reached, -1) || have === KOS.srs.addDays(reached, 1))) return;
       g.milestones[key] = reached;
-      gold += ms; notes.push(stk + "-day streak");
+      msNew = Math.max(msNew, ms);
     });
+    if (msNew) { gold += msNew; notes.push(msNew + "-day streak"); }
 
     g.xp += xp;
     g.gold += gold;
@@ -370,6 +384,7 @@
        week" is a sum over the period, never a difference of running
        totals that purchases and cloud merges also move) */
     e.award = { xp: xp, gold: gold };
+    if (msNew) e.award.ms = msNew;
     store.save();
 
     var after = levelInfo(g.xp).level;

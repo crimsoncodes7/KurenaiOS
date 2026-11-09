@@ -8,7 +8,8 @@
    twice.
 
      A · a run of 7 study days ending yesterday: the first session today (a
-         habit tick) pays the 3- and 7-day bonuses once.
+         habit tick) pays the 7-day bonus once (the 3 is recorded,
+         unpaid: only the highest new milestone pays, ST-20).
      B · a second tick pays no bonus.
      C · studying later that day (the run now ends today, 8 days) pays no
          bonus again — the case that paid twice.
@@ -40,14 +41,14 @@ step("boot", async () => {
   day = (n) => K.srs.addDays(today, n);
 });
 
-step("A · the first session today pays the 3- and 7-day bonuses once", async () => {
+step("A · the first session today pays the 7-day bonus once, the 3 recorded", async () => {
   const st = K.store.state;
   st.sessions = [];
   for (let i = 7; i >= 1; i--) st.sessions.push(studyOn(day(-i), 1000 + i));
   st.governor.milestones = {};
   eq(K.sessions.streak(null), 7, "a 7-day run ending yesterday");
   const e = tick();
-  eq(e.award.gold, 1 + 3 + 7, "the tick's 1 gold plus the 3- and 7-day bonuses");
+  eq(e.award.gold, 1 + 7, "the tick's 1 gold plus the 7-day bonus (only the highest new one pays, ST-20)");
   eq(st.governor.milestones.streak7, day(-1), "keyed to the day the run reached 7");
   eq(st.governor.milestones.streak3, day(-5), "and 3");
 });
