@@ -143,7 +143,7 @@
       return r;
     }
     L.forEach(function (e) {
-      if (!e || !e.date) return;
+      if (!e || !e.date || e.type === "correction") return;   /* a clean-up entry is no activity (DI-27) */
       var m = monthOf(e.date), r = M(m), x = e.metrics || {};
       var h = e.ts ? new Date(e.ts).getHours() : null;
       if (!dayAny[e.date]) { dayAny[e.date] = 1; r.days++; }

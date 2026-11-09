@@ -133,7 +133,7 @@
      either direction. They feed only the rest streak below. */
   function hasActivity(dateISO, sid) {
     return store.state.sessions.some(function (e) {
-      return e.date === dateISO && (!sid || hasSubject(e, sid)) && e.type !== "media";
+      return e.date === dateISO && (!sid || hasSubject(e, sid)) && e.type !== "media" && e.type !== "correction";
     });
   }
   /* streak integrity (2c): an early-stopped focus session stays in the log as
@@ -146,7 +146,7 @@
      alive (invariant 4 — the streak is a derivation of study, not of
      the ledger as a whole). */
   function studyEntry(e, sid) {
-    return (!sid || hasSubject(e, sid)) && e.type !== "media" && e.type !== "todo" &&
+    return (!sid || hasSubject(e, sid)) && e.type !== "media" && e.type !== "todo" && e.type !== "correction" &&
       !(e.type === "focus" && e.metrics && e.metrics.complete === false);
   }
   function hasStreakActivity(dateISO, sid) {

@@ -164,6 +164,10 @@
           info.meaningful = ["completed", "chapter", "route", "reading-session"].indexOf(m.action) !== -1;
         }
         break;
+      case "correction":
+        info.label = "System"; info.title = m.title || "Correction";
+        info.detail = (m.xp ? m.xp + " XP" : "") + (m.gold ? (m.xp ? " · " : "") + m.gold + " gold" : "") + (m.note ? " · " + m.note : "");
+        info.category = "system"; info.meaningful = false; break;
       default:
         info.title = String(s.type || "Activity").replace(/(^|-)([a-z])/g, function (_, gap, ch) { return (gap ? " " : "") + ch.toUpperCase(); });
     }

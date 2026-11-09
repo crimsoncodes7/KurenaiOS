@@ -112,7 +112,7 @@
   function inc(map, k, by) { map[k] = (map[k] || 0) + (by == null ? 1 : by); }
   /* a study entry, exactly as sessions.js counts one (invariant 4) */
   function isStudy(e) {
-    return e.type !== "media" && e.type !== "todo" &&
+    return e.type !== "media" && e.type !== "todo" && e.type !== "correction" &&
       !(e.type === "focus" && e.metrics && e.metrics.complete === false);
   }
   function partsOf(e) {
@@ -584,6 +584,7 @@
   function governor(input, p) {
     var xp = 0, gold = 0, complete = true;
     input.inRange.forEach(function (e) {
+      if (e.type === "correction") return;   /* a clean-up, not this period's earning (DI-27) */
       if (e.award) { xp += e.award.xp || 0; gold += e.award.gold || 0; }
       else complete = false;
     });

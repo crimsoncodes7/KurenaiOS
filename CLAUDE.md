@@ -194,7 +194,7 @@ chronological diary here.
   https://e94eede7.kurenai-os.pages.dev.
 - Last milestone tag: `milestone/graphite-ui-rebuild`
 - Service-worker version: `kos-malfix-1`
-- Required smoke gate: 123 / 123 suites (`""` and 2–123, or `npm test`, which runs them in parallel through `tools/run_smoke.mjs`; 120–123 are the quality programme's safety net — the 04:00 day across DST, the service-worker update across two versions, offline, and the verified backup `KOS.backup`; 116–119 are ratcheted gates over content, cosmetics, menus in dialogs and CSS collisions, each failing only on a violation not in its `tools/baselines/smoke11x-*.json`; 115 is Mind Journal replication; 114 is provider identity per module (DI-27); 113 is the Badge Wall's; 80–83 are Japanese's, 99 is Code's SQL runner, 100 the ink engine, 101–104 Routines and the Daily Review, 105 the rest of the iPad build and Files R0, 106 Files R1–R4, airing on a closed app, Rider CI evidence and habits several times a day, 107 the Pencil fixes, 108 Creatives', 109–111 Mind's, 112 Google Calendar, Google Tasks and Todoist).
+- Required smoke gate: 126 / 126 suites (`""` and 2–126, or `npm test`, which runs them in parallel through `tools/run_smoke.mjs`; 124–126 are W1's: repairs run safely and Import backup asks first, the P0s (JM-06, ST-25, MG-01/MG-23, SY-18), and the DI-27 clean-up on test data; 120–123 are the quality programme's safety net — the 04:00 day across DST, the service-worker update across two versions, offline, and the verified backup `KOS.backup`; 116–119 are ratcheted gates over content, cosmetics, menus in dialogs and CSS collisions, each failing only on a violation not in its `tools/baselines/smoke11x-*.json`; 115 is Mind Journal replication; 114 is provider identity per module (DI-27); 113 is the Badge Wall's; 80–83 are Japanese's, 99 is Code's SQL runner, 100 the ink engine, 101–104 Routines and the Daily Review, 105 the rest of the iPad build and Files R0, 106 Files R1–R4, airing on a closed app, Rider CI evidence and habits several times a day, 107 the Pencil fixes, 108 Creatives', 109–111 Mind's, 112 Google Calendar, Google Tasks and Todoist).
 - Branches: `main` is the line. On 20 October 2026 it was fast-forwarded to
   `feat/money-goals` (Money and Goals), then to `feat/fsrs` (FSRS), on 21
   October to `feat/exams-hub` (the Exams hub), and on 22 October to
@@ -289,7 +289,7 @@ from `file://`. Use HTTP for PWA, cloud and browser-audit work.
 python3 tools/dev_server.py 8765       # http.server with no-store, so edits show on one reload
 npm install jsdom fake-indexeddb       # test-only dependencies, once
 npm test                               # the whole smoke gate in parallel (tools/run_smoke.mjs; --skip, --repeat)
-for i in "" {2..123}; do node "tools/smoke${i}.test.js"; done   # the same, one at a time
+for i in "" {2..126}; do node "tools/smoke${i}.test.js"; done   # the same, one at a time
 node tools/ja_valid_check.mjs          # Japanese: kana, conjugation, every validator, strokes on every kana
 node tools/gen_ja_strokes.mjs --check  # the kana stroke data matches KanjiVG
 node tools/bake_ja_audio.mjs           # Japanese's audio pack: the cast on ElevenLabs, the narrator on VOICEVOX (open the app); --check, --dry
@@ -475,7 +475,21 @@ source comments and audit notes refer to it.
 ### Governor, Focus and rewards (1–5)
 
 1. Streaks, XP, HP and gold flow from `KOS.sessions.log()` only. Never write them
-   directly.
+   directly. Pay given in error is taken back the same way: ONE `correction`
+   entry with a negative award, clamped at 0 (`governor.onSession`), which is
+   not activity, study or rest, earns no milestone and is left out of
+   Reports' "earned" and the badge rollup (the DI-27 clean-up).
+1a. ONE-OFF REPAIRS AND MIGRATIONS go through `KOS.repairs`
+   (`js/core/repairs.js`): a `plan()` that is a dry run (computed from the
+   data, so it is idempotent), a preview with a hash, a consent repair run
+   only with the hash the user approved (data moved since → refused), the
+   change made only inside `KOS.backup.withCheckpoint` (a VERIFIED full
+   checkpoint in `kurenai-os-backups`, scoped by the data namespace, last
+   five kept), re-planned after to `needed: false`, a receipt in
+   `state.repairs` (synced, so no device runs it twice) and an audit record
+   in the media kv (`repair.audit.<id>`). Import backup reads the file,
+   asks (a danger dialog with its date and counts) and takes a verified
+   checkpoint of this device before it replaces anything.
 2. Gold gates only labs and simulations (one-time unlocks) and, since
    roadmap 5.14, UPLOADING a picture of your own ("Your own picture", per
    area or all; a picture set before keeps showing). Everything else gold
@@ -558,7 +572,15 @@ source comments and audit notes refer to it.
    the media kv (`money.sync.<uid>`) so this device's echo is skipped, a
    remote deletion applied without a tombstone of its own (never sent
    back), and the planner's mirror never sent. Amounts are integer minor
-   units (`minor`). The Assistant reads Money as TOTALS (`money_overview`);
+   units (`minor`). An IMPORTED row is known by what the bank wrote
+   (`imp`: the date, amount, kind and the source row's other cells,
+   normalised and order-free; a FITID/"Transaction ID" column wins), with
+   its occurrence ordinal within the statement (`occ`), so two identical
+   same-day payments both import and a re-import — another payee column,
+   reordered columns — flags exactly the rows already stored; the source
+   row rides on the transaction (`raw`) and the statement has a
+   fingerprint (`imp.stmt`). Rows imported before carry no `imp` and are
+   matched by date, amount and payee, each used once. The Assistant reads Money as TOTALS (`money_overview`);
    single entries only through `money_transactions`, when asked; every
    `money_*` write is undoable and none touches the Governor.
    The planner OWNS its purchases: each archived purchase is mirrored as a
@@ -931,7 +953,10 @@ source comments and audit notes refer to it.
     the end of the Spec fork's `info` list (`src: "quick-note"`, `date`). It
     never edits, moves or removes a block; an empty draft writes nothing, not
     even a fork. `state.ui.editing` remembers an open editor per
-    device so a redraw reopens it. Content blocks may carry an `id`, which the
+    device so a redraw reopens it. The editor saves AGAINST WHAT IT LOADED
+    (`KOS.edits.set(…, {base})`, SY-18): rows merge by id, so a row it did
+    not touch takes the stored copy (another device's edit, addition or
+    deletion survives) and its own edits, additions and deletions win. Content blocks may carry an `id`, which the
     renderer wraps in `.k-blk[data-ui="topic.note-block"][data-bid]`
     (display:contents) and otherwise
     ignores; `{p}` and `{md}` are renderer block types. Notes/Quiz/Exam tabs are
@@ -1672,7 +1697,9 @@ source comments and audit notes refer to it.
     attachment with one hash show as ONE file and the attachment is
     promoted. "Attach to…" adds a link; "Remove" from one place removes
     the link, and deletes the file only when nothing else links it, after a
-    confirm. Freeing space (`KOS.attach.evict`, only for a file safe in the
+    confirm. Deleting an assignment follows the same rule (ST-25): a file
+    linked anywhere else loses only that link, and the confirm names the
+    files that go. Freeing space (`KOS.attach.evict`, only for a file safe in the
     cloud) removes the binary only — never the record, its text index or
     its ink; opening it offers the download.
 151. THE ORIGINAL IS NEVER CHANGED. Writing on a file is an ink layer:

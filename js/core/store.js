@@ -62,6 +62,9 @@
     /* Achievements (roadmap 5.16, core/achievements.js): the tiers earned (never taken back), the
        ledger's monthly rollup, the showcase and the title — progress itself is never stored */
     achievements: { v: 1, earned: {}, months: {}, showcase: [], title: null },
+    /* one-off repairs (core/repairs.js, quality W1): a receipt per repair that has run —
+       {at, hash, checkpoint, summary} — so no device runs one twice; a keyed map */
+    repairs: {},
     worked: { last: null },
     trace: {},
 

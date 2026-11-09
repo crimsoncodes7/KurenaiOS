@@ -199,7 +199,8 @@
   /* Deleting is a one-liner precisely BECAUSE nothing was duplicated: the
      calendar chip, the countdown row and the Home card were all derived, so
      they disappear with the record and leave nothing behind. Attachments
-     filed under this assignment's ref go with it. */
+     linked ONLY to this assignment go with it; a file linked anywhere else
+     just loses this link (ST-25). */
   function remove(id, cb) {
     var s = A(), i = s.items.findIndex(function (x) { return x.id === id; });
     if (i === -1) { cb && cb(null, false); return false; }
@@ -217,17 +218,46 @@
     if (!KOS.attach || !KOS.attach.available || !KOS.attach.available()) { cb(null, []); return; }
     KOS.attach.list(rec.subject || "_", attachRef(rec), cb);
   }
-  function removeAttachments(id, cb) {
-    if (!KOS.attach || !KOS.attach.available || !KOS.attach.available()) { cb && cb(null); return; }
-    var pending = 0, done = false;
+  /* every file linked to this assignment, once each (any subject's list) */
+  function linkedFiles(id, cb) {
+    if (!KOS.attach || !KOS.attach.available || !KOS.attach.available()) { cb(null, []); return; }
+    var pending = 0, seen = {}, out = [], finished = false;
+    function end() { if (!finished) { finished = true; cb(null, out); } }
     KOS.subjects.ids().concat(["_"]).forEach(function (sid) {
       pending++;
       KOS.attach.list(sid, attachRef(id), function (err, rows) {
-        (rows || []).forEach(function (r) { KOS.attach.remove(r.id, function () {}); });
-        if (!--pending && !done) { done = true; cb && cb(null); }
+        (rows || []).forEach(function (r) { if (!seen[r.id]) { seen[r.id] = true; out.push(r); } });
+        if (!--pending) end();
       });
     });
-    if (!pending && !done) cb && cb(null);
+    if (!pending) end();
+  }
+  /* the files deleting this assignment would DELETE: those nothing else
+     links (the confirm names them) */
+  function soleFiles(id, cb) {
+    var me = { kind: "assignment", id: String(id) };
+    linkedFiles(id, function (err, rows) {
+      cb(null, rows.filter(function (r) {
+        return !KOS.attach.linksOf(r).some(function (l) { return !(l.kind === me.kind && l.id === me.id); });
+      }));
+    });
+  }
+  /* ST-25 (quality W1): the Files detach rule (invariant 150). A file
+     linked anywhere else — a topic, an exam, another assignment — loses
+     only this link and stays; only a file nothing else links is deleted.
+     It used to delete (and tombstone in the cloud) every linked file. */
+  function removeAttachments(id, cb) {
+    var me = { kind: "assignment", id: String(id) };
+    linkedFiles(id, function (err, rows) {
+      var pending = rows.length;
+      if (!pending) { cb && cb(null); return; }
+      rows.forEach(function (r) {
+        var others = KOS.attach.linksOf(r).filter(function (l) { return !(l.kind === me.kind && l.id === me.id); });
+        var next = function () { if (!--pending) cb && cb(null); };
+        if (others.length && r.fileId) KOS.attach.removeLink(r.fileId, me, next);
+        else KOS.attach.remove(r.id, next);
+      });
+    });
   }
 
   /* ---------------- status transitions ---------------- */
@@ -566,7 +596,7 @@
     statusLabel: statusLabel, typeLabel: typeLabel, subtaskProgress: subtaskProgress,
     forDate: forDate, countdownItems: countdownItems, urgent: urgent, linkable: linkable,
     isMajor: isMajor, pinCountdown: pinCountdown, migrateCountdown: migrateCountdown,
-    attachRef: attachRef, attachmentsFor: attachmentsFor,
+    attachRef: attachRef, attachmentsFor: attachmentsFor, soleFiles: soleFiles,
     checkAlerts: checkAlerts, dueMoment: dueMoment,
     normalise: normalise,
     STATUSES: STATUSES, OPEN_STATUSES: OPEN_STATUSES, TYPES: TYPES,

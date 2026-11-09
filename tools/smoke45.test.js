@@ -321,7 +321,9 @@ step("a toast announces, and the same sentence twice announces twice", async () 
   await tick(0);
   mo.disconnect();
   assert(cleared() !== -1, "the region was not cleared before the repeat");
-  assert(seen.indexOf(SAID, cleared()) !== -1 && pol.textContent === SAID, "the repeat did not announce");
+  /* the claim is that the repeat WAS announced after the clear; a later,
+     unrelated announcement (a boot timer on a loaded machine) may replace it */
+  assert(seen.indexOf(SAID, cleared()) !== -1, "the repeat did not announce: " + JSON.stringify(seen));
 });
 
 step("a failure interrupts; a confirmation waits its turn", async () => {
@@ -756,7 +758,10 @@ step("a query with no answer says what was searched", async () => {
   const input = document.getElementById("search");
   input.value = "zzzzqqqqxxxx";
   input.dispatchEvent(new window.Event("input", { bubbles: true }));
-  await tick(150);
+  /* the empty state is redrawn when the async vault answer lands: wait for
+     the final wording, not a fixed time (audit AP-16; failed under load) */
+  const final = () => { const e = document.querySelector("#search-results [data-ui~='search.empty']"); return e && /reminders/i.test(e.textContent) ? e : null; };
+  await waitFor(() => final());
   const empty = document.querySelector("#search-results [data-ui~='search.empty']");
   assert(empty, "no zero-result state");
   const txt = empty.textContent.toLowerCase();

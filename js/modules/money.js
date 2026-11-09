@@ -1000,7 +1000,7 @@
       var newN = pv ? pv.rows.filter(function (r) { return !r.duplicate; }).length : 0;
       return card([head("Preview", (parsed.rows.length) + " rows · " + newN + " new" + (pv && pv.duplicates ? " · " + pv.duplicates + " look like ones you have" : "") + (pv && pv.errors.length ? " · " + pv.errors.length + " cannot be read" : "")),
         el("div", { class: "k-mn-pvlist" }, rows),
-        el("p", { class: "k-muted k-mn-small", text: "Duplicates match on date, amount and payee." })], "k-mn-pvcard");
+        el("p", { class: "k-muted k-mn-small", text: (pv && pv.seenStatement ? "This statement was imported before. " : "") + "Matched by what the bank wrote; identical rows in one statement are separate payments." })], "k-mn-pvcard");
     }
     function doImport() {
       var take = pv.rows.map(function (r) { return Object.assign({}, r, { duplicate: r.duplicate && !includeDup[r.line] }); });

@@ -29,6 +29,9 @@
   "use strict";
   window.KOS = window.KOS || {};
   var el = KOS.ui.el;
+  /* the rows as this editor last loaded or saved them: the base its saves
+     merge against, so a change pulled from another device survives (SY-18) */
+  function snap(v) { return JSON.parse(JSON.stringify(v == null ? null : v)); }
 
   var KIND_LABEL = { spec: "Specification", notes: "Notes", flashcards: "Flashcards", quiz: "Quiz", exam: "Exam questions" };
 
@@ -406,12 +409,12 @@
   }
 
   function flashcardEditor(sid, ref, onSave) {
-    var cards = KOS.edits.material(sid, ref, "flashcards");
+    var cards = KOS.edits.material(sid, ref, "flashcards"), base = snap(cards);
     var wrap = el("div", { class: "k-ed-rows" });
     var list = el("div", { class: "k-ed-list" });
     var timer = null;
     function commit() { clearTimeout(timer); timer = setTimeout(save, 250); }
-    function save() { clearTimeout(timer); KOS.edits.set(sid, ref, "flashcards", cards); onSave(); }
+    function save() { clearTimeout(timer); KOS.edits.set(sid, ref, "flashcards", cards, { base: base }); base = snap(cards); onSave(); }
     function redraw() {
       list.innerHTML = "";
       if (!cards.length) list.appendChild(el("p", { class: "k-ed-empty", text: "No curriculum cards on this topic yet — add one." }));
@@ -452,7 +455,7 @@
     }
     wrap.appendChild(list);
     wrap.appendChild(el("button", { class: "k-btn k-btn--primary k-ed-add", "data-intent": "primary", type: "button", text: "+ Add card", onclick: function () {
-      cards.push({ q: "", a: "" }); save(); cards = KOS.edits.material(sid, ref, "flashcards"); redraw();
+      cards.push({ q: "", a: "" }); save(); cards = KOS.edits.material(sid, ref, "flashcards"); base = snap(cards); redraw();
       var last = list.querySelectorAll("[data-ui~='editor.row']:not([data-kind='custom']) textarea"); if (last.length) last[last.length - 2].focus();
     } }));
     KOS.ui.reorder(list, { rows: "[data-rid]", label: function (row) { return row.querySelector(".k-ed-row-h b").textContent; },
@@ -462,12 +465,12 @@
   }
 
   function quizEditor(sid, ref, onSave) {
-    var items = KOS.edits.material(sid, ref, "quiz");
+    var items = KOS.edits.material(sid, ref, "quiz"), base = snap(items);
     var wrap = el("div", { class: "k-ed-rows" });
     var list = el("div", { class: "k-ed-list" });
     var timer = null;
     function commit() { clearTimeout(timer); timer = setTimeout(save, 250); }
-    function save() { clearTimeout(timer); KOS.edits.set(sid, ref, "quiz", items); onSave(); }
+    function save() { clearTimeout(timer); KOS.edits.set(sid, ref, "quiz", items, { base: base }); base = snap(items); onSave(); }
     function optionRows(it, redrawItem) {
       var box = el("div", { class: "k-ed-opts" });
       it.opts.forEach(function (o, oi) {
@@ -533,7 +536,7 @@
     }
     wrap.appendChild(list);
     wrap.appendChild(el("button", { class: "k-btn k-btn--primary k-ed-add", "data-intent": "primary", type: "button", text: "+ Add question", onclick: function () {
-      items.push({ q: "", opts: ["", ""], ans: 0, why: "" }); save(); items = KOS.edits.material(sid, ref, "quiz"); redraw();
+      items.push({ q: "", opts: ["", ""], ans: 0, why: "" }); save(); items = KOS.edits.material(sid, ref, "quiz"); base = snap(items); redraw();
     } }));
     KOS.ui.reorder(list, { rows: "[data-rid]", label: function (row) { return row.querySelector(".k-ed-row-h b").textContent; },
       onDrop: dropIn(function () { return items; }, save, redraw) });
@@ -542,7 +545,7 @@
   }
 
   function examEditor(sid, ref, onSave) {
-    var items = KOS.edits.material(sid, ref, "exam");
+    var items = KOS.edits.material(sid, ref, "exam"), base = null;
     var wrap = el("div", { class: "k-ed-rows" });
     var list = el("div", { class: "k-ed-list" });
     var timer = null;
@@ -564,7 +567,8 @@
       });
     }
     function commit() { clearTimeout(timer); timer = setTimeout(save, 250); }
-    function save() { clearTimeout(timer); KOS.edits.set(sid, ref, "exam", flatten()); onSave(); }
+    function save() { clearTimeout(timer); var mine = flatten(); KOS.edits.set(sid, ref, "exam", mine, { base: base }); base = snap(mine); onSave(); }
+    base = snap(flatten());
     function redraw() {
       list.innerHTML = "";
       if (!items.length) list.appendChild(el("p", { class: "k-ed-empty", text: "No exam questions on this topic yet — add one." }));
@@ -596,7 +600,7 @@
     }
     wrap.appendChild(list);
     wrap.appendChild(el("button", { class: "k-btn k-btn--primary k-ed-add", "data-intent": "primary", type: "button", text: "+ Add question", onclick: function () {
-      items.push({ q: "", marks: 2, ms: [] }); save(); items = KOS.edits.material(sid, ref, "exam"); redraw();
+      items.push({ q: "", marks: 2, ms: [] }); save(); items = KOS.edits.material(sid, ref, "exam"); base = snap(flatten()); redraw();
     } }));
     KOS.ui.reorder(list, { rows: "[data-rid]", label: function (row) { return row.querySelector(".k-ed-row-h b").textContent; },
       onDrop: dropIn(function () { return items; }, save, redraw) });
@@ -645,15 +649,15 @@
       body.appendChild(bar);
       function saved(kind2, hint) { paintState(); onChange(kind2, hint || {}); }
       if (kind === "notes") {
-        var blocks = KOS.edits.material(sid, ref, "notes");
+        var blocks = KOS.edits.material(sid, ref, "notes"), nbase = snap(blocks);
         current = blockList(blocks, function (hint) {
-          if (!hint.focusOnly) KOS.edits.set(sid, ref, "notes", blocks);
+          if (!hint.focusOnly) { KOS.edits.set(sid, ref, "notes", blocks, { base: nbase }); nbase = snap(blocks); }
           saved("notes", hint);
         }, { emptyText: "No notes on this topic yet — add the first block, or a Markdown block to paste a whole page." });
         body.appendChild(current.node);
       } else if (kind === "spec") {
-        var spec = KOS.edits.material(sid, ref, "spec");
-        var save = function (hint) { if (!hint.focusOnly) KOS.edits.set(sid, ref, "spec", spec); saved("spec", hint); };
+        var spec = KOS.edits.material(sid, ref, "spec"), sbase = snap(spec);
+        var save = function (hint) { if (!hint.focusOnly) { KOS.edits.set(sid, ref, "spec", spec, { base: sbase }); sbase = snap(spec); } saved("spec", hint); };
         /* frame 23c: the Spec tab reads in two columns and the break between
            them is a row here, in reading order, with its own handle. With no
            break stored it sits where the lists meet (the automatic layout);

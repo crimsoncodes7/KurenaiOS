@@ -490,7 +490,7 @@
     tree.appendChild(list);
     var lastStage = null;
     sections.forEach(function (sec) {
-      if (codeSpine && sec.stage !== lastStage) {
+      if (codeSpine && codeSpine.stageHead && sec.stage !== lastStage) {
         lastStage = sec.stage;
         list.appendChild(codeSpine.stageHead(sec.stage));
       }
@@ -3355,10 +3355,47 @@
       }});
     var file = el("input", { type: "file", accept: ".json,application/json", hidden: "",
       onchange: function () {
-        if (!file.files[0]) return;
+        var picked = file.files[0];
+        if (!picked) return;
+        /* AA-11, DI-22 (quality W1): read and describe the file first, ask
+           before replacing anything, and take a VERIFIED copy of this device
+           before the restore runs — no verified copy, no restore */
+        var rd = new FileReader();
+        rd.onerror = function () { file.value = ""; KOS.ui.toast("Could not read that file.", true); };
+        rd.onload = function () {
+          var data = null;
+          try { data = JSON.parse(rd.result); } catch (e) {}
+          if (!data || typeof data !== "object" || !data.state) { file.value = ""; KOS.ui.toast("That file is not a KurenaiOS backup.", true); return; }
+          var when = data.exportedAt ? new Date(data.exportedAt).toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "an unknown date";
+          var n = function (st) { return st && Array.isArray(st.sessions) ? st.sessions.length : 0; };
+          var titles = function (x) { return Array.isArray(x) ? x.length : 0; };
+          KOS.ui.confirm({ danger: true, title: "Replace everything on this device?", confirm: "Replace with this backup", mark: "替",
+            body: "The backup is from " + when + ": " + n(data.state) + " sessions and " + titles(data.mediaEntries) + " Collection titles. " +
+              "This device has " + n(store.state) + " sessions now. A copy of this device is saved and checked first, " +
+              "and if cloud sync is on, the restored data replaces the cloud's on the next sync." },
+            function () { restoreNow(picked); },
+            function () { file.value = ""; });
+        };
+        rd.readAsText(picked);
+      }});
+    function restoreNow(picked) {
         importBtn.disabled = true;
-        importBtn.textContent = "Restoring…";
-        store.importFull(file.files[0], function (err, report) {
+        importBtn.textContent = "Saving a copy first…";
+        var safe = KOS.backup ? KOS.backup.checkpoint("before-import") : Promise.resolve({ ok: false, reason: "the backup store is not loaded" });
+        safe.then(function (cp) {
+          if (!cp.ok) {
+            importBtn.disabled = false;
+            importBtn.textContent = "Import backup…";
+            file.value = "";
+            KOS.ui.toast("Nothing was restored: a copy of this device could not be saved and checked (" + cp.reason + "). Export a backup first.", true);
+            return;
+          }
+          importBtn.textContent = "Restoring…";
+          doImport(picked);
+        });
+    }
+    function doImport(picked) {
+        store.importFull(picked, function (err, report) {
           importBtn.disabled = false;
           importBtn.textContent = "Import backup…";
           file.value = "";
@@ -3371,7 +3408,7 @@
           KOS.refreshRailCounters();
           KOS.show("home");
         });
-      }});
+    }
     var importBtn = el("button", { type: "button", class: "k-btn", text: "Import backup…", title: "A complete restore, not a merge: the file replaces what's here",
       onclick: function () { file.click(); } });
     var lastLine = el("h2", { class: "k-bk-last", text: last ? "Last backup " + agoWords(last) : "No backup from this device yet" });

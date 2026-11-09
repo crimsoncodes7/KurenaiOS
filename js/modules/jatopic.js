@@ -34,22 +34,24 @@
           onclick: function () { ui.spine = m[0]; KOS.store.save(); KOS.rerender(); } });
       }));
     tree.insertBefore(seg, tree.querySelector(".k-spine-filter-wrap"));
+    var STAGES = (window.KOS_JA && window.KOS_JA.STAGES) || [];
+    function stageHead(stage) {
+      var st = STAGES[stage] || {};
+      return el("div", { class: "k-spine-stage k-ja-spine-stage", "data-ui": "ja.spine-stage" }, [
+        el("span", { class: "k-ja-emblem", lang: "ja", "aria-hidden": "true", text: st.kanji || "" }),
+        "Stage " + stage + " · " + (st.name || "")
+      ]);
+    }
+    /* Media has nothing of its own yet, so the core lessons stay listed
+       under its note: a lesson page always has a spine (JM-06 — the media
+       branch had no stageHead, so every Japanese lesson threw and the
+       subject was locked until the switch was put back) */
     if (mode === "media") {
       list.appendChild(el("div", { class: "k-spine-stage", text: "Media" }));
-      list.appendChild(el("p", { class: "k-ja-spine-note", text: "Manga, visual novels and your own videos arrive with the reader and media release." }));
-      return { tracks: true };
+      list.appendChild(el("p", { class: "k-ja-spine-note", text: "Manga, visual novels and your own videos arrive with the reader and media release. Your core lessons are below." }));
+      return { tracks: true, stageHead: stageHead };
     }
-    var STAGES = (window.KOS_JA && window.KOS_JA.STAGES) || [];
-    return {
-      tracks: false,
-      stageHead: function (stage) {
-        var st = STAGES[stage] || {};
-        return el("div", { class: "k-spine-stage k-ja-spine-stage", "data-ui": "ja.spine-stage" }, [
-          el("span", { class: "k-ja-emblem", lang: "ja", "aria-hidden": "true", text: st.kanji || "" }),
-          "Stage " + stage + " · " + (st.name || "")
-        ]);
-      }
-    };
+    return { tracks: false, stageHead: stageHead };
   }
 
   /* ================= the topic page ================= */

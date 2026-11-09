@@ -452,11 +452,19 @@
       ]),
       el("div", { class: "k-dialog-foot" }, [
         existing ? el("button", { type: "button", class: "k-btn k-btn--danger", "data-intent": "danger", text: "Delete", onclick: function () {
-          KOS.ui.confirm({ title: "Delete this assignment?", danger: true, confirm: "Delete",
-            body: "“" + existing.title + "” and everything derived from it — its calendar entry, countdown and Home card — go with it." },
-            function () {
-              A().remove(existing.id, function () { overlay.close(); KOS.ui.toast("Assignment deleted."); done && done(null); });
-            });
+          /* name the files that go with it: only those nothing else links
+             (ST-25); a file linked elsewhere stays and loses this link */
+          A().soleFiles(existing.id, function (err, going) {
+            var names = (going || []).map(function (r) { return "“" + r.name + "”"; });
+            KOS.ui.confirm({ title: "Delete this assignment?", danger: true, confirm: "Delete",
+              body: "“" + existing.title + "” and everything derived from it — its calendar entry, countdown and Home card — go with it." +
+                (names.length ? " Its " + (names.length === 1 ? "file " : names.length + " files ") + names.slice(0, 4).join(", ") + (names.length > 4 ? " and " + (names.length - 4) + " more" : "") +
+                  (names.length === 1 ? " is" : " are") + " deleted too: nothing else links " + (names.length === 1 ? "it" : "them") + "." : "") +
+                " Files linked elsewhere stay." },
+              function () {
+                A().remove(existing.id, function () { overlay.close(); KOS.ui.toast("Assignment deleted."); done && done(null); });
+              });
+          });
         } }) : null,
         el("span", { class: "k-spacer" }),
         el("button", { type: "button", class: "k-btn", text: "Cancel", onclick: overlay.close }),

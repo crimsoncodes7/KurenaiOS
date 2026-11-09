@@ -261,6 +261,7 @@
     restore: restore,
     digest: digest,
     canon: canon,
+    sha256: sha256,
     _seam: seam,
     _raw: { get: getRec, put: putRec }
   };

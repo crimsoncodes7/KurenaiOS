@@ -186,6 +186,23 @@
     var xp = 0, gold = 0, hp = 0, notes = [];
     var m = e.metrics || {};
 
+    /* a CORRECTION (quality W1, the DI-27 clean-up, decision B1): a one-off
+       ledger entry that takes back pay the app gave in error, so XP and gold
+       still move only through the ledger (invariant 1). It carries its own
+       negative award, clamped so neither balance goes below 0; it is not
+       activity, study or rest (sessions.js), earns no streak milestone and
+       is left out of Reports' "earned". */
+    if (e.type === "correction") {
+      var dx = Math.min(0, Math.round(+m.xp || 0)), dg = Math.min(0, Math.round(+m.gold || 0));
+      dx = Math.max(dx, -g.xp); dg = Math.max(dg, -g.gold);
+      g.xp += dx; g.gold += dg;
+      e.award = { xp: dx, gold: dg };
+      lastAward = { xp: dx, gold: dg, hp: 0, notes: ["correction"], levelUp: false, level: levelInfo(g.xp).level };
+      store.save();
+      if (KOS.refreshHUD) KOS.refreshHUD();
+      return;
+    }
+
     if (e.type === "flashcards") { xp = 15 + (m.cards || 0); gold = 3; hp = 4; }
     else if (e.type === "due-review") {
       xp = 20 + (m.cards || 0) * 2; gold = 5; hp = 6;

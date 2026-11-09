@@ -24,7 +24,7 @@
      F · LAZY LISTS. 130 rows come back as 60 + 60 + 10 on an exact cursor,
          with no row twice; filters apply.
      G · CSV. Quoted fields and a semicolon file; the header guess; UK
-         dates; the preview marks duplicates (stored and within the file);
+         dates; the preview marks duplicates against what is STORED (identical rows in one file are separate payments, MG-23);
          import skips them; export writes a split as two lines.
      H · BACKUP. snapshotFull carries the typed transactions and importAll
          puts them back.
@@ -265,10 +265,10 @@ step("G · CSV: parse, guess, preview duplicates, import, export", async () => {
   eq(M.csv.guess(semi.header), { date: 0, out: 1, in: 2 }, "in/out columns");
   const prev = await p(cb => M.csv.preview(parsed, map, {}, cb));
   eq(prev.errors.map(e => e.line), [6], "the impossible date is reported");
-  eq(prev.rows.map(r => r.duplicate), [true, false, true, false], "Tesco £13 on the 3rd is stored; the café repeats in the file");
+  eq(prev.rows.map(r => r.duplicate), [true, false, false, false], "Tesco £13 on the 3rd is stored; two identical café rows in one statement are two payments (MG-23)");
   eq(prev.rows[3].kind, "in", "a positive amount is income");
   const res = await p(cb => M.csv.import(prev.rows, {}, cb));
-  eq([res.added, res.skipped], [2, 2], "duplicates skipped");
+  eq([res.added, res.skipped], [3, 1], "the stored duplicate skipped, both café payments added");
   assert(/^b-/.test(res.batch), "one batch id for the import");
   const csv = await p(cb => M.csv.export("2026-10-05", "2026-10-05", cb));
   eq(csv.trim().split("\n").length, 3, "a split exports as two lines");

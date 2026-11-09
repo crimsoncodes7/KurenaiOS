@@ -564,6 +564,13 @@
       /* one CSV import shares a batch id, so "Undo this import" removes
          exactly those entries */
       batch: str(raw.batch, 40) || null,
+      /* an imported row's identity (MG-01, plan §A3): the tuple key, its
+         occurrence ordinal within the statement, the bank's id when the
+         export has one, and the statement's fingerprint; with the source
+         row itself, so a later import can be checked against it */
+      imp: raw.imp && raw.imp.k ? { k: str(raw.imp.k, 400), occ: Math.max(1, +raw.imp.occ || 1),
+        fitid: str(raw.imp.fitid, 80) || null, stmt: str(raw.imp.stmt, 40) || null } : null,
+      raw: Array.isArray(raw.raw) ? raw.raw.slice(0, 16).map(function (c) { return String(c == null ? "" : c).slice(0, 160); }) : null,
       createdAt: raw.createdAt || Date.now(),
       updatedAt: raw.updatedAt || raw.createdAt || Date.now()
     };
@@ -973,7 +980,9 @@
     out: /^(paid out|money out|debit|withdrawals?|out)$/i,
     in: /^(paid in|money in|credit|deposits?|in)$/i,
     payee: /^(description|payee|merchant|name|counter party|details|reference)$/i,
-    note: /^(notes?|memo|category)$/i
+    note: /^(notes?|memo|category)$/i,
+    fitid: /^(fitid|transaction id|transaction reference|id)$/i,
+    balance: /^(balance|running balance|balance \(gbp\))$/i
   };
   function guessMapping(header) {
     var m = {};
@@ -994,13 +1003,38 @@
     if (mo < 1 || mo > 12 || d < 1 || d > daysInMonth(y, mo - 1)) return null;
     return iso(new Date(y, mo - 1, d));
   }
+  /* THE IMPORT IDENTITY (MG-01, MG-23; plan §A3). A row is known by
+     what the BANK wrote, never by how it was mapped: its date, amount and
+     kind plus every other cell of the source row, normalised and sorted (so
+     a different payee column, or the same export with its columns
+     reordered, is the same row). Identical rows inside one statement are
+     told apart by their occurrence ordinal (`occ`: the 1st, 2nd … of that
+     tuple), so two genuine same-day payments of the same amount both
+     import, and a re-import flags exactly as many as are stored — only the
+     surplus is new. A bank id column (FITID, "Transaction ID") wins when
+     present; a balance column is part of the row and tells repeats apart
+     on its own. Rows imported before this rule carry no `imp` and are
+     matched by date, amount and payee, each stored row used up once. */
+  function normCell(v) { return String(v == null ? "" : v).toLowerCase().replace(/\s+/g, " ").trim(); }
+  function fnv(text) {
+    var h = 0x811c9dc5;
+    for (var i = 0; i < text.length; i++) { h ^= text.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; }
+    return ("0000000" + h.toString(16)).slice(-8);
+  }
+  function rowKey(r, mapping, date, minor, kind) {
+    var skip = {};
+    ["date", "amount", "out", "in", "fitid"].forEach(function (k) { if (mapping[k] != null) skip[mapping[k]] = true; });
+    var rest = r.map(function (c, i) { return skip[i] ? null : normCell(c); }).filter(function (c) { return c; }).sort();
+    return date + "|" + minor + "|" + kind + "|" + rest.join("\u241f");
+  }
   /* rows → transactions with no side effect. A signed `amount` column is
      an outgoing when negative unless `sign: "positive-out"`; separate in
      and out columns are read as such. Each candidate is checked against
-     what is stored: the same date, amount and payee is a duplicate. */
+     what is STORED (never against the file itself): see the identity above. */
   function previewCSV(parsed, mapping, opts, cb) {
     opts = opts || {};
-    var out = { rows: [], errors: [], duplicates: 0 };
+    var out = { rows: [], errors: [], duplicates: 0, statement: null, seenStatement: false };
+    var occ = {};
     parsed.rows.forEach(function (r, i) {
       var date = parseDate(r[mapping.date], opts.dateFormat || "dmy");
       var minor = null, kind = "out";
@@ -1016,19 +1050,37 @@
         if (o) { minor = Math.abs(o); kind = "out"; } else if (n) { minor = Math.abs(n); kind = "in"; }
       }
       if (!date || !minor) { out.errors.push({ line: i + 2, reason: !date ? "No date I can read" : "No amount" }); return; }
+      var fitid = mapping.fitid != null ? str(r[mapping.fitid], 80) : "";
+      var k = fitid ? "fitid:" + fitid : rowKey(r, mapping, date, minor, kind);
+      occ[k] = (occ[k] || 0) + 1;
       out.rows.push({ line: i + 2, date: date, minor: minor, kind: kind,
         cat: kind === "in" ? (opts.inCat || "other-in") : (opts.outCat || "other"),
-        payee: str(r[mapping.payee], 80), note: mapping.note != null ? str(r[mapping.note], 500) : "", duplicate: false });
+        payee: str(r[mapping.payee], 80), note: mapping.note != null ? str(r[mapping.note], 500) : "", duplicate: false,
+        imp: { k: k, occ: occ[k], fitid: fitid || null }, raw: r.slice(0, 16) });
     });
     if (!out.rows.length) { cb(null, out); return; }
+    /* the statement's fingerprint: its rows' identities, order-free */
+    out.statement = fnv(out.rows.map(function (x) { return x.imp.k + "#" + x.imp.occ; }).sort().join("\n"));
+    out.rows.forEach(function (x) { x.imp.stmt = out.statement; });
     var dates = out.rows.map(function (x) { return x.date; }).sort();
     range(dates[0], dates[dates.length - 1], function (err, have) {
-      var keys = {};
-      (have || []).forEach(function (t) { keys[t.date + "|" + t.minor + "|" + t.payee.toLowerCase()] = true; });
+      var stored = {}, legacy = {};
+      (have || []).forEach(function (t) {
+        if (t.imp && t.imp.k) {
+          stored[t.imp.k] = (stored[t.imp.k] || 0) + 1;
+          if (t.imp.stmt === out.statement) out.seenStatement = true;
+        } else {
+          var lk = t.date + "|" + t.minor + "|" + String(t.payee || "").toLowerCase();
+          legacy[lk] = (legacy[lk] || 0) + 1;
+        }
+      });
       out.rows.forEach(function (x) {
-        var k = x.date + "|" + x.minor + "|" + x.payee.toLowerCase();
-        if (keys[k]) { x.duplicate = true; out.duplicates++; }
-        keys[k] = true;   // a repeat inside the same file is a duplicate too
+        var dup = x.imp.occ <= (stored[x.imp.k] || 0);
+        if (!dup) {
+          var lk = x.date + "|" + x.minor + "|" + x.payee.toLowerCase();
+          if (legacy[lk]) { legacy[lk]--; dup = true; }
+        }
+        if (dup) { x.duplicate = true; out.duplicates++; }
       });
       cb(err || null, out);
     });
@@ -1039,7 +1091,7 @@
     var batch = rid("b");
     var txs = take.map(function (x) {
       return normaliseTx({ date: x.date, minor: x.minor, kind: x.kind, cat: x.cat, payee: x.payee, note: x.note,
-        tags: opts.tag ? [opts.tag] : [], src: "csv", batch: batch });
+        tags: opts.tag ? [opts.tag] : [], src: "csv", batch: batch, imp: x.imp, raw: x.raw });
     }).filter(Boolean);
     putRaw(txs, function (err) {
       if (!err) soonSync();

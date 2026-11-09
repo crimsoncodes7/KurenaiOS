@@ -196,9 +196,60 @@
       return stamp(typeof v === "string" ? { p: v } : clone(v));
     });
   }
-  function set(sid, ref, kind, value) {
+  /* SY-18 (quality W1): an editor holds its own copy of a topic's rows
+     while it is open; when the cloud pulls another device's change to the
+     same fork underneath it, writing the editor's whole list back would
+     erase it. With `opts.base` (the rows as the editor last loaded or
+     saved them) set() merges by row id instead (invariant 88):
+       - a row the editor did not touch takes the stored copy (a remote edit
+         survives) and, deleted remotely, stays deleted;
+       - a row the editor changed, added or deleted is the editor's;
+       - a row added remotely is kept, after its stored neighbour.
+     Order is the editor's. Ids are stamped onto the editor's own rows first,
+     so the next save names them the same way. */
+  function canonRow(v) {
+    if (v === null || typeof v !== "object") return JSON.stringify(v);
+    if (Array.isArray(v)) return "[" + v.map(canonRow).join(",") + "]";
+    return "{" + Object.keys(v).sort().filter(function (k) { return v[k] !== undefined; }).map(function (k) { return JSON.stringify(k) + ":" + canonRow(v[k]); }).join(",") + "}";
+  }
+  function sameRow(a, b) { return canonRow(a) === canonRow(b); }
+  function mergeRows(base, local, stored) {
+    var idx = function (a) { var m = {}; (a || []).forEach(function (x) { if (x && x.id != null) m[String(x.id)] = x; }); return m; };
+    var B = idx(base), L = idx(local), S = idx(stored), out = [];
+    (local || []).forEach(function (x) {
+      var id = String(x.id), b = B[id];
+      if (b && sameRow(x, b)) { if (S[id]) out.push(clone(S[id])); return; }
+      out.push(x);
+    });
+    (stored || []).forEach(function (x, i) {
+      if (!x || x.id == null) return;
+      var id = String(x.id);
+      if (B[id] || L[id]) return;
+      var at = 0;
+      for (var j = i - 1; j >= 0; j--) {
+        var pid = stored[j] && String(stored[j].id), k = -1;
+        for (var q = 0; q < out.length; q++) if (String(out[q].id) === pid) { k = q; break; }
+        if (k >= 0) { at = k + 1; break; }
+      }
+      out.splice(at, 0, clone(x));
+    });
+    return out;
+  }
+  function set(sid, ref, kind, value, opts) {
     if (KINDS.indexOf(kind) === -1) return null;
     var r = root(), k = key(sid, ref);
+    if (opts && opts.base) {
+      var storedNow = r.topics[k] && r.topics[k][kind] != null ? r.topics[k][kind] : material(sid, ref, kind);
+      if (kind === "spec") {
+        value = value || {};
+        ["content", "info"].forEach(function (l) { (value[l] || []).forEach(stamp); });
+        value = { content: mergeRows(opts.base.content, value.content || [], storedNow && storedNow.content),
+          info: mergeRows(opts.base.info, value.info || [], storedNow && storedNow.info), colBreak: value.colBreak };
+      } else if (Array.isArray(value)) {
+        value.forEach(function (v) { if (v && typeof v === "object") stamp(v); });
+        value = mergeRows(opts.base, value, storedNow);
+      }
+    }
     var t = r.topics[k] = r.topics[k] || {};
     t[kind] = normaliseKind(sid, ref, kind, value);
     t.updatedAt = Date.now();
