@@ -408,6 +408,12 @@ show on Account & Cloud Sync (DI-20).
   checkpoints have no restore button in the app yet (to be built with the
   Backup page and the store registry in W1).
 - Gate 127/127 (`qa/w1/gate-w1-2026-11-09b.txt`), commit `83a144c`.
+- **Released 9 Nov (sw `kos-integrity-3`, `6751a7f`):** HR-16 (milestone
+  gold once per run, smoke128), ST-26 (an invalid IT mark writes nothing,
+  smoke58), PR-03 (no link stays unlinked; Just start starts the page's
+  choice, smoke104 — the menu's layering is left to W3's menus-in-dialogs
+  work). Gate 127/128: smoke17 flakes under heavy parallel load (it passes
+  alone; at the pre-W1 commit it flakes more) — AP-16 remainder, backlog.
 - Still to do in W1: RC21 receipts, §A4 two tabs, §A5 storage, the store
   registry, Todoist/Google bookkeeping, side replicators, the remaining
   P1s; the Reports rebuild waits for HR-31's fix.
