@@ -13,6 +13,8 @@ Read this first, then CLAUDE.md, docs/memory/MEMORY.md and the audit plan
 - A 3-agent adversarial review then found the issues below (most CONFIRMED by running them). **None are fixed yet** — a fix workflow was cut off by the usage limit and left nothing (its empty worktrees `.claude/worktrees/wf_7f68b57b-42d-{1,2,3}` and the builders' `wf_3c11fb1c-fd7-{1,2,3}` can be removed with `git worktree remove`).
 - **Do NOT deploy RC5 until the P0 and P1s are fixed** — the P0 can double gold/XP with two tabs open, and the P1s can lose data.
 
+- Added after the handoff: `17d24aa` design prompts 20.1–20.3 (D-Held, D-Topic tier, D-Agenda), and `fc55d49` the W3 RC2 root fix pulled forward: menus and the topic picker opened inside a dialog now paint above it (`--z-popover` 125; smoke118 baseline `primitiveBehind: false`). Not yet checked in a real browser; menus clipped by an `overflow` container (absolute popovers such as `.k-mlists-menu`, `.k-gv-tools-pop`) are a separate W3 item.
+
 ## Next steps (in order)
 1. Fix the findings below, failing-first tests in smoke133/134/135 (one fixer per area: store/cloudmerge/focus; profilepics/ja/mined; cloudsync/backup/ext/goals). The intended design for each is in the "Fix" line; for the P0, sum equal counter deltas only when both sides added DISJOINT session ids (an applied cloud doc brings the same ids to both → collapse).
 2. Run `npm test` (gate 135/135), resolve smoke45.
