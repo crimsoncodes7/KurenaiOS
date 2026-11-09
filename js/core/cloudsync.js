@@ -82,6 +82,7 @@
   var BUCKET = "kos-attachments";
   var META_PREFIX = "cloudsync.meta.";            // + userId → the account's sync meta
   var BASE_PREFIX = "cloudsync.base.";            // + userId → the last document agreed with the cloud
+  var PRE_PREFIX = "cloudsync.prereplace.";       // + userId → the local document before the last replace (DI-03)
   var RESTORE_FLAG = "cloudsync.restorePending";  // set by store.importFull
   var DELETES_KEY = "cloudsync.pendingDeletes";       // owned by mediadb
   var FILE_DELETES_KEY = "cloudsync.filesPendingDeletes"; // owned by attachments
@@ -231,22 +232,118 @@
         !!v.rag;
     });
   }
-  function stateMeaningful(s) {
-    if (!s || typeof s !== "object") return false;
-    return !!(progressMeaningful(s.progress) ||
-      (s.sessions || []).length ||
-      (s.custom && s.custom.cards && s.custom.cards.length) ||
-      (s.wishlist && s.wishlist.items && s.wishlist.items.length) ||
-      (s.tracker && s.tracker.entries && s.tracker.entries.length) ||
-      (s.goals && s.goals.items && s.goals.items.length) ||
-      /* the boot seeder plants SAMPLE events — only an event the user
-         actually created (or renamed) counts as data */
-      (s.calendar && (s.calendar.events || []).some(function (ev) {
-        return String(ev.title || "").indexOf("SAMPLE") === -1;
-      })) ||
-      (s.governor && ((s.governor.xp || 0) > 0 || (s.governor.gold || 0) > 0 ||
-        (s.governor.owned || []).length)));
+  /* WHAT COUNTS AS THE USER'S DATA (DI-03). The first-link classifier and
+     the "an empty document never wins" guards ask this. It used to look at
+     a handful of fields only, so a device whose data was reminders,
+     assignments, assessments, routines, plan ticks, Money settings,
+     curriculum edits, a study space's evidence or the card schedule counted
+     as EMPTY and was replaced by the account's copy on its first sign-in.
+
+     Now: every record array the cloud merge knows (cloudmerge RECORDS) and
+     every keyed map of evidence, MINUS what a fresh boot plants by itself —
+     the SAMPLE calendar events (and the assessments the Exams hub moved
+     out of them), the weekly plan's seed (KOS_PACING; a row only counts
+     once ticked, noted, moved or added), Money's default categories, the
+     IT units' seed (a unit counts once edited, `updatedAt`) and the
+     notification ledger (history of the above, not data of its own).
+     Returns the first thing found ("reminders.items", …) or null. */
+  function isSampleTitle(t) { return String(t || "").indexOf("SAMPLE") !== -1; }
+  var SEEDED_PATHS = { "calendar.events": 1, "pacing.weeks": 1, "pacing.entries": 1,
+    "money.categories": 1, "notify.items": 1, "sessions": 1, "custom.cards": 1,
+    "wishlist.items": 1, "tracker.entries": 1, "goals.items": 1 };
+  var EVIDENCE_MAPS = [
+    "srs", "edits.topics", "routines.log", "dayReview.days",
+    "code.tasks", "code.lessons", "code.proven", "code.cards", "code.practice", "code.later", "code.katas",
+    "japanese.facets", "japanese.lessons", "japanese.checkpoints", "japanese.mined", "japanese.input",
+    "creatives.lessons", "creatives.works", "creatives.projects", "creatives.paid", "creatives.firsts",
+    "mind.cards", "mind.lessons", "mind.explains", "mind.positions", "mind.parked", "mind.checkpoints",
+    "mind.tensions", "mind.bq", "mind.paths",
+    "achievements.earned", "media.shrine.order", "media.shrine.notes"
+  ];
+  function at(s, dotted) { return pathGet(s, dotted.split(".")); }
+  function nonEmptyMap(v) {
+    return !!(v && typeof v === "object" && (Array.isArray(v) ? v.length : Object.keys(v).length));
   }
+  /* the seed already carries ticks and notes (the Notion import), so a
+     row counts only where it DIFFERS from its seed row, or the seed never
+     had it (added by hand, or sent by the Exams planner) */
+  var seedPacing = null;
+  function pacingSeed() {
+    if (seedPacing) return seedPacing;
+    var seed = window.KOS_PACING;
+    if (!seed || !Array.isArray(seed.entries)) return null;
+    var rows = {}, weeks = {};
+    seed.entries.forEach(function (e) { if (e && e.id != null) rows[String(e.id)] = e; });
+    (seed.weeks || []).forEach(function (w) { if (w && w.wb) weeks[String(w.wb)] = w; });
+    return (seedPacing = { rows: rows, weeks: weeks });
+  }
+  function txt(v) { return String(v == null ? "" : v).trim(); }
+  function list(v) { return JSON.stringify((Array.isArray(v) ? v : []).map(String).filter(Boolean).sort()); }
+  function days(v) {
+    var o = {};
+    if (v && typeof v === "object") Object.keys(v).sort().forEach(function (k) { o[k] = +v[k]; });
+    return JSON.stringify(o);
+  }
+  function pacingTouched(p) {
+    if (!p || typeof p !== "object") return false;
+    if (nonEmptyMap(p.timetable)) return true;
+    var seed = pacingSeed();
+    /* without the seed loaded nothing can be told apart: count a tick */
+    if (!seed) return (p.entries || []).some(function (e) { return e && e.done; });
+    if ((p.weeks || []).some(function (w) {
+      return w && txt(w.note) && txt(w.note) !== txt((seed.weeks[String(w.wb)] || {}).note);
+    })) return true;
+    return (p.entries || []).some(function (e) {
+      if (!e) return false;
+      var o = seed.rows[String(e.id)];
+      if (!o) return true;
+      return !!e.done !== !!o.done || txt(e.note) !== txt(o.note) || list(e.sat) !== list(o.sat) ||
+        days(e.lessonDays) !== days(o.lessonDays) || txt(e.tag) !== txt(o.tag) ||
+        txt(e.wb) !== txt(o.wb) || txt(e.title) !== txt(o.title);
+    });
+  }
+  function moneyTouched(m) {
+    if (!m || typeof m !== "object") return false;
+    if ((m.rules || []).length || (m.pots || []).length) return true;
+    if ((m.monthStart && m.monthStart !== 1) || (m.currency && m.currency !== "£")) return true;
+    return (m.categories || []).some(function (c) {
+      return c && ((c.updatedAt || 0) > 0 || (c.budget != null && c.budget !== 0) || c.rollover || c.archived);
+    });
+  }
+  function userData(s) {
+    if (!s || typeof s !== "object") return null;
+    if (progressMeaningful(s.progress)) return "progress";
+    var recs = (KOS.cloudmerge && KOS.cloudmerge._records) || [];
+    for (var i = 0; i < recs.length; i++) {
+      var p = recs[i].path;
+      if (SEEDED_PATHS[p]) continue;
+      var arr = at(s, p);
+      if (Array.isArray(arr) && arr.length) return p;
+    }
+    if ((s.sessions || []).length) return "sessions";
+    if (s.custom && s.custom.cards && s.custom.cards.length) return "custom.cards";
+    if (s.wishlist && s.wishlist.items && s.wishlist.items.length) return "wishlist.items";
+    if (s.tracker && s.tracker.entries && s.tracker.entries.length) return "tracker.entries";
+    if (s.goals && s.goals.items && s.goals.items.length) return "goals.items";
+    /* the boot seeder plants SAMPLE events — only an event the user
+       actually created (or renamed) counts as data */
+    if (s.calendar && (s.calendar.events || []).some(function (ev) { return ev && !isSampleTitle(ev.title); })) return "calendar.events";
+    var as = s.exams && s.exams.assessments;
+    if (as && typeof as === "object" && Object.keys(as).some(function (k) {
+      var a = as[k];
+      return a && !(isSampleTitle(a.title) && a.links && a.links.calendarId != null);
+    })) return "exams.assessments";
+    for (var j = 0; j < EVIDENCE_MAPS.length; j++) if (nonEmptyMap(at(s, EVIDENCE_MAPS[j]))) return EVIDENCE_MAPS[j];
+    if (pacingTouched(s.pacing)) return "pacing";
+    if (moneyTouched(s.money)) return "money";
+    var u = s.itUnits && s.itUnits.units;
+    if (u && Object.keys(u).some(function (k) { return u[k] && (u[k].updatedAt || 0) > 0; })) return "itUnits";
+    if (s.srsCfg && s.srsCfg.fit) return "srsCfg.fit";
+    if (s.governor && ((s.governor.xp || 0) > 0 || (s.governor.gold || 0) > 0 ||
+        (s.governor.owned || []).length)) return "governor";
+    return null;
+  }
+  function stateMeaningful(s) { return userData(s) != null; }
 
   /* ---------------- account-scoped sync meta ----------------
      One kv record per account: watermarks, echo fingerprints, pull cursors,
@@ -489,11 +586,52 @@
     var mine = deviceSnapshot(KOS.store.state);
     var localSync = syncableState(KOS.store.state);
     var res = KOS.cloudmerge.merge(base, localSync, incoming);
-    KOS.store.replaceState(res.doc);
-    restoreDevice(KOS.store.state, mine);
-    KOS.store.save();
-    rerenderCurrent();
-    cb(syncableState(KOS.store.state), res.stats);
+    preReplace("merge", function () {
+      KOS.store.replaceState(res.doc);
+      restoreDevice(KOS.store.state, mine);
+      KOS.store.save();
+      rerenderCurrent();
+      cb(syncableState(KOS.store.state), res.stats);
+    });
+  }
+
+  /* ---------------- the copy kept before a replace (DI-03) ----------------
+     Every replaceState this engine makes — a merge landing, a cloud copy
+     adopted — first keeps the WHOLE local document as it was, in the media
+     kv under this account (`cloudsync.prereplace.<uid>`, the last one
+     only). It is cheap (one kv write the size of the base the engine
+     already writes) so it can run on every pull, and it is the undo for a
+     replace that should not have happened: KOS.cloudsync.preReplaced(cb)
+     reads it back, and KOS.store.replaceState(rec.state) puts it back.
+     Like every cloudsync.* key it never rides a backup or the cloud.
+     The FIRST link of a device that holds data takes a verified
+     KOS.backup checkpoint on top of this (firstLinkCheckpoint): that one
+     covers the media, files and every other store as well. */
+  function preReplace(reason, cb) {
+    var rec;
+    try {
+      rec = { at: Date.now(), reason: String(reason || ""), user: userData(KOS.store.state),
+        state: JSON.parse(JSON.stringify(KOS.store.state)) };
+    } catch (e) { cb(); return; }
+    KOS.mediadb.setKV(PRE_PREFIX + uid(), rec, function () { cb(); });
+  }
+  function preReplaced(cb) {
+    KOS.mediadb.getKV(PRE_PREFIX + uid(), function (err, rec) {
+      cb(err || null, !err && rec && typeof rec === "object" && rec.state ? rec : null);
+    });
+  }
+  /* cb(err, checkpoint|null): a verified full checkpoint before a first
+     link combines this device with the account. With no backup store
+     (no IndexedDB, no SHA-256) the kv copy above is all there is; a
+     checkpoint that does not VERIFY stops the link (invariant 1a: no
+     verified backup, nothing changed) and the next cycle tries again. */
+  function firstLinkCheckpoint(cb) {
+    if (!KOS.backup || !KOS.backup.available || !KOS.backup.available()) { cb(null, null); return; }
+    KOS.backup.checkpoint("Before linking this device to the cloud").then(function (cp) {
+      if (cp && cp.ok) cb(null, cp);
+      else cb(new Error("No verified backup of this device could be made, so it was not linked yet: " +
+        ((cp && cp.reason) || "unknown") + ". It will try again."));
+    }, function (e) { cb(e instanceof Error ? e : new Error(String(e))); });
   }
   var lastMerge = null;   // {at, stats} — the most recent reconciliation, for the UI
   function noteMerge(stats) {
@@ -765,15 +903,17 @@
            them, but a document written by an older client still carries
            them — take the local values back either way. */
         var mine = deviceSnapshot(KOS.store.state);
-        KOS.store.replaceState(incoming);
-        restoreDevice(KOS.store.state, mine);
-        KOS.store.save();
-        meta.state.seq = remoteSeq;
-        meta.state.remoteTs = row.updated_at;
-        meta.state.lastPushedHash = cleanStateHash = syncableHash();
-        saveBase(incoming, function () {
-          rerenderCurrent();
-          done(null, true, false);
+        preReplace("adopt", function () {
+          KOS.store.replaceState(incoming);
+          restoreDevice(KOS.store.state, mine);
+          KOS.store.save();
+          meta.state.seq = remoteSeq;
+          meta.state.remoteTs = row.updated_at;
+          meta.state.lastPushedHash = cleanStateHash = syncableHash();
+          saveBase(incoming, function () {
+            rerenderCurrent();
+            done(null, true, false);
+          });
         });
         return;
       }
@@ -1297,11 +1437,17 @@
             });
           });
         } else {
-          firstLinkMerge(res.stateRow || null, meta, function (eM) {
-            if (eM) { finish(eM); return; }
-            saveMeta(meta, function () {
-              toast("Merged with your cloud data — media combined per entry, study state combined.");
-              main();
+          /* this device holds data AND so does the account: keep a
+             verified copy of everything here first, then combine */
+          firstLinkCheckpoint(function (eC, cp) {
+            if (eC) { finish(eC); return; }
+            if (cp) meta.firstLinkCheckpoint = cp.id;
+            firstLinkMerge(res.stateRow || null, meta, function (eM) {
+              if (eM) { finish(eM); return; }
+              saveMeta(meta, function () {
+                toast("Merged with your cloud data — media combined per entry, study state combined.");
+                main();
+              });
             });
           });
         }
@@ -1580,6 +1726,10 @@
     /* {at, stats:{added, deleted, conflicts}} for the last time this device
        had to combine its own changes with another device's, or null */
     lastMerge: function () { return lastMerge; },
+    /* what makes a document the user's data, or null (DI-03) */
+    userData: userData,
+    /* the local document as it was before the last replace, or null (DI-03) */
+    preReplaced: preReplaced,
     lastError: function () { return lastError ? lastError.message : null; },
     lastSync: function () { return lastSyncAt; },
     isRunning: function () { return running; },
