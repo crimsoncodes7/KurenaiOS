@@ -224,6 +224,28 @@ step("G · the desk previews a typed mark, writes only on Save, and never pays",
   eq([g.xp, g.gold, KOS.sessions.all().length], [xp0, gold0, n0], "a result made Governor traffic (invariant 26f)");
 });
 
+step("G · an invalid mark writes nothing; clearing a mark asks first (ST-26)", () => {
+  const doc = app.window.document, $ = s => doc.querySelector(s);
+  KOS.show("subject", "it");
+  eq(KOS.itUnits.get("F201").raw, 47, "(the mark saved above)");
+  $("[data-code='F201'] [data-ui~='it.edit']").click();
+  let inp = $("[data-ui~='it.mark-in']");
+  inp.value = "459";                                   /* a slip over a saved 47 */
+  inp.dispatchEvent(new app.window.Event("input", { bubbles: true }));
+  inp.dispatchEvent(new app.window.KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
+  eq([KOS.itUnits.get("F201").status, KOS.itUnits.get("F201").raw], ["done", 47], "the saved mark is untouched");
+  assert($("[data-ui~='it.mark-in']"), "still editing, so the slip can be corrected");
+  /* an emptied box asks before clearing; Cancel keeps the mark */
+  inp = $("[data-ui~='it.mark-in']");
+  inp.value = "";
+  inp.dispatchEvent(new app.window.Event("input", { bubbles: true }));
+  inp.dispatchEvent(new app.window.KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
+  const dlg = $("[data-ui~='ui.confirm']");
+  assert(dlg && /Clear the F201 mark/.test(dlg.textContent), "clearing asks first");
+  dlg.querySelector("[data-ui='ui.confirm-no']").click();
+  eq(KOS.itUnits.get("F201").raw, 47, "Cancel keeps the mark");
+});
+
 step("G · with every unit in, the desk reads final and how close it was", () => {
   reseed();
   KOS.itUnits.setUnit("F201", { raw: 47 });

@@ -220,8 +220,12 @@
         inp.value = editing.value == null ? "" : String(editing.value);
         inp.addEventListener("input", function () {
           var v = inp.value === "" ? "" : Math.round(Number(inp.value));
-          editing.value = v === "" || !isFinite(v) || v < 0 || v > max ? "" : v;
-          KOS.ui.state(inp, "bad", inp.value !== "" && editing.value === "");
+          /* an EMPTY box and an INVALID number are different things: empty
+             may clear the result (after asking), invalid never writes (ST-26) */
+          editing.invalid = inp.value !== "" && (!isFinite(v) || v < 0 || v > max);
+          editing.max = max;
+          editing.value = v === "" || editing.invalid ? "" : v;
+          KOS.ui.state(inp, "bad", editing.invalid);
           paintAgg();
           /* the row's grade and bar follow the number */
           var fresh = H().units(preview()).filter(function (x) { return x.code === r.code; })[0];
@@ -275,9 +279,21 @@
     }
     function cancel() { editing = null; paintAll(); }
     function save(r) {
+      if (editing && editing.invalid) {
+        /* ST-26: a number out of range writes nothing; you stay in the box */
+        var say = "Enter a mark from 0 to " + editing.max + ".";
+        KOS.ui.toast(say, true);
+        focusInput();
+        return;
+      }
       if (!editing || editing.value === "" || editing.value == null) {
-        /* an emptied mark on a unit that had one clears the result */
-        if (editing && KOS.itUnits.get(r.code).status === "done") KOS.itUnits.clearResult(r.code);
+        /* an emptied mark on a unit that had one clears the result — asked first */
+        if (editing && KOS.itUnits.get(r.code).status === "done") {
+          KOS.ui.confirm({ title: "Clear the " + r.code + " mark?", body: "The unit goes back to having no result.", danger: true, confirm: "Clear the mark" },
+            function () { KOS.itUnits.clearResult(r.code); editing = null; paintAll(); },
+            function () { focusInput(); });
+          return;
+        }
         editing = null; paintAll(); return;
       }
       var patch = editing.mode === "ums" ? { ums: editing.value, raw: null } : { raw: editing.value, ums: null };
