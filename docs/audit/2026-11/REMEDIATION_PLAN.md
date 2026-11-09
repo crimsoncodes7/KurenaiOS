@@ -394,14 +394,20 @@ show on Account & Cloud Sync (DI-20).
 - DI-27: the ledger clean-up is built as the consent repair
   `di27-phantom-sync` (smoke126 on test data). It has NOT run on the real
   account: the reconciliation is shown first.
-- **Conflict, held for a decision (B1's journal scrub).** A media row's
-  journal UNIONS on every cloud pull (invariant 99), so scrubbing the
-  polluted events on one device is undone by the next pull from a device
-  that still holds them. Options: (a) a per-device scrub run at boot before
-  the first pull, with a per-device receipt; (b) a deterministic filter in
-  the journal normaliser for the collided rows; (c) leave the journals and
-  fix what reads them (HR-31's "activity, not any event" and CL-45's
-  `activityAt`). Recommended: (c) plus (a).
+- **B1's journal scrub: decided 9 Nov — fix the readers, and scrub on
+  every device.** `KOS.mediadb.activeEvent` is the one definition of
+  activity (HR-31); Reports read it; `activityAt` drives "Recently
+  updated" (CL-45); `di27-journal-scrub` tidies each device's copy at
+  start-up before cloud sync, only after the clean-up was approved, and
+  again if a device on the old journal sends the traces back. smoke127.
+- **Adversarial review (3 agents, 9 Nov):** one P0 (the classifier matched
+  titles only, so a genuine Death Note ANIME reward would have been taken
+  back), two P1s (a double deduction on a second device; Money's import
+  key truncated past 400 characters, and a bank id trusted alone), and
+  P2/P3s — all fixed with tests except one, recorded: the saved
+  checkpoints have no restore button in the app yet (to be built with the
+  Backup page and the store registry in W1).
+- Gate 127/127 (`qa/w1/gate-w1-2026-11-09b.txt`), commit `83a144c`.
 - Still to do in W1: RC21 receipts, §A4 two tabs, §A5 storage, the store
   registry, Todoist/Google bookkeeping, side replicators, the remaining
   P1s; the Reports rebuild waits for HR-31's fix.
