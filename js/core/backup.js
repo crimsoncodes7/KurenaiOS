@@ -146,9 +146,18 @@
   var lastAt = 0;   /* two checkpoints in one millisecond still order */
   function stamp() { var t = Date.now(); lastAt = t > lastAt ? t : lastAt + 1; return lastAt; }
 
+  /* keep the newest KEEP — and never a checkpoint a repair's receipt names:
+     a later repair may need it (the reports rebuild reads the DI-27
+     clean-up's), so it is pinned and does not count towards KEEP */
+  function pinned() {
+    var out = {}, r = (KOS.store && KOS.store.state && KOS.store.state.repairs) || {};
+    Object.keys(r).forEach(function (k) { if (r[k] && r[k].checkpoint) out[r[k].checkpoint] = true; });
+    return out;
+  }
   function rotate() {
     return allMeta().then(function (list) {
-      return list.slice(KEEP).reduce(function (p, m) { return p.then(function () { return delRec(m.id); }); }, Promise.resolve());
+      var pin = pinned();
+      return list.filter(function (m) { return !pin[m.id]; }).slice(KEEP).reduce(function (p, m) { return p.then(function () { return delRec(m.id); }); }, Promise.resolve());
     });
   }
 

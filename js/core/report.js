@@ -1308,6 +1308,9 @@
     previous: previous, readyAt: readyAt, isReady: isReady,
     addDays: addDays, monday: monday,
     compute: compute, totals: totals, gather: gather, build: build,
+    /* the story list a report's facts imply (pure); a one-off rebuild that
+       patches a section re-derives it (the DI-27 clean-up) */
+    storiesOf: stories,
     estMins: estMins
   };
 })();

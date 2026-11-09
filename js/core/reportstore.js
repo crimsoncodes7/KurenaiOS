@@ -334,11 +334,19 @@
     return !!(KOS.cloud && KOS.cloud.signedIn && KOS.cloud.signedIn() && KOS.mediadb && KOS.mediadb.available() &&
       !(KOS.dataMode && KOS.dataMode.mode));
   }
+  /* A one-off REBUILD (the DI-27 clean-up, a recorded exception to
+     invariant 102) raises a report's `factsRev` or a snapshot's `rev`: the
+     higher one wins the merge, so a rebuild made on one device is not
+     undone by an older copy; at the same revision the old rules hold (the
+     facts of the copy saved first, the snapshot taken first). The stamps
+     are unchanged for revision 0, so nothing is re-sent for this. */
   function stampOf(kind, rec) {
-    return kind === "snapshot" ? String(rec.takenAt || 0) : String(rec.savedAt || 0) + "|" + String((rec.words && rec.words.changedAt) || 0);
+    if (kind === "snapshot") return String(rec.takenAt || 0) + (rec.rev ? "|r" + rec.rev : "");
+    return String(rec.savedAt || 0) + "|" + String((rec.words && rec.words.changedAt) || 0) + (rec.factsRev ? "|r" + rec.factsRev : "");
   }
   function mergeReport(local, remote) {
-    var base = (remote.savedAt || 0) < (local.savedAt || 0) ? remote : local;
+    var lr = local.factsRev || 0, rr = remote.factsRev || 0;
+    var base = lr !== rr ? (rr > lr ? remote : local) : (remote.savedAt || 0) < (local.savedAt || 0) ? remote : local;
     var out = JSON.parse(JSON.stringify(base));
     var lw = local.words || {}, rw = remote.words || {};
     out.words = JSON.parse(JSON.stringify((rw.changedAt || 0) > (lw.changedAt || 0) ? rw : lw));
@@ -372,9 +380,10 @@
             if (row.kind === "snapshot") {
               var sid = String(row.item_id).replace(/^snap:/, "");
               getSnapshot(sid, function (e2, have) {
-                if (!have || (rec.takenAt || 0) < (have.takenAt || 0)) {
+                var rv = rec.rev || 0, hv = have ? have.rev || 0 : 0;
+                if (!have || rv > hv || (rv === hv && (rec.takenAt || 0) < (have.takenAt || 0))) {
                   putSnapshot(rec, function () { meta.pushed[row.item_id] = row.stamp; out.pulled++; apply(); });
-                } else { if (have.takenAt === rec.takenAt) meta.pushed[row.item_id] = row.stamp; apply(); }
+                } else { if (have.takenAt === rec.takenAt && rv === hv) meta.pushed[row.item_id] = row.stamp; apply(); }
               });
               return;
             }
@@ -443,6 +452,7 @@
     cached: function () { return cache.slice(0, 60); },
     setWords: setWords,
     ensureReports: ensureReports,
+    hasContent: hasContent,
     syncCloud: syncCloud,
     mergeReport: mergeReport,
     /* test seam: a fake kos_reports API (since, upsert) */
