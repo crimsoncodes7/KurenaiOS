@@ -390,7 +390,7 @@
         return [{ key: item + "|meet", kind: "meet", skill: ex.skill, item: ex.item, family: "New · meet it", meet: true }, ex];
       }));
     }
-    var results = [], answers = [], i = 0, round = 0, logged = null;
+    var results = [], answers = [], i = 0, round = 0, logged = null, reported = false;
     var title = lessonId ? "New · " + lessonId + " " + KOS.ja.lesson(lessonId).title : "Reviews";
     var head = el("div", { class: "k-ja-run-head" }, [
       el("button", { type: "button", class: "k-iconbtn", "data-ui": "ja.exit", "aria-label": "Leave the session", text: "✕",
@@ -412,7 +412,12 @@
       foot.innerHTML = "";
       if (i >= list.length) {
         /* a learn session asks its misses once more before it ends */
-        if (lessonId && round === 0 && KOS.ja.lessonPass(answers).misses.length) { reask(); return; }
+        if (lessonId && round === 0 && KOS.ja.lessonPass(answers).misses.length) {
+          /* the first round is the session: log and pay it NOW, so leaving the re-ask (a tap away,
+             a reload) loses nothing; end() reuses this entry and never logs again */
+          if (!logged) logged = KOS.ja.finishSession(results, { lesson: lessonId });
+          reask(); return;
+        }
         end(false); return;
       }
       var ex = list[i];
@@ -453,7 +458,8 @@
     function end(early) {
       box.setAttribute("data-done", "1");
       /* ONE ledger entry, however many times the session ends (a retry of the misses ends again) */
-      var firstEnd = !logged, fin = logged || (logged = KOS.ja.finishSession(results, { lesson: lessonId }));
+      var firstEnd = !reported, fin = logged || (logged = KOS.ja.finishSession(results, { lesson: lessonId }));
+      reported = true;   /* the session's pay is shown on its first end screen only */
       var paidLesson = null, pass = lessonId ? KOS.ja.lessonPass(answers) : null;
       if (lessonId && !early && results.length) paidLesson = KOS.ja.finishLesson(lessonId, answers);
       stage.innerHTML = ""; foot.innerHTML = "";

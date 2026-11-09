@@ -9,7 +9,8 @@
                       madeFrom, unit (a project's work), ms (its milestone), critique: {worked, next,
                       at} when you chose "Keep with this rep" }. Its text or picture
                       is in IndexedDB (kurenai-os-creatives), never in the state document.
-     projects[unit]   { ms: {i: ts}, startAt, doneAt }          a unit's project, milestone by milestone
+     projects[unit]   { ms: {i: ts}, startAt, doneAt, paidWith: {work id: ts} }   a unit's project,
+                      milestone by milestone; paidWith names the pieces it paid with (never reused)
      paid[key]        ts — "study:<lesson>.<s>", "drill:<type>:<day>", "project:<unit>": pay once
      firsts[key]      ts — the desk's Firsts, kept, never counted
    Per device (state.ui.creatives): the Daily Creative's days and minutes, the Exam Season pause,
@@ -207,14 +208,31 @@
     var out = p.milestones.map(function () { return []; }), c = peek();
     Object.keys(c.works).forEach(function (id) {
       var w = c.works[id];
-      if (w && w.unit === uid && w.ms != null && w.ms >= 0 && w.ms < out.length) out[w.ms].push(id);
+      if (w && w.unit === uid && w.ms != null && w.ms >= 0 && w.ms < out.length && !paidElsewhere(id, uid)) out[w.ms].push(id);
     });
     return out;
+  }
+  /* paidElsewhere(wid, uid) — the piece already paid ANOTHER project (projects[<unit>].paidWith,
+     the work ids attached when that project paid): it never counts for a second one */
+  function paidElsewhere(wid, uid) {
+    var pr = peek().projects;
+    return Object.keys(pr).some(function (u) { return u !== uid && pr[u] && obj(pr[u].paidWith)[wid]; });
+  }
+  /* attachable(w, uid, i) — a piece may become this milestone's work only when it is linked to no
+     milestone yet (a piece saved for, or attached to, another milestone stays where it is), is of
+     this project's track (or of none), and has not paid another project. One set of pieces pays
+     one project. */
+  function attachable(w, uid, i) {
+    var u = unit(uid), p = project(uid);
+    if (!w || !u || !p || i < 0 || i >= p.milestones.length) return false;
+    if (w.unit != null || w.ms != null) return false;
+    if (w.track && u.track && w.track !== u.track) return false;
+    return !paidElsewhere(w.id, uid);
   }
   /* attachWork(wid, uid, i) — a piece already in the Practice Log becomes a milestone's work */
   function attachWork(wid, uid, i) {
     var p = project(uid), st = S(), w = st.works[wid];
-    if (!p || !w || i < 0 || i >= p.milestones.length) return null;
+    if (!p || !w || !attachable(Object.assign({ id: wid }, w), uid, +i)) return null;
     w.unit = uid; w.ms = +i;
     store.save();
     return markMilestone(uid, i);
@@ -235,6 +253,8 @@
     if (ps.done && !rec.doneAt) { rec.doneAt = Date.now(); first("project"); store.save(); }
     if (ps.ready && !st.paid[key]) {
       st.paid[key] = Date.now();
+      rec.paidWith = obj(rec.paidWith);
+      ps.works.forEach(function (ids) { ids.forEach(function (wid) { rec.paidWith[wid] = st.paid[key]; }); });
       store.save();
       KOS.sessions.log({ type: SID, subject: SID, ref: p.after || null, metrics: { kind: "project", unit: uid, key: key, first: true } });
     }
@@ -501,7 +521,7 @@
     lesson: lesson, unit: unit, track: track, tracks: tracks, lessons: lessons, trackOf: trackOf, study: study, content: content, pagesOf: pagesOf,
     markPage: markPage, works: worksOf, work: work, addWork: addWork, editWork: editWork, removeWork: removeWork,
     promote: promote, portfolio: portfolio, setCheck: setCheck, logDrill: logDrill, studyWorks: studyWorks, studyPassed: studyPassed,
-    project: project, projectState: projectState, markMilestone: markMilestone, msWorks: msWorks, attachWork: attachWork,
+    project: project, projectState: projectState, markMilestone: markMilestone, msWorks: msWorks, attachWork: attachWork, attachable: attachable,
     evidence: evidence, done: done, syncChecks: syncChecks, syncAll: syncAll, cardKeys: cardKeys, cardHeld: cardHeld,
     firsts: firsts, started: started, unitState: unitState, trackPlace: trackPlace, nextStudy: nextStudy, currentTrack: currentTrack,
     cardsDue: cardsDue, planDay: planDay, stats: stats, award: award, files: files,

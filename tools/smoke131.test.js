@@ -13,6 +13,9 @@
      F · Saving a work for each milestone pays the project once (150 XP, 40 gold, +10 HP).
      G · CR-31. Undo and redo of a paid milestone pays nothing, and the page says
          "Paid on <date> · no further reward".
+     H · RC21 review P1. One set of pieces pays one project: a piece on another milestone, of
+         another track or named in another project's receipt (paidWith) never attaches or counts;
+         the dialog lists only what may be attached.
 
    Run: node tools/smoke131.test.js */
 "use strict";
@@ -123,6 +126,39 @@ step("G · undo and redo of a paid milestone pays nothing; the page says it was 
   eq(entries("creatives").length, n0, "no entry");
   K.rerender(); await app.settle();
   assert(/^Paid on .+ · no further reward$/.test(q("cr.project-pay").textContent), "the page says it was paid: " + q("cr.project-pay").textContent);
+  eq(app.errors, [], "no page errors");
+});
+
+step("H · one set of pieces pays one project: W1's pieces never attach to W2 (RC21 review P1)", async () => {
+  const s0 = snap(), n0 = entries("creatives").length;
+  const used = CR.msWorks("W1").reduce((a, ids) => a.concat(ids), []);
+  assert(used.length >= 3, "W1 was paid with its pieces: " + used.length);
+  const n = CR.project("W2").milestones.length;
+  for (let i = 0; i < n; i++) eq(CR.attachWork(used[i % used.length], "W2", i), null, "a piece on a W1 milestone is refused for W2 milestone " + i);
+  eq(CR.msWorks("W1").reduce((a, ids) => a.concat(ids), []).sort(), used.slice().sort(), "W1 keeps its pieces");
+  for (let i = 0; i < n; i++) CR.markMilestone("W2", i);
+  const ps = CR.projectState("W2");
+  assert(!ps.ready && !ps.paidAt, "W2 is not paid by W1's pieces");
+  eq(snap(), s0, "no XP, gold or HP");
+  eq(entries("creatives").length, n0, "no entry");
+  /* a piece of another track never attaches; a free writing piece does */
+  const art = CR.addWork({ title: "a sketch", kind: "image", track: "art" });
+  eq(CR.attachWork(art, "W2", 0), null, "an Art piece is refused for a Writing project");
+  /* the paid record names its pieces, and one moved there (an older copy, a merge) is not counted */
+  const paidWith = Object.keys(K.store.state.creatives.projects.W1.paidWith || {});
+  assert(paidWith.length === CR.project("W1").milestones.length && paidWith.every((id) => used.includes(id)), "W1's receipt names the pieces it paid with: " + JSON.stringify(paidWith));
+  const w0 = K.store.state.creatives.works[paidWith[0]], was = [w0.unit, w0.ms];
+  w0.unit = "W2"; w0.ms = 0;
+  eq(CR.msWorks("W2")[0], [], "a piece that paid W1 does not count for W2");
+  w0.unit = was[0]; w0.ms = was[1];
+  /* the dialog lists only what may be attached: here the one free writing piece */
+  const free = CR.addWork({ title: "fresh", kind: "text", track: "write" });
+  K.show("creatives", { page: "project", id: "W2" }); await app.settle();
+  q("cr.ms-attach").click(); await app.settle();
+  const picks = [...app.document.querySelectorAll('[data-ui~="cr.attach-pick"]')];
+  eq(picks.map((b) => b.textContent.split(" · ")[0]), ["fresh"], "the list leaves out W1's pieces and the Art piece");
+  picks[0].click(); await app.settle();
+  eq(CR.msWorks("W2")[0], [free], "a free writing piece attaches");
   eq(app.errors, [], "no page errors");
 });
 
