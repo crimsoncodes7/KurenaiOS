@@ -72,8 +72,14 @@
   function afterTick(r, res) {
     if (!res || !res.ok) { if (res && res.why) KOS.ui.toast(res.why, true); return; }
     if (res.award) {
-      var kept = r.kind === "habit" ? r.name + " kept" : r.name + " kept";
-      KOS.ui.toast(kept + " · " + rewardText(res.award));
+      /* HR-21: Undo puts the day back as it was and takes the pay back
+         through one correction entry */
+      var u = res.undo;
+      KOS.ui.toast(r.name + " kept · " + rewardText(res.award), false, u ? { label: "Undo", run: function () {
+        R().undoTick(u);
+        KOS.ui.toast(r.name + " · undone");
+        KOS.rerender();
+      } } : null);
     }
   }
   /* one routine step ticked (the same log the player writes) */
@@ -430,7 +436,7 @@
         if (!nm) { if (d.id) R().remove(d.id); return; }
         var patch = { name: nm, kind: "habit", days: d.days || [], every: d.every || null, from: d.from || null, window: d.window || null,
           remind: !!d.remind, auto: d.auto || null, times: d.times || null, order: 100 + i };
-        if (d.id) { var cur = R().get(d.id), st0 = Object.assign({}, (cur && cur.steps[0]) || {}, { text: nm }); if (!d.times) delete st0.at; R().update(d.id, Object.assign(patch, { steps: [st0] })); }
+        if (d.id) { var cur = R().get(d.id), st0 = Object.assign({}, (cur && cur.steps[0]) || {}, { text: nm }); if (!d.times) delete st0.at; delete st0.optional; R().update(d.id, Object.assign(patch, { steps: [st0] })); }
         else R().add(Object.assign(patch, { steps: [{ text: nm }] }));
       });
       R().autoSync();
@@ -1041,6 +1047,8 @@
       d.mark = markIn.value.trim();
       d.steps = d.steps.filter(function (s) { return String(s.text || "").trim(); });
       if (!d.steps.length) { KOS.ui.toast("A routine needs at least one step.", true); return; }
+      /* PR-23: all optional could never be kept */
+      if (R().check(d.steps)) { KOS.ui.toast(R().check(d.steps), true); return; }
       var patch = { name: d.name, mark: d.mark, steps: d.steps, days: d.days, window: d.window, weekend: d.weekend, anchor: d.anchor, remind: d.remind };
       if (d.steps.length === 1 && d.kind === "custom" && isNew) patch.kind = "habit";
       var r = isNew ? R().add(Object.assign({ kind: d.kind }, patch)) : R().update(cur.id, patch);

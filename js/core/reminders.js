@@ -24,6 +24,7 @@
   var store = KOS.store;
 
   var REWARD_CAP = 8;                 // rewarded completions per day
+  var COMPLETIONS_KEEP = 20;          // the completion history kept on an item
   var PRIORITIES = [
     { v: 0, label: "None", short: "" },
     { v: 1, label: "Low", short: "!" },
@@ -108,6 +109,9 @@
       alerts: alerts,
       alerted: b.alerted || {},
       lastRewardedOn: b.lastRewardedOn || null,
+      /* when it was completed (PR-27): epoch ms, the last 20 */
+      completions: (Array.isArray(patch.completions) ? patch.completions : Array.isArray(b.completions) ? b.completions : [])
+        .map(Number).filter(function (x) { return isFinite(x) && x > 0; }).slice(-COMPLETIONS_KEEP),
       /* roadmap 5.15 (invariant 158): the identity a Todoist or Google
          Tasks copy is named by, and the link ({p, id, list, base}) —
          written by KOS.extTasks, kept whole through every edit here */
@@ -210,10 +214,39 @@
     if (rewardedToday() >= REWARD_CAP) return { pays: false, reason: "daily-cap" };
     return { pays: true, reason: null };
   }
-  function complete(id, val) {
+  /* complete(id, val) → the item (as before). completeUndoable(id) also
+     hands back what an Undo needs (HR-21, PR-27): `prev`, the fields the
+     completion changed — {done, completedAt, due, alerted, subs,
+     lastRewardedOn, completions} — and the ledger entry it paid, if any. */
+  function complete(id, val) { var r = doComplete(id, val); return r ? r.item : null; }
+  function completeUndoable(id) {
+    var r = doComplete(id, true);
+    if (!r) return null;
+    r.undo = function () { return undoComplete(id, r); };
+    return r;
+  }
+  function undoComplete(id, r) {
+    var item = get(id);
+    if (!item || !r || !r.prev) return null;
+    var p = clone(r.prev);
+    Object.keys(p).forEach(function (k) { item[k] = p[k]; });
+    item.updatedAt = Date.now();
+    /* the pay goes back through ONE correction entry; the session stays */
+    var e = r.entryId != null ? (store.state.sessions || []).filter(function (x) { return x.id === r.entryId; })[0] : null;
+    var xp = e && e.award ? Math.max(0, e.award.xp || 0) : 0;
+    var gold = e && e.award ? Math.max(0, (e.award.gold || 0) - (e.award.ms || 0)) : 0;
+    if (xp || gold) KOS.sessions.log({ type: "correction", metrics: { xp: -xp, gold: -gold, title: item.title + " · undone", note: "Undo" } });
+    else store.save();
+    noteExt();
+    return item;
+  }
+  function clone(v) { return v == null ? v : JSON.parse(JSON.stringify(v)); }
+  function doComplete(id, val) {
     var item = get(id);
     if (!item) return null;
     var s = R(), d = today();
+    var prev = clone({ done: item.done, completedAt: item.completedAt, due: item.due, alerted: item.alerted || {},
+      subs: item.subs || [], lastRewardedOn: item.lastRewardedOn || null, completions: item.completions || [] });
 
     if (!val) {                                    // un-completing never pays
       item.done = false;
@@ -221,10 +254,10 @@
       item.updatedAt = Date.now();
       store.save();
       noteExt();
-      return item;
+      return { item: item, prev: prev, entryId: null };
     }
 
-    var pays = rewardState(item).pays;
+    var pays = rewardState(item).pays, entry = null;
 
     if (item.recur && item.due) {
       /* a repeating reminder rolls forward instead of closing: the instance
@@ -239,17 +272,20 @@
       item.completedAt = Date.now();
     }
     item.updatedAt = Date.now();
+    /* a small history of completions (PR-27): a repeating reminder rolls
+       forward and would otherwise leave no record it was ever done */
+    item.completions = (Array.isArray(item.completions) ? item.completions : []).concat([Date.now()]).slice(-COMPLETIONS_KEEP);
 
     if (pays) {
       item.lastRewardedOn = d;
       s.rewardLog[d] = (s.rewardLog[d] || 0) + 1;
       /* the ONE sanctioned path — governor prices it like any other tick */
-      KOS.sessions.log({ type: "todo", metrics: { item: item.title, source: "reminder" } });
+      entry = KOS.sessions.log({ type: "todo", metrics: { item: item.title, source: "reminder" } });
     } else {
       store.save();
     }
     noteExt();
-    return item;
+    return { item: item, prev: prev, entryId: entry ? entry.id : null };
   }
 
   /* ---------------- sub-tasks (never rewarded) ---------------- */
@@ -543,7 +579,7 @@
 
   KOS.reminders = {
     all: all, get: get, add: add, update: update, remove: remove,
-    complete: complete,
+    complete: complete, completeUndoable: completeUndoable,
     subAdd: subAdd, subToggle: subToggle, subRemove: subRemove,
     lists: lists, addList: addList, renameList: renameList, deleteList: deleteList, listName: listName,
     tags: tags, renameTag: renameTag, deleteTag: deleteTag,

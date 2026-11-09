@@ -691,7 +691,7 @@
       }
     }
     /* 4 — the first directive still unsealed */
-    var open = (KOS.todo.autoItems() || []).filter(function (a) { return !KOS.todo.isChecked(a.key); })[0];
+    var open = (KOS.todo.autoItems() || []).filter(function (a) { return !a.done; })[0];
     if (open) {
       return { kicker: "Today's directives", label: open.label,
         why: "First of today's generated list.", cta: "Go →", go: open.go };
@@ -952,7 +952,12 @@
   /* ticked through the owner, with Undo; a topic opens instead */
   function tickThree(p) {
     var id = p.ref.id, undo = null;
-    if (p.ref.kind === "reminder") { KOS.reminders.complete(id, !p.done); undo = function () { KOS.reminders.complete(id, !!p.done); }; }
+    if (p.ref.kind === "reminder") {
+      /* completing: Undo restores it exactly (a repeating one's date) and
+         takes the pay back (HR-21, PR-27) */
+      if (!p.done && KOS.reminders.completeUndoable) { var rr = KOS.reminders.completeUndoable(id); undo = function () { if (rr) rr.undo(); }; }
+      else { KOS.reminders.complete(id, !p.done); undo = function () { KOS.reminders.complete(id, !!p.done); }; }
+    }
     else if (p.ref.kind === "assignment") {
       var a = KOS.assignments.get(id), was = a ? a.status : null;
       if (!a) return;
@@ -1156,17 +1161,21 @@
       var shown = autos.slice(0, 3);
       goal.appendChild(el("div", { class: "k-home-goal-head" }, [
         el("span", { class: "k-kicker", text: "Daily goal" }),
-        autos.length ? el("span", { class: "k-mono", text: autos.filter(function (a) { return KOS.todo.isChecked(a.key); }).length + " / " + autos.length }) : null
+        autos.length ? el("span", { class: "k-mono", text: autos.filter(function (a) { return a.done; }).length + " / " + autos.length }) : null
       ].filter(Boolean)));
       if (!shown.length) goal.appendChild(el("p", { class: "k-home-goal-note", text: "Nothing generated today — no due cards or near deadlines." }));
+      /* HR-18 (decision B2): a directive is sealed by its evidence only and
+         pays nothing; the row opens the work, it is not a tick */
       shown.forEach(function (a) {
-        var on = KOS.todo.isChecked(a.key);
-        goal.appendChild(el("button", { type: "button", class: "k-goal-item", "data-ui": "habit.tick", "aria-pressed": String(on),
-          "aria-label": (on ? "Unseal directive: " : "Seal directive: ") + a.label,
-          onclick: function () { KOS.todo.setChecked(a.key, !on, a.label); KOS.rerender(); } }, [
+        var on = !!a.done;
+        var row = el("button", { type: "button", class: "k-goal-item", "data-ui": "habit.tick home.directive",
+          "aria-label": (on ? "Done: " : "Open: ") + a.label,
+          onclick: function () { if (a.go) a.go(); } }, [
           el("span", { class: "k-goal-mark", "aria-hidden": "true", text: on ? "✓" : "" }),
           el("span", { class: "k-goal-text", text: a.label })
-        ]));
+        ]);
+        if (on) KOS.ui.state(row, "done", true);
+        goal.appendChild(row);
       });
       goal.appendChild(el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary",
         text: "Start focus →", onclick: function () { KOS.show("focus"); } }));
@@ -1196,7 +1205,7 @@
         var when = !r.due ? "" : r.due === today ? "Today" : r.due === KOS.srs.addDays(today, 1) ? "Tomorrow" : r.due < today ? shortDay(r.due) : shortDay(r.due);
         var row = el("button", { type: "button", class: "k-check-row", "data-ui": "home.reminder-tick", "aria-pressed": "false",
           "aria-label": "Complete " + r.title,
-          onclick: function () { KOS.reminders.complete(r.id, true); KOS.rerender(); } }, [
+          onclick: function () { if (KOS.reminderTick) KOS.reminderTick(r.id, true); else { KOS.reminders.complete(r.id, true); KOS.rerender(); } } }, [
           el("span", { class: "k-boxcheck", "aria-hidden": "true" }),
           el("span", { class: "k-check-row-text", text: r.title }),
           when ? el("span", { class: "k-check-row-meta k-mono", text: when + (r.dueTime ? " " + r.dueTime : "") }) : null

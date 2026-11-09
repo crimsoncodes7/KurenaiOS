@@ -49,6 +49,29 @@
   }
   var PRIO_TONE = { 1: "muted", 2: "amber", 3: "crimson" };
 
+  /* one tick for every reminder checkbox (HR-21, PR-27): completing says
+     what it paid and offers Undo, which puts the reminder back exactly as
+     it was — a repeating one on its old date — and takes the pay back
+     through one correction entry. Unticking pays and takes nothing. */
+  function tickItem(id, on, after) {
+    var redraw = after || function () { KOS.rerender(); };
+    if (!on) { R().complete(id, false); redraw(); return null; }
+    var res = R().completeUndoable(id);
+    if (!res) return null;
+    var a = res.entryId != null && KOS.governor && KOS.governor.lastAward ? KOS.governor.lastAward() : null;
+    var paid = a && (a.xp || a.gold) ? " · +" + a.xp + " XP · +" + a.gold + " gold" : "";
+    var title = res.item.title;
+    var said = res.item.recur && !res.item.done ? " · next " + (fmtDue(res.item) || "time") : " · done";
+    KOS.ui.toast(title + said + paid, false, { label: "Undo", run: function () {
+      res.undo();
+      KOS.ui.toast(title + " · undone");
+      redraw();
+    } });
+    redraw();
+    return res;
+  }
+  KOS.reminderTick = tickItem;
+
   KOS.views.reminders = function (main, arg) {
     KOS.shell.tree("none");
     var p = prefs();
@@ -371,8 +394,7 @@
         "aria-pressed": String(!!item.done),
         "aria-label": item.done ? "Mark “" + item.title + "” not done" : "Complete “" + item.title + "”",
         text: item.done ? "✓" : "", onclick: function () {
-          R().complete(item.id, !item.done);
-          draw();
+          tickItem(item.id, !item.done, draw);
         } });
       if (item.priority === 3 && !item.done) KOS.ui.state(cb, "urgent", true);
 
@@ -543,7 +565,7 @@
 
       var check = el("button", { type: "button", class: "k-rem-check", "data-ui": "rem.check", "aria-pressed": String(!!item.done),
         "aria-label": item.done ? "Mark “" + item.title + "” not done" : "Complete “" + item.title + "”", text: item.done ? "✓" : "",
-        onclick: function () { R().complete(item.id, !item.done); draw(); } });
+        onclick: function () { tickItem(item.id, !item.done, draw); } });
       if (item.priority === 3 && !item.done) KOS.ui.state(check, "urgent", true);
 
       insp.appendChild(el("div", { class: "k-rem-insp-head" }, [
@@ -566,7 +588,7 @@
         rewardNote,
         el("div", { class: "k-cluster k-rem-i-foot" }, [
           el("button", { type: "button", class: "k-btn k-btn--sm", text: item.done ? "↺ Mark not done" : "✓ Complete",
-            onclick: function () { R().complete(item.id, !item.done); draw(); } }),
+            onclick: function () { tickItem(item.id, !item.done, draw); } }),
           el("button", { type: "button", class: "k-btn k-btn--sm k-btn--danger", text: "Delete", onclick: function () {
             KOS.ui.confirm({ title: "Delete this reminder?", body: "“" + item.title + "” and its sub-tasks.", danger: true, confirm: "Delete" },
               function () { R().remove(item.id); selectedId = null; draw(); });

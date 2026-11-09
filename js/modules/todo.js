@@ -3,69 +3,123 @@
      1. cards due today from the review queue
      2. exams/deadlines/study blocks from the calendar in the next few days
      3. the user's own manual tasks (persist independently)
-   Ticks feed XP/HP through the session log like every other governor action.
-   Auto-item tick state is per-day (keyed date|autoKey); manual tasks keep a
-   durable done flag.                                                        */
+   The generated items are sealed by EVIDENCE only and pay nothing (HR-18);
+   a hand tick (manual tasks, sub-tasks, the old habits) pays once a day per
+   item through the session log — a receipt (`paidOn`) makes an untick and
+   re-tick the same day pay nothing (RC21).                                  */
 (function () {
   "use strict";
   var el = KOS.ui.el, store = KOS.store;
 
   function T() { return store.state.todo; }
 
-  /* the generated list for today — pure derivation, no storage */
+  /* ---------- the directives tick from EVIDENCE (HR-18, decision B2) ----------
+     A directive is sealed only by the work it names: the due cards
+     cleared, the exam's revision time met, the deadline submitted or
+     worked on, the study block's Focus done. There is no hand tick, and a
+     directive pays NOTHING — the work behind it already paid (a review, a
+     Focus session), so sealing it again would pay twice. */
+  var PREP_MINS = 25;                        // a deadline: one block of work today
+  function minsFor(ev, day) {
+    day = day || KOS.srs.todayISO();
+    var labels = ["Revise for " + ev.title, "Revise for: " + ev.title, "Prepare: " + ev.title];
+    var leaves = KOS.spec && KOS.calendar.refsOf ? KOS.spec.resolve(KOS.calendar.refsOf(ev)) : [];
+    var asg = ev.assignmentId != null ? ev.assignmentId : null;
+    return Math.round((store.state.sessions || []).reduce(function (sum, x) {
+      if (x.date !== day || x.type === "media" || x.type === "todo" || x.type === "correction" || !x.dur) return sum;
+      if (x.metrics && labels.indexOf(x.metrics.objective) !== -1) return sum + x.dur;
+      /* by stretch: a switched session counts only its time on this */
+      return sum + KOS.sessions.parts(x).reduce(function (n, p) {
+        if (asg != null && p.assignmentId === asg) return n + p.secs;
+        if (!leaves.length) return n;
+        var mine = KOS.spec.resolve(p.refs || []);
+        return mine.some(function (k) { return leaves.indexOf(k) !== -1; }) ? n + p.secs : n;
+      }, 0);
+    }, 0) / 60);
+  }
+  function goalMinsFor(ev) {
+    if (ev.type === "exam") return KOS.calendar.examLevel ? KOS.calendar.examLevel(ev).goalMins || 120 : 120;
+    return PREP_MINS;
+  }
+  function hm(t) { var p = String(t || "").split(":"); return +p[0] * 60 + +p[1]; }
+  /* is the evidence in for this directive today? (a pure read) */
+  function evidence(it) {
+    var today = KOS.srs.todayISO();
+    if (it.kind === "due") return it.cleared;
+    if (it.kind === "ev") {
+      var ev = it.ev;
+      if (ev.type === "deadline" && (ev.status === "complete" || ev.status === "submitted")) return true;
+      if (ev.assignmentId != null && KOS.assignments && KOS.assignments.get) {
+        var a = KOS.assignments.get(ev.assignmentId);
+        if (a && (a.status === "complete" || a.status === "submitted")) return true;
+      }
+      return minsFor(ev, today) >= goalMinsFor(ev);
+    }
+    if (it.kind === "blk") {
+      var e = it.ev;
+      if (e.type === "lesson") {
+        /* a lesson is sat in class: it is done once its time has passed */
+        if (!e.time) return false;
+        var now = new Date(), nowM = now.getHours() * 60 + now.getMinutes();
+        return nowM >= (e.endTime ? hm(e.endTime) : hm(e.time) + (e.durationMins || 60));
+      }
+      /* Focus marks the block it was for (focus.js), or a Focus session
+         today in its subject (and topic, when both name one) */
+      if (T().autoChecked[today + "|blk" + e.id]) return true;
+      return (store.state.sessions || []).some(function (x) {
+        return x.date === today && x.type === "focus" && KOS.sessions.parts(x).some(function (p) {
+          if (e.assignmentId != null && p.assignmentId === e.assignmentId) return true;
+          return (!e.subject || p.subject === e.subject) && (!e.ref || !p.ref || p.ref === e.ref);
+        });
+      });
+    }
+    return false;
+  }
+
+  /* the generated list for today — pure derivation, no storage; each item
+     carries `done`, read from the evidence */
   function autoItems() {
     var out = [];
     var today = KOS.srs.todayISO();
 
-    /* 1 — the review due queue */
+    /* 1 — the review due queue; once cleared today it stays, sealed */
     var due = KOS.srs.dueCards();
     if (due.length) {
       var overdue = due.filter(function (c) { return c.overdue > 0; }).length;
       out.push({
-        key: "due", label: "Clear " + due.length + " due flashcard" + (due.length === 1 ? "" : "s") +
+        key: "due", kind: "due", label: "Clear " + due.length + " due flashcard" + (due.length === 1 ? "" : "s") +
           (overdue ? " (" + overdue + " overdue)" : ""),
-        reward: "+20 XP", go: function () { KOS.show("due"); }
+        go: function () { KOS.show("due"); }
       });
+    } else if ((store.state.sessions || []).some(function (x) { return x.date === today && (x.type === "due-review" || x.type === "flashcards"); })) {
+      out.push({ key: "due", kind: "due", cleared: true, label: "Clear the due flashcards", go: function () { KOS.show("due"); } });
     }
 
     /* 2 — upcoming exams/deadlines (priority: nearest first), today's study blocks */
     KOS.calendar.deadlines().filter(function (d) { return d.days <= 5; }).slice(0, 4).forEach(function (d) {
       out.push({
-        key: "ev" + d.ev.id,
+        key: "ev" + d.ev.id, kind: "ev", ev: d.ev,
         label: (d.ev.type === "exam" ? "Revise for: " : "Prepare: ") + d.ev.title +
           " — " + (d.days === 0 ? "today" : d.days + "d away"),
-        reward: "+5 XP", go: function () { KOS.show("calendar"); }
+        go: function () { KOS.show("calendar"); }
       });
     });
     KOS.calendar.eventsOn(today).filter(function (e) { return e.type === "study" || e.type === "lesson"; })
       .forEach(function (e) {
         out.push({
-          key: "blk" + e.id,
+          key: "blk" + e.id, kind: "blk", ev: e,
           label: (e.time ? e.time + " · " : "") + e.title,
-          reward: "+5 XP",
           go: e.subject && e.ref ? function () { KOS.show("ref", { subject: e.subject, ref: e.ref }); }
             : function () { KOS.show("calendar"); }
         });
       });
+    out.forEach(function (it) { it.done = !!evidence(it); it.text = it.label; });
     return out;
   }
 
   function isChecked(key) {
-    return !!T().autoChecked[KOS.srs.todayISO() + "|" + key];
-  }
-  function setChecked(key, val, label) {
-    var t = T(), today = KOS.srs.todayISO();
-    /* prune yesterday's tick state while we're here — the list regenerates daily */
-    Object.keys(t.autoChecked).forEach(function (k) {
-      if (k.split("|")[0] !== today) delete t.autoChecked[k];
-    });
-    if (val) {
-      t.autoChecked[today + "|" + key] = true;
-      KOS.sessions.log({ type: "todo", metrics: { item: label } });   // XP/HP via governor
-    } else {
-      delete t.autoChecked[today + "|" + key];
-      store.save();
-    }
+    var it = autoItems().filter(function (a) { return a.key === key; })[0];
+    return !!(it && it.done);
   }
 
   /* manual tasks — CRUD, persist independently of the generated list.
@@ -93,7 +147,7 @@
     var m = T().manual.find(function (x) { return x.id === id; });
     if (!m) return;
     m.done = val;
-    if (val) KOS.sessions.log({ type: "todo", metrics: { item: label } });
+    if (val && m.paidOn !== KOS.srs.todayISO()) { m.paidOn = KOS.srs.todayISO(); KOS.sessions.log({ type: "todo", metrics: { item: label } }); }
     else store.save();
   }
   function deleteManual(id) {
@@ -139,7 +193,8 @@
     var today = KOS.srs.todayISO();
     if (val) {
       h.days[today] = true;
-      KOS.sessions.log({ type: "todo", metrics: { item: "Habit kept: " + h.text } });
+      if (h.paidOn !== today) { h.paidOn = today; KOS.sessions.log({ type: "todo", metrics: { item: "Habit kept: " + h.text } }); }
+      else store.save();
     } else {
       delete h.days[today];
       store.save();
@@ -164,7 +219,7 @@
     var s = (item.subs || []).find(function (x) { return x.id === subId; });
     if (!s) return;
     s.done = val;
-    if (val) KOS.sessions.log({ type: "todo", metrics: { item: s.text } });
+    if (val && s.paidOn !== KOS.srs.todayISO()) { s.paidOn = KOS.srs.todayISO(); KOS.sessions.log({ type: "todo", metrics: { item: s.text } }); }
     else store.save();
   }
   function deleteSub(item, subId) {
@@ -192,9 +247,10 @@
     /* Home's "what next" reads the same tick state the panel renders, so the
        front page can never offer a directive the list already shows sealed */
     isChecked: isChecked,
-    /* seal or unseal a directive (Home's daily goal): the same path the
-       panel's checkbox takes, so the reward flows through sessions.log */
-    setChecked: setChecked,
+    /* the time today that was FOR an exam or deadline (Home's Focus card
+       reads the same figure) */
+    minsFor: minsFor,
+    goalMinsFor: goalMinsFor,
     addManual: addManual,
     toggleManual: toggleManual,
     deleteManual: deleteManual,
