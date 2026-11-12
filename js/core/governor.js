@@ -40,28 +40,35 @@
   var BACKLOG_LIMIT = 30;    // due-queue size that starts hurting
   var BACKLOG_DRAIN = 10;    // once per day while over the limit
 
-  /* Boot-time (and midnight-crossing) tick: apply drains for elapsed days. */
+  /* Boot-time (and midnight-crossing) tick: apply drains for elapsed days.
+     ONCE ACROSS TABS (the RC5 review): every open tab runs this, and the
+     drain is keyed by a marker (lastTick, lastBacklogDrain), so it runs as a
+     store transaction — under the write lock, after taking in what the
+     other tabs wrote — and the second tab finds the day already ticked. */
   function tick() {
-    var g = G(), today = KOS.srs.todayISO();
-    if (!g.lastTick) { g.lastTick = today; store.save(); return; }
-    if (g.lastTick > today) g.lastTick = today;   // clock moved back — be lenient
+    function body() {
+      var g = G(), today = KOS.srs.todayISO();
+      if (!g.lastTick) { g.lastTick = today; return; }
+      if (g.lastTick > today) g.lastTick = today;   // clock moved back — be lenient
 
-    /* drain each fully-elapsed day that had no session activity */
-    var cursor = g.lastTick;
-    var drained = 0;
-    while (cursor < today) {
-      if (!KOS.sessions.hasActivity(cursor, null)) drained += DAY_DRAIN;
-      cursor = KOS.srs.addDays(cursor, 1);
-    }
-    if (drained) g.hp = clamp(g.hp - drained);
+      /* drain each fully-elapsed day that had no session activity */
+      var cursor = g.lastTick;
+      var drained = 0;
+      while (cursor < today) {
+        if (!KOS.sessions.hasActivity(cursor, null)) drained += DAY_DRAIN;
+        cursor = KOS.srs.addDays(cursor, 1);
+      }
+      if (drained) g.hp = clamp(g.hp - drained);
 
-    /* backlog pressure: due queue past the threshold costs HP once a day */
-    if (g.lastBacklogDrain !== today && KOS.srs.dueCount() > BACKLOG_LIMIT) {
-      g.hp = clamp(g.hp - BACKLOG_DRAIN);
-      g.lastBacklogDrain = today;
+      /* backlog pressure: due queue past the threshold costs HP once a day */
+      if (g.lastBacklogDrain !== today && KOS.srs.dueCount() > BACKLOG_LIMIT) {
+        g.hp = clamp(g.hp - BACKLOG_DRAIN);
+        g.lastBacklogDrain = today;
+      }
+      g.lastTick = today;
     }
-    g.lastTick = today;
-    store.save();
+    if (store.transact) store.transact(body, function () { if (KOS.refreshHUD) KOS.refreshHUD(); });
+    else { body(); store.save(); }
   }
 
   /* HP restore — halved trickle while Critical so it can't be gamed back

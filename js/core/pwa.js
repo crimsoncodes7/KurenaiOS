@@ -141,9 +141,15 @@
     requestPersistence: requestPersistence,
     registration: function () { return reg; },
     /* the reload onto a new version: the state written first, at once */
+    /* the state is written first; with localStorage full that write is to
+       IndexedDB and takes a moment, so the reload waits for it (2 s at most) */
     reloadPage: function () {
-      if (KOS.store && KOS.store.flush) KOS.store.flush();
-      window.location.reload();
-    }
+      var gone = false, p = null;
+      function go() { if (gone) return; gone = true; KOS.pwa._reload(); }
+      try { p = KOS.store && KOS.store.flush ? KOS.store.flush() : null; } catch (e) { p = null; }
+      if (p && typeof p.then === "function") { setTimeout(go, 2000); p.then(go, go); }
+      else go();
+    },
+    _reload: function () { window.location.reload(); }
   };
 })();

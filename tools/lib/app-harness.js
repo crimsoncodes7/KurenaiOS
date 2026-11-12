@@ -226,10 +226,24 @@ function fakeLocks() {
     pending: (name) => (held.get(name) ? held.get(name).waiting.length : 0),
     request(name, a, b) {
       const cb = typeof a === "function" ? a : b;
+      const o = typeof a === "function" ? {} : (a || {});
       if (!held.has(name)) held.set(name, { busy: false, waiting: [] });
       log.push("request " + name);
+      /* {ifAvailable: true}: granted at once or not at all (the callback gets null) */
+      if (o.ifAvailable && (held.get(name).busy || held.get(name).waiting.length)) {
+        return Promise.resolve().then(() => cb(null));
+      }
       return new Promise((resolve, reject) => { held.get(name).waiting.push({ cb, resolve, reject }); Promise.resolve().then(() => next(name)); });
     },
+    /* a tab that held `name` went away: its lock is released though its
+       callback's promise never settles */
+    kill(name) {
+      const q = held.get(name);
+      if (!q || !q.busy) return false;
+      q.busy = false; log.push("kill " + name); next(name);
+      return true;
+    },
+    busy: (name) => !!(held.get(name) && held.get(name).busy),
     /* hold the lock from outside (another tab's long write) until release() */
     hold(name) {
       let release;

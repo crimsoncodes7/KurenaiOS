@@ -30,6 +30,11 @@
      J · pwa.js: a controller change reloads every tab that had a
          controller (the update confirmed in another tab), not a first
          install.
+     K–P · the RC5 review's findings: the same external document applied in
+         two tabs counts once (P0); the day's HP drain runs once; a running
+         Focus session belongs to one tab and is paid once; with
+         localStorage full two tabs still merge; a write that raced
+         another tab's is merged; quarantined copies do not pile up.
 
    Run: node tools/smoke133.test.js */
 "use strict";
@@ -282,7 +287,7 @@ step("I · a full localStorage switches to the mirror; failing in both is a fail
   eq(ls7.getItem(KEY), docBefore, "localStorage was left as it was");
   const m = await mirrorGet(T.window, "state");
   assert(m && JSON.parse(m.json).reminders.items.some((r) => r.title === "Written while full"), "the mirror holds the change");
-  assert(m.rev > +ls7.getItem(REV), "with a rev past localStorage's, so the next boot takes it");
+  eq(ls7.getItem(REV), m.rev + "m", "and the stored rev is the mirror's, marked: the next boot takes the mirror");
 
   /* both stores refuse */
   flashes = 0;
@@ -331,6 +336,208 @@ step("J · pwa.js: every tab with a controller reloads on a controller change", 
   try { T.KOS.pwa.reloadPage(); } catch (e) { /* jsdom cannot reload */ }
   assert(flushed >= 1, "reloadPage flushes the store first");
   T.KOS.store.flush = realFlush;
+});
+
+
+/* ================= the RC5 review's findings (9 Nov 2026) ================= */
+
+step("K · P0: the same external document applied in two tabs counts once", async () => {
+  const K = A.KOS, L = B.KOS;
+  await sync();
+  const g0 = K.store.state.governor.gold, x0 = K.store.state.governor.xp;
+  const inc = JSON.parse(JSON.stringify(K.store.state));
+  inc.governor.gold = g0 + 50; inc.governor.xp = x0 + 100;
+  inc.sessions.push({ id: 99001, type: "todo", ts: Date.now(), day: "2026-09-24", metrics: { item: "From the cloud" }, award: { xp: 100, gold: 50 } });
+  K.store.replaceState(JSON.parse(JSON.stringify(inc)));
+  await A.settle();
+  ls.drop();                                   // B never hears of A's write
+  L.store.replaceState(JSON.parse(JSON.stringify(inc)));
+  await B.settle();
+  eq([stored().governor.gold - g0, stored().governor.xp - x0], [50, 100], "the pulled gold and XP are stored once");
+  await sync();
+  eq([K.store.state.governor.gold - g0, L.store.state.governor.gold - g0], [50, 50], "both tabs hold it once");
+  eq(stored().sessions.filter((e) => e.id === 99001).length, 1, "and its session once");
+
+  /* the merge's own rule: equal deltas are summed only when both sides
+     logged sessions of their own */
+  const M = K.cloudmerge, T0 = 1790000000000;
+  const base = { governor: { gold: 10, xp: 0, hp: 80 }, sessions: [] };
+  const pulled = { governor: { gold: 60, xp: 100, hp: 80 }, sessions: [{ id: 1, ts: T0, type: "todo" }] };
+  eq(M.merge(base, pulled, pulled, { sumEqual: true }).doc.governor.gold, 60, "the same session on both sides: one change");
+  const drained = { governor: { gold: 10, xp: 0, hp: 35 }, sessions: [] };
+  eq(M.merge(base, drained, drained, { sumEqual: true }).doc.governor.hp, 35, "an equal change with no session behind it: one change");
+  const mine = { governor: { gold: 14, xp: 0, hp: 80 }, sessions: [{ id: 1, ts: T0 + 1, type: "todo", metrics: { item: "a" } }] };
+  const theirs = { governor: { gold: 14, xp: 0, hp: 80 }, sessions: [{ id: 2, ts: T0 + 2, type: "todo", metrics: { item: "b" } }] };
+  eq(M.merge(base, mine, theirs, { sumEqual: true }).doc.governor.gold, 18, "each side's own session: summed");
+});
+
+step("L · the day's HP drain runs once however many tabs tick (P1)", async () => {
+  const K = A.KOS, L = B.KOS;
+  await sync();
+  const today = K.srs.todayISO();
+  K.store.state.governor.hp = 80;
+  K.store.state.governor.lastTick = K.srs.addDays(today, -3);
+  K.store.state.governor.lastBacklogDrain = today;
+  K.store.save();
+  await sync();
+  eq([L.store.state.governor.hp, L.store.state.governor.lastTick], [80, K.srs.addDays(today, -3)], "both tabs start three days behind");
+  K.governor.tick();
+  L.governor.tick();
+  await settleBoth();
+  eq(stored().governor.hp, 35, "three missed days drained once (80 − 45)");
+  await sync();
+  eq([K.store.state.governor.hp, L.store.state.governor.hp], [35, 35], "both tabs agree");
+  eq(stored().governor.lastTick, today, "the tick is recorded");
+});
+
+step("M · a running Focus session belongs to one tab; it is paid once (P1, P2)", async () => {
+  const K = A.KOS;
+  await sync();
+  const cal = K.store.state.calendar, evs = cal.events;
+  K.focus.start({ kind: "study", mode: "stopwatch" });
+  await A.settle();
+  const S = K.focus.session();
+  assert(S && S.state === "running", "A's session runs");
+  await sync();
+  /* a third tab opens while A runs */
+  const C = await boot({ localStorage: ls, indexedDB: idb, locks, seed: 3 });
+  await C.settle(); await sync();
+  eq(C.KOS.focus.session(), null, "the new tab did not take A's session");
+  eq(stored().focus.active && stored().focus.active.state, "running", "the stored session still runs");
+  C.KOS.reminders.add({ title: "From the third tab" });
+  await C.settle(); await sync();
+  assert(K.store.state.focus.active === K.focus.session(), "A's live session is still the one in its state after a merge");
+  assert(K.store.state.calendar === cal && K.store.state.calendar.events === evs, "a merge keeps the objects modules hold");
+  eq(K.focus.session().state, "running", "and still runs");
+  eq(C.KOS.focus.start({ kind: "study", mode: "stopwatch" }) || null, null, "the other tab cannot start a second one");
+  await C.settle();
+  eq(C.KOS.focus.session(), null, "nothing started there");
+  const n0 = stored().sessions.filter((e) => e.type === "focus").length;
+  K.focus.endEarly({ confirmed: true, review: false });
+  await A.settle(); await sync();
+  eq(stored().focus.active, null, "ended in A");
+  eq(stored().sessions.filter((e) => e.type === "focus").length, n0 + 1, "logged once");
+  eq(C.KOS.focus.session(), null, "the other tab has nothing to end");
+
+  /* an orphan (its tab closed) is picked up by the next tab that asks */
+  K.focus.start({ kind: "study", mode: "stopwatch" });
+  await A.settle(); await sync();
+  const id2 = K.focus.session().id;
+  assert(locks.kill("kos-focus"), "A held the Focus lock");
+  C.KOS.focus.start({ kind: "study", mode: "stopwatch" });
+  await C.settle();
+  const S2 = C.KOS.focus.session();
+  assert(S2 && S2.id === id2, "the open tab restored the orphaned session instead of starting another");
+  eq(S2.state, "paused", "paused, as a recovery is");
+  C.KOS.focus.endEarly({ confirmed: true, review: false });
+  await C.settle(); await sync();
+
+  /* finishing is idempotent by session: a copy of a session the ledger
+     already holds logs nothing */
+  const ls9 = sharedStorage();
+  const T = await boot({ localStorage: ls9, indexedDB: new fake.IDBFactory() });
+  T.KOS.focus.start({ kind: "study", mode: "stopwatch" });
+  T.KOS.store.flush();
+  const running = JSON.parse(ls9.getItem(KEY)).focus.active;
+  T.KOS.focus.endEarly({ confirmed: true, review: false });
+  T.KOS.store.flush();
+  const after = JSON.parse(ls9.getItem(KEY));
+  const logged = after.sessions.filter((e) => e.type === "focus").length;
+  eq(logged, 1, "the session was logged");
+  after.focus.active = running;
+  const ls10 = sharedStorage();
+  ls10.setItem(KEY, JSON.stringify(after));
+  const U = await boot({ localStorage: ls10, indexedDB: new fake.IDBFactory(), clock: "2026-09-24T11:00:00" });
+  await U.settle();
+  assert(U.KOS.focus.session(), "the stale copy was restored (no other tab is alive)");
+  U.KOS.focus.endEarly({ confirmed: true, review: false });
+  await U.settle();
+  eq(U.KOS.store.state.sessions.filter((e) => e.type === "focus").length, logged, "ending it again logged nothing");
+  eq(U.KOS.store.state.focus.active, null, "and cleared it");
+});
+
+step("N · with localStorage full, two tabs still merge: nothing is overwritten (P1)", async () => {
+  const lsq = sharedStorage(), idbq = new fake.IDBFactory(), lq = fakeLocks();
+  const C = await boot({ localStorage: lsq, indexedDB: idbq, locks: lq, seed: 5 });
+  const D = await boot({ localStorage: lsq, indexedDB: idbq, locks: lq, seed: 6 });
+  const both = async () => { await C.settle(); await D.settle(); await C.settle(); };
+  const hear = async () => { for (let i = 0; i < 8; i++) { await both(); if (!lsq.deliver()) break; } await both(); };
+  await hear();
+  let size = 0; lsq.raw.forEach((v, k) => { size += k.length + v.length; });
+  lsq.setQuota(size + 40);
+  C.KOS.reminders.add({ title: "C1" }); await both();
+  eq(C.KOS.store.health().primary, "indexeddb", "C saves to the mirror");
+  lsq.drop();                                  // D hears nothing
+  D.KOS.reminders.add({ title: "D1" }); await both();
+  eq(D.KOS.store.health().primary, "indexeddb", "D too");
+  lsq.drop();
+  C.KOS.reminders.add({ title: "C2" }); await both();
+  const m = await mirrorGet(C.window, "state");
+  eq(JSON.parse(m.json).reminders.items.map((r) => r.title).filter((t) => /^[CD]\d$/.test(t)).sort(), ["C1", "C2", "D1"], "the mirror holds every tab's reminder");
+  await hear();
+  eq(D.KOS.store.state.reminders.items.map((r) => r.title).filter((t) => /^[CD]\d$/.test(t)).sort(), ["C1", "C2", "D1"], "the other tab hears of it and merges");
+  assert(/m$/.test(String(lsq.getItem(REV))), "the stored rev says the mirror is the primary");
+  /* a tab still on localStorage that hears of it switches too */
+  const E = await boot({ localStorage: lsq, indexedDB: idbq, locks: lq, seed: 7 });
+  await E.settle();
+  assert(E.KOS.store.state.reminders.items.some((r) => r.title === "D1"), "a fresh boot recovers every reminder");
+  /* a save in mirror mode can be awaited (pwa.js waits for it before a reload) */
+  C.KOS.reminders.add({ title: "C3" });
+  const p = C.KOS.store.flush();
+  assert(p && typeof p.then === "function", "flush returns a promise");
+  await p;
+  const m2 = await mirrorGet(C.window, "state");
+  assert(JSON.parse(m2.json).reminders.items.some((r) => r.title === "C3"), "resolved once the mirror holds the change");
+  let order = [];
+  const realFlush = C.KOS.store.flush;
+  C.KOS.store.flush = () => new Promise((res) => setTimeout(() => { order.push("flushed"); res(true); }, 20));
+  C.KOS.pwa._reload = () => { order.push("reload"); };
+  C.KOS.pwa.reloadPage();
+  eq(order, [], "reloadPage does not reload before the write");
+  await new Promise((r) => setTimeout(r, 60));
+  eq(order, ["flushed", "reload"], "it reloads once the write is done");
+  C.KOS.store.flush = realFlush;
+});
+
+step("O · a write that raced another tab's (same rev, different document) is merged, not dropped (P3)", async () => {
+  const K = A.KOS, L = B.KOS;
+  await sync();
+  const s0 = ls.getItem(KEY), r0 = rev();
+  L.calendar.addEvent({ title: "B's locked write", date: "2026-10-05", type: "other" });
+  await B.settle();
+  eq(rev(), r0 + 1, "B wrote the next rev");
+  ls.drop();
+  /* a tab that had read the same document wrote at the same moment (a
+     pagehide flush outside the lock): the same rev, without B's change */
+  const racing = JSON.parse(s0);
+  racing.reminders.items.push({ id: racing.reminders.nextId, title: "From the racing flush", done: false, created: Date.now() });
+  racing.reminders.nextId++;
+  ls.setItem(KEY, JSON.stringify(racing));
+  await sync();
+  const s = stored();
+  assert(s.calendar.events.some((e) => e.title === "B's locked write"), "B's change survived being overwritten");
+  assert(s.reminders.items.some((r) => r.title === "From the racing flush"), "and the racing write's change is kept");
+  eq(JSON.stringify(K.store.state), JSON.stringify(L.store.state), "both tabs hold the same document");
+});
+
+step("P · quarantined copies: one in localStorage at most, the rest in the mirror, each listed and removable (P3)", async () => {
+  const b0 = '{"v":1,"broken":0' + "y".repeat(200), b1 = '{"v":1,"broken":1' + "z".repeat(200);
+  const lsx = sharedStorage(), idbx = new fake.IDBFactory();
+  lsx.setItem(KEY + ".quarantine", b0);
+  lsx.setItem(KEY + ".quarantine.meta", JSON.stringify({ at: 1, why: "earlier", where: "localStorage", key: KEY + ".quarantine", told: true }));
+  lsx.setItem(KEY, b1);
+  const T = await boot({ localStorage: lsx, indexedDB: idbx });
+  await T.settle();
+  eq([...lsx.raw.keys()].filter((k) => k.indexOf(KEY + ".quarantine.") === 0 && k !== KEY + ".quarantine.meta"), [], "no timestamped copy piles up in localStorage");
+  const list = await T.KOS.store.quarantines();
+  eq(list.length, 2, "both copies are listed");
+  const inMirror = list.find((q) => q.where === "indexeddb");
+  assert(inMirror, "the second went to the mirror");
+  eq(await T.KOS.store.quarantineRead(inMirror.key), b1, "and reads back byte for byte");
+  await T.KOS.store.quarantineDrop(inMirror.key);
+  await T.KOS.store.quarantineDrop(KEY + ".quarantine");
+  eq((await T.KOS.store.quarantines()).length, 0, "each can be removed");
+  eq(lsx.getItem(KEY + ".quarantine"), null, "freeing its space");
 });
 
 (async () => {

@@ -407,9 +407,10 @@
     var hasBase = b !== undefined;
     /* two TABS that each earned the same amount (store.js, RC5): equal is
        not "the same change" for a counter. Only the tab merge asks for this
-       (opts.sumEqual): its base is always the document the tab last wrote
-       or read, so equal values cannot be an echo of its own write — which
-       is exactly what the cloud's base cannot promise. */
+       (opts.sumEqual), and merge() grants it only when EACH side logged
+       sessions the other does not hold: the same change made in both tabs
+       (one cloud document applied by each, the day's HP drain run by each)
+       brings the same sessions or none, and is one change. */
     if (ctx.sumEqual && hasBase && path !== null && ADDITIVE[path] && typeof l === "number" && typeof r === "number" &&
         typeof b === "number" && l === r && l !== b) {
       var ar = ADDITIVE[path], av = b + (l - b) + (r - b);
@@ -493,10 +494,26 @@
     });
   }
 
+  /* did EACH side log at least one session of its own since the base, and
+     none the other also holds? (after the re-keying, so an id is one entry) */
+  function ownSessions(B, L, R) {
+    if (!B) return false;
+    function ids(d) {
+      var o = {};
+      (Array.isArray(d.sessions) ? d.sessions : []).forEach(function (e) { if (e && e.id != null) o[String(e.id)] = true; });
+      return o;
+    }
+    var b = ids(B), l = ids(L), r = ids(R), nl = 0, nr = 0, shared = 0;
+    Object.keys(l).forEach(function (k) { if (!b[k]) { if (r[k]) shared++; else nl++; } });
+    Object.keys(r).forEach(function (k) { if (!b[k] && !l[k]) nr++; });
+    return nl > 0 && nr > 0 && shared === 0;
+  }
+
   /* merge(base, local, remote[, opts]) → { doc, stats, rekeyed }
      `base` may be null (no common ancestor). Inputs are not mutated.
      opts.sumEqual: an additive counter moved by the SAME amount on both
-     sides is summed, not taken as one change (the tab merge only). */
+     sides is summed, not taken as one change (the tab merge only, and only
+     when each side logged sessions of its own: ownSessions). */
   function merge(base, local, remote, opts) {
     var B = isPlain(base) ? clone(base) : null;
     var L = clone(isPlain(local) ? local : {});
@@ -509,7 +526,7 @@
       var rs = Array.isArray(R.sessions) ? R.sessions.length : 0;
       preferRemote = rs > ls;
     }
-    var ctx = { preferRemote: preferRemote, stats: stats, sumEqual: !!(opts && opts.sumEqual) };
+    var ctx = { preferRemote: preferRemote, stats: stats, sumEqual: !!(opts && opts.sumEqual) && ownSessions(B, L, R) };
     var doc = mergeValue(B === null ? undefined : B, L, R, ctx, "");
     reconcileProgress(doc);
     return { doc: doc, stats: stats, rekeyed: rekeyed };

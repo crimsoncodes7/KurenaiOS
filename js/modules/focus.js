@@ -245,8 +245,58 @@
     return t - from >= 60000 && t - from <= 12 * 3600000 ? t : null;
   }
 
+  /* ---- ONE TAB OWNS A RUNNING SESSION (the RC5 review) ----
+     Tabs share the state document, so a second tab used to restore the
+     first tab's running session as its own, and both paid it. A session now
+     belongs to the tab that started or restored it: that tab holds the Web
+     Lock `kos-focus<data namespace>` for as long as it has the session (the
+     browser releases it when the tab closes or reloads), and stamps the
+     session with its id. A tab that finds a session it does not own leaves
+     it alone, and Start there either picks up an ORPHAN (its tab is gone:
+     the lock is free) or says where the session is running. Without Web
+     Locks the heartbeat stands in: a running session beaten in the last
+     20 s by another tab is alive. */
+  var FOCUS_LOCK = "kos-focus" + ((KOS.dataMode && KOS.dataMode.suffix) || "");
+  var releaseOwn = null;
+  function locksApi() {
+    try { return navigator.locks && typeof navigator.locks.request === "function" ? navigator.locks : null; } catch (e) { return null; }
+  }
+  function tabId() { return store.tabId || "tab"; }
+  /* cb(true) once this tab holds the session's lock; cb(false) when a live tab does */
+  function own(cb, snap) {
+    if (releaseOwn) { cb(true); return; }
+    var L = locksApi();
+    if (!L) {
+      var alive = !!snap && snap.tab && snap.tab !== tabId() && snap.state === "running" && now() - (snap.lastBeat || 0) < 20000;
+      cb(!alive);
+      return;
+    }
+    var answered = false;
+    function answer(ok) { if (answered) return; answered = true; cb(ok); }
+    try {
+      var p = L.request(FOCUS_LOCK, { ifAvailable: true }, function (lock) {
+        if (!lock) { answer(false); return undefined; }
+        return new Promise(function (res) {
+          releaseOwn = function () { releaseOwn = null; res(); };
+          answer(true);
+        });
+      });
+      if (p && p.catch) p.catch(function () { answer(true); });
+    } catch (e) { answer(true); }
+  }
+  function disown() { if (releaseOwn) releaseOwn(); }
+  function elsewhere() {
+    KOS.ui.toast("A Focus session is running in another tab or window — end it there first.", true);
+  }
+
   function start(cfg) {
     if (S) { KOS.ui.toast("A " + (S.kind === "reading" ? "reading" : "focus") + " session is already running.", true); return; }
+    if (store.sync) store.sync();          // what the other tabs wrote, first
+    if (F().active) {
+      /* a session this tab does not hold: an orphan is picked up, a live one stays where it is */
+      own(function (ok) { if (ok && F().active && !S) restoreSession(F().active); else if (!ok) elsewhere(); }, F().active);
+      return null;
+    }
     var f = F();
     var links = sessionLinks(cfg);
     var reading0 = cfg.kind === "reading";
@@ -298,6 +348,7 @@
       pauses: 0,
       distractions: [],
       startedAt: now(),
+      tab: tabId(),                                     // the tab that holds it (see above)
       /* roadmap 1.6 — the idle watch: the last interaction, and how much
          focus (and how many cycles) had been done by then */
       lastActiveTs: now(),
@@ -321,6 +372,18 @@
       if (keepUntil) f.lastConfig.until = keepUntil;
     }
     store.save();
+    /* take the lock; two tabs that started in the same instant: the one
+       that did not get it drops its copy unlogged (the other is the session) */
+    var mine = S;
+    own(function (ok) {
+      if (ok || S !== mine) return;
+      clearInterval(timer); timer = null;
+      S = null;
+      if (F().active && F().active.id === mine.id && F().active.tab === mine.tab) F().active = null;
+      store.save();
+      exitMode();
+      elsewhere();
+    });
     enterMode();
     /* a session started by another page that keeps the screen (Mind's Daily 15) opens minimised */
     if (cfg.minimised) setMinimised(true);
@@ -577,6 +640,16 @@
     F().active = null;
     store.save();
     exitMode();
+    disown();
+    /* PAID ONCE, by session: a copy of a session the ledger already holds
+       (a tab without Web Locks restored it, an old backup brought it back)
+       ends here and logs nothing */
+    var fid = sess.id + "@" + sess.startedAt;
+    if (KOS.sessions.all().some(function (e) { return e && e.metrics && e.metrics.fid === fid; })) {
+      KOS.ui.toast("That session was already logged — nothing was logged twice.");
+      KOS.refreshHUD();
+      return;
+    }
 
     /* 3i — reading sessions log under the COLLECTION MATRIX contract:
        type "media", module "books" (same shape as KOS.media.logActivity,
@@ -595,7 +668,8 @@
           title: sess.book ? sess.book.title : null,
           action: "reading-session",
           mins: Math.round(dur / 60),
-          complete: complete
+          complete: complete,
+          fid: fid
         }
       });
       KOS.ui.toast("Reading session logged — " + fmtLong(dur) +
@@ -662,6 +736,7 @@
         notes: (sess.notes || []).length,
         objective: sess.objective || undefined,
         activities: counts,
+        fid: fid,
         assignmentId: main.assignmentId != null ? main.assignmentId : undefined,
         segments: parts.length > 1 ? parts.map(function (p) {
           var o = { subject: p.subject, ref: p.ref, refs: p.refs, secs: p.secs };
@@ -2538,10 +2613,9 @@
      PAUSED rather than pretending the intervening hours were focus. The
      recovery is counted (and reported in the review) but never charged: it
      is not a pause and not a distraction. */
-  (function restore() {
-    var snap = F().active;
-    if (!snap) return;
+  function restoreSession(snap) {
     S = hydrate(snap);
+    S.tab = tabId();
     if (S.state === "running") {
       /* credit time up to the last heartbeat, then hold the clock */
       S.phaseAccum = Math.min(phaseTarget(),
@@ -2554,6 +2628,13 @@
     timer = setInterval(tick, 1000);
     KOS.ui.toast("Focus session restored — " + fmtLong(workSeconds()) +
       " kept, paused where you left it. ▶ to resume.");
+  }
+  /* at boot: only a session no live tab holds (this tab's own after a
+     reload, or one whose tab is gone) */
+  (function restore() {
+    var snap = F().active;
+    if (!snap) return;
+    own(function (ok) { if (ok && F().active && !S) restoreSession(F().active); }, snap);
   })();
 
   KOS.focus = {

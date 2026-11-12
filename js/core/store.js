@@ -429,8 +429,11 @@
        *.nextId counters .............. the larger
        governor.gold / xp / hp ........ ADDITIVE: base + Δthis + Δother — and,
                                         between tabs only (TAB_MERGE.sumEqual),
-                                        also when both earned the SAME amount,
-                                        which the cloud's rule takes as one
+                                        also when both earned the SAME amount
+                                        AND each logged sessions of its own
+                                        (the same change made in both — a
+                                        pulled document, the day's drain —
+                                        has no such sessions and counts once)
        governor.owned ................. a set (union, a removal on either wins)
        refs/include/exclude/workOn/completions inside a record ... sets
        achievements.earned/months ..... monotonic (never taken back)
@@ -447,6 +450,18 @@
      value — e.g. a tally counted up in both (assistant.tally) or the
      showcase reordered in both. Records, money, pay and badges never take it.
 
+     ONE CHANGE, ONCE (the RC5 review's P0). The additive rule is only right
+     when each tab's change is its OWN. A change that would be made by every
+     open tab — a cloud document landing, the day's HP drain, the mirror's
+     recovery at boot — goes through KOS.store.transact(fn): under the write
+     lock the tab first takes in what the others wrote (takeIn), runs fn on
+     that, and writes at once, so the next tab finds it already made.
+     replaceState takes in first too. A document written at a rev this tab
+     has already reached, yet different, was computed from the document
+     BEFORE this tab's last write (a pagehide flush that could not wait for
+     the lock): it is merged against that one (`prevJson`), whichever of the
+     two landed last, so neither write is lost.
+
      QUARANTINE. A stored document that does not parse is copied aside
      (QUARANTINE_KEY in localStorage when it fits, else the IndexedDB
      mirror) BEFORE anything may overwrite it; until the copy is confirmed,
@@ -462,7 +477,15 @@
      loaded document (a copy of which is kept in the mirror first). If
      localStorage is FULL, the mirror is the primary for the session, with a
      persistent notice; a save that fails in both stores is reported as a
-     failure, never as saved. KOS.store.health() is the read-only status. */
+     failure, never as saved. In that mode every write is a read, a
+     three-way merge and a put inside ONE IndexedDB transaction (so two tabs
+     never overwrite each other), and the stored rev is rewritten as
+     "<rev>m": the other tabs hear it, take the mirror's document in and
+     save there too. flush() returns a promise that settles when the write
+     is down (pwa.js waits for it before a reload); a tab CLOSED within a
+     moment of a change in this mode can still lose that change — the
+     browser gives no synchronous write once localStorage is full.
+     KOS.store.health() is the read-only status. */
   var REV_KEY = KEY + ".rev";
   var QUARANTINE_KEY = KEY + ".quarantine";
   var QUARANTINE_META = KEY + ".quarantine.meta";
@@ -474,6 +497,10 @@
   var health = { primary: "localStorage", lastSaveOk: null, lastError: null, rev: 0, bytes: 0,
     mirroredRev: 0, merges: 0, quarantine: null, recovered: null };
   var lsJson = null, lsRev = 0;     // the base: the last document read from or written to localStorage
+  var prevJson = null;              // the base before that one (a racing write's ancestor)
+  var seenRev = 0, seenMark = false; // the newest rev READ from localStorage (never this tab's own), and whether it was marked "m"
+  var mJson = null, mRev = 0;       // the mirror's document as this tab last read or wrote it (mirror-primary mode)
+  var TAB = Math.random().toString(36).slice(2, 10) + Date.now().toString(36);   // this page load
   var lastRev = 0, revFloor = 0;    // the highest rev this tab wrote anywhere; the mirror's at boot
   var loadedJson = null, loadRev = 0;
   var hold = false;                 // a quarantine copy not yet confirmed: never overwrite KEY
@@ -488,6 +515,13 @@
   }
   function readRev() {
     try { var n = parseInt(localStorage.getItem(REV_KEY), 10); return n > 0 ? n : 0; } catch (e) { return 0; }
+  }
+  function revMarked() {
+    try { return /m$/.test(String(localStorage.getItem(REV_KEY) || "")); } catch (e) { return false; }
+  }
+  function setBase(json, rev) {
+    if (json !== lsJson) prevJson = lsJson;
+    lsJson = json; lsRev = rev;
   }
   function isQuota(e) {
     return !!e && (e.name === "QuotaExceededError" || e.name === "NS_ERROR_DOM_QUOTA_REACHED" || e.code === 22 || e.code === 1014);
@@ -552,6 +586,85 @@
       } catch (e) { end(e); }
     });
   }
+  function mirrorAll(cb) {
+    mirrorOpen(function (err, db) {
+      if (err) return cb(err, []);
+      try {
+        var out = [], r = db.transaction("doc", "readonly").objectStore("doc").openCursor();
+        r.onsuccess = function () {
+          var c = r.result;
+          if (c) { out.push(c.value); c.continue(); } else { db.close(); cb(null, out); }
+        };
+        r.onerror = function () { db.close(); cb(r.error || new Error("mirror read failed"), []); };
+      } catch (e) { db.close(); cb(e, []); }
+    });
+  }
+  function mirrorDelete(id, cb) {
+    mirrorOpen(function (err, db) {
+      if (err) return cb(err);
+      try {
+        var tx = db.transaction("doc", "readwrite");
+        tx.objectStore("doc").delete(id);
+        tx.oncomplete = function () { db.close(); cb(null); };
+        tx.onerror = tx.onabort = function () { db.close(); cb(tx.error || new Error("mirror delete failed")); };
+      } catch (e) { db.close(); cb(e); }
+    });
+  }
+  /* MIRROR-PRIMARY MODE: read, merge and put in ONE readwrite transaction.
+     The mirror's document counts as another tab's only when its rev passes
+     the one this tab's base stands at; an older copy (the 2 s mirror of a
+     localStorage write) is simply written over. cb(err, rec) */
+  function mirrorWrite(cb) {
+    mirrorOpen(function (err, db) {
+      if (err) return cb(err);
+      var done = false, rec = null;
+      function end(e) { if (done) return; done = true; try { db.close(); } catch (x) {} cb(e || null, rec); }
+      try {
+        var tx = db.transaction("doc", "readwrite"), os = tx.objectStore("doc");
+        tx.oncomplete = function () { end(null); };
+        tx.onerror = function () { end(tx.error || new Error("mirror write failed")); };
+        tx.onabort = function () { end(tx.error || new Error("mirror write aborted")); };
+        var g = os.get("state");
+        g.onsuccess = function () {
+          var cur = g.result, baseRev = mJson != null ? mRev : lsRev;
+          if (cur && typeof cur.json === "string" && cur.json !== mJson && (cur.rev || 0) > baseRev && KOS.cloudmerge) {
+            var other = parseDoc(cur.json);
+            if (other) {
+              var bj = mJson != null ? mJson : lsJson;
+              applyDoc(KOS.cloudmerge.merge(bj != null ? parseDoc(bj) : null, jclone(state), other, TAB_MERGE).doc);
+              health.merges++;
+            }
+          }
+          var json = JSON.stringify(state);
+          rec = { id: "state", rev: Math.max(cur ? cur.rev || 0 : 0, readRev(), lsRev, lastRev, revFloor) + 1, json: json, at: Date.now() };
+          os.put(rec);
+        };
+        g.onerror = function () { try { tx.abort(); } catch (x) { end(g.error); } };
+      } catch (e) { end(e); }
+    });
+  }
+  /* tell the other tabs the mirror moved: the stored rev, marked "m" */
+  function mirrorPing(rev) {
+    try { localStorage.setItem(REV_KEY, String(rev) + "m"); } catch (e) { /* too full even for that: the next boot's recovery reads the mirror */ }
+  }
+  /* another tab wrote the mirror: take its document in. cb(changed) */
+  function mirrorTakeIn(cb) {
+    mirrorGet("state", function (err, rec) {
+      var baseRev = mJson != null ? mRev : lsRev;
+      if (err || !rec || typeof rec.json !== "string" || rec.json === mJson || !((rec.rev || 0) > baseRev) || !KOS.cloudmerge) { if (cb) cb(false); return; }
+      var other = parseDoc(rec.json);
+      if (!other) { if (cb) cb(false); return; }
+      var bj = mJson != null ? mJson : lsJson, base = bj != null ? parseDoc(bj) : null;
+      var clean = !!base && KOS.cloudmerge.deepEqual(jclone(state), base);
+      applyDoc(clean ? other : KOS.cloudmerge.merge(base, jclone(state), other, TAB_MERGE).doc);
+      mJson = rec.json; mRev = rec.rev || 0;
+      lastRev = Math.max(lastRev, mRev); health.rev = Math.max(health.rev, mRev);
+      health.merges++;
+      if (health.primary !== "indexeddb") toMirror(new Error("another tab is saving to the mirror"));
+      if (!clean) save();
+      if (cb) cb(true);
+    });
+  }
   var mirrorReady = false, mirrorTimer = null, mirrorDirty = false;
   function mirrorSoon() {
     mirrorDirty = true;
@@ -602,9 +715,12 @@
   function quarantine(raw, why) {
     var at = Date.now(), key = QUARANTINE_KEY;
     quarantinedRaw = raw;
-    try { var prev = localStorage.getItem(QUARANTINE_KEY); if (prev != null && prev !== raw) key = QUARANTINE_KEY + "." + at; } catch (e) {}
     var meta = { at: at, why: errText(why), where: "localStorage", key: key, told: false };
     try {
+      /* ONE copy in localStorage at most (each is a whole document, and a
+         few of them fill it): a second, different one goes to the mirror */
+      var prev = localStorage.getItem(QUARANTINE_KEY);
+      if (prev != null && prev !== raw) throw new Error("the localStorage slot holds an earlier copy");
       localStorage.setItem(key, raw);
       if (localStorage.getItem(key) !== raw) throw new Error("the copy did not read back");
       try { localStorage.setItem(QUARANTINE_META, JSON.stringify(meta)); } catch (e) {}
@@ -636,20 +752,70 @@
   /* ---- the merge into memory ---- */
   /* replace the document in place, as replaceState does, but keep every
      top-level domain the new document leaves equal (its object identity) */
+  /* IN PLACE, all the way down: a module that holds an object out of the
+     state (Focus's running session, a list a page is drawing) keeps holding
+     the live one. An object keeps its identity and takes the new keys; an
+     array keeps its identity and, where it holds records, each record
+     object is reused by its id. */
+  function isObj(v) { return !!v && typeof v === "object" && !Array.isArray(v); }
+  function assignDeep(dst, src) {
+    Object.keys(dst).forEach(function (k) { if (!Object.prototype.hasOwnProperty.call(src, k)) delete dst[k]; });
+    Object.keys(src).forEach(function (k) {
+      var a = dst[k], b = src[k];
+      if (isObj(a) && isObj(b)) assignDeep(a, b);
+      else if (Array.isArray(a) && Array.isArray(b)) assignList(a, b);
+      else if (a !== b) dst[k] = b;
+    });
+  }
+  function assignList(dst, src) {
+    var byId = null;
+    if (dst.length && isObj(dst[0]) && dst[0].id != null) {
+      byId = {};
+      dst.forEach(function (x) { if (isObj(x) && x.id != null) byId[typeof x.id + ":" + x.id] = x; });
+    }
+    var out = src.map(function (b) {
+      if (byId && isObj(b) && b.id != null) {
+        var a = byId[typeof b.id + ":" + b.id];
+        if (a) { assignDeep(a, b); return a; }
+      }
+      return b;
+    });
+    dst.length = 0;
+    for (var i = 0; i < out.length; i++) dst.push(out[i]);
+  }
   function applyDoc(doc) {
     var next = deepMerge(JSON.parse(JSON.stringify(DEFAULTS)), doc);
     scrubLegacy(next);
-    var eq = KOS.cloudmerge ? KOS.cloudmerge.deepEqual : function (a, b) { return JSON.stringify(a) === JSON.stringify(b); };
-    Object.keys(state).forEach(function (k) { if (!Object.prototype.hasOwnProperty.call(next, k)) delete state[k]; });
-    Object.keys(next).forEach(function (k) { if (!eq(jclone({ v: state[k] }).v, next[k])) state[k] = next[k]; });
+    assignDeep(state, next);
   }
+  /* a document at a rev this tab has already reached, yet different, was
+     computed from the document BEFORE this tab's last write (see above) */
+  function isSibling(rev) { return rev <= lsRev && prevJson != null; }
   function mergeIn(other, raw, rev) {
-    var base = lsJson != null ? parseDoc(lsJson) : null;
-    var res = KOS.cloudmerge.merge(base, jclone(state), other, TAB_MERGE);
+    var bj = isSibling(rev) ? prevJson : lsJson;
+    var res = KOS.cloudmerge.merge(bj != null ? parseDoc(bj) : null, jclone(state), other, TAB_MERGE);
     applyDoc(res.doc);
-    lsJson = raw; lsRev = rev;
+    setBase(raw, rev);
     health.merges++;
     return res;
+  }
+  /* what the other tabs wrote to localStorage, into memory now.
+     → false (nothing new), "adopted" (memory was clean) or "merged" (this
+     tab holds changes of its own on top: a save is due) */
+  function takeIn() {
+    if (hold || !KOS.cloudmerge) return false;
+    var now = null;
+    try { now = localStorage.getItem(KEY); } catch (e) { return false; }
+    if (now == null || now === lsJson || now === quarantinedRaw) return false;
+    var other = parseDoc(now);
+    if (!other) return false;             // the next save sets it aside
+    var rev = readRev(), how;
+    if (!isSibling(rev) && memoryIsBase()) { applyDoc(other); setBase(now, rev); health.merges++; how = "adopted"; }
+    else { mergeIn(other, now, rev); how = "merged"; }
+    lastRev = Math.max(lastRev, rev);
+    health.rev = Math.max(health.rev, rev);
+    seenRev = rev; seenMark = revMarked();
+    return how;
   }
   function memoryIsBase() {
     var b = lsJson != null ? parseDoc(lsJson) : null;
@@ -703,7 +869,7 @@
       try {
         localStorage.setItem(REV_KEY, String(rev));   // FIRST (see above)
         localStorage.setItem(KEY, json);
-        lsJson = json; lsRev = rev; lastRev = rev;
+        setBase(json, rev); lastRev = rev;
         mirrorSoon();
         return saved(json, rev);
       } catch (e) {
@@ -713,16 +879,21 @@
       }
     }
     /* the mirror is the primary: its rev passes localStorage's, so the next
-       boot takes it (recovery precedence) */
-    var mrev = Math.max(readRev(), lsRev, lastRev, revFloor) + 1;
-    lastRev = mrev;
-    mirrorPut({ id: "state", rev: mrev, json: json, at: Date.now() }, false, function (err) {
-      if (err) return failed(err, true);
-      health.mirroredRev = Math.max(health.mirroredRev, mrev);
-      saved(json, mrev);
+       boot takes it (recovery precedence); read, merged and put in one
+       transaction, then the other tabs are told */
+    mirrorWriting = new Promise(function (res) {
+      mirrorWrite(function (err, rec) {
+        if (err || !rec) { failed(err || new Error("mirror write failed"), true); res(false); return; }
+        mJson = rec.json; mRev = rec.rev; lastRev = Math.max(lastRev, rec.rev);
+        health.mirroredRev = Math.max(health.mirroredRev, rec.rev);
+        mirrorPing(rec.rev);
+        saved(rec.json, rec.rev);
+        res(true);
+      });
     });
     return null;
   }
+  var mirrorWriting = null;
 
   var state;
   var raw = null;
@@ -736,6 +907,7 @@
     state = JSON.parse(JSON.stringify(DEFAULTS));
   }
   loadRev = readRev();
+  seenRev = loadRev; seenMark = revMarked();
   lastRev = loadRev;
   health.rev = loadRev;
   if (loaded) { loadedJson = raw; lsJson = raw; lsRev = loadRev; }
@@ -785,6 +957,34 @@
     if (p && p.catch) p.catch(function () { if (lockQueued) { lockQueued = false; fn(); } });
   }
 
+  /* a turn of its own under the same lock (never coalesced) */
+  function locked(fn) {
+    var L = null, ran = false;
+    function run() { if (ran) return; ran = true; fn(); }
+    try { L = navigator.locks; } catch (e) { L = null; }
+    if (!L || typeof L.request !== "function") { run(); return; }
+    var p;
+    try { p = L.request(LOCK_NAME, function () { run(); }); } catch (e) { run(); return; }
+    if (p && p.catch) p.catch(function () { run(); });
+  }
+  /* ONE CHANGE, ONCE ACROSS TABS (see the header): under the write lock,
+     take in what the other tabs wrote, run fn on that, write at once.
+     done(err, fn's result). Without Web Locks it runs at once. */
+  function transact(fn, done) {
+    locked(function () {
+      function run() {
+        var out, err = null;
+        try { out = fn(); } catch (e) { err = e; console.error("Kurenai OS: a store transaction failed", e); }
+        clearTimeout(saveTimer); saveTimer = null;
+        if (window.KOS && KOS.cloudsync && KOS.cloudsync.noteChange) KOS.cloudsync.noteChange("state");
+        try { writeNow("transact"); } catch (e2) { console.error("Kurenai OS: save failed", e2); }
+        if (done) done(err, out);
+      }
+      if (health.primary === "indexeddb") mirrorTakeIn(function () { run(); });
+      else { takeIn(); run(); }
+    });
+  }
+
   /* Build 6.5 — an IMMEDIATE, synchronous write. The 120 ms debounce above is
      a batching nicety, not a durability contract: at `pagehide` there is no
      later tick to run it in, so a refresh could drop the last fraction of a
@@ -794,29 +994,45 @@
   function flush() {
     clearTimeout(saveTimer);
     saveTimer = null;
-    try { writeNow("flush"); }
+    var r = false;
+    try { r = writeNow("flush"); }
     catch (e) { console.error("Kurenai OS: flush failed", e); }
+    /* localStorage: already down. The mirror: when its transaction is. */
+    if (typeof Promise === "undefined") return undefined;
+    return r === null && mirrorWriting ? mirrorWriting : Promise.resolve(!!r);
   }
 
   /* another tab wrote the document */
-  function otherTabWrote() {
-    if (hold || !KOS.cloudmerge) return;
-    var now = null;
-    try { now = localStorage.getItem(KEY); } catch (e) { return; }
-    if (now == null || now === lsJson) return;
-    var other = parseDoc(now);
-    if (!other) return;                 // the next save sets it aside
-    var rev = readRev();
-    if (memoryIsBase()) { applyDoc(other); lsJson = now; lsRev = rev; health.merges++; }
-    else { mergeIn(other, now, rev); save(); }
-    lastRev = Math.max(lastRev, rev);
-    health.rev = Math.max(health.rev, rev);
-    mirrorSoon();
+  function redrawQuietly() {
     if (KOS.rerender) { try { KOS.rerender({ background: true }); } catch (e) { /* a redraw is not data */ } }
   }
+  function otherTabWrote() {
+    var how = takeIn();
+    if (!how) return;
+    if (how === "merged") save();
+    mirrorSoon();
+    redrawQuietly();
+  }
+  /* a write this tab never read because its own write landed on top of it:
+     the event still carries it. It replaced the very document this tab's
+     last write was computed from, so that one is the common ancestor. */
+  function overwrittenWrite(e) {
+    if (hold || !KOS.cloudmerge || typeof e.newValue !== "string" || e.newValue === lsJson) return false;
+    if (prevJson == null || e.oldValue !== prevJson) return false;
+    var now = null;
+    try { now = localStorage.getItem(KEY); } catch (x) { return false; }
+    if (now !== lsJson) return false;
+    var other = parseDoc(e.newValue);
+    if (!other) return false;
+    applyDoc(KOS.cloudmerge.merge(parseDoc(prevJson), jclone(state), other, TAB_MERGE).doc);
+    health.merges++;
+    save();
+    redrawQuietly();
+    return true;
+  }
   window.addEventListener("storage", function (e) {
-    if (e.key !== KEY) return;
-    otherTabWrote();
+    if (e.key === KEY) { if (!overwrittenWrite(e)) otherTabWrote(); }
+    else if (e.key === REV_KEY && /m$/.test(String(e.newValue || ""))) mirrorTakeIn(function (changed) { if (changed) redrawQuietly(); });
   });
   function leaving() {
     if (saveTimer || lockQueued) flush();
@@ -836,14 +1052,28 @@
       revFloor = Math.max(revFloor, rec.rev || 0);
       health.mirroredRev = Math.max(health.mirroredRev, rec.rev || 0);
       var lsEmpty = loadedJson == null;
-      if (!lsEmpty && !((rec.rev || 0) > loadRev)) return finish();
+      /* newer than anything READ from localStorage (this tab's own boot
+         saves raise the stored rev without holding the mirror's changes);
+         a rev marked "m" says the mirror was the primary at that rev */
+      function newer() { var r = rec.rev || 0; return r > seenRev || (r === seenRev && seenMark); }
+      if (!lsEmpty && !newer()) return finish();
+      /* under the lock, and against what is stored NOW: a tab that booted
+         beside this one may have recovered the same copy already */
       function apply() {
-        if (lsEmpty || !KOS.cloudmerge) applyDoc(doc);
-        else applyDoc(KOS.cloudmerge.merge(parseDoc(loadedJson), jclone(state), doc, TAB_MERGE).doc);
-        health.recovered = { from: "indexeddb", rev: rec.rev || 0, at: rec.at || null, merged: !lsEmpty };
-        save();
-        if (KOS.rerender) { try { KOS.rerender({ background: true }); } catch (e) {} }
-        finish(health.recovered);
+        transact(function () {
+          /* empty: nothing was stored at load and no other tab has written since
+             (this tab's own boot saves are not a document to merge into) */
+          var empty = lsEmpty && seenRev === 0;
+          if (!empty && !newer()) return null;
+          if (empty || !KOS.cloudmerge) applyDoc(doc);
+          else applyDoc(KOS.cloudmerge.merge(parseDoc(lsJson), jclone(state), doc, TAB_MERGE).doc);
+          mJson = rec.json; mRev = rec.rev || 0;
+          health.recovered = { from: "indexeddb", rev: rec.rev || 0, at: rec.at || null, merged: !empty };
+          return health.recovered;
+        }, function (err, got) {
+          if (got) redrawQuietly();
+          finish(got || null);
+        });
       }
       /* the loaded document is kept in the mirror before the newer copy is merged over it */
       if (lsEmpty) apply();
@@ -859,6 +1089,61 @@
     state: state,
     save: save,
     flush: flush,
+    /* this page load's id (a running Focus session names its tab) */
+    tabId: TAB,
+    /* what the other tabs wrote, into memory now (a ticker asks before it
+       acts on a once-a-day marker) */
+    sync: function () { var how = takeIn(); if (how === "merged") save(); return !!how; },
+    /* a change every open tab would make: once across them (see the header) */
+    transact: transact,
+    /* the unreadable copies set aside (Storage lists them): a promise of
+       [{key, where: "localStorage" | "indexeddb", at, why, bytes}] */
+    quarantines: function () {
+      return new Promise(function (res) {
+        var out = [], meta = null;
+        try { meta = parseDoc(localStorage.getItem(QUARANTINE_META)); } catch (e) {}
+        try {
+          for (var i = 0; i < localStorage.length; i++) {
+            var k = localStorage.key(i);
+            if (k !== QUARANTINE_KEY && (k.indexOf(QUARANTINE_KEY + ".") !== 0 || k === QUARANTINE_META)) continue;
+            var v = localStorage.getItem(k) || "";
+            var at = k === QUARANTINE_KEY ? (meta && meta.key === k ? meta.at : null) : +k.slice(QUARANTINE_KEY.length + 1) || null;
+            out.push({ key: k, where: "localStorage", at: at, why: meta && meta.key === k ? meta.why : null, bytes: v.length * 2 });
+          }
+        } catch (e) {}
+        mirrorAll(function (err, recs) {
+          (recs || []).forEach(function (r) {
+            if (/^quarantine-/.test(String(r.id))) out.push({ key: r.id, where: "indexeddb", at: r.at || null, why: r.why || null, bytes: String(r.json || "").length * 2 });
+          });
+          res(out);
+        });
+      });
+    },
+    quarantineRead: function (key) {
+      return new Promise(function (res) {
+        if (/^quarantine-/.test(String(key))) return mirrorGet(key, function (err, r) { res(!err && r ? r.json : null); });
+        try { res(String(key).indexOf(QUARANTINE_KEY) === 0 && key !== QUARANTINE_META ? localStorage.getItem(key) : null); } catch (e) { res(null); }
+      });
+    },
+    quarantineDrop: function (key) {
+      return new Promise(function (res) {
+        function forget() {
+          try {
+            var m = parseDoc(localStorage.getItem(QUARANTINE_META));
+            if (m && m.key === key) localStorage.removeItem(QUARANTINE_META);
+          } catch (e) {}
+          if (health.quarantine && health.quarantine.key === key) {
+            health.quarantine = null; quarantinedRaw = null;
+            if (KOS.ui && KOS.ui.banner) KOS.ui.banner("store-quarantine", null);
+          }
+        }
+        if (/^quarantine-/.test(String(key))) return mirrorDelete(key, function (err) { if (!err) forget(); res(!err); });
+        try {
+          if (String(key).indexOf(QUARANTINE_KEY) !== 0 || key === QUARANTINE_META) return res(false);
+          localStorage.removeItem(key); forget(); res(true);
+        } catch (e) { res(false); }
+      });
+    },
     /* the storage's read-only status (RC5) for the Storage page:
        {primary: "localStorage" | "indexeddb", lastSaveOk, lastError, rev,
        bytes (UTF-16 size of the last document written), mirroredRev,
@@ -1225,6 +1510,10 @@
        pull share this path): defaults merged under, legacy fields scrubbed,
        every existing reference to KOS.store.state stays valid. */
     replaceState: function (incoming) {
+      /* first what the other tabs wrote, so this tab's base is the stored
+         document: the replace is then THIS tab's one change on top of it
+         (two tabs applying the same document never count it twice) */
+      takeIn();
       Object.keys(state).forEach(function (k) { delete state[k]; });
       Object.assign(state, deepMerge(JSON.parse(JSON.stringify(DEFAULTS)), incoming));
       scrubLegacy(state);
@@ -1232,6 +1521,7 @@
     },
 
     reset: function () {
+      takeIn();
       Object.keys(state).forEach(function (k) { delete state[k]; });
       Object.assign(state, JSON.parse(JSON.stringify(DEFAULTS)));
       save();
