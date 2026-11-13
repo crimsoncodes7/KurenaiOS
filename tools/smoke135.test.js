@@ -373,6 +373,316 @@ step("G · title #200 of a large vault keeps its link, and any title can be foun
   eq(app.errors, [], "no page errors");
 });
 
+/* ---------------- RC5 review: the sync fixes ---------------- */
+const TITLES = (K) => titles(K.store.state.reminders.items);
+/* another device pushed `change(doc)` to the account */
+function otherDevicePush(sv, change) {
+  const doc = JSON.parse(JSON.stringify(sv.state.state_json));
+  change(doc);
+  doc.__seq = (doc.__seq || 0) + 1;
+  sv.state = { state_json: doc, updated_at: sv.stamp() };
+}
+/* run `during` once, in the middle of the copy kept before a replace */
+function duringPreReplace(K, during) {
+  const real = K.mediadb.setKV;
+  let ran = 0;
+  K.mediadb.setKV = function (key, val, cb) {
+    if (/^cloudsync\.prereplace\./.test(String(key)) && !ran++) during();
+    return real.apply(this, arguments);
+  };
+  return () => { K.mediadb.setKV = real; return ran; };
+}
+
+step("H · an edit made while a pull is landing is kept, on this device and in the cloud (merge)", async () => {
+  const sv = makeServer();
+  const { app, K, sync } = await linkedApp(sv, "user-h");
+  K.reminders.add({ title: "Mine" });
+  await sync();
+  eq(titles(sv.state.state_json.reminders.items), ["Mine"], "linked: the device's copy is the account's");
+  otherDevicePush(sv, (d) => d.reminders.items.push({ id: 900, title: "Other device", created: 5 }));
+  K.reminders.add({ title: "Local2" });             /* this device is dirty: the pull merges */
+  const undo = duringPreReplace(K, () => K.reminders.add({ title: "RACE edit" }));
+  await sync();
+  eq(undo(), 1, "the edit was made during the pre-replace copy");
+  eq(TITLES(K), ["Local2", "Mine", "Other device", "RACE edit"], "this device keeps the edit");
+  eq(titles(sv.state.state_json.reminders.items), ["Local2", "Mine", "Other device", "RACE edit"], "and so does the cloud copy");
+  eq(app.errors, [], "no page errors");
+});
+
+step("H · the same on the adopt path: a clean device takes the cloud copy and keeps the edit", async () => {
+  const sv = makeServer();
+  const { app, K, sync } = await linkedApp(sv, "user-h2");
+  K.reminders.add({ title: "Mine" });
+  await sync();
+  otherDevicePush(sv, (d) => d.reminders.items.push({ id: 900, title: "Other device", created: 5 }));
+  const undo = duringPreReplace(K, () => K.reminders.add({ title: "RACE adopt" }));
+  await sync();
+  eq(undo(), 1, "the edit was made during the pre-replace copy");
+  eq(TITLES(K), ["Mine", "Other device", "RACE adopt"], "this device keeps the edit and takes the cloud's");
+  await sync();
+  eq(titles(sv.state.state_json.reminders.items), ["Mine", "Other device", "RACE adopt"], "the cloud copy has it too");
+  eq(app.errors, [], "no page errors");
+});
+
+const noSamples = (doc) => {
+  doc.calendar.events = [];
+  doc.exams.assessments = {};
+  return doc;
+};
+const sampleTitles = (doc) => (doc.calendar.events || []).map((e) => e.title)
+  .concat(Object.values((doc.exams && doc.exams.assessments) || {}).map((a) => a.title)).filter((t) => /SAMPLE/.test(t));
+
+step("I · opening the Daily Review is not user data: the device adopts, and no SAMPLE row reaches the account", async () => {
+  const sv = makeServer();
+  const { app, K, sync } = await linkedApp(sv, "user-i");
+  assert(sampleTitles(K.store.state).length >= 4, "a fresh boot plants the samples");
+  K.dayReview.markShown("morning");
+  K.dayReview.markShown("evening");
+  K.store.save();
+  assert(Object.keys(K.store.state.dayReview.days).length, "the review left its view markers");
+  eq(K.cloudsync.userData(K.store.state), null, "a review only LOOKED at is not user data");
+  const doc0 = noSamples(remoteDoc({ progress: PROG }));
+  doc0.reminders.items = [{ id: 1, title: "Cloud reminder", created: 1 }];
+  sv.state = { state_json: doc0, updated_at: sv.stamp() };
+  await sync();
+  await sync();
+  eq(sampleTitles(sv.state.state_json), [], "the account, which deleted its samples, got none back");
+  eq(sampleTitles(K.store.state), [], "and this device took the account's calendar");
+  eq(TITLES(K), ["Cloud reminder"], "adopted");
+  /* a review really DONE is the user's */
+  K.dayReview.finish("morning", "done");
+  assert(K.cloudsync.userData(K.store.state), "a finished review counts");
+  eq(app.errors, [], "no page errors");
+});
+
+step("I · a device with real data and untouched samples: its data merges in, its samples and plan seed do not", async () => {
+  const sv = makeServer();
+  const { app, K, sync } = await linkedApp(sv, "user-i2");
+  K.reminders.add({ title: "Device reminder" });
+  const doc0 = noSamples(remoteDoc({ progress: PROG }));
+  /* the account ticked a plan row this device still holds as the seed left it */
+  const row = doc0.pacing.entries.filter((e) => !e.done)[0];
+  row.done = true; row.doneAt = "2026-09-20";
+  sv.state = { state_json: doc0, updated_at: sv.stamp() };
+  await sync();
+  await sync();
+  const doc = sv.state.state_json;
+  eq(sampleTitles(doc), [], "no SAMPLE event or assessment was pushed back into the account");
+  assert(doc.reminders.items.some((r) => r.title === "Device reminder"), "the device's reminder reached the account");
+  const got = doc.pacing.entries.filter((e) => String(e.id) === String(row.id))[0];
+  assert(got && got.done, "the account's plan tick was not reverted by this device's untouched seed");
+  eq(doc.pacing.entries.length, doc0.pacing.entries.length, "and no seed row was doubled");
+  eq(app.errors, [], "no page errors");
+});
+
+step("J · every kind of user evidence counts as user data", async () => {
+  const { K } = await linkedApp(makeServer(), "user-j");
+  const fresh = () => JSON.parse(JSON.stringify(K.store.state));
+  eq(K.cloudsync.userData(fresh()), null, "the fresh document holds none");
+  const cases = {
+    "code.projects": (d) => { d.code.projects.bridge = { reports: 1 }; },
+    "code.capstones": (d) => { d.code.capstones.c1 = { draft: "x" }; },
+    "itUnits.year1": (d) => { d.itUnits.year1.grade = "Merit"; },
+    "itUnits.target": (d) => { d.itUnits.target = "Distinction"; },
+    "srsCfg.retention": (d) => { d.srsCfg.retention = 0.85; },
+    "srsCfg.examRetention": (d) => { d.srsCfg.examRetention = 0; },
+    "japanese.fluency": (d) => { d.japanese.fluency["2026-09-20"] = { n: 1 }; },
+    "oop.links": (d) => { d.oop.links.push({ from: 1, to: 2, kind: "inherits" }); },
+    "exams.prefs": (d) => { d.exams.prefs.extraTime = 25; },
+    "governor.about": (d) => { d.governor.about = "Hello"; },
+    "governor.status": (d) => { d.governor.status = "Revising"; },
+    "governor.avatar": (d) => { d.governor.avatar.kind = "custom"; d.governor.avatar.file = "profile-avatar-x"; },
+    "governor.banner": (d) => { d.governor.bannerImg = "data:image/png;base64,AAAA"; },
+    "governor.theme": (d) => { d.governor.theme = "dawn"; },
+    "artSlots": (d) => { d.artSlots["home.season"] = { pick: "a" }; },
+    "todo.autoChecked": (d) => { d.todo.autoChecked["2026-09-24"] = { a: 1 }; },
+    "dayReview.days (a note)": (d) => { d.dayReview = d.dayReview || {}; d.dayReview.days = { "2026-09-24": { evening: { note: "A good day" } } }; }
+  };
+  Object.keys(cases).forEach((name) => {
+    const d = fresh();
+    cases[name](d);
+    assert(K.cloudsync.userData(d), name + " alone must count as user data");
+  });
+  const seen = fresh();
+  seen.dayReview = seen.dayReview || {};
+  seen.dayReview.days = { "2026-09-24": { morning: { seenAt: 1 }, afternoon: { state: "folded" }, words: { morning: { text: "Hi", at: 1 } } } };
+  eq(K.cloudsync.userData(seen), null, "seen, folded and the review's words are not");
+});
+
+step("K · the copy from before the first link is pinned: later pulls never overwrite it", async () => {
+  const sv = makeServer();
+  const { app, K, sync } = await linkedApp(sv, "user-k");
+  K.reminders.add({ title: "Before linking" });
+  sv.state = { state_json: remoteDoc({ progress: PROG }), updated_at: sv.stamp() };
+  await sync();
+  assert(K.store.state.progress["maths:cloud-marker"], "linked and merged");
+  otherDevicePush(sv, (d) => d.reminders.items.push({ id: 901, title: "Later, elsewhere", created: 9 }));
+  await sync();
+  assert(TITLES(K).indexOf("Later, elsewhere") >= 0, "a later pull landed");
+  const last = await p((cb) => K.cloudsync.preReplaced(cb));
+  assert(last && last.state.progress["maths:cloud-marker"], "the rolling copy now holds the linked device");
+  assert(K.cloudsync.preLinked, "KOS.cloudsync.preLinked exists");
+  const first = await p((cb) => K.cloudsync.preLinked(cb));
+  assert(first && first.state, "the pre-link copy is still there");
+  assert(!first.state.progress["maths:cloud-marker"], "and it is the device as it was BEFORE it was linked");
+  eq(titles(first.state.reminders.items), ["Before linking"], "with its own data");
+  assert(first.user, "it names what the device held: " + first.user);
+  eq(app.errors, [], "no page errors");
+});
+
+step("L · a first-link backup that cannot verify backs off, and the user may link without it", async () => {
+  const sv = makeServer();
+  const { app, K, sync } = await linkedApp(sv, "user-l");
+  K.reminders.add({ title: "Device reminder" });
+  sv.state = { state_json: remoteDoc({ progress: PROG }), updated_at: sv.stamp() };
+  const real = K.backup.checkpoint;
+  let asked = 0;
+  K.backup.checkpoint = () => { asked++; return Promise.resolve({ ok: false, id: null, reason: "the saved copy could not be read back" }); };
+  assert(K.cloudsync._cycle, "the cycle seam exists");
+  const auto = (why) => run(app, new Promise((res) => K.cloudsync._cycle(why, (err) => res(err || null))));
+  let err = await auto("auth");
+  assert(err && /not linked yet/.test(err.message), "the link stopped: " + (err && err.message));
+  eq(asked, 1, "one backup tried");
+  err = await auto("interval");
+  eq(asked, 1, "the next automatic cycle does NOT start another full backup");
+  assert(err && /not linked yet/.test(err.message), "and still says why: " + (err && err.message));
+  await auto("focus");
+  eq(asked, 1, "nor the one after");
+  await sync().catch(() => null);                       /* Sync now: the user asked */
+  eq(asked, 2, "a manual sync tries again");
+  await sync().catch(() => null);
+  eq(asked, 3, "and again");
+  const blocked = K.cloudsync.linkBlocked && K.cloudsync.linkBlocked();
+  assert(blocked && blocked.n === 3 && /read back/.test(blocked.reason), "the block is readable: " + JSON.stringify(blocked));
+  assert(!K.store.state.progress["maths:cloud-marker"], "nothing was combined without a backup");
+  await run(app, p((cb) => K.cloudsync.linkWithoutBackup(cb)));
+  eq(asked, 3, "the consent links without asking for a backup");
+  assert(K.store.state.progress["maths:cloud-marker"], "the account's data combined in");
+  assert(sv.state.state_json.reminders.items.some((r) => r.title === "Device reminder"), "and the device's reached the account");
+  eq(K.cloudsync.linkBlocked(), null, "no longer blocked");
+  const pre = await p((cb) => K.cloudsync.preLinked(cb));
+  eq(titles(pre.state.reminders.items), ["Device reminder"], "the pinned pre-link copy is still taken");
+  K.backup.checkpoint = real;
+  eq(app.errors, [], "no page errors");
+});
+
+step("L · one attachment that cannot be read no longer fails the whole backup", async () => {
+  const app = await boot();
+  const K = app.KOS;
+  await app.settle();
+  /* fake-indexeddb's structured clone strips a jsdom Blob (smoke13), which
+     is exactly a stored blob the browser can no longer read */
+  await run(app, p((cb) => K.attach.add("compsci", "4.1.1", new app.window.File(["hello"], "lost.pdf", { type: "application/pdf" }), cb)));
+  const items = await run(app, p((cb) => K.attach.exportAll(cb)));
+  eq(items.map((i) => [i.name, i.blobBase64, !!i.unreadable]), [["lost.pdf", null, true]], "it rides the backup by its record, marked unreadable");
+  const cp = await run(app, K.backup.checkpoint("with an unreadable file"));
+  assert(cp.ok, "the checkpoint verifies: " + JSON.stringify(cp.reason));
+  eq(cp.unreadable, ["lost.pdf"], "and names the file it could not read");
+  eq(app.errors, [], "no page errors");
+});
+
+const { sharedStorage, fakeLocks: sharedLocks } = require("./lib/app-harness");
+step("M · two tabs of one account: the cloud cycle runs one tab at a time and a pulled change counts once", async () => {
+  const sv = makeServer(), ls = sharedStorage(), locks = sharedLocks();
+  const fake = require("fake-indexeddb");
+  const idb = new fake.IDBFactory();
+  const api = makeApi(sv);
+  async function tab(seed) {
+    const app = await boot({ localStorage: ls, indexedDB: idb, locks, seed });
+    await app.settle();
+    app.KOS.cloudsync._config({ api, session: { userId: "user-m", email: "m@test" }, quiet: true,
+      pushDebounce: 10 * 60 * 1000, minPullGap: 0, bootDelay: 0 });
+    return app;
+  }
+  const t1 = await tab(1), t2 = await tab(2);
+  async function both(p1, p2) {
+    let n = 0;
+    const d = () => { n++; };
+    p1.then(d, d); p2.then(d, d);
+    for (let i = 0; i < 600 && n < 2; i++) { await t1.settle(); await t2.settle(); ls.deliver(); }
+    for (let i = 0; i < 6; i++) { await t1.settle(); await t2.settle(); ls.deliver(); }
+    return Promise.all([p1, p2]);
+  }
+  const syncOf = (t) => p((cb) => t.KOS.cloudsync.syncNow(cb));
+  t1.KOS.reminders.add({ title: "Mine" });
+  await both(syncOf(t1), syncOf(t2));
+  assert(sv.state, "linked");
+  const gold0 = sv.state.state_json.governor.gold || 0;
+  otherDevicePush(sv, (d) => {
+    d.governor.gold = gold0 + 50; d.governor.xp = (d.governor.xp || 0) + 100;
+    d.sessions.push({ id: 7001, ts: Date.parse("2026-09-24T09:30:00Z"), date: "2026-09-24", type: "todo", metrics: {}, award: { xp: 100, gold: 50 } });
+  });
+  locks.log.length = 0;
+  await both(syncOf(t1), syncOf(t2));
+  const name = "kos-cloudsync" + ((t1.KOS.dataMode && t1.KOS.dataMode.suffix) || "");
+  eq(locks.log.filter((l) => l === "grant " + name).length, 2, "each tab's cycle ran under the account's one lock");
+  eq([t1.KOS.store.state.governor.gold, t2.KOS.store.state.governor.gold], [gold0 + 50, gold0 + 50], "both tabs hold the pulled gold once");
+  eq(JSON.parse(ls.getItem("kurenai-os-v1")).governor.gold, gold0 + 50, "so does the stored document");
+  await both(syncOf(t1), syncOf(t2));
+  eq(sv.state.state_json.governor.gold, gold0 + 50, "and the account");
+  eq(sv.state.state_json.sessions.filter((e) => e.id === 7001).length, 1, "with the session once");
+  eq(t1.errors.concat(t2.errors), [], "no page errors");
+});
+
+const MINED = { mL: { text: "猫が好きです。", reading: "ねこがすきです。", en: "I like cats.", src: { kind: "anime", title: "A show" }, at: 1700000000000 } };
+step("N · lines mined on a device still on the old version: taken in here, and never deleted from its copy", async () => {
+  const sv = makeServer();
+  const { app, K, sync } = await linkedApp(sv, "user-n");
+  K.reminders.add({ title: "Mine" });
+  await sync();
+  /* the old version keeps mined lines in the state document and pushes them */
+  otherDevicePush(sv, (d) => { d.japanese = d.japanese || {}; d.japanese.mined = JSON.parse(JSON.stringify(MINED)); });
+  await sync();
+  assert(!("mined" in K.store.state.japanese), "this device's state holds no mined text");
+  const rows = await run(app, K.jaMined.all());
+  eq(rows.map((l) => [l.id, l.text, l.at]), [["mL", MINED.mL.text, MINED.mL.at]], "the line was taken into this device's own store");
+  K.reminders.add({ title: "A later edit here" });
+  await sync();
+  const doc = sv.state.state_json;
+  assert(doc.reminders.items.some((r) => r.title === "A later edit here"), "this device pushed");
+  eq(doc.japanese && doc.japanese.mined, MINED, "and the document it pushed still carries the old device's lines, unchanged");
+  /* a second line from the old device, after ours */
+  otherDevicePush(sv, (d) => { d.japanese.mined.mM = { text: "犬もいい。", at: 1700000001000 }; });
+  K.reminders.add({ title: "Dirty during the pull" });
+  await sync();
+  eq(Object.keys(sv.state.state_json.japanese.mined).sort(), ["mL", "mM"], "a merge passes the newer map through too");
+  eq((await run(app, K.jaMined.all())).map((l) => l.id).sort(), ["mL", "mM"], "and takes the new line in");
+  eq(app.errors, [], "no page errors");
+});
+
+const PNG = (bytes) => "data:image/png;base64," + Buffer.from(bytes).toString("base64");
+const OLD_PIC = PNG([137, 80, 78, 71, 1, 1, 1]), NEW_PIC = PNG([137, 80, 78, 71, 2, 2, 2, 2]);
+step("O · the picture move waits for this session's first pull, and a newer picture from an old device wins", async () => {
+  const sv = makeServer();
+  const { app, K, sync } = await linkedApp(sv, "user-o");
+  app.window.Blob = Blob;                               /* bytes that survive fake-indexeddb (smoke134) */
+  const g = K.store.state.governor;
+  g.avatar = { kind: "custom", id: "seal-ember", img: OLD_PIC, crop: null, frame: null };
+  K.store.save();
+  assert(K.cloudsync.settled, "KOS.cloudsync.settled exists");
+  eq(K.cloudsync.settled(), false, "signed in and not pulled yet: not settled");
+  const early = await run(app, K.repairs.runAuto());
+  eq(g.avatar.img, OLD_PIC, "the move does not run before the first pull: " + JSON.stringify(early[K.profilePics.REPAIR] || null));
+  await sync();
+  eq(K.cloudsync.settled(), true, "settled after the first good cycle");
+  for (let i = 0; i < 400 && g.avatar.img; i++) await app.settle();
+  eq(g.avatar.img, null, "then the move runs by itself");
+  const F = g.avatar.file;
+  assert(F, "leaving the reference");
+  /* the old-version device uploads a NEW picture before it hears of the move */
+  otherDevicePush(sv, (d) => { d.governor.avatar = { kind: "custom", id: "seal-ember", img: NEW_PIC, crop: null, frame: null }; });
+  await sync();
+  for (let i = 0; i < 400 && K.store.state.governor.avatar.img; i++) await app.settle();
+  await sync();
+  const a = K.store.state.governor.avatar;
+  assert(a.file && a.file !== F && !a.img, "the newer picture took the slot and was moved: " + JSON.stringify({ file: a.file, img: !!a.img }));
+  const rec = await run(app, p((cb) => K.attach.getByFileId(a.file, cb)));
+  eq(Array.from(new Uint8Array(await rec.blob.arrayBuffer())), [137, 80, 78, 71, 2, 2, 2, 2], "its bytes are the NEW picture's");
+  const ca = sv.state.state_json.governor.avatar;
+  assert(ca.img === NEW_PIC || ca.file === a.file, "the account never lost it: " + JSON.stringify({ img: !!ca.img, file: ca.file }));
+  eq(app.errors, [], "no page errors");
+});
+
 (async () => {
   let failed = 0;
   for (const [name, fn] of steps) {

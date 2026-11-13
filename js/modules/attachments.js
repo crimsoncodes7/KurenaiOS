@@ -473,14 +473,21 @@
               updatedAt: rec.updatedAt || rec.added || null,
               hash: rec.hash || null, kind: rec.kind || null, aliases: rec.aliases || [], links: rec.links || [],
               origin: rec.origin || null, local: !!rec.local, evicted: !!rec.evicted };
+            if (lost) result[i].unreadable = true;
             if (!--pending) { fired = true; cb(null, result); }
           }
+          var lost = false;
           /* a cloud-metadata-only record has no local blob yet (Build 4a) —
              it still rides the backup as metadata */
           if (!rec.blob) { fill(null); return; }
+          /* a stored file the browser can no longer read (a lost IndexedDB
+             blob) used to fail the WHOLE backup, so one bad file blocked
+             every checkpoint, repair and first link. It rides by its record
+             alone, marked `unreadable`, and the backup names it (invariant
+             153: nothing skipped silently). */
           blobToBase64(rec.blob, function (e, b64) {
             if (fired) return;
-            if (e) { fired = true; cb(e); return; }
+            if (e) { lost = true; fill(null); return; }
             fill(b64);
           });
         });

@@ -39,10 +39,19 @@
    dry run from the data, a verified checkpoint, the file written and read
    back byte for byte BEFORE the inline source leaves the state, nothing
    changed on any failure. It keeps no receipt (`repeat`): a device still on
-   an older version that uploads a new picture puts a data URL back, and the
-   next start moves that one too (the newer picture wins; the superseded
-   record is released). The file id is derived from the picture's content,
-   so two devices moving the same picture make one record.               */
+   an older version that uploads a new picture puts a data URL back, and
+   that one is moved too (the newer picture wins; the superseded record is
+   released). The file id is derived from the picture's content, so two
+   devices moving the same picture make one record.
+
+   WHEN IT RUNS: only once this page load holds the account's copy, or
+   knows there is none to wait for (KOS.cloudsync.settled) — never at
+   start-up before the first pull. Run then, its `img: null` met a newer
+   picture uploaded on an older-version device as this device's own edit
+   and won the merge: the newer picture was gone from every device. The
+   sync engine starts it after the first good cycle and after any cycle
+   that brought a document in, and its merge lets a data URL new in the
+   cloud copy take the slot (cloudsync keepNewerPictures).              */
 (function () {
   "use strict";
   var KOS = window.KOS = window.KOS || {};
@@ -325,7 +334,9 @@
   if (KOS.repairs) KOS.repairs.register(REPAIR, {
     title: "Move your profile picture and banner into the file store",
     consent: false, repeat: true, plan: plan,
-    ready: function () { return due().length > 0; }
+    ready: function () {
+      return due().length > 0 && (!KOS.cloudsync || !KOS.cloudsync.settled || KOS.cloudsync.settled());
+    }
   });
 
   KOS.profilePics = {

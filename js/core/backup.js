@@ -195,7 +195,9 @@
         });
       });
     }).then(function (v) {
-      if (v.ok) return rotate().then(function () { return { ok: true, id: rec.id, label: rec.label, at: rec.at, counts: rec.counts, bytes: rec.bytes }; });
+      /* files the browser could not read ride by their records only: named */
+      var lost = ((snap && snap.attachments) || []).filter(function (a) { return a && a.unreadable; }).map(function (a) { return a.name || "a file"; });
+      if (v.ok) return rotate().then(function () { return { ok: true, id: rec.id, label: rec.label, at: rec.at, counts: rec.counts, bytes: rec.bytes, unreadable: lost }; });
       return delRec(rec.id).then(function () { return { ok: false, id: null, counts: mine.counts, bytes: rec.bytes, reason: v.reason, retry: v.retry }; });
     });
   }

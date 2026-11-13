@@ -21,7 +21,10 @@
    On any failure the state is left as it was. It re-plans from the data
    (`repeat`), so running twice changes nothing more.
 
-     put(line)  → Promise<id>   (idempotent by id)
+     put(line)  → Promise<id>   (idempotent by id: a line already here
+                                  keeps what it has and gains what it lacks)
+     take(map)  → Promise<n>    lines from a cloud document an OLDER version
+                                  wrote ({id: line}); only those not here yet
      all()      → Promise<[lines]>
      count()    → number (the in-memory copy)
      exportAll(cb), importAll(rows, cb)                                    */
@@ -63,7 +66,41 @@
       });
     });
   }
-  function put(line) { var r = clean(line.id, line); return putMany([r]).then(function () { return r.id; }); }
+  /* read-then-write in ONE transaction: a line already stored is never
+     overwritten (its first `at`, and a reading or translation it has,
+     stay); `fill` lets a new copy supply what the stored one lacks.
+     → Promise<[rows written]> */
+  function addMissing(rows, fill) {
+    if (!rows.length) return Promise.resolve([]);
+    return open().then(function (d) {
+      return new Promise(function (res, rej) {
+        var t = d.transaction(STORE, "readwrite"), os = t.objectStore(STORE), wrote = [];
+        rows.forEach(function (r) {
+          var g = os.get(r.id);
+          g.onsuccess = function () {
+            var have = g.result, next = r;
+            if (have) {
+              if (!fill) return;
+              next = { id: have.id, text: have.text || r.text, reading: have.reading || r.reading, en: have.en || r.en,
+                src: have.src && Object.keys(have.src).length ? have.src : r.src, at: have.at || r.at };
+              if (JSON.stringify(next) === JSON.stringify(have)) { mem[have.id] = have; return; }
+            }
+            os.put(next);
+            wrote.push(next);
+          };
+        });
+        t.oncomplete = function () { wrote.forEach(function (r) { mem[r.id] = r; }); res(wrote); };
+        t.onerror = function () { rej(t.error); };
+        t.onabort = function () { rej(t.error || new Error("aborted")); };
+      });
+    });
+  }
+  function put(line) { var r = clean(line.id, line); return addMissing([r], true).then(function () { return r.id; }); }
+  function take(map) {
+    var rows = Object.keys(map && typeof map === "object" ? map : {}).map(function (id) { return clean(id, map[id]); })
+      .filter(function (r) { return r.id && r.text; });
+    return addMissing(rows, false).then(function (wrote) { return wrote.length; });
+  }
   function get(id) {
     return open().then(function (d) {
       return new Promise(function (res, rej) {
@@ -136,7 +173,7 @@
     consent: false, repeat: true, plan: plan, ready: due
   });
 
-  KOS.jaMined = { name: DB_NAME, available: available, put: put, all: all, has: has, count: count, load: load,
+  KOS.jaMined = { name: DB_NAME, available: available, put: put, take: take, all: all, has: has, count: count, load: load,
     exportAll: exportAll, importAll: importAll, REPAIR: REPAIR, plan: plan };
   if (available()) load();
 })();
