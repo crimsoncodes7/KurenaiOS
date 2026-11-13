@@ -15,6 +15,7 @@
     "css/views/archive.css",
     "css/views/labs.css",
     "css/themes.css",
+    "css/floors.css",
     "js/engines/flashcards.js",
     "js/engines/quiz.js",
     "js/modules/attachments.js",

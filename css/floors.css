@@ -1,0 +1,25 @@
+/* KurenaiOS — css/floors.css · @layer floors
+   THE FLOORS NO PAGE MAY UNDO (quality W3, RC17). Declared LAST in
+   css/tokens.css, so a rule here wins over every component, view and theme
+   rule whatever its specificity — a page class that sets a field's font
+   size can no longer bring back the iOS zoom.
+
+   Only true floors live here. The 44px touch MINIMUM stays in base.css
+   (zero specificity): components deliberately size a tiny inline mark (a
+   chip's ✕, a tick) at the dense size instead (invariant 69), and a floor
+   in this layer would override that.
+
+   Convention for every layer file: its rules sit inside ONE @layer block. */
+@layer floors {
+
+/* AX-01 (invariant 40): iOS zooms into any focused field under 16px. Under
+   700px every text field, select and editable area is 16px or more; the
+   rule in base.css lost to every component class that set a size (the
+   Assistant's composer 14.5px, Reminders' quick-add 14px, the pill selects
+   13px…). */
+@media (max-width: 700px) {
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]):not([type="file"]),
+select, textarea, [contenteditable="true"], [contenteditable=""] { font-size: max(var(--fs-16), 1em); }
+}
+
+}

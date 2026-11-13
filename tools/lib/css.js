@@ -51,7 +51,8 @@ const LAYERS = {
   "views/ink": "css/views/ink.css",
   "views/routines": "css/views/routines.css",
   "views/achievements": "css/views/achievements.css",
-  themes: "css/themes.css"
+  themes: "css/themes.css",
+  floors: "css/floors.css"
 };
 
 function stylesheets(root = ROOT) {

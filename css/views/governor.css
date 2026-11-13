@@ -697,4 +697,8 @@ button.k-gv-row[aria-expanded="true"] { background: var(--s2); border-radius: va
 .k-gv-controls .k-gv-media-k { grid-column: 1 / -1; }
 }
 
+/* AG-01: the ⋯ is a 44px circle on touch */
+@media (pointer: coarse) {
+.k-gv-tools-btn { inline-size: var(--hit-coarse); block-size: var(--hit-coarse); }
+}
 }

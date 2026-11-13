@@ -597,4 +597,9 @@ animation: asstDrawerIn var(--dur-drawer) var(--ease);
 .k-asst-audit-when { display: none; }
 .k-asst-steps, .k-asst-proposal, .k-asst-confirm, .k-asst-receipt, .k-asst-alert { margin-inline-start: 0; }
 }
+
+/* AA-14: the day toggles stay circles on touch (they were 32×44 ovals) */
+@media (pointer: coarse) {
+.k-asst-day { inline-size: var(--hit-coarse); block-size: var(--hit-coarse); min-inline-size: var(--hit-coarse); }
+}
 }

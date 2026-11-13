@@ -142,7 +142,8 @@ function layerProblems(src, expected, isFirst) {
   const problems = [];
   let rest = text;
   if (isFirst) {
-    const order = /^@layer\s+tokens,\s*base,\s*layout,\s*components,\s*views,\s*themes\s*;/;
+    /* floors (W3 RC17): the last layer, the guarantees no page may undo */
+    const order = /^@layer\s+tokens,\s*base,\s*layout,\s*components,\s*views,\s*themes,\s*floors\s*;/;
     if (!order.test(rest)) problems.push("the first sheet does not open with the cascade-order statement");
     rest = rest.replace(order, "").trim();
   } else if (/@layer\s+[\w\s,]+;/.test(rest)) problems.push("a layer-order statement outside the first sheet");

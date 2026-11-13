@@ -32,7 +32,9 @@
    action row beside it left the Shrine's title one word a line at 820px */
 .k-pagehead { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--sp-16); }
 /* a main page's painted band (app.hero.page.*): the header's right, fading in from its words */
-.k-pagehead[data-state~="has-art"] { position: relative; isolation: isolate; }
+/* its own stacking context (the painted band) sits ABOVE the page body, so a
+   popover from the header (the Seat's ⋯) is not painted under the Stage (SH-03) */
+.k-pagehead[data-state~="has-art"] { position: relative; isolation: isolate; z-index: var(--z-stage); }
 .k-pagehead > .k-art[data-slot="page"] { inset: calc(var(--sp-12) * -1) 0 calc(var(--sp-8) * -1) 40%; border-radius: var(--r-20); --art-pos: 60% 50%; --art-scrim: none;
   -webkit-mask: linear-gradient(90deg, transparent, var(--text) 45%); mask: linear-gradient(90deg, transparent, var(--text) 45%); }
 .k-pagehead > .k-art[data-slot="page"] > img { opacity: calc(var(--art-op-hero) * 0.7); }

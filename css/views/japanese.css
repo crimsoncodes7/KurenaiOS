@@ -460,4 +460,9 @@ button.k-ja-stone { cursor: pointer; border-radius: var(--r-10); }
 .k-ja-revlist-r { grid-template-columns: minmax(0, 1fr) repeat(3, auto); }
 }
 
+/* JM-25: a checkpoint stop between the unit squares is a tiny mark, so on
+   touch it takes the dense size as a circle (invariant 69), not a 21×44 oval */
+@media (pointer: coarse) {
+.k-ja-cp { inline-size: var(--hit-dense); block-size: var(--hit-dense); min-block-size: var(--hit-dense); }
+}
 }

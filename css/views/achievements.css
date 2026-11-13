@@ -226,7 +226,7 @@
 .k-ach-dlg-titlenote i { font: italic var(--fs-14) var(--font-read); color: var(--gold); }
 .k-ach-dlg-foot { display: flex; align-items: center; gap: var(--sp-14); justify-content: space-between; border-block-start: var(--hairline) solid var(--line); }
 .k-ach-dlg-strip { display: flex; flex-wrap: wrap; gap: var(--sp-6); min-inline-size: 0; }
-.k-ach-dlg-chip { padding: var(--sp-2); border: 0; border-radius: 50%; background: none; cursor: pointer; }
+.k-ach-dlg-chip { display: inline-grid; place-items: center; aspect-ratio: 1; line-height: 0; padding: var(--sp-2); border: 0; border-radius: 50%; background: none; cursor: pointer; }
 .k-ach-dlg-chip[aria-current="true"] { box-shadow: 0 0 0 calc(var(--hairline) * 2) var(--set-hue); }
 .k-ach-dlg-n { font-size: var(--fs-13); color: var(--text-2); white-space: nowrap; }
 
@@ -341,4 +341,8 @@
 .k-ach-row-btn .k-ach-medal { --m: var(--ach-medal-sm); }
 }
 
+/* AG-06: the current badge's ring is a circle round its medal, on touch too */
+@media (pointer: coarse) {
+.k-ach-dlg-chip { min-inline-size: var(--hit-coarse); min-block-size: var(--hit-coarse); }
+}
 }

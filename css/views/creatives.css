@@ -176,7 +176,7 @@
 .k-cr-setrow:last-child { padding-block-end: 0; border-block-end: 0; }
 .k-cr-setrow p { margin: var(--sp-2) 0 0; font-size: var(--fs-13); }
 .k-cr-days { display: flex; gap: var(--sp-6); }
-.k-cr-day { inline-size: var(--cr-day); block-size: var(--cr-day); border-radius: 50%; border: var(--hairline) solid var(--line); background: none; color: var(--text-2); font: inherit; font-weight: var(--weight-semibold); cursor: pointer; }
+.k-cr-day { display: grid; place-items: center; padding: 0; inline-size: var(--cr-day); block-size: var(--cr-day); border-radius: 50%; border: var(--hairline) solid var(--line); background: none; color: var(--text-2); font: inherit; font-weight: var(--weight-semibold); cursor: pointer; }
 .k-cr-day[aria-pressed="true"] { background: var(--cr); border-color: var(--cr); color: var(--cr-ink); }
 .k-cr-addform { max-inline-size: var(--cr-paper-measure); }
 
@@ -384,4 +384,9 @@
   /* attach a piece from the Practice Log to a project milestone (CR-20) */
   .k-cr-attach { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-8); }
   .k-cr-attach > li { display: flex; align-items: center; gap: var(--sp-12); padding: var(--sp-8) var(--sp-12); border: 1px solid var(--line); border-radius: var(--r-8); background: var(--s1); }
+
+/* CR-07: the day letters are centred, and the circles stay circles on touch */
+@media (pointer: coarse) {
+  .k-cr-day { inline-size: var(--hit-coarse); block-size: var(--hit-coarse); }
+}
 }

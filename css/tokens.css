@@ -32,7 +32,7 @@
    Convention for every layer file: its rules sit inside ONE @layer block,
    and the block's contents are not indented, so line-anchored tooling
    (tools/lib/css.js, the smoke suites) reads them like top-level rules. */
-@layer tokens, base, layout, components, views, themes;
+@layer tokens, base, layout, components, views, themes, floors;
 
 @layer tokens {
 
