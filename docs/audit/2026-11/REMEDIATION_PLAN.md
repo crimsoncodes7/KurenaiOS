@@ -481,6 +481,21 @@ show on Account & Cloud Sync (DI-20).
   sections, unlinked projects, re-keyed references), side replicators
   (DI-20), the remaining P1s.
 
+**W7 progress (13 Nov 2026, `feat/w1-integrity` 016c0ba, NOT deployed; gate
+136/136, smoke136 new):** FIXED JM-07, MI-01, CR-25 (lesson checks reach
+Completed through reviews, the checkpoint's concepts and card ratings, with a
+boot repair), ST-03 (Quiz best a percent of a full run), HR-17 (every subject
+named in report words), HR-05 (Study hours = Focus time, one definition),
+GO-06, GO-07 (routine/habit picker over Routines' records), HR-01 (Home's
+desks by recency), HR-02 (backfill waits for the first sync; an empty week
+rebuilt once). HR-31 and CL-45 were done in W1. LEFT, each needing a
+decision: **GO-02** (Collection goals read the whole vault, so a goal made
+today is met at once and earned Goal getter — measure the period from the
+media journal; decide whether Goal getter tiers earned that way are taken
+back, an exception to invariant 162), **GO-23** (a 0% quiz turns a topic
+Green — the RAG model itself, UR-22: evidence-weighted, a minimum before any
+band), and **HR-04** (Home's "what next" for the study spaces: a design).
+
 ### W2 — Redraw policy, view lifecycle and boot (about 2–3 sessions; replaces the stopgap)
 - **The change bus.**
   - A background change carries the keys it changed, and a view declares
