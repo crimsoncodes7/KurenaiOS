@@ -27,3 +27,4 @@
 - [Achievements badge wall](achievements-badge-wall.md) — 5.16/5.17 RELEASED 2026-10-31 (kos-achievements-1, 65c61e27); all art imported; left: showcase drag-reorder, leave-with-changes prompt
 - [Quality audit 2026-11](quality-audit-2026-11.md) — AUDIT in progress (branch audit/quality-2026-11, docs/audit/2026-11/HANDOFF.md); no fixes until the user approves the plan
 - [Max three agents](max-three-agents.md) — at most 3 agents at once (ceiling 5); on Fable spawn NO reviewer agents: review inline or ask the user to use Opus
+- [Fable vs Opus work](fable-task-allocation.md) — Fable only for W2's core and W1's sync remainder (DI-20, RC6); everything else and all reviews on Opus
