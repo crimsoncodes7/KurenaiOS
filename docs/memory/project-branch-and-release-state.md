@@ -1,12 +1,14 @@
 ---
 name: project-branch-and-release-state
-description: "Which git branch is live, what is deployed — check git before trusting this; latest entry 2026-11-09 (kos-integrity-1)"
+description: "Which git branch is live, what is deployed — check git before trusting this; latest entry 2026-11-14 (RC5 built, not deployed)"
 metadata:
   node_type: memory
   type: project
   originSessionId: 2e2dc728-9366-4708-9ad8-6718d38edac2
   modified: 2026-10-20T16:16:29.892Z
 ---
+
+**In flight (2026-11-14):** `feat/w1-integrity` at `74800f7` holds RC5 (two tabs, storage, first sign-in, the lease) with all 26 review findings fixed; gate 135/135; local only, NOT pushed, NOT deployed, `sw.js` not bumped. Read `docs/HANDOFF-W1-RC5.md` first. The profile-picture move changes real data: explain it and get a go-ahead before deploying; staging first.
 
 **Latest (2026-11-09):** production is sw `kos-integrity-5`, commit `6c04c6e` (W0 + W1 so far: the rebuild RAN 9 Nov; RC21 rewards with receipts), immutable https://9fb3fc8b.kurenai-os.pages.dev; `origin/main` fast-forwarded to it (branches `feat/w0-safety-net` → `feat/w1-integrity`). The DI-27 clean-up RAN on the live account on 9 Nov (record: docs/audit/2026-11/qa/w1/di27-reconciliation-2026-11-09.md on the audit branch). Before it: `kos-malfix-1` (9fecf63).
 

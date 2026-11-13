@@ -3,17 +3,38 @@
 Read this first, then CLAUDE.md, docs/memory/MEMORY.md and the audit plan
 (branch `audit/quality-2026-11`, docs/audit/2026-11/REMEDIATION_PLAN.md §A4, §A5, W1).
 
-## Status on 13 Nov 2026 (read this before the list below)
-- Branch `feat/w1-integrity` at `bcb24cc` (local, NOT pushed, NOT deployed). Gate 135/135 on it; smoke45 passed in both full runs (its flake is still not diagnosed).
-- FIXED in `af71fd2` (smoke133 K–P): the P0 (sumEqual), HP drain twice, Focus in two tabs, mirror-primary mode without a merge, applyDoc detaching references, boot recovery by rev, flush/reloadPage in mirror mode, flush without the lock, quarantine copies (store API only).
-- FIXED in `bcb24cc` (smoke135 H–O): `japanese.mined` wiped on old-version devices, the picture move before the first pull, the preReplace window, the Daily Review as user data and SAMPLE rows pushed back, userData's missed evidence, the pinned pre-link copy (`KOS.cloudsync.preLinked`), the first-link checkpoint backoff and `linkWithoutBackup`, an unreadable attachment failing the backup (smoke17's wrapper removed).
-- STILL OPEN from the list below (no code written yet):
-  - P2: writeVerified with a same-id record that has no blob; write() on a stale governor object; LeaseLost between Todoist chunks (planned: apply `after` per chunk, mark an add with no temp-id mapping `ext.pending` and adopt it by title on the next pull).
-  - P3: orphan profile records (sweep after a grace period; hash the decoded bytes for contentId); profile records in the Assistant's list and the file counts; release() checking links; addMined (facet only after the put resolves); the lease released on pagehide; the title picker's full scan (add a limit to `mediadb.query`); logActivity on an aborted cycle.
-  - UI not built: a Storage card for quarantined copies (`KOS.store.quarantines`), a Storage row for the pinned pre-link copy, and a "Link without a backup" button where `KOS.cloudsync.linkBlocked().consent` is true (cloudui.js).
-  - Then: diagnose smoke45, re-review (at most 3 agents), update CLAUDE.md's invariants (7, 33b, 115, 1a, the new transact / land / settled rules) and the audit plan's W1 progress, explain the profile-picture move to the user, and ask before any deploy (`sw.js` VERSION not bumped).
+## Status on 14 Nov 2026 (read this first; it replaces everything below it as the current state)
+- Branch `feat/w1-integrity` at `74800f7`: local, NOT pushed, NOT deployed. Production is still sw `kos-integrity-5` (main `6c04c6e`). `sw.js` VERSION is not bumped.
+- **All 26 review findings below are FIXED**, each with a test that failed first:
+  - `af71fd2` (smoke133 K–P): the P0 (equal deltas doubled), the HP drain twice, Focus in two tabs, mirror-primary mode with no merge, applyDoc detaching references, boot recovery by rev, flush/reloadPage in mirror mode, flush without the lock, quarantine copies.
+  - `bcb24cc` (smoke135 H–O): `japanese.mined` wiped on old-version devices, the picture move before the first pull, the preReplace window, the Daily Review as user data and SAMPLE rows pushed back, userData's missed evidence, the pinned pre-link copy, the first-link backup backoff and consent, an unreadable attachment failing a backup (smoke17's wrapper removed).
+  - `902b062` (smoke133 Q, smoke134 I–N, smoke135 P–T): the picture store's edges (a record without its binary, the stale governor, the id from the bytes, orphans, links, lists and counts), mined lines (facet after the put; never overwritten), Todoist's bookkeeping per chunk and the pending add, logActivity on an aborted cycle, the lease at pagehide, the title picker's read, and the UI: Storage's "Copies kept for you" card, the sync panel's "Link without a backup".
+  - `74800f7`: four small findings of the re-review (below).
+- **smoke45's flake is explained and fixed** (`e5b77a6`): the Badge Wall's boot sweep toasts once, 2.5 s after load, on that suite's real clock; when the toast landed inside the redraw step's 90 ms window it read as the redraw announcing something. A race in the test, not an RC5 bug: the step now waits for the sweep's own report. (smoke17's old "flakes under load" note still stands; it passed in every gate run this session.)
+- Gate: 135/135 on `74800f7` (five full runs across the session's commits, all 135/135 after the first, which caught smoke81's now-async mining facet).
+- **The re-review was done inline, not by agents.** Three reviewer agents were launched twice and both times hit the account's 5-hour limit within seconds, producing nothing (rule now in memory: on Fable, no reviewer agents; review inline, or ask the user to run reviewers on Opus). The inline pass covered the landing path, the cycle lock, the mined pass-through, the picture rules, the classifier, Todoist's bookkeeping, the lease, the query limit and the new UI, and found four small things, fixed in `74800f7`: the no-base merge dropped any event with SAMPLE in its title (now only the seeded "SAMPLE — … (edit me)" rows); a pending Todoist reminder renamed before the pull was not linked; the link-without-backup choice survived sign-out; Storage's Download/Delete buttons had no distinguishing names.
+- **Known and accepted, not fixed** (none loses data):
+  - A pagehide while the mirror is the primary (localStorage full) cannot wait for IndexedDB; the last change of that page may be lost (documented in store.js and invariant 33c).
+  - Two tabs that each buy a same-priced shop item within the same save window are charged once (no session is logged for a purchase, so the equal deltas collapse).
+  - A checkpoint taken while a file was unreadable restores that file by its record only; if the browser could read it again by then, the restore still drops the local binary.
+  - A pending Todoist reminder deleted here before it links is not deleted at Todoist (it has no id yet) and will be imported again by the next pull.
+  - The title picker's 24 rows are the first 24 matches in the vault's own order, then sorted: with more than 24 in-progress titles the unsearched list is not the alphabetical first 24. Searching narrows it.
+  - Not checked in a real browser: everything here was verified in the jsdom harness. Two real tabs, a real iPad, and the Storage card's layout at 1440 and phone width should be looked at on staging before production.
+- CLAUDE.md is updated (`e5b77a6`): the stores (7), repairs' readiness (1a), invariants 33b, 33c, 33d, 34, 115, 150, 157, 160, 8.
+- **Before any deploy, tell the user what the profile-picture move does** (section "The profile-picture move" below) and get an explicit go-ahead. Deploy to staging first.
 
-## Where it stands
+## The profile-picture move (what it will do to the real account)
+Measured on the live account on 8 Nov (audit `findings/live-account.md`): the state document is 1.35 MB, of which `governor.bannerImg` is 332 KB and the avatar 106 KB, both data URLs.
+1. On each device, the first time it runs the new version AND has finished one good sync (never at start-up before the pull), the repair `profile-pictures-to-files` runs by itself. No consent dialog: it is an automatic repair.
+2. It first takes a full verified checkpoint of that device (every store, kept in `kurenai-os-backups`, last five kept). If the checkpoint does not verify, nothing is changed.
+3. It writes two records into the file store, "Profile picture" and "Profile banner" (`origin` `profile:avatar` / `profile:banner`), reads each back byte for byte, and only then sets `governor.avatar.file` / `governor.bannerFile` and clears `avatar.img` / `bannerImg`. The crops are kept. Any failure leaves the state exactly as it was.
+4. The state document drops from about 1.35 MB to about 0.9 MB, so every save and every cloud push and pull is about 440 KB lighter.
+5. The two pictures upload to the private bucket (they go up even where automatic file upload is off on that device), so the other devices can fetch them. They are not listed in Files, Storage's lists, search or the Assistant.
+6. The file id is the hash of the picture's bytes, so two devices moving the same picture make one record, not two.
+7. **A device still on the old version shows the default seal and no banner** once it pulls the moved state, until it takes the update (the old code only reads the inline picture). Nothing is lost: update that device and the pictures come back. If a new picture is uploaded on an old-version device meanwhile, that newer picture wins and is moved in turn.
+8. Undo: the checkpoint from step 2 restores the device as it was (Archive, or `KOS.backup.restore`); the pictures themselves are never deleted by the move.
+
+## Where it stood on 9 Nov (history)
 - Branch `feat/w1-integrity` at `0471e06` (NOT pushed, NOT deployed; production is still sw `kos-integrity-5`, main `6c04c6e`).
 - RC5 is BUILT and MERGED there (three merges after `98feddd`):
   - two tabs (DI-04): rev + Web Lock + three-way merge on save, storage-event merge, quarantine of an unreadable document, the IndexedDB mirror `kurenai-os-statemirror`, quota fallback, `KOS.store.health()`, `KOS.ui.banner`, every tab reloads on a confirmed update — smoke133;
@@ -27,7 +48,7 @@ Read this first, then CLAUDE.md, docs/memory/MEMORY.md and the audit plan
 
 - **Reported by the user, 9 Nov (not diagnosed):** in the PDF/file viewer (`KOS.pdfView`, js/core/pdfview.js) the ink toolbar's size and colour options are "completely broken". The options are drawn INLINE in the bar's slot (`.k-ink-swatches`, `.k-ink-widths` in css/views/ink.css), not as a `KOS.ui.menu`, so the `--z-popover` fix does not touch them. Reproduce on the iPad (1180 × 820 and 820 × 1180) and the Mac with a PDF open in the viewer: docked bar and floating palette (`.k-ink-pal`, over-modal state), check the slot's layout, clipping by the viewer's `overflow` containers and whether taps reach it. Ask the user for a screenshot.
 
-## Next steps (in order)
+## Next steps as written on 9 Nov (steps 1–3 are DONE; step 4 is what is left of W1)
 1. Fix the findings below, failing-first tests in smoke133/134/135 (one fixer per area: store/cloudmerge/focus; profilepics/ja/mined; cloudsync/backup/ext/goals). The intended design for each is in the "Fix" line; for the P0, sum equal counter deltas only when both sides added DISJOINT session ids (an applied cloud doc brings the same ids to both → collapse).
 2. Run `npm test` (gate 135/135), resolve smoke45.
 3. Re-review (≤3 agents), then update CLAUDE.md invariants (7 store list, 33b/focus.active across tabs, 115 mined store, 1a repairs list) and the audit plan's W1 progress, then stage, show the user, and ask before any production deploy. The profile-picture move is a migration of real data: tell the user what it will do before deploying.
@@ -38,7 +59,7 @@ Read this first, then CLAUDE.md, docs/memory/MEMORY.md and the audit plan
 - Worktree agents need `node_modules` and `assets/code/runtime` symlinked from the main checkout (never commit them).
 - Stage by name; production deploy only with the user's explicit go-ahead; ask the user to close every KurenaiOS window before touching their account.
 
-## The review findings (unfixed)
+## The review findings (ALL FIXED — kept for the scenarios)
 
 ### P0 (confirmed) — sumEqual doubles gold/XP when two tabs apply the SAME external change (cloud pull, boot mirror recovery)
 `js/core/cloudmerge.js:413`
