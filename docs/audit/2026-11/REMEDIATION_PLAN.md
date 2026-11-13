@@ -629,6 +629,18 @@ a design).
 | ST-05 | P1 | css/views (assignments) detail panel: align-self:start, max-block-size:calc(100dvh - header) with overflow-y:auto, no min-block-size:100% so the footer sits at the panel's bottom. | Responsive audit at 1470x832: 'Focus on this' and Complete/Submitted/Blocked are inside the viewport when an assignment is selected. |
 | ST-06 | P1 | js/modules/assignments.js: below 1240 open the detail in a KOS.ui.openDialog sheet (bottom sheet ≤700, side sheet on iPad), focus its heading. | Smoke: at 820px clicking an assignment opens a dialog containing its detail; device check iPad 820x1180/1180x820 and iPhone 402x874. |
 
+**W3 progress (13 Nov 2026, `feat/w1-integrity` 8ba235f, NOT deployed; gate
+137/137, smoke137 new):** the GLOBAL fixes only (the per-page tail is left
+for Opus later, page by page). RC2: KOS.ui.menu inside a dialog was already
+on top (fc55d492, PR-01/UR-24); now the painted page header stacks above the
+page body, so the Seat's ⋯ is no longer under the Stage (SH-03, AG-01).
+RC17: a last cascade layer `floors` holds the 16px phone field rule (AX-01;
+measured 16px everywhere at 375px). The 44px touch minimum was NOT moved
+there — it would override the dense size invariant 69 keeps for tiny marks.
+Round controls stay circles on touch: AA-14, CR-07, AG-06, JM-25. LEFT in
+W3: the 1240–700 tier (RC3), contrast inks and focus rings, the dead-space
+cluster, the Agenda (a design), and the page-by-page P2/P3s.
+
 ### W4 — Money revamp (about 1–2 sessions; one design prompt)
 - **Import.**
   - Santander's real exports (§1.6): midata CSV with preamble and delimiter
