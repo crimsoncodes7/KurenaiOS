@@ -3,6 +3,16 @@
 Read this first, then CLAUDE.md, docs/memory/MEMORY.md and the audit plan
 (branch `audit/quality-2026-11`, docs/audit/2026-11/REMEDIATION_PLAN.md §A4, §A5, W1).
 
+## Status on 13 Nov 2026 (read this before the list below)
+- Branch `feat/w1-integrity` at `bcb24cc` (local, NOT pushed, NOT deployed). Gate 135/135 on it; smoke45 passed in both full runs (its flake is still not diagnosed).
+- FIXED in `af71fd2` (smoke133 K–P): the P0 (sumEqual), HP drain twice, Focus in two tabs, mirror-primary mode without a merge, applyDoc detaching references, boot recovery by rev, flush/reloadPage in mirror mode, flush without the lock, quarantine copies (store API only).
+- FIXED in `bcb24cc` (smoke135 H–O): `japanese.mined` wiped on old-version devices, the picture move before the first pull, the preReplace window, the Daily Review as user data and SAMPLE rows pushed back, userData's missed evidence, the pinned pre-link copy (`KOS.cloudsync.preLinked`), the first-link checkpoint backoff and `linkWithoutBackup`, an unreadable attachment failing the backup (smoke17's wrapper removed).
+- STILL OPEN from the list below (no code written yet):
+  - P2: writeVerified with a same-id record that has no blob; write() on a stale governor object; LeaseLost between Todoist chunks (planned: apply `after` per chunk, mark an add with no temp-id mapping `ext.pending` and adopt it by title on the next pull).
+  - P3: orphan profile records (sweep after a grace period; hash the decoded bytes for contentId); profile records in the Assistant's list and the file counts; release() checking links; addMined (facet only after the put resolves); the lease released on pagehide; the title picker's full scan (add a limit to `mediadb.query`); logActivity on an aborted cycle.
+  - UI not built: a Storage card for quarantined copies (`KOS.store.quarantines`), a Storage row for the pinned pre-link copy, and a "Link without a backup" button where `KOS.cloudsync.linkBlocked().consent` is true (cloudui.js).
+  - Then: diagnose smoke45, re-review (at most 3 agents), update CLAUDE.md's invariants (7, 33b, 115, 1a, the new transact / land / settled rules) and the audit plan's W1 progress, explain the profile-picture move to the user, and ask before any deploy (`sw.js` VERSION not bumped).
+
 ## Where it stands
 - Branch `feat/w1-integrity` at `0471e06` (NOT pushed, NOT deployed; production is still sw `kos-integrity-5`, main `6c04c6e`).
 - RC5 is BUILT and MERGED there (three merges after `98feddd`):
