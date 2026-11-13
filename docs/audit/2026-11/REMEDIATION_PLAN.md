@@ -223,6 +223,8 @@ post-programme backlog.
 | B12 | **Repository:** `git rm --cached` the personal export, `.claude/` and the root clutter, and add them to `.gitignore`. **No history rewrite** until every branch is merged. | Done in W0. History keeps every file, the local copies stay on disk, and `.claude/` holds only `launch.json` and `settings.local.json` (local preview and permission config), both kept locally. |
 | B13 | **Todoist:** the captured findings cover everything you experienced. | |
 | B14 | **The three deleted files (LA-30): ignore.** | |
+| B15 | **Goal getter (13 Nov): take back** the tiers earned by Collection goals the whole vault met at once (GO-02). | An automatic repair after the first sync and a verified checkpoint; the one recorded exception to invariant 162. |
+| B16 | **Topic colours (13 Nov): evidence first** (GO-23, UR-22). | Green needs recall and practice; some topics that read Green will read Amber until they have both. |
 
 **Conflict to note (B6, pen sets).** "Store the resolved colour on the
 stroke" would break invariant 133: a stroke's colour is a ROLE read live from
@@ -488,13 +490,15 @@ boot repair), ST-03 (Quiz best a percent of a full run), HR-17 (every subject
 named in report words), HR-05 (Study hours = Focus time, one definition),
 GO-06, GO-07 (routine/habit picker over Routines' records), HR-01 (Home's
 desks by recency), HR-02 (backfill waits for the first sync; an empty week
-rebuilt once). HR-31 and CL-45 were done in W1. LEFT, each needing a
-decision: **GO-02** (Collection goals read the whole vault, so a goal made
-today is met at once and earned Goal getter — measure the period from the
-media journal; decide whether Goal getter tiers earned that way are taken
-back, an exception to invariant 162), **GO-23** (a 0% quiz turns a topic
-Green — the RAG model itself, UR-22: evidence-weighted, a minimum before any
-band), and **HR-04** (Home's "what next" for the study spaces: a design).
+rebuilt once). HR-31 and CL-45 were done in W1. Then (a9945f7, decided by you on
+13 Nov: "take them back") **GO-02 FIXED**: Collection goals measure their own
+period from the media journal, and the automatic repair
+`goal-getter-whole-vault` voids the receipts the old rule produced and lowers
+Goal getter (the one recorded exception to invariant 162); **GO-23 FIXED**
+(UR-22): topic colours are evidence-weighted — a 0% quiz is Red, Green needs
+recall from three rated cards AND a quiz or paper at 70+, else Amber "not
+enough evidence". LEFT: **HR-04** (Home's "what next" for the study spaces:
+a design).
 
 ### W2 — Redraw policy, view lifecycle and boot (about 2–3 sessions; replaces the stopgap)
 - **The change bus.**
