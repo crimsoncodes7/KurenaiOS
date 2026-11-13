@@ -446,9 +446,33 @@ show on Account & Cloud Sync (DI-20).
 - **New backlog item (found 9 Nov, not scheduled):** a Collection status
   changed back and forth (quick-edit, the editor) logs a paid media session
   each time (4 XP, 1 gold), with no receipt. No audit finding covers it.
-- Still to do in W1: RC21 receipts, §A4 two tabs, §A5 storage, the store
-  registry, Todoist/Google bookkeeping, side replicators, the remaining
-  P1s; the Reports rebuild waits for HR-31's fix.
+- **Two tabs and storage (RC5), BUILT 9–14 Nov, NOT deployed
+  (`feat/w1-integrity` at `74800f7`; gate 135/135):** DI-04 (rev, Web Lock
+  and three-way merge on save; one change once across tabs through
+  `KOS.store.transact`; a Focus session owned by one tab; an unreadable
+  document set aside; the IndexedDB mirror, the primary when localStorage
+  is full), DI-10/LA-9 (the avatar and banner into the file store by an
+  automatic repair that waits for the first good sync), DI-18 (every
+  database name carries the namespace suffix), DI-25 (mined Japanese lines
+  on the device; an older device's map handed back unchanged), DI-03
+  (first sign-in: one definition of the user's data, a verified checkpoint
+  before combining, a pinned copy of the device from before the link, the
+  no-base merge leaving out untouched seeds), DI-19 with part of DI-02
+  (the lease per tab, renewed and given back at pagehide; Todoist's
+  bookkeeping applied per chunk), GO-25 (the linked title). A cloud
+  document now lands in one store transaction, one tab syncing at a time.
+  A 3-agent review on 9 Nov found 26 problems (1 P0, 7 P1, 9 P2, 9 P3):
+  all fixed with failing-first tests (smoke133 K–Q, smoke134 I–N, smoke135
+  H–T). The re-review was done inline (reviewer agents exhausted the usage
+  limit twice and produced nothing) and found four small things, fixed.
+  smoke45's 1-in-6 failure was a race in the test with the Badge Wall's
+  boot toast, fixed in the test. Record: `docs/HANDOFF-W1-RC5.md` on the
+  branch, with what is known and accepted, and what the picture move does
+  to the live account. **Not yet checked in a real browser; staging first.**
+- Still to do in W1: the store registry (RC4), the rest of Todoist/Google
+  bookkeeping (RC6: pull before the lease, uid for older reminders,
+  sections, unlinked projects, re-keyed references), side replicators
+  (DI-20), the remaining P1s.
 
 ### W2 — Redraw policy, view lifecycle and boot (about 2–3 sessions; replaces the stopgap)
 - **The change bus.**
