@@ -559,6 +559,34 @@ a design).
 | SY-19 | P1 | Add vault views (anime, books, vn, game, mangaka, seasonal, wishlist, shrine) to the held set and keep the loaded batch count in a per-visit memo so a redraw renders up to it before restoring scroll. | Smoke: scroll a vault past batch 3, background redraw → scrollTop restored within 10px and ≥180 cards rendered. |
 | SY-20 | P1 | js/modules/governor-ui.js Edit your seat: hold background redraws while dirty (task page) and keep the draft in a per-visit store keyed by route; add the leave-with-changes prompt. | Smoke: change the seat background without saving, background redraw → draft kept; navigating away prompts. |
 
+**W2 progress (13 Nov 2026, `feat/w1-integrity` 6279a9c, NOT deployed; gate
+139/139, smoke139 new) — phase 1 of the core, done on Fable:**
+`js/core/redraw.js` replaces the stopgap. BUILT: the change bus (a
+background change names the state keys and stores that moved; each view's
+reads declared in one table and held by smoke139 N), the policy (a task page
+or a page holding unsaved work shows "Updated on another device · Refresh"
+and is never redrawn under the reader; elsewhere the change lands when
+typing ends, a dialog closes or the page is idle; every redraw keeps scroll,
+inner scrollers and focus, a background one also unsent text), the view
+lifecycle (`KOS.view` onDispose / token / signal / memo / keep / hold /
+guard; navigation closes a page's dialogs and asks before unsaved work).
+FIXED: SY-05, SY-26, SY-08, SY-24, SY-12, SY-06, SY-17 (media and files
+pulls now name themselves), AP-10, AA-15, AX-38 (with SH-25, HR-09, CL-08,
+CR-03, EX-49, MG-21, MI-16 by the same rule), AX-22, SY-20, AP-14, SY-02,
+ST-36, CC-18, SY-19, AX-27, AP-17, ST-12 and SY-21 (inner scrollers are put
+back on a redraw), UR-3, SH-20, SH-21, SH-02 (with AX-07), SH-23, SH-41.
+Checked in a browser at desktop and phone width (the pill, Refresh keeping
+the notes page and the scroll).
+STILL TO DO in W2, in this order: **resumable sessions** (§A6: ST-04, SY-03,
+SY-04, JM-08, SY-09, JM-22 — flashcards, quiz and exam drafts, Japanese and
+kana runs in `state.ui`, one ledger entry per session upserted with delta
+pay), **lazy loading** (AP-01), then the side replicators naming their
+stores to the bus with DI-20. Smaller, for Opus: AA-01, AA-02, CR-01, SY-22
+(in-page tabs through `KOS.view.memo`), SY-11, SY-14, SY-23, SY-25, SY-27,
+AP-08 (move pages' global listeners to `KOS.view.onDispose`), SH-37/AG-03/
+AX-24 (URLs for the Wall's tabs), SH-13, UR-5 (iPhone Focus with the screen
+off), CL-24, MG-17, HR-30, ST-19, AA-17, AG-25.
+
 ### W3 — Layering, layout tiers and touch (about 3 sessions; the biggest by count)
 - **Menus above dialogs (RC2).**
   - A menu opened inside a dialog mounts in that dialog's top layer.
