@@ -449,15 +449,20 @@
      ticks and choices. `mine` (a syncable copy, changed in place) drops
      what userData already calls furniture and takes the account's value
      wherever this device still holds the shipped one. */
+  /* a row the boot seeder planted and nobody renamed: "SAMPLE — … (edit me)".
+     Stricter than isSampleTitle (which only decides what COUNTS as data):
+     this one decides what is DROPPED, and an event of the user's own that
+     merely has SAMPLE in its title must never be. */
+  function isSeedTitle(t) { return /^SAMPLE — .*\(edit me\)\s*$/.test(String(t || "")); }
   function stripSeeds(mine, theirs) {
     function take(key) { if (theirs && theirs[key] != null) mine[key] = JSON.parse(JSON.stringify(theirs[key])); }
     if (mine.calendar && Array.isArray(mine.calendar.events)) {
-      mine.calendar.events = mine.calendar.events.filter(function (ev) { return ev && !isSampleTitle(ev.title); });
+      mine.calendar.events = mine.calendar.events.filter(function (ev) { return ev && !isSeedTitle(ev.title); });
     }
     var as = mine.exams && mine.exams.assessments;
     if (as && typeof as === "object") Object.keys(as).forEach(function (k) {
       var a = as[k];
-      if (a && isSampleTitle(a.title) && a.links && a.links.calendarId != null) delete as[k];
+      if (a && isSeedTitle(a.title) && a.links && a.links.calendarId != null) delete as[k];
     });
     if (!pacingTouched(mine.pacing)) take("pacing");
     if (!moneyTouched(mine.money)) take("money");
@@ -2014,6 +2019,7 @@
           rtStop();
           cleanStateHash = null;   // next account's cleanliness is unknown
           pulledOnce = false; blocked = null;
+          consentNoBackup = false;   // a choice made for the account that just left
           setStatus("signedOut");
           kickRepairs();
         }

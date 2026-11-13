@@ -179,7 +179,9 @@
       /* a reminder this device already SENT, whose add came back without an
          id (pending): this is it. Linked, never imported as a second one. */
       var pend = p === "todoist" ? items().filter(function (it) {
-        return it.ext && it.ext.p === p && it.ext.pending && !it.ext.id && it.title === remote.title &&
+        /* by the title that was SENT (its base), or the one it has now */
+        return it.ext && it.ext.p === p && it.ext.pending && !it.ext.id &&
+          (((it.ext.base || {}).title === remote.title) || it.title === remote.title) &&
           String(it.listId == null ? "" : it.listId) === String(listId == null ? "" : listId);
       })[0] : null;
       if (pend) {

@@ -96,8 +96,8 @@
       function item(hook, title, meta, onDownload, onDelete, what) {
         var li = el("li", { class: "k-st-file", "data-ui": "storage.kept-row " + hook }, [
           el("span", { class: "k-st-file-t" }, [el("span", { class: "k-files-name", text: title }), el("span", { class: "k-files-meta", text: meta })]),
-          el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "storage.kept-download", text: "Download", onclick: onDownload }),
-          el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "storage.kept-delete", "data-tone": "danger", text: "Delete", onclick: function () {
+          el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "storage.kept-download", text: "Download", "aria-label": "Download: " + title + ", " + meta, onclick: onDownload }),
+          el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "storage.kept-delete", "data-tone": "danger", text: "Delete", "aria-label": "Delete: " + title + ", " + meta, onclick: function () {
             KOS.ui.confirm({ title: "Delete this copy?", danger: true, confirm: "Delete the copy",
               body: what + " It cannot be brought back; download it first if you might want it." }, function () {
               onDelete(function () { li.remove(); if (!list.children.length) box.hidden = true; });

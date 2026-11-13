@@ -459,6 +459,7 @@ step("I · a device with real data and untouched samples: its data merges in, it
   const sv = makeServer();
   const { app, K, sync } = await linkedApp(sv, "user-i2");
   K.reminders.add({ title: "Device reminder" });
+  K.calendar.addEvent({ title: "SAMPLE paper practice", date: "2026-10-02", kind: "study" });   /* the user's own */
   const doc0 = noSamples(remoteDoc({ progress: PROG }));
   /* the account ticked a plan row this device still holds as the seed left it */
   const row = doc0.pacing.entries.filter((e) => !e.done)[0];
@@ -467,7 +468,7 @@ step("I · a device with real data and untouched samples: its data merges in, it
   await sync();
   await sync();
   const doc = sv.state.state_json;
-  eq(sampleTitles(doc), [], "no SAMPLE event or assessment was pushed back into the account");
+  eq(sampleTitles(doc), ["SAMPLE paper practice"], "no shipped SAMPLE row was pushed back; the user's own event with the word in its title was kept");
   assert(doc.reminders.items.some((r) => r.title === "Device reminder"), "the device's reminder reached the account");
   const got = doc.pacing.entries.filter((e) => String(e.id) === String(row.id))[0];
   assert(got && got.done, "the account's plan tick was not reverted by this device's untouched seed");
@@ -750,7 +751,14 @@ step("P · an add Todoist answers without a temp-id mapping is never linked to `
   const it = () => t.K.store.state.reminders.items.filter((x) => x.title === "No mapping came back");
   eq(it().length, 1, "one reminder");
   assert(it()[0].ext && it()[0].ext.pending && it()[0].ext.id === undefined, "marked pending, with no id: " + JSON.stringify(it()[0].ext));
+  /* renamed here before the pull: it is still the task that was sent */
+  t.K.reminders.update(it()[0].id, { title: "Renamed before it linked" });
+  const it2 = () => t.K.store.state.reminders.items.filter((x) => x.ext && x.ext.p === "todoist");
   td.serve = true; td.dropMap = false; td.calls.length = 0;
+  await t.sync();
+  eq(t.K.store.state.reminders.items.length, 1, "the pull did not import the remote task as a second reminder");
+  eq(it2()[0].ext.id, "T1", "it linked the pending one, renamed or not");
+  t.K.reminders.update(it2()[0].id, { title: "No mapping came back" });
   await t.sync();
   eq(it().length, 1, "the pull did not import the remote task as a second reminder");
   eq(it()[0].ext.id, "T1", "it linked the pending one to it");
