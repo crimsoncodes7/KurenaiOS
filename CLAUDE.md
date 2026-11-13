@@ -215,9 +215,18 @@ chronological diary here.
   five minutes, and migrations `20261022000001`–`03` are applied. Before
   it `3b39ae1` (21 October 2026; the Exams & Deadlines hub),
   https://e94eede7.kurenai-os.pages.dev.
+- BUILT, NOT DEPLOYED (`feat/w1-integrity`, 13 November 2026): the quality
+  programme's RC5 — two tabs and the state document's storage (invariant
+  33c), a cloud document landing in one step (33d), the profile pictures
+  and mined Japanese lines out of the synced document (invariants 7, 115,
+  150), first sign-in keeping the device's data (34), the Todoist/Google
+  lease and bookkeeping (157, 160) — with the 26 findings of its review
+  fixed (smoke133–135). Read [`docs/HANDOFF-W1-RC5.md`](docs/HANDOFF-W1-RC5.md)
+  before deploying: the profile-picture move changes real data on the first
+  start after the first good sync.
 - Last milestone tag: `milestone/graphite-ui-rebuild`
 - Service-worker version: `kos-integrity-5`
-- Required smoke gate: 135 / 135 suites (`""` and 2–135, or `npm test`, which runs them in parallel through `tools/run_smoke.mjs`; 124–126 are W1's: repairs run safely and Import backup asks first, the P0s (JM-06, ST-25, MG-01/MG-23, SY-18), and the DI-27 clean-up on test data; 127 activity, not any event (HR-31, CL-45) and the per-device journal scrub; 128 streak-milestone gold once per run (HR-16); 129 the one-off saved-reports rebuild after DI-27; 130–132 rewards with receipts (RC21: Productivity, Mind and Creatives, Japanese); 133 two tabs saving the state document safely and its storage's durability (RC5: rev, lock and three-way merge, quarantine, the IndexedDB mirror, quota); 134 the profile pictures moved into the file store by a repair, the session ledger's archive, Creatives' suffixed database, mined Japanese lines kept on the device, and Storage's state meter; 135 first sign-in keeping the device's data (DI-03), the Todoist/Google lease per tab and renewed (DI-19), and the goal's Linked title (GO-25); 120–123 are the quality programme's safety net — the 04:00 day across DST, the service-worker update across two versions, offline, and the verified backup `KOS.backup`; 116–119 are ratcheted gates over content, cosmetics, menus in dialogs and CSS collisions, each failing only on a violation not in its `tools/baselines/smoke11x-*.json`; 115 is Mind Journal replication; 114 is provider identity per module (DI-27); 113 is the Badge Wall's; 80–83 are Japanese's, 99 is Code's SQL runner, 100 the ink engine, 101–104 Routines and the Daily Review, 105 the rest of the iPad build and Files R0, 106 Files R1–R4, airing on a closed app, Rider CI evidence and habits several times a day, 107 the Pencil fixes, 108 Creatives', 109–111 Mind's, 112 Google Calendar, Google Tasks and Todoist).
+- Required smoke gate: 135 / 135 suites (`""` and 2–135, or `npm test`, which runs them in parallel through `tools/run_smoke.mjs`; 124–126 are W1's: repairs run safely and Import backup asks first, the P0s (JM-06, ST-25, MG-01/MG-23, SY-18), and the DI-27 clean-up on test data; 127 activity, not any event (HR-31, CL-45) and the per-device journal scrub; 128 streak-milestone gold once per run (HR-16); 129 the one-off saved-reports rebuild after DI-27; 130–132 rewards with receipts (RC21: Productivity, Mind and Creatives, Japanese); 133 two tabs saving the state document safely and its storage's durability (RC5: rev, lock and three-way merge, one change once across tabs, Focus owned by one tab, quarantine, the IndexedDB mirror as the primary, quota, Storage's kept copies); 134 the profile pictures moved into the file store by a repair and their edges (a record without its binary, the id from the bytes, orphans, links), the session ledger's archive, Creatives' suffixed database, mined Japanese lines kept on the device, and Storage's state meter; 135 first sign-in keeping the device's data (DI-03), a cloud document landing in one step, an older device's mined lines and newer picture, the pinned pre-link copy and the backup backoff, the Todoist/Google lease per tab, renewed and released (DI-19), Todoist's bookkeeping per chunk, and the goal's Linked title (GO-25); 120–123 are the quality programme's safety net — the 04:00 day across DST, the service-worker update across two versions, offline, and the verified backup `KOS.backup`; 116–119 are ratcheted gates over content, cosmetics, menus in dialogs and CSS collisions, each failing only on a violation not in its `tools/baselines/smoke11x-*.json`; 115 is Mind Journal replication; 114 is provider identity per module (DI-27); 113 is the Badge Wall's; 80–83 are Japanese's, 99 is Code's SQL runner, 100 the ink engine, 101–104 Routines and the Daily Review, 105 the rest of the iPad build and Files R0, 106 Files R1–R4, airing on a closed app, Rider CI evidence and habits several times a day, 107 the Pencil fixes, 108 Creatives', 109–111 Mind's, 112 Google Calendar, Google Tasks and Todoist).
 - Branches: `main` is the line. On 20 October 2026 it was fast-forwarded to
   `feat/money-goals` (Money and Goals), then to `feat/fsrs` (FSRS), on 21
   October to `feat/exams-hub` (the Exams hub), and on 22 October to
@@ -406,13 +415,25 @@ non-navigation redraw path.
 
 - `KOS.store.state` in `localStorage`: study state, UI, economy, sessions,
   calendar/reminders/assignments, planner/goals, the integrated weekly plan
-  and Assistant preferences.
+  and Assistant preferences. Shared by every open tab (invariant 33c);
+  mirrored to `kurenai-os-statemirror` IndexedDB (the last document, the
+  copy before a recovery and any unreadable copy set aside), which becomes
+  the primary for the session when localStorage is full.
+- `kurenai-os-ledger` IndexedDB: session entries the 2,000 cap trimmed
+  (`KOS.ledgerArchive`); in the full backup, never synced.
+- `kurenai-os-ja-mined` IndexedDB: mined Japanese lines (`KOS.jaMined`,
+  invariant 115); in the full backup, never synced.
+- `kurenai-os-backups` IndexedDB: verified checkpoints (`KOS.backup`,
+  invariant 1a), the last five kept.
 - `kurenai-os-media` IndexedDB: Collection records, non-token media preferences
   and provider credentials in its kv store.
 - `kurenai-os-files` IndexedDB: every file added outside the Paper library
   (topics, assignments, assessments, Files, scans, shares), one record a
   content (`hash`), its links and aliases (invariant 150); metadata synced,
-  binaries to the private bucket.
+  binaries to the private bucket. Your own profile picture and banner are
+  records here too (`origin` `profile:avatar` / `profile:banner`,
+  `KOS.profilePics`): the state holds only `governor.avatar.file` and
+  `governor.bannerFile`.
 - `kurenai-os-filetext` IndexedDB: the text read from each PDF, for
   search (derived; kept when a binary is freed).
 - `kurenai-os-mind` IndexedDB: Mind's Journal entries and their tombstones
@@ -519,7 +540,17 @@ source comments and audit notes refer to it.
    `state.repairs` (synced, so no device runs it twice) and an audit record
    in the media kv (`repair.audit.<id>`). Import backup reads the file,
    asks (a danger dialog with its date and counts) and takes a verified
-   checkpoint of this device before it replaces anything.
+   checkpoint of this device before it replaces anything. An AUTOMATIC
+   repair (no consent) runs only while its `ready()` holds: the two that
+   move data out of the state document are `ja-mined-to-local` (at start)
+   and `profile-pictures-to-files`, which waits until this page load holds
+   the account's copy or knows there is none (`KOS.cloudsync.settled`) —
+   run before the first pull, its change met a newer cloud copy as this
+   device's own edit and won. The sync engine starts the automatic repairs
+   again after the first good cycle and after any cycle that brought a
+   document in. A file the browser can no longer read rides a backup by its
+   record alone and the checkpoint names it (`unreadable`); it never fails
+   the backup.
 2. Gold gates only labs and simulations (one-time unlocks) and, since
    roadmap 5.14, UPLOADING a picture of your own ("Your own picture", per
    area or all; a picture set before keeps showing). Everything else gold
@@ -653,9 +684,17 @@ source comments and audit notes refer to it.
    require a version, migration and indexes. `syncId` is stable across devices and
    preserved on merge.
 7. Media, files and tokens use their designated stores. Full backups exclude every
-   credential. Browser origins have different IndexedDB databases.
+   credential. Browser origins have different IndexedDB databases. Every
+   database name carries the data namespace's suffix (`KOS.dataMode.suffix`;
+   smoke134 F scans every `indexedDB.open`). The stores: `kurenai-os-media`,
+   `-files`, `-filetext`, `-papers`, `-money`, `-reviews`, `-reports`,
+   `-ink`, `-mind`, `-creatives`, `-ledger`, `-ja-mined`, `-backups` and
+   `-statemirror`. Pictures and personal media never ride the state
+   document: the profile picture and banner are file records
+   (`KOS.profilePics`) and mined lines are in `kurenai-os-ja-mined`.
 8. Vaults and search never render/read an unbounded collection: use indexes,
-   cursor caps and 60-entry lazy batches.
+   cursor caps and 60-entry lazy batches. `mediadb.query({limit})` stops the
+   cursor once that many rows matched (a picker that draws eight).
 9. Pull sync owns list state but preserves the manual layer and local
    crop/source pairs. Custom lists: a list AniList HAS (the mirror passes
    every AniList list name, `mirrorOpts(module, names)`) follows the pull —
@@ -813,11 +852,64 @@ source comments and audit notes refer to it.
     is one leaf — because an element-wise merge of an ordering can double
     one item and drop another.
 33b. `focus.active` is per-device like `state.ui`: a running timer is a live
-    process, not data, and must never land on another device.
+    process, not data, and must never land on another device. Between the
+    TABS of one device it is shared (one localStorage) and OWNED BY ONE
+    TAB: the tab that holds the session holds the Web Lock `kos-focus`
+    (a heartbeat where there are no Web Locks) and stamps the session with
+    its `tab`; another tab never restores or starts over it ("A Focus
+    session is running in another tab or window"), and picks it up only
+    when its owner is gone. `finish()` logs once per session
+    (`metrics.fid` = id@startedAt): a second finish pays nothing.
+33c. ONE STATE DOCUMENT, MANY TABS (`js/core/store.js`, RC5; smoke133).
+    Each tab keeps a BASE, the last document it read from or wrote to
+    localStorage. A save runs under the Web Lock `kos-state-write`: read
+    what is stored; if another tab wrote, three-way merge (base, memory,
+    stored) with the cloud merge's own rules; write the rev
+    (`kurenai-os-v1.rev`) first, then the document. A change EVERY open tab
+    would make by itself (the day's HP drain, a cloud document applied, the
+    recovery from the mirror) goes through `KOS.store.transact(fn)` — under
+    the lock, on top of what the other tabs wrote, written at once — so it
+    happens once. Equal changes to gold, XP or HP in two tabs are summed
+    only when each tab logged sessions of its own (`ownSessions`); the same
+    document applied twice is one change. A merge or adopt changes the
+    state IN PLACE (object identity kept), so a module's reference stays
+    live. An unreadable stored document is copied aside first (one slot in
+    localStorage, the rest in the mirror; Storage lists each with Download
+    and Delete) and nothing is written over it until that is done. With
+    localStorage full the mirror is the primary: each write is read, merged
+    and put in one IndexedDB transaction and the stored rev is marked
+    (`<rev>m`) so the other tabs take it in; `flush()` returns a promise
+    and the update reload waits for it. A pagehide in that mode cannot wait
+    for IndexedDB: the known limit.
+33d. A CLOUD DOCUMENT LANDS IN ONE STEP (`cloudsync.js` `land`; smoke135).
+    One tab runs a cycle at a time (Web Lock `kos-cloudsync`). Whatever
+    brings a document in — a pull, a push that lost its compare-and-set,
+    the first link — an older device's mined lines go to this device's
+    store, the local document is kept first (`cloudsync.prereplace.<uid>`,
+    and PINNED as `cloudsync.prelink.<uid>` the first time a device is
+    linked: never overwritten, offered in Storage), and then the dirty
+    check, the merge and the replace run in ONE `KOS.store.transact`. An
+    edit made while that copy was being written is merged and pushed, never
+    overwritten. A data URL new in the cloud copy's avatar or banner (an
+    upload on an older-version device) takes the slot over a local move.
+    `KOS.cloudsync.settled()` says this page load holds the account's copy
+    or has none to wait for.
 34. Empty remote state cannot overwrite meaningful local state. First link is
     automatic in every case (adopt an empty device, upload to an empty account,
     merge two histories with no base); a restore/rebaseline is the only
-    unconditional overwrite and it preserves tombstones. A successful push
+    unconditional overwrite and it preserves tombstones. WHAT COUNTS AS THE
+    USER'S DATA is one definition, `KOS.cloudsync.userData`: every record
+    array and evidence map, a setting moved from its shipped value, a Daily
+    Review ACTED in — never what a fresh boot plants (the SAMPLE events and
+    their assessments, the plan seed, default categories) or a review only
+    looked at. A device that holds data is combined with the account only
+    after a VERIFIED checkpoint; one that will not verify backs off
+    (5 minutes doubling to 6 hours for automatic cycles; Sync now always
+    tries) and after three failures the user may link without it. The
+    no-base merge leaves out this device's untouched seeds and takes the
+    account's value wherever this device still has the shipped one, and its
+    result is pushed as a compare-and-set, never an unconditional
+    overwrite. A successful push
     broadcasts a data-free "changed" note on a Realtime channel so other open
     devices pull within seconds; the timers remain the safety net.
 35. The publishable key is public; RLS is the boundary. Never commit/log a token or
@@ -1589,7 +1681,12 @@ source comments and audit notes refer to it.
     near, wrong — with a diagnosis; nothing is AI-graded. A new exercise ships only when its
     expected answers pass `tools/ja_valid_check.mjs`.
 115. Personal media never leaves the device (saved lines in IndexedDB only; never synced or in a
-    backup as binaries).
+    backup as binaries). Mined lines live in `kurenai-os-ja-mined` (`KOS.jaMined`; in the full
+    backup); the state holds only each line's facet, added once the line is stored. A device
+    still on an older version keeps them in `state.japanese.mined` and pushes them: a pull
+    takes those lines into this device's store and every push hands that map back UNCHANGED,
+    so the older device never sees its lines deleted (smoke135 N). A line already stored is
+    never overwritten.
 116. PAY ONCE (`KOS.ja.award`, type `ja`): a review session is ONE ledger entry paying +1 XP a
     facet answered correct or accepted (a hint still counts; a near or a wrong pays nothing),
     at most 30 a day, logged once however many times the session ends (a learn session is
@@ -1735,7 +1832,13 @@ source comments and audit notes refer to it.
     the link, and deletes the file only when nothing else links it, after a
     confirm. Deleting an assignment follows the same rule (ST-25): a file
     linked anywhere else loses only that link, and the confirm names the
-    files that go. Freeing space (`KOS.attach.evict`, only for a file safe in the
+    files that go. A PROFILE record (`origin` `profile:…`) is nobody's
+    attachment: no list, count, search or the Assistant names it, the same
+    bytes added to a topic never link onto it, and it is released when no
+    state references it (at once by the device that replaced it; after a
+    week otherwise, `KOS.profilePics.sweep`) — unless something links to
+    it, when it stays as an ordinary file. Its id is the hash of the
+    picture's bytes. Freeing space (`KOS.attach.evict`, only for a file safe in the
     cloud) removes the binary only — never the record, its text index or
     its ink; opening it offers the download.
 151. THE ORIGINAL IS NEVER CHANGED. Writing on a file is an ink layer:
@@ -2007,7 +2110,10 @@ source comments and audit notes refer to it.
     one-time state `ext-<provider>-<nonce>` (sessionStorage) that GitHub's
     return handler leaves alone. One device syncs a provider at a time: a
     cycle takes the lease (`kos_ext_lease`, the database's clock, two
-    minutes) or waits. The switches and links (`state.ext`) sync; sync
+    minutes) or waits. One TAB at a time too (Web Lock `kos-ext-<provider>`,
+    the lease held as that page load's own holder), renewed between chunks
+    and lists (a renewal refused stops the cycle and releases nothing) and
+    given back at pagehide, so a reload is not locked out. The switches and links (`state.ext`) sync; sync
     tokens, mirrors, the read-only copy and the last status are per
     device in the media kv (`ext.<p>.*.<uid>`).
 158. LINKED, NEVER ECHOED. A synced Calendar event or reminder carries
@@ -2050,7 +2156,12 @@ source comments and audit notes refer to it.
     imported. A completion pulled in ticks the reminder without
     `KOS.reminders.complete` (which pays) and the cycle logs ONE `todo`
     session with `metrics.external`, which the Governor prices at nothing
-    (decision A): activity for the day, never study, never pay.
+    (decision A): activity for the day, never study, never pay; it is
+    logged even when the push that followed was stopped. A Todoist push's
+    bookkeeping (links, bases, dequeued deletions) is applied as each chunk
+    is answered, never held to the last; an add answered with no id is
+    marked `ext.pending` and linked by the next pull, never linked to
+    `undefined` or imported as a second reminder.
 
 ### Achievements, the Badge Wall (161–163; docs/achievements-plan.md)
 

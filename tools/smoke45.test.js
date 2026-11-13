@@ -69,6 +69,10 @@ for (const m of html.matchAll(/<script src="([^"]+)"><\/script>/g)) {
 const KOS = window.KOS;
 if (KOS.autosync) KOS.autosync.stop();
 if (KOS.cloudsync) KOS.cloudsync.stop();
+/* the Badge Wall's boot sweep (2.5 s after load) has reported: see the redraw step */
+const LOADED_AT = Date.now();
+let badgeSweepDone = !(KOS.achievements && KOS.achievements.onChange);
+if (!badgeSweepDone) KOS.achievements.onChange(() => { if (Date.now() - LOADED_AT >= 2400) badgeSweepDone = true; });
 
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
@@ -374,6 +378,14 @@ step("a navigation announces the page and puts focus in it", async () => {
 });
 
 step("a redraw does NOT announce or move focus", async () => {
+  /* The Badge Wall's first sweep runs 2.5 s after load and says once what
+     this device had already earned ("You already had 2 badge tiers…"). On a
+     real clock that toast could land inside this step's 90 ms window and
+     read as the redraw announcing something (the 1-in-6 failure of November
+     2026: a race in this test, not an announcement by the redraw). Wait
+     until that sweep is over. */
+  await waitFor(() => badgeSweepDone, 8000);
+  await tick(300);
   KOS.show("help"); await tick(90);
   const pol = document.getElementById("kos-live-polite");
   await tick(400);
@@ -385,7 +397,7 @@ step("a redraw does NOT announce or move focus", async () => {
   assert(document.activeElement === probe,
     "a cloud redraw stole focus from the user (it was on " +
     (document.activeElement && document.activeElement.id) + ")");
-  assert(pol.textContent === "", "a cloud redraw announced a navigation that did not happen");
+  assert(pol.textContent === "", "a cloud redraw announced a navigation that did not happen: " + JSON.stringify(pol.textContent));
 });
 
 /* ==================== C · NAMES AND SEMANTICS ==================== */
