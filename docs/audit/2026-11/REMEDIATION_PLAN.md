@@ -211,7 +211,7 @@ post-programme backlog.
 |---|---|---|
 | B1 | **DI-27 clean-up: yes.** Remove the phantom sync-reward entries and scrub the polluted journal events, after a verified W0 backup. **Deduct the phantom XP and gold**, clamped at 0. **Keep badge tiers** (invariant 162). **Rebuild** saved reports that were frozen empty (HR-02) or polluted (HR-31), once. | The classifier finds the exact entries. The adjustment is computed from them, not the estimates. A before-and-after reconciliation is shown to you **before** anything runs on your account, and an audit record is kept. The deduction is logged as one correction entry through `KOS.sessions.log` with a negative award, so invariant 1 still holds. The report rebuild is a one-off, recorded exception to invariant 102. |
 | B2 | **Other clawbacks: going forward only.** HR-18's ticks come strictly from evidence, with no self-tick pay. MI-05 pays only on a pass. CR-20 needs an attached work. | RC21 receipts make every award idempotent. |
-| B3 | **Unfinished sessions: both** durable per action and resumable. | §A6. |
+| B3 | **Unfinished sessions: both** durable per action and resumable. Re-confirmed 13 Nov (Q8): **resumable** — a flashcard, quiz or Japanese session left part-way picks up where it stopped, as one ledger entry per session upserted with delta pay against its receipt, so nothing is paid twice or lost. | §A6. |
 | B4 | **Redraw policy: approved.** Hold on task pages, while typing or in a dialog; a quiet "Updated on another device · Refresh" pill; apply on leaving or finishing. | W2. |
 | B5 | **Money:** spend by merchant, by category and by week; subscriptions and recurring; budget pace; balance reconciliation; the Student Finance runway if it comes out clean. A built-in UK merchant table plus learned payee→category rules. **PDF import dropped.** | W4. D-Money is drafted after W1. |
 | B6 | **Shop:** **retire and refund** the 10 near-Graphite themes; **keep and fix** the light themes (Washi Morning, and Atelier Dawn's tokens). **Build the seals' surface:** the Seat ring, the share card, and beside the brand mark. Study set gets distinct role colours. The 16 legacy cosmetics point at their repainted art, and the CSS gradient frames are retired. **Pen sets apply to new strokes only.** Try on covers every kind. | See the conflict note below on how pen sets store their colour. |
@@ -863,6 +863,33 @@ one per release, before its build:
 
 The auditors' 181 QoL ideas stay in each area's file (`qol`), in the
 **post-programme backlog**. None is pulled into W9 (§A9).
+
+**Reported by you on 13 Nov 2026 (new; not in the audit):**
+- **UR-25 · titles and the showcase empty themselves and don't reach the
+  other device.** Found on reading the code: Edit your seat's Save
+  (`js/modules/governor-ui.js` ~822) ALWAYS calls `setShowcase(draft.showcase)`
+  and `setTitle(draft.titleId)` with the copy taken when the page OPENED
+  (~671), even when only the background changed. Saved on a device that had
+  not pulled the title yet, or on a page the stopgap held across a pull, it
+  writes an empty showcase and no title as a local edit, which the merge then
+  pushes to every device (the "original" one included). Before RC5 a second
+  tab's save could also overwrite the whole document (fixed in
+  kos-integrity-6). Fix: Save writes only what was changed in the editor;
+  smoke over two devices. Small; W1/W2 (with SY-20/AG-25's draft store).
+- **UR-26 · Exams › Companion "Cram" does nothing.** Both Cram buttons call
+  `KOS.show("review", {tab: "due", run: "scope:<id>"})` (examguide.js 83,
+  278); not reproduced yet — check `due.js`'s `scope:` run with no card due
+  today, and SH-37 (the review route has no codec, so a reload loses the run).
+- **UR-27 · the rapid drill shows wrong answers.** `KOS.examCompanion.drill`
+  takes each card's own `a` and each short item's first part's mark scheme;
+  not reproduced yet — likely the derived exam items (CC-14/CC-17: the worked
+  card's one-line "Answer:" as a mark point) or a content error. Needs a
+  repro with the leaf and the question.
+- **UR-28 · exam items are near useless as displayed: rework them like
+  Money (W4).** The Companion's practice and exam items need a design pass
+  (a D-Exams prompt) before code: how a question, its marks, the scheme and
+  the self-mark read; folds in CC-14, CC-17, CM-21, EX-30, UR-26, UR-27.
+  Backlog until W4's pattern exists.
 
 **Backlog** (not this programme): routines inside routines (sketched in
 `findings/productivity.json`), folders for loose notes (UR-14), tables and
