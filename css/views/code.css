@@ -303,9 +303,9 @@
 .k-cx-respanel { display: flex; flex-direction: column; gap: var(--sp-10); padding: var(--sp-12) var(--sp-14); border-radius: var(--r-16); background: var(--s1); }
 .k-cx-respanel-h { display: flex; align-items: center; gap: var(--sp-10); }
 .k-cx-pane { display: flex; flex-direction: column; gap: var(--sp-10); max-block-size: var(--cx-res-max-h); overflow: auto; }
-.k-cx-stdinrow { display: flex; align-items: center; gap: var(--sp-8); }
+.k-cx-stdinrow { display: flex; align-items: flex-start; gap: var(--sp-8); }
 .k-cx-stdin-l { font-size: var(--fs-11); letter-spacing: var(--track-kicker); text-transform: uppercase; color: var(--muted); }
-.k-cx-stdin { flex: 1 1 0; min-inline-size: 0; }
+.k-cx-stdin { flex: 1 1 0; min-inline-size: 0; resize: vertical; line-height: 1.5; }
 .k-cx-outbody { display: flex; flex-direction: column; gap: var(--sp-6); }
 .k-cx-outbody > .k-cx-out-pre { padding: var(--sp-10) var(--sp-12); border-radius: var(--r-10); background: var(--code-bg); }
 .k-cx-problems { margin: 0; padding-inline-start: var(--sp-18); font-size: var(--fs-13); }

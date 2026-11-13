@@ -22,6 +22,34 @@
   function pill(text, onclick, attrs) {
     return el("button", Object.assign({ type: "button", class: "k-qz-pill", "data-ui": "quiz.chip", text: text, onclick: onclick }, attrs || {}));
   }
+  /* options that point at other options by place or by name: their order is
+     part of the question, so they are never shuffled */
+  function refersToPositions(opts) {
+    return (opts || []).some(function (o) {
+      return /\b(all|none|both|neither)\b[^.]{0,30}\b(above|these|of the|options?)\b|\b[A-D] (and|or) [A-D]\b|^\s*(both|neither)\b/i.test(String(o));
+    });
+  }
+  /* mark-scheme points (CM-14, CC-14, CC-17) */
+  function isAnswerLine(m) { return /^\s*\*\*Answer:\*\*/.test(String(m || "")); }
+  /* the mark codes a point carries: a leading "A1 …"/"M1 …", or a trailing
+     bracket "[M1 A1]", "[B1]", "[A1ft]" */
+  function codesOf(m) {
+    var t = String(m || ""), out = [];
+    var lead = /^\s*([MABE])(\d)\b/.exec(t);
+    if (lead) out.push(lead[1] + lead[2]);
+    var tail = /\[([^\]]*)\]\s*$/.exec(t);
+    if (tail) (tail[1].match(/\b[MABE]\d/g) || []).forEach(function (c) { out.push(c); });
+    return out;
+  }
+  function weightOf(m) {
+    var t = String(m || "");
+    var mk = /\[\s*(\d+)\s*marks?\s*\]\s*$/i.exec(t);
+    if (mk) return +mk[1];
+    var tail = /\[([^\]]*)\]\s*$/.exec(t);
+    var codes = tail ? (tail[1].match(/\b[MABE](\d)/g) || []) : [];
+    if (codes.length) return codes.reduce(function (n, c) { return n + (+c.slice(1)); }, 0);
+    return 1;
+  }
   function shuffle(a) {
     for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; }
     return a;
@@ -77,6 +105,17 @@
       var st = own ? { attempts: opts.attempts || 0, best: opts.best || 0 } : qstats(sid, ref);
       var order = items.map(function (_, i) { return i; });
       var at = 0, correct = 0, answered = {}, missed = [];
+      /* CC-03, CM-02: each question's options are shuffled for this attempt
+         (the right answer was A or B in 94% of CS and Maths questions, so a
+         learner could pass by position). perm[qi][p] is the AUTHORED index
+         shown at position p; a click, a key and the stored pick are the
+         authored index, so the stats, the why text and a capstone's record
+         keep their meaning. Options that name each other ("All of the
+         above", "Both A and B") keep their authored order. */
+      var perm = items.map(function (item) {
+        var ix = (item.opts || []).map(function (_, i) { return i; });
+        return opts.noShuffle || refersToPositions(item.opts) ? ix : shuffle(ix);
+      });
 
       var title = el("span", { class: "k-qz-title", "data-ui": "quiz.counter" });
       var meta = el("span", { class: "k-qz-meta" });
@@ -104,13 +143,14 @@
           el("div", { class: "k-qz-q", "data-ui": "quiz.q", html: KOS.content.inline(item.q) }),
           opts
         ]);
-        item.opts.forEach(function (opt, oi) {
+        perm[qi].forEach(function (oi, pos) {
+          var opt = item.opts[oi];
           /* review B: the keys ride on the controls (a tooltip here, a mark
              on Next), not in a legend line under the card */
-          var btn = el("button", { type: "button", class: "k-qz-opt", "data-ui": "quiz.option",
-            "aria-keyshortcuts": String(oi + 1), title: "Press " + (oi + 1), onclick: function () { answer(oi); } }, [
-            el("span", { class: "k-qz-key", "data-ui": "quiz.option-key", "aria-hidden": "true", text: String(oi + 1) }),
-            el("span", { class: "k-qz-letter", "aria-hidden": "true", text: LETTERS.charAt(oi) }),
+          var btn = el("button", { type: "button", class: "k-qz-opt", "data-ui": "quiz.option", "data-oi": String(oi),
+            "aria-keyshortcuts": String(pos + 1), title: "Press " + (pos + 1), onclick: function () { answer(oi); } }, [
+            el("span", { class: "k-qz-key", "data-ui": "quiz.option-key", "aria-hidden": "true", text: String(pos + 1) }),
+            el("span", { class: "k-qz-letter", "aria-hidden": "true", text: LETTERS.charAt(pos) }),
             el("span", { class: "k-qz-opt-t", html: KOS.content.inline(opt) })
           ]);
           opts.appendChild(btn);
@@ -132,7 +172,8 @@
         var ok = oi === item.ans;
         if (ok) correct++; else missed.push(item);
         var btns = card.querySelectorAll("[data-ui~='quiz.option']");
-        btns.forEach(function (b, i) {
+        btns.forEach(function (b, pos) {
+          var i = perm[qi][pos];
           b.disabled = true;
           if (i === item.ans) { KOS.ui.state(b, "right", true); b.appendChild(el("span", { class: "k-qz-verdict", text: "Correct" })); }
           else if (i === oi) { KOS.ui.state(b, "wrong", true); b.appendChild(el("span", { class: "k-qz-verdict", text: "Your answer" })); }
@@ -159,7 +200,7 @@
           var pick = card.querySelectorAll("[data-ui~='quiz.option']")[Number(e.key) - 1];
           if (!pick) return;
           e.preventDefault();
-          answer(Number(e.key) - 1);
+          answer(perm[qi][Number(e.key) - 1]);
         } else if ((e.key === "Enter" || e.key === "ArrowRight") && answered[qi] != null) {
           if (e.key === "Enter" && e.target && e.target.tagName === "BUTTON") return;   /* the button's own Enter */
           e.preventDefault();
@@ -283,8 +324,9 @@
       var pads = [];   /* the answer pads on screen, destroyed on a redraw */
       /* an A mark needs its M (30f): the nearest M point above it */
       function needsM(points, i) {
-        if (!/^\s*A\d/.test(String(points[i] || ""))) return -1;
-        for (var k = i - 1; k >= 0; k--) if (/^\s*M\d/.test(String(points[k] || ""))) return k;
+        var c = codesOf(points[i]);
+        if (!c.some(function (x) { return x.charAt(0) === "A"; }) || c.some(function (x) { return x.charAt(0) === "M"; })) return -1;
+        for (var k = i - 1; k >= 0; k--) if (codesOf(points[k]).some(function (x) { return x.charAt(0) === "M"; })) return k;
         return -1;
       }
       function partBlock(part, label, marks, onMark, item, title) {
@@ -304,16 +346,32 @@
         if (ans) pads.push(ans); else wrap.appendChild(ta);
         var ms = el("div", { class: "k-qz-ms", "data-ui": "quiz.ms", hidden: "" });
         wrap.appendChild(ms);
-        var points = part.ms || [];
+        /* CC-14: the worked card's one-line "Answer:" is the MODEL ANSWER, read
+           under the scheme, never a mark point you tick in place of a real one */
+        var points = (part.ms || []).filter(function (m) { return !isAnswerLine(m); });
+        var answers = (part.ms || []).filter(isAnswerLine);
         var total = Number(part.marks) || 0;
-        var perMark = points.length && points.length === total;
-        var ticks = (ticksBy && ticksBy.get(part)) || points.map(function (p, i) { return perMark && i < (marks || 0); });
+        /* CM-14, CC-17: a point is worth what its codes say ("[M1 A1]" 2,
+           "[3 marks]" 3), else 1. When the weights add up to the marks, the
+           award is the weight ticked; otherwise it is scaled by weight, so
+           ticking every real step reaches full marks; a list longer than the
+           marks with no weights ("any 3 from 5") still counts a tick a mark */
+        var weights = points.map(weightOf);
+        var sumW = weights.reduce(function (a, b) { return a + b; }, 0);
+        var weighted = weights.some(function (w) { return w !== 1; });
+        var exact = points.length && sumW === total;
+        var ticks = (ticksBy && ticksBy.get(part)) || (function () {
+          var left = exact ? (marks || 0) : 0;
+          return points.map(function (p, i) { var on = left >= weights[i] && weights[i] > 0; if (on) left -= weights[i]; return on; });
+        })();
         if (ticksBy) ticksBy.set(part, ticks);
         var award = marks != null ? marks : null;
         function fromTicks() {
-          var n = ticks.filter(Boolean).length;
-          if (perMark || points.length > total) return Math.min(total, n);
-          return points.length ? Math.round(total * n / points.length) : 0;
+          var w = 0, n = 0;
+          ticks.forEach(function (on, i) { if (on) { w += weights[i]; n++; } });
+          if (exact) return Math.min(total, w);
+          if (!weighted && points.length > total) return Math.min(total, n);
+          return sumW ? Math.min(total, Math.round(total * w / sumW)) : 0;
         }
         function paint() {
           ms.innerHTML = "";
@@ -348,7 +406,10 @@
             sugSlots.push(sug);
             self.appendChild(el("label", { class: "k-qz-point" }, [cb, el("span", { class: "k-qz-point-t" }, [el("span", { html: KOS.content.inline(m) }),
               mi >= 0 && !ticks[mi] ? el("span", { class: "k-qz-needs", text: "needs " + ((String(points[mi]).match(/M\d/) || ["M"])[0]) }) : null, sug].filter(Boolean)),
-              perMark ? el("span", { class: "k-mono k-muted", text: "1" }) : null].filter(Boolean)));
+              exact || weighted ? el("span", { class: "k-mono k-muted", "data-ui": "quiz.point-w", text: String(weights[i]) }) : null].filter(Boolean)));
+          });
+          answers.forEach(function (m) {
+            self.appendChild(el("p", { class: "k-qz-model", "data-ui": "quiz.model-answer", html: KOS.content.inline(String(m).replace(/^\s*\*\*Answer:\*\*\s*/, "<b>Model answer:</b> ")) }));
           });
           /* Mark with Kurenai (30g): only with the setting on, only on ink */
           if (ans && points.length && KOS.inkAI && KOS.inkAI.reads() && ans.mode() === "write") {
@@ -380,9 +441,9 @@
           }
           self.appendChild(el("div", { class: "k-qz-award", role: "group", "aria-label": "Marks awarded out of " + total }, [
             el("span", { class: "k-kicker", text: "Awarded" }),
-            perMark ? null : el("button", { type: "button", class: "k-qz-step", "data-ui": "quiz.award-down", "aria-label": "One mark fewer", text: "−", onclick: function () { step(-1); } }),
+            exact ? null : el("button", { type: "button", class: "k-qz-step", "data-ui": "quiz.award-down", "aria-label": "One mark fewer", text: "−", onclick: function () { step(-1); } }),
             figure,
-            perMark ? null : el("button", { type: "button", class: "k-qz-step", "data-ui": "quiz.award-up", "aria-label": "One mark more", text: "+", onclick: function () { step(1); } }),
+            exact ? null : el("button", { type: "button", class: "k-qz-step", "data-ui": "quiz.award-up", "aria-label": "One mark more", text: "+", onclick: function () { step(1); } }),
             el("span", { class: "k-mono k-muted", text: "/ " + total })
           ].filter(Boolean)));
           show();

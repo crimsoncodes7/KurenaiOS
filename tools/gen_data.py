@@ -170,6 +170,116 @@ def format_existing():
     print("Reformatted existing generated data without changing its payload.")
 
 
+# ---------- IT spec text, tidied (quality W6: CC-01, CC-02) ----------
+# The extraction ran IT's assessment pages into the last leaf of each unit
+# (thousands of characters of column-interleaved criteria), left empty "□"
+# bullets and merged headings ("□ Verification To 2.2.2 Data gathering"),
+# kept the guidance column as run-on "include: …" strings, and emitted the
+# qualification's overview as a SECOND F206.6.1 ("Overview of the
+# assessment"), so "Ways to reflect" could not be opened. Applied to the
+# checked-in payload (no extraction needed); idempotent.
+IT_DROP_TITLES = ("Overview of the assessment", "NEA Units")
+_ASSESS = re.compile(r"\s*\b(Assessment criteria|Assessment Criteria|Assessment guidance|Synoptic assessment)\b")
+_ITEM_START = re.compile(r"(?<=[a-z0-9)’'])\s+(?=(?:How|What|When|Why|Where|Which|Know|Understand|The|Appropriate|Specific|Each|Benefits|Limitations|Advantages|Disadvantages|Ways|Types|Methods)\b)")
+
+
+def _tidy_list(items):
+    out = []
+    for raw in items:
+        if not isinstance(raw, str):
+            out.append(raw)
+            continue
+        t = raw.strip()
+        m = _ASSESS.search(t)
+        if m:                                    # the assessment section begins: keep what came before, drop the rest of the list
+            head = t[:m.start()].strip()
+            if head and head not in ("□", "•"):
+                out.append(head)
+            break
+        if t in ("□", "•", ""):
+            continue
+        mm = re.match(r"^(.*?)\s+To\s+(\d+\.\d+\.\d+\s.+)$", t)   # "□ Verification To 2.2.2 Data gathering"
+        if mm:
+            out.append(mm.group(1).strip())
+            out.append(mm.group(2).strip())
+            continue
+        t = re.sub(r"\s+To$", "", t)                               # "2.2.1 Data assurance considerations To"
+        if re.match(r"^(not )?include:", t, re.I):                 # the guidance column, one item per line
+            for part in re.split(r"\s*\b(?=(?:not )?include:)", t, flags=re.I):
+                part = part.strip()
+                if not part:
+                    continue
+                neg = part.lower().startswith("not include:")
+                body = re.sub(r"^(not )?include:\s*", "", part, flags=re.I)
+                bits = [b.strip() for b in _ITEM_START.split(body) if b.strip()]
+                if neg:
+                    out.append("Not included:")
+                out.extend("• " + b for b in bits)
+            continue
+        # an assessment dump glued onto a real bullet, with no heading between
+        cut = re.search(r"\s+in the set assignment for this unit\b|\s+and \d+ minutes and has \d+ marks", t)
+        if cut:
+            t = t[:cut.start()].rstrip()
+            if not t.endswith("future tasks"):
+                t = re.sub(r"\s+(the\s+)?tasks$", "", t)
+        # a run-on list packed into one bullet: one item per line
+        if len(t) > 160 or re.search(r"\bnot include:", t, re.I):
+            lead = re.match(r"^([□•]\s*)", t)
+            body = t[len(lead.group(1)):] if lead else t
+            first = True
+            for part in re.split(r"\s*\b(?=not include:)", body, flags=re.I):
+                neg = part.lower().startswith("not include:")
+                part = re.sub(r"^not include:\s*", "", part, flags=re.I)
+                if neg:
+                    out.append("Not included:")
+                for b in [x.strip() for x in _ITEM_START.split(part) if x.strip()]:
+                    out.append(((lead.group(1) if lead else "") if first and not neg else "• ") + b)
+                    first = False
+            continue
+        out.append(t)
+    return out
+
+
+def tidy_it(obj):
+    def walk(node):
+        kids = node.get("children") or []
+        node["children"] = [k for k in kids if (k.get("title") or "") not in IT_DROP_TITLES]
+        for k in ("content", "info"):
+            if isinstance(node.get(k), list):
+                prev = None                       # to a fixed point: one repair can expose another
+                while prev != node[k]:
+                    prev = list(node[k])
+                    node[k] = _tidy_list(node[k])
+        for k in node["children"]:
+            walk(k)
+        if not node["children"]:
+            del node["children"]
+    for s in obj.get("sections", []):
+        walk(s)
+    seen = {}
+    def refs(n):
+        if n.get("ref"):
+            seen[n["ref"]] = seen.get(n["ref"], 0) + 1
+        for k in n.get("children") or []:
+            refs(k)
+    for s in obj.get("sections", []):
+        refs(s)
+    dup = [r for r, c in seen.items() if c > 1]
+    if dup:
+        raise SystemExit("IT refs are not unique after tidying: " + ", ".join(dup))
+    return obj
+
+
+def tidy_it_existing():
+    it = read_generated("it", "it")
+    write("it", "it", tidy_it(it))
+    print("Tidied IT spec text (assessment dumps, empty bullets, include: guidance, duplicate F206.6.1).")
+
+
+if "--tidy-it" in sys.argv:
+    tidy_it_existing()
+    raise SystemExit(0)
+
 if "--format-existing" in sys.argv:
     format_existing()
     raise SystemExit(0)

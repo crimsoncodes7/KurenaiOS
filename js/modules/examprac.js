@@ -430,9 +430,25 @@
         })) : q.tags.length ? el("div", { class: "k-ex-tagset" }, q.tags.map(function (t) { return tagChip(t, true); })) : q.got != null && q.max != null && q.got < q.max ? u.muted("untagged · " + (q.max - q.got), "k-ex-italic") : el("span");
         var redo = full ? el("span") : el("label", { class: "k-ex-redo", "data-on": q.redo ? "" : null }, [el("input", { type: "checkbox", class: "k-box", "aria-label": "Redo question " + q.q, onchange: function (ev) { q.redo = ev.target.checked; u.announce(q.q + (q.redo ? " marked for redo." : " no longer for redo.")); draw(); } }), "Redo"]);
         if (!full) redo.querySelector("input").checked = !!q.redo;
+        /* EX-01: every row takes its out-of and its topic — a question added
+           by hand (a school mock, a paper not in the index) had neither, so
+           full marks, the lost marks and a redo's leaf could not work. The
+           index's values are the starting ones. */
+        var maxIn = el("input", { type: "number", class: "k-input k-ex-maxin", min: 1, value: q.max == null ? "" : q.max, "aria-label": "Out of, question " + q.q, "data-ui": "exams.max" });
+        maxIn.addEventListener("input", function () {
+          var v = maxIn.value === "" ? null : Math.max(1, parseInt(maxIn.value, 10) || 1);
+          q.max = v; side_();
+        });
+        maxIn.addEventListener("change", function () { draw(); });
+        var topicCell;
+        if (i === cur && KOS.topicPicker) {
+          var tp = KOS.topicPicker({ label: "Topic, question " + q.q, multi: false, value: q.refs.slice(0, 1), subject: e.subject || undefined, levels: ["leaf"],
+            placeholder: "Topic", onChange: function (refs) { q.refs = (refs || []).slice(0, 1); side_(); } });
+          topicCell = el("div", { class: "k-ex-topic", "data-ui": "exams.q-topic" }, [tp.el]);
+        } else topicCell = el("span", { class: "k-ex-ell k-ex-muted2", text: node ? node.title : "" });
         table.appendChild(el("div", { class: "k-ex-qrow", role: "row", "data-cur": i === cur ? "" : null, "data-full": full ? "" : null }, [
-          el("b", { class: "k-mono", text: q.q }), el("span", { class: "k-ex-ell k-ex-muted2", text: node ? node.title : "" }), got, el("span", { class: "k-ex-muted", text: "/" }),
-          el("span", { class: "k-mono k-ex-muted", text: q.max == null ? "—" : String(q.max) }), tagsCell, redo]));
+          el("b", { class: "k-mono", text: q.q }), topicCell, got, el("span", { class: "k-ex-muted", text: "/" }),
+          maxIn, tagsCell, redo]));
       });
       if (rows.length) table.appendChild(el("div", { class: "k-ex-qadd" }, [u.btn("＋ Question", "quiet sm", addRow)]));
       side_();

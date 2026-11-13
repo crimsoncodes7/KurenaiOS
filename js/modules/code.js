@@ -630,9 +630,17 @@
     var ed = KOS.codeUI.editor({ value: initial != null ? initial : t.starter || "", file: t.file || C().fileFor(t.lesson), label: "Your code", minLines: 14,
       onRun: doRun, onToggle: function () { setCollapsed(!KOS.ui.hasState(page, "collapsed")); },
       onChange: KOS.ui.debounce(function (v) { C().setDraft(t.id, v === (t.starter || "") ? null : v); }, 400) });
-    var stdin = el("input", { type: "text", class: "k-input k-cx-stdin k-mono", "data-ui": "code.stdin", "aria-label": "Input for Run",
-      spellcheck: "false", autocapitalize: "off" });
-    stdin.value = t.examples && t.examples[0] && t.examples[0].stdin != null ? t.examples[0].stdin.split("\n")[0] : "";
+    /* CO-04: the input is the WHOLE first example, one line per ReadLine —
+       a one-line box fed only its first line, so a correct program reading
+       more than once crashed (ArgumentNullException on a null line).
+       Ctrl/⌘+Enter runs. */
+    var stdin = el("textarea", { class: "k-input k-cx-stdin k-mono", "data-ui": "code.stdin", "aria-label": "Input for Run, one line per Console.ReadLine",
+      spellcheck: "false", autocapitalize: "off", rows: "1" });
+    stdin.value = t.examples && t.examples[0] && t.examples[0].stdin != null ? String(t.examples[0].stdin).replace(/\n$/, "") : "";
+    function fitStdin() { stdin.rows = Math.max(1, Math.min(8, stdin.value.split("\n").length)); }
+    fitStdin();
+    stdin.addEventListener("input", fitStdin);
+    stdin.addEventListener("keydown", function (e) { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) { e.preventDefault(); doRun(); } });
     var live = el("p", { class: "sr-only", "aria-live": "polite", "data-ui": "code.task-live" });
     var outPane = el("div", { class: "k-cx-pane", "data-ui": "code.output" });
     var testsPane = el("div", { class: "k-cx-pane", "data-ui": "code.tests", hidden: "" });

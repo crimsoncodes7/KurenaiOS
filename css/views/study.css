@@ -562,6 +562,8 @@ button.k-subj-next:hover { background: var(--s2); }
 .k-qz-self { display: flex; flex-direction: column; }
 .k-qz-point { display: flex; align-items: center; gap: var(--sp-10); padding-block: var(--sp-8); border-block-start: var(--hairline) solid var(--line); font-size: var(--fs-13-5); cursor: pointer; }
 .k-qz-point-t { flex: 1 1 0; color: var(--text-2); }
+/* the worked answer, read under the scheme, never ticked (CC-14) */
+.k-qz-model { margin: 0; padding-block: var(--sp-8); border-block-start: var(--hairline) solid var(--line); font-size: var(--fs-13); color: var(--muted); }
 .k-qz-award { display: flex; align-items: center; gap: var(--sp-8); padding-block-start: var(--sp-10); border-block-start: var(--hairline) solid var(--line); }
 .k-qz-award .k-kicker { margin-inline-end: var(--sp-4); }
 .k-qz-award-n { min-inline-size: var(--icon-btn-sm); block-size: var(--icon-btn-sm); display: grid; place-items: center; padding-inline: var(--sp-6); border-radius: var(--r-pill); background: var(--wash-teal); color: var(--teal); font: var(--weight-semibold) var(--fs-13) var(--font-mono); }

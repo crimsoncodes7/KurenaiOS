@@ -137,7 +137,8 @@ step("D · ST-03: Quiz best is a percent of a full run", async () => {
       const shown = $("[data-ui~='quiz.q']", holder).textContent;
       const it = list.find((x) => textOf(K.content.inline(x.q)) === shown) || list[i];
       const opts = $$("[data-ui~='quiz.option']", holder);
-      opts[right-- > 0 ? it.ans : (it.ans + 1) % opts.length].click(); await app.settle();
+      const want = right-- > 0 ? it.ans : (it.ans + 1) % opts.length;   /* the AUTHORED index (options are shuffled) */
+      opts.find((b) => +b.getAttribute("data-oi") === want).click(); await app.settle();
       const nx = $("[data-ui~='quiz.next']", holder);
       if (nx) { nx.click(); await app.settle(); }
     }

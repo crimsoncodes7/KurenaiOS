@@ -455,7 +455,7 @@ X("maths:M8.4", {
   ],
   quiz: [
     { q: "Two 4 kg masses hang over a smooth pulley. Acceleration:", opts: ["9.8", "4.9", "0", "2"], ans: 2, why: "Balanced." },
-    { q: "Tension then:", opts: ["0", "39.2 N", "78.4 N", "19.6 N"], ans: 1, why: "$T = 4g$." },
+    { q: "Two 4 kg masses hang over a smooth pulley. The tension in the string is:", opts: ["0", "39.2 N", "78.4 N", "19.6 N"], ans: 1, why: "$T = 4g$." },
     { q: "Force on a pulley with two vertical strands of tension $T$:", opts: ["$T$", "$2T$", "$T/2$", "0"], ans: 1, why: "Both strands." },
     { q: "When the hanging mass hits the floor, the other mass:", opts: ["stops", "continues under gravity with the string slack", "accelerates faster", "reverses"], ans: 1, why: "Free motion." },
     { q: "A tow-bar in thrust:", opts: ["pulls the trailer", "pushes the trailer (braking)", "does nothing", "is a string"], ans: 1, why: "Compression." },
