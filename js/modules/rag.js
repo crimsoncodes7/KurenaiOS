@@ -3,9 +3,10 @@
    - MANUAL: a Red/Amber/Green confidence the user sets per topic (stored on
      the progress entry as `rag` — confidence, a separate concept from the
      completion status field).
-   - AUTO: a 0–100 score computed from real performance data — SM-2 lapse
-     rate / ease / overdue cards, quiz scores, and exam/paper tracker results
-     on that topic. No data → no rating (null), never a fake green.
+   - AUTO: a 0–100 score computed from real performance data — recall from
+     the topic's rated cards, its quiz, and exam/paper tracker results, each
+     scored on its own and weighed together; Green needs recall AND practice
+     (GO-23, see auto()). No data → no rating (null), never a fake green.
    Manual takes display precedence; the auto value stays visible so the user
    can see when their confidence disagrees with their data.                  */
 (function () {
@@ -26,12 +27,27 @@
     store.save();
   }
 
-  /* the auto-computed rating: {score, band, reasons[]} or null (no data) */
-  function auto(sid, ref) {
-    var score = 100, reasons = [], hasData = false;
+  /* the auto-computed rating: {score, band, reasons[], evidence, thin} or
+     null (no data).
 
-    /* the schedule's signals from this topic's cards (FSRS, roadmap 5.6):
-       lapses, how much of the deck you would recall today, overdue cards */
+     GO-23 / UR-22: EVIDENCE-WEIGHTED. It used to start at 100 and take
+     capped penalties off, so one quiz at 0% (at most −25) left a topic at
+     75, Green — and "Move topics to Green" goals, Exams readiness and the
+     topic colours all believed it. Now each kind of evidence is scored on
+     its own, 0–100:
+       recall  — the rated cards: recall today, less lapses and overdue
+       quiz    — the last attempt's percent
+       papers  — the last three logged results on the topic
+     The score is their weighted mean (papers count most), and the band
+     follows it — so any evidence gives an honest band (a 0% quiz is Red).
+     GREEN NEEDS BOTH: recall from at least GREEN_CARDS rated cards AND
+     practice (a quiz or a paper), each at 70 or more. A topic that scores
+     Green on one kind alone reads Amber, `thin`, "not enough evidence". */
+  var GREEN_CARDS = 3, BAR = 70;
+  function auto(sid, ref) {
+    var reasons = [], parts = [];
+
+    /* recall: the schedule's signals from this topic's cards (FSRS) */
     var lapses = 0, views = 0, tracked = 0, overdue = 0;
     var today = KOS.srs.todayISO();
     KOS.srs.cardsFor(sid, ref).forEach(function (c) {
@@ -41,53 +57,55 @@
       lapses += m.lapses; views += m.views;
       if (m.due && m.due < today) overdue++;
     });
-    var tm = KOS.srs.topicMemory(sid, ref, today);
+    var recall = null;
     if (tracked) {
-      hasData = true;
-      var lapseRate = lapses / Math.max(1, views);
-      if (lapseRate > 0.15) {
-        score -= Math.min(35, Math.round(lapseRate * 80));
-        reasons.push(lapses + (lapses === 1 ? " lapse" : " lapses") + " in " + views + " reviews");
-      }
+      var tm = KOS.srs.topicMemory(sid, ref, today);
       var avgR = tm.recall == null ? 1 : tm.recall;
-      if (avgR < 0.85) {
-        score -= Math.min(20, Math.round((0.85 - avgR) * 100));
-        reasons.push("recall today ≈ " + Math.round(avgR * 100) + "%");
-      }
-      if (overdue) {
-        score -= Math.min(15, overdue * 3);
-        reasons.push(overdue + " overdue card" + (overdue === 1 ? "" : "s"));
-      }
+      var lapseRate = lapses / Math.max(1, views);
+      recall = Math.round(100 * avgR);
+      if (lapseRate > 0.15) { recall -= Math.min(35, Math.round(lapseRate * 80)); reasons.push(lapses + (lapses === 1 ? " lapse" : " lapses") + " in " + views + " reviews"); }
+      if (avgR < 0.85) reasons.push("recall today ≈ " + Math.round(avgR * 100) + "%");
+      if (overdue) { recall -= Math.min(15, overdue * 3); reasons.push(overdue + " overdue card" + (overdue === 1 ? "" : "s")); }
+      recall = Math.max(0, Math.min(100, recall));
+      parts.push([recall, 1]);
     }
 
-    /* quiz performance on this topic */
+    /* quiz: the last attempt on this topic */
     var study = store.state.study || {};
-    var q = (study.quiz || {})[sid + ":" + ref];
+    var q = (study.quiz || {})[sid + ":" + ref], quiz = null;
     if (q && q.attempts) {
-      hasData = true;
-      if (q.lastPct < 80) {
-        score -= Math.min(25, Math.round((100 - q.lastPct) * 0.25));
-        reasons.push("quiz " + q.lastPct + "%");
-      }
+      quiz = Math.max(0, Math.min(100, +q.lastPct || 0));
+      parts.push([quiz, 1]);
+      if (quiz < 80) reasons.push("quiz " + quiz + "%");
     }
 
-    /* exam / practice-paper results linked to this topic (recent 3) */
+    /* papers: exam / practice-paper results linked to this topic (recent 3) */
     var recs = KOS.tracker.forRef(sid, ref)
       .map(function (e) { return KOS.tracker.pct(e); })
       .filter(function (p) { return p != null; })
       .slice(-3);
+    var papers = null;
     if (recs.length) {
-      hasData = true;
-      var avgPct = Math.round(recs.reduce(function (a, p) { return a + p; }, 0) / recs.length);
-      if (avgPct < 75) {
-        score -= Math.min(30, Math.round((100 - avgPct) * 0.3));
-        reasons.push("exam/paper avg " + avgPct + "%");
-      }
+      papers = Math.round(recs.reduce(function (a, p) { return a + p; }, 0) / recs.length);
+      parts.push([papers, 1.5]);
+      if (papers < 75) reasons.push("exam/paper avg " + papers + "%");
     }
 
-    if (!hasData) return null;
-    score = Math.max(0, Math.min(100, score));
-    return { score: score, band: band(score), reasons: reasons };
+    if (!parts.length) return null;
+    var w = parts.reduce(function (n, p) { return n + p[1]; }, 0);
+    var score = Math.round(parts.reduce(function (n, p) { return n + p[0] * p[1]; }, 0) / w);
+    var b = band(score), thin = false;
+    if (b === "g") {
+      var practice = Math.max(quiz == null ? -1 : quiz, papers == null ? -1 : papers);
+      var recallOk = recall != null && tracked >= GREEN_CARDS && recall >= BAR;
+      if (!recallOk || practice < BAR) {
+        b = "a"; thin = true;
+        reasons.push(!recallOk && practice < BAR ? "not enough evidence yet"
+          : !recallOk ? "not enough evidence yet: rate " + Math.max(1, GREEN_CARDS - tracked) + " more of its cards" : "not enough evidence yet: a quiz or a paper on it");
+      }
+    }
+    return { score: score, band: b, reasons: reasons, thin: thin,
+      evidence: { cards: tracked, quiz: q && q.attempts ? q.attempts : 0, papers: recs.length } };
   }
 
   /* what to show/sort by: manual wins display, auto stays alongside */

@@ -420,14 +420,24 @@ step("a past deadline with an unmet target derives 'failed'", async () => {
   const list = await p(cb => KOS.goals.compute(cb));
   if (list.find(x => x.id === g.id)._status !== "failed") throw new Error("overdue goal should be failed");
 });
-step("an auto goal measures against the vault (mediadb.stats), not a stored counter", async () => {
+/* GO-02: an auto goal reads the vault's JOURNAL for its own period — a game
+   already completed before the goal was made does not count; one finished
+   after it does (it used to count the vault as it stood, so a goal made today
+   was met at once) */
+step("an auto goal measures the vault's journal over its period, not a stored counter", async () => {
   await p(cb => KOS.mediadb.open(cb));
-  await p(cb => KOS.mediadb.add({ module: "game", title: "Auto Metric Game", status: "completed" }, cb));
+  await p(cb => KOS.mediadb.add({ module: "game", title: "Already Done Game", status: "completed" }, cb));
+  const row0 = await p(cb => KOS.mediadb.add({ module: "game", title: "Auto Metric Game", status: "inProgress" }, cb));
   const g = KOS.goals.add({ title: "Finish 1 game", target: 1, kind: "auto", metric: "game-completed" });
-  const list = await p(cb => KOS.goals.compute(cb));
+  let list = await p(cb => KOS.goals.compute(cb));
+  if (list.find(x => x.id === g.id)._current !== 0) throw new Error("a game completed before the goal counted");
+  const cur = (await p(cb => KOS.mediadb.query({ module: "game" }, cb))).find(r => r.id === row0.id);
+  cur.status = "completed";
+  await p(cb => KOS.mediadb.put(cur, cb));
+  list = await p(cb => KOS.goals.compute(cb));
   const row = list.find(x => x.id === g.id);
-  if (row._current < 1) throw new Error("auto metric did not read completed games from the vault");
-  if (row._status !== "completed") throw new Error("auto goal should complete once the vault meets it");
+  if (row._current < 1) throw new Error("auto metric did not read the game completed in its period");
+  if (row._status !== "completed") throw new Error("auto goal should complete once its period meets it");
 });
 step("the view renders the This week / This month / All / Done tabs (27i)", async () => {
   KOS.show("goals");

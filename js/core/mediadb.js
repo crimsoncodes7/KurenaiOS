@@ -921,6 +921,39 @@
 
   /* single-pass aggregate for the Matrix home: per-module status counts,
      genre tallies, score histogram — metadata only, no DOM implications */
+  /* GO-02: what happened IN a period, from each title's activity journal
+     (invariant 99) — titles completed, and the steps forward in progress,
+     volumes, routes and hours — and the titles added (createdAt). A goal
+     "complete ten titles" made today counts the ones finished from today,
+     not the vault's whole history. One cursor, per module:
+       { completed, progress, volumes, route, chapter, hours, added }
+     plus `completedIds` {syncId: true}. fromTs/toTs inclusive, in ms. */
+  function periodStats(fromTs, toTs, cb) {
+    tx(ENTRIES, "readonly", function (err, os) {
+      if (err) { cb(err, null); return; }
+      var out = { modules: {}, completedIds: {} };
+      var rq = os.openCursor();
+      rq.onsuccess = function (e) {
+        var cur = e.target.result;
+        if (!cur) { cb(null, out); return; }
+        var v = cur.value, m = out.modules[v.module] = out.modules[v.module] ||
+          { completed: 0, progress: 0, volumes: 0, route: 0, chapter: 0, hours: 0, added: 0 };
+        if (v.createdAt >= fromTs && v.createdAt <= toTs) m.added++;
+        var done = false;
+        (Array.isArray(v.journal) ? v.journal : []).forEach(function (ev) {
+          if (!Array.isArray(ev) || ev[0] < fromTs || ev[0] > toTs) return;
+          if (ev[1] === "status") { if (ev[3] === "completed" && ev[2] !== "completed") done = true; return; }
+          if (ACTIVE_KINDS[ev[1]] && typeof ev[3] === "number" && ev[3] > (typeof ev[2] === "number" ? ev[2] : 0)) {
+            m[ev[1]] += ev[3] - (typeof ev[2] === "number" ? ev[2] : 0);
+          }
+        });
+        if (done) { m.completed++; out.completedIds[v.syncId] = true; }
+        cur.continue();
+      };
+      rq.onerror = function () { cb(rq.error, null); };
+    });
+  }
+
   function stats(cb) {
     tx(ENTRIES, "readonly", function (err, os) {
       if (err) { cb(err, null); return; }
@@ -1544,6 +1577,7 @@
     hasPhysical: hasPhysical,
     count: count,
     stats: stats,
+    periodStats: periodStats,
     distinct: distinct,
     bulkUpsert: bulkUpsert,
     hasLocalData: hasLocalData,

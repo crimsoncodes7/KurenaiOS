@@ -670,7 +670,15 @@ source comments and audit notes refer to it.
    any past range repeat. Completion records one idempotent
    `payout:"activity-only"` receipt (`"none"` for a Governor-value goal,
    which is display only) and never creates a second economic event or a
-   session. A goal speaks through the `goal` notification kind
+   session. The Collection's types measure the GOAL'S OWN PERIOD (GO-02): titles
+   completed and steps of progress, volumes, routes and hours from each
+   title's activity journal (`KOS.mediadb.periodStats`), titles added by
+   `createdAt`, purchases by `purchasedAt`, favourites from a baseline taken
+   when the goal is made — never the vault as it stands, so most of them
+   repeat. A topic's colour (`KOS.rag.auto`, GO-23) is evidence-weighted:
+   recall, quiz and papers each scored and weighed, the band following the
+   score, and Green only with recall from three rated cards AND a quiz or
+   paper, each at 70 or more (else Amber, `thin`). A goal speaks through the `goal` notification kind
    (`KOS.goals.notices`, pure; `tick` every 30 minutes): a period ending
    tomorrow, a deadline tomorrow, reached, missed — one notice each by id,
    none for a display-only or archived goal, reached/missed only within two
@@ -2194,7 +2202,12 @@ source comments and audit notes refer to it.
     (`MONO_PATH`: numbers by the larger, times by the earlier). Progress is
     relative to the CURRENT tier interval, `(current − previous) / (next −
     previous)`, for the rim ring and the pings alike; an unearned hidden
-    badge is p = 0, masked, never pinged, and listed last.
+    badge is p = 0, masked, never pinged, and listed last. ONE RECORDED
+    EXCEPTION (the user's decision, 13 November 2026): the repair
+    `goal-getter-whole-vault` (`js/core/repair-goals.js`) took back Goal
+    getter tiers earned by Collection goals the whole vault met on the day
+    they were made (GO-02), once, after a verified checkpoint; the lowered
+    tier travels by the three-way merge, since only that side moved it.
 163. QUIET, AND ONCE. Owner events re-measure only the badges that read
     that domain (`touch`, 400 ms); the full sweep is the boot's (2.5 s) and
     the 30-minute tick's. A device's first sweep and the two minutes after

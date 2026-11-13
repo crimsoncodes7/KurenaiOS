@@ -838,6 +838,8 @@
    },
    "why": "Pencil fixes (27 October 2026): a new routine's id is random; with one Assistant request fewer before it (the review's back-off) the harness's random sequence gives another id. The page it opens is the same."
   },
-  {"hooks": "shell.subnav-item", "from": "^Code & Japanese$", "to": "Study spaces", "why": "Mind (roadmap 5.9): with Mind the study spaces are three and growing, so the pill on the A-level pages that reaches that group says Study spaces, as the other side says A-levels. It still opens the study space last opened."}
+  {"hooks": "shell.subnav-item", "from": "^Code & Japanese$", "to": "Study spaces", "why": "Mind (roadmap 5.9): with Mind the study spaces are three and growing, so the pill on the A-level pages that reaches that group says Study spaces, as the other side says A-levels. It still opens the study space last opened."},
+  {"surface": "ref:.*", "hooks": "topic.status-chip", "from": "^(Topic status: \\d+%), Green confidence\\.", "to": "$1, Amber confidence.", "why": "W7 (GO-23, 13 November 2026): a topic's colour is evidence-weighted and Green needs recall from three rated cards AND a quiz or paper at 70 or more. The seeded topic rests on less, so it reads Amber, said to be thin; the chip opens the same inspector."},
+  {"surface": "ref:.*", "dropEffects": {"state": "^achievements\\.earned\\.into-the-green$"}, "why": "W7 (GO-23, 13 November 2026): ticking a check on the seeded topic no longer makes it Green on thin evidence, so it no longer earns Into the green; the check writes the same progress record."}
   ]
 }

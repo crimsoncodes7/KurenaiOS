@@ -113,7 +113,16 @@ step("goal records carry the complete v2 shape", () => {
     "status", "progress", "notes"].forEach(key => assert(Object.prototype.hasOwnProperty.call(goal, key), "missing field " + key));
 });
 
+/* GO-02 (13 Nov 2026): the Collection's goals measure THEIR OWN PERIOD from
+   each title's activity journal, never the vault as it stands. The seed above
+   is inserted (silent in the journal, invariant 99), so the work these goals
+   count is done here, after they are made, the way the app records it. */
 step("automatic goals read totals, progress, linked titles and filters", async () => {
+  const fresh = async (rec) => call(cb => KOS.mediadb.add(rec, cb));
+  const move = async (row, fn) => { const cur = (await call(cb => KOS.mediadb.query({ module: row.module }, cb))).find(r => r.id === row.id); fn(cur); await call(cb => KOS.mediadb.put(cur, cb)); };
+  const a2 = await fresh({ module: "anime", title: "Period Show", status: "inProgress", genres: ["Drama"], progress: { current: 0, total: 12, unit: "ep" } });
+  const b2 = await fresh({ module: "books", title: "Period Book", status: "inProgress", progress: { current: 0, total: 100, volumes: 0, totalVolumes: 10, unit: "ch" } });
+  const g2 = await fresh({ module: "game", title: "Period Game", status: "inProgress", playtimeHours: 0, progress: { current: 0, total: 45, unit: "hr" } });
   const ids = {
     titles: KOS.goals.add({ title: "Two finishes", type: "titles-completed", target: 2 }).id,
     episodes: KOS.goals.add({ title: "Ten episodes", type: "episodes-watched", target: 10 }).id,
@@ -124,6 +133,10 @@ step("automatic goals read totals, progress, linked titles and filters", async (
     filter: KOS.goals.add({ title: "Finish Drama", type: "filtered-completed", filterKind: "genre", filterValue: "Drama", target: 1 }).id,
     hours: KOS.goals.add({ title: "Play forty hours", type: "game-hours", target: 40 }).id
   };
+  /* the work, inside the goals' period */
+  await move(a2, r => { r.status = "completed"; r.progress.current = 12; });
+  await move(b2, r => { r.progress.current = 80; r.progress.volumes = 5; });
+  await move(g2, r => { r.status = "completed"; r.playtimeHours = 45; r.progress.current = 45; });
   const rows = await call(cb => KOS.goals.compute(cb));
   const byId = id => rows.find(row => row.id === id);
   assert(byId(ids.titles)._current === 2, "completed title count wrong");

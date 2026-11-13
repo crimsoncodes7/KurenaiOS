@@ -28,6 +28,17 @@
      I · HR-02: signed in, the report backfill waits for the first sync;
          a week saved with no study while its days now hold Focus time is
          rebuilt ONCE (`fix.empty`, a higher `factsRev`), never again.
+     J · GO-02: Collection goals measure their own period from the journal:
+         a "finish two titles" goal made today is not met by January's
+         completions; a title finished today counts; episodes are the
+         steps watched since, not the vault's total.
+     K · GO-02: the repair `goal-getter-whole-vault` voids the receipts of
+         whole-vault goals that do not hold by the new rule (and those of
+         deleted goals), keeps every other goal's, lowers Goal getter to
+         what remains (off the showcase when gone), and runs once.
+     L · GO-23: a 0% quiz is Red (it was Green: a capped penalty off 100);
+         a perfect quiz alone is Amber, "not enough evidence"; three cards
+         held and the quiz make Green.
 
    Run: node tools/smoke136.test.js */
 "use strict";
@@ -238,6 +249,98 @@ step("I · HR-02: a week saved before the history arrived is rebuilt once; nothi
   await cbp((c) => RS.ensureReports(c));
   eq((await cbp((c) => RS.getReport(wk.id, c))).factsRev, rev, "not rebuilt again");
   K.store.state.sessions = []; K.store.save();
+});
+
+/* ---------------- GO-02: Collection goals measure their own period ---------------- */
+async function waitP(pr) {
+  let done = false, v, er; pr.then((x) => { done = true; v = x; }, (x) => { done = true; er = x; });
+  for (let i = 0; i < 3000 && !done; i++) await app.settle();
+  if (er) throw er; return v;
+}
+const cbP = (fn) => waitP(new Promise((res, rej) => fn((e, v) => (e ? rej(e) : res(v)))));
+async function goalRow(id) {
+  let rows = null; K.goals.compute((e, x) => { rows = x; });
+  for (let i = 0; i < 300 && !rows; i++) await app.settle();
+  return (rows || []).find((x) => x.id === id);
+}
+
+step("J · GO-02: a goal made today is not met by the vault's history; a title finished in its period counts", async () => {
+  const old = Date.parse("2026-01-10T10:00:00");
+  for (let i = 0; i < 5; i++) {
+    await cbP((c) => K.mediadb.add({ module: "anime", title: "Old done " + i, status: "completed", syncSource: "manual", progress: { current: 12, total: 12 }, createdAt: old }, c));
+  }
+  await cbP((c) => K.mediadb.add({ module: "anime", title: "Watching now", status: "inProgress", syncSource: "manual", progress: { current: 3, total: 12 }, createdAt: old }, c));
+  const g = K.goals.add({ type: "titles-completed", title: "Finish two", target: 2, startDate: K.srs.todayISO() });
+  let r = await goalRow(g.id);
+  eq(r._current, 0, "five titles completed in January are not this goal's");
+  eq(r._status, "active", "so it is not met on the day it was made");
+  const now = (await cbP((c) => K.mediadb.query({ module: "anime" }, c))).find((x) => x.title === "Watching now");
+  now.status = "completed"; now.progress.current = 12;
+  await cbP((c) => K.mediadb.put(now, c));
+  r = await goalRow(g.id);
+  eq(r._current, 1, "the title finished today counts");
+  const eps = K.goals.add({ type: "episodes-watched", title: "Watch", target: 100, startDate: K.srs.todayISO() });
+  eq((await goalRow(eps.id))._current, 9, "episodes: the nine watched today, not the vault's 69");
+  K.goals.remove(g.id); K.goals.remove(eps.id);
+});
+
+step("K · GO-02: the repair takes back Goal getter tiers earned by goals met by the whole vault", async () => {
+  const ID = K.repairGoals.ID, st = K.store.state;
+  /* as the old rule left it: a goal met on the day it was made, a deleted
+     goal's receipt, a genuine study goal's receipt, and Goal getter I */
+  const bogus = K.goals.add({ type: "titles-completed", title: "Ten titles", target: 10, startDate: K.srs.todayISO() });
+  bogus.status = "completed"; bogus.completedAt = Date.now();
+  const L = st.goals.completionLedger;
+  L[bogus.id] = { recordedAt: Date.now(), type: "titles-completed", payout: "activity-only" };
+  L[9001] = { recordedAt: Date.now(), type: "library-size", payout: "activity-only" };
+  L[9002] = { recordedAt: Date.now(), type: "study-hours", payout: "activity-only" };
+  st.achievements.earned["goal-getter"] = { tier: 1, at: Date.now(), t: { 1: Date.now() } };
+  K.store.save();
+  const pv = await waitP(K.repairGoals.plan());
+  eq(pv.needed, true, "planned");
+  eq(pv.items.map((x) => String(x.id)).sort(), [String(bogus.id), "9001"].sort(), "the two whole-vault receipts, not the study goal's");
+  const res = await waitP(K.repairs.run(ID));
+  assert(res.ok, "it ran: " + JSON.stringify(res));
+  assert(!L[bogus.id] && !L[9001] && L[9002], "the two voided, the study goal's kept");
+  eq(st.achievements.earned["goal-getter"].tier, 1, "one genuine receipt still reaches tier I");
+  eq(K.goals.get(bogus.id).status, "active", "the goal is open again");
+  /* with no genuine receipt left, the badge goes */
+  delete st.repairs[ID]; delete L[9002];
+  L[9003] = { recordedAt: Date.now(), type: "favourites", payout: "activity-only" };
+  st.achievements.earned["goal-getter"] = { tier: 1, at: Date.now(), t: { 1: Date.now() } };
+  st.achievements.showcase = ["goal-getter"];
+  K.store.save();
+  await waitP(K.repairs.run(ID));
+  assert(!st.achievements.earned["goal-getter"], "Goal getter is taken back");
+  eq(st.achievements.showcase, [], "and leaves the showcase");
+  const again = await waitP(K.repairs.run(ID));
+  assert(again.already, "it runs once");
+  K.goals.remove(bogus.id);
+  eq(app.errors, [], "no page errors");
+});
+
+step("L · GO-23: a 0% quiz is Red, not Green; Green needs recall AND practice", async () => {
+  const leaves = K.hub.LEAVES.maths.filter((l) => K.srs.cardsFor("maths", l.ref).length >= 3 && !K.rag.manual("maths", l.ref) && !K.rag.auto("maths", l.ref)).slice(0, 6);
+  eq(leaves.length, 6, "six untouched Maths leaves with cards");
+  const five = leaves.slice(0, 5);
+  K.store.state.study = K.store.state.study || {}; K.store.state.study.quiz = K.store.state.study.quiz || {};
+  const g = K.goals.add({ type: "topics-green", title: "Five to Green", target: 5, startDate: K.srs.todayISO(), links: { refs: five.map((l) => "maths:" + l.ref) } });
+  five.forEach((l) => { K.store.state.study.quiz["maths:" + l.ref] = { attempts: 1, best: 0, bestPct: 0, lastPct: 0 }; });
+  K.store.save();
+  five.forEach((l) => eq(K.rag.effective("maths", l.ref).band, "r", l.ref + ": a 0% quiz is Red"));
+  const r = await goalRow(g.id);
+  eq([r._current, r._status], [0, "active"], "the goal is not met by failing quizzes");
+  /* a perfect quiz alone is Amber, said to be thin */
+  const L6 = leaves[5].ref;
+  K.store.state.study.quiz["maths:" + L6] = { attempts: 1, best: 10, bestPct: 100, lastPct: 100 };
+  const a1 = K.rag.auto("maths", L6);
+  eq([a1.band, a1.thin], ["a", true], "100% on one quiz, no cards rated: Amber, not enough evidence");
+  assert(/not enough evidence/.test(a1.reasons.join(" ")), "it says why");
+  /* and the cards held: Green */
+  K.srs.cardsFor("maths", L6).slice(0, 3).forEach((c) => K.srs.rate(c.key, 2));
+  const a2 = K.rag.auto("maths", L6);
+  eq([a2.band, a2.thin], ["g", false], "recall from three cards and a quiz: Green");
+  K.goals.remove(g.id);
 });
 
 (async () => {

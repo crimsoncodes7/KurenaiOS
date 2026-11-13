@@ -372,7 +372,11 @@
       cb({ current: null, target: g.target, unit: def.unit || "", meta: "Could not be measured" });
     }
   }
-  function ctxFor(base, from, to) { return Object.assign({}, base, { from: from, to: to }); }
+  /* a goal's own period over the vault's journal (GO-02), read once per
+     range however many goals ask; ctx.period(done) → mediadb.periodStats */
+  function ctxFor(base, from, to) {
+    return Object.assign({}, base, { from: from, to: to, period: function (done) { base.periodOf(from, to, done); } });
+  }
 
   /* judge every ENDED period of a repeating goal that has no outcome yet,
      oldest first, never before the goal began and at most a year back */
@@ -421,6 +425,18 @@
           w.forEach(function (f) { f(stats); });
         });
       }
+    };
+    var periods = {};
+    base.periodOf = function (from, to, done) {
+      var a = from ? new Date(from + "T00:00:00").getTime() : 0;
+      var b = to ? new Date(to + "T23:59:59").getTime() : Date.now();
+      var k = a + "|" + b, p = periods[k];
+      if (p && p.v) { done(p.v); return; }
+      if (p) { p.w.push(done); return; }
+      p = periods[k] = { v: null, w: [done] };
+      function give(v) { p.v = v; var w = p.w; p.w = []; w.forEach(function (f) { f(v); }); }
+      if (!KOS.mediadb || !KOS.mediadb.periodStats) { give({ modules: {}, completedIds: {} }); return; }
+      KOS.mediadb.periodStats(a, b, function (err, v) { give(v || { modules: {}, completedIds: {} }); });
     };
     var rows = all().filter(function (g) { return opts.archived !== false || !g.archived; });
     var out = new Array(rows.length), pending = rows.length, dirty = false, today = base.today;
