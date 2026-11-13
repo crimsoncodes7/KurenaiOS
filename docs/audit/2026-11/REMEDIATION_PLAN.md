@@ -748,6 +748,20 @@ cluster, the Agenda (a design), and the page-by-page P2/P3s.
 | CO-04 | P1 | js/core/codeui.js task Run: replace the one-line input with an auto-growing textarea prefilled with the whole first example stdin; keep Ctrl+Enter. | Smoke: running a multi-line task's reference answer with the prefilled input passes with no ArgumentNullException. |
 | EX-01 | P1 | js/modules/examprac.js Marks by question: Max as a number input on rows without an index max; Topic cell a KOS.topicPicker scoped to the assessment's leaves. | Smoke: '＋ Question', set max 6 and a topic → saved question has max 6 and refs. |
 
+**W6 progress (13 Nov 2026, `feat/w1-integrity` 0a57ea5, NOT deployed; gate
+138/138, smoke138 new):** FIXED CC-03/CM-02 (quiz options shuffled per
+attempt; self-referring sets keep their order), CM-25, CM-14/CC-14/CC-17
+(self-marking by mark codes; the Answer line a model answer, never ticked),
+EX-01 (out-of and topic on a hand-added question), CO-04 (multi-line Run
+input), CC-01/CC-02 (IT spec text tidied by `gen_data.py --tidy-it`; F206.6.1
+"Ways to reflect" opens again). LEFT: **CM-01** — the Maths spec text on
+about 36 of 89 leaves is broken PDF extraction (lost exponents, fractions,
+split words); it needs re-authoring from the Edexcel 9MA0 specification as
+typeset blocks, an override table gen_data.py applies, and a smoke check
+that refuses fragment lines. A content batch of its own. Also left: the
+longest-option bias in authored distractors (CC-03's second half) and the
+W6 P2/P3s.
+
 ### W7 — Connected OS and honest numbers (about 2 sessions)
 - **Automatic judgements need minimum evidence (RC20).** Each one names its
   minimum evidence and is tested with thin and contradictory fixtures.
