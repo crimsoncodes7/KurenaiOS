@@ -172,6 +172,9 @@
 <script src="js/data/intel.js"></script>
 <!-- core -->
 <script src="js/core/store.js"></script>
+<!-- RC4: the store registry — every IndexedDB database, what a backup
+     carries and what Reset everything clears (rows read their owners lazily) -->
+<script src="js/core/stores.js"></script>
 <script src="js/core/ui.js"></script>
 <!-- UI rebuild M1: the legacy-class → data-ui/data-state bridge. It must
      follow ui.js (it extends KOS.ui) and precede every view. -->

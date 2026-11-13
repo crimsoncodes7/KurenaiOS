@@ -30,26 +30,37 @@
   /* "Cram this scope" (roadmap 5.8, 29w): an assessment's due cards, then
      the cards on its weakest leaves whose recall today is under 75%,
      weakest first; the review itself is the ordinary review */
+  /* UR-26: a cram is the scope's cards whatever their schedule — the button
+     counts them (its due ones, else up to CRAM_MIN of all), and the run
+     holds what it counted: due first, then the weakest (recall under 75%),
+     then cards never rated, then the rest by lowest recall. It used to
+     take only the due and the weak, so with the queue cleared and most
+     cards unrated it opened "Queue clear. Nothing is due". */
+  var CRAM_MIN = 40;
   function scopeCards(aid, due) {
     var a = KOS.exams && KOS.exams.get(aid);
     if (!a) return [];
     var ls = {}, seen = {}, out = [];
     KOS.exams.leaves(a).forEach(function (k) { ls[k] = true; });
     due.forEach(function (c) { if (ls[c.sid + ":" + c.ref]) { seen[c.key] = true; out.push(c); } });
-    var weak = [];
+    var weak = [], fresh = [], strong = [];
     Object.keys(ls).forEach(function (k) {
       var p = KOS.spec.parse(k);
       if (!p) return;
       KOS.srs.cardsFor(p.subject, p.ref).forEach(function (c) {
         if (seen[c.key]) return;
+        seen[c.key] = true;
         var m = KOS.srs.peek(c.key), mem = KOS.srs.memory(c.key);
-        if (!mem || (m && m.leech) || mem.r >= 0.75) return;
-        c.meta = m; c.overdue = 0; c.r = mem.r;
-        weak.push(c);
+        if (m && m.leech) return;                        /* set aside: Rework, not a cram */
+        c.meta = m; c.overdue = 0;
+        if (!mem) { fresh.push(c); return; }
+        c.r = mem.r;
+        (mem.r < 0.75 ? weak : strong).push(c);
       });
     });
     weak.sort(function (x, y) { return x.r - y.r; });
-    return out.concat(weak).slice(0, 80);
+    strong.sort(function (x, y) { return x.r - y.r; });
+    return out.concat(weak, fresh, strong).slice(0, Math.max(CRAM_MIN, out.length));
   }
   function listedCards(keys) {
     var want = {}, out = [];

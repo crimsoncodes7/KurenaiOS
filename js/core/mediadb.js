@@ -1550,6 +1550,8 @@
     needingEnrichment: needingEnrichment,
     exportAll: exportAll,
     importAll: importAll,
+    /* the sign-ins a backup leaves out and Reset everything keeps (KOS.stores) */
+    tokenKeys: TOKEN_KV_KEYS,
     getKV: getKV,
     setKV: setKV,
     delKV: delKV

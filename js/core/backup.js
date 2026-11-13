@@ -264,8 +264,29 @@
     });
   }
 
+  /* the restore Backup & Restore offers (RC4): the chosen copy is read and
+     verified FIRST, then a verified copy of this device as it is now is
+     taken (so the restore itself can be undone), then the read text is
+     restored — the new checkpoint's rotation may drop the oldest copy, so
+     the text is held before it runs */
+  function restoreSafe(id) {
+    return load(id).then(function (r) {
+      if (!r.ok) throw new Error("This copy did not verify, so nothing was restored: " + r.reason);
+      var text = r.rec.text;
+      return checkpoint("before-restore").then(function (cp) {
+        if (!cp.ok) throw new Error("Nothing was restored: a copy of this device could not be saved and checked (" + cp.reason + ")");
+        return new Promise(function (res, rej) {
+          KOS.store.importFull(new Blob([text], { type: "application/json" }), function (err, report) {
+            err ? rej(err) : res(report || {});
+          });
+        });
+      });
+    });
+  }
+
   KOS.backup = {
     DB: DB, KEEP: KEEP, PARTS: PARTS.slice(),
+    restoreSafe: restoreSafe,
     available: available,
     checkpoint: checkpoint,
     withCheckpoint: withCheckpoint,

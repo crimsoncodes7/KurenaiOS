@@ -34,6 +34,13 @@
 .k-bk-fact-v { display: block; margin-block-start: var(--sp-2); font-size: var(--fs-15); font-weight: var(--weight-semibold); }
 .k-bk-actions { display: flex; flex-wrap: wrap; gap: var(--sp-8); margin-block-start: auto; }
 .k-bk-covers .k-card-head { margin-block-end: var(--sp-6); }
+/* RC4: what a backup covers and the checkpoints, each full width with its
+   rows in two columns (no short side column beside a long list) */
+.k-bk-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--sp-32); }
+.k-bk-list > .k-bk-note { grid-column: 1 / -1; }
+.k-bk-checks .k-card-head { margin-block-end: var(--sp-6); }
+.k-bk-check-sub { display: block; font: var(--fs-12) var(--font-mono); color: var(--muted); }
+.k-bk-check-btns { display: flex; gap: var(--sp-6); }
 .k-bk-cover { display: grid; grid-template-columns: var(--sp-32) minmax(0, 1fr) auto; gap: var(--sp-14); align-items: center; padding-block: var(--sp-10); border-block-start: var(--hairline) solid var(--line); }
 .k-bk-tile { inline-size: var(--bk-tile); block-size: var(--bk-tile); display: grid; place-items: center; border-radius: var(--r-9); background: color-mix(in oklch, var(--tone-c, var(--text-2)) 16%, transparent); color: var(--tone-c, var(--text-2)); font: var(--weight-semibold) var(--fs-14) var(--font-kanji); }
 .k-bk-cover-t { font-size: var(--fs-14); }
@@ -211,6 +218,7 @@
 }
 
 @media (max-width: 1080px) {
+.k-bk-list { grid-template-columns: minmax(0, 1fr); }
 .k-nt { grid-template-columns: minmax(0, 1fr); }
 .k-nt-side { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-16); }
 .k-nt-clear { grid-column: 1 / -1; }
@@ -243,6 +251,7 @@
 .k-bk-mark { display: none; }
 .k-bk-cover { grid-template-columns: var(--sp-32) minmax(0, 1fr); }
 .k-bk-count { grid-column: 2; white-space: normal; }
+.k-bk-check-btns { grid-column: 2; }
 }
 
 @media (max-width: 560px) {

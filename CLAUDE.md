@@ -226,7 +226,7 @@ chronological diary here.
   https://e94eede7.kurenai-os.pages.dev.
 - Last milestone tag: `milestone/graphite-ui-rebuild`
 - Service-worker version: `kos-integrity-6`
-- Required smoke gate: 135 / 135 suites (`""` and 2–135, or `npm test`, which runs them in parallel through `tools/run_smoke.mjs`; 124–126 are W1's: repairs run safely and Import backup asks first, the P0s (JM-06, ST-25, MG-01/MG-23, SY-18), and the DI-27 clean-up on test data; 127 activity, not any event (HR-31, CL-45) and the per-device journal scrub; 128 streak-milestone gold once per run (HR-16); 129 the one-off saved-reports rebuild after DI-27; 130–132 rewards with receipts (RC21: Productivity, Mind and Creatives, Japanese); 133 two tabs saving the state document safely and its storage's durability (RC5: rev, lock and three-way merge, one change once across tabs, Focus owned by one tab, quarantine, the IndexedDB mirror as the primary, quota, Storage's kept copies); 134 the profile pictures moved into the file store by a repair and their edges (a record without its binary, the id from the bytes, orphans, links), the session ledger's archive, Creatives' suffixed database, mined Japanese lines kept on the device, and Storage's state meter; 135 first sign-in keeping the device's data (DI-03), a cloud document landing in one step, an older device's mined lines and newer picture, the pinned pre-link copy and the backup backoff, the Todoist/Google lease per tab, renewed and released (DI-19), Todoist's bookkeeping per chunk, and the goal's Linked title (GO-25); 120–123 are the quality programme's safety net — the 04:00 day across DST, the service-worker update across two versions, offline, and the verified backup `KOS.backup`; 116–119 are ratcheted gates over content, cosmetics, menus in dialogs and CSS collisions, each failing only on a violation not in its `tools/baselines/smoke11x-*.json`; 115 is Mind Journal replication; 114 is provider identity per module (DI-27); 113 is the Badge Wall's; 80–83 are Japanese's, 99 is Code's SQL runner, 100 the ink engine, 101–104 Routines and the Daily Review, 105 the rest of the iPad build and Files R0, 106 Files R1–R4, airing on a closed app, Rider CI evidence and habits several times a day, 107 the Pencil fixes, 108 Creatives', 109–111 Mind's, 112 Google Calendar, Google Tasks and Todoist).
+- Required smoke gate: 135 / 135 suites (`""` and 2–135, or `npm test`, which runs them in parallel through `tools/run_smoke.mjs`; 124–126 are W1's: repairs run safely and Import backup asks first, the P0s (JM-06, ST-25, MG-01/MG-23, SY-18), and the DI-27 clean-up on test data; 127 activity, not any event (HR-31, CL-45) and the per-device journal scrub; 128 streak-milestone gold once per run (HR-16); 129 the one-off saved-reports rebuild after DI-27; 130–132 rewards with receipts (RC21: Productivity, Mind and Creatives, Japanese); 133 two tabs saving the state document safely and its storage's durability (RC5: rev, lock and three-way merge, one change once across tabs, Focus owned by one tab, quarantine, the IndexedDB mirror as the primary, quota, Storage's kept copies); 134 the profile pictures moved into the file store by a repair and their edges (a record without its binary, the id from the bytes, orphans, links), the session ledger's archive, Creatives' suffixed database, mined Japanese lines kept on the device, Storage's state meter, and the store registry (RC4: every database listed, Reset everything clearing them all, the checkpoints with Restore); 135 first sign-in keeping the device's data (DI-03), a cloud document landing in one step, an older device's mined lines and newer picture, the pinned pre-link copy and the backup backoff, the Todoist/Google lease per tab, renewed and released (DI-19), Todoist's bookkeeping per chunk, and the goal's Linked title (GO-25); 120–123 are the quality programme's safety net — the 04:00 day across DST, the service-worker update across two versions, offline, and the verified backup `KOS.backup`; 116–119 are ratcheted gates over content, cosmetics, menus in dialogs and CSS collisions, each failing only on a violation not in its `tools/baselines/smoke11x-*.json`; 115 is Mind Journal replication; 114 is provider identity per module (DI-27); 113 is the Badge Wall's; 80–83 are Japanese's, 99 is Code's SQL runner, 100 the ink engine, 101–104 Routines and the Daily Review, 105 the rest of the iPad build and Files R0, 106 Files R1–R4, airing on a closed app, Rider CI evidence and habits several times a day, 107 the Pencil fixes, 108 Creatives', 109–111 Mind's, 112 Google Calendar, Google Tasks and Todoist).
 - Branches: `main` is the line. On 20 October 2026 it was fast-forwarded to
   `feat/money-goals` (Money and Goals), then to `feat/fsrs` (FSRS), on 21
   October to `feat/exams-hub` (the Exams hub), and on 22 October to
@@ -538,7 +538,10 @@ source comments and audit notes refer to it.
    checkpoint in `kurenai-os-backups`, scoped by the data namespace, last
    five kept), re-planned after to `needed: false`, a receipt in
    `state.repairs` (synced, so no device runs it twice) and an audit record
-   in the media kv (`repair.audit.<id>`). Import backup reads the file,
+   in the media kv (`repair.audit.<id>`). The checkpoints are listed on
+   Backup & Restore in words, each with Download and Restore (the copy is
+   read and verified first, then one of the device as it is now is taken,
+   `KOS.backup.restoreSafe`). Import backup reads the file,
    asks (a danger dialog with its date and counts) and takes a verified
    checkpoint of this device before it replaces anything. An AUTOMATIC
    repair (no consent) runs only while its `ready()` holds: the two that
@@ -689,7 +692,14 @@ source comments and audit notes refer to it.
    smoke134 F scans every `indexedDB.open`). The stores: `kurenai-os-media`,
    `-files`, `-filetext`, `-papers`, `-money`, `-reviews`, `-reports`,
    `-ink`, `-mind`, `-creatives`, `-ledger`, `-ja-mined`, `-backups` and
-   `-statemirror`. Pictures and personal media never ride the state
+   `-statemirror`. THE STORE REGISTRY (`js/core/stores.js`, `KOS.stores`,
+   RC4) has one row per database: what it holds, the key the full backup
+   carries it under (or why it does not), its count and what Reset
+   everything does to it. Backup & Restore's "What a backup covers" and
+   "Not in the file", and Reset everything (a verified checkpoint, then
+   every database but the checkpoints, keeping only the provider sign-ins
+   in the media kv, then the state and a reload) are drawn from it; a
+   database opened anywhere and missing from it fails smoke134 U. Pictures and personal media never ride the state
    document: the profile picture and banner are file records
    (`KOS.profilePics`) and mined lines are in `kurenai-os-ja-mined`.
 8. Vaults and search never render/read an unbounded collection: use indexes,

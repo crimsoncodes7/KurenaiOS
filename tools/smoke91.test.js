@@ -377,6 +377,27 @@ step("K · every hub page draws without writing", async () => {
   eq(app.errors, [], "no errors");
 });
 
+/* ---------------- L · Cram does what its button says (UR-26) ---------------- */
+step("L · Cram opens the cards its button counts, with nothing due and nothing rated yet (UR-26)", async () => {
+  const X = K.exams;
+  const a = X.add({ tier: "topic_test", subject: "compsci", date: day(2), title: "Cram check", scope: { include: ["compsci:4.5.1"] } }, { quiet: true });
+  const leaves = X.leaves(a);
+  const cards = leaves.reduce((n, k) => n + K.srs.cardsFor("compsci", k.split(":")[1]).length, 0);
+  assert(cards > 0, "the scope has flashcards (" + cards + ")");
+  /* none of them due today and none rated: the state a learner is in after clearing the queue */
+  leaves.forEach((k) => K.srs.cardsFor("compsci", k.split(":")[1]).forEach((c) => { delete K.store.state.srs[c.key]; }));
+  const g = K.examCompanion.guide(a);
+  const promised = g.cram.due || Math.min(g.cram.cards, 40);
+  assert(promised > 0, "the button promises cards");
+  K.show("review", { tab: "due", run: "scope:" + a.id }); await app.settle();
+  assert(!app.document.querySelector("[data-ui~='review.due-clear']"), "not 'Queue clear. Nothing is due' — the button promised " + promised + " cards");
+  assert(app.document.querySelector("[data-ui~='fc.wrap']"), "a flashcard session opens");
+  const what = app.document.querySelector(".k-rv-runwhat").textContent;
+  eq(parseInt(what, 10), promised, "it holds the cards the button counted: " + what);
+  X.remove(a.id);
+  eq(app.errors, [], "no errors");
+});
+
 (async () => {
   let failed = 0;
   for (const [name, fn] of steps) {

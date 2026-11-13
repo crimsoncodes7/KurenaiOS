@@ -21,6 +21,17 @@
          never in the cloud-syncable document.
      H · THE STORAGE PAGE shows the state meter and its biggest parts, and
          drawing it writes nothing.
+     U · RC4, THE STORE REGISTRY: every database any file in js/ opens is a
+         row of KOS.stores (and every row is opened somewhere); the rows the
+         backup carries are exactly KOS.backup's parts and what
+         snapshotFull writes.
+     V · DI-21: Reset everything takes a verified checkpoint, then clears
+         every store but the checkpoints (the AniList sign-in stays, the
+         cloud base goes, so the empty device links as a fresh one), resets
+         the state and reloads.
+     W · Backup & Restore lists every store the file carries with its count,
+         says what is NOT in the file, and lists the checkpoints in words;
+         Restore brings one back after a copy of the device as it is now.
 
    Run: node tools/smoke134.test.js */
 "use strict";
@@ -353,6 +364,93 @@ step("N · a mined line that could not be stored leaves no facet; a line already
   await wait(K.jaMined.put({ id, text: "保存できない。", en: "It cannot be saved.", at: first.at + 99999 }));
   const again = (await wait(K.jaMined.all())).filter((l) => l.id === id)[0];
   eq([again.at, again.reading, again.en], [first.at, "ほぞんできない。", "It cannot be saved."], "its first date and reading stay; the translation it lacked is added");
+  eq(app.errors, [], "no page errors");
+});
+
+/* ---------------- RC4: the store registry ---------------- */
+function idbDo(name, store, mode, fn) {
+  return new Promise((res, rej) => {
+    const rq = app.window.indexedDB.open(name);
+    rq.onsuccess = () => {
+      const db = rq.result, t = db.transaction(store, mode), os = t.objectStore(store);
+      let out; const r = fn(os); if (r) r.onsuccess = () => { out = r.result; };
+      t.oncomplete = () => { db.close(); res(out); };
+      t.onerror = () => { db.close(); rej(t.error); };
+    };
+    rq.onerror = () => rej(rq.error);
+  });
+}
+const rowsIn = (id, store) => wait(idbDo(K.stores.name(id), store, "readonly", (os) => os.count()));
+
+step("U · RC4: every database the app opens is in the store registry, and the registry agrees with the backup", async () => {
+  assert(K.stores, "KOS.stores loads");
+  const names = new Set();
+  (function walk(d) {
+    fs.readdirSync(d, { withFileTypes: true }).forEach((e) => {
+      const p = path.join(d, e.name);
+      if (e.isDirectory()) return walk(p);
+      if (!/\.js$/.test(e.name)) return;
+      const src = fs.readFileSync(p, "utf8");
+      for (const m of src.matchAll(/"(kurenai-os-[a-z-]+)"\s*\+\s*\(?\(?KOS\.dataMode/g)) names.add(m[1]);
+    });
+  })(path.join(ROOT, "js"));
+  const reg = K.stores.list().map((r) => r.db);
+  [...names].forEach((n) => assert(reg.indexOf(n) !== -1, n + " is opened but not in the store registry (js/core/stores.js)"));
+  reg.forEach((n) => assert(names.has(n), n + " is in the registry but nothing opens it"));
+  assert(names.size >= 14, "the scan found the databases (" + names.size + ")");
+  /* the backup's parts are the state, the media kv and the registry's backed-up rows */
+  const parts = new Set(K.backup.PARTS);
+  const fromReg = K.stores.list().filter((r) => r.backup).map((r) => r.backup);
+  fromReg.forEach((k) => assert(parts.has(k), k + " is in the registry's backup but not checkpointed"));
+  [...parts].filter((k) => k !== "state" && k !== "mediaKV").forEach((k) => assert(fromReg.indexOf(k) !== -1, k + " is checkpointed but the registry does not say the backup carries it"));
+  const storeSrc = fs.readFileSync(path.join(ROOT, "js/core/store.js"), "utf8");
+  fromReg.forEach((k) => assert(new RegExp("result\\." + k + "\\b|\\b" + k + ": \\[\\]").test(storeSrc), "snapshotFull writes " + k));
+  eq(K.stores.name("money"), "kurenai-os-money", "a name in the real namespace");
+});
+
+step("V · RC4, DI-21: Reset everything takes a checkpoint, then clears EVERY store but the checkpoints; sign-ins stay, the sync records go", async () => {
+  /* every owner opens its database once, then a row in each */
+  await cbp((cb) => K.money.exportAll(cb)); await cbp((cb) => K.reviewLog.exportAll(cb)); await cbp((cb) => K.mediadb.exportAll(cb));
+  await cbp((cb) => K.money.addTx({ date: "2026-11-01", amount: 5, kind: "out", cat: "food", payee: "Reset test" }, cb));
+  await wait(idbDo(K.stores.name("reviews"), "rev", "readwrite", (os) => os.put({ key: "compsci:4.1.1.1:0", grade: 3, ts: Date.now() })));
+  await cbp((cb) => K.mediadb.setKV("anilist.token", "kept-token", cb));
+  await cbp((cb) => K.mediadb.setKV("cloudsync.base.u1", { doc: { reminders: { items: [1, 2, 3] } } }, cb));
+  K.reminders.add({ title: "Gone after reset" });
+  eq(await rowsIn("money", "tx"), 1, "a transaction before");
+  const before = (await wait(K.backup.list())).length;
+  let reloaded = 0; K.pwa._reload = () => { reloaded++; };
+  const ok = await wait(K.resetEverything());
+  eq(ok, true, "the reset ran");
+  eq(await rowsIn("money", "tx"), 0, "Money's transactions are gone");
+  eq(await rowsIn("reviews", "rev"), 0, "the review log is gone");
+  eq(await cbp((cb) => K.mediadb.getKV("anilist.token", cb)), "kept-token", "the AniList sign-in stays");
+  eq(await cbp((cb) => K.mediadb.getKV("cloudsync.base.u1", cb)), null, "the cloud base is gone, so the empty device links as a fresh one");
+  eq(K.store.state.reminders.items.filter((r) => r.title === "Gone after reset").length, 0, "the state document is fresh");
+  const cps = await wait(K.backup.list());
+  eq(cps.length, Math.min(before + 1, K.backup.KEEP), "one checkpoint more (the last five kept)");
+  eq(cps[0].label, "before-reset", "taken before the reset");
+  eq(reloaded, 1, "the page reloads, so no module keeps a cache of what went");
+});
+
+step("W · RC4: Backup & Restore lists every store the file carries, what it does not, and the checkpoints with Restore", async () => {
+  const doc = app.window.document;
+  K.show("data"); await app.settle(); for (let i = 0; i < 40; i++) await app.settle();
+  const listed = [...doc.querySelectorAll("[data-store]")].map((n) => n.getAttribute("data-store"));
+  K.stores.list().filter((r) => r.backup).forEach((r) => assert(listed.indexOf(r.id) !== -1, "the covers list names " + r.id));
+  const out = doc.querySelector("[data-ui~='archive.not-in-file']");
+  assert(out && /Paper library/.test(out.textContent) && /Reports/.test(out.textContent), "it says what is not in the file: " + (out && out.textContent));
+  const rows = [...doc.querySelectorAll("[data-ui~='archive.checkpoint']")];
+  assert(rows.length >= 1, "the checkpoints are listed");
+  assert(/Before Reset everything/.test(rows[0].textContent), "named in words: " + rows[0].textContent);
+  /* Restore brings the transaction back, after a copy of the device as it is now */
+  app.window.__kosAutoConfirm = true;
+  const NodeBlob = app.window.Blob; app.window.Blob = JBlob;   /* the restore reads its text through jsdom's FileReader */
+  rows[0].querySelector("[data-ui~='archive.checkpoint-restore']").click();
+  for (let i = 0; i < 200 && (await rowsIn("money", "tx")) === 0; i++) await app.settle();
+  app.window.__kosAutoConfirm = false; app.window.Blob = NodeBlob;
+  eq(await rowsIn("money", "tx"), 1, "the checkpoint's transaction is back");
+  const cps = await wait(K.backup.list());
+  eq(cps[0].label, "before-restore", "a copy of the device was taken before the restore");
   eq(app.errors, [], "no page errors");
 });
 

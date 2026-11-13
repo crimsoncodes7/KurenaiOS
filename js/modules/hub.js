@@ -3453,9 +3453,11 @@
     var covers = el("section", { class: "k-card k-bk-covers", "aria-label": "What a backup covers" }, [
       el("div", { class: "k-card-head" }, [el("span", { class: "k-card-title", text: "What a backup covers" }), el("span", { class: "k-card-meta", text: "counts right now" })])
     ]);
+    var coverList = el("div", { class: "k-bk-list" });
+    covers.appendChild(coverList);
     function cover(mark, tone, text) {
       var count = el("span", { class: "k-bk-count" });
-      covers.appendChild(el("div", { class: "k-bk-cover" }, [
+      coverList.appendChild(el("div", { class: "k-bk-cover" }, [
         el("span", { class: "k-bk-tile", "data-tone": tone, lang: "ja", "aria-hidden": "true", text: mark }),
         el("span", { class: "k-bk-cover-t", text: text }), count
       ]));
@@ -3473,21 +3475,26 @@
       arrLen(s.assignments) ? plural(arrLen(s.assignments), "assignment") : null]);
     cover("守", "gold", "Governor state: HP, gold, XP and everything you own").textContent = facts([
       KOS.governor ? "Level " + KOS.governor.levelInfo(g.xp || 0).level : null, "◆ " + KOS.ui.num(g.gold || 0), owned ? plural(owned, "item") + " owned" : null]);
-    var mediaCount = cover("蒐", "anime", "The whole media vault: anime, books, visual novels and games, with routes, quotes and physical volumes");
-    if (KOS.mediadb && KOS.mediadb.available && KOS.mediadb.available()) KOS.mediadb.count(null, function (err, n) { if (!err && n) mediaCount.textContent = plural(n, "entry", "entries"); });
     var wl = s.wishlist || {};
-    cover("円", "books", "The purchase planner and budget history").textContent = facts([
+    cover("買", "books", "The Wishlist, its budget and purchase history").textContent = facts([
       arrLen(wl.items) ? plural(arrLen(wl.items), "item") : null,
       wl.budget && arrLen(wl.budget.history) ? plural(arrLen(wl.budget.history), "purchase") + " logged" : null]);
-    var fileCount = cover("⎘", "muted", "Document attachments");
-    if (KOS.attach && KOS.attach.available && KOS.attach.available() && KOS.attach.listMeta) KOS.attach.listMeta(function (err, rows) {
-      /* the profile picture and banner ride the backup but are not documents */
-      rows = (rows || []).filter(function (r) { return !(typeof r.origin === "string" && /^profile:/.test(r.origin)); });
-      if (err || !rows.length) return;
-      fileCount.textContent = plural(rows.length, "file") + " · " + mb(rows.reduce(function (a, r) { return a + (r.size || 0); }, 0));
+    cover("習", "muted", "Every study space's progress: Code, Japanese, Mind, Creatives, Exams, goals and routines");
+    /* every other database the file carries, from the store registry (RC4,
+       DI-14, AA-26): one row each with its count as it stands, so the list
+       can never fall behind what the backup holds */
+    var REG = KOS.stores ? KOS.stores.list() : [];
+    REG.filter(function (r) { return r.backup; }).forEach(function (r) {
+      var c = cover(r.mark, r.tone, r.label);
+      c.setAttribute("data-store", r.id);
+      KOS.stores.count(r.id, function (err, n) { if (!err && n) c.textContent = plural(n, r.unit[0], r.unit[1]); });
     });
-    covers.appendChild(el("p", { class: "k-bk-note", text: "AniList and VNDB tokens and your cloud password are deliberately left out: a backup file can end up in less careful places than your browser. After a restore, reconnect from Sync & Import." }));
+    var out = REG.filter(function (r) { return !r.backup && !r.state; });
+    if (out.length) covers.appendChild(el("p", { class: "k-bk-note", "data-ui": "archive.not-in-file", text: "Not in the file: " +
+      out.map(function (r) { return r.label.charAt(0).toLowerCase() + r.label.slice(1) + " (" + r.why + ")"; }).join("; ") + "." }));
+    covers.appendChild(el("p", { class: "k-bk-note", text: "Your sign-ins are deliberately left out (AniList, VNDB, GitHub, Google, Todoist and the cloud password): a backup file can end up in less careful places than your browser. After a restore, reconnect from Sync & Import and Connections." }));
     main.appendChild(covers);
+    main.appendChild(checkpointsCard());
 
     /* ---- reset: its own strip, and a word to type ---- */
     main.appendChild(el("section", { class: "k-bk-danger", "aria-label": "Reset everything" }, [
@@ -3499,6 +3506,65 @@
     ]));
   };
 
+  /* ---- the checkpoints on this device (RC4) ----
+     KOS.backup keeps the last five VERIFIED copies of this device, taken
+     before every repair, import, restore, reset and first link. They had
+     no place in the app; each row now offers Download and Restore (a
+     danger confirm; a copy of the device as it is now is taken first). */
+  function checkpointWords(label) {
+    var l = String(label || "");
+    if (l === "before-import") return "Before importing a backup";
+    if (l === "before-reset") return "Before Reset everything";
+    if (l === "before-restore") return "Before restoring a checkpoint";
+    if (l.indexOf("repair:") === 0) {
+      var id = l.slice(7), r = KOS.repairs && KOS.repairs.list ? KOS.repairs.list().filter(function (x) { return x.id === id; })[0] : null;
+      return "Before the repair: " + (r ? r.title : id);
+    }
+    return l || "A checkpoint";
+  }
+  function checkpointsCard() {
+    var card = el("section", { class: "k-card k-bk-checks", "data-ui": "archive.checkpoints", "aria-label": "Checkpoints on this device" }, [
+      el("div", { class: "k-card-head" }, [el("span", { class: "k-card-title", text: "Checkpoints on this device" }), el("span", { class: "k-card-meta", text: "the last " + ((KOS.backup && KOS.backup.KEEP) || 5) })])
+    ]);
+    var body = el("div", { class: "k-bk-list" }, [el("p", { class: "k-bk-note", text: "Reading…" })]);
+    card.appendChild(body);
+    card.appendChild(el("p", { class: "k-bk-note", text: "Taken by themselves before anything replaces your data: a repair, an import, a restore, Reset everything or linking to the cloud. Each was checked against what it was taken from. They stay on this device and are not in a backup file." }));
+    if (!KOS.backup || !KOS.backup.available()) { body.textContent = ""; body.appendChild(el("p", { class: "k-bk-note", text: "This browser cannot keep checkpoints." })); return card; }
+    KOS.backup.list().then(function (rows) {
+      body.textContent = "";
+      if (!rows.length) { body.appendChild(el("p", { class: "k-bk-note", text: "None yet. One is taken by itself before anything replaces your data." })); return; }
+      rows.forEach(function (r) {
+        var words = checkpointWords(r.label);
+        var when = new Date(r.at).toLocaleString("en-GB", { weekday: "short", day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+        var sub = when + " · " + mb(r.bytes || 0);
+        body.appendChild(el("div", { class: "k-bk-cover k-bk-check", "data-ui": "archive.checkpoint" }, [
+          el("span", { class: "k-bk-tile", "data-tone": "teal", lang: "ja", "aria-hidden": "true", text: "控" }),
+          el("span", {}, [el("span", { class: "k-bk-cover-t", text: words }), el("span", { class: "k-bk-check-sub", text: sub })]),
+          el("span", { class: "k-bk-check-btns" }, [
+            el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "archive.checkpoint-download", text: "Download", "aria-label": "Download: " + words + ", " + when,
+              onclick: function () { KOS.backup.download(r.id).catch(function (e) { KOS.ui.toast(e.message, true); }); } }),
+            el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "archive.checkpoint-restore", "data-tone": "danger", text: "Restore", "aria-label": "Restore: " + words + ", " + when,
+              onclick: function () { restoreCheckpoint(r, words, when); } })
+          ])
+        ]));
+      });
+    }).catch(function (e) { body.textContent = ""; body.appendChild(el("p", { class: "k-bk-note", text: "The checkpoints could not be read (" + ((e && e.message) || e) + ")." })); });
+    return card;
+  }
+  function restoreCheckpoint(r, words, when) {
+    KOS.ui.confirm({ danger: true, mark: "戻", title: "Restore this device to " + when + "?", confirm: "Restore this checkpoint",
+      body: words + ". Everything on this device is replaced by that copy. A checked copy of the device as it is now is saved first, so this can be undone the same way; if cloud sync is on, the restored data replaces the cloud's on the next sync." },
+      function () {
+        KOS.ui.toast("Saving a copy of this device first…");
+        /* importFull re-baselines the cloud itself (noteRestore) */
+        KOS.backup.restoreSafe(r.id).then(function () {
+          KOS.ui.toast("Restored the checkpoint from " + when + ".");
+          KOS.refreshRailCounters();
+          KOS.show("home");
+        }).catch(function (e) { KOS.ui.toast((e && e.message) || String(e), true); });
+      });
+  }
+
   function resetDialog(exportBtn) {
     var input = el("input", { type: "text", class: "k-input k-bk-type", autocomplete: "off", spellcheck: "false",
       "aria-label": "Type RESET to confirm", placeholder: "RESET" });
@@ -3506,7 +3572,7 @@
     var box = el("div", { class: "k-dialog k-bk-reset", "data-ui": "ui.dialog archive.reset", role: "alertdialog" }, [
       el("span", { class: "k-bk-reset-mark", lang: "ja", "aria-hidden": "true", text: "消" }),
       el("h2", { class: "k-dialog-title", "data-ui": "ui.dialog-title", text: "Reset everything?" }),
-      el("p", { class: "k-bk-reset-p", text: "This removes study progress, notes, flashcard schedules, the Governor, the media vault, the planner and every attachment from this device. It cannot be undone here." }),
+      el("p", { class: "k-bk-reset-p", text: "This removes everything KurenaiOS keeps on this device: study progress, notes and schedules, the Governor, the Collection, files, Money, handwriting, Mind's Journal, Creatives' work, saved Reports and the Paper library. A checked copy of this device is saved first and kept (Archive › Storage), and your sign-ins stay. A signed-in device then takes your account's copy back down." }),
       el("label", { class: "k-field" }, [el("span", { class: "k-field-label" }, ["Type ", el("b", { class: "k-mono", text: "RESET" }), " to confirm"]), input]),
       el("div", { class: "k-bk-reset-btns" }, [
         el("button", { type: "button", class: "k-btn", text: "Export backup first", onclick: function () { overlay.remove(); exportBtn.click(); } }),
@@ -3521,12 +3587,37 @@
     go.addEventListener("click", function () {
       if (input.value.trim() !== "RESET") return;
       overlay.remove();
-      store.reset(); KOS.refreshRailCounters(); KOS.ui.toast("Fresh start."); KOS.show("home");
+      resetEverything();
     });
     /* headless harnesses confirm through the same hook KOS.ui.confirm honours */
-    if (window.__kosAutoConfirm === true) { store.reset(); KOS.refreshRailCounters(); KOS.show("home"); return; }
+    if (window.__kosAutoConfirm === true) { resetEverything(); return; }
     KOS.ui.openDialog(overlay, { initialFocus: input });
   }
+  /* DI-21 (RC4): Reset everything clears EVERY store of this namespace from
+     the registry, not only the state document (the vault, files, Money and
+     ink used to survive it and sync back up). A verified checkpoint first —
+     no checkpoint, no reset — then every database but the checkpoints, the
+     state, and a reload so no module keeps a cache of what went. Clearing
+     the media kv's sync records (the cloud base among them) makes a
+     signed-in device link again as a fresh one: it takes the account's copy
+     rather than pushing an empty device's "deletions" over it. */
+  function resetEverything() {
+    KOS.ui.toast("Saving a copy of this device first…");
+    var safe = KOS.backup ? KOS.backup.checkpoint("before-reset") : Promise.resolve({ ok: false, reason: "the backup store is not loaded" });
+    return safe.then(function (cp) {
+      if (!cp.ok) { KOS.ui.toast("Nothing was reset: a copy of this device could not be saved and checked (" + cp.reason + "). Export a backup first.", true); return false; }
+      return new Promise(function (res) {
+        (KOS.stores ? KOS.stores.clearAll : function (cb) { cb(null, []); })(function (err) {
+          if (err) { KOS.ui.toast("Reset stopped part-way (" + err.message + "). Your copy is in Archive › Storage.", true); res(false); return; }
+          store.reset();
+          KOS.ui.toast("Fresh start.");
+          if (KOS.pwa && KOS.pwa.reloadPage) KOS.pwa.reloadPage(); else window.location.reload();
+          res(true);
+        });
+      });
+    });
+  }
+  KOS.resetEverything = resetEverything;
 
   /* ---------- printable revision summary ---------- */
   var STATUS_WORD = { none: "Not started", started: "Started", paused: "Paused", done: "Completed" };
