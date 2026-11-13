@@ -469,7 +469,14 @@ show on Account & Cloud Sync (DI-20).
   boot toast, fixed in the test. Record: `docs/HANDOFF-W1-RC5.md` on the
   branch, with what is known and accepted, and what the picture move does
   to the live account. **Not yet checked in a real browser; staging first.**
-- Still to do in W1: the store registry (RC4), the rest of Todoist/Google
+- **The store registry (RC4), BUILT 13 Nov (`feat/w1-integrity` 14bd215,
+  NOT deployed; gate 135/135):** `KOS.stores`, one row per database;
+  "What a backup covers" and "Not in the file" drawn from it (DI-14,
+  AA-26); Reset everything clears every store after a verified checkpoint
+  and drops the cloud base, which before could make a signed-in device
+  push its emptiness as deletions (DI-21); the checkpoints listed with
+  Download and Restore (the gap the 9 Nov review recorded). smoke134 U–W.
+- Still to do in W1: the rest of Todoist/Google
   bookkeeping (RC6: pull before the lease, uid for older reminders,
   sections, unlinked projects, re-keyed references), side replicators
   (DI-20), the remaining P1s.
@@ -876,7 +883,7 @@ The auditors' 181 QoL ideas stay in each area's file (`qol`), in the
   tab's save could also overwrite the whole document (fixed in
   kos-integrity-6). Fix: Save writes only what was changed in the editor;
   smoke over two devices. Small; W1/W2 (with SY-20/AG-25's draft store).
-- **UR-26 · Exams › Companion "Cram" does nothing.** Both Cram buttons call
+- **UR-26 · FIXED 13 Nov (14bd215, smoke91 L) · Exams › Companion "Cram" does nothing.** Cause: the button counted every card in scope, the run took only due and weak RATED cards — with the queue cleared and cards unrated it opened "Queue clear". Now due, weakest, never rated, then the rest, up to the count shown. Both Cram buttons call
   `KOS.show("review", {tab: "due", run: "scope:<id>"})` (examguide.js 83,
   278); not reproduced yet — check `due.js`'s `scope:` run with no card due
   today, and SH-37 (the review route has no codec, so a reload loses the run).
