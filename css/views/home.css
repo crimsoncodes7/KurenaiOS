@@ -45,6 +45,12 @@
 .k-goal-item[aria-pressed="true"] { color: var(--text-2); }
 .k-goal-item[aria-pressed="true"] .k-goal-mark { background: var(--teal); box-shadow: none; }
 .k-goal-item[aria-pressed="true"] .k-goal-text { text-decoration: line-through; text-decoration-color: var(--line); }
+/* a Daily goal directive is a link sealed by evidence, not a toggle (HR-18):
+   it says done through data-state, and without this its tick (drawn in
+   --bg) sat invisible on an empty ring (UR-30) */
+.k-goal-item[data-state~="done"] { color: var(--text-2); }
+.k-goal-item[data-state~="done"] .k-goal-mark { background: var(--teal); box-shadow: none; }
+.k-goal-item[data-state~="done"] .k-goal-text { text-decoration: line-through; text-decoration-color: var(--line); }
 .k-goal-item .k-goal-text { min-inline-size: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .k-home-goal > .k-btn { align-self: flex-start; margin-block-start: var(--sp-4); }
 /* Critical (7a·crit): the hero's hue swings from blue to crimson, the

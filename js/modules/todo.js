@@ -23,7 +23,12 @@
   function minsFor(ev, day) {
     day = day || KOS.srs.todayISO();
     var labels = ["Revise for " + ev.title, "Revise for: " + ev.title, "Prepare: " + ev.title];
-    var leaves = KOS.spec && KOS.calendar.refsOf ? KOS.spec.resolve(KOS.calendar.refsOf(ev)) : [];
+    /* an assessment's topics are its RESOLVED scope (invariant 121: what
+       it includes and what Pacing covered, less its exclusions), never the
+       derived event's links, which carry the includes only, cut at 20 */
+    var asmt = ev.assessmentId && KOS.exams && KOS.exams.get ? KOS.exams.get(ev.assessmentId) : null;
+    var leaves = asmt ? KOS.exams.leaves(asmt)
+      : KOS.spec && KOS.calendar.refsOf ? KOS.spec.resolve(KOS.calendar.refsOf(ev)) : [];
     var asg = ev.assignmentId != null ? ev.assignmentId : null;
     /* a deadline that names no topic and no assignment (an Exams-hub
        deadline, an NEA milestone) is worked on by time in its subject, or

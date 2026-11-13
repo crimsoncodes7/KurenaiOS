@@ -818,10 +818,19 @@
         body.appendChild(grid);
         body.appendChild(el("p", { class: "k-muted k-gv-edit-hint", text: "More seals are in the Gold Shop." }));
       }
+      /* Save writes ONLY what was changed here (UR-25). The draft was taken
+         when the page opened; a pull since (another device's showcase,
+         title or seal) must not be overwritten by the copy this page held,
+         or a Save that only moved the background wipes them everywhere. */
       function save() {
-        if (A) { A.setShowcase(draft.showcase); A.setTitle(draft.titleId); }
-        g.seatBg = draft.seatBg; g.seatFocus = draft.seatFocus;
-        if (draft.seal !== (g.seal || "kurenai")) KOS.governor.setSeal(draft.seal);
+        var init = JSON.parse(saved);
+        function changed(k) { return JSON.stringify(draft[k]) !== JSON.stringify(init[k]); }
+        g = store.state.governor;
+        if (A && changed("showcase")) A.setShowcase(draft.showcase);
+        if (A && changed("titleId")) A.setTitle(draft.titleId);
+        if (changed("seatBg")) g.seatBg = draft.seatBg;
+        if (changed("seatFocus")) g.seatFocus = draft.seatFocus;
+        if (changed("seal")) KOS.governor.setSeal(draft.seal);
         store.save();
         KOS.ui.toast("Seat saved."); KOS.a11y.announce("Seat saved.");
         KOS.show("governor");

@@ -35,6 +35,9 @@
          gold or HP and logs no session.
      L · THE NOTIFICATION: a tier earned is ONE `achievement` item, id
          ach:<badge>:<tier>.
+     M · EDIT YOUR SEAT saves only what was changed in it: a pull while it
+         is open (another device's showcase, title or seal) survives a Save
+         (UR-25: a Save that moved only the background wiped them).
 
    Run:
      npm install jsdom fake-indexeddb   (one-time)
@@ -320,6 +323,43 @@ step("L · the notification", async () => {
   const items = K.store.state.notify.items.filter((it) => it.id === "ach:regular:1");
   eq(items.length, 1, "one item per tier, by its id");
   eq(items[0].kind, "achievement", "of kind achievement");
+  assert(app.errors.length === 0, "no app errors: " + app.errors.join(" | "));
+});
+
+step("M · Edit your seat saves only what was changed in it (UR-25)", async () => {
+  const doc = app.window.document, st = K.store.state, ach = st.achievements, gov = st.governor;
+  const ts = A.titles().slice(0, 2);
+  assert(ts.length === 2, "two titles in the catalogue");
+  ts.forEach((t) => { ach.earned[t.badge] = { tier: Math.max(t.tier, (ach.earned[t.badge] || {}).tier || 0), at: Date.now(), t: {} }; });
+  const [b1, b2] = ts.map((t) => t.badge);
+  A.setShowcase([b1]); A.setTitle(ts[0].id);
+  gov.seatBg = null; gov.seatFocus = "centre"; gov.seal = "kurenai";
+  K.show("governor", "edit");
+  await app.settle();
+  const save = () => doc.querySelector("[data-ui~='gov.seat-save']");
+  assert(save(), "the editor is open");
+  /* while it is open another device's choices arrive (a pull, applied in place) */
+  ach.showcase = [b2, b1]; ach.title = ts[1].id; gov.seal = "seal-elsewhere";
+  save().click();
+  await app.settle();
+  eq(ach.showcase, [b2, b1], "a Save that changed nothing in the showcase keeps the showcase the account now holds");
+  eq(ach.title, ts[1].id, "nor the title");
+  eq(gov.seal, "seal-elsewhere", "nor the seal");
+  /* a change made in the editor is saved, and only it */
+  K.show("governor", "edit");
+  await app.settle();
+  const tab = [...doc.querySelectorAll("[data-ui~='gov.seat-editor'] [role='tab'], [data-ui~='gov.seat-editor'] button")].find((b) => b.textContent.trim() === "Background");
+  assert(tab, "the Background tab");
+  tab.click(); await app.settle();
+  const right = [...doc.querySelectorAll("[data-ui~='gov.seat-editor'] button, [data-ui~='gov.seat-editor'] [role='tab']")].find((b) => b.textContent.trim() === "Right");
+  assert(right, "the Right focus point");
+  right.click(); await app.settle();
+  ach.title = null;      // another device took the title off meanwhile
+  save().click();
+  await app.settle();
+  eq(gov.seatFocus, "right", "the focus point changed here was saved");
+  eq(ach.title, null, "the title another device removed stays removed");
+  eq(ach.showcase, [b2, b1], "the showcase is untouched");
   assert(app.errors.length === 0, "no app errors: " + app.errors.join(" | "));
 });
 

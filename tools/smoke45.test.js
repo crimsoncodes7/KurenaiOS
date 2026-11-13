@@ -307,6 +307,12 @@ step("a toast announces, and the same sentence twice announces twice", async () 
      lands inside this step and its toasts overwrite the region under test.
      Run the pass now so its keys are already marked notified. */
   KOS.calendar.checkReminders(); await tick(120);
+  /* and the Badge Wall's boot sweep toasts once, 2.5 s after load: under a
+     loaded gate it landed between the clear and the refill and took the
+     region (seen ["", "You already had 2 badge tiers…"]). Wait it out, as
+     the redraw step below does. */
+  await waitFor(() => badgeSweepDone, 8000);
+  await tick(300);
   const SAID = "Saved to the vault.";
   KOS.ui.toast(SAID);
   await waitFor(() => pol.textContent === SAID);

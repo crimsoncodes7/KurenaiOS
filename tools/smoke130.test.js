@@ -19,6 +19,11 @@
      G · PR-23 (decision B10): a routine with every step optional is refused.
      H · RC21: tick → untick → re-tick pays ONCE for a reminder, a habit, a
          routine step and a hand-ticked task.
+     S · UR-30: a sealed Daily goal directive is drawn sealed (its mark is
+         filled; the tick sat invisible on an empty ring).
+     T · UR-30: an assessment's directive counts time on its RESOLVED scope
+         (excludes left out, every include, not the event's first 20 links);
+         Home's Focus card reads the same minutes.
 
    Run: node tools/smoke130.test.js */
 "use strict";
@@ -374,6 +379,41 @@ step("R · Help no longer says directives earn XP", async () => {
   const src = require("fs").readFileSync(require("path").join(__dirname, "../js/modules/help.js"), "utf8");
   assert(!/Ticks earn XP/.test(src), "the old line is gone");
   assert(/sealed by the work itself/.test(src), "it says how a directive is sealed");
+  eq(app.errors, [], "no page errors");
+});
+
+step("S · a sealed directive is DRAWN sealed (UR-30: the tick was invisible)", async () => {
+  const blk = K.calendar.addEvent({ type: "study", title: "Sealed block", date: today, time: "08:00", endTime: "09:00", subject: "maths" });
+  K.sessions.log({ type: "focus", subject: "maths", dur: 3600, metrics: { mins: 60, complete: true } });
+  K.show("home"); await app.settle();
+  const row = $$("[data-ui~='home.directive']").find((b) => /Sealed block/.test(b.textContent));
+  assert(row, "the block's directive is on Home");
+  assert(K.ui.hasState(row, "done"), "it is marked done");
+  /* the stylesheet fills the mark for exactly that marker: a directive is
+     a link, not a toggle, so it carries no aria-pressed (HR-18) */
+  const css = require("fs").readFileSync(require("path").join(__dirname, "../css/views/home.css"), "utf8");
+  assert(/\.k-goal-item\[data-state~="done"\]\s*\.k-goal-mark\s*\{[^}]*background:\s*var\(--teal\)/.test(css),
+    "a done directive's mark is filled teal, so its tick (drawn in --bg) shows");
+  K.calendar.deleteEvent(blk.id);
+  K.store.state.sessions = []; K.store.save();
+});
+
+step("T · an assessment's directive reads its RESOLVED scope (UR-30)", async () => {
+  const leaves = K.hub.LEAVES.compsci.map((l) => "compsci:" + l.ref).slice(0, 25);
+  eq(leaves.length, 25, "25 CS leaves");
+  const a = K.exams.add({ title: "Paper 1 mock", tier: "mock", subject: "compsci", date: day(1), time: "09:00",
+    scope: { include: leaves, exclude: [leaves[0]] } }, { quiet: true });
+  const item = () => K.todo.autoItems().find((x) => x.kind === "ev" && x.ev.assessmentId === a.id);
+  assert(item(), "the mock's directive is offered");
+  const goal = K.todo.goalMinsFor(item().ev);
+  /* an hour and more on the EXCLUDED topic is not revision for it */
+  K.sessions.log({ type: "focus", subject: "compsci", ref: leaves[0].split(":")[1], refs: [leaves[0]], dur: goal * 60 + 600, metrics: { complete: true, mode: "custom" } });
+  eq(K.todo.minsFor(item().ev, today), 0, "time on an excluded topic does not count");
+  /* the 25th topic of the scope counts (the event's links stopped at 20) */
+  K.sessions.log({ type: "focus", subject: "compsci", ref: leaves[24].split(":")[1], refs: [leaves[24]], dur: goal * 60, metrics: { complete: true, mode: "custom" } });
+  eq(item().done, true, "sealed by its revision time on a topic of its scope");
+  K.exams.remove ? K.exams.remove(a.id) : delete K.store.state.exams.assessments[a.id];
+  K.store.state.sessions = []; K.store.save();
   eq(app.errors, [], "no page errors");
 });
 

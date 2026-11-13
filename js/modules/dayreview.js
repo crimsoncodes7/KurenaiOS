@@ -355,11 +355,23 @@
       ].filter(Boolean));
       body.appendChild(cols(focusCard, el("div", { class: "k-dr-stack" }, [three, ticks.children.length ? ticks : null].filter(Boolean))));
     },
+    /* the plan's rows are the plan's to show: ONE line here as in the
+       morning's Due card, never a row each (30 carried rows each saying
+       Overdue drowned the day's real deadlines, UR-31). A chip says only
+       what is true of the row: Overdue, Today or Tomorrow by its own date;
+       an undated row has none (it said Today, UR-32). One Now marker:
+       the step's own (the timeline drew a second, UR-33). */
     still: function (st, s, body) {
-      var tl = card([hd("After now", "to the evening review"), U().nowMark(s.now)].concat(timeline(s.timeline)));
-      var dl = s.due.length ? card([hd("Deadlines", "today, tomorrow, overdue")].concat(s.due.map(function (x) {
-        return refRow(Object.assign({}, x, { sub: dueSub(x) }), el("span", { class: "k-chip", "data-tone": x.overdue ? "danger" : "muted", text: x.overdue ? "▲ Overdue" : x.due === KOS.srs.addDays(R().routineDay(), 1) ? "● Tomorrow" : "● Today" }));
-      }))) : null;
+      var tl = card([hd("After now", "to the evening review"), U().nowMark(s.now)].concat(timeline(s.timeline, { now: false })));
+      var plan = s.due.filter(function (x) { return x.kind === "plan"; });
+      var rest = s.due.filter(function (x) { return x.kind !== "plan"; });
+      var today = R().routineDay(), tmrw = KOS.srs.addDays(today, 1);
+      var rows = rest.map(function (x) {
+        var chip = x.overdue ? ["danger", "▲ Overdue"] : x.due === today ? ["muted", "● Today"] : x.due === tmrw ? ["muted", "● Tomorrow"] : null;
+        return refRow(Object.assign({}, x, { sub: dueSub(x) }), chip ? el("span", { class: "k-chip", "data-tone": chip[0], text: chip[1] }) : null);
+      });
+      if (plan.length) rows.push(planLine(plan));
+      var dl = rows.length ? card([hd("Deadlines", "today, tomorrow, overdue")].concat(rows)) : null;
       body.appendChild(cols(tl, dl));
     },
     time: function (st, s, body) {
@@ -478,12 +490,18 @@
     var rest = due.filter(function (x) { return plan.indexOf(x) === -1; });
     var rows = (warnings || []).map(function (w) { return refRow({ kind: "exam", title: w.title, sub: w.body }); })
       .concat(rest.map(function (x) { return refRow(Object.assign({}, x, { sub: dueSub(x) })); }));
-    if (plan.length) rows.push(el("button", { type: "button", class: "k-dr-row k-dr-rowbtn", "data-ui": "review.plan-carried", onclick: function () { close(false); KOS.show("pacing"); } }, [
-      el("span", { class: "k-dr-glyph", lang: "ja", "aria-hidden": "true", text: "計" }),
-      el("span", { class: "k-rt-grow" }, [el("span", { class: "k-dr-row-t", text: U().plural(plan.length, "plan row") + " this week" + (plan.some(function (x) { return x.why === "carried"; }) ? " · " + plan.filter(function (x) { return x.why === "carried"; }).length + " carried over" : "") }), muted(plan.slice(0, 2).map(function (x) { return x.title; }).join(" · ") + (plan.length > 2 ? " …" : ""))]),
-      muted("the plan ›")]));
+    if (plan.length) rows.push(planLine(plan));
     rows = rows.concat((goals || []).map(goalRow));
     return rows.length ? card([hd("Due", "today and the next 3 days")].concat(rows)) : null;
+  }
+  /* the plan's rows as ONE line that opens Pacing (the morning's Due card
+     and the afternoon's Still today alike) */
+  function planLine(plan) {
+    var carried = plan.filter(function (x) { return x.why === "carried"; }).length;
+    return el("button", { type: "button", class: "k-dr-row k-dr-rowbtn", "data-ui": "review.plan-carried", onclick: function () { close(false); KOS.show("pacing"); } }, [
+      el("span", { class: "k-dr-glyph", lang: "ja", "aria-hidden": "true", text: "計" }),
+      el("span", { class: "k-rt-grow" }, [el("span", { class: "k-dr-row-t", text: U().plural(plan.length, "plan row") + " this week" + (carried ? " · " + carried + " carried over" : "") }), muted(plan.slice(0, 2).map(function (x) { return x.title; }).join(" · ") + (plan.length > 2 ? " …" : ""))]),
+      muted("the plan ›")]);
   }
   function goalRow(g) {
     var pct = g.target && g.current != null ? Math.round(100 * Math.min(1, g.current / g.target)) : null;

@@ -791,6 +791,9 @@
        linked topics. A bare timer, or another subject, is not revision for
        it (review: the goal counted every minute of the day) */
     function examMins(ev) {
+      /* ONE definition with the Daily goal's directive (UR-30): the two
+         read the same minutes, so the card and the goal never disagree */
+      if (KOS.todo && KOS.todo.minsFor) return KOS.todo.minsFor(ev, today);
       var label = "Revise for " + ev.title;
       var leaves = KOS.spec.resolve(refsOfEv(ev));
       return Math.round(KOS.sessions.all().reduce(function (sum, x) {

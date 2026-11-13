@@ -292,6 +292,31 @@ step("I · habits", async () => {
   eq(app.errors, [], "no errors");
 });
 
+step("J · the afternoon's Still today: the plan as ONE line, one Now, no false Today (UR-31, UR-32)", async () => {
+  const f = await boot({ clock: TODAY + "T16:40:00" }), d = f.document, KK = f.KOS;
+  await f.settle();
+  KK.calendar.addEvent({ type: "event", title: "NEA block", date: TODAY, time: "18:00", endTime: "19:00" });
+  const c = KK.dayReview.content("afternoon");
+  assert(c.steps.find((s) => s.id === "still").timeline.length, "something timed after now");
+  const i = c.steps.findIndex((s) => s.id === "still");
+  assert(i !== -1, "the step is offered");
+  const plan = c.steps[i].due.filter((x) => x.kind === "plan");
+  assert(plan.length > 10, "the seeded plan puts many rows in it (" + plan.length + ")");
+  KK.reviewSheet.open("afternoon", { step: i }); await f.settle();
+  const sheet = d.querySelector("[data-ui~='review.sheet']") || d;
+  const nows = sheet.querySelectorAll(".k-rt-now");
+  assert(nows.length <= 1, "one Now marker, not " + nows.length);
+  const rows = [...sheet.querySelectorAll(".k-dr-row-t")].map((n) => n.textContent);
+  plan.forEach((p) => assert(rows.indexOf(p.title) === -1, "a plan row is not listed on its own: " + p.title));
+  const line = sheet.querySelector("[data-ui~='review.plan-carried']");
+  assert(line && /plan rows? this week/.test(line.textContent), "the plan is one line that opens Pacing");
+  const chips = [...sheet.querySelectorAll(".k-chip")].map((n) => n.textContent);
+  assert(chips.filter((t) => /Overdue/.test(t)).length <= c.steps[i].due.filter((x) => x.kind !== "plan" && x.overdue).length,
+    "Overdue is said only for what is itself overdue, not for each carried plan row");
+  assert(!chips.some((t) => /Today/.test(t)), "nothing undated says Today: " + chips.join(", "));
+  eq(f.errors, [], "no errors");
+});
+
 (async () => {
   let failed = 0;
   for (const [name, fn] of steps) {
