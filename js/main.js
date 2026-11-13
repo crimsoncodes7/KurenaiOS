@@ -137,6 +137,12 @@
      the day under the target, comes forward into the week or two before */
   KOS.srs.examPass();
   if (KOS.code && KOS.code.migrateCards) KOS.code.migrateCards();
+  /* W7 (JM-07, MI-01, CR-25): every lesson's four checks brought up to its
+     evidence once at boot, so a lesson a review or a card held while the
+     sync was missing reaches Completed now (writes only what differs) */
+  if (KOS.ja && KOS.ja.syncAll) KOS.ja.syncAll();
+  if (KOS.mind && KOS.mind.syncAll) KOS.mind.syncAll();
+  if (KOS.creatives && KOS.creatives.syncAll) KOS.creatives.syncAll();
   /* Code: a lesson only looked at is no longer "Started" (once per device) */
   if (KOS.code && KOS.code.repairStarted) KOS.code.repairStarted();
   /* Code → GitHub: a device with pushes waiting tries again (automatic mode) */

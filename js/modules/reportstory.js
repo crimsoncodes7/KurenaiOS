@@ -32,7 +32,8 @@
   var DOW3 = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   var MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   var MON3 = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  var SUBJ_HUE = { compsci: "var(--cs)", maths: "var(--maths)", it: "var(--it)" };
+  /* every subject's hue (HR-17: Code, Japanese, Mind and Creatives drew none) */
+  var SUBJ_HUE = Object.assign(KOS.subjects && KOS.subjects.map ? KOS.subjects.map("hue") : {}, { compsci: "var(--cs)", maths: "var(--maths)", it: "var(--it)" });
   var MOD_HUE = { anime: "var(--anime)", books: "var(--books)", vn: "var(--vn)", game: "var(--games)" };
   var MOD_LABEL = { anime: "Anime", books: "Books", vn: "Visual novels", game: "Games" };
   var SEAL = { week: "週", month: "月", term: "期", year: "年" };

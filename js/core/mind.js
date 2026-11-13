@@ -332,11 +332,19 @@
   }
 
   /* ---------------- a lesson's four checks → the shared progress record ---------------- */
+  /* MI-01: a checkpoint lesson carries no concepts of its own (they are its
+     checkpoint's), so its retrieval check read nothing and it could never
+     reach Completed */
+  function lessonConcepts(l) {
+    if (!l) return [];
+    if (l.kind === "checkpoint") { var cp = M().CHECKPOINTS[l.unit]; return (cp && cp.concepts) || []; }
+    return l.concepts || [];
+  }
   function evidence(id) {
     var l = lesson(id), n = pages(id).length, read = pagesRead(id);
     var cps = l && l.kind === "checkpoint";
     var cpDone = cps && !!(peek().checkpoints[l.unit] && peek().checkpoints[l.unit].doneAt);
-    var retrieval = !!l && (l.concepts || []).some(function (cid) {
+    var retrieval = !!l && lessonConcepts(l).some(function (cid) {
       return cardKeys(cid).some(function (k) { var s = peek().cards[k]; return s && s.reps > 0 && s.g > 1; });
     });
     var checks = [n > 0 && read >= n, cps ? cpDone : checkPassed(id), hasPrompt(id) ? promptDone(id) : null, retrieval];
@@ -354,7 +362,8 @@
     var p = store.peekProgress ? store.peekProgress(SID, id) : null, cur = p && p.check ? p.check : [false, false, false, false];
     want.forEach(function (on, i) { if (!!cur[i] !== !!on) store.setCheck(SID, id, i, !!on); });
   }
-  function syncConcept(cid) { lessons().forEach(function (l) { if ((l.concepts || []).indexOf(cid) >= 0) syncChecks(l.id); }); }
+  function syncConcept(cid) { lessons().forEach(function (l) { if (lessonConcepts(l).indexOf(cid) >= 0) syncChecks(l.id); }); }
+  function syncAll() { lessons().forEach(function (l) { syncChecks(l.id); }); }
 
   /* ---------------- finishing, paying once ---------------- */
   function finished(id) { return !!obj(peek().lessons[id]).doneAt; }
@@ -653,7 +662,7 @@
     keepPosition: keepPosition, retirePosition: retirePosition, revisitsDue: revisitsDue, park: park, promptDone: promptDone, parkedList: parkedList,
     introduce: introduce, preview: preview, rateCard: rateCard, due: due, finishReviews: finishReviews, paidToday: paidToday,
     ladder: ladder, rung: rung, metConcepts: metConcepts, rungCounts: rungCounts, furthest: furthest,
-    evidence: evidence, syncChecks: syncChecks, finished: finished, completed: completed, maybeFinish: maybeFinish, recordCheckpoint: recordCheckpoint, cpRule: cpRule, award: award,
+    evidence: evidence, syncChecks: syncChecks, syncAll: syncAll, finished: finished, completed: completed, maybeFinish: maybeFinish, recordCheckpoint: recordCheckpoint, cpRule: cpRule, award: award,
     started: started, unitState: unitState, nextLesson: nextLesson, currentUnit: currentUnit, suggestedNext: suggestedNext, stats: stats,
     milestones: milestones, tensionsDue: tensionsDue, setTension: setTension, answerOf: answerOf,
     weekOf: weekOf, bq: bq, setBq: setBq, addBqLine: addBqLine, closeBq: closeBq,

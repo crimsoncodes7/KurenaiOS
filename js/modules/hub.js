@@ -123,7 +123,8 @@
       if (k.indexOf(sid + ":") !== 0) return;
       out.topics++;
       out.attempts += q[k].attempts || 0;
-      if (q[k].best != null) out.best = Math.max(out.best == null ? 0 : out.best, q[k].best);
+      var bp = KOS.quiz && KOS.quiz.bestPct ? KOS.quiz.bestPct(sid, k.slice(sid.length + 1), q[k]) : q[k].best;
+      if (bp != null) out.best = Math.max(out.best == null ? 0 : out.best, bp);
     });
     return out;
   }
@@ -636,15 +637,14 @@
   function hoursThisWeek() {
     var cut = Date.now() - 7 * 864e5;
     var secs = KOS.sessions.all().reduce(function (a, s) {
-      if (s.type === "media" || s.ts < cut) return a;      /* leisure is the rest streak's, not study's */
-      return a + (s.dur || 0);
+      return s.ts < cut ? a : a + KOS.sessions.studySecs(s);   /* Focus time, as Reports and Goals (HR-05) */
     }, 0);
     return secs / 3600;
   }
   function sessionsThisWeek() {
     var cut = Date.now() - 7 * 864e5;
     return KOS.sessions.all().filter(function (s) {
-      return s.type !== "media" && s.type !== "correction" && s.ts >= cut;
+      return s.type === "focus" && s.ts >= cut;
     }).length;
   }
 
@@ -919,7 +919,7 @@
   function hm(ts) { var d = new Date(ts); return ("0" + d.getHours()).slice(-2) + ":" + ("0" + d.getMinutes()).slice(-2); }
   function hoursOn(iso) {
     return KOS.sessions.all().reduce(function (a, s) {
-      return s.type !== "media" && s.date === iso ? a + (s.dur || 0) : a;
+      return s.date === iso ? a + KOS.sessions.studySecs(s) : a;
     }, 0) / 3600;
   }
   function fmtH(h) { return h >= 10 ? String(Math.round(h)) : String(Math.round(h * 10) / 10); }
@@ -1481,7 +1481,7 @@
        never said what it was compared with. */
     var lastWeekH = 0, daysIn = weekIsos.filter(function (iso) { return iso <= today; }).length;
     for (var lw = 0; lw < daysIn; lw++) { var ld = new Date(weekStart); ld.setDate(weekStart.getDate() - 7 + lw); lastWeekH += hoursOn(isoOf(ld)); }
-    var weekSess = KOS.sessions.all().filter(function (s) { return s.type !== "media" && s.type !== "correction" && weekIsos.indexOf(s.date) !== -1; }).length;
+    var weekSess = KOS.sessions.all().filter(function (s) { return KOS.sessions.studySecs(s) > 0 && weekIsos.indexOf(s.date) !== -1; }).length;   /* Focus sessions, as the hours (HR-05) */
     var goalH = dailyGoalMins() / 60, goalT = fmtH(goalH) + "h";
     var peak = Math.max(goalH, days.reduce(function (a, d) { return Math.max(a, d.h); }, 0));
     /* every bar and the goal line are measured in ONE track per column
@@ -1568,12 +1568,26 @@
       ])
     ]);
     var desks = el("div", { class: "k-desks" });
+    /* HR-01: the desks you are working at come first. In the fixed subject
+       order, with Code and Japanese started, Mind and Creatives were the 6th
+       and 7th columns of a row showing four, scrolled out of sight with no
+       sign they were there. Most recently studied first (any session or
+       stretch in that subject), the rest in the usual order after. */
+    var lastAt = {};
+    KOS.sessions.all().forEach(function (e) {
+      if (!e || e.type === "media" || e.type === "correction" || e.type === "todo") return;
+      var subs = [e.subject];
+      if (KOS.sessions.parts) KOS.sessions.parts(e).forEach(function (p) { subs.push(p.subject); });
+      subs.forEach(function (s) { if (s && (!lastAt[s] || e.ts > lastAt[s])) lastAt[s] = e.ts; });
+    });
     /* Code joins Home's desks once it has been started (roadmap 5.3) */
     SUBJECTS.filter(function (sid) {
       if (sid === "ja") return !!(KOS.ja && KOS.ja.started());
       if (sid === "creatives") return !!(KOS.creatives && KOS.creatives.started());
       if (sid === "mind") return !!(KOS.mind && KOS.mind.started());
       return sid !== "code" || (KOS.code && !KOS.code.firstVisit());
+    }).sort(function (a, b) {
+      return (lastAt[b] || 0) - (lastAt[a] || 0) || SUBJECTS.indexOf(a) - SUBJECTS.indexOf(b);
     }).forEach(function (sid) {
       var d = KOS_DATA[sid], st = subjectStats(sid);
       var last = store.state.ui.lastRef[sid];
@@ -3224,6 +3238,7 @@
 
     var t = topicStats(sid, ref);
     var qz = t.quiz;
+    var qzBest = qz ? (KOS.quiz && KOS.quiz.bestPct ? KOS.quiz.bestPct(sid, ref, qz) : qz.best) : null;
     /* a Code lesson's inspector reads evidence: concepts, proof in code and
        the next practice (frame 26c) — not the recall record */
     if (cx) cx.inspectorBody(body, t);
@@ -3233,7 +3248,7 @@
       count("Lapses", t.lapses),
       li("Recall today", t.memory.recall == null ? "" : "≈ " + pctText(Math.round(100 * t.memory.recall)), t.memory.recall == null),
       t.memory.leeches ? count("In Rework", t.memory.leeches) : null,
-      li("Quiz best", qz && qz.best != null ? pctText(qz.best) : "", !(qz && qz.best != null)),
+      li("Quiz best", qzBest != null ? pctText(qzBest) : "", qzBest == null),
       count("Quiz attempts", qz ? qz.attempts || 0 : 0),
       count("Exam questions logged", t.examLogged),
       inkRow(sid, ref)

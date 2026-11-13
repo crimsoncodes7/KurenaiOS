@@ -639,7 +639,9 @@
     measure: function (g, ctx, cb) {
       /* once Habits has moved into Routines (roadmap 5.10, plan §5) the
          habit is the routine it became, and its streak is the routine's */
-      if (KOS.routines && KOS.routines.migrated()) {
+      /* a goal that names a ROUTINE (GO-07: the editor saves `routine`) is
+         measured through Routines whatever the move's state */
+      if (KOS.routines && (KOS.routines.migrated() || g.params.routine)) {
         var rt = KOS.routines.resolve(g.params.routine || g.params.habit);
         if (!rt) { cb({ current: null, meta: g.params.habit || g.params.routine ? "The linked habit was removed" : "No habit linked" }); return; }
         cb({ current: KOS.routines.streak(rt.id), unit: "days", meta: rt.name });

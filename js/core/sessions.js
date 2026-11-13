@@ -242,7 +242,14 @@
     return n;
   }
 
+  /* HR-05: STUDY TIME is Focus time — one definition for Home's Study hours,
+     the Daily goal, Reports' "Studied" and Goals' study hours. Home used to
+     add up every logged entry (a quiz, a page read, a tick), so its week
+     read 12h 14m beside a report of 2h 32m for the same days. */
+  function studySecs(e) { return e && e.type === "focus" ? (e.dur || 0) : 0; }
+
   KOS.sessions = {
+    studySecs: studySecs,
     log: log,
     all: function () { return store.state.sessions; },
     forDate: forDate,

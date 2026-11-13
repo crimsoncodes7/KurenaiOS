@@ -14,8 +14,17 @@
   "use strict";
   window.KOS = window.KOS || {};
 
-  var SUBJECT = { compsci: "Computer Science", maths: "Maths", it: "IT" };
-  var SUBJECT_SHORT = { compsci: "CS", maths: "Maths", it: "IT" };
+  /* HR-17: every subject a report can name — Code, Japanese, Mind and
+     Creatives too ("undefined took the largest share" was saved into a
+     week's words when one of them led). From KOS.subjects where it is
+     loaded; the literal names stand in where it is not (Node). */
+  var SUBJECT = { compsci: "Computer Science", maths: "Maths", it: "IT", code: "Code", ja: "Japanese", mind: "Mind", creatives: "Creatives" };
+  var SUBJECT_SHORT = { compsci: "CS", maths: "Maths", it: "IT", code: "Code", ja: "Japanese", mind: "Mind", creatives: "Creatives" };
+  if (window.KOS.subjects && window.KOS.subjects.map) {
+    var names = window.KOS.subjects.map("name"), shorts = window.KOS.subjects.map("short");
+    Object.keys(names).forEach(function (k) { if (names[k]) SUBJECT[k] = names[k]; });
+    Object.keys(shorts).forEach(function (k) { if (shorts[k]) SUBJECT_SHORT[k] = shorts[k]; });
+  }
   var MEDIUM = { anime: "Anime", books: "Books", vn: "Visual novels", game: "Games" };
   var PERIOD_NOUN = { week: "week", month: "month", term: "term", year: "year" };
 

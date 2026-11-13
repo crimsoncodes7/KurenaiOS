@@ -30,7 +30,8 @@
   "use strict";
   var el = KOS.ui.el, W = KOS.reportWords;
 
-  var SUBJ_HUE = { compsci: "var(--cs)", maths: "var(--maths)", it: "var(--it)" };
+  /* every subject's hue (HR-17: Code, Japanese, Mind and Creatives drew none) */
+  var SUBJ_HUE = Object.assign(KOS.subjects && KOS.subjects.map ? KOS.subjects.map("hue") : {}, { compsci: "var(--cs)", maths: "var(--maths)", it: "var(--it)" });
   var MOD_HUE = { anime: "var(--anime)", books: "var(--books)", vn: "var(--vn)", game: "var(--games)" };
   var MOD_SHORT = { anime: "Anime", books: "Books", vn: "VNs", game: "Games" };
   var MODULES = ["anime", "books", "vn", "game"];

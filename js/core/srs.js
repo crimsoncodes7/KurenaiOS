@@ -312,6 +312,13 @@
         s0: p.before ? p.before.s : null, d0: p.before ? p.before.d : null,
         s1: m.s, d1: m.d, ivl: m.ivl, src: key.indexOf("x:") === 0 ? "redo" : "flashcards" });
     }
+    /* CR-25: a Creatives theory card ("creatives:<lesson>:<i>") is its
+       lesson's fourth check, so rating one — here, in Review or Due —
+       ticks it (nothing called the lesson's sync after a rating) */
+    if (key.indexOf("creatives:") === 0 && KOS.creatives && KOS.creatives.syncChecks) {
+      var lid = key.slice(10, key.lastIndexOf(":"));
+      if (lid) KOS.creatives.syncChecks(lid);
+    }
     return m;
   }
   /* the interval in days a rating would schedule — 0 is "again today" */

@@ -43,8 +43,27 @@
     if (typeof document !== "undefined" && document.addEventListener) document.addEventListener("keydown", onKey);
   }
 
+  /* ST-03: a topic's best is a PERCENT of a FULL run (`bestPct`). `best` was
+     the count right, printed everywhere as a percent ("6 of 11" read "Quiz
+     best 6%"); a re-run of only the missed questions never sets it. A record
+     from before carries only `best`: a count when it fits the deck, else
+     the percent an older version stored. */
+  function deckLen(sid, ref) {
+    var c = KOS.content && KOS.content.get ? KOS.content.get(sid, ref) : null;
+    return c && Array.isArray(c.quiz) ? c.quiz.length : 0;
+  }
+  function bestPct(sid, ref, rec) {
+    rec = rec || ((store.state.study || {}).quiz || {})[sid + ":" + ref];
+    if (!rec) return null;
+    if (rec.bestPct != null) return rec.bestPct;
+    if (!rec.attempts && !rec.best) return null;
+    var n = deckLen(sid, ref), b = +rec.best || 0;
+    return n && b <= n ? Math.round(100 * b / n) : Math.min(100, b);
+  }
+
   KOS.quiz = {
     stats: qstats,
+    bestPct: bestPct,
 
     /* opts.onFinish(picks, correct): a caller that keeps its own record
        (a Code capstone's closed-book quiz) — then nothing is written to the
@@ -74,7 +93,7 @@
       function paintHead() {
         var done = Object.keys(answered).length;
         title.textContent = done === items.length ? "All " + items.length + " answered" : "Question " + (at + 1) + " of " + items.length;
-        meta.textContent = "score " + correct + (st.attempts ? " · best " + st.best + "/" + items.length : " · first attempt");
+        meta.textContent = "score " + correct + (st.attempts ? " · best " + (own ? st.best + "/" + items.length : (bestPct(sid, ref, st) || 0) + "%") : " · first attempt");
       }
       var card = null, next = null;
       function show() {
@@ -157,6 +176,8 @@
         st.attempts++;
         st.lastPct = Math.round(100 * correct / items.length);
         if (correct > st.best) st.best = correct;
+        var full = deckLen(sid, ref);
+        if (!full || items.length >= full) { var was = bestPct(sid, ref, st); st.bestPct = Math.max(was == null ? 0 : was, st.lastPct); }
         store.save();
         /* FR-3.2 — every completed quiz attempt lands in the session log */
         KOS.sessions.log({

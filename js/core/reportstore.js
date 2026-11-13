@@ -237,8 +237,22 @@
      is marked "rebuilt from history". Months, terms and years roll up
      from these in phase 6. */
   var BACKFILL_WEEKS = 60, saving = false;
+  /* HR-02: a report saved before this device held the account's history
+     read "A quiet week for study" for good. So nothing is saved until the
+     first sync is settled (signed out or unconfigured counts as settled),
+     and a saved report whose facts say NO study while its period now holds
+     Focus time is rebuilt ONCE (a recorded exception to invariant 102, as
+     the DI-27 rebuild: `fix.empty`, a higher `factsRev` so the merge keeps
+     it, its words back to the template). */
+  function emptyStudy(f) { return !!(f && f.study && !f.study.mins && !(f.focus && f.focus.blocks)); }
+  function focusIn(p) {
+    return (KOS.store.state.sessions || []).some(function (e) { return e.type === "focus" && e.dur > 0 && e.date >= p.start && e.date <= p.end; });
+  }
   function ensureReports(cb, nowArg) {
     if (saving || !available() || !KOS.report) { cb && cb(null, []); return; }
+    /* signed in: wait for this page load to hold the account's copy */
+    var signedIn = !!(KOS.cloud && KOS.cloud.userId && KOS.cloud.userId());
+    if (signedIn && KOS.cloudsync && KOS.cloudsync.settled && !KOS.cloudsync.settled()) { cb && cb(null, []); return; }
     saving = true;
     var R = KOS.report, now = nowArg || Date.now();
     var today = iso(new Date(now));
@@ -271,6 +285,18 @@
           var isLatest = p === latest;
           if (!R.isReady(p, now)) { next(); return; }
           getReport(p.id, function (e1, have) {
+            if (have && emptyStudy(have.facts) && !(have.fix && have.fix.empty) && focusIn(p)) {
+              R.build(p, { rebuilt: !!have.rebuilt, prev: prevFacts }, function (facts) {
+                if (emptyStudy(facts)) { prevFacts = have.facts; next(); return; }
+                var n = record(p, facts);
+                n.savedAt = have.savedAt;
+                if (have.rebuilt) n.rebuilt = true;
+                n.fix = Object.assign({}, have.fix || {}, { empty: Date.now() });
+                n.factsRev = (have.factsRev || 0) + 1;
+                putReport(n, function () { saved.push(n); prevFacts = facts; next(); });
+              });
+              return;
+            }
             if (have) { prevFacts = have.facts; next(); return; }
             var rebuilt = !baseline || p.start < baseline;
             R.build(p, { rebuilt: rebuilt, prev: prevFacts }, function (facts) {

@@ -936,10 +936,22 @@
         extra.filterValue = input("text", g.filterValue || "", { "aria-label": "Value" });
         form.appendChild(el("div", { class: "k-mn-two" }, [field("Filter", extra.filterKind), field("Value", extra.filterValue)]));
       }
-      if (typeId === "habit-streak") {
-        var hs = (store.state.todo && store.state.todo.habits) || [];
-        extra.habit = select(hs.map(function (h) { return [h.id, h.text]; }), (g.params || {}).habit || (hs[0] || {}).id, { "aria-label": "Habit" });
-        form.appendChild(field("Habit", extra.habit));
+      /* GO-06, GO-07: the routine and habit goals name WHICH one. The habit
+         list came from the store frozen at the move into Routines (so a habit
+         made since could not be picked), and the two routine types had no
+         picker at all ("No routine linked" forever). Both now list Routines'
+         own records and save `params.routine`; a goal saved before keeps
+         reading its `habit` through KOS.routines.resolve. */
+      var R = KOS.routines;
+      if ((typeId === "habit-streak" || typeId === "routine-days" || typeId === "routine-streak") && R && R.all) {
+        var habitsOnly = typeId === "habit-streak";
+        var rs = R.all().filter(function (r) { return !habitsOnly || r.kind === "habit" || r.legacyHabit != null; })
+          .map(function (r) { return [r.id, r.name]; });
+        var p0 = g.params || {}, cur = p0.routine || p0.habit;
+        var curR = cur != null && R.resolve ? R.resolve(cur) : null;
+        extra.routine = select(rs, curR ? curR.id : (rs[0] || [])[0], { "aria-label": habitsOnly ? "Habit" : "Routine", "data-ui": "goals.routine-pick" });
+        form.appendChild(field(habitsOnly ? "Habit" : "Routine", rs.length ? extra.routine
+          : el("span", { class: "k-muted", text: habitsOnly ? "No habits yet — add one in Routines." : "No routines yet — make one in Routines." })));
       }
       /* how much */
       var target = money ? targetIn.node : el("div", { class: "k-gl-stepper" }, [
@@ -1015,7 +1027,11 @@
       if (extra.module) fields.module = extra.module.value || null;
       if (extra.linked) fields.linkedEntryId = extra.linked.value ? Number(extra.linked.value) : null;
       if (extra.filterKind) { fields.filterKind = extra.filterKind.value; fields.filterValue = extra.filterValue.value; }
-      if (extra.habit) fields.params = Object.assign({}, g.params || {}, { habit: extra.habit.value });
+      if (extra.routine) {
+        if (!extra.routine.value) { err.hidden = false; err.textContent = typeId === "habit-streak" ? "✕ Choose a habit" : "✕ Choose a routine"; return; }
+        fields.params = Object.assign({}, g.params || {}, { routine: extra.routine.value });
+        delete fields.params.habit;
+      }
       if (def.linked && !fields.linkedEntryId) { err.hidden = false; err.textContent = "✕ Choose the title this goal follows"; return; }
       var saved = existing ? G.update(existing.id, fields) : G.add(fields);
       ov.remove();

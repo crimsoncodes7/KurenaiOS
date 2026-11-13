@@ -153,6 +153,19 @@
     var cur = p && p.check ? p.check : [false, false, false, false];
     ev.checks.forEach(function (on, i) { if (!!cur[i] !== on) store.setCheck(SID, id, i, on); });
   }
+  /* JM-07: "Held in reviews" becomes true through REVIEWS, so a review
+     syncs the lessons that teach the item it moved (it used to wait for a
+     page read or a line heard, and a lesson never reached Completed);
+     syncAll is the boot pass that repairs lessons already stuck */
+  var ITEM_LESSONS = null;
+  function lessonsOfItem(key) {
+    if (!ITEM_LESSONS) {
+      ITEM_LESSONS = {};
+      lessons().forEach(function (l) { (l.items || []).forEach(function (k) { (ITEM_LESSONS[k] = ITEM_LESSONS[k] || []).push(l.id); }); });
+    }
+    return ITEM_LESSONS[key] || [];
+  }
+  function syncAll() { lessons().forEach(function (l) { syncChecks(l.id); }); }
   /* unitState(unit) → { state: done | current | later, done, total, next } */
   function unitState(uid) {
     var j = peek(), us = [];
@@ -198,6 +211,7 @@
         s0: before.reps ? before.s : null, d0: before.reps ? before.d : null, s1: f.s, d1: f.d, ivl: f.ivl, src: "ja" });
     }
     store.save();
+    lessonsOfItem(p.item).forEach(syncChecks);
     return { grade: g, facet: f, unlocked: Object.keys(st.facets).slice(keys) };
   }
 
@@ -460,7 +474,7 @@
   }
 
   KOS.ja = {
-    SID: SID, knows: knows, normalise: normalise, item: item, lesson: lesson, lessons: lessons, produces: produces,
+    SID: SID, knows: knows, normalise: normalise, item: item, lesson: lesson, lessons: lessons, produces: produces, syncAll: syncAll,
     startLesson: startLesson, markPage: markPage, markHeard: markHeard, evidence: evidence, syncChecks: syncChecks,
     unitState: unitState, checkpointState: checkpointState, stats: stats, content: content, CHECKS: CHECKS, record: record, finishSession: finishSession, finishLesson: finishLesson, lessonPass: lessonPass, lessonMisses: lessonMisses,
     recordCheckpoint: recordCheckpoint, award: award, paidToday: paidToday,
