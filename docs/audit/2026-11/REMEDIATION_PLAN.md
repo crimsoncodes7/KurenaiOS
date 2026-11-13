@@ -887,7 +887,7 @@ The auditors' 181 QoL ideas stay in each area's file (`qol`), in the
   `KOS.show("review", {tab: "due", run: "scope:<id>"})` (examguide.js 83,
   278); not reproduced yet — check `due.js`'s `scope:` run with no card due
   today, and SH-37 (the review route has no codec, so a reload loses the run).
-- **UR-27 · the rapid drill shows wrong answers.** `KOS.examCompanion.drill`
+- **UR-27 · CLOSED 13 Nov, not reproduced · the rapid drill shows wrong answers.** You said: likely misread in a rush five minutes before the exam; nothing wrong found since. Reopen with a screenshot (question and topic) if it recurs. `KOS.examCompanion.drill`
   takes each card's own `a` and each short item's first part's mark scheme;
   not reproduced yet — likely the derived exam items (CC-14/CC-17: the worked
   card's one-line "Answer:" as a mark point) or a content error. Needs a
