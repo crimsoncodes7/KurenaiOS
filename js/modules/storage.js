@@ -70,6 +70,67 @@
       ].concat(extra || []));
     }
 
+    /* COPIES KEPT FOR YOU: saved data the app could not read and set aside
+       (KOS.store.quarantines), and this device as it was before it was first
+       linked to your account (KOS.cloudsync.preLinked). Nothing uses them;
+       each is the size of the whole record, so each can be downloaded and
+       deleted here. The card is drawn only when there is one. */
+    function saveText(text, name) {
+      var blob = new Blob([text], { type: "application/json" });
+      if (KOS.inkExport && KOS.inkExport.deliver) { KOS.inkExport.deliver(blob, name); return; }
+      var url = URL.createObjectURL(blob), a = el("a", { href: url, download: name });
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function () { URL.revokeObjectURL(url); }, 4000);
+    }
+    function when(at) {
+      return at > 1e11 ? new Date(at).toLocaleString("en-GB", { day: "numeric", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }) : "date not recorded";
+    }
+    function stamp(at) { var d = at > 1e11 ? new Date(at) : new Date(); return d.toISOString().slice(0, 10); }
+    function keptCard() {
+      var list = el("ul", { class: "k-st-files" });
+      var box = card("Copies kept for you", "kept", [
+        el("p", { class: "k-st-note", text: "The app uses none of these: each is your data from before something replaced it. Download one to keep it; delete it to free its space." }),
+        list
+      ]);
+      box.hidden = true;
+      function item(hook, title, meta, onDownload, onDelete, what) {
+        var li = el("li", { class: "k-st-file", "data-ui": "storage.kept-row " + hook }, [
+          el("span", { class: "k-st-file-t" }, [el("span", { class: "k-files-name", text: title }), el("span", { class: "k-files-meta", text: meta })]),
+          el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "storage.kept-download", text: "Download", onclick: onDownload }),
+          el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "storage.kept-delete", "data-tone": "danger", text: "Delete", onclick: function () {
+            KOS.ui.confirm({ title: "Delete this copy?", danger: true, confirm: "Delete the copy",
+              body: what + " It cannot be brought back; download it first if you might want it." }, function () {
+              onDelete(function () { li.remove(); if (!list.children.length) box.hidden = true; });
+            });
+          } })
+        ]);
+        list.appendChild(li);
+        box.hidden = false;
+      }
+      if (KOS.store.quarantines) KOS.store.quarantines().then(function (qs) {
+        (qs || []).forEach(function (q) {
+          item("storage.kept-unreadable", "Saved data the app could not read", "Set aside " + when(q.at) + " · " + size(q.bytes), function () {
+            KOS.store.quarantineRead(q.key).then(function (raw) {
+              if (raw == null) { KOS.ui.toast("That copy could not be read.", true); return; }
+              saveText(raw, "kurenai-os-unreadable-" + stamp(q.at) + ".txt");
+            });
+          }, function (done) {
+            KOS.store.quarantineDrop(q.key).then(function (ok) { if (ok) done(); else KOS.ui.toast("That copy could not be deleted.", true); });
+          }, "The unreadable copy set aside " + when(q.at) + " will be deleted.");
+        });
+      }, function () { /* no list: no rows */ });
+      if (KOS.cloudsync && KOS.cloudsync.preLinked) KOS.cloudsync.preLinked(function (err, rec) {
+        if (err || !rec) return;
+        item("storage.kept-prelink", "This device before it was linked to your account", "Kept " + when(rec.at) + " · " + size(JSON.stringify(rec.state).length * 2), function () {
+          /* a plain state document: Import backup reads it */
+          saveText(JSON.stringify(rec.state), "kurenai-os-before-linking-" + stamp(rec.at) + ".json");
+        }, function (done) {
+          KOS.cloudsync.dropPreLinked(function () { done(); });
+        }, "The copy of this device from before it was linked will be deleted.");
+      });
+      return box;
+    }
+
     function paint() {
       grid.innerHTML = "";
       var all = F().all(), local = all.filter(function (r) { return r.hasBlob; });
@@ -103,6 +164,7 @@
 
       /* the app's own record: the state document in localStorage (RC5) */
       grid.appendChild(stateCard());
+      grid.appendChild(keptCard());
 
       /* by store */
       var by = card("By kind of data", "stores", [

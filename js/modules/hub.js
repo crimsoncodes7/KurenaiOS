@@ -3478,6 +3478,8 @@
       wl.budget && arrLen(wl.budget.history) ? plural(arrLen(wl.budget.history), "purchase") + " logged" : null]);
     var fileCount = cover("⎘", "muted", "Document attachments");
     if (KOS.attach && KOS.attach.available && KOS.attach.available() && KOS.attach.listMeta) KOS.attach.listMeta(function (err, rows) {
+      /* the profile picture and banner ride the backup but are not documents */
+      rows = (rows || []).filter(function (r) { return !(typeof r.origin === "string" && /^profile:/.test(r.origin)); });
       if (err || !rows.length) return;
       fileCount.textContent = plural(rows.length, "file") + " · " + mb(rows.reduce(function (a, r) { return a + (r.size || 0); }, 0));
     });

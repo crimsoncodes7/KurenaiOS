@@ -260,6 +260,102 @@ step("H · the Storage page: the state meter, its parts, and nothing written", a
   eq(app.errors, [], "no page errors");
 });
 
+/* ---------------- RC5 review: the picture store's edges ---------------- */
+const NEW2 = "data:image/png;base64," + b64([137, 80, 78, 71, 7, 7, 7, 7, 7]);
+const avatarRecs = async () => (await profileRecs()).filter((m) => m.origin === "profile:avatar");
+step("I · a fresh device: a record that arrived without its picture takes this device's bytes", async () => {
+  app = await boot();
+  K = app.KOS;
+  app.window.Blob = Blob;
+  await app.settle();
+  const g = G();
+  g.avatar = { kind: "custom", id: "seal-ember", img: AV, crop: null, frame: null };
+  K.store.save();
+  assert(K.profilePics._contentId, "the content id is exposed for tests");
+  const fid = await wait(K.profilePics._contentId("avatar", AV));
+  /* another device moved the same picture: its metadata is here, its binary is not */
+  await cbp((cb) => K.attach.putRemoteMeta({ fileId: fid, subject: "_", ref: "_", name: "Profile picture.png", mime: "image/png", size: AV_BYTES.length, origin: "profile:avatar" }, cb));
+  const before = (await wait(K.backup.list())).length;
+  const r = await wait(K.repairs.run(REPAIR));
+  assert(r.ok, "the move ran instead of refusing the id: " + JSON.stringify(r.reason || null));
+  eq([g.avatar.img, g.avatar.file], [null, fid], "the reference is that record");
+  eq(await bytesOf(fid), AV_BYTES, "which now holds the picture");
+  eq((await avatarRecs()).length, 1, "one record, not two");
+  eq((await wait(K.backup.list())).length, before + 1, "one checkpoint");
+});
+
+step("J · the file id is the picture's BYTES: two spellings of one data URL make one record", async () => {
+  const spaced = AV.replace(/^(data:image\/png;base64,.{4})/, "$1\n");
+  assert(spaced !== AV, "a second spelling");
+  eq(await wait(K.profilePics._contentId("avatar", spaced)), await wait(K.profilePics._contentId("avatar", AV)), "the same id");
+  assert((await wait(K.profilePics._contentId("avatar", BN))) !== (await wait(K.profilePics._contentId("avatar", AV))), "another picture, another id");
+});
+
+step("K · an upload that finishes after the state object was replaced still sets the reference", async () => {
+  const g0 = K.store.state.governor, add = K.attach.add;
+  /* a cloud pull or a tab merge lands while the file is being written */
+  K.attach.add = function () { K.store.replaceState(JSON.parse(JSON.stringify(K.store.state))); return add.apply(this, arguments); };
+  const out = await wait(K.profilePics.write("avatar", NEW2));
+  K.attach.add = add;
+  const g = K.store.state.governor;
+  assert(g !== g0, "the governor object was replaced meanwhile");
+  eq([g.avatar.img, g.avatar.file], [null, out.fileId], "the LIVE state holds the reference, no inline copy");
+  eq(await bytesOf(g.avatar.file), [137, 80, 78, 71, 7, 7, 7, 7, 7], "the new picture");
+  eq((await avatarRecs()).length, 1, "and the picture it replaced was released");
+});
+
+const DAY = 86400000;
+async function orphan(fileId, daysOld, bytes) {
+  await cbp((cb) => K.attach.add("_", "_", new Blob([new Uint8Array(bytes)], { type: "image/png" }), cb,
+    { origin: "profile:avatar", kind: "photo", fresh: true, fileId, name: "Profile picture.png" }));
+  await cbp((cb) => K.attach.updateFile(fileId, (rec) => { rec.added = app.window.Date.now() - daysOld * DAY; }, cb));
+}
+step("L · a profile record nothing references is released after a grace period; a recent one is left", async () => {
+  await orphan("profile-avatar-lost-conflict", 10, [1, 2, 3]);
+  await orphan("profile-avatar-just-made", 1, [4, 5, 6]);
+  const cur = G().avatar.file;
+  assert(K.profilePics.sweep, "KOS.profilePics.sweep exists");
+  eq(await wait(K.profilePics.sweep()), 1, "one orphan released");
+  eq((await avatarRecs()).map((m) => m.fileId).sort(), [cur, "profile-avatar-just-made"].sort(), "the old orphan went; the picture in use and the recent record stay");
+});
+
+step("M · a profile record another place links to is kept, and no list names profile records", async () => {
+  const cur = G().avatar.file;
+  eq((await cbp((cb) => K.attach.list("_", "_", cb))).length, 0, "KOS.attach.list never returns a profile record");
+  /* an older-version device linked a topic onto the same bytes */
+  await cbp((cb) => K.attach.addLink(cur, { kind: "topic", id: "compsci:4.1.1" }, cb));
+  const g = G();
+  g.avatar = { kind: "seal", id: "seal-ember", img: null, crop: null, frame: null };
+  K.store.save();
+  await wait(K.profilePics.release(cur));
+  const rec = await cbp((cb) => K.attach.getByFileId(cur, cb));
+  assert(rec && rec.blob, "the topic's file was not deleted with the avatar");
+  assert(!K.profilePics.isProfile(rec.origin), "it is an ordinary file now: " + rec.origin);
+  eq((await cbp((cb) => K.attach.list("compsci", "4.1.1", cb))).map((r) => r.fileId), [cur], "still on its topic");
+});
+
+step("N · a mined line that could not be stored leaves no facet; a line already here is never overwritten", async () => {
+  const put = K.jaMined.put, toasts = [];
+  const toast = K.ui.toast;
+  K.ui.toast = (m) => { toasts.push(m); };
+  K.jaMined.put = () => Promise.reject(new Error("QuotaExceededError"));
+  const id = K.ja.mine({ text: "保存できない。", src: { kind: "anime" } });
+  for (let i = 0; i < 8; i++) await app.settle();
+  const facet = () => Object.keys(K.store.state.japanese.facets).some((f) => f.indexOf("x:" + id + "|") === 0);
+  assert(!facet(), "no facet for a line that exists nowhere");
+  assert(toasts.some((m) => /could not be saved/i.test(m)), "and the user is told: " + JSON.stringify(toasts));
+  K.jaMined.put = put; K.ui.toast = toast;
+  K.ja.mine({ text: "保存できない。", reading: "ほぞんできない。", src: { kind: "anime" } });
+  for (let i = 0; i < 8; i++) await app.settle();
+  assert(facet() && K.jaMined.has(id), "stored the second time, with its facet");
+  const first = (await wait(K.jaMined.all())).filter((l) => l.id === id)[0];
+  /* mined again in the first moments of a later start, before the store has loaded */
+  await wait(K.jaMined.put({ id, text: "保存できない。", en: "It cannot be saved.", at: first.at + 99999 }));
+  const again = (await wait(K.jaMined.all())).filter((l) => l.id === id)[0];
+  eq([again.at, again.reading, again.en], [first.at, "ほぞんできない。", "It cannot be saved."], "its first date and reading stay; the translation it lacked is added");
+  eq(app.errors, [], "no page errors");
+});
+
 (async () => {
   let failed = 0;
   for (const [name, fn] of steps) {

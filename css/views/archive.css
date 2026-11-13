@@ -309,6 +309,7 @@ button.k-files-way:hover { background: var(--s2); }
 .k-st-row { display: flex; align-items: center; gap: var(--sp-10); justify-content: space-between; font-size: var(--fs-13); }
 .k-st-row-t { flex: 1 1 auto; color: var(--text-2); }
 .k-st-note { margin: 0; font-size: var(--fs-13); color: var(--text-2); }
+.k-st-file > .k-st-file-t { flex: 1 1 auto; }
 .k-st-big { margin: 0; font-size: var(--fs-15); }
 .k-st-meter { block-size: var(--sp-8); border-radius: var(--r-pill); background: var(--s3); overflow: hidden; }
 .k-st-meter-fill { display: block; block-size: 100%; inline-size: var(--st-pct, 0%); background: var(--teal); }

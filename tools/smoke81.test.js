@@ -103,11 +103,13 @@ step("C · a lesson pays once; a checkpoint passes at 80% and pays once", () => 
 });
 
 /* ---------------- D ---------------- */
-step("D · self-marked, input and mining pay nothing", () => {
+step("D · self-marked, input and mining pay nothing", async () => {
   const n0 = jaEntries().length, x0 = xp();
   K.ja.addInput("raw", 25); K.ja.addInput("jpSub", 40); K.ja.addInput("nonsense", 10);
   eq(K.store.state.japanese.input[TODAY], { raw: 25, jpSub: 40 }, "tallies only, known kinds only");
   const id = K.ja.mine({ text: "これはなんですか。", en: "What is this?", src: { kind: "scene", title: "In the café" } });
+  /* the facet follows the line: it is added once the line is stored on this device (smoke134 N) */
+  for (let i = 0; i < 8; i++) await app.settle();
   assert(K.store.state.japanese.facets["x:" + id + "|L"], "a mined line becomes a listening facet");
   eq(K.ja.mine({ text: "これはなんですか。" }), id, "mining the same line twice keeps one");
   const k = Object.keys(K.store.state.japanese.facets)[0], before = JSON.stringify(K.store.state.japanese.facets[k]);

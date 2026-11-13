@@ -176,6 +176,19 @@
       return;
     }
     if (!local) {
+      /* a reminder this device already SENT, whose add came back without an
+         id (pending): this is it. Linked, never imported as a second one. */
+      var pend = p === "todoist" ? items().filter(function (it) {
+        return it.ext && it.ext.p === p && it.ext.pending && !it.ext.id && it.title === remote.title &&
+          String(it.listId == null ? "" : it.listId) === String(listId == null ? "" : listId);
+      })[0] : null;
+      if (pend) {
+        X().inbound(function () {
+          KOS.reminders.update(pend.id, { subs: subsFrom(kids, pend, nameKey, doneOf), ext: { p: p, id: rid, list: remote.list, base: remote } });
+        });
+        counts.pulled++;
+        return;
+      }
       if (remote.done) return;                       // finished there before the link: not imported
       X().inbound(function () {
         var it = KOS.reminders.add(Object.assign(toPatch(p, remote, fields.filter(function (k) { return k !== "subs" && k !== "done"; }), { ext: {} }),
@@ -243,7 +256,11 @@
           });
         });
       });
-    }).then(function () { X().logActivity("todoist", done); return counts; });
+    /* the pulled completions are activity whether or not the push that
+       followed got through (a lost lease stops it): the next cycle finds
+       them already ticked and would never log them */
+    }).then(function () { X().logActivity("todoist", done); return counts; },
+      function (e) { X().logActivity("todoist", done); throw e; });
   }
   function tdPush(tok, mirror, linked, delKeys, counts) {
     var q = X().S().deletes, cmds = [], after = [];
@@ -269,6 +286,13 @@
           return cmd("item_add", { content: s.text, parent_id: temp }, X().uuidOf("add|" + it.uid + "|" + i), X().uuidOf("temp|" + it.uid + "|" + i));
         });
         after.push({ c: c, ok: function (map) {
+          if (!map[temp]) {
+            /* Todoist took the command and named no id for it (an add it had
+               already applied): never a link to `undefined`. It is marked
+               pending and the next pull links it to the task (reconcile). */
+            X().inbound(function () { KOS.reminders.update(it.id, { ext: { p: "todoist", pending: true, list: lk.id, base: L } }); });
+            return;
+          }
           var subs = (it.subs || []).map(function (s, i) { return Object.assign({}, s, { x: map[subCmds[i].temp_id] || s.x || null }); });
           X().inbound(function () { KOS.reminders.update(it.id, { subs: subs, ext: { p: "todoist", id: map[temp], list: lk.id, base: L } }); });
           counts.created++;
@@ -318,7 +342,22 @@
     if (!cmds.length) return Promise.resolve();
     var chunks = [];
     for (var i = 0; i < cmds.length; i += 90) chunks.push(cmds.slice(i, i + 90));
-    var status = {}, map = {};
+    var status = {}, map = {}, settled = [];
+    /* THE BOOKKEEPING FOLLOWS EACH CHUNK: a record whose commands have all
+       been answered is linked, rebased or dequeued at once. It used to wait
+       for the last chunk, so a lease lost (or the network gone) between two
+       chunks left everything Todoist had already applied unrecorded, and
+       the next cycle sent it all again. */
+    function book() {
+      after.forEach(function (a, i) {
+        if (settled[i]) return;
+        var list = Array.isArray(a.c) ? a.c : [a.c];
+        if (!list.every(function (c) { return Object.prototype.hasOwnProperty.call(status, c.uuid); })) return;
+        settled[i] = true;
+        if (list.every(function (c) { return status[c.uuid] === "ok"; })) a.ok(map);
+      });
+      KOS.store.save();
+    }
     return chunks.reduce(function (chain, ch) {
       return chain.then(function () {
         /* the lease is renewed between chunks; a lost one stops here (DI-19) */
@@ -327,15 +366,10 @@
         return tdSync(tok, { commands: ch }).then(function (r) {
           Object.assign(status, r.sync_status || {});
           Object.assign(map, r.temp_id_mapping || {});
+          book();
         });
       });
-    }, Promise.resolve()).then(function () {
-      after.forEach(function (a) {
-        var list = Array.isArray(a.c) ? a.c : [a.c];
-        if (list.every(function (c) { return status[c.uuid] === "ok"; })) a.ok(map);
-      });
-      KOS.store.save();
-    });
+    }, Promise.resolve());
   }
 
   /* ---------------- Google Tasks ---------------- */
@@ -380,7 +414,8 @@
       }, Promise.resolve()).then(function () {
         return gtPush(tok, mir, counts);
       }).then(function () { return X().setKv(KM, { lists: mir }); });
-    }).then(function () { X().logActivity("gtasks", done); return counts; });
+    }).then(function () { X().logActivity("gtasks", done); return counts; },
+      function (e) { X().logActivity("gtasks", done); throw e; });
   }
   function gtBody(f, fields) {
     var b = {};

@@ -540,6 +540,34 @@ step("P · quarantined copies: one in localStorage at most, the rest in the mirr
   eq(lsx.getItem(KEY + ".quarantine"), null, "freeing its space");
 });
 
+step("Q · Storage lists every copy set aside, with Download and Delete for each", async () => {
+  const b0 = '{"v":1,"broken":0' + "y".repeat(200), b1 = '{"v":1,"broken":1' + "z".repeat(200);
+  const lsx = sharedStorage(), idbx = new fake.IDBFactory();
+  lsx.setItem(KEY + ".quarantine", b0);
+  lsx.setItem(KEY + ".quarantine.meta", JSON.stringify({ at: 1, why: "earlier", where: "localStorage", key: KEY + ".quarantine", told: true }));
+  lsx.setItem(KEY, b1);
+  const T = await boot({ localStorage: lsx, indexedDB: idbx });
+  await T.settle();
+  T.window.__kosAutoConfirm = true;
+  T.KOS.show("storage");
+  for (let i = 0; i < 20; i++) await T.settle();
+  const one = (s) => T.document.querySelector(s), all = (s) => [...T.document.querySelectorAll(s)];
+  const card = one("[data-ui~='storage.kept']");
+  assert(card && !card.hidden, "the card is shown when there is a copy");
+  eq(all("[data-ui~='storage.kept-row']").length, 2, "both copies are listed");
+  assert(all("[data-ui~='storage.kept-download']").length === 2, "each can be downloaded");
+  const before = JSON.stringify(T.KOS.store.state);
+  for (let n = 2; n > 0; n--) {
+    one("[data-ui~='storage.kept-delete']").click();
+    for (let i = 0; i < 20; i++) await T.settle();
+  }
+  eq((await T.KOS.store.quarantines()).length, 0, "Delete took each copy away");
+  const after = one("[data-ui~='storage.kept']");
+  assert(!after || after.hidden, "and the card goes with the last one");
+  eq(JSON.stringify(T.KOS.store.state), before, "none of it touched the state");
+  eq(T.errors, [], "no page errors");
+});
+
 (async () => {
   let failed = 0;
   for (const [name, fn] of steps) {

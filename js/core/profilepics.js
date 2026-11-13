@@ -32,7 +32,12 @@
    drawn, and the reference is never touched by a read.
 
    WRITING: write(which, dataUrl) → Promise<fileId> (a new upload), and
-   release(fileId) removes a record nothing references any more.
+   release(fileId) removes a record nothing references any more — unless
+   something else links to it (an older version could link a topic onto the
+   same bytes): then it only stops being a profile record. sweep() releases
+   profile records no state references once they are a week old (the loser
+   of two uploads made at once on two devices); the sync engine runs it
+   after a good cycle.
 
    THE MOVE of pictures already in state is the repair
    "profile-pictures-to-files" (automatic, KOS.repairs, invariant 1a): a
@@ -181,11 +186,21 @@
     }, function () { return false; });
   }
   function ext(mime) { return mime === "image/png" ? "png" : mime === "image/webp" ? "webp" : mime === "image/gif" ? "gif" : mime === "image/svg+xml" ? "svg" : "jpg"; }
-  /* the file id for a picture's content: two devices moving one picture make one record */
+  /* the file id for a picture's content: two devices moving one picture
+     make one record. It is the hash of the picture's BYTES, not of the data
+     URL's text: one picture can be spelt as more than one data URL. */
   function contentId(which, dataUrl) {
-    var B = KOS.backup;
-    var h = B && B.sha256 ? B.sha256(String(dataUrl)) : Promise.reject(new Error("no hash"));
-    return h.then(function (hex) { return "profile-" + which + "-" + String(hex).slice(0, 32); });
+    var d = decode(dataUrl), subtle = window.crypto && window.crypto.subtle;
+    if (!d || !d.bytes.length) return Promise.reject(new Error("The " + which + " picture could not be decoded."));
+    function named(hex) { return "profile-" + which + "-" + String(hex).slice(0, 32); }
+    if (subtle) return Promise.resolve(subtle.digest("SHA-256", d.bytes)).then(function (buf) {
+      var b = new Uint8Array(buf), hex = "";
+      for (var i = 0; i < b.length; i++) hex += (b[i] < 16 ? "0" : "") + b[i].toString(16);
+      return named(hex);
+    });
+    /* no WebCrypto (an http:// page that is not localhost): the app's own SHA-256 */
+    if (KOS.codeZip && KOS.codeZip.sha256Bytes) return Promise.resolve(named(KOS.codeZip.sha256Bytes(d.bytes)));
+    return Promise.reject(new Error("no hash"));
   }
 
   /* writeVerified(which, dataUrl, {fileId}) → Promise<{fileId, created}>
@@ -198,6 +213,20 @@
     if (!A()) return Promise.reject(new Error("The file store is not available."));
     var fid = opts.fileId || null;
     return (fid ? getRec(fid) : Promise.resolve(null)).then(function (have) {
+      if (have && !have.blob) {
+        /* another device moved this picture and its record is here before
+           its binary: this device holds the same bytes (the id is their
+           hash), so they fill the record. Refusing it failed the move on
+           every start, each time after a full checkpoint. */
+        return new Promise(function (res, rej) {
+          A().setBlob(fid, new window.Blob([d.bytes], { type: d.mime }), function (e) { e ? rej(e) : res(); });
+        }).then(function () { return getRec(fid); }).then(function (back) {
+          return sameBytes(back && back.blob, d.bytes);
+        }).then(function (same) {
+          if (!same) throw new Error("The " + which + " picture did not read back the same, so it was not moved.");
+          return { fileId: fid, created: false };
+        });
+      }
       if (have) {
         /* a record already there with this id (an earlier, interrupted
            move, or another device's): reused only when it is the same picture */
@@ -249,7 +278,32 @@
     delete cache[fid];
     return getRec(fid).then(function (rec) {
       if (!rec || !isProfile(rec.origin)) return false;   /* never a library file */
+      /* something else links to it: it stays, as an ordinary file */
+      var links = A() && A().linksOf ? A().linksOf(rec) : [];
+      if (links.length) {
+        return new Promise(function (res) { A().updateFile(fid, function (r) { r.origin = null; }, function () { res(false); }); });
+      }
       return removeRec(fid).then(function () { return true; });
+    });
+  }
+  /* profile records no state references any more, a week after they were
+     made: the picture that lost when two devices uploaded at once is never
+     released by either (each released only what IT replaced). The week
+     covers a device whose state naming the record has not synced yet.
+     → Promise<number released> */
+  var GRACE = 7 * 24 * 60 * 60 * 1000;
+  function sweep() {
+    if (!A()) return Promise.resolve(0);
+    return new Promise(function (res) {
+      A().listMeta(function (e, items) { res(e ? [] : items || []); });
+    }).then(function (items) {
+      var now = Date.now();
+      return items.filter(function (m) {
+        return isProfile(m.origin) && m.fileId && m.fileId !== ref("avatar") && m.fileId !== ref("banner") &&
+          m.added && now - m.added > GRACE;
+      }).reduce(function (p, m) {
+        return p.then(function (n) { return release(m.fileId).then(function (r) { return n + (r ? 1 : 0); }, function () { return n; }); });
+      }, Promise.resolve(0));
     });
   }
 
@@ -258,22 +312,25 @@
      state as before (the repair moves it at the next start), so an upload
      is never lost. → Promise<{fileId|null, inline}> */
   function write(which, dataUrl) {
-    var g = G();
-    function setInline(v) {
+    function setInline(g, v) {
       if (which === "avatar") g.avatar.img = v; else g.bannerImg = v;
     }
     /* at once: the new picture is shown (and kept) inline, as before, so
        every surface draws it without waiting and nothing is lost if the
        page closes mid-write */
-    setInline(dataUrl);
+    setInline(G(), dataUrl);
     if (KOS.store.save) KOS.store.save();
     if (!isData(dataUrl) || !available()) return Promise.resolve({ fileId: null, inline: true });
     return writeVerified(which, dataUrl).then(function (out) {
+      /* the LIVE governor, read again: a cloud pull or another tab's write
+         may have replaced the object while the file was being written, and
+         a reference set on the old one was never saved */
+      var g = G();
       /* superseded by a newer upload meanwhile: that one owns the slot */
       if (inline(which, g) !== dataUrl) return release(out.fileId).then(function () { return { fileId: null, inline: true }; });
       var old = ref(which, g);
       if (which === "avatar") g.avatar.file = out.fileId; else g.bannerFile = out.fileId;
-      setInline(null);
+      setInline(g, null);
       if (KOS.store.save) KOS.store.save();
       return (old && old !== out.fileId ? release(old) : Promise.resolve(false)).then(function () { return { fileId: out.fileId, inline: false }; });
     }, function () {
@@ -341,8 +398,8 @@
 
   KOS.profilePics = {
     src: src, has: has, load: load, ref: ref, inline: inline,
-    write: write, release: release, available: available, isProfile: isProfile,
+    write: write, release: release, sweep: sweep, available: available, isProfile: isProfile,
     REPAIR: REPAIR, plan: plan,
-    _decode: decode, _cache: cache
+    _decode: decode, _cache: cache, _contentId: contentId
   };
 })();

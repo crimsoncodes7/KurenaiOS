@@ -831,6 +831,7 @@
     score: function (a, b) { return b.score - a.score || SORTS.title(a, b); },
     progress: function (a, b) { return (b.progress.current || 0) - (a.progress.current || 0); }
   };
+  var lastQuery = null;   /* {read, matched, limit} of the most recent query (tests) */
   function query(opts, cb) {
     opts = opts || {};
     tx(ENTRIES, "readonly", function (err, os) {
@@ -839,13 +840,20 @@
       var used = picked.used;
       var needle = opts.search ? String(opts.search).toLowerCase() : null;
       var out = [];
+      /* opts.limit: stop the cursor once that many rows matched (a picker
+         that draws eight never needs the whole vault, invariant 8). The rows
+         are the first `limit` in the cursor's order, then sorted. */
+      var limit = opts.limit > 0 ? Math.floor(opts.limit) : 0;
+      lastQuery = { read: 0, matched: 0, limit: limit };
+      var stats = lastQuery;
       picked.rq.onsuccess = function (e) {
         var cur = e.target.result;
-        if (!cur) {
+        if (!cur || (limit && out.length >= limit)) {
           out.sort(SORTS[opts.sort] || SORTS.title);
           cb(null, out);
           return;
         }
+        stats.read++;
         var v = cur.value, ok = true;
         if (used.indexOf("module") === -1 && opts.module && v.module !== opts.module) ok = false;
         if (ok && used.indexOf("status") === -1 && opts.status && v.status !== opts.status) ok = false;
@@ -865,7 +873,7 @@
         if (ok && opts.favourite && !v.favourite) ok = false;
         if (ok && opts.source && v.syncSource !== opts.source) ok = false;
         if (ok && needle && !titleMatches(v, needle)) ok = false;
-        if (ok) out.push(v);
+        if (ok) { out.push(v); stats.matched++; }
         cur.continue();
       };
       picked.rq.onerror = function () { cb(picked.rq.error, []); };
@@ -1528,6 +1536,7 @@
     get: get,
     remove: remove,
     query: query,
+    _lastQuery: function () { return lastQuery; },
     getByExternal: getByExternal,
     getBySyncId: getBySyncId,
     genSyncId: genSyncId,

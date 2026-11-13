@@ -683,6 +683,182 @@ step("O · the picture move waits for this session's first pull, and a newer pic
   eq(app.errors, [], "no page errors");
 });
 
+/* ---------------- RC5 review: Todoist's bookkeeping, the lease, the picker ---------------- */
+/* a Todoist that also serves what it holds on a read, and can "forget" the temp-id mapping */
+function todoist2() {
+  const st = { seq: 0, items: {}, calls: [], reads: 0, dropMap: false, serve: false };
+  function res(json) { return Promise.resolve({ ok: true, status: 200, text: () => Promise.resolve(JSON.stringify(json)) }); }
+  st.fetch = (url, init) => {
+    const form = new URLSearchParams(init.body), out = {};
+    if (form.get("commands")) {
+      const cmds = JSON.parse(form.get("commands"));
+      st.calls.push(cmds);
+      out.sync_status = {}; out.temp_id_mapping = {};
+      cmds.forEach((c) => {
+        if (c.type === "item_add") {
+          const id = "T" + (++st.seq);
+          st.items[id] = { id, project_id: c.args.project_id, content: c.args.content, description: c.args.description || "", priority: c.args.priority || 1, labels: c.args.labels || [], checked: false, is_deleted: false, parent_id: null, due: null };
+          if (!st.dropMap) out.temp_id_mapping[c.temp_id] = id;
+        }
+        out.sync_status[c.uuid] = "ok";
+      });
+      return res(out);
+    }
+    st.reads++;
+    out.items = st.serve ? Object.values(st.items) : [];
+    out.projects = [{ id: "P1", name: "School" }]; out.full_sync = form.get("sync_token") === "*"; out.sync_token = "t" + st.seq + "-" + st.reads;
+    return res(out);
+  };
+  return st;
+}
+async function todoistTab(td, leaseOk) {
+  const t = await extTab(fakeLocks(), leaseOk);
+  const plain = t.app.window.fetch;
+  t.app.window.fetch = (url, init) => String(url).indexOf("https://api.todoist.com/") === 0 ? td.fetch(url, init) : plain(url, init);
+  t.list = t.K.reminders.addList("School");
+  t.K.extTasks.link(t.list.id, "todoist", { id: "P1", name: "School" });
+  if (t.X._config) t.X._config({ renewMs: 0 });
+  t.sync = () => run(t.app, t.X.syncProvider("todoist", "test"));
+  t.linked = () => t.K.store.state.reminders.items.filter((r) => r.ext && r.ext.p === "todoist" && r.ext.id);
+  return t;
+}
+
+step("P · a lease lost between two chunks keeps the first chunk's bookkeeping", async () => {
+  const td = todoist2();
+  let n = 0;
+  const t = await todoistTab(td, () => ++n <= 2);            /* take, renew before chunk 1, refused before chunk 2 */
+  for (let i = 0; i < 100; i++) t.K.reminders.add({ title: "Chunked " + i, listId: t.list.id });
+  const r = await t.sync();
+  eq([r.ok, r.aborted], [false, true], "the cycle stopped between the chunks");
+  eq(td.calls.map((c) => c.length), [90], "Todoist applied the first chunk only");
+  eq(t.linked().length, 90, "and its 90 reminders are linked (they used to be left unlinked and sent again)");
+  assert(t.linked().every((x) => /^T\d+$/.test(x.ext.id)), "each to a real id");
+  n = -1000; td.calls.length = 0;                             /* the lease is ours again */
+  const r2 = await t.sync();
+  assert(r2.ok, "the next cycle: " + JSON.stringify(r2));
+  eq(td.calls.map((c) => c.length), [10], "sends only the ten that never went");
+  eq(Object.keys(td.items).length, 100, "Todoist holds each task once");
+  eq(t.app.errors, [], "no page errors");
+});
+
+step("P · an add Todoist answers without a temp-id mapping is never linked to `undefined`; the pull adopts it", async () => {
+  const td = todoist2();
+  const t = await todoistTab(td);
+  td.dropMap = true;
+  t.K.reminders.add({ title: "No mapping came back", listId: t.list.id });
+  await t.sync();
+  const it = () => t.K.store.state.reminders.items.filter((x) => x.title === "No mapping came back");
+  eq(it().length, 1, "one reminder");
+  assert(it()[0].ext && it()[0].ext.pending && it()[0].ext.id === undefined, "marked pending, with no id: " + JSON.stringify(it()[0].ext));
+  td.serve = true; td.dropMap = false; td.calls.length = 0;
+  await t.sync();
+  eq(it().length, 1, "the pull did not import the remote task as a second reminder");
+  eq(it()[0].ext.id, "T1", "it linked the pending one to it");
+  assert(!it()[0].ext.pending, "no longer pending");
+  eq(Object.keys(td.items).length, 1, "and Todoist was not sent it twice");
+  eq(t.app.errors, [], "no page errors");
+});
+
+step("Q · a completion pulled in a cycle that then aborts still gets its activity entry", async () => {
+  const td = todoist2();
+  let n = 0, refuse = false;
+  const t = await todoistTab(td, () => !(refuse && ++n > 1)); /* once armed: the take is granted, every renewal refused */
+  t.K.reminders.add({ title: "Tick me remotely", listId: t.list.id });
+  await t.sync();
+  eq(t.linked().length, 1, "linked");
+  td.serve = true;
+  td.items.T1.checked = true;                                 /* done in Todoist */
+  t.K.reminders.add({ title: "Something to push", listId: t.list.id });
+  refuse = true;
+  const before = t.K.store.state.sessions.length;
+  const r = await t.sync();
+  eq(r.aborted, true, "the push was stopped by the lost lease: " + JSON.stringify(r));
+  assert(t.K.store.state.reminders.items.some((x) => x.title === "Tick me remotely" && x.done), "the pulled tick was applied");
+  const ext = t.K.store.state.sessions.slice(before).filter((e) => e.metrics && e.metrics.external);
+  eq(ext.length, 1, "its activity entry was logged all the same");
+  refuse = false;
+  await t.sync();
+  eq(t.K.store.state.sessions.slice(before).filter((e) => e.metrics && e.metrics.external).length, 1, "and is not logged again by the next cycle");
+  eq(t.app.errors, [], "no page errors");
+});
+
+step("R · leaving the page gives the lease back, so a reload is not locked out", async () => {
+  const t = await extTab(fakeLocks());
+  let release;
+  const gate = new Promise((r) => { release = r; });
+  let ran = 0;
+  t.X.register({ name: "probe", provider: "todoist", on: () => true, cycle: () => { ran++; return gate.then(() => ({})); } });
+  const cyc = t.X.syncProvider("todoist", "test");
+  for (let i = 0; i < 40 && !ran; i++) await t.app.settle();
+  eq(ran, 1, "mid-cycle, holding the lease");
+  t.app.window.dispatchEvent(new t.app.window.Event("pagehide"));
+  await t.app.settle();
+  const rel = t.calls.filter((c) => c.action === "release");
+  eq(rel.map((c) => [c.provider, c.holder]), [["todoist", t.X.holder()]], "the lease was released as this tab's");
+  release();
+  await run(t.app, cyc);
+});
+
+step("S · the title picker stops reading the vault once it has enough, and a late answer never repaints a new pick", async () => {
+  const { app, K } = G5;
+  const all = await p((cb) => K.mediadb.query({ search: "volume", sort: "title" }, cb));
+  assert(all.length >= 200, "the vault holds the 210 volumes");
+  const some = await p((cb) => K.mediadb.query({ search: "volume", sort: "title", limit: 8 }, cb));
+  eq(some.length, 8, "query({limit}) returns that many");
+  const stats = K.mediadb._lastQuery && K.mediadb._lastQuery();
+  assert(stats && stats.read < all.length, "and stopped the cursor early: read " + (stats && stats.read) + " of " + all.length);
+  /* a goal linked to a title since deleted: its lookup must not overwrite a pick made meanwhile */
+  const gone = await p((cb) => K.mediadb.add({ module: "anime", title: "Soon deleted", status: "planned" }, cb));
+  const g = K.goals.add({ title: "Stale link", type: "specific-title", target: 1, linkedEntryId: gone.id });
+  await p((cb) => K.mediadb.remove(gone.id, cb));
+  K.goalEditor(K.goals.get(g.id));
+  const $ = (s2) => app.document.querySelector(s2);
+  $("[data-ui~='goal.link-search']").value = "beta completed";
+  $("[data-ui~='goal.link-search']").dispatchEvent(new app.window.Event("input"));
+  for (let i = 0; i < 300 && !app.document.querySelector("[data-ui~='goal.link-hit']"); i++) await app.settle();
+  app.document.querySelector("[data-ui~='goal.link-hit']").click();
+  for (let i = 0; i < 60; i++) await app.settle();
+  assert(/Beta completed/.test($("[data-ui~='goal.link-chosen']").textContent), "the chip shows the pick: " + $("[data-ui~='goal.link-chosen']").textContent);
+  eq(app.errors, [], "no page errors");
+});
+
+step("T · Storage offers the copy from before the first link; the sync panel offers to link without a backup", async () => {
+  const sv = makeServer();
+  const { app, K, sync } = await linkedApp(sv, "user-t");
+  app.window.__kosAutoConfirm = true;
+  K.reminders.add({ title: "Before linking" });
+  sv.state = { state_json: remoteDoc({ progress: PROG }), updated_at: sv.stamp() };
+  /* the backup will not verify: three tries, then the choice */
+  const real = K.backup.checkpoint;
+  K.backup.checkpoint = () => Promise.resolve({ ok: false, id: null, reason: "the saved copy could not be read back" });
+  for (let i = 0; i < 3; i++) await sync().catch(() => null);
+  assert(K.cloudsync.linkBlocked().consent, "after three failures the user may choose");
+  const host = app.document.createElement("div");
+  app.document.body.appendChild(host);
+  assert(K.cloudui && K.cloudui.linkNotice, "KOS.cloudui.linkNotice exists");
+  const note = K.cloudui.linkNotice(() => {});
+  assert(note, "a notice is drawn while the link is blocked");
+  host.appendChild(note);
+  assert(/could not be read back/.test(note.textContent), "it says why: " + note.textContent);
+  const btn = note.querySelector("[data-ui~='cloud.link-without-backup']");
+  assert(btn, "with the button");
+  btn.click();
+  for (let i = 0; i < 400 && (K.cloudsync.isRunning() || !K.store.state.progress["maths:cloud-marker"]); i++) await app.settle();
+  K.backup.checkpoint = real;
+  assert(K.store.state.progress["maths:cloud-marker"], "linked on the user's choice");
+  eq(K.cloudui.linkNotice(() => {}), null, "and the notice is gone");
+
+  K.show("storage");
+  for (let i = 0; i < 20; i++) await app.settle();
+  const row = app.document.querySelector("[data-ui~='storage.kept-prelink']");
+  assert(row, "Storage lists the copy from before the link");
+  assert(row.querySelector("[data-ui~='storage.kept-download']"), "to download");
+  row.querySelector("[data-ui~='storage.kept-delete']").click();
+  for (let i = 0; i < 20; i++) await app.settle();
+  eq(await p((cb) => K.cloudsync.preLinked(cb)), null, "Delete takes it away");
+  eq(app.errors, [], "no page errors");
+});
+
 (async () => {
   let failed = 0;
   for (const [name, fn] of steps) {

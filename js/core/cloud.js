@@ -178,6 +178,10 @@
     userEmail: userEmail,
     signedIn: signedIn,
     invoke: invoke,
+    /* the session's access token, for a request to this app's own Edge
+       Function that must outlive the page (KOS.ext's lease release at
+       pagehide). Memory only; never stored or logged. */
+    accessToken: function () { return (session && session.access_token) || null; },
     /* test seam — smoke17 injects a fake session without a real client */
     _setSession: function (s) { session = s || null; }
   };

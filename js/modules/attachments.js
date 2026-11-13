@@ -285,11 +285,14 @@
         var rows = rq.result || [], seen = {};
         rows.forEach(function (r) { seen[r.id] = true; });
         var lq = os.index("links").getAll(window.IDBKeyRange.only(key));
+        /* your profile picture and banner sit under subject "_" and are
+           nobody's attachments (KOS.profilePics): no list names them */
+        function own(list2) { return list2.filter(function (r) { return !isProfileOrigin(r.origin); }); }
         lq.onsuccess = function () {
           (lq.result || []).forEach(function (r) { if (!seen[r.id]) { seen[r.id] = true; rows.push(r); } });
-          cb(null, rows);
+          cb(null, own(rows));
         };
-        lq.onerror = function () { cb(null, rows); };
+        lq.onerror = function () { cb(null, own(rows)); };
       };
       rq.onerror = function () { cb(rq.error, []); };
     });

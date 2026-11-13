@@ -1755,7 +1755,16 @@
   function kickRepairs() {
     if (!KOS.repairs || !KOS.repairs.runAuto) return;
     setTimeout(function () {
-      try { var p = KOS.repairs.runAuto(); if (p && p.catch) p.catch(function () {}); } catch (e) { /* a repair is never the cycle's failure */ }
+      function tidy() {
+        /* profile records no state references any more (the loser of two
+           uploads made at once), a week after they were made */
+        try {
+          if (settled() && KOS.profilePics && KOS.profilePics.sweep) {
+            var q = KOS.profilePics.sweep(); if (q && q.catch) q.catch(function () {});
+          }
+        } catch (e2) { /* housekeeping */ }
+      }
+      try { var p = KOS.repairs.runAuto(); if (p && p.then) p.then(tidy, tidy); else tidy(); } catch (e) { /* a repair is never the cycle's failure */ }
     }, 0);
   }
   /* SETTLED: this page load holds the account's copy, or knows there is no

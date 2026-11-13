@@ -291,6 +291,26 @@
     }, function () { delete held[p]; return false; });
   }
   function release(p) { delete held[p]; return edge({ action: "release", provider: p, holder: holder() }).catch(function () {}); }
+  /* THE PAGE IS GOING: give back what this tab holds. The holder is this
+     page load's, so a reload (or an iPad restoring the tab) mid-cycle left
+     the old lease standing for its two minutes and locked this very device
+     out. Sent as a request the page's end does not cancel; best effort. */
+  function releaseLeaving() {
+    Object.keys(held).forEach(function (p) {
+      var body = { action: "release", provider: p, holder: holder() };
+      delete held[p];
+      try {
+        if (edgeApi) { var r = edgeApi(body); if (r && r.catch) r.catch(function () {}); return; }
+        var env = window.KOS_ENV, tok = KOS.cloud && KOS.cloud.accessToken && KOS.cloud.accessToken();
+        if (!env || !env.SUPABASE_URL || !tok) return;
+        var rq = fetch(String(env.SUPABASE_URL).replace(/\/+$/, "") + "/functions/v1/ext-token", { method: "POST", keepalive: true,
+          headers: { "Content-Type": "application/json", Authorization: "Bearer " + tok, apikey: env.SUPABASE_ANON_KEY },
+          body: JSON.stringify(body) });
+        if (rq && rq.catch) rq.catch(function () {});
+      } catch (e) { /* the lease simply runs out */ }
+    });
+  }
+  try { window.addEventListener("pagehide", releaseLeaving); } catch (e) { /* no window events */ }
   function LeaseLost(p) {
     var e = new Error("Another device took over syncing " + NAME[p] + ", so this one stopped. It will try again.");
     e.leaseLost = true;

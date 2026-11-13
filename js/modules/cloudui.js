@@ -103,6 +103,35 @@
     var at = String(e || "").indexOf("@");
     return at > 2 ? e.slice(0, 2) + "•••••" + e.slice(at) : e;
   }
+  /* THE FIRST LINK IS WAITING ON A BACKUP (cloudsync firstLinkCheckpoint):
+     a device that holds data is combined with the account only after a
+     verified backup of everything on it. While that backup will not verify
+     the device stays unlinked, and after three failures the user may choose
+     to link without it. → a node, or null when nothing is blocked. */
+  function linkNotice(after) {
+    var b = KOS.cloudsync && KOS.cloudsync.linkBlocked && KOS.cloudsync.linkBlocked();
+    if (!b) return null;
+    var box = el("div", { class: "k-cloud-blocked", "data-ui": "cloud.link-blocked", role: "status" });
+    box.appendChild(el("p", { class: "k-cloud-p", "data-tone": "danger", text:
+      "This device is not linked to your account yet. Before the two are combined KurenaiOS keeps a verified backup of everything here, and that backup has failed " +
+      (b.n === 1 ? "once" : b.n + " times") + ": " + b.reason + "." }));
+    if (!b.consent) {
+      box.appendChild(el("p", { class: "k-cloud-p k-cloud-note", text: "It tries again by itself, less often each time. Sync now tries at once." }));
+      return box;
+    }
+    box.appendChild(el("p", { class: "k-cloud-p k-cloud-note", text:
+      "You can link without it. A copy of this device's study record is still kept first (Archive › Storage); your Collection and files would be combined with no backup of their own, so export one first if you can." }));
+    box.appendChild(el("div", { class: "k-cloud-btns" }, [el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "cloud.link-without-backup", text: "Link without a backup", onclick: function () {
+      KOS.ui.confirm({ title: "Link this device without a backup?", danger: true, confirm: "Link without a backup",
+        body: "This device's data and your account's will be combined now. Nothing is deleted by it, but there will be no full backup to go back to." }, function () {
+        KOS.cloudsync.linkWithoutBackup(function (err) {
+          if (err) KOS.ui.toast("Linking failed: " + err.message, true);
+          if (after) after();
+        });
+      });
+    } })]));
+    return box;
+  }
   function panel() {
     var card = el("section", { class: "k-card k-cloud", "data-ui": "archive.cloud-card", "aria-label": "Account & Cloud Sync" });
     var chip = el("span", { class: "k-chip" });
@@ -199,6 +228,8 @@
         facts.appendChild(fact("Last merge with another device", new Date(lm.at).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }) + " · " + bits.join(", ")));
       }
       body.appendChild(facts);
+      var blockedNote = linkNotice(render);
+      if (blockedNote) body.appendChild(blockedNote);
 
       var syncBtn = el("button", { type: "button", class: "k-btn k-btn--sm", text: "Sync now", onclick: function () {
         syncBtn.disabled = true;
@@ -253,5 +284,5 @@
     wireChip();
   }
 
-  KOS.cloudui = { panel: panel };
+  KOS.cloudui = { panel: panel, linkNotice: linkNotice };
 })();

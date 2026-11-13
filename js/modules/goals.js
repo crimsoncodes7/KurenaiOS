@@ -100,7 +100,9 @@
       if (!out.value) { cur.appendChild(el("span", { class: "k-muted", text: "No title chosen yet." })); return; }
       if (entry) { cur.appendChild(el("span", { class: "k-mchip", "data-tone": "linked", "data-ui": "goal.link-chosen", text: "⇄ " + entry.title })); return; }
       cur.appendChild(el("span", { class: "k-mchip", "data-tone": "linked", "data-ui": "goal.link-chosen", text: "⇄ Title #" + out.value }));
+      var asked = out.value;
       if (KOS.mediadb) KOS.mediadb.get(Number(out.value), function (e, row) {
+        if (out.value !== asked) return;          /* another title was picked while this was read */
         if (String(row && row.id) !== out.value) { if (!row && !e) { cur.textContent = ""; cur.appendChild(el("span", { class: "k-mchip", "data-tone": "linked", "data-ui": "goal.link-chosen", text: "⇄ A title no longer in your vault" })); } return; }
         paint(row);
       });
@@ -110,7 +112,8 @@
       hits.textContent = "";
       if (!KOS.mediadb) return;
       if (q && q.length < 2) return;
-      KOS.mediadb.query(q ? { search: q, sort: "title" } : { status: "inProgress", sort: "title" }, function (e, rows) {
+      /* eight are drawn: the read stops at a few more, never the whole vault (invariant 8) */
+      KOS.mediadb.query(q ? { search: q, sort: "title", limit: 24 } : { status: "inProgress", sort: "title", limit: 24 }, function (e, rows) {
         if (my !== seq) return;
         hits.textContent = "";
         (rows || []).slice(0, 8).forEach(function (r) { hits.appendChild(hit(r)); });

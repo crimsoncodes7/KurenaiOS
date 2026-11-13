@@ -331,9 +331,22 @@
     /* the line itself stays on this device (KOS.jaMined, invariant 115); only its facet,
        which carries no text, is in the synced state */
     var k = "x:" + id;
-    if (KOS.jaMined && !KOS.jaMined.has(id)) KOS.jaMined.put({ id: id, text: text, reading: line.reading || null, en: line.en || null, src: obj(line.src), at: Date.now() });
-    var next = T().introduce(st.facets, k, today(), opts(k));   /* fills only what is missing */
-    if (Object.keys(next).length !== Object.keys(st.facets).length) { st.facets = next; store.save(); }
+    function introduce() {
+      var now = S();                                              /* the live record: a pull may have replaced it */
+      var next = T().introduce(now.facets, k, today(), opts(k));   /* fills only what is missing */
+      if (Object.keys(next).length !== Object.keys(now.facets).length) { now.facets = next; store.save(); }
+    }
+    /* the facet only once the line is stored: a write the browser refused
+       (storage full, a private window) used to leave a synced facet whose
+       line existed on no device */
+    if (KOS.jaMined && !KOS.jaMined.has(id)) {
+      var saved;
+      try { saved = KOS.jaMined.put({ id: id, text: text, reading: line.reading || null, en: line.en || null, src: obj(line.src), at: Date.now() }); }
+      catch (e) { saved = Promise.reject(e); }
+      Promise.resolve(saved).then(introduce, function () {
+        if (KOS.ui && KOS.ui.toast) KOS.ui.toast("That line could not be saved on this device, so it was not added to your reviews.", true);
+      });
+    } else introduce();
     return id;
   }
   /* addInput(kind, minutes, day) — read · listen · raw · jpSub; tallies only */
