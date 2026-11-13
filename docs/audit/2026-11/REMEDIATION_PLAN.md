@@ -865,7 +865,7 @@ The auditors' 181 QoL ideas stay in each area's file (`qol`), in the
 **post-programme backlog**. None is pulled into W9 (§A9).
 
 **Reported by you on 13 Nov 2026 (new; not in the audit):**
-- **UR-25 · titles and the showcase empty themselves and don't reach the
+- **UR-25 · FIXED 13 Nov (`feat/w1-integrity` 13903e9, smoke113 M) · titles and the showcase empty themselves and don't reach the
   other device.** Found on reading the code: Edit your seat's Save
   (`js/modules/governor-ui.js` ~822) ALWAYS calls `setShowcase(draft.showcase)`
   and `setTitle(draft.titleId)` with the copy taken when the page OPENED
@@ -885,11 +885,39 @@ The auditors' 181 QoL ideas stay in each area's file (`qol`), in the
   not reproduced yet — likely the derived exam items (CC-14/CC-17: the worked
   card's one-line "Answer:" as a mark point) or a content error. Needs a
   repro with the leaf and the question.
-- **UR-28 · exam items are near useless as displayed: rework them like
-  Money (W4).** The Companion's practice and exam items need a design pass
-  (a D-Exams prompt) before code: how a question, its marks, the scheme and
-  the self-mark read; folds in CC-14, CC-17, CM-21, EX-30, UR-26, UR-27.
-  Backlog until W4's pattern exists.
+- **UR-28 · Exams & Papers as a WHOLE is not as helpful as it should be:
+  rework it like Money (W4).** Your words (13 Nov): used for three days
+  before a topic test, "overall just not as helpful as it should be" — not
+  only the exam items. Needs a design pass first (a D-Exams prompt): what
+  the days before an exam should look like, how a question, its marks, the
+  scheme and the self-mark read, what Cram and the drill are for; folds in
+  CC-14, CC-17, CM-21, EX-30, UR-26, UR-27. Backlog until W4's pattern
+  exists.
+- **UR-29 · pacing should live INSIDE the calendar's blocks.** A Maths
+  lesson you put in the Calendar should carry that week's class pacing for
+  Maths; a study block should carry My plan's rows; instead the plan stands
+  as its own list. Design first (later): which block a row attaches to
+  (subject, the class timetable, a study block's subject), what happens to
+  a row with no block, and how a tick in the block reaches Pacing
+  (invariants 82, 82b).
+- **UR-30 · FIXED 13 Nov (13903e9, smoke130 S, T) · "the Daily goal is
+  broken".** It WAS counting (the header said 2 / 2): since HR-18 a
+  directive is a link marked `data-state="done"`, but the stylesheet filled
+  the mark only for `aria-pressed`, so the tick (drawn in `--bg`) was
+  invisible on an empty ring. Also fixed: an assessment's revision time
+  now counts over its RESOLVED scope (excludes out, every include — the
+  derived event's links stopped at 20), one count shared by the directive
+  and Home's Focus card.
+- **UR-31 · FIXED 13 Nov (13903e9, smoke104 J) · the plan floods the
+  afternoon review.** Still today listed every plan row with "▲ Overdue"
+  (49 rows on a real week); it is now ONE line, as the morning's Due card
+  already was. Left for UR-29/W7: whether carried rows should count as
+  overdue at all, and a calmer Pacing carry-over.
+- **UR-32 · FIXED 13 Nov · everything on the week's plan said "Today".** An
+  undated row fell through to "● Today"; a chip now says only Overdue,
+  Today or Tomorrow by the row's own date.
+- **UR-33 · FIXED 13 Nov · two empty "now" rows in After now.** The step and
+  its timeline each drew a Now marker.
 
 **Backlog** (not this programme): routines inside routines (sketched in
 `findings/productivity.json`), folders for loose notes (UR-14), tables and
