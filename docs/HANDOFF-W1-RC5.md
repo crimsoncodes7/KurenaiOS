@@ -4,7 +4,7 @@ Read this first, then CLAUDE.md, docs/memory/MEMORY.md and the audit plan
 (branch `audit/quality-2026-11`, docs/audit/2026-11/REMEDIATION_PLAN.md §A4, §A5, W1).
 
 ## Status on 14 Nov 2026 (read this first; it replaces everything below it as the current state)
-- Branch `feat/w1-integrity` at `74800f7`: local, NOT pushed, NOT deployed. Production is still sw `kos-integrity-5` (main `6c04c6e`). `sw.js` VERSION is not bumped.
+- Branch `feat/w1-integrity` at `3d99c51` (pushed): sw `kos-integrity-6`. **ON STAGING ONLY** since 13 Nov 2026: https://8180ac87.kurenai-os.pages.dev (alias https://w1-staging.kurenai-os.pages.dev, Pages branch `w1-staging`); the served store.js, cloudsync.js, profilepics.js, storage.js and exttasks.js are byte-identical to the commit. Production is still sw `kos-integrity-5` (main `6c04c6e`) and needs the user's explicit go-ahead.
 - **All 26 review findings below are FIXED**, each with a test that failed first:
   - `af71fd2` (smoke133 K–P): the P0 (equal deltas doubled), the HP drain twice, Focus in two tabs, mirror-primary mode with no merge, applyDoc detaching references, boot recovery by rev, flush/reloadPage in mirror mode, flush without the lock, quarantine copies.
   - `bcb24cc` (smoke135 H–O): `japanese.mined` wiped on old-version devices, the picture move before the first pull, the preReplace window, the Daily Review as user data and SAMPLE rows pushed back, userData's missed evidence, the pinned pre-link copy, the first-link backup backoff and consent, an unreadable attachment failing a backup (smoke17's wrapper removed).
@@ -19,7 +19,7 @@ Read this first, then CLAUDE.md, docs/memory/MEMORY.md and the audit plan
   - A checkpoint taken while a file was unreadable restores that file by its record only; if the browser could read it again by then, the restore still drops the local binary.
   - A pending Todoist reminder deleted here before it links is not deleted at Todoist (it has no id yet) and will be imported again by the next pull.
   - The title picker's 24 rows are the first 24 matches in the vault's own order, then sorted: with more than 24 in-progress titles the unsearched list is not the alphabetical first 24. Searching narrows it.
-  - Not checked in a real browser: everything here was verified in the jsdom harness. Two real tabs, a real iPad, and the Storage card's layout at 1440 and phone width should be looked at on staging before production.
+  - Checked on staging in real Chrome (a fresh origin, signed out, never the user's account): boot clean, Web Locks present; two tabs' simultaneous edits both kept; one cloud document plus the day's HP drain applied in both tabs at the same instant counted ONCE (gold 300, not 400; HP 35, not 0); Focus held by one tab, the other told "A Focus session is running in another tab or window", cleared for both when ended; Storage's "Copies kept for you" lists a set-aside copy with named Download/Delete buttons, and Delete removes it and hides the card. No console errors. NOT yet checked: a real iPad, phone width, a signed-in account (the picture move and the first link). At 1400 px the kept-copy row's title truncates ("Saved data the app could …") beside its two buttons: cosmetic, the full name is in the buttons' labels.
 - CLAUDE.md is updated (`e5b77a6`): the stores (7), repairs' readiness (1a), invariants 33b, 33c, 33d, 34, 115, 150, 157, 160, 8.
 - **Before any deploy, tell the user what the profile-picture move does** (section "The profile-picture move" below) and get an explicit go-ahead. Deploy to staging first.
 

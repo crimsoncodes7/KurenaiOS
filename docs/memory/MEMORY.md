@@ -7,7 +7,7 @@
 - [Code study space](code-study-space.md) — core path complete; Track T2 RELEASED (kos-code-22); whole of T1 RELEASED 2026-10-23 (kos-code-24)
 - [No dead space in layouts](no-dead-space-layout.md) — every view fills its width; no empty right column, gaps or misalignment; reuse existing components
 - [Japanese study space](japanese-study-space.md) — roadmap 5.5; platform RELEASED 2026-10-22 (d061169), review fixes ee1a746 (kos-japanese-2); F1 (kos-japanese-3) and F2 (kos-japanese-4) RELEASED; next F3
-- [Branch and release state](project-branch-and-release-state.md) — main is the line; last release kos-integrity-5 (2026-11-09, 6c04c6e); RC5 built with its 26 findings fixed at 74800f7, NOT deployed — read docs/HANDOFF-W1-RC5.md first
+- [Branch and release state](project-branch-and-release-state.md) — main is the line; production kos-integrity-5 (6c04c6e); RC5 (kos-integrity-6, 3d99c51) on STAGING only, prod deploy awaits go-ahead — read docs/HANDOFF-W1-RC5.md first
 - [Two-account workflow](two-account-workflow.md) — second Pro account added 2026-10-19; shared copy of this memory is docs/memory/, sync with tools/sync_memory.sh
 - [Stage by name](git-stage-by-name.md) — never commit -a; leave Live2D art, .claude/ and untracked scratch alone
 - [Money and Goals](money-goals.md) — roadmap 5.4 RELEASED 2026-10-20 (084a628, sw kos-money-1); smoke84–87; gate adds 84–87
