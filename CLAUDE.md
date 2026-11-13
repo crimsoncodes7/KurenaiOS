@@ -17,7 +17,16 @@ chronological diary here.
   `5bece3e`). `ai-chat` is deployed as version 6 (images for Gemini, 26 October 2026); the
   `kos_reports` migration `20261012000001` is applied; so is `kos_money`
   (`20261019000001`, 19 October 2026), live since the Money and Goals release.
-- Latest release: sw `kos-integrity-5` (9 November 2026): rewards with
+- Latest release: sw `kos-integrity-6` (13 November 2026,
+  `feat/w1-integrity`, main fast-forwarded to it): the quality programme's
+  RC5 — two tabs and the state document's storage (invariant 33c), a cloud
+  document landing in one step (33d), the profile pictures and mined
+  Japanese lines out of the synced document (invariants 7, 115, 150; the
+  picture move is an automatic repair after the first good sync), first
+  sign-in keeping the device's data (34), the Todoist/Google lease and
+  bookkeeping (157, 160), with the 26 findings of its review fixed
+  (smoke133–135); record in [`docs/HANDOFF-W1-RC5.md`](docs/HANDOFF-W1-RC5.md).
+  Before it sw `kos-integrity-5` (9 November 2026): rewards with
   receipts (RC21; smoke130–132) — the Daily goal sealed by evidence, Undo
   on ticks, routine top-ups, Mind checkpoints and Japanese lessons paying
   only on a pass, Creatives projects only with work attached. Before it sw
@@ -215,17 +224,8 @@ chronological diary here.
   five minutes, and migrations `20261022000001`–`03` are applied. Before
   it `3b39ae1` (21 October 2026; the Exams & Deadlines hub),
   https://e94eede7.kurenai-os.pages.dev.
-- BUILT, NOT DEPLOYED (`feat/w1-integrity`, 13 November 2026): the quality
-  programme's RC5 — two tabs and the state document's storage (invariant
-  33c), a cloud document landing in one step (33d), the profile pictures
-  and mined Japanese lines out of the synced document (invariants 7, 115,
-  150), first sign-in keeping the device's data (34), the Todoist/Google
-  lease and bookkeeping (157, 160) — with the 26 findings of its review
-  fixed (smoke133–135). Read [`docs/HANDOFF-W1-RC5.md`](docs/HANDOFF-W1-RC5.md)
-  before deploying: the profile-picture move changes real data on the first
-  start after the first good sync.
 - Last milestone tag: `milestone/graphite-ui-rebuild`
-- Service-worker version: `kos-integrity-5`
+- Service-worker version: `kos-integrity-6`
 - Required smoke gate: 135 / 135 suites (`""` and 2–135, or `npm test`, which runs them in parallel through `tools/run_smoke.mjs`; 124–126 are W1's: repairs run safely and Import backup asks first, the P0s (JM-06, ST-25, MG-01/MG-23, SY-18), and the DI-27 clean-up on test data; 127 activity, not any event (HR-31, CL-45) and the per-device journal scrub; 128 streak-milestone gold once per run (HR-16); 129 the one-off saved-reports rebuild after DI-27; 130–132 rewards with receipts (RC21: Productivity, Mind and Creatives, Japanese); 133 two tabs saving the state document safely and its storage's durability (RC5: rev, lock and three-way merge, one change once across tabs, Focus owned by one tab, quarantine, the IndexedDB mirror as the primary, quota, Storage's kept copies); 134 the profile pictures moved into the file store by a repair and their edges (a record without its binary, the id from the bytes, orphans, links), the session ledger's archive, Creatives' suffixed database, mined Japanese lines kept on the device, and Storage's state meter; 135 first sign-in keeping the device's data (DI-03), a cloud document landing in one step, an older device's mined lines and newer picture, the pinned pre-link copy and the backup backoff, the Todoist/Google lease per tab, renewed and released (DI-19), Todoist's bookkeeping per chunk, and the goal's Linked title (GO-25); 120–123 are the quality programme's safety net — the 04:00 day across DST, the service-worker update across two versions, offline, and the verified backup `KOS.backup`; 116–119 are ratcheted gates over content, cosmetics, menus in dialogs and CSS collisions, each failing only on a violation not in its `tools/baselines/smoke11x-*.json`; 115 is Mind Journal replication; 114 is provider identity per module (DI-27); 113 is the Badge Wall's; 80–83 are Japanese's, 99 is Code's SQL runner, 100 the ink engine, 101–104 Routines and the Daily Review, 105 the rest of the iPad build and Files R0, 106 Files R1–R4, airing on a closed app, Rider CI evidence and habits several times a day, 107 the Pencil fixes, 108 Creatives', 109–111 Mind's, 112 Google Calendar, Google Tasks and Todoist).
 - Branches: `main` is the line. On 20 October 2026 it was fast-forwarded to
   `feat/money-goals` (Money and Goals), then to `feat/fsrs` (FSRS), on 21
