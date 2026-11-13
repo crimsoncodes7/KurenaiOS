@@ -450,6 +450,10 @@
     main.appendChild(sentinel);
 
     var results = [], rendered = 0, io = null, gen = 0;
+    /* W2 (SY-19): how far the reader had scrolled the lazy list, for this
+       visit. A redraw draws that many again before the scroll is put back
+       — it used to rebuild 60 and throw the reader to the top. */
+    var depth = KOS.view ? KOS.view.memo("vault.depth", { n: 0 }) : { n: 0 }, firstStart = !!KOS.ui.redrawing;
 
     /* GENERATION GUARD. Every entry point bumps `gen`; a batch from a
        superseded generation is dropped on the floor, so an observer still
@@ -477,6 +481,7 @@
       for (var i = rendered; i < end; i++) frag.appendChild(makeItem(results[i], i));
       holder.appendChild(frag);
       rendered = end;
+      depth.n = rendered;
       if (rendered >= results.length && io) { io.disconnect(); io = null; }
     }
     /* the scroll container the observer must measure against */
@@ -524,8 +529,12 @@
       io.observe(sentinel);
     }
     function start(rows) {
+      var want = firstStart ? depth.n : 0;
+      firstStart = false;
       results = rows;
       repaint();
+      var g = gen;
+      while (g === gen && rendered < want && rendered < results.length) renderBatch(g);
     }
     /* paint every row at once through this area (the Books shelf lens), so
        the observer state is reset exactly as it is for a lazy list */

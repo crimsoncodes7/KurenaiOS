@@ -183,6 +183,10 @@
      history router that wraps KOS.show. Both must follow ui.js — a11y.js
      reads KOS.ui.topDialog and router.js captures KOS.show. -->
 <script src="js/core/a11y.js"></script>
+<!-- W2: the redraw policy, the change bus and the view lifecycle
+     (KOS.rerender, KOS.changes, KOS.view). After ui.js, whose KOS.show
+     calls it; before router.js only by convention. -->
+<script src="js/core/redraw.js"></script>
 <script src="js/core/router.js"></script>
 <script src="js/core/search.js"></script>
 <script src="js/core/imagecrop.js"></script>

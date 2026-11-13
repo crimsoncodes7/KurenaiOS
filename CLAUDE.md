@@ -226,7 +226,7 @@ chronological diary here.
   https://e94eede7.kurenai-os.pages.dev.
 - Last milestone tag: `milestone/graphite-ui-rebuild`
 - Service-worker version: `kos-integrity-6`
-- Required smoke gate: 138 / 138 suites (`""` and 2–138, or `npm test`, which runs them in parallel through `tools/run_smoke.mjs`; 124–126 are W1's: repairs run safely and Import backup asks first, the P0s (JM-06, ST-25, MG-01/MG-23, SY-18), and the DI-27 clean-up on test data; 127 activity, not any event (HR-31, CL-45) and the per-device journal scrub; 128 streak-milestone gold once per run (HR-16); 129 the one-off saved-reports rebuild after DI-27; 130–132 rewards with receipts (RC21: Productivity, Mind and Creatives, Japanese); 133 two tabs saving the state document safely and its storage's durability (RC5: rev, lock and three-way merge, one change once across tabs, Focus owned by one tab, quarantine, the IndexedDB mirror as the primary, quota, Storage's kept copies); 134 the profile pictures moved into the file store by a repair and their edges (a record without its binary, the id from the bytes, orphans, links), the session ledger's archive, Creatives' suffixed database, mined Japanese lines kept on the device, Storage's state meter, and the store registry (RC4: every database listed, Reset everything clearing them all, the checkpoints with Restore); 135 first sign-in keeping the device's data (DI-03), a cloud document landing in one step, an older device's mined lines and newer picture, the pinned pre-link copy and the backup backoff, the Todoist/Google lease per tab, renewed and released (DI-19), Todoist's bookkeeping per chunk, and the goal's Linked title (GO-25); 136 honest numbers (W7: lesson checks that reach Completed through reviews and cards, Quiz best as a percent, every subject named in a report's words, Study hours as Focus time, routine and habit goals that name their routine, Home's desks by recency, a report saved before the history arrived rebuilt once, Collection goals by their own period and Goal getter taken back, topic colours from evidence); 137 the floors no page may undo (W3: 16px phone fields in the last layer, a painted header above the page body, round controls that stay round on touch); 138 content and marking (W6: quiz options shuffled per attempt, self-marking by mark codes with the worked answer as a model answer, Marks by question's out-of and topic, Code's multi-line Run input, IT's spec text tidied and its refs unique); 120–123 are the quality programme's safety net — the 04:00 day across DST, the service-worker update across two versions, offline, and the verified backup `KOS.backup`; 116–119 are ratcheted gates over content, cosmetics, menus in dialogs and CSS collisions, each failing only on a violation not in its `tools/baselines/smoke11x-*.json`; 115 is Mind Journal replication; 114 is provider identity per module (DI-27); 113 is the Badge Wall's; 80–83 are Japanese's, 99 is Code's SQL runner, 100 the ink engine, 101–104 Routines and the Daily Review, 105 the rest of the iPad build and Files R0, 106 Files R1–R4, airing on a closed app, Rider CI evidence and habits several times a day, 107 the Pencil fixes, 108 Creatives', 109–111 Mind's, 112 Google Calendar, Google Tasks and Todoist).
+- Required smoke gate: 139 / 139 suites (`""` and 2–139, or `npm test`, which runs them in parallel through `tools/run_smoke.mjs`; 124–126 are W1's: repairs run safely and Import backup asks first, the P0s (JM-06, ST-25, MG-01/MG-23, SY-18), and the DI-27 clean-up on test data; 127 activity, not any event (HR-31, CL-45) and the per-device journal scrub; 128 streak-milestone gold once per run (HR-16); 129 the one-off saved-reports rebuild after DI-27; 130–132 rewards with receipts (RC21: Productivity, Mind and Creatives, Japanese); 133 two tabs saving the state document safely and its storage's durability (RC5: rev, lock and three-way merge, one change once across tabs, Focus owned by one tab, quarantine, the IndexedDB mirror as the primary, quota, Storage's kept copies); 134 the profile pictures moved into the file store by a repair and their edges (a record without its binary, the id from the bytes, orphans, links), the session ledger's archive, Creatives' suffixed database, mined Japanese lines kept on the device, Storage's state meter, and the store registry (RC4: every database listed, Reset everything clearing them all, the checkpoints with Restore); 135 first sign-in keeping the device's data (DI-03), a cloud document landing in one step, an older device's mined lines and newer picture, the pinned pre-link copy and the backup backoff, the Todoist/Google lease per tab, renewed and released (DI-19), Todoist's bookkeeping per chunk, and the goal's Linked title (GO-25); 136 honest numbers (W7: lesson checks that reach Completed through reviews and cards, Quiz best as a percent, every subject named in a report's words, Study hours as Focus time, routine and habit goals that name their routine, Home's desks by recency, a report saved before the history arrived rebuilt once, Collection goals by their own period and Goal getter taken back, topic colours from evidence); 137 the floors no page may undo (W3: 16px phone fields in the last layer, a painted header above the page body, round controls that stay round on touch); 139 the redraw policy, the change bus and the view lifecycle (W2: a change the page does not read redraws nothing, a task page shows "Updated on another device · Refresh" and is never redrawn under its reader, a redraw keeps focus, scroll and unsent text, navigation closes a page's dialogs and asks before unsaved work, every view's declared reads); 138 content and marking (W6: quiz options shuffled per attempt, self-marking by mark codes with the worked answer as a model answer, Marks by question's out-of and topic, Code's multi-line Run input, IT's spec text tidied and its refs unique); 120–123 are the quality programme's safety net — the 04:00 day across DST, the service-worker update across two versions, offline, and the verified backup `KOS.backup`; 116–119 are ratcheted gates over content, cosmetics, menus in dialogs and CSS collisions, each failing only on a violation not in its `tools/baselines/smoke11x-*.json`; 115 is Mind Journal replication; 114 is provider identity per module (DI-27); 113 is the Badge Wall's; 80–83 are Japanese's, 99 is Code's SQL runner, 100 the ink engine, 101–104 Routines and the Daily Review, 105 the rest of the iPad build and Files R0, 106 Files R1–R4, airing on a closed app, Rider CI evidence and habits several times a day, 107 the Pencil fixes, 108 Creatives', 109–111 Mind's, 112 Google Calendar, Google Tasks and Todoist).
 - Branches: `main` is the line. On 20 October 2026 it was fast-forwarded to
   `feat/money-goals` (Money and Goals), then to `feat/fsrs` (FSRS), on 21
   October to `feat/exams-hub` (the Exams hub), and on 22 October to
@@ -321,7 +321,7 @@ from `file://`. Use HTTP for PWA, cloud and browser-audit work.
 python3 tools/dev_server.py 8765       # http.server with no-store, so edits show on one reload
 npm install jsdom fake-indexeddb       # test-only dependencies, once
 npm test                               # the whole smoke gate in parallel (tools/run_smoke.mjs; --skip, --repeat)
-for i in "" {2..138}; do node "tools/smoke${i}.test.js"; done   # the same, one at a time
+for i in "" {2..139}; do node "tools/smoke${i}.test.js"; done   # the same, one at a time
 node tools/ja_valid_check.mjs          # Japanese: kana, conjugation, every validator, strokes on every kana
 node tools/gen_ja_strokes.mjs --check  # the kana stroke data matches KanjiVG
 node tools/bake_ja_audio.mjs           # Japanese's audio pack: the cast on ElevenLabs, the narrator on VOICEVOX (open the app); --check, --dry
@@ -456,6 +456,7 @@ non-navigation redraw path.
 
 | Contract | Owner |
 |---|---|
+| The redraw policy, the change bus and the view lifecycle (invariants 164–166): `KOS.rerender`, `KOS.changes` (snapshot, diff, note, on, pending, apply), `KOS.view` (onDispose, token, signal, memo, keep, hold, guard), each view's declared reads and the task pages, the refresh pill | `js/core/redraw.js`; the remount itself `KOS.ui.redrawNow` and `KOS.ui.closeDialogs` in `js/core/ui.js`; `tools/lib/view-surfaces.js`, smoke139 |
 | DOM primitives, dialogs, tabs, scrollers, the reorder (drag) pattern, rendering; `KOS.ui.device()` (the device's NAME for words, never layout: an iPad's Safari says "Macintosh") | `js/core/ui.js` |
 | Live regions and activation helpers | `js/core/a11y.js` |
 | Hash URL/history | `js/core/router.js` |
@@ -2227,6 +2228,63 @@ source comments and audit notes refer to it.
     ledger and come at most once per badge per 10 seconds, every step for a
     target of 20 or fewer, else each quarter of the tier's interval
     (`state.ui.achPings`).
+
+### The redraw policy and the view lifecycle (164–166)
+
+164. A CHANGE SAYS WHAT MOVED, A VIEW SAYS WHAT IT READS (W2,
+    `js/core/redraw.js`). A background change — a cloud pull, another tab's
+    write, a habit ticking itself, a picture loading, the Daily Review
+    closing — reaches the page only through `KOS.rerender({background,
+    changed, source})` (or `KOS.changes.note`), naming the top-level keys
+    of the state document that moved (`KOS.changes.snapshot()`/`diff()`;
+    this device's `ui` is never one) and the stores outside it (`db:media`,
+    `db:files`, `db:money`, `db:ink`, `db:mind`, `db:reports`,
+    `db:reviews`, `art`, `ext:gcal`). Each view's reads are declared in
+    one table there; a view not listed reads everything, and smoke139 N
+    holds every list to what the view reads while it draws
+    (`tools/lib/view-surfaces.js`). A change that touches nothing the page
+    on screen reads redraws nothing and shows nothing. No keys = unknown =
+    everything. A new state key a view draws from goes in that table.
+165. NEVER UNDER THE READER (decision B4). A change the page reads is
+    applied at a safe point. On a TASK page (work lives in the page: a
+    topic, a review, a lesson, a study space, the Exams hub, a vault, the
+    Assistant, a lab, Files) and while a page says it holds unsaved work
+    (`KOS.view.hold`) it is never applied by itself: a pill says "Updated
+    on another device · Refresh" ("in another tab" for a tab), Refresh
+    redraws, and leaving draws the next page from the fresh state. What
+    THIS device did behind such a page is not news: no pill. Elsewhere it
+    is applied at once, unless the reader is typing, a dialog is open, a
+    pointer is down or (a pull, another tab) the page was touched in the
+    last four seconds — then when that ends. EVERY redraw keeps the page
+    scroll, each inner scroller and keyboard focus with its caret; a
+    background redraw (and Refresh) also keeps text typed into a field and
+    not yet submitted, put back only where the page still draws the field
+    as it was before the typing. A redraw the page asked for itself never
+    puts text back. A redraw is still not navigation (invariant 65), and
+    never happens under a pen (132).
+166. A RENDER HAS A LIFE. `KOS.show` ends the render on screen first
+    (`KOS.view._enter`): its `onDispose` callbacks run, its `signal()`
+    aborts and its `token()` turns false, so async work started for a page
+    acts on nothing once that page is gone (a Wall left before its badges
+    were measured opens no dialog over the next page). A page's own state
+    lives in `KOS.view.memo` (this visit: it survives every redraw and is
+    dropped when another page opens — Edit your seat's draft and tab, a
+    vault's scroll depth) or `KOS.view.keep` (while the app stays loaded —
+    a topic's notes page), never in a render's closure. A REAL navigation
+    (another page, not the same page shown again) closes every dialog open
+    over the page it leaves, through the dialog's own close path
+    (`KOS.ui.closeDialogs`; a dialog opened `{persist: true}` stays), and
+    first asks when the page says leaving would lose unsaved work
+    (`KOS.view.guard`: "Leave without saving?", Stay focused; `KOS.show`
+    returns false and the address does not move; Back is undone the same
+    way). The page already on screen, shown again, is not a second history
+    entry; a view this build does not have is Home; `#main` (the skip
+    link) is an in-page anchor, never a route; Back is Alt+← and ⌘[ (no
+    bare Backspace), never while a dialog is open; Enter on a focused
+    Cancel cancels. The Daily Review never opens by itself over a task
+    page or before this page load holds the account's copy; one finished
+    on another device closes here, and a finished review is never
+    downgraded to skipped.
 
 ### What reaches a closed app (131)
 

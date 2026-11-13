@@ -442,7 +442,7 @@
     /* the media kv is opened only for a connected account (an early open
        would pre-empt the store's own version gate) */
     var g0 = store().state.ext && store().state.ext.google;
-    if (KOS.extGcal && g0 && g0.on && g0.cal !== false) KOS.extGcal.loadRo().then(function () { if (KOS.extGcal.hasRo() && KOS.rerender) KOS.rerender({ background: "soft" }); });
+    if (KOS.extGcal && g0 && g0.on && g0.cal !== false) KOS.extGcal.loadRo().then(function () { if (KOS.extGcal.hasRo() && KOS.rerender) KOS.rerender({ background: "soft", changed: ["ext:gcal"] }); });
     if (interval) clearInterval(interval);
     interval = setInterval(function () { syncAll("timer"); }, CYCLE_MS);
     if (typeof document !== "undefined") {

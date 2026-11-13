@@ -12,7 +12,10 @@
   var brand = document.getElementById("brand-home");
   if (brand) brand.addEventListener("click", function () { KOS.show("home"); });
 
-  /* back/forward navigation — topbar buttons + Alt+←/→ / Backspace (outside inputs) */
+  /* back/forward navigation — topbar buttons, Alt+←/→ and ⌘[ / ⌘].
+     SH-02 (decision B10): no bare Backspace — a page's own Backspace (a
+     Money row's Delete) also went Back. Never while a dialog is open, and
+     never for a key a page already handled. */
   var backBtn = document.getElementById("nav-back");
   if (backBtn) backBtn.addEventListener("click", function () { KOS.back(); });
   var fwdBtn = document.getElementById("nav-fwd");
@@ -20,10 +23,12 @@
   document.addEventListener("keydown", function (e) {
     var t = e.target, tag = t && t.tagName;
     var typing = tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT" || (t && t.isContentEditable);
-    if (typing) return;
-    if ((e.altKey && e.key === "ArrowLeft") || (!e.altKey && !e.metaKey && !e.ctrlKey && e.key === "Backspace")) {
+    if (typing || e.defaultPrevented) return;
+    if (KOS.ui && KOS.ui.topDialog && KOS.ui.topDialog()) return;
+    var cmd = e.metaKey && !e.altKey && !e.ctrlKey && !e.shiftKey;
+    if ((e.altKey && e.key === "ArrowLeft") || (cmd && e.key === "[")) {
       if (KOS.canBack && KOS.canBack()) { e.preventDefault(); KOS.back(); }
-    } else if (e.altKey && e.key === "ArrowRight") {
+    } else if ((e.altKey && e.key === "ArrowRight") || (cmd && e.key === "]")) {
       if (KOS.canForward && KOS.canForward()) { e.preventDefault(); KOS.forward(); }
     }
   });
@@ -318,10 +323,10 @@
     setTimeout(function () {
       KOS.refreshRailCounters();
       if (KOS.refreshHUD) KOS.refreshHUD();
-      KOS.rerender({ background: "soft" });
+      KOS.rerender({ background: "soft", changed: ["*"] });
     }, 0);
   });
   /* Decorative art per device (34n): set before the first page draws */
-  if (KOS.art) { KOS.art.apply(); KOS.art.loadOwn(function () { if (KOS.rerender) KOS.rerender({ background: "soft" }); }); }
+  if (KOS.art) { KOS.art.apply(); KOS.art.loadOwn(function () { if (KOS.rerender) KOS.rerender({ background: "soft", changed: ["art"] }); }); }
   KOS.router.boot();
 })();

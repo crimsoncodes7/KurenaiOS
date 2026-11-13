@@ -408,7 +408,8 @@
        document's key (fired once the new value is visible to it): with no
        unsaved changes it adopts the stored document, otherwise it merges
        it in and saves; then it redraws in the background
-       (KOS.rerender({background: true})). No BroadcastChannel: the storage
+       (KOS.rerender({background, changed, source: "tab"}): only a page that
+       reads what moved, js/core/redraw.js). No BroadcastChannel: the storage
        event already carries the news, after the value is readable.
      - flush() (pagehide) cannot wait for a lock: the same check, merge and
        write, synchronously.
@@ -1003,15 +1004,22 @@
   }
 
   /* another tab wrote the document */
-  function redrawQuietly() {
-    if (KOS.rerender) { try { KOS.rerender({ background: true }); } catch (e) { /* a redraw is not data */ } }
+  function redrawQuietly(changed) {
+    if (changed && !changed.length) return;       // only this device's `ui` moved: nothing a page shows
+    if (KOS.rerender) { try { KOS.rerender({ background: true, changed: changed || null, source: "tab" }); } catch (e) { /* a redraw is not data */ } }
   }
   function otherTabWrote() {
+    /* W2: what the other tab changed, by top-level key, so only a page
+       that reads it is redrawn (js/core/redraw.js) */
+    var snap = null;
+    try { snap = KOS.changes ? KOS.changes.snapshot() : null; } catch (e) { snap = null; }
     var how = takeIn();
     if (!how) return;
     if (how === "merged") save();
     mirrorSoon();
-    redrawQuietly();
+    var changed = null;
+    try { changed = snap ? KOS.changes.diff(snap) : null; } catch (e2) { changed = null; }
+    redrawQuietly(changed);
   }
   /* a write this tab never read because its own write landed on top of it:
      the event still carries it. It replaced the very document this tab's

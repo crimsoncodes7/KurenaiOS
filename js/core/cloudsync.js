@@ -770,7 +770,8 @@
           var mine = deviceSnapshot(KOS.store.state);
           var localSync = syncableState(KOS.store.state);
           var theirs = sansMined(incoming);
-          var out = { merged: isDirty(meta, localSync), stats: null, sync: null };
+          var out = { merged: isDirty(meta, localSync), stats: null, sync: null, before: null };
+          try { out.before = KOS.changes ? KOS.changes.snapshot() : null; } catch (eS) { out.before = null; }
           if (!out.merged) KOS.store.replaceState(theirs);
           else {
             var b = base ? sansMined(base) : null;
@@ -793,7 +794,10 @@
         }, function (err, out) {
           if (err || !out) { cb(err || new Error("The cloud copy could not be applied to this device.")); return; }
           appliedThisCycle = true;
-          rerenderCurrent();
+          var moved = null;
+          try { moved = out.before && KOS.changes ? KOS.changes.diff(out.before) : null; } catch (eD) { moved = null; }
+          delete out.before;
+          rerenderCurrent(moved);
           cb(null, out);
         });
       });
@@ -1116,7 +1120,7 @@
      whatever page another signed-in device happened to be on, wiping any
      in-progress inline editing with it. state.ui is per-device now, so
      there is no remote view to obey; redraw in place and stay put. */
-  function rerenderCurrent() {
+  function rerenderCurrent(changed) {
     try {
       /* cosmetics ride the state document: a fresh device pulls the owned
          list and governor.theme but was left rendering the default theme
@@ -1124,7 +1128,10 @@
       if (KOS.governor && KOS.governor.applyCosmetics) KOS.governor.applyCosmetics();
       if (KOS.refreshHUD) KOS.refreshHUD();
       if (KOS.refreshRailCounters) KOS.refreshRailCounters();
-      if (KOS.rerender) KOS.rerender({ background: "hard" });
+      /* W2: only a page that reads what the pull moved is redrawn, and a
+         page with work in it shows "Updated on another device · Refresh"
+         instead (js/core/redraw.js). No keys = unknown = everything. */
+      if (KOS.rerender) KOS.rerender({ background: "hard", changed: changed || null, source: "device" });
     } catch (e) { console.warn("cloudsync: rerender after remote apply failed", e); }
   }
   /* Take a cloud document in. done(err, applied, merged): `merged` is
@@ -1274,7 +1281,14 @@
       });
     })();
   }
+  /* W2: the stores outside the state document a pull moved in this cycle,
+     named to the change bus at its end (js/core/redraw.js) */
+  var storesMoved = {};
+  function movedBy(key, done) {
+    return function (e, o) { if (o && (o.applied || o.deleted)) storesMoved[key] = 1; done(e, o); };
+  }
   function pullMedia(meta, done) {
+    done = movedBy("db:media", done);
     var out = { applied: 0, deleted: 0 };
     var since = meta.cursor.media;
     var offset = 0, maxTs = since;
@@ -1333,6 +1347,7 @@
     });
   }
   function pullFiles(meta, done) {
+    done = movedBy("db:files", done);
     var out = { applied: 0, deleted: 0 };
     var since = meta.cursor.files;
     var offset = 0, maxTs = since;
@@ -1593,7 +1608,12 @@
         var firstGood = !pulledOnce;
         pulledOnce = true;
         if (firstGood || appliedThisCycle) kickRepairs();
+        /* UR-3: the Daily Review's auto-open waited for the account's copy */
+        if (firstGood && KOS.reviewSheet && KOS.reviewSheet.maybeOpen) setTimeout(function () { try { KOS.reviewSheet.maybeOpen(); } catch (eR) { /* not data */ } }, 0);
         setStatus("synced");
+        var movedKeys = Object.keys(storesMoved);
+        storesMoved = {};
+        if (movedKeys.length && KOS.changes) { try { KOS.changes.note(movedKeys, { source: "device" }); } catch (eN) { /* a redraw is not data */ } }
         if (summary && (summary.applied || summary.deleted)) {
           toast("Cloud sync: " + (summary.applied ? summary.applied + " item" + (summary.applied === 1 ? "" : "s") + " updated from your other device" : "") +
             (summary.applied && summary.deleted ? ", " : "") +
@@ -1780,6 +1800,16 @@
     if (_api && _session) return pulledOnce;
     if (!decided) return false;
     return ready() && uid() ? pulledOnce : true;
+  }
+  /* the account's copy is still on its way: the engine is starting, or is
+     signed in and has not finished a first cycle. False signed out, and
+     once stopped — for what would rather wait for the pull than act on a
+     stale copy (the Daily Review's auto-open, UR-3). */
+  function awaiting() {
+    if (_api && _session) return !pulledOnce;
+    if (!started) return false;
+    if (!decided) return true;
+    return ready() && uid() ? !pulledOnce : false;
   }
   function linkWithoutBackup(cb) {
     consentNoBackup = true;
@@ -2080,6 +2110,7 @@
     dropPreLinked: dropPreLinked,
     /* this page load holds the account's copy, or there is none to wait for */
     settled: settled,
+    awaiting: awaiting,
     /* {n, at, reason, consent} while the first link waits on a backup that
        will not verify (consent: the user may now link without one), or null */
     linkBlocked: function () {

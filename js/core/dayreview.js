@@ -217,10 +217,32 @@
   function finish(slot, how, now) {
     now = now || Date.now();
     var day = rday(now), r = slotWrite(day, slot);
+    /* UR-3: a finished review is never downgraded to skipped — not by a
+       later Skip here, and not by another device's (heal, below) */
+    if (how === "skipped" && (r.state === "done" || r.doneAt)) { r.state = "done"; store.save(); return "done"; }
     r.state = how === "skipped" ? "skipped" : "done";
     if (r.state === "done") r.doneAt = now; else r.skippedAt = now;
     store.save();
     return r.state;
+  }
+  /* two devices: one finished the review, the other skipped it, and the
+     merge kept both stamps. Done wins. True when anything was put right. */
+  function heal() {
+    var s = store.state.dayReview, n = 0;
+    if (!s || !s.days) return false;             /* a read: never the first write of the record */
+    Object.keys(s.days || {}).forEach(function (day) {
+      Object.keys(s.days[day] || {}).forEach(function (slot) {
+        var r = s.days[day][slot];
+        if (r && r.doneAt && r.state === "skipped") { r.state = "done"; n++; }
+      });
+    });
+    if (n) store.save();
+    return n > 0;
+  }
+  function stateOf(slot, now) {
+    var s = store.state.dayReview;
+    var d = s && s.days ? s.days[rday(now || Date.now())] : null;
+    return d && d[slot] ? d[slot].state || null : null;
   }
   function setThree(refs, now) {
     var r = slotWrite(rday(now), "morning");
@@ -809,7 +831,7 @@
     }
   }
 
-  KOS.dayReview = {
+  KOS.dayReview = { heal: heal, stateOf: stateOf,
     SLOTS: SLOTS, LABEL: LABEL, DEFAULTS: DEFAULTS, CHOICES: CHOICES,
     enable: enable, enabled: function () { return enabled; }, start: start, tick: tick, easy: easy,
     normalise: normalise, cfg: cfg, setConfig: setConfig,

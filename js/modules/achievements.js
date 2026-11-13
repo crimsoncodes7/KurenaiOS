@@ -123,15 +123,21 @@
     main.appendChild(root);
     var body = el("div", { class: "k-ach-body", "data-ui": "ach.body", "aria-busy": "true" }, [el("p", { class: "k-muted k-ach-wait", text: "Reading your records…" })]);
     root.appendChild(body);
+    /* W2 (AX-27, AP-17): the badges are measured asynchronously; a Wall
+       that was left meanwhile draws nothing and opens no dialog over the
+       page you moved to */
+    var live = KOS.view ? KOS.view.token() : function () { return body.isConnected; };
+    var redraw = !!KOS.ui.redrawing;
     A().list(function (views) {
-      if (!body.isConnected && body.parentNode == null) return;
+      if (!live()) return;
       body.removeAttribute("aria-busy");
       body.textContent = "";
       if (cur === "sets") drawSets(body, views);
       else if (cur === "recent") drawRecent(body, views);
       else if (cur === "showcase") drawShowcase(body, views);
       else drawTitles(body, views);
-      if (openSet && A().set(openSet)) openSetDialog(openSet, views, parts[2] || null);
+      /* a redraw of the Wall under an open set does not open it again */
+      if (openSet && A().set(openSet) && !(redraw && KOS.ui.topDialog())) openSetDialog(openSet, views, parts[2] || null);
     });
   };
   function openFor(v, views) { return function () { openSetDialog(v.set, views, v.id); }; }

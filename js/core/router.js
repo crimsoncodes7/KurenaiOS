@@ -225,13 +225,23 @@
 
   KOS.show = function (viewId, arg, opts) {
     opts = opts || {};
-    innerShow(viewId, arg, opts);
+    /* SH-41: a view this build does not have is Home, as a typed URL is —
+       never a blank page pushed into history */
+    if (!KOS.views[viewId]) { viewId = "home"; arg = undefined; }
+    /* W2: false = the page on screen holds unsaved work and the reader was
+       asked first (KOS.view.guard); nothing was drawn and nothing moves */
+    if (innerShow(viewId, arg, opts) === false) return false;
     var route = routeFor(viewId, arg);
     if (!suspend && booted) {
       if (opts._nav) {
         /* an in-place redraw or a history traversal: never a new entry.
            The URL is corrected only if the redraw genuinely changed route. */
         if (route !== lastRendered) replaceEntry(route, arg);
+      } else if (route === lastRendered) {
+        /* SH-23: the page already on screen, asked for again, is not a
+           second history entry (Back then seemed to do nothing); only its
+           remembered argument moves */
+        replaceEntry(route, arg);
       } else {
         pushEntry(route, arg);
       }
@@ -259,16 +269,19 @@
     var memo = idx != null ? argMemo[idx] : null;
     var route = routeFor(r.viewId, r.arg);
     if (memo && memo.route === route && memo.arg !== undefined) arg = memo.arg;
+    var shown;
     try {
-      KOS.show(r.viewId, arg, { _nav: true, _route: true });
+      shown = KOS.show(r.viewId, arg, { _nav: true, _route: true });
     } catch (e) {
       suspend = false;
       home("A page could not be opened.");
-      return;
+      return true;
     }
     suspend = false;
+    if (shown === false) return false;
     lastRendered = route;
     updateArrows();
+    return true;
   }
 
   function home(why) {
@@ -281,9 +294,30 @@
     if (why && KOS.ui) KOS.ui.toast(why, true);
   }
 
+  /* SH-21: `#main` (the skip link) and any other in-page anchor is not a
+     route. The address goes back to the page's own route and the target
+     takes focus; nothing is navigated. */
+  function inPageAnchor() {
+    var h = String(location.hash || "");
+    if (!h || h === "#" || h.charAt(1) === "/") return false;
+    var target = null;
+    try { target = document.getElementById(decodeURIComponent(h.slice(1))); } catch (e) { target = null; }
+    if (lastRendered) replaceEntry(lastRendered, argMemo[depth] ? argMemo[depth].arg : undefined);
+    if (target) { try { target.focus({ preventScroll: false }); } catch (e2) { try { target.focus(); } catch (e3) { /* not focusable */ } } }
+    return true;
+  }
+  var skip = document.querySelector("[data-ui~='shell.skip-link']");
+  if (skip) skip.addEventListener("click", function (e) {
+    e.preventDefault();
+    var m = document.getElementById("main");
+    if (m) { try { m.focus(); } catch (e2) { /* jsdom */ } if (m.scrollIntoView) m.scrollIntoView(); }
+  });
+
   function onPop(e) {
+    if (booted && inPageAnchor()) return;
     var st = e && e.state;
     var idx = st && st.kos ? st.idx : null;
+    var from = depth;
     if (idx != null) depth = idx;
     else {
       /* an entry we did not create (a manual hash edit, or the entry the
@@ -293,7 +327,15 @@
     var r = parse(location.hash);
     if (!r) { home(); return; }
     if (routeFor(r.viewId, r.arg) === lastRendered && idx != null) { updateArrows(); return; }
-    renderRoute(r, idx);
+    if (renderRoute(r, idx) === false) {
+      /* the page holds unsaved work and asked (KOS.view.guard): the
+         address returns to it. "Leave" then opens the page asked for as a
+         fresh navigation. */
+      depth = from;
+      if (idx != null && idx !== from) { try { history.go(from - idx); } catch (e2) { /* file:// */ } }
+      else if (lastRendered) replaceEntry(lastRendered, argMemo[from] ? argMemo[from].arg : undefined);
+      updateArrows();
+    }
   }
 
   window.addEventListener("popstate", onPop);

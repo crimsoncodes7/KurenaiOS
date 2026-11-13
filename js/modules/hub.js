@@ -2924,7 +2924,10 @@
     }
 
     var firstMount = true;
-    var notePage = 0;                       // survives a re-render while editing
+    /* W2 (SY-02, ST-36, CC-18): the notes page being read is the topic's
+       own, kept while the app stays loaded — a redraw, Back from a diagram
+       and coming back to the topic all find it */
+    var noteMemo = KOS.view ? KOS.view.keep("notePage", { n: 0 }, "topic:" + sid + ":" + ref) : { n: 0 };
     function openTab(o) {
       o = o || {};
       content = KOS.content.get(sid, ref);
@@ -3006,7 +3009,7 @@
         } else {
           var pages = KOS.content.splitPages(noteBlocks);
           var article = el("article", { class: "k-prose k-notes", "data-ui": "topic.notes", "data-topic": sid + ":" + ref });
-          var cur = Math.max(0, Math.min(pages.length - 1, o.keep ? notePage : 0));
+          var cur = Math.max(0, Math.min(pages.length - 1, noteMemo.n || 0));
           if (o.reveal) {
             pages.forEach(function (pg, i) { if (pg.blocks.some(function (b) { return b && b.id === o.reveal; })) cur = i; });
           }
@@ -3029,7 +3032,7 @@
             ]));
             var showPage = function (i, moved) {
               cur = Math.max(0, Math.min(pages.length - 1, i));
-              notePage = cur;
+              noteMemo.n = cur;
               pageSelect.value = String(cur);
               article.innerHTML = KOS.content.renderBlocks(pages[cur].blocks);
               KOS.ui.hookify(article);
@@ -3053,7 +3056,7 @@
             panel.appendChild(foot);
             showPage(cur);
           } else {
-            notePage = 0;
+            noteMemo.n = 0;
             article.innerHTML = KOS.content.renderBlocks(noteBlocks);
             KOS.ui.hookify(article);
             panel.appendChild(article);

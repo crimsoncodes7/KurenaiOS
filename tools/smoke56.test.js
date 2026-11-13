@@ -161,6 +161,10 @@ async function main() {
     Object.keys(s).forEach((k) => delete s[k]);
     Object.assign(s, clone(SNAP.state));
     KOS.store.flush();
+    /* W2: what a page keeps in memory while the app stays loaded (a topic's
+       notes page) is part of the snapshot too — each control replays from
+       the page as first opened */
+    if (KOS.view && KOS.view.forget) KOS.view.forget();
     if (mediaDirty) await new Promise((r) => KOS.mediadb.importAll(clone(SNAP.media), () => r()));
   }
   function closeOverlays() {
@@ -294,6 +298,7 @@ async function main() {
     if (!eff || !drops.length) return eff;
     const out = JSON.parse(JSON.stringify(eff));
     for (const [k, re] of drops) {
+      if (typeof out[k] === "string") { if (re.test(out[k])) delete out[k]; continue; }   /* a single value (nav) */
       if (!Array.isArray(out[k])) continue;
       out[k] = out[k].filter((x) => !re.test(x));
       if (!out[k].length) delete out[k];

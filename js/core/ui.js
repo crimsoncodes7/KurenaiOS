@@ -219,6 +219,8 @@
       document.removeEventListener("keydown", onKey, true);
       if (!dialogStack.length) {
         document.documentElement.removeAttribute("data-scroll-lock");
+        /* a background change that waited for the dialog (redraw.js) */
+        if (KOS.changes && KOS.changes.pending()) setTimeout(function () { if (KOS.changes.pending()) KOS.changes.retry(); }, 0);
       }
       if (restoreTo && restoreTo.focus && document.contains(restoreTo)) {
         try { restoreTo.focus(); } catch (e) { /* detached input */ }
@@ -226,7 +228,7 @@
       if (opts.onClose) opts.onClose();
     }
 
-    var rec = { overlay: overlay, box: box, teardown: teardown };
+    var rec = { overlay: overlay, box: box, teardown: teardown, close: closeIt, persist: !!opts.persist };
     dialogStack.push(rec);
     document.addEventListener("keydown", onKey, true);
 
@@ -254,6 +256,18 @@
     }
     try { target.focus(); } catch (e) { /* jsdom detached */ }
     return overlay;
+  }
+
+  /* W2 (AX-38): a dialog belongs to the page it was opened over. A real
+     navigation closes every one (through its own close path, so a dialog's
+     onClose and Cancel run), topmost first — except a dialog opened
+     {persist: true}, which is not about a page. */
+  function closeDialogs() {
+    dialogStack.slice().reverse().forEach(function (rec) {
+      if (rec.persist) return;
+      try { rec.close(); } catch (e) { console.error("Kurenai OS: a dialog would not close", e); }
+      if (dialogStack.indexOf(rec) !== -1) { try { rec.overlay.remove(); } catch (e2) { /* already gone */ } }
+    });
   }
 
   /* the dialog currently on top — used by the toast layer so a status
@@ -285,7 +299,15 @@
     }
     /* Escape is handled by openDialog; only the affirmative shortcut lives
        here, and only when saying yes cannot destroy anything */
-    function onKey(e) { if (e.key === "Enter" && !opts.danger) close(true); }
+    function onKey(e) {
+      if (e.key !== "Enter" || opts.danger) return;
+      /* SH-20: Enter on a focused control is that control's own — on Cancel
+         it cancels. Only Enter with nothing else focused confirms. */
+      var t = e.target;
+      if (t && t !== confirmBtn && t.closest && t.closest("button, a, [role=button], input, textarea, select")) return;
+      e.preventDefault();
+      close(true);
+    }
     document.addEventListener("keydown", onKey);
     overlay.close = function () { close(false); };
     var cancelBtn = el("button", { type: "button", class: "k-btn", "data-ui": "ui.confirm-no",
@@ -344,7 +366,7 @@
   }
 
   KOS.ui = { el: el, toast: toast, flashSaved: flashSaved, esc: esc, debounce: debounce,
-    confirm: confirmModal, openDialog: openDialog, topDialog: topDialog, num: num,
+    confirm: confirmModal, openDialog: openDialog, topDialog: topDialog, closeDialogs: closeDialogs, num: num,
     setClass: setClass, state: state, hasState: hasState, hookify: hookify, hook: hook, banner: banner };
   /* notices the store raised before this file loaded */
   if (KOS.store && KOS.store._showNotices) KOS.store._showNotices();
@@ -370,72 +392,13 @@
      refresh the page without moving the user reads this. */
   KOS.currentNav = function () { return navCur ? { viewId: navCur.viewId, arg: navCur.arg } : null; };
   /* redraw the current page in place: no history entry, no forward-trail
-     reset, and the reader keeps their scroll position. */
-  var redrawLater = null;
-  /* STOPGAP (quality audit 2026-11, findings SY-01…SY-08; to be replaced
-     by a proper redraw policy): a BACKGROUND redraw — a cloud pull, a habit
-     ticking itself, a picture loading, the Daily Review closing — remounts
-     the page and loses what the user is in the middle of (the card in a
-     flashcard set, the notes page, a quiz, typed text, the keyboard). So a
-     background redraw is held back:
-       - on a page where work lives in the page itself (TASK_VIEWS), until
-         the user navigates — the next page draws from the fresh state;
-       - elsewhere, while typing, while a dialog is open, or ("hard" only:
-         a cloud pull) within 45 s of the last touch — retried every 15 s.
-     The header HUD and rail counters still refresh; the data is never held
-     back, only the repaint. Redraws the user asks for are unchanged. */
-  var TASK_VIEWS = { ref: 1, due: 1, review: 1, personaldeck: 1, code: 1, japanese: 1, mind: 1,
-    creatives: 1, exams: 1, tracker: 1, assistant: 1, worked: 1, trace: 1, oop: 1, sims: 1, files: 1 };
-  var lastTouch = 0, bgTimer = null, bgPendingFor = null;
-  ["pointerdown", "keydown", "wheel", "touchstart", "input"].forEach(function (ev) {
-    document.addEventListener(ev, function () { lastTouch = Date.now(); }, { capture: true, passive: true });
-  });
-  function typing() {
-    var a = document.activeElement;
-    return !!a && (a.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(a.tagName));
-  }
-  function holdBackground(kind) {
-    if (TASK_VIEWS[navCur.viewId]) return "task";
-    if (typing()) return "typing";
-    if (topDialog()) return "dialog";
-    if (kind === "hard" && Date.now() - lastTouch < 45000) return "recent";
-    return null;
-  }
-  /* the element that actually scrolls the page: #stage on the desktop and
-     tablet shell, the document on the phone shell, #main as a fallback */
-  function scrollers() {
-    return [document.getElementById("stage"), document.getElementById("main"), document.scrollingElement].filter(Boolean);
-  }
-  KOS.rerender = function (opts) {
+     reset. WHEN a redraw may happen, and what it keeps (scroll, focus,
+     typed text), is js/core/redraw.js's — KOS.rerender is defined there.
+     This is only the remount. */
+  KOS.ui.navKey = navKey;
+  KOS.ui.redrawNow = function () {
     if (!navCur || !KOS.views[navCur.viewId]) return false;
-    var bg = opts && opts.background ? (opts.background === "soft" ? "soft" : "hard") : null;
-    if (bg) {
-      var why = holdBackground(bg);
-      if (why) {
-        bgPendingFor = navKey(navCur);
-        clearTimeout(bgTimer);
-        /* a task page waits for the user to leave it; the others retry */
-        if (why !== "task") bgTimer = setTimeout(function () {
-          bgTimer = null;
-          if (navCur && bgPendingFor === navKey(navCur)) KOS.rerender({ background: bg });
-        }, 15000);
-        return true;
-      }
-    }
-    bgPendingFor = null;
-    /* never under a pen: a background pull or a habit ticking itself
-       redrew the page mid-stroke on the iPad. It waits for the pen to lift. */
-    if (KOS.inkUI && KOS.inkUI.busy && KOS.inkUI.busy()) {
-      clearTimeout(redrawLater);
-      redrawLater = setTimeout(function () { redrawLater = null; KOS.rerender(opts); }, 1200);
-      return true;
-    }
-    var sc = scrollers(), tops = sc.map(function (e) { return e.scrollTop; });
     KOS.show(navCur.viewId, navCur.arg, { _nav: true });
-    function restore() { sc.forEach(function (e, i) { if (tops[i]) e.scrollTop = tops[i]; }); }
-    restore();
-    /* async content (lazy batches, images) can land a frame later */
-    if (typeof requestAnimationFrame === "function") requestAnimationFrame(restore);
     return true;
   };
   KOS.back = function () {
@@ -1567,6 +1530,11 @@
 
   KOS.show = function (viewId, arg, opts) {
     opts = opts || {};
+    /* W2: the render on screen ends here — its async work stops, and on a
+       real navigation its dialogs close and unsaved work asks first
+       (false: the reader was asked, nothing is drawn yet) */
+    var samePage = !!navCur && navKey(navCur) === navKey({ viewId: viewId, arg: arg });
+    if (KOS.view && KOS.view._enter(viewId, arg, samePage, opts) === false) return false;
     /* roadmap 1.3: a quick-note draft files into its topic's Spec fork when
        the topic is left — every show except one of that same topic (a
        redraw keeps the draft where it is) */

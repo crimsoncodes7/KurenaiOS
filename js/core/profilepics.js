@@ -146,7 +146,7 @@
       landTimer = null;
       try { window.dispatchEvent(new window.CustomEvent("kos-profile-pic")); } catch (e) { /* old engine */ }
       if (KOS.refreshHUD) KOS.refreshHUD();
-      if (KOS.rerender) KOS.rerender({ background: "soft" });
+      if (KOS.rerender) KOS.rerender({ background: "soft", changed: ["governor"] });
     }, 0);
   }
   /* a file arrived from the cloud: a reference that found nothing tries again */

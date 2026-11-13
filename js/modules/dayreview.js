@@ -53,6 +53,9 @@
     delete u.minimised;
     store.save();
     var st = { slot: slot, cur: opts.step != null ? opts.step : resume, skipped: {}, overlay: null, again: again };
+    /* W2 (SY-06): what the review changed, so closing it redraws only a
+       page that shows that — never a lesson underneath */
+    try { st.before = KOS.changes ? KOS.changes.snapshot() : null; } catch (eS) { st.before = null; }
     open = st;
     var panel = el("div", { class: "k-rv", "data-ui": "review.sheet", "data-slot": slot, "data-dialog-box": "" });
     var overlay = el("div", { class: "k-dialog-overlay k-dr-overlay" }, [panel]);
@@ -89,7 +92,15 @@
     if (!silent) minimise(st);
     if (st.overlay && st.overlay.parentNode) st.overlay.remove();
     paintChip();
-    if (!silent && KOS.rerender) KOS.rerender({ background: "soft" });
+    if (!silent) under(st);
+  }
+  /* the page under the sheet, after the review: redrawn only for what the
+     review really changed (a triage, a tick), through the redraw policy */
+  function under(st) {
+    if (!KOS.rerender) return;
+    var changed = null;
+    try { changed = st && st.before && KOS.changes ? KOS.changes.diff(st.before) : null; } catch (e) { changed = null; }
+    KOS.rerender({ background: "soft", changed: changed });
   }
   function finish(how) {
     var st = open;
@@ -100,7 +111,7 @@
     open = null;
     if (st.overlay && st.overlay.parentNode) st.overlay.remove();
     paintChip();
-    KOS.rerender({ background: "soft" });
+    under(st);
   }
 
   function paint() {
@@ -676,7 +687,7 @@
       V().cfg().portrait ? el("img", { class: "k-dr-gn-face", src: U().img("face.kurenai.evening"), alt: "" }) : null,
       el("h2", { class: "k-dr-gn-t", text: "Good night." }),
       el("p", { class: "k-dr-soft", text: (held ? "Alerts are held until the morning review at " + held + ". " : "") + (first ? "Tomorrow starts with " + (V().resolve(first) || {}).title + (first.action ? ": " + first.action : "") + "." : "") }),
-      el("button", { type: "button", class: "k-btn", "data-ui": "review.close", text: "Close", onclick: function () { open = null; st.overlay.remove(); paintChip(); KOS.rerender({ background: "soft" }); } })
+      el("button", { type: "button", class: "k-btn", "data-ui": "review.close", text: "Close", onclick: function () { open = null; st.overlay.remove(); paintChip(); under(st); } })
     ]));
     KOS.a11y && KOS.a11y.announce("Good night." + (held ? " Alerts held until " + held + "." : ""));
   }
@@ -724,7 +735,7 @@
       { label: "Open again", hint: "tick, pick or change anything in it", onSelect: function () { openSheet(c.slot); } }
     ] : [
       { label: peekUi().minimised ? "Resume" : "Open", hint: c.sub.replace("· ", ""), onSelect: function () { openSheet(c.slot); } },
-      { label: "Skip review", hint: "nothing else changes", onSelect: function () { V().finish(c.slot, "skipped"); delete ui().minimised; store.save(); paintChip(); KOS.rerender({ background: "soft" }); } }
+      { label: "Skip review", hint: "nothing else changes", onSelect: function () { V().finish(c.slot, "skipped"); delete ui().minimised; store.save(); paintChip(); KOS.rerender({ background: "soft", changed: ["dayReview"] }); } }
     ] });
     if (c.past) KOS.ui.state(btn, "past", true);
     btn.setAttribute("data-ui", (btn.getAttribute("data-ui") || "") + " review.chip");
@@ -743,6 +754,10 @@
     var h = location.hash || "";
     if (/^#\/exams\/[^/]+\/room/.test(h)) return true;
     if (bootHash && !/^#\/?(home)?$/.test(bootHash)) return true;
+    /* W2 (SY-06): never over a page with work in it (a lesson, a review, a
+       vault) — coming back to the iPad mid-lesson is not a moment for it */
+    var nav = KOS.currentNav && KOS.currentNav();
+    if (nav && KOS.changes && KOS.changes.isTask(nav.viewId)) return true;
     return false;
   }
   function maybeOpen() {
@@ -751,6 +766,9 @@
     var d = V().due();
     if (!d || open) return;
     if (!V().cfg().autoOpen) return;
+    /* UR-3: not before this page load holds the account's copy — the review
+       may be done on another device already (the chip is there meanwhile) */
+    if (!synced()) return;
     /* the first time, it waits in the chip: it opens by itself only once a
        review has been opened at least once (on any device) */
     var rec = store.state.dayReview;
@@ -760,9 +778,31 @@
     if (blocked()) { held[d.day + "|" + d.slot] = true; return; }
     openSheet(d.slot);
   }
+  var waitedOut = false;
+  function synced() {
+    return waitedOut || !KOS.cloudsync || !KOS.cloudsync.awaiting || !KOS.cloudsync.awaiting();
+  }
+  /* another device (or tab) moved the reviews: a review finished there is
+     finished here — the open sheet closes and the chip follows (UR-3) */
+  function onChange(changed, source) {
+    if (source === "local" || (changed && changed.indexOf("dayReview") === -1 && changed.indexOf("*") === -1)) return;
+    if (V().heal) V().heal();
+    if (open && !open.again && V().stateOf && V().stateOf(open.slot) === "done") {
+      close(true);
+      delete ui().minimised;
+      store.save();
+      KOS.ui.toast("That review was finished on another device.");
+    }
+    paintChip();
+    if (!open) setTimeout(maybeOpen, 0);
+  }
   function start() {
     bootHash = location.hash || "";
-    setTimeout(function () { maybeOpen(); bootHash = null; }, 1500);
+    if (V().heal) V().heal();
+    if (KOS.changes && KOS.changes.on) KOS.changes.on(onChange);
+    setTimeout(function () { maybeOpen(); if (synced()) bootHash = null; }, 1500);
+    /* offline or slow: after 20 s the review stops waiting for the account */
+    setTimeout(function () { if (!waitedOut) { waitedOut = true; maybeOpen(); bootHash = null; } }, 20000);
     setInterval(function () { if (!open) paintChip(); }, 30000);
     document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible") setTimeout(maybeOpen, 600); });
   }

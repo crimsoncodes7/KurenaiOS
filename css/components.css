@@ -387,6 +387,35 @@ box-shadow: var(--elev-4);
 /* the page behind a modal does not scroll (openDialog sets the lock) */
 :root[data-scroll-lock] #stage { overflow: hidden; }
 
+/* ---------- the refresh pill (W2, js/core/redraw.js) ----------
+   "Updated on another device · Refresh": a page with work in it is never
+   redrawn under the reader; this says there is something newer. */
+.k-refresh-pill {
+position: fixed;
+inset-block-end: var(--sp-24);
+inset-inline-start: 50%;
+z-index: var(--z-sticky);
+display: inline-flex;
+align-items: center;
+gap: var(--sp-10);
+max-inline-size: calc(100% - var(--sp-32));
+min-block-size: var(--hit);
+padding: var(--sp-6) var(--sp-14);
+border: var(--hairline) solid var(--line);
+border-radius: var(--r-pill);
+background: var(--s2);
+color: var(--text-2);
+font-size: var(--fs-12-5);
+white-space: nowrap;
+box-shadow: var(--elev-2);
+transform: translateX(-50%);
+cursor: pointer;
+}
+.k-refresh-pill[hidden] { display: none; }
+.k-refresh-pill-text { overflow: hidden; text-overflow: ellipsis; }
+.k-refresh-pill-act { color: var(--teal); font-weight: var(--weight-semibold); }
+.k-refresh-pill:hover, .k-refresh-pill:focus-visible { border-color: var(--teal); color: var(--text); }
+
 /* ---------- toast (the visible half; KOS.a11y speaks it) ---------- */
 #toast {
 position: fixed;
@@ -700,6 +729,7 @@ textarea.k-input { min-block-size: calc(var(--hit) * 2.6); line-height: var(--lh
 .k-msheet--full::before { display: none; }
 .k-msheet--tall { block-size: calc(100dvh - var(--sp-24)); }
 #toast { bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom) + var(--sp-12)); }
+.k-refresh-pill { inset-block-end: calc(var(--tabbar-h) + env(safe-area-inset-bottom) + var(--sp-12)); min-block-size: var(--hit-coarse); }
 }
 
 /* ---------- touch ---------- */

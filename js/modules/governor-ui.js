@@ -668,12 +668,25 @@
        Wall's own (editing either edits both). */
     function editSeat(main) {
       var A = KOS.achievements, aui = KOS.achUI;
-      var draft = { showcase: A ? A.showcase().slice() : [], seatBg: g.seatBg || null, seatFocus: g.seatFocus || "centre",
-        titleId: A && A.title() ? A.title().id : null, seal: g.seal || "kurenai" };
-      var saved = JSON.stringify(draft);
+      /* W2 (SY-20, AX-22): the draft is this VISIT's, not this render's — a
+         background redraw keeps every unsaved change and the open tab, the
+         page holds while it is dirty, and leaving it asks first */
+      var M = KOS.view ? KOS.view.memo("seat", function () { return {}; }) : {};
+      if (!M.draft) {
+        M.draft = { showcase: A ? A.showcase().slice() : [], seatBg: g.seatBg || null, seatFocus: g.seatFocus || "centre",
+          titleId: A && A.title() ? A.title().id : null, seal: g.seal || "kurenai" };
+        M.saved = JSON.stringify(M.draft);
+        M.tab = "showcase";
+      }
+      var draft = M.draft, saved = M.saved;
+      function unsaved() { return !M.left && JSON.stringify(draft) !== saved; }
+      if (KOS.view) {
+        KOS.view.hold(unsaved);
+        KOS.view.guard(function () { return unsaved() ? { title: "Leave without saving?", body: "Your changes to the seat have not been saved." } : null; });
+      }
       var saveBtn = el("button", { type: "button", class: "k-btn k-btn--primary", "data-ui": "gov.seat-save", "data-intent": "primary", text: "Save", onclick: save });
       var head = KOS.ui.pageHeader({ kicker: "‹ The Governor's Seat", title: "Edit your seat", sub: "Your showcase, the stage's background, your title and the seal on your ring.",
-        actions: [el("button", { type: "button", class: "k-btn", "data-ui": "gov.seat-discard", text: "Discard", onclick: function () { KOS.show("governor"); } }), saveBtn] });
+        actions: [el("button", { type: "button", class: "k-btn", "data-ui": "gov.seat-discard", text: "Discard", onclick: function () { M.left = true; KOS.show("governor"); } }), saveBtn] });
       var kick = head.querySelector("[data-ui~='ui.page-kicker']");
       if (kick) { kick.setAttribute("role", "link"); kick.setAttribute("tabindex", "0"); kick.classList.add("k-kicker--link"); KOS.a11y.activate(kick, function () { KOS.show("governor"); }); }
       main.appendChild(addHook(head, "gov.head"));
@@ -724,10 +737,10 @@
         ]));
         sum.appendChild(el("p", { class: "k-muted k-gv-sum-note", text: "The showcase is also the Wall's Showcase tab and, when switched on, the share card's." }));
       }
-      var TABS_E = [["showcase", "Showcase"], ["bg", "Background"], ["title", "Title"], ["sigil", "Sigil"]], tab = "showcase";
+      var TABS_E = [["showcase", "Showcase"], ["bg", "Background"], ["title", "Title"], ["sigil", "Sigil"]], tab = M.tab || "showcase";
       function paintEditor() {
         editor.textContent = "";
-        var seg = KOS.ui.tabs(TABS_E.map(function (x) { return { label: x[1], active: x[0] === tab, onSelect: function () { tab = x[0]; paintEditor(); } }; }),
+        var seg = KOS.ui.tabs(TABS_E.map(function (x) { return { label: x[1], active: x[0] === tab, onSelect: function () { tab = M.tab = x[0]; paintEditor(); } }; }),
           { variant: "workspace", label: "Edit", className: "k-gv-edit-tabs" });
         editor.appendChild(seg);
         var body = el("div", { class: "k-gv-edit-body" });
@@ -832,6 +845,7 @@
         if (changed("seatFocus")) g.seatFocus = draft.seatFocus;
         if (changed("seal")) KOS.governor.setSeal(draft.seal);
         store.save();
+        M.left = true;
         KOS.ui.toast("Seat saved."); KOS.a11y.announce("Seat saved.");
         KOS.show("governor");
       }

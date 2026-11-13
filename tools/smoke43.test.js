@@ -375,6 +375,12 @@ step("the page picker turns the page, and the footer repeats the neighbours as c
 
 step("the reader controls turn pages and stop at both ends", () => {
   KOS.show("ref", PAGED);
+  /* W2 (ST-36): the topic remembers the page being read, so the step
+     before left it on page 2 — go back to the first */
+  const sel0 = $("[data-ui~='topic.reader-page-select']");
+  assert(sel0.value === "1", "the topic did not keep the page being read: " + sel0.value);
+  sel0.value = "0";
+  sel0.dispatchEvent(new window.Event("change", { bubbles: true }));
   const total = $("[data-ui~='topic.reader-page-select']").options.length;
   const [prev, next] = $$("[data-ui~='topic.reader-step']");
   assert(prev.disabled, "the back step is live on the first page");
