@@ -478,10 +478,21 @@ show on Account & Cloud Sync (DI-20).
   and drops the cloud base, which before could make a signed-in device
   push its emptiness as deletions (DI-21); the checkpoints listed with
   Download and Restore (the gap the 9 Nov review recorded). smoke134 U–W.
+- **Side replicators (14 Nov 2026, 17e507b, NOT deployed; gate 141/141,
+  smoke141 new; done on Fable).** FIXED DI-20 and DI-11:
+  `js/core/sidesync.js` wraps Money, the review log, Mind's Journal, saved
+  Reports and handwriting. Each run's outcome is recorded per store and per
+  device and listed on Account & Cloud Sync (a failure in red, with its
+  words; Sync now runs them too); every pull by cursor asks from two minutes
+  before it — the media and file pulls and the server runs included — so a
+  row committed late arrives; a pull that brought something names its store
+  to W2's change bus. Invariant 36d. Checked in a browser (the card's lines).
+  NOT done from DI-11's proposal: stamping with `clock_timestamp()` in the
+  trigger (a migration); the overlap alone closes the gap for any
+  transaction under two minutes.
 - Still to do in W1: the rest of Todoist/Google
   bookkeeping (RC6: pull before the lease, uid for older reminders,
-  sections, unlinked projects, re-keyed references), side replicators
-  (DI-20), the remaining P1s.
+  sections, unlinked projects, re-keyed references), the remaining P1s.
 
 **W7 progress (13 Nov 2026, `feat/w1-integrity` 016c0ba, NOT deployed; gate
 136/136, smoke136 new):** FIXED JM-07, MI-01, CR-25 (lesson checks reach
@@ -577,11 +588,23 @@ ST-36, CC-18, SY-19, AX-27, AP-17, ST-12 and SY-21 (inner scrollers are put
 back on a redraw), UR-3, SH-20, SH-21, SH-02 (with AX-07), SH-23, SH-41.
 Checked in a browser at desktop and phone width (the pill, Refresh keeping
 the notes page and the scroll).
-STILL TO DO in W2, in this order: **resumable sessions** (§A6: ST-04, SY-03,
-SY-04, JM-08, SY-09, JM-22 — flashcards, quiz and exam drafts, Japanese and
-kana runs in `state.ui`, one ledger entry per session upserted with delta
-pay), **lazy loading** (AP-01), then the side replicators naming their
-stores to the bus with DI-20. Smaller, for Opus: AA-01, AA-02, CR-01, SY-22
+**W2 progress (14 Nov 2026, 3dca47d, NOT deployed; gate 140/140, smoke140
+new) — resumable sessions, done on Fable.** FIXED ST-04, SY-03, SY-04,
+JM-08, SY-09, JM-22. A flashcard batch, a Due-today review, a Japanese
+review or learn session and a kana set are ONE ledger entry from the first
+answer (`KOS.sessions.upsert` by `metrics.sid`), paid by the difference
+against a receipt (`KOS.governor.sessionPrice`/`onUpsert`), so leaving
+mid-way loses nothing and nothing is paid twice. Where a run stands is per
+device (`state.ui.runs`, `KOS.sessions.run`): a batch's queue, a quiz's
+order, picks and place, the exam tab's typed answers (kept three days), a
+Japanese session's answers. Coming back the same day picks it up ("Picked
+up where you left off · Start fresh"). Invariant 167. Found on the way: a
+finished flashcard batch had stopped logging in the working tree (a
+shadowed counter) and no older suite caught it; smoke140 does now.
+The side replicators name their stores to the bus (17e507b, with DI-20,
+above in W1).
+STILL TO DO in W2: **lazy loading** (AP-01), the last Fable item. Smaller,
+for Opus: AA-01, AA-02, CR-01, SY-22
 (in-page tabs through `KOS.view.memo`), SY-11, SY-14, SY-23, SY-25, SY-27,
 AP-08 (move pages' global listeners to `KOS.view.onDispose`), SH-37/AG-03/
 AX-24 (URLs for the Wall's tabs), SH-13, UR-5 (iPhone Focus with the screen
