@@ -242,7 +242,8 @@
     if (!cfg().on || !signedIn() || (KOS.dataMode && KOS.dataMode.mode)) { cb(null, 0); return; }
     var key = "push.runs." + uid();
     kv(key).then(function (cursor) {
-      cloud().runsSince(cursor || null, function (e, rows) {
+      /* DI-11: from two minutes before the cursor; both appliers ignore a run they hold */
+      cloud().runsSince(KOS.sideSync ? KOS.sideSync.since(cursor) : cursor || null, function (e, rows) {
         if (e) { cb(e); return; }
         var n = 0, max = cursor || null;
         (rows || []).forEach(function (r) {

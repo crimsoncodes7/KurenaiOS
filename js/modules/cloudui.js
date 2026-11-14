@@ -143,8 +143,29 @@
       return el("p", { class: "k-card-row" }, [el("span", { class: "k-card-row-k", text: k }), el("span", { class: "k-card-row-v", "data-tone": tone || null, text: v })]);
     }
 
+    var sideHost = null;
+    function when(ts) { return new Date(ts).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }); }
+    function paintSide() {
+      /* no isConnected test here: the card is drawn before its page appends it */
+      var host = sideHost;
+      if (!host) return;
+      host.textContent = "";
+      var rows = KOS.sideSync.status().filter(function (r) { return r.at; });
+      if (!rows.length) return;
+      host.appendChild(el("p", { class: "k-kicker k-cloud-side-h", text: "Kept in step beside it" }));
+      rows.forEach(function (r) {
+        var row = fact(r.label, r.err ? "Failed " + when(r.err.at) + " · " + r.err.msg : "Synced " + when(r.ok), r.err ? "red" : null);
+        row.setAttribute("data-ui", "cloud.side-row");
+        row.setAttribute("data-store", r.id);
+        if (r.err) row.setAttribute("data-state", "error");
+        host.appendChild(row);
+      });
+    }
+    window.addEventListener("kos-sidesync", function () { if (card.isConnected) paintSide(); });
+
     function render() {
       body.innerHTML = "";
+      sideHost = null;
       if (!KOS.cloud || !KOS.cloud.configured()) {
         setChip("Not set up", "muted");
         body.appendChild(el("p", { class: "k-cloud-p", text:
@@ -228,15 +249,25 @@
         facts.appendChild(fact("Last merge with another device", new Date(lm.at).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }) + " · " + bits.join(", ")));
       }
       body.appendChild(facts);
+      /* DI-20: the stores that replicate beside the state document, each
+         with its last success or its last error in words */
+      if (KOS.sideSync) {
+        var side = el("div", { class: "k-cloud-facts k-cloud-side", "data-ui": "cloud.side" });
+        body.appendChild(side);
+        sideHost = side;
+        KOS.sideSync.ready(paintSide);
+      }
       var blockedNote = linkNotice(render);
       if (blockedNote) body.appendChild(blockedNote);
 
       var syncBtn = el("button", { type: "button", class: "k-btn k-btn--sm", text: "Sync now", onclick: function () {
         syncBtn.disabled = true;
         KOS.cloudsync.syncNow(function (err) {
-          syncBtn.disabled = false;
           if (err) KOS.ui.toast("Sync failed: " + err.message, true);
           render();
+          /* and the stores beside it, so a failure there can be tried again;
+             each one's line repaints as it answers (kos-sidesync) */
+          if (KOS.sideSync) KOS.sideSync.syncAll();
         });
       } });
       var filesBtn = el("button", { type: "button", class: "k-btn k-btn--sm", text: "Sync files now", title: "Attachment files upload only when you ask; their details sync on their own", onclick: function () {

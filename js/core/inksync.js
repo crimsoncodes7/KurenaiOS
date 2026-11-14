@@ -134,7 +134,7 @@
           if (e1) { finish(e1); return; }
           var rows = [], offset = 0, cursor = meta.cursor || null;
           (function pull() {
-            cloud().since(meta.cursor || null, offset, function (e2, got) {
+            cloud().since(KOS.sideSync ? KOS.sideSync.since(meta.cursor) : meta.cursor || null, offset, function (e2, got) {
               if (e2) { finish(e2); return; }
               got = got || [];
               got.forEach(function (r) { if (!cursor || r.updated_at > cursor) cursor = r.updated_at; });
@@ -154,6 +154,9 @@
     });
   }
 
+  /* DI-20: each run's outcome is recorded and shown on Account & Cloud Sync, and a pull that
+     brought something names this store to the change bus (js/core/sidesync.js) */
+  if (KOS.sideSync) syncCloud = KOS.sideSync.wrap({ id: "ink", label: "Handwriting", key: "db:ink" }, syncCloud);
   /* fold the pulled rows into this device, and list what to push */
   function apply(local, rows, meta, uid, out, cb) {
     var pages = byId(local.pages), docs = {}, base = byId(local.base), dead = {}, w = { pages: [], base: [], docs: [], dead: [], dropPages: [], dropDocs: [], dropBase: [] };
@@ -176,9 +179,11 @@
       if (dead[id]) return; /* deleted here: the deletion is pushed below and wins */
       var rp = r.data_json;
       if (!rp || !Array.isArray(rp.items)) return;
-      out.pulled++;
-      if (!l) { pages[id] = rp; w.pages.push(rp); w.base.push({ id: id, data: rp }); touchedDocs[rp.doc] = 1; return; }
+      /* pulled = a page this device did not already hold as sent (DI-11's overlap asks for the
+         last two minutes again, and this device's own page comes back the same) */
+      if (!l) { out.pulled++; pages[id] = rp; w.pages.push(rp); w.base.push({ id: id, data: rp }); touchedDocs[rp.doc] = 1; return; }
       if (same(l, rp)) { w.base.push({ id: id, data: rp }); return; }
+      out.pulled++;
       if (b && same(l, b)) { pages[id] = rp; w.pages.push(rp); w.base.push({ id: id, data: rp }); touchedDocs[rp.doc] = 1; return; }
       var m = mergePage(b, l, rp);
       pages[id] = m.page; w.pages.push(m.page);

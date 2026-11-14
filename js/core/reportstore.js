@@ -390,7 +390,7 @@
       meta.pushed = meta.pushed || {};
       var offset = 0, maxTs = meta.cursor || null;
       (function page() {
-        cloud().since(meta.cursor || null, offset, function (e1, rows) {
+        cloud().since(KOS.sideSync ? KOS.sideSync.since(meta.cursor) : meta.cursor || null, offset, function (e1, rows) {
           if (e1) { finish(e1); return; }
           rows = rows || [];
           var i = 0;
@@ -446,6 +446,9 @@
       }
     });
   }
+  /* DI-20: each run's outcome is recorded and shown on Account & Cloud Sync, and a pull that
+     brought something names this store to the change bus (js/core/sidesync.js) */
+  if (KOS.sideSync) syncCloud = KOS.sideSync.wrap({ id: "reports", label: "Reports", key: "db:reports" }, syncCloud);
   /* a change worth sending soon (words written, a report saved) */
   function soonSync() {
     if (syncTimer) clearTimeout(syncTimer);

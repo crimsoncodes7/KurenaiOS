@@ -1242,7 +1242,7 @@
       function pull() {
         var offset = 0, maxTs = meta.cursor || null;
         (function page() {
-          cloud().since(meta.cursor || null, offset, function (e3, rows) {
+          cloud().since(KOS.sideSync ? KOS.sideSync.since(meta.cursor) : meta.cursor || null, offset, function (e3, rows) {
             if (e3) { finish(e3, meta); return; }
             rows = rows || [];
             var puts = [], gone = [];
@@ -1274,6 +1274,9 @@
       }
     });
   }
+  /* DI-20: each run's outcome is recorded and shown on Account & Cloud Sync, and a pull that
+     brought something names this store to the change bus (js/core/sidesync.js) */
+  if (KOS.sideSync) syncCloud = KOS.sideSync.wrap({ id: "money", label: "Money", key: "db:money" }, syncCloud);
   /* a change worth sending soon (a transaction typed, confirmed, imported) */
   function soonSync() {
     if (!syncStarted) return;

@@ -157,7 +157,7 @@
         local.forEach(function (r) { have[r.uid || r.key + "|" + r.ts] = true; });
         var fresh = [], offset = 0, maxTs = meta.cursor || null;
         (function page() {
-          cloud().since(meta.cursor || null, offset, function (e2, rows) {
+          cloud().since(KOS.sideSync ? KOS.sideSync.since(meta.cursor) : meta.cursor || null, offset, function (e2, rows) {
             if (e2) { finish(e2); return; }
             rows = rows || [];
             rows.forEach(function (row) {
@@ -196,6 +196,9 @@
       });
     });
   }
+  /* DI-20: each run's outcome is recorded and shown on Account & Cloud Sync, and a pull that
+     brought something names this store to the change bus (js/core/sidesync.js) */
+  if (KOS.sideSync) syncCloud = KOS.sideSync.wrap({ id: "reviews", label: "Review log", key: "db:reviews" }, syncCloud);
   function store(rows, cb) {
     if (!rows.length) { cb(null); return; }
     txn("readwrite", function (err, t) {

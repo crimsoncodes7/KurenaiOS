@@ -1293,7 +1293,9 @@
     var since = meta.cursor.media;
     var offset = 0, maxTs = since;
     (function page() {
-      api().fetchMediaSince(since, offset, function (err, rows) {
+      /* DI-11: ask from two minutes before the cursor (a row the server committed late sits
+         behind it); applyMediaRow skips a row this device already holds at that stamp */
+      api().fetchMediaSince(KOS.sideSync ? KOS.sideSync.since(since) : since, offset, function (err, rows) {
         if (err) { done(err, out); return; }
         rows = rows || [];
         var i = 0;
@@ -1352,7 +1354,7 @@
     var since = meta.cursor.files;
     var offset = 0, maxTs = since;
     (function page() {
-      api().fetchFilesSince(since, offset, function (err, rows) {
+      api().fetchFilesSince(KOS.sideSync ? KOS.sideSync.since(since) : since, offset, function (err, rows) {   // DI-11, as above
         if (err) { done(err, out); return; }
         rows = rows || [];
         var i = 0;
