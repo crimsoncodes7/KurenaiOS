@@ -226,7 +226,7 @@ chronological diary here.
   https://e94eede7.kurenai-os.pages.dev.
 - Last milestone tag: `milestone/graphite-ui-rebuild`
 - Service-worker version: `kos-integrity-6`
-- Required smoke gate: 139 / 139 suites (`""` and 2–139, or `npm test`, which runs them in parallel through `tools/run_smoke.mjs`; 124–126 are W1's: repairs run safely and Import backup asks first, the P0s (JM-06, ST-25, MG-01/MG-23, SY-18), and the DI-27 clean-up on test data; 127 activity, not any event (HR-31, CL-45) and the per-device journal scrub; 128 streak-milestone gold once per run (HR-16); 129 the one-off saved-reports rebuild after DI-27; 130–132 rewards with receipts (RC21: Productivity, Mind and Creatives, Japanese); 133 two tabs saving the state document safely and its storage's durability (RC5: rev, lock and three-way merge, one change once across tabs, Focus owned by one tab, quarantine, the IndexedDB mirror as the primary, quota, Storage's kept copies); 134 the profile pictures moved into the file store by a repair and their edges (a record without its binary, the id from the bytes, orphans, links), the session ledger's archive, Creatives' suffixed database, mined Japanese lines kept on the device, Storage's state meter, and the store registry (RC4: every database listed, Reset everything clearing them all, the checkpoints with Restore); 135 first sign-in keeping the device's data (DI-03), a cloud document landing in one step, an older device's mined lines and newer picture, the pinned pre-link copy and the backup backoff, the Todoist/Google lease per tab, renewed and released (DI-19), Todoist's bookkeeping per chunk, and the goal's Linked title (GO-25); 136 honest numbers (W7: lesson checks that reach Completed through reviews and cards, Quiz best as a percent, every subject named in a report's words, Study hours as Focus time, routine and habit goals that name their routine, Home's desks by recency, a report saved before the history arrived rebuilt once, Collection goals by their own period and Goal getter taken back, topic colours from evidence); 137 the floors no page may undo (W3: 16px phone fields in the last layer, a painted header above the page body, round controls that stay round on touch); 139 the redraw policy, the change bus and the view lifecycle (W2: a change the page does not read redraws nothing, a task page shows "Updated on another device · Refresh" and is never redrawn under its reader, a redraw keeps focus, scroll and unsent text, navigation closes a page's dialogs and asks before unsaved work, every view's declared reads); 138 content and marking (W6: quiz options shuffled per attempt, self-marking by mark codes with the worked answer as a model answer, Marks by question's out-of and topic, Code's multi-line Run input, IT's spec text tidied and its refs unique); 120–123 are the quality programme's safety net — the 04:00 day across DST, the service-worker update across two versions, offline, and the verified backup `KOS.backup`; 116–119 are ratcheted gates over content, cosmetics, menus in dialogs and CSS collisions, each failing only on a violation not in its `tools/baselines/smoke11x-*.json`; 115 is Mind Journal replication; 114 is provider identity per module (DI-27); 113 is the Badge Wall's; 80–83 are Japanese's, 99 is Code's SQL runner, 100 the ink engine, 101–104 Routines and the Daily Review, 105 the rest of the iPad build and Files R0, 106 Files R1–R4, airing on a closed app, Rider CI evidence and habits several times a day, 107 the Pencil fixes, 108 Creatives', 109–111 Mind's, 112 Google Calendar, Google Tasks and Todoist).
+- Required smoke gate: 140 / 140 suites (`""` and 2–140, or `npm test`, which runs them in parallel through `tools/run_smoke.mjs`; 124–126 are W1's: repairs run safely and Import backup asks first, the P0s (JM-06, ST-25, MG-01/MG-23, SY-18), and the DI-27 clean-up on test data; 127 activity, not any event (HR-31, CL-45) and the per-device journal scrub; 128 streak-milestone gold once per run (HR-16); 129 the one-off saved-reports rebuild after DI-27; 130–132 rewards with receipts (RC21: Productivity, Mind and Creatives, Japanese); 133 two tabs saving the state document safely and its storage's durability (RC5: rev, lock and three-way merge, one change once across tabs, Focus owned by one tab, quarantine, the IndexedDB mirror as the primary, quota, Storage's kept copies); 134 the profile pictures moved into the file store by a repair and their edges (a record without its binary, the id from the bytes, orphans, links), the session ledger's archive, Creatives' suffixed database, mined Japanese lines kept on the device, Storage's state meter, and the store registry (RC4: every database listed, Reset everything clearing them all, the checkpoints with Restore); 135 first sign-in keeping the device's data (DI-03), a cloud document landing in one step, an older device's mined lines and newer picture, the pinned pre-link copy and the backup backoff, the Todoist/Google lease per tab, renewed and released (DI-19), Todoist's bookkeeping per chunk, and the goal's Linked title (GO-25); 136 honest numbers (W7: lesson checks that reach Completed through reviews and cards, Quiz best as a percent, every subject named in a report's words, Study hours as Focus time, routine and habit goals that name their routine, Home's desks by recency, a report saved before the history arrived rebuilt once, Collection goals by their own period and Goal getter taken back, topic colours from evidence); 137 the floors no page may undo (W3: 16px phone fields in the last layer, a painted header above the page body, round controls that stay round on touch); 140 sessions in progress (W2: a flashcard batch, a Due-today review, a Japanese session and a kana set as ONE ledger entry from the first answer, paid by difference and picked up again; a quiz attempt and typed exam answers kept across a redraw, another page and a reload); 139 the redraw policy, the change bus and the view lifecycle (W2: a change the page does not read redraws nothing, a task page shows "Updated on another device · Refresh" and is never redrawn under its reader, a redraw keeps focus, scroll and unsent text, navigation closes a page's dialogs and asks before unsaved work, every view's declared reads); 138 content and marking (W6: quiz options shuffled per attempt, self-marking by mark codes with the worked answer as a model answer, Marks by question's out-of and topic, Code's multi-line Run input, IT's spec text tidied and its refs unique); 120–123 are the quality programme's safety net — the 04:00 day across DST, the service-worker update across two versions, offline, and the verified backup `KOS.backup`; 116–119 are ratcheted gates over content, cosmetics, menus in dialogs and CSS collisions, each failing only on a violation not in its `tools/baselines/smoke11x-*.json`; 115 is Mind Journal replication; 114 is provider identity per module (DI-27); 113 is the Badge Wall's; 80–83 are Japanese's, 99 is Code's SQL runner, 100 the ink engine, 101–104 Routines and the Daily Review, 105 the rest of the iPad build and Files R0, 106 Files R1–R4, airing on a closed app, Rider CI evidence and habits several times a day, 107 the Pencil fixes, 108 Creatives', 109–111 Mind's, 112 Google Calendar, Google Tasks and Todoist).
 - Branches: `main` is the line. On 20 October 2026 it was fast-forwarded to
   `feat/money-goals` (Money and Goals), then to `feat/fsrs` (FSRS), on 21
   October to `feat/exams-hub` (the Exams hub), and on 22 October to
@@ -321,7 +321,7 @@ from `file://`. Use HTTP for PWA, cloud and browser-audit work.
 python3 tools/dev_server.py 8765       # http.server with no-store, so edits show on one reload
 npm install jsdom fake-indexeddb       # test-only dependencies, once
 npm test                               # the whole smoke gate in parallel (tools/run_smoke.mjs; --skip, --repeat)
-for i in "" {2..139}; do node "tools/smoke${i}.test.js"; done   # the same, one at a time
+for i in "" {2..140}; do node "tools/smoke${i}.test.js"; done   # the same, one at a time
 node tools/ja_valid_check.mjs          # Japanese: kana, conjugation, every validator, strokes on every kana
 node tools/gen_ja_strokes.mjs --check  # the kana stroke data matches KanjiVG
 node tools/bake_ja_audio.mjs           # Japanese's audio pack: the cast on ElevenLabs, the narrator on VOICEVOX (open the app); --check, --dry
@@ -476,7 +476,7 @@ non-navigation redraw path.
 | User edits to the curriculum, the study editor and the quick note | `js/core/edits.js`, `js/modules/editor.js` |
 | The spaced-repetition model (FSRS-6), the flashcard schedule and the review log | `js/core/fsrs.js` (`KOS.fsrs`, pure, also in Node), `srs.js` (`KOS.srs`: the parameters in use, `weights`/`setFit`/`resetFit`), `js/core/reviewlog.js` (`KOS.reviewLog`, replicated to `kos_reviews`); `tools/fsrs_check.mjs`, `tools/smoke88.test.js` |
 | The optimiser (FSRS phase 3) | `js/core/fsrsopt.js` (`KOS.fsrsOpt`, pure, also in Node: prepare, pretrain, the Adam job, accept-if-better, `changes`); the "Fitted to your reviews" card and its preview in `js/modules/cardstats.js`; `tools/smoke96.test.js` |
-| Sessions and rewards | `sessions.js`, `governor.js` |
+| Sessions and rewards; a session in progress (invariant 167): `KOS.sessions.upsert`/`bySid`, the per-device records `KOS.sessions.run` (`state.ui.runs`), `KOS.governor.sessionPrice`/`onUpsert` | `sessions.js`, `governor.js`; the engines `js/engines/flashcards.js`, `quiz.js`, `js/modules/jarun.js`, the kana page in `japanese.js`; smoke140 |
 | Calendar/reminders/assignments/Focus | matching modules in `js/modules/` |
 | Integrated weekly plan and pacing | `js/core/pacing.js`, `js/modules/pacing.js` |
 | Collection schema and sync | `mediadb.js`, `media*.js`, provider clients |
@@ -1715,8 +1715,8 @@ source comments and audit notes refer to it.
     never overwritten.
 116. PAY ONCE (`KOS.ja.award`, type `ja`): a review session is ONE ledger entry paying +1 XP a
     facet answered correct or accepted (a hint still counts; a near or a wrong pays nothing),
-    at most 30 a day, logged once however many times the session ends (a learn session is
-    logged at the end of its first round, before the re-ask); a lesson's first PASS 15 XP, 2
+    at most 30 a day, kept up to date answer by answer and paid by difference however the session
+    ends or is left (invariant 167); a lesson's first PASS 15 XP, 2
     gold, +3 HP — a pass is every facet the lesson asked answered correct or accepted at
     least once (`KOS.ja.lessonPass`), and none of its misses from an earlier sitting left
     (`lessons[id].miss`, keyed, cleared by a right answer, asked again as practice);
@@ -2229,7 +2229,7 @@ source comments and audit notes refer to it.
     target of 20 or fewer, else each quarter of the tier's interval
     (`state.ui.achPings`).
 
-### The redraw policy and the view lifecycle (164–166)
+### The redraw policy, the view lifecycle and sessions in progress (164–167)
 
 164. A CHANGE SAYS WHAT MOVED, A VIEW SAYS WHAT IT READS (W2,
     `js/core/redraw.js`). A background change — a cloud pull, another tab's
@@ -2285,6 +2285,40 @@ source comments and audit notes refer to it.
     page or before this page load holds the account's copy; one finished
     on another device closes here, and a finished review is never
     downgraded to skipped.
+
+167. A SESSION IN PROGRESS IS IN THE LEDGER AND CAN BE PICKED UP (W2, §A6,
+    decision B3). A flashcard batch, a Due-today review, a Japanese review
+    or learn session and a kana set are ONE ledger entry from their FIRST
+    answer, found again by `metrics.sid`: `KOS.sessions.upsert(sid, entry)`
+    makes it or brings its metrics up to date, and the Governor pays only
+    the DIFFERENCE between what it is worth now (`KOS.governor.sessionPrice`,
+    the one definition `onSession` reads too) and its `receipt` — never
+    negative, so a figure that fell takes nothing back, and a retry, a
+    restore or the same figures again pay nothing. While it is in progress
+    (`metrics.done: false`) a flashcard pays as it leaves the queue (1 XP,
+    2 in a Due-today review) and says nothing; the flat part (15 XP, 3
+    gold, 4 HP; a review 20, 5, 6 and the backlog bonus, kept on the entry
+    as `cleared`) comes once, when the batch is finished, and is named
+    then. An entry with no `done` is a finished one: history is never
+    re-priced. A Japanese session's pay is still `KOS.ja.award` under the
+    day's cap, counted against the day's OTHER sessions
+    (`KOS.ja.syncSession`). `ts` and `date` stay the session's start, and
+    time spent rating is `metrics.secs`, never `dur` (other readers sum
+    `dur` as study time). WHERE IT STANDS is per device,
+    `state.ui.runs[key]` (`KOS.sessions.run`: get is a pure read, a record
+    lasts its day, typed exam answers three): a batch's remaining queue
+    (`fc:<sid>:<ref>`, `due:<run>`), a quiz's order, shuffles, picks and
+    place (`quiz:…`; a finished attempt shows its score again and is never
+    logged or counted twice; Retry and Shuffle start over), the exam tab's
+    question, filter and typed answers (`exam:…`), a Japanese session's
+    answers (`ja:reviews`, `ja:learn-<lesson>`; what is still to ask is
+    what is still due, and a question already answered in the session is
+    asked as practice only) and a kana set's (`ja:kana`). Coming back the
+    same day — a redraw, another page, a reload — picks it up and says so
+    ("Picked up where you left off", with Start fresh); a redraw of the
+    page says nothing. Restart and Start fresh begin a new session and
+    leave the old entry as logged. A redo item still pays nothing and
+    alone makes no session (invariant 129).
 
 ### What reaches a closed app (131)
 

@@ -3075,7 +3075,7 @@
         if (content && content.quiz && content.quiz.length) {
           var qHolder = el("div", { class: "k-topic-engine" });
           panel.appendChild(qHolder);
-          KOS.quiz.mountMCQ(qHolder, sid, ref, content.quiz);
+          KOS.quiz.mountMCQ(qHolder, sid, ref, content.quiz, { runKey: "quiz:" + sid + ":" + ref });
         } else if (!customN) {
           panel.appendChild(KOS.ui.emptyState({
             compact: true, mark: "問", title: "No quiz on this topic yet",
@@ -3093,7 +3093,7 @@
           ]));
           var cqHolder = el("div", { class: "k-topic-engine", "data-ui": "topic.custom-quiz" });
           panel.appendChild(cqHolder);
-          KOS.quiz.mountMCQ(cqHolder, sid, ref, customQ);
+          KOS.quiz.mountMCQ(cqHolder, sid, ref, customQ, { runKey: "quizc:" + sid + ":" + ref });
           var manage = el("div", { class: "k-card k-card--tight", "data-ui": "fc.manage topic.custom-quiz-manage" });
           customQ.forEach(function (cq) {
             manage.appendChild(el("div", { class: "k-card-row", "data-ui": "fc.row" }, [
@@ -3110,7 +3110,7 @@
         if (content && content.exam && content.exam.length) {
           var eHolder = el("div", { class: "k-topic-engine" });
           panel.appendChild(eHolder);
-          KOS.quiz.mountExam(eHolder, sid, ref, content.exam);
+          KOS.quiz.mountExam(eHolder, sid, ref, content.exam, { runKey: "exam:" + sid + ":" + ref });
         } else {
           panel.appendChild(KOS.ui.emptyState({
             compact: true, mark: "試", title: "No exam questions on this topic yet",

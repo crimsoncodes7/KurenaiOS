@@ -117,12 +117,43 @@
         return opts.noShuffle || refersToPositions(item.opts) ? ix : shuffle(ix);
       });
 
+      /* W2 (SY-04): where the attempt stands is kept per device under
+         opts.runKey — the order, each question's shuffle, the picks and the
+         place — so a redraw, another page and back, or a reload finds the
+         quiz as it was left, a finished one with its score (never logged a
+         second time). Retry and Shuffle start a new attempt. */
+      var RUN = !own && opts.runKey ? opts.runKey : null, RR = KOS.sessions.run, replay = false;
+      var sig = items.map(function (it) { return String(it.q || "").length + ":" + (it.opts || []).length + ":" + it.ans; }).join(",");
+      function isPerm(a, n) {
+        return Array.isArray(a) && a.length === n && a.slice().sort(function (x, y) { return x - y; }).every(function (v, i) { return v === i; });
+      }
+      (function restore() {
+        var rec = RUN ? RR.get(RUN) : null;
+        if (!rec || rec.kind !== "quiz" || rec.sig !== sig || !isPerm(rec.order, items.length)) return;
+        if (!Array.isArray(rec.perm) || rec.perm.length !== items.length ||
+            !rec.perm.every(function (p, qi) { return isPerm(p, (items[qi].opts || []).length); })) return;
+        order = rec.order.slice();
+        perm = rec.perm.map(function (p) { return p.slice(); });
+        Object.keys(rec.answered || {}).forEach(function (k) {
+          if (!items[k] || rec.answered[k] == null) return;
+          answered[k] = rec.answered[k];
+          if (answered[k] === items[k].ans) correct++; else missed.push(items[k]);
+        });
+        at = Math.max(0, Math.min(items.length - 1, rec.at || 0));
+        replay = !!rec.done && Object.keys(answered).length === items.length;
+      })();
+      function keep(done) {
+        if (RUN) RR.put(RUN, { kind: "quiz", sig: sig, order: order.slice(), perm: perm.map(function (p) { return p.slice(); }),
+          at: at, answered: Object.assign({}, answered), done: !!done });
+      }
+      function again() { if (RUN) RR.drop(RUN); KOS.quiz.mountMCQ(holder, sid, ref, items, opts); }
+
       var title = el("span", { class: "k-qz-title", "data-ui": "quiz.counter" });
       var meta = el("span", { class: "k-qz-meta" });
       var head = el("div", { class: "k-qz-head", "data-ui": "quiz.head" }, [title, meta,
         el("span", { class: "k-qz-tools" }, [
           pill("Shuffle", function () { shuffle(order); restart(); }),
-          pill("Retry", function () { KOS.quiz.mountMCQ(holder, sid, ref, items, opts); })
+          pill("Retry", again)
         ])
       ]);
       var stage = el("div", { class: "k-qz-stage" });
@@ -163,14 +194,23 @@
         card.appendChild(el("div", { class: "k-qz-foot" }, [next]));
         stage.appendChild(card);
         KOS.content.typeset(card);
+        /* a question answered before (an attempt picked up again) shows its answer */
+        if (answered[qi] != null) marked(qi, answered[qi]);
         paintHead();
       }
       function answer(oi) {
         var qi = order[at], item = items[qi];
         if (answered[qi] != null) return;
         answered[qi] = oi;
-        var ok = oi === item.ans;
-        if (ok) correct++; else missed.push(item);
+        if (oi === item.ans) correct++; else missed.push(item);
+        marked(qi, oi);
+        paintHead();
+        if (Object.keys(answered).length === items.length) finish();
+        else keep(false);
+      }
+      /* the answered state of the question on screen */
+      function marked(qi, oi) {
+        var item = items[qi], ok = oi === item.ans;
         var btns = card.querySelectorAll("[data-ui~='quiz.option']");
         btns.forEach(function (b, pos) {
           var i = perm[qi][pos];
@@ -185,14 +225,12 @@
         card.insertBefore(why, card.lastChild);
         KOS.content.typeset(why);
         next.hidden = false;
-        paintHead();
-        if (Object.keys(answered).length === items.length) finish();
       }
       function advance() {
-        if (at < order.length - 1) { at++; show(); if (card.scrollIntoView) card.scrollIntoView({ block: "nearest" }); }
+        if (at < order.length - 1) { at++; keep(!result.hidden); show(); if (card.scrollIntoView) card.scrollIntoView({ block: "nearest" }); }
         else if (!result.hidden && result.scrollIntoView) result.scrollIntoView({ block: "nearest" });
       }
-      function restart() { at = 0; correct = 0; answered = {}; missed = []; result.hidden = true; show(); }
+      function restart() { if (RUN) RR.drop(RUN); at = 0; correct = 0; answered = {}; missed = []; result.hidden = true; show(); }
       bindKeys(holder, function (e) {
         var qi = order[at];
         if (e.key >= "1" && e.key <= "9") {
@@ -208,23 +246,28 @@
         }
       });
 
-      function finish() {
+      /* again: a finished attempt shown once more (W2) — its score, never
+         a second attempt in the stats or the session log */
+      function finish(again_) {
         if (own) {
           var picks = items.map(function (_, i) { return answered[i]; });
           opts.onFinish(picks, correct);
           return;
         }
-        st.attempts++;
-        st.lastPct = Math.round(100 * correct / items.length);
-        if (correct > st.best) st.best = correct;
-        var full = deckLen(sid, ref);
-        if (!full || items.length >= full) { var was = bestPct(sid, ref, st); st.bestPct = Math.max(was == null ? 0 : was, st.lastPct); }
-        store.save();
-        /* FR-3.2 — every completed quiz attempt lands in the session log */
-        KOS.sessions.log({
-          type: "quiz", subject: sid, ref: ref,
-          metrics: { correct: correct, total: items.length, pct: st.lastPct }
-        });
+        if (!again_) {
+          st.attempts++;
+          st.lastPct = Math.round(100 * correct / items.length);
+          if (correct > st.best) st.best = correct;
+          var full = deckLen(sid, ref);
+          if (!full || items.length >= full) { var was = bestPct(sid, ref, st); st.bestPct = Math.max(was == null ? 0 : was, st.lastPct); }
+          store.save();
+          /* FR-3.2 — every completed quiz attempt lands in the session log */
+          KOS.sessions.log({
+            type: "quiz", subject: sid, ref: ref,
+            metrics: { correct: correct, total: items.length, pct: st.lastPct }
+          });
+          keep(true);
+        }
         var verdict = correct === items.length ? "Full marks ★" :
           correct >= items.length * 0.7 ? "Solid — review the misses." :
           "Worth another pass over the notes.";
@@ -234,7 +277,7 @@
           el("span", { text: verdict })
         ]));
         var acts = el("div", { class: "k-qz-foot" }, [
-          el("button", { type: "button", class: "k-btn", text: "Retry", onclick: function () { KOS.quiz.mountMCQ(holder, sid, ref, items); } })
+          el("button", { type: "button", class: "k-btn", text: "Retry", onclick: again })
         ]);
         /* the misses are the only questions worth a second pass right now;
            the full retry stays for a clean score */
@@ -248,6 +291,7 @@
         paintHead();
       }
       show();
+      if (replay) finish(true);
     },
 
     /* Exam-style questions. An item is
@@ -258,7 +302,8 @@
        `note` (an examiner's-report style caution shown with the scheme).
        Every part is self-marked; one "Log" per item records the total, so a
        six-part question is one exam session, not six. */
-    mountExam: function (holder, sid, ref, items) {
+    mountExam: function (holder, sid, ref, items, opts) {
+      opts = opts || {};
       holder.innerHTML = "";
       if (!items || !items.length) return;
       var norm = items.map(function (it, i) {
@@ -279,14 +324,14 @@
       FILTERS.forEach(function (f) {
         var n = f[0] === "all" ? norm.length : norm.filter(function (x) { return tariff(x) === f[0]; }).length;
         if (f[0] !== "all" && !n) return;
-        chips.appendChild(pill(f[0] === "all" ? "All · " + n : f[1], function () { filter = f[0]; at = 0; render(); },
+        chips.appendChild(pill(f[0] === "all" ? "All · " + n : f[1], function () { filter = f[0]; at = 0; keepNow(); render(); },
           { "aria-pressed": String(f[0] === filter), "data-f": f[0], title: n + (n === 1 ? " question" : " questions") }));
       });
       var shuffleBtn = pill("Shuffle", function () { shuffled = !shuffled; shuffleBtn.setAttribute("aria-pressed", String(shuffled)); at = 0; render(); }, { "aria-pressed": "false" });
       chips.appendChild(shuffleBtn);
       var counter = el("span", { class: "k-qz-meta", "data-ui": "quiz.counter" });
-      var prevBtn = el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "data-ui": "quiz.prev", "aria-label": "Previous question", text: "‹", onclick: function () { at--; render(); } });
-      var nextBtn = el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "data-ui": "quiz.next", "aria-label": "Next question", text: "›", onclick: function () { at++; render(); } });
+      var prevBtn = el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "data-ui": "quiz.prev", "aria-label": "Previous question", text: "‹", onclick: function () { at--; keepNow(); render(); } });
+      var nextBtn = el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "data-ui": "quiz.next", "aria-label": "Next question", text: "›", onclick: function () { at++; keepNow(); render(); } });
       holder.appendChild(el("div", { class: "k-qz-head", "data-ui": "quiz.head" }, [chips,
         el("span", { class: "k-qz-tools" }, [counter, prevBtn, nextBtn])]));
       var stage = el("div", { class: "k-qz-stage" });
@@ -295,6 +340,23 @@
       holder.appendChild(tally);
       var logged = {};   /* item index -> marks logged this visit */
       var marksBy = {};  /* item index -> { part index -> marks } — kept while paging */
+      /* W2 (SY-04): the question you were on, the tariff filter and every
+         typed answer are kept per device under opts.runKey for three days
+         (a typed answer is work); what was logged and marked, for the day */
+      var RUN = opts.runKey || null, RR = KOS.sessions.run, drafts = {};
+      (function restore() {
+        var rec = RUN ? RR.get(RUN, 3) : null;
+        if (!rec || rec.kind !== "exam" || rec.n !== norm.length) return;
+        if (FILTERS.some(function (f) { return f[0] === rec.filter; })) filter = rec.filter;
+        at = Math.max(0, rec.at || 0);
+        drafts = rec.drafts && typeof rec.drafts === "object" ? rec.drafts : {};
+        if (rec.logDay === KOS.srs.todayISO()) { logged = rec.logged || {}; marksBy = rec.marks || {}; }
+      })();
+      function keepNow() {
+        if (RUN) RR.put(RUN, { kind: "exam", ttl: 3, n: norm.length, filter: filter, at: at, drafts: drafts,
+          logDay: KOS.srs.todayISO(), logged: logged, marks: marksBy });
+      }
+      var keepSoon = KOS.ui.debounce ? KOS.ui.debounce(keepNow, 500) : keepNow;
 
       function updateTally() {
         var keys = Object.keys(logged);
@@ -341,6 +403,13 @@
         var ta = el("textarea", { class: "k-input k-qz-answer", "data-ui": "ui.note-area", rows: part.marks >= 6 ? 7 : part.marks >= 3 ? 4 : 2,
           "aria-label": "Your answer" + (label ? " to " + label : ""),
           placeholder: part.marks >= 6 ? "Plan the points first, then write it as a paragraph the way the mark scheme is banded…" : "Your answer…" });
+        /* the typed answer is kept as it is typed (W2), and found again */
+        if (drafts[item]) ta.value = drafts[item];
+        ta.addEventListener("input", function () {
+          if (ta.value) drafts[item] = ta.value; else delete drafts[item];
+          keepSoon();
+        });
+        ta.addEventListener("blur", function () { if (RUN && (drafts[item] || "") === ta.value && ta.value) keepNow(); });
         /* Type · Write · On paper (30f); Write is the answer pad */
         var ans = KOS.inkPad ? KOS.inkPad.answer(wrap, { textarea: ta, marks: Number(part.marks) || 0, item: item, title: title, q: item }) : null;
         if (ans) pads.push(ans); else wrap.appendChild(ta);
@@ -484,7 +553,7 @@
         var revealed = false;
         var blocks = n.parts.map(function (p, pi) {
           var label = n.parts.length > 1 ? "(" + String.fromCharCode(97 + pi) + ")" : "";
-          var b = partBlock(p, label, marks[pi], function (v) { marks[pi] = v; paintSum(); }, "exam:" + sid + ":" + ref + ":" + n.i + ":" + pi, "Q" + (n.i + 1) + label);
+          var b = partBlock(p, label, marks[pi], function (v) { marks[pi] = v; paintSum(); keepSoon(); }, "exam:" + sid + ":" + ref + ":" + n.i + ":" + pi, "Q" + (n.i + 1) + label);
           card.appendChild(b.node);
           return b;
         });
@@ -511,6 +580,7 @@
           /* the pads are kept with what they answered (30f) */
           pads.forEach(function (p) { p.logged({ marks: got, max: n.total }); });
           logged[n.i] = { got: got, max: n.total };
+          keepNow();
           updateTally();
           done.textContent = "Logged " + got + "/" + n.total;
           logBtn.disabled = true;

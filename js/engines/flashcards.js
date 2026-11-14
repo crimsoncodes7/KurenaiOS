@@ -116,6 +116,59 @@
     var graduated = 0;                       // cards that left the session
     var counts = { again: 0, hard: 0, good: 0, easy: 0 };
     var flipped = false, finished = false;
+    /* W2 (§A6; ST-04, SY-03): the session is ONE ledger entry from its
+       first rating (KOS.sessions.upsert, paid by difference), and where it
+       stands is kept per device under opts.runKey — so leaving the page, a
+       redraw or a reload loses nothing and coming back picks it up.
+         gradN   flashcards (not redo items) that left the session
+         ratedN  ratings given to flashcards (a redo item pays nothing and
+                 alone makes no session, invariant 129)
+         secs    time spent rating, gaps over two minutes not counted */
+    var RUN = opts.runKey || null, R = KOS.sessions.run;
+    var runSid = null, gradN = 0, redoG = 0, ratedN = 0, reviews = 0, secs = 0, lastAt = Date.now(), resumed = false;
+    (function restore() {
+      var rec = RUN ? R.get(RUN) : null;
+      if (!rec || rec.kind !== "fc" || !Array.isArray(rec.queue)) return;
+      var at = {};
+      cards.forEach(function (c, i) { at[c.key] = i; });
+      var q = rec.queue.map(function (k) { return at[k]; }).filter(function (i, n, a) { return i != null && a.indexOf(i) === n; });
+      if (!q.length) return;                 /* nothing of it is left to ask: a new session */
+      queue = q;
+      graduated = rec.graduated || 0; gradN = rec.gradN || 0; redoG = rec.redoG || 0;
+      ratedN = rec.rated || 0; reviews = rec.reviews || 0; secs = rec.secs || 0;
+      ["again", "hard", "good", "easy"].forEach(function (k) { counts[k] = (rec.counts && rec.counts[k]) || 0; });
+      runSid = rec.sid || null;
+      total = graduated + queue.length;
+      resumed = reviews > 0;
+    })();
+    function sync(done) {
+      if (ratedN) {
+        if (!runSid) runSid = R.newId();
+        var graded = counts.again + counts.hard + counts.good + counts.easy;
+        KOS.sessions.upsert(runSid, {
+          type: opts.type || "flashcards",
+          subject: opts.sid || null, ref: opts.ref || null,
+          metrics: { cards: gradN, again: counts.again, hard: counts.hard, good: counts.good, easy: counts.easy,
+            pct: graded ? Math.round(100 * (counts.good + counts.easy) / graded) : 0,
+            redo: redoG || undefined, reviews: reviews, secs: secs, done: !!done }
+        });
+      }
+      if (!RUN) return;
+      if (done) R.drop(RUN);
+      else R.put(RUN, { kind: "fc", sid: runSid, queue: queue.map(function (i) { return cards[i].key; }), graduated: graduated,
+        gradN: gradN, redoG: redoG, rated: ratedN, reviews: reviews, secs: secs, counts: Object.assign({}, counts) });
+    }
+    function startFresh() {
+      if (RUN) R.drop(RUN);
+      runSid = null; gradN = 0; redoG = 0; ratedN = 0; reviews = 0; secs = 0; lastAt = Date.now(); resumed = false;
+      total = cards.length;
+      resumedLine.hidden = true;
+      restart();
+    }
+    var resumedLine = el("p", { class: "k-fc-resumed", "data-ui": "fc.resumed", hidden: "" }, [
+      el("span", { "data-ui": "fc.resumed-text" }),
+      el("button", { type: "button", class: "k-link", "data-ui": "fc.start-fresh", text: "Start fresh", onclick: startFresh })
+    ]);
     var legacy = opts.sid && opts.ref ? stats(opts.sid, opts.ref) : null;
 
     var meter = el("div", { class: "k-fc-pips", "data-ui": "fc.meter", "aria-hidden": "true" });
@@ -153,7 +206,7 @@
       return el("section", { class: "k-fc-pgroup" }, [el("h3", { class: "k-kicker", text: title })].concat(kids));
     }
     var foot = el("div", { class: "k-fc-foot", "data-ui": "lab.controls fc.foot" }, [
-      el("button", { type: "button", class: "k-fc-foot-btn", text: "⇄ Shuffle", onclick: function () { shuffleArr(queue); flipped = false; show(); } }),
+      el("button", { type: "button", class: "k-fc-foot-btn", text: "⇄ Shuffle", onclick: function () { shuffleArr(queue); flipped = false; if (reviews) sync(false); show(); } }),
       el("button", { type: "button", class: "k-fc-foot-btn", text: "↺ Restart", onclick: restart }),
       el("button", { type: "button", class: "k-fc-foot-btn", "aria-expanded": "false", text: "ⓘ Card stats", onclick: function (e) {
         e.stopPropagation();
@@ -208,7 +261,12 @@
     }
     function answered() { return mode === "think" || (mode === "write" ? !!(pad && pad.hasInk()) : !!(typed && typed.value.trim())); }
 
-    [meter, modeRow, deckEdge, answerBox, rateRow, panel].forEach(function (n) { holder.appendChild(n); });
+    [resumedLine, meter, modeRow, deckEdge, answerBox, rateRow, panel].forEach(function (n) { holder.appendChild(n); });
+    /* a redraw of the page says nothing: only coming back to it does */
+    if (resumed && !(KOS.ui && KOS.ui.redrawing)) {
+      resumedLine.firstChild.textContent = "Picked up where you left off · " + graduated + " of " + total + " done · ";
+      resumedLine.hidden = false;
+    }
     paintModes();
     bindKeys();
 
@@ -309,6 +367,11 @@
       }
       counts[RATE_META[r].cls]++;
       if (legacy) { legacy.seen++; r === 0 ? legacy.wrong++ : legacy.right++; }
+      reviews++;
+      if (!c.redo) ratedN++;
+      var now = Date.now();
+      secs += Math.max(0, Math.min(120, Math.round((now - lastAt) / 1000)));
+      lastAt = now;
       var idx = queue.shift();
       if (r === 0) {
         /* fix it NOW: back into the current session queue, a few cards on
@@ -317,9 +380,10 @@
         queue.splice(at, 0, idx);
       } else {
         graduated++;
+        if (c.redo) redoG++; else gradN++;
       }
       store.save();
-      if (queue.length) show();
+      if (queue.length) { sync(false); show(); }
       else finish();
     }
     function finish() {
@@ -341,20 +405,21 @@
       meter.querySelectorAll("[data-ui~='fc.pip']").forEach(function (p) { KOS.ui.state(p, "cur", false); KOS.ui.state(p, "done", true); });
       lifeStats.textContent = "This session: " + counts.again + " again · " + counts.hard + " hard · " + counts.good + " good · " + counts.easy + " easy";
       paintDeck();
-      /* FR-3.2 — one session log entry per completed review batch. A redo
-         item (a missed exam question, roadmap 5.8) is self-marked and pays
-         nothing (invariant 129): it is not counted, and a batch of redo
-         items alone logs no session. */
-      var redoN = cards.filter(function (c) { return c.redo; }).length;
-      if (total - redoN > 0) KOS.sessions.log({
-        type: opts.type || "flashcards",
-        subject: opts.sid || null, ref: opts.ref || null,
-        metrics: { cards: total - redoN, again: counts.again, hard: counts.hard,
-                   good: counts.good, easy: counts.easy, pct: pct, redo: redoN || undefined }
-      });
+      /* FR-3.2 — one session log entry per review batch: the entry its
+         ratings have been keeping up to date, now finished (the flat part
+         of its pay comes here). A redo item (a missed exam question,
+         roadmap 5.8) is self-marked and pays nothing (invariant 129): it
+         is not counted, and a batch of redo items alone logs no session. */
+      sync(true);
+      resumedLine.hidden = true;
       if (opts.onFinish) opts.onFinish();
     }
+    /* ↺ Restart and Start fresh begin a NEW session (its own ledger entry);
+       the one left behind stays as it was logged */
     function restart() {
+      if (RUN) R.drop(RUN);
+      runSid = null; gradN = 0; redoG = 0; ratedN = 0; reviews = 0; secs = 0; lastAt = Date.now();
+      total = cards.length;
       queue = cards.map(function (_, i) { return i; });
       graduated = 0; finished = false; flipped = false;
       counts = { again: 0, hard: 0, good: 0, easy: 0 };
@@ -534,7 +599,7 @@
       if (mode === "study") {
         var holder2 = el("div", { class: "k-fc" });
         body.appendChild(holder2);
-        session(holder2, cards, { sid: sid, ref: ref, type: "flashcards",
+        session(holder2, cards, { sid: sid, ref: ref, type: "flashcards", runKey: "fc:" + sid + ":" + ref,
           emptyText: opts.onEdit ? "No cards on this topic yet — press Edit to write the first one." : "No cards yet — add the first one under Deck." });
       } else {
         managePanel(body, sid, ref, render, opts);

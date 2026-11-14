@@ -500,6 +500,8 @@ button.k-subj-next:hover { background: var(--s2); }
 .k-fc-info { inline-size: 100%; padding: var(--sp-12) var(--sp-14); border-radius: var(--r-14); background: var(--s2); }
 .k-fc-metrics { display: grid; grid-template-columns: auto 1fr; gap: var(--sp-4) var(--sp-16); font-size: var(--fs-13); margin-block-start: var(--sp-8); }
 .k-fc-metrics dt { color: var(--muted); }
+.k-fc-resumed { display: flex; flex-wrap: wrap; justify-content: center; align-items: baseline; gap: var(--sp-4); margin: 0 0 var(--sp-10); font-size: var(--fs-12-5); color: var(--muted); }
+.k-fc-resumed[hidden] { display: none; }
 .k-fc-life { margin: 0; font-size: var(--fs-12); color: var(--muted); }
 .k-fc-life:empty { display: none; }
 .k-fc-manage { display: flex; flex-direction: column; gap: var(--sp-12); }

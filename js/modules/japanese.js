@@ -362,10 +362,28 @@
     var ui = J().ui(), mode = ui.kanaMode || "mixed", set = kanaSet();
     var keys = set.filter(function (k) { var s = KOS.jaSrs.split(k).skill; return mode === "mixed" || (mode === "read" ? s === "R" : s === "W"); });
     var writeKeys = keys.filter(function (k) { return KOS.jaSrs.split(k).skill === "W"; }), readKeys = keys.filter(function (k) { return KOS.jaSrs.split(k).skill === "R"; });
-    var results = [], last = [];
+    /* W2 (JM-22): the set is ONE ledger entry kept up to date as each kana is answered, and what
+       was answered is kept per device — switching Mixed / Read / Write, leaving without End set
+       or a reload loses nothing, and a kana answered in this set is not asked twice */
+    var KRUN = "ja:kana", RR = KOS.sessions.run, krec = RR.get(KRUN);
+    var results = krec && krec.kind === "kana" && Array.isArray(krec.results) ? krec.results.slice() : [], last = [];
+    var ksid = results.length && krec.sid ? krec.sid : null;
+    var answeredK = {};
+    results.forEach(function (r) { answeredK[r.key] = 1; });
+    keys = keys.filter(function (k) { return !answeredK[k]; });
+    writeKeys = writeKeys.filter(function (k) { return !answeredK[k]; });
+    readKeys = readKeys.filter(function (k) { return !answeredK[k]; });
+    var setTotal = results.length + keys.length;
+    function kanaSync(done) {
+      if (!results.length) return { passed: 0, paid: 0, capped: false };
+      if (!ksid) ksid = RR.newId();
+      var fin = J().syncSession(ksid, results, { done: !!done });
+      if (done) RR.drop(KRUN); else RR.put(KRUN, { kind: "kana", sid: ksid, results: results.slice() });
+      return fin;
+    }
     var bar = el("section", { class: "k-card k-ja-setbar", "data-ui": "ja.kana-set" });
     var prog = el("span", { class: "k-mono" });
-    function paintBar() { prog.textContent = results.length + " of " + keys.length; }
+    function paintBar() { prog.textContent = results.length + " of " + setTotal; }
     bar.appendChild(el("div", { class: "k-ja-setbar-t" }, [el("span", { class: "k-kicker", text: "Kana set · today" }), el("b", { text: "Weak and slow kana, mixed" }), prog]));
     bar.appendChild(el("div", { class: "k-seg", role: "group", "aria-label": "Drill" }, [["mixed", "Mixed"], ["read", "Read"], ["write", "Write"]].map(function (m) {
       return el("button", { type: "button", class: "k-seg-item", "aria-pressed": String(mode === m[0]), text: m[1], onclick: function () { ui.kanaMode = m[0]; KOS.store.save(); KOS.rerender(); } });
@@ -375,7 +393,7 @@
     paintBar();
     function endSet() {
       if (!results.length) { KOS.rerender(); return; }
-      var fin = J().finishSession(results);
+      var fin = kanaSync(true);
       announce("Set done. " + results.length + " answered." + (fin.paid ? " +" + fin.paid + " XP." : ""));
       results = []; KOS.rerender();
     }
@@ -392,7 +410,7 @@
       if (wi >= writeKeys.length) { wHost.appendChild(KOS.ui.emptyState({ compact: true, body: writeKeys.length ? "Writing done for this set." : "No kana to write yet: learn a kana lesson first." })); return; }
       var ex = KOS.jaRun.exercise(writeKeys[wi]);
       KOS.jaRun.mount(wHost, ex, function (res) {
-        var rec = J().record(ex.key, res); results.push({ key: ex.key, grade: rec.grade }); paintBar();
+        var rec = J().record(ex.key, res); results.push({ key: ex.key, grade: rec.grade, verdict: res.selfMarked ? null : res.verdict }); paintBar(); kanaSync(false);
         wHost.appendChild(el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "Next ›", onclick: function () { wi++; nextWrite(); } }));
       });
     }
@@ -406,7 +424,7 @@
       if (ri >= readKeys.length) { rHost.appendChild(KOS.ui.emptyState({ compact: true, body: readKeys.length ? "Reading done for this set." : "No kana to read yet: learn a kana lesson first." })); if (last.length) rHost.appendChild(lastSix()); return; }
       var ex = KOS.jaRun.exercise(readKeys[ri]);
       KOS.jaRun.mount(rHost, ex, function (res) {
-        var rec = J().record(ex.key, res); results.push({ key: ex.key, grade: rec.grade }); paintBar();
+        var rec = J().record(ex.key, res); results.push({ key: ex.key, grade: rec.grade, verdict: res.selfMarked ? null : res.verdict }); paintBar(); kanaSync(false);
         var ok = res.verdict === "correct";
         if (ok) J().noteSpeed("kana", res.ms);
         last.push({ ch: ex.item.w, r: ex.item.r, ok: ok, ms: res.ms });

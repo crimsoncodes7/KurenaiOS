@@ -263,6 +263,27 @@
     return { passed: passed, paid: paid, capped: paid < passed * REVIEW_XP };
   }
 
+  /* syncSession(sid, results, {lesson, done}) — W2 (§A6; JM-08, SY-09, JM-22): the session's ONE
+     ledger entry, kept up to date as each answer is given (KOS.sessions.upsert), so leaving the
+     page, a redraw or a reload loses nothing and the same session picked up again never pays
+     twice. The day's cap counts what the day's OTHER sessions were paid; a figure once paid is
+     never lowered. → { passed, paid, capped } for the session so far */
+  function syncSession(sid, results, o) {
+    o = o || {};
+    var graded = (results || []).filter(function (r) { return r && r.grade; });
+    if (!graded.length || !sid) return { passed: 0, paid: 0, capped: false };
+    var passed = graded.filter(passedResult).length;
+    var e = KOS.sessions.bySid(sid), own = e && e.metrics ? e.metrics.paid || 0 : 0;
+    var others = paidToday() - (e && e.date === today() ? own : 0);
+    var paid = Math.max(own, Math.min(Math.max(0, REVIEW_CAP - others), passed * REVIEW_XP));
+    var skills = {};
+    graded.forEach(function (r) { var s = T().split(r.key).skill; skills[s] = (skills[s] || 0) + 1; });
+    KOS.sessions.upsert(sid, { type: "ja", subject: SID, ref: o.lesson || null,
+      metrics: { kind: "session", n: graded.length, passed: passed, paid: paid, capped: paid < passed * REVIEW_XP, skills: skills,
+        lesson: o.lesson || null, done: !!o.done } });
+    return { passed: passed, paid: paid, capped: paid < passed * REVIEW_XP };
+  }
+
   /* lessonPass(answers) → { pass, asked, right, misses } — a pure read of a learn session's
      answers [{ key, verdict, selfMarked }], first tries and re-asks alike: it passes when every
      facet asked was answered right (correct or accepted) at least once */
@@ -476,7 +497,7 @@
   KOS.ja = {
     SID: SID, knows: knows, normalise: normalise, item: item, lesson: lesson, lessons: lessons, produces: produces, syncAll: syncAll,
     startLesson: startLesson, markPage: markPage, markHeard: markHeard, evidence: evidence, syncChecks: syncChecks,
-    unitState: unitState, checkpointState: checkpointState, stats: stats, content: content, CHECKS: CHECKS, record: record, finishSession: finishSession, finishLesson: finishLesson, lessonPass: lessonPass, lessonMisses: lessonMisses,
+    unitState: unitState, checkpointState: checkpointState, stats: stats, content: content, CHECKS: CHECKS, record: record, finishSession: finishSession, syncSession: syncSession, finishLesson: finishLesson, lessonPass: lessonPass, lessonMisses: lessonMisses,
     recordCheckpoint: recordCheckpoint, award: award, paidToday: paidToday,
     mine: mine, addInput: addInput, setSettings: setSettings,
     noteSpeed: noteSpeed, fluency: fluency, rework: rework,

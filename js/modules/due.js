@@ -237,7 +237,7 @@
       reviewed += m.cards || 0;
       var n = (m.again || 0) + (m.hard || 0) + (m.good || 0) + (m.easy || 0);
       graded += n; good += (m.good || 0) + (m.easy || 0);
-      secs += s.dur || 0;
+      secs += s.dur || m.secs || 0;
     });
     side.appendChild(el("section", { class: "k-card", "data-ui": "review.today", "aria-label": "Today so far" }, [
       el("div", { class: "k-card-head" }, [el("span", { class: "k-card-title", text: "Today so far" })]),
@@ -268,6 +268,7 @@
     main.appendChild(holder);
     KOS.flashcards.session(holder, cards, {
       type: "due-review",
+      runKey: "due:" + run,
       showTopic: true,
       onFinish: function () {
         setTimeout(function () { if (KOS.refreshHUD) KOS.refreshHUD(); }, 50);

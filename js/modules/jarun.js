@@ -6,7 +6,7 @@
      s:<pair>|L    a listening minimal pair — hear one, pick which (vowel length, っ, voicing live here,
                    because a typed or picked answer can be checked reliably)
    Every answer goes through KOS.ja.record (a derived grade, invariant 113); a session ends with ONE
-   ledger entry (KOS.ja.finishSession, invariant 5), logged once however the session ends. A learn
+   ledger entry (KOS.ja.syncSession, invariants 5 and 167), kept up to date answer by answer. A learn
    session asks its misses again at the end (not scheduled again: an Again comes back tomorrow)
    and finishes its lesson only on a pass — every facet right at least once (KOS.ja.lessonPass);
    otherwise it says "Not passed yet" and offers the misses again.
@@ -401,14 +401,40 @@
         return [{ key: item + "|meet", kind: "meet", skill: ex.skill, item: ex.item, family: "New · meet it", meet: true }, ex];
       }));
     }
-    var results = [], answers = [], i = 0, round = 0, logged = null, reported = false;
+    var results = [], answers = [], i = 0, round = 0;
+    /* W2 (§A6; JM-08, SY-09): the session is ONE ledger entry kept up to date as each answer is
+       given, and what was answered is kept per device, so leaving by the rail, Back, a redraw or
+       a reload loses nothing. Coming back the same day picks it up: what is still to ask is what
+       is still due, and a question already answered in this session is asked as practice only. */
+    var RUNKEY = "ja:" + (lessonId ? "learn-" + lessonId : "reviews"), RR = KOS.sessions.run;
+    var runSid = null, shownPaid = 0, resumed = false;
+    (function restore() {
+      var rec = RR.get(RUNKEY);
+      if (!rec || rec.kind !== "ja" || !Array.isArray(rec.results) || !rec.results.length) return;
+      results = rec.results.slice();
+      answers = Array.isArray(rec.answers) ? rec.answers.slice() : [];
+      runSid = rec.sid || null; shownPaid = rec.shown || 0; resumed = true;
+      var seen = {};
+      answers.forEach(function (a) { seen[a.key] = 1; });
+      list.forEach(function (ex) {
+        if (ex.meet || ex.reask || !seen[ex.key]) return;
+        ex.reask = true; ex.family = "Again · " + ex.family;
+      });
+    })();
+    function keepRun() { RR.put(RUNKEY, { kind: "ja", sid: runSid, results: results.slice(), answers: answers.slice(), shown: shownPaid }); }
+    function syncNow(done) {
+      if (!results.length) return { passed: 0, paid: 0, capped: false };
+      if (!runSid) runSid = RR.newId();
+      return KOS.ja.syncSession(runSid, results, { lesson: lessonId, done: !!done });
+    }
     var title = lessonId ? "New · " + lessonId + " " + KOS.ja.lesson(lessonId).title : "Reviews";
     var head = el("div", { class: "k-ja-run-head" }, [
       el("button", { type: "button", class: "k-iconbtn", "data-ui": "ja.exit", "aria-label": "Leave the session", text: "✕",
         onclick: function () { leave(); } }),
       el("span", { class: "k-ja-run-t", text: title }),
+      resumed ? el("span", { class: "k-chip", "data-tone": "muted", "data-ui": "ja.resumed", text: "Picked up · " + results.length + " answered" }) : null,
       el("span", { class: "k-mono k-ja-run-n", "data-ui": "ja.progress" })
-    ]);
+    ].filter(Boolean));
     var stage = el("div", { class: "k-ja-run-stage" });
     var foot = el("div", { class: "k-ja-run-foot" });
     var box = el("section", { class: "k-card k-ja-run", "data-ui": "ja.runner", "aria-label": title }, [head, stage, foot]);
@@ -424,9 +450,7 @@
       if (i >= list.length) {
         /* a learn session asks its misses once more before it ends */
         if (lessonId && round === 0 && KOS.ja.lessonPass(answers).misses.length) {
-          /* the first round is the session: log and pay it NOW, so leaving the re-ask (a tap away,
-             a reload) loses nothing; end() reuses this entry and never logs again */
-          if (!logged) logged = KOS.ja.finishSession(results, { lesson: lessonId });
+          /* the session is already in the ledger, answer by answer (W2) */
           reask(); return;
         }
         end(false); return;
@@ -447,7 +471,8 @@
         host.querySelectorAll("[data-ui~='ja.check']").forEach(function (b) { b.disabled = true; });
         answers.push({ key: ex.key, verdict: res.verdict, selfMarked: !!res.selfMarked });
         var rec = ex.reask ? { grade: null } : KOS.ja.record(ex.key, res);
-        if (!ex.reask) results.push({ key: ex.key, grade: rec.grade, verdict: res.selfMarked ? null : res.verdict });
+        if (!ex.reask) { results.push({ key: ex.key, grade: rec.grade, verdict: res.selfMarked ? null : res.verdict }); syncNow(false); }
+        keepRun();
         if (rec.grade) {
           host.appendChild(el("p", { class: "k-ja-verdict-g", "data-ui": "ja.grade" }, [el("span", { class: "k-muted", text: "Grade, from your answer · " }),
             el("b", { text: GRADE[rec.grade] }), " · next " + nextText(rec.facet)]));
@@ -474,9 +499,10 @@
     }
     function end(early) {
       box.setAttribute("data-done", "1");
-      /* ONE ledger entry, however many times the session ends (a retry of the misses ends again) */
-      var firstEnd = !reported, fin = logged || (logged = KOS.ja.finishSession(results, { lesson: lessonId }));
-      reported = true;   /* the session's pay is shown on its first end screen only */
+      /* ONE ledger entry, however many times the session ends (a retry of the misses ends again,
+         and so does a session left and picked up): an end screen names only the pay not shown yet */
+      var fin = syncNow(!early), newPaid = Math.max(0, fin.paid - shownPaid);
+      shownPaid = Math.max(shownPaid, fin.paid);
       var paidLesson = null, pass = lessonId ? KOS.ja.lessonPass(answers) : null;
       if (lessonId && !early && results.length) paidLesson = KOS.ja.finishLesson(lessonId, answers);
       stage.innerHTML = ""; foot.innerHTML = "";
@@ -486,7 +512,7 @@
         stage.appendChild(el("div", { class: "k-ja-run-end", "data-ui": "ja.session-done", "data-state": "not-passed" }, [
           el("h2", { text: "Not passed yet" }),
           el("p", { text: pass.right + " of " + pass.asked + " right. Try the misses again to finish the lesson." }),
-          el("p", { class: "k-muted", text: fin.paid && firstEnd ? "◆ +" + fin.paid + " XP for the answers you got right" : "No reward until the lesson is passed" }),
+          el("p", { class: "k-muted", text: newPaid ? "◆ +" + newPaid + " XP for the answers you got right" : "No reward until the lesson is passed" }),
           el("div", { class: "k-ja-ex-act" }, [
             el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "ja.retry-misses", text: "Try the misses again", onclick: function () { reask(); } }),
             el("button", { type: "button", class: "k-btn", text: "Back to the desk", onclick: function () { KOS.show("subject", "ja"); } })
@@ -494,20 +520,23 @@
         ]));
         head.querySelector("[data-ui~='ja.progress']").textContent = "";
         announce("Not passed yet. " + pass.right + " of " + pass.asked + " right.");
+        if (results.length) keepRun();
         return;
       }
       var good = results.filter(function (r) { return r.grade >= 3; }).length;
       var pay = [];
-      if (fin.paid && firstEnd) pay.push("+" + fin.paid + " XP");
+      if (newPaid) pay.push("+" + newPaid + " XP");
       if (paidLesson && paidLesson.paid) pay.push("+" + paidLesson.pay.xp + " XP · +" + paidLesson.pay.gold + " gold · +" + paidLesson.pay.hp + " HP");
       stage.appendChild(el("div", { class: "k-ja-run-end", "data-ui": "ja.session-done" }, [
         el("h2", { text: results.length ? KOS.ui.num(results.length) + " answered" : "Nothing due right now" }),
         results.length ? el("p", { text: good + " Good or Easy" + (fin.capped ? " · past today's review cap, so no more XP today" : "") }) : null,
-        pay.length ? el("p", { class: "k-ja-pay", "data-ui": "ja.pay", text: "◆ " + pay.join(" · ") }) : results.length ? el("p", { class: "k-muted", text: "No reward · " + (!firstEnd ? "already counted" : fin.capped ? "today's review cap reached" : "nothing passed") }) : null,
+        pay.length ? el("p", { class: "k-ja-pay", "data-ui": "ja.pay", text: "◆ " + pay.join(" · ") }) : results.length ? el("p", { class: "k-muted", text: "No reward · " + (fin.paid ? "already counted" : fin.capped ? "today's review cap reached" : "nothing passed") }) : null,
         el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "Back to the desk", onclick: function () { KOS.show("subject", "ja"); } })
       ].filter(Boolean)));
       head.querySelector("[data-ui~='ja.progress']").textContent = "";
       announce(results.length ? "Session done. " + results.length + " answered." : "Nothing due right now.");
+      /* left early: it can be picked up again today; finished: the next one is a new session */
+      if (early && results.length) keepRun(); else RR.drop(RUNKEY);
     }
     if (!list.length) { end(false); return; }
     show();

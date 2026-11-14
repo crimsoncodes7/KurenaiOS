@@ -218,10 +218,13 @@
       return;
     }
 
-    if (e.type === "flashcards") { xp = 15 + (m.cards || 0); gold = 3; hp = 4; }
+    if (e.type === "flashcards") { var fp = sessionPrice(e.type, m); xp = fp.xp; gold = fp.gold; hp = fp.hp; }
     else if (e.type === "due-review") {
-      xp = 20 + (m.cards || 0) * 2; gold = 5; hp = 6;
-      if (KOS.srs.dueCount() === 0) { gold += 20; hp += 6; notes.push("backlog cleared"); }
+      /* the backlog bonus is part of the entry once seen, so a later
+         re-price (W2) never takes it back or pays it twice */
+      if (m.done !== false && !m.cleared && KOS.srs.dueCount() === 0) m.cleared = true;
+      var dp = sessionPrice(e.type, m); xp = dp.xp; gold = dp.gold; hp = dp.hp;
+      if (m.cleared) notes.push("backlog cleared");
     }
     else if (e.type === "quiz") {
       var pct = m.pct || 0;
@@ -254,6 +257,7 @@
       if (!ja.xp && !ja.gold && !ja.hp) {
         lastAward = { xp: 0, gold: 0, hp: 0, notes: [], levelUp: false };
         e.award = { xp: 0, gold: 0 };
+        if (m.sid) e.receipt = { xp: 0, gold: 0, hp: 0 };
         store.save();
         if (KOS.refreshHUD) KOS.refreshHUD();
         return;
@@ -384,6 +388,10 @@
       g.milestones[key] = reached;
       msNew = Math.max(msNew, ms);
     });
+    /* W2: a session in progress keeps a RECEIPT, what it has been paid so
+       far at its nominal price (before the streak bonus and the HP rules),
+       so a later upsert pays only the difference (onUpsert) */
+    if (m.sid) e.receipt = { xp: xp, gold: gold, hp: hp };
     if (msNew) { gold += msNew; notes.push(msNew + "-day streak"); }
 
     g.xp += xp;
@@ -404,8 +412,57 @@
     lastAward = { xp: xp, gold: gold, hp: hp, notes: notes.slice(), levelUp: after > before, level: after };
     var msg = "+" + xp + " XP · +" + gold + " gold" + (notes.length ? " · " + notes.join(", ") : "");
     if (after > before) msg += " · LEVEL " + after + "!";
-    if (KOS.ui) KOS.ui.toast(msg);
+    /* a session still in progress (W2) says nothing per answer: its pay is
+       named once, when it is finished — unless something else happened */
+    var quiet = !!m.sid && m.done === false && !notes.length && after === before;
+    if (KOS.ui && !quiet) KOS.ui.toast(msg);
     if (KOS.refreshHUD) KOS.refreshHUD();
+  }
+
+  /* W2 (§A6): what a resumable session is worth at its metrics, the ONE
+     definition onSession and onUpsert both read. While it is in progress
+     (`done: false`) each card pays as it is rated; the flat part (the
+     session's XP floor, gold and HP) comes when it is finished. An entry
+     with no `done` is a finished one: history is never re-priced. */
+  function sessionPrice(type, m) {
+    m = m || {};
+    var part = m.done === false, c = m.cards || 0;
+    if (type === "flashcards") return part ? { xp: c, gold: 0, hp: 0 } : { xp: 15 + c, gold: 3, hp: 4 };
+    if (type === "due-review") {
+      return part ? { xp: c * 2, gold: 0, hp: 0 } : { xp: 20 + c * 2, gold: 5 + (m.cleared ? 20 : 0), hp: 6 + (m.cleared ? 6 : 0) };
+    }
+    if (type === "ja" && m.kind === "session") return KOS.ja && KOS.ja.award ? KOS.ja.award(m) : { xp: 0, gold: 0, hp: 0 };
+    return null;
+  }
+  /* an entry KOS.sessions.upsert brought up to date: pay the difference
+     between what it is worth now and its receipt. Never negative — a
+     figure that fell is not taken back here (corrections do that). */
+  function onUpsert(e) {
+    var g = G(), m = e.metrics || {};
+    if (e.type === "due-review" && m.done !== false && !m.cleared && KOS.srs.dueCount() === 0) m.cleared = true;
+    var p = sessionPrice(e.type, m);
+    if (!p) return null;
+    var r = e.receipt || { xp: 0, gold: 0, hp: 0 };
+    var dx = Math.max(0, p.xp - (r.xp || 0)), dg = Math.max(0, p.gold - (r.gold || 0)), dh = Math.max(0, p.hp - (r.hp || 0));
+    var before = levelInfo(g.xp).level, hpBefore = g.hp;
+    g.xp += dx; g.gold += dg;
+    if (dh) restoreHp(dh);
+    e.receipt = { xp: Math.max(r.xp || 0, p.xp), gold: Math.max(r.gold || 0, p.gold), hp: Math.max(r.hp || 0, p.hp) };
+    e.award = e.award || { xp: 0, gold: 0 };
+    e.award.xp = (e.award.xp || 0) + dx;
+    e.award.gold = (e.award.gold || 0) + dg;
+    if (g.hp - hpBefore > 0) e.award.hp = (e.award.hp || 0) + (g.hp - hpBefore);
+    store.save();
+    var after = levelInfo(g.xp).level, notes = m.cleared ? ["backlog cleared"] : [];
+    /* the session's whole pay so far: what its end screen and toast name */
+    lastAward = { xp: e.receipt.xp, gold: e.receipt.gold, hp: e.receipt.hp, notes: notes, levelUp: after > before, level: after,
+      delta: { xp: dx, gold: dg, hp: dh } };
+    if (KOS.ui && m.done !== false && (dx || dg || dh)) {
+      KOS.ui.toast("+" + e.receipt.xp + " XP · +" + e.receipt.gold + " gold" + (notes.length ? " · " + notes.join(", ") : "") +
+        (after > before ? " · LEVEL " + after + "!" : ""));
+    } else if (KOS.ui && after > before) KOS.ui.toast("LEVEL " + after + "!");
+    if (KOS.refreshHUD) KOS.refreshHUD();
+    return lastAward;
   }
 
   /* ================= gold catalog ================= */
@@ -1301,7 +1358,7 @@
     hpState: hpState,
     hpStateInfo: hpStateInfo,
     tick: tick,
-    onSession: onSession,
+    onSession: onSession, onUpsert: onUpsert, sessionPrice: sessionPrice,
     /* Build 6.5: the focus deal, quotable without paying it */
     focusAward: focusAward,
     routineAward: routineAward,

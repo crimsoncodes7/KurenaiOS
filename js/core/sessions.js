@@ -87,6 +87,74 @@
     return e;
   }
 
+  /* ---- W2: a session in progress (§A6; ST-04, SY-03, JM-08) ----
+     A review batch, a Japanese session or a kana set is ONE ledger entry
+     from its first answer, found again by its session id (`metrics.sid`).
+     upsert(sid, entry) makes it, or brings its metrics up to date; the
+     Governor then pays only the DIFFERENCE against the entry's receipt
+     (`e.receipt`, what it has been paid so far), so an answer is paid when
+     it is given, leaving the page loses nothing, and a retry, a restore or
+     a resumed session never pays twice. `ts` and `date` stay the session's
+     start; `at` is when it last moved. */
+  function bySid(sid) {
+    var list = store.state.sessions;
+    for (var i = list.length - 1; i >= 0; i--) if (list[i].metrics && list[i].metrics.sid === sid) return list[i];
+    return null;
+  }
+  function upsert(sid, entry) {
+    var e = sid ? bySid(sid) : null;
+    if (!e) {
+      entry = Object.assign({}, entry);
+      entry.metrics = Object.assign({}, entry.metrics, { sid: sid });
+      return log(entry);
+    }
+    e.metrics = Object.assign({}, e.metrics, entry.metrics, { sid: sid });
+    Object.keys(e.metrics).forEach(function (k) { if (e.metrics[k] === undefined) delete e.metrics[k]; });
+    if (entry.dur != null) e.dur = entry.dur;
+    e.at = Date.now();
+    store.save();
+    if (KOS.governor && KOS.governor.onUpsert) KOS.governor.onUpsert(e);
+    if (KOS.refreshHUD) KOS.refreshHUD();
+    if (KOS.routines && KOS.routines.onSession) KOS.routines.onSession(e);
+    if (KOS.achievements) KOS.achievements.onSession(e);
+    return e;
+  }
+
+  /* ---- W2: where a session in progress stands, per device ----
+     state.ui.runs[key] = {day, ts, …the engine's own record}: the queue left
+     of a flashcard batch, a quiz's picks, a Japanese session's place, typed
+     exam answers. A record lasts its day (ttl: more days for typed drafts),
+     so coming back — a redraw, another page and back, a reload — picks the
+     session up where it stopped. get() is a pure read; a stale record is
+     dropped by the next put(). */
+  function today() { return KOS.srs.todayISO(); }
+  function fresh(r, ttl) { return !!r && !!r.day && r.day >= KOS.srs.addDays(today(), -(ttl || 0)); }
+  var run = {
+    get: function (key, ttl) {
+      var all = store.state.ui && store.state.ui.runs, r = all && all[key];
+      return fresh(r, ttl != null ? ttl : r && r.ttl) ? r : null;
+    },
+    put: function (key, rec) {
+      var ui = store.state.ui;
+      if (!ui.runs || typeof ui.runs !== "object" || Array.isArray(ui.runs)) ui.runs = {};
+      rec.day = rec.day || today();
+      rec.ts = Date.now();
+      ui.runs[key] = rec;
+      var keys = Object.keys(ui.runs);
+      keys.forEach(function (k) { if (!fresh(ui.runs[k], ui.runs[k] && ui.runs[k].ttl)) delete ui.runs[k]; });
+      keys = Object.keys(ui.runs);
+      if (keys.length > 24) keys.sort(function (a, b) { return (ui.runs[a].ts || 0) - (ui.runs[b].ts || 0); })
+        .slice(0, keys.length - 24).forEach(function (k) { delete ui.runs[k]; });
+      store.save();
+      return rec;
+    },
+    drop: function (key) {
+      var all = store.state.ui && store.state.ui.runs;
+      if (all && all[key]) { delete all[key]; store.save(); }
+    },
+    newId: function () { return "s" + Date.now().toString(36) + Math.random().toString(36).slice(2, 8); }
+  };
+
   /* what an entry's time was for: a switched Focus session's stretches,
      and every other entry as one part, itself. Pure. */
   function parts(e) {
@@ -251,6 +319,7 @@
   KOS.sessions = {
     studySecs: studySecs,
     log: log,
+    upsert: upsert, bySid: bySid, run: run,
     all: function () { return store.state.sessions; },
     forDate: forDate,
     hasActivity: hasActivity,
