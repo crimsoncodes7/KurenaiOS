@@ -841,6 +841,22 @@ that refuses fragment lines. A content batch of its own. Also left: the
 longest-option bias in authored distractors (CC-03's second half) and the
 W6 P2/P3s.
 
+**W6 second batch (16 Nov 2026, `feat/w6-content` 32217b8, NOT deployed;
+gate 146/146, smoke148 new):** FIXED CM-01 (the Maths spec re-typed from
+the Edexcel PDF as typeset maths, `tools/maths_spec.py`), CM-07, CM-28,
+CC-03's second half (no CS/Maths/Code item whose right answer is the one
+long option; `tools/quiz_bias.mjs`, smoke138 H), CC-05, CC-06, CC-07,
+CC-10, CC-12, CC-13, CC-22, CC-23, CM-04 (a fork says when the curriculum
+moved), CM-05, CM-08, CM-09 (bank items), CM-10, CM-12, CM-13, CM-15,
+CM-16, CM-21, CM-22, CM-23, CM-24, CM-26, CM-27, CO-17, EX-25, EX-33,
+JM-04, JM-10, JM-11, JM-16, JM-20, MI-03 (reachable rungs; authoring the
+missing routes is content for Mind F1). LEFT: CM-06 (thin notes) and CM-11
+(figures) — folded into roadmap 5.19 item 3; CM-09's three base-file items
+(6.1 fc3/qz3, 2.10 qz3); CC-08, CC-09, CC-25 and IT's quiz length tell
+(164 flagged) — folded into the IT notes overhaul, roadmap 5.19 item 1;
+CM-15's Tide, Water wheel and dam totals want checking against the real
+schemes.
+
 ### W7 — Connected OS and honest numbers (about 2 sessions)
 - **Automatic judgements need minimum evidence (RC20).** Each one names its
   minimum evidence and is tested with thin and contradictory fixtures.
