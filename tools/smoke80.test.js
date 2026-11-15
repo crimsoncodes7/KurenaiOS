@@ -43,7 +43,7 @@ step("A · the --ja hue is a token in Graphite and every theme", () => {
   assert(/--ja-ink:/.test(tokens) && /--font-ja:/.test(tokens) && /--font-hand:/.test(tokens), "the ink and the two Japanese families are tokens");
   const themes = fs.readFileSync(path.join(ROOT, "css/themes.css"), "utf8");
   const blocks = themes.match(/:root\[data-theme="[\w-]+"\][^{]*\{[^}]*\}/g) || [];
-  assert(blocks.length >= 25, "theme blocks found: " + blocks.length);
+  assert(blocks.length >= 2, "theme blocks found (Dusk and Dawn since the cull, W5): " + blocks.length);
   blocks.forEach((b) => assert(/--ja:/.test(b) && /--ja-ink:/.test(b), "a theme without --ja: " + b.slice(0, 60)));
   assert(/data-theme="atelier-dawn"[^{]*\{[^}]*--ja: oklch\(0\.54 0\.16 28\)/.test(themes), "Dawn uses the deep Sango");
 });

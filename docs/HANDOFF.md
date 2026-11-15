@@ -37,14 +37,23 @@ but AP-01), W6, W7 (all but HR-04, a design), W3's global fixes.
 4. **The rest of W1's and W7's P2/P3s** that are not design work (filter
    the appendix by workstream; skip anything marked "✎design" or with a
    decision open).
-5. **Roadmap 5.19 item 2, IT units archived and a current unit** (the user
-   asked 15 November; docs/ROADMAP.md §5.19): F200, F202 and F204 are done
-   at school; they leave the spine, the topic picker and the review analytics
-   but keep counting in marks, grades and history.
+5. ~~Roadmap 5.19 item 2~~ — MOVED to the Opus account on 16 November
+   2026 (it is built with design turn 44); leave it.
+
+**Design turns 36–44 arrived 16 November 2026** (the package is in the
+user's Downloads, `design_handoff_kurenaios_turns_36_44/`; its README says
+what is new per turn and that the app wins over the frames). This account
+(Opus) builds 37 with W3, 42 with W5, 43–44 with 5.19, 40–41, then 36 once
+AP-01 is on main and 39 once the import engine (MG-02–08) is. W5's first
+batch (16 November, `feat/w5-shop`, smoke151): every shop theme retired
+and refunded once (`theme-refund`, roadmap 5.20 for designed themes),
+Buy behind a confirm, the worn seal beside the brand mark and on the share
+card, the CSS frames retired, absolute shelf-skin URLs, the twelve
+avatars recomposed as discs.
 
 **Rules for both accounts now:**
 - Smoke suite numbers: the other account uses **142, 143, 149 and 150**;
-  this account uses 151 onwards. `npm test` finds suites by number.
+  this account uses 151 onwards (151 is W5's first batch). `npm test` finds suites by number.
 - Branch from `origin/main` after `git fetch`; one branch per batch
   (`feat/<ws>-…`); stage by name; commit and push after every batch; never
   `git stash` with worktrees in use; never force-push.

@@ -121,6 +121,14 @@
     ctx.fillStyle = meta;
     ctx.font = "500 30px " + MONO;
     ctx.fillText(rangeText(f.start, f.end), L + 160, 148);
+    /* the worn seal in the top corner (SC-04): its painted stamp, or the
+       glyph of an ink seal */
+    var sm = KOS.governor && KOS.governor.sealMark && KOS.governor.sealMark();
+    if (sm) {
+      var sim = sm.art && sealImg[sm.art];
+      if (sim && sim.complete && sim.naturalWidth) ctx.drawImage(sim, R - 104, 92, 104, 104);
+      else if (sm.glyph) { ctx.fillStyle = gold; ctx.font = "800 72px " + MINCHO; ctx.textAlign = "right"; ctx.fillText(sm.glyph, R, 104); ctx.textAlign = "left"; }
+    }
     /* the headline */
     ctx.fillStyle = ivory;
     ctx.font = "700 64px " + UI;
@@ -176,7 +184,7 @@
     return A ? A.showcase().map(function (id) { return A.def(id); }).filter(Boolean) : [];
   }
   /* the share-card finish bought in the shop (34g): its paper under the words */
-  var finishImg = {};
+  var finishImg = {}, sealImg = {};
   function finishItem() {
     var G = KOS.governor, id = G && G.wearing && G.wearing("finish");
     var tried = G && G.trying ? G.trying().filter(function (c) { return c.kind === "finish"; })[0] : null;
@@ -191,6 +199,14 @@
       fim.onload = fim.onerror = function () { if (--left === 0 && done) done(); };
       fim.src = "assets/app/img/" + fin.art + ".webp";
       finishImg[fin.id] = fim;
+    }
+    var sm = KOS.governor && KOS.governor.sealMark && KOS.governor.sealMark();
+    if (sm && sm.art && !sealImg[sm.art]) {
+      left++;
+      var sim = new window.Image();
+      sim.onload = sim.onerror = function () { if (--left === 0 && done) done(); };
+      sim.src = sm.art;
+      sealImg[sm.art] = sim;
     }
     defs.forEach(function (d) {
       var src = KOS.achUI && KOS.achUI.artSrc(d);

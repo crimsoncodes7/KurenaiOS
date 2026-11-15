@@ -44,7 +44,7 @@ step("A · the --code hue is a token in Graphite and every theme", () => {
   assert(/--code: oklch\(0\.815 0\.095 224\)/.test(tokens), "Graphite's --code is Sky");
   const themes = fs.readFileSync(path.join(ROOT, "css/themes.css"), "utf8");
   const blocks = themes.match(/:root\[data-theme="[\w-]+"\][^{]*\{[^}]*\}/g) || [];
-  assert(blocks.length >= 25, "theme blocks found: " + blocks.length);
+  assert(blocks.length >= 2, "theme blocks found (Dusk and Dawn since the cull, W5): " + blocks.length);
   blocks.forEach((b) => assert(/--code:/.test(b) && /--code-ink:/.test(b), "a theme without --code: " + b.slice(0, 60)));
   assert(/data-theme="atelier-dawn"[^{]*\{[^}]*--code: oklch\(0\.505 0\.095 224\)/.test(themes), "Dawn uses the deep Sky");
 });

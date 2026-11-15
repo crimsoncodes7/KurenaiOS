@@ -270,7 +270,7 @@ step("the exact canonical confirmation object is reviewed and confirmed", async 
 });
 
 step("theme inheritance and clean assets cover light and dark modes", async () => {
-  for (const theme of ["spectral-rose", "scarlet-garden-night"]) {
+  for (const theme of ["atelier-dawn", "atelier-dusk"]) {
     doc.documentElement.dataset.theme = theme;
     KOS.show("assistant", { tab: "chat" });
     await tick(15);

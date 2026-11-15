@@ -166,7 +166,7 @@
         break;
       case "correction":
         info.label = "System"; info.title = m.title || "Correction";
-        info.detail = (m.xp ? m.xp + " XP" : "") + (m.gold ? (m.xp ? " · " : "") + m.gold + " gold" : "") + (m.note ? " · " + m.note : "");
+        info.detail = (m.xp ? m.xp + " XP" : "") + (m.gold ? (m.xp ? " · " : "") + (m.refund ? "+" : "") + m.gold + " gold" : "") + (m.note ? " · " + m.note : "");
         info.category = "system"; info.meaningful = false; break;
       default:
         info.title = String(s.type || "Activity").replace(/(^|-)([a-z])/g, function (_, gap, ch) { return (gap ? " " : "") + ch.toUpperCase(); });
@@ -945,6 +945,15 @@
       KOS.ui.toast(r.ok ? "Bought " + it.name + ". " + goldN(g.gold) + " left." : r.msg, !r.ok);
       return r.ok;
     }
+    /* buying asks first (the user's choice, W5 42d: a confirm, not a timed
+       Undo): what it is, what it costs and what is left; Cancel is a plain
+       way out and nothing is spent until Buy */
+    function confirmBuy(items, done) {
+      var sum = items.reduce(function (a, c) { return a + c.price; }, 0);
+      var name = items.length === 1 ? items[0].name : items.length + " items";
+      KOS.ui.confirm({ title: "Buy " + name + "?", mark: "買", confirm: "Buy · " + goldN(sum),
+        body: goldN(sum) + " · " + goldN(g.gold - sum) + " left after" }, done);
+    }
     function visibleCatalog() {
       /* a retired CSS banner is shown only to someone who owns it */
       return KOS.governor.catalog().filter(function (c) { return !c.retired || KOS.governor.owns(c.id); });
@@ -1047,7 +1056,7 @@
         el("div", { class: "k-gv-shop-try-act" }, [
           toBuy.length ? el("button", { type: "button", class: "k-btn k-btn--sm k-gv-buy", "data-ui": "shop.buy-tried", disabled: sum > g.gold ? "" : null,
             text: (toBuy.length > 1 ? "Buy all · " : "Buy · ") + goldN(sum), onclick: function () {
-              toBuy.forEach(function (c) { if (g.gold >= c.price) buyWare(c); }); render(); } }) : null,
+              confirmBuy(toBuy, function () { toBuy.forEach(function (c) { if (g.gold >= c.price) buyWare(c); }); render(); }); } }) : null,
           el("button", { type: "button", class: "k-btn k-btn--sm k-btn--quiet", "data-ui": "shop.stop-trying", text: "Stop", onclick: function () { KOS.governor.stopTrying(); render(); } }),
           toBuy.length && sum <= g.gold ? el("span", { class: "k-muted k-mono", text: "→ " + goldN(g.gold - sum) }) : null
         ].filter(Boolean))
@@ -1085,7 +1094,7 @@
       foot.appendChild(el("span", { class: "k-gv-ware-gap" }));
       if (st === "buy" || st === "try") {
         if (afford) foot.appendChild(el("button", { type: "button", class: "k-btn k-btn--sm k-gv-buy", "data-ui": "shop.buy",
-          text: "Buy", "aria-label": "Buy " + it.name + " for " + KOS.ui.num(it.price) + " gold", onclick: function () { if (buyWare(it)) render(); } }));
+          text: "Buy", "aria-label": "Buy " + it.name + " for " + KOS.ui.num(it.price) + " gold", onclick: function () { confirmBuy([it], function () { if (buyWare(it)) render(); }); } }));
         else foot.appendChild(el("button", { type: "button", class: "k-btn k-btn--sm k-btn--quiet", "data-ui": "shop.more",
           text: goldN(it.price - g.gold) + " more", onclick: function () { shopSheet(it); } }));
       } else if (it.kind === "lab") {
@@ -1132,7 +1141,7 @@
       if (st === "buy" || st === "try") {
         if (it.kind !== "lab" && it.kind !== "paper" && it.kind !== "penset" && ["outfit", "scene", "hall", "finish", "theme"].indexOf(it.kind) !== -1)
           actions.push({ label: st === "try" ? "Stop trying on" : "Try on", onClick: function () { KOS.governor.tryItem(it.id); render(); } });
-        if (afford) actions.push({ label: "Buy · " + goldN(it.price), primary: true, onClick: function () { if (buyWare(it)) render(); } });
+        if (afford) actions.push({ label: "Buy · " + goldN(it.price), primary: true, onClick: function () { confirmBuy([it], function () { if (buyWare(it)) render(); }); } });
         else actions.push({ label: KOS.governor.pinned() && g.shopPin === it.id ? "Pinned" : "Pin as a goal", primary: true,
           onClick: function () { KOS.governor.setPinned(it.id); render(); } });
       }
@@ -1398,7 +1407,7 @@
       /* the wardrobe: every kind you can wear, what you own of it as
          pictures, the one in use ringed; the rest are a shop away */
       var WARD = [["outfit", "Kurenai's outfit", "The Assistant panel"], ["avatar", "Avatar", "Your portrait"], ["scene", "Focus scene", "Behind the timer"],
-        ["hall", "Shrine hall", "Behind rank 01"], ["banner", "Painted banner", "The Seat's stage"], ["seal", "Seal", "The topbar mark"],
+        ["hall", "Shrine hall", "Behind rank 01"], ["banner", "Painted banner", "The Seat's stage"], ["seal", "Seal", "Beside the brand mark · the share card"],
         ["finish", "Share-card finish", "Your shared cards"], ["paper", "Notebook paper", "New notebook pages"], ["penset", "Pen set", "The pen's colours"]];
       var ward = el("div", { class: "k-gv-ward", "data-ui": "gov.wardrobe" });
       WARD.forEach(function (w) {

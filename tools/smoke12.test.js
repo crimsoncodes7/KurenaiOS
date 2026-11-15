@@ -448,8 +448,7 @@ step("catalog: rebalanced prices + the new kinds exist; cosmetics apply their cl
   if (KOS.governor.item("logic-lab").price !== 100) throw new Error("sim price");
   /* Build 4.0: the four crimson-era themes are retired; the 23 theme-lab
      palettes replaced them (each carries a body[data-theme] block + swatches) */
-  ["theme-ember-wraith", "theme-sakura-skyline", "theme-lycoris-radiata",
-   "seal-sakura", "seal-rai", "seal-hoshi", "frame-amethyst"].forEach(id => {
+  ["seal-sakura", "seal-rai", "seal-hoshi", "frame-amethyst"].forEach(id => {
     if (!KOS.governor.item(id)) throw new Error("missing item " + id);
   });
   /* 23 lab themes at 140 gold, plus the two FREE Atelier themes (audit G-06:
@@ -457,9 +456,9 @@ step("catalog: rebalanced prices + the new kinds exist; cosmetics apply their cl
      a purchase record. */
   const themes = cat.filter(c => c.kind === "theme");
   const paid = themes.filter(c => c.price === 140), free = themes.filter(c => c.price === 0);
-  if (paid.length !== 23) throw new Error("23 paid lab themes expected, got " + paid.length);
+  if (paid.length !== 0) throw new Error("the recolour themes were retired (W5), got " + paid.length);
   /* design turn 34o: four more at 1,500 */
-  if (themes.filter(c => c.price === 1500).length !== 4) throw new Error("4 new themes at 1,500 expected");
+  if (themes.filter(c => c.price === 1500).length !== 0) throw new Error("the 34o themes were retired too (W5)");
   if (free.length !== 2) throw new Error("2 free themes expected, got " + free.length);
   ["theme-atelier-dawn", "theme-atelier-dusk"].forEach(id => {
     if (!KOS.governor.owns(id)) throw new Error(id + " must be owned without buying it");

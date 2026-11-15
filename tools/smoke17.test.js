@@ -558,11 +558,11 @@ step("a pull re-applies cosmetics (theme survives a fresh device)", async () => 
   try {
     const remoteDoc = JSON.parse(JSON.stringify(sv5.state.state_json));
     remoteDoc.governor = Object.assign({}, remoteDoc.governor || {},
-      { theme: "celestial-duality", owned: ["theme:celestial-duality"], xp: 900 });
+      { theme: "atelier-dawn", owned: [], xp: 900 });
     sv5.state = { state_json: remoteDoc, updated_at: sv5.stamp() };
     await sync();
     assert(applied > 0, "applyCosmetics was not called after a remote state applied");
-    assert(window.document.documentElement.getAttribute("data-theme") === "celestial-duality",
+    assert(window.document.documentElement.getAttribute("data-theme") === "atelier-dawn",
       "data-theme not set from the pulled theme: " + window.document.documentElement.getAttribute("data-theme"));
   } finally { KOS.governor.applyCosmetics = realApply; }
 });

@@ -329,7 +329,7 @@ await evaluate(`(() => {
 })()`);
 await auditView("governor", "status", "[data-ui~='gov.status']");
 await screenshot("/tmp/kos-governor-status-light-1440.png");
-await evaluate(`(() => { KOS.store.state.governor.theme = "spectral-rose"; KOS.governor.applyCosmetics(); })()`);
+await evaluate(`(() => { KOS.store.state.governor.theme = "atelier-dawn"; KOS.governor.applyCosmetics(); })()`);
 await auditView("governor", "status", "[data-ui~='gov.status']");
 const governorRefine = await evaluate(`(() => {
   const head = document.querySelector('[data-ui~="gov.head"]'), hero = document.querySelector('[data-ui~="gov.seat"]');
@@ -652,7 +652,7 @@ await evaluate(`(async () => {
   KOS.goals.add({ title: "Write three short reflections", description: "A manual intention for the part data cannot measure.", type: "custom-manual", target: 3, current: 1 });
   KOS.store.state.media.goalsTab = "active";
   KOS.store.state.media.shrine = { module: "", sort: "score", description: "Only the works I would recommend without hesitation." };
-  KOS.store.state.governor.theme = "spectral-rose";
+  KOS.store.state.governor.theme = "atelier-dawn";
   KOS.governor.applyCosmetics();
   KOS.store.save();
   document.getElementById('toast')?.style.setProperty('display', 'none');

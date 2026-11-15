@@ -600,7 +600,7 @@ button.k-gv-row[aria-expanded="true"] { background: var(--s2); border-radius: va
 .k-gv-apv-share small { font-size: var(--fs-11); letter-spacing: var(--track-kicker); }
 .k-gv-apv-share b { font-size: var(--fs-22); }
 .k-gv-apv-disc { inline-size: 76%; aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center; overflow: hidden; background: radial-gradient(circle at 50% 40%, var(--s1), var(--s3)); }
-.k-gv-apv-disc > img { inline-size: 82%; block-size: 82%; object-fit: contain; }
+.k-gv-apv-disc > img { inline-size: 100%; block-size: 100%; object-fit: contain; }
 .k-gv-apv-frame { position: relative; inline-size: 76%; aspect-ratio: 1; display: grid; place-items: center; }
 .k-gv-apv-frame-art { position: absolute; inset: 0; inline-size: 100%; block-size: 100%; object-fit: contain; z-index: 1; }
 .k-gv-apv-frame-in .k-avatar-host::before, .k-gv-apv-frame-in .k-avatar-host::after, .k-gv-apv-frame-in .k-avatar-frame-art { display: none; }

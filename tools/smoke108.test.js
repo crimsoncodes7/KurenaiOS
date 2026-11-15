@@ -53,7 +53,7 @@ step("A · the --cr hue is a token in Graphite and every theme", () => {
   assert(/--cr: oklch\(0\.85 0\.135 118\)/.test(tokens) && /--cr-ink:/.test(tokens), "Graphite's --cr is Moegi, with its ink");
   const themes = fs.readFileSync(path.join(ROOT, "css/themes.css"), "utf8");
   const blocks = themes.match(/:root\[data-theme="[\w-]+"\][^{]*\{[^}]*\}/g) || [];
-  assert(blocks.length >= 25, "theme blocks found: " + blocks.length);
+  assert(blocks.length >= 2, "theme blocks found (Dusk and Dawn since the cull, W5): " + blocks.length);
   blocks.forEach((b) => assert(/--cr:/.test(b) && /--cr-ink:/.test(b), "a theme without --cr: " + b.slice(0, 60)));
   assert(/data-theme="atelier-dawn"[^{]*\{[^}]*--cr: oklch\(0\.53 0\.125 116\)/.test(themes), "Dawn uses the deep Moegi");
 });

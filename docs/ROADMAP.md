@@ -1586,7 +1586,8 @@ needs a Claude Design prompt when it is scheduled.
    the short-lines, figure-led layout. **F201 first** (the unit still to
    sit, soon); **F206 (NEA) waits until January 2027**. F200, F202 and F204
    are sat and need nothing.
-2. **IT units archived, and a current unit.** F200, F202 and F204 are done
+2. **IT units archived, and a current unit.** (Moved to the Opus account
+   on 16 November 2026, built with design turn 44.) F200, F202 and F204 are done
    at school. An archived (completed) unit leaves the spine, the topic
    picker and the subject's REVIEW analytics (reviews, Quiz best, exam
    questions) while it keeps counting in the other stats (marks, grades,
@@ -1601,6 +1602,11 @@ needs a Claude Design prompt when it is scheduled.
    an interactive part to fill in (a trace table that marks itself, a
    query that runs, a gate circuit to complete). IT where it fits. Some
    labs move in line on the notes pages (`KOS.sims.embed`).
+   **The NOTES come first** (the user, 16 November 2026): the figures,
+   graphs, tables and fill-ins belong in the notes pages' own worked
+   examples and their variations (and the Companion's), not only in the
+   revision tools' items. Design turn 43 draws them on items; build them
+   wherever a worked example is drawn.
 4. **Revision tools fitted to each subject.**
    - Flashcards are quick recall (under about 30 seconds a card): Maths
      multi-line problems move out of the decks into the quiz or exam
@@ -1612,6 +1618,17 @@ needs a Claude Design prompt when it is scheduled.
    - On the iPad, an exam question attempt that was never marked can be
      opened again and its handwriting continued (today earlier work is a
      read-only link, invariant 132); a marked attempt stays read-only.
+
+### 5.20 Themes designed as themes (asked for 16 November 2026) — BACKLOG
+
+The 27 shop themes were recolours of Graphite, so all of them were retired
+on 16 November 2026 (W5, SC-22; every bought one refunded once, the
+`theme-refund` repair) and only Atelier Dusk (Graphite) and Atelier Dawn
+remain. New themes come back DESIGNED, through Claude Design first: each
+one more than a palette — its own ground, surfaces and texture, header
+and card treatment, and art where it helps — built on the role tokens
+(invariant 26a) so every page and Dawn's rules still hold. Fewer, better
+themes; priced in the shop again once they exist.
 
 ## Phase 6 — The iPad and the Pencil (asked for 22 October 2026)
 
