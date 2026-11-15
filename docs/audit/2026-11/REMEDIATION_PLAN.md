@@ -631,7 +631,32 @@ Study had its own Mode and Length, which overrode the page (a custom 37 min
 became 0, a one-second session; Study until became Pomodoro; no link was
 linked to a suggestion); it now hands back exactly the page's set-up, and
 Home, the Daily Review and Routines open the page filled in.
-STILL TO DO in W2: **lazy loading** (AP-01), the last Fable item. The list
+**W2 progress (15 Nov 2026 session, `feat/w2-lazy` at 7e32772, NOT merged
+to main, NOT deployed; gate 148/148, smoke142 new) — loading on first use,
+done on Fable.** AP-01 PARTLY FIXED (stage 1 of 2). Boot parses 8.4 MB of
+17.0 MB: the CS, Maths, IT and Code content, the past-paper index's pack
+list, the exam Companion and the Rider scaffolds sit in `<template
+data-lazy>` blocks of index.html (still the tags the service worker and
+every test loader read) and load on first use through `js/core/lazy.js`;
+`js/data/lazy-index.js` (generated, `tools/gen_lazy_index.mjs`) stands in
+with each object's STRUCTURE (pages, card keys, listing ids, task tiers),
+so every figure computed in the background is the same before and after
+the words arrive. A page names what it needs and waits behind "Loading…";
+the bundles warm up in idle moments after boot; boot is timed
+(`kos-boot-start`, `kos-interactive`). Invariant 168. EVIDENCE: a full test
+account (`tools/lib/lazy-fixture.js`) booted eager and lazy saves the same
+state, draws the same Home and measures every badge, card key, Code lesson
+and readiness the same; a cold sweep of 116 page opens reads nothing early;
+Chrome over http (kos-boot 59–166 ms) and from file://. DIFFERENT FROM THE
+PLAN'S ROW, on purpose: the past-paper index keeps its papers, questions
+and A-level-only leaves at boot (readiness, a scope and a goal are computed
+from them); Japanese, Mind and Creatives content (0.2 MB) and the labs
+(0.6 MB, tied to the Governor's catalogue) stay at boot. NOT DONE: the
+acceptance figure "< ~4 MB". The rest is code, not data — the page modules
+(3.5 MB), core (2.9 MB) and labs — and loading modules on first use is its
+own batch (a missing module API throws where a missing data field only
+redraws): STAGE 2, to be scoped before it is started.
+STILL TO DO in W2: AP-01 stage 2 (page modules on first use). The list
 below is done: AA-01, AA-02, CR-01, SY-22
 (in-page tabs through `KOS.view.memo`), SY-11, SY-14, SY-23, SY-25, SY-27,
 AP-08 (move pages' global listeners to `KOS.view.onDispose`), SH-37/AG-03/
