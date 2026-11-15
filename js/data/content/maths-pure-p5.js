@@ -892,13 +892,13 @@ C["maths:5.9"] = {
         { h: "(b)", m: "$\\theta = 5 + \\sqrt5\\sin\\left(\\dfrac{\\pi t}{12} - 3 + 1.107\\right)$; maximum $5 + \\sqrt5 = 7.24°$C", mk: "B1" },
         { h: "(c) Sine is 1 when its argument is $\\frac{\\pi}{2}$", m: "$\\dfrac{\\pi t}{12} - 1.893 = \\dfrac{\\pi}{2} \\Rightarrow t = \\dfrac{12}{\\pi}\\left(\\dfrac{\\pi}{2} + 1.893\\right) = 13.23$ h $=$ **13:14**", mk: "M1 M1 A1", n: "$0.23 \\times 60 = 13.8$ min. Radians throughout: the model's argument has $\\pi$ in it." }
       ], result: "(a) $\\sqrt5\\sin(x + 1.107)$ (b) $7.24°$C (c) 13:14" } },
-    { worked: { tag: "exam", title: "Tide model: depth at midnight, maximum depth, afternoon time of the maximum", src: "A-level Specimen · P1 Q13 · 11 marks",
+    { worked: { tag: "exam", title: "Tide model: depth at midnight, maximum depth, afternoon time of the maximum", src: "A-level Specimen · P1 Q13(a)–(d) · 8 marks",
       q: "**(a)** Express $2\\sin\\theta - 1.5\\cos\\theta$ as $R\\sin(\\theta - \\alpha)$, $R > 0$, $0 < \\alpha < \\frac{\\pi}{2}$, $\\alpha$ to 4 d.p. Tom models the depth of water at a harbour by $D = 6 + 2\\sin\\left(\\frac{4\\pi t}{25}\\right) - 1.5\\cos\\left(\\frac{4\\pi t}{25}\\right)$, $0 \\le t \\le 24$. **(b)** Find the depth at 00:00. **(c)** Find the maximum depth. **(d)** Find the time in the afternoon when the maximum occurs, to the nearest minute.",
       steps: [
         { h: "(a)", m: "$R = \\sqrt{4 + 2.25} = 2.5$; $\\tan\\alpha = \\dfrac{1.5}{2} \\Rightarrow \\alpha = 0.6435$: $2.5\\sin(\\theta - 0.6435)$", mk: "B1 M1 A1" },
-        { h: "(b) $t = 0$", m: "$D = 6 - 1.5 = 4.5$ m", mk: "M1 A1" },
-        { h: "(c)", m: "$D = 6 + 2.5\\sin\\left(\\dfrac{4\\pi t}{25} - 0.6435\\right)$: maximum $8.5$ m", mk: "M1 A1" },
-        { h: "(d) Argument $= \\frac{\\pi}{2} + 2\\pi n$", m: "$\\dfrac{4\\pi t}{25} - 0.6435 = \\dfrac{\\pi}{2} \\Rightarrow t = 4.405$ (04:24, morning). Period $= \\dfrac{2\\pi}{4\\pi/25} = 12.5$ h, so the next maximum is at $t = 16.905$ h $=$ **16:54**", mk: "M1 A1 M1 A1", n: "\"In the afternoon\" tells you to add one period to the first maximum." }
+        { h: "(b) $t = 0$", m: "$D = 6 - 1.5 = 4.5$ m", mk: "B1" },
+        { h: "(c)", m: "$D = 6 + 2.5\\sin\\left(\\dfrac{4\\pi t}{25} - 0.6435\\right)$: maximum $8.5$ m", mk: "B1" },
+        { h: "(d) Argument $= \\frac{\\pi}{2} + 2\\pi n$", m: "$\\dfrac{4\\pi t}{25} - 0.6435 = \\dfrac{\\pi}{2} \\Rightarrow t = 4.405$ (04:24, morning). Period $= \\dfrac{2\\pi}{4\\pi/25} = 12.5$ h, so the next maximum is at $t = 16.905$ h $=$ **16:54**", mk: "M1 M1 A1", n: "\"In the afternoon\" tells you to add one period to the first maximum." }
       ], result: "(b) 4.5 m (c) 8.5 m (d) 16:54" } },
     { worked: { tag: "exam", title: "Rabbits and foxes: $K\\cos(\\theta + \\alpha)$, a complete model, a comment", src: "A-level June 2024 · P1 Q12 · 11 marks",
       q: "**(a)** Express $140\\cos\\theta - 480\\sin\\theta$ as $K\\cos(\\theta + \\alpha)$, $K > 0$, $0 < \\alpha < 90°$, $\\alpha$ to 2 d.p. The number of rabbits is $R = A + 140\\cos(30t)° - 480\\sin(30t)°$, $t$ months after the start of the year, and the maximum is 1500. **(b)(i)** Find a complete equation for the model. **(ii)** Write down the minimum number of rabbits. The actual minimum occurs in the middle of April. **(c)** Comment on the model. The number of foxes is $F = 100 + 70\\sin(30t + 70)°$ and is at its minimum after $T$ months. **(d)** Find the number of rabbits at time $T$.",
@@ -908,12 +908,12 @@ C["maths:5.9"] = {
         { h: "(c) When does the model's minimum occur?", m: "$30t + 73.74 = 180 \\Rightarrow t = 3.54$ months — mid-April. The model agrees with the observed minimum, which supports it.", mk: "M1 A1", n: "Compute, compare, conclude." },
         { h: "(d) Foxes minimum when $\\sin(30T + 70)° = -1$", m: "$30T + 70 = 270 \\Rightarrow T = \\dfrac{20}{3}$; $R = 1000 + 500\\cos(200 + 73.74)° = 1000 + 500\\cos273.74° = 1033$", mk: "M1 M1 A1", n: "Whole rabbits: 1033 (or 1030 to 3 s.f.)." }
       ], result: "(a) $500\\cos(\\theta + 73.74°)$ (b) $R = 1000 + 500\\cos(30t + 73.74)°$, min 500 (d) ≈ 1033" } },
-    { worked: { tag: "exam", title: "Water wheel: maximum height and when; a negative minimum", src: "A-level Oct 2021 · P2 Q15 · 11 marks",
-      q: "**(a)** Express $2\\cos\\theta - \\sin\\theta$ as $R\\cos(\\theta + \\alpha)$, $R > 0$, $0 < \\alpha < \\frac{\\pi}{2}$, $\\alpha$ to 3 d.p. The height of a paddle above the water is $H = 3 + 4\\cos(0.5t) - 2\\sin(0.5t)$ metres, $t$ seconds after the wheel starts. **(b)(i)** Find the maximum height. **(ii)** Find the first time it occurs. **(c)** Find the minimum height and interpret it.",
+    { worked: { tag: "exam", title: "Water wheel: maximum height and when; a negative minimum", src: "A-level Oct 2021 · P2 Q15(a)–(b) · 6 marks",
+      q: "**(a)** Express $2\\cos\\theta - \\sin\\theta$ as $R\\cos(\\theta + \\alpha)$, $R > 0$, $0 < \\alpha < \\frac{\\pi}{2}$, $\\alpha$ to 3 d.p. The height of a paddle above the water is $H = 3 + 4\\cos(0.5t) - 2\\sin(0.5t)$ metres, $t$ seconds after the wheel starts. **(b)(i)** Find the maximum height. **(ii)** Find the first time it occurs. **(c)** (not on the paper) Find the minimum height and interpret it.",
       steps: [
         { h: "(a)", m: "$R = \\sqrt5$, $\\tan\\alpha = \\dfrac12 \\Rightarrow \\alpha = 0.464$: $\\sqrt5\\cos(\\theta + 0.464)$", mk: "B1 M1 A1" },
-        { h: "(b) $H = 3 + 2\\sqrt5\\cos(0.5t + 0.464)$", m: "(i) maximum $3 + 2\\sqrt5 = 7.47$ m. (ii) first when $0.5t + 0.464 = 2\\pi$ ($t > 0$): $t = 2(2\\pi - 0.464) = 11.6$ s", mk: "M1 A1 M1 dM1 A1", n: "$0.5t + 0.464 = 0$ gives a negative $t$; the first *positive* time uses $2\\pi$." },
-        { h: "(c)", m: "Minimum $3 - 2\\sqrt5 = -1.47$ m: the paddle is $1.47$ m **below** the water level at its lowest point.", mk: "M1 A1 B1" }
+        { h: "(b) $H = 3 + 2\\sqrt5\\cos(0.5t + 0.464)$", m: "(i) maximum $3 + 2\\sqrt5 = 7.47$ m. (ii) first when $0.5t + 0.464 = 2\\pi$ ($t > 0$): $t = 2(2\\pi - 0.464) = 11.6$ s", mk: "B1 M1 A1", n: "$0.5t + 0.464 = 0$ gives a negative $t$; the first *positive* time uses $2\\pi$." },
+        { h: "(c)", m: "Minimum $3 - 2\\sqrt5 = -1.47$ m: the paddle is $1.47$ m **below** the water level at its lowest point.", n: "An extension: the paper's own (c) asks how long the paddle spends under water (4 marks)." }
       ], result: "(b) 7.47 m at $t = 11.6$ s (c) $-1.47$ m, under water" } },
 
     { page: "Exam toolkit" },
