@@ -23,9 +23,9 @@ X("compsci:4.5.2.1", {
   ],
   quiz: [
     { q: "11111111 in hexadecimal is:", opts: ["FF", "F0", "255", "EE"], ans: 0, why: "Two nibbles of 1111." },
-    { q: "Hex 7C in denary is:", opts: ["124", "112", "120", "76"], ans: 0, why: "7 × 16 + 12." },
-    { q: "Why is hex used in memory dumps rather than binary?", opts: ["It uses less memory", "It is shorter and easier for humans to read, converting simply to binary", "Computers store hex", "It is faster to process"], ans: 1, why: "Memory use is unchanged." },
-    { q: "Denary 45 in hex:", opts: ["2D", "45", "3C", "2F"], ans: 0, why: "2 × 16 + 13." },
+    { q: "Hex 7C in denary is:", opts: ["124", "112", "120", "76"], ans: 0, why: "7C is 7 × 16 + 12 (C = 12) = 112 + 12 = 124." },
+    { q: "Why is hex used in memory dumps rather than binary?", opts: ["It takes up less memory than the same values in binary", "It is shorter for humans to read and converts simply to binary", "The computer stores memory contents as hex, not binary", "The processor can handle hex values faster than it handles binary"], ans: 1, why: "Memory use is unchanged." },
+    { q: "Denary 45 in hex:", opts: ["2D", "45", "3C", "2F"], ans: 0, why: "45 = 2 × 16 + 13, and 13 is D, so the hex value is 2D." },
     { q: "Binary 1010 0011 in hex:", opts: ["A3", "AC", "93", "A5"], ans: 0, why: "1010 = A, 0011 = 3." },
     { q: "How many bits are needed to store two hex digits?", opts: ["4", "8", "16", "2"], ans: 1, why: "4 bits per digit." }
   ],
@@ -59,11 +59,11 @@ X("compsci:4.5.4.3", {
     ["Why is two's complement preferred to sign-and-magnitude?", "One representation of zero, and addition/subtraction use the same adder circuit with no special sign handling.", 16]
   ],
   quiz: [
-    { q: "10000000 in 8-bit two's complement is:", opts: ["128", "−128", "−0", "0"], ans: 1, why: "MSB = −128." },
+    { q: "10000000 in 8-bit two's complement is:", opts: ["128", "−128", "−0", "−127"], ans: 1, why: "In two's complement the most significant bit has weight −128 in 8 bits, so 10000000 is −128." },
     { q: "The two's complement of 00010110 (22) is:", opts: ["11101001", "11101010", "10010110", "01101010"], ans: 1, why: "Flip → 11101001, +1 → 11101010 (−22)." },
-    { q: "Range of 6-bit two's complement:", opts: ["−32 to 31", "−31 to 32", "0 to 63", "−64 to 63"], ans: 0, why: "−2⁵ to 2⁵ − 1." },
-    { q: "01111111 + 00000001 in 8-bit two's complement gives:", opts: ["128", "−128 (overflow)", "0", "127"], ans: 1, why: "10000000 = −128 — signed overflow." },
-    { q: "11111111 represents:", opts: ["255", "−1", "−127", "127"], ans: 1, why: "−128 + 127." },
+    { q: "Range of 6-bit two's complement:", opts: ["−32 to 31", "−31 to 32", "0 to 63", "−64 to 63"], ans: 0, why: "With 6 bits the top bit is worth −2⁵ = −32, so the range is −32 to 2⁵ − 1 = 31." },
+    { q: "01111111 + 00000001 in 8-bit two's complement gives:", opts: ["128 (no overflow)", "−128 (overflow)", "0 (carry out)", "−1 (overflow)"], ans: 1, why: "10000000 = −128 — signed overflow." },
+    { q: "11111111 represents:", opts: ["255", "−1", "−127", "127"], ans: 1, why: "The top bit is −128 and the other seven bits add 127, so all ones is −128 + 127 = −1." },
     { q: "To compute 12 − 5 in 8-bit two's complement you add 00001100 to:", opts: ["00000101", "11111011", "11111010", "10000101"], ans: 1, why: "−5 = flip 00000101 → 11111010, +1 → 11111011; the sum 100000111 drops the carry → 00000111 = 7." }
   ],
   exam: [
@@ -110,11 +110,11 @@ X("compsci:4.5.4.4", {
   quiz: [
     { q: "Which mantissa is normalised?", opts: ["00110000", "01100000", "11100000", "00000000"], ans: 1, why: "Starts 01 (positive) — 10 would be negative normalised." },
     { q: "Mantissa 0.1101000, exponent 0100 equals:", opts: ["13", "6.5", "26", "3.25"], ans: 0, why: "0.8125 × 16 = 13." },
-    { q: "Exponent 1101 (4-bit two's complement) is:", opts: ["13", "−3", "−5", "5"], ans: 1, why: "−8 + 4 + 1." },
+    { q: "Exponent 1101 (4-bit two's complement) is:", opts: ["13", "−3", "−5", "5"], ans: 1, why: "1101 is −8 + 4 + 1 = −3, as the top bit is worth −8." },
     { q: "The largest positive value with 8-bit mantissa and 4-bit exponent:", opts: ["0.1111111 × 2⁷", "0.1111111 × 2⁸", "1.0000000 × 2⁷", "0.1000000 × 2⁻⁸"], ans: 0, why: "Max mantissa, max exponent (0111 = 7)." },
-    { q: "Fixed point beats floating point on:", opts: ["range", "speed of arithmetic and constant precision", "values near zero", "storing large numbers"], ans: 1, why: "2020/2024 mark scheme." },
+    { q: "Fixed point beats floating point on:", opts: ["range of values for the same number of bits", "speed of arithmetic and constant precision", "precision for values very close to zero", "storing very large and very small numbers"], ans: 1, why: "2020/2024 mark scheme." },
     { q: "Unsigned fixed point 10011.011 is:", opts: ["19.375", "19.75", "19.125", "35.375"], ans: 0, why: "16 + 2 + 1 + 0.25 + 0.125." },
-    { q: "Why normalise floating point numbers?", opts: ["To make them smaller", "To maximise precision for a given number of bits and give a unique representation", "To avoid negatives", "To speed up storage"], ans: 1, why: "2022/2025 mark scheme." }
+    { q: "Why normalise floating point numbers?", opts: ["To make the exponent small so numbers take less memory", "To maximise precision in the bits available and make each value unique", "To remove negative values so no sign bit is needed", "To increase the range by moving more of the number's digits into the exponent"], ans: 1, why: "2022/2025 mark scheme." }
   ],
   exam: [
     { src: "AQA 2023 P2 Q6", ctx: "A floating point system uses an 8-bit two's complement mantissa and a 4-bit two's complement exponent.",
@@ -152,9 +152,9 @@ X("compsci:4.5.4.7", {
     ["How many bits does IEEE single precision use for mantissa and exponent?", "23 (plus implicit 1) and 8, with a sign bit — 32 in total."]
   ],
   quiz: [
-    { q: "To increase range without adding bits you:", opts: ["add mantissa bits", "move bits from mantissa to exponent", "normalise", "use fixed point"], ans: 1, why: "Exponent controls range." },
+    { q: "To increase range without adding bits you:", opts: ["move bits from exponent to mantissa", "move bits from mantissa to exponent", "normalise the mantissa and exponent", "switch to a fixed point representation"], ans: 1, why: "Exponent controls range." },
     { q: "Precision is governed by:", opts: ["exponent bits", "mantissa bits", "the sign bit", "the base"], ans: 1, why: "Significant figures." },
-    { q: "With 4-bit two's complement exponent the maximum exponent is:", opts: ["15", "8", "7", "16"], ans: 2, why: "0111." },
+    { q: "With 4-bit two's complement exponent the maximum exponent is:", opts: ["15", "8", "7", "16"], ans: 2, why: "The largest 4-bit two's complement value is 0111 = 7, the most a positive exponent can be." },
     { q: "Smallest positive normalised mantissa is:", opts: ["0.0000001", "0.1000000", "0.1111111", "1.0000000"], ans: 1, why: "Normalised positive starts 01." },
     { q: "Doubling the exponent bits roughly:", opts: ["doubles the range", "squares the range", "halves precision", "changes nothing"], ans: 1, why: "2^(2ⁿ) grows enormously." },
     { q: "Fixed point with 4 fraction bits has absolute precision:", opts: ["1/16 everywhere", "varying with magnitude", "1/4", "unlimited"], ans: 0, why: "Constant absolute precision." }
@@ -179,12 +179,12 @@ X("compsci:4.5.4.8", {
     ["What happens to precision if a number is stored un-normalised?", "Leading bits carry no information, so fewer significant bits remain — precision is lost.", 16]
   ],
   quiz: [
-    { q: "Which is a negative normalised mantissa?", opts: ["11010000", "10110000", "01010000", "00110000"], ans: 1, why: "Starts 10." },
+    { q: "Which is a negative normalised mantissa?", opts: ["11010000", "10110000", "01010000", "00110000"], ans: 1, why: "A normalised negative mantissa starts 10, so the sign bit is 1 and the next bit is 0." },
     { q: "Normalising 00010100 × 2⁴ gives:", opts: ["01010000 × 2²", "01010000 × 2⁶", "00010100 × 2²", "10100000 × 2²"], ans: 0, why: "Shift left 2, exponent 4 − 2." },
-    { q: "Why does normalisation aid equality testing?", opts: ["values become integers", "each value has one unique representation", "it removes the sign", "it rounds"], ans: 1, why: "No alternative encodings." },
-    { q: "Un-normalised storage wastes:", opts: ["exponent bits", "mantissa precision", "the sign bit", "nothing"], ans: 1, why: "Leading redundant bits." },
-    { q: "A mantissa of 0.1111111 is:", opts: ["un-normalised", "normalised, the largest positive", "negative", "zero"], ans: 1, why: "Starts 01." },
-    { q: "Normalised negative mantissas begin with:", opts: ["11", "10", "01", "00"], ans: 1, why: "1 sign, then 0." }
+    { q: "Why does normalisation aid equality testing?", opts: ["values are converted to whole integers", "each value has one unique representation", "the sign bit is removed from every stored value", "values are rounded to the nearest bit"], ans: 1, why: "No alternative encodings." },
+    { q: "Un-normalised storage wastes:", opts: ["exponent range", "mantissa precision", "space for the sign bit", "nothing at all"], ans: 1, why: "Leading redundant bits." },
+    { q: "A mantissa of 0.1111111 is:", opts: ["un-normalised, since it starts 0.1", "normalised, the largest positive", "negative, since the bits are all ones", "normalised, the smallest positive"], ans: 1, why: "A positive normalised mantissa starts 01, and 0.1111111 is the largest such value." },
+    { q: "Normalised negative mantissas begin with:", opts: ["11", "10", "01", "00"], ans: 1, why: "Normalised negative mantissas start 10: a sign bit of 1, then 0, which is what makes them normalised." }
   ],
   exam: [
     { src: "AQA 2025 P2 Q12", ctx: "Four bit patterns in an 8-bit mantissa / 4-bit exponent system: A = 01101000 0011, B = 00110100 0100, C = 10000000 0111, D = 10110000 0010.",

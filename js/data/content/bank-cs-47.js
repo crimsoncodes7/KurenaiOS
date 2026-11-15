@@ -29,12 +29,12 @@ X("compsci:4.7.1.1", {
     ["What does main memory do during execution?", "Holds the instructions and data of the running program, returning the contents of the addressed location on the data bus and storing results.", 20]
   ],
   quiz: [
-    { q: "A 20-line address bus can address:", opts: ["20 locations", "2²⁰ = 1 048 576 locations", "20 KiB", "2¹⁰ locations"], ans: 1, why: "2ⁿ." },
-    { q: "Doubling addressable memory requires:", opts: ["a wider data bus", "one more address-bus line", "a faster clock", "more cache"], ans: 1, why: "2ⁿ⁺¹." },
-    { q: "The data bus is bidirectional because:", opts: ["addresses go both ways", "data is read from and written to memory", "it carries control signals", "it is wider"], ans: 1, why: "Read and write." },
+    { q: "A 20-line address bus can address:", opts: ["20 locations", "2²⁰ = 1 048 576 locations", "20 KiB = 20 480 locations", "2¹⁹ = 524 288 locations"], ans: 1, why: "Each extra address line doubles the locations: n lines address 2ⁿ, so 20 lines give 2²⁰." },
+    { q: "Doubling addressable memory requires:", opts: ["a data bus twice as wide", "one more address-bus line", "a clock running twice as fast", "twice as many cache lines"], ans: 1, why: "Each extra address line doubles the locations, so doubling the memory needs just one more line." },
+    { q: "The data bus is bidirectional because:", opts: ["addresses are sent both ways along it", "data is read from and written to memory", "it carries the control signals as well", "it is twice as wide as the address bus"], ans: 1, why: "The CPU both reads from and writes to memory over the data bus; addresses only ever go out on the address bus." },
     { q: "The write signal travels on the:", opts: ["address bus", "data bus", "control bus", "I/O bus"], ans: 2, why: "Control signals." },
-    { q: "An I/O controller makes a peripheral appear to the processor as:", opts: ["a file", "a set of registers / memory locations", "a bus", "a program"], ans: 1, why: "Ports." },
-    { q: "'A wider data bus transfers data faster' scores:", opts: ["1", "0 — say more bits per transfer", "2", "half"], ans: 1, why: "NE per mark scheme." }
+    { q: "An I/O controller makes a peripheral appear to the processor as:", opts: ["a file stored on secondary storage", "a set of registers / memory locations", "an extra bus connected to the processor", "a program loaded into main memory"], ans: 1, why: "The controller's registers (ports) are addressed like memory, so the processor can read or write them with ordinary instructions." },
+    { q: "'A wider data bus transfers data faster' scores:", opts: ["1 — it names the right effect", "0 — say more bits per transfer", "2 — it gives cause and effect", "half — it needs an example"], ans: 1, why: "NE per mark scheme." }
   ],
   exam: [
     { src: "AQA 2024 P2 Q3", ctx: "A computer has a 36-bit address bus, a 16-bit data bus and 16-bit memory words.",
@@ -69,12 +69,12 @@ X("compsci:4.7.2.1", {
     ["Which statement about stored programs is false: (a) instructions in memory, (b) one program only, (c) fetched serially?", "(b) — different programs can be loaded.", 15]
   ],
   quiz: [
-    { q: "The stored program concept says instructions are:", opts: ["hard-wired", "stored in main memory and fetched and executed in sequence", "kept on disk only", "executed in parallel"], ans: 1, why: "Definition." },
-    { q: "Which is NOT part of the concept?", opts: ["Instructions in main memory", "Serial fetch and execute", "The computer runs only one fixed program", "Processor does arithmetic and logic"], ans: 2, why: "2021 false statement." },
-    { q: "Before execution a program stored on an SSD is:", opts: ["executed directly", "loaded into main memory", "compiled again", "sent to cache only"], ans: 1, why: "Main memory role." },
-    { q: "In the phrase 'fetched and executed', the accepted subject is:", opts: ["programs", "instructions", "files", "data"], ans: 1, why: "R. programs." },
-    { q: "Main memory during execution:", opts: ["stores only data", "stores instructions and data and returns addressed contents", "is read-only", "stores the compiler"], ans: 1, why: "AS 2022 P2 Q8.2." },
-    { q: "The stored program concept is associated with:", opts: ["Turing", "von Neumann", "Boole", "Dijkstra"], ans: 1, why: "1945 report." }
+    { q: "Under the stored program concept, instructions and data are:", opts: ["held in the same main memory", "kept in two separate memories", "stored only in the registers", "read straight from the disk"], ans: 0, why: "Von Neumann: one memory for both (Harvard separates them)." },
+    { q: "The stored program concept lets a program be changed by:", opts: ["loading new instructions into memory", "rewiring the processor's circuits", "replacing the system clock", "adding more registers to the CPU"], ans: 0, why: "The program is data in memory." },
+    { q: "Before execution a program stored on an SSD is:", opts: ["executed directly from the SSD", "loaded into main memory", "compiled again before it runs", "copied into the cache only"], ans: 1, why: "Main memory role." },
+    { q: "In the phrase 'fetched and executed', the accepted subject is:", opts: ["programs", "instructions", "source files", "data values"], ans: 1, why: "Instructions are fetched and executed; a program is a collection of instructions, so 'programs' is not accepted." },
+    { q: "Main memory during execution:", opts: ["stores only data, while the instructions stay on the disk", "stores instructions and data, returning addressed contents", "is read-only so the running program cannot change it", "stores the compiler that translates each instruction"], ans: 1, why: "AS 2022 P2 Q8.2." },
+    { q: "The stored program concept is associated with:", opts: ["Alan Turing", "von Neumann", "George Boole", "Edsger Dijkstra"], ans: 1, why: "The stored program concept, with instructions and data held in the same memory, comes from von Neumann's 1945 report." }
   ],
   exam: [
     { src: "AQA 2025 P2 Q7.1", q: "State what is meant by the stored program concept.", marks: 2,
@@ -111,13 +111,13 @@ X("compsci:4.7.3.1", {
     ["What is the clock's role?", "Emits regular pulses that synchronise the processor's operations; clock speed = pulses per second.", 21]
   ],
   quiz: [
-    { q: "The register holding the address of the next instruction is the:", opts: ["MAR", "PC", "CIR", "MBR"], ans: 1, why: "Program counter." },
-    { q: "'A memory location' as the definition of a register scores:", opts: ["1", "0 — must say inside the processor", "2", "half"], ans: 1, why: "NE per mark scheme." },
-    { q: "Which unit decodes instructions?", opts: ["ALU", "Control unit", "MBR", "Cache"], ans: 1, why: "CU role." },
-    { q: "A conditional branch consults the:", opts: ["MAR", "status register", "data bus", "clock"], ans: 1, why: "Flags from the last operation." },
-    { q: "With a 4-bit register-number field an instruction can address:", opts: ["4 registers", "8 registers", "16 registers", "32 registers"], ans: 2, why: "2⁴." },
-    { q: "The volatile environment is saved on an interrupt so that:", opts: ["memory is freed", "the interrupted process can be resumed after the handler overwrites registers", "the clock stops", "cache is cleared"], ans: 1, why: "2020 P2 Q3.6." },
-    { q: "The ALU performs:", opts: ["fetching", "decoding", "arithmetic and logical operations", "storage"], ans: 2, why: "Definition." }
+    { q: "The MAR holds:", opts: ["the address of the memory location to read or write", "the data just read from, or to be written to, memory", "the instruction that is currently being decoded", "the result of the last operation in the ALU"], ans: 0, why: "Memory address register." },
+    { q: "Registers are faster to reach than main memory because they are:", opts: ["inside the processor", "larger than main memory", "non-volatile", "on the address bus"], ans: 0, why: "No bus transfer is needed." },
+    { q: "The CIR holds:", opts: ["the instruction being decoded and executed", "the address of the next instruction", "the data just read from main memory", "the flags set by the last comparison"], ans: 0, why: "Current instruction register." },
+    { q: "The accumulator is:", opts: ["a register holding ALU results", "the bus between CPU and RAM", "a store for the next address", "the unit that decodes opcodes"], ans: 0, why: "A general working register for the ALU." },
+    { q: "With a 4-bit register-number field an instruction can address:", opts: ["4 registers", "8 registers", "16 registers", "32 registers"], ans: 2, why: "A 4-bit field has 2⁴ = 16 different values, so it can name 16 registers." },
+    { q: "The volatile environment is saved on an interrupt so that:", opts: ["memory used by the interrupted process can be freed for the ISR", "the interrupted process can resume after the ISR uses the registers", "the clock can be stopped while the ISR runs, so no cycles are lost", "the cache is cleared so the ISR fetches fresh instructions"], ans: 1, why: "The registers hold the interrupted process's state, and restoring them lets it continue as if nothing happened." },
+    { q: "The ALU performs:", opts: ["fetching instructions from memory", "decoding instructions into signals", "arithmetic and logical operations", "storage of the program's data"], ans: 2, why: "The ALU is the part of the CPU that does the arithmetic and the logical operations." }
   ],
   exam: [
     { src: "AQA 2025 P2 Q7.2", q: "Describe the roles of the control unit, the general-purpose registers and the status register in a processor.", marks: 6,
@@ -155,19 +155,17 @@ X("compsci:4.7.3.2", {
     ["What happens in the execute stage?", "Data is fetched or stored if needed; the ALU performs the operation identified by the opcode; the result is stored; the status register is updated; a branch changes the PC.", 13],
     ["Why is the PC incremented during the fetch?", "So that the next instruction in sequence is fetched next time (unless a branch changes it).", 14],
     ["What is an interrupt?", "A signal sent to the processor by a hardware device or a program indicating that it needs attention / an event has occurred.", 16],
-    ["Give three sources of interrupts.", "A key press or mouse click (I/O), a printer running out of paper, a timer, a hardware fault, a software error such as division by zero.", 17],
     ["When does the processor check for interrupts?", "At the end of each fetch–execute cycle, before fetching the next instruction.", 18],
-    ["What happens when an interrupt is serviced?", "The current register contents (volatile environment) are saved to the stack, the interrupt service routine runs, then the registers are restored and the interrupted program continues.", 19],
     ["What is the order: 'MBR → CIR', 'PC → MAR', 'CU decodes CIR', 'result stored'?", "PC → MAR; MBR → CIR; CU decodes CIR; result stored.", 20]
   ],
   quiz: [
-    { q: "The first step of the fetch stage is:", opts: ["MBR → CIR", "PC → MAR", "decode", "increment PC"], ans: 1, why: "The address must reach memory first." },
+    { q: "During fetch the PC is incremented so that it:", opts: ["holds the address of the next instruction", "can decode the current instruction", "lets the MBR receive data from memory", "stores the result in the accumulator"], ans: 0, why: "Ready for the next cycle." },
     { q: "The instruction reaches the processor from memory on the:", opts: ["address bus", "data bus", "control bus", "PC"], ans: 1, why: "Data bus carries contents." },
     { q: "The register that is incremented during fetch is the:", opts: ["MAR", "CIR", "PC", "MBR"], ans: 2, why: "Points to the next instruction." },
-    { q: "Splitting an instruction into opcode and operand happens in:", opts: ["fetch", "decode", "execute", "store"], ans: 1, why: "Decode stage." },
+    { q: "Splitting an instruction into opcode and operand happens in:", opts: ["fetch", "decode", "execute", "store"], ans: 1, why: "The control unit splits the fetched instruction into opcode and operand during the decode stage." },
     { q: "A conditional branch that is taken:", opts: ["changes the MAR", "updates the PC", "clears the CIR", "halts"], ans: 1, why: "New instruction address." },
-    { q: "An interrupt is:", opts: ["a bus", "a signal from a device or program needing the processor's attention", "a register", "a jump instruction"], ans: 1, why: "Definition." },
-    { q: "Interrupts are checked:", opts: ["every clock pulse", "at the end of each fetch–execute cycle", "only at boot", "never"], ans: 1, why: "Standard timing." }
+    { q: "An interrupt is:", opts: ["a bus that connects each device directly to the processor's registers", "a signal from a device or program needing the processor's attention", "a register that holds the address of the next instruction to fetch", "a jump instruction a program uses to call one of its own subroutines"], ans: 1, why: "An interrupt is a signal telling the processor something needs attention, so it can pause its current task." },
+    { q: "Interrupts are checked:", opts: ["on every pulse of the system clock", "at the end of each fetch–execute cycle", "only once, when the computer first boots up", "at the start of each decode stage"], ans: 1, why: "Standard timing." }
   ],
   exam: [
     { level: "AS", src: "AS 2020 P2 Q6.5", q: "Describe the four steps of the fetch stage of the fetch–execute cycle and, for each, explain why it is carried out.", marks: 8,
@@ -196,16 +194,15 @@ X("compsci:4.7.3.3", {
     ["A 6-bit opcode field supports how many operations?", "2⁶ = 64.", 11],
     ["A 10-bit operand with direct addressing can address how many locations?", "2¹⁰ = 1024.", 12],
     ["Why is a compiled executable processor-specific?", "It is machine code using the instruction set of the processor it was compiled for, and different processors have different instruction sets.", 14],
-    ["What is the operand?", "The value / data that the instruction operates on (or its address).", 15],
     ["How does the processor know whether an operand is data or an address?", "From the addressing-mode bits in the opcode.", 16]
   ],
   quiz: [
-    { q: "An instruction format has a 4-bit operation code. Maximum number of operations:", opts: ["4", "8", "16", "32"], ans: 2, why: "2⁴." },
-    { q: "With a 3-bit register field, how many registers can be named?", opts: ["3", "6", "8", "16"], ans: 2, why: "2³." },
-    { q: "A compiled program will not run on a different processor family because:", opts: ["it is too large", "it uses the instruction set of the original processor", "it is interpreted", "of copyright"], ans: 1, why: "Machine code is processor-specific." },
-    { q: "The opcode specifies:", opts: ["the data value", "the operation (and addressing mode)", "the memory size", "the clock speed"], ans: 1, why: "Definition." },
-    { q: "An 8-bit two's complement immediate operand has range:", opts: ["0–255", "−128 to 127", "−127 to 128", "−256 to 255"], ans: 1, why: "−2⁷ to 2⁷ − 1." },
-    { q: "In `ADD R1, R2, #5` the `#5` is:", opts: ["an opcode", "an immediate operand", "an address", "a register"], ans: 1, why: "# means immediate value." }
+    { q: "An instruction format has a 4-bit operation code. Maximum number of operations:", opts: ["4", "8", "16", "32"], ans: 2, why: "A 4-bit opcode has 2⁴ = 16 different patterns, so up to 16 operations." },
+    { q: "With a 3-bit register field, how many registers can be named?", opts: ["3", "6", "8", "16"], ans: 2, why: "3 bits give 2³ = 8 different patterns, so 8 registers can be named." },
+    { q: "A compiled program will not run on a different processor family because:", opts: ["it is too large to fit in the other processor's memory", "it uses the instruction set of the original processor", "it is interpreted line by line by the original processor", "copyright law stops it running on another processor"], ans: 1, why: "Machine code is processor-specific." },
+    { q: "The opcode specifies:", opts: ["the data value to be processed", "the operation (and addressing mode)", "the memory size the program needs", "the clock speed for the instruction"], ans: 1, why: "The opcode says which operation to perform, and may also give the addressing mode." },
+    { q: "An 8-bit two's complement immediate operand has range:", opts: ["0–255", "−128 to 127", "−127 to 128", "−256 to 255"], ans: 1, why: "8-bit two's complement runs from −2⁷ = −128 to 2⁷ − 1 = 127." },
+    { q: "In `ADD R1, R2, #5` the `#5` is:", opts: ["an opcode for addition", "an immediate operand", "a direct memory address", "a register number"], ans: 1, why: "# means immediate value." }
   ],
   exam: [
     { level: "AS", src: "AS 2018 P2 Q10", ctx: "A processor uses 16-bit instructions: bits 15–12 hold the basic operation code, bits 11–10 the addressing mode, and bits 9–0 the operand.",
@@ -232,11 +229,11 @@ X("compsci:4.7.3.4", {
     ["In `ADD R0, R1, R2` how are the operands addressed?", "By register — each operand is a register number.", 16]
   ],
   quiz: [
-    { q: "`LDR R1, 50` loads R1 with:", opts: ["the value 50", "the contents of memory location 50", "register 50", "nothing"], ans: 1, why: "Direct addressing." },
-    { q: "`MOV R1, #50` loads R1 with:", opts: ["the contents of location 50", "the value 50", "register 50", "an address"], ans: 1, why: "Immediate." },
+    { q: "`LDR R1, 50` loads R1 with:", opts: ["the value 50 itself, as an operand", "the contents of memory location 50", "the contents of register 50", "the address of memory location 50"], ans: 1, why: "Direct addressing." },
+    { q: "`MOV R1, #50` loads R1 with:", opts: ["the contents of location 50", "the value 50", "register 50", "an address"], ans: 1, why: "The # means an immediate value, so R1 gets the number 50 itself, not the contents of address 50." },
     { q: "The addressing mode that needs no extra memory access is:", opts: ["direct", "immediate", "indirect", "indexed"], ans: 1, why: "Value in the instruction." },
     { q: "Which is NOT a type of value an operand can hold in the AQA instruction set?", opts: ["a register number", "a memory address", "an immediate value", "a file name"], ans: 3, why: "Operands are numbers." },
-    { q: "`CMP R1, #0` compares R1 with:", opts: ["memory location 0", "the value zero", "register 0", "the PC"], ans: 1, why: "# = immediate." },
+    { q: "`CMP R1, #0` compares R1 with:", opts: ["memory location 0", "the value zero", "register 0", "the PC"], ans: 1, why: "# marks an immediate operand, so R1 is compared with the number 0 itself." },
     { q: "To load the value stored at address 300 into R4:", opts: ["MOV R4, #300", "LDR R4, 300", "STR R4, 300", "ADD R4, 300"], ans: 1, why: "LDR with a direct address." }
   ],
   exam: [
@@ -274,13 +271,13 @@ X("compsci:4.7.3.5", {
     ["What does `ORR R1, R1, #4` do?", "Sets bit 2 of R1 (mask 00000100) leaving the other bits unchanged."]
   ],
   quiz: [
-    { q: "`AND R2, R1, #1` sets R2 to 1 when R1 is:", opts: ["even", "odd", "negative", "zero"], ans: 1, why: "LSB isolated." },
+    { q: "`AND R2, R1, #1` sets R2 to 1 when R1 is:", opts: ["even", "odd", "negative", "zero"], ans: 1, why: "AND with 1 keeps only the least significant bit, which is 1 for an odd number." },
     { q: "`LSL R1, R1, #2` is equivalent to:", opts: ["R1 + 2", "R1 × 4", "R1 ÷ 4", "R1 − 2"], ans: 1, why: "Shift left 2 = × 2²." },
-    { q: "After `CMP R1, R2`, `BEQ done` branches when:", opts: ["R1 > R2", "R1 = R2", "R1 < R2", "always"], ans: 1, why: "Equal flag." },
-    { q: "To toggle bit 0 of R1 you use:", opts: ["AND R1, R1, #1", "ORR R1, R1, #1", "EOR R1, R1, #1", "MVN R1, R1"], ans: 2, why: "XOR flips." },
-    { q: "Shift-and-add multiplication tests each bit of the multiplier with:", opts: ["ORR", "AND with #1 then LSR", "MVN", "STR"], ans: 1, why: "Mask then shift." },
-    { q: "`SUB R1, R1, #26` after `CMP R1, #90` / `BLE skip` implements:", opts: ["Vernam", "Caesar wrap-around past 'Z'", "parity", "division"], ans: 1, why: "Wrap back into A–Z." },
-    { q: "Which instruction stores a register to memory?", opts: ["LDR", "STR", "MOV", "CMP"], ans: 1, why: "Store." }
+    { q: "After `CMP R1, R2`, `BEQ done` branches when:", opts: ["R1 > R2", "R1 = R2", "R1 < R2", "always"], ans: 1, why: "CMP sets the flags, and BEQ branches when the equal flag is set, meaning R1 equals R2." },
+    { q: "To toggle bit 0 of R1 you use:", opts: ["AND R1, R1, #1", "ORR R1, R1, #1", "EOR R1, R1, #1", "MVN R1, R1"], ans: 2, why: "XOR with 1 flips bit 0 and leaves the other bits unchanged, so it toggles it." },
+    { q: "Shift-and-add multiplication tests each bit of the multiplier with:", opts: ["ORR with #1 then LSL", "AND with #1 then LSR", "MVN then ADD #1", "CMP with #0 then BEQ"], ans: 1, why: "Mask then shift." },
+    { q: "`SUB R1, R1, #26` after `CMP R1, #90` / `BLE skip` implements:", opts: ["Vernam XOR with the key", "Caesar wrap-around past 'Z'", "even parity for the byte", "a loop dividing R1 by 26"], ans: 1, why: "Wrap back into A–Z." },
+    { q: "Which instruction stores a register to memory?", opts: ["LDR", "STR", "MOV", "CMP"], ans: 1, why: "STR stores a register into memory; LDR does the opposite and loads into a register." }
   ],
   exam: [
     { level: "AS", src: "AS 2023 P2 Q9", q: "Write an assembly language program, using the AQA instruction set, that multiplies the values in memory locations 100 and 101 by repeated addition and stores the result in location 102. Assume both values are positive integers.", marks: 4,
@@ -314,12 +311,12 @@ X("compsci:4.7.3.6", {
     ["Why are interrupts better than polling?", "The processor does useful work instead of repeatedly checking devices; devices get attention promptly.", 19]
   ],
   quiz: [
-    { q: "An interrupt is checked for:", opts: ["during decode", "at the end of each fetch–execute cycle", "only when idle", "at boot"], ans: 1, why: "Before the next fetch." },
-    { q: "The volatile environment is:", opts: ["RAM contents", "the processor's register contents", "the hard disk", "the cache"], ans: 1, why: "Saved on interrupt." },
-    { q: "The code run in response to an interrupt is the:", opts: ["bootloader", "interrupt service routine", "scheduler", "compiler"], ans: 1, why: "ISR." },
+    { q: "Which is a hardware interrupt?", opts: ["a printer reporting it is out of paper", "a program dividing a number by zero", "a program asking the OS to open a file", "a subroutine returning to its caller"], ans: 0, why: "It comes from a device." },
+    { q: "When the ISR has finished, the processor:", opts: ["restores the saved registers and resumes the process", "restarts the interrupted program from its first line", "drops the interrupted process and runs the next one", "waits for the user to press a key before going on"], ans: 0, why: "The volatile environment is popped back." },
+    { q: "The code run in response to an interrupt is the:", opts: ["bootstrap loader in ROM", "interrupt service routine", "process scheduler routine", "interrupt vector table"], ans: 1, why: "The interrupt service routine (ISR) is the code that runs to deal with the interrupt." },
     { q: "A division-by-zero error raises a:", opts: ["hardware interrupt", "software interrupt", "timer interrupt", "bus error"], ans: 1, why: "Software-generated." },
-    { q: "Registers are saved to the:", opts: ["heap", "stack", "cache", "ROM"], ans: 1, why: "LIFO handles nested interrupts." },
-    { q: "Interrupt priority decides:", opts: ["which device is fastest", "whether the current ISR is itself interrupted", "clock speed", "bus width"], ans: 1, why: "Higher priority pre-empts." }
+    { q: "A timer interrupt is used by the OS to:", opts: ["end a time slice so another process can run", "tell the printer that a page has finished", "report that a program divided by zero", "check that the user is still at the keyboard"], ans: 0, why: "Pre-emptive scheduling." },
+    { q: "Interrupt priority decides:", opts: ["which device connected to the bus is the fastest one", "whether the current ISR is itself interrupted", "the clock speed used while the ISR runs", "the width of the bus the device uses"], ans: 1, why: "Higher priority pre-empts." }
   ],
   exam: [
     { src: "AQA 2020 P2 Q3.5", q: "Explain the role of interrupts in a computer system.", marks: 2,
@@ -360,11 +357,11 @@ X("compsci:4.7.3.7", {
   ],
   quiz: [
     { q: "Which change most helps a program that cannot be parallelised?", opts: ["More cores", "Higher clock speed", "More cores and lower clock", "Wider address bus"], ans: 1, why: "Sequential work depends on per-core speed." },
-    { q: "Cache improves performance because:", opts: ["it is larger than RAM", "it is faster than RAM and holds frequently used items", "it replaces the disk", "it is non-volatile"], ans: 1, why: "Higher hit rate." },
-    { q: "Doubling the word length lets the processor:", opts: ["address more memory only", "process more bits in one operation", "run at higher clock speed", "use less cache"], ans: 1, why: "Wider operations." },
-    { q: "A wider address bus improves performance by:", opts: ["faster transfers", "allowing more main memory, reducing virtual memory use", "more cores", "faster clock"], ans: 1, why: "Less paging." },
-    { q: "'The program will run faster' as an explanation scores:", opts: ["1", "0 — NE", "2", "bonus"], ans: 1, why: "Must say how." },
-    { q: "Pipelining improves performance by:", opts: ["adding cache", "overlapping stages of successive instructions", "widening buses", "raising voltage"], ans: 1, why: "Stage overlap." }
+    { q: "A higher clock speed improves performance because:", opts: ["more fetch–execute cycles happen each second", "each instruction moves more bits at once", "more memory locations can be addressed", "more instructions can be held in cache"], ans: 0, why: "Cycles per second." },
+    { q: "A wider data bus improves performance because:", opts: ["more bits are moved in each transfer", "more memory locations can be addressed", "the clock ticks more often each second", "fewer cores are needed for each task"], ans: 0, why: "More data per fetch." },
+    { q: "Doubling the number of cores may not double performance because:", opts: ["some tasks cannot be split into parallel parts", "each core then runs at half the clock speed", "the shared cache is switched off", "the address bus becomes half as wide"], ans: 0, why: "Sequential parts and coordination overhead." },
+    { q: "Which is NOT a factor affecting processor performance?", opts: ["the size of the monitor", "the number of cores", "the amount of cache", "the clock speed"], ans: 0, why: "The monitor is an output device." },
+    { q: "Pipelining improves performance by:", opts: ["adding cache memory between each pipeline stage", "overlapping stages of successive instructions", "widening the buses between the stages", "raising the voltage to run each stage faster"], ans: 1, why: "Pipelining starts the next instruction's fetch while the previous one decodes or executes, so stages overlap." }
   ],
   exam: [
     { level: "AS", src: "AS 2016 P2 Q5.6", q: "Describe three factors that affect processor performance and, for each, explain how changing it would improve performance.", marks: 6,
@@ -402,12 +399,12 @@ X("compsci:4.7.4.1", {
     ["Why might a laser printer suit a small office?", "Low cost per page, fast printing, toner does not dry out, high-resolution text; with a wireless adapter it is easily shared by all devices.", 17]
   ],
   quiz: [
-    { q: "A passive RFID tag is powered by:", opts: ["a battery", "current induced by the reader's radio waves", "solar cells", "the barcode"], ans: 1, why: "Induction." },
-    { q: "In a barcode reader, the component measuring reflected light is a:", opts: ["laser", "photodiode / light sensor", "mirror", "DAC"], ans: 1, why: "Detector." },
-    { q: "Each photosensor in a camera produces:", opts: ["a binary pixel", "an analogue voltage proportional to light", "a colour name", "a MIDI event"], ans: 1, why: "Converted later by the ADC." },
-    { q: "In a laser printer the laser:", opts: ["heats the paper", "discharges the drum where the image is", "melts the toner", "scans the page"], ans: 1, why: "Charge pattern." },
-    { q: "Toner is bonded to the paper by:", opts: ["the laser", "the drum", "a heated fuser", "the mirror"], ans: 2, why: "Heat and pressure." },
-    { q: "RFID beats barcodes for reading a whole pallet because:", opts: ["tags are cheaper", "no line of sight is needed and many tags are read at once", "barcodes cannot be printed", "RFID uses light"], ans: 1, why: "2020 P2 Q8.1." }
+    { q: "An active RFID tag differs from a passive one because it:", opts: ["has its own battery and a longer range", "needs line of sight to the reader", "can only be read once before it fails", "stores its data as a printed pattern"], ans: 0, why: "Powered by its own battery." },
+    { q: "In a barcode reader, the component measuring reflected light is a:", opts: ["laser diode / light source", "photodiode / light sensor", "rotating mirror / scanner", "DAC / signal converter"], ans: 1, why: "A barcode reader shines light at the code and a photodiode measures how much is reflected back." },
+    { q: "Each photosensor in a camera produces:", opts: ["a binary 1 or 0 for each pixel it covers", "an analogue voltage proportional to light", "the name of the colour that it detects", "a MIDI event for each change in light"], ans: 1, why: "Converted later by the ADC." },
+    { q: "A laser printer's drum is first given:", opts: ["an electric charge across its surface", "a coat of toner over its whole surface", "heat from the fuser across its surface", "a sheet of paper wrapped around it"], ans: 0, why: "The laser then discharges the image." },
+    { q: "Toner is bonded to the paper by:", opts: ["the laser beam", "the charged drum", "a heated fuser", "a rotating mirror"], ans: 2, why: "Heat and pressure." },
+    { q: "A barcode differs from an RFID tag because a barcode:", opts: ["needs line of sight to be read", "can be read through a box", "has its own power supply", "can be rewritten by the reader"], ans: 0, why: "It is read by reflected light." }
   ],
   exam: [
     { level: "AS", src: "AS 2024 P2 Q9", ctx: "A passport contains a passive RFID tag storing the holder's details.",
@@ -453,12 +450,12 @@ X("compsci:4.7.4.2", {
     ["What does 'constant linear velocity' mean for an optical disk?", "The disk speeds up as the head moves inward so the track passes the laser at a constant rate.", 21]
   ],
   quiz: [
-    { q: "Secondary storage is needed because:", opts: ["RAM is too fast", "RAM loses its contents when power is off", "the CPU has no registers", "cache is small"], ans: 1, why: "Volatility." },
-    { q: "On an optical disk a 1 is represented by:", opts: ["a pit", "a land", "a transition between pit and land", "a scratch"], ans: 2, why: "Change in reflection." },
-    { q: "An SSD stores a bit as:", opts: ["a magnetised spot", "trapped charge in a floating-gate transistor", "a pit", "a capacitor that must be refreshed"], ans: 1, why: "NAND flash." },
+    { q: "Secondary storage is needed because:", opts: ["RAM is too fast for programs to use directly", "RAM loses its contents when power is off", "the CPU has no registers to keep data in", "cache is too small to hold whole programs"], ans: 1, why: "RAM is volatile and loses its contents without power, so permanent data needs secondary storage." },
+    { q: "An optical drive reads data by:", opts: ["shining a laser and detecting the reflected light", "sensing the magnetic field on each track", "measuring the charge in each transistor", "pressing a needle into each pit on the disk"], ans: 0, why: "Pits and lands reflect differently." },
+    { q: "SSD wear levelling:", opts: ["spreads writes so no block wears out first", "speeds up reads by spinning the disk faster", "stores two copies of every block written", "stops data being read by other devices"], ans: 0, why: "Flash cells survive a limited number of writes." },
     { q: "Before a block of an SSD can be rewritten it must be:", opts: ["magnetised", "erased", "compressed", "encrypted"], ans: 1, why: "Flash constraint." },
-    { q: "A hard disk's read/write head moves:", opts: ["along the spiral track", "radially in and out to the track", "vertically only", "not at all"], ans: 1, why: "Tracks are concentric rings." },
-    { q: "Which is an advantage of hard disks over SSDs?", opts: ["Faster access", "Lower cost per gigabyte", "No moving parts", "Lower power"], ans: 1, why: "Price/capacity." },
+    { q: "A hard disk's read/write head moves:", opts: ["along one spiral track from the centre", "radially in and out to the track", "vertically, up and down between platters", "not at all — the platters move instead"], ans: 1, why: "Tracks are concentric rings." },
+    { q: "Which is an advantage of hard disks over SSDs?", opts: ["Faster random access", "Lower cost per gigabyte", "No moving parts to fail", "Lower power consumption"], ans: 1, why: "Hard disks cost less per gigabyte than SSDs, though SSDs are faster and more robust." },
     { q: "Optical disks spin at:", opts: ["constant angular velocity", "constant linear velocity", "random speed", "the clock speed"], ans: 1, why: "Track passes the laser at a constant rate." }
   ],
   exam: [

@@ -172,7 +172,7 @@ C["maths:9.1"] = {
     { q: "$f(1.2) = -0.3$, $f(1.3) = 0.4$, $f$ continuous. Conclusion?", opts: ["A root lies in $(1.2, 1.3)$", "$\\alpha = 1.25$", "There is exactly one root", "Nothing"], ans: 0, why: "Sign change + continuity gives at least one root; not its exact value nor uniqueness." },
     { q: "To show $\\alpha = 0.7$ to 1 d.p. test", opts: ["$f(0.65)$ and $f(0.75)$", "$f(0.7)$ and $f(0.8)$", "$f(0.6)$ and $f(0.7)$", "$f(0.69)$ and $f(0.71)$"], ans: 0, why: "The interval of values rounding to $0.7$." },
     { q: "$f(x) = \\frac{1}{x - 2}$: $f(1) < 0 < f(3)$ but no root in $(1, 3)$ because", opts: ["$f$ is not continuous there", "the interval is too big", "there are two roots", "$f(2) = 0$"], ans: 0, why: "Asymptote at $x = 2$." },
-    { q: "$f(x) = (x - 1)^2$: $f(0) > 0$, $f(2) > 0$. The root at $x = 1$ is missed because", opts: ["the root is repeated — no sign change", "$f$ is discontinuous", "the interval is too small", "it is not a root"], ans: 0, why: "The curve touches the axis." }
+    { q: "$f(x) = (x - 1)^2$: $f(0) > 0$, $f(2) > 0$. The root at $x = 1$ is missed because", opts: ["the root is repeated — no sign change", "$f$ is discontinuous at $x = 1$, so it jumps", "the interval $[0, 2]$ is too small", "$x = 1$ is not a root of $f$"], ans: 0, why: "The curve touches the axis." }
   ]
 };
 
@@ -308,7 +308,7 @@ C["maths:9.2"] = {
     ["Oct 2021 Q4: turning point of $x^2 + \\ln(2x^2 - 4x + 5)$ satisfies?", "$2x^3 - 4x^2 + 7x - 2 = 0$.", 5]
   ],
   quiz: [
-    { q: "$x_{n+1} = \\sqrt{3x_n + 1}$, $x_1 = 2$: $x_2 =$", opts: ["$\\sqrt7 \\approx 2.646$", "$7$", "$\\sqrt{10}$", "$2.5$"], ans: 0, why: "$\\sqrt{6 + 1}$." },
+    { q: "$x_{n+1} = \\sqrt{3x_n + 1}$, $x_1 = 2$: $x_2 =$", opts: ["$\\sqrt7 \\approx 2.646$", "$\\sqrt{10} \\approx 3.162$", "$\\sqrt6 \\approx 2.449$", "$\\sqrt3 \\approx 1.732$"], ans: 0, why: "$\\sqrt{6 + 1}$." },
     { q: "A cobweb diagram arises when near the root", opts: ["$g'(x) < 0$", "$g'(x) > 0$", "$g'(x) = 0$", "$g(x) = 0$"], ans: 0, why: "Negative gradient makes the path alternate sides." },
     { q: "The iteration diverges when", opts: ["$|g'(\\alpha)| > 1$", "$|g'(\\alpha)| < 1$", "$g(\\alpha) = \\alpha$", "$x_1 < \\alpha$"], ans: 0, why: "Errors are multiplied by about $g'(\\alpha)$ each step." },
     { q: "The first move of a staircase from $x_1$ on the axis is", opts: ["vertically to $y = g(x)$", "horizontally to $y = x$", "to the root", "along the axis"], ans: 0, why: "Then across to the line." }
@@ -412,8 +412,8 @@ C["maths:9.3"] = {
   ],
   quiz: [
     { q: "$f(x) = x^2 - 2$, $x_1 = 1$: $x_2 =$", opts: ["$1.5$", "$1$", "$2$", "$0.5$"], ans: 0, why: "$1 - \\frac{-1}{2} = 1.5$." },
-    { q: "NR fails when $f'(x_n) = 0$ because", opts: ["the tangent is horizontal and never meets the axis", "$f(x_n) = 0$", "the root is repeated", "$x_n$ is negative"], ans: 0, why: "Division by zero in the formula." },
-    { q: "NR is a fixed-point iteration with $g(x) =$", opts: ["$x - f(x)/f'(x)$", "$f(x)/f'(x)$", "$f'(x)$", "$x - f'(x)$"], ans: 0, why: "Definition." },
+    { q: "NR fails when $f'(x_n) = 0$ because", opts: ["the tangent is horizontal and never meets the axis", "$f(x_n) = 0$, so the next step divides zero by zero", "the root is repeated, so the tangent is vertical", "$x_n$ is negative, so the square root fails"], ans: 0, why: "Division by zero in the formula." },
+    { q: "NR is a fixed-point iteration with $g(x) =$", opts: ["$x - f(x)/f'(x)$", "$x + f(x)/f'(x)$", "$x - f'(x)/f(x)$", "$x - f'(x)$"], ans: 0, why: "$x_{n+1} = x_n - \\frac{f(x_n)}{f'(x_n)}$, so $g(x) = x - \\frac{f(x)}{f'(x)}$." },
     { q: "\"Apply NR once from $x_0 = 5$\": the answer is", opts: ["$x_1$", "$x_2$", "$x_0$", "$\\alpha$ exactly"], ans: 0, why: "One application from $x_0$ gives $x_1$." }
   ]
 };
@@ -556,7 +556,7 @@ C["maths:9.4"] = {
     { q: "Five ordinates from $x = 1$ to $x = 3$: $h =$", opts: ["0.5", "0.4", "2", "0.25"], ans: 0, why: "Four strips: $2/4$." },
     { q: "$y$-values 1, 4, 9 at $x = 0, 1, 2$: estimate $\\int_0^2 y\\,dx$", opts: ["9", "14", "7", "18"], ans: 0, why: "$\\frac12(1)[1 + 9 + 2(4)] = 9$." },
     { q: "The rule over-estimates when the curve is", opts: ["convex (concave up)", "concave (concave down)", "increasing", "decreasing"], ans: 0, why: "Chords lie above a convex arc." },
-    { q: "Given $\\int_1^3 f \\approx 1.6$, which can be deduced?", opts: ["$\\int_1^3 (2f + 1)\\,dx \\approx 5.2$", "$\\int_1^3 f(2x)\\,dx$", "$\\int_0^3 f\\,dx$", "$\\int_1^3 f^2\\,dx$"], ans: 0, why: "$2(1.6) + 1(3 - 1) = 5.2$; the others change limits or the inside of $f$." }
+    { q: "Given $\\int_1^3 f \\approx 1.6$, which can be deduced?", opts: ["$\\int_1^3 (2f + 1)\\,dx \\approx 5.2$", "$\\int_1^3 (2f + 1)\\,dx \\approx 4.2$", "$\\int_1^3 f(2x)\\,dx \\approx 3.2$", "$\\int_1^3 f^2\\,dx \\approx 2.56$"], ans: 0, why: "$2(1.6) + 1(3 - 1) = 5.2$; the others need $f(2x)$ or $f^2$, which the estimate does not give." }
   ]
 };
 
@@ -639,10 +639,10 @@ C["maths:9.5"] = {
     ["A table of speeds at equal times: distance?", "Trapezium rule — area under the $v$–$t$ graph."]
   ],
   quiz: [
-    { q: "$v = t(12 - e^{0.3t})$ stops when", opts: ["$t = \\frac{\\ln 12}{0.3}$", "$t = 12$", "$t = e^{0.3}$", "$t = 0.3\\ln 12$"], ans: 0, why: "$e^{0.3t} = 12$." },
-    { q: "\"Find the time of maximum speed\" starts with", opts: ["$\\frac{dv}{dt} = 0$", "$v = 0$", "$\\int v\\,dt$", "$v = v_{max}$"], ans: 0, why: "Stationary point of $v$." },
+    { q: "$v = t(12 - e^{0.3t})$ stops when", opts: ["$t = \\frac{\\ln 12}{0.3}$", "$t = \\frac{0.3}{\\ln 12}$", "$t = \\frac{\\ln 12}{3}$", "$t = 0.3\\ln 12$"], ans: 0, why: "$e^{0.3t} = 12$." },
+    { q: "\"Find the time of maximum speed\" starts with", opts: ["$\\frac{dv}{dt} = 0$", "$\\frac{ds}{dt} = 0$", "$\\int v\\,dt = 0$", "$\\frac{d^2v}{dt^2} = 0$"], ans: 0, why: "Stationary point of $v$." },
     { q: "Speeds 0, 4, 10 m/s at 0, 2, 4 s: distance ≈", opts: ["18 m", "14 m", "28 m", "9 m"], ans: 0, why: "$\\frac12(2)[0 + 10 + 2(4)] = 18$." },
-    { q: "A converged iteration gives $t = 7.3328\\ldots$ s. Best statement?", opts: ["max speed at $t \\approx 7.33$ s", "$t = 7.3328$ exactly", "$v = 7.33$", "$T = 7.33$"], ans: 0, why: "Sensible accuracy, correct quantity, units." }
+    { q: "A converged iteration gives $t = 7.3328\\ldots$ s. Best statement?", opts: ["max speed at $t \\approx 7.33$ s", "$t = 7.3328$ s exactly, at max speed", "max speed $v \\approx 7.33$ m/s", "the particle stops at $t \\approx 7.33$ s"], ans: 0, why: "Sensible accuracy, correct quantity, units." }
   ]
 };
 

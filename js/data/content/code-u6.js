@@ -207,7 +207,7 @@
     ],
     quiz: [
       { q: "A file has 4 lines ending in a newline. `File.ReadAllLines(f).Length` is…", opts: ["3", "4", "5", "it depends"], ans: 1, why: "The final newline does not make an extra line." },
-      { q: "Best for reading only the first matching line of a huge file:", opts: ["ReadAllText", "ReadAllLines", "ReadLines with break", "Split"], ans: 2, why: "Stops reading at the match." },
+      { q: "Best for reading only the first matching line of a huge file:", opts: ["ReadAllText with IndexOf", "ReadAllLines with break", "ReadLines with break", "ReadAllText, then Split"], ans: 2, why: "Stops reading at the match." },
       { q: "`while ((line = r.ReadLine()) != null)` stops when…", opts: ["a blank line is read", "the file ends", "an error occurs", "never"], ans: 1, why: "ReadLine gives null at the end." }
     ]
   });
@@ -399,7 +399,7 @@
     ],
     quiz: [
       { q: "`catch (Exception)` then `catch (FormatException)` gives…", opts: ["it works", "CS0160", "the second always runs", "a runtime error"], ans: 1, why: "The second can never be reached." },
-      { q: "Best response to a file that might be missing, when you can check?", opts: ["try/catch", "File.Exists first", "catch { }", "finally"], ans: 1, why: "Prevent the expected." },
+      { q: "Best response to a file that might be missing, when you can check?", opts: ["catch every Exception", "File.Exists first", "an empty catch { }", "a finally block"], ans: 1, why: "Prevent the expected." },
       { q: "Which runs even if the try returns early?", opts: ["catch", "finally", "neither", "both"], ans: 1, why: "finally always runs." }
     ]
   });
@@ -492,9 +492,9 @@
       ["A custom exception class derives from…", "Exception (`class X : Exception`)."]
     ],
     quiz: [
-      { q: "`Pop()` on an empty stack of your own should throw…", opts: ["ArgumentException", "InvalidOperationException", "FormatException", "nothing"], ans: 1, why: "The object is in the wrong state." },
+      { q: "`Pop()` on an empty stack of your own should throw…", opts: ["ArgumentOutOfRangeException", "InvalidOperationException", "IndexOutOfRangeException", "nothing; return default"], ans: 1, why: "The object is in the wrong state." },
       { q: "`throw new ArgumentException;` gives…", opts: ["an empty message", "CS1526", "a runtime error", "nothing"], ans: 1, why: "new needs ()." },
-      { q: "When should a user typing \"abc\" for a number throw?", opts: ["always", "never — TryParse it", "only in a loop", "only on Fridays"], ans: 1, why: "Expected input problems are handled, not thrown." }
+      { q: "When should a user typing \"abc\" for a number throw?", opts: ["always, so bad input stops the program", "never — TryParse it", "only inside a loop that asks again", "only when the program is a console app"], ans: 1, why: "Expected input problems are handled, not thrown." }
     ]
   });
   K.add({ tasks: {
@@ -581,7 +581,7 @@
     ],
     quiz: [
       { q: "A file line has a blank price. Best response?", opts: ["treat it as 0", "skip and report it", "stop silently", "guess the average"], ans: 1, why: "Never guess; report." },
-      { q: "Boundary test data for 1–10 includes…", opts: ["5", "1 and 10", "abc", "100"], ans: 1, why: "The edges of the range." },
+      { q: "Boundary test data for 1–10 includes…", opts: ["5 and 6", "1 and 10", "2 and 9", "50 and 100"], ans: 1, why: "The edges of the range." },
       { q: "Where is validation cheapest?", opts: ["in every method", "where data enters", "in the report", "nowhere"], ans: 1, why: "Once at the boundary; then trust it." }
     ]
   });
@@ -673,8 +673,8 @@
     ],
     quiz: [
       { q: "The first step of debugging?", opts: ["rewrite the method", "reproduce the bug", "add try/catch", "ask for the answer"], ans: 1, why: "You cannot fix what you cannot see." },
-      { q: "A useful debugging print shows…", opts: ["\"here\"", "labelled values at the suspect line", "the whole program", "nothing"], ans: 1, why: "Values test the hypothesis." },
-      { q: "After a fix you should…", opts: ["stop", "run the failing case and the cases that already worked", "delete the tests", "add more prints"], ans: 1, why: "Check you broke nothing." }
+      { q: "A useful debugging print shows…", opts: ["\"here\" and nothing else, at each line", "labelled values at the suspect line", "the whole program's output from the start", "only the exception's message, unlabelled"], ans: 1, why: "Values test the hypothesis." },
+      { q: "After a fix you should…", opts: ["stop: the failing case passes, so the job is done", "run the failing case and the cases that already worked", "delete the tests that failed, as they are now stale", "add more prints around the fix and leave them in"], ans: 1, why: "Check you broke nothing." }
     ]
   });
   K.add({ tasks: {
@@ -767,8 +767,8 @@
       ["A compile error line looks like…", "File(line,col): error CSxxxx: message — nothing ran."]
     ],
     quiz: [
-      { q: "A trace's top frame is `at System.Int32.Parse`. The bug is most likely…", opts: ["in .NET", "in the first frame of your code below it", "in Main always", "nowhere"], ans: 1, why: "Your code passed bad text to Parse." },
-      { q: "A stack trace lists…", opts: ["every variable", "the chain of method calls at the throw", "the whole program", "the compiler's steps"], ans: 1, why: "Frames on the call stack." },
+      { q: "A trace's top frame is `at System.Int32.Parse`. The bug is most likely…", opts: ["in .NET's Int32.Parse, the top frame shown", "in the first frame of your code below it", "in Main, the bottom frame, always", "nowhere: a trace shows a fixed bug"], ans: 1, why: "Your code passed bad text to Parse." },
+      { q: "A stack trace lists…", opts: ["every variable and its value at the throw", "the chain of method calls at the throw", "every line the program ran before it", "the compiler's steps that built the code"], ans: 1, why: "Frames on the call stack." },
       { q: "With several compile errors, fix…", opts: ["the last first", "the first first", "any", "none"], ans: 1, why: "Later errors are often caused by the first." }
     ]
   });
@@ -855,9 +855,9 @@
       ["A missing log should…", "print a helpful message, not crash."]
     ],
     quiz: [
-      { q: "A log line with no spaces, split on ' ' then `[2]`, gives…", opts: ["\"\"", "null", "IndexOutOfRangeException", "the whole line"], ans: 2, why: "There is only one part." },
-      { q: "Which finds the most frequent error message?", opts: ["a List of lines", "a Dictionary from message to count", "a Stack", "a HashSet"], ans: 1, why: "Count per key." },
-      { q: "Bad lines should be…", opts: ["ignored silently", "counted and reported", "fixed by guessing", "fatal"], ans: 1, why: "So the source can be fixed." }
+      { q: "A log line with no spaces, split on ' ' then `[2]`, gives…", opts: ["an empty string (\"\")", "NullReferenceException", "IndexOutOfRangeException", "the whole line as one part"], ans: 2, why: "There is only one part." },
+      { q: "Which finds the most frequent error message?", opts: ["a List of lines, sorted alphabetically", "a Dictionary from message to count", "a Stack of messages, newest on top", "a HashSet of the distinct messages"], ans: 1, why: "Count per key." },
+      { q: "Bad lines should be…", opts: ["skipped silently", "counted and reported", "fixed by guessing", "fatal to the run"], ans: 1, why: "So the source can be fixed." }
     ]
   });
   K.add({ tasks: {
@@ -971,7 +971,7 @@
     ],
     quiz: [
       { q: "`(byte)300` is…", opts: ["44", "255", "300", "an OverflowException"], ans: 0, why: "Unchecked, it keeps the low 8 bits: 300 − 256." },
-      { q: "`w.Write(\"Hi\")` with a BinaryWriter writes…", opts: ["3 bytes: a length, then H and i", "2 bytes", "4 bytes", "6 bytes"], ans: 0, why: "A one-byte length prefix, then the UTF-8 bytes." },
+      { q: "`w.Write(\"Hi\")` with a BinaryWriter writes…", opts: ["3 bytes: a length, then H and i", "2 bytes: just H and i", "4 bytes: H and i in UTF-16", "6 bytes: a 4-byte length, then H and i"], ans: 0, why: "A one-byte length prefix, then the UTF-8 bytes." },
       { q: "One int is written; the reader calls ReadInt32 twice. The second call…", opts: ["throws EndOfStreamException", "returns 0", "returns -1", "returns the first int again"], ans: 0, why: "There are no more bytes to read." },
       { q: "`BitConverter.ToString(BitConverter.GetBytes(258))` is…", opts: ["02-01-00-00", "00-00-01-02", "258", "01-02"], ans: 0, why: "258 = 0x0102, stored least significant byte first." }
     ]

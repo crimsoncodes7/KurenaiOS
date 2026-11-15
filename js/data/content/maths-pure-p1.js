@@ -327,9 +327,9 @@ C["maths:1.1"] = {
   quiz: [
     { q: "Which proves \"$n^2 + n$ is even for all $n$\"?", opts: ["$n(n + 1)$ is a product of consecutive integers, one of which is even", "$1 + 1 = 2$, $4 + 2 = 6$, $9 + 3 = 12$", "$n^2 + n$ is even because $n^2$ and $n$ have the same parity, e.g. $n = 3$", "it is obvious"], ans: 0, why: "A general argument, not examples." },
     { q: "Counter-example to \"$n^2 - n - 1$ is prime for $3 \\le n \\le 10$\":", opts: ["$n = 8$ (55)", "$n = 3$ (5)", "$n = 4$ (11)", "$n = 10$ (89)"], ans: 0, why: "$55 = 5 \\times 11$." },
-    { q: "Prove by contradiction \"$m$ is even\" — the assumption is", opts: ["$m$ is odd", "$m$ is even", "$m = 0$", "$m$ is prime"], ans: 0, why: "Negate the conclusion." },
-    { q: "$3^x \\ge 2^x$ is", opts: ["sometimes true (iff $x \\ge 0$)", "always true", "never true", "true only for integers"], ans: 0, why: "$(3/2)^x \\ge 1 \\iff x \\ge 0$." },
-    { q: "In the $\\sqrt3$ proof, why must $p$ be a multiple of 3?", opts: ["if $p = 3k \\pm 1$ then $p^2 = 3(\\ldots) + 1$, not a multiple of 3", "because $p^2 = 3q^2$ and 3 is prime, obviously", "because $q$ is a multiple of 3", "it need not be"], ans: 0, why: "The contrapositive of the lemma, justified." }
+    { q: "Prove by contradiction \"$m$ is even\" — the assumption is", opts: ["$m$ is odd", "$m$ is even", "$m = 0$", "$m$ is prime"], ans: 0, why: "Assume the negation of \"$m$ is even\": $m$ is odd." },
+    { q: "$3^x \\ge 2^x$ is", opts: ["sometimes true (iff $x \\ge 0$)", "always true, for every real $x$", "never true, for any real $x$", "sometimes true (iff $x \\le 0$)"], ans: 0, why: "$(3/2)^x \\ge 1 \\iff x \\ge 0$." },
+    { q: "In the $\\sqrt3$ proof, why must $p$ be a multiple of 3?", opts: ["if $p = 3k \\pm 1$, $p^2 = 3(\\ldots) + 1$, not a multiple of 3", "because $p^2 = 3q^2$ and 3 is prime, obviously", "because $q$ must be a multiple of 3 first, so $p$ is too", "it need not be: $p^2$ can be a multiple of 3 alone"], ans: 0, why: "The contrapositive of the lemma, justified." }
   ]
 };
 

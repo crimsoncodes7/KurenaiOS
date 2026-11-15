@@ -274,7 +274,7 @@ C["maths:M9.1"] = {
   quiz: [
     { q: "A 20 N force acts 3 m from a pivot, perpendicular to the rod. Its moment is", opts: ["60 N m", "6.67 N m", "23 N m", "17 N m"], ans: 0, why: "$20 \\times 3$." },
     { q: "A uniform 4 m rod of weight 60 N is pivoted 1 m from its left end. The weight's moment about the pivot is", opts: ["60 N m", "120 N m", "240 N m", "0"], ans: 0, why: "The centre is 1 m from the pivot." },
-    { q: "A beam is about to tilt about support $D$. Then", opts: ["the reaction at the other support is zero", "the reaction at $D$ is zero", "both reactions are equal", "friction is limiting"], ans: 0, why: "It is lifting off the other support." },
+    { q: "A beam is about to tilt about support $D$. Then", opts: ["the reaction at the other support is zero", "the reaction at support $D$ is zero", "both reactions are equal to half the weight", "friction at both supports is limiting"], ans: 0, why: "It is lifting off the other support." },
     { q: "A ladder rests against a smooth wall on rough ground. The wall's reaction is", opts: ["horizontal", "vertical", "along the ladder", "perpendicular to the ladder"], ans: 0, why: "Smooth wall: perpendicular to the wall." },
     { q: "For a uniform ladder at 60° to the ground against a smooth wall, $S = \\frac12 W\\cot60° =$", opts: ["$0.289W$", "$0.866W$", "$0.5W$", "$1.73W$"], ans: 0, why: "$\\cot60° = 0.577$." }
   ]

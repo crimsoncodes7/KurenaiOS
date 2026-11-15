@@ -117,9 +117,9 @@ C["compsci:4.4.4.1"] = {
     ["Why quote the worst case?", "It is a guarantee for every input."]
   ],
   quiz: [
-    { q: "Algorithms are best compared by", opts: ["growth of steps with input size", "seconds on one PC", "lines of code", "language used"], ans: 0, why: "Hardware-independent." },
-    { q: "Which uses more memory?", opts: ["merge sort", "bubble sort", "they are equal", "neither uses memory"], ans: 0, why: "Extra lists." },
-    { q: "For n = 50, 100n vs n²:", opts: ["n² is faster", "100n is faster", "equal", "cannot tell"], ans: 0, why: "2500 < 5000." },
+    { q: "Algorithms are best compared by", opts: ["growth of steps with input size", "seconds taken on one particular PC", "the number of lines of code written", "the programming language they use"], ans: 0, why: "Hardware-independent." },
+    { q: "Which uses more memory?", opts: ["merge sort", "bubble sort", "they are equal", "neither uses memory"], ans: 0, why: "Merge sort builds new lists as it splits and merges, so it needs extra memory." },
+    { q: "For n = 50, 100n vs n²:", opts: ["n² is faster", "100n is faster", "equal", "cannot tell"], ans: 0, why: "For n = 50, n² = 2500 but 100n = 5000, so n² is the smaller (faster) one, although it overtakes for large n." },
     { q: "A space-time trade-off example:", opts: ["memoisation", "bubble sort", "linear search", "a single loop"], ans: 0, why: "Memory buys speed." }
   ],
   gens: ["bigo"]
@@ -211,10 +211,10 @@ C["compsci:4.4.4.2"] = {
     ["Doubling n adds how much to log₂ n?", "1."]
   ],
   quiz: [
-    { q: "How many orders for 5 different books?", opts: ["120", "25", "60", "5"], ans: 0, why: "5!." },
-    { q: "Which grows fastest?", opts: ["n!", "2ⁿ", "n²", "n log n"], ans: 0, why: "Factorial." },
-    { q: "Adding 1 to the input of 2ˣ", opts: ["doubles the output", "adds 1 to the output", "squares the output", "halves the output"], ans: 0, why: "Exponential." },
-    { q: "Anagrams of AAB (counting distinct strings):", opts: ["3", "6", "2", "9"], ans: 0, why: "AAB, ABA, BAA." }
+    { q: "How many orders for 5 different books?", opts: ["120", "720", "60", "125"], ans: 0, why: "Orders of 5 different things are 5! = 5 × 4 × 3 × 2 × 1 = 120." },
+    { q: "Which grows fastest?", opts: ["n!", "2ⁿ", "n²", "n log n"], ans: 0, why: "Factorial growth is faster than exponential, polynomial and logarithmic growth." },
+    { q: "Adding 1 to the input of 2ˣ", opts: ["doubles the output", "adds 1 to the output", "squares the output", "halves the output"], ans: 0, why: "Each increase of 1 in x multiplies 2ˣ by 2, which is exponential growth." },
+    { q: "Anagrams of AAB (counting distinct strings):", opts: ["3", "6", "2", "9"], ans: 0, why: "Of AAB, ABA and BAA, there are 3 distinct strings, since the repeated A removes duplicates: 3! ÷ 2! = 3." }
   ],
   gens: ["bigo"]
 };
@@ -291,19 +291,18 @@ C["compsci:4.4.4.3"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.4.4.2 the functions; 4.3 every algorithm's Big-O; 4.4.4.5 tractable = polynomial or better; 4.1.1.16 recursion's O(2ⁿ); 4.2.6.1 O(1) hash look-up." } }
   ],
   flashcards: [
-    ["Big-O notation?", "Describes how time/space grows with input size, keeping only the dominant term."],
-    ["Constant time?", "O(1): time stays the same as the input grows."],
-    ["Logarithmic time example?", "Binary search — O(log n)."],
-    ["Linear time example?", "Linear search — O(n)."],
-    ["Polynomial time example?", "Bubble sort — O(n²)."],
+    ["Constant time?", "O(1): time stays the same as the input grows.", 1],
+    ["Logarithmic time example?", "Binary search — O(log n).", 2],
+    ["Linear time example?", "Linear search — O(n).", 3],
+    ["Polynomial time example?", "Bubble sort — O(n²).", 4],
     ["Sequential loops over n?", "O(n) — they add.", 7],
     ["Loop that halves n each time?", "O(log n).", 9]
   ],
   quiz: [
-    { q: "Constant time means", opts: ["time stays the same as n grows", "time is 1 second", "time doubles", "time grows slowly"], ans: 0, why: "A-level 2023 Q03.7." },
+    { q: "Constant time means", opts: ["time stays the same as n grows", "time is always exactly 1 second", "time doubles each time n grows", "time grows slowly as n grows"], ans: 0, why: "A-level 2023 Q03.7." },
     { q: "for i<n { for j<n {…} } is", opts: ["O(n²)", "O(n)", "O(2n)", "O(log n)"], ans: 0, why: "Nested multiply." },
-    { q: "O(5n + 3) simplifies to", opts: ["O(n)", "O(5n)", "O(n + 3)", "O(1)"], ans: 0, why: "Drop constants." },
-    { q: "Which class is merge sort?", opts: ["O(n log n)", "O(n²)", "O(log n)", "O(2ⁿ)"], ans: 0, why: "Levels × n." }
+    { q: "O(5n + 3) simplifies to", opts: ["O(n)", "O(5n)", "O(n + 3)", "O(1)"], ans: 0, why: "Big-O drops constant factors and lower terms, so 5n + 3 is O(n)." },
+    { q: "Which class is merge sort?", opts: ["O(n log n)", "O(n²)", "O(log n)", "O(2ⁿ)"], ans: 0, why: "Merge sort is O(n log n): about log n levels, with n items handled at each." }
   ],
   sims: ["big-o-plot"],
   gens: ["bigo"]
@@ -414,10 +413,9 @@ C["compsci:4.4.5.1"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.4.2.1 FSMs (a Turing machine is an FSM plus a tape); 4.4.4.6 computability; 4.4.4.7 the Halting problem; 4.7.1 the stored-program concept; 4.6.3 interpreters." } }
   ],
   flashcards: [
-    ["Components of a Turing machine?", "Finite set of states, finite alphabet, infinite tape, read-write head, transition rules (start and halting states)."],
-    ["Halting state?", "A state with no outgoing transitions."],
-    ["Transition function notation?", "δ(state, read) = (new state, write, move)."],
-    ["How far does the head move per step?", "One square, left or right."],
+    ["Halting state?", "A state with no outgoing transitions.", 1],
+    ["Transition function notation?", "δ(state, read) = (new state, write, move).", 2],
+    ["How far does the head move per step?", "One square, left or right.", 3],
     ["Why is a UTM more powerful than any real computer?", "It has infinite memory (tape).", 5],
     ["Importance of Turing machines?", "A formal model of computation that defines what is computable.", 6],
     ["Unary 111#11 on the adder → ?", "11111 (3 + 2 = 5), halting in S3 after 8 steps.", 7],
@@ -426,8 +424,8 @@ C["compsci:4.4.5.1"] = {
   ],
   quiz: [
     { q: "Which is NOT part of a Turing machine?", opts: ["a random-access memory", "an infinite tape", "a read-write head", "a finite set of states"], ans: 0, why: "Tape is sequential." },
-    { q: "δ(S0, #) = (S1, 1, →) means", opts: ["in S0 reading #: write 1, move right, go to S1", "in S1 reading 1: write #", "move left", "halt"], ans: 0, why: "Read the tuple." },
-    { q: "A UTM can", opts: ["simulate any Turing machine", "solve the Halting problem", "run faster than any computer", "only add numbers"], ans: 0, why: "Universal." },
+    { q: "δ(S0, #) = (S1, 1, →) means", opts: ["in S0 reading #: write 1, move right, go to S1", "in S1 reading 1: write #, move right, go to S0", "in S0 reading #: write 1, move left, go to S1", "in S0 reading 1: write #, move right, halt"], ans: 0, why: "The tuple reads: in state S0 reading #, write 1, move right and go to S1." },
+    { q: "A UTM can", opts: ["simulate any Turing machine", "solve the Halting problem", "run faster than any computer", "only add numbers"], ans: 0, why: "A universal Turing machine can read the description of any other Turing machine and simulate it." },
     { q: "A UTM is more powerful than a PC because it has", opts: ["infinite memory", "a faster clock", "more states", "a GPU"], ans: 0, why: "A-level 2018 Q04.5." }
   ],
   sims: ["turing-machine"]

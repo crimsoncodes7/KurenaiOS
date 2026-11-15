@@ -67,9 +67,9 @@ C["maths:6.1"] = {
   ],
   quiz: [
     { q: "$y = e^{x} + 3$ has asymptote", opts: ["$y = 3$", "$y = 0$", "$x = 3$", "$y = 1$"], ans: 0, why: "$e^x \\to 0$." },
-    { q: "$y$-intercept of $y = 2e^{x + 1}$:", opts: ["2", "$2e$", "$e$", "3"], ans: 1, why: "$2e^1$." },
+    { q: "$y$-intercept of $y = 2e^{x + 1}$:", opts: ["$2$", "$2e$", "$e^2$", "$3e$"], ans: 1, why: "$2e^1$." },
     { q: "$y = 0.7^x$ is", opts: ["increasing", "decreasing", "constant", "undefined"], ans: 1, why: "Base less than 1." },
-    { q: "$e^{2x} = 5$ gives $x =$", opts: ["$\\tfrac12\\ln 5$", "$\\ln\\tfrac52$", "$2\\ln5$", "$\\ln 5$"], ans: 0, why: "$2x = \\ln 5$." },
+    { q: "$e^{2x} = 5$ gives $x =$", opts: ["$\\tfrac12\\ln 5$", "$\\ln\\tfrac52$", "$\\tfrac12\\ln 10$", "$\\ln 5$"], ans: 0, why: "$2x = \\ln 5$." },
     { q: "$y = e^{-x}$ and $y = e^x$ are related by", opts: ["reflection in the $y$-axis", "reflection in the $x$-axis", "translation", "stretch"], ans: 0, why: "$x \\to -x$." }
   ]
 };
@@ -117,7 +117,7 @@ C["maths:6.2"] = {
   ],
   quiz: [
     { q: "$\\frac{d}{dx}(e^{3x}) =$", opts: ["$3e^{3x}$", "$e^{3x}$", "$3xe^{3x}$", "$e^{3}$"], ans: 0, why: "Chain rule with $k = 3$." },
-    { q: "The gradient of $y = e^x$ at $x = 2$ is", opts: ["$e^2$", "2", "$2e$", "$e$"], ans: 0, why: "Equals the value." },
+    { q: "The gradient of $y = e^x$ at $x = 2$ is", opts: ["$e^2$", "2", "$2e$", "$e$"], ans: 0, why: "$\\frac{d}{dx}e^x = e^x$, so the gradient at 2 is $e^2$." },
     { q: "A quantity whose rate of change is proportional to itself is modelled by", opts: ["$y = Ae^{kt}$", "$y = At + k$", "$y = At^2$", "$y = A\\ln t$"], ans: 0, why: "Defining property of exponentials." },
     { q: "$\\frac{d}{dt}(5e^{-0.2t}) =$", opts: ["$-e^{-0.2t}$", "$-0.2e^{-0.2t}$", "$5e^{-0.2t}$", "$-5e^{-0.2t}$"], ans: 0, why: "$5 \\times (-0.2)$." }
   ]
@@ -201,9 +201,9 @@ C["maths:6.3"] = {
   ],
   quiz: [
     { q: "$\\log_2 32 =$", opts: ["5", "16", "4", "6"], ans: 0, why: "$2^5$." },
-    { q: "$\\ln e^3 =$", opts: ["3", "$e^3$", "$3e$", "1"], ans: 0, why: "Inverse functions." },
+    { q: "$\\ln e^3 =$", opts: ["3", "$e^3$", "$3e$", "1"], ans: 0, why: "$\\ln$ undoes $e$: $\\ln e^3 = 3\\ln e = 3$." },
     { q: "$\\log_{10} 0.001 =$", opts: ["$-3$", "3", "$-1$", "0.001"], ans: 0, why: "$10^{-3}$." },
-    { q: "$3e^{2x} + 5 = 20$: first step", opts: ["take ln of both sides", "$e^{2x} = 5$", "$2x = \\ln 15$", "$x = \\ln 20 - 5$"], ans: 1, why: "Isolate first." },
+    { q: "$3e^{2x} + 5 = 20$: first step", opts: ["take ln of both sides", "$e^{2x} = 5$", "$2x = \\ln 15$", "$x = \\ln 20 - 5$"], ans: 1, why: "Isolate $e^{2x}$ first: $3e^{2x} = 15 \\Rightarrow e^{2x} = 5$." },
     { q: "$\\ln(x - 2) = 0$ gives $x =$", opts: ["3", "2", "$e$", "$e + 2$"], ans: 0, why: "$x - 2 = 1$." },
     { q: "Domain of $y = \\ln x$:", opts: ["$x > 0$", "$x \\ge 0$", "all $x$", "$x > 1$"], ans: 0, why: "Logs of positives only." }
   ]
@@ -292,11 +292,11 @@ C["maths:6.4"] = {
   ],
   quiz: [
     { q: "$\\log_2 12 - \\log_2 3 =$", opts: ["2", "$\\log_2 9$", "4", "$\\log_2 36$"], ans: 0, why: "$\\log_2 4$." },
-    { q: "$3\\log_5 2 =$", opts: ["$\\log_5 8$", "$\\log_5 6$", "$\\log_{15} 2$", "$\\log_5 5$"], ans: 0, why: "Power law." },
+    { q: "$3\\log_5 2 =$", opts: ["$\\log_5 8$", "$\\log_5 6$", "$\\log_{15} 2$", "$\\log_5 5$"], ans: 0, why: "Power law: $3\\log_5 2 = \\log_5 2^3 = \\log_5 8$." },
     { q: "$\\log_3 x = 2 + \\log_3 4$ gives $x =$", opts: ["36", "6", "8", "12"], ans: 0, why: "$x = 9 \\times 4$." },
     { q: "$\\log_2(x - 1) + \\log_2(x + 1) = 3$ gives", opts: ["$x = 3$ only", "$x = \\pm3$", "$x = 9$", "$x = 4$"], ans: 0, why: "$x^2 - 1 = 8$; reject $-3$." },
     { q: "$\\log_a\\sqrt{x} =$", opts: ["$\\tfrac12\\log_a x$", "$2\\log_a x$", "$\\sqrt{\\log_a x}$", "$\\log_a x - 2$"], ans: 0, why: "$x^{1/2}$." },
-    { q: "Which is a genuine law?", opts: ["$\\log(x + y) = \\log x + \\log y$", "$\\log(xy) = \\log x + \\log y$", "$\\log x \\cdot \\log y = \\log(x + y)$", "$\\frac{\\log x}{\\log y} = \\log\\frac{x}{y}$"], ans: 1, why: "Product law." }
+    { q: "Which is a genuine law?", opts: ["$\\log(x + y) = \\log x + \\log y$", "$\\log(xy) = \\log x + \\log y$", "$\\log x \\cdot \\log y = \\log(x + y)$", "$\\frac{\\log x}{\\log y} = \\log\\frac{x}{y}$"], ans: 1, why: "Product law: $\\log(xy) = \\log x + \\log y$; nothing splits $\\log(x + y)$." }
   ]
 };
 
@@ -369,11 +369,11 @@ C["maths:6.5"] = {
     ["When does dividing by $\\ln a$ flip an inequality?", "When $0 < a < 1$ ($\\ln a < 0$)."]
   ],
   quiz: [
-    { q: "$5^x = 40$: $x =$", opts: ["$\\tfrac{\\ln 40}{\\ln 5}$", "$\\ln 8$", "$\\tfrac{40}{5}$", "$\\ln 35$"], ans: 0, why: "Logs of both sides." },
-    { q: "$2^{x+1} =$", opts: ["$2 \\times 2^x$", "$2^x + 1$", "$2^x + 2$", "$4^x$"], ans: 0, why: "Index law." },
+    { q: "$5^x = 40$: $x =$", opts: ["$\\tfrac{\\ln 40}{\\ln 5}$", "$\\tfrac{\\ln 5}{\\ln 40}$", "$\\ln 40 - \\ln 5$", "$\\tfrac{\\log 40}{\\ln 5}$"], ans: 0, why: "Logs of both sides." },
+    { q: "$2^{x+1} =$", opts: ["$2 \\times 2^x$", "$2^x + 2^1$", "$2^x + 2$", "$2 \\times 2^{x+1}$"], ans: 0, why: "$2^{x+1} = 2^x \\times 2^1$." },
     { q: "$e^{2x} = 4e^x$ gives $x =$", opts: ["$\\ln 4$", "$2$", "$\\ln 2$", "$4$"], ans: 0, why: "$e^x = 4$ (or $e^x = 0$ impossible)." },
     { q: "$0.5^x < 0.1$ gives", opts: ["$x > \\tfrac{\\ln 0.1}{\\ln 0.5}$", "$x < \\tfrac{\\ln 0.1}{\\ln 0.5}$", "$x > 5$", "$x < 0$"], ans: 0, why: "Dividing by negative $\\ln 0.5$ flips." },
-    { q: "$\\log_2 3$ equals", opts: ["$\\tfrac{\\ln 3}{\\ln 2}$", "$\\tfrac{\\ln 2}{\\ln 3}$", "$\\ln 1.5$", "$1.5$"], ans: 0, why: "Change of base." }
+    { q: "$\\log_2 3$ equals", opts: ["$\\tfrac{\\ln 3}{\\ln 2}$", "$\\tfrac{\\ln 2}{\\ln 3}$", "$\\ln 1.5$", "$1.5$"], ans: 0, why: "Change of base: $\\log_2 3 = \\frac{\\ln 3}{\\ln 2}$." }
   ]
 };
 
@@ -400,7 +400,7 @@ C["maths:6.6"] = {
       steps: [
         { h: "(a) Intercept", m: "$\\log_{10}a = 3 \\Rightarrow a = 1000$: initial value £1000", mk: "M1 A1" },
         { h: "(b) Gradient", m: "$\\log_{10}b = \\dfrac{2.79 - 3}{10} = -0.021 \\Rightarrow b = 10^{-0.021} = 0.953$\n$V = 1000 \\times 0.953^t$", mk: "M1 A1 A1", n: "$b < 1$: the value falls by about 4.7% a month." },
-        { h: "(c) $t = 24$", m: "Model: $1000 \\times 0.953^{24} = £315$; actual £320 — very close, so the model is reliable (over this period).", mk: "B1", n: "Compute, compare, conclude — here the verdict is positive." }
+        { h: "(c) $t = 24$", m: "Model: $1000 \\times 0.953^{24} = £315$; actual £320 — very close, so the model is reliable (over this period).", mk: "M1 A1", n: "Compute, compare, conclude — here the verdict is positive." }
       ], result: "(a) £1000 (b) $V = 1000 \\times 0.953^t$ (c) predicts £315 vs £320: reliable" } },
     { worked: { tag: "exam", title: "Pendulum: show the linear form, then $a$ and $b$ from two points", src: "A-level Oct 2021 · P2 Q10 · 6 marks",
       q: "$T = al^b$ models the time $T$ s for a pendulum of length $l$ m to swing. **(a)** Show that this can be written $\\log_{10}T = b\\log_{10}l + \\log_{10}a$. **(b)** The line of $\\log_{10}T$ against $\\log_{10}l$ passes through $(-0.7, 0)$ and $(0.21, 0.45)$. Find $a$ and $b$ to 2 s.f.",
@@ -427,7 +427,7 @@ C["maths:6.6"] = {
       q: "$h = pm^q$ gives resting heart rate $h$ (bpm) for mass $m$ kg. The line of $\\log_{10}h$ against $\\log_{10}m$ meets the vertical axis at 2.25 and has gradient $-0.235$. **(a)** Find $p$ and $q$ to 3 s.f. A 5 kg mammal has resting heart rate 119 bpm. **(b)** Comment on the suitability of the model for this mammal. **(c)** Interpret $q$.",
       steps: [
         { h: "(a)", m: "$q = -0.235$; $\\log_{10}p = 2.25 \\Rightarrow p = 178$", mk: "M1 A1 A1" },
-        { h: "(b)", m: "Model: $178 \\times 5^{-0.235} = 122$ bpm, against the actual 119 — close, so the model is suitable for this mammal.", mk: "M1 A1" },
+        { h: "(b)", m: "Model: $178 \\times 5^{-0.235} = 122$ bpm, against the actual 119 — close, so the model is suitable for this mammal.", mk: "M1 A1 A1" },
         { h: "(c)", m: "$q < 0$: heart rate **decreases** as mass increases (larger animals have slower hearts); the rate of decrease is small.", mk: "B1" }
       ], result: "(a) $p = 178$, $q = -0.235$ (b) predicts 122 vs 119: suitable" } },
     { worked: { tag: "exam", title: "A non-log linearisation: $h^2 = at + b$", src: "A-level June 2022 · P1 Q5 · 6 marks",
@@ -459,9 +459,9 @@ C["maths:6.6"] = {
     ["Intercept of a $\\ln y$ vs $x$ plot is 3.95: $a$?", "$e^{3.95} \\approx 52$."]
   ],
   quiz: [
-    { q: "A straight line on a $\\log y$ vs $\\log x$ plot means", opts: ["$y = ax^n$", "$y = kb^x$", "$y = mx + c$", "$y = a\\ln x$"], ans: 0, why: "Power law." },
+    { q: "A straight line on a $\\log y$ vs $\\log x$ plot means", opts: ["$y = ax^n$", "$y = kb^x$", "$y = mx + c$", "$y = a\\ln x$"], ans: 0, why: "$\\log y = \\log a + n\\log x$ is a line in $\\log x$, so $y = ax^n$." },
     { q: "$\\log y = 0.5x + 1.2$ (base 10). $k =$", opts: ["$10^{1.2}$", "1.2", "$10^{0.5}$", "$e^{1.2}$"], ans: 0, why: "Intercept is $\\log k$." },
-    { q: "Gradient of the $\\log y$ vs $x$ line is $\\log b$. If the gradient is $-0.021$, $b =$", opts: ["$10^{-0.021}$", "$-0.021$", "$0.979$", "$10^{0.021}$"], ans: 0, why: "Undo the log." },
+    { q: "Gradient of the $\\log y$ vs $x$ line is $\\log b$. If the gradient is $-0.021$, $b =$", opts: ["$10^{-0.021}$", "$-0.021$", "$0.979$", "$10^{0.021}$"], ans: 0, why: "$\\log b = -0.021 \\Rightarrow b = 10^{-0.021}$." },
     { q: "Interpretation of $a$ in $V = ab^t$:", opts: ["value at $t = 0$", "growth rate", "time to double", "final value"], ans: 0, why: "$b^0 = 1$." },
     { q: "$T = al^b$ with $\\log T = b\\log l + \\log a$; if $b = 0.5$ then $T \\propto$", opts: ["$\\sqrt l$", "$l^2$", "$l$", "$\\tfrac1l$"], ans: 0, why: "$l^{0.5}$." }
   ]

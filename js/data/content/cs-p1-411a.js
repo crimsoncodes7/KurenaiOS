@@ -145,18 +145,17 @@ C["compsci:4.1.1.1"] = {
     ["Data type?", "Determines the values a variable can hold, the memory it uses and the operations allowed on it."],
     ["AQA's nine data types?", "Integer, real/float, Boolean, character, string, date/time, pointer/reference, record, array."],
     ["Best type for a phone number?", "String — no arithmetic, keeps leading zeros and spaces."],
-    ["Pointer / reference?", "A variable that stores the memory address of an object created at run time."],
-    ["Array vs record?", "Array: many elements of one type by index. Record: fields of different types by name."],
+    ["Array vs record?", "Array: many elements of one type by index. Record: fields of different types by name.", 4],
     ["C# type for money?", "decimal (double has binary rounding errors).", 6],
     ["0.1 + 0.2 == 0.3 in C# with doubles?", "False — 0.30000000000000004.", 7],
     ["Value type vs reference type in C#?", "A value type (int, struct) is copied on assignment; a reference type (class, array) copies the reference.", 8]
   ],
   quiz: [
-    { q: "Most appropriate type for a quantity in stock", opts: ["integer", "real", "string", "Boolean"], ans: 0, why: "Whole number." },
+    { q: "Most appropriate type for a quantity in stock", opts: ["integer", "real", "string", "Boolean"], ans: 0, why: "Stock is a whole number of items, so an integer is the right type." },
     { q: "\"07700 900123\" should be stored as", opts: ["a string", "an integer", "a real", "a Boolean"], ans: 0, why: "No arithmetic; leading zero." },
-    { q: "A variable storing the address of an object is a", opts: ["pointer / reference", "record", "constant", "character"], ans: 0, why: "Spec." },
-    { q: "Fields of different types grouped together form a", opts: ["record", "array", "string", "pointer"], ans: 0, why: "Definition." },
-    { q: "In C#, Player b = a; (Player is a class) makes", opts: ["two names for one object", "a copy of the object", "a compile error", "a null reference"], ans: 0, why: "Reference type." }
+    { q: "A variable storing the address of an object is a", opts: ["pointer / reference", "record / structure", "constant / literal", "character / string"], ans: 0, why: "A pointer or reference holds the address of an object in memory rather than the object itself." },
+    { q: "Fields of different types grouped together form a", opts: ["record", "array", "string", "pointer"], ans: 0, why: "A record groups fields of different data types under one name, such as a name, an age and a flag." },
+    { q: "In C#, Player b = a; (Player is a class) makes", opts: ["two names for one object", "a full copy of the object", "a compile error on that line", "a null reference in b"], ans: 0, why: "A class is a reference type, so b = a copies the reference and both names refer to the same object." }
   ]
 };
 
@@ -321,10 +320,10 @@ C["compsci:4.1.1.2"] = {
     ["Nested iteration?", "A loop inside a loop; the inner loop completes for each outer pass.", 8]
   ],
   quiz: [
-    { q: "A loop that must run at least once should test its condition", opts: ["at the end", "at the start", "twice", "never"], ans: 0, why: "Post-condition." },
-    { q: "WHILE X > 0 with X = −3 runs", opts: ["0 times", "once", "3 times", "forever"], ans: 0, why: "Tested first." },
+    { q: "A loop that must run at least once should test its condition", opts: ["at the end", "at the start", "twice", "never"], ans: 0, why: "A post-condition loop tests at the end, so its body always runs at least once." },
+    { q: "WHILE X > 0 with X = −3 runs", opts: ["0 times", "once", "3 times", "forever"], ans: 0, why: "The condition is tested first and −3 > 0 is false, so the loop body never runs." },
     { q: "FOR k ← 0 TO 9 runs", opts: ["10 times", "9 times", "11 times", "0 times"], ans: 0, why: "Inclusive bounds." },
-    { q: "The sentinel loop gave 14 instead of 15 because", opts: ["−1 was added to the total", "4 was skipped", "Result started at 1", "the loop ran once"], ans: 0, why: "Sentinel used in the calculation." },
+    { q: "The sentinel loop gave 14 instead of 15 because", opts: ["−1 was added to the total", "the value 4 was skipped", "Result started at 1, not 0", "the loop ran one time too few"], ans: 0, why: "Sentinel used in the calculation." },
     { q: "Which C# statement is post-condition iteration?", opts: ["do { } while (...);", "while (...) { }", "for (...)", "foreach"], ans: 0, why: "Test at the end." }
   ]
 };
@@ -414,10 +413,10 @@ C["compsci:4.1.1.6"] = {
     ["Is 'saves memory' an advantage of constants?", "No — not a creditworthy reason."]
   ],
   quiz: [
-    { q: "Main advantage of FieldWidth over 35 in the code", opts: ["one place to change and clearer meaning", "faster execution", "less memory", "it can change at run time"], ans: 0, why: "MS." },
+    { q: "Main advantage of FieldWidth over 35 in the code", opts: ["one place to change and clearer meaning", "faster execution because it is stored once", "less memory because a constant is smaller", "it can be changed while the program runs"], ans: 0, why: "A named constant has one place to change and a meaningful name, whereas a bare 35 is a magic number." },
     { q: "const int Max = 5; Max = 6; in C#", opts: ["is a compile error", "sets Max to 6", "is a run-time error", "is ignored"], ans: 0, why: "Constants cannot be assigned." },
-    { q: "The GCF program's output uses Number1 because", opts: ["the loop changed only the copies", "Number1 is a constant", "Temp1 is out of scope", "it is faster"], ans: 0, why: "Originals preserved." },
-    { q: "Which should be a named constant?", opts: ["VAT rate of 0.2", "the player's score", "loop counter", "user's input"], ans: 0, why: "Fixed value." }
+    { q: "The GCF program's output uses Number1 because", opts: ["the loop changed only the copies", "Number1 is a constant and cannot change", "Temp1 is out of scope after the loop", "it is faster to output the original"], ans: 0, why: "Originals preserved." },
+    { q: "Which should be a named constant?", opts: ["VAT rate of 0.2", "the player's score", "loop counter", "user's input"], ans: 0, why: "A fixed value used in many places, such as the VAT rate, should be a named constant so it is changed in one place." }
   ]
 };
 
@@ -522,9 +521,9 @@ C["compsci:4.1.1.7"] = {
   ],
   quiz: [
     { q: "\"Computer\".Substring(3, 2)", opts: ["\"pu\"", "\"put\"", "\"mp\"", "\"pute\""], ans: 0, why: "Start 3, length 2." },
-    { q: "(char)('a' + 2)", opts: ["'c'", "'b'", "99", "\"a2\""], ans: 0, why: "Code 99." },
-    { q: "\"madam\".IndexOf('z')", opts: ["-1", "0", "5", "an exception"], ans: 0, why: "Not found." },
-    { q: "Valid indices of a 5-character string", opts: ["0 to 4", "1 to 5", "0 to 5", "1 to 4"], ans: 0, why: "Zero-based." },
+    { q: "(char)('a' + 2)", opts: ["'c'", "'b'", "99", "\"a2\""], ans: 0, why: "'a' has character code 97, adding 2 gives 99, and (char)99 is 'c'." },
+    { q: "\"madam\".IndexOf('z')", opts: ["-1", "0", "5", "an exception"], ans: 0, why: "IndexOf returns −1 when the character is not found in the string." },
+    { q: "Valid indices of a 5-character string", opts: ["0 to 4", "1 to 5", "0 to 5", "1 to 4"], ans: 0, why: "Indices start at 0, so a 5-character string has indices 0 to 4." },
     { q: "int.Parse(\"7\") + int.Parse(\"3\")", opts: ["10", "\"73\"", "73", "an error"], ans: 0, why: "Converted to integers." }
   ]
 };
@@ -615,9 +614,9 @@ C["compsci:4.1.1.8"] = {
   ],
   quiz: [
     { q: "rng.Next(1, 7) can return", opts: ["1 to 6", "1 to 7", "0 to 6", "0 to 7"], ans: 0, why: "Exclusive upper bound." },
-    { q: "Two Random objects with the same seed produce", opts: ["the same sequence", "different sequences", "only zeros", "an error"], ans: 0, why: "Deterministic." },
-    { q: "The dice loop ends when", opts: ["C or D reaches 3", "both reach 3", "T reaches 3", "S exceeds 30"], ans: 0, why: "C < 3 AND D < 3 fails." },
-    { q: "A random index into string[] names is", opts: ["rng.Next(names.Length)", "rng.Next(1, names.Length)", "rng.NextDouble()", "rng.Next(names.Length + 1)"], ans: 0, why: "0..Length−1." }
+    { q: "Two Random objects with the same seed produce", opts: ["the same sequence", "different sequences", "only zeros", "an error"], ans: 0, why: "Pseudo-random numbers are deterministic, so the same seed gives the same sequence every time." },
+    { q: "The dice loop ends when", opts: ["C or D reaches 3", "both C and D reach 3", "T reaches 3 or more", "S goes above 30"], ans: 0, why: "C < 3 AND D < 3 fails." },
+    { q: "A random index into string[] names is", opts: ["rng.Next(names.Length)", "rng.Next(1, names.Length)", "rng.NextDouble()", "rng.Next(names.Length + 1)"], ans: 0, why: "Next(n) returns 0 up to n − 1, and Length − 1 is the last valid index of the array." }
   ]
 };
 

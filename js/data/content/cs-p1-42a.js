@@ -138,9 +138,9 @@ C["compsci:4.2.1.1"] = {
     ["Structure for an undo feature?", "A stack."]
   ],
   quiz: [
-    { q: "A structure whose size is fixed at compile time is", opts: ["static", "dynamic", "abstract", "recursive"], ans: 0, why: "Static." },
+    { q: "A structure whose size is fixed at compile time is", opts: ["static", "dynamic", "abstract", "recursive"], ans: 0, why: "A static structure has its size fixed at compile time, while a dynamic one can grow and shrink." },
     { q: "Temp[Pos ← Pos + 1] ← x … x ← Temp[Pos]; Pos ← Pos − 1 implements", opts: ["a stack", "a queue", "a hash table", "a graph"], ans: 0, why: "Push and pop at one end." },
-    { q: "Which needs memory for pointers?", opts: ["a linked list", "a 1-D array", "a 2-D array", "a record"], ans: 0, why: "Dynamic." },
+    { q: "Which needs memory for pointers?", opts: ["a linked list", "a 1-D array", "a 2-D array", "a record"], ans: 0, why: "A linked list is dynamic: each node stores a pointer to the next, which needs extra memory." },
     { q: "The best structure for 'look up a price by barcode' is", opts: ["a hash table", "a stack", "a queue", "a linked list"], ans: 0, why: "Direct access by key." }
   ],
   sims: ["tl-list"]
@@ -247,10 +247,10 @@ C["compsci:4.2.1.2"] = {
     ["Rows and columns of int[,] g in C#?", "g.GetLength(0) and g.GetLength(1)."]
   ],
   quiz: [
-    { q: "int[,] g = new int[3,4]; how many elements?", opts: ["12", "7", "3", "4"], ans: 0, why: "3 × 4." },
-    { q: "Dedupe [12, 25, 12, 53] gives", opts: ["12, 25, 53", "12, 25, 12, 53", "25, 53", "12, 53"], ans: 0, why: "AS 2016." },
-    { q: "Indexing marks[marks.Length] in C#", opts: ["throws IndexOutOfRangeException", "returns 0", "returns the last item", "returns null"], ans: 0, why: "Last index is Length − 1." },
-    { q: "All elements of an array must", opts: ["be the same data type", "be different values", "be integers", "be sorted"], ans: 0, why: "Definition." }
+    { q: "int[,] g = new int[3,4]; how many elements?", opts: ["12", "20", "16", "4"], ans: 0, why: "A 3 by 4 two-dimensional array has 3 × 4 = 12 elements." },
+    { q: "Dedupe [12, 25, 12, 53] gives", opts: ["12, 25, 53", "12, 25, 12, 53", "25, 53", "12, 53"], ans: 0, why: "Removing duplicates keeps one copy of each value, so [12, 25, 12, 53] gives 12, 25, 53." },
+    { q: "Indexing marks[marks.Length] in C#", opts: ["throws IndexOutOfRangeException", "returns 0, the default for an int", "returns the last item in the array", "returns null as there is no item"], ans: 0, why: "Last index is Length − 1." },
+    { q: "All elements of an array must", opts: ["be the same data type", "be different values", "be integers", "be sorted"], ans: 0, why: "An array holds elements of one data type, so all of them share the same size and type." }
   ]
 };
 
@@ -343,7 +343,6 @@ C["compsci:4.2.1.3"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.1.1.1 records and user-defined types; 4.1.1.9 exceptions when a file is missing; 4.5.4 character codes (ASCII/Unicode) in text files; 4.10 databases as structured files; 4.6.4 secondary storage." } }
   ],
   flashcards: [
-    ["Record?", "A collection of related fields (which may have different types) about one entity.", 1],
     ["File?", "A collection of records or text stored permanently in secondary storage.", 2],
     ["Two reasons to choose a binary file?", "Data hidden from casual reading; no type-conversion routines; smaller file.", 5],
     ["C# classes for text files?", "StreamWriter / StreamReader (or File.ReadAllLines / WriteAllLines).", 6],
@@ -352,9 +351,9 @@ C["compsci:4.2.1.3"] = {
     ["What does using do around a file?", "Closes it automatically, even if an exception occurs.", 9]
   ],
   quiz: [
-    { q: "The integer 72 in a text file is stored as", opts: ["the characters '7' and '2'", "4 bytes holding 72", "one byte holding 72", "a pointer"], ans: 0, why: "Text stores characters." },
-    { q: "Which is a reason to use a binary file?", opts: ["no string conversion routines needed", "easier for users to edit", "readable in Notepad", "smaller code always"], ans: 0, why: "A-level 2019 Q06." },
-    { q: "BinaryWriter writes a string, an int, a double and a bool. Reading them back requires", opts: ["the same order and types", "any order", "field names", "a delimiter"], ans: 0, why: "No metadata." },
+    { q: "The integer 72 in a text file is stored as", opts: ["the characters '7' and '2'", "4 bytes holding the integer 72", "one byte holding the value 72", "a pointer to the value 72"], ans: 0, why: "Text stores characters." },
+    { q: "Which is a reason to use a binary file?", opts: ["no string conversion routines needed", "easier for users to open and edit", "readable in any text editor such as Notepad", "the program code is always smaller"], ans: 0, why: "A-level 2019 Q06." },
+    { q: "BinaryWriter writes a string, an int, a double and a bool. Reading them back requires", opts: ["the same order and types", "any order, as each value is tagged", "the field names of each value", "a delimiter between each value"], ans: 0, why: "A binary file has no labels, so the values must be read back in the same order and types as they were written." },
     { q: "Fields in one record", opts: ["may be of different types", "must all be the same type", "must be strings", "must be numbers"], ans: 0, why: "Unlike an array." }
   ]
 };
@@ -448,10 +447,10 @@ C["compsci:4.2.1.4"] = {
     ["Heap?", "The pool of memory from which dynamic structures are allocated at run time.", 8],
   ],
   quiz: [
-    { q: "An ADT is defined by", opts: ["its operations, not its implementation", "the array that stores it", "its memory address", "its programming language"], ans: 0, why: "Abstraction." },
+    { q: "An ADT is defined by", opts: ["its operations, not its implementation", "the array or list that stores its data", "its memory address and its size", "the programming language it is written in"], ans: 0, why: "An abstract data type is defined by what operations it supports, not by how it is implemented." },
     { q: "Which is a disadvantage of dynamic structures?", opts: ["memory needed for pointers", "wasted memory when under-filled", "a fixed maximum size", "data in consecutive locations"], ans: 0, why: "A-level 2020 Q04.1." },
-    { q: "Inserting into the middle of a linked list requires", opts: ["changing pointers", "shuffling every later element", "a new array", "re-hashing"], ans: 0, why: "No shuffling." },
-    { q: "A 4-mark 'discuss advantages and disadvantages' expects", opts: ["two of each", "four advantages", "one of each plus code", "a definition only"], ans: 0, why: "Max 2 each." }
+    { q: "Inserting into the middle of a linked list requires", opts: ["changing pointers", "shuffling every later element", "a new array", "re-hashing"], ans: 0, why: "A linked list needs only its pointers changing to insert, so no elements are shuffled along." },
+    { q: "A 4-mark 'discuss advantages and disadvantages' expects", opts: ["two of each", "four advantages", "one of each plus code", "a definition only"], ans: 0, why: "A 4-mark discuss question wants up to two advantages and two disadvantages, with a maximum of 2 each." }
   ],
   sims: ["tl-list"]
 };

@@ -254,7 +254,6 @@ C["compsci:4.10.1"] = {
   ],
   flashcards: [
     ["Entity?", "A category of object, person, event or thing about which data is recorded."],
-    ["Attribute?", "A property or characteristic of an entity."],
     ["Entity description format?", "Entity(Attribute1, Attribute2, …) with the identifier underlined.", 3],
     ["What does a crow's foot mean?", "The many end of a relationship.", 4],
     ["Three degrees of relationship?", "One-to-one, one-to-many, many-to-many.", 5],
@@ -265,11 +264,11 @@ C["compsci:4.10.1"] = {
   ],
   quiz: [
     { q: "One customer places many orders. The crow's foot goes at", opts: ["Order", "Customer", "both ends", "neither end"], ans: 0, why: "There are many orders." },
-    { q: "Enrolment(StudentID, CourseID, DateEnrolled) is", opts: ["a linking entity resolving a M:M", "a 1:1 relationship", "an attribute", "a repeating group"], ans: 0, why: "Two foreign keys forming the identifier." },
-    { q: "AnimalLocation holds AnimalID and ZooName. The relationships are", opts: ["Animal 1:M AnimalLocation and Zoo 1:M AnimalLocation", "Animal M:1 AnimalLocation", "Zoo 1:1 Animal", "AnimalLocation 1:M Zoo"], ans: 0, why: "Feet follow foreign keys." },
+    { q: "Enrolment(StudentID, CourseID, DateEnrolled) is", opts: ["a linking entity resolving a M:M", "a 1:1 relationship between two entities", "an attribute of the Student entity", "a repeating group inside Student"], ans: 0, why: "Two foreign keys forming the identifier." },
+    { q: "AnimalLocation holds AnimalID and ZooName. The relationships are", opts: ["Animal 1:M AnimalLocation and Zoo 1:M AnimalLocation", "Animal M:1 AnimalLocation and Zoo M:1 AnimalLocation", "Zoo 1:1 Animal, with AnimalLocation as an attribute", "Animal 1:M AnimalLocation and Zoo 1:1 AnimalLocation"], ans: 0, why: "Feet follow foreign keys." },
     { q: "Each vet works at one surgery; each surgery has several vets:", opts: ["Surgery 1:M Vet", "Vet 1:M Surgery", "M:M", "1:1"], ans: 0, why: "Vet holds SurgeryName." },
     { q: "In an entity description the identifier is", opts: ["underlined", "in capitals", "listed last", "in italics"], ans: 0, why: "Spec convention." },
-    { q: "A many-to-many relationship cannot be stored directly because", opts: ["it would need a repeating group", "SQL forbids two tables", "keys must be numeric", "it needs a 1:1"], ans: 0, why: "One value per attribute per row." }
+    { q: "A many-to-many relationship cannot be stored directly because", opts: ["it would need a repeating group", "SQL forbids linking more than two tables", "its keys would have to be numeric", "it must first be split into two 1:1s"], ans: 0, why: "One value per attribute per row." }
   ]
 };
 
@@ -416,17 +415,16 @@ C["compsci:4.10.2"] = {
   ],
   flashcards: [
     ["Relational database?", "Data in several tables (relations), each about one entity, linked by foreign keys."],
-    ["Primary key?", "An attribute that uniquely identifies each record in a relation.", 2],
     ["Is a foreign key unique in its own table?", "No — the same value can appear in many rows.", 5],
     ["Cascade delete?", "Deleting a parent row also deletes the child rows that reference it.", 9]
   ],
   quiz: [
-    { q: "A foreign key is", opts: ["the primary key of another relation, used to link tables", "a unique row identifier", "any indexed field", "a composite key"], ans: 0, why: "Definition." },
-    { q: "Merit keyed on (StudentID, TeacherID, DateAwarded) prevents", opts: ["two merits from one teacher to one student on one day", "two merits on one day", "a student having two teachers", "deleting merits"], ans: 0, why: "Uniqueness of that combination." },
+    { q: "A foreign key is", opts: ["the primary key of another relation, used to link tables", "a unique identifier for each row in its own relation", "any indexed field used to speed up searching", "a composite key made of two or more attributes"], ans: 0, why: "A foreign key is an attribute that is the primary key of another table, which links the two together." },
+    { q: "Merit keyed on (StudentID, TeacherID, DateAwarded) prevents", opts: ["two merits from one teacher to one student on one day", "two merits from different teachers to one student on one day", "one teacher awarding merits to two students on one day", "any merit being deleted once it has been awarded"], ans: 0, why: "Uniqueness of that combination." },
     { q: "Deleting a Showing that has Bookings breaks", opts: ["referential integrity", "1NF", "the primary key", "atomicity of attributes"], ans: 0, why: "Bookings would reference nothing." },
-    { q: "A composite primary key has", opts: ["two or more attributes", "exactly one attribute", "no foreign keys", "only numbers"], ans: 0, why: "Definition." },
-    { q: "Product holds one SupplierID. The design assumes", opts: ["each product has one supplier", "each supplier supplies one product", "suppliers have no email", "each sale has one product"], ans: 0, why: "2024 Q08.1." },
-    { q: "In a linking table PetOwner(CustomerID, PetID) the attributes are", opts: ["both foreign keys and together the primary key", "both primary keys of PetOwner separately", "attributes only", "secondary keys"], ans: 0, why: "Composite of the foreign keys." }
+    { q: "A composite primary key has", opts: ["two or more attributes", "exactly one attribute", "no foreign keys", "only numbers"], ans: 0, why: "A composite primary key is made from two or more attributes together." },
+    { q: "Product holds one SupplierID. The design assumes", opts: ["each product has one supplier", "each supplier supplies one product", "suppliers have no email", "each sale has one product"], ans: 0, why: "Product has one SupplierID field, so each product can only be supplied by one supplier." },
+    { q: "In a linking table PetOwner(CustomerID, PetID) the attributes are", opts: ["both foreign keys and together the primary key", "both primary keys of PetOwner separately", "attributes only, with no keys at all", "secondary keys used only for searching"], ans: 0, why: "Composite of the foreign keys." }
   ]
 };
 
@@ -510,10 +508,10 @@ C["compsci:4.10.3"] = {
     { callout: { t: "info", h: "Key idea", body: "An online shop's order form, as an **un-normalised** relation (the braces mark the repeating group — one set per product on the order):" } },
     { ul: ["UNF: Order(OrderID, OrderDate, CustomerID, CustName, CustTown, {ProductID, Description, UnitPrice, Quantity})"] },
     { steps: [
-      { h: "1NF — remove the repeating group", m: "One row per product per order; the key becomes (OrderID, ProductID):\n" + R("OrderItem", ["OrderID", "ProductID"], ["OrderDate", "CustomerID", "CustName", "CustTown", "Description", "UnitPrice", "Quantity"]) },
-      { h: "2NF — remove partial dependencies", m: "OrderDate, CustomerID, CustName, CustTown depend on OrderID alone; Description, UnitPrice on ProductID alone; only Quantity needs both:\n" + R("Order", ["OrderID"], ["OrderDate", "CustomerID", "CustName", "CustTown"]) + "\n" + R("Product", ["ProductID"], ["Description", "UnitPrice"]) + "\n" + R("OrderLine", ["OrderID", "ProductID"], ["Quantity"]) },
-      { h: "3NF — remove transitive dependencies", m: "In Order, CustName and CustTown depend on CustomerID (non-key). Move them out; CustomerID stays as a foreign key:\n" + R("Customer", ["CustomerID"], ["CustName", "CustTown"]) + "\n" + R("Order", ["OrderID"], ["OrderDate", "CustomerID"]) },
-      { h: "Check", m: "Four relations — Customer, Order, Product, OrderLine. Every fact is stored once; each non-key attribute depends on the key, the whole key and nothing but the key." }
+      { h: "1NF — remove the repeating group", n: "One row per product per order; the key becomes (OrderID, ProductID).", m: R("OrderItem", ["OrderID", "ProductID"], ["OrderDate", "CustomerID", "CustName", "CustTown", "Description", "UnitPrice", "Quantity"]) },
+      { h: "2NF — remove partial dependencies", n: "OrderDate, CustomerID, CustName, CustTown depend on OrderID alone; Description, UnitPrice on ProductID alone; only Quantity needs both.", m: R("Order", ["OrderID"], ["OrderDate", "CustomerID", "CustName", "CustTown"]) + "\n" + R("Product", ["ProductID"], ["Description", "UnitPrice"]) + "\n" + R("OrderLine", ["OrderID", "ProductID"], ["Quantity"]) },
+      { h: "3NF — remove transitive dependencies", n: "In Order, CustName and CustTown depend on CustomerID (non-key). Move them out; CustomerID stays as a foreign key.", m: R("Customer", ["CustomerID"], ["CustName", "CustTown"]) + "\n" + R("Order", ["OrderID"], ["OrderDate", "CustomerID"]) },
+      { h: "Check", n: "Four relations — Customer, Order, Product, OrderLine. Every fact is stored once; each non-key attribute depends on the key, the whole key and nothing but the key." }
     ] },
     { fig: er([{ id: "Customer", x: 20, y: 20 }, { id: "Order", x: 220, y: 20 }, { id: "OrderLine", x: 220, y: 100 }, { id: "Product", x: 420, y: 100 }],
       [["Customer", "Order", "1", "M"], ["Order", "OrderLine", "1", "M"], ["Product", "OrderLine", "1", "M"]], "The 3NF result as an ER diagram — OrderLine resolves the Order–Product many-to-many.", { w: 570, h: 150 }) },
@@ -618,17 +616,16 @@ C["compsci:4.10.3"] = {
     ["3NF?", "2NF and no transitive dependencies — every non-key attribute depends on nothing but the key."],
     ["Partial dependency?", "A non-key attribute depending on only part of a composite key."],
     ["Transitive dependency?", "A non-key attribute depending on another non-key attribute."],
-    ["Update anomaly?", "A change must be made in many rows; missing one leaves inconsistent data."],
     ["Is a 1NF relation with a single-attribute key in 2NF?", "Yes — there is no part of the key to depend on.", 9],
     ["Denormalising: one gain, one cost?", "Quicker/simpler lookup; redundancy → possible inconsistency and extra updates.", 11]
   ],
   quiz: [
-    { q: "Which does NOT have to hold for full normalisation?", opts: ["every primary key is one attribute", "no repeating groups", "attributes depend on the whole key", "no transitive dependencies"], ans: 0, why: "2022 Q07.1." },
+    { q: "Which does NOT have to hold for full normalisation?", opts: ["every primary key is one attribute", "no repeating groups", "attributes depend on the whole key", "no transitive dependencies"], ans: 0, why: "Full normalisation allows a composite key, so it does not need every primary key to be one attribute." },
     { q: "Enrolment(StudentID, CourseID, StudentName, Grade) is in", opts: ["1NF only", "2NF", "3NF", "not 1NF"], ans: 0, why: "StudentName is a partial dependency." },
     { q: "Booking(BookingID, CustomerID, CustomerEmail) breaks", opts: ["3NF", "1NF", "2NF", "nothing"], ans: 0, why: "Transitive dependency via CustomerID." },
     { q: "\"Normalising saves memory\" alone scores", opts: ["NE.", "1 mark", "2 marks", "R. always"], ans: 0, why: "Name the specific problem." },
-    { q: "A cell holding \"football, rugby, hockey\" breaks", opts: ["1NF", "2NF", "3NF", "referential integrity"], ans: 0, why: "Not atomic." },
-    { q: "Adding a redundant ZooName to Animal makes", opts: ["current-location lookups quicker but risks inconsistency", "the database more normalised", "AnimalLocation unnecessary", "no difference"], ans: 0, why: "Denormalisation trade-off." }
+    { q: "A cell holding \"football, rugby, hockey\" breaks", opts: ["1NF", "2NF", "3NF", "referential integrity"], ans: 0, why: "One cell holding several values is not atomic, so it breaks first normal form." },
+    { q: "Adding a redundant ZooName to Animal makes", opts: ["current-location lookups quicker but risks inconsistency", "the database more normalised and removes all redundancy", "AnimalLocation unnecessary, so it can be dropped safely", "no difference to lookups or to the risk of inconsistency"], ans: 0, why: "Denormalisation trade-off." }
   ]
 };
 

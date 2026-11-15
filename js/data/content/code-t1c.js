@@ -181,7 +181,7 @@
     ],
     quiz: [
       { q: "`db.Books.Where(b => b.Year < 1900)` on its own sends…", opts: ["SELECT … WHERE Year < 1900", "nothing yet", "every row", "an error"], ans: 1, why: "It is an IQueryable: nothing runs until results are asked for." },
-      { q: "On SQLite, `b.Title.Contains(\"dune\")` finds \"Dune\"?", opts: ["yes", "no — instr is case-sensitive", "only with an index", "it does not translate"], ans: 1, why: "Contains becomes instr(…) > 0, which compares exactly." },
+      { q: "On SQLite, `b.Title.Contains(\"dune\")` finds \"Dune\"?", opts: ["yes — LIKE ignores case for it", "no — instr is case-sensitive", "only with an index on Title", "it throws: Contains does not translate"], ans: 1, why: "Contains becomes instr(…) > 0, which compares exactly." },
       { q: "Which runs the count in the database?", opts: ["db.Loans.ToList().Count", "db.Loans.Count()", "db.Loans.AsEnumerable().Count()", "all three"], ans: 1, why: "Count() on the DbSet becomes COUNT(*); the others fetch every row first." }
     ]
   });
@@ -258,8 +258,8 @@
       ["Why not use EnsureCreated and Migrate on one database?", "EnsureCreated writes no history, so Migrate tries to create the tables again."]
     ],
     quiz: [
-      { q: "You add `string? Isbn` to Book and run the program, which calls Migrate(). EF 10…", opts: ["adds the column", "throws: the model has pending changes", "ignores the property", "deletes the database"], ans: 1, why: "A changed model needs a migration first: dotnet ef migrations add." },
-      { q: "`dotnet ef migrations remove` is safe when…", opts: ["always", "no database has had that migration yet", "after Migrate()", "the snapshot is deleted"], ans: 1, why: "Removing one a database has had leaves that database out of step." },
+      { q: "You add `string? Isbn` to Book and run the program, which calls Migrate(). EF 10…", opts: ["adds the column to the table by itself", "throws: the model has pending changes", "ignores the property until you rebuild", "deletes and recreates the database"], ans: 1, why: "A changed model needs a migration first: dotnet ef migrations add." },
+      { q: "`dotnet ef migrations remove` is safe when…", opts: ["always: it undoes the migration everywhere", "no database has had that migration yet", "after Migrate() has applied it to the database", "the model snapshot has been deleted first"], ans: 1, why: "Removing one a database has had leaves that database out of step." },
       { q: "Which file does `migrations add` compare the model with?", opts: ["the database", "the model snapshot", "the last Up method", "appsettings.json"], ans: 1, why: "The snapshot is the model as of the last migration." }
     ]
   });
@@ -485,7 +485,7 @@
     quiz: [
       { q: "100 members, a loop that queries each member's loans. How many queries?", opts: ["1", "2", "100", "101"], ans: 3, why: "One for the members plus one per member: N+1." },
       { q: "The best fix for a per-member loan count is…", opts: ["caching each count", "a projection with m.Loans.Count", "AsNoTracking", "a bigger connection pool"], ans: 1, why: "The database counts for every member in one statement." },
-      { q: "`Include` of two collections can be slow because…", opts: ["Include is always slow", "the joined rows multiply (a cartesian product)", "it disables tracking", "SQLite cannot join"], ans: 1, why: "AsSplitQuery() sends one query per collection instead." }
+      { q: "`Include` of two collections can be slow because…", opts: ["Include always loads the whole table into memory", "the joined rows multiply (a cartesian product)", "it turns off change tracking for both collections", "SQLite cannot join more than two tables at once"], ans: 1, why: "AsSplitQuery() sends one query per collection instead." }
     ]
   });
 

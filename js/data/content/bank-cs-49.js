@@ -26,12 +26,12 @@ X("compsci:4.9.1.1", {
     ["What is the purpose of the stop bit?", "To give the receiver time to process the received data and to allow the next start bit to be recognised.", 19]
   ],
   quiz: [
-    { q: "Serial transmission sends:", opts: ["8 bits at once on 8 wires", "one bit at a time on one wire", "bytes in parallel", "no bits"], ans: 1, why: "Definition." },
-    { q: "Data skew affects:", opts: ["serial links", "parallel links over distance", "wireless only", "start bits"], ans: 1, why: "Bits on different wires drift apart." },
-    { q: "The stop bit:", opts: ["marks the end of transmission", "gives the receiver time to process and lets the next start bit be recognised", "carries parity", "resets the clock"], ans: 1, why: "'Marks the end' is rejected." },
-    { q: "In asynchronous transmission the receiver's clock is synchronised by:", opts: ["a shared clock wire", "the start bit", "the parity bit", "the stop bit"], ans: 1, why: "Per-byte sync." },
-    { q: "Synchronous transmission means:", opts: ["data is sent at a fixed baud", "sender and receiver share a common clock continuously", "only one bit per second", "start bits are used"], ans: 1, why: "Definition." },
-    { q: "USB is serial because:", opts: ["it is faster than any parallel link", "long, movable cables suffer skew and crosstalk in parallel", "it uses 8 wires", "it is synchronous"], ans: 1, why: "2024 P2 Q3.3." }
+    { q: "Serial transmission sends:", opts: ["8 bits at once on 8 wires", "one bit at a time on one wire", "whole bytes at once in parallel", "one byte at a time on one wire"], ans: 1, why: "Serial transmission sends one bit after another along a single wire or channel." },
+    { q: "Crosstalk is:", opts: ["interference between signals on wires next to each other", "the delay before a signal reaches the receiver", "bits on parallel wires arriving at different times", "the receiver's clock drifting from the sender's"], ans: 0, why: "Signals on neighbouring wires interfere." },
+    { q: "The stop bit:", opts: ["marks the end of the whole transmission of the message", "lets the receiver process the byte and spot the next start bit", "carries the parity bit the receiver uses to check for errors", "resets the shared clock so sender and receiver stay in step"], ans: 1, why: "'Marks the end' is rejected." },
+    { q: "In asynchronous transmission, the gap between two bytes:", opts: ["can vary; each byte is framed by start and stop bits", "must be exactly one clock pulse in every case", "is fixed by a clock signal on a separate wire", "is filled with parity bits until the next byte"], ans: 0, why: "No shared clock; framing does the synchronising." },
+    { q: "Asynchronous transmission suits a keyboard because:", opts: ["keys are pressed at irregular times", "it sends many bits at the same time", "it needs a clock wire to the computer", "each byte must arrive at a fixed rate"], ans: 0, why: "Data arrives in bursts." },
+    { q: "Parallel transmission is still used:", opts: ["over very short distances, such as inside a chip", "for long cables running between two buildings", "for wireless links between nearby devices", "wherever data skew must be avoided"], ans: 0, why: "Skew is negligible over millimetres." }
   ],
   exam: [
     { level: "AS", src: "AS 2020 P2 Q10.4", q: "Describe two advantages of serial transmission over parallel transmission, explaining how each advantage arises.", marks: 4,
@@ -73,12 +73,12 @@ X("compsci:4.9.1.2", {
     ["Which is measured in Hz: bit rate or bandwidth?", "Bandwidth (a range of frequencies); bit rate is in bits per second.", 16]
   ],
   quiz: [
-    { q: "A signal with 16 distinct levels carries how many bits per signal change?", opts: ["16", "8", "4", "2"], ans: 2, why: "2⁴ = 16." },
+    { q: "How many signal levels are needed to carry 3 bits per signal change?", opts: ["8", "3", "6", "9"], ans: 0, why: "Each signal level carries a bit pattern, and 3 bits give 2³ = 8 patterns, so 8 levels are needed." },
     { q: "1200 baud with 4 levels gives a bit rate of:", opts: ["1200", "2400", "4800", "300"], ans: 1, why: "2 bits per symbol." },
-    { q: "Latency is:", opts: ["bits per second", "the delay before an effect is noticed", "signal changes per second", "frequency range"], ans: 1, why: "Definition." },
-    { q: "Bandwidth is:", opts: ["the number of bits per second", "the range of frequencies a medium can carry", "the number of wires", "the cable length"], ans: 1, why: "Definition." },
-    { q: "'Latency is the rate at which a signal can change' is:", opts: ["true", "false — that is baud rate", "true for serial", "true for parallel"], ans: 1, why: "2022 false statement." },
-    { q: "Doubling bandwidth allows the maximum bit rate to:", opts: ["halve", "double", "stay the same", "quadruple"], ans: 1, why: "Direct proportion." }
+    { q: "Latency matters most for:", opts: ["a live video call", "a large download overnight", "a backup of photos to the cloud", "an email with an attachment"], ans: 0, why: "Delay is noticed in real-time use." },
+    { q: "Bandwidth is:", opts: ["the number of bits the medium sends per second", "the range of frequencies a medium can carry", "the number of wires in the cable", "the maximum length a cable run can have"], ans: 1, why: "Bandwidth is the range of frequencies a medium can carry, which sets how much data per second." },
+    { q: "'Latency is the rate at which a signal can change' is:", opts: ["true — that is the definition of latency", "false — that is baud rate", "true, but only for serial links", "false — that is the bit rate"], ans: 1, why: "2022 false statement." },
+    { q: "Bit rate equals baud rate when each signal change carries:", opts: ["one bit", "two bits", "four bits", "no bits"], ans: 0, why: "Bit rate = baud rate × bits per signal change." }
   ],
   exam: [
     { level: "AS", src: "AS 2024 P2 Q11.1", q: "Explain the difference between baud rate and bit rate, and describe how the bit rate of a link can be higher than its baud rate.", marks: 2,
@@ -117,12 +117,12 @@ X("compsci:4.9.2.1", {
     ["What is a hub?", "A device that repeats incoming frames to every port — no addressing.", 15]
   ],
   quiz: [
-    { q: "'How data flows around the network' describes:", opts: ["physical topology", "logical topology", "protocol", "bandwidth"], ans: 1, why: "Definition." },
-    { q: "In a physical star, a switch forwards a frame to:", opts: ["every device", "only the destination device", "the router", "no one"], ans: 1, why: "Address-based forwarding." },
+    { q: "Physical topology describes:", opts: ["how the devices are cabled together", "how the data flows between devices", "which protocol each device uses", "how fast each link can send data"], ans: 0, why: "The physical layout of the cables." },
+    { q: "In a physical star, a switch forwards a frame to:", opts: ["every device connected to it", "only the destination device", "the router, which passes it on", "no one until the line is idle"], ans: 1, why: "Address-based forwarding." },
     { q: "A star wired network with a hub in the centre behaves logically as a:", opts: ["ring", "bus", "mesh", "tree"], ans: 1, why: "Hub broadcasts everything." },
     { q: "Listing 'bus, star, ring' as the definition of physical topology scores:", opts: ["1", "0", "2", "3"], ans: 1, why: "NE — must describe layout." },
-    { q: "In a logical bus, a frame is received by:", opts: ["only the destination", "every device on the channel", "the switch only", "the server"], ans: 1, why: "Shared medium." },
-    { q: "A cable break in a physical star affects:", opts: ["the whole network", "only the device on that cable", "the server", "nothing"], ans: 1, why: "Dedicated cables." }
+    { q: "A disadvantage of a physical star is:", opts: ["if the central switch fails, the whole network fails", "a break in one cable stops every other device", "all the devices must share one single cable", "only one device can send data at any time"], ans: 0, why: "The switch is a single point of failure." },
+    { q: "A cable break in a physical star affects:", opts: ["the whole network, as on a bus", "only the device on that cable", "the server and every client", "nothing — the cable is shared"], ans: 1, why: "Dedicated cables." }
   ],
   exam: [
     { level: "AS", src: "AS 2018 P2 Q8", ctx: "A small office network is wired as a physical star with a switch at the centre.",
@@ -161,12 +161,12 @@ X("compsci:4.9.2.2", {
     ["Which model can optimise hardware for providing services?", "Client–server — the server can have fast disks, more RAM, etc.", 15]
   ],
   quiz: [
-    { q: "In a peer-to-peer network each computer:", opts: ["is a client only", "has equal status and can act as client and server", "is a server only", "needs a login server"], ans: 1, why: "Definition." },
+    { q: "In a peer-to-peer network each computer:", opts: ["is a client only, using a separate server", "has equal status and can act as client and server", "is a server only, sharing its files with the others", "needs a central login server to sign users in"], ans: 1, why: "In peer-to-peer every computer has equal status and can both request and provide resources." },
     { q: "Centralised security management is a feature of:", opts: ["peer-to-peer", "client–server", "bus topology", "wireless"], ans: 1, why: "Log in to the server." },
-    { q: "A bank chooses client–server because:", opts: ["it is cheaper", "confidential data needs centralised control and access rights", "servers are optional", "peers are faster"], ans: 1, why: "AS 2018 P2 Q8.3." },
-    { q: "A weakness of client–server:", opts: ["no central backup", "resources unavailable if the server is down", "no access control", "equal status"], ans: 1, why: "Single point of dependence." },
-    { q: "'Cheaper' as a reason for peer-to-peer scores only if you add:", opts: ["a price", "that no server needs to be bought", "the topology", "the protocol"], ans: 1, why: "R. cheaper without explanation." },
-    { q: "Resources in a peer-to-peer network are stored:", opts: ["on the server", "on any of the computers", "in the cloud", "on the router"], ans: 1, why: "Distributed." }
+    { q: "A bank chooses client–server because:", opts: ["it is always cheaper to set up and run than peer-to-peer", "confidential data needs central control and access rights", "servers are optional, so it can grow without buying one", "peers would be faster for many users at once"], ans: 1, why: "AS 2018 P2 Q8.3." },
+    { q: "A weakness of client–server:", opts: ["there is no central backup of the shared data", "resources unavailable if the server is down", "there is no way to control user access", "every computer has equal status on it"], ans: 1, why: "Single point of dependence." },
+    { q: "'Cheaper' as a reason for peer-to-peer scores only if you add:", opts: ["a price for each computer", "that no server needs to be bought", "the topology of the network", "the protocol the computers use to talk"], ans: 1, why: "R. cheaper without explanation." },
+    { q: "Resources in a peer-to-peer network are stored:", opts: ["on one central server", "on any of the computers", "in a cloud storage service", "on the router's own disk"], ans: 1, why: "With no central server, resources are stored on whichever computers hold them." }
   ],
   exam: [
     { src: "AQA 2022 P2 Q8", ctx: "A family with four laptops and a printer sets up a home network.",
@@ -205,13 +205,13 @@ X("compsci:4.9.2.3", {
     ["What does an ACK do in CSMA/CA?", "Confirms the data arrived intact; its absence triggers retransmission.", 19]
   ],
   quiz: [
-    { q: "The SSID is:", opts: ["the encryption key", "the name of the wireless network", "the MAC address", "the router's IP"], ans: 1, why: "Identifier." },
-    { q: "WPA2 provides:", opts: ["a network name", "encryption of transmitted data", "MAC filtering", "a firewall"], ans: 1, why: "Encryption protocol." },
-    { q: "A MAC address is unique to:", opts: ["each user", "each network interface card", "each website", "each router"], ans: 1, why: "Hardware address." },
-    { q: "In CSMA/CA the first step before transmitting is:", opts: ["send data", "check whether the channel is idle", "send ACK", "encrypt"], ans: 1, why: "Carrier sense." },
-    { q: "CTS is sent by:", opts: ["the transmitting device", "the access point / receiver", "the router only", "every device"], ans: 1, why: "Reply to RTS." },
-    { q: "If no ACK is received the transmitter:", opts: ["assumes success", "re-sends the data", "changes SSID", "disconnects"], ans: 1, why: "Reliability." },
-    { q: "Hiding the SSID stops:", opts: ["all attacks", "the network appearing in the list of available networks", "encryption", "MAC spoofing"], ans: 1, why: "Obscurity, not encryption." }
+    { q: "Wi-Fi uses CSMA/CA rather than collision detection because:", opts: ["a wireless device cannot detect collisions while it sends", "Wi-Fi devices have no MAC addresses to check", "wired networks do not need any access rules", "radio signals never collide with each other"], ans: 0, why: "It avoids collisions it could not detect." },
+    { q: "WPA2 provides:", opts: ["a name for the wireless network", "encryption of transmitted data", "filtering of devices by MAC address", "a firewall that blocks open ports"], ans: 1, why: "Encryption protocol." },
+    { q: "A MAC address is unique to:", opts: ["each user who logs on", "each network interface card", "each website on the Internet", "each router on a network"], ans: 1, why: "Hardware address." },
+    { q: "In CSMA/CA the first step before transmitting is:", opts: ["send the data and wait for an ACK", "check whether the channel is idle", "send an ACK to the access point", "encrypt the frame with WPA2"], ans: 1, why: "CSMA/CA first checks that the channel is idle (carrier sense) before it transmits, to avoid collisions." },
+    { q: "RTS/CTS helps with the 'hidden node' problem by:", opts: ["telling every device the channel is booked", "making each device's signal stronger", "giving each device its own frequency", "sending each frame twice to be safe"], ans: 0, why: "Nodes that hear the CTS hold back." },
+    { q: "If the channel is busy in CSMA/CA, a device:", opts: ["waits a random time, then checks again", "sends at once and hopes for the best", "stops sending for good", "sends a jam signal to every device"], ans: 0, why: "Random back-off." },
+    { q: "Hiding the SSID stops:", opts: ["every attack on the wireless network", "the network appearing in the list of available networks", "encryption of the data that is sent across the network", "anyone spoofing the MAC address of an allowed device"], ans: 1, why: "Obscurity, not encryption." }
   ],
   exam: [
     { src: "AQA 2021 P2 Q11.5", q: "A laptop on a wireless network needs to send data to the access point. Describe how CSMA/CA with Request To Send / Clear To Send is used during the transmission.", marks: 6,
@@ -254,12 +254,12 @@ X("compsci:4.9.3.1", {
   ],
   quiz: [
     { q: "DNS converts:", opts: ["IP addresses to MAC addresses", "domain names to IP addresses", "URLs to files", "packets to frames"], ans: 1, why: "Name resolution." },
-    { q: "If a local DNS server cannot resolve a name it:", opts: ["returns an error", "passes the query to another DNS server", "guesses", "uses NAT"], ans: 1, why: "Distributed hierarchy." },
-    { q: "A router decides:", opts: ["the entire path to the destination", "the next hop for each packet", "the packet's contents", "the domain name"], ans: 1, why: "Hop-by-hop." },
-    { q: "A gateway differs from a router because it:", opts: ["is faster", "connects networks using different protocols", "assigns IP addresses", "encrypts"], ans: 1, why: "Protocol conversion." },
-    { q: "In `https://shop.example.co.uk/basket`, the top-level domain is:", opts: ["shop", "example", "co", "uk"], ans: 3, why: "Rightmost." },
-    { q: "Time to live in a packet header:", opts: ["is the file age", "limits the number of hops before the packet is discarded", "is the checksum", "is the port"], ans: 1, why: "Prevents endless looping." },
-    { q: "Internet registries ensure that:", opts: ["packets arrive", "domain names are unique and registered to owners", "routers work", "WPA2 is used"], ans: 1, why: "2024 P2 Q7.3." }
+    { q: "If a local DNS server cannot resolve a name it:", opts: ["returns an error straight to the client", "passes the query to another DNS server", "guesses the nearest matching address", "uses NAT to find the address"], ans: 1, why: "Distributed hierarchy." },
+    { q: "A router decides:", opts: ["the entire path to the destination", "the next hop for each packet", "the packet's contents", "the domain name"], ans: 1, why: "A router reads each packet's destination and chooses the next hop, one step at a time." },
+    { q: "A gateway differs from a router because it:", opts: ["is faster at forwarding packets", "connects networks using different protocols", "assigns an IP address to every device that joins", "encrypts all traffic leaving the network"], ans: 1, why: "Protocol conversion." },
+    { q: "In `https://shop.example.co.uk/basket`, the top-level domain is:", opts: ["shop", "example", "co", "uk"], ans: 3, why: "The top-level domain is the last part of the domain name, which here is uk." },
+    { q: "Time to live in a packet header:", opts: ["records how old the file being sent in the packet is", "limits the hops a packet makes before it is discarded", "is the checksum used to check the header for errors", "is the port number of the application it is sent to"], ans: 1, why: "Prevents endless looping." },
+    { q: "Internet registries ensure that:", opts: ["packets arrive in the same order that they were sent", "domain names are unique and registered to owners", "routers forward packets by the shortest route", "every wireless network is encrypted with WPA2"], ans: 1, why: "Registries make sure each domain name is unique and is recorded against its registered owner." }
   ],
   exam: [
     { src: "AQA 2022 P2 Q8.3", q: "Explain the purpose of the Domain Name System and describe how it works.", marks: 3,
@@ -295,7 +295,6 @@ X("compsci:4.9.3.2", {
   flashcards: [
     ["Describe four ways a firewall protects a LAN.", "Blocks/allows traffic on specific ports or protocols; blocks traffic from specific IP addresses; blocks certain packet types; stateful inspection admits only packets that belong to current connections; acts as a proxy so outside hosts cannot reach LAN devices directly.", 10],
     ["What is stateful inspection?", "The firewall keeps information about current connections and only lets through packets that are part of one.", 11],
-    ["What is packet filtering?", "Examining packet headers (addresses, ports) and blocking or allowing according to rules.", 12],
     ["Describe how a digital signature is created and attached.", "A hash (digest) of the message is calculated and encrypted with the sender's private key to form the signature; it is appended, and message plus signature are encrypted with the receiver's public key.", 13],
     ["Describe how a digital signature is verified.", "The receiver decrypts with their private key, re-hashes the message, decrypts the signature with the sender's public key, and compares the two digests — a match authenticates the sender and confirms integrity.", 14],
     ["What is a digital certificate?", "A document issued by a certificate authority confirming that a public key belongs to a particular organisation.", 15],
@@ -305,13 +304,13 @@ X("compsci:4.9.3.2", {
     ["What is a Trojan?", "Malware disguised as legitimate software that the user installs willingly.", 19]
   ],
   quiz: [
-    { q: "Blocking all traffic on port 23 is an example of a firewall:", opts: ["proxy", "port/protocol filtering", "stateful inspection", "MAC filter"], ans: 1, why: "Port-based rule." },
-    { q: "A digital signature is created by encrypting the message digest with:", opts: ["the sender's public key", "the sender's private key", "the receiver's public key", "a symmetric key"], ans: 1, why: "Only the sender could have made it." },
+    { q: "Blocking all traffic on port 23 is an example of a firewall:", opts: ["application-level proxy", "port/protocol filtering", "stateful inspection", "MAC address filter"], ans: 1, why: "Port-based rule." },
+    { q: "A valid digital signature shows that a message:", opts: ["came from the sender and was not changed", "was encrypted so nobody else can read it", "passed through a firewall without harm", "was sent over a secure Wi-Fi network"], ans: 0, why: "Authentication and integrity." },
     { q: "The receiver verifies the signature using:", opts: ["the sender's public key", "the receiver's private key", "the sender's private key", "no key"], ans: 0, why: "Decrypts the digest." },
-    { q: "A digital certificate confirms:", opts: ["a file is compressed", "a public key belongs to a named organisation", "a password is strong", "a port is open"], ans: 1, why: "Issued by a CA." },
-    { q: "Which is a 'code quality' defence against viruses?", opts: ["Backups", "Preventing buffer overflow in code", "Spam filter", "Firewall"], ans: 1, why: "2024 mark scheme." },
-    { q: "'Use a firewall' as an answer to 'describe measures against viruses' scores:", opts: ["1", "0 — the use must be described", "2", "bonus"], ans: 1, why: "Naming is NE." },
-    { q: "Stateful inspection allows packets that:", opts: ["come from any address", "belong to an existing connection", "are large", "are encrypted"], ans: 1, why: "Connection tracking." }
+    { q: "A digital certificate confirms:", opts: ["a downloaded file has not been compressed", "a public key belongs to a named organisation", "a password is strong enough to be accepted", "a port on the server is open for traffic"], ans: 1, why: "A certificate, issued by a certificate authority, ties a public key to a named organisation so it can be trusted." },
+    { q: "Which is a 'code quality' defence against viruses?", opts: ["Taking regular backups of the code", "Preventing buffer overflow in code", "Filtering spam email before it arrives", "Using a network firewall"], ans: 1, why: "2024 mark scheme." },
+    { q: "'Use a firewall' as an answer to 'describe measures against viruses' scores:", opts: ["1 — it names a measure", "0 — the use must be described", "2 — it is a valid measure", "half — it needs to name a product"], ans: 1, why: "Naming a tool earns nothing; the answer must describe how it works, such as filtering traffic by rules." },
+    { q: "Stateful inspection allows packets that:", opts: ["come from any address on the Internet", "belong to an existing connection", "are larger than a set size", "are encrypted with a trusted key"], ans: 1, why: "Connection tracking." }
   ],
   exam: [
     { src: "AQA 2020 P2 Q5.3", q: "Describe four ways in which a firewall could protect the computers on a LAN.", marks: 4,
@@ -346,12 +345,12 @@ X("compsci:4.9.4.1", {
     ["What is encapsulation in the stack?", "Each layer adds its own header around the data from the layer above as it passes down the stack; headers are removed in reverse on receipt.", 18]
   ],
   quiz: [
-    { q: "Port numbers are added by the:", opts: ["application layer", "transport layer", "network layer", "link layer"], ans: 1, why: "TCP header." },
-    { q: "IP addresses are added by the:", opts: ["transport layer", "network layer", "link layer", "application layer"], ans: 1, why: "IP header." },
+    { q: "Port numbers are added by the:", opts: ["application layer", "transport layer", "network layer", "link layer"], ans: 1, why: "Port numbers are added by the transport layer (in the TCP header) to identify the application at each end." },
+    { q: "IP addresses are added by the:", opts: ["transport layer", "network layer", "link layer", "application layer"], ans: 1, why: "IP addresses are added by the network layer, in the IP header, so packets can be routed." },
     { q: "MAC addresses:", opts: ["stay the same end to end", "change at each hop", "are added by TCP", "are the same as IP addresses"], ans: 1, why: "Link-layer, local." },
     { q: "Splitting data into numbered segments is done by:", opts: ["IP", "TCP", "HTTP", "Ethernet"], ans: 1, why: "Transport layer." },
-    { q: "A protocol is best defined as:", opts: ["a cable standard", "a set of rules for communication", "an IP address", "a router"], ans: 1, why: "Definition." },
-    { q: "Routing decisions are a function of the:", opts: ["application layer", "transport layer", "network layer", "link layer"], ans: 2, why: "IP." }
+    { q: "A protocol is best defined as:", opts: ["a standard for the cables used", "a set of rules for communication", "an IP address for each device", "a device that routes packets"], ans: 1, why: "A protocol is an agreed set of rules for how devices communicate, so they understand each other." },
+    { q: "Routing decisions are a function of the:", opts: ["application layer", "transport layer", "network layer", "link layer"], ans: 2, why: "Routing, choosing the path for each packet, is done at the network layer using IP addresses." }
   ],
   exam: [
     { src: "AQA 2023 P2 Q11.1", q: "Describe the role of the transport layer when an email is sent from a client to a mail server.", marks: 3,
@@ -391,10 +390,10 @@ X("compsci:4.9.4.2", {
   quiz: [
     { q: "Email is sent between mail servers using:", opts: ["POP3", "IMAP", "SMTP", "FTP"], ans: 2, why: "Sending protocol." },
     { q: "A user reads the same mailbox on a phone and a laptop. Best protocol:", opts: ["POP3", "IMAP", "SMTP", "SSH"], ans: 1, why: "Server-side management." },
-    { q: "Port 443 is used by:", opts: ["HTTP", "HTTPS", "FTP", "SMTP"], ans: 1, why: "Well-known port." },
-    { q: "Naming TCP as an application-layer protocol scores:", opts: ["1", "0", "2", "half"], ans: 1, why: "Wrong layer." },
+    { q: "Port 443 is used by:", opts: ["HTTP", "HTTPS", "FTPS", "SMTP"], ans: 1, why: "Well-known port." },
+    { q: "Naming TCP as an application-layer protocol scores:", opts: ["1", "0", "2", "half"], ans: 1, why: "TCP belongs to the transport layer, not the application layer, so naming it as application-layer is wrong." },
     { q: "A well-known port is assigned by:", opts: ["the user", "IANA", "the router", "DHCP"], ans: 1, why: "Reserved numbers." },
-    { q: "Secure command-line access to a remote server uses:", opts: ["FTP", "SSH", "POP3", "HTTP"], ans: 1, why: "Encrypted shell." }
+    { q: "FTP is used to:", opts: ["transfer files between a client and a server", "send email between two mail servers", "look up the IP address for a domain name", "log in to a remote server securely"], ans: 0, why: "File Transfer Protocol." }
   ],
   exam: [
     { src: "AQA 2023 P2 Q11", ctx: "A company runs its own email server, which staff access from the office and from home.",
@@ -411,15 +410,13 @@ X("compsci:4.9.4.3", {
   flashcards: [
     ["How long is an IPv4 address and how is it written?", "32 bits, written as four denary numbers 0–255 separated by dots, e.g. 192.168.1.20.", 8],
     ["What are the two parts of an IP address?", "The network identifier (which network) and the host identifier (which device on that network).", 9],
-    ["How long is an IPv6 address?", "128 bits, written as eight groups of four hex digits.", 10],
     ["Why does the network part matter for routing?", "Routers use the network ID to decide where to forward a packet; only the final network uses the host ID.", 11],
     ["How is the boundary between network and host parts defined?", "By the subnet mask (or the /n prefix length).", 12],
-    ["Which addresses in a subnet cannot be given to hosts?", "The all-zeros host address (the network address) and the all-ones host address (broadcast).", 13],
-    ["How many IPv4 addresses exist in total?", "2³² ≈ 4.3 billion — hence exhaustion and IPv6.", 15]
+    ["Which addresses in a subnet cannot be given to hosts?", "The all-zeros host address (the network address) and the all-ones host address (broadcast).", 13]
   ],
   quiz: [
-    { q: "An IPv4 address has:", opts: ["16 bits", "32 bits", "64 bits", "128 bits"], ans: 1, why: "Four octets." },
-    { q: "The network ID identifies:", opts: ["the device", "the network the device is on", "the port", "the MAC"], ans: 1, why: "Routing." },
+    { q: "An IPv4 address has:", opts: ["16 bits", "32 bits", "64 bits", "128 bits"], ans: 1, why: "An IPv4 address is four 8-bit octets, which makes 32 bits." },
+    { q: "The host ID part of an IP address identifies:", opts: ["one device on its network", "the network the device is on", "the router at the network edge", "the subnet mask in use"], ans: 0, why: "Network ID + host ID." },
     { q: "192.168.1.0/24 — which of these is NOT assignable to a host?", opts: ["192.168.1.1", "192.168.1.254", "192.168.1.255", "192.168.1.100"], ans: 2, why: "Broadcast address." },
     { q: "IPv6 addresses are:", opts: ["32-bit", "64-bit", "128-bit", "256-bit"], ans: 2, why: "Eight 16-bit groups." },
     { q: "Two hosts on the same subnet share the same:", opts: ["host ID", "network ID", "MAC address", "port"], ans: 1, why: "Same network part." },
@@ -451,10 +448,10 @@ X("compsci:4.9.4.4", {
   ],
   quiz: [
     { q: "/27 in dotted decimal is:", opts: ["255.255.255.0", "255.255.255.224", "255.255.255.240", "255.255.224.0"], ans: 1, why: "27 ones → last octet 11100000 = 224." },
-    { q: "Usable hosts on a /27:", opts: ["32", "30", "27", "62"], ans: 1, why: "2⁵ − 2." },
-    { q: "255.255.240.0 is:", opts: ["/20", "/24", "/16", "/28"], ans: 0, why: "16 + 4 ones." },
-    { q: "Two addresses with different network IDs communicate via:", opts: ["the switch", "the router / gateway", "the hub", "DNS"], ans: 1, why: "Different subnets." },
-    { q: "The network ID is found by:", opts: ["ORing the mask and address", "ANDing the mask and address", "XORing them", "adding them"], ans: 1, why: "Bitwise AND." },
+    { q: "Usable hosts on a /27:", opts: ["32", "30", "27", "62"], ans: 1, why: "A /27 leaves 5 host bits: 2⁵ = 32 addresses, minus the network and broadcast addresses, gives 30." },
+    { q: "255.255.240.0 is:", opts: ["/20", "/24", "/16", "/28"], ans: 0, why: "255.255.240.0 has 8 + 8 + 4 = 20 leading ones, so it is /20." },
+    { q: "Two addresses with different network IDs communicate via:", opts: ["the switch on their LAN", "the router / gateway", "a hub joining them", "a DNS server"], ans: 1, why: "Different subnets." },
+    { q: "The network ID is found by:", opts: ["ORing the mask and address", "ANDing the mask and address", "XORing them", "adding them"], ans: 1, why: "ANDing the address with the subnet mask keeps the network bits and zeroes the host bits, leaving the network ID." },
     { q: "192.168.10.77/26 is on the network:", opts: ["192.168.10.0", "192.168.10.64", "192.168.10.77", "192.168.10.128"], ans: 1, why: "77 = 01001101; top 2 host-octet bits 01 → 64." }
   ],
   exam: [
@@ -487,12 +484,12 @@ X("compsci:4.9.4.5", {
     ["Is IPv6 backward compatible with IPv4?", "No — transition mechanisms (dual stack, tunnelling, translation) are needed.", 18]
   ],
   quiz: [
-    { q: "The main reason for IPv6 is:", opts: ["speed", "IPv4 addresses are running out", "encryption", "smaller packets"], ans: 1, why: "Address exhaustion." },
-    { q: "IPv6 makes NAT unnecessary because:", opts: ["routers are faster", "every device can have a unique public address", "ports are bigger", "DHCP is banned"], ans: 1, why: "2024 P2 Q7.7." },
-    { q: "Number of IPv6 addresses:", opts: ["2³²", "2⁶⁴", "2¹²⁸", "2²⁵⁶"], ans: 2, why: "128-bit." },
-    { q: "An IPv6 address is written in:", opts: ["binary", "denary octets", "hexadecimal groups", "base 64"], ans: 2, why: "Eight hex groups." },
-    { q: "Which is an IPv6 advantage besides address space?", opts: ["Needs DHCP", "Devices can keep their address when moving between networks", "Smaller packets", "No routing"], ans: 1, why: "Mobility support." },
-    { q: "'IPv6 has more addresses' as the reason NAT is not needed is:", opts: ["full marks", "NE — must say every device gets a unique public address", "wrong", "half"], ans: 1, why: "Mark-scheme NE." }
+    { q: "The main reason for IPv6 is:", opts: ["it is faster than IPv4 routing", "IPv4 addresses are running out", "it adds encryption to every packet", "it makes each packet smaller"], ans: 1, why: "Address exhaustion." },
+    { q: "IPv4 addresses ran out mainly because:", opts: ["far more devices now connect to the Internet", "each IPv4 address expires after a few years", "every router uses up a thousand addresses", "private addresses cannot be used twice"], ans: 0, why: "About 4.3 billion addresses for many more devices." },
+    { q: "Number of IPv6 addresses:", opts: ["2³²", "2⁶⁴", "2¹²⁸", "2²⁵⁶"], ans: 2, why: "An IPv6 address has 128 bits, so there are 2¹²⁸ addresses." },
+    { q: "In IPv6 notation, '::' means:", opts: ["one run of all-zero groups is left out", "the address is a private one", "the next part is written in denary", "the address includes a port number"], ans: 0, why: "Zero compression, used once per address." },
+    { q: "Which is an IPv6 advantage besides address space?", opts: ["Every device must use a DHCP server to join", "Devices keep their address when moving networks", "Packets are smaller than those in IPv4", "No routing is needed at all between separate networks"], ans: 1, why: "Mobility support." },
+    { q: "'IPv6 has more addresses' as the reason NAT is not needed is:", opts: ["full marks — it gives the reason", "NE — must say every device gets a unique public address", "wrong — NAT is still needed on an IPv6 network", "half marks — it needs an example of an IPv6 address"], ans: 1, why: "Not enough: it must say that every device can have its own unique public address, so address sharing is not needed." }
   ],
   exam: [
     { src: "AQA 2021 P2 Q11.3", q: "Explain why IPv6 has been introduced to replace IPv4.", marks: 1,
@@ -516,12 +513,12 @@ X("compsci:4.9.4.6", {
     ["Which address does a web server see when a home device visits it?", "The home router's public IP address.", 18]
   ],
   quiz: [
-    { q: "Which is a private IP address?", opts: ["8.8.8.8", "192.168.1.10", "203.0.113.5", "1.1.1.1"], ans: 1, why: "192.168.x.x range." },
-    { q: "Private addresses are never:", opts: ["used in homes", "forwarded by Internet routers", "assigned by DHCP", "translated"], ans: 1, why: "Non-routable." },
-    { q: "Two neighbours' laptops both have 192.168.1.5. This works because:", opts: ["IP addresses need not be unique", "private addresses are not routed on the Internet and NAT translates them", "they share a router", "DNS separates them"], ans: 1, why: "2020 P2 Q5.2." },
-    { q: "Which range is NOT private?", opts: ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "172.32.0.0/16"], ans: 3, why: "172.16–31 only." },
-    { q: "A web server on the Internet sees requests from a home LAN coming from:", opts: ["each device's private address", "the router's public address", "the ISP's DNS", "the MAC address"], ans: 1, why: "After NAT." },
-    { q: "A benefit of private addressing:", opts: ["faster routing", "devices are not directly reachable from the Internet", "no DHCP needed", "longer addresses"], ans: 1, why: "Security by design." }
+    { q: "Private addresses are used:", opts: ["inside a LAN, behind a router", "on the public Internet backbone", "only by servers on the Internet", "only for IPv6 devices on a LAN"], ans: 0, why: "They are not routed on the Internet." },
+    { q: "Which could a home router's DHCP give a laptop?", opts: ["192.168.0.23", "8.8.8.8", "172.32.1.5", "11.0.0.4"], ans: 0, why: "The others are public addresses." },
+    { q: "A private address must be unique:", opts: ["only within its own LAN", "across the whole Internet", "across every LAN in a country", "only on the day it is issued"], ans: 0, why: "Other LANs reuse the same ranges." },
+    { q: "Which range is NOT private?", opts: ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "172.32.0.0/16"], ans: 3, why: "Private IPv4 ranges include 172.16.0.0 to 172.31.255.255 only, so 172.32.x.x is a public range." },
+    { q: "A web server on the Internet sees requests from a home LAN coming from:", opts: ["each device's private address", "the router's public address", "the ISP's DNS", "the MAC address"], ans: 1, why: "NAT replaces the private source address with the router's public address, so the server only sees that." },
+    { q: "A benefit of private addressing:", opts: ["routing is faster with shorter addresses", "devices are not directly reachable from the Internet", "no DHCP server is needed to give out addresses", "the addresses are longer, so there are more of them"], ans: 1, why: "Security by design." }
   ],
   exam: [
     { src: "AQA 2020 P2 Q5.2", q: "A computer on one home network has IP address 192.168.2.3, and a computer on a different home network has the same IP address. Explain why this does not cause a problem when both computers use the Internet.", marks: 2,
@@ -548,12 +545,12 @@ X("compsci:4.9.4.7", {
     ["How does DHCP help a café with many visiting devices?", "Addresses are handed out on demand and reclaimed when leases expire, so a small pool serves many transient users.", 18]
   ],
   quiz: [
-    { q: "DHCP allocates:", opts: ["MAC addresses", "IP address, subnet mask and gateway", "domain names", "ports"], ans: 1, why: "Host configuration." },
-    { q: "The first DHCP message is:", opts: ["offer", "discover (broadcast by the host)", "acknowledge", "request"], ans: 1, why: "Host has no address yet." },
-    { q: "The correct order is:", opts: ["offer, discover, request, ack", "discover, offer, request, ack", "request, offer, ack, discover", "ack, discover, offer, request"], ans: 1, why: "DORA." },
-    { q: "A benefit of DHCP:", opts: ["faster Internet", "efficient reuse of a limited pool of addresses", "encryption", "no router needed"], ans: 1, why: "Address management." },
-    { q: "A server with port forwarding should have:", opts: ["a DHCP address", "a static address", "no address", "a public MAC"], ans: 1, why: "Forwarding rules must stay valid." },
-    { q: "When a lease expires and is not renewed the address:", opts: ["is lost", "returns to the pool", "becomes public", "is blocked"], ans: 1, why: "Reuse." }
+    { q: "Without DHCP, each device would need:", opts: ["its address set up by hand", "a new MAC address each day", "its own DNS server to run", "a separate router of its own"], ans: 0, why: "Static configuration." },
+    { q: "The DHCP Offer message contains:", opts: ["an address the server proposes to lend", "the host's request for a fixed address", "the acknowledgement that ends the exchange", "the MAC address of the DNS server"], ans: 0, why: "Discover, Offer, Request, Acknowledge." },
+    { q: "The correct order is:", opts: ["offer, discover, request, ack", "discover, offer, request, ack", "request, offer, ack, discover", "ack, discover, offer, request"], ans: 1, why: "DHCP runs discover, offer, request, acknowledge: the client asks, the server offers, the client accepts and the server confirms." },
+    { q: "A benefit of DHCP:", opts: ["a faster connection to the Internet", "efficient reuse of a limited pool of addresses", "encryption of the traffic sent between devices", "no router is needed on the network"], ans: 1, why: "Address management." },
+    { q: "On a home network the DHCP server usually runs on:", opts: ["the router", "each laptop", "the ISP's web server", "a DNS server online"], ans: 0, why: "The router hands out the addresses." },
+    { q: "When a lease expires and is not renewed the address:", opts: ["is lost for good", "returns to the pool", "becomes public", "is blocked for a day"], ans: 1, why: "When a lease runs out unrenewed the DHCP server takes the address back and can reuse it for another device." }
   ],
   exam: [
     { src: "AQA 2018 P2 Q5.3", q: "Explain the purpose of DHCP, why it is used, and describe the messages exchanged when a host joins the network.", marks: 4,
@@ -589,12 +586,12 @@ X("compsci:4.9.4.8", {
     ["Why are port numbers essential to NAT?", "They distinguish the many simultaneous connections that share the single public address.", 18]
   ],
   quiz: [
-    { q: "On an outgoing packet NAT replaces:", opts: ["the destination IP", "the private source IP with the router's public IP", "the MAC address", "the payload"], ans: 1, why: "Source translation." },
-    { q: "The router identifies the reply using:", opts: ["the sender's MAC", "the destination port number looked up in the NAT table", "DNS", "the SSID"], ans: 1, why: "Port mapping." },
-    { q: "'The router remembers which device sent it' scores:", opts: ["1", "0 — must name the translation table / mapping structure", "2", "half"], ans: 1, why: "NE per mark scheme." },
-    { q: "NAT allows:", opts: ["one device per public address", "many devices to share one public address", "no Internet access", "faster routing"], ans: 1, why: "Address conservation." },
-    { q: "Incoming connections to a LAN server require:", opts: ["NAT only", "port forwarding", "DHCP", "DNS"], ans: 1, why: "Fixed rule." },
-    { q: "The source port is replaced by:", opts: ["port 80", "a port the router generates", "the destination port", "0"], ans: 1, why: "Unique key in the table." }
+    { q: "A drawback of NAT is that:", opts: ["outside devices cannot start a connection in", "every device needs its own public address", "packets cannot leave the private network", "the router must be replaced to use it"], ans: 0, why: "Hence port forwarding." },
+    { q: "NAT also helps security because:", opts: ["hosts inside the LAN are hidden from the Internet", "it encrypts every packet the router forwards", "it blocks every reply that comes from servers", "it checks every packet for viruses"], ans: 0, why: "Only the router's public address is seen." },
+    { q: "'The router remembers which device sent it' scores:", opts: ["1 — it says what the router does", "0 — must name the translation table / mapping", "2 — it explains how each reply is routed back", "half — it needs to name the device"], ans: 1, why: "NE per mark scheme." },
+    { q: "NAT allows:", opts: ["only one device for each public address", "many devices to share one public address", "no device on the LAN to reach the Internet", "faster routing of packets between networks"], ans: 1, why: "Address conservation." },
+    { q: "Incoming connections to a LAN server require:", opts: ["NAT on its own", "port forwarding", "a DHCP server", "a DNS lookup"], ans: 1, why: "NAT hides LAN devices, so an incoming connection needs a port forwarding rule to reach a server inside." },
+    { q: "The source port is replaced by:", opts: ["port 80, the web's port", "a port the router generates", "the destination's port number", "port 0, meaning any port"], ans: 1, why: "Unique key in the table." }
   ],
   exam: [
     { src: "AQA 2024 P2 Q7.6", q: "A student's computer with IP address 192.168.0.4 sends an FTP request to a server on the Internet through a router whose public address is 186.7.2.31. Describe how network address translation is carried out when the request is sent and when the reply is received.", marks: 4,
@@ -615,12 +612,12 @@ X("compsci:4.9.4.9", {
     ["Which ports would be forwarded for HTTP and HTTPS?", "80 and 443.", 19]
   ],
   quiz: [
-    { q: "Port forwarding directs incoming traffic on a given port to:", opts: ["every device", "a specified device on the LAN", "the ISP", "DNS"], ans: 1, why: "Fixed mapping." },
-    { q: "Users outside the LAN reach a hosted web server via:", opts: ["its private address", "the router's public address", "its MAC address", "the SSID"], ans: 1, why: "Only the public address is routable." },
-    { q: "The forwarding rule for a web server targets port:", opts: ["25", "80", "22", "110"], ans: 1, why: "HTTP." },
+    { q: "Port forwarding directs incoming traffic on a given port to:", opts: ["every device on the whole LAN", "a specified device on the LAN", "the ISP's own servers", "a DNS server to resolve"], ans: 1, why: "Port forwarding sends traffic arriving at the router on a chosen port to one named device on the LAN." },
+    { q: "Port forwarding is needed because NAT on its own:", opts: ["has no table entry for a connection started outside", "blocks every packet that tries to leave the LAN", "changes the server's private address each day", "only works for devices that have static IPs"], ans: 0, why: "Its mappings are made by outgoing traffic." },
+    { q: "The forwarding rule for a web server targets port:", opts: ["25", "80", "22", "110"], ans: 1, why: "Web servers normally listen for HTTP on port 80, so the rule forwards port 80 (HTTPS uses 443)." },
     { q: "If the server's address changes, port forwarding:", opts: ["still works", "breaks", "speeds up", "reverses"], ans: 1, why: "Rule points at old IP." },
-    { q: "Port forwarding is configured on the:", opts: ["client", "router", "DNS server", "switch"], ans: 1, why: "Router rules." },
-    { q: "Port forwarding is used for:", opts: ["outgoing requests", "incoming connections", "encryption", "DHCP"], ans: 1, why: "Inbound." }
+    { q: "Which service at home most often needs port forwarding?", opts: ["a game server the owner hosts", "a browser visiting a website", "an email app reading new mail", "a phone app checking the weather"], ans: 0, why: "Outsiders must connect in to it." },
+    { q: "After a rule forwards port 22, someone outside can:", opts: ["reach the SSH server on that one LAN host", "see every device on the LAN at once", "change the router's own settings", "read all the traffic on the LAN"], ans: 0, why: "Only the named port reaches the named host." }
   ],
   exam: [
     { src: "AQA 2024 P2 Q7.4", q: "A school hosts its website on a server with the private IP address 192.168.0.2 behind a router with public address 186.7.2.31. Explain how computers on the Internet can access the website.", marks: 3,
@@ -653,12 +650,12 @@ X("compsci:4.9.4.10", {
     ["What is CRUD?", "The four database operations: Create, Retrieve (Read), Update, Delete.", 15]
   ],
   quiz: [
-    { q: "A REST GET request corresponds to SQL:", opts: ["INSERT", "SELECT", "UPDATE", "DELETE"], ans: 1, why: "Retrieve." },
+    { q: "A REST GET request corresponds to SQL:", opts: ["INSERT", "SELECT", "UPDATE", "DELETE"], ans: 1, why: "A GET request only retrieves data, like SELECT, which reads rows without changing them." },
     { q: "A REST POST request corresponds to CRUD:", opts: ["Create", "Retrieve", "Update", "Delete"], ans: 0, why: "Create → INSERT." },
-    { q: "JSON is preferred to XML because it is:", opts: ["older", "more compact and quicker to parse", "encrypted", "only for Java"], ans: 1, why: "Mark-scheme points." },
+    { q: "JSON is preferred to XML because it is:", opts: ["older and supported by more systems", "more compact and quicker to parse", "encrypted, so it is more secure", "made only for programs in Java"], ans: 1, why: "Mark-scheme points." },
     { q: "In REST each resource is identified by:", opts: ["a port", "a URL", "a MAC address", "a cookie"], ans: 1, why: "URL per resource." },
-    { q: "The WebSocket protocol provides:", opts: ["one-way request/response", "a full-duplex persistent connection", "file transfer", "email"], ans: 1, why: "2024 true statement." },
-    { q: "Which is XML rather than JSON?", opts: ["{\"name\": \"Kai\"}", "<name>Kai</name>", "[1, 2, 3]", "{\"a\": [1]}"], ans: 1, why: "Tags." }
+    { q: "The WebSocket protocol provides:", opts: ["one-way request/response messages", "a full-duplex persistent connection", "file transfer between two servers", "email delivery between mail servers"], ans: 1, why: "2024 true statement." },
+    { q: "Which is XML rather than JSON?", opts: ["{\"name\": \"Kai\"}", "<name>Kai</name>", "[1, 2, 3]", "{\"a\": [1]}"], ans: 1, why: "XML wraps data in opening and closing tags; JSON uses braces, keys and values." }
   ],
   exam: [
     { src: "AQA 2023 P2 Q5", ctx: "A web application lets users view and edit their profiles. The client-side JavaScript communicates with the server using a RESTful API that returns JSON.",
@@ -690,11 +687,11 @@ X("compsci:4.9.4.11", {
     ["Why does a thin-client network need more bandwidth?", "Every screen update and keystroke travels across the network.", 17]
   ],
   quiz: [
-    { q: "In thin-client computing, applications execute on:", opts: ["the client", "the server", "both equally", "the router"], ans: 1, why: "Definition." },
-    { q: "'Thin clients are cheaper' scores only with:", opts: ["a price", "the reason — lower hardware specification", "a diagram", "a brand"], ans: 1, why: "NE without explanation." },
-    { q: "A thin-client server needs:", opts: ["less RAM", "many cores and lots of RAM", "no storage", "a slow processor"], ans: 1, why: "It does everyone's processing." },
-    { q: "Thin clients improve security because:", opts: ["they are encrypted", "users cannot install unauthorised software", "they have no screen", "they use WPA2"], ans: 1, why: "Central control." },
-    { q: "A disadvantage of thin clients:", opts: ["updates are hard", "nothing works if the server or network fails", "clients are expensive", "no central control"], ans: 1, why: "Single dependency." },
+    { q: "Thick-client computing means:", opts: ["each client runs programs and stores data itself", "every program runs on the central server only", "the client has no processor of its own", "the network is not needed for anything"], ans: 0, why: "Processing is local." },
+    { q: "'Thin clients are cheaper' scores only with:", opts: ["a price for each thin client", "the reason — lower hardware specification", "a diagram of the network layout", "a brand name for the thin client devices used"], ans: 1, why: "NE without explanation." },
+    { q: "A thin-client server needs:", opts: ["less RAM than a normal server", "many cores and lots of RAM", "no storage of its own", "a slower, low-power processor"], ans: 1, why: "It does everyone's processing." },
+    { q: "Thin clients improve security because:", opts: ["they encrypt all of the data stored on them", "users cannot install unauthorised software", "they have no screen to show data on", "they use WPA2 for every connection"], ans: 1, why: "Central control." },
+    { q: "A disadvantage of thin clients:", opts: ["updates are harder to roll out to every client", "nothing works if the server or network fails", "each client is expensive to buy and replace", "there is no central control of the clients"], ans: 1, why: "Single dependency." },
     { q: "Best for a video-editing studio:", opts: ["thin clients", "thick clients", "no clients", "hubs"], ans: 1, why: "Local processing power." }
   ],
   exam: [

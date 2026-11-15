@@ -50,11 +50,24 @@
 
   /* ---------------- the gate ---------------- */
   function obj(v) { return v && typeof v === "object" && !Array.isArray(v) ? v : {}; }
+  /* CO-17: three lessons shared the concept id "validation" and the last
+     loaded (Bridge B's) won. Unit 3 keeps it; a proof whose latest source
+     was Bridge B or T2.17 moves to that lesson's own concept. Pure and
+     idempotent, so every device lands the same way. */
+  function splitValidation(p) {
+    var v = p.validation, src = v && v.id ? String(v.id) : "";
+    if (!v) return p;
+    var to = /^ub-|bridge|^B\.\d/.test(src) ? "validation-reports" : /^t2e-|T2\.1[67]/.test(src) ? "form-validation" : null;
+    if (!to) return p;
+    if (!p[to]) p[to] = v;
+    delete p.validation;
+    return p;
+  }
   function normalise(c) {
     c = obj(c);
     return {
       v: 1,
-      tasks: obj(c.tasks), lessons: obj(c.lessons), proven: obj(c.proven),
+      tasks: obj(c.tasks), lessons: obj(c.lessons), proven: splitValidation(obj(c.proven)),
       cards: obj(c.cards), practice: obj(c.practice), later: obj(c.later), capstones: obj(c.capstones),
       projects: obj(c.projects), katas: obj(c.katas), github: obj(c.github)
     };

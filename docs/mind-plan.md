@@ -110,13 +110,13 @@ Crossings.
 - **Y2. Social psychology:** conformity, obedience, attribution,
   persuasion, groups, and the replication crisis told honestly.
 - **Y3. Decisions and strategy:**
-  - **Y3.1 Biases and heuristics:** availability, anchoring, framing,
+  - **Y3.U1 Biases and heuristics:** availability, anchoring, framing,
     loss aversion, sunk costs, and the dual-process debate.
-  - **Y3.2 Games and strategy:** zero-sum and positive-sum games, the
+  - **Y3.U2 Games and strategy:** zero-sum and positive-sum games, the
     Prisoner's Dilemma, Nash equilibrium, chicken and coordination games,
     repeated games and tit-for-tat (Axelrod), signalling and bluffing,
     and trust and reputation.
-  - **Y3.3 Decision paradoxes:** Newcomb's problem, Monty Hall, the
+  - **Y3.U3 Decision paradoxes:** Newcomb's problem, Monty Hall, the
     St Petersburg paradox, Allais, Pascal's wager and the two-envelope
     problem.
 - **Y4. Emotion, motivation and habit:** theories of emotion,
@@ -138,13 +138,13 @@ Crossings.
 - **P3. Knowledge and reality:** scepticism, justification, Gettier,
   induction's problem, what exists, time, and **rational choice**
   (expected value, dominance against expected utility: where Newcomb's
-  problem is argued, after Y3.3 has shown it).
+  problem is argued, after Y3.U3 has shown it).
 - **P4. How to live:** Stoicism, Epicureanism, existentialism and
   absurdism, and East Asian thought (Confucius, Zhuangzi, Zen, and
   Japanese aesthetics: *mono no aware*, *wabi-sabi*, *ikigai* as it is
   actually used rather than as the Venn diagram).
 - **P5. Society and power** (later): justice, rights, liberty and
-  authority, with the social contract as a game (Y3.2).
+  authority, with the social contract as a game (Y3.U2).
 
 **Crossings** (a unit owned by both disciplines, suggested once you have
 done a unit on each side):
@@ -157,7 +157,7 @@ done a unit on each side):
   memory.
 - **X5. Machine minds:** the Chinese room and functionalism ↔ what
   language models do. It links to CS and Code.
-- **X6. Cooperation:** why cooperation evolves (Y3.2) ↔ contract
+- **X6. Cooperation:** why cooperation evolves (Y3.U2) ↔ contract
   theory and trust.
 
 ### 2.2 The order (approved)
@@ -166,7 +166,7 @@ done a unit on each side):
 2. Y1. Learning and memory;
 3. P1. Ethics, unit 1;
 4. X3. Happiness (the first crossing);
-5. after that, your choice. Y3.2 Games and strategy is the suggested
+5. after that, your choice. Y3.U2 Games and strategy is the suggested
    next step because it builds on F2 and feeds X6.
 
 The desk always suggests one next unit (§5.1) and never locks anything.
@@ -205,7 +205,7 @@ position, and a dash means the lesson has none.
 | 6 | Correlation, causation and confounders | E |
 | 7 | Checkpoint: the detective's update (a mystery solved by Bayes) | (synthesis) |
 
-**Y3.2 Games and strategy**
+**Y3.U2 Games and strategy**
 
 | # | Lesson | Prompt |
 |---|---|---|
@@ -591,7 +591,7 @@ Mind feeds your writing; it never writes for you:
   style, Big Five sketch, a distortion they hold, the dilemma that tests
   them). You fill it in for your own character and it is saved to the
   Journal;
-- Y3.2's checkpoint can be done on your own story's climax;
+- Y3.U2's checkpoint can be done on your own story's climax;
 - this is a link and a side panel only. Creatives' invariants (134–136)
   are unchanged, and Kurenai still never writes the story.
 
@@ -700,7 +700,7 @@ until you ask.
    itself".
 6. **P1 unit 1** with the first thought experiments and the reading room.
 7. **X3,** with the Atlas.
-8. After that, one unit per release in the order you choose. Y3.2 is
+8. After that, one unit per release in the order you choose. Y3.U2 is
    suggested, with Axelrod's tournament.
 
 Backend that needs no design can start any time:

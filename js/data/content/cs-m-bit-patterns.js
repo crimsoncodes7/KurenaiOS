@@ -68,7 +68,6 @@ C["compsci:4.5.6.1"] = {
     ["How is an image represented as bit patterns?","As a grid of pixels, each stored as a binary colour value.","compsci:4.5.6.1:9"],
     ["How is sound represented as bit patterns?","As a sequence of samples, each a binary measurement of the amplitude at a point in time.","compsci:4.5.6.1:10"],
     ["What does 01000001 represent?","Depends on interpretation: 65, the character 'A', a pixel value, or part of an instruction.","compsci:4.5.6.1:11"],
-    ["How are instructions represented?","As bit patterns split into an opcode and operand(s) — the processor interprets them.","compsci:4.5.6.1:14"],
     ["Analogue data?","Continuous — any value in a range.","compsci:4.5.6.2:0"],
     ["Digital data?","Discrete — a finite set of values, stored as binary.","compsci:4.5.6.2:1"],
     ["Is a microphone's output analogue or digital?","Analogue.","compsci:4.5.6.2:2"],

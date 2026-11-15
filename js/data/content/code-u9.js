@@ -116,7 +116,7 @@
     ],
     quiz: [
       { q: "`new Box<int>(\"7\")` is…", opts: ["fine", "a compile error", "a runtime error", "a warning"], ans: 1, why: "Box<int>'s constructor takes an int." },
-      { q: "Why is a generic stack better than one of object?", opts: ["it is shorter to type", "it keeps the element type, so no casts and no wrong-type crashes", "it uses less memory always", "it sorts itself"], ans: 1, why: "Type safety at compile time." },
+      { q: "Why is a generic stack better than one of object?", opts: ["it is shorter to type, since the type is never written", "it keeps the element type: no casts, no wrong-type crashes", "it always uses less memory, whatever type it holds", "it sorts its items itself, using the element type"], ans: 1, why: "Type safety at compile time." },
       { q: "`Dictionary<string, int>` has how many type arguments?", opts: ["1", "2", "0", "3"], ans: 1, why: "TKey = string, TValue = int." }
     ]
   });
@@ -214,8 +214,8 @@
     ],
     quiz: [
       { q: "`static T Max<T>(T a, T b) where T : IComparable<T>`; `Max(\"b\", \"a\")` returns…", opts: ["a", "b", "an error", "null"], ans: 1, why: "\"b\".CompareTo(\"a\") > 0." },
-      { q: "`T Make<T>() where T : new()` must be called as…", opts: ["Make()", "Make<Thing>()", "new Make()", "Make(T)"], ans: 1, why: "No argument mentions T, so it cannot be inferred." },
-      { q: "`where T : Shape` lets the method…", opts: ["create Shapes", "call Shape's members on T", "accept any type", "return void only"], ans: 1, why: "Every T is a Shape." }
+      { q: "`T Make<T>() where T : new()` must be called as…", opts: ["Make(new Thing())", "Make<Thing>()", "new Make<Thing>()", "Make(typeof(Thing))"], ans: 1, why: "No argument mentions T, so it cannot be inferred." },
+      { q: "`where T : Shape` lets the method…", opts: ["create Shapes with new T()", "call Shape's members on T", "accept any type, not just Shapes", "return only a Shape, never a T"], ans: 1, why: "Every T is a Shape." }
     ]
   });
   K.add({ tasks: {
@@ -313,8 +313,8 @@
     ],
     quiz: [
       { q: "A method `bool Check(string s)` fits…", opts: ["Func<bool, string>", "Func<string, bool>", "Action<string>", "Action<bool>"], ans: 1, why: "Parameters first, return type last." },
-      { q: "In AQA terms, being able to pass a function as an argument makes it…", opts: ["static", "a first-class object", "recursive", "pure"], ans: 1, why: "First-class: usable like any other value." },
-      { q: "`Action<int> a = Print; a += Log; a(3);` runs…", opts: ["Print only", "Log only", "Print then Log", "an error"], ans: 2, why: "A multicast delegate calls each in order." }
+      { q: "In AQA terms, being able to pass a function as an argument makes it…", opts: ["a static member", "a first-class object", "a recursive function", "a pure function"], ans: 1, why: "First-class: usable like any other value." },
+      { q: "`Action<int> a = Print; a += Log; a(3);` runs…", opts: ["Print only", "Log then Print", "Print then Log", "CS0029 error"], ans: 2, why: "A multicast delegate calls each in order." }
     ]
   });
   K.add({ tasks: {
@@ -512,8 +512,8 @@
     ],
     quiz: [
       { q: "map over a list of 5 items gives…", opts: ["1 value", "5 items", "up to 5 items", "0 items"], ans: 1, why: "One output per input." },
-      { q: "`Adder(3)` returning `x => x + 3` is an example of…", opts: ["recursion", "partial application", "boxing", "filter"], ans: 1, why: "Fixing one argument to make a new function." },
-      { q: "Which folds to the largest item?", opts: ["seed 0, (a, x) => a + x", "seed int.MinValue, (a, x) => Math.Max(a, x)", "seed 1, (a, x) => a * x", "seed \"\", (a, x) => a + x"], ans: 1, why: "Keep the larger at each step." }
+      { q: "`Adder(3)` returning `x => x + 3` is an example of…", opts: ["tail recursion", "partial application", "function composition", "lazy evaluation"], ans: 1, why: "Fixing one argument to make a new function." },
+      { q: "Which folds to the largest item?", opts: ["seed 0, (a, x) => Math.Max(a + x, a)", "seed int.MinValue, (a, x) => Math.Max(a, x)", "seed int.MaxValue, (a, x) => Math.Max(a, x)", "seed int.MinValue, (a, x) => Math.Min(a, x)"], ans: 1, why: "Keep the larger at each step." }
     ]
   });
   K.add({ tasks: {
@@ -609,9 +609,9 @@
       ["What part of .NET is built from extension methods?", "LINQ (Where, Select, OrderBy, …)."]
     ],
     quiz: [
-      { q: "Extension methods must be declared in…", opts: ["any class", "a static, non-generic class", "an interface", "the type they extend"], ans: 1, why: "CS1106 otherwise." },
+      { q: "Extension methods must be declared in…", opts: ["any class, static or not", "a static, non-generic class", "a static, generic interface", "the type they extend, as partial"], ans: 1, why: "CS1106 otherwise." },
       { q: "`7.IsEven()` with `static bool IsEven(this int n)`…", opts: ["is an error: ints have no methods", "works and returns False", "returns True", "needs new"], ans: 1, why: "The int becomes the this-parameter." },
-      { q: "An extension on `string?` called on a null string…", opts: ["always throws", "runs — it is a static call", "is a compile error", "returns null"], ans: 1, why: "Nothing is dereferenced until the method itself does it." }
+      { q: "An extension on `string?` called on a null string…", opts: ["throws NullReferenceException", "runs — it is a static call", "is a compile error on null", "returns null without running"], ans: 1, why: "Nothing is dereferenced until the method itself does it." }
     ]
   });
   K.add({ tasks: {
@@ -709,7 +709,7 @@
     ],
     quiz: [
       { q: "From outside the class, an event allows…", opts: ["+= and -= only", "= and Invoke", "anything a field allows", "reading the subscribers"], ans: 0, why: "The event keyword hides raising and replacing." },
-      { q: "With three subscribers, raising an event runs…", opts: ["the first", "the last", "all three in subscription order", "a random one"], ans: 2, why: "Every subscriber, in order." },
+      { q: "With three subscribers, raising an event runs…", opts: ["the first to subscribe only", "the last to subscribe only", "all three in subscription order", "all three in a random order"], ans: 2, why: "Every subscriber, in order." },
       { q: "A good event name is…", opts: ["DoClick", "Clicked", "click_handler", "OnEventFire"], ans: 1, why: "What happened, in the past tense." }
     ]
   });
@@ -814,8 +814,8 @@
     ],
     quiz: [
       { q: "`new[] {1,2,3,4}.Where(x => x > 2).Select(x => x * x)` gives…", opts: ["1 4", "9 16", "3 4", "4 9 16"], ans: 1, why: "Keep 3, 4; square them." },
-      { q: "`marks.All(m => m >= 40)` returns…", opts: ["the marks over 40", "true if every mark is at least 40", "the count", "the first such mark"], ans: 1, why: "All asks a yes/no question of every item." },
-      { q: "Query syntax `from s in xs where … select …` is…", opts: ["slower", "translated into Where and Select calls", "only for databases", "a different language"], ans: 1, why: "The compiler rewrites it to method calls." }
+      { q: "`marks.All(m => m >= 40)` returns…", opts: ["the marks that are at least 40", "true if every mark is at least 40", "how many marks are at least 40", "true if any mark is at least 40"], ans: 1, why: "All asks a yes/no question of every item." },
+      { q: "Query syntax `from s in xs where … select …` is…", opts: ["slower than the method calls it mirrors", "translated into Where and Select calls", "only for databases, through EF Core", "a different language run by the database"], ans: 1, why: "The compiler rewrites it to method calls." }
     ]
   });
   K.add({ tasks: {
@@ -921,7 +921,7 @@
     quiz: [
       { q: "`new[] {1,2,3,4,5}.GroupBy(x => x % 2).Count()` is…", opts: ["5", "2", "3", "1"], ans: 1, why: "Two keys: 1 and 0." },
       { q: "`words.MaxBy(w => w.Length)` gives…", opts: ["the longest length", "the longest word", "a list", "a bool"], ans: 1, why: "The item, chosen by its key." },
-      { q: "SQL's `GROUP BY form` with `AVG(score)` is LINQ's…", opts: ["Where then Select", "GroupBy then Average per group", "OrderBy", "Join"], ans: 1, why: "Same idea, different syntax." }
+      { q: "SQL's `GROUP BY form` with `AVG(score)` is LINQ's…", opts: ["Where then Average over every row", "GroupBy then Average per group", "OrderBy then Average per form", "Join then Sum per group"], ans: 1, why: "Same idea, different syntax." }
     ]
   });
   K.add({ tasks: {
@@ -1022,7 +1022,7 @@
       ["What happens if the source list changes while a query is enumerated?", "InvalidOperationException."]
     ],
     quiz: [
-      { q: "`var q = xs.Where(…); xs.Add(…); q.Count()` counts…", opts: ["the list as it was", "the list including the new item", "nothing", "an error"], ans: 1, why: "The query reads xs when Count runs." },
+      { q: "`var q = xs.Where(…); xs.Add(…); q.Count()` counts…", opts: ["the list as it was when q was made", "the list including the new item", "nothing: q was already used up", "an error: the list changed under q"], ans: 1, why: "The query reads xs when Count runs." },
       { q: "Which runs immediately?", opts: ["Select", "Where", "OrderBy", "Sum"], ans: 3, why: "Sum needs every value now." },
       { q: "A query enumerated three times runs its lambdas…", opts: ["once", "three times over", "never", "only the first time"], ans: 1, why: "Every enumeration repeats the work." }
     ]
@@ -1124,7 +1124,7 @@
     quiz: [
       { q: "`Naturals().Take(3)` with an endless Naturals…", opts: ["never finishes", "gives 1 2 3", "throws", "gives an empty sequence"], ans: 1, why: "Only three items are ever requested." },
       { q: "An iterator enumerated twice runs its body…", opts: ["once", "twice", "never", "only if it has yield break"], ans: 1, why: "Each enumeration starts it afresh." },
-      { q: "Which return type can an iterator have?", opts: ["List<T>", "IEnumerable<T>", "T[]", "void"], ans: 1, why: "IEnumerable<T> or IEnumerator<T>." }
+      { q: "Which return type can an iterator have?", opts: ["ICollection<T>", "IEnumerable<T>", "IReadOnlyList<T>", "void"], ans: 1, why: "IEnumerable<T> or IEnumerator<T>." }
     ]
   });
   K.add({ tasks: {
@@ -1223,8 +1223,8 @@
     ],
     quiz: [
       { q: "`OfType<Sale>()` on a sequence of `Sale?`…", opts: ["throws on null", "keeps only the non-null Sales", "converts nulls to empty Sales", "sorts"], ans: 1, why: "null is not a Sale, so it is filtered out." },
-      { q: "`{x,8:F2}` prints x…", opts: ["left-aligned in 8 characters", "right-aligned in 8 characters with 2 decimals", "with 8 decimals", "as a percentage"], ans: 1, why: "Width 8 (positive = right-aligned), format F2." },
-      { q: "Which belongs at the very end of the pipeline?", opts: ["parsing", "formatting as text", "grouping", "filtering"], ans: 1, why: "Compute with numbers; format last." }
+      { q: "`{x,8:F2}` prints x…", opts: ["left-aligned in 8 characters with 2 decimals", "right-aligned in 8 characters with 2 decimals", "with 8 decimals and 2 spaces of padding", "right-aligned in 2 characters with 8 decimals"], ans: 1, why: "Width 8 (positive = right-aligned), format F2." },
+      { q: "Which belongs at the very end of the pipeline?", opts: ["parsing the input", "formatting as text", "grouping by key", "filtering the rows"], ans: 1, why: "Compute with numbers; format last." }
     ]
   });
   K.add({ tasks: {

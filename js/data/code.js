@@ -487,7 +487,12 @@
       ["CONCEPTS", "TASKS", "CARDS"].forEach(function (k) {
         var src = o[k.toLowerCase()];
         if (!src) return;
-        Object.keys(src).forEach(function (id) { K[k][id] = Object.assign({ id: id }, src[id]); });
+        Object.keys(src).forEach(function (id) {
+          /* CO-17: an id registered twice replaced the first silently;
+             smoke75 refuses any entry here */
+          if (K[k][id]) (K.DUPES = K.DUPES || []).push(k + ":" + id);
+          K[k][id] = Object.assign({ id: id }, src[id]);
+        });
       });
     },
     /* a capstone's whole content (frame 26l), released like a unit: the

@@ -120,8 +120,8 @@
       ["Why a class instead of parallel arrays?", "It keeps one thing's data together, so it cannot drift apart."]
     ],
     quiz: [
-      { q: "`var x = new Student[3];` gives…", opts: ["three students", "an array of three empty slots (null)", "a compile error", "one student"], ans: 1, why: "An array of a class type starts full of null; each needs new." },
-      { q: "Inside `class Lamp`, `On = !On;` changes…", opts: ["every lamp", "the lamp it is called on", "nothing", "a static field"], ans: 1, why: "Fields are per object." },
+      { q: "`var x = new Student[3];` gives…", opts: ["three students made with new Student()", "an array of three empty slots (null)", "a compile error: Student has no size", "one student holding three slots"], ans: 1, why: "An array of a class type starts full of null; each needs new." },
+      { q: "Inside `class Lamp`, `On = !On;` changes…", opts: ["every lamp made from the class", "the lamp it is called on", "nothing until it is saved", "a static field shared by all"], ans: 1, why: "Fields are per object." },
       { q: "A good class name is…", opts: ["doStuff", "Student", "students_list", "x"], ans: 1, why: "A PascalCase noun." }
     ]
   });
@@ -218,8 +218,8 @@
     ],
     quiz: [
       { q: "A constructor that throws means…", opts: ["the object exists half-made", "no object is created", "the program always ends", "the field is null"], ans: 1, why: "new never finishes, so there is no object to misuse (unless caught)." },
-      { q: "`private int score;` can be read by…", opts: ["anyone", "only code inside the class", "only the constructor", "only static methods"], ans: 1, why: "private: the class's own members." },
-      { q: "Which keeps a score between 0 and 100?", opts: ["a public field", "a method that clamps every change", "a comment", "readonly"], ans: 1, why: "Every change goes through code that enforces the rule." }
+      { q: "`private int score;` can be read by…", opts: ["anyone holding the object", "only code inside the class", "only the constructor of the class", "only static methods of the class"], ans: 1, why: "private: the class's own members." },
+      { q: "Which keeps a score between 0 and 100?", opts: ["a public field that starts at 0", "a method that clamps every change", "a comment saying 0 to 100", "a readonly field set to 100"], ans: 1, why: "Every change goes through code that enforces the rule." }
     ]
   });
   K.add({ tasks: {
@@ -315,9 +315,9 @@
       ["Encapsulation in one line?", "Private data, public behaviour that keeps it valid."]
     ],
     quiz: [
-      { q: "`public int Age { get; }` can be set…", opts: ["anywhere", "only in the constructor (or initialiser)", "only by a setter", "never"], ans: 1, why: "Get-only auto-properties are set in the constructor." },
+      { q: "`public int Age { get; }` can be set…", opts: ["anywhere the object can be seen", "only in the constructor (or initialiser)", "only by a private setter inside the class", "never: it always holds 0"], ans: 1, why: "Get-only auto-properties are set in the constructor." },
       { q: "Which stores nothing?", opts: ["{ get; set; }", "{ get; init; }", "=> Score * 2", "{ get; private set; }"], ans: 2, why: "An expression-bodied property is computed." },
-      { q: "Where should a 0–100 check go?", opts: ["in every caller", "in the property's setter", "in a comment", "in Main"], ans: 1, why: "Once, where the value changes." }
+      { q: "Where should a 0–100 check go?", opts: ["in every caller, before it sets", "in the property's setter", "in a comment on the field", "in Main, once at start-up"], ans: 1, why: "Once, where the value changes." }
     ]
   });
   K.add({ tasks: {
@@ -414,7 +414,7 @@
     ],
     quiz: [
       { q: "`Student.Created` is reached through…", opts: ["an object", "the class name", "this", "a namespace"], ans: 1, why: "Static members are reached through the type." },
-      { q: "Which should be static?", opts: ["a student's name", "the pass mark for every student", "an account's balance", "a lamp's on/off"], ans: 1, why: "It is the same for every object." },
+      { q: "Which should be static?", opts: ["a student's name, set per student", "the pass mark for every student", "an account's balance, which changes", "a lamp's on/off switch for each lamp"], ans: 1, why: "It is the same for every object." },
       { q: "`new Grades()` for a static class gives…", opts: ["an object", "CS0712", "null", "a warning"], ans: 1, why: "A static class cannot be created." }
     ]
   });
@@ -711,7 +711,7 @@
       ["Why `Console.ReadLine() ?? \"\"`?", "ReadLine returns string?: null at the end of input."]
     ],
     quiz: [
-      { q: "`string? s = null; Console.WriteLine(s.Length);` gives…", opts: ["a compile error", "a CS8602 warning, then NullReferenceException", "0", "nothing"], ans: 1, why: "A warning at compile time, a crash at run time." },
+      { q: "`string? s = null; Console.WriteLine(s.Length);` gives…", opts: ["a compile error, CS8602, and no program", "a CS8602 warning, then NullReferenceException", "a CS8602 warning, then it prints 0", "no warning, then NullReferenceException"], ans: 1, why: "A warning at compile time, a crash at run time." },
       { q: "Which is the right type for \"a middle name that may not exist\"?", opts: ["string", "string?", "string!", "object"], ans: 1, why: "Null means something here." },
       { q: "After `if (x != null)`, inside the branch x is…", opts: ["still maybe null", "known not null", "an int", "copied"], ans: 1, why: "Flow analysis." }
     ]
@@ -911,7 +911,7 @@
     quiz: [
       { q: "`enum S { A, B, C }` — `(int)S.C` is…", opts: ["1", "2", "3", "C"], ans: 1, why: "A is 0." },
       { q: "`Status s = 2;` gives…", opts: ["Shipped", "CS0266", "0", "a warning"], ans: 1, why: "An int needs an explicit cast to an enum." },
-      { q: "With [Flags] Read=1, Write=2: `(Read | Write).ToString()` is…", opts: ["3", "\"Read, Write\"", "\"Write\"", "an error"], ans: 1, why: "[Flags] prints the set names." }
+      { q: "With [Flags] Read=1, Write=2: `(Read | Write).ToString()` is…", opts: ["3", "\"Read, Write\"", "\"Read | Write\"", "\"ReadWrite\""], ans: 1, why: "[Flags] prints the set names." }
     ]
   });
   K.add({ tasks: {

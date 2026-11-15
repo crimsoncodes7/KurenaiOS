@@ -160,11 +160,11 @@ C["compsci:4.7.3.7"] = {
     ["Name three areas to improve a slow database server.", "Server hardware, the network, the database/software design.", 9]
   ],
   quiz: [
-    { q: "More cores help most when", opts: ["the task can be split into parallel parts", "the task is strictly sequential", "the clock is slow", "cache is small"], ans: 0, why: "Parallelism." },
-    { q: "Increasing cache improves performance because", opts: ["cache hits become more likely", "the clock speeds up", "the address bus widens", "RAM is removed"], ans: 0, why: "Fewer main-memory fetches." },
-    { q: "A wider address bus directly allows", opts: ["more memory locations", "faster transfers", "more cores", "a higher clock"], ans: 0, why: "2ⁿ locations." },
+    { q: "More cores help most when", opts: ["the task can be split into parallel parts", "the task is strictly sequential and cannot split", "the clock speed of each core is slow", "the cache on each core is very small"], ans: 0, why: "Extra cores only help if the work can be split into parts that run at the same time." },
+    { q: "Increasing cache improves performance because", opts: ["cache hits become more likely", "the clock speeds up as cache grows", "the address bus becomes wider", "less RAM needs to be installed"], ans: 0, why: "Fewer main-memory fetches." },
+    { q: "A wider address bus directly allows", opts: ["more memory locations", "faster data transfers", "more processor cores", "a higher clock speed"], ans: 0, why: "A wider address bus has more lines, and n lines can address 2ⁿ locations." },
     { q: "\"Faster processor\" as an improvement scores", opts: ["NE.", "1 mark", "2 marks", "full marks"], ans: 0, why: "Name the factor." },
-    { q: "Word length is", opts: ["the number of bits processed in one operation", "the clock period", "the cache size", "the bus voltage"], ans: 0, why: "Definition." }
+    { q: "Word length is", opts: ["the number of bits processed in one operation", "the time taken for one tick of the clock", "the number of words the cache can hold", "the voltage used to send each bit on the bus"], ans: 0, why: "Word length is how many bits the processor handles as one unit in a single operation." }
   ]
 };
 
@@ -363,15 +363,14 @@ C["compsci:4.7.4.1"] = {
   flashcards: [
     ["How does a barcode reader work?", "Light shone on the code; dark bars reflect less than light ones; a sensor measures reflection; pattern decoded."],
     ["Passive vs active RFID?", "No battery, short range, cheap vs own battery, long range, dearer.", 2],
-    ["Digital camera principle?", "Sensor cells (CCD/CMOS) give voltages proportional to light; RGB filters; ADC converts to binary.", 5],
     ["Laser printer stages?", "Bitmap; charge drum; laser discharges image; toner sticks; transfer to paper; fuse with heat.", 6],
     ["Where is the laser directed?", "At the photosensitive drum (via a rotating mirror).", 7],
   ],
   quiz: [
-    { q: "A passive RFID tag is powered by", opts: ["radio waves from the reader", "its own battery", "light", "the mains"], ans: 0, why: "Induced current." },
+    { q: "A passive RFID tag is powered by", opts: ["radio waves from the reader", "a small battery inside the tag", "light shining onto the tag", "the mains supply of the building"], ans: 0, why: "Induced current." },
     { q: "In a laser printer the laser discharges", opts: ["the drum", "the paper", "the toner cartridge", "the fuser"], ans: 0, why: "R. laser at paper." },
-    { q: "A barcode reader detects", opts: ["differences in reflected light", "radio signals", "magnetic fields", "pressure"], ans: 0, why: "Black reflects less." },
-    { q: "A camera's ADC converts", opts: ["sensor voltages to binary", "binary to light", "colour to greyscale", "JPEG to bitmap"], ans: 0, why: "4.5.6.3." },
+    { q: "A barcode reader detects", opts: ["differences in reflected light", "radio signals sent from the code", "magnetic fields from the printed ink", "pressure where the code touches it"], ans: 0, why: "Black reflects less." },
+    { q: "A camera's ADC converts", opts: ["sensor voltages to binary", "binary data to light levels", "colour images to greyscale", "JPEG files to bitmap images"], ans: 0, why: "A camera's ADC turns the analogue voltages from the sensor into binary numbers the computer can store." },
     { q: "Best for reading 120 boxes on a pallet at once:", opts: ["RFID", "barcode", "camera", "keyboard"], ans: 0, why: "Simultaneous, no line of sight." }
   ]
 };
@@ -579,7 +578,6 @@ C["compsci:4.7.4.2"] = {
     ["How does an HDD store a bit?", "A region of magnetisable coating magnetised one way or the other.", 1],
     ["HDD access time is…", "seek time (head to the track) + rotational delay (sector under the head).", 2],
     ["How is data stored on an optical disk?", "Pits and lands on a spiral track; a transition = 1.", 3],
-    ["How is an optical disk read?", "Low-power laser focused on the track; reflected light measured by a photodiode.", 4],
     ["Optical disk speed?", "Constant linear velocity (variable angular speed).", 5],
     ["How does an SSD store a bit?", "Trapped (or absent) electrons in a floating-gate transistor.", 6],
     ["SSD write rule?", "Pages written whole; a block must be erased before rewriting.", 7],
@@ -589,10 +587,10 @@ C["compsci:4.7.4.2"] = {
     ["Why have both an SSD and an HDD?", "SSD for fast access to the OS/apps; HDD for cheap bulk capacity.", 11]
   ],
   quiz: [
-    { q: "An SSD stores bits as", opts: ["trapped charge in floating-gate transistors", "magnetised regions", "pits and lands", "capacitors needing refresh"], ans: 0, why: "NAND flash." },
-    { q: "Optical disks represent 1 as", opts: ["a transition between pit and land", "a pit", "a magnetic spot", "trapped charge"], ans: 0, why: "Edge = 1 (land = 1 also accepted)." },
-    { q: "The cheapest per GB is usually", opts: ["HDD", "SSD", "RAM", "cache"], ans: 0, why: "Magnetic." },
-    { q: "HDD access delay comes from", opts: ["seek and rotation", "erasing blocks", "laser focusing", "wear levelling"], ans: 0, why: "Moving parts." },
+    { q: "An SSD stores bits as", opts: ["trapped charge in floating-gate transistors", "magnetised regions on a spinning platter", "pits and lands burnt into the surface", "charge in capacitors needing constant refresh"], ans: 0, why: "An SSD uses NAND flash, where bits are held as trapped charge in floating-gate transistors." },
+    { q: "Optical disks represent 1 as", opts: ["a transition between pit and land", "a pit, and a land represents 0", "a magnetised spot on the surface", "charge trapped in a transistor"], ans: 0, why: "Edge = 1 (land = 1 also accepted)." },
+    { q: "The cheapest per GB is usually", opts: ["HDD", "SSD", "RAM", "cache"], ans: 0, why: "A hard disk stores bits magnetically on cheap platters, so it costs least per gigabyte." },
+    { q: "HDD access delay comes from", opts: ["seek and rotation", "erasing blocks", "laser focusing", "wear levelling"], ans: 0, why: "A hard disk has moving parts: the head must seek to the track and the platter must rotate to the data." },
     { q: "Best for a battery-powered wearable:", opts: ["SSD", "HDD", "Blu-ray", "tape"], ans: 0, why: "Low power, shock-proof." },
     { q: "\"SSDs are faster\" alone scores", opts: ["NE.", "1 mark", "2 marks", "R."], ans: 0, why: "Say faster ACCESS and why." }
   ]

@@ -23,7 +23,8 @@
 
   K.add({ concepts: {
     "navigation": { name: "Navigation", lesson: "T2.16", about: "a shell, pages as view models, a back stack" },
-    "validation": { name: "Validation", lesson: "T2.17", about: "ObservableValidator, data annotations, errors beside fields" },
+    /* CO-17: "validation" is Bridge B's (B.8, validation reports); T2.17's is form validation */
+    "form-validation": { name: "Form validation", lesson: "T2.17", about: "ObservableValidator, data annotations, errors beside fields" },
     "a11y-desktop": { name: "Accessibility", lesson: "T2.18", about: "names, labels, Tab order, keyboard-only use" },
     "responsive": { name: "Responsive layouts", lesson: "T2.19", about: "one layout that adapts to the window's width" },
     "publish": { name: "Packaging and publishing", lesson: "T2.20", about: "versions, publish profiles, self-contained apps" }
@@ -97,9 +98,9 @@
       ["What does a ContentControl show for a view model with no matching template?", "Its ToString() — usually the type name."]
     ],
     quiz: [
-      { q: "The window shows \"Planner.Desktop.NextViewModel\" instead of the Next page. Fix:", opts: ["override ToString", "add a DataTemplate for NextViewModel", "set Content in code-behind", "make it a UserControl"], ans: 1, why: "The ContentControl draws a view model through its template." },
+      { q: "The window shows \"Planner.Desktop.NextViewModel\" instead of the Next page. Fix:", opts: ["override ToString to return the view", "add a DataTemplate for NextViewModel", "set Content in code-behind each time", "make NextViewModel a UserControl"], ans: 1, why: "The ContentControl draws a view model through its template." },
       { q: "After editing a topic and going Back, the list shows the old name. Most likely…", opts: ["the store failed", "the list loads only in its constructor", "Back is broken", "PropertyChanged is missing on Topic"], ans: 1, why: "Load in ActivateAsync, which runs on each return." },
-      { q: "Which should a page view model call to open the editor?", opts: ["new TopicEditorView()", "Nav.GoTo(new TopicEditorViewModel(…))", "Window.Show()", "Current = …"], ans: 1, why: "Pages ask the navigator; only the shell sets Current." }
+      { q: "Which should a page view model call to open the editor?", opts: ["Nav.GoTo(new TopicEditorView())", "Nav.GoTo(new TopicEditorViewModel(…))", "new Window { Content = editor }.Show()", "Current = new TopicEditorView()"], ans: 1, why: "Pages ask the navigator; only the shell sets Current." }
     ]
   });
 
@@ -172,7 +173,7 @@
     ],
     quiz: [
       { q: "`[Range(1, 5)] int Confidence`, set to 6 through SetProperty(…, true). HasErrors is…", opts: ["false", "true", "only after Save", "an exception"], ans: 1, why: "validate: true runs the attributes on set." },
-      { q: "Save stays enabled after the name is cleared. Most likely…", opts: ["Required is wrong", "nobody called SaveCommand.NotifyCanExecuteChanged()", "the TextBox is one-way", "HasErrors is broken"], ans: 1, why: "The command must be asked again when the errors change." },
+      { q: "Save stays enabled after the name is cleared. Most likely…", opts: ["[Required] lets an empty string through", "nobody called SaveCommand.NotifyCanExecuteChanged()", "the TextBox is one-way, so Name never changes", "HasErrors is only read when the window opens"], ans: 1, why: "The command must be asked again when the errors change." },
       { q: "Where should trimming \" CS \" to \"cs\" happen?", opts: ["on every keystroke", "when saving", "in the XAML", "never"], ans: 1, why: "Normalise on the way out; let the user type freely." }
     ]
   });
@@ -246,8 +247,8 @@
       ["Why not signal an error by colour alone?", "Some users cannot see the colour; say it in words as well."]
     ],
     quiz: [
-      { q: "A Back button shows only \"‹\". A screen reader says…", opts: ["\"Back\"", "something like \"less-than button\" unless it is named", "nothing", "the command name"], ans: 1, why: "Give it AutomationProperties.Name=\"Back\"." },
-      { q: "In an empty editor, Tab from Confidence goes straight to Cancel. Why?", opts: ["Tab order is broken", "Save is disabled, so Tab skips it", "IsDefault blocks focus", "Cancel has TabIndex 0"], ans: 1, why: "Disabled controls are not tab stops." },
+      { q: "A Back button shows only \"‹\". A screen reader says…", opts: ["\"Back\", because screen readers describe arrows", "something like \"less-than button\" unless it is named", "nothing at all, so the button is skipped", "the command's name, GoBackCommand, in full"], ans: 1, why: "Give it AutomationProperties.Name=\"Back\"." },
+      { q: "In an empty editor, Tab from Confidence goes straight to Cancel. Why?", opts: ["Tab order is broken in the editor", "Save is disabled, so Tab skips it", "IsDefault blocks focus on Save", "Cancel has TabIndex 0, so it comes first"], ans: 1, why: "Disabled controls are not tab stops." },
       { q: "The best way to get a sensible Tab order is…", opts: ["TabIndex on every control", "lay the form out in reading order", "KeyboardNavigation.TabNavigation=Cycle", "focus in code-behind"], ans: 1, why: "The natural order follows the visual tree." }
     ]
   });
@@ -321,9 +322,9 @@
       ["What keeps very wide text readable?", "A MaxWidth on the text block."]
     ],
     quiz: [
-      { q: "A breakpoint chosen in the constructor from Bounds.Width…", opts: ["works", "always sees 0 and never updates", "needs a ScrollViewer", "throws"], ans: 1, why: "Measure happens later; react to SizeChanged." },
-      { q: "Where does the code that rearranges the grid belong?", opts: ["the view model", "the view's code-behind (or styles)", "the model", "App.axaml.cs"], ans: 1, why: "Pixels are the view's business." },
-      { q: "How many breakpoints should a view have?", opts: ["one per common screen size", "as few as needed, where the layout actually breaks", "five, like the web", "none"], ans: 1, why: "Try it, find where it breaks, fix there." }
+      { q: "A breakpoint chosen in the constructor from Bounds.Width…", opts: ["works, as the window is already laid out", "always sees 0 and never updates", "needs a ScrollViewer to measure itself", "throws, since Bounds is still null"], ans: 1, why: "Measure happens later; react to SizeChanged." },
+      { q: "Where does the code that rearranges the grid belong?", opts: ["the view model, as a Columns property", "the view's code-behind (or styles)", "the model, beside the topics it lays out", "App.axaml.cs, so every window shares it"], ans: 1, why: "Pixels are the view's business." },
+      { q: "How many breakpoints should a view have?", opts: ["one per common screen size, phone to desktop", "as few as needed, where the layout actually breaks", "five, the same set the web uses for every page", "none: Avalonia scales every layout by itself"], ans: 1, why: "Try it, find where it breaks, fix there." }
     ]
   });
 
@@ -399,7 +400,7 @@
     quiz: [
       { q: "An Apple-silicon Mac's RID is…", opts: ["mac-arm", "osx-arm64", "darwin-x64", "macos"], ans: 1, why: "osx-arm64 (osx-x64 for Intel Macs)." },
       { q: "A friend without .NET can run your app only if it was published…", opts: ["in Debug", "self-contained", "trimmed", "framework-dependent"], ans: 1, why: "Self-contained carries the runtime." },
-      { q: "After a single-file publish, three .dylib files sit beside the app. You should…", opts: ["delete them", "ship them with it, or bundle them with IncludeNativeLibrariesForSelfExtract", "rename them", "ignore them — they are logs"], ans: 1, why: "Avalonia needs its native libraries to draw." }
+      { q: "After a single-file publish, three .dylib files sit beside the app. You should…", opts: ["delete them, since the single file already contains them", "ship them, or bundle them with IncludeNativeLibrariesForSelfExtract", "rename them to .dll so the app finds them on every platform", "ignore them — they are debug logs written by the publish"], ans: 1, why: "Avalonia needs its native libraries to draw." }
     ]
   });
 
@@ -408,7 +409,7 @@
      ================================================================ */
   var short = function (s) { s = String(s).replace(/^(Type the |Name the |Which |Write the )/, "").replace(/[.?…]$/, ""); return s.length > 52 ? s.slice(0, 50) + "…" : s; };
   K.add({ cards: {
-    "t2e-nav": { title: "Navigation and validation", lesson: "T2.16", concepts: ["navigation", "validation"], kind: "command",
+    "t2e-nav": { title: "Navigation and validation", lesson: "T2.16", concepts: ["navigation", "form-validation"], kind: "command",
       vary: function (r) {
         var q = pick(r, [
           ["Write the binding that shows the shell's current page in a ContentControl (the Content attribute).", "Content=\"{Binding Current}\"", ["^Content=\"\\{Binding Current\\}\"$"]],
@@ -483,11 +484,11 @@
     project: "rp-ct2-planner",
     summary: "The revision planner as a real desktop app — pages and a way back, a form that validates as you type, every control usable by keyboard and screen reader, a layout that adapts, and a published build — made in Rider and proven by validation reports.",
     quiz: [
-      { q: "The window shows \"Planner.Desktop.NextViewModel\" as text instead of the Next page. What is missing?", opts: ["a ToString override", "a DataTemplate mapping NextViewModel to NextView", "a second window", "a navigation command"], ans: 1, lesson: "T2.16", why: "A ContentControl draws a view model through the template for its type." },
-      { q: "Save stays enabled after the user clears the name. The rules are right. What is missing?", opts: ["[Required]", "SaveCommand.NotifyCanExecuteChanged() when the errors change", "a message box", "a one-way binding"], ans: 1, lesson: "T2.17", why: "A command's CanExecute is asked again only when it is told the answer may have changed." },
-      { q: "A Back button shows only \"‹\". What does it need for a screen reader?", opts: ["a tooltip", "AutomationProperties.Name=\"Back\"", "IsDefault", "a larger font"], ans: 1, lesson: "T2.18", why: "Text content is a name; a symbol is not." },
+      { q: "The window shows \"Planner.Desktop.NextViewModel\" as text instead of the Next page. What is missing?", opts: ["a ToString override that returns NextView", "a DataTemplate mapping NextViewModel to NextView", "a second window that hosts NextView itself", "a navigation command bound to the Next page"], ans: 1, lesson: "T2.16", why: "A ContentControl draws a view model through the template for its type." },
+      { q: "Save stays enabled after the user clears the name. The rules are right. What is missing?", opts: ["[Required] on the Name property's backing field", "SaveCommand.NotifyCanExecuteChanged() when the errors change", "a message box that blocks Save while errors show", "a one-way binding from HasErrors to the Save button"], ans: 1, lesson: "T2.17", why: "A command's CanExecute is asked again only when it is told the answer may have changed." },
+      { q: "A Back button shows only \"‹\". What does it need for a screen reader?", opts: ["ToolTip.Tip=\"Back\" on the button", "AutomationProperties.Name=\"Back\"", "IsDefault", "Content=\"‹\" with FontSize=\"24\""], ans: 1, lesson: "T2.18", why: "Text content is a name; a symbol is not." },
       { q: "The topics page decides its layout in the constructor from Bounds.Width. What happens?", opts: ["it works", "it sees 0 and never changes", "it throws", "it uses the screen's width"], ans: 1, lesson: "T2.19", why: "Nothing is measured yet; react to SizeChanged instead." },
-      { q: "A friend without .NET installed must run the app. How should it be published?", opts: ["Debug", "framework-dependent", "self-contained for their platform's RID", "as source"], ans: 2, lesson: "T2.20", why: "Self-contained carries the runtime; the RID picks their OS and processor." }
+      { q: "A friend without .NET installed must run the app. How should it be published?", opts: ["Debug, so the runtime comes with it", "framework-dependent for their platform's RID", "self-contained for their platform's RID", "as source, with dotnet run to start it"], ans: 2, lesson: "T2.20", why: "Self-contained carries the runtime; the RID picks their OS and processor." }
     ],
     brief: [
       "Build **the Planner on the desktop**: capstone 4's revision planner — topics with a confidence from 1 to 5, and *what should I study next?* — as an Avalonia app with three pages. You build it in **Rider** in MVVM, with your own headless tests, and bring each milestone back as a validation report.",

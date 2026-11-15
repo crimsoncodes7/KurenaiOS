@@ -122,14 +122,13 @@ C["compsci:4.3.1.1"] = {
   flashcards: [
     ["BFS uses which data structure?", "A queue."],
     ["DFS uses which data structure?", "A stack (or recursion, using the call stack)."],
-    ["BFS typical application?", "Shortest path (fewest edges) in an unweighted graph."],
-    ["DFS typical application?", "Navigating a maze."],
+    ["DFS typical application?", "Navigating a maze.", 3],
     ["Traversal used by a recursive cycle finder G(V, P)?", "Depth-first.", 6],
     ["Why mark vertices visited?", "To avoid processing a vertex twice and looping forever round a cycle.", 7],
     ["Does BFS find the shortest path in a weighted graph?", "No — use Dijkstra's algorithm.", 8]
   ],
   quiz: [
-    { q: "Which traversal visits all neighbours before going deeper?", opts: ["breadth-first", "depth-first", "in-order", "post-order"], ans: 0, why: "Level by level." },
+    { q: "Which traversal visits all neighbours before going deeper?", opts: ["breadth-first", "depth-first", "in-order", "post-order"], ans: 0, why: "Breadth-first search visits all neighbours at one level before going deeper, using a queue." },
     { q: "Navigating a maze is the spec's example for", opts: ["depth-first", "breadth-first", "Dijkstra", "binary search"], ans: 0, why: "Follow, then backtrack." },
     { q: "A recursive function calling itself on the first unvisited neighbour is", opts: ["depth-first", "breadth-first", "a binary search", "a bubble sort"], ans: 0, why: "A-level 2022 Q04.7." },
     { q: "BFS from 1 in the 2025 graph never outputs", opts: ["4", "6", "7", "3"], ans: 0, why: "4–5 is a separate component." }
@@ -239,9 +238,9 @@ C["compsci:4.3.2.1"] = {
     ["Dot method: in-order dot is…?", "Underneath each node.", 7],
   ],
   quiz: [
-    { q: "In-order traversal of a BST outputs", opts: ["the values in ascending order", "the root first", "the leaves first", "level by level"], ans: 0, why: "Left, node, right." },
+    { q: "In-order traversal of a BST outputs", opts: ["the values in ascending order", "the root first, then each subtree", "the leaves first, then their parents", "the values level by level from the root"], ans: 0, why: "Left, node, right." },
     { q: "Which traversal is used to empty a tree?", opts: ["post-order", "pre-order", "in-order", "breadth-first"], ans: 0, why: "Children before parents." },
-    { q: "For the tree C(I(E, H), B(Y, Q)), pre-order is", opts: ["C I E H B Y Q", "E I H C Y B Q", "E H I Y Q B C", "C B Q Y I H E"], ans: 0, why: "Node first." },
+    { q: "For the tree C(I(E, H), B(Y, Q)), pre-order is", opts: ["C I E H B Y Q", "E I H C Y B Q", "E H I Y Q B C", "C B Q Y I H E"], ans: 0, why: "Pre-order visits the node, then the left subtree, then the right: C I E H B Y Q." },
     { q: "2024's algorithm outputs Y K H U M. Swapping Dir1 and Dir2 gives", opts: ["M U H K Y", "U K Y H M", "Y H K M U", "K Y U H M"], ans: 0, why: "Exactly reversed." }
   ],
   sims: ["tl-tree"]
@@ -379,10 +378,10 @@ C["compsci:4.3.3.1"] = {
     ["In RPN evaluation, the first value popped is…?", "The right-hand operand.", 9]
   ],
   quiz: [
-    { q: "The RPN of (3 + 4) × 5 is", opts: ["3 4 + 5 ×", "3 4 5 + ×", "× + 3 4 5", "3 + 4 5 ×"], ans: 0, why: "Bracket first." },
+    { q: "The RPN of (3 + 4) × 5 is", opts: ["3 4 + 5 ×", "3 4 5 + ×", "× + 3 4 5", "3 + 4 5 ×"], ans: 0, why: "Brackets come first: 3 4 + is (3 + 4), then 5 ×." },
     { q: "Evaluate 5 2 3 × + 4 +", opts: ["15", "25", "21", "14"], ans: 0, why: "2×3 = 6, 5+6 = 11, 11+4 = 15." },
     { q: "Which is NOT an accepted reason for using RPN?", opts: ["easier for people to understand", "no brackets needed", "simpler for a machine to evaluate", "operators in the order of computation"], ans: 0, why: "R. easier to understand." },
-    { q: "Infix of 8 2 − 3 ×", opts: ["(8 − 2) × 3", "8 − 2 × 3", "8 − (2 × 3)", "(2 − 8) × 3"], ans: 0, why: "− first." }
+    { q: "Infix of 8 2 − 3 ×", opts: ["(8 − 2) × 3", "8 − 2 × 3", "8 − (2 × 3)", "(2 − 8) × 3"], ans: 0, why: "Reading it as RPN: 8 2 − gives 8 − 2, then 3 × multiplies that result, so (8 − 2) × 3." }
   ],
   sims: ["rpn-eval"]
 };

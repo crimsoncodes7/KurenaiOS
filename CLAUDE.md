@@ -810,7 +810,13 @@ source comments and audit notes refer to it.
     checked-in IT spec text (W6, CC-01/CC-02: the assessment pages the
     extraction ran into each unit's last leaf, empty bullets, run-on
     "include:" guidance, and the qualification overview that duplicated
-    F206.6.1), to a fixed point, refusing duplicate refs. Maths refs are P1–P10,
+    F206.6.1), to a fixed point, refusing duplicate refs. The Maths spec text
+    is the hand-typeset table `tools/maths_spec.py` (W6, CM-01: the PDF
+    extraction lost every exponent and fraction): each leaf's content, info
+    and short title, the maths in `$…$` that the Spec tab typesets;
+    `--maths-spec` applies it to the checked-in payload and refuses a leaf
+    missing from the table or a row naming no leaf (smoke138 F refuses a
+    fragment line). Maths refs are P1–P10,
     S1–S5 (Statistics) and M6–M9 (Mechanics): Edexcel numbers Paper 3 as one
     run, so Mechanics keeps its section numbers and takes "M"
     (`MECH_SECTIONS`; `--mech-refs` applies it to the checked-in payload).
@@ -1173,7 +1179,13 @@ source comments and audit notes refer to it.
     through `KOS.edits.appendSpec()` as ONE dated `{md}` block with an id at
     the end of the Spec fork's `info` list (`src: "quick-note"`, `date`). It
     never edits, moves or removes a block; an empty draft writes nothing, not
-    even a fork. `state.ui.editing` remembers an open editor per
+    even a fork. A FORK REMEMBERS ITS SHIPPED VERSION (CM-04): set()
+    stamps `t.shipped[kind]` with a hash of the shipped kind when it makes
+    the fork; when today's differs (a fork from before the stamp: its count
+    of shipped rows differs) the tab says the curriculum moved and offers
+    "New version + my additions" (the rows you added, at the end), "Use
+    the new version" (danger confirm) or "Keep mine" (`KOS.edits.stale`,
+    `takeNew`, `keepMine`; smoke148 H). `state.ui.editing` remembers an open editor per
     device so a redraw reopens it. The editor saves AGAINST WHAT IT LOADED
     (`KOS.edits.set(…, {base})`, SY-18): rows merge by id, so a row it did
     not touch takes the stored copy (another device's edit, addition or
@@ -1233,7 +1245,11 @@ source comments and audit notes refer to it.
     hot-linked, small sample as the background while the full frame loads)
     or the user's own picture from media kv `hero.season.<SEASON>` (source
     + crop, through `KOS.imageCrop`; per device like every hero pick; a new
-    one needs the same unlock as the vault heroes, invariant 30).
+    one needs the same unlock as the vault heroes, invariant 30). A Seasonal
+    card shows "N behind" in its corner (`KOS.anime.episodesBehind`, asked
+    for 15 November 2026): episodes out (the next airing episode − 1, or a
+    finished run's total for a title in progress) less those watched; none
+    for a completed or dropped title.
 
 ### The notification centre (95–98)
 
@@ -1351,6 +1367,9 @@ source comments and audit notes refer to it.
     in one release too. Every lesson meets the notes contract (`docs/code-plan.md`
     §4.3: the required pages in order, Quick reference last, ≥ 6 runnable
     `{run}` listings, a compile-error pitfall, flashcards, quiz, practice);
+    a concept, task or card id is registered ONCE across every file (CO-17: `KOS_CODE.DUPES`,
+    smoke75 A0 — unit 3's "validation" had been replaced by Bridge B's; B.8's is now
+    "validation-reports" and T2.17's "form-validation", proofs moved on read by `splitValidation`);
     lessons are authored as layers and registered through `KOS_CODE.lesson`,
     whose `compose` gives text-only layers of a few lines no page of their own
     (the closing three share one; others join the page before) — layers
@@ -1718,7 +1737,10 @@ source comments and audit notes refer to it.
     Companion (phase 6, invariant 130) the paper is PREDICTED: its
     original practice questions only, weighted to the high-yield leaves
     and the shapes due by pattern, one extended answer last; `pack-<ref>`
-    and `set-<ref>` are a leaf's subtopic pack and practice set. A timed session is per device
+    and `set-<ref>` are a leaf's subtopic pack and practice set. A paper is the board paper's
+    marks exactly where its items allow (topped up with the largest item that fits the gap) and
+    then takes the board paper's own time (EX-25). The tally prints each scheme line beside
+    its chips, so marking needs no trip to the scheme (EX-33). A timed session is per device
     (`state.ui.examPaperSess`) and starts only on Start; extra time is
     the assessment's own, else `prefs.extraTime`. The Companion is
     ASSEMBLED on read (`KOS.examCompanion`) from the scope's notes, their
@@ -1774,7 +1796,12 @@ source comments and audit notes refer to it.
     self-marked result moves nothing. Facets unlock in order: words and grammar start with R and
     L, W (and S for a word) only once R holds a week, and S only for a lesson's production set.
     Two facets of one item never share a day unless both are over two days overdue; 8 lapses set
-    a facet aside. A facet merges WHOLE in the cloud merge: changed on both devices, the one
+    a facet aside. Among facets of equal standing Reading comes first (R, L, W, S), and a facet
+    whose sibling was reviewed TODAY waits for another day unless it is over two days overdue
+    (JM-10, JM-11). A kana's Writing shows its model only on the first meeting; after that the
+    prompt is the reading and "Show the model" (or the stroke animation) counts as a hint, and a
+    checkpoint's Writing shows none; a checkpoint draws its questions per attempt (JM-16, JM-20).
+    A facet merges WHOLE in the cloud merge: changed on both devices, the one
     reviewed later wins every field. Every rating writes one review-log row (`src: "ja"`).
 114. Validators (`KOS.jaValid`) are pure and return one of four verdicts — correct, accepted,
     near, wrong — with a diagnosis; nothing is AI-graded. A new exercise ships only when its
@@ -2065,7 +2092,10 @@ source comments and audit notes refer to it.
     ticking 60% of its key points, or a checkpoint rubric row), Apply (a
     scenario answered right), Evaluate (a position with an objection
     answered, or a rubric row) — is DERIVED from evidence by `KOS.mind`
-    and never stored or ticked. A lesson asks ONE written prompt by its
+    and never stored or ticked. A concept's REACHABLE rungs (`KOS.mind.reach`,
+    MI-03) are read from the same authored sources; a rung no exercise leads to is drawn "not in
+    this unit yet" and the desk's bars and "furthest" count only concepts that can reach it.
+    A lesson asks ONE written prompt by its
     `kind` (an explain-back, or a position for a contested lesson);
     "Later" parks it and never blocks the other checks. A lesson's checks
     (pages read with the 2.5 s dwell, the check passed, the prompt, a
@@ -2726,7 +2756,22 @@ Every `KOS_CONTENT["subject:ref"]` entry follows `js/core/content.js`; use
   paper an item is modelled on, `level: "AS"` flags AS-only items, and a
   multi-part item is `{src, ctx, parts: [{q, marks, ms}]}` — the exam engine
   logs ONE session per item however many parts it has. IT content is untouched
-  by the banks.
+  by the banks. A CS bank item that repeats a worked card's past-paper
+  question (`KOS.content.paperKey`: level, year, paper, number and part) is
+  dropped at load (CC-05; Maths' banks are new questions modelled on a paper
+  and stay); every bank exam item keeps its original position as `oi`, the
+  key its typed answer, handwriting and marks are stored under.
+- Quiz options carry no tell: a right answer is never the one long option
+  (`node tools/quiz_bias.mjs`; smoke138 H holds CS, Maths and Code at none
+  flagged and the right answer the longest in at most 30%; IT ratchets until
+  its rewrite). A distractor is the same shape and detail as the answer and
+  unambiguously wrong.
+- Callout kinds are info, def, tip, warn, miscon, mnemonic, memorise,
+  formula and key (Key idea); `tools/validate_content.js` refuses any
+  other. AQA shorthand in a scheme or a step's note (I. A. R. DPT) is
+  written out at render (`KOS.content.aqaWords`, CC-12); `haskell` and
+  `asm` are named code languages (CC-13); "5 m s$^{-1}$" is drawn as one
+  piece of maths (CM-12).
 - Additional generators register through `KOS.worked.register(gen, refs)` from
   `js/labs/worked-extra.js`.
 - Every simulation is built on the lab system (design part 2, frame 20),

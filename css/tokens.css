@@ -1275,6 +1275,7 @@ color-scheme: dark;
 --alarm: var(--red);
 --alarm-soft: var(--red-soft);
 --alarm-ink: oklch(from var(--red) 0.16 0.02 h);
+--amber-ink: oklch(from var(--amber) 0.2 0.03 h);   /* text on a filled amber (fixed in every theme) */
 --alarm-wash: color-mix(in oklch, var(--red) 22%, var(--s1));
 --bloom-hi: oklch(from var(--bloom) calc(l + 0.04) c h);
 --bloom-lo: oklch(from var(--bloom) calc(l - 0.14) calc(c * 1.25) h);

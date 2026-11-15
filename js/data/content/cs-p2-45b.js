@@ -108,14 +108,14 @@ C["compsci:4.5.4.3"] = {
     { page: "Negating a number" },
     { h: "Method 1 — flip the bits, add 1" },
     { steps: [
-      { h: "1.", m: "Write the positive value in n bits: 36 = 00100100" },
-      { h: "2.", m: "Invert every bit (one's complement): 11011011" },
-      { h: "3.", m: "Add 1: 11011100 = −36" }
+      { h: "Write the positive value in n bits", m: "36 = 00100100" },
+      { h: "Invert every bit", n: "This is the one's complement.", m: "11011011" },
+      { h: "Add 1", m: "11011011 + 1 = 11011100 = −36" }
     ] },
     { h: "Method 2 — copy up to the first 1, flip the rest" },
     { steps: [
-      { h: "1.", m: "From the right, copy bits up to and including the first 1: …100" },
-      { h: "2.", m: "Invert every bit to its left: 11011 → **11011100**" }
+      { h: "Copy from the right", n: "Copy the bits up to and including the first 1.", m: "00100100 → …100" },
+      { h: "Invert the rest", n: "Invert every bit to its left.", m: "00100 → 11011, so −36 = 11011100" }
     ] },
     { callout: { t: "info", h: "Key idea", body: "Check: −128 + 64 + 16 + 8 + 4 = −36 ✓. Either method works both ways (negating a negative gives the positive back)." } },
     { callout: { t: "miscon", h: "\"Put a 1 at the front for negative\"", body: "That is **sign and magnitude**, not two's complement. In two's complement −36 is 11011100, not 10100100. Two's complement is used because ordinary binary **addition** then works for negative numbers, so the processor needs no separate subtractor." } },
@@ -199,10 +199,10 @@ C["compsci:4.5.4.3"] = {
     ["What is done with the carry out of the MSB?", "It is discarded.", 8]
   ],
   quiz: [
-    { q: "11111111 in 8-bit two's complement is", opts: ["−1", "255", "−127", "−128"], ans: 0, why: "−128 + 127." },
+    { q: "11111111 in 8-bit two's complement is", opts: ["−1", "255", "−127", "−128"], ans: 0, why: "The top bit is worth −128 and the other seven add 127, so all ones is −1." },
     { q: "−72 in 8-bit two's complement is", opts: ["10111000", "11001000", "01001000", "10110111"], ans: 0, why: "Flip 01001000 and add 1." },
-    { q: "The 4-bit two's complement range is", opts: ["−8 to 7", "−7 to 7", "0 to 15", "−8 to 8"], ans: 0, why: "−2³ to 2³ − 1." },
-    { q: "In A − B, which number is negated?", opts: ["B", "A", "both", "neither"], ans: 0, why: "The subtrahend." }
+    { q: "The 4-bit two's complement range is", opts: ["−8 to 7", "−7 to 7", "0 to 15", "−8 to 8"], ans: 0, why: "With 4 bits the top bit is worth −8, so the range is −8 to +7." },
+    { q: "In A − B, which number is negated?", opts: ["B", "A", "both", "neither"], ans: 0, why: "A − B is done as A + (−B), so the number being subtracted, B, is the one negated." }
   ]
 };
 
@@ -344,10 +344,10 @@ C["compsci:4.5.4.4"] = {
     ["10110000 / 0011 (8,4)?", "−5.", 9]
   ],
   quiz: [
-    { q: "11011101 with 2 bits before the point is", opts: ["3.453125", "221", "3.5", "13.8125"], ans: 0, why: "221/64." },
-    { q: "Mantissa 01000000 means", opts: ["+½", "+64", "−½", "1"], ans: 0, why: "0.1000000." },
+    { q: "11011101 with 2 bits before the point is", opts: ["3.453125", "221", "3.5", "13.8125"], ans: 0, why: "With two bits before the point, 11 is 3 and .011101 is 29/64 = 0.453125, so it is 3.453125." },
+    { q: "Mantissa 01000000 means", opts: ["+½", "+64", "−½", "1"], ans: 0, why: "01000000 is 0.1000000 in binary, which is a half, and the leading 0 shows it is positive." },
     { q: "A negative exponent moves the point", opts: ["left", "right", "nowhere", "to the end"], ans: 0, why: "Divides by a power of 2." },
-    { q: "10111000 / 1011 (8,4) equals", opts: ["−9/512", "9/512", "−9/16", "−0.5625 × 32"], ans: 0, why: "−9/16 × 2⁻⁵." }
+    { q: "10111000 / 1011 (8,4) equals", opts: ["−9/512", "9/512", "−9/16", "−0.5625 × 32"], ans: 0, why: "The mantissa 10111000 is −9/16 and the exponent 1011 is −5, so the value is −9/16 × 2⁻⁵ = −9/512." }
   ],
   sims: ["binary-number"], gens: ["float", "bin"]
 };
@@ -440,9 +440,9 @@ C["compsci:4.5.4.7"] = {
     ["Which field controls range?", "The exponent."]
   ],
   quiz: [
-    { q: "In the same bits, floating point offers", opts: ["a greater range", "faster arithmetic", "constant precision", "no rounding"], ans: 0, why: "Range." },
-    { q: "Most negative (8,4) value", opts: ["−128", "−127", "−1", "−256"], ans: 0, why: "−1 × 2⁷." },
-    { q: "Moving a bit from exponent to mantissa", opts: ["raises precision, cuts range", "raises range", "changes nothing", "raises both"], ans: 0, why: "Trade-off." },
+    { q: "In the same bits, floating point offers", opts: ["a greater range", "faster arithmetic", "constant precision", "no rounding"], ans: 0, why: "With the same number of bits, floating point can reach much larger and smaller numbers than fixed point." },
+    { q: "Most negative (8,4) value", opts: ["−128", "−127", "−1", "−256"], ans: 0, why: "The most negative value is a mantissa of −1 with the largest exponent: −1 × 2⁷ = −128." },
+    { q: "Moving a bit from exponent to mantissa", opts: ["raises precision, cuts range", "raises range, cuts precision", "changes neither range nor precision", "raises both range and precision"], ans: 0, why: "Fewer exponent bits shrink the range, and more mantissa bits give more significant digits, so precision rises and range falls." },
     { q: "Which is generally faster to process?", opts: ["fixed point", "floating point", "they are equal", "neither"], ans: 0, why: "Integer arithmetic." }
   ]
 };
@@ -569,10 +569,10 @@ C["compsci:4.5.4.8"] = {
     ["Database normalisation vs floating point normalisation?", "Different: tables without redundancy vs mantissas without wasted bits.", 8]
   ],
   quiz: [
-    { q: "Which mantissa is normalised?", opts: ["10110000", "11011000", "00101000", "00000000"], ans: 0, why: "Starts 10." },
+    { q: "Which mantissa is normalised?", opts: ["10110000", "11011000", "00101000", "00000000"], ans: 0, why: "A normalised mantissa starts 10 (negative) or 01 (positive), so the first two bits differ." },
     { q: "Normalising 00101000 0011 gives", opts: ["01010000 0010", "01010000 0100", "10100000 0010", "00101000 0011"], ans: 0, why: "Shift left 1, exponent − 1." },
-    { q: "A reason for normalisation is", opts: ["maximum precision for the bits", "faster arithmetic", "a larger exponent", "removing redundancy in tables"], ans: 0, why: "No wasted bits." },
-    { q: "1632 in (7,5) has exponent", opts: ["01011", "01010", "01100", "10101"], ans: 0, why: "11." }
+    { q: "A reason for normalisation is", opts: ["maximum precision for the bits", "faster arithmetic", "a larger exponent", "removing redundancy in tables"], ans: 0, why: "Normalising removes wasted leading bits so every bit of the mantissa adds precision." },
+    { q: "1632 in (7,5) has exponent", opts: ["01011", "01010", "01100", "10101"], ans: 0, why: "1632 is about 0.797 × 2¹¹, and 11 in 5-bit binary is 01011." }
   ]
 };
 

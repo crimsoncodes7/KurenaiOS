@@ -12,7 +12,6 @@ X("compsci:4.10.1", {
     { callout: { t: "tip", body: "Read the scenario for the words *each* and *many*: \"each pet has one owner, an owner may have many pets\" → one-to-many from Customer to Pet. When a sentence gives *many … many*, you need a new entity in the middle — the examiners award a mark for creating it and one for its attributes/identifier." }}
   ],
   flashcards: [
-    ["What is an entity?", "A real-world thing about which data is stored — a table in the relational model.", 10],
     ["What is an attribute?", "A property of an entity — a column/field.", 11],
     ["What is an entity identifier?", "The attribute (or combination) that uniquely identifies each instance — the primary key.", 12],
     ["How is a many-to-many relationship implemented?", "With a linking (junction) relation whose primary key is the composite of the two entity identifiers, e.g. PetOwner(CustomerID, PetID).", 14],
@@ -21,10 +20,10 @@ X("compsci:4.10.1", {
   ],
   quiz: [
     { q: "A customer places many orders; each order belongs to one customer. The relationship is:", opts: ["one-to-one", "one-to-many", "many-to-many", "none"], ans: 1, why: "Crow's foot at Order." },
-    { q: "A student takes many courses and each course has many students. To model this you need:", opts: ["a one-to-one link", "a linking entity such as Enrolment", "a single table", "no relationship"], ans: 1, why: "Junction relation." },
-    { q: "The entity identifier of a linking relation is usually:", opts: ["a new random number", "the composite of the two foreign keys", "the first attribute", "a date"], ans: 1, why: "E.g. (StudentID, CourseID)." },
-    { q: "A crow's foot represents:", opts: ["the one end", "the many end", "an attribute", "a key"], ans: 1, why: "Notation." },
-    { q: "Entity(Attr1, Attr2) with Attr1 underlined means Attr1 is:", opts: ["a foreign key", "the entity identifier", "optional", "a date"], ans: 1, why: "Convention." },
+    { q: "A student takes many courses and each course has many students. To model this you need:", opts: ["a one-to-one link between Student and Course", "a linking entity such as Enrolment", "a single table holding every student and course", "a foreign key of CourseID in Student"], ans: 1, why: "Junction relation." },
+    { q: "The entity identifier of a linking relation is usually:", opts: ["a new random number made for each row", "the composite of the two foreign keys", "the first attribute listed in the relation", "the date the link between the two was made"], ans: 1, why: "E.g. (StudentID, CourseID)." },
+    { q: "A crow's foot represents:", opts: ["the one end", "the many end", "an attribute", "a key"], ans: 1, why: "The crow's foot sits on the 'many' side of a relationship; the single line end is the 'one' side." },
+    { q: "Entity(Attr1, Attr2) with Attr1 underlined means Attr1 is:", opts: ["a foreign key to another entity", "the entity identifier", "an optional attribute", "a derived attribute"], ans: 1, why: "An underlined attribute in this notation is the primary key, the identifier of each entity instance." },
     { q: "Which relationship degree cannot be implemented directly in a relational database?", opts: ["one-to-one", "one-to-many", "many-to-many", "all can"], ans: 2, why: "Needs a linking table." }
   ],
   exam: [
@@ -62,12 +61,12 @@ X("compsci:4.10.2", {
     ["What is a tuple?", "One row / record in a relation.", 17]
   ],
   quiz: [
-    { q: "A foreign key is:", opts: ["a unique random number", "an attribute that is the primary key of another relation", "an index", "a date field"], ans: 1, why: "Links relations." },
-    { q: "(FacilityID, BookingDate, StartTime) as a key assumes:", opts: ["nothing", "a facility has at most one booking starting at a given time on a given date", "facilities are unique", "times repeat"], ans: 1, why: "Uniqueness assumption." },
-    { q: "Deleting a customer who still has orders is blocked by:", opts: ["normalisation", "referential integrity", "a composite key", "SQL syntax"], ans: 1, why: "Foreign keys would dangle." },
-    { q: "Merit(StudentID, TeacherID, Date) cannot record:", opts: ["a merit on Sunday", "two merits from the same teacher to the same student on one day", "merits at all", "the teacher"], ans: 1, why: "Composite key limitation." },
-    { q: "A relation's rows are called:", opts: ["attributes", "tuples", "keys", "domains"], ans: 1, why: "Terminology." },
-    { q: "A primary key value must be:", opts: ["numeric", "unique and not null", "a foreign key", "a string"], ans: 1, why: "Entity integrity." }
+    { q: "In a relational database a relation is a:", opts: ["table", "row", "field", "key"], ans: 0, why: "Rows are tuples; columns are attributes." },
+    { q: "(FacilityID, BookingDate, StartTime) as a key assumes:", opts: ["each facility can only ever be booked once on any one date in the year", "a facility has at most one booking starting at a given date and time", "every facility has a unique name and an ID number of its own", "start times repeat, so the date can be left out of the key"], ans: 1, why: "Uniqueness assumption." },
+    { q: "Deleting a customer who still has orders is blocked by:", opts: ["normalisation to third normal form", "referential integrity", "a composite primary key", "the SQL syntax rules"], ans: 1, why: "Foreign keys would dangle." },
+    { q: "An attribute is:", opts: ["a column — one property of the entity", "a row — one record in the table", "a link between two of the tables", "a key made of two or more fields"], ans: 0, why: "An attribute is one property of an entity, which becomes a column (field) of the table." },
+    { q: "A relation's rows are called:", opts: ["attributes", "tuples", "keys", "domains"], ans: 1, why: "Rows of a relation are tuples; the columns are attributes." },
+    { q: "A primary key value must be:", opts: ["numeric and in order", "unique and not null", "a foreign key as well", "a string of characters"], ans: 1, why: "Entity integrity." }
   ],
   exam: [
     { src: "AQA 2021 P2 Q5.1", q: "A sports centre's `Booking` relation has attributes BookingID, FacilityID, BookingDate, StartTime, EndTime and CustomerID, with BookingID as primary key. State a valid alternative composite primary key and the assumption on which it relies.", marks: 2,
@@ -98,12 +97,12 @@ X("compsci:4.10.3", {
     ["How do you recognise a table that is not in 3NF?", "A non-key attribute (e.g. CustomerName) is determined by another non-key attribute (CustomerID) rather than by the primary key.", 19]
   ],
   quiz: [
-    { q: "Storing a customer's address in every booking row causes:", opts: ["faster queries", "redundancy and possible inconsistency", "referential integrity", "a composite key"], ans: 1, why: "Un-normalised." },
+    { q: "Storing a customer's address in every booking row causes:", opts: ["faster queries, as fewer joins are needed", "redundancy and possible inconsistency", "referential integrity between the tables", "a composite key made from the address"], ans: 1, why: "Repeating the address in every booking row is redundant, and copies can drift apart, giving inconsistency." },
     { q: "Which is NOT an accepted reason to normalise?", opts: ["Eliminate update anomalies", "Eliminate data inconsistency", "Save storage space", "Eliminate insertion anomalies"], ans: 2, why: "NE in the mark scheme." },
-    { q: "A relation with a repeating group violates:", opts: ["1NF", "2NF", "3NF", "none"], ans: 0, why: "Atomicity." },
+    { q: "A relation with a repeating group violates:", opts: ["1NF", "2NF", "3NF", "none"], ans: 0, why: "1NF needs every attribute to hold a single atomic value, so a repeating group breaks it." },
     { q: "In 3NF a non-key attribute may depend on:", opts: ["another non-key attribute", "only the primary key", "a foreign key only", "nothing"], ans: 1, why: "'Nothing but the key'." },
-    { q: "Resolving 'a booking has many seats' needs:", opts: ["a Seat1, Seat2, Seat3 column set", "a separate AssignedSeat(BookingID, SeatNumber) relation", "a longer string", "a composite of all seats"], ans: 1, why: "Repeating group removed." },
-    { q: "Denormalising to speed up lookups costs:", opts: ["nothing", "redundancy and extra updates", "fewer tables", "referential integrity"], ans: 1, why: "2022 P2 Q7.5." }
+    { q: "Resolving 'a booking has many seats' needs:", opts: ["a Seat1, Seat2, Seat3 set of columns in Booking", "a separate AssignedSeat(BookingID, SeatNumber) relation", "a longer string holding every seat number in one field", "a composite key made of every seat in the booking"], ans: 1, why: "Repeating group removed." },
+    { q: "Denormalising to speed up lookups costs:", opts: ["nothing, since the data is identical", "redundancy and extra updates", "fewer tables to join in queries", "the loss of every foreign key"], ans: 1, why: "Denormalising duplicates data, so lookups are faster but every update must change several copies." }
   ],
   exam: [
     { src: "AQA 2023 P2 Q5.1", q: "A cinema stores, for each booking, the customer's first name, last name and telephone number, the ShowingID, and the seat numbers booked (a booking may cover several seats). Design a fully normalised set of relations for this data, showing the entity identifier of each.", marks: 5,
@@ -145,12 +144,12 @@ X("compsci:4.10.4", {
     ["What does ORDER BY … DESC do?", "Sorts the results in descending order of the field."]
   ],
   quiz: [
-    { q: "`SELECT Name FROM Student, Merit WHERE MeritDate = '01/05/2025'` is missing:", opts: ["ORDER BY", "a linking condition Student.StudentID = Merit.StudentID", "a semicolon", "DISTINCT"], ans: 1, why: "Cartesian product otherwise." },
-    { q: "In INSERT INTO T (A, B) VALUES (…), the values must:", opts: ["be strings", "match the order of the field list", "be sorted", "include the key last"], ans: 1, why: "Positional." },
-    { q: "`CREATE TABLE Athlete (INTEGER AthleteID PRIMARY KEY …)` is wrong because:", opts: ["INTEGER is invalid", "the type is before the field name", "PRIMARY KEY is invalid", "nothing"], ans: 1, why: "Field name first." },
-    { q: "`WHERE Town = Torquay` fails because:", opts: ["Town is reserved", "Torquay needs quotation marks", "= is wrong", "WHERE is wrong"], ans: 1, why: "String literal." },
-    { q: "To decrease stock by the quantity sold you write:", opts: ["SET QuantityInStock = 3", "SET QuantityInStock = QuantityInStock − 3", "SET QuantityInStock − 3", "DELETE 3"], ans: 1, why: "Relative update." },
-    { q: "A semicolon after every clause:", opts: ["is required", "is penalised", "is ignored", "adds marks"], ans: 1, why: "DPT." }
+    { q: "`SELECT Name FROM Student, Merit WHERE MeritDate = '01/05/2025'` is missing:", opts: ["an ORDER BY clause to sort the names into order", "a linking condition Student.StudentID = Merit.StudentID", "a semicolon at the end of the whole SELECT statement", "DISTINCT, so that each student's name is shown only once"], ans: 1, why: "Cartesian product otherwise." },
+    { q: "In INSERT INTO T (A, B) VALUES (…), the values must:", opts: ["all be strings in quotation marks", "match the order of the field list", "be sorted into ascending order", "include the primary key last"], ans: 1, why: "The values are matched to the fields by position, so their order must follow the field list." },
+    { q: "`CREATE TABLE Athlete (INTEGER AthleteID PRIMARY KEY …)` is wrong because:", opts: ["INTEGER is not a valid SQL data type", "the type is before the field name", "PRIMARY KEY must be on its own line", "nothing — the statement is valid"], ans: 1, why: "Field name first." },
+    { q: "`WHERE Town = Torquay` fails because:", opts: ["Town is a reserved word in SQL", "Torquay needs quotation marks", "= should be == for comparison", "WHERE must come before FROM"], ans: 1, why: "A text value in SQL must be in quotation marks, otherwise Torquay is read as a field name." },
+    { q: "To decrease stock by the quantity sold you write:", opts: ["SET QuantityInStock = 3", "SET QuantityInStock = QuantityInStock − 3", "SET QuantityInStock = 3 − QuantityInStock", "SET QuantityInStock − 3 = QuantityInStock"], ans: 1, why: "Relative update." },
+    { q: "A semicolon after every clause:", opts: ["is required", "is penalised", "is ignored", "adds marks"], ans: 1, why: "A semicolon ends a whole SQL statement, not each clause, so one after every clause is wrong." }
   ],
   exam: [
     { src: "AQA 2025 P2 Q6", ctx: "Relations: `Student(StudentID, Forename, Surname, TutorGroup)`, `Teacher(TeacherID, TeacherName)`, `Merit(MeritID, StudentID, TeacherID, MeritDate, Reason)`.",
@@ -184,18 +183,16 @@ X("compsci:4.10.5", {
     ["Describe the lost update problem.", "Two users read and edit the same record at the same time; one saves, then the other saves — the second save overwrites the first, so the first update is lost.", 11],
     ["Describe record locking.", "When a transaction begins to edit a record, an exclusive lock is set on that record; other transactions cannot edit it until the lock is released when the first edit is completed.", 12],
     ["Describe timestamp ordering.", "Each transaction is given a timestamp; every record stores the timestamps of its last read and write; the DBMS aborts any transaction that would read or write a record already read or written by a later transaction.", 13],
-    ["What is serialisation?", "Transactions are executed one at a time in sequence so they can never interfere.", 14],
-    ["What is commitment ordering?", "Transactions are ordered by their dependencies so that conflicting commits cannot interleave.", 15],
     ["Give one disadvantage of record locking.", "A record can be locked for a long time, blocking other users; deadlock can occur if two transactions each wait for the other's lock.", 16],
     ["Give one advantage of a client–server DBMS over shared files.", "Central control of integrity, security and concurrent access; consistent data for all clients.", 17]
   ],
   quiz: [
-    { q: "Two users save edits to the same record in turn without concurrency control. The result:", opts: ["both updates merge", "the first update is lost", "the record is deleted", "an error always occurs"], ans: 1, why: "Lost update." },
-    { q: "Record locking places a lock on:", opts: ["the whole database", "the table", "the record being edited", "the user"], ans: 2, why: "Record-level." },
-    { q: "In timestamp ordering a transaction is aborted when:", opts: ["it takes too long", "it tries to write a record already accessed by a later transaction", "it reads any record", "the clock changes"], ans: 1, why: "Rule." },
-    { q: "Executing transactions strictly one after another is:", opts: ["locking", "serialisation", "timestamp ordering", "normalisation"], ans: 1, why: "Definition." },
-    { q: "A risk of record locking:", opts: ["lost updates", "deadlock between waiting transactions", "duplicate keys", "no security"], ans: 1, why: "Circular waits." },
-    { q: "Which does the server store for timestamp ordering?", opts: ["a lock per user", "last read and write timestamps per record", "a copy of every record", "nothing"], ans: 1, why: "Needed for the rules." }
+    { q: "Two users save edits to the same record in turn without concurrency control. The result:", opts: ["both updates merge", "the first update is lost", "the record is deleted", "an error always occurs"], ans: 1, why: "Both users read the original, so the second save overwrites the first and the first update is lost." },
+    { q: "Record locking places a lock on:", opts: ["the whole database being used", "the table holding the record", "the record being edited", "the user editing the record"], ans: 2, why: "Record locking stops other transactions using the record while it is being edited, avoiding the lost update." },
+    { q: "In timestamp ordering a transaction is aborted when:", opts: ["it takes too long to finish and the server times it out", "it tries to write a record already accessed by a later transaction", "it reads any record that another transaction has already locked", "the server's clock changes while the transaction is still running"], ans: 1, why: "If a later transaction has already accessed the record, an older transaction writing to it would break the timestamp order, so it is aborted." },
+    { q: "Executing transactions strictly one after another is:", opts: ["locking", "serialisation", "timestamp ordering", "normalisation"], ans: 1, why: "Running transactions strictly one after another, with no overlap, is serialisation, so they cannot interfere." },
+    { q: "A risk of record locking:", opts: ["lost updates when two users save at once", "deadlock between waiting transactions", "duplicate primary keys in a table", "no security on the locked records"], ans: 1, why: "If two transactions each hold a lock the other needs, both wait for ever: deadlock." },
+    { q: "Which does the server store for timestamp ordering?", opts: ["one lock for each user who is connected", "last read and write timestamps per record", "a copy of every record before it changes", "the time each user logged in to the server"], ans: 1, why: "Needed for the rules." }
   ],
   exam: [
     { src: "AQA 2019 P2 Q6.4", q: "Two receptionists using a client–server database can access the same appointment record at the same time. Describe a problem that could occur if the DBMS did not manage concurrent access, and explain how record locking would prevent it.", marks: 5,
@@ -218,21 +215,21 @@ X("compsci:4.11.1", {
     ]}
   ],
   flashcards: [
-    ["Define Big Data.", "Data that cannot be processed or analysed using traditional database tools because of its volume, velocity and variety."],
-    ["State the three characteristics of Big Data.", "Volume (too much for one server), velocity (must be processed at high speed), variety (many forms, often unstructured)."],
-    ["Why can Big Data often not be stored in a relational database?", "It is unstructured or semi-structured — video, images, text, sensor streams — which cannot be represented as rows in tables."],
-    ["What is a fact-based model?", "A model in which each immutable fact is stored separately — atomic, timestamped and never updated — suited to append-only distributed storage."],
-    ["Describe the graph schema notation.", "Nodes (entities) as ovals; relationships as solid labelled lines between nodes; properties as rectangles joined to their node by dashed lines."],
-    ["Why are functional languages suited to Big Data processing?", "Immutable data and pure functions without side-effects mean functions can be distributed across many machines and their results combined safely — map-reduce."],
-    ["What is map-reduce?", "A pattern where a function is mapped over pieces of a dataset on many machines and the partial results are reduced (combined) into a final answer."],
-    ["Why does statelessness help distribution?", "A function's output depends only on its inputs, so it can run on any server with no shared state to synchronise."]
+    ["Define Big Data.", "Data that cannot be processed or analysed using traditional database tools because of its volume, velocity and variety.", 12],
+    ["State the three characteristics of Big Data.", "Volume (too much for one server), velocity (must be processed at high speed), variety (many forms, often unstructured).", 13],
+    ["Why can Big Data often not be stored in a relational database?", "It is unstructured or semi-structured — video, images, text, sensor streams — which cannot be represented as rows in tables.", 14],
+    ["What is a fact-based model?", "A model in which each immutable fact is stored separately — atomic, timestamped and never updated — suited to append-only distributed storage.", 15],
+    ["Describe the graph schema notation.", "Nodes (entities) as ovals; relationships as solid labelled lines between nodes; properties as rectangles joined to their node by dashed lines.", 16],
+    ["Why are functional languages suited to Big Data processing?", "Immutable data and pure functions without side-effects mean functions can be distributed across many machines and their results combined safely — map-reduce.", 17],
+    ["What is map-reduce?", "A pattern where a function is mapped over pieces of a dataset on many machines and the partial results are reduced (combined) into a final answer.", 18],
+    ["Why does statelessness help distribution?", "A function's output depends only on its inputs, so it can run on any server with no shared state to synchronise.", 19]
   ],
   quiz: [
-    { q: "'Velocity' as a Big Data characteristic means:", opts: ["data is large", "data is generated and must be processed very quickly", "data is varied", "data is old"], ans: 1, why: "Must include processing." },
-    { q: "In a graph schema, a property such as 'Employees: 75' is drawn as:", opts: ["an oval", "a rectangle joined by a dashed line", "a labelled solid line", "a diamond"], ans: 1, why: "Notation." },
-    { q: "A relationship such as 'Sells' is drawn as:", opts: ["a dashed line", "a solid labelled line between ovals", "a rectangle", "a circle"], ans: 1, why: "Notation." },
-    { q: "Which functional feature makes distribution easy?", opts: ["mutable globals", "immutability and no side-effects", "GOTO", "loops"], ans: 1, why: "No shared state." },
-    { q: "'Suitable for parallel processing' as an answer scores:", opts: ["1", "0 — NE", "2", "half"], ans: 1, why: "Must say why." },
+    { q: "'Velocity' as a Big Data characteristic means:", opts: ["data is too large to store on one machine", "data is generated and must be processed very quickly", "data comes in many varied, unstructured forms", "data is collected over a very long time span"], ans: 1, why: "Must include processing." },
+    { q: "In a graph schema, a property such as 'Employees: 75' is drawn as:", opts: ["an oval with the value written inside", "a rectangle joined by a dashed line", "a labelled solid line between ovals", "a diamond joined to the entity"], ans: 1, why: "A property is shown as a rectangle linked to its node by a dashed line." },
+    { q: "A relationship such as 'Sells' is drawn as:", opts: ["a dashed line to a rectangle", "a solid labelled line between ovals", "a rectangle with the name inside", "a diamond between two ovals"], ans: 1, why: "A relationship is a labelled solid line joining the two ovals (nodes) it connects." },
+    { q: "Which functional feature makes distribution easy?", opts: ["shared mutable global variables", "immutability and no side-effects", "GOTO jumps between functions", "loops that update a counter"], ans: 1, why: "No shared state." },
+    { q: "'Suitable for parallel processing' as an answer scores:", opts: ["1 — names a valid benefit", "0 — not enough (NE)", "2 — it is the key point", "half — it needs a reason"], ans: 1, why: "The mark scheme gives no credit for a bare statement; you must say why, such as tasks running on several processors at once." },
     { q: "Video files, emails and web pages illustrate which characteristic?", opts: ["volume", "velocity", "variety", "veracity"], ans: 2, why: "Unstructured forms." }
   ],
   exam: [
@@ -258,7 +255,6 @@ X("compsci:4.12.1.1", {
   ],
   flashcards: [
     ["What is a function type?", "The specification of a function's argument set (domain) and result set (co-domain), written f: A → B.", 9],
-    ["What is the co-domain?", "The set that the function's results belong to.", 11],
     ["State the type of the function that maps an integer to its square.", "square: ℤ → ℤ (or ℤ → ℕ).", 12],
     ["State the type of fibonacci, which maps a position to a Fibonacci number.", "fibonacci: ℕ → ℕ.", 13],
     ["State the type of a function that halves a real number.", "half: ℝ → ℝ.", 14],
@@ -268,10 +264,10 @@ X("compsci:4.12.1.1", {
   quiz: [
     { q: "In `f: ℕ → ℝ` the co-domain is:", opts: ["ℕ", "ℝ", "f", "the range"], ans: 1, why: "Right of the arrow." },
     { q: "A function that counts the words in a string has type:", opts: ["ℕ → String", "String → ℕ", "ℝ → ℕ", "String → String"], ans: 1, why: "String in, natural number out." },
-    { q: "Writing 'ℝ' alone as the co-domain of a real-valued function scores:", opts: ["1", "0 — describe the set", "2", "half"], ans: 1, why: "NE per mark scheme." },
+    { q: "Writing 'ℝ' alone as the co-domain of a real-valued function scores:", opts: ["1 — ℝ is the right set", "0 — describe the set", "2 — it is fully correct", "half — it needs ℤ too"], ans: 1, why: "NE per mark scheme." },
     { q: "`add: ℤ × ℤ → ℤ` takes:", opts: ["one integer", "two integers", "a list", "no arguments"], ans: 1, why: "Cartesian product domain." },
-    { q: "The range of `square: ℤ → ℤ` is:", opts: ["all integers", "the non-negative perfect squares", "ℝ", "empty"], ans: 1, why: "Values actually produced." },
-    { q: "A recursive one-argument function that is a first-class object:", opts: ["cannot be passed to another function", "can be passed as an argument and has one parameter", "has no type", "is imperative"], ans: 1, why: "2025 true statements." }
+    { q: "The range of `square: ℤ → ℤ` is:", opts: ["all integers, positive and negative", "the non-negative perfect squares", "every real number, ℝ", "every positive integer"], ans: 1, why: "Values actually produced." },
+    { q: "A recursive one-argument function that is a first-class object:", opts: ["cannot be passed to another function as an argument", "can be passed as an argument and has one parameter", "has no type, as it calls itself recursively", "is imperative, since it repeats like a loop"], ans: 1, why: "2025 true statements." }
   ],
   exam: [
     { src: "AQA 2024 P2 Q11.1", q: "A function `area` takes the radius of a circle and returns its area. Describe the co-domain of the function.", marks: 1,
@@ -295,12 +291,12 @@ X("compsci:4.12.1.2", {
     ["True or false: in a functional language every function is a first-class object?", "Yes — in a functional language every function is a first-class object.", 15]
   ],
   quiz: [
-    { q: "A first-class object can be:", opts: ["only called", "passed as an argument and returned as a result", "only stored on disk", "only compiled"], ans: 1, why: "Value-like." },
-    { q: "`map square list` works because square is:", opts: ["a keyword", "a first-class object passed to map", "a variable", "a list"], ans: 1, why: "Function as argument." },
+    { q: "A first-class object can be:", opts: ["only called, never stored in a variable", "passed as an argument and returned as a result", "only stored on disk, not in memory", "only compiled, and never passed to a function"], ans: 1, why: "A first-class object is treated like any other value, so it can be passed in and returned from functions." },
+    { q: "`map square list` works because square is:", opts: ["a keyword built into the language", "a first-class object passed to map", "a variable holding a single number", "a list of values to be squared"], ans: 1, why: "Function as argument." },
     { q: "Which returns a function?", opts: ["add 3 4", "add 3", "3 + 4", "head [3]"], ans: 1, why: "Partial application." },
-    { q: "A lambda is:", opts: ["a list", "an anonymous function", "a type", "a variable"], ans: 1, why: "Function literal." },
-    { q: "Storing functions in a list is:", opts: ["impossible", "allowed — functions are values", "only in C", "an error"], ans: 1, why: "First-class." },
-    { q: "Higher-order functions depend on:", opts: ["loops", "functions being first-class objects", "global state", "mutability"], ans: 1, why: "Prerequisite." }
+    { q: "A lambda is:", opts: ["a list of functions", "an anonymous function", "a type of variable", "a recursive variable"], ans: 1, why: "Function literal." },
+    { q: "Storing functions in a list is:", opts: ["impossible in a functional language", "allowed — functions are values", "only possible in C, using pointers", "an error, as lists hold data only"], ans: 1, why: "Functions are first-class values, so they can be stored in a list like numbers or strings." },
+    { q: "Higher-order functions depend on:", opts: ["loops that repeat a function", "functions being first-class objects", "global state shared between functions", "mutable data passed between functions"], ans: 1, why: "A function can only take or return another function if functions are first-class objects." }
   ],
   exam: [
     { src: "AQA 2025 P2 Q11.1", q: "The recursive function `fibonacci` is defined in a functional language. State which of the following are true: (A) the function has one argument; (B) the function is a first-class object; (C) the function modifies a global variable; (D) the function must be called with a list.", marks: 1,
@@ -314,7 +310,6 @@ X("compsci:4.12.1.3", {
   flashcards: [
     ["What is function application?", "Applying a function to its argument(s) to obtain a result, e.g. add 3 4 = 7.", 8],
     ["How is application written in a functional language?", "Function name followed by arguments separated by spaces, without brackets: f x y.", 9],
-    ["Evaluate `head (tail (tail [4, 7, 1, 9]))`.", "1.", 10],
     ["What is a curried function?", "A multi-argument function treated as a chain of single-argument functions: add 3 4 = (add 3) 4.", 13],
     ["Evaluate `map (+1) [1, 2, 3]`.", "[2, 3, 4].", 14],
     ["What happens when a function is applied to fewer arguments than it takes?", "Partial application — a new function awaiting the remaining arguments is returned.", 15]
@@ -322,10 +317,10 @@ X("compsci:4.12.1.3", {
   quiz: [
     { q: "`add 3 4` where add x y = x + y evaluates to:", opts: ["34", "7", "a function", "error"], ans: 1, why: "Full application." },
     { q: "`(add 3) 4` evaluates to:", opts: ["7", "3", "a function", "error"], ans: 0, why: "Curried application." },
-    { q: "`fold (*) 1 [2, 3, 2]` =", opts: ["7", "12", "6", "1"], ans: 1, why: "2 × 3 × 2." },
+    { q: "`fold (*) 1 [2, 3, 2]` =", opts: ["7", "12", "6", "14"], ans: 1, why: "fold (*) 1 [2, 3, 2] multiplies from the start value 1: 1 × 2 × 3 × 2 = 12." },
     { q: "`head (tail [5, 6, 7])` =", opts: ["5", "6", "7", "[6, 7]"], ans: 1, why: "tail gives [6, 7]." },
     { q: "In `f x y`, the arguments are:", opts: ["f and x", "x and y", "only y", "none"], ans: 1, why: "Space-separated." },
-    { q: "Applying a two-argument function to one argument gives:", opts: ["an error", "a new one-argument function", "zero", "a list"], ans: 1, why: "Partial application." }
+    { q: "Applying a two-argument function to one argument gives:", opts: ["an error, as one argument is missing", "a new one-argument function", "zero, as the second argument is 0", "a list of the possible results"], ans: 1, why: "Partial application." }
   ],
   exam: [
     { src: "AQA 2020 P2 Q11.4", q: "Using the definitions `square x = x * x` and the built-in functions head, tail and fold, evaluate: (i) `head (tail [6, 2, 9])` (ii) `square (head [3, 5])` (iii) `fold (*) 1 [2, 3, 2]`.", marks: 3,
@@ -352,9 +347,9 @@ X("compsci:4.12.1.4", {
   ],
   quiz: [
     { q: "Partial application of a 3-argument function to one argument gives a function of:", opts: ["3 arguments", "2 arguments", "1 argument", "0 arguments"], ans: 1, why: "Remaining arguments." },
-    { q: "`add 4` is:", opts: ["4", "a function that adds 4", "an error", "a list"], ans: 1, why: "New function." },
+    { q: "If add :: Integer -> Integer -> Integer, then add 4 has type:", opts: ["Integer -> Integer", "Integer", "Integer -> Integer -> Integer", "(Integer, Integer)"], ans: 0, why: "One argument supplied, one still to come." },
     { q: "`(add 4) 9` =", opts: ["49", "13", "a function", "4"], ans: 1, why: "Apply the new function." },
-    { q: "Partial application relies on:", opts: ["loops", "currying / functions being first-class", "global variables", "side-effects"], ans: 1, why: "Prerequisite." },
+    { q: "Partial application relies on:", opts: ["loops that repeat the function", "currying / functions being first-class", "global variables holding the arguments", "side-effects that store the first argument"], ans: 1, why: "Currying and partial application need functions to be values that can be returned, so first-class functions are required." },
     { q: "`map (add 10) [1, 2]` =", opts: ["[11, 12]", "[1, 2, 10]", "[10]", "error"], ans: 0, why: "Specialised function mapped." },
     { q: "An answer by example only, for 'explain partial application', is capped at:", opts: ["1", "2", "3", "0"], ans: 1, why: "Mark scheme note." }
   ],
@@ -383,12 +378,12 @@ X("compsci:4.12.1.5", {
     ["What does `total ∘ map price` compute over a list of items sold?", "One day's total sales revenue.", 15]
   ],
   quiz: [
-    { q: "(f ∘ g)(x) means:", opts: ["g(f(x))", "f(g(x))", "f(x) × g(x)", "f(x) + g(x)"], ans: 1, why: "Right-to-left." },
-    { q: "g(x) = x + 3, f(x) = x². (f ∘ g)(2) =", opts: ["7", "25", "13", "10"], ans: 1, why: "f(5) = 25." },
-    { q: "To compose f ∘ g, g's co-domain must match:", opts: ["f's co-domain", "f's domain", "g's domain", "nothing"], ans: 1, why: "Type alignment." },
-    { q: "Composing 'convert each element' after 'average' rather than before:", opts: ["is impossible", "does one conversion instead of many", "changes the answer", "adds a loop"], ans: 1, why: "2022 P2 Q12.5." },
+    { q: "(f ∘ g)(x) means:", opts: ["g(f(x))", "f(g(x))", "f(x) × g(x)", "f(x) + g(x)"], ans: 1, why: "Composition applies g first, then f to the result, so (f ∘ g)(x) = f(g(x))." },
+    { q: "g(x) = x + 3, f(x) = x². (f ∘ g)(2) =", opts: ["7", "25", "13", "10"], ans: 1, why: "g(2) = 2 + 3 = 5, then f(5) = 5² = 25." },
+    { q: "To compose f ∘ g, g's co-domain must match:", opts: ["f's co-domain", "f's domain", "g's domain", "nothing"], ans: 1, why: "g's output feeds into f, so g's co-domain must fit f's domain." },
+    { q: "Composing 'convert each element' after 'average' rather than before:", opts: ["is impossible, as map must come first", "does one conversion instead of many", "changes the answer the program gives", "adds a loop that makes it slower"], ans: 1, why: "Converting after averaging converts one value instead of every element, so there are fewer conversions." },
     { q: "If g: ℕ → String and f: String → ℕ, then f ∘ g has type:", opts: ["String → String", "ℕ → ℕ", "ℕ → String", "String → ℕ"], ans: 1, why: "Domain of g to co-domain of f." },
-    { q: "Composition produces:", opts: ["a value", "a new function", "a list", "a type"], ans: 1, why: "Function-level operation." }
+    { q: "Composition produces:", opts: ["a value", "a new function", "a list of results", "a type"], ans: 1, why: "Function-level operation." }
   ],
   exam: [
     { src: "AQA 2022 P2 Q12", ctx: "Functions are defined as: `fu` converts a single temperature from Fahrenheit to Celsius; `fv = map fu` converts a whole list; `fw` calculates the average of a list of numbers; `fx = fw ∘ fv`; `fy = fu ∘ fw`.",
@@ -418,13 +413,13 @@ X("compsci:4.12.2.1", {
     ["Write 'the sum of the squares of the even numbers in xs' with higher-order functions.", "fold (+) 0 (map square (filter even xs)).", 21]
   ],
   quiz: [
-    { q: "A higher-order function:", opts: ["is very long", "takes or returns a function", "uses recursion", "has no arguments"], ans: 1, why: "Definition." },
-    { q: "`map (*2) [1, 2, 3]` =", opts: ["[2, 4, 6]", "6", "[1, 2, 3, 2]", "12"], ans: 0, why: "Apply to each." },
-    { q: "`filter odd [1, 2, 3, 4, 5]` =", opts: ["[2, 4]", "[1, 3, 5]", "9", "[1, 2, 3, 4, 5]"], ans: 1, why: "Keep odds." },
-    { q: "`fold (+) 0 [3, 8, 1]` =", opts: ["[3, 8, 1]", "12", "24", "0"], ans: 1, why: "Sum." },
-    { q: "The list returned by map has:", opts: ["fewer elements", "the same number of elements", "one element", "more elements"], ans: 1, why: "One-to-one." },
-    { q: "'A function that applies another function to each list element' as a definition of higher-order function is:", opts: ["accepted", "rejected — that describes map only", "half marks", "bonus"], ans: 1, why: "R. explanations specific to map." },
-    { q: "`fold (*) 1 [4, 5]` =", opts: ["9", "20", "1", "[20]"], ans: 1, why: "Product." }
+    { q: "A higher-order function:", opts: ["is very long, with many lines", "takes or returns a function", "always uses recursion", "has no arguments at all"], ans: 1, why: "A higher-order function either takes a function as an argument or returns one as its result." },
+    { q: "`map (*2) [1, 2, 3]` =", opts: ["[2, 4, 6]", "6", "[1, 2, 3, 2]", "12"], ans: 0, why: "map applies the function to each element in turn, so doubling gives [2, 4, 6]." },
+    { q: "`filter odd [1, 2, 3, 4, 5]` =", opts: ["[2, 4]", "[1, 3, 5]", "9", "[1, 2, 3, 4, 5]"], ans: 1, why: "filter keeps only the elements for which the predicate is true, which here is the odd numbers." },
+    { q: "`fold (+) 0 [3, 8, 1]` =", opts: ["[3, 8, 1]", "12", "24", "0"], ans: 1, why: "fold (+) 0 [3, 8, 1] adds each element to a running total: 0 + 3 + 8 + 1 = 12." },
+    { q: "The list returned by map has:", opts: ["fewer elements, as some are removed", "the same number of elements", "one element, the combined total", "more elements, one per result"], ans: 1, why: "map turns each element into exactly one result, so the output list is the same length as the input." },
+    { q: "'A function that applies another function to each list element' as a definition of higher-order function is:", opts: ["accepted — it is the textbook definition", "rejected — that describes map only", "half marks — it needs an example", "accepted, as a bonus mark"], ans: 1, why: "R. explanations specific to map." },
+    { q: "`fold (*) 1 [4, 5]` =", opts: ["9", "20", "1", "[20]"], ans: 1, why: "fold (*) 1 [4, 5] multiplies the elements into the start value: 1 × 4 × 5 = 20." }
   ],
   exam: [
     { src: "AQA 2017 P2 Q6", ctx: "Lists are defined: `a = [1, 3, 5]`, `b = [12, 1, 5, 20]`, `c = [2, 4, 6]`; `square x = x * x`.",
@@ -460,11 +455,11 @@ X("compsci:4.12.3.1", {
     ["Evaluate `3 : [7, 9]`.", "[3, 7, 9].", 20]
   ],
   quiz: [
-    { q: "`tail [1, 2, 3]` =", opts: ["3", "[2, 3]", "[1, 2]", "1"], ans: 1, why: "Drop the head." },
+    { q: "`tail [1, 2, 3]` =", opts: ["3", "[2, 3]", "[1, 2]", "1"], ans: 1, why: "tail returns the list without its head, so removing 1 leaves [2, 3]." },
     { q: "`head (tail [8, 6, 4])` =", opts: ["8", "6", "4", "[6, 4]"], ans: 1, why: "tail = [6, 4]; head = 6." },
-    { q: "`total (x:xs) = x + total xs` terminates because:", opts: ["x becomes 0", "the list eventually becomes [] (base case)", "xs grows", "of a loop"], ans: 1, why: "Each call shortens the list." },
-    { q: "`5 : []` =", opts: ["5", "[5]", "[]", "error"], ans: 1, why: "Singleton list." },
-    { q: "`head []` is:", opts: ["0", "[]", "an error", "1"], ans: 2, why: "No first element." },
+    { q: "`total (x:xs) = x + total xs` terminates because:", opts: ["x becomes 0 after enough calls", "the list eventually becomes [] (base case)", "xs grows until it reaches the recursion limit", "the + operator works like a loop"], ans: 1, why: "Each call shortens the list." },
+    { q: "`5 : []` =", opts: ["5", "[5]", "[]", "error"], ans: 1, why: "Prepending 5 to the empty list gives a list with the single element 5." },
+    { q: "`head []` is:", opts: ["0", "[]", "an error", "Nothing"], ans: 2, why: "No first element." },
     { q: "`length (x:xs) = 1 + length xs` on [a, b, c] makes how many calls including the initial one?", opts: ["3", "4", "1", "2"], ans: 1, why: "[a,b,c], [b,c], [c], []." }
   ],
   exam: [
@@ -502,11 +497,11 @@ X("compsci:4.13.1.1", {
   ],
   quiz: [
     { q: "Interviewing users to discover what the system must do belongs to:", opts: ["design", "analysis", "implementation", "testing"], ans: 1, why: "Requirements gathering." },
-    { q: "'The system must respond within 2 seconds' is a:", opts: ["functional requirement", "non-functional requirement", "test", "design decision"], ans: 1, why: "Quality constraint." },
-    { q: "A feasibility study checks:", opts: ["the code compiles", "whether the project is achievable technically, economically and in time", "test results", "the UI colours"], ans: 1, why: "Definition." },
-    { q: "The output of analysis is:", opts: ["a program", "a requirements specification", "test data", "user manual"], ans: 1, why: "Feeds design." },
-    { q: "Observing the current manual system is a method of:", opts: ["testing", "requirements gathering", "coding", "evaluation"], ans: 1, why: "Analysis technique." },
-    { q: "Acceptance criteria are used to:", opts: ["write code", "judge whether the finished system meets the requirements", "choose a language", "draw diagrams"], ans: 1, why: "Evaluation basis." }
+    { q: "'The system must respond within 2 seconds' is a:", opts: ["functional requirement", "non-functional requirement", "test case", "design decision"], ans: 1, why: "Quality constraint." },
+    { q: "A feasibility study checks:", opts: ["that the program's code compiles and runs without any errors", "whether the project can be done technically, economically and in time", "the results of each test against the expected results in the plan", "the colours, fonts and layout of the user interface screens"], ans: 1, why: "A feasibility study asks whether the project is possible technically, economically and in the time available." },
+    { q: "The output of analysis is:", opts: ["a working, tested program", "a requirements specification", "a set of test data for the system", "the user manual for the system"], ans: 1, why: "Analysis produces the requirements specification, which the design stage then works from." },
+    { q: "Observing the current manual system is a method of:", opts: ["testing the new system", "requirements gathering", "coding the solution", "evaluating the system"], ans: 1, why: "Analysis technique." },
+    { q: "Acceptance criteria are used to:", opts: ["write the code for each module of the system", "judge whether the finished system meets its requirements", "choose the programming language the team will use", "draw the structure diagrams for the system's design"], ans: 1, why: "Evaluation basis." }
   ],
   exam: [
     { level: "AS", src: "AS 2020 P1 Q1", q: "Describe two pieces of work that would be undertaken during the analysis stage of developing a program.", marks: 2,
@@ -528,11 +523,11 @@ X("compsci:4.13.1.2", {
   ],
   quiz: [
     { q: "Deciding to store records in a hash table happens in:", opts: ["analysis", "design", "testing", "evaluation"], ans: 1, why: "Data structure design." },
-    { q: "A hierarchy chart shows:", opts: ["test results", "modules and their calling structure", "data flow only", "the timeline"], ans: 1, why: "Decomposition." },
-    { q: "A prototype is used to:", opts: ["replace testing", "get early user feedback on part of the design", "compile faster", "document code"], ans: 1, why: "Iterative refinement." },
-    { q: "The test plan is written:", opts: ["after coding only", "during design, from the requirements", "never", "by the compiler"], ans: 1, why: "Requirement-driven." },
-    { q: "Pseudo-code is used in design because:", opts: ["it runs faster", "logic can be checked before committing to syntax", "it is compiled", "it is required by law"], ans: 1, why: "Language-independent." },
-    { q: "A data dictionary records:", opts: ["test data", "each data item's name, type and validation", "user complaints", "the UI"], ans: 1, why: "Definition." }
+    { q: "Which is decided during design, not analysis?", opts: ["the algorithms each module will use", "what the client needs the system to do", "who the users of the system will be", "the problems with the current system"], ans: 0, why: "Analysis says what; design says how." },
+    { q: "A prototype is used to:", opts: ["replace the testing of the final system entirely", "get early user feedback on part of the design", "make the final program compile faster", "document the code for later maintenance"], ans: 1, why: "Iterative refinement." },
+    { q: "The test plan is written:", opts: ["after coding only, from the finished code", "during design, from the requirements", "never, as testing needs no plan", "by the compiler as the code is built"], ans: 1, why: "Requirement-driven." },
+    { q: "Pseudo-code is used in design because:", opts: ["it runs faster than code in a real language", "logic can be checked before committing to syntax", "it is compiled into a design document", "it is required by law for every software project"], ans: 1, why: "Language-independent." },
+    { q: "A data dictionary records:", opts: ["the test data for each module", "each data item's name, type and validation", "the users' complaints about the system", "the layout of each screen in the user interface"], ans: 1, why: "A data dictionary lists each data item with its name, type and validation rules." }
   ],
   exam: [
     { src: "AQA 2021 P2 Q3", q: "Describe three activities that take place during the design stage of a software project.", marks: 3,
@@ -552,12 +547,12 @@ X("compsci:4.13.1.3", {
     ["What is integration?", "Combining separately implemented modules and testing that they work together."]
   ],
   quiz: [
-    { q: "Turning pseudo-code into a working program is:", opts: ["analysis", "design", "implementation", "evaluation"], ans: 2, why: "Coding stage." },
-    { q: "Writing and testing one module at a time:", opts: ["slows development", "localises errors and allows parallel work", "is forbidden", "removes the need for design"], ans: 1, why: "Modular implementation." },
-    { q: "Meaningful identifiers and comments aid:", opts: ["speed", "maintainability and understanding", "compilation", "memory use"], ans: 1, why: "Readability." },
-    { q: "Combining tested modules is called:", opts: ["analysis", "integration", "prototyping", "evaluation"], ans: 1, why: "Definition." },
-    { q: "Version control lets a team:", opts: ["skip testing", "recover earlier versions and merge changes", "avoid design", "compile faster"], ans: 1, why: "Definition." },
-    { q: "A prototype in implementation is:", opts: ["the final product", "an early partial version for feedback", "a test plan", "a data dictionary"], ans: 1, why: "Iterative." }
+    { q: "Turning pseudo-code into a working program is:", opts: ["analysis of the problem", "design of the solution", "implementation", "evaluation"], ans: 2, why: "Implementation is the stage where the design (such as pseudo-code) is written as a working program." },
+    { q: "Writing and testing one module at a time:", opts: ["slows development, as more is written", "localises errors and allows parallel work", "is forbidden in most methodologies", "removes the need for a design stage"], ans: 1, why: "Modular implementation." },
+    { q: "Meaningful identifiers and comments aid:", opts: ["the speed the program runs at", "maintainability and understanding", "how quickly the program compiles", "how little memory the program uses"], ans: 1, why: "Clear names and comments make the code easier to read, so it is easier to maintain." },
+    { q: "Combining tested modules is called:", opts: ["analysis", "integration", "prototyping", "evaluation"], ans: 1, why: "Integration joins separately tested modules together and checks that they work as one system." },
+    { q: "Version control lets a team:", opts: ["skip the testing of each change that is made", "recover earlier versions and merge changes", "avoid the design stage of the project", "compile the program faster each time"], ans: 1, why: "Version control stores each version, so a team can go back to an earlier one and merge changes." },
+    { q: "A prototype in implementation is:", opts: ["the final product handed to the client", "an early partial version for feedback", "a test plan for the final system", "a data dictionary for each table"], ans: 1, why: "A prototype is an early, partial version that users can try, so feedback can improve the design." }
   ],
   exam: [
     { src: "AQA 2020 P2 Q12", q: "A team of programmers is implementing a large system designed as a set of modules. Explain two practices they should follow during implementation and why.", marks: 4,
@@ -584,12 +579,12 @@ X("compsci:4.13.1.4", {
     ["What is regression testing?", "Re-running earlier tests after a change to make sure nothing that worked has broken.", 18]
   ],
   quiz: [
-    { q: "For a valid range 1–10, which is boundary data?", opts: ["5", "10", "'ten'", "50"], ans: 1, why: "At the edge." },
+    { q: "For a valid range 1–10, which is normal (typical) data?", opts: ["5", "0", "11", "'five'"], ans: 0, why: "Inside the range, away from its edges." },
     { q: "Entering 'abc' where a number is required tests:", opts: ["normal data", "boundary data", "erroneous data", "nothing"], ans: 2, why: "Should be rejected." },
-    { q: "Testing every branch of the code is:", opts: ["black-box", "white-box", "acceptance", "beta"], ans: 1, why: "Internal logic." },
-    { q: "The client testing against the requirements is:", opts: ["unit testing", "acceptance testing", "regression", "alpha"], ans: 1, why: "Final sign-off." },
-    { q: "A screen capture of a test scores only if it shows:", opts: ["the code", "the specified input and its output", "the compiler", "the date"], ans: 1, why: "Evidence of the described test." },
-    { q: "Re-running old tests after a fix is:", opts: ["regression testing", "integration", "prototyping", "analysis"], ans: 0, why: "Definition." }
+    { q: "Testing every branch of the code is:", opts: ["black-box", "white-box", "acceptance", "beta"], ans: 1, why: "White-box testing uses knowledge of the code's inner structure to exercise every branch." },
+    { q: "The client testing against the requirements is:", opts: ["unit testing", "acceptance testing", "regression testing", "alpha testing"], ans: 1, why: "Acceptance testing is when the client checks the system against the agreed requirements before signing it off." },
+    { q: "A screen capture of a test scores only if it shows:", opts: ["the code that was run for the test", "the specified input and its output", "the version of the compiler used", "the date and time of the test"], ans: 1, why: "Evidence of the described test." },
+    { q: "Re-running old tests after a fix is:", opts: ["regression testing", "integration testing", "prototype testing", "analysis"], ans: 0, why: "Regression testing re-runs earlier tests after a change to confirm that nothing that worked has broken." }
   ],
   exam: [
     { level: "AS", src: "AS 2016 P1 Q3", q: "A program checks that an entered age is between 16 and 18 inclusive. Name the three types of test data that should be used and give one example of each for this program.", marks: 3,
@@ -611,12 +606,12 @@ X("compsci:4.13.1.5", {
     ["Why is evaluation done against criteria fixed earlier?", "So the judgement is objective — success is measured against what was agreed, not what was built."]
   ],
   quiz: [
-    { q: "Evaluation compares the system with:", opts: ["the code", "the requirements and acceptance criteria", "other products only", "the test data"], ans: 1, why: "Objective criteria." },
-    { q: "Which is an evaluation criterion?", opts: ["Variable names", "Usability", "Line count", "Compiler version"], ans: 1, why: "Quality." },
-    { q: "Testing versus evaluation:", opts: ["same thing", "testing finds errors; evaluation judges fitness for purpose", "evaluation is done first", "neither is needed"], ans: 1, why: "Distinct stages." },
-    { q: "User feedback is gathered because:", opts: ["it is optional", "users judge usability and fitness for purpose", "developers cannot test", "it is free"], ans: 1, why: "Client perspective." },
-    { q: "An evaluation may lead to:", opts: ["nothing", "recommended improvements and maintenance", "deleting the system", "re-analysis only"], ans: 1, why: "Iteration." },
-    { q: "Adapting a delivered system to new requirements is:", opts: ["analysis", "maintenance", "testing", "prototyping"], ans: 1, why: "Post-delivery." }
+    { q: "Evaluation criteria should be:", opts: ["measurable and set before development", "chosen after testing to fit the results", "written by the developer alone at the end", "based on how long the project took"], ans: 0, why: "Otherwise the judgement proves nothing." },
+    { q: "Which is an evaluation criterion?", opts: ["Variable names", "Usability", "Line count", "Compiler version"], ans: 1, why: "Usability is a quality of the finished system that can be judged against the requirements; the others are not criteria." },
+    { q: "Testing versus evaluation:", opts: ["the same thing, under two different names for each stage", "testing finds errors; evaluation judges fitness for purpose", "evaluation is done first, then the system is tested", "neither is needed once the code compiles without errors"], ans: 1, why: "Distinct stages." },
+    { q: "User feedback is gathered because:", opts: ["it is optional, but looks good", "users judge usability and fitness for purpose", "developers are not able to test their own code", "it is free, unlike professional testing"], ans: 1, why: "Client perspective." },
+    { q: "An evaluation may lead to:", opts: ["nothing, once the system is live", "recommended improvements and maintenance", "deleting the system and starting again", "a return to analysis, and nothing else"], ans: 1, why: "Evaluation finds weaknesses, which lead to recommended improvements and further maintenance." },
+    { q: "Adapting a delivered system to new requirements is:", opts: ["analysis", "maintenance", "testing", "prototyping"], ans: 1, why: "Maintenance is changing a system after delivery, for example to meet new requirements." }
   ],
   exam: [
     { src: "AQA 2018 P2 Q11", q: "Describe what is done during the evaluation stage of a software project and explain why the evaluation should be made against criteria set during analysis.", marks: 3,

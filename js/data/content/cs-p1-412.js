@@ -137,18 +137,17 @@ C["compsci:4.1.2.1"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.1.2.2 the structured approach; 4.1.2.3 OOP in full; 4.12.1.1–4.12.3.1 the functional paradigm; 4.10.4 SQL as declarative; 4.4.1 abstraction and decomposition; NEA.4 complex OOP models earn Group A marks." } }
   ],
   flashcards: [
-    ["Programming paradigm?", "A style/approach to programming — a way of organising a program."],
-    ["Procedural paradigm?", "Programs are sequences of instructions grouped into procedures/functions that act on data passed to them."],
-    ["Object-oriented paradigm?", "Programs are sets of interacting objects, each encapsulating its data with the methods that act on it."],
-    ["Procedural decomposition?", "Breaking a problem into smaller sub-problems, each solving an identifiable task, each possibly subdivided further."],
-    ["Why is OOP favoured for large systems?", "Encapsulation hides representations, so classes can change without breaking others; inheritance/composition give reuse."],
+    ["Procedural paradigm?", "Programs are sequences of instructions grouped into procedures/functions that act on data passed to them.", 1],
+    ["Object-oriented paradigm?", "Programs are sets of interacting objects, each encapsulating its data with the methods that act on it.", 2],
+    ["Procedural decomposition?", "Breaking a problem into smaller sub-problems, each solving an identifiable task, each possibly subdivided further.", 3],
+    ["Why is OOP favoured for large systems?", "Encapsulation hides representations, so classes can change without breaking others; inheritance/composition give reuse.", 4],
     ["Two other paradigms on the A-level?", "Functional (4.12) and declarative (SQL, 4.10.4).", 7]
   ],
   quiz: [
-    { q: "Which is a characteristic of the object-oriented paradigm?", opts: ["data and methods are encapsulated in objects", "all data is global", "programs have no subroutines", "programs describe only the result wanted"], ans: 0, why: "Encapsulation." },
+    { q: "Which is a characteristic of the object-oriented paradigm?", opts: ["data and methods are encapsulated in objects", "all data is global", "programs have no subroutines", "programs describe only the result wanted"], ans: 0, why: "Object-oriented programs bundle data and the methods that use it together in objects (encapsulation)." },
     { q: "Top-down design with hierarchy charts belongs to", opts: ["the procedural paradigm", "the functional paradigm", "the declarative paradigm", "machine code"], ans: 0, why: "The structured approach." },
     { q: "SQL is an example of a language in the", opts: ["declarative paradigm", "object-oriented paradigm", "procedural paradigm", "assembly paradigm"], ans: 0, why: "It says WHAT, not how." },
-    { q: "Why is a public GetRabbitCount with a private RabbitCount favoured?", opts: ["the representation can change without changing other classes", "it runs faster", "private attributes use less memory", "it avoids needing a constructor"], ans: 0, why: "A-level 2017 Q08.4." }
+    { q: "Why is a public GetRabbitCount with a private RabbitCount favoured?", opts: ["the representation can change without changing other classes", "public accessors make every method call run faster", "private attributes use less memory than public ones", "a private attribute means the class no longer needs a constructor"], ans: 0, why: "A-level 2017 Q08.4." }
   ]
 };
 
@@ -266,10 +265,10 @@ C["compsci:4.1.2.2"] = {
     ["The three control structures?", "Sequence, selection, iteration.", 8]
   ],
   quiz: [
-    { q: "A box in a hierarchy chart represents", opts: ["a subroutine", "a variable", "a decision", "a loop"], ans: 0, why: "AS 2025 Q10.1." },
-    { q: "A hierarchy chart is normally developed during", opts: ["design", "analysis", "testing", "evaluation"], ans: 0, why: "AS 2025 Q10.4." },
+    { q: "A box in a hierarchy chart represents", opts: ["a subroutine", "a variable", "a decision", "a loop"], ans: 0, why: "Each box in a hierarchy chart is one subroutine, with its sub-subroutines below it." },
+    { q: "A hierarchy chart is normally developed during", opts: ["design", "analysis", "testing", "evaluation"], ans: 0, why: "A hierarchy chart shows how a problem is broken into subroutines, which is design work before coding." },
     { q: "Which is NOT an advantage of the structured approach?", opts: ["every variable can be global", "modules can be tested independently", "modules can be shared in a team", "subroutines can be reused"], ans: 0, why: "Structured programs use locals and parameters." },
-    { q: "Decomposition continues until", opts: ["each sub-problem performs a single task", "there are ten subroutines", "the program compiles", "all data is in one array"], ans: 0, why: "A-level 2025 Q02." }
+    { q: "Decomposition continues until", opts: ["each sub-problem performs a single task", "there are exactly ten subroutines in the design", "the program compiles without any syntax errors", "all of the data is stored in one shared array"], ans: 0, why: "A-level 2025 Q02." }
   ]
 };
 
@@ -490,15 +489,14 @@ C["compsci:4.1.2.3"] = {
     ["Encapsulation?", "Bundling attributes with the methods that act on them, hiding the attributes so they are only reached through the class's methods."],
     ["Inheritance?", "A subclass takes on the attributes and methods of its base class and can add or override — an \"is a\" relationship."],
     ["Overriding?", "A subclass giving its own implementation of an inherited method."],
-    ["Polymorphism?", "Objects of different classes responding differently to the same method call/interface."],
-    ["Private vs protected?", "Private: only its own class. Protected: its class and any subclass."],
-    ["Public?", "Accessible from anywhere."],
-    ["Virtual vs abstract method?", "Virtual has a body and MAY be overridden; abstract has no body and MUST be overridden (abstract classes only)."],
-    ["Static method?", "Belongs to the class, not an object; called via the class name."],
-    ["Composition?", "Strong \"has a\": the whole creates and owns the parts; they share its lifetime. Black diamond."],
-    ["Aggregation?", "Weak \"has a\": the whole refers to parts that exist independently. White diamond."],
-    ["UML specifier symbols?", "+ public, - private, # protected."],
-    ["Three OO design principles?", "Encapsulate what varies; favour composition over inheritance; program to interfaces, not implementation."]
+    ["Private vs protected?", "Private: only its own class. Protected: its class and any subclass.", 7],
+    ["Public?", "Accessible from anywhere.", 8],
+    ["Virtual vs abstract method?", "Virtual has a body and MAY be overridden; abstract has no body and MUST be overridden (abstract classes only).", 9],
+    ["Static method?", "Belongs to the class, not an object; called via the class name.", 10],
+    ["Composition?", "Strong \"has a\": the whole creates and owns the parts; they share its lifetime. Black diamond.", 11],
+    ["Aggregation?", "Weak \"has a\": the whole refers to parts that exist independently. White diamond.", 12],
+    ["UML specifier symbols?", "+ public, - private, # protected.", 13],
+    ["Three OO design principles?", "Encapsulate what varies; favour composition over inheritance; program to interfaces, not implementation.", 14]
   ],
   quiz: [
     { q: "In UML, # means", opts: ["protected", "private", "public", "static"], ans: 0, why: "+ public, - private, # protected." },

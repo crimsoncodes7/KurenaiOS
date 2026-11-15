@@ -407,14 +407,9 @@ step("the ratchet: nothing new, nothing worse", () => {
     Object.keys(f).forEach((k) => { if (f[k] > (b[k] || 0)) fresh.push(c + ": " + k + (b[k] ? " (" + b[k] + " → " + f[k] + ")" : "")); });
     Object.keys(b).forEach((k) => { if ((f[k] || 0) < b[k]) fixed.push(c + ": " + k + " (" + b[k] + " → " + (f[k] || 0) + ")"); });
   });
-  Object.keys(shares).forEach((s) => {
-    const b = (base.quizAB || {})[s];
-    const now = shares[s].ab / shares[s].n;
-    if (!b) { if (now > 0.5 + 1e-9) fresh.push("quizAB: " + s + " is new and keeps " + (100 * now).toFixed(1) + "% of answers at A or B"); return; }
-    const was = b.ab / b.n;
-    if (now > was + 1e-9) fresh.push("quizAB: " + s + " A/B share grew " + (100 * was).toFixed(2) + "% → " + (100 * now).toFixed(2) + "% (" + shares[s].ab + "/" + shares[s].n + ")");
-    else if (now < was - 1e-9) fixed.push("quizAB: " + s + " " + (100 * was).toFixed(2) + "% → " + (100 * now).toFixed(2) + "%");
-  });
+  /* the authored A/B share is retired (W6): options are shuffled per
+     attempt (smoke138 A), so the authored position never reaches the
+     learner; the tell that did — the answer's LENGTH — is smoke138 H */
   if (fixed.length) console.log("       FIXED (shrink the baseline, " + fixed.length + "):\n         " + fixed.slice(0, 40).join("\n         ") + (fixed.length > 40 ? "\n         …" : ""));
   assert(!fresh.length, fresh.length + " new content violation(s):\n         " + fresh.join("\n         "));
 });

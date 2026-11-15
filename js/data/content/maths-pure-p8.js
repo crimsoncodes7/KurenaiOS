@@ -45,7 +45,7 @@ C["maths:8.1"] = {
   quiz: [
     { q: "$\\int 3x^2\\,dx =$", opts: ["$x^3 + c$", "$6x + c$", "$x^3$", "$\\tfrac{3}{2}x^3 + c$"], ans: 0, why: "Reverse of $\\frac{d}{dx}x^3$." },
     { q: "$\\int_1^2 2x\\,dx =$", opts: ["3", "4", "1", "$3 + c$"], ans: 0, why: "$[x^2]_1^2$." },
-    { q: "A definite integral gives", opts: ["a number", "a function $+ c$", "a gradient", "a tangent"], ans: 0, why: "Limits evaluated." },
+    { q: "A definite integral gives", opts: ["a number", "a function $+ c$", "a gradient", "a tangent"], ans: 0, why: "Put the limits in: $F(b) - F(a)$ is a number, with no $+ c$." },
     { q: "If $\\frac{dy}{dx} = 4x$ and $y = 5$ at $x = 1$, then $y =$", opts: ["$2x^2 + 3$", "$2x^2 + 5$", "$4x^2 + 1$", "$2x^2$"], ans: 0, why: "$2 + c = 5$." }
   ]
 };
@@ -188,13 +188,13 @@ C["maths:8.3"] = {
       q: "$y = x(x + 2)(x - 4)$. $R_1$ is bounded by the curve and the negative $x$-axis; $R_2$ by the curve, the positive $x$-axis and $x = b$, $0 < b < 4$. **(a)** Show that the area of $R_1$ is $\\frac{20}{3}$. **(b)** Given the areas of $R_1$ and $R_2$ are equal, show that $3b^4 - 8b^3 - 48b^2 + 80 = 0$.",
       steps: [
         { h: "(a)", m: "$y = x^3 - 2x^2 - 8x$; $\\displaystyle\\int_{-2}^{0} = \\left[\\dfrac{x^4}{4} - \\dfrac{2x^3}{3} - 4x^2\\right]_{-2}^{0} = 0 - \\left(4 + \\dfrac{16}{3} - 16\\right) = \\dfrac{20}{3}$", mk: "M1 A1 M1 A1*" },
-        { h: "(b) $R_2$ is below the axis: its integral is $-\\frac{20}{3}$", m: "$\\dfrac{b^4}{4} - \\dfrac{2b^3}{3} - 4b^2 = -\\dfrac{20}{3} \\Rightarrow 3b^4 - 8b^3 - 48b^2 + 80 = 0$ (×12)", mk: "M1 A1 M1 A1*", n: "The sign is the whole question: equal *areas* means the integral over $R_2$ is the *negative* of $R_1$'s." }
+        { h: "(b) $R_2$ is below the axis: its integral is $-\\frac{20}{3}$", m: "$\\dfrac{b^4}{4} - \\dfrac{2b^3}{3} - 4b^2 = -\\dfrac{20}{3} \\Rightarrow 3b^4 - 8b^3 - 48b^2 + 80 = 0$ (×12)", mk: "B1 M1 A1 M1 dM1 A1*", n: "The sign is the whole question: equal *areas* means the integral over $R_2$ is the *negative* of $R_1$'s." }
       ], result: "shown" } },
     { worked: { tag: "exam", title: "Region bounded by a cubic, a maximum and the axis", src: "AS Specimen · P1 Q14 · 9 marks",
       q: "$C$: $y = (x - 2)^2(x + 3)$. $R$ is bounded by $C$, the vertical line through the maximum turning point, and the $x$-axis. Find the exact area of $R$.",
       steps: [
         { h: "The maximum", m: "$\\dfrac{dy}{dx} = 2(x - 2)(x + 3) + (x - 2)^2 = (x - 2)(3x + 4) = 0$: maximum at $x = -\\dfrac43$", mk: "M1 A1 A1", n: "Product rule; the other root $x = 2$ is the minimum (touching the axis)." },
-        { h: "Expand and integrate from $-\\frac43$ to $2$", m: "$y = x^3 - x^2 - 8x + 12$; $\\displaystyle\\int_{-4/3}^{2} = \\left[\\dfrac{x^4}{4} - \\dfrac{x^3}{3} - 4x^2 + 12x\\right]_{-4/3}^{2}$\nAt $x = 2$: $4 - \\dfrac83 - 16 + 24 = \\dfrac{28}{3}$. At $x = -\\dfrac43$: $\\dfrac{64}{81} + \\dfrac{64}{81} - \\dfrac{64}{9} - 16 = -\\dfrac{1744}{81}$", mk: "M1 A1 M1 A1" },
+        { h: "Expand and integrate from $-\\frac43$ to $2$", m: "$y = x^3 - x^2 - 8x + 12$; $\\displaystyle\\int_{-4/3}^{2} = \\left[\\dfrac{x^4}{4} - \\dfrac{x^3}{3} - 4x^2 + 12x\\right]_{-4/3}^{2}$\nAt $x = 2$: $4 - \\dfrac83 - 16 + 24 = \\dfrac{28}{3}$. At $x = -\\dfrac43$: $\\dfrac{64}{81} + \\dfrac{64}{81} - \\dfrac{64}{9} - 16 = -\\dfrac{1744}{81}$", mk: "B1 M1 A1 M1 A1" },
         { m: "Area $= \\dfrac{28}{3} + \\dfrac{1744}{81} = \\dfrac{756 + 1744}{81} = \\dfrac{2500}{81}$", mk: "A1", n: "Exact fractions; the region is above the axis throughout." }
       ], result: "$\\frac{2500}{81}$" } },
     { worked: { tag: "exam", title: "$\\int_1^a\\sqrt x\\,dx = 10$: find $a$ as a power of 2; related integrals", src: "AS Specimen · P1 Q8 · 8 marks",
@@ -308,7 +308,7 @@ C["maths:8.4"] = {
   ],
   quiz: [
     { q: "$\\lim_{\\delta x\\to0}\\sum_{x=1}^{3} x^2\\,\\delta x =$", opts: ["$\\tfrac{26}{3}$", "9", "$\\tfrac{27}{3}$", "8"], ans: 0, why: "$\\int_1^3 x^2 = \\frac{27 - 1}{3}$." },
-    { q: "In the limit of a sum, $\\delta x$ becomes", opts: ["$dx$", "0", "$x$", "the limits"], ans: 0, why: "Notation change." },
+    { q: "In the limit of a sum, $\\delta x$ becomes", opts: ["$dx$", "0", "$x$", "the limits"], ans: 0, why: "As $\\delta x \\to 0$, $\\sum f(x)\\,\\delta x$ becomes $\\int f(x)\\,dx$." },
     { q: "$\\lim\\sum_{x=1}^{e}\\frac1x\\,\\delta x =$", opts: ["1", "$e$", "0", "$\\ln 2$"], ans: 0, why: "$\\ln e - \\ln 1$." }
   ]
 };
@@ -398,7 +398,7 @@ C["maths:8.5"] = {
       q: "$C$: $y = x\\ln x$, $x > 0$; $l$ is the normal at $P(e, e)$; $R$ is bounded by $C$, $l$ and the $x$-axis. Show that the area of $R$ is $Ae^2 + B$, $A$ and $B$ rational.",
       steps: [
         { h: "The normal", m: "$\\dfrac{dy}{dx} = \\ln x + 1 = 2$ at $x = e$; normal gradient $-\\dfrac12$: $y - e = -\\dfrac12(x - e)$, meeting the axis at $x = 3e$", mk: "M1 A1 A1" },
-        { h: "Area under $C$ from 1 to $e$ (parts) + triangle", m: "$\\displaystyle\\int_1^e x\\ln x\\,dx = \\left[\\dfrac{x^2}{2}\\ln x - \\dfrac{x^2}{4}\\right]_1^e = \\dfrac{e^2}{2} - \\dfrac{e^2}{4} + \\dfrac14 = \\dfrac{e^2}{4} + \\dfrac14$\nTriangle from $e$ to $3e$, height $e$: $\\tfrac12 \\cdot 2e \\cdot e = e^2$", mk: "M1 A1 A1 B1", n: "$C$ meets the axis at $x = 1$ ($\\ln 1 = 0$) — the lower limit." },
+        { h: "Area under $C$ from 1 to $e$ (parts) + triangle", m: "$\\displaystyle\\int_1^e x\\ln x\\,dx = \\left[\\dfrac{x^2}{2}\\ln x - \\dfrac{x^2}{4}\\right]_1^e = \\dfrac{e^2}{2} - \\dfrac{e^2}{4} + \\dfrac14 = \\dfrac{e^2}{4} + \\dfrac14$\nTriangle from $e$ to $3e$, height $e$: $\\tfrac12 \\cdot 2e \\cdot e = e^2$", mk: "M1 A1 dM1 A1 B1", n: "$C$ meets the axis at $x = 1$ ($\\ln 1 = 0$) — the lower limit." },
         { m: "$R = \\dfrac{e^2}{4} + \\dfrac14 + e^2 = \\dfrac54 e^2 + \\dfrac14$", mk: "M1 A1*" }
       ], result: "$A = \\frac54$, $B = \\frac14$" } },
 
@@ -429,7 +429,7 @@ C["maths:8.5"] = {
     { q: "$\\int x e^x\\,dx =$", opts: ["$xe^x - e^x + c$", "$xe^x + e^x + c$", "$\\tfrac{x^2}{2}e^x + c$", "$e^x + c$"], ans: 0, why: "Parts with $u = x$." },
     { q: "With $u = x^2 + 1$, $\\int 2x(x^2 + 1)^3 dx =$", opts: ["$\\tfrac{(x^2+1)^4}{4} + c$", "$(x^2+1)^4 + c$", "$\\tfrac{(x^2+1)^4}{8} + c$", "$2(x^2+1)^4 + c$"], ans: 0, why: "$\\int u^3 du$." },
     { q: "$\\int \\frac{2x}{x^2 + 3}dx =$", opts: ["$\\ln(x^2 + 3) + c$", "$\\tfrac{1}{x^2+3} + c$", "$2\\ln(x^2+3) + c$", "$\\ln(2x) + c$"], ans: 0, why: "$\\frac{f'}{f}$." },
-    { q: "For $\\int x^2\\sin x\\,dx$ choose $u =$", opts: ["$x^2$", "$\\sin x$", "$x$", "$\\cos x$"], ans: 0, why: "Algebraic before trig." },
+    { q: "For $\\int x^2\\sin x\\,dx$ choose $u =$", opts: ["$x^2$", "$\\sin x$", "$x$", "$\\cos x$"], ans: 0, why: "$u = x^2$ differentiates down to a constant; $\\sin x$ integrates easily." },
     { q: "Substituting $x = 2\\sin u$, $\\sqrt{4 - x^2} =$", opts: ["$2\\cos u$", "$2\\sin u$", "$4\\cos^2 u$", "$\\cos u$"], ans: 0, why: "$\\sqrt{4(1 - \\sin^2 u)}$." },
     { q: "Limits $x = 0$ to $x = 16$ under $u = 1 + \\sqrt x$ become", opts: ["$1$ to $5$", "$0$ to $16$", "$1$ to $17$", "$0$ to $4$"], ans: 0, why: "$1 + 0$, $1 + 4$." }
   ]
@@ -499,10 +499,10 @@ C["maths:8.6"] = {
   ],
   quiz: [
     { q: "$\\int\\frac{3}{2x + 1}dx =$", opts: ["$\\tfrac32\\ln|2x+1| + c$", "$3\\ln|2x+1| + c$", "$\\tfrac{3}{2(2x+1)^2}$", "$6\\ln|2x+1|$"], ans: 0, why: "Divide by the inner coefficient." },
-    { q: "$\\int\\frac{1}{(x - 3)^2}dx =$", opts: ["$-\\tfrac{1}{x - 3} + c$", "$\\ln|x-3|^2 + c$", "$\\tfrac{1}{x-3} + c$", "$2\\ln|x - 3|$"], ans: 0, why: "Power rule." },
+    { q: "$\\int\\frac{1}{(x - 3)^2}dx =$", opts: ["$-\\tfrac{1}{x - 3} + c$", "$\\ln|x-3|^2 + c$", "$\\tfrac{1}{x-3} + c$", "$2\\ln|x - 3|$"], ans: 0, why: "$\\int (x - 3)^{-2}\\,dx = \\frac{(x - 3)^{-1}}{-1} + c$." },
     { q: "$\\int\\frac{2x + 1}{x^2 + x}dx =$", opts: ["$\\ln|x^2 + x| + c$", "$\\tfrac{1}{x^2+x}$", "$2\\ln|x| + c$", "$(2x+1)\\ln|x^2+x|$"], ans: 0, why: "Top is the derivative of the bottom." },
-    { q: "$\\int_1^2\\frac{1}{x+1}dx =$", opts: ["$\\ln\\tfrac32$", "$\\ln 3$", "$\\ln 2$", "$\\tfrac12$"], ans: 0, why: "$\\ln 3 - \\ln 2$." },
-    { q: "Before integrating $\\frac{x^2}{x - 1}$ you should", opts: ["divide", "factorise the top", "substitute $u = x^2$", "use parts"], ans: 0, why: "Improper fraction." }
+    { q: "$\\int_1^2\\frac{1}{x+1}dx =$", opts: ["$\\ln\\tfrac32$", "$\\ln\\tfrac23$", "$\\ln 3 - 1$", "$\\tfrac12$"], ans: 0, why: "$\\ln 3 - \\ln 2$." },
+    { q: "Before integrating $\\frac{x^2}{x - 1}$ you should", opts: ["divide", "factorise the top", "substitute $u = x^2$", "use parts"], ans: 0, why: "Top degree $\\ge$ bottom degree, so divide: $\\frac{x^2}{x - 1} = x + 1 + \\frac{1}{x - 1}$." }
   ]
 };
 
@@ -545,7 +545,7 @@ C["maths:8.7"] = {
         { h: "(a) In minus out", m: "$\\dfrac{dV}{dt} = 0.45 - 0.3V \\Rightarrow 20\\dfrac{dV}{dt} = 9 - 6V$", mk: "M1 A1*" },
         { h: "(b) Separate", m: "$\\displaystyle\\int\\dfrac{20}{9 - 6V}\\,dV = \\int dt \\Rightarrow -\\dfrac{20}{6}\\ln|9 - 6V| = t + c$", mk: "M1 A1", n: "$\\int\\frac{1}{9 - 6V} = -\\frac16\\ln|9 - 6V|$ — the minus from the $-6$." },
         { m: "$9 - 6V = Ae^{-0.3t}$; $t = 0, V = 0.25$: $A = 7.5$. So $V = 1.5 - 1.25e^{-0.3t}$: $P = 1.5$, $Q = 1.25$, $k = 0.3$", mk: "M1 A1 A1", n: "Exponentiate, absorb $\\pm e^{-c}$ into $A$, then use the condition." },
-        { h: "(c)", m: "As $t \\to \\infty$, $V \\to 1.5 < 2$: the container does not overflow.", mk: "B1" }
+        { h: "(c)", m: "As $t \\to \\infty$, $V \\to 1.5 < 2$: the container does not overflow.", mk: "M1 A1" }
       ], result: "(b) $V = 1.5 - 1.25e^{-0.3t}$ (c) limit 1.5 m³, no overflow" } },
     { worked: { tag: "exam", title: "Logistic growth via partial fractions: $\\frac{dV}{dt} = \\frac{1}{10}V(25 - V)$", src: "A-level June 2024 · P2 Q12 · 12 marks",
       q: "**(a)** Express $\\frac{1}{V(25 - V)}$ in partial fractions. The volume $V$ of a plant cell satisfies $\\frac{dV}{dt} = \\frac{1}{10}V(25 - V)$ with $V = 20$ initially. **(b)** Find the time, in minutes, for $V$ to reach 24. **(c)** Show that $V = \\frac{A}{e^{-kt} + B}$. **(d)** Find the upper limit $L$ of $V$, with a reason.",
@@ -676,8 +676,8 @@ C["maths:8.8"] = {
   quiz: [
     { q: "$N = \\frac{900}{3 + 7e^{-0.25t}}$ at $t = 0$:", opts: ["90", "300", "900", "10"], ans: 0, why: "$\\frac{900}{10}$." },
     { q: "A logistic model's growth rate is maximal when $N$ equals", opts: ["half the limit", "the limit", "zero", "the initial value"], ans: 0, why: "Vertex of $N(P - N)$." },
-    { q: "$h = 4.8(1 - e^{-t/240})$ as $t \\to \\infty$:", opts: ["4.8", "0", "$\\infty$", "240"], ans: 0, why: "Exponential term vanishes." },
-    { q: "$r^3 = 125 - 24.5t$ is valid for", opts: ["$0 \\le t \\le \\tfrac{250}{49}$", "all $t$", "$t \\ge 5$", "$t < 0$"], ans: 0, why: "Until $r = 0$." }
+    { q: "$h = 4.8(1 - e^{-t/240})$ as $t \\to \\infty$:", opts: ["4.8", "0", "$\\infty$", "240"], ans: 0, why: "$e^{-t/240} \\to 0$, so $h \\to 4.8(1 - 0) = 4.8$." },
+    { q: "$r^3 = 125 - 24.5t$ is valid for", opts: ["$0 \\le t \\le \\tfrac{250}{49}$", "$0 \\le t \\le \\tfrac{125}{49}$", "$t \\ge \\tfrac{250}{49}$ only", "$0 \\le t \\le 125$"], ans: 0, why: "Until $r = 0$." }
   ]
 };
 

@@ -204,15 +204,14 @@ C["compsci:4.4.2.1"] = {
     ["Start state notation?", "An arrow from nowhere into the state."],
     ["Accepting state notation?", "A double circle."],
     ["When is a string accepted?", "When the FSM is in an accepting state at the end of the input."],
-    ["Mealy machine?", "An FSM with output: each transition is labelled input/output."],
-    ["State transition table columns?", "Current state, input, new state (plus output for a Mealy machine)."],
+    ["State transition table columns?", "Current state, input, new state (plus output for a Mealy machine).", 5],
     ["Trap (dead) state?", "A non-accepting state with no way out — every input loops back to it.", 7],
   ],
   quiz: [
-    { q: "An FSM accepts a string if", opts: ["it ends in an accepting state", "it passes through an accepting state", "it never reaches a trap state", "it reads every symbol"], ans: 0, why: "End of input." },
+    { q: "An FSM accepts a string if", opts: ["it ends in an accepting state", "it passes through an accepting state", "it never reaches a trap state", "it reads every symbol"], ans: 0, why: "An FSM accepts a string only if it is in an accepting state when the input has all been read." },
     { q: "1110x on AS 2016's FSM is", opts: ["accepted", "rejected", "undefined", "outputs 1"], ans: 0, why: "1s, one 0, then x." },
-    { q: "A Mealy machine's transitions are labelled", opts: ["input / output", "state / output", "input only", "output only"], ans: 0, why: "Definition." },
-    { q: "\"An incorrect code leaves it in its current mode\" is drawn as", opts: ["a self-loop on each mode", "one arrow to Off", "an accepting state", "a new state"], ans: 0, why: "Stays put." }
+    { q: "A Mealy machine's transitions are labelled", opts: ["input / output", "state / output", "input only", "output only"], ans: 0, why: "A Mealy machine produces output on its transitions, so each is labelled input / output." },
+    { q: "\"An incorrect code leaves it in its current mode\" is drawn as", opts: ["a self-loop on each mode", "one arrow from each mode to Off", "an accepting state for each mode", "a new error state for wrong codes"], ans: 0, why: "Staying in the same mode is a transition from a state back to itself, a self-loop." }
   ],
   sims: ["fsm-lab"]
 };
@@ -319,11 +318,11 @@ C["compsci:4.4.2.2"] = {
     ["{0ⁿ1ⁿ | n ≥ 1}?", "{01, 0011, 000111, …}.", 9]
   ],
   quiz: [
-    { q: "|{c, d, bb, b}| =", opts: ["4", "5", "3", "6"], ans: 0, why: "Four members." },
-    { q: "Which is a subset of every set?", opts: ["Ø", "{0}", "ℕ", "{Ø}"], ans: 0, why: "The empty set." },
+    { q: "|{c, d, bb, b}| =", opts: ["4", "5", "3", "6"], ans: 0, why: "The cardinality is the number of members, and this set has four." },
+    { q: "Which is a subset of every set?", opts: ["Ø", "{0}", "ℕ", "{Ø}"], ans: 0, why: "The empty set Ø has no members, so it is vacuously a subset of every set." },
     { q: "{1, 2, 3} − {2, 3, 4} =", opts: ["{1}", "{4}", "{2, 3}", "{1, 4}"], ans: 0, why: "In the first, not the second." },
-    { q: "Which set is NOT countable?", opts: ["ℝ", "ℕ", "ℤ", "all strings over {a, b}"], ans: 0, why: "The reals." },
-    { q: "|{a, b} × {0, 1, 2}| =", opts: ["6", "5", "8", "9"], ans: 0, why: "2 × 3." }
+    { q: "Which set is NOT countable?", opts: ["ℝ", "ℕ", "ℤ", "all strings over {a, b}"], ans: 0, why: "The reals ℝ cannot be listed one by one, so they are uncountable; the integers and rationals can be." },
+    { q: "|{a, b} × {0, 1, 2}| =", opts: ["6", "5", "8", "9"], ans: 0, why: "The Cartesian product pairs every member of one set with every member of the other: 2 × 3 = 6." }
   ]
 };
 
@@ -454,8 +453,8 @@ C["compsci:4.4.2.3"] = {
     ["Why anchor a regex in C# with ^ $?", "IsMatch otherwise accepts a match anywhere in the string."]
   ],
   quiz: [
-    { q: "Which string matches ab+?", opts: ["abbb", "a", "b", "ba"], ans: 0, why: "One or more b's after a." },
-    { q: "(ab)* matches", opts: ["the empty string, ab, abab, …", "a, ab, abb", "ab, abb, abbb", "only ab"], ans: 0, why: "The group repeats." },
+    { q: "Which string matches ab+?", opts: ["abbb", "aabb", "babb", "abba"], ans: 0, why: "One or more b's after a." },
+    { q: "(ab)* matches", opts: ["the empty string, ab, abab, …", "the empty string, a, b, ab, …", "ab, abb, abbb, abbbb, …", "only ab, never the empty string"], ans: 0, why: "The group repeats." },
     { q: "Does 0101 belong to 1|01+?", opts: ["No", "Yes", "Only with *", "Only in C#"], ans: 0, why: "After 0 1 comes 0." },
     { q: "Which matches an odd number of b's?", opts: ["b(bb)*", "(bb)*", "bb+", "b*"], ans: 0, why: "One b plus pairs." },
     { q: "Regex for {a, ab} ∪ {bⁿ | n > 0}", opts: ["a|ab|b+", "ab*", "a|b*", "(a|b)+"], ans: 0, why: "A-level 2023 Q04.2." }
@@ -538,10 +537,10 @@ C["compsci:4.4.2.4"] = {
     ["How to show a language is regular?", "Write a regular expression (or FSM) for it.", 6],
   ],
   quiz: [
-    { q: "Which is NOT regular?", opts: ["{aⁿbⁿ | n ≥ 1}", "a+b", "(ab)*", "1*0?x"], ans: 0, why: "Needs counting." },
-    { q: "\"Regular languages are always finite\" is", opts: ["false", "true", "true only for BNF", "true for FSMs"], ans: 0, why: "b+." },
-    { q: "Regular languages are exactly those accepted by", opts: ["FSMs", "Turing machines only", "BNF only", "compilers"], ans: 0, why: "Equivalence." },
-    { q: "A grammar with ( <string> ) nesting is", opts: ["not regular", "regular", "finite", "a regex"], ans: 0, why: "Nesting depth unbounded." }
+    { q: "Which is NOT regular?", opts: ["{aⁿbⁿ | n ≥ 1}", "{aⁿ | n ≥ 1}", "{(ab)ⁿ | n ≥ 0}", "{aⁿbᵐ | n, m ≥ 1}"], ans: 0, why: "aⁿbⁿ needs the machine to count the a's without limit, which a finite number of states cannot do." },
+    { q: "\"Regular languages are always finite\" is", opts: ["false", "true", "true only for BNF", "true for FSMs"], ans: 0, why: "False: a regular language can be infinite, for example b+ matches b, bb, bbb and so on." },
+    { q: "Regular languages are exactly those accepted by", opts: ["FSMs", "Turing machines only", "BNF only", "compilers"], ans: 0, why: "A language is regular exactly when a finite state machine accepts it, and equally when a regular expression describes it." },
+    { q: "A grammar with ( <string> ) nesting is", opts: ["not regular", "still regular", "finite only", "a plain regex"], ans: 0, why: "Nesting depth unbounded." }
   ]
 };
 
@@ -676,16 +675,15 @@ C["compsci:4.4.3.1"] = {
     ["::= in BNF?", "\"Is defined as\" — introduces a production rule."],
     ["Non-terminal?", "A symbol in < > that is replaced using another rule."],
     ["| in BNF?", "Or — separates alternatives.", 3],
-    ["BNF for a natural number?", "<natural> ::= <digit> | <digit><natural>.", 4],
     ["Why can BNF describe languages regexes can't?", "Recursion allows unbounded nesting/counting; regexes (FSMs) have finite memory.", 5],
     ["Sentences from <sentence> ::= <sentence><c><sentence>?", "Infinitely many.", 7],
     ["Syntax-diagram loop in BNF?", "A recursive rule.", 8],
   ],
   quiz: [
-    { q: "In BNF, <np> is", opts: ["a non-terminal", "a terminal", "a comment", "an operator"], ans: 0, why: "Angle brackets." },
-    { q: "Which allows any number of digits?", opts: ["<natural> ::= <digit> | <digit><natural>", "<natural> ::= <digit><digit>", "<natural> ::= <digit>", "<natural> ::= 0 | 1"], ans: 0, why: "Recursion." },
+    { q: "In BNF, <np> is", opts: ["a non-terminal", "a terminal", "a comment", "an operator"], ans: 0, why: "Angle brackets mark a non-terminal, a name that is replaced using another rule." },
+    { q: "Which allows any number of digits?", opts: ["<natural> ::= <digit> | <digit><natural>", "<natural> ::= <digit> | <digit><digit>", "<natural> ::= <digit><digit><digit>", "<natural> ::= 0 | 1 | <digit><digit>"], ans: 0, why: "The rule calls itself, so a natural number can have one digit or a digit followed by any more." },
     { q: "\"cat or dog\" in 2020's language is", opts: ["invalid", "valid", "valid if <c> is added", "a noun phrase"], ans: 0, why: "No determiners or verb." },
-    { q: "BNF can describe balanced brackets because it has", opts: ["recursion", "the * metacharacter", "finite states", "terminals"], ans: 0, why: "Nesting." }
+    { q: "BNF can describe balanced brackets because it has", opts: ["recursion", "the * metacharacter", "finite states", "terminals"], ans: 0, why: "BNF rules can refer to themselves (recursion), so brackets can nest to any depth." }
   ],
   sims: ["bnf-checker"]
 };

@@ -54,7 +54,8 @@
     miscon:   { icon: "✕",  label: "Misconception to avoid" },
     mnemonic: { icon: "♪",  label: "Mnemonic" },
     memorise: { icon: "★",  label: "Must-memorise — NOT given to you" },
-    formula:  { icon: "ƒ",  label: "Formula" }
+    formula:  { icon: "ƒ",  label: "Formula" },
+    key:      { icon: "✦",  label: "Key idea" }   // CM-24: was drawn as an unlabelled Tip
   };
 
   /* shared copy affordance — injected into every content box; the delegated
@@ -67,7 +68,8 @@
     return (h >>> 0).toString(36);
   }
   var CODE_COPY = '<button class="k-n-copy" data-ui="content.copy" type="button" aria-label="Copy code to clipboard">Copy</button>';
-  var LANG_NAME = { py: "Python", python: "Python", pseudo: "Pseudocode", cs: "C#", csharp: "C#", sql: "SQL", js: "JavaScript", javascript: "JavaScript", xaml: "XAML", xml: "XML", json: "JSON" };
+  var LANG_NAME = { py: "Python", python: "Python", pseudo: "Pseudocode", cs: "C#", csharp: "C#", sql: "SQL", js: "JavaScript", javascript: "JavaScript", xaml: "XAML", xml: "XML", json: "JSON",
+    hs: "Haskell", haskell: "Haskell", asm: "AQA assembly" };   // CC-13
   /* a code block's head: the language, its caption, and Copy (frame 8j) */
   function codeFigure(src, lang, cap) {
     return '<figure class="k-n-code" data-ui="content.code"><div class="k-n-code-head">' +
@@ -98,7 +100,11 @@
     /* code spans first: a `$` inside backticks (a C# $"…" string, an SQL
        $name parameter) is code, never the start of maths */
     var codes = [], math = [];
-    var src = String(s == null ? "" : s).replace(/`([^`]+)`/g, function (m, c) {
+    /* CM-12: "5 m s$^{-1}$" is one unbreakable piece of maths, so a line
+       never ends at "5 m s" with "−1" on the next */
+    var src = String(s == null ? "" : s).replace(/(\d(?:\.\d+)?\s)?\b(m|km|cm|kg|N|rad) (s|h)\$\^\{(-?\d)\}\$/g, function (m, num, u1, u2, p) {
+      return "$" + (num ? num.trim() + "\\ " : "") + "\\text{" + u1 + " " + u2 + "}^{" + p + "}$";
+    }).replace(/`([^`]+)`/g, function (m, c) {
       codes.push(c);
       return "\u0005" + (codes.length - 1) + "\u0006";
     }).replace(/\$\$[\s\S]+?\$\$|\$[^$\n]+?\$/g, function (m) {
@@ -116,6 +122,15 @@
       });
     return out.replace(/\u0003(\d+)\u0004/g, function (_, i) { return esc(math[+i]); })
       .replace(/\u0005(\d+)\u0006/g, function (_, i) { return "<code>" + esc(codes[+i]) + "</code>"; });
+  }
+
+  /* CC-12: AQA examiners' shorthand in a scheme or a step's note, in words
+     — "I." Ignore, "A." Accept, "R." Reject (at the start of a clause), and
+     DPT (don't penalise twice) */
+  function aqaWords(s) {
+    return String(s == null ? "" : s)
+      .replace(/(^|[;.]\s+|\(\s*)([IAR])\.\s+/g, function (m, pre, k) { return pre + { I: "Ignore: ", A: "Accept: ", R: "Reject: " }[k]; })
+      .replace(/\bDPT\b(?!\s*\()/g, "DPT (don’t penalise twice)");
   }
 
   /* paragraph text: inline markup, and a typed new line is a line break */
@@ -232,10 +247,12 @@
     csharp: "public private protected class abstract virtual override static void new return if else while for foreach in null true false using namespace get set base try catch throw out int string bool double float char var object decimal long",
     sql: "SELECT FROM WHERE ORDER BY GROUP INSERT INTO VALUES UPDATE SET DELETE CREATE TABLE PRIMARY FOREIGN KEY REFERENCES JOIN INNER LEFT ON AND OR NOT NULL IS LIKE ASC DESC AS DISTINCT INTEGER VARCHAR DECIMAL COUNT SUM AVG MIN MAX HAVING",
     pseudo: "IF THEN ELSE ENDIF WHILE ENDWHILE REPEAT UNTIL FOR TO ENDFOR FUNCTION ENDFUNCTION PROCEDURE ENDPROCEDURE RETURN OUTPUT INPUT MOD DIV AND OR NOT TRUE FALSE NULL CALL",
-    javascript: "var let const function return if else while for in of new null true false this class extends try catch throw typeof undefined"
+    javascript: "var let const function return if else while for in of new null true false this class extends try catch throw typeof undefined",
+    haskell: "let in where case of if then else data type class instance module import do deriving",
+    asm: "LDR STR ADD SUB MOV CMP B BEQ BNE BGT BLT AND ORR EOR MVN LSL LSR HALT"
   };
-  var LANG = { py: "python", python: "python", cs: "csharp", csharp: "csharp", sql: "sql", pseudo: "pseudo", js: "javascript", javascript: "javascript" };
-  var COMMENT = { python: "#", pseudo: "#", csharp: "//", javascript: "//", sql: "--" };
+  var LANG = { py: "python", python: "python", cs: "csharp", csharp: "csharp", sql: "sql", pseudo: "pseudo", js: "javascript", javascript: "javascript", hs: "haskell", haskell: "haskell", asm: "asm" };
+  var COMMENT = { python: "#", pseudo: "#", csharp: "//", javascript: "//", sql: "--", haskell: "--", asm: "//" };
   /* XAML (and XML): comments, element names, attribute names, values */
   function highlightXml(src) {
     var re = /(<!--[\s\S]*?(?:-->|$))|(<\/?)([\w.:]+)|("[^"]*"?)|([\w.:]+)(?=\s*=)|(\/?>)/g, out = "", at = 0, m;
@@ -258,7 +275,8 @@
     if (lang === "xaml" || lang === "xml") return highlightXml(src);
     if (!L) return esc(src);
     var kw = {};
-    KW[L].split(" ").forEach(function (w) { kw[L === "sql" || L === "pseudo" ? w.toUpperCase() : w] = true; });
+    var upper = L === "sql" || L === "pseudo" || L === "asm";
+    KW[L].split(" ").forEach(function (w) { kw[upper ? w.toUpperCase() : w] = true; });
     var c = COMMENT[L].replace(/[/-]/g, "\\$&");
     var re = new RegExp("(" + c + "[^\\n]*)|(\"(?:[^\"\\\\\\n]|\\\\.)*\"|'(?:[^'\\\\\\n]|\\\\.)*')|(\\b\\d+(?:\\.\\d+)?\\b)|([A-Za-z_]\\w*)|(←|<-|==|!=|<=|>=|\\+=|-=|\\*=|\\/=|[-+*\\/=<>%])", "g");
     var out = "", at = 0, m;
@@ -269,7 +287,7 @@
       else if (m[2]) out += tok("str", m[2]);
       else if (m[3]) out += tok("num", m[3]);
       else if (m[4]) {
-        var w = m[4], key = L === "sql" || L === "pseudo" ? w.toUpperCase() : w;
+        var w = m[4], key = upper ? w.toUpperCase() : w;
         if (kw[key] && (L !== "pseudo" || w === w.toUpperCase())) out += tok("kw", w);
         else if (w === "self" || w === "this") out += tok("self", w);
         else if (src.charAt(re.lastIndex) === "(") out += tok("fn", w);
@@ -381,7 +399,7 @@
               (st.h ? '<div class="k-n-wh">' + inline(st.h) + "</div>" : "") +
               (st.m != null ? '<div class="k-n-wm">' + para(st.m) + "</div>" : "") +
               (st.fig && window.KOS.figures ? KOS.figures.render(st.fig) : "") +
-              (st.n ? '<div class="k-n-wn">' + inline(st.n) + "</div>" : "") + "</div>" +
+              (st.n ? '<div class="k-n-wn">' + inline(aqaWords(st.n)) + "</div>" : "") + "</div>" +
               (st.mk ? '<span class="k-n-wmk" title="Mark">' + esc(st.mk) + "</span>" : "") + "</li>";
           }).join("") + "</ol>" +
           (w.result ? '<div class="k-n-answer"><b>Answer</b><span>' + inline(w.result) + "</span></div>" : "") +
@@ -402,7 +420,7 @@
           return '<div class="k-n-step" data-ui="part.step" data-state="revealed"><span class="k-n-step-n" aria-hidden="true">' + (i + 1) + "</span>" +
             '<div class="k-n-step-body"><div class="k-n-step-h"><span class="sr-only">Step ' + (i + 1) + (st.h ? ": " : "") + "</span>" + (st.h ? inline(st.h) : "") + "</div>" +
             (st.m != null ? '<div class="k-n-step-m">' + esc(st.m) + "</div>" : "") +
-            (st.n ? '<div class="k-n-step-note">' + inline(st.n) + "</div>" : "") + "</div></div>";
+            (st.n ? '<div class="k-n-step-note">' + inline(aqaWords(st.n)) + "</div>" : "") + "</div></div>";
         }).join("") + "</div>"; return;
       }
     })();
@@ -512,10 +530,36 @@
      replace it: practice arrays concatenate, notes pages append, sims/gens
      union. The past-paper bank lives in its own files so the authored base
      stays readable and a bank file can be regenerated on its own. */
+  /* CC-05: one past-paper question, one exam item. "AQA 2017 P1 Q05.5"
+     (a bank) and "AQA June 2017 · P1 Q5.5" (a worked card) are the same
+     question when the level, year, paper and question number agree */
+  function paperKey(it) {
+    var src = it && it.src ? String(it.src) : "";
+    var y = /\b(20\d\d)\b/.exec(src), pq = /\bP(\d)\s*Q0*(\d+)((?:\.\d+)?(?:\s*\((?:[ivx]+|[a-z])\))*)/.exec(src);
+    if (!y || !pq) return null;
+    return (it.level === "AS" || /\bAS\b/.test(src) ? "AS" : "AL") + "|" + y[1] + "|" + pq[1] + "|" + pq[2] + pq[3].replace(/\s+/g, "");
+  }
   function extend(key, patch) {
     var e = window.KOS_CONTENT[key] = window.KOS_CONTENT[key] || {};
     ["flashcards", "quiz", "exam"].forEach(function (k) {
-      if (patch[k] && patch[k].length) e[k] = (e[k] || []).concat(patch[k]);
+      if (!(patch[k] && patch[k].length)) return;
+      var add = patch[k];
+      if (k === "exam") {
+        /* each item keeps the position it would have had (`oi`): a typed
+           answer, its handwriting and its marks are keyed by it, so dropping
+           a duplicate never hands one question's work to the next */
+        if (e._examN == null) e._examN = (e.exam || []).length;
+        var base = e._examN, have = {};
+        e._examN += add.length;
+        /* only Computer Science's banks repeat its worked cards' questions
+           word for word; Maths' banks are new questions MODELLED on a paper
+           and stay */
+        var dedupe = /^compsci:/.test(key);
+        (e.exam || []).forEach(function (it) { var pk = paperKey(it); if (pk) have[pk] = true; });
+        add = add.map(function (it, j) { return Object.assign({}, it, { oi: base + j }); })
+          .filter(function (it) { if (!dedupe) return true; var pk = paperKey(it); if (pk && have[pk]) return false; if (pk) have[pk] = true; return true; });
+      }
+      e[k] = (e[k] || []).concat(add);
     });
     if (patch.notes && patch.notes.length) e.notes = (e.notes || []).concat(patch.notes);
     ["sims", "gens"].forEach(function (k) {
@@ -569,6 +613,8 @@
     splitPages: splitPages,
     typeset: typeset,
     inline: inline,
+    aqaWords: aqaWords,
+    paperKey: paperKey,
     markdown: markdown,
     CALLOUT_META: CALLOUT_META,
     highlight: highlightCode,

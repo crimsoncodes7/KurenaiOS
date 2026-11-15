@@ -23,12 +23,12 @@ X("compsci:4.4.1.1", {
     ["What is a logical contradiction in a puzzle?", "A case in which some statement would have to be both true and false — that case is impossible and can be discarded.", 15]
   ],
   quiz: [
-    { q: "Exactly one of three statements is true. S1: 'S2 is false.' S2: 'S3 is false.' S3: 'S1 is false.' Which is true?", opts: ["S1", "S2", "S3", "None can be"], ans: 3, why: "If S1 true then S2 false, so S3 true — two truths. Each case fails similarly, so the premise is inconsistent." },
-    { q: "Boxes labelled A, B and 'A or B' are all wrong. The box labelled 'A or B' contains only:", opts: ["A", "B", "either — one item tells you which", "nothing"], ans: 2, why: "Its label is wrong so it is pure A or pure B; one item resolves it." },
-    { q: "A player answers 'No' to 'Is it a triangle?' and 'No' to 'Is it blue?' The shapes left are:", opts: ["blue triangles", "non-blue non-triangles", "blue non-triangles", "all shapes"], ans: 1, why: "Both eliminations apply." },
-    { q: "The mark for a puzzle deduction is usually awarded for:", opts: ["the answer alone", "the reasoning that forces the answer", "a diagram", "speed"], ans: 1, why: "'Because … so …'." },
-    { q: "Turning a Sudoku into a graph loses:", opts: ["the cells", "which constraint (row/column/box) links two cells", "all edges", "the numbers"], ans: 1, why: "The nature/location of the relationship is not represented." },
-    { q: "Best first move in a puzzle with several clues:", opts: ["guess", "find the clue that forces a unique case", "ignore the hardest clue", "list every configuration"], ans: 1, why: "Forced moves shrink the search space fastest." }
+    { q: "Exactly one of three statements is true. S1: 'S2 is false.' S2: 'S3 is false.' S3: 'S1 is false.' Which is true?", opts: ["S1, which makes S2 false", "S2, which makes S3 false", "S3, which makes S1 false", "None — each case clashes"], ans: 3, why: "If S1 true then S2 false, so S3 true — two truths. Each case fails similarly, so the premise is inconsistent." },
+    { q: "Boxes labelled A, B and 'A or B' are all wrong. The box labelled 'A or B' contains only:", opts: ["A — the label is only half wrong", "B — the label is only half wrong", "either — one item tells you which", "nothing — the box must be empty"], ans: 2, why: "Its label is wrong so it is pure A or pure B; one item resolves it." },
+    { q: "A player answers 'No' to 'Is it a triangle?' and 'No' to 'Is it blue?' The shapes left are:", opts: ["blue triangles only", "non-blue non-triangles", "blue non-triangles", "all of the shapes"], ans: 1, why: "Both eliminations apply." },
+    { q: "The mark for a puzzle deduction is usually awarded for:", opts: ["the answer alone, stated clearly", "the reasoning that forces the answer", "a neat diagram of the puzzle", "how quickly the answer is found"], ans: 1, why: "'Because … so …'." },
+    { q: "Turning a Sudoku into a graph loses:", opts: ["the cells, which become edges instead of nodes", "which constraint (row/column/box) links two cells", "all edges between cells in the same row", "the numbers already placed in the given cells"], ans: 1, why: "The nature/location of the relationship is not represented." },
+    { q: "Best first move in a puzzle with several clues:", opts: ["guess a value and see if it works", "find the clue that forces a unique case", "ignore the hardest clue until the end", "list every possible configuration first"], ans: 1, why: "Forced moves shrink the search space fastest." }
   ],
   exam: [
     { src: "AQA 2018 P1 Q1.1", q: "Three sealed boxes contain, respectively, only red pens, only blue pens, and a mix of both. Every box is labelled, but every label is wrong. You may take one pen from one box without looking inside. Explain which box you should take a pen from and how you can then correctly label all three boxes.", marks: 2,
@@ -67,8 +67,8 @@ X("compsci:4.4.1.2", {
   ],
   quiz: [
     { q: "For input \"1A\" the algorithm `Total ← 0; for each char: Total ← Total × 16 + value(char)` gives:", opts: ["26", "161", "17", "10"], ans: 0, why: "1 → 1; then 1×16 + 10 = 26." },
-    { q: "A loop `WHILE d < n AND Prime` stops early because:", opts: ["n is prime", "the flag Prime becomes FALSE when a divisor is found", "d overflows", "MOD is undefined"], ans: 1, why: "The compound condition uses the flag." },
-    { q: "In a trace table you add a row:", opts: ["per variable", "per statement/iteration that changes a value", "per column", "once"], ans: 1, why: "Rows follow execution." },
+    { q: "A loop `WHILE d < n AND Prime` stops early because:", opts: ["n is prime, so the loop has no more divisors to test", "the flag Prime becomes FALSE when a divisor is found", "d overflows once it passes the square root of n", "MOD is undefined when d becomes larger than n"], ans: 1, why: "The compound condition uses the flag." },
+    { q: "In a trace table you add a row:", opts: ["per variable used anywhere in the program", "per statement/iteration that changes a value", "per column, so each value has its own row", "once, at the end, with the final values"], ans: 1, why: "Rows follow execution." },
     { q: "'Sequence of steps that solves a problem' describes:", opts: ["a program", "an algorithm", "a data structure", "a compiler"], ans: 1, why: "Language-independent definition." },
     { q: "Insertion sort trace: [4, 3, 1] after inserting the second element:", opts: ["[3, 4, 1]", "[1, 3, 4]", "[4, 1, 3]", "[3, 1, 4]"], ans: 0, why: "3 is moved before 4; 1 is not yet processed." },
     { q: "An algorithm that compares all n characters of a palindrome candidate when n/2 would do is:", opts: ["incorrect", "inefficient", "recursive", "invalid"], ans: 1, why: "Correct but does unnecessary work." }
@@ -122,10 +122,10 @@ X("compsci:4.4.2.1", {
   quiz: [
     { q: "An FSM reads all input and ends in a non-accepting state. The string is:", opts: ["accepted", "rejected", "undefined", "partially accepted"], ans: 1, why: "Acceptance needs an accepting final state." },
     { q: "Outputs written on transitions indicate a:", opts: ["Moore machine", "Mealy machine", "Turing machine", "BNF grammar"], ans: 1, why: "Mealy = output on transition." },
-    { q: "In a state transition table the columns are typically:", opts: ["state, input, next state", "input, output only", "state, memory", "tape, head"], ans: 0, why: "Plus output if any." },
+    { q: "In a state transition table the columns are typically:", opts: ["state, input, next state", "input, output and nothing else", "state, memory, next memory", "tape, head, next head"], ans: 0, why: "Plus output if any." },
     { q: "An FSM for 'strings of a and b with an even number of a' needs how many states?", opts: ["1", "2", "3", "infinitely many"], ans: 1, why: "Even / odd count of a so far." },
     { q: "Which cannot be recognised by an FSM?", opts: ["Binary numbers divisible by 3", "Strings ending in 01", "Balanced brackets to any depth", "Strings with at most one 0"], ans: 2, why: "Unbounded nesting needs a stack." },
-    { q: "Reaching a 'sink' state with no exits from which no accepting state is reachable means:", opts: ["the input so far is invalid", "the input is complete", "the machine restarts", "output is produced"], ans: 0, why: "Typical 'error' state." }
+    { q: "Reaching a 'sink' state with no exits from which no accepting state is reachable means:", opts: ["the input so far is invalid", "the input is complete and valid", "the machine restarts from S0", "an output is produced and it halts"], ans: 0, why: "Typical 'error' state." }
   ],
   exam: [
     { level: "AS", src: "AS 2022 P1 Q2", ctx: "A vending machine accepts 20p coins and sells one item costing 40p. It has states **Idle**, **20p inserted**, **40p inserted (item available)** and **Dispensing**. Events are: insert 20p, press Vend, press Cancel (refunds and returns to Idle), item taken (returns to Idle).",
@@ -168,12 +168,12 @@ X("compsci:4.4.2.2", {
     ["What is the cardinality of the empty set?", "0.", 17]
   ],
   quiz: [
-    { q: "|{2, 4, 6, 8}| =", opts: ["4", "8", "20", "0"], ans: 0, why: "Four elements." },
+    { q: "|{2, 4, 6, 8}| =", opts: ["4", "8", "20", "0"], ans: 0, why: "The cardinality of a set is its number of elements, and this set has four." },
     { q: "How many subsets does {a, b} have?", opts: ["2", "3", "4", "1"], ans: 2, why: "{}, {a}, {b}, {a, b} — 2ⁿ." },
-    { q: "{1, 2, 3} ∩ {2, 3, 4} has cardinality:", opts: ["1", "2", "3", "4"], ans: 1, why: "{2, 3}." },
-    { q: "{a, b} × {1, 2} contains how many pairs?", opts: ["2", "4", "6", "8"], ans: 1, why: "2 × 2." },
-    { q: "The set {0ⁿ1ⁿ | n ≥ 1}:", opts: ["is regular", "is not regular — needs matching counts", "is finite", "contains 10"], ans: 1, why: "An FSM cannot count unboundedly." },
-    { q: "{x | x ∈ ℤ ∧ −1 ≤ x ≤ 1} =", opts: ["{0}", "{−1, 0, 1}", "{−1, 1}", "ℤ"], ans: 1, why: "Integers from −1 to 1." }
+    { q: "{1, 2, 3} ∩ {2, 3, 4} has cardinality:", opts: ["1", "2", "3", "4"], ans: 1, why: "The intersection is the elements in both sets, {2, 3}, which has two elements." },
+    { q: "{a, b} × {1, 2} contains how many pairs?", opts: ["2", "4", "6", "8"], ans: 1, why: "The Cartesian product pairs each element of one set with each of the other: 2 × 2 = 4." },
+    { q: "The set {0ⁿ1ⁿ | n ≥ 1}:", opts: ["is regular — an FSM can recognise it", "is not regular — needs matching counts", "is finite, as n has a largest value", "contains 10 and 1100 but not 0011"], ans: 1, why: "An FSM cannot count unboundedly." },
+    { q: "{x | x ∈ ℤ ∧ −1 ≤ x ≤ 1} =", opts: ["{0, 1, 2}", "{−1, 0, 1}", "{−1, 1}", "{−1, 0, 0.5, 1}"], ans: 1, why: "Integers from −1 to 1." }
   ],
   exam: [
     { src: "AQA 2024 P1 Q4", ctx: "Let R = {a, ab, b, bb} and T = {b, bb, bbb, …} (one or more b's).",
@@ -203,17 +203,16 @@ X("compsci:4.4.2.3", {
   ],
   flashcards: [
     ["Difference between `ab*` and `(ab)*`?", "`ab*` = a followed by any number of b; `(ab)*` = any number of repetitions of ab (including none).", 14],
-    ["Write a regex for strings of a's and b's that alternate, starting with either.", "`a(ba)*|b(ab)*`", 15],
     ["Regex for a UK postcode: 1–2 letters, digit, optional letter-or-digit, digit, two letters?", "`\\a\\a?\\d(\\a|\\d)?\\d\\a\\a`", 16],
     ["Which strings match `1|01+`?", "`1`, and `0` followed by one or more 1s: 01, 011, 0111…", 17]
   ],
   quiz: [
-    { q: "`colou?r` matches:", opts: ["color and colour", "colouur", "colr", "only colour"], ans: 0, why: "? makes the u optional." },
+    { q: "`colou?r` matches:", opts: ["color and colour", "colouur and colour", "colr and color", "only colour, not color"], ans: 0, why: "? makes the u optional." },
     { q: "`(ab)+` matches:", opts: ["the empty string", "ab, abab, ababab…", "a, b", "abb"], ans: 1, why: "One or more repetitions of the group." },
     { q: "Which does NOT match `1|01+`?", opts: ["1", "01", "0111", "10"], ans: 3, why: "`10` starts with 1 then has a trailing 0 — neither alternative." },
-    { q: "`a(bb)*` matches:", opts: ["ab", "abb, abbbb, a", "abbb", "bb"], ans: 1, why: "a followed by an even number of b's, including zero." },
-    { q: "The `|` metacharacter means:", opts: ["repeat", "either the element before or after", "optional", "any character"], ans: 1, why: "Alternation." },
-    { q: "Regex for 'a followed by an even, non-zero number of b's, or just an even non-zero number of b's':", opts: ["a?(bb)+", "ab+", "(ab)+", "a|b"], ans: 0, why: "Optional a then one or more bb pairs." }
+    { q: "`a(bb)*` matches:", opts: ["ab, abbb, abbbbb", "abb, abbbb, a", "abab, ababab", "bb, bbbb, bbbbbb"], ans: 1, why: "a followed by an even number of b's, including zero." },
+    { q: "The `|` metacharacter means:", opts: ["repeat the element before it any number of times", "either the element before or after", "the element before it is optional", "any single character except a new line"], ans: 1, why: "In a regular expression | means alternation: either the part before it or the part after it." },
+    { q: "Regex for 'a followed by an even, non-zero number of b's, or just an even non-zero number of b's':", opts: ["a?(bb)+", "a(bb)*", "a*(bb)+", "a?(bb)*"], ans: 0, why: "Optional a then one or more bb pairs." }
   ],
   exam: [
     { src: "AQA 2019 P1 Q4", ctx: "A regular language is defined by the regular expression `1|01+`.",
@@ -248,11 +247,11 @@ X("compsci:4.4.2.4", {
   ],
   quiz: [
     { q: "Which language is regular?", opts: ["Balanced brackets", "aⁿbⁿ", "Strings ending in 00", "Palindromes"], ans: 2, why: "A three-state FSM recognises 'ends in 00'." },
-    { q: "'All regular languages are finite' is:", opts: ["true", "false"], ans: 1, why: "a* is infinite and regular." },
+    { q: "Every finite language is:", opts: ["regular", "not regular", "undecidable", "infinite"], ans: 0, why: "A finite set can be listed as alternatives." },
     { q: "Every regular language can be recognised by:", opts: ["a Turing machine only", "an FSM without outputs", "no machine", "a stack machine only"], ans: 1, why: "Definition equivalence." },
     { q: "BNF can describe languages that regular expressions cannot. This is:", opts: ["true", "false"], ans: 0, why: "Context-free ⊃ regular." },
-    { q: "'Strings with equal numbers of 0s and 1s' is:", opts: ["regular", "not regular", "finite", "empty"], ans: 1, why: "Requires unbounded counting." },
-    { q: "Which is the best evidence a language is regular?", opts: ["It has infinitely many strings", "You can draw an FSM for it", "It is in BNF", "It uses letters"], ans: 1, why: "FSM ⇔ regular." }
+    { q: "'Strings with equal numbers of 0s and 1s' is:", opts: ["still regular", "not regular", "always finite", "always empty"], ans: 1, why: "Requires unbounded counting." },
+    { q: "Which is the best evidence a language is regular?", opts: ["It has infinitely many strings", "You can draw an FSM for it", "It is in BNF", "It uses letters"], ans: 1, why: "A language is regular if some finite state machine can recognise it." }
   ],
   exam: [
     { src: "AQA 2023 P1 Q4.1", q: "State whether each language is regular: A = strings of 0s and 1s ending in 1; B = {aⁿbⁿ | n ≥ 1}; C = strings over {a, b} of length exactly 4; D = palindromes over {a, b}; E = strings with an even number of a's; F = correctly nested brackets.", marks: 3,
@@ -283,16 +282,15 @@ X("compsci:4.4.3.1", {
     ["Write a BNF rule for a natural number.", "`<natural> ::= <digit> | <digit><natural>` with `<digit> ::= 0|1|…|9`.", 13],
     ["Why can BNF define languages that regular expressions cannot?", "BNF rules can be recursive, allowing unbounded nesting (context-free languages).", 14],
     ["How many sentences does `<s> ::= <a><b>` define if <a> has 3 options and <b> has 5?", "15.", 15],
-    ["How many sentences does a recursive rule define?", "Infinitely many.", 16],
     ["What is a syntax diagram?", "A graphical form of BNF: boxes for symbols joined by arrows showing allowed sequences and loops.", 17]
   ],
   quiz: [
     { q: "`<int> ::= <digit> | <digit><int>` is:", opts: ["invalid", "recursive", "a regular expression", "a terminal"], ans: 1, why: "It refers to itself." },
     { q: "In `<expr> ::= <term> | <expr> + <term>`, `+` is a:", opts: ["non-terminal", "terminal", "rule", "metacharacter"], ans: 1, why: "Literal symbol in the output." },
-    { q: "Balanced brackets can be defined in BNF but not by a regex because:", opts: ["regex has no brackets", "BNF allows recursion / unbounded nesting", "BNF is newer", "regex is case-sensitive"], ans: 1, why: "Context-free power." },
-    { q: "`<greeting> ::= hello <name> | hi <name>`; `<name> ::= Ann | Bo`. How many greetings?", opts: ["2", "3", "4", "infinite"], ans: 2, why: "2 × 2." },
+    { q: "Balanced brackets can be defined in BNF but not by a regex because:", opts: ["regex has no symbols for writing brackets", "BNF allows recursion / unbounded nesting", "BNF is newer and has more features", "regex is case-sensitive and BNF is not"], ans: 1, why: "Context-free power." },
+    { q: "`<greeting> ::= hello <name> | hi <name>`; `<name> ::= Ann | Bo`. How many greetings?", opts: ["2", "3", "4", "infinite"], ans: 2, why: "Each greeting is one of 2 openings (hello/hi) followed by one of 2 names, so 2 × 2 = 4." },
     { q: "To allow `<sentence>` to also be just a noun, you:", opts: ["write a second rule for <sentence>", "add `| <n>` to the existing rule", "delete the rule", "use a regex"], ans: 1, why: "One rule with alternatives." },
-    { q: "In a syntax diagram a loop back represents:", opts: ["recursion / repetition", "a terminal", "an error", "alternation"], ans: 0, why: "Repetition of the looped part." }
+    { q: "In a syntax diagram a loop back represents:", opts: ["recursion / repetition", "a terminal symbol", "an error in the syntax", "alternation between choices"], ans: 0, why: "Repetition of the looped part." }
   ],
   exam: [
     { src: "AQA 2017 P1 Q1.2", q: "Using the rule `<digit> ::= 0|1|2|3|4|5|6|7|8|9`, write a BNF production rule for `<natural>`, a natural number consisting of one or more digits.", marks: 2,

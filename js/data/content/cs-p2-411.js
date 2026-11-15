@@ -313,26 +313,24 @@ C["compsci:4.11.1"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.12 functional programming — map, filter, fold, immutability; 4.10.1 ER diagrams versus graph schemas; 4.10.5 distributed databases and concurrency; 4.9.4.10 JSON/XML for semi-structured data; 4.8.1 data protection law and ethics; 4.7.3.7 multi-core and parallel hardware." } }
   ],
   flashcards: [
-    ["Big Data?", "Data that won't fit the usual containers — it cannot be stored or processed with traditional tools."],
-    ["Volume?", "So much data it will not fit on a single server."],
-    ["Velocity?", "Data generated/received that must be processed very quickly (milliseconds to seconds), often streamed."],
-    ["Variety?", "Data in many forms — structured, unstructured, text, multimedia."],
-    ["Why are relational databases unsuitable?", "They need row-and-column structure and don't scale well across multiple machines."],
-    ["What extracts value from unstructured Big Data?", "Machine learning techniques that find patterns."],
-    ["MapReduce?", "Map a function over each server's data in parallel, group the key–value pairs, then reduce each group to a result."],
-    ["Four functional features that help distribution?", "Immutable data, statelessness/no side effects, higher-order functions, execution order not fixed."],
-    ["Fact-based model?", "Data as atomic, immutable, timestamped facts; changes are new facts, never overwrites."],
-    ["Graph schema: node, edge, property?", "Oval; solid labelled line; rectangle joined by a dashed line."],
-    ["Laws for the Big Data essay?", "DPA/GDPR, Computer Misuse Act, RIPA."],
-    ["Why send the function to the data?", "Moving huge data across the network is slow; only small results need to travel."]
+    ["Volume?", "So much data it will not fit on a single server.", 1],
+    ["Velocity?", "Data generated/received that must be processed very quickly (milliseconds to seconds), often streamed.", 2],
+    ["Variety?", "Data in many forms — structured, unstructured, text, multimedia.", 3],
+    ["Why are relational databases unsuitable?", "They need row-and-column structure and don't scale well across multiple machines.", 4],
+    ["What extracts value from unstructured Big Data?", "Machine learning techniques that find patterns.", 5],
+    ["MapReduce?", "Map a function over each server's data in parallel, group the key–value pairs, then reduce each group to a result.", 6],
+    ["Four functional features that help distribution?", "Immutable data, statelessness/no side effects, higher-order functions, execution order not fixed.", 7],
+    ["Graph schema: node, edge, property?", "Oval; solid labelled line; rectangle joined by a dashed line.", 9],
+    ["Laws for the Big Data essay?", "DPA/GDPR, Computer Misuse Act, RIPA.", 10],
+    ["Why send the function to the data?", "Moving huge data across the network is slow; only small results need to travel.", 11]
   ],
   quiz: [
     { q: "\"High velocity of data\" as a characteristic scores", opts: ["NE.", "1 mark", "2 marks", "R. always"], ans: 0, why: "Say it must be processed quickly." },
-    { q: "In a graph schema, \"Cost: £1.50\" is drawn as", opts: ["a rectangle on a dashed line", "an oval", "a solid labelled line", "a crow's foot"], ans: 0, why: "A property." },
+    { q: "In a graph schema, \"Cost: £1.50\" is drawn as", opts: ["a rectangle on a dashed line", "an oval on a solid line", "a solid labelled line between nodes", "a crow's foot on the edge"], ans: 0, why: "A property such as a cost is drawn as a rectangle joined by a dashed line." },
     { q: "Which makes functional code safe to run on many servers?", opts: ["no side effects", "global variables", "GOTO", "mutable arrays"], ans: 0, why: "Output depends only on inputs." },
     { q: "In a fact-based model, a truck's new service date is recorded by", opts: ["adding a new fact", "overwriting the old date", "deleting the old fact", "a new table"], ans: 0, why: "Facts are immutable." },
-    { q: "Videos, emails and web pages in one dataset illustrate", opts: ["variety", "volume", "velocity", "validity"], ans: 0, why: "Many forms." },
-    { q: "In MapReduce the reduce step", opts: ["combines each key's values into a result", "splits the input", "sends data to clients", "sorts the servers"], ans: 0, why: "Combining stage." }
+    { q: "Videos, emails and web pages in one dataset illustrate", opts: ["variety", "volume", "velocity", "validity"], ans: 0, why: "Videos, emails and web pages are many different forms of data, which is variety." },
+    { q: "In MapReduce the reduce step", opts: ["combines each key's values into a result", "splits the input into chunks for each server", "sends the mapped data back to the clients", "sorts the servers by how busy they are"], ans: 0, why: "Combining stage." }
   ]
 };
 

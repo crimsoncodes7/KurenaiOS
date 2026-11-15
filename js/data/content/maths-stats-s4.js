@@ -474,7 +474,7 @@ C["maths:S4.2"] = {
         { h: "Two equations", m: "$170 = \\mu - 0.2533\\sigma$, $\\quad 175 = \\mu + 1.0364\\sigma$", mk: "M1" },
         { m: "Subtract: $5 = 1.2898\\sigma \\;\\Rightarrow\\; \\sigma = 3.88$; $\\quad \\mu = 170 + 0.2533 \\times 3.88 = 171.0$", mk: "M1 A1 A1",
           fig: normFig(170.98, 3.877, [[160, 170, "accent2"], [175, 185, "accent3"]], [[170, "170"], [175, "175"]], { xl: "cm", xt: [165, 170, 175, 180], extra: [{ text: [167, 0.25], t: "40%", size: 12, c: "accent2", b: true }, { text: [177.4, 0.25], t: "15%", size: 12, c: "accent3", b: true }] }) },
-        { h: "(c) Independent people: multiply", m: "Woman: $1 - 0.40 - 0.15 = 0.45$; man: $P(170 < M < 175) = 0.0473$\n$0.45 \\times 0.0473 = 0.0213$", mk: "M1 A1ft A1", n: "The woman's probability needs no calculator: it is what the two given tails leave." }
+        { h: "(c) Independent people: multiply", m: "Woman: $1 - 0.40 - 0.15 = 0.45$; man: $P(170 < M < 175) = 0.0473$\n$0.45 \\times 0.0473 = 0.0213$", mk: "M1 A1", n: "The woman's probability needs no calculator: it is what the two given tails leave." }
       ], result: "(a) 0.270, 0.607 (b) $\\mu = 171.0$, $\\sigma = 3.88$ (c) 0.0213" } },
     { worked: { tag: "exam", title: "μ and σ when both probabilities are in different tails", src: "A-level June 2024 · P3 Q5(d) · 5 marks",
       q: "Discus distances $D \\sim N(\\mu, \\sigma^2)$ metres, with $P(D < 16.3) = 0.30$ and $P(D > 29.0) = 0.10$. Calculate $\\mu$ and $\\sigma$.",
@@ -609,7 +609,7 @@ C["maths:S4.2"] = {
     ["$P(X = a)$ for a Normal variable?", "0."]
   ],
   quiz: [
-    { q: "$X \\sim N(50, 4^2)$. $P(X < 50) =$", opts: ["0.5", "0.4", "0.68", "1"], ans: 0, why: "Symmetry." },
+    { q: "$X \\sim N(50, 4^2)$. $P(X < 50) =$", opts: ["0.5", "0.4", "0.68", "1"], ans: 0, why: "50 is the mean and the Normal is symmetric about it: $0.5$." },
     { q: "$X \\sim N(50, 16)$. The standard deviation is", opts: ["4", "16", "256", "8"], ans: 0, why: "Variance 16." },
     { q: "Points of inflection of $N(20, 3^2)$ are at", opts: ["17 and 23", "14 and 26", "20", "11 and 29"], ans: 0, why: "$\\mu \\pm \\sigma$." },
     { q: "$B(200, 0.45)$ is approximated by", opts: ["$N(90, 49.5)$", "$N(90, 7.04)$", "$N(110, 49.5)$", "$N(90, 0.2475)$"], ans: 0, why: "$np = 90$, $np(1 - p) = 49.5$." },
@@ -700,10 +700,10 @@ C["maths:S4.3"] = {
     ["Hospital stays: mean 14.9, sd 9.3, long right tail. Normal?", "No — skewed, and it allows negative stays."]
   ],
   quiz: [
-    { q: "The number of heads in 20 tosses is best modelled by", opts: ["$B(20, 0.5)$", "$N(10, 5)$ exactly", "discrete uniform", "$B(0.5, 20)$"], ans: 0, why: "Fixed independent trials." },
-    { q: "The height of a randomly chosen adult is best modelled by", opts: ["a Normal distribution", "a binomial", "a discrete uniform", "none"], ans: 0, why: "Continuous and symmetrical." },
-    { q: "A Normal model is unsuitable for waiting times with mean 2 min, sd 3 min because", opts: ["it gives negative times a large probability", "times are continuous", "the mean is small", "it is symmetrical"], ans: 0, why: "Impossible tail." },
-    { q: "A binomial model for rainy days fails mainly because", opts: ["days are not independent", "rain is continuous", "there are 2 outcomes", "$n$ is fixed"], ans: 0, why: "Weather comes in spells." }
+    { q: "The number of heads in 20 tosses is best modelled by", opts: ["$B(20, 0.5)$", "$N(10, 5)$ exactly", "discrete uniform", "$B(0.5, 20)$"], ans: 0, why: "20 fixed, independent tosses with $p = 0.5$: $B(20, 0.5)$." },
+    { q: "The height of a randomly chosen adult is best modelled by", opts: ["a Normal distribution", "a binomial distribution", "a discrete uniform", "none"], ans: 0, why: "Height is continuous and symmetric about its mean: Normal." },
+    { q: "A Normal model is unsuitable for waiting times with mean 2 min, sd 3 min because", opts: ["it gives negative times a large probability", "waiting times are a continuous variable", "the mean of 2 minutes is too small", "the standard deviation must be less than 1"], ans: 0, why: "$P(T < 0) = P(Z < -\\frac23) \\approx 0.25$: negative times would be common." },
+    { q: "A binomial model for rainy days fails mainly because", opts: ["days are not independent", "rain is a continuous variable", "there are 2 outcomes", "$n$ is fixed"], ans: 0, why: "Weather comes in spells." }
   ]
 };
 

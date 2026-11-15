@@ -259,15 +259,72 @@
       }
     }
     var t = r.topics[k] = r.topics[k] || {};
+    var fresh = t[kind] == null;
     t[kind] = normaliseKind(sid, ref, kind, value);
+    /* CM-04: a fork remembers which shipped version it was made from */
+    if (fresh) (t.shipped = t.shipped || {})[kind] = shippedHash(sid, ref, kind);
     t.updatedAt = Date.now();
     store.save();
     return t[kind];
   }
+
+  /* ---------------- CM-04: a fork made before the curriculum moved ----------------
+     A fork hides the shipped material for good (invariant 86), so a deeper
+     version shipped later was never seen. Each fork keeps the hash of the
+     shipped kind it was made from; when today's differs, the tab says so
+     and offers the new version, your rows added to it, or keeping yours.
+     A fork from before the stamp is judged by its shipped rows: a different
+     number of them than ships today means the curriculum moved. */
+  function hashStr(str) { var h = 5381; for (var i = 0; i < str.length; i++) h = ((h << 5) + h + str.charCodeAt(i)) | 0; return (h >>> 0).toString(36); }
+  function shippedOf(sid, ref, kind) {
+    if (kind === "notes") return shippedNotes(sid, ref);
+    if (kind === "flashcards") return shippedFlashcards(sid, ref);
+    if (kind === "quiz") return shippedQuiz(sid, ref);
+    if (kind === "exam") return shippedExam(sid, ref);
+    if (kind === "spec") return shippedSpec(sid, ref);
+    return null;
+  }
+  function shippedHash(sid, ref, kind) { return hashStr(canonRow(shippedOf(sid, ref, kind))); }
+  function shippedRows(v) {
+    if (!v) return [];
+    return Array.isArray(v) ? v : (v.content || []).concat(v.info || []);
+  }
+  function stale(sid, ref, kind) {
+    var t = get(sid, ref);
+    if (!t || t[kind] == null) return false;
+    var stamp = t.shipped && t.shipped[kind];
+    if (stamp) return stamp !== shippedHash(sid, ref, kind);
+    var mine = shippedRows(t[kind]).filter(function (x) { return x && /^s(\d+|.*:.*)$/.test(String(x.id)); }).length;
+    return mine !== shippedRows(shippedOf(sid, ref, kind)).length;
+  }
+  /* keep my version: this shipped version counts as seen */
+  function keepMine(sid, ref, kind) {
+    var t = get(sid, ref); if (!t || t[kind] == null) return false;
+    (t.shipped = t.shipped || {})[kind] = shippedHash(sid, ref, kind);
+    t.updatedAt = Date.now(); store.save();
+    return true;
+  }
+  /* the new version with the rows I ADDED (never a shipped row I changed)
+     at its end; a flashcard keeps its schedule key (invariant 87) */
+  function takeNew(sid, ref, kind, opts) {
+    var t = get(sid, ref); if (!t || t[kind] == null) return false;
+    var fresh = shippedOf(sid, ref, kind);
+    if (opts && opts.withMine) {
+      var mine = function (rows) { return (rows || []).filter(function (x) { return x && !/^s(\d+|.*:.*)$/.test(String(x.id)); }).map(clone); };
+      if (Array.isArray(fresh)) fresh = fresh.concat(mine(t[kind]));
+      else if (fresh) { fresh.content = fresh.content.concat(mine(t[kind].content)); fresh.info = fresh.info.concat(mine(t[kind].info)); }
+      if (Array.isArray(fresh) ? !mine(t[kind]).length : !(mine(t[kind].content).length + mine(t[kind].info).length)) return reset(sid, ref, kind);
+      t[kind] = normaliseKind(sid, ref, kind, fresh);
+      (t.shipped = t.shipped || {})[kind] = shippedHash(sid, ref, kind);
+      t.updatedAt = Date.now(); store.save();
+      return true;
+    }
+    return reset(sid, ref, kind);
+  }
   function reset(sid, ref, kind) {
     var r = root(), k = key(sid, ref), t = r.topics[k];
     if (!t) return false;
-    if (kind) delete t[kind]; else KINDS.forEach(function (x) { delete t[x]; });
+    if (kind) { delete t[kind]; if (t.shipped) delete t.shipped[kind]; } else { KINDS.forEach(function (x) { delete t[x]; }); delete t.shipped; }
     if (!KINDS.some(function (x) { return t[x] != null; })) delete r.topics[k];
     else t.updatedAt = Date.now();
     store.save();
@@ -492,6 +549,10 @@
     set: set,
     reset: reset,
     topics: topics,
+    /* CM-04 */
+    stale: stale,
+    keepMine: keepMine,
+    takeNew: takeNew,
     effectiveEntry: effectiveEntry,
     nextId: nextId,
     blocksEditable: blocksEditable,

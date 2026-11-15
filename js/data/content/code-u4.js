@@ -119,7 +119,7 @@
     quiz: [
       { q: "`int[] a = { 5, 6, 7 };` — `a[2]` is…", opts: ["5", "6", "7", "an error"], ans: 2, why: "Indexes start at 0." },
       { q: "`a.Length` for `new int[10]` is…", opts: ["9", "10", "11", "0"], ans: 1, why: "Ten slots, all 0." },
-      { q: "Reading `a[a.Length]` gives…", opts: ["the last item", "0", "IndexOutOfRangeException", "null"], ans: 2, why: "Valid indexes stop at Length − 1." },
+      { q: "Reading `a[a.Length]` gives…", opts: ["the last item of the array", "0, the default for int", "IndexOutOfRangeException", "NullReferenceException"], ans: 2, why: "Valid indexes stop at Length − 1." },
       { q: "An array is the right choice when…", opts: ["items are added often", "the size is fixed and known", "you look up by name", "order does not matter"], ans: 1, why: "Arrays never grow." }
     ]
   });
@@ -217,7 +217,7 @@
     ],
     quiz: [
       { q: "`var xs = new List<int>(); xs.Add(3); xs.Add(4);` — `xs[1]` is…", opts: ["3", "4", "1", "an error"], ans: 1, why: "Items are indexed from 0." },
-      { q: "Removing items inside `foreach (var x in xs)` gives…", opts: ["the new list", "InvalidOperationException", "a compile error", "nothing"], ans: 1, why: "A collection cannot change while it is enumerated." },
+      { q: "Removing items inside `foreach (var x in xs)` gives…", opts: ["the new list without those items", "InvalidOperationException", "a compile error (CS1656)", "IndexOutOfRangeException"], ans: 1, why: "A collection cannot change while it is enumerated." },
       { q: "Which is O(n) on a list?", opts: ["xs[5]", "xs.Add(x) usually", "xs.Contains(x)", "xs.Count"], ans: 2, why: "Contains checks each item." },
       { q: "`xs.Remove(42)` when 42 is not there…", opts: ["throws", "returns false", "removes the last item", "returns -1"], ans: 1, why: "It reports that nothing was removed." }
     ]
@@ -892,7 +892,7 @@
       ["Keys are 0, 1, 2 … n − 1?", "An array (or a list)."]
     ],
     quiz: [
-      { q: "Counting votes per candidate:", opts: ["List<string>", "Dictionary<string, int>", "Stack<int>", "int[,]"], ans: 1, why: "A count per key." },
+      { q: "Counting votes per candidate:", opts: ["List<string> of the names", "Dictionary<string, int>", "Stack<int> of counts", "int[,] grid of votes"], ans: 1, why: "A count per key." },
       { q: "A browser's Back button:", opts: ["Queue", "Stack", "HashSet", "Dictionary"], ans: 1, why: "Newest first." },
       { q: "Checking a word against a 50,000-word dictionary list, many times:", opts: ["List.Contains", "HashSet.Contains", "a Stack", "a Queue"], ans: 1, why: "O(1) membership." }
     ]
@@ -986,8 +986,8 @@
     ],
     quiz: [
       { q: "A method runs `list.Clear()` on its parameter. The caller's list…", opts: ["is empty", "is unchanged", "is null", "throws"], ans: 0, why: "Same list." },
-      { q: "A method runs `list = new List<int>();`. The caller's list…", opts: ["is empty", "is unchanged", "is null", "throws"], ans: 1, why: "Only the parameter moved." },
-      { q: "A method that should not change its input should…", opts: ["use ref", "return a new collection", "take an int", "use a global"], ans: 1, why: "Leave the input alone." }
+      { q: "A method runs `list = new List<int>();`. The caller's list…", opts: ["is now empty", "is unchanged", "is now null", "is replaced"], ans: 1, why: "Only the parameter moved." },
+      { q: "A method that should not change its input should…", opts: ["take its input by ref", "return a new collection", "take an int, not a list", "copy it into a static field"], ans: 1, why: "Leave the input alone." }
     ]
   });
   K.add({ tasks: {
@@ -1074,9 +1074,9 @@
       ["Can you index or sort `dict.Keys`?", "No — copy it into a List<string> first."]
     ],
     quiz: [
-      { q: "Which holds the quantity per item?", opts: ["List<int>", "Dictionary<string, int>", "HashSet<string>", "Stack<int>"], ans: 1, why: "A value per key." },
+      { q: "Which holds the quantity per item?", opts: ["List<int> of quantities", "Dictionary<string, int>", "HashSet<string> of items", "Stack<int> of counts"], ans: 1, why: "A value per key." },
       { q: "A report should…", opts: ["change stock as it prints", "only read the stock", "clear the stock", "sort the dictionary in place"], ans: 1, why: "Reports read." },
-      { q: "Reading an item that was never added with `stock[item]` gives…", opts: ["0", "null", "KeyNotFoundException", "a compile error"], ans: 2, why: "Use GetValueOrDefault." }
+      { q: "Reading an item that was never added with `stock[item]` gives…", opts: ["0, the default for int", "NullReferenceException", "KeyNotFoundException", "a compile error"], ans: 2, why: "Use GetValueOrDefault." }
     ]
   });
   K.add({ tasks: {

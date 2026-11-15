@@ -157,10 +157,10 @@ C["compsci:4.7.3.3"] = {
     ["Why won't a compiled program run on a different processor?", "It is machine code for a different instruction set.", 8]
   ],
   quiz: [
-    { q: "A 6-bit opcode allows", opts: ["64 opcodes", "32 opcodes", "6 opcodes", "128 opcodes"], ans: 0, why: "2⁶." },
-    { q: "An operand can hold", opts: ["a value, register or memory address", "only a register", "only an opcode", "an addressing mode only"], ans: 0, why: "Three kinds." },
-    { q: "An executable fails on another processor because", opts: ["the instruction sets differ", "the clock is slower", "the OS is newer", "the file is too big"], ans: 0, why: "Machine code is specific." },
-    { q: "A 10-bit direct operand can address", opts: ["1024 locations", "10 locations", "512 locations", "2048 locations"], ans: 0, why: "2¹⁰." }
+    { q: "A 6-bit opcode allows", opts: ["64 opcodes", "32 opcodes", "6 opcodes", "128 opcodes"], ans: 0, why: "A 6-bit opcode has 2⁶ = 64 different patterns, so 64 opcodes." },
+    { q: "An operand can hold", opts: ["a value, register or memory address", "only a register, never a memory address", "only an opcode and its addressing mode", "an addressing mode, never a value"], ans: 0, why: "An operand can be a value itself, a register or a memory address, depending on the addressing mode." },
+    { q: "An executable fails on another processor because", opts: ["the instruction sets differ", "the clock speeds are different", "the operating system is newer", "the executable file is too big"], ans: 0, why: "Machine code is specific." },
+    { q: "A 10-bit direct operand can address", opts: ["1024 locations", "10 locations", "512 locations", "2048 locations"], ans: 0, why: "A 10-bit direct address has 2¹⁰ = 1024 different values, so it can reach 1024 locations." }
   ]
 };
 
@@ -260,7 +260,6 @@ C["compsci:4.7.3.4"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.7.3.3 the mode bit in the opcode; 4.7.3.2 a direct memory operand needs an extra fetch in execute; 4.5.4.5 two's complement range; 4.2.1 a pointer / reference is the HLL cousin of direct addressing." } }
   ],
   flashcards: [
-    ["Immediate addressing?", "The operand is the datum."],
     ["Mode of MOV R2, #0?", "Immediate.", 2],
     ["Mode of ADD R3, R3, R0?", "Direct (register).", 3],
     ["Mode of LDR R1, 100?", "Direct (memory).", 4],
@@ -270,10 +269,10 @@ C["compsci:4.7.3.4"] = {
     ["Which mode needs an extra memory access?", "Direct with a memory address.", 8]
   ],
   quiz: [
-    { q: "In MOV R3, #42 the operand is", opts: ["the datum (immediate)", "an address (direct)", "a register", "an opcode"], ans: 0, why: "# = value." },
+    { q: "In MOV R3, #42 the operand is", opts: ["the datum (immediate)", "an address (direct)", "a register", "an opcode"], ans: 0, why: "The # means the operand 42 is the value itself (immediate), not a register number or address." },
     { q: "In SUB R3, R2, R1 the mode of R1 is", opts: ["direct", "immediate", "indexed", "relative"], ans: 0, why: "A register number." },
     { q: "Which uses immediate addressing?", opts: ["MOV R3, #42", "LDR R3, 42", "STR R3, 101", "ADD R1, R1, R2"], ans: 0, why: "Only # is immediate." },
-    { q: "\"MOV R1, 13\" to load 13 is", opts: ["rejected — needs #13", "correct", "direct addressing of 13", "accepted"], ans: 0, why: "AS 2025 Q10.1." }
+    { q: "\"MOV R1, 13\" to load 13 is", opts: ["rejected — needs #13", "correct", "direct addressing of 13", "accepted"], ans: 0, why: "Without # the 13 is not an immediate value, so the assembler rejects it; a value must be written #13." }
   ]
 };
 
@@ -525,10 +524,10 @@ C["compsci:4.7.3.5"] = {
     ["What does MVN do?", "Bitwise NOT of operand2 into Rd."]
   ],
   quiz: [
-    { q: "LSL R1, R1, #2 with R1 = 7 gives", opts: ["28", "14", "3", "1"], ans: 0, why: "7 × 4." },
+    { q: "LSL R1, R1, #2 with R1 = 7 gives", opts: ["28", "14", "3", "1"], ans: 0, why: "A logical shift left by 2 multiplies by 4, so 7 × 4 = 28." },
     { q: "AND R0, R1, #15 with R1 = 70 gives", opts: ["6", "70", "15", "64"], ans: 0, why: "0100 0110 AND 0000 1111." },
-    { q: "To set bit 7 of R1 use", opts: ["ORR R1, R1, #128", "AND R1, R1, #128", "EOR R1, R1, #127", "LSL R1, R1, #7"], ans: 0, why: "OR sets." },
-    { q: "A loop that runs while R2 > 0 begins", opts: ["CMP R2, #0 / BEQ end", "B end", "ADD R2, R2, #1", "BGT end"], ans: 0, why: "Exit when 0 (R2 never negative here)." },
+    { q: "To set bit 7 of R1 use", opts: ["ORR R1, R1, #128", "AND R1, R1, #128", "EOR R1, R1, #127", "LSL R1, R1, #7"], ans: 0, why: "Bit 7 is worth 128, and ORR with #128 sets it to 1 while leaving the other bits alone." },
+    { q: "A loop that runs while R2 > 0 begins", opts: ["CMP R2, #0 / BEQ end", "CMP R2, #0 / BGT end", "ADD R2, R2, #1 / B end", "CMP R2, #1 / BNE end"], ans: 0, why: "Exit when 0 (R2 never negative here)." },
     { q: "EOR R3, R1, R2 implements", opts: ["the Vernam cipher", "the Caesar cipher", "a parity count", "a shift"], ans: 0, why: "XOR with the key." },
     { q: "Which is invalid AQA assembly?", opts: ["ADD 100, 100, #1", "ADD R1, R1, #1", "LDR R1, 100", "STR R1, 100"], ans: 0, why: "Arithmetic needs registers." }
   ]

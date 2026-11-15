@@ -179,7 +179,7 @@
       { q: "A program has an error on line 5. What prints from lines 1–4?", opts: ["Lines 1–4 print, then it stops", "Nothing prints", "Everything except line 5", "Only line 1"], ans: 1, why: "C# compiles the whole program first; a compile error means nothing runs." },
       { q: "Which line is correct?", opts: ["console.WriteLine(\"Hi\");", "Console.Writeline(\"Hi\");", "Console.WriteLine(\"Hi\");", "Console.WriteLine(Hi);"], ans: 2, why: "Exact capitals, and text in double quotes." },
       { q: "What does `Console.Write(\"a\"); Console.Write(\"b\");` print?", opts: ["a and b on two lines", "ab", "a b", "b"], ans: 1, why: "`Write` never adds a new line." },
-      { q: "What happens to text after `//` on a line?", opts: ["It prints", "It is ignored by the compiler", "It causes an error", "It runs first"], ans: 1, why: "It is a comment." }
+      { q: "What happens to text after `//` on a line?", opts: ["It prints as part of the output", "It is ignored by the compiler", "It causes an error when it runs", "It runs before the rest of the line"], ans: 1, why: "It is a comment." }
     ]
   });
   K.add({ tasks: {
@@ -458,7 +458,7 @@
     ],
     quiz: [
       { q: "After `int a = 5; int b = a; a = 8;` what is b?", opts: ["5", "8", "13", "It does not compile"], ans: 0, why: "b holds a copy taken when a was 5." },
-      { q: "Which line declares a constant?", opts: ["var Max = 10;", "int Max = 10;", "const int Max = 10;", "Max = 10;"], ans: 2, why: "`const` makes it fixed." },
+      { q: "Which line declares a constant?", opts: ["static int Max = 10;", "final int Max = 10;", "const int Max = 10;", "Max = 10;"], ans: 2, why: "`const` makes it fixed." },
       { q: "`var x = 2.5;` — what type is x?", opts: ["var", "int", "double", "string"], ans: 2, why: "The compiler infers double from 2.5." },
       { q: "What is printed? `int s = 1; s = s + s; s = s + s; Console.WriteLine(s);`", opts: ["2", "3", "4", "8"], ans: 2, why: "1 → 2 → 4." },
       { q: "`int total; Console.WriteLine(total);` gives…", opts: ["0", "an empty line", "CS0165", "null"], ans: 2, why: "Local variables must be assigned before they are read." }
@@ -809,7 +809,7 @@
       { q: "`int x = (int)2.99;` x is…", opts: ["3", "2", "2.99", "An error"], ans: 1, why: "Casting truncates." },
       { q: "Which line compiles?", opts: ["int n = Console.ReadLine();", "int n = int.Parse(Console.ReadLine());", "int n = (int)Console.ReadLine();", "string n = int.Parse(\"3\");"], ans: 1, why: "Parse turns the string into an int." },
       { q: "`Math.Round(4.5)` gives…", opts: ["4", "5", "4.5", "6"], ans: 0, why: "Banker's rounding: 4 is even." },
-      { q: "`double d = 5;` is…", opts: ["an error: needs a cast", "fine: int to double loses nothing", "5.0 only with a cast", "a string"], ans: 1, why: "Widening conversions are implicit." }
+      { q: "`double d = 5;` is…", opts: ["an error: needs a cast to double", "fine: int to double loses nothing", "fine, but it is stored as the int 5", "an error: 5 is not a double literal"], ans: 1, why: "Widening conversions are implicit." }
     ]
   });
   K.add({ tasks: {
@@ -936,8 +936,8 @@
     quiz: [
       { q: "Which type for a bank balance?", opts: ["int", "double", "decimal", "float"], ans: 2, why: "Money must be exact in pennies." },
       { q: "`int.MaxValue + 1` at run time gives…", opts: ["an OverflowException", "int.MinValue", "2147483648", "0"], ans: 1, why: "Unchecked int arithmetic wraps." },
-      { q: "`decimal d = 2.5;` gives…", opts: ["2.5", "CS0664 — needs 2.5m", "2", "a warning only"], ans: 1, why: "2.5 is a double literal." },
-      { q: "What range does an int have?", opts: ["±32,767", "±2,147,483,647 roughly", "±9.2 quintillion", "0 to 4 billion"], ans: 1, why: "32-bit two's complement." },
+      { q: "`decimal d = 2.5;` gives…", opts: ["2.5, as a decimal", "CS0664 — needs 2.5m", "2, rounded down to fit", "a warning only, then 2.5"], ans: 1, why: "2.5 is a double literal." },
+      { q: "What range does an int have?", opts: ["±32,767, like a short", "±2,147,483,647 roughly", "±9.2 quintillion, like a long", "0 to about 4.3 billion, unsigned"], ans: 1, why: "32-bit two's complement." },
       { q: "`0.1 + 0.2 == 0.3` with doubles is…", opts: ["True", "False", "a compile error", "NaN"], ans: 1, why: "The sum is 0.30000000000000004." }
     ]
   });
@@ -1027,7 +1027,7 @@
     ],
     quiz: [
       { q: "Input arrives as name, then price. Which reads it correctly?", opts: ["price first, then name", "name first, then price", "either order", "both in one ReadLine"], ans: 1, why: "Each ReadLine takes the next line." },
-      { q: "Expected `Total: £3.00`. You print `Total: £3`. Is it right?", opts: ["Yes", "No — the output must match exactly", "Only on a phone", "Only if the value is right"], ans: 1, why: "Checks compare the text exactly." },
+      { q: "Expected `Total: £3.00`. You print `Total: £3`. Is it right?", opts: ["Yes — the number is the same", "No — the output must match exactly", "Only on a phone, where £ is rounded", "Only if the value is right"], ans: 1, why: "Checks compare the text exactly." },
       { q: "What is 187p in 50p coins and what is left?", opts: ["3 and 37p", "3 and 50p", "4 and 0p", "37 and 3p"], ans: 0, why: "187 / 50 = 3, 187 % 50 = 37." }
     ]
   });

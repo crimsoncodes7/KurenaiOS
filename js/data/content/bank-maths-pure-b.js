@@ -45,13 +45,13 @@ X("maths:4.1", {
     ["$\\dfrac{1}{\\sqrt{4 - x}}$ to the $x^2$ term?", "$\\tfrac12\\left(1 - \\tfrac x4\\right)^{-1/2} = \\tfrac12 + \\tfrac{1}{16}x + \\tfrac{3}{256}x^2 + \\ldots$, $|x| < 4$.", 36]
   ],
   quiz: [
-    { q: "$\\binom{9}{2} =$", opts: ["18", "36", "72", "81"], ans: 1, why: "$\\dfrac{9 \\times 8}{2}$." },
-    { q: "The $x^2$ term of $(1 + 2x)^{1/2}$ is:", opts: ["$-\\tfrac12 x^2$", "$\\tfrac12 x^2$", "$-2x^2$", "$x^2$"], ans: 0, why: "$\\dfrac{\\frac12 \\cdot(-\\frac12)}{2}(2x)^2 = -\\tfrac18 \\cdot 4x^2$." },
-    { q: "$(1 + 3x)^{-1}$ is valid for:", opts: ["$|x| < 3$", "$|x| < \\tfrac13$", "all $x$", "$x > 0$"], ans: 1, why: "$|3x| < 1$." },
-    { q: "$(8 + x)^{1/3}$ starts with the constant:", opts: ["8", "2", "$\\tfrac13$", "1"], ans: 1, why: "$8^{1/3}(1 + \\tfrac x8)^{1/3}$." },
-    { q: "Coefficient of $x$ in $(2 + x)^5$:", opts: ["5", "80", "16", "10"], ans: 1, why: "$5 \\times 2^4$." },
+    { q: "$\\binom{10}{3} =$", opts: ["120", "30", "720", "210"], ans: 0, why: "$\\dfrac{10 \\times 9 \\times 8}{3!} = \\dfrac{720}{6} = 120$." },
+    { q: "The $x^2$ term of $(1 - x)^{-2}$ is:", opts: ["$3x^2$", "$-3x^2$", "$x^2$", "$6x^2$"], ans: 0, why: "$\\dfrac{(-2)(-3)}{2!}(-x)^2 = 3x^2$." },
+    { q: "$(2 - x)^{-1/2}$ is valid for:", opts: ["$|x| < 2$", "$|x| < \\tfrac12$", "$|x| < 1$", "$|x| > 2$"], ans: 0, why: "$(2 - x)^{-1/2} = 2^{-1/2}(1 - \\tfrac x2)^{-1/2}$, so $|\\tfrac x2| < 1$." },
+    { q: "$(4 + x)^{-1/2}$ starts with the constant:", opts: ["$\\tfrac12$", "$2$", "$-2$", "$\\tfrac14$"], ans: 0, why: "$4^{-1/2} = \\dfrac{1}{\\sqrt4} = \\tfrac12$." },
+    { q: "Coefficient of $x^3$ in $(1 - 2x)^6$:", opts: ["$-160$", "$160$", "$-120$", "$-40$"], ans: 0, why: "$\\binom63(-2)^3 = 20 \\times (-8) = -160$." },
     { q: "If the omitted terms are all positive, the truncated series gives:", opts: ["an overestimate", "an underestimate", "the exact value", "no information"], ans: 1, why: "Positive contributions are missing." },
-    { q: "Coefficient of $x^2$ in $(1 + x)(1 + 4x + 6x^2)$:", opts: ["6", "10", "4", "24"], ans: 1, why: "$6 + 4$." }
+    { q: "Coefficient of $x$ in $(3 - x)(1 + 2x)^4$:", opts: ["$23$", "$25$", "$24$", "$-23$"], ans: 0, why: "$(1 + 2x)^4 = 1 + 8x + \\ldots$, so $3 \\times 8 + (-1) \\times 1 = 23$." }
   ],
   exam: [
     { level: "AS", src: "Edexcel AS 2020 P1 Q6", ctx: "$f(x) = (1 + kx)^{10}$, where $k$ is a non-zero constant.",
@@ -99,7 +99,12 @@ X("maths:4.2", {
   notes: [
     { page: "Past-paper patterns" },
     { h: "Periodic recurrence sequences — 4 to 7 marks on every A-level paper" },
-    "$a_{n+1} = \\dfrac{k a_n + 2}{a_n}$, $u_{n+1} = k - \\dfrac{2}{u_n}$, $a_{n+1} = 8 - a_n$, $a_{n+1} = \\dfrac{a_n - 3}{a_n - 2}$, sequences with a $\\cos\\left(\\dfrac{n\\pi}{2}\\right)$ factor: **write out the first few terms** until they repeat, state the **order** of the periodic sequence, then evaluate $\\displaystyle\\sum_{n=1}^{100} a_n$ by **counting complete cycles plus the remainder**. A second style gives a condition ($a_3 = a_1$, or $u_2 = u_1$) and asks for $k$ — this produces a **quadratic in $k$**.",
+    { ul: [
+      "Forms: $a_{n+1} = \\dfrac{k a_n + 2}{a_n}$, $u_{n+1} = k - \\dfrac{2}{u_n}$, $a_{n+1} = 8 - a_n$, $a_{n+1} = \\dfrac{a_n - 3}{a_n - 2}$, and sequences with a $\\cos\\left(\\dfrac{n\\pi}{2}\\right)$ factor.",
+      "**Write out the first few terms** until they repeat, and state the **order** of the periodic sequence.",
+      "Evaluate $\\displaystyle\\sum_{n=1}^{100} a_n$ by **counting complete cycles plus the remainder**.",
+      "A second style gives a condition ($a_3 = a_1$, or $u_2 = u_1$) and asks for $k$ — this produces a **quadratic in $k$**."
+    ] },
     { callout: { t: "warn", body: "$\\sum_{n=1}^{50}$ of a period-3 sequence: $50 = 16 \\times 3 + 2$ — sixteen full cycles **plus $a_1 + a_2$**. Show the split explicitly." }}
   ],
   flashcards: [
@@ -116,7 +121,7 @@ X("maths:4.2", {
     { q: "A sequence has order 3 with terms 2, 5, 3 repeating. $\\sum_{n=1}^{30} a_n =$", opts: ["100", "90", "30", "300"], ans: 0, why: "10 cycles × 10." },
     { q: "$\\sum_{n=1}^{50}$ of a period-3 sequence with cycle sum 10 and $a_1 = 2$, $a_2 = 5$:", opts: ["160", "167", "170", "165"], ans: 1, why: "$16 \\times 10 + 2 + 5$." },
     { q: "$u_{n+1} = 3u_n - 2$, $u_1 = 2$ is:", opts: ["periodic", "constant", "increasing", "decreasing"], ans: 2, why: "2, 4, 10, 28…" },
-    { q: "$\\cos\\left(\\dfrac{n\\pi}{2}\\right)$ for $n = 1, 2, 3, 4$ gives:", opts: ["$0, -1, 0, 1$", "$1, 0, -1, 0$", "$0, 1, 0, -1$", "$-1, 0, 1, 0$"], ans: 0, why: "Quarter turns." },
+    { q: "$u_n = \\sin\\left(\\dfrac{n\\pi}{2}\\right)$ for $n = 1, 2, 3, 4$ gives:", opts: ["$1, 0, -1, 0$", "$0, 1, 0, -1$", "$0, -1, 0, 1$", "$1, 0, 1, 0$"], ans: 0, why: "$\\sin\\tfrac\\pi2 = 1$, $\\sin\\pi = 0$, $\\sin\\tfrac{3\\pi}2 = -1$, $\\sin 2\\pi = 0$." },
     { q: "A sequence with $u_{n+2} = u_n$ for all $n$ has order:", opts: ["1", "2", "4", "infinite"], ans: 1, why: "Repeats every two terms." }
   ],
   exam: [
@@ -154,8 +159,8 @@ X("maths:4.3", {
     { q: "$\\sum_{r=3}^{7} 2$ has how many terms?", opts: ["7", "5", "4", "2"], ans: 1, why: "$r = 3, 4, 5, 6, 7$." },
     { q: "$\\sum_{r=1}^{n} (2r - 1) =$", opts: ["$n^2$", "$n(n+1)$", "$2n$", "$n^2 - 1$"], ans: 0, why: "Sum of the first $n$ odd numbers." },
     { q: "$\\sum_{r=0}^{\\infty} \\left(\\tfrac12\\right)^r =$", opts: ["1", "2", "$\\tfrac12$", "diverges"], ans: 1, why: "$\\dfrac{1}{1 - 1/2}$." },
-    { q: "$\\sum_{r=1}^{100} (-1)^r =$", opts: ["0", "100", "$-1$", "1"], ans: 0, why: "Pairs cancel." },
-    { q: "$\\sum_{r=1}^{n} \\left(\\ln(r+1) - \\ln r\\right) =$", opts: ["$\\ln n$", "$\\ln(n + 1)$", "$0$", "$n\\ln 2$"], ans: 1, why: "Telescopes to $\\ln(n+1) - \\ln 1$." }
+    { q: "$\\sum_{r=1}^{100} (-1)^r =$", opts: ["0", "100", "$-1$", "1"], ans: 0, why: "$(-1 + 1) + (-1 + 1) + \\ldots$: 50 pairs, each 0." },
+    { q: "$\\sum_{r=1}^{n} \\left(\\ln(r+1) - \\ln r\\right) =$", opts: ["$\\ln n$", "$\\ln(n + 1)$", "$-\\ln(n + 1)$", "$\\ln(n - 1)$"], ans: 1, why: "Telescopes to $\\ln(n+1) - \\ln 1$." }
   ],
   exam: [
     { src: "Edexcel 2018 P2 Q4", ctx: "A sequence is defined by $a_1 = 5$ and $a_{n+1} = 12 - a_n$ for $n \\ge 1$.",
@@ -176,7 +181,13 @@ X("maths:4.4", {
   notes: [
     { page: "Past-paper patterns" },
     { h: "Arithmetic series — proofs and money problems" },
-    "**Prove the sum formula** (2022 — 3 marks): write $S_n$ forwards and backwards, add to get $2S_n = n(2a + (n-1)d)$. **Money / savings / loan repayments** (2022, 2024): the repayments form an arithmetic sequence, the total to be repaid gives $\\dfrac N2(2a + (N-1)d) = \\text{total}$, a **quadratic in $N$**; reject the non-integer or negative root and **state the number of months**. Terms given in $k$ (2025, Specimen): use $2 \\times \\text{middle} = \\text{first} + \\text{third}$ to find $k$, then show the sum is a **square number** or find a specific term.",
+    { ul: [
+      "**Prove the sum formula** (2022 — 3 marks):",
+      "Write $S_n$ forwards and backwards, add to get $2S_n = n(2a + (n-1)d)$.",
+      "**Money / savings / loan repayments** (2022, 2024): the repayments form an arithmetic sequence, the total to be repaid gives $\\dfrac N2(2a + (N-1)d) = \\text{total}$, a **quadratic in $N$**",
+      "Reject the non-integer or negative root and **state the number of months**.",
+      "Terms given in $k$ (2025, Specimen): use $2 \\times \\text{middle} = \\text{first} + \\text{third}$ to find $k$, then show the sum is a **square number** or find a specific term."
+    ] },
     { callout: { t: "memorise", body: "$u_n = a + (n-1)d$ · $S_n = \\dfrac n2(2a + (n-1)d) = \\dfrac n2(a + l)$ · three consecutive terms $p, q, r$ satisfy $2q = p + r$." }}
   ],
   flashcards: [
@@ -190,10 +201,10 @@ X("maths:4.4", {
   ],
   quiz: [
     { q: "The 20th term of $5, 9, 13, \\ldots$:", opts: ["81", "85", "80", "77"], ans: 0, why: "$5 + 19 \\times 4$." },
-    { q: "$S_{10}$ of $2 + 5 + 8 + \\ldots$:", opts: ["155", "145", "290", "135"], ans: 0, why: "$5(4 + 27)$." },
-    { q: "$3, x, 15$ are consecutive arithmetic terms. $x =$", opts: ["6", "9", "12", "45"], ans: 1, why: "Mean of neighbours." },
-    { q: "$S_n = \\dfrac n2(a + l)$ requires knowing:", opts: ["$d$", "the first and last terms", "$n^2$", "the ratio"], ans: 1, why: "Alternative sum formula." },
-    { q: "A loan repaid with monthly payments increasing by £5 each month forms:", opts: ["a geometric sequence", "an arithmetic sequence", "a periodic sequence", "a constant sequence"], ans: 1, why: "Constant difference." },
+    { q: "An arithmetic series has $a = 3$, $d = 4$. $S_{20} =$", opts: ["820", "830", "1640", "780"], ans: 0, why: "$S_{20} = \\tfrac{20}{2}(2 \\times 3 + 19 \\times 4) = 10 \\times 82 = 820$." },
+    { q: "$3, x, 15$ are consecutive arithmetic terms. $x =$", opts: ["6", "9", "12", "45"], ans: 1, why: "$x - 3 = 15 - x$, so $x = \\tfrac{3 + 15}{2} = 9$." },
+    { q: "$S_n = \\dfrac n2(a + l)$ requires knowing:", opts: ["the common ratio and $n$", "the first and last terms", "the last term and $d$", "$n^2$ and the first term"], ans: 1, why: "$a + l$ is the first plus the last term, so both are needed, with $n$." },
+    { q: "A loan repaid with monthly payments increasing by £5 each month forms:", opts: ["a geometric sequence", "an arithmetic sequence", "a periodic sequence", "a constant sequence"], ans: 1, why: "Each payment is £5 more than the last: a common difference $d = 5$." },
     { q: "If $u_n = 7n - 3$, then $d =$", opts: ["3", "7", "4", "$-3$"], ans: 1, why: "Coefficient of $n$." }
   ],
   exam: [
@@ -215,7 +226,16 @@ X("maths:4.5", {
   notes: [
     { page: "Past-paper patterns" },
     { h: "Geometric series — proof, models and $k$" },
-    "**Prove $S_n = \\dfrac{a(1 - r^n)}{1 - r}$** (Oct 2020): write $S_n$, multiply by $r$, subtract. **Models**: race times increasing 5% per km (2019), profit up 8% a year (Oct 2021), wheat harvest up 1.2% (Specimen), car gears (Oct 2020) — find the **first year the term exceeds a value** (logs: $n > \\dfrac{\\ln(\\ldots)}{\\ln r}$, round **up** to the next integer), and the **total over $N$ years** ($S_N$). **Terms in $k$** (2023, 2024): consecutive terms $p, q, r$ satisfy $q^2 = pr$ — a quadratic in $k$; then **convergence** needs $|r| < 1$ so pick the valid $k$, and $S_\\infty = \\dfrac{a}{1 - r}$. A **trig ratio** (2022, Oct 2021) gives $|r| < 1$ automatically or a hidden sign.",
+    { ul: [
+      "**Prove $S_n = \\dfrac{a(1 - r^n)}{1 - r}$** (Oct 2020):",
+      "Write $S_n$, multiply by $r$, subtract.",
+      "**Models**: race times increasing 5% per km (2019), profit up 8% a year (Oct 2021), wheat harvest up 1.2% (Specimen), car gears (Oct 2020).",
+      "Find the **first year the term exceeds a value** (logs: $n > \\dfrac{\\ln(\\ldots)}{\\ln r}$, round **up** to the next integer).",
+      "Find the **total over $N$ years** ($S_N$).",
+      "**Terms in $k$** (2023, 2024): consecutive terms $p, q, r$ satisfy $q^2 = pr$ — a quadratic in $k$",
+      "**Convergence** needs $|r| < 1$ so pick the valid $k$, and $S_\\infty = \\dfrac{a}{1 - r}$.",
+      "A **trig ratio** (2022, Oct 2021) gives $|r| < 1$ automatically or a hidden sign."
+    ] },
     { callout: { t: "warn", body: "$S_{10} = 4S_5$ (Oct 2020): $\\dfrac{1 - r^{10}}{1 - r} = 4\\dfrac{1 - r^5}{1 - r} \\Rightarrow 1 + r^5 = 4 \\Rightarrow r = 3^{1/5}$ — factorise $1 - r^{10} = (1 - r^5)(1 + r^5)$ rather than expanding." }}
   ],
   flashcards: [
@@ -231,12 +251,12 @@ X("maths:4.5", {
   ],
   quiz: [
     { q: "The 6th term of $2, 6, 18, \\ldots$:", opts: ["486", "162", "1458", "54"], ans: 0, why: "$2 \\times 3^5$." },
-    { q: "$S_\\infty$ of $8 + 4 + 2 + \\ldots$:", opts: ["14", "16", "32", "diverges"], ans: 1, why: "$\\dfrac{8}{1 - 1/2}$." },
+    { q: "A geometric series has $S_\\infty = 20$ and $a = 5$. $r =$", opts: ["$\\tfrac34$", "$\\tfrac14$", "$4$", "$-\\tfrac34$"], ans: 0, why: "$\\dfrac{5}{1 - r} = 20 \\Rightarrow 1 - r = \\tfrac14 \\Rightarrow r = \\tfrac34$." },
     { q: "A geometric series with $r = -1.5$:", opts: ["converges", "diverges", "sums to 0", "is arithmetic"], ans: 1, why: "$|r| > 1$." },
     { q: "Growth of 5% per year corresponds to ratio:", opts: ["0.05", "1.05", "5", "0.95"], ans: 1, why: "Multiply by 1.05." },
-    { q: "$3, x, 27$ consecutive geometric terms; $x =$", opts: ["15", "$\\pm 9$", "9 only", "81"], ans: 1, why: "$x^2 = 81$." },
+    { q: "$3, x, 27$ consecutive geometric terms; $x =$", opts: ["15", "$\\pm 9$", "9 only", "$\\pm 81$"], ans: 1, why: "$x^2 = 81$." },
     { q: "The number of years $n$ for $1.06^n > 2$ is at least:", opts: ["11", "12", "16", "17"], ans: 1, why: "$n > \\ln 2 / \\ln 1.06 = 11.9$." },
-    { q: "$S_n = \\dfrac{a(r^n - 1)}{r - 1}$ is the same formula as $\\dfrac{a(1-r^n)}{1-r}$:", opts: ["true", "false"], ans: 0, why: "Multiply top and bottom by $-1$." }
+    { q: "Compare $S_n = \\dfrac{a(r^n - 1)}{r - 1}$ with $S_n = \\dfrac{a(1-r^n)}{1-r}$:", opts: ["they are equal for every $r \\ne 1$", "they are equal only when $r > 1$", "they are equal only when $|r| < 1$", "they differ by a factor of $-1$"], ans: 0, why: "Multiply top and bottom by $-1$." }
   ],
   exam: [
     { src: "Edexcel Oct 2020 P1 Q15", parts: [
@@ -274,11 +294,11 @@ X("maths:4.6", {
     ["Depreciation of 20% a year on £12 000: value after 5 years?", "$12000 \\times 0.8^5 = £3932$.", 13]
   ],
   quiz: [
-    { q: "A model 'increases by £50 each year' is:", opts: ["geometric", "arithmetic", "exponential", "periodic"], ans: 1, why: "Constant difference." },
-    { q: "'Increases by 4% each year' is:", opts: ["arithmetic", "geometric with $r = 1.04$", "geometric with $r = 0.04$", "linear"], ans: 1, why: "Constant ratio." },
+    { q: "A model 'increases by £50 each year' is:", opts: ["geometric", "arithmetic", "exponential", "periodic"], ans: 1, why: "Adding £50 each year is a common difference: arithmetic." },
+    { q: "'Increases by 4% each year' is:", opts: ["arithmetic", "geometric with $r = 1.04$", "geometric with $r = 0.04$", "linear"], ans: 1, why: "Each year is 104% of the last: $r = 1 + 0.04 = 1.04$." },
     { q: "Total distance run over 10 days increasing 2 km daily from 3 km:", opts: ["120", "30", "210", "100"], ans: 0, why: "$5(6 + 18)$." },
-    { q: "A geometric model with $r = 0.85$ describes:", opts: ["growth", "decay by 15% per period", "constant value", "periodic change"], ans: 1, why: "Multiplying by 0.85." },
-    { q: "$S_\\infty$ exists for a decay model because:", opts: ["$r > 1$", "$|r| < 1$", "$a > 0$", "$n$ is finite"], ans: 1, why: "Convergence condition." },
+    { q: "A geometric model with $r = 0.85$ describes:", opts: ["growth by 85% per period", "decay by 15% per period", "decay by 85% per period", "a constant value each period"], ans: 1, why: "Multiplying by 0.85." },
+    { q: "$S_\\infty$ exists for a decay model because:", opts: ["$r > 1$", "$|r| < 1$", "$a > 0$", "$n$ is finite"], ans: 1, why: "$S_\\infty = \\tfrac{a}{1 - r}$ needs $r^n \\to 0$, which holds only for $|r| < 1$." },
     { q: "First $n$ for which $2000 \\times 1.1^n > 5000$:", opts: ["9", "10", "11", "8"], ans: 1, why: "$n > \\ln 2.5 / \\ln 1.1 = 9.6$." }
   ],
   exam: [
@@ -300,7 +320,16 @@ X("maths:5.1", {
   notes: [
     { page: "Past-paper patterns" },
     { h: "Sectors, triangles and the design problems" },
-    "Radians questions come as **composite shapes**: a logo of sectors with radii $r$ and $2r$ (Oct 2021), a stage of triangles plus a sector (2023), a badge of a semicircle and an arc (2024), a triangle plus sector (2025) — you need **arc length $r\\theta$**, **sector area $\\tfrac12 r^2\\theta$**, **triangle area $\\tfrac12 ab\\sin C$** and the **cosine rule**, and the answer is exact in the form $a\\sqrt3 + b\\pi$. The **error-spotting** question (2019) had a student use a degree angle in $\\tfrac12 r^2\\theta$. AS: **sine rule for a missing side** with an ambiguous case, **area 15 gives two possible $\\cos\\theta$** (AS 2018), bearings of masts (AS 2023).",
+    "Radians questions come as **composite shapes**:",
+    { ul: [
+      "Oct 2021: a logo of sectors with radii $r$ and $2r$.",
+      "2023: a stage of triangles plus a sector.",
+      "2024: a badge of a semicircle and an arc.",
+      "2025: a triangle plus a sector.",
+      "You need **arc length $r\\theta$**, **sector area $\\tfrac12 r^2\\theta$**, **triangle area $\\tfrac12 ab\\sin C$** and the **cosine rule**; the answer is exact in the form $a\\sqrt3 + b\\pi$.",
+      "The **error-spotting** question (2019) had a student use a degree angle in $\\tfrac12 r^2\\theta$.",
+      "AS: **sine rule for a missing side** with an ambiguous case, **area 15 gives two possible $\\cos\\theta$** (AS 2018), bearings of masts (AS 2023)."
+    ] },
     { callout: { t: "memorise", body: "Sine rule $\\dfrac{a}{\\sin A} = \\dfrac{b}{\\sin B}$ · cosine rule $a^2 = b^2 + c^2 - 2bc\\cos A$ · area $\\tfrac12 ab\\sin C$ · arc $s = r\\theta$ · sector $A = \\tfrac12 r^2\\theta$ · segment $= \\tfrac12 r^2(\\theta - \\sin\\theta)$ · **$\\theta$ in radians**." }}
   ],
   flashcards: [
@@ -320,9 +349,9 @@ X("maths:5.1", {
     { q: "Sector area with $r = 3$, $\\theta = 2$ rad:", opts: ["6", "9", "3", "18"], ans: 1, why: "$\\tfrac12 \\cdot 9 \\cdot 2$." },
     { q: "Arc length with $r = 10$, $\\theta = 0.4$:", opts: ["4", "2", "40", "0.04"], ans: 0, why: "$r\\theta$." },
     { q: "Area of a triangle with sides 4, 5 and included angle $30°$:", opts: ["5", "10", "20", "$5\\sqrt3$"], ans: 0, why: "$\\tfrac12 \\cdot 20 \\cdot \\tfrac12$." },
-    { q: "In the cosine rule $a^2 = b^2 + c^2 - 2bc\\cos A$, $A$ is:", opts: ["any angle", "the angle opposite side $a$", "the largest angle", "$90°$"], ans: 1, why: "Opposite the side being found." },
-    { q: "Perimeter of a sector includes:", opts: ["the arc only", "two radii and the arc", "the chord", "the diameter"], ans: 1, why: "$2r + r\\theta$." },
-    { q: "Using $\\tfrac12 r^2\\theta$ with $\\theta = 60$ (degrees) is wrong because:", opts: ["the formula needs $\\theta$ in radians", "60 is too large", "$r$ should be squared later", "it is correct"], ans: 0, why: "2019 error-spotting question." }
+    { q: "In the cosine rule $a^2 = b^2 + c^2 - 2bc\\cos A$, $A$ is:", opts: ["the angle opposite side $b$", "the angle opposite side $a$", "the angle between sides $a$ and $b$", "the largest angle in the triangle"], ans: 1, why: "Opposite the side being found." },
+    { q: "Perimeter of a sector includes:", opts: ["the arc length only", "two radii and the arc", "two radii and the chord", "the arc and the diameter"], ans: 1, why: "$2r + r\\theta$." },
+    { q: "Using $\\tfrac12 r^2\\theta$ with $\\theta = 60$ (degrees) is wrong because:", opts: ["the formula needs $\\theta$ in radians", "60 is too large an angle for a sector", "$r$ should be squared after multiplying", "nothing — it is correct in degrees"], ans: 0, why: "2019 error-spotting question." }
   ],
   exam: [
     { src: "Edexcel 2018 P1 Q3", q: "A sector of a circle of radius $r$ cm has area 11 cm². The perimeter of the sector is 4 times the length of its arc. Find the exact value of $r$.", marks: 4,
@@ -357,11 +386,11 @@ X("maths:5.2", {
     ["Estimate $\\sin 0.1$ and $\\cos 0.1$.", "$0.1$ and $0.995$.", 15]
   ],
   quiz: [
-    { q: "For small $\\theta$, $\\cos\\theta \\approx$", opts: ["$\\theta$", "$1 - \\theta^2/2$", "$1 - \\theta$", "$\\theta^2$"], ans: 1, why: "Second-order term." },
-    { q: "$\\sin 3\\theta \\approx$", opts: ["$3\\theta$", "$\\theta$", "$3$", "$1 - 4.5\\theta^2$"], ans: 0, why: "Replace $\\theta$ by $3\\theta$." },
-    { q: "$1 - \\cos 2\\theta \\approx$", opts: ["$2\\theta$", "$2\\theta^2$", "$\\theta^2$", "$4\\theta$"], ans: 1, why: "$(2\\theta)^2/2$." },
-    { q: "$\\dfrac{\\tan\\theta}{\\sin 2\\theta} \\approx$", opts: ["$\\tfrac12$", "$2$", "$\\theta$", "$1$"], ans: 0, why: "$\\theta / 2\\theta$." },
-    { q: "Small-angle approximations are valid when $\\theta$ is:", opts: ["in degrees", "small and in radians", "any size", "negative"], ans: 1, why: "Series validity." },
+    { q: "For small $\\theta$, $\\cos\\theta \\approx$", opts: ["$1 + \\theta^2/2$", "$1 - \\theta^2/2$", "$1 - \\theta^2$", "$\\theta - \\theta^2/2$"], ans: 1, why: "$\\cos\\theta = 1 - \\tfrac{\\theta^2}{2} + \\ldots$ for small $\\theta$ in radians." },
+    { q: "For small $\\theta$, $\\dfrac{\\sin 4\\theta}{2\\theta} \\approx$", opts: ["$2$", "$\\tfrac12$", "$4$", "$2\\theta$"], ans: 0, why: "$\\sin 4\\theta \\approx 4\\theta$, so $\\tfrac{4\\theta}{2\\theta} = 2$." },
+    { q: "For small $\\theta$, $\\cos 3\\theta \\approx$", opts: ["$1 - \\tfrac92\\theta^2$", "$1 - \\tfrac32\\theta^2$", "$1 - 3\\theta^2$", "$1 + \\tfrac92\\theta^2$"], ans: 0, why: "$\\cos 3\\theta \\approx 1 - \\tfrac{(3\\theta)^2}{2} = 1 - \\tfrac92\\theta^2$." },
+    { q: "$\\dfrac{\\tan\\theta}{\\sin 2\\theta} \\approx$", opts: ["$\\tfrac12$", "$2$", "$\\tfrac{\\theta}{2}$", "$2\\theta$"], ans: 0, why: "$\\theta / 2\\theta$." },
+    { q: "Small-angle approximations are valid when $\\theta$ is:", opts: ["small and in degrees", "small and in radians", "any size, in radians", "large and in radians"], ans: 1, why: "$\\sin\\theta \\approx \\theta$ holds only with $\\theta$ small and in radians." },
     { q: "$\\cos 0.2 \\approx$", opts: ["0.8", "0.98", "0.96", "1.02"], ans: 1, why: "$1 - 0.02$." }
   ],
   exam: [
@@ -388,11 +417,11 @@ X("maths:5.3", {
   quiz: [
     { q: "$\\sin 150° =$", opts: ["$\\tfrac12$", "$-\\tfrac12$", "$\\dfrac{\\sqrt3}{2}$", "$-\\dfrac{\\sqrt3}{2}$"], ans: 0, why: "$\\sin(180° - 30°)$." },
     { q: "$\\cos 240° =$", opts: ["$\\tfrac12$", "$-\\tfrac12$", "$\\dfrac{\\sqrt3}{2}$", "$-\\dfrac{\\sqrt3}{2}$"], ans: 1, why: "Third quadrant, reference $60°$." },
-    { q: "$\\tan\\tfrac{3\\pi}{4} =$", opts: ["1", "$-1$", "$\\sqrt3$", "0"], ans: 1, why: "Second quadrant." },
+    { q: "$\\cos\\tfrac{5\\pi}{4} =$", opts: ["$-\\tfrac{\\sqrt2}{2}$", "$\\tfrac{\\sqrt2}{2}$", "$-\\tfrac12$", "$-\\tfrac{\\sqrt3}{2}$"], ans: 0, why: "$\\tfrac{5\\pi}{4}$ is in the third quadrant, where cosine is negative: $-\\cos\\tfrac\\pi4 = -\\tfrac{\\sqrt2}{2}$." },
     { q: "Period of $y = \\cos 3x$ in degrees:", opts: ["360", "120", "180", "90"], ans: 1, why: "$360/3$." },
-    { q: "$y = \\sin x$ has maximum value:", opts: ["1 at $x = 90°$", "1 at $x = 0$", "0", "$\\infty$"], ans: 0, why: "Peak." },
+    { q: "$y = \\sin x$ has maximum value:", opts: ["1 at $x = 90°$", "1 at $x = 0°$", "0 at $x = 90°$", "−1 at $x = 270°$"], ans: 0, why: "$\\sin x$ reaches its greatest value, 1, at $x = 90°$." },
     { q: "Number of solutions of $\\cos 2x = 0.3$ in $0 \\le x < 360°$:", opts: ["2", "4", "1", "8"], ans: 1, why: "Two cycles, two each." },
-    { q: "$\\sin\\theta = \\sin(180° - \\theta)$ shows sine is symmetric about:", opts: ["$\\theta = 0$", "$\\theta = 90°$", "$\\theta = 180°$", "the origin"], ans: 1, why: "Reflection line." }
+    { q: "$\\sin\\theta = \\sin(180° - \\theta)$ shows sine is symmetric about:", opts: ["$\\theta = 0$", "$\\theta = 90°$", "$\\theta = 180°$", "the origin"], ans: 1, why: "$\\theta$ and $180° - \\theta$ sit equally either side of $90°$." }
   ],
   exam: [
     { src: "Edexcel 2025 P1 Q13", ctx: "The equation $\\sin(nx) = k$, where $n$ is a positive integer and $0 < k < 1$, has exactly 6 solutions in the interval $0 \\le x < 360°$.",
@@ -421,12 +450,12 @@ X("maths:5.4", {
     ["Range of $y = \\csc x$?", "$y \\le -1$ or $y \\ge 1$.", 18]
   ],
   quiz: [
-    { q: "$\\sec\\theta =$", opts: ["$\\dfrac{1}{\\sin\\theta}$", "$\\dfrac{1}{\\cos\\theta}$", "$\\dfrac{1}{\\tan\\theta}$", "$\\cos^{-1}\\theta$"], ans: 1, why: "Reciprocal of cosine." },
-    { q: "$\\arcsin\\left(\\dfrac{\\sqrt3}{2}\\right) =$", opts: ["$\\tfrac\\pi6$", "$\\tfrac\\pi3$", "$\\tfrac{2\\pi}{3}$", "$\\tfrac\\pi4$"], ans: 1, why: "Principal value." },
-    { q: "$\\arccos x$ has range:", opts: ["$[-\\tfrac\\pi2, \\tfrac\\pi2]$", "$[0, \\pi]$", "$(-\\tfrac\\pi2, \\tfrac\\pi2)$", "$[0, 2\\pi]$"], ans: 1, why: "Definition." },
+    { q: "$\\sec\\theta =$", opts: ["$\\dfrac{1}{\\sin\\theta}$", "$\\dfrac{1}{\\cos\\theta}$", "$\\dfrac{1}{\\tan\\theta}$", "$\\cos^{-1}\\theta$"], ans: 1, why: "$\\sec\\theta = \\dfrac{1}{\\cos\\theta}$; $\\cos^{-1}$ is the inverse, not the reciprocal." },
+    { q: "$\\arcsin\\left(\\dfrac{\\sqrt3}{2}\\right) =$", opts: ["$\\tfrac\\pi6$", "$\\tfrac\\pi3$", "$\\tfrac{2\\pi}{3}$", "$\\tfrac\\pi4$"], ans: 1, why: "$\\sin\\tfrac\\pi3 = \\tfrac{\\sqrt3}{2}$, and $\\tfrac\\pi3$ is in $[-\\tfrac\\pi2, \\tfrac\\pi2]$." },
+    { q: "$\\arccos x$ has range:", opts: ["$[-\\tfrac\\pi2, \\tfrac\\pi2]$", "$[0, \\pi]$", "$(-\\tfrac\\pi2, \\tfrac\\pi2)$", "$[0, 2\\pi]$"], ans: 1, why: "$\\cos$ is one-to-one on $[0, \\pi]$, so $\\arccos$ takes its values there." },
     { q: "$\\csc 210° =$", opts: ["$-2$", "$2$", "$-\\tfrac12$", "$\\dfrac{2}{\\sqrt3}$"], ans: 0, why: "$\\sin 210° = -\\tfrac12$." },
     { q: "$\\cot x$ is undefined when:", opts: ["$\\cos x = 0$", "$\\sin x = 0$", "$\\tan x = 1$", "never"], ans: 1, why: "Division by $\\sin x$." },
-    { q: "The graph of $y = \\arctan x$ approaches:", opts: ["$y = \\pm\\pi$", "$y = \\pm\\tfrac\\pi2$", "$x = \\pm\\tfrac\\pi2$", "$y = 0$"], ans: 1, why: "Horizontal asymptotes." }
+    { q: "The graph of $y = \\arctan x$ approaches:", opts: ["$y = \\pm\\pi$", "$y = \\pm\\tfrac\\pi2$", "$x = \\pm\\tfrac\\pi2$", "$y = 0$"], ans: 1, why: "$\\tan x \\to \\pm\\infty$ as $x \\to \\pm\\tfrac\\pi2$, so $\\arctan x \\to \\pm\\tfrac\\pi2$." }
   ],
   exam: [
     { src: "Edexcel 2021 P2 Q2", parts: [
@@ -442,7 +471,16 @@ X("maths:5.5", {
   notes: [
     { page: "Past-paper patterns" },
     { h: "Identities — 'show that … hence solve'" },
-    "Every A-level paper has a **prove-then-solve** pair: $\\dfrac{1 - \\cos 2\\theta}{\\sin 2\\theta} \\equiv \\tan\\theta$, $\\csc\\theta - \\sin\\theta \\equiv \\cos\\theta\\cot\\theta$, $\\cos 3A \\equiv 4\\cos^3 A - 3\\cos A$, $\\csc 2x + \\cot 2x \\equiv \\cot x$, $\\dfrac{1}{\\cos\\theta} + \\tan\\theta \\equiv \\dfrac{\\cos\\theta}{1 - \\sin\\theta}$. Proof marks: **start from one side**, use the identities, **reach the other side** with every step shown. Then \"hence solve …\" replaces the awkward expression by the simple one and gives a standard equation.",
+    "Every A-level paper has a **prove-then-solve** pair:",
+    { ul: [
+      "$\\dfrac{1 - \\cos 2\\theta}{\\sin 2\\theta} \\equiv \\tan\\theta$",
+      "$\\csc\\theta - \\sin\\theta \\equiv \\cos\\theta\\cot\\theta$",
+      "$\\cos 3A \\equiv 4\\cos^3 A - 3\\cos A$",
+      "$\\csc 2x + \\cot 2x \\equiv \\cot x$",
+      "$\\dfrac{1}{\\cos\\theta} + \\tan\\theta \\equiv \\dfrac{\\cos\\theta}{1 - \\sin\\theta}$",
+      "Proof marks: **start from one side**, use the identities, **reach the other side** with every step shown.",
+      "\"hence solve …\" replaces the awkward expression by the simple one and gives a standard equation."
+    ] },
     { callout: { t: "memorise", body: "$\\sin^2 + \\cos^2 = 1$ · $1 + \\tan^2 = \\sec^2$ · $1 + \\cot^2 = \\csc^2$ · $\\tan = \\dfrac{\\sin}{\\cos}$. **Convert everything to $\\sin$ and $\\cos$** when stuck; multiply by a conjugate ($1 + \\sin\\theta$) to clear a denominator." }}
   ],
   flashcards: [
@@ -458,9 +496,9 @@ X("maths:5.5", {
   quiz: [
     { q: "$1 + \\tan^2\\theta \\equiv$", opts: ["$\\csc^2\\theta$", "$\\sec^2\\theta$", "$\\cot^2\\theta$", "$1$"], ans: 1, why: "Divide $\\sin^2 + \\cos^2 = 1$ by $\\cos^2$." },
     { q: "$\\dfrac{\\sin\\theta}{\\cos\\theta} \\cdot \\dfrac{\\cos\\theta}{\\sin\\theta} =$", opts: ["$\\tan^2\\theta$", "1", "$\\sin\\theta\\cos\\theta$", "0"], ans: 1, why: "$\\tan \\cdot \\cot$." },
-    { q: "$\\csc^2\\theta - \\cot^2\\theta =$", opts: ["1", "$-1$", "$\\sin^2\\theta$", "$\\tan^2\\theta$"], ans: 0, why: "Pythagorean identity." },
-    { q: "$(1 - \\sin\\theta)(1 + \\sin\\theta) =$", opts: ["$\\sin^2\\theta$", "$\\cos^2\\theta$", "$1$", "$\\cos 2\\theta$"], ans: 1, why: "$1 - \\sin^2$." },
-    { q: "To prove an identity you should:", opts: ["assume it and simplify both sides to 0 = 0", "start from one side and transform it into the other", "substitute a value", "square both sides"], ans: 1, why: "Valid proof structure." },
+    { q: "$\\csc^2\\theta - \\cot^2\\theta =$", opts: ["1", "$-1$", "$\\sin^2\\theta$", "$\\tan^2\\theta$"], ans: 0, why: "Divide $\\sin^2\\theta + \\cos^2\\theta = 1$ by $\\sin^2\\theta$: $1 + \\cot^2\\theta = \\csc^2\\theta$." },
+    { q: "$\\dfrac{1 - \\cos^2\\theta}{\\sin\\theta} \\equiv$", opts: ["$\\sin\\theta$", "$\\cos\\theta$", "$\\tan\\theta$", "$1$"], ans: 0, why: "$1 - \\cos^2\\theta = \\sin^2\\theta$, and $\\tfrac{\\sin^2\\theta}{\\sin\\theta} = \\sin\\theta$." },
+    { q: "To prove an identity you should:", opts: ["assume it and simplify both sides to 0 = 0", "start from one side and transform it into the other", "substitute a value and check that both sides agree", "square both sides, then simplify each one"], ans: 1, why: "Work on one side only until it becomes the other side." },
     { q: "$\\sec\\theta\\cot\\theta =$", opts: ["$\\csc\\theta$", "$\\sin\\theta$", "$\\tan\\theta$", "$\\cos\\theta$"], ans: 0, why: "$\\dfrac{1}{\\cos}\\cdot\\dfrac{\\cos}{\\sin}$." }
   ],
   exam: [
@@ -481,7 +519,17 @@ X("maths:5.6", {
   notes: [
     { page: "Past-paper patterns" },
     { h: "$R\\cos(\\theta \\pm \\alpha)$ — the modelling question (7–11 marks)" },
-    "Express $a\\cos\\theta + b\\sin\\theta$ (or with a minus) in the form $R\\cos(\\theta - \\alpha)$: $R = \\sqrt{a^2 + b^2}$, $\\tan\\alpha = \\dfrac ba$ (check the sign pattern by expanding). Then the **model**: temperature $T = 12 + \\sin t + 2\\cos t$, water depth $D = 5 + 2\\sin\\ldots$, a water wheel, a rabbit population $140\\cos\\theta - 480\\sin\\theta$ — **maximum value** is $R$ (or $c + R$) **when the cosine is 1**, so $\\theta = \\alpha$ (solve for $t$ within the domain); **minimum** $c - R$; **first time the value reaches** a target: set the expression equal, solve the cosine equation, choose the smallest valid $t$. **Double-angle** forms: $\\cos 2A = 2\\cos^2 A - 1 = 1 - 2\\sin^2 A$; $\\sin 2A = 2\\sin A\\cos A$; $\\tan 2A = \\dfrac{2\\tan A}{1 - \\tan^2 A}$. **Addition formulae** produce $\\cos 3A \\equiv 4\\cos^3 A - 3\\cos A$ (Oct 2020) and the 2022/2025 \"show that $\\tan x = \\ldots$\" items.",
+    { ul: [
+      "Express $a\\cos\\theta + b\\sin\\theta$ (or with a minus) in the form $R\\cos(\\theta - \\alpha)$: $R = \\sqrt{a^2 + b^2}$, $\\tan\\alpha = \\dfrac ba$ (check the sign pattern by expanding).",
+      "The **models**: temperature $T = 12 + \\sin t + 2\\cos t$, water depth $D = 5 + 2\\sin\\ldots$, a water wheel, a rabbit population $140\\cos\\theta - 480\\sin\\theta$.",
+      "**Maximum value** is $R$ (or $c + R$) **when the cosine is 1**, so $\\theta = \\alpha$ (solve for $t$ within the domain).",
+      "**Minimum** $c - R$",
+      "**First time the value reaches** a target: set the expression equal, solve the cosine equation, choose the smallest valid $t$.",
+      "**Double-angle** forms: $\\cos 2A = 2\\cos^2 A - 1 = 1 - 2\\sin^2 A$",
+      "$\\sin 2A = 2\\sin A\\cos A$",
+      "$\\tan 2A = \\dfrac{2\\tan A}{1 - \\tan^2 A}$.",
+      "**Addition formulae** produce $\\cos 3A \\equiv 4\\cos^3 A - 3\\cos A$ (Oct 2020) and the 2022/2025 \"show that $\\tan x = \\ldots$\" items."
+    ] },
     { callout: { t: "warn", body: "Give $\\alpha$ to **at least 3 decimal places in radians** (or 2 d.p. in degrees) and carry the unrounded value; the final answer is usually asked to 1 d.p. State the maximum **and the value of $\\theta$/$t$ at which it occurs** — both marks." }}
   ],
   flashcards: [
@@ -495,10 +543,10 @@ X("maths:5.6", {
     ["Minimum of $140\\cos\\theta - 480\\sin\\theta$?", "$R = 500$; minimum $-500$ when $\\cos(\\theta + \\alpha) = -1$.", 19]
   ],
   quiz: [
-    { q: "$R$ for $3\\cos\\theta + 4\\sin\\theta$:", opts: ["7", "5", "25", "1"], ans: 1, why: "$\\sqrt{9 + 16}$." },
-    { q: "$\\sin 2A =$", opts: ["$2\\sin A$", "$2\\sin A\\cos A$", "$\\sin^2 A$", "$1 - 2\\sin^2 A$"], ans: 1, why: "Double angle." },
-    { q: "$\\cos(A - B) =$", opts: ["$\\cos A\\cos B - \\sin A\\sin B$", "$\\cos A\\cos B + \\sin A\\sin B$", "$\\sin A\\cos B - \\cos A\\sin B$", "$\\cos A - \\cos B$"], ans: 1, why: "Addition formula." },
-    { q: "Maximum of $7 + 5\\cos(t - 0.9)$:", opts: ["7", "12", "5", "2"], ans: 1, why: "When the cosine is 1." },
+    { q: "$5\\cos\\theta + 12\\sin\\theta = R\\cos(\\theta - \\alpha)$. $\\tan\\alpha =$", opts: ["$\\tfrac{12}{5}$", "$\\tfrac{5}{12}$", "$\\tfrac{12}{13}$", "$\\tfrac{5}{13}$"], ans: 0, why: "$R\\cos\\alpha = 5$ and $R\\sin\\alpha = 12$, so $\\tan\\alpha = \\tfrac{12}{5}$." },
+    { q: "$\\sin 2A =$", opts: ["$2\\sin A$", "$2\\sin A\\cos A$", "$\\sin^2 A$", "$1 - 2\\sin^2 A$"], ans: 1, why: "$\\sin(A + A) = \\sin A\\cos A + \\cos A\\sin A = 2\\sin A\\cos A$." },
+    { q: "$\\sin(A + B) =$", opts: ["$\\sin A\\cos B + \\cos A\\sin B$", "$\\sin A\\cos B - \\cos A\\sin B$", "$\\cos A\\cos B + \\sin A\\sin B$", "$\\sin A + \\sin B$"], ans: 0, why: "Sine mixes the functions: $\\sin A\\cos B + \\cos A\\sin B$; the minus is for $A - B$." },
+    { q: "Maximum of $7 + 5\\cos(t - 0.9)$:", opts: ["7", "12", "10", "2"], ans: 1, why: "When the cosine is 1." },
     { q: "$\\cos 2A = 1 - 2\\sin^2 A$ rearranged gives $\\sin^2 A =$", opts: ["$\\dfrac{1 - \\cos 2A}{2}$", "$\\dfrac{1 + \\cos 2A}{2}$", "$1 - \\cos 2A$", "$2\\cos 2A$"], ans: 0, why: "Used for integrating $\\sin^2$." },
     { q: "$\\tan 45° = 1$ so $\\tan(x + 45°) =$", opts: ["$\\dfrac{\\tan x + 1}{1 - \\tan x}$", "$\\tan x + 1$", "$\\dfrac{1 - \\tan x}{1 + \\tan x}$", "$\\tan x$"], ans: 0, why: "Addition formula for tan." },
     { q: "$a\\cos\\theta - b\\sin\\theta$ is written as:", opts: ["$R\\cos(\\theta - \\alpha)$", "$R\\cos(\\theta + \\alpha)$", "$R\\sin(\\theta + \\alpha)$", "$R\\tan\\theta$"], ans: 1, why: "Expanding $R\\cos(\\theta + \\alpha)$ gives $-R\\sin\\alpha\\sin\\theta$." }
@@ -530,7 +578,14 @@ X("maths:5.7", {
   notes: [
     { page: "Past-paper patterns" },
     { h: "Trig equations — the 7 to 9 mark question every paper" },
-    "Forms: **quadratic in one ratio** (use $\\sin^2 = 1 - \\cos^2$ or $\\tan = \\sin/\\cos$ then factorise), **multiple angle** ($\\sin(2\\theta + 10°) = -0.6$ — adjust the interval for $2\\theta + 10°$ first, list every solution, then transform back), **$\\sin^2 3x = 4\\cos^2 3x$** → $\\tan 3x = \\pm 2$, and **identify the errors** in a given attempt (AS Nov 2021, Specimen: dividing by $\\sin\\theta$ loses solutions; forgetting the second quadrant; rounding early). \"Hence\" after an identity means **use the simplified form**.",
+    "Forms:",
+    { ul: [
+      "**Quadratic in one ratio**: use $\\sin^2 = 1 - \\cos^2$ or $\\tan = \\sin/\\cos$, then factorise.",
+      "**Multiple angle** ($\\sin(2\\theta + 10°) = -0.6$): adjust the interval for $2\\theta + 10°$ first, list every solution, then transform back.",
+      "**$\\sin^2 3x = 4\\cos^2 3x$** → $\\tan 3x = \\pm 2$.",
+      "**Identify the errors** in a given attempt (AS Nov 2021, Specimen): dividing by $\\sin\\theta$ loses solutions; forgetting the second quadrant; rounding early.",
+      "\"Hence\" after an identity means **use the simplified form**."
+    ] },
     { callout: { t: "warn", body: "**Never divide by $\\cos\\theta$ or $\\sin\\theta$** — factorise so $\\cos\\theta = 0$ solutions survive. For $\\cos 3x = k$ with $0 \\le x < 120°$, the range of $3x$ is $0 \\le 3x < 360°$; for $0 \\le x < 360°$ it is three full turns." }}
   ],
   flashcards: [
@@ -547,7 +602,7 @@ X("maths:5.7", {
   quiz: [
     { q: "$\\sin\\theta = -\\tfrac12$ in $0 \\le \\theta < 360°$:", opts: ["$30°, 150°$", "$210°, 330°$", "$150°, 210°$", "$30°, 330°$"], ans: 1, why: "Third and fourth quadrants." },
     { q: "$\\cos 2x = 0.5$ for $0 \\le x < 360°$ has:", opts: ["2 solutions", "4 solutions", "1 solution", "8 solutions"], ans: 1, why: "$2x \\in [0, 720°)$." },
-    { q: "Solving $\\sin\\theta\\cos\\theta = \\cos\\theta$ by dividing by $\\cos\\theta$:", opts: ["is correct", "loses the $\\cos\\theta = 0$ solutions", "gains solutions", "changes the interval"], ans: 1, why: "Factorise instead." },
+    { q: "Solving $\\sin\\theta\\cos\\theta = \\cos\\theta$ by dividing by $\\cos\\theta$:", opts: ["is correct and keeps every solution", "loses the $\\cos\\theta = 0$ solutions", "gains the $\\sin\\theta = 0$ solutions", "changes the interval of the solutions"], ans: 1, why: "$\\cos\\theta(\\sin\\theta - 1) = 0$ keeps the $\\cos\\theta = 0$ solutions." },
     { q: "$\\tan\\theta = 2$ has how many solutions in $0 \\le \\theta < 360°$?", opts: ["1", "2", "4", "0"], ans: 1, why: "Period $180°$." },
     { q: "$2\\cos^2\\theta + 3\\sin\\theta = 3$ becomes:", opts: ["$2\\sin^2\\theta - 3\\sin\\theta + 1 = 0$", "$2\\sin^2\\theta + 3\\sin\\theta - 1 = 0$", "$2\\cos^2\\theta + 3\\cos\\theta = 3$", "$\\tan\\theta = 1$"], ans: 0, why: "$2 - 2\\sin^2 + 3\\sin - 3 = 0$." },
     { q: "For $\\sin(2\\theta + 10°) = k$ with $0 \\le \\theta < 180°$, the interval for $2\\theta + 10°$ is:", opts: ["$[0, 180°)$", "$[10°, 370°)$", "$[10°, 190°)$", "$[0, 360°)$"], ans: 1, why: "Transform the interval first." }
@@ -587,8 +642,8 @@ X("maths:5.8", {
     { q: "$1 + \\cos 2\\theta \\equiv$", opts: ["$2\\sin^2\\theta$", "$2\\cos^2\\theta$", "$\\cos^2\\theta$", "$2$"], ans: 1, why: "From $\\cos 2\\theta = 2\\cos^2\\theta - 1$." },
     { q: "$\\dfrac{\\sin 2\\theta}{2\\sin\\theta} \\equiv$", opts: ["$\\sin\\theta$", "$\\cos\\theta$", "$\\tan\\theta$", "$1$"], ans: 1, why: "$\\sin 2\\theta = 2\\sin\\theta\\cos\\theta$." },
     { q: "$\\cos 3\\theta\\cos\\theta + \\sin 3\\theta\\sin\\theta \\equiv$", opts: ["$\\cos 4\\theta$", "$\\cos 2\\theta$", "$\\sin 2\\theta$", "$1$"], ans: 1, why: "$\\cos(3\\theta - \\theta)$." },
-    { q: "In a proof, 'multiply both sides by $\\cos\\theta$' is:", opts: ["acceptable", "invalid — you may only transform one side", "always required", "a substitution"], ans: 1, why: "An identity proof manipulates one side." },
-    { q: "$\\cot 2x \\equiv$", opts: ["$\\dfrac{\\cos 2x}{\\sin 2x}$", "$\\dfrac{1}{\\cos 2x}$", "$2\\cot x$", "$\\tan 2x$"], ans: 0, why: "Definition." }
+    { q: "In a proof, 'multiply both sides by $\\cos\\theta$' is:", opts: ["acceptable, as both sides change equally", "invalid — you may only transform one side", "always required to clear the fractions", "a substitution, so it is allowed"], ans: 1, why: "An identity proof manipulates one side." },
+    { q: "$\\cot 2x \\equiv$", opts: ["$\\dfrac{\\cos 2x}{\\sin 2x}$", "$\\dfrac{\\sin 2x}{\\cos 2x}$", "$\\dfrac{2\\cos x}{\\sin x}$", "$\\dfrac{1}{\\sin 2x}$"], ans: 0, why: "$\\cot 2x = \\dfrac{1}{\\tan 2x} = \\dfrac{\\cos 2x}{\\sin 2x}$." }
   ],
   exam: [
     { src: "Edexcel 2018 P2 Q12", parts: [
@@ -616,10 +671,10 @@ X("maths:5.9", {
     ["Period of $T = 20 + \\sqrt5\\sin\\left(\\dfrac{\\pi t}{12}\\right)$?", "$\\dfrac{2\\pi}{\\pi/12} = 24$ hours."]
   ],
   quiz: [
-    { q: "$D = 5 + 2\\sin(30t)°$ has maximum:", opts: ["5", "7", "2", "3"], ans: 1, why: "Mean plus amplitude." },
-    { q: "Period of $\\sin(30t)°$ in hours:", opts: ["30", "12", "6", "360"], ans: 1, why: "$360/30$." },
+    { q: "$D = 5 + 2\\sin(30t)°$ has maximum:", opts: ["5", "7", "2", "3"], ans: 1, why: "$\\sin$ is at most 1, so $D \\le 5 + 2 = 7$." },
+    { q: "$D = 5 + 2\\sin(30t)°$ first reaches its maximum at $t =$", opts: ["3", "6", "12", "9"], ans: 0, why: "The maximum needs $30t = 90$, so $t = 3$." },
     { q: "In $H = 10 + 8\\sin(0.2t)$ the minimum height is:", opts: ["2", "10", "18", "0"], ans: 0, why: "$10 - 8$." },
-    { q: "The modulus in $H = |A\\sin(bt)|$ ensures:", opts: ["periodicity", "non-negative heights", "amplitude $A$", "a phase shift"], ans: 1, why: "Height cannot be negative." },
+    { q: "The modulus in $H = |A\\sin(bt)|$ ensures:", opts: ["a period of $2\\pi/b$", "non-negative heights", "an amplitude of $2A$", "a phase shift of $\\pi$"], ans: 1, why: "Height cannot be negative." },
     { q: "A tide model reaches 6 m first at $t = 1$ and next at:", opts: ["$t = 5$", "$t = 7$", "$t = 13$", "$t = 2$"], ans: 0, why: "$\\sin(30t)° = \\tfrac12$ at $30t = 150°$." },
     { q: "The amplitude of $3 + 4\\cos(2t)$ is:", opts: ["3", "4", "2", "7"], ans: 1, why: "Coefficient of the cosine." }
   ],
@@ -644,17 +699,15 @@ X("maths:6.1", {
     ["Sketch $y = 2^x$: key features.", "Passes through $(0, 1)$, increasing, asymptote $y = 0$ as $x \\to -\\infty$, always positive."],
     ["Sketch $y = e^{-x}$.", "Through $(0, 1)$, decreasing, asymptote $y = 0$."],
     ["Sketch $y = e^x - 3$.", "Through $(0, -2)$, asymptote $y = -3$, crosses the $x$-axis at $x = \\ln 3$."],
-    ["Solve $e^{2x} = 5$.", "$x = \\tfrac12\\ln 5$."],
-    ["Why is $y = a^x$ only defined for $a > 0$?", "For negative $a$, non-integer powers are undefined in the reals."],
-    ["What is $e$ (to 3 s.f.) and why is it special?", "$2.72$; $y = e^x$ is its own derivative — the gradient equals the $y$-value everywhere."],
-    ["Solve $2^x = 20$ to 3 s.f.", "$x = \\dfrac{\\ln 20}{\\ln 2} = 4.32$."],
-    ["Describe $y = 3e^{x}$ relative to $y = e^x$.", "Stretch parallel to the $y$-axis, scale factor 3; $y$-intercept $(0, 3)$."]
+    ["Why is $y = a^x$ only defined for $a > 0$?", "For negative $a$, non-integer powers are undefined in the reals.", 11],
+    ["What is $e$ (to 3 s.f.) and why is it special?", "$2.72$; $y = e^x$ is its own derivative — the gradient equals the $y$-value everywhere.", 12],
+    ["Describe $y = 3e^{x}$ relative to $y = e^x$.", "Stretch parallel to the $y$-axis, scale factor 3; $y$-intercept $(0, 3)$.", 14]
   ],
   quiz: [
     { q: "$y = 5^x$ passes through:", opts: ["$(0, 5)$", "$(0, 1)$", "$(1, 0)$", "$(0, 0)$"], ans: 1, why: "$5^0 = 1$." },
     { q: "The asymptote of $y = e^x + 2$ is:", opts: ["$y = 0$", "$y = 2$", "$x = 2$", "$y = -2$"], ans: 1, why: "Shift up 2." },
     { q: "$y = \\left(\\tfrac12\\right)^x$ is the same as:", opts: ["$y = 2^{-x}$", "$y = -2^x$", "$y = 2^x$", "$y = \\tfrac12 \\cdot 2^x$"], ans: 0, why: "$(2^{-1})^x$." },
-    { q: "$e^{\\ln 7} =$", opts: ["7", "$\\ln 7$", "1", "$e^7$"], ans: 0, why: "Inverse functions." },
+    { q: "$e^{\\ln 7} =$", opts: ["7", "$\\ln 7$", "1", "$e^7$"], ans: 0, why: "$e^x$ and $\\ln x$ are inverses, so $e^{\\ln 7} = 7$." },
     { q: "Solve $e^{x} = 1$:", opts: ["$x = e$", "$x = 0$", "$x = 1$", "no solution"], ans: 1, why: "$e^0 = 1$." },
     { q: "$e^{3\\ln 2} =$", opts: ["6", "8", "$\\ln 8$", "$3\\ln 2$"], ans: 1, why: "$e^{\\ln 8}$." }
   ],
@@ -677,11 +730,11 @@ X("maths:6.2", {
     ["$\\dfrac{d}{dx}(a^x) = ?$", "$a^x\\ln a$.", 13]
   ],
   quiz: [
-    { q: "$\\dfrac{d}{dx}(e^{5x}) =$", opts: ["$e^{5x}$", "$5e^{5x}$", "$5e^{4x}$", "$e^{5}$"], ans: 1, why: "Chain rule." },
-    { q: "The gradient of $y = e^x$ at any point equals:", opts: ["$x$", "$y$", "1", "$e$"], ans: 1, why: "Self-derivative." },
-    { q: "$\\dfrac{d}{dx}(2^x) =$", opts: ["$2^x$", "$x2^{x-1}$", "$2^x\\ln 2$", "$\\ln 2$"], ans: 2, why: "General exponential." },
-    { q: "If $\\dfrac{dN}{dt} = 0.3N$ then $N =$", opts: ["$0.3t$", "$Ae^{0.3t}$", "$0.3e^{t}$", "$N^2$"], ans: 1, why: "Exponential growth." },
-    { q: "Gradient of $y = e^{-x}$ at $x = 0$:", opts: ["1", "$-1$", "0", "$e$"], ans: 1, why: "$-e^0$." },
+    { q: "$\\dfrac{d}{dx}(e^{5x}) =$", opts: ["$e^{5x}$", "$5e^{5x}$", "$5e^{4x}$", "$e^{5}$"], ans: 1, why: "$\\tfrac{d}{dx}e^{kx} = ke^{kx}$ with $k = 5$." },
+    { q: "The gradient of $y = e^x$ at any point equals:", opts: ["$x$", "$y$", "1", "$e$"], ans: 1, why: "$\\tfrac{d}{dx}e^x = e^x$, which is $y$." },
+    { q: "$\\dfrac{d}{dx}(2^x) =$", opts: ["$2^x$", "$x2^{x-1}$", "$2^x\\ln 2$", "$\\ln 2$"], ans: 2, why: "$2^x = e^{x\\ln 2}$, so the derivative is $2^x\\ln 2$." },
+    { q: "If $\\dfrac{dN}{dt} = 0.3N$ then $N =$", opts: ["$0.3t$", "$Ae^{0.3t}$", "$0.3e^{t}$", "$N^2$"], ans: 1, why: "Growth proportional to $N$: $N = Ae^{kt}$ with $k = 0.3$." },
+    { q: "Gradient of $y = e^{-x}$ at $x = 0$:", opts: ["$1$", "$-1$", "$-e$", "$e$"], ans: 1, why: "$-e^0$." },
     { q: "Rate of change of $A = 0.2e^{0.3t}$ at $t = 5$ is:", opts: ["$0.06e^{1.5}$", "$0.2e^{1.5}$", "$0.3e^{5}$", "$e^{1.5}$"], ans: 0, why: "$0.2 \\times 0.3 e^{1.5}$." }
   ],
   exam: [
@@ -713,11 +766,11 @@ X("maths:6.3", {
   ],
   quiz: [
     { q: "$\\log_4 64 =$", opts: ["16", "3", "4", "2"], ans: 1, why: "$4^3 = 64$." },
-    { q: "$\\ln e^{5} =$", opts: ["5", "$e^5$", "1", "$5e$"], ans: 0, why: "Inverse." },
-    { q: "$\\log_{10} 0.001 =$", opts: ["3", "$-3$", "$-0.001$", "0.001"], ans: 1, why: "$10^{-3}$." },
+    { q: "$\\ln e^{5} =$", opts: ["5", "$e^5$", "1", "$5e$"], ans: 0, why: "$\\ln$ and $e$ undo each other: $\\ln e^5 = 5\\ln e = 5$." },
+    { q: "$\\log_5 \\sqrt5 =$", opts: ["$\\tfrac12$", "$2$", "$\\sqrt5$", "$-\\tfrac12$"], ans: 0, why: "$\\sqrt5 = 5^{1/2}$, so $\\log_5\\sqrt5 = \\tfrac12$." },
     { q: "$y = \\ln x$ has asymptote:", opts: ["$y = 0$", "$x = 0$", "$x = 1$", "$y = 1$"], ans: 1, why: "As $x \\to 0^+$." },
     { q: "If $\\log_a 8 = 3$ then $a =$", opts: ["2", "3", "8", "24"], ans: 0, why: "$a^3 = 8$." },
-    { q: "$\\ln x = -1$ gives $x =$", opts: ["$-e$", "$\\dfrac1e$", "$e$", "0"], ans: 1, why: "$e^{-1}$." }
+    { q: "$\\ln x = -1$ gives $x =$", opts: ["$-\\dfrac1e$", "$\\dfrac1e$", "$\\dfrac{1}{e^2}$", "$-e$"], ans: 1, why: "$e^{-1}$." }
   ],
   exam: [
     { src: "Edexcel Oct 2021 P2 Q3", q: "Solve $\\log_3(12y + 5) - \\log_3(1 - 3y) = 2$, giving your answer as an exact fraction.", marks: 3,
@@ -731,12 +784,22 @@ X("maths:6.4", {
   notes: [
     { page: "Past-paper patterns" },
     { h: "Laws of logs — solving and the extraneous root" },
-    "Solve $2\\log(4 - x) = \\log(x + 8)$ (Oct 2020), $\\log(x+3) + \\log(x+10) = 2 + 2\\log x$ (2023), $2\\log_3(x + 1) = 1 + \\log_3(x + 7)$ (AS 2025), $2\\log_4(2 - x) - \\log_4(x + 5) = 1$ (AS Specimen): combine with the laws, **write the constant as a log** ($2 = \\log 100$, $1 = \\log_3 3$), equate arguments, solve the quadratic, and **reject the root that makes a log argument negative** — a mark is reserved for this. \"Express in terms of $a = \\log x$ and $b = \\log(x + 8)$\" (2023): $\\log\\left(\\dfrac{x^2}{x+8}\\right) = 2a - b$. The AS \"identify the errors in this working\" (2018): $\\log a - \\log b \\ne \\log a / \\log b$; $\\log(a + b) \\ne \\log a + \\log b$.",
+    { ul: [
+      "Oct 2020: solve $2\\log(4 - x) = \\log(x + 8)$.",
+      "2023: $\\log(x+3) + \\log(x+10) = 2 + 2\\log x$.",
+      "AS 2025: $2\\log_3(x + 1) = 1 + \\log_3(x + 7)$.",
+      "AS Specimen: $2\\log_4(2 - x) - \\log_4(x + 5) = 1$.",
+      "Method: combine with the laws, **write the constant as a log** ($2 = \\log 100$, $1 = \\log_3 3$), equate arguments, solve the quadratic.",
+      "**Reject the root that makes a log argument negative** — a mark is reserved for this.",
+      "\"Express in terms of $a = \\log x$ and $b = \\log(x + 8)$\" (2023): $\\log\\left(\\dfrac{x^2}{x+8}\\right) = 2a - b$.",
+      "The AS \"identify the errors in this working\" (2018): $\\log a - \\log b \\ne \\log a / \\log b$",
+      "$\\log(a + b) \\ne \\log a + \\log b$."
+    ] },
     { callout: { t: "memorise", body: "$\\log xy = \\log x + \\log y$ · $\\log\\dfrac xy = \\log x - \\log y$ · $\\log x^k = k\\log x$ · $\\log_a a = 1$ · $\\log_a 1 = 0$ · $\\log_a b = \\dfrac{\\ln b}{\\ln a}$." }}
   ],
   flashcards: [
     ["Solve $2\\log(4 - x) = \\log(x + 8)$.", "$(4-x)^2 = x + 8 \\Rightarrow x^2 - 9x + 8 = 0 \\Rightarrow x = 1$ or $8$; $x = 8$ makes $\\log(4 - x)$ undefined, so $x = 1$.", 8],
-    ["Solve $\\log_2(x+3) + \\log_2(x+10) = 2 + 2\\log_2 x$… with base 10 and $2 = \\log 100$.", "$(x+3)(x+10) = 100x^2 \\Rightarrow 99x^2 - 13x - 30 = 0 \\Rightarrow x = \\dfrac{13 \\pm \\sqrt{169 + 11880}}{198}$; take the positive root $x = 0.620$.", 9],
+    ["Solve $\\log(x+3) + \\log(x+10) = 2 + 2\\log x$ (base 10).", "$2 = \\log 100$, so $(x+3)(x+10) = 100x^2 \\Rightarrow 99x^2 - 13x - 30 = 0 \\Rightarrow x = \\dfrac{13 \\pm \\sqrt{169 + 11880}}{198}$; take the positive root $x = 0.620$.", 9],
     ["Express $\\log\\left(\\dfrac{x^2}{x + 8}\\right)$ in terms of $a = \\log x$, $b = \\log(x + 8)$.", "$2a - b$.", 10],
     ["Express $\\log\\sqrt{x(x+8)}$ in terms of $a$ and $b$.", "$\\tfrac12(a + b)$.", 11],
     ["Error: '$\\log(x + 2) = \\log x + \\log 2$'. Correct it.", "There is no law for the log of a sum; $\\log x + \\log 2 = \\log 2x$.", 13],
@@ -746,9 +809,9 @@ X("maths:6.4", {
   ],
   quiz: [
     { q: "$\\log 8 + \\log 5 - \\log 4 =$", opts: ["$\\log 9$", "$\\log 10$", "$\\log 1$", "$\\log 40$"], ans: 1, why: "$\\log\\dfrac{40}{4}$." },
-    { q: "$3\\log_2 x =$", opts: ["$\\log_2 3x$", "$\\log_2 x^3$", "$\\log_2 (x + 3)$", "$(\\log_2 x)^3$"], ans: 1, why: "Power law." },
+    { q: "$3\\log_2 x =$", opts: ["$\\log_2 3x$", "$\\log_2 x^3$", "$\\log_2 (x + 3)$", "$(\\log_2 x)^3$"], ans: 1, why: "$n\\log a = \\log a^n$, so $3\\log_2 x = \\log_2 x^3$." },
     { q: "In base 10, the number 2 equals:", opts: ["$\\log 2$", "$\\log 20$", "$\\log 100$", "$\\log 10$"], ans: 2, why: "$10^2$." },
-    { q: "$\\log_5 x = \\dfrac{\\ln x}{?}$", opts: ["$\\ln 5$", "5", "$\\ln x$", "$\\log 5$"], ans: 0, why: "Change of base." },
+    { q: "$\\log_5 x = \\dfrac{\\ln x}{?}$", opts: ["$\\ln 5$", "5", "$\\ln x$", "$\\log 5$"], ans: 0, why: "$\\log_5 x = \\dfrac{\\ln x}{\\ln 5}$: divide by the log of the old base." },
     { q: "A root that makes $\\log(4 - x)$ undefined must be:", opts: ["kept", "rejected", "halved", "squared"], ans: 1, why: "Argument must be positive." },
     { q: "$\\log 100 - \\log 10 =$", opts: ["$\\log 90$", "1", "10", "$\\log 1000$"], ans: 1, why: "$\\log 10$." },
     { q: "'$\\dfrac{\\log 8}{\\log 2} = \\log 4$' is:", opts: ["correct", "wrong — it equals 3", "wrong — it equals $\\log 6$", "undefined"], ans: 1, why: "$\\log_2 8 = 3$." }
@@ -783,15 +846,17 @@ X("maths:6.5", {
     ["Solve $e^{2x} - 4e^x + 3 = 0$.", "$e^x = 1, 3 \\Rightarrow x = 0, \\ln 3$."],
     ["Solve $3^{x - 2} \\times 4 = 2\\sqrt2$ exactly.", "$3^{x-2} = 2^{-1/2} \\Rightarrow x = 2 - \\dfrac{\\ln 2}{2\\ln 3}$."],
     ["Solve $7^x = 3^{x + 1}$.", "$x\\ln 7 = (x + 1)\\ln 3 \\Rightarrow x = \\dfrac{\\ln 3}{\\ln 7 - \\ln 3} = 1.30$."],
-    ["Why take logs of both sides of $a^x = b$?", "The power law brings $x$ down: $x\\ln a = \\ln b$."]
+    ["Why take logs of both sides of $a^x = b$?", "The power law brings $x$ down: $x\\ln a = \\ln b$."],
+    ["Solve $e^{2x} = 5$.", "$x = \\tfrac12\\ln 5$.", "maths:6.1:10"],
+    ["Solve $2^x = 20$ to 3 s.f.", "$x = \\dfrac{\\ln 20}{\\ln 2} = 4.32$.", "maths:6.1:13"]
   ],
   quiz: [
-    { q: "$2^x = 10$ gives $x =$", opts: ["5", "$\\log_2 10$", "$\\log 2$", "$10/2$"], ans: 1, why: "$\\dfrac{\\ln 10}{\\ln 2}$." },
+    { q: "$2^x = 10$ gives $x =$", opts: ["$\\log_{10} 2$", "$\\log_2 10$", "$\\dfrac{\\log 2}{\\log 10}$", "$\\log_2 5$"], ans: 1, why: "$\\dfrac{\\ln 10}{\\ln 2}$." },
     { q: "$e^{2x} - 5e^x + 6 = 0$: substitute", opts: ["$u = 2x$", "$u = e^x$", "$u = e^{2x}$", "$u = \\ln x$"], ans: 1, why: "Gives $u^2 - 5u + 6 = 0$." },
-    { q: "Solutions of $e^{2x} - 5e^x + 6 = 0$:", opts: ["$x = 2, 3$", "$x = \\ln 2, \\ln 3$", "$x = 0, 1$", "$x = e^2, e^3$"], ans: 1, why: "$e^x = 2, 3$." },
+    { q: "Solutions of $e^{2x} - 5e^x + 6 = 0$:", opts: ["$x = 2, 3$", "$x = \\ln 2, \\ln 3$", "$x = -\\ln 2, -\\ln 3$", "$x = e^2, e^3$"], ans: 1, why: "$e^x = 2, 3$." },
     { q: "$4^{x} = 8^{x-1}$ gives $x =$", opts: ["3", "2", "1", "$-1$"], ans: 0, why: "$2x = 3x - 3$." },
-    { q: "$\\ln(3^x) =$", opts: ["$3\\ln x$", "$x\\ln 3$", "$\\ln 3x$", "$3x$"], ans: 1, why: "Power law." },
-    { q: "$10^{2x + 1} = 500$: first step:", opts: ["divide by 10", "take logs base 10: $2x + 1 = \\log 500$", "square root", "subtract 1"], ans: 1, why: "Then $x = \\tfrac12(\\log 500 - 1)$." }
+    { q: "$\\ln(3^x) =$", opts: ["$3\\ln x$", "$x\\ln 3$", "$\\ln 3x$", "$3x$"], ans: 1, why: "$\\ln a^n = n\\ln a$, so $\\ln 3^x = x\\ln 3$." },
+    { q: "$10^{2x + 1} = 500$: first step:", opts: ["divide by 2: $10^{x + 1} = 250$", "take logs base 10: $2x + 1 = \\log 500$", "take square roots: $10^{x + 1} = \\sqrt{500}$", "subtract 1: $10^{2x} = 499$"], ans: 1, why: "Then $x = \\tfrac12(\\log 500 - 1)$." }
   ],
   exam: [
     { src: "Edexcel Oct 2020 P1 Q2", q: "Solve $4^{3p - 1} = 52^{10}$, giving your answer to 3 significant figures.", marks: 3,
@@ -807,7 +872,14 @@ X("maths:6.6", {
   notes: [
     { page: "Past-paper patterns" },
     { h: "Reduction to linear form — 5 to 10 marks every year" },
-    "Two models. **$y = ab^t$** (painting value, algae, phone value, world population, advert views): $\\log y = \\log a + t\\log b$, so **$\\log y$ against $t$ is a straight line** with gradient $\\log b$ and intercept $\\log a$. **$y = ax^n$** (braking distance, pendulum period, heart rate): $\\log y = \\log a + n\\log x$, so **$\\log y$ against $\\log x$** is linear with gradient $n$. Given the line (\"$\\log_{10} V = 0.072t + 2.379$\"), find $a = 10^{2.379}$ and $b = 10^{0.072}$, **interpret** them ($a$ is the initial value; $b = 1.18$ means an 18% increase per unit time), and **comment on reliability** (extrapolation; rounding of the line's constants).",
+    { ul: [
+      "Two models.",
+      "**$y = ab^t$** (painting value, algae, phone value, world population, advert views): $\\log y = \\log a + t\\log b$, so **$\\log y$ against $t$ is a straight line** with gradient $\\log b$ and intercept $\\log a$.",
+      "**$y = ax^n$** (braking distance, pendulum period, heart rate): $\\log y = \\log a + n\\log x$, so **$\\log y$ against $\\log x$** is linear with gradient $n$.",
+      "Given the line (\"$\\log_{10} V = 0.072t + 2.379$\"), find $a = 10^{2.379}$ and $b = 10^{0.072}$.",
+      "**Interpret** them: $a$ is the initial value; $b = 1.18$ means an 18% increase per unit time.",
+      "**Comment on reliability**: extrapolation; rounding of the line's constants."
+    ] },
     { callout: { t: "warn", body: "Use the **same base** as the graph — if the axis is $\\log_{10}$, then $a = 10^{\\text{intercept}}$, not $e^{\\text{intercept}}$. And **show the derivation**: \"taking logs of both sides, $\\log y = \\log a + t\\log b$, which is of the form $Y = mt + c$\" — that sentence is the 'show' mark." }}
   ],
   flashcards: [
@@ -821,11 +893,11 @@ X("maths:6.6", {
   ],
   quiz: [
     { q: "For $y = ab^x$, plotting $\\log y$ against $x$ gives gradient:", opts: ["$\\log a$", "$\\log b$", "$b$", "$a$"], ans: 1, why: "$\\log y = \\log a + x\\log b$." },
-    { q: "For $y = ax^n$ the linear plot is:", opts: ["$y$ vs $x$", "$\\log y$ vs $x$", "$\\log y$ vs $\\log x$", "$y$ vs $\\log x$"], ans: 2, why: "Power law." },
-    { q: "Intercept 1.5 on a $\\log_{10} y$ axis means $a =$", opts: ["1.5", "$10^{1.5}$", "$e^{1.5}$", "$\\log 1.5$"], ans: 1, why: "Same base." },
-    { q: "Gradient $-0.05$ on a $\\log_{10} V$ vs $t$ plot means $b =$", opts: ["$-0.05$", "$10^{-0.05} \\approx 0.89$", "0.95", "$e^{-0.05}$"], ans: 1, why: "11% decrease per unit." },
-    { q: "In $h = pm^q$, the gradient of $\\log h$ against $\\log m$ is:", opts: ["$p$", "$q$", "$\\log p$", "$\\log q$"], ans: 1, why: "Power law exponent." },
-    { q: "'The model is unreliable for $t = 50$' because:", opts: ["logs fail", "it is extrapolation far beyond the data", "$b < 1$", "the gradient is small"], ans: 1, why: "Standard evaluation point." }
+    { q: "For $y = ax^n$ the linear plot is:", opts: ["$\\log y$ vs $x^n$", "$\\log y$ vs $x$", "$\\log y$ vs $\\log x$", "$y$ vs $\\log x$"], ans: 2, why: "$\\log y = \\log a + n\\log x$: a straight line with gradient $n$." },
+    { q: "Intercept 1.5 on a $\\log_{10} y$ axis means $a =$", opts: ["1.5", "$10^{1.5}$", "$e^{1.5}$", "$\\log 1.5$"], ans: 1, why: "$\\log_{10} y = \\log_{10} a + \\ldots$, so $\\log_{10} a = 1.5$ and $a = 10^{1.5}$." },
+    { q: "Gradient $-0.05$ on a $\\log_{10} V$ vs $t$ plot means $b =$", opts: ["$10^{0.05} \\approx 1.12$", "$10^{-0.05} \\approx 0.89$", "$1 - 0.05 = 0.95$", "$e^{-0.05} \\approx 0.95$"], ans: 1, why: "11% decrease per unit." },
+    { q: "In $h = pm^q$, the gradient of $\\log h$ against $\\log m$ is:", opts: ["$p$", "$q$", "$\\log p$", "$\\log q$"], ans: 1, why: "$\\log h = \\log p + q\\log m$: the gradient is $q$." },
+    { q: "'The model is unreliable for $t = 50$' because:", opts: ["logs cannot be taken of large values", "it is extrapolation far beyond the data", "$b < 1$, so the model must decrease", "the gradient is too small to be trusted"], ans: 1, why: "$t = 50$ is far outside the data, so the trend may not continue." }
   ],
   exam: [
     { level: "AS", src: "Edexcel AS 2020 P1 Q12", ctx: "The number of views $V$ of an online advert $t$ days after it is posted is modelled by $V = ab^t$. A plot of $\\log_{10} V$ against $t$ is a straight line with equation $\\log_{10} V = 0.072t + 2.379$.",
@@ -852,7 +924,19 @@ X("maths:6.7", {
   notes: [
     { page: "Past-paper patterns" },
     { h: "Exponential models — the 6 to 12 mark question" },
-    "Forms: $\\theta = 25 + Ae^{-0.03t}$ (cooling), $V = 15700e^{-0.25t} + 2300$ (car value), $A = 80 - 45e^{ct}$ (trees), $h = 31 - Ae^{-kt}$ (tree height, two data points → simultaneous exponential equations), $N = 5000 - 5000e^{-0.075t}$ (sales), $P = k + 1.4e^{-0.5t}$ (tyre pressure). Parts: **initial value** ($t = 0$), **long-term / limiting value** (the constant, as $e^{-kt} \\to 0$), **find $A$ or $k$** from a data point, **time to reach a value** (logs), **rate of change** (differentiate), and **why a value is never reached** (\"$\\theta = 15$ needs $e^{-t/8} < 0$\").",
+    "Forms:",
+    { ul: [
+      "$\\theta = 25 + Ae^{-0.03t}$ (cooling)",
+      "$V = 15700e^{-0.25t} + 2300$ (car value)",
+      "$A = 80 - 45e^{ct}$ (trees)",
+      "$h = 31 - Ae^{-kt}$ (tree height, two data points → simultaneous exponential equations)",
+      "$N = 5000 - 5000e^{-0.075t}$ (sales)",
+      "$P = k + 1.4e^{-0.5t}$ (tyre pressure)",
+      "Parts: **initial value** ($t = 0$) and **long-term / limiting value** (the constant, as $e^{-kt} \\to 0$).",
+      "**Find $A$ or $k$** from a data point; **time to reach a value** (logs).",
+      "**Rate of change** (differentiate).",
+      "**Why a value is never reached** (\"$\\theta = 15$ needs $e^{-t/8} < 0$\")."
+    ] },
     { callout: { t: "tip", body: "Two unknowns from two data points: divide one equation by the other to eliminate $A$ — $\\dfrac{31 - h_2}{31 - h_1} = e^{-k(t_2 - t_1)}$ — then take logs." }}
   ],
   flashcards: [
@@ -870,11 +954,11 @@ X("maths:6.7", {
   quiz: [
     { q: "In $\\theta = 25 + Ae^{-0.03t}$ the long-term temperature is:", opts: ["$A$", "25", "$25 + A$", "0"], ans: 1, why: "Exponential term → 0." },
     { q: "$V = 15700e^{-0.25t} + 2300$ at $t = 0$:", opts: ["15700", "2300", "18000", "0"], ans: 2, why: "$e^0 = 1$." },
-    { q: "$\\dfrac{d}{dt}(65e^{-t/8}) =$", opts: ["$-\\tfrac{65}{8}e^{-t/8}$", "$65e^{-t/8}$", "$-8e^{-t/8}$", "$\\tfrac{65}{8}e^{-t/8}$"], ans: 0, why: "Chain rule." },
+    { q: "$\\dfrac{d}{dt}(65e^{-t/8}) =$", opts: ["$-\\tfrac{65}{8}e^{-t/8}$", "$65e^{-t/8}$", "$-8e^{-t/8}$", "$\\tfrac{65}{8}e^{-t/8}$"], ans: 0, why: "$\\tfrac{d}{dt}e^{-t/8} = -\\tfrac18 e^{-t/8}$, times 65." },
     { q: "$N = 5000(1 - e^{-0.075t})$ reaches 3000 when $e^{-0.075t} =$", opts: ["0.6", "0.4", "0.3", "1.5"], ans: 1, why: "$1 - 0.6$." },
-    { q: "Time for $Ae^{-kt}$ to halve:", opts: ["$\\ln 2 / k$", "$k/\\ln 2$", "$2/k$", "$\\ln k$"], ans: 0, why: "Half-life." },
-    { q: "A model $A = 80 - 45e^{ct}$ with $c < 0$ describes:", opts: ["unbounded growth", "growth towards a limit of 80", "decay to 0", "oscillation"], ans: 1, why: "Approaches 80 from below." },
-    { q: "Why is $\\theta = 15$ impossible for $\\theta = 18 + 65e^{-t/8}$?", opts: ["$t$ would be negative", "$e^{-t/8}$ is always positive so $\\theta > 18$", "65 is too big", "it is possible"], ans: 1, why: "Asymptote at 18." }
+    { q: "Time for $Ae^{-kt}$ to halve:", opts: ["$\\ln 2 / k$", "$k/\\ln 2$", "$\\ln k / 2$", "$\\ln \\tfrac12 / k$"], ans: 0, why: "$e^{-kT} = \\tfrac12 \\Rightarrow kT = \\ln 2 \\Rightarrow T = \\tfrac{\\ln 2}{k}$." },
+    { q: "A model $A = 80 - 45e^{ct}$ with $c < 0$ describes:", opts: ["growth towards a limit of 35", "growth towards a limit of 80", "decay towards a limit of 80", "unbounded growth beyond 80"], ans: 1, why: "Approaches 80 from below." },
+    { q: "Why is $\\theta = 15$ impossible for $\\theta = 18 + 65e^{-t/8}$?", opts: ["$t$ would have to be negative, before the start", "$e^{-t/8}$ is always positive so $\\theta > 18$", "the 65 makes $\\theta$ fall too slowly to reach 15", "it is possible: $\\theta = 15$ when $t \\approx 30$"], ans: 1, why: "Asymptote at 18." }
   ],
   exam: [
     { level: "AS", src: "Edexcel AS 2020 P1 Q8", ctx: "The temperature $\\theta$ °C of a cup of tea $t$ minutes after it is made is modelled by $\\theta = 18 + 65e^{-t/8}$.",

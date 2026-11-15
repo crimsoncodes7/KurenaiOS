@@ -152,8 +152,8 @@ C["compsci:4.13.1.1"] = {
   quiz: [
     { q: "Which is analysis work?", opts: ["interviewing the client", "writing pseudo-code", "drawing screen layouts", "choosing test data"], ans: 0, why: "Gathering requirements." },
     { q: "\"The program must be user-friendly\" is", opts: ["not measurable", "a SMART objective", "a data model", "a test plan"], ans: 0, why: "Cannot be tested." },
-    { q: "Observation is best for", opts: ["how work is really done", "surveying hundreds", "legal rules", "testing code"], ans: 0, why: "Sees actual practice." },
-    { q: "The data model is created in", opts: ["analysis", "testing", "evaluation", "implementation only"], ans: 0, why: "Spec 4.13.1.1." }
+    { q: "Observation is best for", opts: ["how work is really done", "surveying hundreds", "finding out the legal rules", "testing the finished code"], ans: 0, why: "Sees actual practice." },
+    { q: "The data model is created in", opts: ["analysis", "testing", "evaluation", "implementation only"], ans: 0, why: "The data model is created in the analysis stage, before design begins." }
   ]
 };
 
@@ -257,9 +257,9 @@ C["compsci:4.13.1.2"] = {
     ["Can design be iterative?", "Yes — prototyping/agile repeats design each cycle.", 7]
   ],
   quiz: [
-    { q: "A hierarchy chart shows", opts: ["modules and how they decompose", "test results", "user requirements", "database keys"], ans: 0, why: "Modular structure." },
-    { q: "Low coupling means", opts: ["modules interact only through parameters", "one module does everything", "lots of globals", "no subroutines"], ans: 0, why: "Independence." },
-    { q: "A dry run of the GCF design with 12 and 39 ends with", opts: ["3", "1", "12", "27"], ans: 0, why: "Trace." },
+    { q: "A hierarchy chart shows", opts: ["modules and how they decompose", "test results for each module", "user requirements and their priority", "database keys and how tables link"], ans: 0, why: "Modular structure." },
+    { q: "Low coupling means", opts: ["modules interact only through parameters", "one module does everything the program needs", "modules share data through many global variables", "the program has no subroutines at all"], ans: 0, why: "Low coupling means a module depends on others only through its parameters, so changing one has little effect on the rest." },
+    { q: "A dry run of the GCF design with 12 and 39 ends with", opts: ["3", "1", "12", "27"], ans: 0, why: "The greatest common factor of 12 and 39 is 3, and a dry run through the design ends with that value." },
     { q: "Screen mock-ups belong to", opts: ["design", "analysis", "evaluation", "testing"], ans: 0, why: "User interface design." }
   ]
 };
@@ -364,8 +364,8 @@ C["compsci:4.13.1.3"] = {
   ],
   quiz: [
     { q: "int.Parse(\"abc\") failing during a run is", opts: ["a run-time error", "a syntax error", "a logic error", "not an error"], ans: 0, why: "Crashes at execution." },
-    { q: "The 2019 program with input 29 outputs", opts: ["11101", "10110", "29", "0"], ans: 0, why: "29 = 11101₂." },
-    { q: "\"Solve the critical path first\" means", opts: ["build the core features others depend on first", "fix the slowest code", "test boundaries first", "write documentation first"], ans: 0, why: "Spec." },
+    { q: "The 2019 program with input 29 outputs", opts: ["11101", "10110", "29", "0"], ans: 0, why: "29 = 16 + 8 + 4 + 1, which is 11101 in binary." },
+    { q: "\"Solve the critical path first\" means", opts: ["build the core features others depend on first", "fix the slowest code first so the program runs fast", "test the boundary values before any other data", "write all the documentation before any code"], ans: 0, why: "Building the core features that others depend on first means the essential parts are working early." },
     { q: "Python for pseudo-code DIV is", opts: ["//", "/", "%", "div"], ans: 0, why: "Integer division." }
   ]
 };
@@ -471,19 +471,18 @@ C["compsci:4.13.1.4"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.13.1.3 debugging when a test fails; 4.4.4.3 order of complexity for efficiency; 4.1.1 validation and loops; 4.13.1.5 evaluation uses the test evidence; NEA testing section." } }
   ],
   flashcards: [
-    ["Three types of test data?", "Normal, boundary, erroneous."],
-    ["Normal data?", "Typical valid data the program should accept."],
-    ["Boundary data?", "Values at the limits of the valid range (and just beyond)."],
-    ["Erroneous data?", "Invalid data that should be rejected."],
-    ["sqrt test values 25, 1, −8?", "Normal, boundary, erroneous."],
-    ["Testing for efficiency means…", "using logical reasoning about how the work grows with the input."],
-    ["Columns of a test plan?", "Test number, purpose, data, type, expected result, actual result, pass/fail."],
+    ["Normal data?", "Typical valid data the program should accept.", 1],
+    ["Boundary data?", "Values at the limits of the valid range (and just beyond).", 2],
+    ["Erroneous data?", "Invalid data that should be rejected.", 3],
+    ["sqrt test values 25, 1, −8?", "Normal, boundary, erroneous.", 4],
+    ["Testing for efficiency means…", "using logical reasoning about how the work grows with the input.", 5],
+    ["Columns of a test plan?", "Test number, purpose, data, type, expected result, actual result, pass/fail.", 6],
   ],
   quiz: [
-    { q: "For a valid range 1–10, which is boundary data?", opts: ["10", "5", "−3", "\"ten\""], ans: 0, why: "At the edge." },
-    { q: "−8 for sqrt of a positive integer is", opts: ["erroneous", "normal", "boundary", "extreme"], ans: 0, why: "Invalid." },
+    { q: "For a valid range 1–10, which is boundary data?", opts: ["10", "5", "−3", "\"ten\""], ans: 0, why: "Boundary data sits on the edge of the valid range, and 10 is the largest valid value." },
+    { q: "−8 for sqrt of a positive integer is", opts: ["erroneous", "normal", "boundary", "extreme"], ans: 0, why: "A negative number is not valid input for the square root of a positive integer, so it is erroneous data." },
     { q: "The 2018 program given 11 should output", opts: ["Number too large.", "Not a positive number.", "1 10 45…", "nothing"], ans: 0, why: "Above the range." },
-    { q: "Efficiency testing by logical reasoning means", opts: ["arguing how the work grows with n", "timing one run", "asking users", "checking syntax"], ans: 0, why: "Spec." }
+    { q: "Efficiency testing by logical reasoning means", opts: ["arguing how the work grows with n", "timing one run on a fast computer", "asking users if it feels quick", "checking the syntax line by line"], ans: 0, why: "You argue from the algorithm's structure how the work grows as n grows, without timing it." }
   ]
 };
 
@@ -567,10 +566,10 @@ C["compsci:4.13.1.5"] = {
     ["VEIL?", "Verdict, Evidence, Improvement, Limitation."]
   ],
   quiz: [
-    { q: "Evaluation compares the solution with", opts: ["the initial requirements", "the source code length", "other students' work", "the test data types"], ans: 0, why: "Spec." },
-    { q: "\"It works well\" as an evaluation is weak because", opts: ["it gives no evidence", "it is too long", "it uses jargon", "it names a requirement"], ans: 0, why: "Needs evidence." },
-    { q: "The 2025 program prints 'Palindrome' for x because", opts: ["it checks the input before re-testing the loop condition", "x is a palindrome by design", "of a syntax error", "the loop never runs"], ans: 0, why: "Sentinel processed." },
-    { q: "Which belongs in an evaluation?", opts: ["objectives not met and why", "the first interview", "the hierarchy chart", "variable names"], ans: 0, why: "Honest verdicts." }
+    { q: "Evaluation compares the solution with", opts: ["the initial requirements", "the source code length", "other students' work", "the test data types"], ans: 0, why: "An evaluation judges how well the finished solution meets the original requirements." },
+    { q: "\"It works well\" as an evaluation is weak because", opts: ["it gives no evidence", "it is too long", "it uses jargon", "it names a requirement"], ans: 0, why: "A claim like that gives no evidence; a good evaluation points to tests, measures or user feedback." },
+    { q: "The 2025 program prints 'Palindrome' for x because", opts: ["it checks the input before re-testing the loop condition", "x is a palindrome by design, so the output is right", "of a syntax error in the loop's condition", "the loop never runs, so the default message is printed"], ans: 0, why: "Sentinel processed." },
+    { q: "Which belongs in an evaluation?", opts: ["objectives not met and why", "a transcript of the first interview", "the hierarchy chart for the design", "a list of every variable name"], ans: 0, why: "Honest verdicts." }
   ]
 };
 

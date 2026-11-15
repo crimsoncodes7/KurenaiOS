@@ -119,10 +119,10 @@ C["compsci:4.3.4.1"] = {
     ["Average comparisons for n items?", "About n/2.", 7]
   ],
   quiz: [
-    { q: "Linear search of 1000 unsorted items, worst case", opts: ["1000 comparisons", "10 comparisons", "500 comparisons", "1 comparison"], ans: 0, why: "Every item." },
+    { q: "Linear search of 1000 unsorted items, worst case", opts: ["1000 comparisons", "10 comparisons", "500 comparisons", "1 comparison"], ans: 0, why: "With unsorted items the worst case is that the item is last or absent, so every one of the 1000 is checked." },
     { q: "Which needs the data sorted?", opts: ["binary search", "linear search", "both", "neither"], ans: 0, why: "Linear works on any order." },
-    { q: "Doubling the list size makes the worst-case linear search", opts: ["about twice as long", "one step longer", "four times as long", "the same"], ans: 0, why: "O(n)." },
-    { q: "'n comparisons are needed' as an O(n) explanation is", opts: ["NE — it must be the worst case/maximum", "full marks", "wrong — it is log n", "R. always"], ans: 0, why: "A-level 2025 Q01.4." }
+    { q: "Doubling the list size makes the worst-case linear search", opts: ["about twice as long", "one step longer", "four times as long", "the same"], ans: 0, why: "Linear search is O(n), so doubling the list doubles the worst-case time." },
+    { q: "'n comparisons are needed' as an O(n) explanation is", opts: ["NE — it must be the worst case/maximum", "full marks — any count of comparisons is fine", "wrong — a linear search is O(log n)", "R — it must state the best case instead"], ans: 0, why: "A-level 2025 Q01.4." }
   ],
   sims: ["linear-search"]
 };
@@ -227,10 +227,10 @@ C["compsci:4.3.4.2"] = {
     ["Max comparisons for 1 000 000 items?", "20.", 7],
   ],
   quiz: [
-    { q: "First Z for A(38, 0, 18)?", opts: ["9", "8", "10", "18"], ans: 0, why: "(0 + 18) DIV 2." },
+    { q: "First Z for A(38, 0, 18)?", opts: ["9", "8", "10", "18"], ans: 0, why: "Z is (0 + 18) DIV 2 = 9, the middle of positions 0 to 18." },
     { q: "Max comparisons for 1000 sorted items?", opts: ["10", "500", "1000", "100"], ans: 0, why: "⌊log₂ 1000⌋ + 1 = 10." },
     { q: "Binary search cannot be used on", opts: ["an unsorted list", "a sorted array", "a list of strings in order", "a sorted list of 2 items"], ans: 0, why: "Halving relies on order." },
-    { q: "Doubling the list size makes the worst-case binary search", opts: ["one comparison longer", "twice as long", "four times as long", "no different"], ans: 0, why: "O(log n)." }
+    { q: "Doubling the list size makes the worst-case binary search", opts: ["one comparison longer", "twice as long to finish", "four times as long", "no different in length"], ans: 0, why: "Binary search halves the list each time, so doubling the size adds just one more comparison." }
   ],
   sims: ["binary-search"]
 };
@@ -311,16 +311,13 @@ C["compsci:4.3.4.3"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.2.5.1 binary search trees; 4.3.4.2 binary search (same halving); 4.1.1.16 the recursive TreeSearch (2017 Q04); 4.3.2.1 in-order traversal; 4.4.4.3 O(log n) vs O(n)." } }
   ],
   flashcards: [
-    ["Binary tree search step?", "Equal → found; smaller → left; bigger → right; no child → not found."],
-    ["Time complexity of binary tree search on a balanced tree?", "O(log n)."],
-    ["Worst case for binary tree search?", "O(n) — a degenerate chain."],
-    ["What makes a binary search tree degenerate into a chain?", "Inserting values in sorted order."],
-    ["In BTS, 'Data < k' means go…?", "Right."],
+    ["What makes a binary search tree degenerate into a chain?", "Inserting values in sorted order.", 3],
+    ["In BTS, 'Data < k' means go…?", "Right.", 4],
     ["Why is binary tree search on a balanced tree O(log n)?", "Each comparison discards about half of the remaining tree.", 7]
   ],
   quiz: [
-    { q: "In BTS on 6(3(1, 4), 9), searching for 9 visits", opts: ["6, 9", "6, 3, 4", "6, 3, 1", "every node"], ans: 0, why: "9 > 6 → right." },
-    { q: "Binary tree search on a chain of n nodes is", opts: ["O(n)", "O(log n)", "O(1)", "O(n²)"], ans: 0, why: "Height n − 1." },
+    { q: "In BTS on 6(3(1, 4), 9), searching for 9 visits", opts: ["6, 9", "6, 3, 4", "6, 3, 1", "every node"], ans: 0, why: "9 is larger than the root 6, so the search goes right and finds 9 after visiting 6 then 9." },
+    { q: "Binary tree search on a chain of n nodes is", opts: ["O(n)", "O(log n)", "O(1)", "O(n²)"], ans: 0, why: "On a chain every node has one child, so the tree's height is n − 1 and a search visits up to n nodes, O(n)." },
     { q: "BTS row 4 (Data < k) should be", opts: ["Current ← Tree[Current].Right", "Current ← Tree[Current].Left", "RETURN True", "Current ← 0"], ans: 0, why: "Target is bigger." },
     { q: "BTS(5) on the 2023 tree returns", opts: ["False", "True", "−1", "4"], ans: 0, why: "Falls off right of 4." }
   ],

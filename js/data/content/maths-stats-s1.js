@@ -443,10 +443,10 @@ C["maths:S1.1"] = {
     { q: "Every 20th name from a random start in 1–20 is:", opts: ["systematic", "stratified", "quota", "simple random"], ans: 0, why: "Regular interval, random start." },
     { q: "A sample of 50 from strata of 300 and 200, stratified, takes from the larger stratum:", opts: ["30", "25", "20", "300"], ans: 0, why: "$\\frac{300}{500} \\times 50 = 30$." },
     { q: "Which method needs no sampling frame?", opts: ["quota", "stratified", "systematic", "simple random"], ans: 0, why: "Quota and opportunity need none." },
-    { q: "Testing every battery until it fails is unsuitable for a census because:", opts: ["it destroys the population", "it is biased", "it is random", "it needs a frame"], ans: 0, why: "Destructive testing." },
+    { q: "Testing every battery until it fails is unsuitable for a census because:", opts: ["it destroys the population", "it is biased towards new batteries", "it is random, so not a census", "it needs a sampling frame first"], ans: 0, why: "Testing to failure destroys every battery, so none would be left." },
     { q: "In the LDS, 'n/a' days should be:", opts: ["excluded from $n$", "counted as 0", "replaced by the mean", "counted as tr"], ans: 0, why: "Not available means missing." },
     { q: "A Perth 2015 month with mean temperature 19.4 °C (May–Oct mean 15.2 °C) is most likely:", opts: ["October", "July", "August", "June"], ans: 0, why: "Southern hemisphere: June–August is winter; October is spring." },
-    { q: "A larger opportunity sample:", opts: ["reduces variability but not bias", "removes bias", "becomes random", "becomes a census"], ans: 0, why: "Bias is about the method." }
+    { q: "A larger opportunity sample:", opts: ["reduces variability but not bias", "removes the bias from the sample", "becomes a random sample of the population", "becomes a census of the population"], ans: 0, why: "Bias is about the method." }
   ]
 };
 

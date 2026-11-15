@@ -305,7 +305,7 @@ C["maths:M6.1"] = {
     { q: "15 m s$^{-1}$ in km h$^{-1}$ is", opts: ["54", "4.17", "15 000", "900"], ans: 0, why: "Multiply by 3.6." },
     { q: "Which is a fundamental S.I. unit?", opts: ["kilogram", "newton", "m s$^{-1}$", "N m"], ans: 0, why: "Mass is fundamental; the others are derived." },
     { q: "After using $g = 9.8$, a time of 3.030 45 s should be given as", opts: ["3.03 s", "3.030 45 s", "3.0305 s", "3 s exactly"], ans: 0, why: "2 or 3 s.f." },
-    { q: "\"Model the ball as a particle\" means", opts: ["its dimensions are negligible", "it has no mass", "it has no weight", "it is smooth"], ans: 0, why: "Size ignored, mass kept." },
+    { q: "\"Model the ball as a particle\" means", opts: ["its dimensions are negligible", "its mass is negligible", "its weight can be ignored", "its surface is smooth, so no friction"], ans: 0, why: "Size ignored, mass kept." },
     { q: "Which refinement earns the mark?", opts: ["Allow for the spin of the ball", "Include the weight of the ball", "The ground is not horizontal", "Upthrust from the air"], ans: 0, why: "Spin changes the model; the others do not or are not part of it." },
     { q: "Air resistance is included for a ball that must hit the ground at a given speed. The new launch speed is", opts: ["greater", "less", "unchanged", "zero"], ans: 0, why: "It loses speed on the way, so must start faster." }
   ]
@@ -447,7 +447,7 @@ C["maths:M7.1"] = {
   quiz: [
     { q: "A ball is thrown up 5 m and falls back to its start. Its displacement is", opts: ["0 m", "5 m", "10 m", "−5 m"], ans: 0, why: "Same start and end." },
     { q: "…and the distance it travels is", opts: ["10 m", "0 m", "5 m", "2.5 m"], ans: 0, why: "5 up + 5 down." },
-    { q: "Which is a scalar?", opts: ["speed", "velocity", "displacement", "acceleration"], ans: 0, why: "Magnitude only." },
+    { q: "Which is a scalar?", opts: ["speed", "velocity", "displacement", "acceleration"], ans: 0, why: "Speed has size only; velocity, displacement and acceleration also have a direction." },
     { q: "A car moving forwards brakes. Then", opts: ["$v > 0$, $a < 0$", "$v < 0$, $a < 0$", "$v < 0$, $a > 0$", "$v = 0$"], ans: 0, why: "Deceleration opposes the velocity." },
     { q: "For a total distance in a motion that turns round you must first find", opts: ["when $v = 0$", "when $a = 0$", "the average speed", "the maximum speed"], ans: 0, why: "Split at the turning points." }
   ]
@@ -658,7 +658,7 @@ C["maths:M7.2"] = {
     ["A triangle journey: 120 s, 1500 m. Top speed?", "25 m s$^{-1}$."]
   ],
   quiz: [
-    { q: "On a velocity-time graph the area under the line gives", opts: ["displacement", "acceleration", "velocity", "time"], ans: 0, why: "Velocity × time." },
+    { q: "On a velocity-time graph the area under the line gives", opts: ["displacement", "acceleration", "velocity", "time"], ans: 0, why: "Area $=$ velocity $\\times$ time $=$ displacement." },
     { q: "A horizontal line on a velocity-time graph means", opts: ["constant velocity", "at rest", "constant acceleration", "deceleration"], ans: 0, why: "Gradient zero, so acceleration zero." },
     { q: "A car accelerates from rest to 20 m s$^{-1}$ in 8 s. The distance is", opts: ["80 m", "160 m", "2.5 m", "40 m"], ans: 0, why: "$\\frac12 \\times 8 \\times 20$." },
     { q: "The end of a speed-time sketch for a train stopping at $B$ should", opts: ["meet the $t$-axis", "drop vertically", "stay horizontal", "go below the axis"], ans: 0, why: "A vertical line would be an instant stop." },
@@ -784,7 +784,7 @@ C["maths:M7.3"] = {
         { h: "(b) $v = u + at$", m: "$-19 = 5 - 10T$", mk: "M1" },
         { m: "$T = 2.4$", mk: "A1" },
         { h: "(c) $s = -1.2$", m: "$-1.2 = 5t - 5t^2$", mk: "M1 A1" },
-        { m: "$5t^2 - 5t - 1.2 = 0 \\Rightarrow 25t^2 - 25t - 6 = 0 \\Rightarrow (5t + 1)(5t - 6) = 0$", mk: "M(A)1" },
+        { m: "$5t^2 - 5t - 1.2 = 0 \\Rightarrow 25t^2 - 25t - 6 = 0 \\Rightarrow (5t + 1)(5t - 6) = 0$", mk: "DM1" },
         { m: "$t = 1.2$ s", mk: "A1", n: "The root $t = -0.2$ is before projection." },
         { h: "(d)", m: "A straight line from $(0, 5)$ down to $(2.4, -19)$, crossing the axis at $t = 0.5$.", mk: "B1 B1ft", n: "A reflection (down positive) is also accepted, from $(0, -5)$ to $(2.4, 19)$." }
       ], result: "(b) 2.4 (c) 1.2 s" } },
@@ -1146,7 +1146,7 @@ C["maths:M7.4"] = {
         { h: "(c) Integrate", m: "$\\mathbf r = 2t^{\\frac32}\\mathbf i - t^2\\mathbf j + \\mathbf c$", mk: "M1 A1" },
         { m: "$t = 1$: $2\\mathbf i - \\mathbf j + \\mathbf c = -\\mathbf j \\Rightarrow \\mathbf c = -2\\mathbf i$; $\\; \\mathbf r = (2t^{\\frac32} - 2)\\mathbf i - t^2\\mathbf j$", mk: "A1" },
         { h: "(d) Speed 10", m: "$9t + 4t^2 = 100$", mk: "M1" },
-        { m: "$4t^2 + 9t - 100 = 0 \\Rightarrow (4t + 25)(t - 4) = 0 \\Rightarrow t = 4$", mk: "M(A)1 A1" },
+        { m: "$4t^2 + 9t - 100 = 0 \\Rightarrow (4t + 25)(t - 4) = 0 \\Rightarrow t = 4$", mk: "DM1 A1" },
         { m: "$\\mathbf r(4) = 14\\mathbf i - 16\\mathbf j$", mk: "M1" },
         { m: "$|\\mathbf r| = \\sqrt{196 + 256} = \\sqrt{452}$", mk: "M1" },
         { m: "$= 2\\sqrt{113}$ m", mk: "A1" }
@@ -1237,7 +1237,7 @@ C["maths:M7.4"] = {
     ["Force from a velocity vector?", "Differentiate to get $\\mathbf a$, then $\\mathbf F = m\\mathbf a$."]
   ],
   quiz: [
-    { q: "$s = t^3 - 6t$. Then $v$ is", opts: ["$3t^2 - 6$", "$6t$", "$\\frac14 t^4 - 3t^2$", "$3t^2$"], ans: 0, why: "Differentiate." },
+    { q: "$s = t^3 - 6t$. Then $v$ is", opts: ["$3t^2 - 6$", "$6t$", "$\\frac14 t^4 - 3t^2$", "$3t^2$"], ans: 0, why: "$v = \\frac{ds}{dt} = 3t^2 - 6$." },
     { q: "$v = 4 - 2t$. The particle is at rest when", opts: ["$t = 2$", "$t = 4$", "$t = 0$", "never"], ans: 0, why: "$v = 0$." },
     { q: "$v = 3t^2$ and $s = 2$ when $t = 0$. Then $s$ is", opts: ["$t^3 + 2$", "$t^3$", "$6t$", "$t^3 - 2$"], ans: 0, why: "The constant is 2." },
     { q: "$v = t^2 - 4$ for $0 \\le t \\le 3$. The distance is found by", opts: ["splitting at $t = 2$", "one integral from 0 to 3", "suvat", "differentiating"], ans: 0, why: "It turns round at $t = 2$." },
@@ -1392,7 +1392,7 @@ C["maths:M7.5"] = {
       steps: [
         { h: "Components", m: "$\\sin\\alpha = \\frac{5}{13}$, $\\cos\\alpha = \\frac{12}{13}$: $\\; 65\\sin\\alpha = 25$, $\\; 65\\cos\\alpha = 60$" },
         { h: "(a) Vertical", m: "$-70 = 25t - 5t^2$", mk: "M1 A1" },
-        { m: "$t^2 - 5t - 14 = 0 \\Rightarrow (t - 7)(t + 2) = 0$", mk: "M(A)1" },
+        { m: "$t^2 - 5t - 14 = 0 \\Rightarrow (t - 7)(t + 2) = 0$", mk: "DM1" },
         { m: "$t = 7$ s", mk: "A1" },
         { h: "(b) Horizontal velocity at $A$", m: "$60$ m s$^{-1}$", mk: "B1" },
         { h: "Vertical velocity at $A$", m: "$25 - 10 \\times 7 = -45$", mk: "M1 A1ft" },
@@ -1478,11 +1478,11 @@ C["maths:M7.5"] = {
     ["$\\tan\\alpha = \\frac34$, $U = 35$: components?", "28 horizontal, 21 vertical."]
   ],
   quiz: [
-    { q: "At the top of its path a projectile's velocity is", opts: ["horizontal, $U\\cos\\alpha$", "zero", "vertical", "$U$"], ans: 0, why: "Only the vertical part is zero." },
+    { q: "At the top of its path a projectile's velocity is", opts: ["horizontal, $U\\cos\\alpha$", "zero, as the particle stops", "vertical, $U\\sin\\alpha$", "horizontal, $U\\sin\\alpha$"], ans: 0, why: "Only the vertical part is zero." },
     { q: "Projected at 20 m s$^{-1}$ at 30°: its horizontal velocity is", opts: ["17.3 m s$^{-1}$", "10 m s$^{-1}$", "20 m s$^{-1}$", "11.5 m s$^{-1}$"], ans: 0, why: "$20\\cos30°$." },
     { q: "The range is greatest when $\\alpha$ is", opts: ["45°", "30°", "60°", "90°"], ans: 0, why: "$\\sin2\\alpha = 1$." },
-    { q: "Which pair of angles gives the same range?", opts: ["20° and 70°", "20° and 40°", "30° and 45°", "15° and 60°"], ans: 0, why: "Complementary angles." },
-    { q: "$\\sec^2\\alpha$ in a path equation is replaced by", opts: ["$1 + \\tan^2\\alpha$", "$1 - \\tan^2\\alpha$", "$\\cos^2\\alpha$", "$\\tan^2\\alpha - 1$"], ans: 0, why: "The Pythagorean identity." }
+    { q: "Which pair of angles gives the same range?", opts: ["20° and 70°", "20° and 40°", "30° and 45°", "15° and 60°"], ans: 0, why: "Range uses $\\sin 2\\alpha$, and $\\sin 40° = \\sin 140°$: $20° + 70° = 90°$." },
+    { q: "$\\sec^2\\alpha$ in a path equation is replaced by", opts: ["$1 + \\tan^2\\alpha$", "$1 - \\tan^2\\alpha$", "$\\cos^2\\alpha$", "$\\tan^2\\alpha - 1$"], ans: 0, why: "$\\sec^2\\alpha = 1 + \\tan^2\\alpha$: divide $\\sin^2 + \\cos^2 = 1$ by $\\cos^2$." }
   ]
 };
 

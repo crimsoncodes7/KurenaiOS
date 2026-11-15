@@ -4,6 +4,26 @@
     {
       "surface": "home",
       "hooks": "home.fact",
+      "from": "^198 cards due$",
+      "to": "186 cards due",
+      "why": "W6 (CC-07, 16 November 2026): the CS decks' cards that asked the same fact twice were removed, so the seeded account's due flashcards fall from 198 to 186 (154 → 146 overdue)."
+    },
+    {
+      "surface": "home",
+      "hooks": "habit.tick",
+      "from": "^Open: Clear 198 due flashcards \\(154 overdue\\)$",
+      "to": "Open: Clear 186 due flashcards (146 overdue)",
+      "why": "W6 (CC-07, 16 November 2026): the CS decks' cards that asked the same fact twice were removed, so the seeded account's due flashcards fall from 198 to 186 (154 → 146 overdue)."
+    },
+    {
+      "hooks": "shell.rail-item",
+      "from": "^学Study198$",
+      "to": "学Study186",
+      "why": "W6 (CC-07, 16 November 2026): the CS decks' cards that asked the same fact twice were removed, so the seeded account's due flashcards fall from 198 to 186 (154 → 146 overdue)."
+    },
+    {
+      "surface": "home",
+      "hooks": "home.fact",
       "from": "^203Cards? due.*$",
       "to": "198 cards due",
       "why": "CS Paper 1 at depth (feat/cs-p1-nea): the seeded account reviews the first 40 CS leaves (tools/lib/seed.js), which are the Paper 1 topics being rewritten, so the seeded due and overdue counts follow their flashcards. Update these figures as each Paper 1 section lands. The flashcard de-duplication then removed duplicate and dependent cards, and the merged CS leaves (cs-m-*.js) pooled several decks into one (capped at about 30 cards each): 198 due, 154 overdue."

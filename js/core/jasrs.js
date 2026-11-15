@@ -98,13 +98,26 @@
   /* queue(facets, today, w) → due facet keys: most overdue first, then the weakest; leeches set
      aside; two facets of one item never on the same day unless both are over two days overdue
      (sibling burying); skills interleaved so two of one kind rarely sit together. */
+  /* a tie is broken by skill, Reading first (JM-10: the key string put
+     "|L" before "|R", so a new word was asked by ear before it was read) */
+  var SKILL_RANK = { R: 0, L: 1, W: 2, S: 3, H: 4 };
   function queue(facets, today, w) {
-    var due = Object.keys(facets || {}).filter(function (k) { var f = facets[k]; return f && f.due && f.due <= today && !leech(f); })
-      .map(function (k) { var f = facets[k]; return { k: k, over: days(f.due, today), r: recall(f, today, w) }; })
-      .sort(function (a, b) { return b.over - a.over || a.r - b.r || (a.k < b.k ? -1 : 1); });
+    var all = facets || {};
+    var due = Object.keys(all).filter(function (k) { var f = all[k]; return f && f.due && f.due <= today && !leech(f); })
+      .map(function (k) { var f = all[k]; return { k: k, over: days(f.due, today), r: recall(f, today, w) }; })
+      .sort(function (a, b) {
+        return b.over - a.over || a.r - b.r ||
+          ((SKILL_RANK[split(a.k).skill] || 0) - (SKILL_RANK[split(b.k).skill] || 0)) || (a.k < b.k ? -1 : 1);
+      });
+    /* JM-11: a facet whose sibling was already reviewed TODAY is buried
+       too — the rule is per day, not per queue */
+    var doneToday = {};
+    Object.keys(all).forEach(function (k) { var f = all[k]; if (f && f.last === today) (doneToday[split(k).item] = doneToday[split(k).item] || {})[k] = true; });
     var seen = {}, out = [];
     due.forEach(function (x) {
       var it = split(x.k).item;
+      var sib = doneToday[it];
+      if (sib && Object.keys(sib).some(function (k) { return k !== x.k; }) && !(x.over > 2)) return;
       if (seen[it] && !(x.over > 2 && seen[it].over > 2)) return;
       if (!seen[it]) seen[it] = x;
       out.push(x.k);

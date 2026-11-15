@@ -476,7 +476,7 @@
             var mi = needsM(points, i);
             var sug = el("span", { class: "k-qz-point-sug" });
             sugSlots.push(sug);
-            self.appendChild(el("label", { class: "k-qz-point" }, [cb, el("span", { class: "k-qz-point-t" }, [el("span", { html: KOS.content.inline(m) }),
+            self.appendChild(el("label", { class: "k-qz-point" }, [cb, el("span", { class: "k-qz-point-t" }, [el("span", { html: KOS.content.inline(KOS.content.aqaWords(m)) }),
               mi >= 0 && !ticks[mi] ? el("span", { class: "k-qz-needs", text: "needs " + ((String(points[mi]).match(/M\d/) || ["M"])[0]) }) : null, sug].filter(Boolean)),
               exact || weighted ? el("span", { class: "k-mono k-muted", "data-ui": "quiz.point-w", text: String(weights[i]) }) : null].filter(Boolean)));
           });
@@ -556,7 +556,7 @@
         var revealed = false;
         var blocks = n.parts.map(function (p, pi) {
           var label = n.parts.length > 1 ? "(" + String.fromCharCode(97 + pi) + ")" : "";
-          var b = partBlock(p, label, marks[pi], function (v) { marks[pi] = v; paintSum(); keepSoon(); }, "exam:" + sid + ":" + ref + ":" + n.i + ":" + pi, "Q" + (n.i + 1) + label);
+          var b = partBlock(p, label, marks[pi], function (v) { marks[pi] = v; paintSum(); keepSoon(); }, "exam:" + sid + ":" + ref + ":" + (it.oi != null ? it.oi : n.i) + ":" + pi, "Q" + (n.i + 1) + label);
           card.appendChild(b.node);
           return b;
         });

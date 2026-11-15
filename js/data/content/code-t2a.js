@@ -244,7 +244,7 @@
       ["Why keep the sums out of the handler?", "So they can be tested without opening a window."]
     ],
     quiz: [
-      { q: "`BillBox.TextChanged += …` placed before `InitializeComponent()`…", opts: ["works", "throws NullReferenceException", "subscribes twice", "does not compile"], ans: 1, why: "The controls are created by InitializeComponent." },
+      { q: "`BillBox.TextChanged += …` placed before `InitializeComponent()`…", opts: ["works, as the field already exists", "throws NullReferenceException", "subscribes twice, once on each load", "does not compile: the box is not declared yet"], ans: 1, why: "The controls are created by InitializeComponent." },
       { q: "Setting `BillBox.Text = \"5\"` from code…", opts: ["raises TextChanged", "raises Click", "raises nothing", "throws"], ans: 0, why: "TextChanged fires for any change of the text." },
       { q: "Where should the rounding rule for each person's share live?", opts: ["in the XAML", "in the TextChanged handler", "in a plain class like TipMath", "in App.axaml.cs"], ans: 2, why: "Plain C# can be tested on its own; the handler just calls it." }
     ]

@@ -294,7 +294,12 @@
     title: "Hypothesis test for correlation (PMCC)",
     blurb: "Test whether a sample correlation coefficient r gives evidence of correlation in the population: hypotheses in ρ, the table critical value for n, comparison, and the conclusion in context words.",
     inputs: [{ k: "r", label: "r", def: -0.915, type: "number", step: "0.001" }, { k: "n", label: "n", def: 8, type: "number" }, { k: "tail", label: "H₁", def: "ρ < 0", type: "select", opts: ["ρ < 0", "ρ > 0", "ρ ≠ 0"] }, { k: "lvl", label: "level", def: "5%", type: "select", opts: ["10%", "5%", "1%"] }],
-    random: function () { return { r: Math.round((Math.random() * 1.6 - 0.8) * 1000) / 1000, n: pick([6, 8, 10, 12, 15, 20, 25, 30]), tail: pick(["ρ < 0", "ρ > 0", "ρ ≠ 0"]), lvl: pick(["10%", "5%", "1%"]) }; },
+    /* CM-23: r has the sign a one-tailed H₁ names */
+    random: function () {
+      var tail = pick(["ρ < 0", "ρ > 0", "ρ ≠ 0"]), mag = Math.round((0.1 + Math.random() * 0.8) * 1000) / 1000;
+      var r = tail === "ρ < 0" ? -mag : tail === "ρ > 0" ? mag : (Math.random() < 0.5 ? -mag : mag);
+      return { r: r, n: pick([6, 8, 10, 12, 15, 20, 25, 30]), tail: tail, lvl: pick(["10%", "5%", "1%"]) };
+    },
     validate: function (v) { if (Math.abs(v.r) > 1) return "|r| cannot exceed 1."; if (v.n < 4) return "Need n ≥ 4."; },
     solve: function (v) {
       var lvl = parseFloat(v.lvl) / 100, two = v.tail === "ρ ≠ 0", tailLvl = two ? lvl / 2 : lvl;
@@ -316,7 +321,12 @@
     title: "Hypothesis test for the mean of a normal distribution",
     blurb: "With σ known: distribution of the sample mean, test statistic z, p-value or critical value, and a conclusion in context — plus the critical sample-mean boundary examiners often ask for.",
     inputs: [{ k: "mu", label: "μ₀ (H₀)", def: 10, type: "number" }, { k: "sg", label: "σ", def: 3, type: "number" }, { k: "n", label: "n", def: 20, type: "number" }, { k: "xb", label: "x̄", def: 11.5, type: "number", step: "0.1" }, { k: "tail", label: "H₁", def: "μ > μ₀", type: "select", opts: ["μ > μ₀", "μ < μ₀", "μ ≠ μ₀"] }, { k: "lvl", label: "level", def: "5%", type: "select", opts: ["10%", "5%", "1%"] }],
-    random: function () { var mu = ri(20, 200), sg = ri(2, 20), n = pick([10, 16, 25, 36, 50]); return { mu: mu, sg: sg, n: n, xb: Math.round((mu + (Math.random() * 6 - 3) * sg / Math.sqrt(n)) * 10) / 10, tail: pick(["μ > μ₀", "μ < μ₀", "μ ≠ μ₀"]), lvl: pick(["10%", "5%", "1%"]) }; },
+    /* CM-23: x̄ lies on the side a one-tailed H₁ points to */
+    random: function () {
+      var mu = ri(20, 200), sg = ri(2, 20), n = pick([10, 16, 25, 36, 50]), tail = pick(["μ > μ₀", "μ < μ₀", "μ ≠ μ₀"]);
+      var k = (0.3 + Math.random() * 2.7) * (tail === "μ < μ₀" ? -1 : tail === "μ > μ₀" ? 1 : (Math.random() < 0.5 ? -1 : 1));
+      return { mu: mu, sg: sg, n: n, xb: Math.round((mu + k * sg / Math.sqrt(n)) * 10) / 10, tail: tail, lvl: pick(["10%", "5%", "1%"]) };
+    },
     validate: function (v) { if (v.sg <= 0 || v.n < 1) return "σ and n must be positive."; },
     solve: function (v) {
       var se = v.sg / Math.sqrt(v.n), z = (v.xb - v.mu) / se, lvl = parseFloat(v.lvl) / 100, two = v.tail === "μ ≠ μ₀";

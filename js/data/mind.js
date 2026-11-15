@@ -30,7 +30,7 @@
     { id: "F", header: "foundation", title: "Thinking well", units: [u("F1", "What makes an argument good", 8), u("F2", "Evidence and belief", 7)] },
     { id: "Y1", header: "psychology", title: "Learning and memory", units: [u("Y1.U1", "How memory works", 9), u("Y1.U2", "Learning on purpose", 7)] },
     { id: "Y2", header: "psychology", title: "Social psychology", units: [u("Y2.U1", "Conformity and obedience", 8), u("Y2.U2", "Attribution and persuasion", 7), u("Y2.U3", "The replication crisis, honestly", 6)] },
-    { id: "Y3", header: "psychology", title: "Decisions and strategy", units: [u("Y3.1", "Biases and heuristics", 8), u("Y3.2", "Games and strategy", 9), u("Y3.3", "Decision paradoxes", 7)] },
+    { id: "Y3", header: "psychology", title: "Decisions and strategy", units: [u("Y3.U1", "Biases and heuristics", 8), u("Y3.U2", "Games and strategy", 9), u("Y3.U3", "Decision paradoxes", 7)] },
     { id: "Y4", header: "psychology", title: "Emotion, motivation and habit", units: [u("Y4.U1", "Theories of emotion", 7), u("Y4.U2", "Motivation and habit", 8), u("Y4.U3", "Cognitive distortions", 6)] },
     { id: "Y5", header: "psychology", title: "Development and personality", units: [u("Y5.U1", "Attachment and identity", 7), u("Y5.U2", "Personality and the character lens", 6)] },
     { id: "Y6", header: "psychology", title: "Research methods", units: [u("Y6.U1", "Designs and variables", 7), u("Y6.U2", "Numbers that matter", 7)] },

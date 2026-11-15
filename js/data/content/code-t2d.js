@@ -94,7 +94,7 @@
     quiz: [
       { q: "`GetRequiredService<MainViewModel>()` throws \"Unable to resolve service for type 'Focus.INotifier'…\". Fix:", opts: ["make MainViewModel a singleton", "register an INotifier", "remove the constructor", "call GetService instead"], ans: 1, why: "Every constructor parameter must be registered." },
       { q: "An HttpClient for the whole app is best registered as…", opts: ["transient", "singleton", "scoped", "not at all"], ans: 1, why: "One client, reused; new clients per call exhaust sockets." },
-      { q: "A view model with `var clock = TimeProvider.System;` inside it…", opts: ["is fine", "cannot have its clock faked in tests", "fails to build", "is a singleton"], ans: 1, why: "Take TimeProvider in the constructor instead." }
+      { q: "A view model with `var clock = TimeProvider.System;` inside it…", opts: ["is fine, as tests can set System's time", "cannot have its clock faked in tests", "fails to build: TimeProvider is abstract", "is a singleton shared with every test"], ans: 1, why: "Take TimeProvider in the constructor instead." }
     ]
   });
 
@@ -168,7 +168,7 @@
     ],
     quiz: [
       { q: "A timer built from `Thread.Sleep(1000)` in a loop on the UI thread…", opts: ["counts fine", "freezes the window", "runs on another thread", "throws"], ans: 1, why: "The UI thread is busy sleeping." },
-      { q: "Why compute Remaining as end − now instead of decrementing each tick?", opts: ["it is shorter", "a late tick never makes it drift", "it uses less memory", "TimeProvider requires it"], ans: 1, why: "The clock is the truth; ticks only prompt a redraw." },
+      { q: "Why compute Remaining as end − now instead of decrementing each tick?", opts: ["it is shorter to write and read", "a late tick never makes it drift", "it uses less memory than a counter", "TimeProvider requires it for timers"], ans: 1, why: "The clock is the truth; ticks only prompt a redraw." },
       { q: "A test advances a FakeTimeProvider by 60 s, but the view model still shows 25:00. Likely…", opts: ["the delay used the real clock", "the test is too fast", "PropertyChanged is missing", "60 s is too little"], ans: 0, why: "Task.Delay without the TimeProvider waits on real time." }
     ]
   });
@@ -241,7 +241,7 @@
       ["Which JSON option reads \"text\" into Text?", "JsonSerializerDefaults.Web (camelCase, case-insensitive)."]
     ],
     quiz: [
-      { q: "The API answers 500. HttpClient.GetAsync…", opts: ["throws HttpRequestException", "returns a response with IsSuccessStatusCode false", "returns null", "retries"], ans: 1, why: "Status codes are answers; check IsSuccessStatusCode." },
+      { q: "The API answers 500. HttpClient.GetAsync…", opts: ["throws HttpRequestException with StatusCode 500", "returns a response with IsSuccessStatusCode false", "returns null instead of a response object", "retries three times, then throws"], ans: 1, why: "Status codes are answers; check IsSuccessStatusCode." },
       { q: "The user presses Stop during a load. The app should…", opts: ["show \"Couldn't load\"", "show nothing and stop", "retry", "crash"], ans: 1, why: "A cancel the user asked for is not an error." },
       { q: "Tests of HttpQuoteService should talk to…", opts: ["the real API", "a fake HttpMessageHandler", "localhost", "a mock of HttpClient.GetAsync"], ans: 1, why: "A fake handler answers exactly as each test needs." }
     ]
@@ -316,8 +316,8 @@
     ],
     quiz: [
       { q: "On first run there is no settings.json. Load should…", opts: ["throw FileNotFoundException", "return the defaults", "create an empty file and crash", "ask the user"], ans: 1, why: "A missing file is the normal first run." },
-      { q: "Where should the timer's \"Focus done\" be raised?", opts: ["every tick", "once, when the focus period ends", "on Start", "on Pause"], ans: 1, why: "One notification per event." },
-      { q: "Why does the view model take an INotifier?", opts: ["toasts need DI", "so tests can record notifications without a window", "WindowNotifier is static", "for speed"], ans: 1, why: "The fake records; the real one shows a toast." }
+      { q: "Where should the timer's \"Focus done\" be raised?", opts: ["every tick, so the view stays current", "once, when the focus period ends", "on Start, so the end time is known", "on Pause, whenever the clock stops"], ans: 1, why: "One notification per event." },
+      { q: "Why does the view model take an INotifier?", opts: ["toasts can only be shown through DI in Avalonia", "so tests can record notifications without a window", "WindowNotifier is static, so it cannot be new'd", "interface calls show the toast faster than a class"], ans: 1, why: "The fake records; the real one shows a toast." }
     ]
   });
 

@@ -546,7 +546,7 @@
           n: "Write this line even when the calculator does the lookup \u2014 it is the method mark." },
         { h: "Probability", m: "P(X < " + fmt(x) + ") = P(Z < " + fmt(z, 4) + ") = \u03A6(" + fmt(z, 4) + ") = " + fmt(P, 4) },
         { h: "Complements you might need", m: "P(X > " + fmt(x) + ") = 1 \u2212 " + fmt(P, 4) + " = " + fmt(1 - P, 4) +
-          "\nP(" + fmt(2*mu - x) + " < X < " + fmt(x) + ") = " + fmt(Math.abs(2 * P - 1), 4) + "  (symmetric interval about \u03BC)",
+          "\nP(" + fmt(Math.min(x, 2*mu - x)) + " < X < " + fmt(Math.max(x, 2*mu - x)) + ") = " + fmt(Math.abs(2 * P - 1), 4) + "  (symmetric interval about \u03BC)",
           n: "Points of inflection sit at \u03BC \u00B1 \u03C3 = " + fmt(mu - sg) + " and " + fmt(mu + sg) + " \u2014 quotable fact." }
       ], answer: "Z = " + fmt(z, 4) + " ,  P(X < " + fmt(x) + ") = " + fmt(P, 4) };
     }
@@ -678,7 +678,20 @@
       { k: "poly", label: "f(x) =", def: "x^3 - 2x - 5", type: "text", w: 200 },
       { k: "x0", label: "x₀", def: 2, type: "number", step: "any" }
     ],
-    random: function () { var ps = ["x^3 - 2x - 5", "x^3 - x - 2", "x^2 - 3", "x^3 + x - 1", "x^3 - 6x + 2"]; return { poly: ps[Math.floor(Math.random()*ps.length)], x0: Math.floor(Math.random()*3)+1 }; },
+    /* CM-16: a random example starts where three iterations really reach a
+       root (|f| tiny); a start near a small gradient threw the tangent away
+       and the "root estimate" was not a root in about a third of them */
+    random: function () {
+      var ps = ["x^3 - 2x - 5", "x^3 - x - 2", "x^2 - 3", "x^3 + x - 1", "x^3 - 6x + 2"];
+      for (var tries = 0; tries < 60; tries++) {
+        var poly = ps[Math.floor(Math.random()*ps.length)], x0 = Math.floor(Math.random()*7) - 3;
+        var f = parsePoly(poly), fp = f.map(function (t) { return { c: t.c * t.p, p: t.p - 1 }; }).filter(function (t) { return t.c !== 0 && t.p >= 0; });
+        var x = x0, ok = true;
+        for (var i = 0; i < 3; i++) { var d = polyEval(fp, x); if (!d) { ok = false; break; } x = x - polyEval(f, x) / d; }
+        if (ok && Math.abs(polyEval(f, x)) < 1e-4) return { poly: poly, x0: x0 };
+      }
+      return { poly: "x^3 - 2x - 5", x0: 2 };
+    },
     validate: function (v) {
       if (!parsePoly(v.poly)) return "Couldn’t read that polynomial — terms like x^3, -2x, 5.";
     },
@@ -701,7 +714,13 @@
       }
       steps.push({ h: "Iterate three times from x₀ = " + fmt(x0), m: rows.join("\n"),
         n: "Each row feeds its result into the next — keep every decimal place your calculator shows." });
-      steps.push({ h: "Root estimate", m: "x ≈ " + fmt(x, 5) + "  (f(" + fmt(x,5) + ") ≈ " + fmt(polyEval(f, x), 5) + ")",
+      var fEnd = polyEval(f, x);
+      if (Math.abs(fEnd) > 1e-3) {
+        steps.push({ h: "Not a root yet", m: "x₃ = " + fmt(x, 5) + "  but  f(x₃) ≈ " + fmt(fEnd, 5),
+          n: "f(x₃) is not close to 0, so three iterations have not reached a root. Keep iterating, or start nearer the root: where f′(x) is small the tangent meets the axis far away and the method can wander or fail." });
+        return { steps: steps, answer: "Not converged after three iterations: x₃ ≈ " + fmt(x, 5) + ", f(x₃) ≈ " + fmt(fEnd, 4) };
+      }
+      steps.push({ h: "Root estimate", m: "x ≈ " + fmt(x, 5) + "  (f(" + fmt(x,5) + ") ≈ " + fmt(fEnd, 5) + ")",
         n: "To justify accuracy to d.p., show a sign change of f across the rounding interval." });
       return { steps: steps, answer: "x ≈ " + fmt(x, 5) };
     }
@@ -749,7 +768,15 @@
       { k: "tail", label: "tail", def: "upper", type: "select", opts: ["upper", "lower"] },
       { k: "sig", label: "sig level %", def: 5, type: "number", step: "any" }
     ],
-    random: function () { var ps=[0.2,0.25,0.3,0.4,0.5]; var n=Math.floor(Math.random()*16)+15; return { n: n, p0: ps[Math.floor(Math.random()*ps.length)], x: Math.floor(Math.random()*n), tail: Math.random()<0.5?"upper":"lower", sig: [5,10,1][Math.floor(Math.random()*3)] }; },
+    /* CM-23: the observation sits on the side H₁ points to (an upper-tail
+       test of x far below np₀ is a set-up no paper would print) */
+    random: function () {
+      var ps=[0.2,0.25,0.3,0.4,0.5]; var n=Math.floor(Math.random()*16)+15, p0=ps[Math.floor(Math.random()*ps.length)];
+      var tail = Math.random()<0.5?"upper":"lower", mean = n * p0, x;
+      if (tail === "upper") x = Math.min(n, Math.floor(mean) + 1 + Math.floor(Math.random() * Math.max(1, Math.ceil(n - mean) * 0.6)));
+      else x = Math.max(0, Math.ceil(mean) - 1 - Math.floor(Math.random() * Math.max(1, Math.ceil(mean) * 0.8)));
+      return { n: n, p0: p0, x: x, tail: tail, sig: [5,10,1][Math.floor(Math.random()*3)] };
+    },
     validate: function (v) {
       if (!Number.isInteger(+v.n) || v.n < 1) return "n must be a positive whole number.";
       if (!Number.isInteger(+v.x) || v.x < 0 || v.x > v.n) return "x must be a whole number from 0 to n.";

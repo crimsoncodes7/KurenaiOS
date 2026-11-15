@@ -24,10 +24,10 @@ X("compsci:4.4.4.1", {
   quiz: [
     { q: "Which algorithm has time complexity O(n log n)?", opts: ["Bubble sort", "Merge sort", "Linear search", "Binary search"], ans: 1, why: "Divide and conquer sort." },
     { q: "Which needs the most extra memory?", opts: ["Bubble sort", "Linear search", "Merge sort", "Binary search"], ans: 2, why: "O(n) for merging." },
-    { q: "Sorting 10 000 items: bubble sort ≈ 10⁸ operations; merge sort ≈", opts: ["10⁴", "1.3 × 10⁵", "10⁶", "10⁸"], ans: 1, why: "n log₂ n ≈ 10 000 × 13.3." },
-    { q: "All of linear search, binary search, bubble sort and merge sort are:", opts: ["intractable", "tractable (polynomial)", "exponential", "non-computable"], ans: 1, why: "Polynomial or better." },
+    { q: "Sorting 10 000 items: bubble sort ≈ 10⁸ operations; merge sort ≈", opts: ["1.3 × 10⁴", "1.3 × 10⁵", "1.3 × 10⁶", "1.0 × 10⁸"], ans: 1, why: "n log₂ n ≈ 10 000 × 13.3." },
+    { q: "All of linear search, binary search, bubble sort and merge sort are:", opts: ["intractable (too slow)", "tractable (polynomial)", "exponential (2ⁿ steps)", "non-computable (no algorithm)"], ans: 1, why: "Polynomial or better." },
     { q: "'O(log n)' for merge sort scores:", opts: ["full marks", "nothing — NE", "half", "bonus"], ans: 1, why: "It must be O(n log n)." },
-    { q: "Comparing algorithms fairly uses:", opts: ["stopwatch timings", "growth rate as n increases", "lines of code", "the language"], ans: 1, why: "Machine-independent." }
+    { q: "Comparing algorithms fairly uses:", opts: ["stopwatch timings on one PC", "growth rate as n increases", "the number of lines of code", "the language each is written in"], ans: 1, why: "Machine-independent." }
   ],
   exam: [
     { src: "AQA 2017 P1 Q3", ctx: "Four algorithms are listed: bubble sort, merge sort, linear search, binary search.",
@@ -58,11 +58,11 @@ X("compsci:4.4.4.2", {
     ["Evaluate 2¹⁰ and log₂ 1024.", "1024 and 10."]
   ],
   quiz: [
-    { q: "Number of ways to seat 5 people in 5 chairs:", opts: ["25", "120", "5", "10"], ans: 1, why: "5! = 120." },
+    { q: "How many ways can 3 of 5 runners take gold, silver and bronze?", opts: ["60", "125", "10", "15"], ans: 0, why: "Order matters for gold, silver and bronze, so it is a permutation: 5 × 4 × 3 = 60." },
     { q: "Which grows fastest as n increases?", opts: ["n³", "3ⁿ", "n log n", "log n"], ans: 1, why: "Exponential beats any polynomial." },
     { q: "Distinct anagrams of BOOK:", opts: ["24", "12", "4", "6"], ans: 1, why: "4!/2! = 12 because O repeats." },
     { q: "Doubling n for an O(log n) algorithm adds:", opts: ["double the time", "a constant amount", "n steps", "nothing"], ans: 1, why: "log(2n) = log n + 1." },
-    { q: "'Time stays the same as input grows' describes:", opts: ["O(n)", "O(1)", "O(log n)", "O(n²)"], ans: 1, why: "Constant time." },
+    { q: "'Time stays the same as input grows' describes:", opts: ["O(n)", "O(1)", "O(log n)", "O(n²)"], ans: 1, why: "O(1) is constant time: the time does not change as the input grows." },
     { q: "An algorithm with 2ⁿ steps for n = 30 needs roughly:", opts: ["60 steps", "900 steps", "10⁹ steps", "30! steps"], ans: 2, why: "2³⁰ ≈ 1.07 × 10⁹." }
   ],
   exam: [
@@ -100,12 +100,12 @@ X("compsci:4.4.4.3", {
     ["Order of complexity for accessing an array element by index?", "O(1).", 17]
   ],
   quiz: [
-    { q: "O(5n + 20) simplifies to:", opts: ["O(n)", "O(5n)", "O(20)", "O(n²)"], ans: 0, why: "Drop constants." },
-    { q: "Two nested loops over n items give:", opts: ["O(n)", "O(2n)", "O(n²)", "O(log n)"], ans: 2, why: "n × n." },
-    { q: "Which is the slowest-growing?", opts: ["O(n)", "O(log n)", "O(n log n)", "O(1)"], ans: 3, why: "Constant." },
+    { q: "O(5n + 20) simplifies to:", opts: ["O(n)", "O(5n)", "O(20)", "O(n²)"], ans: 0, why: "Big-O ignores constant factors and lower-order terms, so 5n + 20 reduces to O(n)." },
+    { q: "Two nested loops over n items give:", opts: ["O(n)", "O(2n)", "O(n²)", "O(log n)"], ans: 2, why: "A loop of n inside a loop of n does n × n steps, which is O(n²)." },
+    { q: "Which is the slowest-growing?", opts: ["O(n)", "O(log n)", "O(n log n)", "O(1)"], ans: 3, why: "Constant time does not grow at all, so O(1) grows more slowly than any of the others." },
     { q: "Naive recursive Fibonacci is:", opts: ["O(n)", "O(n²)", "O(2ⁿ)", "O(log n)"], ans: 2, why: "Two calls per call — exponential." },
-    { q: "'Each comparison halves the remaining list' justifies:", opts: ["O(n)", "O(log n)", "O(n²)", "O(1)"], ans: 1, why: "Halving ⇒ logarithm." },
-    { q: "Big-O describes:", opts: ["exact running time", "growth rate in the worst case", "memory only", "the best case"], ans: 1, why: "Asymptotic upper bound." }
+    { q: "'Each comparison halves the remaining list' justifies:", opts: ["O(n log n)", "O(log n)", "O(n²)", "O(1)"], ans: 1, why: "Halving ⇒ logarithm." },
+    { q: "Big-O describes:", opts: ["exact running time in seconds", "growth rate in the worst case", "memory use only, never time", "the best case for any input"], ans: 1, why: "Asymptotic upper bound." }
   ],
   exam: [
     { src: "AQA 2020 P1 Q3.6", q: "State the time complexity of a linear search and explain why it has this complexity.", marks: 2,
@@ -141,12 +141,12 @@ X("compsci:4.4.5.1", {
     ["Describe a TM that adds 1 to a binary number.", "Move right to the end; move left replacing 1s with 0s until a 0 (or blank) is found; write 1; halt.", 17]
   ],
   quiz: [
-    { q: "Which is NOT a component of a Turing machine?", opts: ["Infinite tape", "Read/write head", "Random-access memory", "Transition rules"], ans: 2, why: "Memory is the tape, accessed sequentially." },
-    { q: "A UTM's tape holds:", opts: ["only data", "the description of another TM plus its input", "the transition table only", "nothing"], ans: 1, why: "Program-as-data, like a stored-program computer." },
+    { q: "A Turing machine halts when:", opts: ["it reaches a halting state", "its tape runs out", "it reads a blank cell", "it has moved left once"], ans: 0, why: "The tape is infinite; only the state ends it." },
+    { q: "A UTM's tape holds:", opts: ["only the data the machine is working on", "the description of another TM plus its input", "the transition table only, with no input", "nothing until the machine starts running"], ans: 1, why: "Program-as-data, like a stored-program computer." },
     { q: "A UTM acts as a(n):", opts: ["compiler", "interpreter", "assembler", "linker"], ans: 1, why: "It executes the described machine step by step." },
-    { q: "δ(S1, 0) = (S2, 1, R) means:", opts: ["in S1 reading 0: write 1, move right, go to S2", "in S2 reading 1: write 0, go to S1", "halt", "move left"], ans: 0, why: "Transition rule semantics." },
-    { q: "The tape symbol □ usually denotes:", opts: ["zero", "a blank cell", "an error", "the head"], ans: 1, why: "Blank." },
-    { q: "A TM is more powerful than an FSM because it:", opts: ["has more states", "can read and write an unbounded tape", "is faster", "has outputs"], ans: 1, why: "Unbounded read/write memory." }
+    { q: "δ(S1, 0) = (S2, 1, R) means:", opts: ["in S1 reading 0: write 1, move right, go to S2", "in S2 reading 1: write 0, move right, go to S1", "in S1 reading 0: write 1, move left, go to S2", "in S1 reading 1: write 0, move right, go to S2"], ans: 0, why: "Transition rule semantics." },
+    { q: "The tape symbol □ usually denotes:", opts: ["the digit zero", "a blank cell", "an error cell", "the head position"], ans: 1, why: "On a Turing machine tape □ marks an empty cell, with no symbol written in it." },
+    { q: "A TM is more powerful than an FSM because it:", opts: ["has more states than any FSM can have", "can read and write an unbounded tape", "is faster at processing every input", "has outputs as well as accepting states"], ans: 1, why: "Unbounded read/write memory." }
   ],
   exam: [
     { src: "AQA 2018 P1 Q4", ctx: "A Turing machine is a theoretical model of computation.",

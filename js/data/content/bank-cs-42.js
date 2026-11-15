@@ -28,11 +28,11 @@ X("compsci:4.2.1.1", {
     ["Which structures does the specification list as abstract data types?", "Queue, stack, graph, tree, hash table, dictionary, vector (plus arrays, records and files as concrete structures)."]
   ],
   quiz: [
-    { q: "Which statement about a static data structure is correct?", opts: ["Its size can change at run time", "Its size is fixed before the program runs", "It always uses pointers", "It is stored on the heap"], ans: 1, why: "Static = size fixed at compile time; storage is usually a contiguous block." },
+    { q: "Which statement about a static data structure is correct?", opts: ["Its size can change while the program runs", "Its size is fixed before the program runs", "It always uses pointers to link its items", "It is stored on the heap and grows as needed"], ans: 1, why: "Static = size fixed at compile time; storage is usually a contiguous block." },
     { q: "A disadvantage of dynamic structures accepted by examiners is:", opts: ["they cannot store strings", "extra memory is needed for pointers", "they are always slower to insert into", "they cannot be searched"], ans: 1, why: "Each node carries pointer(s) — real overhead." },
-    { q: "'Dynamic structures use pointers' scores nothing because:", opts: ["it is false", "it does not say what the pointers cost — memory to store them", "pointers are static", "the examiners dislike the word"], ans: 1, why: "The mark scheme marks it NE — not enough — without the memory cost." },
+    { q: "'Dynamic structures use pointers' scores nothing because:", opts: ["it is false — dynamic structures never use pointers", "it does not say what the pointers cost — memory to store them", "pointers are static, so they cannot belong to dynamic structures", "the examiners dislike the word pointer in any answer"], ans: 1, why: "The mark scheme marks it NE — not enough — without the memory cost." },
     { q: "A structure that allocates all its storage at creation even if unused until later is:", opts: ["dynamic", "static", "recursive", "hashed"], ans: 1, why: "Static allocation happens up front." },
-    { q: "Memory leaks are a risk in:", opts: ["static arrays", "dynamic structures whose freed nodes are not returned to the heap", "constants", "registers"], ans: 1, why: "Un-returned heap memory accumulates." },
+    { q: "Memory leaks are a risk in:", opts: ["static arrays whose size is fixed before the program runs", "dynamic structures whose freed nodes are not returned to the heap", "constants that are declared but never used in the program", "registers that are not cleared when a subroutine returns"], ans: 1, why: "Un-returned heap memory accumulates." },
     { q: "Which is typically stored in consecutive memory locations?", opts: ["A linked list", "A static array", "A binary tree of nodes", "A hash chain"], ans: 1, why: "Contiguity is what gives arrays O(1) indexed access." }
   ],
   exam: [
@@ -59,10 +59,10 @@ X("compsci:4.2.1.2", {
   quiz: [
     { q: "An array `Marks[0..29]` has how many elements?", opts: ["29", "30", "31", "28"], ans: 1, why: "0 to 29 inclusive is 30 values." },
     { q: "`Board[3][0]` in a row-major 2D array refers to:", opts: ["row 0, column 3", "row 3, column 0", "the 30th element", "an error"], ans: 1, why: "First index is the row." },
-    { q: "To swap `A[i]` and `A[j]` you need:", opts: ["one assignment", "two assignments", "three assignments using a temporary", "a loop"], ans: 2, why: "temp ← A[i]; A[i] ← A[j]; A[j] ← temp." },
-    { q: "In a trace table a column per array element is used so that:", opts: ["the array looks nicer", "each element's changes are recorded separately", "loops can be skipped", "no variables are needed"], ans: 1, why: "Element values change independently." },
-    { q: "Ordinal numbers relate to arrays because they:", opts: ["count the elements", "give the position/index of each value", "are always stored in arrays", "are floating point"], ans: 1, why: "Ordinal = order/position — the 2018 P2 question." },
-    { q: "A loop `FOR i ← 1 TO 10` over `A[0..9]` will:", opts: ["work correctly", "miss A[0] and go out of bounds at A[10]", "process each element twice", "process only A[1]"], ans: 1, why: "Off-by-one on both ends." }
+    { q: "To swap `A[i]` and `A[j]` you need:", opts: ["one assignment, A[i] ← A[j]", "two assignments, each way round", "three assignments using a temporary", "a loop over every element in A"], ans: 2, why: "temp ← A[i]; A[i] ← A[j]; A[j] ← temp." },
+    { q: "In a trace table a column per array element is used so that:", opts: ["the array looks nicer when the table is printed", "each element's changes are recorded separately", "loops can be skipped when the values do not change", "no variables are needed in the rest of the table"], ans: 1, why: "Element values change independently." },
+    { q: "Ordinal numbers relate to arrays because they:", opts: ["count how many elements the array holds", "give the position/index of each value", "are always stored inside arrays", "are floating point values used as keys"], ans: 1, why: "Ordinal = order/position — the 2018 P2 question." },
+    { q: "A loop `FOR i ← 1 TO 10` over `A[0..9]` will:", opts: ["work correctly, visiting every element once", "miss A[0] and go out of bounds at A[10]", "process each element twice, once each way", "process only A[1] and then stop"], ans: 1, why: "Off-by-one on both ends." }
   ],
   exam: [
     { src: "AQA 2018 P2 Q9.2", q: "State what is meant by an ordinal number and explain how ordinal numbers are used with an array.", marks: 2,
@@ -90,8 +90,8 @@ X("compsci:4.2.1.3", {
     ["Why must a file be closed after use?", "To flush buffered writes to disk and release the file handle/lock so other programs can use it.", 17]
   ],
   quiz: [
-    { q: "A record differs from an array because:", opts: ["it holds fields of different types", "it must be sorted", "it cannot be stored in a file", "it is always dynamic"], ans: 0, why: "Arrays are homogeneous; records are heterogeneous, named fields." },
-    { q: "`Student.Name` uses which notation?", opts: ["index", "dot / field access", "pointer", "hash"], ans: 1, why: "Record.field." },
+    { q: "A record differs from an array because:", opts: ["it holds fields of different types", "it must be sorted by its key field", "it cannot be stored in a file", "it is always a dynamic structure"], ans: 0, why: "Arrays are homogeneous; records are heterogeneous, named fields." },
+    { q: "`Student.Name` uses which notation?", opts: ["index / subscript", "dot / field access", "pointer / address", "hash / key lookup"], ans: 1, why: "Student.Name uses dot notation to pick out one field of a record." },
     { q: "Which file type is directly readable in a text editor?", opts: ["Binary", "Text", "Both", "Neither"], ans: 1, why: "Text files hold character codes; binary files hold raw representations." },
     { q: "A loop reading a text file should stop when:", opts: ["a blank line is read", "EOF is reached", "the file is 1 MB", "the tenth line is read"], ans: 1, why: "End-of-file test." },
     { q: "Storing an array of Student records to disk in one write is easiest with a:", opts: ["text file", "binary file", "constant", "stack"], ans: 1, why: "Binary files store the internal representation of records directly." },
@@ -125,12 +125,12 @@ X("compsci:4.2.1.4", {
     ["How do you delete a node from a linked list?", "Point the previous node's pointer to the deleted node's next node; return the node's memory to the heap.", 17]
   ],
   quiz: [
-    { q: "An ADT is defined by:", opts: ["its memory layout", "the operations it supports and their behaviour", "its programming language", "its size"], ans: 1, why: "Behaviour, not representation." },
-    { q: "Which statement about a stack ADT is correct?", opts: ["It must be an array", "It must be a linked list", "It can be implemented with either", "It cannot be implemented"], ans: 2, why: "Implementation is hidden behind push/pop." },
-    { q: "In a linked list, inserting after a known node is:", opts: ["O(n) — shuffle", "O(1) — re-link two pointers", "O(log n)", "impossible"], ans: 1, why: "Set new.next ← prev.next; prev.next ← new." },
-    { q: "Deleting a node from a linked list requires:", opts: ["shuffling all later nodes", "re-pointing the previous node past it", "rebuilding the list", "a stack"], ans: 1, why: "Unlink and free." },
+    { q: "Which is a static data structure?", opts: ["a fixed-size array", "a linked list", "a tree built with pointers", "a queue that grows as needed"], ans: 0, why: "Its size is set before it is used." },
+    { q: "Which statement about a stack ADT is correct?", opts: ["It must be implemented with an array", "It must be implemented with a linked list", "It can be implemented with either", "It cannot be implemented in code at all"], ans: 2, why: "Implementation is hidden behind push/pop." },
+    { q: "In a linked list, inserting after a known node is:", opts: ["O(n) — shuffle later nodes along", "O(1) — re-link two pointers", "O(log n) — halve the list each step", "impossible without the head pointer"], ans: 1, why: "Set new.next ← prev.next; prev.next ← new." },
+    { q: "Deleting a node from a linked list requires:", opts: ["shuffling all later nodes up one place", "re-pointing the previous node past it", "rebuilding the whole list without it", "a stack to hold the nodes after it"], ans: 1, why: "Unlink and free." },
     { q: "'The representation is hidden' is a mark for:", opts: ["arrays", "ADTs", "text files", "constants"], ans: 1, why: "Data abstraction is the essence of an ADT." },
-    { q: "Finding the 50th item of a singly linked list requires:", opts: ["one pointer calculation", "traversing 50 nodes from the head", "a hash", "sorting first"], ans: 1, why: "No random access." }
+    { q: "Finding the 50th item of a singly linked list requires:", opts: ["one pointer calculation from the head", "traversing 50 nodes from the head", "a hash of the item's position", "sorting the list first, then a binary search"], ans: 1, why: "No random access." }
   ],
   exam: [
     { level: "AS", src: "AS 2025 P1 Q5", q: "Explain what is meant by an *abstract data type*.", marks: 1,
@@ -172,11 +172,11 @@ X("compsci:4.2.2.1", {
     ["How do you tell whether a circular queue is full if front = rear could mean full or empty?", "Keep a separate size counter (full when size = maxSize, empty when size = 0).", 17]
   ],
   quiz: [
-    { q: "First step when adding to any array-based queue:", opts: ["Increment rear", "Check the queue is not full", "Store the item", "Set front to 0"], ans: 1, why: "Overflow test before any pointer moves." },
+    { q: "First step when adding to any array-based queue:", opts: ["Increment the rear pointer", "Check the queue is not full", "Store the item at the rear", "Set the front pointer to 0"], ans: 1, why: "Overflow test before any pointer moves." },
     { q: "A circular queue in Q[0..4] has rear = 4. After an enqueue, rear becomes:", opts: ["5", "0", "4", "−1"], ans: 1, why: "(4 + 1) MOD 5 = 0." },
-    { q: "Why can a linear queue in a 5-cell array report 'full' with only one item?", opts: ["It sorts items", "Front has advanced and the cells behind it are unusable", "MOD fails", "Items are lost"], ans: 1, why: "Dead space at the front is never reused." },
-    { q: "Inserting into an array-based priority queue involves:", opts: ["always inserting at rear", "shifting items back until one of same or higher priority is found", "hashing the priority", "using a second array"], ans: 1, why: "The 2020 mark-scheme steps." },
-    { q: "To reverse a queue using one stack you:", opts: ["dequeue all onto the stack, then pop all back", "pop all then push all", "enqueue the stack", "sort the queue"], ans: 0, why: "LIFO after FIFO reverses the order." },
+    { q: "Why can a linear queue in a 5-cell array report 'full' with only one item?", opts: ["It sorts the items, so the empty cells move to the end", "Front has advanced and the cells behind it are unusable", "MOD fails when the rear pointer passes the last cell", "Items are lost each time one is removed from the front"], ans: 1, why: "Dead space at the front is never reused." },
+    { q: "Inserting into an array-based priority queue involves:", opts: ["always inserting at the rear, whatever its priority", "shifting items back until one of same or higher priority is found", "hashing the priority to find the item's index in the array", "using a second array to hold the items of higher priority"], ans: 1, why: "The 2020 mark-scheme steps." },
+    { q: "To reverse a queue using one stack you:", opts: ["dequeue all onto the stack, then pop all back", "pop all from the stack, then push them all back", "enqueue the whole stack at the rear of the queue", "sort the queue into reverse order with the stack"], ans: 0, why: "LIFO after FIFO reverses the order." },
     { q: "Dequeuing from a queue with size = 0 causes:", opts: ["overflow", "underflow", "a wrap-around", "nothing"], ans: 1, why: "The empty test guards against underflow." }
   ],
   exam: [
@@ -216,8 +216,8 @@ X("compsci:4.2.3.1", {
     { q: "Undo in a text editor pops actions from a stack because:", opts: ["the oldest action must be undone first", "the most recent action must be undone first", "stacks are sorted", "queues are slower"], ans: 1, why: "LIFO matches 'most recent first'." },
     { q: "Evaluating `5 3 + 2 *` with a stack gives:", opts: ["11", "16", "10", "13"], ans: 1, why: "5 3 + → 8; 8 2 * → 16." },
     { q: "Which action on a stack is invalid when top = −1?", opts: ["push", "pop", "isEmpty", "reset"], ans: 1, why: "Empty stack — underflow." },
-    { q: "Repeat implemented with a stack should use:", opts: ["pop", "peek (or pop then push back)", "enqueue", "dequeue"], ans: 1, why: "The action must remain on the stack." },
-    { q: "Pushing operators as well as operands during RPN evaluation:", opts: ["is correct", "scores zero — only operands are pushed", "is faster", "is needed for brackets"], ans: 1, why: "Operators are applied immediately." }
+    { q: "Pushing onto a full array-based stack causes:", opts: ["stack overflow", "stack underflow", "a failed peek", "the top item to be lost"], ans: 0, why: "Underflow is popping an empty stack." },
+    { q: "Pushing operators as well as operands during RPN evaluation:", opts: ["is correct — every token is pushed", "scores zero — only operands are pushed", "is faster, as fewer pops are needed", "is needed so that brackets are handled"], ans: 1, why: "Operators are applied immediately." }
   ],
   exam: [
     { src: "AQA 2017 P1 Q6.1", ctx: "A drawing application lets the user *undo* the last action and *repeat* the last action. A single stack is used to support both.",
@@ -302,11 +302,11 @@ X("compsci:4.2.5.1", {
     ["What makes a tree a binary *search* tree?", "For every node, all values in the left subtree are smaller and all in the right subtree are larger.", 17]
   ],
   quiz: [
-    { q: "'Each node has two child nodes' as a definition of binary tree is:", opts: ["correct", "rejected — it must be at most two", "correct for BSTs only", "correct for rooted trees"], ans: 1, why: "Leaves have none; some nodes have one." },
+    { q: "'Each node has two child nodes' as a definition of binary tree is:", opts: ["correct — that is the full definition", "rejected — it must be at most two", "correct for binary search trees only", "correct for rooted trees in general"], ans: 1, why: "Leaves have none; some nodes have one." },
     { q: "A tree with 7 nodes has how many edges?", opts: ["6", "7", "8", "12"], ans: 0, why: "A tree always has n − 1 edges." },
     { q: "In a BST, values greater than the root are in the:", opts: ["left subtree", "right subtree", "root", "leaves only"], ans: 1, why: "Ordering property." },
-    { q: "The maximum number of nodes at depth 3 of a binary tree is:", opts: ["3", "6", "8", "16"], ans: 2, why: "2^3 = 8." },
-    { q: "A node stored as (Data, Left = −1, Right = −1) is:", opts: ["the root", "a leaf", "an internal node", "invalid"], ans: 1, why: "No children." },
+    { q: "The maximum number of nodes at depth 3 of a binary tree is:", opts: ["3", "6", "8", "16"], ans: 2, why: "Each level of a binary tree can hold at most twice as many nodes as the one above, so depth 3 holds 2³ = 8." },
+    { q: "A node stored as (Data, Left = −1, Right = −1) is:", opts: ["the root", "a leaf", "an internal node", "invalid"], ans: 1, why: "Both pointers are −1 (null), so the node has no children, which makes it a leaf." },
     { q: "Which traversal of a BST outputs values in ascending order?", opts: ["Pre-order", "In-order", "Post-order", "Breadth-first"], ans: 1, why: "Left, node, right." }
   ],
   exam: [
@@ -336,8 +336,8 @@ X("compsci:4.2.6.1", {
     { callout: { t: "tip", body: "Rehashing / linear probing / chaining are all accepted as *a suitable method for collision handling* — name one and say what it does." }}
   ],
   flashcards: [
-    ["Describe the steps to insert a record into a hash table.", "Apply the hash function to the record's key; the result is the index where it should be stored; store it there; if that slot is occupied, use a collision-resolution method such as the next free slot."],
-    ["Why is a hash table lookup faster than searching a sorted list?", "The hash function gives the location directly, so no search through the records is needed — O(1) on average."],
+    ["Describe the steps to insert a record into a hash table.", "Apply the hash function to the record's key; the result is the index where it should be stored; store it there; if that slot is occupied, use a collision-resolution method such as the next free slot.", 10],
+    ["Why is a hash table lookup faster than searching a sorted list?", "The hash function gives the location directly, so no search through the records is needed — O(1) on average.", 11],
     ["Name two collision-resolution methods.", "Linear probing (next free location, wrapping); chaining (a linked list at each index).", 13],
     ["Why do collisions slow a nearly full hash table?", "More items end up away from their calculated index, so direct access happens less often and a search from the calculated position is needed.", 14],
     ["What is the load factor?", "Number of items ÷ number of slots; performance degrades as it approaches 1, so tables are resized/rehashed.", 15],
@@ -346,11 +346,11 @@ X("compsci:4.2.6.1", {
   ],
   quiz: [
     { q: "The hash function is applied to:", opts: ["the whole record", "the key field", "the table size", "the previous record"], ans: 1, why: "Key → index. 'Data' is marked NE." },
-    { q: "Two keys hash to index 7. This is:", opts: ["a clash", "a collision", "an overflow", "a rehash"], ans: 1, why: "Standard term." },
-    { q: "Linear probing on a collision stores the item:", opts: ["in a linked list", "at the next free location", "at index 0", "nowhere"], ans: 1, why: "Probe forward (wrapping) until a free slot." },
+    { q: "Two keys hash to index 7. This is:", opts: ["a clash", "a collision", "an overflow", "a rehash"], ans: 1, why: "When two different keys give the same hash value, that is a collision, so one must be placed elsewhere." },
+    { q: "Linear probing on a collision stores the item:", opts: ["in a linked list at that index", "at the next free location", "at index 0 of the table", "nowhere — the item is rejected"], ans: 1, why: "Probe forward (wrapping) until a free slot." },
     { q: "Average-case lookup in a hash table with few collisions is:", opts: ["O(n)", "O(log n)", "O(1)", "O(n²)"], ans: 2, why: "Direct computation of the location." },
-    { q: "As a hash table fills, lookups slow because:", opts: ["hashing gets slower", "more items are not at their calculated index", "keys get longer", "the table shrinks"], ans: 1, why: "Collisions force probing/search." },
-    { q: "Keys 15 and 25 with hash `key MOD 10` collide because:", opts: ["both are odd", "both give remainder 5", "25 > 15", "MOD is slow"], ans: 1, why: "15 MOD 10 = 25 MOD 10 = 5." }
+    { q: "As a hash table fills, lookups slow because:", opts: ["hashing gets slower as more keys are stored", "more items are not at their calculated index", "keys get longer as the table fills up", "the table shrinks to save memory as it fills"], ans: 1, why: "Collisions force probing/search." },
+    { q: "Keys 15 and 25 with hash `key MOD 10` collide because:", opts: ["both are odd numbers", "both give remainder 5", "25 is larger than 15", "MOD is slow for big keys"], ans: 1, why: "15 MOD 10 = 25 MOD 10 = 5." }
   ],
   exam: [
     { src: "AQA 2025 P1 Q1.2", q: "A membership system stores records in a hash table using the membership number as the key. Describe the steps involved in adding a new record to the hash table.", marks: 4,
@@ -379,11 +379,11 @@ X("compsci:4.2.7.1", {
     ["How does a dictionary differ from a list of pairs?", "Lookup is by key in O(1) rather than a linear search through the pairs.", 15]
   ],
   quiz: [
-    { q: "In `{\"ASCII\": 128, \"Unicode\": 143859}` the keys are:", opts: ["128 and 143859", "\"ASCII\" and \"Unicode\"", "both", "neither"], ans: 1, why: "Keys map to values." },
+    { q: "In `{\"ASCII\": 128, \"Unicode\": 143859}` the keys are:", opts: ["128 and 143859", "\"ASCII\" and \"Unicode\"", "both the names and numbers", "neither — they are values"], ans: 1, why: "Keys map to values." },
     { q: "Inserting an existing key with a new value:", opts: ["adds a second pair", "overwrites the value", "raises an error always", "deletes the key"], ans: 1, why: "Keys are unique." },
     { q: "A dictionary is usually implemented with:", opts: ["a stack", "a hash table", "a queue", "a binary file"], ans: 1, why: "Hashing gives fast key lookup." },
     { q: "Best structure for mapping student ID strings to records:", opts: ["1D array", "dictionary", "stack", "linked list"], ans: 1, why: "Non-integer keys, direct lookup." },
-    { q: "Counting word frequencies uses the word as the:", opts: ["value", "key", "index of an array", "hash table size"], ans: 1, why: "Word → count." },
+    { q: "Counting word frequencies uses the word as the:", opts: ["value", "key", "index of an array", "hash table size"], ans: 1, why: "The word is the key used to look up its count, which is the value in the dictionary." },
     { q: "Average lookup time in a dictionary backed by a hash table is:", opts: ["O(n)", "O(1)", "O(log n)", "O(n log n)"], ans: 1, why: "Hash the key, go to the slot." }
   ],
   exam: [
@@ -415,7 +415,7 @@ X("compsci:4.2.8.1", {
     { q: "[1, 2] · [3, −1] =", opts: ["1", "5", "−1", "7"], ans: 0, why: "1×3 + 2×(−1) = 3 − 2 = 1." },
     { q: "|[5, 12]| =", opts: ["17", "13", "60", "7"], ans: 1, why: "√(25 + 144) = √169 = 13." },
     { q: "Multiplying [3, 4] by 3 gives a vector of magnitude:", opts: ["5", "15", "25", "7"], ans: 1, why: "Scalar 3 × magnitude 5." },
-    { q: "Which represents the vector [7, 0, 2] as a dictionary?", opts: ["{7, 0, 2}", "{0: 7, 1: 0, 2: 2}", "{7: 0, 0: 2}", "[0, 1, 2]"], ans: 1, why: "Index → component." },
+    { q: "Which represents the vector [7, 0, 2] as a dictionary?", opts: ["{7: 0, 0: 1, 2: 2}", "{0: 7, 1: 0, 2: 2}", "{0: 2, 1: 0, 2: 7}", "[0: 7, 1: 0, 2: 2]"], ans: 1, why: "Index → component." },
     { q: "An enemy faces direction f and the hero is in direction d from it. The hero is 'in front' when:", opts: ["f · d < 0", "f · d > 0", "|f| > |d|", "f = d"], ans: 1, why: "Positive dot product means the angle between them is under 90°." },
     { q: "0.25·[4, 8] + 0.75·[8, 0] is:", opts: ["[7, 2]", "[12, 8]", "[3, 6]", "[6, 2]"], ans: 0, why: "[1, 2] + [6, 0] = [7, 2] — a convex combination." }
   ],

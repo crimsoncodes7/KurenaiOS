@@ -269,11 +269,11 @@ C["maths:S5.1"] = {
     ["Which tail for a two-tailed binomial test?", "Compare the observed value with $np$.", 14]
   ],
   quiz: [
-    { q: "Testing whether a proportion has decreased from 0.3:", opts: ["$H_1: p < 0.3$", "$H_1: p \\ne 0.3$", "$H_1: p > 0.3$", "$H_0: p < 0.3$"], ans: 0, why: "Decrease, one-tailed." },
-    { q: "The significance level is the probability of", opts: ["rejecting $H_0$ when it is true", "accepting $H_1$", "$H_0$ being true", "the observed value"], ans: 0, why: "Incorrect rejection." },
-    { q: "A two-tailed PMCC test at 5% uses the column for", opts: ["2.5%", "5%", "10%", "1%"], ans: 0, why: "Split between tails." },
-    { q: "p-value 0.07, significance level 5%:", opts: ["do not reject $H_0$", "reject $H_0$", "accept $H_1$", "test invalid"], ans: 0, why: "0.07 > 0.05." },
-    { q: "The hypotheses of a correlation test use", opts: ["$\\rho$", "$r$", "$p$", "$\\mu$"], ans: 0, why: "Population coefficient." },
+    { q: "Testing whether a proportion has decreased from 0.3:", opts: ["$H_1: p < 0.3$", "$H_1: p \\ne 0.3$", "$H_1: p > 0.3$", "$H_0: p < 0.3$"], ans: 0, why: "\"Decreased\" is one direction: $H_1: p < 0.3$." },
+    { q: "The significance level is the probability of", opts: ["rejecting $H_0$ when it is true", "not rejecting $H_0$ when it is false", "$H_0$ being true, given the data", "getting the observed value or one more extreme"], ans: 0, why: "It is $P(\\text{reject } H_0 \\mid H_0 \\text{ true})$." },
+    { q: "A two-tailed PMCC test at 5% uses the column for", opts: ["2.5%", "5%", "10%", "0.5%"], ans: 0, why: "A 5% two-tailed test puts 2.5% in each tail." },
+    { q: "p-value 0.07, significance level 5%:", opts: ["do not reject $H_0$", "reject $H_0$ at 5%", "accept $H_1$ at 5%", "the test is invalid"], ans: 0, why: "0.07 > 0.05." },
+    { q: "The hypotheses of a correlation test use", opts: ["$\\rho$", "$r$", "$p$", "$\\mu$"], ans: 0, why: "Hypotheses are about the population: $\\rho$, not the sample's $r$." },
     { q: "$X \\sim B(20, 0.5)$, observed 15, $H_1: p \\ne 0.5$. Test with", opts: ["$P(X \\ge 15)$ against 0.025", "$P(X \\le 15)$ against 0.05", "$P(X = 15)$", "$P(X \\ge 15)$ against 0.05"], ans: 0, why: "15 > np = 10: upper tail, half the level." }
   ]
 };
@@ -432,8 +432,8 @@ C["maths:S5.2"] = {
     { q: "$H_0: p = 0.4$, $H_1: p < 0.4$, $X \\sim B(20, 0.4)$, observed 4. The test probability is", opts: ["$P(X \\le 4)$", "$P(X \\ge 4)$", "$P(X = 4)$", "$1 - P(X \\le 4)$"], ans: 0, why: "Lower tail, observed or less." },
     { q: "$P(X \\ge 12) = 0.031$ at 5% one-tailed:", opts: ["significant", "not significant", "accept $H_0$", "need two tails"], ans: 0, why: "0.031 < 0.05." },
     { q: "Two-tailed at 5%, lower-tail probability 0.031:", opts: ["not significant", "significant", "p-value 0.031", "reject $H_0$"], ans: 0, why: "Compare with 0.025." },
-    { q: "The p-value of that two-tailed test is", opts: ["0.062", "0.031", "0.0155", "0.969"], ans: 0, why: "Double the tail." },
-    { q: "A good contextual conclusion says", opts: ["insufficient evidence that the proportion of red beads has changed", "accept $H_0$", "$p = 0.14$ is proven", "the sample is wrong"], ans: 0, why: "Evidence language, in context." }
+    { q: "The p-value of that two-tailed test is", opts: ["0.062", "0.031", "0.0155", "0.969"], ans: 0, why: "Two-tailed: $2 \\times 0.031 = 0.062$." },
+    { q: "A good contextual conclusion says", opts: ["insufficient evidence that the proportion of red beads changed", "accept $H_0$, so the proportion of red beads has not changed", "$p = 0.14$ is proven to be the proportion of red beads", "the sample is wrong, as the proportion of red beads changed"], ans: 0, why: "Evidence language, in context." }
   ]
 };
 

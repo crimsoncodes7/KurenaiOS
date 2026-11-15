@@ -473,10 +473,31 @@
           el("span", { class: "k-chip k-status-chip", "data-status": e.status, text: KOS.media.STATUS_LABEL[e.status] }),
           progressText(e) ? el("span", { class: "k-mono k-scard-sub", "data-ui": "vault.card-progress", text: progressText(e) }) : null
         ].filter(Boolean))
-      ].filter(Boolean))
-    ]);
+      ].filter(Boolean)),
+      behindBadge(e, a)
+    ].filter(Boolean));
     return card;
   }
+  /* episodes out that you have not watched yet (asked for 15 November
+     2026): aired = the next episode − 1 from the live airing cache, or a
+     finished run's whole total for a title you are watching; nothing for a
+     completed or dropped title, or when nothing is out ahead of you */
+  function episodesBehind(e, a) {
+    if (!e || e.status === "completed" || e.status === "dropped") return 0;
+    var p = e.progress || {};
+    var seen = p.current || 0;
+    var aired = a && a.episode ? a.episode - 1
+      : (e.status === "inProgress" && p.total ? p.total : 0);
+    return Math.max(0, aired - seen);
+  }
+  function behindBadge(e, a) {
+    var n = episodesBehind(e, a);
+    if (!n) return null;
+    return el("span", { class: "k-scard-behind k-mono", "data-ui": "anime.behind",
+      title: n + (n === 1 ? " episode" : " episodes") + " out that you have not watched",
+      "aria-label": n + " behind", text: n + " behind" });
+  }
+  KOS.anime.episodesBehind = episodesBehind;
 
   KOS.views.seasonal = function (main) {
     KOS.shell.tree("none");

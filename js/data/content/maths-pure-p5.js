@@ -120,8 +120,8 @@ C["maths:5.1"] = {
     { worked: { tag: "exam", title: "Badge: a region between two arcs, exact area $a\\sqrt3 + b\\pi$", src: "A-level June 2024 · P1 Q11 · 4 marks",
       q: "$ABCOA$ is a semicircle with centre $O$ and diameter $AC = 10$ cm. $OB$ is an arc of a circle with centre $A$ and radius 5 cm. The region $R$ is bounded by the arc $OB$, the arc $BC$ and the line $OC$. Find the exact area of $R$ in the form $(a\\sqrt3 + b\\pi)$ cm$^2$.",
       steps: [
-        { h: "Triangle $OAB$ is equilateral", m: "$OA = OB = 5$ (radii of the semicircle) and $AB = 5$ (radius of the arc), so $\\angle BAO = \\angle AOB = \\dfrac{\\pi}{3}$", mk: "B1", n: "Spotting the equilateral triangle is the whole question." },
-        { h: "$R$ = semicircle − (sector $ABO$ centre $A$) − (segment cut off by chord $AB$)", m: "Semicircle $= \\dfrac{25\\pi}{2}$; sector at $A$: $\\tfrac12 \\cdot 25 \\cdot \\dfrac{\\pi}{3} = \\dfrac{25\\pi}{6}$; segment: $\\tfrac12 \\cdot 25\\left(\\dfrac{\\pi}{3} - \\sin\\dfrac{\\pi}{3}\\right) = \\dfrac{25\\pi}{6} - \\dfrac{25\\sqrt3}{4}$", mk: "M1 M1", fig: { w: 400, h: 230, items: [ { arc: [200, 200, 150, 0, 180], c: "text2" }, { line: [[50, 200], [350, 200]], c: "text2" }, { arc: [50, 200, 150, 0, 60], c: "accent2", w: 2 }, { poly: [[200, 200], [350, 200], [275, 70]], fill: "accent", alpha: 0.02, c: "muted", dash: true }, { pt: [50, 200], label: "A", pos: "sw" }, { pt: [200, 200], label: "O", pos: "s" }, { pt: [350, 200], label: "C", pos: "se" }, { pt: [125, 70], label: "B", pos: "n" }, { text: [255, 135], t: "R", i: true, size: 14 }, { line: [[50, 200], [125, 70]], c: "muted", dash: true }, { line: [[200, 200], [125, 70]], c: "muted", dash: true } ], cap: "$AB = OA = OB = 5$: the triangle is equilateral, so the arc $OB$ (centre $A$) subtends $60°$." } },
+        { h: "Triangle $OAB$ is equilateral", m: "$OA = OB = 5$ (radii of the semicircle) and $AB = 5$ (radius of the arc), so $\\angle BAO = \\angle AOB = \\dfrac{\\pi}{3}$", n: "Spotting the equilateral triangle is the whole question." },
+        { h: "$R$ = semicircle − (sector $ABO$ centre $A$) − (segment cut off by chord $AB$)", m: "Semicircle $= \\dfrac{25\\pi}{2}$; sector at $A$: $\\tfrac12 \\cdot 25 \\cdot \\dfrac{\\pi}{3} = \\dfrac{25\\pi}{6}$; segment: $\\tfrac12 \\cdot 25\\left(\\dfrac{\\pi}{3} - \\sin\\dfrac{\\pi}{3}\\right) = \\dfrac{25\\pi}{6} - \\dfrac{25\\sqrt3}{4}$", mk: "M1 dM1", fig: { w: 400, h: 230, items: [ { arc: [200, 200, 150, 0, 180], c: "text2" }, { line: [[50, 200], [350, 200]], c: "text2" }, { arc: [50, 200, 150, 0, 60], c: "accent2", w: 2 }, { poly: [[200, 200], [350, 200], [275, 70]], fill: "accent", alpha: 0.02, c: "muted", dash: true }, { pt: [50, 200], label: "A", pos: "sw" }, { pt: [200, 200], label: "O", pos: "s" }, { pt: [350, 200], label: "C", pos: "se" }, { pt: [125, 70], label: "B", pos: "n" }, { text: [255, 135], t: "R", i: true, size: 14 }, { line: [[50, 200], [125, 70]], c: "muted", dash: true }, { line: [[200, 200], [125, 70]], c: "muted", dash: true } ], cap: "$AB = OA = OB = 5$: the triangle is equilateral, so the arc $OB$ (centre $A$) subtends $60°$." } },
         { m: "$R = \\dfrac{25\\pi}{2} - \\dfrac{25\\pi}{6} - \\left(\\dfrac{25\\pi}{6} - \\dfrac{25\\sqrt3}{4}\\right) = \\dfrac{25\\sqrt3}{4} + \\dfrac{25\\pi}{6}$", mk: "A1 A1", n: "$a = \\frac{25}{4}$, $b = \\frac{25}{6}$. Alternative: $R$ = semicircle − (sector $ABO$ centre $A$) − (sector $AOB$ centre $O$) + (triangle $AOB$)." }
       ], result: "$\\frac{25}{4}\\sqrt3 + \\frac{25}{6}\\pi$" } },
     { worked: { tag: "exam", title: "Triangle containing a sector: angle in radians by the cosine rule, then the region", src: "A-level June 2025 · P2 Q4 · 5 marks",
@@ -181,9 +181,9 @@ C["maths:5.1"] = {
     { q: "$150°$ in radians:", opts: ["$\\tfrac{5\\pi}{6}$", "$\\tfrac{2\\pi}{3}$", "$\\tfrac{5\\pi}{4}$", "$\\tfrac{3\\pi}{4}$"], ans: 0, why: "$150/180 = 5/6$." },
     { q: "Arc length for $r = 6$, $\\theta = \\frac{\\pi}{3}$:", opts: ["$2\\pi$", "$\\pi$", "$6\\pi$", "$18$"], ans: 0, why: "$6 \\times \\frac{\\pi}{3}$." },
     { q: "Sector area for $r = 4$, $\\theta = 1.5$:", opts: ["12", "6", "24", "3"], ans: 0, why: "$\\frac12 \\times 16 \\times 1.5$." },
-    { q: "$\\sin C = 0.6$ in a triangle: $C$ could be", opts: ["$36.9°$ only", "$36.9°$ or $143.1°$", "$53.1°$", "$36.9°$ or $216.9°$"], ans: 1, why: "Supplementary pair." },
+    { q: "$\\sin C = 0.6$ in a triangle: $C$ could be", opts: ["$36.9°$ only", "$36.9°$ or $143.1°$", "$53.1°$", "$36.9°$ or $216.9°$"], ans: 1, why: "$\\sin C = \\sin(180° - C)$: $36.9°$ or $180° - 36.9° = 143.1°$." },
     { q: "Third side with $b = 5$, $c = 7$, $A = 60°$:", opts: ["$\\sqrt{39}$", "$\\sqrt{109}$", "$\\sqrt{74}$", "$\\sqrt{44}$"], ans: 0, why: "$25 + 49 - 35$." },
-    { q: "A student computes $\\frac12 \\times 5^2 \\times 40 = 500$ for a sector of angle $40°$. The error:", opts: ["wrong radius", "angle must be in radians", "should be $r^2\\theta$", "should divide by 360 only"], ans: 1, why: "Formula needs radians." },
+    { q: "A student computes $\\frac12 \\times 5^2 \\times 40 = 500$ for a sector of angle $40°$. The error:", opts: ["wrong radius", "angle must be in radians", "should be $r^2\\theta$", "should divide by 360 only"], ans: 1, why: "$\\frac12 r^2\\theta$ needs $\\theta$ in radians: $40° = \\frac{2\\pi}{9}$." },
     { q: "Segment area with $r = 2$, $\\theta = \\frac{\\pi}{2}$:", opts: ["$\\pi - 2$", "$\\pi$", "$2$", "$\\pi + 2$"], ans: 0, why: "$\\frac12 \\times 4(\\frac{\\pi}{2} - 1)$." }
   ]
 };
@@ -291,7 +291,7 @@ C["maths:5.2"] = {
     { q: "$\\sin 3\\theta \\approx$", opts: ["$3\\theta$", "$\\theta$", "$1 - \\tfrac{9\\theta^2}{2}$", "$9\\theta$"], ans: 0, why: "Substitute $3\\theta$." },
     { q: "$1 - \\cos 2\\theta \\approx$", opts: ["$2\\theta^2$", "$\\theta^2$", "$4\\theta^2$", "$2\\theta$"], ans: 0, why: "$\\cos 2\\theta \\approx 1 - 2\\theta^2$." },
     { q: "$\\frac{\\sin 2\\theta}{\\tan 5\\theta} \\approx$", opts: ["$\\tfrac25$", "$\\tfrac52$", "$10\\theta$", "$1$"], ans: 0, why: "$\\frac{2\\theta}{5\\theta}$." },
-    { q: "Using $\\theta = 10$ (degrees) in $1 - \\frac{\\theta^2}{2}$ is wrong because", opts: ["10 is not small", "the formula needs radians", "cos is always 1", "you must square first"], ans: 1, why: "Radians only." },
+    { q: "Using $\\theta = 10$ (degrees) in $1 - \\frac{\\theta^2}{2}$ is wrong because", opts: ["10 is not small enough to use it", "the formula needs radians", "cos is always 1", "you must square first"], ans: 1, why: "$\\cos\\theta \\approx 1 - \\frac{\\theta^2}{2}$ holds for small $\\theta$ in radians only." },
     { q: "$\\cos x = 1 - 4x$ for small $x$ gives the quadratic", opts: ["$x^2 - 8x = 0$", "$x^2 + 8x = 0$", "$x^2 - 4x = 0$", "$2x^2 - 8x = 0$"], ans: 0, why: "$1 - \\frac{x^2}{2} = 1 - 4x$." }
   ]
 };
@@ -397,7 +397,7 @@ C["maths:5.3"] = {
     { q: "Period of $y = \\sin 3x$ (degrees):", opts: ["$120°$", "$360°$", "$1080°$", "$180°$"], ans: 0, why: "$360 \\div 3$." },
     { q: "Maximum of $y = \\cos(x + 30°)$ occurs at", opts: ["$x = 30°$", "$x = -30°$", "$x = 60°$", "$x = 0°$"], ans: 1, why: "Shift left 30." },
     { q: "$\\sin\\theta = 0.5$ for $0 \\le \\theta < 360°$:", opts: ["$30°$ only", "$30°, 150°$", "$30°, 210°$", "$150°, 210°$"], ans: 1, why: "$180 - 30$." },
-    { q: "$\\sin(-\\theta) =$", opts: ["$\\sin\\theta$", "$-\\sin\\theta$", "$\\cos\\theta$", "$-\\cos\\theta$"], ans: 1, why: "Sine is odd." }
+    { q: "$\\sin(-\\theta) =$", opts: ["$\\sin\\theta$", "$-\\sin\\theta$", "$\\cos\\theta$", "$-\\cos\\theta$"], ans: 1, why: "Sine is odd: $\\sin(-\\theta) = -\\sin\\theta$." }
   ]
 };
 
@@ -487,8 +487,8 @@ C["maths:5.4"] = {
     { q: "$\\sec x = 0.5$ has", opts: ["two solutions per period", "one solution", "no solutions", "infinitely many in one period"], ans: 2, why: "$|\\sec x| \\ge 1$." },
     { q: "$\\arccos(-1) =$", opts: ["$\\pi$", "$-\\pi$", "$0$", "$\\tfrac{\\pi}{2}$"], ans: 0, why: "Range $[0, \\pi]$." },
     { q: "$y = \\cot x$ has asymptotes at", opts: ["$x = 180°n$", "$x = 90° + 180°n$", "$x = 360°n$", "none"], ans: 0, why: "Where $\\sin x = 0$." },
-    { q: "$\\arctan x$ as $x \\to \\infty$ tends to", opts: ["$\\infty$", "$\\tfrac{\\pi}{2}$", "$\\pi$", "1"], ans: 1, why: "Horizontal asymptote." },
-    { q: "$\\frac{d}{dx}(\\sec x) =$", opts: ["$\\sec x\\tan x$", "$-\\sec x\\tan x$", "$\\sec^2 x$", "$\\tan x$"], ans: 0, why: "Standard result." }
+    { q: "$\\arctan x$ as $x \\to \\infty$ tends to", opts: ["$\\infty$", "$\\tfrac{\\pi}{2}$", "$\\tfrac{\\pi}{4}$", "$-\\tfrac{\\pi}{2}$"], ans: 1, why: "$\\tan\\theta \\to \\infty$ as $\\theta \\to \\frac{\\pi}{2}$, so $\\arctan x \\to \\frac{\\pi}{2}$." },
+    { q: "$\\frac{d}{dx}(\\sec x) =$", opts: ["$\\sec x\\tan x$", "$-\\sec x\\tan x$", "$\\sec^2 x$", "$\\tan x$"], ans: 0, why: "$\\sec x = (\\cos x)^{-1}$; the chain rule gives $\\frac{\\sin x}{\\cos^2 x} = \\sec x\\tan x$." }
   ]
 };
 
@@ -569,10 +569,10 @@ C["maths:5.5"] = {
     ["$\\tan^2 3x = 4$ gives…", "$\\tan 3x = \\pm2$ — both signs.", 7]
   ],
   quiz: [
-    { q: "$1 - \\sin^2\\theta =$", opts: ["$\\cos^2\\theta$", "$\\cos\\theta$", "$\\tan^2\\theta$", "$1 - \\cos^2\\theta$"], ans: 0, why: "Pythagorean identity." },
+    { q: "$1 - \\sin^2\\theta =$", opts: ["$\\cos^2\\theta$", "$\\cos\\theta$", "$\\tan^2\\theta$", "$1 - \\cos^2\\theta$"], ans: 0, why: "$\\sin^2\\theta + \\cos^2\\theta = 1$, so $1 - \\sin^2\\theta = \\cos^2\\theta$." },
     { q: "$\\sec^2\\theta - \\tan^2\\theta =$", opts: ["1", "0", "$\\sin^2\\theta$", "$2$"], ans: 0, why: "$1 + \\tan^2 = \\sec^2$." },
     { q: "$2\\sin^2 x + \\cos x = 1$ becomes", opts: ["$2\\cos^2 x - \\cos x - 1 = 0$", "$2\\cos^2 x + \\cos x - 1 = 0$", "$\\cos^2 x - \\cos x = 0$", "$2\\sin^2 x - 1 = 0$"], ans: 0, why: "$2(1 - \\cos^2 x) + \\cos x - 1 = 0$." },
-    { q: "$\\sin x\\cos x = \\sin x$ should be solved by", opts: ["dividing by $\\sin x$", "factorising $\\sin x(\\cos x - 1) = 0$", "squaring", "taking $\\tan$"], ans: 1, why: "Keep the $\\sin x = 0$ solutions." },
+    { q: "$\\sin x\\cos x = \\sin x$ should be solved by", opts: ["dividing both sides by $\\sin x$", "factorising $\\sin x(\\cos x - 1) = 0$", "squaring both sides to use $\\sin^2 + \\cos^2$", "dividing by $\\cos x$ to get $\\tan x$"], ans: 1, why: "Keep the $\\sin x = 0$ solutions." },
     { q: "$\\sin\\theta = 1.2$ has", opts: ["two solutions", "no solutions", "one solution", "four solutions"], ans: 1, why: "$|\\sin\\theta| \\le 1$." },
     { q: "$3\\sin^2\\theta - 4\\sin\\theta\\cos\\theta - 4\\cos^2\\theta = 0$ divided by $\\cos^2\\theta$ gives", opts: ["$3\\tan^2\\theta - 4\\tan\\theta - 4 = 0$", "$3 - 4\\tan\\theta - 4\\tan^2\\theta = 0$", "$3\\sin^2\\theta - 4 = 0$", "$3\\tan\\theta - 4 = 0$"], ans: 0, why: "Each term divided by $\\cos^2$." }
   ]
@@ -666,7 +666,7 @@ C["maths:5.6"] = {
   quiz: [
     { q: "$\\cos(A - B) =$", opts: ["$\\cos A\\cos B + \\sin A\\sin B$", "$\\cos A\\cos B - \\sin A\\sin B$", "$\\sin A\\cos B - \\cos A\\sin B$", "$\\cos A - \\cos B$"], ans: 0, why: "Sign flips for cosine." },
     { q: "$\\sin 75° =$", opts: ["$\\tfrac{\\sqrt6 + \\sqrt2}{4}$", "$\\tfrac{\\sqrt6 - \\sqrt2}{4}$", "$\\tfrac{\\sqrt3}{2}$", "$\\tfrac{1 + \\sqrt3}{2}$"], ans: 0, why: "$\\sin(45 + 30)$." },
-    { q: "$1 - 2\\sin^2 A =$", opts: ["$\\cos 2A$", "$\\sin 2A$", "$\\cos^2 A$", "$-\\cos 2A$"], ans: 0, why: "Double-angle form." },
+    { q: "$1 - 2\\sin^2 A =$", opts: ["$\\cos 2A$", "$\\sin 2A$", "$\\cos^2 A$", "$-\\cos 2A$"], ans: 0, why: "$\\cos 2A = 1 - 2\\sin^2 A$, one of its three forms." },
     { q: "$3\\cos\\theta + 4\\sin\\theta$ has maximum", opts: ["7", "5", "4", "$\\sqrt7$"], ans: 1, why: "$R = 5$." },
     { q: "$\\tan 2A$ when $\\tan A = \\frac12$:", opts: ["$\\tfrac43$", "1", "$\\tfrac45$", "$\\tfrac34$"], ans: 0, why: "$\\frac{1}{1 - 1/4}$." },
     { q: "$\\cos\\theta\\cos 2\\theta + \\sin\\theta\\sin 2\\theta =$", opts: ["$\\cos\\theta$", "$\\cos 3\\theta$", "$\\sin\\theta$", "1"], ans: 0, why: "$\\cos(2\\theta - \\theta)$." }
@@ -699,7 +699,7 @@ C["maths:5.7"] = {
       "List **every** solution for $u$ in that (wider) interval, then convert each back: $\\theta = \\frac{u - 10°}{2}$.",
       "Expect twice as many solutions for $2\\theta$ and three times as many for $3\\theta$ — the interval for $u$ is that much longer."
     ] } },
-    { worked: { tag: "exam", title: "$\\sin(2\\theta + 10°) = -0.6$ over a wide interval; a student's errors", src: "AS Specimen · P1 Q11 · 9 marks",
+    { worked: { tag: "exam", title: "$\\sin(2\\theta + 10°) = -0.6$ over a wide interval; a student's errors", src: "AS Specimen · P1 Q11(i), (ii)(a) · 7 marks",
       q: "**(i)** Solve, for $-90° \\le \\theta < 270°$, $\\sin(2\\theta + 10°) = -0.6$, to one decimal place. **(ii)(a)** A student solves $7\\tan x = 8\\sin x$ for $-90° < x < 90°$ by writing $7\\frac{\\sin x}{\\cos x} = 8\\sin x \\Rightarrow 7\\sin x = 8\\sin x\\cos x \\Rightarrow 7 = 8\\cos x \\Rightarrow \\cos x = \\frac78 \\Rightarrow x = 29.0°$. Identify two mistakes.",
       steps: [
         { h: "(i) $u = 2\\theta + 10°$, $-170° \\le u < 550°$", m: "$\\sin u = -0.6$: principal value $u_0 = -36.87°$. Solutions: $-36.87°$, $180° + 36.87° = 216.87°$, and adding $360°$: $323.13°$; also $-36.87° - 180° + \\ldots$: check $-143.13°$ ($= -180° + 36.87°$) is in range ✓; $576.87°$ is not.\n$u = -143.13°, -36.87°, 216.87°, 323.13°$", mk: "M1 A1 A1", n: "Four values of $u$ in a $720°$ window — two per period, as expected." },
@@ -769,7 +769,7 @@ C["maths:5.7"] = {
     { q: "$\\sin 2\\theta = 0.5$, $0 \\le \\theta < 180°$ has", opts: ["1 solution", "2 solutions", "4 solutions", "3 solutions"], ans: 1, why: "$2\\theta \\in [0, 360)$: $30°, 150°$; $\\theta = 15°, 75°$." },
     { q: "$\\sin(\\theta - 30°) = -1$, $0 \\le \\theta < 360°$:", opts: ["$300°$", "$240°$", "$270°$", "$120°$"], ans: 0, why: "$\\theta - 30° = 270°$." },
     { q: "Principal value of $\\cos^{-1}(-0.5)$:", opts: ["$120°$", "$-60°$", "$240°$", "$60°$"], ans: 0, why: "Range $[0°, 180°]$." },
-    { q: "$\\sin\\theta\\cos\\theta = 0.25\\sin\\theta$ — correct next step:", opts: ["$\\cos\\theta = 0.25$", "$\\sin\\theta(\\cos\\theta - 0.25) = 0$", "$\\tan\\theta = 0.25$", "$\\theta = 0$"], ans: 1, why: "Factorise." }
+    { q: "$\\sin\\theta\\cos\\theta = 0.25\\sin\\theta$ — correct next step:", opts: ["$\\cos\\theta(\\sin\\theta - 0.25) = 0$", "$\\sin\\theta(\\cos\\theta - 0.25) = 0$", "$\\tan\\theta = 0.25$", "$\\sin\\theta(\\cos\\theta + 0.25) = 0$"], ans: 1, why: "Take out $\\sin\\theta$, never divide by it: $\\sin\\theta(\\cos\\theta - 0.25) = 0$." }
   ]
 };
 
@@ -857,7 +857,7 @@ C["maths:5.8"] = {
     { q: "$\\frac{\\sin 2\\theta}{1 + \\cos 2\\theta} \\equiv$", opts: ["$\\tan\\theta$", "$\\cot\\theta$", "$\\sin\\theta$", "$2\\tan\\theta$"], ans: 0, why: "$\\frac{2\\sin\\theta\\cos\\theta}{2\\cos^2\\theta}$." },
     { q: "To simplify $\\frac{1}{1 + \\cos\\theta}$ multiply top and bottom by", opts: ["$1 - \\cos\\theta$", "$1 + \\cos\\theta$", "$\\cos\\theta$", "$\\sin\\theta$"], ans: 0, why: "Gives $\\sin^2\\theta$ below." },
     { q: "$\\sec\\theta - \\cos\\theta \\equiv$", opts: ["$\\sin\\theta\\tan\\theta$", "$\\tan\\theta$", "$\\sin^2\\theta$", "$\\cos\\theta\\tan\\theta$"], ans: 0, why: "$\\frac{1 - \\cos^2\\theta}{\\cos\\theta} = \\frac{\\sin^2\\theta}{\\cos\\theta}$." },
-    { q: "In a proof, writing \"LHS $=$ RHS\" as the first line is", opts: ["required", "not allowed — it assumes the result", "optional", "worth a mark"], ans: 1, why: "Start from one side." },
+    { q: "In a proof, writing \"LHS $=$ RHS\" as the first line is", opts: ["required as the first line of a proof", "not allowed — it assumes the result", "optional, as long as it is shown at the end", "worth a mark for stating the aim"], ans: 1, why: "Start from one side." },
     { q: "$\\cos^4\\theta - \\sin^4\\theta \\equiv$", opts: ["$\\cos 2\\theta$", "$1$", "$\\sin 2\\theta$", "$\\cos^2\\theta$"], ans: 0, why: "Difference of squares: $(\\cos^2 - \\sin^2)(\\cos^2 + \\sin^2)$." }
   ]
 };
@@ -896,9 +896,9 @@ C["maths:5.9"] = {
       q: "**(a)** Express $2\\sin\\theta - 1.5\\cos\\theta$ as $R\\sin(\\theta - \\alpha)$, $R > 0$, $0 < \\alpha < \\frac{\\pi}{2}$, $\\alpha$ to 4 d.p. Tom models the depth of water at a harbour by $D = 6 + 2\\sin\\left(\\frac{4\\pi t}{25}\\right) - 1.5\\cos\\left(\\frac{4\\pi t}{25}\\right)$, $0 \\le t \\le 24$. **(b)** Find the depth at 00:00. **(c)** Find the maximum depth. **(d)** Find the time in the afternoon when the maximum occurs, to the nearest minute.",
       steps: [
         { h: "(a)", m: "$R = \\sqrt{4 + 2.25} = 2.5$; $\\tan\\alpha = \\dfrac{1.5}{2} \\Rightarrow \\alpha = 0.6435$: $2.5\\sin(\\theta - 0.6435)$", mk: "B1 M1 A1" },
-        { h: "(b) $t = 0$", m: "$D = 6 - 1.5 = 4.5$ m", mk: "B1" },
-        { h: "(c)", m: "$D = 6 + 2.5\\sin\\left(\\dfrac{4\\pi t}{25} - 0.6435\\right)$: maximum $8.5$ m", mk: "B1" },
-        { h: "(d) Argument $= \\frac{\\pi}{2} + 2\\pi n$", m: "$\\dfrac{4\\pi t}{25} - 0.6435 = \\dfrac{\\pi}{2} \\Rightarrow t = 4.405$ (04:24, morning). Period $= \\dfrac{2\\pi}{4\\pi/25} = 12.5$ h, so the next maximum is at $t = 16.905$ h $=$ **16:54**", mk: "M1 A1 A1", n: "\"In the afternoon\" tells you to add one period to the first maximum." }
+        { h: "(b) $t = 0$", m: "$D = 6 - 1.5 = 4.5$ m", mk: "M1 A1" },
+        { h: "(c)", m: "$D = 6 + 2.5\\sin\\left(\\dfrac{4\\pi t}{25} - 0.6435\\right)$: maximum $8.5$ m", mk: "M1 A1" },
+        { h: "(d) Argument $= \\frac{\\pi}{2} + 2\\pi n$", m: "$\\dfrac{4\\pi t}{25} - 0.6435 = \\dfrac{\\pi}{2} \\Rightarrow t = 4.405$ (04:24, morning). Period $= \\dfrac{2\\pi}{4\\pi/25} = 12.5$ h, so the next maximum is at $t = 16.905$ h $=$ **16:54**", mk: "M1 A1 M1 A1", n: "\"In the afternoon\" tells you to add one period to the first maximum." }
       ], result: "(b) 4.5 m (c) 8.5 m (d) 16:54" } },
     { worked: { tag: "exam", title: "Rabbits and foxes: $K\\cos(\\theta + \\alpha)$, a complete model, a comment", src: "A-level June 2024 · P1 Q12 · 11 marks",
       q: "**(a)** Express $140\\cos\\theta - 480\\sin\\theta$ as $K\\cos(\\theta + \\alpha)$, $K > 0$, $0 < \\alpha < 90°$, $\\alpha$ to 2 d.p. The number of rabbits is $R = A + 140\\cos(30t)° - 480\\sin(30t)°$, $t$ months after the start of the year, and the maximum is 1500. **(b)(i)** Find a complete equation for the model. **(ii)** Write down the minimum number of rabbits. The actual minimum occurs in the middle of April. **(c)** Comment on the model. The number of foxes is $F = 100 + 70\\sin(30t + 70)°$ and is at its minimum after $T$ months. **(d)** Find the number of rabbits at time $T$.",
@@ -912,8 +912,8 @@ C["maths:5.9"] = {
       q: "**(a)** Express $2\\cos\\theta - \\sin\\theta$ as $R\\cos(\\theta + \\alpha)$, $R > 0$, $0 < \\alpha < \\frac{\\pi}{2}$, $\\alpha$ to 3 d.p. The height of a paddle above the water is $H = 3 + 4\\cos(0.5t) - 2\\sin(0.5t)$ metres, $t$ seconds after the wheel starts. **(b)(i)** Find the maximum height. **(ii)** Find the first time it occurs. **(c)** Find the minimum height and interpret it.",
       steps: [
         { h: "(a)", m: "$R = \\sqrt5$, $\\tan\\alpha = \\dfrac12 \\Rightarrow \\alpha = 0.464$: $\\sqrt5\\cos(\\theta + 0.464)$", mk: "B1 M1 A1" },
-        { h: "(b) $H = 3 + 2\\sqrt5\\cos(0.5t + 0.464)$", m: "(i) maximum $3 + 2\\sqrt5 = 7.47$ m. (ii) first when $0.5t + 0.464 = 2\\pi$ ($t > 0$): $t = 2(2\\pi - 0.464) = 11.6$ s", mk: "B1 M1 A1 A1", n: "$0.5t + 0.464 = 0$ gives a negative $t$; the first *positive* time uses $2\\pi$." },
-        { h: "(c)", m: "Minimum $3 - 2\\sqrt5 = -1.47$ m: the paddle is $1.47$ m **below** the water level at its lowest point.", mk: "B1 B1" }
+        { h: "(b) $H = 3 + 2\\sqrt5\\cos(0.5t + 0.464)$", m: "(i) maximum $3 + 2\\sqrt5 = 7.47$ m. (ii) first when $0.5t + 0.464 = 2\\pi$ ($t > 0$): $t = 2(2\\pi - 0.464) = 11.6$ s", mk: "M1 A1 M1 dM1 A1", n: "$0.5t + 0.464 = 0$ gives a negative $t$; the first *positive* time uses $2\\pi$." },
+        { h: "(c)", m: "Minimum $3 - 2\\sqrt5 = -1.47$ m: the paddle is $1.47$ m **below** the water level at its lowest point.", mk: "M1 A1 B1" }
       ], result: "(b) 7.47 m at $t = 11.6$ s (c) $-1.47$ m, under water" } },
 
     { page: "Exam toolkit" },

@@ -164,10 +164,9 @@ C["compsci:4.1.1.9"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.1.1.12 a sentinel return value (−1) vs an exception; 4.2.1.3 file handling (FileNotFoundException); 4.13.1.4 erroneous test data; 4.7.3.6 interrupts — another way normal flow is suspended to handle an event." } }
   ],
   flashcards: [
-    ["Exception?", "A run-time error / unexpected event during execution that would normally crash the program."],
-    ["Exception handling?", "Code that detects (catches) an exception and responds to it so the program does not crash."],
-    ["What goes in try?", "The statements that might throw."],
-    ["What does catch do?", "Runs when an exception of its type is thrown in the try block."],
+    ["Exception handling?", "Code that detects (catches) an exception and responds to it so the program does not crash.", 1],
+    ["What goes in try?", "The statements that might throw.", 2],
+    ["What does catch do?", "Runs when an exception of its type is thrown in the try block.", 3],
     ["throw?", "Raises an exception for a caller to handle.", 5],
     ["Uncaught exception?", "Passes up to the caller, then its caller…; if none catches it the program crashes.", 6],
     ["Can exception handling catch syntax errors?", "No — syntax errors stop compilation; only run-time errors are caught.", 7],
@@ -175,11 +174,11 @@ C["compsci:4.1.1.9"] = {
     ["Typical exam response options?", "Ask to re-enter, use a default value, display an error message.", 9]
   ],
   quiz: [
-    { q: "Exception handling is used to", opts: ["deal with run-time errors so the program does not crash", "find syntax errors", "speed up a program", "remove logic errors"], ans: 0, why: "AQA: stop crashing / deal with a run-time error." },
+    { q: "Exception handling is used to", opts: ["deal with run-time errors so the program does not crash", "find syntax errors before the program is compiled", "speed up a program by skipping slow sections of code", "remove logic errors so the output is always correct"], ans: 0, why: "AQA: stop crashing / deal with a run-time error." },
     { q: "In C#, Convert.ToInt32(\"seven\") throws", opts: ["FormatException", "OverflowException", "IndexOutOfRangeException", "nothing — it returns 0"], ans: 0, why: "The text is not a number." },
     { q: "The finally block runs", opts: ["always, after try (and any catch)", "only when there was an exception", "only when there was no exception", "before try"], ans: 0, why: "Clean-up that must always happen." },
     { q: "Which does NOT throw in C#?", opts: ["5.0 / 0", "5 / 0 with ints", "new int[3][5]", "int.Parse(\"x\")"], ans: 0, why: "Floating-point division by zero gives Infinity." },
-    { q: "Returning −1 for an invalid hex digit is not fully effective because", opts: ["the caller may use −1 as data and print a misleading result", "−1 is not an integer", "functions cannot return negatives", "it causes a crash"], ans: 0, why: "1G → 15." }
+    { q: "Returning −1 for an invalid hex digit is not fully effective because", opts: ["the caller may use −1 as data and print a misleading result", "−1 is not an integer, so the function will not compile", "functions cannot return negative values in most languages", "it always causes a crash as soon as it is returned"], ans: 0, why: "If −1 is also a valid value for the caller, an error and real data look the same, so the result may mislead." }
   ]
 };
 
@@ -299,7 +298,7 @@ C["compsci:4.1.1.10"] = {
   ],
   quiz: [
     { q: "Which is a function?", opts: ["static int Square(int n)", "static void Print(string s)", "static void Main()", "static void Clear()"], ans: 0, why: "It has a return type." },
-    { q: "'A block of code' as a definition of a subroutine is", opts: ["not enough — it must be named/callable", "worth the mark", "wrong — subroutines are data", "only right for functions"], ans: 0, why: "Named and out of line." },
+    { q: "'A block of code' as a definition of a subroutine is", opts: ["not enough — it must be named/callable", "worth the mark — that is the definition", "wrong — subroutines are data, not code", "only right for functions, not procedures"], ans: 0, why: "Named and out of line." },
     { q: "After a subroutine finishes, control goes to", opts: ["the statement after the call", "the start of the program", "the end of the program", "the next subroutine in the file"], ans: 0, why: "Return to the caller." },
     { q: "A-level 2024 Q01 needs, for each advantage,", opts: ["how it is achieved", "a code example", "a disadvantage", "a diagram"], ans: 0, why: "No mark without the explanation." }
   ]
@@ -396,10 +395,10 @@ C["compsci:4.1.1.11"] = {
     ["Can a by-reference argument be an expression like x + 1?", "No — it must be a variable.", 8]
   ],
   quiz: [
-    { q: "void F(int x) { x = 9; } int a = 1; F(a); a is now", opts: ["1", "9", "0", "undefined"], ans: 0, why: "By value." },
-    { q: "void F(ref int x) { x = 9; } int a = 1; F(ref a); a is now", opts: ["9", "1", "0", "an error"], ans: 0, why: "By reference." },
+    { q: "void F(int x) { x = 9; } int a = 1; F(a); a is now", opts: ["1", "9", "0", "undefined"], ans: 0, why: "x is a copy passed by value, so changing it inside F leaves a as 1." },
+    { q: "void F(ref int x) { x = 9; } int a = 1; F(ref a); a is now", opts: ["9", "1", "0", "an error"], ans: 0, why: "With ref, x is another name for a, so setting it to 9 changes a to 9." },
     { q: "void F(int[] t) { t[0] = 9; } int[] a = {1}; F(a); a[0] is", opts: ["9", "1", "0", "an error"], ans: 0, why: "The reference is copied; the elements are shared." },
-    { q: "A benefit of parameters over globals is", opts: ["the subroutine is self-contained and can be tested alone", "less memory always", "faster compilation", "no need for return values"], ans: 0, why: "AS 2025 Q04.3." },
+    { q: "A benefit of parameters over globals is", opts: ["the subroutine is self-contained and can be tested alone", "it always uses less memory than global variables do", "the program compiles faster with fewer variables", "there is no need for return values in any subroutine"], ans: 0, why: "Parameters make a subroutine self-contained, so it does not depend on globals and can be tested alone." },
     { q: "In Area(4, 2.5), 4 and 2.5 are", opts: ["arguments", "parameters", "local variables", "return values"], ans: 0, why: "Values in a call." }
   ]
 };
@@ -510,9 +509,9 @@ C["compsci:4.1.1.12"] = {
   ],
   quiz: [
     { q: "Statements after an executed return", opts: ["do not run", "run once", "run after the caller", "cause an error"], ans: 0, why: "return ends the subroutine." },
-    { q: "Number ← Number*16 + Value for \"A2\" outputs", opts: ["162", "102", "42", "10"], ans: 0, why: "10×16+2." },
-    { q: "In C#, (int Min, int Max) as a return type is", opts: ["a tuple returning two values", "two functions", "an error", "a parameter list"], ans: 0, why: "Tuples return several values." },
-    { q: "A function that may reach its end without return", opts: ["will not compile in C#", "returns 0", "returns null", "loops forever"], ans: 0, why: "CS0161." }
+    { q: "Number ← Number*16 + Value for \"A2\" outputs", opts: ["162", "102", "42", "10"], ans: 0, why: "A is 10 and 10 × 16 + 2 = 162, built up digit by digit by Number ← Number*16 + Value." },
+    { q: "In C#, (int Min, int Max) as a return type is", opts: ["a tuple returning two values", "two separate functions in one", "an error, as C# returns one value", "a parameter list for the method"], ans: 0, why: "Tuples return several values." },
+    { q: "A function that may reach its end without return", opts: ["will not compile in C#", "returns 0 by default", "returns null at the end", "loops back to the start"], ans: 0, why: "C# rejects a function that has a path ending without a return value (error CS0161)." }
   ]
 };
 
@@ -620,7 +619,6 @@ C["compsci:4.1.1.13"] = {
   flashcards: [
     ["Scope?", "The part of the program where an identifier can be used.", 1],
     ["Lifetime?", "The period during which a variable exists in memory.", 2],
-    ["Where are locals stored?", "In the subroutine's stack frame.", 3],
     ["Two reasons to use locals?", "Subroutine is self-contained; memory is reused when not in use (also: names reusable, fewer side-effects).", 4],
     ["Block scope in C#?", "A variable declared inside { } (e.g. a for loop's i) exists only in that block.", 6],
     ["Local hides a field?", "Inside the method the name refers to the local; the field is unchanged.", 7],
@@ -628,9 +626,9 @@ C["compsci:4.1.1.13"] = {
   ],
   quiz: [
     { q: "A local variable exists", opts: ["only while its subroutine is executing", "for the whole program run", "only at compile time", "until the computer is switched off"], ans: 0, why: "Lifetime of one call." },
-    { q: "Two subroutines can both declare total because", opts: ["each is local, with a different scope", "C# merges them", "the second overwrites the first", "they are global"], ans: 0, why: "AS 2016 Q08.5." },
-    { q: "Which is NOT a reason to use local variables?", opts: ["they can be read from anywhere in the program", "they make subroutines self-contained", "memory is reused", "fewer side-effects"], ans: 0, why: "That describes globals." },
-    { q: "for (int i = 0; …) {…} Console.WriteLine(i); in C#", opts: ["does not compile — i is out of scope", "prints the last i", "prints 0", "prints nothing"], ans: 0, why: "Block scope." }
+    { q: "Two subroutines can both declare total because", opts: ["each is local, with a different scope", "C# merges them into one shared variable", "the second overwrites the first", "they are both global to the class"], ans: 0, why: "Each variable is local to its own subroutine, so the same name can be reused without a clash." },
+    { q: "Which is NOT a reason to use local variables?", opts: ["they can be read from anywhere in the program", "they make subroutines self-contained", "memory is reused once the subroutine ends", "there are fewer side-effects on other code"], ans: 0, why: "That describes globals." },
+    { q: "for (int i = 0; …) {…} Console.WriteLine(i); in C#", opts: ["does not compile — i is out of scope", "prints the last value i took in the loop", "prints 0, the value i started at", "prints nothing, as i has been reset"], ans: 0, why: "i is declared in the for loop's block, so it does not exist after the loop and the line fails to compile." }
   ]
 };
 
@@ -715,9 +713,9 @@ C["compsci:4.1.1.14"] = {
     ["Acceptable global?", "A named constant — it cannot change.", 7]
   ],
   quiz: [
-    { q: "A global variable", opts: ["can be accessed from any part of the program", "exists only during one call", "must be passed as a parameter", "is stored in a stack frame"], ans: 0, why: "Whole-program scope." },
+    { q: "A global variable", opts: ["can be accessed from any part of the program", "exists only while one subroutine call is running", "must be passed to each subroutine as a parameter", "is stored in the stack frame of the main routine"], ans: 0, why: "Whole-program scope." },
     { q: "In C#, the nearest equivalent of a global is", opts: ["a static field", "a local in Main", "a ref parameter", "a const in a method"], ans: 0, why: "One shared copy." },
-    { q: "A 2-mark 'describe one difference' needs", opts: ["both the global side and the local side", "two different differences", "a code example", "a definition of variable"], ans: 0, why: "AS 2023 Q03." },
+    { q: "A 2-mark 'describe one difference' needs", opts: ["both the global side and the local side", "two different differences, one mark for each", "a code example showing both kinds of variable", "a definition of what a variable is"], ans: 0, why: "Two marks need both sides of the comparison: what a global variable is, and what a local one is." },
     { q: "Main danger of global variables", opts: ["unintended side-effects", "they cannot hold strings", "they are slower to declare", "they cannot be initialised"], ans: 0, why: "Any code can change them." }
   ]
 };
@@ -817,9 +815,7 @@ C["compsci:4.1.1.15"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.2.3.1 stacks (push/pop, stack overflow); 4.1.1.16 recursion; 4.1.1.13 local variables live in the frame; 4.7.3.6 interrupts save the processor's registers in the same way; 4.7.3.2 the program counter and the return address." } }
   ],
   flashcards: [
-    ["Return address?", "Where execution continues in the caller after the subroutine finishes.", 1],
     ["Why a stack?", "The most recent call is the first to finish — LIFO.", 2],
-    ["What happens on return?", "The frame is popped, registers restored, and execution jumps to the return address.", 3],
     ["Frames for Factorial(3) from Main at the deepest point?", "4 — Main, Factorial(3), (2), (1).", 4],
     ["Stack overflow?", "The call stack runs out of space — usually recursion with no reachable base case.", 5],
     ["Can C# catch a StackOverflowException?", "No — the process is terminated.", 6],
@@ -827,9 +823,9 @@ C["compsci:4.1.1.15"] = {
     ["Mnemonic for the components?", "RPLR — Return address, Parameters, Locals, Registers.", 8]
   ],
   quiz: [
-    { q: "Which is NOT stored in a stack frame?", opts: ["the subroutine's program code", "the return address", "parameters", "local variables"], ans: 0, why: "Code lives elsewhere in memory." },
-    { q: "When a subroutine returns, its frame is", opts: ["popped from the stack", "pushed again", "moved to the heap", "kept until the program ends"], ans: 0, why: "LIFO." },
-    { q: "Recursion with no base case causes", opts: ["stack overflow", "a syntax error", "an infinite but harmless loop", "a compile-time warning only"], ans: 0, why: "Frames pile up." },
+    { q: "Which is NOT stored in a stack frame?", opts: ["the subroutine's program code", "the return address of the call", "the parameters passed to it", "the subroutine's local variables"], ans: 0, why: "Code lives elsewhere in memory." },
+    { q: "When a subroutine returns, its frame is", opts: ["popped from the stack", "pushed again", "moved to the heap", "kept until the program ends"], ans: 0, why: "Frames follow last in, first out, so the returning subroutine's frame is popped from the stack." },
+    { q: "Recursion with no base case causes", opts: ["stack overflow", "a syntax error", "an infinite but harmless loop", "a compile-time warning only"], ans: 0, why: "With no base case the calls never stop, frames keep piling up on the stack and it overflows." },
     { q: "A loop repeating 1000 times uses", opts: ["one stack frame", "1000 stack frames", "no memory", "a frame per iteration"], ans: 0, why: "Iteration stays in one call." }
   ]
 };
@@ -1024,10 +1020,10 @@ C["compsci:4.1.1.16"] = {
     ["total (x:xs) = x + total xs — base case?", "total [] = 0, the empty list.", 11]
   ],
   quiz: [
-    { q: "A base case is", opts: ["when the subroutine does not call itself", "the first call", "the largest input", "the return address"], ans: 0, why: "AQA 2021 Q02.5." },
+    { q: "A base case is", opts: ["when the subroutine does not call itself", "the first call made to the subroutine", "the call with the largest input value", "the return address saved on the stack"], ans: 0, why: "A base case is where the subroutine does not call itself, so the recursion ends." },
     { q: "Fib(5) with naive recursion makes how many calls?", opts: ["9", "5", "15", "25"], ans: 0, why: "1 + 5 + 3 (the two subtrees)." },
     { q: "Gcd(48, 18) by Euclid's recursion returns", opts: ["6", "18", "12", "3"], ans: 0, why: "48,18 → 18,12 → 12,6 → 6,0." },
-    { q: "In IsPath(3, 7), V[7] ends as", opts: ["0 — Traverse(7, 7) returns before setting it", "1", "7", "undefined"], ans: 0, why: "start = end returns first." },
+    { q: "In IsPath(3, 7), V[7] ends as", opts: ["0 — Traverse(7, 7) returns before setting it", "1 — Traverse(7, 7) sets it before returning", "7 — it holds the node it was reached from", "undefined — the array was never initialised"], ans: 0, why: "start = end returns first." },
     { q: "Recursion is a natural fit for", opts: ["tree traversal", "printing 1 to 10", "reading one input", "swapping two variables"], ans: 0, why: "Trees are recursive structures." }
   ]
 };

@@ -458,12 +458,12 @@ C["compsci:4.6.4.1"] = {
     ["Wires crossing without a dot?", "Not connected.", 14]
   ],
   quiz: [
-    { q: "Which gate outputs 1 only when both inputs are 0?", opts: ["NOR", "NAND", "XOR", "AND"], ans: 0, why: "1 0 0 0." },
+    { q: "Which gate outputs 1 only when both inputs are 0?", opts: ["NOR", "NAND", "XOR", "AND"], ans: 0, why: "NOR is NOT OR: the OR output is 0 only when both inputs are 0, so NOR gives 1 only then." },
     { q: "A half adder's carry output is", opts: ["A AND B", "A XOR B", "A OR B", "A NAND B"], ans: 0, why: "Carry only on 1 + 1." },
-    { q: "A + B·C means", opts: ["A OR (B AND C)", "(A OR B) AND C", "A AND B AND C", "(A AND B) OR C"], ans: 0, why: "AND before OR." },
-    { q: "An edge-triggered D-type flip-flop's output changes", opts: ["on the clock edge, to the value of D", "whenever D changes", "when power is removed", "on set/reset"], ans: 0, why: "Clocked." },
-    { q: "Truth table 0 1 1 0 is", opts: ["XOR", "OR", "NAND", "XNOR"], ans: 0, why: "Inputs differ." },
-    { q: "A full adder has how many inputs?", opts: ["3", "2", "4", "1"], ans: 0, why: "A, B, carry in." }
+    { q: "A + B·C means", opts: ["A OR (B AND C)", "(A OR B) AND C", "A AND B AND C", "(A AND B) OR C"], ans: 0, why: "AND binds more tightly than OR, so A + B·C means A OR (B AND C)." },
+    { q: "An edge-triggered D-type flip-flop's output changes", opts: ["on the clock edge, to the value of D", "whenever D changes, to the new value of D", "when power is removed, back to zero", "on set or reset, to the opposite of D"], ans: 0, why: "An edge-triggered flip-flop changes only at the clock edge, taking the value of D at that moment." },
+    { q: "Truth table 0 1 1 0 is", opts: ["XOR", "OR", "NAND", "XNOR"], ans: 0, why: "The output is 1 only when the inputs differ, which is XOR." },
+    { q: "A full adder has how many inputs?", opts: ["3", "2", "4", "1"], ans: 0, why: "A full adder adds the two bits A and B plus the carry in from the previous stage, so it has 3 inputs." }
   ]
 };
 
@@ -736,10 +736,10 @@ C["compsci:4.6.5.1"] = {
   ],
   quiz: [
     { q: "$\\overline{A + B}$ equals", opts: ["$\\overline{A} \\cdot \\overline{B}$", "$\\overline{A} + \\overline{B}$", "$A \\cdot B$", "$\\overline{A \\cdot B}$"], ans: 0, why: "Break the line, change the sign." },
-    { q: "$A + A \\cdot B$ simplifies to", opts: ["A", "B", "A·B", "A + B"], ans: 0, why: "Absorption." },
-    { q: "$(X + Y) \\cdot (X + \\overline{Y})$ simplifies to", opts: ["X", "Y", "1", "X·Y"], ans: 0, why: "X + Y·Ȳ = X." },
-    { q: "$A + \\overline{A} \\cdot C$ simplifies to", opts: ["A + C", "A·C", "C", "A"], ans: 0, why: "X + X̄Y = X + Y." },
-    { q: "$\\overline{\\overline{A} \\cdot \\overline{B}}$ is a single", opts: ["OR gate", "AND gate", "NOR gate", "XOR gate"], ans: 0, why: "= A + B." },
+    { q: "$A + A \\cdot B$ simplifies to", opts: ["A", "B", "A·B", "A + B"], ans: 0, why: "By absorption, A + A·B = A, because B only matters when A is 0, and then both parts are 0." },
+    { q: "$(X + Y) \\cdot (X + \\overline{Y})$ simplifies to", opts: ["X", "Y", "1", "X·Y"], ans: 0, why: "Expanding gives X + X·Ȳ + Y·X + Y·Ȳ, and with Y·Ȳ = 0 and the rest absorbed by X, the result is X." },
+    { q: "$A + \\overline{A} \\cdot C$ simplifies to", opts: ["A + C", "A · C", "Ā · C", "Ā + C"], ans: 0, why: "X + X̄Y = X + Y." },
+    { q: "$\\overline{\\overline{A} \\cdot \\overline{B}}$ is a single", opts: ["OR gate", "AND gate", "NOR gate", "XOR gate"], ans: 0, why: "By De Morgan, NOT(NOT A AND NOT B) = A OR B, so one OR gate does it." },
     { q: "In a 4-mark simplification the final answer earns", opts: ["1 mark", "4 marks", "2 marks", "nothing without working"], ans: 0, why: "3 for working + 1." }
   ]
 };

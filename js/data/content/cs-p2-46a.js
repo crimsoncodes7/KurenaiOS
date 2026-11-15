@@ -131,19 +131,17 @@ C["compsci:4.6.1.1"] = {
   ],
   flashcards: [
     ["Define hardware.", "The physical / electronic components of a computer system."],
-    ["Define software.", "Programs / instructions that are executed (on the hardware)."],
-    ["What is a computer system?", "Hardware and software working together."],
-    ["Relationship between hardware and software?", "Software executes on the hardware; hardware allows software to execute."],
-    ["Is \"tangible\" enough for hardware?", "No — NE.; say physical / electronic components."],
+    ["What is a computer system?", "Hardware and software working together.", 2],
+    ["Is \"tangible\" enough for hardware?", "No — NE.; say physical / electronic components.", 4],
     ["Is a device driver hardware or software?", "Software.", 6],
     ["Give two examples of hardware.", "e.g. processor, RAM, SSD, keyboard, monitor, data bus.", 7],
     ["Is a photo stored on disk software?", "No — it is data; software is programs.", 8]
   ],
   quiz: [
-    { q: "Which best defines hardware?", opts: ["the physical components of a computer system", "anything you can buy", "programs stored in ROM", "the operating system"], ans: 0, why: "Physical / electronic components." },
-    { q: "Software is", opts: ["programs / instructions that are executed", "the processor and memory", "any file on a disk", "only applications"], ans: 0, why: "Definition." },
-    { q: "Firmware is", opts: ["software stored on a chip", "hardware", "neither", "a type of bus"], ans: 0, why: "It is instructions that execute." },
-    { q: "Which is hardware?", opts: ["the address bus", "a compiler", "a device driver", "a spreadsheet"], ans: 0, why: "Physical wires." },
+    { q: "Which best defines hardware?", opts: ["the physical components of a computer system", "anything you can buy for a computer, including apps", "programs stored permanently in ROM on the board", "the operating system that runs the computer"], ans: 0, why: "Physical / electronic components." },
+    { q: "Software is", opts: ["programs / instructions that are executed", "the processor, memory and other components", "any file stored on a disk, including images", "only the applications a user runs"], ans: 0, why: "Software is the programs, made of instructions, that the processor executes." },
+    { q: "Firmware is", opts: ["software stored on a chip", "hardware fixed onto the board", "neither hardware nor software", "a type of bus on the chip"], ans: 0, why: "It is instructions that execute." },
+    { q: "Which is hardware?", opts: ["the address bus", "a compiler", "a device driver", "a spreadsheet"], ans: 0, why: "The address bus is a physical set of wires, so it is hardware; programs and data are not." },
     { q: "\"Hardware is tangible\" on its own scores", opts: ["NE. — not enough", "the mark", "two marks", "is rejected outright"], ans: 0, why: "Say physical components." }
   ]
 };
@@ -263,7 +261,6 @@ C["compsci:4.6.1.2"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.6.1.3 the four types of system software; 4.6.1.4 the OS as a virtual machine (abstraction, 4.1.2.2); 4.6.3.1 translators; 4.13 bespoke software and the systems development life cycle." } }
   ],
   flashcards: [
-    ["Four types of system software?", "Operating systems, utility programs, libraries, translators.", 2],
     ["Three types of translator?", "Compiler, assembler, interpreter.", 3],
     ["Is a compiler system or application software?", "System software (a translator).", 4],
     ["Category of a virus checker?", "Utility (system software).", 5],
@@ -272,11 +269,11 @@ C["compsci:4.6.1.2"] = {
     ["Application software reaches the hardware through…", "the operating system.", 8]
   ],
   quiz: [
-    { q: "Which is NOT system software?", opts: ["a photo editor", "a compiler", "a library", "a utility"], ans: 0, why: "User-oriented task." },
+    { q: "Which is NOT system software?", opts: ["a photo editor", "a C# compiler", "a code library", "a backup utility"], ans: 0, why: "User-oriented task." },
     { q: "A virus checker is", opts: ["a utility", "an operating system", "a translator", "application software"], ans: 0, why: "Maintenance program." },
-    { q: "System software is best described as", opts: ["software that manages the computer system", "software for user tasks", "only the operating system", "hardware drivers only"], ans: 0, why: "Definition." },
-    { q: "Interpreter belongs under", opts: ["translators", "utilities", "libraries", "applications"], ans: 0, why: "CAI." },
-    { q: "A word processor is", opts: ["general-purpose application software", "system software", "bespoke system software", "a utility"], ans: 0, why: "Off-the-shelf user task." }
+    { q: "System software is best described as", opts: ["software that manages the computer system", "software that carries out tasks for the user", "only the operating system and nothing else", "only the drivers that control the hardware"], ans: 0, why: "System software runs and manages the computer itself, such as the operating system and utilities, rather than doing user tasks." },
+    { q: "Interpreter belongs under", opts: ["translators", "utilities", "libraries", "applications"], ans: 0, why: "An interpreter translates source code, so it falls under translators, along with compilers and assemblers." },
+    { q: "A word processor is", opts: ["general-purpose application software", "system software that manages hardware", "bespoke system software written for one firm", "a utility that maintains the computer"], ans: 0, why: "Off-the-shelf user task." }
   ]
 };
 
@@ -380,10 +377,10 @@ C["compsci:4.6.1.3"] = {
   ],
   quiz: [
     { q: "Translators given — which is a valid OTHER type of system software?", opts: ["libraries", "compilers", "interpreters", "assemblers"], ans: 0, why: "The others are translators." },
-    { q: "A disk defragmenter is", opts: ["a utility", "a library", "a translator", "application software"], ans: 0, why: "Maintenance." },
-    { q: "A reason programmers use libraries is", opts: ["improved reliability (tested code)", "programs always run faster", "no translation is needed", "to avoid the OS"], ans: 0, why: "Pre-tested routines." },
-    { q: "A DLL is", opts: ["a dynamically linked shared library", "a utility", "a device driver only", "an interpreter"], ans: 0, why: "Loaded at run time." },
-    { q: "Which is a CORE OS function, not a utility?", opts: ["allocating memory to processes", "backup", "compression", "virus scanning"], ans: 0, why: "Resource management." }
+    { q: "A disk defragmenter is", opts: ["a utility", "a library", "a translator", "application software"], ans: 0, why: "A defragmenter tidies files on a disk to speed access, which makes it a utility program." },
+    { q: "A reason programmers use libraries is", opts: ["improved reliability (tested code)", "programs always run faster with them", "no translation of the code is needed", "to avoid using the operating system"], ans: 0, why: "Pre-tested routines." },
+    { q: "A DLL is", opts: ["a dynamically linked shared library", "a utility that tidies the hard disk", "a device driver and nothing else", "an interpreter for dynamic languages"], ans: 0, why: "Loaded at run time." },
+    { q: "Which is a CORE OS function, not a utility?", opts: ["allocating memory to processes", "backing up files to another disk", "compressing files to save space", "scanning files for viruses"], ans: 0, why: "Resource management." }
   ]
 };
 
@@ -495,9 +492,9 @@ C["compsci:4.6.1.4"] = {
   ],
   quiz: [
     { q: "Which is a hardware resource the OS manages?", opts: ["main memory", "the scheduler", "virtual memory", "the file system"], ans: 0, why: "Physical resource." },
-    { q: "\"Processor management\" alone in a describe question is", opts: ["NE. — not enough", "1 mark", "2 marks", "accepted as BOD"], ans: 0, why: "Must describe." },
+    { q: "\"Processor management\" alone in a describe question is", opts: ["NE. — not enough", "1 mark", "2 marks", "accepted as BOD"], ans: 0, why: "Naming a function earns nothing; the answer must describe what the operating system does, such as sharing processor time." },
     { q: "The OS hiding the hardware's complexity is an example of", opts: ["abstraction", "recursion", "normalisation", "encapsulation of data only"], ans: 0, why: "Virtual machine." },
-    { q: "When an interrupt occurs the OS", opts: ["calls the appropriate interrupt service routine", "restarts the computer", "ignores it", "deletes the process"], ans: 0, why: "Interrupt handling." },
+    { q: "When an interrupt occurs the OS", opts: ["calls the appropriate interrupt service routine", "restarts the computer to clear the interrupt", "ignores it until the current program ends", "deletes the process that was running"], ans: 0, why: "Interrupt handling." },
     { q: "Allocating time slices to processes is", opts: ["scheduling", "paging", "defragmenting", "buffering"], ans: 0, why: "Processor allocation." }
   ]
 };
@@ -678,11 +675,11 @@ C["compsci:4.6.2.1"] = {
     ["When might assembly be chosen?", "New / embedded processor with no compiler or little memory; device drivers; time-critical code.", 9]
   ],
   quiz: [
-    { q: "Which is a low-level language?", opts: ["machine code", "C#", "SQL", "Python"], ans: 0, why: "Plus assembly." },
-    { q: "Imperative means", opts: ["a sequence of commands describing how", "describing what is wanted", "no variables", "only high-level"], ans: 0, why: "Definition." },
-    { q: "A valid advantage of an HLL is", opts: ["portability across processors", "uses less memory", "direct register control", "no translation needed"], ans: 0, why: "Machine-independent." },
+    { q: "Which is a low-level language?", opts: ["machine code", "C# with .NET", "SQL queries", "Python code"], ans: 0, why: "Machine code (and assembly) work directly with the processor's instructions, so they are low-level." },
+    { q: "Imperative means", opts: ["a sequence of commands describing how", "a description of what is wanted, not how", "a program with no variables at all", "only high-level languages can be used"], ans: 0, why: "An imperative program is a sequence of commands that tell the computer how to do the task." },
+    { q: "A valid advantage of an HLL is", opts: ["portability across processors", "it uses less memory than assembly", "direct register control", "no translation is needed to run it"], ans: 0, why: "Machine-independent." },
     { q: "\"Assembly is faster because it needs no translation\" is", opts: ["rejected", "credited", "credited as BOD", "two marks"], ans: 0, why: "Speed is about execution." },
-    { q: "One assembly instruction corresponds to", opts: ["one machine code instruction", "many machine instructions", "one HLL statement", "a whole subroutine"], ans: 0, why: "One-to-one." }
+    { q: "One assembly instruction corresponds to", opts: ["one machine code instruction", "many machine instructions", "one HLL statement", "a whole subroutine"], ans: 0, why: "Assembly is a one-to-one mapping, so each assembly instruction becomes one machine code instruction." }
   ]
 };
 
@@ -858,14 +855,13 @@ C["compsci:4.6.3.1"] = {
     ["Which runs faster once translated?", "Compiled object code.", 6],
     ["Which needs the source and translator at run time?", "Interpreted programs.", 7],
     ["Why do some compilers produce bytecode?", "Platform independence — compile once, run on any machine with a VM.", 8],
-    ["How is bytecode executed?", "By a virtual machine: interpreted, or JIT-compiled to machine code for that processor.", 9],
     ["Assembler vs compiler similarity?", "Both convert source into object code.", 10]
   ],
   quiz: [
     { q: "Which produces NO object code?", opts: ["interpreter", "compiler", "assembler", "linker"], ans: 0, why: "Executes directly." },
     { q: "Assembly → machine code mapping is", opts: ["one-to-one", "one-to-many", "many-to-one", "none"], ans: 0, why: "Each mnemonic = one instruction." },
     { q: "Bytecode is executed by", opts: ["a virtual machine", "the compiler", "the assembler", "the CPU directly"], ans: 0, why: "Interpret / JIT." },
-    { q: "A reason to choose an interpreter is", opts: ["easier debugging — runs up to the first error", "faster execution", "source code hidden", "no software needed at run time"], ans: 0, why: "Development." },
+    { q: "A reason to choose an interpreter is", opts: ["easier debugging — runs up to the first error", "faster execution once the program is translated", "the source code is hidden from the users", "no translator software is needed at run time"], ans: 0, why: "An interpreter runs the code line by line and stops at the first error, which makes finding bugs easier." },
     { q: "Which translator is needed only once for many runs?", opts: ["compiler", "interpreter", "both", "neither"], ans: 0, why: "Executable reused." }
   ]
 };

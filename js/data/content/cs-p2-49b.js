@@ -165,17 +165,15 @@ C["compsci:4.9.3.1"] = {
     ["Packet switching?", "Data split into packets sent independently, possibly by different routes, reassembled at the destination."],
     ["Packet header fields?", "Source/destination IP, sequence number, TTL, protocol, length (ports in the transport header)."],
     ["Router?", "Connects networks and forwards each packet to the next hop using its routing table."],
-    ["Gateway?", "Connects networks with different protocols — performs protocol conversion."],
-    ["URL?", "Full address of a resource: protocol + FQDN + path."],
-    ["FQDN?", "Domain name including the host, e.g. www.aqa.org.uk."],
+    ["FQDN?", "Domain name including the host, e.g. www.aqa.org.uk.", 6],
     ["Purpose of DNS?", "To resolve FQDNs/domain names into IP addresses.", 8],
     ["Does a router change IP or MAC addresses?", "MAC addresses (for the next hop).", 10]
   ],
   quiz: [
-    { q: "DNS translates", opts: ["domain names into IP addresses", "URLs into MAC addresses", "IP into MAC addresses", "ports into sockets"], ans: 0, why: "R. URLs." },
-    { q: "A gateway, unlike a router,", opts: ["converts between protocols", "uses IP addresses", "forwards packets", "has ports"], ans: 0, why: "Protocol conversion." },
+    { q: "DNS translates", opts: ["domain names into IP addresses", "URLs into the server's MAC addresses", "IP addresses into MAC addresses", "port numbers into sockets"], ans: 0, why: "DNS looks up a domain name and returns its IP address; a full URL is not what it translates." },
+    { q: "A gateway, unlike a router,", opts: ["converts between protocols", "uses IP addresses to route packets", "forwards packets to the next hop", "has ports for each connected network"], ans: 0, why: "Protocol conversion." },
     { q: "The domain name in http://www.aqa.org.uk/x.html is", opts: ["aqa.org.uk", "www.aqa.org.uk", "http://www.aqa.org.uk", "x.html"], ans: 0, why: "www.… is the FQDN." },
-    { q: "TTL in a packet", opts: ["limits the number of hops", "is the sequence number", "is the checksum", "is the port"], ans: 0, why: "Stops loops." }
+    { q: "TTL in a packet", opts: ["limits the number of hops", "is the sequence number", "is the checksum", "is the port"], ans: 0, why: "The TTL is cut by one at each hop, and at zero the packet is dropped, so it cannot loop for ever." }
   ]
 };
 
@@ -300,7 +298,6 @@ C["compsci:4.9.3.2"] = {
     ["Symmetric encryption?", "One shared key encrypts and decrypts; fast; key exchange problem.", 3],
     ["Asymmetric encryption?", "Public/private key pair; encrypt with the recipient's public key, decrypt with their private key.", 4],
     ["How is a signature verified?", "Decrypt it with the sender's public key; re-hash the message; compare digests.", 6],
-    ["Digital certificate?", "A CA-signed binding of an owner's identity to their public key.", 7],
     ["Virus vs worm vs trojan?", "Virus attaches to files and needs running; worm self-replicates over networks; trojan disguised as legit software.", 8],
     ["Code-quality defence against worms?", "Prevent buffer overflows; review and test code; patched libraries.", 9]
   ],
@@ -308,7 +305,7 @@ C["compsci:4.9.3.2"] = {
     { q: "A digital signature is created with", opts: ["the sender's private key", "the sender's public key", "the receiver's public key", "a shared symmetric key"], ans: 0, why: "Only the sender could." },
     { q: "To keep a message secret for B, encrypt with", opts: ["B's public key", "B's private key", "A's private key", "A's public key"], ans: 0, why: "Only B decrypts." },
     { q: "Malware that spreads across networks on its own is a", opts: ["worm", "virus", "trojan", "cookie"], ans: 0, why: "Self-replicating, standalone." },
-    { q: "A firewall at the network edge filters by", opts: ["IP addresses and ports", "MAC addresses", "SSIDs", "file names only"], ans: 0, why: "R. MAC." }
+    { q: "A firewall at the network edge filters by", opts: ["IP addresses and ports", "MAC addresses of devices", "SSIDs of wireless networks", "the names of files sent"], ans: 0, why: "A firewall at the network edge filters packets by their IP addresses and port numbers." }
   ]
 };
 
@@ -398,9 +395,9 @@ C["compsci:4.9.4.1"] = {
   ],
   quiz: [
     { q: "Which layer adds port numbers?", opts: ["transport", "network", "link", "application"], ans: 0, why: "Segments carry ports." },
-    { q: "Routing happens in the", opts: ["network layer", "link layer", "transport layer", "application layer"], ans: 0, why: "IP." },
-    { q: "A socket is", opts: ["an IP address plus a port", "a MAC address", "a cable", "a port alone"], ans: 0, why: "Endpoint." },
-    { q: "The well-known port for HTTPS is", opts: ["443", "80", "25", "22"], ans: 0, why: "IANA." }
+    { q: "Routing happens in the", opts: ["network layer", "link layer", "transport layer", "application layer"], ans: 0, why: "Routers choose the path of each packet using IP addresses, so routing is at the network layer." },
+    { q: "A socket is", opts: ["an IP address plus a port", "a MAC address plus a port", "the cable joining two hosts", "a port number on its own"], ans: 0, why: "A socket is the combination of an IP address and a port number, which identifies one end of a connection." },
+    { q: "The well-known port for HTTPS is", opts: ["443", "8080", "143", "110"], ans: 0, why: "HTTPS is registered to port 443, whereas plain HTTP uses port 80." }
   ]
 };
 
@@ -493,16 +490,15 @@ C["compsci:4.9.4.2"] = {
     ["Anonymous vs non-anonymous FTP?", "Public login (often read-only) vs username + password access."],
     ["SMTP?", "Sends email client→server and server→server (port 25)."],
     ["POP3?", "Retrieves email from the server to the client (port 110)."],
-    ["SSH?", "Encrypted remote login and command execution (port 22)."],
-    ["Role of a web server?", "Stores and serves web pages/resources in text form in response to HTTP requests."],
-    ["Role of a web browser?", "Requests pages and resources and renders them."],
-    ["Role of an email server?", "Stores mailboxes; receives and forwards mail via SMTP; clients retrieve via POP3/IMAP."]
+    ["Role of a web server?", "Stores and serves web pages/resources in text form in response to HTTP requests.", 7],
+    ["Role of a web browser?", "Requests pages and resources and renders them.", 8],
+    ["Role of an email server?", "Stores mailboxes; receives and forwards mail via SMTP; clients retrieve via POP3/IMAP.", 9]
   ],
   quiz: [
-    { q: "Which protocol retrieves email to a client?", opts: ["POP3", "SMTP", "FTP", "SSH"], ans: 0, why: "Pull." },
-    { q: "Secure remote command execution uses", opts: ["SSH", "telnet", "HTTP", "FTP"], ans: 0, why: "Encrypted." },
+    { q: "Which protocol retrieves email to a client?", opts: ["POP3", "SMTP", "FTP", "SSH"], ans: 0, why: "POP3 downloads (pulls) email from the server to the client; SMTP is for sending." },
+    { q: "Secure remote command execution uses", opts: ["SSH", "telnet", "HTTP", "FTP"], ans: 0, why: "SSH gives an encrypted remote command line, so commands and passwords cannot be read in transit." },
     { q: "Which is NOT an application-layer protocol?", opts: ["TCP", "SMTP", "HTTP", "FTP"], ans: 0, why: "Transport layer." },
-    { q: "HTTPS differs from HTTP by", opts: ["encrypting the connection and authenticating the server", "using UDP", "using port 80", "sending binary only"], ans: 0, why: "TLS." }
+    { q: "HTTPS differs from HTTP by", opts: ["encrypting the connection and authenticating the server", "using UDP instead of TCP so that pages load faster", "using port 80 and compressing every page it sends", "sending binary only, so it cannot be read as text"], ans: 0, why: "HTTPS is HTTP over TLS, so the connection is encrypted and the server is authenticated." }
   ]
 };
 

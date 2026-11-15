@@ -227,11 +227,11 @@ C["compsci:4.5.5.3"] = {
     ["Gate that computes parity?", "XOR.", 10]
   ],
   quiz: [
-    { q: "Even parity bit for 1100101", opts: ["0", "1", "either", "2"], ans: 0, why: "Four 1s." },
+    { q: "Even parity bit for 1100101", opts: ["0", "1", "either", "2"], ans: 0, why: "1100101 has four 1s, which is already even, so the even parity bit is 0." },
     { q: "Which error does even parity miss?", opts: ["two flipped bits", "one flipped bit", "three flipped bits", "a flipped parity bit"], ans: 0, why: "Count stays even." },
-    { q: "Received 101 (majority voting) means", opts: ["1", "0", "error", "resend"], ans: 0, why: "Two 1s." },
+    { q: "Received 101 (majority voting) means", opts: ["1", "0", "error", "resend"], ans: 0, why: "Majority voting takes the value that most copies agree on: two 1s beat one 0, so the bit is 1." },
     { q: "A check digit is mainly used to detect", opts: ["data entry errors", "network collisions", "overflow", "viruses"], ans: 0, why: "Typing and transposition." },
-    { q: "Majority voting sends each bit", opts: ["an odd number of times (≥3)", "twice", "once with a parity bit", "four times"], ans: 0, why: "Guarantees a majority." }
+    { q: "Majority voting sends each bit", opts: ["an odd number of times (≥3)", "twice, so the two copies agree", "once with a parity bit", "four times, then takes the first"], ans: 0, why: "Guarantees a majority." }
   ]
 };
 

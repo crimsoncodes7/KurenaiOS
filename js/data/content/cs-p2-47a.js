@@ -269,11 +269,11 @@ C["compsci:4.7.1.1"] = {
   ],
   quiz: [
     { q: "Which bus is one-way?", opts: ["address bus", "data bus", "control bus", "all of them"], ans: 0, why: "Only the processor places addresses." },
-    { q: "To double the addressable memory you", opts: ["add one address line", "double the address lines", "widen the data bus", "add a control line"], ans: 0, why: "2ⁿ⁺¹ = 2·2ⁿ." },
+    { q: "To double the addressable memory you", opts: ["add one address line", "double the address lines", "widen the data bus", "add a control line"], ans: 0, why: "Each extra address line doubles the locations, as 2ⁿ⁺¹ = 2 × 2ⁿ, so one more line doubles the memory." },
     { q: "36 address lines, 16-bit locations is", opts: ["128 GiB", "64 GiB", "8 GiB", "256 GiB"], ans: 0, why: "2³⁶ × 2 bytes = 2³⁷ B." },
     { q: "Digital signal processing usually uses", opts: ["Harvard", "von Neumann", "neither", "both equally"], ans: 0, why: "Simultaneous instruction/data access." },
-    { q: "\"The data bus sends the data to memory\" is", opts: ["NE. — the processor places it; the bus carries", "fully correct", "rejected for naming the wrong bus", "BOD"], ans: 0, why: "Buses carry." },
-    { q: "An advantage of Harvard is", opts: ["instructions and data can be fetched simultaneously", "a single memory is cheaper", "programs can modify themselves", "it needs fewer buses"], ans: 0, why: "Separate buses." }
+    { q: "\"The data bus sends the data to memory\" is", opts: ["NE. — the processor places it; the bus carries", "fully correct — the data bus moves data to memory", "rejected — it should name the address bus", "BOD — benefit of the doubt for the idea"], ans: 0, why: "Not enough: it is the processor that puts the data on the bus, and the bus only carries it." },
+    { q: "An advantage of Harvard is", opts: ["instructions and data can be fetched simultaneously", "a single shared memory makes the computer cheaper", "programs can modify their own instructions at run time", "it needs fewer buses between processor and memory"], ans: 0, why: "Harvard has separate buses and memories for instructions and data, so both can be fetched at once." }
   ]
 };
 
@@ -371,10 +371,10 @@ C["compsci:4.7.2.1"] = {
     ["What changed the task before stored programs?", "Physically re-wiring the machine.", 7]
   ],
   quiz: [
-    { q: "The stored program concept says instructions are", opts: ["stored in main memory and fetched and executed serially", "hard-wired into the processor", "kept only in secondary storage", "executed in parallel"], ans: 0, why: "Definition." },
+    { q: "The stored program concept says instructions are", opts: ["stored in main memory and fetched and executed serially", "hard-wired into the processor and run in a fixed order", "kept only in secondary storage and run from there", "executed in parallel by every component at once"], ans: 0, why: "Stored program: instructions sit in main memory like data and are fetched and executed one after another." },
     { q: "Which is FALSE for a stored-program computer?", opts: ["it can only run one program", "the program is in main memory", "data is in main memory", "instructions run in sequence"], ans: 0, why: "Programs can be swapped." },
-    { q: "The given definition names", opts: ["the stored program concept", "the Harvard architecture", "the instruction set", "von Neumann architecture"], ans: 0, why: "2022 Q13.1." },
-    { q: "Harvard machines", opts: ["also use the stored program concept", "cannot store programs", "store programs on disk only", "have no main memory"], ans: 0, why: "Separate memories, still stored programs." }
+    { q: "The given definition names", opts: ["the stored program concept", "the Harvard architecture", "the instruction set", "von Neumann architecture"], ans: 0, why: "The definition given, instructions held in memory and fetched and executed serially, is the stored program concept." },
+    { q: "Harvard machines", opts: ["also use the stored program concept", "cannot store programs in memory", "store programs on disk only", "have no main memory, only registers"], ans: 0, why: "Separate memories, still stored programs." }
   ]
 };
 
@@ -473,19 +473,16 @@ C["compsci:4.7.3.1"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.7.3.2 the registers in the F-E cycle; 4.6.4.1 the ALU is built from adders, registers from flip-flops; 4.5.4.6 overflow; 4.7.3.5 CMP and branches read the flags; 4.7.3.7 clock speed; 4.7.3.6 the SR's interrupt flag." } }
   ],
   flashcards: [
-    ["PC holds…", "the address of the next instruction to fetch.", 4],
     ["CIR holds…", "the instruction currently being decoded/executed.", 5],
-    ["MAR holds…", "the address of the location to be read or written.", 6],
-    ["MBR holds…", "the data/instruction just read from, or to be written to, memory.", 7],
     ["General-purpose registers hold…", "operands and intermediate results the programmer chooses.", 9],
     ["Which register connects to the address bus?", "MAR.", 10],
     ["Which register connects to the data bus?", "MBR.", 11]
   ],
   quiz: [
     { q: "The address of the next instruction is in the", opts: ["PC", "CIR", "MBR", "SR"], ans: 0, why: "Program counter." },
-    { q: "The component that decodes instructions is the", opts: ["control unit", "ALU", "clock", "MAR"], ans: 0, why: "CU." },
-    { q: "A comparison result is recorded in the", opts: ["status register", "MAR", "PC", "CIR"], ans: 0, why: "Flags." },
-    { q: "\"A register is a memory location\" scores", opts: ["NE. — needs inside the processor", "1 mark", "2 marks", "R."], ans: 0, why: "Missing \"inside the processor\"." },
+    { q: "The component that decodes instructions is the", opts: ["control unit", "arithmetic logic unit", "system clock", "address bus"], ans: 0, why: "The control unit decodes each instruction and sends signals to control the other components." },
+    { q: "A comparison result is recorded in the", opts: ["status register", "memory address register", "program counter", "current instruction register"], ans: 0, why: "A comparison sets flags such as zero or negative, which are kept in the status register." },
+    { q: "\"A register is a memory location\" scores", opts: ["NE. — needs inside the processor", "1 mark — a register stores data", "2 marks — it is fully correct", "R. — a register is not memory"], ans: 0, why: "Missing \"inside the processor\"." },
     { q: "The MBR is connected to the", opts: ["data bus", "address bus", "clock", "control unit only"], ans: 0, why: "Buffer for data." }
   ]
 };
@@ -662,18 +659,17 @@ C["compsci:4.7.3.2"] = {
     ["Fetch step 2?", "The address goes on the address bus; memory contents come back on the data bus into the MBR."],
     ["When is the PC incremented?", "During the fetch, after its contents are copied to the MAR (often simultaneously with the memory read)."],
     ["Fetch final step?", "The contents of the MBR are copied into the CIR."],
-    ["What happens at execute?", "The operation is carried out (ALU etc.), data fetched/stored, result written, SR updated, PC changed by a branch.", 5],
     ["Why is PC copied to MAR?", "So the address can be put on the address bus and the PC can be incremented.", 6],
     ["Why use the MBR, not straight into the CIR?", "Not every fetch is an instruction; the value is only on the bus briefly; it buffers the speed difference.", 7],
     ["Why decode from the CIR, not the MBR?", "Execute may fetch/write data through the MBR, overwriting the instruction.", 8],
     ["What does a branch do to the PC?", "Loads it with the branch target address.", 10]
   ],
   quiz: [
-    { q: "The first step of the fetch is", opts: ["PC copied to MAR", "MBR copied to CIR", "CU decodes", "PC incremented"], ans: 0, why: "MAR ← [PC]." },
+    { q: "The first step of the fetch is", opts: ["PC copied to MAR", "MBR copied to CIR", "CU decodes", "PC incremented"], ans: 0, why: "Fetch starts by copying the address in the PC to the MAR, so memory knows which instruction to read." },
     { q: "The instruction arrives from memory into the", opts: ["MBR", "MAR", "PC", "status register"], ans: 0, why: "On the data bus." },
     { q: "Which register is decoded?", opts: ["CIR", "MBR", "MAR", "PC"], ans: 0, why: "The CU decodes the CIR." },
-    { q: "Order: A MBR→CIR, B PC→MAR, C decode, D store result", opts: ["B, A, C, D", "A, B, C, D", "B, C, A, D", "C, B, A, D"], ans: 0, why: "2022 Q08.1." },
-    { q: "Why isn't the instruction executed from the MBR?", opts: ["further memory transfers would overwrite it", "the MBR cannot decode", "the MBR is too small", "the PC points to it"], ans: 0, why: "MBR reused." }
+    { q: "Order: A MBR→CIR, B PC→MAR, C decode, D store result", opts: ["B, A, C, D", "A, B, C, D", "B, C, A, D", "C, B, A, D"], ans: 0, why: "The PC goes to the MAR first, the instruction then goes MBR to CIR, it is decoded, and only then can a result be stored." },
+    { q: "Why isn't the instruction executed from the MBR?", opts: ["further memory transfers would overwrite it", "the MBR only ever holds data, never instructions", "the MBR is too small to hold a whole instruction", "the PC points to the MBR, so it would loop"], ans: 0, why: "The MBR is used for every transfer with memory, so the instruction is copied to the CIR, or the next transfer would overwrite it." }
   ]
 };
 
@@ -776,17 +772,14 @@ C["compsci:4.7.3.6"] = {
   ],
   flashcards: [
     ["Purpose of interrupts?", "Suspend the current process so an urgent device/condition can be serviced.", 1],
-    ["When are interrupts checked?", "At the end of each Fetch-Execute cycle.", 3],
     ["What is the volatile environment?", "The contents of the processor's registers (PC, SR, GPRs).", 4],
     ["Where is it saved?", "On the system stack.", 6],
     ["What happens to the PC on an interrupt?", "Saved, then loaded with the ISR's address; restored afterwards.", 7],
-    ["Give three interrupt sources.", "e.g. I/O device, timer, power failure, division by zero.", 8],
-    ["Polling vs interrupts?", "Processor repeatedly asks devices vs devices signal when they need attention.", 9],
-    ["Can an ISR be interrupted?", "Yes, by a higher-priority interrupt.", 10]
+    ["Polling vs interrupts?", "Processor repeatedly asks devices vs devices signal when they need attention.", 9]
   ],
   quiz: [
-    { q: "Interrupts are checked", opts: ["at the end of each F-E cycle", "in the middle of decode", "only at power-on", "never"], ans: 0, why: "Between instructions." },
-    { q: "The volatile environment is", opts: ["the register contents", "main memory", "the disk cache", "the ISR"], ans: 0, why: "Definition." },
+    { q: "Interrupts are checked", opts: ["at the end of each F-E cycle", "in the middle of decode", "only when the computer powers on", "never while a program is running"], ans: 0, why: "Between instructions." },
+    { q: "The volatile environment is", opts: ["the register contents", "the contents of main memory", "the contents of the disk cache", "the interrupt service routine"], ans: 0, why: "The volatile environment is the contents of the registers, which must be saved so a process can resume." },
     { q: "An interrupt suspends the current", opts: ["process", "processor", "clock", "instruction set"], ans: 0, why: "R. processor / instruction." },
     { q: "Saved registers are kept on", opts: ["a stack", "a queue", "the MBR", "the hard disk"], ans: 0, why: "LIFO for nesting." },
     { q: "\"So the contents are not lost\" is", opts: ["NE.", "fully correct", "2 marks", "R. outright"], ans: 0, why: "Say they'd be overwritten; resume the process." }

@@ -130,7 +130,7 @@
         el("table", { class: "k-ex-ms-table" }, [el("thead", {}, [el("tr", {}, ["Q", "Scheme", "Marks", "Notes"].map(function (t) { return el("th", { scope: "col", text: t }); }))]),
           el("tbody", {}, [].concat.apply([], paper.questions.map(function (q) {
             return q.parts.map(function (p, j) {
-              return el("tr", {}, [el("td", { text: (j ? "" : String(q.n)) + p.label }), html("td", "", (p.ms || []).map(inline).join("<br>")),
+              return el("tr", {}, [el("td", { text: (j ? "" : String(q.n)) + p.label }), html("td", "", (p.ms || []).map(function (x) { return inline(KOS.content.aqaWords(x)); }).join("<br>")),
                 el("td", { text: p.chips.map(function (c) { return c.label === "✓" || /^\d+$/.test(c.label) ? "" : c.label; }).filter(Boolean).join(" ") || String(p.marks) }),
                 el("td", { text: j === q.parts.length - 1 ? (q.src ? "Modelled on " + q.src : q.origin || "") : "" })]);
             });
@@ -251,38 +251,61 @@
       q.parts.forEach(function (p, j) {
         var row = el("div", { class: "k-ex-tally-row", "data-ui": "exams.tally-row" });
         var gotEl = el("span", { class: "k-mono k-ex-tally-got", text: "—" });
-        var chipsEl = el("div", { class: "k-ex-chips" });
+        /* EX-33: each scheme line is printed with its own chips beside it,
+           under the question, so marking needs no trip to the scheme */
+        var chipsEl = el("div", { class: "k-ex-tally-lines" });
+        function chipBtn(c, t) {
+          var on = !!(t && t[c.id]), blocked = !!(c.needs && !(t && t[c.needs]));
+          return el("button", { type: "button", class: "k-ex-mchip", "aria-pressed": on ? "true" : "false", disabled: blocked && !on ? "" : null, "data-ui": "exams.mchip",
+            "aria-label": q.n + p.label + " " + c.label + (on ? ", earned" : ""), onclick: function () {
+              ticks[q.n] = ticks[q.n] || {};
+              var m = ticks[q.n][j] = ticks[q.n][j] || {};
+              if (m[c.id]) { delete m[c.id]; p.chips.forEach(function (d) { if (d.needs === c.id) delete m[d.id]; }); } else m[c.id] = true;
+              drawChips();
+              var sc = P().partScore(p, m), tt = score();
+              u.announce("Q" + q.n + " " + p.label + ", " + sc + " of " + p.marks + ". Total " + tt + ".");
+            } }, [on ? "✓ " : "○ ", c.label]);
+        }
         function drawChips() {
           chipsEl.textContent = "";
           var t = (ticks[q.n] && ticks[q.n][j]) || null;
-          p.chips.forEach(function (c) {
-            var on = !!(t && t[c.id]), blocked = !!(c.needs && !(t && t[c.needs]));
-            chipsEl.appendChild(el("button", { type: "button", class: "k-ex-mchip", "aria-pressed": on ? "true" : "false", disabled: blocked && !on ? "" : null, "data-ui": "exams.mchip",
-              "aria-label": q.n + p.label + " " + c.label + (on ? ", earned" : ""), onclick: function () {
-                ticks[q.n] = ticks[q.n] || {};
-                var m = ticks[q.n][j] = ticks[q.n][j] || {};
-                if (m[c.id]) { delete m[c.id]; p.chips.forEach(function (d) { if (d.needs === c.id) delete m[d.id]; }); } else m[c.id] = true;
-                drawChips();
-                var sc = P().partScore(p, m), tt = score();
-                u.announce("Q" + q.n + " " + p.label + ", " + sc + " of " + p.marks + ". Total " + tt + ".");
-              } }, [on ? "✓ " : "○ ", c.label]));
+          var byLine = {}, loose = [];
+          p.chips.forEach(function (c) { if (c.line == null) loose.push(c); else (byLine[c.line] = byLine[c.line] || []).push(c); });
+          var zero = el("button", { type: "button", class: "k-ex-mchip", "data-zero": "", "aria-label": q.n + p.label + " no marks", onclick: function () { ticks[q.n] = ticks[q.n] || {}; ticks[q.n][j] = {}; drawChips(); score(); } }, ["0"]);
+          var ms = p.ms || [];
+          ms.forEach(function (line, li) {
+            var mine = (byLine[li] || []).map(function (c) { return chipBtn(c, t); });
+            /* the 0 chip rides the last line when every chip has a line */
+            if (li === ms.length - 1 && !loose.length) mine.push(zero);
+            chipsEl.appendChild(el("div", { class: "k-ex-tally-line", "data-ui": "exams.tally-line" }, [
+              el("span", { class: "k-ex-tally-ms", html: KOS.content.inline(KOS.content.aqaWords(line)) }),
+              el("span", { class: "k-ex-chips" }, mine)
+            ]));
           });
-          chipsEl.appendChild(el("button", { type: "button", class: "k-ex-mchip", "data-zero": "", "aria-label": q.n + p.label + " no marks", onclick: function () { ticks[q.n] = ticks[q.n] || {}; ticks[q.n][j] = {}; drawChips(); score(); } }, ["0"]));
+          if (loose.length || !ms.length) {
+            var tail = el("div", { class: "k-ex-chips k-ex-tally-tail" }, loose.map(function (c) { return chipBtn(c, t); }));
+            tail.appendChild(zero);
+            chipsEl.appendChild(tail);
+          }
           gotEl.textContent = t ? P().partScore(p, t) + " / " + p.marks : "— / " + p.marks;
+          typeset(chipsEl);
         }
         drawChips();
         row.appendChild(el("span", { class: "k-mono k-ex-tally-q", text: q.n + p.label }));
-        row.appendChild(chipsEl);
+        row.appendChild(el("div", { class: "k-ex-tally-main" }, [
+          p.q ? el("p", { class: "k-ex-tally-stem", html: KOS.content.inline(String(p.q)) }) : null,
+          chipsEl
+        ].filter(Boolean)));
         row.appendChild(gotEl);
         body.appendChild(row);
       });
     });
     var ov = G().dialog("Mark it yourself", "採", [
-      u.muted(paper.title + " · tick each mark you earned; a dM or an A needs its M", "k-ex-small"), body,
+      u.muted(paper.title + " · tick each mark you earned beside its line of the scheme; a dM or an A needs its M", "k-ex-small"), body,
       el("div", { class: "k-ex-tally-sum" }, [totalEl, sumEl, el("span", { class: "k-ex-grow" }),
         el("label", { class: "k-ex-inline k-ex-small" }, [el("span", { text: "You predicted" }), predIn]),
         el("label", { class: "k-ex-inline k-ex-small" }, [timedBox, el("span", { text: "Timed" + (o.mins ? " · " + hm(o.mins) : "") })])])],
-      [u.btn("Mark schemes ›", "quiet", function () { ov.close(); KOS.show("exams", { id: a.id, tab: "paper", sub: String(paper.seed) }); }), el("span", { class: "k-ex-grow" }),
+      [el("span", { class: "k-ex-grow" }),
         u.btn("Cancel", "", function () { ov.close(); }),
         u.btn("Log as an attempt", "primary", function () {
           var fields = P().toAttempt(paper, ticks, { timed: timedBox.checked, mins: o.mins || null, predicted: predIn.value === "" ? null : +predIn.value, breaks: o.sess && o.sess.breaks ? o.sess.breaks : 0 });

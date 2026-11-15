@@ -64,10 +64,11 @@
         el("div", { class: "k-subj-board" }, [el("span", { text: KOS_DATA.mind.board })])   // no streak of its own (decision C)
       ]),
       el("div", { class: "k-subj-papers", "data-ui": "mind.rung-bars" }, UI().RUNG.map(function (r, i) {
-        var pct = met ? Math.round(100 * st.rungs[i] / met) : 0;
+        var of = st.reach ? st.reach[i] : met;   // MI-03: out of the concepts that can reach it
+        var pct = of ? Math.round(100 * st.rungs[i] / of) : 0;
         return el("div", { class: "k-subj-paper" }, [
           el("div", { class: "k-subj-paper-top" }, [el("b", { text: r }), el("span", { class: "k-subj-paper-note" }), el("span", { class: "k-mono", text: pct + "%" })]),
-          el("span", { class: "k-bar k-bar--6", role: "img", "aria-label": r + ": " + pct + "% of your concepts", style: "--p: " + pct + "%" }, [el("i")])
+          el("span", { class: "k-bar k-bar--6", role: "img", "aria-label": r + ": " + pct + "% of your concepts that can reach it", style: "--p: " + pct + "%" }, [el("i")])
         ]);
       })),
       el("div", { class: "k-mind-hero-path" }, [orderPath()])

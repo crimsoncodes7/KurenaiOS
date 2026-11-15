@@ -305,11 +305,11 @@ C["maths:S3.1"] = {
     ["$P(X = a)$ for a continuous variable?", "0."]
   ],
   quiz: [
-    { q: "$P(A) = 0.3$, $P(B) = 0.5$, independent. $P(A \\cap B) =$", opts: ["0.15", "0.8", "0", "0.2"], ans: 0, why: "Multiply." },
-    { q: "$P(A) = 0.3$, $P(B) = 0.5$, mutually exclusive. $P(A \\cup B) =$", opts: ["0.8", "0.65", "0.15", "1"], ans: 0, why: "Add." },
+    { q: "$P(A) = 0.3$, $P(B) = 0.5$, independent. $P(A \\cap B) =$", opts: ["0.15", "0.80", "0.65", "0.20"], ans: 0, why: "Independent: $0.3 \\times 0.5 = 0.15$." },
+    { q: "$P(A) = 0.3$, $P(B) = 0.5$, mutually exclusive. $P(A \\cup B) =$", opts: ["0.8", "0.65", "0.15", "1"], ans: 0, why: "Mutually exclusive: $0.3 + 0.5 = 0.8$." },
     { q: "$P(A) = 0.4$, $P(B) = 0.5$, $P(A \\cup B) = 0.7$. $P(A \\cap B) =$", opts: ["0.2", "0.1", "0.3", "0"], ans: 0, why: "$0.4 + 0.5 - 0.7$." },
     { q: "With the values above, $A$ and $B$ are", opts: ["independent", "mutually exclusive", "neither", "both"], ans: 0, why: "$0.4 \\times 0.5 = 0.2$." },
-    { q: "In a Venn diagram, $P(A)$ is", opts: ["the whole of circle $A$", "the 'A only' region", "outside $A$", "$A \\cap B$"], ans: 0, why: "Every region inside $A$." },
+    { q: "In a Venn diagram, $P(A)$ is", opts: ["the whole of circle $A$", "the 'A only' region", "everything outside circle $A$", "$A \\cap B$"], ans: 0, why: "Every region inside $A$." },
     { q: "For a continuous random variable, probability is", opts: ["area under the curve", "the height of the curve", "always 0.5", "the mode"], ans: 0, why: "Areas, total 1." }
   ]
 };
@@ -532,7 +532,7 @@ C["maths:S3.2"] = {
   ],
   quiz: [
     { q: "$P(A \\cap B) = 0.12$, $P(B) = 0.4$. $P(A \\mid B) =$", opts: ["0.3", "0.048", "0.12", "0.52"], ans: 0, why: "$0.12 / 0.4$." },
-    { q: "$P(A) = 0.5$, $P(B \\mid A) = 0.3$. $P(A \\cap B) =$", opts: ["0.15", "0.8", "0.6", "0.2"], ans: 0, why: "Multiply." },
+    { q: "$P(A) = 0.5$, $P(B \\mid A) = 0.3$. $P(A \\cap B) =$", opts: ["0.15", "0.80", "0.60", "0.20"], ans: 0, why: "$P(A \\cap B) = P(A)P(B \\mid A) = 0.5 \\times 0.3 = 0.15$." },
     { q: "If $P(A \\mid B) = P(A)$ then $A$ and $B$ are", opts: ["independent", "mutually exclusive", "complementary", "equal"], ans: 0, why: "Knowing $B$ changes nothing." },
     { q: "Two red balls from 3 red, 2 blue without replacement:", opts: ["$\\tfrac{3}{10}$", "$\\tfrac{9}{25}$", "$\\tfrac{6}{25}$", "$\\tfrac{3}{5}$"], ans: 0, why: "$\\frac35 \\times \\frac24$." },
     { q: "In $P(F \\mid H)$ from a Venn diagram of counts, the denominator is", opts: ["the total inside $H$", "the total inside $F$", "the grand total", "$F \\cap H$"], ans: 0, why: "Given $H$." }
@@ -655,7 +655,7 @@ C["maths:S3.3"] = {
     { q: "A die shows 72 sixes in 300 rolls. Relative frequency of a six:", opts: ["0.24", "0.167", "0.72", "0.3"], ans: 0, why: "$72 / 300$." },
     { q: "Expected number of heads in 80 tosses of a fair coin:", opts: ["40", "80", "20", "0.5"], ans: 0, why: "$80 \\times \\frac12$." },
     { q: "B(14, 0.27) for dry days fails mainly because", opts: ["days are not independent", "14 is too small", "0.27 is not a fraction", "rain is continuous"], ans: 0, why: "Weather comes in spells." },
-    { q: "A refinement for a uniform model of oktas could be", opts: ["probabilities from observed frequencies", "a Normal model", "uniform on 1–8", "drop the data"], ans: 0, why: "Discrete, non-uniform, data-based." },
+    { q: "A refinement for a uniform model of oktas could be", opts: ["probabilities from observed frequencies", "a Normal model fitted to the data", "a uniform model on 1–8 instead of 0–8", "dropping the data that do not fit"], ans: 0, why: "Oktas are discrete and not equally likely: use the observed frequencies." },
     { q: "A model gives $P(S \\mid X = 20) = 1.5$. This shows", opts: ["the model fails", "Tisam always scores", "$k$ is negative", "nothing"], ans: 0, why: "Probabilities cannot exceed 1." }
   ]
 };

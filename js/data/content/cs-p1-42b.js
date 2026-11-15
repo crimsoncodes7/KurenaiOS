@@ -177,10 +177,10 @@ C["compsci:4.2.2.1"] = {
   ],
   quiz: [
     { q: "A queue is", opts: ["FIFO", "LIFO", "sorted", "random access"], ans: 0, why: "First in, first out." },
-    { q: "Circular, size 5, rear = 4: after one enqueue rear is", opts: ["0", "5", "4", "1"], ans: 0, why: "(4 + 1) MOD 5." },
+    { q: "Circular, size 5, rear = 4: after one enqueue rear is", opts: ["0", "5", "4", "1"], ans: 0, why: "(4 + 1) MOD 5 = 0, so the rear pointer wraps round to the start of the array." },
     { q: "Adding to a priority queue where every item has a higher priority puts the new item", opts: ["at the rear", "at the front", "in the middle", "nowhere — it is rejected"], ans: 0, why: "Lower priority waits behind." },
     { q: "Describing a circular queue when asked about a linear one caps the answer at", opts: ["1 mark", "2 marks", "3 marks", "0 marks"], ans: 0, why: "A-level 2020 Q04.2." },
-    { q: "Removing from an empty queue is", opts: ["underflow", "overflow", "a collision", "a syntax error"], ans: 0, why: "Underflow." }
+    { q: "Removing from an empty queue is", opts: ["underflow", "overflow", "a collision", "a syntax error"], ans: 0, why: "Taking an item from an empty queue is underflow; adding to a full one is overflow." }
   ],
   sims: ["tl-queue"]
 };

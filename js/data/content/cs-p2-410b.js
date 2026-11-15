@@ -338,12 +338,12 @@ C["compsci:4.10.4"] = {
     ["% and _ in LIKE?", "% any run of characters; _ exactly one character."]
   ],
   quiz: [
-    { q: "SELECT … FROM Surgery, Vet WHERE Town = 'Torquay' returns wrong rows because", opts: ["the tables are not linked on SurgeryName", "Town needs no quotes", "SELECT needs *", "Vet has no key"], ans: 0, why: "Every surgery pairs with every vet." },
-    { q: "Which correctly reduces stock by 3 for product 1?", opts: ["UPDATE Product SET QuantityInStock = QuantityInStock - 3 WHERE ProductID = 1", "UPDATE Product WHERE ProductID = 1 SET QuantityInStock - 3", "INSERT INTO Product VALUES (1, -3)", "SET Product.QuantityInStock = -3"], ans: 0, why: "UPDATE … SET … WHERE." },
+    { q: "SELECT … FROM Surgery, Vet WHERE Town = 'Torquay' returns wrong rows because", opts: ["the tables are not linked on SurgeryName", "Town is text, so it needs no quotes", "SELECT needs * to read two tables", "the Vet table has no primary key"], ans: 0, why: "Every surgery pairs with every vet." },
+    { q: "Which correctly reduces stock by 3 for product 1?", opts: ["UPDATE Product SET QuantityInStock = QuantityInStock - 3 WHERE ProductID = 1", "UPDATE Product WHERE ProductID = 1 SET QuantityInStock = QuantityInStock - 3", "UPDATE Product SET QuantityInStock = 3 WHERE ProductID = 1", "INSERT INTO Product (ProductID, QuantityInStock) VALUES (1, -3)"], ans: 0, why: "UPDATE … SET … WHERE." },
     { q: "Existing booking 13:00–14:15; new booking 14:15–16:15. With StartTime < '16:15' AND EndTime > '14:15' it is", opts: ["not listed", "listed", "an error", "listed twice"], ans: 0, why: "It only touches." },
-    { q: "In CREATE TABLE, \"VARCHAR(50) Surname\" is wrong because", opts: ["the field name must come before the type", "VARCHAR needs no length", "Surname is reserved", "it needs NOT NULL"], ans: 0, why: "2018 Q07.2." },
+    { q: "In CREATE TABLE, \"VARCHAR(50) Surname\" is wrong because", opts: ["the field name must come before the type", "VARCHAR needs no length in brackets", "Surname is a reserved word in SQL", "every field needs NOT NULL after it"], ans: 0, why: "In SQL the field name goes first and then its type, as in Surname VARCHAR(50)." },
     { q: "A AND B OR C is evaluated as", opts: ["(A AND B) OR C", "A AND (B OR C)", "an error", "A OR B OR C"], ans: 0, why: "AND binds tighter." },
-    { q: "VALUES ('4072', 48, '29/09/2024') for an integer SaleID", opts: ["loses the mark — no quotes round numbers", "is required", "is ignored", "is preferred"], ans: 0, why: "R. delimiters round SaleID." }
+    { q: "VALUES ('4072', 48, '29/09/2024') for an integer SaleID", opts: ["loses the mark — no quotes round numbers", "is required — every value needs quotes", "is ignored — quotes make no difference", "is preferred — quotes keep leading zeros"], ans: 0, why: "R. delimiters round SaleID." }
   ]
 };
 
@@ -550,10 +550,8 @@ C["compsci:4.10.5"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.10.4 the clashing operations are UPDATE statements; 4.9.4.10 the client-server model and thin clients; 4.7.3.7 and the 2018 essay — server performance; 4.12 and 4.11.1 immutable data in functional programs avoids shared-state races; 4.6.1.4 the OS also schedules competing processes." } }
   ],
   flashcards: [
-    ["Record locking?", "A record is locked while one transaction edits it; others cannot edit it until the lock is released.", 2],
     ["Deadlock?", "Two transactions each hold a lock the other needs, so neither can continue.", 3],
     ["Serialisation?", "Conflicting transactions run one after another (or with an equivalent result).", 4],
-    ["Timestamp ordering?", "Each transaction gets a timestamp; each record stores last read/write timestamps; transactions that would break the order are aborted.", 5],
     ["Timestamp rule for a write?", "Abort if the record's read or write timestamp is later than the transaction's.", 6],
     ["Timestamp rule for a read?", "Abort if the record's write timestamp is later than the transaction's.", 7],
     ["Commitment ordering?", "Transactions commit in an order consistent with their conflicts; avoids deadlock.", 8],
@@ -561,7 +559,7 @@ C["compsci:4.10.5"] = {
   ],
   quiz: [
     { q: "Stock 10; A sells 3 and B sells 2, both reading before either writes, B writing last. Stored value?", opts: ["8", "5", "7", "10"], ans: 0, why: "B overwrote A's 7 with 10 − 2." },
-    { q: "Record locks are set on", opts: ["the record being edited", "the whole database", "the network", "the client"], ans: 0, why: "R. database/table/file." },
+    { q: "Record locks are set on", opts: ["the record being edited", "the whole database", "the network connection", "the client's own copy"], ans: 0, why: "R. database/table/file." },
     { q: "A record's write TS is 30; transaction T25 wants to read it. Outcome?", opts: ["abort T25", "allow", "wait for a lock", "deadlock"], ans: 0, why: "Write TS later than T's." },
     { q: "Which method never makes a transaction wait for a lock?", opts: ["timestamp ordering", "record locking", "table locking", "manual locking"], ans: 0, why: "It aborts instead of waiting." },
     { q: "\"Data is lost\" as the description of the problem scores", opts: ["NE.", "2 marks", "1 mark", "full marks"], ans: 0, why: "Say whose update is lost." },

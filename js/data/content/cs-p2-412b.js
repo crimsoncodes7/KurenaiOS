@@ -64,13 +64,13 @@ C["compsci:4.12.2.1"] = {
       it.push(txt(370, 80, "square applied to EACH element", { size: 10.5, c: "accent2", pos: "e", off: 0 }));
       return { w: 600, h: 150, items: it, cap: "map square [1, 3, 5]: square is applied to every element; the list keeps its length and order." };
     })() },
-    { code: { lang: "text", src: "map f []     = []\nmap f (x:xs) = f x : map f xs     -- apply f to the head, map the tail", cap: "map defined by recursion over the list." } },
+    { code: { lang: "haskell", src: "map f []     = []\nmap f (x:xs) = f x : map f xs     -- apply f to the head, map the tail", cap: "map defined by recursion over the list." } },
 
     { page: "filter" },
     { callout: { t: "def", h: "filter", body: "Processes a list in order to produce a **new list** containing **exactly those elements** that match a given condition (a function returning Boolean — a predicate)." } },
     { table: { head: ["Element of b", "1", "5", "10", "15"], rows: [["< 10 ?", "True", "True", "False", "False"], ["kept?", "✔", "✔", "✘", "✘"]] } },
     { callout: { t: "info", h: "Key idea", body: "filter (< 10) [1, 5, 10, 15] = **[1, 5]**. The predicate (< 10) is itself a partially applied operator." } },
-    { code: { lang: "text", src: "filter p []     = []\nfilter p (x:xs)\n  | p x       = x : filter p xs     -- keep the head\n  | otherwise = filter p xs         -- drop it", cap: "filter keeps order and never changes the elements it keeps." } },
+    { code: { lang: "haskell", src: "filter p []     = []\nfilter p (x:xs)\n  | p x       = x : filter p xs     -- keep the head\n  | otherwise = filter p xs         -- drop it", cap: "filter keeps order and never changes the elements it keeps." } },
 
     { page: "fold / reduce" },
     { callout: { t: "def", h: "fold (reduce)", body: "Reduces a list of values to a **single value** by repeatedly applying a **combining function**, starting from a **base (initial) value**. fold (+) 0 sums; fold (*) 1 multiplies." } },
@@ -89,7 +89,7 @@ C["compsci:4.12.2.1"] = {
     { callout: { t: "miscon", h: "The base value is not decoration", body: "It is the answer for an empty list and the start of the accumulation. Use 0 for +, 1 for × — fold (*) 0 would always give 0." } },
 
     { page: "Pipelines" },
-    { code: { lang: "text", src: "xs = [1, 2, 3, 4, 5, 6]\nsumSqEven = fold (+) 0 (map square (filter even xs))\n-- filter even  → [2, 4, 6]\n-- map square   → [4, 16, 36]\n-- fold (+) 0   → 56", cap: "Read from the inside out: filter, then map, then fold." } },
+    { code: { lang: "haskell", src: "xs = [1, 2, 3, 4, 5, 6]\nsumSqEven = fold (+) 0 (map square (filter even xs))\n-- filter even  → [2, 4, 6]\n-- map square   → [4, 16, 36]\n-- fold (+) 0   → 56", cap: "Read from the inside out: filter, then map, then fold." } },
     { steps: [
       "**filter** chooses which elements matter.",
       "**map** transforms each of them.",
@@ -184,12 +184,12 @@ C["compsci:4.12.2.1"] = {
     ["C# LINQ for map / filter / fold?", "Select / Where / Aggregate.", 9],
   ],
   quiz: [
-    { q: "map changes a list's", opts: ["elements, not its length", "length", "order", "type of container"], ans: 0, why: "One output per element." },
+    { q: "map changes a list's", opts: ["elements, not its length", "length, not its elements", "order, not its elements", "type of container, not its elements"], ans: 0, why: "One output per element." },
     { q: "fold (*) 0 [2,3,4] gives", opts: ["0", "24", "9", "an error"], ans: 0, why: "Base 0 × anything." },
     { q: "\"A function that uses another function\" as a definition of higher-order scores", opts: ["NE.", "1 mark", "2 marks", "full"], ans: 0, why: "Must pass or return a function." },
-    { q: "fv b = map fu b is", opts: ["higher-order", "recursive", "a fold", "a composition"], ans: 0, why: "Uses map." },
+    { q: "fv b = map fu b is", opts: ["higher-order", "recursive", "a fold", "a composition"], ans: 0, why: "It is built on map, which takes a function as an argument, the mark of a higher-order function." },
     { q: "filter even (map square [1,2,3])", opts: ["[4]", "[1,4,9]", "[2]", "14"], ans: 0, why: "[1,4,9] → keep even." },
-    { q: "C# equivalent of filter", opts: ["Where", "Select", "Aggregate", "OrderBy"], ans: 0, why: "LINQ." }
+    { q: "C# equivalent of filter", opts: ["Where", "Select", "Aggregate", "OrderBy"], ans: 0, why: "LINQ's Where keeps the items that satisfy a condition, which is what filter does." }
   ]
 };
 
@@ -247,7 +247,7 @@ C["compsci:4.12.3.1"] = {
       ], result: "list, element, 3, new list" } },
 
     { page: "Recursion over a list" },
-    { code: { lang: "text", src: "total []     = 0                   -- base case: the empty list\ntotal (x:xs) = x + total (xs)      -- head plus the total of the tail", cap: "The general case shrinks the list by one each call, so it must reach []." } },
+    { code: { lang: "haskell", src: "total []     = 0                   -- base case: the empty list\ntotal (x:xs) = x + total (xs)      -- head plus the total of the tail", cap: "The general case shrinks the list by one each call, so it must reach []." } },
     { table: { head: ["Call", "Argument", "Waits to compute", "Returns"], rows: [
       ["1", "[3, 4, 5]", "3 + total [4, 5]", "3 + 9 = **12**"],
       ["2", "[4, 5]", "4 + total [5]", "4 + 5 = 9"],
@@ -262,7 +262,7 @@ C["compsci:4.12.3.1"] = {
     ] },
 
     { page: "Writing the operations yourself" },
-    { code: { lang: "text", src: "len []       = 0\nlen (x:xs)   = 1 + len xs                 -- 2022's fw\n\nisEmpty []   = True\nisEmpty _    = False\n\nappend x []     = [x]\nappend x (y:ys) = y : append x ys         -- rebuild, putting x at the end\n\nprepend x xs = x : xs", cap: "Each recursive definition has a base case for [] and a case for (x:xs)." } },
+    { code: { lang: "haskell", src: "len []       = 0\nlen (x:xs)   = 1 + len xs                 -- 2022's fw\n\nisEmpty []   = True\nisEmpty _    = False\n\nappend x []     = [x]\nappend x (y:ys) = y : append x ys         -- rebuild, putting x at the end\n\nprepend x xs = x : xs", cap: "Each recursive definition has a base case for [] and a case for (x:xs)." } },
     { table: { head: [" ", "prepend (x : xs)", "append (xs ++ [x])"], rows: [
       ["Where the item goes", "front", "end"],
       ["Work done", "one step — the old list becomes the tail", "walks the whole list — n steps"],
@@ -324,10 +324,10 @@ C["compsci:4.12.3.1"] = {
   ],
   quiz: [
     { q: "tail [\"Blackpool\", \"Paris\"] is", opts: ["[\"Paris\"]", "\"Paris\"", "\"Blackpool\"", "[]"], ans: 0, why: "The tail is a list." },
-    { q: "total [3,4,5] with total (x:xs) = x + total xs", opts: ["12", "3", "[12]", "an error"], ans: 0, why: "3 + 4 + 5 + 0." },
+    { q: "total [3,4,5] with total (x:xs) = x + total xs", opts: ["12", "3", "[12]", "an error"], ans: 0, why: "The recursion adds each head to the total of the tail, ending at the empty list: 3 + 4 + 5 + 0 = 12." },
     { q: "Which pair are recursive in 2022?", opts: ["fw and fx", "fu and fv", "fv and fw", "fu and fx"], ans: 0, why: "They call themselves." },
-    { q: "0 : [1, 2] gives", opts: ["[0, 1, 2]", "[1, 2, 0]", "[[0], 1, 2]", "an error"], ans: 0, why: "Prepend." },
-    { q: "length [] is", opts: ["0", "1", "an error", "[]"], ans: 0, why: "Empty list." }
+    { q: "0 : [1, 2] gives", opts: ["[0, 1, 2]", "[1, 2, 0]", "[[0], 1, 2]", "an error"], ans: 0, why: "The : operator puts an item on the front of a list, so 0 : [1, 2] is [0, 1, 2]." },
+    { q: "length [] is", opts: ["0", "1", "an error", "[]"], ans: 0, why: "The empty list has no elements, so its length is 0." }
   ]
 };
 

@@ -158,14 +158,13 @@ C["compsci:4.2.6.1"] = {
     ["Chaining?", "Each slot holds a list of all records that hashed to it."],
     ["Why are hash tables fast?", "The location is calculated, so no search is needed (average O(1))."],
     ["Why do hash tables slow down when nearly full?", "More collisions, so fewer records are at their calculated index."],
-    ["Load factor?", "Number of items ÷ number of slots."],
-    ["47 MOD 11?", "3."]
+    ["47 MOD 11?", "3.", 9]
   ],
   quiz: [
-    { q: "With h(k) = k MOD 11 and slot 3 occupied, linear probing tries next", opts: ["slot 4", "slot 2", "slot 0", "slot 3 again"], ans: 0, why: "The next slot." },
-    { q: "An answer that hashes 'the data' rather than the key gets", opts: ["NE — it must be the key", "full marks", "a bonus mark", "1 of 2"], ans: 0, why: "Both 2021 and 2025 schemes." },
+    { q: "With h(k) = k MOD 11 and slot 3 occupied, linear probing tries next", opts: ["slot 4", "slot 2", "slot 0", "slot 3 again"], ans: 0, why: "Linear probing moves to the next slot, here slot 4, when the one it hashed to is taken." },
+    { q: "An answer that hashes 'the data' rather than the key gets", opts: ["NE — it must be the key", "full marks — either one is accepted", "a bonus mark for the extra detail", "1 of 2 — half credit for the idea"], ans: 0, why: "Both 2021 and 2025 schemes." },
     { q: "Searching for an absent key with linear probing stops at", opts: ["an empty slot", "the end of the array", "the home slot", "slot 0"], ans: 0, why: "Nothing beyond a gap." },
-    { q: "Which makes collisions more likely?", opts: ["a high load factor", "a prime table size", "an even spread of keys", "a larger table"], ans: 0, why: "Fuller table." }
+    { q: "Which makes collisions more likely?", opts: ["a high load factor", "a prime table size", "an even spread of keys", "a larger table"], ans: 0, why: "A fuller table (higher load factor) has fewer free slots, so keys are more likely to collide." }
   ],
   sims: ["hash-table"]
 };
@@ -237,7 +236,6 @@ C["compsci:4.2.7.1"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.2.6.1 hash tables; 4.2.8.1 a vector as a dictionary (index ↦ value); 4.12.1.1 a function as a mapping; 4.11 big data and search indexes; 4.10 primary keys in databases." } }
   ],
   flashcards: [
-    ["Dictionary?", "A collection of key–value pairs in which values are accessed via their keys."],
     ["Why implement a dictionary with a hash table?", "Direct access to a value from its key — no search.", 2],
     ["Dictionary for 'The green, green grass grows'?", "{'grass': 1, 'green': 2, 'grows': 1, 'the': 1}", 3],
     ["C# lookup that cannot throw for a missing key?", "TryGetValue(key, out value).", 4],
@@ -246,9 +244,9 @@ C["compsci:4.2.7.1"] = {
     ["Missing key with dict[key] in C#?", "KeyNotFoundException.", 7]
   ],
   quiz: [
-    { q: "In a dictionary the value is accessed by", opts: ["its key", "its position", "a hash of the value", "a search of every pair"], ans: 0, why: "Definition." },
+    { q: "In a dictionary the value is accessed by", opts: ["its key", "its position", "a hash of the value", "a search of every pair"], ans: 0, why: "A dictionary stores key-value pairs, and you get the value by supplying its key." },
     { q: "A hash table suits a dictionary because", opts: ["it gives direct access by key", "it keeps keys sorted", "it uses less memory than an array", "it allows duplicate keys"], ans: 0, why: "A-level 2022 Q07.4." },
-    { q: "Counting 'a b a' gives", opts: ["{a: 2, b: 1}", "{a: 1, b: 1}", "{2: a, 1: b}", "{a: 1, b: 2}"], ans: 0, why: "Word → count." },
+    { q: "Counting 'a b a' gives", opts: ["{a: 2, b: 1}", "{a: 1, b: 1}", "{2: a, 1: b}", "{a: 1, b: 2}"], ans: 0, why: "The word is the key and its count is the value, so 'a b a' gives a: 2 and b: 1." },
     { q: "Dictionary keys must be", opts: ["unique", "integers", "sorted", "strings"], ans: 0, why: "One value per key." }
   ],
   sims: ["dictionary"]
@@ -388,11 +386,11 @@ C["compsci:4.2.8.1"] = {
     ["Effect of × −1 on the angle with b?", "θ becomes 180° − θ; magnitude unchanged.", 10]
   ],
   quiz: [
-    { q: "[4, 3] · [4, 0] =", opts: ["16", "[16, 0]", "28", "4"], ans: 0, why: "16 + 0." },
-    { q: "u · v > 0 means the angle between them is", opts: ["less than 90°", "exactly 90°", "more than 90°", "180°"], ans: 0, why: "cos θ > 0." },
+    { q: "[4, 3] · [4, 0] =", opts: ["16", "[16, 0]", "28", "4"], ans: 0, why: "The dot product multiplies matching items and adds: 4 × 4 + 3 × 0 = 16." },
+    { q: "u · v > 0 means the angle between them is", opts: ["less than 90°", "exactly 90°", "more than 90°", "180°"], ans: 0, why: "u · v = |u||v| cos θ, so a positive dot product means cos θ > 0 and the angle is below 90°." },
     { q: "Which is a convex combination of u and v?", opts: ["0.3u + 0.7v", "0.5u + 0.7v", "−0.2u + 1.2v", "u + v"], ans: 0, why: "Non-negative and sums to 1." },
     { q: "Multiplying a vector by 3 changes", opts: ["its magnitude only", "its direction only", "both", "neither"], ans: 0, why: "Positive scalar: same direction." },
-    { q: "The vector from the enemy at [2, 7] to the hero at [8, 3] is", opts: ["[6, −4]", "[−6, 4]", "[10, 10]", "[4, −6]"], ans: 0, why: "Hero − enemy." }
+    { q: "The vector from the enemy at [2, 7] to the hero at [8, 3] is", opts: ["[6, −4]", "[−6, 4]", "[10, 10]", "[4, −6]"], ans: 0, why: "The vector from A to B is B − A, so hero − enemy = [8 − 2, 3 − 7] = [6, −4]." }
   ],
   sims: ["cs-vector"]
 };

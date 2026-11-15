@@ -23,9 +23,9 @@
     summary: "A small text adventure: rooms, exits, items, a locked door and a way out — every stage 1 skill in one program.",
     quiz: [
       { q: "What does `Console.WriteLine(7 / 2);` print?", opts: ["3.5", "3", "4", "an error"], ans: 1, lesson: "1.4", why: "Both are ints, so the division drops the remainder." },
-      { q: "Which loop always runs its body at least once?", opts: ["while", "for", "do … while", "foreach"], ans: 2, lesson: "2.5", why: "do … while tests after the body." },
+      { q: "Which loop always runs its body at least once?", opts: ["while (…) { }", "for (…; …; …)", "do … while", "foreach … in"], ans: 2, lesson: "2.5", why: "do … while tests after the body." },
       { q: "`int Half(int n) { if (n > 0) return n / 2; }` gives…", opts: ["CS0161", "CS0103", "0 for negatives", "nothing"], ans: 0, lesson: "3.2", why: "Not every path returns a value." },
-      { q: "After `for (int i = 0; i < 3; i++) { }`, what does `Console.WriteLine(i);` give?", opts: ["3", "2", "CS0103", "0"], ans: 2, lesson: "3.3", why: "i's scope is the loop." },
+      { q: "After `for (int i = 0; i < 3; i++) { }`, what does `Console.WriteLine(i);` give?", opts: ["3", "CS0165", "CS0103", "0"], ans: 2, lesson: "3.3", why: "i's scope is the loop." },
       { q: "In `n switch { 1 => \"one\", _ => \"other\" }`, `_` means…", opts: ["zero", "anything else", "an error", "an empty string"], ans: 1, lesson: "2.4", why: "The discard matches every value the arms above did not." }
     ],
     brief: [

@@ -127,9 +127,9 @@ C["compsci:4.4.1.1"] = {
   ],
   quiz: [
     { q: "All A are B; no B are C. Which follows?", opts: ["No A are C", "All C are A", "Some C are A", "All B are A"], ans: 0, why: "A sits inside B, which shares nothing with C." },
-    { q: "In the boxes puzzle you take from the box labelled", opts: ["onions and carrots", "onions", "carrots", "any box"], ans: 0, why: "It can only hold one kind." },
-    { q: "In 2022's puzzle, Statement 4 is false because", opts: ["1, 2 and 3 are all false", "5 is false", "6 is true", "2 is true"], ans: 0, why: "Exactly one of 1–3 would have to be true." },
-    { q: "A says \"I am a knave\". This is", opts: ["impossible for either a knight or a knave", "said by a knight", "said by a knave", "true"], ans: 0, why: "A knight can't say it; a knave would be telling the truth." }
+    { q: "In the boxes puzzle you take from the box labelled", opts: ["onions and carrots", "onions only", "carrots only", "any of the three"], ans: 0, why: "It can only hold one kind." },
+    { q: "In 2022's puzzle, Statement 4 is false because", opts: ["1, 2 and 3 are all false", "5 is false, so 4 must be", "6 is true, so 4 cannot be", "2 is true, so 4 cannot be"], ans: 0, why: "Exactly one of 1–3 would have to be true." },
+    { q: "A says \"I am a knave\". This is", opts: ["impossible for either a knight or a knave", "possible only if A is a knight telling the truth", "possible only if A is a knave who is lying", "true, whichever kind of islander A is"], ans: 0, why: "A knight can't say it; a knave would be telling the truth." }
   ]
 };
 
@@ -240,7 +240,7 @@ C["compsci:4.4.1.2"] = {
     ["Three ways to argue for a program?", "Logical reasoning, test data, user feedback.", 7]
   ],
   quiz: [
-    { q: "Which is NOT part of AQA's definition of an algorithm?", opts: ["written in a programming language", "a sequence of steps", "completes a task", "always terminates"], ans: 0, why: "Algorithms are language-independent." },
+    { q: "Which is NOT part of AQA's definition of an algorithm?", opts: ["written in a programming language", "a sequence of steps to follow", "steps that complete a task", "always terminates after a finite time"], ans: 0, why: "Algorithms are language-independent." },
     { q: "Prime test with 25: Root ends as", opts: ["5", "4", "6", "25"], ans: 0, why: "5 × 5 is not < 25." },
     { q: "\"Explain the purpose\" wants", opts: ["the overall effect", "a line-by-line description", "a trace table", "the code"], ans: 0, why: "E.g. \"removes duplicates\"." },
     { q: "Checking only i < Length / 2 in a palindrome test", opts: ["halves the comparisons", "misses the middle pair", "is incorrect for even lengths", "doubles the work"], ans: 0, why: "Pairs meet in the middle." }

@@ -1884,6 +1884,7 @@
       } else if (mode === "specification") {
         body.appendChild(details("Specification requirements", a, b, function (t, label) { return column(label, (t.leaf.content || []).map(function (x) { return el("p", { text: x }); }), "No specification bullets."); }));
         body.appendChild(details("Exam-board emphasis", a, b, function (t, label) { return column(label, (t.leaf.info || []).slice(0, 12).map(function (x) { return el("p", { text: x }); }), "No supplementary specification detail."); }));
+        KOS.content.typeset(body);   // the Maths spec's $…$ (CM-01)
       } else if (mode === "notes") {
         var pagesA = KOS.content.splitPages(a.content.notes), pagesB = KOS.content.splitPages(b.content.notes);
         for (var page = 0; page < Math.max(pagesA.length, pagesB.length); page++) (function (pa, pb, index) {
@@ -2934,6 +2935,25 @@
        own, kept while the app stays loaded — a redraw, Back from a diagram
        and coming back to the topic all find it */
     var noteMemo = KOS.view ? KOS.view.keep("notePage", { n: 0 }, "topic:" + sid + ":" + ref) : { n: 0 };
+    var KIND_WORD = { spec: "specification", notes: "notes", flashcards: "flashcards", quiz: "quiz", exam: "exam questions" };
+    function staleNotice(kind) {
+      var word = KIND_WORD[kind] || kind;
+      function done(msg) { KOS.a11y.announce(msg); openTab({}); }
+      return el("div", { class: "k-banner k-topic-stale", role: "status", "data-ui": "topic.stale" }, [
+        el("p", { class: "k-banner-text", text: "The " + word + " for this topic were updated after you edited them. You are seeing your copy." }),
+        el("div", { class: "k-banner-actions" }, [
+          el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "topic.stale-merge", text: "New version + my additions",
+            onclick: function () { KOS.edits.takeNew(sid, ref, kind, { withMine: true }); done("The new " + word + ", with the rows you added at the end."); } }),
+          el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "topic.stale-new", text: "Use the new version",
+            onclick: function () {
+              KOS.ui.confirm({ danger: true, title: "Use the new " + word + "?", body: "Your edits to this topic's " + word + " are replaced by the current curriculum. Your flashcards keep their schedules.", confirm: "Use the new version" },
+                function () { KOS.edits.takeNew(sid, ref, kind); done("Showing the new " + word + "."); });
+            } }),
+          el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "topic.stale-keep", text: "Keep mine",
+            onclick: function () { KOS.edits.keepMine(sid, ref, kind); done("Kept your " + word + "."); } })
+        ])
+      ]);
+    }
     function openTab(o) {
       o = o || {};
       content = KOS.content.get(sid, ref);
@@ -2965,6 +2985,9 @@
       if (workPad && !o.keep) setWork(false);
       paintWorkBtn();
       panel.innerHTML = "";
+      /* CM-04: your edit hides a curriculum that has moved since */
+      var staleKind = EDIT_KIND[curTab];
+      if (staleKind && !editing && KOS.edits.stale && KOS.edits.stale(sid, ref, staleKind)) panel.appendChild(staleNotice(staleKind));
       if (curTab === "ink" && KOS.inkTab) {
         inkCtl = KOS.inkTab.mount(panel, sid, ref, { modeSlot: inkSlot, onSide: inkSide });
       }
@@ -2981,14 +3004,15 @@
         var right = el("div", { class: "k-spec-side" });
         if (specFork ? rightBlocks.length : leaf.info.length) {
           var specR = el("div", { class: "k-prose k-spec", "data-ui": specFork ? "topic.notes" : null,
-            html: specFork ? KOS.content.renderBlocks(rightBlocks) : renderSpecInfo(leaf.info) });
+            html: specFork ? KOS.content.renderBlocks(rightBlocks) : renderSpecInfo(leaf.info, { typeset: TYPESET_SPEC[sid] }) });
           right.appendChild(card(d.labelR, specR));
           markFreshNote(specR, sid, ref);
         }
         renderIntel(right);
         split.appendChild(right);
         panel.appendChild(split);
-        if (specFork) { KOS.content.typeset(specL); KOS.content.typeset(split); }
+        /* the Maths spec is typeset LaTeX (tools/maths_spec.py, CM-01) */
+        if (specFork || TYPESET_SPEC[sid]) { KOS.content.typeset(specL); KOS.content.typeset(split); }
         if (o.reveal) revealBlock(o.reveal);
         var ta = el("textarea", { class: "k-input k-topic-note", "data-ui": "ui.note-area",
           "aria-label": "Your notes on " + leaf.ref,
@@ -3731,11 +3755,11 @@
         return;
       }
       var leaf = BYREF[it.subject][it.ref];
-      var joined = fcHit ? it.fctext : leaf.content.join(" ");
+      var joined = fcHit ? it.fctext : plainSpec(leaf.content.join(" "));
       var pos = joined.toLowerCase().indexOf(terms[0]);
       var snip = pos >= 0
         ? "…" + joined.slice(Math.max(0, pos - 30), pos + 90) + "…"
-        : leaf.content[0];
+        : plainSpec(leaf.content[0]);
       (fcHit ? fcHits : specHits).push({
         subject: it.subject, ref: it.ref, title: it.title, fcHit: fcHit, snippet: snip
       });
@@ -4043,9 +4067,24 @@
     var node = [].filter.call(host.querySelectorAll("[data-bid]"), function (n) { return n.getAttribute("data-bid") === String(last.id); })[0];
     if (node) KOS.ui.state(node, "fresh", true);
   }
-  function renderSpecInfo(lines) {
+  /* subjects whose generated spec text is hand-typeset with $…$ maths:
+     clean lines, never the garbled-IT run-on fallback */
+  var TYPESET_SPEC = { maths: true };
+  /* a search snippet is plain text: the typeset spec's LaTeX read aloud
+     as near as text can (a/b, x^2, no $ or commands) */
+  function plainSpec(s) {
+    return String(s || "")
+      .replace(/\\d?frac\{([^{}]*)\}\{([^{}]*)\}/g, "($1)/($2)")
+      .replace(/\\(mathrm|mathbf|text|operatorname)\{([^{}]*)\}/g, "$2")
+      .replace(/\\(left|right|displaystyle|dfrac|;|,)/g, "")
+      .replace(/\\(theta|alpha|mu|sigma|pi|rho|delta)\b/g, function (m, g) { return { theta: "θ", alpha: "α", mu: "μ", sigma: "σ", pi: "π", rho: "ρ", delta: "δ" }[g]; })
+      .replace(/\\([a-zA-Z]+)/g, "$1 ")
+      .replace(/[{}$]/g, "")
+      .replace(/\s+/g, " ").trim();
+  }
+  function renderSpecInfo(lines, opts) {
     lines = lines || [];
-    if (lines.length === 1) {                               // single run-on string (garbled IT fallback)
+    if (lines.length === 1 && !(opts && opts.typeset)) {                               // single run-on string (garbled IT fallback)
       var text = cleanGlyphs(lines[0]);
       if (!text) return "";
       var re = /(not include:|include:)/gi, m, markers = [];

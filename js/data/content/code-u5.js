@@ -492,7 +492,7 @@
     ],
     quiz: [
       { q: "Building a 10,000-line report in a loop, use…", opts: ["+=", "StringBuilder", "string.Concat each time", "Split"], ans: 1, why: "Appends without copying everything each time." },
-      { q: "`sb.Append(\"a\").Append(\"b\")` works because Append returns…", opts: ["a string", "the builder", "void", "a bool"], ans: 1, why: "Calls chain." },
+      { q: "`sb.Append(\"a\").Append(\"b\")` works because Append returns…", opts: ["a new string", "the builder", "void, like Add", "a copy of it"], ans: 1, why: "Calls chain." },
       { q: "`new StringBuilder()` without `using System.Text;` gives…", opts: ["CS0246", "it works", "a runtime error", "CS0103"], ans: 0, why: "The type is not found." }
     ]
   });
@@ -884,8 +884,8 @@
     quiz: [
       { q: "`(new DateTime(2027, 6, 14) - new DateTime(2027, 6, 1)).Days` is…", opts: ["13", "14", "13.00:00:00", "a compile error"], ans: 0, why: "From the 1st to the 14th is 13 days." },
       { q: "Which format prints 2027-06-14?", opts: ["\"yyyy-MM-dd\"", "\"yyyy-mm-dd\"", "\"YYYY-MM-DD\"", "\"d\""], ans: 0, why: "Lower-case y and d, capital M for the month." },
-      { q: "`TimeSpan.FromMinutes(90)` prints as…", opts: ["01:30:00", "1.5", "90:00", "1:30"], ans: 0, why: "A TimeSpan prints as hh:mm:ss." },
-      { q: "Why do tests use fixed dates instead of `DateTime.Now`?", opts: ["Now changes every run, so the expected output would too", "Now is slower", "Now is not allowed in C#", "Now has no time"], ans: 0, why: "A test must give the same answer every time." }
+      { q: "`TimeSpan.FromMinutes(90)` prints as…", opts: ["01:30:00", "00:90:00", "90:00:00", "1:30:00"], ans: 0, why: "A TimeSpan prints as hh:mm:ss." },
+      { q: "Why do tests use fixed dates instead of `DateTime.Now`?", opts: ["Now changes every run, so the expected output would too", "Now is slower than a fixed date, so tests time out", "Now is not allowed inside a test method in C#", "Now has no time part, so the hours would be lost"], ans: 0, why: "A test must give the same answer every time." }
     ]
   });
   K.add({ tasks: {

@@ -81,6 +81,18 @@ function validateFile(filePath) {
       }
     });
 
+    /* CM-24: a callout kind the renderer does not know is drawn as a Tip */
+    const KINDS = ["info", "def", "tip", "warn", "miscon", "mnemonic", "memorise", "formula", "key"];
+    (function walk(list) {
+      (Array.isArray(list) ? list : []).forEach((n) => {
+        if (!n || typeof n !== "object") return;
+        if (n.callout) {
+          if (KINDS.indexOf(n.callout.t) === -1) err(key + " — callout kind '" + n.callout.t + "' is unknown");
+          walk(n.callout.body);
+        }
+      });
+    })(entry.notes);
+
     (entry.quiz || []).forEach((q, i) => {
       if (!Array.isArray(q.opts) || q.ans == null || q.ans < 0 || q.ans >= q.opts.length) {
         err(key + " — quiz #" + (i + 1) + " has an out-of-range ans index");

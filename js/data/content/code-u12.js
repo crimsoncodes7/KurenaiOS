@@ -330,7 +330,7 @@
     ],
     quiz: [
       { q: "Binary search on 1,000,000 items needs at most about…", opts: ["1,000", "20", "500,000", "1"], ans: 1, why: "2²⁰ ≈ 1,000,000." },
-      { q: "Searching an unsorted array with binary search…", opts: ["throws", "may give a wrong answer", "sorts it first", "is O(n)"], ans: 1, why: "It assumes order it does not have." },
+      { q: "Searching an unsorted array with binary search…", opts: ["throws InvalidOperationException", "may give a wrong answer", "sorts it first, then searches", "still works, but in O(n)"], ans: 1, why: "It assumes order it does not have." },
       { q: "Linear search's worst case is…", opts: ["O(1)", "O(log n)", "O(n)", "O(n²)"], ans: 2, why: "The item may be last, or missing." }
     ]
   });
@@ -726,7 +726,7 @@
     ],
     quiz: [
       { q: "Reaching the 1,000th item of a singly linked list costs…", opts: ["1 step", "about 1,000 steps", "about 10 steps", "nothing"], ans: 1, why: "No index: walk from the head." },
-      { q: "To remove node n from a singly linked list you need…", opts: ["n only", "the node before n", "the tail", "the Count"], ans: 1, why: "prev.Next = n.Next." },
+      { q: "To remove node n from a singly linked list you need…", opts: ["n only, and its Next", "the node before n", "the tail of the list", "the Count of the list"], ans: 1, why: "prev.Next = n.Next." },
       { q: "Reversing a linked list in place uses extra memory of…", opts: ["O(n)", "O(1)", "O(log n)", "O(n²)"], ans: 1, why: "Three references, whatever the length." }
     ]
   });
@@ -1013,8 +1013,8 @@
       ["Average and worst-case lookup in a hash table?", "O(1) on average; O(n) if everything collides."]
     ],
     quiz: [
-      { q: "Rehashing is needed after growing because…", opts: ["keys change", "slot = hash % size, and size changed", "the hash function changes", "collisions disappear"], ans: 1, why: "Every item's slot depends on the size." },
-      { q: "Overriding Equals but not GetHashCode means…", opts: ["nothing", "equal keys may land in different slots and not be found", "a compile error", "faster lookups"], ans: 1, why: "Equal keys must hash equally." },
+      { q: "Rehashing is needed after growing because…", opts: ["keys change when the table grows", "slot = hash % size, and size changed", "GetHashCode returns new values for every key", "collisions disappear, so chains must go"], ans: 1, why: "Every item's slot depends on the size." },
+      { q: "Overriding Equals but not GetHashCode means…", opts: ["nothing, since a dictionary only ever calls Equals", "equal keys may land in different slots and be missed", "a compile error until GetHashCode is overridden", "faster lookups, as no hash has to be computed"], ans: 1, why: "Equal keys must hash equally." },
       { q: "With linear probing, a lookup stops when it finds the key or…", opts: ["slot 0", "an empty slot", "a collision", "the load factor"], ans: 1, why: "An empty slot means the key was never placed further along." }
     ]
   });
@@ -1113,7 +1113,7 @@
     quiz: [
       { q: "Inserting 4, 2, 6, 1 into an empty BST: 1 is…", opts: ["the right child of 2", "the left child of 2", "the root", "the left child of 6"], ans: 1, why: "1 < 4 go left, 1 < 2 go left." },
       { q: "Post-order of the tree with root 2, children 1 and 3 is…", opts: ["2 1 3", "1 2 3", "1 3 2", "3 1 2"], ans: 2, why: "Left, right, node." },
-      { q: "SortedSet<T> is implemented as…", opts: ["a hash table", "a sorted array", "a self-balancing binary tree", "a linked list"], ans: 2, why: "A red-black tree." }
+      { q: "SortedSet<T> is implemented as…", opts: ["a hash table with sorted keys", "a sorted array that grows by doubling", "a self-balancing binary tree", "a linked list kept in order"], ans: 2, why: "A red-black tree." }
     ]
   });
   K.add({ tasks: {
@@ -1314,8 +1314,8 @@
     ],
     quiz: [
       { q: "Edges A–B 4, A–C 1, C–B 2. The shortest A to B is…", opts: ["4", "3", "6", "1"], ans: 1, why: "Through C: 1 + 2." },
-      { q: "Dijkstra with a binary heap runs in…", opts: ["O(V²E)", "O((V + E) log V)", "O(V + E)", "O(2ⱽ)"], ans: 1, why: "Each edge may enqueue once, each queue operation O(log V)." },
-      { q: "A* with h(v) = 0 for every v is…", opts: ["BFS", "DFS", "Dijkstra", "wrong"], ans: 2, why: "No guidance: plain Dijkstra." }
+      { q: "Dijkstra with a binary heap runs in…", opts: ["O((V + E) · V)", "O((V + E) log V)", "O(V log V + E²)", "O((V × E) log V)"], ans: 1, why: "Each edge may enqueue once, each queue operation O(log V)." },
+      { q: "A* with h(v) = 0 for every v is…", opts: ["Breadth-first search", "Depth-first search", "Dijkstra", "wrong: h must be > 0"], ans: 2, why: "No guidance: plain Dijkstra." }
     ]
   });
   K.add({ tasks: {
@@ -1411,7 +1411,7 @@
     quiz: [
       { q: "A route of 5 stations has how many legs?", opts: ["5", "4", "6", "3"], ans: 1, why: "One fewer than the stations." },
       { q: "Quickest and fewest-stops routes…", opts: ["are always the same", "can differ", "never differ on a map", "need a hash table"], ans: 1, why: "Fewer, longer legs can take more minutes." },
-      { q: "A station that cannot be reached shows up in Dijkstra as…", opts: ["distance 0", "no recorded distance (∞)", "a negative distance", "an exception always"], ans: 1, why: "It is never relaxed." }
+      { q: "A station that cannot be reached shows up in Dijkstra as…", opts: ["distance 0", "no recorded distance (∞)", "a negative distance", "an exception when it is looked up"], ans: 1, why: "It is never relaxed." }
     ]
   });
   K.add({ tasks: {

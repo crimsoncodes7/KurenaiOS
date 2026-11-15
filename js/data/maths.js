@@ -15,23 +15,17 @@ window.KOS_DATA.maths = {
           "ref": "1.1",
           "title": "Methods of proof",
           "content": [
-            "structure of mathematical proof, proceeding from given assumptions through a series of logical steps to a conclusion; use methods of proof, including:",
-            "Proof by deduction",
-            "Proof by exhaustion",
-            "Disproof by counter example",
-            "Proof by contradiction",
-            "(including proof of the 2 irrationality of and the infinity of primes, and application to unfamiliar proofs). need to learn:"
+            "Understand and use the structure of mathematical proof, proceeding from given assumptions through a series of logical steps to a conclusion; use methods of proof, including:",
+            "• Proof by deduction",
+            "• Proof by exhaustion",
+            "• Disproof by counter example",
+            "• Proof by contradiction (including proof of the irrationality of $\\sqrt{2}$ and the infinity of primes, and application to unfamiliar proofs)."
           ],
           "info": [
             "Examples of proofs:",
-            "Proof by deduction",
-            "e.g. using completion of the square, prove that n2 - 6n + 10 is positive for all values of n or, for example, differentiation from first principles for small positive integer powers of x or proving results for arithmetic and geometric series. This is the most commonly used method of proof throughout this specification",
-            "Proof by exhaustion",
-            "Given that p is a prime number such 3 < p < 25, that prove by exhaustion, that (p – 1)(p + 1) is a multiple of 12.",
-            "Disproof by counter example",
-            "e.g. show that the statement",
-            "“n2",
-            "– n + 1 is a prime number for all values of n” is untrue am an am + n am an am n (am)n amn"
+            "• Proof by deduction — e.g. using completion of the square, prove that $n^2 - 6n + 10$ is positive for all values of $n$ or, for example, differentiation from first principles for small positive integer powers of $x$ or proving results for arithmetic and geometric series. This is the most commonly used method of proof throughout this specification.",
+            "• Proof by exhaustion — given that $p$ is a prime number such that $3 < p < 25$, prove by exhaustion that $(p - 1)(p + 1)$ is a multiple of 12.",
+            "• Disproof by counter example — e.g. show that the statement “$n^2 - n + 1$ is a prime number for all values of $n$” is untrue."
           ],
           "children": []
         }
@@ -49,8 +43,8 @@ window.KOS_DATA.maths = {
             "Understand and use the laws of indices for all rational exponents."
           ],
           "info": [
-            "× = , ÷ = - , = m n n am",
-            "The equivalence ofa and should be known."
+            "$a^m \\times a^n = a^{m+n}$, $\\;a^m \\div a^n = a^{m-n}$, $\\;(a^m)^n = a^{mn}$",
+            "The equivalence of $a^{\\frac{m}{n}}$ and $\\sqrt[n]{a^m}$ should be known."
           ],
           "children": []
         },
@@ -62,7 +56,7 @@ window.KOS_DATA.maths = {
           ],
           "info": [
             "Students should be able to simplify algebraic surds using the results",
-            "( )2 x = x, xy = x y and ( )( ) x + y x - y = x- y"
+            "$\\left(\\sqrt{x}\\right)^2 = x$, $\\;\\sqrt{xy} = \\sqrt{x}\\sqrt{y}$ and $\\left(\\sqrt{x} + \\sqrt{y}\\right)\\left(\\sqrt{x} - \\sqrt{y}\\right) = x - y$"
           ],
           "children": []
         },
@@ -73,20 +67,14 @@ window.KOS_DATA.maths = {
             "Work with quadratic functions and their graphs.",
             "The discriminant of a quadratic function, including the conditions for real and repeated roots.",
             "Completing the square.",
-            "Solution of quadratic equations including solving quadratic equations in a function of the unknown."
+            "Solution of quadratic equations, including solving quadratic equations in a function of the unknown."
           ],
           "info": [
-            "The notation f(x) may be used",
-            "Need to know and to use b2 b2",
-            "– 4ac > 0, – 4ac = 0 and b2 – 4ac < 0",
-            "2  b2 ",
-            " b  ax2 =ax+",
-            "+ bx + c  +  c- ",
-            " ",
-            " 2a 4a",
-            "",
+            "The notation $\\mathrm{f}(x)$ may be used.",
+            "Need to know and to use $b^2 - 4ac > 0$, $\\;b^2 - 4ac = 0$ and $b^2 - 4ac < 0$.",
+            "$ax^2 + bx + c = a\\left(x + \\dfrac{b}{2a}\\right)^2 + \\left(c - \\dfrac{b^2}{4a}\\right)$",
             "Solution of quadratic equations by factorisation, use of the formula, use of a calculator or completing the square.",
-            "These functions could include powers of x, trigonometric functions of x, exponential and logarithmic functions x. of 2"
+            "These functions could include powers of $x$, trigonometric functions of $x$, exponential and logarithmic functions of $x$."
           ],
           "children": []
         },
@@ -94,11 +82,12 @@ window.KOS_DATA.maths = {
           "ref": "2.4",
           "title": "Simultaneous equations",
           "content": [
-            "Solve simultaneous equations in two variables by elimination and by substitution, including one linear and one quadratic equation. need to learn:"
+            "Solve simultaneous equations in two variables by elimination and by substitution, including one linear and one quadratic equation."
           ],
           "info": [
-            "This may involve powers of in one unknown or in both unknowns, y = 2x + 3, y = x2 – 4x + 8",
-            "e.g. solve or 2x – 3y = 6, x2 – y2 + 3x = 50"
+            "This may involve powers of 2 in one unknown or in both unknowns,",
+            "e.g. solve $y = 2x + 3$, $\\;y = x^2 - 4x + 8$",
+            "or $2x - 3y = 6$, $\\;x^2 - y^2 + 3x = 50$"
           ],
           "children": []
         },
@@ -108,13 +97,13 @@ window.KOS_DATA.maths = {
           "content": [
             "Solve linear and quadratic inequalities in a single variable and interpret such inequalities graphically, including inequalities with brackets and fractions.",
             "Express solutions through correct use of ‘and’ and ‘or’, or through set notation.",
-            "Represent linear and quadratic inequalities such as y > x + 1 and y > ax2 + bx + c graphically."
+            "Represent linear and quadratic inequalities such as $y > x + 1$ and $y > ax^2 + bx + c$ graphically."
           ],
           "info": [
-            "e.g. solving ax + b > cx + d, px2 + qx + r ≥ 0, px2 + qx + r < ax + b and interpreting the third inequality as the range of x for which the curve y = px2 + qx + r is below the line with equation y = ax + b",
-            "These would be reducible to linear or quadratic inequalities a e.g. < b becomes ax < bx2 x x a x b",
-            "So, e.g. < or > is equivalent to ∪",
-            "{ x : x < a } { x : x > b } and { x : c < x } ∩ { x : x < d } is x c x d equivalent to > and <",
+            "e.g. solving $ax + b > cx + d$, $\\;px^2 + qx + r \\ge 0$, $\\;px^2 + qx + r < ax + b$",
+            "and interpreting the third inequality as the range of $x$ for which the curve $y = px^2 + qx + r$ is below the line with equation $y = ax + b$.",
+            "These would be reducible to linear or quadratic inequalities, e.g. $\\dfrac{a}{x} < b$ becomes $ax < bx^2$.",
+            "So, e.g. $x < a$ or $x > b$ is equivalent to $\\{x : x < a\\} \\cup \\{x : x > b\\}$, and $\\{x : c < x\\} \\cap \\{x : x < d\\}$ is equivalent to $x > c$ and $x < d$.",
             "Shading and use of dotted and solid line convention is required."
           ],
           "children": []
@@ -124,16 +113,13 @@ window.KOS_DATA.maths = {
           "title": "Polynomials & factor theorem",
           "content": [
             "Manipulate polynomials algebraically, including expanding brackets and collecting like terms, factorisation and simple algebraic division; use of the factor theorem.",
-            "Simplify rational expressions, including by factorising and cancelling, and algebraic division (by linear expressions only). need to learn:"
+            "Simplify rational expressions, including by factorising and cancelling, and algebraic division (by linear expressions only)."
           ],
           "info": [
-            "Only division by (ax + b) or (ax – b) will be required.",
-            "Students should know that if f(x) = 0 b x = (ax – b) when , then is a factor of a f(x).",
-            "Students may be required to factorise cubic expressions such as x3 3x2 6x3 11x2",
-            "+ – 4 and + – x – 6.",
-            "Denominators of rational expressions will be linear or quadratic, 1 ax+b x3+a3",
-            "e.g. , , ax+b px2 x2 -a2",
-            "+qx+r"
+            "Only division by $(ax + b)$ or $(ax - b)$ will be required.",
+            "Students should know that if $\\mathrm{f}(x) = 0$ when $x = \\dfrac{b}{a}$, then $(ax - b)$ is a factor of $\\mathrm{f}(x)$.",
+            "Students may be required to factorise cubic expressions such as $x^3 + 3x^2 - 4$ and $6x^3 + 11x^2 - x - 6$.",
+            "Denominators of rational expressions will be linear or quadratic, e.g. $\\dfrac{1}{ax + b}$, $\\;\\dfrac{ax + b}{px^2 + qx + r}$, $\\;\\dfrac{x^3 + a^3}{x^2 - a^2}$"
           ],
           "children": []
         },
@@ -141,21 +127,19 @@ window.KOS_DATA.maths = {
           "ref": "2.7",
           "title": "Graphs of functions & proportion",
           "content": [
-            "Understand and use graphs of functions; sketch curves defined by simple equations including polynomials",
-            "The modulus of a linear function. a a y = and y = x2 x",
-            "(including their vertical and horizontal asymptotes)",
+            "Understand and use graphs of functions; sketch curves defined by simple equations including polynomials.",
+            "The modulus of a linear function.",
+            "$y = \\dfrac{a}{x}$ and $y = \\dfrac{a}{x^2}$ (including their vertical and horizontal asymptotes).",
             "Interpret algebraic solution of equations graphically; use intersection points of graphs to solve equations.",
-            "Understand and use proportional relationships and their graphs. need to learn:"
+            "Understand and use proportional relationships and their graphs."
           ],
           "info": [
-            "Graph to include simple cubic and quartic functions, e.g. sketch the graph with equation y = x2(2x – 1)2",
-            "Students should be able to sketch the graph of y =ax + b",
-            "They should be able to use their graph.",
-            "For example, sketch the graph with equation y = 2x – 1 and use the graph to 2x – 1 = x solve the equation or the 2x 1 inequality – > x",
-            "The asymptotes will be parallel to the axes e.g. the asymptotes of the curve",
-            "2 with equation y = + b are the x+a y = b x = - a lines with equations and Express relationship between two variables using proportion “ ∝ ” symbol or using equation involving constant",
-            "e.g. the circumference of a semicircle is directly proportional to its diameter",
-            "∝ so C d or C = kd and the graph of C against d is a straight line through the k. origin with gradient"
+            "Graph to include simple cubic and quartic functions, e.g. sketch the graph with equation $y = x^2(2x - 1)^2$.",
+            "Students should be able to sketch the graph of $y = |ax + b|$. They should be able to use their graph.",
+            "For example, sketch the graph with equation $y = |2x - 1|$ and use the graph to solve the equation $|2x - 1| = x$ or the inequality $|2x - 1| > x$.",
+            "The asymptotes will be parallel to the axes, e.g. the asymptotes of the curve with equation $y = \\dfrac{2}{x + a} + b$ are the lines with equations $y = b$ and $x = -a$.",
+            "Express relationship between two variables using proportion “$\\propto$” symbol or using equation involving constant.",
+            "e.g. the circumference of a semicircle is directly proportional to its diameter so $C \\propto d$ or $C = kd$, and the graph of $C$ against $d$ is a straight line through the origin with gradient $k$."
           ],
           "children": []
         },
@@ -166,13 +150,9 @@ window.KOS_DATA.maths = {
             "Understand and use composite functions; inverse functions and their graphs."
           ],
           "info": [
-            "The concept of a function as a one-one or many-one mapping from (or a subset of  f : x f(x)",
-            ") to . The notation and will",
-            "ℝ be used. Domain and range of functions.",
-            "ℝ ℝ fg",
-            "Students should know that will mean f-1",
-            "‘do g first, then f’ and that if exists, then f-1 -1(x) f(x) = ff = x",
-            "They should also know that the graph of y = f-1(x) is the image of the graph of y = f(x) after reflection in the line y = x"
+            "The concept of a function as a one-one or many-one mapping from $\\mathbb{R}$ (or a subset of $\\mathbb{R}$) to $\\mathbb{R}$. The notation $\\mathrm{f} : x \\mapsto$ and $\\mathrm{f}(x)$ will be used. Domain and range of functions.",
+            "Students should know that $\\mathrm{fg}$ will mean ‘do g first, then f’ and that if $\\mathrm{f}^{-1}$ exists, then $\\mathrm{f}^{-1}\\mathrm{f}(x) = \\mathrm{f}\\mathrm{f}^{-1}(x) = x$.",
+            "They should also know that the graph of $y = \\mathrm{f}^{-1}(x)$ is the image of the graph of $y = \\mathrm{f}(x)$ after reflection in the line $y = x$."
           ],
           "children": []
         },
@@ -180,16 +160,15 @@ window.KOS_DATA.maths = {
           "ref": "2.9",
           "title": "Graph transformations",
           "content": [
-            "Understand the effect of simple transformations on y = f(x), the graph of including sketching associated graphs: y = af(x), y = f(x) + a, y = f(x + a), y = f(ax) and combinations of these transformations",
-            "Decompose rational functions"
+            "Understand the effect of simple transformations on the graph of $y = \\mathrm{f}(x)$, including sketching associated graphs:",
+            "• $y = a\\mathrm{f}(x)$, $\\;y = \\mathrm{f}(x) + a$, $\\;y = \\mathrm{f}(x + a)$, $\\;y = \\mathrm{f}(ax)$",
+            "• and combinations of these transformations"
           ],
           "info": [
-            "Students should be able to find the graphs y = f(x) y = f(–x), of and given the y = f(x). graph of Students should be able to apply a combination of these transformations to any of the functions in the A Level specification (quadratics, cubics, quartics, a x ex reciprocal, , , sin x, cos x, tan x, x2 ax and ) and sketch the resulting graph.",
-            "Given the graph of y = f(x), students should be able to sketch the graph of, e.g. f(-x) y = 2f(3x), or y = + 1, and should be able to sketch",
-            "(for example)",
-            "( ) π x+ y = 3 + sin 2x, y = - cos",
-            "4",
-            "Partial fractions to include denominators"
+            "Students should be able to find the graphs of $y = |\\mathrm{f}(x)|$ and $y = |\\mathrm{f}(-x)|$, given the graph of $y = \\mathrm{f}(x)$.",
+            "Students should be able to apply a combination of these transformations to any of the functions in the A Level specification (quadratics, cubics, quartics, reciprocal, $\\dfrac{a}{x^2}$, $|x|$, $\\sin x$, $\\cos x$, $\\tan x$, $\\mathrm{e}^x$ and $a^x$) and sketch the resulting graph.",
+            "Given the graph of $y = \\mathrm{f}(x)$, students should be able to sketch the graph of, e.g. $y = 2\\mathrm{f}(3x)$, or $y = \\mathrm{f}(-x) + 1$,",
+            "and should be able to sketch (for example) $y = 3 + \\sin 2x$, $\\;y = -\\cos\\left(x + \\dfrac{\\pi}{4}\\right)$."
           ],
           "children": []
         },
@@ -197,11 +176,10 @@ window.KOS_DATA.maths = {
           "ref": "2.10",
           "title": "Partial fractions",
           "content": [
-            "into partial fractions",
-            "(denominators not more complicated than squared linear terms and with no more than 3 terms, numerators constant or linear). need to learn:"
+            "Decompose rational functions into partial fractions (denominators not more complicated than squared linear terms and with no more than 3 terms, numerators constant or linear)."
           ],
           "info": [
-            "such as (ax + b)(cx + d)(ex + f) and (ax + b)(cx + d)2.",
+            "Partial fractions to include denominators such as $(ax + b)(cx + d)(ex + f)$ and $(ax + b)(cx + d)^2$.",
             "Applications to integration, differentiation and series expansions."
           ],
           "children": []
@@ -228,15 +206,14 @@ window.KOS_DATA.maths = {
           "ref": "3.1",
           "title": "Straight lines",
           "content": [
-            "Understand and use the equation of a straight line, including the forms y – y = m(x – x ) and 1 1 ax + by + c = 0; Gradient conditions for two straight lines to be parallel or perpendicular.",
+            "Understand and use the equation of a straight line, including the forms $y - y_1 = m(x - x_1)$ and $ax + by + c = 0$;",
+            "Gradient conditions for two straight lines to be parallel or perpendicular.",
             "Be able to use straight line models in a variety of contexts."
           ],
           "info": [
             "To include the equation of a line through two given points, and the equation of a line parallel (or perpendicular) to a given line through a given point.",
-            "1 m′ m m′ -",
-            "= for parallel lines and = m for perpendicular lines",
-            "For example, the line for converting degrees Celsius to degrees",
-            "Fahrenheit, distance against time for constant speed, etc."
+            "$m' = m$ for parallel lines and $m' = -\\dfrac{1}{m}$ for perpendicular lines.",
+            "For example, the line for converting degrees Celsius to degrees Fahrenheit, distance against time for constant speed, etc."
           ],
           "children": []
         },
@@ -244,14 +221,15 @@ window.KOS_DATA.maths = {
           "ref": "3.2",
           "title": "Circles",
           "content": [
-            "Understand and use the coordinate geometry of the circle including using the equation of a circle in the (x – a)2 + (y – b)2 = r2 form",
-            "Completing the square to find the centre and radius of a circle; use of the following properties: the angle in a semicircle",
-            "● is a right angle the perpendicular from ● the centre to a chord bisects the chord",
-            "● the radius of a circle at a given point on its circumference is perpendicular to the tangent to the circle at that point. need to learn:"
+            "Understand and use the coordinate geometry of the circle including using the equation of a circle in the form $(x - a)^2 + (y - b)^2 = r^2$.",
+            "Completing the square to find the centre and radius of a circle; use of the following properties:",
+            "• the angle in a semicircle is a right angle",
+            "• the perpendicular from the centre to a chord bisects the chord",
+            "• the radius of a circle at a given point on its circumference is perpendicular to the tangent to the circle at that point."
           ],
           "info": [
             "Students should be able to find the radius and the coordinates of the centre of the circle given the equation of the circle, and vice versa.",
-            "Students should also be familiar with the equation x2 + y2 + 2fx + 2gy + c = 0",
+            "Students should also be familiar with the equation $x^2 + y^2 + 2fx + 2gy + c = 0$.",
             "Students should be able to find the equation of a circumcircle of a triangle with given vertices using these properties.",
             "Students should be able to find the equation of a tangent at a specified point, using the perpendicular property of tangent and radius."
           ],
@@ -261,18 +239,14 @@ window.KOS_DATA.maths = {
           "ref": "3.3",
           "title": "Parametric equations",
           "content": [
-            "Understand and use the parametric equations of curves and conversion between Cartesian and parametric forms.",
-            "Use parametric equations in"
+            "Understand and use the parametric equations of curves and conversion between Cartesian and parametric forms."
           ],
           "info": [
-            "For example: x = 3cos t, y = 3sin t describes a circle centre O radius 3 x = 2 + 5cos t, y = -4 + 5sin t describes a circle centre (2, -4) with radius 5",
-            "5 x = 5t, y = xy = 25 describes the curve t",
-            "25",
-            "(or y = ) x x = 5t, y = 3t2 describes the quadratic curve",
-            "3x2",
-            "25y = and other familiar curves covered in the specification.",
-            "Students should pay particular attention to the domain of the parameter t, as a specific section of a curve may be described.",
-            "A shape may be modelled using"
+            "For example: $x = 3\\cos t$, $\\;y = 3\\sin t$ describes a circle centre $O$ radius 3;",
+            "$x = 2 + 5\\cos t$, $\\;y = -4 + 5\\sin t$ describes a circle centre $(2, -4)$ with radius 5;",
+            "$x = 5t$, $\\;y = \\dfrac{5}{t}$ describes the curve $xy = 25$ (or $y = \\dfrac{25}{x}$);",
+            "$x = 5t$, $\\;y = 3t^2$ describes the quadratic curve $25y = 3x^2$, and other familiar curves covered in the specification.",
+            "Students should pay particular attention to the domain of the parameter $t$, as a specific section of a curve may be described."
           ],
           "children": []
         },
@@ -280,11 +254,10 @@ window.KOS_DATA.maths = {
           "ref": "3.4",
           "title": "Parametric modelling",
           "content": [
-            "modelling in a variety of contexts."
+            "Use parametric equations in modelling in a variety of contexts."
           ],
           "info": [
-            "parametric equations or students may be asked to find parametric equations for a motion. For example, an object moves with constant velocity from (1, 8) at t 0 (6, 20) t 5.",
-            "= to at = This may also be tested in Paper 3, section 7 (kinematics)."
+            "A shape may be modelled using parametric equations or students may be asked to find parametric equations for a motion. For example, an object moves with constant velocity from $(1, 8)$ at $t = 0$ to $(6, 20)$ at $t = 5$. This may also be tested in Paper 3, section 7 (kinematics)."
           ],
           "children": []
         }
@@ -299,21 +272,15 @@ window.KOS_DATA.maths = {
           "ref": "4.1",
           "title": "Binomial expansion",
           "content": [
-            "Understand and use the binomial expansion of bx)n",
-            "(a + for positive integer n; the notations n! nC and r link to binomial probabilities.",
-            "Extend to any rational n, including its use for approximation; be aware that the expansion is valid for bx",
-            "< 1",
-            "(proof not required) a need to learn:"
+            "Understand and use the binomial expansion of $(a + bx)^n$ for positive integer $n$; the notations $n!$ and ${}^n\\mathrm{C}_r$; link to binomial probabilities.",
+            "Extend to any rational $n$, including its use for approximation; be aware that the expansion is valid for $\\left|\\dfrac{bx}{a}\\right| < 1$ (proof not required)."
           ],
           "info": [
             "Use of Pascal’s triangle.",
             "Relation between binomial coefficients.",
-            "Also be aware of alternative notations",
-            "n nC such as   and r",
-            "r",
-            "Considered further in Paper 3",
-            "Section 4.1.",
-            "May be used with the expansion of rational functions by decomposition into partial fractions",
+            "Also be aware of alternative notations such as $\\dbinom{n}{r}$ and ${}^n\\mathrm{C}_r$.",
+            "Considered further in Paper 3 Section 4.1.",
+            "May be used with the expansion of rational functions by decomposition into partial fractions.",
             "May be asked to comment on the range of validity."
           ],
           "children": []
@@ -322,13 +289,13 @@ window.KOS_DATA.maths = {
           "ref": "4.2",
           "title": "Sequences & recurrence",
           "content": [
-            "Work with sequences including those given by a nth formula for the term and those generated by a simple relation of the form x = f(x ); n + 1 n increasing sequences; decreasing sequences; periodic sequences."
+            "Work with sequences including those given by a formula for the $n$th term and those generated by a simple relation of the form $x_{n+1} = \\mathrm{f}(x_n)$;",
+            "increasing sequences; decreasing sequences; periodic sequences."
           ],
           "info": [
-            "1",
-            "For example u = describes a n 3n+1 decreasing sequence as u < u for all n + 1 n integer n",
-            "2n u = is an increasing sequence as n u > u for all integer n n + 1 n",
-            "1 u = for n > 1 and u = 3 describes a n + 1 1 u n periodic sequence of order 2"
+            "For example $u_n = \\dfrac{1}{3n + 1}$ describes a decreasing sequence as $u_{n+1} < u_n$ for all integer $n$.",
+            "$u_n = 2^n$ is an increasing sequence as $u_{n+1} > u_n$ for all integer $n$.",
+            "$u_{n+1} = \\dfrac{1}{u_n}$ for $n > 1$ and $u_1 = 3$ describes a periodic sequence of order 2."
           ],
           "children": []
         },
@@ -339,10 +306,7 @@ window.KOS_DATA.maths = {
             "Understand and use sigma notation for sums of series."
           ],
           "info": [
-            "n",
-            "∑1= n",
-            "Knowledge that is expected",
-            "1"
+            "Knowledge that $\\displaystyle\\sum_{1}^{n} 1 = n$ is expected."
           ],
           "children": []
         },
@@ -350,10 +314,10 @@ window.KOS_DATA.maths = {
           "ref": "4.4",
           "title": "Arithmetic sequences & series",
           "content": [
-            "Understand and work with arithmetic sequences and series, including the formulae for nth term and the sum to n terms"
+            "Understand and work with arithmetic sequences and series, including the formulae for $n$th term and the sum to $n$ terms."
           ],
           "info": [
-            "The proof of the sum formula for an arithmetic sequence should be known including the formula for the sum of the first n natural numbers."
+            "The proof of the sum formula for an arithmetic sequence should be known, including the formula for the sum of the first $n$ natural numbers."
           ],
           "children": []
         },
@@ -361,11 +325,12 @@ window.KOS_DATA.maths = {
           "ref": "4.5",
           "title": "Geometric sequences & series",
           "content": [
-            "Understand and work with geometric sequences and series, including the formulae for the nth term and the sum of a finite geometric series; the sum to infinity of a convergent geometric series, including the use of |r| < 1; modulus notation"
+            "Understand and work with geometric sequences and series, including the formulae for the $n$th term and the sum of a finite geometric series; the sum to infinity of a convergent geometric series, including the use of $|r| < 1$; modulus notation."
           ],
           "info": [
             "The proof of the sum formula should be known.",
-            "Given the sum of a series students should n. be able to use logs to find the value of The sum to infinity may be expressed as S ∞"
+            "Given the sum of a series students should be able to use logs to find the value of $n$.",
+            "The sum to infinity may be expressed as $S_\\infty$."
           ],
           "children": []
         },
@@ -373,7 +338,7 @@ window.KOS_DATA.maths = {
           "ref": "4.6",
           "title": "Series in modelling",
           "content": [
-            "Use sequences and series in modelling. need to learn:"
+            "Use sequences and series in modelling."
           ],
           "info": [
             "Examples could include amounts paid into saving schemes, increasing by the same amount (arithmetic) or by the same percentage (geometric) or could include other series defined by a formula or a relation."
@@ -391,14 +356,15 @@ window.KOS_DATA.maths = {
           "ref": "5.1",
           "title": "Sine/cosine rules, radians, arcs & sectors",
           "content": [
-            "Understand and use the definitions of sine, cosine and tangent for all arguments; the sine and cosine rules; the area of a triangle in the 1 form ab sin C",
-            "2",
+            "Understand and use the definitions of sine, cosine and tangent for all arguments;",
+            "the sine and cosine rules;",
+            "the area of a triangle in the form $\\frac{1}{2}ab\\sin C$.",
             "Work with radian measure, including use for arc length and area of sector."
           ],
           "info": [
-            "Use of x and y coordinates of points on the unit circle to give cosine and sine respectively, including the ambiguous case of the sine rule.",
-            "Use of the formulae s = rθ and 1",
-            "A = r2θ for arc lengths and areas of 2 sectors of a circle."
+            "Use of $x$ and $y$ coordinates of points on the unit circle to give cosine and sine respectively,",
+            "including the ambiguous case of the sine rule.",
+            "Use of the formulae $s = r\\theta$ and $A = \\frac{1}{2}r^2\\theta$ for arc lengths and areas of sectors of a circle."
           ],
           "children": []
         },
@@ -406,13 +372,12 @@ window.KOS_DATA.maths = {
           "ref": "5.2",
           "title": "Small angle approximations",
           "content": [
-            "Understand and use the standard small angle approximations of sine, cosine and tangent sinθ≈θ, θ2 cosθ ≈1- tanθ ≈θ",
-            ", 2",
-            "Where θ is in radians."
+            "Understand and use the standard small angle approximations of sine, cosine and tangent:",
+            "• $\\sin\\theta \\approx \\theta$, $\\;\\cos\\theta \\approx 1 - \\dfrac{\\theta^2}{2}$, $\\;\\tan\\theta \\approx \\theta$",
+            "• where $\\theta$ is in radians."
           ],
           "info": [
-            "Students should be able to approximate, cos3x-1 9 x -",
-            "e.g. when is small, to xsin4x 8"
+            "Students should be able to approximate, e.g. $\\dfrac{\\cos 3x - 1}{x\\sin 4x}$ when $x$ is small, to $-\\dfrac{9}{8}$."
           ],
           "children": []
         },
@@ -421,13 +386,10 @@ window.KOS_DATA.maths = {
           "title": "Trig graphs & exact values",
           "content": [
             "Understand and use the sine, cosine and tangent functions; their graphs, symmetries and periodicity.",
-            "Know and use exact value s of sin cos and for π π π π",
-            "0, , , , ,π and 6 4 3 2 multiples thereof, and exact values of tan for π π π",
-            "0, , , ,πand multiples",
-            "6 4 3 thereof."
+            "Know and use exact values of $\\sin$ and $\\cos$ for $0, \\dfrac{\\pi}{6}, \\dfrac{\\pi}{4}, \\dfrac{\\pi}{3}, \\dfrac{\\pi}{2}, \\pi$ and multiples thereof, and exact values of $\\tan$ for $0, \\dfrac{\\pi}{6}, \\dfrac{\\pi}{4}, \\dfrac{\\pi}{3}, \\pi$ and multiples thereof."
           ],
           "info": [
-            "Knowledge of graphs of curves with y x, equations such as = sin y = cos(x + 30°), y = tan 2x is expected."
+            "Knowledge of graphs of curves with equations such as $y = \\sin x$, $\\;y = \\cos(x + 30°)$, $\\;y = \\tan 2x$ is expected."
           ],
           "children": []
         },
@@ -435,7 +397,7 @@ window.KOS_DATA.maths = {
           "ref": "5.4",
           "title": "Reciprocal & inverse trig functions",
           "content": [
-            "Understand and use the definitions of secant, cosecant and cotangent and of arcsin, arccos and arctan; their sine, cosine relationships to tangent; and understanding of their graphs; their ranges and domains. need to learn:"
+            "Understand and use the definitions of secant, cosecant and cotangent and of arcsin, arccos and arctan; their relationships to sine, cosine and tangent; understanding of their graphs; their ranges and domains."
           ],
           "info": [
             "Angles measured in both degrees and radians."
@@ -446,11 +408,8 @@ window.KOS_DATA.maths = {
           "ref": "5.5",
           "title": "Trig identities",
           "content": [
-            "Understand and use sinθ tanθ= cosθ",
-            "Understand and use sin2θ+ cos2θ",
-            "= 1 sec2θ= tan2θ",
-            "1 + and cosec2θ= cot2θ",
-            "1+"
+            "Understand and use $\\tan\\theta = \\dfrac{\\sin\\theta}{\\cos\\theta}$.",
+            "Understand and use $\\sin^2\\theta + \\cos^2\\theta = 1$; $\\;\\sec^2\\theta = 1 + \\tan^2\\theta$ and $\\operatorname{cosec}^2\\theta = 1 + \\cot^2\\theta$."
           ],
           "info": [
             "These identities may be used to solve trigonometric equations and angles may be in degrees or radians. They may also be used to prove further identities."
@@ -461,15 +420,13 @@ window.KOS_DATA.maths = {
           "ref": "5.6",
           "title": "Addition/double angle & R-form",
           "content": [
-            "Understand and use double a n g le f o rm u l a e ; u s e o f s in ( A ± B ), fo r m u l a e fo r",
-            "± ± cos (A B), and tan (A B), understand geometrical proofs of these formulae.",
-            "Understand and use expressions for cosθ+ sinθ a b in the equivalent forms of r cos (θ±α) or r sin (θ±α)"
+            "Understand and use double angle formulae; use of formulae for $\\sin(A \\pm B)$, $\\cos(A \\pm B)$ and $\\tan(A \\pm B)$; understand geometrical proofs of these formulae.",
+            "Understand and use expressions for $a\\cos\\theta + b\\sin\\theta$ in the equivalent forms of $r\\cos(\\theta \\pm \\alpha)$ or $r\\sin(\\theta \\pm \\alpha)$."
           ],
           "info": [
-            "To include application to half angles. tan(1 θ)",
-            "Knowledge of the formulae will",
-            "2 not be required.",
-            "Students should be able to solve a cos θ + b sin θ = c equations such as in a given interval."
+            "To include application to half angles.",
+            "Knowledge of the $\\tan\\left(\\frac{1}{2}\\theta\\right)$ formulae will not be required.",
+            "Students should be able to solve equations such as $a\\cos\\theta + b\\sin\\theta = c$ in a given interval."
           ],
           "children": []
         },
@@ -480,9 +437,10 @@ window.KOS_DATA.maths = {
             "Solve simple trigonometric equations in a given interval, including quadratic equations in sin, cos and tan and equations involving multiples of the unknown angle."
           ],
           "info": [
-            "Students should be able to solve equations such as sin (x + 70°) = 0.5 for 0 < x < 360°, 3 + 5 cos 2x = 1 for -180° < x < 180°",
-            "6 cos2 x + sin x - 5 = 0, 0 x < 360°",
-            "",
+            "Students should be able to solve equations such as",
+            "• $\\sin(x + 70°) = 0.5$ for $0 < x < 360°$",
+            "• $3 + 5\\cos 2x = 1$ for $-180° < x < 180°$",
+            "• $6\\cos^2 x + \\sin x - 5 = 0$, $\\;0 \\le x < 360°$",
             "These may be in degrees or radians and this will be specified in the question."
           ],
           "children": []
@@ -494,7 +452,7 @@ window.KOS_DATA.maths = {
             "Construct proofs involving trigonometric functions and identities."
           ],
           "info": [
-            "Students need to prove identities such as ≡ cos x cos 2x + sin x sin 2x cos x."
+            "Students need to prove identities such as $\\cos x\\cos 2x + \\sin x\\sin 2x \\equiv \\cos x$."
           ],
           "children": []
         },
@@ -502,7 +460,7 @@ window.KOS_DATA.maths = {
           "ref": "5.9",
           "title": "Trig in context",
           "content": [
-            "Use trigonometric functions to solve problems in context, including problems involving vectors, kinematics and forces. need to learn:"
+            "Use trigonometric functions to solve problems in context, including problems involving vectors, kinematics and forces."
           ],
           "info": [
             "Problems could involve (for example) wave motion, the height of a point on a vertical circular wheel, or the hours of sunlight throughout the year. Angles may be measured in degrees or in radians."
@@ -518,26 +476,25 @@ window.KOS_DATA.maths = {
       "children": [
         {
           "ref": "6.1",
-          "title": "Exponential functions & e^x",
+          "title": "Exponential functions & eˣ",
           "content": [
-            "Know and use the function ax a and its graph, where is positive.",
-            "Know and use the function ex and its graph."
+            "Know and use the function $a^x$ and its graph, where $a$ is positive.",
+            "Know and use the function $\\mathrm{e}^x$ and its graph."
           ],
           "info": [
-            "Understand the difference in shape a < 1 a > 1 between and y = eax + b + c",
-            "To include the graph of"
+            "Understand the difference in shape between $a < 1$ and $a > 1$.",
+            "To include the graph of $y = \\mathrm{e}^{ax + b} + c$."
           ],
           "children": []
         },
         {
           "ref": "6.2",
-          "title": "Gradient of e^kx",
+          "title": "Gradient of eᵏˣ",
           "content": [
-            "Know that the gradient of ekx kekx is equal to and hence understand why the exponential model is suitable in many applications."
+            "Know that the gradient of $\\mathrm{e}^{kx}$ is equal to $k\\mathrm{e}^{kx}$ and hence understand why the exponential model is suitable in many applications."
           ],
           "info": [
-            "Realise that when the rate of change is proportional to the y value, an exponential model should be used.",
-            "≠"
+            "Realise that when the rate of change is proportional to the $y$ value, an exponential model should be used."
           ],
           "children": []
         },
@@ -545,14 +502,13 @@ window.KOS_DATA.maths = {
           "ref": "6.3",
           "title": "Logarithms & ln x",
           "content": [
-            "Know and use the definition of loga x as the ax a inverse of , where is positive and x 0.",
-            "",
-            "Know and use the function ln x and its graph. ln x",
-            "Know and use as the ex inverse function of"
+            "Know and use the definition of $\\log_a x$ as the inverse of $a^x$, where $a$ is positive and $x \\ge 0$.",
+            "Know and use the function $\\ln x$ and its graph.",
+            "Know and use $\\ln x$ as the inverse function of $\\mathrm{e}^x$."
           ],
           "info": [
-            "a 1",
-            "Solution of equations of the form eax + b = p ln (ax + b) = q and is expected."
+            "$a \\ne 1$",
+            "Solution of equations of the form $\\mathrm{e}^{ax + b} = p$ and $\\ln(ax + b) = q$ is expected."
           ],
           "children": []
         },
@@ -560,28 +516,24 @@ window.KOS_DATA.maths = {
           "ref": "6.4",
           "title": "Laws of logarithms",
           "content": [
-            "Understand and use the laws of logarithms: loga x + loga y = loga (xy)",
-            " x",
-            "  loga x - loga y = loga ",
-            " y k loga x = loga xk",
-            "(including, for example, 1 k = -1 and k = – )",
-            "2"
+            "Understand and use the laws of logarithms:",
+            "• $\\log_a x + \\log_a y = \\log_a(xy)$",
+            "• $\\log_a x - \\log_a y = \\log_a\\left(\\dfrac{x}{y}\\right)$",
+            "• $k\\log_a x = \\log_a x^k$ (including, for example, $k = -1$ and $k = -\\frac{1}{2}$)"
           ],
           "info": [
-            "Includes log a = 1 a"
+            "Includes $\\log_a a = 1$."
           ],
           "children": []
         },
         {
           "ref": "6.5",
-          "title": "Solving a^x = b",
+          "title": "Solving aˣ = b",
           "content": [
-            "Solve equations of the form ax=b",
-            "Use logarithmic graphs to"
+            "Solve equations of the form $a^x = b$."
           ],
           "info": [
-            "Students may use the change of base formula. Questions may be of the 23x – 1 = 3 form, e.g.",
-            "Plot log y against log x and obtain a"
+            "Students may use the change of base formula. Questions may be of the form, e.g. $2^{3x - 1} = 3$."
           ],
           "children": []
         },
@@ -589,11 +541,11 @@ window.KOS_DATA.maths = {
           "ref": "6.6",
           "title": "Logarithmic graphs & estimation",
           "content": [
-            "estimate parameters in relationships of the form y = axn y = kbx and , given data for x and y need to learn:"
+            "Use logarithmic graphs to estimate parameters in relationships of the form $y = ax^n$ and $y = kb^x$, given data for $x$ and $y$."
           ],
           "info": [
-            "straight line where the intercept is log a and the gradient is n y x",
-            "Plot log against and obtain a straight line where the intercept is log k and the gradient is log b"
+            "Plot $\\log y$ against $\\log x$ and obtain a straight line where the intercept is $\\log a$ and the gradient is $n$.",
+            "Plot $\\log y$ against $x$ and obtain a straight line where the intercept is $\\log k$ and the gradient is $\\log b$."
           ],
           "children": []
         },
@@ -601,13 +553,12 @@ window.KOS_DATA.maths = {
           "ref": "6.7",
           "title": "Exponential growth & decay",
           "content": [
-            "Understand and use exponential growth and decay; use in modelling",
-            "(examples may include the use of e in continuous compound interest, radioactive decay, drug concentration decay, exponential growth as a model for population growth); consideration of limitations and refinements of exponential models."
+            "Understand and use exponential growth and decay; use in modelling (examples may include the use of e in continuous compound interest, radioactive decay, drug concentration decay, exponential growth as a model for population growth); consideration of limitations and refinements of exponential models."
           ],
           "info": [
             "Students may be asked to find the constants used in a model.",
-            "They need to be familiar with terms such as initial, meaning when t = 0.",
-            "They may need to explore the behaviour for large values of t or to consider whether the range of values predicted is appropriate.",
+            "They need to be familiar with terms such as initial, meaning when $t = 0$.",
+            "They may need to explore the behaviour for large values of $t$ or to consider whether the range of values predicted is appropriate.",
             "Consideration of an improved model may be required."
           ],
           "children": []
@@ -623,37 +574,35 @@ window.KOS_DATA.maths = {
           "ref": "7.1",
           "title": "Derivative as gradient; first principles",
           "content": [
-            "Understand and use the f( x) derivative of as the gradient of the tangent to the graph of y = f( x) at a general point (x, y); the gradient of the tangent as a limit; interpretation as a rate of change sketching the gradient function for a given curve second derivatives differentiation from first principles for small positive integer powers of x and for sin x and cos x need to learn:",
-            "Understand and use the second derivative as the rate of change of gradient; connection to convex and concave sections of curves and points of inflection. n"
+            "Understand and use the derivative of $\\mathrm{f}(x)$ as the gradient of the tangent to the graph of $y = \\mathrm{f}(x)$ at a general point $(x, y)$; the gradient of the tangent as a limit; interpretation as a rate of change;",
+            "sketching the gradient function for a given curve;",
+            "second derivatives;",
+            "differentiation from first principles for small positive integer powers of $x$ and for $\\sin x$ and $\\cos x$.",
+            "Understand and use the second derivative as the rate of change of gradient; connection to convex and concave sections of curves and points of inflection."
           ],
           "info": [
-            "dy",
-            "Know that is the rate of change of dx y with respect to x.",
-            "The notation f ′(x) may be used for the first derivative and f ″(x) may be used for the second derivative.",
-            "Given for example the graph of y = f (x), sketch the graph of y = f ′(x) using given axes and scale. This could relate speed and acceleration for example.",
-            "For example, students should be able to use, for n = 2 and n = 3, the gradient expression",
-            "(x+h)n - xn  lim  h→0 h  δx h",
-            "Students may use or Use the condition f ″(x) > 0 implies a f ″(x) < 0 minimum and implies a f ′(x) = 0 maximum for points where",
-            "Know that at an inflection point f ″(x) changes sign.",
-            "Consider cases where f ″(x) = 0 and f ′(x) = 0 where the point may be a minimum, a maximum or a point of y = xn, n > 2) inflection (e.g."
+            "Know that $\\dfrac{\\mathrm{d}y}{\\mathrm{d}x}$ is the rate of change of $y$ with respect to $x$.",
+            "The notation $\\mathrm{f}'(x)$ may be used for the first derivative and $\\mathrm{f}''(x)$ may be used for the second derivative.",
+            "Given for example the graph of $y = \\mathrm{f}(x)$, sketch the graph of $y = \\mathrm{f}'(x)$ using given axes and scale. This could relate speed and acceleration for example.",
+            "For example, students should be able to use, for $n = 2$ and $n = 3$, the gradient expression $\\displaystyle\\lim_{h \\to 0}\\left(\\frac{(x + h)^n - x^n}{h}\\right)$.",
+            "Students may use $\\delta x$ or $h$.",
+            "Use the condition $\\mathrm{f}''(x) > 0$ implies a minimum and $\\mathrm{f}''(x) < 0$ implies a maximum for points where $\\mathrm{f}'(x) = 0$.",
+            "Know that at an inflection point $\\mathrm{f}''(x)$ changes sign.",
+            "Consider cases where $\\mathrm{f}''(x) = 0$ and $\\mathrm{f}'(x) = 0$ where the point may be a minimum, a maximum or a point of inflection (e.g. $y = x^n$, $n > 2$)."
           ],
           "children": []
         },
         {
           "ref": "7.2",
-          "title": "Differentiating x^n, e^kx, trig, ln x",
+          "title": "Differentiating xⁿ, eᵏˣ, trig & ln x",
           "content": [
-            "x",
-            "Differentiate , for n, rational values of and related constant multiples, sums and differences. ekx akx",
-            "Differentiate and , sin kx, cos kx, tan kx and related sums, differences and constant multiples.",
-            "Understand and use the derivative of ln x"
+            "Differentiate $x^n$, for rational values of $n$, and related constant multiples, sums and differences.",
+            "Differentiate $\\mathrm{e}^{kx}$ and $a^{kx}$, $\\sin kx$, $\\cos kx$, $\\tan kx$ and related sums, differences and constant multiples.",
+            "Understand and use the derivative of $\\ln x$."
           ],
           "info": [
-            "For example, the ability to differentiate expressions such as x2 +3x-5",
-            "(2x + 5)(x – 1) and , x > 0, 1",
-            "4x2 is expected.",
-            "Knowledge and use of the result d",
-            "(akx)= kakx ln a is expected. dx"
+            "For example, the ability to differentiate expressions such as $(2x + 5)(x - 1)$ and $\\dfrac{x^2 + 3x - 5}{4x^{\\frac{1}{2}}}$, $x > 0$, is expected.",
+            "Knowledge and use of the result $\\dfrac{\\mathrm{d}}{\\mathrm{d}x}\\left(a^{kx}\\right) = ka^{kx}\\ln a$ is expected."
           ],
           "children": []
         },
@@ -661,8 +610,10 @@ window.KOS_DATA.maths = {
           "ref": "7.3",
           "title": "Tangents, normals, maxima & minima",
           "content": [
-            "Apply differentiation to find gradients, tangents and normals maxima and minima and stationary points. points of inflection",
-            "Identify where functions are increasing or decreasing. need to learn:"
+            "Apply differentiation to find gradients, tangents and normals,",
+            "maxima and minima and stationary points,",
+            "points of inflection.",
+            "Identify where functions are increasing or decreasing."
           ],
           "info": [
             "Use of differentiation to find equations of tangents and normals at specific points on a curve.",
@@ -678,15 +629,10 @@ window.KOS_DATA.maths = {
             "Differentiate using the product rule, the quotient rule and the chain rule, including problems involving connected rates of change and inverse functions."
           ],
           "info": [
-            "Differentiation of cosec x, cot x and sec x.",
-            "Differentiation of functions of the form x = sin y, x = 3 tan 2y and the use of dy 1",
-            "= dx dx",
-            " ",
-            "dy",
-            "Use of connected rates of change in dV dV dr",
-            "= × models, e.g. dt dr dt",
-            "Skill will be expected in the differentiation of functions generated from standard forms using products, quotients and composition, e3x",
-            "2x4 sin x, , cos2 x and tan2 2x. such as x"
+            "Differentiation of $\\operatorname{cosec} x$, $\\cot x$ and $\\sec x$.",
+            "Differentiation of functions of the form $x = \\sin y$, $x = 3\\tan 2y$ and the use of $\\dfrac{\\mathrm{d}y}{\\mathrm{d}x} = \\dfrac{1}{\\left(\\frac{\\mathrm{d}x}{\\mathrm{d}y}\\right)}$.",
+            "Use of connected rates of change in models, e.g. $\\dfrac{\\mathrm{d}V}{\\mathrm{d}t} = \\dfrac{\\mathrm{d}V}{\\mathrm{d}r} \\times \\dfrac{\\mathrm{d}r}{\\mathrm{d}t}$.",
+            "Skill will be expected in the differentiation of functions generated from standard forms using products, quotients and composition, such as $2x^4\\sin x$, $\\;\\dfrac{\\mathrm{e}^{3x}}{x}$, $\\;\\cos^2 x$ and $\\tan^2 2x$."
           ],
           "children": []
         },
@@ -705,12 +651,11 @@ window.KOS_DATA.maths = {
           "ref": "7.6",
           "title": "Constructing differential equations",
           "content": [
-            "Construct simple differential equations in pure mathematics and in context, (contexts may include kinematics, population growth and modelling the relationship between price and demand)."
+            "Construct simple differential equations in pure mathematics and in context (contexts may include kinematics, population growth and modelling the relationship between price and demand)."
           ],
           "info": [
             "Set up a differential equation using given information.",
-            "For example:",
-            "In a simple model, the rate of decrease of the radius of the mint is inversely proportional to the square of the radius."
+            "For example: in a simple model, the rate of decrease of the radius of the mint is inversely proportional to the square of the radius."
           ],
           "children": []
         }
@@ -725,7 +670,7 @@ window.KOS_DATA.maths = {
           "ref": "8.1",
           "title": "Fundamental Theorem of Calculus",
           "content": [
-            "Know and use the Fundamental Theorem of Calculus xn"
+            "Know and use the Fundamental Theorem of Calculus."
           ],
           "info": [
             "Integration as the reverse process of differentiation. Students should know that for indefinite integrals a constant of integration is required."
@@ -736,20 +681,14 @@ window.KOS_DATA.maths = {
           "ref": "8.2",
           "title": "Integrating standard functions",
           "content": [
-            "Integrate (excluding n = -1) and related sums, differences and constant multiples.",
-            "1 ekx, Integrate , sin kx , x cos kx and related sums, differences and constant need to learn:"
+            "Integrate $x^n$ (excluding $n = -1$) and related sums, differences and constant multiples.",
+            "Integrate $\\mathrm{e}^{kx}$, $\\dfrac{1}{x}$, $\\sin kx$, $\\cos kx$ and related sums, differences and constant multiples."
           ],
           "info": [
-            "For example, the ability to integrate",
-            "1",
-            "1 2 - x -3x 2 expressions such as and 2",
-            "(x+2)2 is expected.",
-            "1 x2 f ′(x)",
-            "Given and a point on the curve, students should be able to find an equation of the curve in the form y = f (x).",
-            "To include integration of standard functions",
-            "1 such as sin 3x, sec2 2x, tan x, e5x, .",
-            "2x",
-            "Students are expected to be able to use"
+            "For example, the ability to integrate expressions such as $\\frac{1}{2}x^2 - 3x^{-\\frac{1}{2}}$ and $\\dfrac{(x + 2)^2}{x^{\\frac{1}{2}}}$ is expected.",
+            "Given $\\mathrm{f}'(x)$ and a point on the curve, students should be able to find an equation of the curve in the form $y = \\mathrm{f}(x)$.",
+            "To include integration of standard functions such as $\\sin 3x$, $\\sec^2 2x$, $\\tan x$, $\\mathrm{e}^{5x}$, $\\dfrac{1}{2x}$.",
+            "Students are expected to be able to use trigonometric identities to integrate, for example, $\\sin^2 x$, $\\tan^2 x$, $\\cos^2 3x$."
           ],
           "children": []
         },
@@ -757,12 +696,12 @@ window.KOS_DATA.maths = {
           "ref": "8.3",
           "title": "Definite integrals & areas",
           "content": [
-            "Evaluate definite integrals; use a definite integral to find the area under a curve and the area between two curves"
+            "Evaluate definite integrals; use a definite integral to find the area under a curve and the area between two curves."
           ],
           "info": [
             "Students will be expected to be able to evaluate the area of a region bounded by a curve and given straight lines, or between two curves. This includes curves defined parametrically.",
-            "For example, find the finite area bounded by the curve y = 6x – x2 and y = 2x the line",
-            "Or find the finite area bounded by the y = x2 – 5x + 6 curve and the curve x2. y = 4 –"
+            "For example, find the finite area bounded by the curve $y = 6x - x^2$ and the line $y = 2x$,",
+            "or find the finite area bounded by the curve $y = x^2 - 5x + 6$ and the curve $y = 4 - x^2$."
           ],
           "children": []
         },
@@ -773,8 +712,7 @@ window.KOS_DATA.maths = {
             "Understand and use integration as the limit of a sum."
           ],
           "info": [
-            "b b ∑",
-            "Recognise ∫ f (x)dx= lim f(x)δx a δx→0 x=a"
+            "Recognise $\\displaystyle\\int_a^b \\mathrm{f}(x)\\,\\mathrm{d}x = \\lim_{\\delta x \\to 0}\\sum_{x = a}^{b}\\mathrm{f}(x)\\,\\delta x$."
           ],
           "children": []
         },
@@ -782,16 +720,12 @@ window.KOS_DATA.maths = {
           "ref": "8.5",
           "title": "Substitution & by parts",
           "content": [
-            "Carry out simple cases of integration by substitution and integration by parts; understand these methods as the inverse processes of the chain and product rules respectively",
+            "Carry out simple cases of integration by substitution and integration by parts; understand these methods as the inverse processes of the chain and product rules respectively.",
             "(Integration by substitution includes finding a suitable substitution and is limited to cases where one substitution will lead to a function which can be integrated; integration by parts includes more than one application of the method but excludes reduction formulae.)"
           ],
           "info": [
-            "Students should recognise integrals of the f′(x)",
-            "⌠",
-            " ln f(x) + c. form dx=",
-            "",
-            "⌡ f(x)",
-            "The integral ∫lnxdx is required"
+            "Students should recognise integrals of the form $\\displaystyle\\int \\frac{\\mathrm{f}'(x)}{\\mathrm{f}(x)}\\,\\mathrm{d}x = \\ln \\mathrm{f}(x) + c$.",
+            "The integral $\\displaystyle\\int \\ln x\\,\\mathrm{d}x$ is required."
           ],
           "children": []
         },
@@ -799,13 +733,11 @@ window.KOS_DATA.maths = {
           "ref": "8.6",
           "title": "Integration with partial fractions",
           "content": [
-            "Integrate using partial fractions that are linear in the denominator. need to learn:"
+            "Integrate using partial fractions that are linear in the denominator."
           ],
           "info": [
-            "Integration of rational expressions such as those arising from partial fractions, 2",
-            "e.g.",
-            "3x+5",
-            "Note that the integration of other rational x 2 expressions, such as and (2x-1)4 x2 +5 is also required (see previous paragraph)."
+            "Integration of rational expressions such as those arising from partial fractions, e.g. $\\dfrac{2}{3x + 5}$.",
+            "Note that the integration of other rational expressions, such as $\\dfrac{x}{x^2 + 5}$ and $\\dfrac{2}{(2x - 1)^4}$, is also required (see previous paragraph)."
           ],
           "children": []
         },
@@ -813,7 +745,7 @@ window.KOS_DATA.maths = {
           "ref": "8.7",
           "title": "Separable differential equations",
           "content": [
-            "Evaluate the analytical solution of simple first order differential equations with separable variables, including finding particular solutions",
+            "Evaluate the analytical solution of simple first order differential equations with separable variables, including finding particular solutions.",
             "(Separation of variables may require factorisation involving a common factor.)"
           ],
           "info": [
@@ -843,14 +775,13 @@ window.KOS_DATA.maths = {
           "ref": "9.1",
           "title": "Change of sign root location",
           "content": [
-            "Locate roots of f( x) = 0 by considering changes of sign of f( x) in an interval of x on which f(x) is sufficiently well behaved.",
+            "Locate roots of $\\mathrm{f}(x) = 0$ by considering changes of sign of $\\mathrm{f}(x)$ in an interval of $x$ on which $\\mathrm{f}(x)$ is sufficiently well behaved.",
             "Understand how change of sign methods can fail."
           ],
           "info": [
             "Students should know that sign change is appropriate for continuous functions in a small interval.",
             "When the interval is too large sign may not change as there may be an even number of roots.",
-            "If the function is not continuous, sign may change but there may be an asymptote",
-            "(not a root)."
+            "If the function is not continuous, sign may change but there may be an asymptote (not a root)."
           ],
           "children": []
         },
@@ -861,8 +792,8 @@ window.KOS_DATA.maths = {
             "Solve equations approximately using simple iterative methods; be able to draw associated cobweb and staircase diagrams."
           ],
           "info": [
-            "Understand that many mathematical problems cannot be solved analytically, but numerical methods permit solution to a required level of accuracy. x f (x )",
-            "Use an iteration of the form n + 1 = n to find a root of the equation x = f (x) and show understanding of the convergence in geometrical terms by drawing cobweb and staircase diagrams."
+            "Understand that many mathematical problems cannot be solved analytically, but numerical methods permit solution to a required level of accuracy.",
+            "Use an iteration of the form $x_{n+1} = \\mathrm{f}(x_n)$ to find a root of the equation $x = \\mathrm{f}(x)$ and show understanding of the convergence in geometrical terms by drawing cobweb and staircase diagrams."
           ],
           "children": []
         },
@@ -870,11 +801,11 @@ window.KOS_DATA.maths = {
           "ref": "9.3",
           "title": "Newton-Raphson",
           "content": [
-            "Solve equations using the Newton-Raphson method and other recurrence relations of the form x = g(x ) n+1 n",
-            "Understand how such methods can fail. need to learn:"
+            "Solve equations using the Newton–Raphson method and other recurrence relations of the form $x_{n+1} = \\mathrm{g}(x_n)$.",
+            "Understand how such methods can fail."
           ],
           "info": [
-            "For the Newton-Raphson method, students should understand its working in geometrical terms, so that they understand its failure near to points where the gradient is small."
+            "For the Newton–Raphson method, students should understand its working in geometrical terms, so that they understand its failure near to points where the gradient is small."
           ],
           "children": []
         },
@@ -885,12 +816,7 @@ window.KOS_DATA.maths = {
             "Understand and use numerical integration of functions, including the use of the trapezium rule and estimating the approximate area under a curve and limits that it must lie between."
           ],
           "info": [
-            "⌠ 1",
-            " (2x+1) dx",
-            "For example, evaluate",
-            "",
-            "⌡0",
-            "(2x+1) using the values of at x = 0, 0.25, 0.5, 0.75 1 and and use a sketch on a given graph to determine whether the trapezium rule gives an over-estimate or an under-estimate."
+            "For example, evaluate $\\displaystyle\\int_0^1 \\sqrt{2x + 1}\\,\\mathrm{d}x$ using the values of $\\sqrt{2x + 1}$ at $x = 0, 0.25, 0.5, 0.75$ and $1$ and use a sketch on a given graph to determine whether the trapezium rule gives an over-estimate or an under-estimate."
           ],
           "children": []
         },
@@ -916,10 +842,10 @@ window.KOS_DATA.maths = {
           "ref": "10.1",
           "title": "Vectors in 2D & 3D",
           "content": [
-            "Use vectors in two dimensions and in three dimensions"
+            "Use vectors in two dimensions and in three dimensions."
           ],
           "info": [
-            "Students should be familiar with column vectors and with the use of i and j unit vectors in two dimensions i, j k and and unit vectors in three dimensions."
+            "Students should be familiar with column vectors and with the use of $\\mathbf{i}$ and $\\mathbf{j}$ unit vectors in two dimensions and $\\mathbf{i}$, $\\mathbf{j}$ and $\\mathbf{k}$ unit vectors in three dimensions."
           ],
           "children": []
         },
@@ -930,7 +856,7 @@ window.KOS_DATA.maths = {
             "Calculate the magnitude and direction of a vector and convert between component form and magnitude/direction form."
           ],
           "info": [
-            "Students should be able to find a unit vector in the direction of a, and be familiar with the notationa."
+            "Students should be able to find a unit vector in the direction of $\\mathbf{a}$, and be familiar with the notation $|\\mathbf{a}|$."
           ],
           "children": []
         },
@@ -942,8 +868,7 @@ window.KOS_DATA.maths = {
           ],
           "info": [
             "The triangle and parallelogram laws of addition.",
-            "Parallel vectors.",
-            "  "
+            "Parallel vectors."
           ],
           "children": []
         },
@@ -951,16 +876,12 @@ window.KOS_DATA.maths = {
           "ref": "10.4",
           "title": "Position vectors & distance",
           "content": [
-            "Understand and use position vectors; calculate the distance between two points represented by position vectors. need to learn:"
+            "Understand and use position vectors; calculate the distance between two points represented by position vectors."
           ],
           "info": [
-            "OB-OA= AB = b-a d",
-            "The distance between two points",
-            "(x , y ) and (x , y ) is given by 1 1 2 2 d 2 = (x – x )2 + (y – y )2",
-            "1 2 1 2",
-            "In three dimensions, the distance d between two points (x , y , z ) and 1 1 1",
-            "(x , y , z ) is given by 2 2 2 d 2 = (x – x )2 + (y – y )2 + (z – z )2",
-            "1 2 1 2 1 2"
+            "$\\overrightarrow{OB} - \\overrightarrow{OA} = \\overrightarrow{AB} = \\mathbf{b} - \\mathbf{a}$",
+            "The distance $d$ between two points $(x_1, y_1)$ and $(x_2, y_2)$ is given by $d^2 = (x_1 - x_2)^2 + (y_1 - y_2)^2$.",
+            "In three dimensions, the distance $d$ between two points $(x_1, y_1, z_1)$ and $(x_2, y_2, z_2)$ is given by $d^2 = (x_1 - x_2)^2 + (y_1 - y_2)^2 + (z_1 - z_2)^2$."
           ],
           "children": []
         },
@@ -971,10 +892,8 @@ window.KOS_DATA.maths = {
             "Use vectors to solve problems in pure mathematics and in context (including forces)."
           ],
           "info": [
-            "For example, finding position vector of the fourth corner of a shape",
-            "(e.g. parallelogram) ABCD with three given position vectors for the corners",
-            "A, B C. and Contexts such as velocity, displacement, kinematics and forces will be covered in Paper 3, Sections",
-            "6.1, 7.3 and 8.1 – 8.4"
+            "For example, finding position vector of the fourth corner of a shape (e.g. parallelogram) $ABCD$ with three given position vectors for the corners $A$, $B$ and $C$.",
+            "Contexts such as velocity, displacement, kinematics and forces will be covered in Paper 3, Sections 6.1, 7.3 and 8.1–8.4."
           ],
           "children": []
         }
@@ -987,7 +906,7 @@ window.KOS_DATA.maths = {
       "children": [
         {
           "ref": "S1.1",
-          "title": "Understand and use the terms ‘population’ and ‘sample’.",
+          "title": "Populations, samples & sampling",
           "content": [
             "Understand and use the terms ‘population’ and ‘sample’.",
             "Use samples to make informal inferences about the population.",
@@ -1009,10 +928,10 @@ window.KOS_DATA.maths = {
       "children": [
         {
           "ref": "S2.1",
-          "title": "Interpret diagrams for single-variable data, including understanding that area i…",
+          "title": "Single-variable data & histograms",
           "content": [
             "Interpret diagrams for single-variable data, including understanding that area in a histogram represents frequency.",
-            "Connect to probability distributions. students need to learn:"
+            "Connect to probability distributions."
           ],
           "info": [
             "Students should be familiar with histograms, frequency polygons, box and whisker plots (including outliers) and cumulative frequency diagrams."
@@ -1021,46 +940,41 @@ window.KOS_DATA.maths = {
         },
         {
           "ref": "S2.2",
-          "title": "Interpret scatter diagrams and regression lines for bivariate data, including re…",
+          "title": "Scatter diagrams, regression & correlation",
           "content": [
-            "Interpret scatter diagrams and regression lines for bivariate data, including recognition of scatter diagrams which include distinct sections of the population",
-            "(calculations involving regression lines are excluded).",
+            "Interpret scatter diagrams and regression lines for bivariate data, including recognition of scatter diagrams which include distinct sections of the population (calculations involving regression lines are excluded).",
             "Understand informal interpretation of correlation.",
             "Understand that correlation does not imply causation."
           ],
           "info": [
             "Students should be familiar with the terms explanatory (independent) and response (dependent) variables.",
-            "Use of interpolation and the dangers of extrapolation. Variables other than x and y may be used.",
+            "Use of interpolation and the dangers of extrapolation. Variables other than $x$ and $y$ may be used.",
             "Use to make predictions within the range of values of the explanatory variable.",
-            "Change of variable may be required, e.g. using knowledge of logarithms to reduce a axn kbx relationship of the form y = or y = into linear form to estimate a and n or k b. and Use of terms such as positive, negative, zero, strong and weak are expected."
+            "Change of variable may be required, e.g. using knowledge of logarithms to reduce a relationship of the form $y = ax^n$ or $y = kb^x$ into linear form to estimate $a$ and $n$ or $k$ and $b$.",
+            "Use of terms such as positive, negative, zero, strong and weak are expected."
           ],
           "children": []
         },
         {
           "ref": "S2.3",
-          "title": "Interpret measures of central tendency and variation, extending to standard devi…",
+          "title": "Central tendency, variation & standard deviation",
           "content": [
             "Interpret measures of central tendency and variation, extending to standard deviation.",
-            "Be able to calculate standard deviation, including from summary statistics. students need to learn:"
+            "Be able to calculate standard deviation, including from summary statistics."
           ],
           "info": [
             "Data may be discrete, continuous, grouped or ungrouped. Understanding and use of coding.",
             "Measures of central tendency: mean, median, mode.",
             "Measures of variation: variance, standard deviation, range and interpercentile ranges.",
             "Use of linear interpolation to calculate percentiles from grouped data is expected.",
-            "Students should be able to use the statistic x",
-            "( ∑ x)2",
-            "∑ (x- 2 ∑ x2 -",
-            "S = x) = xx n",
-            "S xx",
-            "Use of standard deviation = (or n equivalent) is expected but the use of S xx",
-            "S = (as used on spreadsheets) n-1 will be accepted."
+            "Students should be able to use the statistic $S_{xx} = \\sum(x - \\bar{x})^2 = \\sum x^2 - \\dfrac{\\left(\\sum x\\right)^2}{n}$.",
+            "Use of standard deviation $= \\sqrt{\\dfrac{S_{xx}}{n}}$ (or equivalent) is expected but the use of $S = \\sqrt{\\dfrac{S_{xx}}{n - 1}}$ (as used on spreadsheets) will be accepted."
           ],
           "children": []
         },
         {
           "ref": "S2.4",
-          "title": "Recognise and interpret possible outliers in data sets and statistical diagrams.",
+          "title": "Outliers & cleaning data",
           "content": [
             "Recognise and interpret possible outliers in data sets and statistical diagrams.",
             "Select or critique data presentation techniques in the context of a statistical problem.",
@@ -1068,9 +982,7 @@ window.KOS_DATA.maths = {
           ],
           "info": [
             "Any rule needed to identify outliers will be specified in the question.",
-            "For example, use of Q – 1.5 × IQR and 1",
-            "Q + 1.5 × IQR ± 3 ×",
-            "3 or mean standard deviation.",
+            "For example, use of $Q_1 - 1.5 \\times \\text{IQR}$ and $Q_3 + 1.5 \\times \\text{IQR}$ or mean $\\pm\\, 3 \\times$ standard deviation.",
             "Students will be expected to draw simple inferences and give interpretations to measures of central tendency and variation. Significance tests, other than those mentioned in Section 5, will not be expected.",
             "For example, students may be asked to identify possible outliers on a box plot or scatter diagram."
           ],
@@ -1085,43 +997,41 @@ window.KOS_DATA.maths = {
       "children": [
         {
           "ref": "S3.1",
-          "title": "Understand and use mutually exclusive and independent events when calculating pr…",
+          "title": "Mutually exclusive & independent events",
           "content": [
             "Understand and use mutually exclusive and independent events when calculating probabilities.",
             "Link to discrete and continuous distributions."
           ],
           "info": [
             "Venn diagrams or tree diagrams may be used. Set notation to describe events may be used.",
-            "Use of P(B|A) = P(B), P(A|B) = P(A), P(A ∩ B) = P(A) P(B) in connection with independent events.",
+            "Use of $\\mathrm{P}(B \\mid A) = \\mathrm{P}(B)$, $\\;\\mathrm{P}(A \\mid B) = \\mathrm{P}(A)$, $\\;\\mathrm{P}(A \\cap B) = \\mathrm{P}(A)\\,\\mathrm{P}(B)$ in connection with independent events.",
             "No formal knowledge of probability density functions is required but students should understand that area under the curve represents probability in the case of a continuous distribution."
           ],
           "children": []
         },
         {
           "ref": "S3.2",
-          "title": "Understand and use conditional probability, including the use of tree diagrams, …",
+          "title": "Conditional probability",
           "content": [
             "Understand and use conditional probability, including the use of tree diagrams, Venn diagrams, two-way tables.",
-            "Understand and use the conditional probability formula P(A∩B)",
-            "P(A|B) =",
-            "P(B) students need to learn:"
+            "Understand and use the conditional probability formula $\\mathrm{P}(A \\mid B) = \\dfrac{\\mathrm{P}(A \\cap B)}{\\mathrm{P}(B)}$."
           ],
           "info": [
-            "Understanding and use of P(A′) = 1 - P(A), P(A ∪ B) = P(A) + P(B) - P(A ∩ B), ∩",
-            "P(A B) = P(A) P(B|A)."
+            "Understanding and use of",
+            "• $\\mathrm{P}(A') = 1 - \\mathrm{P}(A)$",
+            "• $\\mathrm{P}(A \\cup B) = \\mathrm{P}(A) + \\mathrm{P}(B) - \\mathrm{P}(A \\cap B)$",
+            "• $\\mathrm{P}(A \\cap B) = \\mathrm{P}(A)\\,\\mathrm{P}(B \\mid A)$"
           ],
           "children": []
         },
         {
           "ref": "S3.3",
-          "title": "Modelling with probability, including critiquing assumptions made and the likely…",
+          "title": "Modelling with probability",
           "content": [
-            "Modelling with probability, including critiquing assumptions made and the likely effect of more realistic assumptions.",
-            "Understand and use"
+            "Modelling with probability, including critiquing assumptions made and the likely effect of more realistic assumptions."
           ],
           "info": [
-            "For example, questioning the assumption that a die or coin is fair.",
-            "Students will be expected to use"
+            "For example, questioning the assumption that a die or coin is fair."
           ],
           "children": []
         }
@@ -1134,44 +1044,39 @@ window.KOS_DATA.maths = {
       "children": [
         {
           "ref": "S4.1",
-          "title": "simple, discrete probability distributions",
+          "title": "Discrete distributions & the binomial",
           "content": [
-            "simple, discrete probability distributions",
-            "(calculation of mean and variance of discrete random variables is excluded), including the binomial distribution, as a model; calculate probabilities using the binomial distribution."
+            "Understand and use simple, discrete probability distributions (calculation of mean and variance of discrete random variables is excluded), including the binomial distribution, as a model; calculate probabilities using the binomial distribution."
           ],
           "info": [
-            "distributions to model a real-world situation and to comment critically on the appropriateness.",
+            "Students will be expected to use distributions to model a real-world situation and to comment critically on the appropriateness.",
             "Students should know and be able to identify the discrete uniform distribution.",
-            "∼",
-            "The notation X B(n, p) may be used.",
+            "The notation $X \\sim \\mathrm{B}(n, p)$ may be used.",
             "Use of a calculator to find individual or cumulative binomial probabilities."
           ],
           "children": []
         },
         {
           "ref": "S4.2",
-          "title": "Understand and use the Normal distribution as a model; find probabilities using …",
+          "title": "The Normal distribution",
           "content": [
-            "Understand and use the Normal distribution as a model; find probabilities using the Normal distribution",
-            "Link to histograms, mean, standard deviation, points of inflection and the binomial distribution. students need to learn:"
+            "Understand and use the Normal distribution as a model; find probabilities using the Normal distribution.",
+            "Link to histograms, mean, standard deviation, points of inflection and the binomial distribution."
           ],
           "info": [
-            "The notation X ∼ N(µ, σ 2) may be used.",
-            "Knowledge of the shape and the symmetry of the distribution is required.",
-            "Knowledge of the probability density function is not required. Derivation of the mean, variance and cumulative distribution function is not required.",
+            "The notation $X \\sim \\mathrm{N}(\\mu, \\sigma^2)$ may be used.",
+            "Knowledge of the shape and the symmetry of the distribution is required. Knowledge of the probability density function is not required. Derivation of the mean, variance and cumulative distribution function is not required.",
             "Questions may involve the solution of simultaneous equations.",
             "Students will be expected to use their calculator to find probabilities connected with the normal distribution.",
-            "Students should know that the points of inflection on the normal curve are at x = µ ± σ.",
-            "The derivation of this result is not expected. n",
-            "Students should know that when is large p and is close to 0.5 the distribution",
-            "B(n, p) can be approximated by N(np, np[1 – p])",
+            "Students should know that the points of inflection on the normal curve are at $x = \\mu \\pm \\sigma$. The derivation of this result is not expected.",
+            "Students should know that when $n$ is large and $p$ is close to 0.5 the distribution $\\mathrm{B}(n, p)$ can be approximated by $\\mathrm{N}(np, np[1 - p])$.",
             "The application of a continuity correction is expected."
           ],
           "children": []
         },
         {
           "ref": "S4.3",
-          "title": "Select an appropriate probability distribution for a context, with appropriate r…",
+          "title": "Choosing a distribution",
           "content": [
             "Select an appropriate probability distribution for a context, with appropriate reasoning, including recognising when the binomial or Normal model may not be appropriate."
           ],
@@ -1189,49 +1094,47 @@ window.KOS_DATA.maths = {
       "children": [
         {
           "ref": "S5.1",
-          "title": "Understand and apply the language of statistical hypothesis testing, developed t…",
+          "title": "The language of hypothesis testing",
           "content": [
-            "Understand and apply the language of statistical hypothesis testing, developed through a binomial model: null hypothesis, alternative hypothesis, significance level, test statistic, 1-tail test, 2-tail test, critical value, critical region, acceptance region, p-value; extend to correlation coefficients as measures of how close data points lie to a straight line. and be able to interpret a given correlation coefficient using a given p-value or critical value (calculation of correlation coefficients is excluded). students need to learn:"
+            "Understand and apply the language of statistical hypothesis testing, developed through a binomial model: null hypothesis, alternative hypothesis, significance level, test statistic, 1-tail test, 2-tail test, critical value, critical region, acceptance region, $p$-value;",
+            "extend to correlation coefficients as measures of how close data points lie to a straight line,",
+            "and be able to interpret a given correlation coefficient using a given $p$-value or critical value (calculation of correlation coefficients is excluded)."
           ],
           "info": [
-            "An informal appreciation that the expected value of a binomial distribution is given by np may be required for a 2-tail test.",
-            "Students should know that the product moment correlation coefficient r satisfies",
-            "r≤ 1 r = ±1 and that a value of means the data points all lie on a straight line.",
-            "Students will be expected to calculate a value of r using their calculator but use of the formula is not required. ρ",
-            "Hypotheses should be stated in terms of ρ 0 ρ with a null hypothesis of = where represents the population correlation coefficient.",
-            "Tables of critical values or a p-value will be given."
+            "An informal appreciation that the expected value of a binomial distribution is given by $np$ may be required for a 2-tail test.",
+            "Students should know that the product moment correlation coefficient $r$ satisfies $|r| \\le 1$ and that a value of $r = \\pm 1$ means the data points all lie on a straight line.",
+            "Students will be expected to calculate a value of $r$ using their calculator but use of the formula is not required.",
+            "Hypotheses should be stated in terms of $\\rho$ with a null hypothesis of $\\rho = 0$ where $\\rho$ represents the population correlation coefficient.",
+            "Tables of critical values or a $p$-value will be given."
           ],
           "children": []
         },
         {
           "ref": "S5.2",
-          "title": "Conduct a statistical hypothesis test for the proportion in the binomial distrib…",
+          "title": "Testing a binomial proportion",
           "content": [
             "Conduct a statistical hypothesis test for the proportion in the binomial distribution and interpret the results in context.",
             "Understand that a sample is being used to make an inference about the population and appreciate that the significance level is the probability of incorrectly rejecting the null hypothesis."
           ],
           "info": [
-            "Hypotheses should be expressed in terms of the population parameter p",
+            "Hypotheses should be expressed in terms of the population parameter $p$.",
             "A formal understanding of Type I errors is not expected."
           ],
           "children": []
         },
         {
           "ref": "S5.3",
-          "title": "Conduct a statistical hypothesis test for the mean of a Normal distribution with…",
+          "title": "Testing a Normal mean",
           "content": [
             "Conduct a statistical hypothesis test for the mean of a Normal distribution with known, given or assumed variance and interpret the results in context."
           ],
           "info": [
             "Students should know that:",
-            " σ2 ",
-            "N(µ, σ 2)  µ, ",
-            "If X ∼ then X ∼ N and  ",
-            " n  µ that a test for can be carried out using:",
-            "X -µ",
-            "∼ N(0, 12). σ/ n",
+            "• if $X \\sim \\mathrm{N}(\\mu, \\sigma^2)$ then $\\bar{X} \\sim \\mathrm{N}\\left(\\mu, \\dfrac{\\sigma^2}{n}\\right)$",
+            "• and that a test for $\\mu$ can be carried out using $\\dfrac{\\bar{X} - \\mu}{\\sigma / \\sqrt{n}} \\sim \\mathrm{N}(0, 1^2)$.",
             "No proofs required.",
-            "Hypotheses should be stated in terms of µ. the population mean Knowledge of the Central Limit Theorem or other large sample approximations is not required."
+            "Hypotheses should be stated in terms of the population mean $\\mu$.",
+            "Knowledge of the Central Limit Theorem or other large sample approximations is not required."
           ],
           "children": []
         }
@@ -1244,13 +1147,13 @@ window.KOS_DATA.maths = {
       "children": [
         {
           "ref": "M6.1",
-          "title": "Understand and use fundamental quantities and units in the S.I. system: length, …",
+          "title": "S.I. quantities & units",
           "content": [
             "Understand and use fundamental quantities and units in the S.I. system: length, time, mass.",
-            "Understand and use derived quantities and units: velocity, acceleration, force, weight, moment. students need to learn:"
+            "Understand and use derived quantities and units: velocity, acceleration, force, weight, moment."
           ],
           "info": [
-            "Students may be required to convert one unit into another e.g. km h-1 into m s-1"
+            "Students may be required to convert one unit into another, e.g. $\\text{km h}^{-1}$ into $\\text{m s}^{-1}$."
           ],
           "children": []
         }
@@ -1263,7 +1166,7 @@ window.KOS_DATA.maths = {
       "children": [
         {
           "ref": "M7.1",
-          "title": "Understand and use the language of kinematics: position; displacement; distance …",
+          "title": "The language of kinematics",
           "content": [
             "Understand and use the language of kinematics: position; displacement; distance travelled; velocity; speed; acceleration."
           ],
@@ -1274,7 +1177,7 @@ window.KOS_DATA.maths = {
         },
         {
           "ref": "M7.2",
-          "title": "Understand, use and interpret graphs in kinematics for motion in a straight line…",
+          "title": "Kinematics graphs",
           "content": [
             "Understand, use and interpret graphs in kinematics for motion in a straight line: displacement against time and interpretation of gradient; velocity against time and interpretation of gradient and area under the graph."
           ],
@@ -1285,46 +1188,41 @@ window.KOS_DATA.maths = {
         },
         {
           "ref": "M7.3",
-          "title": "Understand, use and derive the formulae for constant acceleration for motion in …",
+          "title": "Constant acceleration (suvat)",
           "content": [
             "Understand, use and derive the formulae for constant acceleration for motion in a straight line.",
             "Extend to 2 dimensions using vectors."
           ],
           "info": [
-            "Derivation may use knowledge of sections 7.2 and/or 7.4",
-            "Understand and use suvat formulae for constant acceleration in 2-D, v = u + at r = ut +1at2",
-            "e.g. , with vectors",
-            "2 given in i - j or column vector form.",
+            "Derivation may use knowledge of sections 7.2 and/or 7.4.",
+            "Understand and use suvat formulae for constant acceleration in 2-D, e.g. $\\mathbf{v} = \\mathbf{u} + \\mathbf{a}t$, $\\;\\mathbf{r} = \\mathbf{u}t + \\frac{1}{2}\\mathbf{a}t^2$ with vectors given in $\\mathbf{i}$–$\\mathbf{j}$ or column vector form.",
             "Use vectors to solve problems."
           ],
           "children": []
         },
         {
           "ref": "M7.4",
-          "title": "Use calculus in kinematics for motion in a straight line: d2r dr dv v = , a = = …",
+          "title": "Calculus in kinematics",
           "content": [
-            "Use calculus in kinematics for motion in a straight line: d2r dr dv v = , a = = dt dt dt2",
-            "⌠ ⌠ r = v dt, v = a dt",
-            " ",
-            "⌡ ⌡",
+            "Use calculus in kinematics for motion in a straight line:",
+            "• $v = \\dfrac{\\mathrm{d}r}{\\mathrm{d}t}$, $\\;a = \\dfrac{\\mathrm{d}v}{\\mathrm{d}t} = \\dfrac{\\mathrm{d}^2 r}{\\mathrm{d}t^2}$",
+            "• $r = \\displaystyle\\int v\\,\\mathrm{d}t$, $\\;v = \\displaystyle\\int a\\,\\mathrm{d}t$",
             "Extend to 2 dimensions using vectors."
           ],
           "info": [
             "The level of calculus required will be consistent with that in Sections 7 and 8 in the Pure Mathematics content.",
-            "Differentiation and integration of a vector with respect to time. e.g.",
-            "3 r =t2i+t2j, find r and r",
-            "Given at a given time."
+            "Differentiation and integration of a vector with respect to time, e.g. given $\\mathbf{r} = t^2\\mathbf{i} + t^{\\frac{3}{2}}\\mathbf{j}$, find $\\dot{\\mathbf{r}}$ and $\\ddot{\\mathbf{r}}$ at a given time."
           ],
           "children": []
         },
         {
           "ref": "M7.5",
-          "title": "Model motion under gravity in a vertical plane using vectors; projectiles. stude…",
+          "title": "Projectiles",
           "content": [
-            "Model motion under gravity in a vertical plane using vectors; projectiles. students need to learn:"
+            "Model motion under gravity in a vertical plane using vectors; projectiles."
           ],
           "info": [
-            "Derivation of formulae for time of flight, range and greatest height and the derivation of the equation of the path of a"
+            "Derivation of formulae for time of flight, range and greatest height and the derivation of the equation of the path of a projectile may be required."
           ],
           "children": []
         }
@@ -1337,7 +1235,7 @@ window.KOS_DATA.maths = {
       "children": [
         {
           "ref": "M8.1",
-          "title": "Understand the concept of a force; understand and use Newton’s first law.",
+          "title": "Forces & Newton’s first law",
           "content": [
             "Understand the concept of a force; understand and use Newton’s first law."
           ],
@@ -1348,64 +1246,61 @@ window.KOS_DATA.maths = {
         },
         {
           "ref": "M8.2",
-          "title": "Understand and use Newton’s second law for motion in a straight line",
+          "title": "Newton’s second law",
           "content": [
-            "Understand and use Newton’s second law for motion in a straight line",
-            "(restricted to forces in two perpendicular directions or simple cases of forces given as 2-D vectors); extend to situations where forces need to be resolved (restricted to 2 dimensions)."
+            "Understand and use Newton’s second law for motion in a straight line (restricted to forces in two perpendicular directions or simple cases of forces given as 2-D vectors); extend to situations where forces need to be resolved (restricted to 2 dimensions)."
           ],
           "info": [
             "Problems will involve motion in a straight line with constant acceleration in scalar form, where the forces act either parallel or perpendicular to the motion.",
-            "Problems may involve motion in a straight line with constant acceleration in vector form, where the i - j forces are given in form or as column vectors.",
+            "Problems may involve motion in a straight line with constant acceleration in vector form, where the forces are given in $\\mathbf{i}$–$\\mathbf{j}$ form or as column vectors.",
             "Extend to problems where forces need to be resolved, e.g. a particle moving on an inclined plane."
           ],
           "children": []
         },
         {
           "ref": "M8.3",
-          "title": "Understand and use weight and motion in a straight line under gravity; gravitati…",
+          "title": "Weight & gravity",
           "content": [
-            "Understand and use weight and motion in a straight line under gravity; gravitational acceleration, g, and its value in S.I. units to varying degrees of accuracy.",
-            "(The inverse square law for gravitation is not required and g may be assumed to be constant, but students should be g aware that is not a universal constant but depends on location.) students need to learn:"
+            "Understand and use weight and motion in a straight line under gravity; gravitational acceleration, $g$, and its value in S.I. units to varying degrees of accuracy.",
+            "(The inverse square law for gravitation is not required and $g$ may be assumed to be constant, but students should be aware that $g$ is not a universal constant but depends on location.)"
           ],
           "info": [
-            "g",
-            "The default value of will be 9.8 m s-2 but some questions may specify another value, e.g. g = 10 m s-2"
+            "The default value of $g$ will be $9.8\\ \\text{m s}^{-2}$ but some questions may specify another value, e.g. $g = 10\\ \\text{m s}^{-2}$."
           ],
           "children": []
         },
         {
           "ref": "M8.4",
-          "title": "Understand and use Newton’s third law; equilibrium of forces on a particle and m…",
+          "title": "Newton’s third law, pulleys & connected particles",
           "content": [
             "Understand and use Newton’s third law; equilibrium of forces on a particle and motion in a straight line (restricted to forces in two perpendicular directions or simple cases of forces given as 2-D vectors); application to problems involving smooth pulleys and connected particles; resolving forces in 2 dimensions; equilibrium of a particle under coplanar forces."
           ],
           "info": [
-            "Connected particle problems could include problems with particles in contact e.g. lift problems.",
+            "Connected particle problems could include problems with particles in contact, e.g. lift problems.",
             "Problems may be set where forces need to be resolved, e.g. at least one of the particles is moving on an inclined plane."
           ],
           "children": []
         },
         {
           "ref": "M8.5",
-          "title": "Understand and use addition of forces; resultant forces; dynamics for motion in …",
+          "title": "Resultant forces",
           "content": [
             "Understand and use addition of forces; resultant forces; dynamics for motion in a plane."
           ],
           "info": [
-            "Students may be required to resolve a vector into two components or use a vector diagram, e.g. problems involving two or more forces, given in magnitude- direction form."
+            "Students may be required to resolve a vector into two components or use a vector diagram, e.g. problems involving two or more forces, given in magnitude-direction form."
           ],
           "children": []
         },
         {
           "ref": "M8.6",
-          "title": "Understand and use the F ≤ µRmodel for friction; coefficient of friction; motion…",
+          "title": "Friction",
           "content": [
-            "Understand and use the F ≤ µRmodel for friction; coefficient of friction; motion of a body on a rough surface; limiting friction and statics."
+            "Understand and use the $F \\le \\mu R$ model for friction; coefficient of friction; motion of a body on a rough surface; limiting friction and statics."
           ],
           "info": [
-            "An understanding of F = µR when a particle is moving.",
-            "≤ µR",
-            "An understanding of F in a situation of equilibrium."
+            "An understanding of $F = \\mu R$ when a particle is moving.",
+            "An understanding of $F \\le \\mu R$ in a situation of equilibrium."
           ],
           "children": []
         }
@@ -1418,13 +1313,13 @@ window.KOS_DATA.maths = {
       "children": [
         {
           "ref": "M9.1",
-          "title": "Understand and use moments in simple static contexts.",
+          "title": "Moments",
           "content": [
             "Understand and use moments in simple static contexts."
           ],
           "info": [
             "Equilibrium of rigid bodies.",
-            "Problems involving parallel and non- parallel coplanar forces, e.g. ladder problems."
+            "Problems involving parallel and non-parallel coplanar forces, e.g. ladder problems."
           ],
           "children": []
         }

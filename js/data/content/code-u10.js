@@ -94,8 +94,8 @@
       ["Unit vs integration test?", "Unit: one part alone, fast. Integration: parts together, slower."]
     ],
     quiz: [
-      { q: "`Assert.True(fee >= 0)` as the only check…", opts: ["is a strong test", "almost never fails, so proves little", "is a compile error", "tests the clock"], ans: 1, why: "Nearly any wrong fee is still ≥ 0." },
-      { q: "You fix a bug. First…", opts: ["delete the old tests", "write a test that fails because of the bug", "refactor everything", "ship it"], ans: 1, why: "It proves the fix and guards against regression." },
+      { q: "`Assert.True(fee >= 0)` as the only check…", opts: ["is a strong test of the fee rule", "almost never fails, so proves little", "is a compile error: True needs a message", "tests the clock rather than the fee"], ans: 1, why: "Nearly any wrong fee is still ≥ 0." },
+      { q: "You fix a bug. First…", opts: ["delete the old tests that missed the bug", "write a test that fails because of the bug", "refactor everything around the bug first", "ship it, then add tests if it returns"], ans: 1, why: "It proves the fix and guards against regression." },
       { q: "Most tests in a healthy project are…", opts: ["end-to-end", "unit tests", "manual", "integration"], ans: 1, why: "Fast and precise, they form the base." }
     ]
   });
@@ -162,8 +162,8 @@
     ],
     quiz: [
       { q: "A [Theory] with four [InlineData] rows reports…", opts: ["one test", "four tests", "an error", "eight tests"], ans: 1, why: "One per row." },
-      { q: "Where does setup shared by every test in a class go?", opts: ["a static field", "the test class constructor", "Main", "an attribute"], ans: 1, why: "xUnit makes a new instance per test." },
-      { q: "A decimal in [InlineData]…", opts: ["works directly", "must travel as a string or double, since attribute values are constants", "is a runtime error", "needs MemberData only"], ans: 1, why: "decimal is not an attribute constant type." }
+      { q: "Where does setup shared by every test in a class go?", opts: ["a static field set by the first test", "the test class constructor", "Main, before the tests start", "an attribute on each test method"], ans: 1, why: "xUnit makes a new instance per test." },
+      { q: "A decimal in [InlineData]…", opts: ["works directly, since attributes accept any numeric type", "must travel as a string or double: attribute values are constants", "compiles, then fails at run time when xUnit reads it", "needs MemberData, since InlineData takes strings only"], ans: 1, why: "decimal is not an attribute constant type." }
     ]
   });
 
@@ -228,9 +228,9 @@
       ["A good test name…", "Says the situation and the result, like a sentence."]
     ],
     quiz: [
-      { q: "A test named Fees_work with three calls and three asserts should become…", opts: ["one bigger test", "three tests or one Theory", "a loop", "a comment"], ans: 1, why: "One behaviour each, so a failure says which." },
-      { q: "`Assert.Equal((days - 2) * 0.25m, fee)` is weak because…", opts: ["it is slow", "it repeats the formula, so it shares the code's bugs", "decimals cannot be compared", "it has no name"], ans: 1, why: "Assert a known value: 0.75m." },
-      { q: "For a two-day grace period, the most useful cases are…", opts: ["1 and 100", "2 and 3 days late", "only 0", "random days"], ans: 1, why: "The boundary: last free day and first paid day." }
+      { q: "A test named Fees_work with three calls and three asserts should become…", opts: ["one bigger test with more asserts", "three tests or one Theory", "a loop inside one test", "a comment above each assert"], ans: 1, why: "One behaviour each, so a failure says which." },
+      { q: "`Assert.Equal((days - 2) * 0.25m, fee)` is weak because…", opts: ["it is slow, since it computes the fee twice", "it repeats the formula, so it shares the code's bugs", "decimals cannot be compared exactly with Assert.Equal", "it has no message saying what the fee should be"], ans: 1, why: "Assert a known value: 0.75m." },
+      { q: "For a two-day grace period, the most useful cases are…", opts: ["1 and 100 days late", "2 and 3 days late", "only 0 days late", "random days each run"], ans: 1, why: "The boundary: last free day and first paid day." }
     ]
   });
 
@@ -291,9 +291,9 @@
       ["When do you commit in TDD?", "On green."]
     ],
     quiz: [
-      { q: "In TDD the code for a new rule is written…", opts: ["before its test", "after a failing test for it", "never", "by the test"], ans: 1, why: "Red first." },
-      { q: "During refactor you may…", opts: ["add new behaviour", "change structure while tests stay green", "delete failing tests", "skip running tests"], ans: 1, why: "Behaviour is fixed; structure improves." },
-      { q: "A new test passes the first time you run it. You should…", opts: ["celebrate", "check it can fail", "delete it", "refactor"], ans: 1, why: "It may not test anything." }
+      { q: "In TDD the code for a new rule is written…", opts: ["before its test, then tested", "after a failing test for it", "only once every test passes", "by the test runner from the name"], ans: 1, why: "Red first." },
+      { q: "During refactor you may…", opts: ["add new behaviour while tests stay green", "change structure while tests stay green", "delete failing tests to keep the suite green", "skip running tests until the end"], ans: 1, why: "Behaviour is fixed; structure improves." },
+      { q: "A new test passes the first time you run it. You should…", opts: ["move on to the next rule", "check it can fail", "delete it as redundant", "refactor the code it tests"], ans: 1, why: "It may not test anything." }
     ]
   });
 
@@ -355,8 +355,8 @@
     ],
     quiz: [
       { q: "FixedClock that always returns 10 March is a…", opts: ["mock", "stub", "dummy", "integration test"], ans: 1, why: "It returns a canned answer." },
-      { q: "`var smtp = new SmtpSender();` inside Reminders makes testing hard because…", opts: ["it is slow to type", "there is no seam to swap in a double", "SmtpSender is sealed", "it is static"], ans: 1, why: "Pass an INotifier in instead." },
-      { q: "A test that mocks every collaborator tends to…", opts: ["catch more bugs", "break on refactors and miss real bugs", "run slower but be stronger", "need no asserts"], ans: 1, why: "It tests calls, not behaviour." }
+      { q: "`var smtp = new SmtpSender();` inside Reminders makes testing hard because…", opts: ["it is slow to type in each method", "there is no seam to swap in a double", "a test project cannot reference SmtpSender", "new makes Reminders a static class"], ans: 1, why: "Pass an INotifier in instead." },
+      { q: "A test that mocks every collaborator tends to…", opts: ["catch more bugs than tests of real code", "break on refactors and miss real bugs", "run slower but catch every integration bug", "need no asserts, as mocks check themselves"], ans: 1, why: "It tests calls, not behaviour." }
     ]
   });
 
@@ -412,9 +412,9 @@
       ["Why never fix a bug inside a refactor step?", "A red test could then be either; do them separately."]
     ],
     quiz: [
-      { q: "Replacing 0.25m with BookRate is…", opts: ["a behaviour change", "a refactoring (Introduce Constant)", "a test", "a bug fix"], ans: 1, why: "Same behaviour, clearer structure." },
-      { q: "Tests go red after Extract Method. You…", opts: ["fix the tests", "undo and try a smaller step", "carry on", "delete the method"], ans: 1, why: "Back to green first." },
-      { q: "Automated refactorings are safer than editing by hand because…", opts: ["they are faster to type", "they update every use correctly", "they write tests", "they skip compiling"], ans: 1, why: "The IDE knows every reference." }
+      { q: "Replacing 0.25m with BookRate is…", opts: ["a behaviour change to the fee rule", "a refactoring (Introduce Constant)", "an optimisation (Inline Constant)", "a bug fix in the rate's rounding"], ans: 1, why: "Same behaviour, clearer structure." },
+      { q: "Tests go red after Extract Method. You…", opts: ["fix the tests to match the new code", "undo and try a smaller step", "carry on and fix them at the end", "delete the tests that went red"], ans: 1, why: "Back to green first." },
+      { q: "Automated refactorings are safer than editing by hand because…", opts: ["they are faster than typing by hand", "they update every use correctly", "they write tests for the changed code", "they skip compiling until you finish"], ans: 1, why: "The IDE knows every reference." }
     ]
   });
 
@@ -477,8 +477,8 @@
     ],
     quiz: [
       { q: "The best name for an int holding how many days a loan is overdue:", opts: ["d", "x", "daysLate", "Days_late_int"], ans: 2, why: "Says what it is, in camelCase." },
-      { q: "`// add one to i` above `i++;` is…", opts: ["a good comment", "noise that restates the code", "required", "a warning"], ans: 1, why: "Comment why, not what." },
-      { q: "Guard clauses make a method…", opts: ["slower", "flatter: special cases leave early", "longer", "static"], ans: 1, why: "The main path is no longer nested in ifs." }
+      { q: "`// add one to i` above `i++;` is…", opts: ["a good comment for new readers", "noise that restates the code", "required by the C# style rules", "a compiler warning about i++"], ans: 1, why: "Comment why, not what." },
+      { q: "Guard clauses make a method…", opts: ["slower: each early return costs time", "flatter: special cases leave early", "deeper: each guard adds a level", "safer: they catch every exception"], ans: 1, why: "The main path is no longer nested in ifs." }
     ]
   });
 
@@ -538,9 +538,9 @@
       ["When should you add an abstraction?", "When a real second variant arrives, not in case."]
     ],
     quiz: [
-      { q: "Reminders chooses who is overdue, words the message and sends email. SRP suggests…", opts: ["leave it", "separating sending (and wording) from choosing", "merging it into LateFees", "making it static"], ans: 1, why: "Three reasons to change." },
+      { q: "Reminders chooses who is overdue, words the message and sends email. SRP suggests…", opts: ["leaving it, since one class is simpler to test", "separating sending (and wording) from choosing", "merging it into LateFees, which also reads dates", "making it static so nothing depends on it"], ans: 1, why: "Three reasons to change." },
       { q: "Adding e-books by writing an EbookRule class, editing nothing else, follows…", opts: ["SRP", "OCP", "LSP", "DIP"], ans: 1, why: "Open for extension, closed for modification." },
-      { q: "An interface with exactly one implementation, added for a future that never came…", opts: ["is required by SOLID", "adds indirection for no gain", "speeds the code", "is OCP"], ans: 1, why: "Abstract when the variation is real." }
+      { q: "An interface with exactly one implementation, added for a future that never came…", opts: ["is required by SOLID's D rule", "adds indirection for no gain", "speeds the code by early binding", "is the Open–Closed rule at work"], ans: 1, why: "Abstract when the variation is real." }
     ]
   });
 
@@ -663,9 +663,9 @@
       ["A test goes red after a refactor. Delete it?", "No — undo the step; the test is doing its job."]
     ],
     quiz: [
-      { q: "Pinning down legacy code, the code gives 0 where you expected 0.25. The test should expect…", opts: ["0.25", "0 (what it does now)", "nothing", "an exception"], ans: 1, why: "Characterise first; change later, on purpose." },
-      { q: "Changing `<= 2` to `<= 1` and the tests still pass means…", opts: ["the change is fine", "no test checks the last grace day", "the tests are too strict", "mutation testing is broken"], ans: 1, why: "A boundary is untested." },
-      { q: "Before refactoring LateFees to take an IClock you should have…", opts: ["deleted the old tests", "green tests covering Calculate", "rewritten Reminders", "nothing"], ans: 1, why: "The tests are what make the refactor safe." }
+      { q: "Pinning down legacy code, the code gives 0 where you expected 0.25. The test should expect…", opts: ["0.25 (what you expected)", "0 (what it does now)", "nothing until it is fixed", "an exception for the bug"], ans: 1, why: "Characterise first; change later, on purpose." },
+      { q: "Changing `<= 2` to `<= 1` and the tests still pass means…", opts: ["the change is fine, since the tests still pass", "no test checks the last grace day", "the tests are too strict about grace days", "mutation testing is broken for decimals"], ans: 1, why: "A boundary is untested." },
+      { q: "Before refactoring LateFees to take an IClock you should have…", opts: ["deleted the old tests for LateFees", "green tests covering Calculate", "rewritten Reminders to use IClock", "nothing: refactoring needs no tests"], ans: 1, why: "The tests are what make the refactor safe." }
     ]
   });
 

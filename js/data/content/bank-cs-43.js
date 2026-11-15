@@ -27,7 +27,7 @@ X("compsci:4.3.1.1", {
     { q: "DFS from A in the same graph visits:", opts: ["A B C D", "A B D C", "A C B D", "A D B C"], ans: 1, why: "A → B → D (deepest first), then back out to C." },
     { q: "A DFS that returns TRUE when it reaches an already-visited node (not its parent) is detecting:", opts: ["a shortest path", "a cycle", "a leaf", "an isolated node"], ans: 1, why: "Revisiting means a loop exists." },
     { q: "Shortest path by edge count in an unweighted graph is found by:", opts: ["DFS", "BFS", "in-order traversal", "bubble sort"], ans: 1, why: "BFS reaches nodes in increasing distance." },
-    { q: "The Visited array in a traversal trace should:", opts: ["reset each call", "have each flag set once and never changed", "be sorted", "count edges"], ans: 1, why: "The mark scheme awards this specifically." }
+    { q: "The Visited array in a traversal trace should:", opts: ["be reset to false at the start of each call", "have each flag set once and never changed", "be sorted into order after the traversal", "count the edges leading into each node"], ans: 1, why: "The mark scheme awards this specifically." }
   ],
   exam: [
     { src: "AQA 2022 P1 Q4.5", ctx: "The recursive function `G(Node, Parent)` below is applied to an undirected graph stored as an adjacency matrix `Adj[0..3][0..3]`, with `Visited[0..3]` initially all FALSE. The graph has edges 0–1, 1–3 and 1–2.",
@@ -59,13 +59,14 @@ X("compsci:4.3.2.1", {
     ["Which traversal produces Reverse Polish from an expression tree?", "Post-order.", 13],
     ["Which traversal is used to copy a tree?", "Pre-order — the root is created before its children.", 14],
     ["How do you reverse the output order of a traversal?", "Swap the order in which the left and right subtrees are processed (right before left).", 15],
-    ["What does the stack hold during an iterative in-order traversal?", "The nodes whose right subtrees are still to be processed — the path back up the tree.", 16]
+    ["What does the stack hold during an iterative in-order traversal?", "The nodes whose right subtrees are still to be processed — the path back up the tree.", 16],
+    ["Which traversal finds all values in a range in a BST?", "In-order, pruning subtrees outside the range.", "compsci:4.3.4.3:15"]
   ],
   quiz: [
     { q: "Tree: root 8, left 3 (children 1, 6), right 10 (right child 14). In-order output is:", opts: ["8 3 1 6 10 14", "1 3 6 8 10 14", "1 6 3 14 10 8", "8 10 14 3 6 1"], ans: 1, why: "Left, node, right — ascending for a BST." },
     { q: "Pre-order of the same tree:", opts: ["8 3 1 6 10 14", "1 3 6 8 10 14", "1 6 3 14 10 8", "8 10 3"], ans: 0, why: "Node first, then left subtree, then right." },
     { q: "Post-order of the same tree:", opts: ["8 3 1 6 10 14", "1 3 6 8 10 14", "1 6 3 14 10 8", "14 10 8 6 1 3"], ans: 2, why: "Children before parent; root last." },
-    { q: "Post-order of an expression tree yields:", opts: ["infix", "prefix", "postfix (RPN)", "binary"], ans: 2, why: "Operands before operator." },
+    { q: "Post-order of an expression tree yields:", opts: ["infix (normal)", "prefix (Polish)", "postfix (RPN)", "binary (base 2)"], ans: 2, why: "Operands before operator." },
     { q: "Deleting all nodes of a tree safely uses:", opts: ["pre-order", "in-order", "post-order", "BFS"], ans: 2, why: "Children are freed before their parent." },
     { q: "To output a BST in descending order, an in-order traversal should:", opts: ["visit right subtree first", "visit left subtree first", "skip the root", "use a queue"], ans: 0, why: "Right, node, left." }
   ],
@@ -108,9 +109,9 @@ X("compsci:4.3.3.1", {
   ],
   quiz: [
     { q: "`8 2 − 3 ×` evaluates to:", opts: ["2", "18", "−16", "6"], ans: 1, why: "(8 − 2) × 3 = 18." },
-    { q: "Infix `2 × (3 + 4)` in RPN is:", opts: ["2 3 4 + ×", "2 3 × 4 +", "3 4 + 2 ×", "both A and C"], ans: 3, why: "Both are valid postfix forms of the same value; A follows the operand order." },
+    { q: "Infix `2 × (3 + 4)` in RPN is:", opts: ["2 3 × 4 + or 2 3 + 4 +", "3 4 2 + × or 2 3 × 4 ×", "2 3 + 4 × or 3 2 4 × +", "2 3 4 + × or 3 4 + 2 ×"], ans: 3, why: "Both are valid postfix forms of the same value (14); the first follows the operand order. Each wrong pair gives other values." },
     { q: "Which is NOT an advantage of RPN?", opts: ["No brackets needed", "Easier for humans to read", "No precedence rules", "Simple stack evaluation"], ans: 1, why: "'Easier to understand' is explicitly rejected." },
-    { q: "When an operator is met during evaluation you:", opts: ["push it", "pop two operands, apply, push the result", "pop one operand", "clear the stack"], ans: 1, why: "The three-step rule." },
+    { q: "When an operator is met during evaluation you:", opts: ["push it onto the stack with the operands", "pop two operands, apply, push the result", "pop one operand and apply the operator to it", "clear the stack and start a new expression"], ans: 1, why: "The three-step rule." },
     { q: "`1 2 3 + +` evaluates to:", opts: ["6", "5", "3", "an error"], ans: 0, why: "2 + 3 = 5; 1 + 5 = 6." },
     { q: "RPN for `a − b / c` is:", opts: ["a b − c /", "a b c / −", "a b c − /", "/ a b c"], ans: 1, why: "Division binds tighter: a (b c /) −." }
   ],
@@ -145,11 +146,11 @@ X("compsci:4.3.4.1", {
     ["Why does the loop condition need both 'not found' and 'index < length'?", "To stop early when the target is found, and to avoid running off the end when it is absent.", 15]
   ],
   quiz: [
-    { q: "Linear search on 1000 unsorted items, target absent, makes how many comparisons?", opts: ["1", "10", "500", "1000"], ans: 3, why: "Every item must be examined." },
+    { q: "A successful linear search of n items makes, on average, about:", opts: ["n/2 comparisons", "n comparisons", "log₂ n comparisons", "1 comparison"], ans: 0, why: "The target is equally likely to be anywhere." },
     { q: "The time complexity of linear search is:", opts: ["O(1)", "O(log n)", "O(n)", "O(n²)"], ans: 2, why: "One loop of n iterations." },
-    { q: "Doubling the list length does what to the worst-case time of linear search?", opts: ["Adds one comparison", "Doubles it", "Squares it", "No change"], ans: 1, why: "Linear growth." },
+    { q: "Linear search can be used on:", opts: ["sorted and unsorted lists", "sorted lists only", "lists of numbers only", "lists with no duplicates"], ans: 0, why: "It checks every item in turn." },
     { q: "A list is unsorted and searched once. Best approach?", opts: ["Sort then binary search", "Linear search", "Hash it first", "Binary search anyway"], ans: 1, why: "Sorting costs O(n log n) — more than one O(n) search." },
-    { q: "'n comparisons are needed' scores nothing without:", opts: ["a diagram", "'in the worst case' / 'maximum'", "the value of n", "big-O"], ans: 1, why: "The scheme marks the bare claim NE." },
+    { q: "A linear search stops early when:", opts: ["the target is found", "half the list is done", "the middle item is checked", "the first item is checked"], ans: 0, why: "Otherwise it reaches the end." },
     { q: "A linear search finds the target at index 0. Comparisons made:", opts: ["0", "1", "n", "n/2"], ans: 1, why: "Best case — one comparison." }
   ],
   exam: [
@@ -175,7 +176,6 @@ X("compsci:4.3.4.2", {
   ],
   flashcards: [
     ["Describe binary search.", "Compare the target with the middle item of a sorted list; if equal, found; if smaller, repeat on the left half; if larger, on the right half; until found or the range is empty.", 9],
-    ["Time complexity of binary search?", "O(log n) — each comparison halves the remaining list.", 10],
     ["Precondition for binary search?", "The list must be sorted (and allow direct access by index).", 11],
     ["Maximum comparisons for 1000 items?", "About 10 (2^10 = 1024).", 12],
     ["If the list doubles, how many more comparisons are needed in the worst case?", "One.", 13],
@@ -187,9 +187,9 @@ X("compsci:4.3.4.2", {
     { q: "Binary search on 64 sorted items needs at most how many comparisons?", opts: ["6", "7", "32", "64"], ans: 1, why: "⌈log₂64⌉ + 1 = 7 in the standard implementation (6 halvings then a final check)." },
     { q: "Searching [2, 5, 8, 12, 16, 23, 38] for 23: first Mid index (Low 0, High 6) is:", opts: ["2", "3", "4", "6"], ans: 1, why: "(0 + 6) DIV 2 = 3 → value 12." },
     { q: "After comparing 23 with 12, the bounds become:", opts: ["Low 0, High 2", "Low 4, High 6", "Low 3, High 6", "Low 4, High 5"], ans: 1, why: "23 > 12 so Low ← Mid + 1." },
-    { q: "Binary search fails on an unsorted list because:", opts: ["it is too slow", "the halving decision relies on order", "Mid cannot be computed", "it needs a stack"], ans: 1, why: "'Smaller → left half' is only valid if sorted." },
+    { q: "Binary search fails on an unsorted list because:", opts: ["it is too slow on lists with no order", "the halving decision relies on order", "Mid cannot be computed for an unsorted list", "it needs a stack to remember each half"], ans: 1, why: "'Smaller → left half' is only valid if sorted." },
     { q: "Time complexity of binary search:", opts: ["O(n)", "O(log n)", "O(n log n)", "O(1)"], ans: 1, why: "Halving each step." },
-    { q: "The search ends unsuccessfully when:", opts: ["Mid = 0", "Low > High", "High = n", "Low = Mid"], ans: 1, why: "Empty range." }
+    { q: "The search ends unsuccessfully when:", opts: ["Mid = 0", "Low > High", "High = n", "Low = Mid"], ans: 1, why: "If Low has passed High, no items remain to check, so the item is not in the list." }
   ],
   exam: [
     { src: "AQA 2020 P1 Q3.7", q: "State the time complexity of a binary search and explain why it has this complexity.", marks: 2,
@@ -213,16 +213,15 @@ X("compsci:4.3.4.3", {
     ["How does binary tree search differ from binary search of an array?", "Same halving idea, but navigation is by child pointers rather than by index arithmetic.", 11],
     ["What ends an unsuccessful search?", "Reaching a null child pointer (−1 / 0 in an array-of-records implementation).", 12],
     ["Why are BSTs good for data that changes often?", "Insert and delete are O(log n) without shifting other items, unlike a sorted array.", 13],
-    ["What must be true for the search to work?", "The tree must be a binary SEARCH tree: left subtree values smaller, right subtree values larger, at every node.", 14],
-    ["Which traversal finds all values in a range in a BST?", "In-order, pruning subtrees outside the range.", 15]
+    ["What must be true for the search to work?", "The tree must be a binary SEARCH tree: left subtree values smaller, right subtree values larger, at every node.", 14]
   ],
   quiz: [
-    { q: "Searching a BST with root 50 for 30 first moves to:", opts: ["the right child", "the left child", "a leaf", "the parent"], ans: 1, why: "30 < 50 → left." },
+    { q: "Searching a BST with root 50 for 30 first moves to:", opts: ["the right child", "the left child", "a leaf", "the parent"], ans: 1, why: "30 is smaller than the root 50, so the search goes left, where smaller values are stored." },
     { q: "Time complexity of searching a balanced BST:", opts: ["O(n)", "O(log n)", "O(n log n)", "O(1)"], ans: 1, why: "Each step halves the remaining tree." },
     { q: "A BST built by inserting 1, 2, 3, 4, 5 in order gives search complexity:", opts: ["O(log n)", "O(n)", "O(1)", "O(n²)"], ans: 1, why: "A right-leaning chain — no halving." },
-    { q: "The search stops unsuccessfully when:", opts: ["the root is null", "a null child pointer is reached", "the value is at a leaf", "after log n steps"], ans: 1, why: "No subtree left to search." },
-    { q: "Compared with a sorted array, a BST makes insertion:", opts: ["slower", "O(log n) without shifting elements", "impossible", "O(1) always"], ans: 1, why: "Structural advantage." },
-    { q: "'Every comparison halves the size of the tree to look at' explains:", opts: ["O(n)", "O(log n)", "O(n²)", "O(2ⁿ)"], ans: 1, why: "Halving ⇒ logarithmic." }
+    { q: "The search stops unsuccessfully when:", opts: ["the value is found at the root", "a null child pointer is reached", "the value is at a leaf node", "after exactly log n comparisons"], ans: 1, why: "No subtree left to search." },
+    { q: "Compared with a sorted array, a BST makes insertion:", opts: ["slower, as each node must be linked", "O(log n) without shifting elements", "impossible once the tree is built", "O(1) always, whatever the shape"], ans: 1, why: "Structural advantage." },
+    { q: "'Every comparison halves the size of the tree to look at' explains:", opts: ["O(n log n)", "O(log n)", "O(n²)", "O(2ⁿ)"], ans: 1, why: "Halving ⇒ logarithmic." }
   ],
   exam: [
     { src: "AQA 2023 P1 Q3.3", q: "State the time complexity of searching a balanced binary search tree and explain why it has this complexity.", marks: 2,
@@ -261,10 +260,10 @@ X("compsci:4.3.5.1", {
   ],
   quiz: [
     { q: "After the first pass of bubble sort on [4, 2, 5, 1, 3] the list is:", opts: ["[2, 4, 1, 3, 5]", "[1, 2, 3, 4, 5]", "[4, 2, 5, 1, 3]", "[2, 4, 5, 1, 3]"], ans: 0, why: "5 bubbles to the end; the rest shift by adjacent swaps." },
-    { q: "Bubble sort's time complexity is:", opts: ["O(n)", "O(n log n)", "O(n²)", "O(log n)"], ans: 2, why: "n passes × n comparisons." },
-    { q: "The swap flag lets bubble sort:", opts: ["sort descending", "stop early when a pass makes no swaps", "skip the first item", "use less memory"], ans: 1, why: "No swaps ⇒ already sorted." },
+    { q: "With the swap flag, bubble sort on an already sorted list is:", opts: ["O(n)", "O(n²)", "O(log n)", "O(1)"], ans: 0, why: "One pass with no swaps." },
+    { q: "Bubble sort compares:", opts: ["adjacent pairs of items", "the first and last items", "each item with the middle one", "the two halves of the list"], ans: 0, why: "Neighbours, swapped if out of order." },
     { q: "After pass k, which items are guaranteed in place?", opts: ["The first k", "The last k", "The middle k", "None"], ans: 1, why: "Each pass fixes the largest remaining item at the end." },
-    { q: "Maximum passes needed for 8 items:", opts: ["8", "7", "4", "64"], ans: 1, why: "n − 1." },
+    { q: "Maximum passes needed for 8 items:", opts: ["8", "7", "4", "64"], ans: 1, why: "Bubble sort needs at most n − 1 passes, which is 7 for 8 items." },
     { q: "Compared with merge sort, bubble sort is:", opts: ["faster for large lists", "slower for large lists", "the same", "not a sort"], ans: 1, why: "O(n²) vs O(n log n)." }
   ],
   exam: [
@@ -299,10 +298,10 @@ X("compsci:4.3.5.2", {
   ],
   quiz: [
     { q: "A sort that repeatedly halves the list then combines sorted halves is:", opts: ["bubble sort", "merge sort", "binary search", "linear search"], ans: 1, why: "Divide and conquer sort." },
-    { q: "Merge sort's time complexity is:", opts: ["O(n²)", "O(n log n)", "O(log n)", "O(n)"], ans: 1, why: "log n levels × n per level." },
+    { q: "Merge sort takes the same time on sorted and unsorted input because:", opts: ["it always splits and merges every level", "it first checks whether the list is sorted", "it stops early when no swaps are made", "it only sorts the half that is unsorted"], ans: 0, why: "The work does not depend on the order." },
     { q: "Merging [2, 7, 9] with [1, 8]: the first three output items are:", opts: ["1, 2, 7", "2, 7, 9", "1, 8, 2", "2, 1, 7"], ans: 0, why: "Take the smaller front item each time." },
-    { q: "Number of splitting levels for 32 items:", opts: ["4", "5", "16", "32"], ans: 1, why: "2^5 = 32." },
-    { q: "A disadvantage of merge sort versus bubble sort:", opts: ["slower for large n", "needs extra memory for merging", "cannot sort strings", "unstable results"], ans: 1, why: "O(n) additional space." },
+    { q: "Number of splitting levels for 32 items:", opts: ["4", "5", "16", "32"], ans: 1, why: "Each split halves the list, and 2⁵ = 32, so 5 levels of splitting are needed." },
+    { q: "A disadvantage of merge sort versus bubble sort:", opts: ["slower than bubble sort for large n", "needs extra memory for merging", "cannot sort strings, only numbers", "gives unstable results for equal items"], ans: 1, why: "O(n) additional space." },
     { q: "Sorting 1 000 000 items, merge sort makes roughly how many times fewer operations than bubble sort?", opts: ["10", "1 000", "50 000", "1 000 000"], ans: 2, why: "n² / (n log₂ n) ≈ 10⁶ / 20 = 50 000." }
   ],
   exam: [
@@ -334,10 +333,10 @@ X("compsci:4.3.6.1", {
     ["How does Dijkstra relate to BFS?", "BFS is the special case where all edges have equal weight; Dijkstra uses a priority queue instead of a plain queue.", 17]
   ],
   quiz: [
-    { q: "The final distance array of Dijkstra's algorithm represents:", opts: ["the shortest route", "the shortest distance from the start to each node", "the number of edges", "the visiting order"], ans: 1, why: "'Shortest route' is what the predecessor array reconstructs." },
-    { q: "Which node does Dijkstra process next?", opts: ["The most recently added", "The unvisited node with the smallest tentative distance", "A random node", "The one with most edges"], ans: 1, why: "Greedy choice via a priority queue." },
-    { q: "Dijkstra's algorithm CANNOT be used when:", opts: ["the graph is directed", "edges have negative weights", "the graph is unweighted", "the graph is large"], ans: 1, why: "Negative weights break the greedy assumption." },
-    { q: "A heuristic approach:", opts: ["always finds the optimum", "may not find the best solution but reduces the search", "is a data structure", "is exponential"], ans: 1, why: "The 2017 mark-scheme definition." },
+    { q: "The final distance array of Dijkstra's algorithm represents:", opts: ["the shortest route from the start to each node", "the shortest distance from the start to each node", "the number of edges from the start to each node", "the order in which the nodes were visited"], ans: 1, why: "'Shortest route' is what the predecessor array reconstructs." },
+    { q: "Which node does Dijkstra process next?", opts: ["The unvisited node that was most recently added to the queue", "The unvisited node with the smallest tentative distance", "A random unvisited node, to avoid bias in the search", "The unvisited node with the most edges leading from it"], ans: 1, why: "Greedy choice via a priority queue." },
+    { q: "Dijkstra's algorithm CANNOT be used when:", opts: ["the graph is directed", "edges have negative weights", "the graph is unweighted", "the graph has over 1000 nodes"], ans: 1, why: "Negative weights break the greedy assumption." },
+    { q: "A heuristic approach:", opts: ["always finds the optimum, but faster than brute force", "may not find the best solution but reduces the search", "is a data structure for storing the best solution", "is exponential, as it tries every possible route"], ans: 1, why: "The 2017 mark-scheme definition." },
     { q: "In a trace, a node's distance stops changing once:", opts: ["it is dequeued/visited", "the trace ends", "its predecessor is set", "it has two edges"], ans: 0, why: "Visited nodes have final distances." },
     { q: "True or false: Dijkstra's algorithm can be used to prove the halting problem cannot be solved.", opts: ["True", "False"], ans: 1, why: "Unrelated — the 2022 true/false row." }
   ],

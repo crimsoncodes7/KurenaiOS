@@ -14,12 +14,12 @@ X("compsci:4.6.1.1", {
     ["Why must software be stored as bit patterns?", "The hardware can only fetch and execute binary instructions.", 16]
   ],
   quiz: [
-    { q: "Hardware is:", opts: ["the programs", "the physical components", "the operating system", "data"], ans: 1, why: "Physical." },
-    { q: "Software is:", opts: ["the electrical components", "the programs that execute on the hardware", "the keyboard", "the CPU"], ans: 1, why: "Programs." },
-    { q: "The relationship between them is that:", opts: ["they are independent", "software executes on and controls the hardware", "hardware is written in software", "neither is needed"], ans: 1, why: "2020 P2 Q3.7." },
-    { q: "Which is hardware?", opts: ["Compiler", "Device driver", "Graphics card", "Spreadsheet"], ans: 2, why: "Physical component." },
-    { q: "Firmware is best described as:", opts: ["hardware", "software stored in non-volatile memory that controls hardware", "an application", "a network"], ans: 1, why: "Programs in ROM/flash." },
-    { q: "A processor without any program loaded will:", opts: ["run the OS", "do nothing useful", "compile code", "boot"], ans: 1, why: "Needs instructions." }
+    { q: "Which is an example of software?", opts: ["a device driver", "the system bus", "a graphics card", "the main memory"], ans: 0, why: "A driver is a program; the rest are physical." },
+    { q: "'Software is anything you cannot touch' scores:", opts: ["NE — it must say programs that are executed", "full marks — that is the definition", "1 mark — data and programs are both software", "2 marks — it contrasts it with hardware"], ans: 0, why: "The definition needs programs/instructions executed by the hardware." },
+    { q: "The relationship between them is that:", opts: ["they are independent and work separately", "software executes on and controls the hardware", "hardware is written in a programming language first", "neither needs the other to do useful work"], ans: 1, why: "Software is a set of instructions run by the hardware, and the software controls what the hardware does." },
+    { q: "Which pair is one hardware item and one software item?", opts: ["a printer and its device driver", "a compiler and an interpreter", "a monitor and a graphics card", "an editor and an operating system"], ans: 0, why: "The printer is physical; its driver is a program." },
+    { q: "Firmware is usually updated by:", opts: ["flashing a new version into non-volatile memory", "replacing the processor with a newer model", "reinstalling the operating system from disk", "copying it into RAM each time the PC starts"], ans: 0, why: "It lives in flash/EEPROM, which can be rewritten." },
+    { q: "A processor without any program loaded will:", opts: ["run the operating system", "do nothing useful", "compile its own code", "boot from the hard disk"], ans: 1, why: "Needs instructions." }
   ],
   exam: [
     { level: "AS", src: "AS 2025 P2 Q6.1", q: "Explain what is meant by the terms *hardware* and *software*.", marks: 2,
@@ -54,12 +54,12 @@ X("compsci:4.6.1.2", {
     ["Give two examples of utility software.", "Virus checker, disk defragmenter, backup tool, file compression, encryption tool.", 16]
   ],
   quiz: [
-    { q: "A virus checker is:", opts: ["application software", "a utility (system software)", "a translator", "a library"], ans: 1, why: "Ancillary management task." },
-    { q: "A bitmap image editor is:", opts: ["system software", "application software", "a utility", "an OS component"], ans: 1, why: "User-oriented task." },
-    { q: "System software is best defined as software that:", opts: ["maintains the computer", "manages the computer system and hides hardware complexity", "the user buys", "runs games"], ans: 1, why: "'Maintains' is NE." },
-    { q: "An interpreter belongs to which category?", opts: ["Application", "Utility", "Translator", "Library"], ans: 2, why: "Converts source code." },
-    { q: "'Performs a task the user would want even without a computer' describes:", opts: ["system software", "application software", "utilities", "drivers"], ans: 1, why: "Mark-scheme phrase." },
-    { q: "A collection of pre-written subroutines called by many programs is a:", opts: ["utility", "library", "compiler", "kernel"], ans: 1, why: "Definition." }
+    { q: "A disk defragmenter is:", opts: ["a utility (system software)", "an application (for the user)", "a translator (for program code)", "a library (of shared code)"], ans: 0, why: "It maintains the computer, not a user task." },
+    { q: "A bitmap image editor is:", opts: ["system software", "application software", "a utility (system software)", "an OS component"], ans: 1, why: "User-oriented task." },
+    { q: "A device driver's job is to:", opts: ["let the OS control one particular piece of hardware", "translate a high-level program into machine code", "carry out a task the user wants, such as editing", "remove the files that are no longer needed"], ans: 0, why: "It translates OS requests into device commands." },
+    { q: "Which list contains only system software?", opts: ["operating system, compiler, utility", "compiler, spreadsheet, device driver", "web browser, library, utility", "operating system, game, assembler"], ans: 0, why: "Each other list has an application in it." },
+    { q: "'Performs a task the user would want even without a computer' describes:", opts: ["system software", "application software", "a utility (system software)", "device drivers"], ans: 1, why: "Mark-scheme phrase." },
+    { q: "A collection of pre-written subroutines called by many programs is a:", opts: ["utility", "library", "compiler", "kernel"], ans: 1, why: "A library is a collection of pre-written subroutines that many programs can call instead of rewriting them." }
   ],
   exam: [
     { level: "AS", src: "AS 2025 P2 Q6.2", q: "Explain the difference between system software and application software.", marks: 2,
@@ -85,8 +85,8 @@ X("compsci:4.6.1.3", {
     ["Which system software runs first when a computer boots?", "The BIOS/firmware loader, then the operating system.", 16]
   ],
   quiz: [
-    { q: "Which is NOT system software?", opts: ["Assembler", "Disk defragmenter", "Graphics library", "Spreadsheet"], ans: 3, why: "Application." },
-    { q: "Libraries are used because:", opts: ["they are compulsory", "tested code can be reused, saving time and reducing errors", "they run faster", "they replace the OS"], ans: 1, why: "AS 2023 P2 Q6.1." },
+    { q: "Which is NOT system software?", opts: ["Assembler", "Disk defragmenter", "Graphics library", "Spreadsheet"], ans: 3, why: "A spreadsheet is an application that does a user task, while system software manages the computer itself." },
+    { q: "Libraries are used because:", opts: ["they are compulsory in every high-level language", "tested code can be reused, saving time and errors", "their code always runs faster than code you write", "they replace parts of the operating system"], ans: 1, why: "AS 2023 P2 Q6.1." },
     { q: "A compiler is classified as:", opts: ["a utility", "a translator", "an application", "a driver"], ans: 1, why: "Converts source code." },
     { q: "Software that lets the OS talk to a specific printer is:", opts: ["a library", "a device driver", "an application", "an interpreter"], ans: 1, why: "Hardware-specific system software." },
     { q: "'Provides a platform for other software' describes:", opts: ["application software", "system software", "games", "data"], ans: 1, why: "System software definition." },
@@ -127,12 +127,12 @@ X("compsci:4.6.1.4", {
     ["Why is 'memory management' alone not an answer?", "The examiners require a description of what the management involves.", 16]
   ],
   quiz: [
-    { q: "Deciding which process runs next on the CPU is:", opts: ["memory management", "processor scheduling", "file management", "interrupt handling"], ans: 1, why: "Processor management described." },
-    { q: "Moving data between RAM and a paging file is part of:", opts: ["file management", "memory management (virtual memory)", "I/O", "scheduling"], ans: 1, why: "Virtual memory." },
-    { q: "'Provides a virtual machine' means the OS:", opts: ["runs emulators", "hides the complexity of the hardware from the user", "is virtual", "uses the cloud"], ans: 1, why: "Abstraction layer." },
-    { q: "Which answer scores for 'describe an OS function'?", opts: ["Memory management", "Allocates RAM to processes and ensures each writes only to its own area", "Manages the computer", "Runs programs"], ans: 1, why: "Described, not named." },
-    { q: "Organising files into directories is:", opts: ["processor management", "storage/file management", "interrupt handling", "networking"], ans: 1, why: "File system role." },
-    { q: "When an interrupt occurs the OS:", opts: ["ignores it", "calls the appropriate interrupt handler", "reboots", "compiles"], ans: 1, why: "ISR dispatch." }
+    { q: "Which is an example of I/O device management?", opts: ["using a driver to send a job to the printer", "giving each process its own area of RAM", "deciding which process gets the next time slice", "organising files into folders on the disk"], ans: 0, why: "The others are memory, processor and file management." },
+    { q: "Moving data between RAM and a paging file is part of:", opts: ["file management (paging files)", "memory management (virtual memory)", "I/O management (disk transfers)", "processor scheduling (time slices)"], ans: 1, why: "Virtual memory moves data between RAM and disk (the paging file), which is a job of memory management." },
+    { q: "Which is NOT a job of the operating system?", opts: ["checking the spelling in a user's letter", "managing the time each process gets", "allocating main memory to processes", "controlling the input and output devices"], ans: 0, why: "Spell-checking is an application task." },
+    { q: "Which answer scores for 'describe an OS function'?", opts: ["Memory management, processor scheduling and I/O", "Allocates RAM to processes, each writing only to its own area", "Manages the computer so that the user is able to run their programs", "Runs programs when the user opens them from a menu"], ans: 1, why: "Described, not named." },
+    { q: "Organising files into directories is:", opts: ["processor management", "storage/file management", "handling interrupts from devices", "network management"], ans: 1, why: "File system role." },
+    { q: "One core can multitask because the OS:", opts: ["switches between processes so fast they seem to run at once", "runs every process at exactly the same instant", "gives each process a separate processor of its own", "waits for each program to finish before the next"], ans: 0, why: "Scheduling with time slices." }
   ],
   exam: [
     { src: "AQA 2022 P2 Q4.3", q: "Describe two functions of an operating system.", marks: 2,
@@ -168,12 +168,12 @@ X("compsci:4.6.2.1", {
     ["What makes an imperative language high-level?", "English-like keywords, structured statements (loops, selection), support for local variables, parameters and named constants.", 17]
   ],
   quiz: [
-    { q: "'Assembly runs faster because it needs no translation' is:", opts: ["accepted", "rejected — speed comes from tighter code, not from skipping translation", "true for compilers", "worth 2 marks"], ans: 1, why: "Mark-scheme TO/R." },
-    { q: "Which is an advantage of high-level languages?", opts: ["Direct register access", "Portability across processors", "Smaller machine code", "No translation needed"], ans: 1, why: "Machine-independent." },
-    { q: "Imperative means:", opts: ["describes what, not how", "sequence of commands in programmer-defined order describing how", "purely functional", "declarative"], ans: 1, why: "Definition." },
-    { q: "Assembly language instructions map to machine code:", opts: ["one-to-many", "one-to-one", "many-to-one", "randomly"], ans: 1, why: "Mnemonics = opcodes." },
-    { q: "Best reason to write an embedded washing-machine controller in assembly:", opts: ["easier to read", "compact code and direct hardware control on a small bespoke chip", "portability", "team working"], ans: 1, why: "AS 2017 P2 Q4.2." },
-    { q: "Which is NOT a feature of high-level languages?", opts: ["English-like keywords", "Built-in data structures", "One-to-one mapping to machine code", "Support for paradigms"], ans: 2, why: "That is assembly." }
+    { q: "Machine code is written in:", opts: ["binary (often shown in hex)", "mnemonics such as ADD and LDR", "English-like statements", "keywords with brackets"], ans: 0, why: "Mnemonics are assembly language." },
+    { q: "A disadvantage of high-level languages compared with assembly:", opts: ["less direct control of the hardware", "code is harder for people to read", "programs cannot move to other processors", "each statement does less than one instruction"], ans: 0, why: "The compiler, not the programmer, chooses the instructions." },
+    { q: "Which is an imperative high-level language?", opts: ["C#", "SQL", "Haskell", "HTML"], ans: 0, why: "SQL is declarative, Haskell functional, HTML a markup language." },
+    { q: "Assembly language is processor-specific because:", opts: ["each mnemonic stands for one instruction in that processor's set", "it must be compiled by a different compiler each time it runs", "it uses English words that differ from country to country", "it can only run when an interpreter has been installed"], ans: 0, why: "Instruction sets differ between processors." },
+    { q: "Best reason to write an embedded washing-machine controller in assembly:", opts: ["it is easier to read and maintain than high-level code", "compact code and direct hardware control on a small chip", "the code is portable to any other washing machine's chip", "a large team can work on assembly code more easily"], ans: 1, why: "AS 2017 P2 Q4.2." },
+    { q: "Which is NOT a feature of high-level languages?", opts: ["English-like keywords", "Built-in data structures such as lists", "One-to-one mapping to machine code", "Support for several paradigms"], ans: 2, why: "That is assembly." }
   ],
   exam: [
     { src: "AQA 2025 P2 Q1.3", q: "Explain four advantages of writing a program in a high-level language rather than in assembly language.", marks: 4,
@@ -218,11 +218,11 @@ X("compsci:4.6.3.1", {
   ],
   quiz: [
     { q: "A compiler that finds a syntax error will:", opts: ["run up to the error", "produce no executable", "fix it", "ignore it"], ans: 1, why: "Whole-program translation." },
-    { q: "An interpreter inside a loop:", opts: ["translates the loop once", "translates the same instructions each iteration", "compiles the loop", "skips the loop"], ans: 1, why: "Line-by-line every run." },
-    { q: "Bytecode is used so that:", opts: ["code runs faster than machine code", "the program can run on any platform with a virtual machine", "no translation is needed", "errors are fewer"], ans: 1, why: "Portability." },
-    { q: "Just-in-time compilation:", opts: ["compiles source to bytecode", "compiles bytecode to native code at run time", "interprets source", "assembles mnemonics"], ans: 1, why: "VM strategy." },
-    { q: "An assembler differs from a compiler because it:", opts: ["produces no object code", "translates mnemonics one-to-one", "runs the program", "is slower"], ans: 1, why: "Simple mapping." },
-    { q: "To run an interpreted program on a customer's machine you need:", opts: ["only the executable", "the interpreter and the source code", "an assembler", "bytecode"], ans: 1, why: "Interpreter always present." }
+    { q: "An interpreter inside a loop:", opts: ["translates the loop once, then reuses it", "translates the same instructions each iteration", "compiles the whole loop into machine code first", "skips the loop body after the first pass"], ans: 1, why: "Line-by-line every run." },
+    { q: "Bytecode is used so that:", opts: ["the code runs faster than the same program as native machine code", "the program can run on any platform with a virtual machine", "no translation of any kind is needed to run it", "the compiler finds more errors before the program runs"], ans: 1, why: "Bytecode is not tied to one processor, so any platform with a virtual machine can run it." },
+    { q: "Just-in-time compilation:", opts: ["compiles source code to bytecode before it is run", "compiles bytecode to native code at run time", "interprets the source code one line at a time", "assembles mnemonics into machine code in advance"], ans: 1, why: "JIT compilation translates bytecode into native machine code while the program runs, to speed it up." },
+    { q: "An assembler differs from a compiler because it:", opts: ["produces no object code at all", "translates mnemonics one-to-one", "runs the program as it translates", "is slower and finds fewer errors"], ans: 1, why: "An assembler turns each assembly mnemonic into one machine-code instruction, while a compiler turns each high-level statement into many." },
+    { q: "To run an interpreted program on a customer's machine you need:", opts: ["only the compiled executable file", "the interpreter and the source code", "an assembler and the object code", "the bytecode without an interpreter"], ans: 1, why: "Interpreter always present." }
   ],
   exam: [
     { level: "AS", src: "AS 2017 P2 Q4.1", q: "Describe four differences between a compiler and an interpreter.", marks: 4,
@@ -262,13 +262,13 @@ X("compsci:4.6.4.1", {
     ["Why are flip-flops important?", "They are the building blocks of registers and memory in a processor.", 24]
   ],
   quiz: [
-    { q: "Truth table: 00→1, 01→1, 10→1, 11→0. The gate is:", opts: ["AND", "NAND", "OR", "NOR"], ans: 1, why: "NOT AND." },
-    { q: "Truth table: 00→1, 01→0, 10→0, 11→0:", opts: ["NOR", "NAND", "XOR", "AND"], ans: 0, why: "NOT OR." },
-    { q: "A half adder's carry output is produced by:", opts: ["XOR", "OR", "AND", "NOT"], ans: 2, why: "Carry = A.B." },
-    { q: "A half adder's sum output is produced by:", opts: ["AND", "XOR", "OR", "NAND"], ans: 1, why: "Sum = A⊕B." },
-    { q: "On a clock pulse a D-type flip-flop:", opts: ["resets to 0", "sets Q to the value of D", "inverts Q", "does nothing"], ans: 1, why: "2024 P2 Q6.2." },
-    { q: "A D-type flip-flop is used as:", opts: ["an adder", "a one-bit memory / to store state", "a decoder", "a multiplier"], ans: 1, why: "Stores the D input." },
-    { q: "A full adder differs from a half adder because it:", opts: ["has no carry", "adds a carry-in as a third input", "uses only NOT gates", "is slower"], ans: 1, why: "Three inputs." }
+    { q: "Truth table: 00→1, 01→1, 10→1, 11→0. The gate is:", opts: ["AND", "NAND", "XNOR", "NOR"], ans: 1, why: "The output is 0 only when both inputs are 1, so it is NOT AND, which is NAND." },
+    { q: "Truth table: 00→0, 01→1, 10→1, 11→1. The gate is:", opts: ["OR", "XOR", "AND", "NAND"], ans: 0, why: "Output 1 when either input is 1." },
+    { q: "A half adder given A = 1 and B = 1 outputs:", opts: ["sum 0, carry 1", "sum 1, carry 0", "sum 1, carry 1", "sum 0, carry 0"], ans: 0, why: "1 + 1 = 10 in binary." },
+    { q: "A half adder's sum output is produced by:", opts: ["AND", "XOR", "OR", "NAND"], ans: 1, why: "The sum bit is 1 when exactly one input is 1, which is XOR; the carry is AND." },
+    { q: "Between clock edges a D-type flip-flop's output:", opts: ["stays the same, whatever D does", "follows every change in D", "resets itself to 0", "inverts on each change in D"], ans: 0, why: "It only changes on the clock edge." },
+    { q: "A D-type flip-flop is used as:", opts: ["a half adder for two bits", "a one-bit memory / to store state", "a decoder for address lines", "a multiplier for two binary values"], ans: 1, why: "Stores the D input." },
+    { q: "Full adders are chained to add multi-bit numbers by:", opts: ["feeding each carry-out into the next carry-in", "feeding each sum into the next adder's input", "using one half adder for every bit", "sharing one carry output between all bits"], ans: 0, why: "A ripple-carry adder." }
   ],
   exam: [
     { src: "AQA 2023 P2 Q9", ctx: "A circuit has inputs A and B and outputs S and C. Its truth table is: A=0,B=0 → S=0,C=0; 0,1 → 1,0; 1,0 → 1,0; 1,1 → 0,1.",
@@ -306,7 +306,6 @@ X("compsci:4.6.5.1", {
   ],
   flashcards: [
     ["State De Morgan's laws.", "¬(A + B) = ¬A . ¬B and ¬(A . B) = ¬A + ¬B.", 13],
-    ["Simplify A + ¬A.B.", "A + B.", 16],
     ["Simplify (A + B) . (B + C.(D + ¬D)).", "= (A + B).(B + C) = A.B + A.C + B + B.C = B + A.C.", 17],
     ["Simplify ¬(¬(¬B . A) . ¬B) + A.B.", "De Morgan: ¬B.A + B; then + A.B is absorbed into B; ¬B.A + B = A + B by the redundancy theorem.", 18],
     ["Why does A . ¬A = 0?", "One of A and ¬A is always 0, and an AND gate outputs 1 only when both inputs are 1.", 19],
@@ -315,10 +314,10 @@ X("compsci:4.6.5.1", {
     ["Simplify ¬(A + B) . ¬(C.D).", "¬A . ¬B . (¬C + ¬D).", 22]
   ],
   quiz: [
-    { q: "¬(A . B) equals:", opts: ["¬A . ¬B", "¬A + ¬B", "A + B", "¬A"], ans: 1, why: "De Morgan." },
-    { q: "A + A.B simplifies to:", opts: ["A.B", "A", "B", "1"], ans: 1, why: "Absorption." },
-    { q: "A + ¬A.B simplifies to:", opts: ["A", "B", "A + B", "A.B"], ans: 2, why: "Redundancy theorem." },
-    { q: "A . (A + B) simplifies to:", opts: ["A", "B", "A + B", "A.B"], ans: 0, why: "Absorption." },
+    { q: "¬(A . B) equals:", opts: ["¬A . ¬B", "¬A + ¬B", "A + B", "¬A"], ans: 1, why: "De Morgan's law: the negation of an AND is the OR of the negations, so ¬(A . B) = ¬A + ¬B." },
+    { q: "¬¬A simplifies to:", opts: ["A", "¬A", "1", "0"], ans: 0, why: "Double negation." },
+    { q: "A . ¬A equals:", opts: ["0", "1", "A", "¬A"], ans: 0, why: "A and NOT A can never both be 1." },
+    { q: "A . (A + B) simplifies to:", opts: ["A", "B", "A + B", "A.B"], ans: 0, why: "Absorption: A . (A + B) = A, because when A is 0 the whole expression is 0 and when A is 1 it is 1." },
     { q: "(A + B) . (A + C) equals:", opts: ["A + B.C", "A.B.C", "A + B + C", "A.(B + C)"], ans: 0, why: "Distributive law (OR over AND)." },
     { q: "A.¬B + A.B simplifies to:", opts: ["A", "B", "A.B", "0"], ans: 0, why: "Factor A: A.(¬B + B) = A." },
     { q: "In the mark scheme, a step that makes the expression more complex earns:", opts: ["1 mark", "nothing", "2 marks", "a bonus"], ans: 1, why: "Simpler = fewer operators." }

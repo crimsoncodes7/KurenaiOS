@@ -332,6 +332,7 @@ button.k-subj-next:hover { background: var(--s2); }
 .k-callout[data-kind="miscon"] { --co: var(--red-soft); }
 .k-callout[data-kind="mnemonic"] { --co: var(--it); }
 .k-callout[data-kind="memorise"] { --co: var(--crimson); }
+.k-callout[data-kind="key"] { --co: var(--bloom); }
 .k-callout-body { display: flex; flex-direction: column; gap: var(--sp-8); }
 .k-callout-body code { color: var(--co); }
 .k-n-steps { position: relative; display: flex; flex-direction: column; }
@@ -1189,5 +1190,6 @@ button.k-subj-next:hover { background: var(--s2); }
 .k-ed-ib, .k-qz-step { min-inline-size: var(--hit-coarse); min-block-size: var(--hit-coarse); }
 .k-rag-pick { min-inline-size: var(--hit-coarse); min-block-size: var(--hit-coarse); }
 }
-
+/* CM-04: a fork made before the curriculum moved — a notice in the page, not a floating layer */
+.k-topic-stale { max-inline-size: none; margin: 0 0 var(--sp-14); box-shadow: none; background: color-mix(in oklch, var(--amber) 14%, var(--s1)); }
 }

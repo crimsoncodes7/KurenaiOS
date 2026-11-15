@@ -112,9 +112,9 @@ bool home = IPNetwork.Parse("192.168.1.0/24").Contains(IPAddress.Parse("192.168.
       ["Which ranges are private IPv4 addresses?", "10.0.0.0/8, 172.16.0.0/12 and 192.168.0.0/16."]
     ],
     quiz: [
-      { q: "A server listens on 127.0.0.1:5050. A phone on the same Wi-Fi connects to the laptop's 192.168.1.20:5050. It…", opts: ["connects", "is refused: the server only listens on loopback", "times out because of DNS", "connects to the phone itself"], ans: 1, why: "Loopback is reachable only from the same machine; listen on 0.0.0.0 (any) to be reachable on the network." },
+      { q: "A server listens on 127.0.0.1:5050. A phone on the same Wi-Fi connects to the laptop's 192.168.1.20:5050. It…", opts: ["connects, since both are on the same network", "is refused: the server only listens on loopback", "times out because DNS cannot find the laptop", "connects to a server on the phone itself instead"], ans: 1, why: "Loopback is reachable only from the same machine; listen on 0.0.0.0 (any) to be reachable on the network." },
       { q: "192.168.1.200 and 192.168.2.10 with mask /24 are…", opts: ["on the same network", "on different networks", "both public", "the same host"], ans: 1, why: "/24 compares the first three bytes: 1 ≠ 2." },
-      { q: "Starting a second copy of your server fails with \"Address already in use\". Why?", opts: ["DNS failed", "the first copy still holds the port", "the firewall", "IPv6"], ans: 1, why: "One listener per address and port." }
+      { q: "Starting a second copy of your server fails with \"Address already in use\". Why?", opts: ["DNS failed to resolve the server's name", "the first copy still holds the port", "the firewall blocks a second listener", "IPv6 has taken the IPv4 address"], ans: 1, why: "One listener per address and port." }
     ]
   });
 
@@ -237,7 +237,7 @@ var writer = new StreamWriter(client.GetStream()) { AutoFlush = true };`),
     quiz: [
       { q: "A client writes \"A\\n\" then \"B\\n\". The server's first ReadAsync returns…", opts: ["exactly \"A\\n\"", "anything from \"A\" to \"A\\nB\\n\"", "\"B\\n\" first", "nothing until both are sent"], ans: 1, why: "TCP keeps order, not boundaries." },
       { q: "Which suits a multiplayer game's position updates?", opts: ["TCP", "UDP", "SMTP", "HTTP/1.1"], ans: 1, why: "The next update replaces a lost one; waiting for a resend only adds lag." },
-      { q: "A server's ReadLineAsync returns null. It should…", opts: ["retry the read", "treat the client as gone and clean up", "send a newline", "throw"], ans: 1, why: "Null is end of stream: the client closed." }
+      { q: "A server's ReadLineAsync returns null. It should…", opts: ["retry the read until a line arrives", "treat the client as gone and clean up", "send a newline to wake the client up", "throw, since the stream is corrupt"], ans: 1, why: "Null is end of stream: the client closed." }
     ]
   });
 
@@ -391,9 +391,9 @@ while (!token.IsCancellationRequested)
       ["Why make a server IAsyncDisposable?", "So `await using` stops it and frees its port even when a test fails."]
     ],
     quiz: [
-      { q: "With `await Serve(client)` inside the accept loop, a second client…", opts: ["is served in parallel", "waits until the first disconnects", "is refused", "crashes the server"], ans: 1, why: "The loop is not accepting while it awaits one client." },
-      { q: "A broadcast iterates the clients while a client leaves on another task. The fix is…", opts: ["Thread.Sleep", "copy the list under a lock (or a ConcurrentDictionary)", "a try/finally", "UDP"], ans: 1, why: "Never enumerate a collection another task may change." },
-      { q: "A test's server is never stopped. The next test's server on the same fixed port…", opts: ["shares it", "fails: address already in use", "gets port 0", "waits"], ans: 1, why: "Stop servers (await using) and use port 0 in tests." }
+      { q: "With `await Serve(client)` inside the accept loop, a second client…", opts: ["is served in parallel on a new task", "waits until the first disconnects", "is refused until the loop restarts", "crashes the server with an exception"], ans: 1, why: "The loop is not accepting while it awaits one client." },
+      { q: "A broadcast iterates the clients while a client leaves on another task. The fix is…", opts: ["Thread.Sleep between sends, so the leave finishes first", "copy the list under a lock (or a ConcurrentDictionary)", "a try/finally around each send that removes the client", "switch to UDP, which has no connections to remove"], ans: 1, why: "Never enumerate a collection another task may change." },
+      { q: "A test's server is never stopped. The next test's server on the same fixed port…", opts: ["shares it with the first server", "fails: address already in use", "gets the next free port by itself", "waits until the first one is stopped"], ans: 1, why: "Stop servers (await using) and use port 0 in tests." }
     ]
   });
 

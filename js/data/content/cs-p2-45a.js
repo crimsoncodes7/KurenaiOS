@@ -101,9 +101,9 @@ C["compsci:4.5.2.1"] = {
     { callout: { t: "info", h: "Key idea", body: "Multiply each digit by its place value and add: C57₁₆ = 12×256 + 5×16 + 7 = 3072 + 80 + 7 = **3159**." } },
     { h: "2.4  Decimal → binary or hex: repeated division" },
     { steps: [
-      { h: "1.", m: "Divide by the base; record the **remainder** (MOD) — it is the next digit, from the **right**." },
-      { h: "2.", m: "Replace the number by the **quotient** (DIV)." },
-      { h: "3.", m: "Repeat until the quotient is 0; read the remainders bottom-to-top." }
+      { h: "Divide by the base", n: "Record the **remainder** (MOD) — it is the next digit, from the **right**.", m: "193 MOD 16 = 1" },
+      { h: "Keep the quotient", n: "Replace the number by the **quotient** (DIV).", m: "193 DIV 16 = 12" },
+      { h: "Repeat", n: "Stop when the quotient is 0; read the remainders bottom-to-top." }
     ] },
     { table: { head: ["193 DIV 16", "remainder (MOD 16)", "digit"], rows: [["193 ÷ 16 = 12", "1", "1 (rightmost)"], ["12 ÷ 16 = 0", "12", "C"]] } },
     { callout: { t: "info", h: "Key idea", body: "So 193₁₀ = **C1₁₆**. (Or subtract place values: 193 = 128 + 64 + 1 = 1100 0001₂ = C1₁₆.)" } },
@@ -218,10 +218,10 @@ C["compsci:4.5.2.1"] = {
     ["Hex digit for 13?", "D."]
   ],
   quiz: [
-    { q: "10110111₂ in hexadecimal is", opts: ["B7", "7B", "183", "B11"], ans: 0, why: "1011 | 0111." },
-    { q: "30A₁₆ in decimal is", opts: ["778", "396", "361", "30"], ans: 0, why: "3×256 + 10." },
+    { q: "10110111₂ in hexadecimal is", opts: ["B7", "7B", "183", "B11"], ans: 0, why: "Split into nibbles: 1011 is B and 0111 is 7, so the hex value is B7." },
+    { q: "30A₁₆ in decimal is", opts: ["778", "396", "361", "30"], ans: 0, why: "30A in hex is 3 × 256 + 0 × 16 + 10 = 778." },
     { q: "A valid reason for using hex is", opts: ["it is easier for people to read", "it uses less memory", "computers process hex faster", "it is more accurate"], ans: 0, why: "A human shorthand." },
-    { q: "27₁₆ + C9₁₆ =", opts: ["F0₁₆", "E0₁₆", "100₁₆", "FE₁₆"], ans: 0, why: "39 + 201 = 240." },
+    { q: "27₁₆ + C9₁₆ =", opts: ["F0₁₆", "E0₁₆", "100₁₆", "FE₁₆"], ans: 0, why: "27₁₆ is 39 and C9₁₆ is 201; 39 + 201 = 240, which is F0₁₆." },
     { q: "Number ← Number × 16 + Value builds a value from hex digits read", opts: ["left to right", "right to left", "in any order", "as nibbles"], ans: 0, why: "Each step shifts one column." }
   ]
 };

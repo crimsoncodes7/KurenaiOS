@@ -234,7 +234,7 @@ C["maths:10.2"] = {
   quiz: [
     { q: "$|3\\mathbf{i} - 4\\mathbf{j} + 12\\mathbf{k}| =$", opts: ["13", "$\\sqrt{19}$", "11", "$\\sqrt{169} - 1$"], ans: 0, why: "$9 + 16 + 144 = 169$." },
     { q: "Unit vector in the direction of $6\\mathbf{i} - 8\\mathbf{j}$:", opts: ["$0.6\\mathbf{i} - 0.8\\mathbf{j}$", "$6\\mathbf{i} - 8\\mathbf{j}$", "$\\frac{1}{14}(6\\mathbf{i} - 8\\mathbf{j})$", "$0.8\\mathbf{i} - 0.6\\mathbf{j}$"], ans: 0, why: "Divide by 10." },
-    { q: "Bearing of $3\\mathbf{i} - 3\\mathbf{j}$ ($\\mathbf{j}$ north)?", opts: ["135°", "045°", "225°", "315°"], ans: 0, why: "South-east." },
+    { q: "Bearing of $3\\mathbf{i} - 3\\mathbf{j}$ ($\\mathbf{j}$ north)?", opts: ["135°", "045°", "225°", "315°"], ans: 0, why: "$+\\mathbf i$ is east, $-\\mathbf j$ south, equal sizes: south-east, $135°$." },
     { q: "Magnitude 10 at $60°$ to $\\mathbf{i}$:", opts: ["$5\\mathbf{i} + 5\\sqrt3\\mathbf{j}$", "$5\\sqrt3\\mathbf{i} + 5\\mathbf{j}$", "$10\\mathbf{i} + 60\\mathbf{j}$", "$6\\mathbf{i} + 8\\mathbf{j}$"], ans: 0, why: "$10\\cos 60°$, $10\\sin 60°$." }
   ]
 };
@@ -341,7 +341,7 @@ C["maths:10.3"] = {
   ],
   quiz: [
     { q: "$M$ is the midpoint of $AB$. $\\overrightarrow{OM} =$", opts: ["$\\frac12(\\mathbf{a} + \\mathbf{b})$", "$\\mathbf{a} + \\mathbf{b}$", "$\\frac12(\\mathbf{b} - \\mathbf{a})$", "$\\mathbf{a} - \\mathbf{b}$"], ans: 0, why: "$\\mathbf{a} + \\frac12(\\mathbf{b} - \\mathbf{a})$." },
-    { q: "$\\overrightarrow{ON} = (2 - \\frac32\\lambda)\\mathbf{a} + \\frac12\\lambda\\mathbf{b}$ lies on $OB$ when", opts: ["$2 - \\frac32\\lambda = 0$", "$\\frac12\\lambda = 0$", "$\\lambda = 1$", "$\\lambda = 2$"], ans: 0, why: "No $\\mathbf{a}$ component along $OB$." },
+    { q: "$\\overrightarrow{ON} = (2 - \\frac32\\lambda)\\mathbf{a} + \\frac12\\lambda\\mathbf{b}$ lies on $OB$ when", opts: ["$2 - \\frac32\\lambda = 0$", "$2 - \\frac12\\lambda = 0$", "$\\lambda = 1$", "$\\lambda = 2$"], ans: 0, why: "No $\\mathbf{a}$ component along $OB$." },
     { q: "$\\overrightarrow{PQ} = 2\\mathbf{a} + \\mathbf{b}$, $\\overrightarrow{RS} = 6\\mathbf{a} + k\\mathbf{b}$ parallel: $k =$", opts: ["3", "6", "2", "1"], ans: 0, why: "Multiple of 3." },
     { q: "Triangles $AOC$, $AOB$ with $C$ on $AB$ and $AC = \\frac23 AB$: area ratio", opts: ["2 : 3", "4 : 9", "3 : 2", "1 : 3"], ans: 0, why: "Same height; bases in ratio $2 : 3$." }
   ]
@@ -525,7 +525,7 @@ C["maths:10.5"] = {
   ],
   quiz: [
     { q: "$\\mathbf{a} = \\mathbf{i}$, $\\mathbf{b} = \\mathbf{i} + \\mathbf{j}$, $\\mathbf{c} = 3\\mathbf{j}$: parallelogram $ABCD$ has $\\mathbf{d} =$", opts: ["$2\\mathbf{j}$", "$2\\mathbf{i} + 4\\mathbf{j}$", "$\\mathbf{i} + 3\\mathbf{j}$", "$-\\mathbf{i} + 2\\mathbf{j}$"], ans: 0, why: "$\\mathbf{a} + \\mathbf{c} - \\mathbf{b} = (1 + 0 - 1)\\mathbf{i} + (0 + 3 - 1)\\mathbf{j}$." },
-    { q: "Sides $\\sqrt{72}, \\sqrt{72}, \\sqrt{144}$: the triangle is", opts: ["right-angled and isosceles", "equilateral", "obtuse", "scalene"], ans: 0, why: "$72 + 72 = 144$." },
+    { q: "Sides $\\sqrt{72}, \\sqrt{72}, \\sqrt{144}$: the triangle is", opts: ["right-angled and isosceles", "equilateral, as two sides match", "obtuse and isosceles", "acute and isosceles"], ans: 0, why: "$72 + 72 = 144$." },
     { q: "Rhombus with diagonals $\\sqrt{94}$ and $\\sqrt{22}$: area", opts: ["$\\sqrt{517}$", "$\\sqrt{2068}$", "$\\sqrt{116}$", "$47$"], ans: 0, why: "$\\frac12\\sqrt{94 \\times 22}$." },
     { q: "Angle $ABC$ is found with the cosine rule using", opts: ["$AB$, $BC$ and $AC$ opposite", "$AB$, $AC$ and $BC$ opposite", "$BC$, $AC$ and $AB$ opposite", "any two sides"], ans: 0, why: "The angle at $B$ is opposite $AC$." }
   ]

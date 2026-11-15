@@ -125,8 +125,8 @@
     ],
     quiz: [
       { q: "Reading a 10 GB log with StreamReader.ReadLine needs memory for…", opts: ["the whole file", "one line at a time", "nothing", "half the file"], ans: 1, why: "It streams." },
-      { q: "A binary file is…", opts: ["always smaller and exact, but needs the matching reader", "readable in Notepad", "always UTF-8", "the same as JSON"], ans: 0, why: "Raw bytes in a known order." },
-      { q: "Setting ms.Position = 0 on a MemoryStream…", opts: ["clears it", "lets you read from the start again", "closes it", "is an error"], ans: 1, why: "The position is where the next read happens." }
+      { q: "A binary file is…", opts: ["compact and exact, but needs the matching reader", "readable in Notepad, like the JSON it replaces", "always UTF-8, so any reader can open it", "the same as JSON, only saved with a .bin name"], ans: 0, why: "Raw bytes in a known order." },
+      { q: "Setting ms.Position = 0 on a MemoryStream…", opts: ["clears it, so it can be written again", "lets you read from the start again", "closes it, so nothing else can read it", "is an error once it has been written"], ans: 1, why: "The position is where the next read happens." }
     ]
   });
   K.add({ tasks: {
@@ -322,7 +322,7 @@
     ],
     quiz: [
       { q: "The file says FontSize 14 and the command line --FontSize=18. Used:", opts: ["14", "18", "12", "an error"], ans: 1, why: "The command line overrides the file." },
-      { q: "A missing setting in the file should…", opts: ["crash", "keep its default", "become 0", "be asked for"], ans: 1, why: "Defaults cover what layers do not mention." },
+      { q: "A missing setting in the file should…", opts: ["crash the load", "keep its default", "become 0 or null", "be asked for again"], ans: 1, why: "Defaults cover what layers do not mention." },
       { q: "An API key belongs in…", opts: ["appsettings.json in Git", "an environment variable", "the code", "the README"], ans: 1, why: "Never commit secrets." }
     ]
   });
@@ -422,7 +422,7 @@
     quiz: [
       { q: "Which benefits most from async?", opts: ["sorting a list", "calling five web APIs", "adding two numbers", "a for loop over an array"], ans: 1, why: "It is waiting on the network." },
       { q: "Awaiting a Task inside a loop, one at a time, takes…", opts: ["the longest wait", "the sum of the waits", "no time", "half the sum"], ans: 1, why: "Each starts only after the last finished." },
-      { q: "A Task is…", opts: ["a thread", "a promise of a result that may come later", "a lambda", "a file"], ans: 1, why: "It represents an operation that may not have finished." }
+      { q: "A Task is…", opts: ["a thread of its own that runs the method now", "a promise of a result that may come later", "a lambda that is stored to be called later", "a value the method has already worked out"], ans: 1, why: "It represents an operation that may not have finished." }
     ]
   });
   K.add({ tasks: {
@@ -520,7 +520,7 @@
     ],
     quiz: [
       { q: "`static async Task<string> GetAsync()` must return…", opts: ["a Task<string>", "a string", "void", "a Task"], ans: 1, why: "The compiler wraps the string in the Task." },
-      { q: "Without await, `var x = GetAsync();` makes x…", opts: ["the string", "a Task<string>", "null", "an error"], ans: 1, why: "The call returns the Task at once." },
+      { q: "Without await, `var x = GetAsync();` makes x…", opts: ["the string result", "a Task<string>", "null until it ends", "an error (CS4032)"], ans: 1, why: "The call returns the Task at once." },
       { q: "Which loops over an IAsyncEnumerable<T>?", opts: ["foreach", "await foreach", "for", "while (await)"], ans: 1, why: "Each item may need awaiting." }
     ]
   });
@@ -717,7 +717,7 @@
     quiz: [
       { q: "`new CancellationTokenSource(200)` cancels…", opts: ["immediately", "after 200 ms", "after 200 steps", "never"], ans: 1, why: "The constructor's argument is a delay." },
       { q: "Which exception should you catch for any cancellation?", opts: ["TaskCanceledException", "OperationCanceledException", "TimeoutException", "Exception"], ans: 1, why: "It covers every kind of cancellation." },
-      { q: "Task.Delay(1000) with no token, after Cancel()…", opts: ["stops at once", "still waits the full second", "throws", "returns false"], ans: 1, why: "It was never told about the token." }
+      { q: "Task.Delay(1000) with no token, after Cancel()…", opts: ["stops at once and returns", "still waits the full second", "throws TaskCanceledException", "returns false straight away"], ans: 1, why: "It was never told about the token." }
     ]
   });
   K.add({ tasks: {
@@ -817,9 +817,9 @@
       ["What does CS4008 mean?", "You tried to await a method that returns void."]
     ],
     quiz: [
-      { q: "`SaveAsync();` with no await…", opts: ["waits for the save", "starts it and moves on; errors are lost", "is a compile error", "runs it twice"], ans: 1, why: "Fire and forget (CS4014)." },
-      { q: "A UI click handler calls `GetAsync().Result`. A likely result:", opts: ["faster code", "a frozen window (deadlock)", "an empty string", "nothing changes"], ans: 1, why: "The UI thread blocks waiting for work that needs the UI thread." },
-      { q: "The right way to run an async method for each item and wait for all:", opts: ["list.ForEach(async …)", "await Task.WhenAll(list.Select(…))", "foreach with .Wait()", "Parallel.ForEach"], ans: 1, why: "Every task is started and awaited." }
+      { q: "`SaveAsync();` with no await…", opts: ["waits for the save to finish first", "starts it and moves on; errors are lost", "is a compile error in an async method", "runs it twice, once now and once later"], ans: 1, why: "Fire and forget (CS4014)." },
+      { q: "A UI click handler calls `GetAsync().Result`. A likely result:", opts: ["faster code, with no awaiting", "a frozen window (deadlock)", "an empty string from GetAsync", "nothing changes: .Result is await"], ans: 1, why: "The UI thread blocks waiting for work that needs the UI thread." },
+      { q: "The right way to run an async method for each item and wait for all:", opts: ["list.ForEach(async item => await …)", "await Task.WhenAll(list.Select(…))", "foreach (var x in list) Run(x).Wait();", "Parallel.ForEach(list, async x => …)"], ans: 1, why: "Every task is started and awaited." }
     ]
   });
   K.add({ tasks: {

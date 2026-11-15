@@ -35,7 +35,8 @@
     "git": { name: "Git", lesson: "B.5", about: "commits and branches" },
     "github": { name: "GitHub remotes", lesson: "B.6", about: "push, pull, clone" },
     "docs": { name: "Reading docs", lesson: "B.7", about: "Microsoft Learn and Quick Documentation" },
-    "validation": { name: "Validation reports", lesson: "B.8", about: "build, test, import" }
+    /* CO-17: unit 3's "validation" (3.6) was replaced by this one in the running app */
+    "validation-reports": { name: "Validation reports", lesson: "B.8", about: "build, test, import" }
   } });
 
   /* ================================================================
@@ -95,7 +96,7 @@
     quiz: [
       { q: "To build C# projects you must install…", opts: ["the .NET SDK", "the .NET runtime only", "Rider only", "NuGet"], ans: 0, why: "The SDK holds the compiler and the dotnet command." },
       { q: "`dotnet --list-sdks` shows…", opts: ["every SDK installed", "the packages in a project", "the running programs", "the runtimes only"], ans: 0, why: "One line per SDK, with its folder." },
-      { q: "A project's global.json asks for 11.0.100 and you have 10.0.302. dotnet…", opts: ["stops: a compatible SDK was not found", "builds with 10.0.302 anyway", "downloads 11", "ignores global.json"], ans: 0, why: "It refuses unless rollForward allows the SDK you have." }
+      { q: "A project's global.json asks for 11.0.100 and you have 10.0.302. dotnet…", opts: ["stops: a compatible SDK was not found", "builds with 10.0.302 and warns you", "downloads and installs 11.0.100 first", "ignores global.json and uses the newest"], ans: 0, why: "It refuses unless rollForward allows the SDK you have." }
     ]
   });
 
@@ -156,8 +157,8 @@
       ["Run a single .cs file with no project?", "`dotnet run file.cs` (.NET 10)."]
     ],
     quiz: [
-      { q: "`dotnet run` in a folder with a project…", opts: ["builds if needed, then runs it", "only runs an old build", "only builds", "creates a project"], ans: 0, why: "It builds first when anything changed." },
-      { q: "`Program.cs(3,19): error CS0103` points at…", opts: ["line 3, column 19 of Program.cs", "line 19, column 3", "the 3rd error", "a runtime crash"], ans: 0, why: "File(line,column)." },
+      { q: "`dotnet run` in a folder with a project…", opts: ["builds if needed, then runs it", "only runs the last build it finds", "only builds; run it with dotnet exec", "creates a project, then runs it"], ans: 0, why: "It builds first when anything changed." },
+      { q: "`Program.cs(3,19): error CS0103` points at…", opts: ["line 3, column 19 of Program.cs", "line 19, column 3 of Program.cs", "the 3rd error of 19 in Program.cs", "a runtime crash on line 3"], ans: 0, why: "File(line,column)." },
       { q: "Which belongs in Git?", opts: ["Grades.csproj", "bin/Debug/", "obj/", "all of them"], ans: 0, why: "The project file is source; bin and obj are rebuilt." }
     ]
   });
@@ -220,7 +221,7 @@
     quiz: [
       { q: "A solution file holds…", opts: ["the list of projects", "the code", "the packages", "the build output"], ans: 0, why: "Projects hold everything else." },
       { q: "The app uses `Greeter.Greetings` but says CS0246. Most likely…", opts: ["`using Greeter;` is missing", "the package is too new", "the SDK is too old", "bin/ was deleted"], ans: 0, why: "The type lives in the library's namespace." },
-      { q: "Why give a package an exact version?", opts: ["so every machine builds the same thing", "it is faster", "NuGet requires it", "to avoid restore"], ans: 0, why: "A new version can change or break the build." }
+      { q: "Why give a package an exact version?", opts: ["so every machine builds the same thing", "it restores faster than a version range", "NuGet refuses a package without one", "so dotnet can skip restore on each build"], ans: 0, why: "A new version can change or break the build." }
     ]
   });
 
@@ -281,7 +282,7 @@
     quiz: [
       { q: "Stopped on `double average = total / marks.Length;` with total 253 and 3 marks. After Step Over, average is…", opts: ["84", "84.33", "253", "0"], ans: 0, why: "int / int is 84 before it becomes a double." },
       { q: "Which action runs the current line and stops at the next one in the same method?", opts: ["Step Over", "Step Into", "Step Out", "Resume"], ans: 0, why: "Step Into would enter a method the line calls." },
-      { q: "A breakpoint is never hit. Check first…", opts: ["that the line actually runs", "the SDK version", "the NuGet cache", "the screen resolution"], ans: 0, why: "A breakpoint in a branch that never runs never stops." }
+      { q: "A breakpoint is never hit. Check first…", opts: ["that the line actually runs", "the SDK version in global.json", "that the NuGet cache is cleared", "that Rider is up to date"], ans: 0, why: "A breakpoint in a branch that never runs never stops." }
     ]
   });
 
@@ -463,7 +464,7 @@
     quiz: [
       { q: "You call int.Parse on user input. Which section tells you what can go wrong?", opts: ["Exceptions", "Remarks", "Applies to", "See also"], ans: 0, why: "It lists each exception and when." },
       { q: "`Math.Round(3.5)` prints…", opts: ["4", "3", "3.5", "an error"], ans: 0, why: "To even: 4 is even." },
-      { q: "An answer online uses an API your project does not have. Likely…", opts: ["it is for an older .NET Framework", "your SDK is broken", "Rider hides it", "it needs NuGet"], ans: 0, why: "Check the version the page or answer is for." }
+      { q: "An answer online uses an API your project does not have. Likely…", opts: ["it is for an older .NET Framework", "your SDK is broken and must be reinstalled", "Rider hides it until you enable it", "the API was renamed in Rider's version"], ans: 0, why: "Check the version the page or answer is for." }
     ]
   });
 
@@ -524,7 +525,7 @@
     quiz: [
       { q: "A step the validator could not run counts as…", opts: ["a failure", "a pass", "skipped and ignored", "a warning"], ans: 0, why: "It never reports success for something that did not run." },
       { q: "You changed Milestone2.cs so its tests pass. The import says…", opts: ["practice only", "accepted", "already imported", "rejected: future date"], ans: 0, why: "Milestone2.cs is protected." },
-      { q: "When does the Bridge project pay its reward?", opts: ["once, when every milestone has passed", "for every report", "for each milestone", "never"], ans: 0, why: "Pay once, at any evidence level." }
+      { q: "When does the Bridge project pay its reward?", opts: ["once, when every milestone has passed", "for every report you import, passed or not", "a share for each milestone as it passes", "never: Rider projects carry no reward"], ans: 0, why: "Pay once, at any evidence level." }
     ]
   });
 
@@ -584,7 +585,7 @@
         var q = pick(r, [["Which section of a method's page on Microsoft Learn lists what it can throw?", "Exceptions", ["^exceptions?( section)?$"]], ["Which section explains surprises such as Math.Round(2.5) giving 2?", "Remarks", ["^remarks$"]], ["Rider: which action shows the documentation for the symbol under the cursor?", "Quick Documentation", ["^quick doc(umentation)?$"]]]);
         return { prompt: q[0], label: short(q[0]), params: [], answer: q[1], accept: q[2], ci: true, hint: "Signature · Returns · Exceptions · Remarks · Example; Rider's Ctrl+Q." };
       } },
-    "ub-validate": { title: "The validation loop", lesson: "B.8", concepts: ["validation"], kind: "command",
+    "ub-validate": { title: "The validation loop", lesson: "B.8", concepts: ["validation-reports"], kind: "command",
       vary: function (r) {
         var q = pick(r, [["Type the command that runs the Kurenai validator, from the project folder.", "dotnet run .kurenai/validate.cs", ["^dotnet run (\\./)?\\.kurenai/validate\\.cs$"]], ["Which folder does the validator write its reports to?", ".kurenai/reports", ["^(\\./)?\\.kurenai/reports/?$"]], ["A report says a shipped test file changed. It counts as…", "practice only", ["^practice( only)?$"]]]);
         return { prompt: q[0], label: short(q[0]), params: [], answer: q[1], accept: q[2], ci: true, hint: "dotnet run the validator; reports under .kurenai; protected files." };

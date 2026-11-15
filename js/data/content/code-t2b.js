@@ -91,8 +91,8 @@
       ["What does a ListBox show for items with no template?", "Each item's ToString() — usually its type name."]
     ],
     quiz: [
-      { q: "`<ListBox.ItemTemplate>` inside a `<ListBox>` is…", opts: ["a child control", "a property element setting ItemTemplate", "a resource", "a style"], ans: 1, why: "Type.Property elements set properties too rich for an attribute." },
-      { q: "A misspelt `{StaticResource}` key shows up…", opts: ["as a build error", "when the XAML loads, as KeyNotFoundException", "never", "as a blank colour"], ans: 1, why: "Resource keys are resolved at load time." },
+      { q: "`<ListBox.ItemTemplate>` inside a `<ListBox>` is…", opts: ["a child control added to the ListBox's items", "a property element setting ItemTemplate", "a resource keyed ItemTemplate for the list", "a style that applies to every ListBox item"], ans: 1, why: "Type.Property elements set properties too rich for an attribute." },
+      { q: "A misspelt `{StaticResource}` key shows up…", opts: ["as a build error naming the missing key", "when the XAML loads, as KeyNotFoundException", "never: Avalonia falls back to a default", "as a blank colour, with no error at all"], ans: 1, why: "Resource keys are resolved at load time." },
       { q: "Where should a brush every window uses live?", opts: ["each Window.Resources", "Application.Resources", "a C# constant", "the theme"], ans: 1, why: "App-level resources are found from every window." }
     ]
   });
@@ -167,7 +167,7 @@
     quiz: [
       { q: "`<TextBlock Classes=\"done\" Opacity=\"1\" />` with a style setting Opacity 0.5 for `.done` shows at…", opts: ["0.5", "1", "0.75", "it fails to build"], ans: 1, why: "A local value beats a style." },
       { q: "Which selector matches the control named AddButton?", opts: [".AddButton", "#AddButton", "Button:AddButton", "AddButton"], ans: 1, why: "# selects by name, . by class." },
-      { q: "A brush that should differ in Light and Dark is used with…", opts: ["StaticResource", "DynamicResource and theme dictionaries", "a fixed hex colour", "a style class"], ans: 1, why: "Dynamic lookups follow the theme variant." }
+      { q: "A brush that should differ in Light and Dark is used with…", opts: ["StaticResource and theme dictionaries", "DynamicResource and theme dictionaries", "a fixed hex colour set in each window", "a style class switched by each control"], ans: 1, why: "Dynamic lookups follow the theme variant." }
     ]
   });
 
@@ -312,7 +312,7 @@
     ],
     quiz: [
       { q: "A ListBox is bound to a List<Book>. A book added later…", opts: ["appears at once", "never appears", "appears after a resize", "throws"], ans: 1, why: "List<T> raises no CollectionChanged." },
-      { q: "`book.Done = true` raises PropertyChanged(\"Done\"). The summary \"1 book · 0 read\"…", opts: ["updates by itself", "updates only if Summary's change is raised too", "throws", "updates after a click"], ans: 1, why: "Summary is computed: someone must announce it." },
+      { q: "`book.Done = true` raises PropertyChanged(\"Done\"). The summary \"1 book · 0 read\"…", opts: ["updates by itself, as Done is a dependency", "updates only if Summary's change is raised too", "throws: Summary has no setter to call", "updates after the next click on the list"], ans: 1, why: "Summary is computed: someone must announce it." },
       { q: "Setting Title to the value it already has should…", opts: ["raise PropertyChanged", "raise nothing", "throw", "raise CollectionChanged"], ans: 1, why: "No change, no event." }
     ]
   });

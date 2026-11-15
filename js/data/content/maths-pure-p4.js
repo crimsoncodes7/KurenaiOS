@@ -383,7 +383,7 @@ C["maths:4.1"] = {
         { h: "(b) Multiply the expansion by $6x$", m: "$\\dfrac{6x}{(3 + x)^2} \\approx 6x\\left(\\dfrac19 - \\dfrac{2}{27}x + \\dfrac{1}{27}x^2\\right) = \\dfrac23 x - \\dfrac49 x^2 + \\dfrac29 x^3$", mk: "M1", n: "A polynomial you can integrate term by term — that is why the expansion was asked for first." },
         { h: "Integrate", m: "$\\displaystyle\\int \\left(\\dfrac23 x - \\dfrac49 x^2 + \\dfrac29 x^3\\right)\\mathrm{d}x = \\dfrac13 x^2 - \\dfrac{4}{27}x^3 + \\dfrac{1}{18}x^4$", mk: "M1 A1" },
         { h: "Apply the limits", m: "$\\left[\\dfrac13 x^2 - \\dfrac{4}{27}x^3 + \\dfrac{1}{18}x^4\\right]_{0.2}^{0.4} = 0.045274 - 0.012237 = 0.03304$ (4 s.f.)", mk: "A1", n: "Both limits inside $|x| < 3$, so the estimate is trustworthy." },
-        { h: "(c) Exact: substitute $u = 3 + x$ (or split the fraction)", m: "$\\dfrac{6x}{(3 + x)^2} = \\dfrac{6(u - 3)}{u^2} = \\dfrac{6}{u} - \\dfrac{18}{u^2}$, so $\\displaystyle\\int = 6\\ln u + \\dfrac{18}{u}$", mk: "M1 A1", n: "Writing the integrand as $\\frac{6}{3 + x} - \\frac{18}{(3 + x)^2}$ is the partial-fraction view of the same step." },
+        { h: "(c) Exact: substitute $u = 3 + x$ (or split the fraction)", m: "$\\dfrac{6x}{(3 + x)^2} = \\dfrac{6(u - 3)}{u^2} = \\dfrac{6}{u} - \\dfrac{18}{u^2}$, so $\\displaystyle\\int = 6\\ln u + \\dfrac{18}{u}$", mk: "M1 A1 A1", n: "Writing the integrand as $\\frac{6}{3 + x} - \\frac{18}{(3 + x)^2}$ is the partial-fraction view of the same step." },
         { m: "$\\left[6\\ln(3 + x) + \\dfrac{18}{3 + x}\\right]_{0.2}^{0.4} = 6\\ln\\dfrac{3.4}{3.2} + 18\\left(\\dfrac{1}{3.4} - \\dfrac{1}{3.2}\\right) = 6\\ln\\dfrac{17}{16} - \\dfrac{45}{136}$", mk: "ddM1 A1", n: "$a = 6$, $b = \\frac{17}{16}$, $c = -\\frac{45}{136}$. Value $0.03287$ — the series estimate $0.03304$ was $0.5\\%$ high. The first omitted term of the expansion, $-\\frac{4}{243}x^3$, is negative, so the truncated integrand — and therefore the estimate — is slightly too large." }
       ], result: "(b) $\\approx 0.03304$ (c) $6\\ln\\dfrac{17}{16} - \\dfrac{45}{136}$" } },
 
@@ -399,7 +399,7 @@ C["maths:4.1"] = {
     { worked: { tag: "exam", title: "$\\sqrt{\\frac{1 + 4x}{1 - x}}$ to $x^2$, then a value that must not be used, then $\\sqrt6$", src: "A-level June 2018 · P1 Q11 · 10 marks",
       q: "**(a)** Use binomial expansions to show that $\\sqrt{\\frac{1 + 4x}{1 - x}} \\approx 1 + \\frac52 x - \\frac58 x^2$. **(b)** A student substitutes $x = \\frac12$ into both sides in an attempt to approximate $\\sqrt6$. Give a reason why the student should not use $x = \\frac12$. **(c)** Substitute $x = \\frac{1}{11}$ into the approximation to obtain an approximation to $\\sqrt6$. Give your answer as a fraction in its simplest form.",
       steps: [
-        { h: "(a) Split into two index forms", m: "$\\sqrt{\\dfrac{1 + 4x}{1 - x}} = (1 + 4x)^{\\frac12}(1 - x)^{-\\frac12}$", mk: "B1", n: "A root of a quotient is a product of a positive and a negative half-power. Both brackets already begin with 1 — no $a^n$ needed." },
+        { h: "(a) Split into two index forms", m: "$\\sqrt{\\dfrac{1 + 4x}{1 - x}} = (1 + 4x)^{\\frac12}(1 - x)^{-\\frac12}$", n: "A root of a quotient is a product of a positive and a negative half-power. Both brackets already begin with 1 — no $a^n$ needed." },
         { h: "Expand the first to $x^2$", m: "$(1 + 4x)^{\\frac12} = 1 + \\tfrac12(4x) + \\dfrac{\\tfrac12\\left(-\\tfrac12\\right)}{2}(4x)^2 + \\ldots = 1 + 2x - 2x^2 + \\ldots$", mk: "M1 A1" },
         { h: "Expand the second to $x^2$", m: "$(1 - x)^{-\\frac12} = 1 + \\left(-\\tfrac12\\right)(-x) + \\dfrac{\\left(-\\tfrac12\\right)\\left(-\\tfrac32\\right)}{2}(-x)^2 + \\ldots = 1 + \\dfrac12 x + \\dfrac38 x^2 + \\ldots$", mk: "M1 A1", n: "$n = -\\frac12$, $X = -x$: two negatives in term 2, and $(-x)^2 = x^2$ in term 3 — all positive." },
         { h: "Multiply, keeping up to $x^2$", m: "$(1 + 2x - 2x^2)(1 + \\tfrac12 x + \\tfrac38 x^2)$\n$= 1 + \\left(\\tfrac12 + 2\\right)x + \\left(\\tfrac38 + 2 \\cdot \\tfrac12 - 2\\right)x^2 + \\ldots = 1 + \\dfrac52 x - \\dfrac58 x^2 + \\ldots$", mk: "M1 A1*", n: "Three pieces in the $x^2$ bracket: $\\frac38$ (from $1 \\cdot x^2$), $1$ (from $x \\cdot x$), $-2$ (from $x^2 \\cdot 1$). A1* — the printed answer, so every step must be visible." },
@@ -567,7 +567,7 @@ C["maths:4.1"] = {
     { q: "The number of terms in the expansion of $(2 - 3x)^{11}$ is", opts: ["10", "11", "12", "infinite"], ans: 2, why: "$n + 1 = 12$ terms for a positive integer $n$." },
     { q: "The term in $x^4$ of $(a + 2x)^7$ is", opts: ["$35a^3 \\cdot 16x^4$", "$35a^4 \\cdot 16x^4$", "$21a^3 \\cdot 8x^4$", "$7a^3 \\cdot 16x^4$"], ans: 0, why: "$\\binom{7}{4}a^{7-4}(2x)^4 = 35 \\cdot a^3 \\cdot 16x^4$." },
     { q: "The $x^2$ term of $(1 + 2x)^{\\frac12}$ is", opts: ["$-\\tfrac12 x^2$", "$\\tfrac12 x^2$", "$-2x^2$", "$x^2$"], ans: 0, why: "$\\frac{\\frac12 \\cdot (-\\frac12)}{2}(2x)^2 = -\\tfrac18 \\cdot 4x^2 = -\\tfrac12 x^2$." },
-    { q: "$(1 + 3x)^{-1}$ is valid for", opts: ["$|x| < 3$", "$|x| < \\tfrac13$", "all $x$", "$x > 0$"], ans: 1, why: "$|3x| < 1 \\Rightarrow |x| < \\tfrac13$." },
+    { q: "$(1 + 3x)^{-1}$ is valid for", opts: ["$|x| < 3$", "$|x| < \\tfrac13$", "$|x| < 1$", "$|x| > \\tfrac13$"], ans: 1, why: "$|3x| < 1 \\Rightarrow |x| < \\tfrac13$." },
     { q: "$(9 - 2x)^{\\frac12}$ is valid for", opts: ["$|x| < \\tfrac29$", "$|x| < \\tfrac92$", "$|x| < 9$", "$|x| < 2$"], ans: 1, why: "$3\\left(1 - \\tfrac{2x}{9}\\right)^{\\frac12}$ needs $\\left|\\tfrac{2x}{9}\\right| < 1$." },
     { q: "$(8 + x)^{\\frac13}$ begins with the constant", opts: ["8", "2", "$\\tfrac13$", "1"], ans: 1, why: "$8^{\\frac13}\\left(1 + \\tfrac x8\\right)^{\\frac13}$." },
     { q: "$(3 + x)^{-2}$ begins with the constant", opts: ["$-9$", "$-\\tfrac19$", "$\\tfrac19$", "$\\tfrac13$"], ans: 2, why: "$3^{-2} = \\tfrac19$." },
@@ -577,10 +577,10 @@ C["maths:4.1"] = {
     { q: "Coefficient of $x^2$ in $(1 + 2x - 2x^2)(1 + \\tfrac12 x + \\tfrac38 x^2)$:", opts: ["$\\tfrac38$", "$-\\tfrac58$", "$\\tfrac{11}{8}$", "$-2$"], ans: 1, why: "$\\tfrac38 + 2 \\cdot \\tfrac12 - 2 = -\\tfrac58$: three contributions." },
     { q: "The product $(1 + 4x)^{\\frac12}(1 - x)^{-\\frac12}$ is valid for", opts: ["$|x| < 1$", "$|x| < 4$", "$|x| < \\tfrac14$", "$\\tfrac14 < |x| < 1$"], ans: 2, why: "The tighter of $|x| < \\tfrac14$ and $|x| < 1$." },
     { q: "To estimate $\\sqrt5$ from $(1 + 8x)^{\\frac12}$ you use $x = \\tfrac{1}{32}$ and then", opts: ["divide by 2", "multiply by 2", "square the result", "take the reciprocal"], ans: 1, why: "$\\sqrt{1 + \\tfrac14} = \\tfrac{\\sqrt5}{2}$, so double it." },
-    { q: "Which value of $x$ gives the most accurate 3-term estimate from $(4 - x)^{-\\frac12}$: $x = -14$, $x = 2$ or $x = -\\tfrac12$?", opts: ["$-14$", "$2$", "$-\\tfrac12$", "all equal"], ans: 2, why: "$-14$ is outside $|x| < 4$; of the valid two, the smaller $|x|$ wins." },
-    { q: "In $\\frac{50x^2 + 38x + 9}{(5x + 2)^2(1 - 2x)}$ the correct partial-fraction form is", opts: ["$\\tfrac{A}{5x+2} + \\tfrac{B}{1-2x}$", "$\\tfrac{A}{5x+2} + \\tfrac{B}{(5x+2)^2} + \\tfrac{C}{1-2x}$", "$\\tfrac{Ax + B}{(5x+2)^2} + \\tfrac{C}{1-2x}$", "$\\tfrac{A}{(5x+2)^2} + \\tfrac{B}{1-2x}$"], ans: 1, why: "A repeated linear factor needs a term for each power." },
-    { q: "The notation $\\binom{1/2}{2}$ is", opts: ["equal to $-\\tfrac18$", "not defined — use $\\tfrac{\\frac12(-\\frac12)}{2!}$", "equal to $\\tfrac14$", "acceptable in a final answer"], ans: 1, why: "$\\binom{n}{r}$ is defined for non-negative integer $n$; mark schemes reject it for fractions." },
-    { q: "On the fx-991CW, nCr is found under", opts: ["SHIFT ÷", "CATALOG → Probability", "SETTINGS", "FORMAT"], ans: 1, why: "CATALOG → Probability → nCr." }
+    { q: "Which value of $x$ gives the most accurate 3-term estimate from $(4 - x)^{-\\frac12}$: $x = -14$, $x = 2$ or $x = -\\tfrac12$?", opts: ["$-14$", "$2$", "$-\\tfrac12$", "all equally accurate"], ans: 2, why: "$-14$ is outside $|x| < 4$; of the valid two, the smaller $|x|$ wins." },
+    { q: "In $\\frac{50x^2 + 38x + 9}{(5x + 2)^2(1 - 2x)}$ the correct partial-fraction form is", opts: ["$\\tfrac{A}{5x+2} + \\tfrac{B}{5x+2} + \\tfrac{C}{1-2x}$", "$\\tfrac{A}{5x+2} + \\tfrac{B}{(5x+2)^2} + \\tfrac{C}{1-2x}$", "$\\tfrac{Ax + B}{(5x+2)^2} + \\tfrac{C}{1-2x}$", "$\\tfrac{A}{5x+2} + \\tfrac{B}{(5x+2)^2} + \\tfrac{C}{(1-2x)^2}$"], ans: 1, why: "A repeated linear factor needs a term for each power." },
+    { q: "The notation $\\binom{1/2}{2}$ is", opts: ["equal to $\\tfrac18$, the positive coefficient", "not defined — use $\\tfrac{\\frac12(-\\frac12)}{2!}$", "equal to $\\tfrac14$, as $\\tfrac12 \\times \\tfrac12$", "acceptable in a final answer on the paper"], ans: 1, why: "$\\binom{n}{r}$ is defined for non-negative integer $n$; mark schemes reject it for fractions." },
+    { q: "On the fx-991CW, nCr is found under", opts: ["SHIFT → ÷", "CATALOG → Probability", "SETTINGS → Calc Settings", "FORMAT → Standard"], ans: 1, why: "Press CATALOG, then Probability, then nCr." }
   ]
 };
 
@@ -700,12 +700,12 @@ C["maths:4.2"] = {
     ["How many terms are left over in $\\sum_{r=1}^{80}$ of an order-3 sequence?", "$80 = 26 \\times 3 + 2$: two, namely $a_1$ and $a_2$."]
   ],
   quiz: [
-    { q: "$u_n = \\frac{1}{3n + 1}$ is", opts: ["increasing", "decreasing", "periodic", "constant"], ans: 1, why: "Denominator grows." },
+    { q: "$u_n = \\frac{1}{3n + 1}$ is", opts: ["increasing", "decreasing", "periodic", "constant"], ans: 1, why: "As $n$ grows, $3n + 1$ grows, so $\\frac{1}{3n + 1}$ falls." },
     { q: "$u_1 = 3$, $u_{n+1} = \\frac{1}{u_n}$ has order", opts: ["1", "2", "3", "not periodic"], ans: 1, why: "$3, \\frac13, 3, \\ldots$" },
     { q: "Sum of 50 terms of a period-3 sequence with cycle $2, 5, -1$:", opts: ["96", "102", "98", "100"], ans: 1, why: "$16 \\times 6 + 2 + 5$." },
     { q: "$u_{n+1} = u_n + 7\\cos\\frac{n\\pi}{2}$: $\\cos\\frac{n\\pi}{2}$ for $n = 1, 2, 3, 4$ is", opts: ["$1, 0, -1, 0$", "$0, -1, 0, 1$", "$0, 1, 0, -1$", "$1, -1, 1, -1$"], ans: 1, why: "Radians: $\\cos\\frac{\\pi}{2} = 0$, $\\cos\\pi = -1$, …" },
     { q: "A recurrence gives $k^2 + k - 2 = 0$ and the sequence must have order 3. $k =$", opts: ["1", "$-2$", "2", "$-1$"], ans: 1, why: "$k = 1$ makes it constant." },
-    { q: "$u_n = (-1)^n n$ is", opts: ["increasing", "decreasing", "periodic", "none of these"], ans: 3, why: "$-1, 2, -3, 4, \\ldots$ alternates and grows." }
+    { q: "$u_n = (-1)^n n$ is", opts: ["increasing", "decreasing", "periodic with period 2", "none of these"], ans: 3, why: "$-1, 2, -3, 4, \\ldots$ alternates and grows." }
   ]
 };
 
@@ -885,7 +885,7 @@ C["maths:4.4"] = {
     { q: "$a = 5$, $d = 3$: $u_{20} =$", opts: ["62", "65", "60", "68"], ans: 0, why: "$5 + 19 \\times 3$." },
     { q: "$S_{10}$ for $2, 5, 8, \\ldots$:", opts: ["155", "145", "165", "135"], ans: 0, why: "$5(4 + 27)$." },
     { q: "$1 + 2 + \\cdots + 50 =$", opts: ["1275", "1250", "2550", "1225"], ans: 0, why: "$\\frac{50 \\times 51}{2}$." },
-    { q: "In the proof of $S_n$, adding the forward and reversed sums gives", opts: ["$n$ pairs each $a + l$", "$2n$ pairs", "$n$ pairs each $a$", "$\\frac n2$ pairs"], ans: 0, why: "Each pair sums to $a + l = 2a + (n-1)d$." },
+    { q: "In the proof of $S_n$, adding the forward and reversed sums gives", opts: ["$n$ pairs each $a + l$", "$2n$ pairs each $a + l$", "$n$ pairs each $a$", "$\\frac n2$ pairs"], ans: 0, why: "Each pair sums to $a + l = 2a + (n-1)d$." },
     { q: "Repayments £400, £390, … total £8100 gives $N = 36$ or $45$. Correct $N$:", opts: ["36", "45", "both", "neither"], ans: 0, why: "Payments negative before month 45." },
     { q: "Six gears from 28 to 115 km/h, arithmetic: $d =$", opts: ["14.5", "17.4", "21.75", "29"], ans: 1, why: "$87 \\div 5$." }
   ]
@@ -1001,7 +1001,7 @@ C["maths:4.5"] = {
     { q: "$a = 3$, $r = 2$: $u_6 =$", opts: ["96", "192", "48", "64"], ans: 0, why: "$3 \\times 2^5$." },
     { q: "$S_\\infty$ of $8 + 4 + 2 + \\cdots$:", opts: ["16", "14", "15", "$\\infty$"], ans: 0, why: "$\\frac{8}{1 - 1/2}$." },
     { q: "Which ratio gives a convergent series?", opts: ["$r = 1.01$", "$r = -0.9$", "$r = -1$", "$r = 2$"], ans: 1, why: "$|r| < 1$." },
-    { q: "8% growth per year for 5 years multiplies by", opts: ["$1.4$", "$1.08^5$", "$1.08 \\times 5$", "$5^{1.08}$"], ans: 1, why: "Repeated multiplication." },
+    { q: "8% growth per year for 5 years multiplies by", opts: ["$1.4$", "$1.08^5$", "$1.08 \\times 5$", "$5^{1.08}$"], ans: 1, why: "Each year multiplies by $1.08$: five years give $1.08^5$." },
     { q: "In the proof of $S_n$, subtracting $rS_n$ from $S_n$ leaves", opts: ["$a - ar^n$", "$a + ar^n$", "$ar^n$", "$a$"], ans: 0, why: "First term of one, last of the other." },
     { q: "$2 \\times 1.05^{n-1} > 10$ first holds for $n =$", opts: ["33", "34", "35", "32"], ans: 2, why: "$n - 1 > \\frac{\\ln5}{\\ln1.05} = 32.99$, so $n - 1 = 33$." }
   ]
@@ -1072,10 +1072,10 @@ C["maths:4.6"] = {
     ["Why can a sum-to-infinity model be unrealistic?", "It assumes the process continues for ever with the same ratio (a bounce never stops, growth never slows)."],
   ],
   quiz: [
-    { q: "Payments £500, £550, £600, …: model?", opts: ["arithmetic $d = 50$", "geometric $r = 1.1$", "geometric $r = 50$", "neither"], ans: 0, why: "Same amount added." },
-    { q: "A population growing 4% a year from 2000: after 6 years", opts: ["$2000 \\times 1.04^6$", "$2000 \\times 1.04^5$", "$2000 + 6 \\times 80$", "$2000 \\times 1.24$"], ans: 0, why: "Six growths." },
+    { q: "Payments £500, £550, £600, …: model?", opts: ["arithmetic $d = 50$", "geometric $r = 1.1$", "geometric $r = 50$", "neither"], ans: 0, why: "£50 is added each time: arithmetic, $d = 50$." },
+    { q: "A population growing 4% a year from 2000: after 6 years", opts: ["$2000 \\times 1.04^6$", "$2000 \\times 1.04^5$", "$2000 + 6 \\times 80$", "$2000 \\times 1.24$"], ans: 0, why: "Six years of $\\times 1.04$: $2000 \\times 1.04^6$." },
     { q: "Total over 12 months of an arithmetic payment scheme uses", opts: ["$u_{12}$", "$S_{12}$", "$S_\\infty$", "$u_{13}$"], ans: 1, why: "A total is a sum." },
-    { q: "A ball rebounding to 70% of its height, dropped from 10 m, travels in total", opts: ["$\\tfrac{10}{0.3}$", "$\\tfrac{10}{0.3} + \\tfrac{7}{0.3}$", "$2 \\times \\tfrac{10}{0.3}$", "$10 \\times 0.7$"], ans: 1, why: "Down from 10, up and down from 7 onwards." }
+    { q: "A ball rebounding to 70% of its height, dropped from 10 m, travels in total", opts: ["$10 + \\tfrac{7}{0.3}$", "$\\tfrac{10}{0.3} + \\tfrac{7}{0.3}$", "$2 \\times \\tfrac{10}{0.3}$", "$\\tfrac{10}{0.7} + \\tfrac{7}{0.7}$"], ans: 1, why: "Down from 10, up and down from 7 onwards." }
   ]
 };
 

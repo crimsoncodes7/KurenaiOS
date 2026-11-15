@@ -285,7 +285,9 @@
 .k-season-yr { inline-size: 6rem; }
 .k-season-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(20rem, 100%), 1fr)); gap: var(--sp-16); }
 .k-season-grid > .k-empty { grid-column: 1 / -1; }
-.k-scard { display: flex; gap: var(--sp-14); padding: var(--sp-14); border-radius: var(--r-24); background: var(--s1); cursor: pointer; }
+.k-scard { position: relative; display: flex; gap: var(--sp-14); padding: var(--sp-14); border-radius: var(--r-24); background: var(--s1); cursor: pointer; }
+/* episodes out and not watched: bottom right, loud enough to catch the eye */
+.k-scard-behind { position: absolute; inset-block-end: var(--sp-12); inset-inline-end: var(--sp-12); padding: var(--sp-3) var(--sp-10); border-radius: var(--r-pill); background: var(--amber); color: var(--amber-ink); font-size: var(--fs-14); font-weight: var(--weight-bold); line-height: 1.2; box-shadow: var(--elev-1); pointer-events: none; }
 .k-scard:hover { background: var(--s2); }
 .k-scard > .k-mcover { position: relative; inset: auto; z-index: auto; inline-size: var(--scard-cover-w); block-size: var(--scard-cover-h); flex: 0 0 auto; border-radius: var(--r-12); overflow: hidden; }
 .k-scard-body { flex: 1 1 auto; min-inline-size: 0; display: flex; flex-direction: column; gap: var(--sp-2); }

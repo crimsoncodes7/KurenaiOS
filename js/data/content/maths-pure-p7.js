@@ -38,11 +38,15 @@ C["maths:7.1"] = {
         { m: "$= \\lim_{h \\to 0}\\dfrac{x^2 + 2xh + h^2 - x^2}{h} = \\lim_{h \\to 0}\\dfrac{2xh + h^2}{h} = \\lim_{h \\to 0}(2x + h)$", mk: "M1" },
         { m: "As $h \\to 0$, $2x + h \\to 2x$. So $\\dfrac{dy}{dx} = 2x$.", mk: "A1*", n: "The final A needs the limit statement in words or symbols." }
       ], result: "shown" } },
-    { worked: { tag: "exam", title: "Prove $\\frac{d}{dx}(x^3) = 3x^2$; and $y = 2x^2$", src: "AS June 2018 · P1 Q10 · 4 marks; A-level June 2022 · P2 Q4 · 3 marks",
-      q: "**(i)** Prove from first principles that the derivative of $x^3$ is $3x^2$. **(ii)** Given $y = 2x^2$, show from first principles that $\\frac{dy}{dx} = 4x$.",
+    { worked: { tag: "exam", title: "Prove $\\frac{d}{dx}(x^3) = 3x^2$ from first principles", src: "AS June 2018 · P1 Q10 · 4 marks",
+      q: "Prove from first principles that the derivative of $x^3$ is $3x^2$.",
       steps: [
-        { h: "(i)", m: "$\\lim_{h \\to 0}\\dfrac{(x + h)^3 - x^3}{h} = \\lim_{h \\to 0}\\dfrac{3x^2h + 3xh^2 + h^3}{h} = \\lim_{h \\to 0}(3x^2 + 3xh + h^2) = 3x^2$", mk: "B1 M1 A1 A1*", n: "$(x + h)^3 = x^3 + 3x^2h + 3xh^2 + h^3$ — binomial expansion (4.1)." },
-        { h: "(ii)", m: "$\\lim_{h \\to 0}\\dfrac{2(x + h)^2 - 2x^2}{h} = \\lim_{h \\to 0}\\dfrac{4xh + 2h^2}{h} = \\lim_{h \\to 0}(4x + 2h) = 4x$", mk: "B1 M1 A1*", n: "The constant multiplies every term; it does not change the method." }
+        { m: "$\\lim_{h \\to 0}\\dfrac{(x + h)^3 - x^3}{h} = \\lim_{h \\to 0}\\dfrac{3x^2h + 3xh^2 + h^3}{h} = \\lim_{h \\to 0}(3x^2 + 3xh + h^2) = 3x^2$", mk: "B1 M1 A1 A1*", n: "$(x + h)^3 = x^3 + 3x^2h + 3xh^2 + h^3$ — binomial expansion (4.1)." }
+      ], result: "shown" } },
+    { worked: { tag: "exam", title: "Show from first principles that $y = 2x^2$ gives $\\frac{dy}{dx} = 4x$", src: "A-level June 2022 · P2 Q4 · 3 marks",
+      q: "Given $y = 2x^2$, show from first principles that $\\frac{dy}{dx} = 4x$.",
+      steps: [
+        { m: "$\\lim_{h \\to 0}\\dfrac{2(x + h)^2 - 2x^2}{h} = \\lim_{h \\to 0}\\dfrac{4xh + 2h^2}{h} = \\lim_{h \\to 0}(4x + 2h) = 4x$", mk: "B1 M1 A1*", n: "The constant multiplies every term; it does not change the method." }
       ], result: "shown" } },
     { worked: { tag: "exam", title: "Gradient at a point from first principles: $y = 2x^3 + 5$ at $P(1, 7)$", src: "A-level Specimen · P1 Q9 · 5 marks",
       q: "The curve $y = 2x^3 + 5$ passes through $P(1, 7)$. Use differentiation from first principles to find the gradient of the tangent at $P$.",
@@ -126,9 +130,9 @@ C["maths:7.1"] = {
     { q: "$\\frac{(x+h)^2 - x^2}{h}$ simplifies to", opts: ["$2x + h$", "$2x$", "$x + h$", "$2xh$"], ans: 0, why: "Expand and divide by $h$." },
     { q: "In a first-principles proof the final step must", opts: ["state the limit as $h \\to 0$", "set $h = 0$ at the start", "quote the power rule", "differentiate twice"], ans: 0, why: "The limit is the definition." },
     { q: "$y = x^4$ at $x = 0$: $f' = f'' = 0$. The point is", opts: ["a minimum", "a point of inflection", "a maximum", "not stationary"], ans: 0, why: "$f'$ changes from negative to positive." },
-    { q: "Convex means", opts: ["$f'' > 0$", "$f'' < 0$", "$f' > 0$", "$f' = 0$"], ans: 0, why: "Gradient increasing." },
-    { q: "$\\lim_{h\\to0}\\frac{\\sin h}{h} =$", opts: ["1", "0", "$\\infty$", "$h$"], ans: 0, why: "Standard limit (radians)." },
-    { q: "The graph of $\\frac{dy}{dx}$ crosses zero going downward where $y$ has", opts: ["a maximum", "a minimum", "an inflection", "an asymptote"], ans: 0, why: "Gradient goes + to −." }
+    { q: "Convex means", opts: ["$f'' > 0$", "$f'' < 0$", "$f' > 0$", "$f' = 0$"], ans: 0, why: "Convex: the gradient increases, so $f''(x) > 0$." },
+    { q: "$\\lim_{h\\to0}\\frac{\\sin h}{h} =$", opts: ["1", "0", "$\\infty$", "$h$"], ans: 0, why: "In radians $\\sin h \\approx h$ for small $h$, so $\\frac{\\sin h}{h} \\to 1$." },
+    { q: "The graph of $\\frac{dy}{dx}$ crosses zero going downward where $y$ has", opts: ["a maximum", "a minimum", "an inflection", "an asymptote"], ans: 0, why: "$\\frac{dy}{dx}$ goes from $+$ to $-$: $y$ rises then falls, a maximum." }
   ]
 };
 
@@ -213,7 +217,7 @@ C["maths:7.2"] = {
     { q: "$\\frac{d}{dx}(\\sqrt x) =$", opts: ["$\\tfrac{1}{2\\sqrt x}$", "$\\tfrac12\\sqrt x$", "$\\tfrac{1}{\\sqrt x}$", "$2\\sqrt x$"], ans: 0, why: "$\\frac12 x^{-1/2}$." },
     { q: "$\\frac{d}{dx}(\\cos 3x) =$", opts: ["$-3\\sin 3x$", "$3\\sin 3x$", "$-\\sin 3x$", "$3\\cos 3x$"], ans: 0, why: "Chain constant, sign flip." },
     { q: "$\\frac{d}{dx}(e^{-2x}) =$", opts: ["$-2e^{-2x}$", "$2e^{-2x}$", "$e^{-2x}$", "$-2e^{-3x}$"], ans: 0, why: "$k = -2$." },
-    { q: "$\\frac{d}{dx}(5^x) =$", opts: ["$5^x\\ln 5$", "$x5^{x-1}$", "$5^x$", "$\\ln 5$"], ans: 0, why: "Standard." },
+    { q: "$\\frac{d}{dx}(5^x) =$", opts: ["$5^x\\ln 5$", "$x5^{x-1}$", "$5^x$", "$\\ln 5$"], ans: 0, why: "$5^x = e^{x\\ln 5}$, so the derivative is $5^x\\ln 5$." },
     { q: "To differentiate $(2x + 5)(x - 1)$ you should first", opts: ["expand the brackets", "differentiate each bracket", "take logs", "divide by $x$"], ans: 0, why: "Or use the product rule." }
   ]
 };
@@ -286,12 +290,16 @@ C["maths:7.3"] = {
         { h: "(b) $e^{-2x} \\ne 0$, so $2 + x - x^2 = 0$", m: "$(2 - x)(1 + x) = 0$: $x = 2$, $y = 8e^{-4}$; $x = -1$, $y = -4e^2$", mk: "M1 A1 A1" },
         { h: "(c) From the sketch (min at $x = -1$, max at $x = 2$, $f \\to 0^+$ as $x \\to \\infty$)", m: "$g(x) = 2f(x)$ on all $x$: range $g(x) \\ge -8e^2$. $h$ on $x \\ge 0$: $f$ runs from $f(0) = -8$ up to $8e^{-4}$ then down to 0, so $2f - 3$ runs from $-19$ to $16e^{-4} - 3$: $-19 \\le h(x) \\le 16e^{-4} - 3$", mk: "B1 M1 A1", n: "The range needs the sketch's shape and the domain's endpoint $x = 0$." }
       ], result: "(b) $(2, 8e^{-4})$, $(-1, -4e^2)$ (c) $g \\ge -8e^2$; $-19 \\le h \\le 16e^{-4} - 3$" } },
-    { worked: { tag: "exam", title: "Increasing/decreasing: solve $\\frac{dy}{dx} > 0$", src: "AS Specimen · P1 Q1 and AS June 2019 · P1 Q5",
-      q: "**(i)** $y = 2x^3 - 2x^2 - 2x + 8$. Find the range of $x$ for which $y$ is increasing, in set notation. **(ii)** $y = 3x^2 + \\frac2x + 2$, $x > 0$. Find the exact range of $x$ for which the curve is increasing.",
+    { worked: { tag: "exam", title: "Increasing: solve $\\frac{dy}{dx} > 0$ for a cubic, in set notation", src: "AS Specimen · P1 Q1",
+      q: "$y = 2x^3 - 2x^2 - 2x + 8$. Find the range of $x$ for which $y$ is increasing, in set notation.",
       steps: [
-        { h: "(i)", m: "$\\dfrac{dy}{dx} = 6x^2 - 4x - 2 = 2(3x + 1)(x - 1) > 0 \\Rightarrow \\{x : x < -\\tfrac13\\} \\cup \\{x : x > 1\\}$", mk: "M1 A1 M1 A1", n: "A quadratic inequality: roots, U-shape, outside." },
-        { h: "(ii)", m: "$\\dfrac{dy}{dx} = 6x - \\dfrac{2}{x^2} > 0 \\Rightarrow 6x^3 > 2$ (multiplying by $x^2 > 0$) $\\Rightarrow x^3 > \\dfrac13 \\Rightarrow x > \\sqrt[3]{\\tfrac13}$", mk: "M1 A1 M1 A1", n: "Multiplying by $x^2$ is safe; then a cube root has one real value." }
-      ], result: "(i) $x < -\\frac13$ or $x > 1$ (ii) $x > \\sqrt[3]{\\frac13}$" } },
+        { m: "$\\dfrac{dy}{dx} = 6x^2 - 4x - 2 = 2(3x + 1)(x - 1) > 0 \\Rightarrow \\{x : x < -\\tfrac13\\} \\cup \\{x : x > 1\\}$", mk: "M1 A1 M1 A1", n: "A quadratic inequality: roots, U-shape, outside." }
+      ], result: "$x < -\\frac13$ or $x > 1$" } },
+    { worked: { tag: "exam", title: "Increasing: $\\frac{dy}{dx} > 0$ with a $\\frac{2}{x}$ term, $x > 0$", src: "AS June 2019 · P1 Q5",
+      q: "$y = 3x^2 + \\frac2x + 2$, $x > 0$. Find the exact range of $x$ for which the curve is increasing.",
+      steps: [
+        { m: "$\\dfrac{dy}{dx} = 6x - \\dfrac{2}{x^2} > 0 \\Rightarrow 6x^3 > 2$ (multiplying by $x^2 > 0$) $\\Rightarrow x^3 > \\dfrac13 \\Rightarrow x > \\sqrt[3]{\\tfrac13}$", mk: "M1 A1 M1 A1", n: "Multiplying by $x^2$ is safe; then a cube root has one real value." }
+      ], result: "$x > \\sqrt[3]{\\frac13}$" } },
 
     { page: "Optimisation" },
     { callout: { t: "memorise", h: "The routine", body: [
@@ -367,11 +375,11 @@ C["maths:7.3"] = {
   ],
   quiz: [
     { q: "Tangent to $y = x^2$ at $(3, 9)$:", opts: ["$y = 6x - 9$", "$y = 6x + 9$", "$y = 3x$", "$y = 9x - 18$"], ans: 0, why: "$m = 6$." },
-    { q: "Normal at a point with gradient $-\\frac13$ has gradient", opts: ["3", "$-3$", "$\\tfrac13$", "0"], ans: 0, why: "Negative reciprocal." },
+    { q: "Normal at a point with gradient $-\\frac13$ has gradient", opts: ["3", "$-3$", "$\\tfrac13$", "0"], ans: 0, why: "Normal gradient $= -1 \\div (-\\frac13) = 3$." },
     { q: "$f'(a) = 0$, $f''(a) = -5$: the point is", opts: ["a maximum", "a minimum", "an inflection", "unknown"], ans: 0, why: "$f'' < 0$." },
-    { q: "$y = x^3 - 3x$ is decreasing for", opts: ["$-1 < x < 1$", "$x < -1$", "$x > 1$", "all $x$"], ans: 0, why: "$3x^2 - 3 < 0$." },
-    { q: "An open-topped box's surface area does not include", opts: ["the top", "the base", "the sides", "any face"], ans: 0, why: "Read the shape." },
-    { q: "Proving an optimum is a minimum uses", opts: ["$f'' > 0$", "$f' > 0$", "$f = 0$", "$f'' = 0$"], ans: 0, why: "Second derivative test." }
+    { q: "$y = x^3 - 3x$ is decreasing for", opts: ["$-1 < x < 1$", "$x < -1$ or $x > 1$", "$0 < x < 1$", "$-\\sqrt3 < x < \\sqrt3$"], ans: 0, why: "$3x^2 - 3 < 0$." },
+    { q: "An open-topped box's surface area does not include", opts: ["the top", "the base", "the sides", "any face"], ans: 0, why: "Open-topped: there is no top face, so its area is left out." },
+    { q: "Proving an optimum is a minimum uses", opts: ["$f'' > 0$", "$f' > 0$", "$f = 0$", "$f'' = 0$"], ans: 0, why: "$f'' > 0$ at the stationary point means a minimum." }
   ]
 };
 
@@ -485,12 +493,12 @@ C["maths:7.4"] = {
     ["$\\frac{x - 4}{2 + \\sqrt x}$ simplifies to…", "$\\sqrt x - 2$ (difference of two squares) — derivative $\\frac{1}{2\\sqrt x}$.", 10]
   ],
   quiz: [
-    { q: "$\\frac{d}{dx}(x e^{x}) =$", opts: ["$e^x + xe^x$", "$e^x$", "$xe^x$", "$e^x - xe^x$"], ans: 0, why: "Product rule." },
+    { q: "$\\frac{d}{dx}(x e^{x}) =$", opts: ["$e^x + xe^x$", "$e^x$", "$xe^x$", "$e^x - xe^x$"], ans: 0, why: "Product rule: $1 \\cdot e^x + x \\cdot e^x$." },
     { q: "$\\frac{d}{dx}\\left(\\frac{x}{x+1}\\right) =$", opts: ["$\\tfrac{1}{(x+1)^2}$", "$\\tfrac{-1}{(x+1)^2}$", "$\\tfrac{2x+1}{(x+1)^2}$", "$1$"], ans: 0, why: "$\\frac{(x+1) - x}{(x+1)^2}$." },
-    { q: "$\\frac{d}{dx}(\\sin^3 x) =$", opts: ["$3\\sin^2 x\\cos x$", "$3\\cos^2 x$", "$\\sin^2 x\\cos x$", "$3\\sin^2 x$"], ans: 0, why: "Chain rule." },
+    { q: "$\\frac{d}{dx}(\\sin^3 x) =$", opts: ["$3\\sin^2 x\\cos x$", "$3\\cos^2 x$", "$\\sin^2 x\\cos x$", "$3\\sin^2 x$"], ans: 0, why: "Chain rule: $3\\sin^2 x \\times \\cos x$." },
     { q: "$\\frac{d}{dx}\\ln(3x^2 + 1) =$", opts: ["$\\tfrac{6x}{3x^2+1}$", "$\\tfrac{1}{3x^2+1}$", "$\\tfrac{6x}{3x^2}$", "$6x\\ln(3x^2+1)$"], ans: 0, why: "Inside derivative $6x$." },
     { q: "$V = \\frac43\\pi r^3$, $\\frac{dr}{dt} = 2$: $\\frac{dV}{dt} =$", opts: ["$8\\pi r^2$", "$4\\pi r^2$", "$\\tfrac83\\pi r^3$", "$2$"], ans: 0, why: "$4\\pi r^2 \\times 2$." },
-    { q: "If $\\frac{dx}{dy} = 3y^2$ then $\\frac{dy}{dx} =$", opts: ["$\\tfrac{1}{3y^2}$", "$3y^2$", "$6y$", "$\\tfrac{1}{6y}$"], ans: 0, why: "Reciprocal." }
+    { q: "If $\\frac{dx}{dy} = 3y^2$ then $\\frac{dy}{dx} =$", opts: ["$\\tfrac{1}{3y^2}$", "$3y^2$", "$6y$", "$\\tfrac{1}{6y}$"], ans: 0, why: "$\\frac{dy}{dx} = 1 \\div \\frac{dx}{dy} = \\frac{1}{3y^2}$." }
   ]
 };
 
@@ -584,7 +592,7 @@ C["maths:7.5"] = {
     ["Prove a normal meets the curve only at $P$: method?", "Substitute the line, factor out the known root, show the remaining factor has no real roots.", 6],
   ],
   quiz: [
-    { q: "$\\frac{d}{dx}(3y^2) =$", opts: ["$6y\\frac{dy}{dx}$", "$6y$", "$3y\\frac{dy}{dx}$", "$6\\frac{dy}{dx}$"], ans: 0, why: "Chain rule." },
+    { q: "$\\frac{d}{dx}(3y^2) =$", opts: ["$6y\\frac{dy}{dx}$", "$6y$", "$3y\\frac{dy}{dx}$", "$6\\frac{dy}{dx}$"], ans: 0, why: "Chain rule: $\\frac{d}{dy}(3y^2) \\times \\frac{dy}{dx} = 6y\\frac{dy}{dx}$." },
     { q: "For $x^2 + y^2 = 25$, $\\frac{dy}{dx} =$", opts: ["$-\\tfrac xy$", "$\\tfrac xy$", "$-\\tfrac yx$", "$2x + 2y$"], ans: 0, why: "$2x + 2yy' = 0$." },
     { q: "Vertical tangent on $x^2 + xy + y^2 = 7$ where", opts: ["$x + 2y = 0$", "$2x + y = 0$", "$x = 0$", "$y = 0$"], ans: 0, why: "Denominator $x + 2y$." },
     { q: "$\\ln y = x\\ln x$ differentiates to", opts: ["$\\tfrac{y'}{y} = \\ln x + 1$", "$y' = \\ln x + 1$", "$\\tfrac{y'}{y} = \\tfrac1x$", "$y' = x^{x-1}$"], ans: 0, why: "Chain and product rules." },
@@ -628,7 +636,7 @@ C["maths:7.6"] = {
       q: "A spherical balloon is inflated so that the rate of increase of its radius is inversely proportional to the square root of the radius. **(a)** Write down a differential equation for $r$. At $t = 10$ s the radius is 16 cm and increasing at $0.9$ cm/s. **(b)** Solve the differential equation to show that $r^{3/2} = 5.4t + 10$. **(c)** Find the radius when $t = 20$, to the nearest mm. **(d)** Suggest a limitation of the model.",
       steps: [
         { h: "(a)", m: "$\\dfrac{dr}{dt} = \\dfrac{k}{\\sqrt r}$, $k > 0$", mk: "B1" },
-        { h: "(b) Find $k$ from the rate condition, then separate", m: "$0.9 = \\dfrac{k}{4} \\Rightarrow k = 3.6$\n$\\sqrt r\\,dr = 3.6\\,dt \\Rightarrow \\dfrac23 r^{3/2} = 3.6t + C$; at $t = 10$, $r = 16$: $\\dfrac23 \\cdot 64 = 36 + C \\Rightarrow C = \\dfrac{20}{3}$", mk: "M1 A1 M1 A1 A1", n: "Two conditions at $t = 10$: one for $k$ (the rate), one for $C$ (the value)." },
+        { h: "(b) Find $k$ from the rate condition, then separate", m: "$0.9 = \\dfrac{k}{4} \\Rightarrow k = 3.6$\n$\\sqrt r\\,dr = 3.6\\,dt \\Rightarrow \\dfrac23 r^{3/2} = 3.6t + C$; at $t = 10$, $r = 16$: $\\dfrac23 \\cdot 64 = 36 + C \\Rightarrow C = \\dfrac{20}{3}$", mk: "M1 A1 M1 A1", n: "Two conditions at $t = 10$: one for $k$ (the rate), one for $C$ (the value)." },
         { m: "$r^{3/2} = \\dfrac32(3.6t + \\tfrac{20}{3}) = 5.4t + 10$", mk: "A1*" },
         { h: "(c)", m: "$r^{3/2} = 118 \\Rightarrow r = 118^{2/3} = 24.1$ cm $= 241$ mm", mk: "M1 A1" },
         { h: "(d)", m: "The balloon will burst — the radius cannot keep growing; or the balloon is not a perfect sphere.", mk: "B1" }
@@ -667,7 +675,7 @@ C["maths:7.6"] = {
   quiz: [
     { q: "\"$N$ grows at a rate proportional to $N$\":", opts: ["$\\tfrac{dN}{dt} = kN$", "$\\tfrac{dN}{dt} = k$", "$N = kt$", "$\\tfrac{dN}{dt} = \\tfrac kN$"], ans: 0, why: "Proportional to $N$." },
     { q: "\"Decreases at a rate inversely proportional to $r^2$\":", opts: ["$\\tfrac{dr}{dt} = -\\tfrac{k}{r^2}$", "$\\tfrac{dr}{dt} = -kr^2$", "$\\tfrac{dr}{dt} = \\tfrac{k}{r^2}$", "$\\tfrac{dr}{dt} = -\\tfrac{k}{r}$"], ans: 0, why: "Inverse square, with a minus." },
-    { q: "$V = \\frac43\\pi r^3$ and $\\frac{dV}{dt} = -c$ gives $\\frac{dr}{dt} =$", opts: ["$-\\tfrac{c}{4\\pi r^2}$", "$-c$", "$-4\\pi r^2 c$", "$-\\tfrac{c}{r^3}$"], ans: 0, why: "Divide by $\\frac{dV}{dr} = 4\\pi r^2$." },
+    { q: "$V = \\frac43\\pi r^3$ and $\\frac{dV}{dt} = -c$ gives $\\frac{dr}{dt} =$", opts: ["$-\\tfrac{c}{4\\pi r^2}$", "$-c$", "$-4\\pi r^2 c$", "$-\\tfrac{3c}{4\\pi r^3}$"], ans: 0, why: "Divide by $\\frac{dV}{dr} = 4\\pi r^2$." },
     { q: "In $\\frac{dr}{dt} = \\frac{k}{\\sqrt r}$ with $\\frac{dr}{dt} = 0.9$ at $r = 16$, $k =$", opts: ["3.6", "0.225", "14.4", "0.9"], ans: 0, why: "$0.9 \\times 4$." },
     { q: "Solving $\\frac{d\\theta}{dt} = -k(\\theta - 20)$ gives", opts: ["$\\theta = 20 + Ae^{-kt}$", "$\\theta = 20e^{-kt}$", "$\\theta = Ae^{kt} - 20$", "$\\theta = 20 - kt$"], ans: 0, why: "Decay to the room temperature." }
   ]

@@ -175,13 +175,12 @@ C["compsci:4.9.1.1"] = {
   ],
   flashcards: [
     ["Parallel transmission?", "Several bits sent simultaneously, each on its own wire.", 1],
-    ["What is crosstalk?", "Interference between signals on neighbouring wires.", 4],
     ["Purpose of the start bit?", "Starts the receiver's clock / brings it into phase with the transmitter's.", 7],
     ["Why is the internal data bus parallel?", "Short distance, fixed positions, huge volume — many bits at once.", 9]
   ],
   quiz: [
     { q: "Data skew is a problem of", opts: ["parallel transmission", "serial transmission", "asynchronous framing", "Wi-Fi only"], ans: 0, why: "Bits drift apart on separate wires." },
-    { q: "The start bit's purpose is to", opts: ["synchronise the receiver's clock", "mark the end of data", "check parity", "carry the address"], ans: 0, why: "R. 'indicates start'." },
+    { q: "The start bit's purpose is to", opts: ["synchronise the receiver's clock", "mark the end of the data being sent", "check the parity of the data bits", "carry the address of the receiver"], ans: 0, why: "R. 'indicates start'." },
     { q: "Synchronous transmission uses", opts: ["a common clock", "start and stop bits per character", "no clock at all", "parallel wires only"], ans: 0, why: "Continuous sync." },
     { q: "Serial is preferred over long distances because", opts: ["no skew or crosstalk", "it sends more bits at once", "it needs more wires", "it has no protocol"], ans: 0, why: "Those worsen with distance." }
   ]
@@ -294,16 +293,14 @@ C["compsci:4.9.1.2"] = {
   ],
   flashcards: [
     ["Bit rate?", "Number of bits transmitted per second.", 1],
-    ["Bandwidth?", "The range of frequencies a medium can transmit.", 2],
-    ["Latency?", "The time delay between an action and its effect / data arriving.", 3],
     ["Protocol?", "A set of rules governing communication between devices.", 4],
     ["4 signals, 2 bits each → bit rate vs baud?", "Bit rate = 2 × baud rate.", 8]
   ],
   quiz: [
-    { q: "16 signal levels carry how many bits per symbol?", opts: ["4", "16", "8", "2"], ans: 0, why: "log₂16." },
-    { q: "Bit rate vs bandwidth is", opts: ["directly proportional", "inversely proportional", "unrelated", "exponential"], ans: 0, why: "Spec statement." },
-    { q: "Latency is", opts: ["a time delay", "signal changes per second", "a frequency range", "a set of rules"], ans: 0, why: "Delay." },
-    { q: "Baud rate counts", opts: ["signal changes per second", "bits per second", "packets per second", "frequencies"], ans: 0, why: "Symbols/s." }
+    { q: "16 signal levels carry how many bits per symbol?", opts: ["4", "16", "8", "2"], ans: 0, why: "Each symbol can take 16 levels, and 16 = 2⁴, so it carries 4 bits." },
+    { q: "Bit rate vs bandwidth is", opts: ["directly proportional", "inversely proportional", "unrelated", "exponential"], ans: 0, why: "A wider bandwidth lets more data pass each second, so bit rate rises in proportion to it." },
+    { q: "Latency is", opts: ["a time delay", "signal changes per second", "a frequency range", "a set of rules"], ans: 0, why: "Latency is the delay between sending something and it arriving, as a time." },
+    { q: "Baud rate counts", opts: ["signal changes per second", "bits transmitted per second", "packets sent per second", "frequencies used per second"], ans: 0, why: "Baud rate counts signal changes per second, and one change can carry more than one bit." }
   ]
 };
 
@@ -417,18 +414,16 @@ C["compsci:4.9.2.1"] = {
   ],
   flashcards: [
     ["What does a switch use to forward frames?", "The destination MAC address."],
-    ["Physical topology?", "The layout of the cabling/connections."],
-    ["Logical topology?", "How data flows around the network."],
-    ["Physical star?", "Every device connected to a central switch (or hub), sending data through it."],
-    ["Switch vs hub?", "Switch forwards a frame to the recipient only; hub sends it to every device."],
-    ["Logical bus?", "Data broadcast on a shared medium; all nodes read it and check the address; one transmitter at a time."],
+    ["Physical star?", "Every device connected to a central switch (or hub), sending data through it.", 3],
+    ["Switch vs hub?", "Switch forwards a frame to the recipient only; hub sends it to every device.", 4],
+    ["Logical bus?", "Data broadcast on a shared medium; all nodes read it and check the address; one transmitter at a time.", 5],
     ["Why do fewer devices improve performance?", "More bandwidth each and fewer collisions.", 7]
   ],
   quiz: [
     { q: "The centre of a star network is a", opts: ["switch", "server", "router", "modem"], ans: 0, why: "DPT for server/router." },
-    { q: "Logical topology describes", opts: ["how data flows", "the cable layout", "the IP scheme", "the number of devices"], ans: 0, why: "Definition." },
-    { q: "On a logical bus,", opts: ["only one node transmits at a time", "every node has its own link", "no protocol is needed", "data goes to the recipient only"], ans: 0, why: "Shared medium." },
-    { q: "A hub", opts: ["repeats every frame to every device", "forwards by IP address", "routes between networks", "filters by port"], ans: 0, why: "No addressing." }
+    { q: "Logical topology describes", opts: ["how data flows", "the cable layout", "the IP scheme", "the number of devices"], ans: 0, why: "Logical topology describes how data flows between devices, however the cables are laid out." },
+    { q: "On a logical bus,", opts: ["only one node transmits at a time", "every node has its own link", "no protocol is needed", "data goes to the recipient only"], ans: 0, why: "On a logical bus all nodes share one medium, so only one can transmit at a time." },
+    { q: "A hub", opts: ["repeats every frame to every device", "forwards each frame by its IP address", "routes packets between separate networks", "filters frames by their port number"], ans: 0, why: "A hub has no addressing, so it repeats every frame it gets out of every port." }
   ]
 };
 
@@ -554,9 +549,9 @@ C["compsci:4.9.2.2"] = {
     ["A disadvantage of peer-to-peer availability?", "A resource is unavailable if the peer holding it is turned off.", 7]
   ],
   quiz: [
-    { q: "In peer-to-peer networking", opts: ["each computer has equal status", "one server holds all files", "logins are central", "clients cannot share"], ans: 0, why: "Definition." },
-    { q: "A school should use client-server because", opts: ["it needs central access rights for untrusted users", "it is cheaper", "it needs no server", "peers are faster"], ans: 0, why: "Security and scale." },
-    { q: "\"Peer-to-peer is cheaper\" alone scores", opts: ["R. — needs a reason", "1 mark", "2 marks", "full marks"], ans: 0, why: "Say: no server to buy." },
+    { q: "In peer-to-peer networking", opts: ["each computer has equal status", "one server holds all files", "logins are checked by one server", "clients cannot share their files"], ans: 0, why: "In peer-to-peer every computer has equal status, acting as client and server as needed." },
+    { q: "A school should use client-server because", opts: ["it needs central access rights for untrusted users", "it is cheaper as there is no server to buy", "it needs no server, so nothing can fail centrally", "peers are faster than a server for every request"], ans: 0, why: "Security and scale." },
+    { q: "\"Peer-to-peer is cheaper\" alone scores", opts: ["R. — needs a reason", "1 mark for the idea", "2 marks as it is true", "full marks on its own"], ans: 0, why: "Say: no server to buy." },
     { q: "BitTorrent-style sharing is", opts: ["peer-to-peer", "client-server", "thin-client", "a logical bus"], ans: 0, why: "Peers share pieces." }
   ]
 };
@@ -705,7 +700,6 @@ C["compsci:4.9.2.3"] = {
     ["Purpose of Wi-Fi?", "A wireless LAN based on international standards, letting devices connect without cables."],
     ["Two components for wireless networking?", "Wireless network adapter (in each device) and a wireless access point."],
     ["What is an SSID?", "The locally unique identifier/name of a wireless network."],
-    ["Role of WPA2?", "Strong encryption so intercepted data can't be understood without the key.", 5],
     ["CSMA/CA steps?", "Listen; wait if busy; RTS; CTS; transmit; ACK; retransmit if no ACK.", 6],
     ["Why RTS/CTS?", "CTS silences all nodes in range of the receiver — solves hidden nodes.", 7],
     ["Why avoidance, not detection, in Wi-Fi?", "A radio transmitter cannot detect collisions while transmitting.", 8],
@@ -713,9 +707,9 @@ C["compsci:4.9.2.3"] = {
   ],
   quiz: [
     { q: "Which only stops devices CONNECTING, not eavesdropping?", opts: ["MAC allow list", "WPA2 encryption", "both", "neither"], ans: 0, why: "Listening needs no connection." },
-    { q: "In CSMA/CA, CTS is sent by", opts: ["the receiver / access point", "the sender", "every node", "the router's DHCP server"], ans: 0, why: "Clear to send." },
-    { q: "An SSID is", opts: ["a wireless network's identifier", "a MAC address", "an encryption key", "a port number"], ans: 0, why: "Name." },
-    { q: "If no ACK arrives, the sender", opts: ["waits and retransmits", "sends a jam signal", "gives up", "changes SSID"], ans: 0, why: "Avoidance." }
+    { q: "In CSMA/CA, CTS is sent by", opts: ["the receiver / access point", "the sender", "every node", "the router's DHCP server"], ans: 0, why: "The receiver or access point replies with a CTS (clear to send) to the sender's RTS request." },
+    { q: "An SSID is", opts: ["a wireless network's identifier", "the MAC address of the router", "the encryption key for the network", "the port number the network uses"], ans: 0, why: "An SSID is the name that identifies a wireless network, so devices can find and join it." },
+    { q: "If no ACK arrives, the sender", opts: ["waits and retransmits", "sends a jam signal", "gives up and drops the frame", "changes the network's SSID"], ans: 0, why: "With no acknowledgement the sender assumes the frame was lost or collided, so it waits and sends it again." }
   ]
 };
 

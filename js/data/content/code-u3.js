@@ -113,7 +113,7 @@
     quiz: [
       { q: "How many lines does `A(); A();` print if `void A() => Console.WriteLine(\"x\");`?", opts: ["0", "1", "2", "an error"], ans: 2, why: "Each call runs the body once." },
       { q: "Which line calls the method?", opts: ["void Show()", "Show;", "Show();", "Show() => …"], ans: 2, why: "A call is the name with brackets and a semicolon." },
-      { q: "A good method name?", opts: ["stuff", "DoIt2", "PrintMenu", "m"], ans: 2, why: "A PascalCase verb phrase that says the job." },
+      { q: "A good method name?", opts: ["DoStuff", "MenuThing", "PrintMenu", "m"], ans: 2, why: "A PascalCase verb phrase that says the job." },
       { q: "`banner();` when only `Banner` exists gives…", opts: ["CS0103", "nothing", "a warning", "Banner's output"], ans: 0, why: "Names are case-sensitive, so banner does not exist." }
     ]
   });
@@ -315,7 +315,7 @@
       { q: "Two `for (int i …)` loops one after the other…", opts: ["compile fine", "give CS0136", "share one i", "give CS0103"], ans: 0, why: "Each loop's i is scoped to that loop." },
       { q: "A method declares `int c = 0; c++;` and prints c. Called 3 times, it prints…", opts: ["1 2 3", "1 1 1", "0 0 0", "3"], ans: 1, why: "A local is created again each call." },
       { q: "`static int F() => total;` where total is a program variable…", opts: ["works", "CS8421", "CS0161", "prints 0"], ans: 1, why: "A static local method cannot use outside variables." },
-      { q: "The smallest scope that works is good because…", opts: ["it is faster", "fewer places can change the variable", "it saves memory only", "the compiler requires it"], ans: 1, why: "Less code can touch it, so it is easier to reason about." }
+      { q: "The smallest scope that works is good because…", opts: ["it makes the program run faster", "fewer places can change the variable", "it saves memory, which is its only gain", "the compiler requires the smallest scope"], ans: 1, why: "Less code can touch it, so it is easier to reason about." }
     ]
   });
   K.add({ tasks: {
@@ -415,7 +415,7 @@
       { q: "`void P(int a, int b = 5)` — which call is valid?", opts: ["P()", "P(1)", "P(b: 2)", "P(1, 2, 3)"], ans: 1, why: "a is required; b may be left out." },
       { q: "Which pair are valid overloads?", opts: ["int F(int x) / double F(int x)", "int F(int x) / int F(int y)", "int F(int x) / int F(string s)", "none"], ans: 2, why: "Only the parameter types or count can differ." },
       { q: "`Fmt.Show('A')` with overloads for int, double and string calls…", opts: ["string", "int", "double", "an error"], ans: 1, why: "A char converts to int implicitly." },
-      { q: "Why write `Save(f, overwrite: true)`?", opts: ["it is faster", "true alone does not say what it means", "it is required", "to skip a parameter"], ans: 1, why: "Named arguments make bool calls readable." }
+      { q: "Why write `Save(f, overwrite: true)`?", opts: ["it runs faster than a positional call", "true alone does not say what it means", "it is required for every bool parameter", "so true is converted to a string"], ans: 1, why: "Named arguments make bool calls readable." }
     ]
   });
   K.add({ tasks: {
@@ -604,7 +604,7 @@
     quiz: [
       { q: "Where do guard clauses go?", opts: ["at the end", "at the top", "in a loop", "anywhere"], ans: 1, why: "Reject bad input before the work." },
       { q: "Which never throws on bad text?", opts: ["int.Parse", "int.TryParse", "Convert.ToInt32", "(int)"], ans: 1, why: "It returns false instead." },
-      { q: "A method's caller passes −3 for an age. Best response?", opts: ["return 0", "throw ArgumentOutOfRangeException", "print and carry on", "ignore it"], ans: 1, why: "The caller has a bug; say so loudly." },
+      { q: "A method's caller passes −3 for an age. Best response?", opts: ["return 0 and let the caller check", "throw ArgumentOutOfRangeException", "print a warning and carry on", "use Math.Abs to make it 3"], ans: 1, why: "The caller has a bug; say so loudly." },
       { q: "`throw` inside a method…", opts: ["returns a value", "stops the method at once", "prints a message and continues", "is a compile error"], ans: 1, why: "Control leaves immediately." }
     ]
   });
@@ -702,7 +702,7 @@
       { q: "Which is essential in a recursive method?", opts: ["a loop", "a base case", "a static class", "an out parameter"], ans: 1, why: "Without it the calls never stop." },
       { q: "`int G(int n) => n < 10 ? n : G(n / 10);` — G(4321)?", opts: ["1", "4", "4321", "10"], ans: 1, why: "It strips digits until one is left: 4." },
       { q: "How many frames does Fact(4) hold at its deepest?", opts: ["1", "3", "4", "24"], ans: 2, why: "Fact(4), Fact(3), Fact(2), Fact(1)." },
-      { q: "Stack overflow usually means…", opts: ["an int overflowed", "the base case is never reached", "a missing semicolon", "too much output"], ans: 1, why: "The calls keep going." }
+      { q: "Stack overflow usually means…", opts: ["an int overflowed past its maximum", "the base case is never reached", "a missing semicolon in the method", "too much output for the console"], ans: 1, why: "The calls keep going." }
     ]
   });
   K.add({ tasks: {

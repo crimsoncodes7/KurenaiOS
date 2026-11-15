@@ -136,7 +136,7 @@
     ],
     quiz: [
       { q: "Which column is a foreign key?", opts: ["customers.id", "orders.customer_id", "products.name", "products.price"], ans: 1, why: "It holds a customers.id: a link to another table's row." },
-      { q: "What does SQLite say to a second row with id 1 in customers?", opts: ["it replaces the first", "it adds both", "UNIQUE constraint failed: customers.id", "nothing until you SELECT"], ans: 2, why: "A primary key must be unique, so the INSERT is refused." },
+      { q: "What does SQLite say to a second row with id 1 in customers?", opts: ["it replaces the first row with the new one", "it adds both rows and keeps the two ids", "UNIQUE constraint failed: customers.id", "NOT NULL constraint failed: customers.id"], ans: 2, why: "A primary key must be unique, so the INSERT is refused." },
       { q: "order_items has the key (order_id, product_id). Which can be stored?", opts: ["the same order twice with the same product", "one order with two different products", "an order_id that is NULL", "nothing without an id column"], ans: 1, why: "Only the pair must be unique; an order may have many products." }
     ]
   });
@@ -243,8 +243,8 @@
     ],
     quiz: [
       { q: "Which query lists the three dearest products?", opts: ["SELECT name FROM products LIMIT 3 ORDER BY price DESC;", "SELECT name FROM products ORDER BY price DESC LIMIT 3;", "SELECT TOP 3 name FROM products;", "SELECT name FROM products ORDER BY price LIMIT 3;"], ans: 1, why: "Sort descending, then LIMIT; LIMIT always comes last." },
-      { q: "`WHERE name LIKE 'T%'` keeps…", opts: ["names exactly 'T%'", "names starting with T (or t)", "names ending with T", "names containing a %"], ans: 1, why: "% stands for any run of characters; LIKE ignores ASCII case in SQLite." },
-      { q: "`SELECT name price FROM products;` gives…", opts: ["a syntax error", "two columns", "one column called price holding the names", "the prices only"], ans: 2, why: "Without the comma, price becomes an alias for name." }
+      { q: "`WHERE name LIKE 'T%'` keeps…", opts: ["only names spelt exactly 'T%'", "names starting with T (or t)", "names ending with T (or t)", "names containing T followed by a %"], ans: 1, why: "% stands for any run of characters; LIKE ignores ASCII case in SQLite." },
+      { q: "`SELECT name price FROM products;` gives…", opts: ["a syntax error: a comma is missing", "two columns, name and price, as usual", "one column called price holding the names", "one column called name holding the prices"], ans: 2, why: "Without the comma, price becomes an alias for name." }
     ]
   });
   K.add({ tasks: {
@@ -550,8 +550,8 @@
     ],
     quiz: [
       { q: "Orders has 6 rows, one with customer_id NULL. `orders JOIN customers` gives…", opts: ["6 rows", "5 rows", "30 rows", "an error"], ans: 1, why: "The order with no customer has no match." },
-      { q: "`ambiguous column name: id` means…", opts: ["id is misspelt", "both joined tables have an id; prefix it", "id is NULL", "the join has no ON"], ans: 1, why: "Write o.id or c.id." },
-      { q: "`LEFT JOIN orders o ON … WHERE o.placed > '2026-09-05'` loses the customers with no orders because…", opts: ["LEFT JOIN never keeps them", "their o.placed is NULL, so WHERE drops them", "dates cannot be compared", "it needs GROUP BY"], ans: 1, why: "Move the condition into ON to keep them." }
+      { q: "`ambiguous column name: id` means…", opts: ["id is misspelt in one of the two tables", "both joined tables have an id; prefix it", "id is NULL in some rows of the join", "the join has no ON, so every id matches"], ans: 1, why: "Write o.id or c.id." },
+      { q: "`LEFT JOIN orders o ON … WHERE o.placed > '2026-09-05'` loses the customers with no orders because…", opts: ["LEFT JOIN never keeps rows with no match", "their o.placed is NULL, so WHERE drops them", "dates stored as text cannot be compared", "it needs GROUP BY to keep every customer"], ans: 1, why: "Move the condition into ON to keep them." }
     ]
   });
   K.add({ tasks: {
@@ -657,9 +657,9 @@
       ["How do you keep only rank 1?", "Compute the rank in a CTE, then filter WHERE r = 1 outside it."]
     ],
     quiz: [
-      { q: "`rank() OVER (PARTITION BY category ORDER BY price DESC)` ranks…", opts: ["all products together", "within each category, dearest first", "categories by price", "cheapest first"], ans: 1, why: "PARTITION BY restarts the ranking per category." },
+      { q: "`rank() OVER (PARTITION BY category ORDER BY price DESC)` ranks…", opts: ["all products together, dearest first", "within each category, dearest first", "the categories by their total price", "within each category, cheapest first"], ans: 1, why: "PARTITION BY restarts the ranking per category." },
       { q: "Where can a window function NOT go?", opts: ["SELECT", "ORDER BY", "WHERE", "a CTE's SELECT"], ans: 2, why: "WHERE runs before windows are computed." },
-      { q: "`SELECT a FROM t1 UNION SELECT b, c FROM t2;` fails because…", opts: ["UNION needs ALL", "the two sides have different numbers of columns", "ORDER BY is missing", "b and c are text"], ans: 1, why: "Both sides must have the same number of columns." }
+      { q: "`SELECT a FROM t1 UNION SELECT b, c FROM t2;` fails because…", opts: ["UNION needs ALL when the two sides differ", "the two sides have different numbers of columns", "UNION needs an ORDER BY on each side first", "b and c are text while a is an integer"], ans: 1, why: "Both sides must have the same number of columns." }
     ]
   });
   K.add({ tasks: {
@@ -766,7 +766,7 @@
     quiz: [
       { q: "customers (id, postcode, town) breaks 3NF because…", opts: ["it has no key", "town depends on postcode, not on id", "postcode is text", "it should be 2 tables of 1 column"], ans: 1, why: "A non-key column depending on another non-key column breaks 3NF." },
       { q: "A many-to-many relationship is stored with…", opts: ["a foreign key on both tables", "a link table holding both keys", "a comma list in a cell", "a UNIQUE constraint"], ans: 1, why: "Like order_items between orders and products." },
-      { q: "Which stops `stars = 6`?", opts: ["NOT NULL", "UNIQUE", "CHECK (stars BETWEEN 1 AND 5)", "DEFAULT 5"], ans: 2, why: "A CHECK states the rule, and SQLite refuses rows that break it." }
+      { q: "Which stops `stars = 6`?", opts: ["stars INTEGER NOT NULL", "stars INTEGER UNIQUE", "CHECK (stars BETWEEN 1 AND 5)", "stars INTEGER DEFAULT 5 NOT NULL"], ans: 2, why: "A CHECK states the rule, and SQLite refuses rows that break it." }
     ]
   });
   K.add({ tasks: {
@@ -871,8 +871,8 @@
     ],
     quiz: [
       { q: "BEGIN; UPDATE…; INSERT…; and the power fails before COMMIT. Afterwards…", opts: ["the UPDATE is kept", "both are kept", "neither is kept", "the INSERT is kept"], ans: 2, why: "Atomic: an uncommitted transaction is rolled back." },
-      { q: "\"0 rows changed.\" after `DELETE … WHERE customer_id = NULL` means…", opts: ["the table is empty", "= NULL is never true; use IS NULL", "DELETE needs BEGIN", "foreign keys are off"], ans: 1, why: "Comparing with = NULL is unknown for every row." },
-      { q: "Which column most deserves an index?", opts: ["one you never search by", "orders.customer_id, searched and joined on often", "every column", "a column with one value"], ans: 1, why: "Index what you search and join by; each index costs writes." }
+      { q: "\"0 rows changed.\" after `DELETE … WHERE customer_id = NULL` means…", opts: ["the table is empty, so nothing matched", "= NULL is never true; use IS NULL", "DELETE needs BEGIN before it changes rows", "foreign keys are off, so it was refused"], ans: 1, why: "Comparing with = NULL is unknown for every row." },
+      { q: "Which column most deserves an index?", opts: ["orders.note, a long text column never searched", "orders.customer_id, searched and joined on often", "every column of every table, so all queries are fast", "orders.status, which holds one value in every row"], ans: 1, why: "Index what you search and join by; each index costs writes." }
     ]
   });
   K.add({ tasks: {

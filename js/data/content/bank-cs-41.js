@@ -38,7 +38,7 @@ X("compsci:4.1.1.1", {
     { q: "A variable is declared as a pointer. Its value is:", opts: ["a copy of the data item", "a memory address", "always zero", "a text label"], ans: 1, why: "Pointers/references hold the address of the item they point to, not the item itself." },
     { q: "Best type for a student's exam grade recorded as a single letter A–E?", opts: ["Character", "Integer", "Boolean", "Real"], ans: 0, why: "One letter is a character; a string would work but is heavier than needed." },
     { q: "Why should a National Insurance number (e.g. QQ 12 34 56 C) be a string?", opts: ["It is too large for an integer", "It contains letters and spaces", "It must be encrypted", "Strings are faster"], ans: 1, why: "The presence of letters rules out any numeric type." },
-    { q: "Which is an example of a user-defined data type?", opts: ["A record type Student with fields Name and DOB", "The built-in integer type", "A variable named total", "The value TRUE"], ans: 0, why: "Records compose built-in types into a new named type defined by the programmer." }
+    { q: "Which is an example of a user-defined data type?", opts: ["A record type Student with fields Name and DOB", "The built-in integer type supplied with the language", "A variable named total declared in the main program", "The Boolean value TRUE used in a condition"], ans: 0, why: "Records compose built-in types into a new named type defined by the programmer." }
   ],
   exam: [
     { level: "AS", src: "AS 2018 P1 Q3", q: "A program stores, for each parcel, its weight in kilograms, its tracking code (e.g. `RB123456789GB`) and whether it has been delivered. State the most appropriate data type for each of the three values.", marks: 3,
@@ -85,10 +85,10 @@ X("compsci:4.1.1.2", {
   quiz: [
     { q: "A loop must read marks until the user types −1. Which construct is most appropriate?", opts: ["FOR i ← 1 TO 10", "WHILE mark ≠ −1", "A sequence of ten READ statements", "A nested IF"], ans: 1, why: "The number of marks is unknown, so indefinite iteration with a condition is needed." },
     { q: "Which loop always executes its body at least once?", opts: ["WHILE…ENDWHILE", "FOR…ENDFOR with an empty range", "REPEAT…UNTIL", "None of them"], ans: 2, why: "REPEAT…UNTIL tests its condition after the body, so the body runs before any test." },
-    { q: "`total ← total + n` inside a FOR loop is an example of:", opts: ["selection", "assignment within iteration", "declaration", "recursion"], ans: 1, why: "An assignment statement placed inside definite iteration — the accumulator pattern." },
-    { q: "Why are identifiers such as `numberOfPassengers` preferred to `n`?", opts: ["They run faster", "They use less memory", "They make the program's purpose clear to readers and maintainers", "Compilers require it"], ans: 2, why: "Meaningful names aid understanding, debugging and maintenance; they have no effect on speed." },
-    { q: "Selection nested inside iteration is needed when:", opts: ["every element is treated identically", "a decision must be made for each repetition", "the loop runs exactly once", "the program has no input"], ans: 1, why: "Each pass of the loop makes a choice — e.g. counting the even numbers in a list." },
-    { q: "A constant declaration differs from a variable declaration because:", opts: ["a constant cannot be given a name", "a constant's value cannot change while the program runs", "a constant uses more memory", "a constant is always an integer"], ans: 1, why: "A constant is fixed for the program's lifetime; the identifier makes the value meaningful and easy to change at source." }
+    { q: "`total ← total + n` inside a FOR loop is an example of:", opts: ["selection within iteration", "assignment within iteration", "declaration within iteration", "recursion within iteration"], ans: 1, why: "An assignment statement placed inside definite iteration — the accumulator pattern." },
+    { q: "Why are identifiers such as `numberOfPassengers` preferred to `n`?", opts: ["They run faster because the compiler can find them sooner", "They use less memory because each name is stored once", "They make the program's purpose clear to readers and maintainers", "Compilers refuse identifiers shorter than three characters"], ans: 2, why: "Meaningful names aid understanding, debugging and maintenance; they have no effect on speed." },
+    { q: "Selection nested inside iteration is needed when:", opts: ["every element is treated identically", "a decision must be made for each repetition", "the loop runs exactly once, with no repeats", "the program has no input to make decisions on"], ans: 1, why: "Each pass of the loop makes a choice — e.g. counting the even numbers in a list." },
+    { q: "A constant declaration differs from a variable declaration because:", opts: ["a constant cannot be given a name, only a value", "a constant's value cannot change while the program runs", "a constant uses more memory than a variable of the same type", "a constant is always an integer and cannot hold text"], ans: 1, why: "A constant is fixed for the program's lifetime; the identifier makes the value meaningful and easy to change at source." }
   ],
   exam: [
     { level: "AS", src: "AS 2025 P1 Q2", q: "A program uses a REPEAT…UNTIL loop to read a positive integer from the user, and continues to loop while the value entered is less than 1. Explain why replacing this with a WHILE loop, keeping the same condition, would change the program's behaviour when the first value entered is −4.", marks: 2,
@@ -135,11 +135,11 @@ X("compsci:4.1.1.6", {
   ],
   quiz: [
     { q: "A variable declared inside subroutine `Calc` is accessible from:", opts: ["the whole program", "only inside Calc", "any subroutine that calls Calc", "the main block only"], ans: 1, why: "Local scope is the block in which the variable is declared." },
-    { q: "Which is a reason to prefer local variables?", opts: ["They run faster", "They make the subroutine self-contained and reusable", "They are always integers", "They persist between calls"], ans: 1, why: "Self-containment (no reliance on outside state) is the accepted reason; persistence is what they do NOT do." },
-    { q: "A constant differs from a variable because:", opts: ["it has no identifier", "its value cannot change during execution", "it cannot be used in expressions", "it is stored on the stack"], ans: 1, why: "Fixed value for the program's lifetime — that is the definition." },
+    { q: "Which is a reason to prefer local variables?", opts: ["They run faster because they are stored in the cache", "They make the subroutine self-contained and reusable", "They are always integers, so they need less memory", "They keep their values between calls to the subroutine"], ans: 1, why: "Self-containment (no reliance on outside state) is the accepted reason; persistence is what they do NOT do." },
+    { q: "A constant differs from a variable because:", opts: ["it has no identifier, only a value", "its value cannot change during execution", "it cannot be used in expressions", "it is always stored on the stack"], ans: 1, why: "Fixed value for the program's lifetime — that is the definition." },
     { q: "Two subroutines each declare a local called `count`. What happens?", opts: ["A compile error", "They share one variable", "Each has its own independent count", "The second overwrites the first"], ans: 2, why: "Locals are separate storage in each subroutine's own scope (stack frame)." },
-    { q: "Memory for a local variable is allocated:", opts: ["when the program starts", "when its subroutine is called", "never", "only if it is an array"], ans: 1, why: "It exists only while the subroutine executes; a global exists for the whole run." },
-    { q: "Using a global for a subroutine's working value risks:", opts: ["unintended side-effects elsewhere in the program", "faster execution", "loss of the value after the call", "a syntax error"], ans: 0, why: "Other code that reads the global sees the change — the classic side-effect." }
+    { q: "Memory for a local variable is allocated:", opts: ["when the program starts", "when its subroutine is called", "never, as locals use registers", "only if it is declared as an array"], ans: 1, why: "It exists only while the subroutine executes; a global exists for the whole run." },
+    { q: "Using a global for a subroutine's working value risks:", opts: ["unintended side-effects elsewhere in the program", "faster execution, since the value never has to be passed", "loss of the value as soon as the call returns", "a syntax error when the subroutine is compiled"], ans: 0, why: "Other code that reads the global sees the change — the classic side-effect." }
   ],
   exam: [
     { level: "AS", src: "AS 2024 P1 Q2.1", q: "Describe two differences between local and global variables.", marks: 2,
@@ -183,7 +183,7 @@ X("compsci:4.1.1.7", {
     { q: "In ASCII, `CODE_TO_CHAR(CHAR_TO_CODE('a') − 32)` gives:", opts: ["'A'", "'b'", "'a'", "'@'"], ans: 0, why: "Lower-case codes are 32 above upper-case: 97 − 32 = 65 = 'A'." },
     { q: "Which pair of indices compares first and last characters of s (0-indexed)?", opts: ["s[0], s[LEN(s)]", "s[1], s[LEN(s)]", "s[0], s[LEN(s) − 1]", "s[0], s[0]"], ans: 2, why: "The last valid index is LEN − 1." },
     { q: "`\"7\" + \"3\"` in a language where + concatenates strings gives:", opts: ["10", "\"73\"", "\"10\"", "an error"], ans: 1, why: "Both operands are strings, so they are joined." },
-    { q: "To shift 'Y' (code 89) by 3 in a Caesar cipher with wrap-around you compute:", opts: ["89 + 3", "(89 − 65 + 3) MOD 26 + 65", "89 MOD 3", "(89 + 3) MOD 26"], ans: 1, why: "Normalise to 0–25, add, wrap with MOD 26, restore the 'A' base → 'B'." },
+    { q: "To shift 'Y' (code 89) by 3 in a Caesar cipher with wrap-around you compute:", opts: ["(89 + 3) MOD 26 + 65", "(89 − 65 + 3) MOD 26 + 65", "(89 − 65) MOD 26 + 3", "(89 − 65 + 3) MOD 65 + 26"], ans: 1, why: "Normalise to 0–25, add, wrap with MOD 26, restore the 'A' base → 'B'." },
     { q: "`SUBSTRING(0, 2, \"kurenai\")` (inclusive) returns:", opts: ["\"ku\"", "\"kur\"", "\"ure\"", "\"k\""], ans: 1, why: "Indices 0, 1 and 2 inclusive → k, u, r." }
   ],
   exam: [
@@ -215,10 +215,10 @@ X("compsci:4.1.1.8", {
   ],
   quiz: [
     { q: "`RANDOM_INT(1, 6)` returns a value in the range:", opts: ["0–5", "1–5", "1–6", "0–6"], ans: 2, why: "The pseudo-code convention is inclusive of both ends." },
-    { q: "Why are computer random numbers called pseudo-random?", opts: ["They are stored in a file", "They come from a deterministic algorithm started from a seed", "They are always odd", "They cannot be repeated"], ans: 1, why: "Same seed → same sequence; only the appearance is random." },
+    { q: "Why are computer random numbers called pseudo-random?", opts: ["They are stored in a file of numbers made in advance", "They come from a deterministic algorithm started from a seed", "They are always odd, so only half the values appear", "They cannot be repeated, even when the same seed is used"], ans: 1, why: "Same seed → same sequence; only the appearance is random." },
     { q: "To choose one of 4 options with equal chance you use:", opts: ["RANDOM_INT(1, 4)", "RANDOM_INT(0, 4)", "RANDOM_INT(1, 3)", "4 × RANDOM_INT(0, 1)"], ans: 0, why: "Four values, each equally likely." },
-    { q: "A simulation of two dice should generate:", opts: ["one number 2–12", "two independent numbers 1–6 and add them", "RANDOM_INT(1, 12)", "RANDOM_INT(2, 12) × 2"], ans: 1, why: "Adding two independent rolls reproduces the correct non-uniform distribution of totals." },
-    { q: "Fixing the seed during testing gives:", opts: ["truly random output", "a reproducible sequence", "faster execution", "an error"], ans: 1, why: "Reproducibility is why seeds exist." },
+    { q: "A simulation of two dice should generate:", opts: ["one random number from 2 to 12 inclusive", "two independent numbers 1–6 and add them", "RANDOM_INT(1, 12) for the total of both", "RANDOM_INT(1, 6) × 2 for the two dice"], ans: 1, why: "Adding two independent rolls reproduces the correct non-uniform distribution of totals." },
+    { q: "Fixing the seed during testing gives:", opts: ["truly random output", "a reproducible sequence", "faster execution each run", "an error at run time"], ans: 1, why: "Reproducibility is why seeds exist." },
     { q: "The probability that `RANDOM_INT(1, 100) ≤ 25` is:", opts: ["0.25", "0.24", "0.26", "0.5"], ans: 0, why: "25 of the 100 equally likely values satisfy it." }
   ],
   exam: [
@@ -246,12 +246,12 @@ X("compsci:4.1.1.9", {
     ["Give an example of graceful recovery from an exception.", "Catching an invalid input conversion and asking the user to enter the value again.", 17]
   ],
   quiz: [
-    { q: "Which is an exception rather than a syntax error?", opts: ["A missing ENDIF", "Attempting to open a file that does not exist", "Misspelling a keyword", "A missing bracket"], ans: 1, why: "Exceptions occur at run time; the others are detected before execution." },
-    { q: "Code that runs only when an exception is raised is placed in the:", opts: ["TRY block", "CATCH/EXCEPT block", "FINALLY block", "main program"], ans: 1, why: "TRY encloses risky code; CATCH handles the exception." },
-    { q: "A FINALLY block executes:", opts: ["only on error", "only on success", "always", "never"], ans: 2, why: "It is the place for clean-up such as closing files." },
-    { q: "`STRING_TO_INT(\"twelve\")` would most likely raise:", opts: ["a syntax error", "a type-conversion exception", "a logic error", "nothing"], ans: 1, why: "The string is not a valid integer, so the conversion fails at run time." },
-    { q: "Without a handler, an exception causes the program to:", opts: ["continue silently", "terminate with an error", "retry", "recompile"], ans: 1, why: "An unhandled exception crashes the program." },
-    { q: "Best use of exception handling in a data-entry loop:", opts: ["Catch conversion errors and re-prompt", "Ignore invalid input", "Terminate on the first error", "Convert everything to strings"], ans: 0, why: "Graceful recovery keeps the program usable." }
+    { q: "Which is an exception rather than a syntax error?", opts: ["A missing ENDIF at the end of a selection", "Attempting to open a file that does not exist", "Misspelling a keyword such as WHILE as WHLIE", "A missing bracket in an arithmetic expression"], ans: 1, why: "Exceptions occur at run time; the others are detected before execution." },
+    { q: "Code that runs only when an exception is raised is placed in the:", opts: ["TRY block", "CATCH/EXCEPT block", "FINALLY/ENSURE block", "main program block"], ans: 1, why: "TRY encloses risky code; CATCH handles the exception." },
+    { q: "A TRY block should contain:", opts: ["the statements that might raise an exception", "only the code that handles the error", "the code that must always run at the end", "every statement in the whole program"], ans: 0, why: "CATCH handles; FINALLY always runs." },
+    { q: "`STRING_TO_INT(\"twelve\")` would most likely raise:", opts: ["a syntax error when compiled", "a type-conversion exception", "a logic error in the output", "nothing, as it returns 0"], ans: 1, why: "The string is not a valid integer, so the conversion fails at run time." },
+    { q: "Without a handler, an exception causes the program to:", opts: ["continue with the next line", "terminate with an error", "retry the failed statement", "recompile and then restart"], ans: 1, why: "An unhandled exception crashes the program." },
+    { q: "Best use of exception handling in a data-entry loop:", opts: ["Catch conversion errors and re-prompt", "Ignore invalid input and carry on", "Terminate on the first error", "Convert everything to strings first"], ans: 0, why: "Graceful recovery keeps the program usable." }
   ],
   exam: [
     { level: "AS", src: "AS 2023 P1 Q2", q: "A program asks the user to enter their age and converts the input to an integer. Explain how exception handling could be used to deal with a user typing `eighteen`.", marks: 3,
@@ -282,22 +282,21 @@ X("compsci:4.1.1.10", {
     { callout: { t: "def", h: "Subroutine (AS 2025)", body: "\"A **named**, **callable** (out-of-line) block of code that can be executed by writing its name in a program statement.\" One mark; both *named* and *callable/out-of-line* were needed." }}
   ],
   flashcards: [
-    ["Define the term subroutine.", "A named, out-of-line block of code that performs a task and can be called by name from elsewhere in the program."],
-    ["Difference between a procedure and a function?", "A function returns a value and is used in an expression; a procedure does not return a value and is called as a statement."],
-    ["Give three advantages of using subroutines, each with a reason.", "Easier to test (each tested separately); easier to understand (named tasks); reuse (called as often as needed without rewriting); team work (implemented independently); easier maintenance (one change in one place)."],
-    ["What is meant by 'out-of-line'?", "The subroutine's code is stored once, separately from where it is called; control jumps to it and returns afterwards."],
-    ["What is a built-in (library) subroutine?", "One provided by the language or a library, e.g. LEN, ROUND, RANDOM_INT."],
-    ["What is the interface of a subroutine?", "Its name, the parameters it expects (with types) and the value it returns."],
-    ["Why does using subroutines reduce errors?", "Code reuse means a tested subroutine is used again rather than rewritten; less duplicated code, fewer places for errors."],
-    ["What must happen after a subroutine finishes?", "Control returns to the statement after the call (using the return address stored on the stack)."]
+    ["Difference between a procedure and a function?", "A function returns a value and is used in an expression; a procedure does not return a value and is called as a statement.", 11],
+    ["Give three advantages of using subroutines, each with a reason.", "Easier to test (each tested separately); easier to understand (named tasks); reuse (called as often as needed without rewriting); team work (implemented independently); easier maintenance (one change in one place).", 12],
+    ["What is meant by 'out-of-line'?", "The subroutine's code is stored once, separately from where it is called; control jumps to it and returns afterwards.", 13],
+    ["What is a built-in (library) subroutine?", "One provided by the language or a library, e.g. LEN, ROUND, RANDOM_INT.", 14],
+    ["What is the interface of a subroutine?", "Its name, the parameters it expects (with types) and the value it returns.", 15],
+    ["Why does using subroutines reduce errors?", "Code reuse means a tested subroutine is used again rather than rewritten; less duplicated code, fewer places for errors.", 16],
+    ["What must happen after a subroutine finishes?", "Control returns to the statement after the call (using the return address stored on the stack).", 17]
   ],
   quiz: [
     { q: "A subroutine that returns a value and is used inside an expression is a:", opts: ["procedure", "function", "parameter", "module"], ans: 1, why: "Functions return; procedures act." },
     { q: "Which is NOT an accepted advantage of subroutines?", opts: ["Easier to test independently", "Programs always run faster", "Enables team working", "Code can be reused"], ans: 1, why: "Speed is not a benefit — calls add small overhead." },
-    { q: "'Easier to debug' earns a mark only if you add:", opts: ["a code example", "how — each subroutine can be tested separately", "the language used", "nothing extra"], ans: 1, why: "Examiners require the explanation of how the advantage arises." },
+    { q: "'Easier to debug' earns a mark only if you add:", opts: ["a code example showing a subroutine call", "how — each subroutine can be tested separately", "the language the program is written in", "nothing extra — the phrase is enough"], ans: 1, why: "Examiners require the explanation of how the advantage arises." },
     { q: "`LEN(word)` is an example of a:", opts: ["user-defined procedure", "built-in function", "local variable", "recursive call"], ans: 1, why: "Provided by the language and returns a value." },
     { q: "After a subroutine finishes, execution continues:", opts: ["at the start of the program", "at the statement after the call", "at the next subroutine", "nowhere — the program ends"], ans: 1, why: "The return address saved at the call is used." },
-    { q: "Which makes a subroutine self-contained?", opts: ["Using global variables", "Using local variables and parameters", "Making it very long", "Calling it only once"], ans: 1, why: "All data enters via parameters and lives in locals; nothing outside is touched." }
+    { q: "Which makes a subroutine self-contained?", opts: ["Using global variables for all its data", "Using local variables and parameters", "Making it long enough to do every task", "Calling it only once from the main program"], ans: 1, why: "All data enters via parameters and lives in locals; nothing outside is touched." }
   ],
   exam: [
     { src: "AQA 2024 P1 Q1", q: "A programmer structures a large program as a set of subroutines. Explain three advantages of doing this.", marks: 3,
@@ -335,9 +334,9 @@ X("compsci:4.1.1.11", {
     { q: "In `Area(length, width)` called as `Area(5, 3)`, the values 5 and 3 are:", opts: ["parameters", "arguments", "locals", "globals"], ans: 1, why: "Actual values supplied at the call are arguments; length and width are the parameters." },
     { q: "A subroutine doubles its integer parameter. Passed by value, the caller's variable afterwards is:", opts: ["doubled", "unchanged", "zero", "undefined"], ans: 1, why: "By value passes a copy." },
     { q: "To write a `Swap(a, b)` procedure that swaps the caller's variables you need:", opts: ["passing by value", "passing by reference", "a return value of a", "global variables"], ans: 1, why: "The subroutine must alter the caller's storage." },
-    { q: "Which is an accepted reason parameters improve subroutines?", opts: ["They make the subroutine run faster", "They avoid global variables, making it self-contained", "They increase memory use", "They allow only one call"], ans: 1, why: "Encapsulation via parameters is the mark-scheme point." },
-    { q: "Passing a large array by reference rather than by value:", opts: ["copies the array", "avoids copying, passing its address", "prevents modification", "is impossible"], ans: 1, why: "Only the address travels; the subroutine works on the original." },
-    { q: "A parameter's scope is:", opts: ["global", "the subroutine in which it is declared", "the calling program", "the whole file"], ans: 1, why: "Parameters behave as locals of the subroutine." }
+    { q: "Which is an accepted reason parameters improve subroutines?", opts: ["They make the subroutine run faster than global data", "They avoid global variables, making it self-contained", "They increase memory use, so values are kept safe", "They allow the subroutine to be called only once"], ans: 1, why: "Encapsulation via parameters is the mark-scheme point." },
+    { q: "Passing a large array by reference rather than by value:", opts: ["copies the whole array into the subroutine", "avoids copying, passing its address", "prevents the subroutine modifying the array", "is impossible for arrays in most languages"], ans: 1, why: "Only the address travels; the subroutine works on the original." },
+    { q: "A parameter's scope is:", opts: ["global, across the whole of the program", "the subroutine in which it is declared", "the calling program, where its value came from", "the whole file the subroutine is written in"], ans: 1, why: "Parameters behave as locals of the subroutine." }
   ],
   exam: [
     { level: "AS", src: "AS 2025 P1 Q4.3", q: "A subroutine that calculates delivery cost currently reads the parcel weight from a global variable. Explain two ways in which passing the weight as a parameter instead would improve the subroutine.", marks: 2,
@@ -365,8 +364,8 @@ X("compsci:4.1.1.12", {
     ["What does a Boolean-returning function often represent?", "A test or validation, e.g. IsValid(input).", 15]
   ],
   quiz: [
-    { q: "`FUNCTION Max(a, b)`: `IF a > b THEN RETURN a ENDIF`. What is wrong?", opts: ["Nothing", "No value is returned when a ≤ b", "RETURN cannot be inside IF", "It returns b twice"], ans: 1, why: "The a ≤ b path falls off the end without a RETURN." },
-    { q: "A function call may appear:", opts: ["only as a statement", "anywhere an expression of its return type is allowed", "only in the main program", "only once"], ans: 1, why: "The call evaluates to its returned value." },
+    { q: "`FUNCTION Max(a, b)`: `IF a > b THEN RETURN a ENDIF`. What is wrong?", opts: ["Nothing — it returns the larger value", "No value is returned when a ≤ b", "RETURN cannot be inside IF", "It returns b twice when a ≤ b"], ans: 1, why: "The a ≤ b path falls off the end without a RETURN." },
+    { q: "A function call may appear:", opts: ["only as a statement on a line of its own", "anywhere an expression of its return type is allowed", "only in the main program, never inside another subroutine", "only once for each function in the program"], ans: 1, why: "The call evaluates to its returned value." },
     { q: "To return both a quotient and a remainder from one function you could:", opts: ["use two RETURN statements in sequence", "return a record containing both", "return the quotient and print the remainder", "use a FOR loop"], ans: 1, why: "A single composite value carries both; the second RETURN would never run." },
     { q: "A function declared to return an Integer contains `RETURN \"done\"`. This is:", opts: ["fine", "a type error", "a run-time exception only", "a logic error"], ans: 1, why: "The returned value must match the function's declared type." },
     { q: "Which statement ends a function and supplies its value?", opts: ["END", "OUTPUT", "RETURN", "EXIT"], ans: 2, why: "RETURN both exits and delivers the value." },
@@ -394,12 +393,12 @@ X("compsci:4.1.1.13", {
     ["In recursion, how many copies of a local variable exist?", "One per active call — each stack frame has its own.", 16]
   ],
   quiz: [
-    { q: "A local variable's lifetime is:", opts: ["the whole program run", "the execution of its subroutine", "until the next call", "one statement"], ans: 1, why: "Created on call, destroyed on return." },
+    { q: "Inside a subroutine, a local with the same name as a global:", opts: ["hides the global within that subroutine", "changes the global's value as well", "causes a syntax error when compiled", "is merged into the global variable"], ans: 0, why: "The nearer scope wins." },
     { q: "Locals for a subroutine call are stored in:", opts: ["the heap", "its stack frame", "a global table", "secondary storage"], ans: 1, why: "Each call pushes a frame holding locals, parameters and the return address." },
-    { q: "Two subroutines each declare a local `i`. Calling both:", opts: ["causes a clash", "uses two separate variables", "shares one i", "is a syntax error"], ans: 1, why: "Separate scopes, separate storage." },
+    { q: "In `void F() { int n = 0; }`, n can be used:", opts: ["only inside F", "anywhere in the program", "only after F has returned", "in any class that calls F"], ans: 0, why: "Its scope is the subroutine." },
     { q: "A recursive function with a local `temp`, called to depth 4, has how many `temp` variables alive?", opts: ["1", "2", "4", "0"], ans: 2, why: "One per stack frame." },
     { q: "Which is NOT true of local variables?", opts: ["Accessible only in their block", "Exist only during the call", "Prevent side-effects", "Retain their value between calls"], ans: 3, why: "Retention would need a global or static variable." },
-    { q: "Using locals rather than globals in a subroutine makes it:", opts: ["slower", "self-contained and reusable", "unable to return values", "recursive"], ans: 1, why: "The accepted mark-scheme phrasing." }
+    { q: "Using locals rather than globals in a subroutine makes it:", opts: ["slower to call each time", "self-contained and reusable", "unable to return values", "recursive by default"], ans: 1, why: "The accepted mark-scheme phrasing." }
   ],
   exam: [
     { level: "AS", src: "AS 2023 P1 Q3", q: "A subroutine declares a variable `count` locally. State two features of this variable that distinguish it from a global variable with the same name.", marks: 2,
@@ -423,11 +422,11 @@ X("compsci:4.1.1.14", {
     ["Why do globals hinder reuse?", "The subroutine relies on a variable that may not exist in another program.", 15]
   ],
   quiz: [
-    { q: "A global variable is declared:", opts: ["inside a subroutine", "in the main program block / outside subroutines", "in a stack frame", "in a parameter list"], ans: 1, why: "That placement is what makes its scope program-wide." },
-    { q: "The main risk of globals is:", opts: ["they use more CPU", "unintended side-effects from any subroutine", "they cannot hold strings", "they are read-only"], ans: 1, why: "Any code can change them." },
+    { q: "A global variable is declared:", opts: ["inside a subroutine, before its first use", "in the main program block / outside subroutines", "in a stack frame when the program starts", "in the parameter list of every subroutine"], ans: 1, why: "That placement is what makes its scope program-wide." },
+    { q: "The main risk of globals is:", opts: ["they use more CPU time than local variables", "unintended side-effects from any subroutine", "they cannot hold strings or other objects", "they are read-only once they are declared"], ans: 1, why: "Any code can change them." },
     { q: "Instead of a global, data should usually be given to a subroutine via:", opts: ["a file", "a parameter", "a comment", "a constant"], ans: 1, why: "Parameters keep the subroutine self-contained." },
-    { q: "A global exists:", opts: ["only during a call", "for the whole run of the program", "until first assigned", "only in the main block"], ans: 1, why: "Lifetime = program lifetime." },
-    { q: "Testing a subroutine that reads a global is harder because:", opts: ["the global is private", "its behaviour depends on outside state", "globals cannot be printed", "it cannot be called"], ans: 1, why: "Isolation is lost." },
+    { q: "A global exists:", opts: ["only during a call to a subroutine", "for the whole run of the program", "until it is first assigned a value", "until the subroutine that set it returns"], ans: 1, why: "Lifetime = program lifetime." },
+    { q: "Testing a subroutine that reads a global is harder because:", opts: ["the global is private to the main program", "its behaviour depends on outside state", "globals cannot be printed during a test run", "it cannot be called from a test harness"], ans: 1, why: "Isolation is lost." },
     { q: "Which is a legitimate use of a global?", opts: ["A loop counter in one subroutine", "A program-wide configuration value", "A temporary swap variable", "A function's return value"], ans: 1, why: "Genuinely program-wide data is the exception." }
   ],
   exam: [
@@ -456,12 +455,12 @@ X("compsci:4.1.1.15", {
     ["Where do a subroutine's parameters live during its execution?", "In its stack frame (or in registers for the first few, depending on the calling convention).", 16]
   ],
   quiz: [
-    { q: "Which is NOT normally stored in a stack frame?", opts: ["Return address", "Local variables", "The program's source code", "Parameters"], ans: 2, why: "Code lives in the program area; the frame holds per-call data." },
+    { q: "A new stack frame is pushed:", opts: ["each time a subroutine is called", "each time a loop repeats", "only when the program starts", "only when an error occurs"], ans: 0, why: "One frame per call." },
     { q: "Subroutine A calls B, which calls C. Which frame is on top?", opts: ["A", "B", "C", "main"], ans: 2, why: "The most recent call is on top." },
-    { q: "When C returns, the return address used is:", opts: ["the start of A", "the statement after the call to C in B", "the start of main", "the top of C"], ans: 1, why: "Control resumes in the caller, just after the call." },
-    { q: "Infinite recursion eventually causes:", opts: ["heap exhaustion", "stack overflow", "an integer overflow", "a syntax error"], ans: 1, why: "Frames keep being pushed until the stack is full." },
+    { q: "When C returns, the return address used is:", opts: ["the start of A, the routine that began it", "the statement after the call to C in B", "the start of the main program", "the top of C, so that it runs again"], ans: 1, why: "Control resumes in the caller, just after the call." },
+    { q: "Fact(4) calls Fact(3), Fact(2) and Fact(1). At the deepest point, how many Fact frames are on the stack?", opts: ["4", "1", "3", "5"], ans: 0, why: "Every call is waiting for the one below it." },
     { q: "The stack is suitable for calls because it is:", opts: ["FIFO", "LIFO", "random access", "sorted"], ans: 1, why: "Last-called, first-returned." },
-    { q: "Saving register values in the frame ensures:", opts: ["faster calls", "the caller's working values are restored on return", "recursion is impossible", "parameters are copied"], ans: 1, why: "The callee may reuse the registers; the saved copies restore the caller's state." }
+    { q: "Saving register values in the frame ensures:", opts: ["faster calls, as registers need not be read again", "the caller's working values are restored on return", "recursion is impossible, so frames cannot pile up", "parameters are copied into the caller's registers"], ans: 1, why: "The callee may reuse the registers; the saved copies restore the caller's state." }
   ],
   exam: [
     { src: "AQA 2021 P1 Q2.6", q: "State two items of information that are stored in a stack frame.", marks: 2,
@@ -490,10 +489,10 @@ X("compsci:4.1.1.16", {
     ["What does `Sum([]) = 0; Sum(h:t) = h + Sum(t)` compute?", "The sum of a list, recursing on the tail until the empty list.", 19]
   ],
   quiz: [
-    { q: "The base case of `Fact(n) = n × Fact(n − 1)` is:", opts: ["n = 1 returns 1", "n = 10", "n × 1", "there is none"], ans: 0, why: "Fact(1) (or Fact(0)) = 1 stops the recursion." },
+    { q: "The base case of `Fact(n) = n × Fact(n − 1)` is:", opts: ["n = 1 returns 1", "n = 10 returns 10", "n × 1 returns n", "there is none"], ans: 0, why: "Fact(1) (or Fact(0)) = 1 stops the recursion." },
     { q: "`F(5)` where `F(n) = n + F(n − 2)` with `F(n) = 0` for n ≤ 0 returns:", opts: ["9", "6", "5", "15"], ans: 0, why: "F(5) = 5 + F(3) = 5 + 3 + F(1) = 5 + 3 + 1 + F(−1) = 9." },
-    { q: "A recursive routine without a base case will:", opts: ["return 0", "loop forever until stack overflow", "raise a syntax error", "return immediately"], ans: 1, why: "Frames accumulate with no return." },
-    { q: "Naive recursive Fibonacci is slow because:", opts: ["recursion is always slow", "the same values are recomputed many times", "it uses a queue", "it cannot use integers"], ans: 1, why: "Fib(n−2) is computed inside both Fib(n−1) and Fib(n) — exponential calls." },
+    { q: "A recursive routine without a base case will:", opts: ["return 0 after the last call", "loop forever until stack overflow", "raise a syntax error when compiled", "return immediately on the first call"], ans: 1, why: "Frames accumulate with no return." },
+    { q: "Naive recursive Fibonacci is slow because:", opts: ["recursion is always slower than iteration", "the same values are recomputed many times", "it uses a queue to store each call", "it must convert each value to a real"], ans: 1, why: "Fib(n−2) is computed inside both Fib(n−1) and Fib(n) — exponential calls." },
     { q: "How many calls does `Sum([4, 2, 5, 3])` make, counting the initial call, with base case the empty list?", opts: ["4", "5", "3", "6"], ans: 1, why: "Arguments [4,2,5,3], [2,5,3], [5,3], [3], [] — five calls." },
     { q: "Which structure is naturally processed by recursion?", opts: ["A stack", "A tree", "A queue", "A constant"], ans: 1, why: "Each subtree is a smaller instance of the same problem." }
   ],
@@ -531,9 +530,9 @@ X("compsci:4.1.2.1", {
   quiz: [
     { q: "SQL is best described as:", opts: ["procedural", "object-oriented", "declarative", "functional"], ans: 2, why: "You say what data you want, not how to retrieve it." },
     { q: "A program built from sequences of statements that change variables is:", opts: ["procedural", "declarative", "functional", "logic"], ans: 0, why: "Imperative/procedural: step-by-step state change." },
-    { q: "Which feature belongs to the functional paradigm?", opts: ["Mutable global state", "Functions as first-class objects", "Class inheritance", "GOTO statements"], ans: 1, why: "Functions can be passed and returned like values." },
+    { q: "Which feature belongs to the functional paradigm?", opts: ["Mutable global state shared by all code", "Functions as first-class objects", "Class inheritance between objects", "GOTO statements for jumping between lines"], ans: 1, why: "Functions can be passed and returned like values." },
     { q: "Encapsulation and inheritance are features of:", opts: ["procedural programming", "object-oriented programming", "functional programming", "assembly"], ans: 1, why: "Core OOP concepts." },
-    { q: "A paradigm is:", opts: ["a specific language", "an approach to structuring programs", "a compiler", "a data type"], ans: 1, why: "Languages implement paradigms; they are not the same thing." },
+    { q: "A paradigm is:", opts: ["a specific language such as Haskell", "an approach to structuring programs", "a compiler for one style of language", "a data type for storing whole programs"], ans: 1, why: "Languages implement paradigms; they are not the same thing." },
     { q: "Which pairing is correct?", opts: ["Haskell — functional", "Prolog — object-oriented", "C — declarative", "SQL — procedural"], ans: 0, why: "Haskell is the archetypal functional language." }
   ],
   exam: [
@@ -553,17 +552,16 @@ X("compsci:4.1.2.2", {
     ["Give two benefits of the structured approach.", "Easier to read and debug (block structure, one entry/exit per block); easier to test modules separately; easier to maintain and reuse.", 11],
     ["What does 'top-down design' mean?", "Start from the whole problem and repeatedly break it into smaller sub-tasks until each is simple enough to code.", 12],
     ["Why is GOTO avoided?", "It produces 'spaghetti' control flow that is hard to follow and test.", 13],
-    ["What is stepwise refinement?", "Successively adding detail to a high-level outline until it is executable code.", 14],
     ["How do procedures relate to the procedural paradigm?", "They are the unit of decomposition — the program is a set of procedures that call one another.", 15],
     ["What is meant by 'one entry, one exit'?", "Each block of structured code has a single point where it is entered and one where it is left, aiding reasoning.", 16]
   ],
   quiz: [
-    { q: "Structured programming uses which three control structures?", opts: ["sequence, selection, iteration", "GOTO, jump, branch", "class, object, method", "map, filter, reduce"], ans: 0, why: "The three combining principles." },
-    { q: "A hierarchy chart shows:", opts: ["the order statements execute", "modules and which calls which, top-down", "the data types used", "the memory map"], ans: 1, why: "It is a decomposition diagram." },
-    { q: "Top-down design begins with:", opts: ["writing the smallest routine", "the overall problem, broken into sub-tasks", "the test plan", "the user interface"], ans: 1, why: "Whole → parts." },
-    { q: "Which is a benefit of structured programming?", opts: ["Faster CPU", "Easier testing of independent modules", "No need for variables", "Removes all bugs"], ans: 1, why: "Modularity aids testing and maintenance." },
-    { q: "Stepwise refinement means:", opts: ["deleting code until it works", "adding detail to an outline level by level", "sorting the modules", "rewriting in assembly"], ans: 1, why: "Refine repeatedly until executable." },
-    { q: "'Spaghetti code' results from:", opts: ["too many subroutines", "unstructured jumps (GOTO)", "meaningful names", "recursion"], ans: 1, why: "Uncontrolled control flow." }
+    { q: "Structured programming uses which three control structures?", opts: ["sequence, selection, iteration", "GOTO, jump and branch instructions", "class, object and method", "map, filter and reduce"], ans: 0, why: "The three combining principles." },
+    { q: "A hierarchy chart shows:", opts: ["the order in which statements execute", "modules and which calls which, top-down", "the data types used by each module", "the memory map of the running program"], ans: 1, why: "It is a decomposition diagram." },
+    { q: "Top-down design begins with:", opts: ["writing the smallest routine, then building up", "the overall problem, broken into sub-tasks", "the test plan for the finished program", "the user interface and its screen layout"], ans: 1, why: "Top-down design starts from the whole problem and keeps splitting it into smaller sub-tasks." },
+    { q: "Which is a benefit of structured programming?", opts: ["A faster CPU for each compiled module", "Easier testing of independent modules", "No need for variables in any module", "Removes all bugs before testing starts"], ans: 1, why: "Modularity aids testing and maintenance." },
+    { q: "Stepwise refinement means:", opts: ["deleting code line by line until it works", "adding detail to an outline level by level", "sorting the modules into alphabetical order", "rewriting each module in assembly language"], ans: 1, why: "Refine repeatedly until executable." },
+    { q: "'Spaghetti code' results from:", opts: ["too many subroutines", "unstructured jumps (GOTO)", "meaningful variable names", "recursion in subroutines"], ans: 1, why: "Uncontrolled control flow." }
   ],
   exam: [
     { src: "AQA 2020 P2 Q3", q: "Describe the structured programming approach and give two advantages of using it.", marks: 4,
@@ -592,16 +590,14 @@ X("compsci:4.1.2.3", {
     { callout: { t: "tip", body: "Class diagrams: name box, attributes with `-` (private) / `+` (public), methods with return types; inheritance is an **open arrow to the superclass**. When asked to *write* a class definition, include the constructor and use the `Public`/`Private` keywords as the skeleton program does." }}
   ],
   flashcards: [
-    ["Define encapsulation.", "Combining data and the methods that operate on it into an object, hiding the data behind public methods so it cannot be changed directly."],
-    ["Define inheritance.", "A subclass acquires the attributes and methods of its superclass, and can add its own or override inherited ones."],
-    ["Define polymorphism.", "The same method call producing different behaviour depending on the object's class — typically via overriding."],
-    ["What is an abstract class?", "A class that cannot be instantiated and exists only to be inherited from, often with abstract (unimplemented) methods."],
-    ["Composition vs aggregation?", "Composition: the part cannot exist without the whole (filled diamond). Aggregation: the part can exist independently (hollow diamond)."],
-    ["What is a constructor?", "A special method called when an object is instantiated, used to initialise its attributes."],
-    ["Why make attributes private?", "So they can only be changed through methods that validate the change — protects the object's integrity (information hiding)."],
-    ["What is method overriding?", "A subclass defining its own version of a method it inherits, replacing the superclass behaviour for objects of the subclass."],
-    ["What is meant by 'virtual' in a base-class method?", "It marks the method as one that subclasses may override, so the version called is chosen at run time by the object's actual class."],
-    ["How is inheritance shown in a class diagram?", "An arrow with an open (hollow) triangular head from subclass to superclass."]
+    ["Define polymorphism.", "The same method call producing different behaviour depending on the object's class — typically via overriding.", 17],
+    ["What is an abstract class?", "A class that cannot be instantiated and exists only to be inherited from, often with abstract (unimplemented) methods.", 18],
+    ["Composition vs aggregation?", "Composition: the part cannot exist without the whole (filled diamond). Aggregation: the part can exist independently (hollow diamond).", 19],
+    ["What is a constructor?", "A special method called when an object is instantiated, used to initialise its attributes.", 20],
+    ["Why make attributes private?", "So they can only be changed through methods that validate the change — protects the object's integrity (information hiding).", 21],
+    ["What is method overriding?", "A subclass defining its own version of a method it inherits, replacing the superclass behaviour for objects of the subclass.", 22],
+    ["What is meant by 'virtual' in a base-class method?", "It marks the method as one that subclasses may override, so the version called is chosen at run time by the object's actual class.", 23],
+    ["How is inheritance shown in a class diagram?", "An arrow with an open (hollow) triangular head from subclass to superclass.", 24]
   ],
   quiz: [
     { q: "A `Manager` class adds a `Department` attribute to everything in `Employee`. This is:", opts: ["encapsulation", "inheritance", "aggregation", "instantiation"], ans: 1, why: "Manager is a subclass of Employee." },

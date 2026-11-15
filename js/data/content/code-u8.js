@@ -117,7 +117,7 @@
     ],
     quiz: [
       { q: "`Animal a = new Dog(\"Rex\");` is…", opts: ["a compile error", "fine: a Dog is an Animal", "fine only with a cast", "a runtime error"], ans: 1, why: "A derived object can be used wherever its base type is expected." },
-      { q: "A derived class can read the base's…", opts: ["private fields", "public and protected members", "only public members", "nothing"], ans: 1, why: "private stays inside the base class's own code." },
+      { q: "A derived class can read the base's…", opts: ["private and protected fields", "public and protected members", "only public members, never protected", "nothing unless it is in the same file"], ans: 1, why: "private stays inside the base class's own code." },
       { q: "Which is a good use of inheritance?", opts: ["Car : Engine", "Square : Shape", "Order : List", "Student : Database"], ans: 1, why: "A square is a shape; a car has an engine." }
     ]
   });
@@ -217,8 +217,8 @@
     ],
     quiz: [
       { q: "`Animal a = new Dog(); a.Speak();` with Speak virtual and overridden in Dog runs…", opts: ["Animal's Speak", "Dog's Speak", "both", "a compile error"], ans: 1, why: "Dynamic dispatch uses the object's type." },
-      { q: "An override must keep…", opts: ["only the name", "the name, parameters and return type", "only the return type", "nothing in particular"], ans: 1, why: "A different signature is a different method (CS0115)." },
-      { q: "`public new string Speak()` in a derived class…", opts: ["overrides Speak", "hides Speak; a base variable still calls the old one", "is a compile error", "deletes Speak"], ans: 1, why: "new hides; only override replaces." }
+      { q: "An override must keep…", opts: ["only the name and the return type", "the name, parameters and return type", "the name, but parameters may change", "nothing in particular, only override"], ans: 1, why: "A different signature is a different method (CS0115)." },
+      { q: "`public new string Speak()` in a derived class…", opts: ["overrides Speak, so a base variable calls the new one", "hides Speak; a base variable still calls the old one", "is a compile error unless Speak is virtual", "deletes the base Speak for every caller"], ans: 1, why: "new hides; only override replaces." }
     ]
   });
   K.add({ tasks: {
@@ -315,8 +315,8 @@
       ["Abstract or virtual?", "abstract: no default, must override. virtual: a default that may be overridden."]
     ],
     quiz: [
-      { q: "Why make Shape abstract?", opts: ["to make it faster", "a plain shape has no meaningful area", "so it can have fields", "so it cannot be inherited"], ans: 1, why: "Abstract marks a base that is only an idea." },
-      { q: "A class derived from an abstract class that does not implement its abstract method must be…", opts: ["sealed", "abstract", "static", "public"], ans: 1, why: "Otherwise CS0534." },
+      { q: "Why make Shape abstract?", opts: ["to make its methods faster to call", "a plain shape has no meaningful area", "so it can have fields and constructors", "so it cannot be inherited by other shapes"], ans: 1, why: "Abstract marks a base that is only an idea." },
+      { q: "A class derived from an abstract class that does not implement its abstract method must be…", opts: ["sealed", "abstract", "static", "internal"], ans: 1, why: "Otherwise CS0534." },
       { q: "`Shape s = new Circle(1);` with Shape abstract is…", opts: ["an error", "fine", "fine only with a cast", "a warning"], ans: 1, why: "A variable of an abstract type can hold a concrete derived object." }
     ]
   });
@@ -420,9 +420,9 @@
       ["Why ask for an interface as a parameter?", "Any present or future type that keeps the contract fits."]
     ],
     quiz: [
-      { q: "`class Duck : Bird, ISwimmer, IFlyer` means Duck…", opts: ["has three base classes", "inherits Bird and implements two interfaces", "is an error", "is an interface"], ans: 1, why: "One base class, any number of interfaces." },
-      { q: "`List<Player>.Sort()` throws when Player…", opts: ["has no ToString", "implements no IComparable", "is sealed", "has a constructor"], ans: 1, why: "Sort needs a way to compare two items." },
-      { q: "An interface member is implemented as…", opts: ["private", "public, matching the signature", "override", "static"], ans: 1, why: "Implicit implementations are public members." }
+      { q: "`class Duck : Bird, ISwimmer, IFlyer` means Duck…", opts: ["inherits from three base classes in that order", "inherits Bird and implements two interfaces", "is an error: a class has one base only", "is an interface built from the three others"], ans: 1, why: "One base class, any number of interfaces." },
+      { q: "`List<Player>.Sort()` throws when Player…", opts: ["has no ToString override", "implements no IComparable", "is a sealed record", "has a constructor with arguments"], ans: 1, why: "Sort needs a way to compare two items." },
+      { q: "An interface member is implemented as…", opts: ["private, so only the class sees it", "public, matching the signature", "override, like a virtual method", "static, shared by every instance"], ans: 1, why: "Implicit implementations are public members." }
     ]
   });
   K.add({ tasks: {
@@ -526,7 +526,7 @@
     ],
     quiz: [
       { q: "Duck, Fish and Submarine can all swim. Best design?", opts: ["Submarine : Animal", "an ISwimmer interface", "one big Swimmer base class", "copy the method three times"], ans: 1, why: "A capability shared by unrelated types is an interface." },
-      { q: "Every account has a balance and the same Deposit code. Best design?", opts: ["an interface", "an abstract class Account", "a struct", "a static class"], ans: 1, why: "Shared state and code for one family." },
+      { q: "Every account has a balance and the same Deposit code. Best design?", opts: ["an interface IAccount", "an abstract class Account", "a struct Account per kind", "a static class Accounts"], ans: 1, why: "Shared state and code for one family." },
       { q: "Which can an interface NOT contain?", opts: ["a method signature", "a property", "an instance field", "a default method"], ans: 2, why: "No state in interfaces." }
     ]
   });
@@ -623,7 +623,7 @@
       ["What design smell does polymorphism remove?", "if/switch chains on a type code, repeated around the program."]
     ],
     quiz: [
-      { q: "`Shape s = new Circle(2); s.Radius` gives…", opts: ["2", "CS1061: Shape has no Radius", "0", "an exception"], ans: 1, why: "The declared type limits what you may call." },
+      { q: "`Shape s = new Circle(2); s.Radius` gives…", opts: ["2, the circle's radius", "CS1061: Shape has no Radius", "0, the default for double", "InvalidCastException at run time"], ans: 1, why: "The declared type limits what you may call." },
       { q: "Adding a Hexagon : Shape to a polymorphic program means changing…", opts: ["every loop over shapes", "nothing but the new class", "the base class only", "Main"], ans: 1, why: "Callers only use Shape's members." },
       { q: "Choosing between overloads by parameter types happens…", opts: ["at run time", "at compile time", "never", "only for interfaces"], ans: 1, why: "Overloads are resolved by the compiler; overrides at run time." }
     ]
@@ -827,7 +827,7 @@
     ],
     quiz: [
       { q: "`var b = a;` with a struct, then `b.X = 9;` — a.X…", opts: ["becomes 9", "is unchanged", "becomes 0", "is an error"], ans: 1, why: "Structs are copied on assignment." },
-      { q: "An int[] passed to a method that doubles each element…", opts: ["changes the caller's array", "changes a copy", "is an error", "boxes"], ans: 0, why: "Arrays are reference types." },
+      { q: "An int[] passed to a method that doubles each element…", opts: ["changes the caller's array", "changes a copy, not the caller's", "is an error without ref", "boxes each int into an object"], ans: 0, why: "Arrays are reference types." },
       { q: "Which is a value type?", opts: ["string", "List<int>", "decimal", "int[]"], ans: 2, why: "decimal is a struct." }
     ]
   });
@@ -926,7 +926,7 @@
       ["What does a record struct give a Vector for free?", "Value equality (== and !=), ToString and deconstruction."]
     ],
     quiz: [
-      { q: "An overloaded operator must be…", opts: ["private", "public static", "virtual", "abstract"], ans: 1, why: "Operators belong to the type." },
+      { q: "An overloaded operator must be…", opts: ["private static", "public static", "public virtual", "protected static"], ans: 1, why: "Operators belong to the type." },
       { q: "Once + is defined, `a += b`…", opts: ["needs its own overload", "works automatically", "is an error", "changes b"], ans: 1, why: "+= is rewritten as a = a + b." },
       { q: "The dot product of (3, 4) and (1, 0) is…", opts: ["5", "3", "7", "(3, 0)"], ans: 1, why: "3·1 + 4·0 = 3." }
     ]
@@ -1035,9 +1035,9 @@
       ["What does CS8509 warn about?", "The switch expression does not cover every value."]
     ],
     quiz: [
-      { q: "`s switch { >= 50 => \"p\", >= 70 => \"m\", _ => \"f\" }` is…", opts: ["fine", "CS8510: the >= 70 arm can never match", "a warning only", "SwitchExpressionException"], ans: 1, why: "Arms are tried in order; >= 50 catches every value >= 70." },
-      { q: "`o is { Age: >= 18 }` tests…", opts: ["the type", "a property's value", "a list", "a constant"], ans: 1, why: "A property pattern." },
-      { q: "`[var first, .., var last]` matches…", opts: ["any list", "lists with at least two elements", "empty lists", "exactly three elements"], ans: 1, why: "first and last must be different positions." }
+      { q: "`s switch { >= 50 => \"p\", >= 70 => \"m\", _ => \"f\" }` is…", opts: ["fine: arms are tried best match first", "CS8510: the >= 70 arm can never match", "a warning only; the code still runs", "SwitchExpressionException at run time"], ans: 1, why: "Arms are tried in order; >= 50 catches every value >= 70." },
+      { q: "`o is { Age: >= 18 }` tests…", opts: ["the type of o only", "a property's value", "a list's elements", "a constant's name"], ans: 1, why: "A property pattern." },
+      { q: "`[var first, .., var last]` matches…", opts: ["any list, even an empty one", "lists with at least two elements", "lists with exactly two elements", "lists with at least three elements"], ans: 1, why: "first and last must be different positions." }
     ]
   });
   K.add({ tasks: {
@@ -1146,7 +1146,7 @@
     quiz: [
       { q: "A Course holds Students who also take other courses. That is…", opts: ["composition", "aggregation", "inheritance", "polymorphism"], ans: 1, why: "Shared parts with their own lives." },
       { q: "A filled diamond on a class diagram means…", opts: ["inheritance", "aggregation", "composition", "an interface"], ans: 2, why: "Filled = owned, same lifetime." },
-      { q: "Which code shows aggregation?", opts: ["private Engine e = new();", "public Team(List<Player> ps) => players = ps;", "class Dog : Animal", "static int count;"], ans: 1, why: "The parts are made elsewhere and handed in." }
+      { q: "Which code shows aggregation?", opts: ["public Car() => engine = new Engine();", "public Team(List<Player> ps) => players = ps;", "class Dog : Animal, IComparable<Dog>", "private static List<Player> all = new();"], ans: 1, why: "The parts are made elsewhere and handed in." }
     ]
   });
   K.add({ tasks: {
@@ -1243,9 +1243,9 @@
       ["When is inheritance still right?", "A stable, shallow is-a family with shared code."]
     ],
     quiz: [
-      { q: "Robots with 3 movers and 4 voices by inheritance need about…", opts: ["7 classes", "12 subclasses", "1 class", "4 classes"], ans: 1, why: "One per combination: 3 × 4." },
-      { q: "`public Checkout(IDiscount d)` is an example of…", opts: ["inheritance", "dependency injection of a strategy", "boxing", "an abstract class"], ans: 1, why: "The caller hands in the behaviour." },
-      { q: "Which favours composition?", opts: ["class Robot : Walker", "class Robot { IMover mover; }", "sealed class Robot", "abstract class Robot"], ans: 1, why: "The robot holds a part." }
+      { q: "Robots with 3 movers and 4 voices by inheritance need about…", opts: ["7 subclasses", "12 subclasses", "1 big class", "4 subclasses"], ans: 1, why: "One per combination: 3 × 4." },
+      { q: "`public Checkout(IDiscount d)` is an example of…", opts: ["inheritance from the IDiscount base", "dependency injection of a strategy", "boxing the discount as an object", "an abstract class with one method"], ans: 1, why: "The caller hands in the behaviour." },
+      { q: "Which favours composition?", opts: ["class Robot : Walker, ISpeaker", "class Robot { IMover mover; }", "sealed class Robot : Walker", "abstract class Robot : Walker"], ans: 1, why: "The robot holds a part." }
     ]
   });
   K.add({ tasks: {
@@ -1339,8 +1339,8 @@
       ["How do you compare two doubles safely?", "Within a tolerance: Math.Abs(a - b) < 1e-9."]
     ],
     quiz: [
-      { q: "Adding a Hexagon to the library needs changes to…", opts: ["Drawing", "every caller", "only the new class", "IShape"], ans: 2, why: "Everything else depends on the contract." },
-      { q: "`List<Shape>.Sort()` needs…", opts: ["Shape to implement IComparable<Shape>", "a static Sort method", "records", "a struct"], ans: 0, why: "Sort compares items with CompareTo." },
+      { q: "Adding a Hexagon to the library needs changes to…", opts: ["Drawing's switch", "every caller of Area", "only the new class", "IShape and Drawing"], ans: 2, why: "Everything else depends on the contract." },
+      { q: "`List<Shape>.Sort()` needs…", opts: ["Shape to implement IComparable<Shape>", "a static Compare method on List<Shape>", "Shape to be a record with an Area", "Shape to be a struct, not a class"], ans: 0, why: "Sort compares items with CompareTo." },
       { q: "Heron's formula needs…", opts: ["the three sides", "a base and a height", "two angles", "the radius"], ans: 0, why: "s = perimeter / 2; area = √(s(s−a)(s−b)(s−c))." }
     ]
   });

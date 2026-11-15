@@ -127,10 +127,10 @@ C["maths:3.1"] = {
   ],
   quiz: [
     { q: "Gradient of the line through $(2, 3)$ and $(6, 11)$:", opts: ["2", "$\\tfrac12$", "4", "8"], ans: 0, why: "$\\frac{8}{4}$." },
-    { q: "A line perpendicular to $y = 2x + 1$ has gradient", opts: ["$-2$", "$\\tfrac12$", "$-\\tfrac12$", "2"], ans: 2, why: "Negative reciprocal." },
+    { q: "A line perpendicular to $y = 2x + 1$ has gradient", opts: ["$-2$", "$\\tfrac12$", "$-\\tfrac12$", "2"], ans: 2, why: "Perpendicular gradients multiply to $-1$: $2 \\times (-\\tfrac12) = -1$." },
     { q: "$3x - 2y + 6 = 0$ in the form $y = mx + c$:", opts: ["$y = \\tfrac32 x + 3$", "$y = -\\tfrac32 x + 3$", "$y = \\tfrac23 x + 2$", "$y = 3x + 6$"], ans: 0, why: "$2y = 3x + 6$." },
     { q: "Lines with gradients $\\frac34$ and $-\\frac32$ are", opts: ["parallel", "perpendicular", "neither", "the same line"], ans: 2, why: "Product $-\\frac98$." },
-    { q: "In $A = 190 - 2.625n$, the $-2.625$ is", opts: ["the emission in 1997", "the yearly fall in g/km", "the year", "the total fall"], ans: 1, why: "Rate per year." },
+    { q: "In $A = 190 - 2.625n$, the $-2.625$ is", opts: ["the emission in 1997", "the yearly fall in g/km", "the year", "the total fall"], ans: 1, why: "It is the gradient: $A$ falls by 2.625 g/km each year." },
     { q: "Intersection of $y = 2x + 7$ and $2x + 4y - 3 = 0$ has $x =$", opts: ["$-2.5$", "$2.5$", "$-7$", "$0$"], ans: 0, why: "$10x + 25 = 0$." }
   ]
 };
@@ -190,7 +190,7 @@ C["maths:3.2"] = {
       steps: [
         { h: "(a)", m: "$(x - 3)^2 + (y + 7)^2 = 25$: centre $(3, -7)$, radius $5$", mk: "M1 A1 A1" },
         { h: "(b) Distance between centres", m: "$d = \\sqrt{(3 + 6)^2 + (-7 + 8)^2} = \\sqrt{82}$", mk: "M1" },
-        { h: "Two intersections ⇔ $|k - 5| < d < k + 5$", m: "$k + 5 > \\sqrt{82} \\Rightarrow k > \\sqrt{82} - 5$; $\\quad k - 5 < \\sqrt{82} \\Rightarrow k < \\sqrt{82} + 5$\n$\\{k : \\sqrt{82} - 5 < k < \\sqrt{82} + 5\\}$", mk: "M1 A1 A1", n: "Too small and $C_2$ misses $C_1$ (sum of radii $< d$); too large and $C_2$ swallows it (difference of radii $> d$). The two boundary cases are external and internal tangency." }
+        { h: "Two intersections ⇔ $|k - 5| < d < k + 5$", m: "$k + 5 > \\sqrt{82} \\Rightarrow k > \\sqrt{82} - 5$; $\\quad k - 5 < \\sqrt{82} \\Rightarrow k < \\sqrt{82} + 5$\n$\\{k : \\sqrt{82} - 5 < k < \\sqrt{82} + 5\\}$", mk: "M1 A1 M1 A1", n: "Too small and $C_2$ misses $C_1$ (sum of radii $< d$); too large and $C_2$ swallows it (difference of radii $> d$). The two boundary cases are external and internal tangency." }
       ], result: "(a) $(3, -7)$, 5 (b) $\\{k : \\sqrt{82} - 5 < k < \\sqrt{82} + 5\\}$" } },
 
     { page: "Tangents and chords" },
@@ -257,12 +257,16 @@ C["maths:3.2"] = {
         { m: "$(10k - 6)^2 - 36(1 + k^2) > 0 \\Rightarrow 64k^2 - 120k > 0 \\Rightarrow 8k(8k - 15) > 0$", mk: "M1 A1" },
         { m: "$k < 0$ or $k > \\dfrac{15}{8}$", mk: "M1 A1", n: "A quadratic inequality (2.5): roots $0$ and $\\frac{15}{8}$, positive outside. Geometrically: lines through $O$ steeper than $\\frac{15}{8}$ or sloping down hit the circle in the fourth quadrant." }
       ], result: "(a) $(3, -5)$, 5 (b) $k < 0$ or $k > \\frac{15}{8}$" } },
-    { worked: { tag: "exam", title: "Horizontal and vertical lines: $y = k$ twice, $x = k$ tangent", src: "AS June 2025 · P1 Q4 and AS June 2019 · P1 Q10",
-      q: "**(i)** $x^2 + y^2 + 10x - 4y + 1 = 0$: find the centre and exact radius; the line $y = k$ cuts $C$ at two distinct points — find the range of $k$ in set notation. **(ii)** $x^2 + y^2 - 4x + 8y - 8 = 0$: find the centre and exact radius; the line $x = k$ is a tangent — find the possible values of $k$.",
+    { worked: { tag: "exam", title: "A horizontal line $y = k$ cutting a circle twice", src: "AS June 2025 · P1 Q4",
+      q: "$x^2 + y^2 + 10x - 4y + 1 = 0$: find the centre and exact radius; the line $y = k$ cuts $C$ at two distinct points — find the range of $k$ in set notation.",
       steps: [
-        { h: "(i)", m: "$(x + 5)^2 + (y - 2)^2 = 28$: centre $(-5, 2)$, $r = 2\\sqrt7$. A horizontal line cuts twice when it is within a radius of the centre's height: $\\{k : 2 - 2\\sqrt7 < k < 2 + 2\\sqrt7\\}$", mk: "M1 A1 A1 M1 A1 A1", n: "No substitution needed — the geometry is immediate for axis-parallel lines." },
-        { h: "(ii)", m: "$(x - 2)^2 + (y + 4)^2 = 28$: centre $(2, -4)$, $r = 2\\sqrt7$. Vertical tangents are one radius left or right of the centre: $k = 2 \\pm 2\\sqrt7$", mk: "M1 A1 A1 M1 A1" }
-      ], result: "(i) $\\{k : 2 - 2\\sqrt7 < k < 2 + 2\\sqrt7\\}$ (ii) $k = 2 \\pm 2\\sqrt7$" } },
+        { m: "$(x + 5)^2 + (y - 2)^2 = 28$: centre $(-5, 2)$, $r = 2\\sqrt7$. A horizontal line cuts twice when it is within a radius of the centre's height: $\\{k : 2 - 2\\sqrt7 < k < 2 + 2\\sqrt7\\}$", mk: "M1 A1 A1 M1 A1 A1", n: "No substitution needed — the geometry is immediate for axis-parallel lines." }
+      ], result: "$\\{k : 2 - 2\\sqrt7 < k < 2 + 2\\sqrt7\\}$" } },
+    { worked: { tag: "exam", title: "A vertical tangent $x = k$ to a circle", src: "AS June 2019 · P1 Q10",
+      q: "$x^2 + y^2 - 4x + 8y - 8 = 0$: find the centre and exact radius; the line $x = k$ is a tangent — find the possible values of $k$.",
+      steps: [
+        { m: "$(x - 2)^2 + (y + 4)^2 = 28$: centre $(2, -4)$, $r = 2\\sqrt7$. Vertical tangents are one radius left or right of the centre: $k = 2 \\pm 2\\sqrt7$", mk: "M1 A1 A1 M1 A1" }
+      ], result: "$k = 2 \\pm 2\\sqrt7$" } },
     { worked: { tag: "exam", title: "Circle in terms of $k$ meeting a line at two points", src: "A-level June 2023 · P1 Q10 · 9 marks",
       q: "$C$: $x^2 + y^2 + 6kx - 2ky + 7 = 0$. **(a)** Find, in terms of $k$, (i) the centre, (ii) the radius. **(b)** The line $y = 2x - 1$ meets $C$ at two distinct points. Find the range of possible values of $k$.",
       steps: [
@@ -341,8 +345,8 @@ C["maths:3.2"] = {
     { q: "Tangent at $(-5, 7)$ to a circle with centre $(-9, 1)$ has gradient", opts: ["$\\tfrac32$", "$-\\tfrac32$", "$-\\tfrac23$", "$\\tfrac23$"], ans: 2, why: "Radius gradient $\\frac32$; perpendicular $-\\frac23$." },
     { q: "$y = k$ meets $(x + 5)^2 + (y - 2)^2 = 28$ twice when", opts: ["$|k| < 28$", "$|k - 2| < 2\\sqrt7$", "$|k + 5| < 2\\sqrt7$", "$k < 2$"], ans: 1, why: "Within a radius of the centre's $y$." },
     { q: "Circle $(x - 4)^2 + (y + 6)^2 = r^2$ lies entirely in the 4th quadrant if", opts: ["$r < 6$", "$r < 4$", "$r < 10$", "$r > 4$"], ans: 1, why: "Nearest axis is 4 away." },
-    { q: "Angle in a semicircle is", opts: ["$45°$", "$60°$", "$90°$", "$180°$"], ans: 2, why: "Standard circle theorem." },
-    { q: "Distance from $(5, 4)$ to the line $x + 2y + 6 = 0$:", opts: ["$\\tfrac{19}{\\sqrt5}$", "19", "$\\tfrac{19}{5}$", "$\\sqrt5$"], ans: 0, why: "$\\frac{|5 + 8 + 6|}{\\sqrt5}$." }
+    { q: "Angle in a semicircle is", opts: ["$45°$", "$60°$", "$90°$", "$180°$"], ans: 2, why: "The angle subtended by a diameter is $90°$." },
+    { q: "Distance from $(5, 4)$ to the line $x + 2y + 6 = 0$:", opts: ["$\\tfrac{19}{\\sqrt5}$", "$\\tfrac{13}{\\sqrt5}$", "$\\tfrac{19}{5}$", "$\\tfrac{19}{\\sqrt3}$"], ans: 0, why: "$\\frac{|5 + 8 + 6|}{\\sqrt5}$." }
   ]
 };
 
@@ -509,16 +513,16 @@ C["maths:3.4"] = {
     { worked: { tag: "exam", title: "The dam: area by parametric integration, and the model's width", src: "A-level Oct 2020 · P2 Q12 · 11 marks",
       q: "$C$: $x = 6\\sin t$, $y = 5\\sin 2t$, $0 \\le t \\le \\frac{\\pi}{2}$. The region $R$ is bounded by $C$ and the $x$-axis. **(a)(i)** Show that the area of $R$ is $\\displaystyle\\int_0^{\\pi/2} 60\\sin t\\cos^2 t\\,\\mathrm{d}t$. **(ii)** Hence show that the area is exactly 20. The curve models the cross-section of a dam (metres). **(b)** Find the width and greatest height of the dam.",
       steps: [
-        { h: "(a)(i) $\\int y\\,dx = \\int y\\,\\frac{dx}{dt}\\,dt$", m: "$\\dfrac{dx}{dt} = 6\\cos t$, and $y = 5\\sin 2t = 10\\sin t\\cos t$, so the area is $\\displaystyle\\int_0^{\\pi/2} 10\\sin t\\cos t \\cdot 6\\cos t\\,\\mathrm{d}t = \\int_0^{\\pi/2} 60\\sin t\\cos^2 t\\,\\mathrm{d}t$", mk: "M1 A1 A1*", n: "Limits change to $t$-limits: $x = 0 \\Rightarrow t = 0$, $x = 6 \\Rightarrow t = \\frac{\\pi}{2}$." },
-        { h: "(ii) Recognise $\\sin t\\cos^2 t$ as the derivative of $-\\frac13\\cos^3 t$", m: "$\\left[-20\\cos^3 t\\right]_0^{\\pi/2} = 0 - (-20) = 20$", mk: "M1 A1 A1*" },
-        { h: "(b) Width: the $x$-range; height: max of $y$", m: "$x$ runs from $0$ to $6$: width $6$ m. $y = 5\\sin 2t$ is largest when $\\sin 2t = 1$ ($t = \\frac{\\pi}{4}$): height $5$ m.", mk: "B1 B1" }
+        { h: "(a)(i) $\\int y\\,dx = \\int y\\,\\frac{dx}{dt}\\,dt$", m: "$\\dfrac{dx}{dt} = 6\\cos t$, and $y = 5\\sin 2t = 10\\sin t\\cos t$, so the area is $\\displaystyle\\int_0^{\\pi/2} 10\\sin t\\cos t \\cdot 6\\cos t\\,\\mathrm{d}t = \\int_0^{\\pi/2} 60\\sin t\\cos^2 t\\,\\mathrm{d}t$", mk: "B1 M1 A1 A1*", n: "Limits change to $t$-limits: $x = 0 \\Rightarrow t = 0$, $x = 6 \\Rightarrow t = \\frac{\\pi}{2}$." },
+        { h: "(ii) Recognise $\\sin t\\cos^2 t$ as the derivative of $-\\frac13\\cos^3 t$", m: "$\\left[-20\\cos^3 t\\right]_0^{\\pi/2} = 0 - (-20) = 20$", mk: "M1 A1 dM1 A1*" },
+        { h: "(b) Width: the $x$-range; height: max of $y$", m: "$x$ runs from $0$ to $6$: width $6$ m. $y = 5\\sin 2t$ is largest when $\\sin 2t = 1$ ($t = \\frac{\\pi}{4}$): height $5$ m.", mk: "B1 M1 A1" }
       ], result: "(a) shown; 20 (b) width 6 m, height 5 m" } },
     { worked: { tag: "exam", title: "A parametric log curve: domain, and an area", src: "A-level Specimen · P2 Q10 · 9 marks",
       q: "$C$: $x = \\ln(t + 2)$, $y = \\frac{1}{t + 1}$, $t > -\\frac23$. **(a)** State the domain of values of $x$ for $C$. **(b)** $R$ is bounded by $C$, the line $x = \\ln2$, the $x$-axis and the line $x = \\ln4$. Use calculus to show that the area of $R$ is $\\ln\\left(\\frac32\\right)$.",
       steps: [
         { h: "(a) $t > -\\frac23 \\Rightarrow t + 2 > \\frac43$", m: "$x > \\ln\\dfrac43$", mk: "B1" },
         { h: "(b) Convert the limits to $t$", m: "$x = \\ln2 \\Rightarrow t = 0$; $\\; x = \\ln4 \\Rightarrow t = 2$; $\\; \\dfrac{dx}{dt} = \\dfrac{1}{t + 2}$", mk: "B1 B1" },
-        { m: "Area $= \\displaystyle\\int_0^2 \\dfrac{1}{t + 1} \\cdot \\dfrac{1}{t + 2}\\,\\mathrm{d}t = \\int_0^2 \\left(\\dfrac{1}{t + 1} - \\dfrac{1}{t + 2}\\right)\\mathrm{d}t$", mk: "M1 A1", n: "Partial fractions (2.10): $\\frac{1}{(t+1)(t+2)} = \\frac{1}{t+1} - \\frac{1}{t+2}$." },
+        { m: "Area $= \\displaystyle\\int_0^2 \\dfrac{1}{t + 1} \\cdot \\dfrac{1}{t + 2}\\,\\mathrm{d}t = \\int_0^2 \\left(\\dfrac{1}{t + 1} - \\dfrac{1}{t + 2}\\right)\\mathrm{d}t$", mk: "M1 A1 B1", n: "Partial fractions (2.10): $\\frac{1}{(t+1)(t+2)} = \\frac{1}{t+1} - \\frac{1}{t+2}$." },
         { m: "$= \\Big[\\ln(t + 1) - \\ln(t + 2)\\Big]_0^2 = (\\ln3 - \\ln4) - (0 - \\ln2) = \\ln\\dfrac{3 \\cdot 2}{4} = \\ln\\dfrac32$", mk: "M1 A1 A1*" }
       ], result: "(a) $x > \\ln\\frac43$ (b) $\\ln\\frac32$" } },
 
@@ -542,7 +546,7 @@ C["maths:3.4"] = {
     ["Why keep the parametric form of a motion rather than convert?", "It records *when* the object is at each point, not just the path."]
   ],
   quiz: [
-    { q: "$x = 2t$, $y = 3t$ from $t = 0$ describes", opts: ["a line through $O$ with gradient $\\tfrac32$", "a parabola", "a circle", "a line with gradient $\\tfrac23$"], ans: 0, why: "$y = \\frac32 x$." },
+    { q: "$x = 2t$, $y = 3t$ from $t = 0$ describes", opts: ["a line through $O$ with gradient $\\tfrac32$", "a parabola with its vertex at $O$", "a circle of radius $\\sqrt{13}$", "a line through $O$ with gradient $\\tfrac23$"], ans: 0, why: "$y = \\frac32 x$." },
     { q: "Area under $x = f(t)$, $y = g(t)$ from $t = a$ to $b$:", opts: ["$\\int_a^b g(t)\\,dt$", "$\\int_a^b g(t)f'(t)\\,dt$", "$\\int_a^b f(t)g'(t)\\,dt$", "$\\int_a^b f(t)\\,dt$"], ans: 1, why: "$y\\,\\frac{dx}{dt}\\,dt$." },
     { q: "$x = 5\\cos t$, $y = 5\\sin t$, $t$ in seconds: time for one revolution", opts: ["$5$ s", "$2\\pi$ s", "$\\pi$ s", "$10\\pi$ s"], ans: 1, why: "Period of $\\cos t$." },
     { q: "Maximum of $y = 5\\sin 2t$ on $0 \\le t \\le \\frac{\\pi}{2}$ occurs at", opts: ["$t = \\tfrac{\\pi}{2}$", "$t = \\tfrac{\\pi}{4}$", "$t = 0$", "$t = \\pi$"], ans: 1, why: "$\\sin 2t = 1$." }

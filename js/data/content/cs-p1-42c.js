@@ -168,18 +168,16 @@ C["compsci:4.2.4.1"] = {
   ],
   flashcards: [
     ["Graph?", "A set of vertices/nodes connected by edges/arcs."],
-    ["Weighted graph?", "A graph whose edges each have a weight/value."],
-    ["Directed graph?", "A graph whose edges have a direction (one-way)."],
-    ["Adjacency matrix?", "A 2-D array: cell [i, j] holds the edge weight (or 1) if i and j are joined, else 0."],
-    ["Adjacency list?", "For each vertex, a list of its adjacent vertices (and weights)."],
+    ["Adjacency matrix?", "A 2-D array: cell [i, j] holds the edge weight (or 1) if i and j are joined, else 0.", 3],
+    ["Adjacency list?", "For each vertex, a list of its adjacent vertices (and weights).", 4],
     ["Why is an undirected matrix symmetric?", "Edge i–j is also edge j–i, so [i, j] = [j, i].", 7],
     ["Which graph needs both halves of the matrix?", "A directed graph.", 8],
     ["Memory of a matrix for n vertices?", "n² cells, whatever the number of edges.", 9]
   ],
   quiz: [
     { q: "A sparse graph is best stored as", opts: ["an adjacency list", "an adjacency matrix", "a stack", "a hash table of weights"], ans: 0, why: "Only existing edges are stored." },
-    { q: "In an undirected graph's matrix, [3, 6] = 4 means [6, 3] is", opts: ["4", "0", "−4", "unknown"], ans: 0, why: "Symmetric." },
-    { q: "Testing whether edge i–j exists is fastest with", opts: ["a matrix", "a list", "a queue", "a linked list"], ans: 0, why: "One look-up." },
+    { q: "In an undirected graph's matrix, [3, 6] = 4 means [6, 3] is", opts: ["4", "0", "−4", "unknown"], ans: 0, why: "An undirected graph is symmetric, so the edge is the same both ways and [6, 3] is also 4." },
+    { q: "Testing whether edge i–j exists is fastest with", opts: ["a matrix", "a list", "a queue", "a linked list"], ans: 0, why: "A matrix answers it with a single look-up at row i, column j, with no list to search." },
     { q: "A one-way street network is a", opts: ["directed graph", "undirected graph", "tree", "binary tree"], ans: 0, why: "Edges have direction." }
   ],
   sims: ["dijkstra"]
@@ -304,7 +302,6 @@ C["compsci:4.2.5.1"] = {
   flashcards: [
     ["Tree?", "A connected, undirected graph with no cycles."],
     ["Edges in a tree of n vertices?", "n − 1.", 4],
-    ["Binary search tree rule?", "Left subtree smaller, right subtree larger than each node.", 5],
     ["Two reasons a graph may not be a tree?", "It has a cycle; it is not connected (or it is directed).", 6],
     ["−1 in a Left/Right array?", "No child in that direction.", 7],
     ["Worst-case BST shape?", "A chain (sorted insertion order) — search becomes O(n).", 8],
@@ -312,7 +309,7 @@ C["compsci:4.2.5.1"] = {
   ],
   quiz: [
     { q: "Which is NOT required for a tree?", opts: ["a root", "connected", "undirected", "no cycles"], ans: 0, why: "Only ROOTED trees need one." },
-    { q: "A binary tree's nodes have", opts: ["at most two children", "exactly two children", "at least two children", "one child"], ans: 0, why: "R. exactly two." },
+    { q: "A binary tree's nodes have", opts: ["at most two children", "exactly two children", "at least two children", "one child"], ans: 0, why: "Each node of a binary tree has at most two children, and a node may have none, one or two." },
     { q: "BTS(5) on 6(3(1, 4), 9) visits", opts: ["6, 3, 4", "6, 9", "6, 3, 1", "every node"], ans: 0, why: "5 < 6 left, 5 > 3 right, 5 > 4 right → none." },
     { q: "A graph with 6 vertices and 8 edges", opts: ["cannot be a tree", "is a binary tree", "must be directed", "is a tree if connected"], ans: 0, why: "A tree has n − 1 = 5 edges." }
   ],

@@ -32,11 +32,11 @@ X("compsci:4.5.5.3", {
   quiz: [
     { q: "Even parity bit for 1011001:", opts: ["0", "1", "2", "none"], ans: 0, why: "Four 1s already — even." },
     { q: "Odd parity bit for 1010101:", opts: ["0", "1", "4", "none"], ans: 1, why: "Four 1s is an even count; odd parity needs an odd total, so the parity bit is 1." },
-    { q: "Received with even parity: 11010110. Conclusion?", opts: ["Correct", "Corrupted — five 1s", "Cannot tell", "Two errors"], ans: 1, why: "Odd count → error." },
-    { q: "Two bits flip in a byte protected by even parity. The receiver:", opts: ["detects it", "does not detect it", "corrects it", "requests resend"], ans: 1, why: "Even number of errors preserves parity." },
-    { q: "In majority voting each bit is sent:", opts: ["twice", "an odd number of times ≥ 3", "once with a parity bit", "with a checksum"], ans: 1, why: "Odd so there is always a majority." },
-    { q: "Majority voting received 1, 0, 1 for a bit. Value taken:", opts: ["0", "1", "error", "undefined"], ans: 1, why: "Majority." },
-    { q: "A checksum is calculated from:", opts: ["the header only", "the packet's payload/data", "the IP address", "the parity bits"], ans: 1, why: "Function of the contents." }
+    { q: "Received with even parity: 11010110. Conclusion?", opts: ["Correct — six 1s, an even count", "Corrupted — five 1s, an odd count", "Cannot tell without the original byte", "Corrupted — two bits have flipped"], ans: 1, why: "Odd count → error." },
+    { q: "Two bits flip in a byte protected by even parity. The receiver:", opts: ["detects it as an error", "does not detect it", "detects and corrects it", "requests a resend"], ans: 1, why: "Even number of errors preserves parity." },
+    { q: "Majority voting's main drawback is:", opts: ["it sends at least three times the data", "it cannot correct a single flipped bit", "it only works on data of even length", "it needs a check digit on every byte"], ans: 0, why: "Every bit is sent three or more times." },
+    { q: "Majority voting received 1, 0, 1 for a bit. Value taken:", opts: ["0", "1", "error", "undefined"], ans: 1, why: "With three copies, the value held by most of them wins, so two 1s beat one 0." },
+    { q: "A checksum is calculated from:", opts: ["the packet's header only", "the packet's payload/data", "the sender's IP address", "the parity bits of each byte"], ans: 1, why: "Function of the contents." }
   ],
   exam: [
     { level: "AS", src: "AS 2022 P2 Q4.3", ctx: "A system uses even parity on 7-bit ASCII codes, adding the parity bit as the most significant bit.",
@@ -84,11 +84,11 @@ X("compsci:4.5.6.7", {
   ],
   quiz: [
     { q: "Highest frequency faithfully captured at 30 000 Hz sampling:", opts: ["30 000 Hz", "15 000 Hz", "60 000 Hz", "7 500 Hz"], ans: 1, why: "Half the sample rate." },
-    { q: "10 samples in 0.01 s is a sample rate of:", opts: ["100 Hz", "1000 Hz", "10 Hz", "0.001 Hz"], ans: 1, why: "10 / 0.01." },
-    { q: "16 amplitude divisions needs a resolution of:", opts: ["16 bits", "4 bits", "8 bits", "2 bits"], ans: 1, why: "2⁴ = 16." },
-    { q: "To reduce quantisation error you increase:", opts: ["sample rate", "sample resolution", "duration", "compression"], ans: 1, why: "More levels." },
+    { q: "10 samples in 0.01 s is a sample rate of:", opts: ["100 Hz", "1000 Hz", "10 Hz", "0.001 Hz"], ans: 1, why: "Sample rate is samples per second: 10 ÷ 0.01 s = 1000 Hz." },
+    { q: "16 amplitude divisions needs a resolution of:", opts: ["16 bits", "4 bits", "8 bits", "2 bits"], ans: 1, why: "16 levels need log₂ 16 = 4 bits, since 2⁴ = 16." },
+    { q: "To reduce quantisation error you increase:", opts: ["sample rate", "sample resolution", "recording duration", "compression ratio"], ans: 1, why: "More bits per sample gives more amplitude levels, so each sample is closer to the true value." },
     { q: "Size of 3 minutes at 48 000 Hz, 16-bit, mono in MiB:", opts: ["16.48", "17.28", "8.24", "34.56"], ans: 0, why: "48 000 × 16 × 180 / 8 / 1024²." },
-    { q: "A 1200 Hz tone needs a minimum sample rate of:", opts: ["600 Hz", "1200 Hz", "2400 Hz", "4800 Hz"], ans: 2, why: "Nyquist." }
+    { q: "A 1200 Hz tone needs a minimum sample rate of:", opts: ["600 Hz", "1200 Hz", "2400 Hz", "4800 Hz"], ans: 2, why: "The Nyquist theorem says the sample rate must be at least twice the highest frequency: 2 × 1200 = 2400 Hz." }
   ],
   exam: [
     { src: "AQA 2023 P2 Q1", ctx: "A 3-minute mono recording is sampled at 48 000 Hz with a 16-bit sample resolution and stored uncompressed.",
@@ -125,12 +125,12 @@ X("compsci:4.5.6.8", {
     ["How is a MIDI file turned into sound?", "A synthesiser / sound card interprets the messages and generates the audio.", 15]
   ],
   quiz: [
-    { q: "MIDI stores music as:", opts: ["samples", "event messages / instructions", "a bitmap", "a spectrum"], ans: 1, why: "'Sequence of notes' is rejected." },
-    { q: "Which cannot be stored in MIDI?", opts: ["Pitch", "A singer's voice", "Instrument", "Note duration"], ans: 1, why: "Real audio needs sampling." },
-    { q: "Changing the instrument of an entire MIDI track is:", opts: ["impossible", "easy — edit the program-change message", "requires re-recording", "lossy"], ans: 1, why: "Note-level editing." },
-    { q: "MIDI files are smaller because:", opts: ["they are compressed", "each note is a few bytes of instruction, not thousands of samples", "they are mono", "they use 8-bit samples"], ans: 1, why: "2025 P2 Q2.4." },
-    { q: "A MIDI 'note on' message includes:", opts: ["a waveform", "the pitch and velocity", "a file size", "a parity bit"], ans: 1, why: "Event data." },
-    { q: "'MIDI gives better quality' scores only if you add:", opts: ["file size", "that no data is lost through sampling", "the bit rate", "the channel count"], ans: 1, why: "Mark-scheme condition." }
+    { q: "Why can one MIDI file sound different on two devices?", opts: ["each device makes its own instrument sounds", "MIDI loses samples each time it is copied", "the file is compressed differently each time", "one device plays it at a lower sample rate"], ans: 0, why: "MIDI names the instrument; the device synthesises it." },
+    { q: "A MIDI note's velocity value sets its:", opts: ["loudness (how hard it is struck)", "pitch (which note is played)", "duration (how long it lasts)", "instrument (which sound is used)"], ans: 0, why: "Velocity is how hard the key is pressed." },
+    { q: "Changing the tempo of a MIDI piece:", opts: ["changes the timing; the pitch stays the same", "raises the pitch of every note it plays", "needs every sample to be recorded again", "is impossible once the file has been saved"], ans: 0, why: "Timing is stored apart from the notes." },
+    { q: "MIDI files are smaller because:", opts: ["they are always compressed with a lossy algorithm first", "notes are short instructions, not thousands of samples", "they store a single mono channel of samples", "they use 8-bit samples instead of 16-bit ones"], ans: 1, why: "A MIDI file stores short instructions (which note, how long, how loud) instead of thousands of audio samples." },
+    { q: "A MIDI 'note on' message includes:", opts: ["a short waveform sample", "the pitch and velocity", "the file size of the note", "a parity bit and a checksum"], ans: 1, why: "A note-on message tells the synthesiser which pitch to play and how hard (velocity)." },
+    { q: "'MIDI gives better quality' scores only if you add:", opts: ["that MIDI files have a smaller file size", "that no data is lost through sampling", "that MIDI uses a higher bit rate than audio", "that MIDI records more audio channels"], ans: 1, why: "Mark-scheme condition." }
   ],
   exam: [
     { level: "AS", src: "AS 2024 P2 Q3.6", q: "Describe how MIDI represents a piece of music, and state one advantage of MIDI over sampled sound.", marks: 3,
@@ -155,23 +155,23 @@ X("compsci:4.5.6.9", {
     ]}}
   ],
   flashcards: [
-    ["Give two reasons files are compressed.", "Less storage space; faster transmission / less bandwidth; more files fit on a device or within a size limit."],
-    ["Define lossless compression.", "Compression from which the original data can be fully recovered — it is reversible."],
-    ["Define lossy compression.", "Compression that permanently discards some (less important) data, so the original cannot be recovered."],
-    ["Describe run-length encoding.", "Consecutive identical values (a run) are stored as a pair: the value and the number of repetitions."],
-    ["RLE the row: B B G G G R R R R W.", "(B, 2) (G, 3) (R, 4) (W, 1)."],
-    ["Why can RLE increase file size?", "Each run needs two values; if runs are mostly length 1 (varied colours) the counts add more than they save."],
-    ["Describe dictionary-based compression.", "Build a dictionary mapping recurring substrings/words to short tokens; replace each occurrence in the text with its token; store the dictionary with the data."],
+    ["Give two reasons files are compressed.", "Less storage space; faster transmission / less bandwidth; more files fit on a device or within a size limit.", 10],
+    ["Define lossless compression.", "Compression from which the original data can be fully recovered — it is reversible.", 11],
+    ["Define lossy compression.", "Compression that permanently discards some (less important) data, so the original cannot be recovered.", 12],
+    ["Describe run-length encoding.", "Consecutive identical values (a run) are stored as a pair: the value and the number of repetitions.", 13],
+    ["RLE the row: B B G G G R R R R W.", "(B, 2) (G, 3) (R, 4) (W, 1).", 14],
+    ["Why can RLE increase file size?", "Each run needs two values; if runs are mostly length 1 (varied colours) the counts add more than they save.", 15],
+    ["Describe dictionary-based compression.", "Build a dictionary mapping recurring substrings/words to short tokens; replace each occurrence in the text with its token; store the dictionary with the data.", 16],
     ["Why suit RLE to images and dictionaries to text?", "Images often have adjacent pixels of the same colour; text repeats words spread throughout rather than adjacent identical characters.", 18],
     ["Give one problem with lossy compression of audio.", "The original cannot be recovered — quality is reduced and later editing is limited.", 19]
   ],
   quiz: [
-    { q: "Lossless compression means:", opts: ["quality is reduced", "the original data can be fully recovered", "no compression happened", "it is faster"], ans: 1, why: "'No data lost' alone is NE." },
-    { q: "RLE of `AAAABBA` is:", opts: ["4A 2B 1A", "A4 B2", "7 chars", "A B A"], ans: 0, why: "Runs with counts." },
-    { q: "A row of 20 pixels each a different colour, RLE-encoded, takes:", opts: ["fewer bytes", "more bytes — 20 pairs", "the same", "zero"], ans: 1, why: "Run lengths all 1." },
-    { q: "Dictionary compression replaces:", opts: ["pixels with colours", "recurring words/substrings with tokens", "samples with MIDI", "bits with bytes"], ans: 1, why: "Token substitution." },
-    { q: "A smart-speaker company stores millions of voice clips. Lossy compression is justified because:", opts: ["it is reversible", "it greatly reduces size while keeping enough quality", "it encrypts", "it adds metadata"], ans: 1, why: "AS 2022 P2 Q11." },
-    { q: "Which is a reason to compress?", opts: ["Slower transmission", "Fitting an email attachment limit", "Larger files", "Better security"], ans: 1, why: "Size limits." }
+    { q: "Lossless compression means:", opts: ["some quality is lost, but not enough to notice", "the original data can be fully recovered", "the file size stays the same after compression", "the data compresses faster than with lossy"], ans: 1, why: "'No data lost' alone is NE." },
+    { q: "RLE of `AAAABBA` is:", opts: ["4A 2B 1A", "4A 3B", "5A 2B", "4A 2B 2A"], ans: 0, why: "Runs with counts." },
+    { q: "A row of 20 pixels each a different colour, RLE-encoded, takes:", opts: ["fewer bytes — one run", "more bytes — 20 pairs", "the same — 20 values", "fewer bytes — 10 pairs"], ans: 1, why: "Run lengths all 1." },
+    { q: "Dictionary compression replaces:", opts: ["each pixel with its nearest palette colour", "recurring words/substrings with tokens", "audio samples with MIDI instructions", "each character with its ASCII binary code"], ans: 1, why: "Token substitution." },
+    { q: "A smart-speaker company stores millions of voice clips. Lossy compression is justified because:", opts: ["it can be reversed to get the original clip back", "it greatly reduces size while keeping enough quality", "it encrypts the clips so that they are stored securely", "it adds metadata that makes the clips searchable"], ans: 1, why: "Lossy compression makes the files much smaller, and the loss of detail is acceptable for voice clips." },
+    { q: "Which is a reason to compress?", opts: ["Making transmission over a network slower", "Fitting an email attachment limit", "Improving the original file's quality", "Encrypting the file so it is secure"], ans: 1, why: "Compression makes files smaller, so an attachment can fit under an email's size limit." }
   ],
   exam: [
     { src: "AQA 2025 P2 Q10", ctx: "A software company compresses the images and text files it distributes.",
@@ -222,13 +222,13 @@ X("compsci:4.5.6.10", {
     ["What is a weakness shared by every substitution cipher?", "Each plaintext letter always maps to the same ciphertext letter, preserving frequencies and structure.", 20]
   ],
   quiz: [
-    { q: "Caesar shift 5 of `CAT` is:", opts: ["HFY", "FDW", "XVO", "CAT"], ans: 0, why: "C→H, A→F, T→Y." },
-    { q: "Decrypting a Caesar cipher by shifting back can produce non-letters unless you:", opts: ["use XOR", "wrap with MOD 26 / add 26 below 'A'", "use Unicode", "shift forward"], ans: 1, why: "2020 P2 Q9.4." },
-    { q: "Vernam: plaintext 1000101 XOR key 1000100 =", opts: ["0000001", "1000101", "1111111", "0000000"], ans: 0, why: "Bitwise XOR." },
-    { q: "Vernam is perfectly secure only if the key is:", opts: ["short and memorable", "random, as long as the message, used once, secret", "a dictionary word", "shared publicly"], ans: 1, why: "All four conditions." },
-    { q: "'Symmetric uses one key, asymmetric uses two' is:", opts: ["full marks", "NE — must say same key vs different related keys", "wrong", "half marks"], ans: 1, why: "Mark-scheme NE." },
-    { q: "Frequency analysis breaks a Caesar cipher because:", opts: ["keys are long", "each letter always encrypts to the same letter", "XOR is reversible", "it is asymmetric"], ans: 1, why: "Letter frequencies survive." },
-    { q: "A computationally secure cipher:", opts: ["can never be cracked", "cannot be cracked in a practical amount of time by known methods", "has no key", "is a one-time pad"], ans: 1, why: "'Never' is rejected." }
+    { q: "Caesar shift 5 of `CAT` is:", opts: ["HFY", "FDW", "XVO", "CAT"], ans: 0, why: "Each letter moves 5 along: C→H, A→F, T→Y, giving HFY." },
+    { q: "Decrypting a Caesar cipher by shifting back can produce non-letters unless you:", opts: ["use XOR with the key instead of shifting", "wrap with MOD 26 / add 26 below 'A'", "convert the letters to Unicode first", "shift forward by the key a second time"], ans: 1, why: "Shifting back below A gives a non-letter, so add 26 or use MOD 26 to wrap round to the end of the alphabet." },
+    { q: "Vernam: plaintext 1000101 XOR key 1000100 =", opts: ["0000001", "1000101", "1111111", "0000000"], ans: 0, why: "XOR gives 1 only where the bits differ: 1000101 and 1000100 differ only in the last bit, giving 0000001." },
+    { q: "Vernam is perfectly secure only if the key is:", opts: ["short and memorable so it is never written down", "random, as long as the message, used once, secret", "a dictionary word, repeated to the length of the message", "shared publicly so both parties can check it"], ans: 1, why: "All four conditions." },
+    { q: "'Symmetric uses one key, asymmetric uses two' is:", opts: ["full marks — the number of keys is the whole point", "NE — must say same key vs different related keys", "wrong — asymmetric also uses only one key", "half marks — it needs one example of each"], ans: 1, why: "Too vague for credit: say that symmetric uses the same key to encrypt and decrypt, asymmetric uses two different but related keys." },
+    { q: "Frequency analysis breaks a Caesar cipher because:", opts: ["the key is reused for every message sent", "each letter always encrypts to the same letter", "XOR is reversible, so the key is revealed", "it is asymmetric, so the public key is known to all"], ans: 1, why: "Letter frequencies survive." },
+    { q: "A computationally secure cipher:", opts: ["can never be cracked, however much time an attacker has", "cannot be cracked in a practical time by known methods", "has no key, so an attacker has nothing to find", "is a one-time pad with a key used only once"], ans: 1, why: "'Never' is rejected." }
   ],
   exam: [
     { src: "AQA 2023 P2 Q3", ctx: "A message is encrypted first with a Caesar cipher and, separately, with a Vernam cipher.",

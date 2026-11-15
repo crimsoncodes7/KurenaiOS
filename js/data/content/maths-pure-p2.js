@@ -268,7 +268,7 @@ C["maths:2.2"] = {
     { q: "$\\frac{10}{\\sqrt5} =$", opts: ["$2\\sqrt5$", "$5\\sqrt2$", "$\\sqrt5$", "$\\tfrac{\\sqrt5}{2}$"], ans: 0, why: "$\\frac{10\\sqrt5}{5}$." },
     { q: "$(3 - \\sqrt2)(3 + \\sqrt2) =$", opts: ["7", "11", "$9 - 2\\sqrt2$", "$9 + 6\\sqrt2 - 2$"], ans: 0, why: "$9 - 2$." },
     { q: "$(1 + \\sqrt5)^2 =$", opts: ["6", "$6 + 2\\sqrt5$", "$1 + 5$", "$6 + \\sqrt5$"], ans: 1, why: "$1 + 2\\sqrt5 + 5$." },
-    { q: "To rationalise $\\frac{1}{2 - \\sqrt3}$ multiply top and bottom by", opts: ["$2 - \\sqrt3$", "$2 + \\sqrt3$", "$\\sqrt3$", "$-\\sqrt3$"], ans: 1, why: "The conjugate." },
+    { q: "To rationalise $\\frac{1}{2 - \\sqrt3}$ multiply top and bottom by", opts: ["$2 - \\sqrt3$", "$2 + \\sqrt3$", "$\\sqrt3$", "$-\\sqrt3$"], ans: 1, why: "Use the conjugate: $(2 - \\sqrt3)(2 + \\sqrt3) = 4 - 3 = 1$." },
     { q: "$\\sqrt{12} \\times \\sqrt{27} =$", opts: ["$\\sqrt{39}$", "18", "$6\\sqrt{3}$", "$9\\sqrt2$"], ans: 1, why: "$\\sqrt{324} = 18$, or $2\\sqrt3 \\times 3\\sqrt3 = 6 \\times 3$." },
     { q: "The solutions of $x^2 - 4x - 1 = 0$ in simplest surd form:", opts: ["$2 \\pm \\sqrt{20}$", "$2 \\pm \\sqrt5$", "$4 \\pm 2\\sqrt5$", "$2 \\pm 2\\sqrt5$"], ans: 1, why: "$\\frac{4 \\pm \\sqrt{20}}{2} = 2 \\pm \\sqrt5$." }
   ]
@@ -314,7 +314,7 @@ C["maths:2.3"] = {
       steps: [
         { h: "(a) Take the 2 out of the $x$ terms, halve, subtract the square", m: "$2(x^2 + 2x) + 9 = 2\\left[(x + 1)^2 - 1\\right] + 9 = 2(x + 1)^2 + 7$", mk: "M1 A1 A1", n: "$a = 2, b = 1, c = 7$. M1 for $2(x + 1)^2 + \\ldots$; the $-1$ inside the bracket is multiplied by 2 — the usual slip is $+8$." },
         { h: "(b) Read the sketch off the form", m: "Vertex $(-1, 7)$, a minimum ($a > 0$). $y$-intercept $(0, 9)$. Minimum is above the axis, so **no** $x$-intercepts.", mk: "B1 B1 B1", fig: { x: [-4, 2.5], y: [-1, 20], axes: { xt: [-3, -2, -1, 1, 2], yt: [5, 10, 15, 20] }, items: [ { fn: "2*x*x+4*x+9", label: "y = f(x)", at: 1.6, pos: "w" }, { pt: [-1, 7], label: "(−1, 7)", pos: "s" }, { pt: [0, 9], label: "(0, 9)", pos: "e" } ], cap: "U-shape, vertex (−1, 7), crosses the y-axis at 9, never meets the x-axis." }, n: "Marks: shape and position, turning point labelled, $y$-intercept labelled. State \"does not cross the $x$-axis\" if the sketch might look ambiguous." },
-        { h: "(c)(i) Put $g$ into the same form", m: "$g(x) = 2(x^2 - 4x + 4) + 4x - 3 = 2x^2 - 4x + 5 = 2(x - 1)^2 + 3$", mk: "M1 A1", n: "Expand first — the given form is a trap; $2(x - 2)^2 + 4x - 3$ is *not* already completed." },
+        { h: "(c)(i) Put $g$ into the same form", m: "$g(x) = 2(x^2 - 4x + 4) + 4x - 3 = 2x^2 - 4x + 5 = 2(x - 1)^2 + 3$", mk: "M1", n: "Expand first — the given form is a trap; $2(x - 2)^2 + 4x - 3$ is *not* already completed." },
         { m: "Vertex moves from $(-1, 7)$ to $(1, 3)$: a **translation** by $\\begin{pmatrix} 2 \\\\ -4 \\end{pmatrix}$.", mk: "A1", n: "\"Describe fully\" = the word *translation* **and** the vector. \"Shift\" or \"move\" is not accepted." },
         { h: "(ii) The denominator is $f(x)$, whose minimum you know", m: "$h(x) = \\dfrac{21}{2(x + 1)^2 + 7}$. The denominator is at least $7$ (at $x = -1$) and grows without bound.", mk: "M1", n: "Largest $h$ when the denominator is smallest: $\\frac{21}{7} = 3$. As the denominator $\\to \\infty$, $h \\to 0$ but never reaches it." },
         { m: "Range: $0 < h(x) \\le 3$", mk: "A1", n: "Both ends matter: $\\le 3$ (attained) and $> 0$ (never attained)." }
@@ -398,8 +398,8 @@ C["maths:2.3"] = {
       q: "A ball is thrown from $A(0, 2)$ and caught at $B(20, 0.8)$; $H$ metres is its height and $x$ metres its horizontal distance. The ball reaches its maximum height when $x = 9$. A quadratic function linking $H$ with $x$ models the path. **(a)** Find $H$ in terms of $x$. **(b)** Give one limitation of the model. Chandra is standing directly under the path of the ball, $16$ m horizontally from $O$, and can catch the ball if it is less than $2.5$ m above the ground. **(c)** Determine whether Chandra can catch the ball.",
       steps: [
         { h: "(a) Symmetry about $x = 9$ ⇒ completed-square form", m: "$H = a - b(x - 9)^2$", mk: "M1", n: "The maximum at $x = 9$ is the vertex, so the bracket is $(x - 9)$. Starting from $H = px^2 + qx + r$ works too but needs three equations." },
-        { h: "Substitute $A(0, 2)$ and $B(20, 0.8)$", m: "$2 = a - 81b \\qquad 0.8 = a - 121b$", mk: "M1 A1" },
-        { h: "Subtract", m: "$1.2 = 40b \\;\\Rightarrow\\; b = 0.03; \\qquad a = 2 + 81(0.03) = 4.43$", mk: "M1 A1", n: "$H = 4.43 - 0.03(x - 9)^2$." },
+        { h: "Substitute $A(0, 2)$ and $B(20, 0.8)$", m: "$2 = a - 81b \\qquad 0.8 = a - 121b$", mk: "M1" },
+        { h: "Subtract", m: "$1.2 = 40b \\;\\Rightarrow\\; b = 0.03; \\qquad a = 2 + 81(0.03) = 4.43$", mk: "dM1 A1", n: "$H = 4.43 - 0.03(x - 9)^2$." },
         { h: "(b) Limitation", m: "Any one of: air resistance ignored; the ball is treated as a particle; wind/spin ignored; the path may not be exactly parabolic.", mk: "B1", n: "A limitation must be about the **model**, in context — not \"the answer is rounded\"." },
         { h: "(c) Height at $x = 16$", m: "$H = 4.43 - 0.03(16 - 9)^2 = 4.43 - 0.03 \\times 49 = 4.43 - 1.47 = 2.96$ m\n$2.96 > 2.5$, so Chandra **cannot** catch the ball.", mk: "M1 A1", n: "Substitute into *your* model, compare with 2.5, and write the conclusion in words." }
       ], result: "(a) $H = 4.43 - 0.03(x - 9)^2$ (c) $H(16) = 2.96 > 2.5$: cannot catch it" } },
@@ -471,11 +471,11 @@ C["maths:2.3"] = {
     { q: "$2x^2 - 12x + 1$ has minimum value", opts: ["$-17$", "$1$", "$-35$", "$-5$"], ans: 0, why: "$2(x - 3)^2 - 18 + 1$." },
     { q: "$x^2 + kx + 9 = 0$ has equal roots when $k =$", opts: ["$\\pm3$", "$\\pm6$", "$9$", "$\\pm9$"], ans: 1, why: "$k^2 - 36 = 0$." },
     { q: "$y = x + c$ is a tangent to $y = x^2$ when", opts: ["$c = 0$", "$c = -\\tfrac14$", "$c = \\tfrac14$", "$c = 1$"], ans: 1, why: "$x^2 - x - c = 0$, $1 + 4c = 0$." },
-    { q: "\"Meets at two distinct points\" needs", opts: ["$b^2 - 4ac \\ge 0$", "$b^2 - 4ac > 0$", "$b^2 - 4ac = 0$", "$b^2 - 4ac < 0$"], ans: 1, why: "Distinct: strictly positive." },
+    { q: "\"Meets at two distinct points\" needs", opts: ["$b^2 - 4ac \\ge 0$", "$b^2 - 4ac > 0$", "$b^2 - 4ac = 0$", "$b^2 - 4ac < 0$"], ans: 1, why: "Two distinct roots need $b^2 - 4ac > 0$; $= 0$ is a single touch." },
     { q: "The number of real solutions of $x^4 - 5x^2 + 4 = 0$:", opts: ["2", "4", "1", "0"], ans: 1, why: "$x^2 = 1$ or $4$: $x = \\pm1, \\pm2$." },
     { q: "Vertex of $y = 4 - 3(x + 2)^2$:", opts: ["$(2, 4)$ max", "$(-2, 4)$ max", "$(-2, 4)$ min", "$(2, -4)$ max"], ans: 1, why: "Bracket zero at $x = -2$; negative coefficient means maximum." },
-    { q: "$P = 100 - 6.25(x - 9)^2 > 80$ gives", opts: ["$x < 7.21$", "$7.21 < x < 10.79$", "$x > 10.79$", "$x = 9$"], ans: 1, why: "$(x - 9)^2 < 3.2$." },
-    { q: "A limitation of a projectile model $H = a - b(x - 9)^2$:", opts: ["it uses decimals", "air resistance is ignored", "$x$ is in metres", "$b$ is positive"], ans: 1, why: "A modelling assumption that may not hold." }
+    { q: "$P = 100 - 6.25(x - 9)^2 > 80$ gives", opts: ["$x < 7.21$ or $x > 10.79$", "$7.21 < x < 10.79$", "$5.8 < x < 12.2$", "$x > 10.79$ only"], ans: 1, why: "$(x - 9)^2 < 3.2$." },
+    { q: "A limitation of a projectile model $H = a - b(x - 9)^2$:", opts: ["it uses decimal values", "air resistance is ignored", "$x$ is measured in metres", "$b$ is a positive constant"], ans: 1, why: "A modelling assumption that may not hold." }
   ]
 };
 
@@ -603,9 +603,9 @@ C["maths:2.4"] = {
   ],
   quiz: [
     { q: "Solving $y = x + 1$, $y = x^2 - 5$ gives the quadratic", opts: ["$x^2 - x - 6 = 0$", "$x^2 + x - 4 = 0$", "$x^2 - x - 4 = 0$", "$x^2 - 6 = 0$"], ans: 0, why: "$x^2 - 5 = x + 1$." },
-    { q: "The solutions of that pair are", opts: ["$(3, 4)$ and $(-2, -1)$", "$(3, 4)$ only", "$x = 3, -2$", "$(3, -2)$"], ans: 0, why: "Roots $3$ and $-2$, then $y = x + 1$." },
+    { q: "The solutions of that pair are", opts: ["$(3, 4)$ and $(-2, -1)$", "$(3, -1)$ and $(-2, 4)$", "$(4, 3)$ and $(-1, -2)$", "$(3, 4)$ only"], ans: 0, why: "Roots $3$ and $-2$, then $y = x + 1$." },
     { q: "A root $x = -\\frac23$ of a cubic means the factor", opts: ["$(x - \\tfrac23)$", "$(3x + 2)$", "$(3x - 2)$", "$(2x + 3)$"], ans: 1, why: "$3x + 2 = 0 \\Rightarrow x = -\\frac23$." },
-    { q: "To verify curves meet at $x = 1$ you must", opts: ["show one curve gives $y = 3$", "show both curves give the same $y$", "differentiate both", "sketch both"], ans: 1, why: "Equal $y$ at the same $x$." },
+    { q: "To verify curves meet at $x = 1$ you must", opts: ["show that one of the curves gives $y = 3$", "show both curves give the same $y$", "differentiate both", "sketch both"], ans: 1, why: "Equal $y$ at the same $x$." },
     { q: "$\\sqrt{132}$ simplified:", opts: ["$2\\sqrt{33}$", "$4\\sqrt{33}$", "$11\\sqrt{12}$", "$6\\sqrt{22}$"], ans: 0, why: "$132 = 4 \\times 33$." },
     { q: "$2x - 3y = 6$ and $x^2 - y^2 + 3x = 50$ — best first step:", opts: ["$x = \\frac{6 + 3y}{2}$", "square the first equation", "add the equations", "$y = x^2$"], ans: 0, why: "Make the linear one the subject and substitute." }
   ]
@@ -731,12 +731,12 @@ C["maths:2.5"] = {
   ],
   quiz: [
     { q: "$x^2 - 5x + 6 < 0$ gives", opts: ["$2 < x < 3$", "$x < 2$ or $x > 3$", "$x < 2$", "$x > 3$"], ans: 0, why: "Roots 2 and 3; negative between." },
-    { q: "$x^2 \\ge 16$ gives", opts: ["$x \\ge 4$", "$x \\ge \\pm4$", "$x \\le -4$ or $x \\ge 4$", "$-4 \\le x \\le 4$"], ans: 2, why: "Outside the roots." },
+    { q: "$x^2 \\ge 16$ gives", opts: ["$x \\le 4$ or $x \\ge -4$", "$x \\ge \\pm4$", "$x \\le -4$ or $x \\ge 4$", "$-4 \\le x \\le 4$"], ans: 2, why: "$x^2 - 16 \\ge 0$: roots $\\pm4$, U-shape, so outside them." },
     { q: "$-2x > 8$ gives", opts: ["$x > -4$", "$x < -4$", "$x > 4$", "$x < 4$"], ans: 1, why: "Divide by $-2$ and flip." },
     { q: "$\\{x : x < 1\\} \\cup \\{x : x > 3\\}$ means", opts: ["$1 < x < 3$", "$x < 1$ or $x > 3$", "$x < 1$ and $x > 3$", "$x = 1, 3$"], ans: 1, why: "Union = or." },
     { q: "Region below $y = x + 2$ and above $y = x^2$:", opts: ["$y \\le x + 2$, $y \\ge x^2$", "$y \\ge x + 2$, $y \\le x^2$", "$y < x^2$", "$y \\le x + 2$ only"], ans: 0, why: "Under the line, over the curve." },
-    { q: "$\\frac{4}{x} > 1$ is true for", opts: ["$x < 4$", "$0 < x < 4$", "$x > 4$", "$x < 0$"], ans: 1, why: "Positive branch above $y = 1$ up to $x = 4$; negative $x$ gives negative values." },
-    { q: "Dotted boundary line means", opts: ["$\\le$", "$<$ or $>$", "$=$", "$\\ge$"], ans: 1, why: "Strict inequality." }
+    { q: "$\\frac{4}{x} > 1$ is true for", opts: ["$x < 4$, $x \\ne 0$", "$0 < x < 4$", "$x > 4$ or $x < 0$", "$-4 < x < 4$"], ans: 1, why: "Positive branch above $y = 1$ up to $x = 4$; negative $x$ gives negative values." },
+    { q: "Dotted boundary line means", opts: ["$\\le$ or $\\ge$", "$<$ or $>$", "$=$ only", "$\\ge$ only"], ans: 1, why: "Dotted means the line is not included: $<$ or $>$." }
   ]
 };
 
@@ -887,7 +887,7 @@ C["maths:2.6"] = {
       steps: [
         { h: "(a)", m: "$g(5) = 250 + 25 - 205 - 70 = 0$ ✓", mk: "M1 A1" },
         { h: "(b)", m: "$g(x) = (x - 5)(2x^2 + 11x + 14) = (x - 5)(2x + 7)(x + 2)$", mk: "M1 A1 M1 A1", n: "Roots $-\\frac72, -2, 5$." },
-        { h: "(c) Which region is below the axis?", m: "Positive cubic: below the axis between the middle and largest roots, $-2 \\le x \\le 5$.", mk: "B1", fig: { x: [-5, 7], y: [-140, 60], axes: { xt: [-3.5, -2, 5], yt: [-100, -50, 50] }, items: [ { shade: { fn: "2*x^3+x^2-41*x-70", from: -2, to: 5 }, c: "danger", alpha: 0.18 }, { fn: "2*x^3+x^2-41*x-70", label: "y = g(x)", at: 6.2, pos: "w" }, { pt: [-3.5, 0], label: "−7/2", pos: "n" }, { pt: [-2, 0], label: "−2", pos: "ne" }, { pt: [5, 0], label: "5", pos: "n" } ], cap: "$R$ is the region between $x = -2$ and $x = 5$; the integral there is negative and the area is its modulus." } },
+        { h: "(c) Which region is below the axis?", m: "Positive cubic: below the axis between the middle and largest roots, $-2 \\le x \\le 5$.", fig: { x: [-5, 7], y: [-140, 60], axes: { xt: [-3.5, -2, 5], yt: [-100, -50, 50] }, items: [ { shade: { fn: "2*x^3+x^2-41*x-70", from: -2, to: 5 }, c: "danger", alpha: 0.18 }, { fn: "2*x^3+x^2-41*x-70", label: "y = g(x)", at: 6.2, pos: "w" }, { pt: [-3.5, 0], label: "−7/2", pos: "n" }, { pt: [-2, 0], label: "−2", pos: "ne" }, { pt: [5, 0], label: "5", pos: "n" } ], cap: "$R$ is the region between $x = -2$ and $x = 5$; the integral there is negative and the area is its modulus." } },
         { m: "$\\displaystyle\\int_{-2}^{5} \\left(2x^3 + x^2 - 41x - 70\\right)\\mathrm{d}x = \\left[\\dfrac{x^4}{2} + \\dfrac{x^3}{3} - \\dfrac{41x^2}{2} - 70x\\right]_{-2}^{5}$", mk: "M1 A1" },
         { m: "$= \\left(\\dfrac{625}{2} + \\dfrac{125}{3} - \\dfrac{1025}{2} - 350\\right) - \\left(8 - \\dfrac83 - 82 + 140\\right) = -\\dfrac{1715}{3}$\nArea $= \\dfrac{1715}{3}$", mk: "M1 A1", n: "A negative integral for a region below the axis is expected; the **area** is stated positive." }
       ], result: "(b) $(x - 5)(2x + 7)(x + 2)$ (c) $\\dfrac{1715}{3}$" } },
@@ -937,12 +937,12 @@ C["maths:2.6"] = {
     ["Number of solutions of $\\tan\\theta = 2$ for $7\\pi \\le \\theta < 10\\pi$?", "3 — one per period of $\\tan$, and the interval is $3\\pi$ long."]
   ],
   quiz: [
-    { q: "$(x - 2)$ is a factor of $f(x)$ means", opts: ["$f(2) = 0$", "$f(-2) = 0$", "$f(0) = 2$", "$f'(2) = 0$"], ans: 0, why: "Factor theorem." },
+    { q: "$(x - 2)$ is a factor of $f(x)$ means", opts: ["$f(2) = 0$", "$f(-2) = 0$", "$f(0) = 2$", "$f'(2) = 0$"], ans: 0, why: "Factor theorem: $(x - a)$ is a factor $\\iff f(a) = 0$, so $f(2) = 0$." },
     { q: "$(2x + 1)$ is a factor means", opts: ["$f(\\tfrac12) = 0$", "$f(-\\tfrac12) = 0$", "$f(-2) = 0$", "$f(2) = 0$"], ans: 1, why: "$2x + 1 = 0 \\Rightarrow x = -\\frac12$." },
     { q: "$x^3 - 7x + 6$ divided by $(x - 1)$ is", opts: ["$x^2 + x - 6$", "$x^2 - x - 6$", "$x^2 + x + 6$", "$x^2 - 6$"], ans: 0, why: "$(x-1)(x^2 + x - 6)$: check $x$ term $-6 - 1 = -7$." },
     { q: "$f(x) = (x + 1)(x^2 + x + 1)$ has how many real roots?", opts: ["3", "2", "1", "0"], ans: 2, why: "Discriminant $1 - 4 < 0$." },
     { q: "Roots of $f$ are $1, 3, 5$. Roots of $f(x + 2) = 0$:", opts: ["$3, 5, 7$", "$-1, 1, 3$", "$2, 6, 10$", "$1, 3, 5$"], ans: 1, why: "$x + 2 = 1, 3, 5$." },
-    { q: "$y = (x - 1)^2(x + 3)$ meets the $x$-axis", opts: ["crossing at 1, crossing at −3", "touching at 1, crossing at −3", "touching at both", "crossing at 1 only"], ans: 1, why: "Squared factor touches." },
+    { q: "$y = (x - 1)^2(x + 3)$ meets the $x$-axis", opts: ["crossing at 1, crossing at −3", "touching at 1, crossing at −3", "touching at both", "crossing at 1 only"], ans: 1, why: "$(x - 1)^2$ touches at 1; $(x + 3)$ crosses at $-3$." },
     { q: "$\\frac{x^2 - 9}{x^2 + 3x} =$", opts: ["$\\frac{x - 3}{x}$", "$\\frac{-9}{3x}$", "$x - 3$", "$\\frac{x + 3}{x}$"], ans: 0, why: "$\\frac{(x-3)(x+3)}{x(x+3)}$." },
     { q: "\"Show $(x + 2)$ is a factor using the factor theorem\" — acceptable evidence:", opts: ["long division with zero remainder", "$f(-2) = 0$ shown, conclusion stated", "the calculator's root list", "$f(2) = 0$"], ans: 1, why: "The named method must be used." }
   ]
@@ -985,7 +985,7 @@ C["maths:2.7"] = {
     { worked: { tag: "exam", title: "Quartic from its sketch — where $f'(x) \\ge 0$", src: "A-level June 2025 · P1 Q7 · 7 marks",
       q: "A quartic curve $C$, $y = f(x)$, has maximum turning points at $(-1, 0)$ and $(5, 0)$, crosses the $y$-axis at $(0, -75)$ and has a minimum turning point at $x = 2$. **(a)** Find the set of values of $x$ for which $f'(x) \\ge 0$, in set notation. **(b)** Find an equation for $C$.",
       steps: [
-        { h: "(a) Uphill or flat: up to the first max, and from the min to the second max", m: "$\\{x : x \\le -1\\} \\cup \\{x : 2 \\le x \\le 5\\}$", mk: "M1 A1", n: "Include the turning points themselves ($f' = 0$ there) because the inequality is $\\ge$." },
+        { h: "(a) Uphill or flat: up to the first max, and from the min to the second max", m: "$\\{x : x \\le -1\\} \\cup \\{x : 2 \\le x \\le 5\\}$", mk: "M1 A1 A1", n: "Include the turning points themselves ($f' = 0$ there) because the inequality is $\\ge$." },
         { h: "(b) Maxima on the axis are double roots", m: "$y = a(x + 1)^2(x - 5)^2$; at $(0, -75)$: $25a = -75 \\Rightarrow a = -3$\n$y = -3(x + 1)^2(x - 5)^2$", mk: "M1 A1 M1 A1", n: "Negative $a$ because the curve is below the axis (the $y$-intercept is negative and the ends point down). Symmetry about $x = 2$ confirms the minimum's position." }
       ], result: "(a) $\\{x : x \\le -1\\} \\cup \\{x : 2 \\le x \\le 5\\}$ (b) $y = -3(x + 1)^2(x - 5)^2$" } },
     { h: "Reciprocal graphs" },
@@ -1051,7 +1051,7 @@ C["maths:2.7"] = {
       steps: [
         { h: "(a) $a = \\pm1$", m: "$f(1) = 4(2) - 5 = 3, \\qquad f(-1) = 4(4) - 5 = 11$", mk: "M1 A1" },
         { h: "(b) $gf(x) = 2f(x) + 17$ and $f(x) \\ge -5$", m: "$gf(x) \\ge 2(-5) + 17 = 7$", mk: "M1 A1", n: "The minimum of $f$ is at its vertex $(3, -5)$; $g$ is increasing, so the minimum of $gf$ is $g(-5)$." },
-        { h: "(c) Lines through the origin that miss both arms", m: "Vertex $(3, -5)$; right arm $y = 4x - 17$, left arm $y = -4x + 7$ (for $x < 3$).\nThrough the vertex: $k = -\\dfrac53$. Parallel to the left arm: $k = -4$.\nNo solutions for $-4 \\le k < -\\dfrac53$.", mk: "M1 A1 A1", n: "$k = -4$ included (parallel to the left arm, and the right arm is not reached); $k = -\\frac53$ excluded (one solution at the vertex). Sketch it — the gap is the wedge between the vertex line and the left arm's direction." }
+        { h: "(c) Lines through the origin that miss both arms", m: "Vertex $(3, -5)$; right arm $y = 4x - 17$, left arm $y = -4x + 7$ (for $x < 3$).\nThrough the vertex: $k = -\\dfrac53$. Parallel to the left arm: $k = -4$.\nNo solutions for $-4 \\le k < -\\dfrac53$.", mk: "M1 A1 B1 A1", n: "$k = -4$ included (parallel to the left arm, and the right arm is not reached); $k = -\\frac53$ excluded (one solution at the vertex). Sketch it — the gap is the wedge between the vertex line and the left arm's direction." }
       ], result: "(a) $3$ or $11$ (b) $gf(x) \\ge 7$ (c) $-4 \\le k < -\\frac53$" } },
     { worked: { tag: "exam", title: "A modulus model: two subscriber counts", src: "modelled on A-level June 2023 · P2 Q12",
       q: "Two streaming companies are monitored from $t = 0$ years. Company A: $N_A = |t - 3| + 4$ (thousands); company B: $N_B = 8 - |2t - 6|$. **(a)** Find the values of $t$ at which the two companies have the same number of subscribers. **(b)** Find the maximum number of subscribers company B has, and when. **(c)** Give one limitation of the models.",
@@ -1111,13 +1111,13 @@ C["maths:2.7"] = {
     ["Range of $gf(x)$ where $f(x) = 4|x - 3| - 5$, $g(x) = 2x + 17$?", "$f \\ge -5$ so $gf \\ge 7$."]
   ],
   quiz: [
-    { q: "$y = (x + 2)(x - 1)^2$ meets the $x$-axis", opts: ["crossing at both", "crossing at −2, touching at 1", "touching at −2, crossing at 1", "touching at both"], ans: 1, why: "Squared factor touches." },
-    { q: "Vertical asymptote of $y = \\frac{3}{x - 5} + 2$:", opts: ["$x = 5$", "$x = -5$", "$y = 2$", "$x = 2$"], ans: 0, why: "Denominator zero." },
+    { q: "$y = (x + 2)(x - 1)^2$ meets the $x$-axis", opts: ["crossing at both", "crossing at −2, touching at 1", "touching at −2, crossing at 1", "touching at both"], ans: 1, why: "$(x + 2)$ crosses at $-2$; $(x - 1)^2$ touches at 1." },
+    { q: "Vertical asymptote of $y = \\frac{3}{x - 5} + 2$:", opts: ["$x = 5$", "$x = -5$", "$y = 2$", "$x = 2$"], ans: 0, why: "The denominator $x - 5 = 0$ at $x = 5$." },
     { q: "Vertex of $y = |3x - 6| + 1$:", opts: ["$(2, 1)$", "$(-2, 1)$", "$(6, 1)$", "$(2, 0)$"], ans: 0, why: "Inside zero at $x = 2$." },
     { q: "$|x - 1| < 4$ gives", opts: ["$x < 5$", "$-3 < x < 5$", "$x < -3$ or $x > 5$", "$-4 < x < 4$"], ans: 1, why: "$-4 < x - 1 < 4$." },
-    { q: "A positive cubic with roots $-2, 1, 3$ is negative for", opts: ["$x < -2$ and $1 < x < 3$", "$-2 < x < 1$", "$x > 3$", "all $x$"], ans: 0, why: "Starts negative, alternates at each simple root." },
+    { q: "A positive cubic with roots $-2, 1, 3$ is negative for", opts: ["$x < -2$ and $1 < x < 3$", "$-2 < x < 1$ and $x > 3$", "$x < -2$ and $x > 3$", "$x < 1$ and $x > 3$"], ans: 0, why: "Starts negative, alternates at each simple root." },
     { q: "$y = |2x - 5|$ cuts the $y$-axis at", opts: ["$(0, -5)$", "$(0, 5)$", "$(0, 2.5)$", "$(0, 0)$"], ans: 1, why: "$|{-5}| = 5$." },
-    { q: "$y = k$ meets a cubic with max value 8 and min value 0 exactly once when", opts: ["$0 < k < 8$", "$k < 0$ or $k > 8$", "$k = 0$", "$k = 8$"], ans: 1, why: "Outside the turning values." },
+    { q: "$y = k$ meets a cubic with max value 8 and min value 0 exactly once when", opts: ["$0 \\le k \\le 8$", "$k < 0$ or $k > 8$", "$k = 0$ or $k = 8$", "$k \\le 0$ or $k \\ge 8$"], ans: 1, why: "Outside the turning values." },
     { q: "If $y \\propto \\frac{1}{x^2}$ and $x$ doubles, $y$ is", opts: ["halved", "doubled", "quartered", "quadrupled"], ans: 2, why: "$\\frac{1}{(2x)^2} = \\frac14 \\cdot \\frac{1}{x^2}$." }
   ]
 };
@@ -1164,7 +1164,7 @@ C["maths:2.8"] = {
       steps: [
         { h: "(a) Which piece? $0 \\le 2$, then $5 > 2$", m: "$g(0) = 4 + 1 = 5; \\qquad g(5) = 20 - 7 = 13$", mk: "M1 A1" },
         { h: "(b) Each piece separately", m: "Left: $(x - 2)^2 + 1 > 28 \\Rightarrow (x - 2)^2 > 27 \\Rightarrow x - 2 < -\\sqrt{27}$ (since $x \\le 2$) $\\Rightarrow x < 2 - 3\\sqrt3$\nRight: $4x - 7 > 28 \\Rightarrow x > \\dfrac{35}{4}$", mk: "M1 A1 M1 A1", n: "On the left piece only the negative square root is compatible with $x \\le 2$." },
-        { h: "(c)", m: "$h$ is one-to-one (the left half of a parabola, decreasing throughout), so it has an inverse. $g$ is many-to-one — e.g. $g(1) = 2$ and $g\\left(\\frac94\\right) = 2$ — so it has none.", mk: "B1" },
+        { h: "(c)", m: "$h$ is one-to-one (the left half of a parabola, decreasing throughout), so it has an inverse. $g$ is many-to-one — e.g. $g(1) = 2$ and $g\\left(\\frac94\\right) = 2$ — so it has none.", mk: "B1 B1" },
         { h: "(d) Use $h^{-1}(x) = -\\frac12 \\iff h\\left(-\\frac12\\right) = x$", m: "$x = \\left(-\\dfrac12 - 2\\right)^2 + 1 = \\dfrac{25}{4} + 1 = \\dfrac{29}{4}$", mk: "M1 A1", n: "No need to find $h^{-1}$: an inverse equation is the original equation read backwards." }
       ], result: "(a) 13 (b) $x < 2 - 3\\sqrt3$ or $x > \\frac{35}{4}$ (d) $x = \\frac{29}{4}$" } },
 
@@ -1261,7 +1261,7 @@ C["maths:2.8"] = {
     { q: "A function has an inverse only if it is", opts: ["many-to-one", "one-to-one", "quadratic", "defined on $\\mathbb{R}$"], ans: 1, why: "Each output from one input." },
     { q: "Range of $f(x) = \\sqrt{x} + 1$, $x \\ge 0$:", opts: ["$f \\ge 0$", "$f \\ge 1$", "$f > 1$", "all reals"], ans: 1, why: "$\\sqrt x \\ge 0$, so $f \\ge 1$ (equality at 0)." },
     { q: "$f^{-1}(5) = 2$ tells you", opts: ["$f(5) = 2$", "$f(2) = 5$", "$f(2) = \\tfrac15$", "$f(5) = \\tfrac12$"], ans: 1, why: "Inverse reverses input and output." },
-    { q: "The graph of $y = f^{-1}(x)$ is obtained from $y = f(x)$ by reflection in", opts: ["the $x$-axis", "the $y$-axis", "$y = x$", "$y = -x$"], ans: 2, why: "Swapping coordinates." }
+    { q: "The graph of $y = f^{-1}(x)$ is obtained from $y = f(x)$ by reflection in", opts: ["the $x$-axis", "the $y$-axis", "$y = x$", "$y = -x$"], ans: 2, why: "$f^{-1}$ swaps $(x, y)$ to $(y, x)$: a reflection in $y = x$." }
   ]
 };
 
@@ -1375,13 +1375,13 @@ C["maths:2.9"] = {
     ["$|f(x)|$ vs $f(|x|)$?", "$|f(x)|$ reflects negative parts up; $f(|x|)$ mirrors the right half to the left."]
   ],
   quiz: [
-    { q: "$y = f(x - 3)$ moves the graph", opts: ["left 3", "right 3", "up 3", "down 3"], ans: 1, why: "Inside, opposite." },
+    { q: "$y = f(x - 3)$ moves the graph", opts: ["left 3", "right 3", "up 3", "down 3"], ans: 1, why: "$x - 3$ inside: the graph moves the opposite way, right 3." },
     { q: "$(2, 6)$ under $y = f(2x)$ becomes", opts: ["$(4, 6)$", "$(1, 6)$", "$(2, 12)$", "$(2, 3)$"], ans: 1, why: "$x$ halves." },
     { q: "$(2, 6)$ under $y = 2f(x) - 1$ becomes", opts: ["$(2, 11)$", "$(2, 10)$", "$(2, 13)$", "$(4, 5)$"], ans: 0, why: "Stretch then shift: $12 - 1$." },
     { q: "$y = f(-x)$ is a reflection in", opts: ["the $x$-axis", "the $y$-axis", "$y = x$", "the origin"], ans: 1, why: "Sign of $x$ flips." },
     { q: "Vertical asymptote $x = 1$ under $y = f(x + 4)$ becomes", opts: ["$x = 5$", "$x = -3$", "$x = 1$", "$y = 1$"], ans: 1, why: "Left 4." },
     { q: "$2(x+1)^2 + 7 \\to 2(x-1)^2 + 3$ is a translation by", opts: ["$\\begin{pmatrix} 2 \\\\ -4 \\end{pmatrix}$", "$\\begin{pmatrix} -2 \\\\ 4 \\end{pmatrix}$", "$\\begin{pmatrix} 2 \\\\ 4 \\end{pmatrix}$", "$\\begin{pmatrix} -2 \\\\ -4 \\end{pmatrix}$"], ans: 0, why: "Vertex $(-1, 7) \\to (1, 3)$." },
-    { q: "Acceptable description of $y = 3f(x)$:", opts: ["enlargement 3", "stretch, scale factor 3, parallel to the $y$-axis", "stretched by 3", "$y$ times 3"], ans: 1, why: "Factor and direction." }
+    { q: "Acceptable description of $y = 3f(x)$:", opts: ["enlargement, scale factor 3, about the origin", "stretch, scale factor 3, parallel to the $y$-axis", "stretch, scale factor 3, parallel to the $x$-axis", "stretch, scale factor $\\tfrac13$, parallel to the $y$-axis"], ans: 1, why: "$3f(x)$ multiplies each $y$ by 3: a stretch, factor 3, parallel to the $y$-axis." }
   ]
 };
 
@@ -1491,9 +1491,9 @@ C["maths:2.10"] = {
   ],
   quiz: [
     { q: "$\\frac{x + 5}{(x+1)(x+3)} = \\frac{A}{x+1} + \\frac{B}{x+3}$: $A =$", opts: ["2", "1", "$-1$", "4"], ans: 0, why: "$x = -1$: $4 = 2A$." },
-    { q: "Form for $\\frac{3x}{(x-1)^2(x+2)}$:", opts: ["$\\frac{A}{x-1} + \\frac{B}{x+2}$", "$\\frac{A}{x-1} + \\frac{B}{(x-1)^2} + \\frac{C}{x+2}$", "$\\frac{A}{(x-1)^2} + \\frac{B}{x+2}$", "$\\frac{Ax+B}{(x-1)^2}$"], ans: 1, why: "One term per power of the repeated factor." },
+    { q: "Form for $\\frac{3x}{(x-1)^2(x+2)}$:", opts: ["$\\frac{A}{x-1} + \\frac{B}{x-1} + \\frac{C}{x+2}$", "$\\frac{A}{x-1} + \\frac{B}{(x-1)^2} + \\frac{C}{x+2}$", "$\\frac{A}{x-1} + \\frac{B}{(x-1)^2} + \\frac{C}{(x+2)^2}$", "$\\frac{A}{(x-1)^2} + \\frac{B}{x+2}$"], ans: 1, why: "One term per power of the repeated factor." },
     { q: "$\\frac{x^2}{x - 1}$ needs", opts: ["a constant part only", "a linear part $Ax + B$", "no polynomial part", "a quadratic part"], ans: 1, why: "Degree 2 over degree 1: quotient is linear." },
-    { q: "$\\int_0^1 \\frac{2}{x + 1}\\,dx =$", opts: ["$2\\ln2$", "$\\ln2$", "$2$", "$\\ln3$"], ans: 0, why: "$2[\\ln(x+1)]_0^1$." },
+    { q: "$\\int_0^1 \\frac{2}{x + 1}\\,dx =$", opts: ["$2\\ln2$", "$\\ln2$", "$2\\ln3$", "$\\ln3$"], ans: 0, why: "$2[\\ln(x+1)]_0^1$." },
     { q: "To find $A$ in $\\frac{A}{x+2} + \\frac{B}{(x+2)^2}$ you cannot substitute $x = -2$ because", opts: ["it finds $B$, not $A$", "the identity is false there", "$A = 0$ always", "you must use $x = 2$"], ans: 0, why: "$x = -2$ kills the $A$ term." },
     { q: "$\\ln 8 - \\ln 2 =$", opts: ["$\\ln 6$", "$2\\ln2$", "$\\ln 2$", "$3\\ln2$"], ans: 1, why: "$\\ln\\frac82 = \\ln4 = 2\\ln2$." }
   ]
@@ -1582,10 +1582,10 @@ C["maths:2.11"] = {
     ["\"Least number of bars for a profit\" — how do you round?", "Up: the first whole number that satisfies the inequality."]
   ],
   quiz: [
-    { q: "In $y = 0.84x + 428$ for daily cost, 428 represents", opts: ["cost per bar", "fixed daily cost in £", "number of bars", "profit"], ans: 1, why: "Cost when $x = 0$." },
-    { q: "A valid limitation of $H = a - b(x - 9)^2$ for a thrown ball:", opts: ["it uses decimals", "it ignores air resistance", "$x$ is in metres", "it has a maximum"], ans: 1, why: "An assumption that may fail." },
+    { q: "In $y = 0.84x + 428$ for daily cost, 428 represents", opts: ["cost of each bar in £", "fixed daily cost in £", "number of bars made a day", "daily profit in £"], ans: 1, why: "Cost when $x = 0$." },
+    { q: "A valid limitation of $H = a - b(x - 9)^2$ for a thrown ball:", opts: ["it uses decimal values", "it ignores air resistance", "$x$ is measured in metres", "it has a maximum height"], ans: 1, why: "An assumption that may fail." },
     { q: "Period of $H = 29\\cos(9t + 180)° + 31$:", opts: ["9 s", "40 s", "360 s", "29 s"], ans: 1, why: "$360 \\div 9$." },
-    { q: "A model gives a negative number of subscribers after $t = 7$. The refinement:", opts: ["use fewer decimals", "define $N = 0$ for $t > 7$", "increase the gradient", "ignore it"], ans: 1, why: "Fix the impossible values." },
+    { q: "A model gives a negative number of subscribers after $t = 7$. The refinement:", opts: ["use fewer decimal places in it", "define $N = 0$ for $t > 7$", "increase the gradient", "ignore it"], ans: 1, why: "Fix the impossible values." },
     { q: "Profit $> £200\\,000$ holds for $114.19 < x < 145.81$. Highest sensible price:", opts: ["£145.82", "£145.81", "£146", "£114.19"], ans: 1, why: "Round down to stay inside." }
   ]
 };

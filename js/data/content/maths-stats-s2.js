@@ -340,10 +340,10 @@ C["maths:S2.1"] = {
   ],
   quiz: [
     { q: "A class $10 \\le x < 25$ has frequency 45. Its frequency density is:", opts: ["3", "45", "4.5", "1.8"], ans: 0, why: "$45 \\div 15$." },
-    { q: "On a histogram the most frequent class is the one with the greatest:", opts: ["area", "height", "width", "midpoint"], ans: 0, why: "Area is frequency." },
+    { q: "On a histogram the most frequent class is the one with the greatest:", opts: ["area", "height", "width", "midpoint"], ans: 0, why: "Frequency $=$ area, so the tallest bar may not be the most frequent." },
     { q: "A model $y = kx(8 - x)$ on $[0, 8]$ for 256 items gives $k =$", opts: ["3", "4", "1", "$\\tfrac{3}{256}$"], ans: 0, why: "$\\frac{256k}{3} = 256$." },
     { q: "A cumulative frequency curve is used to read:", opts: ["median and quartiles", "the mode", "the mean", "the standard deviation"], ans: 0, why: "Read at $\\frac n4, \\frac n2, \\frac{3n}{4}$." },
-    { q: "A whisker ends at:", opts: ["the last value that is not an outlier", "the maximum always", "$Q_3 + 1.5\\,\\text{IQR}$ always", "the mean"], ans: 0, why: "Outliers are plotted separately." },
+    { q: "A whisker ends at:", opts: ["the last value that is not an outlier", "the maximum value, whatever it is", "$Q_3 + 1.5\\,\\text{IQR}$ always", "the mean"], ans: 0, why: "Outliers are plotted separately." },
     { q: "Data with mean 34, median 28 are most likely:", opts: ["positively skewed", "negatively skewed", "symmetric", "bimodal"], ans: 0, why: "A tail of high values pulls the mean up." },
     { q: "Subtracting 5 g from every plum weight changes:", opts: ["the mean only", "the standard deviation only", "both", "neither"], ans: 0, why: "A shift moves location, not spread." }
   ]
@@ -602,10 +602,10 @@ C["maths:S2.2"] = {
   quiz: [
     { q: "$y = 26.1 + 5.60s$: an extra half hour of sleep changes $y$ by", opts: ["+2.8", "+5.6", "+26.1", "+13.05"], ans: 0, why: "$0.5 \\times 5.6$." },
     { q: "The units of the gradient of $p$ (cm) on $t$ (days) are", opts: ["cm/day", "day/cm", "cm", "cm·day"], ans: 0, why: "$y$ per $x$." },
-    { q: "A model built on $1 \\le t \\le 10$ used at $t = 19$ is", opts: ["extrapolation", "interpolation", "regression", "coding"], ans: 0, why: "Outside the range." },
-    { q: "$r = -0.915$ suggests", opts: ["strong negative linear correlation", "weak negative", "causation", "no correlation"], ans: 0, why: "Close to $-1$." },
+    { q: "A model built on $1 \\le t \\le 10$ used at $t = 19$ is", opts: ["extrapolation", "interpolation", "regression", "coding"], ans: 0, why: "$t = 19$ is outside $1 \\le t \\le 10$: extrapolation." },
+    { q: "$r = -0.915$ suggests", opts: ["strong negative linear correlation", "weak negative linear correlation", "that one variable causes the other", "strong positive linear correlation"], ans: 0, why: "Close to $-1$." },
     { q: "To linearise $y = 3 \\times 2^x$ plot", opts: ["$\\log y$ against $x$", "$\\log y$ against $\\log x$", "$y$ against $\\log x$", "$y$ against $x^2$"], ans: 0, why: "Exponential in $x$." },
-    { q: "Ice-cream sales and sunburn are positively correlated. Most likely:", opts: ["both depend on sunny weather", "ice cream causes sunburn", "sunburn causes ice-cream sales", "it is coincidence"], ans: 0, why: "A third variable." }
+    { q: "Ice-cream sales and sunburn are positively correlated. Most likely:", opts: ["both depend on sunny weather", "ice cream causes sunburn", "sunburn causes ice-cream sales", "it is coincidence"], ans: 0, why: "Sunny weather raises both: a third variable, not cause." }
   ]
 };
 
@@ -869,9 +869,9 @@ C["maths:S2.3"] = {
     { q: "$n = 30$, $\\sum y = 214$, $\\sum y^2 = 5912$, $x = y + 1010$. $\\sigma_x =$", opts: ["12.1", "1022.1", "7.13", "146"], ans: 0, why: "Shift leaves sd unchanged; 146 is the variance." },
     { q: "Coded $y = (t - 15)/2$, median of $y$ is 9. Median of $t$ is", opts: ["33", "18", "24", "−3"], ans: 0, why: "$t = 2y + 15$." },
     { q: "Interpolate the median of 30 values in class 5–10 with 3 below and 15 in it:", opts: ["9", "8", "7.5", "10"], ans: 0, why: "$5 + \\frac{12}{15} \\times 5$." },
-    { q: "A grouped mean is an estimate because", opts: ["midpoints stand in for the values", "the sample is small", "of rounding", "of outliers"], ans: 0, why: "Midpoint assumption." },
+    { q: "A grouped mean is an estimate because", opts: ["midpoints stand in for the values", "the sample is too small to be exact", "the values have been rounded", "outliers have been left out"], ans: 0, why: "Each value is replaced by its class midpoint, so the mean is approximate." },
     { q: "The variance of data with $\\sigma = 3$ after multiplying by 2 is", opts: ["36", "12", "6", "18"], ans: 0, why: "$(2 \\times 3)^2$." },
-    { q: "For data with extreme outliers the best measure of spread is", opts: ["IQR", "range", "sd", "variance"], ans: 0, why: "Resistant to extremes." }
+    { q: "For data with extreme outliers the best measure of spread is", opts: ["IQR", "range", "sd", "variance"], ans: 0, why: "The IQR ignores the top and bottom quarters, so outliers barely move it." }
   ]
 };
 
@@ -929,7 +929,7 @@ C["maths:S2.4"] = {
         { h: "(b)", m: "With the outliers the correlation is negative ($r \\approx -0.50$); without them there is essentially no correlation ($r \\approx 0.20$, weak).", mk: "B1", n: "Three points created the whole pattern — a reason to look before trusting $r$." },
         { h: "(c)", m: "Perth has many days with no rain in the LDS, but every rainfall in the sample is large — a random sample would be expected to include some zeros.", mk: "B1" }
       ], result: "(a) fences 1018.75 and 82.95 (b) negative → no correlation (c) no dry days in the sample" } },
-    { worked: { tag: "exam", title: "Show a visibility value is an outlier; interpret; name the hidden variable", src: "AS June 2020 · P2 Q2(b)–(d) · 3 marks",
+    { worked: { tag: "exam", title: "Show a visibility value is an outlier; interpret; name the hidden variable", src: "AS June 2020 · P2 Q2(b)–(d) · 4 marks",
       q: "For Camborne, June 1987, Daily Mean Visibility has $Q_1 = 1100$ and IQR $= 1600$. An outlier is more than $1.5 \\times$ IQR above $Q_3$. **(b)** Show that the circled point, visibility 5300 (at humidity 90%), is an outlier. **(c)** The scatter diagram of visibility against Daily Maximum Relative Humidity shows a downward trend; interpret the correlation. **(d)** A second scatter diagram plots visibility against an unlabelled variable whose values run from 0 to about 14 in steps of 0.1. Using your knowledge of the large data set, suggest the variable.",
       steps: [
         { h: "(b) The upper fence", m: "$Q_3 = 1100 + 1600 = 2700$; $\\; 2700 + 1.5 \\times 1600 = 5100$", mk: "M1" },
@@ -1049,9 +1049,9 @@ C["maths:S2.4"] = {
   ],
   quiz: [
     { q: "$Q_1 = 10$, $Q_3 = 22$. Using 1.5×IQR, which value is an outlier?", opts: ["41", "38", "−7", "0"], ans: 0, why: "Upper fence $22 + 18 = 40$." },
-    { q: "LDS rainfall shows 'tr'. Before finding a mean you should", opts: ["replace it by a value in [0, 0.05]", "delete the day", "treat it as n/a", "replace it by the mean"], ans: 0, why: "Trace is a real small amount." },
+    { q: "LDS rainfall shows 'tr'. Before finding a mean you should", opts: ["replace it by a value in [0, 0.05]", "delete the day from the data", "treat it as n/a and leave it out", "replace it by the mean of the other days"], ans: 0, why: "Trace is a real small amount." },
     { q: "Removing a genuine extreme value", opts: ["can misrepresent the data", "is always correct", "never changes the mean", "increases the sd"], ans: 0, why: "Only errors should go." },
-    { q: "Best diagram for two continuous variables:", opts: ["scatter diagram", "histogram", "pie chart", "box plot"], ans: 0, why: "Bivariate." },
+    { q: "Best diagram for two continuous variables:", opts: ["scatter diagram", "cumulative frequency graph", "a pie chart", "a back-to-back stem plot"], ans: 0, why: "Two continuous variables, one point per pair: a scatter diagram." },
     { q: "Mean 22.5, sd 12.1; outlier if > mean + 3 sd. Is 46 an outlier?", opts: ["no", "yes", "only by IQR rule", "cannot tell"], ans: 0, why: "Limit 58.8." }
   ]
 };

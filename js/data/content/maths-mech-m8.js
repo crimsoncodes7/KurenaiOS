@@ -171,9 +171,9 @@ C["maths:M8.1"] = {
     ["Is acceleration a force?", "No — draw it separately from the force diagram.", 8]
   ],
   quiz: [
-    { q: "A particle moves at constant velocity. The resultant force on it is", opts: ["zero", "in the direction of motion", "against the motion", "equal to its weight"], ans: 0, why: "Newton's first law." },
+    { q: "A particle moves at constant velocity. The resultant force on it is", opts: ["zero", "in the direction of motion", "against the motion", "equal to its weight"], ans: 0, why: "No acceleration, so $F = ma = 0$ (Newton's first law)." },
     { q: "A 3 kg block on a horizontal floor is pulled by 10 N at 30° above the horizontal. $R$ is", opts: ["$3g - 5$ N", "$3g$ N", "$3g + 5$ N", "$3g - 10$ N"], ans: 0, why: "$10\\sin30° = 5$ upwards." },
-    { q: "Which force can only pull?", opts: ["the tension in a string", "the thrust in a rod", "the normal reaction", "the weight"], ans: 0, why: "A string goes slack if pushed." },
+    { q: "Which force can only pull?", opts: ["the tension in a string", "the thrust in a rigid rod", "the normal reaction", "the weight"], ans: 0, why: "A string goes slack if pushed." },
     { q: "A box sliding on a rough floor has the pulling force removed. It", opts: ["slows down to rest", "stops instantly", "moves at constant speed", "moves backwards"], ans: 0, why: "Friction is the resultant force, against the motion." }
   ]
 };
@@ -428,7 +428,7 @@ C["maths:M8.3"] = {
     { q: "The weight of a 3 kg mass is", opts: ["29.4 N", "3 N", "0.31 N", "3 kg"], ans: 0, why: "$3 \\times 9.8$." },
     { q: "A lift accelerates downwards at 2 m s$^{-2}$. A 50 kg passenger's reaction is", opts: ["390 N", "590 N", "490 N", "100 N"], ans: 0, why: "$50(9.8 - 2)$." },
     { q: "With no air resistance, a 10 kg and a 1 kg ball dropped together", opts: ["land together", "the 10 kg lands first", "the 1 kg lands first", "depends on height"], ans: 0, why: "Both accelerate at $g$." },
-    { q: "On the Moon an object's mass is", opts: ["the same as on Earth", "about one sixth", "zero", "six times"], ans: 0, why: "Mass does not change." }
+    { q: "On the Moon an object's mass is", opts: ["the same as on Earth", "about one sixth of its mass on Earth", "zero, as there is no gravity", "six times its mass on Earth"], ans: 0, why: "Mass does not change." }
   ]
 };
 
@@ -841,9 +841,9 @@ C["maths:M8.5"] = {
   ],
   quiz: [
     { q: "$(3\\mathbf i + 4\\mathbf j)$ N and $(\\mathbf i - 7\\mathbf j)$ N act. The resultant's magnitude is", opts: ["5 N", "7 N", "25 N", "1 N"], ans: 0, why: "$4\\mathbf i - 3\\mathbf j$." },
-    { q: "Forces of 3 N and 4 N at right angles have a resultant of", opts: ["5 N", "7 N", "1 N", "12 N"], ans: 0, why: "Pythagoras." },
-    { q: "For constant velocity under three forces, the third is", opts: ["minus the sum of the other two", "the sum of the other two", "zero", "any force"], ans: 0, why: "Resultant zero." },
-    { q: "$(4 + \\lambda)\\mathbf i + 2\\mathbf j$ is parallel to $\\mathbf i + \\mathbf j$ when $\\lambda =$", opts: ["$-2$", "2", "0", "6"], ans: 0, why: "$4 + \\lambda = 2$." }
+    { q: "Forces of 3 N and 4 N at right angles have a resultant of", opts: ["5 N", "7 N", "1 N", "12 N"], ans: 0, why: "$\\sqrt{3^2 + 4^2} = 5$ N." },
+    { q: "For constant velocity under three forces, the third is", opts: ["minus the sum of the other two", "the sum of the other two", "zero, whatever the others are", "a force equal to the larger of the two"], ans: 0, why: "Resultant zero, so $\\mathbf F_3 = -(\\mathbf F_1 + \\mathbf F_2)$." },
+    { q: "$(4 + \\lambda)\\mathbf i + 2\\mathbf j$ is parallel to $\\mathbf i + \\mathbf j$ when $\\lambda =$", opts: ["$-2$", "$2$", "$-6$", "$6$"], ans: 0, why: "$4 + \\lambda = 2$." }
   ]
 };
 
@@ -1033,7 +1033,7 @@ C["maths:M8.6"] = {
   quiz: [
     { q: "$\\mu = 0.4$, $R = 50$ N. The maximum friction is", opts: ["20 N", "125 N", "50 N", "0.4 N"], ans: 0, why: "$\\mu R$." },
     { q: "A block at rest with $\\mu R = 12$ N is pushed by 7 N. Friction is", opts: ["7 N", "12 N", "5 N", "19 N"], ans: 0, why: "Only what is needed." },
-    { q: "A block slides down a rough slope. Friction acts", opts: ["up the slope", "down the slope", "perpendicular to it", "vertically"], ans: 0, why: "Against the motion." },
+    { q: "A block slides down a rough slope. Friction acts", opts: ["up the slope", "down the slope", "perpendicular to it", "vertically"], ans: 0, why: "It slides down, so friction opposes that: up the slope." },
     { q: "A particle is on the point of sliding on a slope at 30°. $\\mu$ is", opts: ["$\\tan30° = 0.577$", "$\\sin30° = 0.5$", "$\\cos30° = 0.866$", "0.3"], ans: 0, why: "$\\mu = \\tan\\alpha$." },
     { q: "A 2 kg box slides on a floor with $\\mu = 0.25$. Its deceleration is", opts: ["2.45 m s$^{-2}$", "4.9 m s$^{-2}$", "0.25 m s$^{-2}$", "9.8 m s$^{-2}$"], ans: 0, why: "$\\mu g$." }
   ]

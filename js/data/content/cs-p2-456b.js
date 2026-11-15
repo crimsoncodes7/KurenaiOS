@@ -99,9 +99,9 @@ C["compsci:4.5.6.7"] = {
 
     { page: "File size: backwards" },
     { steps: [
-      { h: "1.", m: "Convert the file size to **bits** (× 1000 per prefix step, × 8)." },
-      { h: "2.", m: "Divide by the two quantities you know." },
-      { h: "3.", m: "Give the unit: seconds, Hz or bits." }
+      { h: "Convert to bits", n: "Convert the file size to **bits** (× 1000 per prefix step, × 8)." },
+      { h: "Divide", n: "Divide by the two quantities you know." },
+      { h: "Give the unit", n: "Seconds, Hz or bits." }
     ] },
     { worked: { tag: "exam", title: "Find the sample rate", src: "AS June 2020 · P2 Q03.2 · 2 marks",
       q: "A sound takes up 34.56 MB of storage space, lasts 360 seconds and was recorded with a sample resolution of 16 bits. Calculate the sample rate in samples per second (Hertz), showing working.",
@@ -201,8 +201,8 @@ C["compsci:4.5.6.7"] = {
   ],
   quiz: [
     { q: "30 s at 20 000 Hz, 16-bit, in kB is", opts: ["1200", "9600", "600", "1171"], ans: 0, why: "30 × 16 × 20 000 ÷ 8000." },
-    { q: "Nyquist: highest frequency 8 kHz needs at least", opts: ["16 kHz", "8 kHz", "4 kHz", "44.1 kHz"], ans: 0, why: "Double." },
-    { q: "Raising sample resolution reduces", opts: ["quantisation error", "file size", "the sample rate", "the number of samples"], ans: 0, why: "More levels." },
+    { q: "Nyquist: highest frequency 8 kHz needs at least", opts: ["16 kHz", "8 kHz", "4 kHz", "44.1 kHz"], ans: 0, why: "The sample rate must be at least twice the highest frequency: 2 × 8 kHz = 16 kHz." },
+    { q: "Raising sample resolution reduces", opts: ["quantisation error", "file size", "the sample rate", "the number of samples"], ans: 0, why: "More bits per sample means more levels, so each sample is closer to the true value and quantisation error falls." },
     { q: "12 096 kB at 96 kHz, 24-bit lasts", opts: ["42 s", "4.2 s", "420 s", "5 s"], ans: 0, why: "96 768 000 ÷ 2 304 000." }
   ]
 };
@@ -301,10 +301,10 @@ C["compsci:4.5.6.8"] = {
     ["How many MIDI channels?", "16.", 7]
   ],
   quiz: [
-    { q: "MIDI represents music as", opts: ["event messages", "samples", "a waveform", "pixels"], ans: 0, why: "Definition." },
-    { q: "An advantage of MIDI is", opts: ["easy to change instruments", "it records speech", "it uses sampling", "it is analogue"], ans: 0, why: "Messages name the instrument." },
-    { q: "A MIDI status byte begins with", opts: ["1", "0", "the note", "the velocity"], ans: 0, why: "MSB 1." },
-    { q: "MIDI cannot represent", opts: ["a recorded voice", "a piano part", "a change of tempo", "a note's velocity"], ans: 0, why: "No samples." }
+    { q: "MIDI represents music as", opts: ["event messages", "audio samples", "a sound waveform", "pixels of a score"], ans: 0, why: "MIDI stores music as event messages, such as note on and note off, not as audio samples." },
+    { q: "An advantage of MIDI is", opts: ["easy to change instruments", "it records speech accurately", "it samples the real sound", "it is stored as analogue"], ans: 0, why: "Messages name the instrument." },
+    { q: "A MIDI status byte begins with", opts: ["1", "0", "the note", "the velocity"], ans: 0, why: "A MIDI status byte starts with 1, while the data bytes that follow start with 0." },
+    { q: "MIDI cannot represent", opts: ["a recorded voice", "a piano part", "a change of tempo", "a note's velocity"], ans: 0, why: "MIDI holds instructions for notes and not sampled sound, so it cannot capture a recorded voice." }
   ]
 };
 
@@ -453,21 +453,18 @@ C["compsci:4.5.6.9"] = {
   ],
   flashcards: [
     ["Two reasons to compress?", "Less storage; faster transmission."],
-    ["Lossless compression?", "Removes redundancy only — the original can be reproduced exactly."],
-    ["Lossy compression?", "Permanently removes data — cannot be reversed; greater reduction."],
-    ["RLE?", "Replaces runs of identical values with (count, value) pairs."],
-    ["RLE of BBGGGRRRRW?", "B2 G3 R4 W1."],
-    ["When does RLE make files bigger?", "When runs are short (e.g. photographs)."],
-    ["Dictionary-based compression?", "Repeated strings mapped to tokens in a dictionary; tokens replace them."],
-    ["Why is dictionary compression poor for short text?", "Little repetition; the dictionary must also be stored/sent."],
-    ["Why RLE suits images?", "Adjacent pixels are often the same colour."],
-    ["Example of lossy formats?", "JPEG, MP3."]
+    ["RLE?", "Replaces runs of identical values with (count, value) pairs.", 3],
+    ["RLE of BBGGGRRRRW?", "B2 G3 R4 W1.", 4],
+    ["When does RLE make files bigger?", "When runs are short (e.g. photographs).", 5],
+    ["Why is dictionary compression poor for short text?", "Little repetition; the dictionary must also be stored/sent.", 7],
+    ["Why RLE suits images?", "Adjacent pixels are often the same colour.", 8],
+    ["Example of lossy formats?", "JPEG, MP3.", 9]
   ],
   quiz: [
     { q: "Which method is lossy?", opts: ["JPEG", "RLE", "dictionary-based", "ZIP"], ans: 0, why: "Discards detail." },
-    { q: "AAAABBBCCD in RLE is", opts: ["A4 B3 C2 D1", "4A3B", "ABCD", "A4B3C2"], ans: 0, why: "Every run, including the last." },
-    { q: "RLE works worst on", opts: ["a photograph", "a cartoon", "a black-and-white diagram", "a screenshot"], ans: 0, why: "Short runs." },
-    { q: "Lossless compression is required for", opts: ["a program's source code", "a streamed song", "a web photo", "a video call"], ans: 0, why: "Must be exact." },
+    { q: "AAAABBBCCD in RLE is", opts: ["A4 B3 C2 D1", "A4 B4 C2 D1", "A4 B3 C2", "A3 B3 C2 D1"], ans: 0, why: "Every run, including the last." },
+    { q: "RLE works worst on", opts: ["a photograph", "a cartoon", "a black-and-white diagram", "a screenshot"], ans: 0, why: "Run-length encoding stores runs of repeated values, and a photograph has few long runs, so it saves little." },
+    { q: "Lossless compression is required for", opts: ["a program's source code", "a song streamed over the web", "a photo on a web page", "the video in a video call"], ans: 0, why: "Source code must be restored exactly, as one changed character breaks it, so lossless compression is needed." },
     { q: "A dictionary method replaces repeated words with", opts: ["tokens", "runs", "pixels", "hashes only"], ans: 0, why: "Index into the dictionary." }
   ]
 };
@@ -652,18 +649,17 @@ C["compsci:4.5.6.10"] = {
     ["Define encryption.", "Using an algorithm and key to convert plaintext into ciphertext that cannot be understood without the key."],
     ["Caesar cipher?", "Each letter shifted a fixed number of places, wrapping round."],
     ["SECURITY with Caesar key 4?", "WIGYVMXC."],
-    ["Why is Caesar easily cracked?", "Only 25 keys; frequency analysis."],
-    ["Vernam cipher operation?", "XOR each bit of plaintext with the key."],
+    ["Vernam cipher operation?", "XOR each bit of plaintext with the key.", 4],
     ["What is perfect security?", "Nothing about the plaintext can be learnt from the ciphertext.", 6],
     ["Computational security?", "Cannot be cracked in a practical amount of time.", 7],
     ["Assembly instruction for Vernam?", "EOR.", 10]
   ],
   quiz: [
-    { q: "HELLO with Caesar key 3 is", opts: ["KHOOR", "EBIIL", "HELLO", "LIPPS"], ans: 0, why: "Shift +3." },
+    { q: "HELLO with Caesar key 3 is", opts: ["KHOOR", "EBIIL", "HELLO", "LIPPS"], ans: 0, why: "Each letter moves 3 on: H→K, E→H, L→O, L→O, O→R, giving KHOOR." },
     { q: "Vernam encryption uses", opts: ["XOR", "AND", "addition mod 10", "a shift"], ans: 0, why: "Bitwise XOR with the pad." },
-    { q: "Which is NOT a condition for perfect security?", opts: ["the key is shorter than the message", "the key is random", "the key is used once", "the key is secret"], ans: 0, why: "At least as long." },
-    { q: "A cipher uncrackable in practical time is", opts: ["computationally secure", "perfectly secure", "symmetric", "a substitution cipher"], ans: 0, why: "Definition." },
-    { q: "Why does frequency analysis break Caesar?", opts: ["each letter always maps to the same letter", "the key is random", "it uses XOR", "it is asymmetric"], ans: 0, why: "Frequencies preserved." }
+    { q: "Which is NOT a condition for perfect security?", opts: ["the key is shorter than the message", "the key is generated truly at random", "the key is used once and then destroyed", "the key is kept secret by both parties"], ans: 0, why: "At least as long." },
+    { q: "A cipher uncrackable in practical time is", opts: ["computationally secure", "perfectly secure", "symmetric", "a substitution cipher"], ans: 0, why: "If the cipher cannot be broken in a practical amount of time with the computing power available, it is computationally secure." },
+    { q: "Why does frequency analysis break Caesar?", opts: ["each letter always maps to the same letter", "the key is chosen at random for every message", "it uses XOR, which is easy to reverse by hand", "it is asymmetric, so the public key gives it away"], ans: 0, why: "Frequencies preserved." }
   ]
 };
 

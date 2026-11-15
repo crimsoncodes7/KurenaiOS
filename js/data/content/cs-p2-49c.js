@@ -123,10 +123,10 @@ C["compsci:4.9.4.3"] = {
     ["Valid host for 192.168.0.0/24?", "192.168.0.1 to 192.168.0.254.", 7]
   ],
   quiz: [
-    { q: "Which can be a host on 192.168.2.0/24?", opts: ["192.168.2.17", "192.168.2.0", "192.168.2.255", "192.168.3.1"], ans: 0, why: "Valid host ID." },
-    { q: "The network ID is", opts: ["shared by all hosts on the network", "unique to each host", "always the last octet", "the MAC address"], ans: 0, why: "Definition." },
-    { q: "/20 means", opts: ["20 bits of network ID", "20 hosts", "20 subnets", "20 octets"], ans: 0, why: "Prefix length." },
-    { q: "Host ID all 1s is the", opts: ["broadcast address", "network address", "gateway", "DNS server"], ans: 0, why: "Reserved." }
+    { q: "Which can be a host on 192.168.2.0/24?", opts: ["192.168.2.17", "192.168.2.0", "192.168.2.255", "192.168.3.1"], ans: 0, why: "192.168.2.0/24 covers 192.168.2.0 to 192.168.2.255, and .17 is a valid host ID, neither all 0s nor all 1s." },
+    { q: "The network ID is", opts: ["shared by all hosts on the network", "unique to each host on the network", "always the last octet of the address", "the MAC address of the router"], ans: 0, why: "Every host on a network shares the same network ID; the host ID makes each one different." },
+    { q: "/20 means", opts: ["20 bits of network ID", "20 hosts on the network", "20 subnets in the network", "20 octets in the address"], ans: 0, why: "A /20 prefix means the first 20 bits are the network ID and the rest are the host ID." },
+    { q: "Host ID all 1s is the", opts: ["broadcast address", "network address", "gateway", "DNS server"], ans: 0, why: "A host ID of all 1s is the broadcast address, which sends to every host, so it cannot belong to one device." }
   ]
 };
 
@@ -213,9 +213,9 @@ C["compsci:4.9.4.4"] = {
   ],
   quiz: [
     { q: "192.168.2.3 AND 255.255.255.0 =", opts: ["192.168.2.0", "192.168.2.3", "0.0.0.3", "255.255.255.3"], ans: 0, why: "Host bits zeroed." },
-    { q: "Hosts on a /24 subnet:", opts: ["254", "256", "255", "24"], ans: 0, why: "2⁸ − 2." },
+    { q: "Hosts on a /24 subnet:", opts: ["254", "256", "255", "24"], ans: 0, why: "A /24 has 8 host bits: 2⁸ = 256, minus the network and broadcast addresses, leaves 254." },
     { q: "Which is a valid mask?", opts: ["255.255.240.0", "255.255.15.0", "255.0.255.0", "0.255.255.255"], ans: 0, why: "Contiguous ones." },
-    { q: "Different network IDs mean the packet goes", opts: ["to the default gateway", "directly to the host", "nowhere", "to the DNS server"], ans: 0, why: "Needs routing." }
+    { q: "Different network IDs mean the packet goes", opts: ["to the default gateway", "directly to the host", "nowhere", "to the DNS server"], ans: 0, why: "If the destination is on a different network, the packet goes to the default gateway to be routed." }
   ]
 };
 
@@ -279,14 +279,13 @@ C["compsci:4.9.4.5"] = {
     ["How many bytes in an IPv6 address?", "16."],
     ["IPv4 length?", "32 bits — about 4.3 billion addresses.", 6],
     ["IPv6 length?", "128 bits — 2¹²⁸ addresses.", 7],
-    ["Why was IPv6 introduced?", "IPv4 does not have enough unique addresses for every device.", 8],
   ],
   quiz: [
-    { q: "IPv6 addresses are written in", opts: ["hexadecimal groups separated by colons", "dotted decimal", "binary only", "MAC format"], ans: 0, why: "See the notes." },
-    { q: "IPv6 addresses are written in", opts: ["hexadecimal groups separated by colons", "dotted decimal", "binary only", "MAC format"], ans: 0, why: "See the notes." },
-    { q: "IPv6 addresses are", opts: ["128 bits", "32 bits", "64 bits", "48 bits"], ans: 0, why: "16 bytes." },
-    { q: "IPv6 makes NAT unnecessary because", opts: ["every device can have a unique public address", "it is faster", "it uses MAC addresses", "it encrypts"], ans: 0, why: "Enough addresses." },
-    { q: "2³² is about", opts: ["4.3 billion", "65 thousand", "4.3 million", "340 undecillion"], ans: 0, why: "4 294 967 296." }
+    { q: "IPv6 addresses are written in", opts: ["hexadecimal groups separated by colons", "dotted decimal, four numbers from 0 to 255", "binary only, in 128 separate digits", "MAC format, six pairs of hex digits"], ans: 0, why: "IPv6 addresses are written as groups of hexadecimal digits separated by colons." },
+    { q: "Which is a valid IPv6 address?", opts: ["2001:db8::ff00:42:8329", "192.168.0.256", "00:1A:2B:3C:4D:5E", "2001.db8.0.0.42.8329"], ans: 0, why: "Hex groups split by colons; the others are an invalid IPv4 address, a MAC address and dots." },
+    { q: "IPv6 addresses are", opts: ["128 bits", "32 bits", "64 bits", "48 bits"], ans: 0, why: "IPv6 addresses are 128 bits long, which is 16 bytes." },
+    { q: "IPv6 makes NAT unnecessary because", opts: ["every device can have a unique public address", "it is faster, so translation takes no time", "it uses MAC addresses instead of IP addresses", "it encrypts every packet, so addresses stay hidden"], ans: 0, why: "Enough addresses." },
+    { q: "2³² is about", opts: ["4.3 billion", "65 thousand", "4.3 million", "340 undecillion"], ans: 0, why: "2³² = 4 294 967 296, so about 4.3 billion, which is the number of IPv4 addresses." }
   ]
 };
 
@@ -355,11 +354,11 @@ C["compsci:4.9.4.6"] = {
     ["Why do private ranges exist?", "To reuse addresses and save scarce public IPv4 addresses.", 10]
   ],
   quiz: [
-    { q: "172.32.0.5 is", opts: ["public", "private", "a MAC address", "a broadcast address"], ans: 0, why: "See the notes." },
-    { q: "172.32.0.5 is", opts: ["public", "private", "a MAC address", "a broadcast address"], ans: 0, why: "See the notes." },
-    { q: "Which is private?", opts: ["192.168.1.10", "8.8.8.8", "141.134.27.8", "186.7.2.31"], ans: 0, why: "192.168/16." },
-    { q: "Internet routers will", opts: ["not route private addresses", "route private addresses", "encrypt private addresses", "convert them to MAC"], ans: 0, why: "Non-routable." },
-    { q: "Many homes can share 192.168.0.4 because", opts: ["it is private and NAT translates it", "IPv6 is used", "DNS resolves it", "it is a MAC address"], ans: 0, why: "2020 Q05.2." }
+    { q: "172.32.0.5 is", opts: ["public", "private", "a MAC address", "a broadcast address"], ans: 0, why: "The private range is 172.16.0.0 to 172.31.255.255, so 172.32.0.5 falls outside and is public." },
+    { q: "10.4.20.7 is", opts: ["private", "public", "a MAC address", "a broadcast address"], ans: 0, why: "10.0.0.0/8 is a private range." },
+    { q: "Which is private?", opts: ["192.168.1.10", "8.8.8.8", "141.134.27.8", "186.7.2.31"], ans: 0, why: "192.168.0.0 to 192.168.255.255 is a private range, so 192.168.1.10 is private." },
+    { q: "Internet routers will", opts: ["not route private addresses", "route private addresses", "encrypt private addresses", "convert them to MAC"], ans: 0, why: "Private addresses are for local networks only, so internet routers do not forward them." },
+    { q: "Many homes can share 192.168.0.4 because", opts: ["it is private and NAT translates it", "IPv6 is used, so every home has room", "DNS resolves it to each home's name", "it is a MAC address, not an IP address"], ans: 0, why: "A private address is reused on many separate LANs, and NAT translates it to the router's public address." }
   ]
 };
 
@@ -431,14 +430,13 @@ C["compsci:4.9.4.7"] = {
     ["Does DHCP need expert knowledge on each host?", "No — that is one of its benefits.", 1],
     ["How does a new host find a DHCP server?", "It broadcasts a DISCOVER message.", 2],
     ["Why use DHCP?", "No manual configuration; avoids duplicate addresses; reuses a limited pool.", 7],
-    ["DHCP exchange?", "Discover, Offer, Request, Acknowledge.", 8],
   ],
   quiz: [
-    { q: "Why avoid DHCP for a server reached by port forwarding?", opts: ["its IP address could change", "DHCP is too slow", "servers cannot use IP", "DHCP encrypts traffic"], ans: 0, why: "See the notes." },
-    { q: "Why avoid DHCP for a server reached by port forwarding?", opts: ["its IP address could change", "DHCP is too slow", "servers cannot use IP", "DHCP encrypts traffic"], ans: 0, why: "See the notes." },
-    { q: "The first DHCP message is", opts: ["Discover (broadcast)", "Offer", "Request", "Acknowledge"], ans: 0, why: "DORA." },
-    { q: "DHCP supplies", opts: ["IP address, mask, default gateway", "MAC address", "domain name", "port numbers"], ans: 0, why: "Configuration." },
-    { q: "A web server behind port forwarding should have", opts: ["a fixed IP address", "a DHCP-changing address", "no IP address", "a public MAC"], ans: 0, why: "2024 Q07.5." }
+    { q: "Why avoid DHCP for a server reached by port forwarding?", opts: ["its IP address could change", "DHCP is too slow for servers", "servers cannot use IP addresses", "DHCP encrypts the server's traffic"], ans: 0, why: "A DHCP address can change, and a port forwarding rule points at one address, so the rule would stop working." },
+    { q: "A DHCP lease means an address is", opts: ["lent to a device for a set time", "given to a device for ever", "shared by every device on the LAN", "bought from the ISP each day"], ans: 0, why: "It returns to the pool unless renewed." },
+    { q: "The first DHCP message is", opts: ["Discover (broadcast)", "Offer (from the server)", "Request (broadcast)", "Acknowledge (unicast)"], ans: 0, why: "The first DHCP message is Discover, broadcast because the new device has no address and does not know the server." },
+    { q: "DHCP supplies", opts: ["IP address, mask, default gateway", "the MAC address of each device", "the domain name for each host", "port numbers for each application"], ans: 0, why: "DHCP supplies the configuration a device needs: an IP address, subnet mask and default gateway." },
+    { q: "A web server behind port forwarding should have", opts: ["a fixed IP address", "a DHCP-changing address", "no IP address", "a public MAC"], ans: 0, why: "The forwarding rule points at the server's IP address, so that address must not change." }
   ]
 };
 
@@ -511,19 +509,18 @@ C["compsci:4.9.4.8"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.9.4.9 port forwarding is NAT for incoming connections; 4.9.4.1 sockets (IP + port); 4.9.4.6 private addresses; 4.9.4.5 IPv6 removes the need." } }
   ],
   flashcards: [
-    ["What is stored in the NAT table?", "The router port mapped to the private IP and port (socket)."],
-    ["Do two LAN PCs using the same client port clash under NAT?", "No — the router gives each connection a different public port."],
-    ["Does IPv6 need NAT?", "No — every device can have a public address."],
+    ["Do two LAN PCs using the same client port clash under NAT?", "No — the router gives each connection a different public port.", 1],
+    ["Does IPv6 need NAT?", "No — every device can have a public address.", 2],
     ["What does NAT do going out?", "Replaces the private source IP (and port) with the router's public IP and a generated port, recording the mapping.", 6],
     ["Where is NAT performed?", "At the router / gateway between the LAN and the Internet.", 9],
     ["What happens to unsolicited incoming packets?", "Dropped unless a port-forwarding rule exists.", 10]
   ],
   quiz: [
-    { q: "NAT is performed by", opts: ["the router at the network edge", "each PC", "the DNS server", "the web server"], ans: 0, why: "See the notes." },
-    { q: "NAT is performed by", opts: ["the router at the network edge", "each PC", "the DNS server", "the web server"], ans: 0, why: "See the notes." },
-    { q: "Going out, NAT replaces the", opts: ["private source IP with the router's public IP", "destination MAC", "DNS name", "payload"], ans: 0, why: "Source rewrite." },
-    { q: "NAT finds the right host for a reply using", opts: ["the destination port in its table", "the MAC address", "DHCP", "the TTL"], ans: 0, why: "Translation table." },
-    { q: "A main reason for NAT is", opts: ["saving public IPv4 addresses", "faster routing", "encrypting packets", "assigning masks"], ans: 0, why: "Shortage." }
+    { q: "NAT is performed by", opts: ["the router at the network edge", "each PC before it sends a packet", "the DNS server on the internet", "the web server receiving the request"], ans: 0, why: "NAT is done by the router at the edge of the network, where private traffic meets the internet." },
+    { q: "When a reply arrives, NAT changes the destination address", opts: ["back to the private IP of the host that asked", "to the router's own public IP address", "to the IP address of the DNS server", "to a broadcast address for the whole LAN"], ans: 0, why: "Found from its translation table." },
+    { q: "Going out, NAT replaces the", opts: ["private source IP with the router's public IP", "destination MAC with the server's MAC address", "DNS name with the router's public IP", "payload with an encrypted copy of the data"], ans: 0, why: "For outgoing packets NAT swaps the private source address for the router's public one." },
+    { q: "NAT finds the right host for a reply using", opts: ["the destination port in its table", "the MAC address in the reply frame", "a new DHCP lease for each reply", "the TTL field in the reply's header"], ans: 0, why: "Translation table." },
+    { q: "A main reason for NAT is", opts: ["saving public IPv4 addresses", "faster routing across the internet", "encrypting packets as they leave", "assigning subnet masks to hosts"], ans: 0, why: "There are too few public IPv4 addresses, and NAT lets a whole LAN share one." }
   ]
 };
 
@@ -592,11 +589,11 @@ C["compsci:4.9.4.9"] = {
     ["NAT vs port forwarding?", "NAT handles outgoing connections automatically; port forwarding is a fixed rule for incoming ones.", 11]
   ],
   quiz: [
-    { q: "Port forwarding is configured on", opts: ["the router", "the client browser", "the DNS server", "the switch's MAC table"], ans: 0, why: "See the notes." },
-    { q: "Port forwarding is configured on", opts: ["the router", "the client browser", "the DNS server", "the switch's MAC table"], ans: 0, why: "See the notes." },
-    { q: "Port forwarding lets", opts: ["outside computers reach a server with a private IP", "a host get an IP automatically", "DNS resolve names", "Wi-Fi hide its SSID"], ans: 0, why: "Incoming rule." },
+    { q: "Port forwarding is configured on", opts: ["the router", "the client browser", "the DNS server", "the switch's MAC table"], ans: 0, why: "Port forwarding is a rule set in the router, because the router is where incoming traffic arrives." },
+    { q: "Two web servers on one LAN can both be reached from outside by", opts: ["forwarding a different public port to each one", "giving them the same private IP address", "turning NAT off for the whole network", "plugging both into the router's WAN port"], ans: 0, why: "Each rule maps one port to one host." },
+    { q: "Port forwarding lets", opts: ["outside computers reach a server with a private IP", "a host get an IP address automatically when it joins", "the DNS server resolve names for computers outside", "the Wi-Fi network hide its SSID from outside devices"], ans: 0, why: "NAT hides private addresses, so a forwarding rule is needed for outside computers to reach a server inside." },
     { q: "Outside visitors connect to", opts: ["the router's public IP", "the server's private IP", "the MAC address", "the DHCP server"], ans: 0, why: "Only public is routable." },
-    { q: "A forwarding rule matches on", opts: ["the destination port", "the TTL", "the SSID", "the MAC address"], ans: 0, why: "Port → host." }
+    { q: "A forwarding rule matches on", opts: ["the destination port", "the TTL of the packet", "the SSID of the network", "the source MAC address"], ans: 0, why: "The router matches the destination port of an incoming packet and sends it to the chosen device." }
   ]
 };
 
@@ -699,9 +696,9 @@ C["compsci:4.9.4.10"] = {
     ["What do URLs identify in REST?", "Resources.", 7]
   ],
   quiz: [
-    { q: "POST maps to SQL", opts: ["INSERT", "SELECT", "UPDATE", "DELETE"], ans: 0, why: "Create." },
-    { q: "A WebSocket is", opts: ["full-duplex", "one-way from server", "network layer", "XML only"], ans: 0, why: "2024 Q07.8." },
-    { q: "The REST API runs on", opts: ["the server", "the client", "the DNS server", "the router"], ans: 0, why: "2020 Q04.1." },
+    { q: "POST maps to SQL", opts: ["INSERT", "SELECT", "UPDATE", "DELETE"], ans: 0, why: "POST creates a new resource, which matches an SQL INSERT." },
+    { q: "A WebSocket is", opts: ["full-duplex", "one-way from server", "network layer", "XML only"], ans: 0, why: "A WebSocket is full-duplex: both ends can send at the same time over one open connection." },
+    { q: "The REST API runs on", opts: ["the server", "the client", "the DNS server", "the router"], ans: 0, why: "The REST API runs on the server, which answers the requests that clients send." },
     { q: "Compared with XML, JSON is", opts: ["more compact", "more verbose", "slower to parse", "tag-based"], ans: 0, why: "No closing tags." }
   ]
 };
@@ -773,16 +770,13 @@ C["compsci:4.9.4.11"] = {
   flashcards: [
     ["Why can thin clients be more secure?", "Users cannot install software; data stays on the server."],
     ["A disadvantage of thin clients?", "Server or network failure stops every client."],
-    ["Thin-client computing?", "Applications run and processing happens on a server; clients mainly display and input.", 4],
-    ["Thick-client computing?", "Clients process and store data locally.", 5],
     ["Thin client hardware?", "Slower processor, less RAM, little/no storage.", 6],
     ["Thin-client server hardware?", "Many cores, lots of RAM, many drives.", 7],
-    ["Thin-client network need?", "High bandwidth, always available.", 8],
-    ["Two reasons to choose thin clients?", "Cheaper clients; software installed/updated once on the server; more secure; less power.", 9]
+    ["Thin-client network need?", "High bandwidth, always available.", 8]
   ],
   quiz: [
-    { q: "Thin-client software is updated", opts: ["once, on the server", "on every client", "never", "by each user"], ans: 0, why: "Installed once on the server, not on every client." },
-    { q: "In thin-client computing, applications run on", opts: ["the server", "each client", "the router", "the DNS server"], ans: 0, why: "Definition." },
+    { q: "Thin-client software is updated", opts: ["once, on the server", "on every client", "never after install", "by each user in turn"], ans: 0, why: "Installed once on the server, not on every client." },
+    { q: "In thin-client computing, applications run on", opts: ["the server", "each client", "the router", "the DNS server"], ans: 0, why: "In thin-client computing the applications and processing run on the server, and the client mostly displays them." },
     { q: "A thin-client system especially needs", opts: ["a high-bandwidth network", "large client hard disks", "fast client CPUs", "no server"], ans: 0, why: "Everything crosses the network." },
     { q: "\"The server must be more powerful\" scores", opts: ["NE.", "1 mark", "2 marks", "full marks"], ans: 0, why: "Name cores/RAM/drives." }
   ]

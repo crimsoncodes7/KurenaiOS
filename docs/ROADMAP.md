@@ -1578,6 +1578,41 @@ E1–E5 and Japanese F3–F4. Milestones 1–6 (concept, story plan, characters,
 prototype, core systems, script) can begin on today's releases. Its page
 needs a Claude Design prompt when it is scheduled.
 
+### 5.19 Study depth and revision tools (asked for 15 November 2026) — BACKLOG, after the quality programme
+
+1. **IT notes overhaul.** IT never got the deep rewrite Maths and CS had:
+   exhaustive notes on the depth contract (paged, worked answers with OCR
+   marks, callouts, synoptic links, an exam toolkit, cards and a quiz) and
+   the short-lines, figure-led layout. **F201 first** (the unit still to
+   sit, soon); **F206 (NEA) waits until January 2027**. F200, F202 and F204
+   are sat and need nothing.
+2. **IT units archived, and a current unit.** F200, F202 and F204 are done
+   at school. An archived (completed) unit leaves the spine, the topic
+   picker and the subject's REVIEW analytics (reviews, Quiz best, exam
+   questions) while it keeps counting in the other stats (marks, grades,
+   hours, history). On top of that, a "current unit" mode: one unit at a
+   time is the one being studied, and the IT desk, Home and the plan lead
+   with it. Builds on `state.itUnits` (invariant 26f) — a status, not a
+   second record.
+3. **A visual for everything, and work you can fill in.** Every Maths
+   worked example, exam question, quiz item and mark scheme carries the
+   graph, table or diagram that goes with it. In CS, worked examples and
+   exam questions on trace tables, SQL, code, logic gates and the like get
+   an interactive part to fill in (a trace table that marks itself, a
+   query that runs, a gate circuit to complete). IT where it fits. Some
+   labs move in line on the notes pages (`KOS.sims.embed`).
+4. **Revision tools fitted to each subject.**
+   - Flashcards are quick recall (under about 30 seconds a card): Maths
+     multi-line problems move out of the decks into the quiz or exam
+     questions.
+   - Quiz and exam questions may join the spaced-repetition schedule, capped
+     at a sensible number a day (beside the redo items of invariant 124).
+   - Better stats for every tool but flashcards: an exam question's past
+     marks over time, a quiz's history by item.
+   - On the iPad, an exam question attempt that was never marked can be
+     opened again and its handwriting continued (today earlier work is a
+     read-only link, invariant 132); a marked attempt stays read-only.
+
 ## Phase 6 — The iPad and the Pencil (asked for 22 October 2026)
 
 > **RELEASED 26 October 2026** (`feat/ipad-files`, sw `kos-pen-1`,

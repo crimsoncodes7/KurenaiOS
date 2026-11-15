@@ -275,6 +275,32 @@
   }
 
   /* ---------------- the ladder (invariant 137) ---------------- */
+  /* MI-03: the rungs a concept CAN reach — read from the authored content,
+     the same sources the ladder reads. A rung with no exercise behind it
+     (most fallacies have no Explain or Evaluate route yet) is drawn as
+     "not in this unit" and left out of the bars and "furthest", instead of
+     an empty rung no work could fill. Content is static: kept per concept. */
+  var reachMemo = {};
+  function reach(cid) {
+    if (reachMemo[cid]) return reachMemo[cid];
+    var c = concept(cid); if (!c) return [false, false, false, false];
+    var r = [cardKeys(cid).length > 0, false, false, false];
+    Object.keys(M().LESSONS).forEach(function (lid) {
+      var l = M().LESSONS[lid];
+      if (l.kind === "explain" && l.main === cid && c.keyPoints && c.keyPoints.length) r[1] = true;
+      (l.check || []).forEach(function (it) { if (it.apply && it.concept === cid) r[2] = true; });
+      if (l.kind === "contested" && l.prompt && (l.concepts || []).indexOf(cid) >= 0) r[3] = true;
+    });
+    Object.keys(M().CHECKPOINTS).forEach(function (u) {
+      var cp = M().CHECKPOINTS[u];
+      (cp.apply || []).forEach(function (it) { if (it.concept === cid) r[2] = true; });
+      ((cp.synthesis && cp.synthesis.rubric) || []).forEach(function (row) {
+        if (row.concept !== cid) return;
+        if (row.rung === "Evaluate") r[3] = true; else r[1] = true;
+      });
+    });
+    return (reachMemo[cid] = r);
+  }
   /* evidence for one concept, read: each rung names what holds it */
   function ladder(cid) {
     var c = concept(cid), st = peek();
@@ -314,7 +340,7 @@
     var rungs = [recall, !!explainFrom, applyN > 0, !!evaluate];
     var level = 0;
     rungs.forEach(function (on, i) { if (on) level = i + 1; });
-    return { id: cid, level: level, rungs: rungs, cards: keys.length, rated: rated, explain: explainFrom, apply: applyN, evaluate: evaluate,
+    return { id: cid, level: level, rungs: rungs, reach: reach(cid), cards: keys.length, rated: rated, explain: explainFrom, apply: applyN, evaluate: evaluate,
       started: rated > 0 || rungs.some(Boolean) };
   }
   function rung(cid, name) { var l = ladder(cid); return !!(l && l.rungs[RUNGS.indexOf(name)]); }
@@ -328,6 +354,12 @@
   function rungCounts(list) {
     var out = [0, 0, 0, 0];
     (list || metConcepts()).forEach(function (cid) { var l = ladder(cid); if (l) l.rungs.forEach(function (on, i) { if (on) out[i]++; }); });
+    return out;
+  }
+  /* reachCounts(list) → how many of the concepts have a route to each rung (MI-03) */
+  function reachCounts(list) {
+    var out = [0, 0, 0, 0];
+    (list || metConcepts()).forEach(function (cid) { reach(cid).forEach(function (on, i) { if (on) out[i]++; }); });
     return out;
   }
 
@@ -522,7 +554,7 @@
       return a + 100 * cs.filter(Boolean).length / Math.max(1, cs.length);
     }, 0) / ls.length) : 0;
     return {
-      mastery: mastery, concepts: met.length, conceptsAll: concepts().length, rungs: rungCounts(met),
+      mastery: mastery, concepts: met.length, conceptsAll: concepts().length, rungs: rungCounts(met), reach: reachCounts(met),
       /* counts of what is released, as Japanese's desk counts "so far"; the path page names the plan */
       lessons: ls.length, planned: plannedLessons(), done: done,
       checkpoints: Object.keys(M().CHECKPOINTS).filter(function (u) { return M().released && M().released(u).length; }).length, passed: Object.keys(st.checkpoints).filter(function (u) { return st.checkpoints[u].doneAt; }).length,
@@ -531,10 +563,11 @@
   }
   /* the furthest rung most concepts have reached (the hero's ring: a ladder, never a percentage) */
   function furthest() {
-    var c = rungCounts(), met = metConcepts().length;
+    var c = rungCounts(), met = metConcepts().length, rc = reachCounts();
     if (!met) return null;
     var best = -1;
-    c.forEach(function (n, i) { if (n * 2 >= met) best = i; });
+    /* half of the concepts that CAN reach a rung (MI-03) */
+    c.forEach(function (n, i) { if (rc[i] && n * 2 >= rc[i]) best = i; });
     return best >= 0 ? RUNGS[best] : null;
   }
 
@@ -661,7 +694,7 @@
     saveExplain: saveExplain, takePosition: takePosition, versions: versions, latest: latest, position: position, positions: positions,
     keepPosition: keepPosition, retirePosition: retirePosition, revisitsDue: revisitsDue, park: park, promptDone: promptDone, parkedList: parkedList,
     introduce: introduce, preview: preview, rateCard: rateCard, due: due, finishReviews: finishReviews, paidToday: paidToday,
-    ladder: ladder, rung: rung, metConcepts: metConcepts, rungCounts: rungCounts, furthest: furthest,
+    ladder: ladder, rung: rung, reach: reach, metConcepts: metConcepts, rungCounts: rungCounts, reachCounts: reachCounts, furthest: furthest,
     evidence: evidence, syncChecks: syncChecks, syncAll: syncAll, finished: finished, completed: completed, maybeFinish: maybeFinish, recordCheckpoint: recordCheckpoint, cpRule: cpRule, award: award,
     started: started, unitState: unitState, nextLesson: nextLesson, currentUnit: currentUnit, suggestedNext: suggestedNext, stats: stats,
     milestones: milestones, tensionsDue: tensionsDue, setTension: setTension, answerOf: answerOf,

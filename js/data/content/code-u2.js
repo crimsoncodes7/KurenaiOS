@@ -115,7 +115,7 @@
       { q: "`int n = 4; Console.WriteLine(n >= 4);` prints…", opts: ["True", "False", "4", "an error"], ans: 0, why: "4 is at least 4." },
       { q: "Which line will not compile?", opts: ["bool b = 3 < 4;", "bool b = (x == 2);", "bool b = (x = 2);", "bool b = !false;"], ans: 2, why: "x = 2 is an int-valued assignment, not a bool." },
       { q: "`\"apple\" == \"Apple\"` is…", opts: ["True", "False", "an error", "null"], ans: 1, why: "Case-sensitive." },
-      { q: "A good name for a bool?", opts: ["flag2", "check", "isLoggedIn", "b"], ans: 2, why: "It reads as a question." }
+      { q: "A good name for a bool?", opts: ["loginFlag2", "checkLogin", "isLoggedIn", "b"], ans: 2, why: "It reads as a question." }
     ]
   });
   K.add({ tasks: {
@@ -505,7 +505,7 @@
     quiz: [
       { q: "`int i = 5; while (i < 5) i++;` runs the body…", opts: ["0 times", "1 time", "5 times", "for ever"], ans: 0, why: "The test is false at the start." },
       { q: "`int i = 5; do { i++; } while (i < 5);` leaves i at…", opts: ["5", "6", "4", "it never ends"], ans: 1, why: "One pass, then the test fails." },
-      { q: "Which loop suits a menu shown at least once?", opts: ["while", "do … while", "foreach", "none"], ans: 1, why: "It runs once before testing." }
+      { q: "Which loop suits a menu shown at least once?", opts: ["while (…) { }", "do … while", "foreach … in", "none: use goto"], ans: 1, why: "It runs once before testing." }
     ]
   });
   K.add({ tasks: {
@@ -607,7 +607,7 @@
     quiz: [
       { q: "`for (int i = 0; i < 4; i++)` runs…", opts: ["3 times", "4 times", "5 times", "for ever"], ans: 1, why: "0, 1, 2, 3." },
       { q: "Which visits each char of s without an index?", opts: ["for (int i = 0; i < s.Length; i++)", "foreach (char c in s)", "while (s)", "do s"], ans: 1, why: "foreach." },
-      { q: "`for (int i = 0; i <= s.Length; i++) s[i]` will…", opts: ["work", "throw IndexOutOfRangeException", "not compile", "skip the last letter"], ans: 1, why: "i reaches Length." }
+      { q: "`for (int i = 0; i <= s.Length; i++) s[i]` will…", opts: ["work, printing every letter", "throw IndexOutOfRangeException", "not compile, as <= is not allowed", "skip the last letter of s"], ans: 1, why: "i reaches Length." }
     ]
   });
   K.add({ tasks: {
@@ -894,7 +894,7 @@
     ],
     quiz: [
       { q: "Guesses 5, 9, 7 for target 7: how many tries?", opts: ["2", "3", "7", "1"], ans: 1, why: "The third guess is right." },
-      { q: "A read-until-done loop never ends. The likely cause?", opts: ["no ReadLine inside the loop", "a missing semicolon", "int.Parse", "Console.WriteLine"], ans: 0, why: "The tested line never changes." },
+      { q: "A read-until-done loop never ends. The likely cause?", opts: ["no ReadLine inside the loop", "a missing semicolon after while", "int.Parse throwing on bad input", "Console.WriteLine inside the loop"], ans: 0, why: "The tested line never changes." },
       { q: "Which loop suits \"repeat until correct\"?", opts: ["for (int i = 0; i < 10; i++)", "while (true) with break", "foreach", "none"], ans: 1, why: "The number of passes is unknown." }
     ]
   });

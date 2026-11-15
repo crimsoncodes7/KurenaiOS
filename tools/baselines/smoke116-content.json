@@ -8,8 +8,8 @@
     },
     "compsci": {
       "n": 1347,
-      "ab": 1267,
-      "share": 0.9406
+      "ab": 1280,
+      "share": 0.9503
     },
     "it": {
       "n": 282,
@@ -18,8 +18,8 @@
     },
     "maths": {
       "n": 1058,
-      "ab": 1012,
-      "share": 0.9565
+      "ab": 1014,
+      "share": 0.9584
     },
     "mind": {
       "n": 23,
@@ -41,44 +41,10 @@
   "markSchemes": {
     "compsci:4.10.5 · worked \"record locks or timestamp ordering\" · codes sum 4, marks 2": 1,
     "compsci:4.7.3.5 · worked \"count 1 to 10 into location 17\" · codes sum 3, marks 4": 1,
-    "compsci:4.7.3.5 · worked \"russian peasant multiplication\" · codes sum 5, marks 7": 1,
-    "maths:2.3 · worked \"complete the square sketch describe the transformation find …\" · codes sum 11, marks 10": 1,
-    "maths:2.6 · worked \"three linear factors then the area below the axis\" · codes sum 11, marks 10": 1,
-    "maths:2.7 · worked \"modulus inside a composite no solutions of f x kx\" · codes sum 7, marks 8": 1,
-    "maths:2.7 · worked \"quartic from its sketch — where f x 0\" · codes sum 6, marks 7": 1,
-    "maths:2.8 · worked \"a piecewise function gg 0 g x 28 and which piece has an inve…\" · codes sum 9, marks 10": 1,
-    "maths:3.2 · worked \"two circles meeting at two points — range of a radius\" · codes sum 7, marks 8": 1,
-    "maths:3.4 · worked \"a parametric log curve domain and an area\" · codes sum 8, marks 9": 1,
-    "maths:3.4 · worked \"the dam area by parametric integration and the model s width\" · codes sum 8, marks 11": 1,
-    "maths:4.1 · worked \"1 4x 1 x to x 2 then a value that must not be used then 6\" · codes sum 11, marks 10": 1,
-    "maths:5.1 · worked \"badge a region between two arcs exact area a 3 b\" · codes sum 5, marks 4": 1,
-    "maths:5.7 · worked \"2 10 0 6 over a wide interval a student s errors\" · codes sum 7, marks 9": 1,
-    "maths:5.9 · worked \"tide model depth at midnight maximum depth afternoon time of…\" · codes sum 8, marks 11": 1,
-    "maths:5.9 · worked \"water wheel maximum height and when a negative minimum\" · codes sum 9, marks 11": 1,
-    "maths:6.6 · worked \"heart rate h pm q from a log–log line test on a 5 kg mammal\" · codes sum 6, marks 7": 1,
-    "maths:6.6 · worked \"phone value v ab t from two points on the v line then reliab…\" · codes sum 6, marks 7": 1,
-    "maths:7.1 · worked \"prove d dx x 3 3x 2 and y 2x 2\" · codes sum 7, marks 4": 1,
-    "maths:7.6 · worked \"inflating balloon dr dt k r show r 3 2 5 4t 10\" · codes sum 10, marks 9": 1,
-    "maths:8.3 · worked \"equal areas either side of the axis → an equation for b\" · codes sum 8, marks 10": 1,
-    "maths:8.3 · worked \"region bounded by a cubic a maximum and the axis\" · codes sum 8, marks 9": 1,
-    "maths:8.5 · worked \"x x a normal and a region\" · codes sum 9, marks 10": 1,
-    "maths:8.7 · worked \"tank with inflow and outflow build and solve 20 dv dt 9 6v\" · codes sum 8, marks 9": 1,
-    "maths:S2.4 · worked \"show a visibility value is an outlier interpret name the hid…\" · codes sum 4, marks 3": 1,
-    "maths:S4.2 · worked \"μ and σ from two percentages\" · codes sum 11, marks 10": 1
+    "compsci:4.7.3.5 · worked \"russian peasant multiplication\" · codes sum 5, marks 7": 1
   },
-  "unknownCallouts": {
-    "maths:1.1 · t=\"key\"": 1,
-    "maths:10.1 · t=\"key\"": 1,
-    "maths:10.5 · t=\"key\"": 1,
-    "maths:9.2 · t=\"key\"": 1,
-    "maths:9.3 · t=\"key\"": 1,
-    "maths:9.4 · t=\"key\"": 1,
-    "maths:9.5 · t=\"key\"": 1
-  },
-  "duplicateIds": {
-    "Code concept · validation · js/data/content/code-t2e.js replaced js/data/content/code-u3.js": 1,
-    "Code concept · validation · js/data/content/code-ub.js replaced js/data/content/code-u3.js": 1
-  },
+  "unknownCallouts": {},
+  "duplicateIds": {},
   "duplicateSources": {
     "compsci:4.5.4.4 · \"AQA June 2020 · P2 Q02.2\" ×2 (worked+worked)": 1,
     "compsci:4.6.4.1 · \"AQA June 2024 · P2 Q06.2\" ×2 (worked+worked)": 1,

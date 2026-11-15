@@ -280,7 +280,7 @@ foreach (int id in new[] { 1, 9 })
     quiz: [
       { q: "A server answers 503. Whose fault is it, and might trying later help?", opts: ["the client's; no", "the server's; yes", "the client's; yes", "nobody's; no"], ans: 1, why: "5xx is a server failure, and Service Unavailable is usually temporary." },
       { q: "Which method should NOT be repeated automatically after a timeout?", opts: ["GET", "PUT", "DELETE", "POST"], ans: 3, why: "POST is not idempotent: the first may have worked." },
-      { q: "await http.GetAsync(url) for a missing page…", opts: ["throws HttpRequestException", "returns a response with StatusCode NotFound", "returns null", "hangs"], ans: 1, why: "Any answer from the server is a response; only no answer at all throws." }
+      { q: "await http.GetAsync(url) for a missing page…", opts: ["throws HttpRequestException with StatusCode 404", "returns a response with StatusCode NotFound", "returns null instead of a response object", "waits until the 100-second timeout runs out"], ans: 1, why: "Any answer from the server is a response; only no answer at all throws." }
     ]
   });
   K.add({ tasks: {
@@ -620,8 +620,8 @@ record Forecast(string City, double TempC);` + FAKE, out: "leeds: 11.5 °C\natla
       ["What does a 201 Created usually carry?", "A Location header with the new resource's URL, and often the resource itself."]
     ],
     quiz: [
-      { q: "A lookup where \"not found\" is a normal answer should use…", opts: ["GetFromJsonAsync in a try", "GetAsync, check the status, then ReadFromJsonAsync", "GetStringAsync", "a new HttpClient"], ans: 1, why: "You decide what a 404 means before reading." },
-      { q: "The JSON has 12 properties; your record has 3. Deserialising…", opts: ["fails", "fills the 3 and ignores the rest", "needs all 12", "returns null"], ans: 1, why: "Unknown properties are ignored by default." },
+      { q: "A lookup where \"not found\" is a normal answer should use…", opts: ["GetFromJsonAsync, which returns null for a 404", "GetAsync, check the status, then ReadFromJsonAsync", "GetStringAsync, then check whether the text is empty", "a new HttpClient for each lookup, then GetAsync"], ans: 1, why: "You decide what a 404 means before reading." },
+      { q: "The JSON has 12 properties; your record has 3. Deserialising…", opts: ["fails: the record must have all 12", "fills the 3 and ignores the rest", "fills the 3 and throws for the other 9", "returns null, since the shapes differ"], ans: 1, why: "Unknown properties are ignored by default." },
       { q: "BaseAddress = https://api.example/v1/ and GetAsync(\"/books\") requests…", opts: ["https://api.example/v1/books", "https://api.example/books", "an error", "https://api.example/v1//books"], ans: 1, why: "A leading slash means \"from the host's root\"." }
     ]
   });
@@ -972,7 +972,7 @@ Console.WriteLine("not retried");` + FAKE_SLOW, out: "attempt 1: 404\nnot retrie
     quiz: [
       { q: "Retrying a 404 three times…", opts: ["usually works the third time", "never helps: the request is wrong", "is required by HTTP", "turns it into a 200"], ans: 1, why: "4xx means the request itself is wrong." },
       { q: "A linked token source made from the user's token, with CancelAfter(200), is cancelled when…", opts: ["only the user cancels", "only 200 ms pass", "either happens first", "both happen"], ans: 2, why: "Linked: cancelled when any source is." },
-      { q: "Why wait longer after each failed attempt?", opts: ["to give a struggling server room to recover", "HTTP requires it", "to save memory", "it is faster overall"], ans: 0, why: "Instant retries from many clients make overload worse." }
+      { q: "Why wait longer after each failed attempt?", opts: ["to give a struggling server room to recover", "HTTP requires a growing delay between retries", "to save memory while the request is queued", "the next attempt then runs faster overall"], ans: 0, why: "Instant retries from many clients make overload worse." }
     ]
   });
   var BUSY_SERVER = C`
@@ -1338,8 +1338,8 @@ foreach (int id in new[] { 2, 9 })
     ],
     quiz: [
       { q: "Which is a RESTful way to delete loan 5 of member 3?", opts: ["POST /deleteLoan?id=5", "DELETE /members/3/loans/5", "GET /members/3/loans/5/delete", "POST /api {\"op\":\"delete\"}"], ans: 1, why: "A resource path and the DELETE method." },
-      { q: "A client sends a book with no title. The best answer is…", opts: ["200 with {\"error\":…}", "500", "400 (or 422) with a problem-details body", "404"], ans: 2, why: "The client's input is invalid, and the body says why." },
-      { q: "PUT /settings/theme sent twice…", opts: ["creates two settings", "leaves the same state as once", "is an error", "must be a POST"], ans: 1, why: "PUT replaces: it is idempotent." }
+      { q: "A client sends a book with no title. The best answer is…", opts: ["200 with {\"error\":\"title required\"}", "500, since the server could not save it", "400 (or 422) with a problem-details body", "404, since the book was not found"], ans: 2, why: "The client's input is invalid, and the body says why." },
+      { q: "PUT /settings/theme sent twice…", opts: ["creates two settings named theme", "leaves the same state as once", "is an error the second time", "toggles the theme back to before"], ans: 1, why: "PUT replaces: it is idempotent." }
     ]
   });
   var LIBRARY_CLIENT = C`using System.Net;
@@ -1677,9 +1677,9 @@ foreach (string token in new[] { "t-nobody", "t-reader", "t-admin" })
       ["What does the exp claim hold?", "The expiry time in Unix seconds (since 1 January 1970, UTC)."]
     ],
     quiz: [
-      { q: "A JWT's payload says \"role\":\"admin\". The server should…", opts: ["trust it", "verify the signature first", "decrypt it", "ask the client"], ans: 1, why: "Anyone can write claims; only a valid signature makes them true." },
+      { q: "A JWT's payload says \"role\":\"admin\". The server should…", opts: ["trust it, as the client sent it", "verify the signature first", "decrypt it to read the real role", "ask the client to confirm the role"], ans: 1, why: "Anyone can write claims; only a valid signature makes them true." },
       { q: "An API key was pushed to a public repository. The fix is…", opts: ["delete it in the next commit", "make the repository private", "revoke it and issue a new one", "rename the variable"], ans: 2, why: "It is in the history and may already be copied." },
-      { q: "OAuth's client-credentials flow gives a token to…", opts: ["a user typing a password into your app", "a program using its own client id and secret", "anyone", "a browser cookie"], ans: 1, why: "It is machine-to-machine; users log in through the authorization-code flow." }
+      { q: "OAuth's client-credentials flow gives a token to…", opts: ["a user typing a password into your app", "a program using its own client id and secret", "anyone who asks the token endpoint", "a browser holding the user's session cookie"], ans: 1, why: "It is machine-to-machine; users log in through the authorization-code flow." }
     ]
   });
   /* the tokens the "Read a token" task reads: base64url JSON, signature "sig" */

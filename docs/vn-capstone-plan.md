@@ -91,8 +91,8 @@ decoration.
 |---|---|---|---|
 | **The case file** (recommended) | collects evidence and testimony, then presents it to break an argument's hidden premise | U4 collections, U7 classes, U8 interfaces | F1 *hidden-premise*, *validity*, *soundness* (R); F2 Evidence and belief (P) |
 | **Degrees of belief** | a visible "how sure are you?" that evidence moves; endings depend on what you believe and why | U7, U9 events | F2 Bayes and base rates (P) |
-| **Trust as a repeated game** (recommended) | each choice with a character is cooperate or defect; trust follows the history, not a points bar | U4 dictionaries, U12 graphs | Y3.2 Games and strategy (P): the Prisoner's Dilemma played against a character |
-| **A hidden character lens** | each character has motives, a bias and a flaw that change how they react | U7, U8 | Y5.U2 Personality and the character lens (P), Y3.1 Biases and heuristics (P) |
+| **Trust as a repeated game** (recommended) | each choice with a character is cooperate or defect; trust follows the history, not a points bar | U4 dictionaries, U12 graphs | Y3.U2 Games and strategy (P): the Prisoner's Dilemma played against a character |
+| **A hidden character lens** | each character has motives, a bias and a flaw that change how they react | U7, U8 | Y5.U2 Personality and the character lens (P), Y3.U1 Biases and heuristics (P) |
 | **Unreliable memory** | two people remember one scene differently; the player decides which account holds | U4, U9 | Y1.U1 How memory works (P): "memory is reconstructed" |
 | **Branching and endings** | choices set flags; three to four endings | U2 decisions, U4, U12 graphs (reachability of every ending) | P1 Ethics (P), X2 Morality (P) |
 
@@ -122,7 +122,7 @@ someone new, refuse both.
 
 **C. "Two Tickets"** — an exchange student and the protagonist share a
 scholarship place that only one can keep. *Ideas:* consequences and duties
-(P1.U2), trust as a repeated game (Y3.2), the steelman (F1.7). *Mechanics:*
+(P1.U2), trust as a repeated game (Y3.U2), the steelman (F1.7). *Mechanics:*
 trust, branching. *Endings:* decided by the trust history, not one final
 choice.
 
@@ -216,8 +216,8 @@ whether every mandatory unit is released today.
 | Characters who argue well on both sides | F1 (R; F1.6 *charity*, F1.7 *steelman*) | — | yes |
 | Memory, identity and the self | — | Y1.U1 How memory works (P), P2.U2 Personal identity and free will (P), X4 The self (P) | yes (no mandatory unit) |
 | The dilemma and the endings | — | P1.U2 Consequences and duties (P), P1.U3 Applied cases (P), X2 Morality (P) | yes |
-| Trust and strategy | — | Y3.2 Games and strategy (P) | yes |
-| Biases and flaws in characters | — | Y3.1 Biases and heuristics (P), Y4.U3 Cognitive distortions (P), Y5.U2 (P) | yes |
+| Trust and strategy | — | Y3.U2 Games and strategy (P) | yes |
+| Biases and flaws in characters | — | Y3.U1 Biases and heuristics (P), Y4.U3 Cognitive distortions (P), Y5.U2 (P) | yes |
 | Meaning and the absurd | — | P4.U2 Existentialism and the absurd (P) | yes |
 
 Mind has few mandatory units on purpose: themes can be written from

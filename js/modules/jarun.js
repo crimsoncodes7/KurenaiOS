@@ -149,6 +149,11 @@
         el("small", { text: n + (n === 1 ? " stroke" : " strokes") + " · copy the model" })
       ]);
       var first = !(KOS.ja.peek().facets[ex.key] || {}).reps;
+      /* JM-16: the model is shown only on the first meeting; after that the
+         prompt is the reading, and "Show the model" counts as a hint */
+      var showModel = first && !ex.noModel;
+      model.hidden = !showModel;
+      if (!showModel) model.lastChild.textContent = n + (n === 1 ? " stroke" : " strokes");
       function check() {
         var st = pad.strokes();
         if (!st.length) { announce("Write it first."); return; }
@@ -166,17 +171,20 @@
           var e2 = { key: ex.key, kind: "kana-read", skill: "W", item: ex.item };
           mount(host, e2, function (res) { res.hints = 1; done(res); });
         } });
-      body.appendChild(el("p", { class: "k-ja-ex-q", text: "Write it" }));
+      body.appendChild(el("p", { class: "k-ja-ex-q", text: showModel ? "Write it" : "Write: " + ex.item.r }));
       body.appendChild(el("div", { class: "k-ja-write" }, [pad.node, model]));
+      var peekBtn = showModel || ex.noModel ? null : el("button", { type: "button", class: "k-btn", "data-ui": "ja.show-model", text: "Show the model",
+        onclick: function () { hints++; model.hidden = false; peekBtn.disabled = true; } });
       body.appendChild(el("div", { class: "k-ja-ex-act" }, [
-        el("button", { type: "button", class: "k-btn", "data-ui": "ja.stroke-order", text: "▶ Stroke order", onclick: function () { pad.animate(); } }),
+        peekBtn,
+        ex.noModel ? null : el("button", { type: "button", class: "k-btn", "data-ui": "ja.stroke-order", text: "▶ Stroke order", onclick: function () { if (!showModel && model.hidden) hints++; pad.animate(); } }),
         el("button", { type: "button", class: "k-btn", "data-ui": "ja.undo", text: "↶ Undo", onclick: function () { pad.undo(); } }),
         el("button", { type: "button", class: "k-btn", "data-ui": "ja.clear", text: "Clear", onclick: function () { pad.clear(); } }),
         el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "ja.check", text: "Check", onclick: check }),
         typeInstead
-      ]));
+      ].filter(Boolean)));
       /* the stroke-order animation plays before the first attempt at a new kana (28d) */
-      if (first) { announce("Watch first. " + n + (n === 1 ? " stroke." : " strokes.")); pad.animate(); }
+      if (first && !ex.noModel) { announce("Watch first. " + n + (n === 1 ? " stroke." : " strokes.")); pad.animate(); }
       return;
     }
 

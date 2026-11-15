@@ -224,11 +224,11 @@ C["compsci:4.8.1"] = {
     ["What earns the top band in an issues essay?", "A line of reasoning, all named aspects, expanded points with examples."]
   ],
   quiz: [
-    { q: "\"Developers may be putting taxi drivers out of work\" is best labelled", opts: ["ethical (society)", "legal", "cultural", "technical"], ans: 0, why: "A harm to society." },
+    { q: "\"Developers may be putting taxi drivers out of work\" is best labelled", opts: ["ethical (society)", "legal (the law)", "cultural (heritage)", "technical (hardware)"], ans: 0, why: "A harm to society." },
     { q: "Hacking into a lost-luggage tracker breaches", opts: ["the Computer Misuse Act", "the Copyright Act", "Freedom of Information", "no UK law"], ans: 0, why: "Unauthorised access." },
     { q: "\"It must comply with the law\" with no context is", opts: ["NE.", "a full point", "two points", "R."], ans: 0, why: "Name the law and why." },
-    { q: "Which is a challenge in ENFORCING computer law?", opts: ["the Internet is global but laws are national", "legislators lack expertise", "lobbying", "technology changes fast"], ans: 0, why: "Jurisdiction." },
-    { q: "Algorithmic bias usually comes from", opts: ["unrepresentative training data", "slow processors", "lossy compression", "IPv4"], ans: 0, why: "Biased data in, biased results out." }
+    { q: "Which is a challenge in ENFORCING computer law?", opts: ["the Internet is global but laws are national", "legislators lack the expertise to write new laws", "lobbying by firms when a new law is drafted", "technology changes faster than new laws are passed"], ans: 0, why: "The internet crosses borders but each country has its own laws, so offences can be hard to prosecute." },
+    { q: "Algorithmic bias usually comes from", opts: ["unrepresentative training data", "slow processors running the model", "lossy compression of the input data", "IPv4 addresses running out"], ans: 0, why: "Biased data in, biased results out." }
   ]
 };
 

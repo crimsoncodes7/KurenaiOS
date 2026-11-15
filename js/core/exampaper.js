@@ -118,7 +118,7 @@
       var pr = pick(pool, ext ? target - ext.marks : target);
       if (ext) pr.picked.push(ext), pr.sum += ext.marks;
       return { aid: a.id, seed: seed, kind: "predicted", title: "Predicted paper " + seed, for: a.title, subject: a.subject, board: bp.board, blueprint: bp,
-        questions: number(pr.picked), marks: pr.sum, mins: Math.round(bp.perMark * pr.sum * 100 / (100 + bp.extra)), allowed: Math.round(bp.perMark * pr.sum) };
+        questions: number(pr.picked), marks: pr.sum, mins: minsFor(bp, pr.sum), allowed: allowedFor(bp, pr.sum) };
     }
     E().leaves(a).forEach(function (k) {
       var info = C().leafInfo(k);
@@ -131,8 +131,12 @@
     var pk = pick(pool, target), sum = pk.sum;
     var qs = number(pk.picked);
     return { aid: a.id, seed: seed, kind: "practice", title: "Practice paper " + seed, for: a.title, subject: a.subject, board: bp.board, blueprint: bp,
-      questions: qs, marks: sum, mins: Math.round(bp.perMark * sum * 100 / (100 + bp.extra)), allowed: Math.round(bp.perMark * sum) };
+      questions: qs, marks: sum, mins: minsFor(bp, sum), allowed: allowedFor(bp, sum) };
   }
+  /* EX-25: a paper of the board paper's marks takes its own time, never a
+     minute short from rounding a per-mark rate */
+  function minsFor(bp, sum) { return sum === bp.marks ? bp.mins : Math.round(bp.perMark * sum * 100 / (100 + bp.extra)); }
+  function allowedFor(bp, sum) { return sum === bp.marks ? bp.allowed : Math.round(bp.perMark * sum); }
 
   /* weighted order (an exponential race, −ln r ÷ weight, stable by seed),
      at most two items a leaf, until the marks reach the target; then short
@@ -141,11 +145,26 @@
     var picked = [], sum = 0, perLeaf = {};
     pool.sort(function (x, y) { return (-Math.log(x.r || 1e-9) / x.w) - (-Math.log(y.r || 1e-9) / y.w); });
     pool.forEach(function (c) {
-      if (sum >= target - 1) return;
+      if (sum >= target) return;
       if ((perLeaf[c.it.key] || 0) >= 2) return;
-      if (sum + c.it.marks > target + 2) return;
+      if (sum + c.it.marks > target) return;
       picked.push(c.it); sum += c.it.marks; perLeaf[c.it.key] = (perLeaf[c.it.key] || 0) + 1;
     });
+    /* EX-25: a paper short of its blueprint's marks is topped up with the
+       largest unpicked item that fits the gap (a third from one leaf is
+       allowed here), so a 100-mark paper is 100 marks */
+    var gap = target - sum;
+    if (gap > 0) {
+      var fill = pool.filter(function (c) { return picked.indexOf(c.it) === -1 && c.it.marks <= gap; })
+        .sort(function (x, y) { return y.it.marks - x.it.marks; })[0];
+      if (fill) { picked.push(fill.it); sum += fill.it.marks; }
+      /* nothing fits the gap exactly: the item that overshoots least */
+      if (sum < target) {
+        var over = pool.filter(function (c) { return picked.indexOf(c.it) === -1; })
+          .sort(function (x, y) { return x.it.marks - y.it.marks; })[0];
+        if (over && sum + over.it.marks - target <= 2) { picked.push(over.it); sum += over.it.marks; }
+      }
+    }
     picked.sort(function (x, y) { return x.marks - y.marks || (x.id < y.id ? -1 : 1); });
     return { picked: picked, sum: sum };
   }

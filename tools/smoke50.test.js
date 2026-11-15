@@ -107,7 +107,10 @@ step("every enriched CS and maths leaf grew — flashcards, quiz and exam items"
     const c = C[k], b = baseSizes[k];
     checked++;
     assert((c.flashcards || []).length >= b.fc && (c.quiz || []).length >= b.quiz && (c.exam || []).length >= b.exam, "a bank shrank " + k);
-    if ((c.exam || []).length > b.exam) grew++;
+    /* CC-05: a CS bank item that repeats a worked card's question is
+       dropped at load; the bank still added it (`_examN` counts it) */
+    if (Math.max((c.exam || []).length, c._examN || 0) > b.exam) grew++;
+    if (/^maths:/.test(k)) assert(c._examN == null || c._examN === (c.exam || []).length, "a Maths bank item was dropped " + k);
   }
   assert(checked >= 200 && grew >= 200, "only " + grew + " of " + checked + " leaves gained exam items");
 });

@@ -18,6 +18,19 @@
      E · CC-01, CC-02: IT's spec text has no assessment dump, no empty
          bullet, no run-on "include:" guidance, and every ref is unique —
          F206.6.1 is "Ways to reflect" again.
+     F · CM-01: the Maths spec is the specification typeset by hand
+         (tools/maths_spec.py): every leaf has its text, no fragment line,
+         no column heading, no exponent or letter run left outside $…$,
+         balanced maths; Statistics and Mechanics leaves have short titles
+         (CM-07) and no title shows caret notation (CM-28).
+     H · CC-03's second half: no Computer Science, Maths or Code quiz item
+         whose right answer is the one long option (tools/quiz_bias.mjs),
+         and the right answer is the longest in at most 30%; IT ratchets
+         down until its notes are rewritten.
+     G · CM-16, CM-22, CM-23: a generated Newton–Raphson example's root
+         estimate is a root (one that has not converged says so), the
+         Normal example's symmetric interval reads low to high, and a
+         one-tailed test's data sit on the side its H₁ names.
 
    Run: node tools/smoke138.test.js */
 "use strict";
@@ -153,6 +166,91 @@ step("E · CC-01, CC-02: IT's spec text is readable and its refs unique", () => 
   eq(Object.keys(refs).filter((r) => refs[r] > 1), [], "every ref once");
   const leaf = K.hub.LEAVES.it.find((l) => l.ref === "F206.6.1");
   eq(leaf && leaf.title, "Ways to reflect", "F206.6.1 is Ways to reflect");
+});
+
+step("F · CM-01, CM-07, CM-28: the Maths spec is typeset, whole and titled", () => {
+  const maths = app.window.KOS_DATA.maths, bad = [];
+  const leaves = K.hub.LEAVES.maths;
+  eq(leaves.length, 89, "89 Maths leaves");
+  /* outside $…$ the text is words: no lost exponents or fractions */
+  const prose = (x) => x.replace(/\$[^$]*\$/g, " ");
+  leaves.forEach((l) => {
+    const lines = (l.content || []).concat(l.info || []);
+    if (!(l.content || []).length) bad.push(l.ref + " no content");
+    lines.forEach((x) => {
+      const t = x.replace(/^[•◦▪]\s*/, "").trim();
+      if (t.replace(/\$/g, "").trim().length <= 4 && !/\$/.test(t)) bad.push(l.ref + " fragment " + JSON.stringify(x));
+      if (/need to learn|What students/i.test(x)) bad.push(l.ref + " column heading");
+      if ((x.match(/\$/g) || []).length % 2) bad.push(l.ref + " odd $ " + JSON.stringify(x));
+      const p = prose(x);
+      if (/(?:^|\s)(?:[A-Za-z]\s+){3,}[A-Za-z](?:\s|$)/.test(p.replace(/\b(a|A|I)\b/g, "w"))) bad.push(l.ref + " letter run " + JSON.stringify(x));
+      if (/\^|\\[a-z]/.test(p)) bad.push(l.ref + " maths outside $ " + JSON.stringify(x));
+      (x.match(/\$[^$]*\$/g) || []).forEach((m) => {
+        let d = 0;
+        for (const c of m.replace(/\\[{}]/g, "")) { if (c === "{") d++; if (c === "}") d--; if (d < 0) break; }
+        if (d !== 0) bad.push(l.ref + " braces " + m);
+      });
+    });
+    if (/\^|\$/.test(l.title)) bad.push(l.ref + " title " + l.title);
+    if (l.title.length > 52) bad.push(l.ref + " long title " + l.title);
+  });
+  eq(bad, [], "no damaged Maths spec line");
+  const m73 = leaves.find((l) => l.ref === "M7.3");
+  assert(m73.content.some((x) => /Extend to 2 dimensions using vectors/.test(x)), "M7.3 reads its spec");
+  assert(m73.info.some((x) => /\\mathbf\{v\} = \\mathbf\{u\} \+ \\mathbf\{a\}t/.test(x)), "M7.3 carries v = u + at as maths");
+  eq(m73.title, "Constant acceleration (suvat)", "a short Mechanics title");
+  void maths;
+});
+
+step("G · CM-16, CM-22, CM-23: generated Maths examples are honest", () => {
+  const W = K.worked, bad = [];
+  const gen = (id) => W.all().find((g) => g.id === id);
+  const run = (id, n, check) => {
+    const g = gen(id); assert(g, id + " registered");
+    for (let i = 0; i < n; i++) {
+      const v = g.random(); if (g.validate && g.validate(v)) continue;
+      let r; try { r = g.solve(v); } catch (e) { continue; }
+      const why = check(v, r); if (why) { bad.push(id + ": " + why + " " + JSON.stringify(v)); if (bad.length > 8) return; }
+    }
+  };
+  /* Newton–Raphson: a "root estimate" is a root; otherwise it says it is not */
+  run("newraph", 300, (v, r) => {
+    const last = r.steps[r.steps.length - 1];
+    if (last.h === "Root estimate") { const m = /f\([^)]*\) ≈ (-?[\d.e-]+)\)/.exec(last.m); if (m && Math.abs(+m[1]) > 1e-3) return "estimate is not a root"; }
+    else if (last.h !== "Not a root yet") return "no verdict";
+    if (last.h !== "Root estimate") return "a random example that does not converge";
+  });
+  /* the symmetric Normal interval reads low < X < high */
+  run("normal", 300, (v, r) => {
+    const m = /P\((-?[\d.]+) < X < (-?[\d.]+)\)/.exec(r.steps.map((s) => s.m).join("\n"));
+    if (m && +m[1] > +m[2]) return "interval backwards " + m[0];
+  });
+  /* a one-tailed test's data sit on the side H₁ names */
+  run("hyptest", 300, (v) => {
+    const mean = v.n * v.p0;
+    if (v.tail === "upper" && v.x <= mean) return "upper tail with x ≤ np₀";
+    if (v.tail === "lower" && v.x >= mean) return "lower tail with x ≥ np₀";
+  });
+  run("normtest", 300, (v) => {
+    if (v.tail === "μ > μ₀" && v.xb <= v.mu) return "x̄ below μ₀ for μ > μ₀";
+    if (v.tail === "μ < μ₀" && v.xb >= v.mu) return "x̄ above μ₀ for μ < μ₀";
+  });
+  run("pmcctest", 300, (v) => {
+    if (v.tail === "ρ > 0" && v.r <= 0) return "negative r for ρ > 0";
+    if (v.tail === "ρ < 0" && v.r >= 0) return "positive r for ρ < 0";
+  });
+  eq(bad, [], "no dishonest example");
+});
+
+step("H · CC-03: the right answer is not given away by its length", async () => {
+  const { totals } = await import(require("url").pathToFileURL(path.join(__dirname, "quiz_bias.mjs")).href);
+  const t = totals();
+  ["compsci", "maths", "code"].forEach((g) => {
+    eq(t[g].flagged, 0, g + ": no right answer the one long option");
+    assert(t[g].longest / t[g].items <= 0.3, g + ": the right answer is the longest in " + Math.round(100 * t[g].longest / t[g].items) + "% (chance ~25%)");
+  });
+  /* IT waits for its notes overhaul (roadmap 5.19): a ratchet, never worse */
+  assert(t.it.flagged <= 164, "IT flagged items only go down: " + t.it.flagged);
 });
 
 (async () => {

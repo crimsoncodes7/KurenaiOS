@@ -95,8 +95,8 @@
     ],
     quiz: [
       { q: "`SELECT id, name FROM contacts` is best run with…", opts: ["ExecuteNonQuery", "ExecuteReader", "ExecuteScalar", "Open"], ans: 1, why: "Many rows come back: read them with a reader." },
-      { q: "`reader.GetString(2)` on a NULL email…", opts: ["returns \"\"", "returns null", "throws InvalidOperationException", "returns \"NULL\""], ans: 2, why: "Check IsDBNull first." },
-      { q: "`new SqliteConnection(\"Data Source=x.db\").Open()` when x.db does not exist…", opts: ["throws", "creates an empty database file", "uses memory", "asks for a password"], ans: 1, why: "SQLite creates the file." }
+      { q: "`reader.GetString(2)` on a NULL email…", opts: ["returns \"\" (an empty string)", "returns null, since the column is a string?", "throws InvalidOperationException", "throws NullReferenceException"], ans: 2, why: "Check IsDBNull first." },
+      { q: "`new SqliteConnection(\"Data Source=x.db\").Open()` when x.db does not exist…", opts: ["throws SqliteException: file not found", "creates an empty database file", "opens an in-memory database instead", "asks for a password to create it"], ans: 1, why: "SQLite creates the file." }
     ]
   });
 
@@ -167,8 +167,8 @@
     ],
     quiz: [
       { q: "`\"WHERE name = '\" + name + \"'\"` with name `x' OR '1'='1` returns…", opts: ["nothing", "every row", "an error always", "one row"], ans: 1, why: "The text closes the quote and adds OR true." },
-      { q: "Which is safe?", opts: ["$\"WHERE id = {id}\"", "\"WHERE id = \" + id", "\"WHERE id = $id\" with AddWithValue", "\"WHERE id = '\" + id + \"'\""], ans: 2, why: "Only the parameter keeps the value out of the SQL." },
-      { q: "`WHERE name = '$name'` finds…", opts: ["the parameter's value", "rows whose name is the text $name", "an error", "every row"], ans: 1, why: "Quoted, it is a string, not a placeholder." }
+      { q: "Which is safe?", opts: ["$\"WHERE id = {id}\" with a string id", "string.Format(\"WHERE id = {0}\", id)", "\"WHERE id = $id\" with AddWithValue", "\"WHERE id = '\" + id + \"'\""], ans: 2, why: "Only the parameter keeps the value out of the SQL." },
+      { q: "`WHERE name = '$name'` finds…", opts: ["rows whose name is the parameter's value", "rows whose name is the text $name", "an error: $name is not bound", "every row, since $name matches anything"], ans: 1, why: "Quoted, it is a string, not a placeholder." }
     ]
   });
 
@@ -238,8 +238,8 @@
     ],
     quiz: [
       { q: "An Import inserts 50 rows in one transaction; row 30 breaks a UNIQUE constraint and throws. Saved afterwards:", opts: ["29 rows", "50 rows", "0 rows", "30 rows"], ans: 2, why: "No Commit was reached, so the using rolls everything back." },
-      { q: "`finally { tx.Commit(); }`…", opts: ["is the right pattern", "commits even after a failure", "rolls back", "does not compile"], ans: 1, why: "Commit belongs at the end of the successful path only." },
-      { q: "Why does the command line take an IContactRepository?", opts: ["interfaces are faster", "so it never depends on SQL and a fake can stand in", "SQLite requires it", "to avoid using"], ans: 1, why: "Dependency inversion (10.9)." }
+      { q: "`finally { tx.Commit(); }`…", opts: ["is the right pattern for a transaction", "commits even after a failure", "rolls back whenever a step has failed", "does not compile inside a using block"], ans: 1, why: "Commit belongs at the end of the successful path only." },
+      { q: "Why does the command line take an IContactRepository?", opts: ["interface calls run faster than calls on a SQL class", "so it never depends on SQL and a fake can stand in", "Microsoft.Data.Sqlite requires a repository interface", "so it never needs a using block for the connection"], ans: 1, why: "Dependency inversion (10.9)." }
     ]
   });
 

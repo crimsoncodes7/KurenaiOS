@@ -144,11 +144,11 @@ C["compsci:4.12.1.1"] = {
     ["Domain and co-domain are always…", "subsets of objects in some data type.", 8]
   ],
   quiz: [
-    { q: "In f: A → B, B is the", opts: ["co-domain", "domain", "argument", "range always"], ans: 0, why: "Result type." },
+    { q: "In f: A → B, B is the", opts: ["co-domain", "domain", "argument", "range always"], ans: 0, why: "In f: A → B, A is the domain (inputs) and B is the co-domain (the type of results)." },
     { q: "FunctionZ on integer lists has co-domain", opts: ["integers", "natural numbers", "real numbers only", "irrationals"], ans: 0, why: "+ and × keep integers." },
-    { q: "half x = x / 2 on integers needs a co-domain of at least", opts: ["ℚ", "ℕ", "ℤ", "Bool"], ans: 0, why: "7/2 = 3.5." },
+    { q: "half x = x / 2 on integers needs a co-domain of at least", opts: ["ℚ", "ℕ", "ℤ", "Bool"], ans: 0, why: "7 / 2 = 3.5 is not an integer, so the co-domain must include ℚ, the rationals." },
     { q: "add on integers has domain", opts: ["ℤ × ℤ", "ℤ", "ℕ", "ℝ → ℝ"], ans: 0, why: "Cartesian product." },
-    { q: "Must every member of the co-domain be output?", opts: ["no", "yes", "only for ℕ", "only for recursive functions"], ans: 0, why: "Spec." }
+    { q: "Must every member of the co-domain be output?", opts: ["no", "yes", "only for ℕ", "only for recursive functions"], ans: 0, why: "The co-domain is the set of possible outputs, and some of it may never actually be produced." }
   ]
 };
 
@@ -177,7 +177,7 @@ C["compsci:4.12.1.2"] = {
     { callout: { t: "miscon", h: "Not just functional languages", body: "C# (delegates, Func<>, lambdas), Python, JavaScript and Java 8+ are imperative languages that also treat functions as first-class objects. The spec says \"and in imperative programming languages that support such objects\"." } },
 
     { page: "Functions as values in code" },
-    { code: { lang: "text", src: "-- Haskell\nsquare x = x * x\ntwice f x = f (f x)          -- takes a function as an argument\nadder n = \\x -> x + n         -- returns a function as its result\n\ntwice square 3               -- 81\n(adder 4) 6                  -- 10\nmap square [1, 3, 5]         -- [1,9,25]", cap: "square is passed to twice and to map; adder 4 is a new function." } },
+    { code: { lang: "haskell", src: "-- Haskell\nsquare x = x * x\ntwice f x = f (f x)          -- takes a function as an argument\nadder n = \\x -> x + n         -- returns a function as its result\n\ntwice square 3               -- 81\n(adder 4) 6                  -- 10\nmap square [1, 3, 5]         -- [1,9,25]", cap: "square is passed to twice and to map; adder 4 is a new function." } },
     { code: { lang: "csharp", src: "Func<int, int> square = x => x * x;               // a function stored in a variable\nint Apply(Func<int, int> f, int v) => f(v);      // takes a function as an argument\nFunc<int, Func<int, int>> add = x => y => x + y;  // returns a function\nConsole.WriteLine(Apply(square, 7));             // 49\nConsole.WriteLine(add(4)(6));                    // 10", cap: "Compiled and run with .NET 10." } },
     { code: { lang: "python", src: "square = lambda x: x * x\ndef apply(f, v):\n    return f(v)\ndef adder(n):\n    return lambda x: x + n\nprint(apply(square, 7), adder(4)(6))   # 49 10", cap: "Python treats functions as first-class objects too." } },
 
@@ -231,7 +231,7 @@ C["compsci:4.12.1.2"] = {
   ],
   quiz: [
     { q: "Which is NOT required of a first-class object?", opts: ["it must be recursive", "it can be passed as an argument", "it can be returned", "it can be assigned to a variable"], ans: 0, why: "Recursion is unrelated." },
-    { q: "map square [1,3,5] uses square as", opts: ["a first-class object passed as an argument", "a higher-order function", "a list", "a co-domain"], ans: 0, why: "square is passed in." },
+    { q: "map square [1,3,5] uses square as", opts: ["a first-class object passed as an argument", "a higher-order function that takes a list", "a list that map works through element by element", "the co-domain of the map function"], ans: 0, why: "square is passed in." },
     { q: "In C#, Func<int,int> f = x => x + 1 shows a function", opts: ["assigned to a variable", "being partially applied", "composed", "folded"], ans: 0, why: "Stored as a value." },
     { q: "A function returning a function is", opts: ["higher-order", "first-order only", "impossible", "a list"], ans: 0, why: "Returns a function." }
   ]
@@ -271,7 +271,7 @@ C["compsci:4.12.1.3"] = {
 
     { page: "Evaluating by substitution" },
     { callout: { t: "info", h: "Key idea", body: "Evaluate an application by replacing the call with the function's body, the parameter replaced by the argument — innermost applications first:" } },
-    { code: { lang: "text", src: "fw [a,b] = a * b\nfx c = map fw c\nfy d = fold (+) 0 d\nfz e = fy (fx e)\nsales = [[10,2], [2,25], [4,8]]", cap: "The 2018 shop program." } },
+    { code: { lang: "haskell", src: "fw [a,b] = a * b\nfx c = map fw c\nfy d = fold (+) 0 d\nfz e = fy (fx e)\nsales = [[10,2], [2,25], [4,8]]", cap: "The 2018 shop program." } },
     { table: { head: ["Step", "Expression", "Rule used"], rows: [
       ["1", "fz sales", "start"],
       ["2", "fy (fx sales)", "body of fz with e = sales"],
@@ -320,9 +320,9 @@ C["compsci:4.12.1.3"] = {
   ],
   quiz: [
     { q: "square (3 + 1) evaluates to", opts: ["16", "10", "4", "an error"], ans: 0, why: "Bracketed argument." },
-    { q: "fw [4,3] with fw [a,b] = a * b", opts: ["12", "7", "[4,3]", "43"], ans: 0, why: "4 × 3." },
-    { q: "fz sales represents", opts: ["the day's total sales value", "the number of products", "the average price", "the sales list"], ans: 0, why: "Sum of price × quantity." },
-    { q: "Function application means", opts: ["applying a function to its arguments", "defining a function", "combining two functions", "fixing some arguments"], ans: 0, why: "Spec." }
+    { q: "fw [4,3] with fw [a,b] = a * b", opts: ["12", "7", "[4,3]", "43"], ans: 0, why: "fw [4,3] matches a = 4, b = 3, so the result is 4 × 3 = 12." },
+    { q: "fz sales represents", opts: ["the day's total sales value", "the number of products", "the average price of a product", "the list of the day's sales"], ans: 0, why: "Sum of price × quantity." },
+    { q: "Function application means", opts: ["applying a function to its arguments", "defining a function and its parameters", "combining two functions into one", "fixing some of a function's arguments"], ans: 0, why: "Function application is giving a function its arguments so that it produces a result." }
   ]
 };
 
@@ -373,7 +373,7 @@ C["compsci:4.12.1.4"] = {
     { callout: { t: "miscon", h: "Partial ≠ incomplete", body: "add 4 is not an error and not \"waiting\": it is a complete, usable function. Applying ALL arguments (add 4 6) is ordinary function application, not partial." } },
 
     { page: "Why it is useful" },
-    { code: { lang: "text", src: "add x y = x + y\nadd4 = add 4                 -- a new one-argument function\nmap (add 4) [1, 2, 3]        -- [5, 6, 7]\nmap (* 2) [1, 2, 3]          -- [2, 4, 6]   an operator section\nfilter (< 10) [1, 5, 10, 15] -- [1, 5]", cap: "Partial application builds the small functions that map and filter need, without naming them." } },
+    { code: { lang: "haskell", src: "add x y = x + y\nadd4 = add 4                 -- a new one-argument function\nmap (add 4) [1, 2, 3]        -- [5, 6, 7]\nmap (* 2) [1, 2, 3]          -- [2, 4, 6]   an operator section\nfilter (< 10) [1, 5, 10, 15] -- [1, 5]", cap: "Partial application builds the small functions that map and filter need, without naming them." } },
     { code: { lang: "csharp", src: "Func<int, Func<int, int>> add = x => y => x + y;  // curried add\nvar add4 = add(4);                                // partial application\nConsole.WriteLine(add4(6));                       // 10", cap: "The same idea in C# (compiled and run)." } },
 
     { page: "In exam questions" },
@@ -420,7 +420,7 @@ C["compsci:4.12.1.4"] = {
   quiz: [
     { q: "add 4 evaluates to", opts: ["a function", "4", "an error", "a list"], ans: 0, why: "One argument still needed." },
     { q: "If f: A → B → C → D, f a b has type", opts: ["C → D", "D", "B → C → D", "A → D"], ans: 0, why: "Two arguments removed." },
-    { q: "\"The function is applied to its arguments\" describes", opts: ["ordinary application, not partial", "partial application", "composition", "folding"], ans: 0, why: "R. in 2025." },
+    { q: "\"The function is applied to its arguments\" describes", opts: ["ordinary application, not partial", "partial application, not ordinary", "composition of two functions", "folding a list into one value"], ans: 0, why: "Ordinary application supplies all of the arguments, whereas partial application supplies only some." },
     { q: "map (* 2) [1,2,3] gives", opts: ["[2,4,6]", "[1,2,3,2]", "12", "[3,4,5]"], ans: 0, why: "(* 2) is a partially applied ×." }
   ]
 };
@@ -471,7 +471,7 @@ C["compsci:4.12.1.5"] = {
     { callout: { t: "miscon", h: "Composition vs nested application", body: "g (f x) APPLIES both functions to x now and gives a value. g ∘ f (Haskell g . f) BUILDS a new function, without any argument yet, that can be named, passed to map, or applied later." } },
 
     { page: "Composition in code" },
-    { code: { lang: "text", src: "-- Haskell: the . operator is ∘\nsquare x = x * x\npred' x = x - 1\nsquareOfPred = square . pred'    -- a new function\nsquareOfPred 3                   -- 4\nmap (square . pred') [1, 2, 3]   -- [0, 1, 4]", cap: "square . pred' builds the composed function; nothing is computed until it is applied." } },
+    { code: { lang: "haskell", src: "-- Haskell: the . operator is ∘\nsquare x = x * x\npred' x = x - 1\nsquareOfPred = square . pred'    -- a new function\nsquareOfPred 3                   -- 4\nmap (square . pred') [1, 2, 3]   -- [0, 1, 4]", cap: "square . pred' builds the composed function; nothing is computed until it is applied." } },
     { code: { lang: "csharp", src: "Func<A, C> Compose<A, B, C>(Func<B, C> g, Func<A, B> f) => x => g(f(x));\nFunc<int, int> square = x => x * x;\nFunc<int, int> pred = x => x - 1;\nConsole.WriteLine(Compose(square, pred)(3));   // 4", cap: "C# has no ∘ operator, but a higher-order Compose builds one (compiled and run)." } },
 
     { page: "In exam questions" },
@@ -518,8 +518,8 @@ C["compsci:4.12.1.5"] = {
   ],
   quiz: [
     { q: "(f ∘ g)(1) with f(x)=x+2, g(y)=y³", opts: ["3", "27", "9", "1"], ans: 0, why: "g first: 1, then +2." },
-    { q: "In g ∘ f, which function runs first?", opts: ["f", "g", "both at once", "whichever is shorter"], ans: 0, why: "g after f." },
-    { q: "For g ∘ f to be valid", opts: ["f's co-domain must match g's domain", "f and g must be the same", "g must be recursive", "both must be on ℝ"], ans: 0, why: "Types chain." },
+    { q: "In g ∘ f, which function runs first?", opts: ["f", "g", "both at once", "whichever is shorter"], ans: 0, why: "In g ∘ f, f is applied first and g is applied to its result." },
+    { q: "For g ∘ f to be valid", opts: ["f's co-domain must match g's domain", "f and g must be exactly the same function", "g's co-domain must match f's domain", "both must have ℝ as domain and co-domain"], ans: 0, why: "f's output becomes g's input, so f's co-domain must match g's domain." },
     { q: "square . pred in Haskell is", opts: ["a new function", "the number 4", "an error", "a list"], ans: 0, why: "Composition builds a function." }
   ]
 };

@@ -32,6 +32,7 @@
 .k-mind-rungs { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--sp-8); }
 .k-mind-rung { display: grid; gap: var(--sp-2); padding: var(--sp-10) var(--sp-12); border-radius: var(--r-10); background: var(--s2); border: var(--hairline) dashed var(--line); }
 .k-mind-rung[data-state="on"] { border-style: solid; border-color: color-mix(in oklch, var(--mind) 45%, transparent); }
+.k-mind-rung[data-state="none"] { opacity: 0.55; }
 .k-mind-rung b { font-size: var(--fs-13-5); }
 .k-mind-rung small { color: var(--muted); font-size: var(--fs-12); }
 .k-mind-pladder { display: inline-flex; align-items: flex-end; gap: var(--sp-4); }

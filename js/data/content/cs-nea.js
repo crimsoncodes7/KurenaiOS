@@ -149,10 +149,10 @@ C["compsci:NEA.0"] = {
     ["Recommended lesson time?", "About 50 hours."]
   ],
   quiz: [
-    { q: "Which section carries the most marks?", opts: ["Technical solution (42)", "Design (12)", "Analysis (9)", "Testing (8)"], ans: 0, why: "56% of the NEA." },
-    { q: "Noughts and crosses becomes A-level standard by adding", opts: ["a minimax computer player", "colours", "a login", "sound"], ans: 0, why: "AQA guidance, Appendix B." },
-    { q: "What should you build first?", opts: ["the critical path", "the login system", "the settings screen", "the help page"], ans: 0, why: "AQA guidance." },
-    { q: "A not-A-level project is penalised in", opts: ["every section except the technical solution", "only the technical solution", "nothing", "only evaluation"], ans: 0, why: "Spec 4.14.4." }
+    { q: "Which section carries the most marks?", opts: ["Technical solution (42)", "Documented design (12)", "Analysis of the problem (9)", "Testing the solution (8)"], ans: 0, why: "The technical solution is worth 42 of the 75 marks, which is 56%, the biggest section." },
+    { q: "Noughts and crosses becomes A-level standard by adding", opts: ["a minimax computer player", "a choice of board colours", "a login screen for players", "sound effects for each move"], ans: 0, why: "AQA guidance, Appendix B." },
+    { q: "What should you build first?", opts: ["the critical path", "the login system", "the settings screen", "the help page"], ans: 0, why: "Build the critical path first, the part everything else depends on, so the core of the system works early." },
+    { q: "A not-A-level project is penalised in", opts: ["every section except the technical solution", "only the technical solution, not the write-up", "nothing, as long as the code is well tested", "only the evaluation, where it is discussed"], ans: 0, why: "A project that is not of A-level standard is penalised in every section apart from the technical solution." }
   ],
   sims: ["nea-marks"]
 };
@@ -273,10 +273,10 @@ C["compsci:NEA.1"] = {
     ["Why did AQA criticise 'the system should show any recommendation… depending on the algorithm'?", "The algorithm was never defined in the analysis."]
   ],
   quiz: [
-    { q: "Which is a well-formed objective?", opts: ["Three failed logins lock the account for 5 minutes", "The login should be secure", "Users should find it easy", "The system should be fast"], ans: 0, why: "Measurable, single purpose." },
-    { q: "Requirements for level 3 must come from", opts: ["dialogue with intended users", "the teacher's list", "another student", "the internet"], ans: 0, why: "Descriptor." },
-    { q: "An E-R model in the analysis is", opts: ["modelling that informs design", "the design itself", "testing", "not allowed"], ans: 0, why: "Spec 4.14.5.1." },
-    { q: "If your objectives are too easy, the assessor", opts: ["judges against a reasonable set instead", "gives full marks", "ignores completeness", "fails the project"], ans: 0, why: "AQA guidance 2.3.1." }
+    { q: "Which is a well-formed objective?", opts: ["Three failed logins lock the account for 5 minutes", "The login should be secure against all attackers", "Users should find the whole system easy to use", "The system should be fast for every kind of user"], ans: 0, why: "Measurable, single purpose." },
+    { q: "Requirements for level 3 must come from", opts: ["dialogue with intended users", "the teacher's list of features", "another student's project brief", "examples found on the internet"], ans: 0, why: "Level 3 requirements come from dialogue with the intended users, not from the student's own guesses." },
+    { q: "An E-R model in the analysis is", opts: ["modelling that informs design", "the design itself, not analysis", "part of the testing evidence", "not allowed in the analysis"], ans: 0, why: "An E-R model in the analysis models the data, and that model informs the design that follows." },
+    { q: "If your objectives are too easy, the assessor", opts: ["judges against a reasonable set instead", "gives full marks for meeting every one", "ignores completeness and marks the code", "fails the project at the moderation stage"], ans: 0, why: "AQA guidance 2.3.1." }
   ]
 };
 
@@ -407,10 +407,10 @@ C["compsci:NEA.2"] = {
     ["What does the assessor compare the design with?", "The code — e.g. class methods matching the class diagram."]
   ],
   quiz: [
-    { q: "The most important part of a design to articulate is", opts: ["the key processing algorithms", "the colour scheme", "the login screen", "the help page"], ans: 0, why: "Key aspects." },
+    { q: "The most important part of a design to articulate is", opts: ["the key processing algorithms", "the colour scheme of each page", "the layout of the login screen", "the wording of the help page"], ans: 0, why: "The key processing algorithms are the most important thing to explain, as they show how the solution works." },
     { q: "Design evidence produced after coding is", opts: ["acceptable", "forbidden", "worth no marks", "only for investigations"], ans: 0, why: "AQA guidance 2.2." },
-    { q: "Security and integrity of data is", opts: ["supplementary", "core", "required", "not allowed"], ans: 0, why: "Guidance 3.2." },
-    { q: "A class diagram is a suitable", opts: ["high-level overview", "test plan", "evaluation", "objective"], ans: 0, why: "Guidance 2.2." }
+    { q: "Security and integrity of data is", opts: ["supplementary", "core", "required", "not allowed"], ans: 0, why: "Security and integrity of data is a supplementary matter, so it is not the core of the design." },
+    { q: "A class diagram is a suitable", opts: ["high-level overview", "detailed test plan", "final evaluation", "single objective"], ans: 0, why: "A class diagram gives a high-level overview of the classes and how they relate." }
   ]
 };
 
@@ -527,9 +527,9 @@ C["compsci:NEA.3"] = {
   ],
   quiz: [
     { q: "Completeness is worth", opts: ["15", "27", "42", "12"], ans: 0, why: "Spec 4.14.3.3.1." },
-    { q: "A Dictionary<string,int> is in group", opts: ["B", "A", "C", "none"], ans: 0, why: "Table 1." },
-    { q: "catch (Exception) { } that silently ignores errors is", opts: ["poor exception handling", "excellent", "defensive", "required"], ans: 0, why: "It swallows faults." },
-    { q: "Hard-coding a database path breaks", opts: ["file paths parameterised", "cohesion", "recursion", "normalisation"], ans: 0, why: "Table 2, good." }
+    { q: "A Dictionary<string,int> is in group", opts: ["B", "A", "C", "none"], ans: 0, why: "In the NEA's technical-skills table a dictionary is a Group B technique." },
+    { q: "catch (Exception) { } that silently ignores errors is", opts: ["poor exception handling", "excellent error handling", "good defensive coding", "required by the mark scheme"], ans: 0, why: "It swallows faults." },
+    { q: "Hard-coding a database path breaks", opts: ["file paths parameterised", "cohesion of each module", "recursion in the code", "normalisation of the tables"], ans: 0, why: "Parameterising file paths, rather than hard-coding them, is good practice because the program still works when the path changes." }
   ]
 };
 
@@ -631,9 +631,9 @@ C["compsci:NEA.4"] = {
     ["C# unit-testing frameworks?", "xUnit, NUnit, MSTest."]
   ],
   quiz: [
-    { q: "A project that tests only its login screen thoroughly", opts: ["has not shown the core requirements", "gets level 4", "needs no evaluation", "is complete"], ans: 0, why: "AQA guidance 4.4." },
-    { q: "A failed test found during development should be", opts: ["reported with the fix and re-test", "hidden", "deleted", "marked pass"], ans: 0, why: "Shows real testing." },
-    { q: "Testing evidence should be", opts: ["representative samples", "every test ever run", "only unit tests", "only the final week"], ans: 0, why: "Spec 4.14.5.4." },
+    { q: "A project that tests only its login screen thoroughly", opts: ["has not shown the core requirements", "gets level 4 for its thorough testing", "needs no evaluation of the other parts", "is complete, as login is the core"], ans: 0, why: "AQA guidance 4.4." },
+    { q: "A failed test found during development should be", opts: ["reported with the fix and re-test", "hidden so the testing looks clean", "deleted from the test evidence", "marked as a pass, since it will be fixed"], ans: 0, why: "Shows real testing." },
+    { q: "Testing evidence should be", opts: ["representative samples", "every single test ever run", "only the unit tests run", "only the final week's tests"], ans: 0, why: "Testing evidence should be representative samples of the tests, not every single one." },
     { q: "A score of 1000 against a threshold 'one star 0–999' is", opts: ["boundary data", "normal data", "erroneous data", "not worth testing"], ans: 0, why: "The edge of a range." }
   ]
 };
@@ -725,10 +725,10 @@ C["compsci:NEA.5"] = {
     ["Why copy the objectives into the evaluation?", "So each can be judged in turn against evidence."]
   ],
   quiz: [
-    { q: "Pasting the client's email without comment", opts: ["caps the evaluation at 3", "earns 4", "is required", "is not allowed"], ans: 0, why: "Must be evaluated and discussed." },
-    { q: "An unfinished objective should be", opts: ["evaluated honestly", "left out", "renamed", "moved to design"], ans: 0, why: "Ignoring it caps at 2." },
-    { q: "Independent feedback comes from", opts: ["the end user / client / supervisor", "you", "the compiler", "a classmate's code"], ans: 0, why: "A third party." },
-    { q: "\"Make it look better\" is", opts: ["too vague an improvement", "a detailed improvement", "an objective", "feedback"], ans: 0, why: "Not specific." }
+    { q: "Pasting the client's email without comment", opts: ["caps the evaluation at 3", "earns 4 as client evidence", "is required for every project", "is not allowed in the NEA"], ans: 0, why: "Must be evaluated and discussed." },
+    { q: "An unfinished objective should be", opts: ["evaluated honestly", "left out of the write-up", "renamed to one that was met", "moved back to the design"], ans: 0, why: "Ignoring it caps at 2." },
+    { q: "Independent feedback comes from", opts: ["the end user / client / supervisor", "you, as the developer of the project", "the compiler's error and warning list", "a classmate's code for a similar project"], ans: 0, why: "Independent feedback comes from someone other than you, such as the end user, client or supervisor." },
+    { q: "\"Make it look better\" is", opts: ["too vague an improvement", "a detailed improvement", "an objective", "feedback"], ans: 0, why: "It is too vague, as it does not say what to change or how, so it cannot be tested or acted on." }
   ],
   sims: ["nea-objectives"]
 };

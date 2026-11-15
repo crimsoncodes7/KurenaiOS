@@ -137,9 +137,9 @@ g.MapDelete("{id:int}", (int id) => Results.NoContent());`),
       ["What does Results.ValidationProblem(errors) send?", "400 with application/problem+json and an errors entry per field."]
     ],
     quiz: [
-      { q: "MapGet(\"/topics/{id}\", (int id) => …) receives /topics/abc. The client gets…", opts: ["404", "400: the parameter could not be bound", "500", "200 with id 0"], ans: 1, why: "Without :int the route matches and binding fails; with {id:int} it is a 404." },
-      { q: "A POST handler's TopicIn has a blank title. It should return…", opts: ["Results.Ok()", "throw ArgumentException", "Results.ValidationProblem with a title error", "Results.NotFound()"], ans: 2, why: "Invalid input is the client's to fix, and the body says how." },
-      { q: "Where should an API-key check for every /topics route go?", opts: ["copied into each handler", "an endpoint filter on the /topics group (or middleware)", "the client", "appsettings.json"], ans: 1, why: "One check, applied to every route in the group, so a new route cannot forget it." }
+      { q: "MapGet(\"/topics/{id}\", (int id) => …) receives /topics/abc. The client gets…", opts: ["404: no route matches /topics/abc", "400: the parameter could not be bound", "500: the handler threw a FormatException", "200 with id 0, the default for int"], ans: 1, why: "Without :int the route matches and binding fails; with {id:int} it is a 404." },
+      { q: "A POST handler's TopicIn has a blank title. It should return…", opts: ["Results.Ok() with the topic saved as it is", "throw ArgumentException for the blank title", "Results.ValidationProblem with a title error", "Results.NotFound() with the title in the body"], ans: 2, why: "Invalid input is the client's to fix, and the body says how." },
+      { q: "Where should an API-key check for every /topics route go?", opts: ["copied into each handler, so every route checks it", "an endpoint filter on the /topics group (or middleware)", "the client, which checks the key before it sends", "appsettings.json, which checks every request itself"], ans: 1, why: "One check, applied to every route in the group, so a new route cannot forget it." }
     ]
   });
 
@@ -232,9 +232,9 @@ bool ok = key.Length > 0 && CryptographicOperations.FixedTimeEquals(Encoding.UTF
       ["What should an API do when its key is not configured?", "Refuse every protected request — never fall open."]
     ],
     quiz: [
-      { q: "The API works on your laptop but the tests read your real key. Why?", opts: ["tests always read user secrets", "the tests run in Development, which loads user secrets — run them as Testing", "the key is in Git", "EF Core"], ans: 1, why: "User secrets load only in Development; give the tests their own environment and key." },
+      { q: "The API works on your laptop but the tests read your real key. Why?", opts: ["WebApplicationFactory always reads user secrets, whatever the environment", "the tests run in Development, which loads user secrets; run them as Testing", "the key is committed to Git, so every run reads the same real key", "EF Core copies the real key into the test database when it migrates"], ans: 1, why: "User secrets load only in Development; give the tests their own environment and key." },
       { q: "GET /topics/1 throws \"A possible object cycle was detected\". The best fix…", opts: ["ReferenceHandler.IgnoreCycles", "return a TopicOut record", "delete the sessions", "use XML"], ans: 1, why: "An API record holds exactly what the client gets." },
-      { q: "A teammate's run fails with \"no such table: Topics\". Most likely…", opts: ["SQLite is not installed", "the migrations were never applied", "the key is wrong", "the route is wrong"], ans: 1, why: "Nothing created the tables: migrate at start-up." }
+      { q: "A teammate's run fails with \"no such table: Topics\". Most likely…", opts: ["SQLite is not installed on their machine", "the migrations were never applied", "their API key is wrong, so the table is hidden", "the route is wrong, so it reads another table"], ans: 1, why: "Nothing created the tables: migrate at start-up." }
     ]
   });
 
@@ -348,9 +348,9 @@ Assert.Equal(HttpStatusCode.Created, r.StatusCode);`),
       ["What did older .NET versions need for WebApplicationFactory<Program> with top-level statements?", "public partial class Program; at the end of Program.cs (.NET 10 generates it)."]
     ],
     quiz: [
-      { q: "A test passes alone and fails in the full run. Most likely…", opts: ["a slow machine", "tests share a database or other state", "xUnit is broken", "the route is wrong"], ans: 1, why: "Order-dependent results mean shared state." },
-      { q: "Which is the end-to-end check that a wrong key changes nothing?", opts: ["call the handler directly", "POST with a wrong key, expect 401, then GET with the right key and see no new topic", "read appsettings.json", "check the filter's code"], ans: 1, why: "Through HTTP, the status, and the state afterwards." },
-      { q: "UseSetting(\"Planner:ApiKey\", \"k\") in ConfigureWebHost…", opts: ["writes appsettings.json", "gives this test's app that setting, above the files", "sets an environment variable for the machine", "needs user secrets"], ans: 1, why: "It is one more configuration layer, for this app only." }
+      { q: "A test passes alone and fails in the full run. Most likely…", opts: ["the machine is too slow for the full run", "tests share a database or other state", "xUnit runs that test before its constructor", "the test's route is wrong only in the full run"], ans: 1, why: "Order-dependent results mean shared state." },
+      { q: "Which is the end-to-end check that a wrong key changes nothing?", opts: ["call the handler directly with a wrong key and check for 401", "POST with a wrong key, expect 401, then GET with the right key: no new topic", "read appsettings.json and check its key differs from the wrong one", "check the filter's code compares the key before the handler runs"], ans: 1, why: "Through HTTP, the status, and the state afterwards." },
+      { q: "UseSetting(\"Planner:ApiKey\", \"k\") in ConfigureWebHost…", opts: ["writes the setting into appsettings.json for good", "gives this test's app that setting, above the files", "sets an environment variable for the machine", "needs the key in user secrets before it works"], ans: 1, why: "It is one more configuration layer, for this app only." }
     ]
   });
 
@@ -432,11 +432,11 @@ Assert.Equal(HttpStatusCode.Created, r.StatusCode);`),
     project: "rp-ct1-planner",
     summary: "The revision planner as a web API — REST routes, validation as problem details, EF Core with migrations, an API key from configuration and user secrets, and end-to-end tests — made in Rider and proven by validation reports.",
     quiz: [
-      { q: "POST /topics succeeds. Which answer is right?", opts: ["200 and the topic", "201, Location: /topics/7, and the topic", "204", "302 to /topics/7"], ans: 1, lesson: "T1.21", why: "Created, and where the new resource lives." },
+      { q: "POST /topics succeeds. Which answer is right?", opts: ["200, Location: /topics/7, and the topic", "201, Location: /topics/7, and the topic", "204, Location: /topics/7, no body", "302 to /topics/7, then the topic"], ans: 1, lesson: "T1.21", why: "Created, and where the new resource lives." },
       { q: "GET /topics/abc against MapGet(\"/topics/{id:int}\", …) answers…", opts: ["400", "404: no route matches", "500", "200 with an empty topic"], ans: 1, lesson: "T1.26", why: "The constraint keeps abc from matching at all." },
-      { q: "Where does the API key live while you develop?", opts: ["appsettings.json", "a const in Program.cs", "user secrets, outside the repository", "the .http file, committed"], ans: 2, lesson: "T1.27", why: "Nothing in the folder may hold a secret." },
+      { q: "Where does the API key live while you develop?", opts: ["appsettings.json, next to Program.cs", "a const in Program.cs, kept private", "user secrets, outside the repository", "the .http file, committed with the code"], ans: 2, lesson: "T1.27", why: "Nothing in the folder may hold a secret." },
       { q: "A request carries no X-Api-Key. The API should answer…", opts: ["403", "401", "404", "200, because the key is optional"], ans: 1, lesson: "T1.22", why: "No credentials: unauthenticated." },
-      { q: "How do the tests keep your user secrets and development database out?", opts: ["they cannot", "UseEnvironment(\"Testing\") and UseSetting for the connection string and key", "by deleting the secrets first", "by running in Production"], ans: 1, lesson: "T1.28", why: "Their own environment and settings, layered over the files." }
+      { q: "How do the tests keep your user secrets and development database out?", opts: ["they cannot: a test always runs in Development with your secrets", "UseEnvironment(\"Testing\") and UseSetting for the connection string and key", "by deleting your user secrets before the run and restoring them after", "by running in Production, which reads no configuration files at all"], ans: 1, lesson: "T1.28", why: "Their own environment and settings, layered over the files." }
     ],
     brief: [
       "Build **the Planner goes online**: capstone 4's revision planner — topics with a confidence from 1 to 5, and the study sessions that move their last-studied day — as a web API other programs can use. You build it in **Rider** with ASP.NET Core minimal APIs and EF Core, test it end to end, and bring each milestone back as a validation report.",

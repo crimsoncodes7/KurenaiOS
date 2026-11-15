@@ -605,12 +605,21 @@
     var items = []; unit.lessons.forEach(function (l) { items = items.concat(J().lesson(l).items); });
     var single = items.filter(function (k) { return /^k:.$/.test(k); }), sounds = items.filter(function (k) { return /^s:/.test(k); });
     function pick(list, n, seed) { var a = list.slice(); for (var i = a.length - 1; i > 0; i--) { var j = (seed * (i + 7)) % (i + 1); var t = a[i]; a[i] = a[j]; a[j] = t; } return a.slice(0, n); }
-    var seed = Date.parse(today()) / 864e5 | 0;
+    /* JM-20: the questions are drawn per ATTEMPT (kept for this visit, so a
+       redraw does not reshuffle), never the same set all day */
+    var seed = KOS.view && KOS.view.memo ? KOS.view.memo("ja.cp.seed." + id, function () { return (Date.now() / 1000 | 0) % 100000 + 11; }) : (Date.now() / 1000 | 0) % 100000 + 11;
     var sections = [];
     if (single.length) {
       if (cp.skills.indexOf("R") >= 0) sections.push({ s: "R", keys: pick(single, 12, seed).map(function (k) { return k + "|R"; }) });
       if (cp.skills.indexOf("W") >= 0) sections.push({ s: "W", keys: pick(single, 8, seed + 3).map(function (k) { return k + "|W"; }) });
-      if (cp.skills.indexOf("L") >= 0) sections.push({ s: "L", keys: (sounds.length ? sounds.concat(sounds) : pick(["s:long", "s:sokuon", "s:voicing"], 3, seed)).slice(0, 6).map(function (k) { return k + "|L"; }) });
+      /* JM-20: six DISTINCT minimal pairs across the unit's sound items (each
+         has several), each with its own target — never one pair asked twice */
+      if (cp.skills.indexOf("L") >= 0) {
+        var src = sounds.length ? sounds : ["s:long", "s:sokuon", "s:voicing"], qs = [];
+        src.forEach(function (k) { var it = J().item(k); ((it && it.pairs) || []).forEach(function (pr, pi) { qs.push({ k: k, pair: pr, pi: pi }); }); });
+        qs = pick(qs, 6, seed + 5);
+        sections.push({ s: "L", keys: qs.map(function (q) { return q.k + "|L"; }), pairs: qs.map(function (q, i) { return q.pair[(seed + i * 7) % 2] ? { pair: q.pair, target: q.pair[(seed + i * 7) % 2] } : null; }) });
+      }
     } else {
       /* a Stage 1 unit: reading from its words, kanji and grammar; writing from its production
          sets and grammar; listening from its words and grammar */
@@ -637,6 +646,9 @@
       stage.appendChild(host);
       var ex = KOS.jaRun.exercise(sec.keys[qi]);
       if (!ex) { qi++; return step(); }
+      if (sec.pairs && sec.pairs[qi] && ex.kind === "minimal-pair") { ex.pair = sec.pairs[qi].pair; ex.target = sec.pairs[qi].target; }
+      /* JM-20: a checkpoint's Writing is from memory — no model to copy */
+      if (ex.kind === "kana-write") ex.noModel = true;
       KOS.jaRun.mount(host, ex, function (res) {
         if (res.verdict === "correct" || res.verdict === "accepted") right++;
         host.appendChild(el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "Next ›", onclick: function () { qi++; step(); } }));

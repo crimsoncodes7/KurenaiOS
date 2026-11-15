@@ -45,10 +45,10 @@
       lad && lad.evaluate ? (lad.evaluate.lesson ? "a position with an objection answered" : "a checkpoint judgement") : "a position with an objection answered"
     ];
     return el("ol", { class: "k-mind-rungs", "data-ui": "mind.ladder-large", "aria-label": "Ladder: " + name }, RUNG.map(function (r, i) {
-      var on = !!(lad && lad.rungs[i]);
-      return el("li", { class: "k-mind-rung", "data-state": on ? "on" : null }, [
-        el("b", {}, [el("span", { "aria-hidden": "true", text: on ? "✓ " : (i + 1) + " " }), r, el("span", { class: "sr-only", text: on ? ": reached" : ": not yet" })]),
-        el("small", { text: ev[i] })
+      var on = !!(lad && lad.rungs[i]), none = !!(lad && lad.reach && !lad.reach[i] && !on);
+      return el("li", { class: "k-mind-rung", "data-state": on ? "on" : none ? "none" : null }, [
+        el("b", {}, [el("span", { "aria-hidden": "true", text: on ? "✓ " : none ? "— " : (i + 1) + " " }), r, el("span", { class: "sr-only", text: on ? ": reached" : none ? ": not in this unit" : ": not yet" })]),
+        el("small", { text: none ? "not in this unit yet" : ev[i] })
       ]);
     }));
   }

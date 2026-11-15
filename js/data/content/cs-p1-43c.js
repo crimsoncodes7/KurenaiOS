@@ -169,8 +169,8 @@ C["compsci:4.3.5.1"] = {
   ],
   quiz: [
     { q: "After pass 2 of a bubble sort on 3 5 8 1 6 4 the list is", opts: ["3 1 5 4 6 8", "1 3 4 5 6 8", "3 5 1 6 4 8", "1 3 5 8 4 6"], ans: 0, why: "A-level 2021 Q01." },
-    { q: "The bubble sort's time complexity is", opts: ["O(n²)", "O(n log n)", "O(log n)", "O(2ⁿ)"], ans: 0, why: "Nested loops." },
-    { q: "A swapped flag lets the sort", opts: ["stop when a pass makes no swaps", "skip every other item", "sort in descending order", "use less memory"], ans: 0, why: "Early exit." },
+    { q: "The bubble sort's time complexity is", opts: ["O(n²)", "O(n log n)", "O(log n)", "O(2ⁿ)"], ans: 0, why: "Bubble sort has loops within loops, so the number of comparisons grows with n², O(n²)." },
+    { q: "A swapped flag lets the sort", opts: ["stop when a pass makes no swaps", "skip every other item on each pass", "sort in descending order", "use less memory while it is sorting"], ans: 0, why: "If a whole pass makes no swaps the list is already sorted, so the sort can stop early." },
     { q: "How many comparisons does the basic version make on 6 items?", opts: ["25", "15", "36", "6"], ans: 0, why: "5 passes × 5 comparisons." }
   ],
   sims: ["sort-viz"]
@@ -291,8 +291,6 @@ C["compsci:4.3.5.2"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.1.1.16 recursion; 4.3.5.1 bubble sort; 4.4.4.2 logarithms and 4.4.4.3 O(n log n); 4.4.4.5 tractable problems; 4.3.4.2 binary search's halving." } }
   ],
   flashcards: [
-    ["Merge sort?", "Divide and conquer: split the list into halves until single items, then merge sorted sublists in pairs."],
-    ["Why is merge sort O(n log n)?", "log₂ n levels of splitting, and each level merges n items.", 2],
     ["Base case?", "A sublist of 0 or 1 items — already sorted.", 3],
     ["Merge step?", "Repeatedly take the smaller front item of two sorted lists; copy the remainder.", 4],
     ["Which of linear search, merge sort, binary search, post-order traversal is O(n log n)?", "Merge sort.", 6],
@@ -300,10 +298,10 @@ C["compsci:4.3.5.2"] = {
     ["Max comparisons to merge lists of sizes a and b?", "a + b − 1.", 8]
   ],
   quiz: [
-    { q: "Merge sort's time complexity is", opts: ["O(n log n)", "O(n²)", "O(log n)", "O(n)"], ans: 0, why: "Levels × items." },
+    { q: "Merge sort's time complexity is", opts: ["O(n log n)", "O(n²)", "O(log n)", "O(n)"], ans: 0, why: "Merge sort splits the list log n times and merges n items at each level, giving O(n log n)." },
     { q: "Merging [2, 7] and [3, 5] gives", opts: ["2 3 5 7", "2 7 3 5", "3 5 2 7", "2 3 7 5"], ans: 0, why: "Smaller front each time." },
     { q: "In merge sort, comparisons happen while", opts: ["merging", "splitting", "both equally", "neither"], ans: 0, why: "Splitting just divides." },
-    { q: "Merge sort is an example of", opts: ["divide and conquer", "a greedy algorithm", "a brute-force search", "a heuristic"], ans: 0, why: "Spec wording." }
+    { q: "Merge sort is an example of", opts: ["divide and conquer", "a greedy algorithm", "a brute-force search", "a heuristic"], ans: 0, why: "Merge sort splits the problem into halves, sorts each and combines them, which is divide and conquer." }
   ],
   sims: ["sort-viz"]
 };
@@ -442,14 +440,13 @@ C["compsci:4.3.6.1"] = {
     ["Relaxing an edge?", "If D[U] + weight < D[V], set D[V] to it and P[V] ← U.", 2],
     ["What does array P hold?", "The previous node on the shortest path to each node — used to rebuild the route.", 4],
     ["Does Dijkstra work with negative weights?", "No.", 7],
-    ["Applications?", "Sat-nav route planning, network routing, logistics, game path-finding.", 8],
-    ["Heuristic?", "A method that finds a good-enough (not necessarily optimal) solution quickly, e.g. using domain knowledge to prune the search.", 9]
+    ["Applications?", "Sat-nav route planning, network routing, logistics, game path-finding.", 8]
   ],
   quiz: [
-    { q: "Dijkstra's algorithm next processes", opts: ["the unvisited node with the smallest distance", "the node with the cheapest edge", "the next node numerically", "the node with most edges"], ans: 0, why: "Priority queue on D." },
-    { q: "In the 2018 trace, D[3] ends as", opts: ["3", "5", "1", "4"], ans: 0, why: "Via 2: 2 + 1." },
-    { q: "OUTPUT D[6] represents", opts: ["the shortest time from 1 to 6", "the route from 1 to 6", "the number of edges", "the previous node of 6"], ans: 0, why: "R. route." },
-    { q: "Which is FALSE for Dijkstra (AQA 2022)?", opts: ["works with weighted and unweighted graphs", "shortest path from a node", "directed and undirected graphs", "uses edge weights"], ans: 0, why: "AQA marks it False." }
+    { q: "Dijkstra's algorithm next processes", opts: ["the unvisited node with the smallest distance", "the unvisited node joined by the cheapest single edge", "the next unvisited node in numerical order", "the unvisited node with the most edges leaving it"], ans: 0, why: "Priority queue on D." },
+    { q: "In the 2018 trace, D[3] ends as", opts: ["3", "5", "1", "4"], ans: 0, why: "The shortest route to node 3 is via node 2, costing 2 + 1 = 3." },
+    { q: "OUTPUT D[6] represents", opts: ["the shortest time from 1 to 6", "the full route taken from 1 to 6", "the number of edges from 1 to 6", "the node visited just before 6"], ans: 0, why: "D holds the shortest times from the start node 1, so D[6] is a time, not the route itself." },
+    { q: "Which is FALSE for Dijkstra (AQA 2022)?", opts: ["works with weighted and unweighted graphs", "finds the shortest path from a start node", "works with directed and undirected graphs", "uses the edge weights to compare routes"], ans: 0, why: "AQA marks it False." }
   ],
   sims: ["dijkstra"]
 };

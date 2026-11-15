@@ -93,7 +93,7 @@
       ["How do you bind Ctrl+N to a command?", "<KeyBinding Gesture=\"Ctrl+N\" Command=\"{Binding NewCommand}\" /> in Window.KeyBindings."]
     ],
     quiz: [
-      { q: "A Delete button bound to DeleteCommand stays grey after a note is selected. Most likely…", opts: ["the binding is one-way", "CanExecuteChanged was never raised", "Delete is async", "the button has no Click"], ans: 1, why: "The button asks again only when told the answer may have changed." },
+      { q: "A Delete button bound to DeleteCommand stays grey after a note is selected. Most likely…", opts: ["the binding is one-way, so it is read once", "CanExecuteChanged was never raised", "Delete is async, so it starts disabled", "the button has no Click handler set"], ans: 1, why: "The button asks again only when told the answer may have changed." },
       { q: "`[RelayCommand] async Task Save()` gives…", opts: ["SaveAsyncCommand", "SaveCommand (IAsyncRelayCommand)", "SaveCommand (ICommand only)", "nothing until registered"], ans: 1, why: "The toolkit names it after the method, async-aware." },
       { q: "Where should the command live?", opts: ["the code-behind", "the view model", "App.axaml", "the model"], ans: 1, why: "The view binds; the view model acts." }
     ]
@@ -165,9 +165,9 @@
       ["What may a view model never touch?", "Controls, windows and other view types."]
     ],
     quiz: [
-      { q: "A view model needs to save files. It should…", opts: ["new up a FolderNoteStore", "take an INoteStore in its constructor", "call the window", "use a static class"], ans: 1, why: "Services by interface, so tests can pass a fake." },
-      { q: "`partial void OnTextChanged(string value)` is called…", opts: ["never", "by the generated Text setter after a change", "by the view", "on every get"], ans: 1, why: "The toolkit generates hooks for each observable property." },
-      { q: "Which belongs in the code-behind?", opts: ["saving a note", "deciding if Delete can run", "focusing the editor when it opens", "the word count"], ans: 2, why: "Only view-only work stays in the view." }
+      { q: "A view model needs to save files. It should…", opts: ["new up a FolderNoteStore in its constructor", "take an INoteStore in its constructor", "call the window's save method directly", "use a static class that writes the files"], ans: 1, why: "Services by interface, so tests can pass a fake." },
+      { q: "`partial void OnTextChanged(string value)` is called…", opts: ["never, unless the view calls it itself", "by the generated Text setter after a change", "by the view each time the TextBox loses focus", "on every get of Text, before it returns"], ans: 1, why: "The toolkit generates hooks for each observable property." },
+      { q: "Which belongs in the code-behind?", opts: ["saving a note to the folder", "deciding if Delete can run", "focusing the editor when it opens", "the word count of the open note"], ans: 2, why: "Only view-only work stays in the view." }
     ]
   });
 
@@ -240,8 +240,8 @@
       ["Why must SaveAllAsync remove the old .md files?", "Otherwise notes deleted since the last save come back."]
     ],
     quiz: [
-      { q: "Where should SaveFilePickerAsync be called from?", opts: ["the view model", "the view (or a service given the TopLevel)", "the model", "App.axaml"], ans: 1, why: "It needs a TopLevel; view models stay UI-free." },
-      { q: "A test of Delete with the real WindowDialogs…", opts: ["passes", "needs a window and a screen, and hangs headless", "is fine with [Fact]", "skips the dialog"], ans: 1, why: "Use a fake IDialogs." },
+      { q: "Where should SaveFilePickerAsync be called from?", opts: ["the view model, from the command's handler", "the view (or a service given the TopLevel)", "the model, where the file is written", "App.axaml, so every window shares it"], ans: 1, why: "It needs a TopLevel; view models stay UI-free." },
+      { q: "A test of Delete with the real WindowDialogs…", opts: ["passes, as the dialog closes itself headless", "needs a window and a screen, and hangs headless", "is fine in a plain [Fact] with no window at all", "skips the dialog and deletes the note at once"], ans: 1, why: "Use a fake IDialogs." },
       { q: "A file name from the title \"Ideas: C# & Avalonia!\" in this project is…", opts: ["01-Ideas: C# & Avalonia!.md", "01-ideas-c-avalonia.md", "ideas.md", "01-ideas-c#-avalonia.md"], ans: 1, why: "Lower case; each run of other characters becomes one dash." }
     ]
   });
@@ -314,9 +314,9 @@
       ["Most of a UI's tests should be of what?", "The view models — plain [Fact]s."]
     ],
     quiz: [
-      { q: "`new MainWindow()` inside a plain [Fact]…", opts: ["works", "fails: no Avalonia app on that thread", "opens a real window", "is skipped"], ans: 1, why: "[AvaloniaFact] provides the headless app and its thread." },
-      { q: "Which proves a button follows its command's CanExecute?", opts: ["IsEnabled", "IsEffectivelyEnabled", "IsVisible", "Command != null"], ans: 1, why: "IsEffectivelyEnabled is what the user can actually press." },
-      { q: "Why send input events rather than set TextBox.Text in a window test?", opts: ["it is faster", "it goes through the same path as a user's typing", "Text is read-only", "bindings ignore Text"], ans: 1, why: "Input events exercise focus, routing and binding together." }
+      { q: "`new MainWindow()` inside a plain [Fact]…", opts: ["works, as any test thread can make windows", "fails: no Avalonia app on that thread", "opens a real window on the desktop", "is skipped by xUnit with a warning"], ans: 1, why: "[AvaloniaFact] provides the headless app and its thread." },
+      { q: "Which proves a button follows its command's CanExecute?", opts: ["Button.IsEnabled", "IsEffectivelyEnabled", "IsHitTestVisible", "Button.Command != null"], ans: 1, why: "IsEffectivelyEnabled is what the user can actually press." },
+      { q: "Why send input events rather than set TextBox.Text in a window test?", opts: ["it runs faster than setting the property directly", "it goes through the same path as a user's typing", "Text is read-only in a headless window", "bindings ignore Text when it is set in code"], ans: 1, why: "Input events exercise focus, routing and binding together." }
     ]
   });
 

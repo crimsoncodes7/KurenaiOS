@@ -276,6 +276,46 @@ def tidy_it_existing():
     print("Tidied IT spec text (assessment dumps, empty bullets, include: guidance, duplicate F206.6.1).")
 
 
+def apply_maths_spec(obj):
+    """Replace each Maths leaf's spec text with the hand-typeset table in
+    tools/maths_spec.py (W6, CM-01): the extraction lost exponents,
+    fractions and roots. Every leaf must be in the table and every table
+    row must name a leaf, so neither side drifts."""
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from maths_spec import SPEC, TITLES
+    seen = set()
+
+    def walk(node):
+        for ch in node.get("children", []):
+            if ch.get("children"):
+                walk(ch)
+                continue
+            ref = ch["ref"]
+            if ref not in SPEC:
+                raise SystemExit(f"Maths leaf {ref} has no row in tools/maths_spec.py")
+            seen.add(ref)
+            ch["content"] = list(SPEC[ref]["content"])
+            ch["info"] = list(SPEC[ref]["info"])
+            if ref in TITLES:
+                ch["title"] = TITLES[ref]
+    for sec in obj["sections"]:
+        walk(sec)
+    extra = sorted(set(SPEC) - seen)
+    if extra:
+        raise SystemExit("tools/maths_spec.py names refs that are not Maths leaves: " + ", ".join(extra))
+    return obj
+
+
+def maths_spec_existing():
+    maths = read_generated("maths", "maths")
+    write("maths", "maths", apply_maths_spec(maths))
+    print("Typeset the Maths spec text from tools/maths_spec.py (%d leaves)." % sum(1 for _ in _leaves(maths)))
+
+
+if "--maths-spec" in sys.argv:
+    maths_spec_existing()
+    raise SystemExit(0)
+
 if "--tidy-it" in sys.argv:
     tidy_it_existing()
     raise SystemExit(0)
@@ -432,7 +472,7 @@ it = scope_it({"id": "it", "name": "IT: Data Analytics", "board": "OCR AAQ H019/
       "sections": it_sections})
 
 write("compsci", "compsci", merge_cs(compsci))
-write("maths", "maths", mech_refs(maths))
+write("maths", "maths", apply_maths_spec(mech_refs(maths)))
 write("it", "it", it)
 
 import subprocess

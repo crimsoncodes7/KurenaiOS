@@ -71,6 +71,13 @@ const REQUIRED = ["The problem it solves", "Core idea", "Rules", "Variations", "
 const written = data.sections.flatMap((u) => u.children.map((l) => ({ unit: u.ref, ref: l.ref, rider: u.where === "rider" }))).filter((l) => content["code:" + l.ref]);
 const blocksOf = (notes) => { const out = []; (function walk(bs) { (bs || []).forEach((b) => { if (!b || typeof b !== "object") return; if (b.run || b.code) out.push(b); if (b.callout && Array.isArray(b.callout.body)) walk(b.callout.body); }); })(notes); return out; };
 
+step("A0 · CO-17: no concept, task or card id is registered twice", () => {
+  const d = K.DUPES || [];
+  assert(!d.length, "ids registered twice: " + d.join(", "));
+  const n = (id) => K.CONCEPTS[id] && K.CONCEPTS[id].lesson;
+  const got = [n("validation"), n("validation-reports"), n("form-validation")].join(" ");
+  assert(got === "3.6 B.8 T2.17", "each lesson has its own concept: " + got);
+});
 step("A · a released unit is written whole", () => {
   assert(written.length >= 8, "unit 1 ships: " + written.length + " lessons written");
   const units = [...new Set(written.map((l) => l.unit))];
