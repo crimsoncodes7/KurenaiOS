@@ -211,29 +211,32 @@
   }
 
   /* ================= About to Study (33q) ================= */
-  /* ctx: {title, subject, refs, assignmentId, objective, cfg (the Focus
-     page's own settings), onStart} — every field optional */
+  /* THE FOCUS PAGE OWNS THE TIMER (14 November 2026). About to Study is
+     the Focus page's pre-flight: it asks what you will do first, offers the
+     materials and the distraction check, and hands back EXACTLY the set-up
+     the page chose (`ctx.cfg`: mode, length, until, nudge, limit) — it has
+     no mode or length of its own (a custom length it could not show became
+     0 minutes, a session of one second). Its task is the page's link; "General
+     study — no link" stays unlinked unless Change picks one.
+     ctx: {subject, refs, assignmentId, objective, cfg, onStart}. Called
+     from anywhere else (no `onStart`), it opens the Focus page filled in. */
   function preflight(ctx) {
     ctx = ctx || {};
     if (KOS.focus && KOS.focus.state && KOS.focus.state() !== "idle") { KOS.show("focus"); return; }
+    if (!ctx.onStart) { openFocus(ctx); return; }
     if ((store.state.ui || {}).focusPreflight === false) { startFocus(ctx, ctx.objective || ""); return; }
-    var task = taskOf(ctx);
+    var task = taskOf(ctx), picked = false;
     var title = el("h2", { class: "k-dialog-title", text: "About to Study" });
     var taskBox = el("div", { class: "k-rpl-task" });
     var action = el("input", { type: "text", class: "k-input", value: ctx.objective || "", maxlength: 200, placeholder: suggestAction(task), "aria-label": "First concrete action, two minutes", "data-ui": "preflight.action" });
     var clear = { on: false };
-    var mode = el("select", { class: "k-input", "aria-label": "Mode" }, [["pomodoro", "Pomodoro"], ["custom", "Custom"], ["stopwatch", "Stopwatch"]].map(function (o) { return el("option", { value: o[0], text: o[1] }); }));
-    var len = el("select", { class: "k-input", "aria-label": "Length" }, [25, 30, 45, 50, 60, 90].map(function (m) { return el("option", { value: m, text: m + " min" }); }));
-    var lc = (store.state.focus && store.state.focus.lastConfig) || {};
-    if (ctx.cfg && ctx.cfg.mode) mode.value = ctx.cfg.mode; else if (lc.mode && lc.mode !== "until") mode.value = lc.mode;
-    if (ctx.cfg && ctx.cfg.workMin) len.value = String(ctx.cfg.workMin); else if (lc.workMin) len.value = String(lc.workMin);
     function paintTask() {
       taskBox.innerHTML = "";
       taskBox.appendChild(U().bar(U().hue(task.subject)));
-      taskBox.appendChild(el("div", { class: "k-rt-grow" }, [el("b", { text: task.title || "Pick a task, or just study" }), task.sub ? el("span", { class: "k-muted k-rt-small", text: task.sub }) : null]));
+      taskBox.appendChild(el("div", { class: "k-rt-grow" }, [el("b", { text: task.title || "General study — no link" }), task.sub ? el("span", { class: "k-muted k-rt-small", text: task.sub }) : null]));
       var choices = taskChoices();
       if (choices.length) taskBox.appendChild(KOS.ui.menu({ label: "Change", className: "k-btn--quiet k-btn--sm", items: choices.map(function (c) {
-        return { label: c.title, hint: c.sub, onSelect: function () { task = c; if (!action.value) action.placeholder = suggestAction(task); paintTask(); paintMaterials(); } };
+        return { label: c.title, hint: c.sub, onSelect: function () { task = c; picked = true; if (!action.value) action.placeholder = suggestAction(task); paintTask(); paintMaterials(); } };
       }) }));
     }
     var mats = el("div", { class: "k-cluster" });
@@ -247,26 +250,24 @@
     var dontAsk = el("input", { type: "checkbox", role: "switch", class: "k-switch", "aria-label": "Don't ask before Focus", "data-ui": "preflight.dont-ask" });
     function go(skip) {
       if (dontAsk.checked) { store.state.ui.focusPreflight = false; store.save(); }
-      var cfg = Object.assign({}, ctx.cfg || {}, { mode: mode.value, workMin: +len.value, breakMin: mode.value === "pomodoro" ? 5 : 0 });
       overlay.remove();
       /* the About to Study routine day, when it exists and every step was met */
       if (!skip) {
         var pre = R().all().filter(function (r) { return r.anchor === "focus"; })[0];
         if (pre) R().tickAll(pre.id);
       }
-      /* "Just start" from the Focus page starts exactly what the page was
-         set to — its link, mode and length — never the sheet's pick (PR-03) */
-      if (skip && ctx.cfg) { startFocus(Object.assign({}, ctx, { cfg: ctx.cfg }), ctx.objective || ""); return; }
-      startFocus(Object.assign({}, ctx, task, { cfg: cfg }), skip ? (ctx.objective || "") : action.value || "");
+      /* the page's set-up, untouched; the task only when Change picked one */
+      var link = !skip && picked ? { subject: task.subject || null, refs: task.refs || [], assignmentId: task.assignmentId != null ? task.assignmentId : null } : {};
+      startFocus(Object.assign({}, ctx, link, { relink: !!link.subject || link.assignmentId != null }), skip ? (ctx.objective || "") : action.value || "");
     }
     var box = el("div", { class: "k-dialog k-rpl-pre", "data-ui": "preflight.sheet" }, [
-      el("div", { class: "k-dialog-head" }, [el("span", { class: "k-dialog-mark", lang: "ja", "aria-hidden": "true", text: "始" }), el("div", {}, [title, el("span", { class: "k-muted k-rt-small", text: "four quick things, already filled in" })])]),
+      el("div", { class: "k-dialog-head" }, [el("span", { class: "k-dialog-mark", lang: "ja", "aria-hidden": "true", text: "始" }), el("div", {}, [title, el("span", { class: "k-muted k-rt-small", text: "three quick things before the clock starts" })])]),
       el("div", { class: "k-dialog-body k-rpl-pre-b" }, [
         taskBox,
         el("label", { class: "k-field" }, [el("span", { class: "k-field-label", text: "First concrete action · two minutes" }), action, el("span", { class: "k-field-hint", text: "becomes the session's objective" })]),
         el("div", { class: "k-field" }, [el("span", { class: "k-field-label", text: "Open materials" }), mats]),
         el("div", { class: "k-rt-set" }, [clearBtn, el("div", { class: "k-rt-grow" }, [el("div", { text: "Clear distractions" }), el("span", { class: "k-muted k-rt-small", text: "phone face down, tabs closed, Opal on" })])]),
-        el("div", { class: "k-rt-2col" }, [el("label", { class: "k-field" }, [el("span", { class: "k-field-label", text: "Mode" }), mode]), el("label", { class: "k-field" }, [el("span", { class: "k-field-label", text: "Length" }), len])])
+        el("p", { class: "k-muted k-rt-small", "data-ui": "preflight.timer", text: "Timer: " + timerText(ctx.cfg) + " · set on the Focus page" })
       ]),
       el("div", { class: "k-dialog-foot" }, [
         el("button", { type: "button", class: "k-btn k-btn--quiet", "data-ui": "preflight.just-start", text: "Just start", onclick: function () { go(true); } }),
@@ -279,17 +280,36 @@
     action.addEventListener("keydown", function (e) { if (e.key === "Enter") go(false); });
     KOS.ui.openDialog(overlay, { labelledBy: title, initialFocus: action });
   }
+  /* the Focus page's set-up in words (About to Study only shows it) */
+  function timerText(c) {
+    c = c || {};
+    if (c.mode === "stopwatch") return "Stopwatch" + (c.limitMin ? ", stops after " + Math.round(c.limitMin / 6) / 10 + " h" : "");
+    if (c.mode === "until") return "Study until " + (c.until || "");
+    if (c.mode === "custom") return (c.workMin || 25) + " min" + (c.breakMin ? " / " + c.breakMin + " min break" : "");
+    return "Pomodoro 25 / 5";
+  }
+  /* open the Focus page with what to link, starting nothing */
+  function openFocus(ctx) {
+    var arg = {};
+    var t = ctx.assignmentId != null || ctx.subject || (ctx.refs && ctx.refs.length) ? ctx : null;
+    if (t) {
+      if (t.subject) arg.subject = t.subject;
+      if (t.refs && t.refs.length) arg.refs = t.refs.slice();
+      if (t.assignmentId != null) arg.assignmentId = t.assignmentId;
+    }
+    if (ctx.objective) arg.objective = ctx.objective;
+    if (ctx.mins > 0) arg.mins = ctx.mins;
+    KOS.show("focus", Object.keys(arg).length ? arg : undefined);
+  }
   function taskOf(ctx) {
     if (ctx.assignmentId != null) {
       var a = KOS.assignments.get(ctx.assignmentId);
       if (a) return { title: a.title, subject: a.subject, assignmentId: a.id, refs: KOS.assignments.refsOf(a), sub: "Assignment" + (a.due ? " · due " + U().dayLabel(a.due, { weekday: "short", day: "numeric", month: "short" }) : "") };
     }
     if (ctx.title || ctx.subject) return { title: ctx.title || (KOS.subjects.meta(ctx.subject) || {}).name, subject: ctx.subject, refs: ctx.refs || [], sub: ctx.refs && ctx.refs.length ? (KOS.spec && KOS.spec.label ? KOS.spec.label(ctx.refs[0]) : ctx.refs[0]) : "" };
-    /* Focus said "General study — no link": that is a choice, not a gap to
-       fill with a suggestion (PR-03); Change still offers them */
-    if (ctx.explicit) return { title: "General study", subject: null, refs: [], assignmentId: null, sub: "No link · Change to pick one", general: true };
-    var three = taskChoices()[0];
-    return three || { title: "", subject: null, refs: [] };
+    /* nothing linked on the Focus page is a choice, not a gap to fill with
+       a suggestion (PR-03): it stays unlinked; Change still offers them */
+    return { title: "General study", subject: null, refs: [], assignmentId: null, sub: "No link · Change to pick one", general: true };
   }
   /* Today's three, then open assignments due soonest, then the ladder's next */
   function taskChoices() {
@@ -329,16 +349,18 @@
     });
     return out;
   }
+  /* hand the Focus page's own set-up back to it: only the objective, and
+     the link when Change picked another task, are About to Study's */
   function startFocus(ctx, objective) {
-    var cfg = Object.assign({ mode: "pomodoro", workMin: 25, breakMin: 5 }, ctx.cfg || {});
-    cfg.subject = ctx.subject || cfg.subject || null;
-    cfg.refs = (ctx.refs && ctx.refs.length ? ctx.refs : cfg.refs) || [];
-    if (ctx.assignmentId != null) cfg.assignmentId = ctx.assignmentId;
+    var cfg = Object.assign({}, ctx.cfg || {});
+    if (ctx.relink) {
+      cfg.subject = ctx.subject || null;
+      cfg.refs = ctx.refs || [];
+      cfg.assignmentId = ctx.assignmentId != null ? ctx.assignmentId : null;
+    }
     cfg.objective = objective || cfg.objective || "";
     if (ctx.onStart) { ctx.onStart(cfg); return; }
-    KOS.show("focus");
-    if (KOS.focus && KOS.focus.start) KOS.focus.start(cfg);
-    KOS.rerender();
+    openFocus(ctx);
   }
 
   KOS.routinePlayer = { open: open, preflight: preflight, daySheet: daySheet, taskChoices: taskChoices };

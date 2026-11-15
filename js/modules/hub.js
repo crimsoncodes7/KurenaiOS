@@ -907,7 +907,6 @@
   var SUBJ_HUE = KOS.subjects.map("hue");
   var SUBJ_SHORT = KOS.subjects.map("short");
   var homeMode = null;        /* the Up next switch, per page visit (UI-only state) */
-  var homeMins = 25;          /* the Up next focus length (UI-only state) */
 
   function isoOf(d) {
     return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2);
@@ -1278,8 +1277,9 @@
         var why = [n.why, winPending ? "counts as a recovery win" : null].filter(Boolean).join(" · ");
         if (why) upnext.appendChild(el("p", { class: "k-upnext-why", "data-ui": "home.next-why", text: why }));
         if (!running) {
-          var sessMins = n.fixed ? n.mins : homeMins;
-          upnext.appendChild(cardRow("Session", n.fixed ? minsText(sessMins) + " · the block" : homeMins + " min" + (homeMins === 25 ? " · 1 pomodoro" : homeMins === 50 ? " · one long block" : " · deep work")));
+          /* a calendar block's own length is a fact of the block; any other
+             length is chosen on the Focus page, which owns the set-up */
+          if (n.fixed) upnext.appendChild(cardRow("Session", minsText(n.mins) + " · the block"));
           if (n.goal) upnext.appendChild(cardRow(n.goal.k, n.goal.v, n.goal.bar == null ? null : n.goal.bar));
         }
         /* the Focus side starts the session it just configured; the
@@ -1287,28 +1287,23 @@
            button used to hand off to Pacing instead of starting anything) */
         if (running) { cta = n.cta; go = n.go; }
         else {
-          cta = "Start focus";
+          cta = "Set up focus →";
+          /* the Focus page owns a session's set-up (14 November 2026): this
+             opens it filled in with the recommendation, and starts nothing */
           go = function () {
-            var m = n.fixed ? n.mins : homeMins;
-            var cfg = { mode: m === 25 ? "pomodoro" : "custom", workMin: m,
-              breakMin: m === 25 ? 5 : m === 50 ? 10 : 0,
-              subject: n.subject || null, ref: n.ref || null, objective: n.label };
+            var pre = { objective: n.label || "" };
+            if (n.subject) pre.subject = n.subject;
+            var refs = (n.refs && n.refs.length ? n.refs : n.subject && n.ref ? [n.subject + ":" + n.ref] : []);
             /* a Focus session links ONE subject (invariant 4a) */
-            if (n.refs && n.refs.length && n.subject) cfg.refs = n.refs.filter(function (k) { return k.indexOf(n.subject + ":") === 0; });
-            if (n.assignmentId != null) cfg.assignmentId = n.assignmentId;
-            KOS.focus.start(cfg);
-            KOS.show("focus");
+            if (n.subject) refs = refs.filter(function (k) { return k.indexOf(n.subject + ":") === 0; });
+            if (refs.length) pre.refs = refs;
+            if (n.assignmentId != null) pre.assignmentId = n.assignmentId;
+            if (n.fixed && n.mins > 0) pre.mins = n.mins;
+            KOS.show("focus", pre);
           };
         }
       }
       var foot = el("div", { class: "k-upnext-foot" });
-      if (mode === "focus" && !running && !n.fixed) {
-        foot.appendChild(el("div", { class: "k-durations", role: "group", "aria-label": "Session length" },
-          [25, 50, 90].map(function (m) {
-            return el("button", { type: "button", class: "k-btn", "aria-pressed": String(m === homeMins), text: m + "m",
-              onclick: function () { homeMins = m; paintUpNext(); } });
-          })));
-      }
       foot.appendChild(el("button", { type: "button", class: "k-btn k-btn--primary", "data-ui": "home.next-go",
         "data-intent": "primary", text: cta, onclick: go }));
       upnext.appendChild(foot);

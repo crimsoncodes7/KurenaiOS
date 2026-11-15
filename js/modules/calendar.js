@@ -811,6 +811,14 @@
     if (ev.allDay || !ev.time) return "All day";
     return ev.time + (ev.endTime ? "–" + ev.endTime : "");
   }
+  /* what the Focus page is opened with for an event (invariant 4e) */
+  function focusArg(ev) {
+    var a = { subject: ev.subject || "", ref: ev.ref || "" };
+    if (Array.isArray(ev.refs) && ev.refs.length) a.refs = ev.refs.slice();
+    if (ev.assignmentId != null) a.assignmentId = ev.assignmentId;
+    if (ev.type === "study" && ev.durationMins > 0) a.mins = ev.durationMins;
+    return a;
+  }
   function durationLabel(m) {
     if (!m) return "";
     var h = Math.floor(m / 60), r = m % 60;
@@ -1058,7 +1066,9 @@
       ev.type === "study" || ev.type === "lesson"
         ? el("div", { class: "k-cluster" }, [el("button", { type: "button", class: "k-btn", text: "Start a focus session", onclick: function () {
             overlay.close();
-            KOS.show("focus", { subject: ev.subject || "", ref: ev.ref || "" });
+            /* the Focus page owns the set-up (invariant 4e): it opens filled
+               with the block's link, its assignment and its own length */
+            KOS.show("focus", focusArg(ev));
           } })])
         : null
     ].filter(Boolean));
@@ -1335,7 +1345,7 @@
             el("div", { class: "k-cal-fgrid" }, [field("Intended duration (min)", studyDur), assignField]),
             el("div", { class: "k-cluster" }, [
               el("button", { class: "k-btn", type: "button", text: "Save and start a focus session", onclick: function () {
-                save(function (rec) { KOS.show("focus", { subject: rec.subject || "", ref: rec.ref || "" }); });
+                save(function (rec) { KOS.show("focus", focusArg(rec)); });
               } }),
               el("span", { class: "k-field-hint", text: "Saves the block first, then opens the timer with its subject and topic filled in." })
             ])

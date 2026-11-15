@@ -2059,10 +2059,26 @@
     }
 
     var cfg = Object.assign({}, F().lastConfig);
-    /* Contextual entry points (such as Compare Topics) prefill the existing
-       subject/topic controls without changing the user's saved configuration
-       until they deliberately start a session. */
-    if (arg && arg.subject) { cfg.subject = arg.subject; cfg.ref = arg.ref || ""; }
+    /* THE FOCUS PAGE OWNS A SESSION'S SET-UP (14 November 2026). Every
+       other surface — Home, the Daily Review, a routine's step, a topic, an
+       assignment, the Calendar — opens this page with what to link
+       (`arg` = {subject, ref, refs, assignmentId, objective, mins}); the
+       form is filled and nothing starts until Start is pressed here. A
+       link given replaces the last session's whole link (a topic from
+       another subject never rides along); `mins` is a block's own length. */
+    var pre = arg && typeof arg === "object" ? arg : null;
+    if (pre && (pre.subject || (pre.refs && pre.refs.length) || pre.assignmentId != null)) {
+      var preRefs = Array.isArray(pre.refs) ? pre.refs.filter(Boolean) : [];
+      if (!preRefs.length && pre.subject && pre.ref) preRefs = [pre.subject + ":" + pre.ref];
+      var preSubj = pre.subject || (preRefs.length && KOS.spec && KOS.spec.subjectsOf ? KOS.spec.subjectsOf(preRefs)[0] : null) || null;
+      /* one subject a session (invariant 4a) */
+      if (preSubj) preRefs = preRefs.filter(function (k) { return String(k).indexOf(preSubj + ":") === 0; });
+      /* the topic picker holds one topic: several (a mock over a whole
+         paper) is the whole subject, never its first unit */
+      cfg.subject = preSubj; cfg.ref = ""; cfg.refs = preRefs.length === 1 ? preRefs : [];
+      cfg.assignmentId = pre.assignmentId != null ? pre.assignmentId : null;
+    }
+    if (pre && pre.mins > 0) { cfg.mode = "custom"; cfg.workMin = Math.max(1, Math.min(240, Math.round(pre.mins))); cfg.breakMin = 0; }
     var mode = MODES.indexOf(cfg.mode) !== -1 ? cfg.mode : "pomodoro";
     var BLK = KOS.governor.FOCUS_BLOCK;
     var work = el("input", { type: "number", min: 1, max: 240, class: "k-input", "data-ui": "ui.number-input", "aria-label": "Work minutes" });
@@ -2257,8 +2273,8 @@
     fillAssignments();
     /* deep link from an assignment's "Focus on this" — preselect its subject
        and the assignment itself so the session is linked before it starts */
-    if (arg && arg.assignmentId != null && KOS.assignments) {
-      var linked = KOS.assignments.get(arg.assignmentId);
+    if (pre && pre.assignmentId != null && KOS.assignments) {
+      var linked = KOS.assignments.get(pre.assignmentId);
       if (linked) {
         if (linked.subject) { subjSel.value = linked.subject; topicPick.refresh(); }
         fillAssignments();
@@ -2275,6 +2291,7 @@
        before starting: it is what the completion review reports back. */
     var objIn = el("input", { type: "text", class: "k-input", "data-ui": "focus.obj-in", maxlength: "200",
       placeholder: "e.g. finish the tree-traversal exam questions", "aria-label": "Session objective" });
+    if (pre && pre.objective) objIn.value = String(pre.objective).slice(0, 200);
     var objField = el("label", { class: "k-field" }, [el("span", { class: "k-field-label", text: "Objective (optional)" }), objIn]);
     form.appendChild(objField);
 

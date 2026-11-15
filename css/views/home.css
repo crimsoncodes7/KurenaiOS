@@ -106,9 +106,6 @@ button.k-check-row:hover .k-check-row-text { color: var(--text); text-decoration
 .k-kv-bar { inline-size: var(--row-bar-w); flex: 0 0 auto; --bar-h: var(--bar-6); }
 .k-upnext-foot { display: flex; align-items: center; gap: var(--sp-8); margin-block-start: auto; padding-block-start: var(--sp-14); }
 .k-upnext-foot > .k-btn--primary { flex: 1 1 0; }
-.k-durations { display: flex; gap: var(--sp-4); font-size: var(--fs-12); }
-.k-durations .k-btn { padding: var(--sp-6) var(--sp-10); box-shadow: none; color: var(--muted); font-size: var(--fs-12); }
-.k-durations .k-btn[aria-pressed="true"] { background: var(--s2); color: var(--text); }
 .k-upnext[data-state~="live"] .k-upnext-head .k-kicker { color: var(--crimson); }
 
 .k-home-pair { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-20); min-inline-size: 0; }
