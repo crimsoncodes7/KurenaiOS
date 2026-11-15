@@ -1,6 +1,6 @@
 ---
 name: project-branch-and-release-state
-description: "Which git branch is live, what is deployed — check git before trusting this; latest entry 2026-11-16 (production kos-integrity-8, 7bdc039; feat/w6-content 32217b8 not deployed)"
+description: "Which git branch is live, what is deployed — check git before trusting this; latest entry 2026-11-16 (production kos-integrity-9, 557169f)"
 metadata:
   node_type: memory
   type: project
@@ -8,9 +8,9 @@ metadata:
   modified: 2026-10-20T16:16:29.892Z
 ---
 
-**In flight (2026-11-16):** `feat/w6-content` at `32217b8` (pushed, NOT deployed; gate 146 incl. new smoke148): W6's second batch — Maths spec typeset from the PDF (tools/maths_spec.py), quiz options with no length tell (tools/quiz_bias.mjs), CS/Maths duplicate and misfiled items, thin explanations, honest generators, the tally, stale forks (CM-04), Japanese/Mind/Code fixes, Seasonal "N behind", roadmap 5.19 (the four backlog asks). Deploy needs a fresh go-ahead. Next per the user: W3; W8 just before W10.
+**Latest (2026-11-16, later):** production is sw `kos-integrity-9`, commit `557169f`, immutable https://6ed1a44d.kurenai-os.pages.dev; `origin/main` fast-forwarded to it from `feat/w6-content`: W6's second batch (Maths spec typeset, quiz options with no length tell, duplicates and misfiled items, the tally, stale forks, Japanese/Mind/Code fixes, Seasonal "N behind"; smoke148; gate 146). The user then moved to the other account: its list is docs/HANDOFF.md §0. Next here: W3; W8 just before W10.
 
-**Latest (2026-11-16):** production is sw `kos-integrity-8`, commit `7bdc039`, immutable https://bce84b5a.kurenai-os.pages.dev; `origin/main` fast-forwarded to it from `feat/w2-opus`: the Focus page owns a session's set-up (4e, smoke144), the Assistant's Undo and scroll (smoke145), W2's smaller items incl. UR-5 screen-off (smoke146), W1's remaining P2/P3s with Reports and pot pictures in the backup (smoke147). Gate 145 (142/143 reserved for the Fable account's AP-01/RC6). Always branch from `origin/main` after `git fetch` (this checkout's local `main` was weeks stale until 2026-11-16).
+**Before it (2026-11-16):** production is sw `kos-integrity-8`, commit `7bdc039`, immutable https://bce84b5a.kurenai-os.pages.dev; `origin/main` fast-forwarded to it from `feat/w2-opus`: the Focus page owns a session's set-up (4e, smoke144), the Assistant's Undo and scroll (smoke145), W2's smaller items incl. UR-5 screen-off (smoke146), W1's remaining P2/P3s with Reports and pot pictures in the backup (smoke147). Gate 145 (142/143 reserved for the Fable account's AP-01/RC6). Always branch from `origin/main` after `git fetch` (this checkout's local `main` was weeks stale until 2026-11-16).
 
 **Before it (2026-11-14):** production is sw `kos-integrity-7`, commit `35813fa`, immutable https://dd9bf2af.kurenai-os.pages.dev; `origin/main` fast-forwarded to it from `feat/w1-integrity`. It carries everything batched since kos-integrity-6: 13903e9, 14bd215 (RC4), 016c0ba and a9945f7 (W7 incl. GO-02's Goal getter take-back repair and GO-23 evidence colours), 8ba235f (W3 floors), 0a57ea5 (W6), 6279a9c (W2 redraw policy), 3dca47d (sessions in progress), 17e507b (DI-20/DI-11 side-store sync status). The three Fable commits were reviewed on Opus before the deploy: nothing blocking. Gate 141. Fable work LEFT: lazy loading (AP-01) and the rest of RC6.
 

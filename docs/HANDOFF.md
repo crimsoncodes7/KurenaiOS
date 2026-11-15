@@ -7,32 +7,58 @@ the only things both can rely on are **Git** and the **files in the repo**.
 This page is the protocol that keeps them seamless. Nothing in it needs the
 accounts to talk to each other.
 
-## 0. The current handover (28 October 2026)
+## 0. The current handover (16 November 2026)
 
-The first account is near its weekly limit (it resets on Sunday 1 November),
-so the art and shop work continues on the other account.
+The user is moving to the OTHER account for a while, which has Fable for a
+limited time. That account takes the list below; this account (Opus) keeps
+W3, W5, W8, W10 and roadmap 5.19, and does not touch the other account's
+files while it works.
 
-- **Done:** the art and shop audit (roadmap 5.13), the user's two rounds of
-  decisions, and roadmap 5.14 (rotating art and your own pictures).
-  Everything needed is in [app-art.md](app-art.md): the decisions, the shop
-  at 116,700 gold, the 322 Gemini images in 23 waves, and the build order.
-  The prompts are `art-source/app/manifest.json` (sheet:
-  `prototypes/app-art/art.html`); the Claude Design passes are
-  [design-prompts.md](design-prompts.md) §18, now ONE combined prompt
-  (art slots, the Assistant, the shop, the cosmetics); the small passes
-  18.1, 18.2, 18.4 and 18.6 were built directly on 30 October 2026.
-- **Art made:** waves 1–5 (the Assistant, Home's seasons, the subject desks,
-  Focus scenes, spotlights, halls, empty states, story covers, finishes,
-  banners, the seven outfit bases, Code's capstone badges, the Exam Room),
-  saved in `art-source/app/inbox/`, NOT imported yet. Next for the user:
-  waves 6–8 (the outfits' faces), then 8 onwards.
-- **Live:** sw `kos-japanese-5` (https://fc302f55.kurenai-os.pages.dev).
-- **Nothing is built yet.** Next: release 1 in app-art.md, the
-  Assistant's redesign (its six images are in the inbox), then Home's
-  seasons. Ask before any deploy.
-- Another Claude session may be releasing Pencil fixes on
-  `feat/pencil-fixes` (worktree `../KurenaiOS-ink`): always fetch and branch
-  from the latest `main`.
+**State.** Production is sw `kos-integrity-9` (https://6ed1a44d.kurenai-os.pages.dev),
+commit `557169f`, and `origin/main` is at it. The quality programme's plan
+is `docs/audit/2026-11/REMEDIATION_PLAN.md` on branch `audit/quality-2026-11`
+(read it with `git show origin/audit/quality-2026-11:docs/audit/2026-11/REMEDIATION_PLAN.md`;
+its W-sections carry a progress note after each batch, and the appendix lists
+every finding with its id; `findings.json` there has each finding's detail,
+evidence and proposed fix). Done and live: W0, W1 (all but RC6), W2 (all
+but AP-01), W6, W7 (all but HR-04, a design), W3's global fixes.
+
+**For the other account, in this order:**
+1. **W2 AP-01, lazy loading** (Fable). Boot loads every script; load the
+   study spaces, labs and big content files on first use. Keep `file://`
+   working (invariant: classic script tags) and every smoke green.
+2. **W1 RC6, Todoist and Google bookkeeping** (Fable): DI-01, DI-05, DI-06,
+   DI-07 (re-keyed references), DI-08, DI-12, DI-16, DI-17, DI-23 — see
+   the W1 section and the appendix. Invariants 157–160.
+3. **W4's import engine, no design needed:** MG-02, MG-03, MG-04, MG-05,
+   MG-06, MG-07, MG-08, MG-24 (the table in W4; fixtures in
+   `docs/audit/2026-11/data/money-samples/` on the audit branch). MG-10 and
+   the views wait for design prompt D-Money (§A8).
+4. **The rest of W1's and W7's P2/P3s** that are not design work (filter
+   the appendix by workstream; skip anything marked "✎design" or with a
+   decision open).
+5. **Roadmap 5.19 item 2, IT units archived and a current unit** (the user
+   asked 15 November; docs/ROADMAP.md §5.19): F200, F202 and F204 are done
+   at school; they leave the spine, the topic picker and the review analytics
+   but keep counting in marks, grades and history.
+
+**Rules for both accounts now:**
+- Smoke suite numbers: the other account uses **142, 143, 149 and 150**;
+  this account uses 151 onwards. `npm test` finds suites by number.
+- Branch from `origin/main` after `git fetch`; one branch per batch
+  (`feat/<ws>-…`); stage by name; commit and push after every batch; never
+  `git stash` with worktrees in use; never force-push.
+- At most three agents at once. Use Sonnet agents (`model: "sonnet"`) for
+  well-specified, mechanical work with a checker; Opus for judgement.
+- A production deploy needs the user's fresh go-ahead every time; the
+  release steps are in CLAUDE.md "Run, test and deploy".
+- Never write to AniList or VNDB; ask before touching the user's real
+  account; leave the user's own files alone (`.claude/`, Live2D art,
+  `media_budget_planner.html`, `prompt.md`, `prototypes/code-space/`,
+  untracked `docs/audit/`).
+- After each batch add a progress note to the plan's W-section on the audit
+  branch (a temporary worktree of `origin/audit/quality-2026-11`, commit,
+  push, remove it) and update the shared memory (`tools/sync_memory.sh push`).
 
 ## 1. Start of every session (either account)
 

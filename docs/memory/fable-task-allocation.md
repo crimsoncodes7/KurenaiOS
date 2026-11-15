@@ -16,3 +16,5 @@ Fable is far more capable but drains the 5-hour limit fast, so it gets only work
 **Why:** the user said W3 "is tedious and would just waste time" on Fable, and asked that only tasks needing Fable's higher reasoning and coding use it, since it runs its limit out quickly.
 
 **How to apply:** before starting a workstream, say which model it is meant for; if the session is on Fable and the work is on the Opus list, suggest switching. No reviewer agents on Fable ([[max-three-agents]]). Related: [[quality-audit-2026-11]].
+
+**16 Nov 2026 hand-over:** the user moved to the other account (Fable for a limited time). There Fable does AP-01 (lazy loading) then RC6; the rest of that account's list (W4's import engine, open W1/W7 P2/P3s, roadmap 5.19 item 2 IT units archived) can run on Opus or Sonnet agents. This account keeps W3, W5, W8, W10 and the other 5.19 items. Smoke numbers: other account 142, 143, 149, 150; this account 151+. Full list: docs/HANDOFF.md §0.

@@ -1,6 +1,6 @@
 ---
 name: quality-audit-2026-11
-description: The quality programme (Nov 2026) — audit phase in progress; handoff in docs/audit/2026-11/HANDOFF.md; no implementation until the user approves the plan
+description: "The quality programme (Nov 2026): plan approved and being implemented; W0, W1 (but RC6), W2 (but AP-01), W6, W7 (but HR-04) live as of kos-integrity-9; plan on branch audit/quality-2026-11"
 metadata:
   node_type: memory
   type: project
