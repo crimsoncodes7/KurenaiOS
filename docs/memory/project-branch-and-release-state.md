@@ -1,12 +1,14 @@
 ---
 name: project-branch-and-release-state
-description: "Which git branch is live, what is deployed — check git before trusting this; latest entry 2026-11-14 (production kos-integrity-7, 35813fa)"
+description: "Which git branch is live, what is deployed — check git before trusting this; latest entry 2026-11-16 (production kos-integrity-7; feat/w2-opus ahead, not deployed)"
 metadata:
   node_type: memory
   type: project
   originSessionId: 2e2dc728-9366-4708-9ad8-6718d38edac2
   modified: 2026-10-20T16:16:29.892Z
 ---
+
+**Since (2026-11-16, Opus, branch `feat/w2-opus` off main, NOT deployed):** 3c63882 the Focus page owns a session's set-up (invariant 4e, smoke144), 60e4fef the Assistant's Undo and scroll (AA-01/AA-02, smoke145), 47baae0 the W2 smaller items incl. UR-5 screen-off (smoke146). Gate 144 (suites 142/143 reserved for the Fable account's AP-01/RC6 work). The LOCAL `main` ref in this checkout was weeks stale until 2026-11-16 — always branch from `origin/main` after `git fetch`.
 
 **Latest (2026-11-14):** production is sw `kos-integrity-7`, commit `35813fa`, immutable https://dd9bf2af.kurenai-os.pages.dev; `origin/main` fast-forwarded to it from `feat/w1-integrity`. It carries everything batched since kos-integrity-6: 13903e9, 14bd215 (RC4), 016c0ba and a9945f7 (W7 incl. GO-02's Goal getter take-back repair and GO-23 evidence colours), 8ba235f (W3 floors), 0a57ea5 (W6), 6279a9c (W2 redraw policy), 3dca47d (sessions in progress), 17e507b (DI-20/DI-11 side-store sync status). The three Fable commits were reviewed on Opus before the deploy: nothing blocking. Gate 141. Fable work LEFT: lazy loading (AP-01) and the rest of RC6.
 
