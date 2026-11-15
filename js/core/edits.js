@@ -87,8 +87,36 @@
     var e = shippedEntry(sid, ref);
     return blocksEditable(e && e.notes);
   }
+  /* the shipped entry is a stand-in while its subject's content has not
+     loaded (js/core/lazy.js): its summary, or null for the real thing */
+  function pendingSum(sid, ref) {
+    return KOS.lazy ? KOS.lazy.summary(shippedEntry(sid, ref)) : null;
+  }
+  /* the shipped words of this kind are not here yet (its subject's content
+     is still to load): nothing may be forked from, compared with or stamped
+     against them. Asks for the content, so the next try has it. */
+  function owed(sid, ref, kind) {
+    if (kind === "spec") return false;
+    var sum = pendingSum(sid, ref);
+    if (!sum) return false;
+    KOS.lazy.need(sum.bundle);
+    return true;
+  }
   function shippedFlashcards(sid, ref) {
     var e = shippedEntry(sid, ref);
+    var sum = pendingSum(sid, ref);
+    if (sum) {
+      /* every card's id and schedule key are known; its words arrive with
+         the subject's content */
+      var third = Array.isArray(sum.cards) ? sum.cards : [];
+      var out = [];
+      for (var n = Array.isArray(sum.cards) ? third.length : sum.cards, j = 0; j < n; j++) {
+        var t = third[j] == null ? null : third[j];
+        var kk = t == null ? key(sid, ref) + ":" + j : (typeof t === "string" && t.indexOf(":") >= 0 ? t : key(sid, ref) + ":" + t);
+        out.push(KOS.lazy.pendingText({ id: shippedId(t == null ? j : t), k: kk }, sum.bundle, kk));
+      }
+      return out;
+    }
     return ((e && e.flashcards) || []).map(function (c, i) {
       /* an optional third element is the card's original position (or a
          whole schedule key): it keeps both the schedule and the row id steady
@@ -242,6 +270,10 @@
   }
   function set(sid, ref, kind, value, opts) {
     if (KINDS.indexOf(kind) === -1) return null;
+    /* W2 (AP-01): never fork from a stand-in — the copy would hold none of
+       the shipped words. Every caller that edits has the content first (a
+       topic page, the Assistant's tools); this is the floor under them. */
+    if (owed(sid, ref, kind)) return null;
     var r = root(), k = key(sid, ref);
     if (opts && opts.base) {
       var storedNow = r.topics[k] && r.topics[k][kind] != null ? r.topics[k][kind] : material(sid, ref, kind);
@@ -292,6 +324,7 @@
   function stale(sid, ref, kind) {
     var t = get(sid, ref);
     if (!t || t[kind] == null) return false;
+    if (owed(sid, ref, kind)) return false;       /* not known yet */
     var stamp = t.shipped && t.shipped[kind];
     if (stamp) return stamp !== shippedHash(sid, ref, kind);
     var mine = shippedRows(t[kind]).filter(function (x) { return x && /^s(\d+|.*:.*)$/.test(String(x.id)); }).length;
@@ -300,6 +333,7 @@
   /* keep my version: this shipped version counts as seen */
   function keepMine(sid, ref, kind) {
     var t = get(sid, ref); if (!t || t[kind] == null) return false;
+    if (owed(sid, ref, kind)) return false;
     (t.shipped = t.shipped || {})[kind] = shippedHash(sid, ref, kind);
     t.updatedAt = Date.now(); store.save();
     return true;
@@ -308,6 +342,7 @@
      at its end; a flashcard keeps its schedule key (invariant 87) */
   function takeNew(sid, ref, kind, opts) {
     var t = get(sid, ref); if (!t || t[kind] == null) return false;
+    if (owed(sid, ref, kind)) return false;
     var fresh = shippedOf(sid, ref, kind);
     if (opts && opts.withMine) {
       var mine = function (rows) { return (rows || []).filter(function (x) { return x && !/^s(\d+|.*:.*)$/.test(String(x.id)); }).map(clone); };
@@ -349,12 +384,15 @@
     var shipped = shippedEntry(sid, ref);
     var t = get(sid, ref);
     if (!t) return shipped;
-    var e = shipped ? Object.assign({}, shipped) : {};
-    if (t.notes != null) e.notes = t.notes;
-    if (t.quiz != null) e.quiz = t.quiz;
-    if (t.exam != null) e.exam = t.exam;
-    if (t.flashcards != null) e.flashcards = t.flashcards.map(function (c) { return [c.q, c.a]; });
-    return e;
+    var f = {};
+    if (t.notes != null) f.notes = t.notes;
+    if (t.quiz != null) f.quiz = t.quiz;
+    if (t.exam != null) f.exam = t.exam;
+    if (t.flashcards != null) f.flashcards = t.flashcards.map(function (c) { return [c.q, c.a]; });
+    /* over a stand-in (js/core/lazy.js) the kinds not forked are still owed
+       by the subject's content: the result stays a stand-in for those */
+    if (KOS.lazy && KOS.lazy.isStub(shipped)) return KOS.lazy.merge(shipped, f);
+    return Object.assign(shipped ? Object.assign({}, shipped) : {}, f);
   }
 
   /* ---------------- reordering (roadmap 1.4) ----------------

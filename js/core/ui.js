@@ -1594,7 +1594,21 @@
     KOS.shell.bleed(false);
     renderSubnav(sec, viewId, arg);
     KOS.shell.actions(null);
-    try { if (KOS.views[viewId]) KOS.views[viewId](main, arg); }
+    /* W2 (AP-01): a page whose content is loaded on first use waits for it
+       behind a short "Loading…", then draws exactly as it would have
+       (js/core/lazy.js; nothing to wait for once its bundles are in) */
+    var owed = KOS.lazy && KOS.lazy.needsFor ? KOS.lazy.needsFor(viewId, arg) : [];
+    try {
+      if (owed.length && KOS.views[viewId]) {
+        var asRedraw = KOS.ui.redrawing;
+        KOS.lazy.placeholder(main, owed, function () {
+          main.innerHTML = "";
+          KOS.ui.redrawing = asRedraw;
+          try { KOS.views[viewId](main, arg); }
+          finally { KOS.ui.redrawing = false; }
+        }, navKey(navCur));
+      } else if (KOS.views[viewId]) KOS.views[viewId](main, arg);
+    }
     finally { KOS.ui.redrawing = false; }
     KOS.store.state.ui.view = viewId;
     if (viewId === "subject") KOS.store.state.ui.subject = arg;

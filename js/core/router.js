@@ -272,7 +272,12 @@
     /* A real navigation moves focus into the new page and names it; a
        redraw (`_nav` with no route change) must not disturb the reader.
        KOS.rerender passes _nav, so a cloud pull is silent by construction. */
-    if (!opts._quiet && (!opts._nav || opts._route) && KOS.a11y) KOS.a11y.focusView(viewId);
+    if (!opts._quiet && (!opts._nav || opts._route) && KOS.a11y) {
+      /* a page still loading its content is named and focused once it is
+         drawn, not as "Loading…" (js/core/lazy.js) */
+      if (KOS.lazy && KOS.lazy.waiting && KOS.lazy.waiting()) KOS.lazy.afterDraw(function () { KOS.a11y.focusView(viewId); });
+      else KOS.a11y.focusView(viewId);
+    }
   };
 
   /* ---- the topbar arrows delegate to the browser ---- */

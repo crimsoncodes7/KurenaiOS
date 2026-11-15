@@ -142,24 +142,34 @@
 <div id="toast" data-ui="shell.toast" aria-hidden="true"></div>
 
 <!-- data (generated from the official specification PDFs) -->
+<!-- Loading on first use (W2, AP-01): the scripts inside a template
+     element that carries data-lazy (its bundle's name) are inert at boot and
+     loaded by KOS.lazy the first time something needs that bundle. The tags are the manifest: the
+     service worker and every test loader read them as they read the rest. -->
+<script src="js/core/lazy.js"></script>
 <script src="js/data/compsci.js"></script>
 <script src="js/data/maths.js"></script>
 <script src="js/data/it.js"></script>
 <script src="js/data/it-f201-spec.js"></script>
 <script src="js/data/it-grades.js"></script>
 <script src="js/data/exam-presets.js"></script>
+<template data-lazy="exam-index">
 <script src="js/data/exam-index.js"></script>
+</template>
 <script src="js/data/boundaries.js"></script>
 <script src="js/data/exam-archetypes.js"></script>
 <script src="js/data/exam-reports.js"></script>
 <script src="js/data/exam-playbook.js"></script>
 <script src="js/data/ink-drills.js"></script>
+<template data-lazy="exams-deep">
 <script src="js/data/exams/aqa-7517-2-45.js"></script>
 <script src="js/data/exams/aqa-7517-2-46.js"></script>
 <script src="js/data/exams/aqa-7517-2-47.js"></script>
 <script src="js/data/exams/aqa-7517-2-49.js"></script>
 <script src="js/data/exams/aqa-7517-2-410.js"></script>
+</template>
 <script src="js/data/code.js"></script>
+<script src="js/data/lazy-index.js"></script>
 <script src="js/data/ja-strokes.js"></script>
 <script src="js/data/ja.js"></script>
 <script src="js/data/ja-s1.js"></script>
@@ -296,6 +306,7 @@
 <!-- the Badge Wall's engine (roadmap 5.16); its catalogue loads after the pages it reads -->
 <script src="js/core/achievements.js"></script>
 <!-- deep revision content (wave 1) -->
+<template data-lazy="content-compsci">
 <script src="js/data/content/cs-p2-45a.js"></script>
 <script src="js/data/content/cs-p2-45b.js"></script>
 <script src="js/data/content/cs-p2-455.js"></script>
@@ -329,6 +340,8 @@
 <script src="js/data/content/cs-p1-442.js"></script>
 <script src="js/data/content/cs-p1-444.js"></script>
 <script src="js/data/content/cs-nea.js"></script>
+</template>
+<template data-lazy="content-maths">
 <script src="js/data/content/maths-pure-p1.js"></script>
 <script src="js/data/content/maths-pure-p2.js"></script>
 <script src="js/data/content/maths-pure-p3.js"></script>
@@ -347,6 +360,8 @@
 <script src="js/data/content/maths-mech-m7.js"></script>
 <script src="js/data/content/maths-mech-m8.js"></script>
 <script src="js/data/content/maths-mech-m9.js"></script>
+</template>
+<template data-lazy="content-compsci">
 <script src="js/data/content/bank-cs-41.js"></script>
 <script src="js/data/content/bank-cs-42.js"></script>
 <script src="js/data/content/bank-cs-43.js"></script>
@@ -371,15 +386,21 @@
 <script src="js/data/content/cs-m-operations.js"></script>
 <script src="js/data/content/cs-m-tractability.js"></script>
 <script src="js/data/content/cs-m-unsigned.js"></script>
+</template>
+<template data-lazy="content-maths">
   <script src="js/data/content/bank-maths-pure-a.js"></script>
   <script src="js/data/content/bank-maths-pure-b.js"></script>
   <script src="js/data/content/bank-maths-pure-c.js"></script>
   <script src="js/data/content/bank-maths-stats.js"></script>
   <script src="js/data/content/bank-maths-mech.js"></script>
+</template>
+<template data-lazy="content-it">
 <script src="js/data/content/it-core.js"></script>
 <script src="js/data/content/it-f201.js"></script>
 <script src="js/data/content/it-f204.js"></script>
 <script src="js/data/content/it-f206.js"></script>
+</template>
+<template data-lazy="content-code">
 <script src="js/data/content/code-u1.js"></script>
 <script src="js/data/content/code-u2.js"></script>
 <script src="js/data/content/code-u3.js"></script>
@@ -409,7 +430,10 @@
 <script src="js/data/content/code-t2d.js"></script>
 <script src="js/data/content/code-t2e.js"></script>
 <script src="js/data/content/code-ub.js"></script>
+</template>
+<template data-lazy="code-projects">
 <script src="js/data/content/code-projects-files.js"></script>
+</template>
 <script src="js/data/content/ja-s0.js"></script>
 <script src="js/data/content/ja-f1.js"></script>
 <script src="js/data/content/ja-f2.js"></script>

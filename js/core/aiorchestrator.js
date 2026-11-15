@@ -685,6 +685,16 @@
      tool-role message for the model (success payload or refusal/error),
      except confirmation pauses which take over the request. */
   function handleCall(req, call, cb) {
+    /* W2 (AP-01): a tool reads and writes the whole app, so what is loaded
+       on first use (js/core/lazy.js) is fetched before the first one runs.
+       If it cannot be fetched the call goes ahead: a read says less, and a
+       curriculum edit is refused by KOS.edits.set rather than made blind. */
+    if (KOS.lazy && !req.lazyAsked && KOS.lazy.pending(KOS.lazy.names()).length) {
+      req.lazyAsked = true;
+      var go = function () { if (!req.done) handleCall(req, call, cb); };
+      KOS.lazy.all().then(go, go);
+      return;
+    }
     var tool = KOS.ai.tools.get(call.name);
     if (!tool) {
       cb(toolMsg(call, { error: "Unknown tool “" + call.name + "”. Only the provided tools exist." }));

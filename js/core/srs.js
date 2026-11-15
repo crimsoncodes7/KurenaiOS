@@ -388,6 +388,9 @@
     if (window.KOS.edits) {
       var forked = KOS.edits.has(sid, ref, "flashcards");
       return KOS.edits.material(sid, ref, "flashcards").map(function (c) {
+        /* a card whose subject has not loaded yet is known by its key; its
+           words are read only by a page that shows them (js/core/lazy.js) */
+        if (c.pend) return KOS.lazy.pendingText({ key: c.k, id: c.id, sid: sid, ref: ref, custom: false, edited: forked }, c.pend, c.k);
         return { key: c.k, id: c.id, sid: sid, ref: ref, q: c.q, a: c.a, custom: false, edited: forked };
       });
     }

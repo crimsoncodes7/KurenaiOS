@@ -89,7 +89,14 @@
      until chosen); "This IS the result of…" a past mock or real exam.
      Marks by question are a page of their own (29i), one tap away. The
      record and its one normaliser live in core/tracker.js (decision B). */
-  function editorModal(kind, existing, onSaved, seed) {
+  function editorModal(kind, existing, onSaved, seed, asIs) {
+    /* the topic packs it offers come with the past-paper index; if that
+       cannot be fetched the form still opens, without them */
+    if (!asIs && KOS.lazy && !KOS.lazy.ready("exam-index")) {
+      var open = function () { editorModal(kind, existing, onSaved, seed, true); };
+      KOS.lazy.need("exam-index").then(open, open);
+      return;
+    }
     seed = seed || {};
     var X = KOS.exams, IXR = KOS.examIndex, IX = window.KOS_EXAMS && KOS_EXAMS.index;
     var overlay = el("div", { class: "k-dialog-overlay" });

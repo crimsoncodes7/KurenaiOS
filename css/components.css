@@ -297,6 +297,10 @@ button.k-day-row:hover .k-day-title { text-decoration: underline; text-decoratio
 /* ---------- empty state ---------- */
 .k-empty { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-14); padding: var(--sp-18) var(--sp-22); border-radius: var(--r-24); background: var(--s1); color: var(--text-2); font-size: var(--fs-13-5); }
 .k-empty[data-state~="compact"] { background: none; padding: var(--sp-10) 0; }
+/* a page waiting for content loaded on first use (js/core/lazy.js): the
+   line appears only if the wait is long enough to notice */
+.k-lazy-wait { padding: var(--sp-18) var(--sp-22); color: var(--muted); font-size: var(--fs-13-5); animation: k-lazy-wait var(--dur) var(--ease) var(--dur-drawer) both; }
+@keyframes k-lazy-wait { from { opacity: 0; } to { opacity: 1; } }
 .k-empty-mark { font: var(--weight-semibold) var(--fs-26) / 1 var(--font-kanji); color: var(--muted); }
 .k-empty-txt { flex: 1 1 var(--empty-txt-min); min-inline-size: 0; }
 .k-empty-txt b { display: block; color: var(--text); font-size: var(--fs-15); }

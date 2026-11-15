@@ -342,4 +342,12 @@
   /* Decorative art per device (34n): set before the first page draws */
   if (KOS.art) { KOS.art.apply(); KOS.art.loadOwn(function () { if (KOS.rerender) KOS.rerender({ background: "soft", changed: ["art"] }); }); }
   KOS.router.boot();
+  /* W2 (AP-01): the first page is up. Boot is the measure "kos-boot"; what
+     was left for first use (js/core/lazy.js) is fetched in idle moments
+     from a few seconds on, the subject last studied first. */
+  try { performance.mark("kos-interactive"); performance.measure("kos-boot", "kos-boot-start", "kos-interactive"); } catch (e) { /* no User Timing */ }
+  if (KOS.lazy && KOS.lazy.warm) setTimeout(function () {
+    var sid = KOS.store.state.ui && KOS.store.state.ui.subject;
+    KOS.lazy.warm(sid ? [KOS.lazy.contentOf(sid)] : []);
+  }, 5000);
 })();

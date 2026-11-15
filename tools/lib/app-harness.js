@@ -88,7 +88,10 @@ async function boot(opts = {}) {
   window.setInterval = () => 0;
   window.clearInterval = () => {};
   window.setTimeout = (fn, ms, ...a) => {
-    if (+ms >= 1000) return 0;
+    /* a timer of a second or more is a background pass (a sweep, a ticker's
+       first run): dropped, unless the suite asks for them (opts.longTimers,
+       up to a minute — settle() then runs them in virtual time) */
+    if (+ms >= 1000 && !(opts.longTimers && +ms <= 60000)) return 0;
     const id = ++timerSeq;
     timers.push({ id, fn, a, at: vnow + (+ms || 0) });
     return id;
@@ -148,8 +151,40 @@ async function boot(opts = {}) {
   window.IDBKeyRange = fake.IDBKeyRange;
 
   /* ---- the app, in document order ---- */
+  /* opts.before(window): runs before any script (a probe, a stub).
+     opts.filter(src): false leaves a script out of the boot. */
+  if (opts.before) opts.before(window);
+  /* opts.lazy: boot as a browser does (js/core/lazy.js). The scripts inside
+     a <template data-lazy> block are left out and loaded when the app asks,
+     a turn of the event loop later; `lazy.loaded` lists them in order and
+     `lazy.misses` what was read before its bundle was in. Without it every
+     tag is evaluated in document order, as it always was. `lazy.offline =
+     true` makes every later load fail, as a device with no connection and
+     no cache would; opts.lazyWarm lets the idle warm-up run. */
+  const lazy = { loaded: [], misses: [], offline: false };
+  const held = new Set();
+  if (opts.lazy) {
+    for (const m of html.matchAll(/<template data-lazy="[^"]+">([\s\S]*?)<\/template>/g)) {
+      for (const x of m[1].matchAll(/<script src="([^"]+)"><\/script>/g)) held.add(x[1]);
+    }
+    window.KOS_LAZY_HOOK = {
+      mode: "lazy",
+      warm: !!opts.lazyWarm,
+      inject(src, done) {
+        setImmediate(() => {
+          if (lazy.offline) { done(new Error("Could not load " + src)); return; }
+          lazy.loaded.push(src);
+          try { window.eval(fs.readFileSync(path.join(ROOT, src), "utf8")); done(null); }
+          catch (e) { errors.push(`LAZY LOAD FAIL ${src}: ${e.message}`); done(e); }
+        });
+      },
+      onMiss(bundle, what) { lazy.misses.push(bundle + " ← " + what + (opts.lazyTrace ? "\n" + new Error().stack.split("\n").slice(3, 9).join("\n") : "")); }
+    };
+  }
   const scripts = [...html.matchAll(/<script src="([^"]+)"><\/script>/g)].map((m) => m[1]);
   for (const src of scripts) {
+    if (held.has(src)) continue;
+    if (opts.filter && !opts.filter(src)) continue;
     try { window.eval(fs.readFileSync(path.join(ROOT, src), "utf8")); }
     catch (e) { errors.push(`LOAD FAIL ${src}: ${e.message}`); }
   }
@@ -157,7 +192,7 @@ async function boot(opts = {}) {
   if (KOS.autosync) KOS.autosync.stop();
   if (KOS.cloudsync) KOS.cloudsync.stop();
   await settle();
-  return { window, document: window.document, KOS, errors, consoleErrors, fetches, settle };
+  return { window, document: window.document, KOS, errors, consoleErrors, fetches, settle, lazy };
 }
 
 /* a localStorage two boots can share (two tabs). A write queues a storage

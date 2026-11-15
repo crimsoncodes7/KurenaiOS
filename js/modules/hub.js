@@ -24,6 +24,30 @@
   var LEAVES = {};       // subjectId -> [{ref,title,content,info,path:[..titles],section}]
   var BYREF = {};        // subjectId -> ref -> leaf
   var SEARCH_INDEX = []; // {subject, ref, title, text}
+  /* a topic's flashcard words, for search. A subject whose content has not
+     loaded yet (js/core/lazy.js) has none until it does: the first search
+     asks for every subject's content and the index fills in as it lands. */
+  function cardText(sid, ref) {
+    var deep = window.KOS_CONTENT[sid + ":" + ref];
+    if (!deep || (KOS.lazy && KOS.lazy.isStub(deep)) || !deep.flashcards) return "";
+    return deep.flashcards.map(function (c) { return c[0] + " " + c[1]; }).join(" ").toLowerCase();
+  }
+  var searchWarm = false;
+  function warmSearch() {
+    if (searchWarm || !KOS.lazy) return;
+    searchWarm = true;
+    var want = KOS.lazy.names().filter(function (n) { return /^content-/.test(n); });
+    KOS.lazy.need(want).then(function () {
+      /* the box still holds a query: ask it again, now with the cards */
+      var box = document.getElementById("search");
+      if (box && box.value && document.activeElement === box) box.dispatchEvent(new Event("input", { bubbles: true }));
+    }, function () { searchWarm = false; });
+  }
+  if (KOS.lazy) KOS.lazy.on(function (name) {
+    SEARCH_INDEX.forEach(function (it) {
+      if (KOS.lazy.contentOf(it.subject) === name) it.fctext = cardText(it.subject, it.ref);
+    });
+  });
 
   function flatten() {
     SUBJECTS.forEach(function (sid) {
@@ -43,12 +67,10 @@
           leaf.idx = LEAVES[sid].length;
           LEAVES[sid].push(leaf);
           BYREF[sid][node.ref] = leaf;
-          var deep = window.KOS_CONTENT[sid + ":" + node.ref];
           SEARCH_INDEX.push({
             subject: sid, ref: node.ref, title: node.title,
             text: (node.title + " " + node.content.join(" ") + " " + (node.info || []).join(" ")).toLowerCase(),
-            fctext: deep && deep.flashcards ? deep.flashcards.map(function (c) {
-              return c[0] + " " + c[1]; }).join(" ").toLowerCase() : ""
+            fctext: cardText(sid, node.ref)
           });
         }
         (node.children || []).forEach(function (c) { walk(c, path.concat(c.title), section); });
@@ -3742,6 +3764,7 @@
   function searchSpec(q) {
     q = String(q || "").trim().toLowerCase();
     if (q.length < 2) return [];
+    warmSearch();
     var terms = q.split(/\s+/);
     var specHits = [], fcHits = [];
     SEARCH_INDEX.forEach(function (it) {

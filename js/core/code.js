@@ -133,7 +133,16 @@
   function coreUnits() { return units().filter(function (u) { return !u.track; }); }
   function unit(ref) { return units().filter(function (u) { return u.ref === ref; })[0] || null; }
   function content(ref) { return KOS.content.get(SID, ref); }
-  function hasLesson(ref) { var c = content(ref); return !!(c && c.notes && c.notes.length); }
+  /* while Code's content has not loaded (js/core/lazy.js) a lesson is a
+     stand-in that knows its STRUCTURE: how many pages, which listings,
+     which practice items. The evidence below reads that, so a check never
+     waits for the words and never changes when they arrive. */
+  function lazySum(c) { return c && KOS.lazy ? KOS.lazy.summary(c) : null; }
+  function hasLesson(ref) {
+    var c = content(ref), sum = lazySum(c);
+    if (sum && !Object.prototype.hasOwnProperty.call(c, "notes")) return sum.pages > 0;
+    return !!(c && c.notes && c.notes.length);
+  }
   function tasksOf(ref) {
     var T = K().TASKS;
     return Object.keys(T).map(function (id) { return T[id]; }).filter(function (t) { return t.lesson === ref; });
@@ -148,6 +157,12 @@
   function allTasks() { var T = K().TASKS; return Object.keys(T).map(function (id) { return T[id]; }); }
   function allCards() { var C = K().CARDS; return Object.keys(C).map(function (id) { return C[id]; }); }
   function practiceOf(ref) {
+    var sum = lazySum(shipped(ref));
+    if (sum) {
+      var ids = sum.practice || {};
+      var rows = function (k) { return (ids[k] || []).map(function (id) { return { id: id }; }); };
+      return { predict: rows("predict"), fill: rows("fill"), bug: rows("bug") };
+    }
     var c = content(ref) || {};
     var p = c.practice || {};
     return { predict: p.predict || [], fill: p.fill || [], bug: p.bug || [] };
@@ -155,6 +170,8 @@
   /* every runnable listing in a lesson's notes */
   function listingsOf(ref) {
     var c = shipped(ref);
+    var sum = lazySum(c);
+    if (sum) return (sum.runs || []).map(function (id) { return { id: id }; });
     var out = [];
     (function walk(blocks) {
       (blocks || []).forEach(function (b) {
@@ -180,6 +197,8 @@
   function shipped(ref) { return (window.KOS_CONTENT || {})["code:" + ref] || null; }
   function pageCount(ref) {
     var c = shipped(ref);
+    var sum = lazySum(c);
+    if (sum) return sum.pages;
     return c && c.notes ? KOS.content.splitPages(c.notes).length : 0;
   }
   function provenPass(t) { var s = S().tasks[t.id]; return !!(s && s.passAt); }

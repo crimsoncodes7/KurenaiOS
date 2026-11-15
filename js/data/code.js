@@ -274,6 +274,13 @@
   };
 
   /* ---------------- what only Code needs ---------------- */
+  /* an entry several files build (a capstone, a Rider project): each lays
+     its part over what is there. While a bundle is still to load, what is
+     there is a stand-in that knows which fields it is owed (js/core/lazy.js) */
+  function merged(id, prev, o) {
+    if (window.KOS && KOS.lazy) return KOS.lazy.merge(prev, Object.assign({ id: id }, o));
+    return Object.assign({ id: id }, prev || {}, o);
+  }
   window.KOS_CODE = {
     STRANDS: {
       L: { name: "C# and .NET", short: "L" },
@@ -490,7 +497,9 @@
         Object.keys(src).forEach(function (id) {
           /* CO-17: an id registered twice replaced the first silently;
              smoke75 refuses any entry here */
-          if (K[k][id]) (K.DUPES = K.DUPES || []).push(k + ":" + id);
+          /* (a stand-in for a bundle not loaded yet is not a first
+             registration, js/core/lazy.js) */
+          if (K[k][id] && !(window.KOS && KOS.lazy && KOS.lazy.isStub(K[k][id]))) (K.DUPES = K.DUPES || []).push(k + ":" + id);
           K[k][id] = Object.assign({ id: id }, src[id]);
         });
       });
@@ -500,7 +509,7 @@
        gates' reference answer join the stage's entry in CAPSTONES */
     capstone: function (id, o) {
       var K = window.KOS_CODE;
-      K.CAPSTONES[id] = Object.assign({ id: id }, K.CAPSTONES[id] || {}, o);
+      K.CAPSTONES[id] = merged(id, K.CAPSTONES[id], o);
     },
     /* a Rider project (docs/code-plan.md §9, frame 26m): its brief, the
        scaffold's files, the milestones and their checks, which files are
@@ -511,7 +520,7 @@
       var K = window.KOS_CODE;
       /* the lesson file gives the brief and milestones, a generated file
          (tools/gen_code_projects.mjs) the scaffold's files: merged */
-      K.PROJECTS[id] = Object.assign({ id: id }, K.PROJECTS[id] || {}, o);
+      K.PROJECTS[id] = merged(id, K.PROJECTS[id], o);
     }
   };
 })();

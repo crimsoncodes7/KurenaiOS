@@ -540,7 +540,11 @@
     return (it.level === "AS" || /\bAS\b/.test(src) ? "AS" : "AL") + "|" + y[1] + "|" + pq[1] + "|" + pq[2] + pq[3].replace(/\s+/g, "");
   }
   function extend(key, patch) {
-    var e = window.KOS_CONTENT[key] = window.KOS_CONTENT[key] || {};
+    /* (a stand-in for a bundle still loading is not an entry to add to:
+       js/core/lazy.js) */
+    var cur = window.KOS_CONTENT[key];
+    if (cur && KOS.lazy && KOS.lazy.isStub(cur)) cur = null;
+    var e = window.KOS_CONTENT[key] = cur || {};
     ["flashcards", "quiz", "exam"].forEach(function (k) {
       if (!(patch[k] && patch[k].length)) return;
       var add = patch[k];
