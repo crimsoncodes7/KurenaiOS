@@ -1,6 +1,6 @@
 ---
 name: project-branch-and-release-state
-description: "Which git branch is live, what is deployed — check git before trusting this; latest entry 2026-11-16 (production kos-integrity-9, 557169f; W5 batch on feat/w5-shop, not deployed)"
+description: "Which git branch is live, what is deployed — check git before trusting this; latest entry 2026-11-16 (production kos-integrity-10, d1e9853, W5)"
 metadata:
   node_type: memory
   type: project
@@ -8,7 +8,9 @@ metadata:
   modified: 2026-10-20T16:16:29.892Z
 ---
 
-**Latest (2026-11-16, evening, Opus):** the other account's AP-01 is WIP on `feat/w2-lazy` (leave it; it merges main itself; smoke142 is its). This account cut `feat/w5-shop` from origin/main: W5's first batch (smoke151; gate 147): every shop theme retired + one-time refund repair `theme-refund`, Buy behind a confirm, worn seal beside the brand + share card, CSS frames retired, SC-05 absolute skin URLs, the 12 avatars imported as discs. NOT deployed (needs a go-ahead + sw bump). W5 still open: Try on for every kind / Stage as fitting room, Washi/Foil/Film finishes, pen sets on new strokes only (SC-34), frame hole ratios (SC-01/03/06/07/08/21), SC-02, PR-02, phone shop. Order after: W3 + turn 37, 5.19 (incl. item 2, moved here), 40–41, 36 after AP-01, 39 after MG engine.
+**Latest (2026-11-16, night):** production is sw `kos-integrity-10`, commit `d1e9853`, immutable https://13f349d3.kurenai-os.pages.dev; `origin/main` fast-forwarded to it from `feat/w5-shop`: W5 — themes retired + refund, Buy confirm, seals drawn, share-card Washi/Foil/Film + Finish row, pen sets on new strokes only, frames by measured opening, avatars as discs (smoke151). W5 still open: Try on for every kind / Stage as fitting room, the Shrine card's finish row, SC-02, PR-02, phone shop. The other account must merge main into feat/w2-lazy.
+
+**Before it (2026-11-16, evening, Opus):** the other account's AP-01 is WIP on `feat/w2-lazy` (leave it; it merges main itself; smoke142 is its). This account cut `feat/w5-shop` from origin/main: W5's first batch (smoke151; gate 147): every shop theme retired + one-time refund repair `theme-refund`, Buy behind a confirm, worn seal beside the brand + share card, CSS frames retired, SC-05 absolute skin URLs, the 12 avatars imported as discs. NOT deployed (needs a go-ahead + sw bump). W5 still open: Try on for every kind / Stage as fitting room, Washi/Foil/Film finishes, pen sets on new strokes only (SC-34), frame hole ratios (SC-01/03/06/07/08/21), SC-02, PR-02, phone shop. Order after: W3 + turn 37, 5.19 (incl. item 2, moved here), 40–41, 36 after AP-01, 39 after MG engine.
 
 **Before it (2026-11-16, later):** production is sw `kos-integrity-9`, commit `557169f`, immutable https://6ed1a44d.kurenai-os.pages.dev; `origin/main` fast-forwarded to it from `feat/w6-content`: W6's second batch (Maths spec typeset, quiz options with no length tell, duplicates and misfiled items, the tally, stale forks, Japanese/Mind/Code fixes, Seasonal "N behind"; smoke148; gate 146). The user then moved to the other account: its list is docs/HANDOFF.md §0. Next here: W3; W8 just before W10.
 

@@ -49,7 +49,10 @@ batch (16 November, `feat/w5-shop`, smoke151): every shop theme retired
 and refunded once (`theme-refund`, roadmap 5.20 for designed themes),
 Buy behind a confirm, the worn seal beside the brand mark and on the share
 card, the CSS frames retired, absolute shelf-skin URLs, the twelve
-avatars recomposed as discs.
+avatars recomposed as discs. RELEASED with the second batch (share-card
+finishes, pen sets on new strokes only, frames sized by their measured
+openings) as sw `kos-integrity-10` (https://13f349d3.kurenai-os.pages.dev),
+`origin/main` = `d1e9853`: merge main into `feat/w2-lazy` before going on.
 
 **Rules for both accounts now:**
 - Smoke suite numbers: the other account uses **142, 143, 149 and 150**;
