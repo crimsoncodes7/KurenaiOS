@@ -490,9 +490,23 @@ show on Account & Cloud Sync (DI-20).
   NOT done from DI-11's proposal: stamping with `clock_timestamp()` in the
   trigger (a migration); the overlap alone closes the gap for any
   transaction under two minutes.
-- Still to do in W1: the rest of Todoist/Google
-  bookkeeping (RC6: pull before the lease, uid for older reminders,
-  sections, unlinked projects, re-keyed references), the remaining P1s.
+- **The rest of W1 on Opus (16 Nov 2026, `feat/w2-opus` 80b0520, NOT
+  deployed; gate 145/145, smoke147 new).** Every W1 P1 was already fixed
+  (AA-11, MG-23 in W0/W1; HR-16, ST-26, PR-03 in kos-integrity-3; HR-18 in
+  RC21; DI-03, DI-04, GO-25 in RC5) except DI-01, which is RC6. FIXED now:
+  CR-32 (a drill pays only for moved controls), CR-15 (a check opens as
+  answered; a pass turning into Not yet is named), CL-17 (the Shrine's
+  filtered order fills its own slots), CL-25 (vault delete Undo; Wishlist
+  links cleared, not dead), CL-38 (the quote kept with its card), PR-26 (a
+  monthly repeat keeps its day), PR-28 (weeks begin on a Monday, never
+  overlap), SC-32 (the seat's banner upload behind its unlock), CC-15 (a
+  folded CS leaf merged, not dropped), AA-13 and DI-09's first half (Reports,
+  snapshots and pot pictures in the backup and checkpoints). Already fixed
+  on inspection: HR-21, PR-27 (tick Undo), CR-31 (paid projects say so).
+- Still to do in W1: RC6 on the Fable account (DI-01, DI-05–08, DI-12,
+  DI-16, DI-17, DI-23 and the re-keyed references, DI-07); SH-27/EX-39, the
+  seeded samples, with the first-run welcome (decision B8, W7/W9); DI-09's
+  second half (a streamed backup for very large file sets).
 
 **W7 progress (13 Nov 2026, `feat/w1-integrity` 016c0ba, NOT deployed; gate
 136/136, smoke136 new):** FIXED JM-07, MI-01, CR-25 (lesson checks reach
