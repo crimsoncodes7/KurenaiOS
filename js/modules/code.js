@@ -598,7 +598,8 @@
     KOS.shell.bleed(true);
     var ui = C().ui();
     var spec = { mode: t.mode || "program", method: t.method, cases: (t.examples || []).concat((t.hidden || []).map(function (c) { return Object.assign({ hidden: true }, c); })), rules: t.rules, fs: t.fs, db: t.db, lesson: t.lesson };
-    var started = Date.now();
+    /* the clock on screen is this visit's: a redraw does not reset it (SY-14) */
+    var started = KOS.view ? KOS.view.memo("code.task.started:" + t.id, function () { return Date.now(); }) : Date.now();
     var hintsOpen = C().taskState(t.id).hints;
     var answerShown = !!C().taskState(t.id).seen;
     var lastCheck = null, lastOutcome = null;
@@ -977,7 +978,14 @@
       var phone = C().isPhone();
       var kind = v.kind || cd.kind || "write";
       if (phone && kind === "write" && v.phoneAlt) { v = Object.assign({}, v, v.phoneAlt); kind = v.kind; }
-      var started = Date.now(), tries = 0, hinted = false;
+      /* SY-14: the grade is derived from tries, the hint and the time
+         (invariant 107), so the attempt in progress is kept per device
+         (KOS.sessions.run, today) — a redraw picks it up rather than
+         starting a cleaner, faster one */
+      var RK = "code-rt:" + pickId + ":" + row.n, RR = KOS.sessions.run;
+      var at0 = RR.get(RK);
+      var started = at0 && at0.started ? at0.started : Date.now(), tries = at0 ? at0.tries || 0 : 0, hinted = !!(at0 && at0.hinted);
+      function keepAttempt() { RR.put(RK, { kind: "code-rt", started: started, tries: tries, hinted: hinted }); }
       var card = el("section", { class: "k-card k-cx-rcard", "data-ui": "code.retrieval-card", "aria-label": cd.title }, [
         el("div", { class: "k-cx-rcard-top" }, [
           el("span", { class: "k-kicker", text: "Retrieval · " + (row.unit || "") + " · " + cd.title }),
@@ -992,7 +1000,8 @@
       var tk = setInterval(function () { if (!timer.isConnected) { clearInterval(tk); return; } var s = Math.round((Date.now() - started) / 1000); timer.textContent = "◷ " + Math.floor(s / 60) + ":" + ("0" + s % 60).slice(-2); }, 1000);
       openTimers.push(tk);
       var hintBtn = el("button", { type: "button", class: "k-btn", "data-ui": "code.retrieval-hint", text: "Hint", disabled: v.hint ? null : "",
-        onclick: function () { hinted = true; hintBtn.disabled = true; out.insertBefore(el("p", { class: "k-cx-why", text: "Hint · " + v.hint }), out.firstChild); announce("Hint shown. This card will grade Hard."); } });
+        onclick: function () { hinted = true; keepAttempt(); hintBtn.disabled = true; out.insertBefore(el("p", { class: "k-cx-why", text: "Hint · " + v.hint }), out.firstChild); announce("Hint shown. This card will grade Hard."); } });
+      if (hinted && v.hint) { hintBtn.disabled = true; out.insertBefore(el("p", { class: "k-cx-why", text: "Hint · " + v.hint }), out.firstChild); };
       var ed = null, ans = null, inputs = null, parts = null;
       if (kind === "predict") {
         card.appendChild(el("pre", { class: "k-cx-q-code k-mono", html: KOS.codeUI.highlight(v.src, C().runnerFor(cd.lesson) === "sql" ? "sql" : null) }));
@@ -1036,6 +1045,7 @@
       }
       function finish(passed) {
         var res = C().recordCard(pickId, { passed: passed, tries: tries, hint: hinted, secs: Math.round((Date.now() - started) / 1000) });
+        RR.drop(RK);
         done[pickId] = true;
         go.disabled = true; hintBtn.disabled = true;
         if (ed) ed.readOnly(true);
@@ -1066,6 +1076,7 @@
       function check() {
         if (go.disabled) return;
         tries++;
+        keepAttempt();
         out.querySelectorAll("[data-ui~='code.retrieval-try']").forEach(function (n) { n.remove(); });
         if (kind === "command") {
           if (C().commandMatches(v, ans.value)) return finish(true);

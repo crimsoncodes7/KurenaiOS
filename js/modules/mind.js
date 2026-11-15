@@ -25,7 +25,7 @@
     return diff === 0 ? "Today" : diff === 1 ? "Yesterday" : diff < 7 ? DOW[d.getDay()] + " " + d.getDate() + " " + MON[d.getMonth()] : d.getDate() + " " + MON[d.getMonth()];
   }
   function hm(mins) { mins = Math.round(mins || 0); var h = Math.floor(mins / 60), m = mins % 60; return h ? h + " h " + (m < 10 ? "0" : "") + m : m + " m"; }
-  function capture(o) { KOS.mindRun.capture(Object.assign({ onDone: function () { KOS.rerender(); } }, o || {})); }
+  function capture(o) { var again = KOS.view.redrawIfStill(); KOS.mindRun.capture(Object.assign({ onDone: again }, o || {})); }
   function shellActions() {
     KOS.shell.actions([
       el("button", { type: "button", class: "k-btn", "data-ui": "mind.capture", text: "+ Capture", onclick: function () { capture(); } }),

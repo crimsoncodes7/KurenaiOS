@@ -391,6 +391,10 @@
      last saved intent and can lag a redraw). Background work that wants to
      refresh the page without moving the user reads this. */
   KOS.currentNav = function () { return navCur ? { viewId: navCur.viewId, arg: navCur.arg } : null; };
+  /* the page on screen now stands for another argument of the same view —
+     a deep link that has done its work (KOS.router.replaceArg); nothing is
+     drawn */
+  KOS.ui.setNavArg = function (arg) { if (navCur) navCur.arg = arg; };
   /* redraw the current page in place: no history entry, no forward-trail
      reset. WHEN a redraw may happen, and what it keeps (scroll, focus,
      typed text), is js/core/redraw.js's — KOS.rerender is defined there.
@@ -633,7 +637,9 @@
     wishlist: "wishlist", governor: "governor", reports: "reports", archive: "archive", files: "archive", storage: "archive", help: "archive" };
   function pageHeader(opts) {
     opts = opts || {};
-    var view = KOS.store && KOS.store.state && KOS.store.state.ui && KOS.store.state.ui.view;
+    /* MG-17: the page being drawn, not state.ui.view (written after the
+       draw, so a first visit took the art of the page it came from) */
+    var view = navCur ? navCur.viewId : (KOS.store && KOS.store.state && KOS.store.state.ui && KOS.store.state.ui.view);
     var art = opts.art === false ? null : (opts.art || PAGE_ART[view]);
     var head = el("div", { class: "k-pagehead" + (opts.className ? " " + opts.className : ""), "data-ui": "ui.page-head ui.page-header" }, [
       el("div", { class: "k-pagehead-txt" }, [

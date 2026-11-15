@@ -216,7 +216,7 @@
         document.removeEventListener("kos:code-evidence", onEv);
         node.parentNode.replaceChild(ctx.status(), node);
       }
-      document.addEventListener("kos:code-evidence", onEv);
+      KOS.view.listen(node, document, "kos:code-evidence", onEv);
       return node;
     };
     /* the inspector's figures follow the evidence as it arrives */
@@ -230,7 +230,7 @@
         body.innerHTML = "";
         fill(body, t);
       }
-      document.addEventListener("kos:code-evidence", onEv);
+      KOS.view.listen(body, document, "kos:code-evidence", onEv);
     };
     function fill(body, t) {
       var cs = KOS.code.conceptsOf(ref);

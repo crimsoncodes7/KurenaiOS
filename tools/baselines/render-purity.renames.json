@@ -1,848 +1,1043 @@
 {
- "about": "Deliberate accessible-name changes and retirements of rebuilt controls (tools/smoke56.test.js). A rename rewrites a baseline control's name before it is looked up and its recorded effects must still match exactly; a retirement excuses only the control's absence, and a reachable one must still be matched by some control on the same surface.",
- "rules": [
-  {
-   "surface": "home",
-   "hooks": "home.fact",
-   "from": "^203Cards? due.*$",
-   "to": "198 cards due",
-   "why": "CS Paper 1 at depth (feat/cs-p1-nea): the seeded account reviews the first 40 CS leaves (tools/lib/seed.js), which are the Paper 1 topics being rewritten, so the seeded due and overdue counts follow their flashcards. Update these figures as each Paper 1 section lands. The flashcard de-duplication then removed duplicate and dependent cards, and the merged CS leaves (cs-m-*.js) pooled several decks into one (capped at about 30 cards each): 198 due, 154 overdue."
-  },
-  {
-   "surface": "home",
-   "hooks": "habit.tick",
-   "from": "^Seal directive: Clear 203 due flashcards \\(158 overdue\\)$",
-   "to": "Seal directive: Clear 198 due flashcards (154 overdue)",
-   "why": "CS Paper 1 at depth (feat/cs-p1-nea): the seeded account reviews the first 40 CS leaves (tools/lib/seed.js), which are the Paper 1 topics being rewritten, so the seeded due and overdue counts follow their flashcards. Update these figures as each Paper 1 section lands. The flashcard de-duplication then removed duplicate and dependent cards, and the merged CS leaves (cs-m-*.js) pooled several decks into one (capped at about 30 cards each): 198 due, 154 overdue."
-  },
-  {
-   "hooks": "shell.rail-item",
-   "from": "^学Study203$",
-   "to": "学Study198",
-   "why": "CS Paper 1 at depth (feat/cs-p1-nea): the seeded account reviews the first 40 CS leaves (tools/lib/seed.js), which are the Paper 1 topics being rewritten, so the seeded due and overdue counts follow their flashcards. Update these figures as each Paper 1 section lands. The flashcard de-duplication then removed duplicate and dependent cards, and the merged CS leaves (cs-m-*.js) pooled several decks into one (capped at about 30 cards each): 198 due, 154 overdue."
-  },
-  {
-   "hooks": "shell.subnav-item",
-   "from": "^(Computer Science|Mathematics|IT · Data Analytics)\\d+%$",
-   "to": "$1",
-   "why": "M4 shell: the subject pill is named by its label; the per-subject percentage no longer prints (the Graphite sub-nav shows a colour dot)."
-  },
-  {
-   "hooks": "gov.hud",
-   "from": "^Level (\\d+)(Healthy|Strained|Critical)·◈ (.+)$",
-   "to": "Your profile — Level $1, $2, $3 gold",
-   "why": "M4 shell: the rail profile chip has an explicit name instead of its concatenated text."
-  },
-  {
-   "hooks": "ui.tab-card",
-   "from": "^.(Physical Vault|Digital).*$",
-   "to": "$1",
-   "why": "M4 primitives: a tab with a kanji mark is named by its label; the hint became the tooltip."
-  },
-  {
-   "surface": "home",
-   "hooks": "home.fact",
-   "from": "^([\\d,]+)Cards? due.*$",
-   "to": "$1 cards due",
-   "why": "Graphite step 2 (Home, frame 7a): the cards-due figure sits under the Study hours chart and is named as one phrase."
-  },
-  {
-   "surface": "home",
-   "from": "^Manage →$",
-   "to": "All →",
-   "why": "Graphite step 2 (Home, frame 7a): the Reminders card's link reads \"All →\"."
-  },
-  {
-   "surface": "home",
-   "hooks": "home.desk-open",
-   "from": "^蒐 Collection$",
-   "to": "Collection",
-   "why": "Graphite step 2 (Home, frame 7a): the desk's kanji is decorative (aria-hidden); the desk is named Collection."
-  },
-  {
-   "surface": "home",
-   "from": "^(.+?)(CS|Maths|IT)( · from w/c .+)?$",
-   "to": "$1",
-   "why": "Graphite step 2 (Home, frame 7a): a week's-plan row title is named by the title alone; the subject and the carried-from week are its own columns and tooltip."
-  },
-  {
-   "surface": "home",
-   "retire": true,
-   "from": "^Tick off ",
-   "why": "Graphite step 2 (Home, frame 7a): the week's plan shows five rows (behind first); the rest of the week is on Pacing, counted in the card's footer."
-  },
-  {
-   "surface": "home",
-   "retire": true,
-   "from": "(CS|Maths|IT)( · from w/c .+)?$",
-   "why": "Graphite step 2 (Home, frame 7a): a week's-plan row past the five-row cap (see above)."
-  },
-  {
-   "surface": "home",
-   "retire": true,
-   "reachable": true,
-   "from": "^\\d+ more this week →$",
-   "why": "Graphite step 2 (Home, frame 7a): the overflow count names a different number under the five-row cap; the week is still one press away (\"Pacing →\")."
-  },
-  {
-   "surface": "home",
-   "hooks": "cal.countdown-item",
-   "retire": true,
-   "from": ".",
-   "why": "Graphite step 2 (Home, frame 7a): Upcoming is three rows — overdue work first, then the nearest countdowns; the full horizon is Calendar's."
-  },
-  {
-   "surface": "home",
-   "retire": true,
-   "reachable": true,
-   "from": " · (overdue|Tomorrow|Today|\\d+ \\w+ · [\\d:]+)$",
-   "why": "Graphite step 2 (Home, frame 7a): the Assignments-due panel folded into Today/Upcoming; those rows open the same Assignment dialog."
-  },
-  {
-   "surface": "home",
-   "hooks": "rag.item",
-   "from": "^(\\S+ .+?)(your own Red rating|ease \\d|\\d+ overdue card).*$",
-   "to": "$1",
-   "why": "Graphite step 2 (Home, frame 7a): the struggling-topics panel became each desk's Weakest row, named by the topic."
-  },
-  {
-   "surface": "home",
-   "hooks": "rag.item",
-   "retire": true,
-   "from": ".",
-   "why": "Graphite step 2 (Home, frame 7a): one weakest topic per desk (KOS.rag.worst(sid, 1)); the full list is the subject page's."
-  },
-  {
-   "navTo": "^#/(subject/|ref/)",
-   "dropEffects": {
-    "ui": "^openSections\\."
-   },
-   "why": "Graphite step 3 (Study desk, frame 8a): the desk draws no spine, so the section expansion a subject used to write on arrival (openSections) is now written by the topic page's spine, at the subject's depth — or not at all when a subject opens."
-  },
-  {
-   "surface": "subject:.*",
-   "from": "^⇆ Compare topics$",
-   "to": "⇆ Compare",
-   "why": "Graphite step 3 (Study desk, frame 8a): the page's actions sit on the sub-navigation row with the design's labels."
-  },
-  {
-   "surface": "subject:.*",
-   "from": "^◉ Start focus$",
-   "to": "Start focus",
-   "why": "Graphite step 3 (Study desk, frame 8a): the page's actions sit on the sub-navigation row with the design's labels."
-  },
-  {
-   "surface": "subject:.*",
-   "from": "^Deep revision content: .*What do these mean\\?$",
-   "to": "What do these mean?",
-   "why": "Graphite step 3 (Study desk, frame 8a): the definitions and the deep-content line open from the analytics header."
-  },
-  {
-   "surface": "subject:.*",
-   "from": "^\\+ Add$",
-   "expect": {
-    "dialog": [
-     "Add a resource"
-    ]
-   },
-   "why": "Graphite step 3 (Study desk, frame 8a): a resource is added through a small dialog instead of an inline form."
-  },
-  {
-   "surface": "subject:.*",
-   "hooks": "study.spine-open",
-   "retire": true,
-   "from": ".",
-   "why": "Graphite step 3 (Study desk, frame 8a): the desk carries no spine; the course units open the topic pages, where it is."
-  },
-  {
-   "surface": "subject:.*",
-   "hooks": "cal.countdown-item",
-   "retire": true,
-   "from": ".",
-   "why": "Graphite step 3 (Study desk, frame 8a): Deadlines shows four rows, overdue assignments first; the full horizon is Calendar's."
-  },
-  {
-   "surface": "subject:.*",
-   "hooks": "rag.item",
-   "retire": true,
-   "from": ".",
-   "why": "Graphite step 3 (Study desk, frame 8a): the flagged-topics panel became the one Weakest card (KOS.rag.worst(sid, 1))."
-  },
-  {
-   "surface": "subject:.*",
-   "from": "^Calendar →$",
-   "retire": true,
-   "why": "Graphite step 3 (Study desk, frame 8a): the dates card links to Assignments as drawn; Calendar stays one press away under Productivity."
-  },
-  {
-   "surface": "subject:.*",
-   "retire": true,
-   "reachable": true,
-   "from": ".",
-   "why": "Graphite step 3 (Study desk, frame 8a): a desk control renamed with the design (the Continue card, a gated practice row's chip) must still do exactly what it did from some control on the desk."
-  },
-  {
-   "surface": "ref:.*",
-   "hooks": "topic.pager-button",
-   "from": "^‹ Previous topic.([A-Z]?\\d[\\d.]*\\d|[A-Z]?\\d)(.+)$",
-   "to": "Previous topic: $1 $2",
-   "why": "Graphite step 3b (topic page, frame 8b): the neighbouring topics are the round ‹ › beside the title, named in full."
-  },
-  {
-   "surface": "ref:.*",
-   "hooks": "topic.pager-button",
-   "from": "^Next topic ›.([A-Z]?\\d[\\d.]*\\d|[A-Z]?\\d)(.+)$",
-   "to": "Next topic: $1 $2",
-   "why": "Graphite step 3b (topic page, frame 8b): the neighbouring topics are the round ‹ › beside the title, named in full."
-  },
-  {
-   "surface": "ref:.*",
-   "hooks": "ui.tab",
-   "retire": true,
-   "from": ".",
-   "why": "Graphite step 3b (topic page, frame 8b): the first four tabs show and the rest fold behind \"+N ▾\" (a menu, outside the replayed regions); smoke37 proves every folded tab is offered there."
-  },
-  {
-   "surface": "ref:.*",
-   "hooks": "ui.scroller-arrow",
-   "retire": true,
-   "from": "tabs$",
-   "why": "Graphite step 3b (topic page, frame 8b): the tab strip no longer scrolls sideways, so it has no arrows."
-  },
-  {
-   "surface": "ref:.*",
-   "hooks": "shell.subnav-item",
-   "from": "^(Review|Assignments|Exams & Papers)$",
-   "retire": true,
-   "why": "Graphite step 3b (topic page, frame 8b): the topic page draws no sub-navigation row; the rail's Study opens the desk, whose row carries them."
-  },
-  {
-   "surface": "ref:\\{\"subject\":\"compsci\".*",
-   "hooks": "shell.subnav-item",
-   "retire": true,
-   "reachable": true,
-   "from": "^Computer Science$",
-   "why": "Graphite step 3b (topic page, frame 8b): the subject pills became the spine; review B: the page's own subject is the spine board's overview link.",
-   "via": "#tree [data-ui~='study.spine-subject']"
-  },
-  {
-   "surface": "ref:\\{\"subject\":\"maths\".*",
-   "hooks": "shell.subnav-item",
-   "retire": true,
-   "reachable": true,
-   "from": "^Mathematics$",
-   "why": "As above: the page's own subject is the spine board's overview link.",
-   "via": "#tree [data-ui~='study.spine-subject']"
-  },
-  {
-   "surface": "ref:\\{\"subject\":\"it\".*",
-   "hooks": "shell.subnav-item",
-   "retire": true,
-   "reachable": true,
-   "from": "^IT · Data Analytics$",
-   "why": "As above: the page's own subject is the spine board's overview link.",
-   "via": "#tree [data-ui~='study.spine-subject']"
-  },
-  {
-   "surface": "ref:.*",
-   "hooks": "shell.subnav-item",
-   "retire": true,
-   "from": ".",
-   "why": "Graphite review B (topic page): the spine's subject switch now opens the last topic of that subject, so another subject's page is no longer one press from a topic page — the switch, then its overview link."
-  },
-  {
-   "surface": "ref:.*",
-   "hooks": "topic.page",
-   "retire": true,
-   "reachable": true,
-   "from": ".",
-   "why": "Graphite step 3b (topic page, frame 8b): the note foot's page buttons are topic.page alone (the pager-button hook is the header's neighbours)."
-  },
-  {
-   "hooks": "fc.card",
-   "from": "^Flashcard — click to flip$",
-   "to": "Flashcard — press to flip",
-   "why": "Graphite step 3c (flashcards, frame 8d): the card is pressed as often as clicked (Space flips it)."
-  },
-  {
-   "hooks": "fc.r",
-   "from": "^\\d(Again|Hard|Good|Easy)(.+)$",
-   "to": "$1 — $2",
-   "why": "Graphite step 3c (flashcards, frame 8d): a rating button is named by its rating and what it means; the key and the interval it schedules are visual."
-  },
-  {
-   "retire": true,
-   "reachable": true,
-   "from": "^⚄ Randomise$",
-   "why": "Graphite step 3c (worked examples, frame 8g): Randomise reads \"↻ New numbers\" and carries its own hook (lab.randomise); it must still do exactly what it did."
-  },
-  {
-   "hooks": "ui.tab",
-   "from": "^Due Today$",
-   "to": "Due today",
-   "why": "Graphite step 3e (Review, frames 9a/9b): the switcher reads the design's sentence case."
-  },
-  {
-   "hooks": "ui.tab",
-   "from": "^Card Stats$",
-   "to": "Card stats",
-   "why": "Graphite step 3e (Review, frames 9a/9b): the switcher reads the design's sentence case."
-  },
-  {
-   "surface": "review",
-   "retire": true,
-   "from": ".",
-   "why": "Graphite step 3e (Review, frames 9a/9b): Due today opens on the queue overview; the session is behind Start review, and the due route opens it directly — its controls are still replayed on the due surface."
-  },
-  {
-   "surface": "personaldeck",
-   "from": "^← Due Today$",
-   "to": "← Review",
-   "why": "Graphite step 3e (Review, frames 9a/9b): the way back names the Review page, whose queue it returns to."
-  },
-  {
-   "surface": "personaldeck",
-   "from": "^← Review$",
-   "expect": {
-    "nav": "#/review"
-   },
-   "why": "Graphite step 3e (Review, frame 9a): the way back opens the Review overview (the queue), not straight into a session."
-  },
-  {
-   "whenDialog": "^課 Assignment$",
-   "rewriteEffects": {
-    "dialog": [
-     "^課 Assignment$",
-     "Assignment"
-    ]
-   },
-   "why": "Graphite step 3f/3g (Assignments 9c, Exams & Papers 9d/9e): the assignment dialog is named \"Assignment\" — its 課 mark is decorative."
-  },
-  {
-   "surface": "assignments",
-   "whenDialog": "Assignment",
-   "expect": {},
-   "why": "Graphite step 3f/3g (Assignments 9c, Exams & Papers 9d/9e): on the tracker page an assignment opens in the panel beside the list, not in a dialog."
-  },
-  {
-   "surface": "tracker",
-   "from": "^Date ↕$",
-   "to": "Date ↓",
-   "why": "Graphite step 3f/3g (Assignments 9c, Exams & Papers 9d/9e): the sort toggle says which way it sorts."
-  },
-  {
-   "surface": "tracker",
-   "retire": true,
-   "reachable": true,
-   "from": "✎$",
-   "why": "Graphite step 3f/3g (Assignments 9c, Exams & Papers 9d/9e): a record row is no longer an ARIA button holding other controls (invariant 67); its title button opens the reflections."
-  },
-  {
-   "surface": "tracker",
-   "retire": true,
-   "from": "^Open .* →$",
-   "why": "Graphite step 3f/3g (Assignments 9c, Exams & Papers 9d/9e): the reflections (and their topic link) are hidden until a row is opened; smoke3 covers the row."
-  },
-  {
-   "navTo": "^#/ref/",
-   "dropEffects": {
-    "state": "^(custom\\.quizzes\\[\\]$|progress\\.)"
-   },
-   "why": "Graphite step 3 (topic page, frame 8b): a topic page that is only looked at writes nothing (§0.2.3). The old page materialised the topic's progress record and the custom-quiz array on arrival; opening a topic no longer carries those writes."
-  },
-  {
-   "surface": "ref:.*",
-   "rewriteEffects": {
-    "state": [
-     "^(progress\\.[a-z]+:[A-Za-z0-9.]+?)\\.(rag|status|check\\[\\]|note)$",
-     "$1"
-    ]
-   },
-   "why": "Graphite step 3 (topic page, frame 8b): the progress record is created by the first real edit rather than on render, so a status, check or RAG pick now writes the whole record where it used to write one field of a record the render had already made."
-  },
-  {
-   "surface": "focus",
-   "hooks": "focus.mode",
-   "from": "^波Pomodoro.*$",
-   "to": "Pomodoro 25 / 5",
-   "why": "Graphite step 4a (Focus setup, frame 10a): the mode cards became one switcher, and each item is named by its label; the description moved to the dial caption."
-  },
-  {
-   "surface": "focus",
-   "hooks": "focus.mode",
-   "from": "^灯Custom.*$",
-   "to": "Custom",
-   "why": "Graphite step 4a (Focus setup, frame 10a): the mode cards became one switcher, and each item is named by its label."
-  },
-  {
-   "surface": "focus",
-   "hooks": "focus.start",
-   "from": "^◉ Start focus session$",
-   "to": "▶ Start focus",
-   "why": "Graphite step 4a (Focus setup, frame 10a): the start button reads \"▶ Start focus\"."
-  },
-  {
-   "surface": "reminders",
-   "from": "^\\+ Add$",
-   "to": "Add the reminder",
-   "why": "Graphite step 4b (Reminders, frame 10c): the quick-add bar leads with a ＋ button named \"Add the reminder\" instead of a trailing \"+ Add\"."
-  },
-  {
-   "navTo": "^#/tasks",
-   "dropEffects": {
-    "state": "^todo\\.habits\\[\\]$"
-   },
-   "why": "Graphite step 4c (Habits, frame 10d): the Habits page reads todo.habits without creating it (§0.2.3); the first habit added creates the array, so opening the page no longer writes."
-  },
-  {
-   "surface": "tasks",
-   "from": "^\\+ Add$",
-   "to": "Add the habit",
-   "why": "Graphite step 4c (Habits, frame 10d): the add row leads with a ＋ button named \"Add the habit\" instead of a trailing \"+ Add\"."
-  },
-  {
-   "surface": "calendar",
-   "hooks": "cal.countdown-item",
-   "from": ".*",
-   "retire": true,
-   "reachable": true,
-   "why": "Graphite step 4d (Calendar, frame 10e): a countdown row is named by its title, how far off it is and what it is, instead of its concatenated text; the same rows open the same records."
-  },
-  {
-   "surface": "calendar",
-   "from": "^Calendar →$",
-   "retire": true,
-   "why": "Graphite step 4d (Calendar, frame 10e): the Countdowns card on the Calendar page no longer links to the page it is on."
-  },
-  {
-   "surface": "pacing.*",
-   "hooks": "pace.class",
-   "from": ".*",
-   "retire": true,
-   "reachable": true,
-   "why": "Graphite step 4e (Pacing, frame 10f): a class row's sub-line now carries its spec refs, and the assignments due in the week moved out of the subject columns into one \"Due this week\" card; each row still opens the same dialog or page."
-  },
-  {
-   "hooks": "vault.hero-menu",
-   "from": "^Spotlight▾$",
-   "to": "Spotlight",
-   "why": "Graphite step 5a (vault template, frame 11b): the spotlight's configuration menu sits beside Open entry; review A labelled it \"Spotlight\" (it was a bare ⋯ named \"Spotlight options\")."
-  },
-  {
-   "surface": "anime|books|vn|game",
-   "from": "^⚙$",
-   "to": "Manage",
-   "why": "Graphite step 5a (frame 11b): the Lists heading's manage control reads \"Manage\"."
-  },
-  {
-   "surface": "anime|vn|game|books",
-   "from": "^☰ List$",
-   "to": "List",
-   "why": "Graphite step 5a (frame 11b): the layout toggle is a ▦ / ≡ pair; the list half is named \"List\"."
-  },
-  {
-   "surface": "seasonal",
-   "from": "^◎ Today$",
-   "retire": true,
-   "why": "Graphite step 5a (This season, frame 11j): \"Back to the current season\" is hidden (not just invisible) while the current season is showing, so there is nothing to press."
-  },
-  {
-   "surface": "seasonal",
-   "from": "^← Collection Matrix$",
-   "retire": true,
-   "reachable": true,
-   "why": "Graphite step 5a (frame 11j): the Overview is the first item of the Collection sub-nav directly above, so the page no longer repeats it."
-  },
-  {
-   "navTo": "^#/(vn|game|books)$",
-   "dropEffects": {
-    "state": "^media\\.(vn|game|books)$"
-   },
-   "why": "Graphite step 5a (vault template, frame 11b): the VN and Games vaults read their layout/sort prefs without creating them (§0.2.3); the first real change writes them, so opening a vault no longer writes."
-  },
-  {
-   "surface": "vn|game|books",
-   "rewriteEffects": {
-    "state": [
-     "^media\\.(vn|game|books)\\.(layout|physLayout|sort|tab)$",
-     "media.$1"
-    ]
-   },
-   "why": "Graphite step 5a (frame 11b): the VN and Games prefs record is created by the first real layout or sort change, so that change writes the record where it used to write one field of a record the render had already made."
-  },
-  {
-   "navTo": "^#/shrine$",
-   "dropEffects": {
-    "state": "^media\\.shrine$"
-   },
-   "why": "Graphite step 5d (Shrine, frame 11g): the Shrine reads its filter/sort/note prefs without creating them (render purity); the first real change writes them, so opening the Shrine no longer writes."
-  },
-  {
-   "surface": "shrine",
-   "rewriteEffects": {
-    "state": [
-     "^media\\.shrine\\.(module|sort|description)$",
-     "media.shrine"
-    ]
-   },
-   "why": "Graphite step 5d (frame 11g): the Shrine prefs record is created by the first real filter, sort or note change, so that change writes the record where it used to write one field of a record the render had already made."
-  },
-  {
-   "navTo": "^#/wishlist$",
-   "dropEffects": {
-    "state": "^media\\.wishlist$"
-   },
-   "why": "Graphite step 5e (Budget Planner, frame 11h): the Planner reads its tab/sort prefs without creating them (render purity); the first real change writes them, so opening the Planner no longer writes."
-  },
-  {
-   "surface": "wishlist",
-   "from": "^Confirm purchase$",
-   "to": "Mark purchased",
-   "why": "Graphite step 5e (Budget Planner, frame 11h): the release desk's purchase action reads \"Mark purchased\", as in the frame."
-  },
-  {"surface": "^wishlist$", "hooks": "plan.budget-edit", "from": "^(Edit monthly budget|Edit allowance|Money › Budgets →)$", "to": "Money › Budgets →", "expect": {"nav": "#/money/budgets"}, "why": "Money and Goals (roadmap 5.4, design 27a/27n, 20 October 2026): the allowance IS Money's Collection budget (budgetFrom), so the card's action opens Money › Budgets instead of a second editor."},
-  {
-   "surface": "wishlist",
-   "hooks": "plan.budget-edit",
-   "from": "^Edit monthly budget$",
-   "to": "Edit allowance",
-   "why": "Graphite step 5e (Budget Planner, frame 11h): the allowance card's action names the allowance (\"Set allowance\" before one exists)."
-  },
-  {
-   "surface": "wishlist",
-   "from": "^How these figures work$",
-   "retire": true,
-   "why": "Graphite step 5e (Budget Planner, frame 11h): the figures explain themselves on the ledger's own lines (spent, committed, on paper); the page no longer re-teaches its rules in a disclosure (invariant 50a)."
-  },
-  {
-   "surface": "wishlist",
-   "hooks": "ui.tab",
-   "from": "^(Want to buy|Waiting for release|Purchased|Cancelled)0$",
-   "to": "$1",
-   "why": "Graphite step 5e (Budget Planner, frame 11h): a queue tab with nothing in it prints no count (invariant 77)."
-  },
-  {
-   "surface": "wishlist",
-   "rewriteEffects": {
-    "dialog": [
-     "^Edit monthly budget$",
-     "Monthly allowance"
-    ]
-   },
-   "why": "Graphite step 5e (Budget Planner, frame 11h): the allowance dialog is titled \"Monthly allowance\"; it edits the same budget state."
-  },
-  {
-   "surface": "wishlist",
-   "rewriteEffects": {
-    "state": [
-     "^media\\.wishlist\\.(tab|sort)$",
-     "media.wishlist"
-    ]
-   },
-   "why": "Graphite step 5e (Budget Planner, frame 11h): the Planner prefs record is created by the first real tab or sort change, so that change writes the record where it used to write one field of a record the render had already made."
-  },
-  {
-   "navTo": "^#/goals$",
-   "dropEffects": {
-    "state": "^media\\.goalsTab$"
-   },
-   "why": "Graphite step 5e (Collection Goals, Planner language): Goals reads its status tab without normalising it into the store on render; a real tab change writes it."
-  },
-  {
-   "surface": "mediasync",
-   "from": "^ⓘHow this works▾$",
-   "retire": true,
-   "why": "Graphite step 5f (Sync & Import, frame 11i): the per-card \"How this works\" toggles became one page-level \"How this works\" in the header, which reveals every card's note beside its controls."
-  },
-  {
-   "surface": "mediasync",
-   "from": "^⇪ Import an XML export…$",
-   "to": "⇪ XML import",
-   "why": "Graphite step 5f (Sync & Import, frame 11i): the fallback card's XML action reads \"XML import\", as in the frame."
-  },
-  {
-   "surface": "mediasync",
-   "from": "^⧉ Find & merge duplicates$",
-   "to": "Scan for duplicates",
-   "why": "Graphite step 5f (Sync & Import, frame 11i): duplicate repair sits in the fallback card as \"Scan for duplicates\"; it still merges what it finds."
-  },
-  {
-   "surface": "mediasync",
-   "from": "^(映 Anime vault|本 Books vault|選 Visual Novels)$",
-   "retire": true,
-   "reachable": true,
-   "why": "Graphite step 5f (Sync & Import, frame 11i): the footer links to the vaults repeated the Collection sub-nav directly above the page, which opens the same vaults."
-  },
-  {
-   "surface": "governor",
-   "hooks": "gov.ledger-more",
-   "from": "^Open the full session log →$",
-   "to": "Open full log →",
-   "why": "Graphite step 6 (the Seat, frame 12a): the ledger's link to the Session Log reads \"Open full log →\"; the count of filed system events became its title."
-  },
-  {
-   "surface": "governor",
-   "from": "^How HP and access work$",
-   "retire": true,
-   "why": "Graphite step 6 (the Seat, frame 12a): the three HP rules (Drains, Restores, Always open) are a strip that is always in view, so there is no disclosure to open."
-  },
-  {
-   "surface": "^shell$",
-   "hooks": "shell.rail-item",
-   "navTo": "^#/assistant",
-   "dropEffects": { "state": "^assistant$" },
-   "why": "Graphite step 7 (the Assistant, frames 13a–13f): opening the page no longer creates the assistant workspace record; it is written by the first real change (pin, project, collapse, voice)."
-  },
-  {
-   "surface": "^assistant$",
-   "rewriteEffects": { "state": ["^assistant\\..+$", "assistant"] },
-   "why": "Graphite step 7 (the Assistant): the page renders without writing, so the first change on it creates the whole assistant record (workspace, or the routing defaults on Settings/Permissions) where it used to write one field of a record the render had already made."
-  },
-  {
-   "surface": "^assistant$",
-   "hooks": "asst.cancel",
-   "from": "^Stop the current request$",
-   "retire": true,
-   "why": "Graphite step 7 (the Assistant, frame 13a): Stop is hidden (not merely invisible) while nothing is running, so an idle page offers no inert control; it appears beside Send for the life of a request and cancels it exactly as before."
-  },
-  {
-   "surface": "^help$",
-   "hooks": "help.nav-item",
-   "rewriteEffects": { "nav": ["^#help-(.+)$", "#/help/$1"] },
-   "why": "Graphite step 8 (Help & Guide, frame 14c): a section opens as its own article at #/help/<section> through the router, instead of the page rewriting the URL to #help-<section> with history.replaceState behind the router's back (invariant 64)."
-  },
-  {
-   "surface": "^help$",
-   "hooks": "help.row-head",
-   "retire": true,
-   "from": ".",
-   "why": "Graphite step 8 (Help & Guide, frame 14c): an entry is a heading and its paragraph in the section's article, always open; the per-entry expanders (and their hash writes) are gone. Every entry is still listed in the nav and under On this page."
-  },
-  {
-   "surface": "^help$",
-   "retire": true,
-   "from": "^Open .+ →$",
-   "why": "Graphite step 8 (Help & Guide, frame 14c): the guide is read one section at a time, so an entry's related link sits in that section's article; the links of the other sections are one section away, unchanged."
-  },
-  {
-   "surface": "^notifications$",
-   "from": "^Clear the feed$",
-   "to": "Clear the feed…",
-   "why": "Graphite step 8 (Notifications, frame 14b): the action asks before it clears, and says so with an ellipsis."
-  },
-  {
-   "surface": "^data$",
-   "from": "^Reset everything$",
-   "to": "Reset everything…",
-   "why": "Graphite step 8 (Backup & Restore, frame 14a): Reset opens its confirmation (14a2), which asks for the word RESET."
-  },
-  {
-   "surface": "^data$",
-   "from": "^Export full backup \\(\\.json\\)$",
-   "expect": { "ui": ["lastBackupAt"] },
-   "why": "Graphite step 8 (Backup & Restore, frame 14a): a completed export notes when it ran on this device (state.ui, per device) so Keep it safe can say when the last backup was."
+  "about": "Deliberate accessible-name changes and retirements of rebuilt controls (tools/smoke56.test.js). A rename rewrites a baseline control's name before it is looked up and its recorded effects must still match exactly; a retirement excuses only the control's absence, and a reachable one must still be matched by some control on the same surface.",
+  "rules": [
+    {
+      "surface": "home",
+      "hooks": "home.fact",
+      "from": "^203Cards? due.*$",
+      "to": "198 cards due",
+      "why": "CS Paper 1 at depth (feat/cs-p1-nea): the seeded account reviews the first 40 CS leaves (tools/lib/seed.js), which are the Paper 1 topics being rewritten, so the seeded due and overdue counts follow their flashcards. Update these figures as each Paper 1 section lands. The flashcard de-duplication then removed duplicate and dependent cards, and the merged CS leaves (cs-m-*.js) pooled several decks into one (capped at about 30 cards each): 198 due, 154 overdue."
     },
-  {
-   "whenDialog": "^Status & about$",
-   "rewriteEffects": { "dialog": ["^Status & about$", "Status"] },
-   "why": "Graphite review (step 9): the profile is the status line alone — the longer About text is retired — so its editor is named Status."
-  },
-  {
-   "surface": "^governor$",
-   "from": "^Edit profile$",
-   "to": "Edit status",
-   "why": "Graphite review (step 9): the one profile field left is the status, and the button says so."
-  },
-  {
-   "surface": "^governor$",
-   "retire": true,
-   "from": "^(Edit banner|Remove profile banner)$",
-   "why": "Graphite review B (third pass): the Status hero no longer carries the banner's Edit and ×; the Avatar page owns the banner (Add banner / Reposition / Remove), which opens the same cropper."
-  },
-  {
-   "navTo": "^#/worked$",
-   "dropEffects": { "state": "^worked\\.last$" },
-   "why": "Graphite step 9 (labs): opening Worked Examples is a read — the page used to remember the generator it opened on arrival; only the reader's own choice is remembered now."
-  },
-  {
-   "surface": "^worked$",
-   "hooks": "lab.tab",
-   "from": ".",
-   "expect": { "state": ["worked.last"] },
-   "why": "Graphite step 9 (labs): choosing a generator remembers it — including the one that was open by default, which the page no longer writes on arrival."
-  },
-  {
-   "surface": "^oop$",
-   "from": "^Clear sandbox$",
-   "expect": { "dialog": ["Clear the sandbox?"] },
-   "why": "Graphite step 9 (labs): clearing asks through KOS.ui.confirm (invariant 49 — native confirm is banned) instead of window.confirm."
+    {
+      "surface": "home",
+      "hooks": "habit.tick",
+      "from": "^Seal directive: Clear 203 due flashcards \\(158 overdue\\)$",
+      "to": "Seal directive: Clear 198 due flashcards (154 overdue)",
+      "why": "CS Paper 1 at depth (feat/cs-p1-nea): the seeded account reviews the first 40 CS leaves (tools/lib/seed.js), which are the Paper 1 topics being rewritten, so the seeded due and overdue counts follow their flashcards. Update these figures as each Paper 1 section lands. The flashcard de-duplication then removed duplicate and dependent cards, and the merged CS leaves (cs-m-*.js) pooled several decks into one (capped at about 30 cards each): 198 due, 154 overdue."
     },
-  {
-   "navTo": "^#/oop$",
-   "dropEffects": { "state": "^oop\\." },
-   "why": "Graphite step 9 (labs): the OOP sandbox renders without writing — its first-visit example is a draft that reaches the store on the first edit, not on arrival."
-  },
-  {
-   "surface": "^oop$",
-   "dropEffects": { "state": "^oop\\.(links\\[\\]|nextId|seeded)$" },
-   "why": "Graphite step 9 (labs): the first edit on a fresh sandbox also commits the draft example (its links, id counter and seeded flag), which the page used to write on arrival; the edit's own write to the classes is still the contract."
-  },
-  {
-   "surface": "^(anime|books|vn|game)$",
-   "from": "^＋ New list$",
-   "to": "+ New list",
-   "why": "Graphite review A: a plain + glyph (the full-width ＋ sat off-centre)."
-  },
-  {
-   "surface": "^mediasync$",
-   "from": "^1 · Connect AniList ↗$",
-   "to": "Connect AniList ↗",
-   "why": "Graphite review A: the provider setup is a tray of numbered steps; the button reads \"Connect ↗\" under the \"1 · Client ID\" step and keeps its full accessible name."
-  },
-  {
-   "surface": "^mediasync$",
-   "from": "^Open vndb\\.org/u/tokens ↗$",
-   "to": "Get a VNDB token ↗",
-   "why": "Graphite review A: the token link sits on the token step's label row as \"Get one ↗\"."
-  },
-  {
-   "surface": "pacing.*",
-   "hooks": "pace.row",
-   "from": ", carried over,",
-   "retire": true,
-   "reachable": true,
-   "why": "Graphite review B (Pacing, frame 10f): a carried row is one row marked \"carried\" in My plan, and its name says which week it came from (the separate carried band went)."
-  },
-  {
-   "surface": "pacing.*",
-   "from": "^\\+ Add row$",
-   "retire": true,
-   "reachable": true,
-   "why": "Graphite review B (Pacing, frame 10f): the week's actions moved from the section header to the banner's right-hand side; \"+ Add row\" there is named for the week it adds to."
-  },
-  {
-   "surface": "pacing.*",
-   "hooks": "pace.add",
-   "from": "^Add a (class|plan) row for ",
-   "retire": true,
-   "why": "Graphite review B (Pacing, frame 10f): the six per-register + buttons went; the banner's one \"+ Add row\" opens the same dialog, which picks the subject and the register."
-  },
-  {
-   "surface": "pacing.*",
-   "hooks": "pace.merge",
-   "from": ".",
-   "retire": true,
-   "why": "Graphite review B (Pacing braid, frame 10g): the merges table is one subject at a time and one row per plan row, naming its title and one reference; a row opens the plan row's dialog (which links every spec point), and a week opens from its column in the diagram."
-  },
-  {
-   "hooks": "rem.disclosure-trigger",
-   "from": "^☷ Browse sections, lists & tags$",
-   "to": "☷ Browse sections, lists & tagsAll lists · any tag ▾",
-   "why": "Design part 2, frame 15h: Reminders owns its lists/tags disclosure (moved out of mobile-shell) and the button also carries the phone label naming what is filtered; the tablet label is unchanged."
-  },
-  {
-   "surface": "subject:.*",
-   "from": "^Simulations(Turing machine|Trapezium rule)",
-   "expect": {
-    "nav": "#/sims",
-    "ui": [
-     "simArea",
-     "simSubj"
-    ]
-   },
-   "why": "Design part 2, frame 20h: the index filters by subject and by area, so the desk's Simulations link opens it on its subject with every area shown."
-  },
-  {
-   "surface": "sims",
-   "hooks": "lab.category",
-   "from": "^All$",
-   "expect": {
-    "ui": [
-     "simSubj"
-    ]
-   },
-   "why": "Design part 2, frame 20h: All is the subject switch's first choice (All · CS · Maths); the areas are the rail beside the grid."
-  },
-  {
-   "surface": "sims",
-   "hooks": "lab.category",
-   "from": "^(Computer Science|Pure Maths|Stats & Mechanics)$",
-   "retire": true,
-   "why": "Design part 2, frame 20h: the four category pills became a subject switch (All · CS · Maths) and an area rail (Programming … Databases; Pure, Statistics, Mechanics)."
-  },
-  {
-   "surface": "sims",
-   "hooks": "lab.sim-card",
-   "from": ".",
-   "retire": true,
-   "why": "Design part 2, frame 20h: a lab card draws its archetype and is named by its title (the description is its tooltip), and an area of more than four shows its first row with Show all N — every lab still opens #/sims/<id> from its card."
-  },
- {
-  "surface": "oop",
-  "from": "^\\+ Add class$",
-  "expect": {
-   "state": [
-    "oop.classes[]"
-   ],
-   "ui": [
-    "oopView"
-   ]
-  },
-  "why": "Design part 2, frame 19a: a new class opens in the IDE as the selected file with its tab, which is per-device view state (state.ui.oopView)."
- },
- {
-  "surface": "oop",
-  "from": "^(✕|\\+ field|\\+ method|↻ virt|⇡ set base)$",
-  "retire": true,
-  "why": "Design part 2, frames 19a–19c: the class cards became an IDE. A class is deleted from its file row in the tree (oop.file-delete), members are added with + Field / + Method and their modifier is a select in the editor, and a base is set from the editor's base picker or by dragging a file onto another in the tree."
- },
-    { "surface": "^trace$", "from": "^Reset$", "to": "↺ Reset", "why": "Design part 2, frame 20f (the Trace Lab rebuilt on the lab system): Reset is the transport's ↺ Reset beside ▶ Run and Step ›; it still clears the structure and writes nothing." },
-  {
-   "from": "\\+1 (ep|ch|hr)$",
-   "rewriteEffects": { "media": ["^entry~(?!journal)", "entry~journal[],"] },
-   "why": "Reports phase 1 (roadmap 5.1, invariant 99): a +1 is a list-state change, so the save also appends the step to the row's activity journal."
-  },
-  { "surface": "focus", "hooks": "shell.subnav-item", "retire": true, "from": "^Pacing$", "why": "Pacing moved from Productivity to Study, beside Exams & Papers (16 October 2026): the Productivity pages lose its strip item and Pacing's own strip is Study's." },
-  { "surface": "reminders", "hooks": "shell.subnav-item", "retire": true, "from": "^Pacing$", "why": "Pacing moved from Productivity to Study, beside Exams & Papers (16 October 2026): the Productivity pages lose its strip item and Pacing's own strip is Study's." },
-  { "surface": "tasks", "hooks": "shell.subnav-item", "retire": true, "from": "^Pacing$", "why": "Pacing moved from Productivity to Study, beside Exams & Papers (16 October 2026): the Productivity pages lose its strip item and Pacing's own strip is Study's." },
-  { "surface": "calendar", "hooks": "shell.subnav-item", "retire": true, "from": "^Pacing$", "why": "Pacing moved from Productivity to Study, beside Exams & Papers (16 October 2026): the Productivity pages lose its strip item and Pacing's own strip is Study's." },
-  { "surface": "pacing", "hooks": "shell.subnav-item", "retire": true, "from": "^(Focus Timer|Reminders|Habits|Calendar)$", "why": "Pacing moved from Productivity to Study, beside Exams & Papers (16 October 2026): the Productivity pages lose its strip item and Pacing's own strip is Study's." },
-  { "surface": "pacing:{\"tab\":\"braid\"}", "hooks": "shell.subnav-item", "retire": true, "from": "^(Focus Timer|Reminders|Habits|Calendar)$", "why": "Pacing moved from Productivity to Study, beside Exams & Papers (16 October 2026): the Productivity pages lose its strip item and Pacing's own strip is Study's." },
-  {"hooks": "shell.subnav-item", "from": "^Planner$", "to": "Wishlist", "why": "Money and Goals (roadmap 5.4, design 27a/27n, 20 October 2026): the Collection's Planner is now the Wishlist (願): the queue stays in the Collection and its money moved to Money."},
-  {"surface": "^(wishlist|goals)$", "hooks": "ui.tab", "retire": true, "from": "^(Budget Planner|Goals)$", "why": "Money and Goals (roadmap 5.4, design 27a/27n, 20 October 2026): the Planner/Goals workspace switch is gone — Goals is a Productivity page of its own and the Budget Planner is the Wishlist, so there is nothing left to switch between."},
-  {"surface": "^goals$", "hooks": "shell.subnav-item", "retire": true, "why": "Money and Goals (roadmap 5.4, design 27a/27n, 20 October 2026): Goals moved from the Collection to Productivity, so its page no longer draws the Collection strip."},
-  {"surface": "^wishlist$", "from": "^(Mark purchased|Purchased)$", "expect": {"dialog": ["Mark purchased"]}, "why": "Money and Goals (roadmap 5.4, design 27a/27n, 20 October 2026): Mark purchased first says what it will do (the Money entry, Purchased, the Books volume) in a dialog; confirming it does the handoff (smoke87 C)."},
-  {
-   "hooks": "shell.subnav-item",
-   "retire": true,
-   "reachable": true,
-   "from": "^Code$",
-   "why": "Japanese (roadmap 5.5): the subject pills show one group — the A-level subjects on their pages, Code and Japanese on theirs. From an A-level page Code is one press away through the \"Code & Japanese\" pill, which opens the study space last opened (Code on a fresh account)."
-  },
-  {
-   "surface": "routines.*",
-   "hooks": "review.open",
-   "dropEffects": {
-    "state": "^assistant$"
-   },
-   "why": "Pencil fixes (27 October 2026): a failed request for a review's words now waits 20 minutes (2 when opened by hand) instead of being sent again every 30 seconds, which spent a whole day's Assistant quota. Opening the review just after the ticker's own failed try sends no second request, so the Assistant's tally is not written."
-  },
-  {
-   "surface": "routines.*",
-   "hooks": "routine.use-template",
-   "rewriteEffects": {
-    "nav": [
-     "^#/routines/edit/r_[a-z0-9]+$",
-     "#/routines/edit/<new>"
-    ]
-   },
-   "why": "Pencil fixes (27 October 2026): a new routine's id is random; with one Assistant request fewer before it (the review's back-off) the harness's random sequence gives another id. The page it opens is the same."
-  },
-  {"hooks": "shell.subnav-item", "from": "^Code & Japanese$", "to": "Study spaces", "why": "Mind (roadmap 5.9): with Mind the study spaces are three and growing, so the pill on the A-level pages that reaches that group says Study spaces, as the other side says A-levels. It still opens the study space last opened."},
-  {"surface": "ref:.*", "hooks": "topic.status-chip", "from": "^(Topic status: \\d+%), Green confidence\\.", "to": "$1, Amber confidence.", "why": "W7 (GO-23, 13 November 2026): a topic's colour is evidence-weighted and Green needs recall from three rated cards AND a quiz or paper at 70 or more. The seeded topic rests on less, so it reads Amber, said to be thin; the chip opens the same inspector."},
-  {"surface": "ref:.*", "dropEffects": {"state": "^achievements\\.earned\\.into-the-green$"}, "why": "W7 (GO-23, 13 November 2026): ticking a check on the seeded topic no longer makes it Green on thin evidence, so it no longer earns Into the green; the check writes the same progress record."},
-  {"surface": "routines.*", "hooks": "review.open", "rewriteEffects": {"dialog": ["(review[A-Z][a-z]{2} \\d{1,2} [A-Z][a-z]+ · )\\d\\d:\\d\\d", "$1HH:MM"]}, "why": "W6 (13 November 2026): the review's dialog is named with the clock (\"Thu 24 Sept · 10:01\"). The harness's virtual clock reaches this surface a minute later or earlier as other surfaces draw (quiz options are shuffled now, which changes the harness's random sequence); the minute is not what the control does, so it is masked on both sides."},
-  {"surface": "assistant", "from": "^Back$", "dropEffects": {"nav": "."}, "why": "W2 (13 November 2026, SH-23): the Assistant's phone header Back is the router's Back, and what it does is whatever the replay left in the history stack (like nav-back, which this suite does not replay). It read as doing nothing only because showing the page already on screen used to push a duplicate entry; that is fixed, so Back now really goes back."},
-  {"surface": "reminders", "hooks": "rem.check", "dropEffects": {"dialog": "^Regular II$", "state": "^notify\\.items\\[\\]$", "announce": "^Badge earned: Regular"}, "why": "W2 (13 November 2026): ticking a reminder earns the Regular badge's second tier in this seed, and whether that shows (the overlay, its notification) depends on the two-minute silent window after a device's first sweep (invariant 163), measured on the harness's virtual clock. The replay crosses that window in the middle of this surface. W2 moved the crossing a few controls earlier (a page under a dialog is now redrawn when the dialog closes, one animation frame each), so the badge's own effects are left out on both sides; the tick's effects are held as before."}
+    {
+      "hooks": "shell.rail-item",
+      "from": "^学Study203$",
+      "to": "学Study198",
+      "why": "CS Paper 1 at depth (feat/cs-p1-nea): the seeded account reviews the first 40 CS leaves (tools/lib/seed.js), which are the Paper 1 topics being rewritten, so the seeded due and overdue counts follow their flashcards. Update these figures as each Paper 1 section lands. The flashcard de-duplication then removed duplicate and dependent cards, and the merged CS leaves (cs-m-*.js) pooled several decks into one (capped at about 30 cards each): 198 due, 154 overdue."
+    },
+    {
+      "hooks": "shell.subnav-item",
+      "from": "^(Computer Science|Mathematics|IT · Data Analytics)\\d+%$",
+      "to": "$1",
+      "why": "M4 shell: the subject pill is named by its label; the per-subject percentage no longer prints (the Graphite sub-nav shows a colour dot)."
+    },
+    {
+      "hooks": "gov.hud",
+      "from": "^Level (\\d+)(Healthy|Strained|Critical)·◈ (.+)$",
+      "to": "Your profile — Level $1, $2, $3 gold",
+      "why": "M4 shell: the rail profile chip has an explicit name instead of its concatenated text."
+    },
+    {
+      "hooks": "ui.tab-card",
+      "from": "^.(Physical Vault|Digital).*$",
+      "to": "$1",
+      "why": "M4 primitives: a tab with a kanji mark is named by its label; the hint became the tooltip."
+    },
+    {
+      "surface": "home",
+      "hooks": "home.fact",
+      "from": "^([\\d,]+)Cards? due.*$",
+      "to": "$1 cards due",
+      "why": "Graphite step 2 (Home, frame 7a): the cards-due figure sits under the Study hours chart and is named as one phrase."
+    },
+    {
+      "surface": "home",
+      "from": "^Manage →$",
+      "to": "All →",
+      "why": "Graphite step 2 (Home, frame 7a): the Reminders card's link reads \"All →\"."
+    },
+    {
+      "surface": "home",
+      "hooks": "home.desk-open",
+      "from": "^蒐 Collection$",
+      "to": "Collection",
+      "why": "Graphite step 2 (Home, frame 7a): the desk's kanji is decorative (aria-hidden); the desk is named Collection."
+    },
+    {
+      "surface": "home",
+      "from": "^(.+?)(CS|Maths|IT)( · from w/c .+)?$",
+      "to": "$1",
+      "why": "Graphite step 2 (Home, frame 7a): a week's-plan row title is named by the title alone; the subject and the carried-from week are its own columns and tooltip."
+    },
+    {
+      "surface": "home",
+      "retire": true,
+      "from": "^Tick off ",
+      "why": "Graphite step 2 (Home, frame 7a): the week's plan shows five rows (behind first); the rest of the week is on Pacing, counted in the card's footer."
+    },
+    {
+      "surface": "home",
+      "retire": true,
+      "from": "(CS|Maths|IT)( · from w/c .+)?$",
+      "why": "Graphite step 2 (Home, frame 7a): a week's-plan row past the five-row cap (see above)."
+    },
+    {
+      "surface": "home",
+      "retire": true,
+      "reachable": true,
+      "from": "^\\d+ more this week →$",
+      "why": "Graphite step 2 (Home, frame 7a): the overflow count names a different number under the five-row cap; the week is still one press away (\"Pacing →\")."
+    },
+    {
+      "surface": "home",
+      "hooks": "cal.countdown-item",
+      "retire": true,
+      "from": ".",
+      "why": "Graphite step 2 (Home, frame 7a): Upcoming is three rows — overdue work first, then the nearest countdowns; the full horizon is Calendar's."
+    },
+    {
+      "surface": "home",
+      "retire": true,
+      "reachable": true,
+      "from": " · (overdue|Tomorrow|Today|\\d+ \\w+ · [\\d:]+)$",
+      "why": "Graphite step 2 (Home, frame 7a): the Assignments-due panel folded into Today/Upcoming; those rows open the same Assignment dialog."
+    },
+    {
+      "surface": "home",
+      "hooks": "rag.item",
+      "from": "^(\\S+ .+?)(your own Red rating|ease \\d|\\d+ overdue card).*$",
+      "to": "$1",
+      "why": "Graphite step 2 (Home, frame 7a): the struggling-topics panel became each desk's Weakest row, named by the topic."
+    },
+    {
+      "surface": "home",
+      "hooks": "rag.item",
+      "retire": true,
+      "from": ".",
+      "why": "Graphite step 2 (Home, frame 7a): one weakest topic per desk (KOS.rag.worst(sid, 1)); the full list is the subject page's."
+    },
+    {
+      "navTo": "^#/(subject/|ref/)",
+      "dropEffects": {
+        "ui": "^openSections\\."
+      },
+      "why": "Graphite step 3 (Study desk, frame 8a): the desk draws no spine, so the section expansion a subject used to write on arrival (openSections) is now written by the topic page's spine, at the subject's depth — or not at all when a subject opens."
+    },
+    {
+      "surface": "subject:.*",
+      "from": "^⇆ Compare topics$",
+      "to": "⇆ Compare",
+      "why": "Graphite step 3 (Study desk, frame 8a): the page's actions sit on the sub-navigation row with the design's labels."
+    },
+    {
+      "surface": "subject:.*",
+      "from": "^◉ Start focus$",
+      "to": "Start focus",
+      "why": "Graphite step 3 (Study desk, frame 8a): the page's actions sit on the sub-navigation row with the design's labels."
+    },
+    {
+      "surface": "subject:.*",
+      "from": "^Deep revision content: .*What do these mean\\?$",
+      "to": "What do these mean?",
+      "why": "Graphite step 3 (Study desk, frame 8a): the definitions and the deep-content line open from the analytics header."
+    },
+    {
+      "surface": "subject:.*",
+      "from": "^\\+ Add$",
+      "expect": {
+        "dialog": [
+          "Add a resource"
+        ]
+      },
+      "why": "Graphite step 3 (Study desk, frame 8a): a resource is added through a small dialog instead of an inline form."
+    },
+    {
+      "surface": "subject:.*",
+      "hooks": "study.spine-open",
+      "retire": true,
+      "from": ".",
+      "why": "Graphite step 3 (Study desk, frame 8a): the desk carries no spine; the course units open the topic pages, where it is."
+    },
+    {
+      "surface": "subject:.*",
+      "hooks": "cal.countdown-item",
+      "retire": true,
+      "from": ".",
+      "why": "Graphite step 3 (Study desk, frame 8a): Deadlines shows four rows, overdue assignments first; the full horizon is Calendar's."
+    },
+    {
+      "surface": "subject:.*",
+      "hooks": "rag.item",
+      "retire": true,
+      "from": ".",
+      "why": "Graphite step 3 (Study desk, frame 8a): the flagged-topics panel became the one Weakest card (KOS.rag.worst(sid, 1))."
+    },
+    {
+      "surface": "subject:.*",
+      "from": "^Calendar →$",
+      "retire": true,
+      "why": "Graphite step 3 (Study desk, frame 8a): the dates card links to Assignments as drawn; Calendar stays one press away under Productivity."
+    },
+    {
+      "surface": "subject:.*",
+      "retire": true,
+      "reachable": true,
+      "from": ".",
+      "why": "Graphite step 3 (Study desk, frame 8a): a desk control renamed with the design (the Continue card, a gated practice row's chip) must still do exactly what it did from some control on the desk."
+    },
+    {
+      "surface": "ref:.*",
+      "hooks": "topic.pager-button",
+      "from": "^‹ Previous topic.([A-Z]?\\d[\\d.]*\\d|[A-Z]?\\d)(.+)$",
+      "to": "Previous topic: $1 $2",
+      "why": "Graphite step 3b (topic page, frame 8b): the neighbouring topics are the round ‹ › beside the title, named in full."
+    },
+    {
+      "surface": "ref:.*",
+      "hooks": "topic.pager-button",
+      "from": "^Next topic ›.([A-Z]?\\d[\\d.]*\\d|[A-Z]?\\d)(.+)$",
+      "to": "Next topic: $1 $2",
+      "why": "Graphite step 3b (topic page, frame 8b): the neighbouring topics are the round ‹ › beside the title, named in full."
+    },
+    {
+      "surface": "ref:.*",
+      "hooks": "ui.tab",
+      "retire": true,
+      "from": ".",
+      "why": "Graphite step 3b (topic page, frame 8b): the first four tabs show and the rest fold behind \"+N ▾\" (a menu, outside the replayed regions); smoke37 proves every folded tab is offered there."
+    },
+    {
+      "surface": "ref:.*",
+      "hooks": "ui.scroller-arrow",
+      "retire": true,
+      "from": "tabs$",
+      "why": "Graphite step 3b (topic page, frame 8b): the tab strip no longer scrolls sideways, so it has no arrows."
+    },
+    {
+      "surface": "ref:.*",
+      "hooks": "shell.subnav-item",
+      "from": "^(Review|Assignments|Exams & Papers)$",
+      "retire": true,
+      "why": "Graphite step 3b (topic page, frame 8b): the topic page draws no sub-navigation row; the rail's Study opens the desk, whose row carries them."
+    },
+    {
+      "surface": "ref:\\{\"subject\":\"compsci\".*",
+      "hooks": "shell.subnav-item",
+      "retire": true,
+      "reachable": true,
+      "from": "^Computer Science$",
+      "why": "Graphite step 3b (topic page, frame 8b): the subject pills became the spine; review B: the page's own subject is the spine board's overview link.",
+      "via": "#tree [data-ui~='study.spine-subject']"
+    },
+    {
+      "surface": "ref:\\{\"subject\":\"maths\".*",
+      "hooks": "shell.subnav-item",
+      "retire": true,
+      "reachable": true,
+      "from": "^Mathematics$",
+      "why": "As above: the page's own subject is the spine board's overview link.",
+      "via": "#tree [data-ui~='study.spine-subject']"
+    },
+    {
+      "surface": "ref:\\{\"subject\":\"it\".*",
+      "hooks": "shell.subnav-item",
+      "retire": true,
+      "reachable": true,
+      "from": "^IT · Data Analytics$",
+      "why": "As above: the page's own subject is the spine board's overview link.",
+      "via": "#tree [data-ui~='study.spine-subject']"
+    },
+    {
+      "surface": "ref:.*",
+      "hooks": "shell.subnav-item",
+      "retire": true,
+      "from": ".",
+      "why": "Graphite review B (topic page): the spine's subject switch now opens the last topic of that subject, so another subject's page is no longer one press from a topic page — the switch, then its overview link."
+    },
+    {
+      "surface": "ref:.*",
+      "hooks": "topic.page",
+      "retire": true,
+      "reachable": true,
+      "from": ".",
+      "why": "Graphite step 3b (topic page, frame 8b): the note foot's page buttons are topic.page alone (the pager-button hook is the header's neighbours)."
+    },
+    {
+      "hooks": "fc.card",
+      "from": "^Flashcard — click to flip$",
+      "to": "Flashcard — press to flip",
+      "why": "Graphite step 3c (flashcards, frame 8d): the card is pressed as often as clicked (Space flips it)."
+    },
+    {
+      "hooks": "fc.r",
+      "from": "^\\d(Again|Hard|Good|Easy)(.+)$",
+      "to": "$1 — $2",
+      "why": "Graphite step 3c (flashcards, frame 8d): a rating button is named by its rating and what it means; the key and the interval it schedules are visual."
+    },
+    {
+      "retire": true,
+      "reachable": true,
+      "from": "^⚄ Randomise$",
+      "why": "Graphite step 3c (worked examples, frame 8g): Randomise reads \"↻ New numbers\" and carries its own hook (lab.randomise); it must still do exactly what it did."
+    },
+    {
+      "hooks": "ui.tab",
+      "from": "^Due Today$",
+      "to": "Due today",
+      "why": "Graphite step 3e (Review, frames 9a/9b): the switcher reads the design's sentence case."
+    },
+    {
+      "hooks": "ui.tab",
+      "from": "^Card Stats$",
+      "to": "Card stats",
+      "why": "Graphite step 3e (Review, frames 9a/9b): the switcher reads the design's sentence case."
+    },
+    {
+      "surface": "review",
+      "retire": true,
+      "from": ".",
+      "why": "Graphite step 3e (Review, frames 9a/9b): Due today opens on the queue overview; the session is behind Start review, and the due route opens it directly — its controls are still replayed on the due surface."
+    },
+    {
+      "surface": "personaldeck",
+      "from": "^← Due Today$",
+      "to": "← Review",
+      "why": "Graphite step 3e (Review, frames 9a/9b): the way back names the Review page, whose queue it returns to."
+    },
+    {
+      "surface": "personaldeck",
+      "from": "^← Review$",
+      "expect": {
+        "nav": "#/review"
+      },
+      "why": "Graphite step 3e (Review, frame 9a): the way back opens the Review overview (the queue), not straight into a session."
+    },
+    {
+      "whenDialog": "^課 Assignment$",
+      "rewriteEffects": {
+        "dialog": [
+          "^課 Assignment$",
+          "Assignment"
+        ]
+      },
+      "why": "Graphite step 3f/3g (Assignments 9c, Exams & Papers 9d/9e): the assignment dialog is named \"Assignment\" — its 課 mark is decorative."
+    },
+    {
+      "surface": "assignments",
+      "whenDialog": "Assignment",
+      "expect": {},
+      "why": "Graphite step 3f/3g (Assignments 9c, Exams & Papers 9d/9e): on the tracker page an assignment opens in the panel beside the list, not in a dialog."
+    },
+    {
+      "surface": "tracker",
+      "from": "^Date ↕$",
+      "to": "Date ↓",
+      "why": "Graphite step 3f/3g (Assignments 9c, Exams & Papers 9d/9e): the sort toggle says which way it sorts."
+    },
+    {
+      "surface": "tracker",
+      "retire": true,
+      "reachable": true,
+      "from": "✎$",
+      "why": "Graphite step 3f/3g (Assignments 9c, Exams & Papers 9d/9e): a record row is no longer an ARIA button holding other controls (invariant 67); its title button opens the reflections."
+    },
+    {
+      "surface": "tracker",
+      "retire": true,
+      "from": "^Open .* →$",
+      "why": "Graphite step 3f/3g (Assignments 9c, Exams & Papers 9d/9e): the reflections (and their topic link) are hidden until a row is opened; smoke3 covers the row."
+    },
+    {
+      "navTo": "^#/ref/",
+      "dropEffects": {
+        "state": "^(custom\\.quizzes\\[\\]$|progress\\.)"
+      },
+      "why": "Graphite step 3 (topic page, frame 8b): a topic page that is only looked at writes nothing (§0.2.3). The old page materialised the topic's progress record and the custom-quiz array on arrival; opening a topic no longer carries those writes."
+    },
+    {
+      "surface": "ref:.*",
+      "rewriteEffects": {
+        "state": [
+          "^(progress\\.[a-z]+:[A-Za-z0-9.]+?)\\.(rag|status|check\\[\\]|note)$",
+          "$1"
+        ]
+      },
+      "why": "Graphite step 3 (topic page, frame 8b): the progress record is created by the first real edit rather than on render, so a status, check or RAG pick now writes the whole record where it used to write one field of a record the render had already made."
+    },
+    {
+      "surface": "focus",
+      "hooks": "focus.mode",
+      "from": "^波Pomodoro.*$",
+      "to": "Pomodoro 25 / 5",
+      "why": "Graphite step 4a (Focus setup, frame 10a): the mode cards became one switcher, and each item is named by its label; the description moved to the dial caption."
+    },
+    {
+      "surface": "focus",
+      "hooks": "focus.mode",
+      "from": "^灯Custom.*$",
+      "to": "Custom",
+      "why": "Graphite step 4a (Focus setup, frame 10a): the mode cards became one switcher, and each item is named by its label."
+    },
+    {
+      "surface": "focus",
+      "hooks": "focus.start",
+      "from": "^◉ Start focus session$",
+      "to": "▶ Start focus",
+      "why": "Graphite step 4a (Focus setup, frame 10a): the start button reads \"▶ Start focus\"."
+    },
+    {
+      "surface": "reminders",
+      "from": "^\\+ Add$",
+      "to": "Add the reminder",
+      "why": "Graphite step 4b (Reminders, frame 10c): the quick-add bar leads with a ＋ button named \"Add the reminder\" instead of a trailing \"+ Add\"."
+    },
+    {
+      "navTo": "^#/tasks",
+      "dropEffects": {
+        "state": "^todo\\.habits\\[\\]$"
+      },
+      "why": "Graphite step 4c (Habits, frame 10d): the Habits page reads todo.habits without creating it (§0.2.3); the first habit added creates the array, so opening the page no longer writes."
+    },
+    {
+      "surface": "tasks",
+      "from": "^\\+ Add$",
+      "to": "Add the habit",
+      "why": "Graphite step 4c (Habits, frame 10d): the add row leads with a ＋ button named \"Add the habit\" instead of a trailing \"+ Add\"."
+    },
+    {
+      "surface": "calendar",
+      "hooks": "cal.countdown-item",
+      "from": ".*",
+      "retire": true,
+      "reachable": true,
+      "why": "Graphite step 4d (Calendar, frame 10e): a countdown row is named by its title, how far off it is and what it is, instead of its concatenated text; the same rows open the same records."
+    },
+    {
+      "surface": "calendar",
+      "from": "^Calendar →$",
+      "retire": true,
+      "why": "Graphite step 4d (Calendar, frame 10e): the Countdowns card on the Calendar page no longer links to the page it is on."
+    },
+    {
+      "surface": "pacing.*",
+      "hooks": "pace.class",
+      "from": ".*",
+      "retire": true,
+      "reachable": true,
+      "why": "Graphite step 4e (Pacing, frame 10f): a class row's sub-line now carries its spec refs, and the assignments due in the week moved out of the subject columns into one \"Due this week\" card; each row still opens the same dialog or page."
+    },
+    {
+      "hooks": "vault.hero-menu",
+      "from": "^Spotlight▾$",
+      "to": "Spotlight",
+      "why": "Graphite step 5a (vault template, frame 11b): the spotlight's configuration menu sits beside Open entry; review A labelled it \"Spotlight\" (it was a bare ⋯ named \"Spotlight options\")."
+    },
+    {
+      "surface": "anime|books|vn|game",
+      "from": "^⚙$",
+      "to": "Manage",
+      "why": "Graphite step 5a (frame 11b): the Lists heading's manage control reads \"Manage\"."
+    },
+    {
+      "surface": "anime|vn|game|books",
+      "from": "^☰ List$",
+      "to": "List",
+      "why": "Graphite step 5a (frame 11b): the layout toggle is a ▦ / ≡ pair; the list half is named \"List\"."
+    },
+    {
+      "surface": "seasonal",
+      "from": "^◎ Today$",
+      "retire": true,
+      "why": "Graphite step 5a (This season, frame 11j): \"Back to the current season\" is hidden (not just invisible) while the current season is showing, so there is nothing to press."
+    },
+    {
+      "surface": "seasonal",
+      "from": "^← Collection Matrix$",
+      "retire": true,
+      "reachable": true,
+      "why": "Graphite step 5a (frame 11j): the Overview is the first item of the Collection sub-nav directly above, so the page no longer repeats it."
+    },
+    {
+      "navTo": "^#/(vn|game|books)$",
+      "dropEffects": {
+        "state": "^media\\.(vn|game|books)$"
+      },
+      "why": "Graphite step 5a (vault template, frame 11b): the VN and Games vaults read their layout/sort prefs without creating them (§0.2.3); the first real change writes them, so opening a vault no longer writes."
+    },
+    {
+      "surface": "vn|game|books",
+      "rewriteEffects": {
+        "state": [
+          "^media\\.(vn|game|books)\\.(layout|physLayout|sort|tab)$",
+          "media.$1"
+        ]
+      },
+      "why": "Graphite step 5a (frame 11b): the VN and Games prefs record is created by the first real layout or sort change, so that change writes the record where it used to write one field of a record the render had already made."
+    },
+    {
+      "navTo": "^#/shrine$",
+      "dropEffects": {
+        "state": "^media\\.shrine$"
+      },
+      "why": "Graphite step 5d (Shrine, frame 11g): the Shrine reads its filter/sort/note prefs without creating them (render purity); the first real change writes them, so opening the Shrine no longer writes."
+    },
+    {
+      "surface": "shrine",
+      "rewriteEffects": {
+        "state": [
+          "^media\\.shrine\\.(module|sort|description)$",
+          "media.shrine"
+        ]
+      },
+      "why": "Graphite step 5d (frame 11g): the Shrine prefs record is created by the first real filter, sort or note change, so that change writes the record where it used to write one field of a record the render had already made."
+    },
+    {
+      "navTo": "^#/wishlist$",
+      "dropEffects": {
+        "state": "^media\\.wishlist$"
+      },
+      "why": "Graphite step 5e (Budget Planner, frame 11h): the Planner reads its tab/sort prefs without creating them (render purity); the first real change writes them, so opening the Planner no longer writes."
+    },
+    {
+      "surface": "wishlist",
+      "from": "^Confirm purchase$",
+      "to": "Mark purchased",
+      "why": "Graphite step 5e (Budget Planner, frame 11h): the release desk's purchase action reads \"Mark purchased\", as in the frame."
+    },
+    {
+      "surface": "^wishlist$",
+      "hooks": "plan.budget-edit",
+      "from": "^(Edit monthly budget|Edit allowance|Money › Budgets →)$",
+      "to": "Money › Budgets →",
+      "expect": {
+        "nav": "#/money/budgets"
+      },
+      "why": "Money and Goals (roadmap 5.4, design 27a/27n, 20 October 2026): the allowance IS Money's Collection budget (budgetFrom), so the card's action opens Money › Budgets instead of a second editor."
+    },
+    {
+      "surface": "wishlist",
+      "hooks": "plan.budget-edit",
+      "from": "^Edit monthly budget$",
+      "to": "Edit allowance",
+      "why": "Graphite step 5e (Budget Planner, frame 11h): the allowance card's action names the allowance (\"Set allowance\" before one exists)."
+    },
+    {
+      "surface": "wishlist",
+      "from": "^How these figures work$",
+      "retire": true,
+      "why": "Graphite step 5e (Budget Planner, frame 11h): the figures explain themselves on the ledger's own lines (spent, committed, on paper); the page no longer re-teaches its rules in a disclosure (invariant 50a)."
+    },
+    {
+      "surface": "wishlist",
+      "hooks": "ui.tab",
+      "from": "^(Want to buy|Waiting for release|Purchased|Cancelled)0$",
+      "to": "$1",
+      "why": "Graphite step 5e (Budget Planner, frame 11h): a queue tab with nothing in it prints no count (invariant 77)."
+    },
+    {
+      "surface": "wishlist",
+      "rewriteEffects": {
+        "dialog": [
+          "^Edit monthly budget$",
+          "Monthly allowance"
+        ]
+      },
+      "why": "Graphite step 5e (Budget Planner, frame 11h): the allowance dialog is titled \"Monthly allowance\"; it edits the same budget state."
+    },
+    {
+      "surface": "wishlist",
+      "rewriteEffects": {
+        "state": [
+          "^media\\.wishlist\\.(tab|sort)$",
+          "media.wishlist"
+        ]
+      },
+      "why": "Graphite step 5e (Budget Planner, frame 11h): the Planner prefs record is created by the first real tab or sort change, so that change writes the record where it used to write one field of a record the render had already made."
+    },
+    {
+      "navTo": "^#/goals$",
+      "dropEffects": {
+        "state": "^media\\.goalsTab$"
+      },
+      "why": "Graphite step 5e (Collection Goals, Planner language): Goals reads its status tab without normalising it into the store on render; a real tab change writes it."
+    },
+    {
+      "surface": "mediasync",
+      "from": "^ⓘHow this works▾$",
+      "retire": true,
+      "why": "Graphite step 5f (Sync & Import, frame 11i): the per-card \"How this works\" toggles became one page-level \"How this works\" in the header, which reveals every card's note beside its controls."
+    },
+    {
+      "surface": "mediasync",
+      "from": "^⇪ Import an XML export…$",
+      "to": "⇪ XML import",
+      "why": "Graphite step 5f (Sync & Import, frame 11i): the fallback card's XML action reads \"XML import\", as in the frame."
+    },
+    {
+      "surface": "mediasync",
+      "from": "^⧉ Find & merge duplicates$",
+      "to": "Scan for duplicates",
+      "why": "Graphite step 5f (Sync & Import, frame 11i): duplicate repair sits in the fallback card as \"Scan for duplicates\"; it still merges what it finds."
+    },
+    {
+      "surface": "mediasync",
+      "from": "^(映 Anime vault|本 Books vault|選 Visual Novels)$",
+      "retire": true,
+      "reachable": true,
+      "why": "Graphite step 5f (Sync & Import, frame 11i): the footer links to the vaults repeated the Collection sub-nav directly above the page, which opens the same vaults."
+    },
+    {
+      "surface": "governor",
+      "hooks": "gov.ledger-more",
+      "from": "^Open the full session log →$",
+      "to": "Open full log →",
+      "why": "Graphite step 6 (the Seat, frame 12a): the ledger's link to the Session Log reads \"Open full log →\"; the count of filed system events became its title."
+    },
+    {
+      "surface": "governor",
+      "from": "^How HP and access work$",
+      "retire": true,
+      "why": "Graphite step 6 (the Seat, frame 12a): the three HP rules (Drains, Restores, Always open) are a strip that is always in view, so there is no disclosure to open."
+    },
+    {
+      "surface": "^shell$",
+      "hooks": "shell.rail-item",
+      "navTo": "^#/assistant",
+      "dropEffects": {
+        "state": "^assistant$"
+      },
+      "why": "Graphite step 7 (the Assistant, frames 13a–13f): opening the page no longer creates the assistant workspace record; it is written by the first real change (pin, project, collapse, voice)."
+    },
+    {
+      "surface": "^assistant$",
+      "rewriteEffects": {
+        "state": [
+          "^assistant\\..+$",
+          "assistant"
+        ]
+      },
+      "why": "Graphite step 7 (the Assistant): the page renders without writing, so the first change on it creates the whole assistant record (workspace, or the routing defaults on Settings/Permissions) where it used to write one field of a record the render had already made."
+    },
+    {
+      "surface": "^assistant$",
+      "hooks": "asst.cancel",
+      "from": "^Stop the current request$",
+      "retire": true,
+      "why": "Graphite step 7 (the Assistant, frame 13a): Stop is hidden (not merely invisible) while nothing is running, so an idle page offers no inert control; it appears beside Send for the life of a request and cancels it exactly as before."
+    },
+    {
+      "surface": "^help$",
+      "hooks": "help.nav-item",
+      "rewriteEffects": {
+        "nav": [
+          "^#help-(.+)$",
+          "#/help/$1"
+        ]
+      },
+      "why": "Graphite step 8 (Help & Guide, frame 14c): a section opens as its own article at #/help/<section> through the router, instead of the page rewriting the URL to #help-<section> with history.replaceState behind the router's back (invariant 64)."
+    },
+    {
+      "surface": "^help$",
+      "hooks": "help.row-head",
+      "retire": true,
+      "from": ".",
+      "why": "Graphite step 8 (Help & Guide, frame 14c): an entry is a heading and its paragraph in the section's article, always open; the per-entry expanders (and their hash writes) are gone. Every entry is still listed in the nav and under On this page."
+    },
+    {
+      "surface": "^help$",
+      "retire": true,
+      "from": "^Open .+ →$",
+      "why": "Graphite step 8 (Help & Guide, frame 14c): the guide is read one section at a time, so an entry's related link sits in that section's article; the links of the other sections are one section away, unchanged."
+    },
+    {
+      "surface": "^notifications$",
+      "from": "^Clear the feed$",
+      "to": "Clear the feed…",
+      "why": "Graphite step 8 (Notifications, frame 14b): the action asks before it clears, and says so with an ellipsis."
+    },
+    {
+      "surface": "^data$",
+      "from": "^Reset everything$",
+      "to": "Reset everything…",
+      "why": "Graphite step 8 (Backup & Restore, frame 14a): Reset opens its confirmation (14a2), which asks for the word RESET."
+    },
+    {
+      "surface": "^data$",
+      "from": "^Export full backup \\(\\.json\\)$",
+      "expect": {
+        "ui": [
+          "lastBackupAt"
+        ]
+      },
+      "why": "Graphite step 8 (Backup & Restore, frame 14a): a completed export notes when it ran on this device (state.ui, per device) so Keep it safe can say when the last backup was."
+    },
+    {
+      "whenDialog": "^Status & about$",
+      "rewriteEffects": {
+        "dialog": [
+          "^Status & about$",
+          "Status"
+        ]
+      },
+      "why": "Graphite review (step 9): the profile is the status line alone — the longer About text is retired — so its editor is named Status."
+    },
+    {
+      "surface": "^governor$",
+      "from": "^Edit profile$",
+      "to": "Edit status",
+      "why": "Graphite review (step 9): the one profile field left is the status, and the button says so."
+    },
+    {
+      "surface": "^governor$",
+      "retire": true,
+      "from": "^(Edit banner|Remove profile banner)$",
+      "why": "Graphite review B (third pass): the Status hero no longer carries the banner's Edit and ×; the Avatar page owns the banner (Add banner / Reposition / Remove), which opens the same cropper."
+    },
+    {
+      "navTo": "^#/worked$",
+      "dropEffects": {
+        "state": "^worked\\.last$"
+      },
+      "why": "Graphite step 9 (labs): opening Worked Examples is a read — the page used to remember the generator it opened on arrival; only the reader's own choice is remembered now."
+    },
+    {
+      "surface": "^worked$",
+      "hooks": "lab.tab",
+      "from": ".",
+      "expect": {
+        "state": [
+          "worked.last"
+        ]
+      },
+      "why": "Graphite step 9 (labs): choosing a generator remembers it — including the one that was open by default, which the page no longer writes on arrival."
+    },
+    {
+      "surface": "^oop$",
+      "from": "^Clear sandbox$",
+      "expect": {
+        "dialog": [
+          "Clear the sandbox?"
+        ]
+      },
+      "why": "Graphite step 9 (labs): clearing asks through KOS.ui.confirm (invariant 49 — native confirm is banned) instead of window.confirm."
+    },
+    {
+      "navTo": "^#/oop$",
+      "dropEffects": {
+        "state": "^oop\\."
+      },
+      "why": "Graphite step 9 (labs): the OOP sandbox renders without writing — its first-visit example is a draft that reaches the store on the first edit, not on arrival."
+    },
+    {
+      "surface": "^oop$",
+      "dropEffects": {
+        "state": "^oop\\.(links\\[\\]|nextId|seeded)$"
+      },
+      "why": "Graphite step 9 (labs): the first edit on a fresh sandbox also commits the draft example (its links, id counter and seeded flag), which the page used to write on arrival; the edit's own write to the classes is still the contract."
+    },
+    {
+      "surface": "^(anime|books|vn|game)$",
+      "from": "^＋ New list$",
+      "to": "+ New list",
+      "why": "Graphite review A: a plain + glyph (the full-width ＋ sat off-centre)."
+    },
+    {
+      "surface": "^mediasync$",
+      "from": "^1 · Connect AniList ↗$",
+      "to": "Connect AniList ↗",
+      "why": "Graphite review A: the provider setup is a tray of numbered steps; the button reads \"Connect ↗\" under the \"1 · Client ID\" step and keeps its full accessible name."
+    },
+    {
+      "surface": "^mediasync$",
+      "from": "^Open vndb\\.org/u/tokens ↗$",
+      "to": "Get a VNDB token ↗",
+      "why": "Graphite review A: the token link sits on the token step's label row as \"Get one ↗\"."
+    },
+    {
+      "surface": "pacing.*",
+      "hooks": "pace.row",
+      "from": ", carried over,",
+      "retire": true,
+      "reachable": true,
+      "why": "Graphite review B (Pacing, frame 10f): a carried row is one row marked \"carried\" in My plan, and its name says which week it came from (the separate carried band went)."
+    },
+    {
+      "surface": "pacing.*",
+      "from": "^\\+ Add row$",
+      "retire": true,
+      "reachable": true,
+      "why": "Graphite review B (Pacing, frame 10f): the week's actions moved from the section header to the banner's right-hand side; \"+ Add row\" there is named for the week it adds to."
+    },
+    {
+      "surface": "pacing.*",
+      "hooks": "pace.add",
+      "from": "^Add a (class|plan) row for ",
+      "retire": true,
+      "why": "Graphite review B (Pacing, frame 10f): the six per-register + buttons went; the banner's one \"+ Add row\" opens the same dialog, which picks the subject and the register."
+    },
+    {
+      "surface": "pacing.*",
+      "hooks": "pace.merge",
+      "from": ".",
+      "retire": true,
+      "why": "Graphite review B (Pacing braid, frame 10g): the merges table is one subject at a time and one row per plan row, naming its title and one reference; a row opens the plan row's dialog (which links every spec point), and a week opens from its column in the diagram."
+    },
+    {
+      "hooks": "rem.disclosure-trigger",
+      "from": "^☷ Browse sections, lists & tags$",
+      "to": "☷ Browse sections, lists & tagsAll lists · any tag ▾",
+      "why": "Design part 2, frame 15h: Reminders owns its lists/tags disclosure (moved out of mobile-shell) and the button also carries the phone label naming what is filtered; the tablet label is unchanged."
+    },
+    {
+      "surface": "subject:.*",
+      "from": "^Simulations(Turing machine|Trapezium rule)",
+      "expect": {
+        "nav": "#/sims",
+        "ui": [
+          "simArea",
+          "simSubj"
+        ]
+      },
+      "why": "Design part 2, frame 20h: the index filters by subject and by area, so the desk's Simulations link opens it on its subject with every area shown."
+    },
+    {
+      "surface": "sims",
+      "hooks": "lab.category",
+      "from": "^All$",
+      "expect": {
+        "ui": [
+          "simSubj"
+        ]
+      },
+      "why": "Design part 2, frame 20h: All is the subject switch's first choice (All · CS · Maths); the areas are the rail beside the grid."
+    },
+    {
+      "surface": "sims",
+      "hooks": "lab.category",
+      "from": "^(Computer Science|Pure Maths|Stats & Mechanics)$",
+      "retire": true,
+      "why": "Design part 2, frame 20h: the four category pills became a subject switch (All · CS · Maths) and an area rail (Programming … Databases; Pure, Statistics, Mechanics)."
+    },
+    {
+      "surface": "sims",
+      "hooks": "lab.sim-card",
+      "from": ".",
+      "retire": true,
+      "why": "Design part 2, frame 20h: a lab card draws its archetype and is named by its title (the description is its tooltip), and an area of more than four shows its first row with Show all N — every lab still opens #/sims/<id> from its card."
+    },
+    {
+      "surface": "oop",
+      "from": "^\\+ Add class$",
+      "expect": {
+        "state": [
+          "oop.classes[]"
+        ],
+        "ui": [
+          "oopView"
+        ]
+      },
+      "why": "Design part 2, frame 19a: a new class opens in the IDE as the selected file with its tab, which is per-device view state (state.ui.oopView)."
+    },
+    {
+      "surface": "oop",
+      "from": "^(✕|\\+ field|\\+ method|↻ virt|⇡ set base)$",
+      "retire": true,
+      "why": "Design part 2, frames 19a–19c: the class cards became an IDE. A class is deleted from its file row in the tree (oop.file-delete), members are added with + Field / + Method and their modifier is a select in the editor, and a base is set from the editor's base picker or by dragging a file onto another in the tree."
+    },
+    {
+      "surface": "^trace$",
+      "from": "^Reset$",
+      "to": "↺ Reset",
+      "why": "Design part 2, frame 20f (the Trace Lab rebuilt on the lab system): Reset is the transport's ↺ Reset beside ▶ Run and Step ›; it still clears the structure and writes nothing."
+    },
+    {
+      "from": "\\+1 (ep|ch|hr)$",
+      "rewriteEffects": {
+        "media": [
+          "^entry~(?!journal)",
+          "entry~journal[],"
+        ]
+      },
+      "why": "Reports phase 1 (roadmap 5.1, invariant 99): a +1 is a list-state change, so the save also appends the step to the row's activity journal."
+    },
+    {
+      "surface": "focus",
+      "hooks": "shell.subnav-item",
+      "retire": true,
+      "from": "^Pacing$",
+      "why": "Pacing moved from Productivity to Study, beside Exams & Papers (16 October 2026): the Productivity pages lose its strip item and Pacing's own strip is Study's."
+    },
+    {
+      "surface": "reminders",
+      "hooks": "shell.subnav-item",
+      "retire": true,
+      "from": "^Pacing$",
+      "why": "Pacing moved from Productivity to Study, beside Exams & Papers (16 October 2026): the Productivity pages lose its strip item and Pacing's own strip is Study's."
+    },
+    {
+      "surface": "tasks",
+      "hooks": "shell.subnav-item",
+      "retire": true,
+      "from": "^Pacing$",
+      "why": "Pacing moved from Productivity to Study, beside Exams & Papers (16 October 2026): the Productivity pages lose its strip item and Pacing's own strip is Study's."
+    },
+    {
+      "surface": "calendar",
+      "hooks": "shell.subnav-item",
+      "retire": true,
+      "from": "^Pacing$",
+      "why": "Pacing moved from Productivity to Study, beside Exams & Papers (16 October 2026): the Productivity pages lose its strip item and Pacing's own strip is Study's."
+    },
+    {
+      "surface": "pacing",
+      "hooks": "shell.subnav-item",
+      "retire": true,
+      "from": "^(Focus Timer|Reminders|Habits|Calendar)$",
+      "why": "Pacing moved from Productivity to Study, beside Exams & Papers (16 October 2026): the Productivity pages lose its strip item and Pacing's own strip is Study's."
+    },
+    {
+      "surface": "pacing:{\"tab\":\"braid\"}",
+      "hooks": "shell.subnav-item",
+      "retire": true,
+      "from": "^(Focus Timer|Reminders|Habits|Calendar)$",
+      "why": "Pacing moved from Productivity to Study, beside Exams & Papers (16 October 2026): the Productivity pages lose its strip item and Pacing's own strip is Study's."
+    },
+    {
+      "hooks": "shell.subnav-item",
+      "from": "^Planner$",
+      "to": "Wishlist",
+      "why": "Money and Goals (roadmap 5.4, design 27a/27n, 20 October 2026): the Collection's Planner is now the Wishlist (願): the queue stays in the Collection and its money moved to Money."
+    },
+    {
+      "surface": "^(wishlist|goals)$",
+      "hooks": "ui.tab",
+      "retire": true,
+      "from": "^(Budget Planner|Goals)$",
+      "why": "Money and Goals (roadmap 5.4, design 27a/27n, 20 October 2026): the Planner/Goals workspace switch is gone — Goals is a Productivity page of its own and the Budget Planner is the Wishlist, so there is nothing left to switch between."
+    },
+    {
+      "surface": "^goals$",
+      "hooks": "shell.subnav-item",
+      "retire": true,
+      "why": "Money and Goals (roadmap 5.4, design 27a/27n, 20 October 2026): Goals moved from the Collection to Productivity, so its page no longer draws the Collection strip."
+    },
+    {
+      "surface": "^wishlist$",
+      "from": "^(Mark purchased|Purchased)$",
+      "expect": {
+        "dialog": [
+          "Mark purchased"
+        ]
+      },
+      "why": "Money and Goals (roadmap 5.4, design 27a/27n, 20 October 2026): Mark purchased first says what it will do (the Money entry, Purchased, the Books volume) in a dialog; confirming it does the handoff (smoke87 C)."
+    },
+    {
+      "hooks": "shell.subnav-item",
+      "retire": true,
+      "reachable": true,
+      "from": "^Code$",
+      "why": "Japanese (roadmap 5.5): the subject pills show one group — the A-level subjects on their pages, Code and Japanese on theirs. From an A-level page Code is one press away through the \"Code & Japanese\" pill, which opens the study space last opened (Code on a fresh account)."
+    },
+    {
+      "surface": "routines.*",
+      "hooks": "review.open",
+      "dropEffects": {
+        "state": "^assistant$"
+      },
+      "why": "Pencil fixes (27 October 2026): a failed request for a review's words now waits 20 minutes (2 when opened by hand) instead of being sent again every 30 seconds, which spent a whole day's Assistant quota. Opening the review just after the ticker's own failed try sends no second request, so the Assistant's tally is not written."
+    },
+    {
+      "surface": "routines.*",
+      "hooks": "routine.use-template",
+      "rewriteEffects": {
+        "nav": [
+          "^#/routines/edit/r_[a-z0-9]+$",
+          "#/routines/edit/<new>"
+        ]
+      },
+      "why": "Pencil fixes (27 October 2026): a new routine's id is random; with one Assistant request fewer before it (the review's back-off) the harness's random sequence gives another id. The page it opens is the same."
+    },
+    {
+      "hooks": "shell.subnav-item",
+      "from": "^Code & Japanese$",
+      "to": "Study spaces",
+      "why": "Mind (roadmap 5.9): with Mind the study spaces are three and growing, so the pill on the A-level pages that reaches that group says Study spaces, as the other side says A-levels. It still opens the study space last opened."
+    },
+    {
+      "surface": "ref:.*",
+      "hooks": "topic.status-chip",
+      "from": "^(Topic status: \\d+%), Green confidence\\.",
+      "to": "$1, Amber confidence.",
+      "why": "W7 (GO-23, 13 November 2026): a topic's colour is evidence-weighted and Green needs recall from three rated cards AND a quiz or paper at 70 or more. The seeded topic rests on less, so it reads Amber, said to be thin; the chip opens the same inspector."
+    },
+    {
+      "surface": "ref:.*",
+      "dropEffects": {
+        "state": "^achievements\\.earned\\.into-the-green$"
+      },
+      "why": "W7 (GO-23, 13 November 2026): ticking a check on the seeded topic no longer makes it Green on thin evidence, so it no longer earns Into the green; the check writes the same progress record."
+    },
+    {
+      "surface": "routines.*",
+      "hooks": "review.open",
+      "rewriteEffects": {
+        "dialog": [
+          "(review[A-Z][a-z]{2} \\d{1,2} [A-Z][a-z]+ · )\\d\\d:\\d\\d",
+          "$1HH:MM"
+        ]
+      },
+      "why": "W6 (13 November 2026): the review's dialog is named with the clock (\"Thu 24 Sept · 10:01\"). The harness's virtual clock reaches this surface a minute later or earlier as other surfaces draw (quiz options are shuffled now, which changes the harness's random sequence); the minute is not what the control does, so it is masked on both sides."
+    },
+    {
+      "surface": "assistant",
+      "from": "^Back$",
+      "dropEffects": {
+        "nav": "."
+      },
+      "why": "W2 (13 November 2026, SH-23): the Assistant's phone header Back is the router's Back, and what it does is whatever the replay left in the history stack (like nav-back, which this suite does not replay). It read as doing nothing only because showing the page already on screen used to push a duplicate entry; that is fixed, so Back now really goes back."
+    },
+    {
+      "surface": "reminders",
+      "hooks": "rem.check",
+      "dropEffects": {
+        "dialog": "^Regular II$",
+        "state": "^notify\\.items\\[\\]$",
+        "announce": "^Badge earned: Regular"
+      },
+      "why": "W2 (13 November 2026): ticking a reminder earns the Regular badge's second tier in this seed, and whether that shows (the overlay, its notification) depends on the two-minute silent window after a device's first sweep (invariant 163), measured on the harness's virtual clock. The replay crosses that window in the middle of this surface. W2 moved the crossing a few controls earlier (a page under a dialog is now redrawn when the dialog closes, one animation frame each), so the badge's own effects are left out on both sides; the tick's effects are held as before."
+    },
+    {
+      "surface": ".*",
+      "rewriteEffects": {
+        "nav": [
+          "^#/review(/.*)?$",
+          "#/review"
+        ]
+      },
+      "why": "W2 (16 November 2026, SH-37): a review run and Card stats have addresses now (#/review/due/<run>, #/review/stats), so a reload, a bookmark or the Home Screen app's relaunch finds the run again. The control still opens Review; the run it carries is part of the address, which both sides are held to as the bare page."
+    },
+    {
+      "surface": ".*",
+      "rewriteEffects": {
+        "nav": [
+          "^#/achievements(/.*)?$",
+          "#/achievements"
+        ]
+      },
+      "why": "W2 (16 November 2026, AG-03, AX-24): the Wall's tabs and sets have addresses now (#/achievements/titles, #/achievements/set/<set>/<badge>). The control still opens the Wall on its set; the set it names is part of the address, which both sides are held to as the bare page."
+    },
+    {
+      "surface": "anime|books|vn|game|matrix|seasonal|mangaka|shrine",
+      "hooks": "vault.plus",
+      "dropEffects": {
+        "state": "^achievements\\.",
+        "ui": "^achSeen\\.",
+        "announce": ": \\d+ (ep|ch|hr|vol|%)"
+      },
+      "why": "W2 (16 November 2026, CL-24): +1 now makes its own card again in place instead of repainting the whole sorted vault (the card used to jump to the top under 'recently updated'), and says the new count to a screen reader. Without the repaint, the badge measure the session triggers lands after this control's replay window (it is debounced, invariant 163), so the badge's own effects are left out on both sides; the progress, the session and the pay are held as before."
+    },
+    {
+      "surface": "review.*|due.*|cardstats.*",
+      "dropEffects": {
+        "nav": "^#/review(/.*)?$"
+      },
+      "why": "W2 (16 November 2026, SH-37): on Review itself, starting a run or switching to Card stats used to leave the address as it was (the same page shown again). The run and the tab are in the address now, so the control also writes it; what the control does on the page is held as before."
+    }
   ]
 }

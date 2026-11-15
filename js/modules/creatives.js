@@ -524,7 +524,8 @@
       el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "cr.work-open", text: "Open", onclick: function () { openWork(w.id); } })
     ].filter(Boolean));
   }
-  function openWork(wid) {
+  function openWork(wid, oo) {
+    oo = oo || {};
     var w = CR().work(wid); if (!w) return;
     var body = el("div", { class: "k-cr-workview" }, [el("p", { class: "k-muted", text: "Loading…" })]);
     CR().files.get(wid, function (err, f) {
@@ -545,7 +546,7 @@
         KOS.ui.confirm({ title: "Delete this from the Practice Log?", body: "The record and its file go. Nothing else changes, and nothing it paid is taken back.", danger: true }, function () { CR().removeWork(wid); KOS.rerender(); announce("Deleted."); });
       } })
     ].filter(Boolean);
-    var d = dialog({ title: w.title, body: body, foot: foot, wide: true });
+    var d = dialog({ title: w.title, body: body, foot: foot, wide: true, onClose: oo.onClose });
   }
   function promoteDialog(wid) {
     var w = CR().work(wid); if (!w) return;
@@ -564,7 +565,16 @@
     main.appendChild(el("section", { class: "k-card k-cr-loglist", "data-ui": "cr.log", "aria-label": "Practice Log" }, [
       el("div", { class: "k-card-head" }, [el("span", { class: "k-card-title", text: all.length + (all.length === 1 ? " piece" : " pieces") }), el("span", { class: "k-card-meta", text: "newest first · prunable" })])
     ].concat(all.map(function (w) { return workRow(w, { open: w.id === wid }); }))));
-    if (wid && CR().work(wid)) setTimeout(function () { openWork(wid); }, 0);
+    /* CR-01: a deep link to a piece opens it ONCE, on arrival — never on a
+       redraw (an action in the dialog, a background change) — and closing
+       it drops the id from the address, so nothing opens it again */
+    if (wid && CR().work(wid) && !KOS.ui.redrawing) {
+      var live = KOS.view ? KOS.view.token() : function () { return true; };
+      setTimeout(function () {
+        if (!live()) return;
+        openWork(wid, { onClose: function () { if (KOS.router && KOS.router.replaceArg) KOS.router.replaceArg("creatives", { page: "log" }); } });
+      }, 0);
+    }
   }
   function portfolioPage(main) {
     var list = CR().portfolio();

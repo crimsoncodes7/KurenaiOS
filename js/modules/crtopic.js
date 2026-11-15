@@ -248,7 +248,7 @@
         document.removeEventListener("kos:cr-evidence", onEv);
         node.parentNode.replaceChild(ctx.status(), node);
       }
-      document.addEventListener("kos:cr-evidence", onEv);
+      KOS.view.listen(node, document, "kos:cr-evidence", onEv);
       return node;
     };
     ctx.inspectorBody = function (outer) {

@@ -1430,7 +1430,7 @@
       var hit = TOOLS.filter(function (x) { return x[2].toLowerCase() === String(e.key).toLowerCase(); })[0];
       if (hit) { e.preventDefault(); dk.setTool(hit[0]); }
     }
-    document.addEventListener("keydown", onKey);
+    KOS.view.listen(root, document, "keydown", onKey);
     return function () { document.removeEventListener("keydown", onKey); };
   }
 

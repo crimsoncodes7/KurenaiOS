@@ -325,7 +325,7 @@
         document.removeEventListener("kos:ja-evidence", onEv);
         node.parentNode.replaceChild(ctx.status(), node);
       }
-      document.addEventListener("kos:ja-evidence", onEv);
+      KOS.view.listen(node, document, "kos:ja-evidence", onEv);
       return node;
     };
     ctx.inspectorBody = function (outer) {
@@ -337,7 +337,7 @@
         if (e.detail && e.detail.ref !== ref) return;
         body.innerHTML = ""; fill(body);
       }
-      document.addEventListener("kos:ja-evidence", onEv);
+      KOS.view.listen(body, document, "kos:ja-evidence", onEv);
     };
     function fill(body) {
       if (!L) return;

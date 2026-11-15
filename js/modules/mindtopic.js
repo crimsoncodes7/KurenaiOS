@@ -382,7 +382,7 @@
         document.removeEventListener("kos:mind-evidence", onEv);
         node.parentNode.replaceChild(ctx.status(), node);
       }
-      document.addEventListener("kos:mind-evidence", onEv);
+      KOS.view.listen(node, document, "kos:mind-evidence", onEv);
       return node;
     };
     if (l && l.kind !== "checkpoint") ctx.editKinds = { lesson: "notes" };   // Edit adds your own notes (the Your notes page)
@@ -396,7 +396,7 @@
         if (e.detail && e.detail.ref !== ref) return;
         body.innerHTML = ""; fill(body);
       }
-      document.addEventListener("kos:mind-evidence", onEv);
+      KOS.view.listen(body, document, "kos:mind-evidence", onEv);
     };
     function fill(body) {
       if (!l) return;

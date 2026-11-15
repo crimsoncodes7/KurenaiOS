@@ -474,11 +474,17 @@
       if (head && holder.getAttribute("data-layout") === "list") holder.appendChild(head);
       return g;
     }
+    /* CL-24: each card can be made again on its own (after a +1) */
+    function made(row, i) {
+      var n = makeItem(row, i);
+      if (n) n.__remake = function (rec) { results[i] = rec; return makeItem(rec, i); };
+      return n;
+    }
     function renderBatch(myGen) {
       if (myGen !== gen) return;                       // superseded — drop it
       var end = Math.min(rendered + BATCH, results.length);
       var frag = document.createDocumentFragment();
-      for (var i = rendered; i < end; i++) frag.appendChild(makeItem(results[i], i));
+      for (var i = rendered; i < end; i++) frag.appendChild(made(results[i], i));
       holder.appendChild(frag);
       rendered = end;
       depth.n = rendered;
@@ -582,7 +588,11 @@
      planned/onHold to inProgress, logs one activity, schedules a push.
      mode "hours": games' +1 playtime hour — no total to complete against
      and NEVER a push (games have no sync, invariant #12). */
+  /* the card whose +1 was pressed: it is made again where it stands (CL-24) */
+  var bumping = null;
   function bumpUnit(e, mode, done) {
+    var node = bumping;
+    bumping = null;
     var finished = false;
     if (mode === "hours") {
       e.playtimeHours = (e.playtimeHours || 0) + 1;
@@ -603,6 +613,19 @@
       if (err) { KOS.ui.toast("Save failed: " + err.message, true); return; }
       KOS.media.logActivity(rec, finished ? "completed" : "progress");
       if (mode !== "hours") KOS.mediapush.schedule(rec);   // 3d: coalesces rapid +1 clicks
+      /* CL-24: under "recently updated" a full repaint sent the card to the
+         top, away from the pointer. The card is made again in its place;
+         the list's order catches up on the next deliberate refresh. */
+      if (node && node.isConnected && typeof node.__remake === "function") {
+        var fresh = node.__remake(rec);
+        if (fresh) {
+          var hadFocus = node.contains(document.activeElement);
+          node.parentNode.replaceChild(fresh, node);
+          if (hadFocus) { var plus = fresh.querySelector("[data-ui~='vault.plus']") || fresh.querySelector("[data-ui~='vault.title']"); if (plus) plus.focus(); }
+          if (KOS.a11y) KOS.a11y.announce(rec.title + ": " + (KOS.media.progressText(rec) || (finished ? "completed" : "logged")) + ".");
+          return;
+        }
+      }
       done && done(rec);
     });
   }
@@ -1115,6 +1138,7 @@
       opts.onBump ? el("button", { type: "button", class: "k-mplus", "data-ui": "vault.plus", text: "+1 " + (opts.unit || ""),
         title: opts.title || "Log the next one", onclick: function (ev) {
           ev.stopPropagation();
+          bumping = ev.currentTarget.closest ? ev.currentTarget.closest("[data-ui~='vault.card'], [data-ui~='vault.row']") : null;
           opts.onBump();
         } }) : null
     ].filter(Boolean));
@@ -1222,7 +1246,7 @@
       el("span", { class: "k-mrow-c k-mrow-act" }, [
         opts.onBump ? el("button", { type: "button", class: "k-mplus", "data-ui": "vault.plus", text: "+1" + (opts.unit ? " " + opts.unit : ""),
           title: opts.bumpTitle || "Log the next one",
-          onclick: function (ev) { ev.stopPropagation(); opts.onBump(); } }) : null
+          onclick: function (ev) { ev.stopPropagation(); bumping = ev.currentTarget.closest ? ev.currentTarget.closest("[data-ui~='vault.card'], [data-ui~='vault.row']") : null; opts.onBump(); } }) : null
       ].filter(Boolean))
     ]);
     return row;

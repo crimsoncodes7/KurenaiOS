@@ -58,7 +58,9 @@
 
     /* ---- the two panes: the switcher rides the page header's action
        slot, aligned with the title the way Planner and Sync do it ---- */
-    var tab = "overview";
+    /* SY-22: the pane is this visit's, so a background redraw keeps Analytics */
+    var M = KOS.view ? KOS.view.memo("coll.tab", { tab: "overview" }) : { tab: "overview" };
+    var tab = M.tab;
     var tabBar = el("div", { class: "k-cluster" });
     function buildTabs() {
       var t = KOS.ui.tabs([
@@ -70,7 +72,7 @@
     }
     function setTab(next) {
       if (tab === next) return;
-      tab = next;
+      tab = M.tab = next;
       tabBar.innerHTML = "";
       tabBar.appendChild(buildTabs());
       var stage = document.getElementById("stage");

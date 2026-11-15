@@ -1045,6 +1045,7 @@
     return card;
   }
 
+  var lastCollAgg = null;      /* HR-30: the Collection desk's last figures, this page load */
   KOS.views.home = function (main) {
     hideTree();
     var stks = KOS.sessions.streaks();
@@ -1663,10 +1664,21 @@
     cont.appendChild(desks);
     main.appendChild(cont);
 
+    /* HR-30: the last figures this page load read are drawn at once (a
+       redraw no longer shrinks the page while the scan runs, which moved a
+       reader at the bottom up 43px); the fresh scan then replaces them */
     function fillCollectionCard() {
       if (!KOS.mediadb || !KOS.mediadb.stats) return;
       KOS.mediadb.stats(function (err, agg) {
         if (err || !agg || !medCard.isConnected) return;
+        lastCollAgg = agg;
+        applyColl(agg);
+      });
+    }
+    if (lastCollAgg) applyColl(lastCollAgg);
+    function applyColl(agg) {
+        [].slice.call(medRows.querySelectorAll("[data-ui~='home.coll-stat']")).forEach(function (n) { n.remove(); });
+        medFoot.innerHTML = "";
         var done = 0, going = 0;
         Object.keys(agg.modules).forEach(function (m) {
           done += agg.modules[m].completed || 0;
@@ -1685,7 +1697,7 @@
         if (!airing.length) {
           ["anime", "books"].forEach(function (m) {
             if (!agg.modules[m]) return;
-            medRows.appendChild(el("div", { class: "k-desk-row" }, [
+            medRows.appendChild(el("div", { class: "k-desk-row", "data-ui": "home.coll-stat" }, [
               el("span", { class: "k-desk-row-k", text: m === "anime" ? "Anime" : "Books" }),
               el("span", { class: "k-desk-row-v", text: (agg.modules[m].inProgress || 0) + " in progress" })
             ]));
@@ -1703,7 +1715,6 @@
               onclick: function () { KOS.show(best); } })
           ]));
         }
-      });
     }
     if (typeof window.IntersectionObserver === "function") {
       var medObs = new window.IntersectionObserver(function (entries) {
@@ -2762,7 +2773,7 @@
       if (!c) { c = el("span", { class: "k-mono", "data-ui": "ui.tab-count" }); b.appendChild(c); }
       c.textContent = String(n);
     }
-    if (KOS.ink) window.addEventListener("kos-ink", onInk);
+    if (KOS.ink) KOS.view.listen(tabBar, window, "kos-ink", onInk);
     var studyNav = el("div", { class: "k-topic-nav", "data-ui": "topic.nav" }, [
       el("div", { class: "k-topic-tabrow" }, [KOS.ui.scroller(tabBar, { keepRole: true, prevLabel: "Earlier material", nextLabel: "More material" }), moreSlot, workBtn, editBtn,
         cx ? cx.modeSwitch() : null]),
@@ -3070,7 +3081,7 @@
         if (content && content.quiz && content.quiz.length) {
           var qHolder = el("div", { class: "k-topic-engine" });
           panel.appendChild(qHolder);
-          KOS.quiz.mountMCQ(qHolder, sid, ref, content.quiz, { runKey: "quiz:" + sid + ":" + ref });
+          KOS.quiz.mountMCQ(qHolder, sid, ref, content.quiz, { runKey: "quiz:" + sid + ":" + ref, afterLog: KOS.view.redrawIfStill() });
         } else if (!customN) {
           panel.appendChild(KOS.ui.emptyState({
             compact: true, mark: "問", title: "No quiz on this topic yet",
@@ -3088,7 +3099,7 @@
           ]));
           var cqHolder = el("div", { class: "k-topic-engine", "data-ui": "topic.custom-quiz" });
           panel.appendChild(cqHolder);
-          KOS.quiz.mountMCQ(cqHolder, sid, ref, customQ, { runKey: "quizc:" + sid + ":" + ref });
+          KOS.quiz.mountMCQ(cqHolder, sid, ref, customQ, { runKey: "quizc:" + sid + ":" + ref, afterLog: KOS.view.redrawIfStill() });
           var manage = el("div", { class: "k-card k-card--tight", "data-ui": "fc.manage topic.custom-quiz-manage" });
           customQ.forEach(function (cq) {
             manage.appendChild(el("div", { class: "k-card-row", "data-ui": "fc.row" }, [
@@ -3209,7 +3220,7 @@
       var doc = e.detail && e.detail.doc;
       if (!doc || doc === key) paint();
     }
-    window.addEventListener("kos-ink", onInk);
+    KOS.view.listen(row, window, "kos-ink", onInk);
     paint();
     return row;
   }
@@ -3432,8 +3443,7 @@
             msg += " Note: " + report.missingSections.join("; ") + ".";
           }
           KOS.ui.toast(msg);
-          KOS.refreshRailCounters();
-          KOS.show("home");
+          afterRestore();
         });
     }
     var importBtn = el("button", { type: "button", class: "k-btn", text: "Import backup…", title: "A complete restore, not a merge: the file replaces what's here",
@@ -3572,12 +3582,24 @@
         /* importFull re-baselines the cloud itself (noteRestore) */
         KOS.backup.restoreSafe(r.id).then(function () {
           KOS.ui.toast("Restored the checkpoint from " + when + ".");
-          KOS.refreshRailCounters();
-          KOS.show("home");
+          afterRestore();
         }).catch(function (e) { KOS.ui.toast((e && e.message) || String(e), true); });
       });
   }
 
+  /* AA-17: a restore replaced the state and the stores in place. What this
+     page load holds in memory follows before Home is drawn: the rail's
+     profile card, the theme and cosmetics, the Files index, the ink index
+     and every page's kept place. */
+  function afterRestore() {
+    try { if (KOS.governor && KOS.governor.applyCosmetics) KOS.governor.applyCosmetics(); } catch (e) { /* cosmetic */ }
+    if (KOS.refreshHUD) KOS.refreshHUD();
+    if (KOS.refreshRailCounters) KOS.refreshRailCounters();
+    if (KOS.files && KOS.files.refresh) KOS.files.refresh(function () {});
+    if (KOS.ink && KOS.ink._reset) KOS.ink._reset();
+    if (KOS.view && KOS.view.forget) KOS.view.forget();
+    KOS.show("home");
+  }
   function resetDialog(exportBtn) {
     var input = el("input", { type: "text", class: "k-input k-bk-type", autocomplete: "off", spellcheck: "false",
       "aria-label": "Type RESET to confirm", placeholder: "RESET" });

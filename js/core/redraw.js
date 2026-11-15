@@ -187,6 +187,13 @@
     /* the PAGE on screen is still the one this was made on (a redraw of the
        same page does not end it) */
     visitToken: function () { var k = visitKey; return function () { return visitKey === k; }; },
+    /* SY-25: a redraw for later (a timer, a sync that resolves) that happens
+       only if THIS page is still the one on screen — it never remounts the
+       page the reader has moved on to */
+    redrawIfStill: function () {
+      var still = KOS.view.visitToken();
+      return function () { if (still()) KOS.rerender(); };
+    },
     /* a page's own state for this VISIT: it survives every redraw and is
        dropped when another page opens */
     memo: function (name, init) {
@@ -213,13 +220,28 @@
     /* fn() is true while this page holds work a redraw would lose: a
        background change waits and the pill offers it */
     hold: function (fn) { if (render && typeof fn === "function") render.holds.push(fn); },
+    /* AP-08: listen on something that outlives the page (window, document)
+       for as long as `node` is on screen. The listener goes when the render
+       that added it ends and `node` has left the page — a redraw or a
+       navigation — not the next time the event happens to fire (a paste or
+       an ink write that never came kept every visited page in memory). A
+       node still on screen then (inside a dialog that outlived its page)
+       keeps it until it leaves. Returns the remover. */
+    listen: function (node, target, type, fn, opts) {
+      var off = function () { target.removeEventListener(type, h, opts); };
+      function h(e) { if (node && !node.isConnected) { off(); return; } fn(e); }
+      target.addEventListener(type, h, opts);
+      if (render) render.disposers.push(function () { setTimeout(function () { if (node && !node.isConnected) off(); }, 0); });
+      return off;
+    },
     /* fn() says (true, a sentence, or {title, body}) that leaving would
        lose unsaved work: navigation asks first */
     guard: function (fn) { if (render && typeof fn === "function") render.guards.push(fn); },
     dirty: dirty,
-    /* forget what keep() holds (every page's, or one key's): a restore
-       that replaces the data, and the suites that replay from a snapshot */
-    forget: function (key) { if (key) delete kept[key]; else { kept = {}; keptOrder = []; } },
+    /* forget what keep() holds (every page's, or one key's) and, for every
+       page, this visit's memo too: a restore that replaces the data, and
+       the suites that replay from a snapshot */
+    forget: function (key) { if (key) delete kept[key]; else { kept = {}; keptOrder = []; visitMemo = {}; } },
     navigating: function () { return navigating; }
   };
 

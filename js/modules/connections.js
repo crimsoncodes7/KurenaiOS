@@ -64,10 +64,11 @@
     function syncBtn(p, on) {
       return btn(busy[p] ? "Syncing…" : "Sync now", p + "-sync", function () {
         busy[p] = true; paint();
+        var again = KOS.view.redrawIfStill();
         X().syncProvider(p, "button").then(function (r) {
           busy[p] = false;
           KOS.ui.toast(r.waiting ? "Another device is syncing; this one goes next." : r.ok ? X().NAME[p] + " is in step." : r.why || "It didn't finish.", !r.ok);
-          KOS.rerender();
+          again();
         });
       }, false, !on || busy[p]);
     }

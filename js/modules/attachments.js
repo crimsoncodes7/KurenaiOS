@@ -755,7 +755,7 @@
         e.preventDefault();
         KOS.files.add(fs.map(function (f) { return KOS.files.named(f); }), { link: { kind: "topic", id: sid + ":" + ref } }, function (err, res) { KOS.files.report(res); render(); });
       };
-      document.addEventListener("paste", onPaste);
+      KOS.view.listen(wrap, document, "paste", onPaste);
     }
     var stage = el("section", { class: "k-card k-att-stage", "data-ui": "attach.stage", "aria-label": "Document preview" });
     wrap.appendChild(side);

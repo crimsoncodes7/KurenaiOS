@@ -261,7 +261,8 @@
       sentFlash = { wb: wb, n: res.ids.length, at: Date.now() };
       u.announce(u.plural(res.ids.length, "priority", "priorities") + " sent to Pacing.");
       KOS.rerender();
-      setTimeout(function () { if (sentFlash && Date.now() - sentFlash.at >= 8000) KOS.rerender(); }, 8100);
+      var again = KOS.view.redrawIfStill();
+      setTimeout(function () { if (sentFlash && Date.now() - sentFlash.at >= 8000) again(); }, 8100);
     }, { "data-ui": "exams.send-go" });
     var list = el("div", { class: "k-ex-sendlist" }, items.map(function (it, i) {
       var box = el("input", { type: "checkbox", class: "k-box", "aria-label": it.title, onchange: function () { picks[i] = box.checked; var n = picks.filter(Boolean).length; go.textContent = "Send " + u.plural(n, "item"); go.disabled = !n; } });

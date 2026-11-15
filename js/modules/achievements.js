@@ -137,7 +137,11 @@
       else if (cur === "showcase") drawShowcase(body, views);
       else drawTitles(body, views);
       /* a redraw of the Wall under an open set does not open it again */
-      if (openSet && A().set(openSet) && !(redraw && KOS.ui.topDialog())) openSetDialog(openSet, views, parts[2] || null);
+      /* a set opened from its address opens once: a redraw never opens it
+         again, and closing it puts the address back on the tab (AX-24) */
+      if (openSet && A().set(openSet) && !redraw) openSetDialog(openSet, views, parts[2] || null, null, function () {
+        if (KOS.router && KOS.router.replaceArg) KOS.router.replaceArg("achievements", undefined);
+      });
     });
   };
   function openFor(v, views) { return function () { openSetDialog(v.set, views, v.id); }; }
@@ -424,6 +428,13 @@
       el("button", { type: "button", class: "k-btn", "data-ui": "ach.clear-showcase", text: "Clear", onclick: pk.clear }),
       save
     ]));
+    /* AG-25: the picks are a draft until Save — a background change waits
+       for it, and leaving with it unsaved asks first (as Edit seat does) */
+    function unsaved() { return JSON.stringify(pk.get()) !== JSON.stringify(A().showcase()); }
+    if (KOS.view) {
+      KOS.view.hold(unsaved);
+      KOS.view.guard(function () { return unsaved() ? { title: "Leave without saving?", body: "Your changes to the showcase have not been saved." } : null; });
+    }
     if (!pk.earned.length) { body.appendChild(KOS.ui.emptyState({ compact: true, title: "Nothing earned yet", body: "Earn a badge to show it here." })); return; }
     body.appendChild(el("div", { class: "k-ach-sec" }, [el("h2", { class: "k-ach-sec-t", text: "Earned" }), el("span", { class: "k-muted", text: pk.earned.length + " badges, newest first" })]));
     body.appendChild(pk.grid);
@@ -527,7 +538,7 @@
   }
 
   /* ---------------- a set opened: the carousel (35c) ---------------- */
-  function openSetDialog(setId, views, startId, returnTo) {
+  function openSetDialog(setId, views, startId, returnTo, onClose) {
     var s = A().set(setId); if (!s) return;
     var vs = sortViews(views.filter(function (v) { return v.set === setId; }), "set");
     if (!vs.length) return;
@@ -603,7 +614,7 @@
     stage.addEventListener("pointerdown", function (e) { x0 = e.clientX; });
     stage.addEventListener("pointerup", function (e) { if (x0 != null && Math.abs(e.clientX - x0) > 48) step(e.clientX < x0 ? 1 : -1); x0 = null; });
     paint(false);
-    KOS.ui.openDialog(overlay, { label: s.name, returnFocus: returnTo || null });
+    KOS.ui.openDialog(overlay, { label: s.name, returnFocus: returnTo || null, onClose: onClose || null });
   }
 
   /* ================= the unlock overlay (invariant 163) ================= */
@@ -614,7 +625,7 @@
   }
   function drain() {
     if (showing || !queue.length) return;
-    if (A().quiet()) { if (!holdTimer) holdTimer = setTimeout(function () { holdTimer = null; drain(); }, 20000); return; }
+    if (A().quiet(true)) { if (!holdTimer) holdTimer = setTimeout(function () { holdTimer = null; drain(); }, 20000); return; }
     var batch = queue.splice(0, queue.length);
     A().list(function (views) {
       var byId = {}; views.forEach(function (v) { byId[v.id] = v; });

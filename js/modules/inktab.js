@@ -525,7 +525,7 @@
       if (written() && b) { b.remove(); if (pill && !pill.isConnected) root.appendChild(pill); }
       paintMode();
     }
-    window.addEventListener("kos-ink", onInk);
+    KOS.view.listen(root, window, "kos-ink", onInk);
     window.addEventListener("scroll", onScroll, true);
     unkey = KOS.inkUI.shortcuts(dk, root);
     I.ready(function () { if (!destroyed) paint(); });

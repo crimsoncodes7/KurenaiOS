@@ -91,15 +91,28 @@
   /* the top bar's clock: time over date, refreshed on the minute */
   var clockTime = document.querySelector("[data-ui~='shell.clock-time']");
   var clockDate = document.querySelector("[data-ui~='shell.clock-date']");
+  /* SH-13: left open across midnight (the installed iPad app is), the day
+     the page was drawn for has gone — Home's date line, greeting, Today and
+     the daily goal. The open page is redrawn for the new day at the next
+     safe moment (a page with work in it waits for its reader, js/core/redraw.js). */
+  var clockDay = null;
   function tickClock() {
     if (!clockTime || !clockDate) return;
     var d = new Date();
+    var day = d.getFullYear() + "-" + d.getMonth() + "-" + d.getDate();
+    if (clockDay && clockDay !== day && KOS.rerender) {
+      if (KOS.refreshHUD) KOS.refreshHUD();
+      if (KOS.refreshRailCounters) KOS.refreshRailCounters();
+      KOS.rerender({ background: "soft", changed: null, source: "local" });
+    }
+    clockDay = day;
     clockTime.textContent = String(d.getHours()).padStart(2, "0") + ":" + String(d.getMinutes()).padStart(2, "0");
     clockDate.textContent = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][d.getDay()] + " " + d.getDate() + " " +
       ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][d.getMonth()];
   }
   tickClock();
   setInterval(tickClock, 20000);
+  document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible") tickClock(); });
 
   /* ---- Behavioural Governor boot sequence (Build 2a) ----
      seed sample calendar, apply HP day-tick, wrap the gated lab views (they

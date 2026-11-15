@@ -133,7 +133,10 @@
   }
   KOS.views.notifications = function (main, arg) {
     KOS.shell.tree("none");
-    var filter = arg && typeof arg === "string" && FILTERS.some(function (f) { return f[0] === arg; }) ? arg : "all";
+    /* SY-22: the filter is this visit's (a background redraw keeps Unread);
+       an argument given picks it */
+    var NM = KOS.view ? KOS.view.memo("notify.filter", { f: null }) : { f: null };
+    var filter = arg && typeof arg === "string" && FILTERS.some(function (f) { return f[0] === arg; }) ? arg : NM.f || "all";
 
     /* 15m: on a phone Mark all as read is the ✓ beside the title, and the
        alert settings wait in the title bar's ⋯ */
@@ -166,7 +169,7 @@
         var n = items.filter(function (it) { return matches(f[0], it); }).length;
         return { label: f[1], count: n || null, countTone: f[0] === "unread" ? null : "neutral", active: filter === f[0], onSelect: function () {
           if (filter === f[0]) return;
-          filter = f[0];
+          filter = NM.f = f[0];
           paintTabs();
           paintList();
         } };

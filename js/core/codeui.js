@@ -646,10 +646,14 @@
   function listing(run, opts) {
     opts = opts || {};
     var orig = String(run.src || "").replace(/\n+$/, "");
+    /* SY-11: an edited listing keeps its text while the app stays loaded —
+       a redraw, or coming back to the lesson, finds the experiment as it
+       was; Reset puts the shipped code back (the lesson is never changed) */
+    var kept = run.id && KOS.view ? KOS.view.keep("listings", {}, "code-listings:" + (opts.lesson || "")) : null;
     var out = el("div", { class: "k-cx-out", "data-ui": "code.listing-out", hidden: "" });
     var ed = null;
     var reset = el("button", { type: "button", class: "k-btn k-btn--sm k-btn--quiet", "data-ui": "code.listing-reset", text: "Reset", disabled: "",
-      onclick: function () { ed.set(orig); ed.state("ready"); reset.disabled = true; out.hidden = true; } });
+      onclick: function () { ed.set(orig); if (kept) delete kept[run.id]; ed.state("ready"); reset.disabled = true; out.hidden = true; } });
     var copy = el("button", { type: "button", class: "k-btn k-btn--sm k-btn--quiet", "data-ui": "code.listing-copy", text: "Copy",
       onclick: function () {
         var done = function () { copy.textContent = "Copied"; KOS.a11y && KOS.a11y.announce && KOS.a11y.announce("Copied."); setTimeout(function () { copy.textContent = "Copy"; }, 1400); };
@@ -659,7 +663,8 @@
     ed = editor({ value: orig, file: run.cap || "Listing", lang: opts.lesson && KOS.code && KOS.code.runnerFor(opts.lesson) === "sql" ? "sql" : null, compact: true, noBar: true, label: "Listing" + (run.cap ? ": " + run.cap : ""),
       actions: [runBtn, reset, copy],
       onRun: go,
-      onChange: function (v) { reset.disabled = v === orig; } });
+      onChange: function (v) { reset.disabled = v === orig; if (kept) { if (v === orig) delete kept[run.id]; else kept[run.id] = v; } } });
+    if (kept && typeof kept[run.id] === "string" && kept[run.id] !== orig) { ed.set(kept[run.id]); reset.disabled = false; }
     var fig = el("figure", { class: "k-cx-listing", "data-ui": "code.listing", "data-lid": run.id || null }, [filesPanel(run.fs), ed.el, out].filter(Boolean));
     function go() {
       if (runBtn.disabled) return;

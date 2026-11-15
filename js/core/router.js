@@ -101,6 +101,20 @@
       if (a && a.edit) return ["edit", String(a.edit)];
       return typeof a === "string" && a && a !== "today" ? [a] : null;
     },
+    /* the Wall (AG-03, AX-24): a tab (`#/achievements/titles`; Sets is
+       bare) or one set, opened on a badge (`#/achievements/set/<set>/<badge>`) */
+    achievements: function (a) { return typeof a === "string" && a && a !== "sets" ? a.split("/").filter(Boolean) : null; },
+    /* SH-37: one assignment (`#/assignments/12`), one reminder
+       (`#/reminders/7`), a review run (`#/review/due/<run>`) or Card stats
+       (`#/review/stats`) — what a reload, a bookmark or the Home Screen
+       app's relaunch must find again */
+    assignments: function (a) { return a && typeof a === "object" && a.id != null ? [String(a.id)] : null; },
+    reminders: function (a) { return a && typeof a === "object" && a.id != null ? [String(a.id)] : null; },
+    review: function (a) {
+      if (!a || typeof a !== "object") return null;
+      if (a.tab === "stats") return ["stats"];
+      return a.run ? ["due", String(a.run)] : null;
+    },
     /* Money's views (`#/money/transactions`; Overview is bare) */
     money: function (a) { return typeof a === "string" && a && a !== "overview" ? [a] : null; },
     /* Goals: a tab (`#/goals/week`) or one goal (`#/goals/12`) */
@@ -126,6 +140,13 @@
     mind: function (p) { return p[0] ? { page: p[0], id: p[1] || null } : null; },
     sims: function (p) { return p[0] || null; },
     money: function (p) { return p[0] || null; },
+    achievements: function (p) { return p.length ? p.join("/") : null; },
+    assignments: function (p) { return p[0] ? { id: /^\d+$/.test(p[0]) ? Number(p[0]) : p[0] } : null; },
+    reminders: function (p) { return p[0] ? { id: /^\d+$/.test(p[0]) ? Number(p[0]) : p[0], section: "all" } : null; },
+    review: function (p) {
+      if (p[0] === "stats") return { tab: "stats" };
+      return p[0] === "due" && p[1] ? { tab: "due", run: p[1] } : null;
+    },
     routines: function (p) { return p[0] === "edit" ? { edit: p[1] || "new" } : p[0] || null; },
     exams: function (p) {
       if (!p[0]) return null;
@@ -354,6 +375,18 @@
      the resulting route onto the current entry so the first Back is
      already inside the app. */
   KOS.router = {
+    /* CR-01: the page on screen keeps its place but its address drops what
+       a deep link carried (a work's id once its dialog has opened and
+       closed), so a redraw, Back or a reload does not open it again.
+       Draws nothing and adds no history entry. */
+    replaceArg: function (viewId, arg) {
+      var cur = KOS.currentNav && KOS.currentNav();
+      if (!cur || cur.viewId !== viewId) return false;
+      if (KOS.ui.setNavArg) KOS.ui.setNavArg(arg);
+      var route = routeFor(viewId, arg);
+      if (booted && !suspend) { replaceEntry(route, arg); lastRendered = route; }
+      return true;
+    },
     routeFor: routeFor,
     parse: parse,
     depth: function () { return depth; },

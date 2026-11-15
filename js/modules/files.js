@@ -315,9 +315,30 @@
       e.preventDefault();
       F().add(fs.map(function (f) { return F().named(f); }), {}, function (err, res) { F().report(res); });
     }
-    document.addEventListener("paste", onPaste);
-    function onIndex() { if (!layout.isConnected) { window.removeEventListener("kos-files-index", onIndex); return; } paintSubj(); paint(); paintSide(); }
-    window.addEventListener("kos-files-index", onIndex);
+    KOS.view.listen(layout, document, "paste", onPaste);
+    /* SY-27: the index moves after every file the background reader
+       finishes and every cloud file event. The side counts follow at once;
+       the list waits while a menu or dialog is open or the reader is on a
+       card (a repaint would leave a menu on a detached opener and drop
+       focus), and catches up when that ends. */
+    var listOwed = false;
+    function listBusy() {
+      if (KOS.ui.topDialog && KOS.ui.topDialog()) return true;
+      if (layout.querySelector("[aria-expanded='true']")) return true;
+      var a = document.activeElement;
+      return !!(a && a !== document.body && listEl.contains(a));
+    }
+    function catchUp() { if (!listOwed || !layout.isConnected || listBusy()) return; listOwed = false; paintSubj(); paint(); }
+    function onIndex() {
+      if (!layout.isConnected) { window.removeEventListener("kos-files-index", onIndex); return; }
+      paintSide();
+      if (listBusy()) { listOwed = true; return; }
+      listOwed = false;
+      paintSubj(); paint();
+    }
+    KOS.view.listen(layout, document, "focusout", function () { setTimeout(catchUp, 0); }, true);
+    KOS.view.listen(layout, document, "click", function () { setTimeout(catchUp, 0); }, true);
+    KOS.view.listen(layout, window, "kos-files-index", onIndex);
     if (KOS.cloudsync && KOS.cloudsync.uploadedFiles) KOS.cloudsync.uploadedFiles(function (err, u) { uploaded = u || {}; });
 
     F().ready(function () { paintSubj(); paint(); paintSide(); });

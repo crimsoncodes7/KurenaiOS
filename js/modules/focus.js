@@ -802,6 +802,9 @@
   function bankForUnload() {
     unloading = true;
     if (!S) return;
+    /* a page closed or reloaded on purpose is not a screen going off: the
+       restore offers nothing (UR-5) */
+    S.hiddenAt = null;
     if (S.state === "running") {
       S.phaseAccum = phaseElapsed();
       S.phaseStartTs = now();
@@ -834,11 +837,35 @@
      the honest fix is to let the user say whether the friction applies to
      them at all rather than fake a site-by-site distinction it can't make.
      The switch is still counted either way, just never charged when off. */
+  /* UR-5 (the iPhone with its screen off): a running session going out of
+     sight banks its heartbeat at once and says when (`hiddenAt`) — never a
+     pause — so if the OS then discards the page, the restore knows exactly
+     how long the screen was off and can offer to count it. */
+  document.addEventListener("visibilitychange", function () {
+    if (!S || S.state !== "running") return;
+    if (document.visibilityState === "hidden") {
+      S.lastBeat = now();
+      S.hiddenAt = now();
+      if (store.flush) store.flush(); else store.save();
+    } else if (S.hiddenAt) {
+      S.hiddenAt = null;
+      S.lastBeat = now();
+      store.save();
+    }
+  });
+  /* a phone or an iPad, where hiding the page is how it is put down: a
+     screen lock looks exactly like switching apps to the browser, and a
+     screen lock is not a distraction (UR-5) */
+  function touchFirst() {
+    try { return !!(window.matchMedia && window.matchMedia("(pointer: coarse)").matches && !window.matchMedia("(hover: hover)").matches); }
+    catch (e) { return false; }
+  }
   document.addEventListener("visibilitychange", function () {
     /* Build 6.5 — the page going away fires this too. Charging HP for a
        refresh, a closed tab or an OS-level navigation is a penalty for
        something that isn't a distraction, so the unload is exempt. */
     if (unloading) return;
+    if (touchFirst()) { pendingDistractToast = false; return; }
     if (!S || S.kind === "reading" || S.state !== "running" || S.phase !== "work") {
       pendingDistractToast = false;
       return;
@@ -2633,18 +2660,53 @@
   function restoreSession(snap) {
     S = hydrate(snap);
     S.tab = tabId();
+    var offSecs = 0;
     if (S.state === "running") {
       /* credit time up to the last heartbeat, then hold the clock */
       S.phaseAccum = Math.min(phaseTarget(),
         S.phaseAccum + Math.max(0, ((S.lastBeat || S.phaseStartTs) - S.phaseStartTs) / 1000));
+      /* UR-5: the page was put out of sight while the clock ran and the OS
+         discarded it — the minutes the screen was off are offered, never
+         taken for granted */
+      if (S.hiddenAt) offSecs = Math.max(0, (now() - S.hiddenAt) / 1000);
       S.state = "paused";
       S.restores = (S.restores || 0) + 1;
     }
+    S.hiddenAt = null;
     store.save();
     enterMode();
     timer = setInterval(tick, 1000);
-    KOS.ui.toast("Focus session restored — " + fmtLong(workSeconds()) +
+    var room = countable(offSecs);
+    if (room >= 60) offerScreenOff(room);
+    else KOS.ui.toast("Focus session restored — " + fmtLong(workSeconds()) +
       " kept, paused where you left it. ▶ to resume.");
+  }
+  /* how much of a screen-off gap can be counted: never past the end of the
+     phase, the study-until time or the stopwatch's limit, and never more
+     than six hours */
+  function countable(secs) {
+    if (!S || !(secs > 0) || secs > 6 * 3600 || S.kind === "reading") return 0;
+    var room = secs;
+    if (S.mode === "until" && S.untilTs) room = Math.min(room, Math.max(0, (S.untilTs - (S.lastBeat || now())) / 1000));
+    else if (openEnded()) { if (S.limitMin) room = Math.min(room, Math.max(0, S.limitMin * 60 - workSeconds())); }
+    else room = Math.min(room, Math.max(0, phaseTarget() - S.phaseAccum));
+    return Math.floor(room);
+  }
+  function offerScreenOff(secs) {
+    var mins = Math.round(secs / 60);
+    KOS.ui.confirm({ title: "Count the " + mins + " minute" + (mins === 1 ? "" : "s") + " the screen was off?",
+      body: "The session was running when the screen went off and the page was closed by the system. It is paused with " +
+        fmtLong(workSeconds()) + " kept. Count the time the screen was off too, if you were studying.",
+      confirm: "Count " + mins + " min", cancel: "Don't count it" }, function () {
+        if (!S) return;
+        S.phaseAccum += secs;
+        S.screenOff = (S.screenOff || 0) + secs;
+        store.save();
+        render();
+        KOS.ui.toast(mins + " min counted — paused. ▶ to resume.");
+      }, function () {
+        KOS.ui.toast("Paused where you left it. ▶ to resume.");
+      });
   }
   /* at boot: only a session no live tab holds (this tab's own after a
      reload, or one whose tab is gone) */

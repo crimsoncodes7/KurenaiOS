@@ -267,6 +267,9 @@
             metrics: { correct: correct, total: items.length, pct: st.lastPct }
           });
           keep(true);
+          /* ST-19: the page around the quiz (the topic's inspector: Quiz
+             best, attempts) reads what was just logged */
+          if (typeof opts.afterLog === "function") setTimeout(opts.afterLog, 0);
         }
         var verdict = correct === items.length ? "Full marks ★" :
           correct >= items.length * 0.7 ? "Solid — review the misses." :

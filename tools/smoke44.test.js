@@ -503,6 +503,8 @@ step("zero-value tiles are suppressed", async () => {
 });
 
 step("the analytics tail is one tab away, and holds the long tail", async () => {
+  /* a fresh visit: the page shown again keeps the pane it was on (SY-22) */
+  KOS.show("home");
   KOS.show("matrix");
   await waitFor(() => main().querySelector("[data-ui~='coll.tabs']"), 6000);
   await tick(80);

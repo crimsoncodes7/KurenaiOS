@@ -498,7 +498,15 @@
   }
 
   /* ---------------- quiet: never over Focus, the Exam Room or a dialog ---------------- */
-  function quiet() {
+  /* quiet(modal): not now. `modal` (the unlock overlay, which takes the
+     keyboard) also waits out a page with work in it — a flashcard set, a
+     quiz, a lesson (SY-23); it shows on the next page that is not. The
+     small ping is not modal and still shows there. */
+  function quiet(modal) {
+    if (modal && KOS.currentNav && KOS.changes && KOS.changes.isTask) {
+      var nav = KOS.currentNav();
+      if (nav && KOS.changes.isTask(nav.viewId)) return true;
+    }
     if (KOS.focus && KOS.focus.state && KOS.focus.state() !== "idle") return true;
     if (KOS.ui && KOS.ui.topDialog && KOS.ui.topDialog()) return true;
     var h = (window.location && window.location.hash) || "";
