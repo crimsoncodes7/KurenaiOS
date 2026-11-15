@@ -23,6 +23,26 @@
      J · SC-01/06/07/21: a painted frame is sized by its measured opening,
          and a preview never inherits the worn frame.
 
+   W5's second batch:
+     K · SC-33/17/11/02: Try on covers every kind but labs and unlocks; the
+         Stage is the fitting room (a tried avatar, frame or seal on its
+         portrait, a tried banner, scene or hall as its ground, a sample
+         for the rest, Kurenai standing there in her own clothes), nothing
+         is saved, and the Buy keeps its gold over the stage's glass.
+     L · SC-18/41/27: an owned item's sheet can be worn or taken off and
+         says where it shows; the default theme has no Take off and taking a
+         theme off wears Atelier Dusk; an owned unlock is a button.
+     M · SC-25/19: switching painted avatars keeps your photo; Use replaces
+         the picture drawer's rule.
+     N · SC-12/24/37: the Wardrobe shows papers and pen sets as pictures,
+         names wrap with a title, kinds owned none of are one line.
+     O · SC-09/10/35: the Study set has its own colours; the first sixteen
+         cosmetics use their repainted art; outfits are worded as painted.
+     P · SC-38: a locked lab names its unlock and offers it when you can
+         afford it; the shop opens at Labs.
+     Q · SC-15/03/08: the Shrine's card takes a finish; a painted frame's
+         reach is kept clear on the large portraits.
+
    Run: node tools/smoke151.test.js */
 "use strict";
 const fs = require("fs");
@@ -114,9 +134,10 @@ step("D · SC-04: the worn seal beside the brand mark", () => {
   let s = $("#topbar [data-ui~='shell.brand-seal']");
   assert(s && s.querySelector("img") && /app\.seal\.yuki\.webp$/.test(s.querySelector("img").getAttribute("src")), "the painted stamp");
   assert($("#topbar .k-brand-logo"), "the bloom stays");
+  /* the six first seals were repainted too (SC-10): every seal is a stamp */
   K.governor.setSeal("seal-homura");
   s = $("#topbar [data-ui~='shell.brand-seal']");
-  assert(s && s.textContent === "焔" && s.getAttribute("data-seal") === "seal-homura", "an ink seal's glyph");
+  assert(s && s.getAttribute("data-seal") === "seal-homura" && /app\.seal\.homura\.webp$/.test(s.querySelector("img").getAttribute("src")), "a first seal's repainted stamp");
   eq(K.governor.sealMark().glyph, "焔", "sealMark for the share card");
   K.governor.setSeal("kurenai");
   assert(!$("#topbar [data-ui~='shell.brand-seal']"), "none for the default");
@@ -124,9 +145,12 @@ step("D · SC-04: the worn seal beside the brand mark", () => {
 });
 
 step("E · SC-28: the CSS frames are retired", () => {
-  const css = K.governor.catalog().filter((c) => c.kind === "frame" && !c.painted);
-  assert(css.length && css.every((c) => c.retired), "every CSS frame is retired");
-  assert(K.governor.catalog().filter((c) => c.kind === "frame" && c.painted).every((c) => !c.retired), "painted frames are still sold");
+  /* the four first frames are retired from sale and repainted for their
+     owners (SC-10): no frame is drawn in CSS any more */
+  const first = ["frame-gold", "frame-crimson", "frame-jade", "frame-amethyst"].map((id) => K.governor.item(id));
+  assert(first.every((c) => c.retired && c.painted && c.art && K.governor.FRAME_HOLE[c.art]), "the first frames: retired, repainted, measured");
+  assert(K.governor.catalog().filter((c) => c.kind === "frame").every((c) => c.painted), "no CSS frame left");
+  assert(K.governor.catalog().filter((c) => c.kind === "frame" && first.indexOf(c) === -1).every((c) => !c.retired), "the painted frames are sold");
 });
 
 step("F · SC-05: absolute --skin-art URLs", () => {
@@ -192,6 +216,125 @@ step("J · painted frames by their opening; previews never inherit", () => {
     const h = K.governor.FRAME_HOLE[k];
     assert(h[0] > 0.6 && h[0] < 0.85 && Math.abs(h[1] - 0.5) < 0.03 && Math.abs(h[2] - 0.5) < 0.03, k + " opening looks wrong: " + h);
   });
+  eq(app.errors, [], "no page errors");
+});
+
+
+step("K · SC-33: Try on everything; the Stage is the fitting room", async () => {
+  const g = K.store.state.governor, G = K.governor;
+  const kinds = {};
+  G.catalog().filter((c) => !c.retired).forEach((c) => { kinds[c.kind] = kinds[c.kind] || G.canTry(c); });
+  Object.keys(kinds).forEach((k) => assert(kinds[k] === !(k === "lab" || k === "unlock"), k + " can" + (kinds[k] ? "" : "not") + " be tried"));
+  const before = JSON.stringify({ a: g.avatar, s: g.seal, b: g.banner, sk: g.shelfSkin });
+  G.tryItem("avatar-fox"); G.tryItem("frame-koi"); G.tryItem("seal-yuki"); G.tryItem("banner-snow" in {} ? "x" : G.catalog().find((c) => c.kind === "banner" && c.painted).id);
+  G.tryItem("shelf-oak");
+  K.show("governor", "shop", { _nav: true }); await app.settle(); await app.settle();
+  const st = $("#main [data-ui~='gov.treasury']");
+  const port = $("[data-ui~='shop.try-portrait']", st);
+  assert(port && /app\.avatar\.fox/.test(port.querySelector(".k-avatar-art").getAttribute("src")), "the tried avatar on the portrait");
+  assert(/app\.frame\.koi/.test(port.querySelector(".k-avatar-frame-art").getAttribute("src")), "the tried frame round it");
+  assert($("#topbar [data-ui~='shell.brand-seal'][data-seal='seal-yuki']"), "the tried seal beside the brand mark");
+  assert($("[data-ui~='shop.try-ground']", st), "the tried banner is the stage's ground");
+  assert($("[data-ui~='shop.try-sample'] .k-gv-pv", st), "a sample of the tried shelf");
+  eq(JSON.stringify({ a: g.avatar, s: g.seal, b: g.banner, sk: g.shelfSkin }), before, "nothing tried is saved");
+  G.stopTrying(); K.rerender(); await app.settle();
+  assert(!$("#main [data-ui~='shop.try-portrait']"), "Stop ends it");
+  assert(!$("#topbar [data-ui~='shell.brand-seal'][data-seal='seal-yuki']"), "and the seal goes");
+  const fig = $("#main .k-gv-shop-fig img");
+  assert(fig && /app\.base\.kurenai/.test(fig.getAttribute("src")), "Kurenai stands on the stage in her own clothes (SC-11)");
+  const css = fs.readFileSync(path.join(ROOT, "css/views/governor.css"), "utf8");
+  assert(/:where\(\.k-gv-stage\) \.k-btn \{/.test(css) && !/^\.k-gv-stage \.k-btn \{/m.test(css), "the stage glass sits below a gold Buy (SC-02)");
+});
+
+step("L · owned sheets, the default theme, unlock buttons", async () => {
+  const g = K.store.state.governor, G = K.governor;
+  if (!g.owned.includes("frame-sakura")) g.owned.push("frame-sakura");
+  ["upload-home", "upload-all"].forEach((id) => { if (!g.owned.includes(id)) g.owned.push(id); });
+  g.avatar.frame = null;
+  K.show("governor", "shop", { _nav: true }); await app.settle();
+  const card = (id) => [...doc.querySelectorAll("#main [data-ui~='shop.card']")].find((c) => c.getAttribute("aria-label") === G.item(id).name);
+  card("frame-sakura").querySelector("[data-ui~='shop.open']").click(); await app.settle();
+  let sheet = $("[data-ui~='shop.sheet']");
+  assert(sheet && $("[data-ui~='shop.sheet-where']", sheet) && $("[data-ui~='shop.sheet-state']", sheet).textContent === "Owned", "an owned sheet says it is owned and where it shows");
+  const use = [...sheet.querySelectorAll(".k-dialog-foot .k-btn")].find((b) => b.textContent === "Use");
+  assert(use, "Use on an owned sheet"); use.click(); await app.settle();
+  eq(g.avatar.frame, "frame-sakura", "Use from the sheet wears it");
+  const dusk = card("theme-atelier-dusk") || [...doc.querySelectorAll("#main [data-ui~='shop.card'][data-kind='theme']")][0];
+  if (g.theme === "atelier-dusk" || !g.theme) assert(!dusk.querySelector("[data-ui~='shop.take-off']"), "the default theme has no Take off (SC-41)");
+  assert(card("upload-home").querySelector("[data-ui~='shop.upload']"), "an owned unlock is a button (SC-27)");
+  assert(!card("upload-home").querySelector(".k-gv-unlocked"), "not a sentence");
+  assert(card("upload-all").querySelector("[data-ui~='ui.menu-button']"), "Every area is a menu of slots");
+});
+
+step("M · SC-25/19: avatars keep your photo; Use replaces a drawer rule", async () => {
+  const g = K.store.state.governor, G = K.governor;
+  ["avatar-cat", "avatar-fox", "scene-train"].forEach((id) => { if (!g.owned.includes(id)) g.owned.push(id); });
+  g.avatar.kind = "custom";
+  K.show("governor", "shop", { _nav: true }); await app.settle();
+  const use = (id) => { const c = [...doc.querySelectorAll("#main [data-ui~='shop.card']")].find((x) => x.getAttribute("aria-label") === G.item(id).name); const b = c && (c.querySelector("[data-ui~='shop.use']") || c.querySelector("[data-ui~='shop.take-off']")); assert(b, id + ": no Use or Take off on " + (c ? c.getAttribute("data-ware") + " " + c.textContent : "no card")); b.click(); };
+  use("avatar-cat"); await app.settle(); use("avatar-fox"); await app.settle(); use("avatar-fox"); await app.settle();
+  eq(g.avatar.kind, "custom", "taking the second painted avatar off brings your photo back");
+  K.art.setCfg("focus", { mode: "one", pick: "app.focus.library" });
+  use("scene-train"); await app.settle();
+  eq(K.art.cfg("focus"), null, "the shop's Use replaces the drawer's rule");
+  eq(G.wearing("scene"), "scene-train", "and is what shows");
+});
+
+step("N · the Wardrobe: pictures for papers and pens, names, the not-yet line", async () => {
+  const g = K.store.state.governor;
+  ["paper-graph", "penset-exam"].forEach((id) => { if (K.governor.item(id) && !g.owned.includes(id)) g.owned.push(id); });
+  const pid = K.governor.catalog().find((c) => c.kind === "paper").id;
+  if (!g.owned.includes(pid)) g.owned.push(pid);
+  K.show("governor", "avatar", { _nav: true }); await app.settle();
+  const row = (k) => $(`#main [data-ui~='gov.wardrobe'] .k-gv-ward-row[data-kind='${k}']`);
+  assert(row("paper") && row("paper").querySelector(".k-gv-ward-chip .k-gv-pv[data-kind='paper']"), "a paper chip shows the paper (SC-12)");
+  assert(row("penset").querySelector(".k-gv-ward-chip .k-gv-pv[data-kind='penset']"), "a pen chip shows the pens");
+  assert([...doc.querySelectorAll("#main .k-gv-ward-chip")].every((c) => c.getAttribute("title")), "every chip names itself in full (SC-24)");
+  const css = fs.readFileSync(path.join(ROOT, "css/views/governor.css"), "utf8");
+  assert(/\.k-gv-ward-n \{[^}]*line-clamp: 2/.test(css), "names wrap to two lines");
+  const none = $("#main [data-ui~='gov.wardrobe-none']");
+  if (none) assert(!row(none.querySelector("[data-kind]").getAttribute("data-kind")), "a kind owned none of has no row (SC-37)");
+});
+
+step("O · the Study set, the repainted sixteen, the outfit words", () => {
+  const ink = fs.readFileSync(path.join(ROOT, "css/views/ink.css"), "utf8");
+  assert(/data-penset="study"[^{]*\[data-role="accent"\] \{ --ink-c: var\(--amber\)/.test(ink), "the Study set has its own mark (SC-09)");
+  ["seal-homura", "seal-tsuki", "seal-ryuu", "seal-sakura", "seal-rai", "seal-hoshi", "frame-gold", "frame-crimson", "frame-jade", "frame-amethyst",
+    "shelf-walnut", "shelf-lacquer", "shelf-vermilion", "shrine-gilded", "shrine-ink", "shrine-neon"].forEach((id) => {
+    const it = K.governor.item(id);
+    assert(it.art && fs.existsSync(path.join(ROOT, "assets/app/img", it.art + ".webp")), id + " uses its repainted art (SC-10)");
+  });
+  assert(/hoodie/.test(K.governor.item("outfit-dayoff").desc) && !/lanyard/.test(K.governor.item("outfit-exam").desc), "outfits worded as painted (SC-35)");
+});
+
+step("P · SC-38: a locked lab names its unlock and sells it here", async () => {
+  const g = K.store.state.governor;
+  g.owned = g.owned.filter((id) => id !== "trace");
+  g.gold = 5000;
+  const host = doc.createElement("div"); doc.body.appendChild(host);
+  K.governor.lockPanel(host, K.governor.simAccess("tl-stack"), null, { compact: true });
+  const why = host.textContent;
+  assert(/Trace Lab/.test(why) && /all 4/.test(why), "it names the Trace Lab and its four labs");
+  assert(host.querySelector("[data-ui~='gov.lock-unlock']"), "Unlock is offered when affordable");
+  assert(!/HP/.test(fs.readFileSync(path.join(ROOT, "js/core/governor.js"), "utf8").match(/function lockPanel[\s\S]*?\n  }\n/)[0]), "the HP branch is gone");
+  host.remove();
+  K.openShop({ dept: "labs" }); await app.settle();
+  const vis = [...doc.querySelectorAll("#main [data-ui~='shop.section']")].filter((x) => !x.hidden);
+  assert(vis.length === 1 && vis[0].dataset.group === "labs", "the shop opens at Labs");
+});
+
+step("Q · the Shrine card's finish; a painted frame's reach kept clear", async () => {
+  const shr = fs.readFileSync(path.join(ROOT, "js/modules/shrine.js"), "utf8");
+  assert(/overFinish\(canvas, opts\.finish/.test(shr) && /data-ui": "shrine\.finishes"/.test(shr), "the Shrine's card takes a finish (SC-15)");
+  assert(typeof K.reportShare.overFinish === "function", "the finish is laid over by reportShare");
+  const g = K.store.state.governor;
+  g.avatar.frame = "frame-koi"; if (!g.owned.includes("frame-koi")) g.owned.push("frame-koi");
+  assert(K.governor.frameBleed(180, 11) > 20, "a painted frame reaches past a large ring");
+  K.show("governor", "status", { _nav: true }); await app.settle();
+  const ring = $("#main .k-gv-ring");
+  assert(ring && parseInt(ring.style.getPropertyValue("--fbleed"), 10) > 20, "the Seat keeps it clear (SC-03)");
+  g.avatar.frame = null;
+  eq(K.governor.frameBleed(180, 11), 0, "no frame, no reach");
   eq(app.errors, [], "no page errors");
 });
 

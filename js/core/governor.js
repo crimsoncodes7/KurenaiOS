@@ -501,25 +501,25 @@
     { id: "theme-atelier-dawn", kind: "theme", name: "Atelier Dawn", price: 0, desc: "Graphite's light twin: warm paper, near-white cards, the same accents darkened for daylight.", theme: "atelier-dawn", sw: ["#5D6BA8", "#A97F2F", "#7D9B76"] },
     { id: "theme-atelier-dusk", kind: "theme", name: "Atelier Dusk", price: 0, desc: "Graphite, the default: a graphite ground, flat cards and one crimson accent.", theme: "atelier-dusk", sw: ["#8E9BD8", "#D8AC5A", "#9DBE95"] },
     /* cosmetic: kanji seal variants (the topbar mark) */
-    { id: "seal-homura", kind: "seal", name: "焔 Homura seal", price: 70, desc: "Flame variant of the OS mark.", glyph: "焔" },
-    { id: "seal-tsuki",  kind: "seal", name: "月 Tsuki seal",  price: 70, desc: "Moon variant of the OS mark.", glyph: "月" },
-    { id: "seal-ryuu",   kind: "seal", name: "竜 Ryū seal",    price: 70, desc: "Dragon variant of the OS mark.", glyph: "竜" },
-    { id: "seal-sakura", kind: "seal", name: "桜 Sakura seal", price: 70, desc: "Blossom variant — for the spring seasons.", glyph: "桜" },
-    { id: "seal-rai",    kind: "seal", name: "雷 Rai seal",    price: 70, desc: "Thunder variant of the OS mark.", glyph: "雷" },
-    { id: "seal-hoshi",  kind: "seal", name: "星 Hoshi seal",  price: 70, desc: "Star variant of the OS mark.", glyph: "星" },
+    { id: "seal-homura", kind: "seal", name: "焔 Homura seal", price: 70, art: "app.seal.homura", desc: "Flame variant of the OS mark.", glyph: "焔" },
+    { id: "seal-tsuki",  kind: "seal", name: "月 Tsuki seal",  price: 70, art: "app.seal.tsuki", desc: "Moon variant of the OS mark.", glyph: "月" },
+    { id: "seal-ryuu",   kind: "seal", name: "竜 Ryū seal",    price: 70, art: "app.seal.ryuu", desc: "Dragon variant of the OS mark.", glyph: "竜" },
+    { id: "seal-sakura", kind: "seal", name: "桜 Sakura seal", price: 70, art: "app.seal.sakura", desc: "Blossom variant — for the spring seasons.", glyph: "桜" },
+    { id: "seal-rai",    kind: "seal", name: "雷 Rai seal",    price: 70, art: "app.seal.rai", desc: "Thunder variant of the OS mark.", glyph: "雷" },
+    { id: "seal-hoshi",  kind: "seal", name: "星 Hoshi seal",  price: 70, art: "app.seal.hoshi", desc: "Star variant of the OS mark.", glyph: "星" },
     /* cosmetic: avatar frames */
-    { id: "frame-gold",     kind: "frame", name: "Gilt ring",      price: 90, desc: "Gold, with a fine outer line and engraved studs at full size." },
-    { id: "frame-crimson",  kind: "frame", name: "Kurenai bloom",  price: 90, desc: "Crimson petals from the brand bloom, around the HP ring." },
-    { id: "frame-jade",     kind: "frame", name: "Jade band",      price: 90, desc: "A jade band with a single bead at the top." },
-    { id: "frame-amethyst", kind: "frame", name: "Amethyst orbit", price: 90, desc: "A violet orbit in the IT hue, with a small moon." },
+    { id: "frame-gold",     kind: "frame", painted: true, retired: true, art: "app.frame.gilt", name: "Gilt ring",      price: 90, desc: "Gold, with a fine outer line and engraved studs at full size." },
+    { id: "frame-crimson",  kind: "frame", painted: true, retired: true, art: "app.frame.bloom", name: "Kurenai bloom",  price: 90, desc: "Crimson petals from the brand bloom, around the HP ring." },
+    { id: "frame-jade",     kind: "frame", painted: true, retired: true, art: "app.frame.jade", name: "Jade band",      price: 90, desc: "A jade band with a single bead at the top." },
+    { id: "frame-amethyst", kind: "frame", painted: true, retired: true, art: "app.frame.amethyst", name: "Amethyst orbit", price: 90, desc: "A violet orbit in the IT hue, with a small moon." },
     /* cosmetic: Collection Matrix — bookshelf skins (Books' Physical tab) */
-    { id: "shelf-walnut",    kind: "shelfskin", name: "Walnut grain",     price: 80, desc: "Vertical walnut grain, a framed edge and a lit board lip." },
-    { id: "shelf-lacquer",   kind: "shelfskin", name: "Black lacquer",    price: 80, desc: "Dark gloss with a diagonal sheen and a gold maki-e line." },
-    { id: "shelf-vermilion", kind: "shelfskin", name: "Vermilion shrine", price: 80, desc: "Torii posts, a black lintel and shide paper — the shelf as a small shrine." },
+    { id: "shelf-walnut",    kind: "shelfskin", art: "app.shelf.walnut", name: "Walnut grain",     price: 80, desc: "Vertical walnut grain, a framed edge and a lit board lip." },
+    { id: "shelf-lacquer",   kind: "shelfskin", art: "app.shelf.lacquer", name: "Black lacquer",    price: 80, desc: "Dark gloss with a diagonal sheen and a gold maki-e line." },
+    { id: "shelf-vermilion", kind: "shelfskin", art: "app.shelf.vermilion", name: "Vermilion shrine", price: 80, desc: "Torii posts, a black lintel and shide paper — the shelf as a small shrine." },
     /* cosmetic: Collection Matrix — Shrine card border styles */
-    { id: "shrine-gilded", kind: "shrinestyle", name: "Gilded torii", price: 80, desc: "Double gold borders on every enshrined card." },
-    { id: "shrine-ink",    kind: "shrinestyle", name: "Ink brush",    price: 80, desc: "Washi cards with an offset ink shadow, monochrome covers and brushed rank marks." },
-    { id: "shrine-neon",   kind: "shrinestyle", name: "Neon shrine",  price: 80, desc: "Glowing cyan edges, pink for rank 01, and a faint grid behind the hall." },
+    { id: "shrine-gilded", kind: "shrinestyle", art: "app.shrinecard.gilded", name: "Gilded torii", price: 80, desc: "Double gold borders on every enshrined card." },
+    { id: "shrine-ink",    kind: "shrinestyle", art: "app.shrinecard.ink", name: "Ink brush",    price: 80, desc: "Washi cards with an offset ink shadow, monochrome covers and brushed rank marks." },
+    { id: "shrine-neon",   kind: "shrinestyle", art: "app.shrinecard.neon", name: "Neon shrine",  price: 80, desc: "Glowing cyan edges, pink for rank 01, and a faint grid behind the hall." },
     /* cosmetic: painted profile banners — the backdrop of the identity card
        on the Governor's Seat and the home profile band. A custom image
        upload is always free (it's your own picture); these are the painted
@@ -535,10 +535,10 @@
        retired: owned copies keep working, never sold again (`retired`). */
     { id: "outfit-winter",  kind: "outfit", name: "Winter",      price: 4500, art: "app.skin.kurenai.winter",  outfit: "winter",  desc: "A long coat and a knitted scarf, the flower still in her hair." },
     { id: "outfit-yukata",  kind: "outfit", name: "Yukata",      price: 4500, art: "app.skin.kurenai.yukata",  outfit: "yukata",  desc: "A summer yukata for festival evenings." },
-    { id: "outfit-exam",    kind: "outfit", name: "Exam season", price: 4500, art: "app.skin.kurenai.exam",    outfit: "exam",    desc: "Blazer and lanyard: she means business." },
+    { id: "outfit-exam",    kind: "outfit", name: "Exam season", price: 4500, art: "app.skin.kurenai.exam",    outfit: "exam",    desc: "A grey cardigan, a white shirt and her reading glasses." },
     { id: "outfit-rain",    kind: "outfit", name: "Rain",        price: 4500, art: "app.skin.kurenai.rain",    outfit: "rain",    desc: "A raincoat and a clear umbrella." },
     { id: "outfit-newyear", kind: "outfit", name: "New Year",    price: 4500, art: "app.skin.kurenai.newyear", outfit: "newyear", desc: "A furisode for the first shrine visit of the year." },
-    { id: "outfit-dayoff",  kind: "outfit", name: "Day off",     price: 4500, art: "app.skin.kurenai.dayoff",  outfit: "dayoff",  desc: "A soft cardigan for a slow Sunday." },
+    { id: "outfit-dayoff",  kind: "outfit", name: "Day off",     price: 4500, art: "app.skin.kurenai.dayoff",  outfit: "dayoff",  desc: "A cream hoodie for a slow Sunday." },
     { id: "outfit-gala",    kind: "outfit", name: "Gala",        price: 10000, art: "app.skin.kurenai.gala",   outfit: "gala", prestige: true, desc: "The prestige gown. Months of gold, and she knows it." },
     { id: "scene-library",  kind: "scene", name: "The library",    price: 0,    art: "app.focus.library", scene: "library", desc: "Late light between the stacks. The free default." },
     { id: "scene-train",    kind: "scene", name: "The night train", price: 1800, art: "app.focus.train",   scene: "train",   desc: "A window seat and the city going by." },
@@ -598,7 +598,7 @@
     { id: "paper-manuscript", kind: "paper", name: "Manuscript",     price: 400, paper: "manuscript", desc: "Genkō squares for writing Japanese." },
     { id: "paper-staff",    kind: "paper", name: "Music staff",      price: 400, paper: "staff",    desc: "Five-line staves." },
     { id: "paper-graph",    kind: "paper", name: "2 mm graph",       price: 400, paper: "graph",    desc: "Fine graph paper for plots." },
-    { id: "penset-study",  kind: "penset", name: "Study set",  price: 500, penset: "study",  desc: "Ink, mark and note." },
+    { id: "penset-study",  kind: "penset", name: "Study set",  price: 500, penset: "study",  desc: "Ink, an amber mark and a green note." },
     { id: "penset-exam",   kind: "penset", name: "Exam set",   price: 500, penset: "exam",   desc: "Black pen, red pen and pencil." },
     { id: "penset-sketch", kind: "penset", name: "Sketch set", price: 500, penset: "sketch", desc: "Graphite, wash and highlight." },
     /* "Your own picture" (roadmap 5.14): uploading is an unlock, an area at
@@ -684,33 +684,45 @@
   function lockPanel(main, access, backLabel, opts) {
     var el = KOS.ui.el;
     opts = opts || {};
-    var isHp = access.why === "hp";
-    var name = isHp ? (opts.title || "Labs") : access.item.name;
-    var why = isHp
-      ? "Suspended while HP is " + hpStateInfo().label + " — core revision never locks"
-      : "Locked by the Governor · " + access.item.price + " gold, a one-time unlock";
-    var go = el("button", { type: "button", class: "k-btn", text: isHp ? "Open Recovery" : "Unlock",
-      onclick: function () { if (isHp) KOS.show("governor"); else KOS.show("governor", "shop"); } });
+    var it = access.item, name = it.name;
+    /* what the one unlock opens (SC-38): the Trace Lab opens four sims */
+    var opens = Object.keys(SIM_ITEM).filter(function (k) { return SIM_ITEM[k] === it.id; });
+    var also = opens.length > 1 ? " · opens all " + opens.length + " of its labs" : "";
+    var why = "Locked · " + KOS.ui.num(it.price) + " gold, a one-time unlock" + also;
+    var afford = G().gold >= it.price;
+    function unlock() {
+      var r = buy(it.id);
+      KOS.ui.toast(r.ok ? it.name + " unlocked. " + KOS.ui.num(G().gold) + " gold left." : r.msg, !r.ok);
+      if (r.ok) KOS.rerender();
+    }
+    function toShop() { if (KOS.openShop) KOS.openShop({ dept: "labs" }); else KOS.show("governor", "shop"); }
+    function act(primary) {
+      return afford
+        ? el("button", { type: "button", class: "k-btn" + (primary ? " k-btn--primary" : ""), "data-ui": "gov.lock-unlock", "data-intent": primary ? "primary" : null,
+          text: "Unlock · " + KOS.ui.num(it.price), onclick: function () {
+            KOS.ui.confirm({ title: "Unlock " + name + "?", mark: "解", confirm: "Unlock · ◈ " + KOS.ui.num(it.price),
+              body: "◈ " + KOS.ui.num(it.price) + " · ◈ " + KOS.ui.num(G().gold - it.price) + " left after" + also }, unlock); } })
+        : el("button", { type: "button", class: "k-btn" + (primary ? " k-btn--primary" : ""), "data-ui": "gov.lock-shop", "data-intent": primary ? "primary" : null,
+          text: KOS.ui.num(it.price - G().gold) + " gold more · Labs →", onclick: toShop });
+    }
     if (opts.compact) {
       main.appendChild(el("section", { class: "k-card k-lock", "data-ui": "gov.lock", "data-state": "compact", "aria-label": name + " — locked" }, [
-        el("span", { class: "k-lock-mark", "aria-hidden": "true", text: isHp ? "朽" : "◆" }),
+        el("span", { class: "k-lock-mark", lang: "ja", "aria-hidden": "true", text: "錠" }),
         el("span", { class: "k-lock-txt" }, [el("b", { text: name }), el("span", { text: why })]),
-        go
+        act(false)
       ]));
       return;
     }
     main.appendChild(el("section", { class: "k-card k-lock", "data-ui": "gov.lock", "aria-label": name + " — locked" }, [
-      el("span", { class: "k-lock-mark", lang: "ja", "aria-hidden": "true", text: isHp ? "朽" : "錠" }),
-      el("h1", { class: "k-lock-title", text: (isHp ? "Suspended — " : "Locked — ") + name }),
-      el("p", { class: "k-lock-why", text: isHp
-        ? "Labs and simulations reopen at 60 HP. Clear due flashcards, finish a session or tick to-do items to recover. Core revision (notes, flashcards, quizzes, exam Qs) is never locked."
-        : name + " is a one-time unlock: " + access.item.price + " gold. Earn gold from sessions, streaks, high quiz scores and clearing the review backlog." }),
+      el("span", { class: "k-lock-mark", lang: "ja", "aria-hidden": "true", text: "錠" }),
+      el("h1", { class: "k-lock-title", text: "Locked — " + name }),
+      el("p", { class: "k-lock-why", text: name + " is a one-time unlock: " + KOS.ui.num(it.price) + " gold" + (opens.length > 1 ? ", and it opens all " + opens.length + " of its labs" : "") +
+        ". Gold comes from Focus, reviews, quizzes, papers and the Collection; study never locks." }),
       el("div", { class: "k-lock-actions", "data-ui": "lab.controls" }, [
         el("button", { type: "button", class: "k-btn", text: backLabel || "← Home", onclick: function () { KOS.show("home"); } }),
-        isHp
-          ? el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "Open Recovery", onclick: function () { KOS.show("governor"); } })
-          : el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "Open the Gold Shop", onclick: function () { KOS.show("governor", "shop"); } })
-      ])
+        act(true),
+        afford ? el("button", { type: "button", class: "k-btn k-btn--quiet", "data-ui": "gov.lock-shop", text: "See the Labs", onclick: toShop }) : null
+      ].filter(Boolean))
     ]));
   }
   function installGates() {
@@ -789,15 +801,28 @@
     return KOS.ui.el("img", { class: "k-avatar-frame-art", src: "assets/app/img/" + fr.art + ".webp", alt: "", "aria-hidden": "true", decoding: "async",
       style: "--fh: " + h[0] + "; --fcx: " + h[1] + "; --fcy: " + h[2] });
   }
+  /* how far a painted frame reaches past its ring's box (SC-03, SC-08):
+     a host that draws a large framed portrait keeps this much clear round
+     it. fo is the ring's own width plus the frame's gap. */
+  function frameBleed(size, fo) {
+    var g = G(), tf = tried("frame"), fid = tf ? tf.id : g.avatar.frame, fr = fid && owns(fid) || tf ? item(fid) : null;
+    if (!fr || !fr.painted || !fr.art) return 0;
+    var h = (FRAME_HOLE[fr.art] || [0.66])[0];
+    fo = fo == null ? 11 : fo;
+    return Math.max(0, Math.round(((size + 2 * fo) / h - size) / 2 - fo + 2));
+  }
   /* opts.frame: undefined = the worn frame, null = none, an id = that one
      (a shop or chip preview never inherits the worn frame, SC-07) */
   function avatarNode(size, opts) {
     var el = KOS.ui.el, g = G();
     var node = el("span", { class: "k-avatar", "data-ui": "gov.avatar", style: "--avatar: " + size + "px" });
-    var pic = g.avatar.kind === "art" && owns(g.avatar.art) ? item(g.avatar.art) : null;
+    /* an avatar being tried on stands in for the worn one everywhere,
+       the frame previews included (SC-33: the shop is the fitting room) */
+    var ta = tried("avatar");
+    var pic = ta || (g.avatar.kind === "art" && owns(g.avatar.art) ? item(g.avatar.art) : null);
     /* your own picture lives in the file store (KOS.profilePics): until it
        has been read on this device the seal stands in, then takes its place */
-    var own = g.avatar.kind === "custom" ? PP().src("avatar") : null;
+    var own = !ta && g.avatar.kind === "custom" ? PP().src("avatar") : null;
     if (own) {
       node.appendChild(KOS.imageCrop.image(own, { alt: "Your avatar" }, g.avatar.crop));
     } else if (pic) {
@@ -815,7 +840,8 @@
       }
     }
     /* a painted frame (34p) is a picture round the disc, sized by its opening */
-    var fid = opts && opts.frame !== undefined ? opts.frame : g.avatar.frame;
+    var tf = tried("frame");
+    var fid = opts && opts.frame !== undefined ? opts.frame : tf ? tf.id : g.avatar.frame;
     var fr = fid && item(fid);
     return el("span", { class: "k-avatar-host", "data-ui": "gov.avatar-host", "data-frame": fid || null,
       "data-fsize": size <= 44 ? "s" : size <= 76 ? "m" : "l" }, [node, frameArt(fr)].filter(Boolean));
@@ -918,7 +944,8 @@
     var brand = document.querySelector("#topbar [data-ui~='shell.brand']");
     if (brand) {
       var el = KOS.ui.el, old = brand.querySelector("[data-ui~='shell.brand-seal']");
-      var sid = g.seal && g.seal !== "kurenai" && owns(g.seal) ? g.seal : null;
+      var tsl = tried("seal");   /* a seal being tried on stamps the brand too (SC-33) */
+      var sid = tsl ? tsl.id : g.seal && g.seal !== "kurenai" && owns(g.seal) ? g.seal : null;
       var sIt = sid && item(sid);
       if (old && old.getAttribute("data-seal") !== sid) { old.remove(); old = null; }
       if (sIt && !old) {
@@ -932,7 +959,8 @@
   }
   /* the worn seal's picture or glyph, for the Seat ring and the share card */
   function sealMark() {
-    var g = G(), sid = g.seal && g.seal !== "kurenai" && owns(g.seal) ? g.seal : null, it = sid && item(sid);
+    var g = G(), ts = tried("seal");
+    var sid = ts ? ts.id : g.seal && g.seal !== "kurenai" && owns(g.seal) ? g.seal : null, it = sid && item(sid);
     return it ? { id: sid, name: it.name, art: it.art ? "assets/app/img/" + it.art + ".webp" : null, glyph: SEAL_GLYPHS[sid] || it.glyph || "" } : null;
   }
   function setTheme(themeId) { tryOn = null; G().theme = themeId; store.save(); applyCosmetics(); }
@@ -975,13 +1003,31 @@
     applyCosmetics();
     KOS.refreshHUD && KOS.refreshHUD();
   }
+  /* the profile kinds are tried on too (SC-33): the Stage is the fitting
+     room — the avatar, frame and seal on its portrait, a banner, scene or
+     hall as its ground, a shelf skin or Shrine card as a sample */
+  var TRY_ONLY = { avatar: 1, frame: 1, seal: 1, banner: 1, shelfskin: 1, shrinestyle: 1 };
+  function canTry(it) { return !!it && (it.kind === "theme" || !!WEAR[it.kind] || !!TRY_ONLY[it.kind]); }
   /* try an item on (or null to stop); a theme goes through tryTheme */
   function tryItem(id) {
     var it = item(id);
     if (!it) return;
     if (it.kind === "theme") { tryTheme(tryOn === it.theme ? null : it.theme); return; }
-    if (!WEAR[it.kind]) return;
-    if (tryKinds[it.kind] === keyOf(it)) delete tryKinds[it.kind]; else tryKinds[it.kind] = keyOf(it);
+    if (!canTry(it)) return;
+    var was = tryKinds[it.kind] === keyOf(it);
+    delete tryKinds[it.kind];   /* re-added last, so the last tried ground wins */
+    if (!was) tryKinds[it.kind] = keyOf(it);
+    if (it.kind === "seal" || it.kind === "avatar" || it.kind === "frame") { applyCosmetics(); KOS.refreshHUD && KOS.refreshHUD(); }
+  }
+  function tried(kind) {
+    var k = tryKinds[kind];
+    return k ? CATALOG.find(function (c) { return c.kind === kind && keyOf(c) === k; }) || null : null;
+  }
+  /* the ground being tried: the last banner, scene or hall tried on */
+  function triedGround() {
+    var ks = Object.keys(tryKinds).filter(function (k) { return k === "banner" || k === "scene" || k === "hall"; });
+    var it = ks.length ? tried(ks[ks.length - 1]) : null;
+    return it && it.art ? it : null;
   }
   function trying() {
     var out = [];
@@ -993,7 +1039,7 @@
     return out;
   }
   function isTrying(id) { return trying().some(function (c) { return c.id === id; }); }
-  function stopTrying() { tryKinds = {}; tryTheme(null); }
+  function stopTrying() { var had = Object.keys(tryKinds).length; tryKinds = {}; tryTheme(null); if (had) KOS.refreshHUD && KOS.refreshHUD(); }
   function outfit() { return worn("outfit"); }
   function scene() { return worn("scene") || "library"; }
   function hall() { return worn("hall"); }
@@ -1389,8 +1435,9 @@
     viewAccess: viewAccess,
     installGates: installGates,
     lockPanel: lockPanel,
+    SIM_ITEM: SIM_ITEM,
     seals: seals,
-    sealById: sealById, sealMark: sealMark, frameArt: frameArt, FRAME_HOLE: FRAME_HOLE,
+    sealById: sealById, sealMark: sealMark, frameArt: frameArt, FRAME_HOLE: FRAME_HOLE, frameBleed: frameBleed,
     sealSvg: sealSvg,
     sealUnlocked: sealUnlocked,
     avatarNode: avatarNode,
@@ -1410,6 +1457,9 @@
     wear: wear,
     wearing: wearing,
     tryItem: tryItem,
+    canTry: canTry,
+    tried: tried,
+    triedGround: triedGround,
     trying: trying,
     isTrying: isTrying,
     stopTrying: stopTrying,

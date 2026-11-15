@@ -148,17 +148,31 @@
      in (the Governor's rule); core revision never locks. */
   function lockedLab(host, s, acc, embedded) {
     var g = KOS.store.state.governor || {};
-    var price = acc.item ? acc.item.price : 0;
+    var price = acc.item ? acc.item.price : 0, gold = g.gold || 0;
+    /* what the one unlock is and opens (SC-38): the Trace Lab's four sims
+       are one unlock, said once, and Unlock is here when you can afford it */
+    var unlockName = acc.item ? acc.item.name : s.title;
+    var siblings = acc.item ? Object.keys(KOS.governor.SIM_ITEM || {}).filter(function (k) { return KOS.governor.SIM_ITEM[k] === acc.item.id; }).length : 0;
+    function unlock() {
+      KOS.ui.confirm({ title: "Unlock " + unlockName + "?", mark: "解", confirm: "Unlock · ◈ " + KOS.ui.num(price),
+        body: "◈ " + KOS.ui.num(price) + " · ◈ " + KOS.ui.num(gold - price) + " left after" + (siblings > 1 ? " · opens all " + siblings + " of its labs" : "") }, function () {
+        var r = KOS.governor.buy(acc.item.id);
+        KOS.ui.toast(r.ok ? unlockName + " unlocked." : r.msg, !r.ok);
+        if (r.ok) KOS.rerender();
+      });
+    }
+    function toShop() { if (KOS.openShop) KOS.openShop({ dept: "labs" }); else KOS.show("governor", "shop"); }
     var stage = el("div", { class: "k-lab-lockstage", "data-ui": "gov.lock lab.locked", "aria-label": s.title + " — locked" }, [
       el("span", { class: "k-lab-lock-ghost", "aria-hidden": "true" }, [thumb(s)]),
       el("div", { class: "k-lab-lock-card" }, [
         el("span", { class: "k-lab-lock-mark", "aria-hidden": "true", text: "◆" }),
         el("b", { class: "k-lab-lock-name", text: s.title }),
-        el("span", { class: "k-lab-lock-by", text: "Locked by the Governor" }),
-        el("span", { class: "k-lab-lock-price k-mono", text: "◆ " + KOS.ui.num(price) }),
-        el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "Open the Gold Shop",
-          onclick: function () { KOS.show("governor", "shop"); } }),
-        el("span", { class: "k-lab-lock-bal", text: "You have ◆ " + KOS.ui.num(g.gold || 0) + " · core revision stays free" })
+        el("span", { class: "k-lab-lock-by", text: unlockName !== s.title ? "Part of " + unlockName + (siblings > 1 ? " · one unlock opens all " + siblings : "") : "A one-time unlock" }),
+        el("span", { class: "k-lab-lock-price k-mono", text: "◈ " + KOS.ui.num(price) }),
+        acc.item && gold >= price
+          ? el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "lab.unlock", text: "Unlock " + unlockName, onclick: unlock })
+          : el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "lab.to-shop", text: "Labs in the Gold Shop", onclick: toShop }),
+        el("span", { class: "k-lab-lock-bal", text: "You have ◈ " + KOS.ui.num(gold) + " · core revision stays free" })
       ])
     ]);
     host.appendChild(el("div", { class: "k-lab-lockwrap", "data-state": embedded ? "embedded" : null }, [

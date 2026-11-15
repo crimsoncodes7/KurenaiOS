@@ -170,7 +170,11 @@ step("Gold Shop separates tools, simulations and cosmetics with contextual previ
   /* review B: every lab draws its own scene, not one shared chart */
   const scenes = new Set([...main.querySelectorAll("[data-ui~='shop.lab-scene']")].map(n => n.getAttribute("data-scene")));
   if (scenes.size !== 8 || scenes.has("generic")) throw new Error("the labs share a scene: " + [...scenes].join(","));
-  if (!main.querySelector("[data-ui~='shop.preview-seal']") || !main.querySelector("[data-ui~='shop.preview-shelf']") || !main.querySelector("[data-ui~='shop.preview-shrine']")) throw new Error("cosmetic context previews missing");
+  /* every seal, shelf skin and Shrine card is painted now (W5 SC-10): each previews its own picture */
+  for (const k of ["seal", "shelfskin", "shrinestyle"]) {
+    const pv = [...main.querySelectorAll(`[data-ui~='shop.card'][data-kind='${k}'] .k-gv-apv`)];
+    if (!pv.length || pv.some((p) => !p.querySelector("img"))) throw new Error("cosmetic context previews missing: " + k);
+  }
   if (main.querySelector(".sp-theme-shell") || main.querySelector(".sp-banner-card")) throw new Error("meaningless preview overlays survived");
   if (main.querySelector(".shop-pv-glyph")) throw new Error("legacy isolated glyph preview survived");
   /* decision 5: the CSS banners are retired, the painted ones sold */

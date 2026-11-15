@@ -40,7 +40,8 @@ background: var(--bg);
 #cols { position: relative; flex: 1 1 0; min-block-size: 0; display: flex; }
 
 /* ---------- top bar pieces ---------- */
-.k-brand { display: flex; align-items: center; gap: var(--sp-9); border-radius: var(--r-12); }
+/* SH-19: every header control shares one height, --icon-btn (--hit-coarse on touch) */
+.k-brand { display: flex; align-items: center; min-block-size: var(--icon-btn); gap: var(--sp-9); border-radius: var(--r-12); }
 .k-brand-logo { inline-size: var(--brand-logo); block-size: var(--brand-logo); object-fit: contain; }
 .k-brand-name { font-size: var(--fs-17); font-weight: var(--weight-semibold); letter-spacing: -0.01em; }
 /* the worn seal, stamped beside the bloom (SC-04) */
@@ -148,7 +149,7 @@ display: none;
 /* the sync state is an 8px dot drawn INSIDE a real button: on touch the
    button takes the 44px target, so the dot itself was stretched into an
    8×44 pill (phone review) */
-.k-syncdot { --sync-c: var(--muted); position: relative; inline-size: var(--hit); block-size: var(--hit); flex: 0 0 auto; padding: 0; border-radius: 50%; background: none; box-shadow: none; font-size: 0; color: transparent; overflow: hidden; }
+.k-syncdot { --sync-c: var(--muted); position: relative; inline-size: var(--icon-btn); block-size: var(--icon-btn); flex: 0 0 auto; padding: 0; border-radius: 50%; background: none; box-shadow: none; font-size: 0; color: transparent; overflow: hidden; }
 /* centred absolutely: the chip's status label (font-size 0) still took a
    grid row of its own and pushed the dot to the top */
 .k-syncdot::before { content: ""; position: absolute; inset: 0; margin: auto; inline-size: var(--sp-8); block-size: var(--sp-8); border-radius: 50%; background: var(--sync-c); box-shadow: 0 0 0 var(--rail-mark) color-mix(in oklch, var(--sync-c) 18%, transparent); }

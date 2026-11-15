@@ -1297,6 +1297,9 @@
        the picture is never fetched or redrawn again; it never animates */
     if (stageArt) stageEl.appendChild(stageArt);
     else if (KOS.art) stageArt = KOS.art.layer(stageEl, "focus", { eager: true });
+    /* SC-14: the scene on screen, so a bright room can carry its own scrim and glass */
+    var sceneId = KOS.art && stageArt && KOS.art.on() ? String(KOS.art.pick("focus") || "").replace(/^app\.focus\./, "") : "";
+    if (sceneId) stageEl.setAttribute("data-scene", sceneId); else stageEl.removeAttribute("data-scene");
     stageEl.setAttribute("data-phase", phase);
     stageEl.setAttribute("data-kind", reading ? "reading" : "study");
     stageEl.setAttribute("data-rule", paid ? "blocks" : "cycle");

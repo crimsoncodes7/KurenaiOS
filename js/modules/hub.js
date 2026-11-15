@@ -1079,6 +1079,9 @@
     }
     var ring = el("span", { class: "k-home-ring", "data-hp": hpS, style: "--hp: " + Math.max(0, Math.min(100, g.hp)) + "%" },
       [KOS.governor.avatarNode(94)]);
+    /* a painted frame's reach is kept inside the hero, clear of the greeting (SC-08) */
+    var hb = KOS.governor.frameBleed ? KOS.governor.frameBleed(94, 9) : 0;
+    if (hb) ring.style.setProperty("--fbleed", hb + "px");
     var greet = el("h1", { class: "k-home-greet" }, hpS === "critical" ? [] : [greeting() + " "]);
     /* Critical (7a·crit): the headline says what the right-hand block is for */
     if (hpS === "critical") {

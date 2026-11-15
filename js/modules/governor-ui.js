@@ -189,6 +189,10 @@
     return null;
   }
 
+  /* the shop opened at a department or a group (SC-37, SC-38): a lab's
+     lock, a Wardrobe line or Collection chip lands where the item is */
+  var shopAt = null;
+  KOS.openShop = function (sel) { shopAt = sel || null; KOS.show("governor", "shop"); };
   KOS.views.governor = function (main, openTab) {
     KOS.shell.tree("none");
     var g = store.state.governor;
@@ -237,7 +241,7 @@
       });
     }
     function sealGlyph() {
-      var it = g.seal && g.seal !== "kurenai" ? KOS.governor.item(g.seal) : null;
+      var it = (KOS.governor.tried && KOS.governor.tried("seal")) || (g.seal && g.seal !== "kurenai" ? KOS.governor.item(g.seal) : null);
       return (it && it.glyph) || "紅";
     }
     /* the portrait in its HP ring with the worn seal as a badge — the
@@ -248,6 +252,9 @@
         el("span", { class: "k-gv-ring-seal", lang: "ja", "aria-hidden": "true", text: sealGlyph() })
       ]);
       node.style.setProperty("--hp", Math.max(0, Math.min(100, hp)) + "%");
+      /* a painted frame's reach is kept clear of the level and title (SC-03) */
+      var bleed = size > 76 && KOS.governor.frameBleed ? KOS.governor.frameBleed(size, 11) : 0;
+      if (bleed) node.style.setProperty("--fbleed", bleed + "px");
       return node;
     }
     function bar(pct, tone, hook) {
@@ -786,7 +793,7 @@
         var tiles = el("div", { class: "k-gv-bg-own" }, [
           canUp
             ? el("button", { type: "button", class: "k-gv-bg-up", "data-ui": "gov.bg-upload", onclick: function () { fileIn.click(); } }, [el("span", { text: "＋ Upload an image" }), el("small", { class: "k-mono", text: "JPG or PNG · 2400 × 1350 or larger" })])
-            : el("button", { type: "button", class: "k-gv-bg-up", "data-ui": "gov.bg-locked", onclick: function () { KOS.show("governor", "shop"); } }, [
+            : el("button", { type: "button", class: "k-gv-bg-up", "data-ui": "gov.bg-locked", onclick: function () { KOS.openShop({ group: "unlocks" }); } }, [
                 el("span", { text: "錠 Your own banner" }), el("small", { class: "k-mono", text: "◈ " + KOS.ui.num(upItem ? upItem.price : 3000) + " · open in the shop" })])
         ]);
         var ownBanner = KOS.profilePics ? KOS.profilePics.src("banner", g) : null;
@@ -890,7 +897,8 @@
       { id: "labs",      dept: "labs",    label: "Labs",              match: function (c) { return c.kind === "lab"; } }
     ];
     var DEPTS = [["kurenai", "For Kurenai"], ["rooms", "For your rooms"], ["profile", "For your profile"], ["app", "For the app"], ["labs", "Labs"]];
-    var shopSel = { dept: "all" };
+    var shopSel = shopAt || { dept: "all" };
+    shopAt = null;
     function goldN(n) { return "◈ " + KOS.ui.num(n); }
     function artSrc(id) { return "assets/app/img/" + id + ".webp"; }
     /* what this item is doing now: on (in use), owned, try (being tried), free, buy */
@@ -919,18 +927,25 @@
     /* put it on (on = true) or take it off */
     function wareUse(it, on) {
       switch (it.kind) {
-        case "theme": KOS.governor.setTheme(on ? it.theme : "kurenai"); break;
+        case "theme": KOS.governor.setTheme(on ? it.theme : "atelier-dusk"); break;
         case "seal": KOS.governor.setSeal(on ? it.id : "kurenai"); break;
         case "frame": g.avatar.frame = on ? it.id : null; store.save(); break;
         case "shelfskin": KOS.governor.setShelfSkin(on ? it.id : null); break;
         case "shrinestyle": KOS.governor.setShrineStyle(on ? it.id : null); break;
         case "banner": KOS.governor.setBanner(on ? (it.painted ? it.id : it.banner) : null); break;
         case "avatar":
-          if (on) { g.avatar.prevKind = g.avatar.kind; g.avatar.kind = "art"; g.avatar.art = it.id; }
-          else { g.avatar.kind = g.avatar.prevKind && g.avatar.prevKind !== "art" ? g.avatar.prevKind : "seal"; }
+          /* only a kind that is not a painted avatar is remembered, so a
+             switch from one painted avatar to another keeps your photo (SC-25) */
+          if (on) { if (g.avatar.kind !== "art") g.avatar.prevKind = g.avatar.kind; g.avatar.kind = "art"; g.avatar.art = it.id; }
+          else { g.avatar.kind = g.avatar.prevKind && g.avatar.prevKind !== "art" ? g.avatar.prevKind
+            : KOS.profilePics && KOS.profilePics.has("avatar", g) ? "custom" : "seal"; }
           store.save(); break;
         default: KOS.governor.wear(it.kind, on ? it.id : null);
       }
+      /* "Use" is the slot's one choice: it replaces a picture drawer's rule,
+         so the shop never says In use while a rule shows another (SC-19) */
+      var SLOT = { scene: "focus", hall: "shrine", banner: "banner" }[it.kind];
+      if (on && SLOT && KOS.art && KOS.art.cfg(SLOT)) KOS.art.setCfg(SLOT, null);
       KOS.refreshHUD && KOS.refreshHUD();
     }
     function buyWare(it) {
@@ -1025,7 +1040,10 @@
     /* the Stage (34g): the banner, the balance, Try on, Kurenai */
     function shopStage(cat) {
       var stage = el("section", { class: "k-gv-stage k-gv-shopstage", "data-ui": "gov.treasury", "aria-label": "Your gold" });
-      stageBg(stage);
+      /* the fitting room (SC-33): a banner, scene or hall being tried is the stage's ground */
+      var ground = KOS.governor.triedGround();
+      if (ground) stage.insertBefore(el("img", { class: "k-gv-stage-bg", "data-ui": "shop.try-ground", "data-item": ground.id, src: artSrc(ground.art), alt: "", decoding: "async", "aria-hidden": "true" }), stage.firstChild);
+      else stageBg(stage);
       var owned = cat.filter(function (c) { return KOS.governor.owns(c.id) && c.price > 0; });
       var kinds = {};
       owned.forEach(function (c) { if (c.kind !== "lab") kinds[c.kind] = (kinds[c.kind] || 0) + 1; });
@@ -1045,13 +1063,18 @@
         ]) : null
       ].filter(Boolean));
       var tried = KOS.governor.trying();
+      /* an avatar, frame or seal being tried shows on your portrait, here */
+      var TG = KOS.governor.tried;
+      if (TG("avatar") || TG("frame") || TG("seal")) { var tp = ring(88, g.hp, KOS.governor.hpState(), "span", { "data-ui": "shop.try-portrait" }); tp.classList.add("k-gv-try-portrait"); left.insertBefore(tp, left.firstChild); }
+      /* what shows on another page is tried here as a sample */
+      var SAMPLE = { shelfskin: 1, shrinestyle: 1, finish: 1, paper: 1, penset: 1 };
       var toBuy = tried.filter(function (c) { return !KOS.governor.owns(c.id); });
       var sum = toBuy.reduce(function (a, c) { return a + c.price; }, 0);
       var tryPanel = el("div", { class: "k-gv-glass k-gv-shop-try", "data-ui": "shop.try-panel", "aria-live": "polite" }, tried.length ? [
         el("div", { class: "k-gv-glass-kick", text: "Trying on" }),
         el("ul", { class: "k-gv-shop-tried" }, tried.map(function (c) {
-          return el("li", {}, [el("span", { text: c.name }), el("span", { class: "k-muted", text: SHOP_GROUPS.filter(function (x) { return x.match(c); }).map(function (x) { return x.label; })[0] || "" }),
-            el("span", { class: "k-mono", text: KOS.governor.owns(c.id) ? "owned" : goldN(c.price) })]);
+          return el("li", {}, [SAMPLE[c.kind] ? el("span", { class: "k-gv-shop-tried-pv", "data-ui": "shop.try-sample" }, [shopPreview(c)]) : null, el("span", { text: c.name }), el("span", { class: "k-muted", text: SHOP_GROUPS.filter(function (x) { return x.match(c); }).map(function (x) { return x.label; })[0] || "" }),
+            el("span", { class: "k-mono", text: KOS.governor.owns(c.id) ? "owned" : goldN(c.price) })].filter(Boolean));
         })),
         el("div", { class: "k-gv-shop-try-act" }, [
           toBuy.length ? el("button", { type: "button", class: "k-btn k-btn--sm k-gv-buy", "data-ui": "shop.buy-tried", disabled: sum > g.gold ? "" : null,
@@ -1062,12 +1085,12 @@
         ].filter(Boolean))
       ] : [
         el("div", { class: "k-gv-glass-kick", text: "Try on" }),
-        el("p", { class: "k-gv-shop-try-p", text: "Try anything on before you buy: Kurenai wears it here, a theme dresses the whole app. Nothing is saved." })
+        el("p", { class: "k-gv-shop-try-p", text: "Try anything on before you buy: an outfit on Kurenai, an avatar, frame or seal on your portrait, a banner, scene or hall as this stage, a theme on the whole app. Nothing is saved." })
       ]);
-      /* Kurenai as the mannequin, in the outfit being tried or worn; with
-         none the panorama's own Kurenai stands there already */
-      var fig = KOS.governor.outfit() ? el("div", { class: "k-gv-shop-fig", "aria-hidden": "true" }, [
-        el("img", { src: artSrc("app.skin.kurenai." + KOS.governor.outfit()), alt: "", decoding: "async" })]) : el("div", { class: "k-gv-shop-fig", "aria-hidden": "true" });
+      /* Kurenai as the mannequin, in the outfit being tried or worn, else in
+         her own clothes (SC-11: the panorama has no Kurenai of its own) */
+      var fig = el("div", { class: "k-gv-shop-fig", "aria-hidden": "true" }, [
+        el("img", { src: artSrc(KOS.governor.outfit() ? "app.skin.kurenai." + KOS.governor.outfit() : "app.base.kurenai"), alt: "", decoding: "async" })]);
       stage.appendChild(el("div", { class: "k-gv-shopstage-grid" }, [left, tryPanel, fig]));
       return stage;
     }
@@ -1087,8 +1110,8 @@
       ].filter(Boolean)));
       var foot = el("div", { class: "k-gv-ware-foot", "data-ui": "shop.card-foot" });
       var CHIP = { on: ["✓ In use", "gold"], owned: ["Owned", "muted"], free: ["Free", "muted"], try: ["◐ Trying on", "gold"] };
-      if (CHIP[st]) foot.appendChild(el("span", { class: "k-chip", "data-tone": CHIP[st][1], text: CHIP[st][0] }));
-      var canTry = it.kind !== "lab" && it.kind !== "unlock" && it.kind !== "paper" && it.kind !== "penset" && it.kind !== "avatar" && it.kind !== "frame" && it.kind !== "seal" && it.kind !== "shelfskin" && it.kind !== "shrinestyle" && it.kind !== "banner";
+      if (CHIP[st] && !(it.kind === "unlock" && st !== "try")) foot.appendChild(el("span", { class: "k-chip", "data-tone": CHIP[st][1], text: CHIP[st][0] }));
+      var canTry = KOS.governor.canTry(it);
       if (st === "buy" && canTry) foot.appendChild(el("button", { type: "button", class: "k-btn k-btn--sm k-gv-try", "data-ui": "shop.try-on",
         text: "Try on", "aria-label": "Try on " + it.name, onclick: function () { KOS.governor.tryItem(it.id); render(); } }));
       foot.appendChild(el("span", { class: "k-gv-ware-gap" }));
@@ -1100,9 +1123,9 @@
       } else if (it.kind === "lab") {
         foot.appendChild(el("span", { class: "k-gv-unlocked", text: "In its subject's Practice zone" }));
       } else if (it.kind === "unlock") {
-        foot.appendChild(el("span", { class: "k-gv-unlocked", text: "Unlocked · upload from the slot's picture drawer" }));
+        foot.appendChild(uploadAction(it));
       } else if (st === "on") {
-        if (!(it.kind === "scene" && it.price === 0)) foot.appendChild(el("button", { type: "button", class: "k-btn k-btn--sm k-btn--quiet k-gv-apply", "data-ui": "shop.take-off",
+        if (!(it.price === 0 && (it.kind === "scene" || it.kind === "theme"))) foot.appendChild(el("button", { type: "button", class: "k-btn k-btn--sm k-btn--quiet k-gv-apply", "data-ui": "shop.take-off",
           text: "Take off", onclick: function () { wareUse(it, false); render(); } }));
       } else {
         foot.appendChild(el("button", { type: "button", class: "k-btn k-btn--sm k-gv-apply", "data-ui": "shop.use",
@@ -1111,6 +1134,27 @@
       card.appendChild(foot);
       return card;
     }
+
+    /* an owned "Your own picture" unlock is a way in, not a sentence (SC-27):
+       the slot's picture drawer, a vault's Spotlight, or for every area a
+       menu of them */
+    var UPLOAD_SLOTS = [["home", "Home's hero"], ["focus", "Focus stage"], ["shrine", "Shrine hall"], ["banner", "Profile banner"]];
+    function openUpload(area) {
+      if (area === "vault") { KOS.show("anime"); return; }
+      KOS.artSlot && KOS.artSlot.open(area, function () { render(); });
+    }
+    function uploadAction(it) {
+      if (it.area === "all") return KOS.ui.menu({ label: "Upload a picture", className: "k-btn--sm k-gv-apply",
+        items: UPLOAD_SLOTS.concat([["vault", "A vault's Spotlight"]]).map(function (a) {
+          return { label: a[1], onSelect: function () { openUpload(a[0]); } }; }) });
+      return el("button", { type: "button", class: "k-btn k-btn--sm k-gv-apply", "data-ui": "shop.upload",
+        text: it.area === "vault" ? "Open a vault" : "Upload a picture", onclick: function () { openUpload(it.area); } });
+    }
+    /* where each kind shows, said once (the Wardrobe's captions) */
+    var WHERE = { outfit: "On the Assistant panel and the Stage", scene: "Behind the Focus timer", hall: "Behind the Shrine's rank 01",
+      banner: "Your profile banner and the Seat's stage", finish: "Your shared cards", avatar: "Your portrait, everywhere it shows",
+      frame: "Round your portrait", seal: "Beside the brand mark · the share card", shelfskin: "The Books shelf", shrinestyle: "The Shrine's cards",
+      paper: "New notebooks start on it", penset: "New strokes are written in it", theme: "The whole app", unlock: "Your own picture in that slot", lab: "In its subject's Practice zone" };
 
     /* the preview sheet (34h): the picture with Try on running, the words,
        the price; out of reach, the goal line and Pin, never a greyed Buy */
@@ -1122,6 +1166,9 @@
           el("div", { class: "k-gv-stage-kick", text: (SHOP_GROUPS.filter(function (x) { return x.match(it); })[0] || {}).label || "" }),
           el("h2", { class: "k-gv-sheet-name", text: it.name }),
           el("p", { class: "k-gv-sheet-desc", text: it.desc }),
+          WHERE[it.kind] ? el("p", { class: "k-muted k-gv-sheet-where", "data-ui": "shop.sheet-where", text: "Shows: " + WHERE[it.kind] }) : null,
+          st !== "buy" ? el("span", { class: "k-chip k-gv-sheet-st", "data-ui": "shop.sheet-state", "data-tone": st === "on" || st === "try" ? "gold" : "muted",
+            text: { on: "✓ In use", owned: "Owned", free: "Free", try: "◐ Trying on" }[st] || "" }) : null,
           it.kind === "outfit" ? el("div", { class: "k-gv-sheet-faces", "aria-hidden": "true" }, ["thinking", "working", "success", "concerned", "asking"].map(function (f) {
             return el("span", { class: "k-gv-sheet-face" }, [el("img", { src: artSrc("app.face.kurenai-" + it.outfit + "." + f), alt: "", loading: "lazy" })]);
           })) : null,
@@ -1139,11 +1186,18 @@
       ]);
       var actions = [];
       if (st === "buy" || st === "try") {
-        if (it.kind !== "lab" && it.kind !== "paper" && it.kind !== "penset" && ["outfit", "scene", "hall", "finish", "theme"].indexOf(it.kind) !== -1)
+        if (KOS.governor.canTry(it))
           actions.push({ label: st === "try" ? "Stop trying on" : "Try on", onClick: function () { KOS.governor.tryItem(it.id); render(); } });
         if (afford) actions.push({ label: "Buy · " + goldN(it.price), primary: true, onClick: function () { confirmBuy([it], function () { if (buyWare(it)) render(); }); } });
         else actions.push({ label: KOS.governor.pinned() && g.shopPin === it.id ? "Pinned" : "Pin as a goal", primary: true,
           onClick: function () { KOS.governor.setPinned(it.id); render(); } });
+      } else if (it.kind === "unlock") {
+        if (it.area !== "all") actions.push({ label: it.area === "vault" ? "Open a vault" : "Upload a picture", primary: true, onClick: function () { openUpload(it.area); } });
+      } else if (st === "on") {
+        if (!(it.price === 0 && (it.kind === "scene" || it.kind === "theme")))
+          actions.push({ label: "Take off", onClick: function () { wareUse(it, false); render(); } });
+      } else if (st === "owned" || st === "free") {
+        if (it.kind !== "lab") actions.push({ label: "Use", primary: true, onClick: function () { wareUse(it, true); render(); } });
       }
       var overlay = el("div", { class: "k-dialog-overlay" });
       function close() { overlay.close ? overlay.close() : overlay.remove(); }
@@ -1154,7 +1208,7 @@
         ]),
         el("div", { class: "k-dialog-body" }, [body]),
         actions.length ? el("div", { class: "k-dialog-foot" }, [
-          el("p", { class: "k-muted k-gv-sheet-note", text: "Try on is never saved." })
+          st === "buy" || st === "try" ? el("p", { class: "k-muted k-gv-sheet-note", text: "Try on is never saved." }) : el("span", { class: "k-gv-ware-gap" })
         ].concat(actions.map(function (a) {
           return el("button", { type: "button", class: "k-btn" + (a.primary ? " k-gv-buy" : ""), text: a.label,
             onclick: function () { a.onClick(); close(); } });
@@ -1410,27 +1464,41 @@
         ["hall", "Shrine hall", "Behind rank 01"], ["banner", "Painted banner", "The Seat's stage"], ["seal", "Seal", "Beside the brand mark · the share card"],
         ["finish", "Share-card finish", "Your shared cards"], ["paper", "Notebook paper", "New notebook pages"], ["penset", "Pen set", "The pen's colours"]];
       var ward = el("div", { class: "k-gv-ward", "data-ui": "gov.wardrobe" });
+      var SLOT_OF = { scene: "focus", hall: "shrine", banner: "banner" };
+      var notYet = [];
+      function toShop(kind) { KOS.openShop({ group: (SHOP_GROUPS.filter(function (x) { return x.match({ kind: kind }); })[0] || {}).id }); }
       WARD.forEach(function (w) {
         var kind = w[0];
         var items = KOS.governor.catalog().filter(function (c) { return c.kind === kind && KOS.governor.owns(c.id) && !(kind === "banner" && !c.painted); });
         var all = KOS.governor.catalog().filter(function (c) { return c.kind === kind && !c.retired; }).length;
+        /* a kind you own none of is one word on the "not yet" line (SC-37) */
+        if (!items.length) { notYet.push(w); return; }
         var chips = items.map(function (it) {
           var on = wareActive(it);
+          /* papers and pen sets show what they look like, not a letter (SC-12) */
+          var pic = it.art ? el("img", { src: "assets/app/img/" + it.art + ".webp", alt: "", loading: "lazy", "data-kind": kind })
+            : kind === "paper" || kind === "penset" ? el("span", { class: "k-gv-ward-pv", "data-kind": kind }, [artPreview(it)])
+            : el("span", { class: "k-gv-ward-k", lang: "ja", text: it.glyph || it.name.charAt(0) });
           var b = el("button", { type: "button", class: "k-gv-ward-chip", "aria-pressed": on ? "true" : "false", "aria-label": it.name + (on ? " — in use" : ""),
-            onclick: function () { wareUse(it, !on || it.price === 0 ? true : false); render(); } }, [
-            it.art ? el("img", { src: "assets/app/img/" + it.art + ".webp", alt: "", loading: "lazy", "data-kind": kind }) : el("span", { class: "k-gv-ward-k", lang: "ja", text: it.glyph || it.name.charAt(0) }),
-            el("span", { class: "k-gv-ward-n", text: it.name })
+            title: it.name, onclick: function () { wareUse(it, !on || it.price === 0 ? true : false); render(); } }, [
+            pic, el("span", { class: "k-gv-ward-n", text: it.name })
           ]);
           return b;
         });
+        /* the picture drawer is offered where there is something to rotate or upload */
+        var slot = SLOT_OF[kind];
+        var rot = KOS.artSlot && slot && (items.length > 1 || (KOS.art && KOS.art.canUpload(slot)));
         ward.appendChild(el("div", { class: "k-gv-ward-row", "data-kind": kind }, [
           el("div", { class: "k-gv-ward-h" }, [el("b", { text: w[1] }), el("span", { class: "k-muted", text: w[2] + " · " + items.length + " of " + all }),
-            KOS.artSlot && ({ scene: "focus", hall: "shrine", banner: "banner" })[kind] ? el("button", { type: "button", class: "k-link k-gv-ward-rot", "data-ui": "art.open",
-              text: "Rotate or your own →", onclick: function () { KOS.artSlot.open(({ scene: "focus", hall: "shrine", banner: "banner" })[kind], render); } }) : null].filter(Boolean)),
-          el("div", { class: "k-gv-ward-chips" }, chips.length ? chips : [
-            el("button", { type: "button", class: "k-link", text: "In the Gold Shop →", onclick: function () { shopSel = { group: (SHOP_GROUPS.filter(function (x) { return x.match({ kind: kind }); })[0] || {}).id }; KOS.show("governor", "shop"); } })])
+            rot ? el("button", { type: "button", class: "k-link k-gv-ward-rot", "data-ui": "art.open",
+              text: "Rotate or your own →", onclick: function () { KOS.artSlot.open(slot, render); } }) : null].filter(Boolean)),
+          el("div", { class: "k-gv-ward-chips" }, chips)
         ]));
       });
+      if (notYet.length) ward.appendChild(el("p", { class: "k-gv-ward-none", "data-ui": "gov.wardrobe-none" }, [el("span", { class: "k-muted", text: "Not yet owned: " })]
+        .concat(notYet.map(function (w, i) {
+          return el("button", { type: "button", class: "k-link", "data-kind": w[0], text: w[1] + (i < notYet.length - 1 ? "," : " →"), onclick: function () { toShop(w[0]); } });
+        }))));
       panel.appendChild(el("section", { class: "k-card k-gv-lib", "data-ui": "gov.wardrobe-section", "aria-label": "Wardrobe" }, [
         cardHead("Wardrobe", "what you own, ready to wear", el("button", { type: "button", class: "k-link", text: "Gold Shop →", onclick: function () { KOS.show("governor", "shop"); } })),
         ward
@@ -1444,7 +1512,7 @@
       /* frames — every frame, the owned ones wearable, the rest a shop away */
       var fgrid = el("div", { class: "k-gv-frames", "data-ui": "gov.frame-grid" });
       fgrid.appendChild(frameChip(null, "No frame", true));
-      KOS.governor.catalog().filter(function (c) { return c.kind === "frame"; }).forEach(function (fr) {
+      KOS.governor.catalog().filter(function (c) { return c.kind === "frame" && (!c.retired || KOS.governor.owns(c.id)); }).forEach(function (fr) {
         fgrid.appendChild(frameChip(fr, fr.name, KOS.governor.owns(fr.id)));
       });
       ctl.appendChild(el("section", { class: "k-card k-gv-lib", "data-ui": "gov.avatar-section", "aria-label": "Frames" }, [
@@ -1463,7 +1531,7 @@
           var b = el("button", { type: "button", class: "k-seg-item", "aria-pressed": String(on), "data-value": id || "",
             "aria-label": owned ? name : name + " — in the Gold Shop for ◈ " + price,
             text: owned ? name : name + " · ◈",
-            onclick: function () { if (!owned) { KOS.show("governor", "shop"); return; } set(id); render(); } });
+            onclick: function () { if (!owned) { KOS.openShop({ group: kind === "shelfskin" ? "shelves" : "shrines" }); return; } set(id); render(); } });
           KOS.ui.state(b, "active", on);
           return b;
         }
@@ -1497,14 +1565,14 @@
       /* a full-width row under the studio, so the identity stage and the
          workshop keep their matched heights */
       panel.appendChild(el("section", { class: "k-card k-gv-lib", "data-ui": "gov.theme-section", "aria-label": "Theme" }, [
-        cardHead("Theme", ownedThemes.length + " owned",
-          el("button", { type: "button", class: "k-link", text: "Get more in the Gold Shop →", onclick: function () { KOS.show("governor", "shop"); } })),
-        tgrid,
-        el("label", { class: "k-gv-theme-follow" }, [
-          follow,
-          el("span", { class: "k-gv-theme-follow-t", text: "Follow the system: Atelier Dawn by day, your dark theme by night" }),
-          el("span", { class: "k-gv-theme-sync", text: "Synced to every device" })
-        ])
+        cardHead("Theme", "Dusk and its light twin, Dawn · designed themes are coming"),
+        /* the two themes and the follow switch share one row (SC-37) */
+        el("div", { class: "k-gv-theme-row" }, [tgrid,
+          el("label", { class: "k-gv-theme-follow" }, [
+            follow,
+            el("span", { class: "k-gv-theme-follow-t", text: "Follow the system: Atelier Dawn by day, your dark theme by night" }),
+            el("span", { class: "k-gv-theme-sync", text: "Synced to every device" })
+          ])])
       ]));
       /* Decorative art (34n), per device: every painted slot falls back to
          its ground and no word changes */
@@ -1529,7 +1597,7 @@
         var chip = el("button", { type: "button", class: "k-gv-frame", "data-ui": "gov.frame-chip", "aria-pressed": on ? "true" : "false",
           "aria-label": owned ? label : label + " — in the Gold Shop for ◈ " + fr.price,
           onclick: function () {
-            if (!owned) { KOS.show("governor", "shop"); return; }
+            if (!owned) { KOS.openShop({ group: "frames" }); return; }
             g.avatar.frame = id; store.save(); KOS.refreshHUD(); render();
           } }, [disc, el("span", { class: "k-gv-frame-n", text: owned ? label : label + "\u00a0·\u00a0◈" })]);
         if (!owned) KOS.ui.state(chip, "locked", true);
