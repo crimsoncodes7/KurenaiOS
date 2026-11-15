@@ -101,6 +101,9 @@ display: none;
 .k-trigger-dot { position: absolute; inset-block-start: var(--sp-6); inset-inline-end: var(--sp-7); inline-size: var(--sp-8); block-size: var(--sp-8); border-radius: 50%; background: var(--bloom); box-shadow: 0 0 0 var(--focus-width) var(--s1); opacity: 0; transition: opacity var(--dur) var(--ease); }
 #assistant-trigger[data-state~="is-busy"] .k-trigger-dot, #assistant-trigger[data-state~="is-confirm"] .k-trigger-dot { opacity: 1; }
 #assistant-trigger[data-state~="is-confirm"] .k-trigger-dot { background: var(--amber); }
+/* SH-19: the dark emblem on the dark themes, the paper one on Dawn */
+#assistant-trigger > .k-emblem-light, :root[data-theme="atelier-dawn"] #assistant-trigger > .k-emblem-dark { display: none; }
+:root[data-theme="atelier-dawn"] #assistant-trigger > .k-emblem-light { display: block; }
 .k-bell-glyph { display: grid; place-items: center; }
 .k-bell-glyph svg { inline-size: var(--icon-glyph); block-size: var(--icon-glyph); }
 /* the compact shell's sheets (mobile-shell.js): the shared dialog, a bottom

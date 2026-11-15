@@ -94,7 +94,9 @@
       <button id="assistant-trigger" class="k-iconbtn" type="button"
               aria-label="Open the Kurenai assistant" aria-haspopup="dialog" aria-expanded="false"
               title="Kurenai assistant">
-        <img src="assets/assistant/logo/whispering-bloom-emblem-production.png" alt="" aria-hidden="true">
+        <!-- SH-19: the emblem redrawn for the dark themes; Dawn keeps the paper one -->
+        <img class="k-emblem-dark" src="assets/app/img/app.emblem.assistant-dark.webp" alt="" aria-hidden="true">
+        <img class="k-emblem-light" src="assets/assistant/logo/whispering-bloom-emblem-production.png" alt="" aria-hidden="true">
         <span class="k-trigger-dot" data-ui="asst.trigger-dot" aria-hidden="true"></span>
       </button>
       <!-- Phase F: NOT a live region; cloudui.js announces the transitions
