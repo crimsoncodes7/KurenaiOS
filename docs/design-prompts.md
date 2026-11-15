@@ -862,3 +862,119 @@ THE PROBLEM. The Calendar offers only Month and Week above 700 px; its Agenda li
 ```
 
 Gemini art for this pass: none. The plan's art entries (SH-19, an empty-state spot; SC-20, the shop's purchase art) wait for W3 and W5's decisions, and go through the art manifests then.
+
+**Status 16 November 2026.** 20.1's chip was BUILT without frames in W2
+(invariant 165: "Updated on another device · Refresh" in the header's action
+slot, held on task pages, applied on leaving), so 20.1 is now optional: send
+it only for 36b (what changed) and 36c (the line in a run) if you want them.
+20.2 and 20.3 are still needed before W3's tier and Agenda work.
+
+## 21 · Quality programme, after W6: Money, Home and the Seat, the first run, the shop, study tools
+
+Written 16 November 2026 (plan §3 and decisions B5, B6 and B8; roadmap 5.19).
+Six prompts, each sent ALONE. Each opens with this preamble, which replaces
+20's (it names what has been built since):
+
+```text
+Continue the approved KurenaiOS design in this project (Graphite and Dawn 7a–14c and 21a–21h, phone 15a–15n, design part 2 15–23, Reports 24–25, Code 26, Money and Goals 27, Japanese 28, the Exams hub 29, the iPad 30, Creatives 31, Mind 32, Routines 33, art and shop 34, the Badge Wall and the Stage 35, and 36–38 if drawn). The GitHub repository is linked: the app as it is on `main` is the source of truth — css/tokens.css, css/themes.css and css/components.css for every token and primitive, and the invariants in CLAUDE.md. Use only existing tokens, type, cards, chips, sheets, menus and tabs; no new hue. Draw desktop 1440, MacBook 1470 × 956, iPad 1180 × 820 and 820 × 1180, and phone 390 × 844 where named, and Dawn for one frame of each. The standing layout rule holds everywhere: no dead space, no empty column beside a capped block, consistent alignment, nothing taller in the side column than the hero. Minimal text: a label, not a sentence. A handoff is a guide, not a 1:1 spec: match how the app's existing pages are built.
+```
+
+### 21.1 · D-Money: what a student with a Santander account wants to see (frames 39a–39h; W4, MG-08, MG-25, B5)
+
+```text
+[preamble]
+
+THE PROBLEM. Money (27a–27h) was drawn for hand-entered transactions. The user imports Santander statements (midata CSV, Online Banking CSV/TXT, QIF, OFX): every imported row lands in Other with the bank's raw text as its payee ("CARD PAYMENT TO HERON FOODS HOYLAND (VIA APPLE PAY), ON 29-10-2026"), the bank's Type (DEB, DD, SO, FPI, FPO, BGC) and Balance columns are thrown away, and on the iPhone and iPad portrait tapping a row does nothing. Decided (B5): spend by merchant, by category and by week; subscriptions and recurring; budget pace; balance reconciliation; the Student Finance runway if it comes out clean. A built-in UK merchant table plus learned payee → category rules. No PDF import. Amounts are always KOS.ui.amount (Hide amounts masks them all).
+
+39a IMPORT, step 1 (1470 and 820): drop or pick a file; the format named back ("Santander midata CSV · 3 header lines skipped · 214 rows"); the column mapping only when it can't be read by itself (Date, Description, Amount or Money in/out, Type, Balance), unmatched columns listed, never an error wall. A wide sheet on the Mac (about 1080 px), a full sheet on the iPad; Import in a sticky footer.
+39b IMPORT, step 2, the preview: each row as the app will store it — the clean merchant ("Heron Foods"), its category (from a rule, the merchant table or "Choose"), the amount, the bank's Type as a small chip, the running Balance — with the raw text one tap away. Rows already imported are marked and skipped; a row matching a recurring bill due near that date says "Confirms Netflix · 27 Oct". Counts on top: new, already here, matched, uncategorised.
+39c LEARNING: setting a category on one row offers "Always put Heron Foods in Food?" (a chip under the row, not a dialog), and Settings › Rules lists the learned rules (merchant → category, edit, delete) and the app's own merchant table as a read-only reference.
+39d IMPORTS: Transactions › Imports lists each batch (file, date range, rows, when) with Undo, Replace and a Source filter.
+39e OVERVIEW for a student (1440 and 390): this month's spend by category (the top five and Other), by merchant (the top ten), and by week as small bars; budget pace (the existing paceChip); subscriptions and recurring with the next date and amount; the balance as of the latest import with a "reconciles with the bank" tick or the difference; and, if Student Finance instalments are recorded, the RUNWAY: money left ÷ weekly spend → "lasts until 12 Jan; next instalment 6 Jan". Every figure is absent without its evidence (invariant 76/77), never a zero.
+39f A MERCHANT'S PAGE (opened from any merchant name): this month and the last six, average per visit, its category and rule, its transactions.
+39g THE PHONE AND iPAD PORTRAIT: tapping a transaction opens it in a bottom sheet (phone) or a side sheet (820) with Edit, Duplicate, Delete and "Always categorise like this"; the list keeps its place; "This view" becomes a one-line summary above the list.
+39h EMPTY AND FIRST IMPORT states, in Dawn.
+```
+
+### 21.2 · D-Home and the Seat: what next for every study space, the Wardrobe, the phone's seat editor (frames 40a–40e; HR-04, AG-30, AX-45)
+
+```text
+[preamble]
+
+THE PROBLEM. Home asks "what next?" (invariant 53, 53a) but reads only flashcards, the calendar, assignments, reminders, the plan, goals and routines. Code's Daily 20, Japanese's reviews and next lesson, Mind's Daily 15, the Daily Creative and Money's notices (a bill in two days, a trial ending, the safe-to-spend line) never reach it, and the Due card counts flashcards only. Separately, the Avatar & profile page's Wardrobe is a 3 × 3 grid of near-empty cells when little is owned, and on the iPhone "Edit your seat" previews the desktop Stage shrunk to 28 % (4.5 px text).
+
+40a HOME at 1440: the Up next ladder and Today's three with the study spaces' daily items as rungs and rows (each with its space's hue and kanji: Code's Daily 20 "3 tasks", Japanese "12 reviews · next 2.3", Mind's Daily 15, the Daily Creative), only the spaces in use; the Due card split by space (Flashcards 41 · Code 6 · Japanese 12 · Mind 4), tapping a part opens that space's review; a Money line when there is a notice ("Rent tomorrow · £420"; masked with Hide amounts). No new card unless a slot is empty.
+40b HOME at 820 and 390: the same, folded.
+40c THE WARDROBE (Avatar & profile, 1440 and 820): cells only for kinds with something to wear; the rest as one line "Not owned yet: Outfits · Seals · Frames · Scenes → Gold Shop"; Theme as one cell with its swatches and the Follow-the-system switch beside them, no full-width card with 800 px of nothing.
+40d EDIT YOUR SEAT on the phone (390): preview the PHONE composition at 1:1 (or only the part being edited: banner, title, sigil, showcase tray), the tabs under it, and Save disabled until something changes.
+40e The same seat editor at 820 portrait.
+```
+
+### 21.3 · D-First run: the welcome on a new device (frames 41a–41d; SH-35, decision B8)
+
+```text
+[preamble]
+
+THE PROBLEM. A new iPad, iPhone, cleared browser or freshly installed Home Screen app opens straight onto a busy Home: 3 unread notices, "23 behind" on the plan, sample events, a Daily goal for a SAMPLE mock — and nothing says what the app is or that signing in to cloud sync is how your data arrives. Decided (B8): drop the seeded sample events; one-screen welcome; hold the plan's carry-over notices until it is answered.
+
+41a THE WELCOME (1440, 1180, 820 and 390), shown while the device is pristine and signed out: Kurenai's mark and one line about the app; "Sign in to bring your data" (primary; the cloud sign-in); "Start fresh"; the theme choice (Graphite, Dawn, Follow the system) as three live swatches. One screen, no carousel.
+41b SIGNING IN: progress while the account's copy arrives ("Bringing your data · 1,240 titles · 89 topics"), then straight to Home.
+41c START FRESH: Home's first state — empty states that point to the first steps (pick your subjects, import your Collection, connect a calendar) as compact cards, no fold-filling panels (invariant 53).
+41d A device that has never synced, signed out: a quiet header chip "Not synced · Sign in", 44 px on touch, never a banner.
+```
+
+### 21.4 · D-Shop: where a seal shows, finishes that look like the shop, try on everything (frames 42a–42f; SC-04, SC-15, SC-17, decision B6)
+
+```text
+[preamble]
+
+DECIDED (B6): the ten near-Graphite themes are retired and refunded; the light themes (Washi Morning, Atelier Dawn) stay and are fixed; seals get a surface; Try on covers every kind; pen sets apply to new strokes only; the CSS gradient frames are retired.
+
+42a SEALS: the six painted stamps (app.seal.*) worn in three places — beside the brand mark in the header (the bloom stays for 紅), on the Seat ring, and on the share card's corner; the Wardrobe caption names those places. Graphite and Dawn, 1470 and 390.
+42b SHARE-CARD FINISHES as real treatments of the same card: Washi (the paper is the ground, ink-dark text), Foil (a gold-foil rim, not a dark wash), Film (grain over the card), and the plain card — the shop card's preview drawn by the same card, scaled down; and a finish row in the share dialog. The Shrine's share card offers the same finishes.
+42c THE STAGE AS THE FITTING ROOM: trying on a Focus scene, a Shrine hall or a banner draws it as the Stage's ground (with the 25:00 clock or the 01 rank over it); a finish as a mini share card on the Stage; an avatar, frame or seal on a live identity chip. Try on and Buy stay in view.
+42d BUYING: a Cancel-first confirm with the item, its price and your gold after, or a timed Undo toast — choose one and draw it.
+42e THE THEMES PAGE after the cull: the remaining themes, retired ones gone, a one-time receipt line naming the themes refunded and the gold returned.
+42f The shop on the phone (390): one column, try-on on the Stage's phone composition.
+```
+
+### 21.5 · D-Study tools: a picture for every worked answer, work you can fill in, labs in the notes (frames 43a–43h; roadmap 5.19 item 3)
+
+```text
+[preamble]
+
+ASKED FOR 15 November 2026. Today a worked example, an exam question, a quiz item and a mark scheme are text and maths; a few notes pages carry figures (core/figures.js `{fig}`), and the labs (KOS.lab, 20a–20c) live on a topic's Simulate tab. The user wants: in Maths, every worked example, exam question, quiz item and mark scheme carries the graph, table or diagram that goes with it; in Computer Science, worked examples and exam questions on trace tables, SQL, code and logic gates come with a part to FILL IN that marks itself; IT where it fits; and some labs in line on the notes pages.
+
+43a MATHS WORKED EXAMPLE with its figure (1440 and 820): a step's figure (a curve with the tangent and the point, the shaded area between two curves, a vector triangle, a tree diagram, a v–t graph) beside or under the step it belongs to, sized to the step; the same figure in the exam question's stem and, smaller, beside the mark-scheme line that needs it. Figures are the existing `{fig}` drawings (theme roles, labelled axes, 11 px floor): show three kinds.
+43b A QUIZ ITEM with a figure: the figure above the options, options still four equal buttons; on the phone the figure first, full width.
+43c CS TRACE TABLE TO FILL IN: the algorithm (pseudocode, AQA style) beside an empty trace table whose cells you type into; Check marks each cell (right, wrong, the expected value on request), the row where the first mistake happened is named, and the score feeds the exam item's self-mark. On the iPad the cells are 44 px and you type into them (no handwriting recognition).
+43d CS SQL TO RUN: an exam question's SQL answer box runs against the question's own small database (the Code SQL sandbox, Spike S), shows the result table beside the expected one, and marks "same rows"; a blank result says why.
+43e CS LOGIC GATES: a gate diagram with a missing gate or an input column to complete; a truth table that fills as you change inputs; Check against the expected table.
+43f CODE TO TRACE OR PREDICT: "what does this print?" with an output box and Run once you have answered (the in-app runner), the line-by-line trace shown after.
+43g A LAB IN THE NOTES: a notes page with an embedded lab (KOS.sims.embed — the stage, the transport and the readout under it) between two paragraphs, with "Open full lab" — how it sits in the reading measure without breaking the page, at 1440, 820 and 390.
+43h IT, one case where a filled-in part fits (e.g. a data table to complete, a flowchart step to order).
+```
+
+### 21.6 · D-Revision: tools fitted to each subject, stats for exam questions and quizzes, picking up handwriting (frames 44a–44g; roadmap 5.19 items 2 and 4)
+
+```text
+[preamble]
+
+ASKED FOR 15 November 2026.
+(1) Flashcards are quick recall (under ~30 s a card): Maths multi-line problems move to the quiz and exam questions. (2) Quiz and exam questions may come back on a schedule too, capped at a sensible number a day (beside today's redo items, invariant 124). (3) Better stats for every tool but flashcards: an exam question's past marks over time, a quiz's history by item. (4) On the iPad, an exam attempt never marked can be opened again and its handwriting continued; a marked attempt stays read-only (today earlier work is a read-only link, invariant 132). (5) IT units F200, F202 and F204 are done at school: an ARCHIVED unit leaves the spine, the topic picker and the review analytics but keeps counting in marks, grades and history; and one CURRENT unit leads the IT desk, Home and the plan.
+
+44a DUE TODAY with three kinds: Flashcards · Questions back today (quiz and exam items on their schedule, capped, e.g. "6 of a 10-a-day cap") · Redo items; a setting for the cap per subject.
+44b AN EXAM QUESTION'S HISTORY (on the Exam questions tab and in the question's own panel): every attempt as a dot on a small marks-over-time line (out of its max), the last answer's marks by mark point, and "Again in 6 days" when it is scheduled. Empty: one line.
+44c A QUIZ'S HISTORY: the leaf's quiz as a list of items with each one's record (✓✓✗✓, last seen), the weakest first; the topic inspector's "Quiz best" opens it.
+44d PICK UP AN UNMARKED ATTEMPT (iPad 1180 and 820): on an exam question, "Continue your answer from Tuesday (not marked)" opens the same pad with the ink, editable; a marked attempt shows "Marked 4/6 · view" read-only; Start fresh stays.
+44e THE SUBJECT DESK'S review analytics with Maths' flashcards slimmed: cards, then questions, then papers — the parts as one strip, not three cards.
+44f IT DESK with ARCHIVED and CURRENT units: F201 current (leads the desk, its notes, its grade target), F206 next, F200/F202/F204 as a compact "Completed at school" row with their grades; the spine and picker show only live units, with a "Show completed units" switch.
+44g The same IT desk at 390.
+```
+
+Gemini art for 21: none new, except SC-20's avatars — the twelve
+`app.avatar.*` prompts in `art-source/app/manifest.json` were rewritten on
+16 November 2026 so each is a whole painted disc with the subject inside
+its inner circle (batch "avatar-recompose"). Make them on the art sheet
+(`prototypes/app-art/art.html`) and save them to `art-source/app/inbox/`
+under the same file names.

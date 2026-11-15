@@ -2030,10 +2030,12 @@
    "attach": [
     "refs/style-anchor.png"
    ],
-   "prompt": "A round profile avatar illustration, painted in the same style, centred and filling a circle with a small margin: a white kitsune mask with crimson markings Simple and readable at 48 pixels. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
+   "prompt": "A round profile avatar, painted in the same style, as ONE COMPLETE PAINTED DISC: a circle touching all four edges of the square canvas, its ground a soft painted wash in the subject's own colours, darker at the rim. The subject — a white kitsune mask with crimson markings — sits entirely inside the INNER 80% of the disc, centred, with clear painted space all round: no ear, wing, tail, tassel, petal or flame touches or crosses the circle's edge, and it fills that inner area (not small, not low). Simple and readable at 48 pixels. Outside the circle (the four corners only): one flat solid pure green colour (#00FF00), completely even, no gradient, no green on the disc or the subject. No text anywhere.",
    "where": "A profile avatar (shop) for the Governor's seat, Home's profile and the rail.",
    "size": "wave 10 · exported 640 px, keyed",
-   "wave": 10
+   "wave": 10,
+   "batch_note": "avatar-recompose (SC-20, 16 Nov 2026): every avatar a whole painted disc with the subject inside its inner circle, so the app's circle never clips it and all twelve sit at one size",
+   "recompose": "SC-20"
   },
   {
    "id": "app.avatar.cat",
@@ -2044,10 +2046,12 @@
    "attach": [
     "refs/style-anchor.png"
    ],
-   "prompt": "A round profile avatar illustration, painted in the same style, centred and filling a circle with a small margin: a black cat curled asleep on a cushion Simple and readable at 48 pixels. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
+   "prompt": "A round profile avatar, painted in the same style, as ONE COMPLETE PAINTED DISC: a circle touching all four edges of the square canvas, its ground a soft painted wash in the subject's own colours, darker at the rim. The subject — a black cat curled asleep on a cushion — sits entirely inside the INNER 80% of the disc, centred, with clear painted space all round: no ear, wing, tail, tassel, petal or flame touches or crosses the circle's edge, and it fills that inner area (not small, not low). Simple and readable at 48 pixels. Outside the circle (the four corners only): one flat solid pure green colour (#00FF00), completely even, no gradient, no green on the disc or the subject. No text anywhere.",
    "where": "A profile avatar (shop) for the Governor's seat, Home's profile and the rail.",
    "size": "wave 10 · exported 640 px, keyed",
-   "wave": 10
+   "wave": 10,
+   "batch_note": "avatar-recompose (SC-20, 16 Nov 2026): every avatar a whole painted disc with the subject inside its inner circle, so the app's circle never clips it and all twelve sit at one size",
+   "recompose": "SC-20"
   },
   {
    "id": "app.avatar.crane",
@@ -2058,10 +2062,12 @@
    "attach": [
     "refs/style-anchor.png"
    ],
-   "prompt": "A round profile avatar illustration, painted in the same style, centred and filling a circle with a small margin: a paper crane in flight Simple and readable at 48 pixels. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
+   "prompt": "A round profile avatar, painted in the same style, as ONE COMPLETE PAINTED DISC: a circle touching all four edges of the square canvas, its ground a soft painted wash in the subject's own colours, darker at the rim. The subject — a paper crane in flight — sits entirely inside the INNER 80% of the disc, centred, with clear painted space all round: no ear, wing, tail, tassel, petal or flame touches or crosses the circle's edge, and it fills that inner area (not small, not low). Simple and readable at 48 pixels. Outside the circle (the four corners only): one flat solid pure green colour (#00FF00), completely even, no gradient, no green on the disc or the subject. No text anywhere.",
    "where": "A profile avatar (shop) for the Governor's seat, Home's profile and the rail.",
    "size": "wave 10 · exported 640 px, keyed",
-   "wave": 10
+   "wave": 10,
+   "batch_note": "avatar-recompose (SC-20, 16 Nov 2026): every avatar a whole painted disc with the subject inside its inner circle, so the app's circle never clips it and all twelve sit at one size",
+   "recompose": "SC-20"
   },
   {
    "id": "app.avatar.rabbit",
@@ -2072,10 +2078,12 @@
    "attach": [
     "refs/style-anchor.png"
    ],
-   "prompt": "A round profile avatar illustration, painted in the same style, centred and filling a circle with a small margin: a moon rabbit under a full moon Simple and readable at 48 pixels. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
+   "prompt": "A round profile avatar, painted in the same style, as ONE COMPLETE PAINTED DISC: a circle touching all four edges of the square canvas, its ground a soft painted wash in the subject's own colours, darker at the rim. The subject — a moon rabbit under a full moon — sits entirely inside the INNER 80% of the disc, centred, with clear painted space all round: no ear, wing, tail, tassel, petal or flame touches or crosses the circle's edge, and it fills that inner area (not small, not low). Simple and readable at 48 pixels. Outside the circle (the four corners only): one flat solid pure green colour (#00FF00), completely even, no gradient, no green on the disc or the subject. No text anywhere.",
    "where": "A profile avatar (shop) for the Governor's seat, Home's profile and the rail.",
    "size": "wave 10 · exported 640 px, keyed",
-   "wave": 10
+   "wave": 10,
+   "batch_note": "avatar-recompose (SC-20, 16 Nov 2026): every avatar a whole painted disc with the subject inside its inner circle, so the app's circle never clips it and all twelve sit at one size",
+   "recompose": "SC-20"
   },
   {
    "id": "app.avatar.koi",
@@ -2086,10 +2094,12 @@
    "attach": [
     "refs/style-anchor.png"
    ],
-   "prompt": "A round profile avatar illustration, painted in the same style, centred and filling a circle with a small margin: two koi circling in a pond Simple and readable at 48 pixels. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
+   "prompt": "A round profile avatar, painted in the same style, as ONE COMPLETE PAINTED DISC: a circle touching all four edges of the square canvas, its ground a soft painted wash in the subject's own colours, darker at the rim. The subject — two koi circling in a pond — sits entirely inside the INNER 80% of the disc, centred, with clear painted space all round: no ear, wing, tail, tassel, petal or flame touches or crosses the circle's edge, and it fills that inner area (not small, not low). Simple and readable at 48 pixels. Outside the circle (the four corners only): one flat solid pure green colour (#00FF00), completely even, no gradient, no green on the disc or the subject. No text anywhere.",
    "where": "A profile avatar (shop) for the Governor's seat, Home's profile and the rail.",
    "size": "wave 10 · exported 640 px, keyed",
-   "wave": 10
+   "wave": 10,
+   "batch_note": "avatar-recompose (SC-20, 16 Nov 2026): every avatar a whole painted disc with the subject inside its inner circle, so the app's circle never clips it and all twelve sit at one size",
+   "recompose": "SC-20"
   },
   {
    "id": "app.avatar.lamp",
@@ -2100,11 +2110,13 @@
    "attach": [
     "refs/style-anchor.png"
    ],
-   "prompt": "A round profile avatar illustration, painted in the same style, centred and filling a circle with a small margin: a brass desk lamp bending over an open book, the lamp's light a WARM AMBER glow that stays tight around the bulb and on the book's pages only; no light haze, bloom or halo spreading into the background. Simple and readable at 48 pixels. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
+   "prompt": "A round profile avatar, painted in the same style, as ONE COMPLETE PAINTED DISC: a circle touching all four edges of the square canvas, its ground a soft painted wash in the subject's own colours, darker at the rim. The subject — a brass desk lamp bending over an open book, the lamp's light a WARM AMBER glow that stays tight around the bulb and on the book's pages only; no light haze, bloom or halo spreading into the background — sits entirely inside the INNER 80% of the disc, centred, with clear painted space all round: no ear, wing, tail, tassel, petal or flame touches or crosses the circle's edge, and it fills that inner area (not small, not low). Simple and readable at 48 pixels. Outside the circle (the four corners only): one flat solid pure green colour (#00FF00), completely even, no gradient, no green on the disc or the subject. No text anywhere.",
    "where": "A profile avatar (shop) for the Governor's seat, Home's profile and the rail.",
    "size": "wave 10 · exported 640 px, keyed",
    "wave": 10,
-   "redone": "2026-10-30"
+   "redone": "2026-10-30",
+   "batch_note": "avatar-recompose (SC-20, 16 Nov 2026): every avatar a whole painted disc with the subject inside its inner circle, so the app's circle never clips it and all twelve sit at one size",
+   "recompose": "SC-20"
   },
   {
    "id": "app.avatar.camellia",
@@ -2115,10 +2127,12 @@
    "attach": [
     "refs/style-anchor.png"
    ],
-   "prompt": "A round profile avatar illustration, painted in the same style, centred and filling a circle with a small margin: a single crimson camellia flower Simple and readable at 48 pixels. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
+   "prompt": "A round profile avatar, painted in the same style, as ONE COMPLETE PAINTED DISC: a circle touching all four edges of the square canvas, its ground a soft painted wash in the subject's own colours, darker at the rim. The subject — a single crimson camellia flower — sits entirely inside the INNER 80% of the disc, centred, with clear painted space all round: no ear, wing, tail, tassel, petal or flame touches or crosses the circle's edge, and it fills that inner area (not small, not low). Simple and readable at 48 pixels. Outside the circle (the four corners only): one flat solid pure green colour (#00FF00), completely even, no gradient, no green on the disc or the subject. No text anywhere.",
    "where": "A profile avatar (shop) for the Governor's seat, Home's profile and the rail.",
    "size": "wave 10 · exported 640 px, keyed",
-   "wave": 10
+   "wave": 10,
+   "batch_note": "avatar-recompose (SC-20, 16 Nov 2026): every avatar a whole painted disc with the subject inside its inner circle, so the app's circle never clips it and all twelve sit at one size",
+   "recompose": "SC-20"
   },
   {
    "id": "app.avatar.dragon",
@@ -2129,10 +2143,12 @@
    "attach": [
     "refs/style-anchor.png"
    ],
-   "prompt": "A round profile avatar illustration, painted in the same style, centred and filling a circle with a small margin: a small friendly coiled dragon Simple and readable at 48 pixels. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
+   "prompt": "A round profile avatar, painted in the same style, as ONE COMPLETE PAINTED DISC: a circle touching all four edges of the square canvas, its ground a soft painted wash in the subject's own colours, darker at the rim. The subject — a small friendly coiled dragon — sits entirely inside the INNER 80% of the disc, centred, with clear painted space all round: no ear, wing, tail, tassel, petal or flame touches or crosses the circle's edge, and it fills that inner area (not small, not low). Simple and readable at 48 pixels. Outside the circle (the four corners only): one flat solid pure green colour (#00FF00), completely even, no gradient, no green on the disc or the subject. No text anywhere.",
    "where": "A profile avatar (shop) for the Governor's seat, Home's profile and the rail.",
    "size": "wave 10 · exported 640 px, keyed",
-   "wave": 10
+   "wave": 10,
+   "batch_note": "avatar-recompose (SC-20, 16 Nov 2026): every avatar a whole painted disc with the subject inside its inner circle, so the app's circle never clips it and all twelve sit at one size",
+   "recompose": "SC-20"
   },
   {
    "id": "app.avatar.owl",
@@ -2143,10 +2159,12 @@
    "attach": [
     "refs/style-anchor.png"
    ],
-   "prompt": "A round profile avatar illustration, painted in the same style, centred and filling a circle with a small margin: a small owl perched on a stack of books Simple and readable at 48 pixels. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
+   "prompt": "A round profile avatar, painted in the same style, as ONE COMPLETE PAINTED DISC: a circle touching all four edges of the square canvas, its ground a soft painted wash in the subject's own colours, darker at the rim. The subject — a small owl perched on a stack of books — sits entirely inside the INNER 80% of the disc, centred, with clear painted space all round: no ear, wing, tail, tassel, petal or flame touches or crosses the circle's edge, and it fills that inner area (not small, not low). Simple and readable at 48 pixels. Outside the circle (the four corners only): one flat solid pure green colour (#00FF00), completely even, no gradient, no green on the disc or the subject. No text anywhere.",
    "where": "A profile avatar (shop) for the Governor's seat, Home's profile and the rail.",
    "size": "wave 10 · exported 640 px, keyed",
-   "wave": 10
+   "wave": 10,
+   "batch_note": "avatar-recompose (SC-20, 16 Nov 2026): every avatar a whole painted disc with the subject inside its inner circle, so the app's circle never clips it and all twelve sit at one size",
+   "recompose": "SC-20"
   },
   {
    "id": "app.avatar.sakura",
@@ -2157,10 +2175,12 @@
    "attach": [
     "refs/style-anchor.png"
    ],
-   "prompt": "A round profile avatar illustration, painted in the same style, centred and filling a circle with a small margin: a branch of cherry blossom Simple and readable at 48 pixels. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
+   "prompt": "A round profile avatar, painted in the same style, as ONE COMPLETE PAINTED DISC: a circle touching all four edges of the square canvas, its ground a soft painted wash in the subject's own colours, darker at the rim. The subject — a branch of cherry blossom — sits entirely inside the INNER 80% of the disc, centred, with clear painted space all round: no ear, wing, tail, tassel, petal or flame touches or crosses the circle's edge, and it fills that inner area (not small, not low). Simple and readable at 48 pixels. Outside the circle (the four corners only): one flat solid pure green colour (#00FF00), completely even, no gradient, no green on the disc or the subject. No text anywhere.",
    "where": "A profile avatar (shop) for the Governor's seat, Home's profile and the rail.",
    "size": "wave 10 · exported 640 px, keyed",
-   "wave": 10
+   "wave": 10,
+   "batch_note": "avatar-recompose (SC-20, 16 Nov 2026): every avatar a whole painted disc with the subject inside its inner circle, so the app's circle never clips it and all twelve sit at one size",
+   "recompose": "SC-20"
   },
   {
    "id": "app.avatar.lantern",
@@ -2171,11 +2191,13 @@
    "attach": [
     "refs/style-anchor.png"
    ],
-   "prompt": "A round profile avatar illustration, painted in the same style, centred and filling a circle with a small margin: a glowing red-and-cream paper lantern with tassels, lit from inside; the light stays INSIDE the paper, with no glow, halo, sparks or haze outside its outline. Simple and readable at 48 pixels. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
+   "prompt": "A round profile avatar, painted in the same style, as ONE COMPLETE PAINTED DISC: a circle touching all four edges of the square canvas, its ground a soft painted wash in the subject's own colours, darker at the rim. The subject — a glowing red-and-cream paper lantern with tassels, lit from inside; the light stays INSIDE the paper, with no glow, halo, sparks or haze outside its outline — sits entirely inside the INNER 80% of the disc, centred, with clear painted space all round: no ear, wing, tail, tassel, petal or flame touches or crosses the circle's edge, and it fills that inner area (not small, not low). Simple and readable at 48 pixels. Outside the circle (the four corners only): one flat solid pure green colour (#00FF00), completely even, no gradient, no green on the disc or the subject. No text anywhere.",
    "where": "A profile avatar (shop) for the Governor's seat, Home's profile and the rail.",
    "size": "wave 10 · exported 640 px, keyed",
    "wave": 10,
-   "redone": "2026-10-30"
+   "redone": "2026-10-30",
+   "batch_note": "avatar-recompose (SC-20, 16 Nov 2026): every avatar a whole painted disc with the subject inside its inner circle, so the app's circle never clips it and all twelve sit at one size",
+   "recompose": "SC-20"
   },
   {
    "id": "app.avatar.bloom",
@@ -2186,10 +2208,12 @@
    "attach": [
     "refs/style-anchor.png"
    ],
-   "prompt": "A round profile avatar illustration, painted in the same style, centred and filling a circle with a small margin: Kurenai's five-petal crimson flower, ornate Simple and readable at 48 pixels. Background: one flat solid pure green colour (#00FF00), completely even, no floor, no cast shadow, no gradient, no green anywhere on the subject. No text anywhere: every sign, label, cover, screen, page and card is blank.",
+   "prompt": "A round profile avatar, painted in the same style, as ONE COMPLETE PAINTED DISC: a circle touching all four edges of the square canvas, its ground a soft painted wash in the subject's own colours, darker at the rim. The subject — Kurenai's five-petal crimson flower, ornate — sits entirely inside the INNER 80% of the disc, centred, with clear painted space all round: no ear, wing, tail, tassel, petal or flame touches or crosses the circle's edge, and it fills that inner area (not small, not low). Simple and readable at 48 pixels. Outside the circle (the four corners only): one flat solid pure green colour (#00FF00), completely even, no gradient, no green on the disc or the subject. No text anywhere.",
    "where": "A profile avatar (shop) for the Governor's seat, Home's profile and the rail.",
    "size": "wave 10 · exported 640 px, keyed",
-   "wave": 10
+   "wave": 10,
+   "batch_note": "avatar-recompose (SC-20, 16 Nov 2026): every avatar a whole painted disc with the subject inside its inner circle, so the app's circle never clips it and all twelve sit at one size",
+   "recompose": "SC-20"
   },
   {
    "id": "app.frame.gilt",
