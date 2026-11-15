@@ -34,12 +34,15 @@
 .k-ink-dot[data-role="amber"], .k-ink-swatch[data-role="amber"], .k-ink-probe[data-role="amber"] { --ink-c: var(--amber); }
 .k-ink-dot[data-role="green"], .k-ink-swatch[data-role="green"], .k-ink-probe[data-role="green"] { --ink-c: var(--green); }
 .k-ink-dot[data-role="bloom"], .k-ink-swatch[data-role="bloom"], .k-ink-probe[data-role="bloom"] { --ink-c: var(--bloom); }
-/* a pen set from the Gold Shop (34p, invariant 133) re-maps the first three roles */
-:root[data-penset="exam"] :is(.k-ink-dot, .k-ink-swatch, .k-ink-probe)[data-role="accent"] { --ink-c: var(--red); }
-:root[data-penset="exam"] :is(.k-ink-dot, .k-ink-swatch, .k-ink-probe)[data-role="teal"] { --ink-c: var(--muted); }
-:root[data-penset="sketch"] :is(.k-ink-dot, .k-ink-swatch, .k-ink-probe)[data-role="ink"] { --ink-c: var(--text-2); }
-:root[data-penset="sketch"] :is(.k-ink-dot, .k-ink-swatch, .k-ink-probe)[data-role="accent"] { --ink-c: var(--bloom); }
-:root[data-penset="sketch"] :is(.k-ink-dot, .k-ink-swatch, .k-ink-probe)[data-role="teal"] { --ink-c: var(--gold); }
+/* a pen set from the Gold Shop (34p, invariant 133) re-maps the first three
+   roles: the toolbar's dots and swatches follow the set worn now, and a
+   stroke keeps the set it was written with (W5, SC-34: the probe carries
+   the stroke's own `ps`), so changing sets never recolours old ink */
+:is(:root[data-penset="exam"] :is(.k-ink-dot, .k-ink-swatch), .k-ink-probe[data-penset="exam"])[data-role="accent"] { --ink-c: var(--red); }
+:is(:root[data-penset="exam"] :is(.k-ink-dot, .k-ink-swatch), .k-ink-probe[data-penset="exam"])[data-role="teal"] { --ink-c: var(--muted); }
+:is(:root[data-penset="sketch"] :is(.k-ink-dot, .k-ink-swatch), .k-ink-probe[data-penset="sketch"])[data-role="ink"] { --ink-c: var(--text-2); }
+:is(:root[data-penset="sketch"] :is(.k-ink-dot, .k-ink-swatch), .k-ink-probe[data-penset="sketch"])[data-role="accent"] { --ink-c: var(--bloom); }
+:is(:root[data-penset="sketch"] :is(.k-ink-dot, .k-ink-swatch), .k-ink-probe[data-penset="sketch"])[data-role="teal"] { --ink-c: var(--gold); }
 .k-ink-swatches, .k-ink-widths { display: flex; align-items: center; gap: var(--sp-6); }
 .k-ink-swatch { inline-size: var(--ink-swatch); block-size: var(--ink-swatch); min-inline-size: var(--ink-swatch); min-block-size: var(--ink-swatch); padding: 0; border-radius: 50%; background: var(--ink-c); box-shadow: inset 0 0 0 var(--hairline) var(--line); }
 .k-ink-swatch[data-state~="hl"] { opacity: 0.6; }

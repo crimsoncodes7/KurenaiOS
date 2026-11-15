@@ -16,6 +16,12 @@
      F · SC-05: shelf skins and Shrine cards point --skin-art at an absolute
          URL, never one resolved against the stylesheet.
      G · SC-20: the twelve avatars are whole painted discs, 640 square.
+     H · 42b: the share dialog offers a Finish row (Lacquer and each owned
+         finish), opening on the one worn.
+     I · SC-34: a pen set colours only strokes written while it is worn
+         (a stroke carries its set; the probe rule follows the stroke).
+     J · SC-01/06/07/21: a painted frame is sized by its measured opening,
+         and a preview never inherits the worn frame.
 
    Run: node tools/smoke151.test.js */
 "use strict";
@@ -141,6 +147,51 @@ step("G · SC-20: twelve whole-disc avatars", () => {
     return !(b.toString("ascii", 12, 16) === "VP8X" && w === 640 && h === 640);
   });
   eq(bad, [], "each avatar is a 640 × 640 picture");
+  eq(app.errors, [], "no page errors");
+});
+
+step("H · 42b: the share dialog's Finish row", async () => {
+  const g = K.store.state.governor;
+  ["finish-washi", "finish-film"].forEach((id) => { if (!g.owned.includes(id)) g.owned.push(id); });
+  K.governor.wear("finish", "finish-film");
+  const rep = { period: "week", start: "2026-11-09", end: "2026-11-15", facts: { period: "week", start: "2026-11-09", end: "2026-11-15", gov: {}, study: {} }, words: { headline: "A week" } };
+  let ov;
+  ov = K.reportShare.dialog(rep);
+  await app.settle();
+  const row = doc.querySelector("[data-ui~='reports.export-finishes']");
+  assert(row, "the Finish row");
+  const opts = [...row.querySelectorAll("[data-ui~='reports.export-finish']")].map((b) => b.getAttribute("data-finish"));
+  eq(opts, ["none", "finish-washi", "finish-film"], "Lacquer and the owned finishes");
+  assert(row.querySelector("[data-finish='finish-film']").getAttribute("aria-checked") === "true", "opens on the worn one");
+  doc.querySelectorAll(".k-dialog-overlay").forEach((o) => o.remove());
+  K.governor.wear("finish", null);
+});
+
+step("I · SC-34: pen sets on new strokes only", () => {
+  const css = fs.readFileSync(path.join(ROOT, "css/views/ink.css"), "utf8");
+  assert(!/:root\[data-penset="\w+"\] :is\(\.k-ink-dot, \.k-ink-swatch, \.k-ink-probe\)/.test(css), "no rule recolours every stroke from :root");
+  assert(/\.k-ink-probe\[data-penset="exam"\]/.test(css), "the probe follows a stroke's own set");
+  const src = fs.readFileSync(path.join(ROOT, "js/core/inkui.js"), "utf8");
+  assert(/function withSet\(/.test(src) && /it\.ps && pal\.forSet \? pal\.forSet\(it\.ps\)/.test(src), "a stroke records and is drawn with its set");
+});
+
+step("J · painted frames by their opening; previews never inherit", () => {
+  const g = K.store.state.governor;
+  const art = (n) => n.querySelector(".k-avatar-frame-art");
+  const koi = K.governor.avatarNode(64, { frame: "frame-koi" });
+  assert(art(koi) && art(koi).style.getPropertyValue("--fh").trim() === "0.732", "Koi's measured opening");
+  eq(koi.getAttribute("data-frame"), "frame-koi", "the host names its own frame");
+  if (!g.owned.includes("frame-sakura")) g.owned.push("frame-sakura");
+  g.avatar.frame = "frame-sakura";
+  const worn = K.governor.avatarNode(64);
+  assert(art(worn) && /app\.frame\.sakura/.test(art(worn).getAttribute("src")), "the worn frame by default");
+  const bare = K.governor.avatarNode(40, { frame: null });
+  assert(!art(bare) && !bare.hasAttribute("data-frame"), "a preview asked for no frame draws none");
+  g.avatar.frame = null;
+  Object.keys(K.governor.FRAME_HOLE).forEach((k) => {
+    const h = K.governor.FRAME_HOLE[k];
+    assert(h[0] > 0.6 && h[0] < 0.85 && Math.abs(h[1] - 0.5) < 0.03 && Math.abs(h[2] - 0.5) < 0.03, k + " opening looks wrong: " + h);
+  });
   eq(app.errors, [], "no page errors");
 });
 

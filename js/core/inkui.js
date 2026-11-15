@@ -84,7 +84,7 @@
   /* ---------- colours: roles read live from the theme ---------- */
   var ROLES = ["ink", "accent", "teal", "amber", "green", "bloom"];
   var palCache = {}, probe = null, probeEl = null;
-  function resolve(host, role) {
+  function resolve(host, role, ps) {
     /* a token may be oklch(from …): let the browser compute it on an
        element, then paint it on a 1px canvas and read back rgb, which
        every canvas takes. A host not in the document has no computed
@@ -95,6 +95,7 @@
       if (!probeEl) { probeEl = document.createElement("span"); probeEl.setAttribute("aria-hidden", "true"); probeEl.className = "k-ink-probe"; }
       /* the role's colour comes from ink.css (.k-ink-probe[data-role]) */
       probeEl.setAttribute("data-role", role);
+      if (ps) probeEl.setAttribute("data-penset", ps); else probeEl.removeAttribute("data-penset");
       host.appendChild(probeEl);
       var c = getComputedStyle(probeEl).color;
       probeEl.remove();
@@ -107,12 +108,15 @@
       return "rgb(" + d[0] + "," + d[1] + "," + d[2] + ")";
     } catch (e) { return "currentColor"; }
   }
-  function palette(host) {
+  /* a palette per pen set: `ps` is the set a stroke was written with
+     (none = the theme's own roles); `forSet` reads another set's */
+  function palette(host, ps) {
     var themed = host.closest && host.closest("[data-theme]");
-    var key = ((themed && themed.getAttribute("data-theme")) || document.documentElement.getAttribute("data-theme") || "") + "|" + (document.documentElement.getAttribute("data-penset") || "");
+    var key = ((themed && themed.getAttribute("data-theme")) || document.documentElement.getAttribute("data-theme") || "") + "|" + (ps || "");
     if (palCache[key]) return palCache[key];
     var out = {}, sure = !!(host && host.isConnected);
-    ROLES.forEach(function (r) { out[r] = resolve(host, r); if (!/^rgb/.test(out[r])) sure = false; });
+    ROLES.forEach(function (r) { out[r] = resolve(host, r, ps); if (!/^rgb/.test(out[r])) sure = false; });
+    Object.defineProperty(out, "forSet", { value: function (s2) { return s2 === ps ? out : palette(host, s2); } });
     /* only a reading from the page itself is kept; a host still being
        built reads again once it is placed */
     if (sure) palCache[key] = out;
@@ -122,6 +126,14 @@
     if (window.MutationObserver) new MutationObserver(function () { palCache = {}; })
       .observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme", "data-penset"] });
   } catch (e) { /* no observers */ }
+
+  /* a NEW item records the pen set worn as it is written (SC-34); an
+     edited text box keeps the set it had */
+  function withSet(it, was) {
+    var ps = was ? was.ps : document.documentElement.getAttribute("data-penset");
+    if (ps) it.ps = ps;
+    return it;
+  }
 
   /* ---------- drawing ---------- */
   function strokePath(list, ws) {
@@ -208,7 +220,7 @@
   var ORDER = { hl: 0, img: 1, pen: 2, text: 3 };
   function drawItems(ctx, items, pal, onImage) {
     items.slice().sort(function (a, b) { return (ORDER[a.k] || 0) - (ORDER[b.k] || 0); })
-      .forEach(function (it) { drawItem(ctx, it, pal, onImage); });
+      .forEach(function (it) { drawItem(ctx, it, it.ps && pal.forSet ? pal.forSet(it.ps) : pal, onImage); });
   }
 
   /* ---------- the desk ---------- */
@@ -579,7 +591,7 @@
       var rest = page.items.filter(function (x) { return !tb.was || x.id !== tb.was.id; });
       if (tb.was) page.items = rest.concat([tb.was]); /* put it back before deciding */
       if (keep && txt) {
-        var item = { id: tb.was ? tb.was.id : I.uid(), k: "text", role: tb.was ? tb.was.role : dk.prefs.pen.role, x: tb.at.x, y: tb.at.y, s: txt, sz: tb.sz };
+        var item = withSet({ id: tb.was ? tb.was.id : I.uid(), k: "text", role: tb.was ? tb.was.role : dk.prefs.pen.role, x: tb.at.x, y: tb.at.y, s: txt, sz: tb.sz }, tb.was);
         commit(rest.concat([item]));
       } else if (keep && tb.was) {
         commit(rest);
@@ -666,7 +678,7 @@
       var p = dk.prefs, k = p.tool === "hl" ? "hl" : "pen";
       var l = list || stroke.list;
       if (stroke && stroke.ruled && l.length > 1) l = alongRuler([l[0], l[l.length - 1]]);
-      var it = { id: "live", k: k, role: k === "hl" ? p.hl.role : p.pen.role, w: k === "hl" ? p.hl.w : p.pen.w, p: G.pack(l) };
+      var it = withSet({ id: "live", k: k, role: k === "hl" ? p.hl.role : p.pen.role, w: k === "hl" ? p.hl.w : p.pen.w, p: G.pack(l) });
       if (stroke && stroke.ruled) it.sh = "line";
       return it;
     }
@@ -918,7 +930,7 @@
     };
     /* for tests: draw a stroke without pointer events */
     s._stroke = function (points, kind) {
-      var it = { id: I.uid(), k: kind === "hl" ? "hl" : "pen", role: kind === "hl" ? dk.prefs.hl.role : dk.prefs.pen.role, w: kind === "hl" ? dk.prefs.hl.w : dk.prefs.pen.w, p: G.pack(points) };
+      var it = withSet({ id: I.uid(), k: kind === "hl" ? "hl" : "pen", role: kind === "hl" ? dk.prefs.hl.role : dk.prefs.pen.role, w: kind === "hl" ? dk.prefs.hl.w : dk.prefs.pen.w, p: G.pack(points) });
       commit(page.items.concat([it]));
       return it;
     };

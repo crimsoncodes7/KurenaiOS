@@ -602,9 +602,7 @@ button.k-gv-row[aria-expanded="true"] { background: var(--s2); border-radius: va
 .k-gv-apv-disc { inline-size: 76%; aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center; overflow: hidden; background: radial-gradient(circle at 50% 40%, var(--s1), var(--s3)); }
 .k-gv-apv-disc > img { inline-size: 100%; block-size: 100%; object-fit: contain; }
 .k-gv-apv-frame { position: relative; inline-size: 76%; aspect-ratio: 1; display: grid; place-items: center; }
-.k-gv-apv-frame-art { position: absolute; inset: 0; inline-size: 100%; block-size: 100%; object-fit: contain; z-index: 1; }
-.k-gv-apv-frame-in .k-avatar-host::before, .k-gv-apv-frame-in .k-avatar-host::after, .k-gv-apv-frame-in .k-avatar-frame-art { display: none; }
-.k-gv-apv-frame-in .k-avatar { inline-size: calc(var(--avatar) * 0.86); block-size: calc(var(--avatar) * 0.86); }
+.k-gv-apv-frame > .k-avatar-host { position: relative; }
 .k-gv-apv-card { position: relative; block-size: 88%; aspect-ratio: 2 / 3; }
 .k-gv-apv-card > i { position: absolute; inset: 9% 11%; border-radius: var(--r-6); background: linear-gradient(160deg, var(--s3), var(--s2)); }
 .k-gv-apv-card-art { position: absolute; inset: 0; inline-size: 100%; block-size: 100%; object-fit: contain; }

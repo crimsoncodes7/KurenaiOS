@@ -826,4 +826,8 @@ button.k-rp-crumb:hover { background: none; color: var(--text); }
 .k-rp-st-medal { display: grid; justify-items: center; gap: var(--sp-12); max-inline-size: var(--ach-medal-md); text-align: center; }
 .k-rp-st-medal-name { font-size: var(--fs-12-5); color: var(--text-2); }
 
+/* the share card's Washi reads Dawn's roles through this probe (W5) */
+.k-rp-probe { position: absolute; inline-size: 0; block-size: 0; overflow: hidden; }
+.k-rp-probe > span { color: var(--c); }
+
 }

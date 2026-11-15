@@ -71,36 +71,53 @@
     var gold = token("--card-gold-accent"), bg = token("--card-gold-bg"), ivory = token("--card-ivory"),
       meta = token("--card-meta"), faint = token("--card-faint");
     var foil = [1, 2, 3, 4, 5, 1].map(function (n) { return token("--card-foil-" + n); });
+    /* the finish (W5, design 42b): the dialog's pick, else the one worn or tried */
+    var fin = opts.finish !== undefined ? (opts.finish && KOS.governor && KOS.governor.item(opts.finish)) : finishItem();
+    var fim = fin && finishImg[fin.id], fok = !!(fim && fim.complete && fim.naturalWidth);
+    var kind = fin ? fin.id.replace(/^finish-/, "") : "";
+    /* WASHI is the paper as the ground with Dawn's roles on that card */
+    if (kind === "washi") {
+      var dawn = dawnRoles();
+      gold = dawn.accent; bg = dawn.paper; ivory = dawn.text; meta = dawn.text2; faint = dawn.muted;
+    }
+    var rimW = kind === "foil" ? 26 : 9;
     /* the rim */
     var rim = ctx.createConicGradient ? ctx.createConicGradient(200 * Math.PI / 180, CARD_W / 2, CARD_H / 2) : null;
     if (rim) foil.forEach(function (c, i, all) { rim.addColorStop(i / (all.length - 1), c); });
+    if (kind === "foil") {
+      /* gold leaf: the card's gold, catching the light across the corner */
+      rim = ctx.createLinearGradient(0, 0, CARD_W, CARD_H);
+      [gold, ivory, gold, token("--gold") || gold, ivory, gold].forEach(function (c, i, all) { rim.addColorStop(i / (all.length - 1), c); });
+    }
     roundRect(ctx, 0, 0, CARD_W, CARD_H, 60);
     ctx.fillStyle = rim || gold;
     ctx.fill();
+    /* FOIL: a wide gold rim (the foil gradient), the foil art a faint
+       texture in it so it reads as leaf, not paint */
+    if (kind === "foil" && fok) {
+      ctx.save(); roundRect(ctx, 0, 0, CARD_W, CARD_H, 60); ctx.clip();
+      ctx.globalCompositeOperation = "soft-light"; cover(ctx, fim, 0.5); ctx.restore();
+    }
     /* the lacquer */
-    roundRect(ctx, 9, 9, CARD_W - 18, CARD_H - 18, 52);
+    roundRect(ctx, rimW, rimW, CARD_W - 2 * rimW, CARD_H - 2 * rimW, 60 - rimW);
     ctx.fillStyle = bg;
     ctx.fill();
+    if (kind === "foil") {
+      roundRect(ctx, rimW + 10, rimW + 10, CARD_W - 2 * rimW - 20, CARD_H - 2 * rimW - 20, 44 - rimW);
+      ctx.strokeStyle = gold; ctx.globalAlpha = 0.55; ctx.lineWidth = 2; ctx.stroke(); ctx.globalAlpha = 1;
+    }
     ctx.save();
-    roundRect(ctx, 9, 9, CARD_W - 18, CARD_H - 18, 52);
+    roundRect(ctx, rimW, rimW, CARD_W - 2 * rimW, CARD_H - 2 * rimW, 60 - rimW);
     ctx.clip();
     var glow = ctx.createRadialGradient(CARD_W * 0.5, -80, 40, CARD_W * 0.5, -80, CARD_H * 0.7);
     glow.addColorStop(0, gold.replace(/\)\s*$/, " / 0.22)"));
     glow.addColorStop(1, gold.replace(/\)\s*$/, " / 0)"));
-    ctx.fillStyle = glow;
-    ctx.fillRect(0, 0, CARD_W, CARD_H);
-    /* a finish lays its paper under the lacquer's words, then the lacquer
-       again at half strength so every line keeps its contrast */
-    var fin = finishItem(), fim = fin && finishImg[fin.id];
-    if (fim && fim.complete && fim.naturalWidth) {
-      var k = Math.max(CARD_W / fim.naturalWidth, CARD_H / fim.naturalHeight);
-      ctx.globalAlpha = 0.55;
-      ctx.drawImage(fim, (CARD_W - fim.naturalWidth * k) / 2, (CARD_H - fim.naturalHeight * k) / 2, fim.naturalWidth * k, fim.naturalHeight * k);
-      ctx.globalAlpha = 0.5;
-      ctx.fillStyle = bg;
-      ctx.fillRect(0, 0, CARD_W, CARD_H);
-      ctx.globalAlpha = 1;
-    }
+    if (kind !== "washi") { ctx.fillStyle = glow; ctx.fillRect(0, 0, CARD_W, CARD_H); }
+    /* WASHI: the paper itself is the ground, a breath of the paper colour
+       over it so the ink keeps its contrast; FILM: its frame under a
+       half-strength lacquer (the grain goes over everything, last) */
+    if (kind === "washi" && fok) { cover(ctx, fim, 1); ctx.globalAlpha = 0.35; ctx.fillStyle = bg; ctx.fillRect(0, 0, CARD_W, CARD_H); ctx.globalAlpha = 1; }
+    else if (kind === "film" && fok) { cover(ctx, fim, 0.6); ctx.globalAlpha = 0.45; ctx.fillStyle = bg; ctx.fillRect(0, 0, CARD_W, CARD_H); ctx.globalAlpha = 1; }
     ctx.restore();
     var L = 84, R = CARD_W - 84;
     ctx.textBaseline = "top";
@@ -173,7 +190,52 @@
     ctx.fillStyle = faint;
     ctx.font = "500 24px " + MONO;
     ctx.fillText("KURENAIOS", L, CARD_H - 96);
+    if (kind === "film") grain(ctx, rimW);
     return canvas;
+  }
+  /* a picture drawn to cover the card */
+  function cover(ctx, im, alpha) {
+    var k = Math.max(CARD_W / im.naturalWidth, CARD_H / im.naturalHeight);
+    ctx.globalAlpha = alpha;
+    ctx.drawImage(im, (CARD_W - im.naturalWidth * k) / 2, (CARD_H - im.naturalHeight * k) / 2, im.naturalWidth * k, im.naturalHeight * k);
+    ctx.globalAlpha = 1;
+  }
+  /* FILM: a fixed grain (seeded, so the same card twice is the same
+     picture), light and dark specks over the whole card */
+  var grainTile = null;
+  function grain(ctx, inset) {
+    if (!grainTile) {
+      var tile = document.createElement("canvas"); tile.width = tile.height = 180;
+      var g = tile.getContext && tile.getContext("2d");
+      var d = g && g.createImageData ? g.createImageData(180, 180) : null, seed = 7;
+      if (!d || !d.data) return;   /* a canvas that cannot make pixels: no grain */
+      for (var i = 0; i < d.data.length; i += 4) {
+        seed = (seed * 16807) % 2147483647;
+        var v = seed % 256;
+        d.data[i] = d.data[i + 1] = d.data[i + 2] = v > 127 ? 255 : 0;
+        d.data[i + 3] = Math.abs(v - 128) / 128 * 34;
+      }
+      g.putImageData(d, 0, 0);
+      grainTile = tile;
+    }
+    var pat = ctx.createPattern && ctx.createPattern(grainTile, "repeat");
+    if (!pat) return;
+    ctx.save(); roundRect(ctx, inset, inset, CARD_W - 2 * inset, CARD_H - 2 * inset, 60 - inset); ctx.clip();
+    ctx.fillStyle = pat; ctx.fillRect(0, 0, CARD_W, CARD_H); ctx.restore();
+  }
+  /* Dawn's roles, resolved to colours through a probe (a derived token is
+     relative colour syntax a canvas cannot read) */
+  function dawnRoles() {
+    var probe = el("div", { class: "k-rp-probe", "data-theme": "atelier-dawn", "aria-hidden": "true" });
+    var pick = function (v) { var s = el("span", { style: "--c: var(" + v + ")" }); probe.appendChild(s); return s; };
+    var spans = { paper: pick("--s1"), text: pick("--text"), text2: pick("--text-2"), muted: pick("--muted"), accent: pick("--crimson") };
+    document.body.appendChild(probe);
+    var out = {};
+    Object.keys(spans).forEach(function (k) { try { out[k] = getComputedStyle(spans[k]).color; } catch (e) { out[k] = ""; } });
+    probe.remove();
+    out.paper = out.paper || "#f6efe2"; out.text = out.text || "#2a2420"; out.text2 = out.text2 || "#4a4038";
+    out.muted = out.muted || "#7a6e62"; out.accent = out.accent || "#b5432c";
+    return out;
   }
 
   /* the showcase's pictures, loaded once; a medal with no art yet (or not
@@ -190,16 +252,23 @@
     var tried = G && G.trying ? G.trying().filter(function (c) { return c.kind === "finish"; })[0] : null;
     return tried || (id && G.item(id)) || null;
   }
+  /* the finishes the dialog can offer: those owned, and one being tried */
+  function finishChoices() {
+    var G = KOS.governor;
+    if (!G || !G.catalog) return [];
+    var cur = finishItem();
+    return G.catalog().filter(function (c) { return c.kind === "finish" && (G.owns(c.id) || (cur && cur.id === c.id)); });
+  }
   function loadShowcase(done) {
     var defs = showcaseDefs(), left = 0;
-    var fin = finishItem();
-    if (fin && !finishImg[fin.id]) {
+    finishChoices().forEach(function (fin) {
+      if (finishImg[fin.id]) return;
       left++;
       var fim = new window.Image();
       fim.onload = fim.onerror = function () { if (--left === 0 && done) done(); };
       fim.src = "assets/app/img/" + fin.art + ".webp";
       finishImg[fin.id] = fim;
-    }
+    });
     var sm = KOS.governor && KOS.governor.sealMark && KOS.governor.sealMark();
     if (sm && sm.art && !sealImg[sm.art]) {
       left++;
@@ -327,7 +396,11 @@
     { id: "csv", label: "CSV", hint: "for a spreadsheet", action: "Save as CSV" }
   ];
   function dialog(rep, o) {
-    var state = { format: (o && o.format) || "png", titles: false, words: true, level: true, badges: false };
+    var worn = finishItem();
+    var state = { format: (o && o.format) || "png", titles: false, words: true, level: true, badges: false, finish: worn ? worn.id : null };
+    var finishes = finishChoices();
+    var finishHead = el("h3", { class: "k-rp-subhead", text: "Finish" });
+    var finishRow = el("div", { class: "k-rp-export-formats", role: "radiogroup", "aria-label": "Finish", "data-ui": "reports.export-finishes" });
     var overlay = el("div", { class: "k-dialog-overlay" });
     var box = el("div", { class: "k-dialog k-rp-export", "data-ui": "ui.dialog reports.export-dialog" });
     overlay.appendChild(box);
@@ -347,6 +420,15 @@
           "data-format": fm.id, onclick: function () { state.format = fm.id; paint(); } }, [el("b", { text: fm.label }), el("span", { class: "k-rp-note", text: fm.hint })]);
         KOS.ui.state(b, "on", state.format === fm.id);
         formatList.appendChild(b);
+      });
+      finishRow.textContent = "";
+      finishRow.hidden = finishHead.hidden = !finishes.length || state.format !== "png";
+      [{ id: null, name: "Lacquer" }].concat(finishes).forEach(function (fc) {
+        var on = state.finish === fc.id;
+        var b = el("button", { type: "button", class: "k-rp-export-format", role: "radio", "aria-checked": String(on), "data-ui": "reports.export-finish",
+          "data-finish": fc.id || "none", onclick: function () { state.finish = fc.id; paint(); } }, [el("b", { text: fc.name })]);
+        KOS.ui.state(b, "on", on);
+        finishRow.appendChild(b);
       });
       primary.textContent = FORMATS.filter(function (fm) { return fm.id === state.format; })[0].action;
       preview.textContent = "";
@@ -371,6 +453,7 @@
     box.appendChild(el("div", { class: "k-dialog-head", "data-ui": "ui.dialog-head" }, [el("h2", { class: "k-dialog-title", "data-ui": "ui.dialog-title", text: "Share or export" })]));
     box.appendChild(el("div", { class: "k-dialog-body" }, [
       el("h3", { class: "k-rp-subhead", text: "Format" }), formatList,
+      finishes.length ? finishHead : null, finishes.length ? finishRow : null,
       el("h3", { class: "k-rp-subhead", text: "Include" }),
       el("div", { class: "k-rp-export-checks" }, [
         check("titles", "Collection titles", "off by default: a title list is yours to share"),
@@ -380,7 +463,7 @@
         KOS.achievements && KOS.achievements.showcase().length ? check("badges", "Showcase badges", "off by default: up to six from your Wall") : null
       ].filter(Boolean)),
       preview
-    ]));
+    ].filter(Boolean)));
     box.appendChild(el("div", { class: "k-dialog-foot" }, [
       el("button", { type: "button", class: "k-btn", "data-ui": "ui.dialog-close", text: "Cancel", onclick: function () { overlay.remove(); } }),
       primary

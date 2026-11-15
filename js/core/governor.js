@@ -776,7 +776,22 @@
      that box by the host's own layers, past whatever HP ring surrounds it
      (the ring says how far via --frame-out), so a frame never covers the
      arc and never changes layout. data-fsize thins it out at small sizes. */
-  function avatarNode(size) {
+  /* each painted frame's opening, MEASURED from its art (W5, SC-01/03/06/
+     21): [diameter, centre x, centre y] as fractions of the square box the
+     picture is drawn into (contain). The frame is sized so its opening meets
+     the avatar's outer edge, centred on the opening, not on the picture. */
+  var FRAME_HOLE = {"app.frame.amethyst": [0.77, 0.498, 0.502], "app.frame.bloom": [0.763, 0.501, 0.502], "app.frame.ember": [0.764, 0.5, 0.499],
+    "app.frame.gilt": [0.775, 0.501, 0.502], "app.frame.ice": [0.745, 0.5, 0.499], "app.frame.jade": [0.772, 0.5, 0.498], "app.frame.koi": [0.732, 0.501, 0.501],
+    "app.frame.lacquer": [0.745, 0.5, 0.502], "app.frame.sakura": [0.767, 0.499, 0.496], "app.frame.wisteria": [0.703, 0.505, 0.514]};
+  function frameArt(fr) {
+    if (!fr || !fr.painted || !fr.art) return null;
+    var h = FRAME_HOLE[fr.art] || [0.66, 0.5, 0.5];
+    return KOS.ui.el("img", { class: "k-avatar-frame-art", src: "assets/app/img/" + fr.art + ".webp", alt: "", "aria-hidden": "true", decoding: "async",
+      style: "--fh: " + h[0] + "; --fcx: " + h[1] + "; --fcy: " + h[2] });
+  }
+  /* opts.frame: undefined = the worn frame, null = none, an id = that one
+     (a shop or chip preview never inherits the worn frame, SC-07) */
+  function avatarNode(size, opts) {
     var el = KOS.ui.el, g = G();
     var node = el("span", { class: "k-avatar", "data-ui": "gov.avatar", style: "--avatar: " + size + "px" });
     var pic = g.avatar.kind === "art" && owns(g.avatar.art) ? item(g.avatar.art) : null;
@@ -799,11 +814,11 @@
         });
       }
     }
-    /* a painted frame (34p) is a picture round the disc: the avatar sits in its inner 66% */
-    var fr = g.avatar.frame && item(g.avatar.frame);
-    var frameArt = fr && fr.painted && fr.art ? el("img", { class: "k-avatar-frame-art", src: "assets/app/img/" + fr.art + ".webp", alt: "", "aria-hidden": "true", decoding: "async" }) : null;
-    return el("span", { class: "k-avatar-host", "data-ui": "gov.avatar-host", "data-frame": g.avatar.frame || null,
-      "data-fsize": size <= 44 ? "s" : size <= 76 ? "m" : "l" }, [node, frameArt].filter(Boolean));
+    /* a painted frame (34p) is a picture round the disc, sized by its opening */
+    var fid = opts && opts.frame !== undefined ? opts.frame : g.avatar.frame;
+    var fr = fid && item(fid);
+    return el("span", { class: "k-avatar-host", "data-ui": "gov.avatar-host", "data-frame": fid || null,
+      "data-fsize": size <= 44 ? "s" : size <= 76 ? "m" : "l" }, [node, frameArt(fr)].filter(Boolean));
   }
 
   /* the profile pictures' one reader and writer (js/core/profilepics.js) */
@@ -1375,7 +1390,7 @@
     installGates: installGates,
     lockPanel: lockPanel,
     seals: seals,
-    sealById: sealById, sealMark: sealMark,
+    sealById: sealById, sealMark: sealMark, frameArt: frameArt, FRAME_HOLE: FRAME_HOLE,
     sealSvg: sealSvg,
     sealUnlocked: sealUnlocked,
     avatarNode: avatarNode,
