@@ -767,8 +767,12 @@
             topic: result.topic, preview: result.preview });
         }
       } else {
+        /* AA-01: a reversible tool's undo rides its receipt, so the card
+           that proves the change can also take it back (undoReceipt) */
         var receipt = { tool: call.name, target: receiptTarget(call, result), result: result,
-          summary: receiptSummary(call.name, result), ts: Date.now() };
+          summary: receiptSummary(call.name, result), ts: Date.now(), auditId: auditId,
+          conversationId: req.conversationId || null,
+          undo: undo && typeof undo.run === "function" ? { label: undo.label || "Undo", run: undo.run } : null };
         req.writeReceipts.push(receipt);
         emit(req, "onReceipt", receipt);
       }
@@ -777,6 +781,34 @@
         summary: clamp(JSON.stringify(result), 200) });
       cb(toolMsg(call, result === undefined ? { ok: true } : result));
     });
+  }
+
+  /* AA-01: take back one verified action from its receipt. The undo is
+     the tool's own (it puts back exactly what the call changed); it runs
+     once, and the Activity record gains a row of its own (tier "undo",
+     status "executed", naming the action it reversed) — the record is
+     appended to, never rewritten. cb(err) */
+  function undoReceipt(receipt, cb) {
+    cb = cb || function () {};
+    if (!receipt || !receipt.undo || receipt.undone) { cb(new Error("There is nothing to undo.")); return; }
+    if (activeRequest && !activeRequest.done) { cb(new Error("Wait for Kurenai to finish first.")); return; }
+    var u = receipt.undo, settled = false;
+    receipt.undone = true;
+    function done(err) {
+      if (settled) return;
+      settled = true;
+      if (err) { receipt.undone = false; cb(err); return; }
+      lastUndos = lastUndos.filter(function (x) { return x.run !== u.run; });
+      auditPersist("insert", { id: uuid(), conversation_id: receipt.conversationId || null, correlation_id: receipt.auditId || null,
+        tool: receipt.tool, provider: null, model: null, args_json: { undoOf: receipt.auditId || null }, target: receipt.target || null,
+        tier: "undo", status: "executed", result_summary: clamp("Undone from the card: " + (u.label || "Undo"), 300) });
+      cb(null);
+    }
+    try {
+      var r = u.run(function (e) { done(e || null); });
+      /* an undo that finishes without calling back */
+      if (u.run.length === 0) { if (r && typeof r.then === "function") r.then(function () { done(null); }, done); else done(null); }
+    } catch (e) { done(e); }
   }
 
   /* ---------------- confirmation flow ---------------- */
@@ -1044,6 +1076,7 @@
     },
     isBusy: function () { return !!(activeRequest && !activeRequest.done); },
     lastUndos: function () { return lastUndos.slice(); },
+    undoReceipt: undoReceipt,
     effectiveMode: effectiveMode,
     setPermission: setPermission,
     allowedToolNames: allowedToolNames,

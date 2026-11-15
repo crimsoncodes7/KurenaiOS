@@ -133,7 +133,7 @@
     return copy;
   }
   function tierLabel(tier) {
-    return tier === "consequential" ? "Needs approval" : tier === "reversible" ? "Undoable action" : "Read only";
+    return tier === "consequential" ? "Needs approval" : tier === "reversible" ? "Undoable action" : tier === "undo" ? "Undo" : "Read only";
   }
   function providerName(name) {
     return name === "gemini" ? "Gemini" : name === "deepseek" ? "DeepSeek" : name === "ollama" ? "Ollama" : titleWords(name);
@@ -707,7 +707,7 @@
         onReceipt: function (p) {
           /* an app-generated VERIFIED action receipt — proof a write happened,
              never a model sentence */
-          pushRow({ kind: "receipt", tool: p.tool, target: p.target, summary: p.summary });
+          pushRow({ kind: "receipt", tool: p.tool, target: p.target, summary: p.summary, receipt: p });
         },
         onConfirmationNeeded: function (card) {
           S.pending = card;
@@ -782,7 +782,7 @@
         var art = KOS.ai.tools.getPendingArtifact && KOS.ai.tools.getPendingArtifact();
         pushRow({ kind: "proposal", artifact: art, tool: p.tool });
       },
-      onReceipt: function (p) { pushRow({ kind: "receipt", tool: p.tool, target: p.target, summary: p.summary }); },
+      onReceipt: function (p) { pushRow({ kind: "receipt", tool: p.tool, target: p.target, summary: p.summary, receipt: p }); },
       onConfirmationNeeded: function (card) {
         S.pending = card; S.pendingState = null; S.busy = true;
         setVisual("confirmation", "Review before Kurenai acts: " + toolDisplayName(card.tool), { requestId: characterOwner });
@@ -1525,6 +1525,25 @@
     ]);
   }
 
+  /* AA-01: an undoable action's card offers Undo until it is used (or the
+     conversation changes); the tool's own undo puts back what it changed */
+  function receiptUndo(r) {
+    var rc = r.receipt;
+    if (!rc || !rc.undo) return null;
+    if (rc.undone) return el("span", { class: "k-asst-muted k-asst-receipt-undo", "data-ui": "asst.receipt-undone", text: "Undone" });
+    return el("button", { type: "button", class: "k-btn k-btn--sm k-btn--quiet k-asst-receipt-undo", "data-ui": "asst.receipt-undo",
+      text: "↶ Undo", "aria-label": "Undo: " + toolDisplayName(r.tool), disabled: S.busy ? "" : null, onclick: function (e) {
+        var b = e.currentTarget;
+        b.disabled = true;
+        KOS.ai.orchestrator.undoReceipt(rc, function (err) {
+          if (err) { b.disabled = false; KOS.ui.toast("Couldn't undo: " + err.message, true); return; }
+          KOS.ui.toast("Undone: " + toolDisplayName(r.tool));
+          announce("Undone: " + toolDisplayName(r.tool));
+          if (KOS.refreshHUD) KOS.refreshHUD();
+          notify();
+        });
+      } });
+  }
   function threadRows() {
     var out = [];
     for (var rowIndex = 0; rowIndex < S.thread.length; rowIndex++) {
@@ -1545,8 +1564,9 @@
             el("span", { text: r.summary || "The change was recorded by KurenaiOS." }),
             r.target ? el("span", { class: "k-asst-muted", text: "Target · " + r.target }) : null,
             el("code", { class: "k-asst-id", "data-ui": "asst.technical-id", text: r.tool })
-          ].filter(Boolean))
-        ]));
+          ].filter(Boolean)),
+          receiptUndo(r)
+        ].filter(Boolean)));
         continue;
       }
       if (r.kind === "proposal") { out.push(proposalCard(r)); continue; }
@@ -1612,19 +1632,44 @@
         }))
       ].filter(Boolean));
     }
+    /* AA-02: where the thread stands. A conversation opens at its newest
+       message; what you send, and an approval card, are always brought into
+       view; anything else that arrives follows only if you were already at
+       the end, and otherwise says so ("New message ↓") rather than moving
+       the page you are reading. */
+    var seen = { n: -1, users: 0, pending: null };
+    var newPill = el("button", { type: "button", class: "k-btn k-btn--sm k-asst-newpill", "data-ui": "asst.new-message", hidden: "",
+      text: "New message ↓", onclick: function () { toEnd(); scroller.focus(); } });
+    function nearEnd() { return scroller.scrollHeight - scroller.scrollTop - scroller.clientHeight < 60; }
+    function toEnd() { scroller.scrollTop = scroller.scrollHeight; newPill.hidden = true; }
+    scroller.addEventListener("scroll", function () { if (!newPill.hidden && nearEnd()) newPill.hidden = true; }, { passive: true });
     function render() {
-      var atBottom = scroller.scrollHeight - scroller.scrollTop - scroller.clientHeight < 60;
+      var first = seen.n < 0;
+      /* a scroller not on screen yet (the first draw) measures nothing */
+      var measurable = scroller.isConnected && scroller.clientHeight > 0;
+      var wasAtEnd = !measurable || nearEnd(), top = scroller.scrollTop;
       scroller.innerHTML = "";
       if (!S.thread.length) scroller.appendChild(emptyState());
       threadRows().forEach(function (n) { scroller.appendChild(n); });
       var card = confirmationCard();
       if (card) scroller.appendChild(card);
-      /* only follow the tail if the user was already at it */
-      if (atBottom) scroller.scrollTop = scroller.scrollHeight;
+      var users = S.thread.filter(function (r) { return r.kind === "user"; }).length;
+      var pend = S.pending ? S.pending.id || S.pending.tool || "pending" : null;
+      var force = first || users > seen.users || (pend && pend !== seen.pending);
+      var grew = S.thread.length > seen.n || (pend && pend !== seen.pending);
+      seen = { n: S.thread.length, users: users, pending: pend };
+      if (force || wasAtEnd) {
+        toEnd();
+        /* once it is on screen and laid out */
+        if (typeof requestAnimationFrame === "function") requestAnimationFrame(function () { if (force || nearEnd() || !measurable) toEnd(); });
+      } else {
+        scroller.scrollTop = top;
+        if (grew) newPill.hidden = false;
+      }
       KOS.ui.state(wrap, "is-empty", !S.thread.length && !S.pending);
       composer._refresh();
     }
-    var wrap = el("div", { class: "k-asst-chat", "data-ui": "asst.thread-wrap" }, [scroller, el("div", { class: "k-asst-compose" }, [composer])]);
+    var wrap = el("div", { class: "k-asst-chat", "data-ui": "asst.thread-wrap" }, [scroller, el("div", { class: "k-asst-compose" }, [newPill, composer])]);
     subscribe(wrap, render);
     render();
     wrap._composer = composer;
@@ -2476,7 +2521,7 @@
     });
   }
 
-  var TIER_TONE = { read: "teal", reversible: "amber", consequential: "crimson" };
+  var TIER_TONE = { read: "teal", reversible: "amber", consequential: "crimson", undo: "muted" };
   function tierChip(tier) {
     return el("span", { class: "k-chip", "data-tone": TIER_TONE[tier] || "teal", text: tierLabel(tier) });
   }
@@ -2638,7 +2683,7 @@
       count.textContent = rows.length ? (shown.length === rows.length ? rows.length + " action" + (rows.length === 1 ? "" : "s") : shown.length + " of " + rows.length) : "";
       if (!shown.length) { list.appendChild(el("p", { class: "k-asst-muted", text: rows.length ? "Nothing matches these filters." : "No assistant actions yet." })); return; }
       shown.forEach(function (r) {
-        var st = r.status || "proposed", out = AUDIT_OUTCOME[st] || [titleWords(st), "muted"];
+        var st = r.status || "proposed", out = r.tier === "undo" ? ["Undone", "muted"] : AUDIT_OUTCOME[st] || [titleWords(st), "muted"];
         var when = r.created_at ? new Date(r.created_at) : null;
         var detail = [r.target, r.result_summary ? clampText(r.result_summary, 120) : null].filter(Boolean).join(" · ");
         list.appendChild(el("div", { class: "k-asst-audit", "data-ui": "asst.audit-row", "data-status": st }, [
