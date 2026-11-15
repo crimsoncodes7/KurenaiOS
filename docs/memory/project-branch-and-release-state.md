@@ -1,12 +1,14 @@
 ---
 name: project-branch-and-release-state
-description: "Which git branch is live, what is deployed — check git before trusting this; latest entry 2026-11-16 (production kos-integrity-8, 7bdc039)"
+description: "Which git branch is live, what is deployed — check git before trusting this; latest entry 2026-11-16 (production kos-integrity-8, 7bdc039; feat/w6-content 32217b8 not deployed)"
 metadata:
   node_type: memory
   type: project
   originSessionId: 2e2dc728-9366-4708-9ad8-6718d38edac2
   modified: 2026-10-20T16:16:29.892Z
 ---
+
+**In flight (2026-11-16):** `feat/w6-content` at `32217b8` (pushed, NOT deployed; gate 146 incl. new smoke148): W6's second batch — Maths spec typeset from the PDF (tools/maths_spec.py), quiz options with no length tell (tools/quiz_bias.mjs), CS/Maths duplicate and misfiled items, thin explanations, honest generators, the tally, stale forks (CM-04), Japanese/Mind/Code fixes, Seasonal "N behind", roadmap 5.19 (the four backlog asks). Deploy needs a fresh go-ahead. Next per the user: W3; W8 just before W10.
 
 **Latest (2026-11-16):** production is sw `kos-integrity-8`, commit `7bdc039`, immutable https://bce84b5a.kurenai-os.pages.dev; `origin/main` fast-forwarded to it from `feat/w2-opus`: the Focus page owns a session's set-up (4e, smoke144), the Assistant's Undo and scroll (smoke145), W2's smaller items incl. UR-5 screen-off (smoke146), W1's remaining P2/P3s with Reports and pot pictures in the backup (smoke147). Gate 145 (142/143 reserved for the Fable account's AP-01/RC6). Always branch from `origin/main` after `git fetch` (this checkout's local `main` was weeks stale until 2026-11-16).
 
