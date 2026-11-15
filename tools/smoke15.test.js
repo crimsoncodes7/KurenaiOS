@@ -110,9 +110,9 @@ step("canonical tokens exist and the legacy names are gone", async () => {
   const legacyReads = LEGACY.filter(t => new RegExp("var\\(" + t + "(?![\\w-])").test(js + cssAll));
   if (legacyReads.length) throw new Error("a legacy token name is still read: " + legacyReads.join(", "));
 });
-step("all 23 lab themes have :root[data-theme] blocks matching the catalog", async () => {
+step("the two themes (Dusk, Dawn) have :root[data-theme] blocks matching the catalog", async () => {
   const themes = KOS.governor.catalog().filter(c => c.kind === "theme");
-  if (themes.length !== 29) throw new Error("29 themes expected (23 + 4 from design turn 34o + 2 free), got " + themes.length);
+  if (themes.length !== 2) throw new Error("2 themes expected (the recolours were retired, W5), got " + themes.length);
   /* Graphite is the default: it paints :root with a dark colour scheme
      before any script runs, so nothing flashes light. Dawn (frame 21a) is
      chosen, or followed from the device, by the Governor at boot. */
@@ -133,9 +133,12 @@ step("all 23 lab themes have :root[data-theme] blocks matching the catalog", asy
 });
 step("applyCosmetics: valid theme lands on <html>; retired ids fall back to default", async () => {
   const g = KOS.store.state.governor;
-  g.theme = "ember-wraith";
+  g.theme = "atelier-dawn";
   KOS.governor.applyCosmetics();
-  if (document.documentElement.dataset.theme !== "ember-wraith") throw new Error("theme not applied to <html>");
+  if (document.documentElement.dataset.theme !== "atelier-dawn") throw new Error("theme not applied to <html>");
+  g.theme = "ember-wraith";   // retired in W5's cull
+  KOS.governor.applyCosmetics();
+  if (document.documentElement.dataset.theme !== "") throw new Error("a culled theme must fall back to default");
   g.theme = "kin";   // retired crimson-era id
   KOS.governor.applyCosmetics();
   if (document.documentElement.dataset.theme !== "") throw new Error("retired id must fall back to default");
@@ -338,7 +341,7 @@ step("every theme card is a live miniature in its own tokens, with the four-colo
   /* frame 21h: the preview carries data-theme, so css/themes.css draws it
      with that theme's tokens; the swatch is ground, tint, accent, second */
   const cards = [...main.querySelectorAll("[data-ui~='shop.card'][data-kind='theme']")];
-  if (cards.length !== 29) throw new Error("29 theme cards expected (design turn 34o added four), got " + cards.length);
+  if (cards.length !== 2) throw new Error("2 theme cards expected (Dusk and Dawn), got " + cards.length);
   for (const c of cards) {
     const mini = c.querySelector("[data-ui~='shop.theme-mini']");
     if (!mini || !mini.getAttribute("data-theme")) throw new Error("a theme card without its live miniature");
@@ -351,12 +354,12 @@ step("Try on previews a theme without saving it, and ends when the shop is left"
   g.theme = "kurenai"; g.themeFollow = false;
   KOS.show("governor", "shop", { _nav: true });
   await tick(60);
-  const card = [...document.querySelectorAll("[data-ui~='shop.card'][data-kind='theme']")].find(c => /Rain Café/.test(c.getAttribute("aria-label")));
-  card.querySelector("[data-ui~='shop.try-on']").click();
+  KOS.governor.tryTheme("rain-cafe");   // culled: nothing to try
+  if (document.documentElement.dataset.theme !== "") throw new Error("a culled theme was tried on: " + document.documentElement.dataset.theme);
+  KOS.governor.tryTheme("atelier-dawn");
   await tick(30);
-  if (document.documentElement.dataset.theme !== "rain-cafe") throw new Error("try-on not applied: " + document.documentElement.dataset.theme);
+  if (document.documentElement.dataset.theme !== "atelier-dawn") throw new Error("try-on not applied: " + document.documentElement.dataset.theme);
   if (g.theme !== "kurenai") throw new Error("try-on must not choose the theme");
-  if (KOS.governor.owns("theme-rain-cafe")) throw new Error("try-on must not buy");
   KOS.show("home", undefined, { _nav: true });
   await tick(30);
   if (document.documentElement.dataset.theme !== "") throw new Error("try-on outlived the shop: " + document.documentElement.dataset.theme);
@@ -367,11 +370,11 @@ step("Follow the system: Dawn while the device is light, the dark choice while i
   let light = true;
   window.matchMedia = q => ({ matches: /light/.test(q) ? light : !light, addEventListener() {}, addListener() {} });
   try {
-    g.theme = "sakura-skyline";
+    g.theme = "atelier-dusk";
     KOS.governor.setThemeFollow(true);
     if (document.documentElement.dataset.theme !== "atelier-dawn") throw new Error("light device: " + document.documentElement.dataset.theme);
     light = false; KOS.governor.applyCosmetics();
-    if (document.documentElement.dataset.theme !== "sakura-skyline") throw new Error("dark device: " + document.documentElement.dataset.theme);
+    if (document.documentElement.dataset.theme !== "atelier-dusk") throw new Error("dark device: " + document.documentElement.dataset.theme);
     g.theme = "atelier-dawn"; KOS.governor.applyCosmetics();
     if (document.documentElement.dataset.theme !== "") throw new Error("Dawn chosen, dark device renders Graphite: " + document.documentElement.dataset.theme);
     KOS.governor.setThemeFollow(false);

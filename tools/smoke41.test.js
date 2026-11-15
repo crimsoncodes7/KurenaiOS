@@ -277,7 +277,7 @@ const sync = () => p(cb => KOS.cloudsync.syncNow(cb));
 const RICH = () => ({
   v: 1, progress: { "compsci:4.1.1.1": { status: "done", check: [true, true, true, true], note: "" } },
   sessions: Array.from({ length: 1664 }, (_, i) => ({ id: i + 1, ts: 1700000000000 + i * 1000, date: "2026-08-08", type: "media", dur: 60, metrics: {} })),
-  governor: { hp: 1, gold: 12476, xp: 72312, owned: ["theme-celestial-duality"], theme: "celestial-duality",
+  governor: { hp: 1, gold: 12476, xp: 72312, owned: ["seal-homura"], theme: "atelier-dawn",
     avatar: { kind: "img", id: "a", img: "LAPTOP-AVATAR", crop: null, frame: "f4" }, banner: "LAPTOP-BANNER" },
   wishlist: { nextId: 9, budget: { monthlyLimit: 60, currency: "GBP", history: [] },
     items: [{ id: 1, module: "books", title: "planned purchase", addedAt: 1700000000000 }] }
@@ -328,7 +328,7 @@ step("THE INCIDENT: a stale device with one real edit merges into the richer clo
   assert(cloudDoc().sessions.length === 1664, "the session ledger was truncated to " + cloudDoc().sessions.length);
   assert(cloudDoc().governor.avatar.img === "LAPTOP-AVATAR", "the avatar was lost");
   assert(cloudDoc().governor.banner === "LAPTOP-BANNER", "the banner was lost");
-  assert(cloudDoc().governor.theme === "celestial-duality", "the theme was lost");
+  assert(cloudDoc().governor.theme === "atelier-dawn", "the theme was lost");
   assert(cloudDoc().wishlist.items.length === 1, "the Budget Planner was emptied");
   assert(cloudDoc().progress["compsci:one-real-edit"], "the phone's own edit never reached the cloud");
   assert(cloudDoc().progress["compsci:4.1.1.1"], "the laptop's progress was lost");

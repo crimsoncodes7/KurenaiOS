@@ -206,13 +206,16 @@
        activity, study or rest (sessions.js), earns no streak milestone and
        is left out of Reports' "earned". */
     if (e.type === "correction") {
-      var dx = Math.min(0, Math.round(+m.xp || 0)), dg = Math.min(0, Math.round(+m.gold || 0));
+      /* a REFUND (W5, the theme cull) is the one correction that gives gold
+         back: what a retired item cost, through the ledger like every other
+         balance move, and still no activity, study or "earned" */
+      var dx = Math.min(0, Math.round(+m.xp || 0)), dg = m.refund ? Math.max(0, Math.round(+m.gold || 0)) : Math.min(0, Math.round(+m.gold || 0));
       var dh = Math.min(0, Math.round(+m.hp || 0));
       dx = Math.max(dx, -g.xp); dg = Math.max(dg, -g.gold); dh = Math.max(dh, -g.hp);
       g.xp += dx; g.gold += dg; g.hp += dh;
       e.award = { xp: dx, gold: dg };
       if (dh) e.award.hp = dh;   /* an Undo takes back the HP its tick restored */
-      lastAward = { xp: dx, gold: dg, hp: 0, notes: ["correction"], levelUp: false, level: levelInfo(g.xp).level };
+      lastAward = { xp: dx, gold: dg, hp: 0, notes: [m.refund ? "refund" : "correction"], levelUp: false, level: levelInfo(g.xp).level };
       store.save();
       if (KOS.refreshHUD) KOS.refreshHUD();
       return;
@@ -497,29 +500,6 @@
        and an unset theme follows prefers-color-scheme in CSS. */
     { id: "theme-atelier-dawn", kind: "theme", name: "Atelier Dawn", price: 0, desc: "Graphite's light twin: warm paper, near-white cards, the same accents darkened for daylight.", theme: "atelier-dawn", sw: ["#5D6BA8", "#A97F2F", "#7D9B76"] },
     { id: "theme-atelier-dusk", kind: "theme", name: "Atelier Dusk", price: 0, desc: "Graphite, the default: a graphite ground, flat cards and one crimson accent.", theme: "atelier-dusk", sw: ["#8E9BD8", "#D8AC5A", "#9DBE95"] },
-    { id: "theme-spectral-rose", kind: "theme", name: "Spectral Rose", price: 140, desc: "Blue-black lacquer, wine red, cyan rim-light and ember orange.", theme: "spectral-rose", sw: ["#D82D57", "#22D7E8", "#FF8A3D"] },
-    { id: "theme-verdigris-duel", kind: "theme", name: "Verdigris Duel", price: 140, desc: "Charcoal, oxidised teal, fog white and restrained rust.", theme: "verdigris-duel", sw: ["#6F9E98", "#DDEBE7", "#A65E58"] },
-    { id: "theme-sakura-skyline", kind: "theme", name: "Sakura Skyline", price: 140, desc: "Deep indigo city-night with periwinkle, electric blue and sakura pink.", theme: "sakura-skyline", sw: ["#9B8DFF", "#55C7FF", "#F052B7"] },
-    { id: "theme-starfall-serenade", kind: "theme", name: "Starfall Serenade", price: 140, desc: "Midnight plum, smoky violet, coral horizon and cold starlight.", theme: "starfall-serenade", sw: ["#E67F74", "#87AAFF", "#A66FD2"] },
-    { id: "theme-feathered-dusk", kind: "theme", name: "Feathered Dusk", price: 140, desc: "Ink mauve, dusty rose, blue-grey and pale blush.", theme: "feathered-dusk", sw: ["#B985A0", "#6F83AC", "#D9A8BC"] },
-    { id: "theme-rosewater-abyss", kind: "theme", name: "Rosewater Abyss", price: 140, desc: "Near-black marine blue, pearl aqua, coral petals and pale gold.", theme: "rosewater-abyss", sw: ["#EF8997", "#6EC5DE", "#D6B05C"] },
-    { id: "theme-clinic-noir", kind: "theme", name: "Clinic Noir", price: 140, desc: "Sterile slate, charcoal, pearl and faint blush reflections.", theme: "clinic-noir", sw: ["#DDE7E9", "#5DD7E8", "#E7A2B1"] },
-    { id: "theme-azure-corset-noir", kind: "theme", name: "Azure Corset Noir", price: 140, desc: "Midnight blue, icy porcelain, graphite lace and cardinal ribbon.", theme: "azure-corset-noir", sw: ["#79BAD3", "#DCEBF0", "#C83E53"] },
-    { id: "theme-shattered-bloom", kind: "theme", name: "Shattered Bloom", price: 140, desc: "Blue-black, electric cyan, hot pink and ultraviolet.", theme: "shattered-bloom", sw: ["#FF2F84", "#3BE3FF", "#8B5CFF"] },
-    { id: "theme-scarlet-garden-night", kind: "theme", name: "Scarlet Garden Night", price: 140, desc: "Dark sage, blackened porcelain, scarlet silk and muted stone.", theme: "scarlet-garden-night", sw: ["#BF3B48", "#769383", "#C6D0C8"] },
-    { id: "theme-midnight-lilies", kind: "theme", name: "Midnight Lilies", price: 140, desc: "Ink-black water, moon-white petals, slate and muted sage.", theme: "midnight-lilies", sw: ["#D8DAD7", "#94B0A4", "#697E91"] },
-    { id: "theme-gothic-camellia", kind: "theme", name: "Gothic Camellia", price: 140, desc: "Deep navy, magenta velvet, antique brass and smoky violet.", theme: "gothic-camellia", sw: ["#D64087", "#B79753", "#7454AF"] },
-    { id: "theme-rain-cafe", kind: "theme", name: "Rain Café", price: 140, desc: "Deep teal glass, rain-blue neon, warm peach and coffee cream.", theme: "rain-cafe", sw: ["#42C6D0", "#E99A78", "#83A8FF"] },
-    { id: "theme-porcelain-sky-night", kind: "theme", name: "Porcelain Sky Night", price: 140, desc: "Navy-black, powder blue, porcelain highlights and a clean red bow.", theme: "porcelain-sky-night", sw: ["#6BB5D1", "#C73B50", "#D9EAF0"] },
-    { id: "theme-crimson-moth", kind: "theme", name: "Crimson Moth", price: 140, desc: "Absolute black, blood-red wings, bone white and smoke brown.", theme: "crimson-moth", sw: ["#E53228", "#FF6650", "#80645A"] },
-    { id: "theme-celestial-duality", kind: "theme", name: "Celestial Duality", price: 140, desc: "Black void, ultramarine, ice-white, cyan and silver.", theme: "celestial-duality", sw: ["#3348C9", "#52D9FF", "#C8D3FF"] },
-    { id: "theme-jade-camellia", kind: "theme", name: "Jade Camellia", price: 140, desc: "Forest black, jade leaf, olive gold, coral flower and parchment.", theme: "jade-camellia", sw: ["#4D8D67", "#A6A15D", "#D16E67"] },
-    { id: "theme-ember-wraith", kind: "theme", name: "Ember Wraith", price: 140, desc: "Midnight navy, dark crimson, rose flame and ice-blue eyes.", theme: "ember-wraith", sw: ["#D9546E", "#FF8AA1", "#76DFFF"] },
-    { id: "theme-solar-manuscript", kind: "theme", name: "Solar Manuscript", price: 140, desc: "Charcoal ink, saffron, engraved gold, lavender-grey and ivory.", theme: "solar-manuscript", sw: ["#F0B92C", "#B98936", "#AAA0C5"] },
-    { id: "theme-violet-requiem", kind: "theme", name: "Violet Requiem", price: 140, desc: "Midnight indigo, hydrangea violet, pale lilac, rose and white cloth.", theme: "violet-requiem", sw: ["#A586C7", "#D0A6DA", "#B86D91"] },
-    { id: "theme-rosarium", kind: "theme", name: "Rosarium", price: 140, desc: "Black rose garden, oxblood, petal pink, ivory and antique brass.", theme: "rosarium", sw: ["#D83D68", "#F19AB4", "#D1A95B"] },
-    { id: "theme-lycoris-radiata", kind: "theme", name: "Lycoris Radiata", price: 140, desc: "Sumi black, scarlet filaments, ember orange and pale bone.", theme: "lycoris-radiata", sw: ["#E32636", "#FF7448", "#D7C9BC"] },
-    { id: "theme-azure-butterfly", kind: "theme", name: "Azure Butterfly", price: 140, desc: "Night-sky blue, luminous aqua, pearl, silver and soft lilac.", theme: "azure-butterfly", sw: ["#5DB9E7", "#92E4FF", "#B8A9F2"] },
     /* cosmetic: kanji seal variants (the topbar mark) */
     { id: "seal-homura", kind: "seal", name: "焔 Homura seal", price: 70, desc: "Flame variant of the OS mark.", glyph: "焔" },
     { id: "seal-tsuki",  kind: "seal", name: "月 Tsuki seal",  price: 70, desc: "Moon variant of the OS mark.", glyph: "月" },
@@ -578,10 +558,6 @@
     { id: "finish-washi", kind: "finish", name: "Washi",  price: 800, art: "app.finish.washi", desc: "Your share card on kozo paper." },
     { id: "finish-foil",  kind: "finish", name: "Foil",   price: 800, art: "app.finish.foil",  desc: "A gold-foil edge on your share card." },
     { id: "finish-film",  kind: "finish", name: "Film",   price: 800, art: "app.finish.film",  desc: "A film-grain finish on your share card." },
-    { id: "theme-washi-morning", kind: "theme", name: "Washi Morning", price: 1500, desc: "Kozo paper, sumi-indigo ink and a vermilion seal: a light theme beside Dawn.", theme: "washi-morning", sw: ["#C2543A", "#3E5A88", "#B58A3C"] },
-    { id: "theme-lantern-hall",  kind: "theme", name: "Lantern Hall",  price: 1500, desc: "Smoked cedar, paper-lantern orange and warm gold.", theme: "lantern-hall", sw: ["#E58A4E", "#7DC5CF", "#E8C46A"] },
-    { id: "theme-first-snow",    kind: "theme", name: "First Snow",    price: 1500, desc: "Night snow-light, ice blue and a camellia accent.", theme: "first-snow", sw: ["#E07A8A", "#B6DDEB", "#E3D9A6"] },
-    { id: "theme-moss-garden",   kind: "theme", name: "Moss Garden",   price: 1500, desc: "Wet stone, moss and a fallen camellia.", theme: "moss-garden", sw: ["#D8604E", "#8CC08A", "#D6CB7A"] },
     { id: "avatar-fox",      kind: "avatar", name: "Fox",      price: 500, art: "app.avatar.fox", desc: "A fox mask, red and white." },
     { id: "avatar-cat",      kind: "avatar", name: "Cat",      price: 500, art: "app.avatar.cat", desc: "A sleepy cat on a cushion." },
     { id: "avatar-crane",    kind: "avatar", name: "Crane",    price: 500, art: "app.avatar.crane", desc: "A paper crane." },
@@ -636,6 +612,8 @@
   ];
   /* the four CSS banners are retired (decision 5): an owned copy keeps working */
   CATALOG.forEach(function (c) { if (c.kind === "banner" && !c.painted) c.retired = true; });
+  /* the CSS gradient frames are retired too (W5, SC-28, decision B6): an owned copy keeps working */
+  CATALOG.forEach(function (c) { if (c.kind === "frame" && !c.painted) c.retired = true; });
   /* preset banner paints, keyed by the catalog `banner` field */
   var BANNER_CSS = {
     dawn: "background-image:radial-gradient(140% 160% at 8% 0%, rgba(233,206,158,.85), rgba(203,157,98,.55) 45%, rgba(159,176,199,.5) 100%);",
@@ -798,7 +776,22 @@
      that box by the host's own layers, past whatever HP ring surrounds it
      (the ring says how far via --frame-out), so a frame never covers the
      arc and never changes layout. data-fsize thins it out at small sizes. */
-  function avatarNode(size) {
+  /* each painted frame's opening, MEASURED from its art (W5, SC-01/03/06/
+     21): [diameter, centre x, centre y] as fractions of the square box the
+     picture is drawn into (contain). The frame is sized so its opening meets
+     the avatar's outer edge, centred on the opening, not on the picture. */
+  var FRAME_HOLE = {"app.frame.amethyst": [0.77, 0.498, 0.502], "app.frame.bloom": [0.763, 0.501, 0.502], "app.frame.ember": [0.764, 0.5, 0.499],
+    "app.frame.gilt": [0.775, 0.501, 0.502], "app.frame.ice": [0.745, 0.5, 0.499], "app.frame.jade": [0.772, 0.5, 0.498], "app.frame.koi": [0.732, 0.501, 0.501],
+    "app.frame.lacquer": [0.745, 0.5, 0.502], "app.frame.sakura": [0.767, 0.499, 0.496], "app.frame.wisteria": [0.703, 0.505, 0.514]};
+  function frameArt(fr) {
+    if (!fr || !fr.painted || !fr.art) return null;
+    var h = FRAME_HOLE[fr.art] || [0.66, 0.5, 0.5];
+    return KOS.ui.el("img", { class: "k-avatar-frame-art", src: "assets/app/img/" + fr.art + ".webp", alt: "", "aria-hidden": "true", decoding: "async",
+      style: "--fh: " + h[0] + "; --fcx: " + h[1] + "; --fcy: " + h[2] });
+  }
+  /* opts.frame: undefined = the worn frame, null = none, an id = that one
+     (a shop or chip preview never inherits the worn frame, SC-07) */
+  function avatarNode(size, opts) {
     var el = KOS.ui.el, g = G();
     var node = el("span", { class: "k-avatar", "data-ui": "gov.avatar", style: "--avatar: " + size + "px" });
     var pic = g.avatar.kind === "art" && owns(g.avatar.art) ? item(g.avatar.art) : null;
@@ -821,11 +814,11 @@
         });
       }
     }
-    /* a painted frame (34p) is a picture round the disc: the avatar sits in its inner 66% */
-    var fr = g.avatar.frame && item(g.avatar.frame);
-    var frameArt = fr && fr.painted && fr.art ? el("img", { class: "k-avatar-frame-art", src: "assets/app/img/" + fr.art + ".webp", alt: "", "aria-hidden": "true", decoding: "async" }) : null;
-    return el("span", { class: "k-avatar-host", "data-ui": "gov.avatar-host", "data-frame": g.avatar.frame || null,
-      "data-fsize": size <= 44 ? "s" : size <= 76 ? "m" : "l" }, [node, frameArt].filter(Boolean));
+    /* a painted frame (34p) is a picture round the disc, sized by its opening */
+    var fid = opts && opts.frame !== undefined ? opts.frame : g.avatar.frame;
+    var fr = fid && item(fid);
+    return el("span", { class: "k-avatar-host", "data-ui": "gov.avatar-host", "data-frame": fid || null,
+      "data-fsize": size <= 44 ? "s" : size <= 76 ? "m" : "l" }, [node, frameArt(fr)].filter(Boolean));
   }
 
   /* the profile pictures' one reader and writer (js/core/profilepics.js) */
@@ -919,8 +912,28 @@
     /* a worn pen set (34p) re-maps the pen's roles (ink.css) */
     var ps = wearing("penset"), psIt = ps && item(ps);
     if (psIt) document.documentElement.setAttribute("data-penset", psIt.penset); else document.documentElement.removeAttribute("data-penset");
-    var mark = document.querySelector("#topbar [data-ui~='shell.brand'] [data-ui~='shell.brand-mark']");
-    if (mark) mark.textContent = SEAL_GLYPHS[g.seal] || "紅";
+    /* the worn seal (SC-04, decision B6): stamped beside the brand mark —
+       the bloom stays — as its painted art, or its glyph for the older
+       ink seals; none for the default 紅 */
+    var brand = document.querySelector("#topbar [data-ui~='shell.brand']");
+    if (brand) {
+      var el = KOS.ui.el, old = brand.querySelector("[data-ui~='shell.brand-seal']");
+      var sid = g.seal && g.seal !== "kurenai" && owns(g.seal) ? g.seal : null;
+      var sIt = sid && item(sid);
+      if (old && old.getAttribute("data-seal") !== sid) { old.remove(); old = null; }
+      if (sIt && !old) {
+        var stamp = el("span", { class: "k-brand-seal", "data-ui": "shell.brand-seal", "data-seal": sid, title: sIt.name, "aria-hidden": "true" },
+          [sIt.art ? el("img", { src: "assets/app/img/" + sIt.art + ".webp", alt: "", decoding: "async" })
+                   : el("span", { lang: "ja", text: SEAL_GLYPHS[sid] || sIt.glyph || "" })]);
+        var logo = brand.querySelector(".k-brand-logo");
+        if (logo && logo.nextSibling) brand.insertBefore(stamp, logo.nextSibling); else brand.appendChild(stamp);
+      }
+    }
+  }
+  /* the worn seal's picture or glyph, for the Seat ring and the share card */
+  function sealMark() {
+    var g = G(), sid = g.seal && g.seal !== "kurenai" && owns(g.seal) ? g.seal : null, it = sid && item(sid);
+    return it ? { id: sid, name: it.name, art: it.art ? "assets/app/img/" + it.art + ".webp" : null, glyph: SEAL_GLYPHS[sid] || it.glyph || "" } : null;
   }
   function setTheme(themeId) { tryOn = null; G().theme = themeId; store.save(); applyCosmetics(); }
   function setThemeFollow(on) { G().themeFollow = !!on; store.save(); applyCosmetics(); }
@@ -1377,7 +1390,7 @@
     installGates: installGates,
     lockPanel: lockPanel,
     seals: seals,
-    sealById: sealById,
+    sealById: sealById, sealMark: sealMark, frameArt: frameArt, FRAME_HOLE: FRAME_HOLE,
     sealSvg: sealSvg,
     sealUnlocked: sealUnlocked,
     avatarNode: avatarNode,

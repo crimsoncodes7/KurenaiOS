@@ -43,6 +43,9 @@ background: var(--bg);
 .k-brand { display: flex; align-items: center; gap: var(--sp-9); border-radius: var(--r-12); }
 .k-brand-logo { inline-size: var(--brand-logo); block-size: var(--brand-logo); object-fit: contain; }
 .k-brand-name { font-size: var(--fs-17); font-weight: var(--weight-semibold); letter-spacing: -0.01em; }
+/* the worn seal, stamped beside the bloom (SC-04) */
+.k-brand-seal { inline-size: calc(var(--brand-logo) * 0.72); block-size: calc(var(--brand-logo) * 0.72); flex: 0 0 auto; display: grid; place-items: center; border-radius: var(--r-6); color: var(--crimson); font-weight: var(--weight-semibold); }
+.k-brand-seal > img { inline-size: 100%; block-size: 100%; object-fit: contain; }
 .k-search {
 position: relative;
 inline-size: var(--search-w);
@@ -249,9 +252,10 @@ font-size: var(--fs-12);
 .k-avatar { inline-size: var(--avatar, var(--sp-32)); block-size: var(--avatar, var(--sp-32)); flex: 0 0 auto; display: grid; place-items: center; border-radius: 50%; overflow: hidden; background: var(--s2); }
 .k-avatar > img, .k-avatar > svg { inline-size: 100%; block-size: 100%; object-fit: cover; }
 .k-avatar > .k-avatar-art { object-fit: contain; }
-/* a painted frame (34p): a keyed picture whose inner 66% holds the avatar,
-   drawn outside any HP ring round it like the CSS frames */
-.k-avatar-frame-art { position: absolute; inset-block-start: calc(-26% - var(--fo)); inset-inline-start: calc(-26% - var(--fo)); inline-size: calc(152% + 2 * var(--fo)); block-size: calc(152% + 2 * var(--fo)); max-inline-size: none; object-fit: contain; pointer-events: none; }
+/* a painted frame (34p): a keyed picture whose MEASURED opening (--fh, its
+   centre --fcx/--fcy, from KOS.governor.frameArt) meets the avatar's outer
+   edge, drawn outside any HP ring round it like the CSS frames (SC-21) */
+.k-avatar-frame-art { --fw: calc((100% + 2 * var(--fo)) / var(--fh, 0.66)); position: absolute; inset-block-start: calc(50% - var(--fcy, 0.5) * var(--fw)); inset-inline-start: calc(50% - var(--fcx, 0.5) * var(--fw)); inline-size: var(--fw); block-size: var(--fw); max-inline-size: none; object-fit: contain; pointer-events: none; }
 .k-avatar-host:has(> .k-avatar-frame-art)::before, .k-avatar-host:has(> .k-avatar-frame-art)::after { display: none; }
 /* a worn frame (frame 22a): drawn by the host outside the portrait AND
    outside the HP ring around it (--frame-out, set by each ring), clear of

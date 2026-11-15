@@ -210,6 +210,12 @@ step("D · buy and wear every item in the shop; it is owned, worn and drawn", as
       else if (use) use.click();
       else if (card.getAttribute("data-ware") !== "on" && !G.owns(it.id)) { violate(it.id + " · its card offers neither Buy nor Use"); continue; }
       await app.settle();
+      /* buying asks first (W5, 42d): a Buy that opens no confirm is a violation */
+      if (buy) {
+        const yes = app.document.querySelector("[data-ui~='ui.confirm-yes']");
+        if (!yes) { violate(it.id + " · Buy did not ask first"); continue; }
+        yes.click(); await app.settle();
+      }
     } catch (e) { violate(it.id + " · buying threw: " + e.message); continue; }
     if (app.errors.length > errs) violate(it.id + " · buying or wearing raised: " + app.errors.slice(errs).join(" | "));
     if (!G.owns(it.id)) { violate(it.id + " · not owned after Buy"); continue; }

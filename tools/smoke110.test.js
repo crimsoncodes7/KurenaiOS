@@ -36,7 +36,7 @@ step("A · the --mind hue is a token in Graphite and every theme", () => {
   assert(/--mind:/.test(tokens) && /--mind-ink:/.test(tokens), "Graphite carries --mind and --mind-ink");
   const themes = fs.readFileSync(path.join(ROOT, "css/themes.css"), "utf8");
   const blocks = themes.match(/:root\[data-theme="[\w-]+"\][^{]*\{[^}]*\}/g) || [];
-  assert(blocks.length >= 25, "theme blocks found: " + blocks.length);
+  assert(blocks.length >= 2, "theme blocks found (Dusk and Dawn since the cull, W5): " + blocks.length);
   blocks.forEach((b) => assert(/--mind:/.test(b) && /--mind-ink:/.test(b), "a theme without --mind: " + b.slice(0, 60)));
 });
 step("B · routes: the desk, a lesson, the checkpoint and every Mind page", async (app) => {
