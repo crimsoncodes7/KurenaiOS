@@ -197,6 +197,20 @@ step("E · the stand-ins know the structure: keys, evidence, tasks, the day's pl
       ach: badges.map((b) => [b.id, b.tier, Math.round((b.p || 0) * 1000), b.value])
     };
   };
+  /* saved reports are written by a slow background tick, a week at a time:
+     let both boots finish that before a badge that counts them is read */
+  const weeks = (app) => new Promise((res) => app.KOS.reportStore.list("week", (e, l) => res(e ? -1 : (l || []).length)));
+  const drain = async (app) => {
+    for (let i = 0, same = 0, last = -2; i < 90 && same < 14; i++) {   /* a week takes about eight rounds */
+      await app.settle();
+      const n = await weeks(app);
+      same = n === last ? same + 1 : 0; last = n;
+    }
+    return weeks(app);
+  };
+  const savedL = await drain(L), savedE = await drain(E);
+  assert(savedE >= 3, "the eager boot saved its weeks: " + savedE);
+  eq(savedL, savedE, "both boots saved the same weeks");
   const before = await snap(L);
   eq(L.lazy.loaded, [], "reading the structure fetched nothing");
   eq(L.lazy.misses.map((m) => m.split("\n").slice(0, 4).join(" < ")), [], "reading the structure read nothing early");
