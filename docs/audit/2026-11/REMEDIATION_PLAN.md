@@ -603,8 +603,22 @@ finished flashcard batch had stopped logging in the working tree (a
 shadowed counter) and no older suite caught it; smoke140 does now.
 The side replicators name their stores to the bus (17e507b, with DI-20,
 above in W1).
-STILL TO DO in W2: **lazy loading** (AP-01), the last Fable item. Smaller,
-for Opus: AA-01, AA-02, CR-01, SY-22
+**W2 progress (16 Nov 2026, `feat/w2-opus`, NOT deployed; gate 144/144,
+smoke144–146 new) — the smaller items, done on Opus.** FIXED AA-01 (Undo on
+the Assistant's action cards; an undo is its own Activity row), AA-02 (the
+thread opens at the newest message; sends and approval cards come into
+view; "New message ↓"), CR-01, SY-22, SH-37/AG-03/AX-24, AP-08 (KOS.view.listen),
+SY-25 (KOS.view.redrawIfStill), SY-23, SY-11, SY-14, SY-27, SH-13, CL-24,
+MG-17, HR-30, ST-19, AA-17, AG-25, and UR-5 (a hidden Focus session banks its
+heartbeat; discarded with the screen off it offers the minutes; on a phone or
+an iPad hiding the page is not a distraction). WITH IT, asked by the user on
+16 Nov: THE FOCUS PAGE OWNS A SESSION'S SET-UP (invariant 4e) — About to
+Study had its own Mode and Length, which overrode the page (a custom 37 min
+became 0, a one-second session; Study until became Pomodoro; no link was
+linked to a suggestion); it now hands back exactly the page's set-up, and
+Home, the Daily Review and Routines open the page filled in.
+STILL TO DO in W2: **lazy loading** (AP-01), the last Fable item. The list
+below is done: AA-01, AA-02, CR-01, SY-22
 (in-page tabs through `KOS.view.memo`), SY-11, SY-14, SY-23, SY-25, SY-27,
 AP-08 (move pages' global listeners to `KOS.view.onDispose`), SH-37/AG-03/
 AX-24 (URLs for the Wall's tabs), SH-13, UR-5 (iPhone Focus with the screen
