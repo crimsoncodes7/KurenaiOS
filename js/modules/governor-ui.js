@@ -240,16 +240,19 @@
         render();
       });
     }
-    function sealGlyph() {
-      var it = (KOS.governor.tried && KOS.governor.tried("seal")) || (g.seal && g.seal !== "kurenai" ? KOS.governor.item(g.seal) : null);
-      return (it && it.glyph) || "紅";
+    /* the portrait's badge: the worn seal's painted stamp, or its glyph */
+    function sealBadge(id) {
+      var it = id !== undefined ? (id && id !== "kurenai" ? KOS.governor.item(id) : null)
+        : (KOS.governor.tried && KOS.governor.tried("seal")) || (g.seal && g.seal !== "kurenai" ? KOS.governor.item(g.seal) : null);
+      return el("span", { class: "k-gv-ring-seal", lang: "ja", "aria-hidden": "true", "data-art": it && it.art ? "" : null },
+        it && it.art ? [el("img", { src: artSrc(it.art), alt: "", decoding: "async" })] : [(it && it.glyph) || "紅"]);
     }
     /* the portrait in its HP ring with the worn seal as a badge — the
        Status hero and the Avatar preview draw the same one */
     function ring(size, hp, hpCls, tag, attrs) {
       var node = el(tag || "span", Object.assign({ class: "k-gv-ring", "data-hp": hpCls }, attrs || {}), [
         KOS.governor.avatarNode(size),
-        el("span", { class: "k-gv-ring-seal", lang: "ja", "aria-hidden": "true", text: sealGlyph() })
+        sealBadge()
       ]);
       node.style.setProperty("--hp", Math.max(0, Math.min(100, hp)) + "%");
       /* a painted frame's reach is kept clear of the level and title (SC-03) */
@@ -357,7 +360,7 @@
             onclick: function () { KOS.show("governor", "avatar"); } }),
         txt
       ]);
-      if (o.seal) { var sg = id.querySelector(".k-gv-ring-seal"); var it = o.seal !== "kurenai" ? KOS.governor.item(o.seal) : null; if (sg) sg.textContent = (it && it.glyph) || "紅"; }
+      if (o.seal) { var sg = id.querySelector(".k-gv-ring-seal"); if (sg) sg.replaceWith(sealBadge(o.seal)); }
 
       /* the showcase arc: six medals, highest in the middle, placed as
          fractions of the room the medal leaves (--ax, --ay) */
@@ -1153,7 +1156,7 @@
     /* where each kind shows, said once (the Wardrobe's captions) */
     var WHERE = { outfit: "On the Assistant panel and the Stage", scene: "Behind the Focus timer", hall: "Behind the Shrine's rank 01",
       banner: "Your profile banner and the Seat's stage", finish: "Your shared cards", avatar: "Your portrait, everywhere it shows",
-      frame: "Round your portrait", seal: "Beside the brand mark · the share card", shelfskin: "The Books shelf", shrinestyle: "The Shrine's cards",
+      frame: "Round your portrait", seal: "Your portrait's badge · the share card", shelfskin: "The Books shelf", shrinestyle: "The Shrine's cards",
       paper: "New notebooks start on it", penset: "New strokes are written in it", theme: "The whole app", unlock: "Your own picture in that slot", lab: "In its subject's Practice zone" };
 
     /* the preview sheet (34h): the picture with Try on running, the words,
@@ -1461,7 +1464,7 @@
       /* the wardrobe: every kind you can wear, what you own of it as
          pictures, the one in use ringed; the rest are a shop away */
       var WARD = [["outfit", "Kurenai's outfit", "The Assistant panel"], ["avatar", "Avatar", "Your portrait"], ["scene", "Focus scene", "Behind the timer"],
-        ["hall", "Shrine hall", "Behind rank 01"], ["banner", "Painted banner", "The Seat's stage"], ["seal", "Seal", "Beside the brand mark · the share card"],
+        ["hall", "Shrine hall", "Behind rank 01"], ["banner", "Painted banner", "The Seat's stage"], ["seal", "Seal", "Your portrait's badge · the share card"],
         ["finish", "Share-card finish", "Your shared cards"], ["paper", "Notebook paper", "New notebook pages"], ["penset", "Pen set", "The pen's colours"]];
       var ward = el("div", { class: "k-gv-ward", "data-ui": "gov.wardrobe" });
       var SLOT_OF = { scene: "focus", hall: "shrine", banner: "banner" };

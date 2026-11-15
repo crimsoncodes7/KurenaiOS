@@ -938,24 +938,11 @@
     /* a worn pen set (34p) re-maps the pen's roles (ink.css) */
     var ps = wearing("penset"), psIt = ps && item(ps);
     if (psIt) document.documentElement.setAttribute("data-penset", psIt.penset); else document.documentElement.removeAttribute("data-penset");
-    /* the worn seal (SC-04, decision B6): stamped beside the brand mark —
-       the bloom stays — as its painted art, or its glyph for the older
-       ink seals; none for the default 紅 */
-    var brand = document.querySelector("#topbar [data-ui~='shell.brand']");
-    if (brand) {
-      var el = KOS.ui.el, old = brand.querySelector("[data-ui~='shell.brand-seal']");
-      var tsl = tried("seal");   /* a seal being tried on stamps the brand too (SC-33) */
-      var sid = tsl ? tsl.id : g.seal && g.seal !== "kurenai" && owns(g.seal) ? g.seal : null;
-      var sIt = sid && item(sid);
-      if (old && old.getAttribute("data-seal") !== sid) { old.remove(); old = null; }
-      if (sIt && !old) {
-        var stamp = el("span", { class: "k-brand-seal", "data-ui": "shell.brand-seal", "data-seal": sid, title: sIt.name, "aria-hidden": "true" },
-          [sIt.art ? el("img", { src: "assets/app/img/" + sIt.art + ".webp", alt: "", decoding: "async" })
-                   : el("span", { lang: "ja", text: SEAL_GLYPHS[sid] || sIt.glyph || "" })]);
-        var logo = brand.querySelector(".k-brand-logo");
-        if (logo && logo.nextSibling) brand.insertBefore(stamp, logo.nextSibling); else brand.appendChild(stamp);
-      }
-    }
+    /* the worn seal is not stamped in the header (the user's call, 16
+       November 2026: it crowded the brand); it shows on the portrait's
+       badge and the share card. A stamp left by an older build goes. */
+    var oldStamp = document.querySelector("#topbar [data-ui~='shell.brand-seal']");
+    if (oldStamp) oldStamp.remove();
   }
   /* the worn seal's picture or glyph, for the Seat ring and the share card */
   function sealMark() {

@@ -158,6 +158,11 @@
    "n": 28,
    "title": "The Badge Wall: set spot art",
    "why": "Design turn 35b: a small spot at the foot of each set panel's name column. Seven sets reuse an existing spot; these are the other nineteen. Until one arrives the panel shows none."
+  },
+  {
+   "n": 29,
+   "title": "The Assistant's emblem on dark themes",
+   "why": "SH-19: the header's Assistant button shows whispering-bloom-emblem-production.png, a dark crimson lily and a beige ring drawn for white paper, with a 焔 character beside it; on Graphite's dark 38 px button it reads as a smudge. This is the same mark redrawn for a dark ground, with no text. Until it arrives the button keeps the old emblem."
   }
  ],
  "assets": [
@@ -7095,6 +7100,20 @@
    "where": "The Wall: the foot of the u-cr-write set's name column (35b).",
    "size": "wave 34 · exported 640 px, keyed",
    "wave": 34
+  },
+  {
+   "id": "app.emblem.assistant-dark",
+   "batch": 29,
+   "kind": "spot",
+   "style": null,
+   "aspect": "1:1",
+   "attach": [
+    "assets/assistant/logo/whispering-bloom-emblem-production.png"
+   ],
+   "prompt": "Redraw the attached emblem as a clean flat logo mark for a DARK background, square canvas. Keep only its two parts: the red spider lily (higanbana) seen from the front with its long curling petals and stamens, and the brushed circle around it. Leave out the kanji, the small red stamp and the loose falling petals. The lily: bright crimson with lighter pink-coral tips and a few warm highlights, so it glows against near-black; bolder and simpler than the original, with fewer, thicker petals and stamens, so it still reads at 22 pixels. The circle: one brushed stroke in pale warm ivory-gold, thicker than the original, closed most of the way round and fading at one end. The lily is centred and fills about 70% of the canvas; the circle is just inside the edges. Flat colour with soft brush texture only, no shadows, no glow halo, no 3D. Everything outside the mark is one flat solid pure green colour (#00FF00), completely even, no gradient, no green anywhere in the mark. No text anywhere.",
+   "where": "The Assistant button in the header, on the dark themes (Graphite / Atelier Dusk); Dawn keeps the original.",
+   "size": "exported 256 px, keyed",
+   "recompose": "SH-19"
   }
  ]
 }

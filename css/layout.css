@@ -45,8 +45,6 @@ background: var(--bg);
 .k-brand-logo { inline-size: var(--brand-logo); block-size: var(--brand-logo); object-fit: contain; }
 .k-brand-name { font-size: var(--fs-17); font-weight: var(--weight-semibold); letter-spacing: -0.01em; }
 /* the worn seal, stamped beside the bloom (SC-04) */
-.k-brand-seal { inline-size: calc(var(--brand-logo) * 0.72); block-size: calc(var(--brand-logo) * 0.72); flex: 0 0 auto; display: grid; place-items: center; border-radius: var(--r-6); color: var(--crimson); font-weight: var(--weight-semibold); }
-.k-brand-seal > img { inline-size: 100%; block-size: 100%; object-fit: contain; }
 .k-search {
 position: relative;
 inline-size: var(--search-w);

@@ -9,8 +9,8 @@
          receipt per theme; a second run and a re-added owned id pay nothing.
      C · 42d: buying asks first (a confirm naming the cost and what is left);
          Cancel spends nothing, Buy spends it.
-     D · SC-04: the worn seal is stamped beside the brand mark (its painted
-         art, or its glyph), and goes when the default is worn again.
+     D · SC-04: the worn seal shows on the portrait's badge (its painted
+         stamp) and the share card, never in the header.
      E · SC-28: the CSS gradient frames are retired (not sold; an owned one
          stays usable).
      F · SC-05: shelf skins and Shrine cards point --skin-art at an absolute
@@ -127,20 +127,21 @@ step("C · 42d: buying asks first", async () => {
   assert(K.governor.owns(it.id), "and owns it");
 });
 
-step("D · SC-04: the worn seal beside the brand mark", () => {
+step("D · SC-04: the worn seal on the portrait's badge and the share card, never the header", async () => {
   const g = K.store.state.governor;
   if (!g.owned.includes("seal-yuki")) g.owned.push("seal-yuki");
   K.governor.setSeal("seal-yuki");
-  let s = $("#topbar [data-ui~='shell.brand-seal']");
-  assert(s && s.querySelector("img") && /app\.seal\.yuki\.webp$/.test(s.querySelector("img").getAttribute("src")), "the painted stamp");
+  /* the user's call (16 November 2026): no stamp beside the brand mark */
+  assert(!$("#topbar [data-ui~='shell.brand-seal']") && !$("#topbar .k-brand-seal"), "nothing in the header");
   assert($("#topbar .k-brand-logo"), "the bloom stays");
-  /* the six first seals were repainted too (SC-10): every seal is a stamp */
+  K.show("governor", "status", { _nav: true }); await app.settle();
+  let b = $("#main .k-gv-ring .k-gv-ring-seal");
+  assert(b && b.querySelector("img") && /app\.seal\.yuki\.webp$/.test(b.querySelector("img").getAttribute("src")), "the painted stamp on the portrait's badge");
   K.governor.setSeal("seal-homura");
-  s = $("#topbar [data-ui~='shell.brand-seal']");
-  assert(s && s.getAttribute("data-seal") === "seal-homura" && /app\.seal\.homura\.webp$/.test(s.querySelector("img").getAttribute("src")), "a first seal's repainted stamp");
   eq(K.governor.sealMark().glyph, "焔", "sealMark for the share card");
-  K.governor.setSeal("kurenai");
-  assert(!$("#topbar [data-ui~='shell.brand-seal']"), "none for the default");
+  K.governor.setSeal("kurenai"); K.rerender(); await app.settle();
+  b = $("#main .k-gv-ring .k-gv-ring-seal");
+  assert(b && !b.querySelector("img") && b.textContent === "紅", "the default's glyph");
   eq(K.governor.sealMark(), null, "and no share-card seal");
 });
 
@@ -233,13 +234,12 @@ step("K · SC-33: Try on everything; the Stage is the fitting room", async () =>
   const port = $("[data-ui~='shop.try-portrait']", st);
   assert(port && /app\.avatar\.fox/.test(port.querySelector(".k-avatar-art").getAttribute("src")), "the tried avatar on the portrait");
   assert(/app\.frame\.koi/.test(port.querySelector(".k-avatar-frame-art").getAttribute("src")), "the tried frame round it");
-  assert($("#topbar [data-ui~='shell.brand-seal'][data-seal='seal-yuki']"), "the tried seal beside the brand mark");
+  assert(/app\.seal\.yuki/.test(port.querySelector(".k-gv-ring-seal img").getAttribute("src")), "the tried seal on the portrait's badge");
   assert($("[data-ui~='shop.try-ground']", st), "the tried banner is the stage's ground");
   assert($("[data-ui~='shop.try-sample'] .k-gv-pv", st), "a sample of the tried shelf");
   eq(JSON.stringify({ a: g.avatar, s: g.seal, b: g.banner, sk: g.shelfSkin }), before, "nothing tried is saved");
   G.stopTrying(); K.rerender(); await app.settle();
   assert(!$("#main [data-ui~='shop.try-portrait']"), "Stop ends it");
-  assert(!$("#topbar [data-ui~='shell.brand-seal'][data-seal='seal-yuki']"), "and the seal goes");
   const fig = $("#main .k-gv-shop-fig img");
   assert(fig && /app\.base\.kurenai/.test(fig.getAttribute("src")), "Kurenai stands on the stage in her own clothes (SC-11)");
   const css = fs.readFileSync(path.join(ROOT, "css/views/governor.css"), "utf8");

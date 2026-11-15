@@ -78,6 +78,8 @@ button.k-gv-status-line:hover { color: var(--text); }
 .k-gv-ring[data-hp="critical"] { --ring: var(--alarm); }
 button.k-gv-ring:hover { filter: brightness(1.08); }
 .k-gv-ring-seal { position: absolute; inset-inline-end: calc(var(--sp-2) * -1); inset-block-end: var(--sp-6); inline-size: var(--gv-seal-badge); block-size: var(--gv-seal-badge); display: grid; place-items: center; border-radius: 50%; background: var(--crimson); color: var(--crimson-ink); font: var(--weight-semibold) var(--fs-16) var(--font-kanji); box-shadow: 0 0 0 var(--bar-3) var(--bg); }
+.k-gv-ring-seal[data-art] { background: none; box-shadow: none; }
+.k-gv-ring-seal > img { inline-size: 100%; block-size: 100%; object-fit: contain; }
 .k-gv-stage-id .k-gv-ring-seal { inline-size: calc(var(--gv-seal-badge) * 1.5); block-size: calc(var(--gv-seal-badge) * 1.5); font-size: var(--fs-22); }
 
 /* the showcase arc: six medals on an upside-down parabola, highest in the middle */
