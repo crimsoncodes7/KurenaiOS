@@ -1,6 +1,6 @@
 ---
 name: project-branch-and-release-state
-description: "Which git branch is live, what is deployed — check git before trusting this; latest entry 2026-11-16 (production kos-integrity-10, d1e9853, W5)"
+description: "Which git branch is live, what is deployed — check git before trusting this; latest entry 2026-11-16 (production kos-integrity-10, d1e9853, W5; AP-01 stage 1 waits on feat/w2-lazy)"
 metadata:
   node_type: memory
   type: project
@@ -8,7 +8,9 @@ metadata:
   modified: 2026-10-20T16:16:29.892Z
 ---
 
-**Latest (2026-11-16, night):** production is sw `kos-integrity-10`, commit `d1e9853`, immutable https://13f349d3.kurenai-os.pages.dev; `origin/main` fast-forwarded to it from `feat/w5-shop`: W5 — themes retired + refund, Buy confirm, seals drawn, share-card Washi/Foil/Film + Finish row, pen sets on new strokes only, frames by measured opening, avatars as discs (smoke151). W5 still open: Try on for every kind / Stage as fitting room, the Shrine card's finish row, SC-02, PR-02, phone shop. The other account must merge main into feat/w2-lazy.
+**Latest (2026-11-16, Fable account):** AP-01 stage 1 (loading on first use) is DONE on `feat/w2-lazy` at 7e32772, main merged in, pushed, NOT on main, NOT deployed: boot parses 8.4 MB of 17.0 MB; invariant 168; smoke142 (gate 148/148). Details and what a new lazy file needs: CLAUDE.md invariant 168. Stage 2 (page modules on first use, to reach ~4 MB) is not started and needs scoping. Releasing it needs main fast-forwarded to it (or merged), a sw bump and the user's go-ahead. Next on Fable: W1 RC6 (smoke143).
+
+**Before it (2026-11-16, night):** production is sw `kos-integrity-10`, commit `d1e9853`, immutable https://13f349d3.kurenai-os.pages.dev; `origin/main` fast-forwarded to it from `feat/w5-shop`: W5 — themes retired + refund, Buy confirm, seals drawn, share-card Washi/Foil/Film + Finish row, pen sets on new strokes only, frames by measured opening, avatars as discs (smoke151). W5 still open: Try on for every kind / Stage as fitting room, the Shrine card's finish row, SC-02, PR-02, phone shop. The other account must merge main into feat/w2-lazy.
 
 **Before it (2026-11-16, evening, Opus):** the other account's AP-01 is WIP on `feat/w2-lazy` (leave it; it merges main itself; smoke142 is its). This account cut `feat/w5-shop` from origin/main: W5's first batch (smoke151; gate 147): every shop theme retired + one-time refund repair `theme-refund`, Buy behind a confirm, worn seal beside the brand + share card, CSS frames retired, SC-05 absolute skin URLs, the 12 avatars imported as discs. NOT deployed (needs a go-ahead + sw bump). W5 still open: Try on for every kind / Stage as fitting room, Washi/Foil/Film finishes, pen sets on new strokes only (SC-34), frame hole ratios (SC-01/03/06/07/08/21), SC-02, PR-02, phone shop. Order after: W3 + turn 37, 5.19 (incl. item 2, moved here), 40–41, 36 after AP-01, 39 after MG engine.
 
