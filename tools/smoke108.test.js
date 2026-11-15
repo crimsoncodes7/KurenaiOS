@@ -249,6 +249,9 @@ step("I · Design's drills: each renders and checks; a batch pays once a day; a 
   async function batch(id) {
     K.show("creatives", { page: "drills", id }); await app.settle();
     for (let i = 0; i < 6 && !doc.querySelector('[data-ui~="cr.drill-summary"]'); i++) {
+      /* a round counts as work only when a control moved (CR-32) */
+      const ctl = [...doc.querySelectorAll(".k-crd-stage button")].find((b) => !b.matches('[data-ui~="cr.drill-check"], [data-ui~="cr.drill-next"]'));
+      if (ctl) { ctl.click(); await app.settle(); }
       doc.querySelector('[data-ui~="cr.drill-check"]').click(); await app.settle();
       doc.querySelector('[data-ui~="cr.drill-next"]').click(); await app.settle();
     }

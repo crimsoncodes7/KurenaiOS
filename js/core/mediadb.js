@@ -751,6 +751,21 @@
      cloudsync after a confirmed remote tombstone. Capped: if cloud sync is
      never used this is just a small ring buffer. */
   var TOMBSTONE_KEY = "cloudsync.pendingDeletes", TOMBSTONE_CAP = 1000;
+  /* CL-25: Undo of a delete — the row goes back under its own id and
+     syncId, and its deletion leaves the queue if it has not reached the
+     cloud yet. A deletion that already went is overtaken by the restored
+     row, which is newer (updatedAt now) and pushes as live. */
+  function restoreDeleted(entry, cb) {
+    if (!entry || entry.id == null) { cb && cb(new Error("Nothing to bring back.")); return; }
+    getKV(TOMBSTONE_KEY, function (err, q) {
+      q = (Array.isArray(q) ? q : []).filter(function (t) { return !(t && entry.syncId && t.syncId === entry.syncId); });
+      setKV(TOMBSTONE_KEY, q, function () {
+        var e = JSON.parse(JSON.stringify(entry));
+        e.updatedAt = Date.now();
+        put(e, cb);
+      });
+    });
+  }
   function recordTombstones(list, cb) {
     if (!list || !list.length) { cb && cb(null); return; }
     getKV(TOMBSTONE_KEY, function (err, q) {
@@ -1574,6 +1589,7 @@
     getBySyncId: getBySyncId,
     genSyncId: genSyncId,
     recordTombstones: recordTombstones,
+    restoreDeleted: restoreDeleted,
     hasPhysical: hasPhysical,
     count: count,
     stats: stats,

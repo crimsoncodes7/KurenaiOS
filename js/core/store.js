@@ -351,6 +351,37 @@
     var r = renamedRef(k.slice(0, i), k.slice(i + 1));
     return r == null ? null : k.slice(0, i + 1) + r;
   }
+  /* CC-15: a folded leaf's record meets the kept leaf's own (an older
+     backup, an older device's pull): the member's evidence is MERGED into
+     the kept record — the further status, every check either earned, the
+     larger figures, both notes — instead of the member being thrown away
+     because the kept leaf already had a record. Where the two genuinely
+     disagree on a value with no order (a string, a list of rows), the kept
+     record's stands, as before. */
+  var STATUS_RANK = { none: 0, notStarted: 0, "not-started": 0, started: 1, paused: 1, inProgress: 1, done: 3, completed: 3 };
+  function foldRecord(kept, member) {
+    if (!kept || typeof kept !== "object" || Array.isArray(kept)) return kept != null ? kept : member;
+    if (!member || typeof member !== "object" || Array.isArray(member)) return kept;
+    Object.keys(member).forEach(function (f) {
+      var a = kept[f], b = member[f];
+      if (b == null) return;
+      if (a == null || a === "") { kept[f] = b; return; }
+      if (f === "status" && typeof a === "string" && typeof b === "string") {
+        if ((STATUS_RANK[b] || 0) > (STATUS_RANK[a] || 0)) kept[f] = b;
+      } else if ((f === "note" || f === "notes") && typeof a === "string" && typeof b === "string") {
+        if (b && a.indexOf(b) === -1) kept[f] = a + "\n\n" + b;
+      } else if (typeof a === "number" && typeof b === "number") {
+        if (b > a) kept[f] = b;
+      } else if (typeof a === "boolean" && typeof b === "boolean") {
+        kept[f] = a || b;
+      } else if (Array.isArray(a) && Array.isArray(b) && a.concat(b).every(function (x) { return typeof x === "boolean"; })) {
+        for (var i = 0; i < Math.max(a.length, b.length); i++) a[i] = !!a[i] || !!b[i];
+      } else if (a && b && typeof a === "object" && typeof b === "object" && !Array.isArray(a) && !Array.isArray(b)) {
+        kept[f] = foldRecord(a, b);
+      }
+    });
+    return kept;
+  }
   function renameRefs(s) {
     var n = 0;
     function walk(o, bareSid) {
@@ -375,6 +406,7 @@
         var nk = renamedKey(k);
         if (nk != null) {
           if (!Object.prototype.hasOwnProperty.call(o, nk)) o[nk] = o[k];
+          else o[nk] = foldRecord(o[nk], o[k]);      /* CC-15: merged, never dropped */
           delete o[k]; n++;
         }
       });
@@ -1331,6 +1363,14 @@
           stepDone(err);
         });
       }
+      /* saved Reports and their boundary snapshots (AA-13, DI-09) */
+      if (window.KOS && KOS.reportStore && KOS.reportStore.exportAll && KOS.reportStore.available()) {
+        steps++;
+        KOS.reportStore.exportAll(function (err, dump) {
+          if (!err && dump && (dump.reports.length || dump.snapshots.length)) result.reports = dump;
+          stepDone(err);
+        });
+      }
       if (steps === 0) cb(null, result);
     },
 
@@ -1501,14 +1541,27 @@
           });
         }
 
-        restoreMedia(function () { restoreFiles(function () { restoreMoney(function () { restoreReviews(function () { restoreInk(function () { restoreCreatives(function () { restoreMind(function () { restoreLedger(function () { restoreJaMined(function () {
+        function restoreReports(next) {
+          if (!backup.reports) return next();
+          if (!window.KOS || !KOS.reportStore || !KOS.reportStore.importAll || !KOS.reportStore.available()) {
+            report.missingSections.push("saved reports (IndexedDB unavailable)");
+            return next();
+          }
+          KOS.reportStore.importAll(backup.reports, function (err, out) {
+            if (err) report.missingSections.push("saved reports (error: " + err.message + ")");
+            else report.restoredSections.push("saved reports (" + out.reports + ")");
+            next();
+          });
+        }
+
+        restoreMedia(function () { restoreFiles(function () { restoreMoney(function () { restoreReviews(function () { restoreInk(function () { restoreCreatives(function () { restoreMind(function () { restoreLedger(function () { restoreJaMined(function () { restoreReports(function () {
           /* Build 4a — a restore is authoritative for this account: cloud
              sync must re-baseline (push everything, tombstone remote rows
              the backup no longer carries) instead of trusting stale
              watermarks. No-op when cloud sync is absent or signed out. */
           if (window.KOS && KOS.cloudsync && KOS.cloudsync.noteRestore) KOS.cloudsync.noteRestore();
           done && done(null, report);
-        }); }); }); }); }); }); }); }); });
+        }); }); }); }); }); }); }); }); }); });
       };
       reader.onerror = function () { done && done(new Error("Could not read file")); };
       reader.readAsText(file);

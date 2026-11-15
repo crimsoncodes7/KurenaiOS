@@ -573,7 +573,14 @@
   /* forward: a wishlist item can open the vault entry it references */
   function openLinkedEntry(entryId, after) {
     KOS.mediadb.get(entryId, function (err, entry) {
-      if (err || !entry) { KOS.ui.toast("That collection entry no longer exists.", true); return; }
+      if (err || !entry) {
+        /* CL-25: a link to a deleted entry is cleared, so the row offers
+           linking again instead of a button that does nothing */
+        items().filter(function (it) { return it.linkedEntryId === entryId; }).forEach(function (it) { update(it.id, { linkedEntryId: null }); });
+        KOS.ui.toast("That collection entry was deleted — the link is cleared.", true);
+        if (after) after(); else if (KOS.rerender) KOS.rerender();
+        return;
+      }
       KOS.mediaEditor(entry, after || null);
     });
   }

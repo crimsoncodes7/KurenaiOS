@@ -12,7 +12,8 @@
          schedule under an old key still belongs to the same card text.
      C · STORED STATE FOLLOWS THE REFS. A returning user's progress, topic
          links and plan rows filed under a folded ref are renamed to the kept
-         leaf at boot; the kept leaf's own record wins; card keys are not
+         leaf at boot; where the kept leaf has a record of its own the
+         member's is merged into it (CC-15); card keys are not
          touched.
      D · NOTHING DANGLES. No content entry, sim or generator is still wired
          to a folded ref, and every merged leaf keeps overview, toolkit and
@@ -93,7 +94,11 @@ step("C · stored state under a folded ref moves to the kept leaf", async () => 
   };
   const app = await boot({ storage: { "kurenai-os-v1": JSON.stringify(state) } });
   const st = app.KOS.store.state;
-  assert(st.progress["compsci:4.5.1.1"] && st.progress["compsci:4.5.1.1"].note === "the kept one", "the kept leaf's own record wins");
+  /* CC-15 (16 November 2026): the member's evidence is MERGED into the kept
+     record — the further status and every check stand, both notes are kept */
+  const kept = st.progress["compsci:4.5.1.1"];
+  assert(kept && kept.status === "done" && kept.check.every(Boolean), "the kept leaf's further status and checks stand");
+  assert(/the kept one/.test(kept.note) && /from ℚ/.test(kept.note), "both notes are kept: " + (kept && kept.note));
   assert(!st.progress["compsci:4.5.1.3"], "the folded leaf's record is gone");
   assert(st.progress["compsci:4.4.1.3"] && st.progress["compsci:4.4.1.3"].note === "procedural", "a folded record moves when the kept leaf has none");
   assert(st.srs["compsci:4.5.1.3:5"] && st.srs["compsci:4.5.1.3:5"].reps === 3, "a card schedule keeps its key");

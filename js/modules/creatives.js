@@ -352,14 +352,25 @@
     var beginner = null;
     (CR().pagesOf(L.id) || []).forEach(function (pg) { pg.blocks.forEach(function (b) { if (b.beginner && !beginner) beginner = b.beginner; }); });
     var answers = L.check.rows.map(function () { return null; });
+    /* CR-15: the earlier check, shown and filled in; turning a pass into
+       Not yet says so on the button rather than happening by a re-save */
+    var prev = w.check && Array.isArray(w.check.rows) ? w.check : null;
     var note = el("textarea", { class: "k-input k-cr-checknote", rows: "2", "aria-label": "One sentence about it (optional)", placeholder: "A note (optional)" });
+    if (prev && prev.note) note.value = prev.note;
+    var prevLine = prev ? el("p", { class: "k-muted", "data-ui": "cr.check-earlier", text: "Checked " + dateShort(prev.at) + " · " + (prev.pass ? "passed" : "not yet") }) : null;
+    function paintSave() {
+      var would = answers.length > 0 && answers.every(function (a) { return a === true; });
+      saveBtn.textContent = prev && prev.pass && !would && answers.every(function (a) { return a != null; }) ? "Change to Not yet" : "Save check";
+    }
     var saveBtn = el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "cr.check-save", text: "Save check", disabled: "" });
     var out = el("div", { class: "k-cr-checkout", "aria-live": "polite" });
     var rows = L.check.rows.map(function (q, i) {
       var yes = el("button", { type: "button", class: "k-cr-choice", "data-ui": "cr.choice", "aria-pressed": "false", text: "Yes, mostly" });
       var no = el("button", { type: "button", class: "k-cr-choice", "data-ui": "cr.choice", "aria-pressed": "false", text: "Not yet" });
-      function pick(v) { answers[i] = v; yes.setAttribute("aria-pressed", String(v === true)); no.setAttribute("aria-pressed", String(v === false)); saveBtn.disabled = answers.some(function (a) { return a === null; }); }
+      function pick(v) { answers[i] = v; yes.setAttribute("aria-pressed", String(v === true)); no.setAttribute("aria-pressed", String(v === false)); paintSave(); saveBtn.disabled = answers.some(function (a) { return a === null; }); }
       yes.onclick = function () { pick(true); }; no.onclick = function () { pick(false); };
+      /* CR-15: a check already made opens as it was answered */
+      if (prev && prev.rows && typeof prev.rows[i] === "boolean") pick(prev.rows[i]);
       return el("div", { class: "k-cr-checkrow", role: "group", "aria-label": q }, [el("b", { text: q }), el("div", { class: "k-cr-choices" }, [yes, no])]);
     });
     saveBtn.onclick = function () {
@@ -404,7 +415,8 @@
           el("p", { class: "k-cr-calib-text", text: L.check.good }),
           el("div", { class: "k-cr-ignore" }, [el("span", { class: "k-kicker", text: "Ignore for now" }), el("ul", {}, L.check.ignore.map(function (x) { return el("li", {}, [el("s", { text: x[0] })]); }))])
         ]),
-        el("section", { class: "k-card k-cr-checkform", "data-ui": "cr.check-form", "aria-label": "The check" }, rows.concat([note, el("div", { class: "k-cr-daily-go" }, [saveBtn]), out]))
+        el("section", { class: "k-card k-cr-checkform", "data-ui": "cr.check-form", "aria-label": "The check" }, (prevLine ? [prevLine] : []).concat(rows, [note, el("div", { class: "k-cr-daily-go" }, [saveBtn,
+          el("button", { type: "button", class: "k-btn", "data-ui": "cr.check-back", text: "Back to the lesson", onclick: function () { KOS.show("ref", { subject: SID, ref: L.id }); } })]), out]))
       ])
     ]));
   }

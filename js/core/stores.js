@@ -65,11 +65,11 @@
       label: "Older sessions, past the ledger's 2,000" },
     { id: "jaMined", db: "kurenai-os-ja-mined", backup: "jaMined", mark: "語", tone: "amber", count: "lines", unit: ["line", "lines"],
       label: "Japanese lines you saved" },
+    { id: "reports", db: "kurenai-os-reports", backup: "reports", mark: "報", tone: "teal", count: "reports", unit: ["report", "reports"],
+      label: "Saved Reports and snapshots" },
     /* ---- not in the file ---- */
     { id: "papers", db: "kurenai-os-papers", backup: null, count: "files", unit: ["paper", "papers"],
       label: "The Paper library's own PDFs", why: "a paper you Keep in my cloud is also copied into Files, which the file does carry" },
-    { id: "reports", db: "kurenai-os-reports", backup: null, count: "reports", unit: ["report", "reports"],
-      label: "Saved Reports and snapshots", why: "kept in your cloud when you are signed in" },
     { id: "filetext", db: "kurenai-os-filetext", backup: null, count: null,
       label: "The text read from your PDFs, for search", why: "read again from the files" },
     { id: "backups", db: "kurenai-os-backups", backup: null, count: "backups", unit: ["checkpoint", "checkpoints"], keep: true,

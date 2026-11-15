@@ -85,6 +85,15 @@
     /* a repeat with nothing to repeat from can never fire — clearing the
        date clears the schedule, exactly as it clears the time */
     if (!due) recur = null;
+    /* PR-26: a monthly or yearly repeat remembers the day of the month it
+       was set on. A date chosen (or a repeat newly chosen) sets it; a date
+       a completion rolled forward never does (that path does not come here) */
+    var recurDay = null;
+    if (recur === "monthly" || recur === "yearly") {
+      var dueDay = due ? +due.slice(8, 10) : null;
+      var reset = patch.due !== undefined && patch.due !== b.due || patch.recur !== undefined && patch.recur !== b.recur;
+      recurDay = !reset && b.recurDay >= 1 && b.recurDay <= 31 ? b.recurDay : dueDay;
+    }
     var alerts = (patch.alerts != null ? patch.alerts : b.alerts) || [];
     if (!Array.isArray(alerts)) alerts = [];
     alerts = alerts.map(function (a) { return parseInt(a, 10); })
@@ -106,6 +115,7 @@
       tags: tags,
       subs: subs,
       recur: recur,
+      recurDay: recurDay,
       alerts: alerts,
       alerted: b.alerted || {},
       lastRewardedOn: b.lastRewardedOn || null,
@@ -167,10 +177,12 @@
   }
 
   /* ---------------- recurrence ---------------- */
-  function addMonths(iso, n) {
+  function addMonths(iso, n, anchor) {
     var p = iso.split("-");
     var d = new Date(+p[0], +p[1] - 1, +p[2]);
-    var day = d.getDate();
+    /* PR-26: the day of the month the repeat was set on, not the one the
+       last short month clamped it to (31 Jan → 28 Feb → 31 Mar) */
+    var day = anchor >= 1 && anchor <= 31 ? anchor : d.getDate();
     d.setDate(1);
     d.setMonth(d.getMonth() + n);
     /* clamp: 31 Jan + 1 month is the last day of February, not 3 March */
@@ -185,8 +197,8 @@
     var cur = from || item.due;
     if (item.recur === "daily") return KOS.srs.addDays(cur, 1);
     if (item.recur === "weekly") return KOS.srs.addDays(cur, 7);
-    if (item.recur === "monthly") return addMonths(cur, 1);
-    if (item.recur === "yearly") return addMonths(cur, 12);
+    if (item.recur === "monthly") return addMonths(cur, 1, item.recurDay);
+    if (item.recur === "yearly") return addMonths(cur, 12, item.recurDay);
     return null;
   }
   /* the occurrence a completed repeat should land on: the first one that is

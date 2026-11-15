@@ -772,7 +772,16 @@
           if (!q.value.trim() || !a.value.trim()) { KOS.ui.toast("Both sides are needed.", true); return; }
           KOS.srs.addCustom(KOS.srs.PERSONAL_SID, e.module, q.value.trim(), a.value.trim(),
             { src: { module: e.module, entryId: e.id != null ? e.id : null, title: e.title } });
-          KOS.ui.toast("Card added to the Personal deck — study it from Due Today → Personal deck.");
+          /* CL-38: the quote a card is made from is kept with it — saved to
+             the entry now, not left in the editor's draft for Cancel to drop */
+          if (e.id != null) KOS.mediadb.get(e.id, function (gErr, stored) {
+            if (gErr || !stored) return;
+            stored.quotes = Array.isArray(stored.quotes) ? stored.quotes : [];
+            var have = stored.quotes.some(function (x) { return x && x.text === quote.text && (x.context || "") === (quote.context || ""); });
+            if (!have) { stored.quotes.push(JSON.parse(JSON.stringify(quote))); KOS.mediadb.put(stored, function () {}); }
+          });
+          KOS.ui.toast("Card added to the Personal deck, and the quote is kept.", false,
+            { label: "Open the deck", run: function () { KOS.show("personaldeck"); } });
           onDone();
         } }),
         el("button", { type: "button", class: "k-btn k-btn--sm", text: "Cancel", onclick: function (ev) { ev.preventDefault(); onDone(); } })
@@ -1272,13 +1281,30 @@
   }
 
   /* the shared delete tail — every editor's Delete button */
+  /* CL-25: the confirm names a Wishlist purchase that points here, and the
+     toast offers Undo: the row (with its whole personal layer) comes back
+     under its own id, so a Wishlist link to it works again */
   function deleteEntry(e, confirmMsg, close, onSaved) {
-    KOS.ui.confirm({ title: "Delete this entry?", body: confirmMsg, danger: true, confirm: "Delete" }, function () {
-      KOS.mediadb.remove(e.id, function (err) {
-        if (err) { KOS.ui.toast("Delete failed: " + err.message, true); return; }
-        KOS.ui.toast("Deleted.");
-        close();
-        onSaved && onSaved(null);
+    var wl = KOS.wishlist && KOS.wishlist.forEntry ? KOS.wishlist.forEntry(e.id) : [];
+    var body = confirmMsg + (wl.length ? " " + (wl.length === 1 ? "A Wishlist item links to it (“" + wl[0].title + "”); its link is cleared." : wl.length + " Wishlist items link to it; their links are cleared.") : "");
+    KOS.mediadb.get(e.id, function (gErr, stored) {
+      var copy = JSON.parse(JSON.stringify(stored || e));
+      KOS.ui.confirm({ title: "Delete this entry?", body: body, danger: true, confirm: "Delete" }, function () {
+        KOS.mediadb.remove(e.id, function (err) {
+          if (err) { KOS.ui.toast("Delete failed: " + err.message, true); return; }
+          var unlinked = wl.map(function (it) { return it.id; });
+          unlinked.forEach(function (id) { KOS.wishlist.update(id, { linkedEntryId: null }); });
+          KOS.ui.toast("Deleted “" + (copy.title || "the entry") + "”.", false, { label: "Undo", run: function () {
+            KOS.mediadb.restoreDeleted(copy, function (rErr) {
+              if (rErr) { KOS.ui.toast("Couldn't bring it back: " + rErr.message, true); return; }
+              unlinked.forEach(function (id) { KOS.wishlist.update(id, { linkedEntryId: copy.id }); });
+              KOS.ui.toast("“" + (copy.title || "The entry") + "” is back.");
+              if (KOS.rerender) KOS.rerender();
+            });
+          } });
+          close();
+          onSaved && onSaved(null);
+        });
       });
     });
   }

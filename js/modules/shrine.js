@@ -786,6 +786,16 @@
      tier's titles in their current order; dragging (or Space and ↑ ↓)
      stores the new order through KOS.media.shrineOrder (the synced state,
      invariant 57a) and the hall follows it when the dialog closes. */
+  /* the tier's stored order with the shown titles' slots refilled in their
+     new sequence (CL-17); shown titles the order never had go at its end */
+  function mergeOrder(stored, seq) {
+    var shown = {}, q = seq.slice(), out = [];
+    seq.forEach(function (k) { shown[k] = 1; });
+    stored.forEach(function (k) { if (shown[k]) { if (q.length) out.push(q.shift()); } else out.push(k); });
+    q.forEach(function (k) { if (out.indexOf(k) === -1) out.push(k); });
+    return out;
+  }
+  KOS.shrineMergeOrder = mergeOrder;
   function tierOrderDialog(tier) {
     var entries = tier.entries.slice();
     var overlay = el("div", { class: "k-dialog-overlay" });
@@ -809,7 +819,10 @@
     KOS.ui.reorder(list, { rows: "[data-rid]", label: function (row) { return (row.querySelector("b") || {}).textContent || "Title"; },
       onDrop: function () {
         var keys = [].map.call(list.querySelectorAll("[data-rid]"), function (n) { return n.getAttribute("data-rid"); });
-        KOS.media.shrineOrder.set(tier.score, keys);
+        /* CL-17: under a medium filter the dialog shows only that medium's
+           titles; their new order fills THEIR slots in the tier's stored
+           order, and the other media's titles keep their places */
+        KOS.media.shrineOrder.set(tier.score, mergeOrder(KOS.media.shrineOrder.get(tier.score), keys));
         entries.sort(function (a, b) { return keys.indexOf(KOS.media.shrineOrder.entryKey(a)) - keys.indexOf(KOS.media.shrineOrder.entryKey(b)); });
         changed = true;
         paint();
@@ -825,7 +838,10 @@
       list,
       el("div", { class: "k-dialog-foot" }, [
         el("button", { type: "button", class: "k-btn k-btn--quiet", "data-ui": "shrine.order-reset", text: "Reset to date enshrined", onclick: function () {
-          KOS.media.shrineOrder.set(tier.score, []);
+          /* only the titles shown here go back to date order (CL-17) */
+          var shown = {};
+          entries.forEach(function (e) { shown[KOS.media.shrineOrder.entryKey(e)] = 1; });
+          KOS.media.shrineOrder.set(tier.score, KOS.media.shrineOrder.get(tier.score).filter(function (k) { return !shown[k]; }));
           changed = true;
           overlay.close();
         } }),

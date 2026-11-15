@@ -438,7 +438,7 @@ step("W · RC4: Backup & Restore lists every store the file carries, what it doe
   const listed = [...doc.querySelectorAll("[data-store]")].map((n) => n.getAttribute("data-store"));
   K.stores.list().filter((r) => r.backup).forEach((r) => assert(listed.indexOf(r.id) !== -1, "the covers list names " + r.id));
   const out = doc.querySelector("[data-ui~='archive.not-in-file']");
-  assert(out && /Paper library/.test(out.textContent) && /Reports/.test(out.textContent), "it says what is not in the file: " + (out && out.textContent));
+  assert(out && /Paper library/.test(out.textContent) && !/Reports/.test(out.textContent), "it says what is not in the file (Reports ride it since AA-13): " + (out && out.textContent));
   const rows = [...doc.querySelectorAll("[data-ui~='archive.checkpoint']")];
   assert(rows.length >= 1, "the checkpoints are listed");
   assert(/Before Reset everything/.test(rows[0].textContent), "named in words: " + rows[0].textContent);

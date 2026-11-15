@@ -429,11 +429,30 @@
     return true;
   }
 
+  /* PR-28: a week begins on a Monday. A date inside a week is snapped back
+     to its Monday; a beginning inside another week's seven days is refused
+     (it took over "this week" from the week it overlapped); a label still
+     reading the default ("w/c …") follows the date. */
+  function mondayOf(iso) {
+    var d = new Date(Date.UTC(+iso.slice(0, 4), +iso.slice(5, 7) - 1, +iso.slice(8, 10)));
+    d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7));
+    return d.toISOString().slice(0, 10);
+  }
+  function overlaps(wb, except) {
+    var t = Date.parse(wb + "T00:00:00Z");
+    return P().weeks.some(function (o) { return o.wb !== except && Math.abs(Date.parse(o.wb + "T00:00:00Z") - t) < 7 * 864e5; });
+  }
+  function settleWeek(w, typed, oldWb) {
+    w.wb = mondayOf(w.wb);
+    if (!w.label || w.label === weekLabel(typed) || (oldWb && w.label === weekLabel(oldWb)) || w.label === typed) w.label = weekLabel(w.wb);
+    return w;
+  }
   function addWeek(data) {
     var s = P();
     var w = normaliseWeek(data);
     if (!/^\d{4}-\d{2}-\d{2}$/.test(w.wb)) return null;
-    if (weekAt(w.wb)) return null;                 /* the week beginning IS the key */
+    w = settleWeek(w, str(data && data.wb).trim(), null);
+    if (overlaps(w.wb, null)) return null;         /* the week beginning IS the key */
     s.weeks.push(w);
     KOS.store.save();
     return w;
@@ -447,7 +466,8 @@
     if (!w || !patch) return null;
     var next = normaliseWeek(Object.assign({}, w, patch));
     if (!/^\d{4}-\d{2}-\d{2}$/.test(next.wb)) return null;
-    if (next.wb !== w.wb && weekAt(next.wb)) return null;
+    if (patch.wb !== undefined && str(patch.wb).trim() !== w.wb) next = settleWeek(next, str(patch.wb).trim(), w.wb);
+    if (next.wb !== w.wb && overlaps(next.wb, w.wb)) return null;
     var moved = next.wb !== w.wb, from = w.wb;
     Object.keys(next).forEach(function (k) { w[k] = next[k]; });
     P().entries.forEach(function (e) {

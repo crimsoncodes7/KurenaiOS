@@ -60,13 +60,23 @@
     var head = el("div", { class: "k-crd-head" });
     var stage = el("div", { class: "k-crd-stage" });
     host.appendChild(head); host.appendChild(stage);
+    /* CR-32: a round counts as worked only when one of its controls moved
+       (a slider, a − / +, a pick) — Check and Next alone are not work, and a
+       batch with no worked round pays nothing and logs nothing */
+    var touched = false;
+    stage.addEventListener("input", function () { touched = true; });
+    stage.addEventListener("click", function (e) {
+      var b = e.target && e.target.closest ? e.target.closest("button, [role=radio]") : null;
+      if (b && !b.matches("[data-ui~='cr.drill-check'], [data-ui~='cr.drill-next']") && stage.contains(b)) touched = true;
+    });
     function paintHead() {
       head.innerHTML = "";
       head.appendChild(el("span", { class: "k-mono k-muted", text: round < T.rounds ? "Round " + (round + 1) + " of " + T.rounds : "Finished" }));
       if (ctx) head.appendChild(el("span", { class: "k-chip k-cr-chip", text: ctx.lesson + "·" + ctx.study }));
     }
     function next(res) {
-      if (res) results.push(res);
+      if (res) { res.moved = touched; results.push(res); }
+      touched = false;
       if (res) round++;
       paintHead();
       stage.innerHTML = "";
@@ -74,7 +84,8 @@
       DRILLS[T.id](stage, r, round, next);
     }
     function finish() {
-      var first = CR().logDrill(T.id, { lesson: ctx ? ctx.lesson : null, reps: results.length });
+      var worked = results.filter(function (x) { return x.moved; }).length;
+      var first = worked ? CR().logDrill(T.id, { lesson: ctx ? ctx.lesson : null, reps: worked }) : false;
       var pay = first && KOS.governor && KOS.governor.lastAward ? KOS.governor.lastAward() : null;
       var good = results.filter(function (x) { return x.good; }).length;
       var text = T.t + " · " + today() + "\n\n" + results.map(function (x, i) { return (i + 1) + ". " + x.line; }).join("\n");
@@ -87,10 +98,10 @@
         } });
       stage.appendChild(el("section", { class: "k-card k-crd-summary", "data-ui": "cr.drill-summary" }, [
         el("div", { class: "k-card-head" }, [el("span", { class: "k-card-title", text: good + " of " + results.length + " within range" }),
-          el("span", { class: "k-card-meta", text: pay && pay.xp ? "+" + pay.xp + " XP" : "No reward · once a day per drill" })]),
+          el("span", { class: "k-card-meta", "data-ui": "cr.drill-pay", text: pay && pay.xp ? "+" + pay.xp + " XP" : worked ? "No reward · once a day per drill" : "No reward · nothing was changed" })]),
         el("ol", { class: "k-crd-results" }, results.map(function (x) { return el("li", { "data-state": x.good ? "good" : null }, [el("span", { "aria-hidden": "true", text: x.good ? "✓" : "·" }), el("span", { text: x.line })]); })),
         el("div", { class: "k-cr-daily-go" }, [save,
-          el("button", { type: "button", class: "k-btn", text: "Another batch", onclick: function () { results = []; round = 0; r = rng(T.id + "|" + today() + "|" + Date.now()); next(); } })])
+          el("button", { type: "button", class: "k-btn", text: "Another batch", onclick: function () { results = []; round = 0; touched = false; r = rng(T.id + "|" + today() + "|" + Date.now()); next(); } })])
       ]));
       announce(T.t + " finished: " + good + " of " + results.length + " within range.");
     }

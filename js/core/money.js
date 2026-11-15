@@ -1138,13 +1138,15 @@
   /* Everything typed here; the mirrored purchases are derived from the
      planner's history, which the state document already carries. */
   function exportAll(cb) {
-    txn([TX, DEL], "readonly", function (err, t) {
+    txn([TX, DEL, PICS], "readonly", function (err, t) {
       if (err) { cb(err); return; }
-      var out = { tx: [], del: [] };
-      var a = t.objectStore(TX).getAll(), b = t.objectStore(DEL).getAll();
+      var out = { tx: [], del: [], pics: [] };
+      var a = t.objectStore(TX).getAll(), b = t.objectStore(DEL).getAll(), c = t.objectStore(PICS).getAll();
       t.oncomplete = function () {
         out.tx = (a.result || []).filter(function (r) { return r.src !== "wishlist"; });
         out.del = b.result || [];
+        /* AA-13: a pot's own picture rides the backup too */
+        out.pics = (c.result || []).filter(function (p) { return p && p.id != null && typeof p.src === "string"; });
         cb(null, out);
       };
       t.onerror = function () { cb(t.error); };
@@ -1153,11 +1155,14 @@
   function importAll(dump, cb) {
     var rows = ((dump && dump.tx) || []).map(normaliseTx).filter(function (r) { return r && r.src !== "wishlist"; });
     var dels = ((dump && dump.del) || []).filter(function (d) { return d && d.syncId; });
-    txn([TX, DEL], "readwrite", function (err, t) {
+    var pics = Array.isArray(dump && dump.pics) ? dump.pics.filter(function (p) { return p && p.id != null && typeof p.src === "string"; }) : null;
+    txn([TX, DEL, PICS], "readwrite", function (err, t) {
       if (err) { cb(err); return; }
       t.objectStore(TX).clear(); t.objectStore(DEL).clear();
       rows.forEach(function (r) { t.objectStore(TX).put(r); });
       dels.forEach(function (d) { t.objectStore(DEL).put({ syncId: String(d.syncId), at: d.at || 0 }); });
+      /* a backup from before pictures rode it leaves the pictures here as they are */
+      if (pics) { t.objectStore(PICS).clear(); pics.forEach(function (p) { t.objectStore(PICS).put({ id: p.id, src: p.src, crop: p.crop || null }); }); }
       t.oncomplete = function () { mirrorSig = null; cb(null, { tx: rows.length }); };
       t.onerror = function () { cb(t.error); };
     });

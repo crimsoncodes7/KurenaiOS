@@ -398,7 +398,7 @@
       if (!/^\d{4}-\d{2}-\d{2}$/.test(data.wb)) { KOS.ui.toast("Give the week a beginning date.", true); wb.focus(); return; }
       var saved = creating ? KOS.pacing.addWeek(data) : KOS.pacing.updateWeek(w.wb, data);
       if (!saved) {
-        KOS.ui.toast(creating ? "A week already begins on that date." : "That date is taken by another week.", true);
+        KOS.ui.toast("That date falls inside another week. A week begins on a Monday.", true);
         return;
       }
       KOS.ui.toast(creating ? "Week added." : "Week updated.");

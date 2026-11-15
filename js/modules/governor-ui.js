@@ -778,8 +778,16 @@
         });
         body.appendChild(fileIn);
         body.appendChild(el("b", { class: "k-gv-edit-h", text: "Your banner" }));
+        /* SC-32: uploading a banner is the shop's "Profile banner" unlock
+           (invariant 2), here as on Avatar & profile and in the picture
+           drawer; a banner set before still shows and can be picked */
+        var canUp = !KOS.art || !KOS.art.canUpload || KOS.art.canUpload("banner");
+        var upItem = KOS.governor.item ? KOS.governor.item("upload-banner") : null;
         var tiles = el("div", { class: "k-gv-bg-own" }, [
-          el("button", { type: "button", class: "k-gv-bg-up", "data-ui": "gov.bg-upload", onclick: function () { fileIn.click(); } }, [el("span", { text: "＋ Upload an image" }), el("small", { class: "k-mono", text: "JPG or PNG · 2400 × 1350 or larger" })])
+          canUp
+            ? el("button", { type: "button", class: "k-gv-bg-up", "data-ui": "gov.bg-upload", onclick: function () { fileIn.click(); } }, [el("span", { text: "＋ Upload an image" }), el("small", { class: "k-mono", text: "JPG or PNG · 2400 × 1350 or larger" })])
+            : el("button", { type: "button", class: "k-gv-bg-up", "data-ui": "gov.bg-locked", onclick: function () { KOS.show("governor", "shop"); } }, [
+                el("span", { text: "錠 Your own banner" }), el("small", { class: "k-mono", text: "◈ " + KOS.ui.num(upItem ? upItem.price : 3000) + " · open in the shop" })])
         ]);
         var ownBanner = KOS.profilePics ? KOS.profilePics.src("banner", g) : null;
         if (ownBanner) {

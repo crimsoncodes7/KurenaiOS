@@ -57,6 +57,36 @@
   }
 
   /* ---------------- boundaries ---------------- */
+  /* AA-13, DI-09: saved reports and boundary snapshots ride the full
+     backup — they are saved once and never recomputed (invariants 101,
+     102), so a restore without them (signed out, a new device) lost them
+     for good. The import replaces both stores, like every other store. */
+  function exportAll(cb) {
+    if (!available()) { cb(null, null); return; }
+    open(function (err, d) {
+      if (err) { cb(err); return; }
+      var t;
+      try { t = d.transaction([REPORTS, SNAPS], "readonly"); } catch (e) { cb(e); return; }
+      var a = t.objectStore(REPORTS).getAll(), b = t.objectStore(SNAPS).getAll();
+      t.oncomplete = function () { cb(null, { reports: a.result || [], snapshots: b.result || [] }); };
+      t.onerror = function () { cb(t.error); };
+    });
+  }
+  function importAll(dump, cb) {
+    if (!available() || !dump) { cb && cb(null, { reports: 0 }); return; }
+    var reps = (dump.reports || []).filter(function (r) { return r && r.id != null; });
+    var snaps = (dump.snapshots || []).filter(function (r) { return r && r.id != null; });
+    open(function (err, d) {
+      if (err) { cb && cb(err); return; }
+      var t;
+      try { t = d.transaction([REPORTS, SNAPS], "readwrite"); } catch (e) { cb && cb(e); return; }
+      t.objectStore(REPORTS).clear(); t.objectStore(SNAPS).clear();
+      reps.forEach(function (r) { t.objectStore(REPORTS).put(r); });
+      snaps.forEach(function (r) { t.objectStore(SNAPS).put(r); });
+      t.oncomplete = function () { cb && cb(null, { reports: reps.length }); };
+      t.onerror = function () { cb && cb(t.error); };
+    });
+  }
   function iso(d) {
     return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2);
   }
@@ -466,6 +496,7 @@
   }
 
   KOS.reportStore = {
+    exportAll: exportAll, importAll: importAll,
     available: available,
     open: open,
     boundary: boundary,
