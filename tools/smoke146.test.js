@@ -211,7 +211,10 @@ step("H · a session discarded with the screen off offers the minutes", async ()
   assert(S, "running");
   K.focus._debugAdvance(10 * 60);                 /* ten minutes in */
   doc.dispatchEvent(new app.window.Event("visibilitychange"));    /* still visible in jsdom: nothing */
-  const t0 = Date.now();
+  /* the APP's clock, not the machine's: the suite's day is fixed, and on
+     that very day the machine's clock ran ahead of it by up to an hour,
+     which the restore read as time the session had been running */
+  const t0 = app.window.Date.now();
   S.lastBeat = t0; S.hiddenAt = t0;               /* the screen went off now */
   K.store.save(); if (K.store.flush) K.store.flush();
   const keep = {};
