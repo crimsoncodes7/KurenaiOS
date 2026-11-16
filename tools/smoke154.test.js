@@ -70,7 +70,11 @@ step("C · the spine and its switch", async () => {
 step("D · the desk and its analytics", async () => {
   K.show("subject", "it", { _nav: true }); await app.settle();
   const cur = $("#main [data-ui~='it.current']");
-  assert(cur && /F201/.test(cur.textContent) && $("[data-ui~='it.current-continue']", cur), "the current unit leads, with Continue");
+  assert(cur && /F201/.test(cur.textContent) && $("[data-ui~='it.current-open']", cur), "the current unit, with its topics");
+  assert(cur.closest("[data-ui~='study.units-row']"), "beside the course units (16 November 2026)");
+  const side = $("#main [data-ui~='study.desk-top'] [data-ui~='study.continue']");
+  assert(side && /F201/.test(side.textContent), "Continue is the side column's again, into the current unit: " + (side && side.textContent));
+  assert(!$("#main [data-ui~='study.resources']"), "no Resources card on IT");
   assert(/F206/.test(cur.textContent), "and names the next unit");
   const units = $$("#main [data-ui~='study.unit'] .k-unit-ref").map((n) => n.textContent);
   eq(units[0], "F201", "the current unit first");

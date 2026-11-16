@@ -102,6 +102,11 @@
       holder.innerHTML = "";
       if (!items || !items.length) return;
       var own = typeof opts.onFinish === "function";
+      /* each item's question key (5.19 item 4, KOS.questions): its history
+         and its place on the review schedule. A re-run of the missed
+         questions hands their keys on (opts.keys). */
+      var QS = KOS.questions;
+      var qkeys = opts.keys || items.map(function (it, i) { return QS ? QS.keyOf("quiz", sid, ref, it, i) : null; });
       var st = own ? { attempts: opts.attempts || 0, best: opts.best || 0 } : qstats(sid, ref);
       var order = items.map(function (_, i) { return i; });
       var at = 0, correct = 0, answered = {}, missed = [];
@@ -150,12 +155,18 @@
 
       var title = el("span", { class: "k-qz-title", "data-ui": "quiz.counter" });
       var meta = el("span", { class: "k-qz-meta" });
+      var histBtn = !own && QS ? pill("History", function () { history(histBtn.getAttribute("aria-pressed") !== "true"); },
+        { "aria-pressed": "false", "data-ui": "quiz.chip quiz.history-btn", title: "Each question's record, weakest first" }) : null;
       var head = el("div", { class: "k-qz-head", "data-ui": "quiz.head" }, [title, meta,
         el("span", { class: "k-qz-tools" }, [
+          histBtn,
           pill("Shuffle", function () { shuffle(order); restart(); }),
           pill("Retry", again)
-        ])
+        ].filter(Boolean))
       ]);
+      /* a single question asked by another page (Due's questions back) has
+         its own counter: no set header */
+      if (opts.bare) head.hidden = true;
       var stage = el("div", { class: "k-qz-stage" });
       var result = el("section", { class: "k-card k-qz-result", "data-ui": "quiz.result", hidden: "", "aria-live": "polite" });
       [head, stage, result].forEach(function (n) { holder.appendChild(n); });
@@ -205,6 +216,9 @@
         if (answered[qi] != null) return;
         answered[qi] = oi;
         if (oi === item.ans) correct++; else missed.push(item);
+        /* the question's record and schedule (5.19 item 4); a caller with
+           its own record (a capstone, the Due run) keeps its own */
+        if (!own && QS && qkeys[qi]) QS.answer(qkeys[qi], { kind: "quiz", ok: oi === item.ans });
         marked(qi, oi);
         paintHead();
         if (Object.keys(answered).length === items.length) finish();
@@ -288,15 +302,60 @@
            the full retry stays for a clean score */
         if (missed.length && missed.length < items.length) {
           acts.appendChild(el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "Retry the " + missed.length + " missed",
-            onclick: function () { KOS.quiz.mountMCQ(holder, sid, ref, missed.slice()); } }));
+            onclick: function () {
+              var ix = items.map(function (_, i) { return i; }).filter(function (i) { return answered[i] != null && answered[i] !== items[i].ans; });
+              KOS.quiz.mountMCQ(holder, sid, ref, ix.map(function (i) { return items[i]; }), { keys: ix.map(function (i) { return qkeys[i]; }) });
+            } }));
         }
         result.appendChild(acts);
         result.hidden = false;
         next.textContent = "See your score →";
         paintHead();
       }
+      /* Quiz history, weakest first (5.19 item 4, design 44c): each item's
+         record left to right, oldest first, its rate and when it was last
+         answered; "Quiz the weakest N" runs those, "Whole quiz" goes back */
+      var histBox = el("section", { class: "k-card k-qz-hist", "data-ui": "quiz.history", hidden: "", "aria-label": "Quiz history" });
+      holder.appendChild(histBox);
+      function history(on) {
+        if (!histBtn) return;
+        histBtn.setAttribute("aria-pressed", String(on));
+        stage.hidden = on; result.hidden = on || result.hidden;
+        histBox.hidden = !on;
+        if (!on) { if (Object.keys(answered).length === items.length) result.hidden = false; return; }
+        var rows = QS.quizHistory(sid, ref, items.map(function (it, i) { return Object.assign({}, it, { qk: qkeys[i].split(":").pop() }); }));
+        var seen = rows.filter(function (r) { return r.tries.length; });
+        var best = bestPct(sid, ref, st);
+        histBox.innerHTML = "";
+        histBox.appendChild(el("div", { class: "k-card-head" }, [
+          el("span", { class: "k-card-title", text: "Quiz history" }),
+          el("span", { class: "k-card-meta", text: items.length + (items.length === 1 ? " item" : " items") + " · weakest first" })
+        ]));
+        var list = el("ol", { class: "k-qz-hist-list", "data-ui": "quiz.history-list" });
+        rows.forEach(function (r) {
+          list.appendChild(el("li", { class: "k-qz-hist-row", "data-ui": "quiz.history-row", "data-state": r.pct == null ? "unseen" : r.pct < 50 ? "weak" : null }, [
+            el("span", { class: "k-qz-hist-q", html: KOS.content.inline(r.item.q) }),
+            r.tries.length ? el("span", { class: "k-qz-hist-marks", "aria-label": r.tries.map(function (t) { return t.ok ? "right" : "wrong"; }).join(", ") },
+              r.tries.slice(-8).map(function (t) { return el("span", { class: "k-qz-hist-mark", "data-state": t.ok ? "ok" : "no", "aria-hidden": "true", text: t.ok ? "✓" : "✗" }); })) : null,
+            el("span", { class: "k-qz-hist-pct k-mono", text: r.pct == null ? "not seen" : r.pct + "%" }),
+            r.last ? el("span", { class: "k-qz-hist-when k-muted", text: QS.when(r.last) }) : null
+          ].filter(Boolean)));
+        });
+        histBox.appendChild(list);
+        KOS.content.typeset(list);
+        var weak = seen.filter(function (r) { return r.pct < 100; }).slice(0, 4);
+        histBox.appendChild(el("div", { class: "k-qz-foot" }, [
+          weak.length ? el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "quiz.history-weakest",
+            text: "Quiz the weakest " + weak.length, onclick: function () {
+              KOS.quiz.mountMCQ(holder, sid, ref, weak.map(function (r) { return items[r.i]; }), { keys: weak.map(function (r) { return r.key; }) });
+            } }) : null,
+          el("button", { type: "button", class: "k-btn", "data-ui": "quiz.history-whole", text: "Whole quiz", onclick: function () { history(false); } }),
+          best != null ? el("span", { class: "k-muted k-spacer", text: "best " + best + "% · " + st.attempts + (st.attempts === 1 ? " attempt" : " attempts") }) : null
+        ].filter(Boolean)));
+      }
       show();
       if (replay) finish(true);
+      if (opts.view === "history") history(true);
     },
 
     /* Exam-style questions. An item is
@@ -317,6 +376,8 @@
         return { i: i, item: it, parts: parts, total: total };
       });
       var st = qstats(sid, ref);
+      var QS = KOS.questions;
+      function qkeyOf(n) { return QS ? QS.keyOf("exam", sid, ref, n.item, n.i) : null; }
 
       /* tariff filter: the short "state/define" items, the 3–5 mark
          "explain" items and the extended 6+ responses train different
@@ -377,7 +438,7 @@
         if (!it.src && !it.level) return null;
         var bits = [];
         if (it.level) bits.push(it.level === "AS" ? "AS level" : "A level");
-        if (it.src) bits.push("modelled on " + it.src);
+        if (it.src) bits.push(/^\w+-style\b/.test(it.src) ? it.src : "modelled on " + it.src);
         return el("span", { class: "k-qz-src", "data-ui": "quiz.src", text: bits.join(" · ") });
       }
 
@@ -528,6 +589,76 @@
         return { node: wrap, reveal: function (on) { if (on) paint(); ms.hidden = !on; } };
       }
 
+      /* An exam question's history (5.19 item 4, design 44b): a dot per
+         attempt on a line out of the question's marks, when it comes back,
+         and the last answer by mark point. A question never tried is one line. */
+      function examHistory(qk, n) {
+        var tt = qk ? QS.tries(qk).filter(function (t) { return t.max; }) : [];
+        var box = el("section", { class: "k-qz-qhist", "data-ui": "quiz.qhistory", "aria-label": "Your attempts" });
+        if (!tt.length) { box.appendChild(el("p", { class: "k-muted k-qz-qhist-none", text: "No attempts yet — log a self-mark and it comes back on your review schedule." })); return box; }
+        var again = QS.againIn(qk), max = n.total || tt[tt.length - 1].max;
+        box.appendChild(el("div", { class: "k-qz-qhist-head" }, [
+          el("span", { class: "k-kicker", text: "Your attempts · out of " + max }),
+          again != null ? el("span", { class: "k-chip", "data-ui": "quiz.again", "data-tone": again === 0 ? "warn" : "muted",
+            text: again === 0 ? "↻ Back today" : "↻ Again in " + again + (again === 1 ? " day" : " days") }) : null
+        ].filter(Boolean)));
+        /* the line: x by attempt, y by the share of the marks */
+        var W = 320, H = 84, P = 12, NS = "http://www.w3.org/2000/svg";
+        var pts = tt.map(function (t, j) {
+          var x = tt.length === 1 ? W / 2 : P + j * (W - 2 * P) / (tt.length - 1);
+          var y = H - P - (H - 2 * P) * Math.max(0, Math.min(1, t.got / (t.max || max)));
+          return [Math.round(x * 10) / 10, Math.round(y * 10) / 10];
+        });
+        var svg = document.createElementNS(NS, "svg");
+        svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+        svg.setAttribute("class", "k-qz-qhist-svg");
+        svg.setAttribute("role", "img");
+        svg.setAttribute("aria-label", tt.map(function (t) { return QS.when(t.d) + " " + t.got + " of " + t.max; }).join(", "));
+        [0, 0.5, 1].forEach(function (f) {
+          var g = document.createElementNS(NS, "line"), y = H - P - (H - 2 * P) * f;
+          g.setAttribute("x1", 0); g.setAttribute("x2", W); g.setAttribute("y1", y); g.setAttribute("y2", y);
+          g.setAttribute("class", "k-qz-qhist-grid");
+          svg.appendChild(g);
+        });
+        if (pts.length > 1) {
+          var pl = document.createElementNS(NS, "polyline");
+          pl.setAttribute("points", pts.map(function (p) { return p.join(","); }).join(" "));
+          pl.setAttribute("class", "k-qz-qhist-line");
+          svg.appendChild(pl);
+        }
+        pts.forEach(function (p, j) {
+          var c = document.createElementNS(NS, "circle");
+          c.setAttribute("cx", p[0]); c.setAttribute("cy", p[1]); c.setAttribute("r", j === pts.length - 1 ? 4.5 : 3.5);
+          c.setAttribute("class", "k-qz-qhist-dot");
+          if (j === pts.length - 1) c.setAttribute("data-state", "last");
+          svg.appendChild(c);
+        });
+        box.appendChild(svg);
+        box.appendChild(el("div", { class: "k-qz-qhist-axis k-mono k-muted", "aria-hidden": "true" }, [
+          el("span", { text: QS.when(tt[0].d) }), tt.length > 1 ? el("span", { text: QS.when(tt[tt.length - 1].d) }) : null].filter(Boolean)));
+        /* the last answer, point by point */
+        var last = tt[tt.length - 1];
+        box.appendChild(el("p", { class: "k-qz-qhist-last", "data-ui": "quiz.last-answer" }, [
+          el("b", { text: "Last answer" }), " · " + QS.when(last.d) + " · " + last.got + " / " + last.max]));
+        if (Array.isArray(last.pts)) {
+          var ul = el("ul", { class: "k-qz-qhist-pts", "data-ui": "quiz.last-points" });
+          n.parts.forEach(function (p, pi) {
+            var points = (p.ms || []).filter(function (m) { return !isAnswerLine(m); });
+            var ticks = last.pts[pi] || [];
+            points.forEach(function (m, k) {
+              var ok = !!ticks[k];
+              ul.appendChild(el("li", { "data-state": ok ? "ok" : "no" }, [
+                el("span", { class: "k-qz-qhist-tick", "aria-label": ok ? "awarded" : "not awarded", text: ok ? "✓" : "✕" }),
+                el("span", { html: KOS.content.inline(KOS.content.aqaWords(m)) })
+              ]));
+            });
+          });
+          if (ul.childNodes.length) box.appendChild(ul);
+        }
+        KOS.content.typeset(box);
+        return box;
+      }
+
       function render() {
         shown = norm.filter(function (n) { return filter === "all" || tariff(n) === filter; });
         if (shuffled) shown = shuffle(shown.slice());
@@ -588,6 +719,16 @@
           /* the pads are kept with what they answered (30f) */
           pads.forEach(function (p) { p.logged({ marks: got, max: n.total }); });
           logged[n.i] = { got: got, max: n.total };
+          /* the question's history and schedule (5.19 item 4): the marks and
+             each mark point ticked, part by part */
+          var qk = qkeyOf(n);
+          if (qk) {
+            QS.answer(qk, { kind: "exam", got: got, max: n.total, back: !!opts.back,
+              pts: n.parts.map(function (p) { return (ticksBy && ticksBy.get(p)) || []; }) });
+            var fresh = examHistory(qk, n);
+            hist.replaceWith(fresh); hist = fresh;
+          }
+          if (typeof opts.onLog === "function") opts.onLog({ got: got, max: n.total, key: qk });
           keepNow();
           updateTally();
           done.textContent = "Logged " + got + "/" + n.total;
@@ -595,6 +736,8 @@
           KOS.ui.toast("Logged " + got + "/" + n.total + " — be a harsh marker, future-you benefits.");
         } });
         card.appendChild(el("div", { class: "k-qz-foot k-qz-exam-foot", "data-ui": "quiz.exam-foot" }, [sum, done, revealBtn, logBtn]));
+        var hist = examHistory(qkeyOf(n), n);
+        card.appendChild(hist);
         paintSum();
         stage.appendChild(card);
         KOS.content.typeset(card);

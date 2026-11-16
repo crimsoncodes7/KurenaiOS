@@ -172,6 +172,8 @@
   function topicOf(key) {
     /* a redo item names the leaf its question was tagged with (roadmap 5.8) */
     if (key.indexOf("x:") === 0) return KOS.tracker && KOS.tracker.redoTopic ? KOS.tracker.redoTopic(key) : null;
+    /* a quiz or exam question (5.19 item 4, KOS.questions) */
+    if (/^[qe]:/.test(key)) { var qp = KOS.questions && KOS.questions.parse(key); return qp ? { sid: qp.sid, ref: qp.ref } : null; }
     if (key.charAt(0) === "u") {
       var id = +key.slice(1);
       var c = (store.state.custom.cards || []).find(function (x) { return x.id === id; });
@@ -310,7 +312,7 @@
     if (KOS.reviewLog && KOS.reviewLog.available()) {
       KOS.reviewLog.add({ key: key, ts: Date.now(), day: today, g: rating + 1, el: p.el,
         s0: p.before ? p.before.s : null, d0: p.before ? p.before.d : null,
-        s1: m.s, d1: m.d, ivl: m.ivl, src: key.indexOf("x:") === 0 ? "redo" : "flashcards" });
+        s1: m.s, d1: m.d, ivl: m.ivl, src: key.indexOf("x:") === 0 ? "redo" : /^[qe]:/.test(key) ? "question" : "flashcards" });
     }
     /* CR-25: a Creatives theory card ("creatives:<lesson>:<i>") is its
        lesson's fourth check, so rating one — here, in Review or Due —

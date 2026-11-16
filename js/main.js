@@ -151,6 +151,8 @@
      its ease and interval (no due date moves). Idempotent, and it converts
      again any card an older copy of the app rated since. */
   KOS.srs.migrate();
+  /* 5.19 item 4: a Maths card moved to the exam questions keeps its schedule */
+  if (KOS.questions) KOS.questions.migrate();
   /* phase 2: a card scheduled past its next real exam, with its recall on
      the day under the target, comes forward into the week or two before */
   KOS.srs.examPass();

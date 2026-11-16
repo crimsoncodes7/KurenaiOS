@@ -17,7 +17,26 @@ chronological diary here.
   `5bece3e`). `ai-chat` is deployed as version 6 (images for Gemini, 26 October 2026); the
   `kos_reports` migration `20261012000001` is applied; so is `kos_money`
   (`20261019000001`, 19 October 2026), live since the Money and Goals release.
-- Latest release: sw `kos-integrity-12` (16 November 2026, `feat/w2-lazy`
+- Latest release: sw `kos-integrity-15` (16 November 2026): an exam
+  question written in OCR's style says "OCR-style", never "modelled on" a
+  paper that does not exist. Before it sw `kos-integrity-14` (16 November 2026,
+  `feat/519-it-notes`, main fast-forwarded to it): roadmap 5.19 item 1 for
+  F201 — all fifteen leaves of IT's Big data and machine learning rewritten
+  from the OCR specification and its SAM (`it-f201a/b/c.js`, smoke156): paged
+  notes, 34 figures, 92 OCR-style worked answers with a levels-of-response
+  one per leaf, fill-in tables, quick-recall flashcards and quizzes with no
+  length tell. F206 waits until January 2027.
+  Before it sw `kos-integrity-13` (16 November 2026,
+  `feat/519-review`, main fast-forwarded to it): roadmap 5.19 item 4 —
+  quiz and exam questions on the review schedule, graded from their marks
+  and capped per subject a day, beside cards and redo items on Due today;
+  a quiz's history weakest first and an exam question's marks over time;
+  an unmarked iPad attempt carried on; the subject desk's review strip;
+  78 several-step Maths cards moved to exam questions with their schedules
+  (invariants 111c and 132, smoke155) — and the IT desk in the shared
+  order with its current unit beside the course units and no Resources
+  card (26f). Roadmap 5.21, a flashcard quality pass, is on the backlog.
+  Before it sw `kos-integrity-12` (16 November 2026, `feat/w2-lazy`
   and `feat/w1-rc6` merged into main): loading on first use (W2 AP-01
   stage 1, invariant 168, smoke142 — the notes, banks, past-paper index,
   Companions and Code's lessons load when a page first needs them: 8.4 MB
@@ -288,8 +307,8 @@ chronological diary here.
   it `3b39ae1` (21 October 2026; the Exams & Deadlines hub),
   https://e94eede7.kurenai-os.pages.dev.
 - Last milestone tag: `milestone/graphite-ui-rebuild`
-- Service-worker version: `kos-integrity-12`
-- Required smoke gate: 152 / 152 suites (`""`, 2–148 and 151–154 — 142 is loading on first use (W2 AP-01, invariant 168: the boot payload under its budget, the generated index current, a lazy boot that loads nothing and reads nothing early, the same account eager and lazy saving the same state, the stand-ins' structure, a lesson opened cold, leaving and offline, no fork from a stand-in, the pages that name what they need, search and the Assistant, the warm-up); 143 is W1 RC6, Todoist and Google bookkeeping (the account's document taken in before a provider is read and sent before the lease is given up, an unlinked twin linked and never imported, two reminders on one task folded, a full read that only adds, a repeat Todoist owns closed there, re-keyed references, "not found" unlinking and a different account clearing links, refused commands named and not resent, the list as a three-way field, a reminder moved out of its service's lists only unlinked and its task never imported as a second reminder, joins and folds that lose nothing, answers of any shape, a queued deletion skipped on import); 153 is roadmap 5.19's figures and parts to fill in (the blocks, their checks, worked examples' Your turn, figures on exam and quiz items and Companion variations), 154 its archived and current IT units; 149 and 150 are reserved for the other account's work; 152 is W5's small fixes: Focus's First snow scene readable and its assignment chip clamped, the picture drawer's Your own previewing its lock without writing the rule, scenes and halls rotating by the season and hour they suit, the header controls on one height; 151 is W5's two batches — the second: Try on for every kind with the shop's Stage as the fitting room, owned items worn from their sheet, Use replacing a picture drawer's rule, the Wardrobe's pictures and not-yet line, the first sixteen cosmetics on their repainted art, a locked lab sold where it is, the Shrine card's finish and a painted frame's reach kept clear; the first: every shop theme retired and refunded once through one ledger correction marked refund, Buy behind a confirm, the worn seal beside the brand mark and on the share card, the CSS frames retired, absolute shelf-skin URLs, the twelve avatars as whole discs, the share card's Finish row, pen sets on new strokes only and painted frames sized by their measured openings — or `npm test`, which runs them in parallel through `tools/run_smoke.mjs`; 124–126 are W1's: repairs run safely and Import backup asks first, the P0s (JM-06, ST-25, MG-01/MG-23, SY-18), and the DI-27 clean-up on test data; 127 activity, not any event (HR-31, CL-45) and the per-device journal scrub; 128 streak-milestone gold once per run (HR-16); 129 the one-off saved-reports rebuild after DI-27; 130–132 rewards with receipts (RC21: Productivity, Mind and Creatives, Japanese); 133 two tabs saving the state document safely and its storage's durability (RC5: rev, lock and three-way merge, one change once across tabs, Focus owned by one tab, quarantine, the IndexedDB mirror as the primary, quota, Storage's kept copies); 134 the profile pictures moved into the file store by a repair and their edges (a record without its binary, the id from the bytes, orphans, links), the session ledger's archive, Creatives' suffixed database, mined Japanese lines kept on the device, Storage's state meter, and the store registry (RC4: every database listed, Reset everything clearing them all, the checkpoints with Restore); 135 first sign-in keeping the device's data (DI-03), a cloud document landing in one step, an older device's mined lines and newer picture, the pinned pre-link copy and the backup backoff, the Todoist/Google lease per tab, renewed and released (DI-19), Todoist's bookkeeping per chunk, and the goal's Linked title (GO-25); 136 honest numbers (W7: lesson checks that reach Completed through reviews and cards, Quiz best as a percent, every subject named in a report's words, Study hours as Focus time, routine and habit goals that name their routine, Home's desks by recency, a report saved before the history arrived rebuilt once, Collection goals by their own period and Goal getter taken back, topic colours from evidence); 137 the floors no page may undo (W3: 16px phone fields in the last layer, a painted header above the page body, round controls that stay round on touch); 148 W6's second batch (a predicted paper exactly the board paper's marks and time, the tally's scheme lines, Japanese order and siblings, kana written from memory, checkpoints drawn per attempt, AQA shorthand, Haskell and assembly, unbreakable units, the Key idea callout, Mind's reachable rungs, Y3's unit ids, Seasonal's episodes behind, a fork that says the curriculum moved, a CS past-paper question once per leaf); 147 W1's remaining P2/P3s (a drill paying only for work, a check opening as it was answered, the Shrine's filtered order, a deleted vault entry's Undo, a monthly repeat keeping its day, a week beginning on a Monday, the seat's banner upload behind its unlock, a folded CS leaf merged into the kept one, saved Reports and pot pictures in the backup); 146 W2's smaller items (addresses for the Wall's tabs and sets, an assignment, a reminder and a review run; a deep-linked dialog opening once; in-page tabs kept through a redraw; listeners that go with their page; redraws for later only on their own page; the unlock overlay waiting out a task page; a finished quiz updating its inspector; a header's own art; an unsaved showcase asking before it is left; a session discarded with the phone's screen off offering its minutes); 145 the Assistant's Undo on its action cards and a thread that opens at the newest message; 144 the Focus page owning a session's set-up (About to Study with no timer of its own, a custom length and Study until handed back exactly, no link staying no link, Home, the Daily Review and a routine step opening the page filled in); 141 the stores that sync beside the state document (W1 DI-20/DI-11: each replicator's last success or error recorded per device and listed on Account & Cloud Sync, a pull that asks from two minutes before its cursor so a row committed late still arrives, and only a pull that brought something naming its store to the change bus); 140 sessions in progress (W2: a flashcard batch, a Due-today review, a Japanese session and a kana set as ONE ledger entry from the first answer, paid by difference and picked up again; a quiz attempt and typed exam answers kept across a redraw, another page and a reload); 139 the redraw policy, the change bus and the view lifecycle (W2: a change the page does not read redraws nothing, a task page shows "Updated on another device · Refresh" and is never redrawn under its reader, a redraw keeps focus, scroll and unsent text, navigation closes a page's dialogs and asks before unsaved work, every view's declared reads); 138 content and marking (W6: quiz options shuffled per attempt, self-marking by mark codes with the worked answer as a model answer, Marks by question's out-of and topic, Code's multi-line Run input, IT's spec text tidied and its refs unique); 120–123 are the quality programme's safety net — the 04:00 day across DST, the service-worker update across two versions, offline, and the verified backup `KOS.backup`; 116–119 are ratcheted gates over content, cosmetics, menus in dialogs and CSS collisions, each failing only on a violation not in its `tools/baselines/smoke11x-*.json`; 115 is Mind Journal replication; 114 is provider identity per module (DI-27); 113 is the Badge Wall's; 80–83 are Japanese's, 99 is Code's SQL runner, 100 the ink engine, 101–104 Routines and the Daily Review, 105 the rest of the iPad build and Files R0, 106 Files R1–R4, airing on a closed app, Rider CI evidence and habits several times a day, 107 the Pencil fixes, 108 Creatives', 109–111 Mind's, 112 Google Calendar, Google Tasks and Todoist).
+- Service-worker version: `kos-integrity-15`
+- Required smoke gate: 154 / 154 suites (`""`, 2–148 and 151–156 — 156 is roadmap 5.19 item 1, IT unit F201 at full depth (every leaf paged with its specification, figures, OCR-style worked answers with a levels-of-response one, misconceptions, a mnemonic and synoptic links; quick-recall flashcards that ask something specific and keep no old card's schedule; a quiz with no length tell; one owner per leaf); 155 is roadmap 5.19 item 4 (invariant 111c: question keys and grades from marks, the first answer scheduling a question and an early one history only, Due today's questions capped per subject, the quiz's history weakest first and Quiz best opening it, an exam question's marks over time and last answer by mark point, Due's three kinds and its questions run, Maths' several-step cards moved to exam questions with their schedules, an unmarked iPad attempt carried on, the subject desk's review strip); 142 is loading on first use (W2 AP-01, invariant 168: the boot payload under its budget, the generated index current, a lazy boot that loads nothing and reads nothing early, the same account eager and lazy saving the same state, the stand-ins' structure, a lesson opened cold, leaving and offline, no fork from a stand-in, the pages that name what they need, search and the Assistant, the warm-up); 143 is W1 RC6, Todoist and Google bookkeeping (the account's document taken in before a provider is read and sent before the lease is given up, an unlinked twin linked and never imported, two reminders on one task folded, a full read that only adds, a repeat Todoist owns closed there, re-keyed references, "not found" unlinking and a different account clearing links, refused commands named and not resent, the list as a three-way field, a reminder moved out of its service's lists only unlinked and its task never imported as a second reminder, joins and folds that lose nothing, answers of any shape, a queued deletion skipped on import); 153 is roadmap 5.19's figures and parts to fill in (the blocks, their checks, worked examples' Your turn, figures on exam and quiz items and Companion variations), 154 its archived and current IT units; 149 and 150 are reserved for the other account's work; 152 is W5's small fixes: Focus's First snow scene readable and its assignment chip clamped, the picture drawer's Your own previewing its lock without writing the rule, scenes and halls rotating by the season and hour they suit, the header controls on one height; 151 is W5's two batches — the second: Try on for every kind with the shop's Stage as the fitting room, owned items worn from their sheet, Use replacing a picture drawer's rule, the Wardrobe's pictures and not-yet line, the first sixteen cosmetics on their repainted art, a locked lab sold where it is, the Shrine card's finish and a painted frame's reach kept clear; the first: every shop theme retired and refunded once through one ledger correction marked refund, Buy behind a confirm, the worn seal beside the brand mark and on the share card, the CSS frames retired, absolute shelf-skin URLs, the twelve avatars as whole discs, the share card's Finish row, pen sets on new strokes only and painted frames sized by their measured openings — or `npm test`, which runs them in parallel through `tools/run_smoke.mjs`; 124–126 are W1's: repairs run safely and Import backup asks first, the P0s (JM-06, ST-25, MG-01/MG-23, SY-18), and the DI-27 clean-up on test data; 127 activity, not any event (HR-31, CL-45) and the per-device journal scrub; 128 streak-milestone gold once per run (HR-16); 129 the one-off saved-reports rebuild after DI-27; 130–132 rewards with receipts (RC21: Productivity, Mind and Creatives, Japanese); 133 two tabs saving the state document safely and its storage's durability (RC5: rev, lock and three-way merge, one change once across tabs, Focus owned by one tab, quarantine, the IndexedDB mirror as the primary, quota, Storage's kept copies); 134 the profile pictures moved into the file store by a repair and their edges (a record without its binary, the id from the bytes, orphans, links), the session ledger's archive, Creatives' suffixed database, mined Japanese lines kept on the device, Storage's state meter, and the store registry (RC4: every database listed, Reset everything clearing them all, the checkpoints with Restore); 135 first sign-in keeping the device's data (DI-03), a cloud document landing in one step, an older device's mined lines and newer picture, the pinned pre-link copy and the backup backoff, the Todoist/Google lease per tab, renewed and released (DI-19), Todoist's bookkeeping per chunk, and the goal's Linked title (GO-25); 136 honest numbers (W7: lesson checks that reach Completed through reviews and cards, Quiz best as a percent, every subject named in a report's words, Study hours as Focus time, routine and habit goals that name their routine, Home's desks by recency, a report saved before the history arrived rebuilt once, Collection goals by their own period and Goal getter taken back, topic colours from evidence); 137 the floors no page may undo (W3: 16px phone fields in the last layer, a painted header above the page body, round controls that stay round on touch); 148 W6's second batch (a predicted paper exactly the board paper's marks and time, the tally's scheme lines, Japanese order and siblings, kana written from memory, checkpoints drawn per attempt, AQA shorthand, Haskell and assembly, unbreakable units, the Key idea callout, Mind's reachable rungs, Y3's unit ids, Seasonal's episodes behind, a fork that says the curriculum moved, a CS past-paper question once per leaf); 147 W1's remaining P2/P3s (a drill paying only for work, a check opening as it was answered, the Shrine's filtered order, a deleted vault entry's Undo, a monthly repeat keeping its day, a week beginning on a Monday, the seat's banner upload behind its unlock, a folded CS leaf merged into the kept one, saved Reports and pot pictures in the backup); 146 W2's smaller items (addresses for the Wall's tabs and sets, an assignment, a reminder and a review run; a deep-linked dialog opening once; in-page tabs kept through a redraw; listeners that go with their page; redraws for later only on their own page; the unlock overlay waiting out a task page; a finished quiz updating its inspector; a header's own art; an unsaved showcase asking before it is left; a session discarded with the phone's screen off offering its minutes); 145 the Assistant's Undo on its action cards and a thread that opens at the newest message; 144 the Focus page owning a session's set-up (About to Study with no timer of its own, a custom length and Study until handed back exactly, no link staying no link, Home, the Daily Review and a routine step opening the page filled in); 141 the stores that sync beside the state document (W1 DI-20/DI-11: each replicator's last success or error recorded per device and listed on Account & Cloud Sync, a pull that asks from two minutes before its cursor so a row committed late still arrives, and only a pull that brought something naming its store to the change bus); 140 sessions in progress (W2: a flashcard batch, a Due-today review, a Japanese session and a kana set as ONE ledger entry from the first answer, paid by difference and picked up again; a quiz attempt and typed exam answers kept across a redraw, another page and a reload); 139 the redraw policy, the change bus and the view lifecycle (W2: a change the page does not read redraws nothing, a task page shows "Updated on another device · Refresh" and is never redrawn under its reader, a redraw keeps focus, scroll and unsent text, navigation closes a page's dialogs and asks before unsaved work, every view's declared reads); 138 content and marking (W6: quiz options shuffled per attempt, self-marking by mark codes with the worked answer as a model answer, Marks by question's out-of and topic, Code's multi-line Run input, IT's spec text tidied and its refs unique); 120–123 are the quality programme's safety net — the 04:00 day across DST, the service-worker update across two versions, offline, and the verified backup `KOS.backup`; 116–119 are ratcheted gates over content, cosmetics, menus in dialogs and CSS collisions, each failing only on a violation not in its `tools/baselines/smoke11x-*.json`; 115 is Mind Journal replication; 114 is provider identity per module (DI-27); 113 is the Badge Wall's; 80–83 are Japanese's, 99 is Code's SQL runner, 100 the ink engine, 101–104 Routines and the Daily Review, 105 the rest of the iPad build and Files R0, 106 Files R1–R4, airing on a closed app, Rider CI evidence and habits several times a day, 107 the Pencil fixes, 108 Creatives', 109–111 Mind's, 112 Google Calendar, Google Tasks and Todoist).
 - Branches: `main` is the line. On 20 October 2026 it was fast-forwarded to
   `feat/money-goals` (Money and Goals), then to `feat/fsrs` (FSRS), on 21
   October to `feat/exams-hub` (the Exams hub), and on 22 October to
@@ -384,8 +403,9 @@ from `file://`. Use HTTP for PWA, cloud and browser-audit work.
 python3 tools/dev_server.py 8765       # http.server with no-store, so edits show on one reload
 npm install jsdom fake-indexeddb       # test-only dependencies, once
 npm test                               # the whole smoke gate in parallel (tools/run_smoke.mjs; --skip, --repeat)
-for i in "" {2..148} {151..154}; do node "tools/smoke${i}.test.js"; done   # the same, one at a time
+for i in "" {2..148} {151..156}; do node "tools/smoke${i}.test.js"; done   # the same, one at a time
 node tools/fill_check.mjs              # every figure and part to fill in (5.19): figures compile, SQL runs, predicts run
+node tools/gen_moved_cards.mjs         # js/data/moved-cards.js: Maths' several-step cards that live as exam questions (5.19; --check)
 node tools/ja_valid_check.mjs          # Japanese: kana, conjugation, every validator, strokes on every kana
 node tools/gen_ja_strokes.mjs --check  # the kana stroke data matches KanjiVG
 node tools/bake_ja_audio.mjs           # Japanese's audio pack: the cast on ElevenLabs, the narrator on VOICEVOX (open the app); --check, --dry
@@ -547,6 +567,7 @@ non-navigation redraw path.
 | Goals: the engine, its types and periods | `js/core/goals.js` (`KOS.goals`: registry, record, compute, pace; the study, productivity, money, code and Governor types), `js/core/goals-collection.js` (the Collection's fourteen); pages `js/modules/goals.js` (`#/goals[/week|month|done|<id>]`, design 27i–27k; `KOS.goalsUI`, `KOS.goalEditor`), `css/views/goals.css`; Home's Goals switch in `hub.js` |
 | IT unit marks and statuses | `js/core/itunits.js` (`KOS.itUnits`); scales and boundaries `js/data/it-grades.js`; grades derived in `hub.js` (`KOS.hub.it`); the desk's two blocks `js/modules/itdesk.js` |
 | User edits to the curriculum, the study editor and the quick note | `js/core/edits.js`, `js/modules/editor.js` |
+| Questions on the schedule and their history (5.19 item 4, invariant 111c) | `js/core/questions.js` (`KOS.questions`: keys, `answer`, `tries`, `dueToday`, `cap`/`setCap`, `quizHistory`, `subjectStats`, `moveCards`, `migrate`); the records in `js/engines/quiz.js` (each MCQ answer, each exam Log; Quiz history; an exam question's history); Due's kinds, caps and questions run in `js/modules/due.js`; the review strip in `js/modules/hub.js`; `js/data/moved-cards.js` (GENERATED by `tools/gen_moved_cards.mjs`), `js/data/content/maths-moved.js`; smoke155 |
 | The spaced-repetition model (FSRS-6), the flashcard schedule and the review log | `js/core/fsrs.js` (`KOS.fsrs`, pure, also in Node), `srs.js` (`KOS.srs`: the parameters in use, `weights`/`setFit`/`resetFit`), `js/core/reviewlog.js` (`KOS.reviewLog`, replicated to `kos_reviews`); `tools/fsrs_check.mjs`, `tools/smoke88.test.js` |
 | The optimiser (FSRS phase 3) | `js/core/fsrsopt.js` (`KOS.fsrsOpt`, pure, also in Node: prepare, pretrain, the Adam job, accept-if-better, `changes`); the "Fitted to your reviews" card and its preview in `js/modules/cardstats.js`; `tools/smoke96.test.js` |
 | Sessions and rewards; a session in progress (invariant 167): `KOS.sessions.upsert`/`bySid`, the per-device records `KOS.sessions.run` (`state.ui.runs`), `KOS.governor.sessionPrice`/`onUpsert` | `sessions.js`, `governor.js`; the engines `js/engines/flashcards.js`, `quiz.js`, `js/modules/jarun.js`, the kana page in `japanese.js`; smoke140 |
@@ -952,8 +973,12 @@ source comments and audit notes refer to it.
     keeps counting in marks, grades, hours and history; "Show completed
     units" (per device, `state.ui.itShowDone`) brings it back, and the open
     topic's own unit always shows. The CURRENT unit (`state.itUnits.current`,
-    else F201, else the first still to sit by date) leads the IT desk with
-    Continue, the next unit and Change (`KOS.itDesk.current`); smoke154.
+    else F201, else the first still to sit by date) sits in the IT desk's
+    course units row beside its unit cards — its topics, mastery, the next
+    unit and Change (`KOS.itDesk.current`); Continue is the side column's,
+    as on every desk. The IT desk keeps the shared order (top row,
+    analytics and dates, course units) with its grades after them, and has
+    no Resources card (16 November 2026); smoke154.
 27. Navigate via `KOS.show()`. Assignments, reminders and events each have one
     canonical store; other surfaces derive from them. Use `KOS.workspaceTabs` for
     Review and Sync. (The Planner's Planner/Goals switch is gone: Goals is a
@@ -1740,6 +1765,39 @@ source comments and audit notes refer to it.
     recall with nothing rated — and is what RAG, the topic inspector, Due
     today's topics, Home's Review line and the Assistant's due summary
     read.
+111c. QUESTIONS ON THE SCHEDULE (roadmap 5.19 item 4, design turn 44;
+    `js/core/questions.js`, `KOS.questions`; smoke155). A quiz item or an
+    exam item of a topic is a QUESTION, keyed `q:`/`e:<sid>:<ref>:<id>`
+    (the item's `qk`, else its `oi`, else a fork row's number or id, else
+    its place), so edits and reorders keep it. Its HISTORY is
+    `state.questions.items[key].tries`, a keyed map (a random key a try,
+    so devices' tries union; the newest 30 kept): a quiz answer's `ok`, an
+    exam self-mark's `got`/`max` and the points ticked per part (`pts`).
+    Its SCHEDULE is an ordinary FSRS record in `state.srs[key]`, rated by
+    `KOS.srs.rate` from the marks — under 50% Again, 50–79 Hard, 80–99
+    Good, full Easy; a quiz item right Good, wrong Again — whose review-log
+    rows say `src: "question"` and which the optimiser leaves out. The
+    first answer anywhere schedules it; an answer before its day is
+    history only; a miss waits until tomorrow; it is never a leech. Due
+    today shows three kinds — Flashcards, Questions back, Redo items —
+    and questions come back CAPPED per subject a day (`state.questions.cap`,
+    synced, default 10; an answer back counts against it; 0 brings none;
+    redo items are never capped, invariant 124); IT's archived units are
+    left out (26f). The questions run asks each in its topic's own engine
+    and logs exactly what that engine logs (an exam item its `exam`
+    session; a quiz item nothing); scheduling pays nothing. A quiz's
+    History lists its items weakest first ("Quiz the weakest N" asks them
+    under their own keys) and the inspector's Quiz best opens it; an exam
+    question's card draws its marks over time, "Again in N days" and the
+    last answer by mark point. The subject desk's review analytics are ONE
+    strip, Cards → Questions → Papers (timed attempts from the tracker).
+    MOVED CARDS: Maths' flashcards that are several-step problems (listed
+    in `js/data/moved-cards.js`, GENERATED by `tools/gen_moved_cards.mjs`,
+    a list that only grows) leave their deck at the end of the Maths
+    bundle (`KOS.questions.moveCards`; every other card keeps its key,
+    invariant 87) and are the topic's exam questions (`qk` "c<i>", a model
+    answer and M/A points); at boot `KOS.questions.migrate` copies a moved
+    card's schedule to its question once. Reads write nothing.
 
 ### The Exams & Deadlines hub (120–130)
 
@@ -1936,7 +1994,13 @@ source comments and audit notes refer to it.
     doc's `item` names what it answered, so EARLIER work is a link
     (`KOS.inkPad.earlierLink`), never the page a revision tool opens on:
     every pad, strip and Working page starts blank (asked for 26 October
-    2026: no copying your own working into an answer).
+    2026: no copying your own working into an answer). WIDENED for an
+    attempt never marked (roadmap 5.19 item 4, design 44d): an answer
+    pad's newest doc for its item with no `logged` is a DRAFT, offered
+    above the blank pad ("Continue your answer from …", `KOS.inkPad.unmarked`);
+    Continue opens that doc itself (`mount({resume})`) with its ink,
+    editable, and Log marks it, after which it is a read-only link like
+    any earlier answer.
     A page is 1000 units wide and 1414 tall (A4) unless it has its own
     `h` (a strip, a pad that grows, a PDF page at the PDF's proportions),
     whatever size it is drawn at; a
@@ -2946,6 +3010,17 @@ Every `KOS_CONTENT["subject:ref"]` entry follows `js/core/content.js`; use
   Examiner intel (`intel.js`) is merged the same way. Adding to a merge
   means: the table in `gen_data.py`, `REF_ALIASES`, the sims/generators
   wired to the old refs, the plan seed refs, and smoke65/66's `DONE` lists.
+- IT unit F201 (Big data and machine learning) is `it-f201a.js` (Topic
+  Area 1), `it-f201b.js` (2) and `it-f201c.js` (3–5), written from the OCR
+  specification and its Sample Assessment Material (there are no past
+  papers yet): each leaf opens on its overview and "What the specification
+  asks", is paged, ends with "In exam questions" (OCR-style worked answers
+  in the mark scheme's own form, "identify (1) + apply (1)", at least one
+  6- or 9-mark levels-of-response answer) and "Exam toolkit", and its exam
+  items derive from those cards (`examFromWorked(notes, "OCR")`).
+  Flashcards are quick recall: a front asks something specific (never a
+  bare label or a bare yes/no), and a new card's third element is 100 or
+  more so it never takes an old card's schedule (invariant 87). smoke156.
 - Computer Science content is `cs-p1-*.js` (Paper 1, 4.1–4.4, code in C#),
   `cs-p2-*.js` (Paper 2, 4.5–4.13) and `cs-nea.js` (the NEA as a project
   guide: no exam items). smoke65 and smoke66 hold every leaf to the depth

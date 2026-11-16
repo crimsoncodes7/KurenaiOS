@@ -7,7 +7,46 @@ the only things both can rely on are **Git** and the **files in the repo**.
 This page is the protocol that keeps them seamless. Nothing in it needs the
 accounts to talk to each other.
 
-## 0. The current handover (16 November 2026)
+## 0. The current handover (16 November 2026, evening — supersedes the list below)
+
+The Opus account is paused until Thursday 19 November (weekly limit). The
+OTHER account works alone until then: on **Fable** while it lasts, then on
+**Opus**. This account keeps **W3** (with design turn 37) and **W9** (its
+polish lands after W3); leave both alone. Production is sw
+`kos-integrity-15`; `origin/main` is at this commit or later.
+
+**For the other account, in this order:**
+1. **Merge `main` into `feat/w4-import` first** (it is behind kos-integrity-11
+   to -15). Regenerate `js/data/lazy-index.js` after the merge.
+2. **Fable: W4's import engine** — MG-02, MG-03, MG-04, MG-05, MG-06, MG-07,
+   MG-08, MG-24 on `feat/w4-import` (Santander fixtures are already there:
+   midata CSV, Online Banking CSV and text, QIF, OFX).
+3. **Fable, if time is left: W1's sync remainder** — DI-09's second half (a
+   streamed backup for very large file sets). AP-01 stage 2 stays parked
+   (the user's decision: 8.4 MB at boot is fine).
+4. **Opus: W4's Money pages from design turn 39** — the two import steps,
+   learned rules (Settings › Rules), Transactions › Imports with Undo and
+   Replace, the overview cards (Runway, Balance, By category, By merchant,
+   By week, Subscriptions), a merchant's page, MG-10 (the wide import
+   dialog), MG-25 (a row opens as a sheet on the phone and at 820).
+5. **Opus: design turn 36, held updates** — the "Updated on another device"
+   chip and its states in `redraw.js`'s pill (see the turn's README).
+6. **Opus: design turn 40** — the spaces' dailies on Home (with W7's HR-04),
+   the Wardrobe, Edit your seat on the phone, Focus minimised.
+7. **Opus: design turn 41, first open** — the welcome, sign-in landing, a
+   Start-fresh Home, the SAMPLE events seed removed (W1's SH-27/EX-39).
+8. **Opus, any time: the W1 and W7 P2/P3s that need no design**, then
+   **W8** (Help & Guide for every area, docs re-baselined, one shared
+   lesson reader, splitting `hub.js`, memoised heavy reads).
+
+**Smoke numbers from now:** the other account uses **160–179**; this
+account continues at 157–159 and then 180+. (142, 143, 149 and 150 stay the
+other account's.)
+
+**Releases:** each batch its own branch from `main`, the full gate, and the
+user's go-ahead before a deploy; bump `sw.js` from `kos-integrity-15`.
+
+## 0a. The earlier handover (16 November 2026)
 
 The user is moving to the OTHER account for a while, which has Fable for a
 limited time. That account takes the list below; this account (Opus) keeps
@@ -87,6 +126,33 @@ account yet. The gate is **152 suites** (`""`, 2–148 and 151–154); only
 or content file needs `node tools/gen_lazy_index.mjs` (smoke142 B fails
 when the index is stale). Every other branch must merge main again.
 Left on the Fable account's list: items 3 and 4.
+
+**Released 16 November 2026 as sw `kos-integrity-15`**
+(https://d2c8c870.kurenai-os.pages.dev, from `feat/519-it-notes`; -14 an
+hour before, the same release less a label fix): roadmap 5.19 item 1 for
+F201 — all fifteen leaves rewritten from the OCR specification and SAM in
+`it-f201a/b/c.js` (replacing `it-f201.js`; smoke156). Expect overlap in
+`index.html` (the content-it bundle), `js/data/lazy-index.js` (regenerate),
+`js/core/content.js` (examFromWorked: a "<board>-style" source) and the gate
+list (156). **`feat/w4-import` must merge main again.** F206 waits until
+January 2027.
+
+**Released 16 November 2026 as sw `kos-integrity-13`**
+(https://b21cbcf3.kurenai-os.pages.dev, `origin/main` = `5d306ae`, from
+`feat/519-review`): 5.19 item 4 below, and the IT desk in the shared order
+(Continue in the side column, the current unit beside the course units, no
+Resources card). **`feat/w4-import` must merge main again.**
+
+**5.19 item 4 (16 November 2026, `feat/519-review`, from main at
+`5c3d699`):** quiz and exam questions on the review schedule
+(`js/core/questions.js`, invariant 111c, smoke155), their history, an
+unmarked iPad attempt carried on (invariant 132 widened), the subject
+desk's review strip, and 78 several-step Maths cards moved to exam
+questions (`tools/gen_moved_cards.mjs`). Expect overlap in `index.html`
+(two scripts after `js/core/srs.js`, one at the end of the Maths bank
+bundle), `js/data/lazy-index.js` (regenerate it after merging),
+`js/modules/hub.js`, `js/engines/quiz.js`, `js/core/inkpad.js` and the gate
+list. Next on this account: item 1 (IT notes, F201 first).
 
 **Worktrees.** The two accounts collided in one folder on 16 November (the
 Fable session switched branches in the main checkout while this account had

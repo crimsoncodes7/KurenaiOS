@@ -327,23 +327,42 @@
     var live = IU.all().filter(function (x) { return x.status !== "not-taken" && !IU.archived(x.code) && x.code !== code; });
     var nx = live[0] || null, nxSpec = nx && (KOS_DATA.it.sections || []).filter(function (x) { return x.ref === nx.code; })[0];
     var kind = spec.paper === "NEA" ? "NEA" : "examined";
-    var bar = el("span", { class: "k-bar k-bar--6", role: "img", "aria-label": code + ": " + pct + "% mastery" }, [el("i")]);
-    bar.style.setProperty("--p", pct + "%");
+    var started = ls.filter(function (l) { var p = store.peekProgress("it", l.ref); return p && p.status && p.status !== "none" && p.status !== "done"; }).length;
+    /* one segment a topic, as on the unit cards beside it */
+    var segs = el("span", { class: "k-unit-segs k-it-cur-segs", "aria-hidden": "true" }, ls.map(function (l) {
+      var p = store.peekProgress("it", l.ref);
+      return el("span", { "data-state": p && p.status === "done" ? "done" : p && p.status && p.status !== "none" ? "started" : null });
+    }));
     var change = live.length ? KOS.ui.menu({ label: "Change", className: "k-btn--sm k-btn--quiet", hint: "Which unit you are studying now",
       items: live.map(function (x) { return { label: x.code + " · " + ((KOS_DATA.it.sections || []).filter(function (y) { return y.ref === x.code; })[0] || {}).title, onSelect: function () { IU.setCurrent(x.code); KOS.rerender(); } }; }) }) : null;
-    return el("section", { class: "k-card k-it-current", "data-ui": "it.current", "aria-label": "Current unit" }, [
+    function fig(v, k) { return el("span", { class: "k-it-cur-fig" }, [el("b", { text: v }), el("span", { text: k })]); }
+    /* 5.19 item 2, reworked 16 November 2026: the current unit sits in the
+       course units' row (the gap beside two unit cards), Continue stays the
+       side column's like every subject's */
+    /* the unit cards' height: what it is on the left, its figures on the
+       right (16 November 2026) */
+    return el("section", { class: "k-it-current", "data-ui": "it.current", "aria-label": "Current unit" }, [
       el("div", { class: "k-it-cur-main" }, [
-        el("div", { class: "k-kicker", text: "Current unit · " + kind }),
-        el("h2", { class: "k-it-cur-title", text: code + " · " + spec.title }),
-        u.date ? el("p", { class: "k-muted k-it-cur-sub", text: (kind === "NEA" ? "Due " : "Exam ") + shortDate(u.date) + (days != null && days >= 0 ? " · " + days + (days === 1 ? " day" : " days") : "") }) : null,
-        bar,
-        el("p", { class: "k-muted k-it-cur-sub", text: pct + "% mastery · " + done + " of " + ls.length + " topics completed" })
-      ].filter(Boolean)),
-      el("div", { class: "k-it-cur-go" }, [
-        target ? el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "it.current-continue",
-          onclick: function () { KOS.show("ref", { subject: "it", ref: target.ref }); } }, [el("span", { class: "k-fit-btn", text: "Continue · " + target.ref + " " + target.title })]) : null,
-        nx && nxSpec ? el("div", { class: "k-it-cur-next" }, [el("span", { class: "k-kicker", text: "Next" }), el("b", { class: "k-mono", text: nx.code }), el("span", { text: nxSpec.title })]) : null,
-        change
+        el("div", { class: "k-it-cur-top" }, [
+          el("span", { class: "k-kicker", text: "Current unit · " + kind }),
+          change
+        ].filter(Boolean)),
+        el("h3", { class: "k-it-cur-title" }, [el("span", { class: "k-unit-ref", text: code }), " " + spec.title]),
+        segs,
+        el("div", { class: "k-it-cur-foot" }, [
+          nx && nxSpec ? el("div", { class: "k-it-cur-next" }, [el("span", { class: "k-kicker", text: "Next" }), el("b", { class: "k-mono", text: nx.code }), el("span", { text: nxSpec.title })]) : null,
+          target ? el("button", { type: "button", class: "k-link k-it-cur-open", "data-ui": "it.current-open",
+            onclick: function () { KOS.show("ref", { subject: "it", ref: target.ref }); } }, [code + " topics →"]) : null
+        ].filter(Boolean))
+      ]),
+      el("div", { class: "k-it-cur-stats" }, [
+        el("div", { class: "k-it-cur-figs" }, [
+          fig(pct + "%", "mastery"),
+          fig(done + " / " + ls.length, "completed"),
+          fig(String(started), "started")
+        ]),
+        u.date ? el("span", { class: "k-chip k-it-cur-date", "data-ui": "it.current-date", "data-tone": days != null && days <= 14 ? "warn" : null,
+          text: (kind === "NEA" ? "Due " : "Exam ") + shortDate(u.date) + (days != null && days >= 0 ? " · " + days + (days === 1 ? " day" : " days") : "") }) : null
       ].filter(Boolean))
     ]);
   }

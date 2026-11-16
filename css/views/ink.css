@@ -225,6 +225,9 @@ background-size: calc(var(--ink-square) * 2) calc(var(--ink-square) * 2), calc(v
 .k-pad-sheet { max-inline-size: var(--ink-strip-max); }
 .k-pad-foot { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-8); }
 .k-pad-foot:empty { display: none; }
+/* an unmarked attempt offered to carry on (5.19 item 4, 44d) */
+.k-pad-draft { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-8) var(--sp-12); padding: var(--sp-10) var(--sp-12); border-radius: var(--r-12); background: var(--s2); margin-block-end: var(--sp-8); }
+.k-pad-draft-t { flex: 1 1 16rem; min-inline-size: 0; font-size: var(--fs-13); }
 .k-qz-point-t { display: flex; flex-direction: column; gap: var(--sp-4); }
 .k-qz-needs { font-size: var(--fs-11); color: var(--muted); }
 .k-qz-kurenai { display: flex; flex-wrap: wrap; gap: var(--sp-8); padding-block-start: var(--sp-6); }

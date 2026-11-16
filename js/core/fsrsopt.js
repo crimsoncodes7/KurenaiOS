@@ -67,8 +67,9 @@
   function prepare(rows) {
     var seen = {}, byKey = {}, reviews = 0;
     (rows || []).forEach(function (r) {
-      /* a redo item is a past-paper question marked by hand, not a card */
-      if (!r || typeof r.key !== "string" || !(r.g >= 1 && r.g <= 4) || r.src === "redo") return;
+      /* a redo item is a past-paper question marked by hand, not a card;
+         nor is a quiz or exam question graded from its marks (5.19) */
+      if (!r || typeof r.key !== "string" || !(r.g >= 1 && r.g <= 4) || r.src === "redo" || r.src === "question") return;
       var u = uidOf(r);
       if (seen[u]) return;
       seen[u] = true;

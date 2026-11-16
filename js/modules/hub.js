@@ -6,6 +6,10 @@
   var el = KOS.ui.el, store = KOS.store;
   /* the topic tab on screen, kept in memory so a redraw reopens it */
   var openTabMemo = { key: null, tab: null };
+  /* a tab asked for once, from inside the topic page itself (the
+     inspector's Quiz best → the quiz's history): a show of the page on
+     screen keeps its open tab, so the request rides beside it */
+  var tabAsk = null;
 
   /* the subject list and hues come from the one registry (core/subjects.js) */
   var SUBJECTS = KOS.subjects.ids();
@@ -125,7 +129,7 @@
   function inReview(sid, ref) { return sid !== "it" || !KOS.itUnits || KOS.itUnits.inReview(ref); }
   function subjectCardStats(sid) {
     var today = KOS.srs.todayISO();
-    var out = { total: 0, reviewed: 0, due: 0 };
+    var out = { total: 0, reviewed: 0, due: 0, recall: null }, rs = 0, rn = 0;
     LEAVES[sid].forEach(function (l) {
       if (!inReview(sid, l.ref)) return;
       KOS.srs.cardsFor(sid, l.ref).forEach(function (c) {
@@ -134,30 +138,22 @@
         if (!m || !m.due) return;
         out.reviewed++;
         if (m.due <= today) out.due++;
+        /* recall today, the mean over rated cards (the review strip, 44e) */
+        var mem = !c.redo && KOS.srs.memory(c.key, today);
+        if (mem) { rs += mem.r; rn++; }
       });
     });
+    if (rn) out.recall = Math.round(100 * rs / rn);
     return out;
   }
-  /* the subject's quiz record. `best` is the best score ever recorded, which
-     is what the inspector has always shown; the subject page used to read
-     `lastPct` under a "Best quiz" label, so the two surfaces disagreed. */
-  function subjectQuizStats(sid) {
-    var q = (store.state.study || {}).quiz || {};
-    var out = { best: null, attempts: 0, topics: 0 };
-    Object.keys(q).forEach(function (k) {
-      if (k.indexOf(sid + ":") !== 0 || !inReview(sid, k.slice(sid.length + 1))) return;
-      out.topics++;
-      out.attempts += q[k].attempts || 0;
-      var bp = KOS.quiz && KOS.quiz.bestPct ? KOS.quiz.bestPct(sid, k.slice(sid.length + 1), q[k]) : q[k].best;
-      if (bp != null) out.best = Math.max(out.best == null ? 0 : out.best, bp);
-    });
-    return out;
+  /* the subject's timed papers, oldest first (the review strip's Papers) */
+  function subjectPapers(sid) {
+    if (!KOS.tracker || !KOS.tracker.all) return [];
+    return KOS.tracker.all().filter(function (e) {
+      return e.subject === sid && e.timed && e.max && e.marks != null && (!e.ref || inReview(sid, e.ref));
+    }).sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : 0; });
   }
-  function subjectExamCount(sid) {
-    return KOS.sessions.all().filter(function (e) {
-      return e.type === "exam" && e.subject === sid && inReview(sid, e.ref);
-    }).length;
-  }
+
 
   /* the topic-level read. KOS.views.ref hands the SAME object to the tab bar
      and to the inspector, which is what keeps a tab count and the inspector
@@ -2102,17 +2098,9 @@
       }))
     ]);
 
-    /* IT's current-unit card carries Continue, so the side keeps only Weakest */
-    var itLead = sid === "it" && KOS.itDesk && KOS.itDesk.current && KOS.itUnits && KOS.itUnits.current();
-    var side = el("div", { class: "k-subj-side" }, [itLead ? null : continueCard(sid), weakestCard(sid)].filter(Boolean));
+    var side = el("div", { class: "k-subj-side" }, [continueCard(sid), weakestCard(sid)].filter(Boolean));
     if (KOS.art) KOS.art.layer(hero, "desk:" + sid, { eager: true });
-    /* IT: the current unit leads the desk (5.19 item 2, design 44f) */
-    if (sid === "it" && KOS.itDesk && KOS.itDesk.current) { var cu = KOS.itDesk.current({
-      leaves: function (code) { var sec = d.sections.filter(function (x) { return x.ref === code; })[0]; return sec ? leavesOf(sid, sec) : []; },
-      pct: function (ref) { return leafPercent(sid, ref); }, lastRef: store.state.ui.lastRef[sid] }); if (cu) main.appendChild(cu); }
     main.appendChild(el("div", { class: "k-subj-row", "data-ui": "study.desk-top" }, [hero, side]));
-    /* the IT desk's qualification and units (frames 18a–18c) */
-    if (sid === "it" && KOS.itDesk) KOS.itDesk.render(main);
 
     /* ================= analytics, beside the dates ================= */
     var analytics = subjectAnalytics(sid, s);
@@ -2150,14 +2138,23 @@
       units.appendChild(card);
     });
     var paperNames = papers.filter(function (p) { return p.leaves.length; }).map(function (p) { return ((PAPER_NOTE[sid] || {})[p.lbl] || [p.lbl])[0]; });
+    /* IT: the current unit beside its unit cards (5.19 item 2, design 44f;
+       moved into the units' row on 16 November 2026) */
+    var cu = sid === "it" && KOS.itDesk && KOS.itDesk.current ? KOS.itDesk.current({
+      leaves: function (code) { var sec = d.sections.filter(function (x) { return x.ref === code; })[0]; return sec ? leavesOf(sid, sec) : []; },
+      pct: function (ref) { return leafPercent(sid, ref); }, lastRef: store.state.ui.lastRef[sid] }) : null;
+    var unitScroller = KOS.ui.scroller(units, { label: "Course units", prevLabel: "Scroll to earlier units", nextLabel: "Scroll to later units" });
     main.appendChild(el("section", { class: "k-subj-units", "aria-labelledby": "k-units-h" }, [
       el("div", { class: "k-sectionhead" }, [
         el("h2", { id: "k-units-h", text: "Course units" }),
         el("span", { class: "k-sectionhead-sub", text: units.children.length + " units · " +
           (paperNames.length > 1 ? paperNames.slice(0, -1).join(", ") + " and " + paperNames[paperNames.length - 1] : paperNames[0] || d.board) })
       ]),
-      KOS.ui.scroller(units, { label: "Course units", prevLabel: "Scroll to earlier units", nextLabel: "Scroll to later units" })
+      cu ? el("div", { class: "k-subj-units-row", "data-ui": "study.units-row" }, [unitScroller, cu]) : unitScroller
     ]));
+    /* the IT desk's qualification and units (frames 18a–18c), after the
+       rows every subject shares */
+    if (sid === "it" && KOS.itDesk) KOS.itDesk.render(main);
 
     /* ================= practice, beside the resources ================= */
     var labs = PRACTICE[sid] || [];
@@ -2181,9 +2178,13 @@
     /* 15c: on a phone the eight analytics tiles are one summary row that
        opens them in a sheet (the same card, moved in and back) */
     bottom.appendChild(analyticsRow(analytics));
-    var resHolder = el("section", { class: "k-card", "data-ui": "study.resources", "aria-label": "Resources" });
-    bottom.appendChild(resHolder);
-    renderResources(resHolder, sid);
+    /* IT has no Resources card: a new specification with next to nothing
+       published for it yet (asked for 16 November 2026) */
+    if (sid !== "it") {
+      var resHolder = el("section", { class: "k-card", "data-ui": "study.resources", "aria-label": "Resources" });
+      bottom.appendChild(resHolder);
+      renderResources(resHolder, sid);
+    }
     main.appendChild(bottom);
   };
 
@@ -2212,10 +2213,12 @@
       });
       return t && !t.matches("[data-state~='empty']") ? t.querySelector("[data-ui~='part.value']").textContent : null;
     }
+    var strip = card.querySelector("[data-ui~='study.review-strip']");
+    var due = strip ? +strip.getAttribute("data-due") : 0, avg = strip ? strip.getAttribute("data-avg") : "";
     var facts = [
       tile("Mastery") ? tile("Mastery") + " mastery" : null,
-      tile("Reviewed") ? tile("Reviewed") + " reviewed" : null,
-      tile("Quiz best") ? "quiz best " + tile("Quiz best") : null
+      due ? due + " cards due" : null,
+      avg ? "questions " + avg + "%" : null
     ].filter(Boolean);
     return el("button", { type: "button", class: "k-card k-sa-row", "data-ui": "study.analytics-row", "aria-haspopup": "dialog",
       onclick: function () {
@@ -2242,8 +2245,6 @@
 
   function subjectAnalytics(sid, s) {
     var cards = subjectCardStats(sid);
-    var quiz = subjectQuizStats(sid);
-    var exams = subjectExamCount(sid);
     var run = KOS.sessions.streak(sid);
     var deep = KOS.content.coverage(sid, LEAVES[sid]);
     var startedPct = pctOf(s.touched, s.total);
@@ -2272,22 +2273,53 @@
         statTile({ k: "Started", v: ratioText(s.touched, s.total), pct: startedPct, c: "var(--amber)",
           sub: s.paused ? pctText(startedPct) + " opened · " + s.paused + " paused"
                         : pctText(startedPct) + " opened at least once" }),
-        statTile({ k: "Cards due", v: KOS.ui.num(cards.due), empty: !cards.total,
-          sub: !cards.total ? "no flashcards in this subject yet"
-             : cards.due ? "ready to review now" : "nothing due today" }),
-        statTile({ k: "Reviewed", v: ratioText(cards.reviewed, cards.total),
-          empty: !cards.total, pct: cards.total ? reviewedPct : null, c: "var(--subj-c)",
-          sub: cards.total ? pctText(reviewedPct) + " of the deck is in the schedule"
-                           : "study a topic's cards to begin" }),
-        statTile({ k: "Quiz best", v: quiz.best == null ? "" : pctText(quiz.best),
-          empty: quiz.best == null, pct: quiz.best, c: "var(--subj-c)",
-          sub: quiz.best == null ? "no quiz attempts yet"
-             : quiz.attempts + (quiz.attempts === 1 ? " attempt" : " attempts") + " across " +
-               quiz.topics + (quiz.topics === 1 ? " topic" : " topics") }),
-        statTile({ k: "Exam Qs", v: String(exams), empty: !exams,
-          sub: exams ? "self-marked and logged" : "none self-marked yet" }),
         statTile({ k: "Streak", v: run + (run === 1 ? " day" : " days"), empty: !run,
           sub: run ? "consecutive days on this subject" : "study today to start one" })
+      ]),
+      reviewStrip(sid, cards, reviewedPct)
+    ]);
+  }
+
+  /* The review analytics as ONE strip (5.19 item 4, design 44e): Cards →
+     Questions → Papers, three figures each, a missing figure an em dash.
+     IT's units done at school are left out of all three (26f). */
+  function reviewStrip(sid, cards, reviewedPct) {
+    var Q = KOS.questions ? KOS.questions.subjectStats(sid) : { back: 0, avg: null, attempts: 0 };
+    var papers = subjectPapers(sid), last = papers[papers.length - 1], prev = papers[papers.length - 2];
+    var lastPct = last ? Math.round(100 * last.marks / last.max) : null, prevPct = prev ? Math.round(100 * prev.marks / prev.max) : null;
+    var delta = lastPct != null && prevPct != null ? lastPct - prevPct : null;
+    function fig(v, k, hook) {
+      var none = v == null || v === "";
+      return el("span", { class: "k-sa-fig", "data-ui": "study.review-fig" + (hook ? " " + hook : ""), "data-state": none ? "empty" : null }, [
+        el("b", { class: "k-sa-fig-v", text: none ? "—" : String(v) }), el("span", { class: "k-sa-fig-k", text: k })]);
+    }
+    function part(name, hook, figs, empty) {
+      return el("div", { class: "k-sa-part", "data-ui": "study.review-part " + hook, "data-state": empty ? "empty" : null }, [
+        el("span", { class: "k-kicker", text: name }), el("div", { class: "k-sa-figs" }, figs)]);
+    }
+    return el("div", { class: "k-sa-review", "data-ui": "study.review-strip", "aria-label": "Review",
+      "data-due": String(cards.due), "data-avg": Q.avg == null ? "" : String(Q.avg) }, [
+      el("div", { class: "k-sa-review-head" }, [
+        el("span", { class: "k-card-title", text: "Review" }),
+        el("button", { type: "button", class: "k-link k-spacer", "data-ui": "study.review-due", text: "Due today →",
+          onclick: function () { KOS.show("review", { tab: "due" }); } })
+      ]),
+      el("div", { class: "k-sa-parts" }, [
+        part("Cards", "study.review-cards", [
+          fig(cards.total ? KOS.ui.num(cards.due) : null, "due"),
+          fig(cards.recall != null ? cards.recall + "%" : null, "recall"),
+          fig(cards.total ? cards.reviewed + " / " + cards.total : null, "in the schedule")
+        ], !cards.total),
+        part("Questions", "study.review-questions", [
+          fig(Q.attempts ? String(Q.back) : null, "back today"),
+          fig(Q.avg != null ? Q.avg + "%" : null, "average mark"),
+          fig(Q.attempts ? String(Q.attempts) : null, Q.attempts === 1 ? "attempt" : "attempts", "study.review-attempts")
+        ], !Q.attempts),
+        part("Papers", "study.review-papers", [
+          fig(papers.length ? String(papers.length) : null, "timed"),
+          fig(last ? (last.grade || lastPct + "%") : null, last ? "last · " + (last.paper || last.topic || "paper") : "last"),
+          fig(delta != null ? (delta > 0 ? "▲ " : delta < 0 ? "▼ " : "") + Math.abs(delta) + "%" : null, "on the one before")
+        ], !papers.length)
       ])
     ]);
   }
@@ -2672,10 +2704,16 @@
     else editing = null;
     /* a file's "Where it's linked" opens the topic on its Files tab */
     if (!editing && arg && arg.tab === "files") curTab = "files";
+    /* the inspector's Quiz best opens the quiz's history; Due's questions
+       open the topic on their tab (5.19 item 4) */
+    var quizView = !editing && arg && arg.tab === "quiz" && arg.view === "history" ? "history" : null;
+    if (!editing && arg && (arg.tab === "quiz" || arg.tab === "exam") && TABDEFS.some(function (t) { return t[0] === arg.tab; })) curTab = arg.tab;
     /* a redraw (a cloud pull, a habit ticking itself) keeps the tab that
        was open; it used to drop the reader back on Notes mid-question */
     var topicKey = sid + ":" + ref;
     if (!editing && KOS.ui.redrawing && openTabMemo.key === topicKey && TABDEFS.some(function (t) { return t[0] === openTabMemo.tab; })) curTab = openTabMemo.tab;
+    if (tabAsk && tabAsk.key === topicKey && !editing) { curTab = tabAsk.tab; if (tabAsk.view) quizView = tabAsk.view; }
+    tabAsk = null;
     openTabMemo = { key: topicKey, tab: curTab };
 
     function selectTab(id) {
@@ -3160,7 +3198,8 @@
         if (content && content.quiz && content.quiz.length) {
           var qHolder = el("div", { class: "k-topic-engine" });
           panel.appendChild(qHolder);
-          KOS.quiz.mountMCQ(qHolder, sid, ref, content.quiz, { runKey: "quiz:" + sid + ":" + ref, afterLog: KOS.view.redrawIfStill() });
+          KOS.quiz.mountMCQ(qHolder, sid, ref, content.quiz, { runKey: "quiz:" + sid + ":" + ref, afterLog: KOS.view.redrawIfStill(), view: quizView });
+          quizView = null;
         } else if (!customN) {
           panel.appendChild(KOS.ui.emptyState({
             compact: true, mark: "問", title: "No quiz on this topic yet",
@@ -3336,7 +3375,11 @@
       count("Lapses", t.lapses),
       li("Recall today", t.memory.recall == null ? "" : "≈ " + pctText(Math.round(100 * t.memory.recall)), t.memory.recall == null),
       t.memory.leeches ? count("In Rework", t.memory.leeches) : null,
-      li("Quiz best", qzBest != null ? pctText(qzBest) : "", qzBest == null),
+      /* Quiz best opens the quiz's history, weakest first (5.19 item 4, 44c) */
+      qzBest != null && KOS.questions ? el("li", {}, [el("span", { text: "Quiz best" }),
+        el("button", { type: "button", class: "k-link k-insp-link", "data-ui": "topic.quiz-history", "aria-label": "Quiz best " + pctText(qzBest) + " — open the quiz's history",
+          onclick: function () { tabAsk = { key: sid + ":" + ref, tab: "quiz", view: "history" }; KOS.show("ref", { subject: sid, ref: ref }); } }, [el("strong", { text: pctText(qzBest) }), " →"])])
+        : li("Quiz best", qzBest != null ? pctText(qzBest) : "", qzBest == null),
       count("Quiz attempts", qz ? qz.attempts || 0 : 0),
       count("Exam questions logged", t.examLogged),
       inkRow(sid, ref)

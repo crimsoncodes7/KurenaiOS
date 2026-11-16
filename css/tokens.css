@@ -216,6 +216,7 @@ color-scheme: dark;
 --bar-4: 4px;
 --bar-6: 6px;
 --bar-7: 7px;
+--qhist-w: 420px;           /* an exam question's marks-over-time line (5.19) */
 --rail-mark: 3px;
 --focus-width: 2px;
 --focus-offset: 2px;

@@ -51,7 +51,7 @@
      view is correct before it is declared; smoke139 holds every list to
      what the page really reads while it draws. `ui` is per device and is
      never a reason to redraw. */
-  var STUDY = ["progress", "srs", "srsCfg", "custom", "edits", "sessions", "tracker", "exams", "itUnits",
+  var STUDY = ["progress", "srs", "srsCfg", "questions", "custom", "edits", "sessions", "tracker", "exams", "itUnits",
     "pacing", "assignments", "calendar", "resources"];
   var SPACES = ["code", "japanese", "mind", "creatives"];
   var VAULT = ["media", "db:media", "artSlots", "art"];
