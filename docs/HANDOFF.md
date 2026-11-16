@@ -88,8 +88,14 @@ or content file needs `node tools/gen_lazy_index.mjs` (smoke142 B fails
 when the index is stale). Every other branch must merge main again.
 Left on the Fable account's list: items 3 and 4.
 
-**5.19 item 4 built (16 November 2026, `feat/519-review`, from main at
-`5c3d699`; not released):** quiz and exam questions on the review schedule
+**Released 16 November 2026 as sw `kos-integrity-13`**
+(https://b21cbcf3.kurenai-os.pages.dev, `origin/main` = `5d306ae`, from
+`feat/519-review`): 5.19 item 4 below, and the IT desk in the shared order
+(Continue in the side column, the current unit beside the course units, no
+Resources card). **`feat/w4-import` must merge main again.**
+
+**5.19 item 4 (16 November 2026, `feat/519-review`, from main at
+`5c3d699`):** quiz and exam questions on the review schedule
 (`js/core/questions.js`, invariant 111c, smoke155), their history, an
 unmarked iPad attempt carried on (invariant 132 widened), the subject
 desk's review strip, and 78 several-step Maths cards moved to exam
