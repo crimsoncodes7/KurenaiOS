@@ -99,9 +99,9 @@ C["compsci:4.2.6.1"] = {
     { worked: { tag: "variation", title: "Hash the strings", q: "With h(key) = (sum of ASCII codes) MOD 11, hash CAT, ACT and DOG into an empty table of 11 slots using linear probing. (C = 67, A = 65, T = 84, D = 68, O = 79, G = 71.)",
       steps: [
         { m: "CAT: 67 + 65 + 84 = 216; 216 MOD 11 = 7 → slot 7.", mk: "1" },
-        { m: "ACT: the same sum, 216 → 7 — a collision; probe → slot 8.", mk: "1" },
+        { m: "ACT: the same sum, 216 → 7 — a collision; probe → slot 8.", mk: "1" , "fig": {"w":528,"h":100,"items":[{"poly":[[10,40],[56,40],[56,74],[10,74]],"fill":"muted","alpha":0.04,"c":"muted","w":1.6},{"text":[33,88],"t":"0","size":10.5,"c":"muted","b":false,"pos":"c"},{"poly":[[56,40],[102,40],[102,74],[56,74]],"fill":"muted","alpha":0.04,"c":"muted","w":1.6},{"text":[79,88],"t":"1","size":10.5,"c":"muted","b":false,"pos":"c"},{"poly":[[102,40],[148,40],[148,74],[102,74]],"fill":"muted","alpha":0.04,"c":"muted","w":1.6},{"text":[125,88],"t":"2","size":10.5,"c":"muted","b":false,"pos":"c"},{"poly":[[148,40],[194,40],[194,74],[148,74]],"fill":"muted","alpha":0.04,"c":"muted","w":1.6},{"text":[171,88],"t":"3","size":10.5,"c":"muted","b":false,"pos":"c"},{"poly":[[194,40],[240,40],[240,74],[194,74]],"fill":"muted","alpha":0.04,"c":"muted","w":1.6},{"text":[217,88],"t":"4","size":10.5,"c":"muted","b":false,"pos":"c"},{"poly":[[240,40],[286,40],[286,74],[240,74]],"fill":"muted","alpha":0.04,"c":"muted","w":1.6},{"text":[263,88],"t":"5","size":10.5,"c":"muted","b":false,"pos":"c"},{"poly":[[286,40],[332,40],[332,74],[286,74]],"fill":"muted","alpha":0.04,"c":"muted","w":1.6},{"text":[309,88],"t":"6","size":10.5,"c":"muted","b":false,"pos":"c"},{"poly":[[332,40],[378,40],[378,74],[332,74]],"fill":"accent","alpha":0.18,"c":"accent","w":1.6},{"text":[355,57],"t":"CAT","size":11.5,"c":"text","b":true,"pos":"c"},{"text":[355,88],"t":"7","size":10.5,"c":"muted","b":false,"pos":"c"},{"poly":[[378,40],[424,40],[424,74],[378,74]],"fill":"accent2","alpha":0.18,"c":"accent2","w":1.6},{"text":[401,57],"t":"ACT","size":11.5,"c":"text","b":true,"pos":"c"},{"text":[401,88],"t":"8","size":10.5,"c":"muted","b":false,"pos":"c"},{"poly":[[424,40],[470,40],[470,74],[424,74]],"fill":"accent","alpha":0.18,"c":"accent","w":1.6},{"text":[447,57],"t":"DOG","size":11.5,"c":"text","b":true,"pos":"c"},{"text":[447,88],"t":"9","size":10.5,"c":"muted","b":false,"pos":"c"},{"poly":[[470,40],[516,40],[516,74],[470,74]],"fill":"muted","alpha":0.04,"c":"muted","w":1.6},{"text":[493,88],"t":"10","size":10.5,"c":"muted","b":false,"pos":"c"},{"line":[[362,34],[394,34]],"c":"accent2","w":1.6,"arrow":true},{"text":[378,18],"t":"probe","size":10.5,"c":"accent2","b":false,"pos":"c"}],"cap":"ACT hashes to 7 too, so linear probing places it in slot 8."}},
         { m: "DOG: 68 + 79 + 71 = 218; 218 MOD 11 = 9 → slot 9 (free).", mk: "1", n: "A sum of codes ignores order, so every anagram collides — a weakness of this hash function." }
-      ], result: "CAT 7 · ACT 8 · DOG 9" } },
+      ], result: "CAT 7 · ACT 8 · DOG 9" , "try": [{"grid":{"cols":["Key","Sum of codes","h(key)","Slot"],"rows":[["BAT","215","6","6"],["TAB","215","6","7"],["COT","230","10","10"],["CAB","198","0","0"]],"given":[[0,0],[1,0],[2,0],[3,0]],"cap":"Into a fresh 11-slot table, in this order, with the same h and linear probing (B = 66, O = 79)."}}]} },
     { diagram: "hash-table" },
 
     { page: "In exam questions" },
@@ -113,7 +113,7 @@ C["compsci:4.2.6.1"] = {
         { m: "The result is the location in the table where the record should be stored;", mk: "1" },
         { m: "If the location is not empty;", mk: "1" },
         { m: "…then use the next free location (or another feasible collision-resolution method);", mk: "1" }
-      ], result: "Hash the KEY → location → collision? → next free" } },
+      ], result: "Hash the KEY → location → collision? → next free" , "try": [{"lab":"hash-table"}]} },
     { worked: { tag: "exam", title: "Why faster than a sorted list", src: "A-level June 2025 · P1 Q01.1 · 1 mark",
       q: "Two data structures that can be used to store a collection of data records are a hash table and a sorted list. Explain why a record in a hash table can normally be found more quickly than a record in a sorted list.",
       steps: [{ m: "The hashing algorithm determines the memory location/index to use // there is no need to search through the records to find the required one;", mk: "1", n: "A sorted list still needs a binary search: O(log n) comparisons vs about O(1)." }],
@@ -210,7 +210,7 @@ C["compsci:4.2.7.1"] = {
         { m: "Key = word, value = a set of document numbers: green → {1, 3}, grass → {1, 2}, red → {2}, tea → {3}.", mk: "1" },
         { m: "Look up both keys — two direct accesses, no scan of the documents.", mk: "1" },
         { m: "Intersect the sets: {1, 3} ∩ {1, 2} = {1}.", mk: "1" }
-      ], result: "Document 1" } },
+      ], result: "Document 1" , "try": [{"predict":{"code":"var index = new Dictionary<string, List<int>>();\nstring[] docs = { \"green grass\", \"red grass\", \"green tea\" };\nfor (int d = 0; d < docs.Length; d++)\n{\n    foreach (string w in docs[d].Split(' '))\n    {\n        if (!index.ContainsKey(w)) index[w] = new List<int>();\n        index[w].Add(d + 1);\n    }\n}\n\nforeach (int n in index[\"green\"])\n{\n    if (index[\"tea\"].Contains(n)) Console.WriteLine(n);\n}\nConsole.WriteLine(index.Count);","cap":"The index built in C#, then \"green AND tea\". What is printed?"}}]} },
 
     { page: "In exam questions" },
     { worked: { tag: "exam", title: "Why a hash table suits a dictionary", src: "A-level June 2022 · P1 Q07.4 · 1 mark",
@@ -222,7 +222,7 @@ C["compsci:4.2.7.1"] = {
         { m: "var tileValues = new Dictionary<char, int> { ['A'] = 1, ['E'] = 1, ['I'] = 1, ['J'] = 4, ['X'] = 4, ['Z'] = 5 };", mk: "build" },
         { m: "int score = 0; foreach (char ch in \"JAZZ\") score += tileValues[ch];", mk: "look up" },
         { m: "4 + 1 + 5 + 5 = 15. Changing J and X is one edit each to the dictionary — no other code changes.", mk: "result" }
-      ], result: "15" } },
+      ], result: "15" , "try": [{"predict":{"code":"var tileValues = new Dictionary<char, int> { ['A'] = 1, ['E'] = 1, ['I'] = 1, ['J'] = 4, ['X'] = 4, ['Z'] = 5 };\nforeach (string word in new string[] { \"AXE\", \"ZIP\" })\n{\n    int score = 0;\n    foreach (char ch in word)\n    {\n        if (tileValues.ContainsKey(ch)) score += tileValues[ch];\n    }\n    Console.WriteLine(word + \" \" + score);\n}","expect":"AXE 6\nZIP 6","cap":"Two more words. P is not in the dictionary: what does ContainsKey do for it?"}}]} },
 
     { page: "Exam toolkit" },
     { steps: [
@@ -312,7 +312,7 @@ C["compsci:4.2.8.1"] = {
       steps: [
         { m: "0.25 × [2, 0] = [0.5, 0]; 0.75 × [0, 4] = [0, 3].", mk: "1" },
         { m: "Sum: [0.5, 3] — three-quarters of the way from u to v.", mk: "1", n: "Checked in C#." },
-        { m: "0.5 + 0.7 = 1.2 ≠ 1, so 0.5u + 0.7v is NOT a convex combination (it lies off the segment).", mk: "1" }
+        { m: "0.5 + 0.7 = 1.2 ≠ 1, so 0.5u + 0.7v is NOT a convex combination (it lies off the segment).", mk: "1" , "fig": {"x":[-0.6,3],"y":[-0.5,4.5],"aspect":"equal","w":360,"h":320,"items":[{"line":[[0,0],[2,0]],"arrow":true,"c":"muted","label":"u","lpos":0.6,"loff":12},{"line":[[0,0],[0,4]],"arrow":true,"c":"muted","label":"v","lpos":0.6,"loff":12},{"line":[[2,0],[0,4]],"c":"accent","w":2.2},{"pt":[0.5,3],"label":"0.25u + 0.75v","pos":"ne","c":"good"},{"pt":[1,2.8],"open":true,"label":"0.5u + 0.7v","pos":"se","c":"danger"}],"cap":"Convex combinations lie on the segment from u to v; [1, 2.8] does not."}}
       ], result: "[0.5, 3]; no" } },
 
     { page: "The dot product" },
@@ -331,7 +331,7 @@ C["compsci:4.2.8.1"] = {
     { worked: { tag: "exam", title: "Dot product of u and v", src: "A-level June 2017 · P1 Q05.1 · 1 mark",
       q: "In a 2-D game, the enemy looks in the direction u = [1, 1]; the vector from the enemy to the hero is v = [3, −5]. Calculate the dot product of u and v.",
       steps: [{ m: "1 × 3 + 1 × (−5) = −2;", mk: "1", n: "Negative — the hero is currently BEHIND the enemy's line of sight." }],
-      result: "−2" } },
+      result: "−2" , "fig": {"x":[-1,4],"y":[-6,2],"aspect":"equal","w":300,"h":360,"items":[{"line":[[0,0],[1,1]],"arrow":true,"c":"accent","label":"u","loff":10},{"line":[[0,0],[3,-5]],"arrow":true,"c":"accent2","label":"v","loff":12}],"cap":"u = [1, 1] and v = [3, −5]: more than 90° apart, so u · v is negative."}} },
     { worked: { tag: "exam", title: "Move the hero", src: "A-level June 2017 · P1 Q05.2 · 1 mark",
       q: "The hero's current position is the vector [5, 2] and its movement is [3, 1]. The game computes new position = current position vector + movement vector. Perform vector addition to calculate the new position of the hero.",
       steps: [{ m: "[8, 3];", mk: "1", n: "I. missing or different brackets." }],
@@ -342,23 +342,23 @@ C["compsci:4.2.8.1"] = {
         { m: "v = [8, 3] − [2, 7] = [6, −4];", mk: "1" },
         { m: "u.v = 1 × 6 + 1 × (−4) = 2;", mk: "1" },
         { m: "EnemyCanSee = True (2 > 0);", mk: "1", n: "A. follow-through from a wrong answer to 05.2. Checked in C#." }
-      ], result: "[6, −4] · 2 · True" } },
+      ], result: "[6, −4] · 2 · True" , "fig": {"x":[0,10],"y":[0,9],"aspect":"equal","w":420,"h":380,"items":[{"line":[[2,7],[3.4,8.4]],"arrow":true,"c":"accent","label":"u","loff":10},{"line":[[2,7],[8,3]],"arrow":true,"c":"accent2","label":"v","loff":12},{"pt":[2,7],"label":"enemy [2, 7]","pos":"sw"},{"pt":[8,3],"label":"hero [8, 3]","pos":"s","c":"accent2"}],"cap":"The enemy looks along u; v points from the enemy to the hero."}, "try": [{"grid":{"cols":["Hero at","v x","v y","u.v","EnemyCanSee"],"rows":[["[0, 4]","-2","-3","-5","False"],["[5, 6]","3","-1","2","True"],["[4, 5]","2","-2","0","False"]],"given":[[0,0],[1,0],[2,0]],"cap":"The enemy stays at [2, 7] looking along u = [1, 1]. Complete a row for each place the hero might be."}}]} },
     { worked: { tag: "exam", title: "Magnitude of b", src: "A-level June 2020 · P1 Q01.1 · 1 mark",
       q: "Vectors a = [4, 3] and b = [4, 0]. The magnitude of a vector, represented as an arrow, is the length of the arrow; the magnitude of a is 5 because √(4² + 3²) = 5. What is the magnitude of vector b?",
-      steps: [{ m: "4 // √(4² + 0²);", mk: "1" }], result: "4" } },
+      steps: [{ m: "4 // √(4² + 0²);", mk: "1" }], result: "4" , "fig": {"x":[-0.6,5],"y":[-0.6,3.8],"aspect":"equal","w":400,"h":300,"items":[{"line":[[0,0],[4,3]],"arrow":true,"c":"accent","label":"a = [4, 3]","lpos":0.65,"loff":14},{"line":[[0,0],[4,0]],"arrow":true,"c":"accent2","label":"b = [4, 0]","lpos":0.5,"loff":-14},{"arc":[0,0,44,0,36.87],"label":"θ"}],"cap":"θ is the angle between a and b."}} },
     { worked: { tag: "exam", title: "Dot product with working", src: "A-level June 2020 · P1 Q01.2 · 2 marks",
       q: "Calculate the dot product of vectors a = [4, 3] and b = [4, 0]. You should show your working.",
       steps: [
         { m: "Multiply corresponding components: 4 × 4 = 16 and 3 × 0 = 0;", mk: "1" },
         { m: "Add the products: 16 + 0 = 16;", mk: "1", n: "2 marks for 16; if wrong, max 1 for working." }
-      ], result: "16" } },
+      ], result: "16" , "try": [{"lab":"cs-vector"}]} },
     { worked: { tag: "exam", title: "Multiply by 2", src: "A-level June 2020 · P1 Q01.3 · 2 marks",
       q: "Describe what will happen to the angle θ (between a = [4, 3] and b = [4, 0]) and the magnitude of vector a when vector a is multiplied by the scalar 2.",
       steps: [{ m: "The angle will stay the same // the direction will not change;", mk: "1" }, { m: "The magnitude will be doubled — it becomes 10;", mk: "1" }],
       result: "Same angle; magnitude 10" } },
     { worked: { tag: "exam", title: "Multiply by −1", src: "A-level June 2020 · P1 Q01.4 · 2 marks",
       q: "The angle between two vectors cannot exceed 180° (a measured angle over 180° is subtracted from 360°). Describe what will happen to the angle θ and the magnitude of vector a when vector a is multiplied by the scalar −1.",
-      steps: [{ m: "The angle will be 180 − θ // 143.13°;", mk: "1", n: "A. the direction of a will be the opposite of its current direction." }, { m: "The magnitude will stay the same;", mk: "1" }],
+      steps: [{ m: "The angle will be 180 − θ // 143.13°;", mk: "1", n: "A. the direction of a will be the opposite of its current direction." , "fig": {"x":[-4.8,5],"y":[-3.6,3.6],"aspect":"equal","w":440,"h":330,"items":[{"line":[[0,0],[4,3]],"arrow":true,"c":"muted","dash":true,"label":"a","lpos":0.7,"loff":12},{"line":[[0,0],[-4,-3]],"arrow":true,"c":"accent","label":"−a","lpos":0.7,"loff":12},{"line":[[0,0],[4,0]],"arrow":true,"c":"accent2","label":"b","lpos":0.8,"loff":12},{"arc":[0,0,36,216.87,360],"label":"143.13°","loff":26}],"cap":"−a points the opposite way: the angle to b becomes 180° − 36.87° = 143.13°; the length is still 5."}}, { m: "The magnitude will stay the same;", mk: "1" }],
       result: "180° − θ = 143.13°; same magnitude" } },
 
     { page: "Exam toolkit" },

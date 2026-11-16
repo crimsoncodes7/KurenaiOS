@@ -147,7 +147,7 @@ C["compsci:4.4.2.1"] = {
       steps: [
         { m: "111011x: NO — the 0 goes to S2, then 1 sends it to S4;", mk: "1" },
         { m: "1110x: YES; 111001x: NO (a second 0 from S2 goes to S4);", mk: "1", n: "1 mark for one row correct, 2 for all rows. Checked in C#." }
-      ], result: "NO · YES · NO" } },
+      ], result: "NO · YES · NO" , "try": [{"grid":{"cols":["String","Accepted?"],"rows":[["x","YES"],["0x","YES"],["11x0","NO"],["100x","NO"],["1111x","YES"],["01x","NO"]],"given":[[0,0],[1,0],[2,0],[3,0],[4,0],[5,0]],"cap":"Six more strings for the same machine: YES or NO."}}]} },
     { worked: { tag: "exam", title: "Describe the language", src: "AS June 2016 · P1 Q02.2 · 3 marks",
       q: "In words, describe the language (set of strings) that is accepted by the FSM above.",
       steps: [
@@ -180,7 +180,7 @@ C["compsci:4.4.2.1"] = {
       steps: [
         { m: "Rows with current state S2: (S2, a, S5) and (S2, b, S4);", mk: "1" },
         { m: "Rows with new state S2: (S0, b, S2) and (S5, b, S2);", mk: "1", n: "I. order of rows." }
-      ], result: "S2 a→S5 · S2 b→S4 · S0 b→S2 · S5 b→S2" } },
+      ], result: "S2 a→S5 · S2 b→S4 · S0 b→S2 · S5 b→S2" , "try": [{"grid":{"cols":["Current state","Input","New state"],"rows":[["S0","a","S1"],["S0","b","S2"],["S1","a","S4"],["S1","b","S3"],["S3","a","S1"],["S3","b","S4"]],"given":[[0,0],[0,1],[1,0],[1,1],[2,0],[2,1],[3,0],[3,1],[4,0],[4,1],[5,0],[5,1]],"cap":"Now the rows for the other side of the machine: S0, S1 and S3."}}]} },
     FIG_AL21,
 
     { page: "Exam toolkit" },
@@ -288,7 +288,7 @@ C["compsci:4.4.2.2"] = {
       steps: [{ m: "The empty set is also a subset of R // {} / Ø is also a subset of R;", mk: "1", n: "NE. \"they are not the only subsets\" — name the missing one." }], result: "Ø is missing" } },
     { worked: { tag: "exam", title: "Size of R ∩ U", src: "A-level June 2024 · P1 Q04.3 · 1 mark",
       q: "How many members are there in the set formed by the intersection of R = {a, b} and U = {c, d, bb, b}?",
-      steps: [{ m: "1 // one;", mk: "1", n: "R ∩ U = {b}. bb is a different member from b." }], result: "1" } },
+      steps: [{ m: "1 // one;", mk: "1", n: "R ∩ U = {b}. bb is a different member from b." , "fig": {"w":420,"h":190,"items":[{"circle":[150,95,80],"fill":"accent","alpha":0.1,"c":"accent","w":1.6},{"circle":[270,95,80],"fill":"accent2","alpha":0.1,"c":"accent2","w":1.6},{"text":[100,20],"t":"R","size":11.5,"c":"accent","b":true,"pos":"c"},{"text":[320,20],"t":"U","size":11.5,"c":"accent2","b":true,"pos":"c"},{"text":[115,95],"t":"a","size":13,"c":"text","b":false,"pos":"c"},{"text":[210,95],"t":"b","size":13,"c":"text","b":true,"pos":"c"},{"text":[300,70],"t":"c","size":13,"c":"text","b":false,"pos":"c"},{"text":[320,105],"t":"d","size":13,"c":"text","b":false,"pos":"c"},{"text":[285,135],"t":"bb","size":13,"c":"text","b":false,"pos":"c"}],"cap":"Only b is in both: |R ∩ U| = 1. (bb is a different string from b.)"}}], result: "1" } },
 
     { page: "Exam toolkit" },
     { steps: [
@@ -357,7 +357,7 @@ C["compsci:4.4.2.3"] = {
       steps: [
         { m: "Must start with a; then any mixture of a and b.", mk: "1" },
         { m: "Length 1: a. Length 2: aa, ab. Length 3: aaa, aab, aba, abb.", mk: "1" }
-      ], result: "a, aa, ab, aaa, aab, aba, abb" } },
+      ], result: "a, aa, ab, aaa, aab, aba, abb" , "try": [{"grid":{"cols":["String","In a(a|b)*?"],"rows":[["a","Yes"],["ba","No"],["abba","Yes"],["aab","Yes"],["bbb","No"]],"given":[[0,0],[1,0],[2,0],[3,0],[4,0]],"cap":"Yes or No for each string."}}]} },
 
     { page: "Regex ↔ FSM" },
     { kv: [
@@ -368,7 +368,7 @@ C["compsci:4.4.2.3"] = {
     { worked: { tag: "variation", title: "Draw the FSM for 1*0?x", q: "Describe an FSM accepting 1*0?x (AS 2016's language).",
       steps: [
         { m: "Start state S1 loops on 1 (the 1*).", mk: "1" },
-        { m: "0 from S1 to S2 (the optional 0); x from S1 or S2 to the accepting state S3.", mk: "1" },
+        { m: "0 from S1 to S2 (the optional 0); x from S1 or S2 to the accepting state S3.", mk: "1" , "fig": {"w":640,"h":200,"items":[{"circle":[80,73,10],"c":"text2","w":1.3},{"line":[[90,76],[87,83]],"arrow":true,"c":"text2","w":1.3},{"text":[80,55],"t":"1","size":10.5,"c":"accent2","b":true,"pos":"c"},{"line":[[96.71258043593467,106.68503217437387],[213.28741956406532,153.31496782562613]],"arrow":true,"c":"text2","w":1.4},{"text":[151.28609323645895,139.2847669088526],"t":"0","size":10.5,"c":"accent2","b":true,"pos":"c"},{"line":[[98,100],[362,100]],"arrow":true,"c":"text2","w":1.4},{"text":[230,109],"t":"x","size":10.5,"c":"accent2","b":true,"pos":"c"},{"line":[[246.71258043593468,153.31496782562613],[363.2874195640653,106.68503217437387]],"arrow":true,"c":"text2","w":1.4},{"text":[308.71390676354105,139.2847669088526],"t":"x","size":10.5,"c":"accent2","b":true,"pos":"c"},{"line":[[248,160],[512,160]],"arrow":true,"c":"text2","w":1.4},{"text":[380,148],"t":"0,1","size":10.5,"c":"accent2","b":true,"pos":"c"},{"line":[[396.7125804359347,106.68503217437387],[513.2874195640653,153.31496782562613]],"arrow":true,"c":"text2","w":1.4},{"text":[451.28609323645895,139.2847669088526],"t":"0,1,x","size":10.5,"c":"accent2","b":true,"pos":"c"},{"circle":[530,133,10],"c":"text2","w":1.3},{"line":[[540,136],[537,143]],"arrow":true,"c":"text2","w":1.3},{"text":[530,115],"t":"0,1,x","size":10.5,"c":"accent2","b":true,"pos":"c"},{"circle":[80,100,18],"fill":"accent","alpha":0.2,"c":"accent","w":1.6},{"text":[80,100],"t":"S1","size":10.5,"c":"text","b":true,"pos":"c"},{"line":[[36,100],[62,100]],"arrow":true,"c":"text2","w":1.4},{"circle":[230,160,18],"fill":"accent","alpha":0.2,"c":"accent","w":1.6},{"text":[230,160],"t":"S2","size":10.5,"c":"text","b":true,"pos":"c"},{"circle":[380,100,18],"fill":"good","alpha":0.2,"c":"good","w":1.6},{"circle":[380,100,14],"c":"good","w":1.2},{"text":[380,100],"t":"S3","size":10.5,"c":"text","b":true,"pos":"c"},{"circle":[530,160,18],"fill":"danger","alpha":0.2,"c":"danger","w":1.6},{"text":[530,160],"t":"S4","size":10.5,"c":"text","b":true,"pos":"c"},{"text":[380,186],"t":"double ring = accepting state · S4 is a dead (trap) state","size":10.5,"c":"text2","b":false,"pos":"c"}],"cap":"AS 2016's FSM, redrawn from its published answers: any number of 1s, at most one 0, then x."}},
         { m: "Anything else goes to a trap state — this is exactly AS 2016's machine (4.4.2.1).", mk: "1" }
       ], result: "Same machine as AS 2016" } },
 
@@ -388,7 +388,7 @@ C["compsci:4.4.2.3"] = {
       steps: [
         { m: "1 Y · 11 N · 01 Y · 0111 Y;", mk: "2", n: "The language is {1} ∪ {0 followed by one or more 1s}." },
         { m: "0101 N · 111 N · 0011 N;", mk: "1", n: "1 mark for four rows, 2 for five, 3 for all seven. Checked in C#." }
-      ], result: "Y N Y Y N N N" } },
+      ], result: "Y N Y Y N N N" , "try": [{"grid":{"cols":["String","Matches 0*1(0|1)?"],"rows":[["1","Y"],["01","Y"],["0010","Y"],["100","N"],["011","Y"],["0","N"]],"given":[[0,0],[1,0],[2,0],[3,0],[4,0],[5,0]],"cap":"The same task for another expression. Then try them in the sandbox below."}},{"lab":"regex-sandbox"}]} },
     { worked: { tag: "exam", title: "A regex for a UK postcode", src: "A-level June 2017 · P1 Q02.4 · 4 marks",
       q: "A UK postcode (ignoring spaces) is 1 or 2 letters, followed by 1 digit or 2 digits or 1 digit then 1 letter, followed by 1 digit, followed by 2 letters. \\d means any digit and \\a any letter (e.g. \\d\\d\\a\\d is two digits, a letter, a digit). Write a regular expression for a valid UK postcode, using the | metacharacter only once.",
       steps: [
@@ -403,7 +403,7 @@ C["compsci:4.4.2.3"] = {
         { m: "Two alternatives joined by | — strings starting with a, and strings starting with b;", mk: "1" },
         { m: "(ba)* and (ab)* for the loops S1→S3→S1 and S2→S5→S2;", mk: "1", n: "R. ba* or ab*." },
         { m: "Fully correct: a(ba)*|b(ab)*;", mk: "1", n: "Also accepted: a|b|b(ab)+|a(ba)+. Max 2 if not fully correct. Checked by enumeration." }
-      ], result: "a(ba)*|b(ab)*" } },
+      ], result: "a(ba)*|b(ab)*" , "fig": {"w":640,"h":270,"items":[{"line":[[85.84847979859916,111.4662031853697],[184.15152020140084,58.533796814630314]],"arrow":true,"c":"text2","w":1.4},{"text":[139.7409982303502,93.80471099922175],"t":"a","size":10.5,"c":"accent2","b":true,"pos":"c"},{"line":[[85.84847979859916,128.5337968146303],[184.15152020140084,181.4662031853697]],"arrow":true,"c":"text2","w":1.4},{"text":[140.68919787642022,144.4343468009339],"t":"b","size":10.5,"c":"accent2","b":true,"pos":"c"},{"line":[[218,56],[342,56]],"arrow":true,"c":"text2","w":1.4},{"text":[280,62],"t":"b","size":10.5,"c":"accent2","b":true,"pos":"c"},{"line":[[342,44],[218,44]],"arrow":true,"c":"text2","w":1.4},{"text":[280,38],"t":"a","size":10.5,"c":"accent2","b":true,"pos":"c"},{"line":[[218,196],[342,196]],"arrow":true,"c":"text2","w":1.4},{"text":[280,202],"t":"a","size":10.5,"c":"accent2","b":true,"pos":"c"},{"line":[[342,184],[218,184]],"arrow":true,"c":"text2","w":1.4},{"text":[280,178],"t":"b","size":10.5,"c":"accent2","b":true,"pos":"c"},{"line":[[376.0996894379985,58.049844718999246],[483.9003105620015,111.95015528100076]],"arrow":true,"c":"text2","w":1.4},{"text":[425.5278640450004,93.94427190999916],"t":"b","size":10.5,"c":"accent2","b":true,"pos":"c"},{"line":[[376.0996894379985,181.95015528100075],[483.9003105620015,128.04984471899925]],"arrow":true,"c":"text2","w":1.4},{"text":[424.6334368540005,144.26687370800101],"t":"a","size":10.5,"c":"accent2","b":true,"pos":"c"},{"poly":[[200,208],[200,250],[500,250]],"close":false,"c":"text2","w":1.4},{"line":[[500,250],[500,138]],"arrow":true,"c":"text2","w":1.4},{"text":[350,260],"t":"b","size":10.5,"c":"accent2","b":true,"pos":"c"},{"poly":[[200,32],[200,14],[500,14]],"close":false,"c":"text2","w":1.4},{"line":[[500,14],[500,102]],"arrow":true,"c":"text2","w":1.4},{"text":[350,24],"t":"a","size":10.5,"c":"accent2","b":true,"pos":"c"},{"circle":[500,147,10],"c":"text2","w":1.3},{"line":[[510,144],[507,137]],"arrow":true,"c":"text2","w":1.3},{"text":[500,165],"t":"a,b","size":10.5,"c":"accent2","b":true,"pos":"c"},{"circle":[70,120,18],"fill":"accent","alpha":0.2,"c":"accent","w":1.6},{"text":[70,120],"t":"S0","size":10.5,"c":"text","b":true,"pos":"c"},{"line":[[26,120],[52,120]],"arrow":true,"c":"text2","w":1.4},{"circle":[200,50,18],"fill":"good","alpha":0.2,"c":"good","w":1.6},{"circle":[200,50,14],"c":"good","w":1.2},{"text":[200,50],"t":"S1","size":10.5,"c":"text","b":true,"pos":"c"},{"circle":[360,50,18],"fill":"accent","alpha":0.2,"c":"accent","w":1.6},{"text":[360,50],"t":"S3","size":10.5,"c":"text","b":true,"pos":"c"},{"circle":[200,190,18],"fill":"good","alpha":0.2,"c":"good","w":1.6},{"circle":[200,190,14],"c":"good","w":1.2},{"text":[200,190],"t":"S2","size":10.5,"c":"text","b":true,"pos":"c"},{"circle":[360,190,18],"fill":"accent","alpha":0.2,"c":"accent","w":1.6},{"text":[360,190],"t":"S5","size":10.5,"c":"text","b":true,"pos":"c"},{"circle":[500,120,18],"fill":"danger","alpha":0.2,"c":"danger","w":1.6},{"text":[500,120],"t":"S4","size":10.5,"c":"text","b":true,"pos":"c"}],"cap":"A-level 2021's FSM, redrawn: the S2 transitions are exactly those in the mark scheme; it accepts odd-length strings that alternate a and b (checked against a(ba)*|b(ab)* in C#)."}} },
     { worked: { tag: "exam", title: "The | metacharacter", src: "A-level June 2024 · P1 Q04.4 · 1 mark",
       q: "The language defined by a regular expression can be represented as a set. Explain the functionality of the | (vertical bar) metacharacter when it is used in a regular expression.",
       steps: [{ m: "Either the element (immediately) before or the element (immediately) after // or // alternation;", mk: "1" }], result: "Alternation — or" } },
@@ -628,7 +628,7 @@ C["compsci:4.4.3.1"] = {
         { m: "87.000: Yes;", mk: "1" },
         { m: "97+12: No — there is no decimal point, and + may only follow E;", mk: "1" },
         { m: "12.31E+12: Yes;", mk: "1", n: "One mark per correct row. Checked against the described syntax in C#." }
-      ], result: "Yes · No · Yes" } },
+      ], result: "Yes · No · Yes" , "try": [{"grid":{"cols":["String","Valid real number?"],"rows":[["0.5","Yes"],["3.14E-2","Yes"],[".5","No"],["7.E+1","No"],["42","No"]],"given":[[0,0],[1,0],[2,0],[3,0],[4,0]],"cap":"The same definition: natural, point, natural, then optionally E, a sign and a natural."}},{"lab":"bnf-checker"}]} },
     { worked: { tag: "exam", title: "BNF for a natural number", src: "A-level June 2017 · P1 Q01.2 · 2 marks",
       q: "In BNF a digit is defined as <digit> ::= 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9. Write a BNF production rule to define a natural number (one or more digits, drawn as a loop in the syntax diagram).",
       steps: [
@@ -640,7 +640,7 @@ C["compsci:4.4.3.1"] = {
       steps: [{ m: "<sentence> ::= <np><v> | <v><np>;", mk: "1", n: "R. any answer of more than one rule." }], result: "<np><v> | <v><np>" } },
     { worked: { tag: "exam", title: "Which are valid sentences?", src: "A-level June 2020 · P1 Q02.3 · 1 mark",
       q: "Using those rules, which of these are valid sentences: cuddle the cat; drank a human; the cat slept; cat or dog?",
-      steps: [{ m: "Y, Y, Y, N;", mk: "1", n: "cat or dog has no <d> before cat and no <v>. Checked in C#." }], result: "Y Y Y N" } },
+      steps: [{ m: "Y, Y, Y, N;", mk: "1", n: "cat or dog has no <d> before cat and no <v>. Checked in C#." , "fig": {"w":500,"h":220,"items":[{"line":[[240,33],[130,67]],"c":"text2","w":1.6},{"line":[[240,33],[340,67]],"c":"text2","w":1.6},{"line":[[130,93],[130,127]],"c":"text2","w":1.6},{"line":[[340,93],[280,127]],"c":"text2","w":1.6},{"line":[[340,93],[400,127]],"c":"text2","w":1.6},{"line":[[280,153],[280,187]],"c":"text2","w":1.6},{"line":[[400,153],[400,187]],"c":"text2","w":1.6},{"poly":[[198,7],[282,7],[282,33],[198,33]],"fill":"accent","alpha":0.16,"c":"accent","w":1.6},{"text":[240,20],"t":"<sentence>","size":11.5,"c":"text","b":true,"pos":"c"},{"poly":[[88,67],[172,67],[172,93],[88,93]],"fill":"accent","alpha":0.16,"c":"accent","w":1.6},{"text":[130,80],"t":"<v>","size":11.5,"c":"text","b":true,"pos":"c"},{"poly":[[298,67],[382,67],[382,93],[298,93]],"fill":"accent","alpha":0.16,"c":"accent","w":1.6},{"text":[340,80],"t":"<np>","size":11.5,"c":"text","b":true,"pos":"c"},{"poly":[[238,127],[322,127],[322,153],[238,153]],"fill":"accent","alpha":0.16,"c":"accent","w":1.6},{"text":[280,140],"t":"<d>","size":11.5,"c":"text","b":true,"pos":"c"},{"poly":[[358,127],[442,127],[442,153],[358,153]],"fill":"accent","alpha":0.16,"c":"accent","w":1.6},{"text":[400,140],"t":"<n>","size":11.5,"c":"text","b":true,"pos":"c"},{"poly":[[88,127],[172,127],[172,153],[88,153]],"fill":"accent2","alpha":0.16,"c":"accent2","w":1.6},{"text":[130,140],"t":"cuddle","size":11.5,"c":"text","b":true,"pos":"c"},{"poly":[[238,187],[322,187],[322,213],[238,213]],"fill":"accent2","alpha":0.16,"c":"accent2","w":1.6},{"text":[280,200],"t":"the","size":11.5,"c":"text","b":true,"pos":"c"},{"poly":[[358,187],[442,187],[442,213],[358,213]],"fill":"accent2","alpha":0.16,"c":"accent2","w":1.6},{"text":[400,200],"t":"cat","size":11.5,"c":"text","b":true,"pos":"c"}],"cap":"\"cuddle the cat\" parsed by <sentence> ::= <v><np>: every leaf is a terminal."}}], result: "Y Y Y N" , "try": [{"grid":{"cols":["Sentence","Valid?"],"rows":[["the dog drank","Y"],["slept a baby","Y"],["a cat","N"],["ate the dog","Y"],["the human ate but","N"]],"given":[[0,0],[1,0],[2,0],[3,0],[4,0]],"cap":"Five more, using the original rules: Y or N."}}]} },
     { worked: { tag: "exam", title: "Allow \"dog slept\"", src: "A-level June 2020 · P1 Q02.4 · 1 mark",
       q: "The sentence dog slept is not currently valid. Change the language by adding or modifying exactly one rule so that dog slept is valid. You must not use the terminals dog or slept directly.",
       steps: [{ m: "<np> ::= <d><n> | <n> // <sentence> ::= <np><v> | <n><v> // add <sentence> ::= <n><v> // add <np> ::= <n>;", mk: "1" }],
