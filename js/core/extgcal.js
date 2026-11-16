@@ -261,6 +261,14 @@
     ext.g = Object.assign({}, ext.g || {}, g);
     X().inbound(function () { KOS.calendar.updateEvent(ev.id, { ext: ext }); });
   }
+  /* the event loses its Google link and stays (DI-08) */
+  function unlink(ev) {
+    var ext = Object.assign({}, ev.ext || {});
+    delete ext.g;
+    X().inbound(function () { KOS.calendar.updateEvent(ev.id, { ext: Object.keys(ext).length ? ext : null }); });
+  }
+  /* a different Google account was connected: no event stays linked */
+  function forget() { own().slice().forEach(function (ev) { if (ev.ext && ev.ext.g) unlink(ev); }); }
   function req(tok, method, path, body, headers) { return X().call(tok, method, API + path, body, headers); }
 
   function ensureUids() {
@@ -418,7 +426,12 @@
           if (diff.indexOf("when") !== -1 && diff.indexOf("rule") === -1 && L.rule) diff.push("rule");     // a moved rule restates its UNTIL
           return req(tok, "PATCH", "/calendars/primary/events/" + encodeURIComponent(l.id), toBody(L, diff, { rx: l.rx }), l.etag ? { "If-Match": l.etag } : null).then(function (r) {
             if (r.ok) { setLink(ev, { etag: r.json.etag, base: L }); counts.pushed++; }
-            else if (r.status === 404 || r.status === 410) { X().inbound(function () { KOS.calendar.deleteEvent(ev.id); }); }
+            /* DI-08: 410 is Google saying the event was deleted, and it
+               goes here too. 404 is only "not found" (another account, a
+               calendar that moved): the event is kept and unlinked, and the
+               next cycle sends it as a new one. */
+            else if (r.status === 410) { X().inbound(function () { KOS.calendar.deleteEvent(ev.id); }); }
+            else if (r.status === 404) { unlink(ev); counts.unlinked = (counts.unlinked || 0) + 1; }
             /* 412: changed there since the pull; the next pull merges it */
           });
         }
@@ -530,5 +543,5 @@
     _ro: function () { return ro; }
   };
   if (KOS.ext) KOS.ext.register({ name: "calendar", provider: "google",
-    on: function () { var g = KOS.ext.S().google; return g.on && (g.cal || g.export.on); }, cycle: cycle });
+    on: function () { var g = KOS.ext.S().google; return g.on && (g.cal || g.export.on); }, cycle: cycle, forget: forget });
 })();

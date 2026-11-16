@@ -446,7 +446,7 @@
   function cloudCycle() {
     if (cloudApi) return Promise.resolve(cloudApi()).then(function () { return true; }, function () { return false; });
     var C = KOS.cloudsync;
-    if (!C || !C.syncNow) return Promise.resolve(false);
+    if (!C || !C.cycleNow) return Promise.resolve(false);
     return new Promise(function (res) {
       var over = false;
       function fin(ok) { if (over) return; over = true; clearTimeout(cap); res(ok); }
@@ -456,7 +456,9 @@
         /* a cycle already running is waited out, then ours runs: its pull
            may have started before the other device's push landed */
         if (C.isRunning && C.isRunning()) { if (n > 80) fin(false); else setTimeout(function () { go(n + 1); }, 250); return; }
-        try { C.syncNow(function (err) { fin(!err); }); } catch (e) { fin(false); }
+        /* an automatic cycle, not "Sync now": it must not jump the waits
+           a manual one is allowed to */
+        try { C.cycleNow(function (err) { fin(!err); }); } catch (e) { fin(false); }
       })(0);
     });
   }

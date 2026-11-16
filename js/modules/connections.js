@@ -26,7 +26,13 @@
     if (!st.ok) return "Last try " + ago(st.at) + ": " + (st.why || "it didn't finish.");
     var c = st.counts || {}, n = { in: 0, out: 0 };
     Object.keys(c).forEach(function (k) { var x = c[k] || {}; n.in += (x.pulled || 0); n.out += (x.pushed || 0) + (x.created || 0) + (x.deleted || 0) + (x.exported || 0) + (x.unexported || 0); });
-    return "Synced " + ago(st.at) + (n.in || n.out ? " · " + [n.in ? n.in + " in" : null, n.out ? n.out + " out" : null].filter(Boolean).join(", ") : " · nothing new");
+    /* DI-12, DI-08: what the provider would not take, and what lost its
+       link because its copy there could not be found */
+    var refused = 0, why = "", unlinked = 0;
+    Object.keys(c).forEach(function (k) { var x = c[k] || {}; refused += x.refused || 0; unlinked += x.unlinked || 0; if (!why && x.refusedWhy) why = x.refusedWhy; });
+    return "Synced " + ago(st.at) + (n.in || n.out ? " · " + [n.in ? n.in + " in" : null, n.out ? n.out + " out" : null].filter(Boolean).join(", ") : " · nothing new") +
+      (refused ? " · " + refused + (refused === 1 ? " change" : " changes") + " refused" + (why ? " (" + why + ")" : "") : "") +
+      (unlinked ? " · " + unlinked + " unlinked (not found there; kept here)" : "");
   }
 
   KOS.views.connections = function (main) {
@@ -124,7 +130,7 @@
       ]));
 
       /* Reminders lists */
-      var linkCard = card("Reminders lists", "lists", [el("p", { class: "k-st-note", text: "Each list goes to one Todoist project or one Google Tasks list." })]);
+      var linkCard = card("Reminders lists", "lists", [el("p", { class: "k-st-note", text: "Each list goes to one Todoist project or one Google Tasks list. Moving a reminder out of a linked list removes its task there; unlinking a list keeps both copies." })]);
       linkCard.classList.add("k-cx-wide");
       grid.appendChild(linkCard);
       var services = [];
