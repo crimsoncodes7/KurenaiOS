@@ -32,13 +32,17 @@ C["maths:3.1"] = {
       steps: [
         { h: "Gradient of $l_1$", m: "$4y = 3x + 10 \\Rightarrow y = \\dfrac34 x + \\dfrac52$, so $m_1 = \\dfrac34$", mk: "B1" },
         { h: "Gradient of $l_2$", m: "$m_2 = \\dfrac{8 - (-1)}{-1 - 5} = \\dfrac{9}{-6} = -\\dfrac32$", mk: "M1 A1" },
-        { h: "Compare", m: "$m_1 \\neq m_2$ so not parallel; $m_1 m_2 = \\dfrac34 \\times \\left(-\\dfrac32\\right) = -\\dfrac98 \\neq -1$ so not perpendicular. **Neither.**", mk: "A1", n: "\"Full reasons\" = both tests written with their numbers. \"They look different\" is not a reason." }
+        { fig: { x: [-3, 7], y: [-3, 10], aspect: "equal", axes: { xt: [-1, 5], yt: [-1, 8] }, items: [
+          { fn: "0.75*x+2.5", label: "l₁", at: 5.5, pos: "nw" }, { fn: "-1.5*x+6.5", c: "accent2", label: "l₂", at: 6, pos: "e" },
+          { pt: [5, -1], label: "(5, −1)", pos: "e" }, { pt: [-1, 8], label: "(−1, 8)", pos: "e" } ], cap: "The lines cross, but not at a right angle: $\\frac34 \\times -\\frac32 = -\\frac98$, not $-1$." }, h: "Compare", m: "$m_1 \\neq m_2$ so not parallel; $m_1 m_2 = \\dfrac34 \\times \\left(-\\dfrac32\\right) = -\\dfrac98 \\neq -1$ so not perpendicular. **Neither.**", mk: "A1", n: "\"Full reasons\" = both tests written with their numbers. \"They look different\" is not a reason." }
       ], result: "neither" } },
     { worked: { tag: "exam", title: "Perpendicular gradient, then the intersection", src: "AS June 2019 · P1 Q1 · 4 marks",
       q: "$l_1$: $2x + 4y - 3 = 0$. $l_2$: $y = mx + 7$. Given $l_1$ and $l_2$ are perpendicular, **(a)** find $m$. **(b)** The lines meet at $P$; find the $x$-coordinate of $P$.",
       steps: [
         { h: "(a)", m: "$l_1$: $y = -\\dfrac12 x + \\dfrac34$, gradient $-\\dfrac12$; perpendicular: $m = 2$", mk: "M1 A1" },
-        { h: "(b) Substitute $y = 2x + 7$ into $l_1$", m: "$2x + 4(2x + 7) - 3 = 0 \\Rightarrow 10x + 25 = 0 \\Rightarrow x = -\\dfrac52$", mk: "M1 A1" }
+        { fig: { x: [-5, 2], y: [-1.5, 6], aspect: "equal", axes: { xt: [-2.5, 1], yt: [2, 4] }, items: [
+          { fn: "-0.5*x+0.75", label: "l₁", at: 1.2, pos: "n" }, { fn: "2*x+7", c: "accent2", label: "l₂", at: -1.4, pos: "e" },
+          { rangle: [[-2.5, 2], [-0.5, 1], [-2, 3]] }, { pt: [-2.5, 2], label: "P", pos: "w" } ], cap: "Gradients $-\\frac12$ and $2$ multiply to $-1$; they meet at $P$ with $x = -\\frac52$." }, h: "(b) Substitute $y = 2x + 7$ into $l_1$", m: "$2x + 4(2x + 7) - 3 = 0 \\Rightarrow 10x + 25 = 0 \\Rightarrow x = -\\dfrac52$", mk: "M1 A1" }
       ], result: "(a) $m = 2$ (b) $x = -\\frac52$" } },
     { worked: { tag: "exam", title: "Perpendicular through a point; exact area of a triangle", src: "AS June 2023 · P1 Q10 · 8 marks",
       q: "$l_1$: $y = \\frac35 x + 6$. $l_2$ is perpendicular to $l_1$ and passes through $B(8, 0)$. **(a)** Show that $l_2$ has equation $5x + 3y = 40$. The lines meet at $C$ and $l_1$ crosses the $x$-axis at $A$. **(b)** Find the exact area of triangle $ABC$ as a fully simplified fraction.",
@@ -62,28 +66,38 @@ C["maths:3.1"] = {
       steps: [
         { h: "(a)", m: "$m = \\dfrac{2.8 - 4}{60 - 24} = -\\dfrac{1.2}{36} = -\\dfrac{1}{30}$\n$V - 4 = -\\dfrac{1}{30}(t - 24) \\Rightarrow V = -\\dfrac{1}{30}t + 4.8$", mk: "M1 A1 M1 A1", n: "Points are $(t, V)$: time is the independent variable." },
         { h: "(b)(i) $t = 0$", m: "$V = 4.8$ m$^3$", mk: "B1" },
-        { h: "(ii) $V = 0$", m: "$\\dfrac{t}{30} = 4.8 \\Rightarrow t = 144$ minutes", mk: "M1 A1" },
+        { fig: { x: [-8, 158], y: [-0.4, 5.5], axes: { x: "t (min)", y: "V (m³)", xt: [24, 60, 144], yt: [2.8, 4, 4.8] }, items: [
+          { fn: "4.8-x/30", from: 0, to: 144, label: "V = 4.8 − t/30", at: 90, pos: "ne" },
+          { pt: [24, 4] }, { pt: [60, 2.8] }, { pt: [0, 4.8], c: "accent3", label: "initial", pos: "ne" }, { pt: [144, 0], c: "accent3", label: "empty", pos: "n" } ], cap: "The line through the two readings meets the $V$-axis at $4.8$ and the $t$-axis at $144$." }, h: "(ii) $V = 0$", m: "$\\dfrac{t}{30} = 4.8 \\Rightarrow t = 144$ minutes", mk: "M1 A1" },
         { h: "(c)", m: "The rate of leaking is unlikely to stay constant — as the water level (pressure) falls, the leak slows.", mk: "B1", n: "A reason about the *physics*, in context." }
       ], result: "(a) $V = 4.8 - \\frac{t}{30}$ (b) $4.8$ m$^3$; 144 min" } },
     { worked: { tag: "exam", title: "CO$_2$ emissions — a model that fails a later data point", src: "AS June 2020 · P1 Q4 · 6 marks",
       q: "In 1997 the average CO$_2$ emission of new cars was 190 g/km; in 2005 it was 169 g/km. $A$ g/km is the average emission $n$ years after 1997. **(a)** Using a linear model, form an equation linking $A$ with $n$. In 2016 the average was 120 g/km. **(b)** Comment on the suitability of your model in light of this information.",
       steps: [
         { h: "(a)", m: "$m = \\dfrac{169 - 190}{8} = -\\dfrac{21}{8} = -2.625$; through $(0, 190)$: $A = 190 - 2.625n$", mk: "M1 A1 A1" },
-        { h: "(b) Predict 2016 ($n = 19$) and compare", m: "$A = 190 - 2.625 \\times 19 = 140.1$ g/km. The actual value, 120, is much lower — emissions fell **faster** than the model predicts, so the linear model is not suitable for extrapolating to 2016 (the rate of decrease was not constant).", mk: "M1 A1 A1", n: "Three parts to the comment: the model's number, the comparison, the verdict with a reason." }
+        { fig: { x: [-1, 21], y: [100, 200], axes: { x: "n", y: "A", xt: [8, 19], yt: [120, 140, 169, 190] }, items: [
+          { fn: "190-2.625*x", from: 0, to: 20, label: "A = 190 − 2.625n", at: 3, pos: "ne" },
+          { pt: [0, 190] }, { pt: [8, 169] }, { pt: [19, 140.125], c: "accent2", label: "model 140.1", pos: "ne" }, { pt: [19, 120], c: "danger", label: "actual 120", pos: "w" },
+          { line: [[19, 120], [19, 140.125]], c: "danger", dash: true } ], cap: "Extrapolated to 2016 the line is 20 g/km too high: emissions fell faster than linearly." }, h: "(b) Predict 2016 ($n = 19$) and compare", m: "$A = 190 - 2.625 \\times 19 = 140.1$ g/km. The actual value, 120, is much lower — emissions fell **faster** than the model predicts, so the linear model is not suitable for extrapolating to 2016 (the rate of decrease was not constant).", mk: "M1 A1 A1", n: "Three parts to the comment: the model's number, the comparison, the verdict with a reason." }
       ], result: "(a) $A = 190 - 2.625n$ (b) predicts 140.1 vs 120 — not suitable" } },
     { worked: { tag: "exam", title: "Fuel remaining vs distance", src: "AS June 2023 · P1 Q7 · 8 marks",
       q: "From a full tank, 40 litres remained after 80 km and 25 litres after 200 km. Using a linear model, $V$ litres remaining after $d$ km: **(a)** find an equation linking $V$ and $d$. **(b)(i)** Find the initial volume of fuel. **(ii)** Find the distance travelled when the car runs out of fuel. In fact the car travelled 320 km. **(c)** Evaluate the model in light of this.",
       steps: [
         { h: "(a)", m: "$m = \\dfrac{25 - 40}{200 - 80} = -\\dfrac{15}{120} = -\\dfrac18$; $\\; V - 40 = -\\dfrac18(d - 80) \\Rightarrow V = 50 - \\dfrac{d}{8}$", mk: "M1 A1 M1 A1" },
         { h: "(b)", m: "(i) $V(0) = 50$ litres. (ii) $V = 0 \\Rightarrow d = 400$ km.", mk: "B1 M1 A1" },
-        { h: "(c)", m: "The model predicts 400 km but the car managed only 320 km, so the model **over-estimates** the range — fuel consumption was not constant (e.g. more fuel per km later in the journey), so the model is not reliable beyond the data.", mk: "B1" }
+        { fig: { x: [-20, 440], y: [-5, 58], axes: { x: "d (km)", y: "V (L)", xt: [80, 200, 320, 400], yt: [25, 40, 50] }, items: [
+          { fn: "50-x/8", from: 0, to: 400, label: "V = 50 − d/8", at: 250, pos: "ne" },
+          { pt: [80, 40] }, { pt: [200, 25] }, { pt: [400, 0], c: "accent2", label: "model", pos: "n" }, { pt: [320, 0], c: "danger", label: "actual", pos: "n" } ], cap: "The model runs out at 400 km; the car actually ran out at 320 km." }, h: "(c)", m: "The model predicts 400 km but the car managed only 320 km, so the model **over-estimates** the range — fuel consumption was not constant (e.g. more fuel per km later in the journey), so the model is not reliable beyond the data.", mk: "B1" }
       ], result: "(a) $V = 50 - \\frac{d}{8}$ (b) 50 L; 400 km (c) over-estimates (320 actual)" } },
     { worked: { tag: "exam", title: "A linear demand model feeding a quadratic profit", src: "A-level June 2025 · P2 Q11 · 11 marks",
       q: "At £30 a toy sells 1500 a year; at £50, 300 a year. With a linear model, $y$ toys sold at price £$x$: **(a)** find $y$ in terms of $x$. Each toy costs £10 to make and there are £8000 fixed costs. **(b)** Show that the yearly profit, $P$ thousand pounds, is $P = -0.06x^2 + 3.9x - 41$. **(c)** Find the range of selling prices for which the company makes a profit. **(d)** Deduce the price that maximises the profit and **(e)** the maximum profit.",
       steps: [
         { h: "(a)", m: "$m = \\dfrac{300 - 1500}{50 - 30} = -60$; $\\; y = 1500 - 60(x - 30) = 3300 - 60x$", mk: "M1 A1 A1" },
         { h: "(b) Profit = (price − cost) × number − fixed costs", m: "$P_{£} = (x - 10)(3300 - 60x) - 8000 = -60x^2 + 3900x - 41\\,000$\nIn thousands: $P = -0.06x^2 + 3.9x - 41$", mk: "M1 A1 A1*" },
-        { h: "(c) $P > 0$", m: "$0.06x^2 - 3.9x + 41 < 0$; roots $x = \\dfrac{3.9 \\pm \\sqrt{15.21 - 9.84}}{0.12} = 13.19\\ldots, \\; 51.80\\ldots$\nProfit for $13.19 < x < 51.80$ (prices between about £13.20 and £51.80)", mk: "M1 A1" },
+        { fig: { x: [0, 60], y: [-25, 30], axes: { x: "x (£)", y: "P", xt: [13.19, 32.5, 51.8], yt: [-20, 22.375] }, items: [
+          { shade: { fn: "-0.06*x*x+3.9*x-41", from: 13.19, to: 51.8 }, c: "accent3", alpha: 0.22 },
+          { fn: "-0.06*x*x+3.9*x-41", label: "P = −0.06x² + 3.9x − 41", at: 8, pos: "e" },
+          { pt: [32.5, 22.375], label: "(32.5, 22.375)", pos: "n" } ], cap: "Profit between the roots; the maximum is midway, at £32.50." }, h: "(c) $P > 0$", m: "$0.06x^2 - 3.9x + 41 < 0$; roots $x = \\dfrac{3.9 \\pm \\sqrt{15.21 - 9.84}}{0.12} = 13.19\\ldots, \\; 51.80\\ldots$\nProfit for $13.19 < x < 51.80$ (prices between about £13.20 and £51.80)", mk: "M1 A1" },
         { h: "(d) Vertex", m: "$x = \\dfrac{3.9}{0.12} = 32.5$ → £32.50 (or the midpoint of the roots)", mk: "B1" },
         { h: "(e)", m: "$P = -0.06(32.5)^2 + 3.9(32.5) - 41 = 22.375$ → £22 375", mk: "M1 A1" }
       ], result: "(a) $y = 3300 - 60x$ (c) £13.20–£51.80 (d) £32.50 (e) £22 375" } },
@@ -171,26 +185,31 @@ C["maths:3.2"] = {
       q: "$C$: $(x + 3)^2 + (y - 4)^2 = 24$. **(a)(i)** State the centre. **(ii)** Find the radius as a fully simplified surd. **(b)** Determine, giving a reason, whether or not the origin lies inside $C$.",
       steps: [
         { h: "(a)", m: "Centre $(-3, 4)$; $r = \\sqrt{24} = 2\\sqrt6$", mk: "B1 B1 B1" },
-        { h: "(b) Compare the distance from the centre to $O$ with $r$", m: "$|CO| = \\sqrt{9 + 16} = 5$ and $5 > 2\\sqrt6 \\approx 4.90$, so the origin is **outside** the circle.", mk: "M1 A1", n: "Or substitute $(0, 0)$: $9 + 16 = 25 > 24$ — the left side exceeds $r^2$, so outside. Either way, the comparison must be written." }
+        { fig: { x: [-9, 3], y: [-2, 10], aspect: "equal", axes: { xt: [-3], yt: [4] }, items: [
+          { circle: [-3, 4, Math.sqrt(24)] }, { pt: [-3, 4], label: "C", pos: "n" }, { line: [[-3, 4], [0, 0]], c: "accent2", dash: true, label: "5", loff: 10 }, { pt: [0, 0], c: "danger", label: "O", pos: "se" } ], cap: "$|CO| = 5$ is a little more than $r = 2\\sqrt6 \\approx 4.90$, so $O$ is just outside." }, h: "(b) Compare the distance from the centre to $O$ with $r$", m: "$|CO| = \\sqrt{9 + 16} = 5$ and $5 > 2\\sqrt6 \\approx 4.90$, so the origin is **outside** the circle.", mk: "M1 A1", n: "Or substitute $(0, 0)$: $9 + 16 = 25 > 24$ — the left side exceeds $r^2$, so outside. Either way, the comparison must be written." }
       ], result: "$(-3, 4)$, $2\\sqrt6$; origin outside" } },
     { worked: { tag: "exam", title: "Circle that must not cut the $x$-axis — range of $k$", src: "AS June 2023 · P1 Q6 · 5 marks",
       q: "$C$: $x^2 + y^2 - 6x + 10y + k = 0$. **(a)** Find the centre. **(b)** Given that $C$ does not cut or touch the $x$-axis, find the range of possible values of $k$.",
       steps: [
         { h: "(a)", m: "$(x - 3)^2 + (y + 5)^2 = 34 - k$: centre $(3, -5)$", mk: "M1 A1" },
-        { h: "(b) The centre is 5 below the axis, so the radius must be less than 5 — and positive", m: "$0 < 34 - k < 25 \\;\\Rightarrow\\; 9 < k < 34$", mk: "M1 A1 A1", n: "Two conditions: $r < 5$ gives $k > 9$; $r^2 > 0$ (it must be a real circle) gives $k < 34$. The second is the one people forget." }
+        { fig: { x: [-4, 10], y: [-11, 2], aspect: "equal", axes: { xt: [3], yt: [-5] }, items: [
+          { circle: [3, -5, 5], c: "danger", dash: true }, { circle: [3, -5, 3] }, { pt: [3, -5], label: "(3, −5)", pos: "e" }, { pt: [3, 0], c: "danger", label: "r = 5 touches", pos: "ne" } ], cap: "Any radius below 5 keeps the circle off the axis; $r = 5$ ($k = 9$) touches it." }, h: "(b) The centre is 5 below the axis, so the radius must be less than 5 — and positive", m: "$0 < 34 - k < 25 \\;\\Rightarrow\\; 9 < k < 34$", mk: "M1 A1 A1", n: "Two conditions: $r < 5$ gives $k > 9$; $r^2 > 0$ (it must be a real circle) gives $k < 34$. The second is the one people forget." }
       ], result: "(a) $(3, -5)$ (b) $9 < k < 34$" } },
     { worked: { tag: "exam", title: "Circle entirely in the fourth quadrant", src: "AS June 2020 · P1 Q11(ii) · 4 marks",
       q: "$C_2$: $x^2 + y^2 - 8x + 12y + k = 0$. Given that $C_2$ lies entirely in the fourth quadrant, find the range of possible values for $k$.",
       steps: [
         { m: "$(x - 4)^2 + (y + 6)^2 = 52 - k$: centre $(4, -6)$, $r = \\sqrt{52 - k}$", mk: "M1 A1" },
-        { m: "Must not reach the $y$-axis (4 away) or the $x$-axis (6 away): $r < 4$, so $52 - k < 16 \\Rightarrow k > 36$; and $r > 0$: $k < 52$.\n$36 < k < 52$", mk: "M1 A1", n: "The nearer axis sets the bound." }
+        { fig: { x: [-2, 10], y: [-12, 2], aspect: "equal", axes: { xt: [4], yt: [-6] }, items: [
+          { circle: [4, -6, 4], c: "danger", dash: true }, { circle: [4, -6, 3] }, { pt: [4, -6], label: "(4, −6)", pos: "e" }, { pt: [0, -6], c: "danger", label: "r = 4", pos: "w" } ], cap: "The $y$-axis is nearer (4) than the $x$-axis (6), so it sets the limit $r < 4$." }, m: "Must not reach the $y$-axis (4 away) or the $x$-axis (6 away): $r < 4$, so $52 - k < 16 \\Rightarrow k > 36$; and $r > 0$: $k < 52$.\n$36 < k < 52$", mk: "M1 A1", n: "The nearer axis sets the bound." }
       ], result: "$36 < k < 52$" } },
     { worked: { tag: "exam", title: "Two circles meeting at two points — range of a radius", src: "A-level June 2024 · P2 Q14 · 8 marks",
       q: "$C_1$: $x^2 + y^2 - 6x + 14y + 33 = 0$. **(a)** Find the centre and radius of $C_1$. $C_2$ has centre $(-6, -8)$ and radius $k$. Given $C_1$ and $C_2$ intersect at two distinct points, **(b)** find the range of values of $k$, in set notation.",
       steps: [
         { h: "(a)", m: "$(x - 3)^2 + (y + 7)^2 = 25$: centre $(3, -7)$, radius $5$", mk: "M1 A1 A1" },
         { h: "(b) Distance between centres", m: "$d = \\sqrt{(3 + 6)^2 + (-7 + 8)^2} = \\sqrt{82}$", mk: "M1" },
-        { h: "Two intersections ⇔ $|k - 5| < d < k + 5$", m: "$k + 5 > \\sqrt{82} \\Rightarrow k > \\sqrt{82} - 5$; $\\quad k - 5 < \\sqrt{82} \\Rightarrow k < \\sqrt{82} + 5$\n$\\{k : \\sqrt{82} - 5 < k < \\sqrt{82} + 5\\}$", mk: "M1 A1 M1 A1", n: "Too small and $C_2$ misses $C_1$ (sum of radii $< d$); too large and $C_2$ swallows it (difference of radii $> d$). The two boundary cases are external and internal tangency." }
+        { fig: { x: [-21, 9], y: [-23, 7], aspect: "equal", axes: { grid: false, xt: [-6, 3], yt: [-8] }, items: [
+          { circle: [3, -7, 5] }, { circle: [-6, -8, Math.sqrt(82) - 5], c: "muted", dash: true }, { circle: [-6, -8, Math.sqrt(82) + 5], c: "muted", dash: true }, { circle: [-6, -8, 9], c: "accent2" },
+          { line: [[-6, -8], [3, -7]], c: "text2", dash: true, label: "√82", loff: 10 }, { pt: [3, -7], label: "C₁", pos: "e" }, { pt: [-6, -8], c: "accent2", label: "C₂", pos: "w" } ], cap: "Between the dashed limits $\\sqrt{82} \\mp 5$ the circle $C_2$ cuts $C_1$ twice (shown for $k = 9$)." }, h: "Two intersections ⇔ $|k - 5| < d < k + 5$", m: "$k + 5 > \\sqrt{82} \\Rightarrow k > \\sqrt{82} - 5$; $\\quad k - 5 < \\sqrt{82} \\Rightarrow k < \\sqrt{82} + 5$\n$\\{k : \\sqrt{82} - 5 < k < \\sqrt{82} + 5\\}$", mk: "M1 A1 M1 A1", n: "Too small and $C_2$ misses $C_1$ (sum of radii $< d$); too large and $C_2$ swallows it (difference of radii $> d$). The two boundary cases are external and internal tangency." }
       ], result: "(a) $(3, -7)$, 5 (b) $\\{k : \\sqrt{82} - 5 < k < \\sqrt{82} + 5\\}$" } },
 
     { page: "Tangents and chords" },
@@ -204,14 +223,18 @@ C["maths:3.2"] = {
       steps: [
         { h: "(a) $PA$ is the radius, perpendicular to $l$", m: "Gradient of $PA$ is $-\\dfrac12$; through $(7, 5)$: $y - 5 = -\\dfrac12(x - 7) \\Rightarrow 2y - 10 = -x + 7 \\Rightarrow 2y + x = 17$", mk: "M1 M1 A1*" },
         { h: "(b) $P$ is where $PA$ meets $l$; then $r = |AP|$", m: "$2(2x + 1) + x = 17 \\Rightarrow x = 3, \\; y = 7$: $P(3, 7)$\n$r^2 = (7 - 3)^2 + (5 - 7)^2 = 20$; $\\; (x - 7)^2 + (y - 5)^2 = 20$", mk: "M1 A1 M1 A1" },
-        { h: "(c) The other tangent parallel to $l$ touches at the point diametrically opposite $P$", m: "$P' = 2A - P = (11, 3)$; on $y = 2x + k$: $3 = 22 + k \\Rightarrow k = -19$", mk: "M1 M1 A1", n: "Alternative: substitute $y = 2x + k$ into the circle and set the discriminant to zero — longer. The reflection through the centre is the fast route." }
+        { fig: { x: [0, 14], y: [-1, 11], aspect: "equal", axes: { grid: false, xt: [3, 7, 11], yt: [3, 5, 7] }, items: [
+          { circle: [7, 5, Math.sqrt(20)] }, { fn: "2*x+1", c: "accent3", label: "l: y = 2x + 1", at: 4.5, pos: "e" }, { fn: "2*x-19", c: "accent3", dash: true, label: "y = 2x − 19", at: 12, pos: "e" },
+          { line: [[3, 7], [11, 3]], c: "muted", dash: true }, { pt: [7, 5], label: "A", pos: "n" }, { pt: [3, 7], label: "P", pos: "w" }, { pt: [11, 3], label: "P′", pos: "e" } ], cap: "The parallel tangent touches at the far end of the diameter through $P$." }, h: "(c) The other tangent parallel to $l$ touches at the point diametrically opposite $P$", m: "$P' = 2A - P = (11, 3)$; on $y = 2x + k$: $3 = 22 + k \\Rightarrow k = -19$", mk: "M1 M1 A1", n: "Alternative: substitute $y = 2x + k$ into the circle and set the discriminant to zero — longer. The reflection through the centre is the fast route." }
       ], result: "(b) $(x - 7)^2 + (y - 5)^2 = 20$ (c) $k = -19$" } },
     { worked: { tag: "exam", title: "Tangent at a given point in $ax + by + c = 0$ form", src: "AS June 2020 · P1 Q11(i) · 5 marks",
       q: "$C_1$: $x^2 + y^2 + 18x - 2y + 30 = 0$. The line $l$ is the tangent to $C_1$ at $P(-5, 7)$. Find an equation of $l$ in the form $ax + by + c = 0$ with integers $a$, $b$, $c$.",
       steps: [
         { h: "Centre", m: "$(x + 9)^2 + (y - 1)^2 = 52$: centre $(-9, 1)$", mk: "M1 A1" },
         { h: "Radius gradient, then perpendicular", m: "$m_{CP} = \\dfrac{7 - 1}{-5 + 9} = \\dfrac32$, so the tangent has gradient $-\\dfrac23$", mk: "M1" },
-        { m: "$y - 7 = -\\dfrac23(x + 5) \\Rightarrow 3y - 21 = -2x - 10 \\Rightarrow 2x + 3y - 11 = 0$", mk: "M1 A1", n: "Clear the fraction, gather on one side, integer coefficients." }
+        { fig: { x: [-18, 2], y: [-8, 10], aspect: "equal", axes: { grid: false, xt: [-9, -5], yt: [1, 7] }, items: [
+          { circle: [-9, 1, Math.sqrt(52)] }, { line: [[-9, 1], [-5, 7]], c: "muted", dash: true }, { fn: "(11-2*x)/3", c: "accent3", label: "l", at: 0, pos: "n" },
+          { rangle: [[-5, 7], [-9, 1], [-2, 5]] }, { pt: [-9, 1], label: "(−9, 1)", pos: "s" }, { pt: [-5, 7], label: "P", pos: "n" } ], cap: "The tangent at $P$ is perpendicular to the radius $CP$ (gradient $\\frac32$)." }, m: "$y - 7 = -\\dfrac23(x + 5) \\Rightarrow 3y - 21 = -2x - 10 \\Rightarrow 2x + 3y - 11 = 0$", mk: "M1 A1", n: "Clear the fraction, gather on one side, integer coefficients." }
       ], result: "$2x + 3y - 11 = 0$" } },
     { worked: { tag: "exam", title: "Tangent line with unknown intercept — discriminant route", src: "A-level Oct 2021 · P1 Q7 · 9 marks",
       q: "$C$: $x^2 + y^2 - 10x + 4y + 11 = 0$. **(a)** Find (i) the centre, (ii) the exact radius as a simplified surd. **(b)** The line $y = 3x + k$ is a tangent to $C$. Find the possible values of $k$ as simplified surds.",
@@ -219,21 +242,27 @@ C["maths:3.2"] = {
         { h: "(a)", m: "$(x - 5)^2 + (y + 2)^2 = 18$: centre $(5, -2)$, $r = 3\\sqrt2$", mk: "M1 A1 A1 A1" },
         { h: "(b) Substitute the line into the circle", m: "$x^2 + (3x + k)^2 - 10x + 4(3x + k) + 11 = 0 \\;\\Rightarrow\\; 10x^2 + (6k + 2)x + (k^2 + 4k + 11) = 0$", mk: "M1 A1" },
         { h: "Tangent ⇒ discriminant zero", m: "$(6k + 2)^2 - 40(k^2 + 4k + 11) = 0 \\Rightarrow -4k^2 - 136k - 436 = 0 \\Rightarrow k^2 + 34k + 109 = 0$", mk: "M1" },
-        { m: "$k = \\dfrac{-34 \\pm \\sqrt{1156 - 436}}{2} = -17 \\pm \\sqrt{180} = -17 \\pm 6\\sqrt5$", mk: "A1 A1", n: "Alternative: the perpendicular distance from the centre to the line equals $r$: $\\frac{|3(5) - (-2) + k|}{\\sqrt{10}} = 3\\sqrt2 \\Rightarrow |17 + k| = 6\\sqrt5$. Same answer, half the algebra — but only if you know the distance formula reliably." }
+        { fig: { x: [-1, 11], y: [-8, 4], aspect: "equal", axes: { grid: false, xt: [5], yt: [-2] }, items: [
+          { circle: [5, -2, Math.sqrt(18)] }, { pt: [5, -2], label: "(5, −2)", pos: "e" },
+          { fn: "3*x-17+6*sqrt(5)", c: "accent3", label: "k = −17 + 6√5", at: 1.6, pos: "w" }, { fn: "3*x-17-6*sqrt(5)", c: "accent3", label: "k = −17 − 6√5", at: 8.4, pos: "e" } ], cap: "Two tangents with gradient 3, one on each side of the circle." }, m: "$k = \\dfrac{-34 \\pm \\sqrt{1156 - 436}}{2} = -17 \\pm \\sqrt{180} = -17 \\pm 6\\sqrt5$", mk: "A1 A1", n: "Alternative: the perpendicular distance from the centre to the line equals $r$: $\\frac{|3(5) - (-2) + k|}{\\sqrt{10}} = 3\\sqrt2 \\Rightarrow |17 + k| = 6\\sqrt5$. Same answer, half the algebra — but only if you know the distance formula reliably." }
       ], result: "(a) $(5, -2)$, $3\\sqrt2$ (b) $k = -17 \\pm 6\\sqrt5$" } },
     { worked: { tag: "exam", title: "Circle from a centre and a tangent through the origin; the second parallel tangent", src: "AS Nov 2021 · P1 Q15 · 9 marks",
       q: "$C$ has centre $N(7, 4)$ and the line $l$: $y = \\frac13 x$ is a tangent to $C$ at $P$. **(a)** Find the equation of $PN$ in the form $y = mx + c$. **(b)** Find an equation for $C$. **(c)** The line $y = \\frac13 x + k$, $k \\neq 0$, is also a tangent to $C$. Find $k$.",
       steps: [
         { h: "(a)", m: "Perpendicular to $l$: gradient $-3$; $y - 4 = -3(x - 7) \\Rightarrow y = -3x + 25$", mk: "M1 A1" },
         { h: "(b) $P$ = intersection of $PN$ and $l$", m: "$\\dfrac13 x = -3x + 25 \\Rightarrow x = 7.5, \\; y = 2.5$; $\\; r^2 = 0.5^2 + 1.5^2 = 2.5$\n$(x - 7)^2 + (y - 4)^2 = 2.5$", mk: "M1 A1 M1 A1" },
-        { h: "(c) Reflect $P$ through $N$", m: "$P' = (6.5, 5.5)$; $5.5 = \\dfrac13(6.5) + k \\Rightarrow k = \\dfrac{10}{3}$", mk: "M1 M1 A1" }
+        { fig: { x: [0, 11], y: [-0.5, 8], aspect: "equal", axes: { grid: false, xt: [7], yt: [4] }, items: [
+          { circle: [7, 4, Math.sqrt(2.5)] }, { fn: "x/3", c: "accent3", label: "l", at: 10.5, pos: "n" }, { fn: "x/3+10/3", c: "accent3", dash: true, label: "k = 10/3", at: 1, pos: "n" },
+          { line: [[7.5, 2.5], [6.5, 5.5]], c: "muted", dash: true }, { pt: [7, 4], label: "N", pos: "e" }, { pt: [7.5, 2.5], label: "P", pos: "se" }, { pt: [6.5, 5.5], label: "P′", pos: "nw" } ], cap: "$P'$ is $P$ reflected through the centre; the parallel tangent passes through it." }, h: "(c) Reflect $P$ through $N$", m: "$P' = (6.5, 5.5)$; $5.5 = \\dfrac13(6.5) + k \\Rightarrow k = \\dfrac{10}{3}$", mk: "M1 M1 A1" }
       ], result: "(a) $y = -3x + 25$ (b) $(x - 7)^2 + (y - 4)^2 = 2.5$ (c) $k = \\frac{10}{3}$" } },
     { worked: { tag: "exam", title: "Centre and point in terms of $k$; tangent gradient fixes $k$", src: "AS June 2024 · P1 Q10 · 8 marks",
       q: "$P(-1, k + 8)$ is the centre of $C$; $Q(3, k^2 - 2k)$ lies on $C$; $k > 0$; the line $l$ is the tangent at $Q$ and has gradient $-2$. **(a)** Show that $k^2 - 3k - 10 = 0$. **(b)** Find an equation for $C$. **(c)** Find an equation for $l$.",
       steps: [
         { h: "(a) $PQ$ is a radius, so its gradient is $\\frac12$", m: "$\\dfrac{(k^2 - 2k) - (k + 8)}{3 - (-1)} = \\dfrac12 \\Rightarrow k^2 - 3k - 8 = 2 \\Rightarrow k^2 - 3k - 10 = 0$", mk: "M1 M1 A1*" },
         { h: "(b)", m: "$(k - 5)(k + 2) = 0$, $k > 0 \\Rightarrow k = 5$: $P(-1, 13)$, $Q(3, 15)$; $r^2 = 16 + 4 = 20$\n$(x + 1)^2 + (y - 13)^2 = 20$", mk: "M1 A1 A1" },
-        { h: "(c)", m: "$y - 15 = -2(x - 3) \\Rightarrow y = -2x + 21$", mk: "M1 A1" }
+        { fig: { x: [-7, 8], y: [7, 20], aspect: "equal", axes: { grid: false, xt: [-1, 3], yt: [13, 15] }, items: [
+          { circle: [-1, 13, Math.sqrt(20)] }, { line: [[-1, 13], [3, 15]], c: "muted", dash: true }, { fn: "-2*x+21", c: "accent3", label: "l", at: 6.5, pos: "e" },
+          { rangle: [[3, 15], [-1, 13], [4, 13]] }, { pt: [-1, 13], label: "P", pos: "s" }, { pt: [3, 15], label: "Q", pos: "ne" } ], cap: "With $k = 5$: radius $PQ$ has gradient $\\frac12$, the tangent at $Q$ has gradient $-2$." }, h: "(c)", m: "$y - 15 = -2(x - 3) \\Rightarrow y = -2x + 21$", mk: "M1 A1" }
       ], result: "(b) $(x + 1)^2 + (y - 13)^2 = 20$ (c) $y = -2x + 21$" } },
     { worked: { tag: "exam", title: "Diameter, chord distance, angle at the circumference", src: "A-level Specimen · P2 Q9 · 9 marks",
       q: "A circle with centre $A(3, -1)$ passes through $P(-9, 8)$ and $Q(15, -10)$. **(a)** Show that $PQ$ is a diameter. **(b)** Find an equation for the circle. $R$ also lies on the circle and the chord $PR$ has length 20. **(c)** Find the shortest distance from $A$ to $PR$, as a surd. **(d)** Find angle $ARQ$ to the nearest $0.1°$.",
@@ -241,7 +270,9 @@ C["maths:3.2"] = {
         { h: "(a) Midpoint of $PQ$", m: "$\\left(\\dfrac{-9 + 15}{2}, \\dfrac{8 - 10}{2}\\right) = (3, -1) = A$ — the centre is the midpoint, so $PQ$ is a diameter.", mk: "M1 A1" },
         { h: "(b)", m: "$r = |AP| = \\sqrt{12^2 + 9^2} = 15$; $\\; (x - 3)^2 + (y + 1)^2 = 225$", mk: "M1 A1 A1" },
         { h: "(c) Perpendicular from centre bisects the chord", m: "$d = \\sqrt{15^2 - 10^2} = \\sqrt{125} = 5\\sqrt5$", mk: "M1 A1", n: "Half-chord 10, radius 15, right angle between them." },
-        { h: "(d) $\\angle PRQ = 90°$ (semicircle); triangle $ARQ$ is isosceles with $AR = AQ = 15$", m: "$QR = \\sqrt{30^2 - 20^2} = 10\\sqrt5$; $\\; \\cos\\angle ARQ = \\dfrac{5\\sqrt5}{15} \\Rightarrow \\angle ARQ = 41.8°$", mk: "M1 A1", n: "Half of $QR$ over the radius, because the perpendicular from $A$ bisects $QR$ too." }
+        { fig: { x: [-14, 20], y: [-17, 15], aspect: "equal", axes: { grid: false, xt: [3], yt: [-1] }, items: [
+          { circle: [3, -1, 15] }, { poly: [[-9, 8], [10.611, 11.926], [15, -10]], c: "accent", fill: "accent", alpha: 0.08 }, { line: [[3, -1], [10.611, 11.926]], c: "muted", dash: true },
+          { rangle: [[10.611, 11.926], [-9, 8], [15, -10]] }, { pt: [3, -1], label: "A", pos: "s" }, { pt: [-9, 8], label: "P", pos: "w" }, { pt: [15, -10], label: "Q", pos: "e" }, { pt: [10.611, 11.926], label: "R", pos: "n" } ], cap: "$PQ$ is a diameter, so the angle at $R$ is $90°$; $AR = AQ = 15$ makes triangle $ARQ$ isosceles." }, h: "(d) $\\angle PRQ = 90°$ (semicircle); triangle $ARQ$ is isosceles with $AR = AQ = 15$", m: "$QR = \\sqrt{30^2 - 20^2} = 10\\sqrt5$; $\\; \\cos\\angle ARQ = \\dfrac{5\\sqrt5}{15} \\Rightarrow \\angle ARQ = 41.8°$", mk: "M1 A1", n: "Half of $QR$ over the radius, because the perpendicular from $A$ bisects $QR$ too." }
       ], result: "(b) $(x - 3)^2 + (y + 1)^2 = 225$ (c) $5\\sqrt5$ (d) $41.8°$" } },
 
     { page: "Lines meeting circles" },
@@ -255,17 +286,22 @@ C["maths:3.2"] = {
         { h: "(a)", m: "$(x - 3)^2 + (y + 5)^2 = 25$: centre $(3, -5)$, $r = 5$", mk: "M1 A1 A1" },
         { h: "(b) Substitute", m: "$x^2 + k^2x^2 - 6x + 10kx + 9 = 0 \\Rightarrow (1 + k^2)x^2 + (10k - 6)x + 9 = 0$", mk: "M1 A1" },
         { m: "$(10k - 6)^2 - 36(1 + k^2) > 0 \\Rightarrow 64k^2 - 120k > 0 \\Rightarrow 8k(8k - 15) > 0$", mk: "M1 A1" },
-        { m: "$k < 0$ or $k > \\dfrac{15}{8}$", mk: "M1 A1", n: "A quadratic inequality (2.5): roots $0$ and $\\frac{15}{8}$, positive outside. Geometrically: lines through $O$ steeper than $\\frac{15}{8}$ or sloping down hit the circle in the fourth quadrant." }
+        { fig: { x: [-3, 10], y: [-11, 4], aspect: "equal", axes: { grid: false, xt: [3], yt: [-5] }, items: [
+          { circle: [3, -5, 5] }, { pt: [3, -5], label: "(3, −5)", pos: "e" }, { fn: "15/8*x", c: "accent3", dash: true, label: "k = 15/8", at: -1.5, pos: "w" }, { pt: [3, 0], c: "accent3", label: "k = 0 touches", pos: "n" } ], cap: "Both boundary lines through $O$ touch the circle; steeper than $\\frac{15}{8}$ or with negative gradient, $y = kx$ cuts it twice." }, m: "$k < 0$ or $k > \\dfrac{15}{8}$", mk: "M1 A1", n: "A quadratic inequality (2.5): roots $0$ and $\\frac{15}{8}$, positive outside. Geometrically: lines through $O$ steeper than $\\frac{15}{8}$ or sloping down hit the circle in the fourth quadrant." }
       ], result: "(a) $(3, -5)$, 5 (b) $k < 0$ or $k > \\frac{15}{8}$" } },
     { worked: { tag: "exam", title: "A horizontal line $y = k$ cutting a circle twice", src: "AS June 2025 · P1 Q4",
       q: "$x^2 + y^2 + 10x - 4y + 1 = 0$: find the centre and exact radius; the line $y = k$ cuts $C$ at two distinct points — find the range of $k$ in set notation.",
       steps: [
-        { m: "$(x + 5)^2 + (y - 2)^2 = 28$: centre $(-5, 2)$, $r = 2\\sqrt7$. A horizontal line cuts twice when it is within a radius of the centre's height: $\\{k : 2 - 2\\sqrt7 < k < 2 + 2\\sqrt7\\}$", mk: "M1 A1 A1 M1 A1 A1", n: "No substitution needed — the geometry is immediate for axis-parallel lines." }
+        { fig: { x: [-12, 2], y: [-5, 9], aspect: "equal", axes: { grid: false, xt: [-5], yt: [2] }, items: [
+          { circle: [-5, 2, Math.sqrt(28)] }, { pt: [-5, 2], label: "(−5, 2)", pos: "e" },
+          { hline: 2 + Math.sqrt(28), c: "accent3", label: "k = 2 + 2√7" }, { hline: 2 - Math.sqrt(28), c: "accent3", label: "k = 2 − 2√7" } ], cap: "The two horizontal tangents bound the values of $k$ that cut the circle twice." }, m: "$(x + 5)^2 + (y - 2)^2 = 28$: centre $(-5, 2)$, $r = 2\\sqrt7$. A horizontal line cuts twice when it is within a radius of the centre's height: $\\{k : 2 - 2\\sqrt7 < k < 2 + 2\\sqrt7\\}$", mk: "M1 A1 A1 M1 A1 A1", n: "No substitution needed — the geometry is immediate for axis-parallel lines." }
       ], result: "$\\{k : 2 - 2\\sqrt7 < k < 2 + 2\\sqrt7\\}$" } },
     { worked: { tag: "exam", title: "A vertical tangent $x = k$ to a circle", src: "AS June 2019 · P1 Q10",
       q: "$x^2 + y^2 - 4x + 8y - 8 = 0$: find the centre and exact radius; the line $x = k$ is a tangent — find the possible values of $k$.",
       steps: [
-        { m: "$(x - 2)^2 + (y + 4)^2 = 28$: centre $(2, -4)$, $r = 2\\sqrt7$. Vertical tangents are one radius left or right of the centre: $k = 2 \\pm 2\\sqrt7$", mk: "M1 A1 A1 M1 A1" }
+        { fig: { x: [-5, 9], y: [-11, 3], aspect: "equal", axes: { grid: false, xt: [2], yt: [-4] }, items: [
+          { circle: [2, -4, Math.sqrt(28)] }, { pt: [2, -4], label: "(2, −4)", pos: "n" },
+          { vline: 2 - Math.sqrt(28), c: "accent3", label: "2 − 2√7" }, { vline: 2 + Math.sqrt(28), c: "accent3", label: "2 + 2√7" } ], cap: "A radius left and a radius right of the centre." }, m: "$(x - 2)^2 + (y + 4)^2 = 28$: centre $(2, -4)$, $r = 2\\sqrt7$. Vertical tangents are one radius left or right of the centre: $k = 2 \\pm 2\\sqrt7$", mk: "M1 A1 A1 M1 A1" }
       ], result: "$k = 2 \\pm 2\\sqrt7$" } },
     { worked: { tag: "exam", title: "Circle in terms of $k$ meeting a line at two points", src: "A-level June 2023 · P1 Q10 · 9 marks",
       q: "$C$: $x^2 + y^2 + 6kx - 2ky + 7 = 0$. **(a)** Find, in terms of $k$, (i) the centre, (ii) the radius. **(b)** The line $y = 2x - 1$ meets $C$ at two distinct points. Find the range of possible values of $k$.",
@@ -280,13 +316,18 @@ C["maths:3.2"] = {
       steps: [
         { h: "(a)", m: "$(x - 5)^2 + (y - 4)^2 = 9$: centre $(5, 4)$, $r = 3$", mk: "M1 A1 A1" },
         { h: "(b) Distance from the centre to the line, minus the radius", m: "Perpendicular through $(5, 4)$ to $l$ (gradient $-\\frac12$) has gradient $2$: $y = 2x - 6$. Meets $l$: $2(2x - 6) + x + 6 = 0 \\Rightarrow x = \\dfrac65, \\; y = -\\dfrac{18}{5}$\nDistance centre→line $= \\sqrt{\\left(5 - \\tfrac65\\right)^2 + \\left(4 + \\tfrac{18}{5}\\right)^2} = \\sqrt{\\tfrac{361}{25} + \\tfrac{1444}{25}} = \\dfrac{19}{\\sqrt5}$", mk: "M1 M1 A1", n: "Or the distance formula $\\frac{|5 + 8 + 6|}{\\sqrt{1 + 4}} = \\frac{19}{\\sqrt5}$ in one line." },
-        { m: "Shortest distance $= \\dfrac{19}{\\sqrt5} - 3 = \\dfrac{19\\sqrt5}{5} - 3 \\approx 5.50$", mk: "M1 A1" }
+        { fig: { x: [-8, 10], y: [-6, 8], aspect: "equal", axes: { grid: false, xt: [5], yt: [4] }, items: [
+          { circle: [5, 4, 3] }, { fn: "-(x+6)/2", c: "accent3", label: "l", at: -6, pos: "s" },
+          { line: [[5, 4], [3.658, 1.317]], c: "muted", dash: true }, { line: [[3.658, 1.317], [1.2, -3.6]], c: "danger", w: 2.4 },
+          { rangle: [[1.2, -3.6], [5, 4], [3, -4.5]] }, { pt: [5, 4], label: "(5, 4)", pos: "e" }, { pt: [1.2, -3.6], label: "(6/5, −18/5)", pos: "e" } ], cap: "Along the perpendicular from the centre: the whole distance $\\frac{19}{\\sqrt5}$, less the radius 3 (red)." }, m: "Shortest distance $= \\dfrac{19}{\\sqrt5} - 3 = \\dfrac{19\\sqrt5}{5} - 3 \\approx 5.50$", mk: "M1 A1" }
       ], result: "(a) $(5, 4)$, 3 (b) $\\frac{19\\sqrt5}{5} - 3 \\approx 5.50$" } },
     { worked: { tag: "exam", title: "Circle touching both axes; tangency gives $r$", src: "A-level Oct 2020 · P2 Q14 · 7 marks",
       q: "A circle $C$ of radius $r$ lies only in the first quadrant and touches both axes. $l$: $2x + y = 12$. **(a)** Show that the $x$-coordinates of the intersections of $l$ and $C$ satisfy $5x^2 + (2r - 48)x + (r^2 - 24r + 144) = 0$. **(b)** Given $l$ is a tangent to $C$, find the two possible values of $r$ as simplified surds.",
       steps: [
         { h: "(a) Touching both axes ⇒ centre $(r, r)$", m: "$(x - r)^2 + (y - r)^2 = r^2$ with $y = 12 - 2x$:\n$(x - r)^2 + (12 - 2x - r)^2 = r^2 \\Rightarrow 5x^2 + (2r - 48)x + (r^2 - 24r + 144) = 0$", mk: "B1 M1 A1*", n: "$(12 - r - 2x)^2 = (12 - r)^2 - 4(12 - r)x + 4x^2$; collect with $x^2 - 2rx + r^2 - r^2$." },
-        { h: "(b) Discriminant zero", m: "$(2r - 48)^2 - 20(r^2 - 24r + 144) = 0 \\Rightarrow -16r^2 + 288r - 576 = 0 \\Rightarrow r^2 - 18r + 36 = 0$", mk: "M1 A1" },
+        { fig: { x: [-2, 33], y: [-2, 33], aspect: "equal", axes: { grid: false, xt: [6], yt: [12] }, items: [
+          { circle: [9 - 3 * Math.sqrt(5), 9 - 3 * Math.sqrt(5), 9 - 3 * Math.sqrt(5)] }, { circle: [9 + 3 * Math.sqrt(5), 9 + 3 * Math.sqrt(5), 9 + 3 * Math.sqrt(5)], c: "accent2" },
+          { fn: "12-2*x", c: "accent3", label: "2x + y = 12", at: 6.5, pos: "ne" }, { text: [2.3, 2.3], t: "9 − 3√5", size: 10 }, { text: [15.7, 15.7], t: "r = 9 + 3√5", c: "accent2", size: 11 } ], cap: "Two circles touch both axes and the line: one in the corner below it, one beyond it." }, h: "(b) Discriminant zero", m: "$(2r - 48)^2 - 20(r^2 - 24r + 144) = 0 \\Rightarrow -16r^2 + 288r - 576 = 0 \\Rightarrow r^2 - 18r + 36 = 0$", mk: "M1 A1" },
         { m: "$r = 9 \\pm 3\\sqrt5$", mk: "M1 A1", n: "Both positive: a small circle tucked under the line and a large one it touches from above." }
       ], result: "$r = 9 \\pm 3\\sqrt5$" } },
     { worked: { tag: "exam", title: "Two circles: angle at the origin in radians and a perimeter", src: "A-level Oct 2020 · P1 Q11 · 8 marks",
@@ -294,7 +335,10 @@ C["maths:3.2"] = {
       steps: [
         { h: "(a) Subtract the equations to find the chord line", m: "$x^2 + y^2 = 100$ and $x^2 - 30x + 225 + y^2 = 40 \\Rightarrow 100 - 30x + 225 = 40 \\Rightarrow x = 9.5$", mk: "M1 A1", n: "Subtracting kills the squared terms and leaves the equation of the common chord." },
         { m: "$y^2 = 100 - 90.25 = 9.75$; $\\; \\angle AOB = 2\\arctan\\dfrac{\\sqrt{9.75}}{9.5} = 0.635$ rad", mk: "M1 A1*", n: "Or $\\cos\\angle AOB = \\frac{9.5}{10}$… careful: that gives the half-angle; $\\angle AOB = 2\\arccos(0.95)$." },
-        { h: "(b) Two major arcs", m: "At the centre of $C_2$, half-angle $\\arctan\\dfrac{\\sqrt{9.75}}{5.5}$, so $\\angle AC_2B = 1.033$ rad\nPerimeter $= 10(2\\pi - 0.635) + \\sqrt{40}(2\\pi - 1.033) = 56.48 + 33.21 = 89.7$", mk: "M1 M1 M1 A1", n: "Arc length $= r\\theta$ (5.1) with the **reflex** angles — the parts of each circle outside the other." }
+        { fig: { x: [-11, 22], y: [-11, 11], aspect: "equal", axes: { grid: false, xt: [9.5, 15], yt: [] }, items: [
+          { circle: [0, 0, 10] }, { circle: [15, 0, Math.sqrt(40)], c: "accent2" },
+          { line: [[0, 0], [9.5, Math.sqrt(9.75)]], c: "muted", dash: true }, { line: [[0, 0], [9.5, -Math.sqrt(9.75)]], c: "muted", dash: true }, { line: [[9.5, Math.sqrt(9.75)], [9.5, -Math.sqrt(9.75)]], c: "muted" },
+          { pt: [9.5, Math.sqrt(9.75)], label: "A", pos: "n" }, { pt: [9.5, -Math.sqrt(9.75)], label: "B", pos: "s" }, { pt: [0, 0], label: "O", pos: "w" }, { pt: [15, 0], c: "accent2", label: "C₂", pos: "e" } ], cap: "The chord $AB$ is $x = 9.5$; the perimeter is the two **major** arcs outside the overlap." }, h: "(b) Two major arcs", m: "At the centre of $C_2$, half-angle $\\arctan\\dfrac{\\sqrt{9.75}}{5.5}$, so $\\angle AC_2B = 1.033$ rad\nPerimeter $= 10(2\\pi - 0.635) + \\sqrt{40}(2\\pi - 1.033) = 56.48 + 33.21 = 89.7$", mk: "M1 M1 M1 A1", n: "Arc length $= r\\theta$ (5.1) with the **reflex** angles — the parts of each circle outside the other." }
       ], result: "(a) $0.635$ rad (b) $89.7$" } },
 
     { page: "Exam toolkit" },
@@ -386,13 +430,15 @@ C["maths:3.3"] = {
       steps: [
         { h: "Expand the compound angle", m: "$x = 4\\left(\\cos t\\cos\\tfrac{\\pi}{6} - \\sin t\\sin\\tfrac{\\pi}{6}\\right) = 2\\sqrt3\\cos t - 2\\sin t$", mk: "M1 A1" },
         { h: "Use $y = 2\\sin t$ to isolate $\\cos t$", m: "$x = 2\\sqrt3\\cos t - y \\Rightarrow x + y = 2\\sqrt3\\cos t$", mk: "M1", n: "The printed form $(x + y)^2$ is the hint: the sum is what isolates $\\cos t$." },
-        { h: "Square and use the identity", m: "$(x + y)^2 = 12\\cos^2 t = 12(1 - \\sin^2 t) = 12\\left(1 - \\dfrac{y^2}{4}\\right) = 12 - 3y^2$\n$(x + y)^2 + 3y^2 = 12$: $a = 3$, $b = 12$", mk: "M1 A1" }
+        { fig: { x: [-5, 5], y: [-3, 3], aspect: "equal", axes: { grid: false, xt: [-4, 4], yt: [-2, 2] }, items: [
+          { param: { x: "4*cos(t+pi/6)", y: "2*sin(t)" }, t: [0, 2 * Math.PI], label: "C", n: 240 }, { fn: "-x", c: "muted", dash: true, label: "x + y = 0", at: -2.6, pos: "e" } ], cap: "A tilted ellipse: $(x + y)^2 + 3y^2 = 12$, symmetric about the origin." }, h: "Square and use the identity", m: "$(x + y)^2 = 12\\cos^2 t = 12(1 - \\sin^2 t) = 12\\left(1 - \\dfrac{y^2}{4}\\right) = 12 - 3y^2$\n$(x + y)^2 + 3y^2 = 12$: $a = 3$, $b = 12$", mk: "M1 A1" }
       ], result: "$(x + y)^2 + 3y^2 = 12$" } },
     { worked: { tag: "exam", title: "Rational parametrics of a circle", src: "A-level Oct 2021 · P1 Q13 · 3 marks",
       q: "$C$: $x = \\frac{t^2 + 5}{t^2 + 1}$, $y = \\frac{4t}{t^2 + 1}$, $t \\in \\mathbb{R}$. Show that all points on $C$ satisfy $(x - 3)^2 + y^2 = 4$.",
       steps: [
         { h: "Form $x - 3$ over the common denominator", m: "$x - 3 = \\dfrac{t^2 + 5 - 3t^2 - 3}{t^2 + 1} = \\dfrac{2 - 2t^2}{t^2 + 1}$", mk: "M1" },
-        { m: "$(x - 3)^2 + y^2 = \\dfrac{(2 - 2t^2)^2 + 16t^2}{(t^2 + 1)^2} = \\dfrac{4t^4 - 8t^2 + 4 + 16t^2}{(t^2 + 1)^2} = \\dfrac{4(t^2 + 1)^2}{(t^2 + 1)^2} = 4$", mk: "M1 A1*", n: "The numerator collapses to a perfect square — that is the whole design of the question." }
+        { fig: { x: [0, 6], y: [-2.6, 2.6], aspect: "equal", axes: { grid: false, xt: [1, 3, 5], yt: [-2, 2] }, items: [
+          { circle: [3, 0, 2] }, { pt: [5, 0], label: "t = 0", pos: "e" }, { pt: [3, 2], label: "t = 1", pos: "n" }, { pt: [3, -2], label: "t = −1", pos: "s" }, { pt: [1, 0], open: true, label: "never reached", pos: "w" } ], cap: "Every real $t$ lands on the circle; $(1, 0)$ is only approached as $t \\to \\pm\\infty$." }, m: "$(x - 3)^2 + y^2 = \\dfrac{(2 - 2t^2)^2 + 16t^2}{(t^2 + 1)^2} = \\dfrac{4t^4 - 8t^2 + 4 + 16t^2}{(t^2 + 1)^2} = \\dfrac{4(t^2 + 1)^2}{(t^2 + 1)^2} = 4$", mk: "M1 A1*", n: "The numerator collapses to a perfect square — that is the whole design of the question." }
       ], result: "shown" } },
     { worked: { tag: "exam", title: "Log parametric → $y = A\\ln(x + B)$; tangent at the $y$-intercept", src: "A-level June 2023 · P2 Q9 · 7 marks",
       q: "$C$: $x = t^2 + 6t - 16$, $y = 6\\ln(t + 3)$, $t > -3$. **(a)** Show that a Cartesian equation is $y = A\\ln(x + B)$, $x > -B$. **(b)** $C$ cuts the $y$-axis at $P$. Show that the tangent at $P$ has equation $ax + by = c\\ln5$ with integers $a$, $b$, $c$.",
@@ -400,7 +446,9 @@ C["maths:3.3"] = {
         { h: "(a) Complete the square in $t$, and invert the log", m: "$x = (t + 3)^2 - 25$ and $t + 3 = e^{y/6}$, so $x = e^{y/3} - 25 \\Rightarrow y = 3\\ln(x + 25)$: $A = 3$, $B = 25$", mk: "M1 M1 A1" },
         { h: "(b) $P$: $x = 0$", m: "$t^2 + 6t - 16 = (t + 8)(t - 2) = 0$, $t > -3 \\Rightarrow t = 2$; $P = (0, 6\\ln5)$", mk: "M1" },
         { h: "Gradient by parametric differentiation", m: "$\\dfrac{dy}{dx} = \\dfrac{6/(t + 3)}{2t + 6} = \\dfrac{3}{(t + 3)^2} = \\dfrac{3}{25}$ at $t = 2$", mk: "M1 A1" },
-        { m: "$y - 6\\ln5 = \\dfrac{3}{25}x \\Rightarrow 25y - 3x = 150\\ln5$", mk: "A1", n: "$-3x + 25y = 150\\ln5$: $a = -3$, $b = 25$, $c = 150$." }
+        { fig: { x: [-27, 12], y: [-6, 14], axes: { xt: [-25, -10, 10], yt: [9.66] }, items: [
+          { fn: "3*ln(x+25)", from: -24.99, to: 12, label: "y = 3ln(x + 25)", at: -20, pos: "nw" }, { vline: -25, c: "muted" },
+          { fn: "6*ln(5)+0.12*x", c: "accent3", label: "tangent", at: 8, pos: "n" }, { pt: [0, 6 * Math.log(5)], label: "P (0, 6ln5)", pos: "nw" } ], cap: "The tangent at $P$ has gradient $\\frac{3}{25}$." }, m: "$y - 6\\ln5 = \\dfrac{3}{25}x \\Rightarrow 25y - 3x = 150\\ln5$", mk: "A1", n: "$-3x + 25y = 150\\ln5$: $a = -3$, $b = 25$, $c = 150$." }
       ], result: "(a) $y = 3\\ln(x + 25)$ (b) $-3x + 25y = 150\\ln 5$" } },
     { worked: { tag: "exam", title: "Find $y$ at a point, convert, differentiate", src: "A-level June 2025 · P2 Q5 · 7 marks",
       q: "$C$: $x = \\frac{t - 1}{2}$, $y = 5(t + 2)^4$, $t \\in \\mathbb{R}$. $P$ has $x$-coordinate $-3$. **(a)** Find the $y$-coordinate of $P$. **(b)** Find a Cartesian equation $y = f(x)$. **(c)** Hence, or otherwise, find the gradient of $C$ at $P$.",
@@ -414,7 +462,9 @@ C["maths:3.3"] = {
       steps: [
         { h: "Substitute the parametric form into the circle", m: "$100\\cos^2 t + 32\\sin^2 t = 66 \\Rightarrow 100(1 - \\sin^2 t) + 32\\sin^2 t = 66 \\Rightarrow 68\\sin^2 t = 34 \\Rightarrow \\sin^2 t = \\dfrac12$", mk: "M1 A1" },
         { h: "Fourth quadrant: $\\cos t > 0$, $\\sin t < 0$", m: "$\\sin t = -\\dfrac{1}{\\sqrt2}, \\; \\cos t = \\dfrac{1}{\\sqrt2}$ (i.e. $t = \\dfrac{7\\pi}{4}$)", mk: "M1 A1" },
-        { m: "$S = \\left(10 \\cdot \\dfrac{1}{\\sqrt2}, \\; 4\\sqrt2 \\cdot \\left(-\\dfrac{1}{\\sqrt2}\\right)\\right) = (5\\sqrt2, -4)$", mk: "M1 A1" }
+        { fig: { x: [-11, 11], y: [-9, 9], aspect: "equal", axes: { grid: false, xt: [-10, 7.07, 10], yt: [-4, 4] }, items: [
+          { param: { x: "10*cos(t)", y: "4*sqrt(2)*sin(t)" }, t: [0, 2 * Math.PI], label: "C₁", n: 240 }, { circle: [0, 0, Math.sqrt(66)], c: "accent2" },
+          { pt: [5 * Math.sqrt(2), 4] }, { pt: [-5 * Math.sqrt(2), 4] }, { pt: [-5 * Math.sqrt(2), -4] }, { pt: [5 * Math.sqrt(2), -4], c: "danger", label: "S", pos: "se" } ], cap: "Four intersections, one in each quadrant; $S$ is the one with $x > 0$, $y < 0$." }, m: "$S = \\left(10 \\cdot \\dfrac{1}{\\sqrt2}, \\; 4\\sqrt2 \\cdot \\left(-\\dfrac{1}{\\sqrt2}\\right)\\right) = (5\\sqrt2, -4)$", mk: "M1 A1" }
       ], result: "$S(5\\sqrt2, -4)$" } },
 
     { page: "Gradients on parametric curves" },
@@ -426,14 +476,18 @@ C["maths:3.3"] = {
       q: "$C$: $x = 2\\tan t + 1$, $y = 2\\sec^2 t + 3$, $-\\frac{\\pi}{4} \\le t \\le \\frac{\\pi}{3}$. $l$ is the normal to $C$ at $P$, where $t = \\frac{\\pi}{4}$. **(a)** Show that $l$ has equation $y = -\\frac12 x + \\frac{17}{2}$. **(b)** Show that all points on $C$ satisfy $y = 5 + \\frac12(x - 1)^2$.",
       steps: [
         { h: "(a) Derivatives", m: "$\\dfrac{dx}{dt} = 2\\sec^2 t, \\quad \\dfrac{dy}{dt} = 4\\sec^2 t\\tan t \\Rightarrow \\dfrac{dy}{dx} = 2\\tan t$", mk: "M1 A1" },
-        { m: "At $t = \\frac{\\pi}{4}$: $P(3, 7)$, gradient $2$, normal gradient $-\\dfrac12$: $y - 7 = -\\dfrac12(x - 3) \\Rightarrow y = -\\dfrac12 x + \\dfrac{17}{2}$", mk: "M1 M1 A1*" },
+        { fig: { x: [-2, 6.5], y: [0, 12], aspect: "equal", axes: { xt: [-1, 1, 3, 4.46], yt: [5, 7, 11] }, items: [
+          { fn: "5+0.5*(x-1)^2", from: -1, to: 1 + 2 * Math.sqrt(3), label: "C", at: 4, pos: "w" }, { fn: "2*x+1", from: 1.5, to: 5, c: "muted", dash: true },
+          { fn: "-0.5*x+8.5", c: "accent3", label: "l", at: 5.6, pos: "n" }, { pt: [3, 7], label: "P (3, 7)", pos: "se" }, { pt: [-1, 7] }, { pt: [1 + 2 * Math.sqrt(3), 11] } ], cap: "The tangent at $P$ (dashed) has gradient 2; the normal $l$ is perpendicular to it." }, m: "At $t = \\frac{\\pi}{4}$: $P(3, 7)$, gradient $2$, normal gradient $-\\dfrac12$: $y - 7 = -\\dfrac12(x - 3) \\Rightarrow y = -\\dfrac12 x + \\dfrac{17}{2}$", mk: "M1 M1 A1*" },
         { h: "(b) $\\sec^2 t = 1 + \\tan^2 t$", m: "$\\tan t = \\dfrac{x - 1}{2}$, so $y = 2\\left(1 + \\dfrac{(x - 1)^2}{4}\\right) + 3 = 5 + \\dfrac12(x - 1)^2$", mk: "M1 A1 A1", n: "Domain: $\\tan t$ runs from $-1$ to $\\sqrt3$, so $-1 \\le x \\le 1 + 2\\sqrt3$." }
       ], result: "shown" } },
     { worked: { tag: "exam", title: "Gradient at a given $y$ with $\\sin 2\\theta$ and $\\text{cosec}^3\\theta$", src: "A-level Oct 2021 · P2 Q13 · 6 marks",
       q: "$C$: $x = \\sin 2\\theta$, $y = \\text{cosec}^3\\theta$, $0 < \\theta < \\frac{\\pi}{2}$. **(a)** Find $\\frac{dy}{dx}$ in terms of $\\theta$. **(b)** Hence find the exact gradient of the tangent at the point where $y = 8$.",
       steps: [
         { h: "(a)", m: "$\\dfrac{dx}{d\\theta} = 2\\cos 2\\theta; \\qquad \\dfrac{dy}{d\\theta} = 3\\,\\text{cosec}^2\\theta \\cdot (-\\text{cosec}\\,\\theta\\cot\\theta) = -3\\,\\text{cosec}^3\\theta\\cot\\theta$\n$\\dfrac{dy}{dx} = -\\dfrac{3\\,\\text{cosec}^3\\theta\\cot\\theta}{2\\cos 2\\theta}$", mk: "M1 A1 A1" },
-        { h: "(b) $y = 8 \\Rightarrow \\text{cosec}\\,\\theta = 2 \\Rightarrow \\theta = \\frac{\\pi}{6}$", m: "$\\cot\\dfrac{\\pi}{6} = \\sqrt3, \\; \\cos\\dfrac{\\pi}{3} = \\dfrac12$: $\\dfrac{dy}{dx} = -\\dfrac{3 \\cdot 8 \\cdot \\sqrt3}{2 \\cdot \\frac12} = -24\\sqrt3$", mk: "M1 M1 A1" }
+        { fig: { x: [-0.05, 1.15], y: [-0.5, 14], axes: { xt: [0.5, 0.87, 1], yt: [1, 8] }, items: [
+          { param: { x: "sin(2*t)", y: "1/sin(t)^3" }, t: [0.36, Math.PI / 2], n: 240 }, { line: [[0.866 - 0.13, 8 + 0.13 * 24 * Math.sqrt(3)], [0.866 + 0.13, 8 - 0.13 * 24 * Math.sqrt(3)]], c: "accent3" },
+          { pt: [Math.sqrt(3) / 2, 8], label: "θ = π/6", pos: "e" } ], cap: "At $\\theta = \\frac{\\pi}{6}$ the curve is falling steeply: gradient $-24\\sqrt3 \\approx -41.6$." }, h: "(b) $y = 8 \\Rightarrow \\text{cosec}\\,\\theta = 2 \\Rightarrow \\theta = \\frac{\\pi}{6}$", m: "$\\cot\\dfrac{\\pi}{6} = \\sqrt3, \\; \\cos\\dfrac{\\pi}{3} = \\dfrac12$: $\\dfrac{dy}{dx} = -\\dfrac{3 \\cdot 8 \\cdot \\sqrt3}{2 \\cdot \\frac12} = -24\\sqrt3$", mk: "M1 M1 A1" }
       ], result: "(a) $-\\dfrac{3\\,\\text{cosec}^3\\theta\\cot\\theta}{2\\cos 2\\theta}$ (b) $-24\\sqrt3$" } },
 
     { page: "Exam toolkit" },
@@ -500,13 +554,16 @@ C["maths:3.4"] = {
       q: "An object moves with constant velocity from $(1, 8)$ at $t = 0$ to $(6, 20)$ at $t = 5$. Find parametric equations for its position, and its position at $t = 2$.",
       steps: [
         { m: "$x$ changes by 5 in 5 s: $x = 1 + t$. $\\; y$ changes by 12 in 5 s: $y = 8 + \\dfrac{12}{5}t = 8 + 2.4t$", mk: "M1 A1" },
-        { m: "At $t = 2$: $(3, 12.8)$", mk: "A1", n: "Eliminating $t$: $y = 8 + 2.4(x - 1)$ — the straight-line path; but the parametric form also tells you *when* it is at each point." }
+        { fig: { x: [-0.5, 7.5], y: [-1, 22], axes: { xt: [1, 3, 6], yt: [8, 12.8, 20] }, items: [
+          { line: [[1, 8], [6, 20]], c: "accent", w: 2.2 }, { pt: [1, 8], label: "t = 0", pos: "w" }, { pt: [3, 12.8], c: "accent3", label: "t = 2", pos: "nw" }, { pt: [6, 20], label: "t = 5", pos: "w" } ], cap: "Equal steps in $t$ give equal steps along the line." }, m: "At $t = 2$: $(3, 12.8)$", mk: "A1", n: "Eliminating $t$: $y = 8 + 2.4(x - 1)$ — the straight-line path; but the parametric form also tells you *when* it is at each point." }
       ], result: "$x = 1 + t$, $y = 8 + 2.4t$; $(3, 12.8)$" } },
     { worked: { tag: "exam", title: "A water slide: tangent at a point, greatest height", src: "A-level June 2024 · P2 Q10 · 6 marks",
       q: "$C$: $x = (t + 3)^2$, $y = 1 - t^3$, $-2 \\le t \\le 1$, models the profile of a slide (metres; $y$ is height above water). $P(4, 2)$ lies on $C$. **(a)** Using parametric differentiation, show that the tangent at $P$ is $3x + 4y = 20$. **(b)** Find, according to the model, the greatest height of the slide above the water.",
       steps: [
         { h: "(a) Which $t$ gives $P$?", m: "$(t + 3)^2 = 4 \\Rightarrow t = -1$ (since $-2 \\le t \\le 1$); check $y = 1 + 1 = 2$ ✓", mk: "B1" },
-        { m: "$\\dfrac{dy}{dx} = \\dfrac{-3t^2}{2(t + 3)} = \\dfrac{-3}{4}$ at $t = -1$", mk: "M1 A1" },
+        { fig: { x: [-0.5, 17], y: [-0.5, 10], axes: { xt: [1, 4, 16], yt: [2, 5, 9] }, items: [
+          { param: { x: "(t+3)^2", y: "1-t^3" }, t: [-2, 1], n: 200 }, { fn: "5-0.75*x", from: 0, to: 6.67, c: "accent3", label: "3x + 4y = 20", at: 1.5, pos: "w" },
+          { pt: [4, 2], label: "P (4, 2)", pos: "ne" }, { pt: [1, 9], label: "t = −2", pos: "e" }, { pt: [16, 0], label: "t = 1", pos: "n" } ], cap: "The slide falls from 9 m at $t = -2$ to the water at $t = 1$." }, m: "$\\dfrac{dy}{dx} = \\dfrac{-3t^2}{2(t + 3)} = \\dfrac{-3}{4}$ at $t = -1$", mk: "M1 A1" },
         { m: "$y - 2 = -\\dfrac34(x - 4) \\Rightarrow 4y - 8 = -3x + 12 \\Rightarrow 3x + 4y = 20$", mk: "M1 A1*" },
         { h: "(b) $y = 1 - t^3$ is largest when $t$ is smallest", m: "$t = -2$: $y = 1 + 8 = 9$ m", mk: "B1", n: "The greatest height is at the end of the parameter range, not at a stationary point — check the ends." }
       ], result: "(b) 9 m" } },
@@ -515,7 +572,9 @@ C["maths:3.4"] = {
       steps: [
         { h: "(a)(i) $\\int y\\,dx = \\int y\\,\\frac{dx}{dt}\\,dt$", m: "$\\dfrac{dx}{dt} = 6\\cos t$, and $y = 5\\sin 2t = 10\\sin t\\cos t$, so the area is $\\displaystyle\\int_0^{\\pi/2} 10\\sin t\\cos t \\cdot 6\\cos t\\,\\mathrm{d}t = \\int_0^{\\pi/2} 60\\sin t\\cos^2 t\\,\\mathrm{d}t$", mk: "M1 dM1 A1*", n: "Limits change to $t$-limits: $x = 0 \\Rightarrow t = 0$, $x = 6 \\Rightarrow t = \\frac{\\pi}{2}$." },
         { h: "(ii) Recognise $\\sin t\\cos^2 t$ as the derivative of $-\\frac13\\cos^3 t$", m: "$\\left[-20\\cos^3 t\\right]_0^{\\pi/2} = 0 - (-20) = 20$", mk: "M1 A1 A1*" },
-        { h: "(b) Width: the $x$-range; height: max of $y$", m: "$x$ runs from $0$ to $6$: width $6$ m. $y = 5\\sin 2t$ is largest when $\\sin 2t = 1$ ($t = \\frac{\\pi}{4}$): height $5$ m.", n: "An extension: the paper's own (b) finds the width of a path at height 4.2 m (5 marks)." }
+        { fig: { x: [-0.5, 7], y: [-0.5, 6], aspect: "equal", axes: { xt: [3 * Math.sqrt(2), 6], yt: [5] }, items: [
+          { shade: { fn: "10*(x/6)*sqrt(1-x*x/36)", from: 0, to: 6 }, c: "accent", alpha: 0.18 }, { param: { x: "6*sin(t)", y: "5*sin(2*t)" }, t: [0, Math.PI / 2], n: 200 },
+          { pt: [3 * Math.sqrt(2), 5], label: "t = π/4", pos: "n" }, { text: [3, 1.6], t: "R = 20", size: 12 } ], cap: "Width 6 m along the base, height 5 m at $t = \\frac{\\pi}{4}$ ($x = 3\\sqrt2$)." }, h: "(b) Width: the $x$-range; height: max of $y$", m: "$x$ runs from $0$ to $6$: width $6$ m. $y = 5\\sin 2t$ is largest when $\\sin 2t = 1$ ($t = \\frac{\\pi}{4}$): height $5$ m.", n: "An extension: the paper's own (b) finds the width of a path at height 4.2 m (5 marks)." }
       ], result: "(a) shown; 20 (b) width 6 m, height 5 m" } },
     { worked: { tag: "exam", title: "A parametric log curve: domain, and an area", src: "A-level Specimen · P2 Q10 · 9 marks",
       q: "$C$: $x = \\ln(t + 2)$, $y = \\frac{1}{t + 1}$, $t > -\\frac23$. **(a)** State the domain of values of $x$ for $C$. **(b)** $R$ is bounded by $C$, the line $x = \\ln2$, the $x$-axis and the line $x = \\ln4$. Use calculus to show that the area of $R$ is $\\ln\\left(\\frac32\\right)$.",
@@ -523,7 +582,9 @@ C["maths:3.4"] = {
         { h: "(a) $t > -\\frac23 \\Rightarrow t + 2 > \\frac43$", m: "$x > \\ln\\dfrac43$", mk: "B1" },
         { h: "(b) Convert the limits to $t$", m: "$x = \\ln2 \\Rightarrow t = 0$; $\\; x = \\ln4 \\Rightarrow t = 2$; $\\; \\dfrac{dx}{dt} = \\dfrac{1}{t + 2}$", mk: "B1 B1" },
         { m: "Area $= \\displaystyle\\int_0^2 \\dfrac{1}{t + 1} \\cdot \\dfrac{1}{t + 2}\\,\\mathrm{d}t = \\int_0^2 \\left(\\dfrac{1}{t + 1} - \\dfrac{1}{t + 2}\\right)\\mathrm{d}t$", mk: "M1 A1 B1", n: "Partial fractions (2.10): $\\frac{1}{(t+1)(t+2)} = \\frac{1}{t+1} - \\frac{1}{t+2}$." },
-        { m: "$= \\Big[\\ln(t + 1) - \\ln(t + 2)\\Big]_0^2 = (\\ln3 - \\ln4) - (0 - \\ln2) = \\ln\\dfrac{3 \\cdot 2}{4} = \\ln\\dfrac32$", mk: "M1 A1 A1*" }
+        { fig: { x: [-0.1, 2], y: [-0.2, 3.5], axes: { xt: [{ v: Math.log(4 / 3), label: "ln(4/3)" }, { v: Math.log(2), label: "ln 2" }, { v: Math.log(4), label: "ln 4" }], yt: [1, 2, 3] }, items: [
+          { shade: { fn: "1/(exp(x)-1)", from: Math.log(2), to: Math.log(4) }, c: "accent", alpha: 0.2 }, { fn: "1/(exp(x)-1)", from: Math.log(4 / 3), to: 2, label: "C", at: 1.7, pos: "n" },
+          { vline: Math.log(4 / 3), c: "muted" }, { text: [1.03, 0.25], t: "R", i: true, size: 13 } ], cap: "In Cartesian form $y = \\frac{1}{e^x - 1}$; $R$ lies between $x = \\ln2$ ($t = 0$) and $x = \\ln4$ ($t = 2$)." }, m: "$= \\Big[\\ln(t + 1) - \\ln(t + 2)\\Big]_0^2 = (\\ln3 - \\ln4) - (0 - \\ln2) = \\ln\\dfrac{3 \\cdot 2}{4} = \\ln\\dfrac32$", mk: "M1 A1 A1*" }
       ], result: "(a) $x > \\ln\\frac43$ (b) $\\ln\\frac32$" } },
 
     { page: "Exam toolkit" },

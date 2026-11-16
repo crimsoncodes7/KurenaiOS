@@ -25,7 +25,7 @@ C["maths:8.1"] = {
         { h: "Integrate", m: "$f(x) = 2x^3 + \\dfrac{a}{2}x^2 - 23x + c$", mk: "M1 A1", n: "Every term up a power and divided; $+c$." },
         { h: "Intercept", m: "$f(0) = -12 \\Rightarrow c = -12$", mk: "B1" },
         { h: "Factor theorem (2.6)", m: "$f(-4) = -128 + 8a + 92 - 12 = 0 \\Rightarrow a = 6$", mk: "M1 A1" },
-        { m: "$f(x) = 2x^3 + 3x^2 - 23x - 12$", mk: "A1" }
+        { m: "$f(x) = 2x^3 + 3x^2 - 23x - 12$", mk: "A1", fig: { x: [-5, 4], y: [-42, 42], axes: { xt: [-4, -2, 2, 3], yt: [-30, -12, 30] }, items: [{ fn: "2*x^3+3*x^2-23*x-12", label: "y = f(x)", at: 3.4, pos: "w" }, { pt: [-4, 0], label: "(−4, 0)", pos: "nw" }, { pt: [-0.5, 0], label: "(−½, 0)", pos: "ne" }, { pt: [3, 0], label: "(3, 0)", pos: "se" }, { pt: [0, -12], label: "(0, −12)", pos: "e" }], cap: "$f(x) = (x + 4)(2x + 1)(x - 3)$: the factor $(x + 4)$ and the intercept $-12$ both show." } }
       ], result: "$f(x) = 2x^3 + 3x^2 - 23x - 12$" } },
     { worked: { tag: "exam", title: "Integrate $\\frac{dy}{dx}$; a turning point fixes $k$; the point fixes $c$", src: "A-level June 2023 · P2 Q5 · 5 marks",
       q: "$C$ passes through $P(3, -10)$ and has a turning point at $P$; $\\frac{dy}{dx} = 2x^3 - 9x^2 + 5x + k$. **(a)** Show $k = 12$. **(b)** Find where $C$ crosses the $y$-axis.",
@@ -165,6 +165,7 @@ C["maths:8.3"] = {
 
     { page: "Area under a curve" },
     { worked: { tag: "exam", title: "Region between a parabola, the $y$-axis and a horizontal line", src: "AS June 2023 · P1 Q5 · 5 marks",
+      fig: { x: [-1, 3.2], y: [-2, 27], axes: { xt: [1, 2], yt: [3, 10, 23] }, items: [{ shade: { fn: "23", fn2: "4*x^2+3", from: 0, to: 2.236 }, alpha: 0.22 }, { fn: "4*x^2+3", label: "y = 4x² + 3", at: 2.5, pos: "e" }, { fn: "23", c: "accent2", label: "y = 23", at: 2.9, pos: "s" }, { text: [0.8, 17], t: "R", b: true, c: "accent" }], cap: "$R$ lies between the curve and the line $y = 23$, to the right of the $y$-axis." },
       q: "$R$ is bounded by $y = 4x^2 + 3$, the $y$-axis and the line $y = 23$. Show that the area of $R$ is $k\\sqrt5$, with $k$ rational.",
       steps: [
         { h: "Where the curve meets $y = 23$", m: "$4x^2 + 3 = 23 \\Rightarrow x = \\sqrt5$", mk: "B1" },
@@ -172,12 +173,14 @@ C["maths:8.3"] = {
         { m: "$= 20\\sqrt5 - \\dfrac{20\\sqrt5}{3} = \\dfrac{40\\sqrt5}{3}$: $k = \\dfrac{40}{3}$", mk: "A1", n: "Alternative: $\\int_3^{23} x\\,dy$ with $x = \\sqrt{(y - 3)/4}$." }
       ], result: "$\\frac{40}{3}\\sqrt5$" } },
     { worked: { tag: "exam", title: "Area under a cubic up to its minimum", src: "AS June 2019 · P1 Q13 · 7 marks",
+      fig: { x: [-0.5, 5.5], y: [-5, 40], axes: { xt: [1, 2, 3, { v: 4, label: "k" }, 5], yt: [10, 20, 30] }, items: [{ shade: { fn: "2*x^3-17*x^2+40*x", from: 0, to: 4 }, alpha: 0.22 }, { fn: "2*x^3-17*x^2+40*x", label: "y = 2x³ − 17x² + 40x", at: 5, pos: "w" }, { vline: 4, c: "muted" }, { text: [1.7, 10], t: "R", b: true, c: "accent" }], cap: "$R$ runs from the origin to the minimum at $x = k$." },
       q: "$y = 2x^3 - 17x^2 + 40x$ has a minimum at $x = k$. $R$ is bounded by the curve, the $x$-axis and $x = k$. Show that the area of $R$ is $\\frac{256}{3}$.",
       steps: [
         { h: "Find $k$", m: "$\\dfrac{dy}{dx} = 6x^2 - 34x + 40 = 2(3x - 5)(x - 4) = 0$: $x = \\dfrac53$ (max) or $x = 4$ (min); $k = 4$", mk: "M1 A1 A1", n: "Check which is the minimum: $y'' = 12x - 34 > 0$ at 4." },
         { h: "Integrate from 0 to 4", m: "$\\displaystyle\\int_0^4 (2x^3 - 17x^2 + 40x)\\,dx = \\left[\\dfrac{x^4}{2} - \\dfrac{17x^3}{3} + 20x^2\\right]_0^4 = 128 - \\dfrac{1088}{3} + 320 = \\dfrac{256}{3}$", mk: "M1 A1 M1 A1*", n: "$y = x(2x^2 - 17x + 40)$ has its only other real root... the curve stays above the axis on $[0, 4]$ (the quadratic factor has discriminant $289 - 320 < 0$)." }
       ], result: "$\\frac{256}{3}$" } },
     { worked: { tag: "exam", title: "Area below the axis in the form $a\\sqrt2 + b$", src: "A-level June 2022 · P2 Q8 · 6 marks",
+      fig: { x: [0, 6.5], y: [-0.4, 1.2], axes: { xt: [1, 2, 3, 4, 5, 6], yt: [0.5, 1] }, items: [{ shade: { fn: "(x-2)*(x-4)/(4*sqrt(x))", from: 2, to: 4 }, alpha: 0.3 }, { fn: "(x-2)*(x-4)/(4*sqrt(x))", from: 0.2, to: 6.5, label: "C", at: 6, pos: "nw" }, { text: [3, 0.12], t: "R", b: true, c: "accent" }], cap: "$R$ lies below the $x$-axis, between $x = 2$ and $x = 4$." },
       q: "$y = \\frac{(x - 2)(x - 4)}{4\\sqrt x}$, $x > 0$. $R$ is bounded by the curve and the $x$-axis. Find the exact area of $R$ in the form $a\\sqrt2 + b$.",
       steps: [
         { h: "Rewrite as powers", m: "$\\dfrac{x^2 - 6x + 8}{4x^{1/2}} = \\dfrac14 x^{3/2} - \\dfrac32 x^{1/2} + 2x^{-1/2}$", mk: "M1 A1" },
@@ -191,6 +194,7 @@ C["maths:8.3"] = {
         { h: "(b) $R_2$ is below the axis: its integral is $-\\frac{20}{3}$", m: "$\\dfrac{b^4}{4} - \\dfrac{2b^3}{3} - 4b^2 = -\\dfrac{20}{3} \\Rightarrow 3b^4 - 8b^3 - 48b^2 + 80 = 0$ (×12)", mk: "B1 M1 A1 M1 dM1 A1*", n: "The sign is the whole question: equal *areas* means the integral over $R_2$ is the *negative* of $R_1$'s." }
       ], result: "shown" } },
     { worked: { tag: "exam", title: "Region bounded by a cubic, a maximum and the axis", src: "AS Specimen · P1 Q14 · 9 marks",
+      fig: { x: [-3.6, 3], y: [-5, 22], axes: { xt: [-3, -2, -1, 1, 2], yt: [5, 10, 15, 20] }, items: [{ shade: { fn: "(x-2)^2*(x+3)", from: -1.3333, to: 2 }, alpha: 0.22 }, { fn: "(x-2)^2*(x+3)", label: "C", at: 2.7, pos: "w" }, { vline: -1.3333, c: "muted" }, { pt: [-1.3333, 18.52], label: "max", pos: "n" }, { text: [0, 6], t: "R", b: true, c: "accent" }], cap: "$R$ runs from the line through the maximum to where $C$ touches the axis at $x = 2$." },
       q: "$C$: $y = (x - 2)^2(x + 3)$. $R$ is bounded by $C$, the vertical line through the maximum turning point, and the $x$-axis. Find the exact area of $R$.",
       steps: [
         { h: "The maximum", m: "$\\dfrac{dy}{dx} = 2(x - 2)(x + 3) + (x - 2)^2 = (x - 2)(3x + 4) = 0$: maximum at $x = -\\dfrac43$", mk: "M1 A1 A1", n: "Product rule; the other root $x = 2$ is the minimum (touching the axis)." },
@@ -198,6 +202,7 @@ C["maths:8.3"] = {
         { m: "Area $= \\dfrac{28}{3} + \\dfrac{1744}{81} = \\dfrac{756 + 1744}{81} = \\dfrac{2500}{81}$", mk: "A1", n: "Exact fractions; the region is above the axis throughout." }
       ], result: "$\\frac{2500}{81}$" } },
     { worked: { tag: "exam", title: "$\\int_1^a\\sqrt x\\,dx = 10$: find $a$ as a power of 2; related integrals", src: "AS Specimen · P1 Q8 · 8 marks",
+      fig: { x: [-0.3, 7.5], y: [-0.3, 3.2], axes: { xt: [1, { v: 6.35, label: "a" }], yt: [1, 2] }, items: [{ shade: { fn: "sqrt(x)", from: 1, to: 6.35 }, alpha: 0.22 }, { fn: "sqrt(x)", from: 0, to: 7.5, label: "y = √x", at: 7, pos: "n" }, { vline: 1, c: "muted" }, { vline: 6.35, c: "muted" }, { text: [3.8, 0.8], t: "R (area 10)", c: "accent" }], cap: "$R$ under $y = \\sqrt x$ between $x = 1$ and $x = a$." },
       q: "$R$ is bounded by $y = \\sqrt x$, $x = 1$, $x = a$ and the $x$-axis, and has area 10. **(a)** Find, in simplest form, (i) $\\displaystyle\\int_1^a\\sqrt{8x}\\,dx$, (ii) $\\displaystyle\\int_0^a\\sqrt x\\,dx$. **(b)** Find $a$ in the form $2^k$.",
       steps: [
         { h: "(a)(i) A constant multiple", m: "$\\sqrt{8x} = 2\\sqrt2\\sqrt x$, so the integral is $2\\sqrt2 \\times 10 = 20\\sqrt2$", mk: "M1 A1" },
@@ -207,6 +212,7 @@ C["maths:8.3"] = {
 
     { page: "Area between curves and lines" },
     { worked: { tag: "exam", title: "Tangent to a cubic, second intersection, area between", src: "AS June 2024 · P1 Q8 · 10 marks",
+      fig: { x: [-5, 3.5], y: [-6, 48], axes: { xt: [-4, -2, 2], yt: [10, 20, 30, 40] }, items: [{ shade: { fn: "x^3-14*x+23", fn2: "-2*x+7", from: -4, to: 2 }, alpha: 0.22 }, { fn: "x^3-14*x+23", label: "C", at: 3.2, pos: "w" }, { fn: "-2*x+7", c: "accent2", label: "l", at: 3.2, pos: "s" }, { pt: [2, 3], label: "A", pos: "s" }, { pt: [-4, 15], label: "B", pos: "nw" }, { text: [-1.2, 22], t: "R", b: true, c: "accent" }], cap: "$l$ touches $C$ at $A$ and cuts it again at $B$; $R$ lies between them." },
       q: "$C$: $y = x^3 - 14x + 23$; $l$ is the tangent to $C$ at $A(2, 3)$ and meets $C$ again at $B$. **(a)** Show that $l$ has equation $y = -2x + 7$. **(b)** Find the coordinates of $B$. **(c)** Find the area of the region $R$ between $C$ and $l$.",
       steps: [
         { h: "(a) $A(2, 3)$", m: "$\\dfrac{dy}{dx} = 3x^2 - 14 = -2$ at $x = 2$; $y - 3 = -2(x - 2) \\Rightarrow y = -2x + 7$", mk: "M1 A1 A1*" },
@@ -214,6 +220,7 @@ C["maths:8.3"] = {
         { h: "(c) Curve above line between $-4$ and $2$", m: "$\\displaystyle\\int_{-4}^{2}\\left[(x^3 - 14x + 23) - (-2x + 7)\\right]dx = \\int_{-4}^{2}(x^3 - 12x + 16)\\,dx = \\left[\\dfrac{x^4}{4} - 6x^2 + 16x\\right]_{-4}^{2} = (4 - 24 + 32) - (64 - 96 - 64) = 108$", mk: "M1 A1 M1 A1", n: "The difference is $(x - 2)^2(x + 4) \\ge 0$ on the interval — no sign change to worry about." }
       ], result: "(b) $B(-4, 15)$ (c) 108" } },
     { worked: { tag: "exam", title: "Region bounded by a tangent, the axes and the curve", src: "AS June 2022 · P1 Q10 · 10 marks",
+      fig: { x: [-0.3, 5], y: [-0.6, 6.5], axes: { xt: [1, 2, 3, 4], yt: [1, 2, 3, 4] }, items: [{ shade: { fn: "x^2/3-2*sqrt(x)+3", from: 0, to: 2 }, alpha: 0.22 }, { shade: { fn: "x^2/3-2*sqrt(x)+3", fn2: "(13*x-26)/6", from: 2, to: 4 }, alpha: 0.22 }, { fn: "x^2/3-2*sqrt(x)+3", from: 0, to: 5, label: "C", at: 4.8, pos: "w" }, { fn: "(13*x-26)/6", from: 1.8, to: 4.8, c: "accent2", label: "l", at: 4.6, pos: "e" }, { pt: [4, 4.333], label: "P", pos: "nw" }, { text: [1.3, 0.6], t: "R", b: true, c: "accent" }], cap: "$R$ is bounded by the $y$-axis, $C$, the tangent $l$ at $P$ and the $x$-axis." },
       q: "$C$: $y = \\frac13 x^2 - 2\\sqrt x + 3$, $x \\ge 0$; $P$ on $C$ has $x = 4$ and $l$ is the tangent at $P$. **(a)** Show that $l$ is $13x - 6y - 26 = 0$. **(b)** $R$ is bounded by the $y$-axis, $C$, $l$ and the $x$-axis. Find the exact area of $R$.",
       steps: [
         { h: "(a)", m: "$P(4, \\tfrac{13}{3})$; $\\dfrac{dy}{dx} = \\dfrac23 x - x^{-1/2} = \\dfrac83 - \\dfrac12 = \\dfrac{13}{6}$; $y - \\dfrac{13}{3} = \\dfrac{13}{6}(x - 4) \\Rightarrow 6y - 26 = 13x - 52 \\Rightarrow 13x - 6y - 26 = 0$", mk: "M1 A1 M1 A1*" },
@@ -224,7 +231,7 @@ C["maths:8.3"] = {
       q: "$f(x) = -3x^2 + 12x + 8$. **(a)** Write $f(x)$ as $a(x + b)^2 + c$. **(b)** Find the maximum $M$. **(c)** $l$ through $M$ is parallel to the $x$-axis; $R$ is bounded by $C$, $l$ and the $y$-axis. Find the area of $R$ by integration.",
       steps: [
         { h: "(a)(b)", m: "$-3(x - 2)^2 + 20$; $M(2, 20)$", mk: "M1 A1 A1 B1 B1" },
-        { h: "(c) Line minus curve from 0 to 2", m: "$\\displaystyle\\int_0^2\\left[20 - (-3x^2 + 12x + 8)\\right]dx = \\int_0^2 (3x^2 - 12x + 12)\\,dx = \\left[x^3 - 6x^2 + 12x\\right]_0^2 = 8 - 24 + 24 = 8$", mk: "M1 A1 M1 A1 A1", n: "Equivalently $\\int_0^2 3(x - 2)^2 dx = [(x - 2)^3]_0^2 = 0 - (-8) = 8$." }
+        { h: "(c) Line minus curve from 0 to 2", m: "$\\displaystyle\\int_0^2\\left[20 - (-3x^2 + 12x + 8)\\right]dx = \\int_0^2 (3x^2 - 12x + 12)\\,dx = \\left[x^3 - 6x^2 + 12x\\right]_0^2 = 8 - 24 + 24 = 8$", mk: "M1 A1 M1 A1 A1", n: "Equivalently $\\int_0^2 3(x - 2)^2 dx = [(x - 2)^3]_0^2 = 0 - (-8) = 8$.", fig: { x: [-0.5, 4.5], y: [-6, 24], axes: { xt: [1, 2, 3, 4], yt: [8, 20] }, items: [{ shade: { fn: "20", fn2: "-3*x^2+12*x+8", from: 0, to: 2 }, alpha: 0.25 }, { fn: "-3*x^2+12*x+8", label: "C", at: 4, pos: "e" }, { fn: "20", c: "accent2", label: "l: y = 20", at: 3.6, pos: "n" }, { pt: [2, 20], label: "M(2, 20)", pos: "n" }, { text: [0.6, 16], t: "R", b: true, c: "accent" }], cap: "$R$ = (line − curve) integrated from 0 to 2." } }
       ], result: "8" } },
 
     { page: "Exam toolkit" },
@@ -295,7 +302,7 @@ C["maths:8.4"] = {
     { worked: { tag: "exam", title: "$\\lim\\sum\\frac{2}{x}\\delta x$ from 2.1 to 6.3 as $\\ln k$", src: "A-level June 2022 · P1 Q4 · 3 marks",
       q: "**(a)** Express $\\displaystyle\\lim_{\\delta x \\to 0}\\sum_{x = 2.1}^{6.3}\\frac2x\\,\\delta x$ as an integral. **(b)** Hence show that it equals $\\ln k$, with $k$ to be found.",
       steps: [
-        { h: "(a)", m: "$\\displaystyle\\int_{2.1}^{6.3}\\dfrac2x\\,dx$", mk: "B1" },
+        { h: "(a)", m: "$\\displaystyle\\int_{2.1}^{6.3}\\dfrac2x\\,dx$", mk: "B1", fig: { x: [0, 7.5], y: [0, 1.4], axes: { xt: [2.1, 6.3], yt: [0.5, 1] }, items: [{ shade: { fn: "2/x", from: 2.1, to: 6.3 }, alpha: 0.22 }, { fn: "2/x", from: 1.5, to: 7.5, label: "y = 2/x", at: 2.6, pos: "ne" }, { poly: [[4, 0], [4.4, 0], [4.4, 0.5], [4, 0.5]], fill: "accent2", alpha: 0.5, c: "accent2" }], cap: "Each strip is $\\frac{2}{x}\\,\\delta x$; as $\\delta x \\to 0$ their sum becomes the area from 2.1 to 6.3." } },
         { h: "(b)", m: "$= 2\\left[\\ln x\\right]_{2.1}^{6.3} = 2\\ln\\dfrac{6.3}{2.1} = 2\\ln 3 = \\ln 9$: $k = 9$", mk: "M1 A1", n: "Quotient law then power law. (2025 P1 Q5: the same with $\\frac{2}{\\sqrt x}$ from 1.44 to 2.89 gives $[4\\sqrt x] = 4(1.7 - 1.2) = 2$.)" }
       ], result: "$\\ln 9$" } },
     { callout: { t: "mnemonic", h: "\"Sum of strips → integral; $\\delta x$ → $dx$; the $x$-range → the limits\"", body: "Three substitutions and the notation is converted." } }
@@ -364,6 +371,7 @@ C["maths:8.5"] = {
         { h: "(b) $\\sin^2 2\\theta = \\frac12(1 - \\cos 4\\theta)$", m: "$\\dfrac{a^2}{2}\\int_0^{\\pi/2}\\dfrac{1 - \\cos 4\\theta}{2}\\,d\\theta = \\dfrac{a^2}{4}\\left[\\theta - \\dfrac{\\sin 4\\theta}{4}\\right]_0^{\\pi/2} = \\dfrac{a^2}{4} \\cdot \\dfrac{\\pi}{2} = \\dfrac{\\pi a^2}{8}$: $k = \\dfrac18$", mk: "M1 A1 M1 A1*" }
       ], result: "$k = \\frac18$" } },
     { worked: { tag: "exam", title: "$x = 2\\sin u$ turns $\\frac{1}{x^2\\sqrt{4 - x^2}}$ into $k\\,\\text{cosec}^2 u$", src: "A-level June 2025 · P1 Q16 · 7 marks",
+      fig: { x: [0, 2.2], y: [0, 1.6], axes: { xt: [1, { v: 1.732, label: "√3" }, 2], yt: [0.5, 1] }, items: [{ shade: { fn: "1/(x^2*sqrt(4-x^2))", from: 1, to: 1.732 }, alpha: 0.25 }, { fn: "1/(x^2*sqrt(4-x^2))", from: 0.5, to: 1.995, label: "C", at: 0.9, pos: "ne" }, { vline: 2, c: "danger" }, { text: [1.36, 0.17], t: "R", b: true, c: "accent" }], cap: "$R$ lies under $C$ between $x = 1$ and $x = \\sqrt3$; the curve rises to asymptotes at $x = 0$ and $x = 2$." },
       q: "$y = \\frac{1}{x^2\\sqrt{4 - x^2}}$, $0 < x < 2$. $R$ is bounded by $C$, $x = 1$, $x = \\sqrt3$ and the $x$-axis. **(a)** Use $x = 2\\sin u$ to show the area of $R$ is $\\displaystyle\\int_{\\pi/6}^{\\pi/3} k\\,\\text{cosec}^2 u\\,du$. **(b)** Hence find the exact area.",
       steps: [
         { h: "(a) $dx = 2\\cos u\\,du$; $\\sqrt{4 - x^2} = 2\\cos u$", m: "$\\dfrac{2\\cos u\\,du}{4\\sin^2 u \\cdot 2\\cos u} = \\dfrac{1}{4\\sin^2 u}\\,du = \\dfrac14\\text{cosec}^2 u\\,du$; limits $x = 1 \\Rightarrow u = \\dfrac{\\pi}{6}$, $x = \\sqrt3 \\Rightarrow u = \\dfrac{\\pi}{3}$: $k = \\dfrac14$", mk: "M1 A1 A1 B1" },
@@ -391,10 +399,11 @@ C["maths:8.5"] = {
       ], result: "$\\frac{16}{27} - \\frac{136}{27}e^{-3}$" } },
     { worked: { tag: "exam", title: "Area under $y = 2e^{2x} - xe^{2x}$ as $pe^4 + q$", src: "A-level Specimen · P1 Q7 · 5 marks",
       steps: [
-        { h: "Where the curve meets the axis; then parts with $u = 2 - x$", m: "$y = (2 - x)e^{2x} = 0$ at $x = 2$. $\\displaystyle\\int_0^2(2 - x)e^{2x}dx = \\left[\\dfrac{(2 - x)e^{2x}}{2}\\right]_0^2 + \\int_0^2\\dfrac{e^{2x}}{2}dx$", mk: "B1 M1 A1", n: "$\\frac{du}{dx} = -1$, so $-\\int v\\frac{du}{dx}$ becomes $+\\int\\frac{e^{2x}}{2}$." },
+        { h: "Where the curve meets the axis; then parts with $u = 2 - x$", m: "$y = (2 - x)e^{2x} = 0$ at $x = 2$. $\\displaystyle\\int_0^2(2 - x)e^{2x}dx = \\left[\\dfrac{(2 - x)e^{2x}}{2}\\right]_0^2 + \\int_0^2\\dfrac{e^{2x}}{2}dx$", mk: "B1 M1 A1", n: "$\\frac{du}{dx} = -1$, so $-\\int v\\frac{du}{dx}$ becomes $+\\int\\frac{e^{2x}}{2}$.", fig: { x: [-1.2, 2.5], y: [-2, 11.5], axes: { xt: [-1, 1, 1.5, 2], yt: [2, 5, 10] }, items: [{ shade: { fn: "(2-x)*exp(2*x)", from: 0, to: 2 }, alpha: 0.22 }, { fn: "(2-x)*exp(2*x)", label: "y = (2 − x)e²ˣ", at: 0.6, pos: "nw" }, { pt: [2, 0], label: "(2, 0)", pos: "se" }, { pt: [0, 2], label: "(0, 2)", pos: "w" }], cap: "The area runs from the $y$-axis to where the curve meets the $x$-axis, $x = 2$." } },
         { m: "$= (0 - 1) + \\left[\\dfrac{e^{2x}}{4}\\right]_0^2 = -1 + \\dfrac{e^4}{4} - \\dfrac14 = \\dfrac14 e^4 - \\dfrac54$", mk: "M1 A1" }
       ], result: "$p = \\frac14$, $q = -\\frac54$" } },
     { worked: { tag: "exam", title: "$\\int x\\ln x$, a normal, and a region", src: "A-level June 2018 · P2 Q13 · 10 marks",
+      fig: { x: [-0.3, 9], y: [-0.7, 3.7], aspect: "equal", axes: { xt: [1, { v: 2.718, label: "e" }, { v: 8.155, label: "3e" }], yt: [1, 2, 3] }, items: [{ shade: { fn: "x*ln(x)", from: 1, to: 2.718 }, alpha: 0.22 }, { shade: { fn: "-(x-2.718)/2+2.718", from: 2.718, to: 8.155 }, alpha: 0.22 }, { fn: "x*ln(x)", from: 0.02, to: 3.4, label: "C", at: 3.3, pos: "w" }, { fn: "-(x-2.718)/2+2.718", from: 2, to: 8.6, c: "accent2", label: "l", at: 6, pos: "ne" }, { pt: [2.718, 2.718], label: "P(e, e)", pos: "nw" }, { text: [3.8, 0.8], t: "R", b: true, c: "accent" }], cap: "$R$: under $C$ from 1 to $e$, then under the normal $l$ to where it meets the axis." },
       q: "$C$: $y = x\\ln x$, $x > 0$; $l$ is the normal at $P(e, e)$; $R$ is bounded by $C$, $l$ and the $x$-axis. Show that the area of $R$ is $Ae^2 + B$, $A$ and $B$ rational.",
       steps: [
         { h: "The normal", m: "$\\dfrac{dy}{dx} = \\ln x + 1 = 2$ at $x = e$; normal gradient $-\\dfrac12$: $y - e = -\\dfrac12(x - e)$, meeting the axis at $x = 3e$", mk: "M1 A1 A1" },
@@ -457,6 +466,7 @@ C["maths:8.6"] = {
 
     { page: "Worked" },
     { worked: { tag: "exam", title: "Rational curve with asymptotes; area as $a\\ln 2 + b\\ln 3$", src: "A-level June 2019 · P1 Q13 · 11 marks",
+      fig: { x: [-7, 8], y: [-3, 3], axes: { xt: [-3, 2, 3, 5], yt: [-2, 2] }, items: [{ fn: "(15-3*x)/((2*x-4)*(x+3))", from: -7, to: -3.01 }, { fn: "(15-3*x)/((2*x-4)*(x+3))", from: -2.99, to: 1.99 }, { fn: "(15-3*x)/((2*x-4)*(x+3))", from: 2.01, to: 8, label: "C", at: 2.6, pos: "e" }, { shade: { fn: "(15-3*x)/((2*x-4)*(x+3))", from: 3, to: 5 }, alpha: 0.3 }, { vline: -3, c: "danger", label: "x = −3" }, { vline: 2, c: "danger", label: "x = 2" }, { pt: [3, 0.5], label: "(3, ½)", pos: "ne" }, { text: [3.6, 0.12], t: "R", b: true, c: "accent" }], cap: "$R$ lies under the right-hand branch, from $x = 3$ to where it crosses the axis." },
       q: "$y = \\frac{p - 3x}{(2x - q)(x + 3)}$ passes through $\\left(3, \\tfrac12\\right)$ and has vertical asymptotes $x = 2$ and $x = -3$. **(a)(i)** Explain why $q = 4$. **(ii)** Show $p = 15$. **(b)** $R$ is bounded by $C$, the $x$-axis and $x = 3$. Show that the area of $R$ is $a\\ln 2 + b\\ln 3$.",
       steps: [
         { h: "(a)", m: "(i) A vertical asymptote where the denominator vanishes: $2x - q = 0$ at $x = 2 \\Rightarrow q = 4$. (ii) $\\dfrac{p - 9}{(2)(6)} = \\dfrac12 \\Rightarrow p = 15$", mk: "B1 M1 A1*" },
@@ -537,7 +547,7 @@ C["maths:8.7"] = {
         { h: "(a) Separate and integrate", m: "$\\displaystyle\\int\\dfrac1H\\,dH = \\int\\dfrac{\\cos 0.25t}{40}\\,dt \\Rightarrow \\ln H = \\dfrac{\\sin 0.25t}{10} + c$", mk: "M1 A1 A1", n: "$\\int\\cos 0.25t = 4\\sin 0.25t$; divided by 40 gives $\\frac{\\sin 0.25t}{10}$." },
         { m: "$t = 0$: $\\ln 5 = c$. So $H = e^{0.1\\sin 0.25t + \\ln 5} = 5e^{0.1\\sin 0.25t}$", mk: "M1 A1*" },
         { h: "(b)", m: "$\\sin = 1$: $H_{\\max} = 5e^{0.1} = 5.53$ m", mk: "B1" },
-        { h: "(c) Second time $\\sin 0.25t = 1$", m: "$0.25t = \\dfrac{\\pi}{2} + 2\\pi \\Rightarrow T = 10\\pi = 31.4$ s", mk: "M1 A1" }
+        { h: "(c) Second time $\\sin 0.25t = 1$", m: "$0.25t = \\dfrac{\\pi}{2} + 2\\pi \\Rightarrow T = 10\\pi = 31.4$ s", mk: "M1 A1", fig: { x: [0, 40], y: [4, 6], axes: { x: "t", y: "H", xt: [{ v: 6.283, label: "2π" }, { v: 18.85, label: "6π" }, { v: 31.42, label: "10π" }], yt: [4.52, 5, 5.53] }, items: [{ fn: "5*exp(0.1*sin(0.25*x))", label: "H = 5e^(0.1 sin 0.25t)", at: 24, pos: "s" }, { hline: 5.526, c: "muted" }, { pt: [6.283, 5.526], label: "first max", pos: "n" }, { pt: [31.42, 5.526], label: "T = 10π", pos: "n" }], cap: "The height peaks at $5e^{0.1}$ every $8\\pi$ seconds: first at $t = 2\\pi$, again at $t = 10\\pi$." } }
       ], result: "(b) $5e^{0.1}$ (c) $10\\pi$" } },
     { worked: { tag: "exam", title: "Tank with inflow and outflow: build and solve $20\\frac{dV}{dt} = 9 - 6V$", src: "A-level June 2025 · P2 Q10 · 9 marks",
       q: "Water flows into a container at $0.45$ m$^3$/h and leaves at $0.3V$ m$^3$/h. **(a)** Show that $20\\frac{dV}{dt} = 9 - 6V$. Initially $V = 0.25$. **(b)** Solve to show $V = P - Qe^{-kt}$. **(c)** The container's capacity is 2 m$^3$ and the tap stays open. Explain whether it overflows.",
@@ -545,7 +555,7 @@ C["maths:8.7"] = {
         { h: "(a) In minus out", m: "$\\dfrac{dV}{dt} = 0.45 - 0.3V \\Rightarrow 20\\dfrac{dV}{dt} = 9 - 6V$", mk: "M1 A1*" },
         { h: "(b) Separate", m: "$\\displaystyle\\int\\dfrac{20}{9 - 6V}\\,dV = \\int dt \\Rightarrow -\\dfrac{20}{6}\\ln|9 - 6V| = t + c$", mk: "M1 A1", n: "$\\int\\frac{1}{9 - 6V} = -\\frac16\\ln|9 - 6V|$ — the minus from the $-6$." },
         { m: "$9 - 6V = Ae^{-0.3t}$; $t = 0, V = 0.25$: $A = 7.5$. So $V = 1.5 - 1.25e^{-0.3t}$: $P = 1.5$, $Q = 1.25$, $k = 0.3$", mk: "M1 A1 A1", n: "Exponentiate, absorb $\\pm e^{-c}$ into $A$, then use the condition." },
-        { h: "(c)", m: "As $t \\to \\infty$, $V \\to 1.5 < 2$: the container does not overflow.", mk: "M1 A1" }
+        { h: "(c)", m: "As $t \\to \\infty$, $V \\to 1.5 < 2$: the container does not overflow.", mk: "M1 A1", fig: { x: [0, 20], y: [0, 2.3], axes: { x: "t", y: "V", xt: [5, 10, 15], yt: [0.25, 1, 1.5, 2] }, items: [{ fn: "1.5-1.25*exp(-0.3*x)", label: "V = 1.5 − 1.25e^(−0.3t)", at: 9, pos: "s" }, { hline: 1.5, c: "accent3", label: "limit 1.5" }, { hline: 2, c: "danger", label: "capacity 2" }, { pt: [0, 0.25], label: "(0, 0.25)", pos: "e" }], cap: "The volume levels off at 1.5 m³, below the 2 m³ capacity." } }
       ], result: "(b) $V = 1.5 - 1.25e^{-0.3t}$ (c) limit 1.5 m³, no overflow" } },
     { worked: { tag: "exam", title: "Logistic growth via partial fractions: $\\frac{dV}{dt} = \\frac{1}{10}V(25 - V)$", src: "A-level June 2024 · P2 Q12 · 12 marks",
       q: "**(a)** Express $\\frac{1}{V(25 - V)}$ in partial fractions. The volume $V$ of a plant cell satisfies $\\frac{dV}{dt} = \\frac{1}{10}V(25 - V)$ with $V = 20$ initially. **(b)** Find the time, in minutes, for $V$ to reach 24. **(c)** Show that $V = \\frac{A}{e^{-kt} + B}$. **(d)** Find the upper limit $L$ of $V$, with a reason.",
@@ -554,7 +564,7 @@ C["maths:8.7"] = {
         { h: "(b) Separate, integrate with (a)", m: "$\\displaystyle\\dfrac{1}{25}\\int\\left(\\dfrac1V + \\dfrac{1}{25 - V}\\right)dV = \\int\\dfrac{dt}{10} \\Rightarrow \\dfrac{1}{25}\\left(\\ln V - \\ln(25 - V)\\right) = \\dfrac{t}{10} + c$", mk: "M1 A1 A1", n: "$\\int\\frac{1}{25 - V} = -\\ln(25 - V)$." },
         { m: "$\\ln\\dfrac{V}{25 - V} = 2.5t + c'$; $t = 0, V = 20$: $c' = \\ln 4$. $V = 24$: $\\ln 24 = 2.5t + \\ln 4 \\Rightarrow t = \\dfrac{\\ln 6}{2.5} = 0.717$ h $= 43$ min", mk: "M1 A1", n: "$t$ in hours from the model; convert to minutes." },
         { h: "(c)", m: "$\\dfrac{V}{25 - V} = 4e^{2.5t} \\Rightarrow V = 100e^{2.5t} - 4e^{2.5t}V \\Rightarrow V(1 + 4e^{2.5t}) = 100e^{2.5t} \\Rightarrow V = \\dfrac{100}{e^{-2.5t} + 4}$", mk: "M1 A1 A1", n: "Divide top and bottom by $e^{2.5t}$ to reach the printed form: $A = 100$, $B = 4$, $k = 2.5$." },
-        { h: "(d)", m: "As $t \\to \\infty$, $e^{-2.5t} \\to 0$, so $V \\to \\dfrac{100}{4} = 25$: $L = 25$", mk: "M1 A1" }
+        { h: "(d)", m: "As $t \\to \\infty$, $e^{-2.5t} \\to 0$, so $V \\to \\dfrac{100}{4} = 25$: $L = 25$", mk: "M1 A1", fig: { x: [0, 2.5], y: [18, 26], axes: { x: "t", y: "V", xt: [0.5, 0.717, 1.5, 2], yt: [20, 24, 25] }, items: [{ fn: "100/(exp(-2.5*x)+4)", label: "V = 100/(e^(−2.5t) + 4)", at: 1.4, pos: "s" }, { hline: 25, c: "accent3", label: "L = 25" }, { pt: [0, 20], label: "(0, 20)", pos: "e" }, { pt: [0.717, 24], label: "43 min", pos: "se" }], cap: "The cell's volume rises from 20 towards its limit 25, reaching 24 after 0.717 h." } }
       ], result: "(b) 43 min (c) $V = \\frac{100}{e^{-2.5t} + 4}$ (d) $L = 25$" } },
     { worked: { tag: "exam", title: "$\\frac{dV}{dt} = \\frac{3V}{(2t - 1)(t + 1)}$ — partial fractions in $t$", src: "A-level June 2022 · P2 Q14 · 10 marks",
       q: "**(a)** Express $\\frac{3}{(2t - 1)(t + 1)}$ in partial fractions. Oxygen volume $V$ satisfies $\\frac{dV}{dt} = \\frac{3V}{(2t - 1)(t + 1)}$, $t \\ge k$; $V = 3$ when $t = 2$. **(b)** Show that $V = \\frac{3(2t - 1)}{t + 1}$. **(c)** Deduce the time delay before oxygen is produced and the limit to the volume.",
@@ -562,14 +572,14 @@ C["maths:8.7"] = {
         { h: "(a)", m: "$\\dfrac{2}{2t - 1} - \\dfrac{1}{t + 1}$", mk: "M1 A1 A1" },
         { h: "(b)", m: "$\\displaystyle\\int\\dfrac1V dV = \\int\\left(\\dfrac{2}{2t - 1} - \\dfrac{1}{t + 1}\\right)dt \\Rightarrow \\ln V = \\ln(2t - 1) - \\ln(t + 1) + c \\Rightarrow V = \\dfrac{A(2t - 1)}{t + 1}$", mk: "M1 A1 A1", n: "Combine the logs before exponentiating; $A = e^c$." },
         { m: "$t = 2, V = 3$: $3 = \\dfrac{3A}{3} \\Rightarrow A = 3$", mk: "M1 A1*" },
-        { h: "(c)", m: "$V = 0$ when $2t - 1 = 0$: production starts at $t = \\dfrac12$ h (a 30-minute delay). As $t \\to \\infty$, $V \\to \\dfrac{3 \\cdot 2t}{t} = 6$ m$^3$.", mk: "B1 B1" }
+        { h: "(c)", m: "$V = 0$ when $2t - 1 = 0$: production starts at $t = \\dfrac12$ h (a 30-minute delay). As $t \\to \\infty$, $V \\to \\dfrac{3 \\cdot 2t}{t} = 6$ m$^3$.", mk: "B1 B1", fig: { x: [0, 15], y: [-0.5, 7], axes: { x: "t", y: "V", xt: [0.5, 2, 5, 10], yt: [3, 6] }, items: [{ fn: "3*(2*x-1)/(x+1)", from: 0.5, to: 15, label: "V = 3(2t − 1)/(t + 1)", at: 8, pos: "s" }, { hline: 6, c: "accent3", label: "limit 6" }, { pt: [0.5, 0], label: "t = ½", pos: "se" }, { pt: [2, 3], label: "(2, 3)", pos: "se" }], cap: "No oxygen until $t = \\frac12$; then the volume climbs towards 6 m³." } }
       ], result: "(b) shown (c) delay $\\frac12$ h; limit 6 m³" } },
     { worked: { tag: "exam", title: "Leaking tank: $\\frac{dH}{dt} = -0.12e^{-0.2t}$ — a direct integration", src: "A-level June 2024 · P1 Q7 · 8 marks",
       q: "A cylindrical tank of height 1.5 m is initially full; the depth $H$ satisfies $\\frac{dH}{dt} = -0.12e^{-0.2t}$. **(a)** Show that $H = Ae^{-0.2t} + B$. **(b)** Find the depth after 3 hours. **(c)** Explain why the model predicts the tank never empties, and interpret the limiting depth.",
       steps: [
         { h: "(a) No separation needed — integrate directly", m: "$H = \\dfrac{-0.12}{-0.2}e^{-0.2t} + B = 0.6e^{-0.2t} + B$; $t = 0, H = 1.5$: $B = 0.9$", mk: "M1 A1 M1 A1*" },
         { h: "(b)", m: "$H(3) = 0.6e^{-0.6} + 0.9 = 1.23$ m", mk: "M1 A1" },
-        { h: "(c)", m: "$H \\to 0.9$ as $t \\to \\infty$ and never reaches 0: the leak is at $L$, $0.9$ m up the side, so water below that level cannot escape.", mk: "B1 B1" }
+        { h: "(c)", m: "$H \\to 0.9$ as $t \\to \\infty$ and never reaches 0: the leak is at $L$, $0.9$ m up the side, so water below that level cannot escape.", mk: "B1 B1", fig: { x: [0, 25], y: [0, 1.7], axes: { x: "t", y: "H", xt: [3, 10, 20], yt: [0.9, 1.23, 1.5] }, items: [{ fn: "0.6*exp(-0.2*x)+0.9", label: "H = 0.6e^(−0.2t) + 0.9", at: 9, pos: "ne" }, { hline: 0.9, c: "accent3", label: "the leak, 0.9 m" }, { pt: [0, 1.5], label: "full", pos: "e" }, { pt: [3, 1.23], label: "(3, 1.23)", pos: "ne" }], cap: "The depth falls towards 0.9 m — the height of the leak — and never below it." } }
       ], result: "(a) $A = 0.6$, $B = 0.9$ (b) 1.23 m" } },
     { worked: { tag: "exam", title: "Tree growth with a substitution-based integral", src: "A-level June 2019 · P2 Q14 · 15 marks",
       q: "**(a)** Use $u = 4 - \\sqrt h$ to show $\\displaystyle\\int\\frac{dh}{4 - \\sqrt h} = -8\\ln|4 - \\sqrt h| - 2\\sqrt h + k$. A tree's height satisfies $\\frac{dh}{dt} = \\frac{t^{0.25}(4 - \\sqrt h)}{20}$. **(b)** Find the range of heights the model allows. **(c)** A tree is 1 m tall when planted. Find the time for it to reach 12 m, to 3 s.f.",
@@ -577,7 +587,7 @@ C["maths:8.7"] = {
         { h: "(a) $h = (4 - u)^2$, $dh = -2(4 - u)\\,du$", m: "$\\displaystyle\\int\\dfrac{-2(4 - u)}{u}\\,du = \\int\\left(-\\dfrac8u + 2\\right)du = -8\\ln|u| + 2u + c = -8\\ln|4 - \\sqrt h| + 8 - 2\\sqrt h + c$", mk: "M1 A1 M1 A1 A1 A1*", n: "The $+8$ is absorbed into $k$." },
         { h: "(b) $\\frac{dh}{dt} > 0$ needs $4 - \\sqrt h > 0$", m: "$0 \\le h < 16$: the tree grows towards 16 m but never reaches it", mk: "M1 A1" },
         { h: "(c) Separate", m: "$\\displaystyle\\int\\dfrac{dh}{4 - \\sqrt h} = \\int\\dfrac{t^{0.25}}{20}dt \\Rightarrow -8\\ln(4 - \\sqrt h) - 2\\sqrt h = \\dfrac{t^{1.25}}{25} + c$", mk: "M1 A1" },
-        { m: "$t = 0, h = 1$: $c = -8\\ln 3 - 2$. $h = 12$: $-8\\ln(4 - \\sqrt{12}) - 2\\sqrt{12} = \\dfrac{t^{1.25}}{25} - 8\\ln 3 - 2$\n$t^{1.25} = 25\\left[8\\ln 3 + 2 - 8\\ln(4 - 2\\sqrt3) - 4\\sqrt3\\right] = 221.3 \\Rightarrow t = 221.3^{0.8} = 75.2$ years", mk: "M1 M1 A1 A1 A1", n: "$\\int t^{0.25} = \\frac{t^{1.25}}{1.25}$, divided by 20 gives $\\frac{t^{1.25}}{25}$." }
+        { m: "$t = 0, h = 1$: $c = -8\\ln 3 - 2$. $h = 12$: $-8\\ln(4 - \\sqrt{12}) - 2\\sqrt{12} = \\dfrac{t^{1.25}}{25} - 8\\ln 3 - 2$\n$t^{1.25} = 25\\left[8\\ln 3 + 2 - 8\\ln(4 - 2\\sqrt3) - 4\\sqrt3\\right] = 221.3 \\Rightarrow t = 221.3^{0.8} = 75.2$ years", mk: "M1 M1 A1 A1 A1", n: "$\\int t^{0.25} = \\frac{t^{1.25}}{1.25}$, divided by 20 gives $\\frac{t^{1.25}}{25}$.", fig: { x: [0, 250], y: [0, 18], axes: { x: "t", y: "h", xt: [50, 75.2, 150, 200], yt: [1, 12, 16] }, items: [{ param: { x: "(25*(-8*ln(4-sqrt(t))-2*sqrt(t)+8*ln(3)+2))^0.8", y: "t" }, t: [1, 15.9], n: 300 }, { hline: 16, c: "accent3", label: "h = 16" }, { pt: [0, 1], label: "(0, 1)", pos: "e" }, { pt: [75.15, 12], label: "(75.2, 12)", pos: "se" }], cap: "Planted at 1 m, the tree reaches 12 m after about 75 years and never reaches 16 m." } }
       ], result: "(b) $0 \\le h < 16$ (c) 75.2 years" } },
 
     { page: "Exam toolkit" },
@@ -631,14 +641,14 @@ C["maths:8.8"] = {
       steps: [
         { h: "(a)", m: "$N(0) = \\dfrac{900}{10} = 90$", mk: "B1" },
         { h: "(b) Differentiate, then rewrite in terms of $N$", m: "$\\dfrac{dN}{dt} = \\dfrac{900 \\cdot 7 \\cdot 0.25e^{-0.25t}}{(3 + 7e^{-0.25t})^2} = \\dfrac{1575e^{-0.25t}}{(3 + 7e^{-0.25t})^2}$\nAlso $300 - N = \\dfrac{300(3 + 7e^{-0.25t}) - 900}{3 + 7e^{-0.25t}} = \\dfrac{2100e^{-0.25t}}{3 + 7e^{-0.25t}}$, so $\\dfrac{N(300 - N)}{1200} = \\dfrac{900 \\cdot 2100e^{-0.25t}}{1200(3 + 7e^{-0.25t})^2} = \\dfrac{1575e^{-0.25t}}{(3 + 7e^{-0.25t})^2}$ ✓", mk: "M1 A1 M1 A1*", n: "Chain rule on $(\\ldots)^{-1}$, then express $300 - N$ over the same denominator." },
-        { h: "(c) The rate $\\frac{N(300 - N)}{1200}$ is a quadratic in $N$, maximised at $N = 150$", m: "$\\dfrac{900}{3 + 7e^{-0.25T}} = 150 \\Rightarrow 3 + 7e^{-0.25T} = 6 \\Rightarrow e^{-0.25T} = \\dfrac37 \\Rightarrow T = 4\\ln\\dfrac73 = 3.39$ months", mk: "M1 A1 M1 A1", n: "Vertex of $N(300 - N)$ is halfway between the roots 0 and 300." },
+        { h: "(c) The rate $\\frac{N(300 - N)}{1200}$ is a quadratic in $N$, maximised at $N = 150$", m: "$\\dfrac{900}{3 + 7e^{-0.25T}} = 150 \\Rightarrow 3 + 7e^{-0.25T} = 6 \\Rightarrow e^{-0.25T} = \\dfrac37 \\Rightarrow T = 4\\ln\\dfrac73 = 3.39$ months", mk: "M1 A1 M1 A1", n: "Vertex of $N(300 - N)$ is halfway between the roots 0 and 300.", fig: { x: [0, 20], y: [0, 330], axes: { x: "t", y: "N", xt: [3.39, 10, 15], yt: [90, 150, 300] }, items: [{ fn: "900/(3+7*exp(-0.25*x))", label: "N", at: 10, pos: "nw" }, { hline: 300, c: "accent3", label: "P = 300" }, { pt: [0, 90], label: "(0, 90)", pos: "e" }, { pt: [3.389, 150], label: "steepest (3.39, 150)", pos: "se" }], cap: "The growth is fastest where $N = 150$, half the limit: the S-curve's point of inflection." } },
         { h: "(d)", m: "As $t \\to \\infty$, $N \\to \\dfrac{900}{3} = 300$: $P = 300$", mk: "B1" }
       ], result: "(a) 90 (c) $T = 4\\ln\\frac73 \\approx 3.39$ (d) 300" } },
     { worked: { tag: "exam", title: "Dissolving mint: solve, time to dissolve, limitation", src: "A-level June 2018 · P2 Q10 · 8 marks",
       q: "A spherical mint of radius 5 mm is sucked; after 4 minutes the radius is 3 mm. The rate of decrease of the radius is inversely proportional to the square of the radius. **(a)** Find an equation linking the radius $r$ mm and the time $t$ min. **(b)** Hence find the total time for the mint to dissolve, to the nearest second. **(c)** Suggest a limitation.",
       steps: [
         { h: "(a) DE, separate, two conditions", m: "$\\dfrac{dr}{dt} = -\\dfrac{k}{r^2} \\Rightarrow r^2 dr = -k\\,dt \\Rightarrow \\dfrac{r^3}{3} = -kt + c$\n$t = 0, r = 5$: $c = \\dfrac{125}{3}$; $t = 4, r = 3$: $9 = -4k + \\dfrac{125}{3} \\Rightarrow k = \\dfrac{49}{6}$\n$r^3 = 125 - \\dfrac{49}{2}t$", mk: "B1 M1 A1 M1 A1", n: "Define the variables ($r$ in mm, $t$ in minutes) — the question asks you to." },
-        { h: "(b) $r = 0$", m: "$t = \\dfrac{250}{49} = 5.10$ min $= 5$ min 6 s", mk: "M1 A1" },
+        { h: "(b) $r = 0$", m: "$t = \\dfrac{250}{49} = 5.10$ min $= 5$ min 6 s", mk: "M1 A1", fig: { x: [0, 6], y: [0, 6], axes: { x: "t", y: "r", xt: [2, 4, 5.1], yt: [3, 5] }, items: [{ fn: "(125-24.5*x)^(1/3)", from: 0, to: 5.102, label: "r³ = 125 − 24.5t", at: 1.5, pos: "ne" }, { pt: [0, 5], label: "(0, 5)", pos: "e" }, { pt: [4, 3], label: "(4, 3)", pos: "w" }, { pt: [5.102, 0], label: "5 min 6 s", pos: "ne" }], cap: "The radius falls slowly at first, then quickly: $\\frac{dr}{dt} = -\\frac{49}{6r^2}$ grows as $r$ shrinks." } },
         { h: "(c)", m: "The mint may not stay spherical; the sucking rate may vary; it may be crunched.", mk: "B1" }
       ], result: "(a) $r^3 = 125 - \\frac{49}{2}t$ (b) 5 min 6 s" } },
     { worked: { tag: "exam", title: "Cuboid tank filling and draining: build $1200\\frac{dh}{dt} = 24 - 5h$ and interpret", src: "A-level Oct 2021 · P2 Q14 · 12 marks",
@@ -647,12 +657,12 @@ C["maths:8.8"] = {
         { h: "(a) $V = 24h$", m: "$24\\dfrac{dh}{dt} = 0.48 - 0.1h \\Rightarrow 1200\\dfrac{dh}{dt} = 24 - 5h$ (×50)", mk: "M1 A1 A1*" },
         { h: "(b)", m: "$\\displaystyle\\int\\dfrac{1200}{24 - 5h}dh = \\int dt \\Rightarrow -240\\ln|24 - 5h| = t + c$; $h(0) = 0$: $c = -240\\ln 24$\n$\\ln\\dfrac{24 - 5h}{24} = -\\dfrac{t}{240} \\Rightarrow h = 4.8\\left(1 - e^{-t/240}\\right)$", mk: "M1 A1 M1 A1 A1" },
         { h: "(c) $t = 120$", m: "$h = 4.8(1 - e^{-0.5}) = 1.89$ m", mk: "M1 A1" },
-        { h: "(d)", m: "$h \\to 4.8 < 5$ as $t \\to \\infty$ — the equilibrium depth (inflow = outflow when $0.1h = 0.48$) is below the top.", mk: "B1 B1" }
+        { h: "(d)", m: "$h \\to 4.8 < 5$ as $t \\to \\infty$ — the equilibrium depth (inflow = outflow when $0.1h = 0.48$) is below the top.", mk: "B1 B1", fig: { x: [0, 1300], y: [0, 5.6], axes: { x: "t", y: "h", xt: [120, 500, 1000], yt: [1.89, 4.8, 5] }, items: [{ fn: "4.8*(1-exp(-x/240))", label: "h = 4.8(1 − e^(−t/240))", at: 600, pos: "s" }, { hline: 4.8, c: "accent3" }, { hline: 5, c: "danger", label: "top 5 m" }, { pt: [120, 1.89], label: "(120, 1.89)", pos: "se" }], cap: "The depth approaches 4.8 m, where inflow equals outflow — below the 5 m top." } }
       ], result: "(b) $h = 4.8(1 - e^{-t/240})$ (c) 1.89 m (d) limit 4.8 < 5" } },
     { worked: { tag: "example", title: "Kinematics: $\\frac{dv}{dt} = -0.2v$ with $v = 10$ at $t = 0$", src: "standard link to Paper 3",
       steps: [
         { m: "$\\displaystyle\\int\\dfrac1v dv = \\int -0.2\\,dt \\Rightarrow \\ln v = -0.2t + c \\Rightarrow v = 10e^{-0.2t}$", mk: "M1 A1" },
-        { m: "Displacement: $x = \\displaystyle\\int_0^t 10e^{-0.2s}ds = 50(1 - e^{-0.2t})$; the particle never travels further than 50 m.", n: "Velocity decays to zero; the total distance converges." }
+        { m: "Displacement: $x = \\displaystyle\\int_0^t 10e^{-0.2s}ds = 50(1 - e^{-0.2t})$; the particle never travels further than 50 m.", n: "Velocity decays to zero; the total distance converges.", fig: { x: [0, 30], y: [0, 56], axes: { x: "t", y: "x, v", xt: [10, 20], yt: [10, 50] }, items: [{ fn: "50*(1-exp(-0.2*x))", label: "x = 50(1 − e^(−0.2t))", at: 18, pos: "s" }, { fn: "10*exp(-0.2*x)", c: "accent3", label: "v = 10e^(−0.2t)", at: 4, pos: "ne" }, { hline: 50, c: "muted", label: "50 m" }], cap: "The speed dies away, so the distance travelled levels off at 50 m." } }
       ], result: "$v = 10e^{-0.2t}$; $x \\to 50$" } },
 
     { page: "Exam toolkit" },

@@ -101,7 +101,7 @@ C["compsci:4.1.1.9"] = {
         { m: "\"seven\": Convert.ToInt32 throws FormatException → the return is skipped → the catch prints the message → the loop repeats.", mk: "1" },
         { m: "\"\" (empty): also a FormatException → the message again.", mk: "1", n: "Convert.ToInt32(null) returns 0 without an error, but ReadLine gives \"\" for an empty line, and \"\" throws." },
         { m: "\"12\": converts → return 12 leaves both the try and the loop.", mk: "1" }
-      ], result: "Row: (×3), the message twice, returns 12" } },
+      ], result: "Row: (×3), the message twice, returns 12" , "try": [{"predict":{"code":"foreach (string s in new string[] { \"seven\", \"\", \"12\" })\n{\n    try\n    {\n        int n = Convert.ToInt32(s);\n        Console.WriteLine(\"got \" + n);\n    }\n    catch (FormatException)\n    {\n        Console.WriteLine(\"not a whole number\");\n    }\n}","expect":"not a whole number\nnot a whole number\ngot 12","cap":"The same three inputs, one try each. What is printed?"}}]} },
 
     { page: "Exceptions vs checking first" },
     { table: { head: [" ", "Check first (validation)", "Exception handling"], rows: [
@@ -358,7 +358,7 @@ C["compsci:4.1.1.11"] = {
       steps: [
         { m: "arr receives a copy of the REFERENCE: arr[0] = 4 × 2 = 8 changes the caller's array.", mk: "1" },
         { m: "v is a copy of k: v = 0 changes only the copy.", mk: "1" }
-      ], result: "8 2" } },
+      ], result: "8 2" , "try": [{"predict":{"code":"void Change(int[] arr, string s, int v)\n{\n    arr[0] = arr[0] + v;\n    arr = new int[] { 0, 0 };\n    arr[1] = 99;\n    s = s + \"!\";\n    v = 0;\n}\n\nint[] t = { 4, 7 };\nstring w = \"hi\";\nint k = 3;\nChange(t, w, k);\nConsole.WriteLine(t[0] + \" \" + t[1] + \" \" + w + \" \" + k);","expect":"7 7 hi 3","cap":"Harder: the parameter arr is pointed at a NEW array half-way through."}}]} },
     { callout: { t: "miscon", h: "Misconception", body: "\"Arrays are passed by reference in C#.\" — strictly, the REFERENCE is passed by value. Element changes are visible; re-assigning the parameter is not. Only ref makes the caller's variable itself change." } },
 
     { page: "In exam questions" },
@@ -457,7 +457,7 @@ C["compsci:4.1.1.12"] = {
       steps: [
         { m: "FF: 0 × 16 + 15 = 15; 15 × 16 + 15 = 255.", mk: "1" },
         { m: "1A: 0 × 16 + 1 = 1; 1 × 16 + 10 = 26.", mk: "1" }
-      ], result: "255 and 26" } },
+      ], result: "255 and 26" , "try": [{"predict":{"code":"int ToDecimal(char d)\n{\n    if (d >= 'A' && d <= 'F') return d - 'A' + 10;\n    if (d >= '0' && d <= '9') return (int)d - 48;\n    return -1;\n}\n\nforeach (string h in new string[] { \"FF\", \"1A\", \"3G\" })\n{\n    int number = 0;\n    foreach (char c in h) number = number * 16 + ToDecimal(c);\n    Console.WriteLine(number);\n}","expect":"255\n26\n47","cap":"The algorithm in C#, with one bad string at the end."}}]} },
 
     { page: "In exam questions" },
     { worked: { tag: "exam", title: "Hand-trace the hex conversion", src: "AS June 2017 · P1 Q02.1 · 5 marks",
@@ -468,7 +468,7 @@ C["compsci:4.1.1.12"] = {
         { m: "HexDigit: \"A\", \"2\", \"1\", \"G\";", mk: "1" },
         { m: "Value: 10, 2, 1, −1;", mk: "1" },
         { m: "Output: 162, 15;", mk: "1", n: "A. repeated values in the first two columns; A. strings without quotes." }
-      ], result: "Outputs 162 and 15" } },
+      ], result: "Outputs 162 and 15" , "try": [{"trace":{"code":"FOR Count ← 1 TO 2\n  INPUT HexString\n  Number ← 0\n  FOR EACH HexDigit IN HexString\n    Value ← ToDecimal(HexDigit)\n    Number ← Number * 16 + Value\n  ENDFOR\n  OUTPUT Number\nENDFOR","lang":"pseudo","cols":["Count","HexString","Number","HexDigit","Value","Output"],"rows":[["1","B3","0","","",""],["","","11","B","11",""],["","","179","3","3",""],["","","","","","179"],["2","2Z","0","","",""],["","","2","2","2",""],["","","31","Z","-1",""],["","","","","","31"]],"given":[[0,0],[0,1],[0,2],[1,0],[1,1],[2,0],[2,1],[3,0],[3,1],[4,0],[4,1],[5,0],[5,1],[6,0],[6,1],[7,0],[7,1]],"cap":"Inputs \"B3\" and \"2Z\". A row for each digit, and the OUTPUT on a row of its own."}}]} },
     { table: { head: ["Count", "HexString", "Number", "HexDigit", "Value", "Output"], rows: [
       ["1", "\"A2\"", "0", "", "", ""],
       ["", "", "10", "\"A\"", "10", ""],
@@ -568,7 +568,7 @@ C["compsci:4.1.1.13"] = {
       steps: [
         { m: "Inside Bump, the local total hides the field; +5 changes the LOCAL.", mk: "1" },
         { m: "The local is destroyed on return; the field is untouched.", mk: "1" }
-      ], result: "10" } },
+      ], result: "10" , "try": [{"predict":{"code":"Counter.Bump();\nConsole.WriteLine(Counter.total);\nCounter.Add();\nConsole.WriteLine(Counter.total);\n\nclass Counter\n{\n    public static int total = 10;\n    public static void Bump()\n    {\n        int total = 0;          // a local hides the field\n        total = total + 5;\n    }\n    public static void Add()\n    {\n        total = total + 5;      // no local: this is the field\n    }\n}","expect":"10\n15"}}]} },
 
     { page: "Why use them" },
     { table: { head: ["Reason (mark scheme)", "Because…"], rows: [
@@ -772,10 +772,10 @@ C["compsci:4.1.1.15"] = {
     { code: { lang: "csharp", src: "static int Factorial(int n)\n{\n    if (n <= 1) return 1;            // base case: no new frame\n    return n * Factorial(n - 1);     // this frame waits for the call above it\n}\n\nint result = Factorial(3);           // 6", cap: "Factorial(3) pushes frames for n = 3, 2, 1 (four with Main); they pop in the order 1, 2, 3. Checked: Factorial(5) = 120." } },
     { worked: { tag: "variation", title: "The stack at the deepest point", q: "Factorial(4) is called from Main. How many frames are on the call stack at its deepest point, and in what order are values returned?",
       steps: [
-        { m: "Frames: Main, Factorial(4), Factorial(3), Factorial(2), Factorial(1) — 5 frames.", mk: "1" },
+        { m: "Frames: Main, Factorial(4), Factorial(3), Factorial(2), Factorial(1) — 5 frames.", mk: "1" , "fig": {"w":420,"h":186,"items":[{"poly":[[60,146],[240,146],[240,174],[60,174]],"fill":"accent","alpha":0.16,"c":"accent","w":1.6},{"text":[150,160],"t":"Main","size":11.5,"c":"text","b":true,"pos":"c"},{"poly":[[60,114],[240,114],[240,142],[60,142]],"fill":"accent","alpha":0.16,"c":"accent","w":1.6},{"text":[150,128],"t":"Factorial(4)","size":11.5,"c":"text","b":true,"pos":"c"},{"poly":[[60,82],[240,82],[240,110],[60,110]],"fill":"accent","alpha":0.16,"c":"accent","w":1.6},{"text":[150,96],"t":"Factorial(3)","size":11.5,"c":"text","b":true,"pos":"c"},{"poly":[[60,50],[240,50],[240,78],[60,78]],"fill":"accent","alpha":0.16,"c":"accent","w":1.6},{"text":[150,64],"t":"Factorial(2)","size":11.5,"c":"text","b":true,"pos":"c"},{"poly":[[60,18],[240,18],[240,46],[60,46]],"fill":"accent2","alpha":0.16,"c":"accent2","w":1.6},{"text":[150,32],"t":"Factorial(1)","size":11.5,"c":"text","b":true,"pos":"c"},{"line":[[300,34],[246,34]],"c":"text2","w":1.6,"arrow":true},{"text":[304,34],"t":"top: base case","size":11,"c":"text2","b":false,"pos":"e"},{"line":[[300,162],[246,162]],"c":"text2","w":1.6,"arrow":true},{"text":[304,162],"t":"first frame","size":11,"c":"text2","b":false,"pos":"e"}],"cap":"The call stack at its deepest point: five frames."}},
         { m: "Factorial(1) returns 1 (base case); its frame is popped.", mk: "1" },
         { m: "Then 2 × 1 = 2, 3 × 2 = 6, 4 × 6 = 24 — each frame popped in turn, last in first out.", mk: "1" }
-      ], result: "5 frames; returns 1, 2, 6, 24" } },
+      ], result: "5 frames; returns 1, 2, 6, 24" , "try": [{"predict":{"code":"int Factorial(int n)\n{\n    Console.WriteLine(\"call \" + n);\n    if (n <= 1)\n    {\n        Console.WriteLine(\"return 1\");\n        return 1;\n    }\n    int r = n * Factorial(n - 1);\n    Console.WriteLine(\"return \" + r);\n    return r;\n}\n\nFactorial(3);","expect":"call 3\ncall 2\ncall 1\nreturn 1\nreturn 2\nreturn 6","cap":"Each frame says when it is pushed and when it is popped."}}]} },
     { diagram: "recursion-viz" },
 
     { page: "Stack overflow" },
@@ -903,13 +903,13 @@ C["compsci:4.1.1.16"] = {
         { m: "Base case: if (s.Length <= 1) return s;", mk: "1" },
         { m: "General case: return Reverse(s.Substring(1)) + s[0]; — reverse the tail, then put the head at the end.", mk: "1" },
         { m: "Reverse(\"cat\") = Reverse(\"at\") + 'c' = (Reverse(\"t\") + 'a') + 'c' = \"t\" + \"a\" + \"c\".", mk: "1", n: "Checked: Reverse(\"stack\") = \"kcats\"." }
-      ], result: "\"tac\"" } },
+      ], result: "\"tac\"" , "try": [{"predict":{"code":"string Reverse(string s)\n{\n    if (s.Length <= 1) return s;\n    return Reverse(s.Substring(1)) + s[0];\n}\n\nConsole.WriteLine(Reverse(\"stressed\"));","expect":"desserts"}}]} },
     { worked: { tag: "variation", title: "Euclid's GCD", q: "Gcd(a, b) = a if b = 0, otherwise Gcd(b, a MOD b). Trace Gcd(48, 18) and identify the base case.",
       steps: [
         { m: "Gcd(48, 18) → Gcd(18, 48 MOD 18 = 12)", mk: "1" },
         { m: "→ Gcd(12, 18 MOD 12 = 6) → Gcd(6, 12 MOD 6 = 0)", mk: "1" },
         { m: "b = 0 is the base case: return 6, passed back unchanged through every call.", mk: "1" }
-      ], result: "6" } },
+      ], result: "6" , "try": [{"trace":{"cols":["Call","a","b","a MOD b","Returns"],"rows":[["1","84","36","12","12"],["2","36","12","0","12"],["3","12","0","","12"]],"given":[[0,0],[0,1],[0,2],[1,0],[2,0]],"cap":"Gcd(84, 36). One row per call; leave a MOD b blank for the base case. What does each call return?"}}]} },
 
     { page: "Tracing recursion in exams" },
     { steps: [
@@ -933,7 +933,7 @@ C["compsci:4.1.1.16"] = {
         { m: "TreeSearch(Olivia, Norbert) — output (Visited) Norbert;", mk: "1" },
         { m: "Olivia > Norbert and Norbert has a right child: TreeSearch(Olivia, Phil);", mk: "1" },
         { m: "Output (Visited) Phil; — Olivia < Phil but Phil has no left child, so RETURN False;", mk: "1", n: "MAX 2 if any additional outputs or calls after Phil. Run in C#: \"Visited Norbert; Visited Phil;\" → False." }
-      ], result: "Visited Norbert, Visited Phil → False" } },
+      ], result: "Visited Norbert, Visited Phil → False" , "fig": {"w":600,"h":176,"items":[{"line":[[300,39],[170,75]],"c":"text2","w":1.6},{"line":[[300,39],[430,75]],"c":"text2","w":1.6},{"line":[[170,101],[95,137]],"c":"text2","w":1.6},{"line":[[170,101],[245,137]],"c":"text2","w":1.6},{"line":[[430,101],[505,137]],"c":"text2","w":1.6},{"poly":[[261,13],[339,13],[339,39],[261,39]],"fill":"accent","alpha":0.16,"c":"accent","w":1.6},{"text":[300,26],"t":"Norbert","size":11.5,"c":"text","b":true,"pos":"c"},{"poly":[[131,75],[209,75],[209,101],[131,101]],"fill":"accent","alpha":0.16,"c":"accent","w":1.6},{"text":[170,88],"t":"Judith","size":11.5,"c":"text","b":true,"pos":"c"},{"poly":[[391,75],[469,75],[469,101],[391,101]],"fill":"accent","alpha":0.16,"c":"accent","w":1.6},{"text":[430,88],"t":"Phil","size":11.5,"c":"text","b":true,"pos":"c"},{"poly":[[56,137],[134,137],[134,163],[56,163]],"fill":"accent","alpha":0.16,"c":"accent","w":1.6},{"text":[95,150],"t":"Caspar","size":11.5,"c":"text","b":true,"pos":"c"},{"poly":[[206,137],[284,137],[284,163],[206,163]],"fill":"accent","alpha":0.16,"c":"accent","w":1.6},{"text":[245,150],"t":"Mary","size":11.5,"c":"text","b":true,"pos":"c"},{"poly":[[466,137],[544,137],[544,163],[466,163]],"fill":"accent","alpha":0.16,"c":"accent","w":1.6},{"text":[505,150],"t":"Tahir","size":11.5,"c":"text","b":true,"pos":"c"}],"cap":"The tree after Norbert, Phil, Judith, Mary, Caspar and Tahir are entered."}, "try": [{"grid":{"cols":["Call","node","Output","Returns"],"rows":[["1","Norbert","Visited Norbert","True"],["2","Judith","Visited Judith","True"],["3","Mary","Visited Mary","True"]],"given":[[0,0],[1,0],[2,0]],"cap":"Now TreeSearch(Mary, Norbert) on the same tree: one row per call."}}]} },
     { worked: { tag: "exam", title: "Base case defined", src: "A-level June 2021 · P1 Q02.5 · 1 mark",
       q: "Explain what is meant by a base case for a recursive subroutine.",
       steps: [{ m: "The circumstance(s) in which a recursive subroutine does not call itself;", mk: "1" }],
@@ -947,7 +947,7 @@ C["compsci:4.1.1.16"] = {
         { m: "Third and final call is G(3, 1) (in G(1, 0), N = 0 is visited but equals P, so N = 3);", mk: "1" },
         { m: "Value returned is True (in G(3, 1), N = 0 is visited and 0 ≠ P = 1 — a cycle 0–1–3–0);", mk: "1" },
         { m: "N column: 1; 0, 3; 0; then 3 and 1 as G(1, 0) and G(0, −1) return;", mk: "1", n: "Max 5 if any errors. Checked by running G in C#." }
-      ], result: "G(0,−1) → G(1,0) → G(3,1); returns True" } },
+      ], result: "G(0,−1) → G(1,0) → G(3,1); returns True" , "fig": {"w":380,"h":180,"items":[{"line":[[195.20526224699856,82.39736887650072],[284.7947377530014,37.602631123499286]],"c":"text2","w":1.6},{"line":[[163,90],[77,90]],"c":"text2","w":1.6},{"line":[[195.20526224699856,97.60263112349928],[284.7947377530014,142.3973688765007]],"c":"text2","w":1.6},{"line":[[300,47],[300,133]],"c":"text2","w":1.6},{"circle":[180,90,17],"fill":"accent","alpha":0.18,"c":"accent","w":1.6},{"text":[180,90],"t":"0","size":11.5,"c":"text","b":true,"pos":"c"},{"circle":[300,30,17],"fill":"accent","alpha":0.18,"c":"accent","w":1.6},{"text":[300,30],"t":"1","size":11.5,"c":"text","b":true,"pos":"c"},{"circle":[60,90,17],"fill":"accent","alpha":0.18,"c":"accent","w":1.6},{"text":[60,90],"t":"2","size":11.5,"c":"text","b":true,"pos":"c"},{"circle":[300,150,17],"fill":"accent","alpha":0.18,"c":"accent","w":1.6},{"text":[300,150],"t":"3","size":11.5,"c":"text","b":true,"pos":"c"}],"cap":"Edges 0–1, 0–2, 0–3 and 1–3."}, "try": [{"predict":{"code":"// the same G on a graph with no cycle: edges 0–1, 0–2 and 1–3\nint[][] adj = { new int[] { 1, 2 }, new int[] { 0, 3 }, new int[] { 0 }, new int[] { 1 } };\nbool[] visited = new bool[4];\n\nbool G(int v, int p)\n{\n    Console.WriteLine(\"G(\" + v + \", \" + p + \")\");\n    visited[v] = true;\n    foreach (int n in adj[v])\n    {\n        if (!visited[n]) { if (G(n, v)) return true; }\n        else if (n != p) return true;\n    }\n    return false;\n}\n\nConsole.WriteLine(G(0, -1));","expect":"G(0, -1)\nG(1, 0)\nG(3, 1)\nG(2, 0)\nFalse","cap":"Every call it makes, then what it returns."}}]} },
     { table: { head: ["Call", "V", "P", "[0]", "[1]", "[2]", "[3]", "N"], rows: [
       ["", "", "", "False", "False", "False", "False", ""],
       ["G(0, −1)", "0", "−1", "True", "", "", "", "1"],
@@ -971,7 +971,7 @@ C["compsci:4.1.1.16"] = {
         { m: "Second and third calls: Traverse(1, 7) (V[1] = 1, i = 1), Traverse(2, 7) (V[2] = 1, i = 1 then 2);", mk: "1" },
         { m: "Remaining calls: Traverse(6, 7) (V[6] = 1; i = 1, 2 — both neighbours visited, returns False); back in Traverse(2, 7) then Traverse(1, 7), i = 2, 3; Traverse(7, 7) returns True;", mk: "1" },
         { m: "Final V: 1, 1, 1, 0, 0, 1, 0 (V[7] is never set — Traverse(7, 7) returns before it);", mk: "1", n: "Max 5 if any errors. Checked by running: calls 3, 1, 2, 6, 7 → True." }
-      ], result: "Traverse 3 → 1 → 2 → 6, back, → 7: True" } },
+      ], result: "Traverse 3 → 1 → 2 → 6, back, → 7: True" , "fig": {"w":540,"h":224,"items":[{"line":[[146.7252302394685,50.619815808425216],[73.27476976053151,109.38018419157478]],"c":"text2","w":1.6},{"line":[[173.2747697605315,50.619815808425216],[246.7252302394685,109.38018419157478]],"c":"text2","w":1.6},{"line":[[177,40],[343,40]],"c":"text2","w":1.6},{"line":[[73.53475730009274,130.2864155480705],[146.46524269990726,185.7135844519295]],"c":"text2","w":1.6},{"line":[[246.46524269990726,130.2864155480705],[173.53475730009274,185.7135844519295]],"c":"text2","w":1.6},{"line":[[273.2747697605315,109.38018419157478],[346.7252302394685,50.619815808425216]],"c":"text2","w":1.6},{"line":[[470,87],[470,163]],"c":"text2","w":1.6},{"circle":[160,40,17],"fill":"accent","alpha":0.18,"c":"accent","w":1.6},{"text":[160,40],"t":"1","size":11.5,"c":"text","b":true,"pos":"c"},{"circle":[60,120,17],"fill":"accent","alpha":0.18,"c":"accent","w":1.6},{"text":[60,120],"t":"2","size":11.5,"c":"text","b":true,"pos":"c"},{"circle":[260,120,17],"fill":"accent","alpha":0.18,"c":"accent","w":1.6},{"text":[260,120],"t":"3","size":11.5,"c":"text","b":true,"pos":"c"},{"circle":[470,70,17],"fill":"accent","alpha":0.18,"c":"accent","w":1.6},{"text":[470,70],"t":"4","size":11.5,"c":"text","b":true,"pos":"c"},{"circle":[470,180,17],"fill":"accent","alpha":0.18,"c":"accent","w":1.6},{"text":[470,180],"t":"5","size":11.5,"c":"text","b":true,"pos":"c"},{"circle":[160,196,17],"fill":"accent","alpha":0.18,"c":"accent","w":1.6},{"text":[160,196],"t":"6","size":11.5,"c":"text","b":true,"pos":"c"},{"circle":[360,40,17],"fill":"accent","alpha":0.18,"c":"accent","w":1.6},{"text":[360,40],"t":"7","size":11.5,"c":"text","b":true,"pos":"c"}],"cap":"The graph the adjacency list AL describes: 4 and 5 are a separate piece."}} },
     { fig: { w: 640, h: 190, items: [].concat(
       [link(80, 50, 200, 30), link(80, 50, 200, 120), link(80, 50, 80, 150), link(200, 30, 330, 75), link(200, 120, 330, 75), link(200, 120, 80, 150), link(470, 75, 580, 75)],
       node(80, 50, "1", "accent2"), node(200, 30, "2", "accent2"), node(200, 120, "3", "accent2"), node(80, 150, "7", "good"), node(330, 75, "6", "accent2"), node(470, 75, "4"), node(580, 75, "5"),
@@ -991,7 +991,7 @@ C["compsci:4.1.1.16"] = {
         { m: "Each application of the function generates two further applications of the same function;", mk: "1" },
         { m: "The function is applied to the same argument multiple times // the same values are calculated many times;", mk: "1" },
         { m: "The number of applications / memory grows exponentially — O(2ⁿ);", mk: "(1)", n: "Max 2. R. answers about the PROBLEM rather than the function." }
-      ], result: "Two calls each; repeats work; exponential" } },
+      ], result: "Two calls each; repeats work; exponential" , "fig": {"w":540,"h":224,"items":[{"line":[[300,37],[170,69]],"c":"text2","w":1.6},{"line":[[300,37],[430,69]],"c":"text2","w":1.6},{"line":[[170,95],[100,127]],"c":"text2","w":1.6},{"line":[[170,95],[240,127]],"c":"text2","w":1.6},{"line":[[430,95],[380,127]],"c":"text2","w":1.6},{"line":[[430,95],[480,127]],"c":"text2","w":1.6},{"line":[[100,153],[50,185]],"c":"text2","w":1.6},{"line":[[100,153],[150,185]],"c":"text2","w":1.6},{"poly":[[271,11],[329,11],[329,37],[271,37]],"fill":"accent","alpha":0.16,"c":"accent","w":1.6},{"text":[300,24],"t":"fib 5","size":11.5,"c":"text","b":true,"pos":"c"},{"poly":[[141,69],[199,69],[199,95],[141,95]],"fill":"accent","alpha":0.16,"c":"accent","w":1.6},{"text":[170,82],"t":"fib 4","size":11.5,"c":"text","b":true,"pos":"c"},{"poly":[[401,69],[459,69],[459,95],[401,95]],"fill":"accent2","alpha":0.16,"c":"accent2","w":1.6},{"text":[430,82],"t":"fib 3 ","size":11.5,"c":"text","b":true,"pos":"c"},{"poly":[[71,127],[129,127],[129,153],[71,153]],"fill":"accent2","alpha":0.16,"c":"accent2","w":1.6},{"text":[100,140],"t":"fib 3","size":11.5,"c":"text","b":true,"pos":"c"},{"poly":[[211,127],[269,127],[269,153],[211,153]],"fill":"accent","alpha":0.16,"c":"accent","w":1.6},{"text":[240,140],"t":"fib 2","size":11.5,"c":"text","b":true,"pos":"c"},{"poly":[[351,127],[409,127],[409,153],[351,153]],"fill":"accent","alpha":0.16,"c":"accent","w":1.6},{"text":[380,140],"t":"fib 2 ","size":11.5,"c":"text","b":true,"pos":"c"},{"poly":[[451,127],[509,127],[509,153],[451,153]],"fill":"accent","alpha":0.16,"c":"accent","w":1.6},{"text":[480,140],"t":"fib 1","size":11.5,"c":"text","b":true,"pos":"c"},{"poly":[[21,185],[79,185],[79,211],[21,211]],"fill":"accent","alpha":0.16,"c":"accent","w":1.6},{"text":[50,198],"t":"fib 2  ","size":11.5,"c":"text","b":true,"pos":"c"},{"poly":[[121,185],[179,185],[179,211],[121,211]],"fill":"accent","alpha":0.16,"c":"accent","w":1.6},{"text":[150,198],"t":"fib 1 ","size":11.5,"c":"text","b":true,"pos":"c"}],"cap":"fibonacci 5: nine calls. fibonacci 3 (amber) is worked out twice, fibonacci 2 three times."}, "try": [{"predict":{"code":"int calls = 0;\nint Fib(int n)\n{\n    calls++;\n    if (n <= 2) return 1;\n    return Fib(n - 1) + Fib(n - 2);\n}\n\nConsole.WriteLine(Fib(6) + \" \" + calls);","expect":"8 15","cap":"fibonacci 6, counting every call. (fibonacci 5 made 9.)"}}]} },
 
     { page: "Exam toolkit" },
     { steps: [

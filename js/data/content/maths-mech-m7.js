@@ -383,7 +383,10 @@ C["maths:M7.1"] = {
       q: "A small stone is projected vertically upwards with speed 39.2 m s$^{-1}$ from a point $O$. The stone is modelled as a particle moving freely under gravity from when it is projected until it hits the ground 10 s later. Using the model, find the height of $O$ above the ground.",
       steps: [
         { h: "Displacement after 10 s (up positive)", m: "$s = ut + \\frac12 at^2 = 39.2 \\times 10 - \\frac12 \\times 9.8 \\times 10^2$", mk: "M1 A1" },
-        { m: "$s = 392 - 490 = -98$, so $O$ is **98 m** above the ground", mk: "A1", n: "The answer must be positive: a height. Up-and-down method: 78.4 m up in 4 s, 176.4 m down in 6 s, $176.4 - 78.4 = 98$." }
+        { m: "$s = 392 - 490 = -98$, so $O$ is **98 m** above the ground", mk: "A1", n: "The answer must be positive: a height. Up-and-down method: 78.4 m up in 4 s, 176.4 m down in 6 s, $176.4 - 78.4 = 98$.", fig: vertFig([[78.4, "top: 78.4 m above O, t = 4"], [0, "O: t = 0"], [-98, "ground: s = −98 at t = 10", "accent3"]],
+          { lo: -104, hi: 88, h: 260, w: 480, ground: -98, gx: 300,
+            paths: [[330, 0, 78.4, "up 78.4", "accent"], [400, 78.4, -98, "down 176.4", "accent2"]],
+            cap: "Up positive: ten seconds after leaving $O$ the stone is 98 m below it — on the ground." }) }
       ], result: "98 m" } },
 
     /* ---------------------------------------------------------------- Page 3 */
@@ -406,7 +409,12 @@ C["maths:M7.1"] = {
       ["Average speed", "$\\dfrac{\\text{total distance travelled}}{\\text{total time}}$"],
       ["Average velocity", "$\\dfrac{\\text{displacement}}{\\text{total time}}$ — zero for a round trip"]
     ] },
-    { worked: { tag: "example", title: "Average speed and average velocity of a round trip", q: "A cyclist rides 6 km due east in 20 minutes, then rides back 4 km due west in 10 minutes. Find, in m s$^{-1}$, (a) the average speed, (b) the magnitude of the average velocity.",
+    { worked: { tag: "example", title: "Average speed and average velocity of a round trip", fig: { x: [-0.6, 7.2], y: [-0.9, 2.2], w: 500, h: 170, axes: false, items: [
+      { line: [[0, 0], [6.6, 0]], c: "line", w: 1.4 }, { pt: [0, 0], label: "start", pos: "s", i: false, c: "text2" }, { pt: [2, 0], label: "2 km", pos: "s", i: false, c: "text2" }, { pt: [6, 0], label: "6 km", pos: "s", i: false, c: "text2" },
+      { vec: [[0, 1.6], [6, 1.6]], c: "accent" }, { text: [3, 1.85], t: "6 km east · 20 min", c: "accent", b: true, size: 12 },
+      { vec: [[6, 0.95], [2, 0.95]], c: "accent2" }, { text: [4, 1.2], t: "4 km west · 10 min", c: "accent2", b: true, size: 12 },
+      { vec: [[0, 0.35], [2, 0.35]], c: "accent3", dash: true }, { text: [1, 0.6], t: "displacement 2 km", c: "accent3", b: true, size: 11.5 }
+    ], cap: "Distance is both arrows (10 km); displacement only start to finish (2 km east)." }, q: "A cyclist rides 6 km due east in 20 minutes, then rides back 4 km due west in 10 minutes. Find, in m s$^{-1}$, (a) the average speed, (b) the magnitude of the average velocity.",
       steps: [
         { h: "Units", m: "Distance $10\\,000$ m; displacement $2000$ m east; time $30 \\times 60 = 1800$ s" },
         { h: "(a)", m: "$\\dfrac{10\\,000}{1800} = 5.56$ m s$^{-1}$" },
@@ -415,7 +423,10 @@ C["maths:M7.1"] = {
     { worked: { tag: "variation", title: "Distance from the origin in a plane", q: "A particle is at the point with position vector $(6\\mathbf i - 8\\mathbf j)$ m relative to $O$. Find its distance from $O$, and the bearing of the particle from $O$ when $\\mathbf i$ is due east and $\\mathbf j$ due north.",
       steps: [
         { h: "Distance: the magnitude", m: "$\\sqrt{6^2 + (-8)^2} = 10$ m" },
-        { h: "Bearing", m: "It is 6 east and 8 south of $O$: angle east of south $= \\tan^{-1}\\frac68 = 36.9°$, so the bearing is $180° - 36.9° = 143°$." }
+        { h: "Bearing", m: "It is 6 east and 8 south of $O$: angle east of south $= \\tan^{-1}\\frac68 = 36.9°$, so the bearing is $180° - 36.9° = 143°$.", fig: { x: [-2, 9], y: [-10, 2], w: 300, h: 300, aspect: "equal", axes: { x: "E", y: "N", xt: [6], yt: [-8] }, items: [
+          { line: [[0, 0], [0, -9.5]], c: "muted", dash: true }, { vec: [[0, 0], [6, -8]], c: "accent" }, { text: [3.6, -4], t: "10 m", pos: "e", c: "accent", b: true },
+          { pt: [6, -8], label: "(6, −8)", pos: "e", i: false }, { arc: [0, 0, 44, 270, 306.87], label: "36.9°", c: "accent3", loff: 22 }
+        ], cap: "From south, $36.9°$ towards east: the bearing measured clockwise from north is $180° - 36.9° = 143°$." } }
       ], result: "10 m, bearing 143°" } },
 
     /* ---------------------------------------------------------------- Exam toolkit */
@@ -509,7 +520,10 @@ C["maths:M7.2"] = {
         { m: "$5 \\le t \\le 20$: a straight line with positive gradient (to 87.5 m).", mk: "B1" },
         { m: "$20 \\le t \\le 30$: a curve, gradient decreasing to zero, never going down; ends at (30, 112.5). Mark 5, 20, 30 and 112.5.", mk: "B1", n: "Joined smoothly. A vertical line at the end loses a mark." }
       ], result: "(a) 112.5 m" } },
-    { worked: { tag: "variation", title: "Reading velocities off a displacement-time graph", q: "A cyclist's displacement from home is 0 m at $t = 0$, 600 m at $t = 120$ s, stays 600 m until $t = 200$ s, then is 0 m at $t = 320$ s, each stage a straight line. Find the velocity in each stage and the average speed.",
+    { worked: { tag: "variation", title: "Reading velocities off a displacement-time graph", fig: { x: [0, 350], y: [0, 720], w: 480, h: 220, axes: { x: "t (s)", y: "s (m)", xt: [120, 200, 320], yt: [600] }, items: [
+      { line: [[0, 0], [120, 600]], c: "accent", w: 2.4 }, { line: [[120, 600], [200, 600]], c: "accent", w: 2.4 }, { line: [[200, 600], [320, 0]], c: "accent", w: 2.4 },
+      { text: [52, 380], t: "gradient 5", c: "accent2", b: true, size: 11.5 }, { text: [160, 640], t: "at rest", c: "accent2", b: true, size: 11.5 }, { text: [282, 380], t: "gradient −5", c: "accent2", b: true, size: 11.5 }
+    ], cap: "Each straight stage has a constant velocity: its gradient." }, q: "A cyclist's displacement from home is 0 m at $t = 0$, 600 m at $t = 120$ s, stays 600 m until $t = 200$ s, then is 0 m at $t = 320$ s, each stage a straight line. Find the velocity in each stage and the average speed.",
       steps: [
         { h: "Gradients", m: "$\\frac{600}{120} = 5$ m s$^{-1}$; $\\;0$ (at rest); $\\;\\frac{0 - 600}{120} = -5$ m s$^{-1}$" },
         { h: "Average speed", m: "$\\dfrac{1200}{320} = 3.75$ m s$^{-1}$", n: "The average velocity is 0 — the cyclist is back home." }
@@ -567,7 +581,9 @@ C["maths:M7.2"] = {
         { h: "(a)(ii)", m: "$\\dfrac{24}{0.5} = 48$ s", mk: "B1" },
         { h: "(a)(iii)", m: "A trapezium starting at the origin and ending on the $t$-axis.", mk: "B1" },
         { h: "(b) Let the cruise last $T$ s", m: "$\\tfrac12 \\times 80 \\times 24 + 24T + \\tfrac12 \\times 48 \\times 24 = 4800$", mk: "M1 A1ft", n: "Or $\\frac12(T + T + 80 + 48) \\times 24 = 4800$. Three triangles is M0." },
-        { m: "$960 + 24T + 576 = 4800 \\Rightarrow T = 136$; total $80 + 136 + 48 = 264$ s", mk: "A1" }
+        { m: "$960 + 24T + 576 = 4800 \\Rightarrow T = 136$; total $80 + 136 + 48 = 264$ s", mk: "A1", fig: vtFig([[0, 0], [80, 24], [216, 24], [264, 0]], { area: true, xt: [80, 216, 264], yt: [24], x: [0, 290],
+          extra: [{ text: [55, 7], t: "960", c: "text2", b: true, size: 12 }, { text: [148, 12], t: "24 × 136", c: "text2", b: true, size: 12 }, { text: [232, 7], t: "576", c: "text2", b: true, size: 12 }],
+          cap: "A trapezium of area 4800: $960 + 3264 + 576$. Cruise 136 s, so 264 s in all." }) }
       ], result: "(a) 24 m s$^{-1}$, 48 s (b) 264 s" } },
     { worked: { tag: "exam", title: "Decelerating for four times as long", src: "AS June 2022 · P2 Q2(a)–(d) · 7 marks",
       q: "A train travels from station $P$ to station $Q$. It starts from rest and accelerates uniformly to its maximum speed of 25 m s$^{-1}$, travels at this speed, then decelerates uniformly to rest at $Q$. The time spent decelerating is four times the time spent accelerating. The journey takes 700 s and the stations are 15 km apart. **(a)** Sketch a speed-time graph. **(b)** Show that the time spent accelerating is 40 s. **(c)** Find the acceleration. **(d)** Find the speed of the train 572 s after leaving $P$.",
@@ -586,7 +602,9 @@ C["maths:M7.2"] = {
       q: "A runner travels along a straight horizontal road from $A$ to $B$, 400 m. In a model the runner starts from rest at $A$, moves with constant acceleration for 5 s reaching 5 m s$^{-1}$, travels at a constant 5 m s$^{-1}$, then moves with constant deceleration for 15 s until coming to rest at $B$, taking $T$ seconds in all. Find $T$.",
       steps: [
         { h: "Cruise time $T - 20$", m: "$400 = \\tfrac12\\big(T + (T - 20)\\big) \\times 5$", mk: "M1 A1", n: "Or $12.5 + 5(T - 20) + 37.5 = 400$." },
-        { m: "$2T - 20 = 160 \\Rightarrow T = 90$", mk: "A1" }
+        { m: "$2T - 20 = 160 \\Rightarrow T = 90$", mk: "A1", fig: vtFig([[0, 0], [5, 5], [75, 5], [90, 0]], { area: true, xt: [5, 75, 90], yt: [5], x: [0, 99],
+          extra: [{ text: [45, 2.4], t: "area = 400", c: "text2", b: true, size: 12 }],
+          cap: "Top 5 m s$^{-1}$; the cruise lasts $T - 20 = 70$ s." }) }
       ], result: "$T = 90$" } },
     { worked: { tag: "exam", title: "A parachutist: free fall, braking, steady descent", src: "AS June 2019 · P2 Q1(a)–(c) · 8 marks",
       q: "At $t = 0$ a parachutist falls vertically from rest from a helicopter hovering 550 m above horizontal ground. She falls freely under gravity ($g = 10$ m s$^{-2}$) for 3 s, until her parachute opens. She then decelerates at 12 m s$^{-2}$ for 2 s, reaching a constant speed with which she reaches the ground. The total time is $T$ s. **(a)** Find her speed when the parachute opens. **(b)** Sketch a speed-time graph for $0 \\le t \\le T$. **(c)** Find $T$ to the nearest whole number.",
@@ -623,7 +641,9 @@ C["maths:M7.2"] = {
         { h: "(b) Triangle + rectangle", m: "$\\tfrac12 \\times 4 \\times 10 + 14 \\times 10$", mk: "M1 A1", n: "Or the trapezium $\\frac12(14 + 18) \\times 10$." },
         { m: "$= 160$ m", mk: "A1" },
         { h: "(c) The last 6 s cover the remaining 40 m", m: "$\\tfrac12(10 + U) \\times 6 = 200 - 160$", mk: "M1 A1ft", n: "Not $(10 - U)$: a trapezium adds the parallel sides." },
-        { m: "$10 + U = \\dfrac{40}{3} \\Rightarrow U = \\dfrac{10}{3} = 3.33$", mk: "A1" }
+        { m: "$10 + U = \\dfrac{40}{3} \\Rightarrow U = \\dfrac{10}{3} = 3.33$", mk: "A1", fig: vtFig([[0, 0], [4, 10], [18, 10], [24, 10 / 3]], { area: true, xt: [4, 18, 24], yt: [{ v: 10 / 3, label: "U" }, 10], x: [0, 26.5],
+          extra: [{ poly: [[18, 0], [18, 10], [24, 10 / 3], [24, 0]], fill: "accent2", alpha: 0.3, c: "accent2", w: 0.5 }, { text: [9.5, 5], t: "160 m", c: "text2", b: true, size: 12 }, { text: [21, 3], t: "40 m", c: "accent2", b: true, size: 12 }],
+          cap: "The last 6 s are a trapezium: $\\frac12(10 + U) \\times 6 = 40$ gives $U = \\frac{10}{3}$." }) }
       ], result: "(b) 160 m (c) $U = \\frac{10}{3}$" } },
 
     /* ---------------------------------------------------------------- Exam toolkit */
@@ -734,7 +754,8 @@ C["maths:M7.3"] = {
       steps: [
         { h: "(a) $v = u + at$", m: "$v = 0 + 3.2 \\times 5 = 16$ m s$^{-1}$", mk: "B1" },
         { h: "(b) $s = ut + \\frac12 at^2$", m: "$s = \\tfrac12 \\times 3.2 \\times 5^2$", mk: "M1", n: "Or $s = \\frac12(0 + 16) \\times 5$ using (a)." },
-        { m: "$s = 40$ m", mk: "A1" }
+        { m: "$s = 40$ m", mk: "A1", fig: vtFig([[0, 0], [5, 16]], { area: true, xt: [5], yt: [16], x: [0, 6], extra: [{ text: [3.4, 4.5], t: "40 m", c: "text2", b: true, size: 12 }],
+          cap: "From rest: a triangle, $\\frac12 \\times 5 \\times 16 = 40$ m." }) }
       ], result: "(a) 16 m s$^{-1}$ (b) 40 m" } },
     { worked: { tag: "exam", title: "Already moving: a speed 4 s later", src: "A-level June 2025 · P3 Q1(a) · 2 marks",
       q: "A car moves in a straight line along a horizontal road with constant acceleration 2 m s$^{-2}$. It is moving with speed 15 m s$^{-1}$ in the direction of the acceleration when it passes a signpost. Modelling the car as a particle, find its speed 4 s after passing the signpost.",
@@ -746,7 +767,8 @@ C["maths:M7.3"] = {
       steps: [
         { h: "Units", m: "$u = 72 \\div 3.6 = 20$ m s$^{-1}$, $v = 0$, $a = -5$" },
         { h: "No $t$: $v^2 = u^2 + 2as$", m: "$0 = 400 - 10s \\Rightarrow s = 40$ m" },
-        { h: "Time: $v = u + at$", m: "$0 = 20 - 5t \\Rightarrow t = 4$ s" }
+        { h: "Time: $v = u + at$", m: "$0 = 20 - 5t \\Rightarrow t = 4$ s", fig: vtFig([[0, 20], [4, 0]], { area: true, xt: [4], yt: [20], x: [0, 5], extra: [{ text: [1.3, 6], t: "40 m", c: "text2", b: true, size: 12 }],
+          cap: "Gradient $-5$ from 20 m s$^{-1}$: stops at 4 s; the area is the braking distance." }) }
       ], result: "40 m, 4 s" } },
 
     /* ---------------------------------------------------------------- Page 3 */
@@ -774,7 +796,10 @@ C["maths:M7.3"] = {
       steps: [
         { h: "Whole flight, up positive: $s = -2$", m: "$-2 = 9T - \\tfrac12 \\times 10 \\times T^2$", mk: "M1 A1", n: "Splitting works too: 0.9 s up, then 1.1 s down." },
         { m: "$5T^2 - 9T - 2 = 0 \\Rightarrow (5T + 1)(T - 2) = 0$", mk: "DM1" },
-        { m: "$T = 2$ (only)", mk: "A1", n: "Giving both roots is A0." }
+        { m: "$T = 2$ (only)", mk: "A1", n: "Giving both roots is A0.", fig: { x: [-0.4, 2.4], y: [-0.6, 7], w: 440, h: 220, axes: { x: "t (s)", y: "height (m)", xt: [0.9, 2], yt: [2, 6.05] }, items: [
+          { fn: "2+9*x-5*x^2", from: -0.2, to: 0, c: "muted", dash: true }, { fn: "2+9*x-5*x^2", from: 0, to: 2, c: "accent", w: 2.4 },
+          { pt: [0, 2], label: "hand", pos: "e", i: false }, { pt: [2, 0], label: "T = 2", pos: "ne", i: false }, { pt: [-0.2, 0], open: true, c: "muted", label: "−0.2", pos: "n", i: false, lc: "muted" }
+        ], cap: "Height $2 + 9t - 5t^2$: it lands at $t = 2$; the other root is before the throw." } }
       ], result: "$T = 2$" } },
     { worked: { tag: "exam", title: "Launch speed, flight time, a point below the start, the graph", src: "AS June 2020 · P2 Q1(a)–(d) · 10 marks",
       q: "At $t = 0$ a small ball is projected vertically upwards with speed $U$ m s$^{-1}$ from a point $A$ that is 16.8 m above horizontal ground. Its speed immediately before it first hits the ground is 19 m s$^{-1}$, at $t = T$. The ball is modelled as a particle moving freely under gravity with $g = 10$ m s$^{-2}$. **(a)** Show that $U = 5$. **(b)** Find $T$. **(c)** Find the time from projection until the ball is 1.2 m below $A$. **(d)** Sketch a velocity-time graph for $0 \\le t \\le T$, stating the coordinates of its start and end points.",
@@ -797,7 +822,10 @@ C["maths:M7.3"] = {
         { h: "(a) An equation in $U$ only", m: "$10^2 = U^2 + 2(-10)(-1.8)$", mk: "M1 A1" },
         { m: "$U^2 = 64 \\Rightarrow U = 8$", mk: "A1" },
         { h: "(b)", m: "$-10 = 8 - 10T$", mk: "M1" },
-        { m: "$T = 1.8$", mk: "A1" }
+        { m: "$T = 1.8$", mk: "A1", fig: vtFig([[0, 8], [1.8, -10]], { xt: [0.8, 1.8], yt: [-10, 8], y: [-12.5, 10.5], x: [0, 2.1],
+          extra: [{ poly: [[0, 0], [0, 8], [0.8, 0]], fill: "accent3", alpha: 0.25, c: "accent3", w: 0.5 }, { poly: [[0.8, 0], [1.8, -10], [1.8, 0]], fill: "accent2", alpha: 0.3, c: "accent2", w: 0.5 },
+            { text: [0.25, 2.2], t: "+3.2", c: "accent3", b: true }, { text: [1.5, -2.4], t: "−5", c: "accent2", b: true }],
+          cap: "Up positive: 3.2 m up, then 5 m down — a net $-1.8$ m, the drop from $A$ to the ground." }) }
       ], result: "(a) 8 (b) 1.8" } },
 
     /* ---------------------------------------------------------------- Page 4 */
@@ -807,13 +835,19 @@ C["maths:M7.3"] = {
       steps: [
         { h: "Positions from the meeting point", m: "Van: $x = 20t$; $\\quad$ car: $x = \\tfrac12 \\times 2t^2 = t^2$" },
         { h: "Equal positions", m: "$t^2 = 20t \\Rightarrow t = 20$ s (not 0, the start)" },
-        { m: "$x = 400$ m; car's speed $= 2 \\times 20 = 40$ m s$^{-1}$" }
+        { m: "$x = 400$ m; car's speed $= 2 \\times 20 = 40$ m s$^{-1}$", fig: { x: [0, 24], y: [0, 540], w: 440, h: 230, axes: { x: "t (s)", y: "x (m)", xt: [10, 20], yt: [200, 400] }, items: [
+          { fn: "20*x", from: 0, to: 23, c: "accent2", w: 2.2, label: "van", at: 22, pos: "nw" }, { fn: "x^2", from: 0, to: 23, c: "accent", w: 2.4, label: "car", at: 22.5, pos: "e" },
+          { pt: [20, 400], label: "(20, 400)", pos: "nw", i: false }
+        ], cap: "The car's position $t^2$ starts slower, then catches the van's $20t$ at $t = 20$." } }
       ], result: "20 s, 400 m, 40 m s$^{-1}$" } },
     { worked: { tag: "variation", title: "Two stones meeting in the air", q: "Stone $P$ is dropped from rest from the top of a 40 m tower. At the same instant stone $Q$ is thrown vertically upwards from the foot of the tower at 20 m s$^{-1}$. Find when and at what height they meet ($g = 9.8$).",
       steps: [
         { h: "Heights above the ground", m: "$P$: $h = 40 - 4.9t^2$; $\\quad Q$: $h = 20t - 4.9t^2$" },
         { h: "Equal", m: "$40 = 20t \\Rightarrow t = 2$ s", n: "The $4.9t^2$ terms cancel — both have the same acceleration." },
-        { m: "$h = 40 - 4.9 \\times 4 = 20.4$ m" }
+        { m: "$h = 40 - 4.9 \\times 4 = 20.4$ m", fig: { x: [0, 3.1], y: [0, 44], w: 440, h: 230, axes: { x: "t (s)", y: "height (m)", xt: [1, 2], yt: [20.4, 40] }, items: [
+          { fn: "40-4.9*x^2", from: 0, to: 2.857, c: "accent", w: 2.4, label: "P", at: 0.6, pos: "ne" }, { fn: "20*x-4.9*x^2", from: 0, to: 2.95, c: "accent2", w: 2.4, label: "Q", at: 0.6, pos: "se" },
+          { pt: [2, 20.4], label: "meet: (2, 20.4)", pos: "ne", i: false }
+        ], cap: "The gap between the curves is $40 - 20t$: the same $-4.9t^2$ in both, so it closes at a steady 20 m s$^{-1}$." } }
       ], result: "2 s, 20.4 m" } },
 
     /* ---------------------------------------------------------------- Page 5 */
@@ -834,7 +868,11 @@ C["maths:M7.3"] = {
       steps: [
         { h: "Displacement $\\overrightarrow{AB}$", m: "$(-2.5\\mathbf i + 8\\mathbf j) - (2\\mathbf i + 5\\mathbf j) = -4.5\\mathbf i + 3\\mathbf j$", mk: "B1" },
         { h: "$\\mathbf s = \\mathbf u t + \\frac12 \\mathbf a t^2$", m: "$-4.5\\mathbf i + 3\\mathbf j = 3\\mathbf u + \\tfrac92(\\mathbf i - 2\\mathbf j)$", mk: "M1 A1ft" },
-        { m: "$3\\mathbf u = -9\\mathbf i + 12\\mathbf j \\Rightarrow \\mathbf u = -3\\mathbf i + 4\\mathbf j$", mk: "A1" }
+        { m: "$3\\mathbf u = -9\\mathbf i + 12\\mathbf j \\Rightarrow \\mathbf u = -3\\mathbf i + 4\\mathbf j$", mk: "A1", fig: { x: [-4, 4.5], y: [0, 11], w: 320, h: 380, aspect: "equal", axes: { x: "i", y: "j", xt: [-2, 2], yt: [5, 8] }, items: [
+          { param: { x: "2-3*t+0.5*t^2", y: "5+4*t-t^2" }, t: [0, 3], c: "accent", w: 2.4 },
+          { pt: [2, 5], label: "A (t = 0)", pos: "e", i: false }, { pt: [-2.5, 8], label: "B (t = 3)", pos: "w", i: false },
+          { vec: [[2, 5], [0.5, 7]], c: "accent2" }, { text: [0.9, 7.6], t: "u", b: true, c: "accent2" }
+        ], cap: "Leaving $A$ along $\\mathbf u = -3\\mathbf i + 4\\mathbf j$, the path is bent by $\\mathbf a = \\mathbf i - 2\\mathbf j$ to reach $B$ at $t = 3$." } }
       ], result: "$\\mathbf u = (-3\\mathbf i + 4\\mathbf j)$ m s$^{-1}$" } },
     { worked: { tag: "exam", title: "A velocity, then a position", src: "A-level Oct 2021 · P3 Q1 · 4 marks",
       q: "A particle $P$ moves with constant acceleration $(2\\mathbf i - 3\\mathbf j)$ m s$^{-2}$. At $t = 0$, $P$ is moving with velocity $4\\mathbf i$ m s$^{-1}$. **(a)** Find the velocity of $P$ at $t = 2$ s. At $t = 0$ the position vector of $P$ relative to $O$ is $(\\mathbf i + \\mathbf j)$ m. **(b)** Find the position vector of $P$ at $t = 3$ s.",
@@ -842,7 +880,11 @@ C["maths:M7.3"] = {
         { h: "(a)", m: "$\\mathbf v = 4\\mathbf i + 2(2\\mathbf i - 3\\mathbf j)$", mk: "M1" },
         { m: "$\\mathbf v = (8\\mathbf i - 6\\mathbf j)$ m s$^{-1}$", mk: "A1" },
         { h: "(b)", m: "$\\mathbf r = (\\mathbf i + \\mathbf j) + 3(4\\mathbf i) + \\tfrac92(2\\mathbf i - 3\\mathbf j)$", mk: "M1", n: "Do not forget the starting position $\\mathbf i + \\mathbf j$." },
-        { m: "$\\mathbf r = (22\\mathbf i - 12.5\\mathbf j)$ m", mk: "A1" }
+        { m: "$\\mathbf r = (22\\mathbf i - 12.5\\mathbf j)$ m", mk: "A1", fig: { x: [-1, 25], y: [-14, 3], w: 480, h: 300, aspect: "equal", axes: { x: "i", y: "j", xt: [10, 20], yt: [-10, -5] }, items: [
+          { param: { x: "1+4*t+t^2", y: "1-1.5*t^2" }, t: [0, 3], c: "accent", w: 2.4 },
+          { pt: [1, 1], label: "t = 0", pos: "n", i: false }, { pt: [13, -5], label: "t = 2", pos: "sw", i: false }, { vec: [[13, -5], [17, -8]], c: "accent2" }, { text: [17.4, -7.2], t: "8i − 6j", pos: "e", c: "accent2", b: true, size: 11.5 },
+          { pt: [22, -12.5], label: "t = 3: (22, −12.5)", pos: "w", i: false }
+        ], cap: "Starting at $\\mathbf i + \\mathbf j$ moving east, the acceleration pulls the path south." } }
       ], result: "(a) $8\\mathbf i - 6\\mathbf j$ (b) $22\\mathbf i - 12.5\\mathbf j$" } },
     { worked: { tag: "exam", title: "Show the acceleration; then the time to move north-east", src: "A-level June 2018 · P3 Q8 · 8 marks",
       q: "[$\\mathbf i$ and $\\mathbf j$ are horizontal unit vectors due east and due north.] A particle $P$ moves with constant acceleration. At $t = 0$ it is at $O$ moving with velocity $(2\\mathbf i - 3\\mathbf j)$ m s$^{-1}$. At $t = 2$ s it is at $A$, with position vector $(7\\mathbf i - 10\\mathbf j)$ m. **(a)** Show that the magnitude of the acceleration of $P$ is 2.5 m s$^{-2}$. As $P$ leaves $A$, its acceleration changes to a constant $(4\\mathbf i + 8.8\\mathbf j)$ m s$^{-2}$. At the instant $P$ reaches $B$, its direction of motion is north-east. **(b)** Find the time it takes to travel from $A$ to $B$.",
@@ -853,7 +895,12 @@ C["maths:M7.3"] = {
         { m: "$= \\sqrt{6.25} = 2.5$ m s$^{-2}$", mk: "A1*" },
         { h: "(b) Velocity at $A$", m: "$\\mathbf v_A = (2\\mathbf i - 3\\mathbf j) + 2(1.5\\mathbf i - 2\\mathbf j) = 5\\mathbf i - 7\\mathbf j$", mk: "M1 A1" },
         { h: "After $A$", m: "$\\mathbf v = (5 + 4t)\\mathbf i + (8.8t - 7)\\mathbf j$; north-east: $5 + 4t = 8.8t - 7$", mk: "M1" },
-        { m: "$4.8t = 12 \\Rightarrow t = 2.5$ s", mk: "A1", n: "Check: $\\mathbf v = 15\\mathbf i + 15\\mathbf j$, both positive, so north-east (not south-west)." }
+        { m: "$4.8t = 12 \\Rightarrow t = 2.5$ s", mk: "A1", n: "Check: $\\mathbf v = 15\\mathbf i + 15\\mathbf j$, both positive, so north-east (not south-west).", fig: { x: [-1, 38], y: [-14, 5], w: 500, h: 260, aspect: "equal", axes: { x: "E", y: "N", xt: [7, 32], yt: [-10] }, items: [
+          { param: { x: "2*t+0.75*t^2", y: "-3*t-t^2" }, t: [0, 2], c: "accent2", w: 2.4 },
+          { param: { x: "7+5*t+2*t^2", y: "-10-7*t+4.4*t^2" }, t: [0, 2.5], c: "accent", w: 2.4 },
+          { pt: [0, 0], label: "O", pos: "nw", i: false }, { pt: [7, -10], label: "A", pos: "s", i: false }, { pt: [32, 0], label: "B", pos: "se", i: false },
+          { vec: [[32, 0], [35.5, 3.5]], c: "accent3" }, { text: [34, 4.2], t: "NE", pos: "w", c: "accent3", b: true, size: 11.5 }
+        ], cap: "$O$ to $A$ under $1.5\\mathbf i - 2\\mathbf j$; after $A$ the new acceleration turns it until, at $B$, it heads north-east." } }
       ], result: "(b) 2.5 s" } },
     { worked: { tag: "exam", title: "A time from the $\\mathbf j$-component, then $\\lambda$", src: "A-level Oct 2020 · P3 Q2 · 8 marks",
       q: "A particle $P$ moves with acceleration $(4\\mathbf i - 5\\mathbf j)$ m s$^{-2}$. At $t = 0$, $P$ is moving with velocity $(-2\\mathbf i + 2\\mathbf j)$ m s$^{-1}$. **(a)** Find the velocity of $P$ at $t = 2$ s. At $t = 0$, $P$ passes through $O$. At $t = T$, where $T > 0$, $P$ passes through $A$, with position vector $(\\lambda\\mathbf i - 4.5\\mathbf j)$ m. **(b)** Find $T$. **(c)** Hence find $\\lambda$.",
@@ -864,7 +911,10 @@ C["maths:M7.3"] = {
         { m: "$\\mathbf j$: $\\; 2T - 2.5T^2 = -4.5$", mk: "A1 M1" },
         { m: "$5T^2 - 4T - 9 = 0 \\Rightarrow (5T - 9)(T + 1) = 0 \\Rightarrow T = 1.8$", mk: "A1" },
         { h: "(c) $\\mathbf i$-component", m: "$\\lambda = -2(1.8) + 2(1.8)^2$", mk: "M1" },
-        { m: "$\\lambda = 2.88$", mk: "A1" }
+        { m: "$\\lambda = 2.88$", mk: "A1", fig: { x: [-1, 3.6], y: [-5, 1], w: 300, h: 330, aspect: "equal", axes: { x: "i", y: "j", xt: [1, 2], yt: [-4.5, -2] }, items: [
+          { param: { x: "-2*t+2*t^2", y: "2*t-2.5*t^2" }, t: [0, 1.8], c: "accent", w: 2.4 },
+          { pt: [0, 0], label: "O", pos: "ne", i: false }, { pt: [2.88, -4.5], label: "A (2.88, −4.5)", pos: "w", i: false }
+        ], cap: "It leaves $O$ heading north-west and is turned round; the $\\mathbf j$-component $-4.5$ fixes $T = 1.8$." } }
       ], result: "(a) $6\\mathbf i - 8\\mathbf j$ (b) $T = 1.8$ (c) $\\lambda = 2.88$" } },
     { worked: { tag: "exam", title: "A speed; a time from the $\\mathbf i$-component; then $c$", src: "A-level June 2023 · P3 Q4 · 10 marks",
       q: "A particle $P$ moves on a smooth horizontal plane with constant acceleration $(2.4\\mathbf i + \\mathbf j)$ m s$^{-2}$. At $t = 0$ it passes through $A$ with velocity $(-16\\mathbf i - 3\\mathbf j)$ m s$^{-1}$; at $t = 5$ s it passes through $B$. **(a)** Find the speed of $P$ at $B$. The position vector of $A$ is $(44\\mathbf i - 10\\mathbf j)$ m. At $t = T$, where $T > 5$, $P$ passes through $C$, with position vector $(4\\mathbf i + c\\mathbf j)$ m. **(b)** Find $T$. **(c)** Find $c$.",
@@ -994,7 +1044,11 @@ C["maths:M7.4"] = {
         { h: "(b)", m: "$16 - 3t^2 = 0$", mk: "M1" },
         { m: "$t = \\dfrac{4}{\\sqrt3} = 2.31$", mk: "A1" },
         { h: "(c) Displacement zero", m: "$s = 16t - t^3 = 0$", mk: "M1" },
-        { m: "$t(16 - t^2) = 0 \\Rightarrow t = 4$", mk: "A1 A1" }
+        { m: "$t(16 - t^2) = 0 \\Rightarrow t = 4$", mk: "A1 A1", fig: { x: [0, 4.4], y: [-34, 19], w: 460, h: 240, axes: { x: "t (s)", y: "v (m s⁻¹)", xt: [1, { v: 2.309, label: "2.31" }, 4], yt: [-32, 16] }, items: [
+          { shade: { fn: "16-3*x^2", from: 0, to: 2.309 }, c: "accent3", alpha: 0.3 }, { shade: { fn: "16-3*x^2", from: 2.309, to: 4 }, c: "accent2", alpha: 0.3 },
+          { fn: "16-3*x^2", from: 0, to: 4.2, c: "accent", w: 2.4 },
+          { text: [1, 6], t: "+24.6", c: "accent3", b: true }, { text: [3.3, -9], t: "−24.6", c: "accent2", b: true }
+        ], cap: "Forwards until $t = 2.31$, then back: by $t = 4$ the two areas cancel and $P$ is at its start." } }
       ], result: "(a) 15 m (b) 2.31 (c) 4" } },
     { worked: { tag: "exam", title: "Acceleration at rest; distance over 3 s", src: "AS June 2019 · P2 Q3 · 8 marks",
       q: "A particle $P$ moves along a straight line such that at time $t$ seconds, $t \\ge 0$, its velocity is modelled as $v = 12 + 4t - t^2$ m s$^{-1}$. Find **(a)** the magnitude of the acceleration of $P$ when $P$ is at instantaneous rest, **(b)** the distance travelled by $P$ in the interval $0 \\le t \\le 3$.",
@@ -1003,7 +1057,10 @@ C["maths:M7.4"] = {
         { h: "Differentiate", m: "$a = 4 - 2t$", mk: "M1" },
         { m: "$t = 6$: $a = -8$, magnitude 8 m s$^{-2}$", mk: "M1 A1" },
         { h: "(b) $v > 0$ throughout (first rest at $t = 6$)", m: "$\\displaystyle\\int_0^3 (12 + 4t - t^2)\\,dt = \\Big[12t + 2t^2 - \\tfrac{t^3}{3}\\Big]_0^3$", mk: "M1 A1" },
-        { m: "$= 36 + 18 - 9 = 45$ m", mk: "A1" }
+        { m: "$= 36 + 18 - 9 = 45$ m", mk: "A1", fig: { x: [0, 6.8], y: [-3, 19], w: 440, h: 220, axes: { x: "t (s)", y: "v (m s⁻¹)", xt: [2, 3, 6], yt: [12, 16] }, items: [
+          { shade: { fn: "12+4*x-x^2", from: 0, to: 3 }, c: "accent3", alpha: 0.3 }, { fn: "12+4*x-x^2", from: 0, to: 6.4, c: "accent", w: 2.4 },
+          { text: [1.5, 6], t: "45 m", c: "accent3", b: true }, { pt: [6, 0], label: "rest, a = −8", pos: "ne", i: false }
+        ], cap: "$v > 0$ on $[0, 3]$, so the distance is one integral; the particle only stops at $t = 6$." } }
       ], result: "(a) 8 m s$^{-2}$ (b) 45 m" } },
     { worked: { tag: "exam", title: "When it stops accelerating; where it turns (no calculator)", src: "AS June 2020 · P2 Q3 · 9 marks",
       q: "In this question solutions relying on calculator technology are not acceptable. A particle $P$ moves along a straight line; $t$ seconds after leaving the point $O$ on the line its velocity is modelled as $v = (7 - 2t)(t + 2)$ m s$^{-1}$. **(a)** Find the value of $t$ when $P$ stops accelerating. **(b)** Find the distance of $P$ from $O$ when $P$ changes its direction of motion.",
@@ -1013,7 +1070,10 @@ C["maths:M7.4"] = {
         { h: "(b) Direction changes at $v = 0$", m: "$t = \\dfrac72$ (the root $t = -2$ is rejected)", mk: "B1" },
         { h: "Integrate from $O$", m: "$s = 14t + \\tfrac32 t^2 - \\tfrac23 t^3$", mk: "M1 A1" },
         { m: "$s = 49 + \\dfrac{147}{8} - \\dfrac{343}{12} = \\dfrac{1176 + 441 - 686}{24}$", mk: "M1" },
-        { m: "$= \\dfrac{931}{24} = 38.8$ m", mk: "A1" }
+        { m: "$= \\dfrac{931}{24} = 38.8$ m", mk: "A1", fig: { x: [0, 4.1], y: [-4, 18], w: 440, h: 220, axes: { x: "t (s)", y: "v (m s⁻¹)", xt: [0.75, 3.5], yt: [7, 14] }, items: [
+          { shade: { fn: "14+3*x-2*x^2", from: 0, to: 3.5 }, c: "accent3", alpha: 0.3 }, { fn: "14+3*x-2*x^2", from: 0, to: 3.85, c: "accent", w: 2.4 },
+          { pt: [0.75, 15.125], label: "a = 0 at t = ¾", pos: "ne", i: false }, { pt: [3.5, 0], label: "turns", pos: "ne", i: false }, { text: [1.8, 6], t: "931/24 m", c: "accent3", b: true }
+        ], cap: "The velocity peaks where $a = 0$ and is zero at $t = \\frac72$, where $P$ is $\\frac{931}{24}$ m from $O$." } }
       ], result: "(a) $\\frac34$ (b) $\\frac{931}{24}$ m" } },
     { worked: { tag: "exam", title: "Rest twice; total distance; maximum speed", src: "AS June 2025 · P2 Q4 · 10 marks",
       q: "In this question you must show all stages of your working. A particle $P$ moves along a straight line; at time $t$ seconds, $t \\ge 0$, its distance from a fixed point $O$ on the line is $s = 2t^3 - 12t^2 + 18t$ metres. **(a)** Find the values of $t$ for which $P$ is instantaneously at rest. **(b)** Find the total distance travelled by $P$ in the interval $0 \\le t \\le 4$. **(c)** Find the maximum speed of $P$ in the interval $1 \\le t \\le 3$.",
@@ -1068,7 +1128,10 @@ C["maths:M7.4"] = {
         { m: "$a = 2t - 5$: $\\; -1$ m s$^{-2}$ at $t = 2$, $\\; 1$ m s$^{-2}$ at $t = 3$", mk: "M1 A1" },
         { h: "(b) Positions", m: "$s(2) = \\dfrac{14}{3}$, $\\; s(3) = \\dfrac92$, $\\; s(4) = \\dfrac{16}{3}$", mk: "M1" },
         { m: "$\\dfrac{14}{3} + \\left(\\dfrac{14}{3} - \\dfrac92\\right) + \\left(\\dfrac{16}{3} - \\dfrac92\\right) = \\dfrac{14}{3} + \\dfrac16 + \\dfrac56$", mk: "M1" },
-        { m: "$= \\dfrac{17}{3} = 5.67$ m", mk: "A1" }
+        { m: "$= \\dfrac{17}{3} = 5.67$ m", mk: "A1", fig: { x: [0, 4.4], y: [0, 6.4], w: 440, h: 230, axes: { x: "t (s)", y: "s (m)", xt: [2, 3, 4], yt: [4.5, 5.33] }, items: [
+          { fn: "x^3/3-2.5*x^2+6*x", from: 0, to: 4.1, c: "accent", w: 2.4 },
+          { pt: [2, 4.667], label: "t = 2: 14/3", pos: "n", i: false }, { pt: [3, 4.5], label: "t = 3: 9/2", pos: "s", i: false }, { pt: [4, 5.333], label: "t = 4: 16/3", pos: "w", i: false }
+        ], cap: "Out $\\frac{14}{3}$, back $\\frac16$, out again $\\frac56$: the turning points split the distance." } }
       ], result: "(a) −1 and 1 m s$^{-2}$ (b) $\\frac{17}{3}$ m" } },
     { worked: { tag: "exam", title: "Verify rest; the acceleration there; total distance", src: "AS June 2023 · P2 Q3 · 8 marks",
       q: "In this question you must show all stages of your working. A particle $P$ moves along a straight line such that at time $t$ seconds, $t \\ge 0$, after passing through $O$, its velocity is modelled as $v = 15 - t^2 - 2t$ m s$^{-1}$. **(a)** Verify that $P$ comes to instantaneous rest when $t = 3$. **(b)** Find the magnitude of the acceleration of $P$ when $t = 3$. **(c)** Find the total distance travelled by $P$ in the interval $0 \\le t \\le 4$.",
@@ -1078,7 +1141,11 @@ C["maths:M7.4"] = {
         { m: "$a(3) = -8$, magnitude 8 m s$^{-2}$", mk: "A1" },
         { h: "(c) Integrate to the turn, then beyond", m: "$s = 15t - \\tfrac13 t^3 - t^2$: $\\; s(3) = 45 - 9 - 9 = 27$", mk: "M1 A1" },
         { m: "$s(4) = 60 - \\dfrac{64}{3} - 16 = \\dfrac{68}{3}$; back $27 - \\dfrac{68}{3} = \\dfrac{13}{3}$", mk: "M1" },
-        { m: "total $27 + \\dfrac{13}{3} = \\dfrac{94}{3} = 31.3$ m", mk: "A1" }
+        { m: "total $27 + \\dfrac{13}{3} = \\dfrac{94}{3} = 31.3$ m", mk: "A1", fig: { x: [0, 4.4], y: [-11, 17.5], w: 440, h: 230, axes: { x: "t (s)", y: "v (m s⁻¹)", xt: [3, 4], yt: [-9, 15] }, items: [
+          { shade: { fn: "15-x^2-2*x", from: 0, to: 3 }, c: "accent3", alpha: 0.3 }, { shade: { fn: "15-x^2-2*x", from: 3, to: 4 }, c: "accent2", alpha: 0.35 },
+          { fn: "15-x^2-2*x", from: 0, to: 4.2, c: "accent", w: 2.4 },
+          { text: [1.3, 5], t: "+27", c: "accent3", b: true }, { text: [3.65, -2.6], t: "−13/3", c: "accent2", b: true }
+        ], cap: "27 m out, then $\\frac{13}{3}$ m back: the distance adds both areas." } }
       ], result: "(b) 8 m s$^{-2}$ (c) $\\frac{94}{3}$ m" } },
     { worked: { tag: "exam", title: "Rest from a displacement; total distance; never negative", src: "AS June 2018 · P2 Q8 · 10 marks",
       q: "A particle $P$ moves along the $x$-axis. At time $t$ seconds, $t \\ge 0$, its displacement from $O$ is $x = \\tfrac12 t^2(t^2 - 2t + 1)$ metres. **(a)** Find the times when $P$ is instantaneously at rest. **(b)** Find the total distance travelled by $P$ in the interval $0 \\le t \\le 2$. **(c)** Show that $P$ will never move along the negative $x$-axis.",
@@ -1090,7 +1157,10 @@ C["maths:M7.4"] = {
         { m: "$\\tfrac{1}{32} + \\tfrac{1}{32} + 2$", mk: "M1" },
         { m: "$= \\dfrac{33}{16} = 2.06$ m", mk: "A1" },
         { h: "(c) Factorise $x$", m: "$x = \\tfrac12 t^2(t - 1)^2$", mk: "M1" },
-        { m: "a product of squares, so $x \\ge 0$ for all $t$: $P$ is never on the negative $x$-axis.", mk: "A1" }
+        { m: "a product of squares, so $x \\ge 0$ for all $t$: $P$ is never on the negative $x$-axis.", mk: "A1", fig: { x: [0, 2.25], y: [-0.25, 2.3], w: 440, h: 230, axes: { x: "t (s)", y: "x (m)", xt: [0.5, 1, 2], yt: [1, 2] }, items: [
+          { fn: "0.5*x^2*(x-1)^2", from: 0, to: 2.05, c: "accent", w: 2.4 },
+          { pt: [0.5, 0.03125], label: "t = ½: 1/32 m", pos: "n", i: false }, { pt: [1, 0], label: "t = 1", pos: "s", i: false }, { pt: [2, 2], label: "(2, 2)", pos: "w", i: false }
+        ], cap: "A small step out ($\\frac1{32}$ m) and back, then out to 2 m: the curve touches the axis at $t = 1$ but never goes below it." } }
       ], result: "(a) 0, ½, 1 (b) $\\frac{33}{16}$ m" } },
     { worked: { tag: "exam", title: "Roots of $t$: an acceleration, then an exact distance", src: "AS June 2024 · P2 Q2 · 7 marks",
       q: "In this question you must show all stages of your working; solutions relying on calculator technology are not acceptable. A particle moves along a straight line. At time $t$ seconds, $t > 0$, its velocity is $v = 2t - 7\\sqrt t + 6$ m s$^{-1}$. **(a)** Find the acceleration of the particle when $t = 4$. When $t = 1$ the particle is at $X$; when $t = 2$ it is at $Y$. Given that it does not come to instantaneous rest in $1 < t < 2$, **(b)** show that $XY = \\tfrac13(41 - 28\\sqrt2)$ metres.",
@@ -1099,7 +1169,10 @@ C["maths:M7.4"] = {
         { m: "$a(4) = 2 - \\tfrac74 = \\tfrac14$ m s$^{-2}$", mk: "A1" },
         { h: "(b) No rest in between, so one integral", m: "$\\displaystyle\\int_1^2 \\big(2t - 7t^{\\frac12} + 6\\big)\\,dt = \\Big[t^2 - \\tfrac{14}{3} t^{\\frac32} + 6t\\Big]_1^2$", mk: "M1 A1" },
         { m: "$= \\Big(4 - \\tfrac{28\\sqrt2}{3} + 12\\Big) - \\Big(1 - \\tfrac{14}{3} + 6\\Big)$", mk: "M1" },
-        { m: "$= 16 - \\tfrac73 - \\tfrac{28\\sqrt2}{3} = \\tfrac13(41 - 28\\sqrt2)$", mk: "A1*", n: "$2^{\\frac32} = 2\\sqrt2$. Positive (0.467), so it is the distance." }
+        { m: "$= 16 - \\tfrac73 - \\tfrac{28\\sqrt2}{3} = \\tfrac13(41 - 28\\sqrt2)$", mk: "A1*", n: "$2^{\\frac32} = 2\\sqrt2$. Positive (0.467), so it is the distance.", fig: { x: [0, 5.5], y: [-0.8, 6.6], w: 440, h: 230, axes: { x: "t (s)", y: "v (m s⁻¹)", xt: [1, 2, 4], yt: [1, 6] }, items: [
+          { shade: { fn: "2*x-7*sqrt(x)+6", from: 1, to: 2 }, c: "accent3", alpha: 0.4 }, { fn: "2*x-7*sqrt(x)+6", from: 0, to: 5.3, c: "accent", w: 2.4 },
+          { pt: [2.25, 0], label: "rest, t = 9/4", pos: "n", i: false }, { pt: [4, 0], label: "rest", pos: "n", i: false }, { text: [1.5, 1.4], t: "XY", c: "accent3", b: true }
+        ], cap: "$v > 0$ on $1 < t < 2$ (the first rest is at $t = \\frac94$), so one integral gives the distance $XY$." } }
       ], result: "(a) ¼ m s$^{-2}$" } },
 
     /* ---------------------------------------------------------------- Page 4 */
@@ -1124,7 +1197,10 @@ C["maths:M7.4"] = {
         { h: "Integrate", m: "$\\mathbf r = 2t^{\\frac12}\\mathbf i - 2t^2\\mathbf j + \\mathbf c$", mk: "M1 A1" },
         { h: "$\\overrightarrow{AB} = \\mathbf r(4) - \\mathbf r(1)$", m: "$(4\\mathbf i - 32\\mathbf j) - (2\\mathbf i - 2\\mathbf j) = 2\\mathbf i - 30\\mathbf j$", mk: "M1 A1", n: "The constant cancels — or use $\\int_1^4$." },
         { m: "$AB = \\sqrt{2^2 + 30^2} = \\sqrt{904}$", mk: "M1" },
-        { m: "$= 2\\sqrt{226}$ m", mk: "A1" }
+        { m: "$= 2\\sqrt{226}$ m", mk: "A1", fig: { x: [0, 5], y: [-34, 2], w: 320, h: 300, axes: { x: "i", y: "j", xt: [2, 4], yt: [-32, -2] }, items: [
+          { param: { x: "2*sqrt(t)", y: "-2*t^2" }, t: [1, 4], c: "accent", w: 2.4 }, { line: [[2, -2], [4, -32]], c: "accent2", dash: true },
+          { pt: [2, -2], label: "A (t = 1)", pos: "e", i: false }, { pt: [4, -32], label: "B (t = 4)", pos: "w", i: false }
+        ], cap: "$AB$ is the straight line (dashed) between the two positions, not the length of the path. (Axes not to the same scale.)" } }
       ], result: "$2\\sqrt{226}$ m" } },
     { worked: { tag: "exam", title: "From acceleration: a velocity, a direction; then a speed from a position", src: "A-level Oct 2020 · P3 Q3 · 12 marks",
       q: "(i) At time $t$ seconds, $t \\ge 0$, a particle $P$ has acceleration $\\mathbf a = (1 - 4t)\\mathbf i + (3 - t^2)\\mathbf j$ m s$^{-2}$. When $t = 0$ its velocity is $36\\mathbf i$ m s$^{-1}$. **(a)** Find the velocity of $P$ when $t = 4$. **(b)** Find $t$ when $P$ is moving in a direction perpendicular to $\\mathbf i$. (ii) A particle $Q$ has position vector $\\mathbf r = (t^2 - t)\\mathbf i + 3t\\mathbf j$ m. Find $t$ when the speed of $Q$ is 5 m s$^{-1}$.",
@@ -1149,7 +1225,11 @@ C["maths:M7.4"] = {
         { m: "$4t^2 + 9t - 100 = 0 \\Rightarrow (4t + 25)(t - 4) = 0 \\Rightarrow t = 4$", mk: "DM1 A1" },
         { m: "$\\mathbf r(4) = 14\\mathbf i - 16\\mathbf j$", mk: "M1" },
         { m: "$|\\mathbf r| = \\sqrt{196 + 256} = \\sqrt{452}$", mk: "M1" },
-        { m: "$= 2\\sqrt{113}$ m", mk: "A1" }
+        { m: "$= 2\\sqrt{113}$ m", mk: "A1", fig: { x: [-3, 17], y: [-18, 2], w: 380, h: 380, aspect: "equal", axes: { x: "i", y: "j", xt: [5, 10, 14], yt: [-16, -10, -5] }, items: [
+          { param: { x: "2*t^1.5-2", y: "-t^2" }, t: [0, 4.15], c: "accent", w: 2.4 },
+          { pt: [-2, 0], label: "t → 0", pos: "n", i: false }, { pt: [4.75, -5.0625], label: "t = 9/4", pos: "w", i: false }, { vec: [[4.75, -5.0625], [7.75, -8.0625]], c: "accent3" },
+          { line: [[0, 0], [14, -16]], c: "accent2", dash: true }, { pt: [14, -16], label: "t = 4: (14, −16)", pos: "w", i: false }, { text: [9, -8.5], t: "2√113", pos: "e", c: "accent2", b: true }
+        ], cap: "At $t = \\frac94$ the velocity is along $\\mathbf i - \\mathbf j$; at speed 10 ($t = 4$) $P$ is $2\\sqrt{113}$ m from $O$." } }
       ], result: "(b) $\\frac94$ (c) $(2t^{3/2} - 2)\\mathbf i - t^2\\mathbf j$ (d) $2\\sqrt{113}$ m" } },
     { worked: { tag: "exam", title: "Speed, acceleration, and a position from a later position", src: "A-level June 2022 · P3 Q1 · 8 marks",
       q: "At time $t$ seconds, $t > 0$, a particle $P$ has velocity $\\mathbf v = 3t^2\\mathbf i - 6t^{\\frac12}\\mathbf j$ m s$^{-1}$. **(a)** Find the speed of $P$ at $t = 2$. **(b)** Find the acceleration of $P$ at time $t$. At $t = 4$ the position vector of $P$ is $(\\mathbf i - 4\\mathbf j)$ m. **(c)** Find the position vector of $P$ at $t = 1$.",
@@ -1159,7 +1239,10 @@ C["maths:M7.4"] = {
         { h: "(b)", m: "$\\mathbf a = 6t\\mathbf i - 3t^{-\\frac12}\\mathbf j$", mk: "M1 A1" },
         { h: "(c) Integrate", m: "$\\mathbf r = t^3\\mathbf i - 4t^{\\frac32}\\mathbf j + \\mathbf c$", mk: "M1 A1" },
         { m: "$t = 4$: $64\\mathbf i - 32\\mathbf j + \\mathbf c = \\mathbf i - 4\\mathbf j \\Rightarrow \\mathbf c = -63\\mathbf i + 28\\mathbf j$", mk: "M1" },
-        { m: "$\\mathbf r(1) = (-62\\mathbf i + 24\\mathbf j)$ m", mk: "A1" }
+        { m: "$\\mathbf r(1) = (-62\\mathbf i + 24\\mathbf j)$ m", mk: "A1", fig: { x: [-68, 8], y: [-7, 28], w: 480, h: 250, aspect: "equal", axes: { x: "i", y: "j", xt: [-60, -40, -20], yt: [10, 20] }, items: [
+          { param: { x: "t^3-63", y: "-4*t^1.5+28" }, t: [1, 4], c: "accent", w: 2.4 },
+          { pt: [-62, 24], label: "t = 1: (−62, 24)", pos: "s", i: false }, { pt: [1, -4], label: "t = 4: (1, −4)", pos: "ne", i: false }
+        ], cap: "Integrating gives the path up to a constant; the known position at $t = 4$ pins it down, and then $t = 1$ is read back." } }
       ], result: "(a) 14.7 m s$^{-1}$ (c) $-62\\mathbf i + 24\\mathbf j$" } },
     { worked: { tag: "exam", title: "Speed at $t = 0$; parallel to $\\mathbf i + \\mathbf j$; acceleration perpendicular to $\\mathbf i$", src: "A-level June 2023 · P3 Q3 · 9 marks",
       q: "At time $t$ seconds, $t \\ge 0$, a particle $P$ has velocity $\\mathbf v = (t^2 - 3t + 7)\\mathbf i + (2t^2 - 3)\\mathbf j$ m s$^{-1}$. Find **(a)** the speed of $P$ at $t = 0$, **(b)** the value of $t$ when $P$ is moving parallel to $(\\mathbf i + \\mathbf j)$, **(c)** the acceleration of $P$ at time $t$, **(d)** the value of $t$ when the direction of the acceleration is perpendicular to $\\mathbf i$.",
@@ -1202,7 +1285,10 @@ C["maths:M7.4"] = {
         { h: "(c)", m: "$\\mathbf v = 6t^{\\frac12}\\mathbf i - 2t\\mathbf j$", mk: "M1 A1" },
         { h: "(d) Acceleration", m: "$\\mathbf a = 3t^{-\\frac12}\\mathbf i - 2\\mathbf j$", mk: "M1" },
         { h: "The line has direction $3\\mathbf i + \\mathbf j$", m: "Perpendicular: $(3T^{-\\frac12})(3) + (-2)(1) = 0$", mk: "A1 M1", n: "Or gradients: $\\dfrac{-2}{3T^{-1/2}} = -3$." },
-        { m: "$T^{-\\frac12} = \\tfrac29 \\Rightarrow T = \\tfrac{81}{4}$", mk: "A1" }
+        { m: "$T^{-\\frac12} = \\tfrac29 \\Rightarrow T = \\tfrac{81}{4}$", mk: "A1", fig: { x: [-3, 40], y: [-20, 3], w: 480, h: 280, aspect: "equal", axes: { x: "i", y: "j", xt: [16, 32], yt: [-16, -8] }, items: [
+          { param: { x: "4*t^1.5", y: "-t^2" }, t: [0, 4.3], c: "accent", w: 2.4 },
+          { line: [[0, 0], [32, -16]], c: "accent2", dash: true }, { pt: [32, -16], label: "t = 4: (32, −16)", pos: "w", i: false }, { text: [17, -7.2], t: "16√5", pos: "e", c: "accent2", b: true }
+        ], cap: "The path $\\mathbf r = 4t^{3/2}\\mathbf i - t^2\\mathbf j$; at $t = 4$, $P$ is $\\sqrt{32^2 + 16^2} = 16\\sqrt5$ m from $O$." } }
       ], result: "(a) $32\\mathbf i - 16\\mathbf j$ (b) $16\\sqrt5$ m (c) $6t^{1/2}\\mathbf i - 2t\\mathbf j$ (d) $\\frac{81}{4}$" } },
 
     /* ---------------------------------------------------------------- Exam toolkit */
@@ -1305,13 +1391,17 @@ C["maths:M7.5"] = {
     { worked: { tag: "example", title: "Time to the top and the greatest height", q: "A particle is projected from level ground with speed $U$ at angle $\\alpha$ above the horizontal. Derive the time to the greatest height and the greatest height.",
       steps: [
         { h: "Vertical: $v = u + at$ with $v = 0$", m: "$0 = U\\sin\\alpha - gt \\Rightarrow t = \\dfrac{U\\sin\\alpha}{g}$" },
-        { h: "Vertical: $v^2 = u^2 + 2as$", m: "$0 = U^2\\sin^2\\alpha - 2gH \\Rightarrow H = \\dfrac{U^2\\sin^2\\alpha}{2g}$" }
+        { h: "Vertical: $v^2 = u^2 + 2as$", m: "$0 = U^2\\sin^2\\alpha - 2gH \\Rightarrow H = \\dfrac{U^2\\sin^2\\alpha}{2g}$", fig: projFig(17.32, 10, 0, 2.041, { xt: [{ v: 17.67, label: "top" }], yt: [{ v: 5.102, label: "H" }], h: 200, ulabel: "U", y: [0, 7],
+          extra: [{ line: [[17.67, 0], [17.67, 5.102]], c: "accent2", dash: true }, { text: [18.5, 3], t: "vertical v = 0", pos: "e", c: "accent2", i: true, size: 11.5 }],
+          cap: "At the top the vertical velocity is zero; the horizontal velocity $U\\cos\\alpha$ is unchanged. (Drawn for $U = 20$, $\\alpha = 30°$.)" }) }
       ], result: "$t = \\frac{U\\sin\\alpha}{g}$, $H = \\frac{U^2\\sin^2\\alpha}{2g}$" } },
     { worked: { tag: "example", title: "Time of flight and range", q: "Derive the time of flight and the horizontal range on level ground, and the angle giving the greatest range.",
       steps: [
         { h: "Vertical: back to $y = 0$", m: "$0 = (U\\sin\\alpha)T - \\tfrac12 gT^2 \\Rightarrow T = \\dfrac{2U\\sin\\alpha}{g}$" },
         { h: "Horizontal", m: "$R = (U\\cos\\alpha)T = \\dfrac{2U^2\\sin\\alpha\\cos\\alpha}{g} = \\dfrac{U^2\\sin 2\\alpha}{g}$" },
-        { h: "Greatest range", m: "$\\sin 2\\alpha = 1 \\Rightarrow \\alpha = 45°$, $R_{\\max} = \\dfrac{U^2}{g}$", n: "Complementary angles ($\\alpha$ and $90° - \\alpha$) give the same range." }
+        { h: "Greatest range", m: "$\\sin 2\\alpha = 1 \\Rightarrow \\alpha = 45°$, $R_{\\max} = \\dfrac{U^2}{g}$", n: "Complementary angles ($\\alpha$ and $90° - \\alpha$) give the same range.", fig: projFig(17.32, 10, 0, 2.041, { xt: [{ v: 35.35, label: "R" }], yt: [5, 15], h: 220, ulabel: "30°", y: [0, 18], x: [-3, 40],
+          extra: [{ param: { x: "10*t", y: "17.32*t-4.9*t^2" }, t: [0, 3.535], c: "accent2", w: 2.4 }, { text: [10, 14], t: "60°", c: "accent2", b: true, size: 12 }, { pt: [35.35, 0], label: "same landing point", pos: "nw", i: false }],
+          cap: "$U = 20$ m s$^{-1}$ at $30°$ and at $60°$: $\\sin 60° = \\sin 120°$, so both land $\\frac{U^2\\sin2\\alpha}{g} = 35.3$ m away." }) }
       ], result: "$T = \\frac{2U\\sin\\alpha}{g}$, $R = \\frac{U^2\\sin 2\\alpha}{g}$" } },
     { worked: { tag: "example", title: "The equation of the path", q: "Show that the path is $y = x\\tan\\alpha - \\dfrac{gx^2}{2U^2\\cos^2\\alpha} = x\\tan\\alpha - \\dfrac{gx^2(1 + \\tan^2\\alpha)}{2U^2}$.",
       steps: [
@@ -1368,7 +1458,10 @@ C["maths:M7.5"] = {
         { h: "(b) $y = 0$", m: "$x\\left(\\tfrac34 - \\tfrac{x}{160}\\right) = 0 \\Rightarrow x = 120$", mk: "M1" },
         { m: "$OA = 120$ m", mk: "A1" },
         { h: "(c) Top halfway, at $x = 60$", m: "$H = \\tfrac34(60) - \\dfrac{60^2}{160}$", mk: "M1", n: "Or $\\frac{dy}{dx} = 0$, or $\\frac{21^2}{2 \\times 9.8}$." },
-        { m: "$H = 45 - 22.5 = 22.5$ m", mk: "A1" }
+        { m: "$H = 45 - 22.5 = 22.5$ m", mk: "A1", fig: { x: [-4, 132], y: [0, 28], w: 480, h: 200, axes: { x: "x (m)", y: "y (m)", xt: [60, 120], yt: [22.5] }, items: [
+          { fn: "0.75*x-x^2/160", from: 0, to: 120, c: "accent", w: 2.4 },
+          { pt: [0, 0], label: "O", pos: "s", i: false }, { pt: [120, 0], label: "A", pos: "n", i: false }, { pt: [60, 22.5], label: "(60, 22.5)", pos: "n", i: false }
+        ], cap: "$y = \\frac34 x - \\frac{x^2}{160}$: roots 0 and 120, so the top is halfway, at $x = 60$." } }
       ], result: "(b) 120 m (c) 22.5 m" } },
 
     /* ---------------------------------------------------------------- Page 4 */
@@ -1397,7 +1490,9 @@ C["maths:M7.5"] = {
         { h: "(b) Horizontal velocity at $A$", m: "$60$ m s$^{-1}$", mk: "B1" },
         { h: "Vertical velocity at $A$", m: "$25 - 10 \\times 7 = -45$", mk: "M1 A1ft" },
         { m: "speed $= \\sqrt{60^2 + 45^2}$", mk: "M1" },
-        { m: "$= 75$ m s$^{-1}$", mk: "A1", n: "Or straight from suvat: $v_y^2 = 25^2 + 2 \\times 10 \\times 70 = 2025$." }
+        { m: "$= 75$ m s$^{-1}$", mk: "A1", n: "Or straight from suvat: $v_y^2 = 25^2 + 2 \\times 10 \\times 70 = 2025$.", fig: projFig(60, 25, 70, 7, { g: 10, xt: [200, 420], yt: [70, 101.25], h: 230, ulabel: "65",
+          extra: [{ pt: [0, 70], label: "O", pos: "se", i: false }, { pt: [0, 0], label: "N", pos: "sw", i: false }, { pt: [420, 0], label: "A: 60i − 45j", pos: "nw", i: false }],
+          cap: "From 70 m up: 7 s in the air, 420 m out; at $A$ the velocity is $60\\mathbf i - 45\\mathbf j$, speed 75 m s$^{-1}$." }) }
       ], result: "(a) 7 s (b) 75 m s$^{-1}$" } },
     { worked: { tag: "exam", title: "The cliff height from the landing distance; the greatest height", src: "A-level June 2025 · P3 Q5 · 8 marks",
       q: "A small stone is projected with speed 14 m s$^{-1}$ from a point $O$ on the top of a cliff, $H$ metres vertically above the point $N$ on horizontal ground. It is projected at an angle $\\theta$ above the horizontal, where $\\tan\\theta = \\frac12$, and strikes the ground at $A$, where $NA = 40$ m. Modelling the stone as a particle moving freely under gravity, find **(a)** the value of $H$, **(b)** the maximum height of the stone above the horizontal ground.",
@@ -1408,7 +1503,9 @@ C["maths:M7.5"] = {
         { m: "$-H = 20 - 4.9 \\times \\dfrac{500}{49} = 20 - 50 \\Rightarrow H = 30$", mk: "A1" },
         { h: "(b) Rise above $O$", m: "$0 = \\left(\\dfrac{14}{\\sqrt5}\\right)^2 - 2 \\times 9.8 \\times h$", mk: "M1" },
         { m: "$h = \\dfrac{39.2}{19.6} = 2$", mk: "A1" },
-        { m: "$30 + 2 = 32$ m", mk: "A1" }
+        { m: "$30 + 2 = 32$ m", mk: "A1", fig: projFig(12.522, 6.261, 30, 3.194, { xt: [20, 40], yt: [30], h: 230, ulabel: "14",
+          extra: [{ pt: [0, 30], label: "O", pos: "se", i: false }, { pt: [0, 0], label: "N", pos: "sw", i: false }, { pt: [40, 0], label: "A", pos: "n", i: false }, { hline: 32, c: "accent2", label: "32 m" }],
+          cap: "$\\tan\\theta = \\frac12$: 2 m up from a 30 m cliff, landing 40 m out." }) }
       ], result: "(a) $H = 30$ (b) 32 m" } },
     { worked: { tag: "exam", title: "Does the serve clear the net? Its speed there", src: "A-level Specimen · P3 Q5(a)(b) · 12 marks",
       q: "A tennis player serves so the ball passes over the net. The ball is struck at $O$, 3.5 m vertically above the point $A$ on horizontal ground, with velocity 45 m s$^{-1}$ at 10° **below** the horizontal. The bottom of the net is $B$, on the ground, with $AB = 12$ m; the net is 1 m high. The ball is modelled as a particle moving freely under gravity and passes over the net vertically above $B$. Find, using the model, **(a)** in centimetres to 2 s.f., the distance between the ball and the top of the net as it passes over, **(b)** to 2 s.f., the speed of the ball as it passes over the net.",
@@ -1443,7 +1540,9 @@ C["maths:M7.5"] = {
         { m: "$\\tan\\alpha = \\frac14 \\Rightarrow \\alpha = 14.0°$", mk: "A1", n: "No restriction on accuracy, since $g$ cancels." },
         { h: "(d)", m: "$U = \\dfrac{\\sqrt{2 \\times 9.8}}{\\sin 14.04°} = 18.25$", mk: "M1" },
         { m: "$t = \\dfrac{20}{U\\cos\\alpha}$", mk: "M1" },
-        { m: "$t = 1.1$ s", mk: "A1" }
+        { m: "$t = 1.1$ s", mk: "A1", fig: projFig(17.71, 4.427, 2, 1.129, { xt: [10, 20], yt: [0.75, 2, 3], h: 220, ulabel: "U", x: [-1.5, 22.5], y: [0, 3.8],
+          extra: [{ pt: [0, 2], label: "A", pos: "w", i: false }, { pt: [20, 0.75], label: "T", pos: "ne", i: false }, { hline: 3, c: "accent2", label: "top 3 m" }],
+          cap: "$\\tan\\alpha = \\frac14$, $U = 18.25$ m s$^{-1}$: up 1 m to 3 m, then down to the target 0.75 m high, 20 m away, after 1.1 s." }) }
       ], result: "(b) 14° (d) 1.1 s" } },
 
     /* ---------------------------------------------------------------- Exam toolkit */

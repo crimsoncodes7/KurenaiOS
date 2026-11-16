@@ -36,14 +36,14 @@ C["maths:6.1"] = {
     { worked: { tag: "exam", title: "Sketch $y = 4^x$ and solve $4^x = 100$", src: "A-level June 2022 · P2 Q2 · 4 marks",
       q: "**(a)** Sketch $y = 4^x$, stating any points of intersection with the axes. **(b)** Solve $4^x = 100$ to 2 d.p.",
       steps: [
-        { h: "(a)", m: "Increasing exponential through $(0, 1)$, asymptote the $x$-axis, no $x$-intercept.", mk: "B1 B1", n: "Draw it approaching the axis on the left without touching, and mark $(0, 1)$." },
+        { h: "(a)", m: "Increasing exponential through $(0, 1)$, asymptote the $x$-axis, no $x$-intercept.", mk: "B1 B1", n: "Draw it approaching the axis on the left without touching, and mark $(0, 1)$.", fig: { x: [-3, 2], y: [-0.5, 12], axes: { xt: [-2, -1, 1], yt: [4, 8] }, items: [{ fn: "4^x", label: "y = 4ˣ", at: 1.5, pos: "w" }, { pt: [0, 1], label: "(0, 1)", pos: "nw" }], cap: "Through $(0, 1)$, rising; the $x$-axis is the asymptote, so there is no $x$-intercept." } },
         { h: "(b) Logs of both sides", m: "$x\\ln 4 = \\ln 100 \\Rightarrow x = \\dfrac{\\ln 100}{\\ln 4} = 3.32$", mk: "M1 A1", n: "Any base works: $\\frac{\\log 100}{\\log 4} = \\frac{2}{0.602}$." }
       ], result: "(b) $x = 3.32$" } },
     { worked: { tag: "example", title: "Sketching $y = e^{ax + b} + c$: read off intercept and asymptote", src: "routine",
       q: "Sketch $y = 3e^{-0.5x} + 2$ and $y = 4 - e^x$, giving the intercepts and asymptotes.",
       steps: [
         { m: "$y = 3e^{-0.5x} + 2$: at $x = 0$, $y = 5$; as $x \\to \\infty$, $e^{-0.5x} \\to 0$ so $y \\to 2$ (asymptote $y = 2$); as $x \\to -\\infty$, $y \\to \\infty$. Decreasing throughout.", fig: { x: [-3, 8], y: [-1, 10], axes: { xt: [-2, 2, 4, 6], yt: [2, 5, 8] }, items: [ { fn: "3*exp(-0.5*x)+2", label: "y = 3e^(−0.5x) + 2", at: 6, pos: "n" }, { hline: 2, c: "accent3", label: "y = 2" }, { pt: [0, 5], label: "(0, 5)", pos: "e" } ], cap: "Decay towards the asymptote $y = 2$; the $y$-intercept is $3 + 2 = 5$." } },
-        { m: "$y = 4 - e^x$: at $x = 0$, $y = 3$; asymptote $y = 4$ (as $x \\to -\\infty$); crosses the $x$-axis where $e^x = 4$, $x = \\ln 4 \\approx 1.39$. Decreasing, falling steeply to the right." }
+        { m: "$y = 4 - e^x$: at $x = 0$, $y = 3$; asymptote $y = 4$ (as $x \\to -\\infty$); crosses the $x$-axis where $e^x = 4$, $x = \\ln 4 \\approx 1.39$. Decreasing, falling steeply to the right.", fig: { x: [-4, 2.5], y: [-3, 5.5], axes: { xt: [-3, -2, -1, 1, 2], yt: [-2, 2, 4] }, items: [{ fn: "4-exp(x)", label: "y = 4 − eˣ", at: -2.5, pos: "s" }, { hline: 4, c: "accent3", label: "y = 4" }, { pt: [0, 3], label: "(0, 3)", pos: "e" }, { pt: [1.386, 0], label: "(ln 4, 0)", pos: "ne" }], cap: "The asymptote $y = 4$ is on the left; the curve crosses the $x$-axis at $x = \\ln 4$." } }
       ] } },
 
     { page: "Exam toolkit" },
@@ -99,7 +99,7 @@ C["maths:6.2"] = {
       q: "$N = Ae^{kt}$ bacteria after $t$ hours. There were 1000 at the start and the population doubled in exactly 5 hours. **(a)** Find a complete equation for the model. **(b)** Hence find the rate of increase after exactly 8 hours, to 2 s.f.",
       steps: [
         { h: "(a) $A$ from $t = 0$; $k$ from the doubling", m: "$A = 1000$; $2000 = 1000e^{5k} \\Rightarrow e^{5k} = 2 \\Rightarrow k = \\dfrac{\\ln 2}{5} = 0.1386$\n$N = 1000e^{0.139t}$ (or $1000e^{\\frac{t\\ln2}{5}}$)", mk: "B1 M1 M1 A1", n: "Take logs to bring $k$ down: $5k = \\ln 2$." },
-        { h: "(b) $\\frac{dN}{dt} = kN$", m: "$\\dfrac{dN}{dt} = 0.1386 \\times 1000e^{0.1386 \\times 8} = 0.1386 \\times 3031.4 = 420$ bacteria per hour", mk: "M1 A1", n: "Use the exact $k = \\frac{\\ln 2}{5}$ in the calculator; $e^{8\\ln2/5} = 2^{1.6}$." }
+        { h: "(b) $\\frac{dN}{dt} = kN$", m: "$\\dfrac{dN}{dt} = 0.1386 \\times 1000e^{0.1386 \\times 8} = 0.1386 \\times 3031.4 = 420$ bacteria per hour", mk: "M1 A1", n: "Use the exact $k = \\frac{\\ln 2}{5}$ in the calculator; $e^{8\\ln2/5} = 2^{1.6}$.", fig: { x: [0, 12], y: [0, 6000], pad: { l: 50 }, axes: { x: "t", y: "N", xt: [2, 4, 5, 6, 8, 10], yt: [1000, 2000, 3000, 4000, 5000] }, items: [{ fn: "1000*exp(0.1386*x)", label: "N = 1000e^(0.139t)", at: 10.5, pos: "w" }, { line: [[4.5, 1561], [11.5, 4501]], c: "accent2", dash: true, label: "gradient 420", lpos: 0.85, loff: 14 }, { pt: [0, 1000], label: "(0, 1000)", pos: "e" }, { pt: [5, 2000], label: "(5, 2000)", pos: "se" }, { pt: [8, 3031], label: "t = 8", pos: "se" }], cap: "The rate at $t = 8$ is the gradient of the tangent there: $kN = 0.1386 \\times 3031 \\approx 420$ per hour." } }
       ], result: "(a) $N = 1000e^{(\\ln 2/5)t}$ (b) $\\approx 420$ per hour" } },
     { worked: { tag: "exam", title: "Rate of change written in terms of $V$", src: "A-level June 2025 · P1 Q11(b)(c) · 4 marks",
       q: "$V = 1500 + Ae^{-kt}$ models a car's value. **(b)** Show that the rate of change of $V$ can be expressed as $-k(V - 1500)$. **(c)** State a limitation of the model.",
@@ -162,21 +162,21 @@ C["maths:6.3"] = {
       steps: [
         { h: "(a)", m: "$75 = 25 + A \\Rightarrow A = 50$: $\\theta = 25 + 50e^{-0.03t}$", mk: "B1" },
         { h: "(b) Isolate, then $\\ln$", m: "$60 = 25 + 50e^{-0.03t} \\Rightarrow e^{-0.03t} = 0.7 \\Rightarrow t = -\\dfrac{\\ln 0.7}{0.03} = 11.9$ min", mk: "M1 A1" },
-        { h: "(c) $t = 120$", m: "Model: $25 + 50e^{-3.6} = 26.4$ °C, but the tea was $20.3$ °C — **below** the model's floor of 25 °C. The model is not accurate (the room temperature is not 25 °C / the tea cooled below the assumed limit).", mk: "B1", n: "The comparison and the reason." }
+        { h: "(c) $t = 120$", m: "Model: $25 + 50e^{-3.6} = 26.4$ °C, but the tea was $20.3$ °C — **below** the model's floor of 25 °C. The model is not accurate (the room temperature is not 25 °C / the tea cooled below the assumed limit).", mk: "B1", n: "The comparison and the reason.", fig: { x: [0, 130], y: [0, 80], axes: { x: "t", y: "θ", xt: [20, 40, 60, 80, 100, 120], yt: [25, 50, 75] }, items: [{ fn: "25+50*exp(-0.03*x)", label: "θ = 25 + 50e^(−0.03t)", at: 40, pos: "ne" }, { hline: 25, c: "accent3", label: "θ = 25" }, { pt: [11.9, 60], label: "(11.9, 60)", pos: "ne" }, { pt: [120, 20.3], c: "danger", label: "measured 20.3", pos: "sw" }], cap: "The model never goes below 25 °C, but the tea was measured at 20.3 °C after 120 minutes." } }
       ], result: "(a) $\\theta = 25 + 50e^{-0.03t}$ (b) $11.9$ min (c) unreliable — measured value below the model's limit" } },
     { worked: { tag: "exam", title: "Tea at room temperature 18 °C: value at $t = 0$, time to 35 °C, why not 15 °C", src: "AS June 2020 · P1 Q8(a)(b)(c) · 5 marks",
       q: "$\\theta = 18 + 65e^{-t/8}$. **(a)** Find the temperature when the cup was placed on the table. **(b)** Find $t$, to 1 d.p., when the temperature was $35$ °C. **(c)** Explain why the temperature cannot fall to $15$ °C.",
       steps: [
         { h: "(a)", m: "$18 + 65 = 83$ °C", mk: "B1" },
         { h: "(b)", m: "$65e^{-t/8} = 17 \\Rightarrow -\\dfrac{t}{8} = \\ln\\dfrac{17}{65} \\Rightarrow t = 8\\ln\\dfrac{65}{17} = 10.7$ min", mk: "M1 M1 A1" },
-        { h: "(c)", m: "$e^{-t/8} > 0$ for all $t$, so $\\theta > 18$ always; 15 is below the asymptote.", mk: "B1" }
+        { h: "(c)", m: "$e^{-t/8} > 0$ for all $t$, so $\\theta > 18$ always; 15 is below the asymptote.", mk: "B1", fig: { x: [0, 40], y: [0, 90], axes: { x: "t", y: "θ", xt: [10, 20, 30], yt: [18, 35, 83] }, items: [{ fn: "18+65*exp(-x/8)", label: "θ = 18 + 65e^(−t/8)", at: 6, pos: "ne" }, { hline: 18, c: "accent3", label: "θ = 18" }, { pt: [0, 83], label: "(0, 83)", pos: "e" }, { pt: [10.7, 35], label: "(10.7, 35)", pos: "ne" }], cap: "The curve stays above its asymptote $\\theta = 18$, so 15 °C is never reached." } }
       ], result: "(a) 83 °C (b) 10.7 (c) $\\theta > 18$" } },
     { worked: { tag: "exam", title: "Tyre pressure: state $k$, time to reach 1, rate at $t = 2$", src: "AS June 2022 · P1 Q8 · 6 marks",
       q: "$P = k + 1.4e^{-0.5t}$ kg/cm$^2$; initially $P = 2.2$. **(a)** State $k$. **(b)** Find the time for $P$ to fall to $1$, to 1 d.p. **(c)** Find the rate of decrease of pressure at $t = 2$, to 3 s.f.",
       steps: [
         { h: "(a)", m: "$2.2 = k + 1.4 \\Rightarrow k = 0.8$", mk: "B1" },
         { h: "(b)", m: "$0.8 + 1.4e^{-0.5t} = 1 \\Rightarrow e^{-0.5t} = \\dfrac17 \\Rightarrow t = 2\\ln 7 = 3.9$ min", mk: "M1 A1 A1" },
-        { h: "(c)", m: "$\\dfrac{dP}{dt} = -0.7e^{-0.5t}$; at $t = 2$: $-0.7e^{-1} = -0.258$; decreasing at $0.258$ kg/cm$^2$ per minute", mk: "M1 A1", n: "\"Rate of decrease\" is stated positive: 0.258." }
+        { h: "(c)", m: "$\\dfrac{dP}{dt} = -0.7e^{-0.5t}$; at $t = 2$: $-0.7e^{-1} = -0.258$; decreasing at $0.258$ kg/cm$^2$ per minute", mk: "M1 A1", n: "\"Rate of decrease\" is stated positive: 0.258.", fig: { x: [0, 8], y: [0, 2.5], axes: { x: "t", y: "P", xt: [2, 4, 6], yt: [0.8, 1, 2.2] }, items: [{ fn: "0.8+1.4*exp(-0.5*x)", label: "P = 0.8 + 1.4e^(−0.5t)", at: 5.5, pos: "n" }, { hline: 0.8, c: "accent3" }, { line: [[0.6, 1.676], [3.4, 0.954]], c: "accent2", dash: true, label: "gradient −0.258", lpos: 0.1, loff: -14 }, { pt: [0, 2.2], label: "(0, 2.2)", pos: "e" }, { pt: [2, 1.315], label: "t = 2", pos: "ne" }, { pt: [3.89, 1], label: "(3.9, 1)", pos: "se" }], cap: "Pressure decays towards $k = 0.8$; the rate at $t = 2$ is the tangent's gradient, $-0.258$." } }
       ], result: "(a) 0.8 (b) 3.9 min (c) 0.258 kg/cm² per min" } },
 
     { page: "Exam toolkit" },
@@ -323,6 +323,7 @@ C["maths:6.5"] = {
 
     { page: "Hidden quadratics and inequalities" },
     { worked: { tag: "exam", title: "$3 \\times 2^x = 15 - 2^{x + 1}$ — a hidden linear equation in $2^x$", src: "A-level Oct 2020 · P2 Q5 · 4 marks",
+      fig: { x: [-3, 3], y: [-2, 18], axes: { xt: [-2, -1, 1, 2], yt: [5, 10, 15] }, items: [{ fn: "3*2^x", label: "y = 3 × 2ˣ", at: 2.4, pos: "w" }, { fn: "15-2^(x+1)", c: "accent3", label: "y = 15 − 2ˣ⁺¹", at: -2.2, pos: "s" }, { hline: 15, c: "muted" }, { pt: [1.585, 9], label: "P", pos: "ne" }], cap: "The rising curve meets the falling one once, at $P$." },
       q: "The curve $y = 3 \\times 2^x$ meets the curve $y = 15 - 2^{x + 1}$ at $P$. Find, using algebra, the exact $x$-coordinate of $P$.",
       steps: [
         { h: "$2^{x + 1} = 2 \\times 2^x$", m: "$3 \\times 2^x = 15 - 2 \\times 2^x \\Rightarrow 5 \\times 2^x = 15 \\Rightarrow 2^x = 3$", mk: "M1 M1 A1", n: "Index law first; then it is linear in $u = 2^x$." },
@@ -338,7 +339,7 @@ C["maths:6.5"] = {
       steps: [
         { m: "$45 + 220e^{0.05t} = 10 + 800e^{-0.05t}$; multiply by $e^{0.05t}$ and let $u = e^{0.05t}$: $220u^2 + 35u - 800 = 0$", mk: "M1 A1", n: "$e^{-0.05t} = \\frac{1}{u}$: multiplying through clears it." },
         { m: "$u = \\dfrac{-35 + \\sqrt{35^2 + 4 \\times 220 \\times 800}}{440} = 1.829$ (negative root rejected)", mk: "M1" },
-        { m: "$T = \\dfrac{\\ln 1.829}{0.05} = 12.08$ years", mk: "A1" }
+        { m: "$T = \\dfrac{\\ln 1.829}{0.05} = 12.08$ years", mk: "A1", fig: { x: [0, 25], y: [0, 900], axes: { x: "t", y: "N", xt: [5, 10, 15, 20], yt: [200, 400, 600, 800] }, items: [{ fn: "45+220*exp(0.05*x)", label: "bees", at: 22, pos: "nw" }, { fn: "10+800*exp(-0.05*x)", c: "accent3", label: "wasps", at: 3, pos: "ne" }, { vline: 12.08, c: "muted" }, { pt: [12.08, 447], label: "T = 12.08", pos: "s" }], cap: "The populations cross once, at $t = 12.08$ years (about 447 thousand each)." } }
       ], result: "$T = 12.08$" } },
     { worked: { tag: "exam", title: "First year the value exceeds £100 000 — $Ap^t$ with two data points", src: "A-level June 2018 · P1 Q12 · 10 marks",
       q: "$V = Ap^t$ is a car's value $t$ years after 1 Jan 2001; it was £32 000 on 1 Jan 2005 and £50 000 on 1 Jan 2012. **(a)(i)** Find $p$ to 4 d.p. **(ii)** Show that $A \\approx 24\\,800$. **(b)** Interpret $A$ and $p$. **(c)** Find the year during which the value first exceeds £100 000.",
@@ -346,7 +347,7 @@ C["maths:6.5"] = {
         { h: "(a) Divide the two equations", m: "$\\dfrac{Ap^{11}}{Ap^4} = \\dfrac{50\\,000}{32\\,000} \\Rightarrow p^7 = 1.5625 \\Rightarrow p = 1.5625^{1/7} = 1.0658$", mk: "M1 A1", n: "Dividing removes $A$; a seventh root (or $\\ln$) gives $p$." },
         { m: "$A = \\dfrac{32\\,000}{1.0658^4} = 24\\,797 \\approx 24\\,800$", mk: "M1 A1*" },
         { h: "(b)", m: "$A$: the value (£24 800) on 1 January 2001. $p$: the value multiplies by 1.0658 each year — a 6.58% annual increase.", mk: "B1 B1" },
-        { h: "(c)", m: "$24\\,800 \\times 1.0658^t > 100\\,000 \\Rightarrow t > \\dfrac{\\ln(100\\,000/24\\,800)}{\\ln 1.0658} = 21.9$; $t = 21.9$ years after 1 Jan 2001 is during **2022**", mk: "M1 M1 A1 A1", n: "$t = 21$ is 1 Jan 2022; the crossing at $21.9$ falls inside 2022." }
+        { h: "(c)", m: "$24\\,800 \\times 1.0658^t > 100\\,000 \\Rightarrow t > \\dfrac{\\ln(100\\,000/24\\,800)}{\\ln 1.0658} = 21.9$; $t = 21.9$ years after 1 Jan 2001 is during **2022**", mk: "M1 M1 A1 A1", n: "$t = 21$ is 1 Jan 2022; the crossing at $21.9$ falls inside 2022.", fig: { x: [0, 25], y: [0, 120], axes: { x: "t", y: "V (£000)", xt: [4, 11, 20], yt: [25, 50, 100] }, items: [{ fn: "24.8*1.0658^x", label: "V = 24 800 × 1.0658ᵗ", at: 14, pos: "nw" }, { hline: 100, c: "accent3", label: "£100 000" }, { pt: [4, 32], label: "(4, 32 000)", pos: "se" }, { pt: [11, 50], label: "(11, 50 000)", pos: "se" }, { pt: [21.9, 100], label: "t = 21.9", pos: "se" }], cap: "The two data points fix $A$ and $p$; the curve passes £100 000 at $t = 21.9$, during 2022." } }
       ], result: "(a) $p = 1.0658$, $A \\approx 24\\,800$ (c) 2022" } },
 
     { page: "Exam toolkit" },
@@ -403,6 +404,7 @@ C["maths:6.6"] = {
         { h: "(c) $t = 24$", m: "Model: $1000 \\times 0.953^{24} = £315$; actual £320 — very close, so the model is reliable (over this period).", mk: "M1 A1", n: "Compute, compare, conclude — here the verdict is positive." }
       ], result: "(a) £1000 (b) $V = 1000 \\times 0.953^t$ (c) predicts £315 vs £320: reliable" } },
     { worked: { tag: "exam", title: "Pendulum: show the linear form, then $a$ and $b$ from two points", src: "A-level Oct 2021 · P2 Q10 · 6 marks",
+      fig: { x: [-1, 0.6], y: [-0.3, 0.7], axes: { x: "log₁₀ l", y: "log₁₀ T", xt: [-0.7, 0.21], yt: [0.45] }, items: [{ fn: "0.4945*x+0.346", from: -0.95, to: 0.5 }, { pt: [-0.7, 0], label: "(−0.7, 0)", pos: "nw" }, { pt: [0.21, 0.45], label: "(0.21, 0.45)", pos: "se" }], cap: "A straight line on log–log axes: its gradient is $b$ and its intercept $\\log_{10} a$." },
       q: "$T = al^b$ models the time $T$ s for a pendulum of length $l$ m to swing. **(a)** Show that this can be written $\\log_{10}T = b\\log_{10}l + \\log_{10}a$. **(b)** The line of $\\log_{10}T$ against $\\log_{10}l$ passes through $(-0.7, 0)$ and $(0.21, 0.45)$. Find $a$ and $b$ to 2 s.f.",
       steps: [
         { h: "(a) Take logs, use product and power laws", m: "$\\log_{10}T = \\log_{10}a + \\log_{10}l^b = b\\log_{10}l + \\log_{10}a$", mk: "M1 A1*" },
@@ -412,7 +414,7 @@ C["maths:6.6"] = {
     { worked: { tag: "exam", title: "Log–log: explain the model and read $k$ and $n$", src: "A-level June 2019 · P2 Q9(a) · 3 marks",
       q: "Braking distance $d$ m at speed $V$ km/h: the plot of $\\log_{10}d$ against $\\log_{10}V$ is a straight line with intercept $(0, -1.77)$, and the point $(30, 20)$ is on the $d$–$V$ graph. Explain how this leads to the model $d = kV^n$ with $k \\approx 0.017$.",
       steps: [
-        { m: "A straight line on log–log axes means $\\log d = n\\log V + c$, i.e. $d = 10^c V^n = kV^n$: a power law.", mk: "B1" },
+        { m: "A straight line on log–log axes means $\\log d = n\\log V + c$, i.e. $d = 10^c V^n = kV^n$: a power law.", mk: "B1", fig: { x: [-0.2, 2.2], y: [-2, 3], axes: { x: "log₁₀ V", y: "log₁₀ d", xt: [1, 1.48, 2], yt: [-1.77, 1.3] }, items: [{ fn: "2.08*x-1.77", from: -0.1, to: 2.15 }, { pt: [0, -1.77], label: "(0, −1.77)", pos: "e" }, { pt: [1.477, 1.301], label: "(log 30, log 20)", pos: "se" }], cap: "The intercept is $\\log_{10}k = -1.77$; the gradient through $(\\log 30, \\log 20)$ is $n \\approx 2$." } },
         { m: "Intercept $c = -1.77 \\Rightarrow k = 10^{-1.77} = 0.017$", mk: "B1" },
         { m: "Through $(30, 20)$: $20 = 0.017 \\times 30^n \\Rightarrow n = \\dfrac{\\ln(20/0.017)}{\\ln 30} \\approx 2.08 \\approx 2$ — braking distance grows with the square of speed.", mk: "B1" }
       ], result: "$d \\approx 0.017V^2$" } },
@@ -424,6 +426,7 @@ C["maths:6.6"] = {
         { h: "(c) $V$ is already a total", m: "$V(20) = 239 \\times 1.18^{20} \\approx 6600$", mk: "M1 A1", n: "No summing — the model gives the running total." }
       ], result: "(a) $V = 239 \\times 1.18^t$ (b) views after day 1 (c) 6600" } },
     { worked: { tag: "exam", title: "Heart rate $h = pm^q$ from a log–log line; test on a 5 kg mammal", src: "AS Nov 2021 · P1 Q13 · 7 marks",
+      fig: { x: [-0.4, 3], y: [1.4, 2.5], axes: { x: "log₁₀ m", y: "log₁₀ h", xt: [1, 2], yt: [1.6, 2, 2.25] }, items: [{ fn: "2.25-0.235*x", from: 0, to: 2.9 }, { pt: [0, 2.25], label: "(0, 2.25)", pos: "ne" }], cap: "A falling straight line: intercept 2.25, gradient $-0.235$." },
       q: "$h = pm^q$ gives resting heart rate $h$ (bpm) for mass $m$ kg. The line of $\\log_{10}h$ against $\\log_{10}m$ meets the vertical axis at 2.25 and has gradient $-0.235$. **(a)** Find $p$ and $q$ to 3 s.f. A 5 kg mammal has resting heart rate 119 bpm. **(b)** Comment on the suitability of the model for this mammal. **(c)** Interpret $q$.",
       steps: [
         { h: "(a)", m: "$q = -0.235$; $\\log_{10}p = 2.25 \\Rightarrow p = 178$", mk: "M1 A1 A1" },
@@ -434,7 +437,7 @@ C["maths:6.6"] = {
       q: "A tree's height $h$ m, $t$ years after planting, is modelled by $h^2 = at + b$. It was 2.60 m after 2 years and 5.10 m after 10 years. **(a)** Find a complete equation, $a$ and $b$ to 3 s.f. It was 7 m after 20 years. **(b)** Evaluate the model.",
       steps: [
         { h: "(a) Two points on the line $h^2$ vs $t$", m: "$6.76 = 2a + b$, $\\; 26.01 = 10a + b \\Rightarrow 8a = 19.25 \\Rightarrow a = 2.41$, $b = 1.95$\n$h^2 = 2.41t + 1.95$", mk: "M1 A1 A1 A1", n: "Square the heights first — the linear variable is $h^2$." },
-        { h: "(b) $t = 20$", m: "$h^2 = 50.07 \\Rightarrow h = 7.08$ m, against the actual 7 m: a good fit, the model is reliable at 20 years.", mk: "M1 A1" }
+        { h: "(b) $t = 20$", m: "$h^2 = 50.07 \\Rightarrow h = 7.08$ m, against the actual 7 m: a good fit, the model is reliable at 20 years.", mk: "M1 A1", fig: { x: [0, 22], y: [0, 56], axes: { x: "t", y: "h²", xt: [2, 10, 20], yt: [10, 20, 30, 40, 50] }, items: [{ fn: "2.40625*x+1.9475", from: 0, to: 21.5, label: "h² = 2.41t + 1.95", at: 14, pos: "nw" }, { pt: [2, 6.76], label: "(2, 6.76)", pos: "se" }, { pt: [10, 26.01], label: "(10, 26.01)", pos: "se" }, { pt: [20, 49], c: "accent3", label: "actual (20, 49)", pos: "nw" }], cap: "The model's line passes through both data points; at $t = 20$ it gives $h^2 = 50.07$, just above the actual $7^2 = 49$." } }
       ], result: "(a) $h^2 = 2.41t + 1.95$ (b) predicts 7.08 vs 7: good" } },
 
     { page: "Exam toolkit" },
@@ -507,7 +510,7 @@ C["maths:6.7"] = {
       q: "$\\theta = A - Be^{-0.07t}$ °C after $t$ seconds; initially $18$ °C, after 10 s $44$ °C. **(a)** Find $A$ and $B$ to 3 s.f. Ethanol boils at about $78$ °C. **(b)** Evaluate the model.",
       steps: [
         { h: "(a)", m: "$t = 0$: $A - B = 18$. $t = 10$: $A - Be^{-0.7} = 44$. Subtract: $B(1 - e^{-0.7}) = 26 \\Rightarrow B = 51.6$, $A = 69.6$", mk: "M1 A1 M1 A1" },
-        { h: "(b)", m: "The model's temperature approaches $A = 69.6$ °C and never exceeds it — so it never reaches the boiling point of 78 °C, contradicting the fact that the ethanol was heated until it boiled. The model is not appropriate.", mk: "M1 A1", n: "The limit is the thing to compare with." }
+        { h: "(b)", m: "The model's temperature approaches $A = 69.6$ °C and never exceeds it — so it never reaches the boiling point of 78 °C, contradicting the fact that the ethanol was heated until it boiled. The model is not appropriate.", mk: "M1 A1", n: "The limit is the thing to compare with.", fig: { x: [0, 80], y: [0, 90], axes: { x: "t", y: "θ", xt: [10, 20, 40, 60], yt: [18, 44, 69.6, 78] }, items: [{ fn: "69.6-51.6*exp(-0.07*x)", label: "θ = 69.6 − 51.6e^(−0.07t)", at: 40, pos: "s" }, { hline: 69.6, c: "accent3" }, { hline: 78, c: "danger", label: "boils 78" }, { pt: [0, 18], label: "(0, 18)", pos: "e" }, { pt: [10, 44], label: "(10, 44)", pos: "se" }], cap: "The model levels off at 69.6 °C, below the boiling point — so it cannot describe heating until it boils." } }
       ], result: "(a) $A = 69.6$, $B = 51.6$ (b) limit 69.6 < 78: unsuitable" } },
     { worked: { tag: "exam", title: "Car sales $N = 5000 - 5000e^{-0.075t}$: value, time, rate, refinement", src: "A-level June 2025 · P2 Q9 · 8 marks",
       q: "$N$ cars sold $t$ months after release. **(a)** Find the number sold in the first 3 months. **(b)** Find $T$ when $N = 3000$, to 2 d.p. **(c)** Find the rate of increase in sales at $t = 3$, to 3 s.f. After a marketing campaign the total is expected to rise with an upper limit of 6500. **(d)** Suggest one refinement.",
@@ -515,13 +518,13 @@ C["maths:6.7"] = {
         { h: "(a)", m: "$N(3) = 5000(1 - e^{-0.225}) = 1007$ cars", mk: "M1 A1" },
         { h: "(b)", m: "$5000e^{-0.075T} = 2000 \\Rightarrow e^{-0.075T} = 0.4 \\Rightarrow T = \\dfrac{\\ln 2.5}{0.075} = 12.22$ months", mk: "M1 A1 A1" },
         { h: "(c)", m: "$\\dfrac{dN}{dt} = 375e^{-0.075t}$; at $t = 3$: $375e^{-0.225} = 299$ cars per month", mk: "M1 A1" },
-        { h: "(d)", m: "Replace the limit: $N = 6500 - 6500e^{-0.075t}$ (or change the constant so the ceiling is 6500).", mk: "B1" }
+        { h: "(d)", m: "Replace the limit: $N = 6500 - 6500e^{-0.075t}$ (or change the constant so the ceiling is 6500).", mk: "B1", fig: { x: [0, 60], y: [0, 7200], pad: { l: 50 }, axes: { x: "t", y: "N", xt: [3, 12.22, 30, 45], yt: [1007, 3000, 5000, 6500] }, items: [{ fn: "5000-5000*exp(-0.075*x)", label: "limit 5000", at: 50, pos: "s" }, { fn: "6500-6500*exp(-0.075*x)", c: "accent3", dash: true, label: "limit 6500", at: 50, pos: "n" }, { hline: 5000, c: "muted" }, { hline: 6500, c: "muted" }, { pt: [3, 1007], label: "(3, 1007)", pos: "se" }, { pt: [12.22, 3000], label: "(12.22, 3000)", pos: "se" }], cap: "The refined model keeps the shape and raises the ceiling from 5000 to 6500." } }
       ], result: "(a) 1007 (b) 12.22 (c) 299 per month (d) $N = 6500 - 6500e^{-0.075t}$" } },
     { worked: { tag: "exam", title: "Coffee cooling: $A$ from the start, $B$ from the initial rate", src: "A-level June 2023 · P2 Q4 · 4 marks",
       q: "$H = Ae^{-Bt} + 30$ is the temperature of coffee after $t$ minutes; initially $85$ °C and cooling at $7.5$ °C per minute. **(a)** State $A$. **(b)** Find a complete equation with $B$ to 3 d.p.",
       steps: [
         { h: "(a)", m: "$A + 30 = 85 \\Rightarrow A = 55$", mk: "B1" },
-        { h: "(b) The rate at $t = 0$", m: "$\\dfrac{dH}{dt} = -ABe^{-Bt}$; at $t = 0$: $-55B = -7.5 \\Rightarrow B = 0.136$\n$H = 55e^{-0.136t} + 30$", mk: "M1 A1 A1", n: "A *rate* given at a time is a derivative condition, not a value." }
+        { h: "(b) The rate at $t = 0$", m: "$\\dfrac{dH}{dt} = -ABe^{-Bt}$; at $t = 0$: $-55B = -7.5 \\Rightarrow B = 0.136$\n$H = 55e^{-0.136t} + 30$", mk: "M1 A1 A1", n: "A *rate* given at a time is a derivative condition, not a value.", fig: { x: [0, 30], y: [0, 92], axes: { x: "t", y: "H", xt: [5, 10, 20], yt: [30, 85] }, items: [{ fn: "55*exp(-0.136*x)+30", label: "H = 55e^(−0.136t) + 30", at: 14, pos: "ne" }, { hline: 30, c: "accent3" }, { line: [[0, 85], [6, 40]], c: "accent2", dash: true, label: "gradient −7.5", lpos: 0.7, loff: -14 }, { pt: [0, 85], label: "(0, 85)", pos: "e" }], cap: "The initial rate is the tangent's gradient at $t = 0$: $-55B = -7.5$." } }
       ], result: "$H = 55e^{-0.136t} + 30$" } },
 
     { page: "Growth without limit, and evaluating" },
@@ -531,20 +534,20 @@ C["maths:6.7"] = {
         { h: "(a)", m: "$0.2$ m$^2$", mk: "B1" },
         { h: "(b)", m: "$\\dfrac{dA}{dt} = 0.06e^{0.3t}$; at $t = 5$: $0.06e^{1.5} = 0.269$ m$^2$/day", mk: "M1 A1" },
         { h: "(c)", m: "$0.2e^{0.3t} = 100 \\Rightarrow t = \\dfrac{\\ln 500}{0.3} = 20.72$ days $= 497$ hours", mk: "M1 A1 A1 A1", n: "$20.72 \\times 24 = 497.2$." },
-        { h: "(d)", m: "The model says the pond is fully covered after 21 days (and predicts more than the pond's area after that), but after a month only 90% was covered — the model over-estimates; unlimited exponential growth is not realistic (growth slows as space runs out).", mk: "B1" }
+        { h: "(d)", m: "The model says the pond is fully covered after 21 days (and predicts more than the pond's area after that), but after a month only 90% was covered — the model over-estimates; unlimited exponential growth is not realistic (growth slows as space runs out).", mk: "B1", fig: { x: [0, 32], y: [0, 120], axes: { x: "t", y: "A", xt: [10, 20.72, 30], yt: [50, 90, 100] }, items: [{ fn: "0.2*exp(0.3*x)", label: "A = 0.2e^(0.3t)", at: 19, pos: "w" }, { hline: 100, c: "accent3", label: "pond 100 m²" }, { pt: [20.72, 100], label: "t = 20.72", pos: "se" }, { pt: [30, 90], c: "danger", label: "actual 90", pos: "s" }], cap: "The model fills the pond in under 21 days and keeps growing; after 30 days only 90 m² was covered." } }
       ], result: "(a) 0.2 m² (b) 0.269 m²/day (c) 497 h (d) over-estimates; growth must slow" } },
     { worked: { tag: "exam", title: "Car value: build $V = 20\\,000 \\times 0.8^t$ from two facts, evaluate, adapt", src: "A-level June 2019 · P1 Q7 · 7 marks",
       q: "Car A: worth £20 000 new and £16 000 after one year. **(a)** Use an exponential model to form a possible equation linking $V$ with $t$. **(b)** After 10 years car A was worth £2000. Evaluate the model. **(c)** Car B has the same new value but depreciates more slowly. Explain how to adapt the equation.",
       steps: [
         { h: "(a) $V = Ab^t$ (or $Ae^{kt}$)", m: "$A = 20\\,000$; $16\\,000 = 20\\,000b \\Rightarrow b = 0.8$: $V = 20\\,000 \\times 0.8^t$ (equivalently $20\\,000e^{-0.223t}$)", mk: "M1 A1 M1 A1" },
         { h: "(b)", m: "$V(10) = 20\\,000 \\times 0.8^{10} = £2147$, against £2000 — close, so the model is reasonably reliable.", mk: "M1 A1" },
-        { h: "(c)", m: "Keep $A = 20\\,000$ and use a value of $b$ closer to 1 (e.g. $0.9$) — a smaller yearly percentage loss.", mk: "B1" }
+        { h: "(c)", m: "Keep $A = 20\\,000$ and use a value of $b$ closer to 1 (e.g. $0.9$) — a smaller yearly percentage loss.", mk: "B1", fig: { x: [0, 12], y: [0, 22], axes: { x: "t", y: "V (£000)", xt: [1, 5, 10], yt: [2, 10, 16, 20] }, items: [{ fn: "20*0.8^x", label: "car A: 20 × 0.8ᵗ", at: 4, pos: "sw" }, { fn: "20*0.9^x", c: "accent3", dash: true, label: "car B: b = 0.9", at: 7, pos: "ne" }, { pt: [1, 16], label: "(1, 16)", pos: "ne" }, { pt: [10, 2], c: "danger", label: "actual £2000", pos: "n" }], cap: "Car A's model gives £2147 at 10 years against £2000 actual; a $b$ closer to 1 decays more slowly." } }
       ], result: "(a) $V = 20\\,000 \\times 0.8^t$ (b) £2147 vs £2000: reliable (c) larger $b$" } },
     { worked: { tag: "exam", title: "Two metal prices: find $p$; when the rates of change are equal in size", src: "AS June 2024 · P1 Q11 · 6 marks",
       q: "Metal A: $V_A = 100 + 20e^{0.04t}$; metal B: $V_B = pe^{-0.02t}$ (£ per gram, $t$ months). At $t = 0$, $V_B = 2V_A$. **(a)** Find $p$. **(b)** When $t = T$ the rate of increase of $V_A$ equals the rate of decrease of $V_B$. Find $T$ to 1 d.p.",
       steps: [
         { h: "(a)", m: "$V_A(0) = 120$, so $p = 240$", mk: "M1 A1" },
-        { h: "(b)", m: "$\\dfrac{dV_A}{dt} = 0.8e^{0.04t}$, $\\dfrac{dV_B}{dt} = -4.8e^{-0.02t}$. Equal magnitudes: $0.8e^{0.04T} = 4.8e^{-0.02T} \\Rightarrow e^{0.06T} = 6 \\Rightarrow T = \\dfrac{\\ln 6}{0.06} = 29.9$", mk: "M1 A1 M1 A1", n: "Divide the exponentials: $e^{0.04T}/e^{-0.02T} = e^{0.06T}$." }
+        { h: "(b)", m: "$\\dfrac{dV_A}{dt} = 0.8e^{0.04t}$, $\\dfrac{dV_B}{dt} = -4.8e^{-0.02t}$. Equal magnitudes: $0.8e^{0.04T} = 4.8e^{-0.02T} \\Rightarrow e^{0.06T} = 6 \\Rightarrow T = \\dfrac{\\ln 6}{0.06} = 29.9$", mk: "M1 A1 M1 A1", n: "Divide the exponentials: $e^{0.04T}/e^{-0.02T} = e^{0.06T}$.", fig: { x: [0, 50], y: [60, 260], axes: { x: "t", y: "£/g", xt: [10, 20, 40], yt: [100, 120, 200, 240] }, items: [{ fn: "100+20*exp(0.04*x)", label: "V_A", at: 46, pos: "nw" }, { fn: "240*exp(-0.02*x)", c: "accent3", label: "V_B", at: 46, pos: "ne" }, { line: [[22, 145.2], [38, 187.4]], c: "accent2", dash: true }, { line: [[22, 152.9], [38, 110.6]], c: "accent2", dash: true }, { vline: 29.86, c: "muted", label: "T = 29.9" }, { pt: [29.86, 166] }, { pt: [29.86, 132.1] }], cap: "At $t = T$ the two tangents have gradients $+2.64$ and $-2.64$: equal in size, opposite in sign." } }
       ], result: "(a) 240 (b) $T = 29.9$" } },
 
     { page: "Exam toolkit" },

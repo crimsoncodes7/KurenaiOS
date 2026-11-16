@@ -117,7 +117,7 @@ C["compsci:4.7.3.3"] = {
       ], result: "Instruction sets differ" } },
     { worked: { tag: "exam", title: "How many opcodes?", src: "AS June 2018 · P2 Q10.2 · 1 mark",
       q: "A processor supports 32 different basic machine code operations, and two addressing modes represented by a single bit. How many different opcodes is the machine potentially capable of supporting?",
-      steps: [{ m: "32 operations need 5 bits; + 1 mode bit = 6 bits → $2^6$ = **64**", mk: "1 mark" }], result: "64" } },
+      steps: [{ m: "32 operations need 5 bits; + 1 mode bit = 6 bits → $2^6$ = **64**", mk: "1 mark" }], result: "64", fig: fieldsFig([["Operation", 5, "accent"], ["Mode", 1, "accent2"], ["Operand", 10, "good"]]).fig, try: [{ grid: { cols: ["Basic operations", "Mode bits", "Possible opcodes"], rows: [["8", "1", "16"], ["16", "1", "32"], ["64", "2", "256"], ["128", "1", "256"]], given: [[0, 0], [0, 1], [1, 0], [1, 1], [2, 0], [2, 1], [3, 0], [3, 1]], cap: "**Your turn.** Bits for the operations, plus the mode bits: how many opcodes?" } }] } },
     { worked: { tag: "exam", title: "How many memory locations?", src: "AS June 2018 · P2 Q10.3 · 1 mark",
       q: "In the same 16-bit instruction format (5-bit operation, 1-bit mode) the remaining 10 bits are the operand. In direct addressing the operand is the address of the data. How many memory locations could the processor potentially make use of?",
       steps: [{ m: "$2^{10}$ = **1024**", mk: "1 mark", n: "Same arithmetic in A-level 2020 Q09.1 (a 10-bit operand addressing any location): 1024 // 1 KiB." }], result: "1024" } },
@@ -331,16 +331,16 @@ C["compsci:4.7.3.5"] = {
     ] } },
     { worked: { tag: "exam", title: "Masking with AND", src: "A-level June 2023 · P2 Q07.1 · 1 mark",
       q: "Registers hold 8-bit values. In binary, show the result of AND R0, R1, #15 when R1 contains the decimal value 70 (46 in hexadecimal).",
-      steps: [{ m: "R1 = 0100 0110, 15 = 0000 1111 → R0 = **0000 0110**", mk: "1 mark", n: "R. any cell of R0 left empty — write all 8 bits." }], result: "00000110" } },
+      steps: [{ m: "R1 = 0100 0110, 15 = 0000 1111 → R0 = **0000 0110**", mk: "1 mark", n: "R. any cell of R0 left empty — write all 8 bits." }], result: "00000110", try: [{ grid: { cols: ["R1 (decimal)", "R1 in binary", "AND R0, R1, #15"], rows: [["200", "11001000", "00001000"], ["93", "01011101", "00001101"], ["15", "00001111", "00001111"], ["255", "11111111", "00001111"]], given: [[0, 0], [1, 0], [2, 0], [3, 0]], cap: "**Your turn.** Write R1 in 8 bits, then the result of the mask — all 8 bits." } }] } },
     { worked: { tag: "exam", title: "Setting bits with ORR", src: "A-level June 2023 · P2 Q07.2 · 1 mark",
       q: "In binary, show the result of ORR R0, R1, #48 when R1 contains the decimal value 6.",
-      steps: [{ m: "R1 = 0000 0110, 48 = 0011 0000 → R0 = **0011 0110**", mk: "1 mark", n: "48 = 0x30: this turns the digit 6 into the ASCII code for '6'." }], result: "00110110" } },
+      steps: [{ m: "R1 = 0000 0110, 48 = 0011 0000 → R0 = **0011 0110**", mk: "1 mark", n: "48 = 0x30: this turns the digit 6 into the ASCII code for '6'." }], result: "00110110", try: [{ grid: { cols: ["R1 (decimal)", "R1 in binary", "ORR R0, R1, #48"], rows: [["3", "00000011", "00110011"], ["9", "00001001", "00111001"], ["0", "00000000", "00110000"]], given: [[0, 0], [1, 0], [2, 0]], cap: "**Your turn.** ORR with 0011 0000 turns each digit into its ASCII code." } }] } },
     { worked: { tag: "exam", title: "Test for odd", src: "AS June 2016 · P2 Q04.2 · 1 mark",
       q: "All even numbers end in 0 and all odd numbers end in 1. Complete the instruction to help identify whether R1 contains an odd number, storing the result in R3: AND R3, R1, ___",
       steps: [{ m: "**#1**;", mk: "1 mark", n: "R. 1 (without #). R3 = 1 if odd, 0 if even." }], result: "#1" } },
     { worked: { tag: "exam", title: "One logical shift", src: "AS June 2017 · P2 Q07.2 · 1 mark",
       q: "R1 contains the decimal value 7. What value will be contained in R1 after LSL R1, R1, #2 is executed?",
-      steps: [{ m: "0111 → 11100 = **28** (7 × 2²)", mk: "1 mark" }], result: "28" } },
+      steps: [{ m: "0111 → 11100 = **28** (7 × 2²)", mk: "1 mark" }], result: "28", try: [{ grid: { cols: ["Instruction", "R1 before", "R1 after"], rows: [["LSL R1, R1, #1", "13", "26"], ["LSL R1, R1, #3", "5", "40"], ["LSR R1, R1, #2", "52", "13"], ["LSR R1, R1, #1", "7", "3"]], given: [[0, 0], [0, 1], [1, 0], [1, 1], [2, 0], [2, 1], [3, 0], [3, 1]], cap: "**Your turn.** Each shift on its own: LSL multiplies by 2ⁿ, LSR integer-divides." } }] } },
     { callout: { t: "miscon", h: "Side by side: logical vs arithmetic shift", body: "AQA's LSR fills with **0**, so it halves only **unsigned** (or positive) values: LSR of 1111 1100 (−4) gives 0111 1110 (126), not −2. An arithmetic shift right would copy the sign bit — not in the AQA set." } },
 
     { page: "Writing programs: AS" },
@@ -350,7 +350,7 @@ C["compsci:4.7.3.5"] = {
         { m: "`AND R3, R1, #1` · `CMP R3, #0` · `BEQ even`", mk: "2 marks", n: "AO3 design: a comparison and branch for the IF (1); labels for branching (1). AO3 programming: compare R3 with 0 or 1 and branch with the right condition (1)." },
         { m: "`MOV R2, #79` · `B end`", mk: "2 marks", n: "79 into R2 in the ELSE part (1); an unconditional branch over the other MOV, or HALT (1)." },
         { m: "`even:` · `MOV R2, #69` · `end:`", mk: "2 marks", n: "69 into R2 in the THEN part (1). MAX 3 programming marks if syntax is wrong or it fails in any case. DPT missing #." }
-      ], result: "AND / CMP / BEQ / two MOVs" } },
+      ], result: "AND / CMP / BEQ / two MOVs", try: [{ trace: { code: "      AND R3, R1, #1\n      CMP R3, #0\n      BEQ even\n      MOV R2, #79\n      B end\neven: MOV R2, #69\nend:  HALT", lang: "asm", cols: ["Instruction", "R2", "R3"], rows: [["AND R3, R1, #1", "", "1"], ["CMP R3, #0", "", ""], ["BEQ even", "", ""], ["MOV R2, #79", "79", ""], ["B end", "", ""]], given: [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0]], cap: "**Your turn.** The model answer with A = 7 in R1. Write a value only in the row of the instruction that changes it." } }] } },
     { worked: { tag: "exam", title: "Count 1 to 10 into location 17", src: "AS June 2017 · P2 Q07.1 · 4 marks",
       q: "Complete: MOV R0, #1 · startloop: · STR R0, 17 · [up to four lines] · endloop: · HALT — so the code counts from 1 to 10 inclusive, writing each value to memory location 17.",
       steps: [
@@ -365,7 +365,7 @@ C["compsci:4.7.3.5"] = {
         { m: "`SUB R1, R1, #10`", mk: "1 mark" },
         { m: "`ADD R3, R3, #1`", mk: "1 mark" },
         { m: "`B loopstart`", mk: "1 mark", n: "R3 = R1 DIV 10 and R1 is left holding R1 MOD 10. MAX 2 programming if syntax wrong." }
-      ], result: "Quotient in R3, remainder in R1" } },
+      ], result: "Quotient in R3, remainder in R1", try: [{ trace: { code: "      MOV R3, #0\nloopstart:\n      CMP R1, #10\n      BLT end\n      SUB R1, R1, #10\n      ADD R3, R3, #1\n      B loopstart\nend:  HALT", lang: "asm", cols: ["Instruction", "R1", "R3"], rows: [["MOV R3, #0", "", "0"], ["CMP R1, #10", "", ""], ["BLT end", "", ""], ["SUB R1, R1, #10", "27", ""], ["ADD R3, R3, #1", "", "1"], ["B loopstart", "", ""], ["CMP R1, #10", "", ""], ["BLT end", "", ""], ["SUB R1, R1, #10", "17", ""], ["ADD R3, R3, #1", "", "2"], ["B loopstart", "", ""], ["CMP R1, #10", "", ""], ["BLT end", "", ""], ["SUB R1, R1, #10", "7", ""], ["ADD R3, R3, #1", "", "3"], ["B loopstart", "", ""], ["CMP R1, #10", "", ""], ["BLT end", "", ""]], given: [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [6, 0], [7, 0], [8, 0], [9, 0], [10, 0], [11, 0], [12, 0], [13, 0], [14, 0], [15, 0], [16, 0], [17, 0]], cap: "**Your turn.** R1 starts at 37. Write a value only in the row of the instruction that changes it." } }] } },
     { worked: { tag: "exam", title: "Russian peasant multiplication", src: "AS June 2019 · P2 Q10.1 · 7 marks",
       q: "Y ← 0; REPEAT Z ← W AND 1; IF Z = 1 THEN Y ← Y + X; W ← W DIV 2; X ← X × 2 UNTIL W = 0. W, X, Y, Z are R0–R3. Given: MOV R0, #9 · MOV R1, #12 · MOV R2, #0 · startloop: AND R3, R0, #1 · … · jump: · … · B startloop · endloop: — complete it.",
       steps: [
@@ -380,7 +380,7 @@ C["compsci:4.7.3.5"] = {
         { m: "`ADD R2, R0, R1`", mk: "1 mark" },
         { m: "`CMP R2, #26` · `BLT store` (store: on the STR)", mk: "1 mark" },
         { m: "`SUB R2, R2, #26` · `store:` · `STR R2, 102`", mk: "1 mark", n: "Or CMP R2, #25 / BGT adjust. Checked for all 676 code/key pairs. MAX 3 if any errors." }
-      ], result: "(code + key) mod 26" } },
+      ], result: "(code + key) mod 26", try: [{ trace: { code: "      LDR R0, 100\n      LDR R1, 101\n      ADD R2, R0, R1\n      CMP R2, #26\n      BLT store\n      SUB R2, R2, #26\nstore: STR R2, 102\n      HALT", lang: "asm", cols: ["Instruction", "R0", "R1", "R2", "Location 102"], rows: [["LDR R0, 100", "10", "", "", ""], ["LDR R1, 101", "", "20", "", ""], ["ADD R2, R0, R1", "", "", "30", ""], ["CMP R2, #26", "", "", "", ""], ["BLT store", "", "", "", ""], ["SUB R2, R2, #26", "", "", "4", ""], ["STR R2, 102", "", "", "", "4"]], given: [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [6, 0]], cap: "**Your turn.** Location 100 holds 10 (K) and 101 the key 20. Write a value only in the row of the instruction that changes it." } }] } },
     { worked: { tag: "exam", title: "Double X if below 50", src: "AS June 2022 · P2 Q09.2 · 4 marks",
       q: "IF X < 50 THEN X ← X × 2. X is in memory location 101. Write the program.",
       steps: [
@@ -388,7 +388,7 @@ C["compsci:4.7.3.5"] = {
         { m: "`CMP R1, #50`", mk: "1 mark" },
         { m: "`BLT double` · `B endif` (or `BGT end` · `BEQ end`)", mk: "1 mark" },
         { m: "`double:` · `LSL R1, R1, #1` · `STR R1, 101` · `endif:`", mk: "1 mark", n: "5 points, MAX 4: load, compare with 50, branch, shift left to double, store back. A. any register R0–R12, any labels, other doubling (ADD R1, R1, R1)." }
-      ], result: "Load, CMP, branch, LSL, store" } },
+      ], result: "Load, CMP, branch, LSL, store", try: [{ trace: { code: "        LDR R1, 101\n        CMP R1, #50\n        BLT double\n        B endif\ndouble: LSL R1, R1, #1\n        STR R1, 101\nendif:  HALT", lang: "asm", cols: ["Instruction", "R1", "Location 101"], rows: [["LDR R1, 101", "37", ""], ["CMP R1, #50", "", ""], ["BLT double", "", ""], ["LSL R1, R1, #1", "74", ""], ["STR R1, 101", "", "74"]], given: [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0]], cap: "**Your turn.** Location 101 holds 37. Write a value only in the row of the instruction that changes it." } }] } },
     { worked: { tag: "exam", title: "Multiply by repeated addition", src: "AS June 2023 · P2 Q09 · 4 marks",
       q: "A ← 4; B ← 3; C ← 0; WHILE B > 0: C ← C + A; B ← B − 1. A, B, C are R1, R2, R3; the three MOVs are given. Write the rest.",
       steps: [
@@ -396,14 +396,14 @@ C["compsci:4.7.3.5"] = {
         { m: "`ADD R3, R3, R1`", mk: "1 mark" },
         { m: "`SUB R2, R2, #1`", mk: "1 mark" },
         { m: "`B start` · `end:` · `HALT`", mk: "1 mark", n: "R3 = 12." }
-      ], result: "C = 12" } },
+      ], result: "C = 12", try: [{ trace: { code: "       MOV R1, #5\n       MOV R2, #2\n       MOV R3, #0\nstart: CMP R2, #0\n       BEQ end\n       ADD R3, R3, R1\n       SUB R2, R2, #1\n       B start\nend:   HALT", lang: "asm", cols: ["Instruction", "R1", "R2", "R3"], rows: [["MOV R1, #5", "5", "", ""], ["MOV R2, #2", "", "2", ""], ["MOV R3, #0", "", "", "0"], ["CMP R2, #0", "", "", ""], ["BEQ end", "", "", ""], ["ADD R3, R3, R1", "", "", "5"], ["SUB R2, R2, #1", "", "1", ""], ["B start", "", "", ""], ["CMP R2, #0", "", "", ""], ["BEQ end", "", "", ""], ["ADD R3, R3, R1", "", "", "10"], ["SUB R2, R2, #1", "", "0", ""], ["B start", "", "", ""], ["CMP R2, #0", "", "", ""], ["BEQ end", "", "", ""]], given: [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [6, 0], [7, 0], [8, 0], [9, 0], [10, 0], [11, 0], [12, 0], [13, 0], [14, 0]], cap: "**Your turn.** The same loop with A = 5 and B = 2. Write a value only in the row of the instruction that changes it." } }] } },
     { worked: { tag: "exam", title: "Greater into R1; flag into R2", src: "AS June 2024 · P2 Q08 · 4 marks",
       q: "R1 and R3 each store a different positive number. Write a program that stores the greater number in R1, and stores 1 in R2 if the value originally in R1 was greater, 3 otherwise.",
       steps: [
         { m: "`CMP R1, R3` · `BGT r1bigger`", mk: "2 marks", n: "Comparing R1 and R3 (1); branching to different blocks (1)." },
         { m: "`MOV R1, R3` · `MOV R2, #3` · `B end`", mk: "1 mark", n: "Greater number always ends in R1." },
         { m: "`r1bigger:` · `MOV R2, #1` · `end:` · `HALT`", mk: "1 mark", n: "R2 = 1 or 3 correctly. Checked for all pairs 1–8." }
-      ], result: "One compare, two blocks" } },
+      ], result: "One compare, two blocks", try: [{ trace: { code: "          CMP R1, R3\n          BGT r1bigger\n          MOV R1, R3\n          MOV R2, #3\n          B end\nr1bigger: MOV R2, #1\nend:      HALT", lang: "asm", cols: ["Instruction", "R1", "R2", "R3"], rows: [["CMP R1, R3", "", "", ""], ["BGT r1bigger", "", "", ""], ["MOV R1, R3", "9", "", ""], ["MOV R2, #3", "", "3", ""], ["B end", "", "", ""]], given: [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0]], cap: "**Your turn.** R1 holds 4 and R3 holds 9. Write a value only in the row of the instruction that changes it." } }] } },
     { worked: { tag: "exam", title: "The nth triangular number", src: "AS June 2025 · P2 Q10.2 · 4 marks",
       q: "n is in R0. Complete a program to calculate the nth triangular number (1, 3, 6, 10, 15 …) into R1.",
       steps: [
@@ -411,7 +411,7 @@ C["compsci:4.7.3.5"] = {
         { m: "`ADD R1, R1, R0`", mk: "1 mark", n: "Correct calculation into R1." },
         { m: "`SUB R0, R0, #1`", mk: "1 mark", n: "Decrement the loop counter." },
         { m: "`CMP R0, #0` · `BNE loop` · `HALT`", mk: "1 mark", n: "Loop runs n times: R1 = n + (n−1) + … + 1. Checked n = 1 … 14. MAX 3 if any errors." }
-      ], result: "R1 = n(n+1)/2" } },
+      ], result: "R1 = n(n+1)/2", try: [{ trace: { code: "      MOV R1, #0\nloop: ADD R1, R1, R0\n      SUB R0, R0, #1\n      CMP R0, #0\n      BNE loop\n      HALT", lang: "asm", cols: ["Instruction", "R0", "R1"], rows: [["MOV R1, #0", "", "0"], ["ADD R1, R1, R0", "", "3"], ["SUB R0, R0, #1", "2", ""], ["CMP R0, #0", "", ""], ["BNE loop", "", ""], ["ADD R1, R1, R0", "", "5"], ["SUB R0, R0, #1", "1", ""], ["CMP R0, #0", "", ""], ["BNE loop", "", ""], ["ADD R1, R1, R0", "", "6"], ["SUB R0, R0, #1", "0", ""], ["CMP R0, #0", "", ""], ["BNE loop", "", ""]], given: [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [6, 0], [7, 0], [8, 0], [9, 0], [10, 0], [11, 0], [12, 0]], cap: "**Your turn.** n = 3 in R0. Write a value only in the row of the instruction that changes it." } }] } },
 
     { page: "Writing programs: A-level" },
     { worked: { tag: "exam", title: "Caesar for capitals only", src: "A-level June 2018 · P2 Q12 · 6 marks",
@@ -420,7 +420,7 @@ C["compsci:4.7.3.5"] = {
         { h: "(a)", m: "R1 the plaintext character code; R2 the key (shift); R3 the encrypted character code;", mk: "2 marks", n: "1 mark for one or two; 2 for all three." },
         { h: "(b)", m: "`MOV R3, R1`", mk: "1 mark", n: "A. ORR R3, R1, #0." },
         { h: "(c)", m: "`CMP R3, #91` · `BLT finished` · `SUB R3, R3, #26` · `B finished`", mk: "3 marks", n: "R3 compared with 90 or 91 first (1); 26 subtracted from R3 (1); fully working (1). Checked for every printable code and every key." }
-      ], result: "Wrap past Z by −26" } },
+      ], result: "Wrap past Z by −26", try: [{ trace: { code: "     CMP R1, #65\n     BLT doNotEncrypt\n     CMP R1, #90\n     BGT doNotEncrypt\n     ADD R3, R1, R2\n     CMP R3, #91\n     BLT finished\n     SUB R3, R3, #26\n     B finished\ndoNotEncrypt:\n     MOV R3, R1\nfinished:\n     HALT", lang: "asm", cols: ["Instruction", "R3"], rows: [["CMP R1, #65", ""], ["BLT doNotEncrypt", ""], ["CMP R1, #90", ""], ["BGT doNotEncrypt", ""], ["ADD R3, R1, R2", "92"], ["CMP R3, #91", ""], ["BLT finished", ""], ["SUB R3, R3, #26", "66"], ["B finished", ""]], given: [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [6, 0], [7, 0], [8, 0]], cap: "**Your turn.** R1 holds 89 ('Y') and the key in R2 is 3. Write a value only in the row of the instruction that changes it." } }] } },
     { worked: { tag: "exam", title: "Greatest common divisor (8 marks)", src: "A-level June 2019 · P2 Q10.1 · 8 marks",
       q: "WHILE A ≠ B: IF A > B THEN A ← A − B ELSE B ← B − A. A is in location 102, B in 103; store the gcd in 104. Write the program.",
       steps: [
@@ -430,7 +430,7 @@ C["compsci:4.7.3.5"] = {
         { m: "`agreater:` · `SUB R1, R1, R2` · `B loop`", mk: "1 mark", n: "A ← A − B when A > B." },
         { m: "`finish:` · `STR R1, 104`", mk: "1 mark" },
         { m: "AO2: a loop back to the comparison after each subtraction; the method followed correctly.", mk: "2 marks", n: "MAX 7 if not fully working. Checked against gcd for all A, B from 1 to 29." }
-      ], result: "Euclid by subtraction" } },
+      ], result: "Euclid by subtraction", try: [{ trace: { code: "         LDR R1, 102\n         LDR R2, 103\nloop:    CMP R1, R2\n         BEQ finish\n         BGT agreater\n         SUB R2, R2, R1\n         B loop\nagreater:\n         SUB R1, R1, R2\n         B loop\nfinish:  STR R1, 104\n         HALT", lang: "asm", cols: ["Instruction", "R1", "R2", "Location 104"], rows: [["LDR R1, 102", "12", "", ""], ["LDR R2, 103", "", "18", ""], ["CMP R1, R2", "", "", ""], ["BEQ finish", "", "", ""], ["BGT agreater", "", "", ""], ["SUB R2, R2, R1", "", "6", ""], ["B loop", "", "", ""], ["CMP R1, R2", "", "", ""], ["BEQ finish", "", "", ""], ["BGT agreater", "", "", ""], ["SUB R1, R1, R2", "6", "", ""], ["B loop", "", "", ""], ["CMP R1, R2", "", "", ""], ["BEQ finish", "", "", ""], ["STR R1, 104", "", "", "6"]], given: [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [6, 0], [7, 0], [8, 0], [9, 0], [10, 0], [11, 0], [12, 0], [13, 0], [14, 0]], cap: "**Your turn.** Location 102 holds 12 and 103 holds 18. Write a value only in the row of the instruction that changes it." } }] } },
     { worked: { tag: "exam", title: "Vernam in assembly", src: "A-level June 2020 · P2 Q09.3 · 3 marks",
       q: "Write a program to encrypt a plaintext character (code in location 101) with the Vernam cipher using the key part in location 102, storing the ciphertext in location 103.",
       steps: [
@@ -444,7 +444,7 @@ C["compsci:4.7.3.5"] = {
         { h: "Right digit", m: "`LDR R0, 100` · `AND R2, R0, #15` · `CMP R2, #10` · `BLT isnumber` · `ADD R2, R2, #55` · `B doleft` · `isnumber:` · `ADD R2, R2, #48`", mk: "MP1, MP3, MP7, MP9, MP4, MP10" },
         { h: "Left digit", m: "`doleft:` · `LSR R1, R0, #4` · `CMP R1, #10` · `BLT isnumber2` · `ADD R1, R1, #55` · `B store` · `isnumber2:` · `ADD R1, R1, #48`", mk: "MP8, MP5, MP6" },
         { h: "Store", m: "`store:` · `STR R1, 101` · `STR R2, 102`", mk: "MP2", n: "6 AO3 + 4 AO2 marks; MAX 9 if not fully working. 55 = 'A' − 10. Checked for all 256 bytes (00 → \"00\" … FF → \"FF\")." }
-      ], result: "Mask the low nibble, shift the high, add 48 or 55" } },
+      ], result: "Mask the low nibble, shift the high, add 48 or 55", try: [{ trace: { code: "          LDR R0, 100\n          AND R2, R0, #15\n          CMP R2, #10\n          BLT isnumber\n          ADD R2, R2, #55\n          B doleft\nisnumber: ADD R2, R2, #48\ndoleft:   LSR R1, R0, #4\n          CMP R1, #10\n          BLT isnumber2\n          ADD R1, R1, #55\n          B store\nisnumber2:\n          ADD R1, R1, #48\nstore:    STR R1, 101\n          STR R2, 102\n          HALT", lang: "asm", cols: ["Instruction", "R0", "R1", "R2", "Location 101", "Location 102"], rows: [["LDR R0, 100", "60", "", "", "", ""], ["AND R2, R0, #15", "", "", "12", "", ""], ["CMP R2, #10", "", "", "", "", ""], ["BLT isnumber", "", "", "", "", ""], ["ADD R2, R2, #55", "", "", "67", "", ""], ["B doleft", "", "", "", "", ""], ["LSR R1, R0, #4", "", "3", "", "", ""], ["CMP R1, #10", "", "", "", "", ""], ["BLT isnumber2", "", "", "", "", ""], ["ADD R1, R1, #48", "", "51", "", "", ""], ["STR R1, 101", "", "", "", "51", ""], ["STR R2, 102", "", "", "", "", "67"]], given: [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [6, 0], [7, 0], [8, 0], [9, 0], [10, 0], [11, 0]], cap: "**Your turn.** Location 100 holds 60 (0011 1100, 3C). Trace in decimal. Write a value only in the row of the instruction that changes it." } }] } },
     { worked: { tag: "exam", title: "The robot control program", src: "A-level June 2025 · P2 Q14 · 6 marks",
       q: "Location 100: B7 left motor, B6 right motor, B5 arm motor (outputs); B4 ultrasonic, B3 light, B2–B0 touch sensors X, Y, Z (inputs). Explain sections 2 to 6: [1] MOV R0, #192 · STR R0, 100 [2] wait: LDR R1, 100 · AND R1, R1, #7 · CMP R1, #0 · BEQ wait [3] MOV R0, #0 · STR R0, 100 [4] MOV R3, #0 · (add each of R1's three low bits into R3 using AND #1 and LSR #1) · CMP R3, #2 · BNE end [5] MOV R0, #32 · STR R0, 100 [6] arm: LDR R1, 100 · AND R1, R1, #8 · CMP R1, #0 · BEQ arm · MOV R0, #0 · STR R0, 100 · end: HALT. (Program reconstructed from the mark scheme; section 1 drives forward.)",
       steps: [
@@ -464,7 +464,7 @@ C["compsci:4.7.3.5"] = {
       steps: [
         { m: "R1: 10 → 50 · R2: 40 · R3: 50 · R4: 1 · location 102: 80 → 1", mk: "4 marks" },
         { m: "It checks whether the value in location 101 is five times the value in 100 (R1 + 4·R1 = 5·R1), storing 1 in 102 if so and 0 if not;", mk: "1 mark" }
-      ], result: "50 = 5 × 10 → 1" } },
+      ], result: "50 = 5 × 10 → 1", try: [{ trace: { code: "        LDR R1, 100\n        LSL R2, R1, #2\n        ADD R1, R1, R2\n        LDR R3, 101\n        CMP R3, R1\n        BEQ labela\n        MOV R4, #0\n        B labelb\nlabela: MOV R4, #1\nlabelb: STR R4, 102\n        HALT", lang: "asm", cols: ["Instruction", "R1", "R2", "R3", "R4", "Location 102"], rows: [["LDR R1, 100", "7", "", "", "", ""], ["LSL R2, R1, #2", "", "28", "", "", ""], ["ADD R1, R1, R2", "35", "", "", "", ""], ["LDR R3, 101", "", "", "30", "", ""], ["CMP R3, R1", "", "", "", "", ""], ["BEQ labela", "", "", "", "", ""], ["MOV R4, #0", "", "", "", "0", ""], ["B labelb", "", "", "", "", ""], ["STR R4, 102", "", "", "", "", "0"]], given: [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [6, 0], [7, 0], [8, 0]], cap: "**Your turn.** Memory now holds 100 = 7, 101 = 30, 102 = 80. Write a value only in the row of the instruction that changes it." } }] } },
     { worked: { tag: "exam", title: "Shift-and-add multiplication (trace)", src: "A-level June 2022 · P2 Q09.2–09.3 · 6 marks",
       q: "LDR R0, 120 · LDR R1, 121 · MOV R3, #0 · loop: CMP R1, #0 · BEQ exit · AND R2, R1, #1 · CMP R2, #0 · BEQ skip · ADD R3, R3, R0 · skip: LSL R0, R0, #1 · LSR R1, R1, #1 · B loop · exit: STR R3, 122 · HALT. Location 120 = 23, 121 = 5. (a) Trace. (b) State the purpose.",
       steps: [
@@ -473,7 +473,7 @@ C["compsci:4.7.3.5"] = {
         { m: "R0 → 92 → 184, R1 → 1 → 0, R2 → 1, R3 → 115", mk: "1 mark" },
         { m: "location 122 → 115", mk: "1 mark", n: "MAX 4 if any wrong value." },
         { m: "It multiplies the numbers in 120 and 121, storing the product in 122 (23 × 5 = 115);", mk: "1 mark" }
-      ], result: "115" } },
+      ], result: "115", try: [{ trace: { code: "      LDR R0, 120\n      LDR R1, 121\n      MOV R3, #0\nloop: CMP R1, #0\n      BEQ exit\n      AND R2, R1, #1\n      CMP R2, #0\n      BEQ skip\n      ADD R3, R3, R0\nskip: LSL R0, R0, #1\n      LSR R1, R1, #1\n      B loop\nexit: STR R3, 122\n      HALT", lang: "asm", cols: ["Instruction", "R0", "R1", "R2", "R3", "Location 122"], rows: [["LDR R0, 120", "9", "", "", "", ""], ["LDR R1, 121", "", "3", "", "", ""], ["MOV R3, #0", "", "", "", "0", ""], ["CMP R1, #0", "", "", "", "", ""], ["BEQ exit", "", "", "", "", ""], ["AND R2, R1, #1", "", "", "1", "", ""], ["CMP R2, #0", "", "", "", "", ""], ["BEQ skip", "", "", "", "", ""], ["ADD R3, R3, R0", "", "", "", "9", ""], ["LSL R0, R0, #1", "18", "", "", "", ""], ["LSR R1, R1, #1", "", "1", "", "", ""], ["B loop", "", "", "", "", ""], ["CMP R1, #0", "", "", "", "", ""], ["BEQ exit", "", "", "", "", ""], ["AND R2, R1, #1", "", "", "1", "", ""], ["CMP R2, #0", "", "", "", "", ""], ["BEQ skip", "", "", "", "", ""], ["ADD R3, R3, R0", "", "", "", "27", ""], ["LSL R0, R0, #1", "36", "", "", "", ""], ["LSR R1, R1, #1", "", "0", "", "", ""], ["B loop", "", "", "", "", ""], ["CMP R1, #0", "", "", "", "", ""], ["BEQ exit", "", "", "", "", ""], ["STR R3, 122", "", "", "", "", "27"]], given: [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [6, 0], [7, 0], [8, 0], [9, 0], [10, 0], [11, 0], [12, 0], [13, 0], [14, 0], [15, 0], [16, 0], [17, 0], [18, 0], [19, 0], [20, 0], [21, 0], [22, 0], [23, 0]], cap: "**Your turn.** Location 120 holds 9 and 121 holds 3. Write a value only in the row of the instruction that changes it." } }] } },
     { table: { head: ["R0", "R1", "R2", "R3", "122"], rows: [["23", "5", "", "0", ""], ["", "", "1", "23", ""], ["46", "2", "0", "", ""], ["92", "1", "1", "115", ""], ["184", "0", "", "", "115"]] } },
     { worked: { tag: "exam", title: "Long division in binary (trace, 6 marks)", src: "A-level June 2021 · P2 Q06 · 8 marks",
       q: "The program in Figure 4 (shift R2 and R3 left until R2 ≥ R1, then repeatedly subtract and shift right) takes inputs R1 = 34 and R2 = 6. (a) Complete the trace. (b) Describe the purpose.",

@@ -133,7 +133,7 @@ C["compsci:4.6.4.1"] = {
     { callout: { t: "miscon", h: "\"NOT AND\" for NAND", body: "AS 2022 Q07.2: **R. NOT AND** — the gate is called **NAND**. (AS 2017 accepted \"NOT AND\"; do not rely on it.) XOR: accept XOR // EOR // EXOR // Exclusive OR." } },
     { worked: { tag: "exam", title: "Name the gate (0 1 1 0)", src: "AS June 2016 · P2 Q05.1 · 1 mark",
       q: "Figure 5 shows a gate with inputs X, Y and output Z, and its truth table: 0 0 → 0, 0 1 → 1, 1 0 → 1, 1 1 → 0. What is the name of the logic gate?",
-      steps: [{ m: "XOR // EOR // Exclusive OR;", mk: "1 mark" }], result: "XOR" } },
+      steps: [{ m: "XOR // EOR // Exclusive OR;", mk: "1 mark" }], result: "XOR", try: [{ gates: { inputs: ["X", "Y"], gates: [{ id: "G", type: "NOR", in: ["X", "Y"] }], out: "G", outName: "Z", pick: "G", cap: "**Your turn.** This gate's wanted column is 1, 0, 0, 0. Pick the gate, then try the inputs." } }] } },
     { worked: { tag: "exam", title: "Name the gate (1 1 1 0)", src: "AS June 2017 · P2 Q05.1 · 1 mark",
       q: "A gate's truth table is 0 0 → 1, 0 1 → 1, 1 0 → 1, 1 1 → 0, and its symbol is an AND shape with a circle on its output. What is the name of the logic gate?",
       steps: [{ m: "NAND;", mk: "1 mark" }], result: "NAND" } },
@@ -142,19 +142,19 @@ C["compsci:4.6.4.1"] = {
       steps: [{ m: "NOR;", mk: "1 mark" }], result: "NOR" } },
     { worked: { tag: "exam", title: "Complete A NAND B", src: "AS June 2020 · P2 Q05.1 · 1 mark",
       q: "Complete the truth table for A NAND B (rows A B = 00, 01, 10, 11).",
-      steps: [{ m: "1, 1, 1, 0", mk: "1 mark" }], result: "1 1 1 0" } },
+      steps: [{ m: "1, 1, 1, 0", mk: "1 mark" }], result: "1 1 1 0", try: [{ gates: { inputs: ["A", "B"], gates: [{ id: "G", type: "NOR", in: ["A", "B"] }], out: "G", fill: true, cap: "**Your turn.** The gate is a **NOR** now: fill in its output column." } }] } },
     { worked: { tag: "exam", title: "Two gates by symbol and table", src: "AS June 2022 · P2 Q07.1–07.2 · 2 marks",
       q: "(a) State which logic gate has the truth table 0 0 → 1, 0 1 → 0, 1 0 → 0, 1 1 → 0. (b) State the logic gate whose symbol is an AND shape with a bubble on the output.",
       steps: [{ m: "(a) NOR;", mk: "1 mark" }, { m: "(b) NAND;", mk: "1 mark", n: "R. NOT AND." }], result: "NOR; NAND" } },
     { worked: { tag: "exam", title: "OR and NAND tables", src: "A-level June 2019 · P2 Q08.1 · 1 mark",
       q: "Complete the truth tables for the OR and NAND gates.",
-      steps: [{ m: "OR: 0, 1, 1, 1 · NAND: 1, 1, 1, 0", mk: "1 mark", n: "All values in both output columns must be correct." }], result: "0111 and 1110" } },
+      steps: [{ m: "OR: 0, 1, 1, 1 · NAND: 1, 1, 1, 0", mk: "1 mark", n: "All values in both output columns must be correct." }], result: "0111 and 1110", try: [{ gates: { inputs: ["A", "B"], gates: [{ id: "G", type: "XOR", in: ["A", "B"] }], out: "G", fill: true, cap: "**Your turn.** Fill in the column for **A XOR B**." } }] } },
     { worked: { tag: "exam", title: "XOR and its operation (the parity circuit)", src: "AS June 2025 · P2 Q07.1 · 2 marks",
       q: "A logic circuit computes a parity bit for a 4-bit message using three logic gates all of the same type; for the message 1001 it outputs 0. State the name of the type of gate used and explain its operation.",
       steps: [
         { h: "Name (AO1 knowledge)", m: "XOR // EX-OR // Exclusive OR;", mk: "1 mark" },
         { h: "Operation (AO1 understanding)", m: "An XOR gate outputs 1 when its inputs are different // when there is a 1 on one input and a 0 on the other;", mk: "1 mark" }
-      ], result: "XOR — 1 when inputs differ" } },
+      ], result: "XOR — 1 when inputs differ", try: [{ gates: { inputs: ["A", "B", "C", "D"], gates: [{ id: "L", type: "XOR", in: ["A", "B"] }, { id: "M", type: "XOR", in: ["C", "D"] }, { id: "P", type: "XOR", in: ["L", "M"] }], out: "P", outName: "P", pick: "P", cap: "**Your turn.** The parity circuit: three gates of one type. Pick the hidden one so that 1001 gives 0, then check every message." } }] } },
     { worked: { tag: "exam", title: "Which parity, and how Alice and Bob use it", src: "AS June 2025 · P2 Q07.2–07.3 · 5 marks",
       q: "(a) State the type of parity computed by the circuit (1001 → 0) and give a reason. (b) Alice wants to send a 4-bit message to Bob with a parity bit. Describe how Alice can send the message and how Bob can determine if an error has occurred, stating when each uses a copy of the circuit.",
       steps: [
@@ -190,7 +190,7 @@ C["compsci:4.6.4.1"] = {
         { h: "(a) G", m: "G = E + F: 0,0,0,1,0,1,1,1", mk: "1 mark" },
         { h: "(a) H", m: "H = A⊕D: 0,1,1,0,1,0,0,1", mk: "1 mark", n: "MAX 2 if any incorrect values." },
         { h: "(b)", m: "$G = B \\cdot C + A \\cdot (B \\oplus C)$", mk: "3 marks", n: "1: B·C or B⊕C somewhere; 1: A ANDed with B⊕C; 1: fully correct. A. $(\\overline{B} \\cdot C) + (B \\cdot \\overline{C})$ for B⊕C. Do not then simplify — a wrong simplification is ignored, but it wastes time." }
-      ], result: "G = B·C + A·(B ⊕ C)" } },
+      ], result: "G = B·C + A·(B ⊕ C)", try: [{ gates: { inputs: ["A", "B", "C"], gates: [{ id: "D", type: "XOR", in: ["B", "C"] }, { id: "E", type: "AND", in: ["B", "C"] }, { id: "F", type: "AND", in: ["A", "D"] }, { id: "G", type: "OR", in: ["E", "F"] }], out: "G", outName: "G", fill: true, cap: "**Your turn.** Figure 5's carry output G: fill in its column, then switch the inputs to see D, E and F." } }] } },
     { worked: { tag: "exam", title: "Complete the table; write Y (AS)", src: "AS June 2023 · P2 Q07.1–07.2 · 5 marks",
       q: "Figure 3: L = A XOR B; X = L XOR C; M = L AND C; N = A AND B; Y = M OR N. Columns M and X are given. Complete columns L, N and Y, then write a Boolean expression for Y in terms of A, B and C.",
       steps: [
@@ -198,13 +198,13 @@ C["compsci:4.6.4.1"] = {
         { m: "N: 0, 0, 0, 0, 0, 0, 1, 1", mk: "1 mark" },
         { m: "Y: 0, 0, 0, 1, 0, 1, 1, 1", mk: "1 mark", n: "A. follow-through for Y from a wrong N." },
         { m: "$Y = (A \\oplus B) \\cdot C + A \\cdot B$", mk: "2 marks", n: "Also accepted: $((A \\cdot \\overline{B}) + (\\overline{A} \\cdot B)) \\cdot C + A \\cdot B$ or $(\\overline{A} \\cdot B \\cdot C) + (A \\cdot (B + C))$. 1 mark for (A⊕B)·C or A·B somewhere. (X and Y are the sum and carry of a full adder.)" }
-      ], result: "Y = (A ⊕ B)·C + A·B" } },
+      ], result: "Y = (A ⊕ B)·C + A·B", try: [{ gates: { inputs: ["A", "B", "C"], gates: [{ id: "L", type: "XOR", in: ["A", "B"] }, { id: "X", type: "XOR", in: ["L", "C"] }], out: "X", outName: "X", fill: true, cap: "**Your turn.** The other output, X = L XOR C — the full adder's **sum**. Fill in its column." } }] } },
     { worked: { tag: "exam", title: "Complete L, M and Z", src: "AS June 2024 · P2 Q06.2 · 2 marks",
       q: "Figure 3: L = A AND B; M = A AND C; Z = L OR M. Complete the truth table for rows ABC = 000 … 111.",
       steps: [
         { m: "L: 0,0,0,0,0,0,1,1 · M: 0,0,0,0,0,1,0,1", mk: "1 mark" },
         { m: "Z: 0,0,0,0,0,1,1,1", mk: "1 mark", n: "A. FT from L and M. R. a column with more than one value in a cell." }
-      ], result: "Z = A·(B + C)" } },
+      ], result: "Z = A·(B + C)", try: [{ gates: { inputs: ["A", "B", "C"], gates: [{ id: "O", type: "OR", in: ["B", "C"] }, { id: "Z", type: "AND", in: ["A", "O"] }], out: "Z", outName: "Z", pick: "O", cap: "**Your turn.** $Z = A \\cdot B + A \\cdot C$ factorises to $A \\cdot (B + C)$: two gates instead of three. Pick the hidden gate." } }] } },
     { fig: circuit(420, 190, function (add, it) {
       var n1 = add(gate("NOT", 50, 50)), a1 = add(gate("AND", 150, 60)), o1 = add(gate("OR", 150, 150)), a2 = add(gate("AND", 260, 105)), n2 = add(gate("NOT", 330, 105));
       it.push(lab(12, 50, "A"), lab(12, 70, "B"), lab(12, 140, "C"), lab(12, 160, "D"));
@@ -219,7 +219,7 @@ C["compsci:4.6.4.1"] = {
         { m: "$\\overline{A} \\cdot B$ from the first AND;", mk: "1 mark" },
         { m: "$C + D$ from the OR;", mk: "1 mark" },
         { m: "combined with AND and inverted: $Q = \\overline{\\overline{A} \\cdot B \\cdot (C + D)}$", mk: "1 mark", n: "Full marks for equivalent expressions." }
-      ], result: "Q = NOT(Ā·B·(C + D))" } },
+      ], result: "Q = NOT(Ā·B·(C + D))", try: [{ gates: { inputs: ["A", "B", "C", "D"], gates: [{ id: "N1", type: "NOT", in: ["A"] }, { id: "A1", type: "AND", in: ["N1", "B"] }, { id: "O1", type: "OR", in: ["C", "D"] }, { id: "A2", type: "AND", in: ["A1", "O1"] }, { id: "Q", type: "NOT", in: ["A2"] }], out: "Q", pick: "O1", cap: "**Your turn.** The AS 2024 circuit with one gate hidden. Pick it so the output matches $\\overline{\\overline{A} \\cdot B \\cdot (C + D)}$." } }] } },
 
     { page: "Expression or scenario → circuit" },
     { callout: { t: "formula", h: "Method: draw a circuit", body: [
@@ -245,7 +245,7 @@ C["compsci:4.6.4.1"] = {
         { m: "B and C into an AND gate;", mk: "1 mark" },
         { m: "the result of B·C as one input and NOT A as the other input to an OR gate;", mk: "1 mark", n: "I. an incorrect gate for B·C." },
         { m: "D into a NOT gate, whose output goes to an AND gate with the OR result as its other input; that AND outputs Q.", mk: "1 mark", n: "MAX 2 if not fully correct." }
-      ], result: "Q = (B·C + Ā)·D̄" } },
+      ], result: "Q = (B·C + Ā)·D̄", try: [{ gates: { inputs: ["A", "B", "C", "D"], gates: [{ id: "A1", type: "AND", in: ["B", "C"] }, { id: "NA", type: "NOT", in: ["A"] }, { id: "O", type: "OR", in: ["A1", "NA"] }, { id: "ND", type: "NOT", in: ["D"] }, { id: "Q", type: "AND", in: ["O", "ND"] }], out: "Q", pick: "O", cap: "**Your turn.** The conveyor circuit: which gate joins \"full and positioned\" with \"no bottle present\"?" } }] } },
     { worked: { tag: "exam", title: "Process X: circuit and expression", src: "A-level June 2017 · P2 Q04.1–04.2 · 5 marks",
       q: "Process X can only start once processes A and B have finished and either communication channel C or D or both is available (A, B true when finished; C, D true when available). (a) Draw a logic circuit with inputs A, B, C, D and output X. (b) Write a Boolean expression for X.",
       steps: [
@@ -253,14 +253,14 @@ C["compsci:4.6.4.1"] = {
         { m: "C and D into an OR gate;", mk: "1 mark" },
         { m: "the output of a (second) AND gate — fed by those two — connected to X;", mk: "1 mark", n: "MAX 2 if any error." },
         { m: "(b) $X = A \\cdot B \\cdot (C + D)$", mk: "2 marks", n: "1 mark: A·B or C+D in an otherwise wrong expression. A. equivalent expressions." }
-      ], result: "X = A·B·(C + D)" } },
+      ], result: "X = A·B·(C + D)", try: [{ gates: { inputs: ["A", "B", "C", "D"], gates: [{ id: "A1", type: "AND", in: ["A", "B"] }, { id: "O", type: "OR", in: ["C", "D"] }, { id: "X", type: "AND", in: ["A1", "O"] }], out: "X", outName: "X", pick: "O", cap: "**Your turn.** Pick the gate for \"channel C or D or both\" — then try C = D = 1 to see why XOR is wrong." } }] } },
     { worked: { tag: "exam", title: "Draw $\\overline{A} + \\overline{B} \\cdot C$", src: "AS June 2018 · P2 Q09.3 · 3 marks",
       q: "Represent the Boolean equation $\\overline{A} + \\overline{B} \\cdot C$ as a logic circuit.",
       steps: [
         { m: "A and B each connected to a (different) NOT gate;", mk: "1 mark" },
         { m: "an AND gate connected to C and to the output of the NOT B gate;", mk: "1 mark", n: "Precedence: AND before OR, so $\\overline{B} \\cdot C$ is one gate." },
         { m: "an OR gate fed by NOT A and (NOT B AND C), outputting Q.", mk: "1 mark", n: "MAX 2 if not fully correct." }
-      ], result: "Two NOTs, one AND, one OR" } },
+      ], result: "Two NOTs, one AND, one OR", try: [{ gates: { inputs: ["A", "B", "C"], gates: [{ id: "NA", type: "NOT", in: ["A"] }, { id: "NB", type: "NOT", in: ["B"] }, { id: "AN", type: "AND", in: ["NB", "C"] }, { id: "Q", type: "OR", in: ["NA", "AN"] }], out: "Q", fill: true, cap: "**Your turn.** The circuit drawn: fill in Q's column." } }] } },
     { fig: circuit(380, 190, function (add, it) {
       var nA = add(gate("NOT", 100, 120)), nB = add(gate("NOT", 100, 80)), a1 = add(gate("AND", 200, 50)), a2 = add(gate("AND", 200, 150)), o = add(gate("OR", 290, 100));
       it.push(lab(10, 40, "A"), lab(10, 160, "B"));
@@ -276,7 +276,7 @@ C["compsci:4.6.4.1"] = {
         { h: "Part 1", m: "$A \\cdot \\overline{B}$: B through a NOT gate, ANDed with A;", mk: "1 mark" },
         { h: "Part 2", m: "$\\overline{A} \\cdot B$: A through a NOT gate, ANDed with B;", mk: "1 mark" },
         { h: "Part 3", m: "the two AND outputs into an OR gate giving Q.", mk: "1 mark", n: "Alternatives scored the same way: $(A + B) \\cdot \\overline{A \\cdot B}$ (OR, AND→NOT, AND). MAX 2 if not fully correct." }
-      ], result: "Q = A·B̄ + Ā·B" } },
+      ], result: "Q = A·B̄ + Ā·B", try: [{ gates: { inputs: ["A", "B"], gates: [{ id: "NB", type: "NOT", in: ["B"] }, { id: "NA", type: "NOT", in: ["A"] }, { id: "A1", type: "AND", in: ["A", "NB"] }, { id: "A2", type: "AND", in: ["NA", "B"] }, { id: "Q", type: "OR", in: ["A1", "A2"] }], out: "Q", pick: "A1", cap: "**Your turn.** The XOR circuit with one gate hidden: pick it so Q is 0, 1, 1, 0." } }] } },
     { fig: circuit(360, 180, function (add, it) {
       var a1 = add(gate("AND", 150, 50)), nB = add(gate("NOT", 80, 130)), a2 = add(gate("AND", 150, 140)), q = add(gate("NOR", 250, 95));
       it.push(lab(12, 40, "A"), lab(12, 60, "B"), lab(12, 150, "C"));
@@ -291,13 +291,13 @@ C["compsci:4.6.4.1"] = {
         { m: "B as the input to a NOT gate;", mk: "1 mark", n: "A. a NOT drawn as a triangle without its circle, as BOD." },
         { m: "the output of the NOT gate and C as the inputs to an AND gate;", mk: "1 mark" },
         { m: "the two AND outputs into a NOR gate whose output is Q;", mk: "1 mark", n: "A. OR followed by NOT. MAX 3 if the logic is not fully correct. Draw the expression GIVEN, not a simplified equivalent." }
-      ], result: "AND, NOT→AND, NOR" } },
+      ], result: "AND, NOT→AND, NOR", try: [{ gates: { inputs: ["A", "B", "C"], gates: [{ id: "A1", type: "AND", in: ["A", "B"] }, { id: "NB", type: "NOT", in: ["B"] }, { id: "A2", type: "AND", in: ["NB", "C"] }, { id: "Q", type: "NOR", in: ["A1", "A2"] }], out: "Q", fill: true, cap: "**Your turn.** Fill in Q's column for the drawn circuit." } }] } },
     { worked: { tag: "exam", title: "Draw $Q = \\overline{\\overline{A \\cdot B} + C}$", src: "AS June 2022 · P2 Q07.3 · 2 marks",
       q: "Draw the logic circuit for the Boolean expression $Q = \\overline{\\overline{A \\cdot B} + C}$.",
       steps: [
         { m: "A and B into an AND gate followed by a NOT gate // A and B into a NAND gate;", mk: "1 mark" },
         { m: "the final two gates are an OR followed by a NOT // the final gate is a NOR (inputs: the NAND output and C);", mk: "1 mark", n: "A. 2 marks for a correctly simplified expression drawn correctly. MAX 1 if the circuit does not reflect the expression." }
-      ], result: "NAND into NOR with C" } },
+      ], result: "NAND into NOR with C", try: [{ gates: { inputs: ["A", "B", "C"], gates: [{ id: "N", type: "NAND", in: ["A", "B"] }, { id: "Q", type: "NOR", in: ["N", "C"] }], out: "Q", pick: "Q", cap: "**Your turn.** The NAND is drawn; pick the final gate that gives $\\overline{\\overline{A \\cdot B} + C}$." } }] } },
     { worked: { tag: "exam", title: "Draw without simplifying", src: "A-level June 2024 · P2 Q06.1 · 4 marks",
       q: "Draw a logic circuit for $Q = \\overline{\\overline{A} \\cdot B + B + C \\cdot D}$. Do not simplify the expression.",
       steps: [
@@ -305,14 +305,14 @@ C["compsci:4.6.4.1"] = {
         { m: "C and D into an AND gate;", mk: "1 mark", n: "A. C OR B then AND D (a precedence misunderstanding) for this point." },
         { m: "B and the output of the C·D AND gate (with $\\overline{A} \\cdot B$) into a NOR gate;", mk: "1 mark" },
         { m: "the NOR gate connected to output Q;", mk: "1 mark", n: "A. OR then NOT for NOR. MAX 3 if not fully correct. A three-input NOR, or two ORs then a NOT, both work." }
-      ], result: "NOT·AND, AND, 3-input NOR" } },
+      ], result: "NOT·AND, AND, 3-input NOR", try: [{ gates: { inputs: ["A", "B", "C", "D"], gates: [{ id: "NA", type: "NOT", in: ["A"] }, { id: "A1", type: "AND", in: ["NA", "B"] }, { id: "A2", type: "AND", in: ["C", "D"] }, { id: "Q", type: "NOR", in: ["A1", "B", "A2"] }], out: "Q", pick: "Q", cap: "**Your turn.** Pick the three-input gate that finishes $\\overline{\\overline{A} \\cdot B + B + C \\cdot D}$." } }] } },
     { worked: { tag: "exam", title: "Only AND, OR and NOT", src: "AS June 2025 · P2 Q08.2 · 3 marks",
       q: "Draw a logic circuit for $Q = \\overline{X + Y} + \\overline{(Z \\cdot Y) + X}$ using only AND, OR and NOT gates.",
       steps: [
         { m: "$\\overline{X + Y}$: X and Y into an OR gate, then a NOT gate;", mk: "1 mark" },
         { m: "$\\overline{(Z \\cdot Y) + X}$: Z and Y into an AND, its output and X into an OR, then a NOT;", mk: "1 mark" },
         { m: "the two NOT outputs into an OR gate giving Q.", mk: "1 mark", n: "DPT (one dependent penalty) for any NOR/NAND/XOR gate — the question forbids them. MAX 2 if not fully correct." }
-      ], result: "OR→NOT, AND→OR→NOT, then OR" } },
+      ], result: "OR→NOT, AND→OR→NOT, then OR", try: [{ gates: { inputs: ["X", "Y", "Z"], gates: [{ id: "O1", type: "OR", in: ["X", "Y"] }, { id: "N1", type: "NOT", in: ["O1"] }, { id: "A1", type: "AND", in: ["Z", "Y"] }, { id: "O2", type: "OR", in: ["A1", "X"] }, { id: "N2", type: "NOT", in: ["O2"] }, { id: "Q", type: "OR", in: ["N1", "N2"] }], out: "Q", fill: true, cap: "**Your turn.** Fill in Q's column for the AND/OR/NOT circuit." } }] } },
 
     { page: "Decoders and circuits with a purpose" },
     { callout: { t: "formula", h: "Method: \"explain the purpose\"", body: "Complete the truth table first, then read it **as data**: what do the outputs *mean* for the inputs? A sum and carry → an adder. Exactly one output on for each input number → a decoder. A 1 for some characters only → a classifier (letter, capital)." } },
@@ -324,7 +324,7 @@ C["compsci:4.6.4.1"] = {
         { m: "E: 0,0,1,1,1,1,1,0,0,0", mk: "1 mark" },
         { m: "Q: 0,0,1,1,1,1,1,0,1,1", mk: "1 mark", n: "MAX 3 if any value is wrong." },
         { h: "(b)", m: "Q is off only for 0, 1 and 7 — the digits without a **middle bar**: Q controls the middle segment (labelled b in that paper's figure).", mk: "1 mark" }
-      ], result: "The middle segment" } },
+      ], result: "The middle segment", try: [{ gates: { inputs: ["X3", "X2", "X1", "X0"], gates: [{ id: "A", type: "NOT", in: ["X2"] }, { id: "B", type: "AND", in: ["A", "X1"] }, { id: "C", type: "NAND", in: ["X1", "X0"] }, { id: "D", type: "AND", in: ["X2", "C"] }, { id: "E", type: "OR", in: ["B", "D"] }, { id: "Q", type: "OR", in: ["X3", "E"] }], out: "Q", pick: "C", cap: "**Your turn.** Gate C is hidden: pick it so Q lights the middle bar for 2–6, 8 and 9. (Rows 10–15 are not digits; the circuit still gives them a value.)" } }] } },
     { worked: { tag: "exam", title: "A 3-to-8 decoder", src: "A-level June 2021 · P2 Q04.1–04.4 · 7 marks",
       q: "A circuit has inputs X2 X1 X0 and outputs Q0–Q7; each Qn is an AND of the three inputs, each inverted or not. (a) Write an expression for Q1. (b) Complete the truth table. (c) Explain the purpose of the circuit. (d) A second circuit ORs X0 and X1, ORs the result with X2, then inverts it giving S. Which output is S equivalent to?",
       steps: [
@@ -332,7 +332,7 @@ C["compsci:4.6.4.1"] = {
         { h: "(b)", m: "Each row has exactly one 1: input 000 → Q0, 001 → Q1, … 111 → Q7.", mk: "3 marks", n: "1 row correct 1 mark; 4 rows 2 marks; all 8 rows 3 marks." },
         { h: "(c)", m: "Output Qn is 1 when the binary input pattern has the value n // it is a (3-bit) binary decoder;", mk: "2 marks", n: "1 mark only for \"one different output is on for each input pattern\" // \"converts binary to decimal\"." },
         { h: "(d)", m: "$S = \\overline{X0 + X1 + X2} = \\overline{X0} \\cdot \\overline{X1} \\cdot \\overline{X2}$ (De Morgan) → **Q0**;", mk: "1 mark", n: "NE. \"0\"." }
-      ], result: "Q1 = X̄2·X̄1·X0; a binary decoder; S = Q0" } },
+      ], result: "Q1 = X̄2·X̄1·X0; a binary decoder; S = Q0", try: [{ gates: { inputs: ["X2", "X1", "X0"], gates: [{ id: "O1", type: "OR", in: ["X0", "X1"] }, { id: "O2", type: "OR", in: ["O1", "X2"] }, { id: "S", type: "NOT", in: ["O2"] }], out: "S", outName: "S", fill: true, cap: "**Your turn.** The second circuit of part (d): fill in S. It is 1 on exactly one row — the row where Q0 is 1." } }] } },
     { worked: { tag: "exam", title: "The ASCII letter circuit", src: "A-level June 2025 · P2 Q09.2–09.3 · 3 marks",
       q: "A circuit takes the 7-bit ASCII code B6…B0 of a character. Its completed truth table gives Q1 = 1 for 'F', 'W' and 'f' and Q1 = 0 for '*', '@' and the backslash; Q2 = 1 for 'F' and 'W' only. (a) Describe the purpose of Q1 and Q2. (b) Which equation represents Q1? A: … · $\\overline{B5}$ · B: $B6 \\cdot (\\overline{B4} \\cdot \\overline{B3} + \\overline{B2} \\cdot \\overline{B1} \\cdot \\overline{B0}) \\cdot (B4 + B3 + B2 + B1 + B0)$ · C: $B6 \\cdot (\\overline{B4 \\cdot B3} + \\overline{B2} \\cdot \\overline{B1 \\cdot B0}) \\cdot (B4 + B3 + B2 + B1 + B0)$ · D: C without its outer brackets · E: an OR-based expression.",
       steps: [
@@ -382,7 +382,7 @@ C["compsci:4.6.4.1"] = {
         { m: "D = A ⊕ B: A and B into an XOR gate whose output is D;", mk: "1 mark" },
         { m: "circuit fully correct with exactly two gates;", mk: "1 mark", n: "Building XOR from AND/OR/NOT is correct but uses too many gates: 2 marks." },
         { m: "(b) It adds two bits together // it is a **half adder**;", mk: "1 mark", n: "A. \"an adder\" as BOD. R. full adder." }
-      ], result: "AND + XOR: a half adder" } },
+      ], result: "AND + XOR: a half adder", try: [{ gates: { inputs: ["A", "B"], gates: [{ id: "C", type: "AND", in: ["A", "B"] }, { id: "D", type: "XOR", in: ["A", "B"] }], out: "D", outName: "D", pick: "D", cap: "**Your turn.** The half adder's sum D: pick the gate." } }] } },
 
     { page: "The D-type flip-flop" },
     { fig: { w: 560, h: 196, items: (function () {
@@ -507,13 +507,13 @@ C["compsci:4.6.5.1"] = {
       steps: [
         { m: "If A is 0 then NOT A is 1, and if A is 1 then NOT A is 0 // the inputs to the AND can only be 0,1 or 1,0 — one is always 0;", mk: "1 mark", n: "NE. only one way round. NE. \"NOT A is always the opposite\" unless the values are clarified as 0/1." },
         { m: "An AND gate only outputs 1 if both inputs are 1 // always outputs 0 if one input is 0;", mk: "1 mark" }
-      ], result: "One input is always 0, so AND gives 0" } },
+      ], result: "One input is always 0, so AND gives 0", try: [{ gates: { inputs: ["A"], gates: [{ id: "N", type: "NOT", in: ["A"] }, { id: "Q", type: "AND", in: ["A", "N"] }], out: "Q", fill: true, cap: "**Your turn.** A into one input of an AND gate, NOT A into the other: fill in the output for both values of A." } }] } },
     { worked: { tag: "exam", title: "Two one-mark simplifications", src: "AS June 2016 · P2 Q05.2–05.3 · 2 marks",
       q: "In a circuit inside a processor, the value at M is $1 \\cdot \\overline{C}$ and the output T is $1 \\oplus \\overline{C}$. Simplify each expression.",
       steps: [
         { m: "$1 \\cdot \\overline{C} = \\overline{C}$ (identity $X \\cdot 1 = X$);", mk: "1 mark" },
         { m: "$1 \\oplus \\overline{C} = C$ (XOR with 1 inverts: $1 \\oplus X = \\overline{X}$, so the two NOTs cancel);", mk: "1 mark", n: "The circuit inverts every input bit then adds 1 with half adders — it negates a two's complement number (4.5.4.6)." }
-      ], result: "C̄; C" } },
+      ], result: "C̄; C", try: [{ grid: { cols: ["C", "$\\overline{C}$", "$1 \\cdot \\overline{C}$", "$1 \\oplus \\overline{C}$"], rows: [["0", "1", "1", "0"], ["1", "0", "0", "1"]], given: [[0, 0], [1, 0]], cap: "**Your turn.** Check both answers by table: the last two columns should be $\\overline{C}$ and $C$." } }] } },
 
     { page: "De Morgan's laws" },
     { callout: { t: "formula", h: "De Morgan's laws", body: "$\\overline{A \\cdot B} = \\overline{A} + \\overline{B}$ and $\\overline{A + B} = \\overline{A} \\cdot \\overline{B}$ — they extend to any number of terms: $\\overline{A + B + C} = \\overline{A} \\cdot \\overline{B} \\cdot \\overline{C}$." } },
@@ -534,26 +534,26 @@ C["compsci:4.6.5.1"] = {
         { m: "$\\overline{B}$: 1, 0, 1, 0 and $\\overline{A}$: 1, 1, 0, 0", mk: "1 mark" },
         { m: "$\\overline{A} \\cdot B$: 0, 1, 0, 0", mk: "1 mark" },
         { m: "$A + \\overline{B}$: 1, 0, 1, 1 and $\\overline{\\overline{A} \\cdot B}$: 1, 0, 1, 1 — identical columns prove the equivalence.", mk: "1 mark", n: "I. order of columns." }
-      ], result: "Both columns 1 0 1 1" } },
+      ], result: "Both columns 1 0 1 1", try: [{ grid: { cols: ["A", "B", "$\\overline{B}$", "$A \\cdot \\overline{B}$", "$\\overline{A} + B$", "$\\overline{\\overline{A} + B}$"], rows: [["0", "0", "1", "0", "1", "0"], ["0", "1", "0", "0", "1", "0"], ["1", "0", "1", "1", "0", "1"], ["1", "1", "0", "0", "1", "0"]], given: [[0, 0], [0, 1], [1, 0], [1, 1], [2, 0], [2, 1], [3, 0], [3, 1]], cap: "**Your turn.** The dual: complete the table to show $A \\cdot \\overline{B} = \\overline{\\overline{A} + B}$." } }] } },
     { worked: { tag: "exam", title: "Complete the table; name the law", src: "A-level June 2022 · P2 Q03.1–03.2 · 2 marks",
       q: "Complete the truth table with columns A + B, $\\overline{A}$, $\\overline{B}$, $\\overline{A} \\cdot \\overline{B}$, $\\overline{\\overline{A} \\cdot \\overline{B}}$, then state the name of the law it demonstrates.",
       steps: [
         { m: "A + B: 0,1,1,1 · $\\overline{A}$: 1,1,0,0 · $\\overline{B}$: 1,0,1,0 · $\\overline{A} \\cdot \\overline{B}$: 1,0,0,0 · $\\overline{\\overline{A} \\cdot \\overline{B}}$: 0,1,1,1", mk: "1 mark" },
         { m: "De Morgan's (law);", mk: "1 mark" }
-      ], result: "De Morgan's law" } },
+      ], result: "De Morgan's law", try: [{ grid: { cols: ["A", "B", "$A \\cdot B$", "$\\overline{A \\cdot B}$", "$\\overline{A}$", "$\\overline{B}$", "$\\overline{A} + \\overline{B}$"], rows: [["0", "0", "0", "1", "1", "1", "1"], ["0", "1", "0", "1", "1", "0", "1"], ["1", "0", "0", "1", "0", "1", "1"], ["1", "1", "1", "0", "0", "0", "0"]], given: [[0, 0], [0, 1], [1, 0], [1, 1], [2, 0], [2, 1], [3, 0], [3, 1]], cap: "**Your turn.** De Morgan's other law: complete the table and compare the second column with the last." } }] } },
     { worked: { tag: "exam", title: "The single replacement gate", src: "AS June 2019 · P2 Q06.3 · 1 mark",
       q: "De Morgan's laws can be applied to enable a combination of gates to be replaced by a single gate. What single gate could replace the combination in $\\overline{\\overline{A} \\cdot \\overline{B}}$?",
-      steps: [{ m: "$\\overline{\\overline{A} \\cdot \\overline{B}} = \\overline{\\overline{A}} + \\overline{\\overline{B}} = A + B$ → **OR**;", mk: "1 mark", n: "A. A + B." }], result: "OR" } },
+      steps: [{ m: "$\\overline{\\overline{A} \\cdot \\overline{B}} = \\overline{\\overline{A}} + \\overline{\\overline{B}} = A + B$ → **OR**;", mk: "1 mark", n: "A. A + B." }], result: "OR", try: [{ gates: { inputs: ["A", "B"], gates: [{ id: "G", type: "OR", in: ["A", "B"] }], out: "G", pick: "G", cap: "**Your turn.** The wanted column is $\\overline{\\overline{A} \\cdot \\overline{B}}$'s: pick the one gate that replaces the combination." } }] } },
     { worked: { tag: "exam", title: "Apply De Morgan", src: "AS June 2025 · P2 Q08.1 · 1 mark",
       q: "Apply De Morgan's law to $\\overline{A \\cdot B}$.",
-      steps: [{ m: "$\\overline{A} + \\overline{B}$", mk: "1 mark" }], result: "Ā + B̄" } },
+      steps: [{ m: "$\\overline{A} + \\overline{B}$", mk: "1 mark" }], result: "Ā + B̄", try: [{ grid: { cols: ["A", "B", "$\\overline{A + B}$", "$\\overline{A} \\cdot \\overline{B}$"], rows: [["0", "0", "1", "1"], ["0", "1", "0", "0"], ["1", "0", "0", "0"], ["1", "1", "0", "0"]], given: [[0, 0], [0, 1], [1, 0], [1, 1], [2, 0], [2, 1], [3, 0], [3, 1]], cap: "**Your turn.** The other law, $\\overline{A + B} = \\overline{A} \\cdot \\overline{B}$: complete both columns." } }] } },
     { worked: { tag: "exam", title: "Simplify using a truth table", src: "AS June 2022 · P2 Q07.4 · 3 marks",
       q: "Complete the truth table with columns $\\overline{B}$, $(A + \\overline{B})$, $(A + \\overline{B}) \\cdot B$, then use the final column to give a simplified expression for $(A + \\overline{B}) \\cdot B$.",
       steps: [
         { m: "$A + \\overline{B}$: 1, 0, 1, 1 (with $\\overline{B}$: 1, 0, 1, 0)", mk: "1 mark" },
         { m: "$(A + \\overline{B}) \\cdot B$: 0, 0, 0, 1", mk: "1 mark" },
         { m: "Only row 11 gives 1 → $A \\cdot B$", mk: "1 mark", n: "Algebra agrees: $A \\cdot B + \\overline{B} \\cdot B = A \\cdot B + 0$." }
-      ], result: "A·B" } },
+      ], result: "A·B", try: [{ grid: { cols: ["A", "B", "$\\overline{A}$", "$A + B$", "$(A + B) \\cdot \\overline{A}$"], rows: [["0", "0", "1", "0", "0"], ["0", "1", "1", "1", "1"], ["1", "0", "0", "1", "0"], ["1", "1", "0", "1", "0"]], given: [[0, 0], [0, 1], [1, 0], [1, 1], [2, 0], [2, 1], [3, 0], [3, 1]], cap: "**Your turn.** Simplify $(A + B) \\cdot \\overline{A}$ the same way: the last column is one AND — which?" } }] } },
     { callout: { t: "tip", h: "Side by side: two meanings of \"normalisation\"", body: "Simplifying a Boolean expression is often loosely called *reducing* or *normalising* it — not to be confused with **normalising a floating-point number** (4.5.4.8: shift so the mantissa starts 01 or 10, for maximum precision) or **normalising a database** (4.10.4: remove redundancy to third normal form). All three remove waste; none is the same operation." } },
 
     { page: "How simplifications are marked" },
@@ -583,7 +583,7 @@ C["compsci:4.6.5.1"] = {
         { h: "$X \\cdot \\overline{X} = 0$, $X + 0 = X$", m: "$(\\overline{A} + B) \\cdot \\overline{A} \\cdot B$", mk: "1 mark" },
         { h: "Expand; $X \\cdot X = X$ twice", m: "$\\overline{A} \\cdot \\overline{A} \\cdot B + B \\cdot \\overline{A} \\cdot B = \\overline{A} \\cdot B + \\overline{A} \\cdot B$" },
         { h: "$X + X = X$", m: "$\\overline{A} \\cdot B$", mk: "1 mark" }
-      ], result: "Ā·B" } },
+      ], result: "Ā·B", try: [{ grid: { cols: ["A", "B", "$\\overline{B + A}$", "$\\overline{A + \\overline{B + A}}$", "$(\\overline{A} + B) \\cdot \\overline{A + \\overline{B + A}}$", "$\\overline{A} \\cdot B$"], rows: [["0", "0", "1", "0", "0", "0"], ["0", "1", "0", "1", "1", "1"], ["1", "0", "0", "0", "0", "0"], ["1", "1", "0", "0", "0", "0"]], given: [[0, 0], [0, 1], [1, 0], [1, 1], [2, 0], [2, 1], [3, 0], [3, 1]], cap: "**Your turn.** Check the simplification by table: the last two columns must match." } }] } },
     { worked: { tag: "exam", title: "Simplify $(X + Y) \\cdot (X + \\overline{Y})$", src: "AS June 2017 · P2 Q05.3 · 4 marks",
       q: "Using the laws of Boolean algebra, simplify $(X + Y) \\cdot (X + \\overline{Y})$. You must show your working.",
       steps: [
@@ -591,7 +591,7 @@ C["compsci:4.6.5.1"] = {
         { h: "$X \\cdot X = X$, $Y \\cdot \\overline{Y} = 0$", m: "$X + X \\cdot \\overline{Y} + X \\cdot Y + 0$", mk: "1 mark" },
         { h: "Factorise", m: "$X \\cdot (1 + \\overline{Y} + Y)$", mk: "1 mark" },
         { h: "$1 + \\ldots = 1$", m: "$X$", mk: "1 mark", n: "Faster: the second distributive law gives $X + Y \\cdot \\overline{Y} = X + 0 = X$ in two lines." }
-      ], result: "X" } },
+      ], result: "X", try: [{ grid: { cols: ["X", "Y", "$X + Y$", "$X + \\overline{Y}$", "$(X + Y) \\cdot (X + \\overline{Y})$"], rows: [["0", "0", "0", "1", "0"], ["0", "1", "1", "0", "0"], ["1", "0", "1", "1", "1"], ["1", "1", "1", "1", "1"]], given: [[0, 0], [0, 1], [1, 0], [1, 1], [2, 0], [2, 1], [3, 0], [3, 1]], cap: "**Your turn.** Check by table: the last column should equal X." } }] } },
     { worked: { tag: "exam", title: "Simplify $\\overline{\\overline{A \\cdot (\\overline{B} + 0)} \\cdot \\overline{\\overline{A} \\cdot (B + B)}}$", src: "AS June 2018 · P2 Q09.4 · 4 marks",
       q: "Using the rules of Boolean algebra, simplify $\\overline{\\overline{A \\cdot (\\overline{B} + 0)} \\cdot \\overline{\\overline{A} \\cdot (B + B)}}$. You must show your working.",
       steps: [
@@ -616,7 +616,7 @@ C["compsci:4.6.5.1"] = {
         { h: "De Morgan", m: "$(A + 0) \\cdot (\\overline{C} + \\overline{A})$", mk: "1 mark" },
         { h: "$A + 0 = A$", m: "$A \\cdot (\\overline{C} + \\overline{A})$", mk: "1 mark" },
         { h: "Expand; $A \\cdot \\overline{A} = 0$", m: "$A \\cdot \\overline{C} + 0 = A \\cdot \\overline{C}$", mk: "1 mark" }
-      ], result: "A·C̄" } },
+      ], result: "A·C̄", try: [{ grid: { cols: ["A", "B", "C", "$\\overline{A + B \\cdot \\overline{B}}$", "$C \\cdot A$", "whole expression", "$A \\cdot \\overline{C}$"], rows: [["0", "0", "0", "1", "0", "0", "0"], ["0", "0", "1", "1", "0", "0", "0"], ["0", "1", "0", "1", "0", "0", "0"], ["0", "1", "1", "1", "0", "0", "0"], ["1", "0", "0", "0", "0", "1", "1"], ["1", "0", "1", "0", "1", "0", "0"], ["1", "1", "0", "0", "0", "1", "1"], ["1", "1", "1", "0", "1", "0", "0"]], given: [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2], [2, 0], [2, 1], [2, 2], [3, 0], [3, 1], [3, 2], [4, 0], [4, 1], [4, 2], [5, 0], [5, 1], [5, 2], [6, 0], [6, 1], [6, 2], [7, 0], [7, 1], [7, 2]], cap: "**Your turn.** Check by table: the whole expression against $A \\cdot \\overline{C}$." } }] } },
     { worked: { tag: "exam", title: "Simplify $(A + \\overline{B}) \\cdot \\overline{\\overline{A} + B}$", src: "AS June 2022 · P2 Q07.5 · 4 marks",
       q: "Using the rules and identities of Boolean algebra, simplify $(A + \\overline{B}) \\cdot \\overline{\\overline{A} + B}$.",
       steps: [
@@ -624,7 +624,7 @@ C["compsci:4.6.5.1"] = {
         { h: "Multiply out", m: "$A \\cdot A \\cdot \\overline{B} + \\overline{B} \\cdot A \\cdot \\overline{B}$", mk: "1 mark" },
         { h: "$X \\cdot X = X$", m: "$A \\cdot \\overline{B} + A \\cdot \\overline{B}$", mk: "1 mark" },
         { h: "$X + X = X$", m: "$A \\cdot \\overline{B}$", mk: "1 mark", n: "Or absorption: $(A + \\overline{B}) \\cdot A \\cdot \\overline{B}$ — the bracket is absorbed by A." }
-      ], result: "A·B̄" } },
+      ], result: "A·B̄", try: [{ grid: { cols: ["A", "B", "$A + \\overline{B}$", "$\\overline{\\overline{A} + B}$", "$(A + \\overline{B}) \\cdot \\overline{\\overline{A} + B}$", "$A \\cdot \\overline{B}$"], rows: [["0", "0", "1", "0", "0", "0"], ["0", "1", "0", "0", "0", "0"], ["1", "0", "1", "1", "1", "1"], ["1", "1", "1", "0", "0", "0"]], given: [[0, 0], [0, 1], [1, 0], [1, 1], [2, 0], [2, 1], [3, 0], [3, 1]], cap: "**Your turn.** Check the simplification by table: the last two columns must match." } }] } },
     { worked: { tag: "exam", title: "Simplify $\\overline{\\overline{A} + \\overline{B}} + B \\cdot \\overline{A} \\cdot (\\overline{C} + C)$", src: "AS June 2023 · P2 Q07.3 · 4 marks",
       q: "Using the rules of Boolean algebra, simplify $\\overline{\\overline{A} + \\overline{B}} + B \\cdot \\overline{A} \\cdot (\\overline{C} + C)$. You must show your working.",
       steps: [
@@ -666,7 +666,7 @@ C["compsci:4.6.5.1"] = {
         { h: "Expand", m: "$\\overline{B \\cdot \\overline{B} + \\overline{A} \\cdot \\overline{B}} + A \\cdot B$", mk: "1 mark" },
         { h: "$X \\cdot \\overline{X} = 0$, $X + 0 = X$", m: "$\\overline{\\overline{A} \\cdot \\overline{B}} + A \\cdot B$", mk: "1 mark" },
         { h: "De Morgan; absorption", m: "$A + B + A \\cdot B = A + B$", mk: "1 mark" }
-      ], result: "A + B" } },
+      ], result: "A + B", try: [{ grid: { cols: ["A", "B", "$\\overline{\\overline{B} \\cdot A}$", "$\\overline{\\overline{\\overline{B} \\cdot A} \\cdot \\overline{B}}$", "whole expression", "$A + B$"], rows: [["0", "0", "1", "0", "0", "0"], ["0", "1", "1", "1", "1", "1"], ["1", "0", "0", "1", "1", "1"], ["1", "1", "1", "1", "1", "1"]], given: [[0, 0], [0, 1], [1, 0], [1, 1], [2, 0], [2, 1], [3, 0], [3, 1]], cap: "**Your turn.** Check by table: the whole expression against $A + B$." } }] } },
     { worked: { tag: "exam", title: "Simplify $\\overline{\\overline{A \\cdot (A + 1)} \\cdot \\overline{B}} \\cdot \\overline{\\overline{A} + \\overline{B} + 0}$", src: "A-level June 2020 · P2 Q06.4 · 4 marks",
       q: "Using the rules of Boolean algebra, simplify $\\overline{\\overline{A \\cdot (A + 1)} \\cdot \\overline{B}} \\cdot \\overline{\\overline{A} + \\overline{B} + 0}$. You must show your working.",
       steps: [
@@ -706,7 +706,7 @@ C["compsci:4.6.5.1"] = {
         { h: "$X + \\overline{X} = 1$; $X \\cdot 1 = X$", m: "$\\overline{A + \\overline{A} \\cdot C + B \\cdot C}$", mk: "1 mark" },
         { h: "$X + \\overline{X} \\cdot Y = X + Y$", m: "$\\overline{A + C + B \\cdot C}$", mk: "1 mark" },
         { h: "Absorption", m: "$\\overline{A + C}$", mk: "1 mark", n: "R. $\\overline{A} \\cdot \\overline{C}$ as the final answer — equivalent, but it uses three operators to $\\overline{A + C}$'s two. Leave the bar unbroken. Do NOT start with De Morgan across all four terms: it is long, and done wrongly it loses precedence and every mark." }
-      ], result: "NOT(A + C)" } },
+      ], result: "NOT(A + C)", try: [{ grid: { cols: ["A", "B", "C", "$A \\cdot B + \\overline{A} \\cdot C + B \\cdot C + \\overline{B} \\cdot A$", "whole expression", "$\\overline{A + C}$"], rows: [["0", "0", "0", "0", "1", "1"], ["0", "0", "1", "1", "0", "0"], ["0", "1", "0", "0", "1", "1"], ["0", "1", "1", "1", "0", "0"], ["1", "0", "0", "1", "0", "0"], ["1", "0", "1", "1", "0", "0"], ["1", "1", "0", "1", "0", "0"], ["1", "1", "1", "1", "0", "0"]], given: [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2], [2, 0], [2, 1], [2, 2], [3, 0], [3, 1], [3, 2], [4, 0], [4, 1], [4, 2], [5, 0], [5, 1], [5, 2], [6, 0], [6, 1], [6, 2], [7, 0], [7, 1], [7, 2]], cap: "**Your turn.** Check by table: the inverted sum against $\\overline{A + C}$." } }] } },
     { callout: { t: "miscon", h: "\"Simplest\" is counted in operators", body: "AQA's \"simpler\" means **fewer logical operators** (each NOT, AND, OR counts). $\\overline{A + C}$ has two; $\\overline{A} \\cdot \\overline{C}$ has three — which is why 2025 rejected it. Do not apply De Morgan as a last step unless it reduces the count." } },
 
     { page: "Exam toolkit" },

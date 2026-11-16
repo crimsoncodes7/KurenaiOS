@@ -109,7 +109,7 @@ C["compsci:4.7.1.1"] = {
     { callout: { t: "formula", h: "Capacity from the address bus", body: "n address lines → $2^n$ addressable locations. Capacity = $2^n$ × (bits per location) ÷ 8 bytes. Adding **one** line **doubles** the addressable memory." } },
     { worked: { tag: "exam", title: "32-bit address bus", src: "A-level June 2019 · P2 Q12.1 · 1 mark",
       q: "A computer system uses a 32-bit address bus and a 32-bit data bus. Each addressed memory location can store one byte of data. What is the maximum amount of memory, in bytes, that could be accessed?",
-      steps: [{ m: "$2^{32}$ = **4 294 967 296 bytes**", mk: "1 mark", n: "The data bus width is a distractor — it does not change how many locations exist." }], result: "4 294 967 296 bytes (4 GiB)" } },
+      steps: [{ m: "$2^{32}$ = **4 294 967 296 bytes**", mk: "1 mark", n: "The data bus width is a distractor — it does not change how many locations exist." }], result: "4 294 967 296 bytes (4 GiB)", try: [{ grid: { cols: ["Address lines", "Bits per location", "Maximum memory (bytes)"], rows: [["16", "8", "65536"], ["20", "8", "1048576"], ["24", "16", "33554432"], ["32", "32", "17179869184"]], given: [[0, 0], [0, 1], [1, 0], [1, 1], [2, 0], [2, 1], [3, 0], [3, 1]], cap: "**Your turn.** 2ⁿ locations × bits per location ÷ 8. Digits only." } }] } },
     { worked: { tag: "exam", title: "36 address lines, 16-bit locations, in GiB", src: "A-level June 2024 · P2 Q03.5 · 2 marks",
       q: "The computer's address bus uses 36 wires and each main memory location can hold a 16-bit data value. In gibibytes, express the maximum amount of main memory that could be installed, assuming the CPU could access all of it using the address bus. Show your working.",
       steps: [
@@ -163,7 +163,17 @@ C["compsci:4.7.1.1"] = {
       steps: [
         { m: "Bus 4 is one-way out of box 2 → **Address bus = 4**, so box 2, which drives it, is the **Processor = 2**;" },
         { m: "**Data bus = 5** (two-way); box 1 only receives addresses → **Main memory = 1**; the keyboard and mouse box → **USB I/O controller = 3**.", mk: "2 marks", n: "1 mark: at least three correct; 2 marks: all five." }
-      ], result: "Address 4, Data 5, Memory 1, Processor 2, I/O 3" } },
+      ], result: "Address 4, Data 5, Memory 1, Processor 2, I/O 3", fig: { w: 600, h: 262, items: (function () {
+      var it = [], xs = [[40, "2"], [245, "1"], [450, "3"]];
+      xs.forEach(function (b) { it.push({ poly: [[b[0], 70], [b[0] + 120, 70], [b[0] + 120, 120], [b[0], 120]], fill: "accent", alpha: 0.14, c: "accent", w: 1.6 }, { text: [b[0] + 60, 95], t: b[1], b: true, size: 16, c: "text" }); });
+      it.push({ line: [[20, 160], [585, 160]], c: "text2", w: 2, dash: "2 4" }, { text: [12, 160], t: "4", b: true, size: 13, c: "text", pos: "w", off: 0 });
+      it.push({ line: [[20, 195], [585, 195]], c: "text2", w: 2, dash: "9 5" }, { text: [12, 195], t: "5", b: true, size: 13, c: "text", pos: "w", off: 0 });
+      it.push({ line: [[20, 232], [585, 232]], c: "text2", w: 2 }, { text: [300, 246], t: "control bus", size: 11, c: "muted" });
+      it.push({ line: [[70, 120], [70, 158]], arrow: true, c: "text2", w: 1.6 }, { line: [[275, 160], [275, 122]], arrow: true, c: "text2", w: 1.6 });
+      xs.forEach(function (b) { it.push({ line: [[b[0] + 60, 122], [b[0] + 60, 193]], arrow: "both", c: "text2", w: 1.6 }, { line: [[b[0] + 95, 122], [b[0] + 95, 230]], arrow: "both", c: "muted", w: 1.3 }); });
+      it.push({ line: [[510, 22], [510, 68]], arrow: true, c: "text2", w: 1.6 }, { text: [522, 30], t: "keyboard, mouse", size: 11, c: "muted", pos: "e", off: 0 });
+      return it;
+    })(), cap: "The question's diagram, reconstructed: bus 4 dotted, bus 5 dashed." } } },
 
     { page: "I/O controllers" },
     { callout: { t: "def", h: "I/O controller", body: "An electronic circuit that sits between the processor's buses and a peripheral. It lets the processor communicate with a device through an **I/O port**, making the device look like a set of **registers / memory locations**, and **translates** signals and voltages between the two." } },
@@ -582,10 +592,19 @@ C["compsci:4.7.3.2"] = {
     { page: "In exam questions" },
     { worked: { tag: "exam", title: "Order the events for an ADD", src: "AS June 2022 · P2 Q08.1 · 3 marks",
       q: "Order these events for an ADD instruction (1 = first): A The contents of the MBR are copied to the CIR. B The contents of the PC are copied to the MAR. C The control unit decodes the contents of the CIR. D The result of the calculation is stored.",
-      steps: [{ m: "B = 1, A = 2, C = 3, D = 4", mk: "3 marks", n: "3 for all correct, 2 for two, 1 for one. R. labels used more than once." }], result: "B, A, C, D" } },
+      steps: [{ m: "B = 1, A = 2, C = 3, D = 4", mk: "3 marks", n: "3 for all correct, 2 for two, 1 for one. R. labels used more than once." }], result: "B, A, C, D", try: [{ grid: { cols: ["Step", "MAR", "PC", "MBR", "CIR", "R1"], rows: [["PC → MAR", "200", "", "", "", ""], ["PC incremented", "", "201", "", "", ""], ["memory[MAR] → MBR", "", "", "LDR R1, 305", "", ""], ["MBR → CIR", "", "", "", "LDR R1, 305", ""], ["decode; operand address → MAR", "305", "", "", "", ""], ["memory[MAR] → MBR", "", "", "42", "", ""], ["MBR → R1", "", "", "", "", "42"]], given: [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [6, 0]], cap: "**Your turn.** The PC holds 200; location 200 holds the instruction LDR R1, 305 and location 305 holds 42. Write each register's new value in the row where it changes (type the instruction as LDR R1, 305)." } }] } },
     { worked: { tag: "exam", title: "Name the fetch-stage components", src: "AS June 2024 · P2 Q07.1 · 2 marks",
       q: "A diagram shows the processor with two registers (1 at the top, 3 below) joined to main memory by bus 2 (one-way, processor → memory) and bus 4 (two-way). Name components 1 to 4, using full names for registers.",
-      steps: [{ m: "1 Memory Address Register · 2 Address Bus · 3 Memory Buffer Register (A. Memory Data Register) · 4 Data Bus", mk: "2 marks", n: "1 mark for two or three correct; 2 for all four." }], result: "MAR, address bus, MBR, data bus" } },
+      steps: [{ m: "1 Memory Address Register · 2 Address Bus · 3 Memory Buffer Register (A. Memory Data Register) · 4 Data Bus", mk: "2 marks", n: "1 mark for two or three correct; 2 for all four." }], result: "MAR, address bus, MBR, data bus", fig: { w: 560, h: 200, items: (function () {
+      var it = [];
+      it.push({ poly: [[20, 20], [230, 20], [230, 180], [20, 180]], fill: "accent", alpha: 0.06, c: "accent", w: 1.6 }, { text: [125, 34], t: "Processor", b: true, size: 12, c: "accent" });
+      it.push({ poly: [[60, 55], [190, 55], [190, 90], [60, 90]], fill: "accent2", alpha: 0.18, c: "accent2", w: 1.5 }, { text: [125, 72], t: "1", b: true, size: 15, c: "text" });
+      it.push({ poly: [[60, 120], [190, 120], [190, 155], [60, 155]], fill: "accent2", alpha: 0.18, c: "accent2", w: 1.5 }, { text: [125, 137], t: "3", b: true, size: 15, c: "text" });
+      it.push({ poly: [[400, 40], [540, 40], [540, 170], [400, 170]], fill: "good", alpha: 0.12, c: "good", w: 1.6 }, { text: [470, 105], t: "Main memory", b: true, size: 12, c: "text" });
+      it.push({ line: [[190, 72], [398, 72]], arrow: true, c: "text2", w: 2 }, { text: [295, 58], t: "2", b: true, size: 14, c: "text" });
+      it.push({ line: [[190, 137], [398, 137]], arrow: "both", c: "text2", w: 2 }, { text: [295, 123], t: "4", b: true, size: 14, c: "text" });
+      return it;
+    })(), cap: "The question's diagram, reconstructed: bus 2 one way, bus 4 both ways." } } },
     { worked: { tag: "exam", title: "Name the registers in the fetch diagram", src: "A-level June 2020 · P2 Q03.4 · 2 marks",
       q: "A fetch diagram reads: \"Copy contents of the Program Counter into the ①\" → \"Increment the value in the ②\" and \"Fetch the instruction from main memory and store in the Memory Buffer Register\" → \"Copy contents of the Memory Buffer Register into the ③\". State the full names.",
       steps: [{ m: "① Memory Address Register · ② Program Counter · ③ Current Instruction Register (A. Instruction Register)", mk: "2 marks", n: "1 mark for two; 2 for three. NE. MAR, PC, CIR — but all three correct initialisms earn 1." }], result: "MAR, PC, CIR" } },

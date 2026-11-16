@@ -116,7 +116,12 @@ C["maths:S1.1"] = {
         { h: "(a) Every 10th reading from a starting point", m: "Systematic sampling.", mk: "B1", n: "Spelling is condoned (\"sysmatic\") but \"systemic\" is a different word and scores B0." },
         { h: "(b)(i) A qualitative variable with three outcomes, one very common", m: "Daily Mean Windspeed (the Beaufort conversion).", mk: "B1", n: "The LDS's qualitative variables are the Beaufort *descriptions* of windspeed and the cardinal wind direction. Direction would have up to 16 outcomes, so windspeed fits. \"Wind\" alone is B0." },
         { h: "(b)(ii) The modal outcome", m: "Outcome A is **Light**.", mk: "B1", n: "Most summer days at a UK station are Light (Beaufort 1–3). The two B marks are independent: \"rainfall\" and \"light\" scores B0 B1." },
-        { h: "(c) Compare the samples with the truth", m: "Both samples show A as by far the most frequent outcome (16 of 19 and 16 of 18). The whole year has $\\frac{155}{184} = 84\\%$ A, so that inference is reliable.\nThe samples disagree about B and C (2 and 1 against 1 and 1) — they are too small to estimate the rare outcomes.", mk: "B1", n: "The mark is for \"A is the most frequent\" (or occurs around 80–90% of the time). Comments about B and C can follow, but the reliable inference is about A." }
+        { h: "(c) Compare the samples with the truth", m: "Both samples show A as by far the most frequent outcome (16 of 19 and 16 of 18). The whole year has $\\frac{155}{184} = 84\\%$ A, so that inference is reliable.\nThe samples disagree about B and C (2 and 1 against 1 and 1) — they are too small to estimate the rare outcomes.", mk: "B1", n: "The mark is for \"A is the most frequent\" (or occurs around 80–90% of the time). Comments about B and C can follow, but the reliable inference is about A.", fig: { x: [0, 12], y: [0, 100], w: 480, h: 230, axes: { x: "", y: "% of days", xt: [{ v: 2, label: "A" }, { v: 6, label: "B" }, { v: 10, label: "C" }], yt: [20, 40, 60, 80, 100] }, items: [
+          { poly: [[1, 0], [1.8, 0], [1.8, 84.2], [1, 84.2]], fill: "accent", alpha: 0.35, c: "accent", w: 1.2 }, { poly: [[1.8, 0], [2.6, 0], [2.6, 88.9], [1.8, 88.9]], fill: "accent2", alpha: 0.35, c: "accent2", w: 1.2 }, { poly: [[2.6, 0], [3.4, 0], [3.4, 84.2], [2.6, 84.2]], fill: "accent3", alpha: 0.35, c: "accent3", w: 1.2 },
+          { poly: [[5, 0], [5.8, 0], [5.8, 10.5], [5, 10.5]], fill: "accent", alpha: 0.35, c: "accent", w: 1.2 }, { poly: [[5.8, 0], [6.6, 0], [6.6, 5.6], [5.8, 5.6]], fill: "accent2", alpha: 0.35, c: "accent2", w: 1.2 }, { poly: [[6.6, 0], [7.4, 0], [7.4, 14.1], [6.6, 14.1]], fill: "accent3", alpha: 0.35, c: "accent3", w: 1.2 },
+          { poly: [[9, 0], [9.8, 0], [9.8, 5.3], [9, 5.3]], fill: "accent", alpha: 0.35, c: "accent", w: 1.2 }, { poly: [[9.8, 0], [10.6, 0], [10.6, 5.6], [9.8, 5.6]], fill: "accent2", alpha: 0.35, c: "accent2", w: 1.2 }, { poly: [[10.6, 0], [11.4, 0], [11.4, 1.6], [10.6, 1.6]], fill: "accent3", alpha: 0.35, c: "accent3", w: 1.2 },
+          { text: [7.6, 78], t: "■ Helen 16/19", pos: "e", c: "accent", size: 11.5 }, { text: [7.6, 66], t: "■ George 16/18", pos: "e", c: "accent2", size: 11.5 }, { text: [7.6, 54], t: "■ all 2015: 155/184", pos: "e", c: "accent3", size: 11.5 }
+        ], cap: "Both small samples get the share of A about right; they cannot pin down the rare outcomes B and C." } }
       ], result: "(a) systematic (b) windspeed (Beaufort); A = Light (c) outcome A is the most common — about 80–90% of days" } },
 
     /* ---------------------------------------------------------------- Page 2 */
@@ -183,13 +188,14 @@ C["maths:S1.1"] = {
       steps: [
         { h: "Total and fractions", m: "$N = 47 + 85 + 28 = 160$\n$\\text{juniors } \\dfrac{47}{160} \\times 25 = 7.34, \\quad \\text{adults } \\dfrac{85}{160} \\times 25 = 13.28, \\quad \\text{seniors } \\dfrac{28}{160} \\times 25 = 4.375$" },
         { h: "Round and check the total", m: "$7 + 13 + 4 = 24$ — one short. The largest remaining fraction is the seniors' $0.375$, so take 5 seniors.\nSample: 7 juniors, 13 adults, 5 seniors $= 25$.", n: "State the adjustment. A total that does not equal the requested sample size loses the accuracy mark." }
-      ], result: "7 juniors, 13 adults, 5 seniors" } },
+      ], result: "7 juniors, 13 adults, 5 seniors", try: [{ grid: { cols: ["Group", "Size", "Size ÷ 160 × 20", "Sample"], rows: [["Juniors", "47", "5.875", "6"], ["Adults", "73", "9.125", "9"], ["Seniors", "40", "5", "5"], ["Total", "160", "20", "20"]],
+        given: [[0, 0], [0, 1], [1, 0], [1, 1], [2, 0], [2, 1], [3, 0], [3, 1]], cap: "Your turn: the same club a year later has 47 juniors, 73 adults and 40 seniors. Fill in a stratified sample of **20** — the rounded sizes must add up to 20." } }] } },
     { worked: { tag: "example", title: "Describe a systematic sample from the large data set", src: "practice variant (LDS)",
       q: "Describe how to take a systematic sample of 23 days from the 184 days of data for Hurn in 2015.",
       steps: [
         { h: "Interval", m: "$k = \\dfrac{184}{23} = 8$" },
         { h: "Random start", m: "Use a random number generator to choose a starting day between the 1st and the 8th day (1st–8th May)." },
-        { h: "Every 8th", m: "Then take every 8th day after that, in date order — e.g. a start of 5 gives days 5, 13, 21, …, 181.", n: "Three ingredients: the interval, the **random** start in the first $k$, and every $k$th. The dates are already an ordered list, so the LDS is its own sampling frame." }
+        { h: "Every 8th", m: "Then take every 8th day after that, in date order — e.g. a start of 5 gives days 5, 13, 21, …, 181.", n: "Three ingredients: the interval, the **random** start in the first $k$, and every $k$th. The dates are already an ordered list, so the LDS is its own sampling frame.", fig: { w: 520, h: 110, items: frameRow(40, 8, 5, 34, "The first 40 of the 184 days: k = 8, start 5 → days 5, 13, 21, 29, 37, … 181"), cap: "Days 1–8 hold the random start; then every 8th day, 23 days in all." } }
       ], result: "$k = 8$; random start from days 1–8; then every 8th day" } },
 
     /* ---------------------------------------------------------------- Page 3 */
@@ -212,7 +218,14 @@ C["maths:S1.1"] = {
       q: "A lake contains an estimated 450 mirror carp, 300 leather carp and 850 common carp. Tim wants to investigate the health of the fish and takes a sample of 160. **(a)** Give a reason why stratified random sampling cannot be used. **(b)** Explain how a sample of size 160 could be taken so that the estimated populations of each type of carp are fairly represented. You should state the name of the sampling method used.",
       steps: [
         { h: "(a) What stratified sampling needs", m: "It is not possible to have a sampling frame — the fish in a lake cannot be listed and numbered.", mk: "B1" },
-        { h: "(b) Name the method and work out the quotas", m: "Quota sampling. The population is $450 + 300 + 850 = 1600$, so the sample is $\\dfrac{160}{1600} = \\dfrac{1}{10}$ of each type:\n$45$ mirror carp, $30$ leather carp, $85$ common carp.", mk: "M1", n: "M1 for quota and either the correct numbers or the idea of ignoring extra fish once a quota is full." },
+        { h: "(b) Name the method and work out the quotas", m: "Quota sampling. The population is $450 + 300 + 850 = 1600$, so the sample is $\\dfrac{160}{1600} = \\dfrac{1}{10}$ of each type:\n$45$ mirror carp, $30$ leather carp, $85$ common carp.", mk: "M1", n: "M1 for quota and either the correct numbers or the idea of ignoring extra fish once a quota is full.", fig: { w: 520, h: 120, items: [
+          { poly: [[20, 30], [155, 30], [155, 66], [20, 66]], fill: "accent", alpha: 0.25, c: "accent" },
+          { poly: [[155, 30], [245, 30], [245, 66], [155, 66]], fill: "accent2", alpha: 0.25, c: "accent2" },
+          { poly: [[245, 30], [500, 30], [500, 66], [245, 66]], fill: "accent3", alpha: 0.25, c: "accent3" },
+          { text: [87, 48], t: "mirror 450", size: 12, c: "text" }, { text: [200, 48], t: "leather 300", size: 12, c: "text" }, { text: [372, 48], t: "common 850", size: 12, c: "text" },
+          { text: [87, 88], t: "quota 45", size: 12, c: "accent", b: true }, { text: [200, 88], t: "quota 30", size: 12, c: "accent2", b: true }, { text: [372, 88], t: "quota 85", size: 12, c: "accent3", b: true },
+          { text: [260, 14], t: "1600 fish → a sample of 160: one tenth of each type", size: 11.5, c: "text2" }
+        ], cap: "Proportional quotas, filled by whatever is caught — not random, so this is quota sampling." } },
         { h: "Say how the quota is filled", m: "Catch fish and record each one's type; once the quota for a type is full, return any further fish of that type and keep sampling until all three quotas are filled.", mk: "A1", n: "A1 needs both the correct numbers and the \"ignore once full\" idea." }
       ], result: "(a) no sampling frame (b) quota sampling: 45 mirror, 30 leather, 85 common; ignore fish of a type whose quota is full" } },
     { h: "3.2  Opportunity (convenience) sampling" },
@@ -332,7 +345,11 @@ C["maths:S1.1"] = {
     { worked: { tag: "exam", title: "Mean and standard deviation with n/a values; which month?", src: "AS June 2018 · P2 Q4(a)–(c) · 5 marks",
       q: "Helen studies the daily mean windspeed for Camborne in 1987. For one month the data are: windspeed 6, 7, 8, 9, 11, 12, 13, 14, 16 with frequencies 2, 3, 2, 2, 3, 1, 2, 1, 2, and 13 days recorded as n/a. **(a)** Calculate the mean. **(b)** Calculate the standard deviation and state the units. The means of the other five months are 7.58, 8.26, 8.57, 8.57 and 11.57. **(c)** Using your knowledge of the large data set, suggest, giving a reason, which month had the mean of 11.57.",
       steps: [
-        { h: "Exclude n/a and total up", m: "$n = 18$ (the 13 n/a days are not data), $\\; \\sum fx = 184$, $\\; \\sum fx^2 = 2062$", n: "Treating n/a as 0 and using $n = 31$ gives $5.94$ — B0. This is the trap the question is built around." },
+        { h: "Exclude n/a and total up", m: "$n = 18$ (the 13 n/a days are not data), $\\; \\sum fx = 184$, $\\; \\sum fx^2 = 2062$", n: "Treating n/a as 0 and using $n = 31$ gives $5.94$ — B0. This is the trap the question is built around.", fig: { x: [4.5, 17.5], y: [0, 4], w: 480, h: 200, axes: { x: "windspeed (kn)", y: "days", xt: [6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16], yt: [1, 2, 3] }, items: [
+          { line: [[6, 0], [6, 2]], c: "accent", w: 7 }, { line: [[7, 0], [7, 3]], c: "accent", w: 7 }, { line: [[8, 0], [8, 2]], c: "accent", w: 7 }, { line: [[9, 0], [9, 2]], c: "accent", w: 7 },
+          { line: [[11, 0], [11, 3]], c: "accent", w: 7 }, { line: [[12, 0], [12, 1]], c: "accent", w: 7 }, { line: [[13, 0], [13, 2]], c: "accent", w: 7 }, { line: [[14, 0], [14, 1]], c: "accent", w: 7 }, { line: [[16, 0], [16, 2]], c: "accent", w: 7 },
+          { vline: 10.22, c: "accent2", label: "mean 10.2" }
+        ], cap: "The 18 real values (13 n/a days left out): $\\sum f = 18$, so $\\bar{x} = \\frac{184}{18}$." } },
         { h: "(a) Mean", m: "$\\bar{x} = \\dfrac{184}{18} = 10.2$", mk: "B1" },
         { h: "(b) Standard deviation", m: "$\\sigma = \\sqrt{\\dfrac{2062}{18} - \\left(\\dfrac{184}{18}\\right)^2} = \\sqrt{10.06} = 3.17$", mk: "B1ft", n: "$s = 3.26$ (dividing by $n - 1$) is also accepted." },
         { h: "Units from the LDS", m: "knots (kn)", mk: "B1", n: "An LDS mark: windspeed is recorded in knots." },

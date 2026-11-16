@@ -113,7 +113,12 @@ C["compsci:4.9.3.1"] = {
     { page: "In exam questions" },
     { worked: { tag: "exam", title: "Two more packet fields", src: "A-level June 2023 · P2 Q02.1 · 2 marks",
       q: "A packet's fields include destination address, source address, payload and checksum. Name two fields typically included in a packet which are not shown.",
-      steps: [{ m: "Sequence number (packet number);", mk: "1 mark" }, { m: "Time to live (maximum hop count) // port number // packet length // protocol // IP version;", mk: "1 mark", n: "Only the first two responses are marked." }], result: "Sequence number; TTL" } },
+      steps: [{ m: "Sequence number (packet number);", mk: "1 mark" }, { m: "Time to live (maximum hop count) // port number // packet length // protocol // IP version;", mk: "1 mark", n: "Only the first two responses are marked." }], result: "Sequence number; TTL", fig: { w: 600, h: 90, items: (function () {
+      var it = [], f = [["Destination", 100, "accent"], ["Source", 90, "accent"], ["?", 60, "accent2"], ["?", 60, "accent2"], ["Payload", 190, "good"], ["Checksum", 90, "accent3"]], x = 5;
+      f.forEach(function (b) { it.push({ poly: [[x, 25], [x + b[1], 25], [x + b[1], 65], [x, 65]], fill: b[2], alpha: 0.16, c: b[2], w: 1.5 }, { text: [x + b[1] / 2, 45], t: b[0], b: true, size: 12, c: "text" }); x += b[1]; });
+      it.push({ text: [190, 12], t: "header", size: 10.5, c: "muted" }, { text: [440, 12], t: "data", size: 10.5, c: "muted" }, { text: [545, 80], t: "trailer", size: 10.5, c: "muted" });
+      return it;
+    })(), cap: "The question's packet: name two fields that could fill the gaps." } } },
     { worked: { tag: "exam", title: "A router's role in packet switching", src: "A-level June 2023 · P2 Q02.3 · 2 marks",
       q: "Packets are transmitted using packet switching. Describe the role of a router in packet switching.",
       steps: [
@@ -262,7 +267,7 @@ C["compsci:4.9.3.2"] = {
         { m: "the message is rehashed — a new digest is calculated from it;", mk: "1 mark" },
         { m: "A's public key is used to decrypt the digital signature, giving the received digest;", mk: "1 mark" },
         { m: "if the received and recalculated digests match, B knows A sent the message;", mk: "1 mark", n: "NE. \"knows it was not tampered with\" as the authentication point." }
-      ], result: "B private, rehash, A public, compare" } },
+      ], result: "B private, rehash, A public, compare", try: [{ grid: { cols: ["Step", "Key used"], rows: [["A signs the message (encrypts its digest)", "A's private key"], ["A encrypts the message and signature", "B's public key"], ["B decrypts the message and signature", "B's private key"], ["B decrypts the signature to get the digest", "A's public key"]], given: [[0, 0], [1, 0], [2, 0], [3, 0]], cap: "**Your turn.** One key for each step — type it like **B's public key**." } }] } },
     { worked: { tag: "exam", title: "Sign, encrypt, decrypt, verify (6 marks)", src: "A-level June 2023 · P2 Q11.5 · 6 marks",
       q: "A confidential email from Computer A to Computer B will be encrypted using asymmetric encryption with a digital signature. Describe how A will encrypt the message and create the signature, and how B will decrypt it and verify it was sent by A, referring to the specific keys.",
       steps: [
@@ -359,7 +364,7 @@ C["compsci:4.9.4.1"] = {
     { page: "In exam questions" },
     { worked: { tag: "exam", title: "Which application gets it?", src: "A-level June 2019 · P2 Q02.2 · 1 mark",
       q: "Explain how the transport layer of the TCP/IP stack determines which application-layer software on the server should deal with a received request.",
-      steps: [{ m: "It uses the port number in the request — e.g. port 25 → the SMTP email server software;", mk: "1 mark" }], result: "Port number" } },
+      steps: [{ m: "It uses the port number in the request — e.g. port 25 → the SMTP email server software;", mk: "1 mark" }], result: "Port number", try: [{ grid: { cols: ["Application-layer protocol", "Well-known port"], rows: [["FTP", "21"], ["SSH", "22"], ["SMTP", "25"], ["HTTP", "80"], ["POP3", "110"], ["HTTPS", "443"]], given: [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0]], cap: "**Your turn.** The port numbers the transport layer reads." } }] } },
     { worked: { tag: "exam", title: "One network-layer function", src: "A-level June 2019 · P2 Q02.3 · 1 mark",
       q: "Describe one function of the network layer of the TCP/IP stack.",
       steps: [{ m: "Adds the source and destination IP addresses to the datagrams // performs routing — selects the next host / hop for each datagram;", mk: "1 mark", n: "Also: header checksum; encapsulating data into datagrams. R. MAC address. NE. \"adds IP address\"; NE. \"determines where to send data\"." }], result: "IP addressing / routing" } },

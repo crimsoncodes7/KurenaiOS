@@ -116,7 +116,7 @@ C["compsci:4.6.1.1"] = {
         { m: "(c) software — a translator (system software)", mk: "1 mark" },
         { m: "(d) hardware — a secondary storage device", mk: "1 mark" },
         { m: "(e) software — instructions that execute, even though stored in a chip (firmware)", mk: "1 mark" }
-      ], result: "S, H, S, H, S" } },
+      ], result: "S, H, S, H, S", try: [{ grid: { cols: ["Item", "Hardware or software?"], rows: [["the ALU", "hardware"], ["a web browser", "software"], ["a graphics card", "hardware"], ["an assembler", "software"], ["the firmware in a router", "software"], ["an optical disc drive", "hardware"]], given: [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0]], cap: "**Your turn.** Six more: type **hardware** or **software** for each." } }] } },
 
     { page: "Exam toolkit" },
     { table: { head: ["Command word", "What earns the mark"], rows: [
@@ -221,7 +221,7 @@ C["compsci:4.6.1.2"] = {
       ], result: "Manages the computer vs does the user's task" } },
     { worked: { tag: "exam", title: "Shade the two system software", src: "AS June 2019 · P2 Q05.4 · 2 marks",
       q: "Shade two lozenges to indicate which types of software are system software: Compiler, Photo editor, Spreadsheet, Computer game, Operating system, Word processor.",
-      steps: [{ m: "**Compiler**", mk: "1 mark" }, { m: "**Operating system**", mk: "1 mark", n: "R. 0 marks if more than two lozenges shaded." }], result: "Compiler; operating system" } },
+      steps: [{ m: "**Compiler**", mk: "1 mark" }, { m: "**Operating system**", mk: "1 mark", n: "R. 0 marks if more than two lozenges shaded." }], result: "Compiler; operating system", try: [{ grid: { cols: ["Software", "System or application?"], rows: [["a disk defragmenter", "system"], ["a payroll program written for one firm", "application"], ["an interpreter", "system"], ["a web browser", "application"], ["a library of maths routines", "system"], ["a photo editor", "application"]], given: [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0]], cap: "**Your turn.** Type **system** or **application** for each." } }] } },
     { worked: { tag: "exam", title: "One example of system software", src: "AS June 2024 · P2 Q05.1 · 1 mark",
       q: "Which of the following is an example of system software? A Computer game · B Image editor · C Programming language translator · D Video conferencing software · E Word processor.",
       steps: [{ m: "**C** (Programming language translator);", mk: "1 mark" }], result: "C" } },
@@ -241,7 +241,24 @@ C["compsci:4.6.1.2"] = {
       q: "A classification diagram splits software into two types; position 1 is the type that is not system software (examples: word processor, game). System software splits into operating systems, 2 (example: virus checker), 3 (example: a maths routine collection) and translators; translators split into compiler, assembler and 4. Name positions 1 to 4.",
       steps: [
         { m: "1 Application (software) · 2 Utilities · 3 Libraries · 4 Interpreter", mk: "2 marks", n: "2 marks for 4 rows correct; 1 mark for 2 or 3 rows; 0 for 1 or fewer. NE. \"apps\". (Diagram reconstructed: the paper's figure is not reproduced.)" }
-      ], result: "Application, Utilities, Libraries, Interpreter" } },
+      ], result: "Application, Utilities, Libraries, Interpreter", fig: { w: 650, h: 236, items: (function () {
+      var it = [];
+      it = it.concat(boxAt(265, 8, 120, 30, "Software", "accent3"));
+      it = it.concat(boxAt(25, 70, 170, 32, "1", "accent"));
+      it = it.concat(boxAt(330, 70, 170, 32, "System software", "accent2"));
+      it.push(link(325, 38, 110, 70), link(325, 38, 415, 70));
+      [["Operating systems", 270, 120], ["2", 385, 70], ["3", 470, 70], ["Translators", 570, 92]].forEach(function (b) {
+        it = it.concat(boxAt(b[1] - b[2] / 2, 132, b[2], 28, b[0], "accent2"));
+        it.push(link(415, 102, b[1], 132));
+      });
+      [["Compiler", 448], ["Assembler", 530], ["4", 612]].forEach(function (b) {
+        it = it.concat(boxAt(b[1] - 36, 200, 72, 26, b[0], "muted"));
+        it.push(link(570, 160, b[1], 200));
+      });
+      it.push({ text: [110, 120], t: "word processor, game", size: 10.5, c: "muted" });
+      it.push({ text: [385, 176], t: "virus checker", size: 10.5, c: "muted" }, { text: [470, 176], t: "maths routines", size: 10.5, c: "muted" });
+      return it;
+    })(), cap: "The question's diagram, reconstructed: name positions 1 to 4." } } },
     { worked: { tag: "exam", title: "Describe the difference (2025)", src: "AS June 2025 · P2 Q06.2 · 2 marks",
       q: "Describe the difference between system software and application software.",
       steps: [
@@ -347,7 +364,7 @@ C["compsci:4.6.1.3"] = {
       ], result: "Ancillary maintenance software, e.g. a defragmenter" } },
     { worked: { tag: "exam", title: "Category of a virus checker", src: "A-level June 2019 · P2 Q01.1 · 1 mark",
       q: "Shade one lozenge to indicate to which category of system software a virus checker belongs: Operating systems / Translators / Utilities.",
-      steps: [{ m: "**Utilities**", mk: "1 mark" }], result: "Utilities" } },
+      steps: [{ m: "**Utilities**", mk: "1 mark" }], result: "Utilities", try: [{ grid: { cols: ["Software", "Category"], rows: [["a disk defragmenter", "utility"], ["a compiler", "translator"], ["the memory manager", "operating system"], ["a collection of sorting routines", "library"], ["backup software", "utility"], ["an assembler", "translator"]], given: [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0]], cap: "**Your turn.** Type one of **operating system**, **utility**, **library** or **translator** for each." } }] } },
     { worked: { tag: "variation", title: "Static or dynamic library?", q: "A company ships 40 programs that all use the same encryption library, which must be patched quickly when a flaw is found. Explain whether the library should be statically or dynamically linked.",
       steps: [
         { m: "Dynamically linked (a shared library):", mk: "1 mark" },

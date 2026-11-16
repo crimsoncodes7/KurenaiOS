@@ -298,7 +298,17 @@ C["compsci:4.11.1"] = {
         { h: "map", m: "A → (red,1) (blue,1) (red,1); B → (blue,1) (blue,1) (green,1).", mk: "1" },
         { h: "shuffle", m: "red: [1,1] · blue: [1,1,1] · green: [1].", mk: "1" },
         { h: "reduce", m: "red 2 · blue 3 · green 1.", mk: "1" }
-      ], result: "red 2, blue 3, green 1" } },
+      ], result: "red 2, blue 3, green 1", fig: { w: 600, h: 200, items: (function () {
+      var it = [];
+      function box(x, y, w, h, t, col) { it.push({ poly: [[x, y], [x + w, y], [x + w, y + h], [x, y + h]], fill: col, alpha: 0.14, c: col, w: 1.4 }, { text: [x + w / 2, y + h / 2], t: t, size: 11, c: "text" }); }
+      box(10, 30, 120, 34, "A: red blue red", "accent"); box(10, 130, 120, 34, "B: blue blue green", "accent");
+      box(170, 30, 165, 34, "(red,1) (blue,1) (red,1)", "accent2"); box(170, 130, 165, 34, "(blue,1) (blue,1) (green,1)", "accent2");
+      box(360, 20, 110, 30, "red: [1, 1]", "accent3"); box(360, 82, 110, 30, "blue: [1, 1, 1]", "accent3"); box(360, 144, 110, 30, "green: [1]", "accent3");
+      box(500, 20, 90, 30, "red 2", "good"); box(500, 82, 90, 30, "blue 3", "good"); box(500, 144, 90, 30, "green 1", "good");
+      [[130, 47, 170, 47], [130, 147, 170, 147], [335, 47, 360, 35], [335, 47, 360, 97], [335, 147, 360, 97], [335, 147, 360, 159], [470, 35, 500, 35], [470, 97, 500, 97], [470, 159, 500, 159]].forEach(function (l) { it.push({ line: [[l[0], l[1]], [l[2], l[3]]], arrow: true, c: "text2", w: 1.3 }); });
+      [[252, 12, "map (each server)"], [415, 194, "shuffle (group by key)"], [545, 194, "reduce"]].forEach(function (t) { it.push({ text: [t[0], t[1]], t: t[2], b: true, size: 10.5, c: "muted" }); });
+      return it;
+    })(), cap: "MapReduce: each server maps its own data in parallel; pairs are grouped by key; each group is reduced to one answer." }, try: [{ grid: { cols: ["Word", "Pairs after shuffle", "Reduced count"], rows: [["cat", "[1, 1, 1]", "3"], ["dog", "[1, 1]", "2"], ["fish", "[1]", "1"]], given: [[0, 0], [1, 0], [2, 0]], cap: "**Your turn.** Server A holds \"cat dog cat\" and server B \"fish dog cat\". Write each word's shuffled list (like [1, 1]) and its count." } }] } },
 
     { page: "Exam toolkit" },
     { table: { head: ["Command word", "What earns the mark"], rows: [

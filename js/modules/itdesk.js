@@ -307,5 +307,46 @@
     paintAll();
   }
 
-  KOS.itDesk = { render: render };
+  /* the current unit (5.19 item 2, design 44f): what it is, its exam date,
+     how much of it is covered, Continue, and the unit after it. `h` hands
+     in the subject page's own reads (leaves of a unit, a leaf's percent). */
+  function current(h) {
+    var IU = KOS.itUnits;
+    if (!IU) return null;
+    var code = IU.current();
+    if (!code) return null;
+    var spec = (KOS_DATA.it.sections || []).filter(function (x) { return x.ref === code; })[0];
+    if (!spec) return null;
+    var u = IU.get(code), ls = h.leaves(code), store = KOS.store;
+    var done = ls.filter(function (l) { var p = store.peekProgress("it", l.ref); return p && p.status === "done"; }).length;
+    var pct = ls.length ? Math.round(ls.reduce(function (a, l) { return a + h.pct(l.ref); }, 0) / ls.length) : 0;
+    var target = h.lastRef && IU.unitOf(h.lastRef) === code ? ls.filter(function (l) { return l.ref === h.lastRef; })[0] : null;
+    target = target || ls.filter(function (l) { var p = store.peekProgress("it", l.ref); return !p || p.status !== "done"; })[0] || ls[0];
+    var t0 = new Date(); t0.setHours(0, 0, 0, 0);
+    var days = u.date ? Math.round((new Date(u.date + "T00:00:00") - t0) / 864e5) : null;
+    var live = IU.all().filter(function (x) { return x.status !== "not-taken" && !IU.archived(x.code) && x.code !== code; });
+    var nx = live[0] || null, nxSpec = nx && (KOS_DATA.it.sections || []).filter(function (x) { return x.ref === nx.code; })[0];
+    var kind = spec.paper === "NEA" ? "NEA" : "examined";
+    var bar = el("span", { class: "k-bar k-bar--6", role: "img", "aria-label": code + ": " + pct + "% mastery" }, [el("i")]);
+    bar.style.setProperty("--p", pct + "%");
+    var change = live.length ? KOS.ui.menu({ label: "Change", className: "k-btn--sm k-btn--quiet", hint: "Which unit you are studying now",
+      items: live.map(function (x) { return { label: x.code + " · " + ((KOS_DATA.it.sections || []).filter(function (y) { return y.ref === x.code; })[0] || {}).title, onSelect: function () { IU.setCurrent(x.code); KOS.rerender(); } }; }) }) : null;
+    return el("section", { class: "k-card k-it-current", "data-ui": "it.current", "aria-label": "Current unit" }, [
+      el("div", { class: "k-it-cur-main" }, [
+        el("div", { class: "k-kicker", text: "Current unit · " + kind }),
+        el("h2", { class: "k-it-cur-title", text: code + " · " + spec.title }),
+        u.date ? el("p", { class: "k-muted k-it-cur-sub", text: (kind === "NEA" ? "Due " : "Exam ") + shortDate(u.date) + (days != null && days >= 0 ? " · " + days + (days === 1 ? " day" : " days") : "") }) : null,
+        bar,
+        el("p", { class: "k-muted k-it-cur-sub", text: pct + "% mastery · " + done + " of " + ls.length + " topics completed" })
+      ].filter(Boolean)),
+      el("div", { class: "k-it-cur-go" }, [
+        target ? el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "it.current-continue",
+          onclick: function () { KOS.show("ref", { subject: "it", ref: target.ref }); } }, [el("span", { class: "k-fit-btn", text: "Continue · " + target.ref + " " + target.title })]) : null,
+        nx && nxSpec ? el("div", { class: "k-it-cur-next" }, [el("span", { class: "k-kicker", text: "Next" }), el("b", { class: "k-mono", text: nx.code }), el("span", { text: nxSpec.title })]) : null,
+        change
+      ].filter(Boolean))
+    ]);
+  }
+
+  KOS.itDesk = { render: render, current: current };
 })();

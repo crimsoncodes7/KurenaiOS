@@ -392,7 +392,9 @@
           '<figcaption class="k-n-worked-head"><span class="k-chip" data-tone="teal">' + esc(tagLabel) + "</span>" +
           (w.title ? '<span class="k-n-worked-title">' + inline(w.title) + "</span>" : "") +
           (w.src ? '<span class="k-n-worked-src">' + inline(w.src) + "</span>" : "") + "</figcaption>" +
-          (w.q ? '<div class="k-n-wrow"><span class="k-n-wlabel">Given</span><div class="k-n-wbody">' + renderBlocks(typeof w.q === "string" ? [w.q] : w.q) + "</div></div>" : "") +
+          (w.q ? '<div class="k-n-wrow"><span class="k-n-wlabel">Given</span><div class="k-n-wbody">' + renderBlocks(typeof w.q === "string" ? [w.q] : w.q) +
+            /* the question's own figure (5.19, 43a): a graph, a diagram, a table */
+            (w.fig && window.KOS.figures ? KOS.figures.render(w.fig) : "") + "</div></div>" : "") +
           '<ol class="k-n-wsteps">' + (w.steps || []).map(function (st, i) {
             if (typeof st === "string") st = { m: st };
             return '<li class="k-n-wrow"><span class="k-n-wlabel">Step ' + (i + 1) + '</span><div class="k-n-wbody">' +
@@ -403,7 +405,19 @@
               (st.mk ? '<span class="k-n-wmk" title="Mark">' + esc(st.mk) + "</span>" : "") + "</li>";
           }).join("") + "</ol>" +
           (w.result ? '<div class="k-n-answer"><b>Answer</b><span>' + inline(w.result) + "</span></div>" : "") +
+          /* "Your turn" (5.19, 43): a part to fill in that the app marks —
+             a trace table, SQL that runs, a circuit, predict-then-Run */
+          (w.try ? '<div class="k-n-wtry" data-ui="content.worked-try"><span class="k-kicker">Your turn</span>' + renderBlocks(w.try) + "</div>" : "") +
           "</figure>"; return;
+      }
+      /* a part to fill in (core/fillins.js): a placeholder carrying its spec,
+         mounted by typeset() once it is in the page */
+      var FILL = ["grid", "trace", "sql", "gates", "predict", "lab"];
+      for (var fi = 0; fi < FILL.length; fi++) {
+        if (b[FILL[fi]] != null && typeof b[FILL[fi]] !== "boolean" && !b.worked) {
+          html += '<div class="k-fill-slot" data-ui="content.fill" data-kind="' + FILL[fi] + '" data-spec="' + esc(JSON.stringify(b[FILL[fi]])) + '"></div>';
+          return;
+        }
       }
       if (b.fig) {
         /* a declarative diagram — core/figures.js turns the spec into
@@ -432,6 +446,7 @@
      ready yet — in that case retry once the window finishes loading. */
   function typeset(container) {
     scrollTables(container);
+    if (window.KOS.fillIns) KOS.fillIns.mount(container);
     if (window.renderMathInElement) {
       window.renderMathInElement(container, {
         delimiters: [
@@ -597,6 +612,9 @@
       }).filter(function (l) { return l.trim(); });
       if (w.result) ms.push("**Answer:** " + w.result);
       var item = { q: w.q, marks: marks, ms: ms, src: src };
+      /* the question's figure and its part to fill in go with it (5.19) */
+      if (w.fig) item.fig = w.fig;
+      if (w.try) item.try = w.try;
       if (lvl) item.level = lvl;
       out.push(item);
     });

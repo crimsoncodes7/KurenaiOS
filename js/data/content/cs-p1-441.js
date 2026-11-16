@@ -65,7 +65,7 @@ C["compsci:4.4.1.1"] = {
         { m: "Round 1: Walter would know if the colour were YELLOW (only one yellow shape) → it is not yellow. Lionel would know if the shape were a SQUARE (only one square) → it is not the blue square.", mk: "1" },
         { m: "Left: pink triangle, pink circle, blue triangle. Round 2: Lionel would now know a CIRCLE (the yellow circle is gone) → not a circle. Walter would now know BLUE (the blue square is gone) → not blue.", mk: "1" },
         { m: "Only the pink triangle survives — so both can say Yes in round 3.", mk: "1" }
-      ], result: "Pink triangle" } },
+      ], result: "Pink triangle" , "fig": {"w":520,"h":118,"items":[{"poly":[[60,22],[92,80],[28,80]],"fill":"accent","alpha":0.3,"c":"accent","w":1.8},{"circle":[160,52,29],"fill":"accent","alpha":0.3,"c":"accent","w":1.8},{"poly":[[260,22],[292,80],[228,80]],"fill":"text2","alpha":0.3,"c":"text2","w":1.8},{"poly":[[332,24],[388,24],[388,80],[332,80]],"fill":"text2","alpha":0.3,"c":"text2","w":1.8},{"circle":[460,52,29],"fill":"accent2","alpha":0.3,"c":"accent2","w":1.8},{"text":[60,102],"t":"pink","size":11,"c":"text2","b":false,"pos":"c"},{"text":[160,102],"t":"pink","size":11,"c":"text2","b":false,"pos":"c"},{"text":[260,102],"t":"blue","size":11,"c":"text2","b":false,"pos":"c"},{"text":[360,102],"t":"blue","size":11,"c":"text2","b":false,"pos":"c"},{"text":[460,102],"t":"yellow","size":11,"c":"text2","b":false,"pos":"c"}],"cap":"The five shapes. Walter hears only the colour, Lionel only the shape."}} },
     { worked: { tag: "variation", title: "Knights and knaves", q: "On an island knights always tell the truth and knaves always lie. A says: \"We are both knaves.\" What are A and B?",
       steps: [
         { m: "If A were a knight, the statement would be true — but then A would be a knave. Contradiction, so A is a knave.", mk: "1" },
@@ -76,11 +76,11 @@ C["compsci:4.4.1.1"] = {
     { page: "In exam questions" },
     { worked: { tag: "exam", title: "Programmers at night", src: "AS June 2016 · P1 Q01.1 · 1 mark",
       q: "Assume both statements are true. All programmers work at night. Nobody who works at night earns lots of money. Conclusion 1: All programmers earn lots of money. Conclusion 2: Some night workers are programmers. Answer A if only Conclusion 1 follows, B if only Conclusion 2 follows, C if neither follows, D if both follow.",
-      steps: [{ m: "B;", mk: "1", n: "Programmers ⊂ night workers, and night workers earn little, so Conclusion 1 is false. Every programmer is a night worker, so some night workers are programmers." }],
+      steps: [{ m: "B;", mk: "1", n: "Programmers ⊂ night workers, and night workers earn little, so Conclusion 1 is false. Every programmer is a night worker, so some night workers are programmers." , "fig": {"w":460,"h":220,"items":[{"circle":[150,110,96],"fill":"accent","alpha":0.08,"c":"accent","w":1.6},{"circle":[140,130,44],"fill":"accent2","alpha":0.2,"c":"accent2","w":1.6},{"circle":[370,110,64],"fill":"muted","alpha":0.12,"c":"muted","w":1.6},{"text":[150,40],"t":"work at night","size":11.5,"c":"accent","b":true,"pos":"c"},{"text":[140,130],"t":"programmers","size":11,"c":"text","b":true,"pos":"c"},{"text":[370,110],"t":"earn lots","size":11.5,"c":"text2","b":true,"pos":"c"}],"cap":"Programmers sit inside the night workers, who never meet the big earners: Conclusion 2 follows, Conclusion 1 cannot."}}],
       result: "B" } },
     { worked: { tag: "exam", title: "Aardvarks and Java", src: "AS June 2016 · P1 Q01.2 · 1 mark",
       q: "Assume both statements are true. Some aardvarks are computing professors. All computing professors love Java. Conclusion 1: All aardvarks love Java. Conclusion 2: All computing professors are aardvarks. Answer A if only Conclusion 1 follows, B if only Conclusion 2, C if neither, D if both.",
-      steps: [{ m: "C;", mk: "1", n: "Only SOME aardvarks are professors, so the others need not love Java; and nothing says every professor is an aardvark." }],
+      steps: [{ m: "C;", mk: "1", n: "Only SOME aardvarks are professors, so the others need not love Java; and nothing says every professor is an aardvark." , "fig": {"w":460,"h":230,"items":[{"circle":[170,115,100],"fill":"accent","alpha":0.08,"c":"accent","w":1.6},{"circle":[190,125,46],"fill":"accent2","alpha":0.2,"c":"accent2","w":1.6},{"circle":[300,125,72],"fill":"good","alpha":0.12,"c":"good","w":1.6},{"text":[110,50],"t":"love Java","size":11.5,"c":"accent","b":true,"pos":"c"},{"text":[178,125],"t":"professors","size":11,"c":"text","b":true,"pos":"c"},{"text":[320,100],"t":"aardvarks","size":11.5,"c":"good","b":true,"pos":"c"}],"cap":"One picture that fits both statements: some aardvarks are outside \"love Java\", and some professors are not aardvarks. Neither conclusion follows."}}],
       result: "C" } },
     { worked: { tag: "exam", title: "The mislabelled boxes", src: "A-level June 2018 · P1 Q01.1 · 2 marks",
       q: "Three boxes contain onions, carrots, and onions and carrots, labelled \"onions\", \"carrots\" and \"onions and carrots\" — all three labels are wrong. Describe how you can work out what each box actually contains by taking just one vegetable out of one box, without looking inside any of the boxes.",
@@ -180,7 +180,7 @@ C["compsci:4.4.1.2"] = {
         { m: "Only half the string needs checking: pairs (0, Max), (1, Max − 1)… meet in the middle — loop i < s.Length / 2.", mk: "1" },
         { m: "Stop as soon as a mismatch is found: return false inside the loop.", mk: "1" },
         { m: "static bool IsPalindrome(string s) { for (int i = 0; i < s.Length / 2; i++) if (s[i] != s[s.Length - 1 - i]) return false; return true; }", mk: "code", n: "madam: 2 comparisons instead of 5; adam: stops after 1." }
-      ], result: "Half the comparisons, early exit" } },
+      ], result: "Half the comparisons, early exit" , "try": [{"predict":{"code":"foreach (string s in new string[] { \"racecar\", \"rabbit\" })\n{\n    int max = s.Length - 1, slow = 0, fast = 0;\n    for (int i = 0; i <= max; i++) slow++;          // the original: every i\n    for (int i = 0; i < s.Length / 2; i++)          // half the string …\n    {\n        fast++;\n        if (s[i] != s[max - i]) break;              // … and stop at a mismatch\n    }\n    Console.WriteLine(s + \" \" + slow + \" \" + fast);\n}","expect":"racecar 7 3\nrabbit 6 1","cap":"Count the comparisons each version makes."}}]} },
 
     { page: "In exam questions" },
     { worked: { tag: "exam", title: "Define algorithm", src: "AS June 2023 · P1 Q04 · 2 marks",
@@ -200,7 +200,7 @@ C["compsci:4.4.1.2"] = {
         { m: "Root: 1, 2, 3, 4, 5; d: 2, 3, 4, 5, 6;", mk: "1" },
         { m: "r: 1, 1, 1, 0;", mk: "1" },
         { m: "FactorFound FALSE then TRUE; Output Not prime;", mk: "1", n: "The loop stops because FactorFound is TRUE, even though d (6) has passed Root." }
-      ], result: "r 0 at d = 5 → Not prime" } },
+      ], result: "r 0 at d = 5 → Not prime" , "try": [{"trace":{"code":"Root ← 1\nWHILE (Root * Root) < Number\n  Root ← Root + 1\nENDWHILE\nd ← 2\nFactorFound ← FALSE\nWHILE (FactorFound = FALSE) AND (d <= Root)\n  r ← Number MOD d\n  IF r = 0 THEN FactorFound ← TRUE\n  d ← d + 1\nENDWHILE\nIF FactorFound = FALSE THEN OUTPUT \"Prime\"\nELSE OUTPUT \"Not prime\"","lang":"pseudo","cols":["Root","d","FactorFound","r","Output"],"rows":[["1","","","",""],["2","","","",""],["3","","","",""],["4","","","",""],["","2","FALSE","",""],["","3","","1",""],["","4","TRUE","0",""],["","","","","Not prime"]],"given":[[0,0],[0,1],[0,2],[0,3],[0,4],[4,1],[5,1],[6,1]],"cap":"Number = 15. A value is written only on the row where it changes; d is given to show where each pass of the second loop starts."}}]} },
     { worked: { tag: "exam", title: "Purpose of the de-duplicator", src: "AS June 2016 · P1 Q04.2 · 1 mark",
       q: "An algorithm copies Items[0] into NewItems, then for each later item checks whether it is already in NewItems and copies it across only if it is not. For Items = 12, 25, 12, 53 it gives NewItems = 12, 25, 53. Explain the purpose of the algorithm.",
       steps: [{ m: "To remove duplicate items from the list // NewItems contains the unique items from Items;", mk: "1" }],
@@ -208,7 +208,7 @@ C["compsci:4.4.1.2"] = {
     { worked: { tag: "exam", title: "Purpose of the MOD/DIV loop", src: "AS June 2019 · P1 Q03.3 · 1 mark",
       q: "NumberOut ← 0; Count ← 0; WHILE NumberIn > 0: Count ← Count + 1; PartValue ← NumberIn MOD 2; NumberIn ← NumberIn DIV 2; FOR i ← 1 TO Count − 1: PartValue ← PartValue * 10; ENDFOR; NumberOut ← NumberOut + PartValue; ENDWHILE; OUTPUT NumberOut. What is the purpose of this algorithm?",
       steps: [{ m: "Converts a (positive) decimal/denary number to binary;", mk: "1", n: "22 → 10110, 29 → 11101 (checked in 4.1.1.3)." }],
-      result: "Denary → binary" } },
+      result: "Denary → binary" , "try": [{"predict":{"code":"foreach (int start in new int[] { 13, 6 })\n{\n    int numberIn = start, numberOut = 0, count = 0;\n    while (numberIn > 0)\n    {\n        count = count + 1;\n        int partValue = numberIn % 2;\n        numberIn = numberIn / 2;\n        for (int i = 1; i <= count - 1; i++) partValue = partValue * 10;\n        numberOut = numberOut + partValue;\n    }\n    Console.WriteLine(numberOut);\n}","expect":"1101\n110","cap":"The algorithm in C#, for 13 and then 6."}}]} },
     { worked: { tag: "exam", title: "What the valid inputs share", src: "AS June 2020 · P1 Q03.3 · 1 mark",
       q: "An algorithm multiplies Product by 1, 2, 3, … until Product ≥ X; if X = Product it outputs 1 to Factor, otherwise \"No result\". What is true for all valid inputs for X that output a list of numbers, which is not true for inputs that output No result?",
       steps: [{ m: "X is a factorial number (greater than 1) // X is the product of consecutive whole numbers starting at 1;", mk: "1", n: "720 = 6! → 1 2 3 4 5 6; 600 → No result." }],

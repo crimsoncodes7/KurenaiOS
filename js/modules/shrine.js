@@ -448,6 +448,8 @@
       ctx.stroke();
     }
     ctx.restore();
+    /* the share-card finish over the card's own style (SC-15) */
+    if (opts.finish && KOS.reportShare && KOS.reportShare.overFinish) KOS.reportShare.overFinish(canvas, opts.finish, 22 * S);
     cb(canvas);
   }
 
@@ -504,7 +506,9 @@
   function shrineCardModal(entry, rank, total) {
     var closed = false, release = null, coverImage = null, coverInfo = null;
     var currentCanvas = null, currentDataUrl = null, renderTimer = null;
-    var choice = { look: defaultLook(), show: {} };
+    var RS = KOS.reportShare;
+    var worn = RS && RS.finishItem ? RS.finishItem() : null;
+    var choice = { look: defaultLook(), show: {}, finish: worn ? worn.id : null };
     SHOW.forEach(function (s) { choice.show[s[0]] = true; });
     var mod = KOS.media.module(entry.module);
     var overlay = KOS.medview.modalOverlay(function () {
@@ -543,6 +547,17 @@
           el("span", { class: "k-shr-style-name", text: s.label })
         ]);
       }));
+    /* the Finish row: plain, or a finish you own (or are trying on) */
+    var fins = RS && RS.finishChoices ? RS.finishChoices() : [];
+    var finishGroup = fins.length ? el("div", { class: "k-shr-shows", role: "group", "aria-label": "Finish", "data-ui": "shrine.finishes" },
+      [{ id: null, name: "None" }].concat(fins).map(function (f) {
+        return el("button", { type: "button", class: "k-shr-show", "data-ui": "shrine.finish", "data-finish": f.id || "",
+          "aria-pressed": String((choice.finish || null) === f.id), text: f.id ? f.name.replace(/ finish$/i, "") : "None", onclick: function () {
+            choice.finish = f.id;
+            finishGroup.querySelectorAll("button").forEach(function (b) { b.setAttribute("aria-pressed", String((b.getAttribute("data-finish") || null) === f.id)); });
+            if (RS && RS.loadFinishes) RS.loadFinishes(paint); else paint();
+          } });
+      })) : null;
     var showGroup = el("div", { class: "k-shr-shows", role: "group", "aria-label": "Show on the card" },
       SHOW.map(function (s) {
         return el("button", { type: "button", class: "k-shr-show", "data-ui": "shrine.show",
@@ -564,6 +579,7 @@
         el("p", { class: "k-shr-lede", text: "A foil-edged card for rank " + pad2(rank || 1) + " · " + mod.label +
           ". Nothing leaves the device until you save, copy or share it." }),
         el("div", { class: "k-field" }, [el("span", { class: "k-field-label", text: "Style" }), styleGroup]),
+        finishGroup ? el("div", { class: "k-field" }, [el("span", { class: "k-field-label", text: "Finish" }), finishGroup]) : null,
         KOS.medview.field("Message on card", message),
         el("div", { class: "k-field" }, [el("span", { class: "k-field-label", text: "Show" }), showGroup]),
         notice,
@@ -591,7 +607,7 @@
     function paint() {
       if (closed || !coverInfo) return;
       renderCard(entry, coverImage, {
-        rank: rank || 1, total: total, look: choice.look, show: choice.show,
+        rank: rank || 1, total: total, look: choice.look, show: choice.show, finish: choice.finish,
         message: message.value.trim() || defaultMessage(entry)
       }, function (canvas) {
         if (closed) return;
@@ -625,7 +641,7 @@
         coverImage = img;
         coverInfo = info || { reason: "none" };
         release = coverInfo.release || null;
-        paint();
+        if (choice.finish && RS && RS.loadFinishes) RS.loadFinishes(paint); else paint();
       });
     });
   }

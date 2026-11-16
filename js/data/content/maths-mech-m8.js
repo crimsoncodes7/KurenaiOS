@@ -44,6 +44,18 @@ function along(x0, y0, deg, d, up) {
   return [x0 + d * Math.cos(rad(deg)) - (up || 0) * Math.sin(rad(deg)), y0 - d * Math.sin(rad(deg)) - (up || 0) * Math.cos(rad(deg))];
 }
 function ground(x1, x2, y) { return { line: [[x1, y], [x2, y]], c: "text2", w: 2 }; }
+/* a table with P on it, a smooth pulley at its edge and Q hanging over it:
+   o = {P, Q, xP (P's centre), hQ (Q's height above the floor, px), dimP,
+   dimQ, extra} — the table top at y = 110, the floor at y = 262 */
+function tableFig(o) {
+  var qb = 262 - o.hQ, it = [{ poly: [[30, 110], [330, 110], [330, 262], [30, 262]], fill: "muted", alpha: 0.08, c: "text2", w: 1.6 }, ground(20, 500, 262),
+    box(o.xP, 95, 54, 30, 0, { fill: "accent" }), { text: [o.xP, 95], t: o.P, b: true, size: 11.5, c: "text" },
+    { circle: [345, 110, 15], c: "text2", w: 1.8 }, { line: [[o.xP + 27, 95], [345, 95]], c: "text2", w: 1.4 }, { line: [[360, 110], [360, qb - 30]], c: "text2", w: 1.4 },
+    box(360, qb - 15, 40, 30, 0, { fill: "accent2" }), { text: [360, qb - 15], t: o.Q, b: true, size: 11.5, c: "text" }];
+  if (o.dimP) it.push({ line: [[o.xP, 62], [330, 62]], arrow: "both", c: "muted", w: 1.2 }, { text: [(o.xP + 330) / 2, 50], t: o.dimP, size: 11.5, c: "text2" });
+  if (o.dimQ) it.push({ line: [[410, qb], [410, 262]], arrow: "both", c: "muted", w: 1.2 }, { text: [418, (qb + 262) / 2], t: o.dimQ, pos: "e", size: 11.5, c: "text2", off: 0 });
+  return it.concat(o.extra || []);
+}
 
 /* =====================================================================
    M8.1  Forces and Newton's first law
@@ -138,6 +150,12 @@ C["maths:M8.1"] = {
         { h: "(c)", m: "$R = 2g = 19.6$ N", mk: "B1" }
       ], result: "(b) slows down to rest (c) 19.6 N" } },
     { worked: { tag: "exam", title: "Why a heavier brick stays put; a brick that keeps going", src: "A-level Oct 2020 · P3 Q1(c)(d) · 3 marks",
+      fig: { w: 480, h: 240, items: (function () {
+      var x0 = 50, y0 = 220, d = 36.87, p = along(x0, y0, d, 170, 22), it = [].concat(slope(x0, y0, 260, d, "α"), [box(p[0], p[1], 50, 34, d)]);
+      it = it.concat(F(p[0], p[1], 270, 60, "mg", { c: "accent2", dx: 16 }), F(p[0], p[1], 90 + d, 60, "R", { c: "text2" }), F(p[0], p[1], d, 60, "μR", { c: "accent3" }));
+      var a = along(x0, y0, d, 120, 66), b = along(x0, y0, d, 60, 66); it.push({ vec: [a, b], c: "text2", w: 1.6 }, { text: [b[0] - 4, b[1] - 6], t: "0.5 m s⁻¹", pos: "w", size: 11.5, c: "text2", off: 0 });
+      return it;
+    })(), cap: "$\\tan\\alpha = \\frac34 = \\mu$: sliding friction $\\mu R$ exactly balances $mg\\sin\\alpha$ for any mass, so $Q$ keeps its speed." },
       q: "A rough plane is inclined at $\\alpha$ to the horizontal, where $\\tan\\alpha = \\frac34$. A brick $P$ is in equilibrium on the plane, on the point of sliding down, and it has been shown that the coefficient of friction $\\mu = \\frac34$. $P$ is removed and a much heavier brick $Q$, with the same coefficient of friction, is placed on the plane. **(c)** Explain briefly why $Q$ will remain at rest. $Q$ is now projected with speed 0.5 m s$^{-1}$ down a line of greatest slope. Modelling $Q$ as a particle, **(d)** describe the motion of $Q$, giving a reason.",
       steps: [
         { h: "(c)", m: "The weight component down the slope, $mg\\sin\\alpha$, and the greatest friction, $\\mu mg\\cos\\alpha$, are both proportional to $m$ — the mass cancels, and $\\tan\\alpha = \\mu$ still holds, so $Q$ is in limiting equilibrium and stays at rest.", mk: "B1" },
@@ -223,6 +241,12 @@ C["maths:M8.2"] = {
         { m: "$D = 2000$", mk: "A1" }
       ], result: "$D = 2000$" } },
     { worked: { tag: "exam", title: "Reaction, friction, and the coefficient", src: "A-level June 2023 · P3 Q2 · 4 marks",
+      fig: { w: 520, h: 180, items: [].concat(
+        [ground(20, 500, 140), box(250, 116, 90, 48, 0), { text: [250, 116], t: "5 kg", b: true, c: "text" }],
+        F(295, 116, 0, 80, "28 N", { c: "accent" }), F(205, 116, 180, 70, "F", { c: "accent3" }),
+        F(250, 92, 90, 46, "R", { c: "text2" }), F(250, 140, 270, 22, "5g", { c: "accent2", dx: 22, dy: -8 }),
+        [{ vec: [[380, 40], [460, 40]], c: "text2", w: 1.6 }, { text: [420, 26], t: "a = 1.4 m s⁻²", c: "text2", size: 12 }]
+      ), cap: "Vertically nothing accelerates, so $R = 5g$; horizontally $28 - F = 5 \\times 1.4$." },
       q: "A particle $P$ of mass 5 kg is pulled along a rough horizontal plane by a horizontal force of magnitude 28 N. The only resistance to motion is a frictional force of magnitude $F$ newtons. **(a)** Find the magnitude of the normal reaction of the plane on $P$. The particle is accelerating along the plane at 1.4 m s$^{-2}$. **(b)** Find $F$. The coefficient of friction between $P$ and the plane is $\\mu$. **(c)** Find $\\mu$ to 2 significant figures.",
       steps: [
         { h: "(a)", m: "$R = 5g = 49$ N", mk: "B1" },
@@ -230,7 +254,14 @@ C["maths:M8.2"] = {
         { m: "$F = 21$", mk: "A1" },
         { h: "(c) Sliding, so $F = \\mu R$", m: "$\\mu = \\dfrac{21}{49} = 0.43$", mk: "B1ft" }
       ], result: "(a) 49 N (b) 21 (c) 0.43" } },
-    { worked: { tag: "variation", title: "Vertical $F = ma$: air resistance on a falling ball", q: "A ball of mass 0.2 kg falls vertically. Air resistance on it is 0.6 N. Find its acceleration. Then it is thrown vertically upwards; find its deceleration while it rises (same resistance).",
+    { worked: { tag: "variation", title: "Vertical $F = ma$: air resistance on a falling ball", fig: { w: 500, h: 210, items: [].concat(
+      [{ circle: [140, 100, 12], fill: "accent", alpha: 0.5, c: "accent" }, { text: [140, 20], t: "falling", size: 12, b: true, c: "text2" }],
+      F(140, 112, 270, 56, "0.2g", { c: "accent2", dx: 24, dy: -12 }), F(140, 88, 90, 40, "0.6 N", { c: "accent3", dx: 34, dy: 14 }),
+      [{ vec: [[70, 70], [70, 150]], c: "text2", w: 1.6 }, { text: [62, 110], t: "motion", pos: "w", size: 11, c: "muted", off: 0 }],
+      [{ circle: [370, 100, 12], fill: "accent", alpha: 0.5, c: "accent" }, { text: [370, 20], t: "rising", size: 12, b: true, c: "text2" }],
+      F(364, 112, 270, 56, "0.2g", { c: "accent2", dx: -24, dy: -12 }), F(378, 112, 270, 36, "0.6 N", { c: "accent3", dx: 26, dy: -12 }),
+      [{ vec: [[450, 150], [450, 70]], c: "text2", w: 1.6 }, { text: [458, 110], t: "motion", pos: "e", size: 11, c: "muted", off: 0 }]
+    ), cap: "Resistance opposes the motion: up while the ball falls, down — with the weight — while it rises." }, q: "A ball of mass 0.2 kg falls vertically. Air resistance on it is 0.6 N. Find its acceleration. Then it is thrown vertically upwards; find its deceleration while it rises (same resistance).",
       steps: [
         { h: "Falling: down positive", m: "$0.2g - 0.6 = 0.2a \\Rightarrow a = 9.8 - 3 = 6.8$ m s$^{-2}$" },
         { h: "Rising: weight and resistance both act downwards", m: "$0.2g + 0.6 = 0.2d \\Rightarrow d = 12.8$ m s$^{-2}$", n: "Resistance always opposes the motion, so it changes direction at the top." }
@@ -251,7 +282,12 @@ C["maths:M8.2"] = {
       it = it.concat(F(p[0], p[1], 90 + d, 70, "R", { c: "text2" }));
       return it;
     })(), cap: "On a smooth slope the weight splits into $mg\\sin\\alpha$ down the slope and $mg\\cos\\alpha$ into it; $R = mg\\cos\\alpha$ and, released, $a = g\\sin\\alpha$." } },
-    { worked: { tag: "variation", title: "Pulled up a smooth slope", q: "A particle of mass 4 kg is pulled up a line of greatest slope of a smooth plane inclined at 30° to the horizontal by a force of 30 N parallel to the slope. Find (a) the normal reaction, (b) the acceleration.",
+    { worked: { tag: "variation", title: "Pulled up a smooth slope", fig: { w: 480, h: 240, items: (function () {
+      var x0 = 50, y0 = 220, d = 30, p = along(x0, y0, d, 210, 22), it = [].concat(slope(x0, y0, 340, d, "30°"), [box(p[0], p[1], 56, 40, d)]);
+      it = it.concat(F(p[0], p[1], d, 90, "30 N", { c: "accent" }), F(p[0], p[1], 90 + d, 60, "R", { c: "text2" }), F(p[0], p[1], 270, 60, "4g", { c: "accent2", dx: 16 }));
+      
+      return it;
+    })(), cap: "Smooth: no friction. Resolve along the slope (30 N against $4g\\sin30°$) and perpendicular to it ($R = 4g\\cos30°$)." }, q: "A particle of mass 4 kg is pulled up a line of greatest slope of a smooth plane inclined at 30° to the horizontal by a force of 30 N parallel to the slope. Find (a) the normal reaction, (b) the acceleration.",
       steps: [
         { h: "(a) Perpendicular: no acceleration", m: "$R = 4g\\cos30° = 33.9$ N" },
         { h: "(b) Along, up the slope positive", m: "$30 - 4g\\sin30° = 4a \\Rightarrow 30 - 19.6 = 4a \\Rightarrow a = 2.6$ m s$^{-2}$" }
@@ -275,7 +311,12 @@ C["maths:M8.2"] = {
         { h: "Resultant", m: "$\\mathbf R = (2 + c)\\mathbf i + 2\\mathbf j$", mk: "B1" },
         { h: "$|\\mathbf F| = m|\\mathbf a|$", m: "$|\\mathbf R| = 2\\sqrt5$", mk: "M1" },
         { m: "$(2 + c)^2 + 2^2 = 20$", mk: "M1" },
-        { m: "$(2 + c)^2 = 16 \\Rightarrow c = 2$ or $c = -6$", mk: "A1 A1" }
+        { m: "$(2 + c)^2 = 16 \\Rightarrow c = 2$ or $c = -6$", mk: "A1 A1", fig: { x: [-6, 6], y: [-0.6, 5.2], w: 460, h: 230, aspect: "equal", axes: { x: "i", y: "j", xt: [-4, -2, 2, 4], yt: [2, 4] }, items: [
+          { param: { x: "sqrt(20)*cos(t)", y: "sqrt(20)*sin(t)" }, t: [0, 3.1416], c: "muted", w: 1.4, dash: true },
+          { vec: [[0, 0], [4, 2]], c: "accent" }, { text: [4.3, 2.6], t: "c = 2: 4i + 2j", pos: "e", c: "accent", b: true, size: 11.5 },
+          { vec: [[0, 0], [-4, 2]], c: "accent2" }, { text: [-4.3, 2.6], t: "c = −6: −4i + 2j", pos: "w", c: "accent2", b: true, size: 11.5 },
+          { line: [[-4, 2], [4, 2]], c: "muted", w: 1, dash: true }
+        ], cap: "The resultant's $\\mathbf j$-part is always 2; a size of $2\\sqrt5$ puts it on the dashed circle — in two places." } }
       ], result: "$c = 2$ or $c = -6$" } },
     { worked: { tag: "exam", title: "A force, a velocity, a bearing, a displacement", src: "A-level June 2025 · P3 Q3 · 8 marks",
       q: "[$\\mathbf i$ and $\\mathbf j$ are horizontal unit vectors due east and due north.] A particle $P$ of mass 0.5 kg moves with constant acceleration $(2\\mathbf i - 2.4\\mathbf j)$ m s$^{-2}$ on a smooth horizontal plane under a constant horizontal force $\\mathbf F$ N. **(a)** Find $\\mathbf F$. At $t = 0$, $P$ is moving with velocity $(-7\\mathbf i + 7.8\\mathbf j)$ m s$^{-1}$. **(b)** Find the velocity of $P$ at $t = 2$ s. **(c)** Find the direction of motion of $P$ at $t = 2$ s as a bearing. At $t = 0$, $P$ passes through $O$; at $t = 5$ s it passes through $A$. **(d)** Find $\\overrightarrow{OA}$.",
@@ -284,15 +325,28 @@ C["maths:M8.2"] = {
         { h: "(b)", m: "$\\mathbf v = (-7\\mathbf i + 7.8\\mathbf j) + 2(2\\mathbf i - 2.4\\mathbf j)$", mk: "M1" },
         { m: "$= (-3\\mathbf i + 3\\mathbf j)$ m s$^{-1}$", mk: "A1" },
         { h: "(c) West and north equally", m: "angle with north $= \\tan^{-1}\\frac33 = 45°$, towards the west", mk: "M1 A1" },
-        { m: "bearing $315°$", mk: "A1" },
+        { m: "bearing $315°$", mk: "A1", fig: { x: [-4.6, 4.6], y: [-0.8, 4.6], w: 360, h: 220, aspect: "equal", axes: { x: "E", y: "N", xt: [], yt: [] }, items: [
+          { vec: [[0, 0], [-3, 3]], c: "accent" }, { text: [-3.2, 3.3], t: "v = −3i + 3j", pos: "w", c: "accent", b: true, size: 11.5 },
+          { arc: [0, 0, 34, 90, 135], label: "45°", c: "accent3", loff: 12 }
+        ], cap: "$45°$ west of north: measured clockwise from north that is a bearing of $360° - 45° = 315°$." } },
         { h: "(d)", m: "$\\overrightarrow{OA} = 5(-7\\mathbf i + 7.8\\mathbf j) + \\tfrac12 \\times 25(2\\mathbf i - 2.4\\mathbf j)$", mk: "M1" },
-        { m: "$= (-10\\mathbf i + 9\\mathbf j)$ m", mk: "A1" }
+        { m: "$= (-10\\mathbf i + 9\\mathbf j)$ m", mk: "A1", fig: { x: [-14, 2.5], y: [-1, 14], w: 380, h: 330, aspect: "equal", axes: { x: "i", y: "j", xt: [-12, -8, -4], yt: [4, 8, 12] }, items: [
+          { param: { x: "-7*t+t^2", y: "7.8*t-1.2*t^2" }, t: [0, 5], c: "accent", w: 2.2 },
+          { pt: [-10, 9], label: "A (−10, 9)", pos: "s", i: false },
+          { pt: [-10, 10.8], c: "accent3", label: "t = 2", pos: "e", i: false }, { vec: [[-10, 10.8], [-11.8, 12.6]], c: "accent3", w: 1.8 }
+        ], cap: "The path from $O$: the force is not along the velocity, so it curves; at $t = 2$ it heads on $315°$, and at $t = 5$ it is at $A$." } }
       ], result: "(a) $\\mathbf i - 1.2\\mathbf j$ (b) $-3\\mathbf i + 3\\mathbf j$ (c) 315° (d) $-10\\mathbf i + 9\\mathbf j$" } },
     { worked: { tag: "variation", title: "Perpendicular forces: size and direction of the acceleration", q: "A particle of mass 2 kg on a smooth horizontal plane is acted on by forces of 6 N due east and 8 N due north. Find the magnitude and direction of its acceleration.",
       steps: [
         { h: "Resultant", m: "$\\sqrt{6^2 + 8^2} = 10$ N" },
         { h: "$a = F / m$", m: "$a = 5$ m s$^{-2}$" },
-        { h: "Direction", m: "$\\tan^{-1}\\frac86 = 53.1°$ north of east (bearing 036.9°)" }
+        { h: "Direction", m: "$\\tan^{-1}\\frac86 = 53.1°$ north of east (bearing 036.9°)", fig: { x: [-1, 8.5], y: [-1, 9.5], w: 320, h: 330, aspect: "equal", axes: { x: "E", y: "N", xt: [], yt: [] }, items: [
+          { line: [[6, 0], [6, 8]], c: "muted", dash: true }, { line: [[0, 8], [6, 8]], c: "muted", dash: true },
+          { vec: [[0, 0], [6, 0]], c: "accent" }, { text: [3, -0.5], t: "6 N", pos: "s", c: "accent", b: true },
+          { vec: [[0, 0], [0, 8]], c: "accent" }, { text: [-0.3, 4], t: "8 N", pos: "w", c: "accent", b: true },
+          { vec: [[0, 0], [6, 8]], c: "accent2", w: 2.6 }, { text: [3.6, 5.6], t: "10 N", pos: "nw", c: "accent2", b: true },
+          { arc: [0, 0, 36, 0, 53.13], label: "53.1°", c: "accent3", loff: 18 }
+        ], cap: "The resultant is the diagonal of the 6-by-8 rectangle: 10 N at $53.1°$ to east, so $a = 10 / 2 = 5$ m s$^{-2}$ that way." } }
       ], result: "5 m s$^{-2}$ on a bearing of 037°" } },
 
     /* ---------------------------------------------------------------- Exam toolkit */
@@ -388,13 +442,27 @@ C["maths:M8.3"] = {
         { h: "Cage + block as one body, up positive", m: "$T - 50g = 50 \\times 0.2$", mk: "M1 A1" },
         { m: "$T = 490 + 10 = 500$ N", mk: "A1" }
       ], result: "500 N" } },
-    { worked: { tag: "variation", title: "Bathroom scales in a lift", q: "A woman of mass 60 kg stands on scales in a lift. Find the reading (the normal reaction) when the lift (a) moves up at constant speed, (b) accelerates upwards at 1.5 m s$^{-2}$, (c) accelerates downwards at 1.5 m s$^{-2}$.",
+    { worked: { tag: "variation", title: "Bathroom scales in a lift", fig: { w: 500, h: 210, items: [].concat(
+      [box(90, 110, 30, 40, 0), box(250, 110, 30, 40, 0), box(410, 110, 30, 40, 0)],
+      F(90, 90, 90, 40, "R", { c: "text2" }), F(90, 130, 270, 40, "60g", { c: "accent2", dx: 22, dy: -12 }),
+      F(250, 90, 90, 40, "R", { c: "text2" }), F(250, 130, 270, 40, "60g", { c: "accent2", dx: 22, dy: -12 }),
+      F(410, 90, 90, 40, "R", { c: "text2" }), F(410, 130, 270, 40, "60g", { c: "accent2", dx: 22, dy: -12 }),
+      [{ text: [140, 110], t: "a = 0", size: 11.5, c: "muted", pos: "e", off: 0 },
+        { vec: [[300, 135], [300, 85]], c: "accent", w: 1.8 }, { text: [308, 110], t: "1.5", size: 11.5, c: "accent", pos: "e", off: 0 },
+        { vec: [[460, 85], [460, 135]], c: "accent", w: 1.8 }, { text: [468, 110], t: "1.5", size: 11.5, c: "accent", pos: "e", off: 0 },
+        { text: [40, 20], t: "(a)", b: true, c: "text2" }, { text: [200, 20], t: "(b)", b: true, c: "text2" }, { text: [360, 20], t: "(c)", b: true, c: "text2" }]
+    ), cap: "The same two forces each time; only the acceleration (m s$^{-2}$) changes — and with it which force wins." }, q: "A woman of mass 60 kg stands on scales in a lift. Find the reading (the normal reaction) when the lift (a) moves up at constant speed, (b) accelerates upwards at 1.5 m s$^{-2}$, (c) accelerates downwards at 1.5 m s$^{-2}$.",
       steps: [
         { h: "(a) No acceleration", m: "$R = 60g = 588$ N" },
         { h: "(b) Up positive", m: "$R - 60g = 60 \\times 1.5 \\Rightarrow R = 678$ N", n: "She feels heavier." },
         { h: "(c) Down positive", m: "$60g - R = 60 \\times 1.5 \\Rightarrow R = 498$ N", n: "She feels lighter; in free fall ($a = g$) the reading would be 0." }
       ], result: "588 N, 678 N, 498 N" } },
-    { worked: { tag: "variation", title: "A crate lowered on a rope", q: "A crate of mass 120 kg is lowered on a rope. Starting from rest, it reaches a speed of 2 m s$^{-1}$ in 4 s with constant acceleration. Find the tension in the rope.",
+    { worked: { tag: "variation", title: "A crate lowered on a rope", fig: { w: 360, h: 220, items: [].concat(
+      [{ line: [[150, 10], [150, 82]], c: "text2", w: 1.6 }, box(150, 110, 70, 56, 0), { text: [150, 110], t: "120 kg", b: true, size: 11.5, c: "text" }],
+      [{ vec: [[176, 82], [176, 30]], c: "accent", w: 2.2 }, { text: [184, 44], t: "T", b: true, c: "accent", pos: "e", off: 0 }],
+      F(150, 138, 270, 40, "120g", { c: "accent2", dx: 30, dy: -12 }),
+      [{ vec: [[270, 70], [270, 150]], c: "text2", w: 1.6 }, { text: [278, 110], t: "a = 0.5", pos: "e", size: 11.5, c: "text2", off: 0 }]
+    ), cap: "Moving and accelerating downwards: the weight wins, so $T < 120g$." }, q: "A crate of mass 120 kg is lowered on a rope. Starting from rest, it reaches a speed of 2 m s$^{-1}$ in 4 s with constant acceleration. Find the tension in the rope.",
       steps: [
         { h: "Acceleration (down)", m: "$a = \\dfrac{2}{4} = 0.5$ m s$^{-2}$" },
         { h: "Down positive", m: "$120g - T = 120 \\times 0.5 \\Rightarrow T = 1176 - 60 = 1116$ N" }
@@ -488,13 +556,23 @@ C["maths:M8.4"] = {
       F(230, 105, 270, 70, "20 N", { c: "accent2", dx: 22 }),
       [{ arc: [100, 30, 36, 300, 330], label: "30°", c: "accent3", loff: 14 }, { arc: [360, 30, 36, 210, 240], label: "30°", c: "accent3", loff: 14 }]
     ), cap: "Resolve horizontally and vertically: the horizontal parts of the tensions balance; their vertical parts hold up the weight." } },
-    { worked: { tag: "variation", title: "A weight held by two strings", q: "A particle of weight 20 N hangs in equilibrium from two light strings attached to a horizontal ceiling. One string makes 30° with the horizontal, the other 60°. Find the tensions.",
+    { worked: { tag: "variation", title: "A weight held by two strings", fig: { w: 460, h: 250, items: [].concat(
+      [{ line: [[30, 30], [330, 30]], c: "text2", w: 2.5 }, { line: [[56.8, 30], [230, 130]], c: "text2", w: 1.6 }, { line: [[287.7, 30], [230, 130]], c: "text2", w: 1.6 }],
+      [{ circle: [230, 130, 6], fill: "accent", alpha: 0.8, c: "accent" }],
+      F(230, 130, 150, 40, "T₁", { c: "accent", dy: 12 }), F(230, 130, 60, 69, "T₂", { c: "accent", dx: -34, dy: 26 }), F(230, 130, 270, 80, "20 N", { c: "accent2", dx: 24, dy: -14 }),
+      [{ arc: [56.8, 30, 40, 330, 360], label: "30°", c: "accent3", loff: 14 }, { arc: [287.7, 30, 30, 180, 240], label: "60°", c: "accent3", loff: 14 }]
+    ), cap: "Drawn to scale: the steeper string's tension ($10\\sqrt3$ N) is longer than the shallower one's (10 N)." }, q: "A particle of weight 20 N hangs in equilibrium from two light strings attached to a horizontal ceiling. One string makes 30° with the horizontal, the other 60°. Find the tensions.",
       steps: [
         { h: "Horizontal", m: "$T_1\\cos30° = T_2\\cos60° \\Rightarrow T_2 = \\sqrt3\\,T_1$" },
         { h: "Vertical", m: "$T_1\\sin30° + T_2\\sin60° = 20 \\Rightarrow \\tfrac12 T_1 + \\tfrac32 T_1 = 20$" },
         { m: "$T_1 = 10$ N, $\\; T_2 = 10\\sqrt3 = 17.3$ N", n: "The steeper string carries more of the weight." }
       ], result: "10 N and 17.3 N" } },
-    { worked: { tag: "variation", title: "Three forces in equilibrium: find $P$ and $\\theta$", q: "A particle is in equilibrium under three forces: 8 N due east, 6 N due north, and a force $P$ N at angle $\\theta$ south of west. Find $P$ and $\\theta$.",
+    { worked: { tag: "variation", title: "Three forces in equilibrium: find $P$ and $\\theta$", fig: { x: [-10, 10], y: [-7.5, 7.5], w: 400, h: 300, aspect: "equal", axes: { x: "E", y: "N", xt: [], yt: [] }, items: [
+      { vec: [[0, 0], [8, 0]], c: "accent" }, { text: [6, -0.5], t: "8 N", pos: "s", c: "accent", b: true },
+      { vec: [[0, 0], [0, 6]], c: "accent" }, { text: [0.4, 6.2], t: "6 N", pos: "e", c: "accent", b: true },
+      { vec: [[0, 0], [-8, -6]], c: "accent2" }, { text: [-8.3, -6.3], t: "P", pos: "w", c: "accent2", b: true },
+      { arc: [0, 0, 40, 180, 216.87], label: "θ", c: "accent3", loff: 12 }
+    ], cap: "$P$ must point exactly against the resultant of the other two, $8\\mathbf i + 6\\mathbf j$." }, q: "A particle is in equilibrium under three forces: 8 N due east, 6 N due north, and a force $P$ N at angle $\\theta$ south of west. Find $P$ and $\\theta$.",
       steps: [
         { h: "$P$ must cancel the other two", m: "$P\\cos\\theta = 8$ (west), $\\; P\\sin\\theta = 6$ (south)" },
         { m: "$P = \\sqrt{64 + 36} = 10$ N, $\\; \\theta = \\tan^{-1}\\frac68 = 36.9°$" }
@@ -534,6 +612,7 @@ C["maths:M8.4"] = {
         { h: "(f)", m: "e.g. the table is rough (friction); the pulley is not smooth; the rope has mass; the packages have size.", mk: "B1" }
       ], result: "(b) 5.88 m s$^{-2}$ (c) 2.17 m s$^{-1}$ (d) 0.37" } },
     { worked: { tag: "exam", title: "Show the acceleration is 4.2; time for $P$ to reach the pulley", src: "AS June 2019 · P2 Q2(a)(b) · 11 marks",
+      fig: { w: 520, h: 280, items: tableFig({ P: "P 0.8 kg", Q: "Q 0.6", xP: 135, hQ: 52, dimP: "1.5 m", dimQ: "0.4 m" }), cap: "$Q$ falls 0.4 m with the string taut; $P$, 1.5 m from the pulley, still has 1.1 m to go when $Q$ lands." },
       q: "A small ball $P$ of mass 0.8 kg is held at rest on a smooth horizontal table, attached to a thin rope that passes over a pulley at the edge of the table to a ball $Q$ of mass 0.6 kg hanging freely. $P$ is released from rest with the rope taut, 1.5 m from the pulley, with $Q$ 0.4 m above the floor. $Q$ hits the floor and does not rebound. The balls are particles, the rope light and inextensible, the pulley small and smooth. **(a)** Show that the acceleration of $Q$ as it falls is 4.2 m s$^{-2}$. **(b)** Find the time taken by $P$ to hit the pulley from the instant it is released.",
       steps: [
         { h: "(a) $Q$ (down)", m: "$0.6g - T = 0.6a$", mk: "M1 A1" },
@@ -542,9 +621,17 @@ C["maths:M8.4"] = {
         { h: "(b) Stage 1: $Q$ falls 0.4 m", m: "$0.4 = \\tfrac12 \\times 4.2\\,t_1^2 \\Rightarrow t_1 = 0.436$ s", mk: "M1 A1" },
         { m: "speed then: $v = 4.2 \\times 0.436 = 1.83$ m s$^{-1}$ (or $v^2 = 2 \\times 4.2 \\times 0.4$)", mk: "M1 A1" },
         { h: "Stage 2: slack rope, smooth table — constant speed for 1.1 m", m: "$t_2 = \\dfrac{1.1}{1.83} = 0.600$ s", mk: "M1" },
-        { m: "total $= 0.436 + 0.600 = 1.04$ s", mk: "A1" }
+        { m: "total $= 0.436 + 0.600 = 1.04$ s", mk: "A1", fig: { x: [0, 1.25], y: [0, 2.4], w: 460, h: 220, axes: { x: "t (s)", y: "v (m s⁻¹)", xt: [{ v: 0.436, label: "0.436" }, { v: 1.036, label: "1.04" }], yt: [{ v: 1.83, label: "1.83" }] }, items: [
+          { poly: [[0, 0], [0.436, 1.83], [1.036, 1.83], [1.036, 0]], fill: "accent", alpha: 0.14, c: "line", w: 0.1 },
+          { line: [[0, 0], [0.436, 1.83]], c: "accent", w: 2.4 }, { line: [[0.436, 1.83], [1.036, 1.83]], c: "accent", w: 2.4 },
+          { line: [[0.436, 0], [0.436, 1.83]], c: "muted", dash: true },
+          { text: [0.29, 0.5], t: "0.4 m", c: "accent", b: true, size: 12 }, { text: [0.74, 0.9], t: "1.1 m", c: "accent", b: true, size: 12 }
+        ], cap: "$P$'s speed: accelerating while the string is taut, then constant once it is slack. The areas are the two distances." } }
       ], result: "(b) 1.04 s" } },
     { worked: { tag: "exam", title: "Rough table with a resistance: tension, mass, time ($g = 10$)", src: "AS Specimen · P2 Q3(a)–(c) · 9 marks",
+      fig: { w: 520, h: 280, items: tableFig({ P: "P 0.4 kg", Q: "M kg", xP: 170, hQ: 100, dimQ: "2 m", extra: [].concat(
+        F(143, 95, 180, 50, "1.5 N", { c: "accent3", dy: -12 }),
+        [{ text: [280, 82], t: "T", b: true, c: "accent" }, { vec: [[470, 150], [470, 210]], c: "text2", w: 1.6 }, { text: [470, 138], t: "2.5 m s⁻²", pos: "n", size: 11.5, c: "text2", off: 0 }]) }), cap: "Not to scale. The resistance on $P$ acts against its motion; $Q$ accelerates down at 2.5 m s$^{-2}$." },
       q: "A ball $P$ of mass 0.4 kg rests on a rough horizontal table, attached to a rope that passes over a pulley at the edge of the table to a ball $Q$ of mass $M$ kg hanging freely. Released from rest with the rope taut and $Q$ 2 m above the ground, $Q$ moves down with acceleration 2.5 m s$^{-2}$; $P$ does not reach the pulley first. The balls are particles, the rope light and inextensible, the pulley small and smooth; the total resistance to the motion of $P$ is a constant 1.5 N; $g = 10$ m s$^{-2}$. Find, to 2 s.f., **(a)** (i) the tension in the rope, (ii) $M$; **(b)** the time for $Q$ to hit the ground. **(c)** State one limitation of the model that will affect the accuracy of (a).",
       steps: [
         { h: "(a)(i) $P$", m: "$T - 1.5 = 0.4 \\times 2.5$", mk: "M1 A1" },
@@ -556,6 +643,15 @@ C["maths:M8.4"] = {
         { h: "(c)", m: "e.g. the resistance to $P$'s motion will not be constant; the rope will have weight; the pulley will not be smooth.", mk: "B1" }
       ], result: "(a) 2.5 N, 0.33 (b) 1.3 s" } },
     { worked: { tag: "exam", title: "Both hanging: tension in terms of $m$ and $g$; the ratio $k$", src: "AS June 2018 · P2 Q9(a)–(d) · 9 marks",
+      fig: { w: 420, h: 250, items: [].concat(
+        [{ line: [[150, 20], [270, 20]], c: "text2", w: 2.5 }, { line: [[210, 20], [210, 32]], c: "text2", w: 1.6 }],
+        [{ line: [[178, 64], [178, 150]], c: "text2", w: 1.4 }, { line: [[242, 64], [242, 150]], c: "text2", w: 1.4 }, { circle: [210, 64, 32], c: "text2", w: 1.8 }],
+        [box(178, 166, 36, 32, 0, { fill: "accent2" }), { text: [178, 166], t: "2m", size: 11, b: true, c: "text" }],
+        [box(242, 166, 32, 30, 0, { fill: "accent" }), { text: [242, 166], t: "km", size: 11, b: true, c: "text" }],
+        F(178, 110, 90, 30, "T", { c: "accent", dx: -16, dy: 22 }), F(242, 110, 90, 30, "T", { c: "accent", dx: 16, dy: 22 }),
+        F(178, 182, 270, 30, "2mg", { c: "accent2", dx: -22, dy: -14 }), F(242, 181, 270, 30, "kmg", { c: "accent2", dx: 22, dy: -14 }),
+        [{ vec: [[120, 120], [120, 170]], c: "text2", w: 1.6 }, { text: [112, 145], t: "g/5", pos: "w", size: 11.5, c: "text2", off: 0 }, { vec: [[300, 170], [300, 120]], c: "text2", w: 1.6 }, { text: [308, 145], t: "g/5", pos: "e", size: 11.5, c: "text2", off: 0 }]
+      ), cap: "One string over a smooth pulley: the same $T$ on both sides, and $P$ down as fast as $Q$ goes up." },
       q: "Two small balls $P$ and $Q$ have masses $2m$ and $km$, where $k < 2$. They are attached to the ends of a string passing over a fixed pulley and held at rest with the string taut and the hanging parts vertical. Released, $P$ moves downwards with acceleration of magnitude $\\frac{g}{5}$. The balls are particles moving freely, the string light and inextensible, the pulley small and smooth. **(a)** Find the tension in terms of $m$ and $g$. **(b)** Explain why $Q$'s acceleration also has magnitude $\\frac{g}{5}$. **(c)** Find $k$. **(d)** Identify one limitation of the model that will affect the accuracy of (c).",
       steps: [
         { h: "(a) $P$, down", m: "$2mg - T = 2m \\cdot \\dfrac{g}{5}$", mk: "M1 A1" },
@@ -595,7 +691,9 @@ C["maths:M8.4"] = {
         { h: "Add", m: "$\\dfrac{9mg}{5} - \\dfrac{2mg}{5} - mg = 4ma \\Rightarrow \\dfrac{2mg}{5} = 4ma$", mk: "DM1" },
         { m: "$a = \\dfrac{g}{10}$", mk: "A1*" },
         { h: "(c)", m: "A straight line through the origin with positive gradient,", mk: "B1" },
-        { m: "because $B$ starts from rest and has a constant acceleration $\\frac{g}{10}$.", mk: "B1" },
+        { m: "because $B$ starts from rest and has a constant acceleration $\\frac{g}{10}$.", mk: "B1", fig: { x: [0, 2.6], y: [0, 2.6], w: 340, h: 200, axes: { x: "t", y: "v", xt: [], yt: [] }, items: [
+          { line: [[0, 0], [2.2, 2.156]], c: "accent", w: 2.4 }, { text: [1.3, 1.6], t: "gradient g/10", pos: "nw", c: "accent", b: true, size: 12 }
+        ], cap: "From rest with constant acceleration: a straight line through the origin." } },
         { h: "(d)", m: "The tension would not be the same throughout the string, so the same $T$ could not be used in the equations for $A$ and $B$.", mk: "B1" }
       ], result: "$a = \\frac{g}{10}$" } },
     { fig: { w: 520, h: 230, items: (function () {
@@ -654,6 +752,16 @@ C["maths:M8.4"] = {
       [{ text: [330, 150], t: "400 N resistance on the car", c: "text2", size: 11.5 }]
     ), cap: "AS June 2024: the towbar pulls the trailer forward and the car back with the same $T$ (Newton's third law)." } },
     { worked: { tag: "exam", title: "A car towing a trailer by a rope: find $a$", src: "AS June 2023 · P2 Q4 · 7 marks",
+      fig: { w: 540, h: 170, items: [].concat(
+        [ground(10, 530, 130)],
+        [box(390, 104, 120, 50, 0, { fill: "accent" }), { text: [390, 104], t: "car 1200 kg", b: true, size: 12, c: "text" }],
+        [box(150, 108, 110, 42, 0, { fill: "accent2" }), { text: [150, 108], t: "trailer 400 kg", b: true, size: 12, c: "text" }],
+        [{ line: [[205, 112], [330, 112]], c: "text2", w: 1.4 }],
+        F(450, 104, 0, 50, "7400", { c: "accent", dx: 16 }),
+        F(330, 100, 180, 36, "", { c: "accent3" }), F(205, 100, 0, 36, "", { c: "accent3" }), [{ text: [267, 84], t: "T = 2400", b: true, c: "accent3" }],
+        F(95, 108, 180, 40, "R", { c: "text2" }), [{ vec: [[372, 68], [322, 68]], c: "text2", w: 2.2 }, { text: [314, 68], t: "2R", pos: "w", b: true, c: "text2", off: 0 },
+          { vec: [[240, 26], [320, 26]], c: "text2", w: 1.6 }, { text: [330, 26], t: "a", i: true, pos: "e", c: "text2", off: 0 }]
+      ), cap: "The rope's tension pulls the trailer forward and the car back: write one equation for each, or one for the whole." },
       q: "A car of mass 1200 kg tows a trailer of mass 400 kg along a straight horizontal road with a horizontal tow rope parallel to the motion. The resistance to the car is a constant $2R$ N and to the trailer a constant $R$ N. The rope is light and inextensible, the acceleration is $a$ m s$^{-2}$, the driving force is 7400 N and the tension in the rope is 2400 N. **(a)** Find $a$. In a refined model the rope has mass, and the acceleration is $a_1$ m s$^{-2}$. **(b)** State how $a_1$ compares with $a$. **(c)** State one limitation of the model for the resistance to the motion of the car.",
       steps: [
         { h: "(a) Trailer", m: "$2400 - R = 400a$", mk: "M1 A1" },
@@ -671,11 +779,19 @@ C["maths:M8.4"] = {
         { m: "$T = 860$", mk: "A1" },
         { h: "(c) Only the resistance acts", m: "$-500 = 600a \\Rightarrow a = -\\dfrac56$: a deceleration of $\\dfrac56$ m s$^{-2}$", mk: "B1*" },
         { h: "(d)", m: "$0 = 12.5^2 - 2 \\times \\dfrac56 \\times d$", mk: "M1 A1" },
-        { m: "$d = 93.75 \\approx 93.8$ m", mk: "A1" },
+        { m: "$d = 93.75 \\approx 93.8$ m", mk: "A1", fig: { x: [0, 17.5], y: [0, 15], w: 440, h: 200, axes: { x: "t (s)", y: "v (m s⁻¹)", xt: [5, 10, 15], yt: [{ v: 12.5, label: "12.5" }] }, items: [
+          { poly: [[0, 12.5], [15, 0], [0, 0]], fill: "accent", alpha: 0.16, c: "line", w: 0.1 }, { line: [[0, 12.5], [15, 0]], c: "accent", w: 2.4 },
+          { text: [2.2, 2.0], t: "d = ½ × 15 × 12.5 = 93.75", c: "accent", b: true, size: 12, pos: "e", off: 0 }
+        ], cap: "Gradient $-\\frac56$ from 12.5 m s$^{-1}$: the trailer stops after 15 s, and the triangle's area is $d$." } },
         { h: "(e)", m: "e.g. the resistance will not be constant (it depends on speed);", mk: "B1" },
         { m: "the trailer is not a particle / the road may not be level or straight / the trailer may have brakes.", mk: "B1" }
       ], result: "(b) 860 (d) 93.8 m" } },
     { worked: { tag: "exam", title: "The force between a block and the lift floor", src: "AS June 2022 · P2 Q4(b) · 3 marks",
+      fig: { w: 320, h: 200, items: [].concat(
+        [{ line: [[60, 140], [220, 140]], c: "text2", w: 2 }, box(140, 116, 64, 48, 0), { text: [140, 116], t: "10 kg", b: true, size: 11.5, c: "text" }],
+        F(140, 92, 90, 44, "R", { c: "text2" }), F(140, 140, 270, 34, "10g", { c: "accent2", dx: 26, dy: -12 }),
+        [{ vec: [[260, 140], [260, 90]], c: "text2", w: 1.6 }, { text: [268, 115], t: "0.2 m s⁻²", pos: "e", size: 11.5, c: "text2", off: 0 }]
+      ), cap: "Isolate the block: only the floor's push $R$ and its weight act on it." },
       q: "A lift cage of mass 40 kg carries a block of mass 10 kg and is raised vertically with constant acceleration 0.2 m s$^{-2}$ by a light inextensible rope (the tension was found to be 500 N). Air resistance is ignored. Find the magnitude of the force exerted on the block by the lift cage.",
       steps: [
         { h: "The block alone, up positive", m: "$R - 10g = 10 \\times 0.2$", mk: "M1 A1" },
@@ -767,7 +883,12 @@ C["maths:M8.5"] = {
         { h: "(b) $\\mathbf R = m\\mathbf a$", m: "$\\mathbf a = \\dfrac{-3\\mathbf i + 4\\mathbf j}{0.25} = -12\\mathbf i + 16\\mathbf j$", mk: "M1" },
         { m: "$|\\mathbf a| = \\sqrt{144 + 256}$", mk: "M1" },
         { m: "$= 20$ m s$^{-2}$", mk: "A1", n: "Or $|\\mathbf R| = 5$, so $|\\mathbf a| = 5 / 0.25$." },
-        { h: "(c) Constant velocity: resultant zero", m: "$\\mathbf F_3 = -\\mathbf R = (3\\mathbf i - 4\\mathbf j)$ N", mk: "B1ft" }
+        { h: "(c) Constant velocity: resultant zero", m: "$\\mathbf F_3 = -\\mathbf R = (3\\mathbf i - 4\\mathbf j)$ N", mk: "B1ft", fig: { x: [-7, 5], y: [-5, 10], w: 340, h: 400, aspect: "equal", axes: { x: "i", y: "j", xt: [-6, -3, 3], yt: [-4, 4, 9] }, items: [
+          { vec: [[0, 0], [-6, 9]], c: "accent3" }, { text: [-3.4, 5.4], t: "F₂", pos: "w", c: "accent3", b: true },
+          { vec: [[-6, 9], [-3, 4]], c: "accent" }, { text: [-4.2, 7], t: "F₁", pos: "e", c: "accent", b: true },
+          { vec: [[0, 0], [-3, 4]], c: "accent2", w: 2.6 }, { text: [-1.7, 2.2], t: "R", pos: "w", c: "accent2", b: true },
+          { vec: [[0, 0], [3, -4]], c: "danger", dash: true }, { text: [3.2, -3.8], t: "F₃ = −R", pos: "e", c: "danger", b: true, size: 12 }
+        ], cap: "$\\mathbf F_2$ then $\\mathbf F_1$, nose to tail, end at $-3\\mathbf i + 4\\mathbf j$; $\\mathbf F_3$ points straight back." } }
       ], result: "(a) $-3\\mathbf i + 4\\mathbf j$ (b) 20 m s$^{-2}$ (c) $3\\mathbf i - 4\\mathbf j$" } },
     { worked: { tag: "exam", title: "Moving along $3\\mathbf i + \\mathbf j$: a relation, then a distance", src: "A-level June 2022 · P3 Q3 · 9 marks",
       q: "[$\\mathbf i$ and $\\mathbf j$ are horizontal unit vectors.] A particle $P$ of mass 4 kg is at rest at $A$ on a smooth horizontal plane. At $t = 0$ two forces $\\mathbf F_1 = (4\\mathbf i - \\mathbf j)$ N and $\\mathbf F_2 = (\\lambda\\mathbf i + \\mu\\mathbf j)$ N are applied. $P$ moves in the direction of $(3\\mathbf i + \\mathbf j)$. **(a)** Show that $\\lambda - 3\\mu + 7 = 0$. At $t = 4$ s, $P$ passes through $B$. Given that $\\lambda = 2$, **(b)** find the length $AB$.",
@@ -790,19 +911,35 @@ C["maths:M8.5"] = {
     { worked: { tag: "variation", title: "Resultant of two forces at an angle", q: "Two forces act on a particle: 10 N due east and 6 N on a bearing of 060°. Find the magnitude and bearing of the resultant.",
       steps: [
         { h: "Components (east, north)", m: "10 N: $(10, 0)$; $\\;$ 6 N at 30° above east: $(6\\cos30°, 6\\sin30°) = (5.196, 3)$" },
-        { h: "Add", m: "$\\mathbf R = (15.196, 3)$" },
+        { h: "Add", m: "$\\mathbf R = (15.196, 3)$", fig: { x: [-0.8, 17], y: [-1, 4.2], w: 500, h: 190, aspect: "equal", axes: { x: "E", y: "N", xt: [5, 10, 15], yt: [3] }, items: [
+          { vec: [[0, 0], [10, 0]], c: "accent" }, { text: [7.6, 0.45], t: "10 N", pos: "n", c: "accent", b: true },
+          { vec: [[10, 0], [15.196, 3]], c: "accent3" }, { text: [12.3, 1.9], t: "6 N", pos: "nw", c: "accent3", b: true },
+          { arc: [10, 0, 34, 0, 30], label: "30°", c: "accent3", loff: 14 },
+          { vec: [[0, 0], [15.196, 3]], c: "accent2", w: 2.6 }, { text: [7, 1.9], t: "15.5 N", pos: "n", c: "accent2", b: true },
+          { arc: [0, 0, 70, 0, 11.17], label: "11.2°", c: "accent2", loff: 22 }
+        ], cap: "Bearing 060° is 30° above east. Nose to tail, the resultant is $11.2°$ above east: a bearing of $078.8°$." } },
         { m: "$|\\mathbf R| = \\sqrt{15.196^2 + 3^2} = 15.5$ N; angle above east $\\tan^{-1}\\frac{3}{15.196} = 11.2°$", n: "Bearing $90° - 11.2° = 078.8°$." }
       ], result: "15.5 N, bearing 079°" } },
     { worked: { tag: "variation", title: "Accelerating under three forces", q: "A particle of mass 3 kg on a smooth horizontal plane is acted on by forces of 12 N on a bearing of 000°, 8 N on a bearing of 090° and 20 N on a bearing of 225°. Find its acceleration.",
       steps: [
         { h: "Components (east, north)", m: "$(0, 12) + (8, 0) + (-20\\cos45°, -20\\sin45°) = (8 - 14.14,\\; 12 - 14.14) = (-6.14, -2.14)$" },
         { h: "Magnitude", m: "$|\\mathbf R| = 6.50$ N, so $a = \\dfrac{6.50}{3} = 2.17$ m s$^{-2}$" },
-        { h: "Direction", m: "west and slightly south: $\\tan^{-1}\\frac{2.14}{6.14} = 19.2°$ south of west, a bearing of $270° - 19.2° = 250.8°$" }
+        { h: "Direction", m: "west and slightly south: $\\tan^{-1}\\frac{2.14}{6.14} = 19.2°$ south of west, a bearing of $270° - 19.2° = 250.8°$", fig: { x: [-16, 10.5], y: [-16, 14], w: 380, h: 400, aspect: "equal", axes: { x: "E", y: "N", xt: [], yt: [] }, items: [
+          { vec: [[0, 0], [0, 12]], c: "accent" }, { text: [0.6, 11], t: "12 N", pos: "e", c: "accent", b: true },
+          { vec: [[0, 0], [8, 0]], c: "accent" }, { text: [7, 0.8], t: "8 N", pos: "n", c: "accent", b: true },
+          { vec: [[0, 0], [-14.14, -14.14]], c: "accent3" }, { text: [-12.6, -13.8], t: "20 N", pos: "e", c: "accent3", b: true },
+          { vec: [[0, 0], [-6.14, -2.14]], c: "accent2", w: 3 }, { text: [-6.6, -2.1], t: "R = 6.50 N", pos: "w", c: "accent2", b: true, size: 12 },
+          { arc: [0, 0, 52, 180, 199.2], label: "19.2°", c: "accent2", loff: 26 }
+        ], cap: "The 20 N pull (bearing 225°) outweighs the other two: the resultant points $19.2°$ south of west." } }
       ], result: "2.17 m s$^{-2}$ on a bearing of 251°" } },
     { worked: { tag: "variation", title: "Equilibrium: find the missing force", q: "A particle is in equilibrium under $\\mathbf F_1 = (5\\mathbf i + 2\\mathbf j)$ N, $\\mathbf F_2 = (-3\\mathbf i + 7\\mathbf j)$ N and $\\mathbf F_3$. Find $\\mathbf F_3$, its magnitude and its direction.",
       steps: [
         { h: "Sum to zero", m: "$\\mathbf F_3 = -(\\mathbf F_1 + \\mathbf F_2) = -(2\\mathbf i + 9\\mathbf j) = -2\\mathbf i - 9\\mathbf j$" },
-        { m: "$|\\mathbf F_3| = \\sqrt{85} = 9.22$ N, at $\\tan^{-1}\\frac92 = 77.5°$ below the $-\\mathbf i$ direction" }
+        { m: "$|\\mathbf F_3| = \\sqrt{85} = 9.22$ N, at $\\tan^{-1}\\frac92 = 77.5°$ below the $-\\mathbf i$ direction", fig: { x: [-1.5, 7], y: [-1, 10], w: 300, h: 360, aspect: "equal", axes: { x: "i", y: "j", xt: [2, 5], yt: [2, 9] }, items: [
+          { vec: [[0, 0], [5, 2]], c: "accent" }, { text: [3.2, 0.9], t: "F₁", pos: "se", c: "accent", b: true },
+          { vec: [[5, 2], [2, 9]], c: "accent3" }, { text: [3.8, 5.8], t: "F₂", pos: "e", c: "accent3", b: true },
+          { vec: [[2, 9], [0, 0]], c: "accent2", w: 2.6 }, { text: [0.8, 5.2], t: "F₃", pos: "w", c: "accent2", b: true }
+        ], cap: "In equilibrium the three forces, nose to tail, close into a triangle: $\\mathbf F_3$ runs from the end of $\\mathbf F_2$ back to the start." } }
       ], result: "$-2\\mathbf i - 9\\mathbf j$" } },
 
     /* ---------------------------------------------------------------- Page 3 */
@@ -892,6 +1029,11 @@ C["maths:M8.6"] = {
       ], cap: "Push harder on a resting block and friction matches you — until it reaches its limit $\\mu R$. Beyond that the block slides and friction stays at $\\mu R$." } },
     { callout: { t: "miscon", h: "\"Friction is always $\\mu R$\"", body: "Only when limiting or sliding. A 20 N block with $\\mu = 0.5$ pushed by 4 N stays still with friction **4 N**, not 10 N. Always find the friction needed first, then compare it with $\\mu R$." } },
     { worked: { tag: "exam", title: "Limiting equilibrium on a horizontal plane", src: "A-level June 2024 · P3 Q1 · 3 marks",
+      fig: { w: 460, h: 170, items: [].concat(
+        [ground(20, 440, 130), box(230, 108, 70, 44, 0), { text: [230, 108], t: "0.5 kg", b: true, size: 11.5, c: "text" }],
+        F(265, 108, 0, 70, "X", { c: "accent" }), F(195, 108, 180, 70, "F = μR", { c: "accent3", dx: -10 }),
+        F(230, 86, 90, 40, "R", { c: "text2" }), F(230, 130, 270, 20, "0.5g", { c: "accent2", dx: 30, dy: -10 })
+      ), cap: "Limiting equilibrium: at rest, and friction at its maximum $\\mu R$, so $X = \\mu R$." },
       q: "A particle $P$ of mass 0.5 kg is at rest on a rough horizontal plane. **(a)** Find the magnitude of the normal reaction of the plane on $P$. The coefficient of friction between $P$ and the plane is $\\frac27$. A horizontal force of magnitude $X$ newtons is applied to $P$, and $P$ is now in limiting equilibrium. **(b)** Find $X$.",
       steps: [
         { h: "(a)", m: "$R = 0.5g = 4.9$ N", mk: "B1" },
@@ -902,7 +1044,10 @@ C["maths:M8.6"] = {
       steps: [
         { h: "Maximum friction", m: "$R = 5g = 49$, $\\; \\mu R = 19.6$ N" },
         { h: "(a) $15 < 19.6$", m: "stays at rest; friction $= 15$ N" },
-        { h: "(b) $25 > 19.6$", m: "slides; friction $= 19.6$ N; $\\; 25 - 19.6 = 5a \\Rightarrow a = 1.08$ m s$^{-2}$" }
+        { h: "(b) $25 > 19.6$", m: "slides; friction $= 19.6$ N; $\\; 25 - 19.6 = 5a \\Rightarrow a = 1.08$ m s$^{-2}$", fig: { x: [0, 30], y: [0, 25], w: 460, h: 220, axes: { x: "P (N)", y: "friction (N)", xt: [10, 15, 20, 25], yt: [10, { v: 19.6, label: "19.6" }] }, items: [
+          { line: [[0, 0], [19.6, 19.6]], c: "accent", w: 2.4 }, { line: [[19.6, 19.6], [29, 19.6]], c: "accent2", w: 2.4 },
+          { pt: [15, 15], label: "(a) at rest, 15 N", pos: "nw", i: false }, { pt: [25, 19.6], label: "(b) slides", pos: "n", i: false }
+        ], cap: "Friction matches $P$ up to its limit $\\mu R = 19.6$ N, then stays there while the box slides." } }
       ], result: "(a) at rest, 15 N (b) 1.08 m s$^{-2}$" } },
 
     /* ---------------------------------------------------------------- Page 2 */
@@ -930,7 +1075,10 @@ C["maths:M8.6"] = {
       steps: [
         { h: "(d) Friction now", m: "$R = 2g = 19.6$, $\\; F = 0.2 \\times 19.6 = 3.92$", mk: "M1 B1" },
         { h: "Deceleration", m: "$3.92 = 2a \\Rightarrow a = 1.96$; $\\; 0 = 4^2 - 2(1.96)s$", mk: "M1" },
-        { m: "$OX = \\dfrac{16}{3.92} = 4.08$ m", mk: "A1", n: "The mass cancels: deceleration $= \\mu g$." },
+        { m: "$OX = \\dfrac{16}{3.92} = 4.08$ m", mk: "A1", n: "The mass cancels: deceleration $= \\mu g$.", fig: { x: [0, 2.6], y: [0, 5], w: 420, h: 200, axes: { x: "t (s)", y: "v (m s⁻¹)", xt: [1, { v: 2.04, label: "2.04" }], yt: [4] }, items: [
+          { poly: [[0, 4], [2.041, 0], [0, 0]], fill: "accent", alpha: 0.16, c: "line", w: 0.1 }, { line: [[0, 4], [2.041, 0]], c: "accent", w: 2.4 },
+          { text: [0.55, 1.1], t: "OX = 4.08 m", c: "accent", b: true, size: 12 }
+        ], cap: "Deceleration $\\mu g = 1.96$ m s$^{-2}$ from 4 m s$^{-1}$: the box stops after 2.04 s, and the area is $OX$." } },
         { h: "(e)", m: "e.g. the coefficient of friction may not be constant along the plane; the box is not a particle.", mk: "B1" }
       ], result: "(d) 4.08 m" } },
 
@@ -944,6 +1092,12 @@ C["maths:M8.6"] = {
       "A body at rest slides only if $mg\\sin\\alpha > \\mu mg\\cos\\alpha$, i.e. $\\tan\\alpha > \\mu$."
     ] } },
     { worked: { tag: "exam", title: "On the point of sliding: show $\\mu = \\frac34$", src: "A-level Oct 2020 · P3 Q1(a)(b) · 6 marks",
+      fig: { w: 480, h: 240, items: (function () {
+      var x0 = 50, y0 = 220, d = 36.87, p = along(x0, y0, d, 170, 22), it = [].concat(slope(x0, y0, 260, d, "α"), [box(p[0], p[1], 50, 34, d)]);
+      it = it.concat(F(p[0], p[1], 270, 60, "mg", { c: "accent2", dx: 16 }), F(p[0], p[1], 90 + d, 60, "R", { c: "text2" }), F(p[0], p[1], d, 56, "F", { c: "accent3" }));
+      
+      return it;
+    })(), cap: "$\\tan\\alpha = \\frac34$: about to slide down, so friction acts up the slope, at its limit $\\mu R$." },
       q: "A rough plane is inclined at $\\alpha$ to the horizontal, where $\\tan\\alpha = \\frac34$. A brick $P$ of mass $m$ on the plane is in equilibrium and on the point of sliding down the plane; the coefficient of friction is $\\mu$. Modelling $P$ as a particle, **(a)** find, in terms of $m$ and $g$, the magnitude of the normal reaction of the plane on $P$; **(b)** show that $\\mu = \\frac34$.",
       steps: [
         { h: "(a) Perpendicular", m: "$R = mg\\cos\\alpha$", mk: "M1" },
@@ -953,6 +1107,12 @@ C["maths:M8.6"] = {
         { m: "$\\mu = \\dfrac34$", mk: "A1*" }
       ], result: "(a) $\\frac{4mg}{5}$" } },
     { worked: { tag: "exam", title: "Sliding down: show the acceleration is $\\frac{g(5 - 12\\mu)}{13}$", src: "A-level June 2024 · P3 Q3 · 7 marks",
+      fig: { w: 480, h: 220, items: (function () {
+      var x0 = 40, y0 = 200, d = 22.62, p = along(x0, y0, d, 230, 22), it = [].concat(slope(x0, y0, 400, d, "α"), [box(p[0], p[1], 50, 34, d)]);
+      it = it.concat(F(p[0], p[1], 270, 60, "mg", { c: "accent2", dx: 16 }), F(p[0], p[1], 90 + d, 56, "R", { c: "text2" }), F(p[0], p[1], d, 56, "μR", { c: "accent3" }));
+      var a = along(x0, y0, d, 150, 70), b = along(x0, y0, d, 90, 70); it.push({ vec: [a, b], c: "text2", w: 1.6 }, { text: [b[0] - 4, b[1] - 4], t: "a", i: true, pos: "w", c: "text2", off: 0 });
+      return it;
+    })(), cap: "$\\tan\\alpha = \\frac{5}{12}$, so $\\sin\\alpha = \\frac{5}{13}$ and $\\cos\\alpha = \\frac{12}{13}$; sliding down, friction acts up the slope." },
       q: "A particle $P$ of mass $m$ is held at rest on a rough plane inclined at $\\alpha$ to the horizontal, where $\\tan\\alpha = \\frac{5}{12}$. The coefficient of friction is $\\mu$, where $\\mu < \\frac{5}{12}$. $P$ is released and slides down the plane; air resistance is negligible. **(a)** Find, in terms of $m$ and $g$, the normal reaction on $P$. **(b)** Show that the acceleration of $P$ down the plane is $\\frac{g(5 - 12\\mu)}{13}$. **(c)** State what would happen to $P$ if it were released from rest with $\\mu \\ge \\frac{5}{12}$.",
       steps: [
         { h: "(a)", m: "$R = mg\\cos\\alpha$", mk: "M1" },

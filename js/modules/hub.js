@@ -99,10 +99,13 @@
   /* every flashcard in a subject, counted exactly the way the inspector
      counts one topic's cards — so "cards due" here and the inspector's
      review queue can never disagree */
+  /* IT's review analytics leave the units done at school out (5.19 item 2) */
+  function inReview(sid, ref) { return sid !== "it" || !KOS.itUnits || KOS.itUnits.inReview(ref); }
   function subjectCardStats(sid) {
     var today = KOS.srs.todayISO();
     var out = { total: 0, reviewed: 0, due: 0 };
     LEAVES[sid].forEach(function (l) {
+      if (!inReview(sid, l.ref)) return;
       KOS.srs.cardsFor(sid, l.ref).forEach(function (c) {
         out.total++;
         var m = KOS.srs.peek(c.key);
@@ -120,7 +123,7 @@
     var q = (store.state.study || {}).quiz || {};
     var out = { best: null, attempts: 0, topics: 0 };
     Object.keys(q).forEach(function (k) {
-      if (k.indexOf(sid + ":") !== 0) return;
+      if (k.indexOf(sid + ":") !== 0 || !inReview(sid, k.slice(sid.length + 1))) return;
       out.topics++;
       out.attempts += q[k].attempts || 0;
       var bp = KOS.quiz && KOS.quiz.bestPct ? KOS.quiz.bestPct(sid, k.slice(sid.length + 1), q[k]) : q[k].best;
@@ -130,7 +133,7 @@
   }
   function subjectExamCount(sid) {
     return KOS.sessions.all().filter(function (e) {
-      return e.type === "exam" && e.subject === sid;
+      return e.type === "exam" && e.subject === sid && inReview(sid, e.ref);
     }).length;
   }
 
@@ -425,6 +428,11 @@
        and the count, the filter and the list follow the group shown */
     var codeMode = sid === "code" && KOS.codeTopic ? KOS.codeTopic.spineMode(activeRef) : null;
     var sections = !codeMode ? data.sections : data.sections.filter(function (sec) { return codeMode === "tracks" ? !!sec.track : !sec.track; });
+    /* IT (5.19 item 2): a unit done at school leaves the spine unless "Show
+       completed units" is on; the open topic's own unit always stays */
+    var itU = sid === "it" && KOS.itUnits ? KOS.itUnits : null;
+    var itHidden = itU ? data.sections.filter(function (sec) { return itU.archived(sec.ref); }).length : 0;
+    if (itU) sections = sections.filter(function (sec) { return itU.visible(sec.ref) || (activeRef && itU.unitOf(activeRef) === sec.ref); });
     if (codeMode) st = sections.reduce(function (a, sec) { var x = sectionStats(sid, sec); a.done += x.done; a.total += x.total; a.pct = a.total ? Math.round(100 * a.done / a.total) : 0; return a; }, { done: 0, total: 0, pct: 0 });
     tree.style.setProperty("--subj-c", SUBJ_HUE[sid]);
     var open = store.state.ui.openSections[sid] = store.state.ui.openSections[sid] || {};
@@ -573,6 +581,12 @@
     });
     /* Code's tracks: the ones with no part in the spine yet, then deepening */
     if (codeSpine && codeSpine.after) codeSpine.after(list);
+    if (itHidden) {
+      var sw = el("input", { type: "checkbox", class: "k-switch", "data-ui": "study.it-show-done", "aria-label": "Show completed units" });
+      sw.checked = itU.showDone();
+      sw.addEventListener("change", function () { itU.setShowDone(sw.checked); KOS.rerender(); });
+      list.appendChild(el("label", { class: "k-spine-done" }, [sw, el("span", { text: "Show completed units" }), el("span", { class: "k-muted k-mono", text: String(itHidden) })]));
+    }
 
 
     /* the filter narrows the entries in place: a section with a match opens,
@@ -1079,6 +1093,9 @@
     }
     var ring = el("span", { class: "k-home-ring", "data-hp": hpS, style: "--hp: " + Math.max(0, Math.min(100, g.hp)) + "%" },
       [KOS.governor.avatarNode(94)]);
+    /* a painted frame's reach is kept inside the hero, clear of the greeting (SC-08) */
+    var hb = KOS.governor.frameBleed ? KOS.governor.frameBleed(94, 9) : 0;
+    if (hb) ring.style.setProperty("--fbleed", hb + "px");
     var greet = el("h1", { class: "k-home-greet" }, hpS === "critical" ? [] : [greeting() + " "]);
     /* Critical (7a·crit): the headline says what the right-hand block is for */
     if (hpS === "critical") {
@@ -2063,8 +2080,14 @@
       }))
     ]);
 
-    var side = el("div", { class: "k-subj-side" }, [continueCard(sid), weakestCard(sid)]);
+    /* IT's current-unit card carries Continue, so the side keeps only Weakest */
+    var itLead = sid === "it" && KOS.itDesk && KOS.itDesk.current && KOS.itUnits && KOS.itUnits.current();
+    var side = el("div", { class: "k-subj-side" }, [itLead ? null : continueCard(sid), weakestCard(sid)].filter(Boolean));
     if (KOS.art) KOS.art.layer(hero, "desk:" + sid, { eager: true });
+    /* IT: the current unit leads the desk (5.19 item 2, design 44f) */
+    if (sid === "it" && KOS.itDesk && KOS.itDesk.current) { var cu = KOS.itDesk.current({
+      leaves: function (code) { var sec = d.sections.filter(function (x) { return x.ref === code; })[0]; return sec ? leavesOf(sid, sec) : []; },
+      pct: function (ref) { return leafPercent(sid, ref); }, lastRef: store.state.ui.lastRef[sid] }); if (cu) main.appendChild(cu); }
     main.appendChild(el("div", { class: "k-subj-row", "data-ui": "study.desk-top" }, [hero, side]));
     /* the IT desk's qualification and units (frames 18a–18c) */
     if (sid === "it" && KOS.itDesk) KOS.itDesk.render(main);
@@ -2077,7 +2100,11 @@
     var lastRef = store.state.ui.lastRef[sid];
     var lastSec = lastRef && BYREF[sid][lastRef] ? BYREF[sid][lastRef].section : null;
     var units = el("div", { class: "k-units", "data-ui": "study.units" });
-    d.sections.forEach(function (sec) {
+    var itU2 = sid === "it" && KOS.itUnits ? KOS.itUnits : null, itCur = itU2 ? itU2.current() : null;
+    /* IT: the current unit first, the units done at school only with the switch */
+    var deskSecs = !itU2 ? d.sections : d.sections.filter(function (sec) { return itU2.visible(sec.ref); })
+      .sort(function (a, b) { return (a.ref === itCur ? -1 : 0) - (b.ref === itCur ? -1 : 0); });
+    deskSecs.forEach(function (sec) {
       var ls = leavesOf(sid, sec);
       if (!ls.length) return;
       var done = 0, started = 0;
@@ -2247,13 +2274,17 @@
      subject you have never opened (pointed at the first unfinished topic) */
   function continueCard(sid) {
     var last = store.state.ui.lastRef[sid];
-    var leaf = last && BYREF[sid][last];
+    /* IT: never into a unit done at school; the current unit first (5.19 item 2) */
+    var IU = sid === "it" && KOS.itUnits ? KOS.itUnits : null;
+    var pool = IU ? LEAVES[sid].filter(function (l) { return !IU.archived(IU.unitOf(l.ref)); }) : LEAVES[sid];
+    if (IU) { var cu = IU.current(); pool = pool.filter(function (l) { return IU.unitOf(l.ref) === cu; }).concat(pool.filter(function (l) { return IU.unitOf(l.ref) !== cu; })); }
+    var leaf = last && BYREF[sid][last] && (!IU || !IU.archived(IU.unitOf(last))) ? BYREF[sid][last] : null;
     var kicker = "Continue";
     if (!leaf) {
-      leaf = LEAVES[sid].filter(function (l) {
+      leaf = pool.filter(function (l) {
         var p = store.peekProgress(sid, l.ref);
         return !p || p.status !== "done";
-      })[0] || LEAVES[sid][0];
+      })[0] || pool[0] || LEAVES[sid][0];
       kicker = "Start here";
     }
     if (!leaf) return null;
@@ -2269,7 +2300,9 @@
     ]);
   }
   function weakestCard(sid) {
-    var w = (KOS.rag.worst(sid, 1) || [])[0];
+    var w = sid === "it" && KOS.itUnits
+      ? (KOS.rag.worst(sid, 50) || []).filter(function (x) { return KOS.itUnits.inReview(x.ref); })[0]
+      : (KOS.rag.worst(sid, 1) || [])[0];
     if (!w) {
       return el("div", { class: "k-subj-next", "data-ui": "study.weakest" }, [
         el("span", { class: "k-subj-next-txt" }, [
