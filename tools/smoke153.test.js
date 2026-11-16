@@ -137,8 +137,11 @@ step("F · figures on worked examples, exam items, quiz, Companion", () => {
   eq(app.errors, [], "no page errors");
 });
 
-step("G · the content checker", () => {
-  assert(fs.existsSync(path.join(ROOT, "tools/fill_check.mjs")), "tools/fill_check.mjs");
+step("G · every figure and part in the content passes tools/fill_check.mjs", () => {
+  const r = require("child_process").spawnSync(process.execPath, [path.join(ROOT, "tools/fill_check.mjs")], { cwd: ROOT, encoding: "utf8", timeout: 240000 });
+  const out = (r.stdout || "") + (r.stderr || "");
+  assert(r.status === 0 && /fill_check: OK/.test(out), "fill_check failed:\n" + out.split("\n").slice(-12).join("\n"));
+  assert(/\d+ sql/.test(out) && !/ 0 sql/.test(out), "the SQL parts were walked: " + out.split("\n")[0]);
 });
 
 (async () => {

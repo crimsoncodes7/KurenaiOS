@@ -234,11 +234,11 @@ C["compsci:4.10.1"] = {
       steps: [
         { m: "Create a new relation to record which make/model(s) each part can be fitted to;", mk: "1 mark", n: "NE. \"a relation to link Part and Car\" — Car is one vehicle, not a type." },
         { m: "Store the attributes PartID, Make and Model in it;", mk: "1 mark" },
-        { m: "Make PartID, Make and Model together the (composite) entity identifier: " + R("PartToFitMakeModel", ["PartID", "Make", "Model"]) + ";", mk: "1 mark" },
+        { m: "Make PartID, Make and Model together the (composite) entity identifier: " + R("PartToFitMakeModel", ["PartID", "Make", "Model"]) + ";", mk: "1 mark", fig: er([{ id: "Part", x: 20, y: 20 }, { id: "PartToFitMakeModel", x: 260, y: 20, w: 170 }], [["Part", "PartToFitMakeModel", "1", "M"]], null, { w: 450, h: 80 }) },
         { h: "Alternative", m: R("MakeModel", ["MakeModelID"], ["Make", "Model"]) + " and " + R("PartFitsModel", ["PartID", "MakeModelID"]) + " — also 3 marks. A new surrogate key is accepted only if you add a constraint stopping the same part–model pair being stored twice." }
-      ], result: "A linking relation keyed on PartID + Make + Model" } },
+      ], result: "A linking relation keyed on PartID + Make + Model", try: [{ sql: { setup: "CREATE TABLE Part (PartID INTEGER PRIMARY KEY, Description TEXT, Price REAL);\nINSERT INTO Part VALUES (1, 'Oil filter', 8.50), (2, 'Wiper blade', 12.00), (3, 'Brake pad set', 39.99), (4, 'Air filter', 14.25);\nCREATE TABLE PartToFitMakeModel (PartID INTEGER, Make TEXT, Model TEXT, PRIMARY KEY (PartID, Make, Model));\nINSERT INTO PartToFitMakeModel VALUES (1, 'Ford', 'Fiesta'), (1, 'Ford', 'Focus'), (2, 'Ford', 'Fiesta'), (2, 'Vauxhall', 'Corsa'), (3, 'Ford', 'Focus'), (4, 'Vauxhall', 'Corsa'), (4, 'Ford', 'Fiesta');", answer: "SELECT Part.PartID, Description\nFROM Part\nINNER JOIN PartToFitMakeModel ON Part.PartID = PartToFitMakeModel.PartID\nWHERE Make = 'Ford' AND Model = 'Fiesta';", cap: "**Your turn.** With the linking relation in place, list the PartID and Description of every part that fits a **Ford Fiesta**." } }] } },
     { worked: { tag: "variation", title: "Sentence to degree", q: "Give the degree and where the crow's foot goes: (a) a hospital ward has many beds; each bed is in one ward (b) a passport belongs to one person; a person holds one passport (c) a band plays at many festivals; a festival has many bands (d) a customer can make many bookings; a booking is for one customer.",
-      steps: [{ m: "(a) Ward 1:M Bed — foot at Bed", mk: "1" }, { m: "(b) 1:1 — no foot; put the foreign key in either (usually Passport)", mk: "1" }, { m: "(c) M:M — resolve with Performance(BandID, FestivalID)", mk: "1" }, { m: "(d) Customer 1:M Booking — foot at Booking", mk: "1" }], result: "1:M, 1:1, M:M, 1:M" } },
+      steps: [{ m: "(a) Ward 1:M Bed — foot at Bed", mk: "1" }, { m: "(b) 1:1 — no foot; put the foreign key in either (usually Passport)", mk: "1" }, { m: "(c) M:M — resolve with Performance(BandID, FestivalID)", mk: "1", fig: er([{ id: "Band", x: 20, y: 20 }, { id: "Performance", x: 220, y: 20, w: 140 }, { id: "Festival", x: 440, y: 20 }], [["Band", "Performance", "1", "M"], ["Festival", "Performance", "1", "M"]], null, { w: 590, h: 80 }) }, { m: "(d) Customer 1:M Booking — foot at Booking", mk: "1" }], result: "1:M, 1:1, M:M, 1:M" } },
 
     { page: "Exam toolkit" },
     { table: { head: ["Command word", "What earns the mark"], rows: [
@@ -348,7 +348,7 @@ C["compsci:4.10.2"] = {
       steps: [
         { m: "Could two rows share CustomerID, BookingDate and StartTime? **Yes** — the secretary books both sports halls at 14:00.", mk: "1" },
         { m: "So it is **not** a valid key. (FacilityID, BookingDate, StartTime) is — or (FacilityID, BookingDate, EndTime), since one facility's bookings cannot share an end time either.", mk: "1" }
-      ], result: "Not valid" } },
+      ], result: "Not valid", try: [{ sql: { setup: "CREATE TABLE Booking (FacilityID INTEGER, BookingDate TEXT, StartTime TEXT, EndTime TEXT, CustomerID INTEGER, PRIMARY KEY (FacilityID, BookingDate, StartTime));\nINSERT INTO Booking VALUES (1, '2021-06-15', '14:00', '15:00', 7), (2, '2021-06-15', '14:00', '15:00', 7), (3, '2021-06-15', '14:00', '14:45', 12), (1, '2021-06-15', '16:00', '17:00', 12), (2, '2021-06-16', '09:00', '10:00', 7);", answer: "SELECT FacilityID, EndTime\nFROM Booking\nWHERE CustomerID = 7 AND BookingDate = '2021-06-15' AND StartTime = '14:00';", cap: "**Your turn.** Customer 7 is the secretary. Return FacilityID and EndTime for every booking with CustomerID 7, BookingDate '2021-06-15' and StartTime '14:00' — more than one row proves the three attributes are not a key." } }] } },
 
     { page: "Referential integrity" },
     { callout: { t: "def", h: "Referential integrity", body: "Every **foreign key value must match an existing primary key value** in the table it refers to (or be null). A record must never refer to a record that does not exist." } },
@@ -393,7 +393,7 @@ C["compsci:4.10.2"] = {
       steps: [
         { m: "There might already be bookings for showings on this date;", mk: "1 mark (AO2)", n: "Must refer to the date — R. \"bookings for a showing\" alone." },
         { m: "The database would prevent the query from running / the query could leave bookings that reference showings that no longer exist — referential integrity (foreign key rules) violated;", mk: "1 mark (AO1)", n: "Both marks for stating that all bookings for 29th March would also need deleting." }
-      ], result: "Orphaned bookings — referential integrity" } },
+      ], result: "Orphaned bookings — referential integrity", try: [{ sql: { setup: "CREATE TABLE Showing (ShowingID INTEGER PRIMARY KEY, ScreenNumber INTEGER, FilmID INTEGER, ShowTime TEXT, ShowDate TEXT);\nINSERT INTO Showing VALUES (88, 1, 4, '18:00', '2023-03-29'), (89, 2, 4, '20:30', '2023-03-29'), (90, 1, 7, '18:00', '2023-03-30'), (91, 3, 2, '15:00', '2023-03-28');\nCREATE TABLE Booking (BookingID INTEGER PRIMARY KEY, ShowingID INTEGER, CustomerID INTEGER);\nINSERT INTO Booking VALUES (501, 88, 12), (502, 88, 40), (503, 90, 12), (504, 89, 33), (505, 91, 40);", answer: "SELECT BookingID, Booking.ShowingID\nFROM Booking\nINNER JOIN Showing ON Booking.ShowingID = Showing.ShowingID\nWHERE ShowDate = '2023-03-29';", cap: "**Your turn.** Before deleting, find the bookings the delete would leave pointing at nothing: BookingID and ShowingID of every booking for a showing on '2023-03-29'." } }] } },
     { worked: { tag: "variation", title: "Explain a relational database (3 marks)", q: "Explain what is meant by a relational database, using the garage's Car and Job tables.",
       steps: [
         { m: "Data is stored in several tables/relations, each about one entity (Car, Job);", mk: "1" },
@@ -521,7 +521,7 @@ C["compsci:4.10.3"] = {
         { m: "(b) **2NF** — single key, but CustomerEmail depends on CustomerID: transitive.", mk: "1" },
         { m: "(c) **not 1NF** — Players is not atomic (a repeating group).", mk: "1" },
         { m: "(d) **3NF** — MemberID and DateDue each depend on the whole key (this copy on this date) and on nothing else.", mk: "1" }
-      ], result: "1NF, 2NF, UNF, 3NF" } },
+      ], result: "1NF, 2NF, UNF, 3NF", try: [{ grid: { cols: ["Relation", "Highest normal form"], rows: [["Visit($\\underline{\\textsf{PatientID}}$, $\\underline{\\textsf{VisitDate}}$, PatientName, Diagnosis)", "1NF"], ["Employee($\\underline{\\textsf{EmployeeID}}$, DeptID, DeptName)", "2NF"], ["Order($\\underline{\\textsf{OrderID}}$, Items) where Items holds \"pen, ink, pad\"", "UNF"], ["Ticket($\\underline{\\textsf{TicketID}}$, ShowingID, SeatNumber)", "3NF"]], given: [[0, 0], [1, 0], [2, 0], [3, 0]], cap: "**Your turn.** Four more: type **UNF**, **1NF**, **2NF** or **3NF** for each." } }] } },
 
     { page: "Designing relations from a scenario" },
     { callout: { t: "info", h: "Key idea", body: "AQA's 4–5 mark design questions give some relations and ask for the rest. The marks go to **each relation with the right attributes and no others**, plus **correct identifiers**." } },
@@ -550,7 +550,7 @@ C["compsci:4.10.3"] = {
       q: "Car(CarRegNo, Make, Model, OwnerName, OwnerEmail, OwnerTelNo). It has been suggested that owner details should be stored in a new relation, separately from car details. Explain why storing the owner details separately would improve the design of the database.",
       steps: [
         { m: "A person may own more than one car / bring different cars to the garage;", mk: "1 mark (AO2)", n: "A. it might be desired to store an owner before their car is known; A. easier to transfer a car between owners." },
-        { m: "So owner details would not be stored (or input) once for each car they own — less duplication/redundancy, no inconsistency, no update/insertion anomalies;", mk: "1 mark (AO1)", n: "NE. saving space; NE. easier to query; NE. fewer errors without an example." }
+        { m: "So owner details would not be stored (or input) once for each car they own — less duplication/redundancy, no inconsistency, no update/insertion anomalies;", mk: "1 mark (AO1)", n: "NE. saving space; NE. easier to query; NE. fewer errors without an example.", fig: er([{ id: "Owner", x: 20, y: 20 }, { id: "Car", x: 300, y: 20 }], [["Owner", "Car", "1", "M"]], null, { w: 450, h: 80 }) }
       ], result: "Owner details stored once" } },
     { worked: { tag: "exam", title: "Two reasons to normalise", src: "A-level June 2018 · P2 Q07.3 · 2 marks",
       q: "State two reasons why database designs, such as the athletics database, are usually normalised.",
@@ -572,7 +572,7 @@ C["compsci:4.10.3"] = {
       steps: [
         { h: "Advantage", m: "It will be quicker to look up an animal's current location — only the Animal relation needs searching / a less complex query;", mk: "1 mark", n: "NE. easier; R. \"it will be possible to identify\" — it already is." },
         { h: "Disadvantage", m: "It introduces data redundancy (the zoo is already in AnimalLocation), so data inconsistency could occur / more updates when an animal moves / more storage;", mk: "1 mark", n: "A. the database is no longer normalised." }
-      ], result: "Faster lookup vs redundancy" } },
+      ], result: "Faster lookup vs redundancy", try: [{ sql: { setup: "CREATE TABLE Animal (AnimalID INTEGER PRIMARY KEY, IndividualName TEXT, Species TEXT);\nINSERT INTO Animal VALUES (1, 'Kesi', 'Giraffe'), (2, 'Bao', 'Red panda'), (3, 'Tiko', 'Tiger');\nCREATE TABLE AnimalLocation (AnimalID INTEGER, ZooName TEXT, DateArrived TEXT, DateLeft TEXT, PRIMARY KEY (AnimalID, ZooName, DateArrived));\nINSERT INTO AnimalLocation VALUES (1, 'Chester', '2015-04-02', '01/01/0001'), (2, 'Edinburgh', '2016-09-10', '2020-03-01'), (2, 'Whipsnade', '2020-03-02', '01/01/0001'), (3, 'Chester', '2012-06-01', '2019-08-15'), (3, 'Colchester', '2019-08-16', '01/01/0001');", answer: "SELECT ZooName\nFROM AnimalLocation\nWHERE AnimalID = 3 AND DateLeft = '01/01/0001';", cap: "**Your turn.** Without the new attribute: find the zoo that animal 3 is in now (its row in AnimalLocation whose DateLeft is '01/01/0001')." } }] } },
     { worked: { tag: "exam", title: "Problems without full normalisation", src: "A-level June 2024 · P2 Q08.5 · 2 marks",
       q: "The shop database is fully normalised. Describe two problems that can occur with databases that are not fully normalised.",
       steps: [
@@ -585,7 +585,8 @@ C["compsci:4.10.3"] = {
         { m: R("Customer", ["CustomerID"], ["Forename", "Surname", "TelephoneNumber"]) + ";", mk: "1 mark", n: "R. PetID in Customer when PetOwner exists." },
         { m: "Appointment(PetID, Date, Time, SurgeryName) with the correct attributes;", mk: "1 mark", n: "I. extra reasonable attributes such as VetID." },
         { m: "Its composite identifier " + U("PetID") + ", " + U("Date") + ", " + U("Time") + ";", mk: "1 mark", n: "A. a new AppointmentID." },
-        { m: R("PetOwner", ["CustomerID", "PetID"]) + " — those two attributes only, both in the identifier;", mk: "1 mark", n: "R. only one of them as the identifier." }
+        { m: R("PetOwner", ["CustomerID", "PetID"]) + " — those two attributes only, both in the identifier;", mk: "1 mark", n: "R. only one of them as the identifier.", fig: er([{ id: "Customer", x: 20, y: 20 }, { id: "PetOwner", x: 220, y: 20 }, { id: "Pet", x: 420, y: 20 }, { id: "Surgery", x: 20, y: 110 }, { id: "Appointment", x: 420, y: 110 }, { id: "Vet", x: 20, y: 190 }],
+            [["Customer", "PetOwner", "1", "M"], ["Pet", "PetOwner", "1", "M"], ["Pet", "Appointment", "1", "M"], ["Surgery", "Appointment", "1", "M"], ["Surgery", "Vet", "1", "M"]], null, { w: 570, h: 236 }) }
       ], result: "Customer, Appointment, PetOwner" } },
     { worked: { tag: "exam", title: "Cinema: the other three relations", src: "A-level June 2023 · P2 Q05.1 · 5 marks",
       q: "Given Screen(ScreenNumber, Capacity), Seat(SeatNumber, ScreenNumber, SeatType), Film(FilmID, FilmName, Duration, Certificate) and Showing(ShowingID, ScreenNumber, FilmID, ShowTime, ShowDate), list the other three relations needed for a fully normalised design, underlining the identifiers. Each booking is for one showing and one or more chosen seats; only the booker's first name, last name and telephone number are stored, and are re-used for later bookings.",
@@ -593,7 +594,8 @@ C["compsci:4.10.3"] = {
         { m: "Customer(CustomerID, FirstName, LastName, TelephoneNumber) — those attributes and no others;", mk: "1 mark" },
         { m: "Booking(BookingID, ShowingID, CustomerID);", mk: "1 mark", n: "A. a NumberOfSeats count." },
         { m: "AssignedSeat(BookingID, SeatNumber) — one row per seat removes the repeating group;", mk: "1 mark" },
-        { m: "Identifiers: " + U("CustomerID") + "; " + U("BookingID") + " (or ShowingID + CustomerID); " + U("BookingID") + " + " + U("SeatNumber") + " (or ShowingID + SeatNumber);", mk: "1 mark one or two · 2 marks all three", n: "R. FirstName + LastName or TelephoneNumber as the customer key." }
+        { m: "Identifiers: " + U("CustomerID") + "; " + U("BookingID") + " (or ShowingID + CustomerID); " + U("BookingID") + " + " + U("SeatNumber") + " (or ShowingID + SeatNumber);", mk: "1 mark one or two · 2 marks all three", n: "R. FirstName + LastName or TelephoneNumber as the customer key.", fig: er([{ id: "Film", x: 20, y: 20 }, { id: "Showing", x: 240, y: 20 }, { id: "Customer", x: 460, y: 20 }, { id: "Screen", x: 20, y: 100 }, { id: "Booking", x: 460, y: 100 }, { id: "Seat", x: 20, y: 180 }, { id: "AssignedSeat", x: 240, y: 180, w: 140 }],
+            [["Film", "Showing", "1", "M"], ["Screen", "Showing", "1", "M"], ["Showing", "Booking", "1", "M"], ["Customer", "Booking", "1", "M"], ["Booking", "AssignedSeat", "1", "M"], ["Screen", "Seat", "1", "M"], ["Seat", "AssignedSeat", "1", "M"]], null, { w: 610, h: 226 }) }
       ], result: "Customer, Booking, AssignedSeat" } },
 
     { page: "Exam toolkit" },

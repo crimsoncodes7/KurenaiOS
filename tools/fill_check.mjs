@@ -22,7 +22,7 @@ const CSI = require("../js/labs/cs-interp.js");
 const only = process.argv[2] || null;
 const app = await boot({ clock: "2026-11-16T10:00:00" });
 const K = app.KOS, C = app.window.KOS_CONTENT, F = K.fillIns, FIG = K.figures;
-const SQL = await loadSql();
+const SQL = (await loadSql()).SQL;   /* loadSql gives {SQL, run} */
 const problems = [];
 let counts = { fig: 0, grid: 0, sql: 0, gates: 0, predict: 0, lab: 0 };
 const bad = (where, msg) => problems.push(where + ": " + msg);

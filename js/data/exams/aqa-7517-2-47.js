@@ -23,7 +23,7 @@
         variations: [
           { v: "A", t: "Why choose Harvard", m: 2, q: "A digital signal processor uses the Harvard architecture. Explain why.",
             steps: [["Instructions and data are in separate memories with separate buses.", "MP1", ""], ["So an instruction can be fetched while data is read or written: faster for repeated processing of a stream of data.", "MP2", ""]] },
-          { v: "B", t: "Name the parts of a von Neumann diagram", m: 2, q: "A diagram shows a processor connected to main memory and I/O controllers by three buses. Name the buses and say which is bidirectional.",
+          { v: "B", t: "Name the parts of a von Neumann diagram", m: 2, fig: {"w":600,"h":230,"items":[{"poly":[[20,70],[150,70],[150,150],[20,150]],"fill":"accent2","alpha":0.12,"c":"accent2","w":1.3},{"text":[85,110],"t":"Processor","size":12,"c":"text","pos":"c","b":true},{"poly":[[260,10],[400,10],[400,60],[260,60]],"fill":"accent","alpha":0.12,"c":"accent","w":1.3},{"text":[330,35],"t":"Main memory","size":12,"c":"text","pos":"c","b":true},{"poly":[[450,10],[580,10],[580,60],[450,60]],"fill":"accent","alpha":0.12,"c":"accent","w":1.3},{"text":[515,35],"t":"I/O controllers","size":12,"c":"text","pos":"c","b":true},{"line":[[150,100],[590,100]],"arrow":true,"c":"accent","w":2},{"text":[370,92],"t":"address bus (one way)","size":11,"c":"accent","pos":"n"},{"line":[[150,140],[590,140]],"arrow":"both","c":"good","w":2},{"text":[370,132],"t":"data bus","size":11,"c":"good","pos":"n"},{"line":[[150,180],[590,180]],"arrow":"both","c":"accent3","w":2},{"text":[370,172],"t":"control bus","size":11,"c":"accent3","pos":"n"},{"line":[[330,60],[330,180]],"c":"muted","w":1.2},{"line":[[515,60],[515,180]],"c":"muted","w":1.2},{"circle":[330,100,3],"fill":"text2","c":"text2"},{"circle":[515,100,3],"fill":"text2","c":"text2"},{"circle":[330,140,3],"fill":"text2","c":"text2"},{"circle":[515,140,3],"fill":"text2","c":"text2"},{"circle":[330,180,3],"fill":"text2","c":"text2"},{"circle":[515,180,3],"fill":"text2","c":"text2"}],"cap":"One memory for instructions and data, shared by the processor and the I/O controllers over the three buses."}, q: "A diagram shows a processor connected to main memory and I/O controllers by three buses. Name the buses and say which is bidirectional.",
             steps: [["Address bus, data bus and control bus.", "MP1", ""], ["The data bus (and control bus) are bidirectional; the address bus is one-way from the processor.", "MP2", ""]] },
           { v: "C", t: "Compare the two", m: 2, q: "Give one advantage of the von Neumann architecture over Harvard and one of Harvard over von Neumann.",
             steps: [["Von Neumann: simpler and cheaper; memory is shared flexibly between program and data.", "MP1", ""], ["Harvard: instruction and data fetched at the same time, so faster; a program cannot overwrite itself.", "MP2", ""]] }
@@ -34,7 +34,7 @@
           "The control bus carries signals: memory read/write, bus request, clock, interrupt."],
         traps: [],
         variations: [
-          { v: "A", t: "Addressable memory", m: 2, q: "A processor has a 24-bit address bus and each location holds one byte. How much memory can it address?",
+          { v: "A", t: "Addressable memory", m: 2, try: [{"grid":{"cols":["Address bus (lines)","Locations","Memory if each holds a byte"],"rows":[["16","65536","64 KiB"],["20","1048576","1 MiB"],["30","1073741824","1 GiB"],["32","4294967296","4 GiB"]],"given":[[0,0],[1,0],[2,0],[3,0],[0,2],[1,2],[2,2],[3,2]],"cap":"n lines address 2ⁿ locations."}}], q: "A processor has a 24-bit address bus and each location holds one byte. How much memory can it address?",
             steps: [["$2^{24}$ locations.", "MP1", ""], ["= 16,777,216 bytes = 16 MiB.", "MP2", ""]] },
           { v: "B", t: "The control bus in a memory write", m: 1, q: "Describe the role of the control bus when the processor writes a value to memory.",
             steps: [["It carries the memory write signal, telling memory to store the value on the data bus at the address on the address bus.", "MP1", ""]] },
@@ -114,10 +114,10 @@
         "Name the register AND the bus at each step: a step without them often scores nothing."],
       traps: [INT_TRAP],
       variations: [
-        { v: "A", t: "Describe the fetch stage", m: 4, q: "Describe how an instruction is fetched from main memory, naming the registers and buses used.",
+        { v: "A", t: "Describe the fetch stage", m: 4, try: [{"grid":{"cols":["Step","PC","MAR","MBR","CIR"],"rows":[["Start","200","","",""],["MAR ← [PC]","200","200","",""],["PC ← [PC] + 1","201","200","",""],["MBR ← [Memory(MAR)]","201","200","LDR R1, 52",""],["CIR ← [MBR]","201","200","LDR R1, 52","LDR R1, 52"]],"given":[[0,0],[0,1],[0,2],[0,3],[0,4],[1,0],[2,0],[3,0],[4,0]],"cap":"The PC holds 200 and location 200 holds LDR R1, 52. Write each register's contents after each step (blank while it holds nothing yet)."}}], q: "Describe how an instruction is fetched from main memory, naming the registers and buses used.",
           steps: [["The address in the PC is copied to the MAR.", "MP1", ""], ["The address is sent on the address bus and a memory read signal on the control bus.", "MP2", ""], ["The instruction at that address is sent on the data bus into the MBR; the PC is incremented.", "MP3", ""], ["The contents of the MBR are copied to the CIR.", "MP4", ""]] },
-        { v: "B", t: "Name the registers in order", m: 2, q: "Name, in order, the registers an instruction's address and then the instruction itself pass through during the fetch stage.",
-          steps: [["Address: PC → MAR.", "MP1", ""], ["Instruction: MBR → CIR.", "MP2", ""]] },
+        { v: "B", t: "Name the registers in order", m: 2, try: [{"lab":"cpu-fetch-execute"}], q: "Name, in order, the registers an instruction's address and then the instruction itself pass through during the fetch stage.",
+          steps: [["Address: PC → MAR.", "MP1", ""], ["Instruction: MBR → CIR.", "MP2", "", {"w":600,"h":170,"items":[{"poly":[[10,20],[80,20],[80,60],[10,60]],"fill":"accent2","alpha":0.12,"c":"accent2","w":1.3},{"text":[45,40],"t":"PC","size":12,"c":"text","pos":"c","b":true},{"poly":[[130,20],[200,20],[200,60],[130,60]],"fill":"accent","alpha":0.12,"c":"accent","w":1.3},{"text":[165,40],"t":"MAR","size":12,"c":"text","pos":"c","b":true},{"poly":[[400,20],[510,20],[510,60],[400,60]],"fill":"muted","alpha":0.12,"c":"muted","w":1.3},{"text":[455,40],"t":"Main memory","size":12,"c":"text","pos":"c","b":true},{"poly":[[130,110],[200,110],[200,150],[130,150]],"fill":"accent","alpha":0.12,"c":"accent","w":1.3},{"text":[165,130],"t":"MBR","size":12,"c":"text","pos":"c","b":true},{"poly":[[10,110],[80,110],[80,150],[10,150]],"fill":"accent2","alpha":0.12,"c":"accent2","w":1.3},{"text":[45,130],"t":"CIR","size":12,"c":"text","pos":"c","b":true},{"line":[[80,40],[130,40]],"arrow":true,"c":"text2","w":1.5},{"text":[105,14],"t":"1","size":12,"c":"accent","pos":"c","b":true},{"line":[[200,40],[400,40]],"arrow":true,"c":"accent","w":2},{"text":[300,32],"t":"address bus","size":11,"c":"accent","pos":"n"},{"line":[[455,60],[455,130]],"arrow":true,"c":"good","w":2},{"line":[[455,130],[200,130]],"arrow":true,"c":"good","w":2},{"text":[330,122],"t":"data bus","size":11,"c":"good","pos":"n"},{"line":[[130,130],[80,130]],"arrow":true,"c":"text2","w":1.5},{"text":[105,104],"t":"3","size":12,"c":"accent","pos":"c","b":true},{"text":[475,95],"t":"2","size":12,"c":"accent","pos":"c","b":true},{"text":[45,82],"t":"PC + 1","size":10.5,"c":"muted","pos":"c"}],"cap":"1: PC → MAR. 2: the address goes out, the instruction comes back into the MBR (and the PC is incremented). 3: MBR → CIR."}]] },
         { v: "C", t: "Why save the volatile environment", m: 2, q: "Explain why the processor saves the volatile environment before running an interrupt service routine.",
           steps: [["The ISR will use the registers (PC, status register, general-purpose registers).", "MP1", ""], ["Saving them (on the stack) lets the interrupted program resume exactly where it stopped, with its values unchanged.", "MP2", ""]] }
       ]
@@ -140,15 +140,15 @@
           "Don't forget the final STR: the memory column changes too."],
         traps: [{ sitting: "2022-06", q: "Q09.2", text: "Under a quarter got full marks. Traps: LSR treated as a shift left; a fractional value after a right shift (the bit just falls off); forgetting the final STR to memory." }],
         variations: [
-          { v: "A", t: "A counting loop", m: 4,
+          { v: "A", t: "A counting loop", m: 4, try: [{"trace":{"code":"      MOV R0, #0\n      MOV R1, #2\nloop: ADD R0, R0, R1\n      ADD R1, R1, #2\n      CMP R1, #10\n      BLT loop\n      STR R0, 100\n      HALT","lang":"asm","cols":["R0","R1","Location 100"],"rows":[["0","",""],["","2",""],["2","",""],["","4",""],["6","",""],["","6",""],["12","",""],["","8",""],["20","",""],["","10",""],["","","20"]],"cap":"The same loop counting in twos. One row for each instruction that changes a value; write only the value that changed."}}],
             code: ["      MOV R0, #0", "      MOV R1, #1", "loop: ADD R0, R0, R1", "      ADD R1, R1, #1", "      CMP R1, #5", "      BLT loop", "      STR R0, 100", "      HALT"],
             q: "Trace the program, showing R0, R1 and memory location 100.",
             steps: [["R1 takes 1, 2, 3, 4, 5.", "MP1", "The counter, and the exit at 5"], ["R0 takes 0, 1, 3, 6, 10.", "MP2", "The running total"], ["The loop exits when R1 = 5 (not less than 5).", "MP3", ""], ["Location 100 = 10.", "MP4", "The final STR"]] },
-          { v: "B", t: "A loop with masks and shifts", m: 5,
+          { v: "B", t: "A loop with masks and shifts", m: 5, try: [{"trace":{"code":"      LDR R0, 50\n      MOV R2, #0\nloop: AND R1, R0, #1\n      ADD R2, R2, R1\n      LSR R0, R0, #1\n      CMP R0, #0\n      BNE loop\n      STR R2, 51\n      HALT","lang":"asm","cols":["Pass","R1","R2","R0 after LSR","Location 51"],"rows":[["1","1","1","14",""],["2","0","1","7",""],["3","1","2","3",""],["4","1","3","1",""],["5","1","4","0",""],["End","","","","4"]],"given":[[0,0],[1,0],[2,0],[3,0],[4,0],[5,0]],"cap":"Now location 50 holds 29 (00011101). One row per pass of the loop, then the store."}}],
             code: ["      LDR R0, 50", "      MOV R2, #0", "loop: AND R1, R0, #1", "      ADD R2, R2, R1", "      LSR R0, R0, #1", "      CMP R0, #0", "      BNE loop", "      STR R2, 51", "      HALT"],
             q: "Location 50 holds 13. Trace the program, showing R0, R1, R2 and location 51.",
             steps: [["R0: 13, 6, 3, 1, 0.", "MP1", "Each LSR halves it, dropping the remainder"], ["R1: 1, 0, 1, 1 (the bit that is about to be shifted out).", "MP2", ""], ["R2: 0, 1, 1, 2, 3.", "MP3", ""], ["The loop stops when R0 is 0.", "MP4", ""], ["Location 51 = 3.", "MP5", ""]] },
-          { v: "C", t: "A branch on a comparison", m: 3,
+          { v: "C", t: "A branch on a comparison", m: 3, try: [{"trace":{"code":"      LDR R0, 20\n      LDR R1, 21\n      CMP R0, R1\n      BGT first\n      STR R1, 22\n      B done\nfirst: STR R0, 22\ndone: HALT","lang":"asm","cols":["Location 20","Location 21","BGT branches?","Location 22"],"rows":[["15","9","Yes","15"],["4","4","No","4"],["3","8","No","8"]],"given":[[0,0],[0,1],[1,0],[1,1],[2,0],[2,1]],"cap":"Run it on other values: Yes or No for the branch, and what ends up in 22."}}],
             code: ["      LDR R0, 20", "      LDR R1, 21", "      CMP R0, R1", "      BGT first", "      STR R1, 22", "      B done", "first: STR R0, 22", "done: HALT"],
             q: "Location 20 holds 7 and location 21 holds 12. Trace the program and give location 22.",
             steps: [["R0 = 7, R1 = 12.", "MP1", ""], ["7 is not greater than 12, so BGT does not branch.", "MP2", ""], ["STR R1, 22 runs, then B done: location 22 = 12.", "MP3", ""]] }
@@ -162,7 +162,7 @@
             steps: [["It counts how many bits of the value in location 50 are 1.", "MP1", ""], ["And stores the count in location 51.", "MP2", ""]] },
           { v: "B", t: "Purpose of a comparison", m: 1, q: "State the purpose of the program in Variation C of the trace shape (LDR, LDR, CMP, BGT).",
             steps: [["It stores the larger of the values in locations 20 and 21 into location 22.", "MP1", ""]] },
-          { v: "C", t: "Purpose of a shift-and-add", m: 2,
+          { v: "C", t: "Purpose of a shift-and-add", m: 2, try: [{"trace":{"code":"LDR R0, 30\nLSL R1, R0, #2\nADD R1, R1, R0\nSTR R1, 31\nHALT","lang":"asm","cols":["Location 30","Location 31"],"rows":[["3","15"],["12","60"],["0","0"],["20","100"]],"given":[[0,0],[1,0],[2,0],[3,0]],"cap":"Check the purpose on some values."}}],
             code: ["LDR R0, 30", "LSL R1, R0, #2", "ADD R1, R1, R0", "STR R1, 31", "HALT"],
             q: "Describe the purpose of this program.",
             steps: [["LSL by 2 multiplies by 4; adding the original gives 5 times the value.", "MP1", ""], ["It multiplies the value in location 30 by 5 and stores it in 31.", "MP2", ""]] }
@@ -174,7 +174,7 @@
         variations: [
           { v: "A", t: "Instruction set size", m: 1, q: "An instruction format uses 6 bits for the opcode. How many different instructions can it have?",
             steps: [["$2^6 = 64$.", "MP1", ""]] },
-          { v: "B", t: "Addressable locations from an operand", m: 1, q: "A 16-bit instruction has a 6-bit opcode and the rest is a memory address. How many locations can it address directly?",
+          { v: "B", t: "Addressable locations from an operand", m: 1, try: [{"grid":{"cols":["Instruction bits","Opcode bits","Address bits","Addressable locations"],"rows":[["16","6","10","1024"],["24","8","16","65536"],["12","4","8","256"],["32","12","20","1048576"]],"given":[[0,0],[0,1],[1,0],[1,1],[2,0],[2,1],[3,0],[3,1]],"cap":"What is left after the opcode is the address: 2ⁿ locations."}}], q: "A 16-bit instruction has a 6-bit opcode and the rest is a memory address. How many locations can it address directly?",
             steps: [["$16 - 6 = 10$ bits: $2^{10} = 1024$ locations.", "MP1", ""]] },
           { v: "C", t: "Registers from a field", m: 1, q: "The register field of an instruction is 4 bits. What is the most registers it can refer to?",
             steps: [["$2^4 = 16$.", "MP1", ""]] }
@@ -188,12 +188,12 @@
         variations: [
           { v: "A", t: "Add two values", m: 3, q: "Write AQA assembly to add the values in locations 100 and 101 and store the result in 102.",
             steps: [["LDR R0, 100 and LDR R1, 101.", "MP1", "Both loaded"], ["ADD R2, R0, R1.", "MP2", ""], ["STR R2, 102.", "MP3", ""]] },
-          { v: "B", t: "A division loop", m: 4, q: "Location 40 holds a positive number. Write a program that stores the number divided by 10 (whole number) in 41 and the remainder in 42, by repeated subtraction.",
+          { v: "B", t: "A division loop", m: 4, try: [{"trace":{"code":"      LDR R0, 40\n      MOV R1, #0\nloop: CMP R0, #10\n      BLT done\n      SUB R0, R0, #10\n      ADD R1, R1, #1\n      B loop\ndone: STR R1, 41\n      STR R0, 42\n      HALT","lang":"asm","cols":["Location 40","Location 41","Location 42"],"rows":[["47","4","7"],["9","0","9"],["30","3","0"],["123","12","3"]],"given":[[0,0],[1,0],[2,0],[3,0]],"cap":"Run the division loop on these values: quotient into 41, remainder into 42."}}], q: "Location 40 holds a positive number. Write a program that stores the number divided by 10 (whole number) in 41 and the remainder in 42, by repeated subtraction.",
             code: ["      LDR R0, 40", "      MOV R1, #0", "loop: CMP R0, #10", "      BLT done", "      SUB R0, R0, #10", "      ADD R1, R1, #1", "      B loop", "done: STR R1, 41", "      STR R0, 42", "      HALT"],
             steps: [["Load the value and set a counter to 0.", "MP1", ""], ["Compare with 10 and leave the loop when less (BLT).", "MP2", ""], ["Subtract 10 and add 1 to the counter, then branch back.", "MP3", ""], ["Store the counter (quotient) and what is left (remainder). For 47: 4 and 7.", "MP4", ""]] },
           { v: "C", t: "Set and test a bit", m: 3, q: "Write instructions that set bit 3 (value 8) of R0 to 1, then branch to `alarm` if bit 0 of R1 is 1.",
             steps: [["ORR R0, R0, #8.", "MP1", "OR sets a bit"], ["AND R2, R1, #1.", "MP2", "AND isolates a bit"], ["CMP R2, #1 then BEQ alarm.", "MP3", ""]] },
-          { v: "D", t: "Extract the top nibble", m: 2, q: "R0 holds a byte. Write two instructions that leave the value of its top four bits (0–15) in R1.",
+          { v: "D", t: "Extract the top nibble", m: 2, try: [{"grid":{"cols":["R0","AND R1, R0, #240","LSR R1, R1, #4 (denary)"],"rows":[["10110110","10110000","11"],["01011100","01010000","5"],["11110001","11110000","15"],["00101111","00100000","2"]],"given":[[0,0],[1,0],[2,0],[3,0]],"cap":"The mask keeps the top four bits in place; the shift brings them down."}}], q: "R0 holds a byte. Write two instructions that leave the value of its top four bits (0–15) in R1.",
             steps: [["AND R1, R0, #240 (keep the top four bits).", "MP1", ""], ["LSR R1, R1, #4 (move them down).", "MP2", "The step the report says is often missing"]] }
         ] }
     ],
@@ -219,7 +219,7 @@
           steps: [["Immediate: the operand is the actual value to use.", "MP1", ""], ["Direct: the operand is the address in memory where the value is held.", "MP2", ""]] },
         { v: "B", t: "Name the mode", m: 1, q: "Name the addressing mode used for the second operand in `LDR R2, 150`.",
           steps: [["Direct addressing (150 is a memory address).", "MP1", ""]] },
-        { v: "C", t: "Range of an immediate", m: 1, q: "An instruction's immediate operand is 8 bits in two's complement. State its range.",
+        { v: "C", t: "Range of an immediate", m: 1, try: [{"grid":{"cols":["Immediate bits","Most negative","Largest"],"rows":[["4","-8","7"],["6","-32","31"],["8","-128","127"],["12","-2048","2047"]],"given":[[0,0],[1,0],[2,0],[3,0]],"cap":"n-bit two's complement: −2ⁿ⁻¹ to 2ⁿ⁻¹ − 1. Type a minus as -."}}], q: "An instruction's immediate operand is 8 bits in two's complement. State its range.",
           steps: [["$-128$ to $127$.", "MP1", ""]] }
       ]
     }],
@@ -242,13 +242,13 @@
       traps: [{ sitting: "2022-06", q: "Q09.2", text: "A logical shift right divides and DROPS the bits that fall off: there is no fractional value. Check the direction before tracing." },
         { sitting: "2023-06", q: "Q07.3", text: "Masking the top four bits with AND 240 leaves them in place: LSR #4 is needed to make them a value from 0 to 15." }],
       variations: [
-        { v: "A", t: "Result of an AND mask", m: 1, q: "Give the result of 10110110 AND 00001111.",
+        { v: "A", t: "Result of an AND mask", m: 1, try: [{"grid":{"cols":["Value","Operation","Result"],"rows":[["10110110","AND 00001111","00000110"],["10100000","OR 00000101","10100101"],["11001010","XOR 11110000","00111010"],["01111001","AND 11110000","01110000"],["00010010","OR 10000001","10010011"]],"given":[[0,0],[0,1],[1,0],[1,1],[2,0],[2,1],[3,0],[3,1],[4,0],[4,1]],"cap":"AND keeps where the mask is 1, OR sets where it is 1, XOR toggles where it is 1."}}], q: "Give the result of 10110110 AND 00001111.",
           steps: [["00000110: only the bottom four bits survive.", "MP1", ""]] },
         { v: "B", t: "Result of an OR mask", m: 1, q: "Give the result of 10100000 OR 00000101.",
           steps: [["10100101.", "MP1", ""]] },
         { v: "C", t: "Choose the operation and mask", m: 2, q: "State the instruction and mask to (i) toggle the bottom two bits of R0, (ii) clear the top bit of R0 (8-bit).",
           steps: [["(i) EOR R0, R0, #3.", "MP1", ""], ["(ii) AND R0, R0, #127.", "MP2", ""]] },
-        { v: "D", t: "Shift arithmetic", m: 2, q: "R0 holds 01101000. Give R0 after LSR R0, R0, #3, and explain the effect in denary.",
+        { v: "D", t: "Shift arithmetic", m: 2, try: [{"grid":{"cols":["R0","Shift","Result","Result (denary)"],"rows":[["01101000","LSR #3","00001101","13"],["00010110","LSL #2","01011000","88"],["11000000","LSR #6","00000011","3"],["00000101","LSL #4","01010000","80"]],"given":[[0,0],[0,1],[1,0],[1,1],[2,0],[2,1],[3,0],[3,1]],"cap":"8 bits: bits shifted off either end are lost."}}], q: "R0 holds 01101000. Give R0 after LSR R0, R0, #3, and explain the effect in denary.",
           steps: [["00001101.", "MP1", ""], ["104 divided by 8 = 13.", "MP2", ""]] }
       ]
     }],

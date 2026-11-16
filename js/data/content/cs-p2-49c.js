@@ -94,7 +94,7 @@ C["compsci:4.9.4.3"] = {
         { m: "A: 192.168.x.y with x in 192–207, y in 0–255 (e.g. 192.168.192.1);", mk: "1 mark", n: "R. 192.168.192.0 and 192.168.207.255." },
         { m: "B: 192.168.x.y with x in 64–79 (e.g. 192.168.64.1);", mk: "1 mark", n: "R. 192.168.64.0 and 192.168.79.255." },
         { m: "C: another address with x in 64–79, different from B (e.g. 192.168.64.20);", mk: "1 mark", n: "R. the same answer as B." }
-      ], result: "Third octet 192–207 / 64–79" } },
+      ], result: "Third octet 192–207 / 64–79", try: [{ grid: { cols: ["IP address", "Prefix", "Network ID"], rows: [["192.168.200.5", "/20", "192.168.192.0"], ["192.168.70.9", "/20", "192.168.64.0"], ["10.4.37.200", "/20", "10.4.32.0"], ["172.16.255.1", "/20", "172.16.240.0"]], given: [[0, 0], [0, 1], [1, 0], [1, 1], [2, 0], [2, 1], [3, 0], [3, 1]], cap: "**Your turn.** AND each address with 255.255.240.0: only the third octet needs working out in binary." } }] } },
 
     { worked: { tag: "variation", title: "Valid host or not?", q: "Network 192.168.64.0/20. For each, say whether it can be given to a device: (a) 192.168.70.9 (b) 192.168.79.255 (c) 192.168.80.1 (d) 192.168.64.0.",
       steps: [
@@ -102,7 +102,7 @@ C["compsci:4.9.4.3"] = {
         { m: "(b) no — 192.168.79.255 has every host bit 1: the broadcast address", mk: "1 mark" },
         { m: "(c) no — third octet 80 = 0101 0000: its top four bits differ, so it is on another network", mk: "1 mark" },
         { m: "(d) no — every host bit 0: the network address", mk: "1 mark" }
-      ], result: "Only (a)" } },
+      ], result: "Only (a)", try: [{ grid: { cols: ["Address", "A device on 192.168.192.0/20? (yes / no)"], rows: [["192.168.207.255", "no"], ["192.168.200.0", "yes"], ["192.168.208.1", "no"], ["192.168.192.1", "yes"], ["192.168.192.0", "no"]], given: [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0]], cap: "**Your turn.** The other /20 network: decide each one." } }] } },
 
     { page: "Exam toolkit" },
     { table: { head: ["Command word", "What earns the mark"], rows: [
@@ -184,13 +184,13 @@ C["compsci:4.9.4.4"] = {
     { page: "In exam questions" },
     { worked: { tag: "exam", title: "The /27 mask in binary", src: "A-level June 2018 · P2 Q05.1 · 1 mark",
       q: "A company LAN is divided into subnets: 27 bits are allocated to the network / subnet identifier. In binary, write out the subnet mask programmed into the devices.",
-      steps: [{ m: "**11111111 11111111 11111111 11100000** (27 ones, 5 zeros = 255.255.255.224)", mk: "1 mark" }], result: "27 ones, 5 zeros" } },
+      steps: [{ m: "**11111111 11111111 11111111 11100000** (27 ones, 5 zeros = 255.255.255.224)", mk: "1 mark" }], result: "27 ones, 5 zeros", try: [{ grid: { cols: ["Prefix", "Mask in binary (spaces between octets)", "Dotted decimal"], rows: [["/20", "11111111 11111111 11110000 00000000", "255.255.240.0"], ["/24", "11111111 11111111 11111111 00000000", "255.255.255.0"], ["/26", "11111111 11111111 11111111 11000000", "255.255.255.192"], ["/28", "11111111 11111111 11111111 11110000", "255.255.255.240"]], given: [[0, 0], [1, 0], [2, 0], [3, 0]], cap: "**Your turn.** Write each mask both ways." } }] } },
     { worked: { tag: "exam", title: "How many devices on subnet Z?", src: "A-level June 2018 · P2 Q05.2 · 1 mark",
       q: "Subnet Z consists of all devices directly connected to Switch B, with the 27-bit network ID. What is the maximum number of devices that could be connected to subnet Z at the same time?",
-      steps: [{ m: "5 host bits → $2^5 − 2$ = **30**", mk: "1 mark", n: "A. 32, 2⁵, 31 or 2⁵ − 1 this time only." }], result: "30" } },
+      steps: [{ m: "5 host bits → $2^5 − 2$ = **30**", mk: "1 mark", n: "A. 32, 2⁵, 31 or 2⁵ − 1 this time only." }], result: "30", try: [{ grid: { cols: ["Prefix", "Maximum devices"], rows: [["/24", "254"], ["/26", "62"], ["/29", "6"], ["/20", "4094"]], given: [[0, 0], [1, 0], [2, 0], [3, 0]], cap: "**Your turn.** 2 to the number of host bits, less the network and broadcast addresses." } }] } },
     { worked: { tag: "exam", title: "Which mask?", src: "A-level June 2021 · P2 Q11.2 · 1 mark",
       q: "20 bits are allocated to network IDs and 12 to host IDs. Which subnet mask has been assigned? A 255.255.0.0 · B 255.255.15.0 · C 255.255.240.0 · D 255.255.255.0.",
-      steps: [{ m: "**C** 255.255.240.0 — 8 + 8 + 4 ones: 240 = 11110000;", mk: "1 mark" }], result: "C" } },
+      steps: [{ m: "**C** 255.255.240.0 — 8 + 8 + 4 ones: 240 = 11110000;", mk: "1 mark" }], result: "C", try: [{ grid: { cols: ["", "Octet 1", "Octet 2", "Octet 3", "Octet 4"], rows: [["IP address", "11000000", "10101000", "11001000", "00000101"], ["Mask 255.255.240.0", "11111111", "11111111", "11110000", "00000000"], ["AND", "11000000", "10101000", "11000000", "00000000"], ["Network ID (decimal)", "192", "168", "192", "0"]], given: [[0, 0], [1, 0], [2, 0], [3, 0], [0, 1], [0, 2], [0, 3], [0, 4]], cap: "**Your turn.** Find the network ID of 192.168.200.5 with mask C: write the mask in binary, AND it bit by bit, then convert back." } }] } },
 
     { page: "Exam toolkit" },
     { table: { head: ["Command word", "What earns the mark"], rows: [
@@ -483,7 +483,16 @@ C["compsci:4.9.4.8"] = {
     { worked: { tag: "exam", title: "NAT for an FTP download", src: "A-level June 2024 · P2 Q07.6 · 4 marks",
       q: "The student's computer (192.168.0.4) downloads a file from an FTP server on the Internet. The router's public IP is 186.7.2.31. Describe how NAT will be used, handling both the outgoing request and the returned data.",
       steps: [
-        { h: "Outgoing", m: "The router replaces the computer's (private) source IP address 192.168.0.4 with its own public IP 186.7.2.31;", mk: "1 mark" },
+        { h: "Outgoing", m: "The router replaces the computer's (private) source IP address 192.168.0.4 with its own public IP 186.7.2.31;", mk: "1 mark", fig: { w: 620, h: 210, items: (function () {
+      var it = [];
+      it = it.concat(boxAt(10, 70, 110, 44, "PC", "accent", "192.168.0.4"), boxAt(255, 70, 110, 44, "Router", "accent2", "186.7.2.31"), boxAt(500, 70, 110, 44, "FTP server", "good", "203.0.113.9"));
+      it = it.concat(arrow(120, 84, 255, 84), arrow(365, 84, 500, 84), arrow(500, 102, 365, 102, null, { c: "accent" }), arrow(255, 102, 120, 102, null, { c: "accent" }));
+      it.push(txt(188, 40, "src 192.168.0.4 : 51000", { size: 10.5, c: "accent2" }), txt(188, 54, "dst 203.0.113.9 : 21", { size: 10.5, c: "accent2" }));
+      it.push(txt(432, 40, "src 186.7.2.31 : 40001", { size: 10.5, c: "accent2" }), txt(432, 54, "dst 203.0.113.9 : 21", { size: 10.5, c: "accent2" }));
+      it.push(txt(432, 136, "dst 186.7.2.31 : 40001", { size: 10.5, c: "accent" }), txt(188, 136, "dst 192.168.0.4 : 51000", { size: 10.5, c: "accent" }));
+      it.push(txt(310, 170, "NAT table: 40001 ↔ 192.168.0.4 : 51000", { size: 11, c: "text", b: true }));
+      return it;
+    })(), cap: "Out (top): the router rewrites the source and records the mapping. Back (bottom): it looks up port 40001 and rewrites the destination. Port numbers are examples." } },
         { h: "Outgoing", m: "it replaces the source port number with a port number it generates, and adds the mapping (its port → the computer's IP and port) to its NAT translation table;", mk: "1 mark" },
         { h: "Reply", m: "When the reply arrives from the FTP server, its destination port number is looked up in the NAT table;", mk: "1 mark" },
         { h: "Reply", m: "the router replaces 186.7.2.31 (and the port) with 192.168.0.4 and the original port, forwarding the data to the student's computer;", mk: "1 mark", n: "Max 2 if \"NAT\" is used instead of \"the router\"." }
@@ -670,7 +679,7 @@ C["compsci:4.9.4.10"] = {
       steps: [{ m: "Each resource is represented by a URL // entering a URL causes the server to retrieve the relevant data // URLs are sent between client and server using HTTP;", mk: "1 mark" }], result: "A URL per resource" } },
     { worked: { tag: "exam", title: "REST to SQL", src: "A-level June 2023 · P2 Q05.5 · 1 mark",
       q: "Which row correctly shows how REST maps CRUD to SQL? A GET→FETCH, POST→CREATE, DELETE→DELETE, PUT→UPDATE · B GET→SELECT, POST→INSERT, DELETE→DELETE, PUT→UPDATE · C GET→SELECT, POST→INSERT, DELETE→DELETE, PUT→CREATE · D GET→SELECT, POST→UPDATE, DELETE→DELETE, PUT→INSERT · E GET→UPDATE, POST→SELECT, DELETE→DELETE, PUT→CREATE",
-      steps: [{ m: "**B**;", mk: "1 mark" }], result: "B" } },
+      steps: [{ m: "**B**;", mk: "1 mark" }], result: "B", try: [{ sql: { setup: "CREATE TABLE Film (FilmID INTEGER PRIMARY KEY, FilmName TEXT, Duration INTEGER, Certificate TEXT);\nINSERT INTO Film VALUES (1, 'Paper Moons', 104, 'PG'), (2, 'The Long Night', 131, '15'), (3, 'Harbour Lights', 97, '12A'), (4, 'Northbound', 118, '12A'), (5, 'Small Hours', 89, 'U');", answer: "SELECT FilmName, Duration\nFROM Film\nWHERE Certificate = '12A';", cap: "**Your turn.** The booking app sends GET /films?certificate=12A. Write the SELECT the server runs: the name and duration of every 12A film." } }] } },
     { worked: { tag: "exam", title: "Why JSON for film data", src: "A-level June 2023 · P2 Q05.6 · 2 marks",
       q: "JSON is used to encode datasets passed between the server and the booking application. State two reasons why JSON might have been chosen instead of XML.",
       steps: [{ m: "More compact — smaller, so faster to transmit;", mk: "1 mark" }, { m: "quicker to parse / understood directly by JavaScript // easier for humans to read;", mk: "1 mark" }], result: "Compact; quick to parse" } },
