@@ -68,6 +68,26 @@ Still to do on this account: 5.19 item 4 (the review schedule for quiz and
 exam questions, question history, continuing an unmarked iPad attempt) and
 item 1 (IT notes, F201 first); then W3 with 37, 40–41.
 
+**Released 16 November 2026 as sw `kos-integrity-12`**
+(https://31f24680.kurenai-os.pages.dev, `origin/main` = `d08ce52`; the
+Fable account's two branches MERGED into main, `feat/w2-lazy` first, then
+`feat/w1-rc6`): items 1 and 2 of the list above are DONE and live.
+AP-01 stage 1, loading on first use (invariant 168, smoke142: boot parses
+8.4 MB of 17.0 MB; stage 2, splitting the page modules, is deliberately
+LEFT for a later release — the user's decision), and W1 RC6 (invariants
+33a, 157, 158, 160; smoke143). The user's decisions in RC6: a reminder
+moved out of a Todoist-linked list is only UNLINKED (its task stays in
+Todoist and is remembered in `state.ext.ignored` so it is not imported as
+a second reminder); a twin is joined one to one and loses no field; two
+reminders on one task are folded only after a verified checkpoint;
+Todoist's answers are read whatever their shape. Checked against the
+suite's fakes only: nobody has tried it against a live Todoist or Google
+account yet. The gate is **152 suites** (`""`, 2–148 and 151–154); only
+**149 and 150** are still reserved for the Fable account. A new lazy file
+or content file needs `node tools/gen_lazy_index.mjs` (smoke142 B fails
+when the index is stale). Every other branch must merge main again.
+Left on the Fable account's list: items 3 and 4.
+
 **Worktrees.** The two accounts collided in one folder on 16 November (the
 Fable session switched branches in the main checkout while this account had
 uncommitted work there). Each account now works in its OWN folder: this
@@ -75,8 +95,8 @@ account's 5.19 work is in `/Users/fj/Developer/KurenaiOS-519`. Never leave
 uncommitted work in a folder the other account uses.
 
 **Rules for both accounts now:**
-- Smoke suite numbers: the other account uses **142, 143, 149 and 150**;
-  this account uses 151 onwards (151 is W5's first batch). `npm test` finds suites by number.
+- Smoke suite numbers: the other account uses **149 and 150** (142 and 143
+  are taken: AP-01 and RC6); this account uses 151 onwards. `npm test` finds suites by number.
 - Branch from `origin/main` after `git fetch`; one branch per batch
   (`feat/<ws>-…`); stage by name; commit and push after every batch; never
   `git stash` with worktrees in use; never force-push.
