@@ -65,8 +65,9 @@
         id: x.id, ref: ref, key: ref ? sid + ":" + ref : null, title: x.title || (cat[x.id] && cat[x.id].title) || x.id,
         catalogued: !!cat[x.id], match: x.match ? new RegExp(x.match, "i") : null, rules: x.rules || [], traps: x.traps || [],
         variations: (x.variations || []).map(function (v) {
-          var steps = (v.steps || []).map(function (s) { return { text: s[0], marks: s[1] || "", why: s[2] || "", value: marksOf(s[1]) }; });
-          return { v: v.v, t: v.t, m: v.m, q: v.q, ctx: v.ctx || null, code: v.code || null, steps: steps, trap: v.trap || null, line: v.line || null,
+          /* a step may carry its figure as a fourth element (5.19, 43a) */
+          var steps = (v.steps || []).map(function (s) { return { text: s[0], marks: s[1] || "", why: s[2] || "", value: marksOf(s[1]), fig: s[3] || null }; });
+          return { v: v.v, t: v.t, m: v.m, q: v.q, ctx: v.ctx || null, code: v.code || null, fig: v.fig || null, try: v.try || null, steps: steps, trap: v.trap || null, line: v.line || null,
             methods: (v.methods || []).map(function (m) { return { name: m.name, rec: !!m.rec, when: m.when || "", slip: m.slip || null, lines: (m.lines || []).map(function (l) { return { text: l[0], marks: l[1] || "" }; }) }; }),
             levels: v.levels || null };
         })
