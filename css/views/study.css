@@ -1213,6 +1213,7 @@ button.k-subj-next:hover { background: var(--s2); }
 .k-fill-in[data-state="right"] { border-color: var(--green); background: color-mix(in oklch, var(--green) 12%, var(--bg)); }
 .k-fill-in[data-state="wrong"] { border-color: var(--alarm); background: color-mix(in oklch, var(--alarm) 10%, var(--bg)); }
 .k-fill-cell[data-state="given"] { color: var(--muted); }
+.k-fill-cell[data-kind="prose"] { text-align: start; color: var(--text-2); }
 .k-fill-exp { display: block; padding-block-start: var(--sp-2); font-style: normal; font-size: var(--fs-12); color: var(--green); text-align: center; }
 .k-fill-exp[hidden] { display: none; }
 .k-fill-acts { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-8); }

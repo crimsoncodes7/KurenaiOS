@@ -147,7 +147,8 @@
     rows.forEach(function (r, ri) {
       var tr = el("div", { class: "k-fill-tr", role: "row", "data-row": String(ri) });
       r.forEach(function (exp, ci) {
-        if (given[ri + "," + ci]) { tr.appendChild(el("span", { class: "k-fill-cell k-mono", role: "cell", "data-state": "given", text: String(exp) })); return; }
+        /* a value is mono and centred; a sentence (an IT problem to classify) reads as prose */
+        if (given[ri + "," + ci]) { var prose = String(exp).length > 24 && /\s/.test(String(exp)); tr.appendChild(el("span", { class: "k-fill-cell" + (prose ? "" : " k-mono"), role: "cell", "data-state": "given", "data-kind": prose ? "prose" : null, text: String(exp) })); return; }
         var inp = el("input", { class: "k-fill-cell k-fill-in k-mono", type: "text", autocomplete: "off", spellcheck: "false",
           "aria-label": "Row " + (ri + 1) + ", " + String(cols[ci] || "column " + (ci + 1)).replace(/\$/g, "") });
         inp.addEventListener("input", function () { inp.removeAttribute("data-state"); });

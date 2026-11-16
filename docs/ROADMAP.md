@@ -1586,6 +1586,11 @@ needs a Claude Design prompt when it is scheduled.
    the short-lines, figure-led layout. **F201 first** (the unit still to
    sit, soon); **F206 (NEA) waits until January 2027**. F200, F202 and F204
    are sat and need nothing.
+   **F201 BUILT 16 November 2026** on `feat/519-it-notes` (smoke156; not yet
+   released): all fifteen leaves from the specification and the SAM —
+   paged, 34 figures, about 95 OCR-style worked answers with a 6- or 9-mark
+   levels-of-response one per leaf, fill-in tables, quick-recall
+   flashcards and quizzes with no length tell.
 2. **IT units archived, and a current unit.** (Moved to the Opus account
    on 16 November 2026, built with design turn 44.) F200, F202 and F204 are done
    at school. An archived (completed) unit leaves the spine, the topic

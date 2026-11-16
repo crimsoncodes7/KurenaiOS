@@ -585,7 +585,7 @@
       { unit: "topics", art: "app.badge.maths." + sec.toLowerCase(), total: function () { return sectionLeaves("maths", sec).length; }, ref: sec });
   });
   function itDone(code) { return function () { var u = KOS.itUnits.get ? KOS.itUnits.get(code) : null; return u && u.status === "done" ? 1 : 0; }; }
-  reg("u-it", "it-f201", "F201 Strategic management", "F201 passed", ["study"], [1], itDone("F201"), { art: "app.badge.it.f201", ref: "F201" });
+  reg("u-it", "it-f201", "F201 Big data and machine learning", "F201 passed", ["study"], [1], itDone("F201"), { art: "app.badge.it.f201", ref: "F201" });
   reg("u-it", "it-f206", "F206 The NEA", "F206, the NEA, submitted", ["study"], [1], itDone("F206"), { art: "app.badge.it.f206", ref: "F206" });
 
   /* Code: a unit's lessons Completed; a stage its units and capstone; a

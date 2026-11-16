@@ -123,7 +123,8 @@ step("B · Study until stays Study until", async () => {
   assert(/Study until/.test($("[data-ui~='preflight.timer']").textContent), "named");
   click($("[data-ui~='preflight.just-start']")); await app.settle();
   const s = K.focus.session();
-  assert(s && s.mode === "until" && s.untilTs > Date.now(), "until, ending later: " + JSON.stringify(s && { mode: s.mode, untilTs: s.untilTs }));
+  /* the app's own clock (the harness fixes it), not this process's real one */
+  assert(s && s.mode === "until" && s.untilTs > app.window.Date.now(), "until, ending later: " + JSON.stringify(s && { mode: s.mode, untilTs: s.untilTs }));
 });
 step("B · a stopwatch keeps its limit", async () => {
   await openPage();

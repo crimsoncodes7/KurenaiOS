@@ -84,7 +84,9 @@
     (blocks || []).forEach(function (b) {
       if (!b || typeof b !== "object") return;
       if (b.callout) {
-        var body = typeof b.callout.body === "string" ? [b.callout.body] : b.callout.body || [];
+        /* a body is a string, a list of blocks, or one block ({ul: […]}) */
+        var cb = b.callout.body;
+        var body = typeof cb === "string" ? [cb] : Array.isArray(cb) ? cb : cb && typeof cb === "object" ? [cb] : [];
         out.push({ kind: b.callout.t, h: b.callout.h || "", body: body, text: body.map(plain).filter(Boolean).join(" ") });
         callouts(body, out);
       }
