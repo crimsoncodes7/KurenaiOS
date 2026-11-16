@@ -7,7 +7,46 @@ the only things both can rely on are **Git** and the **files in the repo**.
 This page is the protocol that keeps them seamless. Nothing in it needs the
 accounts to talk to each other.
 
-## 0. The current handover (16 November 2026)
+## 0. The current handover (16 November 2026, evening — supersedes the list below)
+
+The Opus account is paused until Thursday 19 November (weekly limit). The
+OTHER account works alone until then: on **Fable** while it lasts, then on
+**Opus**. This account keeps **W3** (with design turn 37) and **W9** (its
+polish lands after W3); leave both alone. Production is sw
+`kos-integrity-15`; `origin/main` is at this commit or later.
+
+**For the other account, in this order:**
+1. **Merge `main` into `feat/w4-import` first** (it is behind kos-integrity-11
+   to -15). Regenerate `js/data/lazy-index.js` after the merge.
+2. **Fable: W4's import engine** — MG-02, MG-03, MG-04, MG-05, MG-06, MG-07,
+   MG-08, MG-24 on `feat/w4-import` (Santander fixtures are already there:
+   midata CSV, Online Banking CSV and text, QIF, OFX).
+3. **Fable, if time is left: W1's sync remainder** — DI-09's second half (a
+   streamed backup for very large file sets). AP-01 stage 2 stays parked
+   (the user's decision: 8.4 MB at boot is fine).
+4. **Opus: W4's Money pages from design turn 39** — the two import steps,
+   learned rules (Settings › Rules), Transactions › Imports with Undo and
+   Replace, the overview cards (Runway, Balance, By category, By merchant,
+   By week, Subscriptions), a merchant's page, MG-10 (the wide import
+   dialog), MG-25 (a row opens as a sheet on the phone and at 820).
+5. **Opus: design turn 36, held updates** — the "Updated on another device"
+   chip and its states in `redraw.js`'s pill (see the turn's README).
+6. **Opus: design turn 40** — the spaces' dailies on Home (with W7's HR-04),
+   the Wardrobe, Edit your seat on the phone, Focus minimised.
+7. **Opus: design turn 41, first open** — the welcome, sign-in landing, a
+   Start-fresh Home, the SAMPLE events seed removed (W1's SH-27/EX-39).
+8. **Opus, any time: the W1 and W7 P2/P3s that need no design**, then
+   **W8** (Help & Guide for every area, docs re-baselined, one shared
+   lesson reader, splitting `hub.js`, memoised heavy reads).
+
+**Smoke numbers from now:** the other account uses **160–179**; this
+account continues at 157–159 and then 180+. (142, 143, 149 and 150 stay the
+other account's.)
+
+**Releases:** each batch its own branch from `main`, the full gate, and the
+user's go-ahead before a deploy; bump `sw.js` from `kos-integrity-15`.
+
+## 0a. The earlier handover (16 November 2026)
 
 The user is moving to the OTHER account for a while, which has Fable for a
 limited time. That account takes the list below; this account (Opus) keeps
