@@ -438,7 +438,7 @@
         if (!it.src && !it.level) return null;
         var bits = [];
         if (it.level) bits.push(it.level === "AS" ? "AS level" : "A level");
-        if (it.src) bits.push("modelled on " + it.src);
+        if (it.src) bits.push(/^\w+-style\b/.test(it.src) ? it.src : "modelled on " + it.src);
         return el("span", { class: "k-qz-src", "data-ui": "quiz.src", text: bits.join(" · ") });
       }
 

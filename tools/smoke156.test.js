@@ -10,7 +10,7 @@
      B · WORKED EXAM ANSWERS. At least four OCR-style worked cards a leaf,
          each with its marks and mark points; at least one is a 6- or 9-mark
          levels-of-response answer; the exam tab's items derive from them and
-         name OCR.
+         say they are OCR-style (no past papers yet).
      C · FLASHCARDS are quick recall: twelve or more a leaf; every front asks
          for something specific (a question, never a bare label) and no back
          is a bare yes/no; a new card never takes an old card's schedule
@@ -83,7 +83,7 @@ step("B · worked exam answers and the exam tab", () => {
       if (!(w.steps || []).some((s) => s && s.mk)) why.push("no mark points: " + w.title);
     });
     if (!worked.some((w) => /\b(6|9) marks\b/.test(w.src || ""))) why.push("a 6- or 9-mark levels-of-response answer");
-    const derived = (c.exam || []).filter((x) => /^OCR /.test(x.src || ""));
+    const derived = (c.exam || []).filter((x) => /^OCR-style · /.test(x.src || ""));
     if (derived.length < 4) why.push("exam items derived (" + derived.length + ")");
     derived.forEach((x) => { if (!(Number.isInteger(x.marks) && x.marks > 0 && x.ms.length)) why.push("an exam item without marks: " + x.q.slice(0, 40)); });
     if (why.length) bad.push(ref + ": " + why.join(", "));

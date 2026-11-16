@@ -607,6 +607,9 @@
       var marks = parseInt(mm[1], 10);
       var lvl = /^AS\b/.test(w.src) ? "AS" : null;
       var src = (board || "Edexcel") + " " + w.src.replace(/^(AS|A-level)\s*/, "").replace(/\s*·\s*\d+\s*marks?\s*$/, "");
+      /* a question written in a board's style (IT: no past papers yet) is
+         named as that, never "modelled on" a paper that does not exist */
+      if (/^\w+-style\b/.test(w.src)) src = w.src.replace(/\s*·\s*\d+\s*marks?\s*$/, "");
       var ms = (w.steps || []).map(function (st) {
         /* a mark-scheme bullet is inline text: the card's display-size
            fractions become inline fractions */
