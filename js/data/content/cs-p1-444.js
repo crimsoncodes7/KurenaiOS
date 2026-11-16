@@ -68,8 +68,8 @@ C["compsci:4.4.4.1"] = {
       steps: [
         { m: "n = 50: A = 5000, B = 2500 — B is faster.", mk: "1" },
         { m: "n = 1000: A = 100 000, B = 1 000 000 — A is faster.", mk: "1" },
-        { m: "They cross at n = 100. For large problems the GROWTH (n vs n²) dominates the constant factor — which is why we compare by order of complexity.", mk: "1" }
-      ], result: "B small, A large; growth wins" } },
+        { m: "They cross at n = 100. For large problems the GROWTH (n vs n²) dominates the constant factor — which is why we compare by order of complexity.", mk: "1" , "fig": {"x":[0,160],"y":[0,20000],"w":520,"h":300,"pad":{"l":50},"axes":{"x":"n","y":"steps"},"items":[{"fn":"100*x","label":"A: 100n","at":150,"c":"accent"},{"fn":"x^2","label":"B: n²","at":138,"c":"accent2"},{"vline":100},{"pt":[100,10000],"label":"cross at n = 100","pos":"se"}],"cap":"Below n = 100 the n² algorithm is cheaper; above it, it is always dearer."}}
+      ], result: "B small, A large; growth wins" , "try": [{"grid":{"cols":["n","A: 100n","B: n²","Fewer steps"],"rows":[["20","2000","400","B"],["150","15000","22500","A"],["400","40000","160000","A"]],"given":[[0,0],[1,0],[2,0]],"cap":"Steps for each algorithm, and which one takes fewer (A or B)."}}]} },
     { worked: { tag: "variation", title: "Best, worst and average", q: "A linear search runs on a list of 1000 items. Give the best, worst and average number of comparisons, and say which case Big-O usually describes.",
       steps: [
         { m: "Best case: 1 — the target is the first item.", mk: "1" },
@@ -169,7 +169,7 @@ C["compsci:4.4.4.2"] = {
       steps: [
         { m: "(a) 6! = 720.", mk: "1" },
         { m: "(b) LEVEL has 5 letters with L twice and E twice: 5! / (2! × 2!) = 120 / 4 = 30.", mk: "1" }
-      ], result: "720; 30" } },
+      ], result: "720; 30" , "try": [{"grid":{"cols":["Letters","Arrangements"],"rows":[["ABC","6"],["BOOK","12"],["AAAA","1"],["PEPPER","60"]],"given":[[0,0],[1,0],[2,0],[3,0]],"cap":"n! divided by the factorial of each repeat count."}}]} },
 
     { page: "In exam questions" },
     { worked: { tag: "exam", title: "Four athletes, four lanes", src: "A-level June 2020 · P1 Q03.1 · 1 mark",
@@ -262,13 +262,13 @@ C["compsci:4.4.4.3"] = {
         { m: "(b) n³ → O(n³), polynomial.", mk: "1" },
         { m: "(c) n + n = 2n → O(n) — sequential loops add.", mk: "1" },
         { m: "(d) O(log n) — n halves each time.", mk: "1" }
-      ], result: "O(n) · O(n³) · O(n) · O(log n)" } },
+      ], result: "O(n) · O(n³) · O(n) · O(log n)" , "try": [{"predict":{"code":"int n = 16;\nint a = 0, b = 0, c = 0, d = 0;\nfor (int i = 1; i <= n; i++) for (int j = 1; j <= 10; j++) a++;\nfor (int i = 1; i <= n; i++) for (int j = 1; j <= n; j++) for (int k = 1; k <= n; k++) b++;\nfor (int i = 1; i <= n; i++) c++;\nfor (int j = 1; j <= n; j++) c++;\nint m = n;\nwhile (m > 1) { m = m / 2; d++; }\nConsole.WriteLine(a + \" \" + b + \" \" + c + \" \" + d);","expect":"160 4096 32 4","cap":"The four fragments in C#, counting their steps for n = 16."}}]} },
     { worked: { tag: "variation", title: "A loop inside a halving loop", q: "What is the time complexity of: for (int i = 0; i < n; i++) for (int j = 1; j < n; j *= 2) count++; ?",
       steps: [
         { m: "The outer loop runs n times.", mk: "1" },
         { m: "The inner loop doubles j each time, so it runs about log₂ n times.", mk: "1" },
         { m: "Nested loops multiply: n × log₂ n → O(n log n), the same class as merge sort.", mk: "1" }
-      ], result: "O(n log n)" } },
+      ], result: "O(n log n)" , "try": [{"predict":{"code":"foreach (int n in new int[] { 8, 16 })\n{\n    int count = 0;\n    for (int i = 0; i < n; i++)\n        for (int j = 1; j < n; j *= 2)\n            count++;\n    Console.WriteLine(n + \" \" + count);\n}","expect":"8 24\n16 64","cap":"Doubling n: does the count double, or a little more?"}}]} },
 
     { page: "In exam questions" },
     { worked: { tag: "exam", title: "Constant time complexity", src: "A-level June 2023 · P1 Q03.7 · 2 marks",
@@ -369,7 +369,7 @@ C["compsci:4.4.5.1"] = {
         { m: "S0 reads 1 → writes 0, moves right: 0[0]1□.", mk: "1" },
         { m: "S0 reads 0 → writes 1: 01[1]□; S0 reads 1 → writes 0: 010[□].", mk: "1" },
         { m: "S0 reads □ → writes □, moves left, enters S1: 01[0]□ — halts. Purpose: invert every bit.", mk: "1" }
-      ], result: "101 → 010" } },
+      ], result: "101 → 010" , "fig": {"w":440,"h":150,"items":[{"line":[[30,100],[96,100]],"c":"text2","w":1.6,"arrow":true},{"circle":[120,100,22],"fill":"accent","alpha":0.18,"c":"accent","w":1.6},{"text":[120,100],"t":"S0","size":11.5,"c":"text","b":true,"pos":"c"},{"circle":[120,62,15],"c":"text2","w":1.4},{"line":[[131,72],[134,80]],"c":"text2","w":1.6,"arrow":true},{"text":[120,30],"t":"0/1 →   1/0 →","size":11,"c":"accent2","b":true,"pos":"c"},{"line":[[142,100],[314,100]],"c":"text2","w":1.6,"arrow":true},{"text":[228,90],"t":"□/□ ←","size":11,"c":"accent2","b":true,"pos":"c"},{"circle":[340,100,22],"fill":"good","alpha":0.18,"c":"good","w":1.6},{"circle":[340,100,17],"c":"good","w":1.2},{"text":[340,100],"t":"S1","size":11.5,"c":"text","b":true,"pos":"c"}],"cap":"The bit-flipper: a label reads \"symbol read / symbol written, move\". S1 is the halting state."}, "try": [{"grid":{"cols":["After step","State","Head at","Cell 0","Cell 1","Cell 2","Cell 3","Cell 4"],"rows":[["start","S0","0","0","1","1","0",""],["1","S0","1","1","1","1","0",""],["2","S0","2","1","0","1","0",""],["3","S0","3","1","0","0","0",""],["4","S0","4","1","0","0","1",""],["5","S1","3","1","0","0","1",""]],"given":[[0,0],[0,1],[0,2],[0,3],[0,4],[0,5],[0,6],[0,7],[1,0],[2,0],[3,0],[4,0],[5,0]],"cap":"Now run it on 0110□ from cell 0. Leave a blank cell (□) empty."}}]} },
 
     { page: "The Universal Turing Machine" },
     { callout: { t: "def", h: "Universal Turing Machine (UTM)", body: "A Turing machine that can **simulate any other Turing machine**: the **description of the machine** and its **input data** are written on the UTM's tape, and the UTM acts as an **interpreter**, faithfully carrying out exactly what that machine would do." } },

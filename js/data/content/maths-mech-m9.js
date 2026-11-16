@@ -67,7 +67,13 @@ C["maths:M9.1"] = {
         { rangle: [[160, 51.4], [80, 190], [313.4, 140]], c: "accent2" },
         { text: [94, 110], t: "d = r sin θ", c: "accent2", b: true, size: 12 }, { text: [240, 208], t: "r", i: true, c: "text2" }]
     ), cap: "Moment of $F$ about $P$ = $F \\times d$, where $d = r\\sin\\theta$ is the perpendicular distance to the line of action — equivalently, $(F\\sin\\theta) \\times r$ using the component perpendicular to the rod." } },
-    { worked: { tag: "variation", title: "A force at an angle to a rod", q: "A light rod $AB$ of length 2 m is hinged at $A$. A force of 30 N acts at $B$ at 40° to the rod. Find the moment of the force about $A$.",
+    { worked: { tag: "variation", title: "A force at an angle to a rod", fig: { w: 500, h: 190, items: [].concat(
+      [{ line: [[60, 30], [60, 180]], c: "text2", w: 4 }, { line: [[60, 150], [380, 150]], c: "text2", w: 6 }, { circle: [60, 150, 5], c: "text2", w: 1.6 }, { line: [[380, 150], [470, 150]], c: "muted", dash: true }],
+      F(380, 150, 40, 100, "30 N", { c: "accent" }),
+      [{ arc: [380, 150, 34, 0, 40], label: "40°", c: "accent3", loff: 14 },
+        { line: [[380, 150], [380, 85.7]], c: "accent3", w: 1.6, dash: true, arrow: true }, { text: [372, 98], t: "30 sin 40°", pos: "w", size: 11.5, c: "accent3", off: 2 },
+        { text: [48, 162], t: "A", b: true, c: "text" }, { text: [380, 168], t: "B", b: true, c: "text" }, { text: [220, 166], t: "2 m", size: 11.5, c: "text2" }]
+    ), cap: "Only the part of the 30 N perpendicular to $AB$ turns the rod about $A$." }, q: "A light rod $AB$ of length 2 m is hinged at $A$. A force of 30 N acts at $B$ at 40° to the rod. Find the moment of the force about $A$.",
       steps: [
         { h: "Component perpendicular to the rod", m: "$30\\sin40° = 19.28$ N at a distance 2 m" },
         { m: "moment $= 19.28 \\times 2 = 38.6$ N m", n: "The component along the rod passes through $A$ and has no moment." }
@@ -101,12 +107,28 @@ C["maths:M9.1"] = {
         { h: "(a) Moments about $C$", m: "$R_D \\times 3 = 40g \\times 2 + 30g \\times 3.5 = 185g \\Rightarrow R_D = 604$ N" },
         { h: "Resolve vertically", m: "$R_C = 70g - 604 = 81.7$ N" },
         { h: "(b) About to tilt about $D$: $R_C = 0$", m: "Moments about $D$: $40g \\times 1 = 30g \\times (x - 4)$" },
-        { m: "$x - 4 = \\dfrac43 \\Rightarrow x = 5.33$ m from $A$", n: "Beyond this the beam turns about $D$." }
+        { m: "$x - 4 = \\dfrac43 \\Rightarrow x = 5.33$ m from $A$", n: "Beyond this the beam turns about $D$.", fig: { w: 520, h: 190, items: [].concat(
+          [{ line: [[40, 90], [480, 90]], c: "text2", w: 7 }],
+          [{ poly: [[105, 94], [121, 94], [113, 116]], fill: "muted", alpha: 0.5, c: "text2", w: 1.2 }, { poly: [[325, 94], [341, 94], [333, 116]], fill: "muted", alpha: 0.5, c: "text2", w: 1.2 }],
+          F(333, 86, 90, 50, "R(D)", { c: "accent" }), [{ text: [113, 70], t: "R(C) = 0", size: 11.5, c: "danger", b: true }],
+          F(260, 94, 270, 50, "40g", { c: "accent2", dx: 18 }), F(431, 94, 270, 50, "30g", { c: "accent2", dx: 18 }),
+          [{ text: [40, 112], t: "A", b: true, c: "text" }, { text: [480, 112], t: "B", b: true, c: "text" },
+            { line: [[260, 172], [333, 172]], arrow: "both", c: "muted", w: 1.2 }, { text: [296, 182], t: "1 m", size: 11, c: "text2" },
+            { line: [[333, 172], [431, 172]], arrow: "both", c: "muted", w: 1.2 }, { text: [382, 182], t: "x − 4", size: 11, c: "text2" }]
+        ), cap: "On the point of tilting about $D$: the beam lifts off $C$, so only $R_D$ is left at the supports." } }
       ], result: "(a) 81.7 N, 604 N (b) 5.33 m" } },
     { worked: { tag: "variation", title: "A non-uniform rod: find the centre of mass", q: "A non-uniform rod $AB$, 4 m long and of mass 12 kg, rests horizontally on supports at $A$ and $B$. The reaction at $B$ is twice the reaction at $A$. Find the distance of the centre of mass from $A$.",
       steps: [
         { h: "Resolve", m: "$R + 2R = 12g \\Rightarrow R = 4g$, $\\; R_B = 8g$" },
-        { h: "Moments about $A$", m: "$8g \\times 4 = 12g \\times x \\Rightarrow x = \\dfrac83$ m" }
+        { h: "Moments about $A$", m: "$8g \\times 4 = 12g \\times x \\Rightarrow x = \\dfrac83$ m", fig: { w: 520, h: 180, items: [].concat(
+          [{ line: [[60, 80], [460, 80]], c: "text2", w: 7 }],
+          [{ poly: [[52, 84], [68, 84], [60, 106]], fill: "muted", alpha: 0.5, c: "text2", w: 1.2 }, { poly: [[452, 84], [468, 84], [460, 106]], fill: "muted", alpha: 0.5, c: "text2", w: 1.2 }],
+          F(60, 76, 90, 40, "R = 4g", { c: "accent" }), F(460, 76, 90, 56, "2R = 8g", { c: "accent" }),
+          F(326.7, 84, 270, 50, "12g", { c: "accent2", dx: 20 }),
+          [{ pt: [326.7, 80], label: "G", pos: "n", r: 3, c: "accent2", i: false }, { text: [60, 116], t: "A", b: true, c: "text" }, { text: [460, 116], t: "B", b: true, c: "text" },
+            { line: [[60, 160], [326.7, 160]], arrow: "both", c: "muted", w: 1.2 }, { text: [193, 172], t: "x = 8/3 m", size: 11, c: "text2" },
+            { line: [[326.7, 160], [460, 160]], arrow: "both", c: "muted", w: 1.2 }, { text: [393, 172], t: "4/3 m", size: 11, c: "text2" }]
+        ), cap: "The larger reaction is at $B$, so $G$ is nearer $B$: two thirds of the way along." } }
       ], result: "2.67 m from $A$" } },
 
     /* ---------------------------------------------------------------- Page 3 */
@@ -123,7 +145,12 @@ C["maths:M9.1"] = {
         { h: "(c)", m: "The tension would **increase** from $D$ up to $C$,", mk: "B1" },
         { m: "since each point of the rope also has to support the weight of the rope below it.", mk: "B1" },
         { h: "(d) Moments about $G$", m: "the weight and the tension both act at $G$, so $Y \\times 1.5 = 0$", mk: "M1" },
-        { m: "$Y = 0$: the force at $A$ is horizontal.", mk: "A1*" }
+        { m: "$Y = 0$: the force at $A$ is horizontal.", mk: "A1*", fig: { w: 480, h: 210, items: [].concat(
+          [{ line: [[60, 10], [60, 200]], c: "text2", w: 4 }, { line: [[60, 170], [420, 170]], c: "text2", w: 6 }, { line: [[60, 66], [240, 170]], c: "text2", w: 1.6 }],
+          [{ text: [46, 66], t: "C", b: true, c: "text" }, { text: [46, 180], t: "A", b: true, c: "text" }, { text: [428, 180], t: "B", b: true, c: "text" }, { text: [230, 186], t: "G", b: true, c: "text", pos: "w", off: 0 }],
+          F(240, 170, 150, 70, "T", { c: "accent" }), F(240, 170, 270, 30, "", { c: "accent2" }), [{ text: [250, 196], t: "20g", b: true, c: "accent2", pos: "e", off: 0 }],
+          F(60, 170, 0, 56, "X", { c: "accent3", dy: -10 }), [{ text: [96, 196], t: "Y = 0", size: 11.5, c: "accent3", b: true }]
+        ), cap: "Tension and weight both act at $G$: about $G$ only $Y$ could turn the beam, so $Y = 0$." } }
       ], result: "(a) 679 N (b) 49° below the horizontal, away from the wall" } },
     { fig: { w: 520, h: 230, items: [].concat(
       [{ line: [[60, 20], [60, 220]], c: "text2", w: 4 }, { line: [[60, 170], [440, 170]], c: "text2", w: 6 }, { line: [[60, 66], [140, 170]], c: "text2", w: 1.6 }],
@@ -134,6 +161,15 @@ C["maths:M9.1"] = {
       F(60, 170, 270, 40, "Y", { c: "accent3", dx: -12 })
     ), cap: "A-level Specimen: about $A$ the hinge force vanishes; then resolving finds $X$ and $Y$." } },
     { worked: { tag: "exam", title: "A plank against a rough wall: tension, position, direction, a breaking rope", src: "A-level June 2018 · P3 Q9 · 13 marks",
+      fig: { w: 460, h: 290, items: [].concat(
+        [{ line: [[50, 10], [50, 285]], c: "text2", w: 4 }, { line: [[50, 260], [370, 260]], c: "text2", w: 6 }, { line: [[50, 20], [370, 260]], c: "text2", w: 1.6 }],
+        [{ poly: [[142, 256], [172, 256], [172, 238], [142, 238]], fill: "accent2", alpha: 0.3, c: "accent2", w: 1.4 }],
+        [{ text: [36, 20], t: "C", b: true, c: "text" }, { text: [36, 268], t: "A", b: true, c: "text" }, { text: [380, 268], t: "B", b: true, c: "text" }, { text: [157, 228], t: "P", b: true, c: "text" },
+          { arc: [370, 260, 40, 143.13, 180], label: "α", c: "accent3", loff: 12 }],
+        F(370, 260, 143.13, 70, "T", { c: "accent" }), F(210, 264, 270, 18, "", { c: "accent2" }), [{ text: [222, 282], t: "Mg", b: true, c: "accent2", pos: "e", off: 0 }],
+        F(157, 264, 270, 18, "", { c: "accent2" }), [{ text: [146, 282], t: "3Mg", b: true, c: "accent2", pos: "w", off: 0 }],
+        F(50, 260, 0, 50, "X", { c: "accent3", dy: -10 }), F(50, 260, 90, 50, "Y", { c: "accent3", dx: 14 })
+      ), cap: "$\\tan\\alpha = \\frac34$, drawn to scale with $AP = \\frac{2a}{3}$; the wall's force at $A$ has parts $X$ and $Y$." },
       q: "A plank $AB$ of mass $M$ and length $2a$ rests with $A$ against a rough vertical wall, held horizontal by a rope from $B$ to a point $C$ on the wall vertically above $A$. A block of mass $3M$ is on the plank at $P$, where $AP = x$. The plank is in equilibrium in a vertical plane perpendicular to the wall, and the rope makes an angle $\\alpha$ with the plank, where $\\tan\\alpha = \\frac34$. The plank is a uniform rod, the block a particle, the rope light and inextensible. **(a)** Show that the tension is $\\dfrac{5Mg(3x + a)}{6a}$. The horizontal component of the force on the plank at $A$ is $2Mg$. **(b)** Find $x$ in terms of $a$. The force at $A$ makes an angle $\\beta$ with the horizontal. **(c)** Find $\\tan\\beta$. The rope breaks if the tension exceeds $5Mg$. **(d)** Explain how this restricts the possible positions of $P$, justifying carefully.",
       steps: [
         { h: "(a) Moments about $A$", m: "$T\\sin\\alpha \\times 2a = Mg \\times a + 3Mg \\times x$", mk: "M1 A1" },
@@ -148,6 +184,13 @@ C["maths:M9.1"] = {
         { m: "So $P$ must be no further than $\\frac{5a}{3}$ from $A$ — the block cannot be placed within $\\frac a3$ of $B$. ($T$ increases as $x$ increases.)", mk: "A1" }
       ], result: "(b) $\\frac{2a}{3}$ (c) $\\frac54$ (d) $AP \\le \\frac{5a}{3}$" } },
     { worked: { tag: "exam", title: "A string perpendicular to the rod; a particle on it", src: "A-level June 2022 · P3 Q4 · 11 marks",
+      fig: { w: 420, h: 280, items: [].concat(
+        [{ line: [[30, 260], [390, 260]], c: "text2", w: 2 }, { line: [[80, 260], [224, 68]], c: "text2", w: 6 }, { rangle: [[224, 68], [80, 260], [176, 32]], c: "text2" }],
+        [{ arc: [80, 260, 34, 0, 53.13], label: "θ", c: "accent3" }, { pt: [188, 116], r: 5, c: "accent2" }],
+        F(224, 68, 143.13, 60, "T", { c: "accent" }), F(152, 164, 270, 46, "Mg", { c: "accent2", dx: 18 }), F(188, 116, 270, 56, "2Mg", { c: "accent2", dx: 20 }),
+        F(80, 260, 90, 50, "R", { c: "accent", dx: -12 }), F(80, 260, 0, 50, "F", { c: "accent3", dy: -10 }),
+        [{ text: [66, 272], t: "A", b: true, c: "text" }, { text: [236, 60], t: "B", b: true, c: "text" }, { text: [202, 122], t: "C", b: true, c: "text" }]
+      ), cap: "$\\cos\\theta = \\frac35$: the string at $B$ is perpendicular to the rod, so its horizontal part points left — friction must point right." },
       q: "A uniform rod $AB$ has mass $M$ and length $2a$. A particle of mass $2M$ is attached at $C$, where $AC = 1.5a$. The rod rests with $A$ on rough horizontal ground, held at an angle $\\theta$ to the ground by a light string attached at $B$ and perpendicular to the rod (the rod rising from $A$ to the right, the string pulling up and to the left). **(a)** Explain why the friction on the rod at $A$ acts horizontally to the right. The tension in the string is $T$. **(b)** Show that $T = 2Mg\\cos\\theta$. Given that $\\cos\\theta = \\frac35$, **(c)** show that the vertical force exerted by the ground on the rod at $A$ is $\\frac{57Mg}{25}$. The coefficient of friction is $\\mu$ and the rod is in limiting equilibrium. **(d)** Show that $\\mu = \\frac{8}{19}$.",
       steps: [
         { h: "(a)", m: "The tension has a horizontal component to the left, and friction is the only other horizontal force, so it must act to the right.", mk: "B1" },
@@ -185,7 +228,14 @@ C["maths:M9.1"] = {
         { m: "$\\mu \\ge \\tfrac12\\cot\\theta$", mk: "A1*" },
         { h: "(b) $S$ is unchanged (the push acts at $A$)", m: "$S = \\tfrac12 mg \\cdot \\tfrac45 = \\tfrac25 mg$", mk: "M1 A1" },
         { h: "The push drives $A$ towards the wall, so friction now acts away from it", m: "$kmg = S + \\mu R = \\tfrac25 mg + \\tfrac12 mg$", mk: "B1 DM1" },
-        { m: "$k = \\dfrac{9}{10}$", mk: "A1" }
+        { m: "$k = \\dfrac{9}{10}$", mk: "A1", fig: { w: 420, h: 250, items: [].concat(
+          [{ line: [[20, 230], [400, 230]], c: "text2", w: 2 }, { line: [[266.2, 10], [266.2, 230]], c: "text2", w: 3 }, { line: [[110, 230], [266.2, 34.8]], c: "text2", w: 6 }],
+          [{ arc: [110, 230, 34, 0, 51.34], label: "θ", c: "accent3" }],
+          F(110, 230, 90, 56, "R", { c: "accent", dx: 12 }), F(266.2, 34.8, 180, 56, "S", { c: "accent" }), F(188, 132, 270, 50, "mg", { c: "accent2", dx: 18 }),
+          [{ vec: [[30, 222], [104, 222]], c: "danger", w: 2.2 }, { text: [56, 208], t: "kmg", b: true, c: "danger" },
+            { vec: [[110, 240], [50, 240]], c: "accent3", w: 2.2 }, { text: [36, 240], t: "μR", b: true, c: "accent3", pos: "w", off: 0 },
+            { text: [124, 244], t: "A", b: true, c: "text" }, { text: [252, 30], t: "B", b: true, c: "text" }]
+        ), cap: "$\\tan\\theta = \\frac54$: the push at $A$ is towards the wall, so limiting friction now points away from it." } }
       ], result: "(b) $k = \\frac{9}{10}$" } },
     { worked: { tag: "exam", title: "Smooth wall: $S$ by moments; $\\mu$; the resultant at $A$; a non-uniform rod", src: "A-level June 2023 · P3 Q6 · 13 marks",
       q: "A rod $AB$ of mass $M$ and length $2a$ has $A$ on rough horizontal ground and $B$ against a smooth vertical wall, making an angle $\\theta$ with the ground, at rest in limiting equilibrium. **(a)** State the direction (towards or away from the wall) of the friction on the rod at $A$, with a reason. The normal reaction of the wall at $B$ is $S$. In an initial model the rod is uniform. **(b)** By taking moments about $A$, show that $S = \\frac12 Mg\\cot\\theta$. The coefficient of friction is $\\mu$ and $\\tan\\theta = \\frac34$. **(c)** Find $\\mu$. **(d)** Find, in terms of $M$ and $g$, the magnitude of the resultant force on the rod at $A$. In a new model the rod is non-uniform, with its centre of mass closer to $B$ than to $A$; $\\tan\\theta = \\frac34$ still. **(e)** State whether the new $S$ is larger, smaller or equal, with a reason.",
@@ -197,10 +247,23 @@ C["maths:M9.1"] = {
         { h: "Limiting", m: "$\\tfrac23 Mg = \\mu Mg$", mk: "M1" },
         { m: "$\\mu = \\tfrac23$", mk: "A1" },
         { h: "(d)", m: "$\\sqrt{R^2 + F^2} = Mg\\sqrt{1 + \\tfrac49}$", mk: "M1 A1" },
-        { m: "$= \\dfrac{\\sqrt{13}}{3}Mg = 1.20Mg$", mk: "A1" },
+        { m: "$= \\dfrac{\\sqrt{13}}{3}Mg = 1.20Mg$", mk: "A1", fig: { w: 360, h: 210, items: [
+          { vec: [[110, 190], [210, 190]], c: "accent3" }, { text: [160, 204], t: "F = ⅔Mg", b: true, c: "accent3", size: 12 },
+          { vec: [[210, 190], [210, 40]], c: "accent" }, { text: [218, 115], t: "R = Mg", b: true, c: "accent", pos: "e", off: 0, size: 12 },
+          { vec: [[110, 190], [210, 40]], c: "accent2", w: 2.6 }, { text: [146, 108], t: "(√13 ⁄ 3) Mg", b: true, c: "accent2", pos: "w", off: 0, size: 12 },
+          { rangle: [[210, 190], [110, 190], [210, 40]] }
+        ], cap: "The resultant at $A$ combines the ground's two forces: $\\sqrt{1^2 + (\\frac23)^2}\\,Mg$." } },
         { h: "(e)", m: "**Larger**: the weight now acts further from $A$, so its moment about $A$, and the $S$ needed to balance it, increase.", mk: "B1" }
       ], result: "(c) $\\frac23$ (d) $\\frac{\\sqrt{13}}{3}Mg$ (e) larger" } },
     { worked: { tag: "exam", title: "Against a smooth rail: show $S = \\frac{9}{25}Mg$; find $\\mu$", src: "A-level Oct 2020 · P3 Q4 · 10 marks",
+      fig: { w: 420, h: 270, items: [].concat(
+        [{ line: [[30, 250], [390, 250]], c: "text2", w: 2 }, { line: [[70, 250], [214, 58]], c: "text2", w: 6 }, { circle: [195.6, 94.2, 5], c: "text2", w: 1.8 }],
+        [{ line: [[190, 90], [190, 250]], c: "muted", dash: true }, { text: [196, 200], t: "4a", i: true, c: "text2", pos: "e", off: 0 }, { text: [118, 160], t: "5a", i: true, c: "text2", pos: "w", off: 0 },
+          { arc: [70, 250, 34, 0, 53.13], label: "α", c: "accent3" }],
+        F(190, 90, 143.13, 60, "S", { c: "accent" }), F(142, 154, 270, 50, "Mg", { c: "accent2", dx: -18 }),
+        F(70, 250, 90, 50, "R", { c: "accent", dx: -12 }), F(70, 250, 0, 50, "F", { c: "accent3", dy: -10 }),
+        [{ text: [56, 262], t: "A", b: true, c: "text" }, { text: [224, 52], t: "B", b: true, c: "text" }, { text: [212, 104], t: "C", b: true, c: "text" }]
+      ), cap: "$\\sin\\alpha = \\frac45$, ladder $6a$: the rail at height $4a$ touches it $5a$ from $A$ and pushes perpendicular to it." },
       q: "A ladder $AB$ has mass $M$ and length $6a$. Its end $A$ is on rough horizontal ground and it rests against a fixed smooth horizontal rail at $C$, at a vertical height $4a$ above the ground. The vertical plane containing $AB$ is perpendicular to the rail. The ladder is inclined at $\\alpha$ to the horizontal, where $\\sin\\alpha = \\frac45$. The coefficient of friction is $\\mu$ and the ladder is in limiting equilibrium. Modelling it as a uniform rod, **(a)** show that the force exerted by the rail at $C$ has magnitude $\\frac{9Mg}{25}$, **(b)** find $\\mu$.",
       steps: [
         { h: "(a) Distance $AC$", m: "$AC = \\dfrac{4a}{\\sin\\alpha} = 5a$", mk: "B1" },
@@ -230,6 +293,13 @@ C["maths:M9.1"] = {
       return it;
     })(), cap: "A-level June 2024: the peg pushes perpendicular to the rod, so its reaction has a vertical part — $R = Mg - S\\cos\\theta$." } },
     { worked: { tag: "exam", title: "A particle on a rod against a wall; a rough wall; a heavier load at the top", src: "A-level June 2025 · P3 Q6 · 11 marks",
+      fig: { w: 420, h: 270, items: [].concat(
+        [{ line: [[30, 250], [380, 250]], c: "text2", w: 2 }, { line: [[257.3, 10], [257.3, 250]], c: "text2", w: 3 }, { line: [[150, 250], [257.3, 35.3]], c: "text2", w: 6 }],
+        [{ arc: [257.3, 35.3, 34, 243.43, 270], label: "α", c: "accent3", loff: 12 }, { pt: [176.8, 196.3], r: 5, c: "accent2" }],
+        F(257.3, 35.3, 180, 56, "S", { c: "accent" }), F(203.7, 142.7, 270, 46, "Mg", { c: "accent2", dx: 20 }), F(176.8, 196.3, 270, 30, "", { c: "accent2" }), [{ text: [184, 228], t: "2Mg", pos: "e", off: 0, b: true, c: "accent2" }],
+        F(150, 250, 90, 50, "R", { c: "accent", dx: -12 }), F(150, 250, 0, 50, "F", { c: "accent3", dy: -10 }),
+        [{ text: [138, 262], t: "A", b: true, c: "text" }, { text: [244, 30], t: "B", b: true, c: "text" }, { text: [164, 184], t: "C", b: true, c: "text" }]
+      ), cap: "The angle $\\alpha$ is measured from the **wall**, so a vertical force's arm about $A$ uses $\\sin\\alpha$ (drawn with $\\tan\\alpha = \\frac12$)." },
       q: "A uniform rod $AB$ of mass $M$ and length $2a$ has a particle of mass $2M$ attached at $C$, where $AC = 0.5a$. The rod rests with $A$ on rough horizontal ground and $B$ against a vertical wall, in a vertical plane perpendicular to the wall, at an angle $\\alpha$ **to the wall**. In an initial model the wall is smooth, the normal reaction of the ground at $A$ is $R$ and the force from the wall at $B$ is $S$. **(a)** Find $R$ in terms of $M$ and $g$. **(b)** Show that $S = Mg\\tan\\alpha$. In a refined model the wall is rough, and the normal reaction at $A$ is $R_1$. **(c)** State which is greater, $R$ or $R_1$, with a reason. A second particle of mass $3M$ is attached at $B$; the rod (smooth wall again) is now in limiting equilibrium at an angle $\\beta$ to the wall, where $\\tan\\beta = \\frac12$; the coefficient of friction at the ground is $\\mu$. **(d)** Show that $\\mu = \\frac13$.",
       steps: [
         { h: "(a) Smooth wall: no vertical force at $B$", m: "$R = 3Mg$", mk: "B1" },

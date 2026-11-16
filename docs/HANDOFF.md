@@ -54,6 +54,26 @@ finishes, pen sets on new strokes only, frames sized by their measured
 openings) as sw `kos-integrity-10` (https://13f349d3.kurenai-os.pages.dev),
 `origin/main` = `d1e9853`: merge main into `feat/w2-lazy` before going on.
 
+**Released 16 November 2026 as sw `kos-integrity-11`**
+(https://bd390f7c.kurenai-os.pages.dev, `origin/main` = `30cec4f`, from
+`feat/519-figures`): the rest of W5 (smoke151 K–Q, smoke152) and roadmap
+5.19 items 2–3 — figures and parts to fill in on the notes' worked examples
+across Maths, CS and the CS Paper 2 Companion (`js/core/fillins.js`,
+`tools/fill_check.mjs`, smoke153, invariant 89b) and IT's archived and
+current units (smoke154, invariant 26f). **Both other-account branches
+(`feat/w2-lazy`, `feat/w1-rc6`) must merge main again.** Expect overlap in
+`index.html` (one new script, `js/core/fillins.js`, after content.js),
+`js/modules/hub.js` (IT desk), `css/views/study.css` and the gate list.
+Still to do on this account: 5.19 item 4 (the review schedule for quiz and
+exam questions, question history, continuing an unmarked iPad attempt) and
+item 1 (IT notes, F201 first); then W3 with 37, 40–41.
+
+**Worktrees.** The two accounts collided in one folder on 16 November (the
+Fable session switched branches in the main checkout while this account had
+uncommitted work there). Each account now works in its OWN folder: this
+account's 5.19 work is in `/Users/fj/Developer/KurenaiOS-519`. Never leave
+uncommitted work in a folder the other account uses.
+
 **Rules for both accounts now:**
 - Smoke suite numbers: the other account uses **142, 143, 149 and 150**;
   this account uses 151 onwards (151 is W5's first batch). `npm test` finds suites by number.

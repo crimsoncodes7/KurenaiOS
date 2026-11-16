@@ -38,6 +38,9 @@
    roles: the toolbar's dots and swatches follow the set worn now, and a
    stroke keeps the set it was written with (W5, SC-34: the probe carries
    the stroke's own `ps`), so changing sets never recolours old ink */
+/* the Study set (SC-09): ink, an amber mark and a green note */
+:is(:root[data-penset="study"] :is(.k-ink-dot, .k-ink-swatch), .k-ink-probe[data-penset="study"])[data-role="accent"] { --ink-c: var(--amber); }
+:is(:root[data-penset="study"] :is(.k-ink-dot, .k-ink-swatch), .k-ink-probe[data-penset="study"])[data-role="teal"] { --ink-c: var(--green); }
 :is(:root[data-penset="exam"] :is(.k-ink-dot, .k-ink-swatch), .k-ink-probe[data-penset="exam"])[data-role="accent"] { --ink-c: var(--red); }
 :is(:root[data-penset="exam"] :is(.k-ink-dot, .k-ink-swatch), .k-ink-probe[data-penset="exam"])[data-role="teal"] { --ink-c: var(--muted); }
 :is(:root[data-penset="sketch"] :is(.k-ink-dot, .k-ink-swatch), .k-ink-probe[data-penset="sketch"])[data-role="ink"] { --ink-c: var(--text-2); }

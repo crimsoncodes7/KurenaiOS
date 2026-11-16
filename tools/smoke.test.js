@@ -75,7 +75,8 @@ for (const sid of ["compsci", "maths", "it"]) {
        spine belongs to the topic pages the units open */
     KOS.show("subject", sid);
     if (!$("[data-ui~='study.subject-hero']")) throw new Error("no desk hero");
-    if ($$("[data-ui~='study.units'] [data-ui~='study.unit']").length < 5) throw new Error("course units missing: " + $$("[data-ui~='study.unit']").length);
+    /* IT's units done at school are archived off the desk (5.19 item 2) */
+    if ($$("[data-ui~='study.units'] [data-ui~='study.unit']").length < (sid === "it" ? 2 : 5)) throw new Error("course units missing: " + $$("[data-ui~='study.unit']").length);
   });
 }
 step("open a CS section & click a leaf", () => {

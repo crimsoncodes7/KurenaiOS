@@ -193,6 +193,43 @@
     if (kind === "film") grain(ctx, rimW);
     return canvas;
   }
+  /* a finish laid over a card another page drew (the Shrine's, SC-15):
+     the card keeps its own style; Washi lends it the paper's grain, Foil a
+     gold-leaf rim, Film its grain. r is that card's corner radius. */
+  function overFinish(canvas, finId, r) {
+    var G = KOS.governor, fin = finId && G && G.item(finId);
+    var ctx = canvas && canvas.getContext && canvas.getContext("2d");
+    if (!fin || !ctx) return canvas;
+    var kind = fin.id.replace(/^finish-/, ""), fim = finishImg[fin.id], fok = !!(fim && fim.complete && fim.naturalWidth);
+    var gold = token("--card-gold-accent"), ivory = token("--card-ivory");
+    ctx.save(); roundRect(ctx, 0, 0, CARD_W, CARD_H, r); ctx.clip();
+    if (kind === "washi" && fok) { ctx.globalCompositeOperation = "soft-light"; cover(ctx, fim, 0.7); }
+    else if (kind === "film" && fok) { ctx.globalCompositeOperation = "overlay"; cover(ctx, fim, 0.3); }
+    else if (kind === "foil") {
+      var rim = ctx.createLinearGradient(0, 0, CARD_W, CARD_H);
+      [gold, ivory, gold, token("--gold") || gold, ivory, gold].forEach(function (c, i, all) { rim.addColorStop(i / (all.length - 1), c); });
+      ctx.strokeStyle = rim; ctx.lineWidth = 52; roundRect(ctx, 0, 0, CARD_W, CARD_H, r); ctx.stroke();
+      if (fok) { ctx.save(); roundRect(ctx, 0, 0, CARD_W, CARD_H, r); ctx.clip(); ctx.globalCompositeOperation = "soft-light"; ctx.lineWidth = 52; ctx.strokeStyle = rim; cover(ctx, fim, 0.25); ctx.restore(); }
+      ctx.globalAlpha = 0.55; ctx.strokeStyle = gold; ctx.lineWidth = 2;
+      roundRect(ctx, 36, 36, CARD_W - 72, CARD_H - 72, Math.max(4, r - 26)); ctx.stroke(); ctx.globalAlpha = 1;
+    }
+    ctx.restore();
+    if (kind === "film") grain(ctx, 0);
+    return canvas;
+  }
+  /* each finish's picture, loaded once (the Shrine's dialog asks first) */
+  function loadFinishes(done) {
+    var left = 0;
+    finishChoices().forEach(function (fin) {
+      if (finishImg[fin.id]) return;
+      left++;
+      var fim = new window.Image();
+      fim.onload = fim.onerror = function () { if (--left === 0 && done) done(); };
+      fim.src = "assets/app/img/" + fin.art + ".webp";
+      finishImg[fin.id] = fim;
+    });
+    if (!left && done) done();
+  }
   /* a picture drawn to cover the card */
   function cover(ctx, im, alpha) {
     var k = Math.max(CARD_W / im.naturalWidth, CARD_H / im.naturalHeight);
@@ -474,5 +511,6 @@
     return overlay;
   }
 
-  KOS.reportShare = { card: card, asText: asText, asCsv: asCsv, dialog: dialog, figures: figures };
+  KOS.reportShare = { card: card, asText: asText, asCsv: asCsv, dialog: dialog, figures: figures,
+    overFinish: overFinish, loadFinishes: loadFinishes, finishChoices: finishChoices, finishItem: finishItem };
 })();

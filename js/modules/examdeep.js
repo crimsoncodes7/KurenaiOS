@@ -158,7 +158,7 @@
       v.steps.forEach(function (s, i) {
         var hide = blind && i >= shown;
         stepsEl.appendChild(el("div", { class: "k-ex-step", "data-ui": "exams.deep-step", hidden: hide ? "" : null }, [
-          html("div", "k-ex-step-t", inline(s.text)),
+          html("div", "k-ex-step-t", inline(s.text) + (s.fig && KOS.figures ? KOS.figures.render(s.fig) : "")),
           el("div", { class: "k-ex-step-m" }, [s.marks ? chips(s.marks) : el("span", { class: "k-ex-muted k-ex-small", text: v.levels ? "a point to make" : "working" }), s.why ? html("span", "k-ex-muted k-ex-small", inline(s.why)) : null].filter(Boolean))]));
       });
       ctrl.textContent = "";
@@ -188,7 +188,10 @@
     return u.card([
       el("div", { class: "k-ex-inline k-ex-vhead" }, [el("span", { class: "k-ex-vkey", "aria-hidden": "true", text: v.v }), el("h2", { class: "k-ex-vtitle", text: "Variation " + v.v + " · " + v.t }), el("span", { class: "k-ex-grow" }),
         u.muted(u.plural(v.m, "mark") + " · " + (v.levels ? "levels of response" : board === "AQA" ? "AQA mark points" : (board || "") + " conventions"))]),
-      el("div", { class: "k-ex-vq" }, [v.ctx ? html("p", "", inline(v.ctx)) : null, v.code ? code(v.code) : null, html("p", "", inline(v.q) + " <span class=\"k-mono k-ex-muted\">(" + v.m + ")</span>")].filter(Boolean)),
+      el("div", { class: "k-ex-vq" }, [v.ctx ? html("p", "", inline(v.ctx)) : null, v.code ? code(v.code) : null, html("p", "", inline(v.q) + " <span class=\"k-mono k-ex-muted\">(" + v.m + ")</span>"),
+        /* the variation's figure, and its part to fill in (5.19, 43) */
+        v.fig ? html("div", "k-prose", KOS.content.renderBlocks([{ fig: v.fig }])) : null].filter(Boolean)),
+      v.try ? el("div", { class: "k-prose k-n-wtry", "data-ui": "exams.deep-try" }, [el("span", { class: "k-kicker", text: "Your turn" }), html("div", "", KOS.content.renderBlocks(v.try))]) : null,
       u.muted("Written by KurenaiOS · " + (B && B.title ? B.title + " conventions · " : "") + "not a board question", "k-ex-small"),
       stepsEl,
       v.trap ? el("div", { class: "k-ex-vtrap", "data-ui": "exams.deep-trap" }, [el("span", { class: "k-ex-trap-mark", "aria-hidden": "true", text: "!" }), html("span", "", "<b>The trap:</b> " + inline(v.trap))]) : null,

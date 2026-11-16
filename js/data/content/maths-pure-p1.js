@@ -49,7 +49,9 @@ C["maths:1.1"] = {
       q: "Show that $x^2 - 8x + 17 > 0$ for all real values of $x$.",
       steps: [
         { m: "$x^2 - 8x + 17 = (x - 4)^2 - 16 + 17 = (x - 4)^2 + 1$", mk: "M1 A1", n: "Half the coefficient of $x$, square it, correct." },
-        { m: "$(x - 4)^2 \\ge 0$ for all real $x$, so $(x - 4)^2 + 1 \\ge 1 > 0$.", mk: "A1", n: "The A1 is for the *reason*: a square is non-negative, and the $+1$ makes it strictly positive. (Alternative: discriminant $64 - 68 < 0$ and the coefficient of $x^2$ is positive, so the curve never meets the axis and is above it.)" }
+        { m: "$(x - 4)^2 \\ge 0$ for all real $x$, so $(x - 4)^2 + 1 \\ge 1 > 0$.", mk: "A1", n: "The A1 is for the *reason*: a square is non-negative, and the $+1$ makes it strictly positive. (Alternative: discriminant $64 - 68 < 0$ and the coefficient of $x^2$ is positive, so the curve never meets the axis and is above it.)", fig: { x: [-1, 8.5], y: [-1, 10], axes: { xt: [2, 4, 6, 8], yt: [5, 10] }, items: [
+          { fn: "x*x-8*x+17", label: "y = (x − 4)² + 1", at: 6.6, pos: "e" }, { hline: 1, c: "muted", label: "y = 1" }, { pt: [4, 1], label: "(4, 1)", pos: "s" }
+        ], cap: "The lowest point is $(4, 1)$: the curve never gets below $y = 1$, so it never reaches the $x$-axis." } }
       ], result: "$(x - 4)^2 + 1 \\ge 1 > 0$" } },
     { worked: { tag: "exam", title: "Product of three consecutive integers — divisible by 6", src: "AS June 2022 · P1 Q14(ii) · 3 marks",
       q: "Prove that for all positive integers $n$, $n^3 + 3n^2 + 2n$ is divisible by 6.",
@@ -175,7 +177,11 @@ C["maths:1.1"] = {
     { worked: { tag: "exam", title: "$x^2 > 9 \\Rightarrow x > 3$?", src: "AS June 2022 · P1 Q14(i) · 1 mark",
       q: "A student states \"if $x^2$ is greater than 9 then $x$ must be greater than 3\". Determine whether this is true, giving a reason.",
       steps: [
-        { m: "False: $x = -4$ has $x^2 = 16 > 9$ but $x < 3$.", mk: "B1", n: "$x^2 > 9 \\iff x < -3$ or $x > 3$ (2.x inequalities)." }
+        { m: "False: $x = -4$ has $x^2 = 16 > 9$ but $x < 3$.", mk: "B1", n: "$x^2 > 9 \\iff x < -3$ or $x > 3$ (2.x inequalities).", fig: { x: [-5, 5], y: [-2, 20], axes: { xt: [-4, -3, 3], yt: [16] }, items: [
+          { shade: { fn: "x*x", fn2: "9", from: -4.47, to: -3 }, c: "danger", alpha: 0.18 }, { shade: { fn: "x*x", fn2: "9", from: 3, to: 4.47 }, c: "accent3", alpha: 0.18 },
+          { fn: "x*x", label: "y = x²", at: 4.2, pos: "w" }, { hline: 9, c: "muted", label: "y = 9" },
+          { pt: [-3, 9], label: "−3", pos: "se" }, { pt: [3, 9], label: "3", pos: "sw" }, { pt: [-4, 16], c: "danger", label: "x = −4", pos: "w" }
+        ], cap: "$x^2 > 9$ on **both** arms: $x > 3$ and $x < -3$. The point at $x = -4$ is the counter-example." } }
       ], result: "False, e.g. $x = -4$" } },
     { worked: { tag: "exam", title: "$q^3 - p^3$ can be a multiple of 5", src: "AS June 2023 · P1 Q17(a) · 1 mark",
       q: "$p$, $q$ positive integers, $q > p$. Statement 1: \"$q^3 - p^3$ is never a multiple of 5.\" Show by a counter-example that Statement 1 is not true.",
@@ -212,7 +218,10 @@ C["maths:1.1"] = {
     { worked: { tag: "exam", title: "\"Add 3 and square: bigger than the original square\"", src: "AS June 2018 · P1 Q2(ii) · 2 marks",
       q: "\"If I add 3 to a number and square the sum, the result is greater than the square of the original number.\" Always, sometimes or never true? Give a reason.",
       steps: [
-        { m: "$(x + 3)^2 > x^2 \\iff 6x + 9 > 0 \\iff x > -1.5$", mk: "M1", n: "Expand and cancel $x^2$." },
+        { m: "$(x + 3)^2 > x^2 \\iff 6x + 9 > 0 \\iff x > -1.5$", mk: "M1", n: "Expand and cancel $x^2$.", fig: { x: [-5.5, 2.5], y: [-1, 14], axes: { xt: [-4, -3, -1.5, 1], yt: [4, 8] }, items: [
+          { fn: "x*x", c: "accent2", label: "y = x²", at: -3.6, pos: "e" }, { fn: "(x+3)^2", label: "y = (x + 3)²", at: 0.4, pos: "w" },
+          { vline: -1.5, c: "muted" }, { pt: [-1.5, 2.25], label: "(−1.5, 2.25)", pos: "e" }
+        ], cap: "The two parabolas cross once, at $x = -1.5$: to the right $(x + 3)^2$ is the higher curve, to the left $x^2$ is." } },
         { m: "Sometimes: true for $x = 1$ ($16 > 1$), false for $x = -2$ ($1 > 4$ is false).", mk: "A1" }
       ], result: "Sometimes — iff $x > -1.5$" } },
     { worked: { tag: "exam", title: "$n^3 + 4n$ prime? $n^3 + 5n$ prime?", src: "AS June 2025 · P1 Q15 · 4 marks",
@@ -276,7 +285,11 @@ C["maths:1.1"] = {
       q: "Given $x$ is obtuse, prove by contradiction that $\\sin x - \\cos x \\ge 1$. The proof begins: *Assume $\\sin x - \\cos x < 1$ when $x$ is obtuse $\\Rightarrow (\\sin x - \\cos x)^2 < 1 \\Rightarrow \\ldots$* Complete it.",
       steps: [
         { m: "$\\sin^2 x - 2\\sin x\\cos x + \\cos^2 x < 1 \\Rightarrow 1 - 2\\sin x\\cos x < 1 \\Rightarrow \\sin x\\cos x > 0$", mk: "M1 A1", n: "Expand; $\\sin^2 + \\cos^2 = 1$. (Squaring was valid because for obtuse $x$, $\\sin x > 0$ and $-\\cos x > 0$, so $0 < \\sin x - \\cos x < 1$.)" },
-        { m: "But for obtuse $x$ ($90° < x < 180°$), $\\sin x > 0$ and $\\cos x < 0$, so $\\sin x\\cos x < 0$. Contradiction; hence $\\sin x - \\cos x \\ge 1$.", mk: "A1", n: "The signs in the second quadrant are the whole point." }
+        { m: "But for obtuse $x$ ($90° < x < 180°$), $\\sin x > 0$ and $\\cos x < 0$, so $\\sin x\\cos x < 0$. Contradiction; hence $\\sin x - \\cos x \\ge 1$.", mk: "A1", n: "The signs in the second quadrant are the whole point.", fig: { x: [-10, 200], y: [-1.3, 1.3], axes: { xt: [{ v: 90, label: "90°" }, { v: 180, label: "180°" }], yt: [-1, 1] }, items: [
+          { shade: { fn: "1.3", fn2: "-1.3", from: 90, to: 180 }, c: "accent", alpha: 0.07 },
+          { fn: "sin(x*pi/180)", from: 0, to: 195, label: "y = sin x", at: 40, pos: "nw" }, { fn: "cos(x*pi/180)", from: 0, to: 195, c: "accent2", label: "y = cos x", at: 150, pos: "s" },
+          { text: [135, 0.35], t: "sin > 0, cos < 0", c: "muted", size: 11 }
+        ], cap: "For obtuse $x$ the sine curve is above the axis and the cosine curve below it, so $\\sin x\\cos x < 0$." } }
       ], result: "$\\sin x\\cos x > 0$ is impossible for obtuse $x$" } },
     { worked: { tag: "exam", title: "Complete a factor-pair contradiction: $(3x + 2y)(2x - 5y) = 28$", src: "A-level June 2024 · P1 Q15 · 6 marks",
       q: "**(i)** Show $k^2 - 4k + 5$ is positive for all real $k$. **(ii)** A student is proving by contradiction that there are no positive integers $x$, $y$ with $(3x + 2y)(2x - 5y) = 28$, and has done the case $3x + 2y = 14$, $2x - 5y = 2$ (giving $x = \\frac{74}{19}$, $y = \\frac{22}{19}$, not integers). Show the calculations and statements needed to complete the proof.",

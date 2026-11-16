@@ -77,6 +77,8 @@
       series: String(pick("series", "") || "").trim().slice(0, 30),
       year: year,
       date: isDate(date) ? date : null,
+      /* 5.19 item 2: archived by hand (true / false), else by default */
+      archive: typeof pick("archive", null) === "boolean" ? pick("archive", null) : null,
       updatedAt: patch === b ? (b.updatedAt || 0) : Date.now()
     };
   }
@@ -93,6 +95,8 @@
       year1: root.year1 && typeof root.year1 === "object"
         ? { qualification: String(root.year1.qualification || "H019"), grade: normaliseGrade(root.year1.grade) }
         : null,
+      /* the unit being studied now (5.19 item 2); null = the default */
+      current: typeof root.current === "string" && table().units[root.current] ? root.current : null,
       units: {}
     };
     var units = root.units && typeof root.units === "object" ? root.units : {};
@@ -218,7 +222,52 @@
     return n;
   }
 
+  /* ---------------- archived and current units (roadmap 5.19 item 2, design 44f) ----------------
+     An ARCHIVED unit is done at school: it leaves the spine, the topic
+     picker and the subject's review analytics, and keeps counting in marks,
+     grades, hours and history. A unit's own `archive` flag decides; with
+     none, the units the user named done at school (16 November 2026) and
+     any unit with a result are archived. The CURRENT unit leads the desk:
+     the one chosen, else F201, else the first unit still to sit by date.
+     "Show completed units" is per device (state.ui.itShowDone). Reads
+     write nothing. */
+  var DONE_AT_SCHOOL = ["F200", "F202", "F204"];
+  function archived(code) {
+    var r = root(), u = r && r.units && r.units[code];
+    if (u && typeof u.archive === "boolean") return u.archive;
+    return DONE_AT_SCHOOL.indexOf(code) !== -1 || !!(u && u.status === "done");
+  }
+  /* the unit a ref belongs to ("F201.3.2" → F201) */
+  function unitOf(ref) { var m = /^(F\d{3})/.exec(String(ref || "")); return m ? m[1] : null; }
+  function showDone() { var ui = store.state.ui || {}; return !!ui.itShowDone; }
+  function setShowDone(on) { store.state.ui = store.state.ui || {}; store.state.ui.itShowDone = !!on; store.save(); }
+  /* a ref (or unit) the study surfaces show: not archived, or the switch on */
+  function visible(ref) { var c = unitOf(ref); return !c || showDone() || !archived(c); }
+  /* review analytics never count an archived unit, whatever the switch says */
+  function inReview(ref) { var c = unitOf(ref); return !c || !archived(c); }
+  function current() {
+    var r = root(), live = all().filter(function (u) { return u.status !== "not-taken" && !archived(u.code); });
+    if (r && r.current && live.some(function (u) { return u.code === r.current; })) return r.current;
+    if (live.some(function (u) { return u.code === "F201"; })) return "F201";
+    live.sort(function (a, b) { return (a.date || "9999") < (b.date || "9999") ? -1 : (a.date || "9999") > (b.date || "9999") ? 1 : 0; });
+    return live.length ? live[0].code : null;
+  }
+  function setCurrent(code) {
+    if (code !== null && !table().units[code]) return;
+    branch().current = code; store.save();
+  }
+  function setArchived(code, on) { return setUnit(code, { archive: on == null ? null : !!on }); }
+
   KOS.itUnits = {
+    archived: archived,
+    unitOf: unitOf,
+    showDone: showDone,
+    setShowDone: setShowDone,
+    visible: visible,
+    inReview: inReview,
+    current: current,
+    setCurrent: setCurrent,
+    setArchived: setArchived,
     STATUSES: STATUSES.slice(),
     SEED: clone(SEED),
     normalise: normalise,

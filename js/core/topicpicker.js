@@ -213,6 +213,14 @@
         });
         switches.appendChild(el("span", { class: "k-tp-select-by" }, [el("span", { class: "k-muted", text: "Select" }), lv]));
       }
+      /* IT's units done at school (5.19 item 2): hidden unless shown */
+      var IU = KOS.itUnits;
+      if (IU && (lockedSubject() === "it" || !lockedSubject()) && KOS.spec.units("it").some(function (u) { return IU.archived(u.ref); })) {
+        var sd = el("input", { type: "checkbox", class: "k-switch", "data-ui": "tp.show-done", "aria-label": "Show completed IT units" });
+        sd.checked = IU.showDone();
+        sd.addEventListener("change", function () { IU.setShowDone(sd.checked); active = 0; paintPanel(); });
+        switches.appendChild(el("label", { class: "k-tp-done" }, [sd, el("span", { class: "k-muted", text: "Completed IT units" })]));
+      }
       panel.appendChild(switches);
       list = el("div", { class: "k-tp-list", id: id + "-list", role: "listbox", "aria-multiselectable": multi ? "true" : "false", "aria-label": "Topics", "data-ui": "tp.list" });
       list.addEventListener("scroll", function () {
@@ -259,6 +267,8 @@
         if (!nodes.length && (level === "parent" || level === "paper")) nodes = KOS.spec.units(sid);
         var lastUnit = null, lastParent = null;
         nodes.forEach(function (n) {
+          /* an archived IT unit stays out unless shown, or already picked */
+          if (sid === "it" && KOS.itUnits && !KOS.itUnits.visible(n.ref) && stateOf(n.key) === "off") return;
           if (q && n.ref.toLowerCase().indexOf(q) === -1 && n.title.toLowerCase().indexOf(q) === -1) return;
           count++;
           if (n.level !== "unit" && n.level !== "paper" && n.unit !== lastUnit) {

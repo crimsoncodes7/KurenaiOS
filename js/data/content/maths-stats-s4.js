@@ -50,6 +50,32 @@ function binomPs(n, p) {
   return out;
 }
 function range(a, b) { var o = []; for (var i = a; i <= b; i++) o.push(i); return o; }
+/* a two-stage probability tree: first [[label, prob]], second[i] = [[label, prob]];
+   `hl` = list of "i.j" leaf keys to highlight */
+function tree(first, second, o) {
+  o = o || {};
+  var W = o.w || 520, rows = 0;
+  second.forEach(function (s) { rows += s.length; });
+  var H = o.h || Math.max(150, rows * 34 + 20), items = [], y0 = 10, leafH = (H - 2 * y0) / rows, k = 0;
+  var rx = 24, ry = H / 2, x1 = 175, x2 = 345;
+  first.forEach(function (f, i) {
+    var ys = [];
+    second[i].forEach(function () { ys.push(y0 + leafH * (k + 0.5)); k++; });
+    var my = (ys[0] + ys[ys.length - 1]) / 2;
+    items.push({ line: [[rx, ry], [x1, my]], c: "text2", w: 1.5 });
+    items.push({ text: [(rx + x1) / 2, (ry + my) / 2 - 9], t: f[1], size: 11.5, c: "accent2" });
+    items.push({ text: [x1 + 6, my], t: f[0], pos: "e", size: 12.5, c: "text", b: true, off: 0 });
+    second[i].forEach(function (s, j) {
+      var hl = o.hl && o.hl.indexOf(i + "." + j) >= 0;
+      items.push({ line: [[x1 + 34, my], [x2, ys[j]]], c: hl ? "accent" : "text2", w: hl ? 2.4 : 1.5 });
+      items.push({ text: [(x1 + 34 + x2) / 2, (my + ys[j]) / 2 - 8], t: s[1], size: 11.5, c: "accent2" });
+      items.push({ text: [x2 + 6, ys[j]], t: s[0], pos: "e", size: 12.5, c: hl ? "accent" : "text", b: true, off: 0 });
+      if (s[2]) items.push({ text: [x2 + 60, ys[j]], t: s[2], pos: "e", size: 11.5, c: hl ? "accent" : "muted", off: 0 });
+    });
+  });
+  if (o.heads) { items.push({ text: [x1 + 10, 8], t: o.heads[0], size: 11, c: "muted" }); items.push({ text: [x2 + 10, 8], t: o.heads[1], size: 11, c: "muted" }); }
+  return { w: W, h: H, items: items, cap: o.cap };
+}
 
 /* =====================================================================
    S4.1  Discrete distributions and the binomial distribution
@@ -102,7 +128,7 @@ C["maths:S4.1"] = {
       q: "$D$ takes the values 10, 20, 30, 40, 50 with $P(D = d) = \\dfrac{k}{d}$. **(a)** Show that $k = \\dfrac{600}{137}$. $D_1$ and $D_2$ are independent, each distributed as $D$. **(b)** Find $P(D_1 + D_2 = 80)$ to 3 s.f. A single observation $d$ of $D$ is the common difference of an arithmetic sequence whose first 4 terms are the angles, in degrees, of a quadrilateral $Q$. **(c)** Find the exact probability that the smallest angle of $Q$ is more than 50°.",
       steps: [
         { h: "(a) Sum to 1", m: "$k\\left(\\dfrac{1}{10} + \\dfrac{1}{20} + \\dfrac{1}{30} + \\dfrac{1}{40} + \\dfrac{1}{50}\\right) = k \\times \\dfrac{60 + 30 + 20 + 15 + 12}{600} = \\dfrac{137k}{600} = 1$", mk: "M1" },
-        { m: "$k = \\dfrac{600}{137}$", mk: "A1*" },
+        { m: "$k = \\dfrac{600}{137}$", mk: "A1*", fig: pmfFig([10, 20, 30, 40, 50], [60 / 137, 30 / 137, 20 / 137, 15 / 137, 12 / 137], { xl: "d", yl: "P(D = d)", yt: [0.1, 0.2, 0.3, 0.4], bw: 8, cap: "$P(D = d) = \\frac{600}{137d}$: halving at each doubling of $d$ — 60, 30, 20, 15, 12 out of 137." }) },
         { h: "(b) Pairs that make 80", m: "$(30, 50)$, $(50, 30)$, $(40, 40)$. $\\; P(30) = \\dfrac{20}{137}$, $P(40) = \\dfrac{15}{137}$, $P(50) = \\dfrac{12}{137}$", mk: "M1" },
         { m: "$2 \\times \\dfrac{20}{137} \\times \\dfrac{12}{137} + \\left(\\dfrac{15}{137}\\right)^2 = \\dfrac{480 + 225}{18\\,769} = 0.0376$", mk: "M1 A1", n: "Both orders of (30, 50) count; (40, 40) only once." },
         { h: "(c) The angles", m: "$a + (a + d) + (a + 2d) + (a + 3d) = 360 \\;\\Rightarrow\\; 4a + 6d = 360 \\;\\Rightarrow\\; a = 90 - 1.5d$", mk: "M1 A1" },
@@ -114,7 +140,7 @@ C["maths:S4.1"] = {
       steps: [
         { h: "(a) Sum to 1, then the log law", m: "$\\log_{36} a + \\log_{36} b + \\log_{36} c = \\log_{36}(abc) = 1 \\;\\Rightarrow\\; abc = 36$", mk: "M1 A1" },
         { h: "Every probability positive", m: "$\\log_{36} x > 0 \\Rightarrow x > 1$, so $a$, $b$, $c$ are distinct integers greater than 1 with product 36.", mk: "M1" },
-        { m: "The only choice: $a = 2$, $b = 3$, $c = 6$", mk: "A1 A1", n: "$2 \\times 3 \\times 6 = 36$; any factorisation with a 1 is excluded, and $(2, 2, 9)$, $(3, 3, 4)$ are not distinct." },
+        { m: "The only choice: $a = 2$, $b = 3$, $c = 6$", mk: "A1 A1", n: "$2 \\times 3 \\times 6 = 36$; any factorisation with a 1 is excluded, and $(2, 2, 9)$, $(3, 3, 4)$ are not distinct.", fig: pmfFig([2, 3, 6], [Math.log(2) / Math.log(36), Math.log(3) / Math.log(36), 0.5], { xt: [2, 3, 6], yt: [0.25, 0.5], bw: 8, cap: "$\\log_{36} 2 + \\log_{36} 3 + \\log_{36} 6 = \\log_{36} 36 = 1$." }) },
         { h: "(b) Same value twice", m: "$(\\log_{36} 2)^2 + (\\log_{36} 3)^2 + (\\log_{36} 6)^2 = 0.0374 + 0.0940 + 0.25 = 0.381$", mk: "M1 A1", n: "$\\log_{36} 6 = \\frac12$ exactly, since $36^{1/2} = 6$." }
       ], result: "(a) 2, 3, 6 (b) 0.381" } },
     { worked: { tag: "exam", title: "A probability function $\\frac{r}{k}$ and a quadratic with no real roots", src: "A-level June 2025 · P3 Q6 · 11 marks",
@@ -122,7 +148,7 @@ C["maths:S4.1"] = {
       steps: [
         { h: "(a) Sum to 1", m: "$\\dfrac{1}{k}(2 + 4 + \\cdots + 2n) = \\dfrac{2}{k} \\cdot \\dfrac{n(n + 1)}{2} = \\dfrac{n(n + 1)}{k} = 1$", mk: "M1 M1 A1" },
         { m: "$k = n(n + 1)$", mk: "A1*" },
-        { h: "(b) $n = 20$, $k = 420$", m: "$R = 16, 18, 20, 22, 24$: $\\dfrac{16 + 18 + 20 + 22 + 24}{420} = \\dfrac{100}{420} = \\dfrac{5}{21}$", mk: "M1 A1" },
+        { h: "(b) $n = 20$, $k = 420$", m: "$R = 16, 18, 20, 22, 24$: $\\dfrac{16 + 18 + 20 + 22 + 24}{420} = \\dfrac{100}{420} = \\dfrac{5}{21}$", mk: "M1 A1", fig: pmfFig(range(1, 20).map(function (i) { return 2 * i; }), range(1, 20).map(function (i) { return 2 * i / 420; }), { xl: "r", yl: "P(R = r)", xt: [2, 10, 16, 24, 30, 40], yt: [0.05, 0.1], hl: [16, 18, 20, 22, 24], bw: 4, cap: "Each bar is $\\frac{r}{420}$; the five shaded bars add to $\\frac{100}{420}$." }) },
         { h: "(c) Discriminant", m: "$x^2 + gx + (3g - 5) = 0$: no real roots when $g^2 - 4(3g - 5) < 0$", mk: "M1" },
         { m: "$g^2 - 12g + 20 < 0 \\;\\Rightarrow\\; (g - 2)(g - 10) < 0 \\;\\Rightarrow\\; 2 < g < 10$", mk: "M1 M1" },
         { m: "$g = 4, 6, 8$: $\\; \\dfrac{4 + 6 + 8}{420} = \\dfrac{18}{420} = \\dfrac{3}{70}$", mk: "dM1 A1" }
@@ -147,7 +173,8 @@ C["maths:S4.1"] = {
         { h: "(a)(ii) Sum < 4: only $2 + 1$", m: "$\\dfrac14 \\times \\dfrac23 = \\dfrac16$", mk: "M1 A1" },
         { h: "(b) Match each probability to a pair", m: "The four pairs have probabilities $(2,1): \\frac16$, $(2,4): \\frac{1}{12}$, $(3,1): \\frac12$, $(3,4): \\frac14$.\nSo $X = 20$ comes from $(2, 1)$ and $X = 50$ from $(3, 4)$.", mk: "M1 A1" },
         { h: "Two equations", m: "$2m + n = 20$, $\\quad 3m + 4n = 50$", mk: "M1" },
-        { m: "$3m + 4(20 - 2m) = 50 \\;\\Rightarrow\\; -5m = -30 \\;\\Rightarrow\\; m = 6$, $n = 8$", mk: "A1 A1" }
+        { m: "$3m + 4(20 - 2m) = 50 \\;\\Rightarrow\\; -5m = -30 \\;\\Rightarrow\\; m = 6$, $n = 8$", mk: "A1 A1", fig: tree([["R = 2", "1/4"], ["R = 3", "3/4"]], [[["G = 1", "2/3", "1/6 → X = 20"], ["G = 4", "1/3", "1/12"]], [["G = 1", "2/3", "1/2"], ["G = 4", "1/3", "1/4 → X = 50"]]],
+          { hl: ["0.0", "1.1"], w: 540, cap: "The four outcomes and their probabilities: only (2, 1) has $\\frac16$ and only (3, 4) has $\\frac14$." }) }
       ], result: "(a) $\\frac14$, $\\frac16$ (b) $m = 6$, $n = 8$" } },
     { h: "2.2  Stopping rules" },
     "\"Repeat until …\" questions build a distribution of the **number of trials**. Each value is one path: failures, then the stopping event.",
@@ -156,7 +183,7 @@ C["maths:S4.1"] = {
       steps: [
         { h: "(a)", m: "$0.5 + 0.2 + 2q = 1 \\;\\Rightarrow\\; q = 0.15$", mk: "B1" },
         { h: "(b) Not 7, not 7, then 7", m: "$0.8 \\times 0.8 \\times 0.2 = 0.128$", mk: "M1 A1*" },
-        { h: "(c) Every way to stop", m: "$P(S = 1) = 0.2$; $\\; P(S = 2) = 0.8 \\times 0.2 = 0.16$; $\\; P(S = 3) = 0.128$; $\\; P(S = 4) = 0.8^3 = 0.512$", mk: "M1 M1 A1 A1", n: "$S = 4$ is every path with three non-7s — whatever the 4th spin shows. Check: $0.2 + 0.16 + 0.128 + 0.512 = 1$." },
+        { h: "(c) Every way to stop", m: "$P(S = 1) = 0.2$; $\\; P(S = 2) = 0.8 \\times 0.2 = 0.16$; $\\; P(S = 3) = 0.128$; $\\; P(S = 4) = 0.8^3 = 0.512$", mk: "M1 M1 A1 A1", n: "$S = 4$ is every path with three non-7s — whatever the 4th spin shows. Check: $0.2 + 0.16 + 0.128 + 0.512 = 1$.", fig: pmfFig([1, 2, 3, 4], [0.2, 0.16, 0.128, 0.512], { xl: "s", yl: "P(S = s)", yt: [0.2, 0.4], bw: 8, cap: "Stopping at the 4th spin is the most likely: it collects every run of three non-7s." }) },
         { h: "(d) $N$ is 0 or 1", m: "$S > N$ fails only when $S = 1$ (one spin, one 7). So $P(S > N) = 1 - 0.2 = 0.8$", mk: "B1" }
       ], result: "(a) 0.15 (c) 0.2, 0.16, 0.128, 0.512 (d) 0.8" } },
     { h: "2.3  Draws without replacement" },
@@ -166,7 +193,7 @@ C["maths:S4.1"] = {
         { h: "Possible values", m: "VARIANCE has 8 letters, two of them A — so $X = 0, 1, 2$.", mk: "B1" },
         { h: "$X = 0$", m: "$\\dfrac68 \\times \\dfrac57 \\times \\dfrac46 = \\dfrac{5}{14}$", mk: "M1" },
         { h: "$X = 1$: three positions for the A", m: "$3 \\times \\dfrac28 \\times \\dfrac67 \\times \\dfrac56 = \\dfrac{15}{28}$", mk: "M1 A1" },
-        { h: "$X = 2$", m: "$3 \\times \\dfrac28 \\times \\dfrac17 \\times \\dfrac66 = \\dfrac{3}{28}$", mk: "A1", n: "Check: $\\frac{10}{28} + \\frac{15}{28} + \\frac{3}{28} = 1$." }
+        { h: "$X = 2$", m: "$3 \\times \\dfrac28 \\times \\dfrac17 \\times \\dfrac66 = \\dfrac{3}{28}$", mk: "A1", n: "Check: $\\frac{10}{28} + \\frac{15}{28} + \\frac{3}{28} = 1$.", fig: pmfFig([0, 1, 2], [10 / 28, 15 / 28, 3 / 28], { yt: [0.2, 0.4], bw: 9, cap: "Out of 28: 10, 15 and 3." }) }
       ], result: "$P(X = 0) = \\frac{5}{14}$, $P(X = 1) = \\frac{15}{28}$, $P(X = 2) = \\frac{3}{28}$" } },
 
     /* ---------------------------------------------------------------- Page 3 */
@@ -179,7 +206,7 @@ C["maths:S4.1"] = {
         { h: "(a)", m: "(Discrete) uniform distribution.", mk: "B1", n: "\"Continuous uniform\" is B0." },
         { h: "(b) The count of 2s", m: "$X \\sim B(28, 0.2)$", mk: "B1" },
         { h: "(i)", m: "$P(X \\ge 7) = 1 - P(X \\le 6) = 1 - 0.6784 = 0.322$", mk: "M1 A1" },
-        { h: "(ii)", m: "$P(4 \\le X < 8) = P(X \\le 7) - P(X \\le 3) = 0.8180 - 0.1600 = 0.658$", mk: "M1 A1" }
+        { h: "(ii)", m: "$P(4 \\le X < 8) = P(X \\le 7) - P(X \\le 3) = 0.8180 - 0.1600 = 0.658$", mk: "M1 A1", fig: pmfFig(range(0, 14), binomPs(28, 0.2).slice(0, 15), { xt: [0, 4, 7, 10, 14], yt: [], hl: [4, 5, 6, 7], cap: "$X \\sim B(28, 0.2)$: the bars 4, 5, 6 and 7 — the 8 is excluded." }) }
       ], result: "(a) discrete uniform (b) 0.322, 0.658" } },
 
     /* ---------------------------------------------------------------- Page 4 */
@@ -221,7 +248,7 @@ C["maths:S4.1"] = {
       q: "The random variable $X \\sim B(27, 0.35)$. Find (i) $P(X = 10)$, (ii) $P(12 \\le X < 15)$.",
       steps: [
         { h: "(i) Binomial PD", m: "$P(X = 10) = 0.154$", mk: "B1" },
-        { h: "(ii) Whole numbers 12, 13, 14", m: "$P(12 \\le X < 15) = P(X \\le 14) - P(X \\le 11) = 0.97707 - 0.79760 = 0.179$", mk: "M1 A1" }
+        { h: "(ii) Whole numbers 12, 13, 14", m: "$P(12 \\le X < 15) = P(X \\le 14) - P(X \\le 11) = 0.97707 - 0.79760 = 0.179$", mk: "M1 A1", fig: pmfFig(range(0, 20), binomPs(27, 0.35).slice(0, 21), { xt: [0, 5, 10, 12, 14, 20], yt: [], hl: [12, 13, 14], cap: "$B(27, 0.35)$: the three bars 12, 13 and 14." }) }
       ], result: "(i) 0.154 (ii) 0.179" } },
     { worked: { tag: "exam", title: "Same answer twice: $X$ is a whole number", src: "AS June 2025 · P2 Q1 · 3 marks",
       q: "The random variable $X \\sim B(20, 0.37)$. Find **(a)** $P(X = 8)$, **(b)** $P(X \\le 5)$, **(c)** $P(X < 5.7)$.",
@@ -235,7 +262,7 @@ C["maths:S4.1"] = {
       steps: [
         { h: "Model", m: "$D \\sim B(35, 0.08)$", mk: "M1" },
         { h: "(i)", m: "$P(D = 2) = \\binom{35}{2}(0.08)^2(0.92)^{33} = 0.243$", mk: "A1" },
-        { h: "(ii)", m: "$P(D > 3) = 1 - P(D \\le 3) = 1 - 0.6940 = 0.306$", mk: "A1" }
+        { h: "(ii)", m: "$P(D > 3) = 1 - P(D \\le 3) = 1 - 0.6940 = 0.306$", mk: "A1", fig: pmfFig(range(0, 11), binomPs(35, 0.08).slice(0, 12), { xt: [0, 2, 3, 4, 6, 8, 10], yt: [], hl: range(4, 11), cap: "$B(35, 0.08)$: more than 3 is everything from 4 up — one minus the first four bars." }) }
       ], result: "(i) 0.243 (ii) 0.306" } },
     { worked: { tag: "exam", title: "A proportion from a table, then the binomial", src: "AS June 2025 · P2 Q3(a) · 3 marks",
       q: "A bag contains red, green and white counters in proportions $p$, 0.2 and $4p$. Elsa selects 40 counters at random, one at a time, with replacement. Assuming these proportions, find the distribution of the number of red counters she selects.",
@@ -252,19 +279,19 @@ C["maths:S4.1"] = {
     { worked: { tag: "exam", title: "At least 3 successes on exactly 1 of 5 days", src: "AS June 2020 · P2 Q5(a)(b) · 4 marks",
       q: "Each sales call Afrika makes is successful with probability $\\frac16$, independently. She makes 9 calls. **(a)** Calculate the probability that at least 3 are successful. She makes 9 calls on each of 5 different days. **(b)** Calculate the probability that at least 3 calls are successful on exactly 1 of these days.",
       steps: [
-        { h: "(a) $C \\sim B(9, \\frac16)$", m: "$P(C \\ge 3) = 1 - P(C \\le 2) = 0.178$", mk: "M1 A1" },
+        { h: "(a) $C \\sim B(9, \\frac16)$", m: "$P(C \\ge 3) = 1 - P(C \\le 2) = 0.178$", mk: "M1 A1", fig: pmfFig(range(0, 9), binomPs(9, 0.16666666666666666).slice(0, 10), { xt: [0, 1, 2, 3, 5, 7, 9], yt: [], hl: range(3, 9), cap: "$B(9, \\frac16)$: at least 3 is one minus the bars 0, 1 and 2." }) },
         { h: "(b) A \"good day\" has probability 0.178", m: "$Y$ = number of good days, $Y \\sim B(5, 0.1782)$:\n$P(Y = 1) = 5 \\times 0.1782 \\times 0.8218^4 = 0.406$", mk: "M1 A1" }
       ], result: "(a) 0.178 (b) 0.406" } },
     { worked: { tag: "exam", title: "Bags with more blue than white; fewer than 2 of 5 bags", src: "A-level Specimen · P3 Q3(a) · 4 marks",
       q: "36% of a type of bulb grow into plants with blue flowers; the rest have white flowers. Bulbs are sold in mixed bags of 40. Russell selects a random sample of 5 bags. Find the probability that fewer than 2 of these bags contain more bulbs that grow blue flowers than white flowers.",
       steps: [
-        { h: "One bag: more blue than white", m: "$A \\sim B(40, 0.36)$; more blue than white means $A \\ge 21$:\n$p = P(A \\ge 21) = 1 - P(A \\le 20) = 0.0240$", mk: "M1 A1" },
+        { h: "One bag: more blue than white", m: "$A \\sim B(40, 0.36)$; more blue than white means $A \\ge 21$:\n$p = P(A \\ge 21) = 1 - P(A \\le 20) = 0.0240$", mk: "M1 A1", fig: pmfFig(range(0, 30), binomPs(40, 0.36).slice(0, 31), { xt: [0, 10, 14, 21, 30], yt: [], hl: range(21, 30), cap: "$B(40, 0.36)$ peaks near 14: 21 or more blue is a thin tail, 0.024." }) },
         { h: "Five bags", m: "$C \\sim B(5, 0.0240)$: $\\; P(C \\le 1) = 0.995$", mk: "M1 A1", n: "\"More than white\" out of 40 means 21 or more: 20 blue would be a tie." }
       ], result: "0.995" } },
     { worked: { tag: "exam", title: "Members who tango — a product, then a new binomial", src: "A-level Oct 2021 · P3 Q1(b)–(d) · 6 marks",
       q: "8% of a university's students are in the dance club; a random sample of 36 students is taken and $X$ is the number in the club. **(b)** Using a suitable model, find (i) $P(X = 4)$, (ii) $P(X \\ge 7)$. 40% of club members can tango. **(c)** Find the probability that a student is in the club and can tango. A random sample of 50 students is taken. **(d)** Find the probability that fewer than 3 are in the club and can tango.",
       steps: [
-        { h: "(b) $X \\sim B(36, 0.08)$", m: "(i) $P(X = 4) = 0.167$ $\\quad$ (ii) $P(X \\ge 7) = 1 - P(X \\le 6) = 0.0222$", mk: "M1 A1 A1" },
+        { h: "(b) $X \\sim B(36, 0.08)$", m: "(i) $P(X = 4) = 0.167$ $\\quad$ (ii) $P(X \\ge 7) = 1 - P(X \\le 6) = 0.0222$", mk: "M1 A1 A1", fig: pmfFig(range(0, 12), binomPs(36, 0.08).slice(0, 13), { xt: [0, 2, 4, 7, 10, 12], yt: [], hl: range(7, 12), cap: "$B(36, 0.08)$: 7 or more is the small tail on the right." }) },
         { h: "(c)", m: "$0.08 \\times 0.4 = 0.032$", mk: "B1" },
         { h: "(d) $T \\sim B(50, 0.032)$", m: "$P(T < 3) = P(T \\le 2) = 0.785$", mk: "M1 A1" }
       ], result: "(b) 0.167, 0.0222 (c) 0.032 (d) 0.785" } },
@@ -272,13 +299,13 @@ C["maths:S4.1"] = {
       q: "$\\frac17$ of packets of sweets contain a prize; there are 40 packets in each box, and $T$ is the number of prize packets in a box. **(a)** State a condition needed for $T$ to be modelled by $B(40, \\frac17)$. **(b)** Find (i) $P(T = 6)$, (ii) $P(T < 3)$. Kamil buys 5 boxes. **(c)** Find the probability that exactly 2 of the 5 boxes have fewer than 3 prize packets.",
       steps: [
         { h: "(a) In context", m: "Prizes must be put into packets independently (at random) — or: the probability that a packet contains a prize is constant.", mk: "B1", n: "\"Two outcomes\" or \"a fixed number of packets\" are B0 here: they are true by construction." },
-        { h: "(b)", m: "(i) $P(T = 6) = 0.173$ $\\quad$ (ii) $P(T \\le 2) = 0.0616$", mk: "B1 B1" },
+        { h: "(b)", m: "(i) $P(T = 6) = 0.173$ $\\quad$ (ii) $P(T \\le 2) = 0.0616$", mk: "B1 B1", fig: pmfFig(range(0, 15), binomPs(40, 0.14285714285714285).slice(0, 16), { xt: [0, 2, 6, 10, 15], yt: [], hl: [0, 1, 2], cap: "$B(40, \\frac17)$, centred near $\\frac{40}{7} = 5.7$: fewer than 3 is the three left bars." }) },
         { h: "(c) $K \\sim B(5, 0.0616)$", m: "$P(K = 2) = \\binom52 (0.0616)^2(0.9384)^3 = 0.0313$", mk: "M1 A1" }
       ], result: "(a) prizes placed independently / constant probability (b) 0.173, 0.0616 (c) 0.0313" } },
     { worked: { tag: "exam", title: "Days with three sixes; the expected number of sixes", src: "A-level June 2024 · P3 Q1(a)–(c) · 7 marks",
       q: "Xian rolls a fair die 10 times; $X$ is the number of sixes. **(a)** Using a suitable distribution, find (i) $P(X = 3)$, (ii) $P(X < 3)$. Xian repeats this every day for 60 days and records the number of days when $X = 3$. **(b)** Find the probability that there were at least 12 such days. **(c)** Find an estimate of the total number of sixes over the 60 days.",
       steps: [
-        { h: "(a) $X \\sim B(10, \\frac16)$", m: "(i) $0.155$ $\\quad$ (ii) $P(X \\le 2) = 0.775$", mk: "M1 A1 A1" },
+        { h: "(a) $X \\sim B(10, \\frac16)$", m: "(i) $0.155$ $\\quad$ (ii) $P(X \\le 2) = 0.775$", mk: "M1 A1 A1", fig: pmfFig(range(0, 8), binomPs(10, 0.16666666666666666).slice(0, 9), { xt: [0, 1, 2, 3, 5, 8], yt: [], hl: [0, 1, 2], cap: "$B(10, \\frac16)$: fewer than 3 sixes is the bars 0, 1, 2." }) },
         { h: "(b) $D \\sim B(60, 0.155)$", m: "$P(D \\ge 12) = 1 - P(D \\le 11) = 1 - 0.7882 = 0.212$", mk: "M1 M1 A1" },
         { h: "(c) Expected value", m: "600 rolls $\\times \\frac16 = 100$ sixes", mk: "B1" }
       ], result: "(a) 0.155, 0.775 (b) 0.212 (c) 100" } },
@@ -286,7 +313,7 @@ C["maths:S4.1"] = {
       q: "Children throw darts at a target; $H$ is the number of hits in the first 10 throws, modelled by Peta as $B(10, 0.1)$. **(a)** State two assumptions Peta needs. **(b)** Find $P(H \\ge 4)$. $F$ is the number of the throw on which the first hit occurs. **(c)** Using Peta's assumptions, find $P(F = 5)$. Thomas assumes no child needs more than 10 throws and models $P(F = n) = 0.01 + (n - 1)\\alpha$. **(d)** Find $\\alpha$. **(e)** Find $P(F = 5)$ using Thomas' model. **(f)** Explain how the two models differ in describing the probability of a hit.",
       steps: [
         { h: "(a)", m: "The probability of hitting the target is constant (0.1) for every throw; the throws are independent.", mk: "B1 B1" },
-        { h: "(b)", m: "$P(H \\ge 4) = 1 - P(H \\le 3) = 1 - 0.9872 = 0.0128$", mk: "B1" },
+        { h: "(b)", m: "$P(H \\ge 4) = 1 - P(H \\le 3) = 1 - 0.9872 = 0.0128$", mk: "B1", fig: pmfFig(range(0, 8), binomPs(10, 0.1).slice(0, 9), { xt: [0, 1, 2, 3, 4, 6, 8], yt: [], hl: range(4, 8), cap: "$B(10, 0.1)$: 4 or more hits is a tiny right tail." }) },
         { h: "(c) Four misses, then a hit", m: "$P(F = 5) = 0.9^4 \\times 0.1 = 0.0656$", mk: "M1 A1" },
         { h: "(d) Sum over $n = 1$ to 10", m: "$\\sum_{n=1}^{10}[0.01 + (n - 1)\\alpha] = 0.1 + 45\\alpha = 1 \\;\\Rightarrow\\; \\alpha = 0.02$", mk: "M1 M1 A1 A1", n: "An arithmetic series: $\\frac{10}{2}[2(0.01) + 9\\alpha]$." },
         { h: "(e)", m: "$0.01 + 4 \\times 0.02 = 0.09$", mk: "B1ft" },
@@ -296,7 +323,7 @@ C["maths:S4.1"] = {
       q: "A sack contains a large number of beads, 14% of them red. Aliya takes a random sample of 18 beads for a bracelet. **(a)** State a suitable binomial distribution for the number of red beads. **(b)** Find the probability that (i) she has just 1 red bead, (ii) she has at least 4 red beads. **(c)** Comment on the suitability of a binomial distribution here.",
       steps: [
         { h: "(a)", m: "$R \\sim B(18, 0.14)$", mk: "B1" },
-        { h: "(b)", m: "(i) $P(R = 1) = 0.194$ $\\quad$ (ii) $P(R \\ge 4) = 1 - P(R \\le 3) = 1 - 0.7618 = 0.238$", mk: "B1 M1 A1" },
+        { h: "(b)", m: "(i) $P(R = 1) = 0.194$ $\\quad$ (ii) $P(R \\ge 4) = 1 - P(R \\le 3) = 1 - 0.7618 = 0.238$", mk: "B1 M1 A1", fig: pmfFig(range(0, 10), binomPs(18, 0.14).slice(0, 11), { xt: [0, 1, 2, 4, 6, 10], yt: [], hl: range(4, 10), cap: "$B(18, 0.14)$: at least 4 red is one minus the bars 0 to 3." }) },
         { h: "(c) Is $p$ constant?", m: "Taking beads out changes the proportion left, so strictly the trials are not independent. But the sack holds a **large number** of beads, so removing 18 barely changes $p = 0.14$ — the binomial is a suitable model.", mk: "B1" }
       ], result: "(a) $B(18, 0.14)$ (b) 0.194, 0.238 (c) suitable — large sack keeps $p$ nearly constant" } },
 
@@ -434,7 +461,7 @@ C["maths:S4.2"] = {
     { worked: { tag: "exam", title: "Both conditions: independent Normal variables", src: "A-level June 2024 · P3 Q5(a)–(c) · 5 marks",
       q: "High-jump heights $H$ are $N(1.4, 0.15^2)$ metres. **(a)** Find the proportion of students jumping more than 1.6 m. 1500 m times $T$ are $N(330, 26^2)$ seconds. The Head wants the proportion who can jump higher than 1.6 m **and** run 1500 m in under 5 minutes. **(b)** State a necessary assumption about $H$ and $T$. **(c)** Find the Head's estimate.",
       steps: [
-        { h: "(a)", m: "$P(H > 1.6) = 0.0912$", mk: "B1" },
+        { h: "(a)", m: "$P(H > 1.6) = 0.0912$", mk: "B1", fig: normFig(1.4, 0.15, [[1.6, 2, "accent2"]], [[1.6, "1.6"]], { xl: "H (m)", cap: "$H \\sim N(1.4, 0.15^2)$: above 1.6 m is the right tail." }) },
         { h: "(b)", m: "$H$ and $T$ are independent.", mk: "B1" },
         { h: "(c) 5 minutes = 300 s", m: "$P(T < 300) = 0.1243$", mk: "M1" },
         { m: "$0.0912 \\times 0.1243 = 0.0113$", mk: "M1 A1", n: "Convert the units first — 5 minutes, not 5." }
@@ -451,7 +478,7 @@ C["maths:S4.2"] = {
     { worked: { tag: "exam", title: "1% shorter than $k$; a proportion between two heights", src: "A-level Oct 2021 · P3 Q5(a)(b) · 3 marks",
       q: "Female heights in a country are $N(166.5, 6.1^2)$ cm. Given that 1% are shorter than $k$ cm, **(a)** find $k$. **(b)** Find the proportion with heights between 150 cm and 175 cm.",
       steps: [
-        { h: "(a) $z$ for the lowest 1%", m: "$\\dfrac{k - 166.5}{6.1} = -2.3263 \\;\\Rightarrow\\; k = 152.3$ cm", mk: "M1 A1" },
+        { h: "(a) $z$ for the lowest 1%", m: "$\\dfrac{k - 166.5}{6.1} = -2.3263 \\;\\Rightarrow\\; k = 152.3$ cm", mk: "M1 A1", fig: normFig(166.5, 6.1, [[140, 152.31, "danger"]], [[152.31, "k = 152.3"]], { xl: "height (cm)", cap: "The lowest 1% lies more than 2.3263 sd below the mean." }) },
         { h: "(b)", m: "$P(150 < X < 175) = 0.915$", mk: "B1" }
       ], result: "(a) 152.3 cm (b) 0.915" } },
     { worked: { tag: "exam", title: "Show σ; a proportion; an expected profit; a binomial check", src: "A-level June 2022 · P3 Q2 · 12 marks",
@@ -481,7 +508,7 @@ C["maths:S4.2"] = {
       steps: [
         { h: "$z$ values", m: "$-0.5244$ (30% below) and $1.2816$ (10% above)", mk: "B1 B1" },
         { h: "Equations", m: "$16.3 = \\mu - 0.5244\\sigma$, $\\quad 29.0 = \\mu + 1.2816\\sigma$", mk: "M1" },
-        { m: "$12.7 = 1.8060\\sigma \\;\\Rightarrow\\; \\sigma = 7.03$; $\\quad \\mu = 16.3 + 0.5244 \\times 7.03 = 20.0$", mk: "A1 A1", n: "Use 4 d.p. $z$ values: rounding to 0.524 and 1.28 shifts $\\sigma$ in the third figure." }
+        { m: "$12.7 = 1.8060\\sigma \\;\\Rightarrow\\; \\sigma = 7.03$; $\\quad \\mu = 16.3 + 0.5244 \\times 7.03 = 20.0$", mk: "A1 A1", n: "Use 4 d.p. $z$ values: rounding to 0.524 and 1.28 shifts $\\sigma$ in the third figure.", fig: normFig(19.99, 7.032, [[-10, 16.3, "accent2"], [29, 50, "accent3"]], [[16.3, "16.3"], [29, "29.0"]], { xl: "D (m)", xt: [10, 20, 30], extra: [{ text: [12.5, 0.2], t: "30%", size: 12, c: "accent2", b: true }, { text: [32, 0.2], t: "10%", size: 12, c: "accent3", b: true }], cap: "One tail below the mean, one above: $\\mu = 20.0$, $\\sigma = 7.03$." }) }
       ], result: "$\\mu = 20.0$ m, $\\sigma = 7.03$ m" } },
 
     /* ---------------------------------------------------------------- Page 4 */
@@ -501,7 +528,7 @@ C["maths:S4.2"] = {
       steps: [
         { h: "(a)", m: "$P(L > 16) = 0.6915$", mk: "B1" },
         { h: "(b) Each old battery must last to 20, given it reached 16", m: "$P(L > 20 \\mid L > 16) = \\dfrac{P(L > 20)}{P(L > 16)} = \\dfrac{0.3085}{0.6915} = 0.4462$", mk: "M1 M1 A1" },
-        { m: "All four, independently: $0.4462^4 = 0.0396$", mk: "M1 A1" },
+        { m: "All four, independently: $0.4462^4 = 0.0396$", mk: "M1 A1", fig: normFig(18, 4, [[16, 20, "accent3"], [20, 40, "accent2"]], [[16, "16"], [20, "20"]], { xl: "L (hours)", cap: "Given $L > 16$ (both shaded parts), the chance of reaching 20 is the share beyond 20: $\\frac{0.3085}{0.6915}$." }) },
         { h: "(c) Two new batteries must last 4 hours; two old ones 4 more", m: "$P(L > 4)^2 \\times 0.4462^2 = 0.99977^2 \\times 0.1991 = 0.199$", mk: "M1 A1ft A1*" }
       ], result: "(a) 0.6915 (b) 0.0396 (c) 0.199" } },
     { worked: { tag: "exam", title: "A Normal model that allows negative times — and its refinement", src: "A-level Oct 2020 · P3 Q5(c)(d) · 10 marks",
@@ -509,7 +536,7 @@ C["maths:S4.2"] = {
       steps: [
         { h: "(c)(i)", m: "$P(T < 2) = 0.196$", mk: "B1" },
         { h: "(c)(ii)", m: "$\\dfrac{P(0 < T < 2)}{P(T > 0)} = \\dfrac{0.196 - 0.0766}{0.9234} = 0.129$", mk: "M1 A1 A1" },
-        { h: "(c)(iii)", m: "The model gives $P(T < 0) = 0.077$ — a significant probability of a **negative** time, which is impossible; the answers to (i) and (ii) differ a lot because of it.", mk: "B1" },
+        { h: "(c)(iii)", m: "The model gives $P(T < 0) = 0.077$ — a significant probability of a **negative** time, which is impossible; the answers to (i) and (ii) differ a lot because of it.", mk: "B1", fig: normFig(5, 3.5, [[-10, 0, "danger"], [0, 2, "accent2"]], [[0, "0"], [2, "2"]], { xl: "T (min)", cap: "7.7% of the model's area lies at negative times." }) },
         { h: "(d) Condition on $T > 2$", m: "The median $m$ satisfies $P(T > m \\mid T > 2) = 0.5$, i.e. $P(T > m) = 0.5 \\times P(T > 2) = 0.5 \\times 0.8043 = 0.4022$", mk: "M1 M1 A1ft" },
         { m: "$P(T < m) = 0.5978 \\;\\Rightarrow\\; \\dfrac{m - 5}{3.5} = 0.2477 \\;\\Rightarrow\\; m = 5.9$ min", mk: "M1 A1" }
       ], result: "(c) 0.196, 0.129; negative times (d) 5.9 minutes" } },
@@ -549,7 +576,7 @@ C["maths:S4.2"] = {
       q: "A fair die is rolled 10 times a day for 60 days. Use a Normal approximation to estimate the probability that the total number of sixes is more than 95.",
       steps: [
         { h: "The binomial and its parameters", m: "$S \\sim B(600, \\frac16)$: $\\; \\mu = 100$, $\\; \\sigma^2 = 600 \\times \\frac16 \\times \\frac56 = 83.3$", mk: "M1 A1" },
-        { h: "Approximate with correction", m: "$P(S > 95) \\approx P(T > 95.5) = P\\left(Z > \\dfrac{95.5 - 100}{9.129}\\right) = 0.689$", mk: "M1 A1", n: "$p = \\frac16$ is not close to 0.5, but $n = 600$ is so large that the approximation is still good." }
+        { h: "Approximate with correction", m: "$P(S > 95) \\approx P(T > 95.5) = P\\left(Z > \\dfrac{95.5 - 100}{9.129}\\right) = 0.689$", mk: "M1 A1", n: "$p = \\frac16$ is not close to 0.5, but $n = 600$ is so large that the approximation is still good.", fig: normFig(100, 9.129, [[95.5, 140, "accent2"]], [[95.5, "95.5"]], { xl: "total sixes", xt: [80, 90, 100, 110, 120], cap: "$N(100, 83.3)$: more than 95 sixes means 96 up, so from 95.5." }) }
       ], result: "0.689" } },
     { worked: { tag: "exam", title: "Find $n$ from an approximated probability", src: "A-level Specimen · P3 Q3(b) · 6 marks",
       q: "36% of bulbs grow blue flowers. Maggie takes a random sample of $n$ bulbs. Using a Normal approximation, the probability that more than 244 grow blue flowers is 0.0521 to 4 d.p. Find $n$.",
@@ -557,7 +584,7 @@ C["maths:S4.2"] = {
         { h: "Approximate", m: "$T \\sim B(n, 0.36) \\approx N(0.36n,\\; 0.2304n)$", mk: "B1" },
         { h: "Continuity correction and $z$", m: "$P(T > 244.5) = 0.0521 \\;\\Rightarrow\\; \\dfrac{244.5 - 0.36n}{\\sqrt{0.2304n}} = 1.625$", mk: "M1 M1 A1" },
         { h: "A quadratic in $\\sqrt{n}$", m: "Let $x = \\sqrt{n}$: $\\; 0.36x^2 + 1.625 \\times 0.48x - 244.5 = 0$, i.e. $0.36x^2 + 0.78x - 244.5 = 0$", mk: "M1" },
-        { m: "$x = 25$ (the negative root is rejected), so $n = 625$", mk: "A1" }
+        { m: "$x = 25$ (the negative root is rejected), so $n = 625$", mk: "A1", fig: normFig(225, 12, [[244.5, 280, "accent2"]], [[244.5, "244.5"]], { xl: "blue bulbs", cap: "With $n = 625$: $N(225, 12^2)$, and 244.5 is $1.625$ sd above the mean — a tail of 0.0521." }) }
       ], result: "$n = 625$" } },
 
     /* ---------------------------------------------------------------- Page 6 */
@@ -658,6 +685,11 @@ C["maths:S4.3"] = {
       "**Uniform** — \"each [side] is equally likely\". Critique with data showing unequal frequencies."
     ] } },
     { worked: { tag: "exam", title: "Why the Normal model is wrong for hospital stays", src: "A-level June 2023 · P3 Q6(b)(e)(i)(f) · 3 marks",
+      fig: { x: [-12, 44], y: [0, 5], w: 500, h: 230, axes: { x: "T (hours)", y: "frequency density", xt: [-10, 4, 7, 12, 16, 20, 40], yt: [1, 2, 3, 4] }, items: [].concat(
+        [[0, 4, 2.5], [4, 7, 3], [7, 12, 4.2], [12, 16, 4], [16, 20, 3.5], [20, 40, 1]].map(function (b) { return { poly: [[b[0], 0], [b[1], 0], [b[1], b[2]], [b[0], b[2]]], fill: "accent", alpha: 0.2, c: "accent", w: 1.2 }; }),
+        [{ shade: { fn: "90*exp(-((x-14.9)^2)/(2*9.3^2))/(9.3*sqrt(2*pi))", from: -12, to: 0 }, c: "danger", alpha: 0.4 },
+          { fn: "90*exp(-((x-14.9)^2)/(2*9.3^2))/(9.3*sqrt(2*pi))", from: -12, to: 44, c: "accent2", w: 2.2, dash: true }, { text: [30, 2.2], t: "N(14.9, 9.3²)", c: "accent2", b: true, size: 12 }]
+      ), cap: "The histogram has a long right tail; the symmetrical Normal (scaled to 90 patients) puts area at negative times." },
       q: "A histogram of the hours, $T$, that 90 patients stay in hospital is highest between 7 and 16 hours and has a long right tail to 40 hours; the mean is 14.9 and the standard deviation 9.3. Tomas suggests $T \\sim N(14.9, 9.3^2)$. **(b)** With reference to the histogram, state whether Tomas' model could be suitable. **(e)(i)** Estimate $P(10 < T < 30)$ using Tomas' model. Xiang models the frequency polygon by $y = 99xe^{-x}$, $0 \\le x \\le 4$ ($x$ in tens of hours). **(f)** State one limitation of Xiang's model.",
       steps: [
         { h: "(b) Shape", m: "Not suitable: the histogram is skewed (long right tail) but a Normal distribution is symmetrical.", mk: "B1" },
@@ -676,7 +708,7 @@ C["maths:S4.3"] = {
       q: "On average 1.5% of components are defective. Explain why a Normal approximation would not be suitable for the number of defectives in a sample of 36, and state the model you would use.",
       steps: [
         { h: "Conditions for the approximation", m: "$n$ large and $p$ close to 0.5. Here $p = 0.015$ is far from 0.5 and $np = 0.54$ is tiny: the distribution is very skewed." },
-        { h: "Model", m: "Use the binomial directly: $D \\sim B(36, 0.015)$." }
+        { h: "Model", m: "Use the binomial directly: $D \\sim B(36, 0.015)$.", fig: pmfFig(range(0, 5), binomPs(36, 0.015).slice(0, 6), { xt: [0, 1, 2, 3, 4, 5], yt: [], hl: [], cap: "$B(36, 0.015)$: piled up at 0 and 1 — nothing like a symmetrical bell." }) }
       ], result: "$p$ is far from 0.5 and $np$ is small — use $B(36, 0.015)$" } },
 
     /* ---------------------------------------------------------------- Page 2 */

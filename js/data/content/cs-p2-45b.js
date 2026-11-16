@@ -103,7 +103,7 @@ C["compsci:4.5.4.3"] = {
     { fig: bitsFig("10110001".split(""), ["−128", "64", "32", "16", "8", "4", "2", "1"], { neg: 0, cap: "10110001 in two's complement: −128 + 32 + 16 + 1 = −79. Only the MSB's weight is negative." }) },
     { worked: { tag: "exam", title: "A two's complement pattern in decimal", src: "AS June 2016 · P2 Q02.4 · 1 mark",
       q: "What is the decimal equivalent of the bit pattern 00111001 if it represents a two's complement binary integer?",
-      steps: [{ m: "MSB 0 → positive: 32 + 16 + 8 + 1" }, { m: "**57**", mk: "1 mark" }], result: "57" } },
+      steps: [{ m: "MSB 0 → positive: 32 + 16 + 8 + 1", fig: bitsFig("00111001".split(""), ["−128", "64", "32", "16", "8", "4", "2", "1"], { neg: 0 }) }, { m: "**57**", mk: "1 mark" }], result: "57", try: [{ grid: { cols: ["8-bit two's complement", "Decimal"], rows: [["11001000", "-56"], ["01011010", "90"], ["10000001", "-127"], ["11111111", "-1"], ["10110110", "-74"]], given: [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0]], cap: "**Your turn.** The MSB is worth −128: convert each pattern." } }] } },
 
     { page: "Negating a number" },
     { h: "Method 1 — flip the bits, add 1" },
@@ -131,32 +131,32 @@ C["compsci:4.5.4.3"] = {
       q: "What is the result of subtracting the two's complement binary number 00100100 from the two's complement binary number 00011011? Give your answer in two's complement binary and show all your working in binary.",
       steps: [
         { h: "Negate the number being subtracted", m: "00100100 (36) → **11011100** (−36)", mk: "1 mark" },
-        { h: "Add", m: "00011011 + 11011100 = **11110111** (27 − 36 = −9)", mk: "1 mark", n: "Follow-through allowed from a wrong −36. R. both marks if only decimal subtraction is used." }
-      ], result: "11110111" } },
+        { h: "Add", m: "00011011 + 11011100 = **11110111** (27 − 36 = −9)", mk: "1 mark", n: "Follow-through allowed from a wrong −36. R. both marks if only decimal subtraction is used.", fig: addFig("00011011", "11011100", "11110111", "00011000", "00011011 + 11011100 = 11110111 (27 − 36 = −9).") }
+      ], result: "11110111", try: [{ grid: { cols: ["", "8-bit pattern"], rows: [["number being subtracted", "00110011"], ["its two's complement", "11001101"], ["the other number", "01010101"], ["sum, carry discarded", "00100010"]], given: [[0, 0], [1, 0], [2, 0], [3, 0], [0, 1], [2, 1]], cap: "**Your turn.** Subtract 00110011 from 01010101 the same way (85 − 51)." } }] } },
     { worked: { tag: "exam", title: "Subtract 00011100 from 00111011", src: "AS June 2024 · P2 Q02.4 · 2 marks",
       q: "Show how the 8-bit two's complement binary integer 00011100 can be subtracted from the 8-bit two's complement binary integer 00111011 without converting the numbers to decimal. Show all your working in binary.",
       steps: [
         { m: "00011100 (28) → **11100100** (−28)", mk: "1 mark" },
-        { m: "00111011 + 11100100 = 1 00011111 → discard the carry → **00011111** (59 − 28 = 31)", mk: "1 mark" }
+        { m: "00111011 + 11100100 = 1 00011111 → discard the carry → **00011111** (59 − 28 = 31)", mk: "1 mark", fig: addFig("00111011", "11100100", "00011111", "11100000", "00111011 + 11100100: the carry out of the left-hand column is discarded, leaving 00011111 (59 − 28 = 31).") }
       ], result: "00011111" } },
     { worked: { tag: "exam", title: "A 3-mark subtraction: discard the extra bit", src: "AS June 2025 · P2 Q02.5 · 3 marks",
       q: "Using 8-bit two's complement binary, what is the result of subtracting 00110100 from 01101101? Give your answer in 8-bit two's complement binary and show all your working in binary.",
       steps: [
         { m: "00110100 (52) → **11001100** (−52)", mk: "1 mark" },
         { m: "01101101 + 11001100 = **100111001** (9 bits)", mk: "1 mark" },
-        { m: "Discard the additional ninth bit: **00111001** (109 − 52 = 57)", mk: "1 mark", n: "The third mark is specifically for discarding the carry." }
+        { m: "Discard the additional ninth bit: **00111001** (109 − 52 = 57)", mk: "1 mark", n: "The third mark is specifically for discarding the carry.", fig: addFig("01101101", "11001100", "00111001", "11001100", "01101101 + 11001100: the carry out of the left-hand column is discarded, leaving 00111001 (109 − 52 = 57).") }
       ], result: "00111001" } },
     { worked: { tag: "exam", title: "18 − 72 in 8-bit two's complement", src: "A-level June 2021 · P2 Q08 · 2 marks",
       q: "Use binary addition in 8-bit two's complement to perform the subtraction 18 − 72. Show both your working and your final answer in binary.",
       steps: [
         { m: "18 = 00010010; $\\;$ −72 = **10111000** (72 = 01001000, flip and add 1)", mk: "1 mark" },
-        { m: "00010010 + 10111000 = **11001010** (= −54 ✓)", mk: "1 mark", n: "No carry out here: the answer is negative." }
-      ], result: "11001010" } },
+        { m: "00010010 + 10111000 = **11001010** (= −54 ✓)", mk: "1 mark", n: "No carry out here: the answer is negative.", fig: addFig("00010010", "10111000", "11001010", "00110000", "00010010 + 10111000 = 11001010 (18 − 72 = −54).") }
+      ], result: "11001010", try: [{ grid: { cols: ["", "8-bit pattern"], rows: [["number being subtracted", "01100100"], ["its two's complement", "10011100"], ["the other number", "00011001"], ["sum, carry discarded", "10110101"]], given: [[0, 0], [1, 0], [2, 0], [3, 0], [0, 1], [2, 1]], cap: "**Your turn.** 25 − 100 in 8-bit two's complement: the answer is negative, so there is no carry to discard." } }] } },
     { worked: { tag: "exam", title: "Explain the subtraction method", src: "AS June 2019 · P2 Q02.4 · 2 marks",
       q: "Explain how the two's complement binary integer 00100111 can be subtracted from the two's complement binary integer 01001001 without converting the numbers into decimal.",
       steps: [
         { m: "The (positive) number 00100111 must be converted to its negative equivalent, 11011001;", mk: "1 mark" },
-        { m: "this negative number is then added to 01001001 (giving 00100010, discarding the carry);", mk: "1 mark", n: "\"Explain\": both the conversion and the addition must be described; working alone with no explanation earns only 1." }
+        { m: "this negative number is then added to 01001001 (giving 00100010, discarding the carry);", mk: "1 mark", n: "\"Explain\": both the conversion and the addition must be described; working alone with no explanation earns only 1.", fig: addFig("01001001", "11011001", "00100010", "11011001", "01001001 + 11011001: the carry out of the left-hand column is discarded, leaving 00100010 (73 − 39 = 34).") }
       ], result: "Negate 00100111 → 11011001, then add" } },
     { worked: { tag: "exam", title: "Using a two's complement circuit to subtract", src: "AS June 2016 · P2 Q05.5 · 1 mark",
       q: "A logic circuit obtains the two's complement of a 3-bit binary number. Explain how this circuit could be used by a processor when subtracting one 3-bit binary number from another.",
@@ -169,7 +169,7 @@ C["compsci:4.5.4.3"] = {
       steps: [{ m: "Lowest **−128**; highest **+127**", mk: "1 mark", n: "Both must be correct for the mark." }], result: "−128 and 127" } },
     { worked: { tag: "exam", title: "4-bit range", src: "AS June 2025 · P2 Q02.4 · 2 marks",
       q: "What are the lowest and highest values that can be represented by a 4-bit two's complement binary integer? Give your answers in decimal.",
-      steps: [{ m: "Lowest −2³ = **−8**", mk: "1 mark" }, { m: "Highest 2³ − 1 = **7**", mk: "1 mark" }], result: "−8 and 7" } },
+      steps: [{ m: "Lowest −2³ = **−8**", mk: "1 mark" }, { m: "Highest 2³ − 1 = **7**", mk: "1 mark" }], result: "−8 and 7", try: [{ grid: { cols: ["Bits", "Lowest", "Highest"], rows: [["4", "-8", "7"], ["6", "-32", "31"], ["10", "-512", "511"], ["12", "-2048", "2047"], ["16", "-32768", "32767"]], given: [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0]], cap: "**Your turn.** The range of n-bit two's complement, for each n." } }] } },
     { worked: { tag: "exam", title: "Most negative in 12 bits", src: "AS June 2018 · P2 Q02.3 · 1 mark",
       q: "In decimal, what is the most negative number that can be represented using a 12-bit two's complement binary integer?",
       steps: [{ m: "−2¹¹ = **−2048**", mk: "1 mark" }], result: "−2048" } },
@@ -235,28 +235,28 @@ C["compsci:4.5.4.4"] = {
     ] },
     { worked: { tag: "exam", title: "Four bits each side", src: "AS June 2016 · P2 Q02.3 · 2 marks",
       q: "What is the decimal equivalent of the bit pattern 00111001 if it represents an unsigned fixed-point binary value with four bits before and four bits after the binary point?",
-      steps: [{ m: "Whole part 0011 = **3**", mk: "1 mark" }, { m: "Fraction .1001 = ½ + 1/16 = **9/16** (.5625) → 3 9/16 = 3.5625", mk: "1 mark", n: "Alternative: 57/16 for both marks (00111001 = 57, ÷ 2⁴)." }], result: "3.5625" } },
+      steps: [{ m: "Whole part 0011 = **3**", mk: "1 mark" }, { m: "Fraction .1001 = ½ + 1/16 = **9/16** (.5625) → 3 9/16 = 3.5625", mk: "1 mark", n: "Alternative: 57/16 for both marks (00111001 = 57, ÷ 2⁴)." }], result: "3.5625", try: [{ grid: { cols: ["Pattern (4 . 4)", "Decimal"], rows: [["01101010", "6.625"], ["10010001", "9.0625"], ["00001111", "0.9375"], ["11000100", "12.25"]], given: [[0, 0], [1, 0], [2, 0], [3, 0]], cap: "**Your turn.** Unsigned fixed point, four bits each side of the point: convert each." } }] } },
     { worked: { tag: "exam", title: "Five bits each side", src: "AS June 2019 · P2 Q02.3 · 2 marks",
       q: "The bit pattern 1001110001 represents an unsigned fixed-point binary number with five bits before and five bits after the binary point. Convert it into decimal.",
-      steps: [{ m: "10011 = **19**", mk: "1 mark" }, { m: ".10001 = ½ + 1/32 = **17/32** (.53125) → 19.53125", mk: "1 mark" }], result: "19.53125" } },
+      steps: [{ m: "10011 = **19**", mk: "1 mark" }, { m: ".10001 = ½ + 1/32 = **17/32** (.53125) → 19.53125", mk: "1 mark", fig: bitsFig("1001110001".split(""), ["16","8","4","2","1","1/2","1/4","1/8","1/16","1/32"], { point: 5, cw: 44 }) }], result: "19.53125" } },
     { worked: { tag: "exam", title: "Two bits before, six after", src: "AS June 2023 · P2 Q03.5 · 2 marks",
       q: "What is the decimal equivalent of the bit pattern 11011101 if it represents an unsigned fixed-point binary value with two bits before and six bits after the binary point?",
-      steps: [{ m: "11 = **3**", mk: "1 mark" }, { m: ".011101 = ¼ + ⅛ + 1/16 + 1/64 = **29/64** (.453125) → 3.453125", mk: "1 mark", n: "Or 221/64 for 2 marks." }], result: "3.453125" } },
+      steps: [{ m: "11 = **3**", mk: "1 mark" }, { m: ".011101 = ¼ + ⅛ + 1/16 + 1/64 = **29/64** (.453125) → 3.453125", mk: "1 mark", n: "Or 221/64 for 2 marks.", fig: bitsFig("11011101".split(""), ["2","1","1/2","1/4","1/8","1/16","1/32","1/64"], { point: 2 }) }], result: "3.453125" } },
     { worked: { tag: "exam", title: "Four bits before, six after", src: "AS June 2024 · P2 Q02.5 · 2 marks",
       q: "The bit pattern 0111010110 represents a 10-bit unsigned fixed point binary number with four bits before and six bits after the binary point. Convert it to decimal.",
-      steps: [{ m: "0111 = **7**", mk: "1 mark" }, { m: ".010110 = ¼ + 1/16 + 1/32 = **11/32** (.34375) → 7.34375", mk: "1 mark" }], result: "7.34375" } },
+      steps: [{ m: "0111 = **7**", mk: "1 mark" }, { m: ".010110 = ¼ + 1/16 + 1/32 = **11/32** (.34375) → 7.34375", mk: "1 mark", fig: bitsFig("0111010110".split(""), ["8","4","2","1","1/2","1/4","1/8","1/16","1/32","1/64"], { point: 4, cw: 44 }) }], result: "7.34375" } },
     { worked: { tag: "exam", title: "Decimal → fixed point with 5 bits after the point", src: "AS June 2020 · P2 Q02.2 · 2 marks",
       q: "Convert the decimal number 6.34375 into an unsigned fixed point binary number using 8 bits with 5 bits after the binary point.",
       steps: [
         { h: "Whole part in 3 bits", m: "6 = **110**", mk: "1 mark" },
-        { h: "Fraction in 5 bits", m: ".34375 = ¼ + 1/16 + 1/32 → **.01011**", mk: "1 mark", n: "Doubling: .34375 → .6875 (0) → 1.375 (1) → .75 (0) … reading 0 1 0 1 1." }
+        { h: "Fraction in 5 bits", m: ".34375 = ¼ + 1/16 + 1/32 → **.01011**", mk: "1 mark", n: "Doubling: .34375 → .6875 (0) → 1.375 (1) → .75 (0) … reading 0 1 0 1 1.", fig: bitsFig("11001011".split(""), ["4","2","1","1/2","1/4","1/8","1/16","1/32"], { point: 3 }) }
       ], result: "110.01011" } },
     { worked: { tag: "exam", title: "Decimal → fixed point, four and four", src: "AS June 2025 · P2 Q02.6 · 2 marks",
       q: "Represent 5.75 as an 8-bit unsigned fixed point binary number with four bits before and four bits after the binary point.",
-      steps: [{ m: "5 → **0101**", mk: "1 mark" }, { m: ".75 = ½ + ¼ → **.1100**", mk: "1 mark", n: "Max 1 if not in the correct format — all eight bits, four each side." }], result: "0101.1100" } },
+      steps: [{ m: "5 → **0101**", mk: "1 mark" }, { m: ".75 = ½ + ¼ → **.1100**", mk: "1 mark", n: "Max 1 if not in the correct format — all eight bits, four each side.", fig: bitsFig("01011100".split(""), ["8","4","2","1","1/2","1/4","1/8","1/16"], { point: 4 }) }], result: "0101.1100", try: [{ grid: { cols: ["Decimal", "8-bit pattern (4 . 4)"], rows: [["3.25", "00110100"], ["9.875", "10011110"], ["12.5625", "11001001"], ["0.6875", "00001011"]], given: [[0, 0], [1, 0], [2, 0], [3, 0]], cap: "**Your turn.** Write each as eight bits, four before and four after the point (no point in the answer)." } }] } },
     { worked: { tag: "exam", title: "Where does the point go?", src: "AS June 2017 · P2 Q02.4 · 1 mark",
       q: "Figure 2 shows the bit pattern 10011011. Indicate clearly where the binary point must be placed so that the value 19.375 is represented.",
-      steps: [{ h: "19 = 10011; .375 = ¼ + ⅛ = .011", m: "**10011.011** — the point between the 5th and 6th bits", mk: "1 mark" }], result: "10011.011" } },
+      steps: [{ h: "19 = 10011; .375 = ¼ + ⅛ = .011", m: "**10011.011** — the point between the 5th and 6th bits", mk: "1 mark", fig: bitsFig("10011011".split(""), ["16","8","4","2","1","1/2","1/4","1/8"], { point: 5 }) }], result: "10011.011" } },
 
     { page: "Fixed point, two's complement" },
     { callout: { t: "info", h: "Key idea", body: "In **two's complement fixed point**, the leftmost bit's place value is **negative**; everything else is as before." } },
@@ -289,37 +289,37 @@ C["compsci:4.5.4.4"] = {
       steps: [
         { m: "Mantissa 1.0110000 = −1 + ¼ + ⅛ = **−5/8**; exponent 0011 = **3** // point moved 3 right: 1011.0000", mk: "1 mark" },
         { m: "−5/8 × 2³ = **−5**", mk: "1 mark" }
-      ], result: "−5" } },
+      ], result: "−5", fig: fpFig("10110000", "0011"), try: [{ grid: { cols: ["Mantissa", "Exponent", "Decimal"], rows: [["01010000", "0011", "5"], ["10100000", "0010", "-3"], ["01100000", "1110", "0.1875"], ["10011000", "0001", "-1.625"]], given: [[0, 0], [0, 1], [1, 0], [1, 1], [2, 0], [2, 1], [3, 0], [3, 1]], cap: "**Your turn.** 8-bit mantissa, 4-bit exponent, both two's complement: give each value in decimal." } }] } },
     { worked: { tag: "exam", title: "A negative exponent", src: "A-level June 2018 · P2 Q01.2 · 2 marks",
       q: "Using a normalised floating point representation (7-bit mantissa, 5-bit exponent, both two's complement), calculate the decimal equivalent of the number whose mantissa is 0.1011 (value 11/16) with exponent −3. Show your working.",
-      steps: [{ m: "Mantissa 0.6875 (11/16), exponent −3 // point moved 3 places left", mk: "1 mark" }, { m: "11/16 × 2⁻³ = **11/128 = 0.0859375**", mk: "1 mark" }], result: "0.0859375" } },
+      steps: [{ m: "Mantissa 0.6875 (11/16), exponent −3 // point moved 3 places left", mk: "1 mark" }, { m: "11/16 × 2⁻³ = **11/128 = 0.0859375**", mk: "1 mark" }], result: "0.0859375", fig: fpFig("0101100", "11101") } },
     { worked: { tag: "exam", title: "Negative mantissa, small positive exponent", src: "A-level June 2019 · P2 Q11.2 · 2 marks",
       q: "8-bit mantissa, 4-bit exponent, both two's complement. Calculate the decimal equivalent of mantissa 10110010, exponent 0010. Show your working.",
       steps: [
         { m: "Mantissa 1.0110010 = −1 + ¼ + ⅛ + 1/64 = **−39/64** (−0.609375); exponent **2**", mk: "1 mark" },
         { m: "−39/64 × 4 = **−39/16 = −2.4375**", mk: "1 mark" }
-      ], result: "−2.4375" } },
+      ], result: "−2.4375", fig: fpFig("10110010", "0010") } },
     { worked: { tag: "exam", title: "Both negative (7-bit mantissa, 5-bit exponent)", src: "A-level June 2020 · P2 Q02.2 · 2 marks",
       q: "7-bit mantissa, 5-bit exponent, both two's complement. Calculate the decimal equivalent of mantissa 1010100, exponent 11101. Express your answer to at least four decimal places or as a fraction.",
       steps: [
         { m: "Mantissa 1.010100 = −1 + ¼ + 1/16 = **−11/16**; exponent 11101 = −16 + 8 + 4 + 1 = **−3**", mk: "1 mark" },
         { m: "−11/16 × 2⁻³ = **−11/128 = −0.0859375**", mk: "1 mark" }
-      ], result: "−0.0859375" } },
+      ], result: "−0.0859375", fig: fpFig("1010100", "11101") } },
     { worked: { tag: "exam", title: "A whole-number result", src: "A-level June 2021 · P2 Q10.2 · 2 marks",
       q: "8-bit mantissa, 4-bit exponent, both two's complement. Calculate the decimal equivalent of mantissa 01101000, exponent 0110. Show your working.",
-      steps: [{ m: "Mantissa 13/16 (0.8125), exponent 6 // point moved 6 right: 0110100.0", mk: "1 mark" }, { m: "13/16 × 64 = **52**", mk: "1 mark" }], result: "52" } },
+      steps: [{ m: "Mantissa 13/16 (0.8125), exponent 6 // point moved 6 right: 0110100.0", mk: "1 mark" }, { m: "13/16 × 64 = **52**", mk: "1 mark" }], result: "52", fig: fpFig("01101000", "0110") } },
     { worked: { tag: "exam", title: "A very small positive value", src: "A-level June 2022 · P2 Q05.3 · 2 marks",
       q: "8-bit mantissa, 4-bit exponent, both two's complement. Calculate the decimal equivalent of mantissa 01101100, exponent 1001, as a fraction or to 4 decimal places.",
-      steps: [{ m: "Mantissa 0.1101100 = **27/32** (0.84375); exponent 1001 = −8 + 1 = **−7**", mk: "1 mark" }, { m: "27/32 × 2⁻⁷ = **27/4096 ≈ 0.0066**", mk: "1 mark" }], result: "27/4096" } },
+      steps: [{ m: "Mantissa 0.1101100 = **27/32** (0.84375); exponent 1001 = −8 + 1 = **−7**", mk: "1 mark" }, { m: "27/32 × 2⁻⁷ = **27/4096 ≈ 0.0066**", mk: "1 mark" }], result: "27/4096", fig: fpFig("01101100", "1001") } },
     { worked: { tag: "exam", title: "Moving the point left", src: "A-level June 2023 · P2 Q06.1 · 2 marks",
       q: "8-bit mantissa, 4-bit exponent, both two's complement. Calculate the decimal equivalent of mantissa 01101000, exponent 1101.",
       steps: [{ m: "Mantissa **13/16**, exponent **−3** // point moved 3 left: 0.0001101", mk: "1 mark" }, { m: "**13/128 = 0.1015625**", mk: "1 mark" }], result: "0.1015625" } },
     { worked: { tag: "exam", title: "Negative mantissa, negative exponent", src: "A-level June 2024 · P2 Q04.2 · 2 marks",
       q: "8-bit mantissa, 4-bit exponent, both two's complement. Calculate the decimal equivalent of mantissa 10111000, exponent 1011.",
-      steps: [{ m: "Mantissa 1.0111000 = −1 + ¼ + ⅛ + 1/16 = **−9/16**; exponent 1011 = **−5**", mk: "1 mark" }, { m: "−9/16 × 2⁻⁵ = **−9/512 ≈ −0.0176**", mk: "1 mark" }], result: "−9/512" } },
+      steps: [{ m: "Mantissa 1.0111000 = −1 + ¼ + ⅛ + 1/16 = **−9/16**; exponent 1011 = **−5**", mk: "1 mark" }, { m: "−9/16 × 2⁻⁵ = **−9/512 ≈ −0.0176**", mk: "1 mark" }], result: "−9/512", fig: fpFig("10111000", "1011") } },
     { worked: { tag: "exam", title: "A 6-bit exponent", src: "A-level June 2025 · P2 Q12.4 · 2 marks",
       q: "8-bit mantissa, 6-bit exponent, both two's complement. Calculate the decimal equivalent of mantissa 10101000, exponent 111100, to at least four decimal places or as a fraction.",
-      steps: [{ m: "Mantissa 1.0101000 = −1 + ¼ + 1/16 = **−11/16**; exponent 111100 = **−4**", mk: "1 mark" }, { m: "−11/16 × 2⁻⁴ = **−11/256 = −0.0430**", mk: "1 mark" }], result: "−0.0430" } },
+      steps: [{ m: "Mantissa 1.0101000 = −1 + ¼ + 1/16 = **−11/16**; exponent 111100 = **−4**", mk: "1 mark" }, { m: "−11/16 × 2⁻⁴ = **−11/256 = −0.0430**", mk: "1 mark" }], result: "−0.0430", fig: fpFig("10101000", "111100") } },
 
     { page: "Exam toolkit" },
     { table: { head: ["Command word", "What earns the mark"], rows: [
@@ -505,36 +505,36 @@ C["compsci:4.5.4.8"] = {
       steps: [
         { m: "58.5 = **111010.1₂**", mk: "1 mark" },
         { m: "0.1110101 × 2⁶: the point moves 6 left → exponent **6 (0110)**", mk: "1 mark" },
-        { m: "**01110101 0110**", mk: "1 mark", n: "Working marks can be seen in the final answer (e.g. a correct exponent)." }
+        { m: "**01110101 0110**", mk: "1 mark", n: "Working marks can be seen in the final answer (e.g. a correct exponent).", fig: fpFig("01110101", "0110", "58.5 = 01110101 0110: the first two mantissa bits differ, so it is normalised.") }
       ], result: "01110101 0110" } },
     { worked: { tag: "exam", title: "−608 in a 7/5 system", src: "A-level June 2018 · P2 Q01.3 · 3 marks",
       q: "Write the normalised floating point representation (7-bit mantissa, 5-bit exponent, both two's complement) of −608. Show your working.",
       steps: [
         { m: "608 = 1001100000₂; −608 in two's complement = **10110100000** (0 1001100000 → flip, add 1)", mk: "1 mark" },
         { m: "1.0110100000 × 2¹⁰: exponent **10 (01010)**", mk: "1 mark" },
-        { m: "Mantissa 1011010 → **1011010 01010**", mk: "1 mark" }
+        { m: "Mantissa 1011010 → **1011010 01010**", mk: "1 mark", fig: fpFig("1011010", "01010", "-608 = 1011010 01010: the first two mantissa bits differ, so it is normalised.") }
       ], result: "1011010 01010" } },
     { worked: { tag: "exam", title: "0.15625 — a negative exponent", src: "A-level June 2019 · P2 Q11.3 · 3 marks",
       q: "Write the normalised floating point representation (8-bit mantissa, 4-bit exponent) of 0.15625 (5/32). Show your working.",
       steps: [
         { m: "0.15625 = **0.00101₂**", mk: "1 mark" },
         { m: "0.101 × 2⁻²: the point moves 2 **right** → exponent **−2 (1110)**", mk: "1 mark" },
-        { m: "**01010000 1110**", mk: "1 mark" }
+        { m: "**01010000 1110**", mk: "1 mark", fig: fpFig("01010000", "1110", "0.15625 = 01010000 1110: the first two mantissa bits differ, so it is normalised.") }
       ], result: "01010000 1110" } },
     { worked: { tag: "exam", title: "1632 in a 7/5 system", src: "A-level June 2020 · P2 Q02.3 · 3 marks",
       q: "Write the normalised floating point representation (7-bit mantissa, 5-bit exponent, both two's complement) of 1632. Show your working.",
       steps: [
         { m: "1632 = **11001100000₂**", mk: "1 mark" },
         { m: "0.11001100000 × 2¹¹ → exponent **11 (01011)**; mantissa **0.110011**", mk: "1 mark" },
-        { m: "**0110011 01011**", mk: "1 mark" }
+        { m: "**0110011 01011**", mk: "1 mark", fig: fpFig("0110011", "01011", "1632 = 0110011 01011: the first two mantissa bits differ, so it is normalised.") }
       ], result: "0110011 01011" } },
     { worked: { tag: "exam", title: "−23.25 in an 8/4 system", src: "A-level June 2022 · P2 Q05.4 · 3 marks",
       q: "Write the normalised floating point representation (8-bit mantissa, 4-bit exponent, both two's complement) of −23.25. Show your working.",
       steps: [
         { m: "23.25 = **10111.01₂**; −23.25 = **101000.11** (two's complement of 010111.01)", mk: "1 mark" },
         { m: "1.0100011 × 2⁵ → exponent **5 (0101)**", mk: "1 mark" },
-        { m: "**10100011 0101**", mk: "1 mark", n: "Check: (−1 + ¼ + 1/64 + 1/128) × 32 = −23.25 ✓." }
-      ], result: "10100011 0101" } },
+        { m: "**10100011 0101**", mk: "1 mark", n: "Check: (−1 + ¼ + 1/64 + 1/128) × 32 = −23.25 ✓.", fig: fpFig("10100011", "0101", "-23.25 = 10100011 0101: the first two mantissa bits differ, so it is normalised.") }
+      ], result: "10100011 0101", try: [{ grid: { cols: ["Decimal", "Mantissa (8 bits)", "Exponent (4 bits)"], rows: [["13.5", "01101100", "0100"], ["-6.5", "10011000", "0011"], ["0.375", "01100000", "1111"], ["-0.1875", "10100000", "1110"], ["100", "01100100", "0111"]], given: [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0]], cap: "**Your turn.** Normalised floating point, 8-bit mantissa and 4-bit exponent, both two's complement." } }] } },
 
     { page: "Normalising an un-normalised number" },
     { callout: { t: "memorise", h: "Normalising", body: [
@@ -546,7 +546,7 @@ C["compsci:4.5.4.8"] = {
       steps: [
         { h: "(a)", m: "0.0011010 → shift left 2: 0.1101000; exponent 3 − 2 = 1 → **01101000 0001** (value 1.625 both times)" },
         { h: "(b)", m: "1.1100100 → shift left 2: 1.0010000; exponent 2 − 2 = 0 → **10010000 0000** (value −0.875 both times)" }
-      ], result: "01101000 0001; 10010000 0000" } },
+      ], result: "01101000 0001; 10010000 0000", try: [{ grid: { cols: ["Un-normalised mantissa", "exponent", "Normalised mantissa", "exponent"], rows: [["00101100", "0010", "01011000", "0001"], ["11110100", "0011", "10100000", "0000"], ["00000110", "0101", "01100000", "0001"], ["11011000", "0000", "10110000", "1111"]], given: [[0, 0], [0, 1], [1, 0], [1, 1], [2, 0], [2, 1], [3, 0], [3, 1]], cap: "**Your turn.** Normalise each (8-bit mantissa, 4-bit exponent): shift left until the first two bits differ, and take one off the exponent per place." } }] } },
 
     { page: "Exam toolkit" },
     { table: { head: ["Command word", "What earns the mark"], rows: [

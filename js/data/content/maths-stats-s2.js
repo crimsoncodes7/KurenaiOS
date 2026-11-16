@@ -127,13 +127,20 @@ C["maths:S2.1"] = {
       steps: [
         { h: "Horizontal scale", m: "3 g is drawn as 1.2 cm, so 1 g = 0.4 cm. The class $255 \\le w < 260$ is 5 g wide: $5 \\times 0.4 = 2$ cm.", mk: "B1" },
         { h: "Area per packet", m: "$1.2 \\times 10 = 12$ cm² represents 15 packets, so 1 packet $= 0.8$ cm².", mk: "M1" },
-        { h: "Height", m: "9 packets $= 9 \\times 0.8 = 7.2$ cm², so height $= \\dfrac{7.2}{2} = 3.6$ cm", mk: "A1", n: "Area — not height — is what scales with frequency. Setting up \"15 packets ↔ 10 cm high\" gives 6 cm and loses the M." }
+        { h: "Height", m: "9 packets $= 9 \\times 0.8 = 7.2$ cm², so height $= \\dfrac{7.2}{2} = 3.6$ cm", mk: "A1", n: "Area — not height — is what scales with frequency. Setting up \"15 packets ↔ 10 cm high\" gives 6 cm and loses the M.", fig: histFig({ bars: [[240, 245, 1.6], [245, 248, 5], [248, 252, 8.75], [252, 255, 23 / 3], [255, 260, 1.8]], hl: [1, 4], x: [238, 262], y: [0, 10.5], w: 480, h: 230,
+          xt: [240, 245, 248, 252, 255, 260], yt: [2, 4, 6, 8], xl: "mass w (g)",
+          extra: [{ text: [246.5, 5.7], t: "15", c: "accent2", b: true, size: 12 }, { text: [257.5, 2.5], t: "9", c: "accent2", b: true, size: 12 }],
+          cap: "Frequency density = frequency ÷ width: the 255–260 bar is $\\frac{5}{3}$ as wide as the 245–248 one and holds $\\frac{9}{15}$ of its area." }) }
       ], result: "width 2 cm, height 3.6 cm" } },
     { worked: { tag: "exam", title: "A probability from part of the histogram; is a Normal model suitable?", src: "A-level June 2023 · P3 Q6(a)(b) · 3 marks",
       q: "A histogram of the hours, $T$, that 90 patients stay in hospital has bars 0–4 (frequency density 2.5), 4–7 (3), 7–12 (4.2), 12–16 (4), 16–20 (3.5) and 20–40 (1). **(a)** Use the histogram to estimate $P(10 < T < 30)$. The data have mean 14.9 hours and standard deviation 9.3 hours, and Tomas suggests modelling $T$ by $N(14.9, 9.3^2)$. **(b)** With reference to the histogram, state, giving a reason, whether or not Tomas' model could be suitable.",
       steps: [
         { h: "(a) Area between 10 and 30", m: "$\\underbrace{2 \\times 4.2}_{10\\text{–}12} + \\underbrace{4 \\times 4}_{12\\text{–}16} + \\underbrace{4 \\times 3.5}_{16\\text{–}20} + \\underbrace{10 \\times 1}_{20\\text{–}30} = 8.4 + 16 + 14 + 10 = 48.4$", mk: "M1", n: "Two partial bars: 2 of the 7–12 bar's 5 hours, and 10 of the 20–40 bar's 20 hours." },
-        { h: "As a probability", m: "$P(10 < T < 30) \\approx \\dfrac{48.4}{90} = 0.538$", mk: "A1", n: "Anything from 0.53 to 0.54 is accepted." },
+        { h: "As a probability", m: "$P(10 < T < 30) \\approx \\dfrac{48.4}{90} = 0.538$", mk: "A1", n: "Anything from 0.53 to 0.54 is accepted.", fig: histFig({ bars: [[0, 4, 2.5], [4, 7, 3], [7, 12, 4.2], [12, 16, 4], [16, 20, 3.5], [20, 40, 1]], hl: [3, 4], x: [0, 42], y: [0, 5], w: 500, h: 230,
+          xt: [4, 7, 10, 12, 16, 20, 30, 40], yt: [1, 2, 3, 4], xl: "T (hours)",
+          extra: [{ poly: [[10, 0], [12, 0], [12, 4.2], [10, 4.2]], fill: "accent2", alpha: 0.42, c: "accent2", w: 1.4 }, { poly: [[20, 0], [30, 0], [30, 1], [20, 1]], fill: "accent2", alpha: 0.42, c: "accent2", w: 1.4 },
+            { vline: 10, c: "accent2" }, { vline: 30, c: "accent2" }],
+          cap: "The shaded area, $48.4$ patients out of 90: part of the 7–12 bar, two whole bars, and half of the 20–40 bar." }) },
         { h: "(b) Compare the shape with a Normal curve", m: "Not suitable: the histogram is **not symmetrical** — it has a long tail to the right (positive skew), while a Normal distribution is symmetrical.", mk: "B1", n: "Also: the Normal model gives positive probability to $T < 0$ (mean − 1.6 sd), which is impossible. \"Not bell-shaped\" is accepted." }
       ], result: "(a) 0.538 (b) not suitable — the data are skewed, the Normal is symmetrical" } },
 
@@ -162,7 +169,10 @@ C["maths:S2.1"] = {
         { h: "(a) Frequencies = fd × width", m: "$15,\\ 35,\\ 50 \\times 1.5 = 75,\\ 55,\\ 26 \\times 2 = 52,\\ 16 \\times 1.5 = 24$ (total 256)\nCumulative: $15,\\ 50,\\ 125,\\ 180,\\ \\ldots$", mk: "M1 A1", n: "The 2–3.5 class is 1.5 wide: forgetting this (writing 50) is the commonest slip." },
         { h: "Interpolate at $\\frac{256}{2} = 128$", m: "$Q_2 = 3.5 + \\dfrac{128 - 125}{55} \\times 1 = 3.55$ cm", mk: "M1 A1" },
         { h: "(b) Area under the model = 256", m: "$$\\int_0^8 kx(8 - x)\\,dx = k\\left[4x^2 - \\dfrac{x^3}{3}\\right]_0^8 = k\\left(256 - \\dfrac{512}{3}\\right) = \\dfrac{256k}{3}$$", mk: "M1 M1" },
-        { m: "$\\dfrac{256k}{3} = 256 \\;\\Rightarrow\\; k = 3$", mk: "A1" },
+        { m: "$\\dfrac{256k}{3} = 256 \\;\\Rightarrow\\; k = 3$", mk: "A1", fig: histFig({ bars: [[0, 1, 15], [1, 2, 35], [2, 3.5, 50], [3.5, 4.5, 55], [4.5, 6.5, 26], [6.5, 8, 16]], x: [-0.3, 8.6], y: [0, 60], w: 480, h: 240,
+          xt: [1, 2, 3.5, 4.5, 6.5, 8], yt: [15, 35, 48, 55], xl: "height x (cm)",
+          extra: [{ fn: "3*x*(8-x)", from: 0, to: 8, c: "accent2", w: 2.2, dash: true }, { text: [6.4, 42], t: "y = 3x(8 − x)", c: "accent2", b: true, size: 12 }, { vline: 4, c: "accent2" }],
+          cap: "The model's area is 256, like the histogram's; it peaks at 48 halfway between its roots, so its median is 4 cm." }) },
         { h: "(c) Symmetry", m: "$y = 3x(8 - x)$ is symmetrical about $x = 4$, so the model median is **4 cm**.", mk: "B1", n: "No calculation needed — a parabola with roots 0 and 8 peaks halfway between them." }
       ], result: "(a) 3.55 cm (b) $k = 3$ (c) 4 cm" } },
     { worked: { tag: "exam", title: "Complete a table and histogram; fit $y = \\frac{k}{x^2}$", src: "AS June 2024 · P2 Q3 · 7 marks",
@@ -192,6 +202,9 @@ C["maths:S2.1"] = {
         { pt: [61, 3], c: "accent2" }, { pt: [63, 12], c: "accent2" }, { pt: [65, 8], c: "accent2" }, { pt: [67, 2], c: "accent2" }],
       cap: "Weights of 50 plums (AS June 2023): the frequency polygon joins the class midpoints at the bar heights." }) },
     { worked: { tag: "exam", title: "A mean and standard deviation from a histogram; the effect of a shift", src: "AS June 2023 · P2 Q1 · 5 marks",
+      fig: histFig({ bars: [[60, 62, 3], [62, 64, 12], [64, 66, 8], [66, 68, 2]], x: [58, 70], y: [0, 14], w: 460, h: 220, xt: [60, 62, 64, 66, 68], yt: [3, 8, 12], xl: "weight (g)",
+        extra: [{ poly: [[59, 0], [61, 3], [63, 12], [65, 8], [67, 2], [69, 0]], close: false, c: "accent2", w: 2 }, { pt: [61, 3], r: 3, c: "accent2" }, { pt: [63, 12], r: 3, c: "accent2" }, { pt: [65, 8], r: 3, c: "accent2" }, { pt: [67, 2], r: 3, c: "accent2" }],
+        cap: "Each class is 2 g wide, so the frequencies are $2 \\times$ the densities; the polygon joins the midpoints 61, 63, 65, 67." }),
       q: "A histogram with frequency polygon gives the weights of 50 plums: classes 60–62, 62–64, 64–66, 66–68 grams with frequency densities 3, 12, 8 and 2. **(a)** Show that an estimate of the mean weight is 63.72 grams. **(b)** Calculate an estimate of the standard deviation. The scales were broken: every plum actually weighs 5 grams less. **(c)** State the effect on the estimate of the standard deviation, giving a reason.",
       steps: [
         { h: "(a) Frequencies and midpoints", m: "$f = 2 \\times 3,\\ 2 \\times 12,\\ 2 \\times 8,\\ 2 \\times 2 = 6,\\ 24,\\ 16,\\ 4$ at midpoints $61, 63, 65, 67$", mk: "M1" },
@@ -246,7 +259,9 @@ C["maths:S2.1"] = {
         { h: "(b)", m: "$25 - 14 = 11$ minutes", mk: "B1" },
         { h: "(c)", m: "$\\bar{x} = \\dfrac{607.5}{27} = 22.5$", mk: "B1" },
         { h: "(d)", m: "$\\sigma = \\sqrt{\\dfrac{17\\,623.25}{27} - 22.5^2} = \\sqrt{146.46} = 12.1$", mk: "M1 A1" },
-        { h: "(e) The new rule", m: "$\\bar{x} + 3\\sigma = 22.5 + 3 \\times 12.1 = 58.8$. Only 68 is above it, so **one** outlier.", mk: "B1ft", n: "Different rules give different outliers: the box plot's rule flagged 46 too." }
+        { h: "(e) The new rule", m: "$\\bar{x} + 3\\sigma = 22.5 + 3 \\times 12.1 = 58.8$. Only 68 is above it, so **one** outlier.", mk: "B1ft", n: "Different rules give different outliers: the box plot's rule flagged 46 too.", fig: { x: [0, 75], y: [0, 2], w: 480, h: 160, axes: { x: "time (min)", y: "", xt: [7, 14, 20, 25, 40, 46, 68], yt: [] },
+          items: box(1, 0.35, [7, 14, 20, 25, 40], [46, 68]).concat([{ vline: 58.8, c: "danger", label: "x̄ + 3σ = 58.8" }]),
+          cap: "The box plot marks 46 and 68 as outliers; the 3-sd rule (58.8) catches only 68." } }
       ], result: "(a) 61 (b) 11 (c) 22.5 (d) 12.1 (e) one — only 68 exceeds 58.8" } },
     { h: "4.2  Comparing two box plots" },
     "A comparison question wants **two** comparisons, each **in context**:",
@@ -462,7 +477,10 @@ C["maths:S2.2"] = {
       steps: [
         { h: "(a)", m: "Positive.", mk: "B1" },
         { h: "(b)", m: "Every extra point gives £4.50 more pay.", mk: "B1" },
-        { h: "(c) Test the model at its edge", m: "For fewer than about 10.4 points ($4.5x - 47 < 0$) it predicts **negative pay**, which is impossible.", mk: "B1", n: "Also accepted: the sample of 8 may not cover the full range of points, so the line may not apply outside it." }
+        { h: "(c) Test the model at its edge", m: "For fewer than about 10.4 points ($4.5x - 47 < 0$) it predicts **negative pay**, which is impossible.", mk: "B1", n: "Also accepted: the sample of 8 may not cover the full range of points, so the line may not apply outside it.", fig: { x: [0, 40], y: [-60, 140], w: 440, h: 230, axes: { x: "points x", y: "pay £y", xt: [10, 20, 30], yt: [-40, 50, 100] }, items: [
+          { shade: { fn: "4.5*x-47", from: 0, to: 10.444 }, c: "danger", alpha: 0.3 }, { fn: "4.5*x-47", from: 0, to: 40, c: "accent", w: 2.4, label: "y = 4.5x − 47", at: 30, pos: "nw" },
+          { pt: [10.444, 0], label: "x ≈ 10.4", pos: "se", i: false }
+        ], cap: "Below about 10.4 points the line goes under the axis: negative pay." } }
       ], result: "(a) positive (b) £4.50 per extra point (c) predicts negative pay for low-point jobs" } },
     { worked: { tag: "exam", title: "Effect of extra sleep; a limitation of the model", src: "AS June 2019 · P2 Q1(b)(c) · 2 marks",
       q: "For a sample of 40 students, the regression line of test mark $p$ on hours of sleep $s$ the night before is $p = 26.1 + 5.60s$. **(b)** Describe the effect that an extra 0.5 hours of sleep may have, on average, on performance. **(c)** Describe one limitation of the model.",
@@ -481,7 +499,12 @@ C["maths:S2.2"] = {
       q: "Giovanni models fuel consumption $c$ (mpg) by mass $m$ (kg) with $c = a + bm$. On average, fuel consumption is 3.5 mpg lower for each additional 500 kg of mass, and a car of mass 1700 kg does 20 mpg. Find (i) $b$, (ii) $a$.",
       steps: [
         { h: "(i) The gradient is the rate", m: "$b = \\dfrac{-3.5}{500} = -0.007$", mk: "M1 A1", n: "Writing \"3.5 = a + 500b\" treats the rate as a point — M0." },
-        { h: "(ii) The point fixes $a$", m: "$20 = a - 0.007 \\times 1700 = a - 11.9 \\;\\Rightarrow\\; a = 31.9$", mk: "M1 A1" }
+        { h: "(ii) The point fixes $a$", m: "$20 = a - 0.007 \\times 1700 = a - 11.9 \\;\\Rightarrow\\; a = 31.9$", mk: "M1 A1", fig: { x: [0, 3200], y: [0, 36], w: 460, h: 230, axes: { x: "m (kg)", y: "c (mpg)", xt: [1000, 1700, 2200, 3000], yt: [10, 20, 31.9] }, items: [
+          { fn: "31.9-0.007*x", from: 0, to: 3200, c: "accent", w: 2.4 },
+          { line: [[1700, 20], [2200, 20]], c: "accent2", dash: true }, { line: [[2200, 20], [2200, 16.5]], c: "accent2", dash: true },
+          { text: [1950, 22], t: "500 kg", c: "accent2", size: 11.5 }, { text: [2250, 18.2], t: "−3.5 mpg", pos: "e", c: "accent2", size: 11.5, off: 0 },
+          { pt: [1700, 20], label: "(1700, 20)", pos: "sw", i: false }, { pt: [0, 31.9], label: "a = 31.9", pos: "ne", i: false }
+        ], cap: "The rate gives the gradient; the point (1700, 20) then pins the line down." } }
       ], result: "$b = -0.007$, $a = 31.9$" } },
 
     /* ---------------------------------------------------------------- Page 3 */
@@ -665,7 +688,10 @@ C["maths:S2.3"] = {
         { h: "Mean", m: "$\\sum x = 74.8$, $\\; \\bar{x} = 7.48$ hours" },
         { h: "Median: $\\frac{10}{2} = 5$ — a whole number", m: "Mean of the 5th and 6th values: $\\dfrac{7.3 + 8.0}{2} = 7.65$" },
         { h: "$Q_1$: $\\frac{10}{4} = 2.5$ → round up to the 3rd value", m: "$Q_1 = 5.1$" },
-        { h: "$Q_3$: $\\frac{30}{4} = 7.5$ → the 8th value", m: "$Q_3 = 10.2$" }
+        { h: "$Q_3$: $\\frac{30}{4} = 7.5$ → the 8th value", m: "$Q_3 = 10.2$", fig: { x: [-1, 15], y: [0, 2.3], w: 480, h: 170, axes: { x: "hours of sunshine", y: "", xt: [0, 5, 10], yt: [] },
+          items: [0, 2.4, 5.1, 6.8, 7.3, 8, 9.6, 10.2, 11.5, 13.9].map(function (v) { return { pt: [v, 1.95], r: 3.4, c: "accent" }; }).concat(box(1.05, 0.28, [0, 5.1, 7.65, 10.2, 13.9]),
+            [{ text: [5.1, 0.45], t: "Q₁ 5.1", size: 11, c: "text2" }, { text: [7.65, 0.45], t: "Q₂ 7.65", size: 11, c: "text2" }, { text: [10.2, 0.45], t: "Q₃ 10.2", size: 11, c: "text2" }]),
+          cap: "The ten values (top) and the box plot they give: $Q_1$ is the 3rd value, $Q_3$ the 8th, the median halfway between the 5th and 6th." } }
       ], result: "$\\bar{x} = 7.48$, $Q_1 = 5.1$, $Q_2 = 7.65$, $Q_3 = 10.2$" } },
 
     /* ---------------------------------------------------------------- Page 2 */
@@ -787,6 +813,9 @@ C["maths:S2.3"] = {
       ["Qualitative", "mode", "no order or arithmetic"]
     ] } },
     { worked: { tag: "exam", title: "Mean/sd or median/IQR? Which box-plot values change?", src: "A-level June 2018 · P3 Q4(f)(g) · 5 marks",
+      fig: { x: [0, 112], y: [0, 2], w: 480, h: 150, axes: { x: "journey time (min)", y: "", xt: [20, 26, 40, 58, 92], yt: [] },
+        items: box(1, 0.35, [20, 26, 40, 58, 92]).concat([{ text: [95, 1], t: "outliers →", size: 11.5, c: "muted", pos: "e", off: 0 }]),
+        cap: "Taruni's box plot: a long upper whisker, with outliers beyond it — positive skew." },
       q: "Taruni's journey-time box plot for 95 workers has lower whisker 20, $Q_1 = 26$, median 40, $Q_3 = 58$, upper whisker 92, and outliers plotted above the upper whisker. **(f)** State, giving a reason, whether you would recommend the mean and standard deviation or the median and IQR to describe these data. Two workers move house: Rana's journey changes from 75 to 35 minutes and David's from 60 to 33 minutes. Taruni redraws the box plot and only two values change. **(g)** Explain which two values changed and whether each increased or decreased.",
       steps: [
         { h: "(f) Outliers and skew", m: "There are outliers (and the data are positively skewed), which distort the mean and standard deviation —", mk: "B1" },
@@ -805,7 +834,12 @@ C["maths:S2.3"] = {
       steps: [
         { h: "(f) Median up", m: "Both new values must be above the median: $a, b > 20$.", mk: "M1" },
         { h: "Mean unchanged", m: "Their mean must equal 22.5: $a + b = 45$.", mk: "M1" },
-        { h: "A pair", m: "e.g. $b = 21$, $a = 24$: both above 20, and $21 + 24 = 45$.", mk: "A1" },
+        { h: "A pair", m: "e.g. $b = 21$, $a = 24$: both above 20, and $21 + 24 = 45$.", mk: "A1", fig: { x: [5, 40], y: [0, 2.2], w: 480, h: 160, axes: { x: "minutes", y: "", xt: [10.4, 20, 22.5, 34.6], yt: [] }, items: [
+          { poly: [[10.4, 0.3], [34.6, 0.3], [34.6, 1.5], [10.4, 1.5]], fill: "accent3", alpha: 0.12, c: "accent3", w: 1 }, { text: [13, 1.3], t: "within 1 sd", size: 11, c: "accent3" },
+          { line: [[20, 0], [20, 1.8]], c: "text2", dash: true }, { text: [20, 1.95], t: "median", pos: "w", size: 11, c: "text2", off: 0 },
+          { line: [[22.5, 0], [22.5, 1.8]], c: "accent2", dash: true }, { text: [22.5, 1.95], t: "mean", pos: "e", size: 11, c: "accent2", off: 0 },
+          { pt: [21, 0.9], label: "b", pos: "w", i: true }, { pt: [24, 0.9], label: "a", pos: "e", i: true }
+        ], cap: "21 and 24: both above the median, balanced about the mean (sum 45), and both within one sd of it." } },
         { h: "(g)", m: "Both new values are less than 1 standard deviation (12.1) from the mean, so they add little to the total of squared deviations while increasing $n$ — the sd falls.", mk: "B1" }
       ], result: "(f) e.g. $a = 24$, $b = 21$ (g) both within 1 sd of the mean" } },
     { worked: { tag: "exam", title: "LDS: only May–October — what does it do to an annual estimate?", src: "A-level June 2023 · P3 Q3(b)(c) · 5 marks",
@@ -915,7 +949,11 @@ C["maths:S2.4"] = {
       q: "There were no passengers aged 90 or over. An outlier is a value greater than $Q_3 + 1.5 \\times$ interquartile range. Given that $Q_1 = 27.3$ and $Q_3 = 58.9$, determine, giving a reason, whether or not the oldest passenger could be an outlier.",
       steps: [
         { h: "The fence", m: "$58.9 + 1.5 \\times (58.9 - 27.3) = 58.9 + 47.4 = 106.3$", mk: "M1" },
-        { h: "Compare", m: "Every passenger is under 90 < 106.3, so the oldest passenger is **not** an outlier.", mk: "A1" }
+        { h: "Compare", m: "Every passenger is under 90 < 106.3, so the oldest passenger is **not** an outlier.", mk: "A1", fig: { x: [0, 120], y: [0, 2], w: 480, h: 150, axes: { x: "age", y: "", xt: [27.3, 58.9, 90, 106.3], yt: [] }, items: [
+          { poly: [[27.3, 0.6], [58.9, 0.6], [58.9, 1.4], [27.3, 1.4]], fill: "accent", alpha: 0.16, c: "accent", w: 1.8 },
+          { line: [[58.9, 1], [90, 1]], c: "muted", w: 1.6 }, { line: [[90, 0.75], [90, 1.25]], c: "muted", w: 1.6 }, { text: [74, 1.25], t: "ages < 90", size: 11, c: "muted" },
+          { vline: 106.3, c: "danger", label: "fence" }
+        ], cap: "No age reaches the fence $Q_3 + 1.5 \\times \\text{IQR} = 106.3$." } }
       ], result: "Not an outlier: upper limit 106.3 > 90" } },
     { worked: { tag: "exam", title: "Show three points are outliers; the effect on correlation; is the sample random?", src: "AS Specimen · P2 Q3(a)–(c) · 4 marks",
       q: "Pete takes a sample of 12 days from the large data set for Perth 2015, recording daily mean pressure $p$ hPa and daily rainfall $w$ mm: $p$ = 1007, 1012, 1013, 1009, 1019, 1010, 1010, 1010, 1013, 1011, 1014, 1022 and $w$ = 102.0, 63.0, 63.0, 38.4, 38.0, 35.0, 34.2, 32.0, 30.4, 28.0, 28.0, 15. For $p$: $Q_1 = 1010$, $Q_3 = 1013.5$; for $w$: $Q_1 = 29.2$, $Q_3 = 50.7$. An outlier is more than $1.5 \\times$ IQR above $Q_3$ or below $Q_1$. **(a)** Show that the points (1019, 38.0), (1022, 15) and (1007, 102.0) are outliers. **(b)** Describe the effect of removing these 3 outliers on the correlation. **(c)** From your knowledge of the large data set, explain why Pete's sample is unlikely to be random.",
@@ -933,7 +971,10 @@ C["maths:S2.4"] = {
       q: "For Camborne, June 1987, Daily Mean Visibility has $Q_1 = 1100$ and IQR $= 1600$. An outlier is more than $1.5 \\times$ IQR above $Q_3$. **(b)** Show that the circled point, visibility 5300 (at humidity 90%), is an outlier. **(c)** The scatter diagram of visibility against Daily Maximum Relative Humidity shows a downward trend; interpret the correlation. **(d)** A second scatter diagram plots visibility against an unlabelled variable whose values run from 0 to about 14 in steps of 0.1. Using your knowledge of the large data set, suggest the variable.",
       steps: [
         { h: "(b) The upper fence", m: "$Q_3 = 1100 + 1600 = 2700$; $\\; 2700 + 1.5 \\times 1600 = 5100$", mk: "M1" },
-        { m: "$5300 > 5100$, so it is an outlier.", mk: "A1" },
+        { m: "$5300 > 5100$, so it is an outlier.", mk: "A1", fig: { x: [0, 6000], y: [0, 2], w: 480, h: 150, axes: { x: "visibility (Dm)", y: "", xt: [1100, 2700, 5100], yt: [] }, items: [
+          { poly: [[1100, 0.6], [2700, 0.6], [2700, 1.4], [1100, 1.4]], fill: "accent", alpha: 0.16, c: "accent", w: 1.8 }, { text: [1900, 1.6], t: "IQR 1600", size: 11, c: "accent" },
+          { vline: 5100, c: "danger", label: "fence" }, { text: [5300, 1], t: "×", size: 16, b: true, c: "danger" }, { text: [5300, 1.3], t: "5300", size: 11, c: "danger" }
+        ], cap: "$Q_3 = 2700$, so the fence is $2700 + 2400 = 5100$: the value 5300 is beyond it." } },
         { h: "(c)", m: "As humidity increases, mean visibility decreases.", mk: "B1" },
         { h: "(d) Values 0–14 to one decimal place in June", m: "Daily Total Sunshine (hours).", mk: "B1", n: "Not cloud cover (whole numbers up to 8), not windspeed (whole numbers), not temperature (near 0 °C is unlikely in June)." }
       ], result: "(b) 5300 > 5100 (c) more humid, less visibility (d) hours of sunshine" } },

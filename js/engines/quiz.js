@@ -172,6 +172,8 @@
         var opts = el("div", { class: "k-qz-opts", role: "group", "aria-label": "Answers" });
         card = el("article", { class: "k-card k-qz-card", "data-ui": "quiz.card" }, [
           el("div", { class: "k-qz-q", "data-ui": "quiz.q", html: KOS.content.inline(item.q) }),
+          /* the item's figure above its options (5.19, 43b) */
+          item.fig ? el("div", { class: "k-prose k-qz-fig", "data-ui": "quiz.fig", html: KOS.content.renderBlocks([{ fig: item.fig }]) }) : null,
           opts
         ]);
         perm[qi].forEach(function (oi, pos) {
@@ -547,6 +549,9 @@
         ].filter(Boolean)));
         if (it.ctx) card.appendChild(el("div", { class: "k-prose k-qz-stem", html: Array.isArray(it.ctx) ? KOS.content.renderBlocks(it.ctx) : "<p>" + KOS.content.inline(it.ctx) + "</p>" }));
         if (it.code) card.appendChild(el("div", { class: "k-prose k-qz-stem", html: KOS.content.renderBlocks([{ code: it.code }]) }));
+        /* the question's figure, and a part the app marks (5.19, 43) */
+        if (it.fig) card.appendChild(el("div", { class: "k-prose k-qz-stem", "data-ui": "quiz.fig", html: KOS.content.renderBlocks([{ fig: it.fig }]) }));
+        if (it.try) card.appendChild(el("div", { class: "k-prose k-qz-stem", "data-ui": "quiz.try", html: KOS.content.renderBlocks(it.try) }));
         var sum = el("span", { class: "k-qz-sum", "data-ui": "quiz.sum" });
         function paintSum() {
           var got = 0;

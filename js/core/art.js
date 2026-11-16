@@ -115,6 +115,25 @@
     if (wd === 0 || wd === 6) out.push("weekend");
     return out;
   }
+  /* SC-31: when each Focus scene and Shrine hall suits — seasons and times of
+     day (0 morning, 1 afternoon, 2 evening, 3 night). By season or by time of
+     day a slot picks among the owned pictures that suit now (rotating among
+     them by the day), and falls back to the whole pool when none do. */
+  var SUITS = {
+    "app.focus.library": { s: ["spring"], t: [0, 1] },
+    "app.focus.train":   { s: ["summer"], t: [3] },
+    "app.focus.shrine":  { s: ["spring", "autumn"], t: [1] },
+    "app.focus.cafe":    { s: ["autumn"], t: [0] },
+    "app.focus.rooftop": { s: ["summer"], t: [2] },
+    "app.focus.snow":    { s: ["winter"], t: [] },
+    "app.shrine.lantern": { s: ["summer", "autumn"], t: [2] },
+    "app.shrine.moon":    { s: ["winter"], t: [3] },
+    "app.shrine.gold":    { s: ["spring", "summer"], t: [0, 1] }
+  };
+  function suiting(ids, period, d) {
+    var key = period === "season" ? "s" : "t", v = period === "season" ? season(d) : tod(d);
+    return ids.filter(function (id) { var u = SUITS[id]; return u && u[key].indexOf(v) !== -1; });
+  }
   /* the rule applied: the picture for a slot now, or undefined to use the default */
   function rotated(slot, now) {
     var c = cfg(slot);
@@ -130,10 +149,16 @@
       if (held.length) return c.conds[held[0]];
     }
     var d = now || new Date(), i;
-    if (c.period === "season" && slot === "home") return "app.hero.home." + season(d);
-    if (c.period === "day") i = dayNo(d);
-    else if (c.period === "week") i = Math.floor((dayNo(d) + 3) / 7);
-    else if (c.period === "tod") i = tod(d);
+    /* "By condition": when none holds, the season decides, whatever period was stored */
+    var period = c.by === "condition" ? "season" : c.period;
+    if (period === "season" && slot === "home") return "app.hero.home." + season(d);
+    if (period === "season" || period === "tod") {
+      var fit = suiting(ids, period, d);
+      if (fit.length) return fit[dayNo(d) % fit.length];
+    }
+    if (period === "day") i = dayNo(d);
+    else if (period === "week") i = Math.floor((dayNo(d) + 3) / 7);
+    else if (period === "tod") i = tod(d);
     else i = SEASONS.indexOf(season(d));
     return ids[i % ids.length];
   }
@@ -149,7 +174,7 @@
       var held = conditions(now).filter(function (k) { return c.conds && c.conds[k]; });
       if (held.length) return "Now: " + name + " (" + ({ exam: "Exam Season", weekend: "the weekend", streak: "a streak milestone" })[held[0]] + ").";
     }
-    return "Now: " + name + ", by " + ({ day: "the day", week: "the week", season: "the season", tod: "the time of day" })[c.period || "season"] + ". Read from the clock, so every device agrees.";
+    return "Now: " + name + ", by " + ({ day: "the day", week: "the week", season: "the season", tod: "the time of day" })[c.by === "condition" ? "season" : (c.period || "season")] + ". Read from the clock, so every device agrees.";
   }
 
   /* the art id each slot shows now, or null for its ground */

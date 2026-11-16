@@ -31,10 +31,15 @@
       return el("button", { type: "button", class: "k-art-thumb", "data-slot": slot, "aria-pressed": on ? "true" : "false", "aria-label": p.name, onclick: onClick }, [
         el("img", { src: A.src(p.id), alt: "", loading: "lazy" }), el("span", { text: p.name })]);
     }
+    var peekOwn = false;
     function paint() {
       var c = A.cfg(slot) || { mode: slot === "home" ? "rotate" : "one", by: "time", period: slot === "focus" ? "tod" : "season" };
       var list = A.pool(slot);
-      function save(patch) { var n = Object.assign({}, c, patch); A.setCfg(slot, n); KOS.a11y && KOS.a11y.announce(S.name + ": " + A.explain(slot)); paint(); }
+      var stored = c;
+      /* AX-36: while "Your own" is locked the segment only PREVIEWS the lock
+         card; the slot's rule is written only once the unlock is owned */
+      if (peekOwn && !A.canUpload(slot)) c = Object.assign({}, c, { mode: "own" }); else peekOwn = false;
+      function save(patch) { peekOwn = false; var n = Object.assign({}, stored, patch); A.setCfg(slot, n); KOS.a11y && KOS.a11y.announce(S.name + ": " + A.explain(slot)); paint(); }
       box.innerHTML = "";
       box.appendChild(el("div", { class: "k-dialog-head", "data-ui": "ui.dialog-head" }, [
         el("div", {}, [el("h2", { class: "k-dialog-title", "data-ui": "ui.dialog-title", text: S.name }),
@@ -44,6 +49,7 @@
       var body = el("div", { class: "k-dialog-body k-art-drawer-body" });
       box.appendChild(body);
       body.appendChild(seg([["one", "One picture"], ["rotate", "Rotate"], ["shuffle", "Shuffle"], ["own", "Your own"]], c.mode, function (m) {
+        if (m === "own" && !A.canUpload(slot)) { peekOwn = true; paint(); return; }
         save({ mode: m });
         if (m === "own") A.loadOwn(paint);
       }, "Mode"));
@@ -77,7 +83,7 @@
             el("span", { class: "k-art-lock-k", lang: "ja", "aria-hidden": "true", text: "錠" }),
             el("div", {}, [el("b", { text: "Your own picture" }), el("small", { class: "k-muted", text: "Upload a picture for this slot. A picture you set before stays." })]),
             el("div", { class: "k-art-lock-p" }, [el("b", { class: "k-mono", text: "◈ " + KOS.ui.num(it ? it.price : 3000) }), el("small", { class: "k-muted", text: "or every area ◈ " + KOS.ui.num((KOS.governor.item("upload-all") || {}).price || 0) })]),
-            el("button", { type: "button", class: "k-btn k-btn--sm", text: "Open in the shop", onclick: function () { close(); KOS.show("governor", "shop"); } })
+            el("button", { type: "button", class: "k-btn k-btn--sm", text: "Open in the shop", onclick: function () { close(); if (KOS.openShop) KOS.openShop({ group: "unlocks" }); else KOS.show("governor", "shop"); } })
           ]));
         } else {
           body.appendChild(el("div", { class: "k-cluster" }, [

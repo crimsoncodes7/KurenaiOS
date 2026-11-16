@@ -21,6 +21,7 @@
 .k-home-ring[data-hp="strained"] { --ring: var(--amber); }
 .k-home-ring[data-hp="critical"] { --ring: var(--alarm); }
 .k-home-ring .k-avatar { box-shadow: 0 0 0 var(--rail-mark) var(--home-hero-bg); }
+.k-home-ring[style*="--fbleed"] { margin: var(--fbleed); }
 .k-home-ring { --frame-out: calc((var(--home-avatar-ring) - var(--home-avatar)) / 2); --frame-ground: var(--home-hero-bg); }
 .k-home-hero-txt { flex: 1 1 0; min-inline-size: 0; }
 .k-home-hero-txt .k-kicker { color: var(--home-hero-ink); }

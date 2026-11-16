@@ -289,7 +289,7 @@ C["compsci:4.12.1.3"] = {
         { m: "fw [4,3] = 4 × 3 = 12;", mk: "1 mark" },
         { m: "fx sales = [20, 50, 32];", mk: "1 mark", n: "R. no brackets; R. each element in a separate list." },
         { m: "fz sales = 20 + 50 + 32 = 102;", mk: "1 mark" }
-      ], result: "12 · [20, 50, 32] · 102" } },
+      ], result: "12 · [20, 50, 32] · 102", try: [{ predict: { code: "int[][] sales = { new[] { 3, 5 }, new[] { 10, 4 }, new[] { 1, 7 } };\nFunc<int[], int> fw = p => p[0] * p[1];\nvar fx = sales.Select(fw).ToList();\nConsole.WriteLine(string.Join(\",\", fx));\nConsole.WriteLine(fx.Aggregate(0, (acc, x) => acc + x));", expect: "15,40,7\n62", cap: "**Your turn.** The same pipeline in C#: fw multiplies a pair, Select is map and Aggregate is fold. What does it print for these sales?" } }] } },
     { worked: { tag: "exam", title: "What fz sales represents", src: "A-level June 2018 · P2 Q15.3 · 1 mark",
       q: "In the shop program, each sublist of sales holds a price-and-quantity pair for the products sold in one day (e.g. [10,2] means 10 units priced at £2). In the context of the shop, explain what the result of the function call fz sales represents.",
       steps: [{ m: "The total value of the day's sales / the day's income or revenue for all products;", mk: "1 mark", n: "A. total profit as BOD; NE. \"sales\" or \"total sales\"." }], result: "The day's total revenue" } },
@@ -383,7 +383,7 @@ C["compsci:4.12.1.4"] = {
         { m: "add is applied to one of its arguments, e.g. 4 — that argument is fixed;", mk: "1 mark (AO1)" },
         { m: "The output of this application is a new function (e.g. add4), which takes one argument;", mk: "1 mark (AO1)" },
         { m: "The new function always adds 4 to its argument; applying it to 6 gives 10;", mk: "1 mark (AO2)", n: "Use the same value (4 or 6) throughout. An example alone, add4(x) = 4 + x, scores max 2 without a description." }
-      ], result: "add 4 → a new function x ↦ 4 + x; (add 4) 6 = 10" } },
+      ], result: "add 4 → a new function x ↦ 4 + x; (add 4) 6 = 10", try: [{ predict: { code: "Func<int, Func<int, int>> add = x => y => x + y;\nvar add10 = add(10);\nConsole.WriteLine(add10(5));\nConsole.WriteLine(add(3)(add10(1)));", expect: "15\n14", cap: "**Your turn.** add is curried, so add(10) is a new function. What is printed?" } }] } },
     { worked: { tag: "exam", title: "What partial application is", src: "A-level June 2025 · P2 Q11.4 · 2 marks",
       q: "Describe what partial function application is.",
       steps: [
@@ -477,7 +477,7 @@ C["compsci:4.12.1.5"] = {
     { page: "In exam questions" },
     { worked: { tag: "exam", title: "square ∘ pred applied to 3", src: "A-level June 2019 · P2 Q07.2 · 1 mark",
       q: "square(x) = x² and pred(x) = x − 1, both on the integers. What is the result of applying square ∘ pred to the argument 3?",
-      steps: [{ m: "pred first: pred(3) = 2; then square: square(2) = 4;" }, { m: "4;", mk: "1 mark" }], result: "4" } },
+      steps: [{ m: "pred first: pred(3) = 2; then square: square(2) = 4;" }, { m: "4;", mk: "1 mark" }], result: "4", try: [{ predict: { code: "Func<int, int> square = x => x * x;\nFunc<int, int> pred = x => x - 1;\nFunc<int, int> squareAfterPred = x => square(pred(x));   // square ∘ pred\nFunc<int, int> predAfterSquare = x => pred(square(x));   // pred ∘ square\nConsole.WriteLine(squareAfterPred(3));\nConsole.WriteLine(predAfterSquare(3));", expect: "4\n8", cap: "**Your turn.** Composition in C#, both orders: what does each line print?" } }] } },
     { worked: { tag: "exam", title: "The purpose of fz", src: "A-level June 2022 · P2 Q12.4 · 1 mark",
       q: "temps = [50, 68, 95, 86]; fu a = (a - 32) * 5 / 9; fv b = map fu b; fw [] = 0; fw (x:xs) = 1 + fw (xs); fx [] = 0; fx (x:xs) = x + fx (xs); fy c = fx (c) / fw (c); fz d = fy (fv (d)). Explain the purpose of the function fz.",
       steps: [

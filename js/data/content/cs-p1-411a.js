@@ -253,7 +253,7 @@ C["compsci:4.1.1.2"] = {
         { m: "MP7 `product = 1;` in the THEN part", mk: "1" },
         { m: "MP8 `for (int n = 1; n <= factor; n++)` in the THEN part", mk: "1" },
         { m: "MP9 `product = product * n; Console.WriteLine(n);` inside the FOR loop", mk: "1", n: "Max 8 if the code does not function correctly. With 720 it prints 1 to 6 (720 = 6!); with 600, No result." }
-      ], result: "9 mark points" } },
+      ], result: "9 mark points" , "try": [{"predict":{"code":"foreach (int x in new int[] { 24, 20 })\n{\n    int product = 1, factor = 0;\n    while (product < x)\n    {\n        factor = factor + 1;\n        product = product * factor;\n    }\n    if (x == product)\n    {\n        product = 1;\n        for (int n = 1; n <= factor; n++)\n        {\n            product = product * n;\n            Console.WriteLine(n);\n        }\n    }\n    else\n    {\n        Console.WriteLine(\"No result\");\n    }\n}","cap":"The answer's program, run for the inputs 24 and then 20. Predict every line."}}]} },
     { code: { lang: "csharp", src: "Console.Write(\"Enter an integer greater than 1: \");\nint x = Convert.ToInt32(Console.ReadLine());\nint product = 1;\nint factor = 0;\nwhile (product < x)\n{\n    factor = factor + 1;\n    product = product * factor;\n}\nif (x == product)\n{\n    product = 1;\n    for (int n = 1; n <= factor; n++)\n    {\n        product = product * n;\n        Console.WriteLine(n);\n    }\n}\nelse\n{\n    Console.WriteLine(\"No result\");\n}", cap: "The 2020 program in full. Run with 720 → 1 2 3 4 5 6; with 600 → No result." } },
     { worked: { tag: "exam", title: "Prime-factor program", src: "AS June 2023 · P1 Q05.1 · 9 marks",
       q: "Write a program to implement: OUTPUT \"Enter an integer greater than 1: \"; INPUT Number; X ← 2; Count ← 0; WHILE Number > 1: Multi ← FALSE; WHILE (Number MOD X) = 0: IF NOT Multi THEN OUTPUT X; Count ← Count + 1; Multi ← TRUE; Number ← Number DIV X; ENDWHILE; X ← X + 1; ENDWHILE; OUTPUT Count.",
@@ -267,14 +267,14 @@ C["compsci:4.1.1.2"] = {
         { m: "MP7 `if (!multi) Console.WriteLine(x);` inside the inner loop", mk: "1" },
         { m: "MP8 `count++; multi = true; number = number / x;` inside the inner loop", mk: "1" },
         { m: "MP9 `x = x + 1;` in the outer loop, after the inner one", mk: "1", n: "Max 8 if it does not work. 23 → 23 then 1; 25 → 5 then 2; 1260 → 2 3 5 7 then 6." }
-      ], result: "Nested indefinite iteration, 9 mark points" } },
+      ], result: "Nested indefinite iteration, 9 mark points" , "try": [{"trace":{"code":"X ← 2\nCount ← 0\nWHILE Number > 1\n  Multi ← FALSE\n  WHILE (Number MOD X) = 0\n    IF NOT Multi THEN\n      OUTPUT X\n      Count ← Count + 1\n    ENDIF\n    Multi ← TRUE\n    Number ← Number DIV X\n  ENDWHILE\n  X ← X + 1\nENDWHILE\nOUTPUT Count","lang":"pseudo","cols":["X","Number","Count","Output"],"rows":[["2","60","0",""],["2","30","1","2"],["2","15","1",""],["3","5","2","3"],["4","5","2",""],["5","1","3","5"],["6","1","3","3"]],"given":[[0,0],[0,1],[0,2],[0,3],[1,0],[2,0],[3,0],[4,0],[5,0],[6,0]],"cap":"Number = 60. One row each time Number is divided, plus one when X moves on with nothing divided, and the final OUTPUT on the last row. X is given."}}]} },
     { worked: { tag: "exam", title: "Trace the sentinel loop", src: "AS June 2020 · P1 Q02.1 · 3 marks",
       q: "Hand-trace: X ← 0; Result ← 0; WHILE X ≠ -1: INPUT X; Result ← Result + X; ENDWHILE; OUTPUT Result — with the inputs 4, 6, 3, 2, -1. Columns X, Result, Output; first row 0, 0, —.",
       steps: [
         { m: "X column: 4, 6, 3, 2, −1;", mk: "1 mark" },
         { m: "Result column: 4, 10, 13, 15;", mk: "1 mark" },
         { m: "Final Result 14 and Output 14;", mk: "1 mark", n: "Max 2 if any errors." }
-      ], result: "Outputs 14" } },
+      ], result: "Outputs 14" , "try": [{"trace":{"code":"X ← 0\nResult ← 0\nWHILE X ≠ -1\n  INPUT X\n  Result ← Result + X\nENDWHILE\nOUTPUT Result","lang":"pseudo","cols":["X","Result","Output"],"rows":[["0","0",""],["4","4",""],["6","10",""],["3","13",""],["2","15",""],["-1","14","14"]],"given":[[0,0],[0,1],[0,2]],"cap":"Inputs 4, 6, 3, 2, −1. One row per pass of the loop; the Output cell only on the last row."}}]} },
     { worked: { tag: "exam", title: "What the sentinel loop gets wrong", src: "AS June 2020 · P1 Q02.2 · 2 marks",
       q: "The algorithm is meant to add numbers input as a series terminated by the sentinel value −1 (which is not part of the series). Comment on the result of the trace (4, 6, 3, 2, −1 gave 14) and describe how the algorithm should be modified.",
       steps: [
@@ -289,7 +289,7 @@ C["compsci:4.1.1.2"] = {
       steps: [
         { m: "The WHILE loop tests its condition at the START, so with a negative X its body is not executed and X stays the same;", mk: "1 mark" },
         { m: "The REPEAT loop tests at the END, so its body runs once and X decreases by 1;", mk: "1 mark", n: "Max 2." }
-      ], result: "Pre-condition vs post-condition" } },
+      ], result: "Pre-condition vs post-condition" , "try": [{"predict":{"code":"int x = -3;\nwhile (x > 0)\n{\n    x = x - 1;\n}\nConsole.WriteLine(x);\n\nint y = -3;\ndo\n{\n    y = y - 1;\n} while (y > 0);   // REPEAT … UNTIL y <= 0\nConsole.WriteLine(y);","expect":"-3\n-4","cap":"Figure 3 and Figure 4 in C#, both given −3. What does it print?"}}]} },
     { worked: { tag: "exam", title: "Definite and indefinite", src: "AS June 2022 · P1 Q09.1 · 2 marks",
       q: "Explain the differences between definite and indefinite iteration.",
       steps: [
@@ -389,7 +389,7 @@ C["compsci:4.1.1.6"] = {
         { m: "MP3 `while (temp1 != temp2)`", mk: "1" },
         { m: "MP4 `if (temp1 > temp2)` inside the loop; MP5 the THEN and ELSE assignments", mk: "2" },
         { m: "MP6 output \"… is GCF of … and …\" after the loop", mk: "1", n: "A. Temp1 instead of Result. 12 and 39 → 3 is GCF of 12 and 39." }
-      ], result: "6 mark points" } },
+      ], result: "6 mark points" , "try": [{"trace":{"code":"Temp1 ← Number1\nTemp2 ← Number2\nWHILE Temp1 ≠ Temp2\n  IF Temp1 > Temp2 THEN\n    Temp1 ← Temp1 – Temp2\n  ELSE\n    Temp2 ← Temp2 – Temp1\n  ENDIF\nENDWHILE\nResult ← Temp1","lang":"pseudo","cols":["Pass","Temp1","Temp2"],"rows":[["start","30","12"],["1","18","12"],["2","6","12"],["3","6","6"]],"given":[[0,0],[0,1],[0,2],[1,0],[2,0],[3,0]],"cap":"Number1 = 30, Number2 = 12. Both values after each pass of the loop; Result is the last Temp1."}}]} },
 
     { page: "Exam toolkit" },
     { table: { head: ["Command word", "What earns the mark"], rows: [
@@ -478,7 +478,7 @@ C["compsci:4.1.1.7"] = {
         { h: "J = 3", m: "X = 2: \"1\", \"1\" with C = \"1\" → equal → S = \"1\", C = \"1\"; R = \"1001\"" },
         { h: "J = 4", m: "X = 1: \"1\", \"0\" with C = \"1\" → differ → S = \"0\"; R = \"01001\"" },
         { h: "J = 5", m: "X = 0: \"0\", \"0\" with C = \"1\" → equal → S = \"1\", C = \"0\"; R = \"101001\"; OUTPUT \"101001\"", mk: "1 mark per correct boxed set (5)", n: "It adds 011101 + 001100 = 101001 (29 + 12 = 41). Max 4 if any errors." }
-      ], result: "101001" } },
+      ], result: "101001" , "try": [{"trace":{"code":"S1 ← \"011101\"\nS2 ← \"001100\"\nC ← \"0\"\nR ← \"\"\nFOR J = 0 TO 5\n  X ← 5 − J\n  D1 ← S1[X]\n  D2 ← S2[X]\n  IF C = \"0\" THEN\n    IF D1 = D2 THEN S ← \"0\"; C ← D1\n    ELSE S ← \"1\"\n  ELSE\n    IF D1 = D2 THEN S ← \"1\"; C ← D1\n    ELSE S ← \"0\"\n  ENDIF\n  R ← CONCATENATE(S, R)\nENDFOR\nOUTPUT R","lang":"pseudo","cols":["J","X","D1","D2","S","C","R"],"rows":[["0","5","1","0","1","0","1"],["1","4","0","0","0","0","01"],["2","3","1","1","0","1","001"],["3","2","1","1","1","1","1001"],["4","1","1","0","0","1","01001"],["5","0","0","0","1","0","101001"]],"given":[[0,0],[1,0],[2,0],[3,0],[4,0],[5,0]],"cap":"The trace without the worked answer beside it. Fill every cell on each row; leave a cell blank only where nothing is written."}}]} },
     { worked: { tag: "exam", title: "Palindrome program", src: "AS June 2025 · P1 Q03.1 · 8 marks",
       q: "Write a program for: S ← \"\"; WHILE S ≠ \"x\": OUTPUT \"Enter a word or phrase: \"; INPUT S; Max ← LENGTH(S) – 1; Matched ← True; FOR i ← 0 TO Max: Letter1 ← S[i]; Letter2 ← S[Max - i]; IF Letter1 ≠ Letter2 THEN Matched ← False; ENDFOR; IF Matched = True THEN OUTPUT \"Palindrome\" ELSE OUTPUT \"Not a palindrome\"; ENDWHILE. Strings are zero-indexed.",
       steps: [
@@ -488,7 +488,7 @@ C["compsci:4.1.1.7"] = {
         { m: "MP5 `for (int i = 0; i <= max; i++)`", mk: "1" },
         { m: "MP6 `if (s[i] != s[max - i])`; MP7 `matched = false;`", mk: "2" },
         { m: "MP8 IF … ELSE after the FOR loop with both outputs", mk: "1", n: "Max 7 if it does not work. madam, maam → Palindrome; adam, aam → Not a palindrome; x → Palindrome (the check runs before the loop test)." }
-      ], result: "8 mark points" } },
+      ], result: "8 mark points" , "try": [{"predict":{"code":"foreach (string s in new string[] { \"level\", \"kayak!\", \"noon\", \"Anna\" })\n{\n    int max = s.Length - 1;\n    bool matched = true;\n    for (int i = 0; i <= max; i++)\n    {\n        if (s[i] != s[max - i]) matched = false;\n    }\n    Console.WriteLine(matched ? \"Palindrome\" : \"Not a palindrome\");\n}","expect":"Palindrome\nNot a palindrome\nPalindrome\nNot a palindrome","cap":"The answer's loop on four inputs. Watch the case of \"Anna\"."}}]} },
     { code: { lang: "csharp", src: "string s = \"\";\nwhile (s != \"x\")\n{\n    Console.Write(\"Enter a word or phrase: \");\n    s = Console.ReadLine();\n    int max = s.Length - 1;\n    bool matched = true;\n    for (int i = 0; i <= max; i++)\n    {\n        char letter1 = s[i];\n        char letter2 = s[max - i];\n        if (letter1 != letter2)\n        {\n            matched = false;\n        }\n    }\n    if (matched)\n    {\n        Console.WriteLine(\"Palindrome\");\n    }\n    else\n    {\n        Console.WriteLine(\"Not a palindrome\");\n    }\n}", cap: "AS 2025 in C#, run with madam, maam, adam, aam, x." } },
     { worked: { tag: "variation", title: "Split a postcode", q: "postcode = \"CO3 5FN\". Using C# string operations, find (a) its length (b) the position of the space (c) the outward code before the space (d) the inward code after it (e) the character code of its first character.",
       steps: [
@@ -497,7 +497,7 @@ C["compsci:4.1.1.7"] = {
         { m: "(c) postcode.Substring(0, 3) → \"CO3\"", mk: "1" },
         { m: "(d) postcode.Substring(4) → \"5FN\" (from index 4 to the end)", mk: "1" },
         { m: "(e) (int)postcode[0] → 67 ('C')", mk: "1" }
-      ], result: "7, 3, CO3, 5FN, 67" } },
+      ], result: "7, 3, CO3, 5FN, 67" , "try": [{"predict":{"code":"string postcode = \"SW1A 2AA\";\nint space = postcode.IndexOf(' ');\nConsole.WriteLine(postcode.Length);\nConsole.WriteLine(space);\nConsole.WriteLine(postcode.Substring(0, space));\nConsole.WriteLine(postcode.Substring(space + 1));\nConsole.WriteLine((int)postcode[1]);","expect":"8\n4\nSW1A\n2AA\n87","cap":"The same operations on another postcode. ('S' is 83, so 'W' is …)"}}]} },
 
     { page: "Exam toolkit" },
     { table: { head: ["Command word", "What earns the mark"], rows: [

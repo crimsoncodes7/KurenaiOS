@@ -184,11 +184,11 @@
           "XOR is 1 when the inputs differ; NAND and NOR are the inverted AND and OR."],
         traps: [],
         variations: [
-          { v: "A", t: "Truth tables of single gates", m: 2, q: "Complete the truth tables of XOR and NOR for two inputs A and B.",
+          { v: "A", t: "Truth tables of single gates", m: 2, try: [{"gates":{"inputs":["A","B"],"gates":[{"id":"Q","type":"NOR","in":["A","B"]}],"out":"Q","fill":true,"cap":"A NOR gate: fill the output for every row."}}], q: "Complete the truth tables of XOR and NOR for two inputs A and B.",
             steps: [["XOR: 00→0, 01→1, 10→1, 11→0.", "MP1", ""], ["NOR: 00→1, 01→0, 10→0, 11→0.", "MP2", ""]] },
-          { v: "B", t: "Truth table of a small circuit", m: 3, q: "A circuit has inputs A, B and C. P = A AND B; Q = NOT P OR C. Complete a truth table for P and Q.",
+          { v: "B", t: "Truth table of a small circuit", m: 3, try: [{"gates":{"inputs":["A","B","C"],"gates":[{"id":"P","type":"AND","in":["A","B"]},{"id":"N","type":"NOT","in":["P"]},{"id":"Q","type":"OR","in":["N","C"]}],"out":"Q","fill":true,"outName":"Q","cap":"The variation's circuit: P = A AND B, Q = NOT P OR C. Fill Q for all eight rows."}}], q: "A circuit has inputs A, B and C. P = A AND B; Q = NOT P OR C. Complete a truth table for P and Q.",
             steps: [["Eight rows in order 000 to 111.", "", "Order"], ["P is 1 only for A = 1, B = 1 (rows 110, 111).", "MP1", "Intermediate column"], ["Q is 1 except when P = 1 and C = 0.", "MP2", ""], ["So Q = 0 only in row 110.", "MP3", ""]] },
-          { v: "C", t: "Name the gate from its table", m: 1, q: "A gate outputs 1 for inputs 00, 01 and 10 and 0 for 11. Name it.",
+          { v: "C", t: "Name the gate from its table", m: 1, try: [{"gates":{"inputs":["A","B"],"gates":[{"id":"Q","type":"NAND","in":["A","B"]}],"out":"Q","pick":"Q","cap":"Choose the gate: 1 for 00, 01 and 10; 0 for 11."}}], q: "A gate outputs 1 for inputs 00, 01 and 10 and 0 for 11. Name it.",
             steps: [["NAND.", "MP1", ""]] }
         ] },
       { id: "cs.draw-circuit",
@@ -197,11 +197,11 @@
           "A NOT on one input is a NOT gate before the main gate — not a bubble on the wrong wire."],
         traps: [],
         variations: [
-          { v: "A", t: "Draw from an expression", m: 3, q: "Draw a logic circuit for $Q = (A + B)\\cdot\\overline{C}$.",
+          { v: "A", t: "Draw from an expression", m: 3, try: [{"gates":{"inputs":["A","B","C"],"gates":[{"id":"O","type":"OR","in":["A","B"]},{"id":"N","type":"NOT","in":["C"]},{"id":"Q","type":"AND","in":["O","N"]}],"out":"Q","pick":"Q","cap":"Q = (A + B)·C̄, drawn. Choose the last gate, then check it against every row."}}], q: "Draw a logic circuit for $Q = (A + B)\\cdot\\overline{C}$.",
             steps: [["An OR gate with inputs A and B.", "MP1", ""], ["A NOT gate on C.", "MP2", ""], ["An AND gate taking the OR output and NOT C, giving Q.", "MP3", ""]] },
-          { v: "B", t: "Draw from a description", m: 3, q: "A greenhouse fan F turns on when it is hot (H) and the door is closed (D), or when the humidity is high (W). Draw a circuit.",
+          { v: "B", t: "Draw from a description", m: 3, try: [{"gates":{"inputs":["H","D","W"],"gates":[{"id":"T","type":"AND","in":["H","D"]},{"id":"F","type":"OR","in":["T","W"]}],"out":"F","fill":true,"outName":"F","cap":"F = H·D + W. When does the fan run? Fill F for every row."}}], q: "A greenhouse fan F turns on when it is hot (H) and the door is closed (D), or when the humidity is high (W). Draw a circuit.",
             steps: [["$F = H\\cdot D + W$.", "MP1", "The expression"], ["An AND gate for H and D.", "MP2", ""], ["An OR gate taking the AND output and W, giving F.", "MP3", ""]] },
-          { v: "C", t: "Two gates from a truth table", m: 3, q: "Outputs S and C of a circuit are: inputs 00 → S0 C0, 01 → S1 C0, 10 → S1 C0, 11 → S0 C1. Draw the circuit.",
+          { v: "C", t: "Two gates from a truth table", m: 3, try: [{"gates":{"inputs":["A","B"],"gates":[{"id":"S","type":"XOR","in":["A","B"]}],"out":"S","pick":"S","outName":"S","cap":"The sum output S: 0, 1, 1, 0. Choose its gate."}}], q: "Outputs S and C of a circuit are: inputs 00 → S0 C0, 01 → S1 C0, 10 → S1 C0, 11 → S0 C1. Draw the circuit.",
             steps: [["S matches XOR.", "MP1", ""], ["C matches AND.", "MP2", ""], ["Both gates take A and B as inputs (a half adder).", "MP3", ""]] }
         ] },
       { id: "cs.circuit-purpose",
@@ -209,11 +209,11 @@
           "\"State the purpose\" wants the name and what it does, e.g. \"adds two bits, giving a sum and a carry\"."],
         traps: [],
         variations: [
-          { v: "A", t: "Recognise a half adder", m: 1, q: "A circuit has an XOR gate and an AND gate, both fed by inputs A and B. State its purpose.",
+          { v: "A", t: "Recognise a half adder", m: 1, try: [{"gates":{"inputs":["A","B"],"gates":[{"id":"C","type":"AND","in":["A","B"]}],"out":"C","fill":true,"outName":"C","cap":"The half adder's carry, C = A·B: fill it."}}], q: "A circuit has an XOR gate and an AND gate, both fed by inputs A and B. State its purpose.",
             steps: [["A half adder: it adds two bits, giving a sum (XOR) and a carry (AND).", "MP1", ""]] },
-          { v: "B", t: "A full adder", m: 2, q: "Explain how a full adder differs from a half adder, and why it is needed.",
+          { v: "B", t: "A full adder", m: 2, try: [{"gates":{"inputs":["A","B","Cin"],"gates":[{"id":"X","type":"XOR","in":["A","B"]},{"id":"P","type":"AND","in":["A","B"]},{"id":"R","type":"AND","in":["X","Cin"]},{"id":"Cout","type":"OR","in":["P","R"]}],"out":"Cout","fill":true,"outName":"Cout","cap":"A full adder's carry out: 1 when at least two of A, B and Cin are 1. Fill it."}}], q: "Explain how a full adder differs from a half adder, and why it is needed.",
             steps: [["A full adder adds three bits: A, B and the carry in from the previous column.", "MP1", ""], ["Chained full adders add multi-bit numbers, passing each carry to the next column.", "MP2", ""]] },
-          { v: "C", t: "A decoder", m: 2, q: "A circuit has inputs A, B and outputs W, X, Y, Z: exactly one output is 1 for each input pattern. State its purpose and give the expression for W, which is 1 only for input 00.",
+          { v: "C", t: "A decoder", m: 2, try: [{"gates":{"inputs":["A","B"],"gates":[{"id":"NA","type":"NOT","in":["A"]},{"id":"NB","type":"NOT","in":["B"]},{"id":"W","type":"AND","in":["NA","NB"]}],"out":"W","fill":true,"outName":"W","cap":"W = Ā·B̄: 1 for input 00 only."}}], q: "A circuit has inputs A, B and outputs W, X, Y, Z: exactly one output is 1 for each input pattern. State its purpose and give the expression for W, which is 1 only for input 00.",
             steps: [["A 2-to-4 decoder: selects one of four outputs (e.g. a memory chip or display segment).", "MP1", ""], ["$W = \\overline{A}\\cdot\\overline{B}$.", "MP2", ""]] }
         ] },
       { id: "cs.flip-flop",
@@ -227,7 +227,7 @@
           { v: "B", t: "The clock input", m: 2, q: "Explain the role of the clock input in a D-type flip-flop.",
             steps: [["The output only changes on the rising edge of the clock signal.", "MP1", ""], ["Then Q takes the value of D; between edges Q holds its value whatever D does.", "MP2", ""]] },
           { v: "C", t: "Trace a sequence", m: 2, q: "D is 1, 1, 0, 0, 1 at five successive rising edges, and Q starts at 0. Give Q after each edge, and Q if D changes to 0 between edges 5 and 6.",
-            steps: [["Q: 1, 1, 0, 0, 1.", "MP1", ""], ["Still 1: a change between edges has no effect until the next rising edge.", "MP2", ""]] }
+            steps: [["Q: 1, 1, 0, 0, 1.", "MP1", ""], ["Still 1: a change between edges has no effect until the next rising edge.", "MP2", "", {"x":[-1.2,10.9],"y":[0,7.7],"w":560,"h":230,"axes":false,"items":[{"line":[[1,0.1],[1,6.8]],"c":"accent","w":1,"dash":true},{"line":[[3,0.1],[3,6.8]],"c":"accent","w":1,"dash":true},{"line":[[5,0.1],[5,6.8]],"c":"accent","w":1,"dash":true},{"line":[[7,0.1],[7,6.8]],"c":"accent","w":1,"dash":true},{"line":[[9,0.1],[9,6.8]],"c":"accent","w":1,"dash":true},{"text":[1,6.85],"t":"edge 1","size":10,"c":"accent","pos":"n"},{"text":[3,6.85],"t":"edge 2","size":10,"c":"accent","pos":"n"},{"text":[5,6.85],"t":"edge 3","size":10,"c":"accent","pos":"n"},{"text":[7,6.85],"t":"edge 4","size":10,"c":"accent","pos":"n"},{"text":[9,6.85],"t":"edge 5","size":10,"c":"accent","pos":"n"},{"poly":[[0,5.2],[1,5.2],[1,6.4],[2,6.4],[2,5.2],[3,5.2],[3,6.4],[4,6.4],[4,5.2],[5,5.2],[5,6.4],[6,6.4],[6,5.2],[7,5.2],[7,6.4],[8,6.4],[8,5.2],[9,5.2],[9,6.4],[10,6.4],[10,5.2],[10.8,5.2]],"close":false,"c":"text2","w":1.8},{"poly":[[0,4],[3.9,4],[3.9,2.8],[7.9,2.8],[7.9,4],[10.3,4],[10.3,2.8],[10.8,2.8]],"close":false,"c":"accent2","w":2.2},{"poly":[[0,0.4],[1,0.4],[1,1.6],[5,1.6],[5,0.4],[9,0.4],[9,1.6],[10.8,1.6]],"close":false,"c":"good","w":2.4},{"text":[-0.4,5.8],"t":"Clock","size":11.5,"c":"text2","pos":"w","b":true},{"text":[-0.4,3.4],"t":"D","size":11.5,"c":"accent2","pos":"w","b":true},{"text":[-0.4,1],"t":"Q","size":11.5,"c":"good","pos":"w","b":true},{"text":[10.3,4.3],"t":"D falls","size":10,"c":"muted","pos":"n"}],"cap":"Q copies D only at a rising edge (dashed). D falls after edge 5 and Q stays 1 until the next edge."}]] }
         ] }
     ],
     practice: [
@@ -251,16 +251,16 @@
         traps: [{ sitting: "2022-06", q: "Q03.3", text: "Only about a quarter got full marks. Trap 1: turning A + Ā into 1 when the A was ANDed with something — AND binds tighter than OR. Trap 2: De Morgan applied across mixed operators in one step." },
           { sitting: "2023-06", q: "Q09.3", text: "The same two traps again: B̄ + B made 1 too early, and NOTs cancelled over different parts of the expression instead of applying De Morgan." }],
         variations: [
-          { v: "A", t: "Expand, then collect", m: 4, q: "Simplify $(A + B)\\cdot(A + \\overline{B})$.",
+          { v: "A", t: "Expand, then collect", m: 4, try: [{"gates":{"inputs":["A","B"],"gates":[{"id":"O1","type":"OR","in":["A","B"]},{"id":"NB","type":"NOT","in":["B"]},{"id":"O2","type":"OR","in":["A","NB"]},{"id":"Q","type":"AND","in":["O1","O2"]}],"out":"Q","fill":true,"cap":"(A + B)·(A + B̄) as a circuit. Fill Q: the column is the A column, as the simplification says."}}], q: "Simplify $(A + B)\\cdot(A + \\overline{B})$.",
             steps: [["Expand: $A\\cdot A + A\\cdot\\overline{B} + B\\cdot A + B\\cdot\\overline{B}$.", "MP1", "Every pair multiplied"], ["$A\\cdot A = A$ and $B\\cdot\\overline{B} = 0$: $A + A\\cdot\\overline{B} + A\\cdot B$.", "MP2", "Two identities"], ["Factor: $A\\cdot(1 + \\overline{B} + B)$.", "MP3", ""], ["$= A$.", "MP4", "Since $1 + X = 1$"]],
             methods: [{ name: "Method 1", rec: true, when: "Expand every term, then simplify. Always works; one more line.", lines: [["$AA + A\\overline{B} + BA + B\\overline{B}$", "MP1"], ["$A + A\\overline{B} + AB + 0$", "MP2"], ["$A(1 + \\overline{B} + B)$", "MP3"], ["$A$", "MP4"]] },
               { name: "Method 2", when: "Spot the distributive law in reverse: $(A + X)(A + Y) = A + XY$. Faster when you see it.", lines: [["$A + B\\cdot\\overline{B}$", "MP1 MP2"], ["$A + 0$", "MP3"], ["$A$", "MP4"]], slip: "If you use it, write the law's name: an unexplained jump may lose the method marks." }] },
           { v: "B", t: "De Morgan first", m: 4, q: "Simplify $\\overline{A\\cdot\\overline{B}}\\cdot(A + B)$.",
             steps: [["De Morgan: $\\overline{A\\cdot\\overline{B}} = \\overline{A} + B$.", "MP1", "The NOT splits and the AND becomes OR"], ["Expand: $\\overline{A}\\cdot A + \\overline{A}\\cdot B + B\\cdot A + B\\cdot B$.", "MP2", ""], ["$= 0 + B\\cdot(\\overline{A} + A) + B$.", "MP3", ""], ["$= B + B = B$.", "MP4", ""]] },
-          { v: "C", t: "The precedence trap", m: 4, q: "Simplify $A\\cdot(B + 1) + \\overline{A}\\cdot C + C\\cdot\\overline{C}$.",
+          { v: "C", t: "The precedence trap", m: 4, try: [{"gates":{"inputs":["A","C"],"gates":[{"id":"NA","type":"NOT","in":["A"]},{"id":"T","type":"AND","in":["NA","C"]},{"id":"Q","type":"OR","in":["A","T"]}],"out":"Q","fill":true,"cap":"A + Ā·C, the expression before the last step. Fill Q and compare it with A + C."}}], q: "Simplify $A\\cdot(B + 1) + \\overline{A}\\cdot C + C\\cdot\\overline{C}$.",
             steps: [["$B + 1 = 1$, so $A\\cdot 1 = A$.", "MP1", "Inside the bracket first"], ["$C\\cdot\\overline{C} = 0$: $A + \\overline{A}\\cdot C$.", "MP2", ""], ["Distributive law: $(A + \\overline{A})\\cdot(A + C)$.", "MP3", ""], ["$= A + C$.", "MP4", ""]],
             trap: "Do not turn $A + \\overline{A}\\cdot C$ into $1\\cdot C$: the $\\overline{A}$ is ANDed with C, so $A + \\overline{A}$ is not a term here." },
-          { v: "D", t: "Double negation", m: 4, q: "Simplify $\\overline{\\overline{A} + \\overline{B}} + \\overline{A}\\cdot B$.",
+          { v: "D", t: "Double negation", m: 4, try: [{"gates":{"inputs":["A","B"],"gates":[{"id":"NA","type":"NOT","in":["A"]},{"id":"NB","type":"NOT","in":["B"]},{"id":"O","type":"OR","in":["NA","NB"]},{"id":"N","type":"NOT","in":["O"]},{"id":"T","type":"AND","in":["NA","B"]},{"id":"Q","type":"OR","in":["N","T"]}],"out":"Q","fill":true,"cap":"The unsimplified expression as gates. Fill Q: it should match B in every row."}}], q: "Simplify $\\overline{\\overline{A} + \\overline{B}} + \\overline{A}\\cdot B$.",
             steps: [["De Morgan: $\\overline{\\overline{A} + \\overline{B}} = \\overline{\\overline{A}}\\cdot\\overline{\\overline{B}}$.", "MP1", ""], ["Double negation: $= A\\cdot B$, giving $A\\cdot B + \\overline{A}\\cdot B$.", "MP2", ""], ["Factor: $B\\cdot(A + \\overline{A})$.", "MP3", ""], ["$= B$.", "MP4", ""]] }
         ] },
       { id: "cs.boolean-laws",
@@ -270,9 +270,9 @@
         variations: [
           { v: "A", t: "Justify an identity", m: 2, q: "Explain why $A\\cdot\\overline{A} = 0$.",
             steps: [["A is either 0 or 1, and $\\overline{A}$ is always the opposite value.", "MP1", ""], ["So one input of the AND is always 0, and the output is always 0.", "MP2", ""]] },
-          { v: "B", t: "Name the law shown", m: 1, q: "A truth table shows that $\\overline{A + B}$ and $\\overline{A}\\cdot\\overline{B}$ have the same output in every row. Name the law.",
+          { v: "B", t: "Name the law shown", m: 1, try: [{"grid":{"cols":["A","B","A + B","NOT (A + B)","Ā","B̄","Ā · B̄"],"rows":[["0","0","0","1","1","1","1"],["0","1","1","0","1","0","0"],["1","0","1","0","0","1","0"],["1","1","1","0","0","0","0"]],"given":[[0,0],[0,1],[1,0],[1,1],[2,0],[2,1],[3,0],[3,1]],"cap":"De Morgan's law: the NOT (A + B) and Ā · B̄ columns are equal in every row."}}], q: "A truth table shows that $\\overline{A + B}$ and $\\overline{A}\\cdot\\overline{B}$ have the same output in every row. Name the law.",
             steps: [["De Morgan's law.", "MP1", ""]] },
-          { v: "C", t: "Show a law with a truth table", m: 2, q: "Use a truth table to show that $A + A\\cdot B = A$.",
+          { v: "C", t: "Show a law with a truth table", m: 2, try: [{"grid":{"cols":["A","B","A · B","A + A · B"],"rows":[["0","0","0","0"],["0","1","0","0"],["1","0","0","1"],["1","1","1","1"]],"given":[[0,0],[0,1],[1,0],[1,1],[2,0],[2,1],[3,0],[3,1]],"cap":"The last column equals the A column: absorption."}}], q: "Use a truth table to show that $A + A\\cdot B = A$.",
             steps: [["Rows 00, 01, 10, 11: $A\\cdot B$ = 0, 0, 0, 1; $A + A\\cdot B$ = 0, 0, 1, 1.", "MP1", ""], ["The output column equals the A column in every row.", "MP2", ""]] }
         ] },
       { id: "cs.boolean-expr",
@@ -280,7 +280,7 @@
           "Read a description: \"and\" → ·, \"or\" → +, \"not / unless\" → a bar."],
         traps: [],
         variations: [
-          { v: "A", t: "Expression from a circuit", m: 2, q: "A circuit: an OR gate takes B and C; an AND gate takes A and the OR's output; a NOT gate inverts the AND's output to give Q. Write the expression for Q.",
+          { v: "A", t: "Expression from a circuit", m: 2, try: [{"gates":{"inputs":["A","B","C"],"gates":[{"id":"O","type":"OR","in":["B","C"]},{"id":"T","type":"AND","in":["A","O"]},{"id":"Q","type":"NOT","in":["T"]}],"out":"Q","fill":true,"cap":"The circuit described, drawn. Fill Q = NOT (A·(B + C))."}}], q: "A circuit: an OR gate takes B and C; an AND gate takes A and the OR's output; a NOT gate inverts the AND's output to give Q. Write the expression for Q.",
             steps: [["The AND gives $A\\cdot(B + C)$.", "MP1", ""], ["$Q = \\overline{A\\cdot(B + C)}$.", "MP2", ""]] },
           { v: "B", t: "Expression from a description", m: 2, q: "A lift moves (M) when the doors are closed (D) and a floor is selected (F), unless it is overloaded (O). Write the expression.",
             steps: [["$D\\cdot F$ for the two conditions.", "MP1", ""], ["$M = D\\cdot F\\cdot\\overline{O}$.", "MP2", ""]] },

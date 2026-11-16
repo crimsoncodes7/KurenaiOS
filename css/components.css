@@ -744,6 +744,7 @@ textarea.k-input { min-block-size: calc(var(--hit) * 2.6); line-height: var(--lh
 @media (pointer: coarse) {
 .k-btn, .k-seg-item, .k-menu-item, .k-rail-item { min-block-size: var(--hit-coarse); }
 .k-btn { min-inline-size: var(--hit-coarse); }
+.k-dr-chip { min-block-size: var(--hit-coarse); }
 .k-iconbtn, .k-ptitle-tools > .k-btn, .k-syncdot { min-inline-size: var(--hit-coarse); min-block-size: var(--hit-coarse); }
 /* the scroller's arrow is a hint (the strip swipes): a 32px circle, its
    chevron large enough to read */

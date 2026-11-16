@@ -216,7 +216,9 @@ C["maths:2.2"] = {
       q: "Find, using algebra, all real solutions to the equation $16a^2 = 2\\sqrt a$.",
       steps: [
         { h: "Write the root as a power and collect", m: "$16a^2 = 2a^{\\frac12} \\;\\Rightarrow\\; 16a^2 - 2a^{\\frac12} = 0 \\;\\Rightarrow\\; 2a^{\\frac12}\\left(8a^{\\frac32} - 1\\right) = 0$", mk: "M1 A1", n: "Do **not** divide both sides by $\\sqrt a$: that throws away the solution $a = 0$, and \"all real solutions\" is a hint that there is more than one." },
-        { h: "Two factors, two solutions", m: "$a^{\\frac12} = 0 \\;\\Rightarrow\\; a = 0 \\qquad \\text{or} \\qquad a^{\\frac32} = \\dfrac18 \\;\\Rightarrow\\; a = \\left(\\dfrac18\\right)^{\\frac23} = \\dfrac14$", mk: "M1 A1", n: "$(\\frac18)^{2/3} = (\\sqrt[3]{1/8})^2 = (\\frac12)^2$. Alternative: square both sides first — $256a^4 = 4a$ — and factorise the quartic; squaring can create false roots, so check them." }
+        { fig: { x: [-0.06, 0.42], y: [-0.15, 1.5], axes: { xt: [0.1, 0.2, 0.25, 0.3, 0.4], yt: [0.5, 1] }, items: [
+          { fn: "16*x*x", from: 0, label: "y = 16a²", at: 0.3, pos: "e" }, { fn: "2*sqrt(x)", from: 0, c: "accent2", label: "y = 2√a", at: 0.38, pos: "s" },
+          { pt: [0, 0], label: "a = 0", pos: "nw" }, { pt: [0.25, 1], label: "(¼, 1)", pos: "nw" } ], cap: "The two sides meet exactly twice, at $a = 0$ and $a = \\frac14$ — dividing by $\\sqrt a$ would have lost the first." }, h: "Two factors, two solutions", m: "$a^{\\frac12} = 0 \\;\\Rightarrow\\; a = 0 \\qquad \\text{or} \\qquad a^{\\frac32} = \\dfrac18 \\;\\Rightarrow\\; a = \\left(\\dfrac18\\right)^{\\frac23} = \\dfrac14$", mk: "M1 A1", n: "$(\\frac18)^{2/3} = (\\sqrt[3]{1/8})^2 = (\\frac12)^2$. Alternative: square both sides first — $256a^4 = 4a$ — and factorise the quartic; squaring can create false roots, so check them." }
       ], result: "$a = 0$ or $a = \\dfrac14$" } },
     { worked: { tag: "exam", title: "A surd equation with the variable under the root", src: "AS June 2023 · P1 Q2 · 4 marks",
       q: "Using the substitution $u = \\sqrt x$ or otherwise, solve $6x - 7\\sqrt x - 20 = 0$.",
@@ -323,7 +325,8 @@ C["maths:2.3"] = {
       q: "$f(x) = x^2 - 4x + 5$. **(a)** Express $f(x)$ in the form $(x + a)^2 + b$ where $a$, $b$ are integers. The curve $y = f(x)$ meets the $y$-axis at $P$ and has a minimum turning point at $Q$. **(b)** Write down the coordinates of $P$ and of $Q$.",
       steps: [
         { m: "$(x - 2)^2 - 4 + 5 = (x - 2)^2 + 1$, so $a = -2$, $b = 1$", mk: "M1 A1" },
-        { m: "$P = (0, 5)$ (put $x = 0$); $\\; Q = (2, 1)$ (the bracket is zero at $x = 2$, leaving $1$)", mk: "B1 B1", n: "Sign of $a$: the bracket $(x - 2)$ means $a = -2$, and the vertex is at $x = +2$. Students give $Q = (-2, 1)$." }
+        { fig: { x: [-1.5, 5.5], y: [-1, 10], axes: { xt: [2, 4], yt: [5] }, items: [
+          { fn: "x*x-4*x+5", label: "y = (x − 2)² + 1", at: 4.3, pos: "e" }, { pt: [0, 5], label: "P (0, 5)", pos: "w" }, { pt: [2, 1], label: "Q (2, 1)", pos: "s" } ], cap: "$P$ is where $x = 0$; $Q$ is where the bracket is zero." }, m: "$P = (0, 5)$ (put $x = 0$); $\\; Q = (2, 1)$ (the bracket is zero at $x = 2$, leaving $1$)", mk: "B1 B1", n: "Sign of $a$: the bracket $(x - 2)$ means $a = -2$, and the vertex is at $x = +2$. Students give $Q = (-2, 1)$." }
       ], result: "$(x - 2)^2 + 1$; $P(0, 5)$, $Q(2, 1)$" } },
     { h: "Quadratics in disguise" },
     "Spec 2.3 says the unknown may be a *function* of $x$: powers, roots, trig, exponentials, logs. Substitute a letter for the repeated piece, solve the quadratic, then undo the substitution — **and reject impossible values**.",
@@ -364,15 +367,21 @@ C["maths:2.3"] = {
       q: "**(i)** Show that $x^2 - 8x + 17 > 0$ for all real values of $x$. **(ii)** \"If I add 3 to a number and square the sum, the result is greater than the square of the original number.\" State, giving a reason, if the statement is always true, sometimes true or never true.",
       steps: [
         { h: "(i) Complete the square", m: "$x^2 - 8x + 17 = (x - 4)^2 - 16 + 17 = (x - 4)^2 + 1$", mk: "M1 A1" },
-        { m: "$(x - 4)^2 \\ge 0$ for all real $x$, so $(x - 4)^2 + 1 \\ge 1 > 0$.", mk: "A1", n: "The conclusion sentence is the last mark. \"A square is never negative, plus 1 makes it positive\" — write it." },
-        { h: "(ii) Translate and test", m: "$(x + 3)^2 > x^2 \\iff 6x + 9 > 0 \\iff x > -\\dfrac32$. True for $x = 0$ ($9 > 0$), false for $x = -5$ ($4 > 25$ is false). **Sometimes true.**", mk: "B1 B1", n: "B1 for \"sometimes\", B1 for a reason with a counter-example (or the inequality $x > -1.5$)." }
+        { fig: { x: [-1, 8.5], y: [-1, 10], axes: { xt: [2, 4, 6, 8], yt: [5, 10] }, items: [
+          { fn: "x*x-8*x+17", label: "y = (x − 4)² + 1", at: 6.6, pos: "e" }, { hline: 1, c: "muted", label: "y = 1" }, { pt: [4, 1], label: "(4, 1)", pos: "s" } ], cap: "The lowest point is $(4, 1)$: the curve never gets below $y = 1$, so it never reaches the $x$-axis." }, m: "$(x - 4)^2 \\ge 0$ for all real $x$, so $(x - 4)^2 + 1 \\ge 1 > 0$.", mk: "A1", n: "The conclusion sentence is the last mark. \"A square is never negative, plus 1 makes it positive\" — write it." },
+        { fig: { x: [-5.5, 2.5], y: [-1, 14], axes: { xt: [-4, -3, -1.5, 1], yt: [4, 8] }, items: [
+          { fn: "x*x", c: "accent2", label: "y = x²", at: -3.6, pos: "e" }, { fn: "(x+3)^2", label: "y = (x + 3)²", at: 0.4, pos: "w" },
+          { vline: -1.5, c: "muted" }, { pt: [-1.5, 2.25], label: "(−1.5, 2.25)", pos: "e" } ], cap: "The parabolas cross once, at $x = -\\frac32$: to the right $(x + 3)^2$ is higher, to the left $x^2$ is." }, h: "(ii) Translate and test", m: "$(x + 3)^2 > x^2 \\iff 6x + 9 > 0 \\iff x > -\\dfrac32$. True for $x = 0$ ($9 > 0$), false for $x = -5$ ($4 > 25$ is false). **Sometimes true.**", mk: "B1 B1", n: "B1 for \"sometimes\", B1 for a reason with a counter-example (or the inequality $x > -1.5$)." }
       ], result: "(i) $(x - 4)^2 + 1 \\ge 1$ (ii) sometimes true, e.g. false when $x = -5$" } },
     { worked: { tag: "exam", title: "Line meets curve at two distinct points — range of $k$", src: "A-level Specimen · P2 Q5 · 5 marks",
       q: "The line $l$ has equation $3x - 2y = k$ where $k$ is a real constant. Given that $l$ intersects the curve $y = 2x^2 - 5$ at two distinct points, find the range of possible values for $k$.",
       steps: [
         { h: "Substitute the curve into the line", m: "$3x - 2(2x^2 - 5) = k \\;\\Rightarrow\\; 4x^2 - 3x + (k - 10) = 0$", mk: "M1 A1", n: "Collect into $Ax^2 + Bx + C = 0$ **with the $k$ inside $C$** before you touch the discriminant." },
         { h: "Two distinct points ⇒ discriminant $> 0$", m: "$(-3)^2 - 4(4)(k - 10) > 0 \\;\\Rightarrow\\; 9 - 16k + 160 > 0$", mk: "M1", n: "$B = -3$, $A = 4$, $C = k - 10$. Brackets round $C$ — the sign of $-4AC$ depends on it." },
-        { m: "$169 > 16k \\;\\Rightarrow\\; k < \\dfrac{169}{16}$", mk: "A1 A1", n: "Strict inequality (distinct). $k = \\frac{169}{16}$ would be the tangent." }
+        { fig: { x: [-3, 3.5], y: [-6.5, 8], axes: { xt: [-2, -1, 1, 2, 3], yt: [-5, 5] }, items: [
+          { fn: "2*x*x-5", label: "y = 2x² − 5", at: 2.4, pos: "e" },
+          { fn: "1.5*x-169/32", c: "danger", label: "k = 169/16", at: 2.6, pos: "se" }, { pt: [0.375, -4.71875], c: "danger" },
+          { fn: "1.5*x", c: "accent3", dash: true, label: "k = 0", at: -2.4, pos: "n" } ], cap: "$l$ is $y = \\frac32 x - \\frac k2$: a smaller $k$ lifts it. At $k = \\frac{169}{16}$ it just touches; any line above that cuts the curve twice." }, m: "$169 > 16k \\;\\Rightarrow\\; k < \\dfrac{169}{16}$", mk: "A1 A1", n: "Strict inequality (distinct). $k = \\frac{169}{16}$ would be the tangent." }
       ], result: "$k < \\dfrac{169}{16}$" } },
     { worked: { tag: "exam", title: "Equal roots — show a relation between two constants", src: "AS June 2025 · P1 Q9 · 3 marks",
       q: "An equation $x^2 - 3px + 5q + 4 = 0$, where $p$ and $q$ are constants, has equal roots. Show that $q = \\frac{1}{20}(3p + 4)(3p - 4)$.",
@@ -384,7 +393,10 @@ C["maths:2.3"] = {
       q: "The curve $C$ has equation $y = \\frac{k^2}{x} + 1$, $x \\neq 0$, and the line $l$ has equation $y = -2x + 5$. **(b)** Show that the $x$-coordinate of any point of intersection of $l$ with $C$ satisfies $2x^2 - 4x + k^2 = 0$. **(c)** Hence find the exact values of $k$ for which $l$ is a tangent to $C$.",
       steps: [
         { h: "(b) Equate and clear the fraction", m: "$\\dfrac{k^2}{x} + 1 = -2x + 5 \\;\\Rightarrow\\; k^2 + x = -2x^2 + 5x \\;\\Rightarrow\\; 2x^2 - 4x + k^2 = 0$", mk: "M1 A1*", n: "Multiply every term by $x$ (allowed since $x \\neq 0$)." },
-        { h: "(c) Tangent ⇒ one repeated root ⇒ $b^2 - 4ac = 0$", m: "$16 - 8k^2 = 0 \\;\\Rightarrow\\; k^2 = 2 \\;\\Rightarrow\\; k = \\pm\\sqrt2$", mk: "M1 A1 A1", n: "\"Exact values\" plural: both signs. \"Hence\" = use the quadratic from (b)." }
+        { fig: { x: [-1.5, 5], y: [-3, 9], axes: { xt: [1, 2, 3, 4], yt: [1, 3, 5] }, items: [
+          { fn: "2/x+1", from: 0.15, to: 5, label: "y = 2/x + 1", at: 4.2, pos: "n" }, { fn: "2/x+1", from: -1.5, to: -0.15 },
+          { fn: "-2*x+5", c: "accent3", label: "y = −2x + 5", at: 3.2, pos: "e" }, { hline: 1, c: "muted" },
+          { pt: [1, 3], label: "(1, 3)", pos: "ne" } ], cap: "With $k^2 = 2$ the repeated root is $x = 1$: the line touches the curve at $(1, 3)$." }, h: "(c) Tangent ⇒ one repeated root ⇒ $b^2 - 4ac = 0$", m: "$16 - 8k^2 = 0 \\;\\Rightarrow\\; k^2 = 2 \\;\\Rightarrow\\; k = \\pm\\sqrt2$", mk: "M1 A1 A1", n: "\"Exact values\" plural: both signs. \"Hence\" = use the quadratic from (b)." }
       ], result: "$k = \\pm\\sqrt2$" } },
 
     { page: "Quadratic models" },
@@ -401,14 +413,20 @@ C["maths:2.3"] = {
         { h: "Substitute $A(0, 2)$ and $B(20, 0.8)$", m: "$2 = a - 81b \\qquad 0.8 = a - 121b$", mk: "M1" },
         { h: "Subtract", m: "$1.2 = 40b \\;\\Rightarrow\\; b = 0.03; \\qquad a = 2 + 81(0.03) = 4.43$", mk: "dM1 A1", n: "$H = 4.43 - 0.03(x - 9)^2$." },
         { h: "(b) Limitation", m: "Any one of: air resistance ignored; the ball is treated as a particle; wind/spin ignored; the path may not be exactly parabolic.", mk: "B1", n: "A limitation must be about the **model**, in context — not \"the answer is rounded\"." },
-        { h: "(c) Height at $x = 16$", m: "$H = 4.43 - 0.03(16 - 9)^2 = 4.43 - 0.03 \\times 49 = 4.43 - 1.47 = 2.96$ m\n$2.96 > 2.5$, so Chandra **cannot** catch the ball.", mk: "M1 A1", n: "Substitute into *your* model, compare with 2.5, and write the conclusion in words." }
+        { fig: { x: [-1, 22], y: [-0.4, 5.5], axes: { x: "x (m)", y: "H (m)", xt: [9, 16, 20], yt: [2, 4.43] }, items: [
+          { fn: "4.43-0.03*(x-9)^2", from: 0, to: 20, label: "H = 4.43 − 0.03(x − 9)²", at: 12.5, pos: "ne" },
+          { pt: [0, 2], label: "A", pos: "w" }, { pt: [20, 0.8], label: "B", pos: "s" }, { pt: [9, 4.43], label: "max", pos: "n" },
+          { hline: 2.5, c: "accent3", label: "2.5 m" }, { line: [[16, 0], [16, 2.96]], c: "muted", dash: true }, { pt: [16, 2.96], c: "danger", label: "(16, 2.96)", pos: "ne" } ], cap: "At $x = 16$ the ball is at $2.96$ m — above Chandra's reach of $2.5$ m." }, h: "(c) Height at $x = 16$", m: "$H = 4.43 - 0.03(16 - 9)^2 = 4.43 - 0.03 \\times 49 = 4.43 - 1.47 = 2.96$ m\n$2.96 > 2.5$, so Chandra **cannot** catch the ball.", mk: "M1 A1", n: "Substitute into *your* model, compare with 2.5, and write the conclusion in words." }
       ], result: "(a) $H = 4.43 - 0.03(x - 9)^2$ (c) $H(16) = 2.96 > 2.5$: cannot catch it" } },
     { worked: { tag: "exam", title: "Profit model in completed-square form", src: "AS June 2018 · P1 Q6 · 7 marks",
       q: "A company's annual profit (thousands of pounds) is modelled by $P = 100 - 6.25(x - 9)^2$, where $x$ is the selling price of a toy in pounds. **(a)** Explain why £15 is not a sensible selling price. **(b)** Given that the profit was more than £80 000, find the least possible selling price. **(c)** State the maximum possible annual profit and the selling price that gives it.",
       steps: [
         { h: "(a) Evaluate at $x = 15$", m: "$P = 100 - 6.25 \\times 36 = 100 - 225 = -125$: a **loss** of £125 000, so not sensible.", mk: "M1 A1", n: "Show the number. \"Because it's too expensive\" scores nothing." },
         { h: "(b) Set up the inequality", m: "$100 - 6.25(x - 9)^2 > 80 \\;\\Rightarrow\\; (x - 9)^2 < 3.2 \\;\\Rightarrow\\; -\\sqrt{3.2} < x - 9 < \\sqrt{3.2}$", mk: "M1 A1", n: "Solving a quadratic inequality by isolating the square. Both bounds." },
-        { m: "$x > 9 - \\sqrt{3.2} = 7.21\\ldots$, so the least possible price is **£7.22**", mk: "A1", n: "Least price → the lower bound; round *up* so the profit is still above £80 000." },
+        { fig: { x: [3.5, 14.5], y: [-30, 120], axes: { x: "x (£)", y: "P", xt: [5, 7.21, 9, 13], yt: [50, 80, 100] }, items: [
+          { shade: { fn: "100-6.25*(x-9)^2", fn2: "80", from: 9 - Math.sqrt(3.2), to: 9 + Math.sqrt(3.2) }, c: "accent3", alpha: 0.25 },
+          { fn: "100-6.25*(x-9)^2", label: "P = 100 − 6.25(x − 9)²", at: 11.5, pos: "e" }, { hline: 80, c: "accent3", label: "P = 80" },
+          { pt: [9 - Math.sqrt(3.2), 80], label: "7.21…", pos: "nw" }, { pt: [9, 100], label: "(9, 100)", pos: "n" } ], cap: "Profit is above 80 only between $9 \\pm \\sqrt{3.2}$; the least price in that interval rounds **up** to £7.22." }, m: "$x > 9 - \\sqrt{3.2} = 7.21\\ldots$, so the least possible price is **£7.22**", mk: "A1", n: "Least price → the lower bound; round *up* so the profit is still above £80 000." },
         { h: "(c) Read the vertex", m: "Maximum profit £100 000, at $x = 9$: a selling price of **£9**", mk: "B1 B1" }
       ], result: "(a) $P < 0$ at £15 (b) £7.22 (c) £100 000 at £9" } },
     { worked: { tag: "exam", title: "Tunnel modelled by a parabola — does the coach fit?", src: "A-level Specimen · P1 Q6 · 6 marks",
@@ -515,7 +533,9 @@ C["maths:2.4"] = {
       steps: [
         { h: "Equate", m: "$3x - 2\\sqrt x = 8x - 16 \\;\\Rightarrow\\; 5x + 2\\sqrt x - 16 = 0$", mk: "M1" },
         { h: "A quadratic in $\\sqrt x$", m: "Let $u = \\sqrt x$: $\\; 5u^2 + 2u - 16 = 0 \\;\\Rightarrow\\; (5u - 8)(u + 2) = 0$", mk: "M1 A1", n: "Product $-80$, sum $2$: $10$ and $-8$." },
-        { m: "$u = \\dfrac85$ (reject $u = -2$ since $\\sqrt x \\ge 0$), so $x = \\dfrac{64}{25}$", mk: "M1 A1", n: "Square to get $x$; state the rejection." }
+        { fig: { x: [-0.3, 4], y: [-3, 10], axes: { xt: [1, 2, 2.56, 3], yt: [4.48, 8] }, items: [
+          { fn: "3*x-2*sqrt(x)", from: 0, label: "C", at: 3.6, pos: "nw" }, { fn: "8*x-16", c: "accent3", label: "l", at: 3.1, pos: "e" },
+          { pt: [2.56, 4.48], label: "A (64/25, 4.48)", pos: "nw" } ], cap: "One crossing: the rejected $u = -2$ would need $\\sqrt x < 0$." }, m: "$u = \\dfrac85$ (reject $u = -2$ since $\\sqrt x \\ge 0$), so $x = \\dfrac{64}{25}$", mk: "M1 A1", n: "Square to get $x$; state the rejection." }
       ], result: "$x = \\dfrac{64}{25}$" } },
     { fig: { x: [-0.5, 5], y: [-4, 12], axes: { xt: [1, 2, 3, 4], yt: [-4, 4, 8, 12] }, items: [
       { fn: "3*x-2*sqrt(x)", from: 0, to: 5, label: "C: y = 3x − 2√x", at: 4.2, pos: "nw" },
@@ -537,7 +557,9 @@ C["maths:2.4"] = {
         { h: "(b) Equate and collect", m: "$2x^3 + 10 = 42x - 15x^2 - 7 \\;\\Rightarrow\\; 2x^3 + 15x^2 - 42x + 17 = 0$", mk: "M1" },
         { h: "$x = \\frac12$ is a root, so $(2x - 1)$ is a factor", m: "$2x^3 + 15x^2 - 42x + 17 = (2x - 1)(x^2 + 8x - 17)$", mk: "M1 A1", n: "Inspection: $2x \\cdot x^2$ gives $2x^3$; $(-1)(-17) = 17$; the middle term $8x^2$ is fixed by $15x^2 = 16x^2 - x^2$. Check the $x$ term: $-34x - 8x = -42x$ ✓" },
         { h: "Quadratic factor by the formula", m: "$x = \\dfrac{-8 \\pm \\sqrt{64 + 68}}{2} = \\dfrac{-8 \\pm \\sqrt{132}}{2} = -4 \\pm \\sqrt{33}$", mk: "M1" },
-        { m: "$x > 0$, so $x = \\sqrt{33} - 4$", mk: "A1", n: "$\\sqrt{132} = 2\\sqrt{33}$ simplified *before* halving. Reject $-4 - \\sqrt{33}$ using the domain." }
+        { fig: { x: [-0.1, 2.6], y: [-9, 28], axes: { xt: [0.5, 1, 1.74, 2.5], yt: [10.25, 20.62] }, items: [
+          { fn: "2*x^3+10", from: 0, label: "C₁", at: 1.95, pos: "w" }, { fn: "42*x-15*x*x-7", from: 0, c: "accent2", label: "C₂", at: 0.3, pos: "e" },
+          { pt: [0.5, 10.25], label: "x = ½", pos: "nw" }, { pt: [Math.sqrt(33) - 4, 2 * Math.pow(Math.sqrt(33) - 4, 3) + 10], label: "P", pos: "n" } ], cap: "The second crossing, $P$, is at $x = \\sqrt{33} - 4 \\approx 1.74$; the root $-4 - \\sqrt{33}$ is outside $x > 0$." }, m: "$x > 0$, so $x = \\sqrt{33} - 4$", mk: "A1", n: "$\\sqrt{132} = 2\\sqrt{33}$ simplified *before* halving. Reject $-4 - \\sqrt{33}$ using the domain." }
       ], result: "$x_P = \\sqrt{33} - 4$" } },
     { worked: { tag: "exam", title: "Rational curve meets a line", src: "A-level June 2025 · P1 Q12 · 8 marks",
       q: "$C$: $y = \\frac{15x}{(2x + 3)(x - 3)}$, $x \\neq -\\frac32$, $x \\neq 3$, and $l$: $y = 2x - 10$. **(a)** Verify that $C$ and $l$ intersect where $x = 6$. **(b)** Show that the $x$-coordinate of the other intersection $Q$ satisfies $4x^3 - 26x^2 - 3x + 90 = 0$. **(c)** Find the exact $x$-coordinate of $Q$.",
@@ -546,14 +568,19 @@ C["maths:2.4"] = {
         { h: "(b) Clear the denominator", m: "$15x = (2x - 10)(2x + 3)(x - 3) = (2x - 10)(2x^2 - 3x - 9)$\n$= 4x^3 - 6x^2 - 18x - 20x^2 + 30x + 90 = 4x^3 - 26x^2 + 12x + 90$", mk: "M1" },
         { m: "$4x^3 - 26x^2 + 12x + 90 - 15x = 0 \\;\\Rightarrow\\; 4x^3 - 26x^2 - 3x + 90 = 0$", mk: "A1*" },
         { h: "(c) Divide out $(x - 6)$", m: "$4x^3 - 26x^2 - 3x + 90 = (x - 6)(4x^2 - 2x - 15)$", mk: "M1 A1", n: "$4x^2$ to match the cube, $-15$ to match $+90$; middle: $-24x^2 - 2x^2 = -26x^2$ ✓; $x$: $12x - 15x = -3x$ ✓" },
-        { m: "$x = \\dfrac{2 \\pm \\sqrt{4 + 240}}{8} = \\dfrac{2 \\pm 2\\sqrt{61}}{8} = \\dfrac{1 \\pm \\sqrt{61}}{4}$; $Q$ has $x < 0$, so $x_Q = \\dfrac{1 - \\sqrt{61}}{4}$", mk: "M1 A1", n: "The sketch shows $Q$ in the third quadrant — that is the information that picks the sign." }
+        { fig: { x: [-4, 8], y: [-20, 10], axes: { xt: [-1.5, 3, 6], yt: [-10, 2] }, items: [
+          { fn: "15*x/((2*x+3)*(x-3))", from: -4, to: -1.55, label: "C", at: -3.6, pos: "s" }, { fn: "15*x/((2*x+3)*(x-3))", from: -1.45, to: 2.96 }, { fn: "15*x/((2*x+3)*(x-3))", from: 3.04, to: 8 },
+          { vline: -1.5, c: "muted" }, { vline: 3, c: "muted" }, { fn: "2*x-10", c: "accent3", label: "l", at: 7.2, pos: "w" },
+          { pt: [6, 2], label: "(6, 2)", pos: "nw" }, { pt: [(1 - Math.sqrt(61)) / 4, (1 - Math.sqrt(61)) / 2 - 10], label: "Q", pos: "nw" }, { pt: [(1 + Math.sqrt(61)) / 4, (1 + Math.sqrt(61)) / 2 - 10], c: "muted" } ], cap: "$l$ meets $C$ three times: $x = 6$, $x = \\frac{1 + \\sqrt{61}}{4}$ and $Q$ at $x = \\frac{1 - \\sqrt{61}}{4} < 0$." }, m: "$x = \\dfrac{2 \\pm \\sqrt{4 + 240}}{8} = \\dfrac{2 \\pm 2\\sqrt{61}}{8} = \\dfrac{1 \\pm \\sqrt{61}}{4}$; $Q$ has $x < 0$, so $x_Q = \\dfrac{1 - \\sqrt{61}}{4}$", mk: "M1 A1", n: "The sketch shows $Q$ in the third quadrant — that is the information that picks the sign." }
       ], result: "$x_Q = \\dfrac{1 - \\sqrt{61}}{4}$" } },
     { worked: { tag: "exam", title: "Cubic and quadratic curves; the root $k < 0$", src: "AS June 2023 · P1 Q15 · 7 marks",
       q: "$C_1$: $y = 8 - 10x + 6x^2 - x^3$ and $C_2$: $y = x^2 - 12x + 14$. **(a)** Verify that when $x = 1$ the curves intersect. **(b)** The curves also intersect when $x = k$, $k < 0$. Use algebra to find the exact value of $k$.",
       steps: [
         { h: "(a)", m: "$C_1(1) = 8 - 10 + 6 - 1 = 3, \\qquad C_2(1) = 1 - 12 + 14 = 3$ ✓", mk: "M1 A1" },
         { h: "(b) Equate", m: "$8 - 10x + 6x^2 - x^3 = x^2 - 12x + 14 \\;\\Rightarrow\\; x^3 - 5x^2 - 2x + 6 = 0$", mk: "M1 A1", n: "Move everything to the side that makes $x^3$ positive — fewer sign errors in the division." },
-        { m: "$(x - 1)(x^2 - 4x - 6) = 0 \\;\\Rightarrow\\; x = \\dfrac{4 \\pm \\sqrt{16 + 24}}{2} = 2 \\pm \\sqrt{10}$", mk: "M1 A1" },
+        { fig: { x: [-2, 6.5], y: [-30, 45], axes: { xt: [-1.16, 1, 5.16], yt: [-20, 20, 40] }, items: [
+          { fn: "8-10*x+6*x*x-x^3", label: "C₁", at: -1.5, pos: "e" }, { fn: "x*x-12*x+14", c: "accent2", label: "C₂", at: 5.9, pos: "e" },
+          { pt: [1, 3], label: "(1, 3)", pos: "s" }, { pt: [2 - Math.sqrt(10), 2 * (2 - Math.sqrt(10)) * (2 - Math.sqrt(10)) - 16 * (2 - Math.sqrt(10)) + 18 - (2 - Math.sqrt(10)) * (2 - Math.sqrt(10)) + 4 * (2 - Math.sqrt(10)) - 4], label: "x = k", pos: "ne" }, { pt: [2 + Math.sqrt(10), -21.3], c: "muted" } ], cap: "Three crossings: $x = 1$ and $2 \\pm \\sqrt{10}$; only $2 - \\sqrt{10}$ is negative." }, m: "$(x - 1)(x^2 - 4x - 6) = 0 \\;\\Rightarrow\\; x = \\dfrac{4 \\pm \\sqrt{16 + 24}}{2} = 2 \\pm \\sqrt{10}$", mk: "M1 A1" },
         { m: "$k < 0 \\Rightarrow k = 2 - \\sqrt{10}$", mk: "A1" }
       ], result: "$k = 2 - \\sqrt{10}$" } },
     { worked: { tag: "exam", title: "Reciprocal curve meets a quadratic — sketch, show the cubic, solve", src: "AS June 2024 · P1 Q5 · 9 marks",
@@ -648,7 +675,9 @@ C["maths:2.5"] = {
       q: "Using algebra, solve the inequality $x^2 - x > 20$, writing your answer in set notation.",
       steps: [
         { m: "$x^2 - x - 20 > 0 \\;\\Rightarrow\\; (x - 5)(x + 4) > 0$; critical values $x = 5$, $x = -4$", mk: "M1 A1", n: "\"Using algebra\": factorise on the page." },
-        { m: "U-shaped parabola, positive outside the roots: $\\{x : x < -4\\} \\cup \\{x : x > 5\\}$", mk: "A1", n: "Two separate sets joined by $\\cup$. Writing $\\{x : -4 > x > 5\\}$ is meaningless and scores 0; \"$x < -4$ or $x > 5$\" is right but not in set notation as asked." }
+        { fig: { x: [-6.5, 7.5], y: [-24, 24], axes: { xt: [-4, 5], yt: [-20, 10, 20] }, items: [
+          { shade: { fn: "x*x-x-20", from: -6.5, to: -4 }, c: "accent3", alpha: 0.22 }, { shade: { fn: "x*x-x-20", from: 5, to: 7.5 }, c: "accent3", alpha: 0.22 },
+          { fn: "x*x-x-20", label: "y = x² − x − 20", at: 2.5, pos: "se" }, { pt: [-4, 0] }, { pt: [5, 0] } ], cap: "Above the axis outside the roots: $x < -4$ or $x > 5$." }, m: "U-shaped parabola, positive outside the roots: $\\{x : x < -4\\} \\cup \\{x : x > 5\\}$", mk: "A1", n: "Two separate sets joined by $\\cup$. Writing $\\{x : -4 > x > 5\\}$ is meaningless and scores 0; \"$x < -4$ or $x > 5$\" is right but not in set notation as asked." }
       ], result: "$\\{x : x < -4\\} \\cup \\{x : x > 5\\}$" } },
     { worked: { tag: "exam", title: "Sketch $y = \\frac{k}{x}$, then solve $\\frac{16}{x} \\le 2$", src: "AS June 2023 · P1 Q4 · 5 marks",
       q: "**(a)** Sketch the curve with equation $y = \\frac{k}{x}$, $x \\neq 0$, where $k$ is a positive constant. **(b)** Hence or otherwise, solve $\\frac{16}{x} \\le 2$.",
@@ -682,14 +711,20 @@ C["maths:2.5"] = {
       q: "The line $l$ passes through $A(-3, 0)$ and $B\\left(\\frac52, 22\\right)$. **(a)** Find the equation of $l$ in the form $y = mx + c$. $C$ has equation $y = 2x^2 + 5x - 3$, and $l$ and $C$ intersect at $A$ and $B$; the region $R$ is bounded by $l$ and $C$. **(b)** Use inequalities to define $R$.",
       steps: [
         { h: "(a)", m: "$m = \\dfrac{22 - 0}{\\frac52 + 3} = \\dfrac{22}{5.5} = 4; \\qquad y = 4(x + 3) = 4x + 12$", mk: "M1 M1 A1" },
-        { h: "(b) $R$ lies below the line and above the curve", m: "$y \\le 4x + 12, \\qquad y \\ge 2x^2 + 5x - 3$", mk: "B1 B1", n: "The intersections at $A$ and $B$ already bound $R$ left and right, so no $x$ inequality is needed. (Check: $2x^2 + 5x - 3 = 4x + 12 \\Rightarrow (2x - 5)(x + 3) = 0$ ✓.)" }
+        { fig: { x: [-4.5, 4], y: [-8, 30], axes: { xt: [-3, 2.5], yt: [-6.125, 12, 22] }, items: [
+          { shade: { fn: "4*x+12", fn2: "2*x*x+5*x-3", from: -3, to: 2.5 }, c: "accent", alpha: 0.2 },
+          { fn: "2*x*x+5*x-3", label: "C", at: -4.2, pos: "e" }, { fn: "4*x+12", c: "accent3", label: "l", at: -4, pos: "se" },
+          { pt: [-3, 0], label: "A", pos: "nw" }, { pt: [2.5, 22], label: "B", pos: "nw" }, { text: [-0.2, 7], t: "R", i: true, size: 14 } ], cap: "$R$ is above the parabola and below the chord $AB$." }, h: "(b) $R$ lies below the line and above the curve", m: "$y \\le 4x + 12, \\qquad y \\ge 2x^2 + 5x - 3$", mk: "B1 B1", n: "The intersections at $A$ and $B$ already bound $R$ left and right, so no $x$ inequality is needed. (Check: $2x^2 + 5x - 3 = 4x + 12 \\Rightarrow (2x - 5)(x + 3) = 0$ ✓.)" }
       ], result: "(a) $y = 4x + 12$ (b) $y \\le 4x + 12$, $y \\ge 2x^2 + 5x - 3$" } },
     { worked: { tag: "exam", title: "Quadratic from its minimum point; region with a chord", src: "A-level Oct 2020 · P1 Q7 · 5 marks",
       q: "A curve $C$, $y = f(x)$, meets a line $l$ at $(-2, 13)$ and $(0, 25)$. $f$ is quadratic and $(-2, 13)$ is its minimum turning point. The region $R$ is bounded by $C$ and $l$. Use inequalities to define $R$.",
       steps: [
         { h: "Completed-square form from the vertex", m: "$y = a(x + 2)^2 + 13$; at $(0, 25)$: $4a + 13 = 25 \\Rightarrow a = 3$\n$y = 3(x + 2)^2 + 13 = 3x^2 + 12x + 25$", mk: "M1 A1", n: "A minimum at $(-2, 13)$ *is* the completed square: bracket $(x + 2)$, constant 13." },
         { h: "The line through the two points", m: "gradient $\\dfrac{25 - 13}{0 - (-2)} = 6$, so $y = 6x + 25$", mk: "B1" },
-        { h: "Region", m: "$y \\le 6x + 25, \\qquad y \\ge 3x^2 + 12x + 25$", mk: "M1 A1", n: "Between the two intersection points the line is above the curve, so $R$ is under the line and over the parabola." }
+        { fig: { x: [-4.2, 1.2], y: [-2, 36], axes: { xt: [-2], yt: [13, 25] }, items: [
+          { shade: { fn: "6*x+25", fn2: "3*x*x+12*x+25", from: -2, to: 0 }, c: "accent", alpha: 0.22 },
+          { fn: "3*x*x+12*x+25", label: "C", at: -3.9, pos: "e" }, { fn: "6*x+25", c: "accent3", label: "l", at: 0.6, pos: "se" },
+          { pt: [-2, 13], label: "(−2, 13)", pos: "s" }, { pt: [0, 25], label: "(0, 25)", pos: "e" }, { text: [-0.9, 21], t: "R", i: true, size: 14 } ], cap: "$R$ sits between the minimum $(-2, 13)$ and the $y$-intercept $(0, 25)$." }, h: "Region", m: "$y \\le 6x + 25, \\qquad y \\ge 3x^2 + 12x + 25$", mk: "M1 A1", n: "Between the two intersection points the line is above the curve, so $R$ is under the line and over the parabola." }
       ], result: "$y \\le 6x + 25$, $\\; y \\ge 3x^2 + 12x + 25$" } },
 
     { page: "Exam toolkit" },
@@ -832,21 +867,25 @@ C["maths:2.6"] = {
       steps: [
         { h: "(a)", m: "$f(-3) = -54 + 45 - 6 + 15 = 0$ ⇒ $(x + 3)$ is a factor.", mk: "M1 A1" },
         { h: "(b)", m: "$f(x) = (x + 3)(2x^2 - x + 5)$: $a = 2, b = -1, c = 5$", mk: "M1 A1", n: "$x^2$: $6x^2 + bx^2 = 5x^2 \\Rightarrow b = -1$; check $x$: $3(-1) + 5 = 2$ ✓" },
-        { h: "(c) Discriminant of the quadratic factor", m: "$b^2 - 4ac = (-1)^2 - 4(2)(5) = 1 - 40 = -39 < 0$, so $2x^2 - x + 5 = 0$ has no real roots and the only real root of $f(x) = 0$ is $x = -3$.", mk: "M1 A1", n: "Write the discriminant, its sign, and the conclusion. \"It doesn't factorise\" is not a proof." },
+        { fig: { x: [-4, 1.8], y: [-30, 40], axes: { xt: [-3, -2, -1, 1], yt: [-20, 15, 30] }, items: [
+          { fn: "2*x^3+5*x*x+2*x+15", label: "y = f(x)", at: 1.1, pos: "w" }, { pt: [-3, 0], label: "(−3, 0)", pos: "nw" } ], cap: "Both turning points sit above the axis (near $y = 16.5$ and $14.8$), so the curve crosses it once." }, h: "(c) Discriminant of the quadratic factor", m: "$b^2 - 4ac = (-1)^2 - 4(2)(5) = 1 - 40 = -39 < 0$, so $2x^2 - x + 5 = 0$ has no real roots and the only real root of $f(x) = 0$ is $x = -3$.", mk: "M1 A1", n: "Write the discriminant, its sign, and the conclusion. \"It doesn't factorise\" is not a proof." },
         { h: "(d) Translate the root", m: "$f(x - 5) = 0 \\iff x - 5 = -3 \\iff x = 2$", mk: "B1", n: "$f(x - 5)$ is $f$ shifted 5 to the **right**, so the root moves from $-3$ to $2$." }
       ], result: "(b) $a = 2, b = -1, c = 5$ (c) discriminant $-39 < 0$ (d) $x = 2$" } },
     { worked: { tag: "exam", title: "Prove $-4$ is the only real root", src: "A-level June 2025 · P1 Q4 · 5 marks",
       q: "$f(x) = 2x^3 + 3x^2 - 16x + 16$ and $f(-4) = 0$. **(a)** Write $f(x)$ in the form $(x + a)Q(x)$ where $Q(x)$ is a quadratic. **(b)** Hence prove that $-4$ is the only real root of $f(x) = 0$.",
       steps: [
         { h: "(a)", m: "$f(x) = (x + 4)(2x^2 - 5x + 4)$", mk: "M1 A1 A1", n: "$x^2$: $8 + p = 3 \\Rightarrow p = -5$; $x$: $4(-5) + 4 = -16$ ✓" },
-        { h: "(b)", m: "$Q(x) = 2x^2 - 5x + 4$: discriminant $25 - 32 = -7 < 0$, so $Q(x) = 0$ has no real solutions. Hence $x = -4$ is the only real root.", mk: "M1 A1" }
+        { fig: { x: [-5, 3], y: [-30, 55], axes: { xt: [-4, -2, 1.21, 2], yt: [4.57, 20, 40] }, items: [
+          { fn: "2*x^3+3*x*x-16*x+16", label: "y = f(x)", at: 2.4, pos: "w" }, { pt: [-4, 0], label: "(−4, 0)", pos: "nw" }, { pt: [1.208, 4.57], c: "accent3", label: "min above the axis", pos: "s" } ], cap: "The local minimum is at about $(1.21, 4.57)$ — above the axis — so $-4$ is the only crossing." }, h: "(b)", m: "$Q(x) = 2x^2 - 5x + 4$: discriminant $25 - 32 = -7 < 0$, so $Q(x) = 0$ has no real solutions. Hence $x = -4$ is the only real root.", mk: "M1 A1" }
       ], result: "$(x + 4)(2x^2 - 5x + 4)$; discriminant $-7$" } },
     { worked: { tag: "exam", title: "A cubic that decides a sextic and a trig equation", src: "A-level June 2018 · P2 Q6 · 6 marks",
       q: "$f(x) = -3x^3 + 8x^2 - 9x + 10$. **(a)(i)** Calculate $f(2)$. **(ii)** Write $f(x)$ as a product of two algebraic factors. **(b)** Using (a)(ii), prove that there are exactly two real solutions to $-3y^6 + 8y^4 - 9y^2 + 10 = 0$. **(c)** Deduce the number of real solutions, for $7\\pi \\le \\theta < 10\\pi$, to $3\\tan^3\\theta - 8\\tan^2\\theta + 9\\tan\\theta - 10 = 0$.",
       steps: [
         { h: "(a)", m: "$f(2) = -24 + 32 - 18 + 10 = 0$, so $f(x) = (x - 2)(-3x^2 + 2x - 5)$", mk: "B1 M1 A1", n: "Leading $-3x^2$ to make $-3x^3$; $-5$ to make $+10$; middle: $6x^2 + px^2 = 8x^2 \\Rightarrow p = 2$." },
         { h: "(b) Put $x = y^2$", m: "$(y^2 - 2)(-3y^4 + 2y^2 - 5) = 0$. The quadratic in $y^2$ has discriminant $4 - 60 < 0$, so no real $y^2$; hence $y^2 = 2$ only: $y = \\pm\\sqrt2$ — exactly two real solutions.", mk: "M1 A1" },
-        { h: "(c) Put $x = \\tan\\theta$; the equation is $-f(\\tan\\theta) = 0$", m: "$\\tan\\theta = 2$ only. $\\tan$ has period $\\pi$, and $7\\pi \\le \\theta < 10\\pi$ is three periods long: **3** solutions.", mk: "B1", n: "One solution per period of $\\tan$ — no need to find them." }
+        { fig: { x: [7 * Math.PI - 0.2, 10 * Math.PI + 0.2], y: [-6, 6], axes: { xt: [{ v: 7 * Math.PI, label: "7π" }, { v: 8 * Math.PI, label: "8π" }, { v: 9 * Math.PI, label: "9π" }, { v: 10 * Math.PI, label: "10π" }], yt: [-4, 2, 4], x: "θ" }, items: [
+          { fn: "tan(x)", from: 7 * Math.PI, to: 10 * Math.PI, label: "y = tan θ", at: 7 * Math.PI + 1.3, pos: "e" }, { hline: 2, c: "accent3", label: "y = 2" },
+          { pt: [7 * Math.PI + Math.atan(2), 2] }, { pt: [8 * Math.PI + Math.atan(2), 2] }, { pt: [9 * Math.PI + Math.atan(2), 2] } ], cap: "One solution in each period of $\\tan$: three in $[7\\pi, 10\\pi)$." }, h: "(c) Put $x = \\tan\\theta$; the equation is $-f(\\tan\\theta) = 0$", m: "$\\tan\\theta = 2$ only. $\\tan$ has period $\\pi$, and $7\\pi \\le \\theta < 10\\pi$ is three periods long: **3** solutions.", mk: "B1", n: "One solution per period of $\\tan$ — no need to find them." }
       ], result: "(a) $f(2) = 0$; $(x - 2)(-3x^2 + 2x - 5)$ (b) $y = \\pm\\sqrt2$ (c) 3" } },
     { worked: { tag: "exam", title: "Unknown root $a$ appears in the equation itself", src: "A-level June 2023 · P1 Q2 · 6 marks",
       q: "$f(x) = 4x^3 + 5x^2 - 10x + 4a$, where $a$ is a positive constant. Given $(x - a)$ is a factor of $f(x)$, **(a)** show that $a(4a^2 + 5a - 6) = 0$. **(b)** Hence **(i)** find the value of $a$; **(ii)** use algebra to find the exact solutions of $f(x) = 3$.",
@@ -986,7 +1025,9 @@ C["maths:2.7"] = {
       q: "A quartic curve $C$, $y = f(x)$, has maximum turning points at $(-1, 0)$ and $(5, 0)$, crosses the $y$-axis at $(0, -75)$ and has a minimum turning point at $x = 2$. **(a)** Find the set of values of $x$ for which $f'(x) \\ge 0$, in set notation. **(b)** Find an equation for $C$.",
       steps: [
         { h: "(a) Uphill or flat: up to the first max, and from the min to the second max", m: "$\\{x : x \\le -1\\} \\cup \\{x : 2 \\le x \\le 5\\}$", mk: "M1 A1 A1", n: "Include the turning points themselves ($f' = 0$ there) because the inequality is $\\ge$." },
-        { h: "(b) Maxima on the axis are double roots", m: "$y = a(x + 1)^2(x - 5)^2$; at $(0, -75)$: $25a = -75 \\Rightarrow a = -3$\n$y = -3(x + 1)^2(x - 5)^2$", mk: "M1 A1 M1 A1", n: "Negative $a$ because the curve is below the axis (the $y$-intercept is negative and the ends point down). Symmetry about $x = 2$ confirms the minimum's position." }
+        { fig: { x: [-2.5, 6.5], y: [-270, 40], axes: { xt: [-1, 2, 5], yt: [-243, -75] }, items: [
+          { fn: "-3*(x+1)^2*(x-5)^2", label: "y = −3(x + 1)²(x − 5)²", at: 3.6, pos: "e" },
+          { pt: [-1, 0], label: "(−1, 0)", pos: "n" }, { pt: [5, 0], label: "(5, 0)", pos: "n" }, { pt: [0, -75], label: "(0, −75)", pos: "e" }, { pt: [2, -243], label: "min at x = 2", pos: "e" } ], cap: "A maximum *on* the axis is a double root; $f' \\ge 0$ wherever the curve is rising or flat." }, h: "(b) Maxima on the axis are double roots", m: "$y = a(x + 1)^2(x - 5)^2$; at $(0, -75)$: $25a = -75 \\Rightarrow a = -3$\n$y = -3(x + 1)^2(x - 5)^2$", mk: "M1 A1 M1 A1", n: "Negative $a$ because the curve is below the axis (the $y$-intercept is negative and the ends point down). Symmetry about $x = 2$ confirms the minimum's position." }
       ], result: "(a) $\\{x : x \\le -1\\} \\cup \\{x : 2 \\le x \\le 5\\}$ (b) $y = -3(x + 1)^2(x - 5)^2$" } },
     { h: "Reciprocal graphs" },
     { fig: { x: [-5, 5], y: [-5, 5], axes: { grid: false, xt: [-3, 3], yt: [-3, 3] }, items: [
@@ -1020,16 +1061,21 @@ C["maths:2.7"] = {
     { worked: { tag: "exam", title: "Sketch $y = |2x - 5|$; solve two inequalities", src: "A-level Specimen · P2 Q4 · 6 marks",
       q: "**(a)** Sketch $y = |2x - 5|$, stating the coordinates of any points where it cuts or meets the axes. **(b)** Find the values of $x$ which satisfy $|2x - 5| > 7$. **(c)** Find the values of $x$ which satisfy $|2x - 5| > x - \\frac52$, in set notation.",
       steps: [
-        { h: "(a)", m: "V with vertex $\\left(\\dfrac52, 0\\right)$, $y$-intercept $(0, 5)$.", mk: "B1 B1" },
+        { fig: { x: [-2, 8], y: [-1, 10], axes: { xt: [-1, 2.5, 6], yt: [5, 7] }, items: [
+          { fn: "abs(2*x-5)", label: "y = |2x − 5|", at: 7, pos: "w" }, { hline: 7, c: "accent3", label: "y = 7" },
+          { pt: [2.5, 0], label: "(5/2, 0)", pos: "s" }, { pt: [0, 5], label: "(0, 5)", pos: "e" }, { pt: [-1, 7], c: "accent3" }, { pt: [6, 7], c: "accent3" } ], cap: "The V and the line $y = 7$ for (b): above it for $x < -1$ and for $x > 6$." }, h: "(a)", m: "V with vertex $\\left(\\dfrac52, 0\\right)$, $y$-intercept $(0, 5)$.", mk: "B1 B1" },
         { h: "(b) Two branches", m: "$2x - 5 > 7 \\Rightarrow x > 6; \\qquad 2x - 5 < -7 \\Rightarrow x < -1$", mk: "M1 A1", n: "Or: critical values from $2x - 5 = \\pm7$, then outside." },
-        { h: "(c) Compare the line $y = x - \\frac52$ with the V", m: "The line has gradient 1 and passes through the vertex $\\left(\\frac52, 0\\right)$ — it is **half** of the right-hand arm. So the V is above it everywhere except at the vertex itself, where they are equal.", mk: "M1", n: "Sketching first is what makes this 2-mark part trivial; algebra alone is confusing." },
+        { fig: { x: [-1, 7], y: [-4, 8], axes: { xt: [5], yt: [5] }, items: [
+          { fn: "abs(2*x-5)", label: "y = |2x − 5|", at: 6, pos: "w" }, { fn: "x-2.5", c: "accent3", label: "y = x − 5/2", at: 6.2, pos: "se" }, { pt: [2.5, 0], c: "danger", label: "equal here only", pos: "s" } ], cap: "The line starts at the vertex and rises half as steeply as the right arm, so the V is above it everywhere else." }, h: "(c) Compare the line $y = x - \\frac52$ with the V", m: "The line has gradient 1 and passes through the vertex $\\left(\\frac52, 0\\right)$ — it is **half** of the right-hand arm. So the V is above it everywhere except at the vertex itself, where they are equal.", mk: "M1", n: "Sketching first is what makes this 2-mark part trivial; algebra alone is confusing." },
         { m: "$\\{x : x < \\tfrac52\\} \\cup \\{x : x > \\tfrac52\\}$", mk: "A1", n: "All real $x$ except $\\frac52$, because at $x = \\frac52$ the inequality is $0 > 0$, which is false." }
       ], result: "(b) $x < -1$ or $x > 6$ (c) $\\{x : x < \\frac52\\} \\cup \\{x : x > \\frac52\\}$" } },
     { worked: { tag: "exam", title: "$|3 - 2x| = 7 + x$ — both branches, both valid", src: "A-level June 2022 · P2 Q1 · 4 marks",
       q: "Solve $|3 - 2x| = 7 + x$. (Solutions relying entirely on calculator technology are not acceptable.)",
       steps: [
         { h: "Branch 1: $3 - 2x = 7 + x$", m: "$-4 = 3x \\Rightarrow x = -\\dfrac43$", mk: "M1 A1", n: "Check: $|3 + \\frac83| = \\frac{17}{3}$ and $7 - \\frac43 = \\frac{17}{3}$ ✓" },
-        { h: "Branch 2: $-(3 - 2x) = 7 + x$", m: "$2x - 3 = 7 + x \\Rightarrow x = 10$", mk: "M1 A1", n: "Check: $|3 - 20| = 17$ and $7 + 10 = 17$ ✓. Both branches are genuine here; a sketch (V with vertex at $\\frac32$, line of gradient 1 through $(0, 7)$) shows two crossings." }
+        { fig: { x: [-3, 12], y: [-2, 22], axes: { xt: [1.5, 10], yt: [5, 10, 17] }, items: [
+          { fn: "abs(3-2*x)", label: "y = |3 − 2x|", at: 11.5, pos: "w" }, { fn: "7+x", c: "accent3", label: "y = 7 + x", at: 4, pos: "nw" },
+          { pt: [-4 / 3, 17 / 3], label: "(−4/3, 17/3)", pos: "e" }, { pt: [10, 17], label: "(10, 17)", pos: "nw" } ], cap: "The line meets both arms of the V — both solutions are valid." }, h: "Branch 2: $-(3 - 2x) = 7 + x$", m: "$2x - 3 = 7 + x \\Rightarrow x = 10$", mk: "M1 A1", n: "Check: $|3 - 20| = 17$ and $7 + 10 = 17$ ✓. Both branches are genuine here; a sketch (V with vertex at $\\frac32$, line of gradient 1 through $(0, 7)$) shows two crossings." }
       ], result: "$x = -\\dfrac43$ or $x = 10$" } },
     { worked: { tag: "exam", title: "Vertex, an equation, and the gradients for which a line through the origin meets the graph", src: "A-level Oct 2020 · P2 Q11 · 7 marks",
       q: "The graph $y = 2|x + 4| - 5$ has vertex $P$. **(a)** Find the coordinates of $P$. **(b)** Solve $3x + 40 = 2|x + 4| - 5$. **(c)** The line $y = ax$ intersects $y = 2|x + 4| - 5$ at least once. Find the range of possible values of $a$, in set notation.",
@@ -1044,19 +1090,27 @@ C["maths:2.7"] = {
       steps: [
         { h: "(a)", m: "$P = (2, 5)$", mk: "B1 B1" },
         { h: "(b)", m: "$x \\ge 2$: $16 - 4x = 3x - 6 + 5 \\Rightarrow 7x = 17 \\Rightarrow x = \\dfrac{17}{7}$ ✓ ($\\ge 2$)\n$x < 2$: $16 - 4x = -3x + 6 + 5 \\Rightarrow x = 5$ ✗", mk: "M1 A1" },
-        { h: "(c) The line pivots about $(0, 4)$, which is below $P$", m: "Through $P$: $k = \\dfrac{5 - 4}{2} = \\dfrac12$. Parallel to the right arm: $k = 3$.\nTwo intersections for $\\dfrac12 < k < 3$.", mk: "M1 A1", n: "For $k \\le \\frac12$ the line is too flat to reach the right arm twice (at $k = \\frac12$ it passes through the vertex — one point); at $k = 3$ it is parallel to the right arm; for $k > 3$ it crosses only the left arm." }
+        { fig: { x: [-3, 6.5], y: [-1, 20], axes: { xt: [2], yt: [4, 5] }, items: [
+          { fn: "3*abs(x-2)+5", label: "y = 3|x − 2| + 5", at: -2.5, pos: "e" },
+          { fn: "0.5*x+4", c: "accent3", dash: true, label: "k = ½", at: 5.4, pos: "s" }, { fn: "3*x+4", c: "danger", dash: true, label: "k = 3", at: 2.8, pos: "w" },
+          { pt: [2, 5], label: "P", pos: "s" }, { pt: [0, 4], label: "(0, 4)", pos: "w" } ], cap: "Lines through $(0, 4)$ steeper than through $P$ but shallower than the right arm cut the V twice." }, h: "(c) The line pivots about $(0, 4)$, which is below $P$", m: "Through $P$: $k = \\dfrac{5 - 4}{2} = \\dfrac12$. Parallel to the right arm: $k = 3$.\nTwo intersections for $\\dfrac12 < k < 3$.", mk: "M1 A1", n: "For $k \\le \\frac12$ the line is too flat to reach the right arm twice (at $k = \\frac12$ it passes through the vertex — one point); at $k = 3$ it is parallel to the right arm; for $k > 3$ it crosses only the left arm." }
       ], result: "(a) $(2, 5)$ (b) $x = \\frac{17}{7}$ (c) $\\frac12 < k < 3$" } },
     { worked: { tag: "exam", title: "Modulus inside a composite; no solutions of $f(x) = kx$", src: "A-level June 2025 · P2 Q12 · 8 marks",
       q: "$f(x) = 4|x - 3| - 5$, $x \\in \\mathbb{R}$. **(a)** Given $|a| = 1$, find the possible values of $f(a)$. $g(x) = 2x + 17$. **(b)** Find the range of $gf(x)$. **(c)** Find the range of values of $k$ for which $f(x) = kx$ has no solutions.",
       steps: [
         { h: "(a) $a = \\pm1$", m: "$f(1) = 4(2) - 5 = 3, \\qquad f(-1) = 4(4) - 5 = 11$", mk: "M1 A1" },
         { h: "(b) $gf(x) = 2f(x) + 17$ and $f(x) \\ge -5$", m: "$gf(x) \\ge 2(-5) + 17 = 7$", mk: "M1 A1", n: "The minimum of $f$ is at its vertex $(3, -5)$; $g$ is increasing, so the minimum of $gf$ is $g(-5)$." },
-        { h: "(c) Lines through the origin that miss both arms", m: "Vertex $(3, -5)$; right arm $y = 4x - 17$, left arm $y = -4x + 7$ (for $x < 3$).\nThrough the vertex: $k = -\\dfrac53$. Parallel to the left arm: $k = -4$.\nNo solutions for $-4 \\le k < -\\dfrac53$.", mk: "M1 A1 B1 A1", n: "$k = -4$ included (parallel to the left arm, and the right arm is not reached); $k = -\\frac53$ excluded (one solution at the vertex). Sketch it — the gap is the wedge between the vertex line and the left arm's direction." }
+        { fig: { x: [-3, 7], y: [-12, 15], axes: { xt: [3], yt: [-5, 7] }, items: [
+          { fn: "4*abs(x-3)-5", label: "y = 4|x − 3| − 5", at: 6.4, pos: "w" },
+          { fn: "-5/3*x", c: "accent3", dash: true, label: "k = −5/3", at: 6, pos: "s" }, { fn: "-4*x", c: "danger", dash: true, label: "k = −4", at: -2.6, pos: "e" },
+          { pt: [3, -5], label: "(3, −5)", pos: "s" } ], cap: "Lines through $O$ from the left arm's gradient up to (not including) the line through the vertex miss the V." }, h: "(c) Lines through the origin that miss both arms", m: "Vertex $(3, -5)$; right arm $y = 4x - 17$, left arm $y = -4x + 7$ (for $x < 3$).\nThrough the vertex: $k = -\\dfrac53$. Parallel to the left arm: $k = -4$.\nNo solutions for $-4 \\le k < -\\dfrac53$.", mk: "M1 A1 B1 A1", n: "$k = -4$ included (parallel to the left arm, and the right arm is not reached); $k = -\\frac53$ excluded (one solution at the vertex). Sketch it — the gap is the wedge between the vertex line and the left arm's direction." }
       ], result: "(a) $3$ or $11$ (b) $gf(x) \\ge 7$ (c) $-4 \\le k < -\\frac53$" } },
     { worked: { tag: "exam", title: "A modulus model: two subscriber counts", src: "modelled on A-level June 2023 · P2 Q12",
       q: "Two streaming companies are monitored from $t = 0$ years. Company A: $N_A = |t - 3| + 4$ (thousands); company B: $N_B = 8 - |2t - 6|$. **(a)** Find the values of $t$ at which the two companies have the same number of subscribers. **(b)** Find the maximum number of subscribers company B has, and when. **(c)** Give one limitation of the models.",
       steps: [
-        { h: "(a) Equate, branch by branch", m: "For $t > 3$: $t - 3 + 4 = 8 - (2t - 6) \\Rightarrow t + 1 = 14 - 2t \\Rightarrow t = \\dfrac{13}{3}$\nFor $t < 3$: $3 - t + 4 = 8 + (2t - 6) \\Rightarrow 7 - t = 2t + 2 \\Rightarrow t = \\dfrac53$", mk: "M1 A1 A1", n: "Both V's have their vertex at $t = 3$ (A's minimum 4, B's maximum 8), so the graphs cross once on each side." },
+        { fig: { x: [-0.4, 7.5], y: [-0.6, 9], axes: { x: "t", y: "N", xt: [1.67, 3, 4.33, 7], yt: [4, 5.33, 8] }, items: [
+          { fn: "abs(x-3)+4", from: 0, to: 7.5, label: "N_A", at: 6.8, pos: "n" }, { fn: "8-abs(2*x-6)", from: 0, to: 7.5, c: "accent2", label: "N_B", at: 3, pos: "n" },
+          { pt: [5 / 3, 16 / 3], label: "t = 5/3", pos: "w" }, { pt: [13 / 3, 16 / 3], label: "t = 13/3", pos: "e" } ], cap: "The two V shapes cross twice, both at $N = \\frac{16}{3}$; $N_B$ peaks at 8 when $t = 3$." }, h: "(a) Equate, branch by branch", m: "For $t > 3$: $t - 3 + 4 = 8 - (2t - 6) \\Rightarrow t + 1 = 14 - 2t \\Rightarrow t = \\dfrac{13}{3}$\nFor $t < 3$: $3 - t + 4 = 8 + (2t - 6) \\Rightarrow 7 - t = 2t + 2 \\Rightarrow t = \\dfrac53$", mk: "M1 A1 A1", n: "Both V's have their vertex at $t = 3$ (A's minimum 4, B's maximum 8), so the graphs cross once on each side." },
         { h: "(b)", m: "$N_B$ is largest when $|2t - 6| = 0$: $t = 3$, $N_B = 8$ thousand.", mk: "B1" },
         { h: "(c)", m: "Subscriber numbers change in steps, not continuously; B's model reaches 0 at $t = 7$ and goes negative after — not sensible; the models ignore market events.", mk: "B1" }
       ], result: "(a) $t = \\frac53$ and $t = \\frac{13}{3}$ (b) 8000 at $t = 3$" } },
@@ -1149,7 +1203,9 @@ C["maths:2.8"] = {
       q: "$g(x) = \\frac{2x + 5}{x - 3}$, $x \\ge 5$. **(a)** Find $gg(5)$. **(b)** State the range of $g$. **(c)** Find $g^{-1}(x)$, stating its domain.",
       steps: [
         { h: "(a) Inside first", m: "$g(5) = \\dfrac{15}{2}; \\qquad g\\left(\\dfrac{15}{2}\\right) = \\dfrac{15 + 5}{\\frac{15}{2} - 3} = \\dfrac{20}{\\frac92} = \\dfrac{40}{9}$", mk: "M1 A1" },
-        { h: "(b) Behaviour on $x \\ge 5$", m: "$g(x) = 2 + \\dfrac{11}{x - 3}$ is decreasing, from $g(5) = \\dfrac{15}{2}$ towards $2$ (never reached).\nRange: $2 < g(x) \\le \\dfrac{15}{2}$", mk: "B1", n: "Writing $\\frac{2x + 5}{x - 3}$ as $2 + \\frac{11}{x - 3}$ (division) shows the horizontal asymptote $y = 2$ at once." },
+        { fig: { x: [3, 20], y: [-0.5, 9], axes: { xt: [5, 10, 15], yt: [2, 7.5] }, items: [
+          { fn: "(2*x+5)/(x-3)", from: 5, to: 20, label: "y = g(x)", at: 14, pos: "n" }, { hline: 2, c: "muted", label: "y = 2" },
+          { pt: [5, 7.5], label: "(5, 15/2)", pos: "e" } ], cap: "Decreasing from $\\frac{15}{2}$ at $x = 5$ towards the asymptote $y = 2$: the range is $2 < g(x) \\le \\frac{15}{2}$." }, h: "(b) Behaviour on $x \\ge 5$", m: "$g(x) = 2 + \\dfrac{11}{x - 3}$ is decreasing, from $g(5) = \\dfrac{15}{2}$ towards $2$ (never reached).\nRange: $2 < g(x) \\le \\dfrac{15}{2}$", mk: "B1", n: "Writing $\\frac{2x + 5}{x - 3}$ as $2 + \\frac{11}{x - 3}$ (division) shows the horizontal asymptote $y = 2$ at once." },
         { h: "(c) Swap and rearrange", m: "$y = \\dfrac{2x + 5}{x - 3} \\Rightarrow y(x - 3) = 2x + 5 \\Rightarrow xy - 2x = 3y + 5 \\Rightarrow x = \\dfrac{3y + 5}{y - 2}$\n$g^{-1}(x) = \\dfrac{3x + 5}{x - 2}$, domain $2 < x \\le \\dfrac{15}{2}$", mk: "M1 A1 B1", n: "Collect the $x$ terms on one side, factorise $x$ out, divide. The domain of $g^{-1}$ is the range of $g$ — the B1 is for stating it." }
       ], result: "(a) $\\frac{40}{9}$ (b) $2 < g(x) \\le \\frac{15}{2}$ (c) $g^{-1}(x) = \\frac{3x + 5}{x - 2}$, $2 < x \\le \\frac{15}{2}$" } },
     { worked: { tag: "exam", title: "Range of a quadratic on a restricted domain; why no inverse", src: "A-level Specimen · P1 Q10(c)(d)(e) · 6 marks",
@@ -1163,7 +1219,9 @@ C["maths:2.8"] = {
       q: "$g(x) = (x - 2)^2 + 1$ for $x \\le 2$ and $g(x) = 4x - 7$ for $x > 2$. **(a)** Find $gg(0)$. **(b)** Find all values of $x$ for which $g(x) > 28$. $h(x) = (x - 2)^2 + 1$, $x \\le 2$. **(c)** Explain why $h$ has an inverse but $g$ does not. **(d)** Solve $h^{-1}(x) = -\\frac12$.",
       steps: [
         { h: "(a) Which piece? $0 \\le 2$, then $5 > 2$", m: "$g(0) = 4 + 1 = 5; \\qquad g(5) = 20 - 7 = 13$", mk: "M1 A1" },
-        { h: "(b) Each piece separately", m: "Left: $(x - 2)^2 + 1 > 28 \\Rightarrow (x - 2)^2 > 27 \\Rightarrow x - 2 < -\\sqrt{27}$ (since $x \\le 2$) $\\Rightarrow x < 2 - 3\\sqrt3$\nRight: $4x - 7 > 28 \\Rightarrow x > \\dfrac{35}{4}$", mk: "M1 A1 M1 A1", n: "On the left piece only the negative square root is compatible with $x \\le 2$." },
+        { fig: { x: [-5, 11], y: [-2, 36], axes: { xt: [-3.2, 2, 8.75], yt: [1, 28] }, items: [
+          { fn: "(x-2)^2+1", from: -5, to: 2, label: "(x − 2)² + 1", at: -2.4, pos: "e" }, { fn: "4*x-7", from: 2, to: 11, c: "accent2", label: "4x − 7", at: 5, pos: "se" },
+          { hline: 28, c: "accent3", label: "y = 28" }, { pt: [2 - 3 * Math.sqrt(3), 28], label: "2 − 3√3", pos: "sw" }, { pt: [8.75, 28], label: "35/4", pos: "se" } ], cap: "Each piece crosses $y = 28$ once; $g > 28$ to the left of $2 - 3\\sqrt3$ and to the right of $\\frac{35}{4}$." }, h: "(b) Each piece separately", m: "Left: $(x - 2)^2 + 1 > 28 \\Rightarrow (x - 2)^2 > 27 \\Rightarrow x - 2 < -\\sqrt{27}$ (since $x \\le 2$) $\\Rightarrow x < 2 - 3\\sqrt3$\nRight: $4x - 7 > 28 \\Rightarrow x > \\dfrac{35}{4}$", mk: "M1 A1 M1 A1", n: "On the left piece only the negative square root is compatible with $x \\le 2$." },
         { h: "(c)", m: "$h$ is one-to-one (the left half of a parabola, decreasing throughout), so it has an inverse. $g$ is many-to-one — e.g. $g(1) = 2$ and $g\\left(\\frac94\\right) = 2$ — so it has none.", mk: "B1 B1" },
         { h: "(d) Use $h^{-1}(x) = -\\frac12 \\iff h\\left(-\\frac12\\right) = x$", m: "$x = \\left(-\\dfrac12 - 2\\right)^2 + 1 = \\dfrac{25}{4} + 1 = \\dfrac{29}{4}$", mk: "M1 A1", n: "No need to find $h^{-1}$: an inverse equation is the original equation read backwards." }
       ], result: "(a) 13 (b) $x < 2 - 3\\sqrt3$ or $x > \\frac{35}{4}$ (d) $x = \\frac{29}{4}$" } },
@@ -1309,7 +1367,9 @@ C["maths:2.9"] = {
       steps: [
         { h: "(a)", m: "$(-2, -3)$", mk: "B1" },
         { h: "(b) Negative $y$ becomes positive", m: "$(-2, 5)$", mk: "B1" },
-        { h: "(c) Right 2, then $\\times3$, then up 2", m: "$(-2, -5) \\to (0, -5) \\to (0, -15) \\to (0, -13)$", mk: "M1 A1", n: "Two of the three steps right earns the M." }
+        { fig: { x: [-4, 3], y: [-15, 7], aspect: "equal", w: 300, h: 360, axes: { xt: [-2, 2], yt: [-13, -5, -3, 5] }, items: [
+          { pt: [-2, -5], c: "text", label: "P", pos: "w" }, { pt: [-2, -3], c: "accent3", label: "(a)", pos: "w" }, { pt: [-2, 5], c: "accent3", label: "(b)", pos: "w" }, { pt: [0, -13], c: "danger", label: "(c)", pos: "e" },
+          { line: [[-2, -5], [0, -5]], c: "muted", arrow: true, dash: true }, { line: [[0, -5], [0, -15]], c: "muted", arrow: true, dash: true } ], cap: "(c) takes $P$ right 2, then stretches it away from the $x$-axis (×3) to $(0, -15)$, then up 2." }, h: "(c) Right 2, then $\\times3$, then up 2", m: "$(-2, -5) \\to (0, -5) \\to (0, -15) \\to (0, -13)$", mk: "M1 A1", n: "Two of the three steps right earns the M." }
       ], result: "(a) $(-2, -3)$ (b) $(-2, 5)$ (c) $(0, -13)$" } },
     { worked: { tag: "exam", title: "Image of $P(3, -2)$ including a reflection", src: "A-level June 2024 · P2 Q3 · 4 marks",
       q: "$P(3, -2)$ lies on $y = f(x)$. Find the image of $P$ under **(i)** $y = f(x - 2)$; **(ii)** $y = f(2x)$; **(iii)** $y = 3f(-x) + 5$.",
@@ -1335,6 +1395,9 @@ C["maths:2.9"] = {
       ], result: "(i) $(-3, 0)$, $(0, 7)$, $y = 3$ (ii) $(-1, 0)$, $(2, -7)$, $y = -3$" } },
     { worked: { tag: "exam", title: "Read transformations off a given sketch", src: "AS Specimen · P1 Q4 · 4 marks",
       q: "$y = g(x)$ has a single minimum turning point $M(4, -1.5)$, crosses the $x$-axis at $P(2, 0)$ and $Q(7, 0)$, and the $y$-axis at $R(0, 5)$. **(a)** State the turning point of $y = 2g(x)$. **(b)** State the largest root of $g(x + 1) = 0$. **(c)** State the smallest root of $g(2x) = 0$. **(d)** State the range of values of $x$ for which $g'(x) < 0$.",
+      fig: { x: [-1.2, 9], y: [-2.5, 10], axes: { xt: [2, 4, 7], yt: [-1.5, 5] }, items: [
+        { fn: "-1.5+(x-4)^2*(0.34375-0.015625*(x-4))", from: -1.2, to: 4, label: "y = g(x)", at: 0.6, pos: "ne" }, { fn: "-1.5+(x-4)^2/6", from: 4, to: 9 },
+        { pt: [4, -1.5], label: "M", pos: "s" }, { pt: [2, 0], label: "P", pos: "sw" }, { pt: [7, 0], label: "Q", pos: "se" }, { pt: [0, 5], label: "R", pos: "e" } ], cap: "One minimum $M(4, -1.5)$; roots $P(2, 0)$ and $Q(7, 0)$; $y$-intercept $R(0, 5)$." },
       steps: [
         { h: "(a) $y$-stretch $\\times2$", m: "$(4, -3)$", mk: "B1" },
         { h: "(b) Roots move left by 1", m: "Roots $1$ and $6$; largest $6$", mk: "B1" },
@@ -1531,7 +1594,9 @@ C["maths:2.11"] = {
         { h: "(b) Profit = income − cost", m: "$1600 - y_{800} = 500 \\Rightarrow y_{800} = 1100; \\qquad 600 - y_{300} = -80 \\Rightarrow y_{300} = 680$", mk: "M1", n: "Translate each sentence into a cost value first." },
         { m: "$800a + b = 1100, \\quad 300a + b = 680 \\;\\Rightarrow\\; 500a = 420 \\Rightarrow a = 0.84, \\; b = 428$", mk: "M1 A1*" },
         { h: "(c)", m: "0.84 is the cost, in pounds, of making each additional bar of soap (the variable cost per bar).", mk: "B1", n: "Context and units. \"The gradient\" is not an interpretation." },
-        { h: "(d) Profit $> 0$", m: "$2x - (0.84x + 428) > 0 \\Rightarrow 1.16x > 428 \\Rightarrow x > 368.9\\ldots$, so **369** bars", mk: "M1 A1", n: "Round **up** — 368 bars still makes a loss." }
+        { fig: { x: [-40, 900], y: [-80, 1900], axes: { x: "bars", y: "£", xt: [300, 369, 800], yt: [428, 1100, 1600] }, items: [
+          { fn: "0.84*x+428", label: "cost", at: 820, pos: "se" }, { fn: "2*x", c: "accent3", label: "income 2x", at: 780, pos: "nw" },
+          { pt: [428 / 1.16, 2 * 428 / 1.16], c: "danger", label: "break-even", pos: "nw" }, { pt: [300, 680], c: "muted" }, { pt: [800, 1100], c: "muted" } ], cap: "Profit once income is above cost: after $x \\approx 368.9$, so 369 bars." }, h: "(d) Profit $> 0$", m: "$2x - (0.84x + 428) > 0 \\Rightarrow 1.16x > 428 \\Rightarrow x > 368.9\\ldots$, so **369** bars", mk: "M1 A1", n: "Round **up** — 368 bars still makes a loss." }
       ], result: "(b) shown (c) cost per extra bar (d) 369" } },
     { worked: { tag: "exam", title: "Choosing between a quadratic and a trig model", src: "A-level June 2023 · P1 Q13 · 7 marks",
       q: "On a roller coaster the maximum height of a carriage is 60 m, a circuit starts at 2 m above the ground, and the height $H$ m after $t$ seconds is modelled by $H = a - b(t - 20)^2$ with $a, b > 0$. **(a)** Find a complete equation for the model. **(b)** Use it to find the height when $t = 40$. An alternative model is $H = 29\\cos(9t + \\alpha)° + \\beta$, $0 \\le \\alpha < 360$. **(c)** Find a complete equation for the alternative model. **(d)** Given the carriage moves continuously for 2 minutes, give a reason why the alternative model is more appropriate.",
@@ -1539,14 +1604,19 @@ C["maths:2.11"] = {
         { h: "(a) Max 60 at $t = 20$; $H = 2$ at $t = 0$", m: "$a = 60$; $\\quad 2 = 60 - 400b \\Rightarrow b = 0.145$\n$H = 60 - 0.145(t - 20)^2$", mk: "B1 M1 A1" },
         { h: "(b)", m: "$H = 60 - 0.145(400) = 2$ m", mk: "B1", n: "By symmetry the carriage is back at 2 m — one circuit takes 40 s in this model." },
         { h: "(c) Amplitude 29, so mean level $\\beta = 60 - 29 = 31$; minimum $2$ at $t = 0$", m: "$2 = 29\\cos\\alpha + 31 \\Rightarrow \\cos\\alpha = -1 \\Rightarrow \\alpha = 180$\n$H = 29\\cos(9t + 180)° + 31$", mk: "M1 A1", n: "Period $\\frac{360}{9} = 40$ s, matching (a)." },
-        { h: "(d)", m: "The cosine model is periodic, so it repeats every 40 s and describes **multiple circuits** over the 2 minutes; the quadratic only describes one circuit (it goes below 2 m — eventually below the ground — after $t = 40$).", mk: "B1" }
+        { fig: { x: [-3, 125], y: [-20, 70], axes: { x: "t (s)", y: "H (m)", xt: [20, 40, 60, 80, 100, 120], yt: [2, 31, 60] }, items: [
+          { fn: "60-0.145*(x-20)^2", from: 0, to: 125, c: "accent2", label: "quadratic", at: 10, pos: "w" },
+          { fn: "29*cos((9*x+180)*pi/180)+31", from: 0, to: 120, label: "cosine", at: 62, pos: "n" } ], cap: "The cosine model repeats every 40 s; the quadratic drops below the ground just after one circuit." }, h: "(d)", m: "The cosine model is periodic, so it repeats every 40 s and describes **multiple circuits** over the 2 minutes; the quadratic only describes one circuit (it goes below 2 m — eventually below the ground — after $t = 40$).", mk: "B1" }
       ], result: "(a) $H = 60 - 0.145(t - 20)^2$ (b) 2 m (c) $H = 29\\cos(9t + 180)° + 31$" } },
     { worked: { tag: "exam", title: "Interpret and refine a quadratic profit model", src: "AS June 2025 · P1 Q7 · 10 marks",
       q: "A company's annual profit (thousands of £) from chairs is $P = -x^2 + 260x - 16\\,450$, where £$x$ is the selling price. **(a)** Explain why £175 is not a sensible selling price. **(b)** Given the profit was more than £200 000, find the highest possible selling price. **(c)** Show that $P = a + b(x + c)^2$ with $a$, $b$, $c$ to be found. **(d)** Hence state the maximum profit and the price that gives it.",
       steps: [
         { h: "(a)", m: "$P(175) = -30\\,625 + 45\\,500 - 16\\,450 = -1575$: a loss of £1 575 000, so not sensible.", mk: "M1 A1" },
         { h: "(b)", m: "$-x^2 + 260x - 16\\,450 > 200 \\Rightarrow x^2 - 260x + 16\\,650 < 0$\nRoots: $x = \\dfrac{260 \\pm \\sqrt{67\\,600 - 66\\,600}}{2} = 130 \\pm \\dfrac{\\sqrt{1000}}{2} = 130 \\pm 15.81$", mk: "M1 A1" },
-        { m: "$114.19 < x < 145.81$, so the highest price is **£145.81** (to the nearest penny, staying under the root)", mk: "A1", n: "Highest → upper root, rounded **down**." },
+        { fig: { x: [104, 157], y: [-120, 520], axes: { x: "x (£)", y: "P", xt: [114.19, 130, 145.81], yt: [200, 450] }, items: [
+          { shade: { fn: "450-(x-130)^2", fn2: "200", from: 130 - Math.sqrt(250), to: 130 + Math.sqrt(250) }, c: "accent3", alpha: 0.25 },
+          { fn: "450-(x-130)^2", label: "P = 450 − (x − 130)²", at: 153, pos: "w" }, { hline: 200, c: "accent3", label: "P = 200" },
+          { pt: [130 + Math.sqrt(250), 200], label: "145.81…", pos: "se" }, { pt: [130, 450], label: "(130, 450)", pos: "n" } ], cap: "Profit above 200 only between the two roots; the highest price stays under $145.81\\ldots$" }, m: "$114.19 < x < 145.81$, so the highest price is **£145.81** (to the nearest penny, staying under the root)", mk: "A1", n: "Highest → upper root, rounded **down**." },
         { h: "(c)", m: "$P = -(x^2 - 260x) - 16\\,450 = -\\left[(x - 130)^2 - 16\\,900\\right] - 16\\,450 = 450 - (x - 130)^2$\n$a = 450$, $b = -1$, $c = -130$", mk: "M1 A1 A1" },
         { h: "(d)", m: "Maximum profit £450 000 at a selling price of £130.", mk: "B1 B1" }
       ], result: "(a) loss at £175 (b) £145.81 (c) $450 - (x - 130)^2$ (d) £450 000 at £130" } },
