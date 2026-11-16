@@ -43,6 +43,15 @@ function tailFig(mu, sd, tails, o) {
   });
   return { x: [lo, hi], y: [0, 1.15], w: o.w || 480, h: o.h || 190, axes: { x: o.xl || "", y: "", xt: o.xt, yt: [] }, items: items.concat(o.extra || []), cap: o.cap };
 }
+/* the PMCC scale from −1 to 1 with the critical region shaded (r ≤ lo
+   and/or r ≥ hi; null for a tail not tested) and the sample's r marked */
+function rFig(lo, hi, r, cap) {
+  var items = [{ line: [[-1, 0.5], [1, 0.5]], c: "line", w: 2 }];
+  if (lo != null) items.push({ poly: [[-1, 0.3], [lo, 0.3], [lo, 0.7], [-1, 0.7]], fill: "danger", alpha: 0.22, c: "danger", w: 1 }, { text: [lo, 0.9], t: String(lo).replace("-", "−"), size: 11.5, c: "danger" });
+  if (hi != null) items.push({ poly: [[hi, 0.3], [1, 0.3], [1, 0.7], [hi, 0.7]], fill: "danger", alpha: 0.22, c: "danger", w: 1 }, { text: [hi, 0.9], t: String(hi), size: 11.5, c: "danger" });
+  items.push({ pt: [r, 0.5], r: 5, c: "accent2" }, { text: [r, 0.12], t: "r = " + String(r).replace("-", "−"), size: 12, b: true, c: "accent2" });
+  return { x: [-1.1, 1.1], y: [0, 1.1], w: 460, h: 130, axes: { x: "", y: "", xt: [-1, -0.5, 0, 0.5, 1], yt: [] }, items: items, cap: cap };
+}
 
 /* =====================================================================
    S5.1  The language of hypothesis testing; correlation tests
@@ -111,7 +120,7 @@ C["maths:S5.1"] = {
         { h: "Error 2: the probability", m: "The test needs $P(X \\ge 8)$ — at least as extreme — not $P(X = 8)$.", mk: "B1", n: "\"$P(X = 8)$ is wrong\" alone is not enough; say what it should be." },
         { h: "(b)", m: "Yes: $P(X \\ge 8) = 1 - P(X \\le 7) = 0.0698 > 0.05$, so $H_0$ should **not** be rejected — the conclusion changes.", mk: "B1" },
         { h: "(c) The boundary pair", m: "$P(X \\ge 8) = 0.0698 > 0.05$; $\\quad P(X \\ge 9) = 1 - 0.9722 = 0.0278 < 0.05$", mk: "M1" },
-        { m: "Critical region $X \\ge 9$", mk: "A1" },
+        { m: "Critical region $X \\ge 9$", mk: "A1", fig: binomCR(30, 0.15, -1, 9, { to: 16, xt: [0, 4, 8, 12, 16], obs: 8, cap: "$B(30, 0.15)$: the critical region $X \\ge 9$ (amber); the observed 8 is just outside it." }) },
         { h: "(d)", m: "$P(X \\ge 9) = 0.0278$ — 2.78%", mk: "B1ft" }
       ], result: "(a) $H_1$ should be $p > 0.15$; use $P(X \\ge 8)$ (b) yes — 0.0698 > 0.05 (c) $X \\ge 9$ (d) 0.0278" } },
     { worked: { tag: "exam", title: "A two-tailed critical region, tails as close to 2.5% as possible", src: "AS June 2023 · P2 Q4 · 7 marks",
@@ -130,7 +139,7 @@ C["maths:S5.1"] = {
       steps: [
         { h: "(a)", m: "$H_0: p = 0.1$, $\\; H_1: p \\ne 0.1$", mk: "B1" },
         { h: "(b) $X \\sim B(50, 0.1)$", m: "Lower: $P(X = 0) = 0.0052$ (and $P(X \\le 1) = 0.0338 > 0.025$)\nUpper: $P(X \\ge 10) = 0.0245$ (and $P(X \\ge 9) = 0.0579 > 0.025$)", mk: "M1 A1" },
-        { m: "Critical region: $X = 0$ or $X \\ge 10$", mk: "A1" },
+        { m: "Critical region: $X = 0$ or $X \\ge 10$", mk: "A1", fig: binomCR(50, 0.1, 0, 10, { to: 18, xt: [0, 5, 10, 15], obs: 15, cap: "$B(50, 0.1)$: each tail under 2.5%; the observed 15 is deep in the upper tail." }) },
         { h: "(c)", m: "$0.0052 + 0.0245 = 0.0297$", mk: "B1ft" },
         { h: "(d)", m: "15 is in the critical region, so there is evidence that the proportion arriving late has changed — supporting the manager's belief.", mk: "B1ft" }
       ], result: "(b) $X = 0$ or $X \\ge 10$ (c) 0.0297 (d) evidence of a change" } },
@@ -139,7 +148,7 @@ C["maths:S5.1"] = {
       steps: [
         { h: "(a) Hypotheses", m: "$H_0: p = 0.1$, $\\; H_1: p \\ne 0.1$", mk: "B1" },
         { h: "Tails of $B(40, 0.1)$", m: "$P(X = 0) = 0.0148$; $\\; P(X \\ge 9) = 1 - 0.9845 = 0.0155$", mk: "M1 A1" },
-        { m: "Critical region: $X = 0$ or $X \\ge 9$", mk: "A1" },
+        { m: "Critical region: $X = 0$ or $X \\ge 9$", mk: "A1", fig: binomCR(40, 0.1, 0, 9, { to: 14, xt: [0, 4, 9, 12], obs: 7, cap: "$B(40, 0.1)$: the observed 7 falls between the tails." }) },
         { h: "(b)", m: "$0.0148 + 0.0155 = 0.0303$", mk: "B1ft" },
         { h: "(c)", m: "7 is not in the critical region: insufficient evidence that the proportion of left-handed adults under 25 differs from 10%.", mk: "B1" }
       ], result: "(a) $X = 0$ or $X \\ge 9$ (b) 0.0303 (c) no evidence for Freya's belief" } },
@@ -174,26 +183,28 @@ C["maths:S5.1"] = {
     { worked: { tag: "exam", title: "Calculate $r$, then test for negative correlation", src: "A-level Oct 2021 · P3 Q2 · 6 marks",
       q: "Marc records, for 16 students, the number of letters in their last name ($x$) and first name ($y$): $x$ = 3, 6, 8, 7, 5, 3, 11, 3, 4, 5, 4, 9, 7, 10, 6, 6 and $y$ = 7, 7, 4, 4, 6, 8, 5, 5, 8, 4, 7, 4, 5, 5, 6, 3. **(a)** Describe the correlation. Marc suggests that parents with long last names give their children shorter first names. **(b)** Comment on the suggestion. **(c)** Find the PMCC. **(d)** Test, at 5%, whether there is evidence of negative correlation.",
       steps: [
-        { h: "(a)", m: "Negative (weak).", mk: "B1" },
+        { h: "(a)", m: "Negative (weak).", mk: "B1", fig: { x: [0, 12], y: [0, 9.5], w: 420, h: 230, axes: { x: "letters in last name x", y: "first name y", xt: [3, 6, 9, 11], yt: [3, 5, 7] },
+          items: [[3, 7], [6, 7], [8, 4], [7, 4], [5, 6], [3, 8], [11, 5], [3, 5], [4, 8], [5, 4], [4, 7], [9, 4], [7, 5], [10, 5], [6, 6], [6, 3]].map(function (p) { return { pt: p, r: 3.4, c: "accent" }; }),
+          cap: "Marc's 16 students: the points drift down to the right, loosely." } },
         { h: "(b)", m: "Compatible: the correlation is negative — longer last names tend to go with shorter first names.", mk: "B1" },
         { h: "(c) Calculator, 2-variable statistics", m: "$r = -0.545$", mk: "B1" },
         { h: "(d) Hypotheses", m: "$H_0: \\rho = 0$, $\\; H_1: \\rho < 0$", mk: "B1" },
         { h: "Critical value", m: "$n = 16$, 5% one-tail: $-0.4259$", mk: "M1" },
-        { m: "$-0.545 < -0.4259$: significant — reject $H_0$. There is evidence of negative correlation between the number of letters in a student's last name and first name.", mk: "A1" }
+        { m: "$-0.545 < -0.4259$: significant — reject $H_0$. There is evidence of negative correlation between the number of letters in a student's last name and first name.", mk: "A1", fig: rFig(-0.4259, null, -0.545, "One-tailed, $n = 16$: $r = -0.545$ is beyond $-0.4259$, in the critical region.") }
       ], result: "(c) −0.545 (d) significant: evidence of negative correlation" } },
     { worked: { tag: "exam", title: "A one-tailed test that fails", src: "A-level June 2024 · P3 Q2(b) · 3 marks",
       q: "For 10 values of $t$, the PMCC between a bird's height $h$ and time $t$ is $-0.510$. Test whether there is evidence of a negative correlation between height and time, stating your hypotheses, using 5% and stating the critical value.",
       steps: [
         { h: "Hypotheses", m: "$H_0: \\rho = 0$, $\\; H_1: \\rho < 0$", mk: "B1" },
         { h: "Critical value", m: "$n = 10$, 5% one-tail: $-0.5494$", mk: "M1" },
-        { h: "Compare", m: "$-0.510 > -0.5494$: not significant. Insufficient evidence of a negative correlation between height and time.", mk: "A1", n: "The scatter diagram showed a curve: a non-linear relationship can have a weak $r$." }
+        { h: "Compare", m: "$-0.510 > -0.5494$: not significant. Insufficient evidence of a negative correlation between height and time.", mk: "A1", n: "The scatter diagram showed a curve: a non-linear relationship can have a weak $r$.", fig: rFig(-0.5494, null, -0.51, "$n = 10$: $r = -0.510$ stops short of $-0.5494$.") }
       ], result: "Not significant: −0.510 > −0.5494" } },
     { worked: { tag: "exam", title: "A two-tailed correlation test, then a prediction", src: "A-level Oct 2020 · P3 Q2(c)(d) · 4 marks",
       q: "Stav believes there is a correlation between Daily Total Sunshine and Daily Maximum Relative Humidity at Heathrow. For a random sample of 30 days, $r = -0.377$. **(c)** Carry out a suitable test at 5%, stating your hypotheses and critical value. On a random day the humidity was 97%. **(d)** Comment on the number of hours of sunshine you would expect, giving a reason.",
       steps: [
         { h: "(c) \"A correlation\" — no direction", m: "$H_0: \\rho = 0$, $\\; H_1: \\rho \\ne 0$", mk: "B1" },
         { h: "Two-tailed 5%: the 2.5% column", m: "$n = 30$: critical values $\\pm 0.3610$", mk: "M1" },
-        { m: "$-0.377 < -0.3610$: significant. There is evidence of a correlation between sunshine and humidity.", mk: "A1" },
+        { m: "$-0.377 < -0.3610$: significant. There is evidence of a correlation between sunshine and humidity.", mk: "A1", fig: rFig(-0.361, 0.361, -0.377, "Two-tailed, $n = 30$: both tails beyond $\pm 0.3610$; $r = -0.377$ is just inside the lower one.") },
         { h: "(d)", m: "97% is very high humidity, and the correlation is negative, so expect **fewer** hours of sunshine than average for Heathrow.", mk: "B1" }
       ], result: "(c) significant (d) lower than average sunshine" } },
     { worked: { tag: "exam", title: "Testing with a given p-value", src: "A-level June 2025 · P3 Q4(e) · 2 marks",
@@ -207,21 +218,21 @@ C["maths:S5.1"] = {
       steps: [
         { h: "Hypotheses", m: "$H_0: \\rho = 0$, $\\; H_1: \\rho < 0$", mk: "B1" },
         { h: "Critical value", m: "$n = 19$: $-0.3887$", mk: "M1" },
-        { m: "$-0.897 < -0.3887$: reject $H_0$ — there is evidence of negative correlation between $x$ and $y$.", mk: "A1" }
+        { m: "$-0.897 < -0.3887$: reject $H_0$ — there is evidence of negative correlation between $x$ and $y$.", mk: "A1", fig: rFig(-0.3887, null, -0.897, "$n = 19$: $r = -0.897$ is far into the critical region.") }
       ], result: "Significant: −0.897 < −0.3887" } },
     { worked: { tag: "exam", title: "Tessa's shop: a negative one-tailed test", src: "A-level June 2018 · P3 Q2(a) · 3 marks",
       q: "For 8 summer weeks, the PMCC between weekly sales and average weekly temperature is $-0.915$. Stating your hypotheses and using a 5% level, test whether the correlation is negative.",
       steps: [
         { h: "Hypotheses", m: "$H_0: \\rho = 0$, $\\; H_1: \\rho < 0$", mk: "B1" },
         { h: "Critical value", m: "$n = 8$, 5% one-tail: $-0.6215$", mk: "M1" },
-        { m: "$-0.915 < -0.6215$: significant — evidence of negative correlation between sales and temperature.", mk: "A1" }
+        { m: "$-0.915 < -0.6215$: significant — evidence of negative correlation between sales and temperature.", mk: "A1", fig: rFig(-0.6215, null, -0.915, "$n = 8$ needs $r \le -0.6215$; $-0.915$ is well beyond it.") }
       ], result: "Significant: evidence of negative correlation" } },
     { worked: { tag: "exam", title: "A 10% test for positive correlation from seven places", src: "A-level Specimen · P3 Q2(b) · 3 marks",
       q: "For the 7 northern-hemisphere places in the large data set, the PMCC between the July mean temperature and mean rainfall is $r = 0.658$. Stating your hypotheses, test at the 10% level whether the population correlation coefficient is greater than zero.",
       steps: [
         { h: "Hypotheses", m: "$H_0: \\rho = 0$, $\\; H_1: \\rho > 0$", mk: "B1" },
         { h: "Critical value", m: "$n = 7$, 10% one-tail: $0.5509$", mk: "M1" },
-        { m: "$0.658 > 0.5509$: reject $H_0$ — there is evidence that the population correlation coefficient is greater than zero.", mk: "A1", n: "Significant, but S2.2 showed the pattern is really two groups — a test cannot fix a poor model." }
+        { m: "$0.658 > 0.5509$: reject $H_0$ — there is evidence that the population correlation coefficient is greater than zero.", mk: "A1", n: "Significant, but S2.2 showed the pattern is really two groups — a test cannot fix a poor model.", fig: rFig(null, 0.5509, 0.658, "10%, one-tailed, $n = 7$: $r = 0.658$ exceeds $0.5509$.") }
       ], result: "Significant at 10%" } },
 
     /* ---------------------------------------------------------------- Page 4 */
@@ -320,7 +331,7 @@ C["maths:S5.2"] = {
         { h: "(a) $N \\sim B(15, \\frac13)$", m: "(i) $P(N = 2) = 0.0599$ $\\quad$ (ii) $P(N > 5) = 1 - P(N \\le 5) = 0.382$", mk: "M1 A1 A1" },
         { h: "(b) Hypotheses", m: "$H_0: p = \\frac13$, $\\; H_1: p > \\frac13$", mk: "B1" },
         { h: "Model and probability", m: "$X \\sim B(32, \\frac13)$: $\\; P(X \\ge 16) = 1 - P(X \\le 15) = 0.0377$", mk: "M1 A1" },
-        { h: "Conclude", m: "$0.0377 < 0.05$: significant — there is evidence to support Naasir's claim.", mk: "A1" }
+        { h: "Conclude", m: "$0.0377 < 0.05$: significant — there is evidence to support Naasir's claim.", mk: "A1", fig: binomCR(32, 1 / 3, -1, 16, { to: 22, xt: [0, 5, 10, 16, 20], obs: 16, cap: "$B(32, \\frac13)$: at 5% the critical region is $X \\ge 16$ — and 16 wins is in it." }) }
       ], result: "(a) 0.0599, 0.382 (b) significant: evidence for the claim" } },
     { worked: { tag: "exam", title: "Is Rowan more successful?", src: "AS June 2020 · P2 Q5(c) · 4 marks",
       q: "Each sales call has a $\\frac16$ chance of success. Rowan believes he is more successful. Of his next 35 calls, 11 are successful. Stating your hypotheses clearly, test at 5% whether there is evidence to support Rowan's belief.",
@@ -328,7 +339,7 @@ C["maths:S5.2"] = {
         { h: "Hypotheses", m: "$H_0: p = \\frac16$, $\\; H_1: p > \\frac16$", mk: "B1" },
         { h: "Model", m: "$R \\sim B(35, \\frac16)$", mk: "M1" },
         { h: "Probability", m: "$P(R \\ge 11) = 1 - P(R \\le 10) = 0.0232$", mk: "A1" },
-        { h: "Conclude", m: "$0.0232 < 0.05$: significant — evidence that Rowan is a more successful salesperson.", mk: "A1", n: "\"Rowan can reject $H_0$\" is not a contextual conclusion." }
+        { h: "Conclude", m: "$0.0232 < 0.05$: significant — evidence that Rowan is a more successful salesperson.", mk: "A1", n: "\"Rowan can reject $H_0$\" is not a contextual conclusion.", fig: binomCR(35, 1 / 6, -1, 11, { to: 16, xt: [0, 5, 11, 16], obs: 11, cap: "$B(35, \\frac16)$: the 5% critical region starts at 11, exactly Rowan's count." }) }
       ], result: "Significant: evidence for Rowan's belief" } },
     { worked: { tag: "exam", title: "A decrease: supplier B's damp bags, at 10%", src: "AS June 2022 · P2 Q2(b) · 4 marks",
       q: "8% of bags of sugar from supplier A are damp. Supplier B claims its proportion is less than 8%. In a random sample of 70 bags from B, 2 are damp. Test supplier B's claim, stating your hypotheses clearly and using a 10% level.",
@@ -336,7 +347,7 @@ C["maths:S5.2"] = {
         { h: "Hypotheses", m: "$H_0: p = 0.08$, $\\; H_1: p < 0.08$", mk: "B1" },
         { h: "Model", m: "$X \\sim B(70, 0.08)$", mk: "M1" },
         { h: "Lower tail", m: "$P(X \\le 2) = 0.0740$", mk: "A1" },
-        { h: "Conclude", m: "$0.074 < 0.10$: significant — there is evidence to support supplier B's claim.", mk: "A1" }
+        { h: "Conclude", m: "$0.074 < 0.10$: significant — there is evidence to support supplier B's claim.", mk: "A1", fig: binomCR(70, 0.08, 2, 99, { to: 14, xt: [0, 2, 5, 10], obs: 2, cap: "$B(70, 0.08)$: at 10% the lower critical region is $X \\le 2$, and 2 damp bags is in it." }) }
       ], result: "Significant at 10%: evidence for B's claim" } },
     { worked: { tag: "exam", title: "After a service — has the defective proportion fallen?", src: "AS June 2024 · P2 Q4(b)(c) · 5 marks",
       q: "Historically 12% of items from a machine are defective. After a service, a random sample of 60 items has 3 defective. **(b)** Test at 5% whether the proportion has decreased, stating your hypotheses clearly. **(c)** Write down the p-value.",
@@ -354,7 +365,7 @@ C["maths:S5.2"] = {
         { h: "Model and p-value", m: "$X \\sim B(40, 0.2)$: $\\; P(X \\ge 11) = 1 - 0.8392 = 0.161$", mk: "M1 A1" },
         { h: "Conclude", m: "$0.161 > 0.05$: not significant — insufficient evidence that the proportion of green counters is greater than 0.2.", mk: "A1" },
         { h: "(ii) Where does rejection start?", m: "$P(X \\le 11) = 0.9125 < 0.95$; $\\; P(X \\le 12) = 0.9568 > 0.95$\nso the critical region is $X \\ge 13$", mk: "M1" },
-        { m: "Acceptance region: $0 \\le X \\le 12$", mk: "A1", n: "Write the region, not a probability statement such as $P(X < 13)$." }
+        { m: "Acceptance region: $0 \\le X \\le 12$", mk: "A1", n: "Write the region, not a probability statement such as $P(X < 13)$.", fig: binomCR(40, 0.2, -1, 13, { to: 18, xt: [0, 5, 8, 11, 13, 18], obs: 11, cap: "$B(40, 0.2)$: accept for 0–12, reject from 13; the observed 11 is accepted." }) }
       ], result: "(i) p-value 0.161, not significant (ii) $X \\le 12$" } },
     { worked: { tag: "exam", title: "Kamil's claim about prizes", src: "A-level June 2023 · P3 Q2(d) · 4 marks",
       q: "$\\frac17$ of packets contain a prize. Kamil claims the proportion is less than $\\frac17$. In a random sample of 110 packets, 9 contain a prize. Use a suitable test to assess Kamil's claim, stating your hypotheses clearly and using a 5% level.",
@@ -362,7 +373,7 @@ C["maths:S5.2"] = {
         { h: "Hypotheses", m: "$H_0: p = \\frac17$, $\\; H_1: p < \\frac17$", mk: "B1" },
         { h: "Model", m: "$X \\sim B(110, \\frac17)$", mk: "M1" },
         { h: "Lower tail", m: "$P(X \\le 9) = 0.0383$", mk: "A1", n: "Expected $110 \\times \\frac17 \\approx 15.7$; 9 is well below." },
-        { h: "Conclude", m: "$0.0383 < 0.05$: significant — there is evidence to support Kamil's claim.", mk: "A1" }
+        { h: "Conclude", m: "$0.0383 < 0.05$: significant — there is evidence to support Kamil's claim.", mk: "A1", fig: binomCR(110, 1 / 7, 9, 999, { to: 28, xt: [0, 9, 16, 25], obs: 9, cap: "$B(110, \\frac17)$, centred near 15.7: the 5% lower critical region is $X \\le 9$, and 9 is in it." }) }
       ], result: "Significant: evidence for the claim" } },
 
     /* ---------------------------------------------------------------- Page 2 */
@@ -379,14 +390,14 @@ C["maths:S5.2"] = {
         { h: "Model; which tail?", m: "$X \\sim B(75, 0.14)$; $np = 10.5$ and 4 is below it — lower tail.", mk: "M1" },
         { h: "Probability", m: "$P(X \\le 4) = 0.0151$", mk: "A1" },
         { h: "Compare with 0.025", m: "$0.0151 < 0.025$: significant — there is evidence that the proportion of red beads has changed.", mk: "A1" },
-        { h: "(e) Two tails", m: "p-value $= 2 \\times 0.0151 = 0.0301$", mk: "B1ft" }
+        { h: "(e) Two tails", m: "p-value $= 2 \\times 0.0151 = 0.0301$", mk: "B1ft", fig: binomCR(75, 0.14, 4, 18, { to: 22, xt: [0, 4, 10, 18], obs: 4, cap: "$B(75, 0.14)$, two tails under 2.5% each: $X \\le 4$ or $X \\ge 18$. The 4 is in the lower tail." }) }
       ], result: "(d) significant: evidence of change (e) 0.0301" } },
     { worked: { tag: "exam", title: "A two-tailed test that is not significant", src: "A-level June 2025 · P3 Q3(b) · 3 marks",
       q: "1.5% of components are defective. The manufacturer tests $H_0: p = 0.015$ against $H_1: p \\ne 0.015$. A random sample of 260 components contains 8 defective. Using a 5% level, complete the test.",
       steps: [
         { h: "Model; which tail?", m: "$X \\sim B(260, 0.015)$; $np = 3.9$, and 8 is above it — upper tail.", mk: "M1" },
         { h: "Probability", m: "$P(X \\ge 8) = 1 - P(X \\le 7) = 0.0441$", mk: "A1" },
-        { h: "Compare with 0.025", m: "$0.0441 > 0.025$: not significant — insufficient evidence that the proportion of defective components has changed.", mk: "A1", n: "Compared with 0.05 by mistake, this test would wrongly be called significant." }
+        { h: "Compare with 0.025", m: "$0.0441 > 0.025$: not significant — insufficient evidence that the proportion of defective components has changed.", mk: "A1", n: "Compared with 0.05 by mistake, this test would wrongly be called significant.", fig: binomCR(260, 0.015, 0, 9, { to: 12, xt: [0, 4, 8, 9, 12], obs: 8, cap: "$B(260, 0.015)$: the upper 2.5% tail starts at 9; 8 is outside it." }) }
       ], result: "Not significant: no evidence of a change" } },
 
     /* ---------------------------------------------------------------- Page 3 */
@@ -480,7 +491,7 @@ C["maths:S5.3"] = {
         { h: "(b) Hypotheses", m: "$H_0: \\mu = 10$, $\\; H_1: \\mu > 10$", mk: "B1" },
         { h: "Sampling distribution", m: "$\\bar{X} \\sim N\\left(10, \\dfrac{4^2}{20}\\right)$", mk: "M1" },
         { h: "Probability", m: "$P(\\bar{X} > 11.5) = 0.0468$ $\\;$ (or $z = \\dfrac{11.5 - 10}{4/\\sqrt{20}} = 1.677 > 1.6449$)", mk: "A1" },
-        { h: "Conclude", m: "$0.0468 < 0.05$: significant — there is evidence to support the patients' complaint that the mean time is more than 10 minutes.", mk: "A1" }
+        { h: "Conclude", m: "$0.0468 < 0.05$: significant — there is evidence to support the patients' complaint that the mean time is more than 10 minutes.", mk: "A1", fig: tailFig(10, 0.8944, [[11.471, 14]], { vl: [[11.471, "CR from 11.47"], [11.5, "x̄ = 11.5", "accent2", 0.6]], xt: [8, 9, 10, 11, 12], xl: "x̄", cap: "$\\bar X \\sim N(10, 0.8)$: 11.5 is just past the start of the 5% critical region." }) }
       ], result: "(a) 0.106 (b) significant: evidence for the complaint" } },
     { worked: { tag: "exam", title: "Alice's batteries: critical region for the mean", src: "A-level June 2018 · P3 Q5(d) · 5 marks",
       q: "Battery lifetimes are $N(18, 4^2)$ hours. Alice believes the mean lifetime is more than 18 hours. A random sample of 20 batteries has mean 19.2 hours. Stating your hypotheses clearly and using a 5% level, test Alice's belief.",
@@ -499,7 +510,7 @@ C["maths:S5.3"] = {
         { h: "Model", m: "$\\bar{X} \\sim N\\left(250, \\dfrac{4^2}{90}\\right)$", mk: "M1" },
         { h: "Probability", m: "$P(\\bar{X} > 250.4) = 0.171$ $\\;$ ($z = 0.949$)", mk: "A1" },
         { h: "Compare", m: "$0.171 > 0.05$ (or $0.949 < 1.6449$): not significant.", mk: "A1" },
-        { h: "Conclude", m: "There is insufficient evidence that the mean mass of coffee is greater than 250 g — the seller's claim is not supported.", mk: "A1" }
+        { h: "Conclude", m: "There is insufficient evidence that the mean mass of coffee is greater than 250 g — the seller's claim is not supported.", mk: "A1", fig: tailFig(250, 0.4216, [[250.693, 252]], { vl: [[250.693, "CR from 250.69"], [250.4, "x̄ = 250.4", "accent2", 0.6]], xt: [249, 249.5, 250, 250.5, 251], xl: "x̄ (g)", cap: "$\\bar X \\sim N(250, \\frac{16}{90})$: 250.4 g sits short of the critical region." }) }
       ], result: "Not significant: claim not supported" } },
     { worked: { tag: "exam", title: "Mia's belief: a test for a decrease", src: "A-level Oct 2021 · P3 Q5(d) · 4 marks",
       q: "Heights of females in a second country are Normal with standard deviation 7.4 cm. Mia believes their mean is less than 166.5 cm. A random sample of 50 has mean 164.6 cm. Carry out a suitable test, stating hypotheses and using a 5% level.",
@@ -507,7 +518,7 @@ C["maths:S5.3"] = {
         { h: "Hypotheses", m: "$H_0: \\mu = 166.5$, $\\; H_1: \\mu < 166.5$", mk: "B1" },
         { h: "Model", m: "$\\bar{X} \\sim N\\left(166.5, \\dfrac{7.4^2}{50}\\right)$", mk: "M1" },
         { h: "Lower tail", m: "$P(\\bar{X} < 164.6) = 0.0347$ $\\;$ ($z = -1.816 < -1.6449$)", mk: "A1" },
-        { h: "Conclude", m: "$0.0347 < 0.05$: significant — there is evidence to support Mia's belief that the mean height is less than 166.5 cm.", mk: "dA1" }
+        { h: "Conclude", m: "$0.0347 < 0.05$: significant — there is evidence to support Mia's belief that the mean height is less than 166.5 cm.", mk: "dA1", fig: tailFig(166.5, 1.0465, [[160, 164.779]], { vl: [[164.779, "CR to 164.78"], [164.6, "x̄ = 164.6", "accent2", 0.6]], xt: [164, 165, 166, 167, 168, 169], xl: "x̄ (cm)", cap: "$\\bar X \\sim N(166.5, \\frac{7.4^2}{50})$: 164.6 is inside the lower 5% tail." }) }
       ], result: "Significant: evidence for Mia's belief" } },
     { worked: { tag: "exam", title: "Region B heights: a two-tailed test and its p-value", src: "A-level June 2023 · P3 Q4 · 6 marks",
       q: "Heights of adult men from region A are $N(175.4, 6.8^2)$ cm. **(a)** Find the proportion taller than 180 cm. A student claims the mean height in region B is different. A random sample of 52 men from region B has mean 177.2 cm; assume $\\sigma = 6.8$ cm. **(b)** Test the claim, stating hypotheses and using 5%. **(c)** Find the p-value.",

@@ -144,7 +144,8 @@ C["maths:S3.1"] = {
     { worked: { tag: "exam", title: "Frequencies in a Venn diagram: the range of a count", src: "AS June 2023 · P2 Q3(a) · 2 marks",
       q: "45 students attend an after-school club; 25 take Art, 12 take both Art and Music, and $x$ take Music. Find the range of possible values of $x$.",
       steps: [
-        { h: "Fill from the middle", m: "Art only $= 25 - 12 = 13$. Music only $= x - 12$. Neither $= 45 - 13 - 12 - (x - 12) = 32 - x$." },
+        { h: "Fill from the middle", m: "Art only $= 25 - 12 = 13$. Music only $= x - 12$. Neither $= 45 - 13 - 12 - (x - 12) = 32 - x$.", fig: venn({ w: 420, h: 200, circles: [[165, 100, 72, "A"], [265, 100, 72, "M", [50, -58]]],
+          labels: [[130, 100, "13"], [215, 100, "12"], [300, 100, "x − 12"], [370, 180, "32 − x"]], cap: "Counts, so every region must be at least 0." }) },
         { h: "Every region is a count, so non-negative", m: "Music only $\\ge 0 \\Rightarrow x \\ge 12$; $\\quad$ neither $\\ge 0 \\Rightarrow x \\le 32$", mk: "M1" },
         { m: "$12 \\le x \\le 32$", mk: "A1", n: "Strict inequalities lose the A mark: everyone could do Music (neither = 0)." }
       ], result: "$12 \\le x \\le 32$" } },
@@ -157,6 +158,8 @@ C["maths:S3.1"] = {
       "This is the general rule $P(A \\cup B) = P(A) + P(B) - P(A \\cap B)$ with $P(A \\cap B) = 0$."
     ] } },
     { worked: { tag: "exam", title: "A missing region and a mutually exclusive pair", src: "AS Nov 2021 · P2 Q1 · 2 marks",
+      fig: venn({ w: 480, h: 190, circles: [[120, 95, 72, "A"], [235, 95, 72, "B", [0, -80]], [350, 95, 72, "C", [52, -60]]],
+        labels: [[95, 95, "0.2"], [178, 95, "0.2"], [235, 95, "0.2"], [292, 95, "0.1"], [375, 95, "p"]], cap: "$A$ and $C$ do not overlap; nothing lies outside the circles." }),
       q: "A Venn diagram shows events $A$, $B$ and $C$: $A$ only 0.2, $A \\cap B$ 0.2, $B$ only 0.2, $B \\cap C$ 0.1, $C$ only $p$, and $A$ and $C$ do not overlap. Nothing lies outside the circles. **(a)** Find $p$. **(b)** Write down a pair of mutually exclusive events from $A$, $B$ and $C$.",
       steps: [
         { h: "(a) Total probability", m: "$p = 1 - (0.2 + 0.2 + 0.2 + 0.1) = 0.3$", mk: "B1" },
@@ -403,6 +406,8 @@ C["maths:S3.2"] = {
         { h: "Total = 1", m: "$w = 1 - (0.33 + 0.27 + 0.15 + 0.03) = 0.22$", mk: "A1ft" }
       ], result: "(a) 0 (b) 36 (c) $u = 0.03$, $v = 0.15$, $w = 0.22$" } },
     { worked: { tag: "exam", title: "A conditional from a three-circle diagram", src: "A-level Oct 2021 · P3 Q4(a)–(c) · 8 marks",
+      fig: venn({ w: 460, h: 262, circles: [[180, 91, 68, "G"], [280, 91, 68, "E", [50, -55]], [230, 166, 68, "S", [0, 78]]],
+        labels: [[150, 76, "0.08"], [230, 61, "0.05"], [310, 76, "0.09"], [230, 121, "p"], [185, 146, "q"], [275, 146, "r"], [230, 191, "0.36"], [420, 240, "t"]] }),
       q: "For students reading magazines on green issues ($G$), equality ($E$) and sports ($S$): $G$ only 0.08, $G \\cap E$ only 0.05, $E$ only 0.09, centre $p$, $G \\cap S$ only $q$, $E \\cap S$ only $r$, $S$ only 0.36, outside $t$. **(a)** Find the proportion who read exactly one magazine. No student reads all three, and $P(G) = 0.25$. **(b)** Find $p$ and $q$. Given $P(S \\mid E) = \\frac{5}{12}$, **(c)** find $r$ and $t$.",
       steps: [
         { h: "(a) The three \"only\" regions", m: "$0.08 + 0.09 + 0.36 = 0.53$", mk: "B1" },
@@ -412,6 +417,15 @@ C["maths:S3.2"] = {
         { h: "Total = 1", m: "$t = 1 - (0.08 + 0.05 + 0.09 + 0.12 + 0.10 + 0.36) = 0.20$", mk: "B1ft" }
       ], result: "(a) 0.53 (b) $p = 0$, $q = 0.12$ (c) $r = 0.10$, $t = 0.20$" } },
     { worked: { tag: "exam", title: "The greatest possible conditional probability; then fix it", src: "A-level June 2024 · P3 Q6(c)(d) · 6 marks",
+      fig: { w: 480, h: 190, items: [
+        { poly: [[10, 10], [470, 10], [470, 180], [10, 180]], c: "muted", w: 1.4 },
+        { circle: [120, 95, 72], fill: "accent", alpha: 0.09, c: "accent", w: 1.8 }, { circle: [235, 95, 72], fill: "accent2", alpha: 0.09, c: "accent2", w: 1.8 },
+        { circle: [350, 95, 72], fill: "accent3", alpha: 0.09, c: "accent3", w: 1.8 }, { circle: [392, 110, 22], fill: "text2", alpha: 0.1, c: "text2", w: 1.6 },
+        { text: [70, 30], t: "A", size: 14, c: "accent", b: true, i: true }, { text: [235, 16], t: "B", size: 14, c: "accent2", b: true, i: true },
+        { text: [405, 30], t: "C", size: 14, c: "accent3", b: true, i: true }, { text: [410, 80], t: "D", size: 13, c: "text2", b: true, i: true },
+        { text: [95, 95], t: "q", size: 13 }, { text: [178, 95], t: "0.05", size: 12.5 }, { text: [235, 95], t: "0.13", size: 12.5 },
+        { text: [292, 95], t: "0.27", size: 12.5 }, { text: [392, 110], t: "0.08", size: 11.5 }, { text: [350, 150], t: "0.25", size: 12.5 }, { text: [40, 165], t: "r", size: 13 }
+      ], cap: "$q + r = 0.22$ is all that the diagram fixes; $B'$ is everything outside the middle circle." },
       q: "In the Venn diagram of events $A$, $B$, $C$, $D$ (with $A$ only $q$, $A \\cap B$ 0.05, $B$ only 0.13, $B \\cap C$ 0.27, $C$ only 0.25, $D$ inside $C$ 0.08, outside $r$; so $P(B) = 0.45$): **(c)** find the greatest possible value of $P(A \\mid B')$. Given that $P(B \\mid A') = 0.5$, **(d)** find $q$ and $r$.",
       steps: [
         { h: "(c) Write the conditional with the unknown", m: "$P(A \\mid B') = \\dfrac{q}{1 - 0.45} = \\dfrac{q}{0.55}$", mk: "M1" },
@@ -480,7 +494,9 @@ C["maths:S3.2"] = {
       q: "Bag A contains 4 red, 3 yellow and $n$ green balls; bag B contains 5 red, 3 yellow and 1 green ball. A ball is taken at random from A and put into B; then a ball is taken at random from B and put into A. The probability that bag A now contains equal numbers of red, yellow and green balls is $p$. Given that $p > 0$, find the possible values of $n$ and $p$.",
       steps: [
         { h: "What can balance?", m: "A ends with $(4, 3, n)$ minus one ball plus one ball. Equal counts need **3 of each** or **4 of each**.", mk: "M1" },
-        { h: "3 of each: a red out, a green back, $n = 2$", m: "A has 9 balls; B then has 6 R, 3 Y, 1 G (10 balls).\n$p = \\dfrac{4}{9} \\times \\dfrac{1}{10} = \\dfrac{2}{45}$", mk: "M1 A1" },
+        { h: "3 of each: a red out, a green back, $n = 2$", m: "A has 9 balls; B then has 6 R, 3 Y, 1 G (10 balls).\n$p = \\dfrac{4}{9} \\times \\dfrac{1}{10} = \\dfrac{2}{45}$", mk: "M1 A1", fig: tree([["R", "4/9"], ["Y", "3/9"], ["G", "2/9"]],
+          [[["R", "6/10"], ["Y", "3/10"], ["G", "1/10", "3, 3, 3 ✓"]], [["R", "5/10"], ["Y", "4/10"], ["G", "1/10"]], [["R", "5/10"], ["Y", "3/10"], ["G", "2/10"]]],
+          { hl: ["0.2"], h: 450, heads: ["out of A", "out of B, back to A"], cap: "With $n = 2$, A starts (4, 3, 2): only red out then green back leaves (3, 3, 3)." }) },
         { h: "4 of each: a green out, a yellow back, $n = 5$", m: "A has 12 balls; B then has 5 R, 3 Y, 2 G.\n$p = \\dfrac{5}{12} \\times \\dfrac{3}{10} = \\dfrac{1}{8}$", mk: "M1 A1", n: "Two separate scenarios — **not** to be added: each value of $n$ has its own $p$." }
       ], result: "$n = 2$, $p = \\frac{2}{45}$; or $n = 5$, $p = \\frac{1}{8}$" } },
     { worked: { tag: "example", title: "Without replacement, at least one", src: "practice variant",
@@ -583,7 +599,9 @@ C["maths:S3.3"] = {
       q: "Helen believes the random variable $C$, cloud cover from the large data set, can be modelled by a discrete uniform distribution. **(a)** Write down the probability distribution for $C$. **(b)** Using this model, find the probability that cloud cover is less than 50%. Helen uses all the data for Hurn in 2015 and finds the proportion of days with cloud cover less than 50% is 0.315. **(c)** Comment on the suitability of Helen's model. **(d)** Suggest an appropriate refinement to Helen's model.",
       steps: [
         { h: "(a) Cloud cover is in oktas: 0, 1, …, 8", m: "$P(C = c) = \\dfrac{1}{9}$ for $c = 0, 1, 2, \\ldots, 8$", mk: "B1 B1ft", n: "Nine values, so each $\\frac19$. Using 1–8 is the commonest LDS slip." },
-        { h: "(b) Less than 50% is less than 4 oktas", m: "$P(C < 4) = P(C = 0, 1, 2, 3) = \\dfrac{4}{9} = 0.444$", mk: "B1" },
+        { h: "(b) Less than 50% is less than 4 oktas", m: "$P(C < 4) = P(C = 0, 1, 2, 3) = \\dfrac{4}{9} = 0.444$", mk: "B1", fig: { x: [-1, 9], y: [0, 0.16], w: 440, h: 190, axes: { x: "c (oktas)", y: "P(C = c)", xt: [0, 1, 2, 3, 4, 5, 6, 7, 8], yt: [{ v: 1 / 9, label: "1/9" }] }, items: [
+          { line: [[0, 0], [0, 0.1111]], c: "accent2", w: 7 }, { line: [[1, 0], [1, 0.1111]], c: "accent2", w: 7 }, { line: [[2, 0], [2, 0.1111]], c: "accent2", w: 7 }, { line: [[3, 0], [3, 0.1111]], c: "accent2", w: 7 }, { line: [[4, 0], [4, 0.1111]], c: "accent", w: 7 }, { line: [[5, 0], [5, 0.1111]], c: "accent", w: 7 }, { line: [[6, 0], [6, 0.1111]], c: "accent", w: 7 }, { line: [[7, 0], [7, 0.1111]], c: "accent", w: 7 }, { line: [[8, 0], [8, 0.1111]], c: "accent", w: 7 }
+        ], cap: "Nine equally likely values; cover below 50% is the four bars 0–3." } },
         { h: "(c) Compare model and data", m: "The data give 0.315, much lower than the model's 0.444, so the model is **not** a good one.", mk: "B1ft" },
         { h: "(d) A better model", m: "Cloud cover varies with month and location, and high cover is more common, so use a non-uniform distribution with higher probabilities for more cloud — e.g. probabilities from the observed frequencies.", mk: "B1", n: "\"Not uniform\" alone is B0; a continuous model (Normal) is B0 — cloud cover is discrete." }
       ], result: "(a) $\\frac19$ each for 0–8 (b) $\\frac49$ (c) not suitable — 0.315 ≠ 0.444 (d) non-uniform, from the data" } },
@@ -593,7 +611,9 @@ C["maths:S3.3"] = {
         { h: "(a) Multiplication rule", m: "$P(S \\cap \\{X = x\\}) = P(S \\mid X = x)\\,P(X = x) = \\dfrac{k}{x}P(X = x)$\nEqual for $x = 50$ and $x = 80$: $\\dfrac{k}{50}b = \\dfrac{k}{80}c \\;\\Rightarrow\\; c = \\dfrac{80}{50}b = \\dfrac{8}{5}b$", mk: "M1 A1*" },
         { h: "(b) The same for all four values", m: "$\\dfrac{a}{20} = \\dfrac{b}{50} = \\dfrac{c}{80} = \\dfrac{d}{100}$, so $a = \\dfrac{2}{5}b$, $d = 2b$", mk: "M1 A1" },
         { h: "Sum to 1", m: "$\\dfrac25 b + b + \\dfrac85 b + 2b = 5b = 1 \\;\\Rightarrow\\; b = \\dfrac15$", mk: "M1 A1" },
-        { m: "$P(X = 20) = \\dfrac{2}{25}$, $\\; P(X = 50) = \\dfrac{1}{5}$, $\\; P(X = 80) = \\dfrac{8}{25}$, $\\; P(X = 100) = \\dfrac{2}{5}$", mk: "A1", n: "Each probability is $\\frac{x}{250}$ — proportional to the distance, so that $\\frac{k}{x}P(X = x)$ is constant." },
+        { m: "$P(X = 20) = \\dfrac{2}{25}$, $\\; P(X = 50) = \\dfrac{1}{5}$, $\\; P(X = 80) = \\dfrac{8}{25}$, $\\; P(X = 100) = \\dfrac{2}{5}$", mk: "A1", n: "Each probability is $\\frac{x}{250}$ — proportional to the distance, so that $\\frac{k}{x}P(X = x)$ is constant.", fig: { x: [0, 115], y: [0, 0.48], w: 440, h: 200, axes: { x: "x (cm)", y: "P(X = x)", xt: [20, 50, 80, 100], yt: [0.08, 0.2, 0.32, 0.4] }, items: [
+          { line: [[20, 0], [20, 0.08]], c: "accent", w: 7 }, { line: [[50, 0], [50, 0.2]], c: "accent", w: 7 }, { line: [[80, 0], [80, 0.32]], c: "accent", w: 7 }, { line: [[100, 0], [100, 0.4]], c: "accent", w: 7 }, { fn: "x/250", from: 0, to: 110, c: "muted", dash: true, w: 1.2 }, { text: [70, 0.38], t: "P = x/250", c: "muted", size: 11.5 }
+        ], cap: "The probabilities lie on a line through the origin: each is proportional to its distance." } },
         { h: "(c) Fit $k$ to Nav", m: "$\\dfrac{k}{100} = 0.3 \\;\\Rightarrow\\; k = 30$; then $P(S \\mid X = 20) = \\dfrac{30}{20} = 1.5 > 1$ — impossible, so the model fails.", mk: "B1" }
       ], result: "(b) $\\frac{2}{25}, \\frac15, \\frac{8}{25}, \\frac25$ (c) $k = 30$ gives a probability of 1.5 at 20 cm" } },
     { worked: { tag: "variation", title: "Is the die fair? Relative frequency against the model", src: "practice variant",
