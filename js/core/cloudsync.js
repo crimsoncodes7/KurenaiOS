@@ -2087,6 +2087,10 @@
     start: start,
     stop: stop,
     syncNow: syncNow,
+    /* one cycle asked for by the app itself (KOS.ext, around a provider's
+       lease): unlike Sync now it keeps every automatic wait — the first
+       link's backup backoff above all */
+    cycleNow: function (cb) { cycle("ext", cb); },
     retry: retry,
     noteChange: noteChange,
     noteRestore: noteRestore,

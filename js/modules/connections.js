@@ -26,7 +26,15 @@
     if (!st.ok) return "Last try " + ago(st.at) + ": " + (st.why || "it didn't finish.");
     var c = st.counts || {}, n = { in: 0, out: 0 };
     Object.keys(c).forEach(function (k) { var x = c[k] || {}; n.in += (x.pulled || 0); n.out += (x.pushed || 0) + (x.created || 0) + (x.deleted || 0) + (x.exported || 0) + (x.unexported || 0); });
-    return "Synced " + ago(st.at) + (n.in || n.out ? " · " + [n.in ? n.in + " in" : null, n.out ? n.out + " out" : null].filter(Boolean).join(", ") : " · nothing new");
+    /* DI-12, DI-08: what the provider would not take, and what lost its
+       link because its copy there could not be found */
+    var refused = 0, why = "", unlinked = 0, folded = 0, foldHeld = 0;
+    Object.keys(c).forEach(function (k) { var x = c[k] || {}; refused += x.refused || 0; unlinked += x.unlinked || 0; folded += x.folded || 0; foldHeld += x.foldHeld || 0; if (!why && x.refusedWhy) why = x.refusedWhy; });
+    return "Synced " + ago(st.at) + (n.in || n.out ? " · " + [n.in ? n.in + " in" : null, n.out ? n.out + " out" : null].filter(Boolean).join(", ") : " · nothing new") +
+      (refused ? " · " + refused + (refused === 1 ? " change" : " changes") + " refused" + (why ? " (" + why + ")" : "") : "") +
+      (unlinked ? " · " + unlinked + " unlinked (not found there; kept here)" : "") +
+      (folded ? " · " + folded + (folded === 1 ? " duplicate" : " duplicates") + " joined (a backup was taken first)" : "") +
+      (foldHeld ? " · " + foldHeld + (foldHeld === 1 ? " duplicate" : " duplicates") + " left as they are (no backup could be verified)" : "");
   }
 
   KOS.views.connections = function (main) {
@@ -124,7 +132,7 @@
       ]));
 
       /* Reminders lists */
-      var linkCard = card("Reminders lists", "lists", [el("p", { class: "k-st-note", text: "Each list goes to one Todoist project or one Google Tasks list." })]);
+      var linkCard = card("Reminders lists", "lists", [el("p", { class: "k-st-note", text: "Each list goes to one Todoist project or one Google Tasks list. Moving a reminder out of a linked list only unlinks it: its task stays there, and nothing is deleted." })]);
       linkCard.classList.add("k-cx-wide");
       grid.appendChild(linkCard);
       var services = [];

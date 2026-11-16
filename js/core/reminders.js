@@ -158,6 +158,14 @@
     if (!item) return null;
     var next = normalise(patch || {}, item);
     next.id = item.id;
+    /* DI-17: moved to another list by hand. A list is one Todoist project
+       or Google Tasks list, so the link follows the list: kept inside one
+       service (the sync moves the task), given up with its remote copy
+       when the new list has no link or the other service's. A move a PULL
+       makes is the provider's own and changes nothing here. */
+    if (item.ext && next.listId !== item.listId && KOS.extTasks && KOS.extTasks.onMove && !(KOS.ext && KOS.ext.isInbound && KOS.ext.isInbound())) {
+      next.ext = KOS.extTasks.onMove(item, next.listId);
+    }
     s.items[s.items.indexOf(item)] = next;
     store.save();
     noteExt();
@@ -250,6 +258,13 @@
     var still = a.recur ? item.due === a.due && !item.done : item.done && item.completedAt === a.completedAt;
     if (still) {
       ["done", "completedAt", "due", "alerted", "subs"].forEach(function (k) { item[k] = p[k]; });
+      /* the close it queued for Todoist, if it has not been sent yet (DI-06) */
+      if (a.closeN != null && item.ext && item.ext.cn === a.closeN && (+item.ext.close || 0) > 0) {
+        var x = Object.assign({}, item.ext);
+        x.close -= 1;
+        if (!x.close) { delete x.close; delete x.closeDue; }
+        item.ext = x;
+      }
     }
     if (a.stamp != null && Array.isArray(item.completions)) {
       var i = item.completions.lastIndexOf(a.stamp);
@@ -269,6 +284,15 @@
     return item;
   }
   function clone(v) { return v == null ? v : JSON.parse(JSON.stringify(v)); }
+  /* DI-06: a repeat TODOIST owns — a linked reminder that repeats, by one of
+     this app's four rules or by a rule only Todoist can read (`ext.rs`).
+     Ticking it is closing the occurrence THERE: the sync sends item_close
+     (`ext.close` counts the ticks still to send, `ext.cn` every tick ever,
+     which names each command once) and reads Todoist's next date back. */
+  function tdOwned(item) {
+    var x = item.ext;
+    return !!(x && x.p === "todoist" && x.id && ((item.recur && item.due) || x.rs));
+  }
   function doComplete(id, val) {
     var item = get(id);
     if (!item) return null;
@@ -285,16 +309,20 @@
       return { item: item, prev: prev, entryId: null };
     }
 
-    var pays = rewardState(item).pays, entry = null, rolled = !!(item.recur && item.due);
+    var td = tdOwned(item);
+    var pays = rewardState(item).pays, entry = null, rolled = !!(item.recur && item.due) || td;
 
     if (rolled) {
       /* a repeating reminder rolls forward instead of closing: the instance
-         is done, the commitment is not */
-      item.due = nextDueAfterCompletion(item);
+         is done, the commitment is not. A rule only Todoist can read has
+         no next date here: it keeps its date until Todoist's comes back
+         (it used to close for good and reopen a cycle later). */
+      if (item.recur && item.due) item.due = nextDueAfterCompletion(item);
       item.alerted = {};                           // a new occurrence re-arms
       item.done = false;
       item.completedAt = null;
       (item.subs || []).forEach(function (sub) { sub.done = false; });
+      if (td) item.ext = Object.assign({}, item.ext, { close: (+item.ext.close || 0) + 1, cn: (+item.ext.cn || 0) + 1, closeDue: item.due || null });
     } else {
       item.done = true;
       item.completedAt = Date.now();
@@ -314,8 +342,10 @@
       store.save();
     }
     noteExt();
+    /* Todoist's next date is worth fetching now, not at the next change */
+    if (td && KOS.ext && KOS.ext.soon) KOS.ext.soon();
     return { item: item, prev: prev, entryId: entry ? entry.id : null,
-      after: { recur: rolled,
+      after: { recur: rolled, closeN: td ? item.ext.cn : null,
         due: item.due, completedAt: item.completedAt, stamp: stamp, rewardedOn: pays ? d : null } };
   }
 
@@ -375,8 +405,17 @@
     var s = R(), i = s.lists.findIndex(function (x) { return x.id === id; });
     if (i === -1) return false;
     s.lists.splice(i, 1);
-    s.items.forEach(function (it) { if (it.listId === id) it.listId = null; });
+    /* its reminders go to "no list". Their links go with the list's (kept
+       here, kept there, nothing deleted), unless "no list" is linked to the
+       same service, where the sync moves each task (DI-17). */
+    var nl = KOS.extTasks && KOS.extTasks.linkOfList ? KOS.extTasks.linkOfList(null) : null;
+    s.items.forEach(function (it) {
+      if (it.listId !== id) return;
+      if (it.ext && it.ext.p && !(nl && nl.p === it.ext.p)) it.ext = KOS.extTasks.unlinked(it.ext);
+      it.listId = null;
+    });
     store.save();
+    noteExt();
     return true;
   }
   function listName(id) {

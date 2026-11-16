@@ -55,6 +55,9 @@
     if (!e.google || typeof e.google !== "object") e.google = {};
     if (!e.todoist || typeof e.todoist !== "object") e.todoist = {};
     if (!e.deletes || typeof e.deletes !== "object") e.deletes = {};
+    /* remote tasks a reminder was unlinked from by a move (DI-17): left
+       where they are and not imported while that reminder lives elsewhere */
+    if (!e.ignored || typeof e.ignored !== "object") e.ignored = {};
     var g = e.google;
     if (typeof g.on !== "boolean") g.on = false;
     if (typeof g.cal !== "boolean") g.cal = true;
@@ -227,21 +230,48 @@
     if (!want || state !== want) return Promise.resolve({ ok: false, p: p, why: "That sign-in did not come from this app. Connect again." });
     if (err || !code) return Promise.resolve({ ok: false, p: p, why: err === "access_denied" ? "You didn't allow access, so nothing was connected." : NAME[p] + " didn't send the sign-in back. Connect again." });
     return edge({ action: "complete", provider: p, code: code, redirect: redirectUri(p) }).then(function (r) {
-      var e = S();
-      e[p].on = true;
-      e[p].account = r.account || "";
-      if (p === "google" && r.scopes && !/\/auth\/tasks/.test(r.scopes)) e.google.tasks = false;
-      store().save();
-      tokens[p] = null;
-      changed();
-      syncSoon();
-      return { ok: true, p: p, account: r.account || "" };
+      /* DI-08: ANOTHER account than the one the links were made with. Every
+         link names a task or event in the old account, so the first edit
+         of each would answer "not found": the links (never the records)
+         are cleared first, and the lists are linked again by hand. */
+      var e0 = S(), prev = sameAccount(e0[p].account || e0[p].was), now = sameAccount(r.account);
+      var other = !!(prev && now && prev !== now);
+      return (other ? forget(p) : Promise.resolve()).then(function () {
+        var e = S();
+        e[p].on = true;
+        e[p].account = r.account || "";
+        delete e[p].was;
+        if (p === "google" && r.scopes && !/\/auth\/tasks/.test(r.scopes)) e.google.tasks = false;
+        store().save();
+        tokens[p] = null;
+        changed();
+        syncSoon();
+        return { ok: true, p: p, account: r.account || "", other: other };
+      });
     }, function (e2) { return { ok: false, p: p, why: e2.message }; });
+  }
+  function sameAccount(a) { return String(a || "").trim().toLowerCase(); }
+  /* what a provider's delete queue entries are filed under */
+  var QUEUES = { google: ["google", "gtasks"], todoist: ["todoist"] };
+  /* forget(p): this provider's links, on every record and list, and what
+     this device remembers of it. Records stay; nothing is deleted there. */
+  function forget(p) {
+    inbound(function () {
+      adapters.forEach(function (a) { if (a.provider === p && a.forget) { try { a.forget(); } catch (e) { console.error("Kurenai OS: a connection could not be cleared", e); } } });
+    });
+    var q = S().deletes, ig = S().ignored;
+    Object.keys(q).forEach(function (k) { if (QUEUES[p].indexOf(q[k].p) !== -1) delete q[k]; });
+    Object.keys(ig).forEach(function (k) { if (QUEUES[p].indexOf(ig[k].p) !== -1) delete ig[k]; });
+    store().save();
+    return Promise.all(["sync", "mirror", "known", "ro", "status", "tasks", "lists", "tasklists"].map(function (n) { return delKv(key(p + "." + n)); }));
   }
   function disconnect(p) {
     tokens[p] = null;
     var e = S();
     e[p].on = false;
+    /* the account the links were made with is remembered, so connecting a
+       different one is recognised (the same one picks up where it left) */
+    if (e[p].account) e[p].was = e[p].account;
     e[p].account = "";
     store().save();
     return (signedIn() ? edge({ action: "unlink", provider: p }).catch(function () {}) : Promise.resolve()).then(function () {
@@ -382,7 +412,14 @@
       return lease(p).then(function (got) {
         if (!got) return { ok: true, waiting: true };
         var counts = {}, lost = null;
-        return mine.reduce(function (chain, a) {
+        /* DI-01: THE LINKS TRAVEL WITH THE LEASE. A link (which reminder is
+           which task) lives in the state document, and the provider's own
+           cursor is per device: a device that synced before the other's
+           document arrived saw that device's new task as a stranger and
+           imported it as a second reminder. So the holder takes in the
+           account's document before it reads the provider, and sends its
+           own before it gives the lease up. */
+        return cloudCycle().then(function () { return mine.reduce(function (chain, a) {
           return chain.then(function () {
             if (lost) return null;
             return Promise.resolve(a.cycle(tok)).then(function (c) { counts[a.name] = c || {}; }, function (e) {
@@ -390,7 +427,10 @@
               counts[a.name] = { error: (e && e.message) || String(e) };
             });
           });
-        }, Promise.resolve()).then(function () {
+        }, Promise.resolve()); }).then(function () {
+          if (store().state && store().save) store().save();
+          return lost ? null : cloudCycle();
+        }).then(function () {
           /* a lost lease is not ours to release */
           if (lost) delete held[p];
           return (lost ? Promise.resolve() : release(p)).then(function () {
@@ -401,6 +441,29 @@
           });
         });
       });
+    });
+  }
+  /* one whole cloud-sync cycle (push, then pull), waited for. Never throws
+     and never blocks for long: signed out, offline or slow, the provider's
+     cycle goes ahead (the import's own identity checks are the floor). */
+  var cloudApi = null;
+  function cloudCycle() {
+    if (cloudApi) return Promise.resolve(cloudApi()).then(function () { return true; }, function () { return false; });
+    var C = KOS.cloudsync;
+    if (!C || !C.cycleNow) return Promise.resolve(false);
+    return new Promise(function (res) {
+      var over = false;
+      function fin(ok) { if (over) return; over = true; clearTimeout(cap); res(ok); }
+      var cap = setTimeout(function () { fin(false); }, 20000);
+      (function go(n) {
+        if (over) return;
+        /* a cycle already running is waited out, then ours runs: its pull
+           may have started before the other device's push landed */
+        if (C.isRunning && C.isRunning()) { if (n > 80) fin(false); else setTimeout(function () { go(n + 1); }, 250); return; }
+        /* an automatic cycle, not "Sync now": it must not jump the waits
+           a manual one is allowed to */
+        try { C.cycleNow(function (err) { fin(!err); }); } catch (e) { fin(false); }
+      })(0);
     });
   }
   function syncAll(why) {
@@ -434,7 +497,8 @@
       (function wait() {
         if (!signedIn() && tries++ < 20) { setTimeout(wait, 1000); return; }
         complete(params).then(function (r) {
-          KOS.ui.toast(r.ok ? NAME[r.p] + " connected" + (r.account ? ": " + r.account : "") + "." : r.why, !r.ok);
+          KOS.ui.toast(r.ok ? NAME[r.p] + " connected" + (r.account ? ": " + r.account : "") + "." +
+            (r.other ? " This is a different account from before, so the old links were cleared. Nothing was deleted; link your lists again." : "") : r.why, !r.ok);
           if (KOS.show) KOS.show("connections");
         });
       })();
@@ -466,8 +530,9 @@
     lease: lease, release: release, device: device, holder: holder, heartbeat: heartbeat, lockName: lockName,
     call: call, kv: kv, setKv: setKv, key: key,
     register: register, onChange: onChange, changed: changed, status: status, setStatus: setStatus,
-    syncAll: syncAll, syncProvider: syncProvider, logActivity: logActivity, boot: boot,
+    syncAll: syncAll, syncProvider: syncProvider, soon: syncSoon, forget: forget, logActivity: logActivity, boot: boot,
     _setEdge: function (f) { edgeApi = f; }, _setNav: function (f) { nav = f; }, _clearTokens: function () { tokens = {}; },
-    _setLocks: function (l) { locks = l; }, _config: function (o) { if (o && o.renewMs != null) RENEW_MS = o.renewMs; }
+    _setLocks: function (l) { locks = l; }, _config: function (o) { if (o && o.renewMs != null) RENEW_MS = o.renewMs; },
+    _setCloud: function (f) { cloudApi = f; }
   };
 })();

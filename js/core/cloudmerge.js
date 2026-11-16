@@ -53,11 +53,29 @@
     { path: "custom.cards", id: "id", counter: "custom.nextId",
       refs: [{ kind: "mapKey", path: "srs", fmt: function (id) { return "u" + id; } }] },
     { path: "custom.quizzes", id: "id", counter: "custom.nextId" },
+    /* DI-07: EVERY place an id is stored is listed here. A re-keyed record
+       whose references were not rewritten left its goal, its exam link, its
+       Focus minutes and its Daily Review pick pointing at the OTHER
+       device's record that kept the id. `deep` reaches a nested field
+       (`map`: the path is a keyed map of records; `one`: a single record;
+       `list`: an array inside each record); `review` is the Daily Review's
+       own refs ({kind, id} in a day's three and first task, and the
+       triage map's "kind:id" keys). */
     { path: "calendar.events", id: "id", counter: "calendar.nextId",
-      refs: [{ kind: "notified", path: "calendar.notified" }] },
+      refs: [{ kind: "notified", path: "calendar.notified" },
+        { kind: "deep", path: "goals.items", field: "links.eventId" },
+        { kind: "review", path: "dayReview.days", name: "event" }] },
     { path: "assignments.items", id: "id", counter: "assignments.nextId",
-      refs: [{ kind: "field", path: "calendar.events", field: "assignmentId" }] },
-    { path: "reminders.items", id: "id", counter: "reminders.nextId" },
+      refs: [{ kind: "field", path: "calendar.events", field: "assignmentId" },
+        { kind: "deep", path: "goals.items", field: "links.assignmentId" },
+        { kind: "deep", path: "exams.assessments", map: true, field: "links.assignmentId" },
+        { kind: "deep", path: "sessions", field: "metrics.assignmentId" },
+        { kind: "deep", path: "sessions", list: "metrics.segments", field: "assignmentId" },
+        { kind: "deep", path: "focus.active", one: true, field: "assignmentId" },
+        { kind: "deep", path: "focus.active", one: true, list: "segs", field: "assignmentId" },
+        { kind: "review", path: "dayReview.days", name: "assignment" }] },
+    { path: "reminders.items", id: "id", counter: "reminders.nextId",
+      refs: [{ kind: "review", path: "dayReview.days", name: "reminder" }] },
     { path: "reminders.lists", id: "id", counter: "reminders.nextId",
       refs: [{ kind: "field", path: "reminders.items", field: "listId" }] },
     { path: "tracker.entries", id: "id", counter: "tracker.nextId" },
@@ -67,7 +85,8 @@
     { path: "goals.items", id: "id", counter: "goals.nextId",
       refs: [{ kind: "mapKey", path: "goals.completionLedger", fmt: function (id) { return String(id); } }] },
     { path: "pacing.weeks", id: "wb" },
-    { path: "pacing.entries", id: "id", counter: "pacing.nextId", prefix: "p" },
+    { path: "pacing.entries", id: "id", counter: "pacing.nextId", prefix: "p",
+      refs: [{ kind: "review", path: "dayReview.days", name: "plan" }] },
     { path: "notify.items", id: "id", sortBy: "ts", cap: 200 },   // natural string ids (kind:record:occurrence)
     { path: "assistant.schedules", id: "id" },                    // random string ids (core/aischedule.js)
     /* Money (roadmap 5.4): random or fixed string ids, never a counter, so
@@ -279,6 +298,36 @@
           target[to] = target[from];
           delete target[from];
         }
+      } else if (ref.kind === "deep") {
+        var recs = Array.isArray(target) ? target
+          : ref.map && isPlain(target) ? Object.keys(target).map(function (k) { return target[k]; })
+          : ref.one && isPlain(target) ? [target] : [];
+        var parts = ref.field.split("."), leaf = parts[parts.length - 1];
+        recs.forEach(function (r) {
+          if (!isPlain(r)) return;
+          var hosts = ref.list ? pathGet(r, ref.list) : [parts.length > 1 ? pathGet(r, parts.slice(0, -1).join(".")) : r];
+          if (!Array.isArray(hosts)) return;
+          hosts.forEach(function (h) { if (isPlain(h) && h[leaf] === oldId) h[leaf] = newId; });
+        });
+      } else if (ref.kind === "review") {
+        var days = target;
+        if (!isPlain(days)) return;
+        var hit = function (x) { if (isPlain(x) && x.kind === ref.name && String(x.id) === String(oldId)) x.id = newId; };
+        Object.keys(days).forEach(function (d) {
+          var rec = days[d];
+          if (!isPlain(rec)) return;
+          Object.keys(rec).forEach(function (slot) {
+            var r = rec[slot];
+            if (!isPlain(r)) return;
+            if (Array.isArray(r.three)) r.three.forEach(hit);
+            hit(r.first);
+            if (isPlain(r.tomorrow)) hit(r.tomorrow.first);
+            if (isPlain(r.triaged)) {
+              var from = ref.name + ":" + oldId, to = ref.name + ":" + newId;
+              if (Object.prototype.hasOwnProperty.call(r.triaged, from)) { r.triaged[to] = r.triaged[from]; delete r.triaged[from]; }
+            }
+          });
+        });
       } else if (ref.kind === "notified" && isPlain(target)) {
         Object.keys(target).forEach(function (k) {
           var parts = k.split("|");
