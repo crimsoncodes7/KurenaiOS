@@ -526,10 +526,14 @@ show on Account & Cloud Sync (DI-20).
   different account clears links and deletes nothing. DI-12: a refused
   command is counted and worded on Connections and not resent unchanged; a
   refused deletion waits a day. DI-16: the list is a three-way field.
-  DI-17: a reminder moved by hand out of its service's lists has its remote
-  copy DELETED there (the reminder stays; decided here because unlinking
-  alone re-imported it as a duplicate, and said on Connections); unlinking
-  or deleting a list only unlinks. DI-23: a queued deletion is skipped on
+  DI-17 (CHANGED by the user's decision of 16 Nov, 943be87): a reminder
+  moved by hand out of its service's lists is only UNLINKED; its task is
+  left in Todoist or Google Tasks and nothing is deleted there. So that it
+  does not come back as a second reminder, the task is remembered in
+  `state.ext.ignored` (synced) and not imported while its reminder lives
+  elsewhere; moved back, the two are joined again; once the reminder is
+  deleted the task is the list's own again. Unlinking or deleting a list
+  only unlinks. DI-23: a queued deletion is skipped on
   import. Invariants 33a, 157, 158 and 160 rewritten. NOT VERIFIED AGAINST
   THE REAL SERVICES: every check is against the suite's fake Todoist,
   Google Tasks and Google Calendar; two assumptions about Todoist are
@@ -538,6 +542,32 @@ show on Account & Cloud Sync (DI-20).
   "not found" in `error_tag` or `error`). Found on the way: smoke112's fake
   Todoist puts a new sub-task in no project (Todoist puts it in its
   parent's), which is why the old suite never saw DI-05.
+- **W1 RC6 and W2 AP-01 stage 1 RELEASED (16 Nov 2026, sw
+  `kos-integrity-12`, https://31f24680.kurenai-os.pages.dev, `origin/main`
+  = d08ce52).** `feat/w2-lazy` was merged into main first (fast-forward),
+  then `feat/w1-rc6` (merge d640f4d; the one conflict was CLAUDE.md's gate
+  line). The gate is 152 suites (main's 150, smoke142, smoke143): 152 / 152
+  in ONE complete run on the release tree. Before the merge the user's
+  decisions and safeguards went in (943be87; smoke143 now 19 steps):
+  DI-17 unlink-only (above); DI-01's title match is one to one within a
+  cycle (a reminder joins at most one task and a task one reminder; of
+  several, the one with the task's date, else the oldest) and a join or a
+  fold keeps every non-empty field of both sides (notes, sub-tasks, dates,
+  priority, tags, alerts), a fold only after a VERIFIED checkpoint
+  (`KOS.backup.withCheckpoint`; none, nothing folded, and Connections says
+  so); DI-06: the date rolled here for a repeat Todoist owns is a stand-in
+  that Todoist's own next date replaces, never advanced a second time
+  (double tick and a close made in Todoist both covered); DI-05/DI-12:
+  both of the untested assumptions are now handled either way — a whole
+  read that does hold finished sub-tasks gives the same result with no
+  duplicate, and an answer of any shape that is not "ok" is a refusal
+  worded from whatever text it carries ("Todoist refused it" when none),
+  never a throw. Deployed files checked on the immutable address and the
+  production alias; a cold deep link to a Maths topic opens with its notes
+  and no console error. STILL NOT TRIED against a live Todoist or Google
+  account. NOTE FOR THE FIRST SYNC AFTER THIS RELEASE: an account that
+  already holds two reminders linked to one task has them folded into one
+  (after a checkpoint, listed on Backup & Restore).
 - Still to do in W1: SH-27/EX-39, the
   seeded samples, with the first-run welcome (decision B8, W7/W9); DI-09's
   second half (a streamed backup for very large file sets).
@@ -695,7 +725,10 @@ Then (16 Nov) main (kos-integrity-11) merged into `feat/w2-lazy` (3c7b890,
 full run in a temporary worktree was 148/151, the three being smoke146's
 clock step and smoke75/76, which needed the built C# runtime the worktree
 did not have; all three pass with it.
-STILL TO DO in W2: AP-01 stage 2 (page modules on first use). The list
+RELEASED 16 Nov 2026 as sw `kos-integrity-12` (d08ce52), with W1 RC6:
+stage 1 is live. The user's decision the same day: LEAVE STAGE 2 for now —
+8.4 MB at boot is fine for this release, the page modules are not split.
+STILL TO DO in W2 (deferred, not scheduled): AP-01 stage 2 (page modules on first use). The list
 below is done: AA-01, AA-02, CR-01, SY-22
 (in-page tabs through `KOS.view.memo`), SY-11, SY-14, SY-23, SY-25, SY-27,
 AP-08 (move pages' global listeners to `KOS.view.onDispose`), SH-37/AG-03/
