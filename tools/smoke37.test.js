@@ -114,7 +114,7 @@ step("Continue is on the desk's first row, above the analytics", () => {
 });
 
 step("a never-opened subject still gets an action card, with an honest kicker", () => {
-  /* Maths here: IT's desk now leads with its current unit's own Continue (5.19 item 2) */
+  /* Maths here: IT's Continue leans to its current unit (5.19 item 2) */
   delete KOS.store.state.ui.lastRef.maths;
   KOS.show("subject", "maths");
   const card = $("[data-ui~='study.desk-top'] [data-ui~='study.continue']");
@@ -122,7 +122,7 @@ step("a never-opened subject still gets an action card, with an honest kicker", 
   assert(card.querySelector("[data-ui~='part.detail']").textContent === "Start here", "empty state kept the Continue wording");
   delete KOS.store.state.ui.lastRef.it;
   KOS.show("subject", "it");
-  assert($("#main [data-ui~='it.current'] [data-ui~='it.current-continue']"), "IT's current unit carries the action");
+  assert($("[data-ui~='study.desk-top'] [data-ui~='study.continue']"), "IT's desk has its action card too");
 });
 
 step("countdowns stay out of the analytics block", () => {

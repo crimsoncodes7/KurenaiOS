@@ -1262,20 +1262,30 @@ button.k-subj-next:hover { background: var(--s2); }
 }
 
 /* 5.19 item 2, design 44f: IT's current unit leads the desk; completed units shown on request */
-.k-it-current { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--sp-16) var(--sp-24); align-items: center; margin-block-end: var(--sp-16); --subj-c: var(--it); }
-.k-it-cur-main { display: flex; flex-direction: column; gap: var(--sp-6); min-inline-size: 0; }
-.k-it-cur-title { margin: 0; font-size: var(--fs-20); line-height: 1.25; }
-.k-it-cur-sub { margin: 0; font-size: var(--fs-13); }
-.k-it-current .k-bar { --bar-c: var(--it); max-inline-size: calc(var(--sp-64) * 8); }
-.k-it-cur-go { display: flex; flex-direction: column; align-items: stretch; gap: var(--sp-8); min-inline-size: 0; max-inline-size: calc(var(--sp-64) * 5); }
+.k-subj-units-row { display: grid; grid-template-columns: minmax(0, max-content) minmax(0, 1fr); gap: var(--sp-14); align-items: stretch; }
+.k-subj-units-row > .k-scroller { align-items: stretch; }
+.k-subj-units-row .k-units { align-items: stretch; }
+.k-it-current { --subj-c: var(--it); display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--sp-20); padding: var(--sp-18) var(--sp-20); border-radius: var(--r-20); background: var(--s1); border: var(--hairline) solid color-mix(in oklch, var(--it) 40%, transparent); min-inline-size: 0; }
+.k-it-cur-main { display: flex; flex-direction: column; gap: var(--sp-8); min-inline-size: 0; }
+.k-it-cur-top { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-10); min-block-size: var(--sp-24); }
+.k-it-cur-title { margin: 0; font-size: var(--fs-17); line-height: 1.3; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.k-it-cur-title .k-unit-ref { color: var(--it); margin-inline-end: var(--sp-4); }
+.k-it-cur-segs { margin-block: var(--sp-4) 0; }
+.k-it-cur-foot { margin-block-start: auto; display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--sp-4) var(--sp-16); }
 .k-it-cur-next { display: flex; gap: var(--sp-8); align-items: baseline; font-size: var(--fs-13); min-inline-size: 0; }
 .k-it-cur-next > span:last-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.k-it-cur-stats { display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: var(--sp-10); padding-inline-start: var(--sp-20); border-inline-start: var(--hairline) solid var(--line); }
+.k-it-cur-figs { display: flex; gap: var(--sp-20); }
+.k-it-cur-fig { display: flex; flex-direction: column; gap: var(--sp-2); }
+.k-it-cur-fig b { font-size: var(--fs-20); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.k-it-cur-fig span { font-size: var(--fs-12); color: var(--muted); }
 .k-spine-done { display: flex; align-items: center; gap: var(--sp-8); margin-block-start: var(--sp-10); padding: var(--sp-8) var(--sp-10); border-block-start: var(--hairline) solid var(--line); font-size: var(--fs-12-5); color: var(--text-2); cursor: pointer; }
 .k-spine-done > .k-mono { margin-inline-start: auto; }
 .k-tp-done { display: inline-flex; align-items: center; gap: var(--sp-6); font-size: var(--fs-12-5); cursor: pointer; }
 @media (max-width: 700px) {
+.k-subj-units-row { grid-template-columns: minmax(0, 1fr); }
 .k-it-current { grid-template-columns: minmax(0, 1fr); }
-.k-it-cur-go { max-inline-size: none; }
+.k-it-cur-stats { padding-inline-start: 0; border-inline-start: 0; }
 }
 
 /* ---- 5.19 item 4 (design 44): questions on the schedule and their history ---- */

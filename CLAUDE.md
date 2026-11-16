@@ -954,8 +954,12 @@ source comments and audit notes refer to it.
     keeps counting in marks, grades, hours and history; "Show completed
     units" (per device, `state.ui.itShowDone`) brings it back, and the open
     topic's own unit always shows. The CURRENT unit (`state.itUnits.current`,
-    else F201, else the first still to sit by date) leads the IT desk with
-    Continue, the next unit and Change (`KOS.itDesk.current`); smoke154.
+    else F201, else the first still to sit by date) sits in the IT desk's
+    course units row beside its unit cards — its topics, mastery, the next
+    unit and Change (`KOS.itDesk.current`); Continue is the side column's,
+    as on every desk. The IT desk keeps the shared order (top row,
+    analytics and dates, course units) with its grades after them, and has
+    no Resources card (16 November 2026); smoke154.
 27. Navigate via `KOS.show()`. Assignments, reminders and events each have one
     canonical store; other surfaces derive from them. Use `KOS.workspaceTabs` for
     Review and Sync. (The Planner's Planner/Goals switch is gone: Goals is a

@@ -1635,6 +1635,35 @@ and card treatment, and art where it helps — built on the role tokens
 (invariant 26a) so every page and Dawn's rules still hold. Fewer, better
 themes; priced in the shop again once they exist.
 
+### 5.21 A flashcard quality pass (asked for 16 November 2026) — BACKLOG
+
+Many cards don't say what they want recalled, or recall nothing worth
+having. A card is fixed in place (its schedule key kept, invariant 87),
+moved to the quiz or exam questions (5.19 item 4's pattern), or removed
+with its neighbours' keys kept. Found so far (CS 2,025, Maths 1,464, IT 588
+cards; a first scan flagged about 180 bare prompts and 44 yes/no answers):
+- **A label, not a question.** The front names a thing with no cue for
+  what to recall: "Read-ahead pattern?" (`compsci:4.1.1.*`), "Virtual
+  method", "Design method", "Stop rule", "Erroneous data?"
+  (`compsci:4.13.1.4#2`), "Wires crossing without a dot?"
+  (`compsci:4.6.4.1#12`), "CIR holds…" (`compsci:4.7.3.1#0`). Each should
+  ask for something specific: "What does the read-ahead pattern do, and
+  where are the two reads?"
+- **A yes/no with nothing to learn.** "Is 'saves memory' an advantage of
+  constants?" → "No — not a creditworthy reason." (`compsci:4.1.1.6#7`);
+  "Are functions first-class in a functional language?" → "Yes."
+  (`compsci:4.12.1.2#1`); "Is a photo stored on disk software?" → "No — it
+  is data." The answer should say why, or the card should ask the
+  positive question ("Give two creditworthy advantages of constants").
+- **"Describe …" cards** whose answer is a paragraph (`compsci:4.9.2.3#11`
+  CSMA/CA, `compsci:4.10.5#9` timestamp ordering): too long for quick
+  recall; split into cards or move to exam questions.
+- **Worked calculations** in CS ("Convert 193 to hexadecimal",
+  "Normalise 00011010 0011") are practice, not recall: quiz or exam items.
+- Other problems as they turn up. A checker (`tools/card_lint.mjs`)
+  should flag bare prompts, bare yes/no answers and over-long answers, as
+  `tools/quiz_bias.mjs` does for quiz options.
+
 ## Phase 6 — The iPad and the Pencil (asked for 22 October 2026)
 
 > **RELEASED 26 October 2026** (`feat/ipad-files`, sw `kos-pen-1`,

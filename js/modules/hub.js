@@ -2098,17 +2098,9 @@
       }))
     ]);
 
-    /* IT's current-unit card carries Continue, so the side keeps only Weakest */
-    var itLead = sid === "it" && KOS.itDesk && KOS.itDesk.current && KOS.itUnits && KOS.itUnits.current();
-    var side = el("div", { class: "k-subj-side" }, [itLead ? null : continueCard(sid), weakestCard(sid)].filter(Boolean));
+    var side = el("div", { class: "k-subj-side" }, [continueCard(sid), weakestCard(sid)].filter(Boolean));
     if (KOS.art) KOS.art.layer(hero, "desk:" + sid, { eager: true });
-    /* IT: the current unit leads the desk (5.19 item 2, design 44f) */
-    if (sid === "it" && KOS.itDesk && KOS.itDesk.current) { var cu = KOS.itDesk.current({
-      leaves: function (code) { var sec = d.sections.filter(function (x) { return x.ref === code; })[0]; return sec ? leavesOf(sid, sec) : []; },
-      pct: function (ref) { return leafPercent(sid, ref); }, lastRef: store.state.ui.lastRef[sid] }); if (cu) main.appendChild(cu); }
     main.appendChild(el("div", { class: "k-subj-row", "data-ui": "study.desk-top" }, [hero, side]));
-    /* the IT desk's qualification and units (frames 18a–18c) */
-    if (sid === "it" && KOS.itDesk) KOS.itDesk.render(main);
 
     /* ================= analytics, beside the dates ================= */
     var analytics = subjectAnalytics(sid, s);
@@ -2146,14 +2138,23 @@
       units.appendChild(card);
     });
     var paperNames = papers.filter(function (p) { return p.leaves.length; }).map(function (p) { return ((PAPER_NOTE[sid] || {})[p.lbl] || [p.lbl])[0]; });
+    /* IT: the current unit beside its unit cards (5.19 item 2, design 44f;
+       moved into the units' row on 16 November 2026) */
+    var cu = sid === "it" && KOS.itDesk && KOS.itDesk.current ? KOS.itDesk.current({
+      leaves: function (code) { var sec = d.sections.filter(function (x) { return x.ref === code; })[0]; return sec ? leavesOf(sid, sec) : []; },
+      pct: function (ref) { return leafPercent(sid, ref); }, lastRef: store.state.ui.lastRef[sid] }) : null;
+    var unitScroller = KOS.ui.scroller(units, { label: "Course units", prevLabel: "Scroll to earlier units", nextLabel: "Scroll to later units" });
     main.appendChild(el("section", { class: "k-subj-units", "aria-labelledby": "k-units-h" }, [
       el("div", { class: "k-sectionhead" }, [
         el("h2", { id: "k-units-h", text: "Course units" }),
         el("span", { class: "k-sectionhead-sub", text: units.children.length + " units · " +
           (paperNames.length > 1 ? paperNames.slice(0, -1).join(", ") + " and " + paperNames[paperNames.length - 1] : paperNames[0] || d.board) })
       ]),
-      KOS.ui.scroller(units, { label: "Course units", prevLabel: "Scroll to earlier units", nextLabel: "Scroll to later units" })
+      cu ? el("div", { class: "k-subj-units-row", "data-ui": "study.units-row" }, [unitScroller, cu]) : unitScroller
     ]));
+    /* the IT desk's qualification and units (frames 18a–18c), after the
+       rows every subject shares */
+    if (sid === "it" && KOS.itDesk) KOS.itDesk.render(main);
 
     /* ================= practice, beside the resources ================= */
     var labs = PRACTICE[sid] || [];
@@ -2177,9 +2178,13 @@
     /* 15c: on a phone the eight analytics tiles are one summary row that
        opens them in a sheet (the same card, moved in and back) */
     bottom.appendChild(analyticsRow(analytics));
-    var resHolder = el("section", { class: "k-card", "data-ui": "study.resources", "aria-label": "Resources" });
-    bottom.appendChild(resHolder);
-    renderResources(resHolder, sid);
+    /* IT has no Resources card: a new specification with next to nothing
+       published for it yet (asked for 16 November 2026) */
+    if (sid !== "it") {
+      var resHolder = el("section", { class: "k-card", "data-ui": "study.resources", "aria-label": "Resources" });
+      bottom.appendChild(resHolder);
+      renderResources(resHolder, sid);
+    }
     main.appendChild(bottom);
   };
 
