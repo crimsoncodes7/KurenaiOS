@@ -53,7 +53,7 @@ C["maths:7.1"] = {
       steps: [
         { m: "Gradient of the chord from $P$ to $(1 + h, 2(1 + h)^3 + 5)$: $\\dfrac{2(1 + h)^3 + 5 - 7}{h} = \\dfrac{2(1 + 3h + 3h^2 + h^3) - 2}{h}$", mk: "M1 A1", n: "Either work at the general $x$ and then substitute 1, or — as here — at $x = 1$ directly." },
         { m: "$= \\dfrac{6h + 6h^2 + 2h^3}{h} = 6 + 6h + 2h^2$", mk: "M1 A1" },
-        { m: "As $h \\to 0$ the gradient $\\to 6$. The tangent at $P$ has gradient 6.", mk: "A1" }
+        { m: "As $h \\to 0$ the gradient $\\to 6$. The tangent at $P$ has gradient 6.", mk: "A1", fig: { x: [-0.2, 2], y: [0, 20], axes: { xt: [1, 1.5], yt: [5, 7, 11.75, 15] }, items: [{ fn: "2*x^3+5", label: "y = 2x³ + 5", at: 1.75, pos: "w" }, { line: [[0.3, 2.8], [1.75, 11.5]], c: "accent2", dash: true, label: "tangent, gradient 6", lpos: 0.15, loff: -16 }, { line: [[0.7, 4.15], [1.8, 14.6]], c: "accent3", label: "chord", lpos: 0.92, loff: -12 }, { pt: [1, 7], label: "P(1, 7)", pos: "se" }, { pt: [1.5, 11.75], c: "accent3", label: "h = 0.5", pos: "nw" }], cap: "With $h = 0.5$ the chord's gradient is $6 + 3 + 0.5 = 9.5$; as $h \\to 0$ the chord turns into the tangent, gradient 6." } }
       ], result: "6" } },
     { worked: { tag: "exam", title: "Prove $\\frac{d}{dx}(\\sin x) = \\cos x$ — the addition formula and two given limits", src: "A-level June 2023 · P1 Q12 · 5 marks",
       q: "$y = \\sin x$, $x$ in radians. Use differentiation from first principles to show that $\\frac{dy}{dx} = \\cos x$. You may use $\\sin(A + B) = \\sin A\\cos B + \\cos A\\sin B$ and assume that as $h \\to 0$, $\\frac{\\sin h}{h} \\to 1$ and $\\frac{\\cos h - 1}{h} \\to 0$.",
@@ -67,7 +67,7 @@ C["maths:7.1"] = {
       steps: [
         { h: "(a)", m: "$\\dfrac{dy}{dx} = 2x - 4 = 2$ at $x = 3$", mk: "M1 A1" },
         { h: "(b)", m: "$y_Q = (3 + h)^2 - 4(3 + h) + 5 = 2 + 2h + h^2$; gradient $= \\dfrac{(2 + 2h + h^2) - 2}{h} = 2 + h$", mk: "M1 A1*" },
-        { h: "(c)", m: "As $h \\to 0$, $Q \\to P$ and the chord gradient $2 + h \\to 2$, the tangent gradient — the derivative is the limit of the chord gradients.", mk: "B1 B1" }
+        { h: "(c)", m: "As $h \\to 0$, $Q \\to P$ and the chord gradient $2 + h \\to 2$, the tangent gradient — the derivative is the limit of the chord gradients.", mk: "B1 B1", fig: { x: [0, 5], y: [-0.5, 7], axes: { xt: [2, 3, 4], yt: [1, 2, 5] }, items: [{ fn: "x^2-4*x+5", label: "y = x² − 4x + 5", at: 0.6, pos: "e" }, { line: [[1.8, -0.4], [4.6, 5.2]], c: "accent2", dash: true, label: "tangent, gradient 2", lpos: 0.92, loff: 14 }, { line: [[2.5, 0.5], [4.4, 6.2]], c: "accent3", label: "chord PQ", lpos: 0.15, loff: -14 }, { pt: [3, 2], label: "P(3, 2)", pos: "se" }, { pt: [4, 5], c: "accent3", label: "Q (h = 1)", pos: "nw" }], cap: "For $h = 1$ the chord gradient is $2 + h = 3$; shrinking $h$ brings it down to the tangent's 2." } }
       ], result: "(a) 2 (b) $2 + h$ (c) chord → tangent as $h \\to 0$" } },
 
     { page: "Second derivatives, gradient graphs" },
@@ -88,14 +88,14 @@ C["maths:7.1"] = {
       q: "$f(x) = x^3 + 2x^2 - 8x + 5$. **(a)** Find $f''(x)$. **(b)(i)** Solve $f''(x) = 0$. **(ii)** Hence find the range of $x$ for which $f$ is concave.",
       steps: [
         { h: "(a)", m: "$f'(x) = 3x^2 + 4x - 8$, $\\; f''(x) = 6x + 4$", mk: "M1 A1" },
-        { h: "(b)", m: "(i) $x = -\\dfrac23$. (ii) Concave where $f'' < 0$: $6x + 4 < 0 \\Rightarrow x < -\\dfrac23$", mk: "A1 A1" }
+        { h: "(b)", m: "(i) $x = -\\dfrac23$. (ii) Concave where $f'' < 0$: $6x + 4 < 0 \\Rightarrow x < -\\dfrac23$", mk: "A1 A1", fig: { x: [-5, 3], y: [-32, 30], axes: { xt: [-4, -2, 2], yt: [-20, 10, 20] }, items: [{ fn: "x^3+2*x^2-8*x+5", label: "y = f(x)", at: 2.4, pos: "w" }, { vline: -0.667, c: "muted" }, { pt: [-0.667, 10.93], label: "x = −2/3", pos: "ne" }, { text: [-3.6, 25], t: "concave", c: "accent2" }, { text: [1.6, -24], t: "convex", c: "accent3" }], cap: "Left of the point of inflection at $x = -\\frac23$ the curve bends down ($f'' < 0$); right of it, up." } }
       ], result: "(a) $6x + 4$ (b) $x = -\\frac23$; concave for $x < -\\frac23$" } },
     { worked: { tag: "exam", title: "A stationary point that is a point of inflection", src: "A-level Oct 2021 · P2 Q5 · 7 marks",
       q: "$y = 5x^4 - 24x^3 + 42x^2 - 32x + 11$. **(a)** Find $\\frac{dy}{dx}$ and $\\frac{d^2y}{dx^2}$. **(b)(i)** Verify that $C$ has a stationary point at $x = 1$. **(ii)** Show that this stationary point is a point of inflection, giving reasons.",
       steps: [
         { h: "(a)", m: "$\\dfrac{dy}{dx} = 20x^3 - 72x^2 + 84x - 32; \\qquad \\dfrac{d^2y}{dx^2} = 60x^2 - 144x + 84$", mk: "M1 A1 A1" },
         { h: "(b)(i)", m: "$20 - 72 + 84 - 32 = 0$ ✓", mk: "B1" },
-        { h: "(ii) $f''(1) = 0$ — so test the sign of $f''$ either side", m: "$\\dfrac{d^2y}{dx^2} = 12(5x^2 - 12x + 7) = 12(5x - 7)(x - 1)$: at $x = 0.9$ it is $12(-2.5)(-0.1) > 0$, at $x = 1.1$ it is $12(-1.5)(0.1) < 0$. The second derivative changes sign at $x = 1$, so it is a point of inflection (and, with $f'(1) = 0$, a stationary point of inflection).", mk: "M1 A1 A1", n: "Or: $f'''(1) = -24 \\ne 0$. Or: $f'$ has the same sign either side of 1 (factorise $f' = 4(x - 1)^2(5x - 8)$). Any one, with the reasoning stated." }
+        { h: "(ii) $f''(1) = 0$ — so test the sign of $f''$ either side", m: "$\\dfrac{d^2y}{dx^2} = 12(5x^2 - 12x + 7) = 12(5x - 7)(x - 1)$: at $x = 0.9$ it is $12(-2.5)(-0.1) > 0$, at $x = 1.1$ it is $12(-1.5)(0.1) < 0$. The second derivative changes sign at $x = 1$, so it is a point of inflection (and, with $f'(1) = 0$, a stationary point of inflection).", mk: "M1 A1 A1", n: "Or: $f'''(1) = -24 \\ne 0$. Or: $f'$ has the same sign either side of 1 (factorise $f' = 4(x - 1)^2(5x - 8)$). Any one, with the reasoning stated.", fig: { x: [0.4, 2.2], y: [1, 6], axes: { xt: [1, 1.4, 1.6, 2], yt: [2, 3, 4, 5] }, items: [{ fn: "5*x^4-24*x^3+42*x^2-32*x+11", from: 0.4, to: 2.2 }, { hline: 2, c: "muted" }, { pt: [1, 2], label: "(1, 2)", pos: "n" }, { pt: [1.6, 1.784], c: "accent3", label: "min", pos: "s" }], cap: "At $x = 1$ the curve is flat but keeps falling on both sides — a stationary point of inflection; the minimum comes later, at $x = 1.6$." } }
       ], result: "shown" } },
     { worked: { tag: "exam", title: "Sketch the gradient function from a curve; pick the right $\\frac{dy}{dx}$", src: "AS June 2025 · P1 Q12 · 5 marks",
       q: "A curve has a maximum at $x = -2$, a minimum at $x = 1$, and is increasing for $x < -2$ and $x > 1$. **(a)** Sketch the graph of $\\frac{dy}{dx}$ against $x$. **(b)** Which of these could be $\\frac{dy}{dx}$: $(x + 2)(x - 1)$, $-(x + 2)(x - 1)$, $(x - 2)(x + 1)$? Explain.",
@@ -166,7 +166,7 @@ C["maths:7.2"] = {
       steps: [
         { h: "(a)", m: "$y = x^2 - 2x - 24x^{1/2}$: $\\dfrac{dy}{dx} = 2x - 2 - 12x^{-1/2}$; $\\dfrac{d^2y}{dx^2} = 2 + 6x^{-3/2}$", mk: "M1 A1 A1", n: "$-24 \\times \\frac12 = -12$, index $\\frac12 - 1 = -\\frac12$; then $-12 \\times (-\\frac12) = +6$, index $-\\frac32$." },
         { h: "(b)", m: "At $x = 4$: $8 - 2 - \\dfrac{12}{2} = 0$ ✓", mk: "M1 A1" },
-        { h: "(c)", m: "$\\dfrac{d^2y}{dx^2} = 2 + \\dfrac{6}{8} = 2.75 > 0$, so a **minimum**.", mk: "M1 A1" }
+        { h: "(c)", m: "$\\dfrac{d^2y}{dx^2} = 2 + \\dfrac{6}{8} = 2.75 > 0$, so a **minimum**.", mk: "M1 A1", fig: { x: [0, 10], y: [-45, 10], axes: { xt: [2, 4, 6, 8], yt: [-40, -20] }, items: [{ fn: "x^2-2*x-24*sqrt(x)", from: 0, to: 10, label: "y = x² − 2x − 24√x", at: 7, pos: "w" }, { pt: [4, -40], label: "minimum (4, −40)", pos: "s" }], cap: "The stationary point at $x = 4$ is the bottom of the curve: $\\frac{d^2y}{dx^2} = 2.75 > 0$." } }
       ], result: "(a) $2x - 2 - 12x^{-1/2}$, $2 + 6x^{-3/2}$ (c) minimum" } },
     { worked: { tag: "exam", title: "A quotient rewritten as powers; show the derivative in a given form", src: "A-level Oct 2020 · P2 Q7(a) · 4 marks",
       q: "$y = \\frac{4x^2 + x}{2\\sqrt x} - 4\\ln x$, $x > 0$. Show that $\\frac{dy}{dx} = \\frac{12x^2 + x - 16\\sqrt x}{4x\\sqrt x}$.",
@@ -181,7 +181,7 @@ C["maths:7.2"] = {
         { h: "Stationary at $x = 4$", m: "$f'(4) = 16 + 2a + b = 0$", mk: "B1" },
         { h: "Integrate (8.2) with the intercept", m: "$f(x) = 2x^2 + \\dfrac{2a}{3}x^{3/2} + bx + c$; $f(0) = -5 \\Rightarrow c = -5$", mk: "M1 A1" },
         { h: "Through $(4, 3)$", m: "$32 + \\dfrac{16a}{3} + 4b - 5 = 3 \\Rightarrow 4a + 3b = -18$", mk: "M1" },
-        { m: "With $b = -16 - 2a$: $4a - 48 - 6a = -18 \\Rightarrow a = -15$, $b = 14$\n$f(x) = 2x^2 - 10x^{3/2} + 14x - 5$", mk: "A1 A1" }
+        { m: "With $b = -16 - 2a$: $4a - 48 - 6a = -18 \\Rightarrow a = -15$, $b = 14$\n$f(x) = 2x^2 - 10x^{3/2} + 14x - 5$", mk: "A1 A1", fig: { x: [0, 6], y: [-6, 6], axes: { xt: [1, 2, 3, 4, 5], yt: [-5, 3] }, items: [{ fn: "2*x^2-10*x^1.5+14*x-5", from: 0, to: 6 }, { pt: [0, -5], label: "(0, −5)", pos: "e" }, { pt: [4, 3], label: "(4, 3)", pos: "s" }], cap: "$f(x) = 2x^2 - 10x^{3/2} + 14x - 5$ meets the $y$-axis at $-5$ and is stationary at $(4, 3)$." } }
       ], result: "$f(x) = 2x^2 - 10x^{\\frac32} + 14x - 5$" } },
     { worked: { tag: "example", title: "Trig, exponential and log derivatives", src: "routine",
       steps: [
@@ -243,9 +243,10 @@ C["maths:7.3"] = {
       q: "Find the tangent to $y = 2x^3 - 4x + 5$ at $P(2, 13)$, in the form $y = mx + c$ with integer $m$, $c$.",
       steps: [
         { m: "$\\dfrac{dy}{dx} = 6x^2 - 4$; at $x = 2$: $m = 20$", mk: "M1 A1 A1" },
-        { m: "$y - 13 = 20(x - 2) \\Rightarrow y = 20x - 27$", mk: "M1 A1", n: "Check $P$: $40 - 27 = 13$ ✓" }
+        { m: "$y - 13 = 20(x - 2) \\Rightarrow y = 20x - 27$", mk: "M1 A1", n: "Check $P$: $40 - 27 = 13$ ✓", fig: { x: [-2, 3], y: [-15, 30], axes: { xt: [-1, 1, 2], yt: [-10, 13, 20] }, items: [{ fn: "2*x^3-4*x+5", label: "y = 2x³ − 4x + 5", at: -1.6, pos: "e" }, { fn: "20*x-27", from: 0.9, to: 2.8, c: "accent2", dash: true, label: "y = 20x − 27", at: 2.6, pos: "e" }, { pt: [2, 13], label: "P(2, 13)", pos: "nw" }], cap: "The tangent touches the curve at $P$ with the curve's gradient there, 20." } }
       ], result: "$y = 20x - 27$" } },
     { worked: { tag: "exam", title: "Tangent to a cubic, where it meets the curve again, and the area between", src: "A-level Oct 2021 · P2 Q7 · 9 marks",
+      fig: { x: [-0.5, 6.5], y: [-26, 6], axes: { xt: [1, 2, 3, 4, 5, 6], yt: [-20, -10] }, items: [{ shade: { fn: "x^3-10*x^2+27*x-23", fn2: "2*x-23", from: 0, to: 5 }, alpha: 0.2 }, { fn: "x^3-10*x^2+27*x-23", label: "C", at: 6.2, pos: "w" }, { fn: "2*x-23", c: "accent2", label: "l", at: 6.2, pos: "se" }, { pt: [5, -13], label: "P", pos: "se" }, { text: [2.4, -11], t: "R", b: true, c: "accent" }], cap: "$l$ touches $C$ at $P$; $R$ is the region between them." },
       q: "$C$: $y = x^3 - 10x^2 + 27x - 23$; $P(5, -13)$ lies on $C$ and $l$ is the tangent at $P$. **(a)** Find the equation of $l$ in the form $y = mx + c$. **(b)** Find the $x$-coordinate of the point where $l$ meets $C$ again. **(c)** Find the area of the region $R$ between $C$ and $l$.",
       steps: [
         { h: "(a)", m: "$\\dfrac{dy}{dx} = 3x^2 - 20x + 27 = 2$ at $x = 5$; $\\; y + 13 = 2(x - 5) \\Rightarrow y = 2x - 23$", mk: "M1 A1 M1 A1" },
@@ -261,6 +262,7 @@ C["maths:7.3"] = {
         { m: "Area $= 10 + 36 = 46$", mk: "A1*" }
       ], result: "46" } },
     { worked: { tag: "exam", title: "Two tangents and the region between them and the curve", src: "A-level June 2024 · P1 Q10 · 9 marks",
+      fig: { x: [-0.3, 4.6], y: [-2, 22], axes: { xt: [1, 2, 3, 4], yt: [5, 10, 15, 20] }, items: [{ shade: { fn: "8*x", fn2: "8*x-x^2.5", from: 0, to: 2.4 }, alpha: 0.2 }, { shade: { fn: "48-12*x", fn2: "8*x-x^2.5", from: 2.4, to: 4 }, alpha: 0.2 }, { fn: "8*x-x^2.5", from: 0, to: 4.3 }, { fn: "8*x", from: 0, to: 2.7, c: "accent2", label: "l₂", at: 2.2, pos: "w" }, { fn: "48-12*x", from: 2.1, to: 4.15, c: "accent2", label: "l₁", at: 3.6, pos: "e" }, { pt: [0, 0], label: "O", pos: "nw" }, { pt: [4, 0], label: "A", pos: "se" }, { text: [2.3, 14.5], t: "R", b: true, c: "accent" }], cap: "$R$ is the curved triangle between the two tangents and the curve." },
       q: "$y = 8x - x^{5/2}$, $x \\ge 0$, crosses the $x$-axis at $A$. $l_1$ is the tangent at $A$ and $l_2$ the tangent at the origin. Find the exact area of the region $R$ bounded by $l_1$, $l_2$ and the curve.",
       steps: [
         { h: "$A$ and the two gradients", m: "$8x = x^{5/2} \\Rightarrow x^{3/2} = 8 \\Rightarrow x = 4$: $A(4, 0)$. $\\dfrac{dy}{dx} = 8 - \\dfrac52 x^{3/2}$: at 0 it is 8, at 4 it is $8 - 20 = -12$", mk: "M1 A1 M1 A1" },
@@ -281,24 +283,24 @@ C["maths:7.3"] = {
       steps: [
         { h: "(a) Translate the conditions", m: "$g(x) = ax^3 + bx^2 + ax$ (through the origin: no constant; equal coefficients)\n$g(2) = 10a + 4b = 9$; $\\; g'(x) = 3ax^2 + 2bx + a \\Rightarrow g'(2) = 13a + 4b = 0$", mk: "B1 M1 A1 M1" },
         { m: "Subtract: $3a = -9 \\Rightarrow a = -3$, $b = \\dfrac{39}{4}$: $g(x) = -3x^3 + \\dfrac{39}{4}x^2 - 3x$", mk: "A1 A1 A1" },
-        { h: "(b)", m: "$g''(x) = -18x + \\dfrac{39}{2}$; $g''(2) = -36 + 19.5 < 0$: maximum", mk: "M1 A1" }
+        { h: "(b)", m: "$g''(x) = -18x + \\dfrac{39}{2}$; $g''(2) = -36 + 19.5 < 0$: maximum", mk: "M1 A1", fig: { x: [-0.5, 3.2], y: [-3, 10.5], axes: { xt: [1, 2, 3], yt: [3, 6, 9] }, items: [{ fn: "-3*x^3+39/4*x^2-3*x", label: "y = g(x)", at: 2.9, pos: "e" }, { pt: [2, 9], label: "max (2, 9)", pos: "n" }, { pt: [0, 0], label: "O", pos: "nw" }], cap: "Through the origin, peaking at $(2, 9)$ where $g''(2) < 0$." } }
       ], result: "$g(x) = -3x^3 + \\frac{39}{4}x^2 - 3x$; maximum" } },
     { worked: { tag: "exam", title: "Stationary points of $4(x^2 - 2)e^{-2x}$ exactly; ranges of transformed functions", src: "A-level Oct 2020 · P1 Q9 · 9 marks",
       q: "$f(x) = 4(x^2 - 2)e^{-2x}$. **(a)** Show that $f'(x) = 8(2 + x - x^2)e^{-2x}$. **(b)** Hence find the exact coordinates of the stationary points of $C$. $g(x) = 2f(x)$ and $h(x) = 2f(x) - 3$, $x \\ge 0$. **(c)** Find the range of $g$ and the range of $h$.",
       steps: [
         { h: "(a) Product rule", m: "$f'(x) = 8xe^{-2x} + 4(x^2 - 2)(-2e^{-2x}) = 8e^{-2x}\\left[x - (x^2 - 2)\\right] = 8(2 + x - x^2)e^{-2x}$", mk: "M1 A1 A1*" },
         { h: "(b) $e^{-2x} \\ne 0$, so $2 + x - x^2 = 0$", m: "$(2 - x)(1 + x) = 0$: $x = 2$, $y = 8e^{-4}$; $x = -1$, $y = -4e^2$", mk: "M1 A1 A1" },
-        { h: "(c) From the sketch (min at $x = -1$, max at $x = 2$, $f \\to 0^+$ as $x \\to \\infty$)", m: "$g(x) = 2f(x)$ on all $x$: range $g(x) \\ge -8e^2$. $h$ on $x \\ge 0$: $f$ runs from $f(0) = -8$ up to $8e^{-4}$ then down to 0, so $2f - 3$ runs from $-19$ to $16e^{-4} - 3$: $-19 \\le h(x) \\le 16e^{-4} - 3$", mk: "B1 M1 A1", n: "The range needs the sketch's shape and the domain's endpoint $x = 0$." }
+        { h: "(c) From the sketch (min at $x = -1$, max at $x = 2$, $f \\to 0^+$ as $x \\to \\infty$)", m: "$g(x) = 2f(x)$ on all $x$: range $g(x) \\ge -8e^2$. $h$ on $x \\ge 0$: $f$ runs from $f(0) = -8$ up to $8e^{-4}$ then down to 0, so $2f - 3$ runs from $-19$ to $16e^{-4} - 3$: $-19 \\le h(x) \\le 16e^{-4} - 3$", mk: "B1 M1 A1", n: "The range needs the sketch's shape and the domain's endpoint $x = 0$.", fig: { x: [-1.6, 4], y: [-32, 6], axes: { xt: [-1, 1, 2, 3], yt: [-20, -8] }, items: [{ fn: "4*(x^2-2)*exp(-2*x)", label: "y = f(x)", at: 3, pos: "n" }, { pt: [-1, -29.56], label: "(−1, −4e²)", pos: "e" }, { pt: [0, -8], label: "(0, −8)", pos: "e" }, { pt: [2, 0.147], label: "(2, 8e⁻⁴)", pos: "n" }], cap: "A deep minimum at $x = -1$, a tiny maximum at $x = 2$, then $f \\to 0^+$: read the ranges off this." } }
       ], result: "(b) $(2, 8e^{-4})$, $(-1, -4e^2)$ (c) $g \\ge -8e^2$; $-19 \\le h \\le 16e^{-4} - 3$" } },
     { worked: { tag: "exam", title: "Increasing: solve $\\frac{dy}{dx} > 0$ for a cubic, in set notation", src: "AS Specimen · P1 Q1",
       q: "$y = 2x^3 - 2x^2 - 2x + 8$. Find the range of $x$ for which $y$ is increasing, in set notation.",
       steps: [
-        { m: "$\\dfrac{dy}{dx} = 6x^2 - 4x - 2 = 2(3x + 1)(x - 1) > 0 \\Rightarrow \\{x : x < -\\tfrac13\\} \\cup \\{x : x > 1\\}$", mk: "M1 A1 M1 A1", n: "A quadratic inequality: roots, U-shape, outside." }
+        { m: "$\\dfrac{dy}{dx} = 6x^2 - 4x - 2 = 2(3x + 1)(x - 1) > 0 \\Rightarrow \\{x : x < -\\tfrac13\\} \\cup \\{x : x > 1\\}$", mk: "M1 A1 M1 A1", n: "A quadratic inequality: roots, U-shape, outside.", fig: { x: [-1.5, 2], y: [-1, 13], axes: { xt: [-1, 1], yt: [4, 8, 12] }, items: [{ fn: "2*x^3-2*x^2-2*x+8", label: "y = 2x³ − 2x² − 2x + 8", at: -1.1, pos: "e" }, { vline: -0.333, c: "muted" }, { vline: 1, c: "muted" }, { pt: [-0.333, 8.37], label: "x = −1/3", pos: "n" }, { pt: [1, 6], label: "x = 1", pos: "s" }], cap: "Rising to the left of $x = -\\frac13$ and to the right of $x = 1$, falling between." } }
       ], result: "$x < -\\frac13$ or $x > 1$" } },
     { worked: { tag: "exam", title: "Increasing: $\\frac{dy}{dx} > 0$ with a $\\frac{2}{x}$ term, $x > 0$", src: "AS June 2019 · P1 Q5",
       q: "$y = 3x^2 + \\frac2x + 2$, $x > 0$. Find the exact range of $x$ for which the curve is increasing.",
       steps: [
-        { m: "$\\dfrac{dy}{dx} = 6x - \\dfrac{2}{x^2} > 0 \\Rightarrow 6x^3 > 2$ (multiplying by $x^2 > 0$) $\\Rightarrow x^3 > \\dfrac13 \\Rightarrow x > \\sqrt[3]{\\tfrac13}$", mk: "M1 A1 M1 A1", n: "Multiplying by $x^2$ is safe; then a cube root has one real value." }
+        { m: "$\\dfrac{dy}{dx} = 6x - \\dfrac{2}{x^2} > 0 \\Rightarrow 6x^3 > 2$ (multiplying by $x^2 > 0$) $\\Rightarrow x^3 > \\dfrac13 \\Rightarrow x > \\sqrt[3]{\\tfrac13}$", mk: "M1 A1 M1 A1", n: "Multiplying by $x^2$ is safe; then a cube root has one real value.", fig: { x: [0, 2.5], y: [0, 25], axes: { xt: [0.69, 1, 2], yt: [6.33, 10, 20] }, items: [{ fn: "3*x^2+2/x+2", from: 0.05, to: 2.5, label: "y = 3x² + 2/x + 2", at: 2, pos: "w" }, { pt: [0.693, 6.33], label: "x = ∛(1/3)", pos: "s" }], cap: "The curve falls to its minimum at $x = \\sqrt[3]{1/3} \\approx 0.69$ and increases after it." } }
       ], result: "$x > \\sqrt[3]{\\frac13}$" } },
 
     { page: "Optimisation" },
@@ -317,7 +319,7 @@ C["maths:7.3"] = {
         { h: "(a) Constraint and area", m: "$V = \\pi r^2 h + \\dfrac23\\pi r^3 = 6 \\Rightarrow h = \\dfrac{6}{\\pi r^2} - \\dfrac{2r}{3}$\n$S = \\pi r^2 + 2\\pi rh + 2\\pi r^2$ (base disc + curved side + hemisphere)", mk: "M1 A1 M1", n: "One flat end only — the other end is the hemisphere." },
         { m: "$S = 3\\pi r^2 + 2\\pi r\\left(\\dfrac{6}{\\pi r^2} - \\dfrac{2r}{3}\\right) = 3\\pi r^2 + \\dfrac{12}{r} - \\dfrac{4\\pi r^2}{3} = \\dfrac{12}{r} + \\dfrac53\\pi r^2$", mk: "A1*" },
         { h: "(b)", m: "$\\dfrac{dS}{dr} = -\\dfrac{12}{r^2} + \\dfrac{10\\pi r}{3} = 0 \\Rightarrow r^3 = \\dfrac{36}{10\\pi} \\Rightarrow r = 1.05$ m", mk: "M1 A1 A1" },
-        { m: "$\\dfrac{d^2S}{dr^2} = \\dfrac{24}{r^3} + \\dfrac{10\\pi}{3} > 0$: minimum. $S_{\\min} = \\dfrac{12}{1.046} + \\dfrac53\\pi(1.046)^2 = 17.2$ m$^2$", mk: "B1 M1 A1" }
+        { m: "$\\dfrac{d^2S}{dr^2} = \\dfrac{24}{r^3} + \\dfrac{10\\pi}{3} > 0$: minimum. $S_{\\min} = \\dfrac{12}{1.046} + \\dfrac53\\pi(1.046)^2 = 17.2$ m$^2$", mk: "B1 M1 A1", fig: { x: [0, 3], y: [0, 50], axes: { x: "r", y: "S", xt: [1, 1.05, 2], yt: [17.2, 30, 40] }, items: [{ fn: "12/x+5/3*pi*x^2", from: 0.2, to: 3, label: "S = 12/r + 5πr²/3", at: 2.4, pos: "w" }, { pt: [1.046, 17.2], label: "(1.05, 17.2)", pos: "s" }], cap: "$S$ is large for small $r$ (tall, thin) and for large $r$ (wide); the minimum is at $r \\approx 1.05$ m." } }
       ], result: "$r \\approx 1.05$ m, $S_{\\min} \\approx 17.2$ m$^2$" } },
     { worked: { tag: "exam", title: "Drinks container: cost with two metals, minimise, second derivative, minimum cost", src: "AS June 2022 · P1 Q12 · 12 marks",
       q: "A closed cylinder of base radius $r$ cm and height $h$ cm holds $355$ cm$^3$. The base and curved side cost $0.04$ p/cm$^2$; the top costs $0.09$ p/cm$^2$. **(a)** Show that the total cost is $C = 0.13\\pi r^2 + \\frac{28.4}{r}$. **(b)** Find $r$ for minimum $C$, to 3 s.f. **(c)** Prove it is a minimum using $\\frac{d^2C}{dr^2}$. **(d)** Find the minimum cost to the nearest integer.",
@@ -325,12 +327,12 @@ C["maths:7.3"] = {
         { h: "(a)", m: "$\\pi r^2 h = 355 \\Rightarrow h = \\dfrac{355}{\\pi r^2}$\n$C = 0.04(\\pi r^2 + 2\\pi rh) + 0.09\\pi r^2 = 0.13\\pi r^2 + 0.08\\pi r \\cdot \\dfrac{355}{\\pi r^2} = 0.13\\pi r^2 + \\dfrac{28.4}{r}$", mk: "B1 M1 M1 A1*" },
         { h: "(b)", m: "$\\dfrac{dC}{dr} = 0.26\\pi r - \\dfrac{28.4}{r^2} = 0 \\Rightarrow r^3 = \\dfrac{28.4}{0.26\\pi} \\Rightarrow r = 3.26$", mk: "M1 A1 M1 A1" },
         { h: "(c)", m: "$\\dfrac{d^2C}{dr^2} = 0.26\\pi + \\dfrac{56.8}{r^3} > 0$ for $r > 0$: minimum", mk: "M1 A1" },
-        { h: "(d)", m: "$C = 0.13\\pi(3.264)^2 + \\dfrac{28.4}{3.264} = 13.05 \\to$ **13 pence**", mk: "M1 A1" }
+        { h: "(d)", m: "$C = 0.13\\pi(3.264)^2 + \\dfrac{28.4}{3.264} = 13.05 \\to$ **13 pence**", mk: "M1 A1", fig: { x: [0, 7], y: [0, 40], axes: { x: "r", y: "C", xt: [2, 3.26, 5], yt: [13, 20, 30] }, items: [{ fn: "0.13*pi*x^2+28.4/x", from: 0.6, to: 7, label: "C = 0.13πr² + 28.4/r", at: 5.8, pos: "w" }, { pt: [3.264, 13.05], label: "(3.26, 13.05)", pos: "s" }], cap: "The cheapest can has radius 3.26 cm and costs about 13 p." } }
       ], result: "(b) $r = 3.26$ cm (d) 13 p" } },
     { worked: { tag: "exam", title: "Lorry running cost: minimise, prove minimum, limitation", src: "AS June 2018 · P1 Q8 · 9 marks",
       q: "The cost £$C$ of a journey at steady speed $v$ km/h is $C = \\frac{1500}{v} + \\frac{2v}{11} + 60$. **(a)** Find (i) the $v$ that minimises the cost, (ii) the minimum cost. **(b)** Prove by $\\frac{d^2C}{dv^2}$ that this is a minimum. **(c)** State one limitation.",
       steps: [
-        { h: "(a)", m: "$\\dfrac{dC}{dv} = -\\dfrac{1500}{v^2} + \\dfrac{2}{11} = 0 \\Rightarrow v^2 = 8250 \\Rightarrow v = 90.8$ km/h; $C = \\dfrac{1500}{90.83} + \\dfrac{181.66}{11} + 60 = £93.03$", mk: "M1 A1 M1 A1 M1 A1" },
+        { h: "(a)", m: "$\\dfrac{dC}{dv} = -\\dfrac{1500}{v^2} + \\dfrac{2}{11} = 0 \\Rightarrow v^2 = 8250 \\Rightarrow v = 90.8$ km/h; $C = \\dfrac{1500}{90.83} + \\dfrac{181.66}{11} + 60 = £93.03$", mk: "M1 A1 M1 A1 M1 A1", fig: { x: [20, 200], y: [80, 145], axes: { x: "v", y: "C", xt: [50, 90.8, 150], yt: [93, 120, 140] }, items: [{ fn: "1500/x+2*x/11+60", from: 20, to: 200, label: "C(v)", at: 160, pos: "n" }, { pt: [90.83, 93.03], label: "(90.8, 93.03)", pos: "s" }], cap: "Too slow costs time ($\\frac{1500}{v}$); too fast costs fuel ($\\frac{2v}{11}$); the minimum is at $v \\approx 90.8$ km/h." } },
         { h: "(b)", m: "$\\dfrac{d^2C}{dv^2} = \\dfrac{3000}{v^3} > 0$ for $v > 0$: minimum", mk: "M1 A1" },
         { h: "(c)", m: "The lorry cannot travel at a constant speed for the whole journey (traffic, hills, speed limits).", mk: "B1" }
       ], result: "(a) $v = 90.8$ km/h, £93.03 (c) speed not constant" } },
@@ -414,13 +416,13 @@ C["maths:7.4"] = {
       steps: [
         { h: "(a) Quotient rule", m: "$\\dfrac{dy}{dx} = \\dfrac{(10x + 10)(x + 1)^2 - (5x^2 + 10x) \\cdot 2(x + 1)}{(x + 1)^4}$", mk: "M1 A1", n: "$g = (x + 1)^2$, $g' = 2(x + 1)$ by the chain rule." },
         { h: "Cancel one $(x + 1)$", m: "$= \\dfrac{(10x + 10)(x + 1) - 2(5x^2 + 10x)}{(x + 1)^3} = \\dfrac{10x^2 + 20x + 10 - 10x^2 - 20x}{(x + 1)^3} = \\dfrac{10}{(x + 1)^3}$", mk: "M1 A1", n: "$A = 10$, $n = 3$. Look for the common factor **before** expanding everything." },
-        { h: "(b)", m: "$\\dfrac{10}{(x + 1)^3} < 0 \\iff (x + 1)^3 < 0 \\iff x < -1$", mk: "B1" }
+        { h: "(b)", m: "$\\dfrac{10}{(x + 1)^3} < 0 \\iff (x + 1)^3 < 0 \\iff x < -1$", mk: "B1", fig: { x: [-5, 4], y: [-8, 8], axes: { xt: [-4, -2, 2], yt: [-5, 5] }, items: [{ fn: "5-5/(x+1)^2", from: -5, to: -1.02, label: "decreasing", at: -2.4, pos: "sw" }, { fn: "5-5/(x+1)^2", from: -0.98, to: 4 }, { vline: -1, c: "danger", label: "x = −1" }, { hline: 5, c: "accent3", label: "y = 5" }], cap: "$y = 5 - \\frac{5}{(x + 1)^2}$: the left branch falls ($\\frac{dy}{dx} < 0$ for $x < -1$), the right branch rises." } }
       ], result: "(a) $\\frac{10}{(x + 1)^3}$ (b) $x < -1$" } },
     { worked: { tag: "exam", title: "Rational function: show $f'(x)$, then where $f$ is decreasing", src: "A-level June 2024 · P1 Q5 · 6 marks",
       q: "$f(x) = \\frac{2x - 3}{x^2 + 4}$. **(a)** Show that $f'(x) = \\frac{ax^2 + bx + c}{(x^2 + 4)^2}$. **(b)** Hence, using algebra, find the values of $x$ for which $f$ is decreasing.",
       steps: [
         { h: "(a)", m: "$f'(x) = \\dfrac{2(x^2 + 4) - (2x - 3)(2x)}{(x^2 + 4)^2} = \\dfrac{2x^2 + 8 - 4x^2 + 6x}{(x^2 + 4)^2} = \\dfrac{-2x^2 + 6x + 8}{(x^2 + 4)^2}$", mk: "M1 A1 A1", n: "$a = -2$, $b = 6$, $c = 8$." },
-        { h: "(b) Denominator positive, so the sign is the numerator's", m: "$-2x^2 + 6x + 8 < 0 \\Rightarrow x^2 - 3x - 4 > 0 \\Rightarrow (x - 4)(x + 1) > 0 \\Rightarrow x < -1$ or $x > 4$", mk: "M1 A1 A1", n: "Dividing by $-2$ flips the inequality." }
+        { h: "(b) Denominator positive, so the sign is the numerator's", m: "$-2x^2 + 6x + 8 < 0 \\Rightarrow x^2 - 3x - 4 > 0 \\Rightarrow (x - 4)(x + 1) > 0 \\Rightarrow x < -1$ or $x > 4$", mk: "M1 A1 A1", n: "Dividing by $-2$ flips the inequality.", fig: { x: [-8, 12], y: [-1.3, 0.6], axes: { xt: [-4, -1, 4, 8], yt: [-1, 0.25] }, items: [{ fn: "(2*x-3)/(x^2+4)", label: "y = f(x)", at: 9, pos: "n" }, { pt: [-1, -1], label: "(−1, −1)", pos: "s" }, { pt: [4, 0.25], label: "(4, 0.25)", pos: "n" }], cap: "Decreasing before the minimum at $x = -1$ and after the maximum at $x = 4$." } }
       ], result: "(a) $\\frac{-2x^2 + 6x + 8}{(x^2 + 4)^2}$ (b) $x < -1$ or $x > 4$" } },
     { worked: { tag: "exam", title: "Exponential over quadratic; when is there a stationary point?", src: "A-level June 2022 · P2 Q12 · 6 marks",
       q: "$f(x) = \\frac{e^{3x}}{4x^2 + k}$, $k > 0$. **(a)** Show that $f'(x) = (12x^2 - 8x + 3k)\\,g(x)$ where $g$ is a function to be found. **(b)** Given $y = f(x)$ has at least one stationary point, find the range of $k$.",
@@ -446,7 +448,7 @@ C["maths:7.4"] = {
       q: "Show that the $x$-coordinates of the turning points of $y = 10e^{-0.25x}\\sin x$ satisfy $\\tan x = 4$.",
       steps: [
         { m: "$f'(x) = -2.5e^{-0.25x}\\sin x + 10e^{-0.25x}\\cos x = 2.5e^{-0.25x}(4\\cos x - \\sin x)$", mk: "M1 A1 A1" },
-        { m: "$e^{-0.25x} \\ne 0$, so $4\\cos x = \\sin x \\Rightarrow \\tan x = 4$", mk: "A1*", n: "The exponential factor never vanishes — say so before dividing by it." }
+        { m: "$e^{-0.25x} \\ne 0$, so $4\\cos x = \\sin x \\Rightarrow \\tan x = 4$", mk: "A1*", n: "The exponential factor never vanishes — say so before dividing by it.", fig: { x: [0, 9.5], y: [-5, 9], axes: { xt: [1.33, 4.47, { v: 3.141592653589793, label: "π" }, { v: 6.283185307179586, label: "2π" }], yt: [-3.17, 6.97] }, items: [{ fn: "10*exp(-0.25*x)*sin(x)", label: "y = 10e^(−0.25x) sin x", at: 2.6, pos: "ne" }, { fn: "10*exp(-0.25*x)", c: "muted", dash: true }, { pt: [1.326, 6.97], label: "tan x = 4", pos: "ne" }, { pt: [4.467, -3.17], label: "tan x = 4", pos: "s" }], cap: "Each turning point is where $\\tan x = 4$: $x = 1.33$, $1.33 + \\pi$, … The dashed envelope is $10e^{-0.25x}$." } }
       ], result: "shown" } },
 
     { page: "Connected rates and inverse functions" },
@@ -464,7 +466,7 @@ C["maths:7.4"] = {
       q: "$C$: $x = 4\\sin 2y$, $-\\frac{\\pi}{4} < y < \\frac{\\pi}{4}$, passes through $O$. **(a)** Find $\\frac{dy}{dx}$ at the origin. **(b)(i)** Use the small angle approximation for $\\sin 2y$ to find an equation linking $x$ and $y$ near $O$. **(ii)** Explain the relationship between (a) and (b)(i). **(c)** Show that for all points on $C$, $\\frac{dy}{dx} = \\frac{1}{a\\sqrt{b - x^2}}$.",
       steps: [
         { h: "(a)", m: "$\\dfrac{dx}{dy} = 8\\cos 2y = 8$ at $y = 0$, so $\\dfrac{dy}{dx} = \\dfrac18$", mk: "M1 A1" },
-        { h: "(b)", m: "(i) $x \\approx 4(2y) = 8y$, i.e. $y \\approx \\dfrac{x}{8}$. (ii) This line has gradient $\\frac18$ — it is the tangent at $O$, whose gradient is $\\frac{dy}{dx}$ there.", mk: "B1 B1" },
+        { h: "(b)", m: "(i) $x \\approx 4(2y) = 8y$, i.e. $y \\approx \\dfrac{x}{8}$. (ii) This line has gradient $\\frac18$ — it is the tangent at $O$, whose gradient is $\\frac{dy}{dx}$ there.", mk: "B1 B1", fig: { x: [-4.6, 4.6], y: [-0.95, 0.95], axes: { xt: [-4, -2, 2, 4], yt: [{ v: -0.785, label: "−π/4" }, { v: 0.785, label: "π/4" }] }, items: [{ param: { x: "4*sin(2*t)", y: "t" }, t: [-0.78, 0.78] }, { fn: "x/8", from: -4.5, to: 4.5, c: "accent2", dash: true, label: "y = x/8", at: 3.8, pos: "s" }, { pt: [0, 0], label: "O", pos: "nw" }], cap: "Near $O$ the curve hugs the line $y = \\frac{x}{8}$ — its tangent there." } },
         { h: "(c) Write $\\cos 2y$ in terms of $x$", m: "$\\dfrac{dy}{dx} = \\dfrac{1}{8\\cos 2y} = \\dfrac{1}{8\\sqrt{1 - \\sin^2 2y}} = \\dfrac{1}{8\\sqrt{1 - x^2/16}} = \\dfrac{1}{2\\sqrt{16 - x^2}}$", mk: "M1 M1 A1", n: "$\\cos 2y > 0$ on the given range, so the positive root is right. $a = 2$, $b = 16$." }
       ], result: "(a) $\\frac18$ (c) $a = 2$, $b = 16$" } },
 
@@ -527,14 +529,14 @@ C["maths:7.5"] = {
       steps: [
         { h: "(a) Differentiate term by term", m: "$2x - 2y - 2x\\dfrac{dy}{dx} + 6y\\dfrac{dy}{dx} = 0 \\Rightarrow \\dfrac{dy}{dx}(6y - 2x) = 2y - 2x \\Rightarrow \\dfrac{dy}{dx} = \\dfrac{y - x}{3y - x}$", mk: "M1 A1 M1 A1*", n: "$-2xy$ needs the product rule: $-2y - 2x\\frac{dy}{dx}$." },
         { h: "(b) Furthest west: tangent vertical, so the denominator is zero", m: "$3y - x = 0 \\Rightarrow x = 3y$. Substitute: $9y^2 - 6y^2 + 3y^2 = 50 \\Rightarrow y^2 = \\dfrac{25}{3} \\Rightarrow y = \\pm\\dfrac{5}{\\sqrt3}$", mk: "M1 A1 M1 A1" },
-        { m: "West means the smaller $x$: $y = -\\dfrac{5}{\\sqrt3}$, $x = -\\dfrac{15}{\\sqrt3} = -5\\sqrt3$. $P\\left(-5\\sqrt3, -\\dfrac{5\\sqrt3}{3}\\right)$", mk: "A1" },
+        { m: "West means the smaller $x$: $y = -\\dfrac{5}{\\sqrt3}$, $x = -\\dfrac{15}{\\sqrt3} = -5\\sqrt3$. $P\\left(-5\\sqrt3, -\\dfrac{5\\sqrt3}{3}\\right)$", mk: "A1", fig: { x: [-10.5, 10.5], y: [-6.5, 6.5], aspect: "equal", axes: { xt: [-5, 5], yt: [-4, 4] }, items: [{ param: { x: "5*sin(t)+5*sqrt(2)*cos(t)", y: "5*sin(t)" }, t: [0, 6.2832] }, { line: [[-8.66, -5.5], [-8.66, 0.8]], c: "accent2", dash: true }, { pt: [-8.66, -2.887], label: "P", pos: "w" }, { line: [[-1, 5], [9.5, 5]], c: "accent3", dash: true }, { pt: [5, 5], c: "accent3", label: "north", pos: "n" }], cap: "Furthest west the tangent is vertical ($3y - x = 0$); furthest north it is horizontal ($y = x$)." } },
         { h: "(c)", m: "Set the numerator to zero ($y = x$, tangent horizontal), substitute into the curve, take the larger $y$.", mk: "B1" }
       ], result: "(b) $P(-5\\sqrt3, -\\frac{5\\sqrt3}{3})$" } },
     { worked: { tag: "exam", title: "Normal at a point on $x^3 + 2xy + 3y^2 = 47$", src: "A-level June 2023 · P2 Q7 · 7 marks",
       q: "**(a)** Find $\\frac{dy}{dx}$ in terms of $x$ and $y$ for $x^3 + 2xy + 3y^2 = 47$. **(b)** $P(-2, 5)$ lies on the curve. Find the normal at $P$ in the form $ax + by + c = 0$ with integers.",
       steps: [
         { h: "(a)", m: "$3x^2 + 2y + 2x\\dfrac{dy}{dx} + 6y\\dfrac{dy}{dx} = 0 \\Rightarrow \\dfrac{dy}{dx} = -\\dfrac{3x^2 + 2y}{2x + 6y}$", mk: "M1 A1 M1 A1" },
-        { h: "(b)", m: "At $(-2, 5)$: $-\\dfrac{12 + 10}{-4 + 30} = -\\dfrac{11}{13}$; normal gradient $\\dfrac{13}{11}$: $y - 5 = \\dfrac{13}{11}(x + 2) \\Rightarrow 13x - 11y + 81 = 0$", mk: "M1 M1 A1" }
+        { h: "(b)", m: "At $(-2, 5)$: $-\\dfrac{12 + 10}{-4 + 30} = -\\dfrac{11}{13}$; normal gradient $\\dfrac{13}{11}$: $y - 5 = \\dfrac{13}{11}(x + 2) \\Rightarrow 13x - 11y + 81 = 0$", mk: "M1 M1 A1", fig: { x: [-6, 5], y: [-9, 12], axes: { xt: [-4, -2, 2, 4], yt: [-5, 5, 10] }, items: [{ fn: "(-2*x+sqrt(4*x^2-12*(x^3-47)))/6", from: -6, to: 3.7235 }, { fn: "(-2*x-sqrt(4*x^2-12*(x^3-47)))/6", from: -6, to: 3.7235 }, { fn: "(13*x+81)/11", from: -6, to: 1.5, c: "accent2", dash: true, label: "normal", at: -5.3, pos: "se" }, { pt: [-2, 5], label: "P(−2, 5)", pos: "ne" }], cap: "The normal at $P$ is perpendicular to the tangent: gradient $\\frac{13}{11}$ against the tangent's $-\\frac{11}{13}$." } }
       ], result: "(a) $-\\frac{3x^2 + 2y}{2x + 6y}$ (b) $13x - 11y + 81 = 0$" } },
     { worked: { tag: "exam", title: "Unknown $p$, $q$ from a point and its normal", src: "A-level Oct 2021 · P2 Q8 · 9 marks",
       q: "$px^3 + qxy + 3y^2 = 26$. **(a)** Show that $\\frac{dy}{dx} = \\frac{apx^2 + bqy}{qx + cy}$ with integers $a$, $b$, $c$. **(b)** $P(-1, -4)$ lies on the curve and the normal at $P$ is $19x + 26y + 123 = 0$. Find $p$ and $q$.",
@@ -556,13 +558,13 @@ C["maths:7.5"] = {
       steps: [
         { h: "(a) Implicit, then eliminate $y$", m: "$2x\\tan y + x^2\\sec^2 y\\dfrac{dy}{dx} = 0 \\Rightarrow \\dfrac{dy}{dx} = -\\dfrac{2\\tan y}{x\\sec^2 y}$\n$\\tan y = \\dfrac{9}{x^2}$ and $\\sec^2 y = 1 + \\tan^2 y = \\dfrac{x^4 + 81}{x^4}$, so $\\dfrac{dy}{dx} = -\\dfrac{2 \\cdot 9/x^2}{x(x^4 + 81)/x^4} = \\dfrac{-18x}{x^4 + 81}$", mk: "M1 A1 M1 A1*", n: "Getting rid of $y$ needs $\\sec^2 = 1 + \\tan^2$." },
         { h: "(b) Second derivative changes sign", m: "$\\dfrac{d^2y}{dx^2} = \\dfrac{-18(x^4 + 81) + 18x \\cdot 4x^3}{(x^4 + 81)^2} = \\dfrac{54(x^4 - 27)}{(x^4 + 81)^2}$", mk: "M1 A1" },
-        { m: "Zero at $x^4 = 27$; negative for $x < \\sqrt[4]{27}$ and positive after (the denominator is always positive). The sign changes, so it is a point of inflection.", mk: "A1", n: "The sign change is the proof — not merely $f'' = 0$." }
+        { m: "Zero at $x^4 = 27$; negative for $x < \\sqrt[4]{27}$ and positive after (the denominator is always positive). The sign changes, so it is a point of inflection.", mk: "A1", n: "The sign change is the proof — not merely $f'' = 0$.", fig: { x: [0, 8], y: [0, 1.75], axes: { xt: [2, 2.28, 4, 6], yt: [{ v: 1.0472, label: "π/3" }, { v: 1.5708, label: "π/2" }] }, items: [{ fn: "atan(9/x^2)", from: 0.3, to: 8, label: "x² tan y = 9", at: 5, pos: "ne" }, { hline: 1.5708, c: "muted" }, { pt: [2.2795, 1.0472], label: "inflection", pos: "ne" }], cap: "The curve bends down, then up: the change of concavity is at $x = \\sqrt[4]{27} \\approx 2.28$." } }
       ], result: "shown" } },
     { worked: { tag: "exam", title: "$y = x^x$: take logs first", src: "A-level June 2019 · P2 Q11(a) · 5 marks",
       q: "Find, by first taking logarithms, the $x$-coordinate of the turning point of $y = x^x$, $x > 0$.",
       steps: [
         { m: "$\\ln y = x\\ln x$; differentiate implicitly: $\\dfrac1y\\dfrac{dy}{dx} = \\ln x + 1$", mk: "M1 M1 A1", n: "Product rule on $x\\ln x$; chain rule on $\\ln y$." },
-        { m: "$\\dfrac{dy}{dx} = x^x(1 + \\ln x) = 0 \\Rightarrow \\ln x = -1 \\Rightarrow x = e^{-1}$", mk: "M1 A1", n: "$x^x > 0$, so only the bracket can vanish." }
+        { m: "$\\dfrac{dy}{dx} = x^x(1 + \\ln x) = 0 \\Rightarrow \\ln x = -1 \\Rightarrow x = e^{-1}$", mk: "M1 A1", n: "$x^x > 0$, so only the bracket can vanish.", fig: { x: [0, 2], y: [0, 4], axes: { xt: [{ v: 0.3679, label: "1/e" }, 1, 1.5], yt: [1, 2, 3] }, items: [{ fn: "exp(x*ln(x))", from: 0.005, to: 2, label: "y = xˣ", at: 1.8, pos: "w" }, { pt: [0.3679, 0.6922], label: "(1/e, 0.69)", pos: "s" }, { pt: [1, 1], label: "(1, 1)", pos: "se" }], cap: "The one turning point of $x^x$ is a minimum at $x = \\frac1e$." } }
       ], result: "$x = \\frac1e$" } },
     { worked: { tag: "exam", title: "Tangent parallel to the $x$-axis on $\\sin x + \\cos y = 0.5$", src: "A-level Specimen · P2 Q12 · 7 marks",
       q: "$\\sin x + \\cos y = 0.5$, $-\\frac{\\pi}{2} \\le x < \\frac{3\\pi}{2}$, $-\\pi < y < \\pi$. Find the exact coordinates of all points $P$ where the tangent is parallel to the $x$-axis.",
@@ -630,7 +632,7 @@ C["maths:7.6"] = {
         { h: "(a) Constant volume rate, chain rule", m: "$\\dfrac{dV}{dt} = -c$ and $V = \\dfrac43\\pi r^3 \\Rightarrow \\dfrac{dV}{dt} = 4\\pi r^2\\dfrac{dr}{dt}$, so $4\\pi r^2\\dfrac{dr}{dt} = -c \\Rightarrow \\dfrac{dr}{dt} = -\\dfrac{c}{4\\pi r^2} = -\\dfrac{k}{r^2}$", mk: "B1 M1 A1*", n: "$k = \\frac{c}{4\\pi}$ — a positive constant." },
         { h: "(b) Separate and integrate (8.7)", m: "$r^2\\,dr = -k\\,dt \\Rightarrow \\dfrac{r^3}{3} = -kt + C$\n$t = 0, r = 40$: $C = \\dfrac{64\\,000}{3}$; $t = 5, r = 20$: $\\dfrac{8000}{3} = -5k + \\dfrac{64\\,000}{3} \\Rightarrow k = \\dfrac{11\\,200}{3}$", mk: "M1 A1 M1 A1" },
         { m: "$r^3 = 64\\,000 - 11\\,200t \\Rightarrow r = \\sqrt[3]{64\\,000 - 11\\,200t}$", mk: "A1" },
-        { h: "(c) The balloon is empty when $r = 0$", m: "$64\\,000 - 11\\,200t \\ge 0 \\Rightarrow 0 \\le t \\le \\dfrac{40}{7} \\approx 5.71$ s", mk: "M1 A1" }
+        { h: "(c) The balloon is empty when $r = 0$", m: "$64\\,000 - 11\\,200t \\ge 0 \\Rightarrow 0 \\le t \\le \\dfrac{40}{7} \\approx 5.71$ s", mk: "M1 A1", fig: { x: [0, 7], y: [0, 45], axes: { x: "t", y: "r", xt: [1, 3, 5, 5.71], yt: [20, 40] }, items: [{ fn: "(64000-11200*x)^(1/3)", from: 0, to: 5.714, label: "r = ∛(64 000 − 11 200t)", at: 2, pos: "ne" }, { pt: [0, 40], label: "(0, 40)", pos: "e" }, { pt: [5, 20], label: "(5, 20)", pos: "w" }, { pt: [5.714, 0], label: "empty at 40/7", pos: "ne" }], cap: "The radius falls ever faster and reaches 0 at $t = \\frac{40}{7}$; past that the model means nothing." } }
       ], result: "(b) $r = \\sqrt[3]{64000 - 11200t}$ (c) $0 \\le t \\le \\frac{40}{7}$" } },
     { worked: { tag: "exam", title: "Inflating balloon: $\\frac{dr}{dt} = \\frac{k}{\\sqrt r}$; show $r^{3/2} = 5.4t + 10$", src: "A-level June 2024 · P1 Q14 · 9 marks",
       q: "A spherical balloon is inflated so that the rate of increase of its radius is inversely proportional to the square root of the radius. **(a)** Write down a differential equation for $r$. At $t = 10$ s the radius is 16 cm and increasing at $0.9$ cm/s. **(b)** Solve the differential equation to show that $r^{3/2} = 5.4t + 10$. **(c)** Find the radius when $t = 20$, to the nearest mm. **(d)** Suggest a limitation of the model.",
@@ -638,7 +640,7 @@ C["maths:7.6"] = {
         { h: "(a)", m: "$\\dfrac{dr}{dt} = \\dfrac{k}{\\sqrt r}$, $k > 0$", mk: "B1" },
         { h: "(b) Find $k$ from the rate condition, then separate", m: "$0.9 = \\dfrac{k}{4} \\Rightarrow k = 3.6$\n$\\sqrt r\\,dr = 3.6\\,dt \\Rightarrow \\dfrac23 r^{3/2} = 3.6t + C$; at $t = 10$, $r = 16$: $\\dfrac23 \\cdot 64 = 36 + C \\Rightarrow C = \\dfrac{20}{3}$", mk: "M1 A1 M1 A1", n: "Two conditions at $t = 10$: one for $k$ (the rate), one for $C$ (the value)." },
         { m: "$r^{3/2} = \\dfrac32(3.6t + \\tfrac{20}{3}) = 5.4t + 10$", mk: "A1*" },
-        { h: "(c)", m: "$r^{3/2} = 118 \\Rightarrow r = 118^{2/3} = 24.1$ cm $= 241$ mm", mk: "M1 A1" },
+        { h: "(c)", m: "$r^{3/2} = 118 \\Rightarrow r = 118^{2/3} = 24.1$ cm $= 241$ mm", mk: "M1 A1", fig: { x: [0, 25], y: [0, 30], axes: { x: "t", y: "r", xt: [5, 10, 15, 20], yt: [4.64, 16, 24.1] }, items: [{ fn: "(5.4*x+10)^(2/3)", from: 0, to: 25, label: "r^(3/2) = 5.4t + 10", at: 3, pos: "nw" }, { pt: [10, 16], label: "(10, 16)", pos: "se" }, { pt: [20, 24.06], label: "(20, 24.1)", pos: "se" }], cap: "The radius grows ever more slowly, as $\\frac{dr}{dt} = \\frac{3.6}{\\sqrt r}$ says." } },
         { h: "(d)", m: "The balloon will burst — the radius cannot keep growing; or the balloon is not a perfect sphere.", mk: "B1" }
       ], result: "(a) $\\frac{dr}{dt} = \\frac{k}{\\sqrt r}$ (c) 241 mm" } },
     { worked: { tag: "exam", title: "From a scientist's statement to $p = ae^{kt}$", src: "A-level Specimen · P2 Q7(a) · 4 marks",
