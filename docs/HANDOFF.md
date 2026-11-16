@@ -39,6 +39,29 @@ polish lands after W3); leave both alone. Production is sw
    **W8** (Help & Guide for every area, docs re-baselined, one shared
    lesson reader, splitting `hub.js`, memoised heavy reads).
 
+**Done 16 November 2026 (evening), on Fable: items 1 and 2.** `main` is
+merged into `feat/w4-import` and the import engine is built there
+(`39c1794`, pushed; NOT on main, NOT deployed; gate 155 / 155; smoke149).
+MG-02, 03, 04, 05, 06, 07, 08 and 24 are fixed in the ENGINE: the pure
+reader `js/core/moneyimport.js` (`KOS.moneyImport`), the merchant table
+`js/data/money-merchants.js`, and in `js/core/money.js` the preview,
+`imports`/`undoBatch`/`replaces`, `learnPayee`/`payees`,
+`bankMatches`/`confirmWith`, and the lossless export. CLAUDE.md's invariant
+5a says how each works. The dialog got only the edits that make the engine
+reachable. **For item 4 (the turn-39 pages, Opus) the engine already
+gives:** `M.imports()` and `M.importCounts(cb)` for Transactions › Imports,
+`M.undoBatch(id, cb)` and `csv.import(rows, {replaces: id})` for Undo and
+Replace, `M.list({batch})`/`{src: "csv"}` for the Source filter,
+`preview.overlaps` for "Replace the import of …", `M.payees()`,
+`learnPayee(name, cat)` and `forgetPayee(name)` for Settings › Rules (no
+page calls `learnPayee` yet: decide where a category change teaches a
+rule), a row's `bank.text`/`bank.type`, `catFrom` and `match` for the
+preview, `preview.reconcile` and an import's `closing` for the Balance
+card, and the import result's `suggest` (direct debits and standing orders
+that matched no rule). Releasing it needs main merged in again, the full
+gate and the user's go-ahead. Next on this account: item 3, then the
+Opus list.
+
 **Smoke numbers from now:** the other account uses **160–179**; this
 account continues at 157–159 and then 180+. (142, 143, 149 and 150 stay the
 other account's.)
