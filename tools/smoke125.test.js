@@ -159,7 +159,9 @@ step("D2 · review fixes: a long row, bank row numbers, no account numbers kept"
   const acct = "Date,Description,Amount,Balance,Sort Code,Account Number\n12/09/2026,LIDL,-8.40,120.00,12-34-56,12345678\n";
   await importCSV(acct);
   const all = await cb((c) => M().exportAll(c));
-  const lidl = all.tx.find((t) => t.payee === "LIDL");
+  /* the payee is the merchant made from the bank's words (W4, MG-08); the words themselves are kept */
+  const lidl = all.tx.find((t) => t.bank && t.bank.text === "LIDL");
+  eq(lidl.payee, "Lidl", "the payee is the merchant");
   eq(lidl.raw, ["12/09/2026", "LIDL", "-8.40", "", "", ""], "the balance, sort code and account number are blanked");
 });
 
