@@ -88,6 +88,16 @@ or content file needs `node tools/gen_lazy_index.mjs` (smoke142 B fails
 when the index is stale). Every other branch must merge main again.
 Left on the Fable account's list: items 3 and 4.
 
+**Released 16 November 2026 as sw `kos-integrity-15`**
+(https://d2c8c870.kurenai-os.pages.dev, from `feat/519-it-notes`; -14 an
+hour before, the same release less a label fix): roadmap 5.19 item 1 for
+F201 — all fifteen leaves rewritten from the OCR specification and SAM in
+`it-f201a/b/c.js` (replacing `it-f201.js`; smoke156). Expect overlap in
+`index.html` (the content-it bundle), `js/data/lazy-index.js` (regenerate),
+`js/core/content.js` (examFromWorked: a "<board>-style" source) and the gate
+list (156). **`feat/w4-import` must merge main again.** F206 waits until
+January 2027.
+
 **Released 16 November 2026 as sw `kos-integrity-13`**
 (https://b21cbcf3.kurenai-os.pages.dev, `origin/main` = `5d306ae`, from
 `feat/519-review`): 5.19 item 4 below, and the IT desk in the shared order

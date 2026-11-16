@@ -1,6 +1,6 @@
 ---
 name: project-branch-and-release-state
-description: "Which git branch is live, what is deployed — check git before trusting this; latest entry 2026-11-16 (production kos-integrity-13, 5d306ae: 5.19 item 4 and the IT desk)"
+description: "Which git branch is live, what is deployed — check git before trusting this; latest entry 2026-11-16 (production kos-integrity-15: F201 notes at full depth)"
 metadata:
   node_type: memory
   type: project
@@ -8,7 +8,7 @@ metadata:
   modified: 2026-11-16T07:32:02.684Z
 ---
 
-**Latest (2026-11-16 evening, Opus, worktree KurenaiOS-519):** 5.19 item 1's F201 notes are BUILT on `feat/519-it-notes` (b590001, from main 8935ff1), pushed, NOT released: it-f201a/b/c.js replace it-f201.js, smoke156 holds the contract, gate 154 (`""`, 2–148, 151–156). F206 waits until January 2027. Release needs a sw bump and the user's go-ahead.
+**Latest (2026-11-16 evening, Opus, worktree KurenaiOS-519):** production is sw `kos-integrity-15` (https://d2c8c870.kurenai-os.pages.dev), main fast-forwarded to `feat/519-it-notes`: 5.19 item 1's F201 notes RELEASED — it-f201a/b/c.js replace it-f201.js, smoke156 holds the contract, gate 154 (`""`, 2–148, 151–156). F206 waits until January 2027. feat/w4-import (Fable) must merge main.
 
 **Before it (2026-11-16, Opus, worktree KurenaiOS-519):** production is sw `kos-integrity-13`, commit `5d306ae`, immutable https://b21cbcf3.kurenai-os.pages.dev; origin/main fast-forwarded to `feat/519-review`. It carries the IT desk in the shared order (Continue in the side column, the current unit beside the course units at unit-card height, no Resources on IT; asked for 16 Nov) and 5.19 item 4: questions on the review schedule (js/core/questions.js, invariant 111c, smoke155), Due's three kinds with a per-subject cap (default 10), quiz and exam-question history, an unmarked iPad attempt carried on (132 widened), the subject desk's review strip, 78 Maths cards moved to exam questions (tools/gen_moved_cards.mjs). Gate 153 (`""`, 2–148, 151–155), 153/153. Roadmap 5.21 (flashcard quality pass) added to the backlog. feat/w4-import (Fable) must merge main. Next here: item 1 (IT notes, F201 first).
 
