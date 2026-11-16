@@ -289,12 +289,18 @@
   var EXAMS = ["exam-index", "exams-deep"];
   /* the bundles holding the words of the cards a review page shows: the
      ones due and the ones set aside, by the subject each belongs to */
-  function reviewBundles() {
+  function reviewBundles(arg) {
     var out = [];
     if (!KOS.srs) return out;
     var add = function (c) { if (c && c.pend && out.indexOf(c.pend) === -1) out.push(c.pend); };
     KOS.srs.dueCards().forEach(add);
     if (KOS.srs.leeches) KOS.srs.leeches().forEach(add);
+    /* the questions back today (5.19 item 4) are drawn from their topics'
+       quiz and exam items: only their run reads them */
+    if (arg && arg.run === "questions" && KOS.questions) KOS.questions.dueToday().list.forEach(function (q) {
+      var b = /^(compsci|maths|it)$/.test(q.sid) ? contentOf(q.sid) : null;
+      if (b && out.indexOf(b) === -1) out.push(b);
+    });
     return out;
   }
   var NEEDS = {

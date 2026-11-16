@@ -75,7 +75,10 @@ step("the desk carries the analytics grid, four across, with no hole", () => {
   const panel = $("#main [data-ui~='study.analytics']");
   assert(panel, "no analytics panel on the desk");
   const tiles = panel.querySelectorAll("[data-ui~='study.analytics-grid'] > [data-ui~='study.analytics-tile']");
-  assert(tiles.length === 8, "expected 8 tiles, got " + tiles.length);
+  assert(tiles.length === 4, "expected 4 tiles, got " + tiles.length);
+  /* the review figures are one strip under them (5.19 item 4, 44e) */
+  const parts = [...panel.querySelectorAll("[data-ui~='study.review-strip'] [data-ui~='study.review-part'] .k-kicker")].map(n => n.textContent);
+  assert(parts.join("|") === "Cards|Questions|Papers", "the review strip: " + parts.join("|"));
 });
 
 step("every tile is the same shape: label, value, context, one track", () => {
@@ -89,8 +92,8 @@ step("every tile is the same shape: label, value, context, one track", () => {
   });
 });
 
-step("the eight statistics are the named ones, each labelled once", () => {
-  const want = ["Mastery", "Completed", "Started", "Cards due", "Reviewed", "Quiz best", "Exam Qs", "Streak"];
+step("the four statistics are the named ones, each labelled once", () => {
+  const want = ["Mastery", "Completed", "Started", "Streak"];
   const got = $$("[data-ui~='study.analytics-grid'] > [data-ui~='study.analytics-tile'] [data-ui~='part.label']").map(n => n.textContent.trim());
   assert(got.join("|") === want.join("|"), "tile labels: " + got.join("|"));
 });
@@ -182,10 +185,10 @@ step("a bar is only drawn when it carries the same quantity as its value", () =>
 step("one empty state everywhere: an em dash plus a sentence saying why", () => {
   KOS.store.state.study = { fc: {}, quiz: {} };
   KOS.show("subject", "maths");
-  const quiz = $$("[data-ui~='study.analytics-grid'] > [data-ui~='study.analytics-tile']").find(t => t.querySelector("[data-ui~='part.label']").textContent === "Quiz best");
-  assert(quiz.matches('[data-state~="empty"]'), "an unattempted quiz tile is not marked empty");
-  assert(quiz.querySelector("[data-ui~='part.value']").textContent === "—", "empty value is not an em dash");
-  assert(quiz.querySelector("[data-ui~='part.caption']").textContent === "no quiz attempts yet", "empty state does not explain itself");
+  /* the review strip's Questions with nothing answered: each figure an em dash */
+  const q = $("[data-ui~='study.review-strip'] [data-ui~='study.review-questions']");
+  assert(q && q.matches('[data-state~="empty"]'), "an unanswered Questions part is not marked empty");
+  assert([...q.querySelectorAll(".k-sa-fig-v")].every(v => v.textContent === "—"), "empty figures are not em dashes");
 });
 
 /* UI rebuild M2: "colour semantics come from ONE ramp" pinned the legacy
@@ -194,9 +197,6 @@ step("one empty state everywhere: an em dash plus a sentence saying why", () => 
 step("'Quiz best' really is the best score, not the last one", () => {
   KOS.store.state.study = { fc: {}, quiz: {} };
   KOS.store.state.study.quiz[SID + ":" + REF] = { attempts: 3, best: 90, lastPct: 40 };
-  KOS.show("subject", SID);
-  const tile = $$("[data-ui~='study.analytics-grid'] > [data-ui~='study.analytics-tile']").find(t => t.querySelector("[data-ui~='part.label']").textContent === "Quiz best");
-  assert(tile.querySelector("[data-ui~='part.value']").textContent === "90%", "subject page shows " + tile.querySelector("[data-ui~='part.value']").textContent + ", not the best");
   KOS.show("ref", { subject: SID, ref: REF });
   const row = $$("[data-ui~='topic.inspector'] [data-ui~='topic.inspector-list'] li").find(li => li.querySelector("span").textContent === "Quiz best");
   assert(row.querySelector("strong").textContent === "90%", "the inspector disagrees with the subject page");

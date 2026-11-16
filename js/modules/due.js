@@ -21,6 +21,9 @@
   function cardsFor(run, due) {
     if (!run || run === "all") return due;
     if (run === "overdue") return due.filter(function (c) { return c.overdue > 0; });
+    /* the three kinds (5.19 item 4, 44a): flashcards, and redo items apart */
+    if (run === "cards") return due.filter(function (c) { return !c.redo; });
+    if (run === "redo") return due.filter(function (c) { return c.redo; });
     if (run.indexOf("scope:") === 0) return scopeCards(run.slice(6), due);
     /* the rapid drill's misses (roadmap 5.8 phase 5): those cards, due or not */
     if (run.indexOf("cards:") === 0) return listedCards(run.slice(6).split("|"));
@@ -82,6 +85,7 @@
     opts = opts || {};
     KOS.shell.tree("none");
     var due = KOS.srs.dueCards();
+    if (opts.run === "questions") { runQuestions(main); return; }
     if (opts.run) { runSession(main, opts.run, due); return; }
 
     var overdue = due.filter(function (c) { return c.overdue > 0; }).length;
@@ -106,7 +110,9 @@
         }).concat([el("span", { class: "k-muted", text: "about " + Math.max(1, Math.round(due.length * 0.5)) + " min" })])) : null,
         due.length ? null : el("div", { class: "k-rv-clear", "data-ui": "review.due-clear" }, [
           el("span", { class: "k-kanji", lang: "ja", "aria-hidden": "true", text: "澄" }),
-          el("span", { text: "Queue clear. Rate cards on any topic's Flashcards tab and they are scheduled back here." })
+          el("span", { text: KOS.questions && KOS.questions.dueToday().total
+            ? "No cards due. Your questions back today are below."
+            : "Queue clear. Rate cards on any topic's Flashcards tab and they are scheduled back here." })
         ])
       ].filter(Boolean)),
       due.length ? el("div", { class: "k-rv-go" }, [
@@ -126,11 +132,18 @@
       var at = m.due <= today ? 0 : KOS.srs.daysBetween(today, m.due);
       if (at < 7) { days[at].n++; scheduled++; }
     });
+    /* questions on the schedule too (5.19 item 4: all three kinds) */
+    if (KOS.questions) KOS.questions.scheduled().forEach(function (q) {
+      if (q.meta.due <= today) return;            /* today's are counted capped, below */
+      var at = KOS.srs.daysBetween(today, q.meta.due);
+      if (at < 7) { days[at].n++; scheduled++; }
+    });
+    if (KOS.questions) { var qt = KOS.questions.dueToday(today).total; days[0].n += qt; scheduled += qt; }
     var peak = Math.max(1, days.reduce(function (a, d) { return Math.max(a, d.n); }, 0));
     var week = el("section", { class: "k-card k-rv-week", "data-ui": "review.week", "aria-label": "Next 7 days" }, [
       el("div", { class: "k-card-head" }, [
         el("span", { class: "k-card-title", text: "Next 7 days" }),
-        el("span", { class: "k-card-meta k-spacer", text: scheduled ? scheduled + " scheduled" : "nothing scheduled" })
+        el("span", { class: "k-card-meta k-spacer", text: scheduled ? scheduled + " scheduled · every kind" : "nothing scheduled" })
       ]),
       el("div", { class: "k-rv-chart", role: "img", "aria-label": days.map(function (d, j) {
         return (j ? DOW[new Date(d.iso + "T12:00:00").getDay()] : "Today") + " " + d.n; }).join(", ") }, days.map(function (d, j) {
@@ -142,6 +155,8 @@
       }))
     ]);
     main.appendChild(el("div", { class: "k-rv-row" }, [hero, week]));
+    var QB = KOS.questions ? KOS.questions.dueToday(today) : null;
+    if (QB) main.appendChild(kindsStrip(due, QB));
 
     /* ---- by topic ---- */
     var groups = {};
@@ -230,6 +245,7 @@
         el("p", { text: "Over " + KOS.governor.BACKLOG_LIMIT + " due. The Governor adds a small HP penalty each day the queue stays above the limit." })
       ]));
     }
+    if (QB) side.appendChild(capCard(QB));
     var reviewed = 0, graded = 0, good = 0, secs = 0;
     KOS.sessions.all().forEach(function (s) {
       if (s.date !== today || (s.type !== "flashcards" && s.type !== "due-review")) return;
@@ -247,6 +263,118 @@
     ]));
     main.appendChild(el("div", { class: "k-rv-row" }, [topics, side]));
   };
+
+  /* ---- the three kinds (5.19 item 4, design 44a) ----
+     Flashcards, Questions back (quiz and exam items on their own schedule,
+     capped per subject a day) and Redo items (never capped, invariant 124),
+     each with its own Start. */
+  function kindsStrip(due, QB) {
+    var cards = due.filter(function (c) { return !c.redo; }).length, redo = due.length - cards;
+    var capTxt = Object.keys(QB.by).length ? (function () {
+      var caps = Object.keys(QB.by).map(function (s) { return QB.by[s].cap; });
+      var same = caps.every(function (c) { return c === caps[0]; });
+      return same ? "of a " + caps[0] + "-a-day cap" : "within each subject's cap";
+    })() : "quiz and exam items you have answered";
+    function kind(hook, n, unit, sub, run) {
+      return el("div", { class: "k-rv-kind", "data-ui": "review.kind " + hook, "data-state": n ? null : "empty" }, [
+        el("span", { class: "k-kicker", text: unit }),
+        el("span", { class: "k-rv-kind-n" }, [el("b", { text: KOS.ui.num(n) }), el("span", { class: "k-muted", text: " " + sub })]),
+        n ? el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": hook + "-start", text: "Start · " + n + " →",
+          onclick: function () { KOS.show("review", { tab: "due", run: run }); } }) : el("span", { class: "k-muted k-rv-kind-none", text: "none today" })
+      ]);
+    }
+    return el("section", { class: "k-card k-rv-kinds", "data-ui": "review.kinds", "aria-label": "What is due, by kind" }, [
+      kind("review.kind-cards", cards, "Flashcards", cards === 1 ? "card" : "cards", "cards"),
+      kind("review.kind-questions", QB.total, "Questions back", capTxt + (QB.waiting ? " · " + QB.waiting + " wait" : ""), "questions"),
+      kind("review.kind-redo", redo, "Redo items", "from your papers", "redo")
+    ]);
+  }
+  /* Questions back each day, per subject (44a): − and + move the cap */
+  function capCard(QB) {
+    var sids = KOS.subjects.ids("exam");
+    var box = el("section", { class: "k-card k-rv-caps", "data-ui": "review.caps", "aria-label": "Questions back each day" }, [
+      el("div", { class: "k-card-head" }, [el("span", { class: "k-card-title", text: "Questions back each day" }), el("span", { class: "k-card-meta k-spacer", text: "per subject" })])
+    ]);
+    sids.forEach(function (sid) {
+      var b = QB.by[sid] || { cap: KOS.questions.cap(sid), done: 0, left: 0 };
+      var n = el("b", { class: "k-mono", "data-ui": "review.cap-n", text: String(b.cap) });
+      function step(d) {
+        var v = KOS.questions.setCap(sid, KOS.questions.cap(sid) + d);
+        n.textContent = String(v);
+        KOS.a11y.announce(SHORT[sid] + ": " + v + " a day.");
+        KOS.view.redrawIfStill()();
+      }
+      box.appendChild(el("div", { class: "k-rv-cap", "data-ui": "review.cap", "data-sid": sid, style: "--c: " + HUE[sid] }, [
+        el("span", { class: "k-rv-cap-t" }, [el("b", { text: KOS.subjects.name ? KOS.subjects.name(sid) : SHORT[sid] }),
+          el("span", { class: "k-muted", text: (b.done + b.left) + " today" })]),
+        el("span", { class: "k-rv-cap-step", role: "group", "aria-label": "Questions back a day in " + SHORT[sid] }, [
+          el("button", { type: "button", class: "k-qz-step", "data-ui": "review.cap-down", "aria-label": "One fewer a day", text: "−", onclick: function () { step(-1); } }),
+          n,
+          el("button", { type: "button", class: "k-qz-step", "data-ui": "review.cap-up", "aria-label": "One more a day", text: "+", onclick: function () { step(1); } })
+        ])
+      ]));
+    });
+    box.appendChild(el("p", { class: "k-rv-side-p k-muted", text: "Redo items are never capped." }));
+    return box;
+  }
+
+  /* ---- the questions back today, one at a time ----
+     Each is its own topic's quiz or exam item, answered and marked as on its
+     tab; the mark rates it (KOS.questions.answer). A question whose item is
+     gone from its topic is passed over. */
+  function runQuestions(main) {
+    var QS = KOS.questions, list = QS.dueToday().list.map(function (q) {
+      var hit = QS.itemOf(q.key);
+      return hit ? Object.assign(q, { hit: hit }) : null;
+    }).filter(Boolean);
+    var what = list.length ? list.length + (list.length === 1 ? " question back today" : " questions back today") : "Questions back today";
+    main.appendChild(el("div", { class: "k-rv-runhead" }, [
+      el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "review.back", text: "← Queue", onclick: function () { KOS.show("review", { tab: "due" }); } }),
+      el("span", { class: "k-rv-runwhat", "data-ui": "review.q-what", text: what })
+    ]));
+    if (!list.length) {
+      main.appendChild(el("div", { class: "k-rv-clear", "data-ui": "review.due-clear" }, [
+        el("span", { class: "k-kanji", lang: "ja", "aria-hidden": "true", text: "澄" }),
+        el("span", { text: "No questions back today. A quiz or exam question you answer comes back here when it is due." })
+      ]));
+      return;
+    }
+    var at = 0;
+    var head = el("div", { class: "k-rv-qhead", "data-ui": "review.q-head" });
+    var holder = el("div", { class: "k-topic-engine k-rv-q", "data-ui": "review.q" });
+    var foot = el("div", { class: "k-qz-foot", "data-ui": "review.q-foot" });
+    main.appendChild(head); main.appendChild(holder); main.appendChild(foot);
+    function next() {
+      foot.innerHTML = "";
+      foot.appendChild(el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "review.q-next",
+        text: at < list.length - 1 ? "Next question →" : "Finish", onclick: function () { at++; show(); } }));
+    }
+    function show() {
+      head.innerHTML = ""; holder.innerHTML = ""; foot.innerHTML = "";
+      if (at >= list.length) {
+        holder.appendChild(el("div", { class: "k-rv-clear", "data-ui": "review.q-done" }, [
+          el("span", { class: "k-kanji", lang: "ja", "aria-hidden": "true", text: "済" }),
+          el("span", { text: "That's today's questions. Each comes back when its marks say it should." })
+        ]));
+        return;
+      }
+      var q = list[at], h = q.hit, id = q.key.split(":").pop();
+      head.appendChild(el("span", { class: "k-mono k-muted", text: "Question " + (at + 1) + " of " + list.length }));
+      head.appendChild(el("button", { type: "button", class: "k-link", "data-ui": "review.q-topic", style: "--c: " + (HUE[h.sid] || "var(--muted)"),
+        text: h.ref + " · " + topicTitle(h.sid, h.ref), onclick: function () { KOS.show("ref", { subject: h.sid, ref: h.ref, tab: h.kind }); } }));
+      head.appendChild(el("span", { class: "k-chip", "data-tone": "muted", text: h.kind === "quiz" ? "Quiz" : "Exam question" }));
+      var item = Object.assign({}, h.item, { qk: id, oi: h.item.oi != null ? h.item.oi : h.i });
+      if (h.kind === "quiz") {
+        KOS.quiz.mountMCQ(holder, h.sid, h.ref, [item], { attempts: 0, bare: true, onFinish: function (picks, correct) {
+          QS.answer(q.key, { kind: "quiz", ok: correct === 1, back: true });
+          next();
+        } });
+      } else {
+        KOS.quiz.mountExam(holder, h.sid, h.ref, [item], { back: true, onLog: next });
+      }
+    }
+    show();
+  }
 
   /* one review run over the queue (or part of it) */
   function runSession(main, run, due) {

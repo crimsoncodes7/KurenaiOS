@@ -88,6 +88,17 @@ or content file needs `node tools/gen_lazy_index.mjs` (smoke142 B fails
 when the index is stale). Every other branch must merge main again.
 Left on the Fable account's list: items 3 and 4.
 
+**5.19 item 4 built (16 November 2026, `feat/519-review`, from main at
+`5c3d699`; not released):** quiz and exam questions on the review schedule
+(`js/core/questions.js`, invariant 111c, smoke155), their history, an
+unmarked iPad attempt carried on (invariant 132 widened), the subject
+desk's review strip, and 78 several-step Maths cards moved to exam
+questions (`tools/gen_moved_cards.mjs`). Expect overlap in `index.html`
+(two scripts after `js/core/srs.js`, one at the end of the Maths bank
+bundle), `js/data/lazy-index.js` (regenerate it after merging),
+`js/modules/hub.js`, `js/engines/quiz.js`, `js/core/inkpad.js` and the gate
+list. Next on this account: item 1 (IT notes, F201 first).
+
 **Worktrees.** The two accounts collided in one folder on 16 November (the
 Fable session switched branches in the main checkout while this account had
 uncommitted work there). Each account now works in its OWN folder: this

@@ -55,6 +55,17 @@
       });
     } });
   }
+  /* "today", "yesterday", "Tue", "12 Oct" for a time */
+  function dayWord(ts) {
+    if (!ts) return "before";
+    var d = new Date(ts), iso = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+    return KOS.questions ? KOS.questions.when(iso) : when(ts).split(" · ")[0];
+  }
+  /* the newest attempt at an item never marked (no `logged`) */
+  function unmarked(item) {
+    return earlier(item, null).filter(function (d) { return !d.logged; })[0] || null;
+  }
+  function inkedPages(d) { return (d.pages || []).filter(function (id) { return (d.inked || {})[id]; }).length; }
   function earlierLink(item, except, label) {
     var list = earlier(item, except);
     if (!list.length) return null;
@@ -71,7 +82,8 @@
   function mount(host, opts) {
     opts = opts || {};
     var strip = opts.kind ? opts.kind === "strip" : (opts.marks || 0) <= 3;
-    var key = (opts.prefix || "answer") + ":" + I.uid() + ":" + (opts.q || "1");
+    /* opts.resume: an unmarked attempt's own doc, carried on (5.19 item 4) */
+    var key = opts.resume || (opts.prefix || "answer") + ":" + I.uid() + ":" + (opts.q || "1");
     /* opts.tools narrows the bar; opts.momentum takes undo away (Creatives' timed drills) */
     var dk = KOS.inkUI.desk({ dprCap: 2, noUndo: !!opts.momentum });
     var box = el("div", { class: "k-pad", "data-ui": "pad", "data-kind": strip ? "strip" : "page" });
@@ -99,13 +111,26 @@
     var page = I.blankPage(key, paper, strip ? STRIP_H : I.H);
     var sheet = el("div", { class: "k-ink-page k-pad-sheet", "data-paper": paper, "data-ui": "pad.sheet", role: "img", "aria-label": opts.title ? "Your answer to " + opts.title : "Your answer" });
     box.appendChild(sheet);
-    var sf = KOS.inkUI.surface(sheet, page, dk, { grow: { step: strip ? 200 : 400, max: strip ? I.H : I.H * 3 } });
+    var sf = null, inked = false, listeners = [];
+    function attach(p) {
+      page = p;
+      sheet.setAttribute("data-paper", p.paper || paper);
+      sf = KOS.inkUI.surface(sheet, page, dk, { grow: { step: strip ? 200 : 400, max: strip ? I.H : I.H * 3 } });
+    }
+    if (opts.resume) {
+      KOS.ui.state(box, "resumed", true);
+      I.listPages(key, function (err, pages) {
+        var p = !err && pages && pages[0];
+        if (p) inked = p.items.length > 0;
+        attach(p || page);
+        if (inked) listeners.forEach(function (fn) { try { fn(); } catch (e) { /* one listener */ } });
+      });
+    } else attach(page);
     dk.dropOn(sheet);
     var foot = el("div", { class: "k-pad-foot" });
     box.appendChild(foot);
     var early = opts.item ? earlierLink(opts.item, key) : null;
     if (early) foot.appendChild(early);
-    var inked = false, listeners = [];
     dk.onChange(function () {
       if (inked || !page.items.length) return;
       inked = true;
@@ -121,7 +146,7 @@
       logged: function (meta) { if (inked) I.setDocMeta(key, Object.assign({ logged: Date.now() }, meta || {})); },
       /* the pad as a JPEG (base64, no prefix) on white, for Kurenai */
       image: function (cb) {
-        sf.flush();
+        if (sf) sf.flush();
         KOS.inkExport.pageCanvas(page, { px: 1100 }, function (c) {
           var url = c.toDataURL("image/jpeg", 0.85);
           cb(url.slice(url.indexOf(",") + 1), url);
@@ -148,6 +173,25 @@
     var slot = el("div", { class: "k-pad-slot" });
     wrap.appendChild(slot);
     var pad = null, listeners = [];
+    /* an attempt written and never marked is still a draft (5.19 item 4,
+       design 44d): it is offered to carry on with its ink; a marked one
+       stays read-only under Earlier answers (invariant 132) */
+    var draft = opts.item ? unmarked(opts.item) : null;
+    var offer = draft ? el("div", { class: "k-pad-draft", "data-ui": "pad.draft" }, [
+      el("span", { class: "k-pad-draft-t" }, [el("b", { text: "✎ Continue your answer from " + dayWord(draft.at) }),
+        el("span", { class: "k-muted", text: " · not marked · " + inkedPages(draft) + (inkedPages(draft) === 1 ? " page" : " pages") + " of ink" })]),
+      el("button", { type: "button", class: "k-btn k-btn--sm k-btn--primary", "data-intent": "primary", "data-ui": "pad.continue", text: "Continue",
+        onclick: function () {
+          resumeKey = draft.key; offer.remove(); offer = null;
+          /* the blank pad gives way to the attempt carried on */
+          if (pad) { pad.destroy(); pad = null; }
+          setMode("write");
+        } }),
+      el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "pad.fresh", text: "Start fresh",
+        onclick: function () { offer.remove(); offer = null; } })
+    ]) : null;
+    var resumeKey = null;
+    if (offer) wrap.insertBefore(offer, slot);
     function paint() {
       seg.innerHTML = "";
       seg.appendChild(KOS.ui.tabs(MODES.map(function (m) {
@@ -155,7 +199,7 @@
       }), { variant: "workspace", label: "Answer with", className: "k-pad-seg" }));
       if (opts.textarea) opts.textarea.hidden = mode !== "type";
       if (mode === "write" && !pad) {
-        pad = mount(slot, opts);
+        pad = mount(slot, resumeKey ? Object.assign({}, opts, { resume: resumeKey }) : opts);
         pad.onInk(function () { listeners.forEach(function (fn) { fn(); }); });
       }
       if (pad) pad.node.hidden = mode !== "write";
@@ -365,7 +409,7 @@
     return chip;
   }
 
-  KOS.inkPad = { mount: mount, answer: answer, earlier: earlier, earlierLink: earlierLink, viewDoc: viewDoc, STRIP_H: STRIP_H };
+  KOS.inkPad = { mount: mount, answer: answer, earlier: earlier, unmarked: unmarked, earlierLink: earlierLink, viewDoc: viewDoc, STRIP_H: STRIP_H };
   KOS.inkAI = { readJson: readJson, mathText: mathText, typeset: typeset, reads: reads, ready: ready, online: online, ask: ask, markWithKurenai: markWithKurenai, checkWorking: checkWorking,
     compareBlurt: compareBlurt, suggestionChip: suggestionChip, plain: plain };
 })();

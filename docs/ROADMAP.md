@@ -1607,7 +1607,12 @@ needs a Claude Design prompt when it is scheduled.
    examples and their variations (and the Companion's), not only in the
    revision tools' items. Design turn 43 draws them on items; build them
    wherever a worked example is drawn.
-4. **Revision tools fitted to each subject.**
+4. **Revision tools fitted to each subject.** BUILT 16 November 2026 on
+   `feat/519-review` (invariant 111c, smoke155; not yet released): questions
+   on the schedule with the defaults agreed (grades from marks, 10 a
+   subject a day), the quiz's and an exam question's history, an unmarked
+   iPad attempt carried on, the review strip, and 78 several-step Maths
+   cards moved to exam questions with their schedules.
    - Flashcards are quick recall (under about 30 seconds a card): Maths
      multi-line problems move out of the decks into the quiz or exam
      questions.
