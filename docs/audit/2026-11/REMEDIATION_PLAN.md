@@ -503,8 +503,42 @@ show on Account & Cloud Sync (DI-20).
   folded CS leaf merged, not dropped), AA-13 and DI-09's first half (Reports,
   snapshots and pot pictures in the backup and checkpoints). Already fixed
   on inspection: HR-21, PR-27 (tick Undo), CR-31 (paid projects say so).
-- Still to do in W1: RC6 on the Fable account (DI-01, DI-05–08, DI-12,
-  DI-16, DI-17, DI-23 and the re-keyed references, DI-07); SH-27/EX-39, the
+- **W1 progress (16 Nov 2026 session, `feat/w1-rc6`, NOT merged to main,
+  NOT deployed; 6b4d8a6 and 8fa7dc9; smoke143 new, 17 steps; gate 151/151 on
+  the tree before the last two small edits, 150/151 after, the one failure
+  smoke146's clock step, which read the machine's clock on the suite's own
+  fixed day and is fixed in 8fa7dc9) — RC6, done on Fable.** FIXED
+  DI-01, DI-05, DI-06, DI-07, DI-08, DI-12, DI-16, DI-17, DI-23.
+  DI-01: the holder of a provider's lease runs a cloud-sync cycle before it
+  reads the provider and another before it gives the lease up, so a link
+  made on one device is on the next device before that device reads; under
+  it, a remote task with no link is LINKED to an unlinked reminder of the
+  same title in its list, never imported beside it, and two reminders on
+  one task fold into the smaller uid. DI-05: a link change reads Todoist's
+  changes first and the whole second, the mirror is never emptied, a done
+  sub-task a whole read leaves out is taken to be there, and a sub-task
+  with a remote id is never added again. DI-06: ticking a repeat Todoist
+  owns sends `item_close` (never a due string) and reads Todoist's next
+  date back in the same cycle; a rule only Todoist can read behaves the
+  same. DI-07: the merge's reference table lists every stored id (goals,
+  exam links, sessions and stretches, the running Focus session, the Daily
+  Review). DI-08: a 404 on an update unlinks and keeps the record; a
+  different account clears links and deletes nothing. DI-12: a refused
+  command is counted and worded on Connections and not resent unchanged; a
+  refused deletion waits a day. DI-16: the list is a three-way field.
+  DI-17: a reminder moved by hand out of its service's lists has its remote
+  copy DELETED there (the reminder stays; decided here because unlinking
+  alone re-imported it as a duplicate, and said on Connections); unlinking
+  or deleting a list only unlinks. DI-23: a queued deletion is skipped on
+  import. Invariants 33a, 157, 158 and 160 rewritten. NOT VERIFIED AGAINST
+  THE REAL SERVICES: every check is against the suite's fake Todoist,
+  Google Tasks and Google Calendar; two assumptions about Todoist are
+  untested live — that a whole read omits finished sub-tasks, and the shape
+  of a refused command's answer (`error_code` 22 / `http_code` 404 /
+  "not found" in `error_tag` or `error`). Found on the way: smoke112's fake
+  Todoist puts a new sub-task in no project (Todoist puts it in its
+  parent's), which is why the old suite never saw DI-05.
+- Still to do in W1: SH-27/EX-39, the
   seeded samples, with the first-run welcome (decision B8, W7/W9); DI-09's
   second half (a streamed backup for very large file sets).
 
@@ -656,6 +690,11 @@ acceptance figure "< ~4 MB". The rest is code, not data — the page modules
 (3.5 MB), core (2.9 MB) and labs — and loading modules on first use is its
 own batch (a missing module API throws where a missing data field only
 redraws): STAGE 2, to be scoped before it is started.
+Then (16 Nov) main (kos-integrity-11) merged into `feat/w2-lazy` (3c7b890,
+13d209d): the index regenerated for 5.19's content, smoke142 12/12; the
+full run in a temporary worktree was 148/151, the three being smoke146's
+clock step and smoke75/76, which needed the built C# runtime the worktree
+did not have; all three pass with it.
 STILL TO DO in W2: AP-01 stage 2 (page modules on first use). The list
 below is done: AA-01, AA-02, CR-01, SY-22
 (in-page tabs through `KOS.view.memo`), SY-11, SY-14, SY-23, SY-25, SY-27,
