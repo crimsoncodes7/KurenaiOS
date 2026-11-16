@@ -835,6 +835,70 @@ cluster, the Agenda (a design), and the page-by-page P2/P3s.
 - **Layout.** Selecting a transaction on iPhone or iPad portrait opens it
   (MG-25). Phone reachability is in W3.
 
+**W4 progress (16 Nov 2026, `feat/w4-import` at 39c1794, on Fable; NOT
+merged to main, NOT deployed; gate 155 / 155 in one run; smoke149 new, 12
+steps) — the import engine.** FIXED in the engine: MG-02, MG-03, MG-04,
+MG-05, MG-06, MG-07, MG-08, MG-24. The two Opus agents first started for it
+stopped at the usage limit before writing a file; the code is Fable's.
+- Reading a file is the new pure `KOS.moneyImport`
+  (`js/core/moneyimport.js`): bytes decoded as UTF-8 else Windows-1252; the
+  format sniffed from the text — CSV (delimiter sniffed over the first
+  lines, the header row FOUND under any preamble, a trailer left out,
+  trailing empty columns dropped), OFX/QFX (FITID as the identity,
+  LEDGERBAL as the closing balance), QIF, Santander's text export, and the
+  app's own export by its exact header. MG-06: an unquoted "£1,234.56"
+  split in two is joined again only when that makes the row fit its header;
+  a row that still does not fit is an error naming its cell count. MG-02: a
+  header the app cannot place returns `needs` and the dialog opens its
+  Columns step. All six Santander samples (now `tools/fixtures/money/`)
+  read and map themselves.
+- MG-08: an imported row's payee is the merchant made from the bank's
+  words (bank noise stripped, then the authored table
+  `js/data/money-merchants.js`, about 330 rows, else title-cased); its
+  category is a learned payee rule's, else the table's, else Other; the
+  bank's own words and Type stay on the row (`bank`). Learned rules are
+  `state.money.payees` (`learnPayee`), future imports only. A DD/SO row
+  that matched no rule comes back in the import's result as a suggested
+  recurring payment. The balance column is checked row by row at preview
+  (`reconcile`) and the statement's closing balance is kept ON THE IMPORT
+  RECORD, one figure; no balance is stored on a transaction (W1's rule for
+  `raw` stands).
+- MG-07: a row that pays a rule's occurrence (same direction, exact amount,
+  within 3 days; by name, or by amount alone only when each is the other's
+  one candidate) is written under the occurrence's own id and marks it
+  done; an occurrence already confirmed makes the row a duplicate and its
+  entry adopts the row's identity; Confirm offers a stored bank entry
+  ("Your statement already has this") and refuses an occurrence a
+  statement already paid; un-marking keeps a bank's row.
+- MG-05: `state.money.imports` (file, format, days, count, fingerprint,
+  closing balance); `undoBatch` removes exactly the import's rows and
+  record, re-opens the occurrences it paid and takes back an adoption;
+  `replaces` writes the new import first, then undoes the old;
+  `list({batch})`, `list({src})`, `importCounts`.
+- MG-24: the export gains `Pot direction` and `Entry`; the app's own file
+  reads back kind, category and pot BY NAME (made when missing, named in
+  the preview), tags, a transfer's direction and a split as one entry. The
+  eight-column export from before still reads (a split as its lines).
+- ADDED beyond the eight ids, because reading more formats opened it: the
+  same payment through ANOTHER export (a month as CSV, then as OFX) is
+  flagged "looks like one you have" by day, amount, direction and merchant,
+  counted like the identity; never between two rows that both carry a bank
+  id. Limit: a name OFX cuts at 32 characters ("GOOGLE *Googl") is not
+  recognised and is offered as new.
+- PAGES: only the smallest edits to the existing dialog (bytes not text,
+  the wider file types, no hard fail, Type/Balance/bank-id mapping, the
+  format and skipped lines named, the reconcile line, the Confirm offer).
+  STILL OPEN for the design-turn-39 pages (Opus): the Imports list with
+  Undo/Replace and the Source filter (MG-05's page), learning a rule when a
+  category is changed and Settings › Rules (MG-08's page), the suggested
+  recurring payment's prompt, "Replace the import of …" in the preview,
+  MG-10 (the preview still hides payee and amount at 1024), MG-25. Not
+  touched: MG-26, MG-33 (fixed in passing: the reason keeps its capital I),
+  MG-43 and the other W4 P2/P3s.
+- NOT VERIFIED on a real statement: every check is against the six sample
+  files and typed cases. Transfer rules (a set-aside into a pot) are not
+  matched to bank rows.
+
 **Every P0/P1 in W4: the fix, and how it's accepted**
 
 | Id | Sev | Fix | Acceptance |
