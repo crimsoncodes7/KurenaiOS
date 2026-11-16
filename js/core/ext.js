@@ -55,6 +55,9 @@
     if (!e.google || typeof e.google !== "object") e.google = {};
     if (!e.todoist || typeof e.todoist !== "object") e.todoist = {};
     if (!e.deletes || typeof e.deletes !== "object") e.deletes = {};
+    /* remote tasks a reminder was unlinked from by a move (DI-17): left
+       where they are and not imported while that reminder lives elsewhere */
+    if (!e.ignored || typeof e.ignored !== "object") e.ignored = {};
     var g = e.google;
     if (typeof g.on !== "boolean") g.on = false;
     if (typeof g.cal !== "boolean") g.cal = true;
@@ -256,8 +259,9 @@
     inbound(function () {
       adapters.forEach(function (a) { if (a.provider === p && a.forget) { try { a.forget(); } catch (e) { console.error("Kurenai OS: a connection could not be cleared", e); } } });
     });
-    var q = S().deletes;
+    var q = S().deletes, ig = S().ignored;
     Object.keys(q).forEach(function (k) { if (QUEUES[p].indexOf(q[k].p) !== -1) delete q[k]; });
+    Object.keys(ig).forEach(function (k) { if (QUEUES[p].indexOf(ig[k].p) !== -1) delete ig[k]; });
     store().save();
     return Promise.all(["sync", "mirror", "known", "ro", "status", "tasks", "lists", "tasklists"].map(function (n) { return delKv(key(p + "." + n)); }));
   }

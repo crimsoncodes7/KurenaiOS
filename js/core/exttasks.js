@@ -29,8 +29,9 @@
    add, an unlinked twin, two reminders on one task folded); a full read
    only adds; a repeat Todoist owns is closed there, not re-dated; the list
    is three-way like every field; a reminder moved out of its service's
-   lists takes its remote copy with it; "not found" unlinks and never
-   deletes; a refused command is named and not sent again unchanged. */
+   lists is only unlinked, its task left where it is and not imported
+   again; "not found" unlinks and never deletes; a refused command is
+   named and not sent again unchanged. */
 (function () {
   "use strict";
   window.KOS = window.KOS || {};
@@ -100,17 +101,22 @@
     });
     return n;
   }
-  /* DI-17: ONE reminder moved to another list by hand. A list is a
-     project, so leaving the list is leaving the project: inside one
-     service the push moves the task; to a list with no link, or the other
-     service's, the old copy is deleted there (the reminder lives on here,
-     and the other service makes its own) — left in place it came back as a
-     second reminder the next time it changed. Returns the link to keep. */
+  /* DI-17: ONE reminder moved to another list by hand. Inside one service
+     the push moves the task. To a list with no link, or the other
+     service's, the reminder is only UNLINKED (the user's decision, 16
+     November 2026): its task is left exactly where it is and NOTHING is
+     deleted there. Left at that, the task came straight back into its old
+     list as a second reminder, so it is remembered (`state.ext.ignored`,
+     with the reminder's uid) and not imported while that reminder lives
+     elsewhere. Moved back into the list the task belongs to, the two are
+     joined again; if the reminder is deleted, the task is the list's own
+     once more. Returns what is left of the link. */
+  function igKey(p, id) { return p + ":task:" + id; }
   function onMove(item, toListId) {
     var x = item.ext, lk = linkOfList(toListId);
     if (!x || !x.p) return x || null;
     if (lk && lk.p === x.p) return x;
-    if (x.id) X().queueDelete(x.p, "task", { id: x.id, list: x.list || null });
+    if (x.id) X().S().ignored[igKey(x.p, x.id)] = { p: x.p, id: x.id, list: x.list || null, uid: item.uid || null, at: Date.now() };
     return unlinked(x);
   }
   /* a different account was connected (KOS.ext.forget): every link to
@@ -214,30 +220,84 @@
     items().forEach(function (it) { if (it.ext && it.ext.p === p && it.ext.id) out[it.ext.id] = it; });
     return out;
   }
+  /* is this mapped field empty? */
+  function emptyField(k, v) {
+    if (k === "when") return !(v && v.due);
+    if (k === "tags" || k === "subs") return !(v && v.length);
+    return !v;                                         // notes, due, priority 0
+  }
+  /* two notes kept as one: neither is dropped */
+  function bothNotes(a, b) {
+    a = String(a || ""); b = String(b || "");
+    if (!b || a.indexOf(b) !== -1) return a;
+    if (!a || b.indexOf(a) !== -1) return b;
+    return a + "\n" + b;
+  }
   /* DI-01, the floor under the lease: two reminders linked to ONE task
      (a device read the provider before the other device's link reached
      it) fold into one. Every device keeps the same one, the smaller uid,
-     so two devices folding at once agree; the other's alerts and
-     completions are kept on it. Nothing is deleted there. */
-  function foldTwins(p) {
-    var seen = {}, n = 0;
-    items().slice().forEach(function (it) {
+     so two devices folding at once agree. NOTHING WITH A VALUE IS LOST:
+     where the kept one has no notes, date, time, repeat, priority, tags
+     or alerts it takes the other's; both notes are kept when they differ;
+     sub-tasks, tags and completions are joined. Nothing is deleted there.
+     It removes a record, so it runs only after a VERIFIED checkpoint
+     (KOS.backup): with none, nothing is folded and the cycle goes on. */
+  function twinGroups(p) {
+    var seen = {}, out = [];
+    items().forEach(function (it) {
       if (!it.ext || it.ext.p !== p || !it.ext.id) return;
-      var a = seen[it.ext.id];
-      if (!a) { seen[it.ext.id] = it; return; }
-      var first = String(a.uid || "") < String(it.uid || "") || (String(a.uid || "") === String(it.uid || "") && a.id < it.id);
-      var keep = first ? a : it, drop = first ? it : a;
-      X().inbound(function () {
-        var patch = {}, cs = (keep.completions || []).concat(drop.completions || []).filter(function (x, i, arr) { return arr.indexOf(x) === i; }).sort(function (x, y) { return x - y; });
-        if (!(keep.alerts || []).length && (drop.alerts || []).length) patch.alerts = drop.alerts.slice();
-        if (cs.length !== (keep.completions || []).length) patch.completions = cs;
-        if (Object.keys(patch).length) KOS.reminders.update(keep.id, patch);
-        KOS.reminders.remove(drop.id);
-      });
-      seen[it.ext.id] = KOS.reminders.get(keep.id) || keep;
-      n++;
+      var g = seen[it.ext.id];
+      if (!g) { seen[it.ext.id] = [it]; return; }
+      g.push(it);
+      if (g.length === 2) out.push(g);
     });
-    return n;
+    return out;
+  }
+  function foldInto(keepId, dropId) {
+    var keep = KOS.reminders.get(keepId), drop = KOS.reminders.get(dropId);
+    if (!keep || !drop) return;
+    var patch = {};
+    var notes = bothNotes(keep.notes, drop.notes);
+    if (notes !== (keep.notes || "")) patch.notes = notes;
+    if (!keep.due && drop.due) { patch.due = drop.due; patch.dueTime = drop.dueTime || null; patch.recur = drop.recur || null; patch.recurDay = drop.recurDay || null; }
+    else if (keep.due && !keep.dueTime && drop.dueTime && drop.due === keep.due) patch.dueTime = drop.dueTime;
+    if (!keep.priority && drop.priority) patch.priority = drop.priority;
+    var tags = (keep.tags || []).concat((drop.tags || []).filter(function (t) { return (keep.tags || []).indexOf(t) === -1; }));
+    if (tags.length !== (keep.tags || []).length) patch.tags = tags;
+    var st = R(), subs = (keep.subs || []).slice();
+    (drop.subs || []).forEach(function (d2) {
+      var same = subs.filter(function (k2) { return (d2.x && k2.x === d2.x) || k2.text === d2.text; })[0];
+      if (same) { if (d2.done && !same.done) subs[subs.indexOf(same)] = Object.assign({}, same, { done: true }); if (d2.x && !same.x) subs[subs.indexOf(same)] = Object.assign({}, subs[subs.indexOf(same)], { x: d2.x }); }
+      else subs.push({ id: st.nextId++, text: d2.text, done: !!d2.done, x: d2.x || null });
+    });
+    if (!X().same(subs, keep.subs || [])) patch.subs = subs;
+    var alerts = (keep.alerts || []).concat((drop.alerts || []).filter(function (a) { return (keep.alerts || []).indexOf(a) === -1; }));
+    if (alerts.length !== (keep.alerts || []).length) patch.alerts = alerts;
+    var cs = (keep.completions || []).concat(drop.completions || []).filter(function (x, i, arr) { return arr.indexOf(x) === i; }).sort(function (x, y) { return x - y; });
+    if (cs.length !== (keep.completions || []).length) patch.completions = cs;
+    if (Object.keys(patch).length) KOS.reminders.update(keep.id, patch);
+    KOS.reminders.remove(drop.id);
+  }
+  function foldTwins(p, counts) {
+    var groups = twinGroups(p), B = KOS.backup;
+    if (!groups.length) return Promise.resolve(0);
+    var n = groups.reduce(function (a, g) { return a + g.length - 1; }, 0);
+    var held = function () { if (counts) counts.foldHeld = n; return 0; };
+    if (!B || !B.withCheckpoint) return Promise.resolve(held());
+    return Promise.resolve(B.withCheckpoint("Before joining " + n + " duplicate reminder" + (n === 1 ? "" : "s") + " (" + LABEL[p] + ")", function () {
+      X().inbound(function () {
+        twinGroups(p).forEach(function (g) {
+          var order = g.slice().sort(function (a, b) { return String(a.uid || "") < String(b.uid || "") ? -1 : String(a.uid || "") > String(b.uid || "") ? 1 : a.id - b.id; });
+          order.slice(1).forEach(function (d2) { foldInto(order[0].id, d2.id); });
+        });
+      });
+      KOS.store.save();
+      return n;
+    })).then(function (r) {
+      if (!r || !r.ok) return held();
+      if (counts) counts.folded = n;
+      return n;
+    }, held);
   }
   /* a reminder still linked to a project NO list links any more (its list
      was unlinked before a list's unlinking cleared them): unlinked now */
@@ -253,20 +313,58 @@
      belongs to, not linked yet and not finished, with the same title: the
      same thing, met from both sides (made here and pushed by another
      device whose link has not arrived; or made in both places before the
-     list was linked). It is linked, never imported as a second one. */
-  function unlinkedTwin(p, remote, listId) {
-    return items().filter(function (it) {
-      return !(it.ext && (it.ext.id || it.ext.pending)) && !it.done && sameList(it.listId, listId) &&
+     list was linked). It is linked, never imported as a second one.
+     ONE TO ONE: within a cycle a reminder is joined to at most one task
+     and a task to at most one reminder (`claims`); of several reminders
+     with that title the one with the task's date is taken, else the
+     oldest, and the rest are left to be sent as their own tasks. */
+  var claims = { local: {}, remote: {} };
+  function newCycle() { claims = { local: {}, remote: {} }; }
+  function unlinkedTwin(p, rid, remote, listId) {
+    if (claims.remote[p + ":" + rid]) return null;
+    var c = items().filter(function (it) {
+      return !claims.local[it.id] && !(it.ext && (it.ext.id || it.ext.pending)) && !it.done && sameList(it.listId, listId) &&
         it.title === remote.title && X().uidOk(it.uid);
-    })[0] || null;
+    });
+    if (!c.length) return null;
+    var due = p === "todoist" ? (remote.when && remote.when.due) || null : remote.due || null;
+    var pick = c.filter(function (it) { return (it.due || null) === due; })[0] || c.slice().sort(function (a, b) { return a.id - b.id; })[0];
+    claims.local[pick.id] = true; claims.remote[p + ":" + rid] = true;
+    return pick;
   }
-  /* the twin's own sub-tasks take the ids of the remote ones they match */
-  function adoptSubs(item, kids, nameKey) {
-    var used = {};
-    return (item.subs || []).map(function (sub) {
+  /* the reminder's own sub-tasks take the ids of the remote ones they
+     match by text; a remote sub-task it does not have is ADDED to it (the
+     push would otherwise have deleted it there) */
+  function adoptSubs(item, kids, nameKey, doneOf) {
+    var used = {}, st = R();
+    var out = (item.subs || []).map(function (sub) {
       var k = kids.filter(function (c) { return !used[c.id] && (c[nameKey] || "") === sub.text; })[0];
       if (k) used[k.id] = true;
       return Object.assign({}, sub, { x: k ? k.id : sub.x || null });
+    });
+    kids.forEach(function (c) { if (!used[c.id]) out.push({ id: st.nextId++, text: c[nameKey] || "", done: doneOf ? !!doneOf(c) : false, x: c.id }); });
+    return out;
+  }
+  /* join(item, …): link a reminder that is not linked to the task that is
+     the same thing. NOTHING WITH A VALUE IS LOST ON EITHER SIDE: where the
+     reminder has none (no notes, date, priority, tags) it takes the
+     task's; both notes are kept when they differ; sub-tasks are joined;
+     and what the reminder has that the task lacks goes up with the push
+     (the base is the task as it is). */
+  function join(item, p, rid, remote, kids, nameKey, doneOf) {
+    var L = fromLocal(p, item), take = [];
+    FIELDS[p].forEach(function (k) {
+      if (k === "done" || k === "title" || k === "subs" || k === "notes") return;
+      if (emptyField(k, L[k]) && !emptyField(k, remote[k])) take.push(k);
+    });
+    X().inbound(function () {
+      var patch = toPatch(p, remote, take, item);
+      var rs = patch.ext && patch.ext.rs;
+      patch.notes = bothNotes(item.notes, remote.notes);
+      patch.subs = adoptSubs(item, kids, nameKey, doneOf);
+      patch.ext = linkOf(item, p, rid, remote);
+      if (rs) patch.ext.rs = rs;
+      KOS.reminders.update(item.id, patch);
     });
   }
   function setExt(item, patch) {
@@ -287,12 +385,29 @@
     var fields = FIELDS[p];
     if (remoteDeleted) {
       if (local) { X().inbound(function () { KOS.reminders.remove(local.id); }); counts.pulled++; }
+      else delete X().S().ignored[igKey(p, rid)];
       return;
     }
     if (!local) {
       /* DI-23: deleted here, its deletion still waiting to be sent. An edit
          made there meanwhile must not bring it back for a cycle. */
       if (X().S().deletes[p + ":task:" + rid]) return;
+      /* DI-17: a task its reminder was unlinked from by a move. While
+         that reminder lives elsewhere the task is left alone and unseen;
+         back in this list, the two are joined; the reminder gone, the
+         task is the list's own again. */
+      var ig = X().S().ignored[igKey(p, rid)];
+      if (ig) {
+        var mine = items().filter(function (it) { return !!ig.uid && it.uid === ig.uid; })[0];
+        if (mine && !(mine.ext && (mine.ext.id || mine.ext.pending)) && sameList(mine.listId, listId)) {
+          join(mine, p, rid, remote, kids, nameKey, doneOf);
+          delete X().S().ignored[igKey(p, rid)];
+          counts.pulled++;
+          return;
+        }
+        if (mine) return;
+        delete X().S().ignored[igKey(p, rid)];
+      }
       /* a reminder this device already SENT, whose add came back without an
          id (pending): this is it. Linked, never imported as a second one. */
       var pend = p === "todoist" ? items().filter(function (it) {
@@ -309,13 +424,9 @@
         return;
       }
       if (remote.done) return;                       // finished there before the link: not imported
-      var twin = unlinkedTwin(p, remote, listId);
+      var twin = unlinkedTwin(p, rid, remote, listId);
       if (twin) {
-        /* base = what is there: whatever differs here is this app's, and
-           the push sends it */
-        X().inbound(function () {
-          KOS.reminders.update(twin.id, { subs: adoptSubs(twin, kids, nameKey), ext: linkOf(twin, p, rid, remote) });
-        });
+        join(twin, p, rid, remote, kids, nameKey, doneOf);
         counts.pulled++;
         return;
       }
@@ -356,10 +467,27 @@
       return r.json || {};
     });
   }
-  /* a Todoist command's answer: null when it was done, else what was said */
-  function tdErr(st) { return st === "ok" ? null : (st && typeof st === "object" ? st : { error: String(st) }); }
-  function tdGone(e) { return !!e && (e.http_code === 404 || e.error_code === 22 || /not[ _]?found/i.test(String(e.error_tag || "") + " " + String(e.error || ""))); }
-  function tdWhy(e) { return String((e && (e.error || e.error_tag)) || "Todoist refused it").slice(0, 140); }
+  /* A Todoist command's answer: null when it was done, else what was said.
+     The error's SHAPE is not relied on (DI-12): an object, a bare string,
+     a number, null or anything else reads as a refusal, worded from
+     whatever text it carries and "Todoist refused it" when it carries
+     none. Nothing here can throw. */
+  function txt(v) { return typeof v === "string" ? v : typeof v === "number" ? String(v) : ""; }
+  function tdErr(st) {
+    if (st === "ok") return null;
+    if (st && typeof st === "object" && !Array.isArray(st)) return st;
+    return { error: txt(st) };
+  }
+  function tdGone(e) {
+    if (!e || typeof e !== "object") return false;
+    return e.http_code === 404 || e.error_code === 22 || /not[ _]?found/i.test(txt(e.error_tag) + " " + txt(e.error));
+  }
+  function tdWhy(e) {
+    var w = "";
+    if (e && typeof e === "object") w = txt(e.error) || txt(e.error_tag) || (e.error && typeof e.error === "object" ? txt(e.error.message) : "") || txt(e.message);
+    w = w.replace(/\s+/g, " ").trim();
+    return (w && w !== "ok" ? w : "Todoist refused it").slice(0, 140);
+  }
   /* what a reminder would send, as one word: a refusal is remembered
      against it and not sent again until the reminder changes (DI-12) */
   function sigOf(L, lk, cn) { return X().hashHex(JSON.stringify(L) + "|" + (lk ? lk.id : "") + "|" + (cn || 0)); }
@@ -388,11 +516,13 @@
     var counts = { pulled: 0, pushed: 0, created: 0, deleted: 0 }, done = [];
     var KS = X().key("todoist.sync"), KM = X().key("todoist.mirror");
     var linked = remoteListsLinked("todoist");
-    foldTwins("todoist");
-    orphans("todoist", linked);
+    newCycle();
     var q = X().S().deletes;
     var delKeys = Object.keys(q).filter(function (k) { return q[k].p === "todoist"; });
-    return Promise.all([X().kv(KS), X().kv(KM)]).then(function (a) {
+    return foldTwins("todoist", counts).then(function () {
+      orphans("todoist", linked);
+      return Promise.all([X().kv(KS), X().kv(KM)]);
+    }).then(function (a) {
       var st = a[0] || {}, mirror = (a[1] && a[1].items) || {};
       var linkSig = Object.keys(linked).sort().join(",");
       var token = st.token || null, projects = null, dead = {};
@@ -490,6 +620,19 @@
       if (!it.ext || it.ext.p !== "todoist" || !it.ext.id) {
         if (!lk || lk.p !== "todoist" || it.done) return;
         if (!X().uidOk(it.uid)) return;
+        /* DI-17: unlinked by a move and back in the list its task is in */
+        var igs = X().S().ignored, bk = Object.keys(igs).filter(function (k) {
+          var g = igs[k], m0 = g && g.p === "todoist" ? mirror[g.id] : null;
+          return !!m0 && g.uid === it.uid && !m0.is_deleted && !m0.parent_id && m0.project_id === lk.id;
+        })[0];
+        if (bk) {
+          var m1 = mirror[igs[bk].id], f1 = fromTodoist(m1, mirror);
+          f1.list = m1.project_id;
+          join(it, "todoist", m1.id, f1, childrenOf(mirror, m1.id, "child_order"), "content", function (c) { return !!c.checked; });
+          delete igs[bk];
+          counts.pulled++;
+          return;                                    // what differs here goes up with the next cycle
+        }
         if (it.ext && it.ext.p === "todoist" && it.ext.refused === sig) { refuse(it.ext.why); return; }
         var gen = genOf(it), g0 = +(it.ext && it.ext.gen) || 0;
         var temp = X().uuidOf("temp|" + it.uid + gen);
@@ -630,8 +773,11 @@
         return X().heartbeat("todoist");
       }).then(function () {
         return tdSync(tok, { commands: ch }).then(function (r) {
-          Object.assign(status, r.sync_status || {});
-          Object.assign(map, r.temp_id_mapping || {});
+          /* only a plain object is read as answers; a command with no
+             answer is simply not booked, and goes again next cycle */
+          var plain = function (o) { return o && typeof o === "object" && !Array.isArray(o) ? o : {}; };
+          Object.assign(status, plain(r && r.sync_status));
+          Object.assign(map, plain(r && r.temp_id_mapping));
           book();
         });
       });
@@ -644,9 +790,11 @@
     var counts = { pulled: 0, pushed: 0, created: 0, deleted: 0 }, done = [];
     var KM = X().key("google.tasks");
     var linked = remoteListsLinked("gtasks");
-    foldTwins("gtasks");
-    orphans("gtasks", linked);
-    return X().kv(KM).then(function (saved) {
+    newCycle();
+    return foldTwins("gtasks", counts).then(function () {
+      orphans("gtasks", linked);
+      return X().kv(KM);
+    }).then(function (saved) {
       var mir = (saved && saved.lists) || {};
       Object.keys(mir).forEach(function (l) { if (!linked.hasOwnProperty(l)) delete mir[l]; });
       return Object.keys(linked).reduce(function (chain, l) {
@@ -717,7 +865,24 @@
               return gtCreate(tok, KOS.reminders.get(it.id), lk, counts);
             });
           }
-          if (!linkedHere) return lk && lk.p === "gtasks" && !it.done ? gtCreate(tok, it, lk, counts) : null;
+          if (!linkedHere) {
+            if (!(lk && lk.p === "gtasks") || it.done) return null;
+            /* DI-17: unlinked by a move and back in the list its task is in */
+            var igs = X().S().ignored, tasks = (mir[lk.id] && mir[lk.id].tasks) || {};
+            var bk = Object.keys(igs).filter(function (k) {
+              var g = igs[k], t0 = g && g.p === "gtasks" ? tasks[g.id] : null;
+              return !!t0 && g.uid === it.uid && !t0.deleted && !t0.parent;
+            })[0];
+            if (bk) {
+              var t1 = tasks[igs[bk].id], f1 = fromGtask(t1, tasks);
+              f1.list = lk.id;
+              join(it, "gtasks", t1.id, f1, childrenOf(tasks, t1.id, "position"), "title", function (c) { return c.status === "completed"; });
+              delete igs[bk];
+              counts.pulled++;
+              return null;
+            }
+            return gtCreate(tok, it, lk, counts);
+          }
           var B = it.ext.base || {}, diff = fields.filter(function (k) { return !X().same(L[k], B[k]); });
           if (!diff.length) return null;
           var list = it.ext.list, path = "/lists/" + encodeURIComponent(list) + "/tasks/";

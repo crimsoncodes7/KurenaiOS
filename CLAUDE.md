@@ -2385,10 +2385,16 @@ source comments and audit notes refer to it.
     ONE REMINDER, ONE TASK (DI-01) — under the lease rule (157) the import
     knows its own: a remote task with no link here is LINKED to a reminder
     of the same title in its list that is not linked yet and not done
-    (`unlinkedTwin`, its sub-tasks matched by text), never imported beside
-    it, and two reminders found on one task fold into the smaller `uid`
-    (`foldTwins`, the same choice on every device; nothing is deleted
-    there). A FULL READ ONLY ADDS (DI-05): Todoist's whole read (`*`)
+    (`unlinkedTwin`), never imported beside it — ONE TO ONE within a cycle
+    (a reminder joins at most one task and a task at most one reminder;
+    of several the one with the task's date, else the oldest) and LOSING
+    NOTHING on either side (`join`: an empty field here takes the task's,
+    both notes are kept when they differ, sub-tasks are joined, and what
+    only this reminder has goes up). Two reminders found on one task fold
+    into the smaller `uid` (`foldTwins`, the same choice on every device)
+    with every non-empty field of the other kept, only after a VERIFIED
+    checkpoint (`KOS.backup.withCheckpoint`; with none nothing is folded
+    and Connections says so); nothing is deleted there. A FULL READ ONLY ADDS (DI-05): Todoist's whole read (`*`)
     holds what is still open, so when the linked projects change the cycle
     reads the changes first with its own token (which does name deletions
     and completions) and the whole second; the mirror is never emptied, a
@@ -2400,24 +2406,36 @@ source comments and audit notes refer to it.
     (`ext.close`; `ext.cn` names each command once; `ext.closeDue` is the
     date it was rolled to) and the push sends `item_close`, never a due
     string; Todoist's next date is read back in the same cycle
-    (`KOS.ext.soon` asks for one at once), and Undo before the sync takes
-    the close back. A rule only Todoist can read keeps its date until
+    (`KOS.ext.soon` asks for one at once) and REPLACES the date rolled
+    here, which is only a stand-in until then and is never advanced
+    again; a close made in Todoist brings its date down the same way,
+    with no roll here; Undo before the sync takes the close back. A rule only Todoist can read keeps its date until
     Todoist's arrives. THE LIST IS THREE-WAY (DI-16): `ext.list` is the
     project both sides last agreed on; a task moved there moves the
     reminder to the list that project is linked to, a reminder moved here
-    moves the task, both: this app's. A LIST IS A PROJECT (DI-17): a
-    reminder moved by hand to a list with no link, or the other service's,
-    gives up its link and its remote copy is DELETED there
-    (`KOS.extTasks.onMove`, called by `KOS.reminders.update`; the reminder
-    lives on, and the other service makes its own); unlinking a list,
-    linking it to the other service or deleting it only UNLINKS its
-    reminders (`unlinkList`), kept on both sides. What is left of a given-up
+    moves the task, both: this app's. A MOVE OUT ONLY UNLINKS (DI-17, the
+    user's decision of 16 November 2026): a reminder moved by hand to a
+    list with no link, or the other service's, gives up its link and its
+    task is LEFT WHERE IT IS, never deleted (`KOS.extTasks.onMove`, called
+    by `KOS.reminders.update`). That task is remembered
+    (`state.ext.ignored["<p>:task:<id>"] = {uid, list}`, synced) and not
+    imported while its reminder lives elsewhere, so it never returns as a
+    second reminder; moved back into the list the task is in, the two are
+    joined again (never a second task); once the reminder is deleted the
+    task is the list's own again. Unlinking a list, linking it to the
+    other service or deleting it only UNLINKS its reminders
+    (`unlinkList`), kept on both sides. What is left of a given-up
     link is `ext = {gen}`, so a later add is a new command and never the
     first add again. A REFUSED COMMAND IS NAMED (DI-12): a command Todoist
     answers with an error is counted and worded on Connections ("1 change
     refused (…)"), remembered against what was sent (`ext.refused`) and not
     sent again until the reminder changes; a refused deletion is asked
-    again a day later.
+    again a day later. The SHAPE of Todoist's answers is not relied on:
+    any answer that is not `"ok"` is a refusal worded from whatever text
+    it carries ("Todoist refused it" when none), an answer with no
+    answers in it books nothing, and nothing in the push can throw; a
+    whole read that did hold finished sub-tasks gives the same result as
+    one that does not.
 
 ### Achievements, the Badge Wall (161–163; docs/achievements-plan.md)
 

@@ -9,8 +9,9 @@
          before a provider is read and sent before the lease is given up;
          a second device whose link arrives with it imports nothing; a
          reminder not linked yet is LINKED to its task, never imported as a
-         second one; two reminders on one task fold into the same one on
-         every device.
+         second one, one to one, losing nothing on either side; two
+         reminders on one task fold into the same one on every device,
+         after a verified checkpoint, with every value kept.
      B · DI-05 — A FULL READ ONLY ADDS. Linking another list re-reads
          Todoist whole; a ticked sub-task (which a full read leaves out) is
          neither removed here nor sent again as a new one.
@@ -30,9 +31,11 @@
          deletion waits a day.
      G · DI-16 — A MOVE MADE IN TODOIST moves the reminder here and is not
          undone; a move made here moves the task.
-     H · DI-17 — A REMINDER MOVED OUT OF ITS SERVICE'S LISTS takes its
-         remote copy with it and is not copied or orphaned; unlinking or
-         deleting a list unlinks its reminders and deletes nothing there.
+     H · DI-17 — A REMINDER MOVED OUT OF ITS SERVICE'S LISTS is only
+         unlinked: its task is left where it is, never deleted, and does
+         not come back as a second reminder; moved back, the two are
+         joined again. Unlinking or deleting a list unlinks its reminders
+         and deletes nothing there.
      I · DI-23 — A REMINDER DELETED HERE does not come back for a cycle
          when its task was edited there meanwhile.
 
@@ -69,7 +72,7 @@ function fakeTodoist(log) {
       cmds.forEach((c) => {
         if (st.uuids[c.uuid]) { out.sync_status[c.uuid] = "ok"; Object.assign(out.temp_id_mapping, st.uuids[c.uuid]); return; }
         const a = c.args, map = {};
-        if (a.id && st.reject[a.id]) { out.sync_status[c.uuid] = st.reject[a.id]; return; }
+        if (a.id && Object.prototype.hasOwnProperty.call(st.reject, a.id)) { out.sync_status[c.uuid] = st.reject[a.id]; return; }
         const real = (id) => out.temp_id_mapping[id] || id;
         if (c.type === "item_add") {
           /* a sub-task is in its parent's project, as in Todoist */
@@ -96,7 +99,8 @@ function fakeTodoist(log) {
     if (log) log.push("td:read");
     const types = JSON.parse(form.get("resource_types") || "[]");
     /* a whole read ("*") holds only what is open; a read by token holds every change */
-    if (types.indexOf("items") !== -1) out.items = Object.values(st.items).filter((i) => i.seq > since && (tok !== "*" || (!i.checked && !i.is_deleted)));
+    /* `fullWithDone`: a whole read that DOES hold finished sub-tasks (not what Todoist documents; the app must cope either way) */
+    if (types.indexOf("items") !== -1) out.items = Object.values(st.items).filter((i) => i.seq > since && (tok !== "*" || (!i.is_deleted && (!i.checked || (st.fullWithDone && i.parent_id)))));
     if (types.indexOf("projects") !== -1) out.projects = st.projects;
     out.full_sync = tok === "*";
     out.sync_token = "t" + st.seq;
@@ -273,20 +277,72 @@ step("A · a second device whose link arrives with the lease imports nothing; an
   eq(types(env), [], "and C added nothing to Todoist");
   eq(Object.values(env.td.items).filter((i) => i.content === "Made on A" && !i.is_deleted).length, 1, "one task in Todoist");
 });
-step("A · two reminders on one task fold into the smaller uid, on every device alike, and delete nothing there", async () => {
+step("A · two reminders on one task fold into the smaller uid after a verified checkpoint, and nothing with a value is lost", async () => {
   const env = world(), d = await school(env);
   const K = d.K;
   const uids = ["bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb", "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"];
-  d.X.inbound(() => {
-    K.reminders.add({ title: "Twice", listId: d.list.id, uid: uids[0], alerts: [10], completions: [1790000000000], ext: { p: "todoist", id: "T60", list: "P1", base: null } });
-    K.reminders.add({ title: "Twice", listId: d.list.id, uid: uids[1], ext: { p: "todoist", id: "T60", list: "P1", base: null } });
+  const two = () => d.X.inbound(() => {
+    K.reminders.add({ title: "Twice", listId: d.list.id, uid: uids[0], notes: "Bring the calculator", due: "2026-11-03", dueTime: "09:00", priority: 2, tags: ["cs"], alerts: [10], completions: [1790000000000],
+      subs: [{ id: 901, text: "Section A", done: true, x: "T61" }, { id: 902, text: "Section B", done: false, x: "T62" }], ext: { p: "todoist", id: "T60", list: "P1", base: null } });
+    K.reminders.add({ title: "Twice", listId: d.list.id, uid: uids[1], notes: "Room 12", tags: ["exam"],
+      subs: [{ id: 903, text: "Section A", done: false, x: "T61" }, { id: 904, text: "Check answers", done: false }], ext: { p: "todoist", id: "T60", list: "P1", base: null } });
   });
+  two();
   eq(d.rem("Twice").length, 2, "two before");
-  eq(K.extTasks.foldTwins("todoist"), 1, "one fold");
+  /* with no verified checkpoint nothing is folded */
+  const real = K.backup.withCheckpoint;
+  K.backup.withCheckpoint = () => Promise.resolve({ ok: false, reason: "no room" });
+  let counts = {};
+  eq([await K.extTasks.foldTwins("todoist", counts), d.rem("Twice").length, counts.foldHeld], [0, 2, 1], "held without a backup");
+  K.backup.withCheckpoint = real;
+  const before = (await K.backup.list()).length;
+  counts = {};
+  eq([await K.extTasks.foldTwins("todoist", counts), counts.folded], [1, 1], "one fold");
+  await d.app.settle();
+  assert((await K.backup.list()).length === before + 1, "a checkpoint was taken first");
   const left = d.rem("Twice");
-  eq(left.map((x) => [x.uid, x.alerts, x.completions]), [[uids[1], [10], [1790000000000]]], "the smaller uid stays, with the other's alerts and history");
+  eq(left.length, 1, "one left");
+  const k = left[0];
+  eq([k.uid, k.notes, k.due, k.dueTime, k.priority, k.tags, k.alerts, k.completions],
+    [uids[1], "Room 12\nBring the calculator", "2026-11-03", "09:00", 2, ["exam", "cs"], [10], [1790000000000]], "the smaller uid stays, with both notes and the other's date, time, priority, tags, alert and history");
+  eq(k.subs.map((x) => [x.text, x.done, x.x || null]), [["Section A", true, "T61"], ["Check answers", false, null], ["Section B", false, "T62"]], "the sub-tasks are joined, a tick on either kept");
   eq(Object.keys(d.X.S().deletes), [], "nothing is queued for deletion there");
-  eq(K.extTasks.foldTwins("todoist"), 0, "a second pass folds nothing");
+  eq(await K.extTasks.foldTwins("todoist", {}), 0, "a second pass folds nothing");
+});
+step("A · one to one: a task joins at most one reminder and a reminder at most one task; a join loses nothing on either side", async () => {
+  const env = world(), d = await school(env), K = d.K;
+  /* two reminders with one title, one task with it: the one with the task's date is joined, the other goes up as its own */
+  const a1 = K.reminders.add({ title: "Same", listId: d.list.id });
+  const a2 = K.reminders.add({ title: "Same", listId: d.list.id, due: "2026-11-09" });
+  env.td.put({ id: "T70", content: "Same", project_id: "P1", due: { date: "2026-11-09", is_recurring: false, string: "9 Nov" } });
+  await d.sync();
+  eq([K.reminders.get(a2.id).ext.id, K.reminders.get(a1.id).ext.id !== "T70" && !!K.reminders.get(a1.id).ext.id], ["T70", true], "the dated one took the task; the other became a task of its own");
+  eq(d.rem("Same").length, 2, "still two reminders");
+  eq(Object.values(env.td.items).filter((i) => i.content === "Same" && !i.is_deleted).length, 2, "and two tasks");
+  /* two tasks with one title, one reminder: one is joined, the other imported */
+  const b1 = K.reminders.add({ title: "Pair", listId: d.list.id });
+  env.td.put({ id: "T71", content: "Pair", project_id: "P1" });
+  env.td.put({ id: "T72", content: "Pair", project_id: "P1" });
+  env.td.calls.length = 0;
+  await d.sync();
+  const pairs = d.rem("Pair");
+  eq([pairs.length, pairs.map((x) => x.ext.id).sort(), pairs.some((x) => x.id === b1.id)], [2, ["T71", "T72"], true], "one joined, one imported, each task on one reminder");
+  eq(types(env).filter((t) => t === "item_add"), [], "nothing was added there");
+  /* nothing with a value is lost on either side */
+  const c1 = K.reminders.add({ title: "Lab report", listId: d.list.id, notes: "Mine", tags: ["cs"] });
+  K.reminders.subAdd(c1.id, "Method"); K.reminders.subAdd(c1.id, "Only here");
+  env.td.put({ id: "T80", content: "Lab report", project_id: "P1", description: "Theirs", priority: 3, labels: ["lab"], due: { date: "2026-11-12T14:00:00", is_recurring: false, string: "12 Nov 14:00" } });
+  env.td.put({ id: "T81", content: "Method", project_id: "P1", parent_id: "T80", child_order: 1 });
+  env.td.put({ id: "T82", content: "Only there", project_id: "P1", parent_id: "T80", child_order: 2 });
+  env.td.calls.length = 0;
+  await d.sync();
+  const lab = K.reminders.get(c1.id);
+  eq([lab.ext.id, lab.notes, lab.due, lab.dueTime, lab.priority, lab.tags], ["T80", "Mine\nTheirs", "2026-11-12", "14:00", 2, ["cs"]], "it took the task's date and priority, kept its own tags and both notes");
+  eq(lab.subs.map((x) => x.text), ["Method", "Only here", "Only there"], "the sub-tasks of both");
+  eq(types(env).filter((t) => t === "item_delete"), [], "nothing was deleted there");
+  const t80 = env.td.items.T80;
+  eq([t80.description, t80.labels, Object.values(env.td.items).filter((i) => i.parent_id === "T80" && !i.is_deleted).map((i) => i.content).sort()],
+    ["Mine\nTheirs", ["cs"], ["Method", "Only here", "Only there"]], "and the task has both notes and every sub-task");
 });
 
 /* ---------------- B ---------------- */
@@ -332,6 +388,15 @@ step("B · linking another list re-reads Todoist whole: a ticked sub-task is nei
   eq(types(env), [], "and the new device sent nothing");
   await b.sync();
   eq([b.rem("Essay")[0].subs.length, types(env)], [3, []], "nor on its next cycle");
+  /* and if a whole read DID hold finished sub-tasks, the result is the same: one of each, nothing sent */
+  env.td.fullWithDone = true;
+  const c = await school(env, 8);
+  c.cloud = () => { if (!c.rem("Essay").length) c.X.inbound(() => c.K.reminders.add({ title: onA.title, listId: c.list.id, uid: onA.uid, subs: onA.subs, ext: onA.ext })); };
+  env.td.calls.length = 0;
+  await c.sync();
+  eq(c.rem("Essay")[0].subs.map((s) => [s.text, s.done]), [["Plan", true], ["Draft", false], ["Proofread", false]], "a whole read WITH the finished sub-task: still one of each");
+  eq(types(env), [], "and nothing sent");
+  env.td.fullWithDone = false;
 });
 
 /* ---------------- C ---------------- */
@@ -360,6 +425,21 @@ step("C · ticking a repeat Todoist owns sends item_close, never a due string, a
   env.td.calls.length = 0;
   await d.sync();
   eq(types(env), [], "the echo sends nothing");
+  eq(K.reminders.get(r0.id).due, "2026-11-06", "and the date Todoist gave is not advanced again here");
+  /* ticked twice before a cycle: two closes, and Todoist's date, never this app's own second roll */
+  env.td.nextDue = "2026-11-20";
+  K.reminders.complete(r0.id, true); K.reminders.complete(r0.id, true);
+  eq([K.reminders.get(r0.id).ext.close, K.reminders.get(r0.id).ext.cn], [2, 3], "two closes waiting");
+  env.td.calls.length = 0;
+  await d.sync();
+  eq(env.td.cmds().map((c) => c.type), ["item_close", "item_close"], "two closes, no due string");
+  eq([K.reminders.get(r0.id).due, K.reminders.get(r0.id).ext.close], ["2026-11-20", undefined], "Todoist's date replaces the local roll");
+  /* completed IN Todoist: its new date comes down; nothing rolls here on top of it and nothing is sent back */
+  const nS2 = K.store.state.sessions.length;
+  env.td.put({ id: cur.ext.id, due: { date: "2026-11-27", is_recurring: true, string: "every week" } });
+  env.td.calls.length = 0;
+  await d.sync();
+  eq([K.reminders.get(r0.id).due, K.reminders.get(r0.id).done, types(env), K.store.state.sessions.length - nS2], ["2026-11-27", false, [], 0], "a close made there: Todoist's date, no local roll, nothing sent, nothing paid");
 });
 step("C · a rule only Todoist can read behaves the same, and Undo before the sync takes the close back", async () => {
   const env = world(), d = await school(env), K = d.K;
@@ -548,6 +628,47 @@ step("F · a refused command is counted and named, and not sent again until the 
   assert(K.reminders.get(r1.id).ext.id && K.reminders.get(r1.id).ext.id !== t1, "linked to the new task: " + JSON.stringify(K.reminders.get(r1.id).ext));
   eq(Object.values(env.td.items).filter((i) => i.content === "Buy ring binders" && !i.is_deleted).length, 1, "one such task there");
 });
+step("F · however Todoist words a refusal, it is a refusal with a message, never an error thrown", async () => {
+  const env = world(), d = await school(env), K = d.K;
+  const shapes = [["a bare string", "Rate limited", "Rate limited"], ["an empty object", {}, "Todoist refused it"], ["null", null, "Todoist refused it"],
+    ["a number", 503, "503"], ["a nested error", { error: { message: "Label is too long" } }, "Label is too long"], ["only a tag", { error_tag: "INVALID_ARGUMENT" }, "INVALID_ARGUMENT"],
+    ["an array", ["no"], "Todoist refused it"], ["a boolean", false, "Todoist refused it"]];
+  for (const [name, answer, want] of shapes) {
+    const r0 = K.reminders.add({ title: "Shape " + name, listId: d.list.id });
+    await d.sync();
+    const tid = K.reminders.get(r0.id).ext.id;
+    assert(tid, name + ": linked");
+    env.td.reject[tid] = answer;
+    K.reminders.update(r0.id, { priority: 3 });
+    const res = await d.sync();
+    eq([res.ok, res.counts.todoist.refused, res.counts.todoist.refusedWhy], [true, 1, want], name);
+    assert(K.reminders.get(r0.id) && K.reminders.get(r0.id).ext.id === tid, name + ": the reminder is kept and still linked");
+    delete env.td.reject[tid];
+    K.reminders.remove(r0.id);
+    await d.sync();
+  }
+  eq(d.app.errors.concat(d.app.consoleErrors || []), [], "nothing was thrown");
+  /* an answer that is not an object at all, or has no answers in it: nothing booked, nothing thrown, sent again next cycle */
+  const r1 = K.reminders.add({ title: "No answer", listId: d.list.id });
+  const realFetch = env.td.fetch;
+  let mode = "string";
+  env.td.fetch = (url, init) => {
+    const form = new URLSearchParams(init.body);
+    if (!form.get("commands")) return realFetch(url, init);
+    env.td.calls.push(JSON.parse(form.get("commands")));
+    const body = mode === "string" ? JSON.stringify({ sync_status: "nope", temp_id_mapping: [1, 2] }) : "not json at all";
+    return Promise.resolve({ ok: true, status: 200, text: () => Promise.resolve(body) });
+  };
+  let res = await d.sync();
+  eq([res.ok, !!(K.reminders.get(r1.id).ext && K.reminders.get(r1.id).ext.id)], [true, false], "an answer with no answers in it: not linked, not broken");
+  mode = "garbage";
+  res = await d.sync();
+  eq([res.ok, !!(K.reminders.get(r1.id).ext && K.reminders.get(r1.id).ext.id)], [true, false], "an answer that is not JSON: the same");
+  env.td.fetch = realFetch;
+  await d.sync();
+  assert(K.reminders.get(r1.id).ext.id, "and it is linked once Todoist answers properly");
+  eq(d.app.errors.concat(d.app.consoleErrors || []), [], "nothing was thrown");
+});
 step("F · a deletion Todoist refuses is asked again a day later, not every cycle; one already gone is dropped", async () => {
   const env = world(), d = await school(env), K = d.K;
   const r0 = K.reminders.add({ title: "One", listId: d.list.id }), r1 = K.reminders.add({ title: "Two", listId: d.list.id });
@@ -603,23 +724,44 @@ step("G · a move made in Todoist moves the reminder here and is not undone; a m
 });
 
 /* ---------------- H ---------------- */
-step("H · moved to a list with no link, the reminder takes its Todoist task with it and is not synced or copied", async () => {
+step("H · moved to a list with no link, the reminder is only unlinked: its Todoist task stays, untouched, and does not come back as a second reminder", async () => {
   const env = world(), d = await school(env), K = d.K;
   const plain = K.reminders.addList("Plain");
   const r0 = K.reminders.add({ title: "Past paper 2", listId: d.list.id });
   await d.sync();
   const tid = K.reminders.get(r0.id).ext.id;
   K.reminders.update(r0.id, { listId: plain.id });
-  eq([K.reminders.get(r0.id).ext, Object.keys(d.X.S().deletes)], [{ gen: 1 }, ["todoist:task:" + tid]], "unlinked, its task queued for deletion");
+  eq([K.reminders.get(r0.id).ext, Object.keys(d.X.S().deletes), Object.keys(d.X.S().ignored)], [{ gen: 1 }, [], ["todoist:task:" + tid]], "unlinked; nothing queued for deletion; the task remembered as left alone");
   env.td.calls.length = 0;
   await d.sync();
-  eq([types(env), env.td.items[tid].is_deleted], [["item_delete"], true], "deleted there");
-  K.reminders.update(r0.id, { title: "Past paper 2, edited" });
+  eq([types(env), env.td.items[tid].is_deleted], [[], false], "nothing sent, and the task is still in Todoist");
+  /* an edit here is not sent; an edit there does not land, and does not make a second reminder */
+  K.reminders.update(r0.id, { title: "Past paper 2, edited here" });
+  env.td.put({ id: tid, content: "Past paper 2, edited there" });
   env.td.calls.length = 0;
   await d.sync();
-  eq([types(env), d.rem("Past paper 2, edited").length, K.reminders.all().length], [[], 1, 1], "an edit is not sent, and nothing came back as a second reminder");
+  eq([types(env), K.reminders.all().map((x) => x.title), env.td.items[tid].content], [[], ["Past paper 2, edited here"], "Past paper 2, edited there"], "the two are separate, and there is still one reminder");
+  /* a whole read (another list linked) does not bring it back either */
+  const home = K.reminders.addList("Home");
+  K.extTasks.link(home.id, "todoist", { id: "P2", name: "Home" });
+  await d.sync();
+  eq(K.reminders.all().length, 1, "still one after Todoist is read whole");
+  /* moved back into the list its task is in: joined to the SAME task, not added as a new one */
+  K.reminders.update(r0.id, { listId: d.list.id });
+  env.td.calls.length = 0;
+  await d.sync(); await d.sync();
+  const back = K.reminders.get(r0.id);
+  eq([back.ext.id, Object.keys(d.X.S().ignored), types(env).filter((t) => t === "item_add")], [tid, [], []], "joined to its own task again");
+  eq([env.td.items[tid].content, Object.values(env.td.items).filter((i) => !i.is_deleted && !i.parent_id).length], ["Past paper 2, edited here", 1], "this app's title went up, and there is one task");
+  /* moved out again, then the reminder deleted: the task is the list's own once more */
+  K.reminders.update(r0.id, { listId: plain.id });
+  K.reminders.remove(r0.id);
+  eq(Object.keys(d.X.S().deletes), [], "deleting the unlinked reminder deletes nothing there");
+  env.td.put({ id: tid, content: "Still in Todoist" });
+  await d.sync();
+  eq([K.reminders.all().map((x) => [x.title, x.listId, x.ext.id]), Object.keys(d.X.S().ignored)], [[["Still in Todoist", d.list.id, tid]], []], "it shows in its list again, as Todoist has it");
 });
-step("H · moved to a list linked to the other service: one reminder, one task in the new service, none left in the old", async () => {
+step("H · moved to a list linked to the other service: one reminder, a task in the new service, and the old task left where it was", async () => {
   const env = world(), d = await school(env), K = d.K;
   await d.connect("google");
   d.X.S().google.tasks = true; d.X.S().google.cal = false; d.X.S().google.export.on = false;
@@ -629,13 +771,15 @@ step("H · moved to a list linked to the other service: one reminder, one task i
   await d.sync();
   const tid = K.reminders.get(r0.id).ext.id;
   K.reminders.update(r0.id, { listId: g.id });
+  env.td.calls.length = 0;
   await d.sync("todoist"); await d.sync("google");
   const cur = K.reminders.get(r0.id);
   eq([cur.ext.p, K.reminders.all().length], ["gtasks", 1], "one reminder, now Google's");
-  eq(env.td.items[tid].is_deleted, true, "its Todoist task is gone");
+  eq([env.td.items[tid].is_deleted, types(env)], [false, []], "its Todoist task was not deleted or changed");
   eq(Object.values(env.gt.lists.L1).filter((t) => !t.deleted).map((t) => t.title), ["Post parcel"], "one task in Google Tasks");
+  env.td.put({ id: tid, content: "Post parcel (Todoist's copy)" });
   await d.sync("todoist"); await d.sync("google");
-  eq(K.reminders.all().length, 1, "and still one after another round");
+  eq(K.reminders.all().map((x) => x.title), ["Post parcel"], "and the Todoist copy does not come back as a second reminder");
 });
 step("H · unlinking a list, or deleting it, unlinks its reminders and deletes nothing there", async () => {
   const env = world(), d = await school(env), K = d.K;
