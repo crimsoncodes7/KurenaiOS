@@ -854,7 +854,7 @@ stopped at the usage limit before writing a file; the code is Fable's.
   read and map themselves.
 - MG-08: an imported row's payee is the merchant made from the bank's
   words (bank noise stripped, then the authored table
-  `js/data/money-merchants.js`, about 330 rows, else title-cased); its
+  `js/data/money-merchants.js`, 250 rows, else title-cased); its
   category is a learned payee rule's, else the table's, else Other; the
   bank's own words and Type stay on the row (`bank`). Learned rules are
   `state.money.payees` (`learnPayee`), future imports only. A DD/SO row
