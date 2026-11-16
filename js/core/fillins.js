@@ -129,7 +129,9 @@
     return el("div", { class: "k-prose k-fill-code", html: KOS.content.renderBlocks([{ code: { src: src, lang: lang || "pseudo" } }]) });
   }
   function shell(kind, kids, cap) {
-    return el("section", { class: "k-fill", "data-ui": "fill.part", "data-kind": kind }, [
+    /* the heading already says "Your turn": a caption never repeats it */
+    if (cap) cap = String(cap).replace(/^\s*(\*\*)?your turn[.:]?(\*\*)?[.:]?\s*/i, "");
+    return el("section",{ class: "k-fill", "data-ui": "fill.part", "data-kind": kind }, [
       cap ? el("p", { class: "k-fill-cap", html: inline(cap) }) : null].concat(kids).filter(Boolean));
   }
 
@@ -224,7 +226,7 @@
       "aria-label": "Your SQL", placeholder: "SELECT …" });
     ta.value = spec.starter || "";
     var mine = el("div", { class: "k-fill-rescol" }, [el("span", { class: "k-kicker", text: "Your result" }), el("p", { class: "k-muted", text: "Run your query to see its rows." })]);
-    var want = el("div", { class: "k-fill-rescol" }, [el("span", { class: "k-kicker", text: "Expected" })]);
+    var want = el("div", { class: "k-fill-rescol", hidden: "" }, [el("span", { class: "k-kicker", text: "Expected" })]);
     var out = el("div", { class: "k-fill-out", "aria-live": "polite" });
     var data = el("div", { class: "k-fill-data", hidden: "" });
     var expected = null;
@@ -240,7 +242,7 @@
         run.disabled = false;
         var got = rs[0], exp = lastSet(rs[1]);
         mine.innerHTML = ""; mine.appendChild(el("span", { class: "k-kicker", text: "Your result" }));
-        want.innerHTML = ""; want.appendChild(el("span", { class: "k-kicker", text: "Expected" })); want.appendChild(resultTable(exp));
+        want.hidden = false; want.innerHTML = ""; want.appendChild(el("span", { class: "k-kicker", text: "Expected" })); want.appendChild(resultTable(exp));
         out.innerHTML = "";
         if (!got.ok) {
           mine.appendChild(el("p", { class: "k-fill-err k-mono", text: (got.error && got.error.msg) || "The query did not run." }));
