@@ -35,17 +35,28 @@ C["maths:5.1"] = {
       steps: [
         { h: "(a)", m: "$\\tfrac12 \\times 10 \\times 5 \\times \\sin\\theta = 15 \\Rightarrow \\sin\\theta = \\dfrac35$", mk: "M1 A1" },
         { m: "$\\cos^2\\theta = 1 - \\dfrac{9}{25} = \\dfrac{16}{25} \\Rightarrow \\cos\\theta = \\pm\\dfrac45$", mk: "M1 A1", n: "Both signs: $\\theta$ could be acute ($\\cos > 0$) or obtuse ($\\cos < 0$)." },
-        { h: "(b) Longest side opposite the largest angle ⇒ $\\theta$ is obtuse ⇒ $\\cos\\theta = -\\frac45$", m: "$BC^2 = 100 + 25 - 2(10)(5)\\left(-\\dfrac45\\right) = 125 + 80 = 205 \\Rightarrow BC = \\sqrt{205}$", mk: "M1 A1", n: "With $\\cos\\theta = +\\frac45$, $BC = \\sqrt{45} < 10$, so $BC$ would not be the longest side — that is the reason for the choice." }
+        { fig: { x: [-5.5, 11], y: [-1, 4.5], aspect: "equal", axes: false, items: [
+          { poly: [[0, 0], [10, 0], [-4, 3]], c: "accent", fill: "accent", alpha: 0.08 }, { poly: [[0, 0], [10, 0], [4, 3]], c: "muted", dash: true },
+          { line: [[10, 0], [-4, 3]], c: "accent2", w: 2.2, label: "√205", loff: -12 }, { arc: [0, 0, 18, 0, 143.13], label: "θ", c: "accent", loff: 8 },
+          { pt: [0, 0], label: "A", pos: "s" }, { pt: [10, 0], label: "B", pos: "se" }, { pt: [-4, 3], label: "C", pos: "nw" }, { pt: [4, 3], c: "muted", label: "acute case", pos: "ne" },
+          { text: [5, 0], t: "10", pos: "s", size: 11 }, { text: [-2, 1.5], t: "5", pos: "sw", size: 11 } ], cap: "Both triangles have area 15; only the obtuse one ($\\cos\\theta = -\\frac45$) makes $BC$ the longest side." }, h: "(b) Longest side opposite the largest angle ⇒ $\\theta$ is obtuse ⇒ $\\cos\\theta = -\\frac45$", m: "$BC^2 = 100 + 25 - 2(10)(5)\\left(-\\dfrac45\\right) = 125 + 80 = 205 \\Rightarrow BC = \\sqrt{205}$", mk: "M1 A1", n: "With $\\cos\\theta = +\\frac45$, $BC = \\sqrt{45} < 10$, so $BC$ would not be the longest side — that is the reason for the choice." }
       ], result: "(a) $\\pm\\frac45$ (b) $\\sqrt{205}$" } },
     { worked: { tag: "exam", title: "A quadratic from the cosine rule; then an angle by the sine rule", src: "AS June 2022 · P1 Q4 · 6 marks",
       q: "Triangle $ABC$ has $AB = (x + 2)$ cm, $BC = (3x + 10)$ cm, $AC = 7x$ cm, angle $BAC = 60°$ and angle $ACB = \\theta°$. **(a)(i)** Show that $17x^2 - 35x - 48 = 0$. **(ii)** Hence find $x$. **(b)** Hence find $\\theta$ to one decimal place.",
       steps: [
         { h: "(a)(i) Cosine rule on the side opposite $60°$", m: "$(3x + 10)^2 = (x + 2)^2 + (7x)^2 - 2(x + 2)(7x)\\cos60°$\n$9x^2 + 60x + 100 = x^2 + 4x + 4 + 49x^2 - 7x^2 - 14x$\n$0 = 34x^2 - 70x - 96 \\Rightarrow 17x^2 - 35x - 48 = 0$", mk: "M1 A1 A1*", n: "$\\cos60° = \\frac12$ halves the $2bc$ term." },
         { h: "(ii)", m: "$(17x + 16)(x - 3) = 0 \\Rightarrow x = 3$ (lengths are positive)", mk: "B1", n: "Sides: $AB = 5$, $BC = 19$, $AC = 21$." },
-        { h: "(b) Sine rule for $\\theta$, opposite $AB = 5$", m: "$\\dfrac{\\sin\\theta}{5} = \\dfrac{\\sin60°}{19} \\Rightarrow \\sin\\theta = 0.2279 \\Rightarrow \\theta = 13.2°$", mk: "M1 A1", n: "Acute, because $\\theta$ is opposite the shortest side." }
+        { fig: { x: [-1.5, 22.5], y: [-1.5, 6], aspect: "equal", axes: false, items: [
+          { poly: [[0, 0], [21, 0], [2.5, 4.330]], c: "accent", fill: "accent", alpha: 0.08 },
+          { arc: [0, 0, 22, 0, 60], label: "60°", c: "muted", loff: 12 }, { arc: [21, 0, 40, 166.8, 180], label: "θ", c: "accent2", loff: 10 },
+          { pt: [0, 0], label: "A", pos: "sw" }, { pt: [21, 0], label: "C", pos: "se" }, { pt: [2.5, 4.330], label: "B", pos: "n" },
+          { text: [10.5, 0], t: "21", pos: "s", size: 11 }, { text: [1.25, 2.17], t: "5", pos: "w", size: 11 }, { text: [11.75, 2.17], t: "19", pos: "ne", size: 11 } ], cap: "With $x = 3$: sides 5, 19, 21. $\\theta$ is opposite the shortest side, so it is small." }, h: "(b) Sine rule for $\\theta$, opposite $AB = 5$", m: "$\\dfrac{\\sin\\theta}{5} = \\dfrac{\\sin60°}{19} \\Rightarrow \\sin\\theta = 0.2279 \\Rightarrow \\theta = 13.2°$", mk: "M1 A1", n: "Acute, because $\\theta$ is opposite the shortest side." }
       ], result: "$x = 3$; $\\theta = 13.2°$" } },
     { worked: { tag: "exam", title: "Roof beams: the ambiguous case decided by the diagram; whole-metre steel", src: "AS June 2020 · P1 Q5 · 6 marks",
       q: "A roof structure has beams $AB = 12$ m, $BC = BD = 7$ m, with $C$ on $AD$ and angle $BAC = 27°$; angle $ACB$ is obtuse in the diagram. **(a)** Find angle $ACB$ to one decimal place. **(b)** Steel beams are sold in whole metres. Find the minimum length of steel needed for the four beams $AB$, $BD$, $BC$, $AD$.",
+      fig: { x: [-1, 16.5], y: [-1.5, 6.6], aspect: "equal", axes: false, items: [
+        { line: [[0, 0], [15.087, 0]], c: "text2" }, { line: [[0, 0], [10.692, 5.448]], c: "text2", label: "12", loff: -10 }, { line: [[10.692, 5.448], [6.297, 0]], c: "text2", label: "7", loff: -10 }, { line: [[10.692, 5.448], [15.087, 0]], c: "text2", label: "7", loff: -10 },
+        { arc: [0, 0, 36, 0, 27], label: "27°", c: "muted", loff: 12 }, { pt: [0, 0], label: "A", pos: "sw" }, { pt: [10.692, 5.448], label: "B", pos: "n" }, { pt: [6.297, 0], label: "C", pos: "s" }, { pt: [15.087, 0], label: "D", pos: "se" } ], cap: "Angle $ACB$ is obtuse in the diagram; $BC = BD$." },
       steps: [
         { h: "(a) Sine rule", m: "$\\dfrac{\\sin C}{12} = \\dfrac{\\sin27°}{7} \\Rightarrow \\sin C = 0.7783 \\Rightarrow C = 51.1°$ or $128.9°$; the diagram shows $C$ obtuse: **$128.9°$**", mk: "M1 A1 A1", n: "This is the ambiguous case in the wild. Giving $51.1°$ contradicts the figure." },
         { h: "(b) Need $AD = AC + CD$", m: "Angle $ABC = 180° - 27° - 128.9° = 24.1°$; $AC = \\dfrac{7\\sin24.1°}{\\sin27°} = 6.30$ m\nTriangle $BCD$ is isosceles ($BC = BD$) with base angles $180° - 128.9° = 51.1°$: $CD = 2 \\times 7\\cos51.1° = 8.79$ m\n$AD = 15.09$ m", mk: "M1 A1" },
@@ -59,6 +70,10 @@ C["maths:5.1"] = {
       ], result: "(a) $9.8$ km" } },
     { worked: { tag: "exam", title: "Two triangles sharing a side: show $x$ by the sine rule, then $AB$", src: "AS June 2024 · P1 Q4 · 5 marks",
       q: "$ADC$ is a straight line; in triangle $BCD$, $BD = (x + 3)$ cm, $BC = x$ cm, angle $BDC = 30°$, angle $BCD = 140°$. **(a)** Show that $x = 10.5$ to 3 s.f. **(b)** Given $AD = (x - 2)$ cm, find $AB$ to 3 s.f.",
+      fig: { x: [-9.5, 12.8], y: [-1.5, 7.5], aspect: "equal", axes: false, items: [
+        { line: [[-8.5, 0], [3.647, 0]], c: "text2" }, { line: [[0, 0], [11.691, 6.75]], c: "text2", label: "x + 3", loff: -12 }, { line: [[3.647, 0], [11.691, 6.75]], c: "text2", label: "x", loff: 10 }, { line: [[-8.5, 0], [11.691, 6.75]], c: "accent2", dash: true },
+        { arc: [0, 0, 30, 0, 30], label: "30°", c: "muted", loff: 12 }, { arc: [3.647, 0, 16, 40, 180], label: "140°", c: "muted", loff: 12 },
+        { pt: [-8.5, 0], label: "A", pos: "sw" }, { pt: [0, 0], label: "D", pos: "s" }, { pt: [3.647, 0], label: "C", pos: "se" }, { pt: [11.691, 6.75], label: "B", pos: "ne" }, { text: [-4.25, 0], t: "x − 2", pos: "s", size: 11 } ], cap: "$ADC$ is straight, so the angle $ADB$ is $180° - 30°$." },
       steps: [
         { h: "(a) Angle $CBD = 10°$; sine rule with each side opposite its angle", m: "$\\dfrac{x + 3}{\\sin140°} = \\dfrac{x}{\\sin30°} \\Rightarrow \\tfrac12(x + 3) = x\\sin140° \\Rightarrow 1.5 = x(0.6428 - 0.5) \\Rightarrow x = 10.5$", mk: "M1 A1 A1*", n: "$BD$ is opposite $C$ ($140°$); $BC$ is opposite $D$ ($30°$). Collect the $x$ terms, then divide." },
         { h: "(b) Triangle $ABD$: the angle at $D$ is on the straight line $ADC$", m: "$\\angle ADB = 180° - 30° = 150°$; $AD = 8.5$, $BD = 13.5$\n$AB^2 = 8.5^2 + 13.5^2 - 2(8.5)(13.5)\\cos150° = 72.25 + 182.25 + 198.75 = 453.25 \\Rightarrow AB = 21.3$ cm", mk: "M1 A1", n: "The trap: using $30°$ at $D$. $D$ lies between $A$ and $C$, so the angle inside triangle $ABD$ is the *supplement*. $\\cos150° = -\\cos30°$ makes the last term positive." }
@@ -67,7 +82,11 @@ C["maths:5.1"] = {
       q: "Parallelogram $PQRS$ has area $50$ cm$^2$, $PQ = 14$ cm, $QR = 7$ cm and angle $SPQ$ is obtuse. **(a)** Find angle $SPQ$ to 2 d.p. **(b)** Find the length of the diagonal $SQ$ to 1 d.p.",
       steps: [
         { h: "(a) Area of a parallelogram $= ab\\sin\\theta$ (two triangles)", m: "$14 \\times 7 \\times \\sin P = 50 \\Rightarrow \\sin P = \\dfrac{50}{98} \\Rightarrow P = 30.68°$ or $180° - 30.68° = 149.32°$; obtuse: $P = 149.32°$", mk: "M1 A1 A1" },
-        { h: "(b) Triangle $SPQ$: $SP = QR = 7$, $PQ = 14$, included angle $P$", m: "$SQ^2 = 14^2 + 7^2 - 2(14)(7)\\cos149.32° \\Rightarrow SQ = 20.3$ cm", mk: "M1 A1" }
+        { fig: { x: [-7.5, 15], y: [-1.5, 4.8], aspect: "equal", axes: false, items: [
+          { poly: [[0, 0], [14, 0], [7.98, 3.571], [-6.02, 3.571]], c: "text2", fill: "accent", alpha: 0.06 }, { line: [[-6.02, 3.571], [14, 0]], c: "accent2", w: 2.2, dash: true, label: "20.3", loff: 12 },
+          { arc: [0, 0, 16, 0, 149.32], label: "149.32°", c: "accent", loff: 16 },
+          { pt: [0, 0], label: "P", pos: "s" }, { pt: [14, 0], label: "Q", pos: "se" }, { pt: [7.98, 3.571], label: "R", pos: "ne" }, { pt: [-6.02, 3.571], label: "S", pos: "nw" },
+          { text: [7, 0], t: "14", pos: "s", size: 11 }, { text: [-3.01, 1.79], t: "7", pos: "sw", size: 11 } ], cap: "The obtuse angle at $P$ makes $SQ$ the **long** diagonal." }, h: "(b) Triangle $SPQ$: $SP = QR = 7$, $PQ = 14$, included angle $P$", m: "$SQ^2 = 14^2 + 7^2 - 2(14)(7)\\cos149.32° \\Rightarrow SQ = 20.3$ cm", mk: "M1 A1" }
       ], result: "(a) $149.32°$ (b) $20.3$ cm" } },
 
     { page: "Radians, arcs and sectors" },
@@ -89,7 +108,9 @@ C["maths:5.1"] = {
       q: "A sector $AOB$ has radius $r$ cm and angle $\\theta$ radians. Its area is $11$ cm$^2$ and its perimeter is 4 times the length of the arc $AB$. Find the exact value of $r$.",
       steps: [
         { h: "Perimeter condition", m: "$2r + r\\theta = 4r\\theta \\Rightarrow 2r = 3r\\theta \\Rightarrow \\theta = \\dfrac23$", mk: "M1 A1", n: "Perimeter of a sector = two radii + arc. The $r$ cancels." },
-        { h: "Area", m: "$\\tfrac12 r^2 \\cdot \\dfrac23 = 11 \\Rightarrow r^2 = 33 \\Rightarrow r = \\sqrt{33}$", mk: "M1 A1" }
+        { fig: { x: [-1, 7], y: [-1, 4.5], aspect: "equal", axes: false, items: [
+          { param: { x: "5.745*cos(t)", y: "5.745*sin(t)" }, t: [0, 2 / 3], c: "accent", w: 2.4 }, { line: [[0, 0], [5.745, 0]], c: "text2", label: "√33", loff: 12 }, { line: [[0, 0], [5.745 * Math.cos(2 / 3), 5.745 * Math.sin(2 / 3)]], c: "text2" },
+          { arc: [0, 0, 24, 0, 38.2], label: "⅔", c: "muted", loff: 10 }, { pt: [0, 0], label: "O", pos: "w" }, { pt: [5.745, 0], label: "A", pos: "e" }, { pt: [5.745 * Math.cos(2 / 3), 5.745 * Math.sin(2 / 3)], label: "B", pos: "ne" } ], cap: "$\\theta = \\frac23$ rad and $r = \\sqrt{33}$: area $\\frac12 \\cdot 33 \\cdot \\frac23 = 11$." }, h: "Area", m: "$\\tfrac12 r^2 \\cdot \\dfrac23 = 11 \\Rightarrow r^2 = 33 \\Rightarrow r = \\sqrt{33}$", mk: "M1 A1" }
       ], result: "$r = \\sqrt{33}$" } },
     { worked: { tag: "exam", title: "Spot the student's error: degrees in a radian formula", src: "A-level June 2019 · P2 Q3 · 3 marks",
       q: "A sector has radius 5 cm and angle $40°$. A student writes: area $= \\frac12 r^2\\theta = \\frac12 \\times 5^2 \\times 40 = 500$ cm$^2$. **(a)** Explain the error. **(b)** Write out a correct solution.",
@@ -101,10 +122,18 @@ C["maths:5.1"] = {
       q: "The area of the major sector $AOB$ is $135$ cm$^2$ and the reflex angle $AOB$ is $4.8$ radians. Find the exact length of the minor arc $AB$ in the form $a\\pi + b$.",
       steps: [
         { m: "$\\tfrac12 r^2(4.8) = 135 \\Rightarrow r^2 = 56.25 \\Rightarrow r = 7.5$", mk: "M1 A1" },
-        { h: "Minor angle $= 2\\pi - 4.8$", m: "minor arc $= 7.5(2\\pi - 4.8) = 15\\pi - 36$", mk: "M1 A1", n: "$a = 15$, $b = -36$. \"Exact\" and \"in the form\" — no decimals." }
+        { fig: { x: [-9, 9], y: [-9, 9], aspect: "equal", axes: false, w: 300, h: 300, items: [
+          { param: { x: "7.5*cos(t)", y: "7.5*sin(t)" }, t: [-0.7416, 0.7416], c: "accent2", w: 3 }, { param: { x: "7.5*cos(t)", y: "7.5*sin(t)" }, t: [0.7416, 2 * Math.PI - 0.7416], c: "accent", n: 200 },
+          { line: [[0, 0], [7.5 * Math.cos(0.7416), 7.5 * Math.sin(0.7416)]], c: "text2" }, { line: [[0, 0], [7.5 * Math.cos(0.7416), -7.5 * Math.sin(0.7416)]], c: "text2" },
+          { arc: [0, 0, 22, 42.5, 317.5], label: "4.8", c: "muted", loff: 12 }, { pt: [0, 0], label: "O", pos: "ne" }, { pt: [7.5 * Math.cos(0.7416), 7.5 * Math.sin(0.7416)], label: "A", pos: "ne" }, { pt: [7.5 * Math.cos(0.7416), -7.5 * Math.sin(0.7416)], label: "B", pos: "se" } ], cap: "Radius 7.5; the minor arc (amber) subtends $2\\pi - 4.8$." }, h: "Minor angle $= 2\\pi - 4.8$", m: "minor arc $= 7.5(2\\pi - 4.8) = 15\\pi - 36$", mk: "M1 A1", n: "$a = 15$, $b = -36$. \"Exact\" and \"in the form\" — no decimals." }
       ], result: "$15\\pi - 36$" } },
     { worked: { tag: "exam", title: "A logo of two sectors: angle, area and perimeter in terms of $r$ and $\\theta$", src: "A-level Oct 2021 · P2 Q6 · 5 marks",
       q: "$OABCDEFO$ is a logo: $OAB$ is a sector of radius $r$; $OFE$ is congruent to $OAB$; $OCD$ is a sector of radius $2r$ with angle $COD = \\theta$; $AOF$ is a straight line. **(a)** Write down angle $AOB$ in terms of $\\theta$. **(b)** Show that the area is $\\frac12 r^2(3\\theta + \\pi)$. **(c)** Find the perimeter in simplest form.",
+      fig: { x: [-2.3, 2.3], y: [-0.4, 2.3], aspect: "equal", axes: false, items: [
+        { line: [[-1, 0], [1, 0]], c: "text2" }, { param: { x: "cos(t)", y: "sin(t)" }, t: [2.021, 3.142] }, { param: { x: "2*cos(t)", y: "2*sin(t)" }, t: [1.121, 2.021] }, { param: { x: "cos(t)", y: "sin(t)" }, t: [0, 1.121] },
+        { line: [[-0.435, 0.9], [-0.87, 1.801]] }, { line: [[0.435, 0.9], [0.87, 1.801]] }, { line: [[0, 0], [-0.435, 0.9]], c: "muted", dash: true }, { line: [[0, 0], [0.435, 0.9]], c: "muted", dash: true },
+        { arc: [0, 0, 26, 64.217, 115.783], label: "θ", c: "accent2", loff: 10 }, { pt: [0, 0], label: "O", pos: "s" }, { pt: [-1, 0], label: "A", pos: "s" }, { pt: [1, 0], label: "F", pos: "s" },
+        { pt: [-0.435, 0.9], label: "B", pos: "w" }, { pt: [-0.87, 1.801], label: "C", pos: "nw" }, { pt: [0.87, 1.801], label: "D", pos: "ne" }, { pt: [0.435, 0.9], label: "E", pos: "e" }, { text: [-0.5, 0], t: "r", pos: "s", size: 11 }, { text: [0.702, 1.351], t: "2r", pos: "e", size: 11 } ], cap: "Two congruent sectors of radius $r$ either side of a sector of radius $2r$ and angle $\\theta$ (drawn here with $\\theta = 0.9$)." },
       steps: [
         { h: "(a) Angles on the straight line $AOF$", m: "$\\angle AOB = \\dfrac{\\pi - \\theta}{2}$", mk: "B1" },
         { h: "(b)", m: "$2 \\times \\tfrac12 r^2 \\cdot \\dfrac{\\pi - \\theta}{2} + \\tfrac12(2r)^2\\theta = \\dfrac{r^2(\\pi - \\theta)}{2} + 2r^2\\theta = \\tfrac12 r^2(\\pi - \\theta + 4\\theta) = \\tfrac12 r^2(3\\theta + \\pi)$", mk: "M1 A1*" },
@@ -112,6 +141,12 @@ C["maths:5.1"] = {
       ], result: "(a) $\\frac{\\pi - \\theta}{2}$ (c) $r(4 + \\pi + \\theta)$" } },
     { worked: { tag: "exam", title: "Stage plan: sector plus two congruent triangles", src: "A-level June 2023 · P1 Q8 · 10 marks",
       q: "A stage is two congruent triangles $ABO$, $GFO$ joined to a sector $OCDEO$, centre $O$, with angle $COE = 2.3$ rad, arc $CDE = 27.6$ m and $AOG$ a straight line of length 15 m. **(a)** Show that $OC = 12$ m. **(b)** Show that angle $AOB = 0.421$ rad (3 d.p.). Given the total length of the front $BCDEF$ is 35 m, **(c)** find the total area to the nearest m$^2$.",
+      fig: { x: [-15.5, 15.5], y: [-1.5, 13.2], aspect: "equal", axes: false, items: [
+        { line: [[-7.5, 0], [7.5, 0]], c: "text2" }, { poly: [[-7.5, 0], [-14.329, 6.416], [0, 0]], c: "text2", fill: "accent", alpha: 0.06 }, { poly: [[7.5, 0], [14.329, 6.416], [0, 0]], c: "text2", fill: "accent", alpha: 0.06 },
+        { param: { x: "12*cos(t)", y: "12*sin(t)" }, t: [0.4208, 2.7208], c: "accent", w: 2.4 }, { line: [[0, 0], [12 * Math.cos(2.7208), 12 * Math.sin(2.7208)]], c: "muted", dash: true }, { line: [[0, 0], [12 * Math.cos(0.4208), 12 * Math.sin(0.4208)]], c: "muted", dash: true },
+        { arc: [0, 0, 26, 24.1, 155.9], label: "2.3", c: "muted", loff: 10 }, { pt: [-7.5, 0], label: "A", pos: "s" }, { pt: [0, 0], label: "O", pos: "s" }, { pt: [7.5, 0], label: "G", pos: "s" },
+        { pt: [-14.329, 6.416], label: "B", pos: "w" }, { pt: [12 * Math.cos(2.7208), 12 * Math.sin(2.7208)], label: "C", pos: "n" }, { pt: [0, 12], label: "D", pos: "n" }, { pt: [12 * Math.cos(0.4208), 12 * Math.sin(0.4208)], label: "E", pos: "n" }, { pt: [14.329, 6.416], label: "F", pos: "e" },
+        { text: [3.75, 0], t: "15 m (AOG)", pos: "s", size: 11 } ], cap: "Arc $CDE$ is 27.6 m; the front $BCDEF$ is 35 m; $AOG$ is straight." },
       steps: [
         { h: "(a)", m: "$s = r\\theta \\Rightarrow r = \\dfrac{27.6}{2.3} = 12$", mk: "M1 A1*" },
         { h: "(b) Angles on the straight line $AOG$, symmetric", m: "$\\angle AOB = \\dfrac{\\pi - 2.3}{2} = 0.4208 = 0.421$ rad", mk: "M1 A1*" },
@@ -126,12 +161,22 @@ C["maths:5.1"] = {
       ], result: "$\\frac{25}{4}\\sqrt3 + \\frac{25}{6}\\pi$" } },
     { worked: { tag: "exam", title: "Triangle containing a sector: angle in radians by the cosine rule, then the region", src: "A-level June 2025 · P2 Q4 · 5 marks",
       q: "$ABCD$ consists of triangle $ABD$ containing a sector $ABC$ of a circle with centre $B$; $AD = 6.4$ cm, $BD = 13$ cm, $BA = BC = 8$ cm. **(a)** Show that angle $ABC = 0.394$ radians (3 s.f.). **(b)** The region $R$ is bounded by $CD$, $DA$ and the arc $AC$. Find the area of $R$ to 3 s.f.",
+      fig: { x: [-1, 14], y: [-1.2, 4.2], aspect: "equal", axes: false, items: [
+        { poly: [[8, 0], [13, 0], [7.387, 3.071], [7.483, 2.829], [7.572, 2.582], [7.653, 2.331], [7.725, 2.079], [7.789, 1.824], [7.845, 1.567], [7.892, 1.308], [7.931, 1.048], [7.961, 0.787], [7.983, 0.525], [7.996, 0.263], [8.0, 0.0]], c: "accent", fill: "accent", alpha: 0.2, w: 0.1 }, { poly: [[0, 0], [13, 0], [7.387, 3.071]], c: "text2" },
+        { param: { x: "8*cos(t)", y: "8*sin(t)" }, t: [0, 0.3943], c: "accent2", w: 2 },
+        { pt: [0, 0], label: "B", pos: "w" }, { pt: [8, 0], label: "C", pos: "s" }, { pt: [13, 0], label: "D", pos: "se" }, { pt: [7.387, 3.071], label: "A", pos: "n" }, { text: [10.6, 0.9], t: "R", i: true, size: 13 },
+        { text: [3.7, 1.535], t: "8", pos: "nw", size: 11 }, { text: [6.5, 0], t: "13", pos: "s", size: 11 }, { text: [10.19, 1.535], t: "6.4", pos: "ne", size: 11 } ], cap: "$R$ is the triangle $ABD$ less the sector $ABC$ (centre $B$, radius 8)." },
       steps: [
         { h: "(a) Cosine rule for the angle at $B$ in triangle $ABD$", m: "$\\cos B = \\dfrac{13^2 + 8^2 - 6.4^2}{2 \\times 13 \\times 8} = \\dfrac{192.04}{208} = 0.9233 \\Rightarrow B = 0.394$ rad", mk: "M1 A1*", n: "Calculator in radian mode, or convert $22.6°$." },
         { h: "(b) Triangle minus sector", m: "$\\tfrac12 \\times 8 \\times 13 \\times \\sin0.3943 - \\tfrac12 \\times 8^2 \\times 0.3943 = 19.97 - 12.62 = 7.36$ cm$^2$", mk: "M1 M1 A1", n: "Use the unrounded angle." }
       ], result: "(b) $7.36$ cm$^2$" } },
     { worked: { tag: "exam", title: "Optimisation on a sector-based shape (link to 7.3)", src: "A-level June 2025 · P1 Q15 · 9 marks",
       q: "A stage is a sector $AOB$ (radius $r$ m, angle $\\theta$ rad) joined to a rectangle $OBCD$ of length $r$ and width $\\frac{1}{10}r$; the total area is $240$ m$^2$. **(a)** Show that the perimeter is $P = 2r + \\frac{480}{r}$. **(b)** Find the minimum perimeter, justifying that it is a minimum.",
+      fig: { x: [-6, 17], y: [-3, 17], aspect: "equal", axes: false, items: [
+        { poly: [[0, 0], [15.49, 0], [15.49, -1.549], [0, -1.549]], c: "text2", fill: "accent2", alpha: 0.1 }, { param: { x: "15.49*cos(t)", y: "15.49*sin(t)" }, t: [0, 1.8], c: "accent", w: 2 },
+        { line: [[0, 0], [15.49 * Math.cos(1.8), 15.49 * Math.sin(1.8)]], c: "text2" }, { arc: [0, 0, 22, 0, 103.1], label: "θ", c: "muted", loff: 10 },
+        { pt: [0, 0], label: "O", pos: "w" }, { pt: [15.49, 0], label: "B", pos: "ne" }, { pt: [15.49, -1.549], label: "C", pos: "se" }, { pt: [0, -1.549], label: "D", pos: "sw" }, { pt: [15.49 * Math.cos(1.8), 15.49 * Math.sin(1.8)], label: "A", pos: "nw" },
+        { text: [7.7, 0], t: "r", pos: "n", size: 11 }, { text: [15.49, -0.77], t: "r/10", pos: "e", size: 11 } ], cap: "The sector on the rectangle $OBCD$, drawn at the minimum ($r = \\sqrt{240}$, $\\theta = 1.8$ rad); $OB$ is inside the shape, not perimeter." },
       steps: [
         { h: "(a) Area gives $\\theta$ in terms of $r$", m: "$\\tfrac12 r^2\\theta + \\dfrac{r^2}{10} = 240 \\Rightarrow r\\theta = \\dfrac{480}{r} - \\dfrac{r}{5}$", mk: "M1 A1" },
         { m: "$P = OA + \\text{arc} + BC + CD + DO = r + r\\theta + \\dfrac{r}{10} + r + \\dfrac{r}{10} = 2r + \\dfrac{r}{5} + \\dfrac{480}{r} - \\dfrac{r}{5} = 2r + \\dfrac{480}{r}$", mk: "M1 A1*", n: "The $\\frac r5$ terms cancel — a sign the setup is right." },
@@ -222,7 +267,8 @@ C["maths:5.2"] = {
       q: "Given $\\theta$ is small and measured in radians, use the small angle approximations to find an approximate value of $\\frac{1 - \\cos 4\\theta}{2\\theta\\sin 3\\theta}$.",
       steps: [
         { m: "$1 - \\cos 4\\theta \\approx 1 - \\left(1 - \\dfrac{16\\theta^2}{2}\\right) = 8\\theta^2; \\qquad 2\\theta\\sin 3\\theta \\approx 2\\theta \\cdot 3\\theta = 6\\theta^2$", mk: "M1 A1", n: "$\\cos 4\\theta \\approx 1 - \\frac{(4\\theta)^2}{2}$ — square the multiple." },
-        { m: "$\\dfrac{8\\theta^2}{6\\theta^2} = \\dfrac43$", mk: "A1", n: "The $\\theta^2$ cancels: the expression tends to a constant as $\\theta \\to 0$." }
+        { fig: { x: [-0.6, 0.6], y: [0.9, 1.8], axes: { x: "θ", xt: [-0.5, -0.25, 0.25, 0.5], yt: [1, 1.333, 1.5] }, items: [
+          { fn: "(1-cos(4*x))/(2*x*sin(3*x))", label: "exact", at: 0.45, pos: "nw" }, { hline: 4 / 3, c: "accent3", label: "4/3" }, { pt: [0, 4 / 3], open: true } ], cap: "As $\\theta \\to 0$ the exact expression closes in on $\\frac43$ (it is undefined at $\\theta = 0$ itself)." }, m: "$\\dfrac{8\\theta^2}{6\\theta^2} = \\dfrac43$", mk: "A1", n: "The $\\theta^2$ cancels: the expression tends to a constant as $\\theta \\to 0$." }
       ], result: "$\\dfrac43$" } },
     { worked: { tag: "exam", title: "$4\\sin\\frac{\\theta}{2} + 3\\cos^2\\theta \\approx a + b\\theta + c\\theta^2$", src: "A-level Oct 2021 · P2 Q4 · 3 marks",
       q: "Given $\\theta$ is small and in radians, show that $4\\sin\\frac{\\theta}{2} + 3\\cos^2\\theta \\approx a + b\\theta + c\\theta^2$, where $a$, $b$, $c$ are integers to be found.",
@@ -242,7 +288,8 @@ C["maths:5.2"] = {
       steps: [
         { h: "(a)", m: "$1 + 4\\left(1 - \\dfrac{\\theta^2}{2}\\right) + 3\\left(1 - \\dfrac{\\theta^2}{2}\\right)^2 \\approx 1 + 4 - 2\\theta^2 + 3 - 3\\theta^2 = 8 - 5\\theta^2$", mk: "M1 A1 A1*", n: "$(1 - \\frac{\\theta^2}{2})^2 \\approx 1 - \\theta^2$ dropping $\\theta^4$." },
         { h: "(b)(i)", m: "She substituted $\\theta = 5$ (degrees) into $8 - 5\\theta^2$; the approximation only holds for $\\theta$ in **radians**.", mk: "B1" },
-        { h: "(ii)", m: "$5° = \\dfrac{5\\pi}{180} = 0.08727$ rad: $8 - 5(0.08727)^2 = 7.962$, matching her calculator value.", mk: "B1" }
+        { fig: { x: [-0.85, 0.85], y: [4.5, 8.4], axes: { x: "θ (rad)", xt: [-0.5, { v: 0.0873, label: "5°" }, 0.5], yt: [5, 6, 7, 8] }, items: [
+          { fn: "1+4*cos(x)+3*cos(x)^2", label: "exact", at: 0.6, pos: "ne" }, { fn: "8-5*x*x", c: "accent2", dash: true, label: "8 − 5θ²", at: -0.7, pos: "w" }, { pt: [0.0873, 7.962], c: "accent3" } ], cap: "In radians the two agree closely near 0: at $5° = 0.0873$ rad both give $7.962$." }, h: "(ii)", m: "$5° = \\dfrac{5\\pi}{180} = 0.08727$ rad: $8 - 5(0.08727)^2 = 7.962$, matching her calculator value.", mk: "B1" }
       ], result: "shown; degrees vs radians" } },
     { worked: { tag: "exam", title: "Chain of approximations with a \"very small\" deduction", src: "A-level June 2025 · P2 Q6 · 6 marks",
       q: "**(a)** Given $x$ is small and in radians, use the approximation for $\\cos\\theta$ to show that $1 - \\cos^2(2x) \\approx 4x^2 - 4x^4$. **(b)** Hence show that $\\frac{1 - \\cos^2(2x)}{\\sin\\left(\\frac{x}{3}\\right)\\tan\\left(\\frac{x}{2}\\right)} \\approx a + bx^2$. **(c)** Hence, given $x$ is **very** small, deduce an approximate value for the expression in (b), giving a reason.",
@@ -263,7 +310,8 @@ C["maths:5.2"] = {
     { worked: { tag: "exam", title: "Stationary point from $f'(x) = 2x + \\frac12\\cos x$; tangent at $(0, 3)$", src: "A-level June 2023 · P1 Q4 · 5 marks",
       q: "$f'(x) = 2x + \\frac12\\cos x$ and the curve $y = f(x)$ has a stationary point at $x = \\alpha$, where $\\alpha$ is small. **(a)** Use the small angle approximation for $\\cos x$ to estimate $\\alpha$ to 3 d.p. **(b)** $P(0, 3)$ lies on the curve. Find the tangent at $P$ in the form $y = mx + c$.",
       steps: [
-        { h: "(a) $f'(\\alpha) = 0$", m: "$2x + \\dfrac12\\left(1 - \\dfrac{x^2}{2}\\right) = 0 \\Rightarrow x^2 - 8x - 2 = 0 \\Rightarrow x = 4 \\pm \\sqrt{18}$; small root $\\alpha \\approx 4 - 3\\sqrt2 = -0.243$", mk: "M1 A1 A1", n: "Multiply by $-4$ to clear fractions; choose the root near 0." },
+        { fig: { x: [-1, 1], y: [-2.5, 2.5], axes: { xt: [-0.5, -0.243, 0.5], yt: [-2, 0.5, 2] }, items: [
+          { fn: "2*x+0.5*cos(x)", label: "y = f′(x)", at: 0.7, pos: "nw" }, { fn: "2*x+0.5*(1-x*x/2)", c: "accent2", dash: true }, { pt: [-0.2426, 0], label: "α", pos: "nw" }, { pt: [0, 0.5], c: "accent3", label: "f′(0) = ½", pos: "se" } ], cap: "$f'$ crosses zero once near the origin; the small-angle version (dashed) is indistinguishable there." }, h: "(a) $f'(\\alpha) = 0$", m: "$2x + \\dfrac12\\left(1 - \\dfrac{x^2}{2}\\right) = 0 \\Rightarrow x^2 - 8x - 2 = 0 \\Rightarrow x = 4 \\pm \\sqrt{18}$; small root $\\alpha \\approx 4 - 3\\sqrt2 = -0.243$", mk: "M1 A1 A1", n: "Multiply by $-4$ to clear fractions; choose the root near 0." },
         { h: "(b) Gradient at $x = 0$ is exact — no approximation needed", m: "$f'(0) = 0 + \\dfrac12 = \\dfrac12$; tangent $y = \\dfrac12 x + 3$", mk: "M1 A1", n: "$\\cos 0 = 1$ exactly. Using an approximation here would be wrong in principle (and unnecessary)." }
       ], result: "(a) $-0.243$ (b) $y = \\frac12 x + 3$" } },
 
@@ -358,14 +406,18 @@ C["maths:5.3"] = {
       q: "The point $P(c, d)$ is a minimum of $y = 3\\cos x°$, with $c$ the smallest negative $x$ at which a minimum occurs. **(a)** State $c$ and $d$. **(b)** State the image of $P$ under the transformation to (i) $y = 3\\cos\\frac{x°}{4}$, (ii) $y = 3\\cos x° - 5$. **(c)** Solve $3\\cos\\theta° = 8\\tan\\theta°$ for $0 < \\theta < 360$.",
       steps: [
         { h: "(a)", m: "$c = -180$, $d = -3$", mk: "B1" },
-        { h: "(b)", m: "(i) $x$ stretched by 4: $(-720, -3)$. (ii) down 5: $(-180, -8)$", mk: "B1 B1" },
+        { fig: { x: [-790, 400], y: [-9, 4.2], axes: { xt: [{ v: -720, label: "−720°" }, { v: -180, label: "−180°" }, { v: 180, label: "180°" }, { v: 360, label: "360°" }], yt: [-8, -5, -3, 3] }, items: [
+          { fn: "3*cos(x*pi/180)", label: "3cos x°", at: 120, pos: "ne" }, { fn: "3*cos(x*pi/720)", c: "accent2", dash: true, label: "3cos(x°/4)", at: -400, pos: "n" }, { fn: "3*cos(x*pi/180)-5", c: "accent3", dash: true, label: "3cos x° − 5", at: 300, pos: "s" },
+          { pt: [-180, -3], label: "P", pos: "ne" }, { pt: [-720, -3], c: "accent2", label: "(−720, −3)", pos: "e" }, { pt: [-180, -8], c: "accent3", label: "(−180, −8)", pos: "e" } ], cap: "A stretch ×4 in $x$ moves $P$ to $x = -720$; the translation moves it 5 down." }, h: "(b)", m: "(i) $x$ stretched by 4: $(-720, -3)$. (ii) down 5: $(-180, -8)$", mk: "B1 B1" },
         { h: "(c) Write $\\tan$ as $\\frac{\\sin}{\\cos}$ and clear", m: "$3\\cos\\theta = \\dfrac{8\\sin\\theta}{\\cos\\theta} \\Rightarrow 3\\cos^2\\theta = 8\\sin\\theta \\Rightarrow 3(1 - \\sin^2\\theta) = 8\\sin\\theta \\Rightarrow 3\\sin^2\\theta + 8\\sin\\theta - 3 = 0$", mk: "M1 M1 A1" },
-        { m: "$(3\\sin\\theta - 1)(\\sin\\theta + 3) = 0 \\Rightarrow \\sin\\theta = \\dfrac13$ ($\\sin\\theta = -3$ impossible)\n$\\theta = 19.5°, \\; 160.5°$", mk: "M1 A1", n: "Second solution from $180° - 19.47°$." }
+        { fig: { x: [-10, 370], y: [-1.3, 1.3], axes: { xt: [{ v: 19.5, label: "19.5°" }, { v: 90, label: "90°" }, { v: 160.5, label: "160.5°" }, { v: 270, label: "270°" }, { v: 360, label: "360°" }], yt: [-1, 0.333, 1] }, items: [
+          { fn: "sin(x*pi/180)", from: 0, to: 360, label: "y = sin θ", at: 270, pos: "s" }, { hline: 1 / 3, c: "accent3", label: "y = 1/3" }, { pt: [19.47, 0.3333] }, { pt: [160.53, 0.3333] } ], cap: "$\\sin\\theta = \\frac13$ twice in $(0°, 360°)$: $19.5°$ and $180° - 19.5°$." }, m: "$(3\\sin\\theta - 1)(\\sin\\theta + 3) = 0 \\Rightarrow \\sin\\theta = \\dfrac13$ ($\\sin\\theta = -3$ impossible)\n$\\theta = 19.5°, \\; 160.5°$", mk: "M1 A1", n: "Second solution from $180° - 19.47°$." }
       ], result: "(a) $c = -180$, $d = -3$ (c) $19.5°$, $160.5°$" } },
     { worked: { tag: "exam", title: "Counting solutions of $\\sin(nx) = k$ from the graph", src: "A-level June 2025 · P2 Q13 · 3 marks",
       q: "For all $k$ with $0 < |k| < 1$, the equation $\\sin(nx) = k$, $n \\in \\mathbb{N}$, has exactly 6 solutions in $0 \\le x < 2\\pi$. **(i)** Deduce $n$. **(ii)** Deduce the number of solutions of $\\sin^2(nx) = k^2$ in $0 \\le x < 5\\pi$, justifying your answer.",
       steps: [
-        { h: "(i) Each period of $\\sin$ gives two solutions for a horizontal line between $-1$ and $1$", m: "$\\sin(nx)$ has $n$ periods in $[0, 2\\pi)$, so $2n = 6 \\Rightarrow n = 3$", mk: "B1" },
+        { fig: { x: [-0.2, 2 * Math.PI + 0.3], y: [-1.4, 1.4], axes: { pi: true, yt: [-1, 0.5, 1] }, items: [
+          { fn: "sin(3*x)", from: 0, to: 2 * Math.PI, label: "y = sin 3x", at: 0.4, pos: "n" }, { hline: 0.5, c: "accent3", label: "y = k" }, { pt: [0.1745, 0.5] }, { pt: [0.8727, 0.5] }, { pt: [2.2689, 0.5] }, { pt: [2.9671, 0.5] }, { pt: [4.3633, 0.5] }, { pt: [5.0615, 0.5] } ], cap: "Three periods in $[0, 2\\pi)$, two crossings each: 6 solutions for any $0 < k < 1$." }, h: "(i) Each period of $\\sin$ gives two solutions for a horizontal line between $-1$ and $1$", m: "$\\sin(nx)$ has $n$ periods in $[0, 2\\pi)$, so $2n = 6 \\Rightarrow n = 3$", mk: "B1" },
         { h: "(ii) $\\sin^2 3x = k^2 \\iff \\sin 3x = k$ or $\\sin 3x = -k$", m: "In $[0, 5\\pi)$ there are $2.5$ times as many periods as in $[0, 2\\pi)$: $\\sin 3x = k$ has $6 \\times 2.5 = 15$ solutions, and so does $\\sin 3x = -k$ — **30** solutions in total.", mk: "M1 A1", n: "The two lines $y = \\pm k$ each cut every arch twice; no solution is shared because $k \\ne -k$." }
       ], result: "(i) $n = 3$ (ii) 30" } },
 
@@ -452,13 +504,17 @@ C["maths:5.4"] = {
       q: "$x = \\sin 2\\theta$, $y = \\text{cosec}^3\\theta$, $0 < \\theta < \\frac{\\pi}{2}$. **(a)** Find $\\frac{dy}{dx}$ in terms of $\\theta$. **(b)** Find the exact gradient at the point where $y = 8$.",
       steps: [
         { h: "(a) $\\frac{d}{d\\theta}\\text{cosec}\\,\\theta = -\\text{cosec}\\,\\theta\\cot\\theta$", m: "$\\dfrac{dy}{d\\theta} = 3\\text{cosec}^2\\theta \\cdot (-\\text{cosec}\\,\\theta\\cot\\theta) = -3\\text{cosec}^3\\theta\\cot\\theta; \\quad \\dfrac{dx}{d\\theta} = 2\\cos 2\\theta$\n$\\dfrac{dy}{dx} = -\\dfrac{3\\text{cosec}^3\\theta\\cot\\theta}{2\\cos 2\\theta}$", mk: "M1 A1 A1" },
-        { h: "(b) $\\text{cosec}\\,\\theta = 2 \\Rightarrow \\sin\\theta = \\frac12 \\Rightarrow \\theta = \\frac{\\pi}{6}$", m: "$\\dfrac{dy}{dx} = -\\dfrac{3 \\cdot 8 \\cdot \\sqrt3}{2 \\cdot \\frac12} = -24\\sqrt3$", mk: "M1 M1 A1" }
+        { fig: { x: [-0.05, 1.15], y: [-0.5, 14], axes: { xt: [0.5, 0.87, 1], yt: [1, 8] }, items: [
+          { param: { x: "sin(2*t)", y: "1/sin(t)^3" }, t: [0.36, Math.PI / 2], n: 240 }, { line: [[0.866 - 0.13, 8 + 0.13 * 24 * Math.sqrt(3)], [0.866 + 0.13, 8 - 0.13 * 24 * Math.sqrt(3)]], c: "accent3" },
+          { pt: [Math.sqrt(3) / 2, 8], label: "θ = π/6", pos: "e" } ], cap: "At $\\theta = \\frac{\\pi}{6}$ the curve is falling steeply: gradient $-24\\sqrt3 \\approx -41.6$." }, h: "(b) $\\text{cosec}\\,\\theta = 2 \\Rightarrow \\sin\\theta = \\frac12 \\Rightarrow \\theta = \\frac{\\pi}{6}$", m: "$\\dfrac{dy}{dx} = -\\dfrac{3 \\cdot 8 \\cdot \\sqrt3}{2 \\cdot \\frac12} = -24\\sqrt3$", mk: "M1 M1 A1" }
       ], result: "$-24\\sqrt3$" } },
     { worked: { tag: "exam", title: "Solve $4\\sin x = \\sec x$", src: "A-level June 2018 · P2 Q7(i) · 4 marks",
       q: "Solve, for $0 \\le x < \\frac{\\pi}{2}$, the equation $4\\sin x = \\sec x$.",
       steps: [
         { m: "$4\\sin x = \\dfrac{1}{\\cos x} \\Rightarrow 4\\sin x\\cos x = 1 \\Rightarrow 2\\sin 2x = 1 \\Rightarrow \\sin 2x = \\dfrac12$", mk: "M1 M1", n: "Multiply by $\\cos x$ (non-zero on the interval), then recognise $2\\sin x\\cos x = \\sin 2x$." },
-        { m: "$0 \\le 2x < \\pi$: $2x = \\dfrac{\\pi}{6}, \\dfrac{5\\pi}{6} \\Rightarrow x = \\dfrac{\\pi}{12}, \\dfrac{5\\pi}{12}$", mk: "A1 A1" }
+        { fig: { x: [-0.05, 1.62], y: [-0.3, 5], axes: { xt: [{ v: Math.PI / 12, label: "π/12" }, { v: 5 * Math.PI / 12, label: "5π/12" }, { v: Math.PI / 2, label: "π/2" }], yt: [1, 2, 3, 4] }, items: [
+          { fn: "4*sin(x)", from: 0, to: Math.PI / 2, label: "y = 4sin x", at: 0.6, pos: "nw" }, { fn: "sec(x)", from: 0, to: 1.5, c: "accent2", label: "y = sec x", at: 1.0, pos: "se" }, { vline: Math.PI / 2, c: "muted" },
+          { pt: [Math.PI / 12, 4 * Math.sin(Math.PI / 12)] }, { pt: [5 * Math.PI / 12, 4 * Math.sin(5 * Math.PI / 12)] } ], cap: "Two crossings before the asymptote at $\\frac{\\pi}{2}$." }, m: "$0 \\le 2x < \\pi$: $2x = \\dfrac{\\pi}{6}, \\dfrac{5\\pi}{6} \\Rightarrow x = \\dfrac{\\pi}{12}, \\dfrac{5\\pi}{12}$", mk: "A1 A1" }
       ], result: "$x = \\frac{\\pi}{12}, \\frac{5\\pi}{12}$" } },
 
     { page: "Exam toolkit" },
@@ -520,33 +576,39 @@ C["maths:5.5"] = {
       steps: [
         { h: "(a) $\\tan = \\frac{\\sin}{\\cos}$, multiply by $\\cos\\theta$, use $\\sin^2 = 1 - \\cos^2$", m: "$4\\cos\\theta - 1 = \\dfrac{2\\sin^2\\theta}{\\cos\\theta} \\Rightarrow 4\\cos^2\\theta - \\cos\\theta = 2(1 - \\cos^2\\theta) \\Rightarrow 6\\cos^2\\theta - \\cos\\theta - 2 = 0$", mk: "M1 M1 A1 A1*" },
         { h: "(b) Solve the quadratic with $\\theta = 3x$", m: "$(3\\cos3x - 2)(2\\cos3x + 1) = 0 \\Rightarrow \\cos 3x = \\dfrac23$ or $-\\dfrac12$", mk: "M1" },
-        { h: "Interval for $3x$: $0 \\le 3x < 270°$", m: "$\\cos 3x = \\dfrac23$: $3x = 48.19°$ (next, $311.8°$, is out of range) $\\Rightarrow x = 16.1°$\n$\\cos 3x = -\\dfrac12$: $3x = 120°, 240° \\Rightarrow x = 40°, 80°$", mk: "M1 A1 A1", n: "Triple the interval **before** listing solutions, then divide each by 3. Missing $240°$ is the usual loss." }
+        { fig: { x: [-3, 93], y: [-1.3, 1.3], axes: { xt: [{ v: 16.1, label: "16.1°" }, { v: 40, label: "40°" }, { v: 80, label: "80°" }], yt: [-1, -0.5, 0.667, 1] }, items: [
+          { fn: "cos(3*x*pi/180)", from: 0, to: 90, label: "y = cos 3x", at: 60, pos: "e" }, { hline: 2 / 3, c: "accent3" }, { hline: -0.5, c: "accent2" }, { pt: [16.06, 0.6667] }, { pt: [40, -0.5] }, { pt: [80, -0.5] } ], cap: "Over $0 \\le x < 90°$ the curve meets $\\frac23$ once and $-\\frac12$ twice." }, h: "Interval for $3x$: $0 \\le 3x < 270°$", m: "$\\cos 3x = \\dfrac23$: $3x = 48.19°$ (next, $311.8°$, is out of range) $\\Rightarrow x = 16.1°$\n$\\cos 3x = -\\dfrac12$: $3x = 120°, 240° \\Rightarrow x = 40°, 80°$", mk: "M1 A1 A1", n: "Triple the interval **before** listing solutions, then divide each by 3. Missing $240°$ is the usual loss." }
       ], result: "(b) $x = 16.1°, 40°, 80°$" } },
     { worked: { tag: "exam", title: "Homogeneous equation → quadratic in $\\tan$; solutions for $4\\alpha$ far from zero", src: "AS June 2024 · P1 Q13 · 9 marks",
       q: "**(a)** Show that $\\sin\\theta(7\\sin\\theta - 4\\cos\\theta) = 4$ can be written as $3\\tan^2\\theta - 4\\tan\\theta - 4 = 0$. **(b)** Hence solve, for $0 < x < 360°$, $\\sin x(7\\sin x - 4\\cos x) = 4$ to one decimal place. **(c)** Hence find the smallest solution of $\\sin 4\\alpha(7\\sin 4\\alpha - 4\\cos 4\\alpha) = 4$ in $720° < \\alpha < 1080°$.",
       steps: [
         { h: "(a) Replace the 4 by $4(\\sin^2 + \\cos^2)$, then divide by $\\cos^2\\theta$", m: "$7\\sin^2\\theta - 4\\sin\\theta\\cos\\theta = 4\\sin^2\\theta + 4\\cos^2\\theta \\Rightarrow 3\\sin^2\\theta - 4\\sin\\theta\\cos\\theta - 4\\cos^2\\theta = 0$\nDivide by $\\cos^2\\theta$: $3\\tan^2\\theta - 4\\tan\\theta - 4 = 0$", mk: "M1 M1 A1 A1*", n: "Writing $4 = 4(\\sin^2\\theta + \\cos^2\\theta)$ is the trick that makes every term degree 2." },
-        { h: "(b)", m: "$(3\\tan x + 2)(\\tan x - 2) = 0$: $\\tan x = 2 \\Rightarrow x = 63.4°, 243.4°$; $\\tan x = -\\dfrac23 \\Rightarrow x = 146.3°, 326.3°$", mk: "M1 A1 A1 A1", n: "Tan repeats every $180°$: add $180°$ to the calculator value; for the negative one, $180° - 33.7°$ and $360° - 33.7°$." },
+        { fig: { x: [-5, 365], y: [-5, 5], axes: { xt: [{ v: 63.4, label: "63.4°" }, { v: 146.3, label: "146.3°" }, { v: 243.4, label: "243.4°" }, { v: 326.3, label: "326.3°" }], yt: [-0.667, 2] }, items: [
+          { fn: "tan(x*pi/180)", from: 0, to: 360, label: "y = tan x", at: 20, pos: "nw" }, { hline: 2, c: "accent3" }, { hline: -2 / 3, c: "accent2" }, { pt: [63.43, 2] }, { pt: [243.43, 2] }, { pt: [146.31, -0.6667] }, { pt: [326.31, -0.6667] } ], cap: "Each horizontal line meets $\\tan$ once per $180°$: four solutions." }, h: "(b)", m: "$(3\\tan x + 2)(\\tan x - 2) = 0$: $\\tan x = 2 \\Rightarrow x = 63.4°, 243.4°$; $\\tan x = -\\dfrac23 \\Rightarrow x = 146.3°, 326.3°$", mk: "M1 A1 A1 A1", n: "Tan repeats every $180°$: add $180°$ to the calculator value; for the negative one, $180° - 33.7°$ and $360° - 33.7°$." },
         { h: "(c) $4\\alpha$ lies in $(2880°, 4320°)$", m: "Solutions of $\\tan 4\\alpha = 2$: $63.4° + 180°n$; the first above $2880°$ is $63.4° + 2880° = 2943.4°$ ($n = 16$). Check $\\tan 4\\alpha = -\\frac23$: $146.3° + 2880° = 3026.3°$, larger.\n$\\alpha = \\dfrac{2943.4°}{4} = 735.9°$", mk: "B1", n: "Multiply the interval by 4, use the period $180°$ to jump, divide back." }
       ], result: "(b) $63.4°, 146.3°, 243.4°, 326.3°$ (c) $735.9°$" } },
     { worked: { tag: "exam", title: "$4\\tan x = 5\\cos x$ → quadratic in $\\sin x$; count solutions for $3x$", src: "AS June 2023 · P1 Q12 · 9 marks",
       q: "**(a)** Show that $4\\tan x = 5\\cos x$ can be written as $5\\sin^2 x + 4\\sin x - 5 = 0$. **(b)** Hence solve, for $0 < x \\le 360°$, to one decimal place. **(c)** Hence find the number of solutions of $4\\tan 3x = 5\\cos 3x$ in $0 < x \\le 1800°$, explaining briefly.",
       steps: [
         { h: "(a)", m: "$\\dfrac{4\\sin x}{\\cos x} = 5\\cos x \\Rightarrow 4\\sin x = 5\\cos^2 x = 5(1 - \\sin^2 x) \\Rightarrow 5\\sin^2 x + 4\\sin x - 5 = 0$", mk: "M1 M1 A1*" },
-        { h: "(b) Formula", m: "$\\sin x = \\dfrac{-4 \\pm \\sqrt{16 + 100}}{10} = 0.677$ or $-1.477$ (impossible)\n$x = 42.6°, 137.4°$", mk: "M1 A1 M1 A1", n: "Reject $-1.477$ explicitly: $|\\sin x| \\le 1$." },
+        { fig: { x: [-10, 370], y: [-1.6, 1.3], axes: { xt: [{ v: 42.6, label: "42.6°" }, { v: 137.4, label: "137.4°" }, { v: 270, label: "270°" }, { v: 360, label: "360°" }], yt: [-1, 0.677, 1] }, items: [
+          { fn: "sin(x*pi/180)", from: 0, to: 360, label: "y = sin x", at: 280, pos: "s" }, { hline: 0.677, c: "accent3" }, { hline: -1.477, c: "danger", label: "−1.477: no solution" }, { pt: [42.61, 0.677] }, { pt: [137.39, 0.677] } ], cap: "$\\sin x = -1.477$ is below the curve's range; $0.677$ gives two angles." }, h: "(b) Formula", m: "$\\sin x = \\dfrac{-4 \\pm \\sqrt{16 + 100}}{10} = 0.677$ or $-1.477$ (impossible)\n$x = 42.6°, 137.4°$", mk: "M1 A1 M1 A1", n: "Reject $-1.477$ explicitly: $|\\sin x| \\le 1$." },
         { h: "(c) $3x$ runs over $(0, 5400°]$ — 15 full periods of $360°$", m: "Two solutions per period: $15 \\times 2 = 30$ solutions", mk: "M1 A1", n: "Count periods of the transformed variable; each period has the same two solutions." }
       ], result: "(b) $42.6°, 137.4°$ (c) 30" } },
     { worked: { tag: "exam", title: "Spot the student's errors: dividing by $\\sin x$ and forgetting the negative root", src: "AS Nov 2021 · P1 Q12(ii) · 2 marks",
       q: "A student solves $3\\tan x - 5\\sin x = 0$ for $-90° < x < 90°$ as follows: $3\\frac{\\sin x}{\\cos x} - 5\\sin x = 0 \\Rightarrow 3\\sin x - 5\\sin x\\cos x = 0 \\Rightarrow 3 - 5\\cos x = 0 \\Rightarrow \\cos x = \\frac35 \\Rightarrow x = 53.1°$. Identify two errors or omissions.",
       steps: [
         { m: "**1.** Dividing by $\\sin x$ loses the solution $\\sin x = 0$, i.e. $x = 0$. The line should be $\\sin x(3 - 5\\cos x) = 0$.", mk: "B1" },
-        { m: "**2.** $\\cos x = \\frac35$ has two solutions in $-90° < x < 90°$: $x = \\pm53.1°$; the student omitted $-53.1°$.", mk: "B1", n: "These two errors — dividing by a function, and taking only the principal value — are the two most common in the whole topic." }
+        { fig: { x: [-92, 92], y: [-8, 8], axes: { xt: [{ v: -53.1, label: "−53.1°" }, { v: 53.1, label: "53.1°" }], yt: [-4, 4] }, items: [
+          { fn: "3*tan(x*pi/180)", from: -89, to: 89, label: "y = 3tan x", at: 70, pos: "e" }, { fn: "5*sin(x*pi/180)", c: "accent2", label: "y = 5sin x", at: -70, pos: "s" },
+          { pt: [-53.13, -4], c: "danger" }, { pt: [0, 0], c: "danger" }, { pt: [53.13, 4] } ], cap: "Three crossings in $(-90°, 90°)$; the student found only the one at $53.1°$." }, m: "**2.** $\\cos x = \\frac35$ has two solutions in $-90° < x < 90°$: $x = \\pm53.1°$; the student omitted $-53.1°$.", mk: "B1", n: "These two errors — dividing by a function, and taking only the principal value — are the two most common in the whole topic." }
       ], result: "lost $x = 0$; missed $x = -53.1°$" } },
     { worked: { tag: "exam", title: "$\\sin^2 3x = 4\\cos^2 3x$", src: "AS June 2025 · P1 Q8 · 5 marks",
       q: "Solve, for $0 \\le x \\le 90°$, $\\sin^2 3x = 4\\cos^2 3x$, to one decimal place.",
       steps: [
         { m: "Divide by $\\cos^2 3x$ ($\\ne 0$, since $\\cos 3x = 0$ would force $\\sin 3x = 0$ too): $\\tan^2 3x = 4 \\Rightarrow \\tan 3x = \\pm2$", mk: "M1 A1", n: "Both square roots." },
-        { h: "$0 \\le 3x \\le 270°$", m: "$\\tan 3x = 2$: $3x = 63.4°, 243.4°$; $\\tan 3x = -2$: $3x = 116.6°$ ($296.6°$ is out)\n$x = 21.1°, 38.9°, 81.1°$", mk: "M1 A1 A1" }
+        { fig: { x: [-3, 93], y: [-5, 5], axes: { xt: [{ v: 21.1, label: "21.1°" }, { v: 38.9, label: "38.9°" }, { v: 81.1, label: "81.1°" }], yt: [-2, 2] }, items: [
+          { fn: "tan(3*x*pi/180)", from: 0, to: 90, label: "y = tan 3x", at: 8, pos: "nw" }, { hline: 2, c: "accent3" }, { hline: -2, c: "accent3" }, { vline: 30, c: "muted" }, { pt: [21.14, 2] }, { pt: [38.86, -2] }, { pt: [81.14, 2] } ], cap: "$\\tan 3x = \\pm 2$ in $0 \\le x \\le 90°$: three crossings." }, h: "$0 \\le 3x \\le 270°$", m: "$\\tan 3x = 2$: $3x = 63.4°, 243.4°$; $\\tan 3x = -2$: $3x = 116.6°$ ($296.6°$ is out)\n$x = 21.1°, 38.9°, 81.1°$", mk: "M1 A1 A1" }
       ], result: "$x = 21.1°, 38.9°, 81.1°$" } },
 
     { page: "Exam toolkit" },
@@ -597,26 +659,30 @@ C["maths:5.6"] = {
       steps: [
         { h: "(a) Expand with exact values", m: "$2\\left(\\sin x \\cdot \\tfrac12 - \\cos x \\cdot \\tfrac{\\sqrt3}{2}\\right) = \\cos x \\cdot \\tfrac{\\sqrt3}{2} + \\sin x \\cdot \\tfrac12$\n$\\sin x - \\sqrt3\\cos x = \\tfrac{\\sqrt3}{2}\\cos x + \\tfrac12\\sin x \\Rightarrow \\tfrac12\\sin x = \\tfrac{3\\sqrt3}{2}\\cos x \\Rightarrow \\tan x = 3\\sqrt3$", mk: "M1 M1 A1 A1*", n: "Collect $\\sin x$ on one side and $\\cos x$ on the other, then divide by $\\cos x$." },
         { h: "(b) Match to (a): put $x = 2\\theta + 60°$", m: "Then $x - 60° = 2\\theta$ and $x - 30° = 2\\theta + 30°$, so the equation is exactly (a): $\\tan(2\\theta + 60°) = 3\\sqrt3$", mk: "M1", n: "\"Hence\" is a strong hint that the new equation *is* the old one in disguise." },
-        { m: "$2\\theta + 60°$ in $[60°, 420°)$: $2\\theta + 60° = 79.1°, 259.1° \\Rightarrow \\theta = 9.6°, 99.6°$", mk: "M1 A1 A1" }
+        { fig: { x: [-5, 185], y: [-8, 8], axes: { x: "θ", xt: [{ v: 9.6, label: "9.6°" }, { v: 99.6, label: "99.6°" }], yt: [5.196] }, items: [
+          { fn: "tan((2*x+60)*pi/180)", from: 0, to: 180, label: "y = tan(2θ + 60°)", at: 45, pos: "e" }, { hline: 3 * Math.sqrt(3), c: "accent3", label: "3√3" }, { pt: [9.55, 5.196] }, { pt: [99.55, 5.196] } ], cap: "Period $90°$ in $\\theta$: two crossings in $[0°, 180°)$." }, m: "$2\\theta + 60°$ in $[60°, 420°)$: $2\\theta + 60° = 79.1°, 259.1° \\Rightarrow \\theta = 9.6°, 99.6°$", mk: "M1 A1 A1" }
       ], result: "(b) $\\theta = 9.6°, 99.6°$" } },
     { worked: { tag: "exam", title: "Show $\\sin(x + 30°) + \\sqrt3\\cos(x + 30°) = 2\\cos x$; solve a follow-on", src: "A-level June 2025 · P1 Q14 · 7 marks",
       q: "**(a)** Show that $\\sin(x + 30°) + \\sqrt3\\cos(x + 30°) \\equiv 2\\cos x$. **(b)** Hence solve, for $0 \\le \\theta < 180°$, $\\sin(\\theta + 30°) + \\sqrt3\\cos(\\theta + 30°) = 3\\sin 2\\theta$, to one decimal place where appropriate.",
       steps: [
         { h: "(a)", m: "$\\left(\\tfrac{\\sqrt3}{2}\\sin x + \\tfrac12\\cos x\\right) + \\sqrt3\\left(\\tfrac{\\sqrt3}{2}\\cos x - \\tfrac12\\sin x\\right) = \\tfrac{\\sqrt3}{2}\\sin x + \\tfrac12\\cos x + \\tfrac32\\cos x - \\tfrac{\\sqrt3}{2}\\sin x = 2\\cos x$", mk: "M1 A1 A1*" },
-        { h: "(b) $2\\cos\\theta = 3\\sin 2\\theta = 6\\sin\\theta\\cos\\theta$", m: "$\\cos\\theta(1 - 3\\sin\\theta) = 0$: $\\cos\\theta = 0 \\Rightarrow \\theta = 90°$; $\\sin\\theta = \\dfrac13 \\Rightarrow \\theta = 19.5°, 160.5°$", mk: "M1 M1 A1 A1", n: "Factorise — dividing by $\\cos\\theta$ throws away $90°$." }
+        { fig: { x: [-5, 185], y: [-3.3, 3.3], axes: { x: "θ", xt: [{ v: 19.5, label: "19.5°" }, { v: 90, label: "90°" }, { v: 160.5, label: "160.5°" }], yt: [-2, 2] }, items: [
+          { fn: "2*cos(x*pi/180)", from: 0, to: 180, label: "2cos θ", at: 140, pos: "s" }, { fn: "3*sin(2*x*pi/180)", from: 0, to: 180, c: "accent2", label: "3sin 2θ", at: 45, pos: "n" }, { pt: [19.47, 1.8856] }, { pt: [90, 0] }, { pt: [160.53, -1.8856] } ], cap: "Three crossings: the $\\cos\\theta = 0$ one at $90°$ is the one lost by dividing." }, h: "(b) $2\\cos\\theta = 3\\sin 2\\theta = 6\\sin\\theta\\cos\\theta$", m: "$\\cos\\theta(1 - 3\\sin\\theta) = 0$: $\\cos\\theta = 0 \\Rightarrow \\theta = 90°$; $\\sin\\theta = \\dfrac13 \\Rightarrow \\theta = 19.5°, 160.5°$", mk: "M1 M1 A1 A1", n: "Factorise — dividing by $\\cos\\theta$ throws away $90°$." }
       ], result: "(b) $19.5°, 90°, 160.5°$" } },
     { worked: { tag: "exam", title: "Prove $\\cos 3A = 4\\cos^3 A - 3\\cos A$; solve $1 - \\cos 3x = \\sin^2 x$", src: "A-level Oct 2020 · P2 Q10 · 8 marks",
       q: "**(a)** Show that $\\cos 3A \\equiv 4\\cos^3 A - 3\\cos A$. **(b)** Hence solve, for $-90° \\le x < 180°$, $1 - \\cos 3x = \\sin^2 x$.",
       steps: [
         { h: "(a) $3A = 2A + A$", m: "$\\cos 3A = \\cos 2A\\cos A - \\sin 2A\\sin A = (2\\cos^2 A - 1)\\cos A - 2\\sin^2 A\\cos A$\n$= 2\\cos^3 A - \\cos A - 2(1 - \\cos^2 A)\\cos A = 4\\cos^3 A - 3\\cos A$", mk: "M1 M1 A1 A1*", n: "Choose the $\\cos 2A$ form in $\\cos^2$, and turn the $\\sin^2$ into $1 - \\cos^2$." },
         { h: "(b)", m: "$1 - 4\\cos^3 x + 3\\cos x = 1 - \\cos^2 x \\Rightarrow 4\\cos^3 x - \\cos^2 x - 3\\cos x = 0 \\Rightarrow \\cos x(4\\cos x + 3)(\\cos x - 1) = 0$", mk: "M1 A1" },
-        { m: "$\\cos x = 0$: $x = -90°, 90°$; $\\cos x = 1$: $x = 0$; $\\cos x = -\\dfrac34$: $x = 138.6°$ (the other, $-138.6°$, is outside)\n$x = -90°, 0°, 90°, 138.6°$", mk: "M1 A1", n: "Four solutions; each factor contributes." }
+        { fig: { x: [-95, 185], y: [-0.3, 2.2], axes: { xt: [{ v: -90, label: "−90°" }, { v: 90, label: "90°" }, { v: 138.6, label: "138.6°" }], yt: [1, 2] }, items: [
+          { fn: "1-cos(3*x*pi/180)", from: -90, to: 180, label: "1 − cos 3x", at: 60, pos: "n" }, { fn: "sin(x*pi/180)^2", from: -90, to: 180, c: "accent2", label: "sin²x", at: 170, pos: "ne" }, { pt: [-90, 1] }, { pt: [0, 0] }, { pt: [90, 1] }, { pt: [138.59, 0.4375] } ], cap: "Four crossings in $[-90°, 180°)$." }, m: "$\\cos x = 0$: $x = -90°, 90°$; $\\cos x = 1$: $x = 0$; $\\cos x = -\\dfrac34$: $x = 138.6°$ (the other, $-138.6°$, is outside)\n$x = -90°, 0°, 90°, 138.6°$", mk: "M1 A1", n: "Four solutions; each factor contributes." }
       ], result: "(b) $x = -90°, 0°, 90°, 138.6°$" } },
     { worked: { tag: "exam", title: "Prove $\\frac{\\cos 3\\theta}{\\sin\\theta} + \\frac{\\sin 3\\theta}{\\cos\\theta} \\equiv 2\\cot 2\\theta$ and solve", src: "A-level June 2019 · P2 Q12 · 7 marks",
       q: "**(a)** Prove that $\\frac{\\cos 3\\theta}{\\sin\\theta} + \\frac{\\sin 3\\theta}{\\cos\\theta} \\equiv 2\\cot 2\\theta$, $\\theta \\ne 90n°$. **(b)** Hence solve, for $90° < \\theta < 180°$, $\\frac{\\cos 3\\theta}{\\sin\\theta} + \\frac{\\sin 3\\theta}{\\cos\\theta} = 4$.",
       steps: [
         { h: "(a) Common denominator, then recognise $\\cos(A - B)$", m: "$\\dfrac{\\cos 3\\theta\\cos\\theta + \\sin 3\\theta\\sin\\theta}{\\sin\\theta\\cos\\theta} = \\dfrac{\\cos(3\\theta - \\theta)}{\\frac12\\sin 2\\theta} = \\dfrac{2\\cos 2\\theta}{\\sin 2\\theta} = 2\\cot 2\\theta$", mk: "M1 M1 A1 A1*", n: "The numerator is the $\\cos(A - B)$ expansion read backwards; the denominator is half of $\\sin 2\\theta$." },
-        { h: "(b)", m: "$2\\cot 2\\theta = 4 \\Rightarrow \\tan 2\\theta = \\dfrac12$; $180° < 2\\theta < 360°$: $2\\theta = 26.57° + 180° = 206.57° \\Rightarrow \\theta = 103.3°$", mk: "M1 M1 A1" }
+        { fig: { x: [88, 182], y: [-10, 10], axes: { x: "θ", xt: [{ v: 103.3, label: "103.3°" }, { v: 135, label: "135°" }, { v: 180, label: "180°" }], yt: [4] }, items: [
+          { fn: "2/tan(2*x*pi/180)", from: 90.5, to: 179.5, label: "y = 2cot 2θ", at: 165, pos: "e" }, { hline: 4, c: "accent3" }, { pt: [103.28, 4] } ], cap: "One crossing between $90°$ and $180°$." }, h: "(b)", m: "$2\\cot 2\\theta = 4 \\Rightarrow \\tan 2\\theta = \\dfrac12$; $180° < 2\\theta < 360°$: $2\\theta = 26.57° + 180° = 206.57° \\Rightarrow \\theta = 103.3°$", mk: "M1 M1 A1" }
       ], result: "(b) $103.3°$" } },
 
     { page: "The R-form" },
@@ -631,7 +697,8 @@ C["maths:5.6"] = {
       q: "Solve, for $0 \\le \\theta < 360°$, $5\\sin\\theta - 5\\cos\\theta = 2$, giving answers to one decimal place.",
       steps: [
         { h: "$R\\sin(\\theta - \\alpha)$", m: "$R\\sin\\theta\\cos\\alpha - R\\cos\\theta\\sin\\alpha$: $R\\cos\\alpha = 5$, $R\\sin\\alpha = 5 \\Rightarrow R = 5\\sqrt2$, $\\alpha = 45°$", mk: "M1 A1" },
-        { m: "$5\\sqrt2\\sin(\\theta - 45°) = 2 \\Rightarrow \\sin(\\theta - 45°) = 0.2828 \\Rightarrow \\theta - 45° = 16.4°, 163.6°$", mk: "M1 A1" },
+        { fig: { x: [-10, 370], y: [-8, 8], axes: { xt: [{ v: 61.4, label: "61.4°" }, { v: 135, label: "135°" }, { v: 208.6, label: "208.6°" }, { v: 315, label: "315°" }], yt: [-7.07, 2, 7.07] }, items: [
+          { fn: "5*sin(x*pi/180)-5*cos(x*pi/180)", from: 0, to: 360, label: "5√2 sin(θ − 45°)", at: 300, pos: "ne" }, { hline: 2, c: "accent3" }, { pt: [61.43, 2] }, { pt: [208.57, 2] } ], cap: "Amplitude $5\\sqrt2$, shifted $45°$ right; it meets $y = 2$ twice." }, m: "$5\\sqrt2\\sin(\\theta - 45°) = 2 \\Rightarrow \\sin(\\theta - 45°) = 0.2828 \\Rightarrow \\theta - 45° = 16.4°, 163.6°$", mk: "M1 A1" },
         { m: "$\\theta = 61.4°, 208.6°$", mk: "A1", n: "The interval for $\\theta - 45°$ is $[-45°, 315°)$; both solutions sit inside it." }
       ], result: "$\\theta = 61.4°, 208.6°$" } },
     { worked: { tag: "exam", title: "$R\\cos(\\theta - \\alpha)$; then the maximum of an arithmetic sum", src: "A-level June 2023 · P2 Q8 · 6 marks",
@@ -639,7 +706,8 @@ C["maths:5.6"] = {
       steps: [
         { h: "(a)", m: "$R = \\sqrt{4 + 64} = 2\\sqrt{17}$; $\\tan\\alpha = 4 \\Rightarrow \\alpha = 1.326$\n$2\\cos\\theta + 8\\sin\\theta = 2\\sqrt{17}\\cos(\\theta - 1.326)$", mk: "B1 M1 A1" },
         { h: "(b)(i) $a = \\cos x$, $d = \\sin x$", m: "$S_9 = \\dfrac92\\left[2\\cos x + 8\\sin x\\right] = \\dfrac92 \\cdot 2\\sqrt{17}\\cos(x - 1.326)$; maximum $9\\sqrt{17}$", mk: "M1 A1", n: "The sum is exactly the expression from (a) — that is why (a) was asked." },
-        { h: "(ii)", m: "when $\\cos(x - 1.326) = 1$: $x = 1.326$", mk: "B1" }
+        { fig: { x: [-0.2, 2 * Math.PI + 0.3], y: [-42, 42], axes: { pi: true, yt: [-37.1, 37.1] }, items: [
+          { fn: "9*(cos(x)+4*sin(x))", from: 0, to: 2 * Math.PI, label: "S₉", at: 4, pos: "ne" }, { pt: [1.326, 9 * Math.sqrt(17)], label: "(1.326, 9√17)", pos: "e" } ], cap: "$S_9 = 9\\sqrt{17}\\cos(x - 1.326)$: the peak is where the bracket is zero." }, h: "(ii)", m: "when $\\cos(x - 1.326) = 1$: $x = 1.326$", mk: "B1" }
       ], result: "(a) $2\\sqrt{17}\\cos(\\theta - 1.326)$ (b) $9\\sqrt{17}$ at $x = 1.326$" } },
 
     { page: "Exam toolkit" },
@@ -703,7 +771,8 @@ C["maths:5.7"] = {
       q: "**(i)** Solve, for $-90° \\le \\theta < 270°$, $\\sin(2\\theta + 10°) = -0.6$, to one decimal place. **(ii)(a)** A student solves $7\\tan x = 8\\sin x$ for $-90° < x < 90°$ by writing $7\\frac{\\sin x}{\\cos x} = 8\\sin x \\Rightarrow 7\\sin x = 8\\sin x\\cos x \\Rightarrow 7 = 8\\cos x \\Rightarrow \\cos x = \\frac78 \\Rightarrow x = 29.0°$. Identify two mistakes.",
       steps: [
         { h: "(i) $u = 2\\theta + 10°$, $-170° \\le u < 550°$", m: "$\\sin u = -0.6$: principal value $u_0 = -36.87°$. Solutions: $-36.87°$, $180° + 36.87° = 216.87°$, and adding $360°$: $323.13°$; also $-36.87° - 180° + \\ldots$: check $-143.13°$ ($= -180° + 36.87°$) is in range ✓; $576.87°$ is not.\n$u = -143.13°, -36.87°, 216.87°, 323.13°$", mk: "M1 A1 A1", n: "Four values of $u$ in a $720°$ window — two per period, as expected." },
-        { m: "$\\theta = \\dfrac{u - 10°}{2} = -76.6°, -23.4°, 103.4°, 156.6°$", mk: "M1 A1" },
+        { fig: { x: [-95, 275], y: [-1.3, 1.3], axes: { x: "θ", xt: [{ v: -76.6, label: "−76.6°" }, { v: -23.4, label: "−23.4°" }, { v: 103.4, label: "103.4°" }, { v: 156.6, label: "156.6°" }], yt: [-0.6, 1] }, items: [
+          { fn: "sin((2*x+10)*pi/180)", from: -90, to: 270, label: "sin(2θ + 10°)", at: 30, pos: "n" }, { hline: -0.6, c: "accent3" }, { pt: [-76.57, -0.6] }, { pt: [-23.43, -0.6] }, { pt: [103.43, -0.6] }, { pt: [156.57, -0.6] } ], cap: "Two periods in the interval, two crossings each." }, m: "$\\theta = \\dfrac{u - 10°}{2} = -76.6°, -23.4°, 103.4°, 156.6°$", mk: "M1 A1" },
         { h: "(ii)(a)", m: "**1.** Dividing by $\\sin x$ loses $\\sin x = 0$, i.e. $x = 0$. **2.** $\\cos x = \\frac78$ also gives $x = -29.0°$, which is in the interval and was omitted.", mk: "B1 B1" }
       ], result: "(i) $-76.6°, -23.4°, 103.4°, 156.6°$" } },
     { worked: { tag: "exam", title: "$5\\sin 2\\theta = 9\\tan\\theta$; then the smallest positive solution of a shifted version", src: "A-level June 2019 · P1 Q6 · 8 marks",
@@ -711,7 +780,8 @@ C["maths:5.7"] = {
       steps: [
         { h: "(a) Double angle and $\\tan = \\frac{\\sin}{\\cos}$", m: "$10\\sin\\theta\\cos\\theta = \\dfrac{9\\sin\\theta}{\\cos\\theta} \\Rightarrow \\sin\\theta\\left(10\\cos^2\\theta - 9\\right) = 0$", mk: "M1 M1 A1", n: "Factorise, do not divide by $\\sin\\theta$." },
         { m: "$\\sin\\theta = 0$: $\\theta = -180°, 0°, 180°$. $\\cos^2\\theta = 0.9$: $\\cos\\theta = \\pm0.9487$: $\\theta = \\pm18.4°, \\pm161.6°$", mk: "M1 A1 A1", n: "Seven solutions. $\\cos\\theta = -0.9487$ gives $\\pm161.6°$; do not lose the negative square root." },
-        { h: "(b) $x - 25° = \\theta$, so $2x - 50° = 2\\theta$ — the same equation", m: "$x = \\theta + 25°$; the smallest positive comes from $\\theta = -18.4°$: $x = 6.6°$", mk: "M1 A1", n: "Not from $\\theta = 0$ ($x = 25°$) — a negative $\\theta$ gives a smaller positive $x$." }
+        { fig: { x: [-185, 185], y: [-6, 6], axes: { x: "θ", xt: [{ v: -161.6, label: "−161.6°" }, { v: -18.4, label: "−18.4°" }, { v: 18.4, label: "18.4°" }, { v: 161.6, label: "161.6°" }], yt: [-5, 5] }, items: [
+          { fn: "5*sin(2*x*pi/180)", from: -180, to: 180, label: "5sin 2θ", at: -135, pos: "n" }, { fn: "9*tan(x*pi/180)", from: -180, to: 180, c: "accent2", label: "9tan θ", at: 30, pos: "e" }, { pt: [0, 0] }, { pt: [18.43, 3] }, { pt: [-18.43, -3] }, { pt: [161.57, -3] }, { pt: [-161.57, 3] }, { pt: [180, 0] }, { pt: [-180, 0] } ], cap: "Seven crossings: $0$, $\\pm18.4°$, $\\pm161.6°$, $\\pm180°$." }, h: "(b) $x - 25° = \\theta$, so $2x - 50° = 2\\theta$ — the same equation", m: "$x = \\theta + 25°$; the smallest positive comes from $\\theta = -18.4°$: $x = 6.6°$", mk: "M1 A1", n: "Not from $\\theta = 0$ ($x = 25°$) — a negative $\\theta$ gives a smaller positive $x$." }
       ], result: "(a) $0°, \\pm18.4°, \\pm161.6°, \\pm180°$ (b) $6.6°$" } },
     { worked: { tag: "exam", title: "$\\text{cosec}\\,x - \\sin x = \\cos x\\cot(3x - 50°)$", src: "A-level Oct 2020 · P1 Q12 · 8 marks",
       q: "**(a)** Show that $\\text{cosec}\\,\\theta - \\sin\\theta \\equiv \\cos\\theta\\cot\\theta$, $\\theta \\ne 180n°$. **(b)** Hence, or otherwise, solve for $0 < x < 180°$: $\\text{cosec}\\,x - \\sin x = \\cos x\\cot(3x - 50°)$.",
@@ -725,7 +795,9 @@ C["maths:5.7"] = {
       steps: [
         { h: "(a) $t = 6.5$", m: "$D = 5 + 2\\sin195° = 5 - 0.518 = 4.48$ m", mk: "B1", n: "Degrees mode: $30t$ is in degrees." },
         { h: "(b) When does $D$ come back up to 3.8?", m: "$2\\sin(30t) = -1.2 \\Rightarrow \\sin(30t) = -0.6 \\Rightarrow 30t = 216.87°$ or $323.13°$ (in $0 \\le 30t < 720$) $\\Rightarrow t = 7.23$ or $10.77$", mk: "M1 A1 A1", n: "At $t = 8.5$ (loading finished) the depth is $5 + 2\\sin255° = 3.07 < 3.8$: too shallow. The depth is *falling* through 3.8 at $t = 7.23$ and *rising* through it at $t = 10.77$." },
-        { m: "Earliest departure is when the depth rises back to 3.8: $t = 10.77$ h $= $ **10:46**", mk: "A1", n: "$0.771 \\times 60 = 46.3$ minutes. Choosing $7.23$ (07:14) is wrong — the boat is still loading, and the water is going down." }
+        { fig: { x: [-0.5, 24.5], y: [-0.3, 7.6], axes: { x: "t (h)", y: "D (m)", xt: [6.5, 8.5, 10.77, 12, 18, 24], yt: [3, 3.8, 5, 7] }, items: [
+          { shade: { fn: "7.6", fn2: "0", from: 6.5, to: 8.5 }, c: "accent2", alpha: 0.12 }, { fn: "5+2*sin(30*x*pi/180)", from: 0, to: 24, label: "D", at: 2.5, pos: "n" }, { hline: 3.8, c: "accent3" },
+          { pt: [6.5, 4.482], label: "enters", pos: "ne" }, { pt: [10.77, 3.8], c: "danger", label: "10:46", pos: "se" } ], cap: "Loading ends at 8:30 with the depth below 3.8 m; it is back to 3.8 m at $t = 10.77$." }, m: "Earliest departure is when the depth rises back to 3.8: $t = 10.77$ h $= $ **10:46**", mk: "A1", n: "$0.771 \\times 60 = 46.3$ minutes. Choosing $7.23$ (07:14) is wrong — the boat is still loading, and the water is going down." }
       ], result: "(a) $4.48$ m (b) 10:46" } },
 
     { page: "Exam toolkit" },
@@ -802,14 +874,16 @@ C["maths:5.8"] = {
         { h: "(a) Start from the right", m: "$\\tan\\theta\\sin 2\\theta = \\dfrac{\\sin\\theta}{\\cos\\theta} \\cdot 2\\sin\\theta\\cos\\theta = 2\\sin^2\\theta = 1 - \\cos 2\\theta$", mk: "M1 M1 A1*", n: "The excluded values are where $\\cos\\theta = 0$ — $\\tan\\theta$ undefined." },
         { h: "(b) Substitute (a) for $1 - \\cos 2x$", m: "$(\\sec^2 x - 5)\\tan x\\sin 2x = 3\\tan^2 x\\sin 2x \\Rightarrow \\tan x\\sin 2x\\left[\\sec^2 x - 5 - 3\\tan x\\right] = 0$", mk: "M1 A1", n: "Bring everything to one side and factorise — three factors, three families of solutions." },
         { m: "$\\tan x = 0 \\Rightarrow x = 0$; $\\sin 2x = 0 \\Rightarrow x = 0$; $1 + \\tan^2 x - 5 - 3\\tan x = 0 \\Rightarrow \\tan^2 x - 3\\tan x - 4 = 0 \\Rightarrow (\\tan x - 4)(\\tan x + 1) = 0$", mk: "M1 A1" },
-        { m: "$\\tan x = 4 \\Rightarrow x = 1.326$; $\\tan x = -1 \\Rightarrow x = -\\dfrac{\\pi}{4}$\n$x = -\\dfrac{\\pi}{4}, 0, 1.326$", mk: "A1 A1", n: "Radians — the interval is in $\\pi$. The exact $-\\frac{\\pi}{4}$ stays exact." }
+        { fig: { x: [-1.62, 1.62], y: [-5, 6], axes: { xt: [{ v: -Math.PI / 4, label: "−π/4" }, 1.326], yt: [-1, 4] }, items: [
+          { fn: "tan(x)", from: -1.56, to: 1.56, label: "y = tan x", at: 1.1, pos: "w" }, { hline: 4, c: "accent3" }, { hline: -1, c: "accent3" }, { pt: [1.3258, 4] }, { pt: [-0.7854, -1] }, { pt: [0, 0] } ], cap: "$\\tan x = 0$, $4$ and $-1$: one crossing each in $(-\\frac{\\pi}{2}, \\frac{\\pi}{2})$." }, m: "$\\tan x = 4 \\Rightarrow x = 1.326$; $\\tan x = -1 \\Rightarrow x = -\\dfrac{\\pi}{4}$\n$x = -\\dfrac{\\pi}{4}, 0, 1.326$", mk: "A1 A1", n: "Radians — the interval is in $\\pi$. The exact $-\\frac{\\pi}{4}$ stays exact." }
       ], result: "(b) $x = -\\frac{\\pi}{4}, 0, 1.326$" } },
     { worked: { tag: "exam", title: "$\\text{cosec}\\,2x + \\cot 2x \\equiv \\cot x$; solve with a shifted angle", src: "A-level Specimen · P2 Q13 · 10 marks",
       q: "**(a)** Show that $\\text{cosec}\\,2x + \\cot 2x \\equiv \\cot x$, $x \\ne 90n°$. **(b)** Hence, or otherwise, solve for $0 \\le \\theta < 180°$: $\\text{cosec}(4\\theta + 10°) + \\cot(4\\theta + 10°) = \\sqrt3$.",
       steps: [
         { h: "(a) Single fraction, then double angles", m: "$\\dfrac{1}{\\sin 2x} + \\dfrac{\\cos 2x}{\\sin 2x} = \\dfrac{1 + \\cos 2x}{\\sin 2x} = \\dfrac{2\\cos^2 x}{2\\sin x\\cos x} = \\dfrac{\\cos x}{\\sin x} = \\cot x$", mk: "M1 M1 A1 A1 A1*", n: "$1 + \\cos 2x = 2\\cos^2 x$ is the version to reach for whenever you see $1 + \\cos$ of a double angle." },
         { h: "(b) With $2x = 4\\theta + 10°$, i.e. $x = 2\\theta + 5°$", m: "$\\cot(2\\theta + 5°) = \\sqrt3 \\Rightarrow \\tan(2\\theta + 5°) = \\dfrac{1}{\\sqrt3}$", mk: "M1 A1" },
-        { m: "$5° \\le 2\\theta + 5° < 365°$: $2\\theta + 5° = 30°, 210° \\Rightarrow \\theta = 12.5°, 102.5°$", mk: "M1 A1 A1" }
+        { fig: { x: [-5, 185], y: [-5, 5], axes: { x: "θ", xt: [{ v: 12.5, label: "12.5°" }, { v: 102.5, label: "102.5°" }], yt: [0.577] }, items: [
+          { fn: "tan((2*x+5)*pi/180)", from: 0, to: 180, label: "tan(2θ + 5°)", at: 25, pos: "e" }, { hline: 1 / Math.sqrt(3), c: "accent3", label: "1/√3" }, { pt: [12.5, 0.5774] }, { pt: [102.5, 0.5774] } ], cap: "Two crossings, $90°$ apart." }, m: "$5° \\le 2\\theta + 5° < 365°$: $2\\theta + 5° = 30°, 210° \\Rightarrow \\theta = 12.5°, 102.5°$", mk: "M1 A1 A1" }
       ], result: "(b) $\\theta = 12.5°, 102.5°$" } },
     { worked: { tag: "exam", title: "Prove $\\frac{1 - \\cos 2t + \\sin 2t}{1 + \\cos 2t + \\sin 2t} \\equiv \\tan t$", src: "A-level Oct 2021 · P1 Q10 · 8 marks",
       q: "**(a)** Given $1 + \\cos 2\\theta + \\sin 2\\theta \\ne 0$, prove that $\\frac{1 - \\cos 2\\theta + \\sin 2\\theta}{1 + \\cos 2\\theta + \\sin 2\\theta} \\equiv \\tan\\theta$. **(b)** Hence solve, for $0 < x < 180°$: $\\frac{1 - \\cos 4x + \\sin 4x}{1 + \\cos 4x + \\sin 4x} = 3\\sin 2x$, to one decimal place where appropriate.",
@@ -817,7 +891,8 @@ C["maths:5.8"] = {
         { h: "(a) Double angles chosen to create common factors", m: "Numerator: $2\\sin^2\\theta + 2\\sin\\theta\\cos\\theta = 2\\sin\\theta(\\sin\\theta + \\cos\\theta)$\nDenominator: $2\\cos^2\\theta + 2\\sin\\theta\\cos\\theta = 2\\cos\\theta(\\cos\\theta + \\sin\\theta)$", mk: "M1 A1 M1", n: "$1 - \\cos 2\\theta = 2\\sin^2\\theta$ on top, $1 + \\cos 2\\theta = 2\\cos^2\\theta$ below." },
         { m: "$\\dfrac{2\\sin\\theta(\\sin\\theta + \\cos\\theta)}{2\\cos\\theta(\\sin\\theta + \\cos\\theta)} = \\dfrac{\\sin\\theta}{\\cos\\theta} = \\tan\\theta$", mk: "A1*", n: "The cancelled factor is non-zero by the given condition — mention it." },
         { h: "(b) With $\\theta = 2x$", m: "$\\tan 2x = 3\\sin 2x \\Rightarrow \\sin 2x\\left(\\dfrac{1}{\\cos 2x} - 3\\right) = 0$", mk: "M1" },
-        { m: "$\\sin 2x = 0 \\Rightarrow 2x = 180° \\Rightarrow x = 90°$; $\\cos 2x = \\dfrac13 \\Rightarrow 2x = 70.5°, 289.5° \\Rightarrow x = 35.3°, 144.7°$", mk: "M1 A1 A1" }
+        { fig: { x: [-3, 183], y: [-4, 4], axes: { xt: [{ v: 35.3, label: "35.3°" }, { v: 90, label: "90°" }, { v: 144.7, label: "144.7°" }], yt: [-3, 2.83] }, items: [
+          { fn: "tan(2*x*pi/180)", from: 0, to: 180, label: "tan 2x", at: 20, pos: "nw" }, { fn: "3*sin(2*x*pi/180)", from: 0, to: 180, c: "accent2", label: "3sin 2x", at: 60, pos: "n" }, { pt: [35.26, 2.8284] }, { pt: [90, 0] }, { pt: [144.74, -2.8284] } ], cap: "The common factor $\\sin 2x = 0$ gives the crossing at $90°$." }, m: "$\\sin 2x = 0 \\Rightarrow 2x = 180° \\Rightarrow x = 90°$; $\\cos 2x = \\dfrac13 \\Rightarrow 2x = 70.5°, 289.5° \\Rightarrow x = 35.3°, 144.7°$", mk: "M1 A1 A1" }
       ], result: "(b) $x = 35.3°, 90°, 144.7°$" } },
     { worked: { tag: "exam", title: "Prove with cosec: $\\frac{1}{\\text{cosec}\\,\\theta - 1} + \\frac{1}{\\text{cosec}\\,\\theta + 1} \\equiv 2\\tan\\theta\\sec\\theta$", src: "A-level June 2024 · P2 Q8 · 7 marks",
       q: "**(a)** Prove the identity above for $\\theta \\ne 90n°$. **(b)** Hence solve, for $0 < x < 90°$: $\\frac{1}{\\text{cosec}\\,2x - 1} + \\frac{1}{\\text{cosec}\\,2x + 1} = \\cot 2x\\sec 2x$, to one decimal place.",
@@ -825,14 +900,16 @@ C["maths:5.8"] = {
         { h: "(a) Common denominator is a difference of two squares", m: "$\\dfrac{(\\text{cosec}\\,\\theta + 1) + (\\text{cosec}\\,\\theta - 1)}{\\text{cosec}^2\\theta - 1} = \\dfrac{2\\text{cosec}\\,\\theta}{\\cot^2\\theta}$", mk: "M1 A1", n: "$\\text{cosec}^2\\theta - 1 = \\cot^2\\theta$." },
         { m: "$= \\dfrac{2}{\\sin\\theta} \\cdot \\dfrac{\\sin^2\\theta}{\\cos^2\\theta} = \\dfrac{2\\sin\\theta}{\\cos^2\\theta} = 2 \\cdot \\dfrac{\\sin\\theta}{\\cos\\theta} \\cdot \\dfrac{1}{\\cos\\theta} = 2\\tan\\theta\\sec\\theta$", mk: "A1*" },
         { h: "(b)", m: "$2\\tan 2x\\sec 2x = \\cot 2x\\sec 2x \\Rightarrow 2\\tan 2x = \\cot 2x$ (as $\\sec 2x \\ne 0$) $\\Rightarrow \\tan^2 2x = \\dfrac12 \\Rightarrow \\tan 2x = \\pm\\dfrac{1}{\\sqrt2}$", mk: "M1 A1" },
-        { m: "$0 < 2x < 180°$: $2x = 35.3°, 144.7° \\Rightarrow x = 17.6°, 72.4°$", mk: "M1 A1" }
+        { fig: { x: [-2, 92], y: [-4, 4], axes: { xt: [{ v: 17.6, label: "17.6°" }, { v: 45, label: "45°" }, { v: 72.4, label: "72.4°" }], yt: [-0.707, 0.707] }, items: [
+          { fn: "tan(2*x*pi/180)", from: 0, to: 90, label: "tan 2x", at: 30, pos: "nw" }, { hline: 1 / Math.sqrt(2), c: "accent3" }, { hline: -1 / Math.sqrt(2), c: "accent3" }, { pt: [17.63, 0.7071] }, { pt: [72.37, -0.7071] } ], cap: "$\\tan 2x = \\pm\\frac{1}{\\sqrt2}$: one crossing each in $(0°, 90°)$." }, m: "$0 < 2x < 180°$: $2x = 35.3°, 144.7° \\Rightarrow x = 17.6°, 72.4°$", mk: "M1 A1" }
       ], result: "(b) $x = 17.6°, 72.4°$" } },
     { worked: { tag: "exam", title: "AS-level: $\\frac{1}{\\cos\\theta} + \\tan\\theta \\equiv \\frac{\\cos\\theta}{1 - \\sin\\theta}$ by a conjugate", src: "AS June 2022 · P1 Q13 · 8 marks",
       q: "**(a)** Show that $\\frac{1}{\\cos\\theta} + \\tan\\theta \\equiv \\frac{\\cos\\theta}{1 - \\sin\\theta}$, $\\theta \\ne (2n + 1)90°$. **(b)** Given $\\cos 2x \\ne 0$, solve for $0 < x < 90°$: $\\frac{1}{\\cos 2x} + \\tan 2x = 3\\cos 2x$, to one decimal place.",
       steps: [
         { h: "(a)", m: "$\\dfrac{1}{\\cos\\theta} + \\dfrac{\\sin\\theta}{\\cos\\theta} = \\dfrac{1 + \\sin\\theta}{\\cos\\theta} = \\dfrac{(1 + \\sin\\theta)(1 - \\sin\\theta)}{\\cos\\theta(1 - \\sin\\theta)} = \\dfrac{\\cos^2\\theta}{\\cos\\theta(1 - \\sin\\theta)} = \\dfrac{\\cos\\theta}{1 - \\sin\\theta}$", mk: "M1 M1 A1*", n: "Multiplying by $\\frac{1 - \\sin\\theta}{1 - \\sin\\theta}$ turns $1 - \\sin^2\\theta$ into $\\cos^2\\theta$ — the standard way to get a $1 \\pm \\sin$ into a denominator." },
         { h: "(b) Use (a) with $\\theta = 2x$", m: "$\\dfrac{\\cos 2x}{1 - \\sin 2x} = 3\\cos 2x \\Rightarrow 1 = 3(1 - \\sin 2x)$ (dividing by $\\cos 2x \\ne 0$) $\\Rightarrow \\sin 2x = \\dfrac23$", mk: "M1 A1 A1", n: "Here dividing is legitimate because the question *says* $\\cos 2x \\ne 0$." },
-        { m: "$0 < 2x < 180°$: $2x = 41.8°, 138.2° \\Rightarrow x = 20.9°, 69.1°$", mk: "M1 A1" }
+        { fig: { x: [-2, 92], y: [-0.3, 1.3], axes: { xt: [{ v: 20.9, label: "20.9°" }, { v: 45, label: "45°" }, { v: 69.1, label: "69.1°" }], yt: [0.667, 1] }, items: [
+          { fn: "sin(2*x*pi/180)", from: 0, to: 90, label: "y = sin 2x", at: 45, pos: "n" }, { hline: 2 / 3, c: "accent3" }, { pt: [20.91, 0.6667] }, { pt: [69.09, 0.6667] } ], cap: "Symmetric about $45°$: $20.9°$ and $90° - 20.9°$." }, m: "$0 < 2x < 180°$: $2x = 41.8°, 138.2° \\Rightarrow x = 20.9°, 69.1°$", mk: "M1 A1" }
       ], result: "(b) $x = 20.9°, 69.1°$" } },
 
     { page: "Exam toolkit" },
@@ -883,14 +960,16 @@ C["maths:5.9"] = {
       steps: [
         { h: "Amplitude", m: "$A = 50$", mk: "B1" },
         { h: "Period — the modulus halves it", m: "$|\\sin|$ repeats every $180°$ of its argument, and the graph shows one arch per revolution. So one revolution (720 s) is $180°$ of argument: $720b = 180 \\Rightarrow b = \\dfrac14$", mk: "M1 A1", n: "Without the modulus, one revolution would be $360°$ and $b = \\frac12$. The modulus is what makes the graph a chain of arches." },
-        { h: "Start height", m: "$50\\sin\\alpha = 1 \\Rightarrow \\alpha = \\sin^{-1}(0.02) = 1.15°$", mk: "A1" }
+        { fig: { x: [-30, 1500], y: [-3, 56], axes: { x: "t (s)", y: "H (m)", xt: [355, 720, 1440], yt: [1, 50] }, items: [
+          { fn: "abs(50*sin((x/4+1.15)*pi/180))", from: 0, to: 1440, label: "H", at: 200, pos: "nw" }, { pt: [0, 1], label: "start, 1 m", pos: "e" }, { pt: [355.4, 50], label: "top", pos: "n" } ], cap: "One arch per revolution of 720 s: the modulus folds the negative half of the sine up." }, h: "Start height", m: "$50\\sin\\alpha = 1 \\Rightarrow \\alpha = \\sin^{-1}(0.02) = 1.15°$", mk: "A1" }
       ], result: "$A = 50$, $b = \\frac14$, $\\alpha = 1.15$" } },
     { worked: { tag: "exam", title: "Temperature model with $R$-form: maximum and the time it occurs", src: "A-level Oct 2020 · P1 Q6 · 7 marks",
       q: "**(a)** Express $\\sin x + 2\\cos x$ as $R\\sin(x + \\alpha)$, $R > 0$, $0 < \\alpha < \\frac{\\pi}{2}$, $\\alpha$ to 3 d.p. The temperature in a room is $\\theta = 5 + \\sin\\left(\\frac{\\pi t}{12} - 3\\right) + 2\\cos\\left(\\frac{\\pi t}{12} - 3\\right)$, $0 \\le t < 24$, $t$ hours after midnight. **(b)** Deduce the maximum temperature. **(c)** Find the time of day when it occurs, to the nearest minute.",
       steps: [
         { h: "(a)", m: "$R = \\sqrt5$, $\\tan\\alpha = 2 \\Rightarrow \\alpha = 1.107$: $\\sqrt5\\sin(x + 1.107)$", mk: "B1 M1 A1" },
         { h: "(b)", m: "$\\theta = 5 + \\sqrt5\\sin\\left(\\dfrac{\\pi t}{12} - 3 + 1.107\\right)$; maximum $5 + \\sqrt5 = 7.24°$C", mk: "B1" },
-        { h: "(c) Sine is 1 when its argument is $\\frac{\\pi}{2}$", m: "$\\dfrac{\\pi t}{12} - 1.893 = \\dfrac{\\pi}{2} \\Rightarrow t = \\dfrac{12}{\\pi}\\left(\\dfrac{\\pi}{2} + 1.893\\right) = 13.23$ h $=$ **13:14**", mk: "M1 M1 A1", n: "$0.23 \\times 60 = 13.8$ min. Radians throughout: the model's argument has $\\pi$ in it." }
+        { fig: { x: [-0.5, 24.5], y: [2, 8], axes: { x: "t (h)", y: "θ (°C)", xt: [6, 13.23, 18, 24], yt: [5, 7.24] }, items: [
+          { fn: "5+sqrt(5)*sin(pi*x/12-1.893)", from: 0, to: 24, label: "θ", at: 20, pos: "ne" }, { hline: 5 + Math.sqrt(5), c: "muted" }, { pt: [13.23, 5 + Math.sqrt(5)], label: "13:14", pos: "n" } ], cap: "One cycle a day; the peak is $5 + \\sqrt5$ at 13:14." }, h: "(c) Sine is 1 when its argument is $\\frac{\\pi}{2}$", m: "$\\dfrac{\\pi t}{12} - 1.893 = \\dfrac{\\pi}{2} \\Rightarrow t = \\dfrac{12}{\\pi}\\left(\\dfrac{\\pi}{2} + 1.893\\right) = 13.23$ h $=$ **13:14**", mk: "M1 M1 A1", n: "$0.23 \\times 60 = 13.8$ min. Radians throughout: the model's argument has $\\pi$ in it." }
       ], result: "(a) $\\sqrt5\\sin(x + 1.107)$ (b) $7.24°$C (c) 13:14" } },
     { worked: { tag: "exam", title: "Tide model: depth at midnight, maximum depth, afternoon time of the maximum", src: "A-level Specimen · P1 Q13(a)–(d) · 8 marks",
       q: "**(a)** Express $2\\sin\\theta - 1.5\\cos\\theta$ as $R\\sin(\\theta - \\alpha)$, $R > 0$, $0 < \\alpha < \\frac{\\pi}{2}$, $\\alpha$ to 4 d.p. Tom models the depth of water at a harbour by $D = 6 + 2\\sin\\left(\\frac{4\\pi t}{25}\\right) - 1.5\\cos\\left(\\frac{4\\pi t}{25}\\right)$, $0 \\le t \\le 24$. **(b)** Find the depth at 00:00. **(c)** Find the maximum depth. **(d)** Find the time in the afternoon when the maximum occurs, to the nearest minute.",
@@ -898,7 +977,8 @@ C["maths:5.9"] = {
         { h: "(a)", m: "$R = \\sqrt{4 + 2.25} = 2.5$; $\\tan\\alpha = \\dfrac{1.5}{2} \\Rightarrow \\alpha = 0.6435$: $2.5\\sin(\\theta - 0.6435)$", mk: "B1 M1 A1" },
         { h: "(b) $t = 0$", m: "$D = 6 - 1.5 = 4.5$ m", mk: "B1" },
         { h: "(c)", m: "$D = 6 + 2.5\\sin\\left(\\dfrac{4\\pi t}{25} - 0.6435\\right)$: maximum $8.5$ m", mk: "B1" },
-        { h: "(d) Argument $= \\frac{\\pi}{2} + 2\\pi n$", m: "$\\dfrac{4\\pi t}{25} - 0.6435 = \\dfrac{\\pi}{2} \\Rightarrow t = 4.405$ (04:24, morning). Period $= \\dfrac{2\\pi}{4\\pi/25} = 12.5$ h, so the next maximum is at $t = 16.905$ h $=$ **16:54**", mk: "M1 M1 A1", n: "\"In the afternoon\" tells you to add one period to the first maximum." }
+        { fig: { x: [-0.5, 24.5], y: [2.5, 9.5], axes: { x: "t (h)", y: "D (m)", xt: [4.405, 12, 16.905, 24], yt: [4.5, 6, 8.5] }, items: [
+          { fn: "6+2.5*sin(4*pi*x/25-0.6435)", from: 0, to: 24, label: "D", at: 10.5, pos: "s" }, { pt: [0, 4.5], label: "00:00", pos: "e" }, { pt: [4.405, 8.5], label: "04:24", pos: "n" }, { pt: [16.905, 8.5], c: "accent3", label: "16:54", pos: "n" } ], cap: "Period 12.5 h: the afternoon maximum is one period after the morning one." }, h: "(d) Argument $= \\frac{\\pi}{2} + 2\\pi n$", m: "$\\dfrac{4\\pi t}{25} - 0.6435 = \\dfrac{\\pi}{2} \\Rightarrow t = 4.405$ (04:24, morning). Period $= \\dfrac{2\\pi}{4\\pi/25} = 12.5$ h, so the next maximum is at $t = 16.905$ h $=$ **16:54**", mk: "M1 M1 A1", n: "\"In the afternoon\" tells you to add one period to the first maximum." }
       ], result: "(b) 4.5 m (c) 8.5 m (d) 16:54" } },
     { worked: { tag: "exam", title: "Rabbits and foxes: $K\\cos(\\theta + \\alpha)$, a complete model, a comment", src: "A-level June 2024 · P1 Q12 · 11 marks",
       q: "**(a)** Express $140\\cos\\theta - 480\\sin\\theta$ as $K\\cos(\\theta + \\alpha)$, $K > 0$, $0 < \\alpha < 90°$, $\\alpha$ to 2 d.p. The number of rabbits is $R = A + 140\\cos(30t)° - 480\\sin(30t)°$, $t$ months after the start of the year, and the maximum is 1500. **(b)(i)** Find a complete equation for the model. **(ii)** Write down the minimum number of rabbits. The actual minimum occurs in the middle of April. **(c)** Comment on the model. The number of foxes is $F = 100 + 70\\sin(30t + 70)°$ and is at its minimum after $T$ months. **(d)** Find the number of rabbits at time $T$.",
@@ -906,14 +986,17 @@ C["maths:5.9"] = {
         { h: "(a)", m: "$K = \\sqrt{140^2 + 480^2} = 500$; $\\tan\\alpha = \\dfrac{480}{140} \\Rightarrow \\alpha = 73.74°$", mk: "B1 M1 A1", n: "$K\\cos(\\theta + \\alpha) = K\\cos\\alpha\\cos\\theta - K\\sin\\alpha\\sin\\theta$: the minus sign matches." },
         { h: "(b)", m: "$R = A + 500\\cos(30t + 73.74)°$; maximum $A + 500 = 1500 \\Rightarrow A = 1000$: $R = 1000 + 500\\cos(30t + 73.74)°$. Minimum $500$.", mk: "M1 A1 B1" },
         { h: "(c) When does the model's minimum occur?", m: "$30t + 73.74 = 180 \\Rightarrow t = 3.54$ months — mid-April. The model agrees with the observed minimum, which supports it.", mk: "M1 A1", n: "Compute, compare, conclude." },
-        { h: "(d) Foxes minimum when $\\sin(30T + 70)° = -1$", m: "$30T + 70 = 270 \\Rightarrow T = \\dfrac{20}{3}$; $R = 1000 + 500\\cos(200 + 73.74)° = 1000 + 500\\cos273.74° = 1033$", mk: "M1 M1 A1", n: "Whole rabbits: 1033 (or 1030 to 3 s.f.)." }
+        { fig: { x: [-0.3, 12.5], y: [300, 1650], axes: { x: "t (months)", y: "R", xt: [3.54, 6.67, 9.54, 12], yt: [500, 1000, 1500] }, items: [
+          { fn: "1000+500*cos((30*x+73.74)*pi/180)", from: 0, to: 12, label: "R", at: 1, pos: "ne" }, { pt: [3.54, 500], label: "min, mid-April", pos: "e" }, { pt: [20 / 3, 1033], c: "accent3", label: "t = T", pos: "e" } ], cap: "The model's minimum falls at $t = 3.54$ — in mid-April, as observed." }, h: "(d) Foxes minimum when $\\sin(30T + 70)° = -1$", m: "$30T + 70 = 270 \\Rightarrow T = \\dfrac{20}{3}$; $R = 1000 + 500\\cos(200 + 73.74)° = 1000 + 500\\cos273.74° = 1033$", mk: "M1 M1 A1", n: "Whole rabbits: 1033 (or 1030 to 3 s.f.)." }
       ], result: "(a) $500\\cos(\\theta + 73.74°)$ (b) $R = 1000 + 500\\cos(30t + 73.74)°$, min 500 (d) ≈ 1033" } },
     { worked: { tag: "exam", title: "Water wheel: maximum height and when; a negative minimum", src: "A-level Oct 2021 · P2 Q15(a)–(b) · 6 marks",
       q: "**(a)** Express $2\\cos\\theta - \\sin\\theta$ as $R\\cos(\\theta + \\alpha)$, $R > 0$, $0 < \\alpha < \\frac{\\pi}{2}$, $\\alpha$ to 3 d.p. The height of a paddle above the water is $H = 3 + 4\\cos(0.5t) - 2\\sin(0.5t)$ metres, $t$ seconds after the wheel starts. **(b)(i)** Find the maximum height. **(ii)** Find the first time it occurs. **(c)** (not on the paper) Find the minimum height and interpret it.",
       steps: [
         { h: "(a)", m: "$R = \\sqrt5$, $\\tan\\alpha = \\dfrac12 \\Rightarrow \\alpha = 0.464$: $\\sqrt5\\cos(\\theta + 0.464)$", mk: "B1 M1 A1" },
         { h: "(b) $H = 3 + 2\\sqrt5\\cos(0.5t + 0.464)$", m: "(i) maximum $3 + 2\\sqrt5 = 7.47$ m. (ii) first when $0.5t + 0.464 = 2\\pi$ ($t > 0$): $t = 2(2\\pi - 0.464) = 11.6$ s", mk: "B1 M1 A1", n: "$0.5t + 0.464 = 0$ gives a negative $t$; the first *positive* time uses $2\\pi$." },
-        { h: "(c)", m: "Minimum $3 - 2\\sqrt5 = -1.47$ m: the paddle is $1.47$ m **below** the water level at its lowest point.", n: "An extension: the paper's own (c) asks how long the paddle spends under water (4 marks)." }
+        { fig: { x: [-0.5, 26], y: [-2.5, 8.5], axes: { x: "t (s)", y: "H (m)", xt: [5.36, 11.64, 24], yt: [-1.47, 3, 7.47] }, items: [
+          { shade: { fn: "0", fn2: "-2.5", from: -0.5, to: 26 }, c: "accent", alpha: 0.08 }, { fn: "3+4*cos(0.5*x)-2*sin(0.5*x)", from: 0, to: 26, label: "H", at: 20, pos: "ne" },
+          { pt: [11.64, 7.47], label: "max", pos: "n" }, { pt: [5.36, -1.47], c: "danger", label: "under water", pos: "e" } ], cap: "The shaded band is below the water line: the minimum $3 - 2\\sqrt5$ is under it." }, h: "(c)", m: "Minimum $3 - 2\\sqrt5 = -1.47$ m: the paddle is $1.47$ m **below** the water level at its lowest point.", n: "An extension: the paper's own (c) asks how long the paddle spends under water (4 marks)." }
       ], result: "(b) 7.47 m at $t = 11.6$ s (c) $-1.47$ m, under water" } },
 
     { page: "Exam toolkit" },
