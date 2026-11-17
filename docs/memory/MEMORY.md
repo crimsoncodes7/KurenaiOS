@@ -28,4 +28,6 @@
 - [Quality audit 2026-11](quality-audit-2026-11.md) — plan being implemented; W0/W1/W2/W6/W7 mostly live (kos-integrity-9); plan on audit/quality-2026-11
 - [Max three agents](max-three-agents.md) — at most 3 agents at once (ceiling 5); on Fable spawn NO reviewer agents: review inline or ask the user to use Opus
 - [Fable vs Opus work](fable-task-allocation.md) — Fable only for W2's core and W1's sync remainder (DI-20, RC6); everything else and all reviews on Opus
+- [December 2026 mocks](december-mocks-2026.md) — Maths Pure only, CS a topic list over both papers, IT F201 the one full paper (real exam Jan 2027)
+- [Help & Guide at the end](help-guide-at-the-end.md) — W8 only the parts that pay off now; Help & Guide and docs re-baseline last; Agenda scrapped
 - [Sonnet for simple agents](sonnet-for-simple-agents.md) — deterministic, well-specified agent tasks run on Sonnet to save usage; Opus for judgement

@@ -99,9 +99,30 @@ notices as labels. Both branches touch CLAUDE.md's gate line (161 here, 162
 there): merging the second needs it as "2–156 and 160–162", 159 suites.
 Next on the list: item 6 (design turn 40).
 
-**Smoke numbers from now:** the other account uses **163–179** (161 and
-162 are taken); this
-account continues at 157–159 and then 180+. (142, 143, 149 and 150 stay the
+**Items 4–7 RELEASED 17 November 2026** as sw `kos-integrity-17`
+(`release/integrity-17`: `feat/w4-pages`, `feat/w2-held`,
+`feat/w7-home`, `feat/w7-first-open` and `fix/it-notes-flat` merged into
+main; smoke161–164), then `-18` to `-20` (the welcome on a real empty
+origin). Production is `kos-integrity-20`; `origin/main` = `207d96c` or
+later.
+
+**Next on this account (17 November, the user's choices):**
+1. **W8, only what pays off now:** trim CLAUDE.md's release diary (AP-20),
+   split `hub.js` (AP-09), memoise the heavy reads (AP-15, AX-25, AG-08,
+   AP-18, CL-05, AP-03), AP-01 stage 2 (page modules on first use; the boot
+   budget was raised to 8.85 MB for turn 41). **Help & Guide and the docs
+   re-baseline (AA-16, SH-10, SH-11, AX-20, AX-34, AP-06, SH-32, AP-05)
+   wait until the very end** — the app is still changing.
+2. **The W1 and W7 P2/P3s that need no design.**
+3. **Exam content for the December mocks only** (Maths Pure: AS plus six
+   A2 chapters; CS: a topic list across both papers; IT F201: the whole
+   paper, real exam January 2027) — not every board paper's Companion.
+**Scrapped by the user:** PR-06 / D-Agenda (the Agenda on Mac and iPad).
+**Still backlog:** UR-28, Exams & Papers reworked as a whole (a D-Exams
+design prompt first). W3 and W9 stay the other account's.
+
+**Smoke numbers from now:** 161–164 are taken; the other account uses
+**165–179**; this account continues at 157–159 and then 180+. (142, 143, 149 and 150 stay the
 other account's.)
 
 **Releases:** each batch its own branch from `main`, the full gate, and the
