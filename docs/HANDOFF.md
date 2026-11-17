@@ -62,7 +62,26 @@ that matched no rule). Releasing it needs main merged in again, the full
 gate and the user's go-ahead. Next on this account: item 3, then the
 Opus list.
 
-**Smoke numbers from now:** the other account uses **160–179**; this
+**Released 17 November 2026 as sw `kos-integrity-16`**
+(https://2a54edc0.kurenai-os.pages.dev, `origin/main` = `0b9a662`; gate
+157 / 157): items 2 and 3 are DONE and live. (1) A FIX the user reported:
+the F201 notes of kos-integrity-14 wrote 29 callouts with one block as their
+body (`body: {ul: …}`) where every reader takes a string or a list, so 15
+pages threw and "Next page" stopped. The bodies are lists, the renderer takes
+one block as that block, `tools/validate_content.js` refuses the shape, and
+smoke160 renders every page of every topic and steps through every IT topic
+in the app — **write a callout body as a string or `[ … ]`, never `{ … }`.**
+With it the delay: lazy bundles were injected with `async = false`, which a
+browser orders across the whole page, so a lesson opened while the warm-up
+fetched another subject waited for it; a bundle's files are now preloaded
+together and run in their own order (`js/core/lazy.js` `runAll`). (2) DI-09:
+the backup file written and read in pieces (`js/core/backupfile.js`,
+smoke150; CLAUDE.md's Persistence section). (3) W4's import engine
+(smoke149) as described above. **Item 4 (the turn-39 Money pages) is next
+on the Opus list; smoke 150 and 160 are now taken, so new suites start at
+161.**
+
+**Smoke numbers from now:** the other account uses **161–179**; this
 account continues at 157–159 and then 180+. (142, 143, 149 and 150 stay the
 other account's.)
 

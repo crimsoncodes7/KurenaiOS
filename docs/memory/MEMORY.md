@@ -7,7 +7,7 @@
 - [Code study space](code-study-space.md) — core path complete; Track T2 RELEASED (kos-code-22); whole of T1 RELEASED 2026-10-23 (kos-code-24)
 - [No dead space in layouts](no-dead-space-layout.md) — every view fills its width; no empty right column, gaps or misalignment; reuse existing components
 - [Japanese study space](japanese-study-space.md) — roadmap 5.5; platform RELEASED 2026-10-22 (d061169), review fixes ee1a746 (kos-japanese-2); F1 (kos-japanese-3) and F2 (kos-japanese-4) RELEASED; next F3
-- [Branch and release state](project-branch-and-release-state.md) — prod kos-integrity-15; W4 import engine done on feat/w4-import (39c1794, smoke149, gate 155), not on main; Money pages (turn 39) left for Opus
+- [Branch and release state](project-branch-and-release-state.md) — prod kos-integrity-16 (0b9a662): IT notes fix, streamed backup, W4 import engine; gate 157; Money pages left for Opus
 - [Two-account workflow](two-account-workflow.md) — second Pro account added 2026-10-19; shared copy of this memory is docs/memory/, sync with tools/sync_memory.sh
 - [Stage by name](git-stage-by-name.md) — never commit -a; leave Live2D art, .claude/ and untracked scratch alone
 - [Money and Goals](money-goals.md) — roadmap 5.4 RELEASED 2026-10-20 (084a628, sw kos-money-1); smoke84–87; gate adds 84–87
