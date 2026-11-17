@@ -210,7 +210,10 @@
   function maybeOpen() {
     var tries = 0;
     (function wait() {
-      if (!pending()) { if (++tries < 20 && cloudReady() && !(KOS.cloudsync && KOS.cloudsync.settled && KOS.cloudsync.settled())) setTimeout(wait, 500); return; }
+      /* the sync library and the session arrive a moment after boot: keep
+         looking for 15 s while cloud sync is set up (production's first
+         check found the library not loaded yet and gave up) */
+      if (!pending()) { if (++tries < 30 && KOS.cloud && KOS.cloud.configured && KOS.cloud.configured() && !review()) setTimeout(wait, 500); return; }
       if (KOS.cloudsync && KOS.cloudsync.settled && !KOS.cloudsync.settled() && ++tries < 20) { setTimeout(wait, 500); return; }
       if (KOS.ui.topDialog && KOS.ui.topDialog()) { if (++tries < 40) setTimeout(wait, 1000); return; }
       open();

@@ -152,6 +152,20 @@ step("D · signing in: the account's copy arriving, then Home", async () => {
   uid = null;
 });
 
+/* ---------------- H ---------------- */
+step("H · it opens by itself once the sync library arrives after boot", async () => {
+  uid = null; delete K.store.state.ui.welcomed; delete K.store.state.ui.localOnly;
+  /* the library is not loaded for the first few looks, then it is */
+  let looks = 0;
+  K.cloud.available = () => ++looks > 6;
+  K.welcome.maybeOpen();
+  for (let i = 0; i < 40 && !$(".k-wel-overlay"); i++) { await app.settle(); await wait(20); }
+  assert(looks > 6, "it kept looking while the library loaded");
+  assert($("[data-ui~='welcome.screen']"), "it opens once the library is in");
+  closeWelcome();
+  K.cloud.available = () => true;
+});
+
 /* ---------------- G ---------------- */
 step("G · Use this device only, and back", async () => {
   uid = null;
