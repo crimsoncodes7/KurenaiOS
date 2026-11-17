@@ -88,10 +88,19 @@ Preview and Done; Transactions › Imports and the Source filter; Money
 settings › Rules (⚙ in Money's header); a merchant's page; the Overview's
 Balance, Runway, By merchant and By week; an entry as a sheet at 860 and
 below (MG-25); MG-10. Releasing it needs main merged in, the full gate and
-the user's go-ahead. Next on the list: item 5 (design turn 36).
+the user's go-ahead.
 
-**Smoke numbers from now:** the other account uses **162–179** (161 is
-taken); this
+**Item 5 BUILT (17 November 2026, on Opus): held updates, design turn 36,**
+on its own branch from main, `feat/w2-held` (`44df89b`, pushed; NOT on main,
+NOT deployed; gate 158 / 158 there; smoke162). The pill is now a chip in
+the page header (beside a topic's ‹ ›, in the app's header on the phone)
+with a menu of what changed; a run's line; safe moments; the ring; the save
+notices as labels. Both branches touch CLAUDE.md's gate line (161 here, 162
+there): merging the second needs it as "2–156 and 160–162", 159 suites.
+Next on the list: item 6 (design turn 40).
+
+**Smoke numbers from now:** the other account uses **163–179** (161 and
+162 are taken); this
 account continues at 157–159 and then 180+. (142, 143, 149 and 150 stay the
 other account's.)
 
