@@ -42,3 +42,5 @@ content only for the leaves above (CS Paper 1's seven topics; Maths Pure's
 chapters; F201 whole), not whole papers. Exams & Papers as a whole is due a
 redesign (UR-28, design first) — new content should be data the pages read,
 so a redesign keeps it. Related: [[exams-hub]], [[it-units-sitting]].
+
+18 Nov: paper 1 of each mock is LIVE (kos-integrity-21); presets aqa-7517-ppe and edexcel-9ma0-pure-mock exist for the user to add the mocks. F201 papers 2–3 are on the backlog (roadmap 5.22). Mocks are all in the week of 14 December; the rework pages must deploy by 4 December.
