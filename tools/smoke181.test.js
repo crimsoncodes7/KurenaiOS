@@ -26,7 +26,9 @@ function step(name, fn) { steps.push([name, fn]); }
 function assert(c, m) { if (!c) throw new Error(m); }
 function eq(a, b, m) { if (JSON.stringify(a) !== JSON.stringify(b)) throw new Error(m + ": got " + JSON.stringify(a) + ", want " + JSON.stringify(b)); }
 let app, K, PAPERS;
-const BOARD = { "ocr-f201": { board: "OCR", format: "ocr-case", mins: 90, marks: 60 } };
+const BOARD = { "ocr-f201": { board: "OCR", format: "ocr-case", mins: 90, marks: 60 },
+  "aqa-7517-ppe": { board: "AQA", format: "aqa", mins: 150, marks: 100 },
+  "edexcel-9ma0-pure-mock": { board: "Edexcel", format: "edexcel", mins: 120, marks: 100 } };
 
 step("boot", async () => {
   app = await boot(); K = app.KOS; await app.settle();
@@ -67,7 +69,7 @@ step("A · every authored paper meets the contract", async () => {
         });
       });
       eq(total, paper.marks, tag + " parts add up to the paper");
-      assert(paper.context && paper.org && paper.context.indexOf(paper.org) >= 0, tag + " one organisation, named in the context");
+      if (paper.format === "ocr-case") assert(paper.context && paper.org && paper.context.indexOf(paper.org) >= 0, tag + " one organisation, named in the context");
     });
   });
   assert(n >= 1, "at least one paper");

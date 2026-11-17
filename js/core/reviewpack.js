@@ -151,7 +151,11 @@
   function cap(s, n) { s = s == null ? "" : String(s).trim(); return s.length > n ? s.slice(0, n - 1) + "…" : s; }
   /* "Q3(b)", "3 (b)", "3b", "3.b" → "3(b)"; "6(c)(ii)", "6cii" → "6(c)(ii)" */
   function partKey(s) {
-    var t = String(s == null ? "" : s).trim().toLowerCase().replace(/^(q|question)\s*/, "").replace(/[\s.]/g, "");
+    var t = String(s == null ? "" : s).trim().toLowerCase().replace(/^(q|question)\s*/, "").replace(/\s/g, "");
+    /* AQA numbers parts 01.1, 01.2: the question's zeros do not matter */
+    var aqa = /^0*(\d+)\.(\d+)$/.exec(t);
+    if (aqa) return aqa[1] + "." + aqa[2];
+    t = t.replace(/\./g, "");
     var m = /^(\d+)\(?([a-h])?\)?\(?((?:i|ii|iii|iv|v|vi))?\)?$/.exec(t);
     if (!m) return t;
     return m[1] + (m[2] ? "(" + m[2] + ")" : "") + (m[3] ? "(" + m[3] + ")" : "");

@@ -113,7 +113,11 @@
     if (p.fill) out.push(tableEl(p.fill, true));
     return el("div", { class: "k-ex-pbody" }, out);
   }
-  function marksTag(paper, m) { return paper.format === "ocr-case" ? "[" + m + "]" : "(" + m + ")"; }
+  function marksTag(paper, m) {
+    if (paper.format === "ocr-case") return "[" + m + "]";
+    if (paper.format === "aqa") return "[" + m + (m === 1 ? " mark]" : " marks]");
+    return "(" + m + ")";
+  }
   function pageEls(a, paper, withMs) {
     var bp = paper.blueprint, out = [];
     var foot = function (n) { return el("div", { class: "k-ex-ppage-f" }, [el("span", { text: "KurenaiOS · " + paper.title + " · written by KurenaiOS, not a board paper" }), el("span", { text: String(n) })]); };
@@ -143,7 +147,7 @@
         el("div", { class: "k-ex-pq-q" }, [el("b", { class: "k-ex-pq-n", text: String(q.n) }), el("div", {}, [q.ctx ? html("p", "", inline(q.ctx)) : null].concat(q.parts.map(function (p) {
           return el("div", { class: "k-ex-pq-part" }, [el("span", { text: p.label }), partBody(p), el("b", { text: marksTag(paper, p.marks) }), el("div", { class: "k-ex-lines", style: "--n: " + Math.min(18, p.marks * 2 + 2) })]);
         })).filter(Boolean))]),
-        paper.format === "ocr-case" ? null : el("div", { class: "k-ex-pq-total", text: "(Total for Question " + q.n + " is " + q.marks + (q.marks === 1 ? " mark)" : " marks)") }),
+        paper.format === "ocr-case" || paper.format === "aqa" ? null : el("div", { class: "k-ex-pq-total", text: "(Total for Question " + q.n + " is " + q.marks + (q.marks === 1 ? " mark)" : " marks)") }),
         foot(i + 2)].filter(Boolean)));
     });
     if (withMs) {
