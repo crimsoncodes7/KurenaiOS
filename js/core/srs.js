@@ -131,6 +131,9 @@
       if (exam) {
         var c = F.examCap(nx.ivl, nx.s, daysBetween(today, exam), examTarget(), key + "|" + exam, weights());
         if (c.capped) { nx.ivl = c.ivl; cap = exam; }
+        /* the run-up: no interval longer than a third of the days left */
+        var ru = examTarget() ? F.runUp(nx.ivl, daysBetween(today, exam)) : null;
+        if (ru && ru.capped) { nx.ivl = ru.ivl; cap = exam; }
       }
     }
     return { before: before, el: el, next: nx, cap: cap };
@@ -209,7 +212,16 @@
       var m = srs[k];
       if (!m || !m.last || !m.due || m.leech || m.due <= today) return;
       var exam = examFor(k, today, idx);
-      if (!exam || m.due < exam) return;
+      if (!exam) return;
+      /* the run-up: a card due further out than the run-up allows comes in,
+         spread over the allowed days by its key (never all on one day) */
+      var max = F.runUpMax(daysBetween(today, exam));
+      if (max != null && daysBetween(today, m.due) > max) {
+        var near = addDays(today, 1 + Math.floor(F.unit(k + "|runup|" + exam) * max));
+        if (near < m.due) { m.due = near; m.cap = exam; n++; }
+        if (m.due < exam) return;
+      }
+      if (m.due < exam) return;
       var mem = F.recordMemory(m, weights());
       if (!mem || F.retrievability(daysBetween(m.last, exam), mem.s, weights()) >= r0) return;
       var d = F.examDay(daysBetween(today, exam), k + "|" + exam);

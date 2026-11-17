@@ -110,14 +110,22 @@
       setTimeout(function () { input.focus(); input.select(); }, 30);
     } });
   }
-  function download(r) {
+  /* a file with writing on it goes out WITH the writing (F().withWriting),
+     unless asked for the original */
+  function download(r, original) {
     F().blobOf(r, function (err, b) {
       if (err || !b) { if (r.store === "files" && !r.hasBlob) F().cloudOnly(r); else KOS.ui.toast("That file is not readable here.", true); return; }
-      KOS.inkExport.deliver(b, r.name);
+      F().withWriting(r, b, { original: original }).then(function (x) { KOS.inkExport.deliver(x.blob, x.name); });
     });
   }
   function share(r) {
-    F().blobOf(r, function (err, b) { if (b) KOS.attach.share({ blob: b, name: r.name, mime: r.mime }); });
+    F().blobOf(r, function (err, b) {
+      if (!b) return;
+      F().withWriting(r, b).then(function (x) {
+        if (x.ink) KOS.inkExport.deliver(x.blob, x.name);
+        else KOS.attach.share({ blob: b, name: r.name, mime: r.mime });
+      });
+    });
   }
   function remove(r, after) {
     if (r.store === "papers") {
@@ -146,7 +154,9 @@
       items.push({ label: "Rename", onSelect: function () { rename(r, after); } });
     }
     items.push({ sep: true });
-    items.push({ label: "Download", onSelect: function () { download(r); } });
+    var inked = F().writing(r) > 0 && F().exportsInk();
+    items.push({ label: inked ? "Download with my writing" : "Download", onSelect: function () { download(r); } });
+    if (inked) items.push({ label: "Download the original", onSelect: function () { download(r, true); } });
     if (navigator.share) items.push({ label: "Share", onSelect: function () { share(r); } });
     if (r.store === "papers" && r.local && !r.folder) items.push({ label: "Keep in my cloud", onSelect: function () { keepInCloud(r, after); } });
     if (r.store === "files" && r.hasBlob && uploaded && uploaded[r.fileId]) items.push({ label: "Free up space on this device", onSelect: function () { free(r, after); } });

@@ -1050,12 +1050,7 @@
       }
       setTimeout(function () { URL.revokeObjectURL(u); }, 30000);
     }
-    function download(rec) {
-      var u = URL.createObjectURL(rec.blob);
-      var a = el("a", { href: u, download: rec.name });
-      document.body.appendChild(a); a.click(); a.remove();
-      setTimeout(function () { URL.revokeObjectURL(u); }, 30000);
-    }
+    function download(rec) { withInk(rec).then(function (x) { saveBlob(x.blob, x.name); }); }
     function cloudDownloadBtn(rec) {
       var b = act("⇣ Download from cloud", function () {
         if (!window.KOS || !KOS.cloudsync || !KOS.cloudsync.downloadFile) {
@@ -1134,7 +1129,23 @@
      attachment opens here — a PDF in the app's own viewer with ink
      (`file:<fileId>:default`), anything else full screen — with Share
      (the share sheet on the iPad and the phone), Download and Open. */
+  /* INK TRAVELS WITH A FILE: the record as KOS.files knows it, and the file
+     with its writing (or as it is, without any or with the switch off) */
+  function inkRec(rec) { return { fileId: rec.fileId || ("att" + rec.id), name: rec.name, mime: rec.mime, store: "files" }; }
+  function withInk(rec, opts) {
+    if (!KOS.files || !KOS.files.withWriting) return Promise.resolve({ blob: rec.blob, name: rec.name, ink: false });
+    return KOS.files.withWriting(inkRec(rec), rec.blob, opts);
+  }
+  function saveBlob(blob, name) {
+    var u = URL.createObjectURL(blob), a = KOS.ui.el("a", { href: u, download: name });
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function () { URL.revokeObjectURL(u); }, 30000);
+  }
   function shareFile(rec) {
+    if (KOS.files && KOS.files.writing && KOS.files.exportsInk() && KOS.files.writing(inkRec(rec)) > 0) {
+      withInk(rec).then(function (x) { KOS.inkExport.deliver(x.blob, x.name); });
+      return;
+    }
     var f = null;
     try { f = new File([rec.blob], rec.name, { type: rec.mime || rec.blob.type }); } catch (e) { f = null; }
     if (f && navigator.canShare && navigator.canShare({ files: [f] }) && navigator.share) {
@@ -1144,11 +1155,7 @@
     KOS.ui.toast("This browser can't share files — download it instead.");
   }
   function canShare() { return !!(navigator.share && navigator.canShare); }
-  function saveCopy(rec) {
-    var u = URL.createObjectURL(rec.blob), a = KOS.ui.el("a", { href: u, download: rec.name });
-    document.body.appendChild(a); a.click(); a.remove();
-    setTimeout(function () { URL.revokeObjectURL(u); }, 30000);
-  }
+  function saveCopy(rec) { withInk(rec).then(function (x) { saveBlob(x.blob, x.name); }); }
   function openViewer(rec, opts) {
     opts = opts || {};
     if (!rec || !rec.blob || !rec.blob.size) { KOS.ui.toast(rec && rec.fileId ? "This file's content is on another device — download it from the topic's Files tab." : "This file is empty.", true); return; }

@@ -166,6 +166,18 @@
     return d != null && d < ivl ? { ivl: d, capped: true } : keep;
   }
 
+  /* runUp(ivl, examDays) → {ivl, capped}. THE RUN-UP (the user, 18 November
+     2026): while an exam the card counts for is RUN_UP days away or less,
+     no interval runs longer than a third of the days left (at least 3, at
+     most 21), so every card comes back two or three times before it,
+     whatever its stability. It only ever shortens an interval. */
+  var RUN_UP = 60;
+  function runUpMax(examDays) { return examDays > RUN_UP || !(examDays >= 1) ? null : Math.max(3, Math.min(21, Math.floor(examDays / 3))); }
+  function runUp(ivl, examDays) {
+    var max = runUpMax(examDays);
+    return max != null && ivl > max ? { ivl: max, capped: true } : { ivl: ivl, capped: false };
+  }
+
   /* fsrs-rs memory_state_from_sm2 */
   function fromSM2(ease, ivl, r, w) {
     w = w || W;
@@ -207,7 +219,7 @@
     schedule: schedule,
     fromSM2: fromSM2,
     recordMemory: recordMemory,
-    examDay: examDay,
+    examDay: examDay, runUp: runUp, runUpMax: runUpMax, RUN_UP: RUN_UP,
     examCap: examCap,
     initS: function (g, w) { return initS(g, w || W); },
     initD: function (g, w) { return initD(g, w || W); },

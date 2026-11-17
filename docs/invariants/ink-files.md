@@ -155,6 +155,15 @@ Read this file before editing or testing anything in its domain.
     picture is made into a one-page PDF IN MEMORY to take the same layer.
     Notes pinned to a page are the layer's `meta.pins` [{id, n, x, y, text}]
     (synced with the doc). "Save a copy with my writing" makes a new PDF.
+    INK TRAVELS WITH A FILE (the user, 18 November 2026; smoke182): every
+    Download and Share of a PDF or picture with writing on it — the Files
+    page, a topic's Files tab, an assignment's attachments, the full-screen
+    preview — gives a NEW PDF with the writing of its most recently written
+    layer drawn on its pages (`KOS.files.withWriting`, through
+    `KOS.inkExport.flattenPDF`, the viewer's own Save a copy), named
+    "… (with my writing).pdf"; the original is always on offer ("Download
+    the original"), and "Downloads include my writing" in Pen and ink (per
+    device, `state.ui.exportInk`, on by default) turns it off.
 152. ONE VIEWER. Every surface opens a file through `KOS.files.open` (or
     `openRec` for a raw store record): a past paper as the paper (layers,
     the clock, its scheme), a PDF or picture in `KOS.pdfView` (pdf.js

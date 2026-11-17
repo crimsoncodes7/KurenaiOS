@@ -169,6 +169,35 @@
     });
   }
 
-  KOS.inkExport = { pdfLib: pdfLib, pageCanvas: pageCanvas, drawPaper: drawPaper, exportPNG: exportPNG, exportPDF: exportPDF,
+  /* the writing drawn onto a PDF's own pages (the viewer's "Save a copy
+     with my writing", and every Download or Share of a file with ink):
+     pages is {pageIndex: ink page}; resolves to the new PDF's bytes */
+  function flattenPDF(pdfBytes, pages) {
+    var ns = Object.keys(pages || {}).filter(function (n) { return pages[n] && (pages[n].items || []).length; });
+    return pdfLib().then(function (L) { return L.PDFDocument.load(pdfBytes); }).then(function (doc) {
+      var host = el("div", { class: "k-ink-exporthost", "data-theme": "atelier-dawn" });
+      document.body.appendChild(host);
+      var pal = KOS.inkUI.palette(host);
+      host.remove();
+      var chain = Promise.resolve(), count = doc.getPageCount();
+      ns.forEach(function (n) {
+        if (+n >= count) return;
+        chain = chain.then(function () {
+          var p = pages[n], c = document.createElement("canvas"), k = 1600 / I.W;
+          c.width = 1600; c.height = Math.round(I.pageH(p) * k);
+          var ctx = c.getContext("2d"); ctx.setTransform(k, 0, 0, k, 0, 0); ctx.__inkScale = k;
+          KOS.inkUI.drawItems(ctx, p.items, pal, function () {});
+          return canvasBlob(c).then(function (b) { return b.arrayBuffer(); }).then(function (buf) { return doc.embedPng(buf); }).then(function (img) {
+            var pg = doc.getPage(+n), sz = pg.getSize();
+            pg.drawImage(img, { x: 0, y: 0, width: sz.width, height: sz.height });
+            c.width = 0; c.height = 0;
+          });
+        });
+      });
+      return chain.then(function () { return doc.save(); });
+    });
+  }
+
+  KOS.inkExport = { flattenPDF: flattenPDF, pdfLib: pdfLib, pageCanvas: pageCanvas, drawPaper: drawPaper, exportPNG: exportPNG, exportPDF: exportPDF,
     exportDoc: exportDoc, pagesPDF: pagesPDF, deliver: deliver, safeName: safeName, canvasBlob: canvasBlob };
 })();
