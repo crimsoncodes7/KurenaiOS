@@ -125,13 +125,13 @@ C["it:F201.2.1"] = {
       ["**Transactional data**", "A **record of each transaction** (sale, payment, booking): what, when, where, how much, who.", "Till receipt: 14/07/2026 21:42 · Bar 3 · 2 × cider · £13.00 · card."]
     ] } },
     numberFig(),
-    { callout: { t: "info", h: "How structured data is captured", body: { ul: [
+    { callout: { t: "info", h: "How structured data is captured", body: [{ ul: [
       "**Online forms** with fixed fields and validation (a registration or booking form).",
       "**EPOS tills and barcode scanners** — each scan writes a transaction row.",
       "**Card terminals and online checkouts** — payment records.",
       "**Sensors and meters** that output numbers at set intervals (a smart meter reading every 30 minutes).",
       "**Data entry** into a database or spreadsheet; imports from other systems."
-    ] } } },
+    ] }] } },
     { kv: [
       ["Purpose", "To record **precise, measurable facts** in a consistent form so they can be totalled, compared, reported and audited."],
       ["When it is used", "Sales and stock control · finance and accounts · bookings · loyalty schemes · KPIs and dashboards · any question with a numeric answer (how many, how much, when)."]
@@ -188,13 +188,13 @@ C["it:F201.2.1"] = {
       ["**Web pages**", "HTML tags: title, headings, links, metadata.", "The text, images and video on the page."]
     ] } },
     { code: { lang: "xml", src: "<booking id=\"B2291\">\n  <name>Sam Ng</name>\n  <tickets>2</tickets>\n  <festival>Skyline North</festival>\n  <note>Needs the accessible campsite</note>\n</booking>\n<booking id=\"B2292\">\n  <name>Ola Ade</name>\n  <tickets>4</tickets>\n</booking>", cap: "Two XML records from a ticket agent's feed: each value is labelled by its tag, but the second record has no festival or note — no fixed schema forces it to." } },
-    { callout: { t: "info", h: "How semi-structured data is captured", body: { ul: [
+    { callout: { t: "info", h: "How semi-structured data is captured", body: [{ ul: [
       "**Email servers** store every message with its header fields.",
       "**Data feeds and APIs** between organisations send XML (or JSON) records.",
       "**Web crawlers and scraping** collect web pages for analysis.",
       "**File transfers and downloads** move zipped archives of many files at once.",
       "**IoE devices** often send their readings as tagged messages."
-    ] } } },
+    ] }] } },
     { kv: [
       ["Purpose", "To **exchange and hold varied records** between systems while keeping each value labelled, so a computer can still find the parts it needs."],
       ["When it is used", "Sharing data between organisations (ticket agents, suppliers) · analysing customer emails · web analytics and scraping · sending many files in one compressed archive · storing records whose fields vary."]
@@ -223,14 +223,14 @@ C["it:F201.2.1"] = {
       { h: "If not: are there tags, markers or header fields that label the parts?", m: "Yes → semi-structured.", n: "Email headers, XML tags, HTML tags, a zip file's index." },
       { h: "If not: is it free content — text, images, audio, video, mixed feeds?", m: "Yes → unstructured.", n: "Posts, videos, satellite images, voice recordings." }
     ] },
-    { callout: { t: "tip", h: "Synoptic links", body: { ul: [
+    { callout: { t: "tip", h: "Synoptic links", body: [{ ul: [
       "**F200 1.4** classifies data as structured / unstructured and qualitative / quantitative; **F200 1.3** covers XML, JSON and CSV as file formats.",
       "**F201 1.1** — **Variety** is the V this leaf describes; unstructured data drives **Veracity** problems.",
       "**F201 1.3** — each capture method generates a type: transactional records → structured; social media, images and video → unstructured.",
       "**F201 2.2** — every type needs preparing; unstructured text needs the most.",
       "**F201 2.4** — the type decides the store: relational database or warehouse for structured, NoSQL or a data lake for the rest.",
       "**F203** (relational database design) is structured data in depth; **F206** (digital marketing) lives on social media data."
-    ] } } },
+    ] }] } },
 
     { page: "In exam questions" },
     { callout: { t: "info", h: "The scenario", body: "**Skyline Festivals** runs six outdoor music festivals across the UK each summer. It sells tickets online, takes card payments at the bars, monitors social media during each event and buys weather data for every site." } },

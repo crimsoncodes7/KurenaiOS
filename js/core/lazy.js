@@ -77,14 +77,44 @@
   function list(x) { return x == null ? [] : Array.isArray(x) ? x : [x]; }
   function isIn(name) { return !files()[name] || st(name).state === 2; }
 
+  /* A bundle's files run in their own order and nobody else's. They were
+     injected with async=false, which a browser orders across the WHOLE
+     page: a lesson opened while the warm-up was still fetching another
+     subject's several megabytes waited for all of it (the "severe delay"
+     on IT's notes, 17 November 2026). Now every file of a bundle is asked
+     for at once (a preload) and they run one after another as each
+     arrives, so one bundle never queues behind another. */
+  function preload(src) {
+    if (HOOK && HOOK.inject) return;
+    try {
+      var l = document.createElement("link");
+      l.rel = "preload"; l.as = "script"; l.href = src;
+      document.head.appendChild(l);
+    } catch (e) { /* only a hint */ }
+  }
   function inject(src, done) {
     if (HOOK && HOOK.inject) { HOOK.inject(src, done); return; }
     var s = document.createElement("script");
     s.src = src;
-    s.async = false;            /* injected scripts run in the order added */
+    s.async = true;             /* the order is the bundle's own: see runAll */
     s.onload = function () { done(null); };
     s.onerror = function () { done(new Error("Could not load " + src)); };
     document.head.appendChild(s);
+  }
+  function runAll(list, done) {
+    var i = 0, failed = null, left = list.length;
+    /* the test loader evaluates each file in the order it is handed them */
+    if (HOOK && HOOK.inject) {
+      list.forEach(function (src) {
+        inject(src, function (err) { if (err && !failed) failed = err; if (--left === 0) done(failed); });
+      });
+      return;
+    }
+    list.forEach(preload);
+    (function next() {
+      if (i >= list.length) { done(failed); return; }
+      inject(list[i++], function (err) { if (err && !failed) failed = err; next(); });
+    })();
   }
 
   function loadOne(name) {
@@ -93,7 +123,7 @@
     if (b.p) return b.p;
     b.state = 1;
     b.p = new Promise(function (resolve, reject) {
-      var list = files()[name], left = list.length, failed = null;
+      var list = files()[name], failed = null;
       function finish() {
         if (failed) { b.state = 0; b.p = null; reject(failed); return; }
         b.state = 2;
@@ -102,13 +132,8 @@
         });
         resolve();
       }
-      if (!left) { finish(); return; }
-      list.forEach(function (src) {
-        inject(src, function (err) {
-          if (err && !failed) failed = err;
-          if (--left === 0) finish();
-        });
-      });
+      if (!list.length) { finish(); return; }
+      runAll(list, function (err) { failed = err; finish(); });
     });
     return b.p;
   }
@@ -272,6 +297,8 @@
       var todo = order.filter(function (n) { return !isIn(n); });
       if (!todo.length) return;
       idle(function () {
+        /* a page waiting for its own bundle has the connection to itself */
+        if (waiting()) { setTimeout(next, 400); return; }
         loadOne(todo[0]).then(next, function () { /* offline: a page asks again when it is opened */ });
       });
     })();

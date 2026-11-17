@@ -88,6 +88,11 @@ function validateFile(filePath) {
         if (!n || typeof n !== "object") return;
         if (n.callout) {
           if (KINDS.indexOf(n.callout.t) === -1) err(key + " — callout kind '" + n.callout.t + "' is unknown");
+          /* every reader (search, the Companion, the drills, the lazy index)
+             takes a body as a string or a LIST of blocks */
+          if (n.callout.body != null && typeof n.callout.body !== "string" && !Array.isArray(n.callout.body)) {
+            err(key + " — callout '" + (n.callout.h || n.callout.t) + "' has one block as its body: write body: [ … ]");
+          }
           walk(n.callout.body);
         }
       });

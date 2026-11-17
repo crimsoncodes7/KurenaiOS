@@ -317,6 +317,10 @@
      can point at it; the wrapper is display:contents and changes no layout */
   function renderBlocks(blocks) {
     var total = "";
+    /* a nested body written as ONE block (a callout's `body: {ul: […]}`)
+       is that block: a page must never fail to draw over its notes' shape
+       (the F201 notes of kos-integrity-14 did, and "Next page" stopped) */
+    if (blocks != null && !Array.isArray(blocks)) blocks = [blocks];
     (blocks || []).forEach(function (b) {
       var html = renderOne(b);
       if (b && typeof b === "object" && b.id != null && html) {
