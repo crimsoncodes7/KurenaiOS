@@ -6,6 +6,13 @@
   {"surface": "subject:\"it\"", "hooks": "study.resource-add", "from": ".*", "retire": true, "why": "16 November 2026 (asked for): IT's desk has no Resources card — a new specification with next to nothing published for it yet. Every other subject keeps it."},
     {
       "surface": "home",
+      "hooks": "ui.tab",
+      "from": "^Review$",
+      "to": "Review 186",
+      "why": "Design turn 40 (17 November 2026): Up next's Review tab counts every queue it splits — the flashcards and each study space's reviews — so the seeded account's tab reads Review 186."
+    },
+    {
+      "surface": "home",
       "hooks": "home.fact",
       "from": "^198 cards due$",
       "to": "186 cards due",

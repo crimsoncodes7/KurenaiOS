@@ -34,7 +34,9 @@
         KOS.ui.toast("Cloud sync: " + (KOS.cloudsync.lastError() || "unknown error") + " — retrying…", true);
         KOS.cloudsync.retry();
       } else if (s.state === "signedOut") {
-        KOS.show("data");
+        /* never synced: the welcome's sign-in, in place (design turn 41d) */
+        if (KOS.welcome && KOS.welcome.neverSynced()) KOS.welcome.open("signin");
+        else KOS.show("data");
       } else {
         KOS.cloudsync.syncNow();
       }
@@ -72,6 +74,10 @@
         if (localSave) localSave.hidden = false;
         return;
       }
+      /* design turn 41d: a sync has run on this device (the chip's quiet
+         "Not synced · Sign in" goes for good), or "Use this device only" */
+      if (s.state === "synced" && !KOS.store.state.ui.everSynced) { KOS.store.state.ui.everSynced = Date.now(); KOS.store.save(); }
+      if (s.state === "signedOut" && KOS.store.state.ui.localOnly) { chip.hidden = true; return; }
       chip.hidden = false;
       announceState(s);
       /* One persistence indicator at a time: once cloud status is meaningful,
@@ -80,7 +86,10 @@
       /* the design draws the chip as a status dot: teal synced, amber
          in flight, red on error, muted when signed out or offline */
       chip.setAttribute("data-sync", { synced: "ok", syncing: "busy", pending: "busy", error: "error" }[s.state] || "idle");
-      chip.textContent = LABELS[s.state] || s.state;
+      var never = s.state === "signedOut" && KOS.welcome && KOS.welcome.neverSynced();
+      chip.textContent = never ? "Not synced · Sign in" : LABELS[s.state] || s.state;
+      chip.setAttribute("data-never", never ? "" : null);
+      if (!never) chip.removeAttribute("data-never");
       chip.title = "Cloud sync — " + (LABELS[s.state] || s.state) +
         (s.detail ? ": " + s.detail : "") +
         (s.lastSyncAt ? " · last synced " + new Date(s.lastSyncAt).toLocaleTimeString("en-GB") : "") +
@@ -228,7 +237,19 @@
         pw.addEventListener("keydown", function (ev) { if (ev.key === "Enter") submit(KOS.cloud.signIn, "Sign-in"); });
         body.appendChild(el("div", { class: "k-cloud-form" }, [email, pw]));
         body.appendChild(msg);
-        body.appendChild(el("div", { class: "k-cloud-btns" }, [inBtn, upBtn]));
+        /* design turn 41d: a device kept to itself hides the header's
+           "Not synced" chip; turned off, it comes back */
+        var only = !!KOS.store.state.ui.localOnly;
+        body.appendChild(el("div", { class: "k-cloud-btns" }, [inBtn, upBtn,
+          el("button", { type: "button", class: "k-btn k-btn--quiet", "data-ui": "cloud.local-only", "aria-pressed": only ? "true" : "false",
+            text: only ? "Show the sync chip again" : "Use this device only",
+            title: only ? "Show the header's sync chip while signed out" : "This device stays signed out: no sign-in prompt in the header",
+            onclick: function () {
+              KOS.store.state.ui.localOnly = !only; KOS.store.save();
+              /* signed out, the chip shows exactly when the device is not kept to itself */
+              var c = document.getElementById("sync-status"); if (c) c.hidden = !only;
+              render();
+            } })]));
         return;
       }
 

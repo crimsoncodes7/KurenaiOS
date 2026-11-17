@@ -336,8 +336,11 @@
     /* the stage, drawn for the page and, scaled, for Edit seat's preview */
     function buildStage(gg, o) {
       var p = o.p, A = KOS.achievements, aui = KOS.achUI;
-      var stage = el("section", { class: "k-gv-stage k-gv-stage-grid", "data-ui": "gov.bento-id gov.seat", "aria-label": "Your identity" });
+      var stage = el("section", { class: "k-gv-stage k-gv-stage-grid" + (o.parts ? " k-gv-stage--part" : ""), "data-ui": "gov.bento-id gov.seat", "aria-label": "Your identity",
+        "data-edit": o.edit || null, "data-parts": o.parts ? o.parts.join(" ") : null });
       stageBg(stage, gg);
+      /* Edit seat's 1:1 preview (40d–40e) draws only the parts it edits */
+      function wants(part) { return !o.parts || o.parts.indexOf(part) !== -1; }
       var title = A && A.title();
       if (o.titleId !== undefined) title = A && o.titleId ? A.titles().filter(function (t) { return t.id === o.titleId; })[0] : null;
       var txt = el("div", { class: "k-gv-stage-txt" }, [
@@ -394,6 +397,10 @@
         }
       });
 
+      if (!wants("wall") && !wants("right") && !wants("rules")) {
+        [id, arc].forEach(function (n, i) { if (wants(["id", "arc"][i])) stage.appendChild(n); });
+        return stage;
+      }
       /* the Wall and the record, in glass */
       var c = A ? A.counts() : { owned: 0, badges: 0, tiers: 0, tiersTotal: 0 }, life = A ? A.lifetime() : { days: 0, focusSecs: 0 };
       var since = +store.state.created;
@@ -700,34 +707,54 @@
       var kick = head.querySelector("[data-ui~='ui.page-kicker']");
       if (kick) { kick.setAttribute("role", "link"); kick.setAttribute("tabindex", "0"); kick.classList.add("k-kicker--link"); KOS.a11y.activate(kick, function () { KOS.show("governor"); }); }
       main.appendChild(addHook(head, "gov.head"));
-      var prevBox = el("div", { class: "k-gv-prev", "aria-hidden": "true" });
+      var prevBox = el("div", { class: "k-gv-prev", "data-ui": "gov.seat-preview", "aria-hidden": "true" });
+      var capK = el("span", { class: "k-kicker", "data-ui": "gov.seat-preview-cap", text: "Preview" }), capS = el("span", { class: "k-muted", text: "Live preview · your data" });
       var sum = el("section", { class: "k-card k-gv-sum" });
       var editor = el("section", { class: "k-card k-gv-editor", "data-ui": "gov.seat-editor" });
       main.appendChild(el("div", { class: "k-gv-edit", "data-ui": "gov.seat-edit" }, [
-        el("div", { class: "k-gv-edit-left" }, [el("div", { class: "k-gv-edit-cap" }, [el("span", { class: "k-kicker", text: "Preview" }), el("span", { class: "k-muted", text: "Live preview · your data" })]), prevBox, sum]),
+        el("div", { class: "k-gv-edit-left" }, [el("div", { class: "k-gv-edit-cap" }, [capK, capS]), prevBox, sum]),
         editor
       ]));
-      function dirty() { var d = JSON.stringify(draft) !== saved; KOS.ui.state(saveBtn, "lit", d); return d; }
+      /* Save is offered only once the draft differs from what is saved (40d) */
+      function dirty() { var d = JSON.stringify(draft) !== saved; KOS.ui.state(saveBtn, "lit", d); saveBtn.disabled = !d; return d; }
+      /* which preview this width draws (40d–40e): above 860 the 1440 Stage
+         scaled to the box; under it the Stage as it is drawn at this width,
+         1:1, only its identity and showcase; on a phone the Title, Sigil
+         and Background tabs show only the identity band they change */
+      function previewMode() {
+        var mm = window.matchMedia;
+        try {
+          if (mm && mm("(max-width: 700px)").matches) return "phone";
+          if (mm && mm("(max-width: 860px)").matches) return "one";
+        } catch (e) {}
+        return "scaled";
+      }
+      var BAND = { bg: "the background", title: "the title", sigil: "the sigil" }, painted = null;
       function paintPreview() {
         prevBox.textContent = "";
+        var mode = painted = previewMode(), band = mode === "phone" && BAND[tab];
         var p = KOS.governor.profile(), stks = KOS.sessions.streaks(), all = KOS.sessions.all(), real = all.filter(function (x) { return !isRoutine(x); });
         var gg = Object.assign({}, g, { seatBg: draft.seatBg, seatFocus: draft.seatFocus });
-        var inner = el("div", { class: "k-gv-prev-inner" }, [buildStage(gg, { preview: true, p: p, displayHp: p.hp, hpCls: KOS.governor.hpState(), stks: stks,
-          realSessions: real, meaningful: real.filter(isMeaningful), routineN: all.length - real.length, showcase: draft.showcase, titleId: draft.titleId, seal: draft.seal })]);
-        prevBox.appendChild(inner);
+        var stage = buildStage(gg, { preview: true, p: p, displayHp: p.hp, hpCls: KOS.governor.hpState(), stks: stks,
+          realSessions: real, meaningful: real.filter(isMeaningful), routineN: all.length - real.length, showcase: draft.showcase, titleId: draft.titleId, seal: draft.seal,
+          edit: tab, parts: mode === "scaled" ? null : band ? ["id"] : ["id", "arc"] });
+        prevBox.setAttribute("data-fit", mode === "scaled" ? "scaled" : "one");
+        prevBox.appendChild(el("div", { class: "k-gv-prev-inner" }, [stage]));
+        capK.textContent = band ? "Preview · " + band : mode === "scaled" ? "Preview" : "Preview · 1 : 1";
+        capS.textContent = band ? "only the part you are editing" : mode === "scaled" ? "Live preview · your data" : mode === "one" ? "the Stage at this width" : "your data";
         fitPreview();
         paintSummary();
         dirty();
       }
-      /* the preview is the Stage at its 1440 width, scaled to the box; the
-         box takes the scaled stage's own height, so nothing is cut off */
+      /* the scaled preview is the Stage at its 1440 width, scaled to the box;
+         the box takes the scaled stage's own height, so nothing is cut off */
       function fitPreview() {
         var w = prevBox.clientWidth, inner = prevBox.firstChild;
-        if (!w) return;
+        if (!w || painted !== "scaled") return;
         prevBox.style.setProperty("--prev-s", String(w / 1328));
         if (inner && inner.offsetHeight) prevBox.style.setProperty("--prev-h", Math.ceil(inner.offsetHeight * w / 1328) + "px");
       }
-      if (window.ResizeObserver) { var ro = new ResizeObserver(function () { if (!prevBox.isConnected) { ro.disconnect(); return; } fitPreview(); }); ro.observe(prevBox); }
+      if (window.ResizeObserver) { var ro = new ResizeObserver(function () { if (!prevBox.isConnected) { ro.disconnect(); return; } if (previewMode() !== painted) paintPreview(); else fitPreview(); }); ro.observe(prevBox); }
       function bgName() {
         var bg = seatBgSrc(Object.assign({}, g, { seatBg: draft.seatBg }));
         if (!bg) return "None";
@@ -750,7 +777,7 @@
       var TABS_E = [["showcase", "Showcase"], ["bg", "Background"], ["title", "Title"], ["sigil", "Sigil"]], tab = M.tab || "showcase";
       function paintEditor() {
         editor.textContent = "";
-        var seg = KOS.ui.tabs(TABS_E.map(function (x) { return { label: x[1], active: x[0] === tab, onSelect: function () { tab = M.tab = x[0]; paintEditor(); } }; }),
+        var seg = KOS.ui.tabs(TABS_E.map(function (x) { return { label: x[1], active: x[0] === tab, onSelect: function () { tab = M.tab = x[0]; paintEditor(); paintPreview(); } }; }),
           { variant: "workspace", label: "Edit", className: "k-gv-edit-tabs" });
         editor.appendChild(seg);
         var body = el("div", { class: "k-gv-edit-body" });
@@ -1463,21 +1490,28 @@
       }
       /* the wardrobe: every kind you can wear, what you own of it as
          pictures, the one in use ringed; the rest are a shop away */
-      var WARD = [["outfit", "Kurenai's outfit", "The Assistant panel"], ["avatar", "Avatar", "Your portrait"], ["scene", "Focus scene", "Behind the timer"],
-        ["hall", "Shrine hall", "Behind rank 01"], ["banner", "Painted banner", "The Seat's stage"], ["seal", "Seal", "Your portrait's badge · the share card"],
-        ["finish", "Share-card finish", "Your shared cards"], ["paper", "Notebook paper", "New notebook pages"], ["penset", "Pen set", "The pen's colours"]];
+      /* 40c: one cell a kind you own something of (frames among them); a
+         kind you own none of is one word on the last line; the theme is
+         one wide cell, its swatches and then the follow switch */
+      var WARD = [["outfit", "Kurenai's outfit", "The Assistant panel", "Outfits"], ["avatar", "Avatar", "Your portrait", "Avatars"], ["scene", "Focus scene", "Behind the timer", "Focus scenes"],
+        ["hall", "Shrine hall", "Behind rank 01", "Shrine halls"], ["banner", "Painted banner", "The Seat's stage", "Painted banners"], ["seal", "Seal", "Your portrait's badge · the share card", "Seals"],
+        ["frame", "Frame", "Round your portrait", "Frames"],
+        ["finish", "Share-card finish", "Your shared cards", "Share-card finishes"], ["paper", "Notebook paper", "New notebook pages", "Notebook papers"], ["penset", "Pen set", "The pen's colours", "Pen sets"]];
       var ward = el("div", { class: "k-gv-ward", "data-ui": "gov.wardrobe" });
       var SLOT_OF = { scene: "focus", hall: "shrine", banner: "banner" };
-      var notYet = [];
+      var notYet = [], cells = 0;
       function toShop(kind) { KOS.openShop({ group: (SHOP_GROUPS.filter(function (x) { return x.match({ kind: kind }); })[0] || {}).id }); }
       WARD.forEach(function (w) {
         var kind = w[0];
         var items = KOS.governor.catalog().filter(function (c) { return c.kind === kind && KOS.governor.owns(c.id) && !(kind === "banner" && !c.painted); });
         var all = KOS.governor.catalog().filter(function (c) { return c.kind === kind && !c.retired; }).length;
-        /* a kind you own none of is one word on the "not yet" line (SC-37) */
+        /* a kind you own none of is one word on the "not owned yet" line (SC-37) */
         if (!items.length) { notYet.push(w); return; }
+        cells++;
         var chips = items.map(function (it) {
           var on = wareActive(it);
+          /* a frame shows your portrait in it, as it will be worn */
+          if (kind === "frame") return frameChip(it, it.name, on);
           /* papers and pen sets show what they look like, not a letter (SC-12) */
           var pic = it.art ? el("img", { src: "assets/app/img/" + it.art + ".webp", alt: "", loading: "lazy", "data-kind": kind })
             : kind === "paper" || kind === "penset" ? el("span", { class: "k-gv-ward-pv", "data-kind": kind }, [artPreview(it)])
@@ -1488,6 +1522,8 @@
           ]);
           return b;
         });
+        /* frames: "No frame" is a choice too, first (no seal library, review A) */
+        if (kind === "frame") chips.unshift(frameChip(null, "No frame", !g.avatar.frame));
         /* the picture drawer is offered where there is something to rotate or upload */
         var slot = SLOT_OF[kind];
         var rot = KOS.artSlot && slot && (items.length > 1 || (KOS.art && KOS.art.canUpload(slot)));
@@ -1495,33 +1531,58 @@
           el("div", { class: "k-gv-ward-h" }, [el("b", { text: w[1] }), el("span", { class: "k-muted", text: w[2] + " · " + items.length + " of " + all }),
             rot ? el("button", { type: "button", class: "k-link k-gv-ward-rot", "data-ui": "art.open",
               text: "Rotate or your own →", onclick: function () { KOS.artSlot.open(slot, render); } }) : null].filter(Boolean)),
-          el("div", { class: "k-gv-ward-chips" }, chips)
+          el("div", { class: "k-gv-ward-chips", "data-ui": kind === "frame" ? "gov.frame-grid" : null }, chips)
         ]));
       });
-      if (notYet.length) ward.appendChild(el("p", { class: "k-gv-ward-none", "data-ui": "gov.wardrobe-none" }, [el("span", { class: "k-muted", text: "Not yet owned: " })]
-        .concat(notYet.map(function (w, i) {
-          return el("button", { type: "button", class: "k-link", "data-kind": w[0], text: w[1] + (i < notYet.length - 1 ? "," : " →"), onclick: function () { toShop(w[0]); } });
-        }))));
-      panel.appendChild(el("section", { class: "k-card k-gv-lib", "data-ui": "gov.wardrobe-section", "aria-label": "Wardrobe" }, [
-        cardHead("Wardrobe", "what you own, ready to wear", el("button", { type: "button", class: "k-link", text: "Gold Shop →", onclick: function () { KOS.show("governor", "shop"); } })),
-        ward
+
+      /* the theme (21h), one wide cell: the owned themes, the chosen one
+         ringed, then the device-following switch with its state in a line */
+      var ownedThemes = KOS.governor.catalog().filter(function (c) { return c.kind === "theme" && KOS.governor.owns(c.id); });
+      var chosen = chosenTheme();
+      var tgrid = el("div", { class: "k-gv-themes", "data-ui": "gov.theme-grid" }, ownedThemes.map(function (t) {
+        var on = chosen === t.theme;
+        return el("button", { type: "button", class: "k-gv-theme", "data-ui": "gov.theme-chip", "aria-pressed": on ? "true" : "false",
+          "aria-label": t.name + (on ? " — current theme" : ""),
+          onclick: function () { KOS.governor.setTheme(t.theme); render(); } }, [
+          themeMini(t.theme, false),
+          el("span", { class: "k-gv-theme-n" }, [t.name, on ? el("span", { class: "k-gv-theme-on", "aria-hidden": "true", text: "✓" }) : null].filter(Boolean))
+        ]);
+      }));
+      var follows = KOS.governor.themeFollow();
+      var themeName = function (id) { var t = ownedThemes.filter(function (x) { return x.theme === id; })[0]; return t ? t.name : "Atelier Dusk"; };
+      var darkName = chosen === "atelier-dawn" ? themeName("atelier-dusk") : themeName(chosen);
+      var follow = el("input", { type: "checkbox", class: "k-switch", "data-ui": "gov.theme-follow", "aria-label": "Follow the system" });
+      follow.checked = follows;
+      follow.addEventListener("change", function () { KOS.governor.setThemeFollow(follow.checked); render(); });
+      ward.appendChild(el("div", { class: "k-gv-ward-row k-gv-ward-theme", "data-kind": "theme", "data-ui": "gov.theme-section" }, [
+        el("div", { class: "k-gv-ward-h" }, [el("b", { text: "Theme" }), el("span", { class: "k-muted", text: ownedThemes.length + " owned · synced to every device" })]),
+        el("div", { class: "k-gv-theme-row" }, [tgrid,
+          el("label", { class: "k-gv-theme-follow" }, [
+            follow,
+            el("span", { class: "k-gv-theme-follow-t" }, [el("b", { text: "Follow the system" }),
+              el("small", { class: "k-muted", "data-ui": "gov.theme-follow-state",
+                text: follows ? "Atelier Dawn by day, " + darkName + " by night" : "Off · " + themeName(chosen) + " all day" })])
+          ])])
       ]));
+      /* pack with no dead space: the theme spans two columns; where the
+         cells before it leave a different remainder, the last one widens
+         (css: data-r3 for three columns, data-r2 for two) */
+      ward.setAttribute("data-r3", String(cells % 3));
+      ward.setAttribute("data-r2", String(cells % 2));
+
+      var none = notYet.length ? el("p", { class: "k-gv-ward-none", "data-ui": "gov.wardrobe-none" }, [el("span", { class: "k-muted", text: "Not owned yet:" })]
+        .concat(notYet.map(function (w, i) {
+          return el("button", { type: "button", class: "k-link", "data-kind": w[0], text: w[3] + (i < notYet.length - 1 ? " ·" : ""),
+            "aria-label": w[3] + ", in the Gold Shop", onclick: function () { toShop(w[0]); } });
+        })).concat([el("button", { type: "button", class: "k-link k-gv-ward-shop", text: "Gold Shop →", onclick: function () { KOS.show("governor", "shop"); } })])) : null;
+      panel.appendChild(el("section", { class: "k-card k-gv-lib", "data-ui": "gov.wardrobe-section", "aria-label": "Wardrobe" }, [
+        cardHead("Wardrobe", "ready to wear", el("button", { type: "button", class: "k-link", text: "Gold Shop →", onclick: function () { KOS.show("governor", "shop"); } })),
+        ward,
+        none
+      ].filter(Boolean)));
       var ctl2 = el("div", { class: "k-gv-ward-pair" });
       panel.appendChild(ctl2);
       ctl = ctl2;
-
-      /* no seal library (review A): with no picture the portrait is the
-         default design */
-      /* frames — every frame, the owned ones wearable, the rest a shop away */
-      var fgrid = el("div", { class: "k-gv-frames", "data-ui": "gov.frame-grid" });
-      fgrid.appendChild(frameChip(null, "No frame", true));
-      KOS.governor.catalog().filter(function (c) { return c.kind === "frame" && (!c.retired || KOS.governor.owns(c.id)); }).forEach(function (fr) {
-        fgrid.appendChild(frameChip(fr, fr.name, KOS.governor.owns(fr.id)));
-      });
-      ctl.appendChild(el("section", { class: "k-card k-gv-lib", "data-ui": "gov.avatar-section", "aria-label": "Frames" }, [
-        cardHead("Frames", "owned frames are ready to wear, the rest are Gold Shop unlocks"),
-        fgrid
-      ]));
 
       /* frame 22e: the Collection cosmetics — one choice row for the Books
          shelf skin and one for the Shrine style (the share card follows the
@@ -1550,35 +1611,8 @@
         cosmeticRow("Shrine style", "shrinestyle", KOS.governor.shrineStyle(), function (id) { KOS.governor.setShrineStyle(id); })
       ]));
 
-      /* the theme (21h): owned themes only, the chosen one ringed, and the
-         device-following pair — Atelier Dawn by day, the dark choice by night */
-      var ownedThemes = KOS.governor.catalog().filter(function (c) { return c.kind === "theme" && KOS.governor.owns(c.id); });
-      var tgrid = el("div", { class: "k-gv-themes", "data-ui": "gov.theme-grid" }, ownedThemes.map(function (t) {
-        var on = chosenTheme() === t.theme;
-        return el("button", { type: "button", class: "k-gv-theme", "data-ui": "gov.theme-chip", "aria-pressed": on ? "true" : "false",
-          "aria-label": t.name + (on ? " — current theme" : ""),
-          onclick: function () { KOS.governor.setTheme(t.theme); render(); } }, [
-          themeMini(t.theme, false),
-          el("span", { class: "k-gv-theme-n" }, [t.name, on ? el("span", { class: "k-gv-theme-on", "aria-hidden": "true", text: "✓" }) : null].filter(Boolean))
-        ]);
-      }));
-      var follow = el("input", { type: "checkbox", class: "k-switch", "data-ui": "gov.theme-follow", "aria-label": "Follow the system" });
-      follow.checked = KOS.governor.themeFollow();
-      follow.addEventListener("change", function () { KOS.governor.setThemeFollow(follow.checked); });
-      /* a full-width row under the studio, so the identity stage and the
-         workshop keep their matched heights */
-      panel.appendChild(el("section", { class: "k-card k-gv-lib", "data-ui": "gov.theme-section", "aria-label": "Theme" }, [
-        cardHead("Theme", "Dusk and its light twin, Dawn · designed themes are coming"),
-        /* the two themes and the follow switch share one row (SC-37) */
-        el("div", { class: "k-gv-theme-row" }, [tgrid,
-          el("label", { class: "k-gv-theme-follow" }, [
-            follow,
-            el("span", { class: "k-gv-theme-follow-t", text: "Follow the system: Atelier Dawn by day, your dark theme by night" }),
-            el("span", { class: "k-gv-theme-sync", text: "Synced to every device" })
-          ])])
-      ]));
       /* Decorative art (34n), per device: every painted slot falls back to
-         its ground and no word changes */
+         its ground and no word changes; beside the Collection cosmetics */
       var artP = KOS.art ? KOS.art.prefs() : {};
       function artSwitch(label, sub, hook, checked, onChange) {
         var input = el("input", { type: "checkbox", class: "k-switch", "data-ui": hook, "aria-label": label });
@@ -1587,24 +1621,23 @@
         return el("label", { class: "k-gv-theme-follow" }, [input,
           el("span", { class: "k-gv-theme-follow-t" }, [label, el("small", { class: "k-muted", text: " · " + sub })])]);
       }
-      if (KOS.art) panel.appendChild(el("section", { class: "k-card k-gv-lib", "data-ui": "gov.art-section", "aria-label": "Decorative art" }, [
+      if (KOS.art) ctl.appendChild(el("section", { class: "k-card k-gv-lib", "data-ui": "gov.art-section", "aria-label": "Decorative art" }, [
         cardHead("Decorative art", "this device"),
         artSwitch("Show painted art", "heroes, desks, the Spotlight, the Focus scene, the Shrine's hall, empty-state spots", "gov.art-on",
           !artP.off, function (v) { KOS.art.set("off", !v); }),
         artSwitch("Turn it off with Reduced data", "Low Data Mode or Save-Data: no picture is fetched", "gov.art-reduced",
           artP.reduced !== false, function (v) { KOS.art.set("reduced", v); })
       ]));
-      function frameChip(fr, label, owned) {
-        var id = fr ? fr.id : null, on = (g.avatar.frame || null) === id;
-        var disc = KOS.governor.avatarNode(44, { frame: id });
-        var chip = el("button", { type: "button", class: "k-gv-frame", "data-ui": "gov.frame-chip", "aria-pressed": on ? "true" : "false",
-          "aria-label": owned ? label : label + " — in the Gold Shop for ◈ " + fr.price,
-          onclick: function () {
-            if (!owned) { KOS.openShop({ group: "frames" }); return; }
-            g.avatar.frame = id; store.save(); KOS.refreshHUD(); render();
-          } }, [disc, el("span", { class: "k-gv-frame-n", text: owned ? label : label + "\u00a0·\u00a0◈" })]);
-        if (!owned) KOS.ui.state(chip, "locked", true);
-        return chip;
+      /* a frame in the Wardrobe: owned frames only (the rest are the shop's);
+         your portrait in it, the worn one ringed like every chip */
+      function frameChip(fr, label, on) {
+        var id = fr ? fr.id : null;
+        return el("button", { type: "button", class: "k-gv-ward-chip", "data-ui": "gov.frame-chip", "aria-pressed": on ? "true" : "false",
+          "aria-label": label + (on ? " — in use" : ""), title: label,
+          onclick: function () { g.avatar.frame = id; store.save(); KOS.refreshHUD(); render(); } }, [
+          el("span", { class: "k-gv-ward-av", "data-kind": "frame" }, [KOS.governor.avatarNode(44, { frame: id })]),
+          el("span", { class: "k-gv-ward-n", text: label })
+        ]);
       }
     }
 

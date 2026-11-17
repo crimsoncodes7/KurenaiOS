@@ -180,6 +180,9 @@ transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--
 .k-dot { position: absolute; inset-block-start: var(--sp-6); inset-inline-end: var(--sp-7); inline-size: var(--sp-8); block-size: var(--sp-8); border-radius: 50%; background: var(--crimson); box-shadow: 0 0 0 var(--focus-width) var(--s1); }
 
 /* ---------- the dated row: Today, Upcoming, Deadlines ---------- */
+/* a study space's mark in its hue (碼 語 心 創, design turn 40): the kanji
+   tile, smaller, for Home's ladder, the Review side and Today's three */
+.k-tile.k-space-mark { --tile: var(--sp-24); border-radius: var(--r-6); font-size: var(--fs-13); }
 .k-day-row { display: flex; align-items: center; gap: var(--sp-12); padding-block: var(--sp-12); border-block-start: var(--hairline) solid var(--line); inline-size: 100%; padding-inline: 0; border-radius: 0; background: none; box-shadow: none; text-align: start; }
 button.k-day-row:hover { background: none; }
 button.k-day-row:hover .k-day-title { text-decoration: underline; text-decoration-color: var(--line); }
@@ -788,4 +791,36 @@ textarea.k-input { min-block-size: calc(var(--hit) * 2.6); line-height: var(--lh
 .k-art-lock-p { flex: none; display: flex; flex-direction: column; align-items: flex-end; }
 .k-art-lock-p b { color: var(--gold); }
 
+
+/* ---------- the first open (design turn 41): the welcome, one screen ---------- */
+.k-dialog-overlay.k-wel-overlay { place-items: center; padding: var(--sp-24) var(--sp-16); background: var(--bg); }
+.k-dialog.k-wel { inline-size: min(calc(var(--sp-64) * 7), 100%); max-block-size: none; align-items: center; gap: var(--sp-28); padding: var(--sp-40) var(--sp-32); border-radius: var(--r-28); background: var(--s1); box-shadow: var(--elev-3); text-align: center; }
+.k-dialog.k-wel::before { display: none; }
+.k-wel-head { display: flex; flex-direction: column; align-items: center; gap: var(--sp-8); }
+.k-wel-mark { inline-size: var(--sp-64); block-size: var(--sp-64); }
+.k-wel-name { font-size: var(--fs-32); font-weight: var(--weight-semibold); letter-spacing: -0.01em; }
+.k-wel-line { font-size: var(--fs-15); color: var(--text-2); }
+.k-wel-acts { inline-size: 100%; display: flex; flex-direction: column; gap: var(--sp-10); }
+.k-wel-acts > .k-btn { justify-content: center; min-block-size: var(--hit-coarse); }
+.k-wel-form { display: flex; flex-direction: column; gap: var(--sp-12); text-align: start; }
+.k-wel-field { display: flex; flex-direction: column; gap: var(--sp-4); font-size: var(--fs-12-5); color: var(--text-2); }
+.k-wel-msg { min-block-size: var(--sp-18); font-size: var(--fs-12-5); color: var(--text-2); }
+.k-wel-form-acts { display: flex; gap: var(--sp-10); }
+.k-wel-form-acts > .k-btn--primary { flex: 1 1 auto; justify-content: center; }
+.k-wel-foot { inline-size: 100%; display: flex; flex-direction: column; gap: var(--sp-10); padding-block-start: var(--sp-20); border-block-start: var(--hairline) solid var(--line); }
+.k-wel-foot-h { display: flex; justify-content: space-between; align-items: baseline; font-size: var(--fs-12); }
+.k-wel-themes { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-10); }
+.k-wel-theme { display: flex; flex-direction: column; align-items: stretch; gap: var(--sp-6); padding: var(--sp-6); border-radius: var(--r-12); background: none; box-shadow: inset 0 0 0 var(--hairline) var(--line); font-size: var(--fs-12-5); color: var(--text); }
+.k-wel-theme[aria-pressed="true"] { box-shadow: inset 0 0 0 var(--sp-2) var(--crimson); }
+.k-wel-theme-art { position: relative; display: block; inline-size: calc(var(--sp-64) + var(--sp-24)); block-size: var(--sp-48); border-radius: var(--r-8); background: var(--bg); overflow: hidden; }
+.k-wel-theme-art > i { position: absolute; inset: var(--sp-6) var(--sp-6) auto; block-size: var(--sp-14); border-radius: var(--r-6); background: var(--s2); }
+.k-wel-theme-art > b { position: absolute; inset-inline-start: var(--sp-6); inset-block-end: var(--sp-6); inline-size: var(--sp-24); block-size: var(--sp-10); border-radius: var(--r-pill); background: var(--crimson); }
+.k-wel-theme-art > em { position: absolute; inset-inline-end: var(--sp-6); inset-block-end: var(--sp-6); inline-size: var(--sp-28); block-size: var(--sp-4); border-radius: var(--r-pill); background: var(--text-2); }
+.k-wel-follow { display: inline-flex; align-items: center; gap: var(--sp-8); margin-inline-start: auto; font-size: var(--fs-13); }
+.k-wel-steps { display: flex; flex-direction: column; text-align: start; }
+.k-wel-step { display: grid; grid-template-columns: var(--sp-24) minmax(0, 1fr) auto; align-items: center; gap: var(--sp-10); padding-block: var(--sp-10); border-block-start: var(--hairline) solid var(--line); font-size: var(--fs-13-5); }
+.k-wel-step-mark { inline-size: var(--sp-20); block-size: var(--sp-20); display: grid; place-items: center; border-radius: 50%; box-shadow: inset 0 0 0 var(--hairline) var(--line); font-size: var(--fs-11-5); }
+.k-wel-step[data-state="done"] .k-wel-step-mark { background: var(--teal); box-shadow: none; color: var(--bg); }
+.k-wel-note { font-size: var(--fs-12-5); color: var(--text-2); }
+#sync-status[data-never] { color: var(--text-2); }
 }

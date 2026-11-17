@@ -89,8 +89,17 @@
 .k-fx-row-bar--split > span { flex: var(--f) 1 0; min-block-size: var(--sp-2); background: var(--row-hue); }
 .k-fx-row-t { display: flex; flex-direction: column; gap: var(--sp-2); min-inline-size: 0; }
 .k-fx-row-sub { font-size: var(--fs-12); }
-.k-fx-live { display: flex; align-items: center; gap: var(--sp-16); flex-wrap: wrap; }
-.k-fx-live > .k-btn { margin-inline-start: auto; }
+/* 40f: the live card in the set-up's place while a session runs */
+.k-fx-hero.k-fx-livecard { display: flex; flex-direction: column; align-items: stretch; justify-items: stretch; gap: var(--sp-8); }
+.k-fx-livecard > .k-kicker { color: var(--crimson); }
+.k-fx-live-mode { font-size: var(--fs-13); color: var(--text-2); }
+.k-fx-live-clock { font: var(--weight-medium) var(--fs-58) / 1 var(--font-mono); letter-spacing: var(--track-huge); margin-block-start: var(--sp-4); }
+.k-fx-live-at { font-size: var(--fs-13); color: var(--text-2); }
+.k-fx-live-obj { display: flex; flex-direction: column; gap: var(--sp-2); padding-block: var(--sp-12); border-block: var(--hairline) solid var(--line); margin-block: var(--sp-8); }
+.k-fx-live-acts { margin-block-start: var(--sp-8); }
+.k-fx-live-acts > .k-btn--primary { margin-inline-start: auto; }
+/* the live card is the player on this page: the mini-player steps aside */
+:root[data-fx-page][data-focus="minimised"] .k-fx-dock { display: none; }
 
 /* ================= Focus Timer · the stage (frame 10b) ================= */
 :root[data-focus="stage"] body { overflow: hidden; }

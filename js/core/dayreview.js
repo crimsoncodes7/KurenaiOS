@@ -277,7 +277,7 @@
   }
 
   /* ---------------- refs: what a pick points at ---------------- */
-  var KINDS = ["reminder", "assignment", "plan", "event", "assessment", "routine", "topic"];
+  var KINDS = ["reminder", "assignment", "plan", "event", "assessment", "routine", "topic", "space"];
   function validRef(r) { return !!r && KINDS.indexOf(r.kind) !== -1 && r.id != null && r.id !== ""; }
   /* resolve(ref) → {title, done, subject, due} | null (a read) */
   function resolve(ref) {
@@ -295,6 +295,9 @@
         return x ? { title: x.title, done: false, due: x.date || null, subject: x.subject || null } : null;
       case "routine": var rt = KOS.routines.get(ref.id);
         return rt ? { title: rt.name, done: false } : null;
+      /* a study space's daily (design turn 40): done is read from the space */
+      case "space": var sp = safe(function () { return KOS.today.space(String(ref.id)); }, null);
+        return sp ? { title: sp.name + " · " + (sp.short || sp.daily || "today"), done: !!sp.done, subject: sp.sid, mark: sp.mark, hue: sp.hue } : null;
       case "topic": var i = String(ref.id).indexOf(":");
         return i > 0 ? { title: safe(function () { return KOS.spec.label(ref.id); }, ref.id), done: false, subject: String(ref.id).slice(0, i) } : null;
     }
@@ -501,7 +504,7 @@
     (picked || []).forEach(function (p) { have[p.ref.kind + ":" + p.ref.id] = true; });
     function push(ref, title, why, subject) {
       var k = ref.kind + ":" + ref.id;
-      if (have[k] || out.length >= 6) return;
+      if (have[k] || out.length >= (ref.kind === "space" ? 8 : 6)) return;
       if (ref.kind === "plan" && plans++ >= 2) return;
       have[k] = true;
       out.push({ ref: ref, title: title, why: why || "", subject: subject || null });
@@ -509,10 +512,15 @@
     if (first && first.ref) push(first.ref, first.title, "your first task, from last night", first.subject);
     var n = T.next;
     if (n && n.assignmentId != null) push({ kind: "assignment", id: n.assignmentId }, n.title, n.kicker, n.subject);
+    else if (n && n.kind === "space" && n.subject) push({ kind: "space", id: n.subject }, n.title, n.kicker, n.subject);
     else if (n && n.subject && n.ref) push({ kind: "topic", id: n.subject + ":" + n.ref }, n.title, n.kicker, n.subject);
     var WHY = { overdue: "overdue", soon: "due soon", started: "started", workOn: "a day to work on it", carried: "carried over", week: "this week's plan" };
     T.due.filter(function (x) { return x.kind !== "plan"; }).forEach(function (x) { if (x.ref) push(x.ref, x.title, x.overdue ? "overdue" : WHY[x.why] || x.why || "", x.subject); });
     T.due.filter(function (x) { return x.kind === "plan"; }).forEach(function (x) { if (x.ref) push(x.ref, x.title, WHY[x.why] || "", x.subject); });
+    /* the study spaces' dailies still open today (design turn 40) */
+    safe(function () { return KOS.today.spaces(); }, []).forEach(function (sp) {
+      if (!sp.done && sp.go) push({ kind: "space", id: sp.sid }, sp.name + " · " + sp.short, sp.daily ? "today's " + sp.daily : "", sp.sid);
+    });
     return out;
   }
   function unfinishedOf(T, three, day, now) {

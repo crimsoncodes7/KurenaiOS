@@ -308,6 +308,8 @@
        while a repair is writing (it waits and looks again) */
     (function fallback() { setTimeout(function () { if (KOS.repairs.applying()) fallback(); else startCloud(); }, 20000); })();
   } else startCloud();
+  /* design turn 41: a pristine, signed-out device opens on the welcome */
+  if (KOS.welcome) KOS.welcome.maybeOpen();
 
   KOS.refreshRailCounters();
   /* the frame never scrolls: #app clips (overflow: hidden), but

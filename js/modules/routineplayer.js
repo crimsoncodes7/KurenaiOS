@@ -318,7 +318,7 @@
     var V = KOS.dayReview;
     var three = V && V.enabled() ? ((V.day(R().routineDay()).morning || {}).three || []) : [];
     three.forEach(function (ref) {
-      var x = V.resolve(ref); if (!x || x.done) return;
+      var x = V.resolve(ref); if (!x || x.done || ref.kind === "space") return;
       push({ title: x.title, subject: x.subject, assignmentId: ref.kind === "assignment" ? ref.id : null, refs: ref.kind === "topic" ? [ref.id] : [], sub: "from Today's three" });
     });
     (KOS.assignments ? KOS.assignments.all() : []).filter(function (a) { return KOS.assignments.isOpen(a) && a.due; })

@@ -289,5 +289,120 @@
     } catch (e) { cb(null, build(day, opts)); }
   }
 
-  KOS.today = { build: build, load: load, free: free, bag: bag, kit: kit, schoolHours: schoolHours, isHoliday: isHoliday, day: today, MIN_FREE: MIN_FREE };
+  /* ---------------- the study spaces' dailies (design turn 40) ----------------
+     spaces(day) → one row per study space that has been STARTED, in the
+     ladder's order — Code's Daily 20, Japanese (reviews, then its next
+     lesson), Mind's Daily 15, the Daily Creative — each with its mark and
+     hue, whether today's is done, what opens it, and its review queue
+     ({n, sub, go}) for the Review side. A read: every figure comes from the
+     space's own planDay/due, none is stored, and `go` only navigates. */
+  var SPACES = [
+    { sid: "code", mark: "碼", hue: "var(--code)", name: "Code" },
+    { sid: "ja", mark: "語", hue: "var(--ja)", name: "Japanese" },
+    { sid: "mind", mark: "心", hue: "var(--mind)", name: "Mind" },
+    { sid: "creatives", mark: "創", hue: "var(--cr)", name: "Creatives" }
+  ];
+  function onDay(ts, day) {
+    if (!ts) return false;
+    var d = new Date(+ts);
+    return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2) === day;
+  }
+  function ledgerToday(type, day) {
+    return (store.state.sessions || []).some(function (e) { return e && e.type === type && e.date === day && !(e.metrics && e.metrics.undone); });
+  }
+  function startedSpace(sid) {
+    if (sid === "code") return !!(KOS.code && KOS.code.firstVisit && !KOS.code.firstVisit());
+    var M = { ja: KOS.ja, mind: KOS.mind, creatives: KOS.creatives }[sid];
+    return !!(M && M.started && safe(function () { return M.started(); }, false));
+  }
+  function spaceRow(s, day) {
+    var base = { sid: s.sid, mark: s.mark, hue: s.hue, name: s.name, review: null };
+    if (s.sid === "code") {
+      var C = KOS.code, p = safe(function () { return C.planDay(day); }, null);
+      var cards = safe(function () { return C.dueCards(day); }, []);
+      var lref = {}; cards.forEach(function (c) { if (c.lesson) lref[c.lesson] = true; });
+      base.review = cards.length ? { n: cards.length, label: "Code", sub: "retrieval" + (Object.keys(lref).length ? " · " + Object.keys(lref).slice(0, 3).join(", ") : ""),
+        go: function () { KOS.show("code", { page: "retrieval" }); } } : null;
+      if (!p) return null;
+      if (p.task) return Object.assign(base, { daily: "Daily 20", title: "Code · the Daily 20", short: "Daily 20",
+        why: p.task.title + " · about " + (p.minutes || 20) + " min", mins: p.minutes || 20, done: !!p.done,
+        go: function () { KOS.show("code", { page: "task", id: p.task.id, from: "daily" }); } });
+      if (p.lesson) return Object.assign(base, { daily: "Daily 20", title: "Code · finish " + p.lesson.ref + " first", short: "finish " + p.lesson.ref,
+        why: p.lesson.ref + " " + p.lesson.title + " · the Daily 20 starts once it's covered", mins: null, done: false,
+        go: function () { KOS.show("ref", { subject: "code", ref: p.lesson.ref }); } });
+      return Object.assign(base, { done: true });
+    }
+    if (s.sid === "ja") {
+      var J = KOS.ja, jp = safe(function () { return J.planDay(day); }, null);
+      if (!jp) return null;
+      var rn = jp.reviews.n, by = {};
+      safe(function () { return J.due(day); }, []).forEach(function (q) {
+        var k = String(q && (q.key || q.k || q) || ""), sk = k.split("|")[1];
+        if (sk) by[sk] = (by[sk] || 0) + 1;
+      });
+      var SK = { R: "reading", L: "listening", W: "writing", S: "speaking" };
+      var subs = ["R", "L", "W", "S"].filter(function (k) { return by[k]; }).map(function (k) { return by[k] + " " + SK[k]; });
+      base.review = rn ? { n: rn, label: "Japanese", sub: subs.join(" · ") || "reviews", go: function () { KOS.show("japanese", { page: "session", id: "reviews" }); } } : null;
+      var learnedToday = safe(function () {
+        var ls = J.peek().lessons || {};
+        return Object.keys(ls).some(function (id) { return onDay(ls[id] && ls[id].doneAt, day); });
+      }, false);
+      if (rn) return Object.assign(base, { daily: "Reviews", title: "Japanese · " + rn + " review" + (rn === 1 ? "" : "s"), short: rn + " review" + (rn === 1 ? "" : "s"),
+        why: "about " + Math.max(1, jp.reviews.min) + " min" + (jp.learn ? " · next " + jp.learn.lesson : ""), mins: Math.max(1, jp.reviews.min), done: false,
+        go: base.review.go });
+      if (jp.learn && !learnedToday) return Object.assign(base, { daily: "Next lesson", title: "Japanese · " + jp.learn.lesson + " " + jp.learn.title, short: "next " + jp.learn.lesson,
+        why: "the next lesson · about " + Math.max(5, jp.learn.min || 10) + " min", mins: Math.max(5, jp.learn.min || 10), done: false,
+        go: function () { KOS.show("japanese", { page: "session", id: "learn-" + jp.learn.lesson }); } });
+      return Object.assign(base, { done: true });
+    }
+    if (s.sid === "mind") {
+      var Mi = KOS.mind, mp = safe(function () { return Mi.planDay(day); }, null);
+      if (!mp) return null;
+      var mk = safe(function () { return Mi.due(day, true); }, []), units = {};
+      mk.forEach(function (k) {
+        var c = safe(function () { return Mi.concept(String(k).split(":")[0]); }, null), l = c && safe(function () { return Mi.lesson(c.lesson); }, null);
+        if (l && l.unit) units[l.unit] = true;
+      });
+      base.review = mk.length ? { n: mk.length, label: "Mind", sub: (Object.keys(units).slice(0, 2).join(", ") || "Mind") + " cards",
+        go: function () { KOS.show("mind", { page: "daily", mode: "reviews" }); } } : null;
+      var d = safe(function () { return Mi.peekUi().daily; }, null);
+      var doneM = !!(d && d.day === day && d.doneAt);
+      if (!mp.total && !doneM) return Object.assign(base, { done: true });
+      return Object.assign(base, { daily: "Daily 15", title: "Mind · the Daily 15", short: "Daily 15",
+        why: mp.exam ? "reviews only until your exams end · about 5 min" : [mp.reviews.n ? mp.reviews.n + " card" + (mp.reviews.n === 1 ? "" : "s") : null,
+          mp.sitting ? "a sitting of " + mp.sitting.lesson : null, mp.question ? "one question" : null].filter(Boolean).join(" · ") + " · about " + (mp.exam ? 5 : 15) + " min",
+        mins: mp.exam ? 5 : 15, done: doneM, go: function () { KOS.show("mind", { page: "daily" }); } });
+    }
+    if (s.sid === "creatives") {
+      var CR = KOS.creatives, cp = safe(function () { return CR.planDay(day); }, null);
+      if (!cp || cp.state !== "today") return Object.assign(base, { done: true });
+      var made = safe(function () {
+        var w = CR.peek().works || {};
+        return Object.keys(w).some(function (id) { return onDay(w[id] && w[id].at, day); });
+      }, false) || ledgerToday("creatives", day);
+      var what = cp.study ? cp.study.lesson + "·" + cp.study.study + " " + cp.study.t : cp.project ? cp.project.project.t : cp.cards + (cp.cards === 1 ? " card" : " cards");
+      return Object.assign(base, { daily: "Daily Creative", title: "Creatives · the Daily Creative", short: "Daily Creative",
+        why: what + (cp.total ? " · about " + cp.total + " min" : ""), mins: cp.total || null, done: made,
+        go: function () {
+          if (cp.study) {
+            var w0 = safe(function () { return CR.studyWorks(cp.study.lesson, cp.study.study)[0]; }, null);
+            if (w0) KOS.show("creatives", { page: "check", id: w0.id });
+            else if (KOS.crStartStudy) KOS.crStartStudy(cp.study.lesson, cp.study.study);
+            else KOS.show("creatives");
+          } else if (cp.project) KOS.show("creatives", { page: "project", id: safe(function () { return CR.lesson(cp.project.project.after).unit; }, null) });
+          else KOS.show("due");
+        } });
+    }
+    return null;
+  }
+  function spaces(day) {
+    /* the spaces keep the calendar day, as their own desks do */
+    day = day || KOS.srs.todayISO();
+    return SPACES.filter(function (s) { return startedSpace(s.sid); })
+      .map(function (s) { return safe(function () { return spaceRow(s, day); }, null); }).filter(Boolean);
+  }
+  function space(sid, day) { return spaces(day).filter(function (x) { return x.sid === sid; })[0] || null; }
+
+  KOS.today = { build: build, load: load, free: free, bag: bag, kit: kit, schoolHours: schoolHours, isHoliday: isHoliday, day: today, MIN_FREE: MIN_FREE,
+    spaces: spaces, space: space, SPACES: SPACES };
 })();

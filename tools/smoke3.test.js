@@ -211,7 +211,8 @@ step("governor view: all four tabs render", () => {
   click($$("[data-ui~='ui.tab']").find(b => b.dataset.tab === "shop"));
   if (!$$("[data-ui~='shop.card']").length) throw new Error("no shop cards");
   click($$("[data-ui~='ui.tab']").find(b => b.dataset.tab === "avatar"));
-  if (!$$("[data-ui~='gov.frame-grid']").length) throw new Error("no frame library on Avatar");
+  /* design turn 40c: frames are a Wardrobe kind (a cell once one is owned) */
+  if (!$$("[data-ui~='gov.frame-grid']").length && !$$("[data-ui~='gov.wardrobe-none'] [data-kind='frame']").length) throw new Error("no frame choices on Avatar");
 });
 /* Build 6.6 rebuilt both views: the month trims to whole weeks (35 or 42
    cells, never a trailing empty row) and the week is a real time grid, not

@@ -65,6 +65,13 @@
 
 /* ---------- Routines and Reminders ---------- */
 .k-home-pair-top { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-20); }
+/* 41c: the three first steps after Start fresh, in the pair's slot */
+.k-home-steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--sp-20); }
+.k-home-step { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-12) var(--sp-14); }
+/* the button drops under the words before the words squeeze */
+.k-home-step-t { flex: 1 1 calc(var(--sp-64) * 2.5); min-inline-size: 0; display: flex; flex-direction: column; gap: var(--sp-2); }
+.k-home-step-t > b { font-size: var(--fs-14-5); }
+.k-home-step-t > .k-muted { font-size: var(--fs-12); }
 .k-home-pair-top > .k-card { padding-block: var(--sp-14); }
 .k-routines { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--sp-20); }
 button.k-check-row { inline-size: 100%; padding-inline: 0; background: none; box-shadow: none; border-radius: 0; font: inherit; color: inherit; text-align: start; }
@@ -101,6 +108,22 @@ button.k-check-row:hover .k-check-row-text { color: var(--text); text-decoration
 .k-upnext-open:hover { background: none; text-decoration: underline; text-decoration-color: var(--line); text-underline-offset: var(--sp-4); }
 .k-upnext-why { font-size: var(--fs-12-5); color: var(--text-2); margin-block-end: var(--sp-12); }
 .k-upnext .k-card-row { font-size: var(--fs-13); }
+.k-upnext-title .k-space-mark { margin-inline-end: var(--sp-8); vertical-align: middle; }
+.k-upnext-title:has(.k-space-mark) { display: flex; align-items: center; }
+.k-home-then { display: flex; flex-wrap: wrap; gap: var(--sp-6) var(--sp-12); }
+.k-home-then-i { display: inline-flex; align-items: center; gap: var(--sp-6); }
+.k-home-then-i .k-space-mark { --tile: var(--sp-20); font-size: var(--fs-11-5); }
+/* the Review side: one row a queue, each opening its own review (40a) */
+.k-home-revlist { display: flex; flex-direction: column; margin-block-end: var(--sp-12); }
+.k-home-rev { display: flex; align-items: center; gap: var(--sp-10); inline-size: 100%; padding: var(--sp-10) 0; border-radius: 0; border-block-start: var(--hairline) solid var(--line); background: none; box-shadow: none; text-align: start; }
+.k-home-rev:hover { background: none; }
+.k-home-rev:hover b { text-decoration: underline; text-decoration-color: var(--line); }
+.k-home-rev-t { flex: 1 1 auto; min-inline-size: 0; display: flex; flex-direction: column; gap: var(--sp-2); }
+.k-home-rev-t b { font-size: var(--fs-13-5); font-weight: var(--weight-semibold); }
+.k-home-rev-sub { font-size: var(--fs-12); color: var(--text-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.k-home-rev-n { font-size: var(--fs-14); font-weight: var(--weight-semibold); }
+.k-home-rev-go { color: var(--muted); }
+.k-goal-item .k-space-mark { --tile: var(--sp-20); font-size: var(--fs-11-5); }
 .k-upnext .k-card-row:first-of-type { border-block-start: var(--hairline) solid var(--line); }
 .k-kv-k { inline-size: var(--kv-k-w); flex: 0 0 auto; color: var(--muted); }
 .k-kv-v { flex: 1 1 0; min-inline-size: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -223,11 +246,13 @@ button.k-desk-row-v:hover { background: none; color: var(--desk-c); }
 }
 
 @media (max-width: 1080px) {
-.k-home-goal { display: none; }
+/* 40b: the day's list folds under the greeting instead of going */
+.k-home-hero-body { flex-wrap: wrap; }
+.k-home-goal { flex: 1 1 100%; inline-size: auto; }
 }
 
 @media (max-width: 860px) {
-.k-home-pair-top, .k-home-pair { grid-template-columns: minmax(0, 1fr); }
+.k-home-pair-top, .k-home-pair, .k-home-steps { grid-template-columns: minmax(0, 1fr); }
 .k-home-mid { grid-template-columns: minmax(0, 1fr); }
 .k-home-mid > *, .k-home-mid > .k-home-pair { grid-column: 1 / -1; }
 .k-home-hero-body { flex-wrap: wrap; }
