@@ -1301,7 +1301,7 @@ The auditors' 181 QoL ideas stay in each area's file (`qol`), in the
   not reproduced yet — likely the derived exam items (CC-14/CC-17: the worked
   card's one-line "Answer:" as a mark point) or a content error. Needs a
   repro with the leaf and the question.
-- **UR-28 · Exams & Papers as a WHOLE is not as helpful as it should be:
+- **UR-28 · MOVED OUT OF THE BACKLOG 17 Nov: planned in `docs/exams-rework-plan.md` (branch `feat/exams-plan`, PROPOSED; target deploy 1 Dec, before the December mocks). Exams & Papers as a WHOLE is not as helpful as it should be:
   rework it like Money (W4).** Your words (13 Nov): used for three days
   before a topic test, "overall just not as helpful as it should be" — not
   only the exam items. Needs a design pass first (a D-Exams prompt): what
