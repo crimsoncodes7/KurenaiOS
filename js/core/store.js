@@ -1276,7 +1276,12 @@
        serializer, shared by the backup export and the Build 4a first-time
        cloud migration so there is exactly one representation of "all of
        the user's data". cb(err, result). */
-    snapshotFull: function (cb) {
+    /* opts.files === false leaves the stored files out (the streamed file
+       writes them itself, one at a time, DI-09); opts.partial names a part
+       that fails in `result.missing` and carries on. A CHECKPOINT never asks
+       for partial: a part it could not read means it is not a backup. */
+    snapshotFull: function (cb, opts) {
+      opts = opts || {};
       var result = {
         kos_backup_version: 2,
         exportedAt: Date.now(),
@@ -1287,9 +1292,10 @@
       };
 
       var steps = 0, completed = 0, hadError = false;
-      function stepDone(err) {
+      function stepDone(err, part) {
         if (hadError) return;
-        if (err) { hadError = true; cb(err); return; }
+        if (err && !opts.partial) { hadError = true; cb(err); return; }
+        if (err) (result.missing = result.missing || []).push({ part: part, reason: (err && err.message) || String(err) });
         if (++completed >= steps) cb(null, result);
       }
 
@@ -1297,14 +1303,14 @@
         steps++;
         KOS.mediadb.exportAll(function (err, data) {
           if (!err) { result.mediaEntries = data.entries; result.mediaKV = data.kv; }
-          stepDone(err);
+          stepDone(err, "mediaEntries");
         });
       }
-      if (window.KOS && KOS.attach && KOS.attach.available()) {
+      if (opts.files !== false && window.KOS && KOS.attach && KOS.attach.available()) {
         steps++;
         KOS.attach.exportAll(function (err, items) {
           if (!err) result.attachments = items;
-          stepDone(err);
+          stepDone(err, "attachments");
         });
       }
       /* Money's transactions (roadmap 5.4) live in their own IndexedDB */
@@ -1312,7 +1318,7 @@
         steps++;
         KOS.money.exportAll(function (err, dump) {
           if (!err) result.money = dump;
-          stepDone(err);
+          stepDone(err, "money");
         });
       }
       /* the review log (roadmap 5.6) lives in its own IndexedDB */
@@ -1320,7 +1326,7 @@
         steps++;
         KOS.reviewLog.exportAll(function (err, rows) {
           if (!err) result.reviews = rows;
-          stepDone(err);
+          stepDone(err, "reviews");
         });
       }
       /* Mind's Journal (roadmap 5.9, invariant 139) lives in its own IndexedDB */
@@ -1328,7 +1334,7 @@
         steps++;
         KOS.mindJournal.exportAll(function (err, dump) {
           if (!err && dump) result.mind = dump;
-          stepDone(err);
+          stepDone(err, "mind");
         });
       }
       /* handwriting (roadmap 6.1) lives in its own IndexedDB */
@@ -1336,7 +1342,7 @@
         steps++;
         KOS.ink.exportAll(function (err, dump) {
           if (!err && dump) result.ink = dump;
-          stepDone(err);
+          stepDone(err, "ink");
         });
       }
       /* Creatives' files (roadmap 5.7 item 3) live in their own IndexedDB */
@@ -1344,7 +1350,7 @@
         steps++;
         KOS.creatives.files.exportAll(function (err, dump) {
           if (!err && dump) result.creatives = dump;
-          stepDone(err);
+          stepDone(err, "creatives");
         });
       }
       /* the session ledger's archive, entries past the 2,000 cap (DI-10) */
@@ -1352,7 +1358,7 @@
         steps++;
         KOS.ledgerArchive.exportAll(function (err, rows) {
           if (!err && rows && rows.length) result.ledger = rows;
-          stepDone(err);
+          stepDone(err, "ledger");
         });
       }
       /* Japanese mined lines, this device's only (DI-25, invariant 115) */
@@ -1360,7 +1366,7 @@
         steps++;
         KOS.jaMined.exportAll(function (err, rows) {
           if (!err && rows && rows.length) result.jaMined = rows;
-          stepDone(err);
+          stepDone(err, "jaMined");
         });
       }
       /* saved Reports and their boundary snapshots (AA-13, DI-09) */
@@ -1368,32 +1374,42 @@
         steps++;
         KOS.reportStore.exportAll(function (err, dump) {
           if (!err && dump && (dump.reports.length || dump.snapshots.length)) result.reports = dump;
-          stepDone(err);
+          stepDone(err, "reports");
         });
       }
       if (steps === 0) cb(null, result);
     },
 
+    /* the backup FILE (DI-09): written in pieces by KOS.backupFile, one
+       stored file at a time, never as one string; a part that could not be
+       read is named in the file and handed back as `missing` */
     exportFull: function (done) {
-      this.snapshotFull(function (err, result) {
-        if (err) { done && done(err); return; }
-        var blob = new Blob([JSON.stringify(result, null, 2)], { type: "application/json" });
+      function save(blob, info) {
         var a = document.createElement("a");
         a.href = URL.createObjectURL(blob);
         a.download = "kurenai-os-full-backup-" + new Date().toISOString().slice(0, 10) + ".json";
         document.body.appendChild(a);
         a.click();
         setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 400);
-        done && done(null);
-      });
+        done && done(null, info);
+      }
+      if (window.KOS && KOS.backupFile) {
+        KOS.backupFile.write(function (err, out) { if (err) { done && done(err); return; } save(out.blob, out); });
+        return;
+      }
+      this.snapshotFull(function (err, result) {
+        if (err) { done && done(err); return; }
+        save(new Blob([JSON.stringify(result)], { type: "application/json" }), { missing: result.missing || [] });
+      }, { partial: true });
     },
 
+    /* a backup file in either layout: the line-per-file one (DI-09,
+       KOS.backupFile) is read a line at a time, its files restored one by
+       one; the one-document layout is read whole, as before */
     importFull: function (file, done) {
-      var reader = new FileReader();
-      reader.onload = function () {
+      function begin(parsed, eachFile) {
         var backup, incoming;
         try {
-          var parsed = JSON.parse(reader.result);
           if (parsed && typeof parsed === "object" && "state" in parsed) {
             backup = parsed;
             incoming = parsed.state;
@@ -1408,12 +1424,16 @@
             return done && done(new Error("Not a Kurenai OS backup file"));
           }
         } catch (e) { return done && done(e); }
+        /* a part the backup itself could not read when it was made (DI-09) */
+        var gone = Array.isArray(backup && backup.missing) ? backup.missing : [];
 
         /* Restore localStorage state */
         KOS.store.replaceState(incoming);
 
         var version = backup.kos_backup_version || 1;
-        var report = { restoredSections: ["study & governor data"], missingSections: [] };
+        var report = { restoredSections: ["study & governor data"], missingSections: gone.map(function (m) {
+          return String((m && m.part) || "a part") + " (not in this backup: " + String((m && m.reason) || "it could not be read") + ")";
+        }) };
 
         if (version < 2) {
           report.missingSections.push(
@@ -1437,6 +1457,38 @@
         }
 
         function restoreFiles(next) {
+          if (eachFile) {
+            /* one file at a time; the store is emptied only when the first
+               file arrives (a backup with none leaves the files as they are,
+               as the one-document layout always did) */
+            if (!window.KOS || !KOS.attach || !KOS.attach.available()) {
+              report.missingSections.push("attachments (IndexedDB unavailable)");
+              return next();
+            }
+            var begun = false, put = 0, failed = [];
+            eachFile(function (item, nx) {
+              function one() {
+                KOS.attach.importOne(item, function (e) {
+                  if (e) failed.push((item && item.name) || "a file"); else put++;
+                  nx();
+                });
+              }
+              if (begun) { one(); return; }
+              KOS.attach.importBegin(function (e) {
+                if (e) { failed.push("the file store (" + e.message + ")"); nx(); return; }
+                begun = true; one();
+              });
+            }, function (e2, bad) {
+              if (e2) report.missingSections.push("attachments (error: " + e2.message + ")");
+              if (failed.length || (bad && bad.length)) {
+                report.missingSections.push("files that did not restore: " + failed.concat(bad || []).slice(0, 8).join(", ") +
+                  (failed.length + (bad ? bad.length : 0) > 8 ? " and more" : ""));
+              }
+              if (put) report.restoredSections.push("attachments (" + put + " files)");
+              next();
+            });
+            return;
+          }
           var items = backup.attachments || [];
           if (!items.length) return next();
           if (!window.KOS || !KOS.attach || !KOS.attach.available()) {
@@ -1562,6 +1614,19 @@
           if (window.KOS && KOS.cloudsync && KOS.cloudsync.noteRestore) KOS.cloudsync.noteRestore();
           done && done(null, report);
         }); }); }); }); }); }); }); }); }); });
+      }
+      if (window.KOS && KOS.backupFile && file && typeof file.slice === "function") {
+        KOS.backupFile.read(file, function (err, parsed, eachFile) {
+          if (err) { done && done(err); return; }
+          begin(parsed, eachFile);
+        });
+        return;
+      }
+      var reader = new FileReader();
+      reader.onload = function () {
+        var parsed;
+        try { parsed = JSON.parse(reader.result); } catch (e) { return done && done(e); }
+        begin(parsed, null);
       };
       reader.onerror = function () { done && done(new Error("Could not read file")); };
       reader.readAsText(file);

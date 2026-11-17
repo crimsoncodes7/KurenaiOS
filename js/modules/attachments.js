@@ -458,6 +458,46 @@
     return new Blob([u8], { type: mime });
   }
 
+  /* one record as the backup carries it, its content left to the caller */
+  function backupMeta(rec) {
+    return { id: rec.id, subject: rec.subject, ref: rec.ref,
+      name: rec.name, mime: rec.mime, size: rec.size,
+      note: rec.note || "", added: rec.added,
+      fileId: rec.fileId || null,
+      updatedAt: rec.updatedAt || rec.added || null,
+      hash: rec.hash || null, kind: rec.kind || null, aliases: rec.aliases || [], links: rec.links || [],
+      origin: rec.origin || null, local: !!rec.local, evicted: !!rec.evicted };
+  }
+  /* DI-09: the backup file is written ONE FILE AT A TIME. Every record's
+     key first, then each record read in its own transaction and handed
+     over with its content (a Blob), and the next only once the caller is
+     done with it — so no more than one file is ever held while a backup
+     with hundreds of megabytes of files is written. */
+  function exportEach(onItem, done) {
+    tx("readonly", function (err, os) {
+      if (err) { done(err); return; }
+      var rq = os.getAllKeys ? os.getAllKeys() : null;
+      if (!rq) { exportAll(function (e2, items) { if (e2) { done(e2); return; } var i = 0; (function next() { if (i >= items.length) { done(null, items.length); return; } var it = items[i++]; onItem(it, null, next); })(); }); return; }
+      rq.onsuccess = function () {
+        var keys = rq.result || [], i = 0;
+        (function next() {
+          if (i >= keys.length) { done(null, keys.length); return; }
+          var key = keys[i++];
+          tx("readonly", function (e3, os2) {
+            if (e3) { done(e3); return; }
+            var g = os2.get(key);
+            g.onsuccess = function () {
+              var rec = g.result;
+              if (!rec) { next(); return; }
+              onItem(backupMeta(rec), rec.blob || null, next);
+            };
+            g.onerror = function () { done(g.error); };
+          });
+        })();
+      };
+      rq.onerror = function () { done(rq.error); };
+    });
+  }
   function exportAll(cb) {
     tx("readonly", function (err, os) {
       if (err) { cb(err); return; }
@@ -469,13 +509,8 @@
         var pending = items.length, fired = false;
         items.forEach(function (rec, i) {
           function fill(b64) {
-            result[i] = { id: rec.id, subject: rec.subject, ref: rec.ref,
-              name: rec.name, mime: rec.mime, size: rec.size,
-              note: rec.note || "", added: rec.added, blobBase64: b64,
-              fileId: rec.fileId || null,
-              updatedAt: rec.updatedAt || rec.added || null,
-              hash: rec.hash || null, kind: rec.kind || null, aliases: rec.aliases || [], links: rec.links || [],
-              origin: rec.origin || null, local: !!rec.local, evicted: !!rec.evicted };
+            result[i] = backupMeta(rec);
+            result[i].blobBase64 = b64;
             if (lost) result[i].unreadable = true;
             if (!--pending) { fired = true; cb(null, result); }
           }
@@ -499,6 +534,43 @@
     });
   }
 
+  function recordOf(item, blob) {
+    var rec = { id: item.id, subject: item.subject, ref: item.ref,
+      name: item.name, mime: item.mime, size: item.size,
+      blob: blob, note: item.note || "", added: item.added,
+      fileId: item.fileId || genId(),
+      updatedAt: item.updatedAt || item.added || Date.now(),
+      hash: item.hash || null, kind: item.kind || guessKind(item.name, item.mime), aliases: Array.isArray(item.aliases) ? item.aliases : [],
+      links: cleanLinks(item.links), origin: item.origin || null };
+    if (item.local) rec.local = true;
+    if (!blob && item.evicted) rec.evicted = true;
+    rec.linkKeys = keysOf(rec);
+    return rec;
+  }
+  /* DI-09, the restore half: the store is emptied once, then each file is
+     put as it is read from the backup, in its own transaction. A file that
+     will not decode is named and skipped; the rest still arrive. */
+  function importBegin(cb) {
+    tx("readwrite", function (err, os) {
+      if (err) { cb(err); return; }
+      var rq = os.clear();
+      rq.onsuccess = function () { cb(null); };
+      rq.onerror = function () { cb(rq.error); };
+    });
+  }
+  function importOne(item, cb) {
+    var blob = null;
+    if (item && item.blobBase64) {
+      try { blob = base64ToBlob(item.blobBase64); }
+      catch (e) { cb(new Error("Could not decode " + (item.name || "a file"))); return; }
+    }
+    tx("readwrite", function (err, os) {
+      if (err) { cb(err); return; }
+      var rq = os.put(recordOf(item, blob));
+      rq.onsuccess = function () { cb(null); };
+      rq.onerror = function () { cb(rq.error); };
+    });
+  }
   function importAll(items, cb) {
     tx("readwrite", function (err, os) {
       if (err) { cb(err); return; }
@@ -512,17 +584,7 @@
             try { blob = base64ToBlob(item.blobBase64); }
             catch (e) { if (!fired) { fired = true; cb(new Error("Could not decode " + (item.name || "attachment"))); } return; }
           }
-          var rec = { id: item.id, subject: item.subject, ref: item.ref,
-            name: item.name, mime: item.mime, size: item.size,
-            blob: blob, note: item.note || "", added: item.added,
-            fileId: item.fileId || genId(),
-            updatedAt: item.updatedAt || item.added || Date.now(),
-            hash: item.hash || null, kind: item.kind || guessKind(item.name, item.mime), aliases: Array.isArray(item.aliases) ? item.aliases : [],
-            links: cleanLinks(item.links), origin: item.origin || null };
-          if (item.local) rec.local = true;
-          if (!blob && item.evicted) rec.evicted = true;
-          rec.linkKeys = keysOf(rec);
-          var putRq = os.put(rec);
+          var putRq = os.put(recordOf(item, blob));
           putRq.onsuccess = function () { if (!fired && !--pending) { fired = true; cb(null); } };
           putRq.onerror = function () { if (!fired) { fired = true; cb(putRq.error); } };
         });
@@ -1135,6 +1197,7 @@
     guessKind: guessKind, promote: promote, KIND_ORDER: KIND_ORDER, MAX_BYTES: MAX_BYTES,
     exportAll: exportAll,
     importAll: importAll,
+    exportEach: exportEach, importBegin: importBegin, importOne: importOne,
     /* Build 4a — cloud sync surface */
     listMeta: listMeta,
     getByFileId: getByFileId,

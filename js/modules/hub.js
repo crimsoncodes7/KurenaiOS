@@ -3501,10 +3501,14 @@
       onclick: function () {
         exportBtn.disabled = true;
         exportBtn.textContent = "Exporting…";
-        store.exportFull(function (err) {
+        store.exportFull(function (err, info) {
           exportBtn.disabled = false;
           exportBtn.textContent = "Export full backup (.json)";
           if (err) { KOS.ui.toast("Export error: " + err.message, true); return; }
+          /* DI-09: a part that could not be read is named, never dropped in silence */
+          var left = ((info && info.missing) || []).map(function (m) { return m.part; })
+            .concat(((info && info.unreadable) || []).length ? [info.unreadable.length + (info.unreadable.length === 1 ? " file" : " files") + " this browser could not read"] : []);
+          if (left.length) KOS.ui.toast("Backup saved without: " + left.join(", ") + ".", true);
           store.state.ui.lastBackupAt = Date.now();
           store.save();
           lastLine.textContent = "Last backup today";
@@ -3518,11 +3522,9 @@
         /* AA-11, DI-22 (quality W1): read and describe the file first, ask
            before replacing anything, and take a VERIFIED copy of this device
            before the restore runs — no verified copy, no restore */
-        var rd = new FileReader();
-        rd.onerror = function () { file.value = ""; KOS.ui.toast("Could not read that file.", true); };
-        rd.onload = function () {
-          var data = null;
-          try { data = JSON.parse(rd.result); } catch (e) {}
+        /* only the backup's first line is read to ask (DI-09): its files
+           stay on disk until the restore takes them one at a time */
+        function described(data) {
           /* a full backup carries `state`; an old v1 file IS the state */
           var stOf = data && typeof data === "object" ? (data.state || ("progress" in data ? data : null)) : null;
           if (!stOf) { file.value = ""; KOS.ui.toast("That file is not a KurenaiOS backup.", true); return; }
@@ -3535,7 +3537,14 @@
               "and if cloud sync is on, the restored data replaces the cloud's on the next sync." },
             function () { restoreNow(picked); },
             function () { file.value = ""; });
-        };
+        }
+        if (KOS.backupFile) {
+          KOS.backupFile.head(picked, function (err, data) { described(err ? null : data); });
+          return;
+        }
+        var rd = new FileReader();
+        rd.onerror = function () { file.value = ""; KOS.ui.toast("Could not read that file.", true); };
+        rd.onload = function () { var data = null; try { data = JSON.parse(rd.result); } catch (e) {} described(data); };
         rd.readAsText(picked);
       }});
     function restoreNow(picked) {
