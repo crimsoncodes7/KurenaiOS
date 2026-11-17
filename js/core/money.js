@@ -206,7 +206,7 @@
       n: int(raw.n, 0, 1000000, 0),
       at: raw.at || 0,
       stmt: str(raw.stmt, 40) || null,
-      closing: c && cm != null && isISO(c.date) ? { minor: cm, date: c.date } : null,
+      closing: c && cm != null && isISO(c.date) ? (typeof c.ok === "boolean" ? { minor: cm, date: c.date, ok: c.ok } : { minor: cm, date: c.date }) : null,
       replaced: str(raw.replaced, 40) || null,
       updatedAt: raw.updatedAt || raw.at || 0
     };

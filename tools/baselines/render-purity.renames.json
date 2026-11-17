@@ -1063,6 +1063,26 @@
       "why": "W2 (16 November 2026, SH-37): on Review itself, starting a run or switching to Card stats used to leave the address as it was (the same page shown again). The run and the tab are in the address now, so the control also writes it; what the control does on the page is held as before."
     },
     {
+      "surface": "money",
+      "hooks": "money.first-import",
+      "from": "^Import a CSV$",
+      "to": "Import a statement",
+      "why": "W4, design turn 39 (17 November 2026): the importer reads OFX, QIF and Santander's text export as well as CSV, so the button says statement."
+    },
+    {
+      "surface": "money:\"transactions\"",
+      "hooks": "money.import",
+      "from": "^Import CSV$",
+      "to": "Import…",
+      "why": "W4, design turn 39 (17 November 2026): the importer reads OFX, QIF and Santander's text export as well as CSV, and the toolbar button opens it as Import…."
+    },
+    {
+      "rewriteEffects": {
+        "dialog": ["^Import a CSV$", "Import a statement"]
+      },
+      "why": "W4, design turn 39 (17 November 2026): the import dialog is Import a statement (File, Preview, Done)."
+    },
+    {
       "surface": "data",
       "from": "^Export full backup \\(\\.json\\)$",
       "dropEffects": {
