@@ -31,26 +31,24 @@ function line(x1, y1, x2, y2, o) { o = o || {}; return { line: [[x1, y1], [x2, y
 
 /* ---------- the levels-of-response descriptors (SAM structure, our words) ---------- */
 function lor6(what) {
-  return { callout: { t: "tip", h: "How a 6-mark \"Analyse\" answer is levelled", body: [
+  /* the note in the callout, its table after it: never a block inside a block */
+  return [{ callout: { t: "tip", h: "How a 6-mark \"Analyse\" answer is levelled", body: ["The examiner starts at Level 3 and works down to the level that fits best, then places you at the top or bottom of it.", "Breadth gets you into a level; **developed, applied** points move you up it. Three developed points beat six one-liners."] } },
     { table: { head: ["Level", "Marks", "What the answer does"], rows: [
       ["Level 3 (high)", "5–6", "A **thorough** analysis: a **range** of " + what + ", detailed knowledge applied to the scenario, clear explanation (point → because → so for this organisation), subject terms used consistently."],
       ["Level 2 (mid)", "3–4", "An **adequate** analysis: **some** " + what + ", sound knowledge in context, adequate explanation, some subject terms."],
       ["Level 1 (low)", "1–2", "A **basic** analysis: at least **one** point, limited link to the scenario, basic explanation, few subject terms."],
       ["0", "0", "Nothing worthy of credit."]
-    ] } },
-    { ul: ["The examiner starts at Level 3 and works down to the level that fits best, then places you at the top or bottom of it.", "Breadth gets you into a level; **developed, applied** points move you up it. Three developed points beat six one-liners."] }
-  ] } };
+    ] } }];
 }
 function lor9(topic) {
-  return { callout: { t: "tip", h: "How a 9-mark \"Discuss\" answer is levelled", body: [
+  /* the note in the callout, its table after it: never a block inside a block */
+  return [{ callout: { t: "tip", h: "How a 9-mark \"Discuss\" answer is levelled", body: ["The question's three bullets are the plan: **benefits**, **limitations**, **whether you would recommend it**.", "No conclusion, or a one-sided answer, caps you in Level 2.", "Middle of a level = meets it with some inconsistency; top = consistently."] } },
     { table: { head: ["Level", "Marks", "What the answer does"], rows: [
       ["Level 3 (high)", "7–9", "A **thorough** discussion with detailed evaluation: a **range** of uses of " + topic + ", **both** benefits **and** limitations, analysed in the scenario's context, a **clear conclusion** with detailed justification, consistent subject terms."],
       ["Level 2 (mid)", "4–6", "An **adequate** discussion: **some** uses, some benefits **or** limitations, some analysis in context, an adequate conclusion with relevant reasons, some subject terms."],
       ["Level 1 (low)", "1–3", "A **basic** discussion: a few points, limited context, a brief conclusion with limited reasons, few subject terms."],
       ["0", "0", "Nothing worthy of credit."]
-    ] } },
-    { ul: ["The question's three bullets are the plan: **benefits**, **limitations**, **whether you would recommend it**.", "No conclusion, or a one-sided answer, caps you in Level 2.", "Middle of a level = meets it with some inconsistency; top = consistently."] }
-  ] } };
+    ] } }];
 }
 
 /* =====================================================================
@@ -122,13 +120,21 @@ function loopFig() {
 C["it:F201.3.1"] = {
   notes: [
     { h: "Artificial intelligence and machine learning — the whole topic on one page" },
-    { callout: { t: "info", h: "What the specification asks (F201 3.1)", body: [
-      { kv: [
-        ["Teaching content", "Artificial intelligence (AI) · the interaction of big data and AI in data science · machine learning · machine learning algorithms: **Decision Tree**, **Random Forest**, **K-Means**."],
-        ["To include", "What AI is · how AI is developed and used in data science · benefits and limitations of AI in data science · what machine learning is · how ML algorithms are used · the purpose and characteristics of each algorithm · benefits and limitations of each · how each is used for digital analysis · how big data, ML and AI interact."],
-        ["Does not include", "The **history** of AI and machine learning — no Turing, no timelines. Not taught here."]
-      ] }
-    ] } },
+    { h: "What the specification asks (F201 3.1)" },
+    { kv: [
+      [
+        "Teaching content",
+        "Artificial intelligence (AI) · the interaction of big data and AI in data science · machine learning · machine learning algorithms: **Decision Tree**, **Random Forest**, **K-Means**."
+      ],
+      [
+        "To include",
+        "What AI is · how AI is developed and used in data science · benefits and limitations of AI in data science · what machine learning is · how ML algorithms are used · the purpose and characteristics of each algorithm · benefits and limitations of each · how each is used for digital analysis · how big data, ML and AI interact."
+      ],
+      [
+        "Does not include",
+        "The **history** of AI and machine learning — no Turing, no timelines. Not taught here."
+      ]
+    ] },
     { ol: ["AI in data science", "Machine learning", "Decision tree", "Random forest", "K-means", "How big data, ML and AI interact", "In exam questions", "Exam toolkit"] },
     { table: { head: ["Item", "One line to remember"], rows: [
       ["AI", "Computers doing tasks that normally need human intelligence."],
@@ -201,14 +207,14 @@ C["it:F201.3.1"] = {
       ["Reinforcement", "Rewards and penalties from trying actions.", "Learns a strategy (games, robots, route planning).", "None named — know it exists"]
     ] } },
     { callout: { t: "def", h: "Overfitting", body: "When a model learns its training data **too closely** — noise and all — so it scores well on that data but badly on new data. It is the main weakness of a single decision tree and the reason random forests exist." } },
-    { callout: { t: "miscon", h: "Misconceptions", body: [{ ul: [
+    { callout: { t: "miscon", h: "Misconceptions", body: [
       "\"ML is programmed with rules.\" — No: it **learns** the rules from data. That is the definition.",
       "\"More data always means a better model.\" — Only if it is **accurate and representative**. More biased data is just more bias.",
       "\"K-means predicts which group a customer belongs to, like a classifier.\" — It **discovers** groups in unlabelled data; there was no right answer to learn.",
       "\"AI and ML are the same thing.\" — ML is one **way** of achieving AI (the main one in data science).",
       "\"A random forest is a big decision tree.\" — It is **many separate** trees that vote.",
       "\"A model that is 99% accurate on its training data is good.\" — It may be overfitted; judge it on **test** data."
-    ] }] } },
+    ] } },
 
     { page: "Decision tree" },
     { callout: { t: "def", h: "Decision tree", body: "A **supervised** ML algorithm that predicts an outcome by asking a **series of questions (tests) about the features**, branching on each answer, until it reaches a **leaf** that gives the prediction. It is drawn like an upside-down tree." } },
@@ -403,36 +409,35 @@ C["it:F201.3.1"] = {
       ], result: "Every point tied to TuneWave; a conditional recommendation" } },
 
     { page: "Exam toolkit" },
-    { callout: { t: "tip", h: "How OCR marks it", body: [{ ul: [
+    { callout: { t: "tip", h: "How OCR marks it", body: [
       "**Explain (2)**: identify (1) + how/so-what in the scenario (1). One explanation only — a second is not marked.",
       "**Explain one benefit and one limitation (4)**: 2 + 2; the second mark of each must be about the organisation (SAM Q8).",
       "**State / Identify (1 each)**: the term itself — 'k-means', 'supervised', 'majority vote'.",
       "**Discuss (9)**: benefits, limitations, a recommendation with reasons. No conclusion → no Level 3.",
       "Use the algorithm's **own vocabulary**: root, branch, leaf; ensemble, vote; k, centroid, cluster. Vague answers ('it sorts data') score little.",
       "Do not accept 'AI thinks like a human' or 'ML is clever software' — say it **learns patterns from data**."
-    ] }] } },
-    { callout: { t: "mnemonic", h: "Mnemonic — \"Tree Talks, Forest Votes, K Clusters\"", body: [{ ul: [
+    ] } },
+    { callout: { t: "mnemonic", h: "Mnemonic — \"Tree Talks, Forest Votes, K Clusters\"", body: [
       "**Tree Talks** — a decision tree can explain itself (white box), but overfits.",
       "**Forest Votes** — many random trees vote: accurate, robust, but a black box and costly.",
       "**K Clusters** — k-means groups unlabelled data around k centroids; choose k first.",
       "And the loop: **D-L-A-D** — Data → Learn → Act → more Data."
-    ] }] } },
-    { callout: { t: "memorise", h: "Must-know comparison", body: [
-      { table: { head: ["", "Decision tree", "Random forest", "K-means"], rows: [
-        ["Learning", "Supervised", "Supervised", "Unsupervised"],
-        ["Output", "Class or value", "Vote or average", "k clusters"],
-        ["Best for", "Explaining", "Accuracy", "Finding groups"],
-        ["Key weakness", "Overfits, unstable", "Black box, costly", "Choose k; outliers"]
-      ] } }
     ] } },
-    { callout: { t: "tip", h: "Synoptic links", body: [{ ul: [
+    { h: "Must-know comparison" },
+    { table: { head: ["", "Decision tree", "Random forest", "K-means"], rows: [
+      ["Learning", "Supervised", "Supervised", "Unsupervised"],
+      ["Output", "Class or value", "Vote or average", "k clusters"],
+      ["Best for", "Explaining", "Accuracy", "Finding groups"],
+      ["Key weakness", "Overfits, unstable", "Black box, costly", "Choose k; outliers"]
+    ] } },
+    { callout: { t: "tip", h: "Synoptic links", body: [
       "**F201 1.1** — big data's 6 V's are what makes ML necessary; Veracity limits every model.",
       "**F201 1.2–1.3** — capture and cleaning come first: training data must be wrangled.",
       "**F201 2.4–2.6** — predictive and prescriptive analytics; cluster analysis (2.6) is what k-means does; regression is the 'number' version of prediction.",
       "**F201 4.1–4.2** — personal training data must follow UK GDPR; automated decisions and algorithmic bias are 4.2's core.",
       "**F201 5.1–5.2** — AI in weather forecasting, smart cities, personalised healthcare.",
       "**F200** — the data analysis process and types of analysis; **F204** — IoE devices generate the data AI learns from; **F206** — AI recommendations and segmentation in digital marketing."
-    ] }] } }
+    ] } }
   ],
   flashcards: [
     ["Define AI and how ML relates to it.", "AI: computers doing tasks that normally need human intelligence. ML is a branch of AI that learns patterns from data instead of being programmed with rules.", 0],
@@ -501,13 +506,21 @@ function rolesFig() {
 C["it:F201.4.1"] = {
   notes: [
     { h: "Legal issues — the whole topic on one page" },
-    { callout: { t: "info", h: "What the specification asks (F201 4.1)", body: [
-      { kv: [
-        ["Teaching content", "UK General Data Protection Regulation (UK GDPR): its **features**, **principles**, **rights of data subjects** and **marketing consent**."],
-        ["To include", "The latest version of the regulation · its main purpose(s) · how to comply · why compliance matters · the impacts of non-compliance on organisations · how organisational policies on data use mitigate non-compliance."],
-        ["Does not include", "The **detailed content** of the regulation — no article numbers or legal wording needed. Know what it requires, not the text."]
-      ] }
-    ] } },
+    { h: "What the specification asks (F201 4.1)" },
+    { kv: [
+      [
+        "Teaching content",
+        "UK General Data Protection Regulation (UK GDPR): its **features**, **principles**, **rights of data subjects** and **marketing consent**."
+      ],
+      [
+        "To include",
+        "The latest version of the regulation · its main purpose(s) · how to comply · why compliance matters · the impacts of non-compliance on organisations · how organisational policies on data use mitigate non-compliance."
+      ],
+      [
+        "Does not include",
+        "The **detailed content** of the regulation — no article numbers or legal wording needed. Know what it requires, not the text."
+      ]
+    ] },
     { ol: ["What UK GDPR is", "The seven principles", "Rights of data subjects", "Marketing consent", "Complying and why it matters", "Non-compliance and policies", "In exam questions", "Exam toolkit"] },
     { table: { head: ["Item", "One line to remember"], rows: [
       ["Latest version", "UK GDPR, with the Data Protection Act 2018, as amended by the Data (Use and Access) Act 2025."],
@@ -575,14 +588,14 @@ C["it:F201.4.1"] = {
       ["To object", "Object to processing — **absolutely** for direct marketing.", "\"Stop sending me offers.\" It must stop."],
       ["Related to automated decision-making and profiling", "Safeguards on significant decisions made solely by computer: be told, give their view, get a human to review, contest it.", "An automatic refusal of membership can be challenged (see 4.2)."]
     ] } },
-    { callout: { t: "miscon", h: "Misconceptions", body: [{ ul: [
+    { callout: { t: "miscon", h: "Misconceptions", body: [
       "\"The right to erasure means the organisation must always delete.\" — Not if it still has a lawful reason (e.g. a legal duty to keep financial records).",
       "\"UK GDPR only covers computer data.\" — Paper records in a filing system are covered too.",
       "\"Anonymous statistics are personal data.\" — Truly anonymised data is not; pseudonymised data (a code that can be linked back) still is.",
       "\"Consent is always needed.\" — Consent is only one of six lawful bases; a gym can process payment details because of the **contract**.",
       "\"UK GDPR was replaced after Brexit.\" — It was **kept** (retained) and amended, not replaced.",
       "\"The maximum fine is €20 million.\" — That is the EU figure; the UK figure is **£17.5 million or 4% of annual worldwide turnover, whichever is higher**."
-    ] }] } },
+    ] } },
 
     { page: "Marketing consent" },
     { callout: { t: "def", h: "Valid consent (UK GDPR)", body: "A **freely given, specific, informed and unambiguous** indication of the person's wishes, by a **clear affirmative action** (they actively opt in). It must be **recorded** and as **easy to withdraw as to give**." } },
@@ -717,33 +730,34 @@ C["it:F201.4.1"] = {
       ], result: "Level 3: a range of impacts, each explained and tied to PulseFit (scale, health data), using correct terms" } },
 
     { page: "Exam toolkit" },
-    { callout: { t: "tip", h: "How OCR marks it", body: [{ ul: [
+    { callout: { t: "tip", h: "How OCR marks it", body: [
       "**State two principles**: the name or its description scores; a **right** scores nothing.",
       "**Describe the purpose**: 'to protect personal data' is enough for 1 mark. 'To stop hacking' is not the purpose.",
       "**Explain a right**: name it (1) + what the person can make the organisation do (1).",
       "**Analyse impacts (6)**: fines, reputation, legal action, costs, disruption, investigation — each **explained** and **applied** (size of the firm, sensitivity of its data).",
       "Fines: '**up to 4% of annual (worldwide) turnover or £17.5m, whichever is higher**' — the 'whichever is higher' wins credit.",
       "The law is **UK GDPR** (with the DPA 2018). Don't write 'the Data Protection Act 1998' — it was repealed."
-    ] }] } },
-    { callout: { t: "mnemonic", h: "Mnemonics", body: [{ ul: [
+    ] } },
+    { callout: { t: "mnemonic", h: "Mnemonics", body: [
       "**Seven principles — \"Lazy People Make Awful Spreadsheets In August\"**: Lawfulness (fair, transparent), Purpose limitation, Minimisation, Accuracy, Storage limitation, Integrity and confidentiality, Accountability.",
       "**Eight rights — \"I Always Read Every Rule; Paperwork Overwhelms Admins\"**: Informed, Access, Rectification, Erasure, Restrict, Portability, Object, Automated decisions.",
       "**Valid consent — FSIU**: Freely given, Specific, Informed, Unambiguous (and easy to withdraw)."
-    ] }] } },
-    { callout: { t: "memorise", h: "Numbers to know", body: [{ kv: [
+    ] } },
+    { h: "Numbers to know" },
+    { kv: [
       ["Maximum fine", "£17.5 million or 4% of annual worldwide turnover, whichever is higher"],
       ["Lower tier", "£8.7 million or 2%"],
       ["Report a breach to the ICO", "within 72 hours (if it risks people's rights)"],
       ["Answer a subject access request", "within one month, normally free"],
       ["Lawful bases", "six · Principles: seven · Rights: eight"]
-    ] }] } },
-    { callout: { t: "tip", h: "Synoptic links", body: [{ ul: [
+    ] },
+    { callout: { t: "tip", h: "Synoptic links", body: [
       "**F200 4** — legal considerations in data analytics: data protection, copyright, computer misuse.",
       "**F201 4.2** — ethics goes beyond the law: automated decisions (UK GDPR's safeguards), ownership, sharing, frameworks.",
       "**F201 1.2** — data capture (loyalty cards, apps, sensors) must have a lawful basis and a privacy notice.",
       "**F201 2.1–2.3** — where data is stored (cloud, abroad) raises security and international-transfer duties.",
       "**F203** — databases holding personal data need access control and retention; **F204** — IoE devices collect personal data; **F206** — digital marketing lives under consent and PECR."
-    ] }] } }
+    ] } }
   ],
   flashcards: [
     ["What is the latest UK data protection regulation and who enforces it?", "UK GDPR with the Data Protection Act 2018, as amended by the Data (Use and Access) Act 2025; enforced by the ICO.", 0],
@@ -810,13 +824,18 @@ function identityFig() {
 C["it:F201.4.2"] = {
   notes: [
     { h: "Ethical issues — the whole topic on one page" },
-    { callout: { t: "info", h: "What the specification asks (F201 4.2)", body: [
-      { kv: [
-        ["Teaching content", "Automated decision making · collection, storage, ownership and sharing of data · emerging ethical debates affecting the use of data · frameworks for ethical data management: the **Data Ethics Framework** and **inclusive data principles**."],
-        ["To include", "How automated decision making creates risks of discrimination and bias · how UK GDPR applies to it · its impacts on individuals · protecting identity when collecting, storing and sharing · how data ownership is determined · how organisations respond to collection, storage, ownership and sharing issues · the impacts of emerging ethical debates on individuals and how organisations respond · how organisations use the frameworks."],
-        ["Remember", "Ethics = what is **right**, which can go further than what is **legal** (4.1)."]
-      ] }
-    ] } },
+    { h: "What the specification asks (F201 4.2)" },
+    { kv: [
+      [
+        "Teaching content",
+        "Automated decision making · collection, storage, ownership and sharing of data · emerging ethical debates affecting the use of data · frameworks for ethical data management: the **Data Ethics Framework** and **inclusive data principles**."
+      ],
+      [
+        "To include",
+        "How automated decision making creates risks of discrimination and bias · how UK GDPR applies to it · its impacts on individuals · protecting identity when collecting, storing and sharing · how data ownership is determined · how organisations respond to collection, storage, ownership and sharing issues · the impacts of emerging ethical debates on individuals and how organisations respond · how organisations use the frameworks."
+      ],
+      ["Remember", "Ethics = what is **right**, which can go further than what is **legal** (4.1)."]
+    ] },
     { ol: ["Automated decision making", "Collection, storage, ownership and sharing", "Emerging ethical debates", "Frameworks for ethical data management", "In exam questions", "Exam toolkit"] },
     { table: { head: ["Item", "One line to remember"], rows: [
       ["Automated decision making", "A decision about a person made by computer; bias comes from data, proxies, designers and feedback loops."],
@@ -906,14 +925,14 @@ C["it:F201.4.2"] = {
       ["Predictive analytics about people", "Judged on predicted behaviour rather than actions (policing, benefits).", "Algorithmic transparency records, bias audits, human decision-makers."]
     ] } },
     { callout: { t: "def", h: "Emerging ethical debate", body: "A new or growing disagreement about whether a **use of data is right**, usually because technology has moved faster than the law. Organisations respond by **going beyond the minimum legal duty**: transparency, consultation, ethics boards, impact assessments, pausing or limiting a use." } },
-    { callout: { t: "miscon", h: "Misconceptions", body: [{ ul: [
+    { callout: { t: "miscon", h: "Misconceptions", body: [
       "\"If it's legal it's ethical.\" — Law sets a minimum; ethics asks whether it is **right** (scraping public posts may be legal and still unfair).",
       "\"An algorithm can't be biased — it's maths.\" — It learns from human data and human design choices.",
       "\"Removing the ethnicity column removes bias.\" — **Proxies** (postcode, name, school) can carry it back in.",
       "\"Pseudonymised data is anonymous.\" — With the key it can be linked back; it is still personal data.",
       "\"The person whose data it is owns it.\" — They keep **rights** over it; control of the data set is set by collection, contracts and IP.",
       "\"Human review means a person clicks 'approve'.\" — It must be **meaningful**: someone with the authority and information to change the decision."
-    ] }] } },
+    ] } },
 
     { page: "Frameworks for ethical data management" },
     { callout: { t: "def", h: "Data Ethics Framework", body: "UK government guidance (Central Digital and Data Office) for anyone working with data in the public sector — and a model for any organisation. It has **three overarching principles** applied at each of **five specific actions**." } },
@@ -1004,25 +1023,25 @@ C["it:F201.4.2"] = {
       ], result: "Level 3: benefits and risks for Brightpath and candidates, law and ethics applied, a justified recommendation" } },
 
     { page: "Exam toolkit" },
-    { callout: { t: "tip", h: "How OCR marks it", body: [{ ul: [
+    { callout: { t: "tip", h: "How OCR marks it", body: [
       "**Explain how ADM increases bias (2)**: the CAUSE (biased/unrepresentative training data, developer bias) (1) + the IMPLICATION (the algorithm learns it, so decisions are unfair) (1). Generic answers are accepted.",
       "**Inclusive data principles**: say 'all population groups included', 'up to date', 'transparent'. Part (ii) must explain the SAME principles — and scores 0 if part (i) did.",
       "**UK GDPR and ADM**: be told · give your view · human review · contest. Not 'ADM is banned'.",
       "**Ownership**: name how it is decided (collection, contracts/terms, employment, IP) — not 'the person owns it'.",
       "Always tie ethics to **the individual**: what happens to the candidate, the customer, the patient."
-    ] }] } },
-    { callout: { t: "mnemonic", h: "Mnemonics", body: [{ ul: [
+    ] } },
+    { callout: { t: "mnemonic", h: "Mnemonics", body: [
       "**Where bias comes from — \"HUPDF\" (\"Hidden Unfairness Pops up During Feedback\")**: Historical data, Unrepresentative data, Proxies, Designer bias, Feedback loops.",
       "**ADM safeguards — \"TRHC\" (\"Tell, Respond, Human, Challenge\")**: told it's used, make representations, human intervention, contest.",
       "**Data Ethics Framework — \"TAF\"**: Transparency, Accountability, Fairness (\"Take A Fair view\")."
-    ] }] } },
-    { callout: { t: "tip", h: "Synoptic links", body: [{ ul: [
+    ] } },
+    { callout: { t: "tip", h: "Synoptic links", body: [
       "**F201 4.1** — UK GDPR's principles (fairness, accuracy), rights (automated decisions) and DPIAs underpin this leaf.",
       "**F201 3.1** — decision trees, random forests and k-means are what make automated decisions; training data quality drives bias.",
       "**F201 1.1** — Veracity: biased or out-of-date data is poor-quality data.",
       "**F201 5.2** — smart cities, personalised healthcare and smart homes raise the same privacy and ownership debates.",
       "**F200** — legal and ethical considerations; **F206** — profiling and personalised marketing; **F204** — IoE devices collecting data continuously."
-    ] }] } }
+    ] } }
   ],
   flashcards: [
     ["What is automated decision making (ADM)?", "A decision about a person made by an algorithm or AI with no meaningful human involvement, often using profiling.", 0],
@@ -1100,13 +1119,21 @@ function energyFig() {
 C["it:F201.5.1"] = {
   notes: [
     { h: "Environment — the whole topic on one page" },
-    { callout: { t: "info", h: "What the specification asks (F201 5.1)", body: [
-      { kv: [
-        ["Teaching content", "Accuracy of weather forecasting · natural disaster management · energy efficiency · environmental management · platforms to combat climate change · emerging environmental developments affected by big data."],
-        ["To include", "**How** big data can be used in each area of environmental work, and the **benefits and limitations** of big data use in each."],
-        ["How to learn it", "For each of the six areas: the data sources → what is done with them → a benefit → a limitation."]
-      ] }
-    ] } },
+    { h: "What the specification asks (F201 5.1)" },
+    { kv: [
+      [
+        "Teaching content",
+        "Accuracy of weather forecasting · natural disaster management · energy efficiency · environmental management · platforms to combat climate change · emerging environmental developments affected by big data."
+      ],
+      [
+        "To include",
+        "**How** big data can be used in each area of environmental work, and the **benefits and limitations** of big data use in each."
+      ],
+      [
+        "How to learn it",
+        "For each of the six areas: the data sources → what is done with them → a benefit → a limitation."
+      ]
+    ] },
     { ol: ["Weather forecasting", "Natural disaster management", "Energy efficiency", "Environmental management", "Platforms to combat climate change", "Emerging developments", "In exam questions", "Exam toolkit"] },
     { table: { head: ["Area", "Big data used for", "A limitation to quote"], rows: [
       ["Weather forecasting", "More observations + supercomputer models → more accurate, longer forecasts.", "Chaos: accuracy still falls off after about a week or two."],
@@ -1218,13 +1245,13 @@ C["it:F201.5.1"] = {
       ["Precision agriculture", "Field-by-field sensor and satellite data.", "Less fertiliser and water.", "Costly for small farms."],
       ["Big data's own footprint", "Data centres need electricity and cooling water.", "Pressure for renewable-powered, efficient centres.", "Growth of AI raises energy demand."]
     ] } },
-    { callout: { t: "miscon", h: "Misconceptions", body: [{ ul: [
+    { callout: { t: "miscon", h: "Misconceptions", body: [
       "\"With enough data, weather can be forecast perfectly.\" — Chaos limits it; more data narrows the error, it never removes it.",
       "\"Big data is automatically green.\" — It has a carbon cost: data centres, devices and networks use energy.",
       "\"Big data prevents disasters.\" — It can't stop a flood or earthquake; it reduces the **harm** through warning and response.",
       "\"Sensors are always right.\" — Cheap sensors drift and fail; Veracity must be checked.",
       "\"Energy efficiency means using renewable energy.\" — Efficiency is using **less** energy for the same job; renewables are a different source."
-    ] }] } },
+    ] } },
 
     { page: "In exam questions" },
     { callout: { t: "info", h: "Scenario used on this page", body: "**Eastwold District Council** covers a market town on a river that floods, villages and farmland. It runs offices and a leisure centre with a pool and wants to cut its energy use, manage flood risk and monitor air quality." } },
@@ -1273,25 +1300,25 @@ C["it:F201.5.1"] = {
       ], result: "Level 3: a range of benefits and limitations, each explained and applied to Eastwold's flooding, using correct terms" } },
 
     { page: "Exam toolkit" },
-    { callout: { t: "tip", h: "How OCR marks it", body: [{ ul: [
+    { callout: { t: "tip", h: "How OCR marks it", body: [
       "**Explain one benefit and one limitation (4)**: identify (1) + how it affects THE ORGANISATION in the scenario (1), for each. Generic answers lose the second mark.",
       "Name **specific data**: smart meters, occupancy sensors, river gauges, satellites — not just 'data'.",
       "Limitation favourites from the SAM: patterns change from 'normal' days; devices malfunction and the fault is hard to find; extra equipment adds initial cost.",
       "Don't claim big data **prevents** disasters or makes forecasts **perfect** — it improves warnings and accuracy.",
       "Energy efficiency ≠ renewable energy: say how data **reduces waste**."
-    ] }] } },
-    { callout: { t: "mnemonic", h: "Mnemonic — the six areas: \"We Never Eat Eggs Past Easter\"", body: [{ ul: [
+    ] } },
+    { callout: { t: "mnemonic", h: "Mnemonic — the six areas: \"We Never Eat Eggs Past Easter\"", body: [
       "**W**eather forecasting · **N**atural disasters · **E**nergy efficiency · **E**nvironmental management · **P**latforms for climate · **E**merging developments.",
       "For each: **S-U-B-L** — Sources, Use, Benefit, Limitation."
-    ] }] } },
-    { callout: { t: "tip", h: "Synoptic links", body: [{ ul: [
+    ] } },
+    { callout: { t: "tip", h: "Synoptic links", body: [
       "**F201 1.1** — Volume and Velocity of sensor data; Veracity of cheap sensors and social media.",
       "**F201 1.2** — capture methods: sensors, IoT, satellites, smart meters.",
       "**F201 2.6** — time series analysis (seasonality in energy use, river levels); Monte Carlo and ensemble thinking.",
       "**F201 3.1** — AI weather models; machine learning on satellite images.",
       "**F201 5.2** — smart cities share the same sensors (air quality, smart grids).",
       "**F204** — Data and the Internet of Everything: the connected devices behind all of this; **F205** — visualising environmental data on dashboards and maps."
-    ] }] } }
+    ] } }
   ],
   flashcards: [
     ["List the six environmental areas big data affects.", "Weather forecasting accuracy, natural disaster management, energy efficiency, environmental management, platforms to combat climate change, emerging developments.", 0],
@@ -1361,13 +1388,21 @@ function healthFig() {
 C["it:F201.5.2"] = {
   notes: [
     { h: "Society — the whole topic on one page" },
-    { callout: { t: "info", h: "What the specification asks (F201 5.2)", body: [
-      { kv: [
-        ["Teaching content", "Big data and the development of **smart cities** · emerging social developments driven by big data: **personalised healthcare**, **smart homes**, **traffic management**, **urban and community planning**."],
-        ["To include", "The purpose of a smart city · how data from a variety of sources is exchanged to optimise city operations · benefits and limitations of a smart city · how **individuals** are affected by each emerging social development."],
-        ["Focus", "Questions are usually about the **effect on people** — residents, patients, drivers — as well as on the organisation."]
-      ] }
-    ] } },
+    { h: "What the specification asks (F201 5.2)" },
+    { kv: [
+      [
+        "Teaching content",
+        "Big data and the development of **smart cities** · emerging social developments driven by big data: **personalised healthcare**, **smart homes**, **traffic management**, **urban and community planning**."
+      ],
+      [
+        "To include",
+        "The purpose of a smart city · how data from a variety of sources is exchanged to optimise city operations · benefits and limitations of a smart city · how **individuals** are affected by each emerging social development."
+      ],
+      [
+        "Focus",
+        "Questions are usually about the **effect on people** — residents, patients, drivers — as well as on the organisation."
+      ]
+    ] },
     { ol: ["Smart cities", "Data exchange in a smart city", "Personalised healthcare", "Smart homes", "Traffic management", "Urban and community planning", "How individuals are affected", "In exam questions", "Exam toolkit"] },
     { table: { head: ["Item", "One line to remember"], rows: [
       ["Smart city", "Uses connected sensors and data to run services better — efficient, sustainable, better to live in."],
@@ -1485,13 +1520,13 @@ C["it:F201.5.2"] = {
       ["Urban planning", "Services where needed.", "Under-represented groups missed; gentrification."]
     ] } },
     { callout: { t: "key", h: "The pattern behind every answer", body: "Every development trades **convenience, efficiency and better outcomes** against **privacy, security, cost and exclusion**. A strong answer names both sides and says **who** gains and **who** loses." } },
-    { callout: { t: "miscon", h: "Misconceptions", body: [{ ul: [
+    { callout: { t: "miscon", h: "Misconceptions", body: [
       "\"A smart city is just free Wi-Fi.\" — It is **sensors + data sharing + analysis + action** across services.",
       "\"Everyone benefits equally.\" — People without devices, skills or a voice in the data benefit least (digital exclusion).",
       "\"Smart city data is anonymous, so privacy isn't an issue.\" — Location and camera data can identify people; anonymisation must be done properly.",
       "\"Personalised healthcare means a health app.\" — It is treatment tailored to the **individual's** data, especially genetics and records.",
       "\"Traffic management only helps drivers.\" — It also targets buses, cyclists, pedestrians and air quality."
-    ] }] } },
+    ] } },
 
     { page: "In exam questions" },
     { callout: { t: "info", h: "Scenario used on this page", body: "**Harbourton** is a UK city of 300,000 people. The city council wants to become a smart city: sensors on roads, street lights and bins, a residents' app and a shared data platform with the bus company and the local NHS trust." } },
@@ -1555,26 +1590,26 @@ C["it:F201.5.2"] = {
       ], result: "Recommendation + reasons + conditions" } },
 
     { page: "Exam toolkit" },
-    { callout: { t: "tip", h: "How OCR marks it", body: [{ ul: [
+    { callout: { t: "tip", h: "How OCR marks it", body: [
       "**Purpose of a smart city (1)**: data → efficient services / sustainability / quality of life. Not just 'lots of technology'.",
       "**How data is exchanged (3)**: sources → shared platform → analysis and action. Name real sources and a real action.",
       "**Individuals affected (2)**: what changes (1) + the effect on the person (1) — health, money, time, privacy, safety.",
       "**Discuss (9)**: uses, benefits, limitations, a recommendation — both council AND residents.",
       "Avoid one-word limitations ('privacy'): say **what** is tracked and **what could happen**."
-    ] }] } },
-    { callout: { t: "mnemonic", h: "Mnemonics", body: [{ ul: [
+    ] } },
+    { callout: { t: "mnemonic", h: "Mnemonics", body: [
       "**The four social developments — \"Healthy Homes Travel Planned\"**: personalised Healthcare, smart Homes, Traffic management, urban Planning.",
       "**Smart city limitations — \"Spies Can Cost Everyone\"**: Surveillance/privacy, Cyber-attack, Cost, Exclusion (digital).",
       "**Data exchange — \"Collect, Share, Combine, Act\"**."
-    ] }] } },
-    { callout: { t: "tip", h: "Synoptic links", body: [{ ul: [
+    ] } },
+    { callout: { t: "tip", h: "Synoptic links", body: [
       "**F201 1.1–1.2** — smart-city data is high Volume, Velocity and Variety; captured by sensors, IoT, cameras, apps.",
       "**F201 2.1–2.3** — the shared platform is cloud storage and processing; data must be integrated.",
       "**F201 3.1** — AI predicts traffic and health risks; k-means groups neighbourhoods.",
       "**F201 4.1–4.2** — location and health data are personal (health is special category); surveillance and inclusive data are ethical debates.",
       "**F201 5.1** — smart grids and air-quality sensors overlap with energy efficiency and environmental management.",
       "**F204** — Data and the Internet of Everything is the technology of smart cities and homes; **F205** — city dashboards visualise the data."
-    ] }] } }
+    ] } }
   ],
   flashcards: [
     ["What is a smart city and what is its purpose?", "A city that uses connected sensors and data analytics to manage services in real time — to be more efficient, sustainable and better to live in.", 0],
@@ -1608,6 +1643,12 @@ C["it:F201.5.2"] = {
 };
 
 /* the exam tab's items derive from the worked exam cards above */
+/* the levels helpers return two blocks: the notes are flattened one level */
+Object.keys(C).forEach(function (k) {
+  if (before.indexOf(k) >= 0 || !Array.isArray(C[k].notes)) return;
+  C[k].notes = [].concat.apply([], C[k].notes);
+});
+
 Object.keys(C).forEach(function (k) {
   if (before.indexOf(k) >= 0 || !window.KOS || !KOS.content) return;
   C[k].exam = KOS.content.examFromWorked(C[k].notes, "OCR");

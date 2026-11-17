@@ -53,7 +53,8 @@ step("A · notes", () => {
     const c = C["it:" + ref], n = c && c.notes || [];
     const why = [];
     if (!/ — the whole topic on one page$/.test((n[0] && n[0].h) || "")) why.push("opens on its overview");
-    if (!n.some((b) => b && b.callout && /^What the specification asks/.test(b.callout.h || ""))) why.push("what the specification asks");
+    /* a callout of text, or (a table of it) its own heading: never a block in a box */
+    if (!n.some((b) => b && ((b.callout && /^What the specification asks/.test(b.callout.h || "")) || /^What the specification asks/.test(b.h || "")))) why.push("what the specification asks");
     const pages = n.filter((b) => b && b.page).map((b) => b.page);
     if (pages.length < 4) why.push("paged (" + pages.length + ")");
     if (pages[pages.length - 1] !== "Exam toolkit") why.push("ends with Exam toolkit");

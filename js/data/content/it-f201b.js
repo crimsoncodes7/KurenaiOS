@@ -30,26 +30,24 @@ function box(x, y, w, h, lines, o) {
 
 /* ---------- the levels-of-response descriptors, in our own words, on the SAM's structure ---------- */
 function lor6(topic) {
-  return { callout: { t: "info", h: "How a 6-mark “Analyse” answer is levelled", body: [
+  /* the note in the callout, its table after it: never a block inside a block */
+  return [{ callout: { t: "info", h: "How a 6-mark “Analyse” answer is levelled", body: "Start at Level 3 and work down; the mark inside a level depends on how consistently the answer meets it. A list of points with no explanation stays in Level 1–2 however long it is." } },
     { table: { head: ["Level", "Marks", "What the answer shows"], rows: [
       ["3 (high)", "5–6", "A **thorough** analysis: a **range** of points, each explained in a **logical chain** (point → because → so for this organisation), detailed knowledge of " + topic + " used **in the scenario**, subject terms used throughout."],
       ["2 (mid)", "3–4", "An **adequate** analysis: **some** points, sound knowledge, explanations that are partly in context, some subject terms."],
       ["1 (low)", "1–2", "A **basic** analysis: at least one point, limited knowledge or context, brief explanation, few subject terms."],
       ["0", "0", "Nothing worthy of credit."]
-    ] } },
-    "Start at Level 3 and work down; the mark inside a level depends on how consistently the answer meets it. A list of points with no explanation stays in Level 1–2 however long it is."
-  ] } };
+    ] } }];
 }
 function lor9(topic) {
-  return { callout: { t: "info", h: "How a 9-mark “Discuss whether” answer is levelled", body: [
+  /* the note in the callout, its table after it: never a block inside a block */
+  return [{ callout: { t: "info", h: "How a 9-mark “Discuss whether” answer is levelled", body: "The three bullets in the question (benefits · limitations · recommendation) are the plan. No recommendation, or one with no reasons, cannot reach Level 3." } },
     { table: { head: ["Level", "Marks", "What the answer shows"], rows: [
       ["3 (high)", "7–9", "A **thorough discussion**: a range of examples of " + topic + " in this scenario, **benefits AND limitations** for this organisation, detailed analysis in context, and a **clear conclusion with detailed reasons**; subject terms used throughout."],
       ["2 (mid)", "4–6", "An **adequate discussion**: some examples, some benefits **or** limitations, some analysis in context, an adequate conclusion with relevant reasons."],
       ["1 (low)", "1–3", "A **basic discussion**: a few examples or points, limited context, a brief conclusion with little justification."],
       ["0", "0", "Nothing worthy of credit."]
-    ] } },
-    "The three bullets in the question (benefits · limitations · recommendation) are the plan. No recommendation, or one with no reasons, cannot reach Level 3."
-  ] } };
+    ] } }];
 }
 
 /* =====================================================================
@@ -104,14 +102,17 @@ C["it:F201.2.1"] = {
   notes: [
     { h: "Types of big data — the whole topic on one page" },
     { callout: { t: "info", h: "What the specification asks (F201 2.1)", body: [
-      { kv: [
-        ["Structured data", "continuous · discrete · relational database · spreadsheet file data · transactional data"],
-        ["Unstructured data", "social media and entertainment data · weather data"],
-        ["Semi-structured data", "emails · XML · zipped files · web pages"]
-      ] },
       "**To include:** the difference between the three types · how each is captured · the purpose of each · when each can be used · the benefits and limitations of each.",
       "**Exam evidence:** SAM Q3(c) asks for two examples of structured data other than transactional data (2 marks)."
     ] } },
+    { kv: [
+      [
+        "Structured data",
+        "continuous · discrete · relational database · spreadsheet file data · transactional data"
+      ],
+      ["Unstructured data", "social media and entertainment data · weather data"],
+      ["Semi-structured data", "emails · XML · zipped files · web pages"]
+    ] },
     { ol: ["**Structured data** — the five kinds, capture, purpose, benefits and limitations.", "**Unstructured data** — social media and entertainment, weather.", "**Semi-structured data** — emails, XML, zipped files, web pages.", "**Comparing the three types** — side by side, and how to classify.", "**In exam questions** — worked answers in OCR's format.", "**Exam toolkit** — terms, traps, mnemonic and links."] },
     typesFig(),
 
@@ -125,25 +126,39 @@ C["it:F201.2.1"] = {
       ["**Transactional data**", "A **record of each transaction** (sale, payment, booking): what, when, where, how much, who.", "Till receipt: 14/07/2026 21:42 · Bar 3 · 2 × cider · £13.00 · card."]
     ] } },
     numberFig(),
-    { callout: { t: "info", h: "How structured data is captured", body: [{ ul: [
+    { callout: { t: "info", h: "How structured data is captured", body: [
       "**Online forms** with fixed fields and validation (a registration or booking form).",
       "**EPOS tills and barcode scanners** — each scan writes a transaction row.",
       "**Card terminals and online checkouts** — payment records.",
       "**Sensors and meters** that output numbers at set intervals (a smart meter reading every 30 minutes).",
       "**Data entry** into a database or spreadsheet; imports from other systems."
-    ] }] } },
+    ] } },
     { kv: [
       ["Purpose", "To record **precise, measurable facts** in a consistent form so they can be totalled, compared, reported and audited."],
       ["When it is used", "Sales and stock control · finance and accounts · bookings · loyalty schemes · KPIs and dashboards · any question with a numeric answer (how many, how much, when)."]
     ] },
-    { callout: { t: "info", h: "Structured data — benefits and limitations", body: [
-      { table: { head: ["Benefits", "Limitations"], rows: [
-        ["**Easy to search, sort, filter and calculate** — SQL and spreadsheet functions work on it directly.", "**Rigid schema** — it can only hold what fits the predefined fields."],
-        ["**Validation at input** keeps quality high (a date field only accepts dates).", "**Changing the structure** (a new field) takes time and can break reports."],
-        ["**Quick to analyse and chart** — fewer preparation steps.", "**Misses the rich detail** — opinions, images, tone of voice."],
-        ["**Mature tools and skills** — most staff can use it.", "Only a **small share of all big data** is structured, so it gives a partial picture."],
-        ["**Compact to store** — fixed fields, no repeated tags.", "Data that arrives in other forms must be **converted** before it fits."]
-      ] } }
+    { h: "Structured data — benefits and limitations" },
+    { table: { head: ["Benefits", "Limitations"], rows: [
+      [
+        "**Easy to search, sort, filter and calculate** — SQL and spreadsheet functions work on it directly.",
+        "**Rigid schema** — it can only hold what fits the predefined fields."
+      ],
+      [
+        "**Validation at input** keeps quality high (a date field only accepts dates).",
+        "**Changing the structure** (a new field) takes time and can break reports."
+      ],
+      [
+        "**Quick to analyse and chart** — fewer preparation steps.",
+        "**Misses the rich detail** — opinions, images, tone of voice."
+      ],
+      [
+        "**Mature tools and skills** — most staff can use it.",
+        "Only a **small share of all big data** is structured, so it gives a partial picture."
+      ],
+      [
+        "**Compact to store** — fixed fields, no repeated tags.",
+        "Data that arrives in other forms must be **converted** before it fits."
+      ]
     ] } },
     { worked: { tag: "example", title: "Continuous or discrete?", q: "A festival records: (a) the number of wristbands scanned at a gate each minute; (b) the noise level at the stage in decibels; (c) the number of bar staff on shift; (d) the time each queue takes to clear.",
       steps: [
@@ -164,14 +179,28 @@ C["it:F201.2.1"] = {
       ["Purpose", "To capture **rich, real-world information** — what people say, feel, watch and share, and what the environment is doing — that a form could never collect."],
       ["When it is used", "Sentiment analysis of posts and reviews · spotting trends as they start · recommendation engines (what to watch next) · targeted advertising · image and voice recognition · forecasting and planning with weather data (staffing, stock, safety, energy demand)."]
     ] },
-    { callout: { t: "info", h: "Unstructured data — benefits and limitations", body: [
-      { table: { head: ["Benefits", "Limitations"], rows: [
-        ["**Rich detail** — opinions, emotion, images and context that numbers cannot hold.", "**Hard to search and analyse** — needs AI, machine learning, natural language processing or image recognition."],
-        ["**Huge amounts are available**, often generated for free by users.", "**Large storage** needed (often a data lake) and long processing times."],
-        ["**Honest, unprompted views** — people post what they would not put on a survey.", "**Veracity problems** — fake accounts, sarcasm, slang, spam, duplicates."],
-        ["**Real-time insight** — a complaint trending now can be acted on now.", "**Privacy and legal risk** — personal data in posts and images must still meet UK GDPR."],
-        ["Reveals **patterns nobody asked about** in advance.", "Needs **specialist skills and tools**, so it is harder to use."]
-      ] } }
+    { h: "Unstructured data — benefits and limitations" },
+    { table: { head: ["Benefits", "Limitations"], rows: [
+      [
+        "**Rich detail** — opinions, emotion, images and context that numbers cannot hold.",
+        "**Hard to search and analyse** — needs AI, machine learning, natural language processing or image recognition."
+      ],
+      [
+        "**Huge amounts are available**, often generated for free by users.",
+        "**Large storage** needed (often a data lake) and long processing times."
+      ],
+      [
+        "**Honest, unprompted views** — people post what they would not put on a survey.",
+        "**Veracity problems** — fake accounts, sarcasm, slang, spam, duplicates."
+      ],
+      [
+        "**Real-time insight** — a complaint trending now can be acted on now.",
+        "**Privacy and legal risk** — personal data in posts and images must still meet UK GDPR."
+      ],
+      [
+        "Reveals **patterns nobody asked about** in advance.",
+        "Needs **specialist skills and tools**, so it is harder to use."
+      ]
     ] } },
     { worked: { tag: "example", title: "Why does the festival buy weather data?", q: "Skyline Festivals buys detailed weather data for each site in the week before an event. Give two ways it could use the data.",
       steps: [
@@ -188,24 +217,35 @@ C["it:F201.2.1"] = {
       ["**Web pages**", "HTML tags: title, headings, links, metadata.", "The text, images and video on the page."]
     ] } },
     { code: { lang: "xml", src: "<booking id=\"B2291\">\n  <name>Sam Ng</name>\n  <tickets>2</tickets>\n  <festival>Skyline North</festival>\n  <note>Needs the accessible campsite</note>\n</booking>\n<booking id=\"B2292\">\n  <name>Ola Ade</name>\n  <tickets>4</tickets>\n</booking>", cap: "Two XML records from a ticket agent's feed: each value is labelled by its tag, but the second record has no festival or note — no fixed schema forces it to." } },
-    { callout: { t: "info", h: "How semi-structured data is captured", body: [{ ul: [
+    { callout: { t: "info", h: "How semi-structured data is captured", body: [
       "**Email servers** store every message with its header fields.",
       "**Data feeds and APIs** between organisations send XML (or JSON) records.",
       "**Web crawlers and scraping** collect web pages for analysis.",
       "**File transfers and downloads** move zipped archives of many files at once.",
       "**IoE devices** often send their readings as tagged messages."
-    ] }] } },
+    ] } },
     { kv: [
       ["Purpose", "To **exchange and hold varied records** between systems while keeping each value labelled, so a computer can still find the parts it needs."],
       ["When it is used", "Sharing data between organisations (ticket agents, suppliers) · analysing customer emails · web analytics and scraping · sending many files in one compressed archive · storing records whose fields vary."]
     ] },
-    { callout: { t: "info", h: "Semi-structured data — benefits and limitations", body: [
-      { table: { head: ["Benefits", "Limitations"], rows: [
-        ["**Flexible** — new tags or fields can be added without redesigning a schema.", "**Harder to query** than a table; often must be converted first."],
-        ["**Self-describing** — tags label the data, so systems can exchange it easily.", "**Inconsistent tags** between sources need wrangling (name vs fullName)."],
-        ["**Easier to analyse than unstructured** — the tags can be read by software.", "**Tags add size** — the same label repeats in every record."],
-        ["Handles **nested, hierarchical** data (a booking holding several tickets).", "Part of it (an email body, a page's text) is still **unstructured**."]
-      ] } }
+    { h: "Semi-structured data — benefits and limitations" },
+    { table: { head: ["Benefits", "Limitations"], rows: [
+      [
+        "**Flexible** — new tags or fields can be added without redesigning a schema.",
+        "**Harder to query** than a table; often must be converted first."
+      ],
+      [
+        "**Self-describing** — tags label the data, so systems can exchange it easily.",
+        "**Inconsistent tags** between sources need wrangling (name vs fullName)."
+      ],
+      [
+        "**Easier to analyse than unstructured** — the tags can be read by software.",
+        "**Tags add size** — the same label repeats in every record."
+      ],
+      [
+        "Handles **nested, hierarchical** data (a booking holding several tickets).",
+        "Part of it (an email body, a page's text) is still **unstructured**."
+      ]
     ] } },
 
     { page: "Comparing the three types" },
@@ -223,14 +263,14 @@ C["it:F201.2.1"] = {
       { h: "If not: are there tags, markers or header fields that label the parts?", m: "Yes → semi-structured.", n: "Email headers, XML tags, HTML tags, a zip file's index." },
       { h: "If not: is it free content — text, images, audio, video, mixed feeds?", m: "Yes → unstructured.", n: "Posts, videos, satellite images, voice recordings." }
     ] },
-    { callout: { t: "tip", h: "Synoptic links", body: [{ ul: [
+    { callout: { t: "tip", h: "Synoptic links", body: [
       "**F200 1.4** classifies data as structured / unstructured and qualitative / quantitative; **F200 1.3** covers XML, JSON and CSV as file formats.",
       "**F201 1.1** — **Variety** is the V this leaf describes; unstructured data drives **Veracity** problems.",
       "**F201 1.3** — each capture method generates a type: transactional records → structured; social media, images and video → unstructured.",
       "**F201 2.2** — every type needs preparing; unstructured text needs the most.",
       "**F201 2.4** — the type decides the store: relational database or warehouse for structured, NoSQL or a data lake for the rest.",
       "**F203** (relational database design) is structured data in depth; **F206** (digital marketing) lives on social media data."
-    ] }] } },
+    ] } },
 
     { page: "In exam questions" },
     { callout: { t: "info", h: "The scenario", body: "**Skyline Festivals** runs six outdoor music festivals across the UK each summer. It sells tickets online, takes card payments at the bars, monitors social media during each event and buys weather data for every site." } },
@@ -288,33 +328,37 @@ C["it:F201.2.1"] = {
       ], result: "Level 3: uses of each type, each explained in context, weighed with a limitation" } },
 
     { page: "Exam toolkit" },
-    { callout: { t: "memorise", h: "The spec's lists — word for word", body: [{ kv: [
-      ["Structured (5)", "Continuous · Discrete · Relational database · Spreadsheet file data · Transactional data"],
+    { h: "The spec's lists — word for word" },
+    { kv: [
+      [
+        "Structured (5)",
+        "Continuous · Discrete · Relational database · Spreadsheet file data · Transactional data"
+      ],
       ["Unstructured (2)", "Social media and entertainment data · Weather data"],
       ["Semi-structured (4)", "Emails · XML · Zipped files · Web pages"]
-    ] }] } },
-    { callout: { t: "mnemonic", h: "Remember the lists", body: [{ ul: [
+    ] },
+    { callout: { t: "mnemonic", h: "Remember the lists", body: [
       "**Tables · Tags · Tangle** — structured is tables, semi-structured is tags, unstructured is a tangle.",
       "Structured: **C**ount **D**own **R**ows, **S**ee **T**otals → Continuous, Discrete, Relational database, Spreadsheet, Transactional.",
       "Semi-structured: **E**very e**X**pert **Z**ips **W**ebpages → Emails, XML, Zipped files, Web pages.",
       "Unstructured: **S**unny **W**eekend → Social media and entertainment, Weather."
-    ] }] } },
-    { callout: { t: "miscon", h: "Misconceptions", body: [{ ul: [
+    ] } },
+    { callout: { t: "miscon", h: "Misconceptions", body: [
       "**“A CSV file is semi-structured because it is plain text.”** — No: it has fixed columns in every row, so it is **structured** (spreadsheet file data).",
       "**“Emails are unstructured.”** — The spec lists them as **semi-structured**: the header fields are labelled.",
       "**“Unstructured means random or useless.”** — It holds the richest information; it just has no predefined model, so it needs processing.",
       "**“Continuous and discrete are extra types.”** — They are **kinds of structured** (numeric) data in the spec.",
       "**Repeating the stem's example** — if the question says transactional data is structured, “transactional data” earns nothing as another example.",
       "**“Weather data is structured because it is numbers.”** — The spec lists it as **unstructured**; answer from the spec."
-    ] }] } },
-    { callout: { t: "tip", h: "How OCR marks it", body: [{ ul: [
+    ] } },
+    { callout: { t: "tip", h: "How OCR marks it", body: [
       "**State / Identify** (1 mark each): the spec's term is enough — “relational database”, “XML”.",
       "**Describe** (1–2): the characteristic — “fixed rows and columns”, “tags that label the data”.",
       "**Explain** a benefit or limitation (2): identify (1) + apply to the scenario (1). One developed point only: a second is not marked.",
       "**Analyse** (6): several points, each in a chain — point → because → so for this organisation.",
       "Contradictory answers (calling the same data structured AND unstructured) score nothing.",
       "Use the exact spec wording: “spreadsheet file data”, “social media and entertainment data”."
-    ] }] } },
+    ] } },
     { kv: [
       ["Fixed schema", "Structured"],
       ["Tags / metadata / headers", "Semi-structured"],
@@ -407,27 +451,30 @@ C["it:F201.2.2"] = {
   notes: [
     { h: "Data preparation and cleaning — the whole topic on one page" },
     { callout: { t: "info", h: "What the specification asks (F201 2.2)", body: [
-      { kv: [
-        ["Data preparation", "numeric data · textual data"],
-        ["Data wrangling", "what it is and how it is used to prepare data"],
-        ["Data cleaning techniques", "removing duplicates · removing irrelevant data · converting data type · clear formatting · fix structural errors · language translation · fix missing data · validate data"]
-      ] },
       "**To include:** the purpose of preparing data · how the different types of data can be prepared · what data wrangling is · how it is used · the purpose of cleaning · when to use each technique · the benefits and limitations of each.",
       "**Does not include:** the technical details of each cleaning technique — no code, formulas or tool menus.",
       "**Exam evidence:** SAM Q1(c) (identify three cleaning techniques for a table of records, 3 marks) and Q1(d) (a cloze on what data wrangling is, 3 marks)."
     ] } },
+    { kv: [
+      ["Data preparation", "numeric data · textual data"],
+      ["Data wrangling", "what it is and how it is used to prepare data"],
+      [
+        "Data cleaning techniques",
+        "removing duplicates · removing irrelevant data · converting data type · clear formatting · fix structural errors · language translation · fix missing data · validate data"
+      ]
+    ] },
     { ol: ["**Data preparation** — purpose; numeric and textual data.", "**Data wrangling** — what it is and how it is used.", "**Cleaning: four techniques** — duplicates, irrelevant data, data type, formatting.", "**Cleaning: four more** — structural errors, translation, missing data, validation.", "**In exam questions** — worked answers in OCR's format.", "**Exam toolkit** — the list, traps, mnemonic and links."] },
     wrangleFig(),
 
     { page: "Data preparation" },
     { callout: { t: "def", h: "Data preparation", body: "Getting raw data into a **consistent, accurate, complete and usable** form before it is mined and analysed. It covers finding, combining, cleaning and formatting the data." } },
-    { callout: { t: "key", h: "The purpose of preparing data", body: [{ ul: [
+    { callout: { t: "key", h: "The purpose of preparing data", body: [
       "**Reliable results** — analysis is only as good as its input (**garbage in, garbage out**).",
       "**Consistency** — data from different sources can be combined and compared.",
       "**Usability** — tools can read it: numbers stored as numbers, dates as dates.",
       "**Efficiency** — less data to store and process once the irrelevant is removed.",
       "**Better decisions** — managers can trust the figures they act on."
-    ] }] } },
+    ] } },
     { table: { head: ["Numeric data — how it is prepared", "Example"], rows: [
       ["Use **one unit** throughout", "Weights all in kg, not a mix of kg and lb."],
       ["Store values **as numbers**, without symbols", "“£1,250.00” → 1250 so it can be totalled."],
@@ -463,13 +510,24 @@ C["it:F201.2.2"] = {
       { h: "Validate", m: "Check the result follows the rules and makes sense.", n: "Every weight in a sensible range for its species." },
       { h: "Publish", m: "Store the prepared data for analysts or the mining software.", n: "Load it into the data warehouse (F201 2.4)." }
     ] },
-    { callout: { t: "info", h: "How wrangling is used — and its benefits and limitations", body: [
-      { table: { head: ["Benefits", "Limitations"], rows: [
-        ["Combines **several sources into one** consistent dataset.", "**Time-consuming** — often most of an analytics project's time."],
-        ["Gives **reliable, accurate results** from analysis.", "Needs **skilled staff** who understand the data."],
-        ["Makes data **usable by software** (the right types and layout).", "Mistakes made while wrangling **carry into every result**."],
-        ["Can be **automated** and repeated as new data arrives.", "Must be **repeated** whenever sources or formats change."]
-      ] } }
+    { h: "How wrangling is used — and its benefits and limitations" },
+    { table: { head: ["Benefits", "Limitations"], rows: [
+      [
+        "Combines **several sources into one** consistent dataset.",
+        "**Time-consuming** — often most of an analytics project's time."
+      ],
+      [
+        "Gives **reliable, accurate results** from analysis.",
+        "Needs **skilled staff** who understand the data."
+      ],
+      [
+        "Makes data **usable by software** (the right types and layout).",
+        "Mistakes made while wrangling **carry into every result**."
+      ],
+      [
+        "Can be **automated** and repeated as new data arrives.",
+        "Must be **repeated** whenever sources or formats change."
+      ]
     ] } },
     { worked: { tag: "example", title: "Wrangling two vet systems", q: "PawsCare, a chain of 60 vet practices, has bought another chain. Its records are in a database; the other chain's are in spreadsheets. Describe how data wrangling would let PawsCare analyse all its patients together.",
       steps: [
@@ -486,13 +544,28 @@ C["it:F201.2.2"] = {
       ["**Converting data type**", "Changes values to the correct type — text to number, text to date, Yes/No to Boolean.", "Numbers or dates are stored as text, so they cannot be calculated or sorted."],
       ["**Clear formatting**", "Removes formatting from the source — bold, colours, merged cells, hyperlinks, hidden characters, HTML tags.", "Data comes from documents, spreadsheets or web pages in different formats that tools cannot read cleanly."]
     ] } },
-    { callout: { t: "info", h: "Benefits and limitations — the first four", body: [
-      { table: { head: ["Technique", "Benefit", "Limitation"], rows: [
-        ["Removing duplicates", "Counts and totals are not inflated; each customer is contacted once.", "Two genuine records can look alike (two pets with one name) and one is wrongly deleted."],
-        ["Removing irrelevant data", "Smaller, faster dataset; less personal data held (data minimisation under UK GDPR).", "Data judged irrelevant now may be needed for a later question."],
-        ["Converting data type", "Values can be calculated, sorted and compared correctly.", "A value that will not convert (“twelve”) is lost or must be fixed by hand."],
-        ["Clear formatting", "Every source arrives as plain, uniform values the software can process.", "Meaning carried by formatting (red = overdue) is lost unless recorded in a field first."]
-      ] } }
+    { h: "Benefits and limitations — the first four" },
+    { table: { head: ["Technique", "Benefit", "Limitation"], rows: [
+      [
+        "Removing duplicates",
+        "Counts and totals are not inflated; each customer is contacted once.",
+        "Two genuine records can look alike (two pets with one name) and one is wrongly deleted."
+      ],
+      [
+        "Removing irrelevant data",
+        "Smaller, faster dataset; less personal data held (data minimisation under UK GDPR).",
+        "Data judged irrelevant now may be needed for a later question."
+      ],
+      [
+        "Converting data type",
+        "Values can be calculated, sorted and compared correctly.",
+        "A value that will not convert (“twelve”) is lost or must be fixed by hand."
+      ],
+      [
+        "Clear formatting",
+        "Every source arrives as plain, uniform values the software can process.",
+        "Meaning carried by formatting (red = overdue) is lost unless recorded in a field first."
+      ]
     ] } },
 
     { page: "Cleaning: four more" },
@@ -502,21 +575,41 @@ C["it:F201.2.2"] = {
       ["**Fix missing data**", "Deals with blanks: **remove** the record, **fill** it (from the source, or with an estimate such as the average), or **flag** it as missing.", "Fields were left empty, lost in transfer, or never collected by one source."],
       ["**Validate data**", "Checks data against rules — range, type, format, presence, length, lookup.", "Before analysis, to catch impossible or unreasonable values (a 640 kg cat, a date of 31/02)."]
     ] } },
-    { callout: { t: "info", h: "Benefits and limitations — the second four", body: [
-      { table: { head: ["Technique", "Benefit", "Limitation"], rows: [
-        ["Fix structural errors", "Categories group correctly, so counts per category are right.", "Needs rules or knowledge of the data; some errors are hard to spot."],
-        ["Language translation", "All customers' views are included, not just one language's.", "Machine translation can lose meaning, slang and tone (sarcasm)."],
-        ["Fix missing data", "Keeps records usable; totals and averages are not distorted by blanks.", "Removing records shrinks the data and may bias it; filled-in estimates are not real values."],
-        ["Validate data", "Errors are caught before they reach results; confidence in the data rises.", "Validation shows data is **reasonable**, not **correct** — a valid but wrong phone number passes."]
-      ] } }
+    { h: "Benefits and limitations — the second four" },
+    { table: { head: ["Technique", "Benefit", "Limitation"], rows: [
+      [
+        "Fix structural errors",
+        "Categories group correctly, so counts per category are right.",
+        "Needs rules or knowledge of the data; some errors are hard to spot."
+      ],
+      [
+        "Language translation",
+        "All customers' views are included, not just one language's.",
+        "Machine translation can lose meaning, slang and tone (sarcasm)."
+      ],
+      [
+        "Fix missing data",
+        "Keeps records usable; totals and averages are not distorted by blanks.",
+        "Removing records shrinks the data and may bias it; filled-in estimates are not real values."
+      ],
+      [
+        "Validate data",
+        "Errors are caught before they reach results; confidence in the data rises.",
+        "Validation shows data is **reasonable**, not **correct** — a valid but wrong phone number passes."
+      ]
     ] } },
-    { callout: { t: "info", h: "Cleaning as a whole — benefits and limitations", body: [
-      { table: { head: ["Benefits", "Limitations"], rows: [
-        ["Accurate, reliable analysis and decisions.", "Time-consuming and needs skilled staff."],
-        ["Consistent data that combines across sources.", "Over-cleaning can delete or change genuine data."],
-        ["Less storage and faster processing.", "Never finished: new data keeps arriving dirty."],
-        ["Fewer embarrassing errors (two letters to one customer).", "Automated rules can introduce new, systematic errors."]
-      ] } }
+    { h: "Cleaning as a whole — benefits and limitations" },
+    { table: { head: ["Benefits", "Limitations"], rows: [
+      ["Accurate, reliable analysis and decisions.", "Time-consuming and needs skilled staff."],
+      [
+        "Consistent data that combines across sources.",
+        "Over-cleaning can delete or change genuine data."
+      ],
+      ["Less storage and faster processing.", "Never finished: new data keeps arriving dirty."],
+      [
+        "Fewer embarrassing errors (two letters to one customer).",
+        "Automated rules can introduce new, systematic errors."
+      ]
     ] } },
     { worked: { tag: "example", title: "Pick the technique", q: "Which cleaning technique fixes each problem? (a) Weights typed as “12.5kg” in a number field. (b) “Swansea”, “swansea” and “SWANSEA” in the town field. (c) A blank date of last visit.",
       steps: [
@@ -578,27 +671,36 @@ C["it:F201.2.2"] = {
       ], result: "Level 3: several techniques, each with its impact on PawsCare, weighed against the time and risk" } },
 
     { page: "Exam toolkit" },
-    { callout: { t: "memorise", h: "The eight cleaning techniques — the spec's words", body: [{ ol: ["Removing duplicates", "Removing irrelevant data", "Converting data type", "Clear formatting", "Fix structural errors", "Language translation", "Fix missing data", "Validate data"] }] } },
-    { callout: { t: "mnemonic", h: "Remember the eight", body: [{ ul: [
+    { callout: { t: "memorise", h: "The eight cleaning techniques — the spec's words", body: [
+      "Removing duplicates",
+      "Removing irrelevant data",
+      "Converting data type",
+      "Clear formatting",
+      "Fix structural errors",
+      "Language translation",
+      "Fix missing data",
+      "Validate data"
+    ] } },
+    { callout: { t: "mnemonic", h: "Remember the eight", body: [
       "**D**ogs **I**n **T**he **F**ield **S**niff **L**ost **M**uddy **V**ets → Duplicates, Irrelevant, Type, Formatting, Structural, Language, Missing, Validate.",
       "Wrangling's three cloze words: **Raw** in → **Analysed** by software → **Reliable** results."
-    ] }] } },
-    { callout: { t: "miscon", h: "Misconceptions", body: [{ ul: [
+    ] } },
+    { callout: { t: "miscon", h: "Misconceptions", body: [
       "**“Wrangling and cleaning are the same.”** — Cleaning is **part of** wrangling; wrangling also combines, restructures, enriches and checks.",
       "**“Cleaning is done once.”** — New data keeps arriving with new errors; it is repeated for every load.",
       "**“Validation proves data is correct.”** — It proves data is **reasonable** (in range, right format). A wrong but sensible value passes.",
       "**“Delete every record with a gap.”** — That is only one way to fix missing data, and it can shrink and bias the dataset.",
       "**“Clear formatting means making the formats the same.”** — It means **removing** source formatting (bold, colours, merged cells, tags); making spellings or categories consistent is **fixing structural errors**.",
       "**Describing how a tool works** — the spec excludes technical detail; marks are for what and why."
-    ] }] } },
-    { callout: { t: "tip", h: "How OCR marks it", body: [{ ul: [
+    ] } },
+    { callout: { t: "tip", h: "How OCR marks it", body: [
       "**Identify** techniques from a table (1 each): look for a repeated row, a blank, a value in the wrong field, an impossible value, text where a number should be.",
       "Use the **spec's names** — “fix missing data”, not “fill in the gaps”.",
       "**Complete** (cloze): correct answers only; check each word fits the grammar of the sentence.",
       "**Explain** a benefit/limitation (2 each): identify (1) + what it means for this organisation (1).",
       "If the question asks for three techniques, only the first three are marked."
-    ] }] } },
-    { callout: { t: "tip", h: "Synoptic links", body: [{ ul: [
+    ] } },
+    { callout: { t: "tip", h: "Synoptic links", body: [
       "**F200 2.4** — the purpose and importance of data wrangling; **F200 2.2** — validation, verification, accuracy and the other data assurance considerations.",
       "**F201 1.1** — **data cleaning** is the third of the six steps; **Veracity** is the V that cleaning improves.",
       "**F201 2.1** — unstructured text needs the most preparation; structured data the least.",
@@ -606,7 +708,7 @@ C["it:F201.2.2"] = {
       "**F201 2.4** — data integration platforms automate wrangling; a data warehouse stores the cleaned result.",
       "**F201 4.1** — removing irrelevant personal data supports UK GDPR's data minimisation principle.",
       "**F202 / F203** — validation rules in spreadsheets and databases."
-    ] }] } }
+    ] } }
   ],
   flashcards: [
     ["What is the purpose of data preparation?", "To get raw numeric and textual data into a consistent, accurate, usable state so analysis gives reliable results (garbage in, garbage out).", 0],
@@ -671,25 +773,25 @@ C["it:F201.2.3"] = {
   notes: [
     { h: "Data mining techniques — the whole topic on one page" },
     { callout: { t: "info", h: "What the specification asks (F201 2.3)", body: [
-      { kv: [
-        ["Data mining", "what it is and its role in analysing big data"],
-        ["Data mining techniques", "descriptive · diagnostic · predictive · prescriptive"]
-      ] },
       "**To include:** what data mining is · the role of data mining techniques in analysing big data · the characteristics of each technique · when each can be used · the benefits and limitations to organisations of each.",
       "**Does not include:** coding details."
     ] } },
+    { kv: [
+      ["Data mining", "what it is and its role in analysing big data"],
+      ["Data mining techniques", "descriptive · diagnostic · predictive · prescriptive"]
+    ] },
     { ol: ["**What data mining is** — definition, role, what it finds.", "**Descriptive and diagnostic** — looking back.", "**Predictive and prescriptive** — looking forward.", "**Choosing a technique** — the four side by side.", "**In exam questions** — worked answers in OCR's format.", "**Exam toolkit** — the questions each answers, traps and links."] },
     ladderFig(),
 
     { page: "What data mining is" },
     { callout: { t: "def", h: "Data mining", body: "The process of **exploring large datasets** with statistics, algorithms and machine learning to **discover hidden patterns, trends, relationships and anomalies**, turning the data into **useful information for decision-making**. Sometimes called knowledge discovery in data." } },
-    { callout: { t: "key", h: "The role of data mining techniques in analysing big data", body: [{ ul: [
+    { callout: { t: "key", h: "The role of data mining techniques in analysing big data", body: [
       "**Scale** — finds patterns in data far too large for people to read (millions of rows, every second).",
       "**Hidden patterns** — reveals links nobody thought to look for.",
       "**From data to decisions** — turns stored data into information managers can act on.",
       "**Its place** — step 4 of the six steps (collection → storing → cleaning → **mining** → analysis → consumption, F201 1.1); it needs clean data and feeds the analysis.",
       "**Choice of technique** — each of the four answers a different question about the business."
-    ] }] } },
+    ] } },
     { table: { head: ["What mining looks for", "Example in an energy company"], rows: [
       ["**Trends** over time", "Gas use per home falling year on year."],
       ["**Associations** — things that occur together", "Customers with smart meters also use the app more."],
@@ -773,14 +875,14 @@ C["it:F201.2.3"] = {
       { h: "Does it ask what is likely in future?", m: "Predictive.", n: "“Forecast…”, “which customers are likely to…”, “how many will…”." },
       { h: "Does it ask what action to take?", m: "Prescriptive.", n: "“What should we…”, “which option is best…”, “recommend…”." }
     ] },
-    { callout: { t: "tip", h: "Synoptic links", body: [{ ul: [
+    { callout: { t: "tip", h: "Synoptic links", body: [
       "**F200 2.5.2** — the same four types (plus cognitive) as types of **data analytics**: the same questions, met in F200.",
       "**F201 1.1** — data mining is the fourth of the six steps of analysing big data.",
       "**F201 2.2** — mining needs prepared, clean data first.",
       "**F201 2.6** — regression and time series feed predictive mining; Monte Carlo simulation feeds prescriptive.",
       "**F201 3.1** — machine learning (decision trees, random forests, k-means) powers predictive mining.",
       "**F201 4.1–4.2** — prescriptive decisions about people are automated decision-making: UK GDPR rights, bias and ethics."
-    ] }] } },
+    ] } },
 
     { page: "In exam questions" },
     { callout: { t: "info", h: "The scenario", body: "**BrightVolt** supplies gas and electricity to two million homes in the UK. Most homes have smart meters that send readings every 30 minutes. BrightVolt mines this data, its billing records and its customer contact logs." } },
@@ -840,31 +942,32 @@ C["it:F201.2.3"] = {
       ], result: "Both sides, in context, with a justified decision" } },
 
     { page: "Exam toolkit" },
-    { callout: { t: "memorise", h: "One question each", body: [{ kv: [
+    { h: "One question each" },
+    { kv: [
       ["Descriptive", "What happened?"],
       ["Diagnostic", "Why did it happen?"],
       ["Predictive", "What is likely to happen?"],
       ["Prescriptive", "What should we do?"]
-    ] }] } },
-    { callout: { t: "mnemonic", h: "The doctor's visit", body: [{ ul: [
+    ] },
+    { callout: { t: "mnemonic", h: "The doctor's visit", body: [
       "A doctor **Describes** your symptoms → **Diagnoses** the cause → **Predicts** how it will go → **Prescribes** the treatment.",
       "Same order, same difficulty: **D · D · P · P**."
-    ] }] } },
-    { callout: { t: "miscon", h: "Misconceptions", body: [{ ul: [
+    ] } },
+    { callout: { t: "miscon", h: "Misconceptions", body: [
       "**“Predictive tells you what will happen.”** — It gives a **probability**; it can be wrong.",
       "**“Diagnostic proves the cause.”** — It finds **correlations**; a link may be coincidence.",
       "**“Prescriptive replaces people.”** — It recommends; for decisions about people, UK GDPR expects human review to be available.",
       "**“Data mining is collecting data.”** — Collection is step 1; mining is step 4, finding patterns in data already stored and cleaned.",
       "**“The techniques are alternatives.”** — They build on each other: prescriptive needs predictive, diagnostic starts from descriptive.",
       "Writing code or algorithms — the spec excludes coding details."
-    ] }] } },
-    { callout: { t: "tip", h: "How OCR marks it", body: [{ ul: [
+    ] } },
+    { callout: { t: "tip", h: "How OCR marks it", body: [
       "**Identify** the technique from a question: spot the key word — how many / why / likely / should.",
       "**Describe** a technique (1–2): its question + its output (“summarises past data in reports”).",
       "**Explain** a benefit or limitation (2): identify (1) + what it means for this organisation (1).",
       "**Discuss** (9): benefits AND limitations in context, then a recommendation with reasons — the three bullets in the question.",
       "Do not mix techniques up in one answer — a contradiction scores nothing."
-    ] }] } }
+    ] } }
   ],
   flashcards: [
     ["What is data mining?", "Exploring large datasets with statistics, algorithms and machine learning to discover hidden patterns, trends, relationships and anomalies that support decisions.", 0],
@@ -960,16 +1063,22 @@ C["it:F201.2.4"] = {
   notes: [
     { h: "Big data infrastructure — the whole topic on one page" },
     { callout: { t: "info", h: "What the specification asks (F201 2.4)", body: [
-      { kv: [
-        ["Server configurations", "dedicated servers · distributed cluster of servers"],
-        ["Software platforms", "open-source software · vendor-specific software · data visualisation software · data analytics software · NoSQL database · data integration platforms"],
-        ["Data storage areas", "public cloud · private cloud · data lake · data warehouse · solid state drives (SSDs) · emerging: blockchain, DNA, quantum server"]
-      ] },
       "**Servers — to include:** characteristics · when each can be used · benefits and limitations · the factors that influence the choice. **Does not include:** costs of implementation.",
       "**Software platforms — to include:** purpose · when each can be used · characteristics · benefits and limitations.",
       "**Storage areas — to include:** purpose · characteristics · when each can be used · benefits and limitations. **Does not include:** providers of data lakes and data warehouses.",
       "**Exam evidence:** SAM Q4(a)–(c) (private cloud: two characteristics, a limitation, another storage area) and Q6(b), Q6(e) (data analytics and data visualisation software)."
     ] } },
+    { kv: [
+      ["Server configurations", "dedicated servers · distributed cluster of servers"],
+      [
+        "Software platforms",
+        "open-source software · vendor-specific software · data visualisation software · data analytics software · NoSQL database · data integration platforms"
+      ],
+      [
+        "Data storage areas",
+        "public cloud · private cloud · data lake · data warehouse · solid state drives (SSDs) · emerging: blockchain, DNA, quantum server"
+      ]
+    ] },
     { ol: ["**Server configurations** — dedicated, distributed cluster, the factors.", "**Open-source and vendor-specific** software.", "**What the platforms do** — visualisation, analytics, NoSQL, integration.", "**Public and private cloud**.", "**Lakes, warehouses and SSDs**.", "**Emerging storage** — blockchain, DNA, quantum server.", "**In exam questions** — worked answers in OCR's format.", "**Exam toolkit** — lists, traps, mnemonic and links."] },
 
     { page: "Server configurations" },
@@ -996,7 +1105,7 @@ C["it:F201.2.4"] = {
       ["**Fault tolerant** — a node fails, the copies carry on.", "**Network traffic** between nodes can slow it down."],
       ["Can use **lower-specification** hardware for each node.", "Keeping every copy **consistent** is harder; more machines to secure."]
     ] } },
-    { callout: { t: "key", h: "Factors which influence the choice of server configuration", body: [{ ul: [
+    { callout: { t: "key", h: "Factors which influence the choice of server configuration", body: [
       "**Volume and growth** — how much data now, and how fast it grows (scalability).",
       "**Velocity** — does it have to be processed in real time?",
       "**Performance** needed — response times, processing deadlines.",
@@ -1004,8 +1113,9 @@ C["it:F201.2.4"] = {
       "**Security and legal compliance** — how sensitive is the data; must it stay isolated or in the UK?",
       "**Staff skills** available to build and run it.",
       "**Control** wanted over hardware and software.",
-      "**Predictability** of the workload — steady or with peaks."
-    ] }, "The spec excludes **costs of implementation**: build answers on these factors, not on prices."] } },
+      "**Predictability** of the workload — steady or with peaks.",
+      "The spec excludes **costs of implementation**: build answers on these factors, not on prices."
+    ] } },
 
     { page: "Open-source and vendor-specific" },
     { table: { head: ["", "Open-source software", "Vendor-specific software"], rows: [
@@ -1083,7 +1193,7 @@ C["it:F201.2.4"] = {
       ["**DNA**", "Huge capacity in a tiny space · can last for centuries or more · very low energy to keep.", "Very slow and very expensive to write and read today · errors in writing and reading need correcting · not for data that changes or is needed quickly · still experimental."],
       ["**Quantum server**", "Potentially far faster for certain problems · could analyse vast datasets and complex models.", "Experimental and unreliable today · extreme cooling and specialist skills · very expensive and scarce · could break today's encryption, a security risk."]
     ] } },
-    { callout: { t: "tip", h: "Synoptic links", body: [{ ul: [
+    { callout: { t: "tip", h: "Synoptic links", body: [
       "**F200 2.3** — on-site storage (HDD, **SSD**, NAS, SAN), cloud types (public, private, hybrid, community) and block, file and object storage.",
       "**F201 1.1** — volume drives clusters and lakes; velocity drives SSDs and real-time platforms; variety drives NoSQL and lakes.",
       "**F201 2.1** — the type of data decides the store: warehouse for structured, lake or NoSQL for the rest.",
@@ -1091,7 +1201,7 @@ C["it:F201.2.4"] = {
       "**F201 2.5–2.6** — analytics and visualisation software run the techniques.",
       "**F201 4.1** — where data is stored and who can reach it are UK GDPR questions (security, transfers outside the UK).",
       "**F201 5.1** — data centres' energy use; **F203** — relational databases; **F205** — data visualisation in depth."
-    ] }] } },
+    ] } },
 
     { page: "In exam questions" },
     { callout: { t: "info", h: "The scenario", body: "**Weyford Hospitals Trust** runs three hospitals. It stores patient records, scan images and readings from bedside monitors, and its managers use the data to plan beds, staff and operating theatres." } },
@@ -1150,18 +1260,28 @@ C["it:F201.2.4"] = {
       ], result: "Level 3: benefits and limitations in the trust's context, then a justified recommendation" } },
 
     { page: "Exam toolkit" },
-    { callout: { t: "memorise", h: "The spec's lists", body: [{ kv: [
+    { h: "The spec's lists" },
+    { kv: [
       ["Servers (2)", "Dedicated servers · Distributed cluster of servers"],
-      ["Software platforms (6)", "Open-source · Vendor-specific · Data visualisation · Data analytics · NoSQL database · Data integration platforms"],
-      ["Storage areas (5 + 3)", "Public cloud · Private cloud · Data lake · Data warehouse · SSDs · emerging: Blockchain · DNA · Quantum server"],
-      ["Private cloud (SAM)", "One organisation only · intranet · remote access through the internet with permission levels"]
-    ] }] } },
-    { callout: { t: "mnemonic", h: "Remember the lists", body: [{ ul: [
+      [
+        "Software platforms (6)",
+        "Open-source · Vendor-specific · Data visualisation · Data analytics · NoSQL database · Data integration platforms"
+      ],
+      [
+        "Storage areas (5 + 3)",
+        "Public cloud · Private cloud · Data lake · Data warehouse · SSDs · emerging: Blockchain · DNA · Quantum server"
+      ],
+      [
+        "Private cloud (SAM)",
+        "One organisation only · intranet · remote access through the internet with permission levels"
+      ]
+    ] },
+    { callout: { t: "mnemonic", h: "Remember the lists", body: [
       "Software: **O**ur **V**ets **V**iew **A**nimals **N**ear **I**pswich → Open-source, Vendor-specific, Visualisation, Analytics, NoSQL, Integration.",
       "Storage: **P**lease **P**ut **L**ions **W**here **S**afe — **B**ig **D**angerous **Q**uiet → Public, Private, Lake, Warehouse, SSD, Blockchain, DNA, Quantum.",
       "**Lake = Loose** (raw, any format); **Warehouse = Workshop-finished** (clean, structured)."
-    ] }] } },
-    { callout: { t: "miscon", h: "Misconceptions", body: [{ ul: [
+    ] } },
+    { callout: { t: "miscon", h: "Misconceptions", body: [
       "**“Private cloud means on-site.”** — It means **one organisation only**; it may be hosted by a third party.",
       "**“A data lake is a big data warehouse.”** — A lake holds **raw data of any type**; a warehouse holds **cleaned, structured** data.",
       "**“NoSQL means no queries.”** — It means **not only SQL** / non-relational: it is queried, just not through fixed tables.",
@@ -1169,14 +1289,14 @@ C["it:F201.2.4"] = {
       "**“A cluster is always better.”** — It is more complex and harder to secure; a steady, sensitive workload may suit a dedicated server.",
       "**“Blockchain is ideal for personal data.”** — Its immutability clashes with the rights to rectification and erasure.",
       "**Implementation costs and provider names** are outside the spec — argue from characteristics."
-    ] }] } },
-    { callout: { t: "tip", h: "How OCR marks it", body: [{ ul: [
+    ] } },
+    { callout: { t: "tip", h: "How OCR marks it", body: [
       "**State** characteristics (1 each): short and factual — “accessible to one organisation only”.",
       "**Explain** a limitation (2): ONE limitation, identified (1) and developed for the organisation (1). A second limitation is not marked.",
       "**State one other storage area**: never the one named in the stem.",
       "**Explain one benefit and one limitation** (4): the paper gives separate Benefit and Limitation headings — 2 marks under each.",
       "**Discuss** (9): benefits AND limitations in context, then a recommendation with reasons; a compromise (archive only, with controls) is a strong conclusion if justified."
-    ] }] } }
+    ] } }
   ],
   flashcards: [
     ["What are the two server configurations in the specification?", "Dedicated servers and a distributed cluster of servers.", 0],
@@ -1238,26 +1358,27 @@ function vennFig() {
 C["it:F201.2.5"] = {
   notes: [
     { h: "Data science and data analytics — the whole topic on one page" },
-    { callout: { t: "info", h: "What the specification asks (F201 2.5)", body: [
-      { kv: [
-        ["Data science", "its purpose"],
-        ["Data analytics", "its purpose"],
-        ["The difference", "between data science and data analytics"],
-        ["Application areas", "how each is used in the areas of F201 1.4: banking · communications, media and entertainment · education · energy and utilities · government · healthcare · insurance · manufacturing · retail"]
-      ] },
-      "**Exam evidence:** SAM Q6(a) (describe the purpose of data analytics, 1 mark) and Q6(b) (explain how data analytics software could help a retailer decide on new products, 2 marks)."
-    ] } },
+    { callout: { t: "info", h: "What the specification asks (F201 2.5)", body: "**Exam evidence:** SAM Q6(a) (describe the purpose of data analytics, 1 mark) and Q6(b) (explain how data analytics software could help a retailer decide on new products, 2 marks)." } },
+    { kv: [
+      ["Data science", "its purpose"],
+      ["Data analytics", "its purpose"],
+      ["The difference", "between data science and data analytics"],
+      [
+        "Application areas",
+        "how each is used in the areas of F201 1.4: banking · communications, media and entertainment · education · energy and utilities · government · healthcare · insurance · manufacturing · retail"
+      ]
+    ] },
     { ol: ["**Data analytics** — what it is and its purpose.", "**Data science** — what it is and its purpose.", "**The difference** — side by side.", "**Across the application areas** — each of the nine areas of 1.4.", "**In exam questions** — worked answers in OCR's format.", "**Exam toolkit** — definitions, traps, mnemonic and links."] },
     vennFig(),
 
     { page: "Data analytics" },
     { callout: { t: "def", h: "Data analytics", body: "Examining data — usually already collected and structured — to **find trends and patterns** and **answer specific questions**, so an organisation can **make sense of its data** and **make informed decisions**." } },
-    { callout: { t: "key", h: "The purpose of data analytics", body: [{ ul: [
+    { callout: { t: "key", h: "The purpose of data analytics", body: [
       "To help an organisation **make sense of the data it has collected**.",
       "To analyse raw data and **identify trends and patterns**.",
       "To **support decision-making** with evidence — what to stock, where to cut, what to change.",
       "To **monitor performance** against targets (KPIs)."
-    ] }] } },
+    ] } },
     { kv: [
       ["Characteristics", "Starts from a known business question · works mostly on structured, cleaned data · uses querying, statistics and visualisation · outputs reports, dashboards and recommendations · mainly descriptive and diagnostic, sometimes predictive."],
       ["Tools", "Spreadsheets, SQL, data analytics software and data visualisation software (F201 2.4)."],
@@ -1274,12 +1395,12 @@ C["it:F201.2.5"] = {
 
     { page: "Data science" },
     { callout: { t: "def", h: "Data science", body: "A wider field that combines **statistics, computing (programming, machine learning, AI) and knowledge of the business** to **extract knowledge from large, complex data** — structured and unstructured — and to **build models and algorithms that predict, automate and discover**." } },
-    { callout: { t: "key", h: "The purpose of data science", body: [{ ul: [
+    { callout: { t: "key", h: "The purpose of data science", body: [
       "To **discover new insights and questions** nobody has asked yet.",
       "To **build predictive models** — what is likely to happen.",
       "To **build products that automate decisions** — recommendation engines, fraud detection, chatbots.",
       "To make use of **raw, unstructured big data** — text, images, sensor streams."
-    ] }] } },
+    ] } },
     { kv: [
       ["Characteristics", "Exploratory — finds the questions as well as the answers · works on raw, large, often unstructured data · programming and machine learning · experiments and tests models · outputs models, algorithms and AI products · predictive and prescriptive."],
       ["Tools", "Programming languages (e.g. Python, R), machine learning libraries, NoSQL databases, data lakes, distributed clusters."],
@@ -1320,7 +1441,7 @@ C["it:F201.2.5"] = {
       ["**Manufacturing**", "Report output, defects and downtime per line.", "Predict machine failure from sensor data; camera-based quality checks."],
       ["**Retail**", "Find best and worst sellers, stock levels, loyalty card trends.", "Recommend products online; forecast demand; set prices dynamically."]
     ] } },
-    { callout: { t: "tip", h: "Synoptic links", body: [{ ul: [
+    { callout: { t: "tip", h: "Synoptic links", body: [
       "**F200 2.5.1** — what data analytics is and its purpose (the same purpose, at F200 depth); **F200 5.1** — job roles such as data analyst and data scientist.",
       "**F201 1.4** — the nine application areas used on this page.",
       "**F201 2.3** — analytics is mostly descriptive and diagnostic; data science adds predictive and prescriptive.",
@@ -1328,7 +1449,7 @@ C["it:F201.2.5"] = {
       "**F201 2.6** — the analytic techniques (regression, cluster analysis…) that both use.",
       "**F201 3.1** — machine learning and AI are data science's main tools.",
       "**F205** — data visualisation, the end of an analytics project; **F206** — analytics in digital marketing."
-    ] }] } },
+    ] } },
 
     { page: "In exam questions" },
     { callout: { t: "info", h: "The scenario", body: "**StreamBox** is a UK video streaming service with millions of subscribers. It records what each subscriber watches, when, on which device and for how long, and it wants to decide which new series to commission." } },
@@ -1379,29 +1500,36 @@ C["it:F201.2.5"] = {
       ], result: "Level 3: both sides in StreamBox's context, then a justified recommendation" } },
 
     { page: "Exam toolkit" },
-    { callout: { t: "memorise", h: "Purposes — learn these", body: [{ kv: [
-      ["Data analytics", "Make sense of collected data · identify trends and patterns · support decision-making."],
-      ["Data science", "Extract knowledge from large, complex data · build models that predict and automate · discover new questions."],
+    { h: "Purposes — learn these" },
+    { kv: [
+      [
+        "Data analytics",
+        "Make sense of collected data · identify trends and patterns · support decision-making."
+      ],
+      [
+        "Data science",
+        "Extract knowledge from large, complex data · build models that predict and automate · discover new questions."
+      ],
       ["Relationship", "Data analytics is one part of the wider field of data science."]
-    ] }] } },
-    { callout: { t: "mnemonic", h: "Analytics Answers, Science Seeks", body: [{ ul: [
+    ] },
+    { callout: { t: "mnemonic", h: "Analytics Answers, Science Seeks", body: [
       "**A**nalytics **A**nswers the questions you **A**lready have.",
       "**S**cience **S**eeks new questions and **S**ets up models that predict.",
       "Nine areas: **B**ig **C**ats **E**at **E**very **G**reen **H**erb **I**n **M**y **R**ockery → Banking, Communications/media/entertainment, Education, Energy and utilities, Government, Healthcare, Insurance, Manufacturing, Retail."
-    ] }] } },
-    { callout: { t: "miscon", h: "Misconceptions", body: [{ ul: [
+    ] } },
+    { callout: { t: "miscon", h: "Misconceptions", body: [
       "**“They are the same thing.”** — Analytics is a **part** of data science; the exam wants the difference.",
       "**“Analytics never predicts.”** — It is mainly descriptive and diagnostic but can forecast; data science goes further, building models that learn and automate.",
       "**“Data science is just bigger spreadsheets.”** — It uses programming, machine learning and AI on raw and unstructured data.",
       "**“Describe the purpose” = list the tools.** — The purpose is what it achieves (make sense of data, inform decisions), not the software.",
       "**Generic answers to an applied Explain** — the second mark needs the scenario (new series, new products)."
-    ] }] } },
-    { callout: { t: "tip", h: "How OCR marks it", body: [{ ul: [
+    ] } },
+    { callout: { t: "tip", h: "How OCR marks it", body: [
       "**Describe the purpose** (1): one clear description — “to analyse raw data to identify trends and patterns to help decision-making”.",
       "**Explain how software could help** (2): identify an action (1) + how this organisation uses it (1); the expansion must fit the scenario.",
       "**Explain the difference** (2): one side (1) + the other side (1), joined by “whereas”.",
       "**Discuss** (9): benefits and limitations in context, then a recommendation with reasons."
-    ] }] } }
+    ] } }
   ],
   flashcards: [
     ["What is the purpose of data analytics?", "To make sense of collected data — analysing it to identify trends and patterns that support decision-making.", 0],
@@ -1500,11 +1628,16 @@ C["it:F201.2.6"] = {
   notes: [
     { h: "Data analytic techniques — the whole topic on one page" },
     { callout: { t: "info", h: "What the specification asks (F201 2.6)", body: [
-      { kv: [["Techniques", "regression analysis · Monte Carlo simulation · factor analysis · cohort analysis · cluster analysis · time series analysis"]] },
       "**To include:** what each technique is · the purpose of each · when each can be used · the benefits and limitations of each.",
       "**Does not include:** the technical details of each technique — no formulas or calculations.",
       "**Exam evidence:** SAM Q6(c) (discuss whether a retailer should use cluster analysis, 9 marks) and Q6(d) (state two techniques other than cluster analysis, 2 marks)."
     ] } },
+    { kv: [
+      [
+        "Techniques",
+        "regression analysis · Monte Carlo simulation · factor analysis · cohort analysis · cluster analysis · time series analysis"
+      ]
+    ] },
     { ol: ["**Regression analysis**.", "**Monte Carlo simulation**.", "**Factor analysis**.", "**Cohort analysis**.", "**Cluster analysis**.", "**Time series analysis**.", "**Choosing a technique** — the six side by side.", "**In exam questions** — worked answers in OCR's format.", "**Exam toolkit** — the list, traps, mnemonic and links."] },
     { table: { head: ["Technique", "In one line", "Question it answers"], rows: [
       ["Regression", "Measures how one variable changes with others", "How much does X affect Y? What will Y be?"],
@@ -1565,11 +1698,11 @@ C["it:F201.2.6"] = {
       ["July 2025 (new app)", "100%", "96%", "93%", "—"],
       ["October 2025 (new app)", "100%", "97%", "—", "—"]
     ] } },
-    { callout: { t: "info", h: "Reading the cohort table", body: [{ ul: [
+    { callout: { t: "info", h: "Reading the cohort table", body: [
       "Each row is a cohort; each column is time since joining. Illustrative figures: % of each cohort still insured.",
       "Cohorts that joined after the new app was launched keep more customers at 3 and 6 months — evidence the app helps retention.",
       "Blank cells are months that have not happened yet."
-    ] }] } },
+    ] } },
     { kv: [
       ["Purpose", "To see **how behaviour changes over a customer's lifetime**, and whether a change (a new app, a price, a campaign) affected those who joined after it."],
       ["When it can be used", "Retention and churn · lifetime value of customers recruited by different campaigns · students starting in the same year · patients starting a treatment in the same month."]
@@ -1630,14 +1763,14 @@ C["it:F201.2.6"] = {
         { m: "(a) **Time series analysis** — monthly data over years, with a strong spring season, to forecast.", mk: "✓" },
         { m: "(b) **Cluster analysis** — groups are not known in advance; the analysis finds them.", mk: "✓", n: "Name the technique, then give the reason from its purpose." }
       ], result: "Time series · cluster" } },
-    { callout: { t: "tip", h: "Synoptic links", body: [{ ul: [
+    { callout: { t: "tip", h: "Synoptic links", body: [
       "**F201 2.3** — regression and time series power **predictive** mining; Monte Carlo supports **prescriptive**; cohort and cluster are often **diagnostic**.",
       "**F201 2.4** — data analytics software runs the techniques; visualisation software presents the results.",
       "**F201 2.5** — these are the tools of both data analytics and data science.",
       "**F201 3.1** — **k-means** is a machine learning algorithm for cluster analysis; decision trees and random forests also predict.",
       "**F201 4.2** — segmenting people by cluster can create bias and unfair treatment.",
       "**F200 2.5–2.6** — the types of analytics and the charts (scatter, line) used to show these results; **F202** spreadsheet models (what-if, trend lines); **F205** data visualisation; **F206** customer segmentation in digital marketing."
-    ] }] } },
+    ] } },
 
     { page: "In exam questions" },
     { callout: { t: "info", h: "The scenario", body: "**ShieldDrive** is a UK car insurer with 800,000 customers. It holds policy records, claims, customer surveys and telematics data from “black box” devices that record how and when customers drive." } },
@@ -1701,13 +1834,20 @@ C["it:F201.2.6"] = {
       ], result: "Level 3: benefits and limitations for ShieldDrive's reserve, then a justified recommendation" } },
 
     { page: "Exam toolkit" },
-    { callout: { t: "memorise", h: "The six techniques — the spec's names", body: [{ ol: ["Regression analysis", "Monte Carlo simulation", "Factor analysis", "Cohort analysis", "Cluster analysis", "Time series analysis"] }] } },
-    { callout: { t: "mnemonic", h: "Remember the six", body: [{ ul: [
+    { callout: { t: "memorise", h: "The six techniques — the spec's names", body: [
+      "Regression analysis",
+      "Monte Carlo simulation",
+      "Factor analysis",
+      "Cohort analysis",
+      "Cluster analysis",
+      "Time series analysis"
+    ] } },
+    { callout: { t: "mnemonic", h: "Remember the six", body: [
       "**R**eal **M**agicians **F**ind **C**ards **C**leverly **T**ucked → Regression, Monte Carlo, Factor, Cohort, Cluster, Time series.",
       "**Cohort = Class of 2025** (set in advance, followed over time). **Cluster = Crowd that forms** (found by the data).",
       "**Monte Carlo = Many Chances** — thousands of random runs."
-    ] }] } },
-    { callout: { t: "miscon", h: "Misconceptions", body: [{ ul: [
+    ] } },
+    { callout: { t: "miscon", h: "Misconceptions", body: [
       "**“Cohort and cluster are the same.”** — Cohorts are defined in advance by a shared start; clusters are discovered.",
       "**“Regression proves a cause.”** — It measures a relationship; correlation is not causation.",
       "**“Monte Carlo predicts the exact outcome.”** — It gives a range and probabilities, and depends on its assumptions.",
@@ -1715,13 +1855,13 @@ C["it:F201.2.6"] = {
       "**“Time series explains why.”** — It shows the pattern and forecasts; it does not give causes.",
       "**Repeating the technique in the stem** — “other than cluster analysis” means cluster analysis earns nothing.",
       "**Formulas** — technical details are excluded; explain purpose, use, benefits and limitations."
-    ] }] } },
-    { callout: { t: "tip", h: "How OCR marks it", body: [{ ul: [
+    ] } },
+    { callout: { t: "tip", h: "How OCR marks it", body: [
       "**State** techniques (1 each): the spec's name — “Monte Carlo simulation”, not “random modelling”.",
       "**Identify** the technique for a task: match the clue (how much affects → regression; probability → Monte Carlo; themes → factor; joined in → cohort; groups → cluster; monthly → time series).",
       "**Explain** a benefit or limitation (2): identify (1) + effect on the organisation (1).",
       "**Discuss** (9, as SAM Q6(c)): examples of use, benefits AND limitations in context, and a recommendation with reasons. The SAM's indicative content for cluster analysis: clear links between data; groups analysed separately; “bad” transactions spotted; data volume reduced — against wrong data selection, false associations, wrong analysis."
-    ] }] } }
+    ] } }
   ],
   flashcards: [
     ["What is the purpose of regression analysis?", "To model the relationship between an outcome and one or more factors, so the outcome can be predicted and each factor's effect measured.", 0],
@@ -1755,6 +1895,12 @@ C["it:F201.2.6"] = {
     { q: "Which technique predicts claim cost from a car's age and value?", opts: ["Cohort analysis", "Factor analysis", "Regression analysis", "Cluster analysis"], ans: 2, why: "Predicting an outcome from factors is regression." }
   ]
 };
+
+/* the levels helpers return two blocks: the notes are flattened one level */
+Object.keys(C).forEach(function (k) {
+  if (before.indexOf(k) >= 0 || !Array.isArray(C[k].notes)) return;
+  C[k].notes = [].concat.apply([], C[k].notes);
+});
 
 Object.keys(C).forEach(function (k) {
   if (before.indexOf(k) >= 0 || !window.KOS || !KOS.content) return;

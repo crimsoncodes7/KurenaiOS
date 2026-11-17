@@ -12,16 +12,33 @@ C["it:F206.1.1"] = {
     { callout: { t: "def", h: "Digital marketing", body: "Promoting a product, service, brand or organisation through **digital channels** — search, social media, email, websites, display advertising and emerging technologies. Its defining advantage over traditional marketing is that it is **measurable**: every impression, click, visit and purchase can be attributed, which is exactly why this unit sits inside a data analytics qualification." }},
 
     { page: "The six purposes" },
-    { callout: { t: "info", h: "What each purpose means and how digital marketing achieves it", body: [
-      { kv: [
-        ["Raising awareness", "Making people who have never heard of the organisation aware it exists. **How:** broad-reach channels — social media content, display/banner advertising, influencer partnerships, SEO for informational searches. **Measured by:** impressions, reach, new visitors, brand-search volume. Note that awareness campaigns are **not** judged on immediate sales."],
-        ["Increasing sales", "Converting interest into purchases, or increasing order value and frequency. **How:** pay-per-click on high-intent searches, retargeting people who abandoned a basket, email offers to existing customers, landing-page optimisation. **Measured by:** conversions, conversion rate, revenue, return on ad spend."],
-        ["Building a brand / organisation", "Establishing what the organisation *stands for* — its identity, values, tone and reputation — so it is recognised and trusted, not just known. **How:** consistent visual identity and voice, storytelling content, community management, reviews and testimonials, sponsorships. **Measured by:** sentiment, engagement, share of voice, repeat visits."],
-        ["Expanding / growing an organisation", "Reaching a **new** market — a new geographic area, a new customer segment, or a new product line. **How:** targeted campaigns aimed at the new segment, localisation, market-specific channels and platforms. **Measured by:** new-market traffic, new-customer share, penetration of the target segment."],
-        ["Repositioning an organisation", "Deliberately **changing** how the organisation is perceived — moving upmarket, becoming sustainable, shaking off an outdated image, or serving a different audience. **How:** a changed message, visual refresh, new content themes, new channels matching the desired audience, and often addressing the old perception directly. **Measured by:** shift in sentiment and in the language customers use, changed audience profile."],
-        ["Collecting market research", "Using digital marketing itself to **learn about the market** — what people search for, which messages they respond to, what competitors are doing, and what customers say. **How:** analytics data, keyword and search-volume research, A/B testing of messages, social listening, polls and surveys, and the behaviour of people who *did not* convert. **Measured by:** insights gained, not sales."]
-      ] }
-    ] } },
+    { h: "What each purpose means and how digital marketing achieves it" },
+    { kv: [
+      [
+        "Raising awareness",
+        "Making people who have never heard of the organisation aware it exists. **How:** broad-reach channels — social media content, display/banner advertising, influencer partnerships, SEO for informational searches. **Measured by:** impressions, reach, new visitors, brand-search volume. Note that awareness campaigns are **not** judged on immediate sales."
+      ],
+      [
+        "Increasing sales",
+        "Converting interest into purchases, or increasing order value and frequency. **How:** pay-per-click on high-intent searches, retargeting people who abandoned a basket, email offers to existing customers, landing-page optimisation. **Measured by:** conversions, conversion rate, revenue, return on ad spend."
+      ],
+      [
+        "Building a brand / organisation",
+        "Establishing what the organisation *stands for* — its identity, values, tone and reputation — so it is recognised and trusted, not just known. **How:** consistent visual identity and voice, storytelling content, community management, reviews and testimonials, sponsorships. **Measured by:** sentiment, engagement, share of voice, repeat visits."
+      ],
+      [
+        "Expanding / growing an organisation",
+        "Reaching a **new** market — a new geographic area, a new customer segment, or a new product line. **How:** targeted campaigns aimed at the new segment, localisation, market-specific channels and platforms. **Measured by:** new-market traffic, new-customer share, penetration of the target segment."
+      ],
+      [
+        "Repositioning an organisation",
+        "Deliberately **changing** how the organisation is perceived — moving upmarket, becoming sustainable, shaking off an outdated image, or serving a different audience. **How:** a changed message, visual refresh, new content themes, new channels matching the desired audience, and often addressing the old perception directly. **Measured by:** shift in sentiment and in the language customers use, changed audience profile."
+      ],
+      [
+        "Collecting market research",
+        "Using digital marketing itself to **learn about the market** — what people search for, which messages they respond to, what competitors are doing, and what customers say. **How:** analytics data, keyword and search-volume research, A/B testing of messages, social listening, polls and surveys, and the behaviour of people who *did not* convert. **Measured by:** insights gained, not sales."
+      ]
+    ] },
     { callout: { t: "tip", h: "'How digital marketing is used to collect market research' is called out separately", body: "The spec lists it in the *To include* section on its own, so give it real attention. Digital marketing is unusual in that **running a campaign generates research as a by-product**: search terms reveal demand and language; A/B tests reveal which proposition wins; analytics reveal which audience actually responds versus who you thought would; social listening reveals complaints and unmet needs; and abandoned baskets reveal where the offer fails. A campaign can be run *deliberately* as research before committing a larger budget." }},
     { callout: { t: "miscon", h: "Awareness and sales are different objectives with different measures", body: "Judging an awareness campaign by immediate sales is one of the commonest analytical errors — and one examiners test. Someone who has just discovered you is rarely ready to buy. Match the **metric to the purpose**: reach and new visitors for awareness, conversion rate and revenue for sales, sentiment and repeat engagement for brand building." }},
 
@@ -144,34 +161,73 @@ C["it:F206.1.2"] = {
     "The **tools** of digital marketing — the seven the spec names, what each does, which audiences they reach, and **their effectiveness in different contexts**. This leaf is the evidence base for **D1** (*explain and justify which digital marketing tools will be used, based on the analysis*), a Distinction criterion, so knowing each tool's strengths *and* weaknesses is essential.",
 
     { page: "The seven tools" },
-    { callout: { t: "info", h: "Tools 1–4", body: [
-      { kv: [
-        ["Social media platforms", "Organic posts, communities and paid social advertising. **Strengths:** enormous reach, very precise targeting by demographics, interests and behaviour, two-way conversation, and shareable content that can spread beyond the paid audience. **Weaknesses:** organic reach is low without paid support, content dates quickly and must be produced constantly, and negative comment is public. **Best for:** awareness, brand building, community and B2C generally."],
-        ["Banner advertising (display)", "Image or video adverts placed on other websites and apps. **Strengths:** cheap per impression, highly visual, good for broad awareness and for **retargeting** people who already visited. **Weaknesses:** very low click-through rates, widespread ad-blocking and *banner blindness*, and risk of appearing beside unsuitable content. **Best for:** awareness at scale and retargeting — rarely for direct response alone."],
-        ["Pay per click advertising (PPC)", "Paid search and similar auction-based advertising where you pay only when someone clicks. **Strengths:** reaches people at the moment of **intent** (they are searching for what you sell), results are immediate, budget is controllable, and attribution is excellent. **Weaknesses:** costs continue only while you pay, competitive keywords are expensive, and poor targeting wastes budget fast. **Best for:** increasing sales and generating leads."],
-        ["Email", "Messages to a list of people who have opted in. **Strengths:** the list is an owned asset not rented from a platform, cost per message is very low, it can be personalised and segmented finely, and it delivers the highest return on investment of the common channels. **Weaknesses:** it only works with an existing list, is subject to PECR/UK GDPR consent rules, and suffers unsubscribes and spam filtering if overused. **Best for:** retention, repeat sales, nurturing B2B leads over a long cycle."]
-      ] }
-    ] } },
-    { callout: { t: "info", h: "Tools 5–7", body: [
-      { kv: [
-        ["Landing page optimisation", "Designing and improving the specific page a campaign sends people to, so more of them act. **Strengths:** improves the performance of *every* other channel at once — the same traffic converts better, so it lowers effective cost per acquisition; it is testable with A/B experiments. **Weaknesses:** it generates no traffic of its own; needs enough visitors for a valid test. **Key elements:** message match with the advert, one clear call to action, fast loading, mobile-first design, trust signals, and a short form."],
-        ["Search Engine Optimisation (SEO)", "Improving a site so it ranks well in **unpaid** search results. **Strengths:** traffic keeps arriving with no per-click cost, it builds a durable asset, and searchers trust organic results more than adverts. **Weaknesses:** slow — months before results; no guarantee of position; algorithm changes can undo gains; it demands sustained content work. **Best for:** long-term, sustainable acquisition — the counterpart to PPC's speed."],
-        ["Emerging technologies", "Newer channels and techniques: AI-driven personalisation and content generation, chatbots and conversational marketing, voice search, augmented reality try-on, short-form video and live shopping, programmatic advertising, and influencer marketing on new platforms. **Strengths:** less competition, novelty attracts attention, and early adopters gain disproportionate reach. **Weaknesses:** unproven, audience may be small, skills and tools are immature, and there are ethical/regulatory risks (AI disclosure, data use)."]
-      ] }
-    ] } },
+    { h: "Tools 1–4" },
+    { kv: [
+      [
+        "Social media platforms",
+        "Organic posts, communities and paid social advertising. **Strengths:** enormous reach, very precise targeting by demographics, interests and behaviour, two-way conversation, and shareable content that can spread beyond the paid audience. **Weaknesses:** organic reach is low without paid support, content dates quickly and must be produced constantly, and negative comment is public. **Best for:** awareness, brand building, community and B2C generally."
+      ],
+      [
+        "Banner advertising (display)",
+        "Image or video adverts placed on other websites and apps. **Strengths:** cheap per impression, highly visual, good for broad awareness and for **retargeting** people who already visited. **Weaknesses:** very low click-through rates, widespread ad-blocking and *banner blindness*, and risk of appearing beside unsuitable content. **Best for:** awareness at scale and retargeting — rarely for direct response alone."
+      ],
+      [
+        "Pay per click advertising (PPC)",
+        "Paid search and similar auction-based advertising where you pay only when someone clicks. **Strengths:** reaches people at the moment of **intent** (they are searching for what you sell), results are immediate, budget is controllable, and attribution is excellent. **Weaknesses:** costs continue only while you pay, competitive keywords are expensive, and poor targeting wastes budget fast. **Best for:** increasing sales and generating leads."
+      ],
+      [
+        "Email",
+        "Messages to a list of people who have opted in. **Strengths:** the list is an owned asset not rented from a platform, cost per message is very low, it can be personalised and segmented finely, and it delivers the highest return on investment of the common channels. **Weaknesses:** it only works with an existing list, is subject to PECR/UK GDPR consent rules, and suffers unsubscribes and spam filtering if overused. **Best for:** retention, repeat sales, nurturing B2B leads over a long cycle."
+      ]
+    ] },
+    { h: "Tools 5–7" },
+    { kv: [
+      [
+        "Landing page optimisation",
+        "Designing and improving the specific page a campaign sends people to, so more of them act. **Strengths:** improves the performance of *every* other channel at once — the same traffic converts better, so it lowers effective cost per acquisition; it is testable with A/B experiments. **Weaknesses:** it generates no traffic of its own; needs enough visitors for a valid test. **Key elements:** message match with the advert, one clear call to action, fast loading, mobile-first design, trust signals, and a short form."
+      ],
+      [
+        "Search Engine Optimisation (SEO)",
+        "Improving a site so it ranks well in **unpaid** search results. **Strengths:** traffic keeps arriving with no per-click cost, it builds a durable asset, and searchers trust organic results more than adverts. **Weaknesses:** slow — months before results; no guarantee of position; algorithm changes can undo gains; it demands sustained content work. **Best for:** long-term, sustainable acquisition — the counterpart to PPC's speed."
+      ],
+      [
+        "Emerging technologies",
+        "Newer channels and techniques: AI-driven personalisation and content generation, chatbots and conversational marketing, voice search, augmented reality try-on, short-form video and live shopping, programmatic advertising, and influencer marketing on new platforms. **Strengths:** less competition, novelty attracts attention, and early adopters gain disproportionate reach. **Weaknesses:** unproven, audience may be small, skills and tools are immature, and there are ethical/regulatory risks (AI disclosure, data use)."
+      ]
+    ] },
 
     { page: "Platforms and their audiences" },
-    { callout: { t: "info", h: "How social platforms differ by audience", body: [
-      { kv: [
-        ["LinkedIn", "Professionals and organisations. Targeting by job title, industry, company size and seniority. The natural home of **B2B**, recruitment and thought leadership."],
-        ["Instagram", "Skews younger adults; highly visual. Strong for lifestyle, fashion, food, travel, beauty and influencer partnerships."],
-        ["TikTok", "Youngest mainstream audience; short-form video with very high organic reach for creative content. Trend-driven and unforgiving of anything that looks like an advert."],
-        ["Facebook", "The broadest and oldest demographic; strong local community groups and marketplace. Still the widest reach for many mainstream B2C audiences."],
-        ["YouTube", "All ages; long-form and how-to content. Excellent for demonstration, education and consideration-stage content, and it doubles as the second-largest search engine."],
-        ["X / Threads and similar", "News, commentary and real-time reaction; useful for customer service and topical relevance."],
-        ["Pinterest", "Planning and inspiration — weddings, interiors, recipes; users are often further from purchase but with high intent to plan."]
-      ] }
-    ] } },
+    { h: "How social platforms differ by audience" },
+    { kv: [
+      [
+        "LinkedIn",
+        "Professionals and organisations. Targeting by job title, industry, company size and seniority. The natural home of **B2B**, recruitment and thought leadership."
+      ],
+      [
+        "Instagram",
+        "Skews younger adults; highly visual. Strong for lifestyle, fashion, food, travel, beauty and influencer partnerships."
+      ],
+      [
+        "TikTok",
+        "Youngest mainstream audience; short-form video with very high organic reach for creative content. Trend-driven and unforgiving of anything that looks like an advert."
+      ],
+      [
+        "Facebook",
+        "The broadest and oldest demographic; strong local community groups and marketplace. Still the widest reach for many mainstream B2C audiences."
+      ],
+      [
+        "YouTube",
+        "All ages; long-form and how-to content. Excellent for demonstration, education and consideration-stage content, and it doubles as the second-largest search engine."
+      ],
+      [
+        "X / Threads and similar",
+        "News, commentary and real-time reaction; useful for customer service and topical relevance."
+      ],
+      [
+        "Pinterest",
+        "Planning and inspiration — weddings, interiors, recipes; users are often further from purchase but with high intent to plan."
+      ]
+    ] },
     { callout: { t: "tip", h: "Never say 'we will use social media'", body: "Name the **platform**, the **audience it reaches**, and **why that matches this client's segment**. \"TikTok, because the client's target segment is 16–24 and short-form video there still achieves high organic reach without a large media budget\" is a justified choice; \"we will post on social media\" is not. D1 requires justification *based on the analysis*, so tie the platform to what the provided data actually showed." }},
 
     { page: "Effectiveness in context" },
@@ -300,38 +356,71 @@ C["it:F206.1.3"] = {
 
     { page: "Identifying customers and markets" },
     { callout: { t: "def", h: "Segmentation", body: "Dividing a whole market into **groups who share characteristics and behave similarly**, so each group can be targeted with a message that fits it. Marketing to \"everyone\" means marketing to nobody: one message that tries to appeal to all appeals strongly to none, and wastes budget on people who will never buy." }},
-    { callout: { t: "info", h: "The bases of segmentation", body: [
-      { kv: [
-        ["Demographic", "Age, gender, income, education, occupation, family stage. Easy to target on ad platforms and easy to measure — but a poor predictor on its own of what someone wants."],
-        ["Geographic", "Country, region, city, postcode, urban/rural, or radius from a store. Essential for any local business and for 'near me' search."],
-        ["Psychographic", "Values, attitudes, interests and lifestyle — e.g. environmentally motivated, status-driven, health-focused. Explains *why* people choose, which demographics cannot."],
-        ["Behavioural", "What people actually do: purchase history, frequency, basket value, loyalty, device used, pages visited, whether they abandoned a basket. Usually the **most predictive** base and the one your provided analytics data can actually evidence."],
-        ["Firmographic (B2B)", "Industry, company size, turnover, location and the job role of the decision-maker — the B2B equivalent of demographics."]
-      ] }
-    ] } },
+    { h: "The bases of segmentation" },
+    { kv: [
+      [
+        "Demographic",
+        "Age, gender, income, education, occupation, family stage. Easy to target on ad platforms and easy to measure — but a poor predictor on its own of what someone wants."
+      ],
+      [
+        "Geographic",
+        "Country, region, city, postcode, urban/rural, or radius from a store. Essential for any local business and for 'near me' search."
+      ],
+      [
+        "Psychographic",
+        "Values, attitudes, interests and lifestyle — e.g. environmentally motivated, status-driven, health-focused. Explains *why* people choose, which demographics cannot."
+      ],
+      [
+        "Behavioural",
+        "What people actually do: purchase history, frequency, basket value, loyalty, device used, pages visited, whether they abandoned a basket. Usually the **most predictive** base and the one your provided analytics data can actually evidence."
+      ],
+      [
+        "Firmographic (B2B)",
+        "Industry, company size, turnover, location and the job role of the decision-maker — the B2B equivalent of demographics."
+      ]
+    ] },
     { callout: { t: "def", h: "Persona", body: "A **realistic, named profile of a typical customer** in a segment, built from data rather than imagination. It usually includes a name and photo, age and role, goals, frustrations and needs, buying behaviour, the channels and devices they use, and the objections that stop them buying. Its purpose is to make an abstract segment concrete so the whole team can ask \"would this work for Priya?\"" }},
     { callout: { t: "tip", h: "Build the persona from the provided data", body: "In this NEA you are given data — so ground each persona in it: *\"Priya, 34, mobile-first, arrives from local search on weekday evenings, browses three products and abandons at the delivery-cost step\"* is evidenced. Inventing a persona with no basis in the data wastes the analysis you were asked to do, and weakens every decision that follows." }},
     { callout: { t: "miscon", h: "A segment is not a persona", body: "A **segment** is a measurable group (\"women aged 25–34 within 10 miles who bought in the last year\"). A **persona** is one representative individual standing for that group, with motivations and frustrations. You segment to decide *who to target*; you write a persona to decide *what to say and where*." }},
 
     { page: "Goals over different timescales" },
-    { callout: { t: "info", h: "Short-term vs long-term goals", body: [
-      { kv: [
-        ["Short term", "Weeks to a few months. Tactical and immediately measurable: a seasonal sales target, 500 newsletter sign-ups before launch, clearing end-of-line stock, a fixed number of leads for the sales team. **Why they matter:** they generate cash and momentum, they can be tested and corrected quickly, and they prove the campaign works."],
-        ["Long term", "Six months to several years. Strategic and slower to show: brand recognition, organic search authority, customer lifetime value, entering a new market, a reputation for sustainability. **Why they matter:** they build durable assets — an audience, a ranking, a reputation — that reduce the cost of every future campaign."],
-        ["Why you need both", "Short-term-only marketing is a treadmill: it stops earning the moment spending stops, and discounting to hit monthly targets erodes the brand. Long-term-only marketing starves the business of cash while it waits. The professional answer is a **portfolio**: PPC and promotions delivering now, SEO, content and list-building compounding later."]
-      ] }
-    ] } },
+    { h: "Short-term vs long-term goals" },
+    { kv: [
+      [
+        "Short term",
+        "Weeks to a few months. Tactical and immediately measurable: a seasonal sales target, 500 newsletter sign-ups before launch, clearing end-of-line stock, a fixed number of leads for the sales team. **Why they matter:** they generate cash and momentum, they can be tested and corrected quickly, and they prove the campaign works."
+      ],
+      [
+        "Long term",
+        "Six months to several years. Strategic and slower to show: brand recognition, organic search authority, customer lifetime value, entering a new market, a reputation for sustainability. **Why they matter:** they build durable assets — an audience, a ranking, a reputation — that reduce the cost of every future campaign."
+      ],
+      [
+        "Why you need both",
+        "Short-term-only marketing is a treadmill: it stops earning the moment spending stops, and discounting to hit monthly targets erodes the brand. Long-term-only marketing starves the business of cash while it waits. The professional answer is a **portfolio**: PPC and promotions delivering now, SEO, content and list-building compounding later."
+      ]
+    ] },
     { callout: { t: "tip", h: "Make every goal SMART", body: "**S**pecific · **M**easurable · **A**chievable · **R**elevant · **T**ime-bound. \"Increase awareness\" is not a goal; \"**increase new-visitor sessions from organic local search by 25% by 31 March**\" is. This directly serves **D2** (identify and justify metrics and KPIs) — a SMART goal already contains its own metric and deadline." }},
 
     { page: "The digital marketing lifecycle" },
-    { callout: { t: "info", h: "The stages", body: [
-      { kv: [
-        ["Setup / traction", "The organisation or product is new: infrastructure is built (site, analytics, accounts, list) and the first customers are won. **Focus:** proving the proposition works and that anyone wants it. **Tactics:** narrow targeting, small paid tests, founder-led content, early adopters. **Measure:** first conversions, cost per acquisition, and whether the message resonates at all."],
-        ["Positioning", "The organisation establishes what it stands for and how it differs from competitors, having found some traction. **Focus:** clarity of identity, USP and message. **Tactics:** consistent brand identity, content that stakes out a distinct position, SEO around the terms it wants to own. **Measure:** brand-search volume, share of voice, sentiment."],
-        ["Conversion and expansion", "The proposition and position are working, so the aim becomes maximising return and reaching further. **Focus:** efficiency and growth. **Tactics:** conversion rate optimisation, retargeting, email automation, new segments and markets, upselling to existing customers. **Measure:** conversion rate, average order value, customer lifetime value, new-segment penetration."],
-        ["Viral growth", "Customers themselves become the channel. **Focus:** amplification at low marginal cost. **Tactics:** referral and advocacy programmes, shareable content and user-generated content, influencer and community effects. **Measure:** referral rate, shares, organic/branded traffic growth, cost per acquisition falling as advocacy rises."]
-      ] }
-    ] } },
+    { h: "The stages" },
+    { kv: [
+      [
+        "Setup / traction",
+        "The organisation or product is new: infrastructure is built (site, analytics, accounts, list) and the first customers are won. **Focus:** proving the proposition works and that anyone wants it. **Tactics:** narrow targeting, small paid tests, founder-led content, early adopters. **Measure:** first conversions, cost per acquisition, and whether the message resonates at all."
+      ],
+      [
+        "Positioning",
+        "The organisation establishes what it stands for and how it differs from competitors, having found some traction. **Focus:** clarity of identity, USP and message. **Tactics:** consistent brand identity, content that stakes out a distinct position, SEO around the terms it wants to own. **Measure:** brand-search volume, share of voice, sentiment."
+      ],
+      [
+        "Conversion and expansion",
+        "The proposition and position are working, so the aim becomes maximising return and reaching further. **Focus:** efficiency and growth. **Tactics:** conversion rate optimisation, retargeting, email automation, new segments and markets, upselling to existing customers. **Measure:** conversion rate, average order value, customer lifetime value, new-segment penetration."
+      ],
+      [
+        "Viral growth",
+        "Customers themselves become the channel. **Focus:** amplification at low marginal cost. **Tactics:** referral and advocacy programmes, shareable content and user-generated content, influencer and community effects. **Measure:** referral rate, shares, organic/branded traffic growth, cost per acquisition falling as advocacy rises."
+      ]
+    ] },
     { callout: { t: "tip", h: "Match the campaign to the stage", body: "The spec asks *how campaigns can be used in the different stages*. The point is that the **same tactic is right or wrong depending on the stage**: a big brand-positioning campaign for an organisation that has never proved anyone wants the product burns money; a narrow founder-led traction campaign for an established brand wastes its reach. Diagnose the client's stage from the provided data first, then choose tactics that fit it." }},
     { callout: { t: "miscon", h: "Viral growth is a result, not a tactic", body: "You cannot decide to go viral. What you *can* do is design for shareability and advocacy — referral incentives, genuinely useful or entertaining content, making it easy to share, and delivering an experience worth talking about. Claiming a campaign \"will go viral\" is not a plan; explaining what would make sharing likely is." }},
     { callout: { t: "memorise", h: "Strategy", body: "**Segmentation bases:** demographic · geographic · psychographic · behavioural (most predictive) · firmographic (B2B). **Persona** = one evidenced individual standing for a segment. **Goals:** short term (cash and momentum, SMART) + long term (durable assets). **Lifecycle:** setup/traction → positioning → conversion and expansion → viral growth." }}
@@ -452,68 +541,121 @@ C["it:F206.2.1"] = {
 
     { page: "Website marketing analytics" },
     { callout: { t: "def", h: "The four core web metrics", body: "These four are defined precisely and are routinely confused in exams — learn the distinctions." }},
-    { callout: { t: "info", h: "Visitor · Page view · Session · Traffic", body: [
-      { kv: [
-        ["Visitor (user)", "A **unique individual** identified over a period, normally by a cookie or ID. One person visiting three times in a week is **one visitor**. Split into *new* and *returning*, which is how you measure whether you are acquiring or retaining."],
-        ["Page view", "One **loading of a single page**. Reloading counts again. It measures depth of browsing, not people — page views ÷ sessions gives **pages per session**, an engagement measure."],
-        ["Session (visit)", "One **continuous period of activity** by one visitor, ending after a period of inactivity (commonly 30 minutes) or at midnight. One visitor can have many sessions; one session can contain many page views."],
-        ["Traffic", "The **overall volume of visits** to the site — the aggregate figure that is then broken down by channel, device, page, location or time. On its own it says nothing about quality, which is why the breakdowns matter more than the total."]
-      ] }
-    ] } },
+    { h: "Visitor · Page view · Session · Traffic" },
+    { kv: [
+      [
+        "Visitor (user)",
+        "A **unique individual** identified over a period, normally by a cookie or ID. One person visiting three times in a week is **one visitor**. Split into *new* and *returning*, which is how you measure whether you are acquiring or retaining."
+      ],
+      [
+        "Page view",
+        "One **loading of a single page**. Reloading counts again. It measures depth of browsing, not people — page views ÷ sessions gives **pages per session**, an engagement measure."
+      ],
+      [
+        "Session (visit)",
+        "One **continuous period of activity** by one visitor, ending after a period of inactivity (commonly 30 minutes) or at midnight. One visitor can have many sessions; one session can contain many page views."
+      ],
+      [
+        "Traffic",
+        "The **overall volume of visits** to the site — the aggregate figure that is then broken down by channel, device, page, location or time. On its own it says nothing about quality, which is why the breakdowns matter more than the total."
+      ]
+    ] },
     { callout: { t: "tip", h: "The hierarchy in one line", body: "**One visitor → many sessions → many page views.** Learn it as a nesting: people, then visits, then pages. If a report says 1,000 visitors, 1,400 sessions and 4,200 page views, then people came back 1.4 times each and looked at 3 pages per visit." }},
-    { callout: { t: "info", h: "Other analytics measures you will meet in the provided data", body: [
-      { kv: [
-        ["Bounce rate", "The proportion of sessions with no meaningful interaction beyond the entry page. High bounce on a landing page usually means the page did not match what the advert promised."],
-        ["Average session duration", "How long visits last — a rough engagement proxy that must be read alongside pages per session."],
-        ["Conversion rate", "The proportion of sessions completing a defined goal (purchase, sign-up, enquiry). The single most important commercial metric on a site."],
-        ["Exit page / drop-off", "Where in a journey people leave. A concentrated drop-off at one step (delivery costs, registration) points to a specific fixable problem."],
-        ["Landing page", "The page a session started on — tells you what people were actually looking for."]
-      ] }
-    ] } },
+    { h: "Other analytics measures you will meet in the provided data" },
+    { kv: [
+      [
+        "Bounce rate",
+        "The proportion of sessions with no meaningful interaction beyond the entry page. High bounce on a landing page usually means the page did not match what the advert promised."
+      ],
+      [
+        "Average session duration",
+        "How long visits last — a rough engagement proxy that must be read alongside pages per session."
+      ],
+      [
+        "Conversion rate",
+        "The proportion of sessions completing a defined goal (purchase, sign-up, enquiry). The single most important commercial metric on a site."
+      ],
+      [
+        "Exit page / drop-off",
+        "Where in a journey people leave. A concentrated drop-off at one step (delivery costs, registration) points to a specific fixable problem."
+      ],
+      [
+        "Landing page",
+        "The page a session started on — tells you what people were actually looking for."
+      ]
+    ] },
     { callout: { t: "info", h: "How the data is collected", body: [
-      { ul: [
-        "A small **tracking script or tag** on each page fires when the page loads and reports the event to the analytics platform.",
-        "**Cookies or identifiers** let the platform tell a returning visitor from a new one and group hits into sessions.",
-        "**UTM campaign parameters** added to links attribute a visit to a specific campaign, source and medium.",
-        "**Server logs** record requests independently of the browser and catch traffic that scripts miss.",
-        "**Consent is required** for non-essential analytics cookies under PECR/UK GDPR — which is itself a limitation, because visitors who decline are not measured."
-      ] }
+      "A small **tracking script or tag** on each page fires when the page loads and reports the event to the analytics platform.",
+      "**Cookies or identifiers** let the platform tell a returning visitor from a new one and group hits into sessions.",
+      "**UTM campaign parameters** added to links attribute a visit to a specific campaign, source and medium.",
+      "**Server logs** record requests independently of the browser and catch traffic that scripts miss.",
+      "**Consent is required** for non-essential analytics cookies under PECR/UK GDPR — which is itself a limitation, because visitors who decline are not measured."
     ] } },
 
     { page: "Traffic per channel and by device" },
-    { callout: { t: "info", h: "Traffic per channel — the standard channels", body: [
-      { kv: [
-        ["Organic search", "Unpaid search results — the return on SEO."],
-        ["Paid search", "PPC adverts — the return on that spend, and directly comparable to its cost."],
-        ["Direct", "Typed the address or used a bookmark — usually existing customers and brand strength, though it also collects untagged traffic."],
-        ["Referral", "A link on another website — partners, press, directories."],
-        ["Social", "Organic and paid social platforms, usually reported separately."],
-        ["Email", "Clicks from campaigns, identified by campaign tags."],
-        ["Display", "Banner and programmatic advertising."]
-      ] }
-    ] } },
+    { h: "Traffic per channel — the standard channels" },
+    { kv: [
+      ["Organic search", "Unpaid search results — the return on SEO."],
+      ["Paid search", "PPC adverts — the return on that spend, and directly comparable to its cost."],
+      [
+        "Direct",
+        "Typed the address or used a bookmark — usually existing customers and brand strength, though it also collects untagged traffic."
+      ],
+      ["Referral", "A link on another website — partners, press, directories."],
+      ["Social", "Organic and paid social platforms, usually reported separately."],
+      ["Email", "Clicks from campaigns, identified by campaign tags."],
+      ["Display", "Banner and programmatic advertising."]
+    ] },
     { callout: { t: "tip", h: "Channel data is how you judge, not just describe", body: "The value of channel data is that it lets you compare **volume against quality**: a channel can send lots of traffic that never converts (often display or untargeted social) while another sends a little that converts heavily (often email or branded search). Always report volume **and** conversion rate per channel — a recommendation based on volume alone is exactly the error D1 tests." }},
-    { callout: { t: "info", h: "Traffic by device", body: [
-      { kv: [
-        ["What it shows", "The split between mobile, tablet and desktop, ideally with conversion rate for each."],
-        ["Why it matters", "Most traffic is now mobile for most consumer sites, but conversion rate is frequently *lower* on mobile — that gap is usually a usability problem (small targets, long forms, slow loading, awkward checkout), not a lack of intent."],
-        ["How to use it", "It dictates design priority. If 70% of sessions are mobile, the campaign, landing pages and creative must be designed mobile-first; and a mobile/desktop conversion gap is one of the most actionable findings in any provided dataset."],
-        ["B2B nuance", "B2B traffic often skews to desktop during working hours — a pattern that itself confirms the audience is who you think it is."]
-      ] }
-    ] } },
+    { h: "Traffic by device" },
+    { kv: [
+      [
+        "What it shows",
+        "The split between mobile, tablet and desktop, ideally with conversion rate for each."
+      ],
+      [
+        "Why it matters",
+        "Most traffic is now mobile for most consumer sites, but conversion rate is frequently *lower* on mobile — that gap is usually a usability problem (small targets, long forms, slow loading, awkward checkout), not a lack of intent."
+      ],
+      [
+        "How to use it",
+        "It dictates design priority. If 70% of sessions are mobile, the campaign, landing pages and creative must be designed mobile-first; and a mobile/desktop conversion gap is one of the most actionable findings in any provided dataset."
+      ],
+      [
+        "B2B nuance",
+        "B2B traffic often skews to desktop during working hours — a pattern that itself confirms the audience is who you think it is."
+      ]
+    ] },
 
     { page: "Social media aggregation" },
     { callout: { t: "def", h: "Social media aggregation", body: "Collecting and combining data from **several social platforms into one view** — through the platforms' own analytics, a management/aggregation tool, or social listening software — so performance and audience can be compared across platforms rather than examined one at a time." }},
-    { callout: { t: "info", h: "What it gathers and how it is used", body: [
-      { kv: [
-        ["Performance data", "Reach, impressions, engagement (likes, comments, shares, saves), follower growth, click-throughs and video views — per platform and per post."],
-        ["Audience data", "Demographics, location, active times and interests of followers on each platform — evidence for which platform matches which segment."],
-        ["Listening data", "Mentions of the brand, competitors, products or topics, including posts that do not tag the account — with sentiment (positive/neutral/negative)."],
-        ["How it is collected", "Platform APIs feeding a dashboard, native platform insights, and listening tools crawling public posts."],
-        ["How it is used", "To compare platforms on a common basis, find which content types work where, spot complaints and trends early, benchmark against competitors, and decide where to invest effort."],
-        ["Limitations", "Platform metrics are defined differently (one platform's 'view' is not another's), private accounts and messages are invisible, and vanity metrics like follower count can rise without any commercial effect."]
-      ] }
-    ] } },
+    { h: "What it gathers and how it is used" },
+    { kv: [
+      [
+        "Performance data",
+        "Reach, impressions, engagement (likes, comments, shares, saves), follower growth, click-throughs and video views — per platform and per post."
+      ],
+      [
+        "Audience data",
+        "Demographics, location, active times and interests of followers on each platform — evidence for which platform matches which segment."
+      ],
+      [
+        "Listening data",
+        "Mentions of the brand, competitors, products or topics, including posts that do not tag the account — with sentiment (positive/neutral/negative)."
+      ],
+      [
+        "How it is collected",
+        "Platform APIs feeding a dashboard, native platform insights, and listening tools crawling public posts."
+      ],
+      [
+        "How it is used",
+        "To compare platforms on a common basis, find which content types work where, spot complaints and trends early, benchmark against competitors, and decide where to invest effort."
+      ],
+      [
+        "Limitations",
+        "Platform metrics are defined differently (one platform's 'view' is not another's), private accounts and messages are invisible, and vanity metrics like follower count can rise without any commercial effect."
+      ]
+    ] },
     { callout: { t: "miscon", h: "Engagement is not reach and neither is conversion", body: "Three different things. **Reach/impressions** = how many saw it. **Engagement** = how many reacted. **Conversion** = how many did the thing you wanted. A post can have huge reach and no engagement, or high engagement and no sales. Say which you mean and why it is the right measure for the objective." }},
     { callout: { t: "memorise", h: "Data collection sources", body: "**Website analytics:** visitor (a person) · session (a visit) · page view (a page load) · traffic (the total). Hierarchy: *one visitor → many sessions → many page views*. **Traffic per channel:** organic · paid · direct · referral · social · email · display — always volume **and** conversion rate. **Traffic by device:** mobile/tablet/desktop, watch the conversion gap. **Social aggregation:** many platforms into one view — performance, audience, listening." }}
   ],
@@ -645,65 +787,128 @@ C["it:F206.2.2"] = {
     { callout: { t: "warn", h: "Read the three criteria as a chain", body: "**P2 = do the analysis.** **P3 = present it visually.** **M1 = describe the results in words.** They are separate marks: a beautiful chart with no written interpretation misses M1, and a paragraph of findings with no chart misses P3. Do all three, and make the words and the chart agree." }},
 
     { page: "Analysis techniques" },
-    { callout: { t: "info", h: "Preparing the data first", body: [
-      { kv: [
-        ["Cleaning", "Remove duplicates, fix obvious errors, standardise formats (dates, currency, capitalisation), and decide how to treat missing values. Analysis of dirty data produces confident nonsense."],
-        ["Filtering / removing parts of the data", "Explicitly permitted by the assessment guidance. You might exclude internal staff traffic, bot sessions, a period distorted by an outage, or channels irrelevant to the question. **Always state what you removed and why** — an unexplained exclusion looks like cherry-picking."],
-        ["Sorting and ranking", "Ordering by volume, conversion or value to find the top and bottom performers quickly."],
-        ["Grouping / aggregation", "Summarising by channel, device, month, product or segment — turning thousands of rows into a comparison you can act on."]
-      ] }
-    ] } },
-    { callout: { t: "info", h: "Core analysis techniques", body: [
-      { kv: [
-        ["Descriptive statistics", "Totals, means, medians, minimums, maximums, ranges and percentages. The median is often more honest than the mean where a few large values skew a distribution."],
-        ["Comparison", "Setting figures against each other — channel vs channel, device vs device, this month vs last, campaign vs control, or against a benchmark or target."],
-        ["Trend analysis", "Looking at change over time to distinguish a genuine direction from ordinary noise, ideally over enough periods to see it clearly."],
-        ["Seasonality", "Recognising repeating patterns — weekday/weekend, term time, Christmas — so a fall is not misread as a failure when it happens every year."],
-        ["Segmentation of the data", "Breaking a total into groups (new vs returning, mobile vs desktop, location) — the technique that turns an average into an insight, because averages hide the very differences you need."],
-        ["Correlation", "Whether two things move together — e.g. ad spend and sessions. Useful for spotting relationships, but **correlation is not causation**, and saying so at the right moment is a genuine mark."],
-        ["Ratio and rate analysis", "Conversion rate, bounce rate, click-through rate, cost per acquisition, return on ad spend — rates make different-sized things comparable, which raw totals cannot."],
-        ["Funnel / drop-off analysis", "Following the journey step by step to find where people leave — the single most actionable technique in a marketing dataset."],
-        ["Outlier identification", "Spotting unusual values and deciding whether they are errors to remove or real events worth explaining."]
-      ] }
-    ] } },
+    { h: "Preparing the data first" },
+    { kv: [
+      [
+        "Cleaning",
+        "Remove duplicates, fix obvious errors, standardise formats (dates, currency, capitalisation), and decide how to treat missing values. Analysis of dirty data produces confident nonsense."
+      ],
+      [
+        "Filtering / removing parts of the data",
+        "Explicitly permitted by the assessment guidance. You might exclude internal staff traffic, bot sessions, a period distorted by an outage, or channels irrelevant to the question. **Always state what you removed and why** — an unexplained exclusion looks like cherry-picking."
+      ],
+      [
+        "Sorting and ranking",
+        "Ordering by volume, conversion or value to find the top and bottom performers quickly."
+      ],
+      [
+        "Grouping / aggregation",
+        "Summarising by channel, device, month, product or segment — turning thousands of rows into a comparison you can act on."
+      ]
+    ] },
+    { h: "Core analysis techniques" },
+    { kv: [
+      [
+        "Descriptive statistics",
+        "Totals, means, medians, minimums, maximums, ranges and percentages. The median is often more honest than the mean where a few large values skew a distribution."
+      ],
+      [
+        "Comparison",
+        "Setting figures against each other — channel vs channel, device vs device, this month vs last, campaign vs control, or against a benchmark or target."
+      ],
+      [
+        "Trend analysis",
+        "Looking at change over time to distinguish a genuine direction from ordinary noise, ideally over enough periods to see it clearly."
+      ],
+      [
+        "Seasonality",
+        "Recognising repeating patterns — weekday/weekend, term time, Christmas — so a fall is not misread as a failure when it happens every year."
+      ],
+      [
+        "Segmentation of the data",
+        "Breaking a total into groups (new vs returning, mobile vs desktop, location) — the technique that turns an average into an insight, because averages hide the very differences you need."
+      ],
+      [
+        "Correlation",
+        "Whether two things move together — e.g. ad spend and sessions. Useful for spotting relationships, but **correlation is not causation**, and saying so at the right moment is a genuine mark."
+      ],
+      [
+        "Ratio and rate analysis",
+        "Conversion rate, bounce rate, click-through rate, cost per acquisition, return on ad spend — rates make different-sized things comparable, which raw totals cannot."
+      ],
+      [
+        "Funnel / drop-off analysis",
+        "Following the journey step by step to find where people leave — the single most actionable technique in a marketing dataset."
+      ],
+      [
+        "Outlier identification",
+        "Spotting unusual values and deciding whether they are errors to remove or real events worth explaining."
+      ]
+    ] },
     { callout: { t: "tip", h: "Convert every finding into a rate before comparing", body: "Raw numbers mislead constantly: a channel with 10,000 sessions and 50 sales looks better than one with 500 sessions and 45 sales until you compute 0.5% against 9%. Whenever you compare unequal groups, compute the **rate**, not the total. This one habit produces more valid findings than any other technique in the list." }},
 
     { page: "Presenting results" },
-    { callout: { t: "info", h: "Matching the chart to the question", body: [
-      { kv: [
-        ["Comparing categories", "**Bar or column chart** — channels, devices, products, campaigns. The clearest and most-used chart in marketing; order the bars by value unless the categories have a natural order."],
-        ["Change over time", "**Line chart** — sessions per week, conversion rate per month. Time always goes on the horizontal axis."],
-        ["Composition of a whole", "**Pie or stacked bar** — device split, traffic mix. Use a pie only for a few clearly different slices; a bar chart is nearly always easier to read."],
-        ["Relationship between two variables", "**Scatter plot** — ad spend against conversions."],
-        ["A journey with stages", "**Funnel chart** — visits → product views → basket → checkout → purchase, showing the drop at each step."],
-        ["Intensity across two dimensions", "**Heat map** — engagement by day of week and hour."],
-        ["A single headline figure", "**A large number with its label and comparison**, not a chart — 'conversion rate 1.8%, down from 2.4%'."],
-        ["Tables", "Best when exact values matter or there are many measures per row; a table is a legitimate presentation, not a failure to chart."]
-      ] }
-    ] } },
+    { h: "Matching the chart to the question" },
+    { kv: [
+      [
+        "Comparing categories",
+        "**Bar or column chart** — channels, devices, products, campaigns. The clearest and most-used chart in marketing; order the bars by value unless the categories have a natural order."
+      ],
+      [
+        "Change over time",
+        "**Line chart** — sessions per week, conversion rate per month. Time always goes on the horizontal axis."
+      ],
+      [
+        "Composition of a whole",
+        "**Pie or stacked bar** — device split, traffic mix. Use a pie only for a few clearly different slices; a bar chart is nearly always easier to read."
+      ],
+      ["Relationship between two variables", "**Scatter plot** — ad spend against conversions."],
+      [
+        "A journey with stages",
+        "**Funnel chart** — visits → product views → basket → checkout → purchase, showing the drop at each step."
+      ],
+      ["Intensity across two dimensions", "**Heat map** — engagement by day of week and hour."],
+      [
+        "A single headline figure",
+        "**A large number with its label and comparison**, not a chart — 'conversion rate 1.8%, down from 2.4%'."
+      ],
+      [
+        "Tables",
+        "Best when exact values matter or there are many measures per row; a table is a legitimate presentation, not a failure to chart."
+      ]
+    ] },
     { callout: { t: "info", h: "Rules for a chart that earns marks", body: [
-      { ul: [
-        "**Title it with the finding**, not the field name — \"Mobile converts at half the desktop rate\" beats \"Conversion by device\".",
-        "**Label both axes with units** and state the date range and data source.",
-        "**Start a bar chart's value axis at zero** — a truncated axis exaggerates differences and is a genuine analytical fault.",
-        "**Do not use 3D, heavy gradients or decorative effects** — they distort perception of size.",
-        "**Use colour meaningfully** and consistently, never as decoration, and never as the only distinction (accessibility).",
-        "**One message per chart.** If it needs a paragraph to interpret, split it.",
-        "**Show the sample size**, so the reader can judge whether a difference is meaningful."
-      ] }
+      "**Title it with the finding**, not the field name — \"Mobile converts at half the desktop rate\" beats \"Conversion by device\".",
+      "**Label both axes with units** and state the date range and data source.",
+      "**Start a bar chart's value axis at zero** — a truncated axis exaggerates differences and is a genuine analytical fault.",
+      "**Do not use 3D, heavy gradients or decorative effects** — they distort perception of size.",
+      "**Use colour meaningfully** and consistently, never as decoration, and never as the only distinction (accessibility).",
+      "**One message per chart.** If it needs a paragraph to interpret, split it.",
+      "**Show the sample size**, so the reader can judge whether a difference is meaningful."
     ] } },
 
     { page: "Describing the results (M1)" },
-    { callout: { t: "info", h: "A structure for describing a finding", body: [
-      { kv: [
-        ["1 · State the finding", "\"Mobile accounts for 71% of sessions but only 38% of conversions.\""],
-        ["2 · Quantify it", "Give the figures and the period they cover, so the claim is checkable."],
-        ["3 · Compare it", "Against the other group, the previous period, the target, or an industry benchmark — a number alone means little."],
-        ["4 · Interpret it", "What it most likely means: \"the mobile checkout is losing customers who intended to buy.\""],
-        ["5 · Note the limitation", "Sample size, missing consent data, a one-off event, or an alternative explanation you cannot rule out."],
-        ["6 · Say what follows", "The decision it supports — which is where M1 becomes D1 and the campaign plan."]
-      ] }
-    ] } },
+    { h: "A structure for describing a finding" },
+    { kv: [
+      ["1 · State the finding", "\"Mobile accounts for 71% of sessions but only 38% of conversions.\""],
+      ["2 · Quantify it", "Give the figures and the period they cover, so the claim is checkable."],
+      [
+        "3 · Compare it",
+        "Against the other group, the previous period, the target, or an industry benchmark — a number alone means little."
+      ],
+      [
+        "4 · Interpret it",
+        "What it most likely means: \"the mobile checkout is losing customers who intended to buy.\""
+      ],
+      [
+        "5 · Note the limitation",
+        "Sample size, missing consent data, a one-off event, or an alternative explanation you cannot rule out."
+      ],
+      [
+        "6 · Say what follows",
+        "The decision it supports — which is where M1 becomes D1 and the campaign plan."
+      ]
+    ] },
     { callout: { t: "miscon", h: "Describing is not listing the data back", body: "\"Organic had 4,300 sessions, paid had 2,100, social had 1,800\" is a **restatement of the table**. M1 asks for the *results*: what the numbers show, what pattern they form, what is surprising, and what it means for the client. Every figure you quote should be followed by \"which means…\" or \"compared with…\"." }},
     { callout: { t: "warn", h: "Correlation is not causation — and seasonality is the usual culprit", body: "Ice-cream sales and drowning both rise in summer. In marketing datasets, the commonest false conclusion is crediting a campaign with a rise that happens every year at that time, or blaming a channel for a fall caused by a site outage. Check the seasonal pattern and any known events before claiming a cause." }},
     { callout: { t: "memorise", h: "Analysis and presentation", body: "**Prepare:** clean · filter (say what you removed and why) · sort · group. **Analyse:** descriptive stats · comparison · trend · seasonality · segmentation · correlation · rates · funnel/drop-off · outliers. **Present:** bar (categories) · line (time) · pie/stacked (composition) · scatter (relationship) · funnel (journey) · heat map (two dimensions). **Describe:** finding → figures → comparison → interpretation → limitation → what follows." }}
@@ -831,53 +1036,121 @@ C["it:F206.2.3"] = {
 
     { page: "Identifying gaps in the market" },
     { callout: { t: "def", h: "A gap in the market", body: "A **demand that is not currently being met** — by the client, or by anyone. It might be an audience nobody is serving, a need nobody is answering, a channel nobody is using, a moment nobody is present at, or a price point nobody occupies." }},
-    { callout: { t: "info", h: "Where the data reveals a gap", body: [
-      { kv: [
-        ["Search terms with no matching page", "People searching for something the client actually offers but has no content for — the clearest and cheapest gap to fill."],
-        ["High-interest, low-conversion pages", "Strong traffic to a product or topic that then fails to convert — demand exists, but something (price, information, availability, trust) is missing."],
-        ["Site search and enquiries", "What visitors type into the site's own search, or ask repeatedly, is a direct statement of unmet need."],
-        ["Audience segments performing above average", "A group converting well but receiving almost no marketing attention or budget."],
-        ["Competitor absence", "A platform, a keyword set, a location or a content type competitors are not covering."],
-        ["Time and place gaps", "Demand at hours, days or locations where the client is not present or not advertising."],
-        ["Complaints and reviews", "Recurring complaints about competitors describe a gap in the market that the client could occupy."]
-      ] }
-    ] } },
+    { h: "Where the data reveals a gap" },
+    { kv: [
+      [
+        "Search terms with no matching page",
+        "People searching for something the client actually offers but has no content for — the clearest and cheapest gap to fill."
+      ],
+      [
+        "High-interest, low-conversion pages",
+        "Strong traffic to a product or topic that then fails to convert — demand exists, but something (price, information, availability, trust) is missing."
+      ],
+      [
+        "Site search and enquiries",
+        "What visitors type into the site's own search, or ask repeatedly, is a direct statement of unmet need."
+      ],
+      [
+        "Audience segments performing above average",
+        "A group converting well but receiving almost no marketing attention or budget."
+      ],
+      [
+        "Competitor absence",
+        "A platform, a keyword set, a location or a content type competitors are not covering."
+      ],
+      [
+        "Time and place gaps",
+        "Demand at hours, days or locations where the client is not present or not advertising."
+      ],
+      [
+        "Complaints and reviews",
+        "Recurring complaints about competitors describe a gap in the market that the client could occupy."
+      ]
+    ] },
     { callout: { t: "tip", h: "A gap must be real, reachable and worth having", body: "Test every gap you propose against three questions: **is there evidence of demand** (not just an absence of supply)? **Can this client reach and serve it** with what they have? **Is it big enough to matter**? A niche nobody serves is often unserved because nobody wants it — say why yours is different, using the data." }},
 
     { page: "Identifying changing customer habits" },
-    { callout: { t: "info", h: "What a change of habit looks like in the data", body: [
-      { kv: [
-        ["Device shift", "Desktop traffic falling while mobile rises — a change in when and where people browse, demanding mobile-first design."],
-        ["Channel shift", "Social or search referrals rising while direct or email falls, or one platform's audience migrating to another."],
-        ["Timing shift", "Peak activity moving to evenings or weekends, changing when content should be published and adverts scheduled."],
-        ["Content-format shift", "Video watch time rising while article page-time falls — the audience's preferred format has moved."],
-        ["Journey shift", "More sessions before purchase, or more research on one device and buying on another — a longer, multi-device consideration process."],
-        ["Value shift", "Smaller baskets more often, or growing interest in sustainable, second-hand or budget options — a change in what customers value, not just how they shop."],
-        ["Seasonal or event-driven shift", "A pattern that recurs, versus a genuine permanent change — the two must be told apart before acting."]
-      ] }
-    ] } },
+    { h: "What a change of habit looks like in the data" },
+    { kv: [
+      [
+        "Device shift",
+        "Desktop traffic falling while mobile rises — a change in when and where people browse, demanding mobile-first design."
+      ],
+      [
+        "Channel shift",
+        "Social or search referrals rising while direct or email falls, or one platform's audience migrating to another."
+      ],
+      [
+        "Timing shift",
+        "Peak activity moving to evenings or weekends, changing when content should be published and adverts scheduled."
+      ],
+      [
+        "Content-format shift",
+        "Video watch time rising while article page-time falls — the audience's preferred format has moved."
+      ],
+      [
+        "Journey shift",
+        "More sessions before purchase, or more research on one device and buying on another — a longer, multi-device consideration process."
+      ],
+      [
+        "Value shift",
+        "Smaller baskets more often, or growing interest in sustainable, second-hand or budget options — a change in what customers value, not just how they shop."
+      ],
+      [
+        "Seasonal or event-driven shift",
+        "A pattern that recurs, versus a genuine permanent change — the two must be told apart before acting."
+      ]
+    ] },
     { callout: { t: "warn", h: "Distinguish a change from a fluctuation", body: "One month's movement is noise. Before declaring a habit changed, check it holds across **several periods**, check it is not the same seasonal pattern as last year, and check nothing else explains it (an outage, a competitor's campaign, a price change). Acting on noise wastes the budget you saved by analysing." }},
 
     { page: "Targeted campaigns: channels and formats" },
     { callout: { t: "def", h: "A targeted campaign", body: "A campaign aimed at a **defined segment**, with a message built for them, delivered on the **channels they use**, in the **formats they respond to**, at the **times they are active**. The opposite is a general campaign broadcast to everyone, which costs more and converts less." }},
-    { callout: { t: "info", h: "Choosing channels from data", body: [
-      { kv: [
-        ["Where the segment already is", "Platform audience data and referral data show where they spend time — target the channel the data evidences, not the one you personally use."],
-        ["Where the intent is", "Search reaches people actively looking; social reaches people who are not looking yet. Both are valid, but they answer different objectives and need different messages."],
-        ["What already converts", "Channels with a proven conversion rate for this client are a lower-risk investment than untested ones."],
-        ["Where the gap is", "A channel competitors are absent from can be cheap and high-return — with the risk that they are absent for a reason."],
-        ["What the budget supports", "Some channels demand sustained spend or constant content production; a small budget spread across six channels usually achieves nothing on any of them."]
-      ] }
-    ] } },
-    { callout: { t: "info", h: "Choosing formats from data", body: [
-      { kv: [
-        ["Match the format to the platform", "Short vertical video for TikTok and Reels, still imagery and carousels for Instagram, long-form article or document for LinkedIn, how-to video for YouTube, plain scannable text for email."],
-        ["Match the format to the stage", "Short attention-grabbing content early in the funnel; detailed comparison, demonstration and reassurance later (see 3.3)."],
-        ["Match the format to the evidence", "If video watch time is rising and article dwell time falling, invest in video — the audience has told you which format they will consume."],
-        ["Match the format to the device", "Mobile-dominant traffic means short, vertical, sound-off-friendly, fast-loading content with large tap targets."],
-        ["Consider production cost", "Video is the most expensive and slowest to produce; text and static imagery are cheap and fast. A realistic plan matches ambition to the client's resources."]
-      ] }
-    ] } },
+    { h: "Choosing channels from data" },
+    { kv: [
+      [
+        "Where the segment already is",
+        "Platform audience data and referral data show where they spend time — target the channel the data evidences, not the one you personally use."
+      ],
+      [
+        "Where the intent is",
+        "Search reaches people actively looking; social reaches people who are not looking yet. Both are valid, but they answer different objectives and need different messages."
+      ],
+      [
+        "What already converts",
+        "Channels with a proven conversion rate for this client are a lower-risk investment than untested ones."
+      ],
+      [
+        "Where the gap is",
+        "A channel competitors are absent from can be cheap and high-return — with the risk that they are absent for a reason."
+      ],
+      [
+        "What the budget supports",
+        "Some channels demand sustained spend or constant content production; a small budget spread across six channels usually achieves nothing on any of them."
+      ]
+    ] },
+    { h: "Choosing formats from data" },
+    { kv: [
+      [
+        "Match the format to the platform",
+        "Short vertical video for TikTok and Reels, still imagery and carousels for Instagram, long-form article or document for LinkedIn, how-to video for YouTube, plain scannable text for email."
+      ],
+      [
+        "Match the format to the stage",
+        "Short attention-grabbing content early in the funnel; detailed comparison, demonstration and reassurance later (see 3.3)."
+      ],
+      [
+        "Match the format to the evidence",
+        "If video watch time is rising and article dwell time falling, invest in video — the audience has told you which format they will consume."
+      ],
+      [
+        "Match the format to the device",
+        "Mobile-dominant traffic means short, vertical, sound-off-friendly, fast-loading content with large tap targets."
+      ],
+      [
+        "Consider production cost",
+        "Video is the most expensive and slowest to produce; text and static imagery are cheap and fast. A realistic plan matches ambition to the client's resources."
+      ]
+    ] },
     { callout: { t: "tip", h: "Every decision cites its evidence", body: "The spec's whole framing here is *how data supports decisions*. So write decisions in the form **evidence → decision → expected effect**: \"71% of sessions are mobile and mobile conversion is half desktop *(evidence)*, so the campaign uses vertical video and a simplified one-page mobile checkout *(decision)*, targeting a rise in mobile conversion from 0.9% to 1.5% *(expected effect)*.\" That sentence pattern is what separates Distinction work from assertion." }},
     { callout: { t: "miscon", h: "Targeting is not just narrowing the audience", body: "Reducing the audience size is only half of it. A targeted campaign also changes the **message, format, channel and timing** to fit that audience. Sending the same generic advert to a smaller group is not targeting — it is just a smaller waste." }},
     { callout: { t: "memorise", h: "Data use", body: "**Gaps:** unanswered searches · high-interest low-conversion pages · site-search terms · under-served high-performing segments · competitor absence · time/place gaps · complaints. Test: *evidenced demand · reachable · worth having.* **Habits:** device · channel · timing · format · journey · values — confirm across several periods against seasonality. **Targeting:** segment → message → channel → format → timing, each citing its evidence." }}
@@ -1005,75 +1278,140 @@ C["it:F206.3.1"] = {
     "The biggest leaf in the unit, and the one with the longest *To include* list. It covers **client requirements**, the campaign's **aim and purpose** (objectives, target audience, brand identity, USP), **success criteria** (metrics and KPIs), **timescales** and a **publishing schedule**, and **generating ideas for content**. It carries criteria **P1**, **P4**, **M2** and **D2**.",
 
     { page: "Client requirements and the aim" },
-    { callout: { t: "info", h: "Client requirements (P1)", body: [
-      { kv: [
-        ["What they are", "What the client wants the campaign to achieve and the conditions it must work within: the business goal, the audience, the budget, the timescale, brand rules, legal or sector constraints, what must not be done, and how success will be judged."],
-        ["How to write them", "Selected from the scenario and expressed as short numbered statements — not the scenario copied back. Number them (R1, R2…) so every later decision can be cross-referenced to a requirement."],
-        ["Distinguish", "A *requirement* is what the client needs (\"increase enquiries from local customers\"); a *solution* is what you propose (\"run local PPC\"). Keep them separate — mixing them means you cannot later show that your plan meets the brief."]
-      ] }
-    ] } },
-    { callout: { t: "info", h: "Aim and purpose (P4)", body: [
-      { kv: [
-        ["Campaign objectives", "What the campaign will achieve, expressed SMART — specific, measurable, achievable, relevant, time-bound. Each objective should map to one of the six purposes from 1.1 (awareness, sales, brand, expansion, repositioning, research)."],
-        ["Target audience", "The segment(s) and persona(s) from 1.3, evidenced by the analysis. This drives channel, format, tone and timing — the spec asks specifically *how the target audience influences campaign decisions*."],
-        ["Brand identity", "The organisation's visual identity (logo, colours, typography, imagery style) and its voice (formal or informal, expert or friendly, playful or serious), plus its values. The spec asks *how brand identity influences decisions* — it constrains what the campaign may look like and sound like, and inconsistency with it damages the very recognition the brand depends on."],
-        ["Unique selling point (USP)", "The one thing that makes this organisation or product **different from and better than** the alternatives *in a way the target customer cares about*. Not a feature list — a single distinguishing claim."]
-      ] }
-    ] } },
+    { h: "Client requirements (P1)" },
+    { kv: [
+      [
+        "What they are",
+        "What the client wants the campaign to achieve and the conditions it must work within: the business goal, the audience, the budget, the timescale, brand rules, legal or sector constraints, what must not be done, and how success will be judged."
+      ],
+      [
+        "How to write them",
+        "Selected from the scenario and expressed as short numbered statements — not the scenario copied back. Number them (R1, R2…) so every later decision can be cross-referenced to a requirement."
+      ],
+      [
+        "Distinguish",
+        "A *requirement* is what the client needs (\"increase enquiries from local customers\"); a *solution* is what you propose (\"run local PPC\"). Keep them separate — mixing them means you cannot later show that your plan meets the brief."
+      ]
+    ] },
+    { h: "Aim and purpose (P4)" },
+    { kv: [
+      [
+        "Campaign objectives",
+        "What the campaign will achieve, expressed SMART — specific, measurable, achievable, relevant, time-bound. Each objective should map to one of the six purposes from 1.1 (awareness, sales, brand, expansion, repositioning, research)."
+      ],
+      [
+        "Target audience",
+        "The segment(s) and persona(s) from 1.3, evidenced by the analysis. This drives channel, format, tone and timing — the spec asks specifically *how the target audience influences campaign decisions*."
+      ],
+      [
+        "Brand identity",
+        "The organisation's visual identity (logo, colours, typography, imagery style) and its voice (formal or informal, expert or friendly, playful or serious), plus its values. The spec asks *how brand identity influences decisions* — it constrains what the campaign may look like and sound like, and inconsistency with it damages the very recognition the brand depends on."
+      ],
+      [
+        "Unique selling point (USP)",
+        "The one thing that makes this organisation or product **different from and better than** the alternatives *in a way the target customer cares about*. Not a feature list — a single distinguishing claim."
+      ]
+    ] },
     { callout: { t: "def", h: "USP and its benefits", body: "A **USP** answers \"why choose you rather than anyone else?\" in one sentence. **Benefits of having one:** it gives the campaign a single consistent message; it makes the organisation memorable and easier to recommend; it justifies a price premium; it competes on something other than being cheapest; it makes content easier to generate because everything can reinforce one idea; and it makes measurement clearer because you can test whether that message lands." }},
     { callout: { t: "tip", h: "Testing a USP", body: "A real USP is **true, distinctive and valued**. \"High quality and great customer service\" fails all three tests — every competitor claims it, so it distinguishes nothing. \"The only bakery in the county with a fully separate gluten-free kitchen\" passes: it is verifiable, competitors cannot say it, and it matters intensely to the target customer." }},
 
     { page: "Success criteria: metrics and KPIs" },
     { callout: { t: "def", h: "Metric vs KPI", body: "A **metric** is any measurement you can take (page views, impressions, clicks, followers). A **KPI — Key Performance Indicator** — is a metric you have chosen because it *indicates whether the campaign is achieving its objective*, and it comes with a **target and a deadline**. Every KPI is a metric; most metrics are not KPIs." }},
-    { callout: { t: "info", h: "Matching KPIs to objectives", body: [
-      { kv: [
-        ["Awareness objective", "Reach, impressions, new visitors, branded-search volume, share of voice."],
-        ["Engagement / brand objective", "Engagement rate, shares, comments, average session duration, sentiment, repeat visits."],
-        ["Traffic objective", "Sessions, sessions by channel, click-through rate, cost per click."],
-        ["Lead objective (B2B)", "Leads, qualified leads, cost per lead, form completion rate."],
-        ["Sales objective", "Conversions, conversion rate, revenue, average order value, return on ad spend, cost per acquisition."],
-        ["Retention objective", "Repeat purchase rate, customer lifetime value, email open and click rates, churn/unsubscribe rate."]
-      ] }
-    ] } },
+    { h: "Matching KPIs to objectives" },
+    { kv: [
+      ["Awareness objective", "Reach, impressions, new visitors, branded-search volume, share of voice."],
+      [
+        "Engagement / brand objective",
+        "Engagement rate, shares, comments, average session duration, sentiment, repeat visits."
+      ],
+      ["Traffic objective", "Sessions, sessions by channel, click-through rate, cost per click."],
+      ["Lead objective (B2B)", "Leads, qualified leads, cost per lead, form completion rate."],
+      [
+        "Sales objective",
+        "Conversions, conversion rate, revenue, average order value, return on ad spend, cost per acquisition."
+      ],
+      [
+        "Retention objective",
+        "Repeat purchase rate, customer lifetime value, email open and click rates, churn/unsubscribe rate."
+      ]
+    ] },
     { callout: { t: "warn", h: "Vanity metrics — the trap D2 is testing", body: "A **vanity metric** looks impressive and changes nothing: raw follower counts, total impressions, page views without context, likes. They rise easily and are almost impossible to link to a business outcome. D2 asks you to *identify **and justify*** metrics and KPIs — so for each one say **why it indicates success against this objective**, and prefer rates and outcomes (conversion rate, cost per acquisition, qualified leads) over totals." }},
     { callout: { t: "tip", h: "Set a baseline, a target and a review point", body: "A KPI without a starting figure is unusable — you cannot tell improvement from noise. Write each as: **metric · baseline (from the provided data) · target · deadline · how it will be measured.** \"Mobile conversion rate, currently 0.9%, to 1.5% by 31 May, measured in analytics\" is a complete KPI; \"improve conversions\" is not." }},
 
     { page: "Timescales and the publishing schedule" },
-    { callout: { t: "info", h: "Defining timescales (M2)", body: [
-      { kv: [
-        ["Campaign duration", "Start and end dates, chosen with a reason — seasonality, a product launch, an event, or the client's trading peak."],
-        ["Phases", "Most campaigns have stages: preparation (assets, tracking, list), launch (heaviest activity), sustain (regular content), and review. Say what happens in each."],
-        ["Lead times", "Work backwards from the launch date: content must be created, reviewed and approved before it can be published. Ignoring approval time is the most common reason a student schedule is unrealistic."],
-        ["Review points", "Fixed dates when performance is checked against the KPIs and the plan is adjusted — without these, the campaign cannot be corrected mid-flight."],
-        ["Dependencies", "What must happen before something else can — photography before the social posts, the landing page before the adverts can run."]
-      ] }
-    ] } },
+    { h: "Defining timescales (M2)" },
+    { kv: [
+      [
+        "Campaign duration",
+        "Start and end dates, chosen with a reason — seasonality, a product launch, an event, or the client's trading peak."
+      ],
+      [
+        "Phases",
+        "Most campaigns have stages: preparation (assets, tracking, list), launch (heaviest activity), sustain (regular content), and review. Say what happens in each."
+      ],
+      [
+        "Lead times",
+        "Work backwards from the launch date: content must be created, reviewed and approved before it can be published. Ignoring approval time is the most common reason a student schedule is unrealistic."
+      ],
+      [
+        "Review points",
+        "Fixed dates when performance is checked against the KPIs and the plan is adjusted — without these, the campaign cannot be corrected mid-flight."
+      ],
+      [
+        "Dependencies",
+        "What must happen before something else can — photography before the social posts, the landing page before the adverts can run."
+      ]
+    ] },
     { callout: { t: "def", h: "Publishing schedule", body: "A calendar of exactly **what** will be published, **where**, on which **date** and at what **time** — the spec's three named elements are **date, time and content**. A useful schedule adds the channel, the format, the audience/objective, the call to action, who is responsible and the approval status." }},
     { callout: { t: "info", h: "Why a publishing schedule matters", body: [
-      { ul: [
-        "It makes the plan **realistic** — you immediately see whether the volume of content is achievable.",
-        "It ensures **consistency**, which is what audiences and algorithms both reward.",
-        "It lets you publish **when the audience is active**, using the timing evidence from your analysis.",
-        "It sequences content so a story builds rather than posts appearing at random.",
-        "It shows **coverage** — that every segment, funnel stage and channel is being served.",
-        "It allows work to be prepared in advance rather than written in a panic, which raises quality."
-      ] }
+      "It makes the plan **realistic** — you immediately see whether the volume of content is achievable.",
+      "It ensures **consistency**, which is what audiences and algorithms both reward.",
+      "It lets you publish **when the audience is active**, using the timing evidence from your analysis.",
+      "It sequences content so a story builds rather than posts appearing at random.",
+      "It shows **coverage** — that every segment, funnel stage and channel is being served.",
+      "It allows work to be prepared in advance rather than written in a panic, which raises quality."
     ] } },
 
     { page: "Generating ideas for content" },
-    { callout: { t: "info", h: "Techniques the spec expects you to know", body: [
-      { kv: [
-        ["Brainstorming / mind mapping", "Rapid unfiltered idea generation, alone or as a group, then grouping and filtering. Quantity first, judgement second."],
-        ["From the data", "The most defensible source: search terms with no content, frequently asked questions, site-search queries, high-performing past posts, and complaints."],
-        ["Customer questions and support logs", "Every repeated question is a piece of content the audience has explicitly asked for."],
-        ["Competitor and market review", "What competitors publish, what works for them, and — more valuable — what they omit."],
-        ["Keyword research", "Search volumes and related terms show both the demand and the language the audience uses."],
-        ["Trends and social listening", "Current conversations, seasonal moments and platform trends that content can join."],
-        ["Repurposing", "One substantial piece becomes many: a guide becomes a video, a carousel, five social posts and an email — efficient and consistent."],
-        ["Funnel mapping", "Deliberately generating an idea for each stage of the marketing funnel (3.3), which guarantees coverage rather than ten pieces all aimed at people ready to buy."],
-        ["User-generated content and reviews", "Customers' own photos, stories and reviews — cheap, credible and persuasive."]
-      ] }
-    ] } },
+    { h: "Techniques the spec expects you to know" },
+    { kv: [
+      [
+        "Brainstorming / mind mapping",
+        "Rapid unfiltered idea generation, alone or as a group, then grouping and filtering. Quantity first, judgement second."
+      ],
+      [
+        "From the data",
+        "The most defensible source: search terms with no content, frequently asked questions, site-search queries, high-performing past posts, and complaints."
+      ],
+      [
+        "Customer questions and support logs",
+        "Every repeated question is a piece of content the audience has explicitly asked for."
+      ],
+      [
+        "Competitor and market review",
+        "What competitors publish, what works for them, and — more valuable — what they omit."
+      ],
+      [
+        "Keyword research",
+        "Search volumes and related terms show both the demand and the language the audience uses."
+      ],
+      [
+        "Trends and social listening",
+        "Current conversations, seasonal moments and platform trends that content can join."
+      ],
+      [
+        "Repurposing",
+        "One substantial piece becomes many: a guide becomes a video, a carousel, five social posts and an email — efficient and consistent."
+      ],
+      [
+        "Funnel mapping",
+        "Deliberately generating an idea for each stage of the marketing funnel (3.3), which guarantees coverage rather than ten pieces all aimed at people ready to buy."
+      ],
+      [
+        "User-generated content and reviews",
+        "Customers' own photos, stories and reviews — cheap, credible and persuasive."
+      ]
+    ] },
     { callout: { t: "miscon", h: "Ideas are not a plan until they are filtered", body: "Generation is only half the job. Filter every idea against: does it serve an objective? does it suit the persona? does it fit the brand voice? can we actually produce it with our budget and skills? which funnel stage does it serve? Ten filtered, scheduled ideas beat fifty listed ones — and the filtering is what evidences P7 and M5." }},
     { callout: { t: "memorise", h: "Planning", body: "**Requirements** (numbered, selected not copied) → **aim and purpose** (SMART objectives · target audience · brand identity · USP: true, distinctive, valued) → **success criteria** (metric vs KPI; baseline · target · deadline; avoid vanity metrics) → **timescales** (duration · phases · lead times · review points) and a **publishing schedule** (date · time · content, plus channel, format, owner) → **content ideas** (data · questions · competitors · keywords · trends · repurposing · funnel mapping), then filtered." }}
   ],
@@ -1201,21 +1539,40 @@ C["it:F206.3.2"] = {
     { callout: { t: "def", h: "The marketing mix", body: "The set of controllable elements an organisation combines to deliver its offer to the market. The original four Ps — **product, price, place, promotion** — were extended to seven with **people, process and physical evidence** because services (and online businesses) are delivered by people through a process, and customers judge them on tangible cues. All seven apply to digital marketing." }},
 
     { page: "The seven Ps" },
-    { callout: { t: "info", h: "Product · Price · Place · Promotion", body: [
-      { kv: [
-        ["Product", "What is being offered — the goods, service, features, quality, range, branding, packaging and any guarantee. **Digitally:** how the product is *presented* is part of it — photography, descriptions, specifications, videos, reviews, size guides and comparison tools. A product page that answers every question is doing product work, not just promotion."],
-        ["Price", "What the customer pays and how they perceive its value — the price point, discounts, bundles, subscription or one-off, payment options, delivery charges, and price positioning relative to competitors. **Digitally:** prices are instantly comparable, so transparency matters; hidden delivery costs revealed late are one of the biggest causes of basket abandonment."],
-        ["Place", "Where and how the customer obtains the product — website, app, marketplace (Amazon, Etsy), social commerce, physical store, click-and-collect, or a distributor. **Digitally:** place includes the *availability and convenience* of the channel — which devices, which platforms, which regions, and whether the customer can buy where they already are."],
-        ["Promotion", "How the offer is communicated — advertising, content, social media, email, SEO, PPC, PR, influencers and offers. This is the P most students write about, and it must not crowd out the other six."]
-      ] }
-    ] } },
-    { callout: { t: "info", h: "People · Process · Physical evidence", body: [
-      { kv: [
-        ["People", "Everyone the customer interacts with, and the impression they leave — sales and support staff, live chat agents, the social media manager's tone, delivery drivers, and increasingly chatbots. **Digitally:** response time and tone in comments, reviews and messages *are* the brand experience for many customers. Also includes the staff and skills needed to run the campaign."],
-        ["Process", "The procedures the customer moves through — browsing, searching, adding to basket, checkout, payment, delivery, tracking, returns, complaint handling, and after-sales support. **Digitally:** this is the customer journey, and it is where most conversion is won or lost. A three-step checkout instead of six is a marketing decision, not just a technical one."],
-        ["Physical evidence", "The tangible cues that prove the service is real and trustworthy — for an online business: professional website design, secure-payment badges, reviews and ratings, case studies, certifications and accreditations, clear contact details and address, packaging and unboxing, order confirmations and receipts, and photographs of premises or team. **Why it matters:** a service cannot be inspected before purchase, so customers judge it on these proxies."]
-      ] }
-    ] } },
+    { h: "Product · Price · Place · Promotion" },
+    { kv: [
+      [
+        "Product",
+        "What is being offered — the goods, service, features, quality, range, branding, packaging and any guarantee. **Digitally:** how the product is *presented* is part of it — photography, descriptions, specifications, videos, reviews, size guides and comparison tools. A product page that answers every question is doing product work, not just promotion."
+      ],
+      [
+        "Price",
+        "What the customer pays and how they perceive its value — the price point, discounts, bundles, subscription or one-off, payment options, delivery charges, and price positioning relative to competitors. **Digitally:** prices are instantly comparable, so transparency matters; hidden delivery costs revealed late are one of the biggest causes of basket abandonment."
+      ],
+      [
+        "Place",
+        "Where and how the customer obtains the product — website, app, marketplace (Amazon, Etsy), social commerce, physical store, click-and-collect, or a distributor. **Digitally:** place includes the *availability and convenience* of the channel — which devices, which platforms, which regions, and whether the customer can buy where they already are."
+      ],
+      [
+        "Promotion",
+        "How the offer is communicated — advertising, content, social media, email, SEO, PPC, PR, influencers and offers. This is the P most students write about, and it must not crowd out the other six."
+      ]
+    ] },
+    { h: "People · Process · Physical evidence" },
+    { kv: [
+      [
+        "People",
+        "Everyone the customer interacts with, and the impression they leave — sales and support staff, live chat agents, the social media manager's tone, delivery drivers, and increasingly chatbots. **Digitally:** response time and tone in comments, reviews and messages *are* the brand experience for many customers. Also includes the staff and skills needed to run the campaign."
+      ],
+      [
+        "Process",
+        "The procedures the customer moves through — browsing, searching, adding to basket, checkout, payment, delivery, tracking, returns, complaint handling, and after-sales support. **Digitally:** this is the customer journey, and it is where most conversion is won or lost. A three-step checkout instead of six is a marketing decision, not just a technical one."
+      ],
+      [
+        "Physical evidence",
+        "The tangible cues that prove the service is real and trustworthy — for an online business: professional website design, secure-payment badges, reviews and ratings, case studies, certifications and accreditations, clear contact details and address, packaging and unboxing, order confirmations and receipts, and photographs of premises or team. **Why it matters:** a service cannot be inspected before purchase, so customers judge it on these proxies."
+      ]
+    ] },
     { callout: { t: "tip", h: "The three added Ps are where the marks are", body: "Almost every student writes competently about promotion and price. **People, process and physical evidence** are what separate a Merit answer, because they are where digital businesses actually differ. If your data showed checkout abandonment, that is a **process** problem; if it showed low trust or few reviews, that is **physical evidence**; if it showed unanswered comments, that is **people**. Diagnosing which P a data finding belongs to is exactly what M3 rewards." }},
 
     { page: "Using the mix in a campaign" },
@@ -1229,12 +1586,10 @@ C["it:F206.3.2"] = {
       ["Physical evidence", "Reviews, trust badges, case studies, confirmations", "Low trust signals on product pages → add verified reviews and secure-payment badges."]
     ] } },
     { callout: { t: "info", h: "The mix must be consistent", body: [
-      { ul: [
-        "A **premium price** with amateur photography and no reviews contradicts itself — the customer believes the cheapest signal.",
-        "A campaign promising **fast, easy ordering** that leads to a six-step checkout destroys its own promise at the moment of purchase.",
-        "A **friendly, playful voice** in adverts followed by cold, formal support emails breaks the brand the campaign just built.",
-        "**The whole mix delivers the USP** — every P should reinforce the one distinguishing claim, or the claim is not believed."
-      ] }
+      "A **premium price** with amateur photography and no reviews contradicts itself — the customer believes the cheapest signal.",
+      "A campaign promising **fast, easy ordering** that leads to a six-step checkout destroys its own promise at the moment of purchase.",
+      "A **friendly, playful voice** in adverts followed by cold, formal support emails breaks the brand the campaign just built.",
+      "**The whole mix delivers the USP** — every P should reinforce the one distinguishing claim, or the claim is not believed."
     ] } },
     { callout: { t: "miscon", h: "The marketing mix is not just advertising", body: "Reducing the mix to promotion is the classic error and caps P5 immediately. The mix is *everything the organisation controls* about how the offer reaches the customer. A campaign that drives traffic to a slow site with a confusing checkout and no reviews has got promotion right and product, process and physical evidence wrong — and it will fail." }},
     { callout: { t: "memorise", h: "The 7 Ps", body: "**Product** (what and how presented) · **Price** (cost and perceived value, transparency) · **Place** (where they get it — platforms, devices, availability) · **Promotion** (how it is communicated) · **People** (everyone the customer meets, tone and response) · **Process** (the journey — browse, checkout, delivery, returns) · **Physical evidence** (tangible proof — design, reviews, badges, confirmations). *All seven, consistent with each other and with the USP.*" }}
@@ -1346,38 +1701,77 @@ C["it:F206.3.3"] = {
     { callout: { t: "def", h: "The digital marketing funnel and its purpose", body: "A model of the **stages a customer passes through** from first contact to becoming an advocate. It is called a funnel because many people enter at the top and progressively fewer continue. **Its purpose:** to make sure content and channels exist for **every stage** rather than only for people ready to buy; to show **where customers are lost** so the biggest leak can be fixed; and to let each stage be measured and targeted with the message appropriate to it." }},
 
     { page: "Pre-purchase stages" },
-    { callout: { t: "info", h: "The six pre-purchase stages", body: [
-      { kv: [
-        ["Engagement", "First contact — the customer becomes aware of the organisation and pays it some attention. **Purpose:** capture attention from people who did not know you existed. **Content ideas:** short attention-grabbing video, eye-catching social posts, display advertising, influencer mentions, entertaining or topical content. **Measure:** reach, impressions, new visitors, engagement rate."],
-        ["Education", "The customer learns what the product or service is and what problem it solves. **Purpose:** turn vague attention into understanding of the offer and the need. **Content ideas:** explainer videos, how-to guides, blog articles, infographics, FAQs, 'what is…' content. **Measure:** page views on guides, video watch time, time on page, returning visitors."],
-        ["Research", "The customer actively investigates — reading detail, checking specifications, looking for options. **Purpose:** be present and findable while they are looking, or they will find a competitor. **Content ideas:** detailed product pages, specifications, buying guides, category pages, SEO for research-stage search terms. **Measure:** product-page views, search rankings, pages per session, site-search terms."],
-        ["Evaluation", "The customer compares alternatives — you against competitors, or one of your options against another. **Purpose:** win the comparison. **Content ideas:** comparison tables, reviews and testimonials, case studies, demos, free trials, samples, size guides. **Measure:** comparison-page views, review engagement, add-to-basket rate, demo requests."],
-        ["Justification", "The customer wants reassurance that this is a sensible decision — reducing the perceived risk of committing. **Purpose:** remove the last objections. **Content ideas:** guarantees, returns policy, secure-payment and trust signals, delivery information, warranty, finance options, social proof, FAQs answering objections. **Measure:** basket abandonment rate, drop-off at the checkout steps, FAQ/policy page views."],
-        ["Purchase", "The customer buys. **Purpose:** make completing the transaction as easy as possible. **Content ideas:** a clear call to action, a short frictionless checkout, guest checkout, multiple payment options, an obvious confirmation. **Measure:** conversion rate, completed orders, average order value, checkout completion rate."]
-      ] }
-    ] } },
+    { h: "The six pre-purchase stages" },
+    { kv: [
+      [
+        "Engagement",
+        "First contact — the customer becomes aware of the organisation and pays it some attention. **Purpose:** capture attention from people who did not know you existed. **Content ideas:** short attention-grabbing video, eye-catching social posts, display advertising, influencer mentions, entertaining or topical content. **Measure:** reach, impressions, new visitors, engagement rate."
+      ],
+      [
+        "Education",
+        "The customer learns what the product or service is and what problem it solves. **Purpose:** turn vague attention into understanding of the offer and the need. **Content ideas:** explainer videos, how-to guides, blog articles, infographics, FAQs, 'what is…' content. **Measure:** page views on guides, video watch time, time on page, returning visitors."
+      ],
+      [
+        "Research",
+        "The customer actively investigates — reading detail, checking specifications, looking for options. **Purpose:** be present and findable while they are looking, or they will find a competitor. **Content ideas:** detailed product pages, specifications, buying guides, category pages, SEO for research-stage search terms. **Measure:** product-page views, search rankings, pages per session, site-search terms."
+      ],
+      [
+        "Evaluation",
+        "The customer compares alternatives — you against competitors, or one of your options against another. **Purpose:** win the comparison. **Content ideas:** comparison tables, reviews and testimonials, case studies, demos, free trials, samples, size guides. **Measure:** comparison-page views, review engagement, add-to-basket rate, demo requests."
+      ],
+      [
+        "Justification",
+        "The customer wants reassurance that this is a sensible decision — reducing the perceived risk of committing. **Purpose:** remove the last objections. **Content ideas:** guarantees, returns policy, secure-payment and trust signals, delivery information, warranty, finance options, social proof, FAQs answering objections. **Measure:** basket abandonment rate, drop-off at the checkout steps, FAQ/policy page views."
+      ],
+      [
+        "Purchase",
+        "The customer buys. **Purpose:** make completing the transaction as easy as possible. **Content ideas:** a clear call to action, a short frictionless checkout, guest checkout, multiple payment options, an obvious confirmation. **Measure:** conversion rate, completed orders, average order value, checkout completion rate."
+      ]
+    ] },
     { callout: { t: "tip", h: "Justification is the stage students miss", body: "Engagement, education, research, evaluation and purchase feel intuitive. **Justification** — reassurance at the moment of commitment — is the one usually omitted, and it is where a great deal of revenue is actually lost. If your data shows abandonment at the checkout, that is a justification and process failure, and content that removes risk (returns policy, guarantee, delivery clarity, reviews at the point of purchase) is the fix." }},
 
     { page: "Post-purchase stages" },
-    { callout: { t: "info", h: "The four post-purchase stages", body: [
-      { kv: [
-        ["Adoption", "The customer starts actually using the product or service successfully. **Purpose:** ensure they get value — a customer who never uses it will not return and may refund. **Content ideas:** onboarding emails, setup and getting-started guides, tutorial videos, first-use tips, proactive support. **Measure:** activation/first-use rate, support contacts, return rate."],
-        ["Retention", "The customer keeps buying or keeps subscribing. **Purpose:** retaining a customer is far cheaper than acquiring a new one, so this stage usually has the best return in the whole funnel. **Content ideas:** email newsletters, loyalty schemes, replenishment reminders, exclusive offers for existing customers, useful ongoing content. **Measure:** repeat purchase rate, churn/unsubscribe rate, customer lifetime value, email engagement."],
-        ["Expansion", "The customer buys more — a larger plan, a complementary product, an upgrade, or more often. **Purpose:** grow the value of a customer you already have. **Content ideas:** upsell and cross-sell recommendations, bundles, upgrade offers, 'customers also bought' content, accessory guides. **Measure:** average order value, upsell rate, revenue per customer."],
-        ["Advocacy", "The customer recommends the organisation to others. **Purpose:** turn customers into a marketing channel — recommendation is the most trusted and cheapest form of promotion, and it feeds new people back into engagement. **Content ideas:** review requests, referral schemes, user-generated content campaigns, case studies, shareable moments, community building. **Measure:** referrals, reviews left, shares, branded search growth."]
-      ] }
-    ] } },
+    { h: "The four post-purchase stages" },
+    { kv: [
+      [
+        "Adoption",
+        "The customer starts actually using the product or service successfully. **Purpose:** ensure they get value — a customer who never uses it will not return and may refund. **Content ideas:** onboarding emails, setup and getting-started guides, tutorial videos, first-use tips, proactive support. **Measure:** activation/first-use rate, support contacts, return rate."
+      ],
+      [
+        "Retention",
+        "The customer keeps buying or keeps subscribing. **Purpose:** retaining a customer is far cheaper than acquiring a new one, so this stage usually has the best return in the whole funnel. **Content ideas:** email newsletters, loyalty schemes, replenishment reminders, exclusive offers for existing customers, useful ongoing content. **Measure:** repeat purchase rate, churn/unsubscribe rate, customer lifetime value, email engagement."
+      ],
+      [
+        "Expansion",
+        "The customer buys more — a larger plan, a complementary product, an upgrade, or more often. **Purpose:** grow the value of a customer you already have. **Content ideas:** upsell and cross-sell recommendations, bundles, upgrade offers, 'customers also bought' content, accessory guides. **Measure:** average order value, upsell rate, revenue per customer."
+      ],
+      [
+        "Advocacy",
+        "The customer recommends the organisation to others. **Purpose:** turn customers into a marketing channel — recommendation is the most trusted and cheapest form of promotion, and it feeds new people back into engagement. **Content ideas:** review requests, referral schemes, user-generated content campaigns, case studies, shareable moments, community building. **Measure:** referrals, reviews left, shares, branded search growth."
+      ]
+    ] },
     { callout: { t: "tip", h: "The funnel is a loop, not a dead end", body: "Advocacy feeds back into **engagement** — a recommended customer enters the funnel warm and converts faster and cheaper than a cold one. Saying this explicitly shows you understand *why* the post-purchase half exists: it is not an afterthought, it is the cheapest source of new customers the organisation has." }},
 
     { page: "Using the funnel in a campaign" },
-    { callout: { t: "info", h: "Developing content ideas for each stage", body: [
-      { kv: [
-        ["Method", "Take each stage in turn, ask *what does the customer need to know or feel here?*, then design one piece of content and choose the channel and format for it. That guarantees coverage rather than ten pieces all aimed at people ready to buy."],
-        ["Match the channel to the stage", "Social and display suit engagement; search and guides suit education and research; comparison content, reviews and email suit evaluation and justification; email and loyalty content suit retention and expansion; referral schemes and UGC suit advocacy."],
-        ["Match the message to the stage", "A discount code shown to someone at engagement is wasted — they do not yet know what you sell. The same code at justification may be exactly what closes the sale."],
-        ["Use the data to prioritise", "Fix the stage where the data shows the largest loss first. A campaign that pours more traffic into a funnel leaking at checkout wastes most of the extra spend."]
-      ] }
-    ] } },
+    { h: "Developing content ideas for each stage" },
+    { kv: [
+      [
+        "Method",
+        "Take each stage in turn, ask *what does the customer need to know or feel here?*, then design one piece of content and choose the channel and format for it. That guarantees coverage rather than ten pieces all aimed at people ready to buy."
+      ],
+      [
+        "Match the channel to the stage",
+        "Social and display suit engagement; search and guides suit education and research; comparison content, reviews and email suit evaluation and justification; email and loyalty content suit retention and expansion; referral schemes and UGC suit advocacy."
+      ],
+      [
+        "Match the message to the stage",
+        "A discount code shown to someone at engagement is wasted — they do not yet know what you sell. The same code at justification may be exactly what closes the sale."
+      ],
+      [
+        "Use the data to prioritise",
+        "Fix the stage where the data shows the largest loss first. A campaign that pours more traffic into a funnel leaking at checkout wastes most of the extra spend."
+      ]
+    ] },
     { callout: { t: "miscon", h: "The funnel is not the same as the buyer's timeline", body: "Customers do not move neatly one stage at a time — they jump, loop back, research on one device and buy on another, and can arrive already at evaluation from a recommendation. The funnel is a **model for ensuring coverage and diagnosing loss**, not a claim that everyone follows the steps in order. Saying so shows genuine understanding rather than recital." }},
     { callout: { t: "memorise", h: "The funnel", body: "**Pre-purchase:** Engagement → Education → Research → Evaluation → **Justification** (the one people forget) → Purchase. **Post purchase:** Adoption → Retention → Expansion → Advocacy → *(loops back to engagement)*. Purpose: **coverage** of every stage, **diagnosis** of where customers are lost, and a **message matched to the stage**." }}
   ],
@@ -1494,18 +1888,28 @@ C["it:F206.4.1"] = {
     { callout: { t: "warn", h: "The spec's boundary", body: "*Does not include:* publishing on social media, and finished content. You produce **prototypes** — drafts, mock-ups, storyboards, wireframes — not polished published assets. This is deliberate: the assessment is about the thinking behind the content, not your production software skills. Do not lose time perfecting a video you were never asked to finish." }},
 
     { page: "The four formats" },
-    { callout: { t: "info", h: "Imagery and video", body: [
-      { kv: [
-        ["Imagery", "**Connects because:** it is processed almost instantly, stops the scroll, conveys mood and quality without being read, and crosses language barriers. **Suits:** Instagram, Pinterest, Facebook, display/banner advertising, email headers, product pages and landing pages. **Types:** product photography, lifestyle shots showing the product in use, infographics, quote cards, carousels, memes, user-generated photos. **Strengths:** cheap and fast to produce, easily varied for A/B testing. **Weaknesses:** carries limited detail, and poor-quality images actively damage brand perception."],
-        ["Video", "**Connects because:** it holds attention longest, demonstrates rather than describes, carries emotion and personality, and builds trust by showing real people and products. **Suits:** TikTok, Instagram Reels, YouTube, Facebook, LinkedIn (short native video), landing pages and email (as a thumbnail linking out). **Types:** short vertical social video, explainer and how-to, demonstration, testimonial, behind-the-scenes, live shopping. **Strengths:** highest engagement and best for education, evaluation and demonstration. **Weaknesses:** the most expensive and slowest format to produce, needs subtitles because most social video is watched with sound off, and long video loses viewers quickly."]
-      ] }
-    ] } },
-    { callout: { t: "info", h: "Audio and text", body: [
-      { kv: [
-        ["Audio", "**Connects because:** it reaches people whose eyes and hands are busy — commuting, exercising, driving, working — and a voice builds intimacy and trust unusually well. **Suits:** podcasts and podcast advertising, streaming/radio advertising, voice search, audio in social video, and voice assistants. **Types:** podcast episodes or sponsorships, audio ads, voiceover on video, branded audio identity. **Strengths:** reaches otherwise unreachable moments, low competition compared to video, builds a loyal audience. **Weaknesses:** no visual, no clickable link in the moment (attribution is hard), and requires decent recording quality to be listenable."],
-        ["Text", "**Connects because:** it carries detail, evidence and nuance that no other format can, it is what search engines primarily index, and it is scannable — readers can find the part they need. **Suits:** SEO/blog articles, landing pages, email, LinkedIn, product descriptions, ad copy, guides and white papers. **Types:** articles, guides, case studies, FAQs, email copy, headlines and calls to action, captions. **Strengths:** cheapest and fastest to produce, essential for SEO, and the only practical format for detailed B2B evidence. **Weaknesses:** competes for attention poorly on visual platforms, and dense text is ignored on mobile."]
-      ] }
-    ] } },
+    { h: "Imagery and video" },
+    { kv: [
+      [
+        "Imagery",
+        "**Connects because:** it is processed almost instantly, stops the scroll, conveys mood and quality without being read, and crosses language barriers. **Suits:** Instagram, Pinterest, Facebook, display/banner advertising, email headers, product pages and landing pages. **Types:** product photography, lifestyle shots showing the product in use, infographics, quote cards, carousels, memes, user-generated photos. **Strengths:** cheap and fast to produce, easily varied for A/B testing. **Weaknesses:** carries limited detail, and poor-quality images actively damage brand perception."
+      ],
+      [
+        "Video",
+        "**Connects because:** it holds attention longest, demonstrates rather than describes, carries emotion and personality, and builds trust by showing real people and products. **Suits:** TikTok, Instagram Reels, YouTube, Facebook, LinkedIn (short native video), landing pages and email (as a thumbnail linking out). **Types:** short vertical social video, explainer and how-to, demonstration, testimonial, behind-the-scenes, live shopping. **Strengths:** highest engagement and best for education, evaluation and demonstration. **Weaknesses:** the most expensive and slowest format to produce, needs subtitles because most social video is watched with sound off, and long video loses viewers quickly."
+      ]
+    ] },
+    { h: "Audio and text" },
+    { kv: [
+      [
+        "Audio",
+        "**Connects because:** it reaches people whose eyes and hands are busy — commuting, exercising, driving, working — and a voice builds intimacy and trust unusually well. **Suits:** podcasts and podcast advertising, streaming/radio advertising, voice search, audio in social video, and voice assistants. **Types:** podcast episodes or sponsorships, audio ads, voiceover on video, branded audio identity. **Strengths:** reaches otherwise unreachable moments, low competition compared to video, builds a loyal audience. **Weaknesses:** no visual, no clickable link in the moment (attribution is hard), and requires decent recording quality to be listenable."
+      ],
+      [
+        "Text",
+        "**Connects because:** it carries detail, evidence and nuance that no other format can, it is what search engines primarily index, and it is scannable — readers can find the part they need. **Suits:** SEO/blog articles, landing pages, email, LinkedIn, product descriptions, ad copy, guides and white papers. **Types:** articles, guides, case studies, FAQs, email copy, headlines and calls to action, captions. **Strengths:** cheapest and fastest to produce, essential for SEO, and the only practical format for detailed B2B evidence. **Weaknesses:** competes for attention poorly on visual platforms, and dense text is ignored on mobile."
+      ]
+    ] },
     { table: { head: ["Format", "Best at", "Cost/speed", "Channels", "Funnel stages"], rows: [
       ["Imagery", "Stopping the scroll; mood and quality", "Cheap, fast", "Instagram, Pinterest, display, email, product pages", "Engagement, evaluation"],
       ["Video", "Demonstrating, explaining, building trust", "Expensive, slow", "TikTok, Reels, YouTube, landing pages", "Engagement, education, evaluation"],
@@ -1515,23 +1919,32 @@ C["it:F206.4.1"] = {
     { callout: { t: "tip", h: "Justifying a format (M4) — three links to make", body: "M4 asks you to *justify content formats in relation to digital marketing channels*. Make three links every time: **(1) format ↔ channel** — vertical video because TikTok is a vertical short-form platform; **(2) format ↔ audience** — because the persona is mobile-first and consumes video, evidenced by the analysis; **(3) format ↔ purpose/stage** — video because this is the education stage and the product must be demonstrated, not described. A justification missing the channel link does not answer the criterion." }},
 
     { page: "Prototyping each format" },
-    { callout: { t: "info", h: "What a prototype looks like", body: [
-      { kv: [
-        ["Imagery prototype", "A mock-up or sketch of the image with placeholder photography, showing composition, where text overlays sit, the logo, brand colours and the call to action — annotated with the channel, dimensions/aspect ratio and the audience it targets."],
-        ["Video prototype", "A **storyboard** — a sequence of frames with a sketch or description of each shot, the on-screen text, the voiceover or script, the duration of each scene, the music/sound intention, and the subtitles. An animatic or rough cut is optional; the storyboard is the expected evidence."],
-        ["Audio prototype", "A **script** with timings, tone and pacing notes, the intended voice, sound effects or music beds, and the call to action — optionally a rough recorded read."],
-        ["Text prototype", "A **draft** — the actual headline, body copy, call to action and (for a web page) a wireframe showing where each block sits, plus the target keywords and meta title/description if it is an SEO piece."]
-      ] }
-    ] } },
+    { h: "What a prototype looks like" },
+    { kv: [
+      [
+        "Imagery prototype",
+        "A mock-up or sketch of the image with placeholder photography, showing composition, where text overlays sit, the logo, brand colours and the call to action — annotated with the channel, dimensions/aspect ratio and the audience it targets."
+      ],
+      [
+        "Video prototype",
+        "A **storyboard** — a sequence of frames with a sketch or description of each shot, the on-screen text, the voiceover or script, the duration of each scene, the music/sound intention, and the subtitles. An animatic or rough cut is optional; the storyboard is the expected evidence."
+      ],
+      [
+        "Audio prototype",
+        "A **script** with timings, tone and pacing notes, the intended voice, sound effects or music beds, and the call to action — optionally a rough recorded read."
+      ],
+      [
+        "Text prototype",
+        "A **draft** — the actual headline, body copy, call to action and (for a web page) a wireframe showing where each block sits, plus the target keywords and meta title/description if it is an SEO piece."
+      ]
+    ] },
     { callout: { t: "info", h: "Annotate every prototype with", body: [
-      { ul: [
-        "The **channel and placement** it is for, with the correct aspect ratio or dimensions.",
-        "The **audience/persona** it targets and the **funnel stage** it serves.",
-        "The **objective** and the **call to action**.",
-        "How it reflects the **brand identity** — colours, typography, tone of voice.",
-        "**Accessibility** provision — subtitles and captions on video, alt text on images, contrast, plain language.",
-        "Any **variants** for A/B testing, and what you would measure to judge it."
-      ] }
+      "The **channel and placement** it is for, with the correct aspect ratio or dimensions.",
+      "The **audience/persona** it targets and the **funnel stage** it serves.",
+      "The **objective** and the **call to action**.",
+      "How it reflects the **brand identity** — colours, typography, tone of voice.",
+      "**Accessibility** provision — subtitles and captions on video, alt text on images, contrast, plain language.",
+      "Any **variants** for A/B testing, and what you would measure to judge it."
     ] } },
     { callout: { t: "miscon", h: "A prototype is not a rough version of a finished asset", body: "It is a **communication of intent**: it shows what the content will be, for whom, where and why, so a client can approve it before production money is spent. A neat annotated storyboard scores better than a hastily filmed video with no explanation — and the spec explicitly excludes finished content." }},
     { callout: { t: "memorise", h: "Content formats", body: "**Imagery** (instant, mood, cheap — social/display/product pages) · **Video** (demonstrates and builds trust, expensive, needs subtitles — TikTok/Reels/YouTube) · **Audio** (eyes-busy moments, intimacy, hard to attribute — podcasts/streaming/voice) · **Text** (detail and SEO, cheapest — blog/email/LinkedIn/product pages). Prototypes: **mock-up · storyboard · script · draft + wireframe**, annotated with channel, audience, stage, CTA, brand and accessibility." }}
@@ -1648,30 +2061,54 @@ C["it:F206.4.2"] = {
     { callout: { t: "def", h: "Content purpose", body: "The **effect the content is designed to have on the reader or viewer**. It is separate from the *format* (4.1) and the *style* (4.3): a video can entertain or educate; a article can inspire or persuade. Deciding the purpose first is what stops content being produced simply because it is someone's turn to post." }},
 
     { page: "The four purposes" },
-    { callout: { t: "info", h: "Entertain and inspire", body: [
-      { kv: [
-        ["Entertain", "**Effect sought:** amusement, enjoyment, surprise — the audience watches because they want to, not because they need something. **Why use it:** it earns attention from people who are not looking for you, it is the most shared kind of content so it extends reach organically, and it makes a brand likeable. **Examples:** humorous short video, memes, quizzes, trends and challenges, behind-the-scenes moments, competitions. **Funnel stage:** engagement. **Risk:** entertainment that is not connected to the brand or product wins views and sells nothing — the classic 'went viral, changed nothing' outcome."],
-        ["Inspire", "**Effect sought:** aspiration and emotional connection — the audience imagines the better situation the product makes possible. **Why use it:** it links the product to the customer's identity and goals, which is what builds brand preference rather than mere awareness. **Examples:** customer success stories, transformation or before-and-after content, aspirational lifestyle imagery, founder or purpose stories, user-generated content showing real results. **Funnel stage:** engagement and evaluation. **Risk:** aspiration that feels unattainable or inauthentic produces cynicism, and real customers are far more convincing than stock imagery."]
-      ] }
-    ] } },
-    { callout: { t: "info", h: "Educate and convince/persuade", body: [
-      { kv: [
-        ["Educate", "**Effect sought:** understanding — the audience learns something useful, whether about the problem, the category or the product. **Why use it:** it builds trust and authority, it answers the questions people are actively searching for (so it is the backbone of SEO), and a customer who understands the product is easier to convert and less likely to return it. **Examples:** how-to guides, explainer videos, FAQs, tutorials, buying guides, myth-busting, webinars, comparison content. **Funnel stage:** education, research, adoption. **Risk:** educating without ever connecting to the offer produces a helpful blog and no sales."],
-        ["Convince / persuade", "**Effect sought:** action — the audience is moved to buy, enquire, sign up or share. **Why use it:** it is the content that closes; without it the other three purposes have no destination. **Examples:** offers and limited-time promotions, testimonials and reviews, case studies with results, comparison tables, guarantees and risk-reversal, free trials and demos, and a clear call to action. **Funnel stage:** evaluation, justification, purchase. **Risk:** persuasion used too early — pushing a discount at someone who does not yet know what you sell — and over-use, which makes a feed feel like a shop window and drives people away."]
-      ] }
-    ] } },
+    { h: "Entertain and inspire" },
+    { kv: [
+      [
+        "Entertain",
+        "**Effect sought:** amusement, enjoyment, surprise — the audience watches because they want to, not because they need something. **Why use it:** it earns attention from people who are not looking for you, it is the most shared kind of content so it extends reach organically, and it makes a brand likeable. **Examples:** humorous short video, memes, quizzes, trends and challenges, behind-the-scenes moments, competitions. **Funnel stage:** engagement. **Risk:** entertainment that is not connected to the brand or product wins views and sells nothing — the classic 'went viral, changed nothing' outcome."
+      ],
+      [
+        "Inspire",
+        "**Effect sought:** aspiration and emotional connection — the audience imagines the better situation the product makes possible. **Why use it:** it links the product to the customer's identity and goals, which is what builds brand preference rather than mere awareness. **Examples:** customer success stories, transformation or before-and-after content, aspirational lifestyle imagery, founder or purpose stories, user-generated content showing real results. **Funnel stage:** engagement and evaluation. **Risk:** aspiration that feels unattainable or inauthentic produces cynicism, and real customers are far more convincing than stock imagery."
+      ]
+    ] },
+    { h: "Educate and convince/persuade" },
+    { kv: [
+      [
+        "Educate",
+        "**Effect sought:** understanding — the audience learns something useful, whether about the problem, the category or the product. **Why use it:** it builds trust and authority, it answers the questions people are actively searching for (so it is the backbone of SEO), and a customer who understands the product is easier to convert and less likely to return it. **Examples:** how-to guides, explainer videos, FAQs, tutorials, buying guides, myth-busting, webinars, comparison content. **Funnel stage:** education, research, adoption. **Risk:** educating without ever connecting to the offer produces a helpful blog and no sales."
+      ],
+      [
+        "Convince / persuade",
+        "**Effect sought:** action — the audience is moved to buy, enquire, sign up or share. **Why use it:** it is the content that closes; without it the other three purposes have no destination. **Examples:** offers and limited-time promotions, testimonials and reviews, case studies with results, comparison tables, guarantees and risk-reversal, free trials and demos, and a clear call to action. **Funnel stage:** evaluation, justification, purchase. **Risk:** persuasion used too early — pushing a discount at someone who does not yet know what you sell — and over-use, which makes a feed feel like a shop window and drives people away."
+      ]
+    ] },
 
     { page: "Using purpose in a campaign" },
     { callout: { t: "tip", h: "Balance the four across the campaign", body: "A campaign of only persuasion feels like relentless selling and is unfollowed; a campaign of only entertainment and education never asks for the sale. Plan a **mix**, and map each piece to a **funnel stage**: entertain and inspire at engagement, educate through education and research, convince at evaluation, justification and purchase, and educate again at adoption. Stating that mix in your plan is a straightforward way to evidence coverage." }},
-    { callout: { t: "info", h: "Matching purpose to requirement (M5)", body: [
-      { kv: [
-        ["Client needs awareness among a new audience", "Entertain and inspire — attention-earning, shareable content that reaches people not searching for the client."],
-        ["Client's product is misunderstood or new", "Educate — explainers and comparison content that build understanding before any offer."],
-        ["Client has traffic but poor conversion", "Convince/persuade — reviews, guarantees, case studies and clear calls to action at the point of decision."],
-        ["Client wants brand preference, not just recognition", "Inspire — customer stories and purpose content that connect the brand to the customer's identity."],
-        ["Client has returns or support problems after purchase", "Educate — onboarding and how-to content at the adoption stage."]
-      ] }
-    ] } },
+    { h: "Matching purpose to requirement (M5)" },
+    { kv: [
+      [
+        "Client needs awareness among a new audience",
+        "Entertain and inspire — attention-earning, shareable content that reaches people not searching for the client."
+      ],
+      [
+        "Client's product is misunderstood or new",
+        "Educate — explainers and comparison content that build understanding before any offer."
+      ],
+      [
+        "Client has traffic but poor conversion",
+        "Convince/persuade — reviews, guarantees, case studies and clear calls to action at the point of decision."
+      ],
+      [
+        "Client wants brand preference, not just recognition",
+        "Inspire — customer stories and purpose content that connect the brand to the customer's identity."
+      ],
+      [
+        "Client has returns or support problems after purchase",
+        "Educate — onboarding and how-to content at the adoption stage."
+      ]
+    ] },
     { callout: { t: "miscon", h: "Purpose is not the same as format or style", body: "Three different decisions, often confused in exams. **Format** = imagery, video, audio, text (4.1). **Purpose** = entertain, inspire, educate, convince (this leaf). **Style** = the language, tone and keywords used (4.3). One piece of content has all three: *a short video (format) that educates (purpose) in plain, friendly language with a clear call to action (style)*." }},
     { callout: { t: "memorise", h: "Content purpose", body: "**Entertain** (attention and shareability — engagement) · **Inspire** (aspiration and preference — engagement/evaluation) · **Educate** (understanding, trust, SEO — education/research/adoption) · **Convince/persuade** (action — evaluation/justification/purchase). Balance all four; map each to a funnel stage; and remember purpose ≠ format ≠ style." }}
   ],
@@ -1785,47 +2222,106 @@ C["it:F206.4.3"] = {
     "Content **style**: how the language is *modified for the target audience* (clarity, persuasion, call to action) and how **keywords** are used and why they are valuable. It carries **P8** (*state and explain choice of keywords*) — where the guidance notes the explanations *do not have to be based on research* — and **D3** (*explain how content style is used to meet the client requirements, aims and purpose*).",
 
     { page: "Language use for the audience" },
-    { callout: { t: "info", h: "Clarity", body: [
-      { kv: [
-        ["What it means", "The reader understands the message immediately, with no effort and no ambiguity."],
-        ["How it is achieved", "Short sentences; everyday words instead of jargon; the active voice; one idea per paragraph; concrete specifics instead of vague claims; front-loading the important point rather than building to it; scannable structure with headings, short paragraphs and bullet points; and consistent terminology — call the same thing the same name every time."],
-        ["Why it matters", "Online readers scan rather than read, most on a phone. Anything that takes effort to understand is abandoned, and confusion at the moment of decision is lost revenue. Clarity is also an accessibility requirement — plain language serves readers with dyslexia, cognitive differences and those reading in a second language."],
-        ["Adapting to the audience", "A technical B2B audience expects precise terminology and will find over-simplification patronising; a general consumer audience needs the same idea in plain words. Match the vocabulary to the persona's knowledge, not to your own."]
-      ] }
-    ] } },
-    { callout: { t: "info", h: "Persuasion", body: [
-      { kv: [
-        ["Benefits, not features", "The central technique: translate what the product *is* into what the customer *gets*. 'A 12-hour battery' is a feature; 'lasts a full shift without charging' is a benefit."],
-        ["Address the reader", "Second person — 'you', 'your' — makes the message personal and specific rather than a description of the company."],
-        ["Social proof", "Reviews, ratings, numbers of customers, recognisable clients and testimonials — people are persuaded by evidence that others chose it."],
-        ["Reduce risk", "Guarantees, free returns, trials and transparent pricing remove the reasons not to act."],
-        ["Scarcity and urgency", "Limited stock or a deadline creates a reason to act now — but only when **genuine**; fake urgency destroys trust and is a consumer-protection issue."],
-        ["Emotion with evidence", "Feeling drives the decision and evidence justifies it — pair the two rather than relying on either alone."],
-        ["Tone", "Persuasion must still fit the brand voice from 3.1; a formal professional brand persuades formally."]
-      ] }
-    ] } },
+    { h: "Clarity" },
+    { kv: [
+      [
+        "What it means",
+        "The reader understands the message immediately, with no effort and no ambiguity."
+      ],
+      [
+        "How it is achieved",
+        "Short sentences; everyday words instead of jargon; the active voice; one idea per paragraph; concrete specifics instead of vague claims; front-loading the important point rather than building to it; scannable structure with headings, short paragraphs and bullet points; and consistent terminology — call the same thing the same name every time."
+      ],
+      [
+        "Why it matters",
+        "Online readers scan rather than read, most on a phone. Anything that takes effort to understand is abandoned, and confusion at the moment of decision is lost revenue. Clarity is also an accessibility requirement — plain language serves readers with dyslexia, cognitive differences and those reading in a second language."
+      ],
+      [
+        "Adapting to the audience",
+        "A technical B2B audience expects precise terminology and will find over-simplification patronising; a general consumer audience needs the same idea in plain words. Match the vocabulary to the persona's knowledge, not to your own."
+      ]
+    ] },
+    { h: "Persuasion" },
+    { kv: [
+      [
+        "Benefits, not features",
+        "The central technique: translate what the product *is* into what the customer *gets*. 'A 12-hour battery' is a feature; 'lasts a full shift without charging' is a benefit."
+      ],
+      [
+        "Address the reader",
+        "Second person — 'you', 'your' — makes the message personal and specific rather than a description of the company."
+      ],
+      [
+        "Social proof",
+        "Reviews, ratings, numbers of customers, recognisable clients and testimonials — people are persuaded by evidence that others chose it."
+      ],
+      [
+        "Reduce risk",
+        "Guarantees, free returns, trials and transparent pricing remove the reasons not to act."
+      ],
+      [
+        "Scarcity and urgency",
+        "Limited stock or a deadline creates a reason to act now — but only when **genuine**; fake urgency destroys trust and is a consumer-protection issue."
+      ],
+      [
+        "Emotion with evidence",
+        "Feeling drives the decision and evidence justifies it — pair the two rather than relying on either alone."
+      ],
+      [
+        "Tone",
+        "Persuasion must still fit the brand voice from 3.1; a formal professional brand persuades formally."
+      ]
+    ] },
     { callout: { t: "def", h: "Call to action (CTA)", body: "The explicit instruction telling the reader **what to do next** — 'Book a free trial', 'Download the guide', 'Order by Friday for Christmas delivery'. Rules: use an **action verb**; be **specific** about what happens next; make it **visible** and repeated on long pages; keep **one primary** CTA per page (competing CTAs reduce all of them); make it **low-friction** (fewer form fields, guest checkout); and match it to the **funnel stage** — 'Buy now' at engagement is too early, 'Learn more' at purchase is too weak." }},
 
     { page: "Keywords" },
     { callout: { t: "def", h: "Keywords", body: "The **words and phrases people actually type or say** when searching for something. They matter because they are the point where audience language, search visibility and content planning meet: a keyword is simultaneously a *signal of demand*, a *statement of intent*, and the *vocabulary the audience itself uses*." }},
-    { callout: { t: "info", h: "How keywords are used", body: [
-      { kv: [
-        ["In SEO content", "Placed naturally in the page title, headings, opening paragraph, body copy, image alt text, URL and meta description so search engines can match the page to the query."],
-        ["In paid search", "Chosen as the terms adverts bid on, with negative keywords excluding irrelevant searches that would waste budget."],
-        ["To plan content", "Each distinct keyword theme with real demand and no matching page is a content gap — the most defensible source of content ideas (3.1)."],
-        ["To match the audience's language", "Use the words customers use, not internal or industry jargon — people search 'cheap laptop repair', not 'affordable device remediation services'."],
-        ["To read intent", "Informational ('how to…'), navigational (a brand name), commercial ('best… review') and transactional ('buy… near me'). Intent decides what content the page must be and which funnel stage it serves."],
-        ["In social and video", "As hashtags, captions, video titles and descriptions — platform search and recommendation rely on them too."]
-      ] }
-    ] } },
-    { callout: { t: "info", h: "The value of keywords, and short vs long tail", body: [
-      { kv: [
-        ["Short-tail (head) keywords", "Broad, one or two words ('laptops'). Very high volume, very high competition, vague intent, expensive in PPC and hard to rank for."],
-        ["Long-tail keywords", "Longer and more specific ('refurbished gaming laptop with 3 year warranty'). Lower volume but much lower competition, far clearer intent and much higher conversion rate — usually the better choice for a small client."],
-        ["Value to the client", "Keywords bring visibility where demand already exists, attract qualified traffic rather than any traffic, reduce wasted ad spend through precise targeting and negatives, and reveal the market's own language and unmet needs."],
-        ["Keyword stuffing", "Repeating a keyword unnaturally to manipulate rankings. It reads badly, damages credibility, and search engines penalise it — write for the reader first."]
-      ] }
-    ] } },
+    { h: "How keywords are used" },
+    { kv: [
+      [
+        "In SEO content",
+        "Placed naturally in the page title, headings, opening paragraph, body copy, image alt text, URL and meta description so search engines can match the page to the query."
+      ],
+      [
+        "In paid search",
+        "Chosen as the terms adverts bid on, with negative keywords excluding irrelevant searches that would waste budget."
+      ],
+      [
+        "To plan content",
+        "Each distinct keyword theme with real demand and no matching page is a content gap — the most defensible source of content ideas (3.1)."
+      ],
+      [
+        "To match the audience's language",
+        "Use the words customers use, not internal or industry jargon — people search 'cheap laptop repair', not 'affordable device remediation services'."
+      ],
+      [
+        "To read intent",
+        "Informational ('how to…'), navigational (a brand name), commercial ('best… review') and transactional ('buy… near me'). Intent decides what content the page must be and which funnel stage it serves."
+      ],
+      [
+        "In social and video",
+        "As hashtags, captions, video titles and descriptions — platform search and recommendation rely on them too."
+      ]
+    ] },
+    { h: "The value of keywords, and short vs long tail" },
+    { kv: [
+      [
+        "Short-tail (head) keywords",
+        "Broad, one or two words ('laptops'). Very high volume, very high competition, vague intent, expensive in PPC and hard to rank for."
+      ],
+      [
+        "Long-tail keywords",
+        "Longer and more specific ('refurbished gaming laptop with 3 year warranty'). Lower volume but much lower competition, far clearer intent and much higher conversion rate — usually the better choice for a small client."
+      ],
+      [
+        "Value to the client",
+        "Keywords bring visibility where demand already exists, attract qualified traffic rather than any traffic, reduce wasted ad spend through precise targeting and negatives, and reveal the market's own language and unmet needs."
+      ],
+      [
+        "Keyword stuffing",
+        "Repeating a keyword unnaturally to manipulate rankings. It reads badly, damages credibility, and search engines penalise it — write for the reader first."
+      ]
+    ] },
     { callout: { t: "tip", h: "P8 — 'state and explain' your keywords", body: "The guidance says the explanations **do not have to be based on research**, so you are not required to produce search-volume data. What you *must* do is **explain the choice**: who would type this, what intent it shows, which page or content it maps to, which funnel stage it serves, and why it suits this client rather than a broader term. A short table of keyword · intent · target content · reason answers P8 efficiently." }},
     { callout: { t: "miscon", h: "Style is not decoration — it is how the aim is delivered", body: "D3 asks *how content style is used to meet the client requirements, aims and purpose*. So tie each style decision to an aim: 'the client's audience is non-technical first-time buyers, so copy uses plain language with no jargon and defines every term (clarity), leads with benefits rather than specifications (persuasion), and ends with a low-commitment CTA — \"Check if it fits your setup\" rather than \"Buy now\" — because the aim at this stage is to move people from research to evaluation, not to close.'" }},
     { callout: { t: "memorise", h: "Content style", body: "**Clarity** (short sentences, plain words, active voice, scannable, consistent terms — matched to the persona's knowledge). **Persuasion** (benefits not features, 'you', social proof, risk reduction, genuine urgency, emotion + evidence, in brand voice). **CTA** (action verb, specific, visible, one primary, low friction, matched to funnel stage). **Keywords** (the audience's own words; intent: informational/navigational/commercial/transactional; long tail converts better than head terms; never stuff)." }}
@@ -1951,61 +2447,120 @@ C["it:F206.5.1"] = {
 
     { page: "The executive summary" },
     { callout: { t: "def", h: "Executive summary", body: "A **short, standalone overview** of the whole proposal — typically half a page to a page — written for someone who may read nothing else. It states the situation, what is proposed, what it will achieve and what it requires, so a decision-maker can grasp the case in two minutes. It is written **last** (once the detail is settled) but placed **first**." }},
-    { callout: { t: "info", h: "What the spec requires it to contain", body: [
-      { kv: [
-        ["Purpose of the campaign", "What the campaign is for, in one or two sentences — the client's problem, the objective, and the headline of the approach. Written in the client's language, not marketing jargon."],
-        ["Impact on stakeholders", "Who is affected and how: the client organisation (what it gains — enquiries, sales, brand recognition), customers (what improves for them), staff (what they will have to do differently — content production, responding to comments, checkout changes), and any wider impact."],
-        ["Also worth including", "The key finding from the data analysis that drove the plan; the main channels and formats; the KPIs and targets; the timescale; and what is required from the client (budget, approvals, resources, decisions)."]
-      ] }
-    ] } },
+    { h: "What the spec requires it to contain" },
+    { kv: [
+      [
+        "Purpose of the campaign",
+        "What the campaign is for, in one or two sentences — the client's problem, the objective, and the headline of the approach. Written in the client's language, not marketing jargon."
+      ],
+      [
+        "Impact on stakeholders",
+        "Who is affected and how: the client organisation (what it gains — enquiries, sales, brand recognition), customers (what improves for them), staff (what they will have to do differently — content production, responding to comments, checkout changes), and any wider impact."
+      ],
+      [
+        "Also worth including",
+        "The key finding from the data analysis that drove the plan; the main channels and formats; the KPIs and targets; the timescale; and what is required from the client (budget, approvals, resources, decisions)."
+      ]
+    ] },
     { callout: { t: "tip", h: "Test your executive summary", body: "Give it to someone who has not read the proposal. If they can then say **what the problem is, what you propose, what it will achieve and what it will cost them in effort or money**, it works. If they have to ask any of those four, rewrite it. Avoid jargon, avoid detail that belongs in the body, and lead with the outcome rather than the activity." }},
 
     { page: "Presenting and delivering the pitch" },
-    { callout: { t: "info", h: "Structure — the main points of the proposal", body: [
-      { kv: [
-        ["1 · The client's situation and requirements", "Restated in their words, so they see they have been understood."],
-        ["2 · What the data showed", "The two or three findings that matter, with the visual from P3 rather than a table of numbers."],
-        ["3 · The proposal in one line", "The campaign, its aim and its target audience, before any detail."],
-        ["4 · The plan", "Channels, marketing mix and funnel coverage — why these, based on the analysis."],
-        ["5 · The content", "The prototypes shown — this is what stakeholders engage with most and what makes the plan real."],
-        ["6 · Timescales and publishing schedule", "When things happen and what the client must approve, by when."],
-        ["7 · Success criteria", "The KPIs, baselines and targets — how everyone will know whether it worked."],
-        ["8 · What is needed and next steps", "Budget, resources, decisions — then specific questions to gather feedback."]
-      ] }
-    ] } },
+    { h: "Structure — the main points of the proposal" },
+    { kv: [
+      [
+        "1 · The client's situation and requirements",
+        "Restated in their words, so they see they have been understood."
+      ],
+      [
+        "2 · What the data showed",
+        "The two or three findings that matter, with the visual from P3 rather than a table of numbers."
+      ],
+      [
+        "3 · The proposal in one line",
+        "The campaign, its aim and its target audience, before any detail."
+      ],
+      ["4 · The plan", "Channels, marketing mix and funnel coverage — why these, based on the analysis."],
+      [
+        "5 · The content",
+        "The prototypes shown — this is what stakeholders engage with most and what makes the plan real."
+      ],
+      [
+        "6 · Timescales and publishing schedule",
+        "When things happen and what the client must approve, by when."
+      ],
+      [
+        "7 · Success criteria",
+        "The KPIs, baselines and targets — how everyone will know whether it worked."
+      ],
+      [
+        "8 · What is needed and next steps",
+        "Budget, resources, decisions — then specific questions to gather feedback."
+      ]
+    ] },
     { callout: { t: "info", h: "Digital elements for different channels", body: [
-      { ul: [
-        "The spec names this explicitly: show the **prototypes in their channel context** — the vertical video framed as it will appear in a feed, the email as it will look in an inbox on a phone, the landing page as a wireframe or mock-up.",
-        "Showing the same message adapted across channels demonstrates that the campaign is **coherent but channel-appropriate**, rather than one asset pasted everywhere.",
-        "Label each element with its channel, audience, funnel stage and call to action so stakeholders can comment on something concrete."
-      ] }
+      "The spec names this explicitly: show the **prototypes in their channel context** — the vertical video framed as it will appear in a feed, the email as it will look in an inbox on a phone, the landing page as a wireframe or mock-up.",
+      "Showing the same message adapted across channels demonstrates that the campaign is **coherent but channel-appropriate**, rather than one asset pasted everywhere.",
+      "Label each element with its channel, audience, funnel stage and call to action so stakeholders can comment on something concrete."
     ] } },
-    { callout: { t: "info", h: "Effective delivery", body: [
-      { kv: [
-        ["Clear presentation content", "One idea per slide or section; large readable type; visuals rather than paragraphs; consistent design; no reading aloud from the slide; a visible structure so people know where they are."],
-        ["Clear communication", "Speak at a measured pace with audible projection; define any term the audience may not know; signpost each section; use the stakeholders' vocabulary rather than marketing jargon; keep to time; make eye contact; and answer questions directly, saying you will confirm rather than inventing an answer."],
-        ["Know the audience", "A client cares about outcomes, cost and risk; a technical stakeholder cares about feasibility; a staff member cares about what it means for their workload. Address each rather than presenting one undifferentiated case."]
-      ] }
-    ] } },
+    { h: "Effective delivery" },
+    { kv: [
+      [
+        "Clear presentation content",
+        "One idea per slide or section; large readable type; visuals rather than paragraphs; consistent design; no reading aloud from the slide; a visible structure so people know where they are."
+      ],
+      [
+        "Clear communication",
+        "Speak at a measured pace with audible projection; define any term the audience may not know; signpost each section; use the stakeholders' vocabulary rather than marketing jargon; keep to time; make eye contact; and answer questions directly, saying you will confirm rather than inventing an answer."
+      ],
+      [
+        "Know the audience",
+        "A client cares about outcomes, cost and risk; a technical stakeholder cares about feasibility; a staff member cares about what it means for their workload. Address each rather than presenting one undifferentiated case."
+      ]
+    ] },
 
     { page: "Gathering and using feedback" },
-    { callout: { t: "info", h: "Gathering feedback (P11)", body: [
-      { kv: [
-        ["Methods", "A structured Q&A at the end of the pitch, a short written feedback form, one-to-one follow-up conversations, or an annotated copy of the proposal returned with comments."],
-        ["Ask specific questions", "\"Any thoughts?\" produces politeness. Ask about named elements: \"Which of these three content ideas would you drop first?\", \"What would stop you approving the publishing schedule?\", \"Is the KPI target realistic given last year?\""],
-        ["Record it properly", "Evidence can be notes or a report — so keep a structured record: who said it, about which element, what they said, and how strongly. Read points back at the end to confirm accuracy."],
-        ["Cover the whole proposal", "Feedback focused only on the visuals leaves the plan, KPIs and schedule untested; prompt for each major section."]
-      ] }
-    ] } },
-    { callout: { t: "info", h: "Analysing feedback (M6) and adapting (D4)", body: [
-      { kv: [
-        ["Collate and categorise", "Group points into themes — cost, feasibility, audience fit, brand fit, timing, measurement — so patterns rather than individual remarks emerge."],
-        ["Weigh", "Consider who said it (the client owns the requirement; a technical stakeholder judges feasibility), how many raised it, and how strongly."],
-        ["Resolve conflicts", "State contradictions openly and justify which side you follow and why — this is where analysis is actually demonstrated."],
-        ["Adapt (D4)", "Make specific, traceable changes to the proposal: what was changed, which feedback prompted it, and what effect the change is expected to have. Show the before and after."],
-        ["Justify rejections", "Say which feedback you did **not** act on and why — out of scope, unaffordable, conflicts with a requirement or with stronger feedback. Rejecting with a reason is analysis; silence is not."]
-      ] }
-    ] } },
+    { h: "Gathering feedback (P11)" },
+    { kv: [
+      [
+        "Methods",
+        "A structured Q&A at the end of the pitch, a short written feedback form, one-to-one follow-up conversations, or an annotated copy of the proposal returned with comments."
+      ],
+      [
+        "Ask specific questions",
+        "\"Any thoughts?\" produces politeness. Ask about named elements: \"Which of these three content ideas would you drop first?\", \"What would stop you approving the publishing schedule?\", \"Is the KPI target realistic given last year?\""
+      ],
+      [
+        "Record it properly",
+        "Evidence can be notes or a report — so keep a structured record: who said it, about which element, what they said, and how strongly. Read points back at the end to confirm accuracy."
+      ],
+      [
+        "Cover the whole proposal",
+        "Feedback focused only on the visuals leaves the plan, KPIs and schedule untested; prompt for each major section."
+      ]
+    ] },
+    { h: "Analysing feedback (M6) and adapting (D4)" },
+    { kv: [
+      [
+        "Collate and categorise",
+        "Group points into themes — cost, feasibility, audience fit, brand fit, timing, measurement — so patterns rather than individual remarks emerge."
+      ],
+      [
+        "Weigh",
+        "Consider who said it (the client owns the requirement; a technical stakeholder judges feasibility), how many raised it, and how strongly."
+      ],
+      [
+        "Resolve conflicts",
+        "State contradictions openly and justify which side you follow and why — this is where analysis is actually demonstrated."
+      ],
+      [
+        "Adapt (D4)",
+        "Make specific, traceable changes to the proposal: what was changed, which feedback prompted it, and what effect the change is expected to have. Show the before and after."
+      ],
+      [
+        "Justify rejections",
+        "Say which feedback you did **not** act on and why — out of scope, unaffordable, conflicts with a requirement or with stronger feedback. Rejecting with a reason is analysis; silence is not."
+      ]
+    ] },
     { callout: { t: "miscon", h: "Adapting is not agreeing with everything", body: "D4 asks you to *adapt the proposal based on feedback received* — not to accept every suggestion. A change that contradicts the client's own stated requirement, or that the budget cannot support, should be declined **with a documented reason**. Judgement about which feedback to act on is exactly what the criterion is testing." }},
     { callout: { t: "memorise", h: "Communicating the proposal", body: "**Executive summary:** purpose of the campaign + impact on stakeholders, standalone, written last, read first — test it on someone who has not read the proposal. **Pitch:** situation → data findings → proposal in one line → plan → prototypes in channel context → schedule → KPIs → asks and specific questions. **Delivery:** clear content, clear communication, know the audience. **Feedback:** gather with specific questions and record it → collate, categorise, weigh, resolve conflicts (M6) → adapt with traceable changes and justified rejections (D4)." }}
   ],
@@ -2145,44 +2700,75 @@ C["it:F206.6.1"] = {
 
     { page: "Boud, Keogh and Walker's model" },
     { callout: { t: "def", h: "The model", body: "A three-stage model of reflection which insists that reflection is driven by **feelings as well as thinking** — that unresolved negative feelings block learning, and positive ones enable it. The stages are **experience → reflective process → outcomes**." }},
-    { callout: { t: "info", h: "The three stages", body: [
-      { kv: [
-        ["1 · Experience", "What actually happened: the behaviour (what you did), the ideas (what you thought and decided) and the feelings (how you felt at the time — confident, frustrated, rushed, uncertain). Recording the experience factually and honestly is the raw material for everything that follows."],
-        ["2 · Reflective process", "Boud, Keogh and Walker break this into three activities. **Returning to the experience** — replaying it in detail and describing it without judgement. **Attending to feelings** — using the positive ones (what went well and why it felt right) and removing the obstructing negative ones, so that a frustrating episode can be examined rather than avoided. **Re-evaluating the experience** — examining it in the light of your intentions, linking it to what you already knew, testing whether the conclusions hold, and deciding what to take forward."],
-        ["3 · Outcomes", "What changes as a result: a new perspective, a change in behaviour, readiness to apply something differently, or a commitment to act. Reflection that produces no outcome is only description."]
-      ] }
-    ] } },
+    { h: "The three stages" },
+    { kv: [
+      [
+        "1 · Experience",
+        "What actually happened: the behaviour (what you did), the ideas (what you thought and decided) and the feelings (how you felt at the time — confident, frustrated, rushed, uncertain). Recording the experience factually and honestly is the raw material for everything that follows."
+      ],
+      [
+        "2 · Reflective process",
+        "Boud, Keogh and Walker break this into three activities. **Returning to the experience** — replaying it in detail and describing it without judgement. **Attending to feelings** — using the positive ones (what went well and why it felt right) and removing the obstructing negative ones, so that a frustrating episode can be examined rather than avoided. **Re-evaluating the experience** — examining it in the light of your intentions, linking it to what you already knew, testing whether the conclusions hold, and deciding what to take forward."
+      ],
+      [
+        "3 · Outcomes",
+        "What changes as a result: a new perspective, a change in behaviour, readiness to apply something differently, or a commitment to act. Reflection that produces no outcome is only description."
+      ]
+    ] },
     { callout: { t: "tip", h: "Use the model as your structure, not as a definition to recite", body: "The strongest reflections literally follow the three stages: *\"**Experience:** I left the content prototypes until the final week and felt rushed. **Reflective process:** returning to it, the delay came from waiting for the data analysis to be finished before starting any content — and the frustration stopped me noticing that the imagery prototypes did not depend on that analysis at all. **Outcome:** in future I will start work that has no dependency in parallel, and produce a dependency list at the planning stage.\"* That is P12, M7 and the seed of D5 in one paragraph." }},
 
     { page: "Effectiveness of the processes followed" },
-    { callout: { t: "info", h: "The four processes the spec names", body: [
-      { kv: [
-        ["Analysis of data", "Did the analysis actually answer the client's question? Was the data cleaned and filtered appropriately, and were exclusions justified? Were the right techniques used, and were rates used rather than raw totals? Did any finding change a decision — or was the analysis presented and then ignored? Were limitations acknowledged?"],
-        ["Campaign planning", "Were the objectives SMART and traceable to the client's requirements? Was the audience evidenced rather than assumed? Was the marketing mix addressed fully or reduced to promotion? Was the funnel covered at every stage? Was the schedule realistic once lead times and approvals were counted?"],
-        ["Content prototyping", "Were prototypes produced for each format needed, at the right fidelity (not over-produced)? Were they annotated with channel, audience, stage and CTA? Did they reflect brand identity and accessibility? Was enough time allowed, and were they ready in time to gather feedback on?"],
-        ["Communicating with stakeholders", "Was the executive summary genuinely standalone? Was the pitch structured for the audience, and did it stay in time? Were the questions asked specific enough to produce usable feedback? Was feedback recorded properly? Was it acted on, and were rejections justified?"]
-      ] }
-    ] } },
+    { h: "The four processes the spec names" },
+    { kv: [
+      [
+        "Analysis of data",
+        "Did the analysis actually answer the client's question? Was the data cleaned and filtered appropriately, and were exclusions justified? Were the right techniques used, and were rates used rather than raw totals? Did any finding change a decision — or was the analysis presented and then ignored? Were limitations acknowledged?"
+      ],
+      [
+        "Campaign planning",
+        "Were the objectives SMART and traceable to the client's requirements? Was the audience evidenced rather than assumed? Was the marketing mix addressed fully or reduced to promotion? Was the funnel covered at every stage? Was the schedule realistic once lead times and approvals were counted?"
+      ],
+      [
+        "Content prototyping",
+        "Were prototypes produced for each format needed, at the right fidelity (not over-produced)? Were they annotated with channel, audience, stage and CTA? Did they reflect brand identity and accessibility? Was enough time allowed, and were they ready in time to gather feedback on?"
+      ],
+      [
+        "Communicating with stakeholders",
+        "Was the executive summary genuinely standalone? Was the pitch structured for the audience, and did it stay in time? Were the questions asked specific enough to produce usable feedback? Was feedback recorded properly? Was it acted on, and were rejections justified?"
+      ]
+    ] },
 
     { page: "Effectiveness of tools and techniques" },
-    { callout: { t: "info", h: "The five named categories", body: [
-      { kv: [
-        ["Data visualisation tools", "Did the tool produce charts that communicated the finding clearly — correct chart type, zero-based axes, readable labels? Was it quick enough to iterate with? Would a different tool have handled the volume better?"],
-        ["Planning techniques", "Did the schedule, calendar or planning method keep the work on track, expose dependencies and give early warning of slippage — or was it written once and never revisited?"],
-        ["Prototyping tools", "Were the tools appropriate to the fidelity needed? Was time lost to learning software, or to over-producing something that only needed to be a storyboard?"],
-        ["Presentation delivery", "Was the format right for the audience? Did the technology work? Was the timing right? Did the delivery communicate the argument or read the slides?"],
-        ["Tools for gathering feedback", "Did the form or method produce specific, usable responses? Was the response rate adequate? Was the feedback recorded in a form that could actually be analysed for M6?"]
-      ] }
-    ] } },
+    { h: "The five named categories" },
+    { kv: [
+      [
+        "Data visualisation tools",
+        "Did the tool produce charts that communicated the finding clearly — correct chart type, zero-based axes, readable labels? Was it quick enough to iterate with? Would a different tool have handled the volume better?"
+      ],
+      [
+        "Planning techniques",
+        "Did the schedule, calendar or planning method keep the work on track, expose dependencies and give early warning of slippage — or was it written once and never revisited?"
+      ],
+      [
+        "Prototyping tools",
+        "Were the tools appropriate to the fidelity needed? Was time lost to learning software, or to over-producing something that only needed to be a storyboard?"
+      ],
+      [
+        "Presentation delivery",
+        "Was the format right for the audience? Did the technology work? Was the timing right? Did the delivery communicate the argument or read the slides?"
+      ],
+      [
+        "Tools for gathering feedback",
+        "Did the form or method produce specific, usable responses? Was the response rate adequate? Was the feedback recorded in a form that could actually be analysed for M6?"
+      ]
+    ] },
     { callout: { t: "tip", h: "Evaluate against the requirement, not against your feelings (D5)", body: "D5 asks *how far the processes used allowed the development of a campaign to meet client requirements*. So take the client's numbered requirements one at a time and judge: **did my process produce something that meets this requirement, and was it the process that got me there or luck?** \"The data analysis process met R2 well — the checkout finding directly produced the campaign's main action — but the content prototyping process met R4 only partially, because I ran out of time to prototype the email format, so the retention requirement is supported by a plan rather than by evidence.\" That is evaluation: specific, requirement-anchored, and two-sided." }},
     { callout: { t: "info", h: "Lessons learnt — making them usable", body: [
-      { ul: [
-        "State each lesson as a **future action**, not a feeling: not \"I should have managed my time better\" but \"I will produce a dependency list at planning and start non-dependent work in parallel\".",
-        "Tie each lesson to the **evidence** that produced it — the moment in the project that revealed it.",
-        "Include lessons about what **worked**, so they are repeated deliberately rather than by accident.",
-        "Be honest about **what you would keep**: a reflection where everything was wrong is as unconvincing as one where everything was fine.",
-        "Distinguish lessons about **process** (how you worked) from lessons about **content** (what you produced) — M7 is asking about the former."
-      ] }
+      "State each lesson as a **future action**, not a feeling: not \"I should have managed my time better\" but \"I will produce a dependency list at planning and start non-dependent work in parallel\".",
+      "Tie each lesson to the **evidence** that produced it — the moment in the project that revealed it.",
+      "Include lessons about what **worked**, so they are repeated deliberately rather than by accident.",
+      "Be honest about **what you would keep**: a reflection where everything was wrong is as unconvincing as one where everything was fine.",
+      "Distinguish lessons about **process** (how you worked) from lessons about **content** (what you produced) — M7 is asking about the former."
     ] } },
     { callout: { t: "miscon", h: "Reflection is not a diary and not an apology", body: "Two failure modes. The **diary**: \"On Monday I did the analysis. On Tuesday I made a chart.\" — description with no evaluation. The **apology**: \"I didn't do enough and I should have worked harder.\" — feeling with no analysis. Both miss the criteria. Every point should name what happened, judge how effective it was against the requirement, and state the specific action that follows." }},
     { callout: { t: "memorise", h: "Reflection", body: "**Boud, Keogh and Walker:** experience → reflective process (*return to the experience · attend to feelings · re-evaluate*) → outcomes. **Processes to evaluate:** data analysis · campaign planning · content prototyping · communicating with stakeholders. **Tools and techniques:** visualisation · planning · prototyping · presentation delivery · feedback gathering. **Lessons:** stated as future actions, tied to evidence, including what worked. **Commands:** P12 describe · M7 explain what you would do differently · D5 evaluate how far the processes met the client's requirements." }}

@@ -14,6 +14,7 @@
    - a notes array contains a bare string block (invariant #25 — prose must
      be wrapped in callouts, never plain paragraphs)
    - a quiz item's `ans` index is out of range for its `opts`
+   - a callout's body holds a block (a table, kv or list): text only
 
    WARNINGS (informational — the depth-standard nudges the old validators
    printed; absence is not an error because not every leaf needs every block):
@@ -93,6 +94,13 @@ function validateFile(filePath) {
           if (n.callout.body != null && typeof n.callout.body !== "string" && !Array.isArray(n.callout.body)) {
             err(key + " — callout '" + (n.callout.h || n.callout.t) + "' has one block as its body: write body: [ … ]");
           }
+          /* a callout holds text only (17 November 2026, asked for: a box
+             inside a box reads as clutter): a table, kv or list goes beside it */
+          (Array.isArray(n.callout.body) ? n.callout.body : []).forEach((x) => {
+            if (x && typeof x === "object" && !(Object.keys(x).length === 1 && (x.p != null || x.md != null))) {
+              err(key + " — callout '" + (n.callout.h || n.callout.t) + "' holds a " + Object.keys(x)[0] + " block: put it after the callout");
+            }
+          });
           walk(n.callout.body);
         }
       });

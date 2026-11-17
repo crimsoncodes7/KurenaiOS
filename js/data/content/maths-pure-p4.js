@@ -54,12 +54,12 @@ C["maths:4.1"] = {
       "$$(a + b)^n = a^n + \\binom{n}{1}a^{n-1}b + \\binom{n}{2}a^{n-2}b^2 + \\ldots + \\binom{n}{r}a^{n-r}b^r + \\ldots + b^n$$",
       "Powers of $a$ fall from $n$ to $0$, powers of $b$ rise from $0$ to $n$, and in every term the powers **add to $n$**. There are exactly $n + 1$ terms. With $b = $ the $x$-term of your bracket, ascending powers of $x$ come out in order."
     ] } },
-    { callout: { t: "tip", h: "Why does it stop after $n + 1$ terms?", body: ["Two ways to see it.",
-      { ul: [
-        "**Counting:** you cannot choose $b$ from more brackets than there are, so $\\binom{n}{r} = 0$ for $r > n$.",
-        "**Algebra:** written as $\\frac{n(n-1)(n-2)\\cdots(n-r+1)}{r!}$, the numerator of the coefficient of $x^{n+1}$ contains the factor $(n - n) = 0$ — and so does every coefficient after it."
-      ] },
-      "When $n$ is *not* a non-negative integer that factor never appears. That is exactly why the rational-$n$ series on the next page goes on for ever."] } },
+    { callout: { t: "tip", h: "Why does it stop after $n + 1$ terms?", body: [
+      "Two ways to see it.",
+      "**Counting:** you cannot choose $b$ from more brackets than there are, so $\\binom{n}{r} = 0$ for $r > n$.",
+      "**Algebra:** written as $\\frac{n(n-1)(n-2)\\cdots(n-r+1)}{r!}$, the numerator of the coefficient of $x^{n+1}$ contains the factor $(n - n) = 0$ — and so does every coefficient after it.",
+      "When $n$ is *not* a non-negative integer that factor never appears. That is exactly why the rational-$n$ series on the next page goes on for ever."
+    ] } },
     { h: "1.2  Pascal's triangle and the binomial coefficients" },
     "Row $n$ of Pascal's triangle lists $\\binom{n}{0}, \\binom{n}{1}, \\ldots, \\binom{n}{n}$ — the coefficients of $(a + b)^n$.",
     { ul: [
@@ -205,13 +205,13 @@ C["maths:4.1"] = {
       "$$(1 + x)^n = 1 + nx + \\dfrac{n(n-1)}{2!}x^2 + \\dfrac{n(n-1)(n-2)}{3!}x^3 + \\ldots + \\dfrac{n(n-1)\\cdots(n-r+1)}{r!}x^r + \\ldots \\qquad |x| < 1$$",
       "The $r$th coefficient has **$r$ falling factors** on top and **$r!$** underneath. For the $x^3$ term: three factors $n(n-1)(n-2)$ over $3! = 6$. Count the factors every time — a fourth factor sneaking into the $x^3$ coefficient is the single most common slip."
     ] } },
-    { callout: { t: "tip", h: "Why is there a validity condition at all — and why $|x| < 1$?", body: ["Take $n = -1$. The series is $1 - x + x^2 - x^3 + \\ldots$ — a **geometric series** with first term 1 and ratio $-x$.",
-      { ul: [
-        "You already know that sum is $\\frac{1}{1 + x}$ only when $|{-x}| < 1$.",
-        "At $x = 2$ the terms $1, -2, 4, -8, \\ldots$ grow without limit, while $\\frac{1}{1+2} = \\frac13$ sits there quietly.",
-        "Every other rational $n$ behaves the same way: the ratio of consecutive terms is $\\frac{n - r}{r + 1}x$, which tends to $-x$ as $r$ grows. So the tail is *eventually geometric* with ratio of size $|x|$ — convergent for $|x| < 1$, divergent for $|x| > 1$."
-      ] },
-      "The finite positive-integer expansion has no tail, which is why it has no condition."] } },
+    { callout: { t: "tip", h: "Why is there a validity condition at all — and why $|x| < 1$?", body: [
+      "Take $n = -1$. The series is $1 - x + x^2 - x^3 + \\ldots$ — a **geometric series** with first term 1 and ratio $-x$.",
+      "You already know that sum is $\\frac{1}{1 + x}$ only when $|{-x}| < 1$.",
+      "At $x = 2$ the terms $1, -2, 4, -8, \\ldots$ grow without limit, while $\\frac{1}{1+2} = \\frac13$ sits there quietly.",
+      "Every other rational $n$ behaves the same way: the ratio of consecutive terms is $\\frac{n - r}{r + 1}x$, which tends to $-x$ as $r$ grows. So the tail is *eventually geometric* with ratio of size $|x|$ — convergent for $|x| < 1$, divergent for $|x| > 1$.",
+      "The finite positive-integer expansion has no tail, which is why it has no condition."
+    ] } },
     { worked: { tag: "exam", title: "$(1 + 8x)^{\\frac12}$ — already in $(1 + \\ldots)^n$ form, four terms", src: "A-level Oct 2020 · P1 Q1(a) · 3 marks",
       q: "Find the first four terms, in ascending powers of $x$, of the binomial expansion of $(1 + 8x)^{\\frac12}$, giving each term in simplest form.",
       try: [{ grid: { cols: ["x", "√(1 + 8x)", "1 + 4x − 8x² + 32x³"], rows: [["0.05", "1.1832", "1.1840"], ["0.1", "1.3416", "1.3520"], ["0.25", "1.7321", "2.0000"]], given: [[0, 0], [1, 0], [2, 0]], cap: "Complete to 4 d.p. Which row is outside $|x| < \\frac18$, and what happens there?" } }],
@@ -235,20 +235,18 @@ C["maths:4.1"] = {
         { h: "$n = -2$", m: "$(1 + x)^{-2} = 1 - 2x + 3x^2 - 4x^3 + \\ldots$", n: "Coefficients $1, 2, 3, 4$ with alternating signs: $\\frac{(-2)(-3)}{2} = 3$, $\\frac{(-2)(-3)(-4)}{6} = -4$." },
         { h: "$n = \\frac12$", m: "$(1 + x)^{\\frac12} = 1 + \\dfrac12 x - \\dfrac18 x^2 + \\dfrac{1}{16}x^3 - \\ldots$", n: "The $-\\frac18$ and $+\\frac{1}{16}$ recur in every square-root question; knowing them lets you check the working above at a glance." }
       ] } },
-    { callout: { t: "warn", h: "Bracket discipline", body: ["The series is in terms of *the thing that is added to 1*. If that thing is $-9x$ then it is $(-9x)^2$ and $(-9x)^3$ that appear — not $-9x^2$.",
-      { ul: [
-        "Mark schemes explicitly \"condone missing brackets\" for the M mark — and then explicitly refuse the A marks when the missing bracket changes the answer.",
-        "Also refused: writing the coefficients as $\\binom{\\frac12}{2}$. That notation is not defined for a fraction on top."
-      ] }] } },
+    { callout: { t: "warn", h: "Bracket discipline", body: [
+      "The series is in terms of *the thing that is added to 1*. If that thing is $-9x$ then it is $(-9x)^2$ and $(-9x)^3$ that appear — not $-9x^2$.",
+      "Mark schemes explicitly \"condone missing brackets\" for the M mark — and then explicitly refuse the A marks when the missing bracket changes the answer.",
+      "Also refused: writing the coefficients as $\\binom{\\frac12}{2}$. That notation is not defined for a fraction on top."
+    ] } },
     { h: "2.2  Rearranging $(a + bx)^n \\to a^n\\left(1 + \\frac{b}{a}x\\right)^n$" },
     "The series was derived for a bracket that begins with **1**. Applying it to $4 + 5x$ directly — $1 + \\frac12(4 + 5x) + \\ldots$ — is not even wrong in an interesting way: the \"1 +\" has nothing to do with $(4 + 5x)^{\\frac12}$, whose value at $x = 0$ is 2. So first take out the $a$:",
     { callout: { t: "memorise", h: "The rearrangement — and the two places its marks are lost", body: [
       "$$(a + bx)^n = \\left[a\\left(1 + \\dfrac{b}{a}x\\right)\\right]^n = a^n\\left(1 + \\dfrac{b}{a}x\\right)^n$$",
       "Then expand $\\left(1 + \\frac{b}{a}x\\right)^n$ with $X = \\frac{b}{a}x$ in the series and multiply **every** term by $a^n$.",
-      { ul: [
-        "Lost mark 1: **forgetting $a^n$** altogether — you get $1 + \\ldots$ where the constant should be $a^n$.",
-        "Lost mark 2: **applying $a^n$ to the first term only.** The mark scheme's words: \"if the 2 outside this expansion is only partially applied then score A0\"."
-      ] }
+      "Lost mark 1: **forgetting $a^n$** altogether — you get $1 + \\ldots$ where the constant should be $a^n$.",
+      "Lost mark 2: **applying $a^n$ to the first term only.** The mark scheme's words: \"if the 2 outside this expansion is only partially applied then score A0\"."
     ] } },
     { worked: { tag: "exam", title: "$(4 + 5x)^{\\frac12}$ to $x^2$ — the B1 for taking out the 4", src: "A-level Specimen · P1 Q2(a) · 4 marks",
       q: "Show that the binomial expansion of $(4 + 5x)^{\\frac12}$ in ascending powers of $x$, up to and including the term in $x^2$, is $2 + \\frac54 x + kx^2$, giving the value of the constant $k$ as a simplified fraction.",
@@ -290,11 +288,9 @@ C["maths:4.1"] = {
     "The series for $(1 + X)^n$ is valid for $|X| < 1$. After the rearrangement, $X = \\frac{b}{a}x$, so",
     { callout: { t: "formula", h: "Validity of the expansion of $(a + bx)^n$", body: [
       "$$\\left|\\dfrac{b}{a}x\\right| < 1 \\;\\iff\\; |x| < \\left|\\dfrac{a}{b}\\right| \\;\\iff\\; -\\left|\\dfrac{a}{b}\\right| < x < \\left|\\dfrac{a}{b}\\right|$$",
-      { ul: [
-        "The sign of $b$ makes no difference — $|{-9x}| = 9|x|$ — so $(4 - 9x)^{\\frac12}$ and $(4 + 9x)^{\\frac12}$ share the range $|x| < \\frac49$.",
-        "The size of $n$ makes no difference either: the range depends only on the bracket.",
-        "Give it as a **strict** inequality with modulus signs. \"$x < \\frac49$\" on its own is wrong — it allows $x = -100$."
-      ] }
+      "The sign of $b$ makes no difference — $|{-9x}| = 9|x|$ — so $(4 - 9x)^{\\frac12}$ and $(4 + 9x)^{\\frac12}$ share the range $|x| < \\frac49$.",
+      "The size of $n$ makes no difference either: the range depends only on the bracket.",
+      "Give it as a **strict** inequality with modulus signs. \"$x < \\frac49$\" on its own is wrong — it allows $x = -100$."
     ] } },
     { table: { head: ["Expression", "Rearranged", "$X$", "Valid for"], rows: [
       ["$(1 + 8x)^{\\frac12}$", "—", "$8x$", "$|x| < \\frac18$"],

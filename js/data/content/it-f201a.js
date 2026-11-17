@@ -65,14 +65,25 @@ function pipelineFig() {
 C["it:F201.1.1"] = {
   notes: [
     { h: "The six characteristics (6Vs) — the whole topic on one page" },
-    { callout: { t: "info", h: "What the specification asks (F201 1.1)", body: [
-      { kv: [
-        ["Teaching content", "**Volume of data · Variety of data types · Velocity of streamed data · Value of data · Veracity of data · Variability of data inconsistencies**; and the **six steps for analysing big data**: data collection, data storing, data cleaning, data mining, data analysis, data consumption."],
-        ["To include (6Vs)", "what each characteristic is · how each one helps to define big data · the purpose of each · when each can be used."],
-        ["To include (steps)", "what is involved in each step · the role of each step in managing big data · when each step can be used."],
-        ["Does not include", "nothing is excluded here — but the techniques inside steps 3–5 are taught in 2.2 (cleaning), 2.3 (mining) and 2.6 (analytic techniques)."]
-      ] }
-    ] } },
+    { h: "What the specification asks (F201 1.1)" },
+    { kv: [
+      [
+        "Teaching content",
+        "**Volume of data · Variety of data types · Velocity of streamed data · Value of data · Veracity of data · Variability of data inconsistencies**; and the **six steps for analysing big data**: data collection, data storing, data cleaning, data mining, data analysis, data consumption."
+      ],
+      [
+        "To include (6Vs)",
+        "what each characteristic is · how each one helps to define big data · the purpose of each · when each can be used."
+      ],
+      [
+        "To include (steps)",
+        "what is involved in each step · the role of each step in managing big data · when each step can be used."
+      ],
+      [
+        "Does not include",
+        "nothing is excluded here — but the techniques inside steps 3–5 are taught in 2.2 (cleaning), 2.3 (mining) and 2.6 (analytic techniques)."
+      ]
+    ] },
     { table: { head: ["Question shape", "Command word", "Marks", "Nearest evidence"], rows: [
       ["Name the characteristic a situation shows", "State", "1", "SAM Q1(a)"],
       ["Ways volume makes data big", "State two", "2", "SAM Q1(b)"],
@@ -86,60 +97,132 @@ C["it:F201.1.1"] = {
     { page: "The 6Vs" },
     { callout: { t: "def", h: "Big data", body: "Data sets so **large, fast-arriving or varied** that ordinary tools (one spreadsheet, one database on one server) cannot capture, store and analyse them in a useful time. The **6Vs** are the six characteristics used to decide whether data is big data and what it will need." } },
     vWheelFig(),
-    { callout: { t: "def", h: "Volume of data", body: [
-      { kv: [
-        ["What it is", "the **amount** of data generated, collected and stored — measured in terabytes (TB), petabytes (PB) and beyond."],
-        ["How it defines big data", "the amount that **exists**, the **initial size** collected and how fast the amount is **growing** are too great for one computer or a traditional database."],
-        ["Purpose", "tells the organisation how much **storage** and **processing power** it needs (scalable, distributed, cloud) and what that will cost."],
-        ["When it is used", "planning storage; deciding whether to keep or archive old data; when data builds up over years (transactions, CCTV, sensor logs)."],
-        ["Example", "a supermarket keeping every basket from every till for ten years."]
-      ] }
-    ] } },
-    { callout: { t: "def", h: "Variety of data types", body: [
-      { kv: [
-        ["What it is", "the **range of types and formats** of data and the number of **sources** it comes from."],
-        ["The types", "**structured** (tables, transactions) · **semi-structured** (emails, XML, web pages) · **unstructured** (images, video, audio, free text) — see 2.1."],
-        ["How it defines big data", "mixed data cannot be held in one fixed table design (schema), so traditional relational tools are not enough on their own."],
-        ["Purpose", "tells the organisation what **storage** (e.g. a data lake) and how much **preparation** it needs to combine sources."],
-        ["When it is used", "whenever data is combined from different places — or one online form collects text, dates, numbers, email addresses and photos."]
-      ] }
-    ] } },
-    { callout: { t: "def", h: "Velocity of streamed data", body: [
-      { kv: [
-        ["What it is", "the **speed** at which data is generated and **streamed** in, and how quickly it must be processed to be useful."],
-        ["How it defines big data", "data arrives continuously, in real time, faster than it can be saved and analysed later in batches."],
-        ["Purpose", "decides between **real-time (stream) processing** and **batch processing**, and how up to date decisions can be."],
-        ["When it is used", "when data loses value in seconds or minutes: card fraud checks, live traffic, stock levels, sensor alarms."],
-        ["Example", "card payments from 300 stores arriving every second during a Saturday rush."]
-      ] }
-    ] } },
-    { callout: { t: "def", h: "Value of data", body: [
-      { kv: [
-        ["What it is", "the **worth** of the data to the organisation — the useful insight, money saved or income it can lead to."],
-        ["How it defines big data", "big data is only worth collecting if it can be turned into **useful information**; huge amounts of data with no insight are a cost, not an asset."],
-        ["Purpose", "justifies the **cost** of collecting, storing and analysing; links data to business **goals**; decides what to keep."],
-        ["When it is used", "deciding whether to start an analytics project; choosing which sources to collect; reviewing retention."],
-        ["Example", "weather forecasts joined to sales data cut waste on salads and barbecue food."]
-      ] }
-    ] } },
-    { callout: { t: "def", h: "Veracity of data", body: [
-      { kv: [
-        ["What it is", "the **accuracy, quality and trustworthiness** of the data — is it correct, complete, consistent and from a reliable source?"],
-        ["How it defines big data", "data from many sources at high volume is often duplicated, incomplete, biased or fake, so its quality cannot be assumed."],
-        ["Purpose", "shows how much **cleaning and validation** is needed and how much **confidence** to place in the results."],
-        ["When it is used", "data typed in by the public, social media, sensors that drift, data merged from different systems — and before any decision is made from results."],
-        ["Example", "customers enter a fake birthday on a loyalty form to get a free cake."]
-      ] }
-    ] } },
-    { callout: { t: "def", h: "Variability of data inconsistencies", body: [
-      { kv: [
-        ["What it is", "how much the data is **inconsistent or changes over time** — in its flow (peaks and troughs), its format, or its **meaning** in context."],
-        ["How it defines big data", "flows are irregular and meanings shift, so fixed rules, fixed capacity and models trained once stop working."],
-        ["Purpose", "warns the organisation to plan for **peaks**, re-check cleaning rules and **re-train** models, and to read data in context."],
-        ["When it is used", "seasonal trading (Christmas, Black Friday), trending topics on social media, bursts of sensor data, a word changing meaning (“sick” as praise)."],
-        ["Not the same as", "Variety (how many different kinds) — Variability is about **change and inconsistency**."]
-      ] }
-    ] } },
+    { h: "Volume of data" },
+    { kv: [
+      [
+        "What it is",
+        "the **amount** of data generated, collected and stored — measured in terabytes (TB), petabytes (PB) and beyond."
+      ],
+      [
+        "How it defines big data",
+        "the amount that **exists**, the **initial size** collected and how fast the amount is **growing** are too great for one computer or a traditional database."
+      ],
+      [
+        "Purpose",
+        "tells the organisation how much **storage** and **processing power** it needs (scalable, distributed, cloud) and what that will cost."
+      ],
+      [
+        "When it is used",
+        "planning storage; deciding whether to keep or archive old data; when data builds up over years (transactions, CCTV, sensor logs)."
+      ],
+      ["Example", "a supermarket keeping every basket from every till for ten years."]
+    ] },
+    { h: "Variety of data types" },
+    { kv: [
+      [
+        "What it is",
+        "the **range of types and formats** of data and the number of **sources** it comes from."
+      ],
+      [
+        "The types",
+        "**structured** (tables, transactions) · **semi-structured** (emails, XML, web pages) · **unstructured** (images, video, audio, free text) — see 2.1."
+      ],
+      [
+        "How it defines big data",
+        "mixed data cannot be held in one fixed table design (schema), so traditional relational tools are not enough on their own."
+      ],
+      [
+        "Purpose",
+        "tells the organisation what **storage** (e.g. a data lake) and how much **preparation** it needs to combine sources."
+      ],
+      [
+        "When it is used",
+        "whenever data is combined from different places — or one online form collects text, dates, numbers, email addresses and photos."
+      ]
+    ] },
+    { h: "Velocity of streamed data" },
+    { kv: [
+      [
+        "What it is",
+        "the **speed** at which data is generated and **streamed** in, and how quickly it must be processed to be useful."
+      ],
+      [
+        "How it defines big data",
+        "data arrives continuously, in real time, faster than it can be saved and analysed later in batches."
+      ],
+      [
+        "Purpose",
+        "decides between **real-time (stream) processing** and **batch processing**, and how up to date decisions can be."
+      ],
+      [
+        "When it is used",
+        "when data loses value in seconds or minutes: card fraud checks, live traffic, stock levels, sensor alarms."
+      ],
+      ["Example", "card payments from 300 stores arriving every second during a Saturday rush."]
+    ] },
+    { h: "Value of data" },
+    { kv: [
+      [
+        "What it is",
+        "the **worth** of the data to the organisation — the useful insight, money saved or income it can lead to."
+      ],
+      [
+        "How it defines big data",
+        "big data is only worth collecting if it can be turned into **useful information**; huge amounts of data with no insight are a cost, not an asset."
+      ],
+      [
+        "Purpose",
+        "justifies the **cost** of collecting, storing and analysing; links data to business **goals**; decides what to keep."
+      ],
+      [
+        "When it is used",
+        "deciding whether to start an analytics project; choosing which sources to collect; reviewing retention."
+      ],
+      ["Example", "weather forecasts joined to sales data cut waste on salads and barbecue food."]
+    ] },
+    { h: "Veracity of data" },
+    { kv: [
+      [
+        "What it is",
+        "the **accuracy, quality and trustworthiness** of the data — is it correct, complete, consistent and from a reliable source?"
+      ],
+      [
+        "How it defines big data",
+        "data from many sources at high volume is often duplicated, incomplete, biased or fake, so its quality cannot be assumed."
+      ],
+      [
+        "Purpose",
+        "shows how much **cleaning and validation** is needed and how much **confidence** to place in the results."
+      ],
+      [
+        "When it is used",
+        "data typed in by the public, social media, sensors that drift, data merged from different systems — and before any decision is made from results."
+      ],
+      ["Example", "customers enter a fake birthday on a loyalty form to get a free cake."]
+    ] },
+    { h: "Variability of data inconsistencies" },
+    { kv: [
+      [
+        "What it is",
+        "how much the data is **inconsistent or changes over time** — in its flow (peaks and troughs), its format, or its **meaning** in context."
+      ],
+      [
+        "How it defines big data",
+        "flows are irregular and meanings shift, so fixed rules, fixed capacity and models trained once stop working."
+      ],
+      [
+        "Purpose",
+        "warns the organisation to plan for **peaks**, re-check cleaning rules and **re-train** models, and to read data in context."
+      ],
+      [
+        "When it is used",
+        "seasonal trading (Christmas, Black Friday), trending topics on social media, bursts of sensor data, a word changing meaning (“sick” as praise)."
+      ],
+      [
+        "Not the same as",
+        "Variety (how many different kinds) — Variability is about **change and inconsistency**."
+      ]
+    ] },
 
     { page: "Telling the Vs apart" },
     { table: { head: ["Characteristic", "The question it asks", "Clue words in a scenario", "What it drives"], rows: [
@@ -151,14 +234,15 @@ C["it:F201.1.1"] = {
       ["Variability of data inconsistencies", "Does it stay steady?", "seasonal, peaks, changes over time, meaning", "spare capacity, re-training models"]
     ] } },
     { callout: { t: "info", h: "How big is “big”? Units of volume", body: [
-      { table: { head: ["Unit", "Size", "Feels like"], rows: [
-        ["Gigabyte (GB)", "1,000 MB", "a film in standard definition"],
-        ["Terabyte (TB)", "1,000 GB", "a home external hard drive"],
-        ["Petabyte (PB)", "1,000 TB", "a large organisation's data store"],
-        ["Exabyte (EB)", "1,000 PB", "a cloud provider's data centres"],
-        ["Zettabyte (ZB)", "1,000 EB", "the world's data, measured in ZB"]
-      ] } },
-      { ul: ["Each step is ×1,000 (decimal). Computing also uses ×1,024 steps (GiB, TiB); either is accepted in F201.", "There is no fixed size at which data becomes “big”: it is big when it outgrows the organisation's ordinary tools."] }
+      "Each step is ×1,000 (decimal). Computing also uses ×1,024 steps (GiB, TiB); either is accepted in F201.",
+      "There is no fixed size at which data becomes “big”: it is big when it outgrows the organisation's ordinary tools."
+    ] } },
+    { table: { head: ["Unit", "Size", "Feels like"], rows: [
+      ["Gigabyte (GB)", "1,000 MB", "a film in standard definition"],
+      ["Terabyte (TB)", "1,000 GB", "a home external hard drive"],
+      ["Petabyte (PB)", "1,000 TB", "a large organisation's data store"],
+      ["Exabyte (EB)", "1,000 PB", "a cloud provider's data centres"],
+      ["Zettabyte (ZB)", "1,000 EB", "the world's data, measured in ZB"]
     ] } },
     { worked: { tag: "example", title: "Which V dominates here, and why?", q: "Harbour Foods, a supermarket chain with 320 UK stores and a loyalty app, lists six things its data team has noticed. Name the characteristic each one shows.",
       steps: [
@@ -177,57 +261,93 @@ C["it:F201.1.1"] = {
         ["Check-ins double every January then fall away by March", "Variability"],
         ["Class data shows which timetable change won back members", "Value"]
       ], given: [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0]], cap: "Type the one-word V. In the exam write the specification's full name (e.g. Velocity of streamed data)." } }] } },
-    { callout: { t: "warn", h: "The confusable pairs", body: [{ ul: [
+    { callout: { t: "warn", h: "The confusable pairs", body: [
       "**Variety vs Variability** — Variety = how many *different kinds* of data; Variability = how much the data *changes or is inconsistent over time*.",
       "**Velocity vs processing speed** — Velocity is how fast data *arrives*; the system must keep pace with it.",
       "**Value vs Volume** — more data is not more value; value is the *useful insight*, which may come from a small part of the data.",
       "**Veracity vs Validity** — Veracity is the *trustworthiness* of the data as a whole; validation (2.2) is one way of improving it."
-    ] }] } },
+    ] } },
 
     { page: "The six analysis steps" },
     pipelineFig(),
-    { callout: { t: "def", h: "1 · Data collection", body: [
-      { kv: [
-        ["What is involved", "gathering raw data from its sources — forms, transactions, sensors, GPS, social media, surveys (the capture methods of 1.3)."],
-        ["Role in managing big data", "supplies the raw material: what is not collected cannot be analysed; collecting the right, relevant data (and lawfully, under UK GDPR) sets the limit on every later step."],
-        ["When it is used", "at the start of a project and continuously for streamed sources."]
-      ] }
-    ] } },
-    { callout: { t: "def", h: "2 · Data storing", body: [
-      { kv: [
-        ["What is involved", "saving the data securely where it can be reached again — databases, data warehouses, data lakes, cloud storage (2.4)."],
-        ["Role in managing big data", "keeps the data **available, secure and backed up**; the storage chosen must scale with Volume and hold the Variety of types."],
-        ["When it is used", "as soon as data is collected, before it is cleaned; reviewed as the data grows."]
-      ] }
-    ] } },
-    { callout: { t: "def", h: "3 · Data cleaning", body: [
-      { kv: [
-        ["What is involved", "finding and fixing problems: removing duplicates and irrelevant data, fixing missing data and structural errors, converting types, validating (2.2)."],
-        ["Role in managing big data", "raises **Veracity** so the results can be trusted — “garbage in, garbage out”."],
-        ["When it is used", "after storing and before mining; again whenever new data is added. Often the longest step."]
-      ] }
-    ] } },
-    { callout: { t: "def", h: "4 · Data mining", body: [
-      { kv: [
-        ["What is involved", "searching large data sets with software and algorithms to **discover patterns, trends and relationships** that are not obvious (descriptive, diagnostic, predictive, prescriptive — 2.3)."],
-        ["Role in managing big data", "turns a mass of clean data into **candidate patterns** worth investigating."],
-        ["When it is used", "once the data is clean and stored and there is a question to answer."]
-      ] }
-    ] } },
-    { callout: { t: "def", h: "5 · Data analysis", body: [
-      { kv: [
-        ["What is involved", "examining and **interpreting** the patterns with analytic techniques (regression, cluster, time series… — 2.6) to answer the question and reach conclusions."],
-        ["Role in managing big data", "turns patterns into **information and insight** that support a decision; checks a pattern is real and useful, not chance."],
-        ["When it is used", "after mining, when the organisation needs an answer or a prediction."]
-      ] }
-    ] } },
-    { callout: { t: "def", h: "6 · Data consumption", body: [
-      { kv: [
-        ["What is involved", "the results are **used**: shared with decision-makers through reports, dashboards and visualisations (F205), or fed into systems such as recommendations."],
-        ["Role in managing big data", "delivers the **Value** — an insight nobody acts on earns nothing; feedback starts the next cycle."],
-        ["When it is used", "at the end of the analysis, and continuously where dashboards update live."]
-      ] }
-    ] } },
+    { h: "1 · Data collection" },
+    { kv: [
+      [
+        "What is involved",
+        "gathering raw data from its sources — forms, transactions, sensors, GPS, social media, surveys (the capture methods of 1.3)."
+      ],
+      [
+        "Role in managing big data",
+        "supplies the raw material: what is not collected cannot be analysed; collecting the right, relevant data (and lawfully, under UK GDPR) sets the limit on every later step."
+      ],
+      ["When it is used", "at the start of a project and continuously for streamed sources."]
+    ] },
+    { h: "2 · Data storing" },
+    { kv: [
+      [
+        "What is involved",
+        "saving the data securely where it can be reached again — databases, data warehouses, data lakes, cloud storage (2.4)."
+      ],
+      [
+        "Role in managing big data",
+        "keeps the data **available, secure and backed up**; the storage chosen must scale with Volume and hold the Variety of types."
+      ],
+      [
+        "When it is used",
+        "as soon as data is collected, before it is cleaned; reviewed as the data grows."
+      ]
+    ] },
+    { h: "3 · Data cleaning" },
+    { kv: [
+      [
+        "What is involved",
+        "finding and fixing problems: removing duplicates and irrelevant data, fixing missing data and structural errors, converting types, validating (2.2)."
+      ],
+      [
+        "Role in managing big data",
+        "raises **Veracity** so the results can be trusted — “garbage in, garbage out”."
+      ],
+      [
+        "When it is used",
+        "after storing and before mining; again whenever new data is added. Often the longest step."
+      ]
+    ] },
+    { h: "4 · Data mining" },
+    { kv: [
+      [
+        "What is involved",
+        "searching large data sets with software and algorithms to **discover patterns, trends and relationships** that are not obvious (descriptive, diagnostic, predictive, prescriptive — 2.3)."
+      ],
+      [
+        "Role in managing big data",
+        "turns a mass of clean data into **candidate patterns** worth investigating."
+      ],
+      ["When it is used", "once the data is clean and stored and there is a question to answer."]
+    ] },
+    { h: "5 · Data analysis" },
+    { kv: [
+      [
+        "What is involved",
+        "examining and **interpreting** the patterns with analytic techniques (regression, cluster, time series… — 2.6) to answer the question and reach conclusions."
+      ],
+      [
+        "Role in managing big data",
+        "turns patterns into **information and insight** that support a decision; checks a pattern is real and useful, not chance."
+      ],
+      ["When it is used", "after mining, when the organisation needs an answer or a prediction."]
+    ] },
+    { h: "6 · Data consumption" },
+    { kv: [
+      [
+        "What is involved",
+        "the results are **used**: shared with decision-makers through reports, dashboards and visualisations (F205), or fed into systems such as recommendations."
+      ],
+      [
+        "Role in managing big data",
+        "delivers the **Value** — an insight nobody acts on earns nothing; feedback starts the next cycle."
+      ],
+      ["When it is used", "at the end of the analysis, and continuously where dashboards update live."]
+    ] },
 
     { page: "Steps and Vs together" },
     { table: { head: ["Step", "The Vs it must cope with", "If this step is skipped or done badly…"], rows: [
@@ -255,14 +375,14 @@ C["it:F201.1.1"] = {
         ["Two years of baskets are loaded into a cloud warehouse", "Storing"],
         ["Analysts judge whether the soup pattern justifies a promotion", "Analysis"]
       ], given: [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0]], cap: "Name the step of analysing big data (Collection, Storing, Cleaning, Mining, Analysis or Consumption)." } }] } },
-    { callout: { t: "info", h: "Where this leads in F201", body: [{ ul: [
+    { callout: { t: "info", h: "Where this leads in F201", body: [
       "Collection → **1.3** capture methods.",
       "Storing → **2.4** big data infrastructure (cloud, data lakes, warehouses).",
       "Cleaning → **2.2** preparation, wrangling and cleaning techniques.",
       "Mining → **2.3** descriptive, diagnostic, predictive, prescriptive.",
       "Analysis → **2.6** regression, Monte Carlo, factor, cohort, cluster, time series.",
       "Consumption → **2.5** data science and analytics; F205 visualisation."
-    ] }] } },
+    ] } },
 
     { page: "In exam questions" },
     { callout: { t: "info", h: "The scenario for these questions", body: "**PulseGym** runs 110 gyms across the UK. New members join through an online form; members book classes in an app; smart treadmills and turnstiles stream readings to head office. The questions develop the scenario as a real paper does." } },
@@ -300,13 +420,26 @@ C["it:F201.1.1"] = {
         { m: "…apply: so managers can act on them, e.g. adding more of the popular classes to the timetable — this is where the value of the data is gained (1).", mk: "1" }
       ], result: "Results reach decision-makers (1) → timetable changed, value realised (1)" } },
     { callout: { t: "info", h: "Levels of response: 6-mark “Analyse” questions (our wording of the SAM's levels)", body: [
-      { table: { head: ["Level", "Marks", "What the answer shows"], rows: [
-        ["3 (high)", "5–6", "a thorough analysis: a **range** of points identified; **detailed** knowledge applied to the scenario; clear explanation of the effects; subject terms used **consistently**."],
-        ["2 (mid)", "3–4", "an adequate analysis: **some** points identified; sound knowledge in context; adequate explanation; **some** subject terms."],
-        ["1 (low)", "1–2", "a basic analysis: **at least one** point; limited knowledge of the context; basic explanation; terms used little."],
-        ["0", "0", "nothing worthy of credit."]
-      ] } },
-      { ul: ["Start at the top level and work down; the mark within a level depends on how consistently the answer meets it.", "Analyse = break it into parts and explain the IMPACT of each with a chain of reasoning (“…which means…, so…”)."] }
+      "Start at the top level and work down; the mark within a level depends on how consistently the answer meets it.",
+      "Analyse = break it into parts and explain the IMPACT of each with a chain of reasoning (“…which means…, so…”)."
+    ] } },
+    { table: { head: ["Level", "Marks", "What the answer shows"], rows: [
+      [
+        "3 (high)",
+        "5–6",
+        "a thorough analysis: a **range** of points identified; **detailed** knowledge applied to the scenario; clear explanation of the effects; subject terms used **consistently**."
+      ],
+      [
+        "2 (mid)",
+        "3–4",
+        "an adequate analysis: **some** points identified; sound knowledge in context; adequate explanation; **some** subject terms."
+      ],
+      [
+        "1 (low)",
+        "1–2",
+        "a basic analysis: **at least one** point; limited knowledge of the context; basic explanation; terms used little."
+      ],
+      ["0", "0", "nothing worthy of credit."]
     ] } },
     { worked: { tag: "exam", title: "How the six steps help a decision", src: "OCR-style · Analyse · 6 marks",
       q: "PulseGym wants to decide which classes to run at each gym next term. Analyse how the six steps for analysing big data could help PulseGym make this decision.",
@@ -334,29 +467,29 @@ C["it:F201.1.1"] = {
       { h: "Steps in order", m: "collection → storing → cleaning → mining → analysis → consumption." },
       { h: "Analyse (6)", m: "a range of points, each with a chain of reasoning in context, plus balance." }
     ] },
-    { callout: { t: "tip", h: "How OCR marks it", body: [{ ul: [
+    { callout: { t: "tip", h: "How OCR marks it", body: [
       "**State** = a short factual answer; **Describe** = what it is/involves; **Explain** = reason + application; **Analyse** = break down and give impacts.",
       "**Do not accept: Variety** when the scheme wants **Variety of data types** — give the specification's full wording every time.",
       "For “two ways”, give two different points: only the first two answers are marked.",
       "A definition alone rarely earns the second mark of an Explain question: add “so the gym / retailer…”."
-    ] }] } },
-    { callout: { t: "miscon", h: "Misconceptions", body: [{ ul: [
+    ] } },
+    { callout: { t: "miscon", h: "Misconceptions", body: [
       "“Big data just means a lot of data.” — Volume is only one of six characteristics.",
       "“Variety and Variability are the same.” — kinds of data vs change over time.",
       "“More data always means more value.” — value comes from useful insight; data with no use is a cost.",
       "“Mining and analysis are the same step.” — mining finds patterns; analysis interprets them to answer the question.",
       "“Consumption means the data is used up.” — it means the results are used by people or systems."
-    ] }] } },
-    { callout: { t: "mnemonic", h: "Six questions, six steps", body: [{ ul: [
+    ] } },
+    { callout: { t: "mnemonic", h: "Six questions, six steps", body: [
       "The 6Vs as questions: **How much? What kinds? How fast? Worth it? Can we trust it? Does it stay steady?**",
       "The steps: **C**an **S**tan **C**lean **M**y **A**wful **C**omputer? — Collect, Store, Clean, Mine, Analyse, Consume."
-    ] }] } },
-    { callout: { t: "tip", h: "Synoptic links", body: [{ ul: [
+    ] } },
+    { callout: { t: "tip", h: "Synoptic links", body: [
       "F200 1.2 — what big data is, its sources and formats (the introduction this leaf builds on).",
       "F200 2.1 — the data lifecycle and the data analytics pipeline (compare the six steps).",
       "F201 1.3 (capture = collection), 2.1 (the types behind Variety), 2.2 (cleaning, Veracity), 2.3 (mining), 2.4 (storing), 2.6 (analysis techniques).",
       "F204 — IoE devices are a major source of Velocity; F205 — visualisation is how data is consumed; F203 — relational databases and their limits with Variety."
-    ] }] } }
+    ] } }
   ],
   flashcards: [
     ["List the six characteristics of big data (the 6Vs) by their full names.", "Volume of data, Variety of data types, Velocity of streamed data, Value of data, Veracity of data, Variability of data inconsistencies.", 0],
@@ -430,13 +563,21 @@ function ioeFig() {
 C["it:F201.1.2"] = {
   notes: [
     { h: "The evolution of big data — the whole topic on one page" },
-    { callout: { t: "info", h: "What the specification asks (F201 1.2)", body: [
-      { kv: [
-        ["Teaching content", "**Developments**: database management systems · Internet of Everything (IoE) · proliferation of devices generating digital data · search engines · web-based storage."],
-        ["To include", "how each development has **contributed to the evolution** of big data · the **benefits and limitations** of each development in relation to the evolution of big data."],
-        ["Does not include", "no exclusions are listed here. F200 1.2 explicitly leaves “the evolution of big data” to this unit; the detail of cloud models belongs to 2.4."]
-      ] }
-    ] } },
+    { h: "What the specification asks (F201 1.2)" },
+    { kv: [
+      [
+        "Teaching content",
+        "**Developments**: database management systems · Internet of Everything (IoE) · proliferation of devices generating digital data · search engines · web-based storage."
+      ],
+      [
+        "To include",
+        "how each development has **contributed to the evolution** of big data · the **benefits and limitations** of each development in relation to the evolution of big data."
+      ],
+      [
+        "Does not include",
+        "no exclusions are listed here. F200 1.2 explicitly leaves “the evolution of big data” to this unit; the detail of cloud models belongs to 2.4."
+      ]
+    ] },
     { table: { head: ["Question shape", "Command word", "Marks", "What earns the marks"], rows: [
       ["Name a development / what IoE connects", "State / Identify", "1–2", "the spec's own names"],
       ["How a development contributed", "Explain / Describe", "2", "what it did (1) + effect on big data (1)"],
@@ -456,11 +597,11 @@ C["it:F201.1.2"] = {
       ["Search engines", "the tools to store and process data across many servers; search data itself", "Volume, Value"],
       ["Web-based storage", "cheap, scalable storage anyone can rent", "Volume"]
     ] } },
-    { callout: { t: "tip", h: "The thread linking all five", body: [{ ul: [
+    { callout: { t: "tip", h: "The thread linking all five", body: [
       "Each development made data **cheaper or easier** to create, collect, store or find.",
       "Cheaper data → organisations kept **more** of it → new tools were needed → those tools allowed **even more** data.",
       "For every development learn: **what it is · how it contributed · one benefit · one limitation**."
-    ] }] } },
+    ] } },
 
     { page: "Database management systems" },
     { callout: { t: "def", h: "Database management system (DBMS)", body: "Software that **creates, stores, organises, retrieves and secures** data held in a database, and lets many users and programs share it — e.g. a relational DBMS queried with **SQL**, or a **NoSQL** database for less structured data." } },
@@ -471,12 +612,12 @@ C["it:F201.1.2"] = {
       { h: "Data warehouses (1990s)", m: "historic data from many systems gathered in one place for analysis — keeping data became normal." },
       { h: "NoSQL and distributed databases (2000s)", m: "no fixed schema, spread across many servers: hold huge volumes of semi-structured and unstructured data." }
     ] },
-    { callout: { t: "info", h: "How DBMSs contributed to the evolution of big data", body: [{ ul: [
+    { callout: { t: "info", h: "How DBMSs contributed to the evolution of big data", body: [
       "Made it possible to store **large amounts of structured data** reliably and query it quickly.",
       "Let many users share one consistent copy, so organisations **centralised** their data.",
       "Data warehouses created the habit of **keeping history** for analysis — the start of large analytical data sets.",
       "NoSQL and distributed DBMSs removed the fixed-schema and one-server limits, so **Volume and Variety** could grow."
-    ] }] } },
+    ] } },
     { table: { head: ["Benefits (for big data)", "Limitations (for big data)"], rows: [
       ["Organised, consistent data with less duplication (integrity)", "A relational design needs a fixed schema — poor for unstructured data"],
       ["Fast searching and querying with SQL", "One server can only grow so far; scaling up is costly"],
@@ -493,19 +634,17 @@ C["it:F201.1.2"] = {
     { page: "IoE and the proliferation of devices" },
     ioeFig(),
     { callout: { t: "def", h: "Internet of Everything (IoE)", body: [
-      { ul: [
-        "The networked connection of **people, process, data and things** — Cisco's term, wider than the Internet of Things (IoT), which connects things only.",
-        "**People**: connected through phones, wearables and social media.",
-        "**Process**: delivering the right information to the right person or machine at the right time.",
-        "**Data**: turned into useful information. **Things**: sensors, machines, vehicles, appliances."
-      ] }
+      "The networked connection of **people, process, data and things** — Cisco's term, wider than the Internet of Things (IoT), which connects things only.",
+      "**People**: connected through phones, wearables and social media.",
+      "**Process**: delivering the right information to the right person or machine at the right time.",
+      "**Data**: turned into useful information. **Things**: sensors, machines, vehicles, appliances."
     ] } },
-    { callout: { t: "info", h: "How the IoE contributed to the evolution of big data", body: [{ ul: [
+    { callout: { t: "info", h: "How the IoE contributed to the evolution of big data", body: [
       "Billions of connected things send readings **continuously** → a jump in **Velocity** and **Volume**.",
       "New kinds of data (sensor readings, location, machine status) → more **Variety**.",
       "Connecting processes and people made **real-time analytics** worth doing: smart meters, connected cars, smart cities, remote patient monitoring.",
       "Data now describes the **physical world**, not just transactions."
-    ] }] } },
+    ] } },
     { table: { head: ["IoE: benefits", "IoE: limitations"], rows: [
       ["Real-time data about places, machines and people", "Every device is a possible point of attack (security)"],
       ["Automation: devices act on data without a person", "Privacy: constant tracking of people and homes"],
@@ -513,12 +652,12 @@ C["it:F201.1.2"] = {
       ["A fuller picture by joining people, process and things", "Cheap sensors can be inaccurate (veracity); devices from many makers may not work together"]
     ] } },
     { callout: { t: "def", h: "Proliferation of devices generating digital data", body: "The rapid **spread and growth in the number** of devices that create digital data — smartphones, tablets, laptops, wearables, smart TVs and speakers, cameras, games consoles, connected cars, sensors — so that almost every person and activity now leaves data behind." } },
-    { callout: { t: "info", h: "How the proliferation of devices contributed", body: [{ ul: [
+    { callout: { t: "info", h: "How the proliferation of devices contributed", body: [
       "Most people carry a **smartphone** that creates location, app, photo, message and payment data all day → **Volume**.",
       "Each kind of device produces different data → **Variety**.",
       "Devices became **cheaper and smaller**, so organisations could put them everywhere.",
       "Data is now created by **individuals**, not only by organisations — e.g. photos, posts, fitness data."
-    ] }] } },
+    ] } },
     { table: { head: ["Devices: benefits", "Devices: limitations"], rows: [
       ["Rich data about behaviour, location and preferences", "Data overload: more data than can be analysed"],
       ["Data collected cheaply and in real time", "Many formats and makers: hard to combine"],
@@ -528,12 +667,12 @@ C["it:F201.1.2"] = {
 
     { page: "Search engines and web-based storage" },
     { callout: { t: "def", h: "Search engine", body: "A system that **crawls** the web, **indexes** what it finds and returns **ranked results** for a query — e.g. Google, Bing." } },
-    { callout: { t: "info", h: "How search engines contributed to the evolution of big data", body: [{ ul: [
+    { callout: { t: "info", h: "How search engines contributed to the evolution of big data", body: [
       "Indexing the whole web was too big for any one computer, so search companies built **distributed storage and processing** across thousands of ordinary servers.",
       "Google published how its file system (2003) and **MapReduce** (2004) worked; the open-source **Hadoop** copied the ideas — the foundation of big data tools used everywhere.",
       "Search **queries themselves** are big data: they reveal what people want, used for trends and targeted adverts.",
       "They made the web's information **findable**, so collecting and using online data became normal."
-    ] }] } },
+    ] } },
     { table: { head: ["Search engines: benefits", "Search engines: limitations"], rows: [
       ["Fast access to vast amounts of information", "Privacy: searches are tracked and profiled"],
       ["Search data shows trends early (products, news, health)", "Results and ranking can be biased; filter bubbles"],
@@ -541,12 +680,12 @@ C["it:F201.1.2"] = {
       ["Adverts targeted by search fund free services", "Search trends can mislead — Google Flu Trends over-estimated flu levels"]
     ] } },
     { callout: { t: "def", h: "Web-based storage", body: "Storing data on **remote servers reached over the internet** (cloud storage), run by a provider — e.g. Amazon Web Services, Microsoft Azure, Google Cloud; for individuals OneDrive, iCloud, Google Drive, Dropbox." } },
-    { callout: { t: "info", h: "How web-based storage contributed", body: [{ ul: [
+    { callout: { t: "info", h: "How web-based storage contributed", body: [
       "Organisations could store huge amounts **without buying their own servers** — pay for what they use.",
       "Storage **scales up quickly** (elastic), so data no longer had to be thrown away for lack of space.",
       "Smaller organisations could afford big data; providers added **analytics tools** beside the storage.",
       "Data can be reached **from anywhere**, so many sites, staff and devices share it."
-    ] }] } },
+    ] } },
     { table: { head: ["Web-based storage: benefits", "Web-based storage: limitations"], rows: [
       ["Scalable: grows with the data", "Needs a reliable internet connection"],
       ["Low up-front cost; no hardware to maintain", "Ongoing fees rise as the data grows"],
@@ -600,13 +739,26 @@ C["it:F201.1.2"] = {
         { m: "Any two from: allowed large amounts of structured data to be stored and searched quickly (1) · allowed many users to share consistent data (1) · data warehouses kept historic data for analysis (1) · NoSQL / distributed databases allowed unstructured data and huge volumes across many servers (1).", mk: "2", n: "Credit any other appropriate response." }
       ], result: "e.g. store and query large data (1); NoSQL for unstructured data (1)" } },
     { callout: { t: "info", h: "Levels of response: 9-mark “Discuss” questions (our wording of the SAM's levels)", body: [
-      { table: { head: ["Level", "Marks", "What the answer shows"], rows: [
-        ["3 (high)", "7–9", "a thorough discussion with detailed evaluation: a **range** of examples; **benefits and limitations** for the organisation; detailed analysis in context; a **clear conclusion** with detailed reasons; terms used consistently."],
-        ["2 (mid)", "4–6", "an adequate discussion with sound evaluation: **some** examples; some benefits **or** limitations; some analysis in context; an adequate conclusion with relevant reasons; some terms."],
-        ["1 (low)", "1–3", "a basic discussion: **a few** examples or points; limited analysis in context; a brief conclusion with limited reasons; few terms."],
-        ["0", "0", "nothing worthy of credit."]
-      ] } },
-      { ul: ["Top of a level = consistently meets it; middle = meets it with some inconsistency; bottom = borderline with the level below.", "No conclusion (a recommendation with reasons) keeps an answer out of Level 3."] }
+      "Top of a level = consistently meets it; middle = meets it with some inconsistency; bottom = borderline with the level below.",
+      "No conclusion (a recommendation with reasons) keeps an answer out of Level 3."
+    ] } },
+    { table: { head: ["Level", "Marks", "What the answer shows"], rows: [
+      [
+        "3 (high)",
+        "7–9",
+        "a thorough discussion with detailed evaluation: a **range** of examples; **benefits and limitations** for the organisation; detailed analysis in context; a **clear conclusion** with detailed reasons; terms used consistently."
+      ],
+      [
+        "2 (mid)",
+        "4–6",
+        "an adequate discussion with sound evaluation: **some** examples; some benefits **or** limitations; some analysis in context; an adequate conclusion with relevant reasons; some terms."
+      ],
+      [
+        "1 (low)",
+        "1–3",
+        "a basic discussion: **a few** examples or points; limited analysis in context; a brief conclusion with limited reasons; few terms."
+      ],
+      ["0", "0", "nothing worthy of credit."]
     ] } },
     { worked: { tag: "exam", title: "Should the chain use IoE devices in its shops?", src: "OCR-style · Discuss · 9 marks",
       q: "Paige & Quill is considering fitting its 90 shops with IoE devices: smart shelves that report stock, footfall sensors, and an app that greets loyalty members as they arrive. Discuss whether Paige & Quill should use IoE devices in its shops. In your answer you must write about: any benefits to Paige & Quill; any limitations to Paige & Quill; whether you would recommend that Paige & Quill uses IoE devices, and your reasons.",
@@ -635,30 +787,30 @@ C["it:F201.1.2"] = {
       { h: "IoE ≠ IoT", m: "IoE = people, process, data, things; IoT = things." },
       { h: "Discuss (9)", m: "benefits, limitations, then a recommendation with reasons." }
     ] },
-    { callout: { t: "tip", h: "How OCR marks it", body: [{ ul: [
+    { callout: { t: "tip", h: "How OCR marks it", body: [
       "**Explain** = one point plus its expansion; two unexpanded points earn 1.",
       "**Discuss** must end in a recommendation: “I would recommend… because…, provided that…”.",
       "Keep the development in focus: a question on search engines wants indexing, distributed processing or search data — not cloud storage.",
       "Applied answers (“so Paige & Quill…”) are what PO2 questions credit; generic ones may be capped."
-    ] }] } },
-    { callout: { t: "miscon", h: "Misconceptions", body: [{ ul: [
+    ] } },
+    { callout: { t: "miscon", h: "Misconceptions", body: [
       "“IoE is just another name for IoT.” — IoE adds people, process and data to the things.",
       "“Web-based storage is always safer.” — it moves the risk to a third party and depends on the internet.",
       "“Relational databases are big data tools.” — they underpin structured data, but NoSQL and distributed systems were needed for big data's variety and volume.",
       "“Search engines only matter as a source of information.” — their biggest contribution was the distributed technology behind big data.",
       "“More devices means better data.” — more data, but not always more accurate or representative data."
-    ] }] } },
-    { callout: { t: "mnemonic", h: "“Dad Searched Web, Dug IoE”", body: [{ ul: [
+    ] } },
+    { callout: { t: "mnemonic", h: "“Dad Searched Web, Dug IoE”", body: [
       "**D**BMS → **S**earch engines → **W**eb-based storage → **D**evices (proliferation) → **IoE**: the rough order the developments arrived.",
       "IoE's four: **P**eople, **P**rocess, **D**ata, **T**hings — “**P**lease **P**ass **D**ata **T**ogether”."
-    ] }] } },
-    { callout: { t: "tip", h: "Synoptic links", body: [{ ul: [
+    ] } },
+    { callout: { t: "tip", h: "Synoptic links", body: [
       "F200 1.2 — big data's sources and formats (F200 leaves the evolution to F201).",
       "F200 2.3 — storage; F201 2.4 — big data infrastructure: cloud (public, private, hybrid), data lakes, warehouses.",
       "F203 — relational database design: the DBMS strand in detail.",
       "F204 — Data and the Internet of Everything: the IoE strand in full.",
       "F201 1.1 (the Vs each development pushed), 1.3 (devices and IoE as capture methods), 4.1 (UK GDPR and the cloud)."
-    ] }] } }
+    ] } }
   ],
   flashcards: [
     ["Name the five developments behind the evolution of big data.", "Database management systems, the Internet of Everything (IoE), proliferation of devices generating digital data, search engines, web-based storage.", 0],
@@ -726,13 +878,21 @@ function gpsFig() {
 C["it:F201.1.3"] = {
   notes: [
     { h: "How big data is captured — the whole topic on one page" },
-    { callout: { t: "info", h: "What the specification asks (F201 1.3)", body: [
-      { kv: [
-        ["Teaching content", "**Data capture methods**: digital images and videos · GPS signals · IoE connected devices · natural language · online surveys · satellites · sensors · social media sites · transactional records."],
-        ["To include", "what big data capture is · how each method is used to collect data · when each method can be used · the **types of data** each generates · the **benefits and limitations** of each method."],
-        ["Does not include", "no exclusions are listed; the full treatment of data types (structured, semi-structured, unstructured) is 2.1."]
-      ] }
-    ] } },
+    { h: "What the specification asks (F201 1.3)" },
+    { kv: [
+      [
+        "Teaching content",
+        "**Data capture methods**: digital images and videos · GPS signals · IoE connected devices · natural language · online surveys · satellites · sensors · social media sites · transactional records."
+      ],
+      [
+        "To include",
+        "what big data capture is · how each method is used to collect data · when each method can be used · the **types of data** each generates · the **benefits and limitations** of each method."
+      ],
+      [
+        "Does not include",
+        "no exclusions are listed; the full treatment of data types (structured, semi-structured, unstructured) is 2.1."
+      ]
+    ] },
     { table: { head: ["Question shape", "Command word", "Marks", "Nearest evidence"], rows: [
       ["Why an organisation captures this data", "Why… / State", "1", "SAM Q3(a)"],
       ["A benefit of the captured data to the organisation", "Explain", "2", "SAM Q3(b)"],
@@ -757,21 +917,32 @@ C["it:F201.1.3"] = {
       ["Social media sites", "posts, likes and shares collected via the platform", "unstructured posts + metadata", "sentiment, trends, marketing"],
       ["Transactional records", "every sale, payment or booking is logged", "structured: date, item, price, customer", "sales, stock, fraud, offers"]
     ] } },
-    { callout: { t: "tip", h: "Two ways to group the methods", body: [{ ul: [
+    { callout: { t: "tip", h: "Two ways to group the methods", body: [
       "**Automatic** (no one types anything): sensors, IoE devices, GPS, satellites, cameras, transactions → high velocity, fewer human errors.",
       "**From people's own words or choices**: natural language, online surveys, social media → tells you *why*, but veracity is lower.",
       "Most real projects **combine** methods: the strengths of one cover the gaps of another."
-    ] }] } },
+    ] } },
 
     { page: "Images, GPS and satellites" },
-    { callout: { t: "def", h: "Digital images and videos", body: [
-      { kv: [
-        ["How it collects data", "cameras turn light into pixels: CCTV, smartphones, number-plate (ANPR) cameras, drones, body cameras, medical scanners."],
-        ["Data generated", "**unstructured** image and video files, plus **metadata** (time, place, device) — semi-structured."],
-        ["When it is used", "security and policing; counting traffic or people; checking products on a production line; medical imaging; photos posted online."],
-        ["How it becomes useful", "computer vision / AI recognises objects, number plates or faces in the pixels."]
-      ] }
-    ] } },
+    { h: "Digital images and videos" },
+    { kv: [
+      [
+        "How it collects data",
+        "cameras turn light into pixels: CCTV, smartphones, number-plate (ANPR) cameras, drones, body cameras, medical scanners."
+      ],
+      [
+        "Data generated",
+        "**unstructured** image and video files, plus **metadata** (time, place, device) — semi-structured."
+      ],
+      [
+        "When it is used",
+        "security and policing; counting traffic or people; checking products on a production line; medical imaging; photos posted online."
+      ],
+      [
+        "How it becomes useful",
+        "computer vision / AI recognises objects, number plates or faces in the pixels."
+      ]
+    ] },
     { table: { head: ["Images and video: benefits", "Images and video: limitations"], rows: [
       ["Very rich detail — shows what actually happened", "Huge files: storage and processing cost (Volume)"],
       ["Can be analysed automatically by AI (e.g. ANPR)", "Needs AI or people to extract meaning"],
@@ -779,27 +950,46 @@ C["it:F201.1.3"] = {
       ["Captured continuously without staff", "Quality falls with poor light, weather or a dirty lens"]
     ] } },
     gpsFig(),
-    { callout: { t: "def", h: "GPS signals", body: [
-      { kv: [
-        ["How it collects data", "a GPS receiver (phone, vehicle tracker, watch) picks up signals from navigation satellites and works out its position from their timing; the device then records or sends its location."],
-        ["Data generated", "**structured**: latitude, longitude, height, time stamp, and speed or direction derived from them."],
-        ["When it is used", "tracking delivery vans and buses; journey planning; fitness apps; ride-hailing; location-based offers; logging where photos were taken."]
-      ] }
-    ] } },
+    { h: "GPS signals" },
+    { kv: [
+      [
+        "How it collects data",
+        "a GPS receiver (phone, vehicle tracker, watch) picks up signals from navigation satellites and works out its position from their timing; the device then records or sends its location."
+      ],
+      [
+        "Data generated",
+        "**structured**: latitude, longitude, height, time stamp, and speed or direction derived from them."
+      ],
+      [
+        "When it is used",
+        "tracking delivery vans and buses; journey planning; fitness apps; ride-hailing; location-based offers; logging where photos were taken."
+      ]
+    ] },
     { table: { head: ["GPS: benefits", "GPS: limitations"], rows: [
       ["Accurate to a few metres outdoors", "Weak or lost indoors, in tunnels, between tall buildings"],
       ["Automatic and in real time", "Drains device batteries"],
       ["Works anywhere in the world, free to receive", "Privacy: shows where people live, work and go"],
       ["Structured data that is easy to analyse and map", "Signals can be jammed or spoofed"]
     ] } },
-    { callout: { t: "def", h: "Satellites", body: [
-      { kv: [
-        ["How it collects data", "Earth-observation satellites carry cameras and instruments that image and measure the Earth's surface and atmosphere as they orbit; data is sent to ground stations."],
-        ["Data generated", "very large **images** (visible, infrared, radar) and **structured measurements** (temperature, cloud, sea level) tagged with location and time."],
-        ["When it is used", "weather forecasting (e.g. the Met Office); climate and ice monitoring; crop health; flood and wildfire mapping; urban planning; ship tracking."],
-        ["Who owns the data", "most organisations buy it or use free open data (e.g. the EU's Copernicus Sentinel images) rather than launching satellites."]
-      ] }
-    ] } },
+    { h: "Satellites" },
+    { kv: [
+      [
+        "How it collects data",
+        "Earth-observation satellites carry cameras and instruments that image and measure the Earth's surface and atmosphere as they orbit; data is sent to ground stations."
+      ],
+      [
+        "Data generated",
+        "very large **images** (visible, infrared, radar) and **structured measurements** (temperature, cloud, sea level) tagged with location and time."
+      ],
+      [
+        "When it is used",
+        "weather forecasting (e.g. the Met Office); climate and ice monitoring; crop health; flood and wildfire mapping; urban planning; ship tracking."
+      ],
+      [
+        "Who owns the data",
+        "most organisations buy it or use free open data (e.g. the EU's Copernicus Sentinel images) rather than launching satellites."
+      ]
+    ] },
     { table: { head: ["Satellites: benefits", "Satellites: limitations"], rows: [
       ["Cover huge or remote areas no one can visit", "Very expensive to build and launch; data may cost money"],
       ["Repeat passes build up a time series", "Cloud cover blocks optical images"],
@@ -808,27 +998,43 @@ C["it:F201.1.3"] = {
     ] } },
 
     { page: "IoE devices and sensors" },
-    { callout: { t: "def", h: "Sensors", body: [
-      { kv: [
-        ["How it collects data", "a sensor measures a **physical quantity** — temperature, light, motion, pressure, sound, moisture, vibration, pollutants — and converts it into a digital value, usually many times a minute."],
-        ["Data generated", "**structured** numbers with time stamps, often **streamed** (high velocity)."],
-        ["When it is used", "air-quality monitoring; machines on a production line (vibration predicts failure); smart buildings (lights, heating); hospital monitors; farming (soil moisture)."]
-      ] }
-    ] } },
+    { h: "Sensors" },
+    { kv: [
+      [
+        "How it collects data",
+        "a sensor measures a **physical quantity** — temperature, light, motion, pressure, sound, moisture, vibration, pollutants — and converts it into a digital value, usually many times a minute."
+      ],
+      ["Data generated", "**structured** numbers with time stamps, often **streamed** (high velocity)."],
+      [
+        "When it is used",
+        "air-quality monitoring; machines on a production line (vibration predicts failure); smart buildings (lights, heating); hospital monitors; farming (soil moisture)."
+      ]
+    ] },
     { table: { head: ["Sensors: benefits", "Sensors: limitations"], rows: [
       ["Automatic, continuous, no staff needed", "Drift out of calibration or fail: wrong readings (Veracity)"],
       ["Objective — no human opinion", "Measure one thing with no context (why it changed)"],
       ["High frequency: changes seen at once", "Cost of buying, powering and maintaining many"],
       ["Can work in dangerous or remote places", "Floods of readings to store and filter (Volume, Velocity)"]
     ] } },
-    { callout: { t: "def", h: "IoE connected devices", body: [
-      { kv: [
-        ["How it collects data", "devices connected to the internet — smart meters, thermostats, wearables, connected cars, smart bins, voice assistants — **send data automatically** to the organisation and can receive instructions back."],
-        ["Data generated", "**structured** readings and logs; **semi-structured** messages (e.g. JSON); some **unstructured** (voice, images)."],
-        ["When it is used", "real-time monitoring and automation where people, processes and things work together: energy use, health monitoring, fleet management, smart cities."],
-        ["Sensor vs IoE device", "a sensor **measures**; an IoE connected device **connects** (it often contains sensors) and shares data with people and processes."]
-      ] }
-    ] } },
+    { h: "IoE connected devices" },
+    { kv: [
+      [
+        "How it collects data",
+        "devices connected to the internet — smart meters, thermostats, wearables, connected cars, smart bins, voice assistants — **send data automatically** to the organisation and can receive instructions back."
+      ],
+      [
+        "Data generated",
+        "**structured** readings and logs; **semi-structured** messages (e.g. JSON); some **unstructured** (voice, images)."
+      ],
+      [
+        "When it is used",
+        "real-time monitoring and automation where people, processes and things work together: energy use, health monitoring, fleet management, smart cities."
+      ],
+      [
+        "Sensor vs IoE device",
+        "a sensor **measures**; an IoE connected device **connects** (it often contains sensors) and shares data with people and processes."
+      ]
+    ] },
     { table: { head: ["IoE devices: benefits", "IoE devices: limitations"], rows: [
       ["Real-time data, captured without anyone acting", "Security: each device can be hacked"],
       ["Two-way: data in, instructions back (automation)", "Privacy: devices in homes and on bodies"],
@@ -842,53 +1048,82 @@ C["it:F201.1.3"] = {
       ], result: "Sensor = measures; IoE device = measures, connects and triggers action" } },
 
     { page: "Language, surveys, social media and transactions" },
-    { callout: { t: "def", h: "Natural language", body: [
-      { kv: [
-        ["What it is", "human language as people speak or write it — not forms or codes."],
-        ["How it collects data", "voice assistants and phone lines record **speech**; chatbots, emails, reviews, complaints and free-text boxes capture **text**; **natural language processing (NLP)** turns it into data — speech-to-text, keywords, sentiment."],
-        ["Data generated", "**unstructured** text and audio."],
-        ["When it is used", "analysing customer-service calls and chatbot logs; reading reviews and complaints for sentiment; voice commands; translation."]
-      ] }
-    ] } },
+    { h: "Natural language" },
+    { kv: [
+      ["What it is", "human language as people speak or write it — not forms or codes."],
+      [
+        "How it collects data",
+        "voice assistants and phone lines record **speech**; chatbots, emails, reviews, complaints and free-text boxes capture **text**; **natural language processing (NLP)** turns it into data — speech-to-text, keywords, sentiment."
+      ],
+      ["Data generated", "**unstructured** text and audio."],
+      [
+        "When it is used",
+        "analysing customer-service calls and chatbot logs; reading reviews and complaints for sentiment; voice commands; translation."
+      ]
+    ] },
     { table: { head: ["Natural language: benefits", "Natural language: limitations"], rows: [
       ["Captures opinions and reasons in people's own words", "Ambiguity, sarcasm, slang, accents and dialects are hard for NLP"],
       ["Natural for users: no form to fill in", "Needs NLP tools and processing power"],
       ["Huge amounts already exist (emails, calls, reviews)", "Unstructured: hard to store and search"],
       ["Shows why customers feel as they do", "Recordings are personal data; consent and privacy"]
     ] } },
-    { callout: { t: "def", h: "Online surveys", body: [
-      { kv: [
-        ["How it collects data", "a questionnaire on a web page, app or email link (e.g. Microsoft Forms); answers go straight into a data set."],
-        ["Data generated", "**structured** answers (tick boxes, ratings, drop-downs) plus **unstructured** free-text comments — semi-structured overall."],
-        ["When it is used", "customer satisfaction; staff surveys; a council's public consultation; product feedback; the 2021 Census was online-first."]
-      ] }
-    ] } },
+    { h: "Online surveys" },
+    { kv: [
+      [
+        "How it collects data",
+        "a questionnaire on a web page, app or email link (e.g. Microsoft Forms); answers go straight into a data set."
+      ],
+      [
+        "Data generated",
+        "**structured** answers (tick boxes, ratings, drop-downs) plus **unstructured** free-text comments — semi-structured overall."
+      ],
+      [
+        "When it is used",
+        "customer satisfaction; staff surveys; a council's public consultation; product feedback; the 2021 Census was online-first."
+      ]
+    ] },
     { table: { head: ["Online surveys: benefits", "Online surveys: limitations"], rows: [
       ["Cheap and quick to send to thousands", "Low response rates; self-selection bias (only keen people reply)"],
       ["Answers collated automatically; validation on fields", "Excludes people who are not online (digital divide)"],
       ["Questions targeted at exactly what is needed", "Rushed, careless or dishonest answers"],
       ["Closed questions are easy to analyse", "Badly worded questions give poor data; survey fatigue"]
     ] } },
-    { callout: { t: "def", h: "Social media sites", body: [
-      { kv: [
-        ["How it collects data", "posts, comments, images, likes, shares and follows on platforms (X, Facebook, Instagram, TikTok, LinkedIn) are collected through the platform's own analytics or its API, within its terms."],
-        ["Data generated", "**unstructured** posts, images and video with **semi-structured** metadata (time, hashtags, likes, location)."],
-        ["When it is used", "sentiment analysis about a brand or policy; spotting trends early; targeted advertising; monitoring public reaction during an event."]
-      ] }
-    ] } },
+    { h: "Social media sites" },
+    { kv: [
+      [
+        "How it collects data",
+        "posts, comments, images, likes, shares and follows on platforms (X, Facebook, Instagram, TikTok, LinkedIn) are collected through the platform's own analytics or its API, within its terms."
+      ],
+      [
+        "Data generated",
+        "**unstructured** posts, images and video with **semi-structured** metadata (time, hashtags, likes, location)."
+      ],
+      [
+        "When it is used",
+        "sentiment analysis about a brand or policy; spotting trends early; targeted advertising; monitoring public reaction during an event."
+      ]
+    ] },
     { table: { head: ["Social media: benefits", "Social media: limitations"], rows: [
       ["Enormous and real time", "Veracity: bots, fake accounts, misinformation"],
       ["Opinions given freely, not prompted by a survey", "Not representative: users skew by age and interest"],
       ["Low cost to collect", "Access rules, API charges and terms of use; privacy"],
       ["Shows reach and engagement (likes, shares)", "Sarcasm, slang and emojis are hard to interpret"]
     ] } },
-    { callout: { t: "def", h: "Transactional records", body: [
-      { kv: [
-        ["How it collects data", "every exchange is logged automatically as it happens: a till (EPOS) sale, an online order, a card payment, a booking, a loyalty-card scan, a ticket tap."],
-        ["Data generated", "**structured**: date, time, item, quantity, price, payment method, store, customer or membership number."],
-        ["When it is used", "recording what each customer buys (SAM Q3); stock control; spotting trends and the most profitable products; fraud detection; personalised offers."]
-      ] }
-    ] } },
+    { h: "Transactional records" },
+    { kv: [
+      [
+        "How it collects data",
+        "every exchange is logged automatically as it happens: a till (EPOS) sale, an online order, a card payment, a booking, a loyalty-card scan, a ticket tap."
+      ],
+      [
+        "Data generated",
+        "**structured**: date, time, item, quantity, price, payment method, store, customer or membership number."
+      ],
+      [
+        "When it is used",
+        "recording what each customer buys (SAM Q3); stock control; spotting trends and the most profitable products; fraud detection; personalised offers."
+      ]
+    ] },
     { table: { head: ["Transactional records: benefits", "Transactional records: limitations"], rows: [
       ["Accurate: captured automatically at the point of sale", "Shows WHAT was bought, never WHY"],
       ["Structured: easy to store, query and analyse", "Only covers customers who buy — and cash sales may not link to a customer"],
@@ -950,13 +1185,24 @@ C["it:F201.1.3"] = {
         { m: "Limitation — identify: low veracity — posts may come from bots, fake accounts or people outside Lowmoor / users are not representative (1)…", mk: "1" },
         { m: "…apply: so the council may over- or under-estimate opposition and base its review of the zone on misleading data (1).", mk: "1", n: "Maximum one benefit and one limitation. Credit any other appropriate response." }
       ], result: "Real-time reaction (1+1); unreliable / unrepresentative (1+1)" } },
-    { callout: { t: "info", h: "Levels of response: 6-mark “Analyse” questions", body: [
-      { table: { head: ["Level", "Marks", "What the answer shows"], rows: [
-        ["3 (high)", "5–6", "a thorough analysis: a range of points; detailed knowledge applied to the scenario; clear explanation of each impact; terms used consistently."],
-        ["2 (mid)", "3–4", "an adequate analysis: some points; sound knowledge in context; adequate explanation; some terms."],
-        ["1 (low)", "1–2", "a basic analysis: at least one point; limited context; basic explanation; few terms."],
-        ["0", "0", "nothing worthy of credit."]
-      ] } }
+    { h: "Levels of response: 6-mark “Analyse” questions" },
+    { table: { head: ["Level", "Marks", "What the answer shows"], rows: [
+      [
+        "3 (high)",
+        "5–6",
+        "a thorough analysis: a range of points; detailed knowledge applied to the scenario; clear explanation of each impact; terms used consistently."
+      ],
+      [
+        "2 (mid)",
+        "3–4",
+        "an adequate analysis: some points; sound knowledge in context; adequate explanation; some terms."
+      ],
+      [
+        "1 (low)",
+        "1–2",
+        "a basic analysis: at least one point; limited context; basic explanation; few terms."
+      ],
+      ["0", "0", "nothing worthy of credit."]
     ] } },
     { worked: { tag: "exam", title: "Sensors and IoE devices for air quality", src: "OCR-style · Analyse · 6 marks",
       q: "Lowmoor City Council wants to measure air quality across the city using sensors on lamp posts that are connected to the internet. Analyse the benefits and limitations to the council of using sensors and IoE connected devices to capture this data.",
@@ -977,30 +1223,30 @@ C["it:F201.1.3"] = {
       { h: "Explain (2)", m: "identify the benefit or limitation, then say what it means for the organisation." },
       { h: "Transactional data", m: "records what was bought / paid, when and where — never why." }
     ] },
-    { callout: { t: "tip", h: "How OCR marks it", body: [{ ul: [
+    { callout: { t: "tip", h: "How OCR marks it", body: [
       "**Why… capture?** (1 mark) wants the purpose: “to record the purchases made by the customer”.",
       "**Explain one benefit** (2): benefit (1) + application to the organisation (1); the expansion must relate to the scenario (online or in store, the council's car parks…).",
       "“Maximum one benefit”: a second benefit earns nothing — develop one instead.",
       "In “Identify” questions, name the method with the spec's words; vague answers (“technology”, “the internet”) earn nothing."
-    ] }] } },
-    { callout: { t: "miscon", h: "Misconceptions", body: [{ ul: [
+    ] } },
+    { callout: { t: "miscon", h: "Misconceptions", body: [
       "“GPS data is captured by the satellites.” — satellites broadcast; the receiver works out and records its position.",
       "“Sensors and IoE devices are the same.” — a sensor measures; an IoE device connects and shares (it may contain sensors).",
       "“Surveys give the truth.” — they give what people choose to say; response bias lowers veracity.",
       "“Social media shows what the public thinks.” — it shows what active users post, including bots.",
       "“Transactional data explains customer behaviour.” — it shows what happened, not why."
-    ] }] } },
-    { callout: { t: "mnemonic", h: "“Three S's and a TIGON”", body: [{ ul: [
+    ] } },
+    { callout: { t: "mnemonic", h: "“Three S's and a TIGON”", body: [
       "Three **S**'s: **S**atellites · **S**ensors · **S**ocial media sites.",
       "A **TIGON** (a tiger–lion cross): **T**ransactional records · **I**mages and videos (digital) · **G**PS signals · **I**oE connected devices · **O**nline surveys · **N**atural language.",
       "Data type rule of thumb: **machines count → structured; people talk → unstructured; forms → both.**"
-    ] }] } },
-    { callout: { t: "tip", h: "Synoptic links", body: [{ ul: [
+    ] } },
+    { callout: { t: "tip", h: "Synoptic links", body: [
       "F200 2.2 — creation and capture in the data lifecycle; F200 1.3 — the file formats captured data arrives in (JPEG, PNG, WAV, CSV, JSON, XML).",
       "F201 1.1 — capture is the data collection step and drives Velocity and Variety; 1.2 — devices and the IoE that made capture possible.",
       "F201 2.1 — structured, semi-structured and unstructured data; 2.2 — cleaning what was captured; 4.1–4.2 — UK GDPR, consent and ethics of capture.",
       "F204 — IoE devices and sensors in depth; F206 — social media and survey data in digital marketing."
-    ] }] } }
+    ] } }
   ],
   flashcards: [
     ["List the nine big data capture methods in the specification.", "Digital images and videos, GPS signals, IoE connected devices, natural language, online surveys, satellites, sensors, social media sites, transactional records.", 0],
@@ -1053,13 +1299,21 @@ function areasFig() {
 C["it:F201.1.4"] = {
   notes: [
     { h: "The purpose, importance and use of big data analytics — the whole topic on one page" },
-    { callout: { t: "info", h: "What the specification asks (F201 1.4)", body: [
-      { kv: [
-        ["Teaching content", "**Areas of application**: banking · communications, media and entertainment · education · energy and utilities · government · healthcare · insurance · manufacturing · retail."],
-        ["To include", "the **purpose** of the use of big data analytics in each area · the **benefits and limitations** of its use in each area."],
-        ["Does not include", "no exclusions are listed. How the analysis is done (mining, techniques, ML) is Topic Areas 2–3; the law and ethics are Topic Area 4."]
-      ] }
-    ] } },
+    { h: "What the specification asks (F201 1.4)" },
+    { kv: [
+      [
+        "Teaching content",
+        "**Areas of application**: banking · communications, media and entertainment · education · energy and utilities · government · healthcare · insurance · manufacturing · retail."
+      ],
+      [
+        "To include",
+        "the **purpose** of the use of big data analytics in each area · the **benefits and limitations** of its use in each area."
+      ],
+      [
+        "Does not include",
+        "no exclusions are listed. How the analysis is done (mining, techniques, ML) is Topic Areas 2–3; the law and ethics are Topic Area 4."
+      ]
+    ] },
     { table: { head: ["Question shape", "Command word", "Marks", "Nearest evidence"], rows: [
       ["The purpose of data analytics", "Describe", "1", "SAM Q6(a)"],
       ["How analytics helps this organisation decide", "Explain", "2", "SAM Q6(b)"],
@@ -1078,12 +1332,12 @@ C["it:F201.1.4"] = {
       ["Protect", "spot fraud, risk and faults early", "an unusual card payment blocked"],
       ["Plan and perform", "use resources efficiently", "staff rotas, stock levels, machine servicing"]
     ] } },
-    { callout: { t: "info", h: "Why it is important", body: [{ ul: [
+    { callout: { t: "info", h: "Why it is important", body: [
       "Decisions move from **guesswork and reaction** to **evidence and anticipation** — acting before a problem happens.",
       "**Efficiency**: less waste, lower costs, resources where they are needed.",
       "**Competitive advantage**: organisations that understand customers better win and keep them.",
       "**Better services**: earlier diagnosis, fewer outages, faster claims, safer payments."
-    ] }] } },
+    ] } },
     { table: { head: ["Benefits in every area", "Limitations in every area"], rows: [
       ["Informed decisions based on evidence", "Results are only as good as the data (veracity): garbage in, garbage out"],
       ["Patterns found that people would miss", "Cost: storage, software, specialist staff (data scientists)"],
@@ -1093,39 +1347,60 @@ C["it:F201.1.4"] = {
     ] } },
 
     { page: "Banking, insurance and retail" },
-    { callout: { t: "def", h: "Banking", body: [
-      { kv: [
-        ["Purpose", "detect **fraud** in real time; assess **credit risk** for loans and cards; anti-money-laundering checks; personalise products; predict which customers may leave."],
-        ["How", "each card payment is scored against the customer's usual pattern (place, amount, time) in milliseconds; lending decisions use repayment histories."],
-        ["Example", "a payment in another country minutes after one in Leeds is blocked and the customer is sent a text to confirm."]
-      ] }
-    ] } },
+    { h: "Banking" },
+    { kv: [
+      [
+        "Purpose",
+        "detect **fraud** in real time; assess **credit risk** for loans and cards; anti-money-laundering checks; personalise products; predict which customers may leave."
+      ],
+      [
+        "How",
+        "each card payment is scored against the customer's usual pattern (place, amount, time) in milliseconds; lending decisions use repayment histories."
+      ],
+      [
+        "Example",
+        "a payment in another country minutes after one in Leeds is blocked and the customer is sent a text to confirm."
+      ]
+    ] },
     { table: { head: ["Banking: benefits", "Banking: limitations"], rows: [
       ["Less money lost to fraud; customers protected", "False positives block genuine payments and annoy customers"],
       ["Faster, more consistent lending decisions", "Biased credit models can be unfair; people have rights over automated decisions"],
       ["Products and advice suited to each customer", "Highly sensitive financial data: a breach is very damaging"],
       ["Meets legal duties on money laundering", "Old (legacy) banking systems are hard to connect"]
     ] } },
-    { callout: { t: "def", h: "Insurance", body: [
-      { kv: [
-        ["Purpose", "**price premiums by risk**; detect **fraudulent claims**; settle claims faster; model large risks such as floods."],
-        ["How", "telematics “black boxes” or apps record how a policyholder drives (speed, braking, time of day); claims are compared with patterns of known fraud; flood maps use weather and river data."],
-        ["Example", "a young driver who drives smoothly in daylight earns a lower renewal price."]
-      ] }
-    ] } },
+    { h: "Insurance" },
+    { kv: [
+      [
+        "Purpose",
+        "**price premiums by risk**; detect **fraudulent claims**; settle claims faster; model large risks such as floods."
+      ],
+      [
+        "How",
+        "telematics “black boxes” or apps record how a policyholder drives (speed, braking, time of day); claims are compared with patterns of known fraud; flood maps use weather and river data."
+      ],
+      ["Example", "a young driver who drives smoothly in daylight earns a lower renewal price."]
+    ] },
     { table: { head: ["Insurance: benefits", "Insurance: limitations"], rows: [
       ["Fairer, often cheaper, premiums for low-risk customers", "High-risk people may be priced out of cover"],
       ["Fraudulent claims caught, keeping prices down", "Privacy: tracking where and how people drive"],
       ["Faster claims decisions", "Proxies (e.g. postcode) can discriminate unfairly"],
       ["Better models of floods and other big risks", "A faulty device or data error can raise a price wrongly"]
     ] } },
-    { callout: { t: "def", h: "Retail", body: [
-      { kv: [
-        ["Purpose", "forecast **demand** and manage **stock**; set prices and promotions; **personalise** offers through loyalty schemes; group customers (cluster analysis); decide new products and store layouts."],
-        ["How", "transactional records linked to loyalty numbers, website clicks, weather and local events are analysed for patterns (SAM Q3, Q6)."],
-        ["Example", "a supermarket stocks more barbecue food in stores where a heatwave is forecast and sends members money-off vouchers for items they often buy."]
-      ] }
-    ] } },
+    { h: "Retail" },
+    { kv: [
+      [
+        "Purpose",
+        "forecast **demand** and manage **stock**; set prices and promotions; **personalise** offers through loyalty schemes; group customers (cluster analysis); decide new products and store layouts."
+      ],
+      [
+        "How",
+        "transactional records linked to loyalty numbers, website clicks, weather and local events are analysed for patterns (SAM Q3, Q6)."
+      ],
+      [
+        "Example",
+        "a supermarket stocks more barbecue food in stores where a heatwave is forecast and sends members money-off vouchers for items they often buy."
+      ]
+    ] },
     { table: { head: ["Retail: benefits", "Retail: limitations"], rows: [
       ["Right stock in the right store: fewer empty shelves, less waste", "Wrong predictions when habits change suddenly (e.g. the pandemic)"],
       ["Personal offers increase sales and loyalty", "Customers may find personalisation intrusive"],
@@ -1134,39 +1409,63 @@ C["it:F201.1.4"] = {
     ] } },
 
     { page: "Government, healthcare and education" },
-    { callout: { t: "def", h: "Government", body: [
-      { kv: [
-        ["Purpose", "**plan public services** (schools, housing, transport); detect **tax and benefit fraud**; target policing and emergency services; evaluate policies; run smart-city systems."],
-        ["How", "census and survey data (the ONS), records from departments cross-matched (HMRC's Connect system compares many data sources to find undeclared income), sensor and traffic data."],
-        ["Example", "a council uses population forecasts and birth data to decide where a new primary school is needed."]
-      ] }
-    ] } },
+    { h: "Government" },
+    { kv: [
+      [
+        "Purpose",
+        "**plan public services** (schools, housing, transport); detect **tax and benefit fraud**; target policing and emergency services; evaluate policies; run smart-city systems."
+      ],
+      [
+        "How",
+        "census and survey data (the ONS), records from departments cross-matched (HMRC's Connect system compares many data sources to find undeclared income), sensor and traffic data."
+      ],
+      [
+        "Example",
+        "a council uses population forecasts and birth data to decide where a new primary school is needed."
+      ]
+    ] },
     { table: { head: ["Government: benefits", "Government: limitations"], rows: [
       ["Evidence-based policy and planning", "Surveillance and privacy fears reduce public trust"],
       ["Public money saved by catching fraud", "Biased data can lead to unfair treatment of groups"],
       ["Services sent where need is greatest", "Departments' data is in separate, old systems (silos)"],
       ["Faster response in emergencies", "Large projects are costly to taxpayers; breaches are serious"]
     ] } },
-    { callout: { t: "def", h: "Healthcare", body: [
-      { kv: [
-        ["Purpose", "**predict demand** (A&E, beds, staff); **earlier diagnosis** (AI reading scans); track disease in the population; personalised medicine; research into treatments; remote monitoring of patients at home."],
-        ["How", "patient records, appointment and admission data, test results, scans, wearables and population data are analysed."],
-        ["Example", "a hospital trust forecasts winter admissions from past years and flu data, and opens extra beds before the peak."]
-      ] }
-    ] } },
+    { h: "Healthcare" },
+    { kv: [
+      [
+        "Purpose",
+        "**predict demand** (A&E, beds, staff); **earlier diagnosis** (AI reading scans); track disease in the population; personalised medicine; research into treatments; remote monitoring of patients at home."
+      ],
+      [
+        "How",
+        "patient records, appointment and admission data, test results, scans, wearables and population data are analysed."
+      ],
+      [
+        "Example",
+        "a hospital trust forecasts winter admissions from past years and flu data, and opens extra beds before the peak."
+      ]
+    ] },
     { table: { head: ["Healthcare: benefits", "Healthcare: limitations"], rows: [
       ["Earlier diagnosis and better outcomes", "Health data is special category data under UK GDPR: extra protection needed"],
       ["Beds, staff and theatres used efficiently", "Patient trust: NHS England's care.data plan was dropped in 2016 after public concern"],
       ["Outbreaks spotted early", "Bias if some groups are under-represented in the data"],
       ["Faster research into treatments", "Systems that do not share data; an error could harm a patient"]
     ] } },
-    { callout: { t: "def", h: "Education", body: [
-      { kv: [
-        ["Purpose", "**track progress and attendance**; identify students **at risk** of falling behind or dropping out; **personalise** learning; plan staffing and resources; national policy (the DfE's National Pupil Database)."],
-        ["How", "learning analytics from attendance, assessment results, homework platforms and virtual learning environments."],
-        ["Example", "a college flags students whose attendance and online activity have dropped so tutors can contact them early."]
-      ] }
-    ] } },
+    { h: "Education" },
+    { kv: [
+      [
+        "Purpose",
+        "**track progress and attendance**; identify students **at risk** of falling behind or dropping out; **personalise** learning; plan staffing and resources; national policy (the DfE's National Pupil Database)."
+      ],
+      [
+        "How",
+        "learning analytics from attendance, assessment results, homework platforms and virtual learning environments."
+      ],
+      [
+        "Example",
+        "a college flags students whose attendance and online activity have dropped so tutors can contact them early."
+      ]
+    ] },
     { table: { head: ["Education: benefits", "Education: limitations"], rows: [
       ["Early support for students who are struggling", "Children's personal data needs strong protection"],
       ["Learning matched to each student (adaptive platforms)", "Students may be labelled; predictions can become self-fulfilling"],
@@ -1175,39 +1474,63 @@ C["it:F201.1.4"] = {
     ] } },
 
     { page: "Energy, manufacturing and media" },
-    { callout: { t: "def", h: "Energy and utilities", body: [
-      { kv: [
-        ["Purpose", "**forecast demand** and balance supply (especially with weather-dependent wind and solar); **smart meter** data for accurate bills and time-of-use tariffs; **predictive maintenance** of networks; find water leaks; respond to outages."],
-        ["How", "smart meters send readings (often half-hourly), sensors monitor pipes and cables, weather forecasts are combined with past demand."],
-        ["Example", "a supplier offers cheaper electricity overnight when demand is low, and its customers shift washing and car charging to then."]
-      ] }
-    ] } },
+    { h: "Energy and utilities" },
+    { kv: [
+      [
+        "Purpose",
+        "**forecast demand** and balance supply (especially with weather-dependent wind and solar); **smart meter** data for accurate bills and time-of-use tariffs; **predictive maintenance** of networks; find water leaks; respond to outages."
+      ],
+      [
+        "How",
+        "smart meters send readings (often half-hourly), sensors monitor pipes and cables, weather forecasts are combined with past demand."
+      ],
+      [
+        "Example",
+        "a supplier offers cheaper electricity overnight when demand is low, and its customers shift washing and car charging to then."
+      ]
+    ] },
     { table: { head: ["Energy and utilities: benefits", "Energy and utilities: limitations"], rows: [
       ["Less waste; supply matched to demand", "Smart-meter data shows when people are at home (privacy)"],
       ["Accurate bills, no estimated readings", "Installation costs; meters that lose connection"],
       ["Renewables used more effectively", "Critical infrastructure is a target for cyber attack"],
       ["Faults fixed before customers lose supply", "Unusual weather or events break the forecasts"]
     ] } },
-    { callout: { t: "def", h: "Manufacturing", body: [
-      { kv: [
-        ["Purpose", "**predictive maintenance** (fix machines before they break); **quality control** (cameras spot defects); optimise the supply chain and production schedule; forecast demand."],
-        ["How", "sensors measure vibration, temperature and power use on machines; images of products are checked by AI; supply and order data are combined."],
-        ["Example", "jet-engine makers monitor engines in flight (e.g. Rolls-Royce's engine health monitoring) and schedule servicing before a fault develops."]
-      ] }
-    ] } },
+    { h: "Manufacturing" },
+    { kv: [
+      [
+        "Purpose",
+        "**predictive maintenance** (fix machines before they break); **quality control** (cameras spot defects); optimise the supply chain and production schedule; forecast demand."
+      ],
+      [
+        "How",
+        "sensors measure vibration, temperature and power use on machines; images of products are checked by AI; supply and order data are combined."
+      ],
+      [
+        "Example",
+        "jet-engine makers monitor engines in flight (e.g. Rolls-Royce's engine health monitoring) and schedule servicing before a fault develops."
+      ]
+    ] },
     { table: { head: ["Manufacturing: benefits", "Manufacturing: limitations"], rows: [
       ["Less downtime: repairs planned, not emergencies", "Sensors and systems are expensive to fit to older machines"],
       ["Fewer defects and less waste", "Needs data and engineering skills"],
       ["Lower stock and costs in the supply chain", "Connected factories can be attacked (cyber security)"],
       ["Production matched to demand", "False alarms stop lines unnecessarily"]
     ] } },
-    { callout: { t: "def", h: "Communications, media and entertainment", body: [
-      { kv: [
-        ["Purpose", "**recommend** content; understand audiences; decide what to make or buy; target **advertising**; schedule and price; for telecoms, **manage networks** (predict congestion, plan new masts) and predict customers leaving."],
-        ["How", "viewing and listening histories, clicks, ratings, social media reaction, and network traffic data."],
-        ["Example", "a streaming service recommends shows from what similar viewers watched and uses viewing data to decide which series to renew."]
-      ] }
-    ] } },
+    { h: "Communications, media and entertainment" },
+    { kv: [
+      [
+        "Purpose",
+        "**recommend** content; understand audiences; decide what to make or buy; target **advertising**; schedule and price; for telecoms, **manage networks** (predict congestion, plan new masts) and predict customers leaving."
+      ],
+      [
+        "How",
+        "viewing and listening histories, clicks, ratings, social media reaction, and network traffic data."
+      ],
+      [
+        "Example",
+        "a streaming service recommends shows from what similar viewers watched and uses viewing data to decide which series to renew."
+      ]
+    ] },
     { table: { head: ["Comms, media, entertainment: benefits", "Comms, media, entertainment: limitations"], rows: [
       ["Viewers find content they like: more use, fewer cancellations", "Filter bubbles: people see more of the same"],
       ["Targeted adverts earn more", "Privacy of viewing and location data"],
@@ -1265,13 +1588,26 @@ C["it:F201.1.4"] = {
         { m: "…apply: so the supplier buys or generates the right amount of energy, wasting less, and can offer cheaper off-peak tariffs (1).", mk: "1", n: "Other benefits: accurate bills without estimated readings (1) so fewer complaints (1). Credit any other appropriate response." }
       ], result: "Accurate demand forecasts (1) → less waste, off-peak tariffs (1)" } },
     { callout: { t: "info", h: "Levels of response: 9-mark “Discuss” questions", body: [
-      { table: { head: ["Level", "Marks", "What the answer shows"], rows: [
-        ["3 (high)", "7–9", "a thorough discussion with detailed evaluation: a range of examples of the use; benefits **and** limitations for the organisation; detailed analysis in context; a clear conclusion with detailed reasons; consistent terms."],
-        ["2 (mid)", "4–6", "an adequate discussion: some examples; some benefits **or** limitations; some analysis in context; an adequate conclusion with relevant reasons; some terms."],
-        ["1 (low)", "1–3", "a basic discussion: a few examples or points; limited analysis in context; a brief conclusion with limited reasons; few terms."],
-        ["0", "0", "nothing worthy of credit."]
-      ] } },
-      { ul: ["Use all three bullets of the question: benefits, limitations, recommendation.", "Context in every paragraph: name the trust, its patients, its wards."] }
+      "Use all three bullets of the question: benefits, limitations, recommendation.",
+      "Context in every paragraph: name the trust, its patients, its wards."
+    ] } },
+    { table: { head: ["Level", "Marks", "What the answer shows"], rows: [
+      [
+        "3 (high)",
+        "7–9",
+        "a thorough discussion with detailed evaluation: a range of examples of the use; benefits **and** limitations for the organisation; detailed analysis in context; a clear conclusion with detailed reasons; consistent terms."
+      ],
+      [
+        "2 (mid)",
+        "4–6",
+        "an adequate discussion: some examples; some benefits **or** limitations; some analysis in context; an adequate conclusion with relevant reasons; some terms."
+      ],
+      [
+        "1 (low)",
+        "1–3",
+        "a basic discussion: a few examples or points; limited analysis in context; a brief conclusion with limited reasons; few terms."
+      ],
+      ["0", "0", "nothing worthy of credit."]
     ] } },
     { worked: { tag: "exam", title: "Should the trust predict readmissions?", src: "OCR-style · Discuss · 9 marks",
       q: "Westbridge Hospitals NHS Trust wants to use big data analytics on patient records to predict which patients are likely to be readmitted within 30 days of going home, so that community nurses can visit them. Discuss whether the trust should use big data analytics in this way. In your answer you must write about: any benefits to the trust; any limitations to the trust; whether you would recommend that the trust uses big data analytics in this way, and your reasons.",
@@ -1302,29 +1638,29 @@ C["it:F201.1.4"] = {
       { h: "Explain (2)", m: "action/benefit (1) + how THIS organisation uses it (1)." },
       { h: "Discuss (9)", m: "purpose in context, benefits, limitations, a recommendation with conditions." }
     ] },
-    { callout: { t: "tip", h: "How OCR marks it", body: [{ ul: [
+    { callout: { t: "tip", h: "How OCR marks it", body: [
       "SAM Q6(b)-style: “The expansion must relate to the retailer / product buying” — a generic expansion loses the second mark.",
       "SAM Q8-style: “Answers must focus on the [organisation]” — write about its warehouse, wards or customers.",
       "Benefits and limitations must be **of using big data analytics in that area**, not of computers in general.",
       "A 9-mark answer with no conclusion cannot reach Level 3."
-    ] }] } },
-    { callout: { t: "miscon", h: "Misconceptions", body: [{ ul: [
+    ] } },
+    { callout: { t: "miscon", h: "Misconceptions", body: [
       "“Analytics makes the decision.” — it informs people's decisions; responsibility stays with the organisation.",
       "“More data always means better predictions.” — only if it is accurate, relevant and representative.",
       "“Limitations are just cost.” — also privacy, bias, data quality, skills and changing patterns.",
       "“Public bodies can use any data they hold.” — UK GDPR's principles (purpose limitation, minimisation) still apply.",
       "“Personalisation is always welcome.” — customers can find it intrusive."
-    ] }] } },
-    { callout: { t: "mnemonic", h: "The nine areas: “Big Cats Eat Eggs; Giant Hens Inspect Many Rats”", body: [{ ul: [
+    ] } },
+    { callout: { t: "mnemonic", h: "The nine areas: “Big Cats Eat Eggs; Giant Hens Inspect Many Rats”", body: [
       "**B**anking · **C**ommunications, media, entertainment · **E**ducation · **E**nergy and utilities · **G**overnment · **H**ealthcare · **I**nsurance · **M**anufacturing · **R**etail (the spec's order).",
       "Purposes: the **four Ps** — Predict, Personalise, Protect, Plan."
-    ] }] } },
-    { callout: { t: "tip", h: "Synoptic links", body: [{ ul: [
+    ] } },
+    { callout: { t: "tip", h: "Synoptic links", body: [
       "F200 1.1 — data and information in society, its positive and negative impacts; F200 4.1 — legislation and the ICO.",
       "F201 1.1 (Value of data), 1.3 (how each area captures its data), 2.3 (descriptive to prescriptive mining), 2.5 (data science and analytics in each area — the spec links 2.5 to these areas), 2.6 (cluster, regression, time series).",
       "F201 3.1 (AI and ML in these areas), 4.1–4.2 (UK GDPR, bias, the Data Ethics Framework), 5.1–5.2 (environment and society).",
       "F204 — IoE in energy, manufacturing and smart cities; F206 — retail and media marketing analytics."
-    ] }] } }
+    ] } }
   ],
   flashcards: [
     ["List the nine areas of application for big data analytics in the specification.", "Banking; communications, media and entertainment; education; energy and utilities; government; healthcare; insurance; manufacturing; retail.", 0],
