@@ -16,8 +16,14 @@
      --skip 75,76    leave these suites out (env SMOKE_SKIP); each is named
                      in the summary so a skip is never silent
      --list          print the suites it would run and stop
+     --heavy-timeout S  the heavy suites' limit, and a re-run's (default 900;
+                     env SMOKE_HEAVY_TIMEOUT)
+     --no-retry      do not re-run a failed suite alone at the end
 
-   The heavy suites (smoke56, smoke75) start first so the pool ends evenly.
+   The heavy suites (smoke56, smoke75) start first so the pool ends evenly,
+   with their own longer limit. A suite that fails or times out in the pool
+   is run again ALONE after it (the tail batch); the summary names every
+   suite that only passed alone, and one that fails alone fails the gate.
 
    WHAT A SUITE NEEDS BEYOND NODE (checked 8 November 2026, clean clone):
      smoke75, smoke76  the full C# runtime, assets/code/runtime/<id>/ —
@@ -67,18 +73,26 @@ if (skipArg) {
   const out = new Set(String(skipArg).split(",").map((x) => x.trim()).filter(Boolean).map((x) => (x === "1" ? 1 : +x.replace(/^smoke|\.test\.js$/g, ""))));
   suites = suites.filter((f) => (out.has(num(f)) ? (skipped.push(f), false) : true));
 }
-/* longest first: the two that are ~40% of the gate's CPU */
+/* longest first: the two that are ~40% of the gate's CPU. Each takes about
+   six minutes even alone, so it gets its own, longer limit (W8, 17 Nov
+   2026: both were killed at 300 s under a full parallel load). */
 const HEAVY = ["smoke56.test.js", "smoke75.test.js"];
+const heavyS = Math.max(timeoutS, +opt("--heavy-timeout", process.env.SMOKE_HEAVY_TIMEOUT || 900) || 900);
+/* A suite that fails or times out in the parallel pool is run again ALONE
+   once the pool is empty (the tail batch). Several suites wait on the wall
+   clock for a few seconds (smoke9, 20, 53), which a starved CPU can miss; a
+   real failure fails again alone, so it is still a failure. --no-retry
+   turns the tail batch off. */
+const retry = !args.includes("--no-retry");
 suites.sort((a, b) => (HEAVY.indexOf(b) - HEAVY.indexOf(a)) || num(a) - num(b));
 if (listOnly) { suites.forEach((s) => console.log(s)); process.exit(0); }
 
 const queue = [];
 for (let r = 0; r < repeat; r++) suites.forEach((s) => queue.push(s));
-const results = [];
 const t0 = Date.now();
 const label = (s) => s.replace(/\.test\.js$/, "");
 
-function run(file) {
+function run(file, alone) {
   return new Promise((resolve) => {
     const started = Date.now();
     const child = spawn(process.execPath, [path.join(TOOLS, file)], { cwd: ROOT, env: process.env, stdio: ["ignore", "pipe", "pipe"] });
@@ -86,34 +100,45 @@ function run(file) {
     child.stdout.on("data", (d) => out.push(d));
     child.stderr.on("data", (d) => out.push(d));
     let timedOut = false;
-    const timer = setTimeout(() => { timedOut = true; child.kill("SIGKILL"); }, timeoutS * 1000);
+    const limit = alone || HEAVY.includes(file) ? heavyS : timeoutS;
+    const timer = setTimeout(() => { timedOut = true; child.kill("SIGKILL"); }, limit * 1000);
     child.on("close", (code, signal) => {
       clearTimeout(timer);
       const ms = Date.now() - started;
       const ok = code === 0 && !timedOut;
-      const r = { file, ok, code, signal, timedOut, ms, output: Buffer.concat(out).toString("utf8") };
-      results.push(r);
-      const why = timedOut ? "TIMEOUT after " + timeoutS + " s" : ok ? "" : "exit " + (code == null ? signal : code);
-      console.log((ok ? "  ok   " : "  FAIL ") + label(file).padEnd(10) + String((ms / 1000).toFixed(1)).padStart(7) + " s" + (why ? "   " + why : ""));
-      resolve();
+      const r = { file, ok, code, signal, timedOut, ms, alone: !!alone, output: Buffer.concat(out).toString("utf8") };
+      const why = timedOut ? "TIMEOUT after " + limit + " s" : ok ? "" : "exit " + (code == null ? signal : code);
+      console.log((ok ? "  ok   " : alone || !retry ? "  FAIL " : "  again") + label(file).padEnd(10) + String((ms / 1000).toFixed(1)).padStart(7) + " s" +
+        (alone ? "   (alone)" : "") + (why ? "   " + why : ""));
+      resolve(r);
     });
   });
 }
 
-console.log("run_smoke: " + queue.length + " suite run(s), " + jobs + " worker(s), " + timeoutS + " s timeout" +
+console.log("run_smoke: " + queue.length + " suite run(s), " + jobs + " worker(s), " + timeoutS + " s timeout (" +
+  HEAVY.map(label).join(", ") + " " + heavyS + " s)" + (retry ? ", failures re-run alone at the end" : "") +
   (skipped.length ? "; SKIPPED: " + skipped.map(label).join(" ") : ""));
-async function worker() { while (queue.length) await run(queue.shift()); }
+const first = [];
+async function worker() { while (queue.length) first.push(await run(queue.shift())); }
 await Promise.all(Array.from({ length: Math.min(jobs, queue.length) }, worker));
+/* the tail batch: each suite that failed under load, alone, one at a time */
+const rerun = retry ? first.filter((r) => !r.ok) : [];
+if (rerun.length) console.log("\nrun_smoke: " + rerun.length + " failed under load; running each alone: " + rerun.map((r) => label(r.file)).join(" "));
+const second = [];
+for (const r of rerun) second.push(await run(r.file, true));
+const results = first.map((r) => second.find((s) => s.file === r.file && !r.ok) || r);
+const recovered = second.filter((r) => r.ok).map((r) => label(r.file));
 
 const failed = results.filter((r) => !r.ok);
 const wall = ((Date.now() - t0) / 1000).toFixed(1);
-const cpu = (results.reduce((s, r) => s + r.ms, 0) / 1000).toFixed(0);
+const cpu = (first.concat(second).reduce((s, r) => s + r.ms, 0) / 1000).toFixed(0);
 console.log("\nslowest: " + results.slice().sort((a, b) => b.ms - a.ms).slice(0, 5).map((r) => label(r.file) + " " + (r.ms / 1000).toFixed(0) + " s").join(", "));
 failed.forEach((r) => {
   console.log("\n---- " + label(r.file) + (r.timedOut ? " (timed out)" : " (exit " + r.code + ")") + ": last " + tailN + " lines ----");
   console.log(r.output.trimEnd().split("\n").slice(-tailN).join("\n"));
 });
 console.log("\nrun_smoke: " + (results.length - failed.length) + " / " + results.length + " passed in " + wall + " s wall (" + cpu + " s summed)" +
+  (recovered.length ? "; passed alone after failing under load: " + recovered.join(" ") : "") +
   (skipped.length ? "; skipped " + skipped.map(label).join(" ") : "") +
   (failed.length ? "; FAILED: " + [...new Set(failed.map((r) => label(r.file)))].join(" ") : ""));
 process.exit(failed.length ? 1 : 0);

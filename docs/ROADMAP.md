@@ -12,7 +12,8 @@ Sources:
 - earlier sessions' notes.
 
 Each item says what it touches and which invariants it moves. When an item
-changes an invariant, rewrite the invariant in `CLAUDE.md` in the same commit.
+changes an invariant, rewrite it in its `docs/invariants/<domain>.md` file
+and its one-line index in `CLAUDE.md`, in the same commit.
 
 **Legend**
 
