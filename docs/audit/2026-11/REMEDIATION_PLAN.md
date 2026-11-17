@@ -805,7 +805,7 @@ off), CL-24, MG-17, HR-30, ST-19, AA-17, AG-25.
   - the HP ring reads as a full ring (UR-15);
   - Side by side stops at the end of the notes (UR-8);
   - the toast is centred.
-- **Agenda on Mac and iPad (PR-06).** Your request. It goes through a design
+- **(SCRAPPED 17 Nov, the user no longer wants it.) Agenda on Mac and iPad (PR-06).** Your request. It goes through a design
   prompt, below.
 
 **Every P0/P1 in W3: the fix, and how it's accepted**
@@ -1192,6 +1192,14 @@ its "only goes down" rule; AP-01 stage 2 would win it back.
     JS in 340 scripts, and the iPad feels it.
 - **Repository.** Untrack the personal exports; whether to purge them from
   history is your decision (AP-07).
+- **Progress (17 Nov, scope set by the user):** W8 is done in two parts.
+  NOW, what pays off while work continues: CLAUDE.md's release diary
+  trimmed (AP-20), `hub.js` split (AP-09), the heavy reads memoised (AP-15,
+  AX-25, AG-08, AP-18, CL-05, AP-03), AP-01 stage 2 (the boot budget was
+  raised to 8.85 MB for turn 41). AT THE VERY END, once fixes and QoL stop
+  landing: Help & Guide (AA-16, SH-10, SH-11, AX-20, AX-34, AP-06), GUIDE.md
+  (SH-32) and the docs re-baseline (AP-05). AP-04 (one lesson reader) and
+  AP-07 are not started.
 
 ### W9 — Polish and HCI (about 2 sessions; FROZEN, §A9)
 - **Scope:** exactly the 200 mapped findings, plus your 6 QoL items (§5).
@@ -1234,7 +1242,7 @@ D-Topic tier and D-Agenda go to you at the end of W1 (§A8).** The rest come
 one per release, before its build:
 - **D-Money:** what a student with a Santander account wants to see (W4;
   MG-08).
-- **D-Agenda:** the Agenda view on Mac and iPad (PR-06, PR-12).
+- ~~**D-Agenda:** the Agenda view on Mac and iPad (PR-06, PR-12).~~ SCRAPPED by the user, 17 Nov.
 - **D-Topic tier:** the topic page and inspector between 700 and 1240, and
   the topic tab row on the phone (ST-06, ST-17).
 - **D-Held page:** the "Updated on another device" chip and held-page states
