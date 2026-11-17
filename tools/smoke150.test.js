@@ -223,6 +223,11 @@ step("F · Backup & Restore: the confirm reads the first line; the export names 
     for (let i = 0; i < 400 && !said.length; i++) await app.settle();
   } finally { K.ink.exportAll = ink; K.ui.toast = toast; }
   eq(said, [["Backup saved without: ink.", true]], "it names what it left out");
+  /* and the export still records when it was made (smoke56 replays the button with one settle; this one waits for it) */
+  delete K.store.state.ui.lastBackupAt;
+  btn.click();
+  for (let i = 0; i < 400 && !K.store.state.ui.lastBackupAt; i++) await app.settle();
+  assert(K.store.state.ui.lastBackupAt > 0, "the export records lastBackupAt");
 });
 
 step("G · no errors, no request", async () => {

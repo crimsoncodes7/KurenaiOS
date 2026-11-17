@@ -1061,6 +1061,14 @@
         "nav": "^#/review(/.*)?$"
       },
       "why": "W2 (16 November 2026, SH-37): on Review itself, starting a run or switching to Card stats used to leave the address as it was (the same page shown again). The run and the tab are in the address now, so the control also writes it; what the control does on the page is held as before."
+    },
+    {
+      "surface": "data",
+      "from": "^Export full backup \\(\\.json\\)$",
+      "dropEffects": {
+        "ui": "^lastBackupAt$"
+      },
+      "why": "W1 DI-09 (17 November 2026): the backup file is written in pieces, one stored file at a time, so the export finishes a few IndexedDB rounds later than the one settle this replay waits; it still records lastBackupAt when it is done, which smoke150 F holds."
     }
   ]
 }

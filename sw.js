@@ -41,7 +41,7 @@
 /* eslint-env serviceworker */
 "use strict";
 
-var VERSION = "kos-integrity-15";
+var VERSION = "kos-integrity-16";
 var STATIC_CACHE = "kos-static-" + VERSION;
 var RUNTIME_CACHE = "kos-runtime-" + VERSION;
 var SQLITE_CACHE = "kos-sqlite-1.14.2";
