@@ -1152,6 +1152,25 @@ beside the record and the deal, the mini-player hidden there. Not built:
 Money's "safe to spend" line on Home (it needs the transactions store,
 which Home does not read); "3 tasks" on the Daily 20 (it is one task).
 
+RELEASED 17 Nov 2026 as sw `kos-integrity-20` (main e.g. via
+`release/integrity-17`; immutable https://b450671a.kurenai-os.pages.dev):
+turns 36, 39, 40 and 41 together with the IT notes fix. DESIGN TURN 41,
+the first open (decision B8, smoke164): no SAMPLE events on a new device
+(the harness keeps them as a fixture, `window.KOS_SAMPLE_EVENTS`); the
+welcome on a pristine, signed-out device with cloud set up (sign in in
+place, then "Bringing your data" until settled; or Start fresh, then
+Home's three first steps); the plan's carry-over notice held until it is
+answered; "Not synced · Sign in" in the header and "Use this device only".
+Two production-only bugs found after the first deploy and fixed (-18 to
+-20): the welcome's first look ran before the deferred env and library and
+gave up, and the boot's first page draw closed it (now `persist`). IT
+NOTES: no block inside a callout (270 IT callouts and 5 in Maths Pure
+rewritten by rule; the validator refuses the shape). Not built from turn
+41: a subject-picking sheet (Step 1 opens Study; the app has no subject
+choice) and "No plan" on Start fresh (the plan seed is kept). The boot
+budget in smoke142 was RAISED 8.7 → 8.85 MB for these releases, against
+its "only goes down" rule; AP-01 stage 2 would win it back.
+
 ### W8 — Maintainability, performance and docs (about 1–2 sessions)
 - **Help & Guide.** Rewrite it for every shipped area: Money, Goals,
   Routines, Files, the study spaces and Achievements (SH-10, SH-11). A smoke
