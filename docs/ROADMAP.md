@@ -1670,6 +1670,17 @@ cards; a first scan flagged about 180 bare prompts and 44 yes/no answers):
   should flag bare prompts, bare yes/no answers and over-long answers, as
   `tools/quiz_bias.mjs` does for quiz options.
 
+### 5.22 F201 practice papers 2 and 3 (the Exams & Papers rework §10) — BACKLOG
+
+Moved to the backlog by the user on 18 November 2026, once paper 1 of each
+December mock was written. Two more OCR F201 case-study papers, each its
+own organisation, to the SAM's blueprint (1 h 30, 60 marks, 9·9·5·5·2·18·
+8·4, a table to clean, a table to complete, linked (i)/(ii), a 6-mark
+Analyse and a 9-mark Discuss with level descriptors and indicative
+content), covering the topic areas paper 1 touched least; each passes
+smoke181. Written to `js/data/exams/papers/ocr-f201-2.js` and `-3.js` in
+the exams-deep bundle; the real exam is in January 2027.
+
 ## Phase 6 — The iPad and the Pencil (asked for 22 October 2026)
 
 > **RELEASED 26 October 2026** (`feat/ipad-files`, sw `kos-pen-1`,

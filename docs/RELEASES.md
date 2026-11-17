@@ -15,7 +15,22 @@ the service-worker version). Git holds the rest.
   `5bece3e`). `ai-chat` is deployed as version 6 (images for Gemini, 26 October 2026); the
   `kos_reports` migration `20261012000001` is applied; so is `kos_money`
   (`20261019000001`, 19 October 2026), live since the Money and Goals release.
-- Latest release: sw `kos-integrity-20` (17 November 2026): the welcome
+- Latest release: sw `kos-integrity-21` (18 November 2026,
+  `release/integrity-21`: `feat/exams-engine` and `feat/exam-cap-ink`
+  merged into main): the headless half of the Exams & Papers rework
+  (`docs/exams-rework-plan.md`) — recorded attempts (`KOS.attempts`,
+  IndexedDB `kurenai-os-attempts`, invariant 130a: events per part, timing
+  figures on the device), the review pack for Claude or Gemini and its
+  tolerant JSON reader (`KOS.reviewPack`), the timed paper recording with
+  EX-32 fixed; authored, board-faithful papers (invariant 127): OCR F201
+  practice paper 1 on the SAM's blueprint (1 h 30, 60 marks; the F201
+  preset is now 90 minutes), the CS pre-public exam paper 1 (2 h 30, 100
+  marks) and the Maths Pure mock paper 1 (2 h, 100 marks), with their own
+  presets; the run-up — no interval over a third of the days to a near
+  exam (invariant 111a); ink travels with every downloaded or shared file
+  (invariant 151); CLAUDE.md 46 KB with the invariants in
+  `docs/invariants/`; the gate's tail batch; smoke180–182.
+  Before it sw `kos-integrity-20` (17 November 2026): the welcome
   looks after DOMContentLoaded, once `js/env.local.js` and the sync library
   (both `defer`) are in — on production its first look, made before them,
   read cloud sync as not configured and gave up, so it was never seen — and

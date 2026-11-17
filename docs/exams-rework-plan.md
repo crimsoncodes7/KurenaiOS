@@ -520,7 +520,7 @@ Per device, like a lesson's pages.
 | Item | Size | Checked by |
 |---|---|---|
 | F201 exam essentials chapter | 1 chapter | the SAM and its scheme |
-| F201 papers 1–3 (case studies, schemes, level grids) | 3 × 60 marks | the SAM's blueprint: marks per topic area, PO spread, one 6 and one 9 |
+| F201 paper 1 (done); papers 2–3 on the backlog (roadmap 5.22) | 3 × 60 marks | the SAM's blueprint: marks per topic area, PO spread, one 6 and one 9 |
 | AQA exam essentials (Paper 1 and 2) | 2 chapters | AQA's command words and reports |
 | CS full Companion for the PPE's seven Paper 1 topics (OOP, stacks, queues, recursion, graphs, trees, sorting and searching) | shapes, worked variations, practice | `cs_diff`, a trace check, the index |
 | CS PPE practice paper | 1 × 2 h 30 | the index blueprint |
