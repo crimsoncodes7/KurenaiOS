@@ -1133,6 +1133,25 @@ schemes.
 | MI-01 | P1 | js/core/mind.js evidence(): for a checkpoint lesson read concepts from KOS_MIND.CHECKPOINTS[unit].concepts for the retrieval check. | smoke110: a fully done F1.8 checkpoint lesson reaches status done with 4/4 checks. |
 | ST-03 | P1 | js/engines/quiz.js: store best as a percent (bestPct) and migrate existing records at the store gate (best/len when deck length known); hub.js inspector prints the percent. | Smoke: 6/11 correct → inspector reads 'Quiz best 55%' and the quiz header agrees. |
 
+DESIGN TURN 40, Home and Profile (17 Nov 2026, `feat/w7-home` at 1858440,
+on Opus; NOT merged, NOT deployed; gate 158 / 158; smoke163) — HR-04 done:
+`KOS.today.spaces` reads each started space's own planDay/due (Code's
+Daily 20, Japanese reviews then its next lesson, Mind's Daily 15, the Daily
+Creative) and Home's ladder takes the first not done after an assignment
+due within a week and before the next exam (the card opens the space, with
+"Then" for the rest); the Review side is one row a queue (flashcards,
+Japanese, Code's retrieval, Mind's cards), each opening its review; Today's
+three may pick a space's daily (kind `space`: read, never ticked; the
+Morning Review suggests the open ones); Money's own notice is a row inside
+Upcoming, held by Hide amounts and a muted Money kind; below 1080 Today's
+three folds under the greeting. The Wardrobe has cells only for owned kinds
+(Frames a kind, Theme one cell with Follow the system), Edit your seat
+draws the Stage at 1:1 under 860 (the edited band only on a phone) and
+Save waits for a change; #/focus under a minimised session is the live card
+beside the record and the deal, the mini-player hidden there. Not built:
+Money's "safe to spend" line on Home (it needs the transactions store,
+which Home does not read); "3 tasks" on the Daily 20 (it is one task).
+
 ### W8 — Maintainability, performance and docs (about 1–2 sessions)
 - **Help & Guide.** Rewrite it for every shipped area: Money, Goals,
   Routines, Files, the study spaces and Achievements (SH-10, SH-11). A smoke
