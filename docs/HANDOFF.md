@@ -131,6 +131,11 @@ W3 and W9 stay the other account's.
   user for Claude Design. While the design is out: the mock content (§10)
   and the engine work (§9). Deploy by 4 December; the mocks are in the
   week of 14 December. The rest of item 1 and item 2 come after.
+- **18 November:** CLAUDE.md is 46 KB: the invariants are in
+  `docs/invariants/<domain>.md` (read the domain's file before editing it)
+  and the gate's slow suites are handled by the runner. The rework's
+  engine and F201 practice paper 1 are on `feat/exams-engine` (smoke180,
+  181; not on main). New suites on this account: 180 onwards.
 
 **Smoke numbers from now:** 161–164 are taken; the other account uses
 **165–179**; this account continues at 157–159 and then 180+. (142, 143, 149 and 150 stay the
