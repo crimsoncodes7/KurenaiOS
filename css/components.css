@@ -180,6 +180,9 @@ transition: background var(--dur-fast) var(--ease), color var(--dur-fast) var(--
 .k-dot { position: absolute; inset-block-start: var(--sp-6); inset-inline-end: var(--sp-7); inline-size: var(--sp-8); block-size: var(--sp-8); border-radius: 50%; background: var(--crimson); box-shadow: 0 0 0 var(--focus-width) var(--s1); }
 
 /* ---------- the dated row: Today, Upcoming, Deadlines ---------- */
+/* a study space's mark in its hue (碼 語 心 創, design turn 40): the kanji
+   tile, smaller, for Home's ladder, the Review side and Today's three */
+.k-tile.k-space-mark { --tile: var(--sp-24); border-radius: var(--r-6); font-size: var(--fs-13); }
 .k-day-row { display: flex; align-items: center; gap: var(--sp-12); padding-block: var(--sp-12); border-block-start: var(--hairline) solid var(--line); inline-size: 100%; padding-inline: 0; border-radius: 0; background: none; box-shadow: none; text-align: start; }
 button.k-day-row:hover { background: none; }
 button.k-day-row:hover .k-day-title { text-decoration: underline; text-decoration-color: var(--line); }

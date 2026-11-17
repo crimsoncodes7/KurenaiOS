@@ -233,7 +233,7 @@
   function refRow(x, right) {
     return el("div", { class: "k-dr-row" }, [U().bar(hue(x.subject)), el("div", { class: "k-rt-grow" }, [
       el("div", { class: "k-dr-row-t k-ellipsis", text: x.title }),
-      el("div", { class: "k-dr-row-s" }, [x.kind ? U().kind(x.kind === "exam" ? "▲ exam" : x.kind) : null, el("span", { class: "k-ellipsis", text: x.sub || "" })])
+      el("div", { class: "k-dr-row-s" }, [x.kind ? U().kind(x.kind === "exam" ? "▲ exam" : x.kind === "space" ? "daily" : x.kind) : null, el("span", { class: "k-ellipsis", text: x.sub || "" })])
     ]), right || null]);
   }
   function dueSub(x) {
@@ -292,7 +292,7 @@
           el("button", { type: "button", class: "k-grip", "data-reorder": "", "aria-label": "Move " + p.title, title: "Drag to move · Space lifts it", text: "⠿" }),
           el("span", { class: "k-dr-num k-mono", text: String(i + 1) }),
           U().bar(hue(p.subject)),
-          el("div", { class: "k-rt-grow" }, [el("div", { class: "k-dr-row-t k-ellipsis", text: p.title }), muted(p.done ? "done" : p.ref.kind)]),
+          el("div", { class: "k-rt-grow" }, [el("div", { class: "k-dr-row-t k-ellipsis", text: p.title }), muted(p.done ? "done" : p.ref.kind === "space" ? "daily" : p.ref.kind)]),
           el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "aria-label": "Remove " + p.title, "data-ui": "review.three-remove", text: "✕", onclick: function () { setThree(picked.filter(function (_, j) { return j !== i; })); } })
         ]));
       });
@@ -655,6 +655,10 @@
   /* Start: About to Study, filled from the first task or the ladder's next */
   function startFocus(f, n) {
     var ctx = {};
+    /* a space's daily runs its own session (design turn 40): Start opens it */
+    var spId = f && f.ref && f.ref.kind === "space" ? f.ref.id : !f && n && n.kind === "space" ? n.subject : null;
+    var sp = spId != null && KOS.today && KOS.today.space ? KOS.today.space(String(spId)) : null;
+    if (sp && sp.go) { sp.go(); return; }
     if (f && f.ref) {
       if (f.ref.kind === "assignment") ctx.assignmentId = f.ref.id;
       if (f.ref.kind === "topic") { var i = String(f.ref.id).indexOf(":"); ctx.subject = f.ref.id.slice(0, i); ctx.refs = [f.ref.id]; }

@@ -901,6 +901,21 @@
         go: function () { if (KOS.assignmentDetail) KOS.assignmentDetail(a.id, function () { KOS.show("home", undefined, { _nav: true }); }); else KOS.show("assignments"); } };
     }
 
+    /* 3b — the study spaces' dailies not done today (design turn 40a):
+       Code's Daily 20, Japanese's reviews then its next lesson, Mind's
+       Daily 15, the Daily Creative; only spaces that have been started.
+       Each runs its own session, so the card opens the space, not Focus. */
+    var spaces = KOS.today && KOS.today.spaces ? KOS.today.spaces() : [];
+    var open = spaces.filter(function (s) { return !s.done && s.go; });
+    if (open.length) {
+      var sp = open[0];
+      return { kind: "space", space: sp.sid, mark: sp.mark, hue: sp.hue, kicker: "Up next · " + sp.daily,
+        label: sp.title, why: sp.why, subject: sp.sid, ref: null, refs: [], own: true,
+        goal: sp.mins ? { k: "Session", v: minsText(sp.mins) + " · its own" } : null,
+        then: open.slice(1).map(function (s) { return { mark: s.mark, hue: s.hue, text: s.short, sid: s.sid }; }),
+        cta: "Open the " + sp.daily + " →", go: sp.go };
+    }
+
     /* 4 — the next exam of any kind, further out */
     var later = exams.filter(function (d) { return d.days <= 42; })[0];
     if (later) return examPlan(later, dailyGoalMins());
@@ -954,6 +969,11 @@
     }, 0) / 3600;
   }
   function fmtH(h) { return h >= 10 ? String(Math.round(h)) : String(Math.round(h * 10) / 10); }
+  /* a study space's mark in its hue (碼 語 心 創), beside its daily */
+  function spaceMark(mark, hue) {
+    return el("span", { class: "k-tile k-space-mark", lang: "ja", "aria-hidden": "true", style: "--tile-c: " + (hue || "var(--muted)"), text: mark });
+  }
+  KOS.spaceMark = spaceMark;
   function cardRow(k, v, bar) {
     return el("div", { class: "k-card-row" }, [
       el("span", { class: "k-kv-k", text: k }),
@@ -999,6 +1019,8 @@
       undo = function () { KOS.assignments.setStatus(id, was); };
     } else if (p.ref.kind === "plan") { KOS.pacing.setDone(id, !p.done); undo = function () { KOS.pacing.setDone(id, !!p.done); }; }
     else if (p.ref.kind === "topic") { var i = String(id).indexOf(":"); KOS.show("ref", { subject: id.slice(0, i), ref: id.slice(i + 1) }); return; }
+    /* a space's daily is done in its space, never ticked here (40a) */
+    else if (p.ref.kind === "space") { var sp = KOS.today && KOS.today.space(String(id)); if (sp && sp.go) sp.go(); else KOS.show(String(id) === "ja" ? "japanese" : String(id)); return; }
     else return;
     KOS.ui.toast(p.title + (p.done ? " · reopened" : " · done"), false, { label: "Undo", run: function () { undo(); KOS.rerender(); } });
     KOS.rerender();
@@ -1089,6 +1111,10 @@
     var today = KOS.srs.todayISO();
     var dueCards = KOS.srs.dueCards();
     var dueN = dueCards.length;
+    /* the study spaces' own review queues (design turn 40a): Japanese,
+       Code's retrieval, Mind's cards — read from each space, opened there */
+    var spaceRev = (KOS.today && KOS.today.spaces ? KOS.today.spaces() : []).filter(function (s) { return s.review && s.review.n > 0; });
+    var revAll = dueN + spaceRev.reduce(function (n, s) { return n + s.review.n; }, 0);
 
     /* ================= the hero ================= */
     var band = el("section", { class: "k-home-hero", "data-ui": "home.hero home.id", "data-hp": hpS, "aria-label": "Today" });
@@ -1175,8 +1201,9 @@
           "aria-label": tickable ? (p.done ? "Reopen: " : "Done: ") + p.title : "Open " + p.title,
           onclick: function () { tickThree(p); } }, [
           el("span", { class: "k-goal-mark", "aria-hidden": "true", text: p.done ? "✓" : "" }),
+          p.mark && !p.done ? spaceMark(p.mark, p.hue) : null,
           el("span", { class: "k-goal-text", text: p.title })
-        ]);
+        ].filter(Boolean));
         if (p.done) KOS.ui.state(row, "done", true);
         goal.appendChild(row);
       });
@@ -1187,6 +1214,8 @@
         el("button", { type: "button", class: "k-btn k-btn--primary k-fit-btn", "data-intent": "primary", "data-ui": "home.three-start",
           title: firstOpen ? "Start: " + firstOpen.title : null, onclick: function () {
             if (!firstOpen) { KOS.show("focus"); return; }
+            /* a space's daily runs its own session: Start opens it */
+            if (firstOpen.ref.kind === "space") { tickThree(firstOpen); return; }
             var ctx = { title: firstOpen.title, subject: firstOpen.subject, objective: firstOpen.action || "" };
             if (firstOpen.ref.kind === "assignment") ctx.assignmentId = firstOpen.ref.id;
             if (firstOpen.ref.kind === "topic") ctx.refs = [firstOpen.ref.id];
@@ -1259,7 +1288,7 @@
     var mid = el("div", { class: "k-home-mid" });
     var next = nextAction();
     var running = !!next.live;
-    var mode = running ? "focus" : (homeMode || (dueN ? "review" : "focus"));
+    var mode = running ? "focus" : (homeMode || (revAll ? "review" : "focus"));
     var upnext = el("section", { class: "k-card k-upnext", "data-ui": "home.next", "aria-label": "What to do next" });
     if (running) KOS.ui.state(upnext, "live", true);
     function paintUpNext() {
@@ -1267,7 +1296,7 @@
       var n = mode === "review" ? null : (running ? next : focusPlan());
       var sw = KOS.ui.tabs([
         { label: "Focus", active: mode === "focus", onSelect: function () { homeMode = mode = "focus"; paintUpNext(); } },
-        { label: "Review", active: mode === "review", onSelect: function () { homeMode = mode = "review"; paintUpNext(); } }
+        { label: revAll ? "Review " + KOS.ui.num(revAll) : "Review", active: mode === "review", onSelect: function () { homeMode = mode = "review"; paintUpNext(); } }
       ], { variant: "workspace", label: "Up next" });
       upnext.appendChild(el("div", { class: "k-upnext-head" }, [
         el("span", { class: "k-kicker", "data-ui": "home.next-kicker", text: mode === "review" ? "Due today" : n.kicker }),
@@ -1277,7 +1306,8 @@
       if (mode === "review") {
         var oldest = dueCards.length ? dueCards[0].overdue : 0;
         upnext.appendChild(el("h2", { class: "k-upnext-title", "data-ui": "home.next-label",
-          text: dueN ? "Review " + KOS.ui.num(dueN) + " due card" + (dueN === 1 ? "" : "s") : "Nothing due to review" }));
+          text: spaceRev.length ? "Review " + KOS.ui.num(revAll) + " due"
+            : dueN ? "Review " + KOS.ui.num(dueN) + " due card" + (dueN === 1 ? "" : "s") : "Nothing due to review" }));
         /* topic memory: the due topic you would recall least today */
         var weakest = null, seenTopic = {};
         dueCards.forEach(function (c) {
@@ -1289,24 +1319,44 @@
         });
         var weakTxt = weakest && weakest.r < 0.85 ? " · " + weakest.ref + " " + ((KOS.hub.BYREF[weakest.sid][weakest.ref] || {}).title || "") + " is down to " + Math.round(100 * weakest.r) + "% recall" : "";
         upnext.appendChild(el("p", { class: "k-upnext-why", "data-ui": "home.next-why",
-          text: dueN ? "About " + Math.max(1, Math.round(dueN * 0.5)) + " minute" + (dueN > 2 ? "s" : "") + (oldest ? " · oldest is " + oldest + " day" + (oldest === 1 ? "" : "s") + " overdue" : " · all due today") + weakTxt
+          text: revAll ? "About " + Math.max(1, Math.round(revAll * 0.5)) + " minute" + (revAll > 2 ? "s" : "") + (oldest ? " · oldest is " + oldest + " day" + (oldest === 1 ? "" : "s") + " overdue" : " · all due today") + weakTxt
             : "The queue is clear — nothing is scheduled for today." }));
-        var bySid = {};
-        dueCards.forEach(function (c) { var sid = String(c.key).split(":")[0]; (bySid[sid] = bySid[sid] || []).push(c); });
-        SUBJECTS.forEach(function (sid) {
-          var list = bySid[sid];
-          if (!list) return;
-          var refs = {}; list.forEach(function (c) { var r = String(c.key).split(":")[1]; refs[r] = true; });
-          var topicNames = Object.keys(refs).slice(0, 2).map(function (r) { return BYREF[sid][r] ? r + " " + BYREF[sid][r].title : r; });
-          upnext.appendChild(cardRow(SUBJ_SHORT[sid], list.length + " due · " + topicNames.join(", "), Math.round(100 * list.length / dueN)));
-        });
-        if (dueN) upnext.appendChild(cardRow("Order", "Most overdue first"));
-        cta = "Start reviewing →"; go = function () { KOS.show("due"); };
+        /* one row a queue, each opening its own review (40a): the flashcards
+           (Due today), then each space's; a row says its count, not a bar */
+        var rows = [];
+        if (dueN) {
+          var refsSeen = {}, names = [];
+          dueCards.forEach(function (c) {
+            var sid = String(c.key).split(":")[0], r = String(c.key).split(":")[1];
+            if (names.length >= 2 || refsSeen[sid + ":" + r] || !BYREF[sid]) return;
+            refsSeen[sid + ":" + r] = true;
+            names.push(BYREF[sid][r] ? r + " " + BYREF[sid][r].title : r);
+          });
+          rows.push({ mark: "学", hue: "var(--crimson)", label: "Flashcards", sub: names.join(", "), n: dueN, go: function () { KOS.show("due"); }, sid: "cards" });
+        }
+        spaceRev.forEach(function (s) { rows.push({ mark: s.mark, hue: s.hue, label: s.review.label, sub: s.review.sub, n: s.review.n, go: s.review.go, sid: s.sid }); });
+        if (rows.length) {
+          var list = el("div", { class: "k-home-revlist", "data-ui": "home.review-split" });
+          rows.forEach(function (r) {
+            list.appendChild(el("button", { type: "button", class: "k-home-rev", "data-ui": "home.review-row", "data-sid": r.sid,
+              "aria-label": r.label + ": " + r.n + " due" + (r.sub ? " · " + r.sub : ""), onclick: r.go }, [
+              spaceMark(r.mark, r.hue),
+              el("span", { class: "k-home-rev-t" }, [el("b", { text: r.label }), r.sub ? el("span", { class: "k-home-rev-sub", text: r.sub }) : null].filter(Boolean)),
+              el("span", { class: "k-home-rev-n k-mono", text: KOS.ui.num(r.n) }),
+              el("span", { class: "k-home-rev-go", "aria-hidden": "true", text: "›" })
+            ]));
+          });
+          upnext.appendChild(list);
+        }
+        var firstRow = rows[0];
+        cta = firstRow && rows.length > 1 ? "Start with " + (firstRow.sid === "cards" ? "flashcards" : firstRow.label) + " →" : "Start reviewing →";
+        go = firstRow ? firstRow.go : function () { KOS.show("due"); };
       } else {
         upnext.appendChild(el("h2", { class: "k-upnext-title", "data-ui": "home.next-label" }, [
+          n.mark ? spaceMark(n.mark, n.hue) : null,
           running || !n.go ? n.label : el("button", { type: "button", class: "k-upnext-open", "data-ui": "home.next-open",
             title: (n.cta || "Open").replace(/[→◉]/g, "").trim(), onclick: n.go }, [n.label])
-        ]));
+        ].filter(Boolean)));
         /* Critical: a finished focus session of 25+ minutes is one of the
            three recovery wins, so the card says so (7a·crit) */
         var winPending = hpS === "critical" && !running && KOS.governor.recoveryTasks && KOS.governor.recoveryTasks()[0].cur < 1;
@@ -1317,11 +1367,18 @@
              length is chosen on the Focus page, which owns the set-up */
           if (n.fixed) upnext.appendChild(cardRow("Session", minsText(n.mins) + " · the block"));
           if (n.goal) upnext.appendChild(cardRow(n.goal.k, n.goal.v, n.goal.bar == null ? null : n.goal.bar));
+          /* the other spaces' dailies still open today, after this one (40a) */
+          if (n.then && n.then.length) upnext.appendChild(el("div", { class: "k-card-row", "data-ui": "home.next-then" }, [
+            el("span", { class: "k-kv-k", text: "Then" }),
+            el("span", { class: "k-kv-v k-home-then" }, n.then.map(function (t) {
+              return el("span", { class: "k-home-then-i", "data-sid": t.sid }, [spaceMark(t.mark, t.hue), el("span", { text: t.text })]);
+            }))
+          ]));
         }
         /* the Focus side starts the session it just configured; the
            recommendation stays one press away on its title (review A: the
            button used to hand off to Pacing instead of starting anything) */
-        if (running) { cta = n.cta; go = n.go; }
+        if (running || n.own) { cta = n.cta; go = n.go; }
         else {
           cta = "Set up focus →";
           /* the Focus page owns a session's set-up (14 November 2026): this
@@ -1401,7 +1458,15 @@
        the Focus card's Focus | Review), per device in state.ui.homeUpcoming */
     var liveGoals = KOS.goals ? KOS.goals.all().filter(function (g) { return !g.archived && g.status === "active"; }) : [];
     var upMode = liveGoals.length && KOS.store.state.ui.homeUpcoming === "goals" ? "goals" : "upcoming";
-    var hasToday = todayItems.length > 0, hasUp = counts.length > 0 || urgent.length > 0 || liveGoals.length > 0;
+    /* Money speaks on Home only when it has a notice (design turn 40a): a
+       bill two days ahead, a trial ending tomorrow, income a day late —
+       Money's own notices, so Hide amounts already leaves the figure out,
+       and a muted Money kind says nothing here either */
+    var moneyNote = null;
+    if (KOS.money && KOS.money.notices && !(KOS.notify && KOS.notify.isMuted && KOS.notify.isMuted("money"))) {
+      try { moneyNote = KOS.money.notices(today)[0] || null; } catch (e) { moneyNote = null; }
+    }
+    var hasToday = todayItems.length > 0, hasUp = counts.length > 0 || urgent.length > 0 || liveGoals.length > 0 || !!moneyNote;
     /* the Today card is always there (review B), saying so when the day is
        empty; Upcoming joins it only with something in it, and the Today
        card then takes the row */
@@ -1496,6 +1561,15 @@
           ])
         ]));
       });
+      if (moneyNote) ucard.appendChild(el("button", { type: "button", class: "k-day-row", "data-ui": "home.money-note",
+        onclick: function () { KOS.show(moneyNote.view || "money", moneyNote.arg); } }, [
+        spaceMark("円", "var(--amber)"),
+        el("span", { class: "k-day-txt" }, [
+          el("span", { class: "k-day-title", text: moneyNote.title }),
+          el("span", { class: "k-day-sub", text: "Money" })
+        ]),
+        el("span", { class: "k-home-rev-go", "aria-hidden": "true", text: "›" })
+      ]));
       /* with the Goals switch in the head, the way to the tracker moves to
          the foot, as "All goals →" does on the other side */
       if (liveGoals.length) ucard.appendChild(el("button", { type: "button", class: "k-link k-home-goals-all", text: "Tracker →", onclick: function () { KOS.show("assignments"); } }));

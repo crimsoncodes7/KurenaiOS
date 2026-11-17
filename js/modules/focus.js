@@ -1035,7 +1035,9 @@
   }
 
   /* the right column: quick notes, kept with the session */
-  function notesNode() {
+  function notesNode(after) {
+    /* the stage redraws itself; the Focus page's live card passes its own */
+    after = after || function () { render(); focusNoteInput(); };
     var notes = S.notes || [];
     var col = el("div", { class: "k-fx-col k-fx-notes" }, [el("div", { class: "k-kicker", text: "Quick notes" + (notes.length ? " · " + notes.length : "") })]);
     if (notes.length) {
@@ -1044,7 +1046,7 @@
         list.appendChild(el("li", { class: "k-fx-note" }, [
           el("span", { text: n.text }),
           el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "data-ui": "focus.remove-note", text: "✕", "aria-label": "Remove note",
-            onclick: function () { removeNote(i); render(); } })
+            onclick: function () { removeNote(i); after(); } })
         ]));
       });
       col.appendChild(list);
@@ -1053,7 +1055,7 @@
       placeholder: "Quick note…  (⏎ to keep)", "aria-label": "Quick note",
       onkeydown: function (ev) {
         if (ev.key !== "Enter") return;
-        if (addNote(input.value)) { input.value = ""; render(); focusNoteInput(); }
+        if (addNote(input.value)) { input.value = ""; after(); }
       } });
     col.appendChild(input);
     return col;
@@ -1578,6 +1580,17 @@
         if (old) old.replaceWith(earnedNode(false));
       }
     }
+    /* the Focus page's live card (design turn 40f) */
+    var lc = document.querySelector("#main [data-ui~='focus.live-clock']");
+    if (lc) {
+      lc.textContent = remain;
+      var la = document.querySelector("#main [data-ui~='focus.live-at']");
+      if (la) la.textContent = liveAt(cr);
+      var ls = document.querySelector("#main [data-ui~='focus.live-sofar']");
+      if (ls) ls.textContent = soFarText();
+      var lt = document.querySelector("#main [data-ui~='focus.today-live']");
+      if (lt) lt.textContent = liveTodayText(+lt.getAttribute("data-base") || 0, workSeconds());
+    }
     if (dockEl) {
       var dc = dockEl.querySelector("[data-ui~='focus.dock-clock']");
       if (dc) dc.textContent = remain;
@@ -2075,18 +2088,165 @@
     return m.complete ? ["Complete", "var(--text-2)"] : ["Ended early", "var(--muted)"];
   }
 
+  /* the Focus page's record and recent sessions, shared by the idle page and
+     the live one (design turn 40f); `liveSecs` is the session running now */
+  function fxKv(k, v, tone, hint) {
+    return el("li", { class: "k-fx-kv" }, [el("span", { text: k }), el("strong", { "data-tone": tone || null, title: hint || null, text: v })]);
+  }
+  function liveTodayText(base, liveSecs) {
+    return fmtLong(base + liveSecs) + " · " + (liveSecs < 60 ? "just started" : Math.floor(liveSecs / 60) + " min now");
+  }
+  function recordSection(liveSecs) {
+    var kv = fxKv;
+    var focusSessions = KOS.sessions.all().filter(function (s) { return s.type === "focus"; });
+    var today = KOS.srs.todayISO();
+    var todaySecs = focusSessions.filter(function (s) { return s.date === today; })
+      .reduce(function (a, s) { return a + (s.dur || 0); }, 0);
+    var weekStart = KOS.srs.addDays(today, -6);
+    var weekSecs = focusSessions.filter(function (s) { return s.date >= weekStart; })
+      .reduce(function (a, s) { return a + (s.dur || 0); }, 0);
+    var lastS = focusSessions[focusSessions.length - 1];
+    /* under a running session the line counts it too, kept live by the
+       clock (updateClock reads data-base) */
+    var live = liveSecs != null, todayLive = null;
+    if (live) {
+      todayLive = kv("Focused today", liveTodayText(todaySecs, liveSecs));
+      var sv = todayLive.querySelector("strong");
+      sv.setAttribute("data-ui", "focus.today-live");
+      sv.setAttribute("data-base", String(todaySecs));
+    }
+    var lastText = null;
+    if (lastS) {
+      lastText = fmtLong(lastS.dur || 0) + (lastS.subject ? " · " + shortName(lastS.subject) : "") + " · " +
+        sessionResult(lastS)[0].toLowerCase();
+    }
+    return el("section", { class: "k-card", "data-ui": "focus.record" }, [
+      el("h2", { class: "k-card-title", text: "Your record" }),
+      el("ul", { class: "k-fx-kvs" }, [
+        live ? todayLive : kv("Focused today", todaySecs ? fmtLong(todaySecs) : "—"),
+        kv("This week", weekSecs ? fmtLong(weekSecs) : "—"),
+        lastText ? kv("Last session", lastText) : null,
+        kv("Sessions logged", String(focusSessions.length))
+      ].filter(Boolean))
+    ]);
+  }
+  function recentSection() {
+    var focusSessions = KOS.sessions.all().filter(function (s) { return s.type === "focus"; });
+    var recent = focusSessions.slice(-5).reverse();
+    if (recent.length) {
+      return (el("section", { class: "k-card k-fx-recent", "data-ui": "focus.recent" }, [
+        el("div", { class: "k-card-head" }, [
+          el("h2", { class: "k-card-title", text: "Recent sessions" }),
+          el("button", { type: "button", class: "k-link", "data-ui": "focus.session-log", text: "Session log →",
+            onclick: function () { KOS.show("governor", "history"); } })
+        ]),
+        el("ul", { class: "k-fx-rows" }, recent.map(function (s) {
+          var r = sessionResult(s);
+          var bar = el("span", { class: "k-fx-row-bar", "aria-hidden": "true" });
+          if (s.subject) bar.style.setProperty("--row-hue", hue(s.subject));
+          /* a switched session names every stretch, and its bar splits */
+          var st = KOS.sessions.stretches(s);
+          if (st) {
+            bar.classList.add("k-fx-row-bar--split");
+            st.forEach(function (x) { var p = el("span", { style: "--f: " + x.mins + "; --row-hue: " + (x.subject && x.subject !== "media" ? hue(x.subject) : "var(--muted)") }); bar.appendChild(p); });
+          }
+          return el("li", { class: "k-fx-row", "data-ui": "focus.recent-row" }, [
+            el("span", { class: "k-mono k-muted", text: sessionWhen(s) }),
+            bar,
+            st ? el("span", { class: "k-fx-row-t", title: st.map(function (x) { return x.label + (x.title ? " " + x.title : "") + " · " + x.mins + " min"; }).join("\n") }, [
+              el("span", { class: "k-ellipsis", text: sessionLabel(s) }),
+              el("span", { class: "k-ellipsis k-muted k-fx-row-sub", "data-ui": "focus.recent-stretches", text: "Switched · " + KOS.sessions.stretchText(s) })])
+              : el("span", { class: "k-ellipsis", text: sessionLabel(s) }),
+            el("span", { class: "k-mono", text: Math.max(1, Math.round((s.dur || 0) / 60)) + " min" }),
+            chip(r[0], r[1])
+          ]);
+        }))
+      ]));
+    }
+
+    return null;
+  }
+
+  /* ---- Focus, minimised (design turn 40f): the page under a running
+     session is the LIVE card in place of the set-up — the clock, the
+     objective, quick notes, Switch…, End early and Return to the stage —
+     with the record and the deal beside it, live. While this page is on
+     screen the mini-player hides (the live card is the player here); it
+     returns on leaving (data-fx-page on the root). ---- */
+  function liveAt(cr) {
+    if (S.state === "paused") return "paused · the clock is held";
+    return cr.label.toLowerCase() + (S.phase === "break" ? " in the break" : S.mode === "stopwatch" ? "" : " in focus") + (cr.at ? " · " + cr.at : "");
+  }
+  function soFarText() {
+    if (S.kind === "reading") return "reading · logged as rest";
+    var e = eligibility() || { xp: 0, gold: 0 };
+    var blocks = Math.floor(workSeconds() / KOS.governor.FOCUS_BLOCK.secs);
+    if (paidRule()) return blocks ? blocks + (blocks === 1 ? " block · " : " blocks · ") + awardText(e) : "nothing yet · the first award at 10 min";
+    var cyc = S.cycles + (S.phase === "work" ? 1 : 0);
+    return "cycle " + cyc + " · " + (S.cycles ? awardText(e) : "paid when the cycle completes");
+  }
+  function liveDeal() {
+    var list = el("ul", { class: "k-fx-kvs", "data-ui": "focus.deal-list" });
+    list.appendChild(fxKv("This session so far", "", "good"));
+    list.lastChild.querySelector("strong").setAttribute("data-ui", "focus.live-sofar");
+    list.lastChild.querySelector("strong").textContent = soFarText();
+    var tab = F().penalizeDistractions === false ? ["Each tab-switch after the first", "free — off", "muted"] : ["Each tab-switch after the first", "−" + DISTRACT_HP + " HP", "bad"];
+    var rows;
+    if (S.kind === "reading") rows = [["Pauses and tab-switches", "never charged", "muted"], ["HP and the study streak", "untouched", "muted"]];
+    else if (paidRule()) {
+      var B = KOS.governor.FOCUS_BLOCK;
+      rows = [["Each full 10 minutes", "+" + B.xp + " XP · +" + B.gold + " gold · +" + B.hp + " HP", "good"], ["Each pause after the first", "−15% award", "bad"], tab];
+    } else {
+      var a = KOS.governor.focusAward({ complete: true, mins: S.workMin || 25, pauses: 0 });
+      rows = [["One completed " + (S.workMin || 25) + "-min cycle", awardText(a) + " · +" + a.hp + " HP", "good"], ["Each pause after the first", "−15% award", "bad"], tab,
+        ["Ending before a full cycle", "award forfeited", "warn"]];
+    }
+    rows.forEach(function (r) { list.appendChild(fxKv(r[0], r[1], r[2])); });
+    return el("section", { class: "k-card k-fx-deal", "data-ui": "focus.live-deal" }, [
+      el("h2", { class: "k-card-title", text: "The deal" }), list,
+      el("p", { class: "k-fx-caption", text: "The clock is banked; leaving this page costs nothing." })
+    ]);
+  }
+  function livePage(main) {
+    var root = document.documentElement;
+    root.setAttribute("data-fx-page", "");
+    if (KOS.view && KOS.view.onDispose) KOS.view.onDispose(function () { root.removeAttribute("data-fx-page"); });
+    var cr = clockRead(), paused = S.state === "paused";
+    var cyc = S.cycles + (S.phase === "work" ? 1 : 0);
+    var line = modeLabel() + (S.kind !== "reading" && !paidRule() ? " · cycle " + cyc : "") + (S.phase === "break" ? " · break" : "") + (paused ? " · paused" : "");
+    var redraw = function () { if (KOS.rerender) KOS.rerender(); var i = document.querySelector("#main [data-ui~='focus.note-in']"); if (i) i.focus(); };
+    var hero = el("section", { class: "k-fx-hero k-fx-livecard", "data-ui": "focus.live", "aria-label": "Session in progress" }, [
+      el("span", { class: "k-kicker", text: minimised ? "In progress · on the mini-player" : "In progress" }),
+      el("p", { class: "k-fx-live-mode", text: line }),
+      el("div", { class: "k-fx-live-clock k-mono", "data-ui": "focus.live-clock", role: "timer", "aria-label": cr.label, text: cr.text }),
+      el("p", { class: "k-fx-live-at", "data-ui": "focus.live-at", text: liveAt(cr) }),
+      el("div", { class: "k-fx-live-obj" }, [
+        el("span", { class: "k-kicker", text: "Objective" }),
+        el("b", { text: S.objective || "No objective set" }),
+        el("span", { class: "k-muted", text: topicLabel() })
+      ]),
+      notesNode(redraw),
+      el("div", { class: "k-cluster k-fx-live-acts" }, [
+        /* the player's own control: this card stands in for it here */
+        el("button", { type: "button", class: "k-btn", "data-ui": "focus.live-pause", text: paused ? "▶ Resume" : "⏸ Pause",
+          onclick: function () { if (S.state === "paused") resume(); else pause(); if (KOS.rerender) KOS.rerender(); } }),
+        S.kind !== "reading" ? el("button", { type: "button", class: "k-btn", "data-ui": "focus.live-switch", text: "Switch…", onclick: promptSwitch }) : null,
+        el("button", { type: "button", class: "k-btn", "data-ui": "focus.live-end", text: "End early", onclick: function () { endEarly(); } }),
+        el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "focus.live-return", text: "Return to the stage →", onclick: function () { setMinimised(false); } })
+      ].filter(Boolean))
+    ]);
+    var side = el("aside", { class: "k-fx-side", "data-ui": "focus.setup-side" }, [recordSection(workSeconds()), liveDeal()]);
+    main.appendChild(el("div", { class: "k-fx-setup" }, [hero, side]));
+    var rc = recentSection();
+    if (rc) main.appendChild(rc);
+  }
+
   KOS.views.focus = function (main, arg) {
     KOS.shell.tree("none");
     main.appendChild(KOS.ui.pageHeader({ kicker: "The quiet hour", title: "Focus Timer",
       sub: "The session records what you actually did while the clock ran." }));
 
-    if (S) {
-      main.appendChild(el("div", { class: "k-card k-fx-live", "data-ui": "focus.live" }, [
-        el("span", {}, [el("b", { text: "Session in progress" }), " — " + topicLabel()]),
-        el("button", { type: "button", class: "k-btn k-btn--primary", text: "Return to the stage →", onclick: function () { setMinimised(false); } })
-      ]));
-      return;
-    }
+    if (S) { livePage(main); return; }
 
     var cfg = Object.assign({}, F().lastConfig);
     /* THE FOCUS PAGE OWNS A SESSION'S SET-UP (14 November 2026). Every
@@ -2402,30 +2562,8 @@
 
     /* --- right: the record (or the rewards) + the deal --- */
     var focusSessions = KOS.sessions.all().filter(function (s) { return s.type === "focus"; });
-    var today = KOS.srs.todayISO();
-    var todaySecs = focusSessions.filter(function (s) { return s.date === today; })
-      .reduce(function (a, s) { return a + (s.dur || 0); }, 0);
-    var weekStart = KOS.srs.addDays(today, -6);
-    var weekSecs = focusSessions.filter(function (s) { return s.date >= weekStart; })
-      .reduce(function (a, s) { return a + (s.dur || 0); }, 0);
-    var lastS = focusSessions[focusSessions.length - 1];
-    function kv(k, v, tone, hint) {
-      return el("li", { class: "k-fx-kv" }, [el("span", { text: k }), el("strong", { "data-tone": tone || null, title: hint || null, text: v })]);
-    }
-    var lastText = null;
-    if (lastS) {
-      lastText = fmtLong(lastS.dur || 0) + (lastS.subject ? " · " + shortName(lastS.subject) : "") + " · " +
-        sessionResult(lastS)[0].toLowerCase();
-    }
-    var recordCard = el("section", { class: "k-card", "data-ui": "focus.record" }, [
-      el("h2", { class: "k-card-title", text: "Your record" }),
-      el("ul", { class: "k-fx-kvs" }, [
-        kv("Focused today", todaySecs ? fmtLong(todaySecs) : "—"),
-        kv("This week", weekSecs ? fmtLong(weekSecs) : "—"),
-        lastText ? kv("Last session", lastText) : null,
-        kv("Sessions logged", String(focusSessions.length))
-      ].filter(Boolean))
-    ]);
+    var recordCard = recordSection(null);
+    var kv = fxKv;
     /* frame 16a — the modes that pay by time show the award instead: one
        block, the six-tick hour and what an hour earns. The figures are
        the governor's own (FOCUS_BLOCK), never a copy. */
@@ -2495,37 +2633,8 @@
     ]));
 
     /* --- the last sessions --- */
-    var recent = focusSessions.slice(-5).reverse();
-    if (recent.length) {
-      main.appendChild(el("section", { class: "k-card k-fx-recent", "data-ui": "focus.recent" }, [
-        el("div", { class: "k-card-head" }, [
-          el("h2", { class: "k-card-title", text: "Recent sessions" }),
-          el("button", { type: "button", class: "k-link", "data-ui": "focus.session-log", text: "Session log →",
-            onclick: function () { KOS.show("governor", "history"); } })
-        ]),
-        el("ul", { class: "k-fx-rows" }, recent.map(function (s) {
-          var r = sessionResult(s);
-          var bar = el("span", { class: "k-fx-row-bar", "aria-hidden": "true" });
-          if (s.subject) bar.style.setProperty("--row-hue", hue(s.subject));
-          /* a switched session names every stretch, and its bar splits */
-          var st = KOS.sessions.stretches(s);
-          if (st) {
-            bar.classList.add("k-fx-row-bar--split");
-            st.forEach(function (x) { var p = el("span", { style: "--f: " + x.mins + "; --row-hue: " + (x.subject && x.subject !== "media" ? hue(x.subject) : "var(--muted)") }); bar.appendChild(p); });
-          }
-          return el("li", { class: "k-fx-row", "data-ui": "focus.recent-row" }, [
-            el("span", { class: "k-mono k-muted", text: sessionWhen(s) }),
-            bar,
-            st ? el("span", { class: "k-fx-row-t", title: st.map(function (x) { return x.label + (x.title ? " " + x.title : "") + " · " + x.mins + " min"; }).join("\n") }, [
-              el("span", { class: "k-ellipsis", text: sessionLabel(s) }),
-              el("span", { class: "k-ellipsis k-muted k-fx-row-sub", "data-ui": "focus.recent-stretches", text: "Switched · " + KOS.sessions.stretchText(s) })])
-              : el("span", { class: "k-ellipsis", text: sessionLabel(s) }),
-            el("span", { class: "k-mono", text: Math.max(1, Math.round((s.dur || 0) / 60)) + " min" }),
-            chip(r[0], r[1])
-          ]);
-        }))
-      ]));
-    }
+    var recentCard = recentSection();
+    if (recentCard) main.appendChild(recentCard);
 
     /* one sync for everything the mode and the minutes drive */
     var MODE_NAME = { pomodoro: "Pomodoro", custom: "Custom", stopwatch: "Stopwatch", until: "Study until" };
