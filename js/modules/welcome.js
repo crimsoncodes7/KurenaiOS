@@ -210,12 +210,15 @@
   /* opened at boot once this page load knows it is signed out (the session
      is restored asynchronously), never over a deep link's dialog */
   function maybeOpen() {
+    /* js/env.local.js and the sync library load `defer`, after main.js:
+       look once they are in (production's first look, made before, found
+       cloud sync not even configured and gave up) */
+    if (document.readyState === "loading") { document.addEventListener("DOMContentLoaded", maybeOpen, { once: true }); return; }
     var tries = 0;
     (function wait() {
-      /* the sync library and the session arrive a moment after boot: keep
-         looking for 15 s while cloud sync is set up (production's first
-         check found the library not loaded yet and gave up) */
-      if (!pending()) { if (++tries < 30 && KOS.cloud && KOS.cloud.configured && KOS.cloud.configured() && !review()) setTimeout(wait, 500); return; }
+      /* the session is restored a moment later: keep looking for 15 s
+         while cloud sync is set up */
+      if (!pending()) { if (++tries < 30 && !review() && KOS.cloud && KOS.cloud.configured && KOS.cloud.configured()) setTimeout(wait, 500); return; }
       if (KOS.cloudsync && KOS.cloudsync.settled && !KOS.cloudsync.settled() && ++tries < 20) { setTimeout(wait, 500); return; }
       if (KOS.ui.topDialog && KOS.ui.topDialog()) { if (++tries < 40) setTimeout(wait, 1000); return; }
       open();

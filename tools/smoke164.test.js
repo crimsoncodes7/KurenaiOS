@@ -154,9 +154,15 @@ step("D · signing in: the account's copy arriving, then Home", async () => {
 
 /* ---------------- H ---------------- */
 step("H · it opens by itself once the sync library arrives after boot", async () => {
+  /* it looks once the deferred scripts are in (js/env.local.js and the
+     library load defer, after main.js) */
+  const src = require("fs").readFileSync(require("path").join(__dirname, "..", "js/modules/welcome.js"), "utf8");
+  assert(/readyState === "loading"[^\n]*DOMContentLoaded/.test(src), "waits for the deferred scripts");
   uid = null; delete K.store.state.ui.welcomed; delete K.store.state.ui.localOnly;
   /* the library is not loaded for the first few looks, then it is */
   let looks = 0;
+  const cfg = K.cloud.configured;
+  /* the library loads a few looks later */
   K.cloud.available = () => ++looks > 6;
   K.welcome.maybeOpen();
   for (let i = 0; i < 40 && !$(".k-wel-overlay"); i++) { await app.settle(); await wait(20); }
@@ -165,7 +171,7 @@ step("H · it opens by itself once the sync library arrives after boot", async (
   K.show("focus"); await app.settle();
   assert($("[data-ui~='welcome.screen']"), "a page change does not close it (the boot's first draw did, on production)");
   closeWelcome();
-  K.cloud.available = () => true;
+  K.cloud.available = () => true; K.cloud.configured = cfg;
 });
 
 /* ---------------- G ---------------- */
