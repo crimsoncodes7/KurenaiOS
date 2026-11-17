@@ -29,5 +29,6 @@
 - [Max three agents](max-three-agents.md) — at most 3 agents at once (ceiling 5); on Fable spawn NO reviewer agents: review inline or ask the user to use Opus
 - [Fable vs Opus work](fable-task-allocation.md) — Fable only for W2's core and W1's sync remainder (DI-20, RC6); everything else and all reviews on Opus
 - [December 2026 mocks](december-mocks-2026.md) — Maths Pure only, CS a topic list over both papers, IT F201 the one full paper (real exam Jan 2027)
+- [No in-app AI for exam feedback](no-in-app-ai-for-exam-feedback.md) — record + export a prompt/pack for Claude/Gemini web, import the JSON reply; never Kurenai's Flash model
 - [Help & Guide at the end](help-guide-at-the-end.md) — W8 only the parts that pay off now; Help & Guide and docs re-baseline last; Agenda scrapped
 - [Sonnet for simple agents](sonnet-for-simple-agents.md) — deterministic, well-specified agent tasks run on Sonnet to save usage; Opus for judgement

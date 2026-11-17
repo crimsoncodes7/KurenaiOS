@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 04c027ef-86ba-4c56-80ec-65e818f91578
-  modified: 2026-11-17T17:55:41.118Z
+  modified: 2026-11-17T19:33:42.473Z
 ---
 
 Told 17 November 2026 (with a slide of the CS pre-public exam):
@@ -21,7 +21,16 @@ Told 17 November 2026 (with a slide of the CS pre-public exam):
   databases (P2). So it mixes both AQA papers.
 - **IT F201: the only full paper** — a mock in December, then the real
   exam in January 2027. F201 has no past papers or examiner reports yet
-  (only OCR's SAM), and its preset is `indexed: false`.
+  (only OCR's SAM), and its preset is `indexed: false`. The SAM (v3.0,
+  Nov 2024) is **1 h 30, 60 marks**, ONE organisation as the context for
+  every question, lettered and (i)/(ii) parts, one 6- and one 9-mark
+  levels-of-response question. Source of truth: the spec + SAM + mark
+  scheme in Drive `…/Education/Information Technology/IT/Data Analytics/`.
+- CS and Maths past papers and topic practice moved to Drive
+  `…/Education/A-Level Materials/A-Level/` (`~/Downloads/A-level` is gone;
+  pass `--root` to `tools/gen_exam_index.py`).
+- 17 Nov: the Exams & Papers rework is planned in `docs/exams-rework-plan.md`
+  (branch `feat/exams-plan`), target deploy 1 December.
 
 **Why:** the user does not want every exam Companion built now — only what
 serves these mocks.
