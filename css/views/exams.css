@@ -751,6 +751,15 @@ button.k-ex-ptr { inline-size: 100%; border-inline: 0; border-block-end: 0; back
 .k-ex-tfig { font-size: var(--fs-22); font-weight: var(--weight-semibold); }
 .k-ex-tq-n { font-size: var(--fs-22); }
 .k-ex-tq-ctx { margin: 0; max-inline-size: 72ch; font-size: var(--fs-16); line-height: 1.65; }
+/* authored, board-faithful papers (the Exams & Papers rework §7.1) */
+.k-ex-pbody { display: flex; flex-direction: column; gap: var(--sp-6); min-inline-size: 0; }
+.k-ex-pbody p { margin: 0; }
+.k-ex-ptable { inline-size: auto; min-inline-size: 60%; }
+.k-ex-ptable td[data-blank] { min-inline-size: var(--sp-40); }
+.k-ex-pcontext { margin: 0 0 var(--sp-12); padding: var(--sp-8); border: var(--hairline) solid var(--ex-paper-ink); font: var(--fs-13) / 1.5 Arial, Helvetica, sans-serif; }
+.k-ex-tq-case { max-inline-size: 72ch; color: var(--text-2); }
+.k-ex-tq-case p { margin: var(--sp-6) 0 0; line-height: 1.6; }
+.k-ex-levels, .k-ex-indic { display: flex; flex-direction: column; gap: var(--sp-4); margin-block-start: var(--sp-6); }
 .k-ex-tq-parts { display: flex; flex-direction: column; gap: var(--sp-12); }
 .k-ex-tq-parts[data-state="paused"] { opacity: 0.35; filter: blur(var(--sp-3)); }
 .k-ex-tq-part { display: grid; grid-template-columns: var(--sp-32) minmax(0, 1fr) var(--sp-40); gap: var(--sp-8); font-size: var(--fs-15); line-height: 1.55; }

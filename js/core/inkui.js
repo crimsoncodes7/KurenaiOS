@@ -486,6 +486,11 @@
     }
 
     /* ---- history and saving ---- */
+    /* what the pen did, for a recorded attempt (KOS.attempts): a stroke with
+       its start and length, an erasure, an undo — never the ink itself */
+    function act(kind, extra) {
+      try { window.dispatchEvent(new CustomEvent("kos-ink-act", { detail: Object.assign({ doc: page.doc, kind: kind, at: Date.now() }, extra || {}) })); } catch (e) { /* no CustomEvent */ }
+    }
     function commit(items, quiet) {
       past.push(page.items);
       if (past.length > 200) past.shift();
@@ -504,7 +509,7 @@
     s.flush = function () { if (saveT) { clearTimeout(saveT); saveT = null; I.savePage(page); } };
     s.undo = function () {
       if (!past.length) return false;
-      future.push(page.items); page.items = past.pop(); sel = []; redraw(); schedule(); dk.changed(); return true;
+      future.push(page.items); page.items = past.pop(); sel = []; redraw(); schedule(); dk.changed(); act("undo"); return true;
     };
     s.redo = function () {
       if (!future.length) return false;
@@ -668,7 +673,7 @@
         return;
       }
       var first = pointOf(e, null);
-      stroke = { kind: tool, list: [first], last: first, ruled: tool === "ruler" && nearRulerEdge(first) };
+      stroke = { kind: tool, list: [first], last: first, ruled: tool === "ruler" && nearRulerEdge(first), t0: Date.now() };
       liveState = { item: liveItem() };
       lastMoveAt = first.at;
       startHold();
@@ -777,7 +782,7 @@
       if (st.kind === "ruler-move") return;
       if (st.kind === "erase") {
         liveState = null;
-        if (st.items !== st.base) { page.items = st.base; commit(st.items); } else paintLive();
+        if (st.items !== st.base) { page.items = st.base; commit(st.items); act("erase"); } else paintLive();
         return;
       }
       if (st.kind === "lasso") {
@@ -803,7 +808,10 @@
       if (snapped) { item.p = G.pack(snapped.pts.map(function (q) { return { x: q.x, y: q.y }; })); item.sh = snapped.sh; item.k = "pen"; }
       liveState = null;
       if (st.list.length === 1 && !snapped) item.p = G.pack([st.list[0], { x: st.list[0].x + 0.2, y: st.list[0].y, pr: st.list[0].pr, dt: 16 }]);
+      /* the stroke's start time (an attempt's recording reads it, KOS.attempts) */
+      if (st.t0) item.t0 = st.t0;
       commit(page.items.concat([item]));
+      act("stroke", { t0: st.t0 || Date.now(), dur: Date.now() - (st.t0 || Date.now()) });
       var bottom = G.bbox(G.pts(item)).y + G.bbox(G.pts(item)).h;
       if (opts.grow && bottom > ph() - 70) grow();
       else if (opts.nearEnd && bottom > ph() - 90) opts.nearEnd(s);
@@ -930,8 +938,9 @@
     };
     /* for tests: draw a stroke without pointer events */
     s._stroke = function (points, kind) {
-      var it = withSet({ id: I.uid(), k: kind === "hl" ? "hl" : "pen", role: kind === "hl" ? dk.prefs.hl.role : dk.prefs.pen.role, w: kind === "hl" ? dk.prefs.hl.w : dk.prefs.pen.w, p: G.pack(points) });
+      var it = withSet({ id: I.uid(), k: kind === "hl" ? "hl" : "pen", role: kind === "hl" ? dk.prefs.hl.role : dk.prefs.pen.role, w: kind === "hl" ? dk.prefs.hl.w : dk.prefs.pen.w, p: G.pack(points), t0: Date.now() });
       commit(page.items.concat([it]));
+      act("stroke", { t0: it.t0, dur: 0 });
       return it;
     };
     s._select = function (ids) { sel = ids.slice(); paintLive(); };

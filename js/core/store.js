@@ -1379,6 +1379,14 @@
           stepDone(err, "reports");
         });
       }
+      /* recorded exam attempts (docs/exams-rework-plan.md §8.1) */
+      if (window.KOS && KOS.attempts && KOS.attempts.available()) {
+        steps++;
+        KOS.attempts.exportAll(function (err, rows) {
+          if (!err && rows && rows.length) result.attempts = rows;
+          stepDone(err, "attempts");
+        });
+      }
       if (steps === 0) cb(null, result);
     },
 
@@ -1608,14 +1616,27 @@
           });
         }
 
-        restoreMedia(function () { restoreFiles(function () { restoreMoney(function () { restoreReviews(function () { restoreInk(function () { restoreCreatives(function () { restoreMind(function () { restoreLedger(function () { restoreJaMined(function () { restoreReports(function () {
+        function restoreAttempts(next) {
+          if (!backup.attempts) return next();
+          if (!window.KOS || !KOS.attempts || !KOS.attempts.available()) {
+            report.missingSections.push("recorded attempts (IndexedDB unavailable)");
+            return next();
+          }
+          KOS.attempts.importAll(backup.attempts, function (err, out) {
+            if (err) report.missingSections.push("recorded attempts (error: " + err.message + ")");
+            else report.restoredSections.push("recorded attempts (" + out.rows + ")");
+            next();
+          });
+        }
+
+        restoreMedia(function () { restoreFiles(function () { restoreMoney(function () { restoreReviews(function () { restoreInk(function () { restoreCreatives(function () { restoreMind(function () { restoreLedger(function () { restoreJaMined(function () { restoreReports(function () { restoreAttempts(function () {
           /* Build 4a — a restore is authoritative for this account: cloud
              sync must re-baseline (push everything, tombstone remote rows
              the backup no longer carries) instead of trusting stale
              watermarks. No-op when cloud sync is absent or signed out. */
           if (window.KOS && KOS.cloudsync && KOS.cloudsync.noteRestore) KOS.cloudsync.noteRestore();
           done && done(null, report);
-        }); }); }); }); }); }); }); }); }); });
+        }); }); }); }); }); }); }); }); }); }); });
       }
       if (window.KOS && KOS.backupFile && file && typeof file.slice === "function") {
         KOS.backupFile.read(file, function (err, parsed, eachFile) {

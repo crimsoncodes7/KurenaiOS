@@ -67,6 +67,8 @@
       label: "Japanese lines you saved" },
     { id: "reports", db: "kurenai-os-reports", backup: "reports", mark: "報", tone: "teal", count: "reports", unit: ["report", "reports"],
       label: "Saved Reports and snapshots" },
+    { id: "attempts", db: "kurenai-os-attempts", backup: "attempts", mark: "試", tone: "amber", count: "att", unit: ["attempt", "attempts"],
+      label: "Recorded exam attempts: timing and marks per part, never the ink" },
     /* ---- not in the file ---- */
     { id: "papers", db: "kurenai-os-papers", backup: null, count: "files", unit: ["paper", "papers"],
       label: "The Paper library's own PDFs", why: "a paper you Keep in my cloud is also copied into Files, which the file does carry" },

@@ -14,7 +14,7 @@ Read this file before editing or testing anything in its domain.
    database name carries the data namespace's suffix (`KOS.dataMode.suffix`;
    smoke134 F scans every `indexedDB.open`). The stores: `kurenai-os-media`,
    `-files`, `-filetext`, `-papers`, `-money`, `-reviews`, `-reports`,
-   `-ink`, `-mind`, `-creatives`, `-ledger`, `-ja-mined`, `-backups` and
+   `-ink`, `-mind`, `-creatives`, `-ledger`, `-ja-mined`, `-attempts`, `-backups` and
    `-statemirror`. THE STORE REGISTRY (`js/core/stores.js`, `KOS.stores`,
    RC4) has one row per database: what it holds, the key the full backup
    carries it under (or why it does not), its count and what Reset

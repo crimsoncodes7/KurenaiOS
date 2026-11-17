@@ -24,7 +24,7 @@ chronological diary here.
   [`docs/RELEASES.md`](docs/RELEASES.md), newest first; a new release adds
   its entry there and changes only this line and the next here.
 - Service-worker version: `kos-integrity-20`
-- Required smoke gate: 161 / 161 suites (`""`, 2–156 and 160–164) — `npm test`;
+- Required smoke gate: 163 / 163 suites (`""`, 2–156, 160–164, 180 and 181) — `npm test`;
   what each suite holds: [`docs/SMOKE.md`](docs/SMOKE.md). New suites on this
   account are numbered from 180 (see `docs/HANDOFF.md`).
 - Backend as deployed: Edge Functions `ai-chat` (version 6: images for
@@ -57,7 +57,7 @@ from `file://`. Use HTTP for PWA, cloud and browser-audit work.
 python3 tools/dev_server.py 8765       # http.server with no-store, so edits show on one reload
 npm install jsdom fake-indexeddb       # test-only dependencies, once
 npm test                               # the whole smoke gate in parallel (tools/run_smoke.mjs; --skip, --repeat)
-for i in "" {2..156} {160..164}; do node "tools/smoke${i}.test.js"; done   # the same, one at a time
+for i in "" {2..156} {160..164} 180 181; do node "tools/smoke${i}.test.js"; done   # the same, one at a time
 node tools/fill_check.mjs              # every figure and part to fill in (5.19): figures compile, SQL runs, predicts run
 node tools/gen_moved_cards.mjs         # js/data/moved-cards.js: Maths' several-step cards that live as exam questions (5.19; --check)
 node tools/ja_valid_check.mjs          # Japanese: kana, conjugation, every validator, strokes on every kana
@@ -188,6 +188,9 @@ non-navigation redraw path.
   (invariant 5a), and each pot's own picture (`pics`); all in the full backup.
 - `kurenai-os-reviews` IndexedDB: the review log, one row per rating
   (invariant 111).
+- `kurenai-os-attempts` IndexedDB: recorded exam attempts, events per
+  part with their marks and imported feedback (invariant 130a); in the
+  full backup.
 - `kurenai-os-ink` IndexedDB: handwriting — notebooks (`docs`) and their
   A4 pages of strokes (`pages`), invariant 136; in the full backup.
 - `kurenai-os-papers` IndexedDB: the Paper library's own PDFs and photos
@@ -448,10 +451,11 @@ domain file AND its line here, in the same commit.
 - **124** Attempts are the tracker record, widened with optional fields; a `result` attempt fills its assessment, and a `redo` question becomes an FSRS item.
 - **125** Exam evidence data is generated from the user's own index; no past-paper text or images are bundled or deployed.
 - **126** The exam planner writes only on confirm, and only personal Pacing rows tagged `exam:<assessment>`, never the Calendar.
-- **127** A practice paper is derived from its assessment and seed, never stored, and every page labels it as not a board paper.
+- **127** A practice paper is derived from its assessment and seed, never stored, and every page labels it as not a board paper; an authored paper is paper n in its board's own format and time.
 - **128** Exam goals read their sources through `links.examId`; deleting an exam unlinks its goals and never deletes them.
 - **129** Assessments, scopes, planning and analytics generate zero Governor traffic; redo items pay nothing and pages only read.
 - **130** The full Companion content is authored and original, meeting a per-leaf contract; real questions appear only as references.
+- **130a** An attempt is recorded as events per part (never ink or text) and measured on the device; no in-app model reviews it — the XML pack goes out, a validated JSON reply comes back.
 
 
 ### `ink-files.md`

@@ -95,6 +95,29 @@
   }
   /* the pages: the cover, the questions (answer lines sized to the marks)
      and, when asked, the mark scheme — one component, screen and print */
+  /* a part's question: its paragraphs, then a data table or a table to
+     complete (authored papers, the rework §7.1) */
+  function tableEl(t, blanks) {
+    return el("div", { class: "k-scroll-x" }, [el("table", { class: "k-ex-ms-table k-ex-ptable" }, [
+      el("thead", {}, [el("tr", {}, t.head.map(function (h) { return el("th", { scope: "col", text: h }); }))]),
+      el("tbody", {}, t.rows.map(function (r) { return el("tr", {}, r.map(function (c) { return el("td", { text: c === "" && blanks ? " " : c, "data-blank": c === "" && blanks ? "" : null }); })); }))])]);
+  }
+  function partBody(p) {
+    var paras = String(p.q || "").split(/\n\n+/);
+    var out = [];
+    if (p.code) out.push(el("pre", { class: "k-ex-pre k-mono", text: p.code.join("\n") }));
+    /* a data table sits where the question says "the records above" */
+    if (p.table && paras.length > 1) { out.push(html("p", "", inline(paras[0]))); out.push(tableEl(p.table)); paras = paras.slice(1); }
+    paras.forEach(function (t) { out.push(html("p", "", inline(t).replace(/\n/g, "<br>"))); });
+    if (p.table && !out.some(function (n) { return n.classList && n.classList.contains("k-scroll-x"); })) out.push(tableEl(p.table));
+    if (p.fill) out.push(tableEl(p.fill, true));
+    return el("div", { class: "k-ex-pbody" }, out);
+  }
+  function marksTag(paper, m) {
+    if (paper.format === "ocr-case") return "[" + m + "]";
+    if (paper.format === "aqa") return "[" + m + (m === 1 ? " mark]" : " marks]");
+    return "(" + m + ")";
+  }
   function pageEls(a, paper, withMs) {
     var bp = paper.blueprint, out = [];
     var foot = function (n) { return el("div", { class: "k-ex-ppage-f" }, [el("span", { text: "KurenaiOS · " + paper.title + " · written by KurenaiOS, not a board paper" }), el("span", { text: String(n) })]); };
@@ -106,9 +129,13 @@
         el("h1", { text: paper.title + ": " + a.title }),
         el("div", { class: "k-ex-cover-meta" }, [el("span", { text: "Time: " + hm(paper.mins) + (bp.extra ? " (" + hm(paper.allowed) + " with extra time)" : "") }), el("span", { text: "Total marks: " + paper.marks })]),
         a.calculator ? el("div", { text: a.calculator === "allowed" ? "You may use a calculator." : "You may not use a calculator." }) : null].filter(Boolean)),
+      paper.format === "ocr-case" ? el("div", { class: "k-ex-cover-sec" }, [el("b", { text: "Instructions" }), el("div", { text: "• Use black ink." }),
+        el("div", { text: "• Write your answer to each question in the space provided." }), el("div", { text: "• Answer all the questions." })]) :
       el("div", { class: "k-ex-cover-sec" }, [el("b", { text: "Instructions" }), el("div", { text: "• Use black ink or ball-point pen." }), el("div", { text: "• Answer all questions in the spaces provided." }),
         el("div", { text: "• Show your working: answers without working may not gain full credit." }),
         bp.board === "Edexcel" ? el("div", { text: "• Give inexact answers to three significant figures unless the question says otherwise." }) : null].filter(Boolean)),
+      paper.format === "ocr-case" ? el("div", { class: "k-ex-cover-sec" }, [el("b", { text: "Information" }), el("div", { text: "• The total mark for this paper is " + paper.marks + "." }),
+        el("div", { text: "• The marks for each question are shown in brackets [ ]." }), el("div", { text: "• Every question is about " + (paper.org || "one organisation") + "." })]) :
       el("div", { class: "k-ex-cover-sec" }, [el("b", { text: "Information" }), el("div", { text: "• There are " + paper.questions.length + " questions. The total mark is " + paper.marks + "." }),
         el("div", { text: "• The marks for each question are shown in brackets." }), el("div", { text: "• Questions get longer through the paper." })]),
       el("div", { class: "k-ex-cover-sec" }, [el("b", { text: "Advice" }), el("div", { text: "• Read each question carefully. Keep an eye on the time: about " + (Math.round(bp.perMark * 10) / 10) + " minutes a mark." })]),
@@ -116,11 +143,12 @@
       foot(1)]));
     paper.questions.forEach(function (q, i) {
       out.push(el("section", { class: "k-ex-ppage k-ex-pq", "data-ui": "exams.ppage" }, [
+        i === 0 && paper.context ? el("p", { class: "k-ex-pcontext", "data-ui": "exams.pcontext", text: paper.context }) : null,
         el("div", { class: "k-ex-pq-q" }, [el("b", { class: "k-ex-pq-n", text: String(q.n) }), el("div", {}, [q.ctx ? html("p", "", inline(q.ctx)) : null].concat(q.parts.map(function (p) {
-          return el("div", { class: "k-ex-pq-part" }, [el("span", { text: p.label }), el("span", {}, [p.code ? el("pre", { class: "k-ex-pre k-mono", text: p.code.join("\n") }) : null, html("span", "", inline(p.q))].filter(Boolean)), el("b", { text: "(" + p.marks + ")" }), el("div", { class: "k-ex-lines", style: "--n: " + Math.min(18, p.marks * 2 + 2) })]);
+          return el("div", { class: "k-ex-pq-part" }, [el("span", { text: p.label }), partBody(p), el("b", { text: marksTag(paper, p.marks) }), el("div", { class: "k-ex-lines", style: "--n: " + Math.min(18, p.marks * 2 + 2) })]);
         })).filter(Boolean))]),
-        el("div", { class: "k-ex-pq-total", text: "(Total for Question " + q.n + " is " + q.marks + (q.marks === 1 ? " mark)" : " marks)") }),
-        foot(i + 2)]));
+        paper.format === "ocr-case" || paper.format === "aqa" ? null : el("div", { class: "k-ex-pq-total", text: "(Total for Question " + q.n + " is " + q.marks + (q.marks === 1 ? " mark)" : " marks)") }),
+        foot(i + 2)].filter(Boolean)));
     });
     if (withMs) {
       var B = window.KOS_EXAMS && KOS_EXAMS.playbook && KOS_EXAMS.playbook[bp.board];
@@ -132,7 +160,10 @@
             return q.parts.map(function (p, j) {
               return el("tr", {}, [el("td", { text: (j ? "" : String(q.n)) + p.label }), html("td", "", (p.ms || []).map(function (x) { return inline(KOS.content.aqaWords(x)); }).join("<br>")),
                 el("td", { text: p.chips.map(function (c) { return c.label === "✓" || /^\d+$/.test(c.label) ? "" : c.label; }).filter(Boolean).join(" ") || String(p.marks) }),
-                el("td", { text: j === q.parts.length - 1 ? (q.src ? "Modelled on " + q.src : q.origin || "") : "" })]);
+                el("td", {}, [p.guide ? el("div", { text: p.guide }) : null,
+                  p.levels ? el("div", { class: "k-ex-levels" }, p.levels.map(function (lv) { return el("div", { text: lv }); })) : null,
+                  p.indicative ? el("div", { class: "k-ex-indic" }, [el("b", { text: "Indicative content" })].concat(p.indicative.map(function (t) { return el("div", { text: "• " + t }); }))) : null,
+                  j === q.parts.length - 1 && q.src ? el("div", { text: "Modelled on " + q.src }) : null].filter(Boolean))]);
             });
           })))]),
         foot("MS")].filter(Boolean)));
@@ -148,7 +179,14 @@
 
   /* ================= timed mode (29t) ================= */
   function start(a, paper) {
-    saveSess({ aid: a.id, seed: paper.seed, started: Date.now(), paused: null, pausedMs: 0, breaks: 0, cur: 1, flags: {}, spent: {}, enteredAt: Date.now() });
+    var now = Date.now(), bp = paper.blueprint || {};
+    /* the attempt is recorded part by part (KOS.attempts, rework plan §8.1):
+       here a part is a question, the timed page's own step */
+    var rec = KOS.attempts ? KOS.attempts.begin({ kind: "paper", aid: a.id, title: paper.title, board: bp.board || a.board, paper: a.preset,
+      seed: paper.seed, started: now, allowedMs: Math.round(paper.allowed * 60000), budget: bp.perMark,
+      parts: paper.questions.map(function (q) { return { id: String(q.n), label: "Q" + q.n, marks: q.marks, topic: (q.refs && q.refs[0]) || q.ref || "", command: "" }; }) }) : null;
+    if (rec) KOS.attempts.open(rec, "1", now);
+    saveSess({ aid: a.id, seed: paper.seed, started: now, paused: null, pausedMs: 0, breaks: 0, cur: 1, flags: {}, spent: {}, enteredAt: now, rec: rec });
     U().announce("Timed. " + hm(paper.allowed) + ". Question 1 of " + paper.questions.length + ".");
     KOS.rerender();
   }
@@ -156,23 +194,28 @@
     var u = U(), bp = paper.blueprint, total = paper.allowed * 60000;
     if (!s.paused && !s.resumedHere) { s.paused = s.paused || null; }
     var q = paper.questions[Math.max(0, Math.min(paper.questions.length - 1, (s.cur || 1) - 1))];
+    var A = KOS.attempts, rec = s.rec || null;
+    if (A && rec && !A.isLive(rec)) A.resume(rec);
+    var rest = !!E().prefs().restBreaks;
     var clockEl = el("div", { class: "k-mono k-ex-tclock", "data-ui": "exams.tclock" });
     var leftEl = u.muted("");
     var spentEl = el("div", { class: "k-mono k-ex-tfig" });
     function tick() {
       if (!clockEl.isConnected) { clearInterval(iv); return; }
       var left = total - used(s);
-      clockEl.textContent = s.paused ? "Paused" : clock(left);
+      /* EX-32: with Rest breaks off a pause is logged and the clock runs on, so it stays in view */
+      clockEl.textContent = s.paused && rest ? "Paused" : clock(left) + (s.paused ? " · paused" : "");
       leftEl.textContent = "left of " + clock(total).replace(/:00$/, "");
       var sp = (s.spent[q.n] || 0) + (s.paused ? 0 : Date.now() - (s.enteredAt || Date.now()));
       spentEl.textContent = Math.floor(sp / 60000) + " m " + Math.floor(sp % 60000 / 1000) + " s";
-      if (left <= 0 && !s.paused) { clearInterval(iv); u.announce("Time is up."); tally(a, paper, { timed: true, mins: Math.round(paper.allowed), sess: s }); }
+      if (left <= 0 && (!s.paused || !rest)) { clearInterval(iv); u.announce("Time is up."); if (A && rec) A.end(rec); tally(a, paper, { timed: true, mins: Math.round(paper.allowed), sess: s }); }
     }
     var iv = setInterval(tick, 1000);
     function go(n) {
       var now = Date.now();
       if (!s.paused) s.spent[q.n] = (s.spent[q.n] || 0) + (now - (s.enteredAt || now));
       s.cur = n; s.enteredAt = now;
+      if (A && rec) A.open(rec, String(n), now);
       saveSess(s);
       var nq = paper.questions[n - 1];
       u.announce("Question " + n + " of " + paper.questions.length + ", " + u.plural(nq.marks, "mark") + ", budget " + Math.round(bp.perMark * nq.marks) + " minutes.");
@@ -184,14 +227,15 @@
     }));
     var pauseB = u.btn(s.paused ? "Resume" : "Pause", "sm", function () {
       var now = Date.now();
-      if (s.paused) { s.pausedMs = (s.pausedMs || 0) + (now - s.paused); s.paused = null; s.enteredAt = now; u.announce("Resumed."); }
-      else { s.spent[q.n] = (s.spent[q.n] || 0) + (now - (s.enteredAt || now)); s.paused = now; s.breaks = (s.breaks || 0) + 1; u.announce(E().prefs().restBreaks ? "Paused. The clock stops for your rest break." : "Paused. The pause is logged; the paper's clock keeps running."); }
+      if (s.paused) { s.pausedMs = (s.pausedMs || 0) + (now - s.paused); s.paused = null; s.enteredAt = now; if (A && rec) A.resumeClock(rec, now); u.announce("Resumed."); }
+      else { s.spent[q.n] = (s.spent[q.n] || 0) + (now - (s.enteredAt || now)); s.paused = now; s.breaks = (s.breaks || 0) + 1; if (A && rec) A.pause(rec, now); u.announce(E().prefs().restBreaks ? "Paused. The clock stops for your rest break." : "Paused. The pause is logged; the paper's clock keeps running."); }
       saveSess(s); KOS.rerender();
     }, { "data-ui": "exams.tpause" });
     var endB = u.btn("End and mark", "primary sm", function () {
       var now = Date.now();
       if (!s.paused) s.spent[q.n] = (s.spent[q.n] || 0) + (now - (s.enteredAt || now));
       saveSess(s);
+      if (A && rec) A.end(rec, now);
       tally(a, paper, { timed: true, mins: Math.max(1, Math.round(used(s) / 60000)), sess: s });
     }, { "data-ui": "exams.tend" });
     var top = el("div", { class: "k-ex-tbar", "data-ui": "exams.tbar" }, [
@@ -202,10 +246,11 @@
     var budget = bp.perMark * q.marks;
     var qcard = u.card([
       el("div", { class: "k-ex-inline" }, [el("b", { class: "k-mono k-ex-tq-n", text: String(q.n) }), u.muted(q.title + " · " + u.plural(q.marks, "mark")), el("span", { class: "k-ex-grow" }),
-        u.btn(s.flags[q.n] ? "⚑ Flagged" : "⚑ Flag", "quiet sm", function () { if (s.flags[q.n]) delete s.flags[q.n]; else s.flags[q.n] = 1; saveSess(s); KOS.rerender(); }, { "aria-pressed": s.flags[q.n] ? "true" : "false", "data-ui": "exams.tflag" })]),
+        u.btn(s.flags[q.n] ? "⚑ Flagged" : "⚑ Flag", "quiet sm", function () { if (s.flags[q.n]) delete s.flags[q.n]; else s.flags[q.n] = 1; if (A && rec) A.flag(rec, String(q.n), !!s.flags[q.n]); saveSess(s); KOS.rerender(); }, { "aria-pressed": s.flags[q.n] ? "true" : "false", "data-ui": "exams.tflag" })]),
+      paper.context ? el("details", { class: "k-ex-tq-case", "data-ui": "exams.tcontext" }, [el("summary", { text: paper.org || "The scenario" }), el("p", { text: paper.context })]) : null,
       q.ctx ? html("p", "k-ex-tq-ctx", inline(q.ctx)) : null,
       el("div", { class: "k-ex-tq-parts", "data-state": s.paused ? "paused" : null }, q.parts.map(function (p) {
-        return el("div", { class: "k-ex-tq-part" }, [el("b", { text: p.label }), el("span", {}, [p.code ? el("pre", { class: "k-ex-pre k-mono", text: p.code.join("\n") }) : null, html("span", "", inline(p.q))].filter(Boolean)), el("span", { class: "k-mono k-ex-muted", text: "(" + p.marks + ")" })]);
+        return el("div", { class: "k-ex-tq-part" }, [el("b", { text: p.label }), partBody(p), el("span", { class: "k-mono k-ex-muted", text: marksTag(paper, p.marks) })]);
       })),
       el("div", { class: "k-ex-tq-ans" }, [u.muted("Your working stays on paper; mark it after with the tally.", "k-ex-small"), el("div", { class: "k-ex-lines", style: "--n: 10" })]),
       el("div", { class: "k-ex-inline" }, [q.n > 1 ? u.btn("‹ Question " + (q.n - 1), "sm", function () { go(q.n - 1); }) : null, el("span", { class: "k-ex-grow" }),
@@ -310,6 +355,15 @@
         u.btn("Log as an attempt", "primary", function () {
           var fields = P().toAttempt(paper, ticks, { timed: timedBox.checked, mins: o.mins || null, predicted: predIn.value === "" ? null : +predIn.value, breaks: o.sess && o.sess.breaks ? o.sess.breaks : 0 });
           var e = KOS.tracker.add(fields);
+          if (o.sess && o.sess.rec && KOS.attempts) {
+            var byQ = {};
+            paper.questions.forEach(function (q) {
+              var any = false, got = 0;
+              q.parts.forEach(function (p, j) { if (ticks[q.n] && ticks[q.n][j]) { any = true; got += P().partScore(p, ticks[q.n][j]); } });
+              if (any) byQ[String(q.n)] = got;
+            });
+            KOS.attempts.setMarks(o.sess.rec, byQ, "self", e && e.uid);
+          }
           if (o.sess) clearSess();
           ov.close();
           u.announce("Logged: " + (fields.marks != null ? fields.marks + " of " + fields.max : "not marked") + ".");

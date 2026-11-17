@@ -478,6 +478,24 @@ labelled and original. They are inside a lazy bundle (invariant 168).
   exam, links, the evidence rule and the state.
 - **`state.exams.checklists`:** the night-before ticks per exam.
 
+### 9.4a Added by the user, 18 November 2026
+
+- **No interval longer than the run-up to a near exam.** While a REAL
+  exam (or a mock with its cap on) whose scope holds a card's leaf is 60
+  days away or less, no review may be scheduled more than a fraction of
+  the days left (proposed: a third of them, at least 3 days, at most 21),
+  so every card comes back at least two or three times before the exam;
+  a card already scheduled past that is brought forward once, the way
+  `examPass` does (invariant 111a, widened). For every exam subject, not
+  only IT; F201's January sitting is the first case.
+- **Ink travels with a file.** "Save a copy with my writing" exists only
+  in the PDF viewer's ⋯ menu. Every Download, Share and Attach-elsewhere
+  of a file that has ink (a topic's Files tab, an assignment's
+  attachments, Files) offers "With my writing" FIRST and "The original"
+  second, with a per-device choice of which is the default — so homework
+  written on the iPad can be submitted as one PDF. It reuses the viewer's
+  pdf-lib flattening, as the review pack's pages do.
+
 ### 9.5 Revise's reading progress
 
 Per device, like a lesson's pages.

@@ -79,8 +79,21 @@ window.KOS_EXAM_PRESETS = {
         { id: "Statistics", title: "Section A · statistics", indexed: true },
         { id: "Mechanics", title: "Section B · mechanics", indexed: true }
       ] },
+    /* the user's own mocks for December 2026 (docs/exams-rework-plan.md §1):
+       not board papers, so no index; their authored papers are in
+       js/data/exams/papers/ */
+    { id: "aqa-7517-ppe", subject: "compsci", board: "AQA", qual: "7517", level: "A", paper: "Pre-public exam",
+      title: "AQA Computer Science · pre-public exam (your school's topic list)", marks: 100, mins: 150, calculator: "none",
+      include: ["compsci:4.6.4", "compsci:4.6.5", "compsci:4.7.4", "compsci:4.1.2.3", "compsci:4.2.2", "compsci:4.2.3",
+        "compsci:4.1.1.16", "compsci:4.2.4", "compsci:4.2.5", "compsci:4.3.1", "compsci:4.3.2", "compsci:4.3.4", "compsci:4.3.5",
+        "compsci:4.7.3.3", "compsci:4.7.3.4", "compsci:4.7.3.5", "compsci:4.8", "compsci:4.10"],
+      sections: [{ id: "all", title: "Written paper", indexed: false }] },
+    { id: "edexcel-9ma0-pure-mock", subject: "maths", board: "Edexcel", qual: "9MA0", level: "A", paper: "Pure mock",
+      title: "Edexcel Maths · Pure mock (AS Pure and the A2 chapters covered)", marks: 100, mins: 120, calculator: "allowed",
+      include: ["maths:Pure"],
+      sections: [{ id: "all", title: "Pure mathematics", indexed: false }] },
     { id: "ocr-f201", subject: "it", board: "OCR", qual: "H119", level: "AN", paper: "F201",
-      title: "OCR IT · F201", marks: 60, mins: null, calculator: null,
+      title: "OCR IT · F201", marks: 60, mins: 90, calculator: null,
       include: ["it:F201"], itUnit: "F201", lowEvidence: true,
       sections: [{ id: "all", title: "Written paper", indexed: false }] }
   ]
