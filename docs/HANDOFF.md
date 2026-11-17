@@ -81,7 +81,17 @@ smoke150; CLAUDE.md's Persistence section). (3) W4's import engine
 on the Opus list; smoke 150 and 160 are now taken, so new suites start at
 161.**
 
-**Smoke numbers from now:** the other account uses **161–179**; this
+**Item 4 BUILT (17 November 2026, on Opus): W4's Money pages from design
+turn 39** on `feat/w4-pages` (`e0070e2`, pushed; NOT on main, NOT deployed;
+gate 158 / 158; smoke161). New `js/modules/moneyimp.js`: the import's File,
+Preview and Done; Transactions › Imports and the Source filter; Money
+settings › Rules (⚙ in Money's header); a merchant's page; the Overview's
+Balance, Runway, By merchant and By week; an entry as a sheet at 860 and
+below (MG-25); MG-10. Releasing it needs main merged in, the full gate and
+the user's go-ahead. Next on the list: item 5 (design turn 36).
+
+**Smoke numbers from now:** the other account uses **162–179** (161 is
+taken); this
 account continues at 157–159 and then 180+. (142, 143, 149 and 150 stay the
 other account's.)
 
