@@ -918,6 +918,34 @@ stopped at the usage limit before writing a file; the code is Fable's.
   files and typed cases. Transfer rules (a set-aside into a pot) are not
   matched to bank rows.
 
+**W4 pages (17 Nov 2026, `feat/w4-pages` at e0070e2, on Opus; NOT merged to
+main, NOT deployed; gate 158 / 158; smoke161 new, 12 steps) — design turn
+39 built on the engine.** New `js/modules/moneyimp.js` drawn with money.js's
+own parts. FIXED: MG-10 (the import 1080 wide, a full sheet on the phone,
+payee and amount always shown), MG-25 (an entry opens as a side sheet at
+701–860 and a bottom sheet on the phone), MG-43 (no silent 80-row cap: 150
+then "Show all N", errors listed first), MG-33 (the reason keeps its
+capital). MG-05's and MG-08's PAGES: Transactions › Imports (See entries,
+Replace…, Undo… behind a confirm) and a Source filter; Money settings ›
+Rules (⚙ in Money's header; your rules with New/Edit/Delete, the
+read-only merchant table searched); a category set by hand in the preview
+offers "Always put X in Y?" under the row; the rule switch on an imported
+entry; a merchant's page (#/money/merchant/<payee key>: figures, six
+months, entries, bank texts, its category as a rule); the Overview's
+Balance (the newest import's closing balance, with "the bank's balances
+add up" when they did — an import's `closing` now keeps `ok`), Runway
+(Student Finance: an income rule in Grants still to come, a known balance
+and two weeks of spend), By merchant and By week, each only with its
+evidence; the empty Transactions page brings a statement in; Done offers
+direct debits with no rule as "Make it recurring". Santander's two CSVs are
+named back ("Santander midata CSV", "Santander Online Banking CSV").
+Found on the way and fixed: the import's step markers had always been drawn
+as the first-run checklist (the two shared a class). Choices made, not in
+the frames: Money settings holds Rules only (no General/Categories/Imports
+tabs: those live where they already are); Replace and Undo are on
+Transactions › Imports only. NOT DONE: the design's "This view as one
+line" on the phone; renaming a merchant; a General settings tab.
+
 **Every P0/P1 in W4: the fix, and how it's accepted**
 
 | Id | Sev | Fix | Acceptance |
