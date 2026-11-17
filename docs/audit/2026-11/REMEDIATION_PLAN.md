@@ -568,6 +568,25 @@ show on Account & Cloud Sync (DI-20).
   account. NOTE FOR THE FIRST SYNC AFTER THIS RELEASE: an account that
   already holds two reminders linked to one task has them folded into one
   (after a checkpoint, listed on Backup & Restore).
+- **DI-09's second half DONE and RELEASED (17 Nov 2026, sw
+  `kos-integrity-16`, `origin/main` = 0b9a662; smoke150).** The backup FILE
+  is written and read in pieces (`js/core/backupfile.js`): still one JSON
+  document an older copy reads whole, laid out as a first line (every part
+  but the stored files) and one line per file, each file read in 3 MB slices
+  and made base64 a slice at a time into a Blob, so no file is ever one
+  string (checked in a real browser with a 7 MB file, byte for byte through
+  write and restore). The restore and its confirm read the first line alone,
+  then one file at a time. A part that cannot be read is named (in the file,
+  the export's toast and the restore's report) instead of failing the whole
+  backup; checkpoints stay all or nothing. LEFT: a checkpoint (`KOS.backup`)
+  is still one string, so a very large file set can still be too much for an
+  iPad there; "back up without files" was not built.
+- **Released with it (17 Nov 2026), a fix the user reported, not an audit
+  finding:** the F201 notes (kos-integrity-14) wrote 29 callouts with one
+  block as their body, so 15 pages threw and "Next page" stopped; and lazy
+  bundles ran in one page-wide order, so a lesson waited for another
+  subject's download. Both fixed (smoke160); W4's import engine went out in
+  the same release.
 - Still to do in W1: SH-27/EX-39, the
   seeded samples, with the first-run welcome (decision B8, W7/W9); DI-09's
   second half (a streamed backup for very large file sets).
