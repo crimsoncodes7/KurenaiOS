@@ -695,11 +695,16 @@
   }
 
   /* ---------------- sample data ---------------- */
+  /* decision B8 (design turn 41, 17 November 2026): a new device plants no
+     SAMPLE events — Home says what is there, and only what you add is. The
+     seeded flag is still set, and events planted before stay theirs. */
   function seedSamples() {
     var c = cal();
     if (c.seeded) return;
     c.seeded = true;
     var t = today();
+    /* the test harness keeps them as its suites' fixtures; the app never sets it */
+    if (!window.KOS_SAMPLE_EVENTS) return;
     [
       { title: "SAMPLE — Mock exam (edit me)", date: KOS.srs.addDays(t, 5), time: "09:00", endTime: "11:00",
         type: "exam", subject: "maths", paper: "Paper 1", durationMins: 120, room: "Hall", alerts: [10080, 1440] },

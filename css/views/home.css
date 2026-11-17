@@ -65,6 +65,13 @@
 
 /* ---------- Routines and Reminders ---------- */
 .k-home-pair-top { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-20); }
+/* 41c: the three first steps after Start fresh, in the pair's slot */
+.k-home-steps { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--sp-20); }
+.k-home-step { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-12) var(--sp-14); }
+/* the button drops under the words before the words squeeze */
+.k-home-step-t { flex: 1 1 calc(var(--sp-64) * 2.5); min-inline-size: 0; display: flex; flex-direction: column; gap: var(--sp-2); }
+.k-home-step-t > b { font-size: var(--fs-14-5); }
+.k-home-step-t > .k-muted { font-size: var(--fs-12); }
 .k-home-pair-top > .k-card { padding-block: var(--sp-14); }
 .k-routines { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--sp-20); }
 button.k-check-row { inline-size: 100%; padding-inline: 0; background: none; box-shadow: none; border-radius: 0; font: inherit; color: inherit; text-align: start; }
@@ -245,7 +252,7 @@ button.k-desk-row-v:hover { background: none; color: var(--desk-c); }
 }
 
 @media (max-width: 860px) {
-.k-home-pair-top, .k-home-pair { grid-template-columns: minmax(0, 1fr); }
+.k-home-pair-top, .k-home-pair, .k-home-steps { grid-template-columns: minmax(0, 1fr); }
 .k-home-mid { grid-template-columns: minmax(0, 1fr); }
 .k-home-mid > *, .k-home-mid > .k-home-pair { grid-column: 1 / -1; }
 .k-home-hero-body { flex-wrap: wrap; }

@@ -1230,7 +1230,7 @@
         el("span", { class: "k-kicker", text: "Daily goal" }),
         autos.length ? el("span", { class: "k-mono", text: autos.filter(function (a) { return a.done; }).length + " / " + autos.length }) : null
       ].filter(Boolean)));
-      if (!shown.length) goal.appendChild(el("p", { class: "k-home-goal-note", text: "Nothing generated today — no due cards or near deadlines." }));
+      if (!shown.length) goal.appendChild(el("p", { class: "k-home-goal-note", text: KOS.welcome && KOS.welcome.firstSteps() ? "Fills in once you have subjects." : "Nothing generated today — no due cards or near deadlines." }));
       /* HR-18 (decision B2): a directive is sealed by its evidence only and
          pays nothing; the row opens the work, it is not a tick */
       shown.forEach(function (a) {
@@ -1282,7 +1282,27 @@
         reminders.appendChild(row);
       });
     }
-    main.appendChild(el("div", { class: "k-home-pair-top" }, [routines, reminders]));
+    /* design turn 41c: after Start fresh, while the device holds nothing of
+       yours, three first steps stand where Routines and Reminders go later */
+    var fresh = !!(KOS.welcome && KOS.welcome.firstSteps());
+    if (fresh) {
+      var STEPS = [
+        ["学", "var(--cs)", "Pick your subjects", "CS · Maths · IT · Code · Japanese · Mind · Creatives", "Open Study", function () { KOS.show("subject"); }],
+        ["蒐", "var(--amber)", "Import your Collection", "AniList · VNDB · Steam", "Connect", function () { KOS.show("mediasync"); }],
+        ["暦", "var(--teal)", "Connect a calendar", "Google Calendar · or add a lesson", "Connect", function () { KOS.show("connections"); }]
+      ];
+      main.appendChild(el("div", { class: "k-home-steps", "data-ui": "home.first-steps" }, STEPS.map(function (st, i) {
+        return el("section", { class: "k-card k-home-step", "data-ui": "home.first-step", "aria-label": "Step " + (i + 1) + ": " + st[2] }, [
+          el("span", { class: "k-tile", lang: "ja", "aria-hidden": "true", style: "--tile-c: " + st[1], text: st[0] }),
+          el("div", { class: "k-home-step-t" }, [
+            el("span", { class: "k-kicker", text: "Step " + (i + 1) }),
+            el("b", { text: st[2] }),
+            el("span", { class: "k-muted", text: st[3] })
+          ]),
+          el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "home.first-step-go", text: st[4], onclick: st[5] })
+        ]);
+      })));
+    } else main.appendChild(el("div", { class: "k-home-pair-top" }, [routines, reminders]));
 
     /* ================= Up next · Today/Upcoming · Study hours · plan ================= */
     var mid = el("div", { class: "k-home-mid" });
@@ -1307,7 +1327,8 @@
         var oldest = dueCards.length ? dueCards[0].overdue : 0;
         upnext.appendChild(el("h2", { class: "k-upnext-title", "data-ui": "home.next-label",
           text: spaceRev.length ? "Review " + KOS.ui.num(revAll) + " due"
-            : dueN ? "Review " + KOS.ui.num(dueN) + " due card" + (dueN === 1 ? "" : "s") : "Nothing due to review" }));
+            : dueN ? "Review " + KOS.ui.num(dueN) + " due card" + (dueN === 1 ? "" : "s")
+            : KOS.welcome && KOS.welcome.firstSteps() ? "Nothing to review yet" : "Nothing due to review" }));
         /* topic memory: the due topic you would recall least today */
         var weakest = null, seenTopic = {};
         dueCards.forEach(function (c) {
@@ -1320,7 +1341,7 @@
         var weakTxt = weakest && weakest.r < 0.85 ? " · " + weakest.ref + " " + ((KOS.hub.BYREF[weakest.sid][weakest.ref] || {}).title || "") + " is down to " + Math.round(100 * weakest.r) + "% recall" : "";
         upnext.appendChild(el("p", { class: "k-upnext-why", "data-ui": "home.next-why",
           text: revAll ? "About " + Math.max(1, Math.round(revAll * 0.5)) + " minute" + (revAll > 2 ? "s" : "") + (oldest ? " · oldest is " + oldest + " day" + (oldest === 1 ? "" : "s") + " overdue" : " · all due today") + weakTxt
-            : "The queue is clear — nothing is scheduled for today." }));
+            : KOS.welcome && KOS.welcome.firstSteps() ? "Cards arrive with your subjects." : "The queue is clear — nothing is scheduled for today." }));
         /* one row a queue, each opening its own review (40a): the flashcards
            (Due today), then each space's; a row says its count, not a bar */
         var rows = [];

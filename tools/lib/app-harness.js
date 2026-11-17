@@ -153,6 +153,10 @@ async function boot(opts = {}) {
   /* ---- the app, in document order ---- */
   /* opts.before(window): runs before any script (a probe, a stub).
      opts.filter(src): false leaves a script out of the boot. */
+  /* design turn 41 (B8): the app plants no SAMPLE events any more; the
+     suites written against them keep them as a fixture (a suite of a new
+     device turns it off in opts.before) */
+  window.KOS_SAMPLE_EVENTS = true;
   if (opts.before) opts.before(window);
   /* opts.lazy: boot as a browser does (js/core/lazy.js). The scripts inside
      a <template data-lazy> block are left out and loaded when the app asks,

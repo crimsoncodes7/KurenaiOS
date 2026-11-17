@@ -25,6 +25,7 @@ window.addEventListener("error", e => errors.push("window error: " + e.message))
 window.requestAnimationFrame = cb => setTimeout(cb, 0);
 window.confirm = () => true;
 window.__kosAutoConfirm = true;
+window.KOS_SAMPLE_EVENTS = true;   /* design turn 41: the SAMPLE events are this suite's fixture now */
 const { indexedDB, IDBKeyRange } = require("fake-indexeddb");
 window.indexedDB = indexedDB;
 window.IDBKeyRange = IDBKeyRange;

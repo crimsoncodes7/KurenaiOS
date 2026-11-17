@@ -908,6 +908,9 @@
      old week (its moment is the week beginning) */
   function noteRollover() {
     if (!KOS.notify) return false;
+    /* decision B8 (design turn 41): nothing from the plan before the first
+       open's welcome is answered — it is pushed then */
+    if (KOS.welcome && KOS.welcome.pending()) return false;
     var now = currentWeek();
     if (!now) return false;
     var carried = carriedInto(now.wb);
