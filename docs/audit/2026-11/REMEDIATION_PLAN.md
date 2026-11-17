@@ -1200,6 +1200,11 @@ its "only goes down" rule; AP-01 stage 2 would win it back.
   landing: Help & Guide (AA-16, SH-10, SH-11, AX-20, AX-34, AP-06), GUIDE.md
   (SH-32) and the docs re-baseline (AP-05). AP-04 (one lesson reader) and
   AP-07 are not started.
+- **Done 17 Nov (main `395cbde`): AP-20.** CLAUDE.md 266 → 227 KB: the
+  release diary moved to `docs/RELEASES.md`, the suite list to
+  `docs/SMOKE.md`; gate 161 / 161. The rest of W8's "now" part comes after
+  the Exams & Papers rework (`docs/exams-rework-plan.md`, approved 17 Nov,
+  deploy by 4 Dec).
 
 ### W9 — Polish and HCI (about 2 sessions; FROZEN, §A9)
 - **Scope:** exactly the 200 mapped findings, plus your 6 QoL items (§5).
