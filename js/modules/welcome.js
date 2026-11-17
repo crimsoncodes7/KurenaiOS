@@ -191,11 +191,13 @@
     }
 
     var first;
-    if (mode === "signin") { paintTheme(); KOS.ui.openDialog(overlay, { label: "Sign in", escape: true }); signInForm(); }
+    if (mode === "signin") { paintTheme(); KOS.ui.openDialog(overlay, { label: "Sign in", escape: true, persist: true }); signInForm(); }
     else {
       first = choose(); paintTheme();
-      /* Escape leaves it unanswered: it comes back on the next open */
-      KOS.ui.openDialog(overlay, { label: "Welcome to Kurenai", initialFocus: first });
+      /* Escape leaves it unanswered: it comes back on the next open. It is
+         about the device, not a page: the boot's first page draw (a real
+         navigation, invariant 166) must not close it */
+      KOS.ui.openDialog(overlay, { label: "Welcome to Kurenai", initialFocus: first, persist: true });
     }
     open_ = overlay;
     return overlay;

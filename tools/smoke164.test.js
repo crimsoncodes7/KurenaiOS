@@ -162,6 +162,8 @@ step("H · it opens by itself once the sync library arrives after boot", async (
   for (let i = 0; i < 40 && !$(".k-wel-overlay"); i++) { await app.settle(); await wait(20); }
   assert(looks > 6, "it kept looking while the library loaded");
   assert($("[data-ui~='welcome.screen']"), "it opens once the library is in");
+  K.show("focus"); await app.settle();
+  assert($("[data-ui~='welcome.screen']"), "a page change does not close it (the boot's first draw did, on production)");
   closeWelcome();
   K.cloud.available = () => true;
 });
