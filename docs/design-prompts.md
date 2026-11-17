@@ -978,3 +978,69 @@ Gemini art for 21: none new, except SC-20's avatars — the twelve
 its inner circle (batch "avatar-recompose"). Make them on the art sheet
 (`prototypes/app-art/art.html`) and save them to `art-source/app/inbox/`
 under the same file names.
+
+## 22 · Exams & Papers, reworked: built around one exam (frames 45a–47h; UR-28, `docs/exams-rework-plan.md`)
+
+Written 17 November 2026, after the plan was approved with its decisions
+D1–D6. The mocks are all in the week of 14 December, so this is the most
+urgent prompt. Three prompts, each sent ALONE, in this order. Each opens
+with this preamble, which replaces 21's (it names 39–44):
+
+```text
+Continue the approved KurenaiOS design in this project (Graphite and Dawn 7a–14c and 21a–21h, phone 15a–15n, design part 2 15–23, Reports 24–25, Code 26, Money and Goals 27, Japanese 28, the Exams hub 29, the iPad 30, Creatives 31, Mind 32, Routines 33, art and shop 34, the Badge Wall and the Stage 35, held updates 36, Money 39, Home and the Seat 40, the first open 41, and 42–44 if drawn). The GitHub repository is linked: the app as it is on `main` is the source of truth — css/tokens.css, css/themes.css and css/components.css for every token and primitive, and the invariants in CLAUDE.md. Use only existing tokens, type, cards, chips, sheets, menus and tabs; no new hue. Draw desktop 1440, MacBook 1470 × 956, iPad 1180 × 820 and 820 × 1180, and phone 390 × 844 where named, and Dawn for one frame of each. The standing layout rule holds everywhere: no dead space, no empty column beside a capped block, consistent alignment, nothing taller in the side column than the hero. Minimal text: a label, not a sentence. A handoff is a guide, not a 1:1 spec: match how the app's existing pages are built.
+```
+
+### 22.1 · D-Exams, part 1: All exams, an exam's sidebar, Today and Topics (frames 45a–45h)
+
+```text
+[preamble]
+
+THE PROBLEM (the user, 13 and 17 November 2026: "overall just not as helpful as it should be"). Exams & Papers (frames 29a–29ac) is organised by TOOL, five levels deep: the section tabs, then Timetable · Readiness · Planner · Practice · Companion, then Attempts · Analytics · Library, then Exams & assessments · Practice papers & questions, plus List · Load. A mock's page is four readiness readings that say "Not enough evidence" until weeks of data exist: it tells you what is missing, not what to do today. The rework is built around ONE exam, at most two levels deep, and every page says what to do next.
+
+THE USER'S DECEMBER MOCKS, to draw with real content: IT F201 (OCR, 1 h 30, 60 marks, the whole unit; the real exam in January), a CS pre-public exam (AQA, 2 h 30, a list of twelve topics across both papers: logic gates and Boolean algebra, hardware, OOP, stacks, queues, recursion, graphs, trees, sorting and searching, assembly language, consequences of computing, databases), and Maths Pure (Edexcel: AS Pure plus six A2 chapters).
+
+45a ALL EXAMS (#/exams, 1440 and 1470): the next exam as one hero — its kind, title, date and days left, TODAY'S SESSION for it as 3–5 steps (below) and Start; Upcoming as rows (kind chip, title, date, days left, one state word) that open each exam; one tab row only for what spans exams: Timetable · Results · Library · Load; New assessment, Import timetable and Log a result in the header's action slot.
+45b AN EXAM (#/exams/<id>, 1440): a LEFT SIDEBAR of eight sections, each with a small progress mark — Today · Plan · Topics · Revise · Questions · Papers · Review · On the day — beside the section's page; the exam's header (title, board and paper, date and time, days left) above both. No tabs inside a section beyond its own filters.
+45c TODAY, a step running: the computed session for this exam as an ordered list of steps — "30 cards due in scope", "2 redo items", "Weakest topic: Data analytic techniques · read the chapter, then 5 questions", "Paper day: F201 practice paper 2 · 1 h 30", "Target: write a conclusion on every 9-marker" — each a row with its reason in small type (the evidence that used to be a readiness band: "Recall 62 %", "Best 4/9") and Start; a finished step ticks. Readiness's four signals survive only as these reasons and as one compact strip (Coverage · Recall · Practice · Calibration) with a figure or "do X to see this", never "Not enough evidence".
+45d TOPICS as a checklist (the user's school calls this a Personal Learning Checklist): one row per topic in the scope — confidence (RAG), recall, best marks on its questions, last practised — sortable weakest first or spec order; a row opens its chapter in Revise, its questions and its cards.
+45e SCOPE FROM A LIST: the New assessment / Edit scope sheet with a "Paste a topic list" box; each pasted line matched to specification topics as a row (the line · the match · Change), unmatched lines shown in amber and never dropped; Confirm. A scope spanning two board papers (the CS PPE) shows both papers' names.
+45f PLAN: the countdown — days to the exam as a strip, sessions the planner placed (existing 29 Planner content, simplified), Send to the plan.
+45g THE EXAM ON THE iPAD (1180 and 820): the sidebar collapses to a section strip or a sheet; Today first.
+45h THE PHONE (390): the exam page as a list of the sections it offers (Today, Topics, Revise, cards, Review — papers are for the iPad and Mac), Today open.
+```
+
+### 22.2 · D-Exams, part 2: Revise (the revision guide) and Questions (frames 46a–46h)
+
+```text
+[preamble]
+
+THE PROBLEM (the user, 17 November 2026): the Companion "displays information jarring and useless. Way too much content in not a clean manner, displays all exam questions with no place for working, drill is also ugly." Today it is one long scroll of six sections; its key notes are flattened into walls of text (callouts lost). The rework replaces it with REVISE, a paged revision guide, and QUESTIONS, practice with working space. Both REUSE what Study already has: the notes renderer (callouts, figures, tables exactly as on a topic page), the exam-question engine (Type · Write · On paper answer pads, the self-mark tally, the model answer, its history), the quiz engine and the flashcard run. Draw them as those components, not new ones. The user's own revision guides set the content: exam technique first, then a chapter per topic (what to learn, how it is asked, how it is marked, the traps, then practice), a cheat sheet, the night before, and "where I lose marks" from their own attempts.
+
+46a REVISE at 1440: a sidebar of chapters with read ticks and weights (Exam essentials · one chapter per topic, weakest first · Where you lose marks · Cheat sheet · The night before), the chapter as ONE page with an in-page contents list (sticky on the right or as chips at the top), ‹ Previous · Next › at the foot, Print.
+46b EXAM ESSENTIALS for F201: the paper at a glance (1 h 30 · 60 marks · 1.5 min a mark), the three Performance Objectives and how to spot them in a stem, command words with what earns the marks (Identify, State, Describe, Explain, Analyse, Discuss), the 6- and 9-mark level grids as small tables, and a structure for an extended answer; "Not examinable" as a short list.
+46c A TOPIC CHAPTER: the key notes as the notes renderer draws them (a def callout, a misconception callout, a table, a figure), must-memorise and a mnemonic, "How it's asked" as question shapes with ONE worked answer open and "2 more" behind a button, traps, answer templates for its command words, and at the end "Practise this": 5 questions · 12 cards.
+46d WHERE YOU LOSE MARKS: drawn from the user's own attempts and imported feedback — "Ten ways you lose marks" style rows (what, how many marks, which parts, the target linked); the empty state says what fills it.
+46e CHEAT SHEET and THE NIGHT BEFORE: one printable page of every mnemonic, definition and formula in scope; a tickable checklist and the exam routine.
+46f QUESTIONS (1440 and 1180): filters (topic, marks 1–2 · 3–5 · 6+, command word, not tried, dropped marks last time) and ready-made sets ("5 from my weakest topic", "5 six-markers", "The ones I got wrong"); ONE question at a time with the answer pad under it (Write on the iPad, Type on the Mac), the set's navigator (1–5) and ‹ ›, then the tally beside the answer with the scheme's points as chips.
+46g THE CARD DRILL replacing the old rapid drill: the flashcard run in a timed mode over the scope's must-memorise cards (the existing run's look, a clock added).
+46h REVISE and QUESTIONS on the phone (390): the chapter list as a sheet, a chapter as a page, a question with Type (no Write on the phone).
+```
+
+### 22.3 · D-Exams, part 3: Papers, marking, Review and feedback from Claude or Gemini (frames 47a–47h)
+
+```text
+[preamble]
+
+THE PROBLEM. The app's F201 practice paper is 19 unrelated questions, each with its own made-up organisation, in Edexcel's wording, timed at a guessed 1 h 12. OCR's real F201 (the SAM) is 1 h 30 and 60 marks, ONE organisation as the context for every question introduced in short stems with data or tables, numbered questions with lettered parts and (i)/(ii) parts that depend on each other, `[n]` marks with answer lines, and one 6-mark and one 9-mark levels-of-response question. On the iPad the timed paper's navigator squares are 7 px wide and Pause hides the clock while time runs on. The user also wants each attempt RECORDED (events only, never video) and reviewed by Claude or Gemini on their own subscriptions — NOT by the app's model — with the feedback brought back in as targets.
+
+47a PAPERS for an exam (1440): board-faithful papers (F201 papers 1–3, each its own organisation), a custom-scope paper built to the exam's own time ("CS PPE · 2 h 30 · from your scope"), and past papers from the Library; each with marks, time, last attempt and Sit · Print · Log marks.
+47b SITTING A PAPER ON THE iPAD (1180 landscape and 820 portrait): full screen; the OCR case-study layout (the context stem, a data table, Q3 (a) (b) (c)(i) (ii) with [n] marks) with an ANSWER PAD under every part (Write by default, Type for code); a navigator of parts at 44 px with a flag ("come back"); the clock with extra time; Pause hides the paper as well as stopping the clock. Show part 3(c)(ii) in progress with ink.
+47c THE SAME PAPER IN AQA AND EDEXCEL STYLE (1470), one frame each, to show the format follows the board.
+47d MARKING BESIDE YOUR ANSWER (1180 and 1470): your answer on one side, the scheme on the other; each mark point a chip that names the point (an A chip greyed until its M is ticked); the part's total; Next part. A 9-MARKER marked by LEVEL: the three level descriptors as choices, then a mark within the level, the indicative content as a list to tick.
+47e REVIEW of an attempt: the score and estimated grade; marks lost by topic, by command word and by Performance Objective as short rows; time — minutes per mark by part against the paper's budget as a small chart, parts that took long for few marks named, hesitation and heavy erasing flagged, the pacing line against the ideal; each figure only with its evidence.
+47f GET FEEDBACK (a sheet from Review): two steps the user takes outside the app — 1 "Copy for Claude or Gemini" (one clipboard copy holding the prompt, the paper, the scheme results and the timing) and 2 "Download pages" (the written pages merged into 2–4 files, named with the parts they hold, never one image per part); a line that nothing is sent by the app; then "Add feedback".
+47g ADD FEEDBACK: paste the model's whole reply; the app reads its fenced JSON block and shows what it found — the summary, re-marks it suggests ("3(b): 2 → 1"), findings by error type with the parts they name, and up to six actions, each with "Make it a target"; a reply that does not fit shows what is wrong (in amber) and stores nothing; two imports (Claude, Gemini) side by side.
+47h TARGETS on the exam's Today and in Review: each target with what practises it and its evidence ("min per mark on 2-markers 1.9 → 1.3 · 1 of 2 attempts"), closed by hand or by two attempts meeting it.
+```
+
+Gemini art for 22: none.
