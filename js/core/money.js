@@ -161,6 +161,10 @@
       remind: raw.remind == null || raw.remind === "" ? null : int(raw.remind, 1, 1e9, null),
       prices: prices,
       marks: marks,
+      /* what a BANK calls this payment (MG-07): payee keys learned when a
+         statement's row was matched to an occurrence by its amount alone */
+      aliases: (Array.isArray(raw.aliases) ? raw.aliases : []).map(payeeKey)
+        .filter(function (a, i, all) { return a && all.indexOf(a) === i; }).slice(0, 12),
       archived: !!raw.archived,
       updatedAt: raw.updatedAt || 0
     };
@@ -184,6 +188,32 @@
       updatedAt: raw.updatedAt || 0
     };
   }
+  /* an import that happened (MG-05): what "Undo" and "Replace" act on. Its
+     id is the batch id its transactions carry. The closing balance is the
+     statement's own (the bank's last figure), one number per import: no
+     balance is ever kept on a transaction. */
+  function normaliseImport(raw) {
+    raw = raw || {};
+    var id = str(raw.id, 40);
+    if (!id) return null;
+    var c = raw.closing, cm = c ? minorOf(c.minor) : null;
+    return {
+      id: id,
+      file: str(raw.file, 120),
+      format: str(raw.format, 20) || "csv",
+      from: isISO(raw.from) ? raw.from : null,
+      to: isISO(raw.to) ? raw.to : null,
+      n: int(raw.n, 0, 1000000, 0),
+      at: raw.at || 0,
+      stmt: str(raw.stmt, 40) || null,
+      closing: c && cm != null && isISO(c.date) ? { minor: cm, date: c.date } : null,
+      replaced: str(raw.replaced, 40) || null,
+      updatedAt: raw.updatedAt || raw.at || 0
+    };
+  }
+  /* a payee's key: what two spellings of one merchant share */
+  function payeeKey(name) { return String(name == null ? "" : name).toLowerCase().replace(/[^a-z0-9]+/g, " ").trim().slice(0, 60); }
+  var MAX_IMPORTS = 200, MAX_PAYEES = 400;
   function defaultCategories() {
     return DEFAULT_CATEGORIES.map(function (d, i) {
       var c = { id: d[0], name: d[1], kind: d[2], group: d[3], tone: d[4], order: i };
@@ -203,7 +233,9 @@
       monthStart: int(m.monthStart, 1, 28, 1),
       categories: [],
       rules: [],
-      pots: []
+      pots: [],
+      imports: [],
+      payees: {}
     };
     var seen = {};
     (Array.isArray(m.categories) ? m.categories : []).forEach(function (raw) {
@@ -226,6 +258,21 @@
       var p = normalisePot(raw);
       if (p && !seen[p.id]) { seen[p.id] = true; out.pots.push(p); }
     });
+    seen = {};
+    (Array.isArray(m.imports) ? m.imports : []).forEach(function (raw) {
+      var r = normaliseImport(raw);
+      if (r && !seen[r.id]) { seen[r.id] = true; out.imports.push(r); }
+    });
+    out.imports.sort(function (a, b) { return a.at - b.at; });
+    if (out.imports.length > MAX_IMPORTS) out.imports = out.imports.slice(-MAX_IMPORTS);
+    /* learned payee rules (MG-08): a keyed map, so two devices merge per payee */
+    var pk = m.payees && typeof m.payees === "object" ? m.payees : {};
+    Object.keys(pk).map(function (k) {
+      var v = pk[k] || {}, key = payeeKey(k);
+      return key && str(v.cat, 40) ? { key: key, name: str(v.name, 80) || k, cat: str(v.cat, 40), at: v.at || 0 } : null;
+    }).filter(Boolean).sort(function (a, b) { return b.at - a.at; }).slice(0, MAX_PAYEES).forEach(function (v) {
+      if (!out.payees[v.key]) out.payees[v.key] = { name: v.name, cat: v.cat, at: v.at };
+    });
     return out;
   }
   function data() {
@@ -234,6 +281,10 @@
     return s.money;
   }
   function touch(rec) { rec.updatedAt = Date.now(); store.save(); return rec; }
+  /* a document saved before imports and payee rules reads as having none;
+     the fields are made by the first WRITE, never by a read */
+  function importList() { var m = data(); return Array.isArray(m.imports) ? m.imports : []; }
+  function payeeMap() { var m = data(); return m.payees && typeof m.payees === "object" ? m.payees : {}; }
 
   /* ---------------- categories ---------------- */
   function categories(opts) {
@@ -423,12 +474,22 @@
     var tx = normaliseTx({ syncId: ruleTxId(id, date), date: isISO(opts.date) ? opts.date : date, minor: minor, kind: r.kind, cat: r.cat,
       pot: r.pot, dir: "in", payee: r.payee || r.name, note: r.note, src: "rule", rule: { id: id, date: date } });
     if (!tx) { cb && cb(new Error("This rule's pot no longer exists")); return; }
-    putTx(tx, function (err) {
-      if (err) { cb && cb(err); return; }
-      r.marks[date] = { s: "done", tx: tx.syncId, minor: minor, at: Date.now() };
-      if (minor !== amountOn(r, date)) r.marks[date].changed = true;
-      touch(r);
-      cb && cb(null, tx);
+    function write() {
+      putTx(tx, function (err) {
+        if (err) { cb && cb(err); return; }
+        r.marks[date] = { s: "done", tx: tx.syncId, minor: minor, at: Date.now() };
+        if (minor !== amountOn(r, date)) r.marks[date].changed = true;
+        touch(r);
+        cb && cb(null, tx);
+      });
+    }
+    /* an occurrence a statement already paid (MG-07) is the BANK's entry:
+       confirming it again would write over that entry, or add a second */
+    var was = r.marks[date];
+    if (!was || was.s !== "done" || !was.tx) { write(); return; }
+    getTx(was.tx, function (e0, had) {
+      if (had && had.src === "csv") { cb && cb(new Error("This one is already counted from your statement")); return; }
+      write();
     });
   }
   function skip(id, date, cb) {
@@ -437,8 +498,24 @@
     var was = r.marks[date];
     r.marks[date] = { s: "skip", at: Date.now() };
     touch(r);
-    if (was && was.s === "done") removeTx(was.tx, function (err) { cb && cb(err || null); });
+    if (was && was.s === "done") releaseTx(was.tx, cb);
     else cb && cb(null);
+  }
+  /* an occurrence gives up its transaction. One made by Confirm goes with
+     it. A BANK's row (an imported entry that was matched to the occurrence,
+     MG-07) is real money: it stays, unlinked, under an id of its own, so a
+     later Confirm can never be written over it. */
+  function releaseTx(syncId, cb) {
+    getTx(syncId, function (err, t) {
+      if (err || !t || t.src !== "csv") { removeTx(syncId, function (e2) { cb && cb(e2 || null); }); return; }
+      var own = !!(t.rule && t.syncId === ruleTxId(t.rule.id, t.rule.date));
+      var free = normaliseTx(Object.assign({}, t, { syncId: own ? null : t.syncId, rule: null, updatedAt: Date.now(),
+        payee: t.bank && t.bank.text ? merchantOf(t.bank.text, t.bank.type).name || t.payee : t.payee }));
+      putRaw([free], function (e2) {
+        if (e2 || !own) { if (!e2) soonSync(); cb && cb(e2 || null); return; }
+        deleteRaw([t.syncId], true, function (e3) { if (!e3) soonSync(); cb && cb(e3 || null); });
+      });
+    });
   }
   /* back to "left": the mark goes, and a confirmed occurrence's transaction with it */
   function unmark(id, date, cb) {
@@ -447,7 +524,7 @@
     var was = r.marks[date];
     delete r.marks[date];
     touch(r);
-    if (was.s === "done") removeTx(was.tx, function (err) { cb && cb(err || null); });
+    if (was.s === "done") releaseTx(was.tx, cb);
     else cb && cb(null);
   }
   /* every occurrence in [from, to] across the active rules, oldest first */
@@ -571,6 +648,13 @@
       imp: raw.imp && raw.imp.k ? { k: str(raw.imp.k, 400), occ: Math.max(1, +raw.imp.occ || 1),
         fitid: str(raw.imp.fitid, 80) || null, stmt: str(raw.imp.stmt, 40) || null } : null,
       raw: Array.isArray(raw.raw) ? raw.raw.slice(0, 16).map(function (c) { return String(c == null ? "" : c).slice(0, 160); }) : null,
+      /* the bank's own words and its Type for an imported row (MG-08): the
+         payee is the merchant made from them, and this is what it was */
+      bank: raw.bank && (raw.bank.text || raw.bank.type) ? { text: str(raw.bank.text, 240), type: str(raw.bank.type, 12) } : null,
+      /* an entry that was here BEFORE an import and took that import's
+         identity (a confirmed occurrence the statement also listed): the
+         batch that gave it, so undoing that import takes it off again */
+      adopt: str(raw.adopt, 40) || null,
       createdAt: raw.createdAt || Date.now(),
       updatedAt: raw.updatedAt || raw.createdAt || Date.now()
     };
@@ -702,7 +786,9 @@
       if (opts.kind && t.kind !== opts.kind) return false;
       if (opts.cat && t.cat !== opts.cat && !(t.splits || []).some(function (s) { return s.cat === opts.cat; })) return false;
       if (opts.tag && t.tags.indexOf(opts.tag) === -1) return false;
-      if (q && (t.payee + " " + t.note + " " + t.tags.join(" ")).toLowerCase().indexOf(q) === -1) return false;
+      if (opts.batch && t.batch !== opts.batch) return false;
+      if (opts.src && t.src !== opts.src) return false;
+      if (q && (t.payee + " " + t.note + " " + t.tags.join(" ") + " " + (t.bank ? t.bank.text : "")).toLowerCase().indexOf(q) === -1) return false;
       return true;
     }
     mirror(function () {
@@ -950,58 +1036,38 @@
     return /^[A-Z]{3}$/.test(cur) ? sign + body + " " + cur : sign + cur + body;
   }
 
-  /* ---------------- CSV import (the engine; the pages are phase 2) ---------------- */
-  function parseCSV(text) {
-    text = String(text || "").replace(/^﻿/, "");
-    var sample = text.split(/\r?\n/)[0] || "";
-    var delim = (sample.match(/;/g) || []).length > (sample.match(/,/g) || []).length ? ";" : (sample.indexOf("\t") !== -1 && sample.indexOf(",") === -1 ? "\t" : ",");
-    var rows = [], row = [], field = "", q = false;
-    for (var i = 0; i < text.length; i++) {
-      var ch = text[i];
-      if (q) {
-        if (ch === '"') { if (text[i + 1] === '"') { field += '"'; i++; } else q = false; }
-        else field += ch;
-      } else if (ch === '"') q = true;
-      else if (ch === delim) { row.push(field); field = ""; }
-      else if (ch === "\n" || ch === "\r") {
-        if (ch === "\r" && text[i + 1] === "\n") i++;
-        row.push(field); field = "";
-        if (row.some(function (x) { return x.trim(); })) rows.push(row);
-        row = [];
-      } else field += ch;
+  /* ---------------- import (the engine; W4: MG-02…MG-08, MG-24) ----------------
+     Reading the file — its format, header, delimiter and the bank's words —
+     is KOS.moneyImport (js/core/moneyimport.js, pure). Here: what a row IS
+     against what is stored, what it pays, and what an import leaves behind. */
+  var MI = KOS.moneyImport;
+  function merchantOf(text, type) { return MI.merchant(text, type); }
+  /* ---- learned payee rules (MG-08): FUTURE imports only, never a stored entry ---- */
+  function payeeRule(name) { var k = payeeKey(name); return (k && payeeMap()[k]) || null; }
+  function payees() {
+    var map = payeeMap();
+    return Object.keys(map).map(function (k) { return { key: k, name: map[k].name, cat: map[k].cat, at: map[k].at }; })
+      .sort(function (a, b) { return b.at - a.at; });
+  }
+  function learnPayee(name, cat) {
+    var k = payeeKey(name), m = data();
+    if (!k || !category(cat)) return null;
+    if (!m.payees || typeof m.payees !== "object") m.payees = {};
+    m.payees[k] = { name: str(name, 80), cat: cat, at: Date.now() };
+    var keys = Object.keys(m.payees);
+    if (keys.length > MAX_PAYEES) {
+      keys.sort(function (a, b) { return m.payees[a].at - m.payees[b].at; }).slice(0, keys.length - MAX_PAYEES)
+        .forEach(function (x) { delete m.payees[x]; });
     }
-    row.push(field);
-    if (row.some(function (x) { return x.trim(); })) rows.push(row);
-    return { delimiter: delim, header: rows[0] || [], rows: rows.slice(1) };
+    store.save();
+    return m.payees[k];
   }
-  var GUESS = {
-    date: /^(date|transaction date|posted|posting date|completed date|started date)$/i,
-    amount: /^(amount|value|amount \(gbp\)|transaction amount)$/i,
-    out: /^(paid out|money out|debit|withdrawals?|out)$/i,
-    in: /^(paid in|money in|credit|deposits?|in)$/i,
-    payee: /^(description|payee|merchant|name|counter party|details|reference)$/i,
-    note: /^(notes?|memo|category)$/i,
-    fitid: /^(fitid|transaction id|transaction reference)$/i,
-    balance: /^(balance|running balance|balance \(gbp\))$/i
-  };
-  function guessMapping(header) {
-    var m = {};
-    header.forEach(function (h, i) {
-      Object.keys(GUESS).forEach(function (k) { if (m[k] == null && GUESS[k].test(String(h).trim())) m[k] = i; });
-    });
-    return m;
-  }
-  /* "dmy" (31/10/2026, the UK default), "mdy" or "iso" */
-  function parseDate(s, fmt) {
-    s = String(s || "").trim();
-    var m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
-    if (m) return iso(new Date(+m[1], +m[2] - 1, +m[3]));
-    m = s.match(/^(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2,4})/);
-    if (!m) return null;
-    var y = +m[3] < 100 ? 2000 + +m[3] : +m[3];
-    var d = fmt === "mdy" ? +m[2] : +m[1], mo = fmt === "mdy" ? +m[1] : +m[2];
-    if (mo < 1 || mo > 12 || d < 1 || d > daysInMonth(y, mo - 1)) return null;
-    return iso(new Date(y, mo - 1, d));
+  function forgetPayee(name) {
+    var k = payeeKey(name), m = data();
+    if (!m.payees || !m.payees[k]) return false;
+    delete m.payees[k];
+    store.save();
+    return true;
   }
   /* THE IMPORT IDENTITY (MG-01, MG-23; plan §A3). A row is known by
      what the BANK wrote, never by how it was mapped: its date, amount and
@@ -1027,54 +1093,175 @@
   /* what the source row keeps: never an account number, a sort code, a card
      number or the running balance (invariant 5a: logistics, not banking) */
   var PRIVATE_COL = /account|sort ?code|iban|card ?(no|number)|balance/i;
-  function rowKey(r, mapping, date, minor, kind) {
+  function rowKey(r, mapping, date, minor, kind, also) {
     var skip = {};
-    ["date", "amount", "out", "in", "fitid"].forEach(function (k) { if (mapping[k] != null) skip[mapping[k]] = true; });
+    ["date", "amount", "out", "in", "fitid"].concat(also || []).forEach(function (k) { if (mapping[k] != null) skip[mapping[k]] = true; });
     var rest = r.map(function (c, i) { return skip[i] ? null : normCell(c); }).filter(function (c) { return c; }).sort();
-    return date + "|" + minor + "|" + kind + "|" + rest.join("\u241f");
+    return date + "|" + minor + "|" + kind + "|" + rest.join("␟");
+  }
+  function catFits(id, kind) {
+    var c = id ? category(id) : null;
+    return !!(c && !c.archived && c.kind === (kind === "in" ? "in" : "out"));
+  }
+  function byName(list, name) {
+    var n = String(name || "").trim().toLowerCase();
+    return n ? list.filter(function (x) { return x.name.toLowerCase() === n; })[0] || null : null;
+  }
+  /* THE APP'S OWN EXPORT (MG-24), read back without loss: the kind from
+     Type, an unsigned amount, the category and the pot by NAME, and the
+     lines of one split found again by their Entry. A name this device does
+     not have is carried on the row (`catName`, `potName`) and made at
+     import; the preview lists them (`creates`). */
+  function ownRows(parsed, out) {
+    var mp = MI.guess(parsed.header), lines = parsed.lines || [], groups = {}, order = [];
+    var creates = { cats: {}, pots: {} };
+    function catOf(name, kind) {
+      var k = kind === "in" ? "in" : "out", hit = byName(data().categories.filter(function (c) { return c.kind === k; }), name);
+      if (hit) return { cat: hit.id };
+      if (!String(name || "").trim()) return { cat: k === "in" ? "other-in" : "other" };
+      creates.cats[k + "|" + name.trim().toLowerCase()] = { name: name.trim(), kind: k };
+      return { cat: null, catName: name.trim() };
+    }
+    parsed.rows.forEach(function (r, i) {
+      var line = lines[i] != null ? lines[i] : i + 2;
+      var date = MI.parseDate(r[mp.date], "dmy"), minor = MI.amount(r[mp.amount]);
+      var kind = String(r[mp.type] || "").trim().toLowerCase();
+      if (KINDS.indexOf(kind) === -1) kind = "out";
+      if (!date || !minor) { out.errors.push({ line: line, reason: !date ? "No date I can read" : "No amount" }); return; }
+      minor = Math.abs(minor);
+      var x = { line: line, date: date, minor: minor, kind: kind, payee: str(r[mp.payee], 80), note: mp.note != null ? str(r[mp.note], 500) : "",
+        tags: mp.tags != null ? String(r[mp.tags] || "").split(/\s+/).filter(Boolean) : [], duplicate: false, bank: null, catFrom: "file", own: true,
+        raw: r.slice(0, 16), key: rowKey(r, mp, date, minor, kind, ["entry"]) };
+      if (kind === "transfer") {
+        var pn = mp.pot != null ? String(r[mp.pot] || "").trim() : "", ph = byName(data().pots, pn);
+        if (!pn) { out.errors.push({ line: line, reason: "A transfer that names no pot" }); return; }
+        x.cat = null; x.pot = ph ? ph.id : null; x.dir = mp.potdir != null && String(r[mp.potdir]).trim().toLowerCase() === "out" ? "out" : "in";
+        if (!ph) { x.potName = pn; creates.pots[pn.toLowerCase()] = { name: pn }; }
+      } else {
+        var c = catOf(mp.category != null ? r[mp.category] : "", kind);
+        x.cat = c.cat; if (c.catName) x.catName = c.catName;
+      }
+      /* the lines of one split share an Entry, a date, a kind and a payee */
+      var e = mp.entry != null ? String(r[mp.entry] || "").trim() : "", g = e ? groups[e] : null;
+      if (g && kind !== "transfer" && g.date === date && g.kind === kind && g.payee === x.payee) {
+        if (!g.splits) g.splits = [{ cat: g.cat, catName: g.catName || null, minor: g.minor }];
+        g.splits.push({ cat: x.cat, catName: x.catName || null, minor: minor });
+        g.minor += minor;
+        return;
+      }
+      if (e) groups[e] = x;
+      order.push(x);
+    });
+    out.creates = { cats: Object.keys(creates.cats).map(function (k) { return creates.cats[k]; }),
+      pots: Object.keys(creates.pots).map(function (k) { return creates.pots[k]; }) };
+    return order;
   }
   /* rows → transactions with no side effect. A signed `amount` column is
      an outgoing when negative unless `sign: "positive-out"`; separate in
-     and out columns are read as such. Each candidate is checked against
-     what is STORED (never against the file itself): see the identity above. */
+     and out columns are read as such; an amount column with no minus
+     anywhere takes its direction from the bank's Type (DEB, DD, FPI …).
+     Each candidate is checked against what is STORED (never against the
+     file itself): see the identity above. A mapping with no date or no
+     amount is never an error: `needs` names what to choose (MG-02). */
   function previewCSV(parsed, mapping, opts, cb) {
-    opts = opts || {};
-    var out = { rows: [], errors: [], duplicates: 0, statement: null, seenStatement: false };
-    var occ = {};
-    parsed.rows.forEach(function (r, i) {
-      var date = parseDate(r[mapping.date], opts.dateFormat || "dmy");
-      var minor = null, kind = "out";
-      if (mapping.amount != null) {
-        minor = toMinor(r[mapping.amount]);
-        if (minor != null) {
-          var negOut = opts.sign !== "positive-out";
-          kind = (minor < 0) === negOut ? "out" : "in";
-          minor = Math.abs(minor);
-        }
-      } else {
-        var o = mapping.out != null ? toMinor(r[mapping.out]) : null, n = mapping.in != null ? toMinor(r[mapping.in]) : null;
-        if (o) { minor = Math.abs(o); kind = "out"; } else if (n) { minor = Math.abs(n); kind = "in"; }
-      }
-      if (!date || !minor) { out.errors.push({ line: i + 2, reason: !date ? "No date I can read" : "No amount" }); return; }
-      var fitid = mapping.fitid != null ? str(r[mapping.fitid], 80) : "";
-      /* a bank id is trusted only WITH its date and amount: some exports
-         number their rows, or restart ids each day */
-      var k = idHash(fitid ? date + "|" + minor + "|" + kind + "|fitid:" + fitid : rowKey(r, mapping, date, minor, kind));
-      occ[k] = (occ[k] || 0) + 1;
-      out.rows.push({ line: i + 2, date: date, minor: minor, kind: kind,
-        cat: kind === "in" ? (opts.inCat || "other-in") : (opts.outCat || "other"),
-        payee: str(r[mapping.payee], 80), note: mapping.note != null ? str(r[mapping.note], 500) : "", duplicate: false,
-        imp: { k: k, occ: occ[k], fitid: fitid || null },
-        raw: r.slice(0, 16).map(function (c, ci) { return PRIVATE_COL.test(String(parsed.header[ci] || "")) ? "" : c; }) });
+    opts = opts || {}; mapping = mapping || {}; parsed = parsed || {};
+    var rowsIn = parsed.rows || [], header = parsed.header || [], lines = parsed.lines || [];
+    var own = parsed.format === "kurenai";
+    var out = { rows: [], errors: [], duplicates: 0, statement: null, seenStatement: false, needs: [],
+      format: parsed.format || "csv", label: parsed.label || "CSV", skipped: parsed.skipped || { before: 0, after: 0, text: [] },
+      direction: "sign", reconcile: null, closing: null, overlaps: [], creates: { cats: [], pots: [] } };
+    (parsed.issues || []).forEach(function (x) {
+      out.errors.push({ line: x.line, reason: "Has " + x.cells + " cells where the header has " + x.expected, cells: x.cells, expected: x.expected });
     });
+    if (!own) {
+      if (mapping.date == null) out.needs.push("date");
+      if (mapping.amount == null && mapping.out == null && mapping.in == null) out.needs.push("amount");
+      if (out.needs.length) { cb(null, out); return; }
+    }
+    var cand, bals = [];
+    if (own) cand = ownRows(parsed, out);
+    else {
+      var fmt = opts.dateFormat || parsed.dateFormat || "dmy", rejoined = {};
+      (parsed.rejoined || []).forEach(function (l) { rejoined[l] = true; });
+      var byType = mapping.amount != null && mapping.type != null &&
+        !rowsIn.some(function (r) { var a = MI.amount(r[mapping.amount]); return a != null && a < 0; }) &&
+        rowsIn.some(function (r) { return MI.direction(r[mapping.type]); });
+      out.direction = mapping.amount == null ? "columns" : byType ? "type" : "sign";
+      var learned = payeeMap();
+      cand = [];
+      rowsIn.forEach(function (r, i) {
+        var line = lines[i] != null ? lines[i] : i + 2;
+        var date = MI.parseDate(r[mapping.date], fmt === "iso" ? "dmy" : fmt);
+        var minor = null, kind = "out", type = mapping.type != null ? str(r[mapping.type], 12) : "";
+        if (mapping.amount != null) {
+          minor = MI.amount(r[mapping.amount]);
+          if (minor != null) {
+            var negOut = opts.sign !== "positive-out", dir = byType ? MI.direction(type) : null;
+            kind = dir || ((minor < 0) === negOut ? "out" : "in");
+            minor = Math.abs(minor);
+          }
+        } else {
+          var o = mapping.out != null ? MI.amount(r[mapping.out]) : null, n = mapping.in != null ? MI.amount(r[mapping.in]) : null;
+          if (o) { minor = Math.abs(o); kind = "out"; } else if (n) { minor = Math.abs(n); kind = "in"; }
+        }
+        if (!date || !minor) { out.errors.push({ line: line, reason: !date ? "No date I can read" : "No amount" }); return; }
+        var fitid = mapping.fitid != null ? str(r[mapping.fitid], 80) : "";
+        var memo = mapping.note != null ? str(r[mapping.note], 500) : "";
+        /* OFX cuts a long name at 32 characters and carries on in the memo */
+        var ofx = parsed.format === "ofx";
+        var text = (str(r[mapping.payee], 240) + (ofx && memo ? " " + memo : "")).trim().slice(0, 240);
+        var mer = merchantOf(text, type), rule = mer.name ? learned[payeeKey(mer.name)] : null;
+        var x = { line: line, date: date, minor: minor, kind: kind, duplicate: false,
+          payee: ((rule && rule.name) || mer.name || text).slice(0, 80), note: ofx ? "" : memo,
+          bank: text || type ? { text: text, type: type } : null, tags: [],
+          fitid: fitid || null,
+          /* a bank id is trusted only WITH its date and amount: some exports
+             number their rows, or restart ids each day */
+          key: fitid ? date + "|" + minor + "|" + kind + "|fitid:" + fitid : rowKey(r, mapping, date, minor, kind),
+          raw: r.slice(0, 16).map(function (c, ci) { return PRIVATE_COL.test(String(header[ci] || "")) ? "" : c; }) };
+        if (rule && catFits(rule.cat, kind)) { x.cat = rule.cat; x.catFrom = "learned"; }
+        else if (mer.cat && catFits(mer.cat, kind)) { x.cat = mer.cat; x.catFrom = "table"; }
+        else { x.cat = kind === "in" ? (opts.inCat || "other-in") : (opts.outCat || "other"); x.catFrom = "default"; }
+        if (rejoined[line]) x.rejoined = true;
+        if (mapping.balance != null) bals.push({ signed: kind === "in" ? minor : -minor, bal: MI.amount(r[mapping.balance]), date: date });
+        cand.push(x);
+      });
+    }
+    var occ = {};
+    cand.forEach(function (x) {
+      var k = idHash(x.key);
+      occ[k] = (occ[k] || 0) + 1;
+      x.imp = { k: k, occ: occ[k], fitid: x.fitid || null };
+      delete x.key; delete x.fitid;
+      out.rows.push(x);
+    });
+    if (!own && mapping.balance != null) {
+      var chk = MI.balanceCheck(bals);
+      if (chk) out.reconcile = { ok: chk.ok, order: chk.order, closing: chk.closing, breaks: chk.breaks.map(function (i) { return out.rows[i].line; }) };
+    } else if (parsed.closing) out.reconcile = { ok: null, order: null, closing: parsed.closing, breaks: [] };
+    out.closing = out.reconcile ? out.reconcile.closing : null;
     if (!out.rows.length) { cb(null, out); return; }
     /* the statement's fingerprint: its rows' identities, order-free */
     out.statement = fnv(out.rows.map(function (x) { return x.imp.k + "#" + x.imp.occ; }).sort().join("\n"));
     out.rows.forEach(function (x) { x.imp.stmt = out.statement; });
     var dates = out.rows.map(function (x) { return x.date; }).sort();
+    out.from = dates[0]; out.to = dates[dates.length - 1];
+    out.overlaps = importList().filter(function (r) { return r.stmt !== out.statement && r.from && r.to && r.from <= out.to && r.to >= out.from; });
     range(dates[0], dates[dates.length - 1], function (err, have) {
-      var stored = {}, legacy = {};
+      var stored = {}, legacy = {}, alike = {};
+      /* the same payment through ANOTHER export (the month as CSV, then as
+         OFX): the bank's words differ, so the identity does not know it.
+         Its day, amount, direction and merchant do. Counted like the
+         identity: only as many as are stored, less those the identity
+         already claimed, look like ones you have. Two rows that BOTH
+         carry the bank's own id are never compared this way: their ids
+         already say they are two payments. */
+      function alikeKey(date, minor, kind, name) { return date + "|" + minor + "|" + kind + "|" + payeeKey(name); }
       (have || []).forEach(function (t) {
+        if (t.src === "csv" && t.bank && t.bank.text) {
+          var ak = alikeKey(t.date, t.minor, t.rule ? (t.kind === "in" ? "in" : "out") : t.kind, merchantOf(t.bank.text, t.bank.type).name);
+          (alike[ak] = alike[ak] || []).push(!!(t.imp && t.imp.fitid));
+        }
         if (t.imp && t.imp.k) {
           stored[t.imp.k] = (stored[t.imp.k] || 0) + 1;
           if (t.imp.stmt === out.statement) out.seenStatement = true;
@@ -1086,36 +1273,247 @@
       out.rows.forEach(function (x) {
         var dup = x.imp.occ <= (stored[x.imp.k] || 0);
         if (!dup) {
-          var lk = x.date + "|" + x.minor + "|" + x.payee.toLowerCase();
-          if (legacy[lk]) { legacy[lk]--; dup = true; }
+          /* an entry from before the identity: by the bank's words, or by the merchant made from them */
+          var keys = [x.bank && x.bank.text ? x.bank.text : null, x.payee].filter(function (v, i, a) { return v != null && a.indexOf(v) === i; });
+          for (var i = 0; i < keys.length && !dup; i++) {
+            var lk = x.date + "|" + x.minor + "|" + keys[i].toLowerCase();
+            if (legacy[lk]) { legacy[lk]--; dup = true; }
+          }
         }
-        if (dup) { x.duplicate = true; out.duplicates++; }
+        var ak = !x.own && x.bank && x.bank.text ? alikeKey(x.date, x.minor, x.kind, merchantOf(x.bank.text, x.bank.type).name) : null;
+        if (dup) {
+          /* the identity's own match is used up: it is one of the same kind (with an id, or without) */
+          var at = ak && alike[ak] ? alike[ak].indexOf(!!x.imp.fitid) : -1;
+          if (at !== -1) alike[ak].splice(at, 1);
+          x.duplicate = true; out.duplicates++;
+        } else if (ak) x.alike = ak;
       });
+      out.rows.forEach(function (x) {
+        var ak = x.alike, list = ak ? alike[ak] : null;
+        delete x.alike;
+        if (!list || !list.length) return;
+        var at = x.imp.fitid ? list.indexOf(false) : 0;
+        if (at === -1) return;
+        list.splice(at, 1);
+        x.duplicate = true; x.dupOf = "similar"; out.duplicates++;
+      });
+      matchRules(out);
       cb(err || null, out);
     });
   }
+  /* THE STATEMENT MEETS THE RECURRING RULES (MG-07). A bank row that pays
+     an occurrence IS that occurrence: same direction, the occurrence's
+     exact amount, dated within three days of it. By NAME when the rule's
+     payee, name or a learned alias is among the bank's words; by AMOUNT
+     alone only when that occurrence is the row's one candidate and the row
+     the occurrence's one. Each occurrence takes one row. An occurrence
+     already confirmed makes the row a duplicate: that payment is in the
+     books. A skipped occurrence is never matched. */
+  var MATCH_DAYS = 3;
+  function nameHit(r, x) {
+    var keys = [payeeKey(r.payee), payeeKey(r.name)].concat(r.aliases || []).filter(function (k) { return k && k.length >= 3; });
+    var hay = [" " + payeeKey(x.bank ? x.bank.text : "") + " ", " " + payeeKey(x.payee) + " "];
+    return keys.some(function (k) { return hay[0].indexOf(" " + k + " ") !== -1 || hay[1].indexOf(" " + k + " ") !== -1; });
+  }
+  function matchRules(out) {
+    var active = rules().filter(function (r) { return r.kind === "out" || r.kind === "in"; });
+    if (!active.length) return;
+    var cands = [], perRow = {}, perOcc = {};
+    out.rows.forEach(function (x, xi) {
+      if (x.duplicate || x.own || (x.kind !== "out" && x.kind !== "in")) return;
+      active.forEach(function (r) {
+        if (r.kind !== x.kind) return;
+        occurrences(r, addDays(x.date, -MATCH_DAYS), addDays(x.date, MATCH_DAYS)).forEach(function (d) {
+          var m = r.marks[d];
+          if (m && m.s === "skip") return;
+          var done = !!(m && m.s === "done");
+          if ((done && m.minor ? m.minor : amountOn(r, d)) !== x.minor) return;
+          var key = r.id + "|" + d;
+          cands.push({ xi: xi, key: key, rule: r, date: d, named: nameHit(r, x), dist: Math.abs(daysBetween(d, x.date)), done: done, tx: done ? m.tx : null });
+          perRow[xi] = (perRow[xi] || 0) + 1; perOcc[key] = (perOcc[key] || 0) + 1;
+        });
+      });
+    });
+    var rowTaken = {}, occTaken = {};
+    cands.sort(function (a, b) { return (b.named - a.named) || (a.dist - b.dist) || (a.xi - b.xi); }).forEach(function (c) {
+      if (rowTaken[c.xi] || occTaken[c.key]) return;
+      if (!c.named && (perRow[c.xi] !== 1 || perOcc[c.key] !== 1)) return;
+      rowTaken[c.xi] = occTaken[c.key] = true;
+      var x = out.rows[c.xi];
+      x.match = { rule: c.rule.id, date: c.date, name: c.rule.name, strength: c.named ? "name" : "amount", state: c.done ? "done" : "open", tx: c.tx };
+      if (c.done) { x.duplicate = true; x.dupOf = "rule"; out.duplicates++; }
+    });
+  }
+  /* read-modify-write a set of stored transactions in ONE IndexedDB transaction */
+  function patchTx(ids, fn, cb) {
+    if (!ids.length) { cb && cb(null, 0); return; }
+    txn([TX], "readwrite", function (err, t) {
+      if (err) { cb && cb(err, 0); return; }
+      var os = t.objectStore(TX), n = 0;
+      ids.forEach(function (id) {
+        var rq = os.get(id);
+        rq.onsuccess = function () {
+          var next = rq.result ? fn(rq.result) : null;
+          if (next) { os.put(next); n++; }
+        };
+      });
+      t.oncomplete = function () { cb && cb(null, n); };
+      t.onerror = function () { cb && cb(t.error, 0); };
+    });
+  }
+  var BANK_REPEATS = { dd: 1, so: 1, directdebit: 1, repeatpmt: 1 };
+  /* `rows` are the preview's, as the page left them: `duplicate` false is
+     taken; a `match` the reader turned down is simply absent. In order:
+     the categories and pots the taken rows name are made; a row that pays
+     an open occurrence is written UNDER THE OCCURRENCE'S OWN ID (so a
+     Confirm on another device is the same record, never a second one) and
+     marks it done; a row left out because its occurrence was already
+     confirmed gives that entry its identity (adopted: nothing the reader
+     sees changes); the import is recorded; and only then is the import it
+     replaces undone. A failed write leaves everything as it was. */
   function importRows(rows, opts, cb) {
     opts = opts || {};
     var take = rows.filter(function (x) { return opts.includeDuplicates || !x.duplicate; });
-    var batch = rid("b");
-    var txs = take.map(function (x) {
-      return normaliseTx({ date: x.date, minor: x.minor, kind: x.kind, cat: x.cat, payee: x.payee, note: x.note,
-        tags: opts.tag ? [opts.tag] : [], src: "csv", batch: batch, imp: x.imp, raw: x.raw });
-    }).filter(Boolean);
+    var left = rows.filter(function (x) { return !(opts.includeDuplicates || !x.duplicate); });
+    var batch = rid("b"), m = data(), created = { cats: 0, pots: 0 }, madeCat = {}, madePot = {};
+    function catId(name, kind) {
+      var k = kind === "in" ? "in" : "out", key = k + "|" + String(name).toLowerCase();
+      if (madeCat[key]) return madeCat[key];
+      var hit = byName(m.categories.filter(function (c) { return c.kind === k; }), name);
+      if (!hit) { hit = addCategory({ name: name, kind: k, group: k === "in" ? "income" : "other" }); created.cats++; }
+      return (madeCat[key] = hit.id);
+    }
+    function potId(name) {
+      var key = String(name).toLowerCase();
+      if (madePot[key]) return madePot[key];
+      var hit = byName(m.pots, name);
+      if (!hit) { hit = addPot({ name: name }); created.pots++; }
+      return (madePot[key] = hit.id);
+    }
+    var txs = [], marks = [], suggest = {};
+    take.forEach(function (x) {
+      var f = { date: x.date, minor: x.minor, kind: x.kind, cat: x.cat, payee: x.payee, note: x.note,
+        tags: (x.tags || []).concat(opts.tag ? [opts.tag] : []), src: "csv", batch: batch, imp: x.imp, raw: x.raw, bank: x.bank };
+      if (!f.cat && x.catName) f.cat = catId(x.catName, x.kind);
+      if (x.splits) f.splits = x.splits.map(function (p) { return { cat: p.cat || catId(p.catName, x.kind), minor: p.minor }; });
+      if (x.kind === "transfer") { f.pot = x.pot || (x.potName ? potId(x.potName) : null); f.dir = x.dir; }
+      var mt = x.match, r = mt && mt.state === "open" ? rule(mt.rule) : null;
+      if (r) {
+        var mk = r.marks[mt.date];
+        if (mk && mk.s === "done") return;   // confirmed since the preview: already in the books
+        if (!mk) {
+          f.syncId = ruleTxId(r.id, mt.date); f.kind = r.kind; f.cat = r.cat; f.payee = r.payee || r.name; f.rule = { id: r.id, date: mt.date };
+          marks.push({ rule: r, date: mt.date, tx: f.syncId, minor: x.minor, alias: mt.strength === "amount" ? payeeKey(x.payee) : "" });
+        }
+      } else if (x.kind === "out" && x.bank && BANK_REPEATS[String(x.bank.type).toLowerCase()]) {
+        var sk = payeeKey(x.payee) + "|" + x.minor;
+        if (!suggest[sk]) suggest[sk] = { name: x.payee, minor: x.minor, cat: x.cat, type: x.bank.type, date: x.date, kind: "out" };
+      }
+      var t = normaliseTx(f);
+      if (t) txs.push(t);
+    });
+    var adopt = left.filter(function (x) { return x.match && x.match.state === "done" && x.match.tx; });
     putRaw(txs, function (err) {
-      if (!err) soonSync();
-      cb && cb(err || null, { added: err ? 0 : txs.length, skipped: rows.length - txs.length, batch: batch });
+      if (err) { cb && cb(err, { added: 0, skipped: rows.length, batch: batch }); return; }
+      marks.forEach(function (k) {
+        k.rule.marks[k.date] = { s: "done", tx: k.tx, minor: k.minor, at: Date.now() };
+        if (k.alias && (k.rule.aliases || []).indexOf(k.alias) === -1) k.rule.aliases = (k.rule.aliases || []).concat([k.alias]).slice(-12);
+        k.rule.updatedAt = Date.now();
+      });
+      if (txs.length) {
+        var dates = txs.map(function (t) { return t.date; }).sort();
+        if (!Array.isArray(m.imports)) m.imports = [];
+        m.imports.push(normaliseImport({ id: batch, file: opts.file, format: opts.format, from: dates[0], to: dates[dates.length - 1],
+          n: txs.length, at: Date.now(), stmt: take[0] && take[0].imp ? take[0].imp.stmt : null, closing: opts.closing || null,
+          replaced: opts.replaces || null }));
+        if (m.imports.length > MAX_IMPORTS) m.imports = m.imports.slice(-MAX_IMPORTS);
+      }
+      if (marks.length || txs.length) store.save();
+      patchTx(adopt.map(function (x) { return x.match.tx; }), function (t) {
+        if (t.imp && t.imp.k) return null;   // it has an identity already
+        var x = adopt.filter(function (a) { return a.match.tx === t.syncId; })[0];
+        return normaliseTx(Object.assign({}, t, { imp: x.imp, raw: x.raw, bank: x.bank, adopt: batch, updatedAt: Date.now() }));
+      }, function (e2, adopted) {
+        var result = { added: txs.length, skipped: rows.length - txs.length, batch: batch, linked: marks.length, adopted: adopted || 0,
+          created: created, suggest: Object.keys(suggest).map(function (k) { return suggest[k]; }) };
+        function done() { soonSync(); if (KOS.achievements) KOS.achievements.touch("money"); cb && cb(null, result); }
+        if (opts.replaces && txs.length) undoBatch(opts.replaces, function () { done(); });
+        else done();
+      });
     });
   }
-  /* remove exactly one import's entries (tombstoned like any deletion) */
+  /* ---- what an import left behind (MG-05) ---- */
+  function imports() { return importList().slice().sort(function (a, b) { return b.at - a.at; }); }
+  /* how many of each import's entries are still stored: {batch: n} */
+  function importCounts(cb) {
+    allTx(function (err, rows) {
+      var n = {};
+      (rows || []).forEach(function (t) { if (t.batch) n[t.batch] = (n[t.batch] || 0) + 1; });
+      cb(err || null, n);
+    });
+  }
+  /* remove exactly one import: its entries (tombstoned like any deletion),
+     the occurrences those entries had marked done (open again), what it
+     gave an entry that was here before it, and its record */
   function undoBatch(batch, cb) {
     allTx(function (err, rows) {
       if (err) { cb && cb(err); return; }
-      var ids = rows.filter(function (t) { return t.batch === batch; }).map(function (t) { return t.syncId; });
-      deleteRaw(ids, true, function (e2) { if (!e2) soonSync(); cb && cb(e2 || null, ids.length); });
+      var mine = rows.filter(function (t) { return t.batch === batch; });
+      var adopted = rows.filter(function (t) { return t.adopt === batch && t.batch !== batch; });
+      var m = data(), dirty = false;
+      mine.forEach(function (t) {
+        var r = t.rule ? rule(t.rule.id) : null, mk = r ? r.marks[t.rule.date] : null;
+        if (mk && mk.s === "done" && mk.tx === t.syncId) { delete r.marks[t.rule.date]; r.updatedAt = Date.now(); dirty = true; }
+      });
+      if (Array.isArray(m.imports) && m.imports.some(function (r) { return r.id === batch; })) {
+        m.imports = m.imports.filter(function (r) { return r.id !== batch; });
+        dirty = true;
+      }
+      if (dirty) store.save();
+      deleteRaw(mine.map(function (t) { return t.syncId; }), true, function (e2) {
+        if (e2) { cb && cb(e2); return; }
+        putRaw(adopted.map(function (t) {
+          return normaliseTx(Object.assign({}, t, { imp: null, raw: null, bank: null, adopt: null, updatedAt: Date.now() }));
+        }).filter(Boolean), function (e3) { soonSync(); cb && cb(e3 || null, mine.length); });
+      });
+    });
+  }
+  /* ---- Confirm meets the bank (MG-07, the other way round) ---- */
+  /* the stored bank entries that could BE this occurrence */
+  function bankMatches(ruleId, date, cb) {
+    var r = rule(ruleId);
+    if (!r || (r.kind !== "out" && r.kind !== "in") || occurrences(r, date, date)[0] !== date) { cb(null, []); return; }
+    var want = amountOn(r, date);
+    range(addDays(date, -MATCH_DAYS), addDays(date, MATCH_DAYS), function (err, rows) {
+      cb(err || null, (rows || []).filter(function (t) { return t.src === "csv" && !t.rule && t.kind === r.kind && t.minor === want; })
+        .sort(function (a, b) { return a.date < b.date ? 1 : a.date > b.date ? -1 : 0; }));
+    });
+  }
+  /* the occurrence IS that bank entry: no new transaction */
+  function confirmWith(ruleId, date, syncId, cb) {
+    var r = rule(ruleId);
+    if (!r || occurrences(r, date, date)[0] !== date) { cb && cb(new Error("Not an occurrence of this rule")); return; }
+    if (r.marks[date] && r.marks[date].s === "done") { cb && cb(new Error("This one is already confirmed")); return; }
+    getTx(syncId, function (err, t) {
+      if (err || !t) { cb && cb(err || new Error("No such transaction")); return; }
+      if (t.src !== "csv" || t.rule || t.kind !== r.kind) { cb && cb(new Error("That entry cannot stand for this payment")); return; }
+      var next = normaliseTx(Object.assign({}, t, { rule: { id: r.id, date: date }, updatedAt: Date.now(),
+        cat: t.cat === "other" || t.cat === "other-in" ? r.cat : t.cat }));
+      putTx(next, function (e2) {
+        if (e2) { cb && cb(e2); return; }
+        r.marks[date] = { s: "done", tx: next.syncId, minor: next.minor, at: Date.now() };
+        if (next.minor !== amountOn(r, date)) r.marks[date].changed = true;
+        var alias = payeeKey(next.bank && next.bank.text ? merchantOf(next.bank.text, next.bank.type).name : next.payee);
+        if (alias && (r.aliases || []).indexOf(alias) === -1) r.aliases = (r.aliases || []).concat([alias]).slice(-12);
+        touch(r);
+        cb && cb(null, next);
+      });
     });
   }
   function csvCell(v) { v = String(v == null ? "" : v); return /[",\n;]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }
+  /* the app's own file (MG-24): what `ownRows` reads back without loss.
+     "Pot direction" is a transfer's way (into the pot, or out of it) and
+     "Entry" numbers the transactions, so the lines of one split share one. */
   function exportCSV(from, to, cb) {
     range(from || "0000-01-01", to || "9999-12-31", function (err, rows) {
       if (err) { cb(err); return; }
@@ -1123,11 +1521,11 @@
       data().categories.forEach(function (c) { names[c.id] = c.name; });
       var potNames = {};
       data().pots.forEach(function (p) { potNames[p.id] = p.name; });
-      var lines = [["Date", "Type", "Amount", "Category", "Payee", "Note", "Tags", "Pot"].join(",")];
-      rows.sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : 0; }).forEach(function (t) {
+      var lines = [MI.KURENAI_HEADER.join(",")];
+      rows.sort(function (a, b) { return a.date < b.date ? -1 : a.date > b.date ? 1 : 0; }).forEach(function (t, n) {
         (t.splits || [{ cat: t.cat, minor: t.minor }]).forEach(function (p) {
           lines.push([t.date, t.kind, (p.minor / 100).toFixed(2), names[p.cat] || p.cat || "", t.payee, t.note,
-            t.tags.join(" "), t.pot ? potNames[t.pot] || "" : ""].map(csvCell).join(","));
+            t.tags.join(" "), t.pot ? potNames[t.pot] || "" : "", t.kind === "transfer" ? t.dir || "in" : "", n + 1].map(csvCell).join(","));
         });
       });
       cb(null, lines.join("\n") + "\n");
@@ -1364,7 +1762,10 @@
     /* formatting, CSV, backup */
     toMinor: toMinor, format: format, isHidden: isHidden, setHidden: setHidden, rangeSummary: rangeSummary,
     getPic: getPic, setPic: setPic, undoBatch: undoBatch, LOW_DATA_DAYS: LOW_DATA_DAYS,
-    csv: { parse: parseCSV, guess: guessMapping, parseDate: parseDate, preview: previewCSV, import: importRows, export: exportCSV },
+    csv: { parse: MI.read, guess: MI.guess, parseDate: MI.parseDate, decode: MI.decode, preview: previewCSV, import: importRows, export: exportCSV },
+    imports: imports, importCounts: importCounts, normaliseImport: normaliseImport,
+    payeeKey: payeeKey, payeeRule: payeeRule, learnPayee: learnPayee, forgetPayee: forgetPayee, payees: payees,
+    bankMatches: bankMatches, confirmWith: confirmWith,
     exportAll: exportAll, importAll: importAll,
     syncCloud: syncCloud, start: start, _setCloudApi: function (api) { cloudApi = api; },
     notices: notices, tick: tick, TONES: TONES.slice()

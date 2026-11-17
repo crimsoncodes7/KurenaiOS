@@ -94,6 +94,7 @@
     { path: "money.categories", id: "id" },
     { path: "money.rules", id: "id" },
     { path: "money.pots", id: "id" },
+    { path: "money.imports", id: "id" },
     { path: "todo.manual", id: "id", counter: "todo.nextId" },
     { path: "todo.habits", id: "id", counter: "todo.nextId" },
     /* Routines (roadmap 5.10): random string ids, never re-keyed; the log
