@@ -100,6 +100,8 @@
      (KOS_EXAMS.papers[preset], js/data/exams/papers/) is paper n while
      there is one; beyond them the predicted or practice papers follow. */
   function authoredList(a) {
+    /* the papers ride the exams-deep bundle (invariant 168): every page that
+       builds a paper is an Exams page, which waits for it (KOS.lazy NEEDS) */
     var P = window.KOS_EXAMS && KOS_EXAMS.papers;
     return P && a && a.preset && Array.isArray(P[a.preset]) ? P[a.preset].filter(Boolean) : [];
   }

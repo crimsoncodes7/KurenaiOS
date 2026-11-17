@@ -106,7 +106,8 @@ Read this file before editing or testing anything in its domain.
     the rapid drill is self-marked and rates nothing.
     AUTHORED PAPERS (the Exams & Papers rework §7.1, smoke181): a paper
     written whole for a preset (`KOS_EXAMS.papers[preset]`,
-    `js/data/exams/papers/<preset>-<n>.js`, original and labelled "written
+    `js/data/exams/papers/<preset>-<n>.js`, loaded with the `exams-deep`
+    bundle, original and labelled "written
     by KurenaiOS") is paper n while one exists (`KOS.examPaper.authored`),
     kind `authored`; it keeps the board's own time and marks (F201: the
     SAM's 1 h 30 and 60), its FORMAT (`ocr-case`: ONE organisation's
