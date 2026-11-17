@@ -365,8 +365,9 @@ start time.
 
 **Storage:** a new IndexedDB store `kurenai-os-attempts` (one record per
 attempt: the events and the derived figures). It is listed in the store
-registry (invariant 7) and rides the full backup. Whether it syncs is
-decision D1.
+registry (invariant 7) and rides the full backup. It syncs (decision D1):
+replicated to an owner-only table `kos_attempts` (a migration), local
+first, wrapped by `KOS.sideSync` like the review log (invariant 36d).
 
 ### 8.2 Diagnostics on the device (no model)
 
