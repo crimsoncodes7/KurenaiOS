@@ -747,6 +747,21 @@ did not have; all three pass with it.
 RELEASED 16 Nov 2026 as sw `kos-integrity-12` (d08ce52), with W1 RC6:
 stage 1 is live. The user's decision the same day: LEAVE STAGE 2 for now —
 8.4 MB at boot is fine for this release, the page modules are not split.
+DESIGN TURN 36, held updates (17 Nov 2026, `feat/w2-held` at 44df89b, on
+Opus; NOT merged, NOT deployed; gate 158 / 158; smoke162): the floating
+refresh pill became a chip in the page header's action slot (beside a
+topic's ‹ ›; in the app's header on the phone; floating only where a page
+has no header) with its states (arrived, "3 updates") and the shared menu
+(where and when, areas with counts only, Refresh, Later); "Updated in
+another window" for two tabs; a flashcard or quiz run's line under the
+progress, nothing applied mid-run, a card rated elsewhere shown for a beat
+and skipped without being counted, the chip back at the run's end; safe
+moments (a note page turned, a tab changed, two minutes untouched) apply a
+held change unless there is unsaved work, a field in use, a dialog, a pen
+or a run; only the changed short values take a one-second ring; the three
+save notices shortened to labels. Not built: the "applying" state (the
+redraw is instant, the ring is the feedback) and the device's NAME in the
+menu (a pull does not say which device; it says "Another device").
 STILL TO DO in W2 (deferred, not scheduled): AP-01 stage 2 (page modules on first use). The list
 below is done: AA-01, AA-02, CR-01, SY-22
 (in-page tabs through `KOS.view.memo`), SY-11, SY-14, SY-23, SY-25, SY-27,
