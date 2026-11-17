@@ -391,34 +391,28 @@ box-shadow: var(--elev-4);
 /* the page behind a modal does not scroll (openDialog sets the lock) */
 :root[data-scroll-lock] #stage { overflow: hidden; }
 
-/* ---------- the refresh pill (W2, js/core/redraw.js) ----------
+/* ---------- held updates (W2, design turn 36, js/core/redraw.js) ----------
    "Updated on another device · Refresh": a page with work in it is never
-   redrawn under the reader; this says there is something newer. */
-.k-refresh-pill {
-position: fixed;
-inset-block-end: var(--sp-24);
-inset-inline-start: 50%;
-z-index: var(--z-sticky);
-display: inline-flex;
-align-items: center;
-gap: var(--sp-10);
-max-inline-size: calc(100% - var(--sp-32));
-min-block-size: var(--hit);
-padding: var(--sp-6) var(--sp-14);
-border: var(--hairline) solid var(--line);
-border-radius: var(--r-pill);
-background: var(--s2);
-color: var(--text-2);
-font-size: var(--fs-12-5);
-white-space: nowrap;
-box-shadow: var(--elev-2);
-transform: translateX(-50%);
-cursor: pointer;
-}
-.k-refresh-pill[hidden] { display: none; }
-.k-refresh-pill-text { overflow: hidden; text-overflow: ellipsis; }
-.k-refresh-pill-act { color: var(--teal); font-weight: var(--weight-semibold); }
-.k-refresh-pill:hover, .k-refresh-pill:focus-visible { border-color: var(--teal); color: var(--text); }
+   redrawn under the reader; a chip in the page header's action slot (or
+   beside a topic's ‹ ›) says there is something newer and opens what
+   changed. Where a page has no header it floats at the foot, as before. */
+.k-btn.k-held-chip { gap: var(--sp-8); padding-inline: var(--sp-14); border-radius: var(--r-pill); background: var(--s1); color: var(--text-2); font-size: var(--fs-12-5); white-space: nowrap; }
+.k-btn.k-held-chip[hidden] { display: none; }
+.k-held-chip > .k-btn-caret { display: none; }
+.k-held-label { overflow: hidden; text-overflow: ellipsis; }
+.k-held-dot { flex: 0 0 auto; inline-size: var(--sp-8); block-size: var(--sp-8); border-radius: 50%; background: var(--teal); }
+.k-held-act { color: var(--teal); font-weight: var(--weight-semibold); }
+/* on the phone, in the app's header: the dot and Refresh; the words are its name */
+.k-btn.k-held-chip[data-state~="bar"] > .k-held-label { display: none; }
+.k-held-menu .k-menu-heading + .k-menu-heading { text-transform: none; letter-spacing: normal; font-size: var(--fs-13); color: var(--text-2); }
+.k-btn.k-held-chip:hover, .k-btn.k-held-chip:focus-visible { border-color: var(--teal); color: var(--text); }
+.k-btn.k-held-chip[data-state~="float"] { position: fixed; inset-block-end: var(--sp-24); inset-inline-start: 50%; z-index: var(--z-sticky); max-inline-size: calc(100% - var(--sp-32)); background: var(--s2); box-shadow: var(--elev-2); transform: translateX(-50%); }
+/* a run's line under its progress bar: no button, nothing applies mid-run */
+.k-held-line { display: flex; align-items: center; gap: var(--sp-8); margin: 0; font-size: var(--fs-12-5); color: var(--text-2); }
+.k-held-line::before { content: ""; flex: 0 0 auto; inline-size: var(--sp-8); block-size: var(--sp-8); border-radius: 50%; background: var(--teal); }
+.k-held-line[hidden] { display: none; }
+/* at a safe moment only the values that changed take a short ring */
+[data-state~="changed"] { border-radius: var(--r-6); box-shadow: 0 0 0 var(--ring-1-5) var(--teal); transition: box-shadow var(--dur) ease; }
 
 /* ---------- toast (the visible half; KOS.a11y speaks it) ---------- */
 #toast {
@@ -733,7 +727,8 @@ textarea.k-input { min-block-size: calc(var(--hit) * 2.6); line-height: var(--lh
 .k-msheet--full::before { display: none; }
 .k-msheet--tall { block-size: calc(100dvh - var(--sp-24)); }
 #toast { bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom) + var(--sp-12)); }
-.k-refresh-pill { inset-block-end: calc(var(--tabbar-h) + env(safe-area-inset-bottom) + var(--sp-12)); min-block-size: var(--hit-coarse); }
+.k-btn.k-held-chip[data-state~="float"] { inset-block-end: calc(var(--tabbar-h) + env(safe-area-inset-bottom) + var(--sp-12)); }
+.k-btn.k-held-chip { min-block-size: var(--hit-coarse); }
 }
 
 /* ---------- touch ---------- */

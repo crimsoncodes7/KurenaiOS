@@ -169,7 +169,9 @@
       if (opts.bare) head.hidden = true;
       var stage = el("div", { class: "k-qz-stage" });
       var result = el("section", { class: "k-card k-qz-result", "data-ui": "quiz.result", hidden: "", "aria-live": "polite" });
-      [head, stage, result].forEach(function (n) { holder.appendChild(n); });
+      /* design turn 36: a held change is said here while the attempt lasts */
+      var heldLine = el("p", { class: "k-held-line", "data-ui": "quiz.held", "data-run-line": "", role: "status", hidden: "" });
+      [head, heldLine, stage, result].forEach(function (n) { holder.appendChild(n); });
 
       function paintHead() {
         var done = Object.keys(answered).length;
@@ -265,6 +267,8 @@
       /* again: a finished attempt shown once more (W2) — its score, never
          a second attempt in the stats or the session log */
       function finish(again_) {
+        heldLine.removeAttribute("data-run-line"); heldLine.hidden = true;
+        if (KOS.changes && KOS.changes.place) setTimeout(KOS.changes.place, 0);
         if (own) {
           var picks = items.map(function (_, i) { return answered[i]; });
           opts.onFinish(picks, correct);

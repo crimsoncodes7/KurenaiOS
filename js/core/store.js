@@ -725,9 +725,10 @@
   function quarantineNotice(meta) {
     notice("store-quarantine", {
       tone: "danger",
-      text: "Your saved data could not be read, so KurenaiOS set it aside — nothing was deleted — and started fresh." +
-        (meta.where === "pending" ? " It is still being set aside; nothing will be saved over it until that is done." :
-         meta.where === "failed" ? " It could not be set aside, so nothing will be saved over it this session; export a backup." : ""),
+      /* design turn 36: a label, not a paragraph (the reasons are in Storage) */
+      text: meta.where === "pending" ? "Your saved data couldn't be read · setting a copy aside, nothing is saved over it"
+        : meta.where === "failed" ? "Your saved data couldn't be read · nothing is saved this session; export a backup"
+        : "Your saved data couldn't be read · a copy was kept, nothing deleted",
       actions: [
         quarantinedRaw ? { label: "Download the copy", run: function () {
           try {
@@ -867,7 +868,8 @@
     console.error("Kurenai OS: save failed", e);
     if (both) {
       notice("store-failed", { tone: "danger",
-        text: "KurenaiOS could not save your latest changes — the browser's storage and its backup store both refused. Export a backup now (Archive › Storage)." });
+        text: "Your latest changes couldn't be saved · export a backup",
+        actions: [{ label: "Open Storage", run: function () { if (KOS.show) KOS.show("storage"); } }] });
     }
     if (KOS.ui && KOS.ui.toast) KOS.ui.toast("Save failed — storage may be full. Export your data.", true);
     return false;
@@ -878,7 +880,7 @@
     clearTimeout(mirrorTimer); mirrorTimer = null;
     console.warn("Kurenai OS: localStorage is full; saving to IndexedDB for this session", e);
     notice("store-quota", { tone: "danger",
-      text: "This browser's storage for KurenaiOS is full, so your changes are being saved to its backup store (IndexedDB) for this session. Free some space or export a backup.",
+      text: "Saving to backup storage · this browser's storage is full",
       actions: [{ label: "Open Storage", run: function () { if (KOS.show) KOS.show("storage"); } }] });
   }
   /* returns true (written), false (failed or held) or null (the mirror's write is under way) */

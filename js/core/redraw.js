@@ -21,7 +21,7 @@
    3. A change the page does read is applied at a SAFE POINT:
         - on a task page (work lives in the page itself: a topic, a review,
           a lesson, a vault) and while a page says it holds unsaved work
-          (KOS.view.hold), never by itself — a quiet pill says "Updated on
+          (KOS.view.hold), never by itself — a chip in the page header says "Updated on
           another device · Refresh", and leaving the page draws the next
           one from the fresh state anyway;
         - elsewhere at once, unless you are typing, a dialog is open, a
@@ -168,6 +168,9 @@
         }
         visitKey = k; visitMemo = {};
         clearPending();
+      } else if (pending) {
+        /* the same page drawn again: the chip goes back into its new header */
+        setTimeout(function () { if (pending && (pending.why === "task" || pending.why === "work")) showChip(); }, 0);
       }
       var ctl = null;
       try { ctl = typeof AbortController === "function" ? new AbortController() : null; } catch (e) { ctl = null; }
@@ -420,50 +423,188 @@
     return null;
   }
 
-  /* ================= what is waiting ================= */
-  var pending = null, retryTimer = null, pill = null;
-  var WORDS = { device: "Updated on another device", tab: "Updated in another tab" };
-  function showPill(source) {
-    var words = WORDS[source] || WORDS.device;
-    if (!pill) {
-      pill = el("button", { type: "button", class: "k-refresh-pill", "data-ui": "shell.refresh",
-        onclick: function () { KOS.changes.apply(); } }, [
-        el("span", { class: "k-refresh-pill-text", "data-ui": "shell.refresh-text" }),
-        el("b", { class: "k-refresh-pill-act", text: "Refresh" })
-      ]);
-      (document.getElementById("stage") || document.body).appendChild(pill);
-    }
-    var was = pill.hidden === false && pill.firstChild.textContent === words;
-    pill.firstChild.textContent = words;
-    pill.hidden = false;
-    if (!was && KOS.a11y) KOS.a11y.announce(words + ". Refresh is available.");
+  /* ================= what is waiting: the chip (design turn 36) =================
+     A change held back from the page is offered by ONE chip in the page
+     header's action slot (beside a topic's ‹ ›; on the phone it rides the
+     bar, [data-phone-action]): "Updated on another device · Refresh", or
+     "3 updates" when more came. It opens the shared menu: one line an area,
+     counts only — never a record's contents — then Refresh and Later. In a
+     flashcard or quiz run the chip gives way to a line under the progress
+     bar (an element marked [data-run-line]); nothing applies mid-run. The
+     chip is never removed, only hidden and moved: the phone shell puts a
+     moved node back on its next pass. */
+  var pending = null, retryTimer = null, idleTimer = null, chip = null, chipOpts = null;
+  var WORDS = { device: "Updated on another device", tab: "Updated in another window" };
+  var WHERE = { device: "Another device", tab: "Another window on this device" };
+  var AREAS = { progress: "Topic progress", srs: "Flashcards", srsCfg: "Card settings", questions: "Questions", custom: "Your cards and quizzes",
+    edits: "Your edits", sessions: "Sessions", tracker: "Exams & Papers", exams: "Exams", itUnits: "IT units", pacing: "The plan",
+    assignments: "Assignments", calendar: "Calendar", reminders: "Reminders", resources: "Resources", code: "Code", japanese: "Japanese",
+    mind: "Mind", creatives: "Creatives", governor: "Rewards", goals: "Goals", routines: "Routines", dayReview: "Daily Review",
+    money: "Money", media: "Collection", wishlist: "Wishlist", achievements: "Badges", notify: "Notifications", todo: "Tasks",
+    focus: "Focus", ext: "Connections", "db:media": "Collection", "db:files": "Files", "db:money": "Money", "db:ink": "Handwriting",
+    "db:mind": "Mind's Journal", "db:reports": "Reports", "db:reviews": "Reviews" };
+  function areaName(k) { return AREAS[k] || String(k).replace(/^db:/, "").replace(/([a-z])([A-Z])/g, "$1 $2").replace(/^./, function (c) { return c.toUpperCase(); }); }
+  function hhmm(t) { var d = new Date(t); return (d.getHours() < 10 ? "0" : "") + d.getHours() + ":" + (d.getMinutes() < 10 ? "0" : "") + d.getMinutes(); }
+  function words() {
+    if (!pending) return "";
+    return pending.count > 1 ? pending.count + " updates" : WORDS[pending.source] || WORDS.device;
   }
-  function hidePill() { if (pill) pill.hidden = true; }
+  function runSlot() { var m = mainEl(); return m ? m.querySelector("[data-run-line]") : null; }
+  function phone() { return !!(window.matchMedia && window.matchMedia("(max-width: 700px)").matches); }
+  function chipHost() {
+    var m = mainEl();
+    if (!m) return null;
+    /* on the phone it rides the app's own header, beside the bell (36a) */
+    if (phone()) { var end = document.querySelector("#topbar .k-topbar-end"); if (end) return end; }
+    var acts = m.querySelector(":scope > .k-pagehead > .k-pagehead-actions") || m.querySelector(".k-topic-head .k-topic-steps") || m.querySelector(".k-pagehead-actions");
+    return acts;
+  }
+  function makeChip() {
+    chipOpts = { label: "", className: "k-held-chip", panelClass: "k-held-menu", items: [] };
+    chip = KOS.ui.menu(chipOpts);
+    chip.setAttribute("data-ui", chip.getAttribute("data-ui") + " shell.refresh");
+
+    chip.insertBefore(el("span", { class: "k-held-dot", "aria-hidden": "true" }), chip.firstChild);
+    chip.insertBefore(el("b", { class: "k-held-act", text: "Refresh" }), chip.querySelector(".k-btn-caret"));
+    chip.querySelector("[data-ui~='ui.menu-label']").classList.add("k-held-label");
+    chip.hidden = true;
+  }
+  function paintChip() {
+    if (!chip) makeChip();
+    var w = words(), src = pending.source;
+    chip.querySelector("[data-ui~='ui.menu-label']").textContent = w;
+    chip.setAttribute("aria-label", w + ". What changed, and Refresh");
+    chip.setAttribute("data-state", pending.count > 1 ? "several" : "arrived");
+    var rows = Object.keys(pending.areas).sort(function (a, b) { return pending.areas[b] - pending.areas[a]; }).slice(0, 6).map(function (k) {
+      var n = pending.areas[k];
+      return { heading: "● " + areaName(k) + (n > 1 ? " · " + n + " updates" : " · updated") };
+    });
+    if (!rows.length) rows.push({ heading: "● This page's data · updated" });
+    chipOpts.label = w;
+    chipOpts.items = [{ heading: (WHERE[src] || WHERE.device) + " · " + hhmm(pending.at) }].concat(rows, [{ sep: true },
+      { label: "Refresh", hint: "Redraw this page now; your place is kept", onSelect: function () { KOS.changes.apply(); } },
+      { label: "Later", hint: "Keep reading; it applies when you leave or finish", onSelect: function () {} }]);
+  }
+  /* the chip, or a run's line, where the page has room for it */
+  function showChip() {
+    if (!pending) return;
+    var slot = runSlot();
+    if (slot) {
+      slot.textContent = words() + " · it applies when this run ends";
+      slot.hidden = false;
+      if (chip) chip.hidden = true;
+      return;
+    }
+    paintChip();
+    var host = chipHost();
+    if (host) {
+      U_state(chip, "float", false);
+      U_state(chip, "bar", host.classList.contains("k-topbar-end"));
+      if (chip.parentNode !== host) host.insertBefore(chip, host.firstChild);
+    } else {
+      U_state(chip, "float", true);
+      var stage = document.getElementById("stage") || document.body;
+      if (chip.parentNode !== stage) stage.appendChild(chip);
+    }
+    var was = chip.hidden === false && chip.getAttribute("data-said") === words();
+    chip.hidden = false;
+    chip.setAttribute("data-said", words());
+    if (!was && KOS.a11y) KOS.a11y.announce(words() + ". Refresh is available.");
+  }
+  function U_state(n, w, on) { if (KOS.ui && KOS.ui.state) KOS.ui.state(n, w, on); }
+  function hideChip() {
+    if (chip) chip.hidden = true;
+    var slot = runSlot();
+    if (slot) { slot.hidden = true; slot.textContent = ""; }
+  }
   function clearPending() {
     pending = null;
     clearTimeout(retryTimer); retryTimer = null;
-    hidePill();
+    clearInterval(idleTimer); idleTimer = null;
+    hideChip();
   }
-  function pend(nav, why, source) {
+  function pend(nav, why, source, changed, arrived) {
     /* the strongest source words it: another device, then another tab */
     var rank = { local: 0, tab: 1, device: 2 };
-    if (pending && pending.key === navKey(nav.viewId, nav.arg) && rank[pending.source] > rank[source]) source = pending.source;
-    pending = { key: navKey(nav.viewId, nav.arg), source: source, why: why };
+    var key = navKey(nav.viewId, nav.arg), same = pending && pending.key === key;
+    if (same && rank[pending.source] > rank[source]) source = pending.source;
+    var areas = same ? pending.areas : {}, count = same ? pending.count : 0;
+    if (arrived) {
+      count++;
+      (changed || ["*"]).forEach(function (k) { if (k !== "*") areas[k] = (areas[k] || 0) + 1; });
+    }
+    pending = { key: key, source: source, why: why, areas: areas, count: Math.max(1, count), at: arrived || !same ? Date.now() : pending.at };
     clearTimeout(retryTimer); retryTimer = null;
-    if (why === "task" || why === "work") showPill(source);
+    if (why === "task" || why === "work") {
+      showChip();
+      /* 2 minutes with nothing touched, no draft, no dialog: a safe moment */
+      if (!idleTimer) idleTimer = setInterval(function () { if (Date.now() - lastTouch >= IDLE) safePoint("idle"); }, 30000);
+    }
     else retryTimer = setTimeout(function () { retryTimer = null; retry(); }, RETRY);
   }
+  var IDLE = 120000;
   function retry() {
     var nav = KOS.currentNav && KOS.currentNav();
     if (!pending || !nav || pending.key !== navKey(nav.viewId, nav.arg)) { clearPending(); return false; }
     var why = holdReason(nav, pending.source);
-    if (why) { pend(nav, why, pending.source); return false; }
-    return redrawNow({ preserve: true });
+    if (why) { pend(nav, why, pending.source, null, false); return false; }
+    return applyMarked();
   }
   /* typing ended, a dialog closed: do not wait for the timer */
   document.addEventListener("focusout", function () {
     if (pending && pending.why !== "task" && pending.why !== "work") setTimeout(function () { if (pending) retry(); }, 0);
   }, true);
+
+  /* ================= the safe moment (36d) =================
+     A held change is applied by itself only when nothing could be lost:
+     a tab changed, a note page turned, or two minutes untouched — with no
+     run on the page, no unsaved work (KOS.view.hold), no field in use and
+     no dialog. Then only the values that changed take a short ring. */
+  function safePoint(why) {
+    var nav = KOS.currentNav && KOS.currentNav();
+    if (!pending || !nav || pending.key !== navKey(nav.viewId, nav.arg)) return false;
+    if (pending.why !== "task" && pending.why !== "work") return false;
+    if (runSlot() || holding() || typing() || KOS.ui.topDialog() || pointerDown) return false;
+    if (KOS.inkUI && KOS.inkUI.busy && KOS.inkUI.busy()) return false;
+    return applyMarked(why);
+  }
+  document.addEventListener("click", function (e) {
+    if (!pending) return;
+    var t = e.target && e.target.closest ? e.target.closest("[role='tab'], [data-ui~='topic.page'], [data-ui~='topic.reader-step']") : null;
+    var m = mainEl();
+    if (t && m && m.contains(t)) setTimeout(function () { safePoint("turn"); }, 0);
+  }, true);   /* capture: a page turn redraws its own button before the click would bubble here */
+  /* the short values on the page, by hook and place, to ring what moved */
+  function values() {
+    var m = mainEl(), out = {}, seen = {};
+    if (!m) return out;
+    [].forEach.call(m.querySelectorAll("[data-ui]"), function (n) {
+      if (n.closest("[data-run-line]") || n === chip || (chip && chip.contains(n))) return;
+      var t = (n.textContent || "").replace(/\s+/g, " ").trim();
+      if (!t || t.length > 48 || n.querySelector("[data-ui]")) return;
+      var k = n.getAttribute("data-ui"), i = seen[k] = (seen[k] || 0) + 1;
+      out[k + "#" + i] = { t: t, cls: n.className };
+    });
+    return out;
+  }
+  function ring(before) {
+    var m = mainEl(), seen = {}, rung = [];
+    if (!m) return rung;
+    [].forEach.call(m.querySelectorAll("[data-ui]"), function (n) {
+      var t = (n.textContent || "").replace(/\s+/g, " ").trim();
+      if (!t || t.length > 48 || n.querySelector("[data-ui]")) return;
+      var k = n.getAttribute("data-ui"), i = seen[k] = (seen[k] || 0) + 1, b = before[k + "#" + i];
+      if (b && (b.t !== t || b.cls !== n.className)) { U_state(n, "changed", true); rung.push(n); }
+    });
+    if (rung.length) setTimeout(function () { rung.forEach(function (n) { U_state(n, "changed", false); }); }, 1000);
+    return rung;
+  }
+  function applyMarked() {
+    var before = values();
+    var ok = redrawNow({ preserve: true });
+    if (ok) ring(before);
+    return ok;
+  }
 
   /* ================= the entry points ================= */
   /* KOS.rerender()                         the reader asked: redraw now
@@ -488,7 +629,7 @@
        itself after a batch, a picture loading) is not news to its reader:
        no pill, and the page's own handlers keep it current (SY-12) */
     if ((why === "task" || why === "work") && source === "local") return false;
-    if (why) { pend(nav, why, source); return true; }
+    if (why) { pend(nav, why, source, opts.changed || null, true); return true; }
     return redrawNow({ preserve: true });
   };
   var listeners = [];
@@ -518,10 +659,16 @@
     on: function (fn) { if (typeof fn === "function") listeners.push(fn); },
     pending: function () { return pending ? { source: pending.source, why: pending.why } : null; },
     retry: retry,
-    /* the pill's Refresh: redraw now, keeping the reader's place */
+    /* a page's safe moment (a run that ended, a page turned): apply what
+       is held if nothing could be lost; place the chip again after a run */
+    safePoint: safePoint,
+    place: function () { if (pending && (pending.why === "task" || pending.why === "work")) showChip(); },
+    held: function () { return pending ? { count: pending.count, areas: Object.assign({}, pending.areas), source: pending.source, at: pending.at } : null; },
+    /* the chip's Refresh: redraw now, keeping the reader's place, and ring
+       the values that changed */
     apply: function () {
       var had = !!pending;
-      var ok = redrawNow({ preserve: true });
+      var ok = applyMarked();
       if (had) {
         var m = mainEl();
         if (m && (!document.activeElement || document.activeElement === document.body)) {
