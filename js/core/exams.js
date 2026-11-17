@@ -540,12 +540,20 @@
     }
     /* and never longer than the tier's longest run-up: a retrieval quiz
        starts within the week before it, a real exam within twenty */
-    var weeks = share > 0 ? Math.min(t.maxWeeks, Math.ceil(hoursNeeded / share)) : 0;
-    var date = KOS.srs.addDays(a.date, -(weeks * 7 + t.buffer));
+    /* EX-40: the run-up in DAYS (a week's share is a seventh a day), so
+       half an hour is not a week; and never before the day the assessment
+       was added */
+    var days = share > 0 ? Math.min(t.maxWeeks * 7, Math.ceil(hoursNeeded / (share / 7))) : 0;
+    var weeks = Math.ceil(days / 7);
+    var date = KOS.srs.addDays(a.date, -(days + t.buffer));
+    var made = a.created ? KOS.srs.toISO ? KOS.srs.toISO(new Date(a.created)) : new Date(a.created).toISOString().slice(0, 10) : null;
+    if (made && date < made) date = made < a.date ? made : date;
+    /* the need still fits before the date at this week's share */
+    var fits = hoursNeeded <= (share / 7) * Math.max(0, KOS.srs.daysBetween(now, a.date));
     var nextMs = a.milestones.filter(function (m) { return !m.done && m.date; }).sort(function (x, y) { return x.date < y.date ? -1 : 1; })[0] || null;
     return {
       date: date, override: false, hours: Math.round(hoursNeeded * 10) / 10, weekly: weekly.hours, weeklyFrom: weekly.from,
-      share: Math.round(share * 10) / 10, weeks: weeks, buffer: t.buffer, milestone: nextMs,
+      share: Math.round(share * 10) / 10, weeks: weeks, days: days, fits: fits, buffer: t.buffer, milestone: nextMs,
       passed: date <= now && a.date >= now,
       why: (t.buffer >= 7 ? Math.round(t.buffer / 7) + (t.buffer >= 14 ? " weeks" : " week") : t.buffer + (t.buffer === 1 ? " day" : " days")) + " of buffer" +
         (hoursNeeded > 0 ? " + " + (Math.round(hoursNeeded * 10) / 10) + " h at about " + (Math.round(share * 10) / 10) + " h a week for this" +
@@ -997,6 +1005,8 @@
     var st = startedOn(a);
     if (st && st <= now && sb.date <= now) return { state: "met", date: st, sb: sb };
     if (sb.date === now) return { state: "today", date: sb.date, sb: sb };
+    /* EX-40: late on paper but the need still fits before the date: "start now", not "passed" */
+    if (sb.date < now && !sb.override && sb.fits) return { state: "now", date: sb.date, sb: sb };
     if (sb.date < now) return { state: "passed", date: sb.date, sb: sb, ago: KOS.srs.daysBetween(sb.date, now) };
     return { state: "future", date: sb.date, sb: sb, in: KOS.srs.daysBetween(now, sb.date), started: st };
   }

@@ -14,7 +14,8 @@
      print                       black on white, a page break between
                                  questions, every page labelled as ours
    The timed session is per device (state.ui.examPaperSess) so a reload
-   comes back paused; nothing else is stored until the tally is logged.   */
+   carries on, its clock still running as in the hall, and says so once
+   (EX-42); nothing else is stored until the tally is logged.   */
 (function () {
   "use strict";
   var el = KOS.ui.el;
@@ -32,6 +33,7 @@
   }
 
   /* ---------------- the timed session (per device) ---------------- */
+  var seenThisLoad = {};
   function sessions() { var ui = KOS.store.state.ui; return ui.examPaperSess && typeof ui.examPaperSess === "object" ? ui.examPaperSess : null; }
   function sessFor(paper) { var s = sessions(); return s && s.aid === paper.aid && String(s.seed) === String(paper.seed) ? s : null; }
   function saveSess(s) { KOS.store.state.ui.examPaperSess = s; KOS.store.save(); }
@@ -192,7 +194,13 @@
   }
   function timed(main, a, paper, s) {
     var u = U(), bp = paper.blueprint, total = paper.allowed * 60000;
-    if (!s.paused && !s.resumedHere) { s.paused = s.paused || null; }
+    /* EX-42: a reload does not pause the paper — the clock runs on, as it
+       would in the hall — but the first draw after one says so, once */
+    if (!s.paused && !seenThisLoad[s.started]) {
+      seenThisLoad[s.started] = true;
+      if (s.loadedAt) setTimeout(function () { KOS.ui.toast("Still timed: the clock kept running while the page was away."); }, 0);
+      s.loadedAt = Date.now(); saveSess(s);
+    }
     var q = paper.questions[Math.max(0, Math.min(paper.questions.length - 1, (s.cur || 1) - 1))];
     var A = KOS.attempts, rec = s.rec || null;
     if (A && rec && !A.isLive(rec)) A.resume(rec);

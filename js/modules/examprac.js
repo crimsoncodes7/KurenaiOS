@@ -124,7 +124,7 @@
     var mx = Math.max.apply(null, qs.map(function (q) { return q.max; })) || 1;
     var svg = document.createElementNS(NS, "svg");
     svg.setAttribute("viewBox", "0 0 " + W + " " + (H + 22)); svg.setAttribute("class", "k-ex-ramp"); svg.setAttribute("role", "img");
-    svg.setAttribute("aria-label", qs.map(function (q) { return "Question " + q.q + ", " + (q.got == null ? "not marked" : q.got + " of " + q.max) + ((q.tags || []).indexOf("time") !== -1 ? ", ran out of time" : ""); }).join("; "));
+    svg.setAttribute("aria-label", qs.map(function (q) { return "Question " + q.q + ", " + (q.got == null ? "not marked" : q.max != null ? q.got + " of " + q.max : q.got + " marks") + ((q.tags || []).indexOf("time") !== -1 ? ", ran out of time" : ""); }).join("; "));
     var bw = (W - 20) / n;
     qs.forEach(function (q, i) {
       var x = 10 + i * bw, hh = q.max / mx * (H - 24), hg = (q.got || 0) / mx * (H - 24);
@@ -326,12 +326,12 @@
     main.appendChild(u.backLink("Practice", function () { KOS.show("exams", "practice"); }));
     var wrap = el("div", { class: "k-ex-page", "data-ui": "exams.postmortem", style: "--s: " + (u.HUE[e.subject] || "var(--crimson)") });
     main.appendChild(wrap);
-    var title = pm ? pm.lost + " marks lost." + (pm.units.length >= 3 ? " " + Math.round(pm.topThree) + " of them in three topics." : "") : e.marks != null ? e.marks + " of " + e.max + "." : "No marks yet.";
+    var title = pm ? pm.lost + " marks lost." + (pm.units.length >= 3 ? " " + Math.round(pm.topThree) + " of them in three topics." : "") : e.marks != null ? (e.max ? e.marks + " of " + e.max + "." : "You got " + e.marks + ".") : "No marks yet.";
     var line = pm ? [pm.units.slice(0, 3).map(function (x) { return x.label; }).join(", "), pm.tags[0] ? tagLabel(pm.tags[0].label) + " lost the most" : null, pm.untagged ? (Math.round(pm.untagged) === 1 ? "1 mark is" : Math.round(pm.untagged) + " marks are") + " untagged" : null].filter(Boolean).join(". ") + "." : "Add marks by question to see where they went.";
     wrap.appendChild(el("section", { class: "k-ex-pmhero" }, [
       el("div", { class: "k-ex-grow" }, [el("div", { class: "k-ex-inline" }, [u.eyebrow("Post-mortem"), u.muted([e.paper || e.topic, e.timed && e.mins ? "timed " + e.mins + " min" : null, u.pretty(e.date)].filter(Boolean).join(" · "))]),
         el("h1", { class: "k-ex-pmtitle", text: title }), el("p", { class: "k-ex-hero-line", text: line })]),
-      el("div", { class: "k-ex-pmfigs" }, [e.marks != null ? el("div", {}, [el("div", { class: "k-ex-fig k-ex-fig--44", text: String(e.marks) }), u.muted("of " + e.max + (e.max ? " · " + Math.round(100 * e.marks / e.max) + "%" : ""))]) : null,
+      el("div", { class: "k-ex-pmfigs" }, [e.marks != null ? el("div", {}, [el("div", { class: "k-ex-fig k-ex-fig--44", text: String(e.marks) }), (e.max ? u.muted("of " + e.max + " · " + Math.round(100 * e.marks / e.max) + "%") : u.muted("marks · no total logged"))]) : null,
         e.predicted != null ? el("div", {}, [el("div", { class: "k-ex-fig k-ex-fig--22 k-ex-muted2", text: String(e.predicted) }), u.muted("you predicted")]) : null].filter(Boolean))]));
     if (!pm) {
       wrap.appendChild(u.card([u.quiet("Add marks by question to see topics, what was asked and error tags.", ""), u.btn("Marks by question", "primary sm", function () { KOS.show("exams", { attempt: e.uid, page: "marks" }); })], "", "exams.pm-empty"));

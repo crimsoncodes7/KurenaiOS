@@ -65,7 +65,7 @@
   /* a leaf's own short paper from the full Companion: "pack-<ref>" (its
      five-question subtopic pack) or "set-<ref>" (its whole practice set) */
   function leafPaper(a, seed) {
-    var m = /^(pack|set)-(.+)$/.exec(String(seed)), pid = DD() ? DD().paperOf(a) : null;
+    var m = /^(pack|set)-(.+)$/.exec(String(seed)), pid = DD() ? DD().paperOf(a, true) : null;
     if (!m || !pid) return null;
     var d = DD().data(pid), l = d.byLeaf[m[2]];
     if (!l) return null;
@@ -141,7 +141,7 @@
     var bp = blueprint(a), target = o.marks || bp.marks, rand = C().rng(a.id + ":paper:" + seed);
     var w = E().paperWeights ? E().paperWeights(a) : null;
     var pool = [];
-    var pid = DD() ? DD().paperOf(a) : null;
+    var pid = DD() ? DD().paperOf(a, true) : null;
     /* PREDICTED: the full Companion's original questions, weighted to the
        paper's high-yield leaves and its shapes due by pattern; one extended
        answer, last */
@@ -211,13 +211,13 @@
     var out = [], lastM = null;
     (part.ms || []).forEach(function (line, li) {
       var t = String(line);
-      var codes = t.match(/\b(dM\d|M\d|A\d|B\d)\b/g);
+      var codes = t.match(/\b(d*M\d|A\d|B\d)\b/g);
       if (codes) {
         codes.forEach(function (c) {
           var v = +c.replace(/\D/g, "") || 1;
           var chip = { id: li + ":" + out.length, label: c, value: v, line: li };
           if (/^M/.test(c)) lastM = chip.id;
-          if (/^dM/.test(c)) chip.needs = lastM;
+          if (/^d+M/.test(c)) chip.needs = lastM;
           if (/^A/.test(c) && lastM) chip.needs = lastM;
           out.push(chip);
         });

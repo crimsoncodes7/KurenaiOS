@@ -155,6 +155,11 @@ Read this file before editing or testing anything in its domain.
     by program before they are written. The Companion is READ
     (`KOS.examDeep`); "worked" is per device (`state.ui.examWorked`), as
     is the open variation (`state.ui.examDeepVar`).
+    A SCHOOL'S MOCK (an assessment with no board paper of its own, e.g. the
+    CS pre-public exam's topic list; the rework §9.2, smoke183) takes its
+    GUIDE from the paper with a full Companion whose leaves its scope
+    overlaps most (`KOS.examDeep.paperOf(a)`); the paper engine's predicted
+    and pack papers never borrow one (`paperOf(a, true)`).
 130a. AN ATTEMPT IS RECORDED, MEASURED ON THE DEVICE AND REVIEWED OUTSIDE
     THE APP (the Exams & Papers rework, `docs/exams-rework-plan.md` §8,
     decisions D1, D2, D6; smoke180). While a paper, a set or a timed

@@ -35,18 +35,44 @@
      bracket "[M1 A1]", "[B1]", "[A1ft]" */
   function codesOf(m) {
     var t = String(m || ""), out = [];
-    var lead = /^\s*([MABE])(\d)\b/.exec(t);
+    var lead = /^\s*d*([MABE])(\d)\b/.exec(t);
     if (lead) out.push(lead[1] + lead[2]);
     var tail = /\[([^\]]*)\]\s*$/.exec(t);
-    if (tail) (tail[1].match(/\b[MABE]\d/g) || []).forEach(function (c) { out.push(c); });
+    if (tail) (tail[1].match(/\bd*[MABE]\d/g) || []).forEach(function (c) { out.push(c.replace(/^d+/, "")); });
+    return out;
+  }
+  /* CC-25: OCR writes several marks into one bullet — "Deletion (1): remove
+     the rows … (1)." — so one tick gave 2 and a mark earned for naming the
+     method alone could not be ticked. A line with two or more "(n)" marks
+     is split into one point per mark: each piece runs to its marker, and
+     what follows the last marker stays with it. */
+  var MARK_RE = /\s\((\d)\)(?=[\s.,;:]|$)/g;
+  function splitPoints(list) {
+    var out = [];
+    (list || []).forEach(function (m) {
+      var t = String(m == null ? "" : m), cuts = [], x;
+      MARK_RE.lastIndex = 0;
+      while ((x = MARK_RE.exec(t))) cuts.push(x.index + x[0].length);
+      if (cuts.length < 2) { out.push(m); return; }
+      var from = 0;
+      cuts.forEach(function (c, i) {
+        var end = i === cuts.length - 1 ? t.length : c;
+        var piece = t.slice(from, end).replace(/^[\s.,;:–-]+/, "").trim();
+        if (piece) out.push(piece);
+        from = end;
+      });
+    });
     return out;
   }
   function weightOf(m) {
     var t = String(m || "");
     var mk = /\[\s*(\d+)\s*marks?\s*\]\s*$/i.exec(t);
     if (mk) return +mk[1];
+    /* a point ending in its own "(n)" is worth n (CC-25's split pieces) */
+    var own = /\s\((\d)\)[.,;:]?\s*$/.exec(t);
+    if (own) return +own[1] || 1;
     var tail = /\[([^\]]*)\]\s*$/.exec(t);
-    var codes = tail ? (tail[1].match(/\b[MABE](\d)/g) || []) : [];
+    var codes = tail ? (tail[1].match(/\bd*[MABE](\d)/g) || []) : [];
     if (codes.length) return codes.reduce(function (n, c) { return n + (+c.slice(1)); }, 0);
     return 1;
   }
@@ -91,6 +117,7 @@
 
   KOS.quiz = {
     stats: qstats,
+    splitPoints: splitPoints, weightOf: weightOf,
     bestPct: bestPct,
 
     /* opts.onFinish(picks, correct): a caller that keeps its own record
@@ -465,7 +492,8 @@
         var wrap = el("section", { class: "k-qz-part", "data-ui": "quiz.part" });
         wrap.appendChild(el("div", { class: "k-qz-part-q" }, [
           label ? el("span", { class: "k-mono k-muted", "data-ui": "quiz.part-l", text: label }) : null,
-          el("span", { class: "k-qz-part-t", html: KOS.content.inline(part.q) }),
+          /* CC-25: the tariff is the chip beside it; a trailing "[4]" is not repeated */
+          el("span", { class: "k-qz-part-t", html: KOS.content.inline(String(part.q || "").replace(/\s*\[\d+(?:\s*marks?)?\]\s*$/i, "")) }),
           /* a single-part item already carries its total in the header */
           label ? el("span", { class: "k-qz-marks", text: "[" + part.marks + (part.marks === 1 ? " mark" : " marks") + "]" }) : null
         ].filter(Boolean)));
@@ -487,7 +515,7 @@
         wrap.appendChild(ms);
         /* CC-14: the worked card's one-line "Answer:" is the MODEL ANSWER, read
            under the scheme, never a mark point you tick in place of a real one */
-        var points = (part.ms || []).filter(function (m) { return !isAnswerLine(m); });
+        var points = splitPoints((part.ms || []).filter(function (m) { return !isAnswerLine(m); }));
         var answers = (part.ms || []).filter(isAnswerLine);
         var total = Number(part.marks) || 0;
         /* CM-14, CC-17: a point is worth what its codes say ("[M1 A1]" 2,

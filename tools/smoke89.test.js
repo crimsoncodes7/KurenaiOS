@@ -235,7 +235,9 @@ step("H · start-by from tier, scope and hours; an override wins", () => {
   const others = X.upcoming(TODAY).filter((x) => x.tier !== "deadline" && x.date <= K.srs.addDays(TODAY, 84));
   assert(n > 50, "a whole paper's leaves");
   assert(sb.buffer === 14 && sb.hours > 0 && sb.weeks >= 1, "a real exam's buffer and hours: " + JSON.stringify(sb));
-  eq(sb.date, K.srs.addDays(a.date, -(sb.weeks * 7 + 14)), "date − weeks − buffer");
+  /* EX-40: the run-up is counted in days, not whole weeks */
+  eq(sb.date, K.srs.addDays(a.date, -(sb.days + 14)), "date − days − buffer");
+  assert(sb.weeks === Math.ceil(sb.days / 7), "weeks is the days in whole weeks");
   assert(others.length >= 0 && /2 weeks of buffer/.test(sb.why), "the reason is stated: " + sb.why);
   const o = X.update(a.id, { startBy: day(30) });
   eq([X.startBy(o, TODAY).date, X.startBy(o, TODAY).override], [day(30), true], "an override wins");

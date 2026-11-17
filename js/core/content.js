@@ -608,9 +608,11 @@
       if (!w || w.tag !== "exam" || typeof w.q !== "string" || !w.src) return;
       var mm = /(\d+)\s*marks?/.exec(w.src);
       if (!mm) return;
-      var marks = parseInt(mm[1], 10);
-      var lvl = /^AS\b/.test(w.src) ? "AS" : null;
-      var src = (board || "Edexcel") + " " + w.src.replace(/^(AS|A-level)\s*/, "").replace(/\s*·\s*\d+\s*marks?\s*$/, "");
+      /* CM-21: a card citing two questions ("… · 4 marks; A-level June 2022 ·
+         P2 Q4 · 3 marks") is worth them all, and each tariff is stripped */
+      var marks = (w.src.match(/(\d+)\s*marks?/g) || []).reduce(function (t, x) { return t + parseInt(x, 10); }, 0);
+      var lvl = /^AS\b/.test(w.src) && !/;\s*A-level\b/.test(w.src) ? "AS" : null;
+      var src = (board || "Edexcel") + " " + w.src.replace(/^(AS|A-level)\s*/, "").replace(/\s*·\s*\d+\s*marks?(?=\s*(;|$))/g, "");
       /* a question written in a board's style (IT: no past papers yet) is
          named as that, never "modelled on" a paper that does not exist */
       if (/^\w+-style\b/.test(w.src)) src = w.src.replace(/\s*·\s*\d+\s*marks?\s*$/, "");

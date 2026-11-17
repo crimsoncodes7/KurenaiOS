@@ -96,10 +96,14 @@
     if (!b) return null;
     o = o || {};
     var x = BAND[b.band];
-    var lim = b.band === "ready" ? null : b.limitName;
+    /* EX-47: with thin evidence nothing is "limiting" — it says what is missing */
+    var lim = b.band === "ready" || b.band === "thin" ? null : b.limitName;
+    var NM = { coverage: "coverage", rag: "topic colours", recall: "recall", practice: "a timed paper", calibration: "predictions" };
+    var needs = b.band === "thin" && b.silent && b.silent.length ? b.silent.map(function (k) { return NM[k] || k; }) : null;
     return el("div", { class: "k-ex-band", "data-ui": "exams.band", "data-band": b.band, "data-row": o.row ? "" : null, "data-size": o.big ? "big" : null, title: b.why || null }, [
       el("span", { class: "k-chip", "data-tone": x[1], text: x[0] }),
-      lim ? el("span", { class: "k-ex-limit" }, ["limiting: ", el("span", { text: lim })]) : null
+      lim ? el("span", { class: "k-ex-limit" }, ["limiting: ", el("span", { text: lim })]) : null,
+      needs ? el("span", { class: "k-ex-limit" }, ["needs: ", el("span", { text: needs.join(", ") })]) : null
     ].filter(Boolean));
   }
   function prov() { return el("span", { class: "k-ex-prov", "data-ui": "exams.prov", text: "◌ Provisional" }); }
@@ -107,7 +111,8 @@
     var s = E().startState(a);
     if (!s) return null;
     o = o || {};
-    var text = s.state === "met" ? "Started " + pretty(s.date) : s.state === "today" ? "Start today" : s.state === "passed" ? "Start-by passed · " + plural(s.ago, "day") + " ago"
+    var need = s.sb && s.sb.hours ? (s.sb.hours < 1 ? Math.max(5, Math.round(s.sb.hours * 60 / 5) * 5) + " min" : (Math.round(s.sb.hours * 2) / 2) + " h") : "";
+    var text = s.state === "met" ? "Started " + pretty(s.date) : s.state === "today" ? "Start today" : s.state === "now" ? "Start now" + (need ? " · " + need + " needed" : "") : s.state === "passed" ? "Start-by passed · " + plural(s.ago, "day") + " ago"
       : "Start by " + pretty(s.date) + (o.inDays ? " · in " + plural(s.in, "day") : "") + (o.why && !s.sb.override ? " · " + s.sb.why : "");
     return el("span", { class: "k-ex-sb", "data-ui": "exams.startby", "data-state": s.state, title: s.sb.override ? "Your start-by date" : s.sb.why }, [
       el("span", { "aria-hidden": "true", text: s.state === "passed" ? "▼" : s.state === "met" ? "✓" : "⚐" }), el("span", { text: text })]);

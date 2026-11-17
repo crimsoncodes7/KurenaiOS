@@ -454,9 +454,18 @@ wrangling". A target:
 - **Honesty fixes:** EX-40 (start-by sized to the scope and the days left)
   and EX-47 (no limiting signal without evidence).
 
+**Done 18 November 2026 (smoke183):** CC-25 (OCR's two-mark bullets split
+into one point a mark; F201's schemes now all add up — F204 and F206 keep
+their "(1–2)" level bands), dM/ddM read by every marker, CM-21, EX-29,
+EX-40, EX-47, EX-42 (the clock runs on through a reload and says so).
+CM-15: 12 Statistics and Mechanics worked examples still have codes that
+do not add up to their stated marks (none is in December's Pure mock):
+S2.3 ×3, S5.3, M7.3 ×2, M7.4, M7.5 ×2, M8.4 ×2, M9.1 — fix each from its
+published scheme before the summer.
+
 ### 9.2 Multi-paper scopes
 
-An assessment may carry several board papers (`presets: []`, with
+**Done in part (smoke183):** a school's mock with no board paper takes its guide from the paper with a full Companion it overlaps most. Still to do with the pages: (`presets: []`, with
 `preset` kept as the first for older readers). The Companion material and
 the paper blueprint read every paper the scope touches.
 

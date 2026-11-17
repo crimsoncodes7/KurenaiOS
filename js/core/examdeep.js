@@ -40,7 +40,7 @@
 
   /* a step's marks: each AQA mark point MPn is one mark; Edexcel's M1 A1
      B1 dM1 carry their number; levels (L1–L4) and "" score nothing here */
-  var TOKEN = /\b(MP\d+|dM\d|M\d|A\d|B\d)\b/g;
+  var TOKEN = /\b(MP\d+|d*M\d|A\d|B\d)\b/g;
   function marksOf(t) {
     var s = 0;
     String(t || "").replace(TOKEN, function (x) { s += /^MP/.test(x) ? 1 : (+x.replace(/\D/g, "") || 1); return x; });
@@ -95,9 +95,23 @@
     CACHE[pid] = { raw: raw, n: Object.keys(raw.leaves || {}).length, d: d };
     return d;
   }
-  function paperOf(a) {
+  /* the paper an assessment's Companion is exhaustive for: its board paper.
+     An assessment with no board paper of its own (a school's mock over a
+     topic list, e.g. the CS pre-public exam) takes, for its GUIDE, the
+     paper with a full Companion whose leaves its scope overlaps most
+     (§9.2 of the Exams & Papers rework); `strict` (the paper engine's
+     predicted papers) never borrows one. */
+  function paperOf(a, strict) {
     var pid = a && C() ? C().indexPaperOf(a) : null;
-    return pid && DP()[pid] ? pid : null;
+    if (pid && DP()[pid]) return pid;
+    if (strict || !a || pid) return null;
+    var inScope = {}, best = null, bestN = 0;
+    E().leaves(a).forEach(function (k) { inScope[k] = true; });
+    Object.keys(DP()).forEach(function (p) {
+      var d = data(p), n = d && d.sid === a.subject ? d.leaves.filter(function (l) { return inScope[l.key]; }).length : 0;
+      if (n > bestN) { bestN = n; best = p; }
+    });
+    return best;
   }
 
   /* ---------------- an archetype's evidence ---------------- */
