@@ -24,6 +24,13 @@
          on this page and comes back on leaving.
      F · READS WRITE NOTHING: drawing Home and the spaces' rows leaves the
          state document as it was.
+     G · THE WARDROBE FITS WHAT YOU OWN (40c): no cell for a kind owned
+         none of — its word sits on "Not owned yet", which ends "Gold Shop
+         →"; Frames is a kind ("No frame" and the owned ones, the worn one
+         pressed); Theme is one cell with its swatches and Follow the
+         system, whose line follows the switch.
+     H · EDIT YOUR SEAT SAVES ONLY A CHANGE (40d–40e): Save is disabled
+         until the draft differs from what is saved.
 
    Run:
      npm install jsdom fake-indexeddb   (one-time)
@@ -199,6 +206,43 @@ step("F · reads write nothing", async () => {
   K.dayReview.resolve({ kind: "space", id: "mind" });
   await home();
   eq(JSON.stringify(K.store.state), before, "Home and the spaces' reads leave the state as it was");
+  eq(app.errors, [], "no page errors");
+});
+
+/* ---------------- G ---------------- */
+step("G · the Wardrobe: cells only for owned kinds, Frames a kind, Theme one cell", async () => {
+  K.show("governor", "avatar"); await app.settle();
+  const none = $("[data-ui~='gov.wardrobe-none']");
+  assert(none && /^Not owned yet:/.test(text(none)) && /Gold Shop →$/.test(text(none)), "the not-owned line: " + text(none));
+  const notOwned = [...none.querySelectorAll("[data-kind]")].map((n) => n.getAttribute("data-kind"));
+  assert(notOwned.indexOf("frame") !== -1, "no frame owned: Frames is a word on the line");
+  notOwned.forEach((k) => assert(!$(".k-gv-ward-row[data-kind='" + k + "']"), "no cell for " + k));
+  const theme = $("[data-ui~='gov.theme-section']");
+  assert(theme && theme.querySelector("[data-ui~='gov.theme-grid']") && theme.querySelector("[data-ui~='gov.theme-follow']"), "Theme is one cell: swatches and the switch");
+  const st0 = text(theme.querySelector("[data-ui~='gov.theme-follow-state']"));
+  const sw = theme.querySelector("[data-ui~='gov.theme-follow']");
+  sw.checked = !sw.checked; sw.dispatchEvent(new app.window.Event("change", { bubbles: true })); await app.settle();
+  const st1 = text($("[data-ui~='gov.theme-follow-state']"));
+  assert(st0 !== st1, "the switch's line follows it: " + st0 + " → " + st1);
+  const sw2 = $("[data-ui~='gov.theme-follow']");
+  sw2.checked = !sw2.checked; sw2.dispatchEvent(new app.window.Event("change", { bubbles: true })); await app.settle();
+  /* own a frame: Frames becomes a cell, No frame first and pressed */
+  const fr = K.governor.catalog().filter((c) => c.kind === "frame" && !c.retired)[0] || K.governor.catalog().filter((c) => c.kind === "frame")[0];
+  K.store.state.governor.owned = (K.store.state.governor.owned || []).concat([fr.id]);
+  K.store.save();
+  K.show("governor", "avatar"); await app.settle();
+  const cell = $(".k-gv-ward-row[data-kind='frame']");
+  assert(cell, "an owned frame makes Frames a cell");
+  const chips = [...cell.querySelectorAll("[data-ui~='gov.frame-grid'] button")];
+  assert(chips.length === 2 && /No frame/.test(text(chips[0])) && chips[0].getAttribute("aria-pressed") === "true", "No frame first, worn: " + chips.map(text));
+  assert(!$("[data-ui~='gov.wardrobe-none'] [data-kind='frame']"), "and leaves the not-owned line");
+});
+
+/* ---------------- H ---------------- */
+step("H · Edit your seat: Save only once something changed", async () => {
+  K.show("governor", "edit"); await app.settle();
+  const save = $("[data-ui~='gov.seat-save']");
+  assert(save && save.disabled, "Save is disabled with nothing changed");
   eq(app.errors, [], "no page errors");
 });
 

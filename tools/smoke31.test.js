@@ -193,7 +193,9 @@ step("Avatar workshop uses the shared cropper and keeps the frame choices", asyn
   if (main.querySelector(".av-workshop-head")) throw new Error("duplicate Avatar title survived inside the page");
   /* review A: no seal library — with no picture the portrait is the default design */
   if (main.querySelector("[data-ui~='gov.seal-grid']")) throw new Error("the seal library was retired");
-  if (!main.querySelector("[data-ui~='gov.frame-grid']")) throw new Error("the frame library is missing");
+  /* design turn 40c: Frames is a Wardrobe kind — owned, a cell of chips;
+     owned none, one word on the "Not owned yet" line that opens the shop */
+  if (!main.querySelector("[data-ui~='gov.frame-grid']") && !main.querySelector("[data-ui~='gov.wardrobe-none'] [data-kind='frame']")) throw new Error("the frame choices are missing");
   const add = [...main.querySelectorAll("[data-ui~='gov.avatar-mc'] button")].find(b => /Add|Edit/.test(b.textContent));
   add.click();
   if (!document.querySelector("[data-ui~='crop.modal']")) throw new Error("avatar did not open shared cropper");
