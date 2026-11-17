@@ -1,6 +1,6 @@
 ---
 name: project-branch-and-release-state
-description: "Which git branch is live, what is deployed — check git before trusting this; latest entry 2026-11-17 (production kos-integrity-16; before it kos-integrity-15: F201 notes at full depth)"
+description: "Which git branch is live, what is deployed — check git before trusting this; latest entry 2026-11-17 (production kos-integrity-20: turns 36/39/40/41 + IT notes flat)"
 metadata:
   node_type: memory
   type: project
@@ -8,7 +8,9 @@ metadata:
   modified: 2026-11-17T13:18:32.876Z
 ---
 
-**Latest (2026-11-17, evening, Opus):** design turn 40 (Home and Profile) built on `feat/w7-home` at 1858440 (from main; pushed; NOT merged, NOT deployed; gate 158 = `""`, 2–156, 160, 163; smoke163). So three unmerged branches now: feat/w4-pages (161), feat/w2-held (162), feat/w7-home (163); merging all three → gate "2–156, 160–163", 160 suites; each touched CLAUDE.md's gate line (conflict to resolve by hand). Production still kos-integrity-16. Next per docs/HANDOFF.md §0: turn 41 (First open). New suites from 164.
+**Latest (2026-11-17, night, Opus):** production is sw `kos-integrity-20`, immutable https://b450671a.kurenai-os.pages.dev; main = `release/integrity-17` (fix/it-notes-flat, feat/w4-pages, feat/w2-held, feat/w7-first-open with feat/w7-home merged; then the welcome fixes -18..-20). Gate 161 suites (`""`, 2–156, 160–164). Turn 41 (first open, smoke164) and the IT notes fix (no block inside a callout) are live. smoke142's boot budget was raised 8.7 → 8.85 MB (told the user; AP-01 stage 2 would win it back). Turns done: 36, 39, 40, 41; next per docs/HANDOFF.md §0. New suites from 165.
+
+**Earlier (2026-11-17, evening, Opus):** design turn 40 (Home and Profile) built on `feat/w7-home` at 1858440 (from main; pushed; NOT merged, NOT deployed; gate 158 = `""`, 2–156, 160, 163; smoke163). So three unmerged branches now: feat/w4-pages (161), feat/w2-held (162), feat/w7-home (163); merging all three → gate "2–156, 160–163", 160 suites; each touched CLAUDE.md's gate line (conflict to resolve by hand). Production still kos-integrity-16. Next per docs/HANDOFF.md §0: turn 41 (First open). New suites from 164.
 
 **Earlier (2026-11-17, later, Opus):** W4's turn-39 Money pages built on `feat/w4-pages` at e0070e2 (pushed, NOT on main, NOT deployed; gate 158 suites = 2–156, 160, 161; smoke161): js/modules/moneyimp.js (import File/Preview/Done, Transactions › Imports + Source filter, Money settings › Rules, merchant page, Overview Balance/Runway/By merchant/By week, entry sheet ≤860). Production still kos-integrity-16. Item 5 (turn 36, held updates: header chip + menu, run line, card-rated-elsewhere skip, safe moments, ring, short save notices) is on its own branch `feat/w2-held` at 44df89b (from main; smoke162; gate 158 there). Merging both: CLAUDE.md gate line → "2–156 and 160–162", 159 suites. Next per docs/HANDOFF.md §0: item 6 (turn 40). New suites from 163. Browser checks of Money use the "Empty" data namespace (localStorage kurenai-os-data-mode=empty; cloud off) and undo what they add.
 

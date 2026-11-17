@@ -1,5 +1,5 @@
 - [Maths notes depth rewrite](maths-notes-depth-rewrite.md) — Pure, Stats and Mechanics all deployed (Mechanics 9eac539); per-section pipeline
-- [Notes layout and diagrams](notes-layout-and-diagrams.md) — short lines/bullets, not paragraphs; annotated inline `{fig}` diagrams wherever a picture helps, including worked examples
+- [Notes layout and diagrams](notes-layout-and-diagrams.md) — short lines/bullets; annotated inline `{fig}` diagrams; never a block inside a callout
 - [Graphite review feedback](graphite-review-feedback.md) — review notes live in the checklist artifact db; deferred work now lives in docs/ROADMAP.md
 - [IT units sitting](it-units-sitting.md) — still to do F201 and F206 (NEA); done F200/F202/F204 (F204 by 2026-10-28); never F203/F205
 - [CS Paper 2 depth](cs-paper2-depth.md) — worktree feat/cs-p2-depth; all 88 Paper 2 leaves; released with Paper 1 (87ee60c); per-section pipeline
@@ -7,7 +7,7 @@
 - [Code study space](code-study-space.md) — core path complete; Track T2 RELEASED (kos-code-22); whole of T1 RELEASED 2026-10-23 (kos-code-24)
 - [No dead space in layouts](no-dead-space-layout.md) — every view fills its width; no empty right column, gaps or misalignment; reuse existing components
 - [Japanese study space](japanese-study-space.md) — roadmap 5.5; platform RELEASED 2026-10-22 (d061169), review fixes ee1a746 (kos-japanese-2); F1 (kos-japanese-3) and F2 (kos-japanese-4) RELEASED; next F3
-- [Branch and release state](project-branch-and-release-state.md) — prod kos-integrity-16; unmerged: feat/w4-pages (smoke161), feat/w2-held (162), feat/w7-home (turn 40, 163); next turn 41
+- [Branch and release state](project-branch-and-release-state.md) — prod kos-integrity-20 (turns 36/39/40/41, IT notes flat); main = release/integrity-17; suites from 165
 - [Two-account workflow](two-account-workflow.md) — second Pro account added 2026-10-19; shared copy of this memory is docs/memory/, sync with tools/sync_memory.sh
 - [Stage by name](git-stage-by-name.md) — never commit -a; leave Live2D art, .claude/ and untracked scratch alone
 - [Money and Goals](money-goals.md) — roadmap 5.4 RELEASED 2026-10-20 (084a628, sw kos-money-1); smoke84–87; gate adds 84–87

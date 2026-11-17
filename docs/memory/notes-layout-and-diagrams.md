@@ -1,6 +1,6 @@
 ---
 name: notes-layout-and-diagrams
-description: "User feedback (2026-09-19) on study notes — prose must not be cramped (bullets / one sentence per line), and annotated inline diagrams are wanted wherever a visual helps, including inside worked examples and exam questions"
+description: "User feedback on study notes — prose not cramped (short lines/lists), annotated inline diagrams wherever a visual helps, and never a block (table/list/kv) inside a callout"
 metadata: 
   node_type: memory
   type: feedback
@@ -19,6 +19,13 @@ Two rules the user gave after approving the binomial depth:
    curves…) so they never have to leave the app to Google a picture.
    Include them in notes AND in worked examples / exam questions where a
    diagram is part of the question.
+
+3. **No block inside a block** (2026-11-17, with a screenshot of an IT
+   levels table inside an info callout: "tacky and annoying to read"): a
+   callout holds TEXT only; its table or kv goes right after it, a list
+   becomes the callout's lines, and a callout that was only a table
+   becomes that section's `{h}` heading — the CS/Maths layout.
+   `tools/validate_content.js` now refuses the shape.
 
 **Why:** they learn from the app directly; a wall of text or a missing
 picture sends them elsewhere.
