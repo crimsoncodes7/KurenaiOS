@@ -30,7 +30,7 @@
   function blueprint(a) {
     var pr = a && a.preset ? E().preset(a.preset) : null;
     var pid = C().indexPaperOf(a), ix = IX(), out = { paper: pid, board: C().boardOf(a) };
-    var mins = (a && a.durationMins) || (pr && pr.durationMins) || null;
+    var mins = (a && a.durationMins) || (pr && (pr.durationMins || pr.mins)) || null;
     if (pid) {
       var p = ix.papers[pid], sits = p.sittings.filter(function (s) { return s !== "specimen" && s !== "sample"; });
       var per = {};
@@ -95,11 +95,46 @@
     });
     return out;
   }
+  /* AUTHORED papers (the Exams & Papers rework §7.1, invariant 127): a
+     board-faithful paper written whole for this preset
+     (KOS_EXAMS.papers[preset], js/data/exams/papers/) is paper n while
+     there is one; beyond them the predicted or practice papers follow. */
+  function authoredList(a) {
+    var P = window.KOS_EXAMS && KOS_EXAMS.papers;
+    return P && a && a.preset && Array.isArray(P[a.preset]) ? P[a.preset].filter(Boolean) : [];
+  }
+  function authored(a, seed) {
+    var n = parseInt(seed, 10), list = authoredList(a), src = n >= 1 ? list[n - 1] : null;
+    if (!src) return null;
+    var bp = Object.assign({}, blueprint(a));
+    bp.mins = src.mins; bp.marks = src.marks;
+    bp.allowed = Math.round(src.mins * (1 + bp.extra / 100));
+    bp.perMark = Math.round(bp.allowed / src.marks * 100) / 100;
+    var sid = a.subject, total = 0;
+    var qs = src.questions.map(function (q) {
+      var parts = q.parts.map(function (p) {
+        var part = { label: p.label || "", q: p.q, code: p.code || null, marks: p.marks, ms: p.ms || [], command: p.command || "", ref: p.ref || "",
+          table: p.table || null, fill: p.fill || null, levels: p.levels || null, indicative: p.indicative || null, guide: p.guide || "", dependsOn: p.dependsOn || null };
+        /* a levels-of-response part is marked by level: one chip a mark */
+        part.chips = p.levels ? Array.from({ length: p.marks }, function (x, k) { return { id: "m" + k, label: String(k + 1), value: 1, line: null }; }) : chips(part);
+        return part;
+      });
+      var m = parts.reduce(function (t, p) { return t + p.marks; }, 0);
+      total += m;
+      var first = (q.parts.filter(function (p) { return p.ref; })[0] || {}).ref;
+      return { n: q.n, title: q.title || "", ctx: q.stem || "", key: first ? sid + ":" + first : null, refs: q.parts.map(function (p) { return p.ref ? sid + ":" + p.ref : null; }).filter(Boolean),
+        marks: m, parts: parts, origin: "Written by KurenaiOS for this paper" };
+    });
+    return { aid: a.id, seed: String(n), kind: "authored", title: src.title, for: a.title, subject: a.subject, board: src.board || bp.board, blueprint: bp,
+      format: src.format || null, org: src.org || "", context: src.context || "", questions: qs, marks: total, mins: src.mins, allowed: bp.allowed };
+  }
   function build(a, seed, o) {
     o = o || {};
     if (!a) return null;
     var lp = leafPaper(a, seed);
     if (lp) return lp;
+    var au = authored(a, seed);
+    if (au) return au;
     seed = Math.max(1, parseInt(seed, 10) || 1);
     var bp = blueprint(a), target = o.marks || bp.marks, rand = C().rng(a.id + ":paper:" + seed);
     var w = E().paperWeights ? E().paperWeights(a) : null;
@@ -233,5 +268,5 @@
     };
   }
 
-  KOS.examPaper = { blueprint: blueprint, build: build, chips: chips, partScore: partScore, toAttempt: toAttempt };
+  KOS.examPaper = { blueprint: blueprint, build: build, authored: authored, authoredList: authoredList, chips: chips, partScore: partScore, toAttempt: toAttempt };
 })();

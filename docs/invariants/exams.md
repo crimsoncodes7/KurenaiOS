@@ -104,6 +104,18 @@ Read this file before editing or testing anything in its domain.
     callouts (formula, memorise, mnemonic, miscon, warn), items, cards,
     labs, the playbook and the report notes — nothing stored, nothing new;
     the rapid drill is self-marked and rates nothing.
+    AUTHORED PAPERS (the Exams & Papers rework §7.1, smoke181): a paper
+    written whole for a preset (`KOS_EXAMS.papers[preset]`,
+    `js/data/exams/papers/<preset>-<n>.js`, original and labelled "written
+    by KurenaiOS") is paper n while one exists (`KOS.examPaper.authored`),
+    kind `authored`; it keeps the board's own time and marks (F201: the
+    SAM's 1 h 30 and 60), its FORMAT (`ocr-case`: ONE organisation's
+    context for every question, lettered and (i)/(ii) parts, `[n]` marks,
+    no Edexcel total line), data tables and tables to complete, and a
+    levels-of-response part is marked by mark with its level descriptors
+    and indicative content in the scheme. Each paper meets the contract in
+    smoke181 (marks add up, a real leaf and a scheme for every part, levels
+    for 6+ marks, (ii) after its (i)).
 128. EXAM GOALS READ THEIR SOURCES (phase 4, `js/core/goals-exams.js`):
     five Study types — grade or score (the result once logged, judged
     then and not on the date, or the best timed paper; a % or a grade's
@@ -142,3 +154,30 @@ Read this file before editing or testing anything in its domain.
     by program before they are written. The Companion is READ
     (`KOS.examDeep`); "worked" is per device (`state.ui.examWorked`), as
     is the open variation (`state.ui.examDeepVar`).
+130a. AN ATTEMPT IS RECORDED, MEASURED ON THE DEVICE AND REVIEWED OUTSIDE
+    THE APP (the Exams & Papers rework, `docs/exams-rework-plan.md` §8,
+    decisions D1, D2, D6; smoke180). While a paper, a set or a timed
+    question runs, `KOS.attempts` (`js/core/attempts.js`, IndexedDB
+    `kurenai-os-attempts`, in the store registry and the full backup)
+    records EVENTS per part — opened, each stroke's start and length
+    (`t0` on the ink item, the `kos-ink-act` window event from the ink
+    UI, read only for a doc bound with `bindDoc`), erasures, undos,
+    keystrokes, flags, pauses, the end — never the ink or any text. It is
+    saved as it goes and picked up after a reload (`resume`). `figures()`
+    is pure and the same every time: time per part (pauses left out), time
+    to the first mark, writing time, idle gaps over 20 s, returns, minutes
+    a mark against the paper's budget, skipped and flagged parts, the
+    pacing line, and with marks what was lost by part, topic and command
+    word. NO MODEL IN THE APP judges an attempt (the user's decision, 17
+    November 2026): `KOS.reviewPack.build` makes ONE text for the
+    clipboard in strict XML-tagged sections — every field a model must
+    echo (the attempt's uid, a part's id) an attribute — and the written
+    pages are merged into whole A4 pages, each headed with the parts it
+    holds (`plan`, `pagesPDF`: one PDF, never a crop a part). Nothing is
+    sent by the app. A reply comes back through `KOS.reviewPack.parse`: it
+    reads one fenced JSON block (or the object carrying "kos"), forgives
+    prose around it, smart quotes, trailing commas and comments, maps loose
+    part ids ("Q3 (b)" → "3(b)"), and REFUSES another version, another
+    attempt, an unknown part or a re-mark out of range — on an error
+    nothing is stored. Accepted feedback is kept on the attempt
+    (`addFeedback`). Replication to `kos_attempts` is to come (D1).
