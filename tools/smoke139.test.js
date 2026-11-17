@@ -15,7 +15,7 @@
          field and not yet submitted is still there (SY-08, SY-24)
      E · a redraw keeps keyboard focus (AP-10, AA-15) and inner scrollers
      F · two tabs: another tab's write redraws only a page that reads it,
-         worded "Updated in another tab"
+         worded "Updated in another window"
      G · the lifecycle: onDispose, token, signal; memo survives a redraw
          and is dropped by a navigation; keep survives both
      H · AX-38: a real navigation closes the dialogs open over the page it
@@ -221,7 +221,7 @@ step("F · two tabs: another tab's write redraws only a page that reads it", asy
   await sync();
   assert(aMain().firstElementChild === node, "still not remounted (a task page)");
   assert(aPill(), "the pill is shown");
-  assert(/Updated in another tab/.test(A.document.querySelector("[data-ui~='shell.refresh']").textContent), "worded for a tab");
+  assert(/Updated in another window/.test(A.document.querySelector("[data-ui~='shell.refresh']").textContent), "worded for another window (design turn 36)");
   eq(A.errors.concat(B.errors), [], "no errors in either tab");
 });
 

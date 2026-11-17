@@ -172,6 +172,13 @@
     var legacy = opts.sid && opts.ref ? stats(opts.sid, opts.ref) : null;
 
     var meter = el("div", { class: "k-fc-pips", "data-ui": "fc.meter", "aria-hidden": "true" });
+    /* design turn 36: a change held back from the page is said here, under
+       the progress, while the run lasts — nothing applies mid-run */
+    var heldLine = el("p", { class: "k-held-line", "data-ui": "fc.held", "data-run-line": "", role: "status", hidden: "" });
+    /* what each card's record said when the run began: a card rated on
+       another device since (a pull landed mid-run) is not asked again */
+    var seen0 = {}, mine = {}, skipping = false;
+    cards.forEach(function (c) { seen0[c.key] = (KOS.srs.peek(c.key) || {}).last || null; });
     var front = el("div", { class: "k-fc-face", "data-ui": "fc.front" });
     var back = el("div", { class: "k-fc-face", "data-ui": "fc.back", "data-side": "back", "aria-hidden": "true" });
     /* review B: the card turns over (a real flip, not a swap), inside its
@@ -261,7 +268,7 @@
     }
     function answered() { return mode === "think" || (mode === "write" ? !!(pad && pad.hasInk()) : !!(typed && typed.value.trim())); }
 
-    [resumedLine, meter, modeRow, deckEdge, answerBox, rateRow, panel].forEach(function (n) { holder.appendChild(n); });
+    [resumedLine, meter, heldLine, modeRow, deckEdge, answerBox, rateRow, panel].forEach(function (n) { holder.appendChild(n); });
     /* a redraw of the page says nothing: only coming back to it does */
     if (resumed && !(KOS.ui && KOS.ui.redrawing)) {
       resumedLine.firstChild.textContent = "Picked up where you left off · " + graduated + " of " + total + " done · ";
@@ -301,6 +308,8 @@
 
     function show() {
       var c = cur();
+      var rec = KOS.srs.peek(c.key);
+      if (!mine[c.key] && rec && rec.last && rec.last === KOS.srs.todayISO() && rec.last !== seen0[c.key]) { skipElsewhere(c); return; }
       flipped = false;
       KOS.ui.state(stage, "flipped", false);
       faces();
@@ -336,8 +345,29 @@
       renderInfo();
       answerFor(c);
     }
+    /* rated on another device during this run: shown for a beat, then
+       skipped — it leaves the run without a rating here, so it is never
+       counted twice */
+    function skipElsewhere(c) {
+      skipping = true;
+      flipped = false;
+      KOS.ui.state(stage, "flipped", false);
+      faces();
+      KOS.ui.state(rateRow, "concealed", true);
+      answerFor(null);
+      front.innerHTML = MARK + '<span class="k-chip" data-tone="teal" data-ui="fc.elsewhere">Already reviewed on another device</span>' +
+        '<div class="k-fc-text">' + KOS.content.inline(c.q) + "</div>";
+      if (KOS.a11y) KOS.a11y.announce("Already reviewed on another device. Skipped.");
+      setTimeout(function () {
+        skipping = false;
+        if (finished || cur() !== c) return;
+        queue.shift();
+        total = Math.max(graduated + queue.length, 0);
+        if (queue.length) { sync(false); show(); } else finish();
+      }, 1000);
+    }
     function flip() {
-      if (finished) return;
+      if (finished || skipping) return;
       if (!flipped && !answered()) {
         KOS.ui.toast(mode === "write" ? "Write your answer first, or switch to Think." : "Type your answer first, or switch to Think.");
         return;
@@ -353,8 +383,9 @@
       back.setAttribute("aria-hidden", String(!flipped));
     }
     function rate(r) {
-      if (!flipped || finished) return;
+      if (!flipped || finished || skipping) return;
       var c = cur();
+      mine[c.key] = true;
       /* long-term schedule updates on EVERY rating — the FSRS opinion.
          The in-session requeue below is a separate mechanism. */
       var wasLeech = !!(KOS.srs.peek(c.key) || {}).leech;
@@ -412,12 +443,18 @@
          is not counted, and a batch of redo items alone logs no session. */
       sync(true);
       resumedLine.hidden = true;
+      /* the run ended: a held change is offered by the page's chip again */
+      heldLine.removeAttribute("data-run-line"); heldLine.hidden = true;
+      if (KOS.changes && KOS.changes.place) KOS.changes.place();
       if (opts.onFinish) opts.onFinish();
     }
     /* ↺ Restart and Start fresh begin a NEW session (its own ledger entry);
        the one left behind stays as it was logged */
     function restart() {
       if (RUN) R.drop(RUN);
+      heldLine.setAttribute("data-run-line", "");
+      seen0 = {}; mine = {};
+      cards.forEach(function (c) { seen0[c.key] = (KOS.srs.peek(c.key) || {}).last || null; });
       runSid = null; gradN = 0; redoG = 0; ratedN = 0; reviews = 0; secs = 0; lastAt = Date.now();
       total = cards.length;
       queue = cards.map(function (_, i) { return i; });
