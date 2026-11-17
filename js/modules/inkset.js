@@ -69,6 +69,8 @@
       el("div", { class: "k-card-title", text: "On this device" }),
       switchRow("Keep the screen on during Focus", "While a session's clock runs and Kurenai is in front. Paused or ended, the screen sleeps as usual.",
         KOS.store.state.ui.focusWake !== false, "pen.wake", function (on) { KOS.store.state.ui.focusWake = on; KOS.store.save(); if (KOS.desk) KOS.desk.syncWake(); }),
+      switchRow("Downloads include my writing", "Downloading or sharing a PDF or picture you wrote on gives a copy with your writing on it; the file itself never changes. Off: the original.",
+        KOS.store.state.ui.exportInk !== false, "pen.export-ink", function (on) { KOS.store.state.ui.exportInk = on; KOS.store.save(); }),
       el("p", { class: "k-pen-row-s", text: "With a keyboard attached, hold ⌘ to see the shortcuts." })
     ]));
 

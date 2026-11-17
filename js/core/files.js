@@ -163,6 +163,44 @@
     });
     return n;
   }
+  /* INK TRAVELS WITH A FILE (the user, 18 November 2026; invariant 151
+     widened): a Download or Share of a file with writing on it gives the
+     file WITH the writing — a new PDF, the original untouched — unless
+     "Downloads include my writing" is off on this device
+     (state.ui.exportInk === false). The layer is the one written on most
+     recently (the file's own, or a past paper's attempt). */
+  function exportsInk() { return KOS.store.state.ui.exportInk !== false; }
+  function latestLayer(r) {
+    if (!KOS.ink || !KOS.ink.docsWith) return null;
+    var docs = KOS.ink.docsWith(inkPrefix(r)).concat(r.alsoPaper ? KOS.ink.docsWith("paper:" + r.alsoPaper + ":") : [])
+      .filter(function (d) { return Object.keys(d.inked || {}).some(function (k) { return d.inked[k]; }); });
+    docs.sort(function (a, b) { return (b.at || 0) - (a.at || 0); });
+    return docs[0] || null;
+  }
+  /* → Promise<{blob, name, ink}>: the writing on the file, or the file as it is */
+  function withWriting(r, blob, opts) {
+    opts = opts || {};
+    var plain = { blob: blob, name: r.name, ink: false };
+    if (opts.original || !exportsInk() || !blob) return Promise.resolve(plain);
+    var mime = r.mime || blob.type || "", isPdf = /pdf/.test(mime), isPic = /^image\//.test(mime);
+    var layer = (isPdf || isPic) ? latestLayer(r) : null;
+    if (!layer) return Promise.resolve(plain);
+    return new Promise(function (res, rej) {
+      KOS.ink.listPages(layer.key, function (err, pages) {
+        if (err) { rej(err); return; }
+        var byN = {};
+        (pages || []).forEach(function (p) { if (p.n != null && (p.items || []).length) byN[p.n] = p; });
+        if (!Object.keys(byN).length) { res(null); return; }
+        (isPdf ? blob.arrayBuffer() : imagePdf(blob)).then(function (bytes) { return KOS.inkExport.flattenPDF(bytes, byN); }).then(res, rej);
+      });
+    }).then(function (bytes) {
+      if (!bytes) return plain;
+      return { blob: new Blob([bytes], { type: "application/pdf" }), name: String(r.name || "file").replace(/\.[a-z0-9]+$/i, "") + " (with my writing).pdf", ink: true };
+    }).catch(function (e) {
+      KOS.ui.toast("Your writing could not be added — this is the original. " + (e && e.message ? e.message : ""), true);
+      return plain;
+    });
+  }
   function badge(r) {
     var m = r.mime || "";
     if (m === "application/pdf") return "PDF";
@@ -535,7 +573,7 @@
     ready: ready, refresh: refresh, all: all, get: get, linkedTo: linkedTo,
     add: add, named: named, dropTarget: dropTarget, report: report,
     open: open, openRec: openRec, detach: detach, blobOf: blobOf, imagePdf: imagePdf, cloudOnly: cloudOnly,
-    linkLabel: linkLabel, openLink: openLink, writing: writing, inkPrefix: inkPrefix, badge: badge,
+    linkLabel: linkLabel, openLink: openLink, writing: writing, inkPrefix: inkPrefix, badge: badge, withWriting: withWriting, exportsInk: exportsInk,
     loadText: loadText, textOf: textOf, textState: textState, search: search, indexNow: queueIndexing,
     takeShared: takeShared, boot: boot,
     /* tests */

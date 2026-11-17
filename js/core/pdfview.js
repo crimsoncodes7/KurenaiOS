@@ -802,29 +802,9 @@
       var pages = Object.keys(layerPages).filter(function (n) { return layerPages[n].items.length; });
       if (!pages.length) { KOS.ui.toast("Nothing written on this layer yet."); return; }
       KOS.ui.toast("Making the copy…");
-      Promise.all([KOS.inkExport.pdfLib(), new Promise(function (res, rej) { source(function (err, b) { if (err || !b) rej(err || new Error("unreadable")); else res(b); }); })])
-        .then(function (r) { return r[1].arrayBuffer().then(function (buf) { return r[0].PDFDocument.load(buf).then(function (doc) { return { L: r[0], doc: doc }; }); }); })
-        .then(function (x) {
-          var host = el("div", { class: "k-ink-exporthost", "data-theme": "atelier-dawn" });
-          document.body.appendChild(host);
-          var pal = KOS.inkUI.palette(host);
-          host.remove();
-          var chain = Promise.resolve();
-          pages.forEach(function (n) {
-            chain = chain.then(function () {
-              var p = layerPages[n], c = document.createElement("canvas"), k = 1600 / I.W;
-              c.width = 1600; c.height = Math.round(I.pageH(p) * k);
-              var ctx = c.getContext("2d"); ctx.setTransform(k, 0, 0, k, 0, 0); ctx.__inkScale = k;
-              KOS.inkUI.drawItems(ctx, p.items, pal, function () {});
-              return KOS.inkExport.canvasBlob(c).then(function (b) { return b.arrayBuffer(); }).then(function (buf) { return x.doc.embedPng(buf); }).then(function (img) {
-                var pg = x.doc.getPage(+n), sz = pg.getSize();
-                pg.drawImage(img, { x: 0, y: 0, width: sz.width, height: sz.height });
-                c.width = 0; c.height = 0;
-              });
-            });
-          });
-          return chain.then(function () { return x.doc.save(); });
-        })
+      new Promise(function (res, rej) { source(function (err, b) { if (err || !b) rej(err || new Error("unreadable")); else res(b); }); })
+        .then(function (b) { return b.arrayBuffer(); })
+        .then(function (buf) { return KOS.inkExport.flattenPDF(buf, layerPages); })
         .then(function (bytes) { return KOS.inkExport.deliver(new Blob([bytes], { type: "application/pdf" }), safe(o.title) + " (with my writing).pdf"); })
         .catch(function (e) { KOS.ui.toast("The copy could not be made — " + e.message, true); });
     }

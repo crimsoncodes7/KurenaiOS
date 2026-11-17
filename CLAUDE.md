@@ -24,7 +24,7 @@ chronological diary here.
   [`docs/RELEASES.md`](docs/RELEASES.md), newest first; a new release adds
   its entry there and changes only this line and the next here.
 - Service-worker version: `kos-integrity-20`
-- Required smoke gate: 161 / 161 suites (`""`, 2–156 and 160–164) — `npm test`;
+- Required smoke gate: 162 / 162 suites (`""`, 2–156, 160–164 and 182) — `npm test`;
   what each suite holds: [`docs/SMOKE.md`](docs/SMOKE.md). New suites on this
   account are numbered from 180 (see `docs/HANDOFF.md`).
 - Backend as deployed: Edge Functions `ai-chat` (version 6: images for
@@ -57,7 +57,7 @@ from `file://`. Use HTTP for PWA, cloud and browser-audit work.
 python3 tools/dev_server.py 8765       # http.server with no-store, so edits show on one reload
 npm install jsdom fake-indexeddb       # test-only dependencies, once
 npm test                               # the whole smoke gate in parallel (tools/run_smoke.mjs; --skip, --repeat)
-for i in "" {2..156} {160..164}; do node "tools/smoke${i}.test.js"; done   # the same, one at a time
+for i in "" {2..156} {160..164} 182; do node "tools/smoke${i}.test.js"; done   # the same, one at a time
 node tools/fill_check.mjs              # every figure and part to fill in (5.19): figures compile, SQL runs, predicts run
 node tools/gen_moved_cards.mjs         # js/data/moved-cards.js: Maths' several-step cards that live as exam questions (5.19; --check)
 node tools/ja_valid_check.mjs          # Japanese: kana, conjugation, every validator, strokes on every kana
@@ -402,7 +402,7 @@ domain file AND its line here, in the same commit.
 - **89b** Figures and fill-in parts are practice beside the notes: nothing stored, paid or rated, and each must pass `tools/fill_check.mjs`.
 *Spaced repetition*
 - **111** Every scheduled card schedules through the one pure `KOS.fsrs` (FSRS-6) with `KOS.srs.weights()`; renders never write and scheduling pays nothing.
-- **111a** Only a real exam, or a mock with its cap on, whose resolved scope holds a card's leaf can bring a review forward, and it only ever shortens.
+- **111a** Only a real exam, or a mock with its cap on, whose resolved scope holds a card's leaf can bring a review forward, and it only ever shortens; within 60 days no interval exceeds a third of the days left (3–21).
 - **111b** A flashcard's 8th lapse sets it aside into Rework; `KOS.srs.topicMemory` is a pure read that feeds RAG and the topic views.
 - **111c** Quiz and exam items are questions with keyed histories and FSRS schedules rated from marks, capped per subject a day and paying nothing.
 
@@ -464,7 +464,7 @@ domain file AND its line here, in the same commit.
 - **136** Ink lives in `kurenai-os-ink`, never in the state document; it rides the full backup and syncs per stroke to `kos_ink`, never discarding a clash.
 *Files*
 - **150** `KOS.files` indexes the file stores: one file per hash with many links, deleted only when nothing else links it.
-- **151** The original file is never changed; writing on it is an ink layer, one per attempt on a past paper, and Save a copy makes a new PDF.
+- **151** The original file is never changed; writing on it is an ink layer, one per attempt on a past paper; every Download or Share of a written-on file gives a new PDF with the writing unless switched off.
 - **152** Every surface opens a file through `KOS.files.open` and the one viewer; no surface builds its own, and PDF text is indexed on-device with no OCR.
 - **153** Every way of getting files in reports each file's outcome and reason; nothing is skipped silently.
 

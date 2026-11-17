@@ -287,7 +287,10 @@
                 el("span", { class: "k-asg-sub-t", text: r.name }),
                 el("span", { class: "k-asg-file-size k-mono", text: r.blob && r.blob.size ? size : "on another device" })]),
               r.blob && r.blob.size ? el("button", { type: "button", class: "k-btn k-btn--sm k-btn--quiet", "aria-label": "Download " + r.name, text: "⤓", onclick: function () {
-                var u = URL.createObjectURL(r.blob), dl = el("a", { href: u, download: r.name }); document.body.appendChild(dl); dl.click(); dl.remove(); setTimeout(function () { URL.revokeObjectURL(u); }, 30000);
+                /* with the writing on it, as everywhere (KOS.files.withWriting) */
+                var go = function (blob, name) { var u = URL.createObjectURL(blob), dl = el("a", { href: u, download: name }); document.body.appendChild(dl); dl.click(); dl.remove(); setTimeout(function () { URL.revokeObjectURL(u); }, 30000); };
+                if (KOS.files && KOS.files.withWriting) KOS.files.withWriting({ fileId: r.fileId || ("att" + r.id), name: r.name, mime: r.mime, store: "files" }, r.blob).then(function (x) { go(x.blob, x.name); });
+                else go(r.blob, r.name);
               } }) : null,
               el("button", { type: "button", class: "k-asg-x", "aria-label": "Remove attachment", text: "✕",
                 onclick: function () { if (KOS.files) KOS.files.detach(r, { kind: "assignment", id: String(a.id) }, function () { repaint(); }); else KOS.attach.remove(r.id, function () { repaint(); }); } })

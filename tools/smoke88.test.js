@@ -298,9 +298,13 @@ step("K · saving an exam brings forward the cards scheduled past it, once", () 
   srs["compsci:4.2.3.1:6"] = { s: 300, d: 4, fl: day(-1), last: day(-1), ivl: 300, due: day(299), views: 9, reps: 8, lapses: 0, lastRating: 2, ef: 2.8 };
   K.srs.setExamTarget(0.95);          // also runs the pass
   const moved = srs["compsci:4.2.3.1:5"];
-  assert(moved.due >= day(16) && moved.due <= day(23), "into the window before Paper 1: " + moved.due);
+  /* Paper 1 is 30 days away, inside the run-up (60 days, the user's ask of
+     18 November 2026, invariant 111a): no card may be further out than a
+     third of the days left, 10, whatever its recall — so both come in */
+  assert(moved.due >= day(1) && moved.due <= day(10), "within the run-up before Paper 1: " + moved.due);
   eq(moved.cap, day(30), "marked with its exam");
-  eq(srs["compsci:4.2.3.1:6"].due, day(299), "a card still remembered on the day is left alone");
+  const held = srs["compsci:4.2.3.1:6"];
+  assert(held.due >= day(1) && held.due <= day(10) && held.cap === day(30), "even a card still remembered on the day comes in: " + held.due);
   eq(K.srs.examPass(), 0, "a second pass moves nothing");
   K.srs.setExamTarget(0);
   eq(K.srs.examTarget(), 0, "off");

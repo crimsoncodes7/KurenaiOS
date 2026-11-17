@@ -149,6 +149,15 @@ Read this file before editing or testing anything in its domain.
     exam). The exam-day target must sit above the everyday one to do
     anything: an interval ends when recall reaches the everyday target, so
     a review after the exam always means recall on the day is above it.
+    THE RUN-UP (the user, 18 November 2026; smoke182): while such an exam
+    is `KOS.fsrs.RUN_UP` (60) days away or less, no interval runs longer
+    than a third of the days left, at least 3 and at most 21
+    (`KOS.fsrs.runUp`/`runUpMax`, pure), whatever the card's recall, so
+    every card comes back two or three times before it — at a rating (the
+    button's preview included) and in `examPass`, which brings a card due
+    further out in once, spread over the allowed days by a hash of its key
+    and the exam (never all on one day, never later than it was). The
+    exam-day target at 0 turns the run-up off with the rest of the cap.
 111b. LEECHES AND TOPIC MEMORY (phase 2). A flashcard's 8th lapse (`LEECH`)
     sets it aside (`leech` = the day): out of the due queue and into Rework
     on Due today, which offers its topic's notes and "Back in the schedule"
