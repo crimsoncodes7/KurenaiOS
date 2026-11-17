@@ -5,10 +5,12 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 2e2dc728-9366-4708-9ad8-6718d38edac2
-  modified: 2026-11-17T13:18:32.876Z
+  modified: 2026-11-17T20:16:36.535Z
 ---
 
-**Latest (2026-11-17, night, Opus):** production is sw `kos-integrity-20`, immutable https://b450671a.kurenai-os.pages.dev; main = `release/integrity-17` (fix/it-notes-flat, feat/w4-pages, feat/w2-held, feat/w7-first-open with feat/w7-home merged; then the welcome fixes -18..-20). Gate 161 suites (`""`, 2–156, 160–164). Turn 41 (first open, smoke164) and the IT notes fix (no block inside a callout) are live. smoke142's boot budget was raised 8.7 → 8.85 MB (told the user; AP-01 stage 2 would win it back). Turns done: 36, 39, 40, 41; next per docs/HANDOFF.md §0. New suites from 165.
+**Latest (2026-11-17, late night, Opus):** production unchanged (kos-integrity-20). origin/main = `152b8b8` (docs only since the release): W8's CLAUDE.md trim (release diary → docs/RELEASES.md, suite list → docs/SMOKE.md; a release now edits those plus two CLAUDE.md lines), the APPROVED Exams & Papers rework plan docs/exams-rework-plan.md (D1–D6) and its design prompt docs/design-prompts.md §22 (frames 45a–47h, with the user for Claude Design). Next: mock content + engine work while the design is out; deploy by 4 Dec; mocks w/c 14 Dec. New suites on this account from 180. The parallel gate times out smoke56/75 (≈6 min each alone) under load: re-run timeouts singly.
+
+**Before it (2026-11-17, night, Opus):** production is sw `kos-integrity-20`, immutable https://b450671a.kurenai-os.pages.dev; main = `release/integrity-17` (fix/it-notes-flat, feat/w4-pages, feat/w2-held, feat/w7-first-open with feat/w7-home merged; then the welcome fixes -18..-20). Gate 161 suites (`""`, 2–156, 160–164). Turn 41 (first open, smoke164) and the IT notes fix (no block inside a callout) are live. smoke142's boot budget was raised 8.7 → 8.85 MB (told the user; AP-01 stage 2 would win it back). Turns done: 36, 39, 40, 41; next per docs/HANDOFF.md §0. New suites from 165.
 
 **Earlier (2026-11-17, evening, Opus):** design turn 40 (Home and Profile) built on `feat/w7-home` at 1858440 (from main; pushed; NOT merged, NOT deployed; gate 158 = `""`, 2–156, 160, 163; smoke163). So three unmerged branches now: feat/w4-pages (161), feat/w2-held (162), feat/w7-home (163); merging all three → gate "2–156, 160–163", 160 suites; each touched CLAUDE.md's gate line (conflict to resolve by hand). Production still kos-integrity-16. Next per docs/HANDOFF.md §0: turn 41 (First open). New suites from 164.
 

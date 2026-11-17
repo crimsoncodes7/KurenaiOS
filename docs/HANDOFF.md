@@ -118,8 +118,19 @@ later.
    A2 chapters; CS: a topic list across both papers; IT F201: the whole
    paper, real exam January 2027) — not every board paper's Companion.
 **Scrapped by the user:** PR-06 / D-Agenda (the Agenda on Mac and iPad).
-**Still backlog:** UR-28, Exams & Papers reworked as a whole (a D-Exams
-design prompt first). W3 and W9 stay the other account's.
+W3 and W9 stay the other account's.
+
+**Changed later on 17 November — the order is now:**
+- **Done:** W8's CLAUDE.md trim (AP-20, on main `395cbde`). The release
+  diary is `docs/RELEASES.md` and the suite list is `docs/SMOKE.md`. A
+  release now adds its entry THERE and changes only two lines in
+  CLAUDE.md.
+- **Approved, and first:** the Exams & Papers rework (UR-28),
+  `docs/exams-rework-plan.md`, with decisions D1–D6. Its design prompt is
+  `docs/design-prompts.md` §22 (three parts, frames 45a–47h), with the
+  user for Claude Design. While the design is out: the mock content (§10)
+  and the engine work (§9). Deploy by 4 December; the mocks are in the
+  week of 14 December. The rest of item 1 and item 2 come after.
 
 **Smoke numbers from now:** 161–164 are taken; the other account uses
 **165–179**; this account continues at 157–159 and then 180+. (142, 143, 149 and 150 stay the
