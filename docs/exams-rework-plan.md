@@ -1,8 +1,8 @@
 # Exams & Papers, reworked: plan
 
-**Status:** PROPOSED, 17 November 2026. Nothing is built until you approve
-it. After approval, §12's design prompt goes to Claude Design. Its handoff
-is the guide for the pages, not a 1:1 spec.
+**Status:** APPROVED, 17 November 2026, with the decisions in §13. The
+design prompt (D-Exams, `docs/design-prompts.md`) goes to Claude Design.
+Its handoff is the guide for the pages, not a 1:1 spec.
 
 **Replaces:** UR-28 in the quality programme's backlog. It builds on
 `docs/exams-plan.md` (revision 2). That plan's records stay: assessments,
@@ -387,26 +387,37 @@ each with evidence (invariant 76: no chart without enough data).
 
 ### 8.3 The review pack (export)
 
-"Get feedback on this attempt" builds ONE pack:
-- **A context prompt** (Appendix A) telling the model who you are (an
-  A-level / Advanced National student, the board and paper), what is
-  attached, how to judge (only against the scheme given, quoting the
-  question), and EXACTLY how to answer (§8.4's format).
-- **The paper:** each part's question, marks and scheme, with the level
-  descriptors where they apply.
-- **Your answers:** typed text, and each written page as a PNG
-  (`KOS.inkExport`).
-- **Your marks per part and the event figures per part** (§8.1–8.2).
+"Get feedback on this attempt" builds ONE pack. It is two things to paste
+or drag (decision D2):
 
-You choose "Copy prompt" (the text) and "Download pack" (a zip of the text
-plus the page images, to attach). Nothing is sent anywhere by the app. The
-pages leave the device only by your own copy or download.
+1. **One clipboard copy** ("Copy for Claude or Gemini"), a single text in
+   strict XML-tagged sections (Appendix A):
+   - the instructions;
+   - the paper (each part's question, marks and scheme, with the level
+     descriptors where they apply);
+   - your typed answers;
+   - your mark-scheme results per part (the points ticked and missed);
+   - the event figures per part (§8.1–8.2);
+   - the answer format.
+2. **The written pages as 2–4 files** ("Download pages"):
+   - whole answer pages, merged in paper order (`KOS.inkExport`), never a
+     crop per sub-part;
+   - one PDF for the paper, or as few PNGs as the page count allows (up to
+     four, each a stack of pages);
+   - each page labelled in its header with the parts it holds, so the
+     model can match them to `<part id>`.
+
+Nothing is sent anywhere by the app. The pages leave the device only by
+your own copy or download.
 
 ### 8.4 Feedback back in (import)
 
-"Add feedback" takes the model's reply pasted in. The prompt asks for one
-fenced JSON block (Appendix B): findings, each tied to parts, with a
-category, evidence and one prescription.
+"Add feedback" takes the model's whole reply pasted in. The prompt asks
+for its readable part inside `<review>` and for ONE fenced ```json block
+(Appendix B): findings, each tied to parts, with an `error_type`, evidence
+and one prescription. The parser reads the JSON block and nothing else.
+The same template works with Claude Opus (mostly used) and Gemini 4 Argon
+(decision D6).
 - The app validates it. A reply that does not fit is shown with what is
   wrong, and nothing is stored.
 - Accepted feedback is stored on the attempt as `feedback`, keyed by
@@ -521,66 +532,77 @@ Per device, like a lesson's pages.
 | 2 | Content (§10) while the design is out: F201 first, then CS, then Maths | ~3 sessions |
 | 3 | Engine work that needs no design: §9.1–9.4, the journal, the pack and its import | ~2 sessions |
 | 4 | The pages from the handoff | ~3 sessions |
-| 5 | iPad and phone checks, the gate, your go-ahead, deploy | target **1 December**, leaving a week or more of use before the mocks |
+| 5 | iPad and phone checks, the gate, your go-ahead, deploy | target **1 December**, and no later than **Friday 4 December**: the mocks are all in the week of 14 December (exact dates not known yet), so this leaves at least ten days of use |
 
 The rest of W8 and the W1/W7 P2/P3s come after the deploy. W3 and W9 stay
 the other account's.
 
 ---
 
-## 13. Decisions for you
+## 13. Decisions (yours, 17 November 2026)
 
-- **D1. Should recorded attempts sync between devices?**
-  Recommended: yes. They are small (no pictures) and replicate like the
-  review log, so the Mac sees an attempt sat on the iPad.
-- **D2. Should written pages go in the review pack?**
-  Recommended: yes, as PNGs you attach yourself. Without them the model
-  sees only typed answers.
-- **D3. Should the old Companion's address (`#/exams/<id>/deep`) be
-  retired?**
-  Recommended: its pages become Revise's "how it is asked" sections, and
-  the old address redirects.
-- **D4. What are the mock dates?**
-  They set the planner and the day the deploy must land by.
-- **D5. What should the phone do?**
-  Recommended: Today, Topics, Revise, cards and Review. Papers stay on the
-  iPad and Mac.
-- **D6. Which model will you mostly use for feedback?**
-  The prompt works for both. I'd tune its wording to Claude, since its
-  reply is likely to follow the format best.
+- **D1. Recorded attempts sync between devices: yes.** They replicate like
+  the review log (an owner-only table, local first, a migration).
+- **D2. Written pages go in the pack: yes, with your tweak.** The question
+  text, your mark-scheme results and the prompt go to the clipboard as ONE
+  copy. The written pages are exported as merged whole pages, so there are
+  only 2–4 files to drag in, never a crop per sub-part (§8.3).
+- **D3. The old Companion's address redirects: yes.** Its pages become
+  Revise's "how it is asked" sections.
+- **D4. Mock dates:** not known yet, but all in the week of **14 December**.
+  The deploy lands by 4 December at the latest.
+- **D5. The phone: yes.** It covers Today, Topics, Revise, cards and
+  Review. Papers are on the iPad and Mac.
+- **D6. Feedback models:** mostly Claude Opus, sometimes Gemini 4 Argon.
+  The template uses STRICT XML tags for every section and field the model
+  reads, and ONE fenced JSON block for the reply, so it works the same on
+  both and the paste-back parser never depends on prose.
 
 ---
 
 ## Appendix A — the review-pack prompt (draft)
 
-```
+Every section is in an XML tag, and every field the model must echo back
+(a part's id, the attempt's uid) is an attribute, so both models copy it
+exactly.
+
+```xml
+<instructions>
 You are reviewing one exam attempt by a sixth-form student so they can
-improve before their next paper. Judge ONLY against the mark scheme and
-level descriptors given here; quote the question part you mean; never
-invent a mark scheme or a board rule.
-
-Board and paper: {board} {paper} · {time} · {marks} marks · sat {date},
-{timed|untimed}{, extra time N%}.
-Attached: the questions with their schemes (below), the student's typed
-answers (below) and their handwritten pages as images (page-N.png, each
-named with the parts it holds).
-
-For each part you get: the question, its marks and scheme, the student's
-mark (self-marked or teacher-marked), and timing — time to first mark,
-writing time, idle gaps, erasures, returns, and minutes per mark against
-the paper's budget of {budget} min/mark.
-
+improve before their next paper. Judge ONLY against the <scheme> and
+<levels> given; refer to parts by their id attribute; never invent a mark
+scheme or a board rule. The handwritten pages are attached as files; each
+page's header names the parts on it.
 Do three things:
-1. Diagnose: where marks were lost and why (knowledge, method, exam
-   technique, command word, timing, presentation), each with evidence
-   from the answer or the timing.
-2. Check the self-marking: flag any mark that looks too generous or too
+1. Diagnose where marks were lost and why, each finding with evidence
+   from the answer or the <timing>.
+2. Check the self-marking: flag a mark that looks too generous or too
    strict against the scheme.
-3. Prescribe: at most 6 actions, most valuable first, each specific
+3. Prescribe at most 6 actions, most valuable first, each specific
    enough to practise this week.
-
-Answer with a short readable summary, then ONE fenced block ```json …```
-in exactly this shape: {schema}
+Reply with your readable review inside <review>…</review>, then ONE fenced
+```json block exactly as in <answer_format>. Nothing after it.
+</instructions>
+<attempt uid="{uid}" board="{board}" paper="{paper}" sat="{date}"
+         timed="{yes|no}" time="{mins}" marks="{got}/{max}"
+         budget_min_per_mark="{budget}" extra_time="{n}%"/>
+<paper>
+  <context>{the case study, for OCR}</context>
+  <part id="1(a)" marks="1" topic="F201.1.1" command="State">
+    <question>…</question>
+    <scheme>…</scheme>
+    <levels>{level descriptors, for 6/9-mark parts}</levels>
+    <typed_answer>{if typed}</typed_answer>
+    <marking marked_by="self|teacher" got="1">
+      <point code="1" ticked="yes">…</point>
+    </marking>
+    <timing first_mark_s="…" writing_s="…" idle_s="…" idle_gaps="…"
+            erasures="…" returns="…" min_per_mark="…" flagged="no"/>
+  </part>
+  …
+</paper>
+<error_types>knowledge method technique command_word timing presentation misread</error_types>
+<answer_format>{Appendix B}</answer_format>
 ```
 
 ## Appendix B — the import format (draft)
@@ -593,7 +615,7 @@ in exactly this shape: {schema}
   "summary": "two or three sentences",
   "remark": [{ "part": "3(b)", "was": 2, "should": 1, "why": "…" }],
   "findings": [{
-    "parts": ["6(c)"], "category": "technique",
+    "parts": ["6(c)"], "error_type": "technique",
     "what": "No conclusion on the 9-marker", "evidence": "…",
     "lost": 3
   }],
