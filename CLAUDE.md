@@ -542,7 +542,19 @@ non-navigation redraw path.
   (origin `papers:<id>`) and syncs from there.
 - Supabase: optional replication layer; never the only successful write path.
 - `store.exportFull()` / `importFull()`: state, media, non-token kv and files;
-  credentials/sessions are deliberately excluded.
+  credentials/sessions are deliberately excluded. THE FILE IS WRITTEN AND
+  READ IN PIECES (DI-09, `js/core/backupfile.js`, `KOS.backupFile`, smoke150):
+  still one JSON document an older copy reads whole, laid out as a first line
+  (every part but the stored files, `"kos_layout":"lines"`) and ONE LINE PER
+  FILE, each file's content read in 3 MB slices and made base64 a slice at a
+  time into a Blob (`KOS.attach.exportEach`), so no file is ever one string;
+  the restore and its confirm read the first line alone and then one file
+  line at a time (`KOS.attach.importBegin`/`importOne`). A part that cannot be
+  read is NAMED (`missing`: in the file, the export's answer and the
+  restore's report) instead of no backup being made (`snapshotFull(cb,
+  {partial: true, files: false})`); a CHECKPOINT never asks for that and stays
+  all or nothing. The checkpoints themselves (`KOS.backup`) are still one
+  string each: the known limit for a very large file set.
 
 ### Primary ownership map
 
