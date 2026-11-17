@@ -5,8 +5,12 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 2e2dc728-9366-4708-9ad8-6718d38edac2
-  modified: 2026-11-16T07:32:02.684Z
+  modified: 2026-11-17T13:18:32.876Z
 ---
+
+**Latest (2026-11-17, evening, Opus):** design turn 40 (Home and Profile) built on `feat/w7-home` at 1858440 (from main; pushed; NOT merged, NOT deployed; gate 158 = `""`, 2–156, 160, 163; smoke163). So three unmerged branches now: feat/w4-pages (161), feat/w2-held (162), feat/w7-home (163); merging all three → gate "2–156, 160–163", 160 suites; each touched CLAUDE.md's gate line (conflict to resolve by hand). Production still kos-integrity-16. Next per docs/HANDOFF.md §0: turn 41 (First open). New suites from 164.
+
+**Earlier (2026-11-17, later, Opus):** W4's turn-39 Money pages built on `feat/w4-pages` at e0070e2 (pushed, NOT on main, NOT deployed; gate 158 suites = 2–156, 160, 161; smoke161): js/modules/moneyimp.js (import File/Preview/Done, Transactions › Imports + Source filter, Money settings › Rules, merchant page, Overview Balance/Runway/By merchant/By week, entry sheet ≤860). Production still kos-integrity-16. Item 5 (turn 36, held updates: header chip + menu, run line, card-rated-elsewhere skip, safe moments, ring, short save notices) is on its own branch `feat/w2-held` at 44df89b (from main; smoke162; gate 158 there). Merging both: CLAUDE.md gate line → "2–156 and 160–162", 159 suites. Next per docs/HANDOFF.md §0: item 6 (turn 40). New suites from 163. Browser checks of Money use the "Empty" data namespace (localStorage kurenai-os-data-mode=empty; cloud off) and undo what they add.
 
 **Latest (2026-11-17):** production is sw `kos-integrity-16`, commit `0b9a662`, immutable https://2a54edc0.kurenai-os.pages.dev; main has fix/it-lazy-pages, feat/w1-di09 and feat/w4-import merged. It carries the F201 notes fix (29 callouts had `body: {…}` instead of a string or list — 15 pages threw; renderer now tolerant, validator refuses it, smoke160), lazy bundles no longer queue behind each other (async=false was page-global), the streamed backup file (DI-09, smoke150), and W4's import engine (smoke149). Gate 157 suites (`""`, 2–156, 160); new suites from 161. Left for Opus: the turn-39 Money pages (Imports list, Settings › Rules, MG-10, MG-25); checkpoints (`KOS.backup`) are still one string each for a very large file set.
 
