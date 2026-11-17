@@ -22,7 +22,7 @@
   /* per visit: what the page is showing (never stored) */
   var visit = {
     budKey: null, monthMode: "month", monthKey: null, yearFirst: null,
-    tx: { search: "", cat: "", range: "month", tag: "", kind: "" }, selected: null, ticked: {},
+    tx: { search: "", cat: "", range: "month", tag: "", kind: "", source: "", mode: "entries" }, selected: null, ticked: {},
     recFilter: "all", ruleEdit: null, left: {}, chartDay: null
   };
 
@@ -117,6 +117,8 @@
   /* ---------------- the header: the strip is the shell's; views, Hide, Add ---------------- */
   function header(view, sub) {
     var hide = M.isHidden();
+    var gear = btn("⚙", "k-mn-gear", function () { if (view !== "settings") go("settings"); }, "money.settings",
+      { "aria-label": "Money settings", "aria-pressed": view === "settings" ? "true" : "false" });
     var privacy = btn(hide ? "◑ Amounts hidden" : "◐ Hide amounts", hide ? "k-mn-priv" : "", function () {
       M.setHidden(!M.isHidden());
       announce(M.isHidden() ? "Amounts hidden" : "Amounts shown");
@@ -128,23 +130,29 @@
     tabs.setAttribute("data-phone-tabs", "");
     return U.pageHeader({
       kicker: "円 · The month",
-      title: view === "overview" ? "Money" : (VIEWS.filter(function (v) { return v[0] === view; })[0] || [0, "Money"])[1],
+      title: view === "overview" ? "Money" : view === "settings" ? "Money settings" : (VIEWS.filter(function (v) { return v[0] === view; })[0] || [0, "Money"])[1],
       sub: sub,
       className: "k-mn-head",
-      actions: [tabs, privacy, view === "budgets" || view === "pots" || view === "month" ? null
+      actions: [tabs, privacy, gear, view === "budgets" || view === "pots" || view === "month" || view === "settings" ? null
         : btn("＋ Add entry", "k-btn--primary k-mn-add", function () { entryEditor(null); }, "money.add")]
     });
   }
 
   KOS.views.money = function (main, arg) {
     KOS.shell.tree("none");
-    var view = VIEWS.some(function (v) { return v[0] === arg; }) ? arg : "overview";
+    /* a merchant's page (39f): its own header, no view strip */
+    if (typeof arg === "string" && arg.indexOf("merchant:") === 0 && KOS.moneyImp) {
+      if (!M.available()) { failed(main); return; }
+      KOS.moneyImp.merchantPage(main, arg.slice(9));
+      return;
+    }
+    var view = VIEWS.some(function (v) { return v[0] === arg; }) || arg === "settings" ? arg : "overview";
     var key = M.periodKey(today()), r = M.periodRange(key);
     var subs = {
       overview: monthName(key) + " so far · " + (between(r.from, today()) + 1) + " of " + r.days + " days",
       transactions: "Every entry, typed, imported or made by a rule",
       budgets: null, recurring: "Payments, income and set-asides made by a rule",
-      pots: null, month: "What came in, what went out"
+      pots: null, month: "What came in, what went out", settings: "Rules for imported statements"
     };
     var page = el("div", { class: "k-mn", "data-ui": "money.page", "data-view": view });
     main.appendChild(header(view, subs[view]));
@@ -175,7 +183,8 @@
       var nudge = s.count ? budgetNudge() : null;
       if (nudge) page.appendChild(nudge);
       var grid = el("div", { class: "k-mn-cols", "data-ui": "money.overview" });
-      grid.appendChild(categoriesCard(s, ins));
+      var mainStack = el("div", { class: "k-mn-stack" }, [categoriesCard(s, ins)]);
+      grid.appendChild(mainStack);
       var side = el("div", { class: "k-mn-side" });
       side.appendChild(nextCard(now));
       var sc = subsCard();
@@ -184,6 +193,8 @@
       grid.appendChild(side);
       page.appendChild(grid);
       potsSummary(side.lastChild);
+      /* 39e: Balance, Runway, By merchant and By week, each with its evidence */
+      if (KOS.moneyImp) KOS.moneyImp.overviewCards(mainStack, side, s, now);
     });
   }
   function failed(page) {
@@ -210,13 +221,13 @@
       el("div", { class: "k-mn-first-hero" }, [
         el("img", { class: "k-mn-first-art", src: "assets/app/img/app.empty.money.webp", alt: "", loading: "lazy", "aria-hidden": "true" }),
         el("div", {}, [kicker("円 · First run"), el("h2", { class: "k-mn-first-title", text: "Nothing here yet" }),
-          el("p", { class: "k-soft", text: "Money keeps what comes in and what goes out, typed by you or read from a CSV. It never moves gold or XP, and nothing leaves this device unless you sync." })])
+          el("p", { class: "k-soft", text: "Money keeps what comes in and what goes out, typed by you or read from a bank statement. It never moves gold or XP, and nothing leaves this device unless you sync." })])
       ]),
       el("ol", { class: "k-mn-steps" }, [
         step(1, "Your month", "Amounts in, and when the month starts — on the 1st, or on payday.", [el("div", { class: "k-mn-actions" }, [curSel, startSeg])]),
-        step(2, "What comes in and goes out", "Type your first income or spend, or bring in a bank's CSV.", [el("div", { class: "k-mn-actions" }, [
+        step(2, "What comes in and goes out", "Type your first income or spend, or bring in a bank statement.", [el("div", { class: "k-mn-actions" }, [
           btn("Add your first income", "k-btn--primary", function () { entryEditor(null, { kind: "in" }); }, "money.first-income"),
-          btn("Import a CSV", "", function () { importDialog(); }, "money.first-import")])]),
+          btn("Import a statement", "", function () { importDialog(); }, "money.first-import")])]),
         step(3, "One budget", "Pick a category you want to watch and give it a monthly amount.", [el("div", { class: "k-mn-actions" }, [
           btn("Set a budget", "", function () { go("budgets"); }, "money.first-budget")])])
       ])
@@ -509,18 +520,26 @@
     var rangeSel = select([["month", rng.label && f.range === "month" ? rng.label : "This month"], ["last", "Last month"], ["three", "The last 3 months"], ["year", "This year"], ["all", "Everything"]], f.range,
       { "data-ui": "money.tx-range", "aria-label": "Dates", class: "k-input k-pill-select" });
     var kinds = seg([["", "All"], ["in", "In"], ["out", "Out"]], f.kind, function (k) { f.kind = k; redraw(); }, "Entry kind", "k-mn-kinds");
+    /* 39d: the imports, and the Source filter that narrows the list to one */
+    var imps = M.imports ? M.imports() : [];
+    if (f.source && !imps.some(function (b) { return b.id === f.source; })) f.source = "";
+    var srcSel = imps.length ? select([["", "Source: All"]].concat(imps.map(function (b) { return [b.id, "Source: " + (b.file || "an import")]; })), f.source,
+      { "data-ui": "money.tx-source", "aria-label": "Source", class: "k-input k-pill-select k-mn-srcsel" }) : null;
+    if (srcSel) srcSel.addEventListener("change", function () { f.source = srcSel.value; if (f.source) f.range = "all"; redraw(); });
+    var modes = imps.length ? seg([["entries", "Entries"], ["imports", "Imports"]], f.mode || "entries", function (m) { f.mode = m; redraw(); }, "Entries or imports", "k-mn-modes") : null;
     var debounced = U.debounce(function () { f.search = search.value; redrawList(); }, 400);
     search.addEventListener("input", debounced);
     catSel.addEventListener("change", function () { f.cat = catSel.value; redrawList(); });
     rangeSel.addEventListener("change", function () { f.range = rangeSel.value; redrawList(); });
-    page.appendChild(el("div", { class: "k-mn-toolbar", "data-ui": "money.tx-toolbar" }, [search, catSel, rangeSel, kinds,
-      el("span", { class: "k-mn-spacer" }),
-      btn("Import CSV", "k-btn--sm", function () { importDialog(); }, "money.import"),
-      btn("Export CSV", "k-btn--sm", function () { exportDialog(); }, "money.export")]));
+    var importing = f.mode === "imports" && imps.length;
+    page.appendChild(el("div", { class: "k-mn-toolbar", "data-ui": "money.tx-toolbar" }, (importing ? [] : [search, catSel, rangeSel, srcSel, kinds]).concat([
+      el("span", { class: "k-mn-spacer" }), modes,
+      btn("Import…", "k-btn--sm", function () { importDialog(); }, "money.import"),
+      btn("Export CSV", "k-btn--sm", function () { exportDialog(); }, "money.export")]).filter(Boolean)));
     var listHost = el("div", { class: "k-mn-txlist-host" });
     var side = el("div", { class: "k-mn-side" });
     page.appendChild(el("div", { class: "k-mn-cols k-mn-cols--sm" }, [listHost, side]));
-    function redrawList() { listHost.textContent = ""; side.textContent = ""; drawList(listHost, side); }
+    function redrawList() { listHost.textContent = ""; side.textContent = ""; if (importing) KOS.moneyImp.importsView(listHost, side); else drawList(listHost, side); }
     redrawList();
   }
   function drawList(host, side) {
@@ -538,7 +557,7 @@
     function load() {
       if (done || loading) return;
       loading = true;
-      M.list({ from: rng.from, to: rng.to, cat: f.cat || null, kind: f.kind === "out" ? null : f.kind || null, search: q, tag: tag || null, before: cursor, limit: 60 }, function (err, rows, next) {
+      M.list({ from: rng.from, to: rng.to, cat: f.cat || null, kind: f.kind === "out" ? null : f.kind || null, search: q, tag: tag || null, batch: f.source || null, before: cursor, limit: 60 }, function (err, rows, next) {
         rows = (rows || []).filter(function (t) { return f.kind !== "out" || t.kind === "out" || t.kind === "transfer"; });
         rows.forEach(function (t) {
           shown.push(t);
@@ -552,8 +571,15 @@
         cursor = next; done = !next; loading = false;
         more.textContent = "";
         if (!shown.length) {
-          list.appendChild(U.emptyState({ compact: true, mark: "円", title: f.search || f.cat || f.kind ? "Nothing matches these filters" : "No entries in this time",
-            action: f.search || f.cat || f.kind ? btn("Clear filters", "k-btn--sm", function () { visit.tx = { search: "", cat: "", range: f.range, tag: "", kind: "" }; redraw(); }) : null }));
+          var filtered = f.search || f.cat || f.kind || f.source;
+          list.appendChild(U.emptyState({ compact: true, mark: "円", title: filtered ? "Nothing matches these filters" : "No entries in this time",
+            action: filtered ? btn("Clear filters", "k-btn--sm", function () { visit.tx = { search: "", cat: "", range: f.range, tag: "", kind: "", source: "", mode: "entries" }; redraw(); }) : null }));
+          /* 39h: nothing anywhere yet — the page is the place to bring a statement in */
+          if (!filtered && KOS.moneyImp) M.list({ limit: 1 }, function (e2, any) {
+            if (any && any.length) return;
+            host.textContent = ""; side.textContent = "";
+            KOS.moneyImp.emptyTransactions(host);
+          });
         } else {
           more.appendChild(document.createTextNode("Showing " + shown.length + (done ? "" : " · the next 60 load as you scroll")));
           if (!done) more.appendChild(btn("Load 60 more", "k-btn--sm k-btn--quiet", load, "money.tx-load"));
@@ -586,6 +612,7 @@
         el("div", { class: "k-mn-txmain" }, [
           el("div", { class: "k-mn-txpayee" }, [el("span", { class: "k-ellipsis k-mn-strong", text: t.payee || (t.kind === "transfer" ? (t.dir === "out" ? potName + " → Main" : "Main → " + potName) : c.name) }),
             BADGE[t.kind] ? chip(BADGE[t.kind][0], BADGE[t.kind][1]) : null,
+            t.bank && KOS.moneyImp ? KOS.moneyImp.typeChip(t.bank.type) : null,
             t.src === "rule" ? el("span", { class: "k-muted", title: "Made by a recurring rule", text: "↻" }) : null,
             t.src === "wishlist" ? el("span", { class: "k-muted", lang: "ja", title: "From the Wishlist", text: "願" }) : null].filter(Boolean)),
           t.note || t.tags.length || t.kind === "transfer" ? el("div", { class: "k-mn-txnote k-ellipsis" }, [
@@ -598,7 +625,12 @@
       ].filter(Boolean));
       if (visit.selected === t.syncId) U.state(row, "selected", true);
       if (box.checked) U.state(row, "ticked", true);
-      function open() { visit.selected = t.syncId; Array.prototype.forEach.call(list.querySelectorAll(".k-mn-txrow"), function (n) { U.state(n, "selected", n === row); }); drawSide(); }
+      function open() {
+        visit.selected = t.syncId; Array.prototype.forEach.call(list.querySelectorAll(".k-mn-txrow"), function (n) { U.state(n, "selected", n === row); });
+        /* 39g, MG-25: at 860 and below the side panel is under the list, so the entry opens as a sheet */
+        if (KOS.moneyImp && KOS.moneyImp.narrow()) { KOS.moneyImp.openEntry(t); return; }
+        drawSide();
+      }
       row.addEventListener("click", function (e) { if (e.target === box) return; open(); });
       row.addEventListener("keydown", function (e) {
         var rows = Array.prototype.slice.call(list.querySelectorAll(".k-mn-txrow")), i = rows.indexOf(row);
@@ -673,25 +705,34 @@
     if (t.cat !== "collection" || !t.wl || !t.wl.module) return null;
     return "Collection › " + ((KOS.wishlist && KOS.wishlist.MODULE_LABEL[t.wl.module]) || t.wl.module);
   }
-  function selectedCard(t) {
+  /* an entry's detail, shared by the side panel and the sheet (39g) */
+  function entryDetail(t) {
     var parts = t.splits && t.splits.length > 1 ? t.splits : null;
-    var src = { manual: "typed by you", csv: "imported from a CSV", rule: "made by a recurring rule", wishlist: "from the Wishlist" }[t.src];
+    var src = { manual: "typed by you", csv: "imported", rule: t.bank ? "imported · counted as a recurring payment" : "made by a recurring rule", wishlist: "from the Wishlist" }[t.src];
+    if (t.rule && t.src === "csv") src = "imported · counted as a recurring payment";
     var signed = t.kind === "out" || (t.kind === "transfer" && t.dir === "in") ? -t.minor : t.minor;
-    return card([kicker("Selected"),
-      el("div", { class: "k-mn-selhead" }, [el("span", { class: "k-mn-grow k-mn-selname", text: t.payee || (t.kind === "transfer" ? "Transfer" : cat(t.cat).name) }), amt(signed, { size: "20", plus: true, tone: t.kind === "in" || t.kind === "refund" ? "in" : null })]),
-      el("div", { class: "k-muted k-mn-small", text: dayLabel(t.date) + " · " + src }),
+    var c = cat(t.cat), from = KOS.moneyImp ? KOS.moneyImp.catSource(t) : null;
+    return el("div", { class: "k-mn-detail", "data-ui": "money.entry-detail" }, [
+      el("div", { class: "k-mn-selhead" }, [el("span", { class: "k-mn-grow k-mn-selname", text: t.payee || (t.kind === "transfer" ? "Transfer" : c.name) }), amt(signed, { size: "20", plus: true, tone: t.kind === "in" || t.kind === "refund" ? "in" : null })]),
+      el("div", { class: "k-muted k-mn-small" }, [dayLabel(t.date) + " · " + src, t.bank && KOS.moneyImp ? KOS.moneyImp.typeChip(t.bank.type) : null].filter(Boolean)),
+      !parts && t.kind !== "transfer" ? el("div", { class: "k-card-row" }, [el("span", { class: "k-mn-grow k-soft", text: "Category" }),
+        el("span", { class: "k-mn-catchip" }, [dot(c.tone), el("span", { text: collName(t) || c.name })]), from ? el("span", { class: "k-mn-src", text: from }) : null].filter(Boolean)) : null,
       parts ? el("div", { class: "k-mn-selsplit" }, parts.map(function (p) {
         return el("div", { class: "k-card-row" }, [dot(cat(p.cat).tone), el("span", { class: "k-mn-grow", text: cat(p.cat).name }), amt(-p.minor, { w: "500" })]);
       }).concat([el("div", { class: "k-card-row" }, [el("span", { class: "k-mn-grow k-muted k-mn-small", text: "Split total" }), amt(-t.minor)])])) : null,
       t.note ? el("p", { class: "k-soft k-mn-small", text: t.note }) : null,
-      t.tags.length ? el("div", { class: "k-mn-chips" }, t.tags.map(function (x) { return chip("#" + x, "muted"); })) : null,
+      t.tags.length ? el("div", { class: "k-mn-chips" }, t.tags.map(function (x) { return chip("#" + x, "muted"); })) : null
+    ].filter(Boolean).concat(KOS.moneyImp ? KOS.moneyImp.entryExtras(t) : []));
+  }
+  function selectedCard(t) {
+    return card([kicker("Selected"), entryDetail(t),
       t.src === "wishlist"
         ? el("p", { class: "k-muted k-mn-small", text: "This purchase belongs to the Wishlist; change it there." })
         : el("div", { class: "k-mn-actions" }, [btn("Edit", "k-btn--sm", function () { entryEditor(t); }, "money.sel-edit"),
           t.src !== "rule" ? btn("Duplicate", "k-btn--sm", function () { entryEditor(Object.assign({}, t, { syncId: null, date: today() }), { duplicate: true }); }, "money.sel-dup") : null,
           el("span", { class: "k-mn-spacer" }),
           btn("Delete…", "k-btn--sm k-btn--quiet k-mn-del", function () { deleteEntry(t); }, "money.sel-delete")].filter(Boolean))
-    ].filter(Boolean), "", "money.selected");
+    ].filter(Boolean), "k-mn-selcard", "money.selected");
   }
   function deleteEntry(t) {
     if (t.src === "wishlist") { U.toast("This purchase belongs to the Wishlist; remove it there."); return; }
@@ -894,157 +935,8 @@
         btn("Mark received", "k-btn--primary", function () { ov.close(); confirmOcc(r, date, null, d.value || today()); })], { focus: d });
   }
 
-  /* ================= 27h · CSV import and export ================= */
-  function importDialog() {
-    var step = 0, parsed = null, mapping = null, dateFmt = "dmy", sign = "signed", pv = null, includeDup = {}, result = null, fileName = "";
-    var body = el("div", { class: "k-mn-import" });
-    var foot = el("div", { class: "k-dialog-foot" });
-    var ov = dialogBox("Import a CSV", "入", [body], null, { hook: "money.import-dialog", cls: "k-mn-import-dialog k-msheet--full" });
-    ov.querySelector(".k-dialog").appendChild(foot);
-    function steps() {
-      return el("ol", { class: "k-mn-steps", "aria-label": "Import steps" }, ["Choose a file", "Columns", "Preview", "Done"].map(function (t, i) {
-        return el("li", { class: "k-mn-step", "data-state": i < step ? "done" : i === step ? "on" : null, "aria-current": i === step ? "step" : null }, [
-          el("span", { class: "k-mn-step-n", text: i < step ? "✓" : String(i + 1) }), t]);
-      }));
-    }
-    function draw() {
-      body.textContent = ""; foot.textContent = "";
-      body.appendChild(steps());
-      if (step === 0) {
-        var file = el("input", { type: "file", accept: ".csv,.txt,.qif,.ofx,.qfx,text/csv,text/plain", class: "k-mn-file", "aria-label": "Choose a statement file" });
-        var drop = el("div", { class: "k-mn-drop", "data-ui": "money.drop" }, [
-          el("span", { class: "k-mn-drop-mark", lang: "ja", "aria-hidden": "true", text: "入" }),
-          el("p", { text: "Drop a statement here, or" }),
-          btn("Choose a file", "k-btn--primary", function () { file.click(); }, "money.choose-file"), file]);
-        file.addEventListener("change", function () { if (file.files[0]) read(file.files[0]); });
-        drop.addEventListener("dragover", function (e) { e.preventDefault(); U.state(drop, "over", true); });
-        drop.addEventListener("dragleave", function () { U.state(drop, "over", false); });
-        drop.addEventListener("drop", function (e) { e.preventDefault(); U.state(drop, "over", false); if (e.dataTransfer.files[0]) read(e.dataTransfer.files[0]); });
-        body.appendChild(drop);
-        body.appendChild(el("p", { class: "k-muted k-mn-small", text: "Read on this device only. CSV, OFX, QIF and Santander's text export are read; so is this app's own export." }));
-        foot.appendChild(el("span"));
-        foot.appendChild(btn("Cancel", "", function () { ov.close(); }));
-      } else if (step === 1 || step === 2) {
-        body.appendChild(el("div", { class: "k-mn-import-grid" }, [mapCard(), previewCard()]));
-        foot.appendChild(btn("Choose another file", "k-btn--quiet", function () { step = 0; draw(); }));
-        foot.appendChild(btn("Back", "", function () { step = 0; draw(); }));
-        var n = pv ? pv.rows.filter(function (r) { return !r.duplicate || includeDup[r.line]; }).length : 0;
-        foot.appendChild(btn("Import " + n + (n === 1 ? " entry" : " entries"), "k-btn--primary", doImport, "money.import-go", n ? {} : { disabled: "" }));
-      } else if (step === 3) {
-        body.appendChild(el("div", { class: "k-mn-result" }, [
-          el("h3", { class: "k-mn-result-h", text: result.added ? "Imported " + result.added + (result.added === 1 ? " entry" : " entries") : "Nothing was imported" }),
-          el("div", { class: "k-card-row" }, [el("span", { class: "k-mn-grow", text: "Imported" }), el("b", { class: "k-mono", text: String(result.added) })]),
-          result.linked ? el("div", { class: "k-card-row" }, [el("span", { class: "k-mn-grow", text: "Counted as recurring payments that were due" }), el("span", { class: "k-mono", text: String(result.linked) })]) : null,
-          result.dups ? el("div", { class: "k-card-row" }, [el("span", { class: "k-mn-grow", text: "Skipped as duplicates" }), el("span", { class: "k-mono", text: String(result.dups) })]) : null,
-          result.bad ? el("div", { class: "k-card-row k-mn-bad" }, [el("span", { class: "k-mn-grow", text: "✕ Not imported · could not be read" }), el("span", { class: "k-mono", text: String(result.bad) })]) : null
-        ].filter(Boolean)));
-        foot.appendChild(btn("Undo this import", "k-btn--quiet", function () {
-          M.undoBatch(result.batch, function (e, n2) { ov.close(); announce("Import undone · " + n2 + " entries removed"); redraw(); });
-        }, "money.import-undo"));
-        foot.appendChild(btn("See them in Transactions", "k-btn--primary", function () { ov.close(); visit.tx.range = "all"; go("transactions"); }));
-      }
-    }
-    function fail(msg) {
-      body.textContent = "";
-      body.appendChild(steps());
-      body.appendChild(el("div", { class: "k-mn-fail", role: "alert" }, [el("span", { class: "k-mn-fail-mark", "aria-hidden": "true", text: "✕" }),
-        el("div", {}, [el("b", { text: "This file could not be read" }), el("p", { text: msg + " Nothing was imported." })])]));
-      foot.textContent = "";
-      foot.appendChild(el("span"));
-      foot.appendChild(btn("Choose another file", "k-btn--primary", function () { step = 0; draw(); }));
-      if (KOS.a11y && KOS.a11y.announce) KOS.a11y.announce("This file could not be read.", "assertive");
-    }
-    function read(f) {
-      fileName = f.name;
-      var rd = new FileReader();
-      rd.onload = function () {
-        /* the bytes, not the browser's guess at them: a bank's text export
-           is Windows-1252, and its £ would arrive as a broken character */
-        parsed = M.csv.parse(M.csv.decode(rd.result), f.name);
-        if (!parsed.rows.length && !parsed.issues.length) { fail("That file has no rows."); return; }
-        /* a header this app cannot place is not a failure: the Columns
-           step opens and the reader says which column is which (MG-02) */
-        mapping = M.csv.guess(parsed.header);
-        sign = mapping.amount == null && (mapping.out != null || mapping.in != null) ? "columns" : "signed";
-        dateFmt = parsed.dateFormat || "dmy";
-        step = 1; preview();
-      };
-      rd.onerror = function () { fail("The browser could not open it."); };
-      rd.readAsArrayBuffer(f);
-    }
-    function preview() {
-      var m3 = Object.assign({}, mapping);
-      if (sign === "signed") { delete m3.in; delete m3.out; } else delete m3.amount;
-      M.csv.preview(parsed, m3, { dateFormat: dateFmt === "iso" ? "dmy" : dateFmt }, function (err, out) {
-        pv = out; step = 2;
-        announce(parsed.rows.length + " rows read. " + out.duplicates + " look like duplicates, " + out.errors.length + " cannot be read.");
-        draw();
-      });
-    }
-    function mapCard() {
-      var opts = [["", "Leave out"], ["date", "Date"], ["payee", "Payee"], ["amount", "Amount"], ["out", "Money out"], ["in", "Money in"], ["note", "Note"],
-        ["type", "Type (DEB, DD, FPI…)"], ["balance", "Balance"], ["fitid", "The bank's id"]];
-      var sk = parsed.skipped || { before: 0, after: 0 };
-      var said = (parsed.label || "CSV") + (sk.before ? " · skipped " + sk.before + (sk.before === 1 ? " line" : " lines") + " above the header" : "") +
-        (sk.after ? " · " + sk.after + (sk.after === 1 ? " line" : " lines") + " after the last entry left out" : "");
-      if (parsed.format === "kurenai") {
-        return card([head("Columns", said), el("p", { class: "k-soft", text: "This is KurenaiOS's own export: every column is read as it was written — the type, the category and the pot by name, and a split's lines as one entry." })], "k-mn-mapcard");
-      }
-      var rows = parsed.header.map(function (h, i) {
-        var cur = "";
-        Object.keys(mapping).forEach(function (k) { if (mapping[k] === i) cur = k; });
-        var sel = select(opts, cur, { "aria-label": "Column " + h, class: "k-input k-mn-mapsel" });
-        sel.addEventListener("change", function () {
-          Object.keys(mapping).forEach(function (k) { if (mapping[k] === i) delete mapping[k]; });
-          if (sel.value) mapping[sel.value] = i;
-          preview();
-        });
-        return el("div", { class: "k-mn-map" }, [el("span", { class: "k-mono k-ellipsis", text: h }), el("span", { class: "k-muted k-ellipsis", text: (parsed.rows[0] || [])[i] || "" }),
-          el("span", { class: "k-muted", "aria-hidden": "true", text: "→" }), sel]);
-      });
-      var dateSeg = seg([["dmy", "DD/MM/YYYY"], ["mdy", "MM/DD/YYYY"], ["iso", "YYYY-MM-DD"]], dateFmt, function (v) { dateFmt = v; preview(); }, "Dates are written", "k-seg--fill");
-      var signSeg = seg([["signed", "One column, a minus is out"], ["columns", "Separate In and Out columns"]], sign, function (v) { sign = v; preview(); }, "Money in and out", "k-seg--fill k-mn-wrapseg");
-      return card([head("Columns", said), el("div", {}, rows),
-        field("Dates are written", dateSeg, dateFmt === "dmy" ? "Day first, as UK banks write it." : null),
-        field("Money in and out", signSeg),
-        el("p", { class: "k-muted k-mn-small", text: "A payee is the merchant read from the bank's words. An entry goes to that merchant's category when it is known, else to Other (or Other income)." })], "k-mn-mapcard");
-    }
-    function previewCard() {
-      var rows = [];
-      (pv ? pv.rows : []).slice(0, 80).forEach(function (r) {
-        var st = r.duplicate ? chip("≈ Already have", "amber") : chip("＋ New", "teal");
-        var extra = r.duplicate ? el("div", { class: "k-mn-pvx" }, [el("span", { class: "k-muted", text: r.dupOf === "rule" ? "already confirmed as " + r.match.name : "matches an entry on " + shortDate(r.date) }),
-          seg([["skip", "Skip"], ["take", "Import anyway"]], includeDup[r.line] ? "take" : "skip", function (v) { includeDup[r.line] = v === "take"; draw(); }, "Duplicate " + r.line)]) : null;
-        rows.push(el("div", { class: "k-mn-pv" }, [st, el("span", { class: "k-mono k-muted", text: shortDate(r.date) }),
-          el("span", { class: "k-ellipsis", title: r.bank && r.bank.text ? r.bank.text : null,
-            text: (r.payee || "(no payee)") + (r.match && r.match.state === "open" ? " · counts as " + r.match.name + ", due " + shortDate(r.match.date) : "") }), amt(r.kind === "in" ? r.minor : -r.minor, { size: "13", plus: true, tone: r.kind === "in" ? "in" : null }), extra].filter(Boolean)));
-      });
-      (pv ? pv.errors : []).forEach(function (e) {
-        rows.push(el("div", { class: "k-mn-pv" }, [chip("✕ Cannot read", "danger"), el("span", { class: "k-mono k-muted", text: "row " + e.line }),
-          el("span", { class: "k-mn-bad", text: "Row " + e.line + ": " + e.reason.charAt(0).toLowerCase() + e.reason.slice(1) + ". It will be left out." }), el("span")]));
-      });
-      var newN = pv ? pv.rows.filter(function (r) { return !r.duplicate; }).length : 0;
-      if (pv && pv.needs && pv.needs.length) {
-        rows.unshift(el("p", { class: "k-soft", role: "status", text: "Choose which column is the " + (pv.needs.indexOf("date") !== -1 ? "date" : "") +
-          (pv.needs.length === 2 ? " and which the " : "") + (pv.needs.indexOf("amount") !== -1 ? "amount" : "") + ", under Columns." }));
-      }
-      var rec = pv && pv.reconcile;
-      if (rec && rec.ok === true) rows.push(el("p", { class: "k-muted k-mn-small", text: "The bank's balances add up row by row." }));
-      if (rec && rec.ok === false) rows.push(el("p", { class: "k-mn-bad k-mn-small", role: "status", text: "The bank's balance does not follow from the amounts at row" + (rec.breaks.length === 1 ? " " : "s ") + rec.breaks.slice(0, 8).join(", ") + ". Check those before importing." }));
-      return card([head("Preview", (parsed.rows.length) + " rows · " + newN + " new" + (pv && pv.duplicates ? " · " + pv.duplicates + " look like ones you have" : "") + (pv && pv.errors.length ? " · " + pv.errors.length + " cannot be read" : "")),
-        el("div", { class: "k-mn-pvlist" }, rows),
-        el("p", { class: "k-muted k-mn-small", text: (pv && pv.seenStatement ? "This statement was imported before. " : "") + "Matched by what the bank wrote; identical rows in one statement are separate payments." })], "k-mn-pvcard");
-    }
-    function doImport() {
-      var take = pv.rows.map(function (r) { return Object.assign({}, r, { duplicate: r.duplicate && !includeDup[r.line] }); });
-      M.csv.import(take, { file: fileName, format: parsed.format, closing: pv.closing }, function (err, out) {
-        if (err) { fail(err.message + "."); return; }
-        result = { added: out.added, dups: out.skipped, bad: pv.errors.length, batch: out.batch, linked: out.linked };
-        step = 3; announce("Imported " + out.added + " entries."); draw(); KOS.rerender();
-      });
-    }
-    draw();
-  }
+  /* ================= 27h · import (39a–39h, moneyimp.js) and export ================= */
+  function importDialog(opts) { return KOS.moneyImp.importDialog(opts); }
   function download(name, text) {
     var blob = new Blob([text], { type: "text/csv" });
     var a = document.createElement("a");
@@ -1349,9 +1241,10 @@
       }, "money.remind-go")], { focus: when });
   }
   /* the rule editor: one record, its occurrences computed */
-  function ruleEditor(r) {
+  function ruleEditor(r, draft) {
     var isNew = !r;
-    var d = r || { name: "", minor: null, kind: "out", cat: "subscriptions", every: { n: 1, unit: "month" }, start: today(), end: null, count: null, sub: false, trialEnd: null, dom: parse(today()).getDate(), pot: null };
+    var d = r || Object.assign({ name: "", minor: null, kind: "out", cat: "subscriptions", every: { n: 1, unit: "month" }, start: today(), end: null, count: null, sub: false, trialEnd: null, dom: parse(today()).getDate(), pot: null }, draft || {});
+    if (draft && draft.start && !draft.dom) d.dom = parse(draft.start).getDate();
     var kind = d.kind, unit = d.every.unit, ends = d.count ? "count" : d.end ? "date" : "never";
     var name = input("text", d.name, { maxlength: "80", placeholder: "Bus pass", "aria-label": "Name" });
     var af = U.amountField({ value: d.minor, label: "Amount" });
@@ -1777,7 +1670,12 @@
     });
   }
 
-  var RENDER = { overview: overview, transactions: transactions, budgets: budgets, recurring: recurring, pots: pots, month: monthYear };
+  var RENDER = { overview: overview, transactions: transactions, budgets: budgets, recurring: recurring, pots: pots, month: monthYear, settings: function (page) { KOS.moneyImp.settings(page); } };
   /* other pages open these */
   KOS.moneyUI = { entryEditor: entryEditor, importDialog: importDialog };
+  /* the parts moneyimp.js draws with (design turn 39), so both files speak one language */
+  KOS.moneyUI.parts = { el: el, btn: btn, chip: chip, kicker: kicker, card: card, head: head, dot: dot, field: field, input: input, select: select,
+    seg: seg, dialogBox: dialogBox, amt: amt, money: money, said: said, cat: cat, announce: announce, go: go, visit: visit,
+    today: today, addDays: addDays, between: between, dayLabel: dayLabel, shortDate: shortDate, monthName: monthName,
+    entryEditor: entryEditor, ruleEditor: ruleEditor, deleteEntry: deleteEntry, entryDetail: entryDetail };
 })();

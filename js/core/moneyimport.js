@@ -270,6 +270,12 @@
     var low = header.map(function (h) { return h.toLowerCase(); }).join(","), own = KURENAI_HEADER.join(",").toLowerCase();
     if (low === own || low === own.split(",").slice(0, 8).join(",") || low === own.split(",").slice(0, 7).join(",")) out.format = "kurenai";
     out.label = LABELS[out.format];
+    /* Santander's two CSV exports, named back by what they look like */
+    if (out.format === "csv") {
+      var low2 = header.map(function (h) { return normHead(h); });
+      if (low2.indexOf("merchant/description") !== -1 && low2.indexOf("debit/credit") !== -1) out.label = "Santander midata CSV";
+      else if (out.skipped.text.some(function (t) { return /^"?account:/i.test(t); }) && low2.indexOf("money in") !== -1 && low2.indexOf("money out") !== -1) out.label = "Santander Online Banking CSV";
+    }
     return out;
   }
 

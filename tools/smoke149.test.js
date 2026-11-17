@@ -116,7 +116,7 @@ step("B · MG-02/03/04/06: every export reads, maps itself and previews", async 
   /* midata, comma: the header is known, the split amounts are whole again, the overdraft line is a trailer */
   let p = read("midata-comma.csv"), map = M.csv.guess(p.header);
   eq(map, { date: 0, type: 1, payee: 2, amount: 3, balance: 4 }, "midata maps itself (MG-02)");
-  eq([p.format, p.label, p.delimiter, p.skipped.before, p.skipped.after, p.rejoined, p.issues], ["csv", "CSV", ",", 0, 1, [4, 5], []], "midata, comma");
+  eq([p.format, p.label, p.delimiter, p.skipped.before, p.skipped.after, p.rejoined, p.issues], ["csv", "Santander midata CSV", ",", 0, 1, [4, 5], []], "midata, comma, named back");
   let pv = await preview(p);
   eq([signed(pv.rows), pv.errors, pv.needs, pv.direction], [[-345, -159, 123456, -1000], [], [], "sign"], "four entries, Student Finance whole (MG-06)");
   eq(pv.rows.map((r) => r.line), [2, 3, 4, 5], "each row knows its line in the file");
@@ -131,6 +131,7 @@ step("B · MG-02/03/04/06: every export reads, maps itself and previews", async 
   eq(signed((await preview(p)).rows), [-345, -159, 123456, -1000], "the same four entries");
   /* Online Banking's CSV: the header is found below the account preamble */
   p = read("santander-online-excel.csv"); map = M.csv.guess(p.header);
+  eq(p.label, "Santander Online Banking CSV", "Online Banking's CSV is named back");
   eq([map, p.skipped.before, p.lines], [{ date: 0, payee: 1, in: 2, out: 3, balance: 4 }, 2, [5, 6, 7]], "the header is found (MG-03)");
   pv = await preview(p);
   eq([signed(pv.rows), pv.direction, pv.skipped.before], [[-345, -159, 123456], "columns", 2], "three entries from In and Out columns");
@@ -430,7 +431,7 @@ step("I · the dialog: an unknown header opens the Columns step; a text export p
     assert(input, "the dialog's file input");
     Object.defineProperty(input, "files", { configurable: true, value: [new w.File([data], name)] });
     input.dispatchEvent(new w.Event("change"));
-    for (let i = 0; i < 40 && !d.querySelector('[data-ui="money.import-go"]') && !d.querySelector('[data-ui~="money.import-dialog"] [role="alert"]'); i++) await app.settle();
+    for (let i = 0; i < 40 && !d.querySelector('[data-ui="money.import-preview"]') && !d.querySelector('[data-ui~="money.import-dialog"] [role="alert"]'); i++) await app.settle();
     return d.querySelector('[data-ui~="money.import-dialog"]');
   }
   let dlg = await choose("mystery.csv", "My bank export\n\nWhen,What,How much\n01/10/2026,Shop,-1.00\n");
@@ -438,13 +439,15 @@ step("I · the dialog: an unknown header opens the Columns step; a text export p
   const selects = dlg.querySelectorAll("select");
   eq(selects.length, 3, "one mapping control per column");
   assert(/Choose which column is the date and which the amount/.test(dlg.textContent), "it asks for the date and the amount");
-  assert(dlg.querySelector('[data-ui="money.import-go"]').disabled, "Import waits for them");
+  assert(dlg.querySelector('[data-ui="money.import-preview"]').disabled, "the preview waits for them");
   assert(Array.from(selects[0].options).some((o) => o.value === "type") && Array.from(selects[0].options).some((o) => o.value === "balance"), "Type and Balance can be mapped (MG-08)");
   K.ui.closeDialogs();
   await app.settle();
   dlg = await choose("santander-online.txt", bytes("santander-online.txt"));
   assert(!dlg.querySelector('[role="alert"]'), "the text export is read (MG-04)");
-  assert(/Santander text · skipped 2 lines above the header/.test(dlg.textContent), "the Columns step names the format and what it skipped");
+  assert(/Santander text/.test(dlg.textContent) && /2 lines above the header skipped/.test(dlg.textContent), "the File step names the format and what it skipped");
+  dlg.querySelector('[data-ui="money.import-preview"]').click();
+  for (let i = 0; i < 40 && !d.querySelector('[data-ui="money.import-go"]'); i++) await app.settle();
   assert(/Import 3 entries/.test(dlg.querySelector('[data-ui="money.import-go"]').textContent), "three entries to import");
   assert(/Heron Foods/.test(dlg.textContent) && /The bank's balances add up/.test(dlg.textContent), "merchants, and the balances checked");
   dlg.querySelector('[data-ui="money.import-go"]').click();

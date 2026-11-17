@@ -1169,6 +1169,17 @@ color-scheme: dark;
 --mn-pv-date: 74px;
 --mn-pv-amt: 90px;
 --mn-drop-h: 150px;
+--mn-import-w: 1080px;       /* the import (39a–39b): wide enough for payee, category and amount */
+--mn-p-date: 60px;           /* a preview row: date · merchant · category · amount · balance */
+--mn-p-cat: 210px;
+--mn-p-amt: 96px;
+--mn-p-bal: 96px;
+--mn-plist-h: 52dvh;
+--mn-rc-min: 150px;          /* a column read by itself (39a) */
+--mn-wk-h: 110px;            /* By week and a merchant's months (39e–39f) */
+--mn-bar-l: 170px;           /* By merchant: name · bar · figure */
+--mn-bar-v: 84px;
+--mn-rule-n: 88px;           /* Rules: a rule's entry count */
 --mn-fab: 56px;
 --mn-chip-min: 24px;         /* a Calendar derived chip (the dense exception) */
 /* Goals */
@@ -1278,6 +1289,8 @@ color-scheme: dark;
 --alarm-ink: oklch(from var(--red) 0.16 0.02 h);
 --amber-ink: oklch(from var(--amber) 0.2 0.03 h);   /* text on a filled amber (fixed in every theme) */
 --alarm-wash: color-mix(in oklch, var(--red) 22%, var(--s1));
+--amber-wash: color-mix(in oklch, var(--amber) 16%, var(--s1));   /* a row or note asking for a choice (39a) */
+--teal-wash: color-mix(in oklch, var(--teal) 14%, var(--s1)); /* a rule offered under a row (39c) */
 --bloom-hi: oklch(from var(--bloom) calc(l + 0.04) c h);
 --bloom-lo: oklch(from var(--bloom) calc(l - 0.14) calc(c * 1.25) h);
 --collection-hue: oklch(from var(--crimson) calc(l + 0.02) calc(c * 0.875) h);

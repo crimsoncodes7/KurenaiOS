@@ -116,7 +116,10 @@
       return a.run ? ["due", String(a.run)] : null;
     },
     /* Money's views (`#/money/transactions`; Overview is bare) */
-    money: function (a) { return typeof a === "string" && a && a !== "overview" ? [a] : null; },
+    money: function (a) {
+      if (typeof a !== "string" || !a || a === "overview") return null;
+      return a.indexOf("merchant:") === 0 ? ["merchant", a.slice(9)] : [a];   // a merchant's page (39f)
+    },
     /* Goals: a tab (`#/goals/week`) or one goal (`#/goals/12`) */
     goals: function (a) {
       if (a && a.id != null) return [String(a.id)];
@@ -139,7 +142,7 @@
     creatives: function (p) { return p[0] ? { page: p[0], id: p[1] || null } : null; },
     mind: function (p) { return p[0] ? { page: p[0], id: p[1] || null } : null; },
     sims: function (p) { return p[0] || null; },
-    money: function (p) { return p[0] || null; },
+    money: function (p) { return p[0] === "merchant" && p[1] ? "merchant:" + p[1] : p[0] || null; },
     achievements: function (p) { return p.length ? p.join("/") : null; },
     assignments: function (p) { return p[0] ? { id: /^\d+$/.test(p[0]) ? Number(p[0]) : p[0] } : null; },
     reminders: function (p) { return p[0] ? { id: /^\d+$/.test(p[0]) ? Number(p[0]) : p[0], section: "all" } : null; },

@@ -34,13 +34,6 @@
     ".k-lab-tab · font-size · css/views/labs.css",
     ".k-lab-tab · padding · css/views/labs.css",
     ".k-mind-select · inline-size · css/views/mind.css",
-    ".k-mn-step · align-items · css/views/money.css",
-    ".k-mn-step · gap · css/views/money.css",
-    ".k-mn-step-n · block-size · css/views/money.css",
-    ".k-mn-step-n · font-size · css/views/money.css",
-    ".k-mn-step-n · font-weight · css/views/money.css",
-    ".k-mn-step-n · inline-size · css/views/money.css",
-    ".k-mn-steps · gap · css/views/money.css",
     ".k-pad-sent-not · color · css/views/ink.css",
     ".k-rp-hist-n · color · css/views/reports.css",
     ".k-th-line · stroke · css/views/labs.css"
