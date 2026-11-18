@@ -372,7 +372,9 @@
   if (KOS.store && KOS.store._showNotices) KOS.store._showNotices();
 
   // ---- view registry: each module registers render functions ----
-  KOS.views = {};
+  /* kept, not replaced: lazy.js has put the stand-ins of the pages that
+     load on first use here already (W8, AP-01 stage 2) */
+  KOS.views = KOS.views || {};
 
   /* ---- the page on screen ----
      Back and Forward, and the arrows, are the browser's history, owned by

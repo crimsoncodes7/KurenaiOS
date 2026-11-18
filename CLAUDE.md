@@ -382,7 +382,7 @@ domain file AND its line here, in the same commit.
 - **166** Each render has a life: `KOS.show` disposes the previous page first, and navigation closes dialogs and asks before losing unsaved work.
 - **167** A session in progress is one ledger entry found by `metrics.sid`, paid only by difference via `KOS.sessions.upsert`, and resumable per device.
 *Loading on first use*
-- **168** Boot loads the app, not the curriculum: `<template data-lazy>` bundles load on first use, and anything computed or saved must not miss.
+- **168** Boot loads the app, not the curriculum: `<template data-lazy>` bundles (content and page modules) load on first use, and anything computed or saved must not miss.
 *Responsive integration and visual release quality*
 - **72** `mobile-shell.js` moves canonical controls into dialogs only once every enhancement mounted (`data-shell="ready"`), so the fallback stays usable.
 - **73** Search behaviour stays in the canonical controller; mobile presentation may call only `dismissSearch` and `onSearchChosen`.
