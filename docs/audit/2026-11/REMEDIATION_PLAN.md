@@ -1200,6 +1200,17 @@ its "only goes down" rule; AP-01 stage 2 would win it back.
   landing: Help & Guide (AA-16, SH-10, SH-11, AX-20, AX-34, AP-06), GUIDE.md
   (SH-32) and the docs re-baseline (AP-05). AP-04 (one lesson reader) and
   AP-07 are not started.
+- **Done 18 Nov (`feat/w8-now` bc39608, NOT deployed):** SH-31 (ui.js's own
+  Back/Forward stack, overwritten by the router, removed), SH-42 (the theme on
+  `<html>` only), EX-16 (Files draws 300 at a time and says so, with Show
+  more; smoke106 I) and AP-11's first half (the retired Habits page's 79
+  `.k-hb-*` rules; the "canvas-era lab classes" are not named and were left).
+  With the Exams & Papers rework (kos-exams-2): its engine and pages load on
+  first use (`exams-pages`, a first step of AP-01 stage 2), and the old
+  Readiness, Season and Companion guide pages are gone. NEXT in W8's "now":
+  AP-18 and AP-03 (boot's exam cap pass, readiness memo, first draws),
+  AX-25/AG-08/AP-15 (badge measuring), CL-05 (Mangaka), AP-09 (split
+  `hub.js`), AP-01 stage 2 (page modules on first use).
 - **Done 17 Nov (main `395cbde`): AP-20.** CLAUDE.md 266 → 227 KB: the
   release diary moved to `docs/RELEASES.md`, the suite list to
   `docs/SMOKE.md`; gate 161 / 161. The rest of W8's "now" part comes after
