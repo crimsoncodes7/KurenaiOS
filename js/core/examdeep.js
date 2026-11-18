@@ -40,10 +40,10 @@
 
   /* a step's marks: each AQA mark point MPn is one mark; Edexcel's M1 A1
      B1 dM1 carry their number; levels (L1–L4) and "" score nothing here */
-  var TOKEN = /\b(MP\d+|d*M\d|A\d|B\d)\b/g;
+  var TOKEN = /\b(MP\d+|[dD]{0,2}[MAB]\d+)(?:dd|d|ft|cso|oe|awrt)?(?![A-Za-z0-9])/g;
   function marksOf(t) {
     var s = 0;
-    String(t || "").replace(TOKEN, function (x) { s += /^MP/.test(x) ? 1 : (+x.replace(/\D/g, "") || 1); return x; });
+    String(t || "").replace(TOKEN, function (x, code) { s += /^MP/.test(code) ? 1 : (+code.replace(/\D/g, "") || 1); return x; });
     return s;
   }
   function tokens(t) { return String(t || "").match(TOKEN) || []; }

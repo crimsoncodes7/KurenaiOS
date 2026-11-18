@@ -35,10 +35,10 @@
      bracket "[M1 A1]", "[B1]", "[A1ft]" */
   function codesOf(m) {
     var t = String(m || ""), out = [];
-    var lead = /^\s*d*([MABE])(\d)\b/.exec(t);
+    var lead = /^\s*[dD]{0,2}([MABE])(\d)(?:dd|d|ft|cso|oe)?(?![A-Za-z0-9])/.exec(t);
     if (lead) out.push(lead[1] + lead[2]);
     var tail = /\[([^\]]*)\]\s*$/.exec(t);
-    if (tail) (tail[1].match(/\bd*[MABE]\d/g) || []).forEach(function (c) { out.push(c.replace(/^d+/, "")); });
+    if (tail) (tail[1].match(/\b[dD]{0,2}[MABE]\d/g) || []).forEach(function (c) { out.push(c.replace(/^[dD]+/, "")); });
     return out;
   }
   /* CC-25: OCR writes several marks into one bullet — "Deletion (1): remove
@@ -72,8 +72,8 @@
     var own = /\s\((\d)\)[.,;:]?\s*$/.exec(t);
     if (own) return +own[1] || 1;
     var tail = /\[([^\]]*)\]\s*$/.exec(t);
-    var codes = tail ? (tail[1].match(/\bd*[MABE](\d)/g) || []) : [];
-    if (codes.length) return codes.reduce(function (n, c) { return n + (+c.slice(1)); }, 0);
+    var codes = tail ? (tail[1].match(/\b[dD]{0,2}[MABE](\d)/g) || []) : [];
+    if (codes.length) return codes.reduce(function (n, c) { return n + (+c.replace(/\D/g, "")); }, 0);
     return 1;
   }
   function shuffle(a) {

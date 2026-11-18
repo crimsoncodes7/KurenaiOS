@@ -210,18 +210,30 @@
   }
   /* mark points from a scheme's lines: "[M1 A1]", "M1", "(1)", "[2 marks]".
      When the lines do not add up to the part's marks, one chip a mark. */
+  var CODE_RE = /(?:^|[^A-Za-z0-9])([dD]{0,2})([MAB])(\d+)(dd|d|ft|\*|cso|oe|awrt)?(?=[^A-Za-z0-9]|$)/g;
   function chips(part) {
     var out = [], lastM = null;
+    var lastAny = null;
     (part.ms || []).forEach(function (line, li) {
       var t = String(line);
-      var codes = t.match(/\b(d*M\d|A\d|B\d)\b/g);
-      if (codes) {
+      /* the worked answer's "**Answer:**" line is the model answer, never a
+         mark point: a bracket in it (f(2) = 0) is not "(2)" marks */
+      if (/^\s*\*\*Answer:\*\*/.test(t)) return;
+      /* every form Edexcel writes (CM-15): M1 A1 B1, dM1 or DM1 or ddM1,
+         a dependent dA1 or dB1, M1d or M1dd, A1ft, A1*, A1cso, B1oe */
+      var codes = [], x;
+      CODE_RE.lastIndex = 0;
+      while ((x = CODE_RE.exec(t))) codes.push({ pre: x[1].toLowerCase(), k: x[2], n: +x[3], suf: (x[4] || "").toLowerCase() });
+      if (codes.length) {
         codes.forEach(function (c) {
-          var v = +c.replace(/\D/g, "") || 1;
-          var chip = { id: li + ":" + out.length, label: c, value: v, line: li };
-          if (/^M/.test(c)) lastM = chip.id;
-          if (/^d+M/.test(c)) chip.needs = lastM;
-          if (/^A/.test(c) && lastM) chip.needs = lastM;
+          var dep = !!c.pre || c.suf === "d" || c.suf === "dd";
+          var label = (c.pre ? "d".repeat(c.pre.length) : "") + c.k + c.n + (c.suf && c.suf !== "awrt" && c.suf !== "oe" ? c.suf : "");
+          var chip = { id: li + ":" + out.length, label: label, value: c.n || 1, line: li };
+          if (c.k === "M" && dep) chip.needs = lastM;
+          else if (c.k === "A" && lastM) chip.needs = lastM;
+          else if (dep && lastAny) chip.needs = lastAny;
+          if (c.k === "M") lastM = chip.id;
+          lastAny = chip.id;
           out.push(chip);
         });
         return;

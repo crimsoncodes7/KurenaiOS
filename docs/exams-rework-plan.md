@@ -458,10 +458,12 @@ wrangling". A target:
 into one point a mark; F201's schemes now all add up — F204 and F206 keep
 their "(1–2)" level bands), dM/ddM read by every marker, CM-21, EX-29,
 EX-40, EX-47, EX-42 (the clock runs on through a reload and says so).
-CM-15: 12 Statistics and Mechanics worked examples still have codes that
-do not add up to their stated marks (none is in December's Pure mock):
-S2.3 ×3, S5.3, M7.3 ×2, M7.4, M7.5 ×2, M8.4 ×2, M9.1 — fix each from its
-published scheme before the summer.
+CM-15 DONE 18 November 2026 (smoke183 B2): the 12 Statistics and Mechanics
+examples were right; the readers were not. Edexcel's DM1, dA1, dB1, M1d,
+M1dd and A1ft were missed by the tally, the Companion and the topic's exam
+questions, and the tally read a bracket in the "Answer:" line as marks
+(2.3 and 2.6 in Pure fell back to a chip a mark for that). Every Maths
+worked example now adds up through all three.
 
 ### 9.2 Multi-paper scopes
 

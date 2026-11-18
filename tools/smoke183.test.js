@@ -59,6 +59,32 @@ step("B · dM and ddM are method marks everywhere", async () => {
   eq(K.examDeep.marksOf ? K.examDeep.marksOf("M1 dM1 A1") : 3, 3, "the Companion counts dM1");
 });
 
+step("B2 · CM-15: every Maths worked example's codes add up, through the app's readers", async () => {
+  /* Edexcel writes M1 A1 B1, dM1 or DM1 or ddM1, a dependent dA1 or dB1,
+     M1d or M1dd, A1ft, A1*, A1cso: the tally, the Companion and the topic's
+     exam questions read them all, so no worked example falls back to a
+     chip a mark */
+  const bad = [];
+  K.spec.leaves("maths").forEach((leaf) => {
+    const c = K.content.get("maths", leaf.ref);
+    if (!c || !Array.isArray(c.notes)) return;
+    K.content.examFromWorked(c.notes, "Edexcel").forEach((it) => {
+      const ch = K.examPaper.chips({ marks: it.marks, ms: it.ms });
+      if (ch.some((x) => /^\d+$/.test(x.label))) bad.push(leaf.ref + " " + it.src + ": the codes do not add up to " + it.marks);
+    });
+    c.notes.forEach((b) => {
+      const w = b && b.worked;
+      if (!w || w.tag !== "exam" || !w.src || !/marks?/.test(w.src)) return;
+      const marks = (w.src.match(/(\d+)\s*marks?/g) || []).reduce((t, x) => t + parseInt(x, 10), 0);
+      const deep = K.examDeep.marksOf((w.steps || []).map((st) => st.mk || "").join(" "));
+      if (deep !== marks) bad.push(leaf.ref + " " + w.src + ": the Companion reads " + deep + " of " + marks);
+    });
+  });
+  eq(bad, [], "every worked example");
+  eq(K.quiz.weightOf("Step [DM1 A1ft]"), 2, "DM1 and A1ft read by the topic's exam questions");
+  eq(K.examPaper.chips({ marks: 2, ms: ["B1", "dB1"] }).map((c) => [c.label, !!c.needs]), [["B1", false], ["dB1", true]], "a dependent B needs the mark before it");
+});
+
 step("C · CM-21: both questions' marks", async () => {
   const items = K.content.examFromWorked([{ worked: { tag: "exam", title: "Two in one", q: "(i) Prove … (ii) Find …",
     src: "AS June 2018 · P1 Q10 · 4 marks; A-level June 2022 · P2 Q4 · 3 marks", steps: [{ m: "x", mk: "M1 A1 A1 A1" }, { m: "y", mk: "M1 A1 A1" }] } }], "Edexcel");
