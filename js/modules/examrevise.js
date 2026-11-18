@@ -142,8 +142,13 @@
       return "";
     }
     var nRead = chs.filter(function (c) { return c.read; }).length, of = chs.filter(function (c) { return !c.noRead; }).length;
-    var box = el("nav", { class: "k-card k-xr-list", "data-ui": "exams.chapters", "aria-label": "Chapters" }, [
-      el("div", { class: "k-xr-listhead" }, [el("b", { text: "Chapters" }), el("span", { class: "k-mono k-ex-muted", text: nRead + " of " + of + " read" })])]);
+    var box = el("nav", { class: "k-card k-xr-list", "data-ui": "exams.chapters", "aria-label": "Chapters" });
+    /* on the iPad and phone the list folds to its head and the chapter you
+       are on; the head opens the rest (46a: chapters as a sheet) */
+    var headB = el("button", { type: "button", class: "k-xr-listhead", "aria-expanded": "false", "data-ui": "exams.chapters-toggle",
+      onclick: function () { var o = box.hasAttribute("data-open"); if (o) box.removeAttribute("data-open"); else box.setAttribute("data-open", ""); headB.setAttribute("aria-expanded", String(!o)); } },
+      [el("b", { text: "Chapters" }), el("span", { class: "k-mono k-ex-muted", text: nRead + " of " + of + " read" }), el("span", { class: "k-xr-fold", "aria-hidden": "true", text: "▾" })]);
+    box.appendChild(headB);
     var shownTopics = 0, more = null, showAll = !!(KOS.store.state.ui.examReviseAll || {})[a.id];
     var groups = { essentials: "Essentials", topics: "Topics · " + (order(a) === "spec" ? "spec order" : "weakest first"), yours: "Yours" }, last = null;
     chs.forEach(function (c) {
