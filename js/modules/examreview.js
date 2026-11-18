@@ -215,12 +215,14 @@
   /* ---------------- Get feedback (47f) ---------------- */
   function packParts(a, e, rec) {
     var paper = paperFor(a, e);
+    var T = (KOS.store.state.ui.examTyped || {})[rec.uid] || {};
     return (rec.parts || []).map(function (p) {
       var pq = paper ? paper.questions.filter(function (x) { return String(x.n) === String(p.id); })[0] : null;
-      if (!pq) return { id: p.id };
+      var typed = Object.keys(T).filter(function (k) { return k.split("|")[0] === String(p.id) && String(T[k]).trim(); }).map(function (k) { return k.split("|")[1] + " " + T[k]; }).join("\n");
+      if (!pq) return { id: p.id, typed: typed || null };
       return { id: p.id, question: [pq.stem || pq.ctx || ""].concat(pq.parts.map(function (x) { return (x.label || "") + " " + x.q + " [" + x.marks + "]"; })).filter(Boolean).join("\n"),
         scheme: [].concat.apply([], pq.parts.map(function (x) { return (x.ms || []).map(function (l) { return (x.label || "") + " " + l; }); })),
-        levels: [].concat.apply([], pq.parts.map(function (x) { return x.levels || []; })) };
+        levels: [].concat.apply([], pq.parts.map(function (x) { return x.levels || []; })), typed: typed || null };
     });
   }
   function getFeedback(a, e, box) {
