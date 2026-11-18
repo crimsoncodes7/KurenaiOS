@@ -1,12 +1,14 @@
 ---
 name: project-branch-and-release-state
-description: "Which git branch is live, what is deployed — check git before trusting this; prod kos-exams-3; feat/w8-speed + feat/w8-lazy (on w8-hub) not deployed; suites from 187"
+description: "Which git branch is live, what is deployed — check git before trusting this; prod kos-exams-3; prod kos-exams-4 (exams audit + W8); suites from 188"
 metadata:
   node_type: memory
   type: project
   originSessionId: 2e2dc728-9366-4708-9ad8-6718d38edac2
   modified: 2026-11-17T21:04:49.853Z
 ---
+
+**RELEASE kos-exams-4 (2026-11-18, latest, Opus): `feat/exams-audit` (W8 speed + hub split + page bundles merged, then the Exams & Papers audit fixes f0f0e7e; docs/exams-audit-2026-11-18.md; smoke187; gate 169).** Fixed: A4 paper sheets screen=print and Print menu (paper/both/scheme, never the app); OCR F201 SAM in the index via js/data/exam-index-ocr.js (merged by exampapers.js) + OCR file-name matching; past papers inline in each exam's Papers section; grade dropdown; plain prediction line; any tier's result; attempt Edit/Delete+Undo (KOS.trackerEdit/trackerDelete); exam ⋯ Edit/Archive/Delete (KOS.examDelete) + Archived list; viewer finds OCR questions, asks/remembers pages (ui.paperPages); hub tab Library→Practice. Suites from 188.
 
 **Newest (2026-11-18, latest++, Opus): `feat/w8-lazy` (b155a38, STACKED on feat/w8-hub, pushed, NOT deployed): AP-01 stage 2 first part — nine page bundles (page-money/-governor/-code/-mind/-ja/-help/-shrine/-reports/-sync), stand-in views in lazy.js PAGES, KOS.openShop forwarder; boot 8.78 → 7.87 MB, smoke142 budget 7.9 MB; invariant 168 rewritten. Deploy = merge feat/w8-speed + feat/w8-lazy (only docs/memory conflicts: take the newer). Rest of the 4 MB aim needs Focus/Assistant/aitools/calendar/vaults/labs split.**
 
