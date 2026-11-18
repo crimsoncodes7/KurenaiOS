@@ -19,11 +19,11 @@ chronological diary here.
   (`docs/audit/2026-11/REMEDIATION_PLAN.md`); the Exams & Papers rework is
   `docs/exams-rework-plan.md` (branch `feat/exams-plan` until it merges).
 - Production: https://kurenai-os.pages.dev
-- Latest release: sw `kos-exams-2` (18 November 2026). Every release
+- Latest release: sw `kos-exams-3` (18 November 2026). Every release
   before it, with what it shipped, its immutable URL and its branch, is in
   [`docs/RELEASES.md`](docs/RELEASES.md), newest first; a new release adds
   its entry there and changes only this line and the next here.
-- Service-worker version: `kos-exams-2`
+- Service-worker version: `kos-exams-3`
 - Required smoke gate: 167 / 167 suites (`""`, 2–156, 160–164 and 180–185) — `npm test`;
   what each suite holds: [`docs/SMOKE.md`](docs/SMOKE.md). New suites on this
   account are numbered from 180 (see `docs/HANDOFF.md`).

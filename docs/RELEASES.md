@@ -15,7 +15,17 @@ the service-worker version). Git holds the rest.
   `5bece3e`). `ai-chat` is deployed as version 6 (images for Gemini, 26 October 2026); the
   `kos_reports` migration `20261012000001` is applied; so is `kos_money`
   (`20261019000001`, 19 October 2026), live since the Money and Goals release.
-- Latest release: sw `kos-exams-2` (18 November 2026, `feat/exams-rework`
+- Latest release: sw `kos-exams-3` (18 November 2026, main): Maths' mark
+  codes (CM-15: DM1, dA1, dB1, M1d, M1dd and A1ft read by the tally, the
+  Companion and exam questions; a worked answer's Answer line no longer
+  read as marks); every assessment tier right on the new exam pages (a
+  retrieval quiz's five sections and quiz card, a topic test without
+  timed-practice cells, the assessment's Files, Notes and preparation
+  checklist back); the old Readiness, Season and Companion guide pages
+  removed; the assessment editor's required fields marked, each paper
+  named once, IT graded Distinction, Merit or Pass; W8's SH-31, SH-42,
+  EX-16 (Files' Show more) and AP-11's Habits CSS.
+  Before it sw `kos-exams-2` (18 November 2026, `feat/exams-rework`
   fast-forwarded into main): Exams & Papers reworked around one exam, from
   design turns 45–47 — All exams; an exam's eight sections (Today, Plan,
   Topics, Revise, Questions, Papers, Review, On the day) with an iPad strip
