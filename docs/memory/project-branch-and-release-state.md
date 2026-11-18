@@ -1,12 +1,14 @@
 ---
 name: project-branch-and-release-state
-description: "Which git branch is live, what is deployed — check git before trusting this; prod kos-exams-3; feat/w8-speed + feat/w8-hub not deployed; suites from 187"
+description: "Which git branch is live, what is deployed — check git before trusting this; prod kos-exams-3; feat/w8-speed + feat/w8-lazy (on w8-hub) not deployed; suites from 187"
 metadata:
   node_type: memory
   type: project
   originSessionId: 2e2dc728-9366-4708-9ad8-6718d38edac2
   modified: 2026-11-17T21:04:49.853Z
 ---
+
+**Newest (2026-11-18, latest++, Opus): `feat/w8-lazy` (b155a38, STACKED on feat/w8-hub, pushed, NOT deployed): AP-01 stage 2 first part — nine page bundles (page-money/-governor/-code/-mind/-ja/-help/-shrine/-reports/-sync), stand-in views in lazy.js PAGES, KOS.openShop forwarder; boot 8.78 → 7.87 MB, smoke142 budget 7.9 MB; invariant 168 rewritten. Deploy = merge feat/w8-speed + feat/w8-lazy (only docs/memory conflicts: take the newer). Rest of the 4 MB aim needs Focus/Assistant/aitools/calendar/vaults/labs split.**
 
 **Newest (2026-11-18, latest+, Opus): `feat/w8-hub` (5454685, from main, pushed, NOT deployed): AP-09, hub.js split into hub.js (core) + searchui/home/subject/topic/dataview.js; shared helpers via KOS.hub._. Gate 167 there. Merges cleanly with feat/w8-speed. Next W8: AP-01 stage 2.**
 
