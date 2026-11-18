@@ -111,7 +111,10 @@
   G.register({ id: "exam_recall", domain: "study", label: "Projected recall", icon: "憶", unit: "%", exam: true, fromBase: true,
     fields: { exam: true }, deadlineOf: deadlineOf, judge: holdJudge,
     blurb: "FSRS on the morning of the exam", tiers: ["real_exam", "mock", "topic_test", "retrieval_test"],
-    onCreate: function (g) { var a = examOf(g), r = a ? recallNow(a) : null; g.params.baseline = r && r.value != null ? r.value : 0; },
+    /* GO-27: too few rated cards to read recall leaves the baseline
+       unknown (null), so no line is drawn from a made-up 0; the engine
+       takes the first figure measured as the baseline */
+    onCreate: function (g) { var a = examOf(g), r = a ? recallNow(a) : null; g.params.baseline = r && r.value != null ? r.value : null; },
     measure: function (g, ctx, cb) {
       var a = examOf(g);
       if (!a) { gone(cb); return; }

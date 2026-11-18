@@ -172,6 +172,8 @@
 .k-gl-histbar[data-state="met"] > b { color: var(--teal); }
 .k-gl-histbar[data-state="missed"] > i { background: var(--alarm-wash); box-shadow: inset 0 0 0 var(--ring-1-5) var(--alarm); }
 .k-gl-histbar[data-state="missed"] > b { color: var(--alarm); }
+.k-gl-histbar[data-state="none"] > i { background: var(--s2); }
+.k-gl-histbar[data-state="none"] > b { color: var(--muted); }
 .k-gl-histbar[data-state="open"] > i { background: linear-gradient(180deg, var(--crimson), var(--crimson-lo)); }
 .k-gl-link[data-state="dead"] .k-tile { opacity: 0.5; }
 .k-gl-link[data-state="dead"] .k-gl-linktitle { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--line); }

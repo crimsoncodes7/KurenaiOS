@@ -208,7 +208,7 @@ step("D · goal notices, once each", async () => {
     { id: 6, title: "Archived", archived: true, deadline: "2026-10-20", _status: "active", _current: 0, _target: 1 }
   ];
   const n = G.notices(rows, today);
-  eq(n.map(x => x.id), ["goal:1:end:2026-10-19", "goal:2:due:2026-10-20", "goal:3:done", "goal:4:missed"], "one each, none for display-only or archived");
+  eq(n.map(x => x.id), ["goal:1:end:2026-10-19", "goal:2:due:2026-10-20", "goal:3:done:2026-10-19", "goal:4:missed:2026-10-18"], "one each, none for display-only or archived");
   eq(n[0].body, "7 h 30 m of 10 h", "hours read as hours");
   eq(n[3].body.slice(0, 11), "£40 of £75.", "money reads as money");
   assert(n.every(x => x.kind === "goal" && K.notify.KINDS.goal), "the goal kind");
