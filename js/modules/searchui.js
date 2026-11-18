@@ -29,28 +29,28 @@
     if (q.length < 2) return [];
     warmSearch();
     var terms = q.split(/\s+/);
-    var specHits = [], fcHits = [];
-    SEARCH_INDEX.forEach(function (it) {
-      var fcHit = false;
-      if (terms.every(function (t) { return it.text.indexOf(t) !== -1; })) {
-        fcHit = false;
-      } else if (it.fctext && terms.every(function (t) {
-        return (it.text + " " + it.fctext).indexOf(t) !== -1; })) {
-        fcHit = true;
-      } else {
-        return;
+    var found = [], M = KOS.search && KOS.search.more;   /* ranking and notes: the lazy search bundle */
+    SEARCH_INDEX.forEach(function (it, order) {
+      var kind;      /* 0 spec wording, 1 flashcard, 2 notes */
+      if (terms.every(function (t) { return it.text.indexOf(t) !== -1; })) kind = 0;
+      else if (it.fctext && terms.every(function (t) { return (it.text + " " + it.fctext).indexOf(t) !== -1; })) kind = 1;
+      else {
+        var nt = M ? M.noteText(it) : "";
+        if (nt && terms.every(function (t) { return (it.text + " " + it.fctext + " " + nt).indexOf(t) !== -1; })) kind = 2;
+        else return;
       }
-      var leaf = BYREF[it.subject][it.ref];
-      var joined = fcHit ? it.fctext : plainSpec(leaf.content.join(" "));
+      found.push({ it: it, kind: kind, order: order, tier: M ? M.tier(it, q, terms, kind) : 0 });
+    });
+    found.sort(function (a, b) { return a.tier - b.tier || a.order - b.order; });
+    return found.slice(0, 30).map(function (f) {
+      var it = f.it, leaf = BYREF[it.subject][it.ref];
+      var joined = f.kind === 1 ? it.fctext : f.kind === 2 ? M.noteText(it) : plainSpec(leaf.content.join(" "));
       var pos = joined.toLowerCase().indexOf(terms[0]);
       var snip = pos >= 0
         ? "…" + joined.slice(Math.max(0, pos - 30), pos + 90) + "…"
         : plainSpec(leaf.content[0]);
-      (fcHit ? fcHits : specHits).push({
-        subject: it.subject, ref: it.ref, title: it.title, fcHit: fcHit, snippet: snip
-      });
+      return { subject: it.subject, ref: it.ref, title: it.title, fcHit: f.kind === 1, noteHit: f.kind === 2, snippet: snip };
     });
-    return specHits.concat(fcHits).slice(0, 30);
   }
 
   /* ---- the topbar listbox (Category 7 Phase F) ----
@@ -78,13 +78,16 @@
   /* the phone sheet's domain chips (frame 15a): All, then the app section
      each result group belongs to. They filter the painted groups; ranking
      and routing stay core/search.js's. CSS shows them on a phone only. */
-  var SEARCH_SECTION = { spec: "Study", notes: "Study", cards: "Study", assignments: "Study",
-    reminders: "Productivity", calendar: "Productivity", planner: "Collection", goals: "Collection", media: "Collection" };
+  /* a chip is the rail's own section of the group's view (SH-06) */
+  function sectionOfGroup(g) {
+    var sec = g.view && KOS.sectionOf ? KOS.sectionOf(g.view) : null;
+    return sec ? (sec === "system" ? "Archive" : sec.charAt(0).toUpperCase() + sec.slice(1)) : "Pages";
+  }
   var searchScope = null, lastPaint = null;
   function scopeChips(groups) {
     var counts = { All: 0 };
     groups.forEach(function (g) {
-      var sec = SEARCH_SECTION[g.id] || "Pages";
+      var sec = sectionOfGroup(g);
       counts[sec] = (counts[sec] || 0) + g.items.length;
       counts.All += g.items.length;
     });
@@ -110,7 +113,7 @@
     lastPaint = { groups: groups, q: q, done: done };
     var total = 0;
     if (groups.length) resultsEl.appendChild(scopeChips(groups));
-    groups = groups.filter(function (g) { return !searchScope || (SEARCH_SECTION[g.id] || "Pages") === searchScope; });
+    groups = groups.filter(function (g) { return !searchScope || sectionOfGroup(g) === searchScope; });
     groups.forEach(function (g) {
       var wrap = el("div", { class: "k-sr-group", role: "group", "aria-label": g.label });
       wrap.appendChild(el("div", { class: "k-sr-group-h", "aria-hidden": "true" }, [
@@ -138,7 +141,7 @@
       resultsEl.appendChild(el("div", { class: "k-sr-empty", "data-ui": "search.empty" }, [
         el("b", { text: "Nothing matches \u201C" + q + "\u201D." }),
         el("span", { text: done
-          ? "Searched the three specifications, your topic notes, the Collection, reminders, assignments, the calendar, the planner and your goals."
+          ? "Searched the pages, the specifications, your notes, the Collection, reminders, assignments, the calendar and your creative work."
           : "Still searching the Collection\u2026" })
       ]));
     }

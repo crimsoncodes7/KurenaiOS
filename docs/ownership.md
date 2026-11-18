@@ -10,7 +10,7 @@ Which file owns which contract. Moved out of `CLAUDE.md` on 17 November
 | DOM primitives, dialogs, tabs, scrollers, the reorder (drag) pattern, rendering; `KOS.ui.device()` (the device's NAME for words, never layout: an iPad's Safari says "Macintosh") | `js/core/ui.js` |
 | Live regions and activation helpers | `js/core/a11y.js` |
 | Hash URL/history | `js/core/router.js` |
-| Cross-domain search | `js/core/search.js`; presentation in `searchui.js`/`mobile-shell.js` |
+| Cross-domain search | `js/core/search.js` (the core domains and `run`) and `js/core/searchmore.js` (the lazy `search-more` bundle: Pages, Exams, Code projects, Creatives, the Wall, ranking and notes); presentation in `searchui.js`/`mobile-shell.js` |
 | Study content and engines | `content.js`, `hub.js` (the shared derivations, the spine, the spec renderers; `KOS.hub`) and its pages `home.js`, `subject.js`, `topic.js`, `dataview.js` (Backup & Restore) and `searchui.js` (split W8, AP-09), `js/engines/` |
 | Specification tree queries and stored topic links (`refs`) | `js/core/spec.js` (`KOS.spec`) |
 | The topic picker (every form that names topics) | `js/core/topicpicker.js` (`KOS.topicPicker`) |

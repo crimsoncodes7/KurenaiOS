@@ -2739,15 +2739,21 @@
     "notifications", "matrix", "anime", "books", "vn",
     "game", "seasonal", "mangaka", "wishlist", "goals", "shrine", "aniprofile",
     "vndbprofile", "mediasync", "governor", "data", "help",
-    "sims", "trace", "oop", "worked"];
+    "sims", "trace", "oop", "worked",
+    "pen", "code", "japanese", "creatives", "mind", "routines", "files", "storage", "connections",
+    "assistant", "money", "reports", "achievements"];
+  var NAV_SUBJECTS = SUBJECTS.concat(["code", "ja", "mind", "creatives"]);
+  var NAV_PAGED = { code: 1, japanese: 1, creatives: 1, mind: 1 };
   def("app_navigate", {
-    desc: "Navigate the app to a view (same as the user clicking — history and rail state stay correct). 'subject' needs subject; 'ref' needs subject+ref; 'sims' opens the lab index, or one lab with `lab` (an id from labs_list).",
+    desc: "Navigate the app to a view (same as the user clicking — history and rail state stay correct). 'subject' needs subject (compsci, maths, it, code, ja, mind, creatives); 'ref' needs subject+ref; 'sims' opens the lab index, or one lab with `lab` (from labs_list). Pages with parts take `page` (code/japanese/creatives/mind: map, task, capstone, project, write, portfolio…, with `id`; money: transactions; governor: shop, avatar, history; achievements: titles; reports: week, month, term, year; or the tab of goals, routines, exams, pacing, help, assistant).",
     category: "app", tier: "read", read: false,
     params: {
       view: { type: "string", enum: NAV_VIEWS, required: true },
-      subject: { type: "string", enum: SUBJECTS },
+      subject: { type: "string", enum: NAV_SUBJECTS },
       ref: { type: "string", maxLen: 40 },
-      lab: { type: "string", maxLen: 60 }
+      lab: { type: "string", maxLen: 60 },
+      page: { type: "string", maxLen: 40 },
+      id: { type: "string", maxLen: 60 }
     },
     run: function (args, cb) {
       var arg;
@@ -2762,6 +2768,12 @@
         var bad = requireRef(args.subject, args.ref);
         if (bad) { cb(bad); return; }
         arg = { subject: args.subject, ref: args.ref };
+      } else if (NAV_PAGED[args.view]) {
+        if (args.page) arg = { page: args.page, id: args.id || null };
+      } else if (args.view === "reports") {
+        if (args.page) arg = { period: args.page };
+      } else if (args.page) {
+        arg = args.page;
       }
       KOS.show(args.view, arg);
       cb(null, { navigated: true, view: args.view });
