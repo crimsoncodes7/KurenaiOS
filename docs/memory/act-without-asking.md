@@ -14,3 +14,5 @@ The one exception is DEPLOYING (tools/deploy_pages.sh to Cloudflare Pages, i.e. 
 
 **Why:** the user said on 19 Oct 2026 "you don't need to ask me for permission to do anything apart from deploying. commit/push/releasing/migration/test whatever just handle those things automatically."
 **How to apply:** finish each unit of work with the gate, a commit (stage by name, see [[git-stage-by-name]]) and a push, and apply any new migration; then report what was done. Ask only before a production deploy. Related: [[run-tests-yourself]].
+
+18 Nov 2026: the user repeated it — "You can do the syncing recorded attempts, you don't need to ask me for things like that" (a new Supabase table + `supabase db push`). Migrations and backend tables for features they asked for need no question; only a production deploy does.
