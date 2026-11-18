@@ -122,6 +122,7 @@
       return c;
     }
     g.sections.forEach(function (s) {
+      if (s.id === "essentials") wrap.appendChild(section("essentials", "Exam essentials", "the paper, how it is marked, and what to learn", null, essentialsBody(g.essentials)));
       if (s.id === "notes") wrap.appendChild(section("notes", "Key notes", u.plural(g.tiles.length, "leaf", "leaves") + " · from your notes", null, notesBody(g, big)));
       if (s.id === "commands") wrap.appendChild(section("commands", "Command words", "the " + (g.commands.length === 1 ? "one" : g.commands.length) + " that appear in this scope", board ? U().linkBtn("All of " + board + "'s ›", function () { openPlaybook(board, a, "commands"); }) : null, commandsBody(g)));
       if (s.id === "booklet") wrap.appendChild(bookletRow(g, section));
@@ -140,6 +141,27 @@
       el("span", { class: "k-ex-grow" }),
       u.muted(deep ? "The exam items are from the topic banks; the worked variations and practice sets are the full Companion's, written by KurenaiOS." : "Every question here is from the topic banks; nothing is new material.")]));
     typeset(wrap);
+  }
+  /* EXAM ESSENTIALS (js/data/exam-essentials.js): the paper at a glance,
+     what each objective asks, how the marks go, what the booklet gives and
+     what to learn, answer templates, the routine and the night before */
+  function essentialsBody(x) {
+    var u = U(), out = el("div", { class: "k-ex-ess", "data-ui": "exams.essentials" });
+    function blk(title, kids) { if (!kids || !kids.length) return; out.appendChild(el("div", { class: "k-ex-ess-blk" }, [el("h3", { class: "k-ex-ess-h", text: title })].concat(kids))); }
+    function li(t) { return el("li", { html: KOS.content.inline(String(t)) }); }
+    blk("At a glance", (x.glance || []).length ? [el("dl", { class: "k-ex-ess-dl" }, [].concat.apply([], x.glance.map(function (g) { return [el("dt", { text: g[0] }), el("dd", { html: KOS.content.inline(g[1]) })]; })))] : null);
+    blk("What the questions test", (x.objectives || []).map(function (o) { return el("div", { class: "k-ex-ess-row" }, [el("b", { class: "k-mono", text: o.code }), el("div", {}, [el("div", { text: o.what }), u.muted(o.spot, "k-ex-small")])]); }));
+    blk("How the marks go", (x.structure || []).map(function (st) { return el("div", { class: "k-ex-ess-row" }, [el("b", { class: "k-mono", text: st.marks + (st.marks === 1 ? " mark" : " marks") }), el("ol", { class: "k-ex-ess-ol" }, st.how.map(li))]); }));
+    if (x.booklet) {
+      blk("In the formulae booklet", [el("ul", { class: "k-ex-ess-ul" }, x.booklet.given.map(li))]);
+      blk("Not in it — learn these", [el("ul", { class: "k-ex-ess-ul" }, x.booklet.learn.map(li))]);
+    }
+    blk("Answer templates", (x.templates || []).map(function (t) { return el("div", { class: "k-ex-ess-row" }, [el("b", { text: t.w }), el("div", {}, [el("div", { html: KOS.content.inline(t.frame) }), t.eg ? el("div", { class: "k-ex-small k-ex-muted", html: "e.g. " + KOS.content.inline(t.eg) }) : null].filter(Boolean))]); }));
+    blk("Not examinable", (x.notExaminable || []).length ? [el("ul", { class: "k-ex-ess-ul" }, x.notExaminable.map(li))] : null);
+    blk("In the exam", (x.routine || []).length ? [el("ol", { class: "k-ex-ess-ol" }, x.routine.map(li))] : null);
+    blk("The night before", (x.night || []).length ? [el("ul", { class: "k-ex-ess-ul" }, x.night.map(li))] : null);
+    typeset(out);
+    return out;
   }
   function pad2(i) { return (i < 10 ? "0" : "") + i; }
   function watchRead(aid, sec, end) {

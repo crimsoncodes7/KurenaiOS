@@ -199,10 +199,14 @@
     /* traps: the report's first (they are evidence), then the notes', one per leaf in turn */
     var rep = traps.filter(function (t) { return t.from === "report"; }), own = traps.filter(function (t) { return t.from !== "report"; });
     var cram = KOS.examPlan ? { cards: KOS.examPlan.cardsInScope(a), due: KOS.examPlan.dueInScope(a, now), seenWeek: seenThisWeek(ls, now) } : null;
+    /* the paper's essentials (js/data/exam-essentials.js; the rework §5) */
+    var ess = window.KOS_EXAMS && KOS_EXAMS.essentialsFor ? KOS_EXAMS.essentialsFor(a && a.preset, board) : null;
     return {
+      essentials: ess,
       a: a, board: board, leaves: infos.length, tiles: tiles, commands: commands, booklet: booklet, memorise: memorise,
       mnemonics: mnemonics, traps: rep.concat(own), labs: labs, items: items, defs: defs, cram: cram,
       sections: [
+        ["essentials", "Exam essentials", !!ess],
         ["notes", "Key notes", tiles.length > 0],
         ["commands", "Command words", commands.length > 0],
         ["booklet", board === "Edexcel" ? "Booklet or memorise" : "Must memorise", booklet.length + memorise.length > 0],

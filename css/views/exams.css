@@ -751,6 +751,15 @@ button.k-ex-ptr { inline-size: 100%; border-inline: 0; border-block-end: 0; back
 .k-ex-tfig { font-size: var(--fs-22); font-weight: var(--weight-semibold); }
 .k-ex-tq-n { font-size: var(--fs-22); }
 .k-ex-tq-ctx { margin: 0; max-inline-size: 72ch; font-size: var(--fs-16); line-height: 1.65; }
+/* the guide's Exam essentials (js/data/exam-essentials.js) */
+.k-ex-ess { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 24rem), 1fr)); gap: var(--sp-16); }
+.k-ex-ess-blk { display: flex; flex-direction: column; gap: var(--sp-8); min-inline-size: 0; }
+.k-ex-ess-h { margin: 0; font-size: var(--fs-14); }
+.k-ex-ess-dl { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: var(--sp-4) var(--sp-12); margin: 0; }
+.k-ex-ess-dl dt { color: var(--muted); }
+.k-ex-ess-dl dd { margin: 0; }
+.k-ex-ess-row { display: grid; grid-template-columns: minmax(5rem, max-content) minmax(0, 1fr); gap: var(--sp-8); align-items: start; }
+.k-ex-ess-ul, .k-ex-ess-ol { margin: 0; padding-inline-start: var(--sp-20); display: flex; flex-direction: column; gap: var(--sp-4); line-height: 1.5; }
 /* authored, board-faithful papers (the Exams & Papers rework §7.1) */
 .k-ex-pbody { display: flex; flex-direction: column; gap: var(--sp-6); min-inline-size: 0; }
 .k-ex-pbody p { margin: 0; }

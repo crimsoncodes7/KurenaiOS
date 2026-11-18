@@ -126,7 +126,7 @@ window.KOS_EXAMS.playbook = {
     }
   },
   OCR: {
-    title: "OCR Cambridge Technicals IT",
+    title: "OCR Cambridge Advanced Nationals IT",
     commands: [
       { w: "Identify", also: ["state", "give", "name"], asks: "Pick out or name it; a word or a short phrase.", loses: "A long description that never names the thing.", eg: "Identify one sensor. → A passive infrared sensor." },
       { w: "Describe", asks: "Say what it is like or what happens, with detail.", loses: "Naming it without the detail the marks need.", eg: "Describe an actuator: it turns a signal into movement, e.g. a valve opening." },

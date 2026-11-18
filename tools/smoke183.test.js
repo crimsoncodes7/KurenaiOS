@@ -21,6 +21,7 @@
      H · §9.2: a mock with no board paper of its own (the CS pre-public
          exam) takes its guide from the paper with a full Companion it
          overlaps most; its predicted papers never borrow one.
+     J · Exam essentials, the guide's first section for each mock.
      I · no errors, no request.
 
    Run: node tools/smoke183.test.js */
@@ -114,6 +115,22 @@ step("H · §9.2: a school mock borrows a guide, never a predicted paper", async
   assert(ix && ix.archetypes > 10 && ix.units.every((u) => /^4\.(6|7|8|10)/.test(u.unit)), "only the scope's Paper 2 units");
   eq(K.examPaper.build(a, 2).kind, "practice", "paper 2 is a practice paper over the whole scope");
   K.exams.remove(a.id);
+});
+
+step("J · Exam essentials: the guide's first section for each December mock", async () => {
+  const X = app.window.KOS_EXAMS;
+  eq(X.essentialsFor("ocr-f201", "OCR").glance[0], ["Time", "1 h 30 min"], "F201 is 1 h 30 (the specification)");
+  eq(X.essentialsFor("ocr-f201").objectives.map((o) => o.code), ["PO1", "PO2", "PO3"], "F201's three performance objectives");
+  const pure = X.essentialsFor("edexcel-9ma0-pure-mock", "Edexcel");
+  assert(pure.booklet.given.some((t) => /Small-angle/.test(t)) && pure.booklet.learn.some((t) => /double-angle/.test(t)), "what the booklet gives and what to learn");
+  assert(X.essentialsFor("aqa-7517-2", "AQA") === X.essentials["board:AQA"], "a board paper reads its board's");
+  for (const pre of ["ocr-f201", "aqa-7517-ppe", "edexcel-9ma0-pure-mock"]) {
+    const a = K.exams.add({ preset: pre, tier: "mock", title: pre, date: day(25) }, { quiet: true });
+    eq(K.examCompanion.guide(a).sections[0].id, "essentials", pre + ": essentials first");
+    K.show("exams", { tab: "guide", sub: a.id }); await app.settle();
+    assert(app.document.querySelector("[data-ui~='exams.essentials'] .k-ex-ess-blk"), pre + ": drawn");
+    K.exams.remove(a.id);
+  }
 });
 
 step("I · no errors, no request", async () => {
