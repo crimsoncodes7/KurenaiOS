@@ -1082,6 +1082,7 @@ button.k-ex-ptr { inline-size: 100%; border-inline: 0; border-block-end: 0; back
 .k-xs-strip { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); padding: var(--sp-16) var(--sp-4); border-radius: var(--r-20); background: var(--s1); }
 .k-xs-cell { display: flex; flex-direction: column; gap: var(--sp-6); padding: 0 var(--sp-16); border-inline-start: var(--hairline) solid var(--line); min-inline-size: 0; }
 .k-xs-cell:first-child { border-inline-start: 0; }
+.k-xs-strip[data-n="2"] { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .k-xs-celllabel { color: var(--muted); font-size: var(--fs-11); font-weight: var(--weight-semibold); letter-spacing: var(--track-kicker); text-transform: uppercase; }
 .k-xs-cellfig { color: var(--muted); font-size: var(--fs-12); }
 .k-xs-cellfig b { color: var(--text); font-size: var(--fs-22); font-weight: var(--weight-semibold); }

@@ -35,7 +35,7 @@
   var RAG = { r: ["▲", "Red", "danger"], a: ["◐", "Amber", "amber"], g: ["●", "Green", "green"] };
   /* the full Companion's index (#/exams/<id>/deep) keeps its address: Revise's
      shapes open it, one shape or all of them */
-  var REDIRECT = { readiness: "today", overview: "today", practice: "review", guide: "revise", trend: "review" };
+  var REDIRECT = { readiness: "today", overview: "today", practice: "review", guide: "revise" };
   var PHONE = { today: 1, topics: 1, revise: 1, cards: 1, review: 1 };
 
   function mins(m) { return m ? U().mins(m) : ""; }
@@ -79,6 +79,13 @@
       svg.appendChild(n);
     });
     return svg;
+  }
+  /* the sections a tier has: a retrieval quiz is recall only (no plan of
+     papers, no question sets); every other tier has all eight */
+  var TIER_SECTIONS = { retrieval_test: ["today", "topics", "revise", "review", "day"] };
+  function sectionsFor(a) {
+    var only = TIER_SECTIONS[a.tier];
+    return S().SECTIONS.filter(function (s) { return !only || only.indexOf(s[0]) !== -1; });
   }
   function markWords(m) { return !m ? "no measure yet" : m.of ? m.n + " of " + m.of : String(m.n); }
   function stateWord(a) {
@@ -257,7 +264,7 @@
   }
   function nav(a, cur, m, folded) {
     var list = el("nav", { class: "k-xs-nav", "data-ui": "exams.sections", "aria-label": "Sections of " + a.title, "data-folded": folded ? "" : null });
-    S().SECTIONS.forEach(function (s) {
+    sectionsFor(a).forEach(function (s) {
       var mk = m[s[0]];
       var b = el("button", { type: "button", class: "k-xs-navitem", "data-ui": "exams.section", "data-section": s[0], "data-phone": PHONE[s[0]] ? "" : null,
         "aria-current": cur === s[0] ? "page" : null, "aria-label": s[2] + ", " + markWords(mk),
@@ -278,16 +285,16 @@
   }
   /* the portrait iPad's one Sections button and its sheet (45g) */
   function sectionsBtn(a, cur, m) {
-    var s = S().SECTIONS.filter(function (x) { return x[0] === cur; })[0] || S().SECTIONS[0];
+    var s = sectionsFor(a).filter(function (x) { return x[0] === cur; })[0] || sectionsFor(a)[0];
     return el("button", { type: "button", class: "k-btn k-xs-secbtn", "data-ui": "exams.sections-btn", "aria-haspopup": "dialog",
       onclick: function () {
-        var body = el("div", { class: "k-xs-sheetlist" }, S().SECTIONS.map(function (x) {
+        var body = el("div", { class: "k-xs-sheetlist" }, sectionsFor(a).map(function (x) {
           return el("button", { type: "button", class: "k-xs-sheetrow", "aria-current": x[0] === cur ? "page" : null, "data-ui": "exams.sheet-section",
             onclick: function () { KOS.ui.closeDialogs(); KOS.show("exams", { id: a.id, tab: x[0] }); announce(x[2] + "."); } }, [
             el("span", { class: "k-xs-navglyph", lang: "ja", "aria-hidden": "true", text: x[1] }), el("span", { class: "k-ex-grow", text: x[2] }), markEl(m[x[0]])]);
         }));
         KOS.examGuide.dialog(a.title, "項", [body], null, "exams.sheet", "sm");
-        announce("Sections, 8. " + s[2] + ", current.");
+        announce("Sections, " + sectionsFor(a).length + ". " + s[2] + ", current.");
       } }, [el("span", { class: "k-xs-navglyph", lang: "ja", "aria-hidden": "true", text: s[1] }), el("span", { text: s[2] }), markEl(m[s[0]]), el("span", { "aria-hidden": "true", text: " ▾" })]);
   }
   function examPage(main, id, tab, sub) {
@@ -307,10 +314,10 @@
     if (tab === "room" && KOS.examRoom) return KOS.examRoom(main, a);
     if (tab === "deep" && KOS.examDeepView) return KOS.examDeepView.page(main, a, sub);
     if (tab === "scope") return KOS.examLegacyPage(main, id, "scope", sub);
-    if (tab === "paper" && KOS.examGuide) return KOS.examGuide.page(main, a, "paper", sub);
+    if ((tab === "paper" || tab === "trend") && KOS.examGuide) return KOS.examGuide.page(main, a, tab, sub);
     if (a.tier === "deadline" && !tab) return KOS.examLegacyPage(main, id, null, sub);
     var sec = tab || (E().leaves(a).length ? "today" : "topics");
-    if (!S().SECTIONS.some(function (s) { return s[0] === sec; })) sec = "today";
+    if (!sectionsFor(a).some(function (s) { return s[0] === sec; })) sec = "today";
     if (a.subject) main.style.setProperty("--accent", U().HUE[a.subject]);
     var m = S().marks(a);
     var folded = sec === "revise";
@@ -329,6 +336,7 @@
       el("span", { class: "k-xs-markfig k-mono", text: (KOS.examPlan ? KOS.examPlan.dueInScope(a, today()) : 0) + " due" })]));
     body.appendChild(el("p", { class: "k-xs-phoneonly k-xs-phonenote", "data-section": "note" }, [el("span", { "aria-hidden": "true", text: "▤ " }), "Papers · on the iPad and Mac"]));
     var idx = S().SECTIONS.map(function (s) { return s[0]; }).indexOf(sec);
+    body.setAttribute("data-tier", a.tier);
     content.style.setProperty("--k-xs-order", String(idx * 2 + 1));
     var F = SECTION[sec];
     F(content, a, sub);
@@ -347,18 +355,24 @@
     return el("div", { class: "k-xs-cell", "data-ui": "exams.cell" }, kids);
   }
   function stripEl(a, st) {
-    return el("div", { class: "k-xs-strip", "data-ui": "exams.strip" }, [
+    /* only the signals the tier has (KOS.exams.signalsOf): a topic test is
+       marked by the teacher's own scheme, so it has no timed-practice or
+       calibration cell */
+    var has = E().signalsOf(a.tier), timed = has.indexOf("practice") !== -1;
+    return el("div", { class: "k-xs-strip", "data-ui": "exams.strip", "data-n": timed ? "4" : "2" }, [
       cell("Coverage", st.coverage.n + "/" + st.coverage.of, "topics rated", null),
       st.recall.v != null ? cell("Recall", pct(st.recall.v), "target " + pct(st.recall.target)) : cell("Recall", null, null, st.recall.action, function () { KOS.show("review", { tab: "due", run: "scope:" + a.id }); }),
-      st.practice.got != null ? cell("Practice", st.practice.got + "/" + st.practice.max, st.practice.sub) : cell("Practice", null, null, st.practice.action, function () { KOS.show("exams", { id: a.id, tab: "papers" }); }),
-      st.calibration.v != null ? cell("Calibration", (st.calibration.v > 0 ? "+" : "") + st.calibration.v, st.calibration.sub) : cell("Calibration", null, null, st.calibration.action, function () { KOS.show("exams", { id: a.id, tab: "papers" }); })]);
+      !timed ? null : st.practice.got != null ? cell("Practice", st.practice.got + "/" + st.practice.max, st.practice.sub) : cell("Practice", null, null, st.practice.action, function () { KOS.show("exams", { id: a.id, tab: "papers" }); }),
+      !timed ? null : st.calibration.v != null ? cell("Calibration", (st.calibration.v > 0 ? "+" : "") + st.calibration.v, st.calibration.sub) : cell("Calibration", null, null, st.calibration.action, function () { KOS.show("exams", { id: a.id, tab: "papers" }); })].filter(Boolean));
   }
   function todaySec(content, a) {
     var td = S().today(a);
     var bits = [U().pretty(today()), td.paperDay ? "paper day" : null, td.steps.length ? td.done + " of " + td.steps.length + " done" : null].filter(Boolean).join(" · ");
     sectionHead(content, "Today", bits, [td.skipped ? btn("Undo skip", "quiet sm", function () { S().skip(a, false); KOS.rerender(); }, { "data-ui": "exams.skip" })
       : td.steps.length ? btn("Skip today", "quiet sm", function () { S().skip(a, true); announce("Today skipped for " + a.title + "."); KOS.rerender(); }, { "data-ui": "exams.skip" }) : null]);
-    content.appendChild(stripEl(a, td.strip));
+    if (a.tier === "retrieval_test" && KOS.examParts) content.appendChild(KOS.examParts.quizCard(a));
+    else content.appendChild(stripEl(a, td.strip));
+    if (a.tier === "topic_test") content.appendChild(el("p", { class: "k-ex-muted k-ex-small", "data-ui": "exams.topic-note", text: "No timed-practice signal and no grade range at this tier: a topic test is marked by your teacher's own scheme. Log the result and it feeds your topic colours." }));
     if (!E().leaves(a).length) {
       content.appendChild(el("div", { class: "k-card k-xs-quietcard" }, [el("span", { text: "Set the scope to plan today." }),
         btn("Set the scope", "primary sm", function () { KOS.show("exams", { id: a.id, tab: "topics" }); })]));
@@ -535,8 +549,11 @@
     });
     content.appendChild(weeks);
     var st = sch.sent;
+    /* the preparation checklist (auto items tick themselves from the
+       evidence) and the exam's linked goals */
+    var prep = KOS.examParts ? KOS.examParts.checklistCard(a, "prep") : null;
     var gl = KOS.examGoalsCard ? KOS.examGoalsCard(a) : null;
-    if (gl) content.appendChild(gl);
+    if (prep || gl) content.appendChild(el("div", { class: "k-xs-two" }, [prep, gl].filter(Boolean)));
     content.appendChild(el("div", { class: "k-card k-xs-note", "data-ui": "exams.plan-state" }, [el("span", { "aria-hidden": "true", text: "→" }),
       el("span", { class: "k-ex-grow" }, st ? ["In your plan", st.at ? " · sent " + U().pretty(new Date(st.at).toISOString().slice(0, 10)) : "", " · " + st.n + " rows, " + st.done + " done"]
         : ["Not in your plan yet · ", el("b", { text: sch.sessions + " sessions, " + hm(sch.mins) }), " · weakest topics first, papers on " + ["Sundays", "Mondays", "Tuesdays", "Wednesdays", "Thursdays", "Fridays", "Saturdays"][a.date ? new Date(a.date + "T00:00:00").getDay() : 6]])]));
@@ -581,6 +598,8 @@
       el("div", { class: "k-ex-chead" }, [el("span", { class: "k-ex-ctitle", text: "From your scope" }), U().muted("the exam's time and topics")]),
       paperRow(a, Object.assign({}, pp.built, { blurb: "Weakest topics weighted · short to long · new each time" }), "組", el("span", { class: "k-chip", "data-tone": "muted", text: "Custom" }), pp.built.last)]));
     var past = KOS.examPapers && pr && pr.index ? null : null;
+    if (a.tier === "topic_test" && KOS.examParts) { var shelf = KOS.examParts.packShelf(a); if (shelf) content.appendChild(shelf); }
+    if (KOS.examParts && KOS.files) content.appendChild(KOS.examParts.filesCard(a));
     if (pr && pr.index) content.appendChild(el("section", { class: "k-card k-xs-papers", "data-ui": "exams.papers-past" }, [
       el("div", { class: "k-ex-chead" }, [el("span", { class: "k-ex-ctitle", text: "Past papers" }), U().muted("from the Library"), el("span", { class: "k-ex-grow" }),
         U().linkBtn("Open the Library ›", function () { KOS.show("exams", "library"); })])].concat(past ? [] : [])));
@@ -602,6 +621,10 @@
       })));
     }
     content.appendChild(el("div", { class: "k-xs-two" }, [night.length ? box("The night before", night, "ticks sync") : null, day.length ? box("Before you go in", day) : null].filter(Boolean)));
+    /* a tier with no Papers section keeps its files here; every tier its notes */
+    if (a.tier === "retrieval_test" && KOS.examParts && KOS.files) content.appendChild(KOS.examParts.filesCard(a));
+    if (a.notes) content.appendChild(el("section", { class: "k-card k-xs-check", "data-ui": "exams.notes" }, [el("div", { class: "k-ex-chead" }, [el("span", { class: "k-ex-ctitle", text: "Notes" }),
+      U().linkBtn("Edit", function () { KOS.examEditor(a, {}, function () { KOS.rerender(); }); })]), el("p", { class: "k-ex-pre", text: a.notes })]));
   }
 
   /* sections drawn elsewhere register themselves; until then each says

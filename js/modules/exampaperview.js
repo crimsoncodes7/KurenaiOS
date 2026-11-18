@@ -58,7 +58,13 @@
   function viewer(main, a, paper) {
     var u = U(), bp = paper.blueprint, showMs = false;
     var leafRun = paper.kind === "pack" || paper.kind === "set";
-    u.head(main, "guide", { right: u.btn("‹ " + (leafRun || paper.kind === "predicted" ? "Full Companion" : "Companion"), "quiet sm", function () { if (leafRun || paper.kind === "predicted") KOS.show("exams", { id: a.id, tab: "deep" }); else KOS.show("exams", { tab: "guide", sub: a.id }); }) });
+    /* the exam's own header (design 45b): back to its Papers, or for a
+       topic's pack or set to the full Companion it came from */
+    var back = u.btn(leafRun || paper.kind === "predicted" ? "‹ Full Companion" : "‹ Papers", "quiet sm", function () {
+      if (leafRun || paper.kind === "predicted") KOS.show("exams", { id: a.id, tab: "deep" }); else KOS.show("exams", { id: a.id, tab: "papers" });
+    }, { "data-ui": "exams.paper-back" });
+    if (KOS.examShell) KOS.examShell.head(main, a, { actions: [back] });
+    else u.head(main, "guide", { right: back });
     var wrap = el("div", { class: "k-ex-page", "data-ui": "exams.paper", style: "--s: " + u.hueOf(a) });
     main.appendChild(wrap);
     if (!paper.questions.length) {

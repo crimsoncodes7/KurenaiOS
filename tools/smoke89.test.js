@@ -259,7 +259,8 @@ step("I · the hub's pages draw without writing", async () => {
      scope to set (Topics) when there is none yet; the scope itself is
      still the Scope Builder's page (29d) */
   assert(app.document.querySelector("[data-ui~='exams.ahead']") || a.tier === "deadline", "an assessment's header");
-  assert(app.document.querySelector("[data-ui~='exams.strip']") || app.document.querySelector("[data-ui~='exams.s-topics']") || a.tier === "deadline", "its strip, or its scope to set");
+  /* a retrieval quiz has its one card instead (recall only) */
+  assert(app.document.querySelector("[data-ui~='exams.strip']") || app.document.querySelector("[data-ui~='exams.quiz']") || app.document.querySelector("[data-ui~='exams.s-topics']") || a.tier === "deadline", "its strip, its quiz card, or its scope to set");
   K.show("exams", { id: a.id, tab: "scope" }); await app.settle();
   assert(app.document.querySelector("[data-ui~='exams.scope-builder']"), "its Scope Builder");
   if (d) { K.show("exams", d.id); await app.settle(); assert(app.document.querySelector("[data-ui~='exams.milestones']"), "a deadline's milestones"); }

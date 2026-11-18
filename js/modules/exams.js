@@ -263,22 +263,6 @@
   }
   /* kept for any caller that wants the switcher alone */
   function examTabs(active) { return hubTabs(active === "practice" ? "practice" : active || "timetable", E().season().on); }
-  function seasonSwitch() {
-    var sn = E().season();
-    var box = el("input", { type: "checkbox", class: "k-switch", "data-ui": "exams.season", "aria-label": "Exam season",
-      onchange: function () {
-        E().setSeason(box.checked);
-        announce(box.checked ? "Exam season on. Season view is now the landing page." : "Exam season off.");
-        KOS.show("exams", box.checked ? "season" : "timetable");
-      } });
-    box.checked = sn.on;
-    return el("label", { class: "k-ex-seasonsw", title: sn.override ? "Set by you; it lapses with this season" : "Automatic: on 28 days before a real exam, off after the series' last" }, [box, el("span", { text: "Exam season" })]);
-  }
-  function nextWhen(a) {
-    if (!a || !a.date) return "";
-    var d = E().daysTo(a);
-    return d === 0 ? "today" : d === 1 ? "tomorrow" : d < 7 ? "on " + ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][parse(a.date).getDay()] : "on " + pretty(a.date, { dow: false });
-  }
   /* the exam within the next hour, which makes the Exam Room the only
      primary button on the page (29a) */
   function roomNow() {
@@ -606,7 +590,6 @@
     }
     if (tab === "scope") return scopeBuilder(main, a);
     if (tab === "room" && KOS.examRoom) return KOS.examRoom(main, a);
-    if (tab === "readiness" && KOS.examViews) return KOS.examViews.readiness(main, a.id);
     if (tab === "deep" && KOS.examDeepView) return KOS.examDeepView.page(main, a, sub);
     if ((tab === "guide" || tab === "trend" || tab === "paper") && KOS.examGuide) return KOS.examGuide.page(main, a, tab, sub);
     overview(main, a);
@@ -649,14 +632,15 @@
     if (cov && KOS.art) KOS.art.layer(hero, "cover:" + cov, { eager: true });
     return hero;
   }
+  /* the pre-rework overview (29e, 29f), kept for a DEADLINE: its hero and
+     milestones. Every other tier is KOS.examShell's exam page (design 45b). */
   function overview(main, a) {
     var X = E(), rd = X.readiness(a), t = a.tier;
     if (a.subject) main.style.setProperty("--accent", HUE[a.subject]);
-    main.appendChild(backLink("Timetable", function () { KOS.show("exams", "timetable"); }));
+    main.appendChild(backLink("All exams", function () { KOS.show("exams"); }));
     var room = roomNow();
     var acts = [btn("Edit", "quiet", function () { editor(a, {}, function () { KOS.rerender(); }); }, { "data-ui": "exams.edit" }),
       t !== "deadline" ? btn("Scope", "", function () { KOS.show("exams", { id: a.id, tab: "scope" }); }, { "data-ui": "exams.scope-btn" }) : null,
-      t !== "deadline" && KOS.examGuide ? btn("Companion", "", function () { KOS.show("exams", { tab: "guide", sub: a.id }); }, { "data-ui": "exams.guide-btn" }) : null,
       room && room.id === a.id ? btn("Exam Room", "primary", function () { KOS.show("exams", { id: a.id, tab: "room" }); }, { "data-ui": "exams.room-btn" })
         : t === "real_exam" || t === "mock" || t === "topic_test" ? btn("Log a paper", "primary", function () { KOS.trackerLog({ assessmentId: a.id }, function () { KOS.rerender(); }); }, { "data-ui": "exams.log" }) : null
     ].filter(Boolean);
@@ -664,30 +648,7 @@
     main.appendChild(wrap);
     wrap.appendChild(examHero(a, rd, { actions: acts }));
     if (t === "deadline") return deadlinePage(wrap, a, rd);
-    if (t === "retrieval_test") return quizPage(wrap, a, rd);
-    var sigs = signals(a, rd, { full: true, cols1: t === "topic_test", practiceFoot: t !== "topic_test" ? practiceFoot(a, rd) : null });
-    wrap.appendChild(el("div", { class: "k-ex-sigs", "data-n": String(sigs.length), "data-ui": "exams.signals" }, sigs));
-    var ex = excludedEl(a, a.scope.pacing ? "Scope: " + E().scopeSummary(a) : "Readiness, the planner and the cram deck ignore it.");
-    if (rd.band) wrap.appendChild(el("div", { class: "k-ex-bandline", "data-ui": "exams.bandline" }, [bandEl(rd.band, { row: true }),
-      el("span", { class: "k-ex-grow", text: bandSentence(a, rd) }), btn("Why these bands", "quiet sm", function () { whyBands(a, rd); }, { "data-ui": "exams.why" })]));
-    if (ex) wrap.appendChild(ex);
-    if (t === "topic_test") wrap.appendChild(el("p", { class: "k-ex-foot", text: "No timed-practice signal and no grade range at this tier: a topic test is marked by your teacher's own scheme. Log the result and it feeds RAG." }));
-    var left = el("div", { class: "k-ex-col" }), right = el("div", { class: "k-ex-side" });
-    left.appendChild(nextTenCard(a));
-    var wk = weekCard(a);
-    if (wk) left.appendChild(wk);
-    var lp = latestPaper(a, rd);
-    if (lp) left.appendChild(lp);
-    else if (t === "topic_test") left.appendChild(packShelf(a));
-    var chk = checklistCard(a, "prep");
-    if (chk) right.appendChild(chk);
-    var gl = goalsCard(a);
-    if (gl) right.appendChild(gl);
-    right.appendChild(dayCard(a));
-    if (KOS.files) right.appendChild(filesCard(a));
-    if (a.notes) right.appendChild(card([chead("Notes", ""), el("p", { class: "k-ex-pre", text: a.notes })], "", "exams.notes"));
-    wrap.appendChild(el("div", { class: "k-ex-grid2" }, [left, right]));
-    balance(left, right, gl);
+    return quizPage(wrap, a, rd);
   }
   /* the assessment's own files (files plan §8): those linked to it —
      dropped here, attached with "Attach to…" — opened in the one viewer.
@@ -715,22 +676,6 @@
     KOS.files.dropTarget(c, { kind: "exam", id: String(a.id) }, paint);
     return c;
   }
-  /* no dead column (the standing layout rule): the Goals card sits on the
-     side (29e) unless the other column is so much shorter that it fits
-     better there; then each column's last card stretches to the row */
-  function balance(left, right, mover) {
-    function fill() {
-      [left, right].forEach(function (c) { if (c.lastChild) c.lastChild.classList.add("k-ex-fill"); });
-    }
-    if (!mover || !left.isConnected) { fill(); return; }
-    (function () {
-      /* the columns stretch to the row, so add up what is in them */
-      function natural(c) { return Array.prototype.reduce.call(c.children, function (n, x) { return n + x.getBoundingClientRect().height; }, 0); }
-      var L = natural(left), R = natural(right), g = mover.getBoundingClientRect().height;
-      if (g && left.offsetTop === right.offsetTop && Math.abs((L + g) - (R - g)) < Math.abs(L - R)) left.appendChild(mover);
-      fill();
-    })();
-  }
   function practiceFoot(a, rd) {
     var pr = a.preset ? E().preset(a.preset) : null, ix = window.KOS_EXAMS && KOS_EXAMS.index;
     if (!pr || !pr.index || !ix || !ix.papers[pr.index] || !KOS.examPlan) return null;
@@ -744,45 +689,6 @@
   }
   function squares(n, f, cls) {
     return el("span", { class: "k-ex-squares" + (cls ? " " + cls : ""), role: "img", "aria-label": f + " of " + n }, Array.apply(null, { length: Math.min(n, 40) }).map(function (_, i) { return el("i", { "data-on": i < f ? "" : null }); }));
-  }
-  function bandSentence(a, rd) {
-    var b = rd.band;
-    if (!b) return "";
-    if (b.band === "ready") return "Every signal is at its target.";
-    if (b.band === "thin") return "Two or more signals have no evidence yet" + (b.limitName ? "; start with " + b.limitName + "." : ".");
-    if (b.band === "risk") return b.limitName.charAt(0).toUpperCase() + b.limitName.slice(1) + " is holding it down: it is behind where a straight line to Ready says it should be by now.";
-    return b.limitName ? "On the line to Ready. " + b.limitName.charAt(0).toUpperCase() + b.limitName.slice(1) + " is holding the band at On track." : "Every signal with evidence is on the line to Ready.";
-  }
-  function whyBands(a, rd) {
-    var overlay = el("div", { class: "k-dialog-overlay" });
-    function close() { overlay.remove(); }
-    overlay.close = close;
-    var tp = rd.targetPct, tg = Math.round(100 * rd.target);
-    overlay.appendChild(el("div", { class: "k-dialog k-ex-dialog", "data-size": "sm", "data-ui": "ui.dialog exams.why-dialog" }, [
-      el("div", { class: "k-dialog-head", "data-ui": "ui.dialog-head" }, [el("span", { class: "k-kanji", lang: "ja", "aria-hidden": "true", text: "試" }), el("h2", { class: "k-dialog-title", "data-ui": "ui.dialog-title", text: "Why these bands" })]),
-      el("div", { class: "k-dialog-body k-ex-dbody" }, [
-        el("p", { text: "Four signals, never one number. The band reads them together:" }),
-        el("ul", { class: "k-ex-ul" }, [
-          el("li", {}, [el("b", { text: "✓ Ready" }), " — coverage at least 95%, no Red, projected recall at least " + tg + "%, and the last timed paper at least " + tp + "%" + (a.target ? " (your target " + a.target + ")" : "") + "."]),
-          el("li", {}, [el("b", { text: "● On track" }), " — every signal with evidence is on a straight line from your start-by date to Ready at the start of the 7–14 day window (" + Math.round(100 * rd.f) + "% of that run-up has gone)."]),
-          el("li", {}, [el("b", { text: "▲ At risk" }), " — a signal is behind that line; the band names it."]),
-          el("li", {}, [el("b", { text: "○ Not enough evidence" }), " — two or more signals are silent."])
-        ]),
-        el("p", { class: "k-ex-small k-ex-muted", text: "Each signal stays silent below its evidence: coverage needs a scope, RAG 3 rated leaves, recall 20 rated cards, practice 1 timed paper (3 for a grade range)." })
-      ]),
-      el("div", { class: "k-dialog-foot" }, [el("span", { class: "k-spacer" }), btn("Close", "primary", close)])
-    ]));
-    KOS.ui.openDialog(overlay);
-  }
-  /* where the next ten marks come from (29e, §9.4) */
-  function nextTenCard(a) {
-    var nm = E().nextMarks(a);
-    var c = card([chead("Where the next ten marks come from", nm && !nm.thin ? evidenceLine(nm) : "", linkBtn("Analytics →", function () { KOS.show("exams", { tab: "practice", sub: "analytics" }); }))], "", "exams.nextten");
-    if (!nm || nm.thin) { c.appendChild(quiet(nm ? nm.why : "Needs a scope.", nm ? (nm.marked ? "" : plural(nm.reviews, "rated review") + " in scope so far") : "")); return c; }
-    if (!nm.items.length) { c.appendChild(quiet("Nothing in scope is losing marks right now.", "")); return c; }
-    c.appendChild(nextList(nm.items, a));
-    c.appendChild(el("p", { class: "k-ex-foot", text: "Likelihood is evidence, not prophecy: anything in the specification can appear." }));
-    return c;
   }
   function evidenceLine(nm) {
     return [nm.marked ? plural(nm.marked, "marked paper") : null, nm.reviews ? plural(nm.reviews, "rated card") : null, nm.sittings ? nm.sittings + " past sittings" : null].filter(Boolean).join(", ");
@@ -800,31 +706,6 @@
         ev ? el("div", { class: "k-ex-small k-ex-muted", text: ev }) : null].filter(Boolean)),
         btn("Plan it", "sm", function () { KOS.show("exams", "plan"); })]);
     }));
-  }
-  /* this week's rows for one assessment, from the Planner (29e) */
-  function weekCard(a) {
-    if (!KOS.examPlan) return null;
-    var p = KOS.examPlan.plan(today()), g = (p.groups || []).filter(function (x) { return x.a.id === a.id; })[0];
-    if (!g) return null;
-    return card([chead("Week of " + pretty(p.wb, { dow: false }), mins(g.mins) + " of your " + mins(p.total) + " goes to this", linkBtn("Planner →", function () { KOS.show("exams", "plan"); }))]
-      .concat(g.rows.map(function (r) {
-        return el("div", { class: "k-ex-wkrow", style: "--s: " + hueOf(a) }, [el("span", { class: "k-ex-vbar", "aria-hidden": "true" }),
-          el("div", { class: "k-ex-grow" }, [el("div", { class: "k-ex-strong k-ex-ell", text: r.title }), muted(r.why)]), el("span", { class: "k-mono k-ex-small", text: mins(r.mins) })]);
-      })).concat(g.paper ? [el("div", { class: "k-ex-wkrow", style: "--s: " + hueOf(a) }, [el("span", { class: "k-ex-vbar", "aria-hidden": "true" }),
-        el("div", { class: "k-ex-grow" }, [el("div", { class: "k-ex-strong k-ex-ell", text: "紙 " + g.paper.title }), muted("The week's practice paper")]), el("span", { class: "k-mono k-ex-small", text: mins(g.paper.mins) })])] : []), "", "exams.week");
-  }
-  function latestPaper(a, rd) {
-    var atts = rd.attempts.filter(function (e) { return e.marks != null && e.max; });
-    var e = atts[atts.length - 1];
-    if (!e) return null;
-    var pm = KOS.examStats.postMortem(e, E().nodeOf, null);
-    return card([chead("Latest paper", [e.paper || e.topic, e.timed && e.mins ? "timed " + e.mins + " min" : null, pretty(e.date)].filter(Boolean).join(" · "),
-      e.questions && e.questions.length ? linkBtn("Post-mortem →", function () { KOS.show("exams", { attempt: e.uid }); }) : linkBtn("Marks by question →", function () { KOS.show("exams", { attempt: e.uid, page: "marks" }); })),
-      el("div", { class: "k-ex-latest" }, [
-        el("div", {}, [el("div", { class: "k-ex-fig k-ex-fig--40", text: String(e.marks) }), muted("of " + e.max + (e.predicted != null ? " · you predicted " + e.predicted : ""))]),
-        pm && pm.units.length ? el("div", { class: "k-ex-grow" }, [muted("Marks lost, top three topics"), lossBars(pm.units.slice(0, 3), pm.units[0].marks)])
-          : el("p", { class: "k-ex-small k-ex-muted", text: "Add marks by question to see where they went." })
-      ])], "", "exams.latest");
   }
   function lossBars(rows, max) {
     return el("div", { class: "k-ex-loss" }, rows.map(function (r) {
@@ -1354,7 +1235,8 @@
     }
     if ((tab === "guide" || tab === "readiness") && SH) return moveTo(null, function () { return SH.allExams(main); });
     if (tab === "plan" && V.planner) return V.planner(main);
-    if (tab === "season" && V.season) return V.season(main);
+    /* Season (29m) retired with the rework: All exams is the landing */
+    if (tab === "season" && SH) return moveTo(null, function () { return SH.allExams(main); });
     if (tab === "results" && V.results) return V.results(main, sub);
     if (tab === "library" && P.practice) return P.practice(main, "library");
     if (tab === "practice" && P.practice) return P.practice(main, sub);
@@ -1369,6 +1251,11 @@
   KOS.examGoalTemplates = goalTemplates;
   /* the exam's linked goals (invariant 128), drawn under the rework's Plan */
   KOS.examGoalsCard = goalsCard;
+  /* the overview's per-tier cards the rework's sections still draw: the
+     assessment's own files, its checklists, a topic test's packs, a
+     retrieval quiz's one card */
+  KOS.examParts = { filesCard: filesCard, checklistCard: checklistCard, packShelf: packShelf,
+    quizCard: function (a) { var w = el("div", { class: "k-ex-page" }); quizPage(w, a, E().readiness(a)); return w; } };
   KOS.examUI = {
     TIER: TIER, BAND: BAND, SUBJ: SUBJ, SHORT: SHORT, HUE: HUE, MONTHS: MONTHS, DOW: DOW,
     pretty: pretty, inDays: inDays, mins: mins, plural: plural, pc: pc, hueOf: hueOf, announce: announce,

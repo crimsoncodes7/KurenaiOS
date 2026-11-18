@@ -177,7 +177,7 @@
     if (g.type === "exam_recall") return ["Review", function () { KOS.show("review", { tab: "due", run: "scope:" + a.id }); }];
     if (g.type === "exam_papers_done") return ["Plan a paper", function () { KOS.show("exams", "plan"); }];
     if (g.type === "exam_checklist") return ["Open checklist", function () { KOS.show("exams", a.id); }];
-    if (g.type === "exam_topics_green") return ["Readiness", function () { KOS.show("exams", { id: a.id, tab: "readiness" }); }];
+    if (g.type === "exam_topics_green") return ["Topics", function () { KOS.show("exams", { id: a.id, tab: "topics" }); }];
     return ["Open the exam", function () { KOS.show("exams", a.id); }];
   }
   /* the exams a type can link to: upcoming, of a tier the type offers */

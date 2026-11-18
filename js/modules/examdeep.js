@@ -42,10 +42,13 @@
   function openVar(id) { var m = KOS.store.state.ui.examDeepVar; return m && typeof m === "object" ? m[id] || null : null; }
   function setOpenVar(id, v) { var ui = KOS.store.state.ui; ui.examDeepVar = ui.examDeepVar && typeof ui.examDeepVar === "object" ? ui.examDeepVar : {}; ui.examDeepVar[id] = v; KOS.store.save(); }
   function head(main, a) {
-    U().head(main, "guide", { right: KOS.ui.tabs([
-      { label: "Guide", active: false, onSelect: function () { KOS.show("exams", { tab: "guide", sub: a.id }); } },
+    var tabs = KOS.ui.tabs([
+      { label: "Revise", active: false, onSelect: function () { KOS.show("exams", { id: a.id, tab: "revise" }); } },
       { label: "Full Companion", active: true, onSelect: function () { KOS.show("exams", { id: a.id, tab: "deep" }); } },
-      { label: "Trend and likelihood", active: false, onSelect: function () { KOS.show("exams", { id: a.id, tab: "trend" }); } }], { variant: "workspace", label: "Companion view" }) });
+      { label: "Trend and likelihood", active: false, onSelect: function () { KOS.show("exams", { id: a.id, tab: "trend" }); } }], { variant: "workspace", label: "Companion view" });
+    /* the exam's own header (design 45b) */
+    if (KOS.examShell) KOS.examShell.head(main, a, { actions: [tabs] });
+    else U().head(main, "guide", { right: tabs });
   }
 
   function page(main, a, sub) {
@@ -55,7 +58,7 @@
     main.appendChild(wrap);
     if (!pid) {
       wrap.appendChild(KOS.ui.emptyState({ compact: true, mark: "深", title: "No full Companion for this paper yet", body: "The full Companion is written one board paper at a time. This assessment's guide is assembled from your notes in the meantime.",
-        action: U().btn("Open the guide", "", function () { KOS.show("exams", { tab: "guide", sub: a.id }); }) }));
+        action: U().btn("Open Revise", "", function () { KOS.show("exams", { id: a.id, tab: "revise" }); }) }));
       return;
     }
     if (sub) {

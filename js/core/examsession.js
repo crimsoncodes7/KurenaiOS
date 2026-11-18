@@ -319,14 +319,16 @@
       var read = isRead(a.id, "t:" + weak.key, now);
       var tdone = read && weak.today > 0;
       steps.push({ id: "topic", glyph: "✎", kind: "topic", topic: weak.key,
-        title: "Weakest topic: " + weak.title + " · " + (weak.qn ? "read the chapter, then 5 questions" : "read the chapter"),
+        title: "Weakest topic: " + weak.title + " · " + (a.tier === "retrieval_test" ? "its cards" : weak.qn ? "read the chapter, then 5 questions" : "read the chapter"),
         reason: [weak.short || weak.ref, weak.rag === "r" ? "Red" : weak.rag === "a" ? "Amber" : null, weak.best ? "Best " + weak.best.got + "/" + weak.best.max : null,
           weak.recall != null ? "Recall " + pct(weak.recall) : null, ago(weak.last, now)].filter(Boolean).join(" · "),
-        mins: weak.qn ? 35 : 20, done: tdone, progress: !tdone && (read || weak.today) ? { n: (read ? 1 : 0) + (weak.today ? 1 : 0), of: 2, text: read ? "chapter read" : weak.today + " tried" } : null,
-        go: { section: "revise", sub: "t:" + weak.key } });
+        mins: a.tier === "retrieval_test" ? 10 : weak.qn ? 35 : 20, done: a.tier === "retrieval_test" ? weak.today > 0 || !!(weak.last && weak.last === now) : tdone, progress: !tdone && (read || weak.today) ? { n: (read ? 1 : 0) + (weak.today ? 1 : 0), of: 2, text: read ? "chapter read" : weak.today + " tried" } : null,
+        /* a retrieval quiz is recall: the topic's cards, not a chapter */
+        go: a.tier === "retrieval_test" ? { review: "scope:" + a.id } : { section: "revise", sub: "t:" + weak.key } });
     }
     var pp = papers(a), att = E().attemptsFor(a);
-    if (isPaperDay(a, now)) {
+    /* a retrieval quiz is recall only: no paper day */
+    if (a.tier !== "retrieval_test" && isPaperDay(a, now)) {
       var next = pp.board.filter(function (p) { return !p.last; })[0] || pp.built;
       var sat = att.filter(function (e) { return e.date === now && e.timed; }).length > 0;
       var timed = att.filter(function (e) { return e.timed && e.marks != null; });
@@ -423,7 +425,7 @@
       if (toGo === 1) { place(d, { kind: "night", glyph: "□", title: "The night before", mins: 20, go: { section: "revise", sub: "night" } }); return; }
       if (toGo === 2) { place(d, { kind: "cheat", glyph: "✎", title: "Cheat sheet", mins: 30, go: { section: "revise", sub: "cheat" } }); return; }
       if (toGo === 4) { place(d, { kind: "redo", glyph: "↺", title: "Redo items", mins: 30, go: { section: "today" } }); return; }
-      if (isPaperDay(a, d.date)) {
+      if (a.tier !== "retrieval_test" && isPaperDay(a, d.date)) {
         var p = boardLeft[pi] || pp.built;
         if (boardLeft[pi]) pi++;
         var pm = p.mins || 60;

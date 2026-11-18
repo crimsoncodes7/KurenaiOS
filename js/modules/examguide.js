@@ -1,18 +1,14 @@
 /* Kurenai OS — modules/examguide.js
-   The Exams hub's Companion tab (roadmap 5.8 phase 5), drawn to design
-   turn 29:
-     the guide (29o)            an assessment's scope as one long guide:
-                                key notes, command words, booklet or
-                                memorise, traps, labs, exam items, the
-                                cram deck and the rapid drill; for a real
-                                exam or a mock, the question shapes too
+   What remains of the Exams hub's Companion tab (roadmap 5.8 phase 5,
+   design turn 29) once the rework's Revise (design 46) replaced the guide
+   itself (29o, D3):
      trend and likelihood (29s) the board paper's evidence, caveat first
      the rapid drill (§13.1)    15 questions, self-marked
      the playbook drawer (29r)  per board, from any assessment
      the revision pack (29ac)   the Companion for a scope, on paper
      Exams settings (29ac)      extra time, large print, rest breaks
-   Everything is READ from KOS.examCompanion; the only writes are clicks:
-   the settings, and a section marked read (per device).                  */
+   Everything is READ from KOS.examCompanion; the only write is a click:
+   the settings.                                                         */
 (function () {
   "use strict";
   var el = KOS.ui.el;
@@ -27,295 +23,21 @@
 
   /* the assessments a Companion is built for: ahead, not a deadline */
   function guided() { return E().upcoming().filter(function (a) { return a.tier !== "deadline"; }); }
-  function picker(list, cur, go) {
-    var u = U();
-    var tabs = KOS.ui.tabs(list.map(function (a) {
-      return { label: a.title, dot: u.hueOf(a), active: a.id === cur, onSelect: function () { if (a.id !== cur) go(a); } };
-    }), { variant: "workspace", label: "Assessment", edge: true });
-    tabs.setAttribute("data-ui", (tabs.getAttribute("data-ui") || "") + " exams.picker");
-    return tabs;
-  }
-  /* sections read, per device (a section counts once its end has been
-     on screen for 3 seconds; never by a render) */
-  function readOf(aid) { var r = (KOS.store.state.ui.examGuideRead || {})[aid]; return r && typeof r === "object" ? r : {}; }
-  function markRead(aid, sec) {
-    var ui = KOS.store.state.ui, all = ui.examGuideRead = ui.examGuideRead || {};
-    var r = all[aid] = all[aid] || {};
-    if (r[sec]) return false;
-    r[sec] = 1;
-    KOS.store.save();
-    return true;
-  }
-
-  /* ================= the hub tab ================= */
-  function hub(main, sub) {
-    var list = guided(), a = (sub && E().get(sub)) || list[0] || null;
-    if (a && list.indexOf(a) === -1) list = [a].concat(list);
-    U().head(main, "guide", { right: list.length ? picker(list.slice(0, 8), a && a.id, function (x) { KOS.show("exams", { tab: "guide", sub: x.id }); U().announce("Companion for " + x.title + "."); }) : null });
-    if (!a) {
-      main.appendChild(KOS.ui.emptyState({ mark: "導", title: "Add an assessment to build its Companion", body: "A real exam, a mock, a topic test or a quiz with a scope.",
-        action: U().btn("＋ New assessment", "primary", function () { U().editor(null, {}, function (x) { KOS.show("exams", { tab: "guide", sub: x.id }); }); }) }));
-      return;
-    }
-    guidePage(main, a);
-  }
-  /* an assessment's own Companion pages: guide, trend, paper */
+  /* an assessment's own evidence pages: trend and likelihood, a paper.
+     The guide itself (29o) is the rework's Revise (design 46, D3). */
   function page(main, a, tab, sub) {
     if (tab === "trend") return trendPage(main, a);
     if (tab === "paper" && KOS.examPaperView) return KOS.examPaperView.page(main, a, sub);
-    hub(main, a.id);
-  }
-
-  /* ================= the guide (29o) ================= */
-  function guidePage(main, a) {
-    var u = U(), g = C().guide(a), rd = E().readiness(a), board = g.board;
-    if (a.subject) main.style.setProperty("--accent", u.HUE[a.subject]);
-    var wrap = el("div", { class: "k-ex-page k-ex-guide", "data-ui": "exams.guide", style: "--s: " + u.hueOf(a) });
-    main.appendChild(wrap);
-    var big = a.tier === "real_exam" || a.tier === "mock";
-    var read = readOf(a.id), nRead = g.sections.filter(function (s) { return read[s.id]; }).length;
-    var rc = rd && rd.signals && rd.signals.recall;
-    var days = E().daysTo(a);
-    var deep = KOS.examDeep && KOS.examDeep.paperOf(a) && KOS.examDeepView ? KOS.examDeepView.guideSection(a) : null;
-    /* the hero */
-    var acts = [
-      u.btn("Start the rapid drill · 15", "primary", function () { drillDialog(a); }, { "data-ui": "exams.drill-start" }),
-      g.cram && g.cram.cards ? u.btn("Cram " + (g.cram.due || Math.min(g.cram.cards, 40)) + " cards", "", function () { KOS.show("review", { tab: "due", run: "scope:" + a.id }); }, { "data-ui": "exams.cram" }) : null,
-      deep ? u.btn("Full Companion", "", function () { KOS.show("exams", { id: a.id, tab: "deep" }); }, { "data-ui": "exams.deep-hero-open" }) : null,
-      big ? u.btn(deep ? "Predicted paper" : "Practice paper", "", function () { KOS.show("exams", { id: a.id, tab: "paper", sub: "1" }); }, { "data-ui": "exams.paper-open" }) : null,
-      board ? u.btn("Playbook · " + board, "quiet", function () { openPlaybook(board, a); }, { "data-ui": "exams.playbook-open" }) : null
-    ].filter(Boolean);
-    var dots = el("span", { class: "k-ex-readdots", "aria-hidden": "true" }, g.sections.map(function (s) { return el("i", { "data-on": read[s.id] ? "" : null }); }));
-    var hero = el("section", { class: "k-ex-ghero", "data-ui": "exams.ghero" }, [
-      el("span", { class: "k-ex-hero-mark", "aria-hidden": "true", lang: "ja", text: "導" }),
-      el("div", { class: "k-ex-ghero-mid" }, [
-        el("div", { class: "k-ex-inline" }, [u.tierChip(a.tier, true), u.eyebrow("The guide · " + (a.date ? u.pretty(a.date) : "no date") + (days != null && days >= 0 ? " · " + u.plural(days, "day") : ""))]),
-        el("h1", { class: "k-ex-ghero-title", text: a.title + (big ? ": the Companion" : ": everything the test can ask") }),
-        el("p", { class: "k-ex-ghero-line", text: "Assembled from the notes, cards and items of " + u.plural(g.leaves, "leaf", "leaves") +
-          (g.commands.length ? ", " + u.plural(g.commands.length, "command word") : "") + (g.traps.length ? ", " + u.plural(Math.min(g.traps.length, 99), "trap") : "") +
-          ". Read it top to bottom once, then use the drill and the cram deck." }),
-        el("div", { class: "k-ex-actions" }, acts),
-        el("div", { class: "k-ex-inline k-ex-small" }, [dots, u.muted(nRead + " of " + g.sections.length + " sections read")])
-      ]),
-      rc && !rc.thin ? u.ringEl(rc.value, 164, u.hueOf(a), [el("span", { class: "k-ex-ring-fig", text: Math.round(100 * rc.value) + "%" }), u.muted(rc.today ? "recall today" : "recall on " + u.pretty(rc.on, { dow: false }))], rd.target)
-        : el("div", { class: "k-ex-ghero-side" }, [u.quiet(rc ? rc.why : "No recall signal at this tier", rc ? rc.sub : null)])
-    ]);
-    wrap.appendChild(hero);
-    /* the section index (follows the scroll; a click jumps) */
-    var heads = {};
-    var index = el("nav", { class: "k-ex-gindex", "aria-label": "Sections", "data-ui": "exams.gindex" }, g.sections.map(function (s, i) {
-      return el("button", { type: "button", class: "k-ex-gindex-b", "data-sec": s.id, onclick: function () {
-        var h = heads[s.id];
-        if (h) { h.scrollIntoView({ behavior: "smooth", block: "start" }); h.focus({ preventScroll: true }); u.announce("Section " + (i + 1) + ", " + s.title + "."); }
-      } }, [el("span", { class: "k-mono", text: pad2(i + 1) }), s.title]);
-    }));
-    wrap.appendChild(KOS.ui.scroller ? KOS.ui.scroller(index, { keepRole: true }) : index);
-    var n = 0;
-    function section(id, title, sub, act, body, cls) {
-      var h = el("h2", { class: "k-ex-gsec-title", tabindex: "-1", text: title });
-      heads[id] = h;
-      var end = el("span", { class: "k-ex-gsec-end", "aria-hidden": "true" });
-      var c = el("section", { class: "k-card k-ex-card k-ex-gsec" + (cls ? " " + cls : ""), "data-ui": "exams.gsec", "data-sec": id }, [
-        el("div", { class: "k-ex-gsec-head" }, [el("span", { class: "k-mono k-ex-muted", text: pad2(++n) }), h, sub ? u.muted(sub) : null, el("span", { class: "k-ex-grow" }), act || null].filter(Boolean)),
-        body, end]);
-      watchRead(a.id, id, end);
-      return c;
-    }
-    g.sections.forEach(function (s) {
-      if (s.id === "essentials") wrap.appendChild(section("essentials", "Exam essentials", "the paper, how it is marked, and what to learn", null, essentialsBody(g.essentials)));
-      if (s.id === "notes") wrap.appendChild(section("notes", "Key notes", u.plural(g.tiles.length, "leaf", "leaves") + " · from your notes", null, notesBody(g, big)));
-      if (s.id === "commands") wrap.appendChild(section("commands", "Command words", "the " + (g.commands.length === 1 ? "one" : g.commands.length) + " that appear in this scope", board ? U().linkBtn("All of " + board + "'s ›", function () { openPlaybook(board, a, "commands"); }) : null, commandsBody(g)));
-      if (s.id === "booklet") wrap.appendChild(bookletRow(g, section));
-      if (s.id === "traps") wrap.appendChild(section("traps", "Traps", "from examiner's reports and your notes", null, trapsBody(g)));
-      if (s.id === "labs") wrap.appendChild(section("labs", "Labs", u.plural(g.labs.length, "lab") + ", from the lab system", null, labsBody(g)));
-      if (s.id === "items") {
-        if (deep) wrap.appendChild(section("shapes", "Question shapes, worked", "the full Companion: every shape of this paper in your scope, most frequent first", U().linkBtn("Trend and likelihood ›", function () { KOS.show("exams", { id: a.id, tab: "trend" }); }), deep));
-        else if (big) { var sh = shapesBody(a); if (sh) wrap.appendChild(section("shapes", "Question shapes", "the archetypes of this paper in your scope", U().linkBtn("Trend and likelihood ›", function () { KOS.show("exams", { id: a.id, tab: "trend" }); }), sh)); }
-        wrap.appendChild(section("items", "Exam items", u.plural(g.items.length, "item") + " in the topic banks", big ? u.btn("Practise them as a paper", "sm", function () { KOS.show("exams", { id: a.id, tab: "paper", sub: "1" }); }) : null, itemsBody(g, board)));
-      }
-      if (s.id === "cram") wrap.appendChild(cramRow(a, g, section));
-    });
-    wrap.appendChild(el("div", { class: "k-ex-inline k-ex-gfoot" }, [
-      u.btn("Export the revision pack", "", function () { packDialog(a); }, { "data-ui": "exams.pack-open" }),
-      u.btn("Exams settings", "quiet", function () { settingsDialog(); }, { "data-ui": "exams.settings-open" }),
-      el("span", { class: "k-ex-grow" }),
-      u.muted(deep ? "The exam items are from the topic banks; the worked variations and practice sets are the full Companion's, written by KurenaiOS." : "Every question here is from the topic banks; nothing is new material.")]));
-    typeset(wrap);
-  }
-  /* EXAM ESSENTIALS (js/data/exam-essentials.js): the paper at a glance,
-     what each objective asks, how the marks go, what the booklet gives and
-     what to learn, answer templates, the routine and the night before */
-  function essentialsBody(x) {
-    var u = U(), out = el("div", { class: "k-ex-ess", "data-ui": "exams.essentials" });
-    function blk(title, kids) { if (!kids || !kids.length) return; out.appendChild(el("div", { class: "k-ex-ess-blk" }, [el("h3", { class: "k-ex-ess-h", text: title })].concat(kids))); }
-    function li(t) { return el("li", { html: KOS.content.inline(String(t)) }); }
-    blk("At a glance", (x.glance || []).length ? [el("dl", { class: "k-ex-ess-dl" }, [].concat.apply([], x.glance.map(function (g) { return [el("dt", { text: g[0] }), el("dd", { html: KOS.content.inline(g[1]) })]; })))] : null);
-    blk("What the questions test", (x.objectives || []).map(function (o) { return el("div", { class: "k-ex-ess-row" }, [el("b", { class: "k-mono", text: o.code }), el("div", {}, [el("div", { text: o.what }), u.muted(o.spot, "k-ex-small")])]); }));
-    blk("How the marks go", (x.structure || []).map(function (st) { return el("div", { class: "k-ex-ess-row" }, [el("b", { class: "k-mono", text: st.marks + (st.marks === 1 ? " mark" : " marks") }), el("ol", { class: "k-ex-ess-ol" }, st.how.map(li))]); }));
-    if (x.booklet) {
-      blk("In the formulae booklet", [el("ul", { class: "k-ex-ess-ul" }, x.booklet.given.map(li))]);
-      blk("Not in it — learn these", [el("ul", { class: "k-ex-ess-ul" }, x.booklet.learn.map(li))]);
-    }
-    blk("Answer templates", (x.templates || []).map(function (t) { return el("div", { class: "k-ex-ess-row" }, [el("b", { text: t.w }), el("div", {}, [el("div", { html: KOS.content.inline(t.frame) }), t.eg ? el("div", { class: "k-ex-small k-ex-muted", html: "e.g. " + KOS.content.inline(t.eg) }) : null].filter(Boolean))]); }));
-    blk("Not examinable", (x.notExaminable || []).length ? [el("ul", { class: "k-ex-ess-ul" }, x.notExaminable.map(li))] : null);
-    blk("In the exam", (x.routine || []).length ? [el("ol", { class: "k-ex-ess-ol" }, x.routine.map(li))] : null);
-    blk("The night before", (x.night || []).length ? [el("ul", { class: "k-ex-ess-ul" }, x.night.map(li))] : null);
-    typeset(out);
-    return out;
-  }
-  function pad2(i) { return (i < 10 ? "0" : "") + i; }
-  function watchRead(aid, sec, end) {
-    if (typeof IntersectionObserver !== "function") return;
-    var timer = null;
-    var io = new IntersectionObserver(function (es) {
-      es.forEach(function (e) {
-        if (e.isIntersecting) timer = setTimeout(function () { if (end.isConnected && markRead(aid, sec)) { io.disconnect(); } }, 3000);
-        else if (timer) { clearTimeout(timer); timer = null; }
-      });
-    });
-    io.observe(end);
-  }
-  /* 01 · key notes: a tile a leaf with its rule, a line and the taught flag */
-  function notesBody(g, big) {
-    var u = U(), cap = big ? 12 : 30, host = el("div", { class: "k-ex-notes" });
-    function draw(all) {
-      host.textContent = "";
-      g.tiles.slice(0, all ? g.tiles.length : cap).forEach(function (t) {
-        var p = KOS.spec.parse(t.key);
-        host.appendChild(el("article", { class: "k-ex-ntile", "data-ui": "exams.note-tile" }, [
-          el("div", { class: "k-ex-inline" }, [el("span", { class: "k-mono k-ex-muted k-ex-small", text: t.ref }), el("button", { type: "button", class: "k-link k-ex-ntile-t", text: t.title,
-            onclick: function () { if (p) KOS.show("ref", { subject: p.subject, ref: p.ref }); } }), el("span", { class: "k-ex-grow" }),
-            !t.taught && t.week ? el("span", { class: "k-chip", "data-tone": "muted", text: "In class w/c " + u.pretty(t.week, { dow: false }) }) : null].filter(Boolean)),
-          t.rule ? html("div", "k-ex-ntile-rule", (t.rule.h ? "<b>" + inline(t.rule.h) + "</b> " : "") + inline(t.rule.text)) : el("div", { class: "k-ex-muted", text: t.has ? "Open the topic for its notes." : "No notes for " + t.ref + " yet." }),
-          t.line ? html("div", "k-ex-ntile-line", inline(t.line)) : null,
-          !t.has ? u.btn("Write one", "sm", function () { if (p) KOS.show("ref", { subject: p.subject, ref: p.ref }); }) : null
-        ].filter(Boolean)));
-      });
-      if (!all && g.tiles.length > cap) host.appendChild(el("button", { type: "button", class: "k-ex-ntile k-ex-ntile--more", "data-ui": "exams.notes-more", onclick: function () { draw(true); typeset(host); } },
-        [el("b", { text: "＋ " + (g.tiles.length - cap) + " more leaves" }), u.muted("Show every leaf in the scope")]));
-    }
-    draw(false);
-    return host;
-  }
-  /* 02 · command words, as a table */
-  function commandsBody(g) {
-    var t = el("div", { class: "k-ex-cmds", role: "table", "aria-label": "Command words" }, [
-      el("div", { class: "k-ex-cmd k-ex-cmd--head", role: "row" }, ["Word", "What it asks", "What loses the mark", "In scope"].map(function (x) { return el("span", { role: "columnheader", text: x }); }))]);
-    g.commands.forEach(function (c) {
-      t.appendChild(el("div", { class: "k-ex-cmd", role: "row", "data-ui": "exams.cmd" }, [
-        el("b", { role: "cell", text: c.w }), html("span", "", inline(c.asks)), html("span", "", inline(c.loses)), el("span", { role: "cell", class: "k-mono k-ex-muted", text: c.n + (c.n === 1 ? " item" : " items") })]));
-    });
-    return t;
-  }
-  /* 03 · the booklet against must-memorise, side by side; a board with no
-     booklet puts the exact definitions beside what to memorise */
-  function bookletRow(g, section) {
-    var u = U(), cap = 6;
-    function list(rows, empty) {
-      var host = el("div", { class: "k-ex-frows" });
-      if (!rows.length) host.appendChild(u.muted(empty));
-      rows.slice(0, cap).forEach(function (r) {
-        host.appendChild(el("div", { class: "k-ex-frow" }, [html("div", "k-ex-frow-b", (r.h ? "<b>" + inline(r.h) + "</b><br>" : "") + blocks(r.body)), el("span", { class: "k-ex-muted k-ex-small k-mono", text: r.ref })]));
-      });
-      if (rows.length > cap) host.appendChild(u.muted("＋ " + (rows.length - cap) + " more in the playbook", "k-ex-small"));
-      return host;
-    }
-    var edex = g.board === "Edexcel";
-    var left = section("booklet", edex ? "In the formula booklet" : "Must memorise", edex ? "look it up; do not learn it" : "not given to you", null, list(edex ? g.booklet : g.memorise, "Nothing marked for the booklet in this scope."));
-    var right = el("section", { class: "k-card k-ex-card k-ex-gsec", "data-ui": "exams.gsec" }, [
-      el("div", { class: "k-ex-gsec-head" }, [el("h2", { class: "k-ex-gsec-title", text: edex ? "Must memorise" : "Definitions" }), U().muted(edex ? "not in the booklet" : "the exact wording")]),
-      list(edex ? g.memorise : g.defs, edex ? "Nothing marked to memorise in this scope." : "No definitions in this scope.")]);
-    return el("div", { class: "k-ex-grid-even" }, [left, right]);
-  }
-  /* 04 · traps: three a row, each with where it came from */
-  function trapsBody(g) {
-    var u = U(), host = el("div", { class: "k-ex-traps" });
-    g.traps.slice(0, 9).forEach(function (t) {
-      host.appendChild(el("article", { class: "k-ex-trap", "data-ui": "exams.trap", "data-from": t.from }, [
-        el("div", { class: "k-ex-inline" }, [el("span", { class: "k-ex-trap-mark", "aria-hidden": "true", text: "!" }), el("b", { text: t.h ? t.h.replace(/\*\*/g, "") : t.title })]),
-        html("div", "k-ex-trap-why", inline(t.text)),
-        u.muted(t.from === "report" ? "From the examiner's report · " + t.cite : t.ref + " " + t.title, "k-ex-small")]));
-    });
-    if (g.traps.length > 9) host.appendChild(el("button", { type: "button", class: "k-ex-trap k-ex-ntile--more", onclick: function () { openPlaybook(g.board, g.a, "blacklist"); } },
-      [el("b", { text: "＋ " + (g.traps.length - 9) + " more" }), u.muted("In the playbook's blacklist")]));
-    return host;
-  }
-  /* 05 · labs, large */
-  function labsBody(g) {
-    var u = U();
-    return el("div", { class: "k-ex-labs" }, g.labs.slice(0, 6).map(function (l) {
-      return el("article", { class: "k-ex-lab", "data-ui": "exams.lab" }, [el("span", { class: "k-ex-lab-mark", "aria-hidden": "true", lang: "ja", text: "験" }),
-        el("div", { class: "k-ex-lab-b" }, [el("b", { text: l.title }), l.desc ? u.muted(l.desc) : null, el("span", { class: "k-ex-grow" }),
-          u.btn("Open the lab", "sm", function () { KOS.show("sims", l.id); })].filter(Boolean))]);
-    }));
-  }
-  /* 06 · exam items, numbered, each with its scheme behind Try it */
-  function itemsBody(g, board) {
-    var u = U(), cap = 8, host = el("ol", { class: "k-ex-items" });
-    function draw(all) {
-      host.textContent = "";
-      g.items.slice(0, all ? g.items.length : cap).forEach(function (it, i) {
-        var ms = el("div", { class: "k-ex-item-ms", hidden: "" });
-        it.parts.forEach(function (p, j) { ms.appendChild(html("div", "k-ex-ms", (it.parts.length > 1 ? "<b>(" + "abcdefgh".charAt(j) + ")</b> " : "") + (p.ms || []).map(inline).join("<br>"))); });
-        var hb = C().habitFor(board, it.parts[0].q);
-        var tryB = u.btn("Try it", "sm", function () { ms.hidden = !ms.hidden; tryB.textContent = ms.hidden ? "Try it" : "Hide the scheme"; if (!ms.hidden) typeset(ms); });
-        host.appendChild(el("li", { class: "k-ex-item", "data-ui": "exams.item" }, [
-          el("span", { class: "k-mono k-ex-item-n", text: String(i + 1) }),
-          el("div", { class: "k-ex-item-q" }, [it.ctx ? html("p", "", inline(it.ctx)) : null].concat(it.parts.map(function (p, j) { return html("p", "", (it.parts.length > 1 ? "<b>(" + "abcdefgh".charAt(j) + ")</b> " : "") + inline(p.q) + " <span class=\"k-mono k-ex-muted\">(" + p.marks + ")</span>"); }),
-            [hb ? el("div", { class: "k-ex-habit" }, [el("b", { text: hb.type + ": " }), hb.steps.join(" ")]) : null, ms, it.src ? u.muted("Modelled on " + it.src, "k-ex-small") : null]).filter(Boolean)),
-          tryB]));
-      });
-      if (!all && g.items.length > cap) host.appendChild(el("li", { class: "k-ex-item k-ex-item--more" }, [el("button", { type: "button", class: "k-link", "data-ui": "exams.items-more", text: "Show all " + g.items.length + " items", onclick: function () { draw(true); typeset(host); } })]));
-    }
-    draw(false);
-    return host;
-  }
-  /* the question shapes of the board paper inside this scope */
-  function shapesBody(a) {
-    var u = U(), pid = C().indexPaperOf(a), st = pid ? C().archetypes(pid) : null;
-    if (!st) return null;
-    var ls = {};
-    E().leaves(a).forEach(function (k) { ls[k] = true; });
-    var rows = st.list.filter(function (x) { return !x.unique && x.leaves.some(function (k) { return ls[k]; }); });
-    if (!rows.length) return null;
-    var host = el("div", { class: "k-ex-shapes" });
-    rows.slice(0, 12).forEach(function (s) {
-      var inst = s.instances.filter(function (x) { return x.sitting !== "specimen" && x.sitting !== "sample"; }).slice(0, 3);
-      host.appendChild(el("article", { class: "k-ex-shape", "data-ui": "exams.shape" }, [
-        el("div", { class: "k-ex-inline" }, [el("b", { class: "k-ex-grow", text: s.title }), el("span", { class: "k-chip", "data-tone": s.appear / Math.max(1, s.of) >= 0.75 ? "teal" : null, text: s.appear + " of " + s.of + " sittings" })]),
-        u.muted((s.lo != null ? (s.lo === s.hi ? s.lo : s.lo + "–" + s.hi) + " marks when it comes up" : "") + " · about " + s.mean + " a paper", "k-ex-small"),
-        el("div", { class: "k-ex-ptrs" }, inst.map(function (x) {
-          return el("div", { class: "k-ex-ptr" }, [el("span", { class: "k-mono", text: C().sittingName(x.sitting) }), u.muted(x.q + " · " + u.plural(x.marks, "mark")),
-            el("span", { class: "k-ex-grow" }), u.linkBtn("Log it", function () { KOS.trackerLog({ assessmentId: a.id, index: { paper: pid, sitting: x.sitting } }, function () { KOS.rerender(); }); })]);
-        }))]));
-    });
-    host.appendChild(el("p", { class: "k-ex-foot k-ex-span", text: "Frequency is evidence, not prophecy: anything in the specification can appear. Worked variations for each shape arrive with this paper's full Companion." }));
-    return host;
-  }
-  /* 07 · the cram deck and the rapid drill, side by side */
-  function cramRow(a, g, section) {
-    var u = U(), cards = [];
-    E().leaves(a).forEach(function (k) { var p = KOS.spec.parse(k); if (p) KOS.srs.cardsFor(p.subject, p.ref).forEach(function (c) { if (cards.length < 6 && c.q) cards.push(c); }); });
-    var left = section("cram", "Cram deck", u.plural(g.cram.cards, "card") + (g.cram.seenWeek ? " · " + g.cram.seenWeek + " seen this week" : ""),
-      g.cram.cards ? u.btn("Cram " + (g.cram.due || Math.min(g.cram.cards, 40)), "primary sm", function () { KOS.show("review", { tab: "due", run: "scope:" + a.id }); }) : null,
-      el("div", { class: "k-ex-flash" }, cards.map(function (c) {
-        var m = KOS.srs.peek(c.key), seen = m && m.last && m.last >= KOS.srs.addDays(today(), -6);
-        return el("div", { class: "k-ex-flashc", "data-state": seen ? "seen" : null }, [html("div", "", inline(c.q)), el("span", { class: "k-ex-grow" }), u.muted(seen ? "seen this week" : m && m.last ? "seen before" : "not seen yet", "k-ex-small")]);
-      })));
-    var dr = C().drill(a, 1);
-    var right = el("section", { class: "k-card k-ex-card k-ex-gsec", "data-ui": "exams.gsec" }, [
-      el("div", { class: "k-ex-gsec-head" }, [el("h2", { class: "k-ex-gsec-title", text: "Rapid drill" }), u.muted(u.plural(dr.items.length, "question") + " · about " + dr.mins + " min")]),
-      dr.items[0] ? el("div", { class: "k-ex-drillprev" }, [u.muted("Question 1 of " + dr.items.length + " · " + dr.items[0].ref), html("div", "k-ex-drillprev-q", inline(dr.items[0].q))]) : u.quiet("Nothing to drill yet", "The scope has no flashcards or short items."),
-      el("span", { class: "k-ex-grow" }),
-      el("div", { class: "k-ex-inline" }, [u.btn("Start the drill", "primary sm", function () { drillDialog(a); }, { disabled: dr.items.length ? null : "" }), u.muted("misses go to a cram run")])]);
-    return el("div", { class: "k-ex-grid-cram" }, [left, right]);
+    KOS.show("exams", { id: a.id, tab: "revise" });
   }
 
   /* ================= trend and likelihood (29s) ================= */
   function trendPage(main, a) {
     var u = U(), L = C().likelihood(a);
-    U().head(main, "guide", { right: KOS.ui.tabs([{ label: "Guide", active: false, onSelect: function () { KOS.show("exams", { tab: "guide", sub: a.id }); } },
-      { label: "Trend and likelihood", active: true, onSelect: function () {} }], { variant: "workspace", label: "Companion view" }) });
+    var tabs = KOS.ui.tabs([{ label: "Revise", active: false, onSelect: function () { KOS.show("exams", { id: a.id, tab: "revise" }); } },
+      { label: "Trend and likelihood", active: true, onSelect: function () {} }], { variant: "workspace", label: "Companion view" });
+    if (KOS.examShell) KOS.examShell.head(main, a, { actions: [tabs] });
+    else U().head(main, "guide", { right: tabs });
     var wrap = el("div", { class: "k-ex-page k-ex-trend", "data-ui": "exams.trend", style: "--s: " + u.hueOf(a) });
     main.appendChild(wrap);
     if (!L) {
@@ -612,5 +334,5 @@
     return ov;
   }
 
-  KOS.examGuide = { hub: hub, page: page, drill: drillDialog, playbook: openPlaybook, pack: packDialog, settings: settingsDialog, printRoot: printRoot, printNow: printNow, dialog: dialog };
+  KOS.examGuide = { page: page, drill: drillDialog, playbook: openPlaybook, pack: packDialog, settings: settingsDialog, printRoot: printRoot, printNow: printNow, dialog: dialog };
 })();
