@@ -5,7 +5,10 @@ problems. This is the audit done before fixing anything: every surface
 driven in the browser on the dense test data (24 exams: AQA CS, Edexcel
 Maths and OCR IT; a mock, a real exam and a topic test of each kind), the
 papers printed to PDF and the page sizes measured, every dialog opened.
-Each line says what is wrong and what the fix is. Status is kept here.
+Each line says what is wrong and what the fix is. All of them are FIXED on
+`feat/exams-audit` and held by smoke187; each was checked in the browser
+(desktop and iPad portrait), the papers printed to PDF and every page
+measured A4 (F201: 11 sheets on screen, 11 pages printed).
 
 ## Reported by the user
 
@@ -21,6 +24,7 @@ Each line says what is wrong and what the fix is. Status is kept here.
 | U8 | A detour to the Library to reach a past paper | — | U2 |
 | U9 | "Set its page" is unclear and may not work | Only 1 of 10 questions found in the PDF's text; choosing one silently pins the page in view; forgotten when the viewer closes | Better question finding (OCR 1(a), AQA 0 1 . 1, Edexcel 1.); a question not found asks "Which page is Q3 on?" with the page in view filled in; kept with the file |
 | U10 | Attempts cannot be cleared; little can be edited | Review shows attempts with no Edit or Delete | Edit (marks, out of, grade, date, timed, notes, the assessment it counts for) and Delete with Undo on every attempt in Review and in Results |
+| U11 | Deleting an exam is hidden | Delete is inside the editor, and the editor opens only from On the day's Edit or the notes | Edit in the exam's header and a ⋯ menu (Edit, Archive, Delete) on the exam page and on every All exams row |
 
 ## Found in the audit
 

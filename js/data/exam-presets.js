@@ -94,7 +94,7 @@ window.KOS_EXAM_PRESETS = {
       sections: [{ id: "all", title: "Pure mathematics", indexed: false }] },
     { id: "ocr-f201", subject: "it", board: "OCR", qual: "H119", level: "AN", paper: "F201",
       title: "OCR IT · F201", marks: 60, mins: 90, calculator: null,
-      include: ["it:F201"], itUnit: "F201", lowEvidence: true,
+      include: ["it:F201"], itUnit: "F201", lowEvidence: true, index: "ocr-f201",
       sections: [{ id: "all", title: "Written paper", indexed: false }] }
   ]
 };

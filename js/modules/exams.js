@@ -274,7 +274,7 @@
     })[0] || null;
   }
   /* the hub's header and its one tab row (45a): Exams · Timetable ·
-     Results · Library · Load. A page from an older address keeps its own
+     Results · Practice (attempts, analytics, paper files) · Load. A page from an older address keeps its own
      switch on the right. */
   var HEAD_TAB = { timetable: "timetable", results: "results", practice: "library", library: "library", load: "load" };
   function head(main, tab, o) {
@@ -495,7 +495,7 @@
         "aria-label": pretty(c.date) + (c.items.length ? ", " + c.items.map(function (x) { return x.title; }).join(", ") : ", nothing") + (c.flag ? (c.flag === "two" ? ", two on one day" : ", three in 48 hours") : "") + (c.rest ? ", recovery day" : ""),
         onclick: c.items.length ? function () { KOS.show("exams", c.items[0].id); } : null }, [
         el("span", { class: "k-ex-loadhead" }, [el("span", { text: DOW[d.getDay()] }), el("b", { class: "k-mono", text: String(d.getDate()) })]),
-        el("span", { class: "k-ex-loaditems" }, c.items.map(function (x) { return el("span", { class: "k-ex-loaditem", style: "--s: " + (HUE[x.subject] || "var(--muted)") }, [el("i", { "aria-hidden": "true" }), el("span", { text: x.title + (x.time ? " · " + (+x.time.split(":")[0] < 12 ? "am" : "pm") : "") })]); })),
+        el("span", { class: "k-ex-loaditems" }, c.items.map(function (x) { return el("span", { class: "k-ex-loaditem", style: "--s: " + (HUE[x.subject] || "var(--muted)") }, [el("i", { "aria-hidden": "true" }), el("span", { text: x.title + (x.time ? " · " + (+x.time.split(":")[0] < 12 ? "am" : "pm") : ""), title: x.title })]); })),
         c.flag ? el("span", { class: "k-ex-loadflag", text: "▲ " + (c.flag === "two" ? "Two on one day" : "3 in 48 h") }) : c.rest ? el("span", { class: "k-ex-loadrest", text: "◌ Recovery day" }) : null
       ].filter(Boolean));
     }));
@@ -667,8 +667,29 @@
         var fs = KOS.files.linkedTo("exam", String(a.id));
         if (!fs.length) { list.appendChild(el("li", { class: "k-muted", text: "Revision sheets, a mock's paper or your teacher's feedback: drop them here." })); return; }
         fs.forEach(function (r) {
-          list.appendChild(el("li", {}, [el("button", { type: "button", class: "k-link", text: r.name, onclick: function () { KOS.files.open(r); } }),
-            el("span", { class: "k-muted k-mono", text: " " + (KOS.files.KIND_NAME[r.kind] || "") })]));
+          /* a PDF attached here can be one of the board's past papers, with
+             everything a past paper gets (audit U2) */
+          var pdf = /\.pdf$/i.test(r.name || "") && KOS.examPapers && KOS.examPapers.available();
+          list.appendChild(el("li", { class: "k-ex-fileli" }, [el("button", { type: "button", class: "k-link", text: r.name, onclick: function () { KOS.files.open(r); } }),
+            el("span", { class: "k-muted k-mono", text: " " + (KOS.files.KIND_NAME[r.kind] || "") }), el("span", { class: "k-ex-grow" }),
+            pdf ? el("button", { type: "button", class: "k-btn k-btn--sm k-btn--quiet", "data-ui": "exams.file-as-paper", text: "Use as a past paper", onclick: function () { usePaper(r); } }) : null].filter(Boolean)));
+        });
+      });
+    }
+    function usePaper(r) {
+      KOS.files.blobOf(r, function (err, blob) {
+        if (err || !blob) { KOS.ui.toast("That file is not on this device yet.", true); return; }
+        var f = new File([blob], r.name, { type: "application/pdf" });
+        KOS.examPapers.add([{ file: f, path: r.name }], function (e2, res) {
+          var rep = res && res.report && res.report[0];
+          if (e2 || !rep) { KOS.ui.toast("Could not add it as a past paper.", true); return; }
+          if (rep.outcome === "matched") { KOS.ui.toast(r.name + " is now a past paper: " + rep.why + "."); KOS.rerender(); return; }
+          if (rep.outcome === "skipped") { KOS.ui.toast(r.name + ": " + rep.why + ".", true); return; }
+          /* not matched by its name: match it here, from this exam's subject */
+          KOS.examPapers.list(function (e3, rows) {
+            var mine = (rows || []).filter(function (x) { return x.name === r.name && !KOS.examPapers.matched(x); });
+            if (mine.length && KOS.examPractice && KOS.examPractice.matchDialog) KOS.examPractice.matchDialog(mine, { subject: a.subject });
+          });
         });
       });
     }
@@ -1079,17 +1100,7 @@
         existing ? el("span", { class: "k-ex-muted k-ex-small", text: existing.title }) : null].filter(Boolean)),
       body,
       el("div", { class: "k-dialog-foot" }, [
-        existing ? btn("Delete assessment", "danger", function () {
-          var gl = KOS.goals ? KOS.goals.byExam(existing.id) : [];
-          KOS.ui.confirm({ title: "Delete " + existing.title + "?", danger: true, confirm: "Delete " + (TIER[existing.tier] ? TIER[existing.tier][1].toLowerCase() : "assessment"),
-            body: "The " + (TIER[existing.tier] ? TIER[existing.tier][1].toLowerCase() : "assessment") + ", its scope and its readiness go. Logged attempts stay in Practice." +
-              (gl.length ? " " + (gl.length === 1 ? "1 goal is linked to it: “" + gl[0].title + "”. It will be" : gl.length + " goals are linked to it. They will be") + " kept, marked “Exam removed · unlinked”, and archived at " + (gl.length === 1 ? "its" : "their") + " next judgement." : "") }, function () {
-            X.remove(existing.id); close();
-            var msg = existing.title + " deleted." + (gl.length ? " " + plural(gl.length, "goal") + " unlinked and kept." : "");
-            KOS.ui.toast(msg); announce(msg);
-            KOS.show("exams", "timetable");
-          });
-        }) : null,
+        existing ? btn("Delete assessment", "danger", function () { confirmDelete(existing, close); }, { "data-ui": "exams.delete" }) : null,
         el("span", { class: "k-spacer" }),
         btn("Cancel", "", close),
         existing ? null : nextBtn,
@@ -1279,6 +1290,22 @@
   /* the pre-rework page: a deadline's overview and the Scope Builder */
   KOS.examLegacyPage = page;
   KOS.examEditor = editor;
+  /* delete an assessment, asked first (audit U11: reachable from its page
+     and its row, not only from inside the editor) */
+  function confirmDelete(existing, before) {
+    var X = KOS.exams, gl = KOS.goals ? KOS.goals.byExam(existing.id) : [];
+    var word = TIER[existing.tier] ? TIER[existing.tier][1].toLowerCase() : "assessment";
+    KOS.ui.confirm({ title: "Delete " + existing.title + "?", danger: true, confirm: "Delete " + word,
+      body: "The " + word + ", its scope, its plan and its readiness go. Logged attempts stay in Results and Practice." +
+        (gl.length ? " " + (gl.length === 1 ? "1 goal is linked to it: “" + gl[0].title + "”. It will be" : gl.length + " goals are linked to it. They will be") + " kept, marked “Exam removed · unlinked”, and archived at " + (gl.length === 1 ? "its" : "their") + " next judgement." : "") }, function () {
+      if (before) before();
+      X.remove(existing.id);
+      var msg = existing.title + " deleted." + (gl.length ? " " + plural(gl.length, "goal") + " unlinked and kept." : "");
+      KOS.ui.toast(msg); announce(msg);
+      KOS.show("exams");
+    });
+  }
+  KOS.examDelete = confirmDelete;
   KOS.examGoalTemplates = goalTemplates;
   /* the exam's linked goals (invariant 128), drawn under the rework's Plan */
   KOS.examGoalsCard = goalsCard;

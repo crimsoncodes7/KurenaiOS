@@ -31,8 +31,12 @@
     var pr = a && a.preset ? E().preset(a.preset) : null;
     var pid = C().indexPaperOf(a), ix = IX(), out = { paper: pid, board: C().boardOf(a) };
     var mins = (a && a.durationMins) || (pr && (pr.durationMins || pr.mins)) || null;
-    if (pid) {
-      var p = ix.papers[pid], sits = p.sittings.filter(function (s) { return s !== "specimen" && s !== "sample"; });
+    /* a paper whose only sitting is its specimen (OCR's F201, audit U7)
+       has no sitting to average: its marks, the rest as with no index */
+    var real = pid && ix.papers[pid] ? ix.papers[pid].sittings.filter(function (s) { return s !== "specimen" && s !== "sample"; }) : [];
+    if (pid && !real.length) { out.marks = ix.papers[pid].marks || (a && a.marks) || 60; out.questions = Math.max(6, Math.round(out.marks / 6)); out.title = ix.papers[pid].title; }
+    else if (pid) {
+      var p = ix.papers[pid], sits = real;
       var per = {};
       ix.questions.forEach(function (q) {
         if (q[0] !== pid || sits.indexOf(q[1]) === -1) return;
@@ -45,7 +49,7 @@
       out.questions = Math.round(keys.reduce(function (t, k) { return t + Object.keys(per[k].qs).length; }, 0) / n);
       out.sittings = sits.length;
       out.title = p.title;
-    } else {
+    } else if (!pid) {
       out.marks = (a && a.marks) || 60;
       out.questions = Math.max(6, Math.round(out.marks / 6));
       out.title = a ? a.title : "Practice paper";

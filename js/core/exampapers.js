@@ -62,8 +62,23 @@
   /* ---------------- matching (pure) ---------------- */
   var MONTHS = { january: "01", february: "02", march: "03", april: "04", may: "05", june: "06", july: "07", august: "08",
     september: "09", october: "10", november: "11", december: "12", jan: "01", jun: "06", nov: "11", oct: "10" };
+  /* OCR's papers join the index (js/data/exam-index-ocr.js, audit U7):
+     merged now and whenever the index bundle (re)loads; idempotent */
+  function mergeOcr() {
+    var X = window.KOS_EXAMS, O = window.KOS_EXAMS_OCR;
+    if (!X || !X.index || !O || !X.index.papers || !X.index.questions) return;
+    Object.keys(O.papers).forEach(function (k) { if (!X.index.papers[k]) X.index.papers[k] = O.papers[k]; });
+    var have = {};
+    X.index.questions.forEach(function (q) { have[q[0] + "|" + q[1] + "|" + q[3]] = true; });
+    O.questions.forEach(function (q) { if (!have[q[0] + "|" + q[1] + "|" + q[3]]) X.index.questions.push(q); });
+  }
+  mergeOcr();
+  if (KOS.lazy && KOS.lazy.on) KOS.lazy.on(function () { mergeOcr(); });
+  /* an OCR unit by its name, as OCR files are named (audit U7) */
+  var OCR_UNITS = [[/big[ _-]*data|machine[ _-]*learning/i, "F201"], [/fundamentals[ _-]*of[ _-]*data/i, "F200"]];
   function match(path) {
-    var p = String(path || "").replace(/\\/g, "/");
+    /* underscores and dashes are spaces here: "OCR_Big_Data" is three words */
+    var p = String(path || "").replace(/\\/g, "/").replace(/[_]+/g, " ");
     if (!/\.pdf$/i.test(p)) return null;
     var name = p.split("/").pop();
     var subject = /computer science|\b75(17|16)\b|\baqa\b/i.test(p) ? "compsci"
@@ -77,14 +92,21 @@
     else {
       var mw = /\b(january|february|march|april|may|june|july|october|november|jan|jun|oct|nov)\w*\s*(20\d\d)\b/i.exec(name);
       if (mw) sitting = mw[2] + "-" + MONTHS[mw[1].toLowerCase()];
-      else if (/specimen/i.test(name)) sitting = "specimen";
+      else if (/specimen|sample assessment|\bSAM\b/i.test(name)) sitting = "specimen";
       else if (/\bsample\b/i.test(name)) sitting = "sample";
     }
-    var kind = /\bQP\d?\b|question paper/i.test(name) ? "qp" : /\bMS\d?\b|mark scheme/i.test(name) ? "ms"
+    var kind = /\bQP\d?\b|question paper/i.test(name) ? "qp" : /\bMS\d?\b|mark scheme|annotated/i.test(name) ? "ms"
       : /\bMA\b|model answers?/i.test(name) ? "ma" : /\bER\b|examiner/i.test(name) ? "er" : null;
     var part = /\(statistics\)/i.test(name) ? "S" : /\(mechanics\)/i.test(name) ? "M" : null;
     var paper = null;
-    if (subject === "it") { var u = /\b(F2\d\d)\b/i.exec(p); paper = u ? "ocr-" + u[1].toLowerCase() : null; }
+    if (subject === "it") {
+      var u = /\b(F2\d\d)\b/i.exec(p), byName = OCR_UNITS.filter(function (x) { return x[0].test(p); })[0];
+      var unit = u ? u[1].toUpperCase() : byName ? byName[1] : null;
+      paper = unit ? "ocr-" + unit.toLowerCase() : null;
+      /* OCR's units have one sitting so far: their Sample Assessment Material */
+      if (paper && !sitting && /\bocr\b/i.test(p)) sitting = "specimen";
+      if (paper && !kind) kind = "qp";
+    }
     else if (paperN) paper = subject === "compsci" ? "aqa-" + (as ? "7516" : "7517") + "-" + paperN : "edexcel-" + (as ? "8ma0" : "9ma0") + "-" + paperN;
     if (/mock/i.test(p)) return { subject: subject, paper: null, sitting: null, kind: kind, part: part, mock: true };
     return { subject: subject, paper: paper, sitting: sitting, kind: kind, part: part };

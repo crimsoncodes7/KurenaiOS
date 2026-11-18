@@ -85,7 +85,12 @@ Read this file before editing or testing anything in its domain.
     stored, rebuilt from its assessment and seed (the same seed, the same
     paper), to the board paper's blueprint from the index (marks, short to
     long, at most two items a leaf, weighted to the paper's high-yield
-    leaves). Every page says "written by KurenaiOS, not a board paper";
+    leaves). It is laid out on fixed A4 sheets, THE SAME ON SCREEN AND IN
+    PRINT (the audit of 18 November 2026): the cover its own sheet, the
+    parts flowing on and an answer's lines carrying over, the mark scheme's
+    rows flowing with its head repeated; Print prints the paper, the paper
+    and its scheme, or the scheme, as sheets and nothing of the app. Every
+    page says "written by KurenaiOS, not a board paper";
     until each paper's original predicted questions arrive (phase 6) a
     practice paper is drawn from the topic banks and names the past paper
     each item is modelled on. The tally ticks mark points (a dM or an A

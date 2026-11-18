@@ -106,7 +106,7 @@
   }
 
   /* ---------------- All exams (45a) ---------------- */
-  var TABS = [["exams", "Exams"], ["timetable", "Timetable"], ["results", "Results"], ["library", "Library"], ["load", "Load"]];
+  var TABS = [["exams", "Exams"], ["timetable", "Timetable"], ["results", "Results"], ["library", "Practice"], ["load", "Load"]];
   function hubHead(main, tab) {
     var acts = [
       btn("↓ Import timetable", "quiet", function () { U().importDialog(); }, { "data-ui": "exams.import" }),
@@ -116,7 +116,8 @@
     var up = E().upcoming().filter(function (a) { return !a.archived; });
     var tabs = KOS.ui.tabs(TABS.map(function (t) {
       return { label: t[1], active: t[0] === tab, count: t[0] === "exams" ? up.length : null,
-        onSelect: function () { if (t[0] !== tab) KOS.show("exams", t[0] === "exams" ? null : t[0]); } };
+        /* Practice opens on your attempts; its Paper files are one tab in */
+        onSelect: function () { if (t[0] !== tab) KOS.show("exams", t[0] === "exams" ? null : t[0] === "library" ? "practice" : t[0]); } };
     }), { variant: "workspace", label: "Exams & Papers", edge: true });
     tabs.setAttribute("data-ui", (tabs.getAttribute("data-ui") || "") + " exams.tabs");
     main.appendChild(el("div", { class: "k-ex-tabsrow", "data-ui": "exams.tabsrow" }, [tabs]));
@@ -196,7 +197,8 @@
       U().daysLeftEl(days),
       el("span", { class: "k-xs-chev", "aria-hidden": "true", text: "›" })]);
     row.setAttribute("aria-label", a.title + ", " + U().TIER[a.tier][1] + (a.date ? ", " + U().pretty(a.date, { year: true }) + ", " + U().inDays(days) : "") + ", " + stateWord(a)[0]);
-    return row;
+    /* the row opens the exam; its ⋯ sits beside it, never inside a button */
+    return el("div", { class: "k-xs-uprowwrap" }, [row, examMenu(a)]);
   }
   function allExams(main) {
     hubHead(main, "exams");
@@ -236,6 +238,14 @@
       box.appendChild(more);
     }
     wrap.appendChild(box);
+    /* archived exams stay reachable, to bring back or delete (audit U11) */
+    var arch = E().all().filter(function (a) { return a.archived; });
+    if (arch.length) {
+      var ab = el("div", { class: "k-xs-far", hidden: true, "data-ui": "exams.archived" }), aOpen = false;
+      arch.forEach(function (a) { ab.appendChild(upRow(a)); });
+      var at = btn("Show ›", "quiet sm", function () { aOpen = !aOpen; ab.hidden = !aOpen; at.textContent = aOpen ? "Hide ‹" : "Show ›"; }, { "data-ui": "exams.archived-toggle" });
+      wrap.appendChild(el("section", { class: "k-card k-xs-upcoming" }, [el("div", { class: "k-xs-farrow" }, [el("span", { class: "k-ex-grow" }, [el("b", { text: "Archived" }), " · " + arch.length]), at]), ab]));
+    }
   }
 
   /* ---------------- one exam (45b) ---------------- */
@@ -249,7 +259,8 @@
       S().topics(a).length && pp.length > 1 ? S().topics(a).length + " topics" : null].filter(Boolean).join(" · ");
     var acts = o.actions || [
       a.tier !== "deadline" ? btn("Edit scope", "quiet", function () { KOS.examScopeSheet ? KOS.examScopeSheet(a) : KOS.show("exams", { id: a.id, tab: "scope" }); }, { "data-ui": "exams.scope-btn" }) : null,
-      btn("＋ Log a result", "", function () { KOS.trackerLog({ assessmentId: a.id }, function () { KOS.rerender(); }); }, { "data-ui": "exams.log" })];
+      btn("＋ Log a result", "", function () { KOS.trackerLog({ assessmentId: a.id }, function () { KOS.rerender(); }); }, { "data-ui": "exams.log" }),
+      examMenu(a)];
     main.appendChild(el("header", { class: "k-xs-head", "data-ui": "exams.ahead", style: "--s: " + U().hueOf(a) }, [
       el("div", { class: "k-xs-headl" }, [
         U().backLink("All exams", function () { KOS.show("exams"); }),
@@ -393,9 +404,7 @@
     var rc = KOS.tracker && KOS.tracker.redoCards ? KOS.tracker.redoCards().filter(function (c) { return E().contains(a, c.sid, c.ref); }) : [];
     if (rc.length) cards.push(el("div", { class: "k-card k-xs-mini", "data-ui": "exams.mini" }, [el("div", { class: "k-ex-inline" }, [el("b", { text: "Redo item" }), U().muted(rc[0].q ? String(rc[0].q).slice(0, 12) : "")]),
       el("p", { class: "k-xs-minibody", text: String(rc[0].front || rc[0].prompt || "").slice(0, 140) || "From a marked paper" })]));
-    var nxt = td.steps.filter(function (s) { return !s.done && !s.running; })[anyRun ? 0 : 1];
-    if (nxt) cards.push(el("div", { class: "k-card k-xs-mini", "data-ui": "exams.mini" }, [el("div", { class: "k-ex-inline" }, [el("b", { text: "After this" }), U().muted("step " + (td.steps.indexOf(nxt) + 1))]),
-      el("p", { class: "k-xs-minibody", text: nxt.title }), el("p", { class: "k-ex-muted", text: nxt.reason })]));
+    /* (audit A5: an "After this" card repeated the step list above it) */
     var pp = S().papers(a), np = pp.board.filter(function (p) { return !p.last; })[0] || pp.built;
     var pd = td.paperDay ? today() : td.nextPaperDay;
     if (pd && np) cards.push(el("div", { class: "k-card k-xs-mini", "data-ui": "exams.mini" }, [el("div", { class: "k-ex-inline" }, [el("b", { text: "Paper " + np.n }), U().muted(pd === today() ? "today" : U().pretty(pd))]),
@@ -580,7 +589,7 @@
       el("span", { class: "k-xs-paperlast" }, lt ? [el("b", { class: "k-mono", text: lt }), U().muted(U().pretty(last.date) + (last.timed ? " · timed" : " · untimed"))] : [U().muted("Not sat")]),
       el("span", { class: "k-ex-inline" }, [
         btn("Sit", "sm", function () { KOS.show("exams", { id: a.id, tab: "paper", sub: String(p.n) }); }, { "data-ui": "exams.paper-sit", "aria-label": "Sit " + p.title }),
-        btn("Print", "quiet sm", function () { KOS.show("exams", { id: a.id, tab: "paper", sub: String(p.n) }); setTimeout(function () { window.print(); }, 400); }, { "data-ui": "exams.paper-print" }),
+        printBtn(a, p.n),
         btn("Log marks", "quiet sm", function () {
           /* a printed or teacher-marked sitting: the paper's own tally, mark
              point by mark point, logged as ONE attempt (invariant 124) */
@@ -588,21 +597,125 @@
           else KOS.trackerLog({ assessmentId: a.id }, function () { KOS.rerender(); });
         }, { "data-ui": "exams.paper-log" })])]);
   }
+  /* ⋯ on an exam (audit U11): its details, Archive, Delete */
+  function examMenu(a) {
+    var m = KOS.ui.menu({ label: "⋯", className: "k-btn--quiet", hint: "Edit, archive or delete " + a.title, align: "end", items: [
+      { label: "Edit details", onSelect: function () { KOS.examEditor(a, {}, function () { KOS.rerender(); }); } },
+      { label: a.archived ? "Bring back from the archive" : "Archive", onSelect: function () {
+        E().update(a.id, { archived: !a.archived });
+        announce(a.archived ? a.title + " is back." : a.title + " archived: off the list and the plan, kept with its attempts.");
+        KOS.rerender();
+      } },
+      { label: "Delete…", onSelect: function () { if (KOS.examDelete) KOS.examDelete(a); } }] });
+    m.setAttribute("data-ui", "ui.menu-button exams.exam-more");
+    m.setAttribute("aria-label", "More for " + a.title);
+    return m;
+  }
+  /* Print ▾ on a row: the paper on A4 sheets, with or without its scheme,
+     straight to print (audit U1: it used to print the whole app) */
+  function printBtn(a, n) {
+    var go = function (what) { if (KOS.examPaperView && KOS.examPaper) KOS.examPaperView.print(a, KOS.examPaper.build(a, n), what); };
+    var m = KOS.ui.menu({ label: "Print", className: "k-btn--sm k-btn--quiet", align: "end", items: [
+      { label: "The paper", onSelect: function () { go("paper"); } },
+      { label: "The paper and its mark scheme", onSelect: function () { go("both"); } },
+      { label: "The mark scheme", onSelect: function () { go("scheme"); } }] });
+    m.setAttribute("data-ui", "ui.menu-button exams.paper-print");
+    return m;
+  }
+  /* a PDF to print: a hidden frame prints it where the browser can; an
+     iPad opens it, to print from its share sheet */
+  function printPdf(blob) {
+    var url = URL.createObjectURL(blob);
+    var ios = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+    if (ios) { window.open(url, "_blank", "noopener"); setTimeout(function () { URL.revokeObjectURL(url); }, 120000); return; }
+    var f = el("iframe", { class: "k-ex-printframe", src: url, title: "Print", "aria-hidden": "true" });
+    f.onload = function () { try { f.contentWindow.focus(); f.contentWindow.print(); } catch (e) { window.open(url, "_blank", "noopener"); } setTimeout(function () { f.remove(); URL.revokeObjectURL(url); }, 120000); };
+    document.body.appendChild(f);
+  }
+  /* PAST PAPERS, in the exam's own section (audit U2, U8): every sitting of
+     its board paper, the files you hold for each and what you did with
+     it; a sitting you do not hold takes its PDF right here */
+  function pastCard(a) {
+    var X = S(), list = X.pastPapers ? X.pastPapers(a) : [], P = KOS.examPapers;
+    if (!list.length) return null;
+    var body = el("div", { class: "k-xs-pastbody", "data-ui": "exams.past-list" }, [U().muted("Reading your copies…")]);
+    var showAll = {};
+    var c = el("section", { class: "k-card k-xs-papers", "data-ui": "exams.papers-past" }, [
+      el("div", { class: "k-ex-chead" }, [el("span", { class: "k-ex-ctitle", text: "Past papers" }),
+        U().muted("your own copies, on this device"), el("span", { class: "k-ex-grow" }),
+        U().linkBtn("Manage your paper files", function () { KOS.show("exams", { tab: "practice", sub: "library" }); })]), body]);
+    function attemptFor(pid, sit) {
+      return KOS.tracker.all().filter(function (e) { return e.source && e.source.kind === "past-paper" && e.source.ref === pid + ":" + sit; }).slice(-1)[0] || null;
+    }
+    function addFile(pid, sit, kind) {
+      var inp = el("input", { type: "file", accept: "application/pdf,.pdf", class: "sr-only", tabindex: "-1", "aria-hidden": "true" });
+      inp.addEventListener("change", function () {
+        var f = inp.files && inp.files[0]; inp.remove();
+        if (!f || !P) return;
+        P.add([{ file: f, path: f.name }], function (err, res) {
+          if (err) { KOS.ui.toast("Could not add that file.", true); return; }
+          P.list(function (e2, rows) {
+            var mine = (rows || []).filter(function (r) { return r.name === f.name && r.size === f.size; }).pop();
+            if (!mine) { KOS.ui.toast((res && res.report && res.report[0] && res.report[0].why) || "That file was not added.", true); return; }
+            P.setMatch(mine.id, { paper: pid, sitting: sit, kind: kind }, function () { announce((kind === "ms" ? "Mark scheme" : "Paper") + " added for " + KOS.examIndex.sittingLabel(sit) + "."); paint(); });
+          });
+        });
+      });
+      document.body.appendChild(inp);
+      inp.click();
+    }
+    function paint() {
+      if (!P || !P.available()) { body.textContent = ""; body.appendChild(U().muted("This browser cannot keep files.")); return; }
+      P.list(function (err, rows) {
+        body.textContent = "";
+        var by = P.bySitting(rows || []);
+        var narrowAll = (a.tier === "topic_test" || a.tier === "retrieval_test") && !list.some(function (pp) { return pp.sittings.some(function (s2) { return by[pp.pid + ":" + s2]; }); });
+        if (narrowAll) { c.hidden = true; return; }
+        list.forEach(function (pp) {
+          var held = pp.sittings.filter(function (s2) { return by[pp.pid + ":" + s2] && by[pp.pid + ":" + s2].qp; }).length;
+          body.appendChild(el("div", { class: "k-xs-pasthead" }, [el("b", { text: pp.title }), U().muted(held + " of " + pp.sittings.length + " sittings held")]));
+          /* a topic or retrieval test lists only the sittings you hold: a
+             whole board paper is not its practice unless you made it so */
+          var narrow = a.tier === "topic_test" || a.tier === "retrieval_test";
+          var sits = narrow ? pp.sittings.filter(function (s2) { return by[pp.pid + ":" + s2]; }) : showAll[pp.pid] ? pp.sittings : pp.sittings.slice(0, 6);
+          if (narrow && !sits.length) return;
+          sits.forEach(function (sit) {
+            var o = by[pp.pid + ":" + sit] || {}, att = attemptFor(pp.pid, sit);
+            var res = att ? (att.marks != null && att.max ? att.marks + "/" + att.max : "Done") : null;
+            body.appendChild(el("div", { class: "k-xs-paper k-xs-pastrow", "data-ui": "exams.past-row", "data-held": o.qp ? "" : null }, [
+              el("span", { class: "k-xs-paperg", lang: "ja", "aria-hidden": "true", text: "過" }),
+              el("div", { class: "k-xs-papermain" }, [el("b", { text: KOS.examIndex.sittingLabel(sit) }),
+                U().muted([o.qp ? "paper ✓" : "no paper yet", o.ms ? "scheme ✓" : null].filter(Boolean).join(" · "))]),
+              el("span", { class: "k-mono", text: pp.marks ? String(pp.marks) : "" }),
+              el("span", { class: "k-mono", text: "" }),
+              el("span", { class: "k-xs-paperlast" }, res ? [el("b", { class: "k-mono", text: res }), U().muted(U().pretty(att.date))] : [U().muted("Not sat")]),
+              el("span", { class: "k-ex-inline" }, o.qp ? [
+                btn("Sit", "sm", function () { KOS.examPractice.openPaper(pp.pid, sit, o); }, { "data-ui": "exams.past-sit", "aria-label": "Sit " + pp.title + " " + KOS.examIndex.sittingLabel(sit) }),
+                btn("Print", "quiet sm", function () { P.get(o.qp, function (e3, blob) { if (blob) printPdf(blob); else KOS.ui.toast("That file is not readable here.", true); }); }, { "data-ui": "exams.past-print" }),
+                o.ms ? btn("Scheme", "quiet sm", function () { KOS.examPractice.openScheme ? KOS.examPractice.openScheme(pp.pid, sit, o.ms) : null; }) : btn("Add scheme", "quiet sm", function () { addFile(pp.pid, sit, "ms"); }),
+                btn("Log marks", "quiet sm", function () { KOS.trackerLog({ index: { paper: pp.pid, sitting: sit }, assessmentId: a.id }, function () { KOS.rerender(); }); }, { "data-ui": "exams.past-log" })]
+                : [btn("Add the paper", "sm", function () { addFile(pp.pid, sit, "qp"); }, { "data-ui": "exams.past-add" })])]));
+          });
+          if (!narrow && pp.sittings.length > 6 && !showAll[pp.pid]) body.appendChild(U().linkBtn("All " + pp.sittings.length + " sittings", function () { showAll[pp.pid] = true; paint(); }));
+        });
+      });
+    }
+    paint();
+    return c;
+  }
   function papersSec(content, a) {
     var pp = S().papers(a), pr = a.preset ? E().preset(a.preset) : null;
-    sectionHead(content, "Papers", pp.sat + " of " + (pp.board.length + 1) + " sat" + (a.durationMins ? " · " + hm(a.durationMins).replace(" 00", "") + " each" : ""));
+    sectionHead(content, "Papers", pp.sat + " of " + pp.of + " sat" + (a.durationMins ? " · " + hm(a.durationMins).replace(" 00", "") + " each" : ""));
     if (pp.board.length) content.appendChild(el("section", { class: "k-card k-xs-papers", "data-ui": "exams.papers-board" }, [
       el("div", { class: "k-ex-chead" }, [el("span", { class: "k-ex-ctitle", text: "Board style" }), U().muted([pr ? pr.board + " " + pr.paper : null, pp.board[0].format === "ocr-case" ? "one organisation a paper" : null].filter(Boolean).join(" · "))])]
       .concat(pp.board.map(function (p) { return paperRow(a, p, "紙", el("span", { class: "k-chip", "data-tone": "muted", text: (p.board || (pr && pr.board) || "Board") + " style" }), p.last); }))));
     content.appendChild(el("section", { class: "k-card k-xs-papers", "data-ui": "exams.papers-built" }, [
       el("div", { class: "k-ex-chead" }, [el("span", { class: "k-ex-ctitle", text: "From your scope" }), U().muted("the exam's time and topics")]),
       paperRow(a, Object.assign({}, pp.built, { blurb: "Weakest topics weighted · short to long · new each time" }), "組", el("span", { class: "k-chip", "data-tone": "muted", text: "Custom" }), pp.built.last)]));
-    var past = KOS.examPapers && pr && pr.index ? null : null;
+    var past = pastCard(a);
+    if (past) content.appendChild(past);
     if (a.tier === "topic_test" && KOS.examParts) { var shelf = KOS.examParts.packShelf(a); if (shelf) content.appendChild(shelf); }
     if (KOS.examParts && KOS.files) content.appendChild(KOS.examParts.filesCard(a));
-    if (pr && pr.index) content.appendChild(el("section", { class: "k-card k-xs-papers", "data-ui": "exams.papers-past" }, [
-      el("div", { class: "k-ex-chead" }, [el("span", { class: "k-ex-ctitle", text: "Past papers" }), U().muted("from the Library"), el("span", { class: "k-ex-grow" }),
-        U().linkBtn("Open the Library ›", function () { KOS.show("exams", "library"); })])].concat(past ? [] : [])));
   }
 
   /* ---------------- On the day ---------------- */

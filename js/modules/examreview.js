@@ -90,6 +90,16 @@
       SH().sectionHead(content, "Review", "no attempt yet", [tabs]);
       content.appendChild(el("div", { class: "k-card k-xs-quietcard", "data-ui": "exams.review-empty" }, [el("span", { text: "Sit a paper, or log a teacher-marked one, to see what happened and where the marks went." }),
         el("span", { class: "k-ex-grow" }), btn("Papers", "primary sm", function () { KOS.show("exams", { id: a.id, tab: "papers" }); }), btn("Log a result", "sm", function () { KOS.trackerLog({ assessmentId: a.id }, function () { KOS.rerender(); }); })]));
+      /* audit A7: what Review will hold, and the marks a grade takes here */
+      var holds = el("section", { class: "k-card", "data-ui": "exams.review-holds" }, [el("div", { class: "k-ex-chead" }, [el("span", { class: "k-ex-ctitle", text: "What Review shows after a paper" })]),
+        el("ul", { class: "k-xv-holds" }, ["Your score and an estimated grade from the board's typical boundaries",
+          "Where the marks went: by topic, by command word and by question", "Your timing against the paper's minutes a mark, when you sat it timed",
+          "Feedback from a model you choose: the pack goes out, its reply comes back as targets", "Every attempt here can be edited or deleted from its ⋯"].map(function (t) { return el("li", { text: t }); }))]);
+      var tb = E().typicalBounds ? E().typicalBounds(a) : null, side = null;
+      if (tb && tb.grades && tb.grades.length) side = el("section", { class: "k-card", "data-ui": "exams.review-bounds" }, [el("div", { class: "k-ex-chead" }, [el("span", { class: "k-ex-ctitle", text: "Typical marks for a grade" }), U().muted("out of " + tb.max)])]
+        .concat(tb.grades.slice(0, 6).map(function (r) { return el("div", { class: "k-ex-unitum k-xv-boundrow" }, [el("b", { text: r.grade }), el("span"), el("span", { class: "k-mono", text: String(r.marks) }), el("span")]); }))
+        .concat([U().muted(tb.from || "", "k-ex-small")]));
+      content.appendChild(el("div", { class: "k-xs-two" }, [holds, side].filter(Boolean)));
       return;
     }
     attemptView(content, a, cur, att, tabs);
@@ -101,8 +111,15 @@
     var max = e.max || (e.questions || []).reduce(function (s, q) { return s + (q.max || 0); }, 0) || a.marks || 0;
     var recBox = { rec: null, fig: null };
     var getB = btn("Get feedback on this attempt", "primary sm", function () { getFeedback(a, e, recBox); }, { "data-ui": "exams.get-feedback" });
+    /* the attempt is yours to change or take back (audit U10) */
+    var more = KOS.ui.menu({ label: "⋯", className: "k-btn--sm k-btn--quiet", hint: "Edit or delete this attempt", align: "end", items: [
+      { label: "Edit this attempt", onSelect: function () { KOS.trackerEdit(e, function () { KOS.rerender(); }); } },
+      { label: "Marks by question", onSelect: function () { KOS.show("exams", { attempt: e.uid, page: "marks" }); } },
+      { label: "Delete this attempt", danger: true, onSelect: function () { KOS.trackerDelete(e, function () { KOS.show("exams", { id: a.id, tab: "review" }); }); } }] });
+    more.setAttribute("data-ui", "ui.menu-button exams.attempt-more");
+    more.setAttribute("aria-label", "Edit or delete this attempt");
     SH().sectionHead(content, "Review", [e.paper || "Attempt", U().pretty(e.date), e.timed ? "timed" : "untimed"].filter(Boolean).join(" · "),
-      [btn("＋ Add feedback", "sm", function () { addFeedback(a, e, recBox); }, { "data-ui": "exams.add-feedback" }), getB]);
+      [btn("＋ Add feedback", "sm", function () { addFeedback(a, e, recBox); }, { "data-ui": "exams.add-feedback" }), getB, more]);
     content.appendChild(el("div", { class: "k-xv-tabsrow" }, [tabs, el("span", { class: "k-ex-grow" }),
       att.length > 1 ? attemptPicker(a, att, e) : null].filter(Boolean)));
     /* the score and where the marks went */

@@ -145,7 +145,7 @@ W3 and W9 stay the other account's.
   (https://3dd3f61f.kurenai-os.pages.dev): the exam fixes with no design,
   Exam essentials, CS Paper 1's partial Companion (guides read several
   papers) and recorded attempts syncing to `kos_attempts` (migration
-  `20261118000001`, applied). Gate 168. New suites on this account: 187
+  `20261118000001`, applied). Gate 169. New suites on this account: 188
   onwards.
 
 **Smoke numbers from now:** 161–164 are taken; the other account uses

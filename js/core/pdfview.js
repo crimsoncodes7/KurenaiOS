@@ -89,9 +89,17 @@
   function questionPages(text, label) {
     var core = String(label).replace(/^Q/i, "");
     var aqa = /^(\d\d)\.?(\d)?$/.exec(core), edx = /^(\d{1,2})([a-z]?)$/i.exec(core), out = [];
+    /* OCR (audit U9): "1(a)", "7(b)(ii)", "5". On the paper a question's
+       number leads only its first part ("1 (a)"); later parts lead their
+       line with "(b)" alone, and a sub-part with "(ii)" */
+    var ocr = /^(\d{1,2})((?:\([a-z]\))?)((?:\([ivx]+\))?)$/.exec(core);
+    if (ocr && !ocr[2] && !ocr[3]) ocr = null;
+    /* OCR's whole-question label is a bare number ("5"; the index's AQA and
+       Edexcel labels carry a Q): the number alone leads its line */
+    var bare = /^\d{1,2}$/.test(String(label)) ? String(label) : null;
     function leads(t, lab) { return t.indexOf(lab) === 0 && !/\d/.test(t.charAt(lab.length)); }
     for (var p = 0; p < text.length; p++) {
-      var items = (text[p] || []).filter(function (it) { return it.x < 0.185 && it.s.trim(); }).slice().sort(function (a, b) { return b.y - a.y || a.x - b.x; });
+      var items = (text[p] || []).filter(function (it) { return it.x < 0.25 && it.s.trim(); }).slice().sort(function (a, b) { return b.y - a.y || a.x - b.x; });
       var lines = [];
       items.forEach(function (it) {
         var ln = lines.filter(function (l) { return Math.abs(l.y - it.y) < 3; })[0];
@@ -101,6 +109,14 @@
         l.parts.sort(function (a, b) { return a.x - b.x; });
         var t = l.parts.map(function (x) { return x.s; }).join("").replace(/\s+/g, "");
         /* "07.1" on the paper; "07" "1" in a mark scheme's Qu · Pt columns */
+        if (bare) return leads(t, bare) && t.charAt(bare.length) !== ".";
+        if (ocr) {
+          var lead = ocr[1] + ocr[2] + ocr[3];
+          if (leads(t, lead)) return true;
+          /* "(b)" alone, or "(ii)" alone: the part's own line */
+          if (ocr[3]) return t.indexOf(ocr[3]) === 0 || (ocr[2] && t.indexOf(ocr[2] + ocr[3]) === 0);
+          return t.indexOf(ocr[2]) === 0;
+        }
         if (aqa) return leads(t, aqa[1] + (aqa[2] ? "." + aqa[2] : "")) || (aqa[2] && leads(t, aqa[1] + aqa[2])) || (!aqa[2] && leads(t, aqa[1] + ".1"));
         /* Edexcel: the line's first piece is the number with its full
            stop ("7."), which a page number never has */
@@ -325,16 +341,47 @@
       return ix.questions.filter(function (q) { return q[0] === o.paper.pid && q[1] === o.paper.sitting; })
         .map(function (q) { return { label: q[3], marks: q[4], leaves: q[5] || [], section: q[2] }; });
     }
+    /* where you told it a question is, kept per paper on this device
+       (audit U9: it was forgotten when the viewer closed) */
+    function savedPages() {
+      var ui = KOS.store.state.ui, key = o.fileId || (o.paper ? o.paper.pid + ":" + o.paper.sitting : null);
+      if (!key) return null;
+      ui.paperPages = ui.paperPages || {};
+      return { key: key, map: ui.paperPages[key] || {} };
+    }
+    function setPage(label, page) {
+      var sp = savedPages();
+      qPage[label] = page;
+      if (sp) { sp.map[label] = page; KOS.store.state.ui.paperPages[sp.key] = sp.map; KOS.store.save(); }
+      paintHead();
+    }
+    /* "Which page is Q3 on?": asked, never guessed from the page in view */
+    function askQuestionPage(q) {
+      var n = el("input", { type: "number", class: "k-input", min: "1", max: String(sizes.length), value: String(cur + 1), "aria-label": "Page number", "data-ui": "pdf.qpage-input" });
+      var ov = KOS.inkUI && KOS.inkUI.dialog ? KOS.inkUI.dialog({ title: "Which page is " + q.label + " on?", hook: "pdf.qpage", render: function (body, close, foot) {
+        body.appendChild(el("p", { class: "k-muted", text: "It was not found in the paper's text. Type its page (1–" + sizes.length + "); the page in view is filled in. It is remembered for this paper." }));
+        body.appendChild(n);
+        foot.appendChild(el("span"));
+        foot.appendChild(el("button", { type: "button", class: "k-btn", text: "Cancel", onclick: close }));
+        foot.appendChild(el("button", { type: "button", class: "k-btn k-btn--primary", "data-ui": "pdf.qpage-save", text: "Go there and remember", onclick: function () {
+          var v = parseInt(n.value, 10);
+          if (!(v >= 1 && v <= sizes.length)) { KOS.ui.toast("A page from 1 to " + sizes.length + ".", true); return; }
+          setPage(q.label, v - 1); close(); go(v - 1);
+          announce(q.label + " is on page " + v + ". Remembered.");
+        } }));
+      } }) : null;
+      setTimeout(function () { n.focus(); n.select(); }, 0);
+      return ov;
+    }
     function questionMenu() {
       var qs = questions();
       if (!qs.length) return el("span");
-      return KOS.ui.menu({ label: "Jump to a question", className: "k-btn--sm", align: "start", hint: "From the paper's index", items: qs.map(function (q) {
+      return KOS.ui.menu({ label: "Jump to a question", className: "k-btn--sm", align: "start", hint: "Found in the paper's text; any not found, you tell it once", items: qs.map(function (q) {
         var p = qPage[q.label];
-        return { label: q.label + " · " + q.marks + (q.marks === 1 ? " mark" : " marks") + (p == null ? (text ? " · set its page" : "") : " · page " + (p + 1)), onSelect: function () {
+        return { label: q.label + " · " + q.marks + (q.marks === 1 ? " mark" : " marks") + (p == null ? (text ? " · not found, choose its page" : " · finding…") : " · page " + (p + 1)), onSelect: function () {
           if (qPage[q.label] == null) {
             if (!text) { KOS.ui.toast("Still reading the paper's text; try again in a moment."); return; }
-            qPage[q.label] = cur;
-            KOS.ui.toast(q.label + " set to page " + (cur + 1) + ", the page in view.");
+            askQuestionPage(q);
             return;
           }
           go(qPage[q.label]);
@@ -862,6 +909,9 @@
             text.ready(function () {
               var m = mapQuestions(text.pages, questions().map(function (q) { return q.label; }));
               Object.keys(m).forEach(function (k) { qPage[k] = m[k]; });
+              /* what you told it wins over what it found */
+              var sp = savedPages();
+              if (sp) Object.keys(sp.map).forEach(function (k) { if (sp.map[k] < sizes.length) qPage[k] = sp.map[k]; });
               paintHead();
             });
           }

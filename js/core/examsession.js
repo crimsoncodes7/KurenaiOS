@@ -237,8 +237,39 @@
       return { n: i + 1, kind: "board", title: p.title + (p.org ? " · " + p.org : ""), org: p.org, board: p.board, format: p.format,
         marks: p.marks, mins: p.mins, last: lastFor(i + 1), blurb: p.blurb || null };
     });
-    var built = { n: list.length + 1, kind: "built", title: a.title + " · built from your scope", marks: a.marks || null, mins: a.durationMins || null, last: lastFor(list.length + 1) };
-    return { board: rows, built: built, sat: rows.concat([built]).filter(function (r) { return r.last; }).length, of: rows.length || 1 };
+    /* the built paper's own marks and time, as its blueprint draws it
+       (audit A2: a topic test had none to show) */
+    var bp = KOS.examPaper && KOS.examPaper.blueprint ? KOS.examPaper.blueprint(a) : null;
+    var built = { n: list.length + 1, kind: "built", title: a.title + " · built from your scope", marks: a.marks || (bp && bp.marks) || null, mins: a.durationMins || (bp && bp.mins) || null, last: lastFor(list.length + 1) };
+    /* one count for the sidebar and the section (audit A1) */
+    return { board: rows, built: built, sat: rows.concat([built]).filter(function (r) { return r.last; }).length, of: rows.length + 1 };
+  }
+  /* the board's past papers that are practice for this exam (audit U2): its
+     own index paper, else every paper of its subject in the index whose
+     questions touch its scope, most overlap first; newest sitting first */
+  function pastPapers(a) {
+    var ix = window.KOS_EXAMS && KOS_EXAMS.index;
+    if (!ix || !ix.papers || !a) return [];
+    var own = KOS.examCompanion ? KOS.examCompanion.indexPaperOf(a) : null, ids = [];
+    /* a school's mock reads every paper it overlaps (§9.2): the same list
+       its Companion uses */
+    var deep = !own && KOS.examDeep && KOS.examDeep.papersFor ? KOS.examDeep.papersFor(a).filter(function (p) { return ix.papers[p]; }) : [];
+    if (own) ids = [own];
+    else if (deep.length) ids = deep;
+    else {
+      var on = {}, hits = {};
+      E().leaves(a).forEach(function (k) { on[k] = true; });
+      (ix.questions || []).forEach(function (q) {
+        var pp = ix.papers[q[0]];
+        if (!pp || pp.subject !== a.subject || pp.level === "AS") return;
+        if ((q[5] || []).some(function (k) { return on[k]; })) hits[q[0]] = (hits[q[0]] || 0) + 1;
+      });
+      ids = Object.keys(hits).sort(function (x, y) { return hits[y] - hits[x]; });
+    }
+    return ids.map(function (pid) {
+      var pp = ix.papers[pid];
+      return { pid: pid, title: pp.title, marks: pp.marks, sittings: pp.sittings.slice().sort().reverse() };
+    });
   }
 
   /* ---------------- the strip (45c) ---------------- */
@@ -320,8 +351,10 @@
       var tdone = read && weak.today > 0;
       steps.push({ id: "topic", glyph: "✎", kind: "topic", topic: weak.key,
         title: "Weakest topic: " + weak.title + " · " + (a.tier === "retrieval_test" ? "its cards" : weak.qn ? "read the chapter, then 5 questions" : "read the chapter"),
-        reason: [weak.short || weak.ref, weak.rag === "r" ? "Red" : weak.rag === "a" ? "Amber" : null, weak.best ? "Best " + weak.best.got + "/" + weak.best.max : null,
-          weak.recall != null ? "Recall " + pct(weak.recall) : null, ago(weak.last, now)].filter(Boolean).join(" · "),
+        /* audit A5: "Red · Recall 100 %" read as a contradiction; Red is
+           your own rating, recall is the cards' — each says whose it is */
+        reason: [weak.short || weak.ref, weak.rag === "r" ? "you rated it Red" : weak.rag === "a" ? "you rated it Amber" : null, weak.best ? "Best " + weak.best.got + "/" + weak.best.max : null,
+          weak.recall != null ? "cards recall " + pct(weak.recall) : null, ago(weak.last, now)].filter(Boolean).join(" · "),
         mins: a.tier === "retrieval_test" ? 10 : weak.qn ? 35 : 20, done: a.tier === "retrieval_test" ? weak.today > 0 || !!(weak.last && weak.last === now) : tdone, progress: !tdone && (read || weak.today) ? { n: (read ? 1 : 0) + (weak.today ? 1 : 0), of: 2, text: read ? "chapter read" : weak.today + " tried" } : null,
         /* a retrieval quiz is recall: the topic's cards, not a chapter */
         go: a.tier === "retrieval_test" ? { review: "scope:" + a.id } : { section: "revise", sub: "t:" + weak.key } });
@@ -610,6 +643,7 @@
   function pub(sid, n) { var k = sid + ":" + n.ref; return { key: k, ref: n.ref, title: n.title, paper: paperShort(paperOfLeaf(KOS.spec.resolve([k])[0] || k)) }; }
 
   KOS.examSession = {
+    pastPapers: pastPapers,
     matchList: matchList,
     SECTIONS: SECTIONS,
     COMMANDS: COMMANDS,

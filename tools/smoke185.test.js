@@ -52,7 +52,7 @@ step("A · All exams: the hero, the rows, the tabs, the redirects", async () => 
   K.show("exams"); await app.settle();
   assert(q("[data-ui~='exams.all']"), "All exams draws");
   const tabs = qa("[data-ui~='exams.tabs'] [role='tab']").map((b) => b.getAttribute("aria-label") || b.textContent.replace(/\d+$/, "").trim());
-  eq(tabs.map((t) => t.replace(/\s*\d+$/, "")), ["Exams", "Timetable", "Results", "Library", "Load"], "one tab row");
+  eq(tabs.map((t) => t.replace(/\s*\d+$/, "")), ["Exams", "Timetable", "Results", "Practice", "Load"], "one tab row");
   assert(q("[data-ui~='exams.next'] [data-ui~='exams.hero-steps']"), "the next exam carries today's session");
   const rows = qa("[data-ui~='exams.row']");
   assert(rows.length >= 2, "every exam is a row");

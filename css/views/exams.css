@@ -244,7 +244,10 @@ b[data-tone="danger"] { color: var(--alarm); }
 .k-ex-loadhead { display: flex; align-items: baseline; gap: var(--sp-6); font-size: var(--fs-11); color: var(--muted); letter-spacing: var(--track-kicker); text-transform: uppercase; font-weight: var(--weight-semibold); }
 .k-ex-loadhead b { font-size: var(--fs-16); color: var(--text); letter-spacing: 0; }
 .k-ex-loaditems { display: flex; flex-direction: column; gap: var(--sp-6); }
-.k-ex-loaditem { display: flex; gap: var(--sp-6); font-size: var(--fs-12); line-height: var(--lh-snug); }
+.k-ex-loaditem { display: flex; gap: var(--sp-6); min-inline-size: 0; font-size: var(--fs-12); line-height: var(--lh-snug); }
+/* audit A6: a long title stays in its day: three lines, then an ellipsis
+   (the whole title is the day's accessible name and its page) */
+.k-ex-loaditem > span { min-inline-size: 0; overflow: hidden; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 3; overflow-wrap: anywhere; }
 .k-ex-loaditem > i { inline-size: var(--bar-3); align-self: stretch; border-radius: var(--bar-3); background: var(--s); flex: 0 0 auto; }
 .k-ex-loadflag { margin-block-start: auto; font-size: var(--fs-11-5); color: var(--alarm); font-weight: var(--weight-semibold); }
 .k-ex-loadrest { margin-block-start: auto; font-size: var(--fs-11-5); color: var(--teal); font-weight: var(--weight-semibold); }
@@ -422,7 +425,7 @@ b[data-tone="danger"] { color: var(--alarm); }
 .k-ex-resrow > .k-ex-grow:last-child { display: flex; flex-direction: column; align-items: flex-start; gap: var(--sp-6); }
 .k-ex-calline { display: flex; align-items: center; flex-wrap: wrap; gap: var(--sp-10); padding-block-start: var(--sp-14); font-size: var(--fs-13); color: var(--text-2); }
 .k-ex-calline b { color: var(--text); }
-.k-ex-unitum { display: grid; grid-template-columns: var(--ex-num-w) minmax(0, 1fr) var(--ex-ums-w) var(--sp-24); gap: var(--sp-10); align-items: center; padding-block: var(--sp-8); border-block-start: var(--hairline) solid var(--line); font-size: var(--fs-13); }
+.k-ex-unitum { display: grid; grid-template-columns: var(--ex-num-w) minmax(0, 1fr) var(--ex-ums-w) auto; gap: var(--sp-10); align-items: center; padding-block: var(--sp-8); border-block-start: var(--hairline) solid var(--line); font-size: var(--fs-13); }
 .k-ex-unitum > :nth-child(3) { text-align: end; }
 .k-ex-aggrow { display: flex; align-items: center; gap: var(--sp-10); padding-block-start: var(--sp-12); border-block-start: var(--hairline) solid var(--line); font-size: var(--fs-13-5); }
 
@@ -463,7 +466,7 @@ button.k-ex-tag { cursor: pointer; min-block-size: var(--hit-dense); }
 .k-ex-librow { padding-block: var(--sp-10); border-block-start: var(--hairline) solid var(--line); }
 .k-ex-librow .k-ex-vbar { min-block-size: var(--sp-28); }
 .k-ex-unmatched { display: flex; align-items: center; flex-wrap: wrap; gap: var(--sp-10); padding-block-start: var(--sp-12); border-block-start: var(--hairline) solid var(--line); }
-.k-ex-matchrow { display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) auto auto; gap: var(--sp-8); align-items: center; padding-block: var(--sp-6); border-block-start: var(--hairline) solid var(--line); }
+.k-ex-matchrow { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.4fr) minmax(0, 1fr) minmax(0, 1fr) auto auto; gap: var(--sp-8); align-items: center; padding-block: var(--sp-6); border-block-start: var(--hairline) solid var(--line); }
 
 /* ---------- the post-mortem (29j), marks (29i), what changed (29aa) ---------- */
 .k-ex-pmhero { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--sp-24); align-items: center; padding: var(--sp-22) var(--sp-26); border-radius: var(--r-26); background: radial-gradient(80% 160% at 0% 0%, color-mix(in oklch, var(--s) 20%, transparent), transparent 70%), var(--s1); }
@@ -727,6 +730,31 @@ button.k-ex-ptr { inline-size: 100%; border-inline: 0; border-block-end: 0; back
 .k-ex-cover-grid { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); border: var(--hairline) solid var(--ex-paper-ink); font: var(--fs-11) Arial, Helvetica, sans-serif; text-align: center; }
 .k-ex-cover-grid > span { padding: var(--sp-5) 0 var(--sp-18); border-inline-start: var(--hairline) solid var(--ex-paper-ink); border-block-end: var(--hairline) solid var(--ex-paper-ink); }
 .k-ex-pq { min-block-size: 0; }
+/* audit U2: past papers in the exam's Papers section */
+.k-xs-pastbody { display: flex; flex-direction: column; }
+.k-xv-holds { margin: var(--sp-8) 0 0; padding-inline-start: var(--sp-18); display: flex; flex-direction: column; gap: var(--sp-6); color: var(--muted); }
+.k-xs-uprowwrap { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: var(--sp-4); }
+.k-ex-selrow { align-items: center; }
+.k-ex-setselect { flex: none; inline-size: auto; min-inline-size: var(--ex-setselect-w); }
+.k-xs-pasthead { display: flex; align-items: baseline; gap: var(--sp-10); padding-block: var(--sp-12) var(--sp-4); }
+.k-xs-pastrow:not([data-held]) .k-xs-papermain b { color: var(--muted); }
+.k-ex-printframe { position: fixed; inset-inline-start: -10000px; inline-size: var(--sp-8); block-size: var(--sp-8); border: 0; }
+.k-ex-fileli { display: flex; align-items: center; gap: var(--sp-8); }
+/* audit U1: a sheet is a fixed A4 page; its body clips, the paginator
+   keeps what it lays within it. Padding is the same at every width, so a
+   sheet measured on a phone is the sheet printed. */
+.k-ex-ppage.k-ex-sheet { flex: none; inline-size: var(--ex-paper-w); block-size: var(--ex-paper-h); min-block-size: 0; padding: var(--sp-48) var(--sp-48) var(--sp-28); overflow: hidden; }
+.k-ex-sheet-body { display: flex; flex: 1 1 auto; flex-direction: column; gap: var(--sp-12); min-block-size: 0; overflow: hidden; }
+.k-ex-sheet > .k-ex-ppage-f { flex: none; }
+.k-ex-measure { position: absolute; inset-block-start: 0; inset-inline-start: -10000px; visibility: hidden; pointer-events: none; }
+.k-ex-measure[data-size="large"] .k-ex-sheet, .k-ex-print[data-size="large"] .k-ex-sheet { font-size: var(--fs-16); }
+.k-ex-pages { --sheet-zoom: 1; }
+.k-ex-pages > .k-ex-sheet { zoom: var(--sheet-zoom); }
+.k-ex-su { display: grid; grid-template-columns: var(--sp-26) minmax(0, 1fr); gap: var(--sp-8); }
+.k-ex-su > .k-ex-pq-part { margin-block-end: 0; }
+.k-ex-su .k-ex-pq-total { grid-column: 1 / -1; justify-self: end; padding-block-start: var(--sp-4); }
+.k-ex-pq-ctx { margin: 0; }
+.k-ex-pq-cont { grid-column: 2; color: var(--ex-paper-soft); font-family: Arial, Helvetica, sans-serif; }
 .k-ex-pq-q { display: grid; grid-template-columns: var(--sp-26) minmax(0, 1fr); gap: var(--sp-8); }
 .k-ex-pq-q p { margin: 0 0 var(--sp-6); }
 .k-ex-pq-part { display: grid; grid-template-columns: var(--sp-26) minmax(0, 1fr) var(--sp-40); gap: var(--sp-4); margin-block-end: var(--sp-8); }
@@ -807,7 +835,12 @@ button.k-ex-ptr { inline-size: 100%; border-inline: 0; border-block-end: 0; back
 :root[data-printing="exams"] .k-ex-ppage { inline-size: auto; min-block-size: 0; padding: 0; box-shadow: none; break-after: page; }
 :root[data-printing="exams"] .k-ex-pq-part, :root[data-printing="exams"] .k-ex-pnote, :root[data-printing="exams"] .k-ex-pcard, :root[data-printing="exams"] .k-ex-ms-table tr { break-inside: avoid; }
 :root[data-printing="exams"] .k-ex-print[data-size="large"] .k-ex-ppage { font-size: var(--fs-16) ; }
-@page { size: A4; margin: 14mm; }
+/* audit U1: white paper, and each sheet exactly one A4 page (595 × 842 px
+   scaled by 210 mm / 595 px; a hair under, so no sheet spills a blank page).
+   The @page rule is set per print (examguide.printNow). */
+:root[data-printing="exams"], :root[data-printing="exams"] body { background: var(--ex-paper) !important; }
+:root[data-printing="exams"] .k-ex-ppage.k-ex-sheet { zoom: 1.333; inline-size: var(--ex-paper-w); block-size: var(--ex-paper-h); margin: 0; padding: var(--sp-48) var(--sp-48) var(--sp-28); box-shadow: none; break-after: page; break-inside: avoid; }
+:root[data-printing="exams"] .k-ex-ppage.k-ex-sheet:last-child { break-after: auto; }
 }
 .k-ex-pnote { padding-block: var(--sp-8); border-block-end: var(--hairline) solid var(--ex-paper-edge); }
 .k-ex-pnote p { margin: var(--sp-4) 0 0; }

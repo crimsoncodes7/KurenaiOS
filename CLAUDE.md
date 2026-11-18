@@ -19,12 +19,12 @@ chronological diary here.
   (`docs/audit/2026-11/REMEDIATION_PLAN.md`); the Exams & Papers rework is
   `docs/exams-rework-plan.md` (branch `feat/exams-plan` until it merges).
 - Production: https://kurenai-os.pages.dev
-- Latest release: sw `kos-exams-3` (18 November 2026). Every release
+- Latest release: sw `kos-exams-4` (18 November 2026). Every release
   before it, with what it shipped, its immutable URL and its branch, is in
   [`docs/RELEASES.md`](docs/RELEASES.md), newest first; a new release adds
   its entry there and changes only this line and the next here.
-- Service-worker version: `kos-exams-3`
-- Required smoke gate: 168 / 168 suites (`""`, 2–156, 160–164 and 180–186) — `npm test`;
+- Service-worker version: `kos-exams-4`
+- Required smoke gate: 169 / 169 suites (`""`, 2–156, 160–164 and 180–187) — `npm test`;
   what each suite holds: [`docs/SMOKE.md`](docs/SMOKE.md). New suites on this
   account are numbered from 180 (see `docs/HANDOFF.md`).
 - Backend as deployed: Edge Functions `ai-chat` (version 6: images for
@@ -57,7 +57,7 @@ from `file://`. Use HTTP for PWA, cloud and browser-audit work.
 python3 tools/dev_server.py 8765       # http.server with no-store, so edits show on one reload
 npm install jsdom fake-indexeddb       # test-only dependencies, once
 npm test                               # the whole smoke gate in parallel (tools/run_smoke.mjs; --skip, --repeat)
-for i in "" {2..156} {160..164} {180..186}; do node "tools/smoke${i}.test.js"; done   # the same, one at a time
+for i in "" {2..156} {160..164} {180..187}; do node "tools/smoke${i}.test.js"; done   # the same, one at a time
 node tools/fill_check.mjs              # every figure and part to fill in (5.19): figures compile, SQL runs, predicts run
 node tools/gen_moved_cards.mjs         # js/data/moved-cards.js: Maths' several-step cards that live as exam questions (5.19; --check)
 node tools/ja_valid_check.mjs          # Japanese: kana, conjugation, every validator, strokes on every kana
@@ -451,7 +451,7 @@ domain file AND its line here, in the same commit.
 - **124** Attempts are the tracker record, widened with optional fields; a `result` attempt fills its assessment, and a `redo` question becomes an FSRS item.
 - **125** Exam evidence data is generated from the user's own index; no past-paper text or images are bundled or deployed.
 - **126** The exam planner writes only on confirm, and only personal Pacing rows tagged `exam:<assessment>`, never the Calendar.
-- **127** A practice paper is derived from its assessment and seed, never stored, and every page labels it as not a board paper; an authored paper is paper n in its board's own format and time.
+- **127** A practice paper is derived from its assessment and seed, never stored, laid out on A4 sheets the same on screen and in print, and every page labels it as not a board paper; an authored paper is paper n in its board's own format and time.
 - **128** Exam goals read their sources through `links.examId`; deleting an exam unlinks its goals and never deletes them.
 - **129** Assessments, scopes, planning and analytics generate zero Governor traffic; redo items pay nothing and pages only read.
 - **130** The full Companion content is authored and original, meeting a per-leaf contract; real questions appear only as references; a school's mock reads every paper it overlaps; a partial Companion never makes a predicted paper.

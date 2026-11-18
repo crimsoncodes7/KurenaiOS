@@ -11,8 +11,8 @@
      the tally                   tick the mark points earned; a dM or an A
                                  needs its M; Log as an attempt makes ONE
                                  tracker attempt with marks by question
-     print                       black on white, a page break between
-                                 questions, every page labelled as ours
+     print                       A4 sheets, the same as on screen: the
+                                 questions flow, every page labelled ours
    The timed session is per device (state.ui.examPaperSess) so a reload
    carries on, its clock still running as in the hall, and says so once
    (EX-42); nothing else is stored until the tally is logged.   */
@@ -54,6 +54,23 @@
     viewer(main, a, paper);
   }
 
+  /* a sheet is drawn at its own size and scaled down to the column when
+     the column is narrower (iPad portrait, a phone): never reflowed, so
+     the screen shows the pages that print */
+  function fitSheets(host) {
+    var w = host.clientWidth, z = w && w < 595 + 24 ? Math.max(0.3, (w - 24) / 595) : 1;
+    host.style.setProperty("--sheet-zoom", String(Math.round(z * 1000) / 1000));
+  }
+  /* Print ▾: the paper, the paper and its mark scheme, or the scheme */
+  function printMenu(a, paper, small) {
+    var m = KOS.ui.menu({ label: "⎙ Print", className: small ? "k-btn--sm k-btn--quiet" : "k-btn--sm", align: "end", items: [
+      { label: "The paper", onSelect: function () { printPaper(a, paper, "paper"); } },
+      { label: "The paper and its mark scheme", onSelect: function () { printPaper(a, paper, "both"); } },
+      { label: "The mark scheme", onSelect: function () { printPaper(a, paper, "scheme"); } }] });
+    m.setAttribute("data-ui", "ui.menu-button exams.paper-print");
+    return m;
+  }
+
   /* ================= the viewer (29t, 29u) ================= */
   function viewer(main, a, paper) {
     var u = U(), bp = paper.blueprint, showMs = false;
@@ -74,15 +91,16 @@
     var pages = el("div", { class: "k-ex-pages", "data-ui": "exams.pages" });
     var msB = u.btn("Mark scheme", "sm", function () { showMs = !showMs; msB.setAttribute("aria-pressed", showMs ? "true" : "false"); draw(); }, { "aria-pressed": "false", "data-ui": "exams.ms-toggle" });
     var bar = el("div", { class: "k-ex-viewbar" }, [el("b", { text: paper.title + " · " + (leafRun ? paper.for : a.title) }), el("span", { class: "k-ex-grow" }), msB,
-      u.btn("⎙ Print", "sm", function () { printPaper(a, paper, showMs); }, { "data-ui": "exams.paper-print" }),
+      printMenu(a, paper),
       u.btn("Mark an untimed attempt", "sm", function () { tally(a, paper, { timed: false }); }, { "data-ui": "exams.tally-open" }),
       u.btn("Start timed", "primary sm", function () { start(a, paper); }, { "data-ui": "exams.timed-start" })]);
     function draw() {
       pages.textContent = "";
       pageEls(a, paper, showMs).forEach(function (p) { pages.appendChild(p); });
-      typeset(pages);
+      fitSheets(pages);
     }
     draw();
+    if (window.ResizeObserver) { var ro = new ResizeObserver(function () { fitSheets(pages); }); ro.observe(pages); if (KOS.view && KOS.view.onDispose) KOS.view.onDispose(function () { ro.disconnect(); }); }
     var side = el("div", { class: "k-ex-side" }, [
       u.card([u.chead("This paper", "seed " + paper.seed),
         u.kv("Marks", String(paper.marks)), u.kv("Questions", String(paper.questions.length)),
@@ -127,14 +145,83 @@
     if (paper.format === "aqa") return "[" + m + (m === 1 ? " mark]" : " marks]");
     return "(" + m + ")";
   }
-  function pageEls(a, paper, withMs) {
-    var bp = paper.blueprint, out = [];
-    var foot = function (n) { return el("div", { class: "k-ex-ppage-f" }, [el("span", { text: "KurenaiOS · " + paper.title + " · written by KurenaiOS, not a board paper" }), el("span", { text: String(n) })]); };
-    var pr = a.preset ? E().preset(a.preset) : null;
-    out.push(el("section", { class: "k-ex-ppage k-ex-cover", "data-ui": "exams.ppage" }, [
-      el("div", { class: "k-ex-cover-top" }, [el("b", { text: "WRITTEN BY KURENAIOS · NOT A BOARD PAPER" }), el("span", { text: (pr ? pr.board + " " + pr.qual + " style" : "Practice paper") })]),
+  /* THE PAGES (the audit of 18 November 2026, U1): a paper is laid out
+     on fixed A4 sheets, the same on screen and on paper. A sheet is
+     595 × 842 px (A4 at 72 per inch, --ex-paper-w/-h); print scales each
+     to exactly 210 × 297 mm, so a page breaks where the screen shows it.
+     The cover is its own sheet; then the questions FLOW, a part at a time,
+     onto the next sheet when they no longer fit, and a part's answer lines
+     carry over to the next sheet when only the lines do not fit, as a
+     board's paper does. The mark scheme flows its rows the same way, the
+     table's head repeated on each sheet. Every sheet has its footer: the
+     paper, "written by KurenaiOS, not a board paper", and its number.
+     Measured in a hidden sheet in the page itself (fonts, KaTeX and large
+     print as printed); with no layout (a test) heights are estimated. */
+  var LINE_H = 22;
+  function sheetEl(cls) {
+    var body = el("div", { class: "k-ex-sheet-body" });
+    var foot = el("div", { class: "k-ex-ppage-f" }, [el("span"), el("span")]);
+    var s = el("section", { class: "k-ex-ppage k-ex-sheet" + (cls ? " " + cls : ""), "data-ui": "exams.ppage" }, [body, foot]);
+    return { el: s, body: body, sink: body, foot: foot, used: 0 };
+  }
+  /* lay units onto sheets. A unit: { build(lines, cont, final) → node,
+     lines (answer lines it may split), est (px without lines) }. `fresh`
+     makes a sheet (and says where its units go). */
+  function paginate(units, fresh, o) {
+    o = o || {};
+    var host = el("div", { class: "k-ex-measure", "aria-hidden": "true", "data-size": o.large ? "large" : null });
+    document.body.appendChild(host);
+    var probe = sheetEl(); host.appendChild(probe.el);
+    var layout = probe.body.getBoundingClientRect().height > 0;
+    var AVAIL = layout ? probe.body.clientHeight : 842 - 88 - 30;
+    host.removeChild(probe.el);
+    var sheets = [], cur = null;
+    function next() { cur = fresh(sheets.length); host.appendChild(cur.el); sheets.push(cur); }
+    function over(node, est) {
+      if (layout) return cur.body.scrollHeight > cur.body.clientHeight + 1;
+      return cur.used + est > AVAIL;
+    }
+    function tryPut(u, lines, cont, final) {
+      var node = u.build(lines, cont, final), est = (cont ? 8 : u.est || 40) + lines * LINE_H;
+      cur.sink.appendChild(node);
+      typeset(node);
+      if (!over(node, est)) { cur.used += est; return true; }
+      cur.sink.removeChild(node);
+      return false;
+    }
+    function empty() { return !cur.sink.children.length; }
+    next();
+    units.forEach(function (u) {
+      var left = u.lines || 0, cont = false;
+      for (var guard = 0; guard < 40; guard++) {
+        if (tryPut(u, left, cont, true)) return;
+        /* only some of the lines fit here: as many as do, the rest overleaf */
+        var placed = false;
+        for (var k = left - 1; k >= 2 && !placed; k--) {
+          if (tryPut(u, k, cont, false)) { left -= k; cont = true; placed = true; }
+        }
+        if (placed) { next(); continue; }
+        if (!empty()) { next(); continue; }
+        /* alone on an empty sheet and still too tall: the words alone, then
+           the lines overleaf; failing that it is placed as it is */
+        if (!cont && left && tryPut(u, 0, false, false)) { cont = true; next(); continue; }
+        var node = u.build(left, cont, true); cur.sink.appendChild(node); typeset(node); cur.used = AVAIL;
+        return;
+      }
+    });
+    sheets.forEach(function (sh) { host.removeChild(sh.el); });
+    host.remove();
+    return sheets;
+  }
+  function pageEls(a, paper, withMs, o) {
+    o = o || {};
+    var bp = paper.blueprint, pr = a.preset ? E().preset(a.preset) : null;
+    var footText = "KurenaiOS · " + paper.title + " · written by KurenaiOS, not a board paper";
+    /* the cover: its own sheet */
+    var cover = sheetEl("k-ex-cover");
+    [el("div", { class: "k-ex-cover-top" }, [el("b", { text: "WRITTEN BY KURENAIOS · NOT A BOARD PAPER" }), el("span", { text: (pr ? pr.board + " " + pr.qual + (pr.paper ? " " + pr.paper : "") + " style" : "Practice paper") })]),
       el("div", { class: "k-ex-cover-boxes" }, ["Candidate surname", "Other names", "Candidate number"].map(function (t) { return el("div", {}, [el("span", { text: t }), el("i")]); })),
-      el("div", { class: "k-ex-cover-title" }, [el("div", { text: [pr ? pr.qual : null, U().SUBJ[a.subject] || null].filter(Boolean).join(" · ") }),
+      el("div", { class: "k-ex-cover-title" }, [el("div", { text: [pr ? pr.qual + (pr.paper ? " · " + pr.paper : "") : null, U().SUBJ[a.subject] || null].filter(Boolean).join(" · ") }),
         el("h1", { text: paper.title + ": " + a.title }),
         el("div", { class: "k-ex-cover-meta" }, [el("span", { text: "Time: " + hm(paper.mins) + (bp.extra ? " (" + hm(paper.allowed) + " with extra time)" : "") }), el("span", { text: "Total marks: " + paper.marks })]),
         a.calculator ? el("div", { text: a.calculator === "allowed" ? "You may use a calculator." : "You may not use a calculator." }) : null].filter(Boolean)),
@@ -148,42 +235,73 @@
       el("div", { class: "k-ex-cover-sec" }, [el("b", { text: "Information" }), el("div", { text: "• There are " + paper.questions.length + " questions. The total mark is " + paper.marks + "." }),
         el("div", { text: "• The marks for each question are shown in brackets." }), el("div", { text: "• Questions get longer through the paper." })]),
       el("div", { class: "k-ex-cover-sec" }, [el("b", { text: "Advice" }), el("div", { text: "• Read each question carefully. Keep an eye on the time: about " + (Math.round(bp.perMark * 10) / 10) + " minutes a mark." })]),
-      el("div", { class: "k-ex-cover-grid" }, paper.questions.slice(0, 24).map(function (q) { return el("span", { text: "Q" + q.n }); })),
-      foot(1)]));
-    paper.questions.forEach(function (q, i) {
-      out.push(el("section", { class: "k-ex-ppage k-ex-pq", "data-ui": "exams.ppage" }, [
-        i === 0 && paper.context ? el("p", { class: "k-ex-pcontext", "data-ui": "exams.pcontext", text: paper.context }) : null,
-        el("div", { class: "k-ex-pq-q" }, [el("b", { class: "k-ex-pq-n", text: String(q.n) }), el("div", {}, [q.ctx ? html("p", "", inline(q.ctx)) : null].concat(q.parts.map(function (p) {
-          return el("div", { class: "k-ex-pq-part" }, [el("span", { text: p.label }), partBody(p), el("b", { text: marksTag(paper, p.marks) }), el("div", { class: "k-ex-lines", style: "--n: " + Math.min(18, p.marks * 2 + 2) })]);
-        })).filter(Boolean))]),
-        paper.format === "ocr-case" || paper.format === "aqa" ? null : el("div", { class: "k-ex-pq-total", text: "(Total for Question " + q.n + " is " + q.marks + (q.marks === 1 ? " mark)" : " marks)") }),
-        foot(i + 2)].filter(Boolean)));
+      el("div", { class: "k-ex-cover-grid" }, paper.questions.slice(0, 24).map(function (q) { return el("span", { text: "Q" + q.n }); }))
+    ].forEach(function (n) { cover.body.appendChild(n); });
+    /* the questions, a part at a time */
+    var units = [];
+    if (paper.context) units.push({ est: 90, build: function () { return el("p", { class: "k-ex-pcontext", "data-ui": "exams.pcontext", text: paper.context }); } });
+    paper.questions.forEach(function (q) {
+      var lead = true;
+      if (q.ctx) { units.push({ est: 50, build: function () { return el("div", { class: "k-ex-su" }, [el("b", { class: "k-ex-pq-n", text: String(q.n) }), html("p", "k-ex-pq-ctx", inline(q.ctx))]); } }); lead = false; }
+      q.parts.forEach(function (p, j) {
+        var num = lead && j === 0 ? String(q.n) : "", last = j === q.parts.length - 1;
+        var total = last && !(paper.format === "ocr-case" || paper.format === "aqa") ? function () { return el("div", { class: "k-ex-pq-total", text: "(Total for Question " + q.n + " is " + q.marks + (q.marks === 1 ? " mark)" : " marks)") }); } : null;
+        var textLen = String(p.q || "").length + (p.table ? 260 : 0) + (p.fill ? 200 : 0) + (p.code ? p.code.length * 22 : 0);
+        units.push({ lines: Math.min(18, p.marks * 2 + 2), est: 30 + Math.ceil(textLen / 80) * 21, build: function (n, cont, final) {
+          var kids = cont ? [el("span"), el("div", { class: "k-ex-small k-ex-pq-cont", text: "Question " + q.n + p.label + " continued" }), el("b")]
+            : [el("span", { text: p.label }), partBody(p), el("b", { text: marksTag(paper, p.marks) })];
+          if (n) kids.push(el("div", { class: "k-ex-lines", style: "--n: " + n }));
+          if (final && total) kids.push(total());
+          return el("div", { class: "k-ex-su" }, [el("b", { class: "k-ex-pq-n", text: cont ? "" : num }), el("div", { class: "k-ex-pq-part" }, kids)]);
+        } });
+      });
     });
+    var sheets = [cover].concat(paginate(units, function () { return sheetEl("k-ex-pq"); }, o));
+    /* the mark scheme: rows flow, the head repeated */
     if (withMs) {
       var B = window.KOS_EXAMS && KOS_EXAMS.playbook && KOS_EXAMS.playbook[bp.board];
-      out.push(el("section", { class: "k-ex-ppage k-ex-ms-page", "data-ui": "exams.ms-page" }, [
-        el("div", { class: "k-ex-cover-top" }, [el("b", { text: "Mark scheme · " + paper.title }), el("span", { text: "written by KurenaiOS" })]),
-        B && B.notation ? el("div", { class: "k-ex-ms-key" }, B.notation.map(function (n) { return el("span", {}, [el("b", { text: n[0] }), " " + n[1]]); })) : null,
-        el("table", { class: "k-ex-ms-table" }, [el("thead", {}, [el("tr", {}, ["Q", "Scheme", "Marks", "Notes"].map(function (t) { return el("th", { scope: "col", text: t }); }))]),
-          el("tbody", {}, [].concat.apply([], paper.questions.map(function (q) {
-            return q.parts.map(function (p, j) {
-              return el("tr", {}, [el("td", { text: (j ? "" : String(q.n)) + p.label }), html("td", "", (p.ms || []).map(function (x) { return inline(KOS.content.aqaWords(x)); }).join("<br>")),
-                el("td", { text: p.chips.map(function (c) { return c.label === "✓" || /^\d+$/.test(c.label) ? "" : c.label; }).filter(Boolean).join(" ") || String(p.marks) }),
-                el("td", {}, [p.guide ? el("div", { text: p.guide }) : null,
-                  p.levels ? el("div", { class: "k-ex-levels" }, p.levels.map(function (lv) { return el("div", { text: lv }); })) : null,
-                  p.indicative ? el("div", { class: "k-ex-indic" }, [el("b", { text: "Indicative content" })].concat(p.indicative.map(function (t) { return el("div", { text: "• " + t }); }))) : null,
-                  j === q.parts.length - 1 && q.src ? el("div", { text: "Modelled on " + q.src }) : null].filter(Boolean))]);
-            });
-          })))]),
-        foot("MS")].filter(Boolean)));
+      var rows = [];
+      paper.questions.forEach(function (q) {
+        q.parts.forEach(function (p, j) {
+          rows.push({ est: 40 + (p.ms || []).length * 20 + (p.levels ? p.levels.length * 40 : 0) + (p.indicative ? p.indicative.length * 20 : 0), build: function () {
+            return el("tr", {}, [el("td", { text: (j ? "" : String(q.n)) + p.label }), html("td", "", (p.ms || []).map(function (x) { return inline(KOS.content.aqaWords(x)); }).join("<br>")),
+              el("td", { text: p.chips.map(function (c) { return c.label === "✓" || /^\d+$/.test(c.label) ? "" : c.label; }).filter(Boolean).join(" ") || String(p.marks) }),
+              el("td", {}, [p.guide ? el("div", { text: p.guide }) : null,
+                p.levels ? el("div", { class: "k-ex-levels" }, p.levels.map(function (lv) { return el("div", { text: lv }); })) : null,
+                p.indicative ? el("div", { class: "k-ex-indic" }, [el("b", { text: "Indicative content" })].concat(p.indicative.map(function (t) { return el("div", { text: "• " + t }); }))) : null,
+                j === q.parts.length - 1 && q.src ? el("div", { text: "Modelled on " + q.src }) : null].filter(Boolean))]);
+          } });
+        });
+      });
+      sheets = sheets.concat(paginate(rows, function (n) {
+        var sh = sheetEl("k-ex-ms-page");
+        sh.el.setAttribute("data-ui", "exams.ppage exams.ms-page");
+        sh.body.appendChild(el("div", { class: "k-ex-cover-top" }, [el("b", { text: "Mark scheme · " + paper.title + (n ? " (continued)" : "") }), el("span", { text: "written by KurenaiOS" })]));
+        if (!n && B && B.notation) sh.body.appendChild(el("div", { class: "k-ex-ms-key" }, B.notation.map(function (x) { return el("span", {}, [el("b", { text: x[0] }), " " + x[1]]); })));
+        var tb = el("tbody");
+        sh.body.appendChild(el("table", { class: "k-ex-ms-table" }, [el("thead", {}, [el("tr", {}, ["Q", "Scheme", "Marks", "Notes"].map(function (t) { return el("th", { scope: "col", text: t }); }))]), tb]));
+        sh.sink = tb;
+        sh.used = n ? 70 : 140;
+        return sh;
+      }, o));
     }
-    return out;
+    sheets.forEach(function (sh, i) {
+      sh.foot.firstChild.textContent = footText;
+      sh.foot.lastChild.textContent = sh.el.classList.contains("k-ex-ms-page") ? "MS " + (i + 1) : String(i + 1) + (i < sheets.length - 1 && !sheets[i + 1].el.classList.contains("k-ex-ms-page") ? " · Turn over" : "");
+    });
+    return sheets.map(function (sh) { return sh.el; });
   }
-  function printPaper(a, paper, withMs) {
-    var root = G().printRoot(!!E().prefs().largePrint);
-    pageEls(a, paper, true).forEach(function (p) { if (withMs || !p.classList.contains("k-ex-ms-page")) root.appendChild(p); });
-    if (!withMs) pageEls(a, paper, true).filter(function (p) { return p.classList.contains("k-ex-ms-page"); }).forEach(function (p) { root.appendChild(p); });
-    G().printNow(root);
+  /* print: the paper alone, the paper and its scheme, or the scheme alone
+     ("paper" | "both" | "scheme"); always on A4 sheets, nothing of the app */
+  function printPaper(a, paper, what) {
+    what = what === true ? "both" : what || "paper";
+    var large = !!E().prefs().largePrint;
+    var root = G().printRoot(large);
+    pageEls(a, paper, what !== "paper", { large: large }).forEach(function (p) {
+      var ms = p.classList.contains("k-ex-ms-page");
+      if (what === "both" || (what === "scheme") === ms) root.appendChild(p);
+    });
+    G().printNow(root, { sheets: true });
   }
 
   /* ================= timed mode (29t) ================= */
@@ -591,5 +709,5 @@
     return ov;
   }
 
-  KOS.examPaperView = { page: page, tally: tally, pageEls: pageEls };
+  KOS.examPaperView = { page: page, tally: tally, pageEls: pageEls, print: printPaper, printMenu: printMenu };
 })();

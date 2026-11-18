@@ -276,10 +276,17 @@
     document.body.appendChild(root);
     return root;
   }
-  function printNow(root) {
+  /* the page rule rides each print (audit U1): sheets are whole A4 pages
+     (margin 0, each scaled to 210 × 297 mm); a pack's flowing pages keep a
+     14 mm margin. White paper either way: nothing of the app's background. */
+  function printNow(root, o) {
     var r = document.documentElement;
     r.setAttribute("data-printing", "exams");
-    var done = function () { r.removeAttribute("data-printing"); root.remove(); window.removeEventListener("afterprint", done); };
+    var pageRule = el("style", { id: "k-ex-print-page", text: "@page { size: A4; margin: " + (o && o.sheets ? "0" : "14mm") + "; }" });
+    var oldRule = document.getElementById("k-ex-print-page");
+    if (oldRule) oldRule.remove();
+    document.head.appendChild(pageRule);
+    var done = function () { r.removeAttribute("data-printing"); root.remove(); pageRule.remove(); window.removeEventListener("afterprint", done); };
     window.addEventListener("afterprint", done);
     typeset(root);
     try { window.print(); } catch (e) { done(); }
@@ -327,7 +334,10 @@
       E().setPrefs({ extraTime: v });
       u.announce(v ? "Extra time " + v + "% on. Timers and pace budgets updated." : "Extra time off.");
     });
-    body.appendChild(el("label", { class: "k-ex-swrow" }, [extra, el("span", { class: "k-ex-grow" }, [el("b", { text: "Extra time" }), el("div", { class: "k-ex-muted k-ex-small", text: "Every timed paper, its pace budget and the Exam Room use it. An assessment's own allowance wins over this one." })])]));
+    /* the words first, the control beside them at its own width (audit U3:
+       the select took the row and squeezed the words to a word a line) */
+    extra.classList.add("k-ex-setselect");
+    body.appendChild(el("label", { class: "k-ex-swrow k-ex-selrow" }, [el("span", { class: "k-ex-grow" }, [el("b", { text: "Extra time" }), el("div", { class: "k-ex-muted k-ex-small", text: "Every timed paper, its pace budget and the Exam Room use it. An assessment's own allowance wins over this one." })]), extra]));
     body.appendChild(sw("large", "Large print for printed papers", "Practice papers, mark schemes and revision packs print at 16 pt on A4.", p.largePrint, function (v) { E().setPrefs({ largePrint: v }); u.announce(v ? "Large print on." : "Large print off."); }));
     body.appendChild(sw("breaks", "Rest breaks", "Pausing a timed paper stops its clock while you are on a break; the attempt records the breaks.", p.restBreaks, function (v) { E().setPrefs({ restBreaks: v }); u.announce(v ? "Rest breaks on." : "Rest breaks off."); }));
     var ov = dialog("Exams settings", "設", [el("div", { class: "k-ex-minihead", text: "Accessibility" }), body], [el("span", { class: "k-ex-grow" }), u.btn("Done", "primary", function () { ov.close(); KOS.rerender(); })], "exams.settings-dialog", "sm");

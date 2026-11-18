@@ -97,8 +97,9 @@ step("C · the paper page, the scheme and timed mode", async () => {
   assert(/\[9\]/.test(main.textContent) && !/Total for Question/.test(main.textContent), "OCR's [n] and no total line");
   assert(/Time: 1 h 30 min/.test(main.textContent), "1 h 30 on the cover");
   const pages = K.examPaperView.pageEls(a, paper, true);
-  const ms = pages.filter((p) => p.classList.contains("k-ex-ms-page"))[0];
-  assert(ms && /Level 3 \(7–9 marks\)/.test(ms.textContent) && /Indicative content/.test(ms.textContent), "the scheme prints levels and indicative content");
+  /* the scheme flows over as many A4 sheets as it needs (audit U1) */
+  const ms = pages.filter((p) => p.classList.contains("k-ex-ms-page")).map((p) => p.textContent).join(" ");
+  assert(ms && /Level 3 \(7–9 marks\)/.test(ms) && /Indicative content/.test(ms), "the scheme prints levels and indicative content");
   app.document.querySelector("[data-ui~='exams.timed-start']").click(); await app.settle();
   assert(app.document.querySelector("[data-ui~='exams.tcontext']"), "timed mode shows the case study");
   /* the rework (47d): Finish confirms, then marks ONE part at a time beside the answer */

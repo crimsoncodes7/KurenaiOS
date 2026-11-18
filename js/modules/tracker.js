@@ -86,7 +86,7 @@
      "What do you think you got?" comes before the marks and locks once
      marks are typed (calibration stays honest); Timed with minutes; the
      assessment it prepares for (the nearest whose scope covers the paper,
-     until chosen); "This IS the result of…" a past mock or real exam.
+     until chosen); "This IS the result of…" any assessment sat by now.
      Marks by question are a page of their own (29i), one tap away. The
      record and its one normaliser live in core/tracker.js (decision B). */
   function editorModal(kind, existing, onSaved, seed, asIs) {
@@ -114,7 +114,20 @@
     var predicted = input("number", { min: 0, "aria-label": "What do you think you got?", "data-ui": "tracker.predicted" });
     var marks = input("number", { min: 0, "aria-label": "Marks", "data-ui": "tracker.marks" });
     var max = input("number", { min: 1, "aria-label": "Out of", "data-ui": "tracker.max" });
-    var grade = input("text", { placeholder: "e.g. B / 6", "aria-label": "Grade" });
+    /* the grade from the subject's own scale (audit U6: it was a text box);
+       "Not graded" lets the boundaries estimate it from the marks */
+    var grade = el("select", { class: "k-input", "aria-label": "Grade", "data-ui": "tracker.grade" });
+    var SCALE = { al: ["A*", "A", "B", "C", "D", "E", "U"], it: ["Distinction*", "Distinction", "Merit", "Pass", "U"] };
+    function gradeScale(keep) {
+      var sid = subjSel ? subjSel.value : "", list = sid === "it" ? SCALE.it : SCALE.al;
+      keep = keep == null ? grade.value : keep;
+      grade.innerHTML = "";
+      grade.appendChild(el("option", { value: "", text: "Not graded" }));
+      list.forEach(function (g) { grade.appendChild(el("option", { value: g, text: g })); });
+      /* a grade typed before this list existed is kept as it was */
+      if (keep && list.indexOf(keep) === -1) grade.appendChild(el("option", { value: keep, text: keep + " (as logged)" }));
+      grade.value = keep || "";
+    }
     var date = input("date", { "aria-label": "Date" });
     var timed = el("input", { type: "checkbox", class: "k-switch", "data-ui": "tracker.timed", "aria-label": "Timed" });
     var tmins = input("number", { min: 1, max: 600, "aria-label": "Minutes taken", "data-ui": "tracker.mins" });
@@ -126,13 +139,13 @@
     function area(ph, label) { return el("textarea", { class: "k-input", rows: 2, placeholder: ph, "aria-label": label }); }
     var well = area("Areas that went well…", "Went well"), badly = area("Areas that didn't go well…", "Didn't go well"), notes = area("Mistakes / notes for next time…", "Mistakes / notes");
     var reviewed = el("input", { type: "checkbox", class: "k-box" });
-    var subjSel = el("select", { class: "k-input", "aria-label": "Subject", onchange: function () { subjTouched = true; preview(); } },
+    var subjSel = el("select", { class: "k-input", "aria-label": "Subject", onchange: function () { subjTouched = true; gradeScale(); preview(); } },
       [el("option", { value: "", text: "No subject" })].concat(["compsci", "maths", "it"].map(function (k) { return el("option", { value: k, text: SUBJ[k] }); })));
     var subjTouched = !!(existing && existing.subject);
     var recType = el("select", { class: "k-input", "aria-label": "Record type" }, [el("option", { value: "paper", text: "Practice paper or questions" }), el("option", { value: "exam", text: "An exam or assessment" })]);
     recType.value = kind === "exam" ? "exam" : "paper";
     var refPick = KOS.topicPicker({ label: "Topics (feed RAG)", multi: true, value: existing ? KOS.tracker.refsOf(existing) : [],
-      onChange: function (refs) { if (!subjTouched && refs.length) subjSel.value = KOS.spec.subjectsOf(refs)[0] || subjSel.value; preview(); guessAssessment(refs); } });
+      onChange: function (refs) { if (!subjTouched && refs.length) { subjSel.value = KOS.spec.subjectsOf(refs)[0] || subjSel.value; gradeScale(); } preview(); guessAssessment(refs); } });
 
     function fillAssessments() {
       var cur = aidSel.value;
@@ -141,8 +154,9 @@
       var t = KOS.srs.todayISO();
       (X ? X.all() : []).filter(function (a) {
         if (a.archived) return false;
-        /* "This IS the result of…": past-dated mocks and real exams only */
-        if (isResult.checked) return (a.tier === "mock" || a.tier === "real_exam") && a.date && a.date <= t;
+        /* "This IS the result of…": any assessment sat by now, topic and
+           retrieval tests too (audit U5: only mocks and real exams were) */
+        if (isResult.checked) return a.tier !== "deadline" && a.date && a.date <= t;
         return a.tier !== "deadline";
       }).forEach(function (a) { aidSel.appendChild(el("option", { value: a.id, text: a.title + (a.date ? " · " + shortDate(a.date) : "") })); });
       aidSel.value = cur;
@@ -174,7 +188,12 @@
       pv.style.setProperty("--c", tone(p));
       pv.firstChild.textContent = p + "%";
       var pr = parseInt(predicted.value, 10);
-      if (!isNaN(pr)) pv.lastChild.textContent = "You predicted " + pr + ": " + Math.abs(m - pr) + (Math.abs(m - pr) === 1 ? " mark " : " marks ") + (m > pr ? "over" : m < pr ? "under" : "— spot on") + ". Calibration keeps the running gap.";
+      /* audit U4: the gap between your guess and your marks, said plainly */
+      if (!isNaN(pr)) {
+        var gap = m - pr, gw = Math.abs(gap) + (Math.abs(gap) === 1 ? " mark" : " marks");
+        pv.lastChild.textContent = gap === 0 ? "Spot on: you predicted " + pr + " and got " + m + "."
+          : "You got " + gw + (gap > 0 ? " more" : " fewer") + " than you predicted (" + pr + "). Analytics keeps how far off your guesses run.";
+      }
       else {
         var band = p >= 70 ? "green" : p >= 45 ? "amber" : "red", first = KOS.spec.firstLeaf(refPick.value());
         pv.lastChild.textContent = "Logged results count as study evidence" + (first ? " and push " + first.ref + " towards " + band + "." : ".");
@@ -194,7 +213,7 @@
       var fill = IXR && IXR.paperFill(pid, sit);
       if (!fill) return;
       paper.value = fill.title;
-      if (!subjTouched) subjSel.value = fill.subject;
+      if (!subjTouched) { subjSel.value = fill.subject; gradeScale(); }
       max.value = String(fill.max);
       qs = fill.questions;
       src = { kind: "past-paper", ref: fill.ref };
@@ -208,7 +227,7 @@
       var fill = IXR && IXR.packFill(id);
       if (!fill) return;
       topic.value = fill.title;
-      if (!subjTouched) subjSel.value = fill.subject;
+      if (!subjTouched) { subjSel.value = fill.subject; gradeScale(); }
       refPick.set(fill.refs);
       src = { kind: fill.source === "pmt" ? "pmt-pack" : "topic-pack", ref: fill.ref };
       guessAssessment(fill.refs);
@@ -309,7 +328,7 @@
       if (existing.marks != null) marks.value = String(existing.marks);
       if (existing.max != null) max.value = String(existing.max);
       if (existing.predicted != null) predicted.value = String(existing.predicted);
-      grade.value = existing.grade; date.value = existing.date;
+      date.value = existing.date;
       well.value = existing.well; badly.value = existing.badly; notes.value = existing.notes;
       reviewed.checked = existing.reviewed;
       subjSel.value = existing.subject || "";
@@ -321,6 +340,7 @@
     fillAssessments();
     aidSel.value = (existing && existing.assessmentId) || seed.assessmentId || "";
     if (!existing && seed.assessmentId && X) { var sa = X.get(seed.assessmentId); if (sa && sa.subject) subjSel.value = sa.subject; }
+    gradeScale(existing ? existing.grade || "" : "");
 
     var modeTabs = KOS.ui.tabs([["paper", "Past paper"], ["pack", "Topic pack"], ["other", "Other"]].filter(function (m) { return IX || m[0] === "other"; }).map(function (m) {
       return { label: m[1], active: m[0] === mode, onSelect: function (ev) {
@@ -376,7 +396,7 @@
       pv,
       el("div", { class: "k-trk-span k-trk-timed" }, [timed, el("span", { class: "k-trk-grow" }, [el("b", { text: "Timed" }), el("span", { class: "k-trk-hint", text: "Under exam conditions" })]), minsWrap]),
       el("div", { class: "k-trk-span k-trk-grid2" }, [f("Practice for", aidSel), f("Date", date)]),
-      el("label", { class: "k-check k-trk-span" }, [isResult, el("span", {}, ["This IS the result of… ", el("span", { class: "k-trk-hint", text: "a mock or a real exam (records it as that assessment's result, not as practice)" })])]),
+      el("label", { class: "k-check k-trk-span" }, [isResult, el("span", {}, ["This IS the result of… ", el("span", { class: "k-trk-hint", text: "an assessment you have sat: a mock, a real exam, a topic or retrieval test (records it as that assessment's result, not as practice)" })])]),
       el("details", { class: "k-trk-more k-trk-span", open: existing && (existing.well || existing.badly || existing.notes || existing.grade) ? "" : null }, [
         el("summary", { text: "Grade, reflections and conditions" }),
         el("div", { class: "k-trk-grid3" }, [gradeWrap, f("Conditions", cond), el("label", { class: "k-check" }, [reviewed, el("span", { text: "I've reviewed this result properly" })])]),
@@ -411,6 +431,20 @@
   /* the log dialog from anywhere: the Exams hub opens it for an assessment
      (seed: {assessmentId, index: {paper, sitting}, pack}) */
   KOS.trackerLog = function (seed, onSaved) { editorModal((seed && seed.kind) || "paper", null, onSaved, seed || {}); };
+  /* edit any attempt where it is shown (audit U10) */
+  KOS.trackerEdit = function (e, onSaved) { if (e) editorModal(e.kind || "paper", e, onSaved); };
+  /* delete any attempt where it is shown, with Undo (audit U10): the entry
+     goes at once; its recording is let go only once Undo has passed */
+  KOS.trackerDelete = function (e, onDone) {
+    if (!e) return;
+    KOS.ui.confirm({ title: "Delete this attempt?", body: (e.paper || "This attempt") + (e.marks != null && e.max ? ", " + e.marks + "/" + e.max : "") + ": its marks, its redo items" + (e.role === "result" ? ", and it stops being the assessment's result" : "") + ". You can undo it for a few seconds.", danger: true, confirm: "Delete" }, function () {
+      var at = KOS.tracker.indexOf(e.id), copy = JSON.parse(JSON.stringify(e)), undone = false;
+      remove(e.id);
+      onDone && onDone();
+      KOS.ui.toast("Attempt deleted.", false, { label: "Undo", run: function () { undone = true; KOS.tracker.restore(copy, at); KOS.rerender(); } });
+      setTimeout(function () { if (!undone && e.uid && KOS.attempts && KOS.attempts.remove) KOS.attempts.remove(e.uid, function () {}); }, 12000);
+    });
+  };
 
   /* ---------------- the view (Graphite frame 9d) ----------------
      The kind switch with the filters on one row, four centred figures and

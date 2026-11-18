@@ -15,7 +15,25 @@ the service-worker version). Git holds the rest.
   `5bece3e`). `ai-chat` is deployed as version 6 (images for Gemini, 26 October 2026); the
   `kos_reports` migration `20261012000001` is applied; so is `kos_money`
   (`20261019000001`, 19 October 2026), live since the Money and Goals release.
-- Latest release: sw `kos-exams-3` (18 November 2026, main): Maths' mark
+- Latest release: sw `kos-exams-4` (18 November 2026, `feat/exams-audit`
+  into main): the Exams & Papers audit (docs/exams-audit-2026-11-18.md) —
+  papers on A4 sheets the same on screen and in print (questions flowing,
+  answer lines carried over, a footer on every page, white paper), Print
+  as the paper, the paper and its scheme, or the scheme, never the app;
+  OCR's F201 SAM in the past-paper index, OCR file names matched (the
+  annotated SAM as its scheme); past papers in each exam's Papers section
+  with Sit, Print, Scheme and Log marks, and a PDF attached to an exam
+  usable as a past paper; one paper count; Log a result's grade as the
+  subject's scale, a plain prediction line, and results for topic and
+  retrieval tests; attempts edited and deleted (with Undo) from Review;
+  Edit, Archive and Delete on every exam and an Archived list; the viewer
+  finding OCR's questions and asking "Which page is…?" for any it cannot,
+  remembered per paper; Exams settings, Results, Load and Today tidied;
+  the hub's Library tab named Practice. With W8: readiness, the boot's
+  exam pass and badge measuring computed once per change (smoke186),
+  hub.js split by surface (AP-09), and nine page bundles on first use
+  (boot 8.78 → 7.87 MB). Gate 169.
+  Before it sw `kos-exams-3` (18 November 2026, main): Maths' mark
   codes (CM-15: DM1, dA1, dB1, M1d, M1dd and A1ft read by the tally, the
   Companion and exam questions; a worked answer's Answer line no longer
   read as marks); every assessment tier right on the new exam pages (a

@@ -22,7 +22,7 @@
   function byUid(uid) { return T().all().filter(function (e) { return e.uid === uid; })[0] || null; }
 
   /* ---------------- Practice (the hub tab) ---------------- */
-  var SUBS = [["attempts", "Attempts"], ["analytics", "Analytics"], ["library", "Library"]];
+  var SUBS = [["attempts", "Attempts"], ["analytics", "Analytics"], ["library", "Paper files"]];
   function practice(main, sub) {
     var u = U(), recKind = sub === "papers" ? "paper" : null;
     sub = sub === "papers" ? "attempts" : SUBS.some(function (s) { return s[0] === sub; }) ? sub : "attempts";
@@ -266,25 +266,37 @@
       foot.appendChild(el("button", { type: "button", class: "k-btn k-btn--primary", text: "Done", onclick: close }));
     } });
   }
-  function matchDialog(rows) {
+  function matchDialog(rows, mo) {
+    mo = mo || {};
     var u = U(), ix = window.KOS_EXAMS && KOS_EXAMS.index, overlay = el("div", { class: "k-dialog-overlay" });
+    /* the papers, by subject (an exam's own subject only, from its page) */
+    var pids = Object.keys(ix ? ix.papers : {}).filter(function (k) { return !mo.subject || ix.papers[k].subject === mo.subject; });
     function close() { overlay.remove(); }
     overlay.close = close;
     var body = el("div", { class: "k-dialog-body k-ex-dbody" });
     rows.slice(0, 30).forEach(function (r) {
-      var paper = el("select", { class: "k-input", "aria-label": "Paper for " + r.name }, [el("option", { value: "", text: "Paper…" })].concat(Object.keys(ix ? ix.papers : {}).map(function (k) { return el("option", { value: k, text: ix.papers[k].title }); })));
+      var paper = el("select", { class: "k-input", "aria-label": "Paper for " + r.name }, [el("option", { value: "", text: "Paper…" })].concat(["it", "compsci", "maths"].map(function (sid) {
+        var ks = pids.filter(function (k) { return ix.papers[k].subject === sid; });
+        return ks.length ? el("optgroup", { label: u.SUBJ[sid] || sid }, ks.map(function (k) { return el("option", { value: k, text: ix.papers[k].title }); })) : null;
+      }).filter(Boolean)));
       var sit = el("select", { class: "k-input", "aria-label": "Sitting for " + r.name }, [el("option", { value: "", text: "Sitting…" })]);
       var kind = el("select", { class: "k-input", "aria-label": "Kind" }, [el("option", { value: "qp", text: "Question paper" }), el("option", { value: "ms", text: "Mark scheme" })]);
       if (r.kind === "ms") kind.value = "ms";
       paper.addEventListener("change", function () {
         sit.innerHTML = ""; sit.appendChild(el("option", { value: "", text: "Sitting…" }));
-        (ix && ix.papers[paper.value] ? ix.papers[paper.value].sittings : []).slice().reverse().forEach(function (s) { sit.appendChild(el("option", { value: s, text: KOS.examIndex.sittingLabel(s) })); });
+        var ss = ix && ix.papers[paper.value] ? ix.papers[paper.value].sittings : [];
+        ss.slice().reverse().forEach(function (s) { sit.appendChild(el("option", { value: s, text: KOS.examIndex.sittingLabel(s) })); });
+        if (ss.length === 1) sit.value = ss[0];            /* OCR's SAM: the only sitting */
       });
+      if (r.paper && ix && ix.papers[r.paper]) { paper.value = r.paper; paper.dispatchEvent(new Event("change")); if (r.sitting) sit.value = r.sitting; }
       body.appendChild(el("div", { class: "k-ex-matchrow" }, [el("span", { class: "k-ex-ell k-ex-small", text: r.path }), paper, sit, kind,
-        u.btn("Match", "sm", function () { if (!paper.value || !sit.value) return; KOS.examPapers.setMatch(r.id, { paper: paper.value, sitting: sit.value, kind: kind.value }, function () { KOS.ui.toast("Matched."); }); }),
+        u.btn("Match", "sm", function () {
+          if (!paper.value || !sit.value) { KOS.ui.toast("Pick the paper and its sitting first.", true); return; }
+          KOS.examPapers.setMatch(r.id, { paper: paper.value, sitting: sit.value, kind: kind.value }, function () { KOS.ui.toast("Matched to " + ix.papers[paper.value].title + " · " + KOS.examIndex.sittingLabel(sit.value) + "."); });
+        }, { "data-ui": "exams.match-go" }),
         u.btn("Remove", "quiet sm", function () { KOS.examPapers.remove(r.id, function () { KOS.ui.toast("Removed from this device."); }); })]));
     });
-    overlay.appendChild(el("div", { class: "k-dialog k-ex-dialog", "data-ui": "ui.dialog exams.match-dialog" }, [
+    overlay.appendChild(el("div", { class: "k-dialog k-ex-dialog", "data-size": "wide", "data-ui": "ui.dialog exams.match-dialog" }, [
       el("div", { class: "k-dialog-head", "data-ui": "ui.dialog-head" }, [el("span", { class: "k-kanji", lang: "ja", "aria-hidden": "true", text: "紙" }), el("h2", { class: "k-dialog-title", "data-ui": "ui.dialog-title", text: "Match your files" })]),
       body, el("div", { class: "k-dialog-foot" }, [el("span", { class: "k-spacer" }), u.btn("Done", "primary", function () { close(); KOS.rerender(); })])]));
     KOS.ui.openDialog(overlay);
@@ -640,5 +652,5 @@
     note.focus();
   }
 
-  KOS.examPractice = { practice: practice, attempt: attempt, feedbackDialog: feedbackDialog, tagChip: tagChip, ramp: ramp, openPaper: openPaper, openScheme: openScheme, paperTitle: paperTitle };
+  KOS.examPractice = { practice: practice, attempt: attempt, feedbackDialog: feedbackDialog, tagChip: tagChip, ramp: ramp, openPaper: openPaper, openScheme: openScheme, paperTitle: paperTitle, matchDialog: matchDialog };
 })();

@@ -219,6 +219,20 @@
     if (e.role === "result" && e.assessmentId && KOS.exams) KOS.exams.clearResult(e.assessmentId, e.uid);
   }
 
+  /* Undo of a delete (audit U10): the entry back where it was, with its
+     redo items and, when it was an assessment's result, the result */
+  function restore(e, at) {
+    if (!e || !e.id) return null;
+    var t = T();
+    if (t.entries.some(function (x) { return x.id === e.id; })) return e;
+    t.entries.splice(Math.max(0, Math.min(at == null ? t.entries.length : at, t.entries.length)), 0, e);
+    store.save();
+    syncRedo(e, null);
+    if (e.role === "result" && e.assessmentId && KOS.exams && KOS.exams.recordResult) KOS.exams.recordResult(e.assessmentId, e);
+    return e;
+  }
+  function indexOf(id) { return T().entries.findIndex(function (x) { return x.id === id; }); }
+
   /* ---------------- redo items (decision G) ---------------- */
   function redoKey(e, q) { return "x:" + e.uid + ":" + q.q; }
   function syncRedo(next, prev) {
@@ -305,6 +319,7 @@
   }
 
   KOS.tracker = {
+    restore: restore, indexOf: indexOf,
     KINDS: KINDS.slice(),
     ROLES: ROLES.slice(),
     SOURCES: SOURCES.slice(),
