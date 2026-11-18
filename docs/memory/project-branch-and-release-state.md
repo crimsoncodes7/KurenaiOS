@@ -8,6 +8,8 @@ metadata:
   modified: 2026-11-17T21:04:49.853Z
 ---
 
+**Since kos-exams-2 (2026-11-18, night, NOT deployed):** main has CM-15 (Edexcel code readers, smoke183 B2) and the Exams tier pass (retrieval quiz 5 sections, Files/Notes/prep checklist back, old Readiness/Season/guide removed). `feat/w8-now` (bc39608): SH-31, SH-42, EX-16, AP-11 half, the assessment editor (asterisks, paper named once, IT Distinction/Merit/Pass). W8 next: AP-18/AP-03, badges AX-25/AG-08/AP-15, CL-05, AP-09 hub.js split, AP-01 stage 2. User: F201 papers 2–3 early Dec after the audit; other subjects' full papers ~January.
+
 **Latest (2026-11-18, late, Opus): RELEASED sw `kos-exams-2`** — immutable https://78ff2445.kurenai-os.pages.dev, main = feat/exams-rework (1c4f109): the whole Exams & Papers rework (design 45–47) incl. full-screen sitting + split marking (47b–d), typical grade boundaries for AQA 7517 (AQA June 2025/2026 tables) and Edexcel 9MA0 (Pearson June 2026, confirmed) via KOS.exams.typicalBounds, AO1–AO3 for both in essentials. Gate 167. Next: F201 papers 2–3 (5.22), the 12 CM-15 items, then the rest of W8.
 
 **Before it:** Newest (2026-11-18, later still, Opus): the Exams & Papers rework pages BUILT on `feat/exams-rework`** (from design handoff 45–47, ~/Downloads/design_handoff_kurenaios_exams_rework): All exams, an exam's eight sections (KOS.examShell), Today/Topics/Plan/Revise/Questions/Papers/Review/On the day, scope from a pasted list, feedback import, targets; engine KOS.examSession; all six files in the lazy `exams-pages` bundle (boot budget). smoke185 added (gate 167); smoke89/92/93/94/183 moved to the new pages; invariant 130b. NOT deployed (needs the user's go-ahead; target 4 Dec). Left: true full-screen sitting, split-view marking (47d).
