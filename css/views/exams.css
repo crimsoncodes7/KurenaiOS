@@ -1472,4 +1472,55 @@ button.k-ex-ptr { inline-size: 100%; border-inline: 0; border-block-end: 0; back
 .k-xc-row > .k-xc-line { grid-column: 1 / -1; color: var(--muted); }
 }
 
+
+/* the full-screen sitting and marking beside the answer (47b–47d): a fixed
+   stage over the app, as the Exam Room is */
+.k-ex-sit { position: fixed; inset: 0; z-index: var(--z-focus); display: grid; grid-template-rows: auto minmax(0, 1fr) auto; gap: 0; background: var(--bg); color: var(--text); }
+.k-ex-sitbar { display: flex; align-items: center; gap: var(--sp-14); padding: var(--sp-12) var(--sp-24); border-block-end: var(--hairline) solid var(--line); background: var(--s1); }
+.k-ex-sittitle { display: flex; flex-direction: column; gap: var(--sp-2); min-inline-size: 0; }
+.k-ex-sittitle b { font-size: var(--fs-16); }
+.k-ex-sit .k-ex-tclockbox { display: flex; flex-direction: column; align-items: flex-end; line-height: var(--lh-tight); }
+.k-ex-sit .k-ex-tclock { font-size: var(--fs-24); font-weight: var(--weight-semibold); }
+.k-ex-sitbody { overflow-y: auto; padding: var(--sp-20) var(--sp-24) var(--sp-32); }
+.k-ex-sitcol { display: flex; flex-direction: column; gap: var(--sp-14); max-inline-size: var(--ex-dialog-w); margin-inline: auto; }
+.k-ex-sitq { gap: var(--sp-10); }
+.k-ex-sitpaused { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--sp-12); min-block-size: 100%; text-align: center; }
+.k-ex-sitpaused .k-kanji { font-size: var(--fs-56); color: var(--muted); }
+.k-ex-sitpaused b { font-size: var(--fs-22); }
+.k-ex-sitfoot { display: flex; align-items: center; gap: var(--sp-12); padding: var(--sp-10) var(--sp-24); border-block-start: var(--hairline) solid var(--line); background: var(--s1); }
+.k-ex-sitfoot .k-ex-tnav-b { min-inline-size: var(--hit-coarse); min-block-size: var(--hit-coarse); }
+.k-ex-marking .k-ex-tclock { font-size: var(--fs-22); }
+.k-ex-msplit { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); min-block-size: 0; }
+.k-ex-mans { display: flex; flex-direction: column; gap: var(--sp-12); padding: var(--sp-20) var(--sp-24); overflow-y: auto; border-inline-end: var(--hairline) solid var(--line); }
+.k-ex-mstem { margin: 0; color: var(--text-2); font-size: var(--fs-13-5); line-height: var(--lh-body); }
+.k-ex-msheet { display: flex; flex-direction: column; gap: var(--sp-10); padding: var(--sp-14); border-radius: var(--r-16); background: var(--s1); min-block-size: var(--ex-load-h); }
+.k-ex-mtyped { margin: 0; white-space: pre-wrap; font-family: inherit; font-size: var(--fs-15); line-height: var(--lh-body); }
+.k-ex-mink { inline-size: 100%; block-size: auto; border-radius: var(--r-8); background: var(--ex-paper); }
+.k-ex-mright { display: flex; flex-direction: column; gap: var(--sp-12); padding: var(--sp-20) var(--sp-24); overflow-y: auto; }
+.k-ex-mscheme { display: flex; flex-direction: column; gap: var(--sp-10); }
+.k-ex-markline { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--sp-12); align-items: start; padding-block: var(--sp-8); border-block-start: var(--hairline) solid var(--line); font-size: var(--fs-13-5); }
+.k-ex-mneed { color: var(--muted); font-size: var(--fs-11); }
+.k-ex-mguide { margin: 0; padding: var(--sp-10) var(--sp-12); border-radius: var(--r-12); background: var(--s2); color: var(--text-2); font-size: var(--fs-13); }
+.k-ex-mlevel { display: flex; flex-direction: column; gap: var(--sp-4); padding: var(--sp-12) var(--sp-14); border: var(--hairline) solid var(--line); border-radius: var(--r-14); background: none; color: var(--text-2); font: inherit; font-size: var(--fs-13); text-align: start; cursor: pointer; }
+.k-ex-mlevel b { color: var(--text); }
+.k-ex-mlevel[aria-pressed="true"] { border-color: var(--text); background: var(--s2); }
+.k-ex-mmarks { gap: var(--sp-6); padding-inline-start: var(--sp-14); }
+.k-ex-mnav { padding-block-start: var(--sp-12); border-block-start: var(--hairline) solid var(--line); }
+/* a wide screen: the navigator is a side column (47c) */
+.k-ex-sit:not(.k-ex-marking) { grid-template-columns: minmax(0, 1fr) var(--xs-week-min); grid-template-rows: auto minmax(0, 1fr); }
+.k-ex-sit:not(.k-ex-marking) > .k-ex-sitbar { grid-column: 1 / -1; }
+.k-ex-sit:not(.k-ex-marking) > .k-ex-sitfoot { flex-direction: column; align-items: stretch; border-block-start: 0; border-inline-start: var(--hairline) solid var(--line); }
+.k-ex-sit:not(.k-ex-marking) > .k-ex-sitfoot .k-ex-tnav { flex-wrap: wrap; }
+@media (max-width: 1240px) {
+.k-ex-sit:not(.k-ex-marking) { grid-template-columns: minmax(0, 1fr); grid-template-rows: auto minmax(0, 1fr) auto; }
+.k-ex-sit:not(.k-ex-marking) > .k-ex-sitfoot { flex-direction: row; align-items: center; border-inline-start: 0; border-block-start: var(--hairline) solid var(--line); }
+.k-ex-sit:not(.k-ex-marking) > .k-ex-sitfoot .k-ex-tnav { flex-wrap: nowrap; }
+}
+@media (max-width: 860px) {
+.k-ex-msplit { grid-template-columns: minmax(0, 1fr); overflow-y: auto; }
+.k-ex-mans, .k-ex-mright { overflow: visible; border-inline-end: 0; }
+.k-ex-sitbar { flex-wrap: wrap; padding-inline: var(--sp-16); }
+.k-ex-sitbody { padding-inline: var(--sp-16); }
+}
+
 }

@@ -101,12 +101,22 @@ step("C · the paper page, the scheme and timed mode", async () => {
   assert(ms && /Level 3 \(7–9 marks\)/.test(ms.textContent) && /Indicative content/.test(ms.textContent), "the scheme prints levels and indicative content");
   app.document.querySelector("[data-ui~='exams.timed-start']").click(); await app.settle();
   assert(app.document.querySelector("[data-ui~='exams.tcontext']"), "timed mode shows the case study");
+  /* the rework (47d): Finish confirms, then marks ONE part at a time beside the answer */
   app.document.querySelector("[data-ui~='exams.tend']").click(); await app.settle();
-  const rows = [...app.document.querySelectorAll("[data-ui~='exams.tally-row']")];
-  eq(rows.length, paper.questions.reduce((s, q) => s + q.parts.length, 0), "a tally row a part");
-  const nine = rows.filter((r) => /time series/.test(r.textContent))[0];
-  assert(nine && nine.querySelectorAll("[data-ui~='exams.mchip']").length === 9, "the 9-marker is marked by mark");
-  app.document.querySelector("[data-ui~='exams.tally-dialog']").parentNode.close();
+  app.document.querySelector("[data-ui~='ui.confirm-yes']").click(); await app.settle();
+  const nParts = paper.questions.reduce((s, q) => s + q.parts.length, 0);
+  assert(app.document.querySelector("[data-ui~='exams.marking']") && new RegExp("1 of " + nParts).test(app.document.querySelector("[data-ui~='exams.mbar']").textContent), "marking, a part at a time: 1 of " + nParts);
+  let found = false;
+  for (let i = 0; i < nParts && !found; i++) {
+    if (/time series/.test(app.document.querySelector("[data-ui~='exams.mark-answer']").textContent)) { found = true; break; }
+    app.document.querySelector("[data-ui~='exams.mark-next']").click(); await app.settle();
+  }
+  assert(found, "the 9-marker is reached");
+  const levels = app.document.querySelectorAll("[data-ui~='exams.mark-level']");
+  assert(levels.length === 3, "the 9-marker is marked by level (three levels, and 0): " + levels.length);
+  levels[0].click(); await app.settle();
+  assert(app.document.querySelectorAll("[data-ui~='exams.mchip']").length === 3, "then a mark inside the level (7, 8 or 9)");
+  delete K.store.state.ui.examPaperSess;
   K.exams.remove(a.id);
 });
 

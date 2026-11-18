@@ -289,8 +289,8 @@ step("J · the Companion, trend, the paper and its dialogs draw without writing"
   app.document.querySelector("[data-ui~='exams.timed-start']").click(); await app.settle();
   assert(K.store.state.ui.examPaperSess && app.document.querySelector("[data-ui~='exams.timed']"), "timed");
   app.document.querySelector("[data-ui~='exams.tend']").click(); await app.settle();
-  assert(app.document.querySelector("[data-ui~='exams.tally']"), "the tally");
-  app.document.querySelector("[data-ui~='exams.tally-dialog']").parentNode.close();
+  app.document.querySelector("[data-ui~='ui.confirm-yes']").click(); await app.settle();
+  assert(app.document.querySelector("[data-ui~='exams.tally']"), "the scheme beside the answer (47d)");
   eq(snap(), before, "timed mode writes only the per-device session");
   eq(app.errors, [], "no errors");
 });

@@ -543,8 +543,7 @@
   }
   function send(a, sch) {
     var lines = sch.sessions + " sessions, " + hm(sch.mins) + ", go into your weekly plan as personal rows tagged with this exam. Nothing goes on the Calendar.";
-    KOS.ui.confirmModal({ title: "Send to the plan?", body: lines, ok: "Send " + sch.sessions + " sessions" }, function (yes) {
-      if (!yes) return;
+    KOS.ui.confirm({ title: "Send to the plan?", body: lines, confirm: "Send " + sch.sessions + " sessions" }, function () {
       var r = S().sendSchedule(a, sch);
       announce(r.added + " sessions added to your plan." + (r.skipped ? " " + r.skipped + " fell outside your Pacing weeks." : ""));
       KOS.rerender();

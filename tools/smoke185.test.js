@@ -149,7 +149,10 @@ step("G · Papers, the attempt, Review, feedback and targets", async () => {
   K.show("exams", { id: F.id, tab: "paper", sub: "1" }); await app.settle();
   q("[data-ui~='exams.timed-start']").click(); await app.settle();
   assert(qa("[data-ui~='exams.tpad']").length >= 1, "a pad under every part");
+  assert(q("[data-ui~='exams.timed'].k-ex-sit") && q("[data-ui~='exams.tcomeback']"), "full screen, with Come back on the navigator (47b)");
   q("[data-ui~='exams.tend']").click(); await app.settle();
+  q("[data-ui~='ui.confirm-yes']").click(); await app.settle();
+  assert(q("[data-ui~='exams.marking'] [data-ui~='exams.mark-answer']") && q("[data-ui~='exams.marking'] [data-ui~='exams.tally']"), "your answer beside the scheme (47d)");
   qa("[data-ui~='exams.mchip']").forEach((c, i) => { if (i % 2 === 0 && !c.disabled) c.click(); });
   const n0 = K.tracker.all().length;
   q("[data-ui~='exams.tally-log']").click(); await app.settle(); await new Promise((r) => setTimeout(r, 200)); await app.settle();

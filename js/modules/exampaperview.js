@@ -49,6 +49,7 @@
     seed = /^(pack|set)-/.test(String(seed || "")) ? String(seed) : Math.max(1, parseInt(seed, 10) || 1);
     var paper = P().build(a, seed);
     var s = sessFor(paper);
+    if (s && s.marking) return markPage(main, a, paper, s);
     if (s && !s.ended) return timed(main, a, paper, s);
     viewer(main, a, paper);
   }
@@ -192,10 +193,16 @@
     U().announce("Timed. " + hm(paper.allowed) + ". Question 1 of " + paper.questions.length + ".");
     KOS.rerender();
   }
+  /* ================= sitting it, full screen (47b, 47c) =================
+     A fixed stage over the app, as the Exam Room is: a bar with the
+     paper's title, the clock (extra time applied), Pause and Finish; the
+     context, collapsible to one line; the question with a pad under every
+     part; a 44 px navigator of questions with ⚑ Come back along the foot
+     (a side column on a wide screen). Pause hides the paper; with Rest
+     breaks off the clock runs on and stays in view (EX-32); a reload comes
+     back running and says so once (EX-42). Finish opens the marking. */
   function timed(main, a, paper, s) {
     var u = U(), bp = paper.blueprint, total = paper.allowed * 60000;
-    /* EX-42: a reload does not pause the paper — the clock runs on, as it
-       would in the hall — but the first draw after one says so, once */
     if (!s.paused && !seenThisLoad[s.started]) {
       seenThisLoad[s.started] = true;
       if (s.loadedAt) setTimeout(function () { KOS.ui.toast("Still timed: the clock kept running while the page was away."); }, 0);
@@ -204,21 +211,27 @@
     var q = paper.questions[Math.max(0, Math.min(paper.questions.length - 1, (s.cur || 1) - 1))];
     var A = KOS.attempts, rec = s.rec || null;
     if (A && rec && !A.isLive(rec)) A.resume(rec);
-    var rest = !!E().prefs().restBreaks;
+    var rest = !!E().prefs().restBreaks, extra = bp.extra || 0;
     var clockEl = el("div", { class: "k-mono k-ex-tclock", "data-ui": "exams.tclock" });
     var leftEl = u.muted("");
-    var spentEl = el("div", { class: "k-mono k-ex-tfig" });
+    function finish(mins) {
+      var now = Date.now();
+      if (!s.paused) s.spent[q.n] = (s.spent[q.n] || 0) + (now - (s.enteredAt || now));
+      if (A && rec) A.end(rec, now);
+      s.marking = { at: 0, ticks: {}, timed: true, mins: mins };
+      saveSess(s);
+      u.announce("Finished. Mark it beside your answers, part by part.");
+      KOS.rerender();
+    }
     function tick() {
       if (!clockEl.isConnected) { clearInterval(iv); return; }
       var left = total - used(s);
-      /* EX-32: with Rest breaks off a pause is logged and the clock runs on, so it stays in view */
-      clockEl.textContent = s.paused && rest ? "Paused" : clock(left) + (s.paused ? " · paused" : "");
-      leftEl.textContent = "left of " + clock(total).replace(/:00$/, "");
-      var sp = (s.spent[q.n] || 0) + (s.paused ? 0 : Date.now() - (s.enteredAt || Date.now()));
-      spentEl.textContent = Math.floor(sp / 60000) + " m " + Math.floor(sp % 60000 / 1000) + " s";
-      if (left <= 0 && (!s.paused || !rest)) { clearInterval(iv); u.announce("Time is up."); if (A && rec) A.end(rec); tally(a, paper, { timed: true, mins: Math.round(paper.allowed), sess: s }); }
+      clockEl.textContent = s.paused && rest ? "Paused" : clock(left).replace(/^0:/, "") + (s.paused ? " · paused" : "");
+      leftEl.textContent = "left" + (extra ? " · +" + extra + " % extra time" : " of " + clock(total).replace(/:00$/, ""));
+      if (left <= 0 && (!s.paused || !rest)) { clearInterval(iv); u.announce("Time is up."); finish(Math.round(paper.allowed)); }
     }
     var iv = setInterval(tick, 1000);
+    if (KOS.view && KOS.view.onDispose) KOS.view.onDispose(function () { clearInterval(iv); });
     function go(n) {
       var now = Date.now();
       if (!s.paused) s.spent[q.n] = (s.spent[q.n] || 0) + (now - (s.enteredAt || now));
@@ -229,61 +242,208 @@
       u.announce("Question " + n + " of " + paper.questions.length + ", " + u.plural(nq.marks, "mark") + ", budget " + Math.round(bp.perMark * nq.marks) + " minutes.");
       KOS.rerender();
     }
+    function flag() { if (s.flags[q.n]) delete s.flags[q.n]; else s.flags[q.n] = 1; if (A && rec) A.flag(rec, String(q.n), !!s.flags[q.n]); saveSess(s); KOS.rerender(); }
     var nav = el("div", { class: "k-ex-tnav", role: "group", "aria-label": "Questions", "data-ui": "exams.tnav" }, paper.questions.map(function (x) {
       var st = x.n === q.n ? "cur" : s.flags[x.n] ? "flag" : s.spent[x.n] ? "done" : null;
-      return el("button", { type: "button", class: "k-ex-tnav-b", "data-state": st, "aria-current": x.n === q.n ? "true" : null, "aria-label": "Question " + x.n + (s.flags[x.n] ? ", flagged" : ""), text: String(x.n), onclick: function () { if (x.n !== q.n) go(x.n); } });
+      var lab = paper.format === "aqa" ? ("0" + x.n).slice(-2) : String(x.n);
+      return el("button", { type: "button", class: "k-ex-tnav-b", "data-state": st, "aria-current": x.n === q.n ? "true" : null, "aria-label": "Question " + x.n + (s.flags[x.n] ? ", flagged" : ""), text: lab, onclick: function () { if (x.n !== q.n) go(x.n); } });
     }));
-    var pauseB = u.btn(s.paused ? "Resume" : "Pause", "sm", function () {
+    var pauseB = u.btn(s.paused ? "▶ Resume" : "Ⅱ Pause", "sm", function () {
       var now = Date.now();
       if (s.paused) { s.pausedMs = (s.pausedMs || 0) + (now - s.paused); s.paused = null; s.enteredAt = now; if (A && rec) A.resumeClock(rec, now); u.announce("Resumed."); }
-      else { s.spent[q.n] = (s.spent[q.n] || 0) + (now - (s.enteredAt || now)); s.paused = now; s.breaks = (s.breaks || 0) + 1; if (A && rec) A.pause(rec, now); u.announce(E().prefs().restBreaks ? "Paused. The clock stops for your rest break." : "Paused. The pause is logged; the paper's clock keeps running."); }
+      else { s.spent[q.n] = (s.spent[q.n] || 0) + (now - (s.enteredAt || now)); s.paused = now; s.breaks = (s.breaks || 0) + 1; if (A && rec) A.pause(rec, now); u.announce(E().prefs().restBreaks ? "Paused. The paper is hidden and the clock stops for your rest break." : "Paused. The paper is hidden; the pause is logged and the paper's clock keeps running."); }
       saveSess(s); KOS.rerender();
     }, { "data-ui": "exams.tpause" });
-    var endB = u.btn("End and mark", "primary sm", function () {
-      var now = Date.now();
-      if (!s.paused) s.spent[q.n] = (s.spent[q.n] || 0) + (now - (s.enteredAt || now));
-      saveSess(s);
-      if (A && rec) A.end(rec, now);
-      tally(a, paper, { timed: true, mins: Math.max(1, Math.round(used(s) / 60000)), sess: s });
+    var endB = u.btn("Finish", "quiet sm", function () {
+      KOS.ui.confirm({ title: "Finish the paper?", body: "The clock stops and you mark it beside your answers.", confirm: "Finish" }, function () { finish(Math.max(1, Math.round(used(s) / 60000))); });
     }, { "data-ui": "exams.tend" });
-    var top = el("div", { class: "k-ex-tbar", "data-ui": "exams.tbar" }, [
-      el("div", {}, [u.eyebrow(paper.title + " · timed"), u.muted("Written by KurenaiOS, not a board paper", "k-ex-small")]),
-      el("span", { class: "k-ex-grow" }), KOS.ui.scroller ? KOS.ui.scroller(nav, { keepRole: true }) : nav,
+    var bar = el("div", { class: "k-ex-sitbar", "data-ui": "exams.tbar" }, [
+      el("div", { class: "k-ex-sittitle" }, [el("b", { text: paper.title + (paper.org ? " · " + paper.org : "") }), u.muted("Written by KurenaiOS, not a board paper", "k-ex-small")]),
+      el("span", { class: "k-ex-grow" }),
       el("div", { class: "k-ex-tclockbox" }, [clockEl, leftEl]), pauseB, endB]);
-    var habit = KOS.examCompanion.habitFor(bp.board, q.parts[0].q);
-    var budget = bp.perMark * q.marks;
-    var qcard = u.card([
-      el("div", { class: "k-ex-inline" }, [el("b", { class: "k-mono k-ex-tq-n", text: String(q.n) }), u.muted(q.title + " · " + u.plural(q.marks, "mark")), el("span", { class: "k-ex-grow" }),
-        u.btn(s.flags[q.n] ? "⚑ Flagged" : "⚑ Flag", "quiet sm", function () { if (s.flags[q.n]) delete s.flags[q.n]; else s.flags[q.n] = 1; if (A && rec) A.flag(rec, String(q.n), !!s.flags[q.n]); saveSess(s); KOS.rerender(); }, { "aria-pressed": s.flags[q.n] ? "true" : "false", "data-ui": "exams.tflag" })]),
-      paper.context ? el("details", { class: "k-ex-tq-case", "data-ui": "exams.tcontext" }, [el("summary", { text: paper.org || "The scenario" }), el("p", { text: paper.context })]) : null,
-      q.ctx ? html("p", "k-ex-tq-ctx", inline(q.ctx)) : null,
-      el("div", { class: "k-ex-tq-parts", "data-state": s.paused ? "paused" : null }, q.parts.map(function (p, j) {
+    var body = el("div", { class: "k-ex-sitbody" });
+    if (s.paused) {
+      body.appendChild(el("div", { class: "k-ex-sitpaused", "data-ui": "exams.tpaused" }, [el("span", { class: "k-kanji", lang: "ja", "aria-hidden": "true", text: "休" }),
+        el("b", { text: "Paused" }), u.muted(rest ? "The paper is hidden and the clock is stopped." : "The paper is hidden. The pause is logged; the paper's clock keeps running."),
+        u.btn("▶ Resume", "primary", function () { pauseB.click(); })]));
+    } else {
+      var col = el("div", { class: "k-ex-sitcol", "data-ui": "exams.tq" });
+      if (paper.context) {
+        var det = el("details", { class: "k-ex-tq-case", "data-ui": "exams.tcontext" }, [el("summary", {}, [el("span", { class: "k-xs-celllabel", text: "The context " }), el("span", { text: paper.org || "The scenario" })]), el("p", { text: paper.context })]);
+        if (paper.contextTable) det.appendChild(tableEl(paper.contextTable));
+        col.appendChild(det);
+      }
+      var budget = bp.perMark * q.marks, spent = (s.spent[q.n] || 0) + (Date.now() - (s.enteredAt || Date.now()));
+      col.appendChild(el("div", { class: "k-ex-inline k-ex-sitq" }, [el("b", { class: "k-mono k-ex-tq-n", text: paper.format === "aqa" ? ("0" + q.n).slice(-2) : String(q.n) }),
+        u.muted(q.title + " · " + u.plural(q.marks, "mark") + " · budget " + Math.round(budget) + " min" + (spent > 60000 ? " · " + Math.floor(spent / 60000) + " min so far" : "")), el("span", { class: "k-ex-grow" }),
+        u.btn(s.flags[q.n] ? "⚑ Flagged" : "⚑ Flag", "quiet sm", flag, { "aria-pressed": s.flags[q.n] ? "true" : "false", "data-ui": "exams.tflag" })]));
+      if (q.ctx) col.appendChild(html("p", "k-ex-tq-ctx", inline(q.ctx)));
+      if (q.table) col.appendChild(tableEl(q.table));
+      col.appendChild(el("div", { class: "k-ex-tq-parts" }, q.parts.map(function (p, j) {
         return el("div", { class: "k-ex-tq-part", "data-ui": "exams.tpart" }, [partLabel(paper, q, p, j), partBody(p), el("span", { class: "k-mono k-ex-muted k-ex-tq-mk", text: marksTag(paper, p.marks) }),
-          s.paused ? null : answerPad(a, paper, q, p, j, s)].filter(Boolean));
-      })),
-      el("div", { class: "k-ex-inline" }, [q.n > 1 ? u.btn("‹ Question " + (q.n - 1), "sm", function () { go(q.n - 1); }) : null, el("span", { class: "k-ex-grow" }),
-        q.n < paper.questions.length ? u.btn("Question " + (q.n + 1) + " ›", "primary sm", function () { go(q.n + 1); }, { "data-ui": "exams.tnext" }) : u.btn("End and mark", "primary sm", function () { endB.click(); })].filter(Boolean))
-    ].filter(Boolean), "k-ex-fill", "exams.tq");
-    var flagged = paper.questions.filter(function (x) { return s.flags[x.n]; });
-    var done = paper.questions.filter(function (x) { return s.spent[x.n] && x.n !== q.n; });
-    var spentAll = done.reduce(function (t, x) { return t + (s.spent[x.n] || 0); }, 0), marksDone = done.reduce(function (t, x) { return t + x.marks; }, 0);
-    var side = el("div", { class: "k-ex-side" }, [
-      u.card([u.chead("This question", ""), el("div", { class: "k-ex-grid-even" }, [el("div", {}, [u.eyebrow("Budget"), el("div", { class: "k-mono k-ex-tfig", text: Math.floor(budget) + " m " + Math.round(budget % 1 * 60) + " s" }), u.muted((Math.round(bp.perMark * 10) / 10) + " min a mark", "k-ex-small")]),
-        el("div", {}, [u.eyebrow("Spent"), spentEl, u.muted("so far", "k-ex-small")])]),
-        habit ? el("div", { class: "k-ex-habit" }, [el("b", { text: habit.type + ": " }), habit.steps.join(" ")]) : null].filter(Boolean)),
-      u.card([u.chead("Pace", done.length ? "Q" + done.map(function (x) { return x.n; }).join(", ") + " seen" : ""),
-        marksDone && spentAll >= 60000 ? el("div", { class: "k-ex-inline" }, [el("b", { class: "k-mono k-ex-tfig", text: String(Math.round(spentAll / 60000 / marksDone * 10) / 10) }), u.muted("min a mark against " + (Math.round(bp.perMark * 10) / 10))]) : u.muted("Pace shows after a minute on the paper."),
-        s.breaks ? u.muted(u.plural(s.breaks, "pause") + " logged", "k-ex-small") : null].filter(Boolean)),
-      u.card([u.chead("Flagged", flagged.length ? String(flagged.length) : "")].concat(flagged.length ? flagged.map(function (x) {
-        return el("div", { class: "k-ex-ptr" }, [el("span", { class: "k-mono", text: "Q" + x.n }), u.muted(x.title), el("span", { class: "k-ex-grow" }), u.linkBtn("Go", function () { go(x.n); })]);
-      }) : [u.muted("Flag a question to come back to it.")])),
-      u.card([u.chead("Allowed", ""), u.kv("Calculator", a.calculator === "none" ? "Not allowed" : "Your own"),
-        u.kv("Breaks", E().prefs().restBreaks ? "Rest breaks stop the clock" : "A pause is logged, not hidden"),
-        el("span", { class: "k-ex-grow" }), bp.board ? u.btn("Open the playbook", "sm", function () { G().playbook(bp.board, a, "booklet"); }) : null].filter(Boolean), "k-ex-fill")]);
-    var wrap = el("div", { class: "k-ex-page k-ex-timed", "data-ui": "exams.timed", style: "--s: " + u.hueOf(a) }, [top, el("div", { class: "k-ex-grid2" }, [el("div", { class: "k-ex-col" }, [qcard]), side])]);
-    main.appendChild(wrap);
+          answerPad(a, paper, q, p, j, s)]);
+      })));
+      col.appendChild(el("div", { class: "k-ex-inline" }, [q.n > 1 ? u.btn("‹ Question " + (q.n - 1), "sm", function () { go(q.n - 1); }) : null, el("span", { class: "k-ex-grow" }),
+        q.n < paper.questions.length ? u.btn("Question " + (q.n + 1) + " ›", "primary sm", function () { go(q.n + 1); }, { "data-ui": "exams.tnext" }) : u.btn("Finish", "primary sm", function () { endB.click(); })].filter(Boolean)));
+      body.appendChild(col);
+    }
+    var seen = paper.questions.filter(function (x) { return s.spent[x.n] || x.n === q.n; }).length;
+    var foot = el("div", { class: "k-ex-sitfoot" }, [u.muted(seen + " of " + paper.questions.length), KOS.ui.scroller ? KOS.ui.scroller(nav, { keepRole: true }) : nav, el("span", { class: "k-ex-grow" }),
+      u.btn("⚑ Come back", "sm", flag, { "aria-pressed": s.flags[q.n] ? "true" : "false", "data-ui": "exams.tcomeback" })]);
+    var stage = el("div", { class: "k-ex-page k-ex-sit", "data-ui": "exams.timed", role: "region", "aria-label": paper.title + ", timed", style: "--s: " + u.hueOf(a) }, [bar, body, foot]);
+    main.appendChild(stage);
     tick();
-    typeset(wrap);
+    typeset(stage);
+  }
+
+  /* ================= marking beside the answer (47d) =================
+     One part at a time: your answer on the left (what you typed, the pages
+     you wrote, or "on paper"), the scheme on the right — each mark point a
+     chip naming it, an A greyed with "needs M1" until its M is ticked, the
+     part's total. A levels-of-response part is marked by choosing a level
+     against its descriptor, then a mark inside it, with the indicative
+     content as a list to tick (evidence, not a sum). Finish logs ONE
+     attempt (invariant 124) and opens its Review. The marks in progress
+     are per device, in the session, so a reload keeps them. */
+  function flatParts(paper) {
+    var out = [];
+    paper.questions.forEach(function (q) { q.parts.forEach(function (p, j) { out.push({ q: q, p: p, j: j, key: q.n + "|" + (p.label || j) }); }); });
+    return out;
+  }
+  /* a part's name as marking says it: AQA's labels already carry the
+     question (01.1), the others are the question's number and a letter */
+  function pname(q, p) { var l = String(p.label || ""); return /^\d/.test(l) ? l : q.n + l; }
+  function levelsOf(p) {
+    return (p.levels || []).map(function (t) {
+      var m = /^(Level\s*\d+)\s*\((\d+)\s*[–-]\s*(\d+)\s*marks?\)\s*:?\s*(.*)$/i.exec(String(t));
+      return m ? { name: m[1], lo: +m[2], hi: +m[3], text: m[4] } : null;
+    }).filter(Boolean);
+  }
+  function markPage(main, a, paper, s) {
+    var u = U(), M = s.marking, parts = flatParts(paper);
+    M.ticks = M.ticks || {};
+    var at = Math.max(0, Math.min(parts.length - 1, M.at || 0)), cur = parts[at], q = cur.q, p = cur.p, j = cur.j;
+    function tk(qn, jj) { M.ticks[qn] = M.ticks[qn] || {}; return (M.ticks[qn][jj] = M.ticks[qn][jj] || {}); }
+    function scoreAll() {
+      var t = 0;
+      parts.forEach(function (x) { var m = M.ticks[x.q.n] && M.ticks[x.q.n][x.j]; if (m) t += P().partScore(x.p, m); });
+      return t;
+    }
+    function save() { saveSess(s); }
+    function goPart(n) { M.at = n; save(); KOS.rerender(); }
+    var predIn = el("input", { type: "number", class: "k-input k-ex-tally-pred", min: "0", max: String(paper.marks), "aria-label": "What you predicted before marking", placeholder: "—", value: M.predicted != null ? String(M.predicted) : "",
+      oninput: function () { M.predicted = predIn.value === "" ? null : +predIn.value; save(); } });
+    var logB = u.btn("Finish and log", "primary sm", function () { logIt(); }, { "data-ui": "exams.tally-log" });
+    var bar = el("div", { class: "k-ex-sitbar", "data-ui": "exams.mbar" }, [
+      el("div", { class: "k-ex-sittitle" }, [el("b", { text: "Marking · " + paper.title }), u.muted("Tick each mark you earned beside its line of the scheme", "k-ex-small")]),
+      el("span", { class: "k-ex-grow" }),
+      el("label", { class: "k-ex-inline k-ex-small" }, [el("span", { text: "You predicted" }), predIn]),
+      el("div", { class: "k-ex-tclockbox" }, [el("b", { class: "k-mono k-ex-tclock", text: scoreAll() + "/" + paper.marks }), u.muted("so far · " + (at + 1) + " of " + parts.length)]),
+      u.btn("Mark later", "quiet sm", function () { KOS.show("exams", { id: a.id, tab: "papers" }); }, { "data-ui": "exams.mark-later" }), logB]);
+    /* the answer */
+    var typed = (s.typed || {})[cur.key];
+    var stem = q.ctx || null;
+    var ans = el("div", { class: "k-ex-mans", "data-ui": "exams.mark-answer" }, [
+      el("div", { class: "k-ex-inline" }, [el("b", { class: "k-mono", text: pname(q, p) }), html("span", "k-ex-muted k-ex-small", inline(String(p.q || "").slice(0, 160)) + " " + KOS.ui.esc(marksTag(paper, p.marks))), el("span", { class: "k-ex-grow" }), u.muted("Your answer")])]);
+    if (stem) ans.appendChild(html("p", "k-ex-mstem", inline(String(stem))));
+    var sheet = el("div", { class: "k-ex-msheet" });
+    ans.appendChild(sheet);
+    if (typed && String(typed).trim()) sheet.appendChild(el("pre", { class: "k-ex-mtyped", text: typed }));
+    var I = KOS.ink, item = s.rec ? "attempt:" + s.rec + ":" + cur.key : null;
+    var docs = I && I.allDocs && item ? I.allDocs().filter(function (d) { return d.item === item; }) : [];
+    docs.forEach(function (d) {
+      I.listPages(d.key, function (err, pages) {
+        (pages || []).filter(function (pg) { return (pg.items || []).length; }).forEach(function (pg) {
+          if (KOS.inkExport && KOS.inkExport.pageCanvas) KOS.inkExport.pageCanvas(pg, { px: 900 }, function (c) { if (c && sheet.isConnected) { c.className = "k-ex-mink"; sheet.appendChild(c); } });
+        });
+      });
+    });
+    if (!(typed && String(typed).trim()) && !docs.length) sheet.appendChild(u.muted("Nothing written here in the app: mark it from your paper."));
+    /* the scheme */
+    var t = tk(q.n, j);
+    var scheme = el("div", { class: "k-ex-mscheme", "data-ui": "exams.tally exams.tally-row" });
+    var lv = levelsOf(p);
+    function chosenMark() { return P().partScore(p, t); }
+    if (lv.length) {
+      var m0 = chosenMark(), curL = lv.filter(function (L) { return m0 >= L.lo && m0 <= L.hi; })[0] || null;
+      scheme.appendChild(el("div", { class: "k-ex-inline" }, [el("b", { text: "Choose the level" }), el("span", { class: "k-ex-grow" }), el("b", { class: "k-mono", text: m0 + " / " + p.marks })]));
+      lv.forEach(function (L) {
+        var on = curL === L;
+        scheme.appendChild(el("button", { type: "button", class: "k-ex-mlevel", "aria-pressed": on ? "true" : "false", "data-ui": "exams.mark-level",
+          onclick: function () { setMark(L.hi); } }, [el("b", { text: L.name + " · " + L.lo + "–" + L.hi }), el("span", { text: L.text })]));
+        if (on) scheme.appendChild(el("div", { class: "k-ex-inline k-ex-mmarks" }, [u.muted("Then a mark inside it")].concat(range(L.lo, L.hi).map(function (m) {
+          return el("button", { type: "button", class: "k-ex-mchip", "aria-pressed": m === m0 ? "true" : "false", "data-ui": "exams.mchip", "aria-label": "Mark " + m, text: String(m), onclick: function () { setMark(m); } });
+        }))));
+      });
+      scheme.appendChild(el("button", { type: "button", class: "k-ex-mlevel", "aria-pressed": m0 === 0 ? "true" : "false", onclick: function () { setMark(0); } }, [el("b", { text: "0 marks" }), el("span", { text: "Nothing worthy of credit." })]));
+      if ((p.indicative || []).length) {
+        M.ind = M.ind || {};
+        scheme.appendChild(el("div", { class: "k-xs-celllabel", text: "Indicative content · the ticks are evidence, not a sum" }));
+        p.indicative.forEach(function (line, k) {
+          var id = "k-ex-ind-" + q.n + "-" + j + "-" + k, kk = cur.key + "#" + k;
+          var box = el("input", { type: "checkbox", id: id, checked: M.ind[kk] ? "" : null, onchange: function () { M.ind[kk] = box.checked ? 1 : 0; save(); } });
+          scheme.appendChild(el("label", { class: "k-xs-checkrow", for: id }, [box, html("span", "", inline(line))]));
+        });
+      }
+    } else {
+      var got = chosenMark();
+      scheme.appendChild(el("div", { class: "k-ex-inline" }, [el("b", { text: "The scheme" }), el("span", { class: "k-ex-grow" }), el("b", { class: "k-mono", "data-ui": "exams.mark-part-total", text: got + " / " + p.marks })]));
+      var byLine = {}, loose = [];
+      p.chips.forEach(function (c) { if (c.line == null) loose.push(c); else (byLine[c.line] = byLine[c.line] || []).push(c); });
+      (p.ms || []).forEach(function (line, li) {
+        scheme.appendChild(el("div", { class: "k-ex-markline", "data-ui": "exams.tally-line" }, [el("span", { class: "k-ex-chips" }, (byLine[li] || []).map(chipBtn)),
+          html("span", "k-ex-tally-ms", KOS.content.inline(KOS.content.aqaWords(line)))]));
+      });
+      if (loose.length) scheme.appendChild(el("div", { class: "k-ex-chips" }, loose.map(chipBtn)));
+      if (p.guide) scheme.appendChild(html("p", "k-ex-mguide", inline(p.guide)));
+    }
+    function chipBtn(c) {
+      var on = !!t[c.id], blocked = !!(c.needs && !t[c.needs]);
+      var need = blocked ? p.chips.filter(function (x) { return x.id === c.needs; })[0] : null;
+      return el("button", { type: "button", class: "k-ex-mchip", "aria-pressed": on ? "true" : "false", disabled: blocked && !on ? "" : null, "data-ui": "exams.mchip",
+        "aria-label": pname(q, p) + " " + c.label + (on ? ", earned" : "") + (need ? ", needs " + need.label : ""),
+        onclick: function () {
+          if (t[c.id]) { delete t[c.id]; p.chips.forEach(function (d) { if (d.needs === c.id) delete t[d.id]; }); } else t[c.id] = true;
+          save(); KOS.rerender();
+          u.announce(pname(q, p) + ", " + P().partScore(p, t) + " of " + p.marks + ".");
+        } }, [on ? "✓ " : "○ ", c.label, need ? el("span", { class: "k-ex-mneed", text: " · needs " + need.label }) : null].filter(Boolean));
+    }
+    function range(lo, hi) { var r = []; for (var m = lo; m <= hi; m++) r.push(m); return r; }
+    function setMark(m) {
+      Object.keys(t).forEach(function (k) { delete t[k]; });
+      for (var k = 0; k < m; k++) t["m" + k] = true;
+      save(); KOS.rerender();
+      u.announce(pname(q, p) + ", " + m + " of " + p.marks + ".");
+    }
+    var prev = parts[at - 1], next = parts[at + 1];
+    var nav = el("div", { class: "k-ex-inline k-ex-mnav" }, [prev ? u.btn("‹ " + pname(prev.q, prev.p), "quiet sm", function () { goPart(at - 1); }, { "data-ui": "exams.mark-prev" }) : el("span"), el("span", { class: "k-ex-grow" }),
+      next ? u.btn("Next part · " + pname(next.q, next.p) + " ›", "primary", function () { goPart(at + 1); }, { "data-ui": "exams.mark-next" }) : u.btn("Finish and log", "primary", function () { logIt(); })]);
+    var right = el("div", { class: "k-ex-mright" }, [scheme, el("span", { class: "k-ex-grow" }), nav]);
+    var stage = el("div", { class: "k-ex-page k-ex-sit k-ex-marking", "data-ui": "exams.marking", role: "region", "aria-label": "Marking " + paper.title }, [bar,
+      el("div", { class: "k-ex-msplit" }, [ans, right])]);
+    main.appendChild(stage);
+    typeset(stage);
+    function logIt() {
+      var fields = P().toAttempt(paper, M.ticks, { timed: !!M.timed, mins: M.mins || null, predicted: M.predicted == null ? null : M.predicted, breaks: s.breaks || 0 });
+      var e = KOS.tracker.add(fields);
+      if (s.rec && KOS.attempts) {
+        var byQ = {};
+        paper.questions.forEach(function (qq) {
+          var any = false, g = 0;
+          qq.parts.forEach(function (pp, jj) { var m = M.ticks[qq.n] && M.ticks[qq.n][jj]; if (m && Object.keys(m).length) { any = true; g += P().partScore(pp, m); } });
+          if (any) byQ[String(qq.n)] = g;
+        });
+        KOS.attempts.setMarks(s.rec, byQ, "self", e && e.uid);
+      }
+      if (s.rec && s.typed && Object.keys(s.typed).length) {
+        var ui = KOS.store.state.ui, tm = ui.examTyped = ui.examTyped && typeof ui.examTyped === "object" ? ui.examTyped : {};
+        tm[s.rec] = s.typed;
+        Object.keys(tm).slice(0, Math.max(0, Object.keys(tm).length - 12)).forEach(function (k) { delete tm[k]; });
+      }
+      clearSess();
+      u.announce("Logged: " + (fields.marks != null ? fields.marks + " of " + fields.max : "not marked") + ".");
+      KOS.show("exams", { id: a.id, tab: "review", sub: "a:" + e.uid });
+    }
   }
 
   /* the part's number as its board prints it (47c): AQA's boxed 0 4 . 1,

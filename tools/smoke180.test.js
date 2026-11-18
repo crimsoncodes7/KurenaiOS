@@ -173,6 +173,7 @@ step("D · the timed paper records, and the tally puts marks on it", async () =>
   if (!K.exams.prefs().restBreaks) assert(/\d/.test(clock) && /paused/.test(clock), "EX-32: a logged pause keeps the clock (" + clock + ")");
   app.document.querySelector("[data-ui~='exams.tpause']").click(); await app.settle();
   app.document.querySelector("[data-ui~='exams.tend']").click(); await app.settle();
+  app.document.querySelector("[data-ui~='ui.confirm-yes']").click(); await app.settle();
   const chip = app.document.querySelector("[data-ui~='exams.mchip']:not([disabled])");
   chip.click(); await app.settle();
   app.document.querySelector("[data-ui~='exams.tally-log']").click();
