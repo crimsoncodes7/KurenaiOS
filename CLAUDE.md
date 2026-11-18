@@ -24,7 +24,7 @@ chronological diary here.
   [`docs/RELEASES.md`](docs/RELEASES.md), newest first; a new release adds
   its entry there and changes only this line and the next here.
 - Service-worker version: `kos-integrity-22`
-- Required smoke gate: 166 / 166 suites (`""`, 2–156, 160–164 and 180–184) — `npm test`;
+- Required smoke gate: 167 / 167 suites (`""`, 2–156, 160–164 and 180–185) — `npm test`;
   what each suite holds: [`docs/SMOKE.md`](docs/SMOKE.md). New suites on this
   account are numbered from 180 (see `docs/HANDOFF.md`).
 - Backend as deployed: Edge Functions `ai-chat` (version 6: images for
@@ -57,7 +57,7 @@ from `file://`. Use HTTP for PWA, cloud and browser-audit work.
 python3 tools/dev_server.py 8765       # http.server with no-store, so edits show on one reload
 npm install jsdom fake-indexeddb       # test-only dependencies, once
 npm test                               # the whole smoke gate in parallel (tools/run_smoke.mjs; --skip, --repeat)
-for i in "" {2..156} {160..164} {180..184}; do node "tools/smoke${i}.test.js"; done   # the same, one at a time
+for i in "" {2..156} {160..164} {180..185}; do node "tools/smoke${i}.test.js"; done   # the same, one at a time
 node tools/fill_check.mjs              # every figure and part to fill in (5.19): figures compile, SQL runs, predicts run
 node tools/gen_moved_cards.mjs         # js/data/moved-cards.js: Maths' several-step cards that live as exam questions (5.19; --check)
 node tools/ja_valid_check.mjs          # Japanese: kana, conjugation, every validator, strokes on every kana

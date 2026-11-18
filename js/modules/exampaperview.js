@@ -257,10 +257,10 @@
         u.btn(s.flags[q.n] ? "⚑ Flagged" : "⚑ Flag", "quiet sm", function () { if (s.flags[q.n]) delete s.flags[q.n]; else s.flags[q.n] = 1; if (A && rec) A.flag(rec, String(q.n), !!s.flags[q.n]); saveSess(s); KOS.rerender(); }, { "aria-pressed": s.flags[q.n] ? "true" : "false", "data-ui": "exams.tflag" })]),
       paper.context ? el("details", { class: "k-ex-tq-case", "data-ui": "exams.tcontext" }, [el("summary", { text: paper.org || "The scenario" }), el("p", { text: paper.context })]) : null,
       q.ctx ? html("p", "k-ex-tq-ctx", inline(q.ctx)) : null,
-      el("div", { class: "k-ex-tq-parts", "data-state": s.paused ? "paused" : null }, q.parts.map(function (p) {
-        return el("div", { class: "k-ex-tq-part" }, [el("b", { text: p.label }), partBody(p), el("span", { class: "k-mono k-ex-muted", text: marksTag(paper, p.marks) })]);
+      el("div", { class: "k-ex-tq-parts", "data-state": s.paused ? "paused" : null }, q.parts.map(function (p, j) {
+        return el("div", { class: "k-ex-tq-part", "data-ui": "exams.tpart" }, [partLabel(paper, q, p, j), partBody(p), el("span", { class: "k-mono k-ex-muted k-ex-tq-mk", text: marksTag(paper, p.marks) }),
+          s.paused ? null : answerPad(a, paper, q, p, j, s)].filter(Boolean));
       })),
-      el("div", { class: "k-ex-tq-ans" }, [u.muted("Your working stays on paper; mark it after with the tally.", "k-ex-small"), el("div", { class: "k-ex-lines", style: "--n: 10" })]),
       el("div", { class: "k-ex-inline" }, [q.n > 1 ? u.btn("‹ Question " + (q.n - 1), "sm", function () { go(q.n - 1); }) : null, el("span", { class: "k-ex-grow" }),
         q.n < paper.questions.length ? u.btn("Question " + (q.n + 1) + " ›", "primary sm", function () { go(q.n + 1); }, { "data-ui": "exams.tnext" }) : u.btn("End and mark", "primary sm", function () { endB.click(); })].filter(Boolean))
     ].filter(Boolean), "k-ex-fill", "exams.tq");
@@ -284,6 +284,41 @@
     main.appendChild(wrap);
     tick();
     typeset(wrap);
+  }
+
+  /* the part's number as its board prints it (47c): AQA's boxed 0 4 . 1,
+     else the letter after the question's number */
+  function partLabel(paper, q, p, j) {
+    var lab = String(p.label || "");
+    if (paper.format === "aqa" && /^\d{2}\.\d$/.test(lab)) {
+      return el("span", { class: "k-ex-aqanum", "aria-label": "Question " + lab }, lab.split("").map(function (ch) {
+        return ch === "." ? el("i", { text: "." }) : el("b", { class: "k-mono", text: ch });
+      }));
+    }
+    return el("b", { text: lab });
+  }
+  /* an answer pad under every part (47b; plan §7.3): Type · Write · On
+     paper, through the study's pad (KOS.inkPad.answer). What is typed is
+     kept per device with the session; a stroke or a key is an event in
+     the attempt's journal (KOS.attempts), tied to this question. The ink
+     doc names the attempt and the part, so the review pack finds it. */
+  function answerPad(a, paper, q, p, j, s) {
+    var host = el("div", { class: "k-ex-tq-pad", "data-ui": "exams.tpad" });
+    if (!KOS.inkPad) return host;
+    var key = q.n + "|" + (p.label || j);
+    s.typed = s.typed || {};
+    var ta = el("textarea", { class: "k-input k-ex-tq-ta", rows: String(Math.min(12, 2 + p.marks)), "aria-label": "Your answer to " + q.n + " " + (p.label || ""), placeholder: "Your answer…" });
+    ta.value = s.typed[key] || "";
+    var A = KOS.attempts, rec = s.rec || null, keep = null;
+    ta.addEventListener("input", function () {
+      s.typed[key] = ta.value;
+      if (A && rec) A.keys(rec, String(q.n), 1);
+      clearTimeout(keep); keep = setTimeout(function () { saveSess(s); }, 600);
+    });
+    var ans = KOS.inkPad.answer(host, { textarea: ta, marks: p.marks, item: rec ? "attempt:" + rec + ":" + key : null, title: "Q" + q.n + " " + (p.label || ""), q: key });
+    /* the doc is tied to the question before its first stroke lands */
+    host.addEventListener("pointerdown", function () { var pd = ans.pad(); if (pd && A && rec) A.bindDoc(rec, pd.key, String(q.n)); }, true);
+    return host;
   }
 
   /* ================= the tally (29t) ================= */
@@ -371,6 +406,13 @@
               if (any) byQ[String(q.n)] = got;
             });
             KOS.attempts.setMarks(o.sess.rec, byQ, "self", e && e.uid);
+          }
+          /* what was typed stays on this device with the attempt, for the
+             review pack's <typed_answer> (plan §8.3) */
+          if (o.sess && o.sess.rec && o.sess.typed && Object.keys(o.sess.typed).length) {
+            var ui = KOS.store.state.ui, tm = ui.examTyped = ui.examTyped && typeof ui.examTyped === "object" ? ui.examTyped : {};
+            tm[o.sess.rec] = o.sess.typed;
+            Object.keys(tm).slice(0, Math.max(0, Object.keys(tm).length - 12)).forEach(function (k) { delete tm[k]; });
           }
           if (o.sess) clearSess();
           ov.close();

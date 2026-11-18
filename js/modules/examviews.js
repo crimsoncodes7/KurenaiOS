@@ -407,9 +407,10 @@
     reals.forEach(function (a) { var s = X.seriesOf(a); if (s && seriesList.indexOf(s) === -1) seriesList.push(s); });
     seriesList.sort().reverse();
     var cur = series && seriesList.indexOf(series) !== -1 ? series : seriesList[0];
-    main.appendChild(KOS.ui.pageHeader({ kicker: "試 · Results", title: cur ? (cur.slice(5) === "06" ? "Summer " + cur.slice(0, 4) : u.MONTHS[+cur.slice(5) - 1] + " " + cur.slice(0, 4)) + " results" : "Results", className: "k-ex-head",
-      sub: "One page for the series: the grade, what was predicted, and one line on why",
-      actions: [u.btn("Log a result", "primary", function () { KOS.trackerLog({}, function () { KOS.rerender(); }); })] }));
+    /* the rework (45a): Results is a tab of All exams, under its one tab row */
+    u.head(main, "results");
+    main.appendChild(KOS.ui.sectionHeader ? KOS.ui.sectionHeader({ title: cur ? (cur.slice(5) === "06" ? "Summer " + cur.slice(0, 4) : u.MONTHS[+cur.slice(5) - 1] + " " + cur.slice(0, 4)) + " results" : "Results",
+      sub: "One page for the series: the grade, what was predicted, and one line on why" }) : el("h2", { text: "Results" }));
     var wrap = el("div", { class: "k-ex-page", "data-ui": "exams.results" });
     main.appendChild(wrap);
     if (!cur) { wrap.appendChild(KOS.ui.emptyState({ compact: true, mark: "試", title: "No series has been sat yet", body: "This page fills in after your real exams." })); return; }

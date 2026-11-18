@@ -541,7 +541,74 @@
   }
   function evidence(t) { return { met: (t.met || []).length, of: 2, last: t.last != null ? t.last : null }; }
 
+  /* ---------------- scope from a list (45e) ----------------
+     PURE. Each pasted line is matched to specification nodes by the words
+     it shares with their titles (an abbreviation is spelled out first; a
+     line joined by "and" may match two). A line with two near-equal
+     candidates is AMBIGUOUS and waits for a choice; a line with none is
+     kept, never dropped; year headings ("Y1:") are skipped and listed. */
+  var STOP = { and: 1, the: 1, of: 1, a: 1, an: 1, to: 1, in: 1, on: 1, for: 1, with: 1, its: 1, uses: 1, use: 1, how: 1, what: 1, "&": 1 };
+  var ALIAS = { oop: "object oriented programming", "i/o": "input output", io: "input output", sql: "structured query language",
+    fsm: "finite state machines", bst: "binary search tree", adt: "abstract data types", cpu: "processor", ram: "memory",
+    gdpr: "data protection", ai: "artificial intelligence", ml: "machine learning", "6vs": "six characteristics" };
+  function stem(w) {
+    if (w.length <= 4) return w.replace(/s$/, "");
+    return w.replace(/ies$/, "y").replace(/(ions|ion|ive|ing|al|es|s)$/, "");
+  }
+  function words(t) {
+    var s = " " + String(t || "").toLowerCase().replace(/[()\[\],;:.!?’'"]/g, " ") + " ";
+    Object.keys(ALIAS).forEach(function (k) { s = s.split(" " + k + " ").join(" " + ALIAS[k] + " "); });
+    return s.replace(/[-/]/g, " ").split(/\s+/).filter(function (w) { return w && !STOP[w] && w.length > 1; }).map(stem);
+  }
+  function scoreNode(ws, n) {
+    var tw = words(n.title), hit = 0;
+    ws.forEach(function (w) { if (tw.indexOf(w) !== -1) hit++; });
+    if (!hit) return 0;
+    /* what the line says, covered; a title saying far more counts a little
+       less; a title that IS the line wins outright */
+    var exact = hit === ws.length && tw.length === ws.length ? 0.3 : 0;
+    return hit / ws.length - Math.max(0, tw.length - ws.length) * 0.02 + (n.level === "leaf" ? 0 : 0.01) + exact;
+  }
+  function bestFor(phrase, sid, root) {
+    var ws = words(phrase);
+    if (!ws.length) return [];
+    /* an IT unit's exam matches inside its unit */
+    var nodes = KOS.spec.search("", { subject: sid, level: ["unit", "parent", "leaf"], limit: 5000 })
+      .filter(function (n) { return !root || n.ref === root || n.ref.indexOf(root + ".") === 0; });
+    return nodes.map(function (n) { return { n: n, s: scoreNode(ws, n) }; }).filter(function (x) { return x.s >= 0.5; })
+      .sort(function (x, y) { return y.s - x.s || x.n.leafCount - y.n.leafCount; });
+  }
+  function matchList(text, sid, root) {
+    var out = [], skipped = [];
+    String(text || "").split(/\n+/).forEach(function (raw) {
+      var line = raw.replace(/^[\s•\-*·\d.)]+/, "").trim();
+      if (!line) return;
+      if (/^(y(ear)?\s*\d+|paper\s*\d+)\s*:?$/i.test(line)) { skipped.push(line); return; }
+      line = line.replace(/^(y(ear)?\s*\d+)\s*:\s*/i, "");
+      var direct = KOS.spec.node(sid, line.split(/\s/)[0]);
+      if (direct) { out.push({ line: raw.trim(), state: "matched", matches: [pub(sid, direct)], cands: [] }); return; }
+      /* "Sorting and searching": two parts, each matched */
+      var parts = line.split(/\s+and\s+|,\s*/i).filter(Boolean);
+      var whole = bestFor(line, sid, root);
+      var each = parts.length > 1 ? parts.map(function (p) { return bestFor(p, sid, root)[0] || null; }) : [];
+      if (parts.length > 1 && each.every(Boolean) && each[0].n.ref !== each[1].n.ref && (!whole[0] || whole[0].s < 0.9)) {
+        out.push({ line: raw.trim(), state: "matched", matches: each.map(function (x) { return pub(sid, x.n); }), cands: [] });
+        return;
+      }
+      if (!whole.length) { out.push({ line: raw.trim(), state: "none", matches: [], cands: [] }); return; }
+      var top = whole[0], next = whole.filter(function (x) { return x.n.ref.indexOf(top.n.ref) !== 0 && top.n.ref.indexOf(x.n.ref) !== 0; })[0];
+      if (next && top.s - next.s < 0.12) {
+        out.push({ line: raw.trim(), state: "ambiguous", matches: [], cands: [pub(sid, top.n), pub(sid, next.n)] });
+        return;
+      }
+      out.push({ line: raw.trim(), state: "matched", matches: [pub(sid, top.n)], cands: [] });
+    });
+    return { rows: out, skipped: skipped };
+  }
+  function pub(sid, n) { var k = sid + ":" + n.ref; return { key: k, ref: n.ref, title: n.title, paper: paperShort(paperOfLeaf(KOS.spec.resolve([k])[0] || k)) }; }
+
   KOS.examSession = {
+    matchList: matchList,
     SECTIONS: SECTIONS,
     COMMANDS: COMMANDS,
     topics: topics,
