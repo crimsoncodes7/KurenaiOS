@@ -1200,6 +1200,17 @@ its "only goes down" rule; AP-01 stage 2 would win it back.
   landing: Help & Guide (AA-16, SH-10, SH-11, AX-20, AX-34, AP-06), GUIDE.md
   (SH-32) and the docs re-baseline (AP-05). AP-04 (one lesson reader) and
   AP-07 are not started.
+- **Done 18 Nov (`feat/w8-lazy` b155a38, stacked on feat/w8-hub, NOT
+  deployed): AP-01 stage 2, first part.** Boot parses 8.78 → 7.87 MB
+  (smoke142's budget 8.85 → 7.9 MB). Nine page bundles: Money, the
+  Governor's Seat, Code's desk, Mind's and Japanese's desks, Help, the
+  Shrine, Reports' long view and story, and Sync's pages. Each view has a
+  stand-in in `lazy.js` (`PAGES`) that waits for its bundle, so deep links
+  work, and `KOS.openShop` forwards. Invariant 168 rewritten. The ~4 MB aim
+  needs the modules other code reads at boot split into a boot part and
+  a page: Focus (149 KB), the Assistant (148), aitools (204), the calendar
+  (103), the vaults and medview, the labs (registries read by topic pages),
+  Creatives, Reports' Home card, and the exam modules that core reads.
 - **Done 18 Nov (`feat/w8-hub` 5454685, from main, NOT deployed): AP-09.**
   `hub.js` (4,335 lines) is now its shared core (829: leaves, the study
   derivations, IT grades, rail counters, the spine, the spec renderers) and
