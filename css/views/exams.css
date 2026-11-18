@@ -1338,4 +1338,29 @@ button.k-ex-ptr { inline-size: 100%; border-inline: 0; border-block-end: 0; back
 .k-xr-th { display: none; }
 }
 
+
+/* Questions (46f): filters, three sets, one question at a time */
+.k-xq-sel { inline-size: auto; max-inline-size: var(--xs-week-min); }
+.k-xq-tog[aria-pressed="true"] { background: var(--text); color: var(--bg); }
+.k-xq-sets { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--sp-12); }
+.k-xq-set { display: flex; flex-direction: column; gap: var(--sp-2); padding: var(--sp-12) var(--sp-16); border: var(--hairline) solid var(--line); border-radius: var(--r-16); background: var(--s1); color: var(--text); font: inherit; text-align: start; cursor: pointer; }
+.k-xq-set:hover { border-color: var(--text-2); }
+.k-xq-set[aria-pressed="true"] { box-shadow: inset 0 0 0 var(--ring-1-5) var(--text); }
+.k-xq-set:disabled { opacity: 0.55; cursor: default; }
+.k-xq-navrow { display: flex; align-items: center; gap: var(--sp-12); flex-wrap: wrap; }
+.k-xq-nav { display: flex; align-items: center; gap: var(--sp-6); }
+.k-xq-pip { display: inline-flex; align-items: baseline; gap: var(--sp-4); min-inline-size: var(--hit); min-block-size: var(--hit); padding: 0 var(--sp-10); border: var(--hairline) solid var(--line); border-radius: var(--r-12); background: none; color: var(--text-2); font: inherit; font-size: var(--fs-13); justify-content: center; align-items: center; cursor: pointer; }
+.k-xq-pip span { color: var(--muted); font-size: var(--fs-11); }
+.k-xq-pip[aria-current="true"] { background: var(--text); color: var(--bg); border-color: var(--text); }
+.k-xq-pip[aria-current="true"] span { color: inherit; }
+.k-xq-card { display: flex; flex-direction: column; gap: var(--sp-12); padding: var(--sp-20) var(--sp-22); }
+.k-xq-qhead { display: flex; align-items: baseline; gap: var(--sp-10); flex-wrap: wrap; }
+.k-xq-qhead > b { font-size: var(--fs-18); }
+.k-xq-engine { min-inline-size: 0; }
+/* the set is the page's: the engine's own filter and paging row is not needed for one question */
+.k-xq-engine [data-ui~="quiz.head"] { display: none; }
+@media (max-width: 860px) {
+.k-xq-sets { grid-template-columns: minmax(0, 1fr); }
+}
+
 }

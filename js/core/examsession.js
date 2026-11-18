@@ -202,7 +202,7 @@
         var lastT = tries[tries.length - 1] || null;
         out.push({ qk: qk, sid: p.subject, ref: p.ref, leaf: k, topic: leaves[k].key, item: it, i: i, marks: marks,
           command: commandOf(parts[0].q || it.q || it.ctx), tries: tries, last: lastT,
-          dropped: !!(lastT && lastT.max && lastT.got < lastT.max), written: !it.src });
+          dropped: !!(lastT && lastT.max && lastT.got < lastT.max), written: !it.src || /-style\b/i.test(String(it.src)) });
       });
     });
     return out;
