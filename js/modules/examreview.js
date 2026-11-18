@@ -35,7 +35,22 @@
      essentials chapter's "spot it in the stem"); labelled as read so */
   var PO = { State: "PO1", Identify: "PO1", Define: "PO1", Give: "PO1", Name: "PO1", Complete: "PO1", Describe: "PO1", Outline: "PO1",
     Explain: "PO2", Suggest: "PO2", Analyse: "PO3", Discuss: "PO3", Evaluate: "PO3", Justify: "PO3", Assess: "PO3", Compare: "PO3" };
-  var PO_NAME = { PO1: "knowledge", PO2: "apply", PO3: "judge" };
+  var PO_NAME = { PO1: "knowledge", PO2: "apply", PO3: "judge", AO1: "knowledge", AO2: "apply", AO3: "design" };
+  /* AQA 7517's assessment objectives, read from the command word: AO1
+     knowledge and understanding, AO2 apply and analyse, AO3 design,
+     program and evaluate (the specification's scheme of assessment) */
+  var AQA_AO = { State: "AO1", Define: "AO1", Identify: "AO1", Name: "AO1", Give: "AO1", Describe: "AO1", Outline: "AO1",
+    Explain: "AO2", Compare: "AO2", Calculate: "AO2", Complete: "AO2", Show: "AO2", Draw: "AO2", Suggest: "AO2", Find: "AO2", Solve: "AO2",
+    Write: "AO3", Design: "AO3", Evaluate: "AO3", Discuss: "AO3", Justify: "AO3", Assess: "AO3", Analyse: "AO2", Sketch: "AO2" };
+  /* Edexcel 9MA0's: AO1 standard techniques, AO2 reason, interpret and
+     communicate (show that, prove, explain), AO3 problems and modelling */
+  function edexcelAO(text) {
+    var t = String(text || "");
+    if (/\bmodel|in (the )?context|criticis|refine|assumption|limitation/i.test(t)) return "AO3";
+    if (/\b(show that|prove|hence show|explain|justify|comment|deduce|disprove|counter-?example)\b/i.test(t)) return "AO2";
+    return "AO1";
+  }
+  var EDX_NAME = { AO1: "techniques", AO2: "reason", AO3: "problems" };
 
   /* ---------------- the estimated grade ---------------- */
   function grade(a, got, max) {
@@ -48,7 +63,14 @@
       return { grade: g || "Below Pass", next: up ? { grade: up.grade, need: Math.ceil(up.ums * max / sc.umsMax) - got } : null,
         from: "OCR's unit boundaries (Pass 24, Merit 36, Distinction 48 of 60), on a straight line" };
     }
-    return null;
+    /* CS and Maths: the typical marks for each grade on this paper (the
+       mean of the board's last three series, scaled to the paper) */
+    var tb = E().typicalBounds ? E().typicalBounds(a) : null;
+    if (!tb || !max) return null;
+    var got2 = tb.max === max ? got : Math.round(got * tb.max / max);
+    var tg = E().typicalGrade(tb, got2);
+    return { grade: tg.grade, next: tg.next ? { grade: tg.next.grade, need: tb.max === max ? tg.next.need : Math.ceil(tg.next.need * max / tb.max) } : null,
+      from: tb.from + ", the mean of " + tb.series.map(function (x) { return "June " + x.series.slice(0, 4); }).join(", ") + (tb.confirmed ? "" : " (not all confirmed)") };
   }
 
   /* ---------------- the page ---------------- */
@@ -135,14 +157,18 @@
       byT[tk] = (byT[tk] || 0) + l;
       var pq = paper ? paper.questions.filter(function (x) { return String(x.n) === String(q.q); })[0] : null;
       var cmd = pq && pq.parts && pq.parts[0] ? pq.parts[0].command || S().commandOf(pq.parts[0].q) : null;
-      if (cmd) { byC[cmd] = (byC[cmd] || 0) + l; if (PO[cmd]) { var o = PO[cmd] + " · " + PO_NAME[PO[cmd]]; byO[o] = (byO[o] || 0) + l; } }
+      if (cmd) byC[cmd] = (byC[cmd] || 0) + l;
+      var board = a.board || "", obj = null, oname = null;
+      if (board === "OCR" && cmd && PO[cmd]) { obj = PO[cmd]; oname = PO_NAME[obj]; }
+      else if (board === "AQA" && cmd && AQA_AO[cmd]) { obj = AQA_AO[cmd]; oname = PO_NAME[obj]; }
+      else if (board === "Edexcel" && pq && pq.parts) { obj = edexcelAO(pq.parts.map(function (x) { return x.q; }).join(" ")); oname = EDX_NAME[obj]; }
+      if (obj) { var o = obj + " · " + oname; byO[o] = (byO[o] || 0) + l; }
       (q.tags || []).forEach(function (tg) { var k = KOS.tracker.tagShort(tg); byTag[k] = (byTag[k] || 0) + l / q.tags.length; });
     });
     function rows(m) { return Object.keys(m).map(function (k) { return [k, Math.round(m[k])]; }).filter(function (r) { return r[1] > 0; }).sort(function (x, y) { return y[1] - x[1]; }); }
-    var ocr = (a.board || "") === "OCR";
     return [{ title: "Topic", rows: rows(byT), empty: "Marked by question to see this" },
       { title: "Command word", rows: rows(byC).map(function (r) { return [KOS.ui.esc(r[0]), r[1]]; }), empty: "Board-style papers carry it" },
-      ocr && Object.keys(byO).length ? { title: "Objective", rows: rows(byO).map(function (r) { return [KOS.ui.esc(r[0]), r[1]]; }), empty: "" }
+      Object.keys(byO).length ? { title: "Objective", rows: rows(byO).map(function (r) { return [KOS.ui.esc(r[0]), r[1]]; }), empty: "" }
         : { title: "Error type", rows: rows(byTag).map(function (r) { return [KOS.ui.esc(r[0]), r[1]]; }), empty: "Tag lost marks to see this" }];
   }
   function paperFor(a, e) {

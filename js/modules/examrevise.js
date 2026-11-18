@@ -216,7 +216,7 @@
     if (mins) tiles.push([SH().hm(mins).replace(" 00", ""), "written"]);
     if (marks) tiles.push([String(marks), "marks"]);
     if (mins && marks) tiles.push([String(Math.round(mins / marks * 10) / 10), "min a mark"]);
-    var ext = (x.structure || []).filter(function (s) { return s.marks >= 6; }).map(function (s) { return s.marks; });
+    var ext = (x.structure || []).filter(function (s) { return s.levels; }).map(function (s) { return s.marks; });
     if (ext.length) tiles.push([ext.join(" + "), "extended"]);
     art.appendChild(sec("At a glance", "glance"));
     art.appendChild(el("div", { class: "k-xr-tiles" }, tiles.map(function (t) { return el("div", { class: "k-xr-tile" }, [el("b", { class: "k-mono", text: t[0] }), U().muted(t[1])]); })));
@@ -224,7 +224,21 @@
     if (scen) art.appendChild(html("p", "k-xr-p", inline(scen[1])));
     if ((x.objectives || []).length) {
       art.appendChild(sec("Objectives", "objectives"));
-      art.appendChild(table(["", "Asks you to", "Spot it in the stem"], x.objectives.map(function (o) { return [o.code, o.what, o.spot]; })));
+      var wt = x.objectives.some(function (o) { return o.weight; });
+      art.appendChild(table(["", "Asks you to", "Spot it in the stem"], x.objectives.map(function (o) { return [o.code + (wt && o.weight ? "\n" + o.weight : ""), o.what, o.spot]; })));
+    }
+    /* the marks each grade typically needs on this paper (asked for 18
+       November 2026): the board's last three series, averaged */
+    var tb = E().typicalBounds ? E().typicalBounds(a) : null;
+    if (tb && tb.grades.length) {
+      art.appendChild(sec("Grade boundaries", "bounds"));
+      var heads = ["Grade", "Typical"].concat(tb.series.map(function (x) { return "June " + x.series.slice(0, 4); }));
+      art.appendChild(el("div", { class: "k-xr-table k-xr-bounds", role: "table", "data-ui": "exams.bounds" }, [el("div", { class: "k-xr-tr k-xr-th", role: "row", style: "--n: " + heads.length }, heads.map(function (h) { return el("span", { role: "columnheader", text: h }); }))]
+        .concat(tb.grades.map(function (g) {
+          return el("div", { class: "k-xr-tr", role: "row", style: "--n: " + heads.length }, [el("b", { role: "cell", text: g.grade }), el("b", { class: "k-mono", role: "cell", text: g.marks + " / " + tb.max })]
+            .concat(tb.series.map(function (x) { return el("span", { class: "k-mono k-ex-muted", role: "cell", text: x.marks[g.grade] != null ? String(x.marks[g.grade]) : "–" }); })));
+        }))));
+      art.appendChild(el("p", { class: "k-ex-muted k-ex-small", text: "An estimate: " + tb.from + (tb.series.length ? ", scaled to this paper's " + tb.max + " marks" : "") + ". Boundaries move every series; aim a grade above." }));
     }
     if (g && g.commands && g.commands.length) {
       art.appendChild(sec("Command words", "commands"));

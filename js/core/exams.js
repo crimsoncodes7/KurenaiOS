@@ -623,6 +623,59 @@
     var pr = presetOf(a);
     return pr && S() ? S().boundaryRows(window.KOS_BOUNDARIES, pr.board, pr.qual, pr.paper) : [];
   }
+  /* THE TYPICAL MARKS FOR EACH GRADE on this assessment's paper (the
+     rework's Review and Exam essentials, asked for 18 November 2026): the
+     board's last three series, each as a percentage, averaged and scaled to
+     the paper's marks. AQA prints notional boundaries per paper (a school's
+     mock over both papers averages Paper 1's and Paper 2's); Pearson prints
+     only the subject's, read as a percentage; an IT unit's are its UMS
+     boundaries on the unit's straight line (js/data/it-grades.js,
+     invariant 26f). Always an estimate, and said to be one. Pure. */
+  var GRADE_ORDER = ["A*", "A", "B", "C", "D", "E", "Distinction*", "Distinction", "Merit", "Pass"];
+  function typicalBounds(a) {
+    var pr = presetOf(a), T = window.KOS_IT_GRADES, B = window.KOS_BOUNDARIES;
+    var unit = (a && a.links && a.links.itUnit) || (pr && pr.itUnit);
+    if (unit && T && T.units && T.units[unit]) {
+      var sc = T.units[unit];
+      return { kind: "it", max: sc.rawMax, series: [], confirmed: true,
+        grades: T.unitBoundaries.map(function (b) { return { grade: b.grade, marks: Math.ceil(b.ums * sc.rawMax / sc.umsMax) }; }),
+        from: "OCR's unit boundaries (" + T.unitBoundaries.slice().reverse().map(function (b) { return b.grade + " " + b.ums; }).join(", ") + " of " + sc.umsMax + " UMS), raw marks on a straight line" };
+    }
+    if (!pr || !B || !S()) return null;
+    var max = (a && a.marks) || pr.marks || 100;
+    var comps = /pre-public/i.test(pr.paper || "") ? ["Paper 1", "Paper 2"] : [pr.paper];
+    var rows = [], subjectOnly = true;
+    comps.forEach(function (c) {
+      S().boundaryRows(B, pr.board, pr.qual, c).forEach(function (r) { rows.push(r); if (r.component !== "subject") subjectOnly = false; });
+    });
+    if (!rows.length) return null;
+    var bySeries = {}, order = [];
+    rows.forEach(function (r) {
+      if (!bySeries[r.series]) { bySeries[r.series] = []; order.push(r.series); }
+      bySeries[r.series].push(r);
+    });
+    order.sort().reverse();
+    var grades = B.grades.filter(function (g) { return rows.every(function (r) { return r.marks[g] != null; }); });
+    function pctOf(list, g) { return list.reduce(function (t, r) { return t + r.marks[g] / r.max; }, 0) / list.length; }
+    var series = order.map(function (sr) {
+      var m = {};
+      grades.forEach(function (g) { m[g] = Math.round(pctOf(bySeries[sr], g) * max); });
+      return { series: sr, marks: m, confirmed: bySeries[sr].every(function (r) { return r.confirmed; }) };
+    });
+    return { kind: subjectOnly ? "subject" : "paper", max: max, series: series, confirmed: series.every(function (x) { return x.confirmed; }),
+      grades: grades.map(function (g) { return { grade: g, marks: Math.round(pctOf(rows, g) * max) }; }),
+      from: subjectOnly ? pr.board + " " + pr.qual + "'s subject boundaries as a percentage (no grade is printed per paper)"
+        : pr.board + "'s notional boundaries for " + comps.join(" and ") };
+  }
+  /* the grade a mark reaches on those boundaries, and the marks to the next */
+  function typicalGrade(tb, got) {
+    if (!tb || got == null) return null;
+    var list = tb.grades.slice().sort(function (x, y) { return y.marks - x.marks; });
+    var at = list.filter(function (g) { return got >= g.marks; })[0] || null;
+    var up = list.slice().reverse().filter(function (g) { return g.marks > got; })[0] || null;
+    return { grade: at ? at.grade : (tb.kind === "it" ? "Below Pass" : "U"), next: up ? { grade: up.grade, need: up.marks - got } : null };
+  }
+
   /* how far through the run-up we are: 0 at the start-by date, 1 at the
      start of the 7–14 day window (a straight line to Ready, decision E) */
   function runUp(a, now) {
@@ -1214,6 +1267,8 @@
     attemptsFor: attemptsFor,
     paperWeights: paperWeights,
     boundsFor: boundsFor,
+    typicalBounds: typicalBounds,
+    typicalGrade: typicalGrade,
     readiness: readiness,
     signalsOf: signalsOf,
     nextMarks: nextMarks,

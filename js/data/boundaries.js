@@ -9,6 +9,10 @@
    predicted grade says which series it used.
 
    SOURCES
+     AQA 7517 — AQA's own "Grade boundaries – June 2025 exams" and
+       "– June 2026 exams" (A-level, aqa.org.uk/files/…, read 18 November
+       2026): the subject boundaries out of 375 and the notional component
+       boundaries per paper, the same for every programming language.
      AQA 7517 — "Subject grade boundaries – June 2023 / June 2024"
        (filestore.aqa.org.uk, AQA-A-LEVEL-GDE-BDY-JUN-2023/2024.PDF): the
        subject boundaries out of 375 (each paper's 100 raw marks scaled to
@@ -20,16 +24,26 @@
      Edexcel 9MA0 — subject boundaries out of 300 (three papers of 100),
        June 2023, 2024, 2025, from MathsGenie, Save My Exams and Cognito,
        which agree; not yet checked against Pearson's own document, so
-       unconfirmed. Pearson publishes no per-paper grades, so a paper's
+       unconfirmed. June 2026 is read from Pearson's own "Grade Boundaries
+       – June 2026 – GCE" (qualifications.pearson.com, 18 November 2026),
+       so confirmed. Pearson publishes no per-paper grades, so a paper's
        percentage is read against the subject's percentages.          */
 window.KOS_BOUNDARIES = {
   v: 1,
   grades: ["A*", "A", "B", "C", "D", "E"],
   rows: [
     /* AQA A-level Computer Science, subject (out of 375) */
+    { board: "AQA", qual: "7517", component: "subject", series: "2026-06", max: 375, marks: { "A*": 314, A: 257, B: 213, C: 169, D: 126, E: 83 }, confirmed: true },
+    { board: "AQA", qual: "7517", component: "subject", series: "2025-06", max: 375, marks: { "A*": 300, A: 245, B: 201, C: 157, D: 113, E: 69 }, confirmed: true },
     { board: "AQA", qual: "7517", component: "subject", series: "2024-06", max: 375, marks: { "A*": 298, A: 239, B: 194, C: 149, D: 104, E: 60 }, confirmed: true },
     { board: "AQA", qual: "7517", component: "subject", series: "2023-06", max: 375, marks: { "A*": 296, A: 237, B: 191, C: 146, D: 101, E: 56 }, confirmed: true },
     /* notional component boundaries, raw marks (AQA: "for illustrative purposes only") */
+    { board: "AQA", qual: "7517", component: "Paper 1", series: "2026-06", max: 100, marks: { "A*": 82, A: 66, B: 54, C: 42, D: 30, E: 18 }, confirmed: true, notional: true },
+    { board: "AQA", qual: "7517", component: "Paper 1", series: "2025-06", max: 100, marks: { "A*": 79, A: 63, B: 51, C: 39, D: 27, E: 16 }, confirmed: true, notional: true },
+    { board: "AQA", qual: "7517", component: "Paper 2", series: "2026-06", max: 100, marks: { "A*": 81, A: 63, B: 53, C: 43, D: 33, E: 23 }, confirmed: true, notional: true },
+    { board: "AQA", qual: "7517", component: "Paper 2", series: "2025-06", max: 100, marks: { "A*": 76, A: 58, B: 47, C: 36, D: 26, E: 16 }, confirmed: true, notional: true },
+    { board: "AQA", qual: "7517", component: "NEA", series: "2026-06", max: 75, marks: { "A*": 69, A: 63, B: 52, C: 41, D: 31, E: 21 }, confirmed: true, notional: true },
+    { board: "AQA", qual: "7517", component: "NEA", series: "2025-06", max: 75, marks: { "A*": 68, A: 63, B: 52, C: 41, D: 31, E: 21 }, confirmed: true, notional: true },
     { board: "AQA", qual: "7517", component: "Paper 1", series: "2024-06", max: 100, marks: { "A*": 79, A: 63, B: 50, C: 37, D: 25, E: 13 }, confirmed: true, notional: true },
     { board: "AQA", qual: "7517", component: "Paper 1", series: "2023-06", max: 100, marks: { "A*": 76, A: 58, B: 46, C: 34, D: 22, E: 11 }, confirmed: true, notional: true },
     { board: "AQA", qual: "7517", component: "Paper 2", series: "2024-06", max: 100, marks: { "A*": 74, A: 54, B: 43, C: 33, D: 23, E: 13 }, confirmed: true, notional: true },
@@ -39,6 +53,7 @@ window.KOS_BOUNDARIES = {
     /* AQA AS Computer Science (no A* at AS) */
     { board: "AQA", qual: "7516", component: "Paper 2", series: "2024-06", max: 75, marks: { A: 57, B: 50, C: 43, D: 36, E: 30 }, confirmed: true, notional: true },
     /* Edexcel A-level Mathematics, subject (out of 300) */
+    { board: "Edexcel", qual: "9MA0", component: "subject", series: "2026-06", max: 300, marks: { "A*": 254, A: 210, B: 173, C: 136, D: 100, E: 64 }, confirmed: true },
     { board: "Edexcel", qual: "9MA0", component: "subject", series: "2025-06", max: 300, marks: { "A*": 258, A: 214, B: 178, C: 142, D: 106, E: 71 }, confirmed: false },
     { board: "Edexcel", qual: "9MA0", component: "subject", series: "2024-06", max: 300, marks: { "A*": 251, A: 205, B: 167, C: 130, D: 93, E: 56 }, confirmed: false },
     { board: "Edexcel", qual: "9MA0", component: "subject", series: "2023-06", max: 300, marks: { "A*": 244, A: 196, B: 158, C: 121, D: 84, E: 47 }, confirmed: false }

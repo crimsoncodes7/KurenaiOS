@@ -15,7 +15,7 @@
 
    Shape: KOS_EXAMS.essentials[preset] =
      {glance: [[label, value]], objectives: [{code, what, spot}], structure:
-      [{marks, how: [steps]}], notExaminable: [..], booklet: {given: [..],
+      [{marks, levels?, how: [steps]}], notExaminable: [..], booklet: {given: [..],
       learn: [..]}, templates: [{w, frame, eg}], routine: [..], night: [..]}
    A preset with no entry of its own reads its board's (`board:<name>`). */
 (function () {
@@ -44,8 +44,8 @@
     structure: [
       { marks: 2, how: ["Make the point (1).", "Expand it FOR THE ORGANISATION: \"… so the retailer can …\" (1)."] },
       { marks: 4, how: ["Benefit: point (1) + applied expansion (1).", "Limitation: point (1) + applied expansion (1).", "Label them \"Benefit\" and \"Limitation\" exactly as the paper's answer space does."] },
-      { marks: 6, how: ["Analyse: two or three points, each developed into a consequence for the organisation.", "Use the specification's terms (UK GDPR principles, data subjects' rights, the 6Vs…).", "Link causes to effects (\"this means… which leads to…\"); a list of points stays in Level 1."] },
-      { marks: 9, how: ["Discuss: developed benefits AND developed limitations, all about the scenario.", "Weigh them, then give a recommendation and the reasons for it — no conclusion caps the answer below Level 3.", "Follow the bullet points under the question: each is something the marker looks for."] }
+      { levels: true, marks: 6, how: ["Analyse: two or three points, each developed into a consequence for the organisation.", "Use the specification's terms (UK GDPR principles, data subjects' rights, the 6Vs…).", "Link causes to effects (\"this means… which leads to…\"); a list of points stays in Level 1."] },
+      { levels: true, marks: 9, how: ["Discuss: developed benefits AND developed limitations, all about the scenario.", "Weigh them, then give a recommendation and the reasons for it — no conclusion caps the answer below Level 3.", "Follow the bullet points under the question: each is something the marker looks for."] }
     ],
     notExaminable: [
       "Technical detail of how a tool works inside (say what is done and why, not how the software does it).",
@@ -116,6 +116,26 @@
       ["Questions", "Short to long, ending with multi-part questions; \"Show that\" and \"Hence\" link parts"]
     ],
     booklet: PURE_BOOKLET,
+    /* the specification's assessment objectives (Issue 4, p. 44–45): AO1
+       48–52 %, AO2 23–27 %, AO3 23–27 % of the A level; a Pure paper is
+       about half AO1, a quarter or more AO2, a fifth AO3 */
+    objectives: [
+      { code: "AO1", weight: "≈ 50 %", what: "Use and apply standard techniques: routine procedures, facts, terms and definitions.",
+        spot: "Find, Solve, Differentiate, Integrate, Expand, Write down, Sketch — the method you have practised, accurately." },
+      { code: "AO2", weight: "≈ 25 %", what: "Reason, interpret and communicate mathematically: proofs, deductions, notation, assessing a claim.",
+        spot: "Show that, Prove, Hence show, Explain why, Justify — every step written; the given answer earns nothing alone." },
+      { code: "AO3", weight: "≈ 25 %", what: "Solve problems within mathematics and in context; model, then criticise and refine the model.",
+        spot: "A problem with no method named, or a context: \"a model for…\", \"state a limitation\", \"comment on…\"." }
+    ],
+    structure: [
+      { marks: 1, how: ["B1: an independent mark for a correct statement or answer, needing no working."] },
+      { marks: 2, how: ["M1: a correct method, even with a slip in it.", "A1: the accurate answer — it depends on the M before it."] },
+      { marks: 4, how: ["M1 A1 then dM1 A1: a dM needs the earlier M; ft (follow through) credits a later step done right from your own earlier error.", "\"Show that\": the marks are for the lines that reach the given answer, so write every one."] },
+      { marks: 6, how: ["Several methods chained: each M is for setting up a step, each A for getting it exactly.", "Exact unless told otherwise; read the accuracy asked for (3 s.f. by default)."] }
+    ],
+    notExaminable: [
+      "Nothing in the specification is safe to skip on a real paper: Papers 1 and 2 may ask any Pure content, and use AS content as assumed knowledge."
+    ],
     templates: [
       { w: "Show that", frame: "Every step written, the given answer reached exactly, no step skipped (it is marked A1* — cso).", eg: "… $= 16 - 4k^2 + 12k > 0 \\Rightarrow k^2 - 3k - 4 < 0$" },
       { w: "Hence", frame: "Use the previous part's result — another method scores nothing.", eg: "Hence, using (a), …" },
@@ -138,7 +158,13 @@
     ]
   };
   E["edexcel-9ma0-pure-mock"] = Object.assign({}, E["board:Edexcel"], {
-    glance: E["board:Edexcel"].glance.concat([["This mock", "Pure only: all of AS Pure, and the A2 chapters on algebraic methods, sequences and series, functions and graphs, radians, trigonometric functions, further trigonometry and 3D vectors"]])
+    glance: E["board:Edexcel"].glance.concat([["This mock", "Pure only: all of AS Pure, and the A2 chapters on algebraic methods, sequences and series, functions and graphs, radians, trigonometric functions, further trigonometry and 3D vectors"]]),
+    /* the school's mock list (told 17 November 2026) */
+    notExaminable: [
+      "Statistics and Mechanics (Paper 3).",
+      "The A2 Pure chapters not yet covered: the binomial expansion for any n, parametric equations, A2 differentiation, numerical methods and A2 integration.",
+      "AS Pure is ALL in: expect it as assumed knowledge inside the A2 questions."
+    ]
   });
 
   /* ---------------- AQA Computer Science (7517) ---------------- */
@@ -148,6 +174,26 @@
       ["Paper 2", "2 h 30, 100 marks, written"],
       ["Pace", "1.5 minutes a mark"], ["Calculator", "Not allowed"],
       ["Code", "Answers may be written in the programming language you studied or in pseudo-code"]
+    ],
+    /* the specification's scheme of assessment: AO1 30 %, AO2 30 %, AO3
+       40 % of the A level — Paper 1 is 8 / 12 / 20 of its 40, Paper 2
+       22 / 16 / 2 of its 40 */
+    objectives: [
+      { code: "AO1", weight: "Paper 1 20 % · Paper 2 55 %", what: "Demonstrate knowledge and understanding of the principles and concepts of computer science, including abstraction, logic, algorithms and data representation.",
+        spot: "State, Define, Describe, Identify — the AQA term, exactly; most of Paper 2's short questions." },
+      { code: "AO2", weight: "Paper 1 30 % · Paper 2 40 %", what: "Apply knowledge and understanding, including to analyse problems in computational terms.",
+        spot: "Explain, Compare, Calculate, Trace, Complete the table — the idea used on THIS data, circuit or code." },
+      { code: "AO3", weight: "Paper 1 50 % · Paper 2 5 %", what: "Design, program and evaluate computer systems that solve problems, making reasoned judgements and presenting conclusions.",
+        spot: "Write an algorithm / program, Design, Evaluate, Discuss — Paper 1's programming and the Skeleton Program, and Paper 2's extended response." }
+    ],
+    structure: [
+      { marks: 1, how: ["One fact or term, in AQA's words; a second answer that contradicts the first cancels it."] },
+      { marks: 2, how: ["Two distinct points, or a point and its reason (\"so…\", \"because…\")."] },
+      { marks: 4, how: ["Four creditable points, or two each developed; a trace or a table scores row by row.", "An algorithm: marks for the structure (loop, condition, update, output), so a slip costs one."] },
+      { levels: true, marks: 9, how: ["Extended response, marked by level: developed points across moral, ethical, legal and cultural issues, a line of reasoning, and a conclusion.", "\"In your answer you will be assessed on your ability to follow a line of reasoning\": plan before you write."] }
+    ],
+    notExaminable: [
+      "Nothing in the specification is safe to skip on a real paper: Paper 1 is 4.1–4.4 and the Skeleton Program, Paper 2 is 4.5–4.11."
     ],
     templates: [
       { w: "State / Define", frame: "One factual line using the AQA term — no justification is credited.", eg: "A floating gate transistor stores a charge." },
@@ -177,7 +223,13 @@
     glance: [["This mock", "2 h 30, 100 marks, written — your school's topic list from both papers"],
       ["Topics", "Logic gates and Boolean algebra, hardware, OOP, stacks, queues, recursion, graphs, trees, assembly language, consequences of computing, databases, sorting and searching"],
       ["Pace", "1.5 minutes a mark"], ["Calculator", "Not allowed"],
-      ["Code", "Answers in your programming language or pseudo-code"]]
+      ["Code", "Answers in your programming language or pseudo-code"]],
+    /* a topic list, not a board paper (told 17 November 2026) */
+    notExaminable: [
+      "No Skeleton Program and no on-screen programming section: it is a written paper.",
+      "Topics not on the list: data representation, theory of computation, networking, big data, functional programming, regular languages and the fundamentals of data structures beyond stacks, queues, graphs and trees.",
+      "Both papers' styles appear: Paper 1's algorithms and traces, Paper 2's definitions and extended responses."
+    ]
   });
 
   /* the entry for an assessment: its preset's, else its board's */
