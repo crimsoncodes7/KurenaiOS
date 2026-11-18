@@ -531,7 +531,7 @@ Per device, like a lesson's pages.
 | F201 exam essentials chapter — DONE 18 Nov (`js/data/exam-essentials.js`, in the current guide as its first section) | 1 chapter | the specification v5 and the SAM |
 | F201 paper 1 (done); papers 2–3 on the backlog (roadmap 5.22) | 3 × 60 marks | the SAM's blueprint: marks per topic area, PO spread, one 6 and one 9 |
 | AQA exam essentials (both papers and the PPE) — DONE 18 Nov | 2 chapters | AQA's command words and reports |
-| CS full Companion for the PPE's seven Paper 1 topics (OOP, stacks, queues, recursion, graphs, trees, sorting and searching) | shapes, worked variations, practice | `cs_diff`, a trace check, the index |
+| CS full Companion for the PPE's seven Paper 1 topics (OOP, stacks, queues, recursion, graphs, trees, sorting and searching) — a PARTIAL Paper 1 Companion, 18 Nov (smoke184) | shapes, worked variations, practice | traces run in Python, the index, the reports |
 | CS PPE practice paper | 1 × 2 h 30 | the index blueprint |
 | Edexcel Pure exam essentials, the formula booklet and memorise list — DONE 18 Nov | 1 chapter | the formulae booklet, Issue 1 |
 | Maths Pure mock papers | 2 papers | every answer computed by program |

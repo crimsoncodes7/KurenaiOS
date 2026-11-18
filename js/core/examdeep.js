@@ -59,7 +59,7 @@
     if (!raw) return null;
     if (CACHE[pid] && CACHE[pid].raw === raw && CACHE[pid].n === Object.keys(raw.leaves || {}).length) return CACHE[pid].d;
     var ix = IX(), p = ix && ix.papers[pid], sid = p ? p.subject : null, cat = catalogue();
-    var d = { pid: pid, sid: sid, title: p ? p.title : pid, board: p ? p.board : null, leaves: [], byLeaf: {}, byArch: {}, archs: [] };
+    var d = { pid: pid, sid: sid, title: p ? p.title : pid, board: p ? p.board : null, partial: !!raw.partial, leaves: [], byLeaf: {}, byArch: {}, archs: [] };
     function norm(x, ref) {
       var a = {
         id: x.id, ref: ref, key: ref ? sid + ":" + ref : null, title: x.title || (cat[x.id] && cat[x.id].title) || x.id,
@@ -95,23 +95,41 @@
     CACHE[pid] = { raw: raw, n: Object.keys(raw.leaves || {}).length, d: d };
     return d;
   }
-  /* the paper an assessment's Companion is exhaustive for: its board paper.
-     An assessment with no board paper of its own (a school's mock over a
-     topic list, e.g. the CS pre-public exam) takes, for its GUIDE, the
-     paper with a full Companion whose leaves its scope overlaps most
-     (§9.2 of the Exams & Papers rework); `strict` (the paper engine's
-     predicted papers) never borrows one. */
+  /* THE PAPERS an assessment's guide reads (the rework §9.2): its own board
+     paper's full Companion; and, when it has none or only a PARTIAL one
+     (`partial: true` — written for some leaves, e.g. CS Paper 1's for the
+     December PPE), every other paper with a full Companion whose leaves its
+     scope reaches, most first. A school's mock over a topic list from both
+     papers (the CS pre-public exam) so reads Paper 1's AND Paper 2's. */
+  function overlap(a, pid) {
+    var d = data(pid), on = {};
+    if (!d || !a || d.sid !== a.subject) return 0;
+    E().leaves(a).forEach(function (k) { on[k] = true; });
+    return d.leaves.filter(function (l) { return on[l.key]; }).length;
+  }
+  function papersFor(a) {
+    if (!a || !C()) return [];
+    var own = C().indexPaperOf(a), list = [];
+    if (own && DP()[own]) list.push(own);
+    if (own && DP()[own] && !data(own).partial) return list;
+    Object.keys(DP()).filter(function (p) { return p !== own; })
+      .map(function (p) { return [p, overlap(a, p)]; }).filter(function (x) { return x[1] > 0; })
+      .sort(function (x, y) { return y[1] - x[1]; }).forEach(function (x) { list.push(x[0]); });
+    return list;
+  }
+  /* the first of them (the guide's paper); `strict`: the paper engine's
+     predicted and pack papers use only the assessment's OWN paper, and
+     never a partial one */
   function paperOf(a, strict) {
-    var pid = a && C() ? C().indexPaperOf(a) : null;
-    if (pid && DP()[pid]) return pid;
-    if (strict || !a || pid) return null;
-    var inScope = {}, best = null, bestN = 0;
-    E().leaves(a).forEach(function (k) { inScope[k] = true; });
-    Object.keys(DP()).forEach(function (p) {
-      var d = data(p), n = d && d.sid === a.subject ? d.leaves.filter(function (l) { return inScope[l.key]; }).length : 0;
-      if (n > bestN) { bestN = n; best = p; }
-    });
-    return best;
+    if (strict) {
+      var own = a && C() ? C().indexPaperOf(a) : null;
+      return own && DP()[own] && !data(own).partial ? own : null;
+    }
+    return papersFor(a)[0] || null;
+  }
+  /* the paper that holds a shape, among an assessment's */
+  function paperOfShape(a, id) {
+    return papersFor(a).filter(function (p) { var d = data(p); return d && d.byArch[id]; })[0] || null;
   }
 
   /* ---------------- an archetype's evidence ---------------- */
@@ -176,27 +194,34 @@
 
   /* ---------------- the scope's index (for the Companion) ---------------- */
   function index(a) {
-    var pid = paperOf(a), d = pid ? data(pid) : null;
-    if (!d) return null;
+    var pids = papersFor(a);
+    if (!pids.length) return null;
     var inScope = {};
     E().leaves(a).forEach(function (k) { inScope[k] = true; });
-    var units = [], byUnit = {}, nA = 0, nV = 0, nP = 0;
-    d.leaves.forEach(function (l) {
-      if (!inScope[l.key]) return;
-      var u = byUnit[l.unit];
-      if (!u) {
-        var un = KOS.spec.node(d.sid, l.unit);
-        u = byUnit[l.unit] = { unit: l.unit, title: un ? un.title : l.unitTitle || l.unit, rows: [] };
-        units.push(u);
-      }
-      l.archetypes.forEach(function (x) {
-        var inst = instances(pid, x), f = freq(pid, inst);
-        u.rows.push({ id: x.id, title: x.title, ref: l.ref, leaf: l.title, variations: x.variations.length, worked: x.variations.filter(function (v) { return isWorked(pid, x.id, v.v); }).length, freq: f, n: inst.length });
-        nA++; nV += x.variations.length;
+    var units = [], byUnit = {}, nA = 0, nV = 0, nP = 0, ext = null, titles = [];
+    pids.forEach(function (pid) {
+      var d = data(pid);
+      if (!d) return;
+      titles.push(d.title);
+      if (!ext && d.extended) ext = d.extended;
+      d.leaves.forEach(function (l) {
+        if (!inScope[l.key]) return;
+        var u = byUnit[l.unit];
+        if (!u) {
+          var un = KOS.spec.node(d.sid, l.unit);
+          u = byUnit[l.unit] = { unit: l.unit, title: un ? un.title : l.unitTitle || l.unit, rows: [], pid: pid };
+          units.push(u);
+        }
+        l.archetypes.forEach(function (x) {
+          var inst = instances(pid, x), f = freq(pid, inst);
+          u.rows.push({ id: x.id, pid: pid, title: x.title, ref: l.ref, leaf: l.title, variations: x.variations.length, worked: x.variations.filter(function (v) { return isWorked(pid, x.id, v.v); }).length, freq: f, n: inst.length });
+          nA++; nV += x.variations.length;
+        });
+        nP += l.practice.length;
       });
-      nP += l.practice.length;
     });
-    return { pid: pid, title: d.title, board: d.board, units: units, archetypes: nA, variations: nV, practice: nP, extended: d.extended || null };
+    var first = data(pids[0]);
+    return { pid: pids[0], pids: pids, title: titles.join(" + "), board: first ? first.board : null, units: units, archetypes: nA, variations: nV, practice: nP, extended: ext };
   }
 
   /* ---------------- worked, per device ---------------- */
@@ -251,11 +276,11 @@
      shape and the first move. Self-marked, nothing stored. */
   function recognition(a, seed, n) {
     n = n || 20;
-    var pid = paperOf(a), d = pid ? data(pid) : null;
-    if (!d) return null;
+    var pids = papersFor(a);
+    if (!pids.length) return null;
     var rand = C().rng((a ? a.id : "") + ":recog:" + seed), on = {}, pool = [];
     E().leaves(a).forEach(function (k) { on[k] = true; });
-    d.leaves.forEach(function (l) {
+    pids.forEach(function (pid) { var d = data(pid); if (d) d.leaves.forEach(function (l) {
       if (!on[l.key]) return;
       l.archetypes.forEach(function (x) {
         x.variations.forEach(function (v) {
@@ -268,7 +293,7 @@
         var x = p.arch && d.byArch[p.arch] ? d.byArch[p.arch] : l.archetypes[0];
         if (x) pool.push({ kind: "recog", arch: x.id, ref: l.ref, title: l.title, q: p.q, code: p.code, ctx: p.ctx, a: "**" + x.title + "** · " + (p.ms[0] ? "first mark: " + p.ms[0] : "") });
       });
-    });
+    }); });
     /* spread across archetypes: at most two stems a shape */
     var per = {}, out = [];
     C().shuffle(pool, rand).forEach(function (x) { if (out.length < n && (per[x.arch] || 0) < 2) { out.push(x); per[x.arch] = (per[x.arch] || 0) + 1; } });
@@ -276,7 +301,7 @@
   }
 
   KOS.examDeep = {
-    data: data, paperOf: paperOf, archetype: archetype, instances: instances, freq: freq, reportNotes: reportNotes, index: index,
+    data: data, paperOf: paperOf, papersFor: papersFor, paperOfShape: paperOfShape, archetype: archetype, instances: instances, freq: freq, reportNotes: reportNotes, index: index,
     bank: bank, pack: pack, recognition: recognition, marksOf: marksOf, tokens: tokens,
     isWorked: isWorked, setWorked: setWorked, _reset: function () { CACHE = {}; }
   };

@@ -65,7 +65,10 @@
   /* a leaf's own short paper from the full Companion: "pack-<ref>" (its
      five-question subtopic pack) or "set-<ref>" (its whole practice set) */
   function leafPaper(a, seed) {
-    var m = /^(pack|set)-(.+)$/.exec(String(seed)), pid = DD() ? DD().paperOf(a, true) : null;
+    var m = /^(pack|set)-(.+)$/.exec(String(seed));
+    /* a leaf's pack or set comes from whichever of the assessment's papers
+       holds that leaf (a school's mock reads several, §9.2) */
+    var pid = m && DD() ? (DD().papersFor(a).filter(function (p) { var d = DD().data(p); return d && d.byLeaf[m[2]]; })[0] || null) : null;
     if (!m || !pid) return null;
     var d = DD().data(pid), l = d.byLeaf[m[2]];
     if (!l) return null;

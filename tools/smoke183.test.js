@@ -110,9 +110,10 @@ step("G · EX-42: a reload says the clock kept running, once", async () => {
 
 step("H · §9.2: a school mock borrows a guide, never a predicted paper", async () => {
   const a = K.exams.add({ preset: "aqa-7517-ppe", tier: "mock", title: "PPE", date: day(25) }, { quiet: true });
-  eq([K.examDeep.paperOf(a), K.examDeep.paperOf(a, true)], ["aqa-7517-2", null], "the guide borrows Paper 2's; the engine does not");
+  assert(K.examDeep.paperOf(a) && K.examDeep.paperOf(a, true) === null, "the guide borrows; the engine does not");
   const ix = K.examDeep.index(a);
-  assert(ix && ix.archetypes > 10 && ix.units.every((u) => /^4\.(6|7|8|10)/.test(u.unit)), "only the scope's Paper 2 units");
+  /* with Paper 1's partial Companion (smoke184) it reads both papers' units, and only the scope's */
+  assert(ix && ix.archetypes > 10 && ix.units.every((u) => /^4\.(1|2|3|6|7|8|10)(\.|$)/.test(u.unit)), "only the scope's units");
   eq(K.examPaper.build(a, 2).kind, "practice", "paper 2 is a practice paper over the whole scope");
   K.exams.remove(a.id);
 });

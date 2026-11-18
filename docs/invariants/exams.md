@@ -156,10 +156,18 @@ Read this file before editing or testing anything in its domain.
     (`KOS.examDeep`); "worked" is per device (`state.ui.examWorked`), as
     is the open variation (`state.ui.examDeepVar`).
     A SCHOOL'S MOCK (an assessment with no board paper of its own, e.g. the
-    CS pre-public exam's topic list; the rework §9.2, smoke183) takes its
-    GUIDE from the paper with a full Companion whose leaves its scope
-    overlaps most (`KOS.examDeep.paperOf(a)`); the paper engine's predicted
-    and pack papers never borrow one (`paperOf(a, true)`).
+    CS pre-public exam's topic list; the rework §9.2, smoke183–184) reads
+    EVERY paper with a full Companion whose leaves its scope reaches
+    (`KOS.examDeep.papersFor(a)`, most first; `paperOf(a)` is the first):
+    its guide, index and recognition drill merge them, a shape opens from
+    the paper that holds it (`paperOfShape`), and a leaf's pack or set from
+    the paper that holds the leaf. A PARTIAL Companion (`partial: true`,
+    written for some leaves — CS Paper 1's for the PPE's seven Paper 1
+    topics, `js/data/exams/aqa-7517-1-ppe-*.js`) meets the same contract
+    leaf by leaf (smoke184) but never makes a predicted paper: the paper
+    engine uses only an assessment's own, complete Companion
+    (`paperOf(a, true)`), so a real Paper 1 assessment keeps practice
+    papers until Paper 1 is written whole.
 130a. AN ATTEMPT IS RECORDED, MEASURED ON THE DEVICE AND REVIEWED OUTSIDE
     THE APP (the Exams & Papers rework, `docs/exams-rework-plan.md` §8,
     decisions D1, D2, D6; smoke180). While a paper, a set or a timed

@@ -59,8 +59,10 @@
       return;
     }
     if (sub) {
-      var x = DD().archetype(pid, sub);
-      if (x) return shapePage(wrap, a, pid, x);
+      /* the shape may be another paper's (a school's mock reads several, §9.2) */
+      var spid = DD().paperOfShape(a, sub) || pid;
+      var x = DD().archetype(spid, sub);
+      if (x) return shapePage(wrap, a, spid, x);
     }
     indexPage(wrap, a, pid);
   }
@@ -72,7 +74,7 @@
     wrap.appendChild(el("section", { class: "k-ex-ghero", "data-ui": "exams.deep-hero" }, [
       el("span", { class: "k-ex-hero-mark", "aria-hidden": "true", lang: "ja", text: "深" }),
       el("div", { class: "k-ex-ghero-mid" }, [
-        el("div", { class: "k-ex-inline" }, [u.tierChip(a.tier, true), u.eyebrow(d.title + " · the full Companion")]),
+        el("div", { class: "k-ex-inline" }, [u.tierChip(a.tier, true), u.eyebrow((ix.pids && ix.pids.length > 1 ? ix.title : d.title) + " · the full Companion")]),
         el("h1", { class: "k-ex-ghero-title", text: a.title + ": every shape, worked" }),
         el("p", { class: "k-ex-ghero-line", text: u.plural(ix.archetypes, "question shape") + " in your scope, " + u.plural(ix.variations, "worked variation") + " with " + board + "'s mark points, " +
           u.plural(ix.practice, "practice question") + " with mark schemes. Every question here is written by KurenaiOS; real ones are referenced, never shown." }),
