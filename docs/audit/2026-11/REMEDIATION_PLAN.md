@@ -1200,6 +1200,14 @@ its "only goes down" rule; AP-01 stage 2 would win it back.
   landing: Help & Guide (AA-16, SH-10, SH-11, AX-20, AX-34, AP-06), GUIDE.md
   (SH-32) and the docs re-baseline (AP-05). AP-04 (one lesson reader) and
   AP-07 are not started.
+- **RELEASED 18 Nov: sw `kos-exams-4`** (https://0cc14b5b.kurenai-os.pages.dev,
+  main = `feat/exams-audit` 779ef98): W8's speed batch, the `hub.js` split and
+  the nine page bundles went live with the Exams & Papers audit fixes
+  (docs/exams-audit-2026-11-18.md, smoke187; gate 169). New standing rule:
+  every feature is tested in every aspect (browser at desktop and iPad,
+  printed PDFs measured, every tier and board, the user's own files, edit
+  and delete paths) before a release. W8's "now" part is done but the ~4 MB
+  boot aim (Focus, Assistant, aitools, calendar, vaults, labs to split).
 - **Done 18 Nov (`feat/w8-lazy` b155a38, stacked on feat/w8-hub, NOT
   deployed): AP-01 stage 2, first part.** Boot parses 8.78 → 7.87 MB
   (smoke142's budget 8.85 → 7.9 MB). Nine page bundles: Money, the
