@@ -19,11 +19,11 @@ chronological diary here.
   (`docs/audit/2026-11/REMEDIATION_PLAN.md`); the Exams & Papers rework is
   `docs/exams-rework-plan.md` (branch `feat/exams-plan` until it merges).
 - Production: https://kurenai-os.pages.dev
-- Latest release: sw `kos-integrity-21` (18 November 2026). Every release
+- Latest release: sw `kos-integrity-22` (18 November 2026). Every release
   before it, with what it shipped, its immutable URL and its branch, is in
   [`docs/RELEASES.md`](docs/RELEASES.md), newest first; a new release adds
   its entry there and changes only this line and the next here.
-- Service-worker version: `kos-integrity-21`
+- Service-worker version: `kos-integrity-22`
 - Required smoke gate: 166 / 166 suites (`""`, 2–156, 160–164 and 180–184) — `npm test`;
   what each suite holds: [`docs/SMOKE.md`](docs/SMOKE.md). New suites on this
   account are numbered from 180 (see `docs/HANDOFF.md`).
@@ -33,7 +33,7 @@ chronological diary here.
   `github-token` (version 4; the GitHub App itself and its `GITHUB_*`
   secrets are NOT created yet), `ext-token` (version 1, its `GOOGLE_*` and
   `TODOIST_*` secrets set) and `vndb-ulist`, with the rest of `supabase/functions/`. Every migration in
-  `supabase/migrations/` is applied (the newest `20261030000001`, `kos_ext`);
+  `supabase/migrations/` is applied (the newest `20261118000001`, `kos_attempts`);
   a new one is applied by hand and recorded here.
 - Not yet tried against the real thing: Todoist and Google sign-in (RC6's
   bookkeeping is tested on fakes only). FSRS's Optimise stays off until

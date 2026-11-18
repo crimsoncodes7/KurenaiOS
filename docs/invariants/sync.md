@@ -147,7 +147,7 @@ Read this file before editing or testing anything in its domain.
     and the server runs (`KOS.push.pull`) ask with the same overlap, each
     skipping a row it holds at that stamp. A pull that brought something (or deleted
     something) names its store's key to the change bus (invariant 164,
-    `db:money`, `db:reviews`, `db:mind`, `db:reports`, `db:ink`) as another
+    `db:money`, `db:reviews`, `db:mind`, `db:reports`, `db:ink`, `db:attempts`) as another
     device's change; a push, an echo or a failure says nothing. A new side
     store is wrapped the same way and listed in the store registry
     (invariant 7).

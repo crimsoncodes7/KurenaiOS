@@ -194,4 +194,9 @@ Read this file before editing or testing anything in its domain.
     part ids ("Q3 (b)" → "3(b)"), and REFUSES another version, another
     attempt, an unknown part or a re-mark out of range — on an error
     nothing is stored. Accepted feedback is kept on the attempt
-    (`addFeedback`). Replication to `kos_attempts` is to come (D1).
+    (`addFeedback`). It REPLICATES to the owner-only `kos_attempts` (D1,
+    migration `20261118000001`, `KOS.attempts.syncCloud`, wrapped by
+    `KOS.sideSync` as "Recorded attempts", key `db:attempts`): local first,
+    a newer `updatedAt` wins (every local change stamps a later time), an
+    attempt still being recorded on this page is never replaced, and a
+    deletion travels as a tombstone and is never sent back.

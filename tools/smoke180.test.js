@@ -23,6 +23,8 @@
          no fence, smart quotes, trailing commas and // comments, part ids
          written loosely; refused: another attempt, an unknown part, a
          re-mark out of range, another version, no JSON at all.
+     H · replication to kos_attempts: up, down, newer wins, deletions both
+         ways, nothing echoed (decision D1).
      G · no errors, no request.
 
    Run: node tools/smoke180.test.js */
@@ -244,6 +246,61 @@ step("F · the reply read back, noise forgiven, the wrong things refused", async
   const back = await cb((c) => A.get(uid, c));
   assert(back.feedback[id] && back.feedback[id].findings.length === 1, "feedback kept on the attempt");
   await cb((c) => A.remove(uid, c));
+});
+
+step("H · recorded attempts replicate (D1): up, down, newer wins, deletions both ways", async () => {
+  const rows = new Map(); let n = 0;
+  const ts = () => "2026-11-18T10:00:" + String(n++).padStart(2, "0");
+  A._setCloudApi({
+    since(stamp, offset, done) {
+      const list = [...rows.values()].filter((r) => !stamp || r.updated_at > stamp).sort((x, y) => (x.updated_at < y.updated_at ? -1 : 1));
+      done(null, list.slice(offset, offset + 200));
+    },
+    upsert(batch, done) { batch.forEach((r) => rows.set(r.uid, Object.assign({}, r, { updated_at: ts() }))); done(null, []); }
+  });
+  const sync = () => cb((c) => A.syncCloud(c));
+  (await cb((c) => A.list({}, c))).forEach(() => {});
+  await Promise.all((await cb((c) => A.list({}, c))).map((r) => cb((c) => A.remove(r.uid, c))));
+  await cb((c) => K.mediadb.setKV("attempts.del", [], () => c(null)));
+  K.cloud.signedIn = () => false;
+  eq((await sync()).skipped, true, "signed out, nothing is sent");
+  const t = Date.now();
+  const mine = A.begin({ kind: "paper", title: "Mine", started: t, parts: [{ id: "1", marks: 4 }] });
+  A.open(mine, "1", t + 1000); A.keys(mine, "1", 2, t + 2000); A.end(mine, t + 9000);
+  for (let i = 0; i < 40; i++) await app.settle();
+  K.cloud.signedIn = () => true; K.cloud.userId = () => "u1";
+  const up = await sync();
+  assert(up.pushed >= 1 && rows.has(mine), "this device's attempt goes up: " + JSON.stringify(up));
+  eq(rows.get(mine).data_json.ev.map((x) => x[1]).join(""), "okz", "its events, nothing else");
+  eq((await sync()).pushed, 0, "an unchanged attempt is not sent again");
+  /* another device's attempt arrives */
+  const other = "0123456789abcdef";
+  rows.set(other, { uid: other, data_json: { uid: other, kind: "paper", title: "From the iPad", started: t - 5000, parts: [{ id: "1", marks: 2 }], ev: [[0, "o", "1"]], marks: { "1": 2 }, by: "self", updatedAt: t + 100 }, updated_at: ts() });
+  const down = await sync();
+  eq([down.pulled, down.pushed], [1, 0], "another device's attempt arrives and is not echoed");
+  eq((await cb((c) => A.get(other, c))).title, "From the iPad", "stored here");
+  /* a newer copy elsewhere (feedback added there) replaces ours; an older one does not */
+  rows.set(other, { uid: other, data_json: Object.assign({}, rows.get(other).data_json, { feedback: { f1: { id: "f1", summary: "Good" } }, updatedAt: t + 500 }), updated_at: ts() });
+  await sync();
+  assert((await cb((c) => A.get(other, c))).feedback.f1, "the newer copy wins");
+  rows.set(other, { uid: other, data_json: Object.assign({}, rows.get(other).data_json, { feedback: {}, updatedAt: t + 200 }), updated_at: ts() });
+  await sync();
+  assert((await cb((c) => A.get(other, c))).feedback.f1, "an older copy never replaces a newer one");
+  /* marks set here go up */
+  await cb((c) => A.setMarks(mine, { "1": 3 }, "self", null, c));
+  await sync();
+  eq(rows.get(mine).data_json.marks, { "1": 3 }, "marks set here travel");
+  /* a deletion here travels as a tombstone; one there is applied and not sent back */
+  await cb((c) => A.remove(mine, c));
+  await sync();
+  assert(rows.get(mine).data_json.deleted, "a deletion here is a tombstone there");
+  rows.set(other, { uid: other, data_json: { uid: other, deleted: true, updatedAt: t + 900 }, updated_at: ts() });
+  const del = await sync();
+  eq(del.deleted, 1, "a deletion there is applied here");
+  eq(await cb((c) => A.get(other, c)), null, "gone");
+  eq((await sync()).pushed, 0, "and nothing is sent back");
+  K.cloud.signedIn = () => false;
+  A._setCloudApi(null);
 });
 
 step("G · no errors, no request", async () => {

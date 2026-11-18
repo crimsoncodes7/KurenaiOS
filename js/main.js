@@ -195,6 +195,7 @@
   /* FSRS (5.6, phase 3): the review log's replicated copy in kos_reviews,
      so every device's ratings join the optimiser's fit */
   if (KOS.reviewLog && KOS.reviewLog.start) KOS.reviewLog.start();
+  if (KOS.attempts && KOS.attempts.start) KOS.attempts.start();
   if (KOS.inkSync) KOS.inkSync.start();
   /* the ink engine's notebook index (roadmap 6.1): small, kept in memory */
   if (KOS.ink) KOS.ink.ready();

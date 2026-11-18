@@ -25,7 +25,8 @@
    fires for each stroke, erasure and undo ({doc, kind, t0, dur}); a doc is
    tied to a part by `bindDoc`. Typed answers call `keys`. Nothing is sent
    anywhere; the store rides the full backup and is in the store registry
-   (invariant 7). Replication to `kos_attempts` (D1) is the next batch.  */
+   (invariant 7). It replicates to the owner-only `kos_attempts` (D1,
+   migration 20261118000001; syncCloud below), local first.            */
 (function () {
   "use strict";
   window.KOS = window.KOS || {};
@@ -91,6 +92,9 @@
     };
   }
 
+  /* a change's time, never at or before the last one (two changes in one
+     millisecond still order, so the sync never misses the second) */
+  function stamp(r) { return Math.max(Date.now(), (r && r.updatedAt || 0) + 1); }
   /* ---------- the live recorders on this page ---------- */
   var live = {};          // uid → record
   var docs = {};          // ink doc key → {uid, part}
@@ -99,7 +103,7 @@
     var r = live[uid];
     if (!r) return;
     clearTimeout(saveT[uid]);
-    var go = function () { delete saveT[uid]; r.updatedAt = Date.now(); put(r, function () {}); };
+    var go = function () { delete saveT[uid]; r.updatedAt = stamp(r); put(r, function () {}); };
     if (now) go(); else saveT[uid] = setTimeout(go, 1500);
   }
   function begin(meta) {
@@ -139,6 +143,7 @@
     Object.keys(docs).forEach(function (k) { if (docs[k].uid === uid) delete docs[k]; });
     persist(uid, true);
     delete live[uid];
+    soonSync();
     return true;
   }
   function bindDoc(uid, doc, part) { if (doc) docs[doc] = { uid: uid, part: String(part) }; }
@@ -198,6 +203,12 @@
   }
   function remove(uid, cb) {
     delete live[uid];
+    /* a deletion travels as a tombstone (invariant 32) */
+    kvGet("attempts.del", function (tomb) {
+      tomb = Array.isArray(tomb) ? tomb : [];
+      if (!tomb.some(function (t) { return t.uid === uid; })) tomb.push({ uid: uid, at: Date.now() });
+      kvSet("attempts.del", tomb, function () { soonSync(); });
+    });
     txn("readwrite", function (err, t) {
       if (err) { cb && cb(err); return; }
       t.objectStore(OS).delete(uid);
@@ -211,7 +222,8 @@
       if (err || !r) { cb && cb(err || new Error("no such attempt")); return; }
       r.marks = marks || {}; r.by = by === "teacher" ? "teacher" : "self";
       if (tracker) r.tracker = String(tracker);
-      put(r, cb);
+      r.updatedAt = stamp(r);
+      put(r, function (e, n) { soonSync(); if (cb) cb(e, n); });
     });
   }
   function addFeedback(uid, fb, cb) {
@@ -219,7 +231,8 @@
       if (err || !r) { cb && cb(err || new Error("no such attempt")); return; }
       var id = rid();
       r.feedback[id] = Object.assign({ id: id, at: Date.now() }, fb);
-      put(r, function (e2, n) { cb && cb(e2, id, n); });
+      r.updatedAt = stamp(r);
+      put(r, function (e2, n) { soonSync(); if (cb) cb(e2, id, n); });
     });
   }
   function count(cb) {
@@ -241,6 +254,128 @@
       t.oncomplete = function () { cb(null, { rows: rows.length }); };
       t.onerror = function () { cb(t.error); };
     });
+  }
+
+  /* ---------- replication (decision D1) ----------
+     `kos_attempts` holds every device's recorded attempts, keyed by uid.
+     Local first (invariant 31): signed out or in a review namespace nothing
+     is sent. Pull rows newer than this device's cursor (two minutes of
+     overlap, invariant 36d): a newer copy replaces the stored one (never one
+     still being recorded on this page), a tombstone deletes it. Then push
+     every attempt changed since this device last sent it, and every local
+     deletion as a tombstone (`attempts.del` in the media kv) — a deletion
+     pulled in is applied and never sent back (invariant 32). */
+  var cloudApi = null, syncing = false, syncTimer = null, syncEvery = null;
+  var PAGE = 200, CHUNK = 50;
+  function realCloud() {
+    function c() { return KOS.cloud.client(); }
+    function run(b, cb) {
+      b.then(function (res) { res.error ? cb(new Error(res.error.message || "Attempt sync failed.")) : cb(null, res.data); })
+        .catch(function (e) { cb(new Error((e && e.message) || "Attempt sync failed — network?")); });
+    }
+    return {
+      since: function (iso, offset, cb) {
+        var q = c().from("kos_attempts").select("uid, data_json, updated_at");
+        if (iso) q = q.gt("updated_at", iso);
+        run(q.order("updated_at", { ascending: true }).range(offset, offset + PAGE - 1), cb);
+      },
+      upsert: function (rows, cb) { run(c().from("kos_attempts").upsert(rows, { onConflict: "user_id,uid" }), cb); }
+    };
+  }
+  function cloud() { return cloudApi || realCloud(); }
+  function canSync() {
+    return !!(KOS.cloud && KOS.cloud.signedIn && KOS.cloud.signedIn() && KOS.mediadb && KOS.mediadb.available() &&
+      !(KOS.dataMode && KOS.dataMode.mode));
+  }
+  function kvGet(k, cb) { if (KOS.mediadb && KOS.mediadb.getKV) KOS.mediadb.getKV(k, function (e, v) { cb(v); }); else cb(null); }
+  function kvSet(k, v, cb) { if (KOS.mediadb && KOS.mediadb.setKV) KOS.mediadb.setKV(k, v, function () { if (cb) cb(); }); else if (cb) cb(); }
+  function syncCloud(cb) {
+    if (syncing || !available() || !canSync()) { if (cb) cb(null, { pushed: 0, pulled: 0, skipped: true }); return; }
+    syncing = true;
+    var who = KOS.cloud.userId(), key = "attempts.sync." + who, out = { pushed: 0, pulled: 0, deleted: 0 };
+    function finish(err) { syncing = false; if (cb) cb(err || null, out); }
+    kvGet(key, function (meta) {
+      meta = meta && typeof meta === "object" ? meta : {};
+      meta.sent = meta.sent && typeof meta.sent === "object" ? meta.sent : {};
+      list({}, function (e1, local) {
+        if (e1) { finish(e1); return; }
+        var have = {};
+        local.forEach(function (r) { have[r.uid] = r; });
+        var maxTs = meta.cursor || null, offset = 0, puts = [], dels = [];
+        (function page() {
+          cloud().since(KOS.sideSync ? KOS.sideSync.since(meta.cursor) : meta.cursor || null, offset, function (e2, rows) {
+            if (e2) { finish(e2); return; }
+            rows = rows || [];
+            rows.forEach(function (row) {
+              if (!maxTs || row.updated_at > maxTs) maxTs = row.updated_at;
+              var d = row.data_json || {}, mine = have[row.uid], at = +d.updatedAt || 0;
+              if (live[row.uid]) return;
+              if (d.deleted) {
+                if (mine && (mine.updatedAt || 0) <= at) { dels.push(row.uid); delete have[row.uid]; }
+                meta.sent[row.uid] = at;
+                return;
+              }
+              var r = normalise(Object.assign({}, d, { uid: row.uid }));
+              if (!r || (mine && (mine.updatedAt || 0) >= (r.updatedAt || 0))) return;
+              puts.push(r); have[r.uid] = r; meta.sent[r.uid] = r.updatedAt || 0;
+            });
+            if (rows.length === PAGE) { offset += PAGE; page(); return; }
+            applyPulled(puts, dels, function (e3) {
+              if (e3) { finish(e3); return; }
+              out.pulled = puts.length; out.deleted = dels.length;
+              meta.cursor = maxTs;
+              push();
+            });
+          });
+        })();
+        function push() {
+          kvGet("attempts.del", function (tomb) {
+            tomb = Array.isArray(tomb) ? tomb : [];
+            var rows = Object.keys(have).map(function (u) { return have[u]; })
+              .filter(function (r) { return (r.updatedAt || 0) > (meta.sent[r.uid] || 0); })
+              .map(function (r) { return { user_id: who, uid: r.uid, data_json: r }; })
+              .concat(tomb.map(function (t) { return { user_id: who, uid: t.uid, data_json: { uid: t.uid, deleted: true, updatedAt: t.at } }; }));
+            var j = 0;
+            (function chunk() {
+              if (j >= rows.length) {
+                kvSet("attempts.del", [], function () { kvSet(key, meta, function () { finish(null); }); });
+                return;
+              }
+              var slice = rows.slice(j, j + CHUNK);
+              j += CHUNK;
+              cloud().upsert(slice, function (e4) {
+                if (e4) { kvSet(key, meta, function () { finish(e4); }); return; }
+                slice.forEach(function (x) { meta.sent[x.uid] = x.data_json.updatedAt || 0; });
+                out.pushed += slice.length;
+                chunk();
+              });
+            })();
+          });
+        }
+      });
+    });
+  }
+  function applyPulled(puts, dels, cb) {
+    if (!puts.length && !dels.length) { cb(null); return; }
+    txn("readwrite", function (err, t) {
+      if (err) { cb(err); return; }
+      var os = t.objectStore(OS);
+      puts.forEach(function (r) { os.put(r); });
+      dels.forEach(function (u) { os.delete(u); });
+      t.oncomplete = function () { cb(null); };
+      t.onerror = function () { cb(t.error); };
+    });
+  }
+  if (KOS.sideSync) syncCloud = KOS.sideSync.wrap({ id: "attempts", label: "Recorded attempts", key: "db:attempts" }, syncCloud);
+  function soonSync() {
+    if (!canSync()) return;
+    if (syncTimer) clearTimeout(syncTimer);
+    syncTimer = setTimeout(function () { syncTimer = null; syncCloud(); }, 20000);
+  }
+  function startSync() {
+    if (syncEvery || !available()) return;
+    setTimeout(function () { syncCloud(); }, 12000);
+    syncEvery = setInterval(function () { syncCloud(); }, 30 * 60 * 1000);
   }
 
   /* ---------- figures (pure, no DOM, also in Node) ---------- */
@@ -353,7 +488,10 @@
     isLive: function (uid) { return !!live[uid]; },
     get: get, list: list, put: put, remove: remove, setMarks: setMarks, addFeedback: addFeedback,
     count: count, exportAll: exportAll, importAll: importAll,
-    figures: figures, normalise: normalise, IDLE_MS: IDLE_MS
+    figures: figures, normalise: normalise, IDLE_MS: IDLE_MS,
+    syncCloud: function (cb) { syncCloud(cb); }, start: startSync,
+    /* test seam: a fake kos_attempts API (since, upsert) */
+    _setCloudApi: function (a) { cloudApi = a || null; }
   };
   if (available()) open(function () {});
 })();
