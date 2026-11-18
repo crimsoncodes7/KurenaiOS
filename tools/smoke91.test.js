@@ -78,11 +78,12 @@ step("A · examStats is pure and loads in Node", () => {
   const total = Object.keys(w.leaves).reduce((s, k) => s + w.leaves[k].mean, 0);
   assert(Math.abs(total - w.marks) < 0.5, "leaf weights add up to the paper's marks a sitting: " + total + " vs " + w.marks);
   const rows = S.boundaryRows(global.window.KOS_BOUNDARIES, "AQA", "7517", "Paper 2");
-  eq(rows.map((r) => r.series), ["2024-06", "2023-06"], "the component rows, newest first");
+  /* AQA's June 2025 and 2026 tables added 18 November 2026: the newest three */
+  eq(rows.map((r) => r.series), ["2026-06", "2025-06", "2024-06"], "the component rows, newest first, at most three");
   assert(S.predicted([{ pct: 60 }, { pct: 70 }], rows).thin, "two timed papers give no grade");
   const p = S.predicted([{ pct: 50 }, { pct: 55 }, { pct: 60 }], rows);
   assert(p.lo && p.hi && S.GRADES.indexOf(p.lo) >= S.GRADES.indexOf(p.hi), "a range, lo to hi: " + p.lo + "–" + p.hi);
-  eq(p.seriesText, "2023–24", "the boundary series named");
+  eq(p.seriesText, "2024–26", "the boundary series named");
   /* the band */
   eq(S.band({ coverage: { thin: true }, rag: { thin: true }, recall: { value: 0.9 } }).band, "thin", "two silent signals");
   const risk = S.band({ coverage: { value: 0.2 }, rag: { red: 0 }, recall: { value: 0.9 }, practice: { last: 80 } }, { target: 0.95, targetPct: 70, f: 0.8 });
