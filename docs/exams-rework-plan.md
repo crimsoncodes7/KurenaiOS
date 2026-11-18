@@ -559,7 +559,7 @@ Per device, like a lesson's pages.
 | 1 | The design prompt D-Exams (Appendix C) → you send it to Claude Design | right after approval |
 | 2 | Content (§10) while the design is out: F201 first, then CS, then Maths | ~3 sessions |
 | 3 | Engine work that needs no design: §9.1–9.4, the journal, the pack and its import | ~2 sessions |
-| 4 | The pages from the handoff | ~3 sessions |
+| 4 | The pages from the handoff — BUILT 18 November 2026 on `feat/exams-rework` (smoke185, invariant 130b): All exams, the sidebar and its iPad strip, sheet and phone list, Today, Topics, Scope from a list, Plan, Revise with its chapters and the card drill, Questions, Papers, a pad under every part of a timed paper, Review with Get and Add feedback, and targets. Not yet: a true full-screen sitting (the paper still shows inside the app frame) and marking beside the answer in a split view (47d; the tally dialog marks it) | ~3 sessions |
 | 5 | iPad and phone checks, the gate, your go-ahead, deploy | target **1 December**, and no later than **Friday 4 December**: the mocks are all in the week of 14 December (exact dates not known yet), so this leaves at least ten days of use |
 
 The rest of W8 and the W1/W7 P2/P3s come after the deploy. W3 and W9 stay

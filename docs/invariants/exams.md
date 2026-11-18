@@ -200,3 +200,36 @@ Read this file before editing or testing anything in its domain.
     a newer `updatedAt` wins (every local change stamps a later time), an
     attempt still being recorded on this page is never replaced, and a
     deletion travels as a tombstone and is never sent back.
+130b. ONE EXAM'S PAGES READ; TODAY IS COMPUTED; THE PLAN AND THE TARGETS
+    WRITE ONLY FROM A CLICK (the Exams & Papers rework, design 45–47;
+    smoke185). `#/exams` is All exams: the next exam with today's session,
+    every exam as a row with ONE state word (On track · Behind · Started ·
+    Not started · Needs a scope), one tab row (Exams · Timetable · Results
+    · Library · Load). An exam is its header above eight sections (Today,
+    Plan, Topics, Revise, Questions, Papers, Review, On the day), drawn by
+    `KOS.examShell` from `KOS.examSession` (`js/core/examsession.js`, in
+    the lazy `exams-pages` bundle with the pages, invariant 168). Old
+    addresses redirect: readiness → Today, guide → Revise (D3), practice
+    → Review; the full Companion's index (`#/exams/<id>/deep`) keeps its
+    address. TODAY IS NEVER STORED: due cards, redo items, the weakest
+    topic's next step, a paper on paper days (the exam's own weekday), at
+    most two open targets — three to five steps; only the running step
+    (`state.ui.examRun`) and a skipped day (`state.ui.examSkip`) are kept,
+    per device, from a click. The strip's empty cells name the action that
+    fills them, never "Not enough evidence"; there is no readiness band.
+    Topics' confidence is `KOS.rag`'s (a tap cycles Red · Amber · Green).
+    Revise's reading progress is per device (`state.ui.examRead`), set by
+    Mark as read or a chapter's foot on screen for three seconds, never by
+    a render. The PLAN places sessions day by day and writes NOTHING until
+    Send, which writes this exam's personal Pacing rows tagged
+    `exam:<id>` and replaces only its own unticked ones (invariant 126).
+    Scope from a list (`matchList`) matches each pasted line by its words;
+    two candidates wait for a choice and a line with none is kept as a note
+    — nothing is dropped silently. TARGETS (`state.exams.targets`, synced)
+    are made only from an imported action or a "Where you lose marks" row;
+    one whose rule is minutes a mark closes itself when TWO recorded
+    attempts meet it (`noteEvidence`), any other by hand. The estimated
+    grade of an IT unit is `KOS.hub.it`'s from `js/data/it-grades.js`
+    (invariant 26f) and is labelled an estimate. Zero Governor traffic
+    (invariant 129).
+
