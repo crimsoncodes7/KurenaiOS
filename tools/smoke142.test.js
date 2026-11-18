@@ -65,7 +65,13 @@ function eq(a, b, m) { if (JSON.stringify(a) !== JSON.stringify(b)) throw new Er
 /* 17 Nov 2026 (kos-integrity-17): 8.7 → 8.85 MB for the Money import pages
    (moneyimp.js), held updates and the first open's welcome, released
    together; the page modules move to first use in AP-01 stage 2 */
-const BOOT_BUDGET = 8.85 * 1024 * 1024;
+/* 18 Nov 2026 (W8, AP-01 stage 2): 8.85 → 7.9 MB. Nine page bundles
+   (Money, the Governor's Seat, Code's desk, Mind's and Japanese's desks,
+   Help, the Shrine, Reports' long view and story, Sync's pages) took 0.91
+   MB out of boot (8.78 → 7.87 MB). The rest of the aim needs the modules
+   other code reads at boot (Focus, the Assistant, the calendar, the
+   vaults, the labs) split into the part boot needs and the page. */
+const BOOT_BUDGET = 7.9 * 1024 * 1024;
 
 /* jsdom has no User Timing: a small recorder, set before the app's scripts */
 function timing(win) {
@@ -349,7 +355,13 @@ step("J · every page that names what it needs opens from cold without an early 
     ["tracker", undefined, ["exam-index"]],
     ["due", undefined, ["content-compsci", "content-maths", "content-it"]],
     ["review", { tab: "due", run: "all" }, ["content-compsci", "content-maths", "content-it"]],
-    ["cardstats", undefined, ["content-compsci", "content-maths", "content-it"]]
+    ["cardstats", undefined, ["content-compsci", "content-maths", "content-it"]],
+    /* W8 (AP-01 stage 2): page modules on first use */
+    ["code", "units", ["content-code", "page-code"]], ["subject", "mind", ["page-mind"]], ["subject", "ja", ["page-ja"]],
+    ["ref", { subject: "mind", ref: E.KOS.hub.LEAVES.mind[0].ref }, ["page-mind"]],
+    ["money", undefined, ["page-money"]], ["governor", undefined, ["page-governor"]], ["mind", undefined, ["page-mind"]],
+    ["japanese", undefined, ["page-ja"]], ["help", undefined, ["page-help"]], ["shrine", undefined, ["page-shrine"]],
+    ["reports", undefined, ["page-reports"]], ["mediasync", undefined, ["page-sync"]]
   ];
   for (const [view, arg, want] of jobs) {
     const app = await lazyBoot(fxB);
@@ -367,7 +379,7 @@ step("J · every page that names what it needs opens from cold without an early 
   }
   /* pages that need nothing never wait */
   const app = await lazyBoot(fxB);
-  ["home", "focus", "calendar", "reminders", "goals", "money", "matrix", "assignments", "pacing", "governor", "achievements", "files", "data"].forEach((v) => {
+  ["home", "focus", "calendar", "reminders", "goals", "matrix", "assignments", "pacing", "achievements", "files", "data"].forEach((v) => {
     app.KOS.show(v);
     assert(!waiting(app), v + " opens at once");
   });
@@ -421,7 +433,14 @@ step("L · after boot the bundles arrive in idle moments, the last subject first
   eq(app.errors.concat(app.consoleErrors), [], "no errors");
   await app.settle(); await app.KOS.store.flush(); await E.KOS.store.flush();
   const out = [];
-  diff(stateOf(E, fxA.storage), stateOf(app, fx.storage), "state", out);
+  /* a goal's lastMeasuredAt is WHEN its figure last changed, read off the
+     clock as KOS.goals.compute finishes. compute waits for its IndexedDB
+     reads, and the harness gives IndexedDB four turns per virtual timer, so
+     a warm-up that queues more timers (W8, AP-01 stage 2: nine page
+     bundles) finishes it at an earlier virtual second. The figures
+     themselves (lastCurrent, progress) are still compared. */
+  const unstamp = (st) => { ((st.goals && st.goals.items) || []).forEach((g) => { delete g.lastMeasuredAt; }); return st; };
+  diff(unstamp(stateOf(E, fxA.storage)), unstamp(stateOf(app, fx.storage)), "state", out);
   eq(out, [], "the saved state after warming up");
 });
 

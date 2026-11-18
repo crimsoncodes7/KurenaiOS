@@ -800,7 +800,7 @@ step("a query with no answer says what was searched", async () => {
    These steps are the ones that would have caught it. */
 step("one canonical search controller, two presentations", () => {
   const shell = src("js/modules/mobile-shell.js");
-  const hub = src("js/modules/hub.js");
+  const hub = ["hub","searchui","home","subject","topic","dataview"].map((f) => src("js/modules/" + f + ".js")).join("\n");
   /* moved, never cloned: the presenter must not build its own input or list */
   assert(/slot\.appendChild\(searchbox\)/.test(shell),
     "the phone sheet does not move the canonical search node into itself");
@@ -810,7 +810,8 @@ step("one canonical search controller, two presentations", () => {
     "the presenter does not close through the canonical cancel seam");
   assert(/KOS\.hub\.onSearchChosen/.test(shell),
     "the presenter still races the controller instead of being told a result was chosen");
-  assert(/dismissSearch: dismissSearch, onSearchChosen: onSearchChosen/.test(hub),
+  /* W8 (AP-09): the controller is searchui.js, which adds its seams to KOS.hub */
+  assert(/KOS\.hub\.dismissSearch = dismissSearch;/.test(hub) && /KOS\.hub\.onSearchChosen = onSearchChosen;/.test(hub),
     "the controller does not expose exactly the two presenter seams");
   /* and the sheet must not still describe a specification-only search.
      A comment ABOUT retired copy is not the copy — strip comments first,
@@ -871,7 +872,7 @@ step("the results panel is not trapped under the page", () => {
 });
 
 step("a slow vault answer cannot overwrite a newer keystroke", () => {
-  const hubSrc = src("js/modules/hub.js");
+  const hubSrc = ["hub","searchui","home","subject","topic","dataview"].map((f) => src("js/modules/" + f + ".js")).join("\n");
   assert(/var mine = \+\+seq/.test(hubSrc) && /if \(mine !== seq\) return/.test(hubSrc),
     "the async search callback does not check that its query is still current");
 });

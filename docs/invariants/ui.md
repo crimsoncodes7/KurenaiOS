@@ -429,8 +429,19 @@ Read this file before editing or testing anything in its domain.
     boot and injected, in order, the first time something needs them. The
     tags ARE the manifest: the service worker's precache and every test
     loader read the same tags, so nothing else lists the files, and a file
-    is in one bundle or at boot, never both. Japanese, Mind and Creatives
-    content, the labs and every module still load at boot. Until a bundle
+    is in one bundle or at boot, never both. PAGE MODULES ride bundles too
+    (W8, AP-01 stage 2): `exams-pages`, and `page-money`, `page-governor`,
+    `page-code`, `page-mind`, `page-ja`, `page-help`, `page-shrine`,
+    `page-reports` and `page-sync`, each named for its view in `lazy.js`'s
+    `PAGES` (a study space's desk and Mind's topic pages by subject). A
+    module goes into one only if nothing at boot runs or reads it: no
+    listener, ticker or registration at load, and its exports called only
+    by its own pages, by pages that wait for it, or behind a fallback.
+    Until it is in, `KOS.views.<view>` is a stand-in that waits the same way
+    (so a route to it is valid from the first moment) and `KOS.openShop`
+    forwards to the shop once `page-governor` is in. Japanese, Mind and
+    Creatives content, the labs and every other module still load at boot.
+    Until a bundle
     is in, `js/data/lazy-index.js` (GENERATED; `node tools/gen_lazy_index.mjs`
     after changing a lazy file, smoke142 B fails when it is stale) puts a
     STAND-IN where each of its objects will register, in the order the

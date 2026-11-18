@@ -358,14 +358,14 @@ step("every study tab carries its full name", () => {
 step("the topic strip is one row: what fits, the rest behind +N", () => {
   const tabs = $$("[data-ui~='topic.tabs'] [data-ui~='ui.tab']");
   const folded = tabs.filter(b => b.hidden);
-  assert(!/TAB_VISIBLE/.test(fs.readFileSync(path.join(ROOT, "js/modules/hub.js"), "utf8")), "the fold is a fixed count again");
+  assert(!/TAB_VISIBLE/.test(["hub","searchui","home","subject","topic","dataview"].map((f) => fs.readFileSync(path.join(ROOT, "js/modules/" + f + ".js"), "utf8")).join("\n")), "the fold is a fixed count again");
   assert(folded.every(b => b.getAttribute("aria-selected") !== "true"), "the open tab was folded away");
   const more = $("[data-ui~='topic.nav'] [data-ui~='ui.menu-button']");
   assert(!folded.length || (more && more.textContent.indexOf("+" + folded.length) === 0), "the folded tabs are not offered behind +N");
   /* design part 2, frame 15d: on a phone all eight tabs ride one declared
      scroller; above 700px the fold keeps the strip to one row, so the
      scroller never has anything to scroll there */
-  const hub = fs.readFileSync(path.join(ROOT, "js/modules/hub.js"), "utf8");
+  const hub = ["hub","searchui","home","subject","topic","dataview"].map((f) => fs.readFileSync(path.join(ROOT, "js/modules/" + f + ".js"), "utf8")).join("\n");
   assert(/!phoneTier\)/.test(hub), "the fold no longer runs above the phone tier");
   const sc = $("[data-ui~='topic.tabs']").closest("[data-scroller]");
   assert(!sc || sc.contains($("[data-ui~='topic.tabs']")) && !sc.contains(more || document.createElement("i")), "the +N menu rides inside the scroller");

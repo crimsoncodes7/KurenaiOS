@@ -33,7 +33,7 @@ const { readCss, pending } = require("./lib/css");
 const ROOT = path.resolve(__dirname, "..");
 const html = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
 const css = readCss();
-const hubSrc = fs.readFileSync(path.join(ROOT, "js/modules/hub.js"), "utf8");
+const hubSrc = ["hub","searchui","home","subject","topic","dataview"].map((f) => fs.readFileSync(path.join(ROOT, "js/modules/" + f + ".js"), "utf8")).join("\n");
 const dom = new JSDOM(html, { url: "http://localhost/index.html", runScripts: "outside-only", pretendToBeVisual: true });
 const { window } = dom;
 const { document } = window;

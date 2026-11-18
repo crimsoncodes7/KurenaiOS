@@ -350,9 +350,28 @@
     due: reviewBundles,
     cardstats: reviewBundles
   };
+  /* W8 (AP-01 stage 2): PAGE MODULES on first use. A page whose module
+     (and the modules only it uses) rides its own bundle names it here; a
+     subject desk or a topic page drawn by a study space's module needs that
+     space's bundle too. Until the bundle is in, KOS.views.<view> is a
+     stand-in (below), so a route to it is valid from the first moment. */
+  var PAGES = {
+    money: ["page-money"], governor: ["page-governor"], code: ["page-code"],
+    mind: ["page-mind"], japanese: ["page-ja"], help: ["page-help"],
+    shrine: ["page-shrine"], reports: ["page-reports"],
+    mediasync: ["page-sync"], aniprofile: ["page-sync"], vndbprofile: ["page-sync"]
+  };
+  var SPACE_DESK = { code: "page-code", mind: "page-mind", ja: "page-ja" };
+  var SPACE_TOPIC = { mind: "page-mind" };
+  function pagesFor(viewId, arg) {
+    var out = (PAGES[viewId] || []).slice(), sid = subjectOfArg(arg);
+    if (viewId === "subject" && SPACE_DESK[sid]) out.push(SPACE_DESK[sid]);
+    if (viewId === "ref" && SPACE_TOPIC[sid]) out.push(SPACE_TOPIC[sid]);
+    return out;
+  }
   function needsFor(viewId, arg) {
     var fn = NEEDS[viewId];
-    var want = fn ? fn(arg) : [];
+    var want = (fn ? fn(arg) : []).concat(pagesFor(viewId, arg));
     /* a page may add its own (KOS.lazy.needs.<view> = fn) */
     var extra = KOS.lazy.needs[viewId];
     if (extra) want = want.concat(extra(arg) || []);
@@ -392,8 +411,32 @@
     });
   }
 
+  /* the stand-in views and exports of the page bundles. KOS.show never
+     calls a stand-in view (it waits for the bundle and calls the real one);
+     one called directly waits the same way. The real module replaces each
+     as it loads, in a lazy boot or an eager one alike. */
+  KOS.views = KOS.views || {};
+  Object.keys(PAGES).forEach(function (view) {
+    var f = function (main, arg) {
+      placeholder(main, PAGES[view], function () {
+        main.innerHTML = "";
+        if (KOS.views[view] !== f) KOS.views[view](main, arg);
+      }, "page:" + view);
+    };
+    f.lazyStandIn = true;
+    KOS.views[view] = f;
+  });
+  /* the shop, opened at a department from the labs, a slot or the
+     Governor's gates (governor-ui.js, in page-governor) */
+  var openShop = KOS.openShop = function (sel) {
+    need(["page-governor"]).then(function () {
+      if (KOS.openShop !== openShop) KOS.openShop(sel); else KOS.show("governor", "shop");
+    }, function () { KOS.show("governor", "shop"); });
+  };
+
   KOS.lazy = {
     mode: LAZY ? "lazy" : "eager",
+    pagesFor: pagesFor,
     names: names,
     files: function (name) { return (files()[name] || []).slice(); },
     ready: ready,
