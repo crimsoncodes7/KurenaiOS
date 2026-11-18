@@ -1200,6 +1200,18 @@ its "only goes down" rule; AP-01 stage 2 would win it back.
   landing: Help & Guide (AA-16, SH-10, SH-11, AX-20, AX-34, AP-06), GUIDE.md
   (SH-32) and the docs re-baseline (AP-05). AP-04 (one lesson reader) and
   AP-07 are not started.
+- **Done 18 Nov (`feat/w8-hub` 5454685, from main, NOT deployed): AP-09.**
+  `hub.js` (4,335 lines) is now its shared core (829: leaves, the study
+  derivations, IT grades, rail counters, the spine, the spec renderers) and
+  five page files loaded straight after it: `home.js` (1,226), `subject.js`
+  (720), `topic.js` (993), `dataview.js` (Backup & Restore, 389) and
+  `searchui.js` (the header search, which adds `KOS.hub.search`,
+  `dismissSearch`, `onSearchChosen`; 262). Shared helpers reach the pages
+  through `KOS.hub._` (not an API). Every old line is in one of the six.
+  Gate 167 / 167 on that branch. Left from the audit's AP-09 advice: per-tab
+  topic renderers registered by subject, `aitools.js` by domain, and a boot
+  assertion of required modules. `feat/w8-speed` and `feat/w8-hub` touch
+  different files and merge cleanly into main together. NEXT: AP-01 stage 2.
 - **Done 18 Nov (`feat/w8-speed` 2ed2e71, NOT deployed): AP-18, AP-03,
   AX-25, AG-08, AP-15, CL-05.** `KOS.store.epoch()` (every save, transaction
   or document taken in) and `docEpoch()` (only a document taken in).
