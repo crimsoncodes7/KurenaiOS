@@ -212,6 +212,43 @@ step("I · Scope from a list (45e): every line matched, chosen or kept; nothing 
   K.exams.remove(x.id);
 });
 
+step("J · typical grade boundaries and objectives for CS and Maths (as for IT)", async () => {
+  const tb = (pre) => K.exams.typicalBounds(K.exams.add({ preset: pre, tier: "mock", title: pre, date: day(40) }, { quiet: true }));
+  const ppe = tb("aqa-7517-ppe"), pure = tb("edexcel-9ma0-pure-mock"), it = tb("ocr-f201"), p2 = tb("aqa-7517-2");
+  eq(ppe.series.map((x) => x.series), ["2026-06", "2025-06", "2024-06"], "the last three series");
+  eq(p2.series[0].marks, { "A*": 81, A: 63, B: 53, C: 43, D: 33, E: 23 }, "AQA's June 2026 notional Paper 2 boundaries");
+  assert(ppe.kind === "paper" && /Paper 1 and Paper 2/.test(ppe.from), "a mock over both papers averages both");
+  eq(pure.series[0].marks.A, Math.round(210 / 300 * 100), "Pearson's June 2026 A (210 of 300) as a percentage of the paper");
+  assert(pure.kind === "subject" && /no grade is printed per paper/.test(pure.from), "Edexcel's per-paper grade is read from the subject's percentages");
+  eq(it.grades.map((g) => [g.grade, g.marks]), [["Distinction", 48], ["Merit", 36], ["Pass", 24]], "IT's unit boundaries");
+  const typical = ppe.grades.filter((g) => g.grade === "A")[0].marks;
+  const g = K.exams.typicalGrade(ppe, typical);
+  eq(g.grade, "A", "the typical A mark is an A");
+  const pa = K.exams.all().filter((x) => x.preset === "aqa-7517-ppe" && x.title === "aqa-7517-ppe")[0];
+  const est = K.examReview.grade(pa, typical - 1, 100);
+  assert(est.grade === "B" && est.next.grade === "A" && est.next.need === 1 && /mean of June 2026, June 2025, June 2024/.test(est.from), "Review's estimate for a CS mock: " + JSON.stringify(est));
+  for (const pre of ["aqa-7517-ppe", "edexcel-9ma0-pure-mock"]) {
+    const x = app.window.KOS_EXAMS.essentialsFor(pre);
+    eq(x.objectives.map((o) => o.code), ["AO1", "AO2", "AO3"], pre + ": AO1–AO3");
+    assert(x.objectives.every((o) => o.weight) && x.structure.length && x.notExaminable.length, pre + ": weights, how the marks go, what is not examinable");
+    const a = K.exams.all().filter((y) => y.title === pre)[0];
+    K.show("exams", { id: a.id, tab: "revise", sub: "essentials" }); await app.settle();
+    assert(q("[data-ui~='exams.bounds']") && /Typical/.test(text("[data-ui~='exams.bounds']")), pre + ": Grade boundaries in Exam essentials");
+  }
+  K.exams.all().filter((x) => /^(aqa|edexcel|ocr)-/.test(x.title)).forEach((x) => K.exams.remove(x.id));
+});
+
+step("K · Plan's Send asks, then writes", async () => {
+  K.show("exams", { id: F.id, tab: "plan" }); await app.settle();
+  const n0 = K.pacing.entries().filter((e) => e.tag === "exam:" + F.id).length;
+  q("[data-ui~='exams.plan-send']").click(); await app.settle();
+  eq(K.pacing.entries().filter((e) => e.tag === "exam:" + F.id).length, n0, "nothing before the confirm");
+  q("[data-ui~='ui.confirm-yes']").click(); await app.settle();
+  const mine = K.pacing.entries().filter((e) => e.tag === "exam:" + F.id);
+  assert(mine.length > n0 || K.examSession.schedule(F).sessions === 0, "Send wrote this exam's rows: " + mine.length);
+  mine.forEach((e) => K.pacing.removeEntry(e.id));
+});
+
 step("H · no errors, no request", async () => {
   eq(app.errors, [], "no error");
   assert(!app.fetches.length, "no request: " + JSON.stringify(app.fetches.slice(0, 3)));

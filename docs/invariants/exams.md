@@ -230,6 +230,14 @@ Read this file before editing or testing anything in its domain.
     one whose rule is minutes a mark closes itself when TWO recorded
     attempts meet it (`noteEvidence`), any other by hand. The estimated
     grade of an IT unit is `KOS.hub.it`'s from `js/data/it-grades.js`
-    (invariant 26f) and is labelled an estimate. Zero Governor traffic
-    (invariant 129).
+    (invariant 26f); a CS or Maths paper's is read from
+    `KOS.exams.typicalBounds` — the board's last three series in
+    `js/data/boundaries.js` (AQA's notional per-paper boundaries, averaged
+    over both papers for a school's mock across them; Pearson's subject
+    boundaries as a percentage, since it prints none per paper), scaled to
+    the paper — and every estimate says so and names its series. A paper
+    is sat FULL SCREEN (a fixed stage, as the Exam Room is) and marked
+    beside the answer, one part at a time; a levels-of-response part is
+    marked by level, then a mark inside it; Finish logs ONE attempt
+    (invariant 124). Zero Governor traffic (invariant 129).
 

@@ -456,7 +456,7 @@ domain file AND its line here, in the same commit.
 - **129** Assessments, scopes, planning and analytics generate zero Governor traffic; redo items pay nothing and pages only read.
 - **130** The full Companion content is authored and original, meeting a per-leaf contract; real questions appear only as references; a school's mock reads every paper it overlaps; a partial Companion never makes a predicted paper.
 - **130a** An attempt is recorded as events per part (never ink or text) and measured on the device; no in-app model reviews it — the XML pack goes out, a validated JSON reply comes back.
-- **130b** An exam is eight sections read from `KOS.examSession`; Today is computed, never stored; the plan writes Pacing only on Send; targets close by two attempts or by hand.
+- **130b** An exam is eight sections read from `KOS.examSession`; Today is computed, never stored; the plan writes Pacing only on Send; targets close by two attempts or by hand; grades are labelled estimates from typical boundaries.
 
 
 ### `ink-files.md`
