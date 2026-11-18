@@ -8,7 +8,7 @@ metadata:
   modified: 2026-11-17T21:04:49.853Z
 ---
 
-**Since kos-exams-2 (2026-11-18, night, NOT deployed):** main has CM-15 (Edexcel code readers, smoke183 B2) and the Exams tier pass (retrieval quiz 5 sections, Files/Notes/prep checklist back, old Readiness/Season/guide removed). `feat/w8-now` (bc39608): SH-31, SH-42, EX-16, AP-11 half, the assessment editor (asterisks, paper named once, IT Distinction/Merit/Pass). W8 next: AP-18/AP-03, badges AX-25/AG-08/AP-15, CL-05, AP-09 hub.js split, AP-01 stage 2. User: F201 papers 2–3 early Dec after the audit; other subjects' full papers ~January.
+**RELEASED sw `kos-exams-3` (2026-11-18, night; immutable https://2d6ab55d.kurenai-os.pages.dev, main c6cd93e):** main has CM-15 (Edexcel code readers, smoke183 B2) and the Exams tier pass (retrieval quiz 5 sections, Files/Notes/prep checklist back, old Readiness/Season/guide removed). `feat/w8-now` (bc39608): SH-31, SH-42, EX-16, AP-11 half, the assessment editor (asterisks, paper named once, IT Distinction/Merit/Pass). W8 next: AP-18/AP-03, badges AX-25/AG-08/AP-15, CL-05, AP-09 hub.js split, AP-01 stage 2. User: F201 papers 2–3 early Dec after the audit; other subjects' full papers ~January.
 
 **Latest (2026-11-18, late, Opus): RELEASED sw `kos-exams-2`** — immutable https://78ff2445.kurenai-os.pages.dev, main = feat/exams-rework (1c4f109): the whole Exams & Papers rework (design 45–47) incl. full-screen sitting + split marking (47b–d), typical grade boundaries for AQA 7517 (AQA June 2025/2026 tables) and Edexcel 9MA0 (Pearson June 2026, confirmed) via KOS.exams.typicalBounds, AO1–AO3 for both in essentials. Gate 167. Next: F201 papers 2–3 (5.22), the 12 CM-15 items, then the rest of W8.
 
