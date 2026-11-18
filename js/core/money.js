@@ -691,7 +691,9 @@
     };
     rq.onerror = function () { cb(rq.error); };
   }
+  var gen = 0;   /* W8 (AX-25): write transactions begun, as in mediadb */
   function txn(names, mode, fn) {
+    if (mode === "readwrite") gen++;
     open(function (err, d) {
       if (err) { fn(err); return; }
       try { fn(null, d.transaction(names, mode)); } catch (e) { fn(e); }
@@ -1742,6 +1744,7 @@
   data();
 
   KOS.money = {
+    gen: function () { return gen; },
     /* state document */
     normalise: normalise, data: data, normaliseCategory: normaliseCategory, normaliseRule: normaliseRule,
     normalisePot: normalisePot, normaliseTx: normaliseTx,

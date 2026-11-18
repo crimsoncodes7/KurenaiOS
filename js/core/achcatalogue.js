@@ -66,9 +66,27 @@
   }
 
   /* ---------------- shared async reads (once per evaluation) ---------------- */
+  /* W8 (AX-25, AG-08): a read is also KEPT across evaluations, so opening
+     the Wall, the Seat's showcase or a celebration does not walk the whole
+     vault again. Kept while its store's write counter (`gen`, bumped as
+     each write transaction begins in this tab) is unchanged, and for ten
+     minutes at most, since another tab's writes do not move this tab's
+     counter. A store with no counter is never kept. Callers read the
+     value only. */
+  var KEEP_MS = 10 * 60 * 1000, kept = {};
+  function keep(key, src, fn) {
+    return function (done) {
+      var S = src(), g = S && S.gen ? S.gen() : null, k = kept[key], now = Date.now();
+      if (g != null && k && k.g === g && now - k.at < KEEP_MS) { done(k.v); return; }
+      fn(function (v) {
+        if (g != null && v != null && S.gen() === g) kept[key] = { g: g, v: v, at: now };
+        done(v);
+      });
+    };
+  }
   /* one pass over the vault: what the Collection's badges read */
   function vault(ctx, cb) {
-    ctx.later("vault", function (done) {
+    ctx.later("vault", keep("vault", function () { return KOS.mediadb; }, function (done) {
       if (!KOS.mediadb || !KOS.mediadb.available()) { done(null); return; }
       KOS.mediadb.open(function (err, db) {
         if (err || !db) { done(null); return; }
@@ -109,20 +127,20 @@
             if (ex.steamAppId) out.steam++;
         }
       });
-    }, cb);
+    }), cb);
   }
   function vaultField(k) { return function (ctx, cb) { vault(ctx, function (v) { cb(v ? v[k] : null); }); }; }
   function money(ctx, cb) {
-    ctx.later("money", function (done) {
+    ctx.later("money", keep("money", function () { return KOS.money; }, function (done) {
       if (!KOS.money || !KOS.money.available()) { done(null); return; }
       KOS.money.range("1900-01-01", "2999-12-31", function (err, tx) { done(err ? null : tx || []); });
-    }, cb);
+    }), cb);
   }
   function reviewCount(ctx, cb) {
-    ctx.later("reviews", function (done) {
+    ctx.later("reviews", keep("reviews", function () { return KOS.reviewLog; }, function (done) {
       if (!KOS.reviewLog || !KOS.reviewLog.available()) { done(null); return; }
       KOS.reviewLog.count(function (err, n) { done(err ? null : n); });
-    }, cb);
+    }), cb);
   }
   function inkDocs() { return KOS.ink && KOS.ink.allDocs ? KOS.ink.allDocs() : []; }
   function attempts() { return KOS.tracker && KOS.tracker.all ? KOS.tracker.all() : []; }

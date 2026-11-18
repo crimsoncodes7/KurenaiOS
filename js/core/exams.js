@@ -705,7 +705,24 @@
      index), each silent below its evidence, and the band with the one
      signal holding it down. A retrieval quiz reads recall TODAY; every
      other tier projects to the exam date through FSRS. */
+  /* W8 (AP-18, AP-03): readiness is memoised per assessment, keyed on its
+     own record, the day and the store's change counter — any save, merge
+     or bundle arriving clears it — so a boot or a page asking fifteen
+     times computes once. The result is read-only to every caller. */
+  var rdMemo = {}, lazyEpoch = 0;
+  if (KOS.lazy && KOS.lazy.on) KOS.lazy.on(function () { lazyEpoch++; });
   function readiness(a, from) {
+    if (!a) return null;
+    var ep = KOS.store.epoch ? KOS.store.epoch() : null;
+    if (ep == null) return readinessNow(a, from);
+    var key = (a.updatedAt || 0) + "|" + (from || today()) + "|" + ep + "|" + lazyEpoch + "|" + JSON.stringify(a.scope || null) + "|" + a.date + "|" + a.tier;
+    var hit = rdMemo[a.id];
+    if (hit && hit.key === key) return hit.v;
+    var v = readinessNow(a, from);
+    rdMemo[a.id] = { key: key, v: v };
+    return v;
+  }
+  function readinessNow(a, from) {
     if (!a) return null;
     var now = from || today(), t = a.tier, X = S();
     if (t === "deadline") return deadlineBand(a, now);

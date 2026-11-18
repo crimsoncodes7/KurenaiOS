@@ -191,7 +191,7 @@
     var list = idx || examIndex(today);
     for (var n = 0; n < list.length; n++) {
       var e = list[n];
-      if (e.leaves ? e.leaves.indexOf(t.sid + ":" + t.ref) !== -1
+      if (e.leaves ? (e.set ? e.set[t.sid + ":" + t.ref] === 1 : e.leaves.indexOf(t.sid + ":" + t.ref) !== -1)
         : e.sid === t.sid && (!e.unit || t.ref === e.unit || t.ref.indexOf(e.unit + ".") === 0)) return e.date;
     }
     return null;
@@ -203,11 +203,26 @@
      window, on the day the hash picks (the exam-day target, examTarget). It only ever brings a date forward,
      and a card it moved is due before the exam, so a second pass leaves it
      alone. Runs at boot and when an exam is saved; never from a render. */
-  function examPass() {
+  /* W8 (AP-18): the pass is idempotent — a card it moved is due before its
+     exam and is left alone next time — so it runs again only when something
+     it reads has changed (at boot: examPass({ifChanged: true})): the day, the exams and their scopes, the exam-day
+     target, the weights, or the cards (their number and the last rating).
+     The signature is kept per device; nothing else is stored. Each exam's
+     leaves become a lookup once, not an array scanned per card. */
+  function examPass(opts) {
     var r0 = examTarget();
     if (!r0) return 0;
     var today = todayISO(), idx = examIndex(today), srs = store.state.srs || {}, n = 0;
     if (!idx.length) return 0;
+    var keys = Object.keys(srs), lastAt = "";
+    for (var q = 0; q < keys.length; q++) { var mq = srs[keys[q]]; if (mq && mq.last && mq.last > lastAt) lastAt = mq.last; }
+    var fit = store.state.srsCfg && store.state.srsCfg.fit;
+    var sig = [today, r0, fit ? fit.at : 0, keys.length, lastAt, idx.map(function (e) { return e.date + ":" + (e.id || e.sid || "") + ":" + (e.leaves ? e.leaves.join(" ") : ""); }).join(",")].join("|");
+    var ui = store.state.ui || {};
+    /* only boot asks to skip an unchanged pass; a saved exam or a changed
+       setting always runs it */
+    if (opts && opts.ifChanged && ui.examPassSig === sig) return 0;
+    idx.forEach(function (e) { if (e.leaves) { e.set = {}; e.leaves.forEach(function (k) { e.set[k] = 1; }); } });
     Object.keys(srs).forEach(function (k) {
       var m = srs[k];
       if (!m || !m.last || !m.due || m.leech || m.due <= today) return;
@@ -231,6 +246,7 @@
       m.due = due; m.cap = exam;
       n++;
     });
+    if (store.state.ui) store.state.ui.examPassSig = sig;
     if (n) store.save();
     return n;
   }

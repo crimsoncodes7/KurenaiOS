@@ -44,7 +44,9 @@
     };
     rq.onerror = function () { cb(rq.error); };
   }
+  var gen = 0;   /* W8 (AX-25): write transactions begun, as in mediadb */
   function txn(mode, fn) {
+    if (mode === "readwrite") gen++;
     open(function (err, d) {
       if (err) { fn(err); return; }
       try { fn(null, d.transaction(REV, mode)); } catch (e) { fn(e); }
@@ -225,6 +227,7 @@
   if (available()) open(function () {});
 
   KOS.reviewLog = {
+    gen: function () { return gen; },
     available: available,
     add: add,
     all: all,

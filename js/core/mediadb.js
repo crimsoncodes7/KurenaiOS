@@ -204,7 +204,13 @@
     };
     rq.onerror = function () { cb(rq.error || new Error("Could not open the media store")); };
   }
+  /* W8 (AX-25): a counter of write transactions begun in this tab, so a
+     reader that keeps a derived tally (the badges' vault pass) knows when
+     it may still be right. Bumped as the write begins: a read that began
+     before it keeps the old number and is not reused. */
+  var gen = 0;
   function tx(store, mode, cb) {
+    if (mode === "readwrite") gen++;
     open(function (err, d) {
       if (err) { cb(err); return; }
       cb(null, d.transaction(store, mode).objectStore(store));
@@ -1506,6 +1512,7 @@
   }
 
   function importAll(data, cb) {
+    gen++;
     open(function (err, d) {
       if (err) { cb(err); return; }
       var t = d.transaction([ENTRIES, KV], "readwrite");
@@ -1549,6 +1556,7 @@
   }
 
   KOS.mediadb = {
+    gen: function () { return gen; },
     available: available,
     open: open,
     STATUSES: STATUSES,

@@ -325,15 +325,43 @@
       next: next, prev: prev, full: full, masked: masked, state: state, earned: e,
       at: e ? e.at : null, lastAt: e ? Math.max.apply(null, Object.keys(e.t).map(function (k) { return e.t[k]; }).concat([e.at])) : null };
   }
-  /* list(cb, {set, ids}) → every badge's view, measured now */
+  /* W8 (AX-25, AG-08, AP-15): THE VALUES LAST MEASURED, kept for list().
+     The Wall's tabs, the Seat (which asks twice a render), Edit your seat
+     and a celebration all read badge values; each used to measure all 254
+     from scratch. A kept value is reused while nothing it could read has
+     moved: the day, a document taken in (another tab, the cloud, a
+     restore), a bundle loaded, the session ledger, or a write to the
+     vault, Money or the review log — any of those clears them all — and an
+     owner event (touch) drops its own badges at once. Ten minutes at most,
+     whatever happens. evaluate() always measures afresh (it is the
+     writer) and leaves what it measured here. Values only: the earned
+     tier is read fresh by viewOf every time. */
+  var vals = {}, valsKey = null, VAL_MS = 10 * 60 * 1000, lazyN = 0;
+  if (KOS.lazy && KOS.lazy.on) KOS.lazy.on(function () { lazyN++; });
+  function valsGate() {
+    function g(S) { return S && S.gen ? S.gen() : "-"; }
+    var k = [iso(new Date()), store.docEpoch ? store.docEpoch() : 0, lazyN, ledgerKey(store.state.sessions || []),
+      g(KOS.mediadb), g(KOS.money), g(KOS.reviewLog)].join("|");
+    if (k !== valsKey) { vals = {}; valsKey = k; }
+  }
+  function keptVal(d) { var k = vals[d.id]; return k && Date.now() - k.at < VAL_MS ? k : null; }
+  function forget(domains) {
+    DEFS.forEach(function (d) { if (d.owners.some(function (o) { return domains.indexOf(o) >= 0; })) delete vals[d.id]; });
+  }
+  /* list(cb, {set, ids}) → every badge's view: kept values where they still
+     hold (then cb runs at once), the rest measured now */
   function list(cb, opts) {
     opts = opts || {};
+    valsGate();
     var ctx = makeCtx();
     var ds = DEFS.filter(function (d) { return (!opts.set || d.set === opts.set) && (!opts.ids || opts.ids.indexOf(d.id) >= 0); });
-    var out = new Array(ds.length), left = ds.length;
+    var out = new Array(ds.length), left = ds.length, key = valsKey;
     if (!left) { cb([]); return; }
     ds.forEach(function (d, i) {
+      var k = keptVal(d);
+      if (k) { out[i] = viewOf(d, ctx, k.v); if (--left === 0) cb(out); return; }
       measureOne(d, ctx, function (v) {
+        if (valsKey === key) vals[d.id] = { v: v, at: Date.now() };
         out[i] = viewOf(d, ctx, v);
         if (--left === 0) cb(out);
       });
@@ -367,6 +395,8 @@
       return;
     }
     running = true;
+    valsGate();
+    var vkey = valsKey;
     /* silent: this device's first sweep, and the two minutes after it (a
        fresh device's first cloud pull lands then — its history is not news) */
     var ctx = makeCtx(), A = S(), ui = U(), silent = !ui.achInit || Date.now() - ui.achInit < SILENT_MS;
@@ -393,6 +423,7 @@
     ds.forEach(function (d) {
       measureOne(d, ctx, function (v) {
         delete inflight[d.id];
+        if (valsKey === vkey) vals[d.id] = { v: v, at: Date.now() };
         try {
           var ths = thresholds(d, ctx), e = A.earned[d.id], had = e ? e.tier : 0;
           var tier = tierOf(ths, v);
@@ -444,6 +475,7 @@
   /* ---------------- owner events: only the affected badges ---------------- */
   var dirty = {}, timer = null, started = false;
   function touch(domain) {
+    if (domain) forget(Array.isArray(domain) ? domain : [domain]);
     /* owner events wait for the boot's first full sweep (start) */
     if (!domain || !started) return;
     (Array.isArray(domain) ? domain : [domain]).forEach(function (d) { dirty[d] = true; });
@@ -569,7 +601,7 @@
     titles: titles, title: title, setTitle: setTitle, showcase: showcase, setShowcase: setShowcase,
     quiet: quiet, earnedIn: earnedIn, notify: notify, roman: roman,
     onChange: onChange, start: start,
-    _resetCache: function () { ledgerCache = null; lastPing = {}; },
+    _resetCache: function () { ledgerCache = null; lastPing = {}; vals = {}; valsKey = null; },
     _inflight: function () { return { running: running, ids: Object.keys(inflight) }; },
     _started: function (on) { started = on !== false; },
     /* an evaluation running or queued (a test waits for it before it snapshots the state) */

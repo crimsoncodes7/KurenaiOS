@@ -30,6 +30,7 @@
   };
 
   var KEY = MODE ? "kurenai-os-" + MODE + "-v1" : "kurenai-os-v1";
+  var epoch = 0, docEpoch = 0;     /* W8 (AP-18): see bump() */
 
   var DEFAULTS = {
     v: 1,
@@ -818,6 +819,7 @@
     for (var i = 0; i < out.length; i++) dst.push(out[i]);
   }
   function applyDoc(doc) {
+    bump(); docEpoch++;
     var next = deepMerge(JSON.parse(JSON.stringify(DEFAULTS)), doc);
     scrubLegacy(next);
     assignDeep(state, next);
@@ -836,6 +838,13 @@
   /* what the other tabs wrote to localStorage, into memory now.
      → false (nothing new), "adopted" (memory was clean) or "merged" (this
      tab holds changes of its own on top: a save is due) */
+  /* W8 (AP-18): a counter that moves whenever the state may have changed —
+     every save, every transaction, every document taken in from another
+     tab or the cloud. A derived read (readiness) memoises on it.
+     docEpoch moves only when a whole document is taken in (another tab, the
+     cloud, a restore): a page open saves too, so a read kept ACROSS opens
+     (the badges' values) keys on this one instead. */
+  function bump() { epoch = (epoch || 0) + 1; }
   function takeIn() {
     if (hold || !KOS.cloudmerge) return false;
     var now = null;
@@ -846,6 +855,7 @@
     var rev = readRev(), how;
     if (!isSibling(rev) && memoryIsBase()) { applyDoc(other); setBase(now, rev); health.merges++; how = "adopted"; }
     else { mergeIn(other, now, rev); how = "merged"; }
+    bump(); docEpoch++;
     lastRev = Math.max(lastRev, rev);
     health.rev = Math.max(health.rev, rev);
     seenRev = rev; seenMark = revMarked();
@@ -970,6 +980,7 @@
   var saveTimer = null, lockQueued = false;
   if (renamedAtLoad) save();
   function save() {
+    bump();
     /* Build 4a — nudge cloud sync (debounced + no-op when absent/signed
        out; dirtiness is DERIVED by hashing, so a missed nudge is only a
        missed shortcut, never lost data) */
@@ -1009,6 +1020,7 @@
     locked(function () {
       function run() {
         var out, err = null;
+        bump();
         try { out = fn(); } catch (e) { err = e; console.error("Kurenai OS: a store transaction failed", e); }
         clearTimeout(saveTimer); saveTimer = null;
         if (window.KOS && KOS.cloudsync && KOS.cloudsync.noteChange) KOS.cloudsync.noteChange("state");
@@ -1128,6 +1140,8 @@
   var recovery = new Promise(function (res) { recoverFromMirror(res); });
 
   KOS.store = {
+    epoch: function () { return epoch; },
+    docEpoch: function () { return docEpoch; },
     state: state,
     save: save,
     flush: flush,

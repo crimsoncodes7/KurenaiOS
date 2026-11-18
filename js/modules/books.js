@@ -1478,7 +1478,7 @@
     area.layout("wall");
 
     /* ---- the works that survive the current filters, for one author ---- */
-    function worksOf(name) {
+    function worksOfNow(name) {
       return (groups[name] || []).filter(function (e) {
         if (filt.format && e.format !== filt.format) return false;
         if (filt.status && e.status !== filt.status) return false;
@@ -1512,7 +1512,7 @@
     }
 
     function authorCard(name) {
-      var works = worksOf(name);
+      var works = worksOfNow(name);
       var owned = mkVols(works);
       var chapters = mkChapters(works);
       var spent = works.reduce(function (n, e) {
@@ -1584,6 +1584,16 @@
       if (!byName) activeLetter = "";          // a ranked list has no alphabet
 
       var minWorks = parseInt(filt.min, 10) || 0;
+      /* W8 (CL-05): each author's filtered works and totals worked out once
+         a paint, not once per comparison of the sort (it was O(n log n ×
+         works) filters on every paint and every keystroke) */
+      var wm = {}, agg = {};
+      function worksOf(n) { return wm[n] || (wm[n] = worksOfNow(n)); }
+      function totals(n) {
+        var t = agg[n];
+        if (!t) { var w = worksOf(n); t = agg[n] = { works: w.length, ch: mkChapters(w), vols: mkVols(w) }; }
+        return t;
+      }
       var names = allNames.filter(function (n) {
         if (q && n.toLowerCase().indexOf(q) === -1) return false;
         if (activeLetter && mkLetter(n) !== activeLetter) return false;
@@ -1597,9 +1607,9 @@
         if (a === MK_UNATTRIBUTED) return 1;
         if (b === MK_UNATTRIBUTED) return -1;
         if (byName) return a.localeCompare(b);
-        if (sortBy === "works") return worksOf(b).length - worksOf(a).length || a.localeCompare(b);
-        if (sortBy === "chapters") return mkChapters(worksOf(b)) - mkChapters(worksOf(a)) || a.localeCompare(b);
-        return mkVols(worksOf(b)) - mkVols(worksOf(a)) || a.localeCompare(b);
+        if (sortBy === "works") return totals(b).works - totals(a).works || a.localeCompare(b);
+        if (sortBy === "chapters") return totals(b).ch - totals(a).ch || a.localeCompare(b);
+        return totals(b).vols - totals(a).vols || a.localeCompare(b);
       });
 
       /* the alphabet reflects the SEARCH and the filters, not the letter

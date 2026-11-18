@@ -155,7 +155,7 @@
   if (KOS.questions) KOS.questions.migrate();
   /* phase 2: a card scheduled past its next real exam, with its recall on
      the day under the target, comes forward into the week or two before */
-  KOS.srs.examPass();
+  KOS.srs.examPass({ ifChanged: true });
   if (KOS.code && KOS.code.migrateCards) KOS.code.migrateCards();
   /* W7 (JM-07, MI-01, CR-25): every lesson's four checks brought up to its
      evidence once at boot, so a lesson a review or a card held while the
