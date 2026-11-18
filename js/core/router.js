@@ -126,7 +126,7 @@
       return typeof a === "string" && a && a !== "all" ? [a] : null;
     }
   };
-  var EXAM_TABS = { timetable: 1, readiness: 1, plan: 1, practice: 1, guide: 1, season: 1, results: 1, past: 1 };
+  var EXAM_TABS = { timetable: 1, readiness: 1, plan: 1, practice: 1, guide: 1, season: 1, results: 1, past: 1, library: 1, load: 1 };
   var DECODE = {
     ref: function (p) {
       if (p.length < 2) return null;

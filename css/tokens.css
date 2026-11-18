@@ -1248,6 +1248,36 @@ color-scheme: dark;
 --ex-paper-soft: #444444;
 --ex-paper-rule: #9a9a9a;
 --ex-paper-edge: #c9c9c9;
+/* Exams & Papers, reworked around one exam (design turns 45–47) */
+--xs-nav-w: 216px;            /* an exam's sidebar of eight sections (45b) */
+--xs-nav-fold: 56px;          /* folded to its marks while Revise is open (46a) */
+--xs-chap-w: 248px;           /* Revise's chapter list */
+--xs-measure: 644px;          /* a chapter's reading width at 1440 */
+--xs-toc-w: 168px;            /* "On this page" */
+--xs-hero-l: 300px;           /* the next exam's left half (45a) */
+--xs-step-n: 28px;            /* a step's number, ring or tick */
+--xs-step-mins: 64px;         /* a step's minutes column */
+--xs-date-row: 52px;          /* an upcoming row's date tile */
+--xs-prog-w: 150px;           /* an upcoming row's progress column */
+--xs-state-w: 112px;          /* an upcoming row's state column */
+--xs-plc-ref: 72px;           /* a topic row's spec-ref column (45d) */
+--xs-plc-paper: 52px;
+--xs-plc-rag: 96px;
+--xs-plc-bar: 112px;
+--xs-plc-pct: 48px;
+--xs-plc-best: 64px;
+--xs-plc-last: 82px;
+--xs-day-w: 30px;             /* a day in the plan's strip (45f) */
+--xs-day-h: 64px;
+--xs-week-min: 200px;         /* a week of the plan, at least */
+--xs-paper-g: 40px;           /* a paper row's glyph tile (47a) */
+--xs-paper-col: 64px;         /* a paper row's marks and time columns */
+--xs-paper-last: 128px;
+--xs-sheet-w: 420px;          /* the portrait iPad's sections sheet */
+--xs-sheet-row: 56px;
+--xs-cell-min: 180px;         /* a strip cell, at least */
+--xs-scope-w: 820px;          /* the scope sheet (45e) */
+--xs-paste-w: 240px;          /* its pasted list */
 --ex-paper-head: #eeeeee;
 --gl-detail-side: 320px;
 

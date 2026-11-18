@@ -289,18 +289,21 @@
       return at - m <= 60 && at - m >= -10;
     })[0] || null;
   }
+  /* the hub's header and its one tab row (45a): Exams · Timetable ·
+     Results · Library · Load. A page from an older address keeps its own
+     switch on the right. */
+  var HEAD_TAB = { timetable: "timetable", results: "results", practice: "library", library: "library", load: "load" };
   function head(main, tab, o) {
     o = o || {};
-    var sn = E().season(), up = E().upcoming(), next = up[0];
-    var room = roomNow();
-    var sub = o.sub || (sn.on && sn.exams.length ? plural(sn.exams.length, "exam") + " in this season · the next is " + sn.exams[0].title + " " + nextWhen(sn.exams[0])
-      : up.length ? plural(up.length, "assessment") + " ahead · the next is " + next.title + " " + nextWhen(next) : "Every exam, mock, test and deadline in one place");
-    var primary = room || (sn.on && sn.next && sn.next.date === today())
-      ? btn("Exam Room", "primary", function () { KOS.show("exams", { id: (room || sn.next).id, tab: "room" }); }, { "data-ui": "exams.room-btn" })
-      : btn("＋ New assessment", "primary", function () { editor(null, {}, function (a) { KOS.show("exams", a.id); }); }, { "data-ui": "exams.add" });
-    main.appendChild(KOS.ui.pageHeader({ kicker: sn.on ? "試 · Exam season" : "試 · The record", title: "Exams & Papers", sub: sub, className: "k-ex-head",
-      actions: [seasonSwitch(), btn("＋ Log a result", "", function () { KOS.trackerLog({}, function () { KOS.rerender(); }); }, { "data-ui": "exams.log" }), primary] }));
-    main.appendChild(el("div", { class: "k-ex-tabsrow", "data-ui": "exams.tabsrow" }, [hubTabs(tab, sn.on), el("span", { class: "k-ex-grow" }), o.right || null].filter(Boolean)));
+    var t = tab === "timetable" && o.sub === "load" ? "load" : HEAD_TAB[tab] || null;
+    if (KOS.examShell) {
+      KOS.examShell.hubHead(main, t);
+      var row = main.querySelector("[data-ui~='exams.tabsrow']");
+      if (o.right && row) { row.appendChild(el("span", { class: "k-ex-grow" })); row.appendChild(o.right); }
+      return;
+    }
+    main.appendChild(KOS.ui.pageHeader({ kicker: "試 · Exams & Papers", title: "Exams & Papers", className: "k-ex-head" }));
+    main.appendChild(el("div", { class: "k-ex-tabsrow", "data-ui": "exams.tabsrow" }, [hubTabs(tab, E().season().on), el("span", { class: "k-ex-grow" }), o.right || null].filter(Boolean)));
   }
 
   /* ---------------- the Timetable (29b) ---------------- */
@@ -310,7 +313,8 @@
     var sw = KOS.ui.tabs([{ label: "List", active: mode === "list", onSelect: function () { if (mode !== "list") KOS.show("exams", "timetable"); } },
       { label: "Load", active: mode === "load", onSelect: function () { if (mode !== "load") KOS.show("exams", { tab: "timetable", sub: "load" }); } }], { variant: "workspace", label: "Timetable view" });
     sw.setAttribute("data-ui", sw.getAttribute("data-ui") + " exams.ttview");
-    head(main, "timetable", { right: sw });
+    /* Load is its own tab now (45a) */
+    head(main, "timetable", { sub: mode === "load" ? "load" : null });
     var all = X.all().filter(function (a) { return !a.archived; });
     var wrap = el("div", { class: "k-ex-page", "data-ui": "exams.hub exams.timetable" });
     main.appendChild(wrap);
@@ -1316,35 +1320,51 @@
     wrap.appendChild(el("div", { class: "k-ex-grid2" }, [left, side]));
   }
 
-  /* ---------------- the view ---------------- */
-  var HUBTABS = { timetable: 1, readiness: 1, plan: 1, practice: 1, guide: 1, season: 1, results: 1 };
+  /* ---------------- the view ----------------
+     The rework (design 45–47): bare #/exams is All exams and one exam is
+     KOS.examShell's page with its eight sections. The hub's own tabs are
+     Timetable · Results · Library · Load; Season, the cross-exam Planner,
+     Practice's attempts and analytics stay reachable by address. */
+  var HUBTABS = { timetable: 1, readiness: 1, plan: 1, practice: 1, guide: 1, season: 1, results: 1, library: 1, load: 1 };
   KOS.views.exams = function (main, arg) {
     KOS.shell.tree("none");
-    var V = KOS.examViews || {}, P = KOS.examPractice || {};
+    var P = KOS.examPractice || {}, SH = KOS.examShell;
     if (arg && typeof arg === "object") {
       if (arg.attempt) return P.attempt ? P.attempt(main, arg.attempt, arg.page) : null;
-      if (arg.id) return page(main, arg.id, arg.tab, arg.sub);
+      if (arg.id) return SH ? SH.examPage(main, arg.id, arg.tab, arg.sub) : page(main, arg.id, arg.tab, arg.sub);
       if (arg.tab) return hub(main, arg.tab, arg.sub);
     }
     if (typeof arg === "string" && arg) {
       if (arg === "past") return hub(main, "timetable", "past");
+      if (arg === "exams") return SH.allExams(main);
       if (HUBTABS[arg]) return hub(main, arg, null);
-      return page(main, arg);
+      return SH ? SH.examPage(main, arg) : page(main, arg);
     }
-    hub(main, E().season().on ? "season" : "timetable", null);
+    if (SH) return SH.allExams(main);
+    timetable(main, null);
   };
+  function moveTo(arg, draw) { if (KOS.router && KOS.router.replaceArg) KOS.router.replaceArg("exams", arg); return draw(); }
   function hub(main, tab, sub) {
-    var V = KOS.examViews || {}, P = KOS.examPractice || {};
-    if (tab === "readiness" && V.readiness) return V.readiness(main, sub);
+    var V = KOS.examViews || {}, P = KOS.examPractice || {}, SH = KOS.examShell;
+    /* D3: the old Companion's address, and an exam's old Readiness, open
+       that exam's Revise and Today */
+    if ((tab === "guide" || tab === "readiness") && sub && E().get(sub) && SH) {
+      var sec = tab === "guide" ? "revise" : "today";
+      return moveTo({ id: sub, tab: sec }, function () { return SH.examPage(main, sub, sec); });
+    }
+    if ((tab === "guide" || tab === "readiness") && SH) return moveTo(null, function () { return SH.allExams(main); });
     if (tab === "plan" && V.planner) return V.planner(main);
     if (tab === "season" && V.season) return V.season(main);
     if (tab === "results" && V.results) return V.results(main, sub);
+    if (tab === "library" && P.practice) return P.practice(main, "library");
     if (tab === "practice" && P.practice) return P.practice(main, sub);
-    if (tab === "guide" && KOS.examGuide) return KOS.examGuide.hub(main, sub);
+    if (tab === "load") return timetable(main, "load");
     timetable(main, sub);
   }
 
   KOS.examTabs = examTabs;
+  /* the pre-rework page: a deadline's overview and the Scope Builder */
+  KOS.examLegacyPage = page;
   KOS.examEditor = editor;
   KOS.examGoalTemplates = goalTemplates;
   KOS.examUI = {

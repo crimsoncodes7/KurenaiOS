@@ -142,13 +142,16 @@
       calculator: CALCULATORS.indexOf(calc) !== -1 ? calc : (pr && pr.calculator) || "",
       extraTime: Math.round(num(pick("extraTime", 0), 0, 100) || 0),
       startBy: isDate(pick("startBy", null)) ? pick("startBy", null) : null,
+      /* the rework's plan (45f): hours a week given to this exam; blank
+         is a share of the week's hours */
+      planHours: num(pick("planHours", null), 0.5, 60),
       checklist: cleanList(pick("checklist", []), 40, function (c) {
         if (!c || !str(c.text)) return null;
         /* `group`: prep (the overview's checklist) or day (On the day, and
            the Exam Room's "Before you go in"); a default item's id is
            "d:<key>" so ticking it once stores it (phase 3) */
         var o = { id: str(c.id, 16) || rid(6), text: str(c.text, 160), done: !!c.done, at: c.done && isFinite(c.at) ? c.at : null,
-          group: c.group === "day" ? "day" : "prep" };
+          group: c.group === "day" || c.group === "night" ? c.group : "prep" };
         /* an app-checked item (phase 4, §14): the app verifies it */
         if (RULE_RE.test(String(c.rule || ""))) { o.rule = String(c.rule); o.done = false; o.at = null; }
         return o;
@@ -858,6 +861,14 @@
       if (a.tier === "real_exam") def("d:cand", "Candidate number", "day");
       def("d:water", "Water, label off", "day");
       def("d:phone", "Phone off and away", "day");
+      /* the night before (46e): ticked the evening before, read again on
+         the day */
+      def("d:n-cheat", "Cheat sheet read once", "night");
+      def("d:n-drill", "Card drill under 5 minutes", "night");
+      def("d:n-room", "Room, seat and start time checked", "night");
+      def("d:n-bag", "Bag packed: pens, pencil, ruler" + (a.calculator === "allowed" ? ", calculator" : ""), "night");
+      def("d:n-alarm", "Alarm set", "night");
+      def("d:n-sleep", "Asleep by 22:30", "night");
     } else if (a.tier === "topic_test") {
       def("d:notes", "Notes read once", "prep");
       def("d:cram", "Cram deck done", "prep");
@@ -889,7 +900,7 @@
     if (rule && !text) text = ruleText(rule);
     if (!a || !str(text)) return null;
     if (rule && (a.checklist || []).some(function (c) { return c.rule === rule; })) return a;
-    var item = { id: rid(6), text: str(text, 160), done: false, group: group === "day" ? "day" : "prep" };
+    var item = { id: rid(6), text: str(text, 160), done: false, group: group === "day" || group === "night" ? group : "prep" };
     if (rule) item.rule = rule;
     return update(id, { checklist: (a.checklist || []).concat([item]) });
   }
