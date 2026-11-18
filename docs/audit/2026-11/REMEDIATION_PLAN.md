@@ -1200,6 +1200,23 @@ its "only goes down" rule; AP-01 stage 2 would win it back.
   landing: Help & Guide (AA-16, SH-10, SH-11, AX-20, AX-34, AP-06), GUIDE.md
   (SH-32) and the docs re-baseline (AP-05). AP-04 (one lesson reader) and
   AP-07 are not started.
+- **Done 18 Nov (`feat/w8-speed` 2ed2e71, NOT deployed): AP-18, AP-03,
+  AX-25, AG-08, AP-15, CL-05.** `KOS.store.epoch()` (every save, transaction
+  or document taken in) and `docEpoch()` (only a document taken in).
+  Readiness is memoised per assessment on its record, the day, the epoch and
+  the lazy bundles. The boot's exam pass skips when its signature (day,
+  target, weights, card count, latest rating, exams and leaves) is unchanged;
+  a saved exam's pass always runs. The vault, Money and the review log count
+  their write transactions (`gen`); the badges' reads of them are kept while
+  that is unchanged (ten minutes at most, since another tab's writes do not
+  move it), and badge VALUES are kept for `list()` until the day, a
+  document, a bundle, the ledger or a store write moves, or an owner event
+  drops its own badges; `evaluate()` still measures afresh. Mangaka works
+  out each author's works and totals once a paint, not per comparison of
+  the sort. smoke186; gate 168 / 168. On the dense seed on the Mac every page
+  already settles under 0.2 s (the Wall's second open 135 → 67 ms), so the
+  audit's 3–12 s figures (the real account, the iPad) are not reproduced
+  here: confirm on the iPad. NEXT: AP-09 (split `hub.js`), AP-01 stage 2.
 - **Done 18 Nov (`feat/w8-now` bc39608, NOT deployed):** SH-31 (ui.js's own
   Back/Forward stack, overwritten by the router, removed), SH-42 (the theme on
   `<html>` only), EX-16 (Files draws 300 at a time and says so, with Show
