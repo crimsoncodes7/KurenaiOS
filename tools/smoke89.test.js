@@ -254,10 +254,12 @@ step("I · the hub's pages draw without writing", async () => {
   K.show("exams"); await app.settle();
   assert(app.document.querySelectorAll("[data-ui~='exams.row']").length >= 2, "the timetable lists them");
   K.show("exams", a.id); await app.settle();
-  /* phase 3 (design 29e): the overview draws the hero, the signals and the
-     scope line; the scope itself is the Scope Builder's page (29d) */
-  assert(app.document.querySelector("[data-ui~='exams.ahero']"), "an assessment's hero");
-  assert(app.document.querySelector("[data-ui~='exams.signals']") || app.document.querySelector("[data-ui~='exams.quiz']") || a.tier === "deadline", "its signals");
+  /* the rework (design 45b): an exam is its header above the sidebar of
+     eight sections; the signals survive as Today's strip (45c), or a
+     scope to set (Topics) when there is none yet; the scope itself is
+     still the Scope Builder's page (29d) */
+  assert(app.document.querySelector("[data-ui~='exams.ahead']") || a.tier === "deadline", "an assessment's header");
+  assert(app.document.querySelector("[data-ui~='exams.strip']") || app.document.querySelector("[data-ui~='exams.s-topics']") || a.tier === "deadline", "its strip, or its scope to set");
   K.show("exams", { id: a.id, tab: "scope" }); await app.settle();
   assert(app.document.querySelector("[data-ui~='exams.scope-builder']"), "its Scope Builder");
   if (d) { K.show("exams", d.id); await app.settle(); assert(app.document.querySelector("[data-ui~='exams.milestones']"), "a deadline's milestones"); }

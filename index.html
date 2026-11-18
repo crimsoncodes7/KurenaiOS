@@ -257,7 +257,6 @@
 <script src="js/core/examstats.js"></script>
 <script src="js/core/exams.js"></script>
 <script src="js/core/examplan.js"></script>
-<script src="js/core/examsession.js"></script>
 <script src="js/core/examcompanion.js"></script>
 <script src="js/core/examdeep.js"></script>
 <script src="js/core/exampaper.js"></script>
@@ -510,11 +509,16 @@
 <script src="js/modules/examguide.js"></script>
 <script src="js/modules/exampaperview.js"></script>
 <script src="js/modules/examdeep.js"></script>
+<!-- Exams & Papers reworked around one exam (design 45–47): its engine and
+     pages load on first use with the Exams view (invariant 168) -->
+<template data-lazy="exams-pages">
+<script src="js/core/examsession.js"></script>
 <script src="js/modules/examshell.js"></script>
 <script src="js/modules/examrevise.js"></script>
 <script src="js/modules/examquestions.js"></script>
 <script src="js/modules/examreview.js"></script>
 <script src="js/modules/examscope.js"></script>
+</template>
 <script src="js/modules/rag.js"></script>
 <script src="js/modules/cardstats.js"></script>
 <script src="js/modules/review.js"></script>

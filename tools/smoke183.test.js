@@ -87,10 +87,13 @@ step("E · EX-40: days, not weeks; 'Start now' while it fits", async () => {
 });
 
 step("F · EX-47: thin says what is missing", async () => {
+  /* the band is gone in the rework (45c): each empty cell of Today's strip
+     names the action that fills it, never "Not enough evidence" nor a
+     "limiting" signal */
   const a = K.exams.add({ tier: "mock", subject: "compsci", title: "Thin mock", date: day(20), scope: { include: ["compsci:4.10"] } }, { quiet: true });
   K.show("exams", { id: a.id }); await app.settle();
-  const band = app.document.querySelector("[data-ui~='exams.band']");
-  assert(band && !/limiting/.test(band.textContent) && /needs:/.test(band.textContent), "thin: 'needs: …', not 'limiting': " + (band && band.textContent));
+  const strip = app.document.querySelector("[data-ui~='exams.strip']");
+  assert(strip && !/limiting|Not enough evidence/.test(strip.textContent) && /to see this/.test(strip.textContent), "thin: the action that fills it: " + (strip && strip.textContent));
   K.exams.remove(a.id);
 });
 
@@ -128,8 +131,10 @@ step("J · Exam essentials: the guide's first section for each December mock", a
   for (const pre of ["ocr-f201", "aqa-7517-ppe", "edexcel-9ma0-pure-mock"]) {
     const a = K.exams.add({ preset: pre, tier: "mock", title: pre, date: day(25) }, { quiet: true });
     eq(K.examCompanion.guide(a).sections[0].id, "essentials", pre + ": essentials first");
-    K.show("exams", { tab: "guide", sub: a.id }); await app.settle();
-    assert(app.document.querySelector("[data-ui~='exams.essentials'] .k-ex-ess-blk"), pre + ": drawn");
+    /* the rework (46b): Exam essentials is Revise's first chapter */
+    K.show("exams", { id: a.id, tab: "revise", sub: "essentials" }); await app.settle();
+    assert(app.document.querySelector("[data-ui~='exams.chapter'][data-chapter='essentials'] .k-xr-tile"), pre + ": drawn");
+    eq(K.examSession.chapters(a)[0].id, "essentials", pre + ": Revise's first chapter");
     K.exams.remove(a.id);
   }
 });

@@ -260,10 +260,18 @@ step("J · the Companion, trend, the paper and its dialogs draw without writing"
     K.show(v, arg); await app.settle();
     assert(app.document.querySelector("#main").children.length, "drew " + JSON.stringify(arg));
   }
+  /* the rework (46a, D3): the Companion's address opens Revise; a real
+     exam's question shapes are in its topic chapters' "How it's asked" */
   K.show("exams", { tab: "guide", sub: real.id }); await app.settle();
-  assert(app.document.querySelector("[data-ui~='exams.shape']"), "a real exam's question shapes");
+  assert(app.document.querySelector("[data-ui~='exams.revise']"), "the Companion's address opens Revise");
+  let shaped = false;
+  for (const c of K.examSession.chapters(X.get(real.id)).filter((x) => x.kind === "topic")) {
+    K.show("exams", { id: real.id, tab: "revise", sub: c.id }); await app.settle();
+    if (app.document.querySelector("[data-ui~='exams.shape']")) { shaped = true; break; }
+  }
+  assert(shaped, "a real exam's question shapes");
   K.show("exams", { tab: "guide", sub: topic.id }); await app.settle();
-  assert(app.document.querySelectorAll("[data-ui~='exams.gsec']").length >= 6 && app.document.querySelector("[data-ui~='exams.note-tile']"), "the guide's sections");
+  assert(app.document.querySelectorAll("[data-ui~='exams.chapter-row']").length >= 3 && app.document.querySelector("[data-ui~='exams.chapter']"), "the guide's chapters");
   K.examGuide.playbook("Edexcel", topic); await app.settle();
   for (const b of app.document.querySelectorAll("[data-ui~='exams.pb-section']")) { b.click(); await app.settle(); }
   app.document.querySelector("[data-ui~='exams.drawer']").parentNode.close();

@@ -268,6 +268,13 @@
     });
     return out;
   }
+  function catalogued(a, t) {
+    var C = KOS.examCompanion, pid = C && C.indexPaperOf ? C.indexPaperOf(a) : null, st = pid ? C.archetypes(pid) : null;
+    if (!st) return [];
+    var on = {};
+    t.leaves.forEach(function (k) { on[k] = true; });
+    return st.list.filter(function (x) { return !x.unique && x.leaves.some(function (k) { return on[k]; }); });
+  }
   function refsFor(t) {
     var ix = window.KOS_EXAMS && KOS_EXAMS.index;
     if (!ix || !ix.questions) return [];
@@ -309,6 +316,16 @@
     if (shapes.length) {
       var open = 0;
       shapes.forEach(function (x2, i) { art.appendChild(shapeCard(a, x2, i, i === open)); });
+    } else if (catalogued(a, t).length) {
+      /* no full Companion for this paper: the catalogued shapes from the
+         past-paper index, each with how often it came up and where */
+      catalogued(a, t).slice(0, 6).forEach(function (sh) {
+        var inst = sh.instances.filter(function (x) { return x.sitting !== "specimen" && x.sitting !== "sample"; }).slice(0, 3);
+        art.appendChild(el("div", { class: "k-xr-shape", "data-ui": "exams.shape" }, [
+          el("div", { class: "k-xr-shapehead" }, [el("b", { class: "k-ex-grow", text: sh.title }), el("span", { class: "k-chip", "data-tone": sh.appear / Math.max(1, sh.of) >= 0.75 ? "teal" : "muted", text: sh.appear + " of " + sh.of + " sittings" })]),
+          el("div", { class: "k-xr-shapebody" }, [U().muted((sh.lo != null ? (sh.lo === sh.hi ? sh.lo : sh.lo + "–" + sh.hi) + " marks when it comes up · " : "") + inst.map(function (x) { return KOS.examCompanion.sittingName(x.sitting) + " " + x.q; }).join(" · "))])]));
+      });
+      art.appendChild(el("p", { class: "k-ex-muted k-ex-small", text: "Frequency is evidence, not prophecy: anything in the specification can appear." }));
     } else {
       var refs = refsFor(t);
       art.appendChild(el("p", { class: "k-ex-muted", text: refs.length ? "No question shapes written for this topic yet. On the past papers it came up as:" : "No question shapes written for this topic yet, and no past-paper question is indexed on it." }));

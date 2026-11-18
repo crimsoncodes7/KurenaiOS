@@ -1096,6 +1096,8 @@
         "ui": "^lastBackupAt$"
       },
       "why": "W1 DI-09 (17 November 2026): the backup file is written in pieces, one stored file at a time, so the export finishes a few IndexedDB rounds later than the one settle this replay waits; it still records lastBackupAt when it is done, which smoke150 F holds."
-    }
+    },
+  {"surface": "tracker", "hooks": "exams.season", "from": ".*", "retire": true, "why": "Exams & Papers rework (design 45a, approved 17 November 2026): the hub's header keeps Import timetable, Log a result and New assessment; the Exam season switch leaves it (Season stays reachable at #/exams/season)."},
+  {"surface": "tracker", "hooks": "ui.tab", "from": "^(Readiness|Planner|Practice|Companion)$", "retire": true, "why": "Exams & Papers rework (design 45a): ONE tab row, Exams · Timetable · Results · Library · Load. Readiness, the Planner, Practice and the Companion move into each exam as Today, Plan, Review and Revise (45b); their old addresses redirect there."}
   ]
 }

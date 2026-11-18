@@ -1367,6 +1367,8 @@
   KOS.examLegacyPage = page;
   KOS.examEditor = editor;
   KOS.examGoalTemplates = goalTemplates;
+  /* the exam's linked goals (invariant 128), drawn under the rework's Plan */
+  KOS.examGoalsCard = goalsCard;
   KOS.examUI = {
     TIER: TIER, BAND: BAND, SUBJ: SUBJ, SHORT: SHORT, HUE: HUE, MONTHS: MONTHS, DOW: DOW,
     pretty: pretty, inDays: inDays, mins: mins, plural: plural, pc: pc, hueOf: hueOf, announce: announce,

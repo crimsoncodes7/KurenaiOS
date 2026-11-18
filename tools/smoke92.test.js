@@ -283,7 +283,8 @@ step("K · Goals, a goal, the assessment and the dialogs draw without writing", 
      it is not the page's write (roadmap 5.16, invariant 163) */
   for (let i = 0; i < 600 && K.achievements && K.achievements._busy(); i++) await app.settle();
   const before = snap();
-  const pages = [["goals"], ["goals", "all"], ["goals", { id: chk.id }], ["goals", { id: papers.id }], ["exams", real.id]];
+  /* the rework (45f): an exam's linked goals sit under its Plan */
+  const pages = [["goals"], ["goals", "all"], ["goals", { id: chk.id }], ["goals", { id: papers.id }], ["exams", { id: real.id, tab: "plan" }]];
   for (const [v, a] of pages) {
     K.show(v, a); await app.settle();
     assert(app.document.querySelector("#main").children.length, "drew " + JSON.stringify(a));

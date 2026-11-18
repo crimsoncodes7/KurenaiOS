@@ -1006,8 +1006,8 @@ button.k-ex-ptr { inline-size: 100%; border-inline: 0; border-block-end: 0; back
   background: radial-gradient(60% 140% at 0% 0%, color-mix(in oklch, var(--s) 22%, transparent), transparent 70%), var(--s1); }
 .k-xs-herol { position: relative; display: flex; flex-direction: column; gap: var(--sp-6); min-inline-size: 0; }
 .k-xs-herotitle { margin: var(--sp-4) 0 0; font-size: var(--fs-28); font-weight: var(--weight-bold); letter-spacing: -0.01em; }
-.k-xs-herosub, .k-xs-herometa { color: var(--text-2); font-size: var(--fs-13); }
-.k-xs-herometa { color: var(--muted); }
+.k-xs-herosub { color: var(--text-2); font-size: var(--fs-13); }
+.k-xs-herometa { color: var(--muted); font-size: var(--fs-13); }
 .k-xs-herodays { display: flex; align-items: baseline; gap: var(--sp-8); }
 .k-xs-herodays b { font-size: var(--fs-56); font-weight: var(--weight-semibold); line-height: 1; }
 .k-xs-prog { display: inline-flex; flex-direction: column; gap: var(--sp-4); font-size: var(--fs-12); color: var(--muted); }
@@ -1363,7 +1363,7 @@ button.k-ex-ptr { inline-size: 100%; border-inline: 0; border-block-end: 0; back
 .k-xq-qhead > b { font-size: var(--fs-18); }
 .k-xq-engine { min-inline-size: 0; }
 /* the set is the page's: the engine's own filter and paging row is not needed for one question */
-.k-xq-engine [data-ui~="quiz.head"] { display: none; }
+.k-xq-engine .k-qz-head { display: none; }
 @media (max-width: 860px) {
 .k-xq-sets { grid-template-columns: minmax(0, 1fr); }
 }

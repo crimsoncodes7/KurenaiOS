@@ -313,7 +313,8 @@
     return arg && typeof arg === "object" ? arg.subject || arg.sid || null : typeof arg === "string" ? arg : null;
   }
   var CODE = ["content-code"];
-  var EXAMS = ["exam-index", "exams-deep"];
+  /* the reworked pages and their engine ride their own bundle (design 45–47) */
+  var EXAMS = ["exam-index", "exams-deep", "exams-pages"];
   /* the bundles holding the words of the cards a review page shows: the
      ones due and the ones set aside, by the subject each belongs to */
   function reviewBundles(arg) {
@@ -344,7 +345,7 @@
       var list = a ? [a] : X && X.upcoming ? X.upcoming() : [];
       return EXAMS.concat(list.map(function (x) { return x && x.subject ? contentOf(x.subject) : null; }));
     },
-    tracker: function () { return ["exam-index"]; },
+    tracker: function () { return ["exam-index", "exams-pages"]; },
     review: reviewBundles,
     due: reviewBundles,
     cardstats: reviewBundles

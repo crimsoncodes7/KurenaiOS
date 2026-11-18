@@ -193,8 +193,15 @@ step("G · the full Companion and every shape draw without writing", async () =>
     assert(app.document.querySelector("[data-ui~='exams.deep-var']") && /Written by KurenaiOS/.test(t) && /not a board question/.test(t), id + ": the open variation, labelled");
     assert(app.document.querySelectorAll("[data-ui~='exams.deep-step']").length >= 1 && app.document.querySelector("[data-ui~='exams.deep-vars']"), id + ": steps and variations");
   }
-  K.show("exams", { tab: "guide", sub: real.id }); await app.settle();
-  assert(app.document.querySelectorAll("[data-ui~='exams.deep-gshape']").length >= 6, "the guide's worked shapes");
+  /* the rework (46c): Revise's topic chapters carry the worked shapes,
+     ONE worked answer open each */
+  let shapes = 0;
+  for (const c of K.examSession.chapters(real).filter((x) => x.kind === "topic").slice(0, 8)) {
+    K.show("exams", { id: real.id, tab: "revise", sub: c.id }); await app.settle();
+    shapes += app.document.querySelectorAll("[data-ui~='exams.shape']").length;
+    assert(app.document.querySelectorAll("[data-ui~='exams.worked']").length <= Math.max(1, app.document.querySelectorAll("[data-ui~='exams.shape']").length), "one worked answer a shape at most");
+  }
+  assert(shapes >= 6, "Revise's worked shapes: " + shapes);
   for (const s of ["1", "pack-4.6.5.1", "set-4.7.3.3"]) {
     K.show("exams", { id: real.id, tab: "paper", sub: s }); await app.settle();
     assert(/written by KurenaiOS, not a board paper/.test(app.document.querySelector("#main").textContent), "paper " + s + " labelled");

@@ -33,7 +33,9 @@
   function btn(t, k, f, x) { return U().btn(t, k, f, x); }
   function pct(v) { return Math.round(100 * v) + "%"; }
   var RAG = { r: ["▲", "Red", "danger"], a: ["◐", "Amber", "amber"], g: ["●", "Green", "green"] };
-  var REDIRECT = { readiness: "today", overview: "today", practice: "review", guide: "revise", deep: "revise", trend: "review" };
+  /* the full Companion's index (#/exams/<id>/deep) keeps its address: Revise's
+     shapes open it, one shape or all of them */
+  var REDIRECT = { readiness: "today", overview: "today", practice: "review", guide: "revise", trend: "review" };
   var PHONE = { today: 1, topics: 1, revise: 1, cards: 1, review: 1 };
 
   function mins(m) { return m ? U().mins(m) : ""; }
@@ -299,11 +301,11 @@
     if (REDIRECT[tab]) {
       var to = REDIRECT[tab];
       var subTo = tab === "deep" && sub ? null : tab === "practice" && sub ? sub : null;
-      if (tab === "deep" && sub && KOS.examDeepView) return KOS.examDeepView.page(main, a, sub);
       if (KOS.router && KOS.router.replaceArg) KOS.router.replaceArg("exams", { id: a.id, tab: to, sub: subTo });
       tab = to; sub = subTo;
     }
     if (tab === "room" && KOS.examRoom) return KOS.examRoom(main, a);
+    if (tab === "deep" && KOS.examDeepView) return KOS.examDeepView.page(main, a, sub);
     if (tab === "scope") return KOS.examLegacyPage(main, id, "scope", sub);
     if (tab === "paper" && KOS.examGuide) return KOS.examGuide.page(main, a, "paper", sub);
     if (a.tier === "deadline" && !tab) return KOS.examLegacyPage(main, id, null, sub);
@@ -533,6 +535,8 @@
     });
     content.appendChild(weeks);
     var st = sch.sent;
+    var gl = KOS.examGoalsCard ? KOS.examGoalsCard(a) : null;
+    if (gl) content.appendChild(gl);
     content.appendChild(el("div", { class: "k-card k-xs-note", "data-ui": "exams.plan-state" }, [el("span", { "aria-hidden": "true", text: "→" }),
       el("span", { class: "k-ex-grow" }, st ? ["In your plan", st.at ? " · sent " + U().pretty(new Date(st.at).toISOString().slice(0, 10)) : "", " · " + st.n + " rows, " + st.done + " done"]
         : ["Not in your plan yet · ", el("b", { text: sch.sessions + " sessions, " + hm(sch.mins) }), " · weakest topics first, papers on " + ["Sundays", "Mondays", "Tuesdays", "Wednesdays", "Thursdays", "Fridays", "Saturdays"][a.date ? new Date(a.date + "T00:00:00").getDay() : 6]])]));
