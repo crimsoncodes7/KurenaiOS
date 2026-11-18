@@ -141,9 +141,15 @@ W3 and W9 stay the other account's.
   each December mock, the run-up before a near exam (111a) and ink on
   every exported file (151). Gate 164. F201 papers 2–3 are roadmap 5.22
   (backlog). New suites on this account: 183 onwards.
+- **RELEASED 18 November 2026 as sw `kos-integrity-22`**
+  (https://3dd3f61f.kurenai-os.pages.dev): the exam fixes with no design,
+  Exam essentials, CS Paper 1's partial Companion (guides read several
+  papers) and recorded attempts syncing to `kos_attempts` (migration
+  `20261118000001`, applied). Gate 166. New suites on this account: 185
+  onwards.
 
 **Smoke numbers from now:** 161–164 are taken; the other account uses
-**165–179**; this account continues at 157–159 and then 183+. (142, 143, 149 and 150 stay the
+**165–179**; this account continues at 157–159 and then 185+. (142, 143, 149 and 150 stay the
 other account's.)
 
 **Releases:** each batch its own branch from `main`, the full gate, and the
