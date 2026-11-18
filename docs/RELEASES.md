@@ -15,7 +15,17 @@ the service-worker version). Git holds the rest.
   `5bece3e`). `ai-chat` is deployed as version 6 (images for Gemini, 26 October 2026); the
   `kos_reports` migration `20261012000001` is applied; so is `kos_money`
   (`20261019000001`, 19 October 2026), live since the Money and Goals release.
-- Latest release: sw `kos-integrity-21` (18 November 2026,
+- Latest release: sw `kos-integrity-22` (18 November 2026,
+  `release/integrity-22`: `feat/exams-fixes`, `feat/exams-p1-guide` and
+  `feat/exams-sync` merged into main): the exam fixes with no design
+  (CC-25 one point a mark, dM/ddM read everywhere, CM-21, EX-29, EX-40
+  start-by in days with "Start now", EX-47 "needs:", EX-42 the reload
+  notice), Exam essentials for each December mock first in the guide
+  (`js/data/exam-essentials.js`), CS Paper 1's partial full Companion for
+  the PPE's seven topics with guides that read several papers
+  (`KOS.examDeep.papersFor`), and recorded attempts replicating to
+  `kos_attempts` (migration `20261118000001`, applied); smoke183, 184.
+  Before it sw `kos-integrity-21` (18 November 2026,
   `release/integrity-21`: `feat/exams-engine` and `feat/exam-cap-ink`
   merged into main): the headless half of the Exams & Papers rework
   (`docs/exams-rework-plan.md`) — recorded attempts (`KOS.attempts`,
