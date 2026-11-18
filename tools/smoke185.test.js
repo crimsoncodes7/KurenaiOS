@@ -249,6 +249,26 @@ step("K · Plan's Send asks, then writes", async () => {
   mine.forEach((e) => K.pacing.removeEntry(e.id));
 });
 
+step("M · the editor: required fields marked, a paper named once, IT graded by unit", async () => {
+  const it = K.exams.add({ preset: "ocr-f201", tier: "mock", title: "Grade check", date: day(30), target: "Merit" }, { quiet: true });
+  eq(it.target, "Merit", "an IT unit's grade is kept");
+  eq(K.exams.readiness(it).targetPct, 60, "Merit is 36 of 60 (js/data/it-grades.js)");
+  const ov = K.examEditor(it, {}, () => {}); await app.settle();
+  const t = q("[aria-label='Target grade']");
+  eq([...t.options].map((o) => o.value), ["", "Distinction", "Merit", "Pass"], "IT's grades");
+  eq(t.value, "Merit", "the saved target shows");
+  eq(qa("[aria-required='true']").map((x) => x.getAttribute("data-ui")), ["exams.title", "exams.date"], "the name and date are required");
+  assert(q("[data-ui~='exams.reqnote']") && qa(".k-field-req").length >= 3, "an asterisk on each, and what it means");
+  const labels = [...q("[data-ui~='exams.preset']").options].map((o) => o.textContent);
+  assert(!labels.some((l) => { const parts = l.split(" · "); return parts.length > 1 && parts[1].toLowerCase().indexOf(parts[0].toLowerCase()) === 0; }), "no paper named twice: " + labels.filter((l) => /Paper 1/.test(l)).join(" | "));
+  ov.close();
+  const cs = K.examEditor(null, { preset: "aqa-7517-2" }, () => {}); await app.settle();
+  q("[data-ui~='exams.preset']").value = "aqa-7517-2"; q("[data-ui~='exams.preset']").dispatchEvent(new app.window.Event("change")); await app.settle();
+  eq([...q("[aria-label='Target grade']").options].map((o) => o.value), ["", "A*", "A", "B", "C", "D", "E"], "an A level's grades");
+  cs.close();
+  K.exams.remove(it.id);
+});
+
 step("H · no errors, no request", async () => {
   eq(app.errors, [], "no error");
   assert(!app.fetches.length, "no request: " + JSON.stringify(app.fetches.slice(0, 3)));

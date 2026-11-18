@@ -374,19 +374,13 @@
   // ---- view registry: each module registers render functions ----
   KOS.views = {};
 
-  /* ---- navigation history: Back/Forward like a browser ---- */
-  var navHist = [];   // pages behind the current one
-  var navFwd = [];    // pages we've stepped Back from (cleared on a fresh nav)
+  /* ---- the page on screen ----
+     Back and Forward, and the arrows, are the browser's history, owned by
+     js/core/router.js (invariant 64): it defines KOS.back, KOS.forward,
+     KOS.canBack and KOS.canForward. This file keeps only which page is on
+     screen (SH-31: its own second stack was dead and is gone). */
   var navCur = null;  // the view currently on screen
   function navKey(v) { return v.viewId + "::" + JSON.stringify(v.arg === undefined ? null : v.arg); }
-  function updateNavBtns() {
-    var b = document.getElementById("nav-back");
-    if (b) b.disabled = navHist.length === 0;
-    var f = document.getElementById("nav-fwd");
-    if (f) f.disabled = navFwd.length === 0;
-  }
-  KOS.canBack = function () { return navHist.length > 0; };
-  KOS.canForward = function () { return navFwd.length > 0; };
   /* what is ACTUALLY on screen, as opposed to state.ui.view (which is the
      last saved intent and can lag a redraw). Background work that wants to
      refresh the page without moving the user reads this. */
@@ -404,18 +398,6 @@
     if (!navCur || !KOS.views[navCur.viewId]) return false;
     KOS.show(navCur.viewId, navCur.arg, { _nav: true });
     return true;
-  };
-  KOS.back = function () {
-    if (!navHist.length) return;
-    navFwd.push(navCur);
-    var prev = navHist.pop();
-    KOS.show(prev.viewId, prev.arg, { _nav: true });
-  };
-  KOS.forward = function () {
-    if (!navFwd.length) return;
-    navHist.push(navCur);
-    var next = navFwd.pop();
-    KOS.show(next.viewId, next.arg, { _nav: true });
   };
 
   /* ---- sections: seven rail entries, each owning a family of views.
@@ -1551,20 +1533,11 @@
     if (KOS.governor && KOS.governor.trying && KOS.governor.trying().length && !(viewId === "governor" && arg === "shop")) {
       KOS.governor.stopTrying();
     }
-    /* a fresh navigation (not Back/Forward) records history and abandons any
-       forward trail — exactly like a browser address bar */
     if (!navCur || navCur.viewId !== viewId) scrollMemo = {};
     else noteScrolls(document.getElementById("main"));
     /* a redraw of the page already on screen (KOS.rerender, a cloud pull):
        a view keeps what the reader had open, such as a topic's tab */
     KOS.ui.redrawing = !!opts._nav && !!navCur && navKey(navCur) === navKey({ viewId: viewId, arg: arg });
-    if (navCur && !opts._nav) {
-      if (navKey(navCur) !== navKey({ viewId: viewId, arg: arg })) {
-        navHist.push(navCur);
-        if (navHist.length > 60) navHist.shift();
-      }
-      navFwd = [];
-    }
     navCur = { viewId: viewId, arg: arg };
 
     /* A menu panel is position:fixed on document.body, so clearing #main
@@ -1614,6 +1587,5 @@
     if (viewId === "subject") KOS.store.state.ui.subject = arg;
     if (sec === "productivity") KOS.store.state.ui.lastProd = { view: viewId, arg: typeof arg === "string" ? arg : null };
     KOS.store.save();
-    updateNavBtns();
   };
 })();

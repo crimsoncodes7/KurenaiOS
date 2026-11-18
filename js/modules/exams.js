@@ -906,8 +906,10 @@
     var overlay = el("div", { class: "k-dialog-overlay" });
     function close() { overlay.remove(); }
     overlay.close = close;
-    function field(label, control, cls, hint) {
-      return el("label", { class: "k-field" + (cls ? " " + cls : ""), "data-ui": "ui.field" }, [el("span", { class: "k-field-label", text: label }), control, hint ? el("span", { class: "k-ex-hint", text: hint }) : null].filter(Boolean));
+    /* req: the field must be filled to save (an asterisk, aria-required) */
+    function field(label, control, cls, hint, req) {
+      if (req) control.setAttribute("aria-required", "true");
+      return el("label", { class: "k-field" + (cls ? " " + cls : ""), "data-ui": "ui.field" }, [el("span", { class: "k-field-label" }, [label, req ? reqMark(req) : null].filter(Boolean)), control, hint ? el("span", { class: "k-ex-hint", text: hint }) : null].filter(Boolean));
     }
     function input(type, attrs) { return el("input", Object.assign({ type: type, class: "k-input" }, attrs || {})); }
     function select(opts, value, attrs) {
@@ -917,6 +919,12 @@
     }
     var tierV = d.tier;
     /* the tier first: it decides what the rest of the form asks */
+    var dateReq = null;
+    function reqMark(req) {
+      var m = el("span", { class: "k-field-req", "aria-hidden": "true", title: "Required", text: "*" });
+      if (req === "date") dateReq = m;
+      return m;
+    }
     var tierGroup = el("div", { class: "k-ex-tiers", role: "radiogroup", "aria-label": "Tier", "data-ui": "exams.tiers" });
     var LINES = { real_exam: "Board exam: the full readiness model and the planner", mock: "School mock: the full set, with your own scope", topic_test: "One topic: three signals and the cram deck",
       retrieval_test: "Quick check: recall on the day", deadline: "Coursework or NEA: milestones and a start-by" };
@@ -941,7 +949,11 @@
     X.presets().forEach(function (p) {
       var g = p.board + " " + p.qual + " · " + (SUBJ[p.subject] || p.subject) + (p.level === "AS" ? " (AS)" : "");
       if (!groups[g]) { groups[g] = el("optgroup", { label: g }); presetSel.appendChild(groups[g]); }
-      groups[g].appendChild(el("option", { value: p.id, text: p.paper + " · " + p.title.split("·").pop().trim() + (p.mins ? " · " + mins(p.mins) : "") }));
+      /* "Paper 1 (Pure) · 2 h", not "Paper 1 · Paper 1 (Pure) · 2 h": the
+         paper's name is said once */
+      var tail = p.title.split("·").pop().trim();
+      var name = tail.toLowerCase().indexOf(p.paper.toLowerCase()) === 0 ? tail.charAt(0).toUpperCase() + tail.slice(1) : p.paper + " · " + tail;
+      groups[g].appendChild(el("option", { value: p.id, text: name + (p.mins ? " · " + mins(p.mins) : "") }));
     });
     presetSel.value = d.preset || "";
     var presetHint = el("span", { class: "k-ex-hint" });
@@ -954,7 +966,20 @@
     var extra = select([["0", "None"], ["10", "10%"], ["25", "25%"], ["50", "50%"]], String(d.extraTime || 0));
     var marks = input("number", { min: 0, value: d.marks == null ? "" : d.marks });
     var calc = select([["", "—"], ["allowed", "Allowed"], ["none", "Not allowed"]], d.calculator || "");
-    var target = select([["", "No target"], ["A*", "A*"], ["A", "A"], ["B", "B"], ["C", "C"], ["D", "D"], ["E", "E"]], d.target || "", { "aria-label": "Target grade" });
+    /* an IT unit is graded Distinction, Merit or Pass (js/data/it-grades.js);
+       an A level A* to E */
+    var GR_AL = [["", "No target"], ["A*", "A*"], ["A", "A"], ["B", "B"], ["C", "C"], ["D", "D"], ["E", "E"]];
+    var GR_IT = [["", "No target"], ["Distinction", "Distinction"], ["Merit", "Merit"], ["Pass", "Pass"]];
+    var target = select(GR_AL, d.target || "", { "aria-label": "Target grade" });
+    function isIT() { var pp = X.preset(presetSel.value); return subjSel.value === "it" || !!(pp && pp.subject === "it"); }
+    function gradeOptions() {
+      var want = isIT() ? GR_IT : GR_AL, keep = target.value || d.target || "";
+      if (target.getAttribute("data-scale") === (want === GR_IT ? "it" : "al")) return;
+      target.setAttribute("data-scale", want === GR_IT ? "it" : "al");
+      target.innerHTML = "";
+      want.forEach(function (o) { target.appendChild(el("option", { value: o[0], text: o[1] })); });
+      target.value = want.some(function (o) { return o[0] === keep; }) ? keep : "";
+    }
     var provBox = el("input", { type: "checkbox", class: "k-box" }); provBox.checked = !!d.provisional;
     var startBy = input("date", { value: d.startBy || "" });
     var notes = el("textarea", { class: "k-input", rows: 2, placeholder: "Equipment, travel, anything to remember" });
@@ -975,7 +1000,8 @@
       if (p.calculator) calc.value = p.calculator;
       announce(p.title + " preset: " + mins(p.mins) + ", " + p.marks + " marks, " + (p.calculator === "allowed" ? "calculator allowed" : "no calculator") + ".");
     }
-    presetSel.addEventListener("change", function () { applyPreset(); d.preset = presetSel.value || null; });
+    presetSel.addEventListener("change", function () { applyPreset(); d.preset = presetSel.value || null; gradeOptions(); });
+    subjSel.addEventListener("change", gradeOptions);
     applyPreset();
     var msHost = el("div", { class: "k-ex-mslist", "data-ui": "exams.ms-edit" });
     var ms = d.milestones.map(function (m) { return Object.assign({}, m); });
@@ -998,6 +1024,10 @@
       var dl = tierV === "deadline";
       fPreset.hidden = dl; fLog.hidden = dl; fCalc.hidden = dl; fMs.hidden = !dl;
       capRow.hidden = tierV !== "mock";
+      /* a deadline's date is optional; every other tier's is required */
+      if (dateReq) dateReq.hidden = dl;
+      if (dl) date.removeAttribute("aria-required"); else date.setAttribute("aria-required", "true");
+      gradeOptions();
       nextBtn.hidden = dl;
     }
     function collect() {
@@ -1029,11 +1059,12 @@
     var nextBtn = btn("Next: scope ›", "quiet", function () { save(function (a) { KOS.show("exams", { id: a.id, tab: "scope" }); }); }, { "data-ui": "exams.next-scope" });
     var body = el("div", { class: "k-dialog-body k-ex-dbody" }, [
       errBox,
+      el("p", { class: "k-field-reqnote", "data-ui": "exams.reqnote" }, [el("span", { class: "k-field-req", "aria-hidden": "true", text: "*" }), " Required"]),
       el("div", {}, [el("div", { class: "k-ex-minihead", text: "Tier" }), tierGroup]),
       el("div", { class: "k-ex-form" }, [
         fPreset,
-        field("Title", title, "k-ex-span"),
-        el("div", { class: "k-ex-form3 k-ex-span" }, [field("Date", date), field("Start", time), field("Duration (min)", dur)]),
+        field("Title", title, "k-ex-span", null, true),
+        el("div", { class: "k-ex-form3 k-ex-span" }, [field("Date", date, null, null, "date"), field("Start", time), field("Duration (min)", dur)]),
         fLog, fCalc,
         el("div", { class: "k-ex-form3 k-ex-span" }, [field("Subject", subjSel), field("Start by (blank = suggested)", startBy),
           el("label", { class: "k-check k-ex-checkfield" }, [provBox, el("span", { text: "The date is provisional" })])]),

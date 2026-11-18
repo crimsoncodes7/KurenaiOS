@@ -934,7 +934,10 @@
       } catch (e) { schemeWatch = null; }
     }
     document.documentElement.dataset.theme = tid;
-    document.body.dataset.theme = tid;   /* legacy hook, harmless */
+    /* SH-42: never on <body> as well — every derived token was re-derived
+       there, so a theme set on <html> alone (a preview, a test) disagreed
+       with the page. An older build's copy is taken off. */
+    if (document.body.hasAttribute("data-theme")) document.body.removeAttribute("data-theme");
     /* a worn pen set (34p) re-maps the pen's roles (ink.css) */
     var ps = wearing("penset"), psIt = ps && item(ps);
     if (psIt) document.documentElement.setAttribute("data-penset", psIt.penset); else document.documentElement.removeAttribute("data-penset");

@@ -44,7 +44,9 @@
   ];
   var LEVEL_TIER = { exam: "real_exam", mock: "mock", topic: "topic_test", retrieval: "retrieval_test" };
   var CALCULATORS = ["", "none", "allowed"];
-  var GRADE_LIST = ["A*", "A", "B", "C", "D", "E", "D*", "M", "P"];
+  /* an A level's grades; an IT unit's (js/data/it-grades.js) by name, and
+     the older short forms kept for records that hold them */
+  var GRADE_LIST = ["A*", "A", "B", "C", "D", "E", "Distinction", "Merit", "Pass", "D*", "M", "P"];
   var DEFAULT_WEEKLY = 6;          // hours a week, when the ledger has nothing to say
 
   /* ---------------- small helpers ---------------- */
@@ -613,6 +615,11 @@
     return wk;
   }
   function targetPct(a, rows) {
+    /* an IT unit's target is its unit boundary, raw on the straight line */
+    if (a && /^(Distinction|Merit|Pass)$/.test(a.target || "")) {
+      var tb = typicalBounds(a), g = tb && tb.kind === "it" ? tb.grades.filter(function (x) { return x.grade === a.target; })[0] : null;
+      if (g) return Math.round(100 * g.marks / tb.max);
+    }
     if (a && a.target && rows && rows.length) {
       var cuts = rows.map(function (r) { return r.marks[a.target] != null ? 100 * r.marks[a.target] / r.max : null; }).filter(function (v) { return v != null; });
       if (cuts.length) return Math.round(Math.max.apply(null, cuts));

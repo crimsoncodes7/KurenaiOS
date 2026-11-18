@@ -256,7 +256,19 @@
       if (!all.length) { listEl.appendChild(emptyPage()); return; }
       var rows = filtered();
       if (!rows.length) { listEl.appendChild(KOS.ui.emptyState({ compact: true, title: "Nothing matches", body: q ? "No name or text matches “" + q + "”." + (indexingLeft() ? " Some files are still being indexed." : "") : "Try another filter." })); return; }
-      rows.slice(0, 300).forEach(function (h) { listEl.appendChild(card(h)); });
+      /* EX-16: a long list is drawn 300 at a time and SAYS so, with the
+         rest one press away — never a silent stop at 300 */
+      var BATCH = 300, shown = 0;
+      function more() {
+        var old = listEl.querySelector("[data-ui~='files.more']");
+        if (old) old.remove();
+        rows.slice(shown, shown + BATCH).forEach(function (h) { listEl.appendChild(card(h)); });
+        shown = Math.min(rows.length, shown + BATCH);
+        if (shown < rows.length) listEl.appendChild(el("button", { type: "button", class: "k-btn k-files-more", "data-ui": "files.more",
+          text: "Show " + Math.min(BATCH, rows.length - shown) + " more · " + shown + " of " + rows.length + " shown",
+          onclick: function () { more(); KOS.a11y && KOS.a11y.announce && KOS.a11y.announce(shown + " of " + rows.length + " files shown."); } }));
+      }
+      more();
     }
     /* no files yet (frame 34c, built from the app's parts): the spot, then
        every way a file arrives as a card the width of the page — the ones

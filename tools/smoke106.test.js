@@ -224,6 +224,18 @@ step("H · the Assistant's file tools", async () => {
   eq(app.errors, [], "no errors");
 });
 
+step("I · EX-16: a long list says how much it shows, and shows the rest on request", async () => {
+  const many = Array.from({ length: 305 }, (_, i) => file("Sheet " + String(i).padStart(3, "0") + ".txt", "sheet " + i));
+  await new Promise((r) => K.files.add(many, {}, () => r()));
+  K.show("files"); await settle();
+  const items = () => app.document.querySelectorAll("[data-ui~='files.item']").length;
+  const more = app.document.querySelector("[data-ui~='files.more']");
+  assert(items() === 300 && more && /300 of \d+ shown/.test(more.textContent), "300 drawn, and it says so: " + items() + " " + (more && more.textContent));
+  more.click(); await settle();
+  assert(items() === K.files.all().length && !app.document.querySelector("[data-ui~='files.more']"), "the rest drawn: " + items() + " of " + K.files.all().length);
+  eq(app.errors, [], "no errors");
+});
+
 (async () => {
   let failed = 0;
   for (const [name, fn] of steps) {

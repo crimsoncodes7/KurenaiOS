@@ -389,61 +389,9 @@
 /* ================= Habits (frame 10d) ================= */
 /* the habits card runs the full height of the side column, so its foot
    lines up with the 12-week grid's (review A) */
-.k-hb { display: grid; grid-template-columns: minmax(0, 1fr) var(--hb-side-w); gap: var(--sp-20); align-items: stretch; }
-.k-hb > .k-card:first-child { display: flex; flex-direction: column; }
-.k-hb > .k-card:first-child > .k-hb-add { margin-block-start: auto; }
-.k-hb-side { display: flex; flex-direction: column; gap: var(--sp-20); min-inline-size: 0; }
-.k-hb-title { display: flex; align-items: center; gap: var(--sp-10); min-inline-size: 0; }
-.k-hb-title > .k-card-title { margin: 0; font-size: var(--fs-16); white-space: nowrap; }
-.k-hb-weeknav { display: flex; align-items: center; gap: var(--sp-2); margin-inline-start: auto; font-size: var(--fs-12-5); color: var(--text-2); }
-.k-hb-week { white-space: nowrap; padding-inline: var(--sp-4); }
-.k-hb-row { display: grid; grid-template-columns: minmax(0, 1fr) var(--hb-days-w) var(--hb-streak-w) var(--hb-act-w); gap: var(--sp-14); align-items: center; padding: var(--sp-12) var(--sp-4); border-block-start: var(--hairline) solid var(--line); }
-.k-hb-cols { align-items: end; padding-block: 0 var(--sp-12); border-block-start: 0; }
-.k-hb-streak-h { padding-block-end: var(--sp-6); }
-.k-hb-name { display: flex; align-items: center; gap: var(--sp-14); min-inline-size: 0; font-size: var(--fs-14-5); font-weight: var(--weight-medium); }
-.k-hb-tick { inline-size: var(--hb-tick); block-size: var(--hb-tick); flex: 0 0 auto; display: grid; place-items: center; padding: 0; border: 0; border-radius: 50%; background: none; box-shadow: inset 0 0 0 var(--ring-1-5) var(--muted); font-size: var(--fs-12); font-weight: var(--weight-bold); color: var(--bg); cursor: pointer; }
-.k-hb-tick[aria-pressed="true"] { background: var(--teal); box-shadow: none; }
-.k-hb-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: var(--sp-6); text-align: center; }
 /* one header line: the weekday initial beside the date (review A: the
    two-line header read as two rows) */
-.k-hb-dayh { display: flex; flex-direction: column; align-items: center; gap: var(--sp-2); padding-block: var(--sp-6); border-radius: var(--r-8); color: var(--muted); white-space: nowrap; }
-.k-hb-dnum { font-size: var(--fs-15); font-weight: var(--weight-semibold); color: var(--text-2); font-variant-numeric: tabular-nums; }
-.k-hb-dayh[data-state~="today"] { background: var(--s2); color: var(--text); }
-.k-hb-dayh[data-state~="today"] .k-hb-dnum { color: var(--text); }
-.k-hb-dow { font-size: var(--fs-11); letter-spacing: var(--track-label); text-transform: uppercase; font-weight: var(--weight-semibold); }
-.k-hb-cell { block-size: var(--hb-cell-h); border-radius: var(--r-8); background: var(--s2); }
-.k-hb-cell[data-state~="on"] { background: color-mix(in oklch, var(--teal) 35%, transparent); }
-.k-hb-cell[data-state~="today"] { box-shadow: inset 0 0 0 var(--ring-1-5) var(--text-2); }
-.k-hb-cell[data-state~="today"][data-state~="on"] { background: color-mix(in oklch, var(--teal) 60%, transparent); }
-.k-hb-cell[data-state~="future"] { background: none; box-shadow: inset 0 0 0 var(--hairline) var(--line); }
-.k-hb-streak { font-size: var(--fs-13); color: var(--muted); }
-.k-hb-streak b { font-weight: var(--weight-semibold); color: var(--teal); }
-.k-hb-del { opacity: 0; }
-.k-hb-row:hover .k-hb-del, .k-hb-del:focus-visible { opacity: 1; }
-.k-hb-hint { margin: var(--sp-8) 0 0; font-size: var(--fs-12-5); line-height: var(--lh-body); color: var(--muted); }
-.k-hb-add { display: flex; align-items: center; gap: var(--sp-10); padding: var(--sp-8) var(--sp-4) 0; border-block-start: var(--hairline) solid var(--line); }
-.k-hb-add-go { display: inline-grid; place-items: center; line-height: 1; inline-size: var(--hb-tick); flex: 0 0 auto; padding: 0; border: 0; background: none; color: var(--crimson); font-size: var(--fs-16); cursor: pointer; }
-.k-hb-add-in { flex: 1 1 auto; min-inline-size: 0; padding: var(--sp-6) 0; border: 0; background: none; font: inherit; font-size: var(--fs-14); color: var(--text); }
-.k-hb-add-in::placeholder { color: var(--muted); }
-.k-hb-add-in:focus { outline: none; }
 
-.k-hb-dir { display: flex; align-items: center; gap: var(--sp-10); padding-block: var(--sp-8); border-block-start: var(--hairline) solid var(--line); font-size: var(--fs-13-5); }
-.k-hb-dir-tick { inline-size: var(--dir-tick); block-size: var(--dir-tick); flex: 0 0 auto; display: grid; place-items: center; padding: 0; border: 0; border-radius: 50%; background: none; box-shadow: inset 0 0 0 var(--ring-1-5) var(--muted); font-size: var(--fs-11); font-weight: var(--weight-bold); color: var(--bg); cursor: pointer; }
-.k-hb-dir-tick[aria-pressed="true"] { background: var(--teal); box-shadow: none; }
-.k-hb-dir-go { flex: 1 1 auto; min-inline-size: 0; padding: 0; border: 0; background: none; font: inherit; color: inherit; text-align: start; cursor: pointer; }
-.k-hb-dir-go:hover { color: var(--crimson-soft); }
-.k-hb-dir[data-state~="done"] .k-hb-dir-go { color: var(--muted); text-decoration: line-through; }
-.k-hb-reward { flex: 0 0 auto; font-size: var(--fs-11-5); color: var(--amber); white-space: nowrap; }
-.k-hb-heat { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); grid-template-rows: repeat(7, minmax(0, 1fr)); grid-auto-flow: column; gap: var(--sp-4); block-size: var(--hb-heat-h); margin-block-start: var(--sp-12); }
-.k-hb-heat-cell { border-radius: var(--r-2); background: color-mix(in oklch, var(--teal) calc(var(--lvl, 0%) * 0.85 + 15%), transparent); }
-.k-hb-heat-cell[data-state~="future"] { background: none; }
-.k-hb-dir-sum, .k-hb-heat-dows, .k-hb-heat-months { display: none; }
-.k-hb-dir-sum { align-items: center; gap: var(--sp-12); inline-size: 100%; min-block-size: var(--hit-coarse); padding: 0; border: 0; background: none; font: inherit; color: inherit; text-align: start; cursor: pointer; }
-.k-hb-dir-sum-t { flex: 1 1 auto; display: flex; flex-direction: column; gap: var(--sp-2); min-inline-size: 0; }
-.k-hb-dir-sum-t > b { font-size: var(--fs-15); font-weight: var(--weight-medium); }
-.k-hb-dir-sum-m { font-size: var(--fs-12); color: var(--muted); }
-.k-hb-dir-sum-go { color: var(--muted); }
-.k-msheet-slot > .k-hb-dir-list { display: flex; flex-direction: column; }
 
 /* ================= Calendar (frame 10e) ================= */
 /* one hue per record, from --ev-hue (invariant 46): the type sets it, a
@@ -796,8 +744,6 @@
 .k-pace-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .k-cal { grid-template-columns: minmax(0, 1fr); }
 .k-cal-side { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; }
-.k-hb { grid-template-columns: minmax(0, 1fr); }
-.k-hb-side { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .k-rem { grid-template-columns: var(--rem-side-w) minmax(0, 1fr); }
 .k-rem-insp { grid-column: 2; position: static; }
 .k-fx-setup { grid-template-columns: minmax(0, 1fr); }
@@ -823,7 +769,6 @@
 .k-pace-fgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .k-cal-side { grid-template-columns: minmax(0, 1fr); }
 .k-cal-month { grid-template-rows: repeat(var(--weeks, 5), minmax(var(--cal-cell-h), auto)); }
-.k-hb-side { grid-template-columns: minmax(0, 1fr); }
 .k-rem { grid-template-columns: minmax(0, 1fr); }
 .k-rem-insp { grid-column: auto; }
 :root[data-shell="ready"] .k-rem > .k-rem-side { display: none; }
@@ -859,30 +804,6 @@
 .k-rem-meta { flex-wrap: nowrap; overflow: hidden; white-space: nowrap; }
 /* Habits — each habit shows its week as seven squares under its name;
    today's directives become one row that opens its sheet */
-.k-hb-cols { grid-template-columns: minmax(0, 1fr); }
-.k-hb-cols > :not(:first-child) { display: none; }
-.k-hb-title { flex-wrap: wrap; row-gap: var(--sp-6); }
-.k-hb-weeknav { flex: 1 1 100%; justify-content: space-between; margin-inline-start: 0; }
-.k-hb-row:not(.k-hb-cols) { grid-template-columns: var(--hb-tick) minmax(0, max-content) max-content minmax(0, 1fr) auto; column-gap: var(--sp-10); row-gap: var(--sp-6); padding-inline: 0; }
-.k-hb-row:not(.k-hb-cols) > .k-hb-name { display: contents; }
-.k-hb-row > .k-hb-name > .k-hb-tick { grid-column: 1; grid-row: 1 / span 2; align-self: center; }
-.k-hb-row > .k-hb-name > .k-ellipsis { grid-column: 2; grid-row: 1; }
-.k-hb-row:not(.k-hb-cols) > :nth-child(2) { grid-column: 2 / 5; grid-row: 2; }
-.k-hb-row > .k-hb-streak { grid-column: 3; grid-row: 1; font-size: var(--fs-12); }
-.k-hb-row:not(.k-hb-cols) > :nth-child(4) { grid-column: 5; grid-row: 1 / span 2; }
-.k-hb-row .k-hb-days { grid-template-columns: repeat(7, var(--hb-sq)); gap: var(--sp-4); justify-content: start; }
-.k-hb-row .k-hb-cell { block-size: var(--hb-sq); border-radius: var(--r-2); }
-.k-hb-del { opacity: 1; color: var(--muted); }
-.k-hb-dircard { order: 2; }
-.k-hb-dir-sum { display: flex; }
-.k-hb-dircard > .k-card-head, .k-hb-dircard > .k-hb-dir-list { display: none; }
-.k-hb-heatwrap { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--sp-6) var(--sp-8); margin-block-start: var(--sp-12); }
-.k-hb-heat { block-size: auto; margin: 0; grid-template-rows: repeat(7, auto); }
-.k-hb-heat-cell { aspect-ratio: 1; }
-.k-hb-heat-dows { display: grid; grid-template-rows: repeat(7, minmax(0, 1fr)); gap: var(--sp-4); font-size: var(--fs-11); color: var(--muted); }
-.k-hb-heat-dows > span { display: flex; align-items: center; }
-.k-hb-heat-months { grid-column: 2; display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); font-size: var(--fs-11); color: var(--muted); }
-.k-hb-heat-months > span { grid-column: var(--col) / span 3; }
 /* frame 15i: Pacing — a full-width Week/Braid switch, the week's add and
    edit in ⋯, a carried row naming its week with a 44px "→ here" under it,
    and a narrow pinned braid key (the subject switch names the subject) */
@@ -968,14 +889,14 @@
    documented dense size (invariant 69) instead of stretching. */
 @media (pointer: coarse) {
 .k-rem-quick-add { min-inline-size: var(--hit-coarse); min-block-size: var(--hit-coarse); }
-.k-rem-check, .k-hb-tick { min-inline-size: var(--hit); min-block-size: var(--hit); }
-.k-hb-dir-tick, .k-cal-add { min-inline-size: var(--hit-dense); min-block-size: var(--hit-dense); }
+.k-rem-check { min-inline-size: var(--hit); min-block-size: var(--hit); }
+.k-cal-add { min-inline-size: var(--hit-dense); min-block-size: var(--hit-dense); }
 }
 
 /* no hover (an iPad wider than the phone tier): a row's delete and the
    plan's move are always there rather than found by a first tap */
 @media (hover: none) {
-.k-rem-del, .k-hb-del, .k-pace-move { opacity: 1; }
+.k-rem-del, .k-pace-move { opacity: 1; }
 }
 
 }

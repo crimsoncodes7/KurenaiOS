@@ -474,6 +474,11 @@ pointer-events: auto;
 /* ---------- fields: a label over an inset control ---------- */
 .k-field { display: flex; flex-direction: column; gap: var(--sp-6); min-inline-size: 0; }
 .k-field-label { font-size: var(--fs-12); color: var(--muted); }
+/* a required field: an asterisk after its label (the control carries
+   aria-required); the form says once what the asterisk means */
+.k-field-req { margin-inline-start: var(--sp-2); color: var(--crimson); font-weight: var(--weight-semibold); }
+.k-field-req[hidden] { display: none; }
+.k-field-reqnote { margin: 0; color: var(--muted); font-size: var(--fs-12); }
 .k-input {
 inline-size: 100%;
 min-block-size: var(--hit);

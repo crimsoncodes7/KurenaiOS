@@ -299,6 +299,7 @@
 .k-files-empty-title { margin: 0 0 var(--sp-8); font-family: var(--font-read); font-size: var(--fs-26); font-weight: var(--weight-semibold); }
 .k-files-empty-hero p { margin: 0; }
 .k-files-ways { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--files-card-min), 1fr)); gap: var(--sp-12); }
+.k-files-more { grid-column: 1 / -1; justify-self: center; }
 .k-files-way { display: flex; align-items: flex-start; gap: var(--sp-12); padding: var(--sp-16); border: var(--hairline) dashed var(--line); border-radius: var(--r-16); background: none; color: var(--text); font: inherit; text-align: start; }
 button.k-files-way { cursor: pointer; border-style: solid; background: var(--s1); }
 button.k-files-way:hover { background: var(--s2); }
