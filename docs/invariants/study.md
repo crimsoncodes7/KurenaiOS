@@ -251,7 +251,7 @@ Every `KOS_CONTENT["subject:ref"]` entry follows `js/core/content.js`; use
 - Worked generators use explicit `GENWIRE` because their displayed `ref` is a
   human label.
 - Inline simulations implement `mount(panel)`, never a redirect.
-- Content may explicitly list `sims`/`gens`; `hub.js` merges and deduplicates.
+- Content may explicitly list `sims`/`gens`; the topic page (`topic.js`) merges and deduplicates.
 - Assign a textarea's `.value` property after creation; the HTML `value` attribute
   does not set its editable value.
 - New generator `random()` output must be safe for `solve()`; guard all degenerate

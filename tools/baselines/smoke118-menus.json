@@ -16,7 +16,6 @@
     "js/modules/due.js · sort === \"size\" ? \"Sort: most due\" : \"Sort: most overdue\"",
     "js/modules/exams.js · ＋ App-checked",
     "js/modules/files.js · ⋯",
-    "js/modules/hub.js · +",
     "js/modules/inktab.js · Drills",
     "js/modules/inktab.js · Working and answers · ",
     "js/modules/inktab.js · ⋯",
@@ -24,6 +23,7 @@
     "js/modules/medview.js · Spotlight",
     "js/modules/medview.js · opts.actionsLabel || \"Actions\"",
     "js/modules/routineplayer.js · Change",
-    "js/modules/routines.js · ⋯"
+    "js/modules/routines.js · ⋯",
+    "js/modules/topic.js · +"
   ]
 }

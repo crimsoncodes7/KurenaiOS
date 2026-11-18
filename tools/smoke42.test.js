@@ -452,7 +452,7 @@ step("a horizontal scroller declares itself and is reachable by keyboard", () =>
 
 step("the deliberate scrollers in the app use the primitive", () => {
   const matrix = fs.readFileSync(path.join(ROOT, "js/modules/matrix.js"), "utf8");
-  const hub = fs.readFileSync(path.join(ROOT, "js/modules/hub.js"), "utf8");
+  const hub = ["hub","searchui","home","subject","topic","dataview"].map((f) => fs.readFileSync(path.join(ROOT, "js/modules/" + f + ".js"), "utf8")).join("\n");
   /* Graphite review A: "Currently consuming" is one row of the twenty most
      recent that scrolls sideways — a declared scroller (invariant 50) */
   assert(!/med-strip/.test(matrix) && /KOS\.ui\.scroller\(grid/.test(matrix), "the Collection on-the-go row must be a declared scroller");
