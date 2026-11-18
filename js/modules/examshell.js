@@ -281,12 +281,11 @@
       onclick: function () {
         var body = el("div", { class: "k-xs-sheetlist" }, S().SECTIONS.map(function (x) {
           return el("button", { type: "button", class: "k-xs-sheetrow", "aria-current": x[0] === cur ? "page" : null, "data-ui": "exams.sheet-section",
-            onclick: function () { KOS.ui.closeDialogs(); KOS.show("exams", { id: a.id, tab: x[0] }); } }, [
+            onclick: function () { KOS.ui.closeDialogs(); KOS.show("exams", { id: a.id, tab: x[0] }); announce(x[2] + "."); } }, [
             el("span", { class: "k-xs-navglyph", lang: "ja", "aria-hidden": "true", text: x[1] }), el("span", { class: "k-ex-grow", text: x[2] }), markEl(m[x[0]])]);
         }));
-        var ov = el("div", { class: "k-modal", role: "dialog", "aria-modal": "true", "aria-label": "Sections, 8. " + s[2] + ", current." }, [
-          el("div", { class: "k-modal-card k-xs-sheet", "data-ui": "exams.sheet" }, [el("h2", { class: "k-xs-sheettitle", text: a.title }), body])]);
-        KOS.ui.openDialog(ov);
+        KOS.examGuide.dialog(a.title, "項", [body], null, "exams.sheet", "sm");
+        announce("Sections, 8. " + s[2] + ", current.");
       } }, [el("span", { class: "k-xs-navglyph", lang: "ja", "aria-hidden": "true", text: s[1] }), el("span", { text: s[2] }), markEl(m[s[0]]), el("span", { "aria-hidden": "true", text: " ▾" })]);
   }
   function examPage(main, id, tab, sub) {
@@ -562,7 +561,12 @@
       el("span", { class: "k-ex-inline" }, [
         btn("Sit", "sm", function () { KOS.show("exams", { id: a.id, tab: "paper", sub: String(p.n) }); }, { "data-ui": "exams.paper-sit", "aria-label": "Sit " + p.title }),
         btn("Print", "quiet sm", function () { KOS.show("exams", { id: a.id, tab: "paper", sub: String(p.n) }); setTimeout(function () { window.print(); }, 400); }, { "data-ui": "exams.paper-print" }),
-        btn("Log marks", "quiet sm", function () { KOS.trackerLog({ assessmentId: a.id, source: { kind: "predicted", ref: a.id + ":" + p.n }, paper: p.title, max: p.marks }, function () { KOS.rerender(); }); }, { "data-ui": "exams.paper-log" })])]);
+        btn("Log marks", "quiet sm", function () {
+          /* a printed or teacher-marked sitting: the paper's own tally, mark
+             point by mark point, logged as ONE attempt (invariant 124) */
+          if (KOS.examPaperView && KOS.examPaper) KOS.examPaperView.tally(a, KOS.examPaper.build(a, p.n), { timed: false });
+          else KOS.trackerLog({ assessmentId: a.id }, function () { KOS.rerender(); });
+        }, { "data-ui": "exams.paper-log" })])]);
   }
   function papersSec(content, a) {
     var pp = S().papers(a), pr = a.preset ? E().preset(a.preset) : null;

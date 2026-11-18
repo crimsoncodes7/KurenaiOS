@@ -228,7 +228,9 @@
     var att = E().attemptsFor(a);
     var list = KOS.examPaper ? KOS.examPaper.authoredList(a) : [];
     function lastFor(n) {
-      var hit = att.filter(function (e) { return e.source && e.source.kind === "predicted" && String(e.source.ref || "") === a.id + ":" + n; });
+      /* a paper sat in the app logs source custom-mock <aid>:<seed>; Log
+         marks on the Papers row logs the same ref */
+      var hit = att.filter(function (e) { return e.source && (e.source.kind === "custom-mock" || e.source.kind === "predicted") && String(e.source.ref || "") === a.id + ":" + n; });
       return hit.length ? hit[hit.length - 1] : null;
     }
     var rows = list.map(function (p, i) {
