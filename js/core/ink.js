@@ -528,13 +528,18 @@
       if (cb) cb(err);
     });
   }
-  function importAll(dump, cb) {
+  /* a restore REPLACES the handwriting (DI-24, AA-12): every other store
+     is emptied first, and so are these, so a page the backup does not hold
+     does not survive it. o.replace false keeps the old merge. */
+  function importAll(dump, cb, o) {
     if (!dump || !Array.isArray(dump.docs) || !Array.isArray(dump.pages)) { cb(null, { docs: 0, pages: 0 }); return; }
+    var replace = !o || o.replace !== false, gone = replace ? Object.keys(index) : [];
     tx(["docs", "pages"], "readwrite", function (t) {
+      if (replace) { t.objectStore("docs").clear(); t.objectStore("pages").clear(); gone.forEach(function (k) { delete index[k]; }); }
       dump.pages.forEach(function (p) { if (p && typeof p.id === "string" && typeof p.doc === "string" && Array.isArray(p.items)) t.objectStore("pages").put(p); });
       dump.docs.forEach(function (d) { if (d && typeof d.key === "string" && Array.isArray(d.pages)) putDoc(t, d); });
     }, function (err) {
-      if (!err) Object.keys(index).forEach(notify);
+      if (!err) { Object.keys(index).forEach(notify); gone.forEach(function (k) { if (!index[k]) notify(k); }); }
       cb(err, { docs: dump.docs.length, pages: dump.pages.length });
     });
   }

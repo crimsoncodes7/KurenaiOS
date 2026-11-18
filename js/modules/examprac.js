@@ -236,7 +236,7 @@
     P.usage(function (e2, us) {
       side.appendChild(u.card([u.chead("Kept on this device", ""),
         el("p", { class: "k-ex-body", text: "Your PDFs live in this browser's own store. They never sync, are never in a backup, and are never uploaded." }),
-        el("div", { class: "k-ex-grow" }), u.kv("Files", String(us ? us.files : 0)), u.kv("On this device", us ? (us.bytes / 1048576).toFixed(0) + " MB" : "—"),
+        el("div", { class: "k-ex-grow" }), u.kv("Files", String(us ? us.files : 0)), u.kv("On this device", us ? KOS.ui.bytes(us.bytes) : "—"),
         us && us.linked ? u.kv("Read from a connected folder", String(us.linked)) : null, u.kv("Synced", "none")].filter(Boolean), "k-ex-flexcard k-ex-fill", "exams.lib-device"));
       var con = u.card([u.chead("Add a folder", "every PDF under it, matched by its path"),
         el("p", { class: "k-ex-body", text: "Pick the folder you keep papers in (Past Papers/…/Question Papers/2023-06 QP.pdf matches by itself). Files are copied into this browser." }),

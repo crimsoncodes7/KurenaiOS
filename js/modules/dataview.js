@@ -17,9 +17,7 @@
      only: the counts come from the stores that own them, the size from
      the browser's storage estimate. The one write here is the export
      noting when it ran (ui.lastBackupAt — per device, like all of ui). */
-  function mb(bytes) {
-    return bytes >= 1048576 ? (Math.round(bytes / 104857.6) / 10) + " MB" : Math.max(1, Math.round(bytes / 1024)) + " KB";
-  }
+  function mb(bytes) { return KOS.ui.bytes(bytes); }
   function agoWords(ts) {
     var days = Math.floor((Date.now() - ts) / 864e5);
     return days <= 0 ? "today" : days === 1 ? "yesterday" : days + " days ago";

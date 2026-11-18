@@ -1480,6 +1480,7 @@
           });
         }
 
+        var filesGone = gone.some(function (m) { return m && m.part === "attachments"; });
         function restoreFiles(next) {
           if (eachFile) {
             /* one file at a time; the store is emptied only when the first
@@ -1503,6 +1504,17 @@
                 begun = true; one();
               });
             }, function (e2, bad) {
+              /* DI-24: a backup that holds its files, even none, is the whole
+                 truth about them: files it does not hold go. Only a backup
+                 that says its files could not be read leaves them alone. */
+              if (!begun && !e2 && !filesGone) {
+                KOS.attach.importBegin(function (e3) {
+                  if (e3) report.missingSections.push("attachments (error: " + e3.message + ")");
+                  else report.restoredSections.push("attachments (none in this backup; this device's removed)");
+                  next();
+                });
+                return;
+              }
               if (e2) report.missingSections.push("attachments (error: " + e2.message + ")");
               if (failed.length || (bad && bad.length)) {
                 report.missingSections.push("files that did not restore: " + failed.concat(bad || []).slice(0, 8).join(", ") +
@@ -1514,7 +1526,8 @@
             return;
           }
           var items = backup.attachments || [];
-          if (!items.length) return next();
+          /* DI-24: an empty files section still replaces; a missing one does not */
+          if (!items.length && (!Array.isArray(backup.attachments) || filesGone)) return next();
           if (!window.KOS || !KOS.attach || !KOS.attach.available()) {
             report.missingSections.push("attachments (IndexedDB unavailable)");
             return next();

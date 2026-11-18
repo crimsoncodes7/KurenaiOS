@@ -22,7 +22,7 @@
   "use strict";
   window.KOS = window.KOS || {};
   function el() { return KOS.ui.el.apply(null, arguments); }
-  function size(b) { return b >= 1073741824 ? (b / 1073741824).toFixed(2) + " GB" : b >= 1048576 ? (b / 1048576).toFixed(1) + " MB" : Math.max(0, Math.round((b || 0) / 1024)) + " KB"; }
+  function size(b) { return KOS.ui.bytes(b); }
   function F() { return KOS.files; }
 
   /* the state document's measure (pure): its size as saved (the JSON text's
@@ -166,19 +166,32 @@
       grid.appendChild(stateCard());
       grid.appendChild(keptCard());
 
-      /* by store */
-      var by = card("By kind of data", "stores", [
-        row("Files (topics, assignments, Files)", size(filesB)),
-        row("Past papers (this device only)", size(papersB)),
-        el("div", { class: "k-st-row", "data-ui": "storage.ink" }, [el("span", { class: "k-st-row-t", text: "Your ink" }), el("span", { class: "k-mono", text: "…" })]),
-        el("div", { class: "k-st-row", "data-ui": "storage.text" }, [el("span", { class: "k-st-row-t", text: "Text index (search inside files)" }), el("span", { class: "k-mono", text: "…" })])
-      ]);
-      grid.appendChild(by);
-      if (KOS.ink && KOS.ink.exportAll) KOS.ink.exportAll(function (err, dump) { var c = by.querySelector("[data-ui~='storage.ink'] .k-mono"); if (c) c.textContent = err || !dump ? "—" : size(JSON.stringify(dump).length); });
-      F().loadText(function (err, t) {
-        var n = 0; Object.keys(t || {}).forEach(function (k) { (t[k] || []).forEach(function (p) { n += p.length; }); });
-        var c = by.querySelector("[data-ui~='storage.text'] .k-mono"); if (c) c.textContent = size(n * 2);
+      /* by store (DI-15): EVERY database the app keeps, from the store
+         registry, each measured where it lives; the state document is the
+         card beside this one */
+      var SHORT = { media: "The Collection", files: "Files (topics, assignments, Files)", money: "Money", reviews: "The review log",
+        ink: "Your ink", mind: "Mind's Journal", creatives: "Creatives' work", ledger: "Older sessions (the ledger's archive)",
+        jaMined: "Japanese mined lines", reports: "Saved reports", attempts: "Recorded exam attempts", papers: "Past papers (this device only)",
+        filetext: "Text index (search inside files)", backups: "Checkpoints", statemirror: "The state's mirror copy" };
+      var rows = (KOS.stores ? KOS.stores.list() : []).map(function (r) {
+        var cell = el("span", { class: "k-mono", text: "…" });
+        var line = el("div", { class: "k-st-row", "data-ui": "storage.store", "data-store": r.id }, [el("span", { class: "k-st-row-t", text: SHORT[r.id] || r.label || r.id }), cell]);
+        KOS.stores.size(r.id, function (err, b) { cell.textContent = err ? "—" : size(b); line.setAttribute("data-bytes", String(b || 0)); sortRows(); });
+        return line;
       });
+      var by = card("By kind of data", "stores", rows);
+      /* biggest first, once the sizes are in */
+      function sortRows() {
+        if (rows.some(function (r) { return !r.hasAttribute("data-bytes"); })) return;
+        var host = rows[0] && rows[0].parentNode;
+        if (!host) return;
+        rows.slice().sort(function (a, b) { return +b.getAttribute("data-bytes") - +a.getAttribute("data-bytes"); }).forEach(function (r) { host.appendChild(r); });
+        /* the empty ones in one line, not a column of 0 B */
+        var empty = rows.filter(function (r) { return r.getAttribute("data-bytes") === "0"; });
+        empty.forEach(function (r) { r.hidden = true; });
+        if (empty.length) host.appendChild(el("p", { class: "k-st-note", "data-ui": "storage.empty", text: "Nothing kept yet: " + empty.map(function (r) { return r.firstChild.textContent; }).join(", ") + "." }));
+      }
+      grid.appendChild(by);
 
       /* free up space */
       var safe = local.filter(function (r) { return r.store === "files" && uploaded[r.fileId]; }).sort(function (a, b) { return b.size - a.size; });

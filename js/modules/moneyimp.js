@@ -102,7 +102,7 @@
       var sk = S.parsed.skipped || { before: 0, after: 0 }, rows = S.parsed.rows.length, need = needs();
       body.appendChild(el("div", { class: "k-mn-filecard", "data-ui": "money.import-file" }, [fileKind(S.parsed.format),
         el("div", { class: "k-mn-grow k-mn-fname" }, [el("b", { class: "k-ellipsis", text: S.file || "statement" }),
-          el("span", { class: "k-muted k-mn-small", text: plural(rows, "row") + (S.size ? " · " + Math.max(1, Math.round(S.size / 1024)) + " KB" : "") })]),
+          el("span", { class: "k-muted k-mn-small", text: plural(rows, "row") + (S.size ? " · " + KOS.ui.bytes(S.size) : "") })]),
         p.btn("Change file", "k-btn--sm", function () { S.parsed = null; S.byHand = false; draw(); }, "money.import-change")]));
       var said = [plural(rows, "row")];
       if (sk.before) said.unshift(plural(sk.before, "line") + " above the header skipped");

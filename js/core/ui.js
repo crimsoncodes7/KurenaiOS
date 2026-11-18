@@ -365,7 +365,17 @@
     return node;
   }
 
-  KOS.ui = { el: el, toast: toast, flashSaved: flashSaved, esc: esc, debounce: debounce,
+  /* THE ONE FILE SIZE (audit EX-45, AA-27): the same 16-byte file read
+     "1 KB" in Files, "0 KB" in Storage and "16 B" on a topic. Bytes under a
+     kilobyte, one decimal under 10 KB and in MB, two in GB. */
+  function bytes(n) {
+    n = Math.max(0, +n || 0);
+    if (n < 1024) return n + " B";
+    if (n < 1048576) { var k = n / 1024; return (k < 10 ? Math.round(k * 10) / 10 : Math.round(k)) + " KB"; }
+    if (n < 1073741824) return (Math.round(n / 104857.6) / 10) + " MB";
+    return (n / 1073741824).toFixed(2) + " GB";
+  }
+  KOS.ui = { el: el, toast: toast, flashSaved: flashSaved, esc: esc, debounce: debounce, bytes: bytes,
     confirm: confirmModal, openDialog: openDialog, topDialog: topDialog, closeDialogs: closeDialogs, num: num,
     setClass: setClass, state: state, hasState: hasState, hookify: hookify, hook: hook, banner: banner };
   /* notices the store raised before this file loaded */

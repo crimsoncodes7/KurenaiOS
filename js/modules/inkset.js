@@ -21,7 +21,7 @@
     if (h < 36) return h + (h === 1 ? " hour ago" : " hours ago");
     return new Date(ts).toLocaleDateString("en-GB", { day: "numeric", month: "short" });
   }
-  function bytes(n) { return n >= 1048576 ? (n / 1048576).toFixed(1) + " MB" : Math.max(1, Math.round(n / 1024)) + " KB"; }
+  function bytes(n) { return KOS.ui.bytes(n); }
 
   /* "Kurenai reads handwriting when asked" (decision E): per device, off.
      Mark with Kurenai, Check my working and Compare with Kurenai show only

@@ -23,6 +23,7 @@
      KOS.stores.get(id)              → one row
      KOS.stores.name(id)             → its database name in this namespace
      KOS.stores.count(id, cb)        → cb(err, n | null)
+     KOS.stores.size(id, cb)         → cb(err, bytes): an estimate, read only
      KOS.stores.clear(id, cb)        → cb(err)
      KOS.stores.clearAll(cb)         → cb(err, ids cleared): every row but
                                        the checkpoints and the state's mirror */
@@ -114,6 +115,38 @@
     });
   }
 
+  /* size(id, cb) → cb(err, bytes): every record of the database, a blob by
+     its own size and the rest by its JSON length (DI-15: Storage named only
+     files and ink, and none of the app's real data). An estimate, as the
+     browser's own is; a database never created is 0. Read only. */
+  function blobBytes(v, acc) {
+    if (v == null || typeof v !== "object") return v;
+    if (typeof Blob !== "undefined" && v instanceof Blob) { acc.b += v.size || 0; return undefined; }
+    if (v instanceof ArrayBuffer) { acc.b += v.byteLength; return undefined; }
+    if (ArrayBuffer.isView && ArrayBuffer.isView(v)) { acc.b += v.byteLength; return undefined; }
+    return v;
+  }
+  function size(id, cb) {
+    openExisting(name(id), function (err, db) {
+      if (err || !db) { cb(err || null, 0); return; }
+      var stores = Array.prototype.slice.call(db.objectStoreNames), acc = { b: 0 };
+      if (!stores.length) { db.close(); cb(null, 0); return; }
+      var t;
+      try { t = db.transaction(stores, "readonly"); } catch (e) { db.close(); cb(e); return; }
+      stores.forEach(function (st) {
+        var rq = t.objectStore(st).openCursor();
+        rq.onsuccess = function () {
+          var c = rq.result;
+          if (!c) return;
+          try { acc.b += JSON.stringify(c.value, function (k, v) { return blobBytes(v, acc); }).length; } catch (e) { /* not JSON: skipped */ }
+          c.continue();
+        };
+      });
+      t.oncomplete = function () { db.close(); cb(null, acc.b); };
+      t.onerror = t.onabort = function () { db.close(); cb(t.error || new Error("size failed")); };
+    });
+  }
+
   function clear(id, cb) {
     var r = BY_ID[id];
     if (!r) { cb(new Error("No store " + id)); return; }
@@ -158,6 +191,7 @@
     get: function (id) { return BY_ID[id] || null; },
     name: name,
     count: count,
+    size: size,
     clear: clear,
     clearAll: clearAll
   };

@@ -669,10 +669,7 @@
   }
 
   /* ---------------- the Files tab ---------------- */
-  function fmtSize(b) {
-    return b > 1048576 ? (b / 1048576).toFixed(1) + " MB"
-      : b > 1024 ? Math.round(b / 1024) + " KB" : b + " B";
-  }
+  function fmtSize(b) { return KOS.ui.bytes(b); }
   function canInline(mime) {
     return mime.indexOf("image/") === 0 || mime === "application/pdf" || mime.indexOf("text/") === 0;
   }

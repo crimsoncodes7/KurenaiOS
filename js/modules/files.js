@@ -17,7 +17,7 @@
   window.KOS = window.KOS || {};
   function el() { return KOS.ui.el.apply(null, arguments); }
   function F() { return KOS.files; }
-  function size(b) { return b >= 1048576 ? (b / 1048576).toFixed(1) + " MB" : Math.max(1, Math.round((b || 0) / 1024)) + " KB"; }
+  function size(b) { return KOS.ui.bytes(b); }
   function day(ts) { return ts ? new Date(ts).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : ""; }
   function prefs() {
     var ui = KOS.store.state.ui;

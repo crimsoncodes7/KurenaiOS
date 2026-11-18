@@ -279,7 +279,7 @@
              download, instead of being a name you cannot open */
           (rows || []).forEach(function (r) {
             var kind = r.mime === "application/pdf" ? "PDF" : /^image\//.test(r.mime || "") ? "Image" : (r.name.split(".").pop() || "File").toUpperCase();
-            var size = r.size >= 1048576 ? (r.size / 1048576).toFixed(1) + " MB" : Math.max(1, Math.round((r.size || 0) / 1024)) + " KB";
+            var size = KOS.ui.bytes(r.size);
             attWrap.appendChild(el("div", { class: "k-asg-sub k-asg-file", "data-ui": "asg.file" }, [
               el("button", { type: "button", class: "k-asg-file-open", "data-ui": "asg.file-open", "aria-label": "Open " + r.name,
                 onclick: function () { if (KOS.files) KOS.files.openRec(r); else KOS.attach.openViewer(r); } }, [

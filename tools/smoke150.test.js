@@ -144,11 +144,12 @@ step("C · restore: every file and every part back", async () => {
   const after = await snap();
   ["mediaEntries", "money", "reviews", "ink", "creatives", "reports"].forEach((p) => eq(K.backup.canon(after[p]), K.backup.canon(before[p]), "part " + p + " back"));
   eq(K.store.state.sessions.length, before.state.sessions.length, "the state is the backup's");
-  /* a backup holding no files leaves the files here alone */
-  const files = await stored();
+  /* a backup that holds its files, even none, is the whole truth about
+     them (DI-24, 18 November 2026: it used to leave this device's files) */
   const noFiles = new w.Blob([raw.split("\n")[0] + "\n]}\n"], { type: "application/json" });
   const r2 = await restore(noFiles);
-  eq([(await stored()).length, r2.missingSections], [files.length, []], "the four files stay");
+  eq([(await stored()).length, r2.missingSections], [0, []], "a backup with no files replaces them: none");
+  assert(r2.restoredSections.some((x) => /none in this backup/.test(x)), "and says so: " + r2.restoredSections.join(" · "));
   /* the old layout restores as it always did */
   const one = new w.Blob([JSON.stringify(before)], { type: "application/json" });
   await cb((c) => K.attach.importBegin(c));
