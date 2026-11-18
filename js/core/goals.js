@@ -80,6 +80,23 @@
     return { key: iso(first).slice(0, 7), from: iso(first), to: iso(new Date(d.getFullYear(), d.getMonth() + 1, 0)) };
   }
   function nextPeriod(g, p) { return periodOf(g, addDays(p.to, 1)); }
+  /* the last day of the period a stored outcome key names (GO-09: a
+     report takes a period by its END, so one that straddles a report's
+     boundary lands once, in the report built after it was judged) */
+  function periodEnd(g, key) {
+    if (!key) return null;
+    if (key.length === 10) return addDays(key, 6);
+    if (g.domain === "money" && KOS.money && KOS.money.periodRange) return KOS.money.periodRange(key).to;
+    var y = +key.slice(0, 4), m = +key.slice(5, 7);
+    return iso(new Date(y, m, 0));
+  }
+  /* GO-03: what a period MEASURES. A period that began before the goal
+     counts only from the goal's start, so nothing done before it existed
+     is counted; such a first period is `partial`. */
+  function spanOf(g, per) {
+    var from = g.startDate && g.startDate > per.from ? g.startDate : per.from;
+    return { from: from, to: per.to, partial: from !== per.from };
+  }
 
   /* ---------------- the registry ---------------- */
   function register(def) {
@@ -160,7 +177,10 @@
     if (repeat && raw.outcomes && typeof raw.outcomes === "object") {
       Object.keys(raw.outcomes).sort().slice(-MAX_OUTCOMES).forEach(function (k) {
         var o = raw.outcomes[k];
-        if (o && typeof o === "object") outcomes[k] = { met: !!o.met, value: num(o.value, 0, 0), target: num(o.target, 1, 0), at: o.at || 0 };
+        if (o && typeof o === "object") {
+          outcomes[k] = { met: !!o.met, value: num(o.value, 0, 0), target: num(o.target, 1, 0), at: o.at || 0 };
+          if (o.partial) outcomes[k].partial = true;
+        }
       });
     }
     var target = num(raw.target, 1, def && def.direction === "under" ? 0 : 1);
@@ -217,12 +237,17 @@
     if (!g) return { ok: false, why: "No goal with that id." };
     if (on !== false) {
       if (g.archived) return { ok: false, why: "An archived goal can't be pinned." };
+      if (finished(g)) return { ok: false, why: "A met or missed goal can't be pinned." };
       if (!g.pinned && pinned().length >= PIN_MAX) return { ok: false, why: "Three goals are pinned already." };
     }
     update(g.id, { pinned: on !== false });
     return { ok: true };
   }
-  function pinned() { return all().filter(function (g) { return g.pinned && !g.archived; }); }
+  /* GO-26: a met or missed goal keeps its flag (for history, and a goal
+     reopened by an edit comes back) but leaves the Morning Review, Home
+     and the three slots */
+  function finished(g) { return !g.repeat && (g.status === "completed" || g.status === "failed"); }
+  function pinned() { return all().filter(function (g) { return g.pinned && !g.archived && !finished(g); }).slice(0, PIN_MAX); }
 
   function data() {
     var s = store.state.goals = store.state.goals || { v: 3, nextId: 1, items: [], completionLedger: {} };
@@ -256,6 +281,25 @@
     store.save();
     return g;
   }
+  /* the params a goal's measure reads, without what the engine itself
+     keeps there (a baseline, a recorded breach, a deleted exam) */
+  var OWN_PARAMS = { baseline: 1, favBase: 1, breach: 1, examGone: 1 };
+  function readParams(g) {
+    var out = {};
+    Object.keys(g.params || {}).sort().forEach(function (k) { if (!OWN_PARAMS[k]) out[k] = g.params[k]; });
+    return JSON.stringify(out);
+  }
+  /* did an edit change WHAT the goal reads? */
+  function sourceChanged(a, b) {
+    return a.type === b.type && (JSON.stringify(a.links || {}) !== JSON.stringify(b.links || {}) || (a.module || null) !== (b.module || null) ||
+      (a.filterKind || null) !== (b.filterKind || null) || (a.filterValue || "") !== (b.filterValue || "") ||
+      (a.linkedEntryId || null) !== (b.linkedEntryId || null) || readParams(a) !== readParams(b));
+  }
+  /* …or what it is judged against? */
+  function judgedChanged(a, b) {
+    return a.target !== b.target || a.startDate !== b.startDate || (a.deadline || null) !== (b.deadline || null) ||
+      (a.repeat || null) !== (b.repeat || null) || (a.kind === "manual" && (a.current || 0) !== (b.current || 0));
+  }
   function update(id, patch) {
     var s = data(), idx = s.items.findIndex(function (g) { return g.id === Number(id); });
     if (idx < 0) return null;
@@ -266,7 +310,40 @@
     next.completionRecordedAt = prev.completionRecordedAt || next.completionRecordedAt;
     /* the past is not rewritten: outcomes survive an edit of the target */
     if (next.repeat && next.repeat === prev.repeat) next.outcomes = Object.assign({}, prev.outcomes || {}, next.outcomes);
-    if (next.type !== prev.type) { var def = BY_ID[next.type]; if (def && def.onCreate) def.onCreate(next); }
+    /* GO-04: a change of the period grid (the repeat, or the day the week
+       runs from) keeps only the outcomes that are periods of the NEW grid;
+       the rest are judged again from the start on the new one (the
+       measure reads any past range), so weeks and months never overlap */
+    if (next.repeat) {
+      Object.keys(next.outcomes).forEach(function (k) {
+        var day = k.length === 7 ? (next.domain === "money" && KOS.money ? KOS.money.periodRange(k).from : k + "-01") : k;
+        if (periodOf(next, day).key !== k) delete next.outcomes[k];
+      });
+    }
+    var def = BY_ID[next.type];
+    var reads = sourceChanged(prev, next);
+    /* GO-24: what the measure reads changed (the type, its subject, topics,
+       exam, title, filter…) — the baseline is taken again: counting from now */
+    if (def && def.onCreate && (next.type !== prev.type || reads) && !unlinked(next)) {
+      next.params = Object.assign({}, next.params);
+      delete next.params.baseline;
+      def.onCreate(next);
+    }
+    /* GO-05: an edit of what the goal is judged against is a new judgement.
+       A goal reached before is reopened (and re-reached at once if it still
+       holds); its one receipt in completionLedger is kept, so nothing is
+       recorded or paid twice. A goal whose exam was deleted keeps its
+       state (invariant 128). */
+    if (!next.repeat && !next.failedManual && !unlinked(next) && (reads || next.type !== prev.type || judgedChanged(prev, next)) &&
+      (prev.status !== "active" || prev.completedAt || prev.failedAt)) {
+      next.status = "active"; next.completedAt = null; next.failedAt = null;
+    }
+    /* GO-08: a recorded breach of a stay-under goal stands unless the new
+       limit allows it */
+    if (next.params && next.params.breach && !(next.params.breach.value > next.target)) {
+      next.params = Object.assign({}, next.params);
+      delete next.params.breach;
+    }
     s.items[idx] = next;
     store.save();
     return next;
@@ -292,10 +369,13 @@
     var ledger = data().completionLedger;
     if (ledger[g.id]) delete ledger[g.id];
     var def = BY_ID[g.type];
+    /* a restart is a fresh judgement: a recorded breach (GO-08) goes */
+    var params = Object.assign({}, g.params);
+    delete params.breach;
     var next = update(id, Object.assign({ status: "active", completedAt: null, failedAt: null, failedManual: false,
-      completionRecordedAt: null, archived: false, startDate: todayISO(),
+      completionRecordedAt: null, archived: false, startDate: todayISO(), params: params,
       current: g.kind === "manual" ? 0 : g.current }, patch || {}));
-    if (def && def.onCreate) { def.onCreate(next); store.save(); }
+    if (def && def.onCreate) { next.params = Object.assign({}, next.params); delete next.params.baseline; def.onCreate(next); store.save(); }
     return next;
   }
 
@@ -305,6 +385,14 @@
     if (g.status === "completed" && g.completedAt) return "completed";
     if (unlinked(g)) return "active";
     if (def.judge) return def.judge(g, measure, today);
+    /* GO-08: a stay-under goal on LIVE state (overdue work, carry-overs,
+       subscriptions) is judged over its whole range, not at the moment it
+       is looked at: once a breach is recorded inside the range it is
+       missed; it is kept only if no breach was seen by the deadline */
+    if (def.live && def.direction === "under") {
+      if (g.params && g.params.breach) return "failed";
+      return g.deadline && g.deadline < today ? "completed" : "active";
+    }
     if (measure.current == null) return g.deadline && g.deadline < today ? "failed" : "active";
     if (def.direction === "under") {
       if (measure.current > measure.target) return "failed";
@@ -332,10 +420,16 @@
     return { total: total, elapsed: elapsed, value: b + (target - b) * elapsed / total, frac: elapsed / total };
   }
   function baseOf(g, def) {
-    return def.fromBase && g.params && isFinite(g.params.baseline) ? Number(g.params.baseline) : 0;
+    return def.fromBase && g.params && typeof g.params.baseline === "number" && isFinite(g.params.baseline) ? g.params.baseline : 0;
+  }
+  /* GO-27: a fromBase goal made when its figure could not be read yet
+     (too few rated cards) has NO baseline until the first figure is
+     measured, and draws no line and no pace until then */
+  function baseKnown(g, def) {
+    return !def.fromBase || !!(g.params && typeof g.params.baseline === "number" && isFinite(g.params.baseline));
   }
   function pace(g, def, current, target, from, to, today) {
-    if (def.displayOnly || def.noPace || unlinked(g) || current == null || !from || !to || today < from) return null;
+    if (def.displayOnly || def.noPace || unlinked(g) || current == null || !from || !to || today < from || !baseKnown(g, def)) return null;
     if (def.direction === "under") return current > target ? "over" : "under";
     var base = baseOf(g, def), span = Math.max(target - base, 0);
     var e = expectedOf(target, from, to, today, base);
@@ -390,21 +484,29 @@
     var dirty = false;
     (function next(i) {
       if (i >= todo.length) { cb(dirty); return; }
-      var per = todo[i];
-      measureOne(g, def, ctxFor(base, per.from, per.to), function (m) {
+      var per = todo[i], span = spanOf(g, per);
+      measureOne(g, def, ctxFor(base, span.from, span.to), function (m) {
         if (m.current != null) {
           var met = def.direction === "under" ? m.current <= m.target : m.current >= m.target;
           g.outcomes[per.key] = { met: met, value: m.current, target: m.target, at: Date.now() };
+          /* GO-03: the first period, begun before the goal, measured from
+             its start: met counts, short of it is not a miss */
+          if (span.partial) g.outcomes[per.key].partial = true;
           dirty = true;
         }
         next(i + 1);
       });
     })(0);
   }
+  /* a part period short of its target (GO-03) is neither met nor missed */
+  function isMiss(o) { return !!o && !o.met && !o.partial; }
   /* the run of periods met, newest first, ending at the last ended period */
   function runOf(g) {
     var keys = Object.keys(g.outcomes || {}).sort().reverse(), n = 0;
-    for (var i = 0; i < keys.length; i++) { if (g.outcomes[keys[i]].met) n++; else break; }
+    for (var i = 0; i < keys.length; i++) {
+      var o = g.outcomes[keys[i]];
+      if (o.met) n++; else if (o.partial) continue; else break;
+    }
     return n;
   }
 
@@ -447,10 +549,25 @@
       /* a deadline read from its source (an exam goal follows its exam) */
       var dl = !per && def.deadlineOf && !unlinked(g) ? (def.deadlineOf(g) || g.deadline) : g.deadline;
       var gv = dl === g.deadline ? g : Object.assign({}, g, { deadline: dl });
-      var from = per ? per.from : g.startDate;
+      var span = per ? spanOf(g, per) : null;
+      var from = per ? span.from : g.startDate;
       var to = per ? per.to : (dl || today);
       function finish(m) {
         var target = def.direction === "under" ? Math.max(0, Number(m.target) || 0) : Math.max(1, Number(m.target) || g.target || 1);
+        /* GO-08: a live stay-under goal over its limit on a day inside its
+           range records the breach (the day it is made is grace: a goal
+           begun over the line is there to bring it under) */
+        if (!per && def.live && def.direction === "under" && m.current != null && m.current > target && !unlinked(g) &&
+          g.status === "active" && !(g.params && g.params.breach) && today > g.startDate && (!dl || today <= dl)) {
+          g.params.breach = { at: today, value: m.current };
+          dirty = true;
+        }
+        /* GO-27: the first figure measured is the baseline of a goal made
+           before it could be read */
+        if (def.fromBase && !baseKnown(g, def) && m.current != null && !unlinked(g)) {
+          g.params.baseline = m.current;
+          dirty = true;
+        }
         var status = per ? "active" : derive(gv, def, m, today);
         var cur = m.current == null ? 0 : m.current;
         var pct = def.direction === "under"
@@ -483,8 +600,9 @@
           _domain: def.domain, _direction: def.direction, _displayOnly: !!def.displayOnly,
           _period: per, _run: per ? runOf(g) : 0,
           _pace: status === "active" || per ? pace(g, def, m.current, target, from, paceTo, today) : null,
-          _expected: paceTo && def.direction === "reach" && !def.displayOnly && !def.noPace && !unlinked(g) && today >= from ? Math.round(expectedOf(target, from, paceTo, today, base).value * 100) / 100 : null,
-          _from: from, _to: paceTo || null, _base: def.fromBase ? base : null,
+          _expected: paceTo && def.direction === "reach" && !def.displayOnly && !def.noPace && !unlinked(g) && today >= from && baseKnown(g, def) ? Math.round(expectedOf(target, from, paceTo, today, base).value * 100) / 100 : null,
+          _from: from, _to: paceTo || null, _base: def.fromBase && baseKnown(g, def) ? base : null,
+          _partial: !!(span && span.partial), _breach: g.params && g.params.breach ? g.params.breach : null,
           _exam: !!def.exam, _unlinked: unlinked(g), _noPace: !!def.noPace,
           _projected: per ? null : projected(def, m.current, target, from, today, base),
           _milestonesMet: (g.milestones || []).filter(function (x) { return (m.current || 0) >= x; }).length,
@@ -507,7 +625,7 @@
     var def = typeDef(g.type), today = todayISO();
     if (!def.repeat || !def.measure) { cb(null); return; }
     var per = g.repeat ? periodOf(g, today) : null;
-    var from = per ? per.from : g.startDate, to = per ? per.to : g.deadline;
+    var from = per ? spanOf(g, per).from : g.startDate, to = per ? per.to : g.deadline;
     if (!from || !to || from > today) { cb(null); return; }
     var days = [], d = from;
     for (var guard = 0; d <= to && d <= today && guard < 400; guard++, d = addDays(d, 1)) days.push(d);
@@ -570,20 +688,32 @@
       var mins = ledger(ctx, function (e) { return e.type === "focus"; }).reduce(function (n, e) { return n + focusSecs(g, e, true) / 60; }, 0);
       cb({ current: round1(mins / 60), unit: "hours" });
     } });
+  /* GO-11: every subject's reviews, read from the entry its owner logs —
+     flashcards and the due queue (cards, again), Japanese's review
+     sessions (n graded, passed), Mind's review blocks (cards, passed) and
+     Code's retrievals (one each, "again" a lapse) — so a subject the
+     editor offers is a subject the goal counts */
+  function reviewTally(g, ctx) {
+    var t = { n: 0, again: 0 };
+    ledger(ctx, function (e) { return subjectOk(g, e); }).forEach(function (e) {
+      var x = e.metrics || {};
+      if (e.type === "flashcards" || e.type === "due-review") { t.n += +x.cards || 0; t.again += +x.again || 0; }
+      else if (e.type === "ja" && x.kind === "session") { t.n += +x.n || 0; t.again += Math.max(0, (+x.n || 0) - (+x.passed || 0)); }
+      else if (e.type === "mind" && x.kind === "reviews") { t.n += +x.cards || 0; t.again += Math.max(0, (+x.cards || 0) - (+x.passed || 0)); }
+      else if (e.type === "code" && x.kind === "retrieval" && x.grade) { t.n += 1; if (x.grade === "again") t.again++; }
+    });
+    return t;
+  }
   register({ id: "cards-reviewed", domain: "study", label: "Review flashcards", icon: "札", unit: "cards",
     repeat: true, fields: { subject: true },
     measure: function (g, ctx, cb) {
-      cb({ current: ledger(ctx, function (e) { return (e.type === "flashcards" || e.type === "due-review") && subjectOk(g, e); })
-        .reduce(function (n, e) { return n + ((e.metrics && e.metrics.cards) || 0); }, 0), unit: "cards" });
+      cb({ current: reviewTally(g, ctx).n, unit: "cards" });
     } });
   /* recall makes no claim under 50 reviews in the period (the Reports floor) */
   register({ id: "recall-rate", domain: "study", label: "Keep recall at or above a percentage", icon: "憶", unit: "%",
     repeat: true, fields: { subject: true },
     measure: function (g, ctx, cb) {
-      var n = 0, again = 0;
-      ledger(ctx, function (e) { return (e.type === "flashcards" || e.type === "due-review") && subjectOk(g, e); }).forEach(function (e) {
-        n += (e.metrics && e.metrics.cards) || 0; again += (e.metrics && e.metrics.again) || 0;
-      });
+      var t = reviewTally(g, ctx), n = t.n, again = t.again;
       if (n < 50) { cb({ current: null, unit: "%", meta: n ? n + " of 50 reviews needed to measure" : "Needs 50 reviews to measure" }); return; }
       cb({ current: Math.round(100 * (n - again) / n), unit: "%", meta: n + " reviews" });
     } });
@@ -671,14 +801,16 @@
       while (h.days && h.days[d]) { n++; d = addDays(d, -1); }
       cb({ current: n, unit: "days", meta: h.text });
     } });
+  /* `live`: these three read the present state, so they are judged by the
+     breaches recorded inside their range (GO-08), never by one look */
   register({ id: "no-overdue", domain: "productivity", label: "No overdue assignment", icon: "課", unit: "overdue",
-    direction: "under",
+    direction: "under", live: true,
     measure: function (g, ctx, cb) {
       var c = KOS.assignments && KOS.assignments.counts ? KOS.assignments.counts() : null;
       cb({ current: c ? c.overdue : null, target: 0, unit: "overdue" });
     } });
   register({ id: "carryovers-cleared", domain: "productivity", label: "Carry-overs cleared", icon: "越", unit: "carried",
-    direction: "under",
+    direction: "under", live: true,
     measure: function (g, ctx, cb) {
       var w = KOS.pacing && KOS.pacing.dueThisWeek ? KOS.pacing.dueThisWeek() : null;
       cb({ current: w ? w.carried.length : null, target: 0, unit: "carried" });
@@ -686,7 +818,7 @@
 
   /* ---- Money (reads KOS.money; nothing here writes it) ---- */
   register({ id: "money-subs-under", domain: "money", label: "Subscriptions below an amount", icon: "↻", unit: "£",
-    direction: "under",
+    direction: "under", live: true,
     measure: function (g, ctx, cb) {
       if (!KOS.money) { cb({ current: null }); return; }
       cb({ current: KOS.money.subscriptions().perMonth / 100, unit: KOS.money.data().currency, meta: "a month" });
@@ -700,6 +832,9 @@
     measure: function (g, ctx, cb) {
       moneyTally(ctx, function (rows) {
         if (!rows) { cb({ current: null }); return; }
+        /* GO-18: a period with no Money record at all says nothing about
+           spending, so it is not judged (and never "Met") */
+        if (!KOS.money.evidence(ctx.from, ctx.to, rows)) { cb({ current: null, unit: KOS.money.data().currency, meta: "No spending recorded" }); return; }
         var t = KOS.money.tally(rows), c = g.links.category;
         var spent = c ? (t.byCat[c] ? t.byCat[c].net : 0) : t.outgoings;
         cb({ current: Math.max(0, spent) / 100, unit: KOS.money.data().currency });
@@ -714,16 +849,21 @@
         cb({ current: (c ? (t.byCat[c] ? t.byCat[c].income : 0) : t.income) / 100, unit: KOS.money.data().currency });
       });
     } });
-  /* a day counts once it has ended or is today, and only if nothing went out */
+  /* a day counts once it has ended or is today, only if nothing went out,
+     and only if Money can speak for it (MG-30: between the first and last
+     day with an entry or under an imported statement — an empty day with
+     no record around it is not evidence of not spending) */
   register({ id: "money-no-spend", domain: "money", label: "No-spend days", icon: "無", unit: "days",
     repeat: true,
     measure: function (g, ctx, cb) {
       moneyTally(ctx, function (rows) {
         if (!rows) { cb({ current: null }); return; }
+        var ev = KOS.money.evidence(ctx.from, ctx.to, rows);
+        if (!ev) { cb({ current: null, unit: "days", meta: "No entries to judge by yet" }); return; }
         var spent = {};
         rows.forEach(function (t) { if (t.kind === "out") spent[t.date] = true; });
-        var n = 0, end = ctx.to < ctx.today ? ctx.to : ctx.today;
-        for (var d = ctx.from; d <= end; d = addDays(d, 1)) if (!spent[d]) n++;
+        var n = 0, end = ev.to < ctx.today ? ev.to : ctx.today;
+        for (var d = ev.from; d <= end; d = addDays(d, 1)) if (!spent[d]) n++;
         cb({ current: n, unit: "days" });
       });
     } });
@@ -804,8 +944,8 @@
      ledger never repeats it (invariant 95):
        goal:<id>:end:<period>   a period ends tomorrow, not yet met
        goal:<id>:due:<date>     a deadline tomorrow, not yet reached
-       goal:<id>:done           reached (calm; it promises nothing)
-       goal:<id>:missed         a deadline passed short of it
+       goal:<id>:done:<day>     reached that day (calm; it promises nothing)
+       goal:<id>:missed:<date>  the deadline <date> passed short of it
      A display-only (Governor) goal says nothing; an archived one neither. */
   function fmt(n) { return n == null ? "–" : String(Math.round(n * 10) / 10); }
   function amount(r) {
@@ -831,10 +971,13 @@
         }
         return;
       }
+      /* GO-10: keyed by the event itself — the day it was reached, the
+         deadline it missed — so a goal restarted and reached again (or
+         missed again) is news again */
       if (r._status === "completed") {
-        out.push(Object.assign({ id: "goal:" + r.id + ":done", kind: "goal", title: "Goal reached — " + r.title, body: amount(r) }, link));
+        out.push(Object.assign({ id: "goal:" + r.id + ":done:" + (r.completedAt ? iso(new Date(r.completedAt)) : today), kind: "goal", title: "Goal reached — " + r.title, body: amount(r) }, link));
       } else if (r._status === "failed" && !r.failedManual && r.deadline && r.deadline < today) {
-        out.push(Object.assign({ id: "goal:" + r.id + ":missed", kind: "goal", title: "Goal missed — " + r.title,
+        out.push(Object.assign({ id: "goal:" + r.id + ":missed:" + r.deadline, kind: "goal", title: "Goal missed — " + r.title,
           body: amount(r) + ". It stays in your history; restart it when you are ready." }, link));
       } else if (r._status === "active" && r.deadline === tomorrow) {
         out.push(Object.assign({ id: "goal:" + r.id + ":due:" + r.deadline, kind: "goal",
@@ -886,7 +1029,11 @@
       var now = Date.now(), sent = [];
       notices(rows, todayISO()).forEach(function (n) {
         var r = (rows || []).filter(function (x) { return "goal:" + x.id === n.id.split(":").slice(0, 2).join(":"); })[0];
-        var at = /:done$/.test(n.id) ? r && r.completedAt : /:missed$/.test(n.id) ? r && r.failedAt : now;
+        /* a miss is news from when the deadline passed (GO-10: a stay-under
+           goal breached early has an old failedAt, but its notice reports
+           the deadline), whichever is later */
+        var at = /:done(:|$)/.test(n.id) ? r && r.completedAt
+          : /:missed(:|$)/.test(n.id) ? r && Math.max(r.failedAt || 0, r.deadline ? parseISO(addDays(r.deadline, 1)).getTime() : 0) : now;
         if (!at || now - at > NEWS_MS) return;
         if (KOS.notify.push(n)) sent.push(n.id);
       });
@@ -912,7 +1059,7 @@
     archive: archive, restart: restart,
     byExam: byExam, unlinkExam: unlinkExam, linkExam: linkExam, judgeUnlinked: judgeUnlinked, unlinked: unlinked,
     compute: compute, normalise: normalise, metricLabel: metricLabel,
-    periodOf: periodOf, pace: pace, expectedOf: expectedOf, series: series, projected: projected, runOf: runOf,
+    periodOf: periodOf, periodEnd: periodEnd, spanOf: spanOf, isMiss: isMiss, finished: finished, pace: pace, expectedOf: expectedOf, series: series, projected: projected, runOf: runOf,
     todayISO: todayISO, monthEndISO: monthEndISO, num: num,
     PACE: PACE, PROJECT_MIN_DAYS: PROJECT_MIN_DAYS
   };

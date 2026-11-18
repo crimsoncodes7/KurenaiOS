@@ -239,7 +239,26 @@ Read this file before editing or testing anything in its domain.
    a type id it does not know. A repeating goal (`repeat` week/month) is one
    record: the current period is measured live and each ENDED period is
    judged once into `outcomes[periodKey]`; only types that can be read over
-   any past range repeat. Completion records one idempotent
+   any past range repeat. A period counts only from the goal's start
+   (GO-03): a first period begun before it is measured from the start day
+   and marked `partial`, and short of its target it is neither met nor
+   missed (no run broken, no miss in Reports). A change of the period grid
+   (the repeat, or the day the week runs from) keeps only outcomes on the
+   new grid and judges the rest again from the start (GO-04). An edit of
+   what a goal reads or is judged against (type, links, params, target,
+   dates, a manual count) is a new judgement: a reached goal is reopened
+   and its one receipt kept (GO-05), and a baseline taken at creation is
+   taken again when what it reads changes (GO-24; a fromBase goal whose
+   figure cannot be read yet has no baseline, no line and no pace until
+   the first figure, GO-27). A stay-under goal on LIVE state (`live`:
+   overdue work, carry-overs, subscriptions) records the first breach
+   inside its range after its first day (`params.breach`) and is missed
+   from then; it is kept only if never breached by the deadline (GO-08).
+   Money goals judge only what Money can speak for (`KOS.money.evidence`:
+   from the first to the last day with an entry or under an imported
+   statement): a period with no record is not judged and a day with no
+   record around it is not a no-spend day (GO-18, MG-30). A met or missed
+   goal leaves the pins (GO-26). Completion records one idempotent
    `payout:"activity-only"` receipt (`"none"` for a Governor-value goal,
    which is display only) and never creates a second economic event or a
    session. The Collection's types measure the GOAL'S OWN PERIOD (GO-02): titles
@@ -254,7 +273,9 @@ Read this file before editing or testing anything in its domain.
    (`KOS.goals.notices`, pure; `tick` every 30 minutes): a period ending
    tomorrow, a deadline tomorrow, reached, missed — one notice each by id,
    none for a display-only or archived goal, reached/missed only within two
-   days. In Reports, `f.money` (totals, the three biggest categories, a
+   days (a miss from when its deadline passed; ids keyed by the day reached
+   and the deadline missed, GO-10). In Reports a repeating goal's period
+   belongs to the report holding its END (GO-09); `f.money` (totals, the three biggest categories, a
    month's over-budget categories) and `f.goals` (periods met and missed,
    goals reached and missed in the period) are facts like the rest; the
    words' payload gets their totals and counts only, never a payee,

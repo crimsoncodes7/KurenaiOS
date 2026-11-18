@@ -909,6 +909,8 @@
       });
     });
     s.days = Object.keys(days).length;
+    var dk = Object.keys(days).sort();
+    s.first = dk[0] || null; s.last = dk[dk.length - 1] || null;
     /* spend per day and its biggest category (the Overview's day chart) */
     s.spendDays = {};
     var dayCat = {};
@@ -926,6 +928,27 @@
       s.spendDays[d].top = best;
     });
     return s;
+  }
+  /* THE DAYS MONEY CAN SPEAK FOR (MG-30, GO-18; invariant 76): within
+     [from, to], from the first to the last day that has an entry or that
+     an import's statement covers. A day outside it has no evidence — an
+     empty day is not a no-spend day, and a period with no record at all
+     is not a period kept under budget. `seen` is the rows of the range
+     or a tally ({first, last}). Pure; null when there is no evidence. */
+  function evidence(from, to, seen) {
+    var lo = null, hi = null;
+    function take(a, b) {
+      if (!a || !b) return;
+      if (a < from) a = from;
+      if (b > to) b = to;
+      if (a > b) return;
+      if (lo == null || a < lo) lo = a;
+      if (hi == null || b > hi) hi = b;
+    }
+    if (Array.isArray(seen)) seen.forEach(function (t) { if (t && t.date) take(t.date, t.date); });
+    else if (seen) take(seen.first, seen.last);
+    importList().forEach(function (r) { take(r.from, r.to); });
+    return lo ? { from: lo, to: hi } : null;
   }
   /* one month's facts. Budgets and rollover per category; a rollover
      carries ONE month (last month's budget less its spend, which may be
@@ -1761,7 +1784,7 @@
     /* transactions */
     available: available, addTx: addTx, updateTx: updateTx, deleteTx: deleteTx, getTx: getTx,
     list: list, range: range, mirror: mirror,
-    summary: summary, yearSummary: yearSummary, insights: insights, tally: tally,
+    summary: summary, yearSummary: yearSummary, insights: insights, tally: tally, evidence: evidence,
     /* formatting, CSV, backup */
     toMinor: toMinor, format: format, isHidden: isHidden, setHidden: setHidden, rangeSummary: rangeSummary,
     getPic: getPic, setPic: setPic, undoBatch: undoBatch, LOW_DATA_DAYS: LOW_DATA_DAYS,

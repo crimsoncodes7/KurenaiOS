@@ -709,10 +709,14 @@
       if (g.repeat) {
         var met = 0, missed = 0, last = null;
         Object.keys(g.outcomes || {}).sort().forEach(function (k) {
-          var day = k.length === 7 ? k + "-01" : k;
+          /* GO-09: a period belongs to the report whose range holds its
+             END, so one that straddles a boundary (a week run from its
+             start day, a payday month) lands once, after it was judged */
+          var day = KOS.goals && KOS.goals.periodEnd ? KOS.goals.periodEnd(g, k) : k.length === 7 ? k + "-28" : addDays(k, 6);
           if (g.repeat === "month" && p.period === "week") return;
           if (day < p.start || day > p.end) return;
-          if (g.outcomes[k].met) met++; else missed++;
+          /* a part first period short of its target is not a miss (GO-03) */
+          if (g.outcomes[k].met) met++; else if (!g.outcomes[k].partial) missed++;
           last = g.outcomes[k];
         });
         if (!met && !missed) return;

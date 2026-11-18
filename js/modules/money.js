@@ -307,11 +307,14 @@
     if (!lines.length) return null;
     return el("div", { class: "k-mn-hero-row" }, [el("span", { class: "k-mn-hero-row-k", text: label }), el("div", { class: "k-mn-hero-row-v" }, lines)]);
   }
-  /* days so far with nothing spent — only once the month has entries */
+  /* days so far with nothing spent — only days Money can speak for (MG-30:
+     between the first and last day with an entry or under an imported
+     statement), the same rule the No-spend days goal reads */
   function noSpendDays(s, now) {
     var spent = s.spendDays || {}, n = 0;
-    if (!s.days) return 0;
-    for (var d = s.from; d <= now && d <= s.to; d = addDays(d, 1)) if (!spent[d] || spent[d].minor <= 0) n++;
+    var ev = M.evidence ? M.evidence(s.from, s.to, s) : null;
+    if (!ev) return 0;
+    for (var d = ev.from; d <= now && d <= ev.to; d = addDays(d, 1)) if (!spent[d] || spent[d].minor <= 0) n++;
     return n;
   }
   /* the day chart: a bar per day spent, a teal dot for a no-spend day, a
@@ -319,6 +322,7 @@
      One focusable group: ← → move day by day, the tooltip is that day. */
   function dayChart(s, now) {
     var by = s.spendDays || {}, top = 0, marks = {};
+    var ev = M.evidence ? M.evidence(s.from, s.to, s) : null;
     Object.keys(by).forEach(function (d) { if (by[d].minor > top) top = by[d].minor; });
     M.upcoming(addDays(now, 1), s.to, now).forEach(function (o) {
       if (o.state === "done" || o.state === "skip") return;
@@ -340,7 +344,7 @@
           var b = el("i", { class: "k-mn-day-bar", "data-state": day === now ? "today" : null });
           b.style.setProperty("--h", Math.max(6, Math.round(100 * v / (top || 1))) + "%");
           cell.appendChild(b);
-        } else if (s.days) cell.appendChild(el("i", { class: "k-mn-day-dot", "data-state": day === now ? "today" : null }));
+        } else if (ev && day >= ev.from && day <= ev.to) cell.appendChild(el("i", { class: "k-mn-day-dot", "data-state": day === now ? "today" : null }));
       } else {
         var mk = marks[day];
         if (mk) cell.appendChild(el("b", { class: "k-mn-day-mark", "data-k": mk, text: mk === "trial" ? "◷" : mk === "pay" ? "＋" : "●" }));

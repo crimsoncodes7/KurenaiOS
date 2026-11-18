@@ -71,7 +71,11 @@ function eq(a, b, m) { if (JSON.stringify(a) !== JSON.stringify(b)) throw new Er
    MB out of boot (8.78 → 7.87 MB). The rest of the aim needs the modules
    other code reads at boot (Focus, the Assistant, the calendar, the
    vaults, the labs) split into the part boot needs and the page. */
-const BOOT_BUDGET = 7.9 * 1024 * 1024;
+/* 18 Nov 2026 (W7 goals, GO-03…GO-27, MG-30): 7.9 → 7.92 MB. The goals
+   engine's judgement fixes (part periods, grid changes, breaches, the
+   re-baseline, Money's evidence span) are read at boot by Home and the
+   Morning Review, so they add about 14 KB to boot. */
+const BOOT_BUDGET = 7.92 * 1024 * 1024;
 
 /* jsdom has no User Timing: a small recorder, set before the app's scripts */
 function timing(win) {

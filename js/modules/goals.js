@@ -271,6 +271,9 @@
     if (isExam(g)) { var xs = examNext(g); if (xs) return xs; }
     if (g._displayOnly) return (left ? left + " more to go. " : "") + "Shown only; a goal never pays.";
     if (g._direction !== "under" && (g._status === "completed" || g._status === "met")) return "Met. Nothing more to do here.";
+    /* GO-18: no record to judge by is said, never read as "under" */
+    if (g._direction === "under" && g._current == null) return g._meta ? g._meta + "." : "Nothing to measure yet.";
+    if (g._direction === "under" && g._breach && g._status === "failed") return "Went over on " + dayLabel(g._breach.at) + " (" + word(g, g._breach.value) + "). It stays in your history; restart it when you are ready.";
     if (g._direction === "under") return isMoney(g) ? (KOS.money && KOS.money.isHidden() ? "Room left before the limit." : KOS.money.format(Math.round(Math.max(0, tgt - cur) * 100)) + " left before the limit.") : (cur ? cur + " to clear." : "Clear so far.");
     if (g._current == null) return g._meta || "Nothing to measure yet.";
     if (!left) return "Reached.";
@@ -315,11 +318,13 @@
   function strip(g, size) {
     var keys = Object.keys(g.outcomes || {}).sort().slice(-12), items = keys.map(function (k) {
       var o = g.outcomes[k];
-      return { state: o.met ? "met" : "missed", label: (g.repeat === "week" ? "Week of " : "") + shortDate(k.length === 7 ? k + "-01" : k) + ", " + (o.met ? "met" : "missed") + ", " + word(g, o.value) };
+      return { state: o.met ? "met" : o.partial ? "none" : "missed", label: (g.repeat === "week" ? "Week of " : "") + shortDate(k.length === 7 ? k + "-01" : k) + ", " + outcomeWord(g, o) + ", " + word(g, o.value) };
     });
     if (g._period) items.push({ state: "open", fill: g._target ? Math.min(1, (g._current || 0) / g._target) : 0, label: "This " + (g.repeat === "week" ? "week" : "month") + ", open, " + word(g, g._current) });
     return U.periods(items, { size: size, label: "Every " + (g.repeat === "week" ? "week" : "month") });
   }
+  /* a part first period (GO-03) short of its target is neither met nor missed */
+  function outcomeWord(g, o) { return o.met ? "met" : o.partial ? "part " + (g.repeat === "week" ? "week" : "month") + ", not judged" : "missed"; }
   function squares(n, filled, toneName) {
     var list = el("div", { class: "k-gl-squares", "data-tone": toneName || null, role: "img", "aria-label": filled + " of " + n });
     for (var i = 0; i < n; i++) list.appendChild(el("span", { class: "k-gl-sq", "data-state": i < filled ? "on" : null }));
@@ -385,7 +390,8 @@
       });
       var shown = inTab.filter(function (g) { return !visit.domain || domainOf(g) === visit.domain; });
       var lead = pickHero(shown);
-      if (lead) page.appendChild(hero(lead, open));
+      /* GO-19: the hero's counts are the goals on this tab and filter */
+      if (lead) page.appendChild(hero(lead, shown, tab));
       var counts = {};
       inTab.forEach(function (g) { var d = domainOf(g); counts[d] = (counts[d] || 0) + 1; });
       page.appendChild(el("div", { class: "k-gl-filterrow" }, [domainFilter(counts, inTab.length),
@@ -430,7 +436,7 @@
     return list;
   }
   /* the hero: one goal, with a ring, a sentence, the action and the run */
-  function hero(g, open) {
+  function hero(g, open, tab) {
     var tgt = g._target || g.target, cur = g._current || 0;
     var expected = g._expected;
     var ring = U.ring({ p: tgt ? cur / tgt : 0, tick: expected != null && tgt ? Math.min(1, expected / tgt) : null, size: 164, met: g._status === "met",
@@ -451,7 +457,11 @@
         "The tick is where the straight line says you would be " + (g._period ? "tonight" : "today") + ": " + word(g, expected) + "."]) : null
     ].filter(Boolean));
     var thisWeek = { behind: 0, on: 0, met: 0 };
-    open.forEach(function (x) { if (x._pace === "behind" || x._pace === "over") thisWeek.behind++; else if (x._status === "met") thisWeek.met++; else if (x._pace) thisWeek.on++; });
+    open.forEach(function (x) {
+      if (x._displayOnly) return;
+      if (x._pace === "behind" || x._pace === "over") thisWeek.behind++; else if (x._status === "met") thisWeek.met++; else if (x._pace) thisWeek.on++;
+    });
+    var countsWhen = tab === "week" ? " this week" : tab === "month" ? " this month" : " now";
     var keys = Object.keys(g.outcomes || {}).sort(), last = keys.length ? g.outcomes[keys[keys.length - 1]] : null, met = keys.slice(-12).filter(function (k) { return g.outcomes[k].met; }).length;
     var run = el("div", { class: "k-gl-run", "data-ui": "goal.run" }, [
       el("div", { class: "k-gl-inline" }, [el("b", { class: "k-gl-runtitle", text: "Your run" }), el("span", { class: "k-muted k-gl-small", text: g.repeat ? (g.repeat === "week" ? "weeks" : "months") + ", oldest first" : "all your goals" })]),
@@ -460,7 +470,7 @@
         last ? el("b", { text: word(g, last.value) }) : null, last ? "." : null].filter(Boolean))
         : g.repeat ? el("p", { class: "k-soft k-gl-small", text: "The first " + (g.repeat === "week" ? "week" : "month") + " ends " + dayLabel(g._period.to) + "." }) : null,
       el("div", { class: "k-gl-runcounts" }, [["behind", thisWeek.behind, "behind"], ["on", thisWeek.on, "on track"], ["met", thisWeek.met, "met"]].map(function (x) {
-        return el("div", { "data-k": x[0] }, [el("b", { class: "k-mono", text: String(x[1]) }), el("span", { class: "k-muted", text: x[2] + " this week" })]);
+        return el("div", { "data-k": x[0] }, [el("b", { class: "k-mono", text: String(x[1]) }), el("span", { class: "k-muted", text: x[2] + countsWhen })]);
       }))].filter(Boolean));
     return el("section", { class: "k-gl-hero", "data-ui": "goal.hero", "aria-label": "The goal that needs you first" }, [
       el("span", { class: "k-gl-hero-mark", lang: "ja", "aria-hidden": "true", text: "標" }), ring, mid, run]);
@@ -604,20 +614,26 @@
       headHost.appendChild(U.pageHeader({ kicker: "標 · " + pillText(g).replace(" · weekly", " · repeats every week").replace(" · monthly", " · repeats every month"), title: g.title, sub: sub,
         className: "k-gl-head", actions: [U.paceChip(paceKind(g)),
           /* roadmap 5.10 (frame 33v): up to three goals pinned to the Morning Review and Home */
-          g.archived ? null : btn(g.pinned ? "📌 Pinned · Unpin" : "📌 Pin to the morning", "", function () {
+          /* GO-26: a met or missed goal leaves the morning; no Pin offered */
+          g.archived || finishedRow(g) ? null : btn(g.pinned ? "📌 Pinned · Unpin" : "📌 Pin to the morning", "", function () {
             var r = G.pin(g.id, !g.pinned);
             if (!r.ok) { U.toast(r.why, true); return; }
             announce(g.pinned ? "Unpinned" : "Pinned to the morning review");
             redraw();
-          }, "goal.pin"),
-          btn("Edit", "", function () { goalDialog(G.get(id)); }, "goal.edit"), more].filter(Boolean) }));
+          }, "goal.pin")].concat(headActions(g), [
+          btn("Edit", "", function () { goalDialog(G.get(id)); }, "goal.edit"), more]).filter(Boolean) }));
       var mainCol = el("div", { class: "k-mn-stack" }), side = el("div", { class: "k-mn-side" });
       page.appendChild(el("div", { class: "k-mn-cols k-mn-cols--sm" }, [mainCol, side]));
       /* the three figures and the pace chart */
       var tgt = g._target || g.target, cur = g._current;
+      /* MG-37: a money figure is the masked amount (Hide amounts keeps its
+         width), never an empty word between "–" and "of" */
+      var periodGone = g._period ? " · " + (between(g._period.from, today()) + 1) + " of " + (between(g._period.from, g._period.to) + 1) + " days gone" : "";
       var figs = el("div", { class: "k-gl-figs" }, [
-        fig(g._period ? "This " + (g.repeat === "week" ? "week" : "month") : "So far", word(g, cur), "of " + word(g, tgt) + (g._period ? " · " + (between(g._period.from, today()) + 1) + " of " + (between(g._period.from, g._period.to) + 1) + " days gone" : "")),
-        g._expected != null ? fig("The line says", word(g, g._expected), (g._period ? "by tonight" : "by today") + (cur != null && cur < g._expected ? " · " + word(g, g._expected - cur) + " behind it" : cur != null ? " · " + word(g, cur - g._expected) + " ahead of it" : "")) : null,
+        /* GO-27: with nothing measured yet the reason is printed under the dash */
+        fig(g._period ? "This " + (g.repeat === "week" ? "week" : "month") : "So far", figVal(g, cur),
+          cur == null && g._meta ? [g._meta] : ["of ", figSub(g, tgt), periodGone]),
+        g._expected != null ? fig("The line says", figVal(g, g._expected), [g._period ? "by tonight" : "by today"].concat(cur != null && cur < g._expected ? [" · ", figSub(g, g._expected - cur), " behind it"] : cur != null ? [" · ", figSub(g, cur - g._expected), " ahead of it"] : [])) : null,
         projection(g)].filter(Boolean));
       var chartHost = el("div", { class: "k-gl-chart", "data-ui": "goal.pace-chart" });
       mainCol.appendChild(card([figs, chartHost], "", "goal.pace-card"));
@@ -633,15 +649,33 @@
       side.appendChild(card([head("How it is counted"), el("p", { class: "k-soft k-gl-small", text: countedText(g) })], "", "goal.counted"));
     }, { archived: true });
   }
+  /* value: a word or a node (a masked amount); sub: a string or parts */
   function fig(label, value, sub) {
-    return el("div", { class: "k-gl-fig" }, [kicker(label), el("span", { class: "k-gl-big", "data-size": "24", text: value || "–" }), sub ? el("span", { class: "k-muted k-gl-small", text: sub }) : null].filter(Boolean));
+    var v = value && typeof value === "object" ? el("span", { class: "k-gl-big", "data-size": "24" }, [value]) : el("span", { class: "k-gl-big", "data-size": "24", text: value || "–" });
+    var s = Array.isArray(sub) ? el("span", { class: "k-muted k-gl-small", "data-ui": "goal.fig-sub" }, sub.filter(function (x) { return x !== "" && x != null; }))
+      : sub ? el("span", { class: "k-muted k-gl-small", "data-ui": "goal.fig-sub", text: sub }) : null;
+    return el("div", { class: "k-gl-fig" }, [kicker(label), v, s].filter(Boolean));
+  }
+  function figVal(g, v) { return isMoney(g) && v != null ? U.amount(Math.round(v * 100), { size: "24" }) : word(g, v); }
+  function figSub(g, v) { return isMoney(g) && v != null ? U.amount(Math.round(v * 100), { size: "13" }) : word(g, v); }
+  function finishedRow(g) { return !g._period && (g._status === "completed" || g._status === "failed"); }
+  /* the goal page's own actions (GO-27): the type's action, and a manual
+     goal's count both ways (GO-05: a mis-tap is taken back with −1) */
+  function headActions(g) {
+    if (g.archived || g._unlinked) return [];
+    if (g.kind === "manual") return [
+      (g.current || 0) > 0 ? btn("−1", "", function () { G.nudge(g.id, -1); announce(g.title + ", " + Math.max(0, (g.current || 0) - 1) + " of " + g.target); redraw(); }, "goal.minus") : null,
+      g._status === "failed" ? null : btn("+1", "k-btn--primary", function () { G.nudge(g.id, 1); announce(g.title + ", " + ((g.current || 0) + 1) + " of " + g.target); redraw(); }, "goal.plus")];
+    if (finishedRow(g)) return [];
+    var act = actionFor(g);
+    return act ? [btn(act[0], "k-btn--primary", act[1], "goal.detail-action")] : [];
   }
   function projection(g) {
     if (!g._period && g._projected) return fig("Projected", shortDate(g._projected), "at this pace · " + G.PROJECT_MIN_DAYS + "+ days of data");
     if (g._period && g._current != null && g._direction === "reach") {
       var gone = between(g._period.from, today()) + 1, len = between(g._period.from, g._period.to) + 1;
       if (gone < G.PROJECT_MIN_DAYS) return fig("Projected", "–", "A projection needs " + G.PROJECT_MIN_DAYS + " days of data");
-      return fig("Projected", word(g, g._current / gone * len), "by the end at this " + (g.repeat === "week" ? "week" : "month") + "'s pace · " + gone + " days of data");
+      return fig("Projected", figVal(g, g._current / gone * len), "by the end at this " + (g.repeat === "week" ? "week" : "month") + "'s pace · " + gone + " days of data");
     }
     return null;
   }
@@ -684,10 +718,10 @@
     var best = 0, run = 0;
     keys.forEach(function (k) { run = g.outcomes[k].met ? run + 1 : 0; best = Math.max(best, run); });
     var bars = el("ol", { class: "k-gl-hist", "aria-label": "Every period" }, keys.map(function (k) {
-      var o = g.outcomes[k], b = el("li", { class: "k-gl-histbar", "data-state": o.met ? "met" : "missed", tabindex: "0",
-        "aria-label": (g.repeat === "week" ? "Week of " : "") + shortDate(k.length === 7 ? k + "-01" : k) + ", " + word(g, o.value) + ", " + (o.met ? "met" : "missed") }, [
+      var o = g.outcomes[k], b = el("li", { class: "k-gl-histbar", "data-state": o.met ? "met" : o.partial ? "none" : "missed", tabindex: "0",
+        "aria-label": (g.repeat === "week" ? "Week of " : "") + shortDate(k.length === 7 ? k + "-01" : k) + ", " + word(g, o.value) + ", " + outcomeWord(g, o) }, [
         el("span", { class: "k-mono k-muted k-gl-tiny", text: g._unit === "hours" ? (Math.round(o.value * 10) / 10).toFixed(1) : String(Math.round(o.value)) }),
-        el("i"), el("b", { text: o.met ? "✓" : "✕" }), el("span", { class: "k-muted k-gl-tiny", text: shortDate(k.length === 7 ? k + "-01" : k).split(" ")[0] })]);
+        el("i"), el("b", { text: o.met ? "✓" : o.partial ? "–" : "✕" }), el("span", { class: "k-muted k-gl-tiny", text: shortDate(k.length === 7 ? k + "-01" : k).split(" ")[0] })]);
       b.style.setProperty("--h", (o.value / top).toFixed(3));
       return b;
     }).concat([(function () {
@@ -905,6 +939,9 @@
         picker = KOS.topicPicker({ value: links.refs || [], label: "Which topics", subject: function () { return links.subject || null; }, onChange: function (v) { links.refs = v; } });
         form.appendChild(el("div", {}, [picker.el, el("span", { class: "k-field-hint", text: "The shared topic picker; a paper or unit pick counts its leaves." })]));
       }
+      /* GO-24: a goal counted from a baseline takes a new one when what it reads changes */
+      if (existing && def.onCreate && (def.fields.subject || def.fields.refs))
+        form.appendChild(el("p", { class: "k-field-hint", "data-ui": "goal.rebase-note", text: "Change the subject or topics and it counts from now: what is already Green there is the new starting point." }));
       if (def.fields.pot && KOS.money) {
         var ps = KOS.money.pots();
         extra.pot = select(ps.map(function (p) { return [p.id, p.name + (p.target ? " · target " + KOS.money.format(p.target) : "")]; }), links.pot || (ps[0] || {}).id, { "aria-label": "Pot" });
@@ -962,6 +999,9 @@
       if (def.repeat) row1.push(field("Repeats", seg([["", "Once"], ["week", "Every week"], ["month", "Every month"]], repeat, function (v) { repeat = v; draw(); }, "Repeats", "k-seg--fill")));
       form.appendChild(el("div", { class: "k-gl-tworow" }, row1));
       if (repeat === "week") form.appendChild(field("The week runs", seg([["start", "From the day it starts · " + DAY3[parse(start.value || now).getDay()] + "–" + DAY3[(parse(start.value || now).getDay() + 6) % 7]], ["monday", "Monday to Sunday"]], weekFrom, function (v) { weekFrom = v; draw(); }, "The week runs", "k-seg--fill")));
+      /* GO-04: a new period grid re-reads the history on it */
+      if (existing && existing.repeat && repeat && (repeat !== existing.repeat || (repeat === "week" && (weekFrom === "start") !== (existing.weekFrom === "start"))))
+        form.appendChild(el("p", { class: "k-field-hint", "data-ui": "goal.grid-note", text: "The history restarts on the new " + (repeat === "week" ? "weeks" : "months") + ": every period since it began is read again from what you recorded." }));
       form.appendChild(el("div", { class: "k-mn-two" }, [field("Starts", start), repeat ? null : field("Deadline · optional", deadline)].filter(Boolean)));
       /* milestones */
       var msHost = el("div", { class: "k-gl-inline" });

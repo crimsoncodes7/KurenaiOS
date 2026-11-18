@@ -153,15 +153,19 @@ step("E · Money goals read Money", async () => {
   await p(cb => M.addTx({ date: "2026-10-03", amount: 96, cat: "food" }, cb));
   await p(cb => M.addTx({ date: "2026-10-14", amount: 30, cat: "social" }, cb));
   await p(cb => M.addTx({ date: "2026-10-16", amount: 420, kind: "transfer", pot: laptop.id }, cb));
-  gFood = G.add({ title: "Food under £120", type: "money-spend-under", target: 120, repeat: "month", links: { category: "food" } });
+  /* begun on the 1st: a goal counts only from its start (GO-03) */
+  gFood = G.add({ title: "Food under £120", type: "money-spend-under", target: 120, repeat: "month", startDate: "2026-10-01", links: { category: "food" } });
   gPot = G.add({ title: "Laptop", type: "money-save", target: 900, deadline: "2027-01-31", links: { pot: laptop.id } });
   gNoSpend = G.add({ title: "No-spend days", type: "money-no-spend", target: 5, startDate: "2026-10-13", deadline: "2026-10-19" });
   const rows = await p(cb => G.compute(cb));
   const f = rowOf(rows, gFood.id), s = rowOf(rows, gPot.id), n = rowOf(rows, gNoSpend.id);
   eq([f._current, f._status, f._period.from], [96, "met", "2026-10-01"], "food spend this month, within £120");
   eq([s._current, s._target, s._meta], [420, 900, "Laptop"], "the pot's balance");
-  eq(n._current, 6, "13–19 Oct with one spending day is six no-spend days");
-  eq(n._status, "completed", "five reached");
+  /* MG-30: only days Money can speak for count — from the first to the
+     last day with an entry (14 Oct spent, 16 Oct a transfer): the 15th
+     and the 16th. Days with no record around them are not evidence. */
+  eq(n._current, 2, "13–19 Oct: two no-spend days Money has evidence for");
+  eq(n._status, "active", "not five, so not reached");
   K.store.state.money.pots = K.store.state.money.pots.filter(x => x.id !== laptop.id);
   const again = rowOf(await p(cb => G.compute(cb)), gPot.id);
   eq(again._meta, "The linked pot was removed", "a removed pot is said so");
@@ -172,7 +176,7 @@ step("F · Code counts first passes; a streak goal pays nothing; measuring logs 
   const L = K.store.state.sessions;
   L.push(code("2026-10-14", "task"), code("2026-10-15", "task", { seen: true }), code("2026-10-16", "task"),
     code("2026-10-16", "retrieval", { grade: "good" }), code("2026-10-17", "retrieval", { grade: "again" }));
-  const gTasks = G.add({ title: "Ten tasks", type: "code-tasks", target: 10, repeat: "month" });
+  const gTasks = G.add({ title: "Ten tasks", type: "code-tasks", target: 10, repeat: "month", startDate: "2026-10-01" });
   const gRet = G.add({ title: "Retrievals", type: "code-retrievals", target: 4, repeat: "week", startDate: "2026-10-12" });
   const gStreak = G.add({ title: "A streak", type: "gov-streak", target: 1 });
   const n0 = L.length, gov0 = JSON.stringify(K.store.state.governor);
