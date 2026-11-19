@@ -14,7 +14,7 @@ Graded against `REVIEW.md` from:
 
 - **Gate:** "177 / 177 after building the C# runtime". The reviewer's run of the branch in a fresh checkout gave
   175 / 177, the two failures being smoke75 and smoke76 for the same reason: the runtime is a gitignored local build.
-  With the runtime linked in, those two re-run; that result is __REVIEWER_RERUN__.
+  With the runtime linked in, both pass (2 / 2), so the branch is 177 / 177 as claimed.
 - **The T6 pattern:** `overlay.close = function () { overlay.remove(); }` is in 15 modules, at the four places it named
   among them, and `KOS.ui.openDialog`'s Escape calls `overlay.close`. **True.**
 - **T2:** `mindrun.js:202` already writes "turn"/"turns" the same way. **True.**
