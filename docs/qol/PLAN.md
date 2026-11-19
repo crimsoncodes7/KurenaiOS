@@ -212,7 +212,7 @@ The plan is approved with these decisions.
 ### Phase 3 — W3 and W9 with every new finding (≈ 6–7 sessions)
 
 - **W3:** the 1240–700 tier (RC3), contrast inks and focus rings, the dead-space cluster, the page-by-page P2/P3s, the 13 items folded in above, and Phase 2's layout and touch findings.
-- **W9:** the 200 findings, less the three the toast queue closed in 1A, plus the items folded in above and Phase 2's polish findings. W9 was frozen at 200; **folding Phase 2 in unfreezes it, as you asked.**
+- **W9:** the 200 findings, less the three the toast queue closed in 1A, plus Neon's Safari note (a dialog opened by a mouse click returns focus to the body, since Safari does not focus a clicked button; `openDialog` could remember the opener), plus the items folded in above and Phase 2's polish findings. W9 was frozen at 200; **folding Phase 2 in unfreezes it, as you asked.**
 
 ### Phase 4 — Help & Guide (≈ 3 sessions)
 
