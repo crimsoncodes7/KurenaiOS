@@ -700,9 +700,7 @@
     Object.keys(out).forEach(function (k) { if (out[k] === 0) delete out[k]; });
     return Object.keys(out).length ? out : null;
   }
-  /* Japanese and Mind (JM-21, MI-10): totals from their ledger entries (a review session; a first
-     lesson, checkpoint, gate or path), reviews by skill, and Mind's positions taken or changed
-     and Journal entries as COUNTS (gather hands times only; invariant 139) */
+  /* Japanese and Mind (JM-21, MI-10): ledger totals; Mind's positions and Journal as counts (139) */
   function spaceFacts(input, p, t) {
     var o = {}, sk = {}, x = input[t] || {}, a = ms(p.start), b = ms(addDays(p.end, 1));
     input.inRange.forEach(function (e) {
@@ -1262,7 +1260,7 @@
       creatives: Object.keys((S.creatives && S.creatives.works) || {}).map(function (id) {
         var w = S.creatives.works[id]; return { id: id, at: w.at, track: w.track, words: w.words || 0, portfolio: w.portfolio || null };
       }),
-      /* Mind's positions: [time, 1 when it changed the answer] for a first take or a change */
+      /* [time, 1 if the answer changed]: first takes and changes */
       mind: { pos: [].concat.apply([], Object.keys((S.mind && S.mind.positions) || {}).map(function (id) {
         var vs = Object.keys(S.mind.positions[id].versions || {}).map(function (k) { return S.mind.positions[id].versions[k]; }).sort(function (x, y) { return x.at - y.at; });
         return vs.map(function (v, i) { return i && v.answer === vs[i - 1].answer ? null : [v.at, i ? 1 : 0]; }).filter(Boolean);
@@ -1336,7 +1334,7 @@
         goals();
       });
     }
-    /* the Journal's entry times only, never a word of an entry */
+    /* Journal entry times only */
     var MJ = KOS.mindJournal;
     function journal(next) { if (!MJ) { next(); return; } MJ.ready(function (e, l) { input.mind.journal = (l || []).map(function (x) { return x.at; }); next(); }); }
     journal(function () { moneyAndGoals(function () { snaps(function () {

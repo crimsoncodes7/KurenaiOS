@@ -268,7 +268,7 @@
       if (f.creatives.words) out.creatives_words = f.creatives.words;
       if (f.creatives.projects) out.creatives_projects = f.creatives.projects;
     }
-    /* Japanese and Mind (JM-21, MI-10): their counts, e.g. ja_passed, mind_journal */
+    /* Japanese and Mind: counts only */
     ["ja", "mind"].forEach(function (k) { var x = f[k] || {}; for (var n in x) if (typeof x[n] === "number") out[k + "_" + n] = x[n]; });
     /* Money and Goals (5.4, "What Kurenai sees", 27o): totals in and out,
        the three biggest categories by amount, the subscriptions total, and

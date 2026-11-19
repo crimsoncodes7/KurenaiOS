@@ -718,7 +718,7 @@
       cb({ current: Math.round(100 * (n - again) / n), unit: "%", meta: n + " reviews" });
     } });
   register({ id: "topics-green", domain: "study", label: "Move topics to Green", icon: "緑", unit: "topics",
-    fields: { subject: true, refs: true },
+    fields: { subject: "exam", refs: true },
     onCreate: function (g) { var n = greenCount(g); g.params.baseline = n == null ? 0 : n; },
     measure: function (g, ctx, cb) {
       var n = greenCount(g);
@@ -758,7 +758,7 @@
   /* ---- the rest of 27k's picker ---- */
   /* the best mark in the period, as a percentage (Exams & Papers) */
   register({ id: "study-paper-score", domain: "study", label: "A mock or paper score", icon: "試", unit: "%",
-    fields: { subject: true },
+    fields: { subject: "exam" },
     measure: function (g, ctx, cb) {
       var rows = KOS.tracker && KOS.tracker.all ? KOS.tracker.all() : [];
       var best = null;
@@ -917,6 +917,9 @@
       crEntries(ctx, "drill").forEach(function (e) { days[e.date] = 1; });
       cb({ current: Object.keys(days).length, unit: "days" });
     } });
+  register({ id: "cr-projects", domain: "creatives", label: "Finish Creatives projects", icon: "作", unit: "projects",
+    repeat: true,
+    measure: function (g, ctx, cb) { cb({ current: crEntries(ctx, "project").filter(function (e) { return e.metrics.first; }).length, unit: "projects" }); } });
   register({ id: "cr-words", domain: "creatives", label: "Write words", icon: "筆", unit: "words",
     repeat: true,
     measure: function (g, ctx, cb) {
@@ -927,8 +930,7 @@
       }, 0), unit: "words" });
     } });
 
-  /* ---- Japanese and Mind (JM-21, MI-10): their ledger entries (reviews passed, first lesson
-     finishes), and Japanese's facets as they stand (kana held a week, words stable) ---- */
+  /* ---- Japanese and Mind (JM-21, MI-10): the ledger, and Japanese's facets as they stand ---- */
   function spaceN(ctx, t, kind, f) {
     return ledger(ctx, function (e) { return e.type === t && e.metrics && e.metrics.kind === kind; })
       .reduce(function (n, e) { return n + (f ? +e.metrics[f] || 0 : e.metrics.first ? 1 : 0); }, 0);

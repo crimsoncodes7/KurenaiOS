@@ -27,6 +27,8 @@
 .k-gl .k-tile[data-tone="it"] { --tile-c: var(--it); }
 .k-gl .k-tile[data-tone="code"] { --tile-c: var(--code); }
 .k-gl .k-tile[data-tone="creatives"] { --tile-c: var(--cr); }
+.k-gl .k-tile[data-tone="ja"] { --tile-c: var(--ja); }
+.k-gl .k-tile[data-tone="mind"] { --tile-c: var(--mind); }
 .k-gl .k-tile[data-tone="anime"] { --tile-c: var(--anime); }
 .k-gl .k-tile[data-tone="books"] { --tile-c: var(--books); }
 .k-gl .k-tile[data-tone="collection"] { --tile-c: var(--collection-hue); }
@@ -84,6 +86,8 @@
 .k-gl-squares { --sq-c: var(--green); display: flex; flex-wrap: wrap; gap: var(--sp-4); }
 .k-gl-squares[data-tone="code"] { --sq-c: var(--code); }
 .k-gl-squares[data-tone="creatives"] { --sq-c: var(--cr); }
+.k-gl-squares[data-tone="ja"] { --sq-c: var(--ja); }
+.k-gl-squares[data-tone="mind"] { --sq-c: var(--mind); }
 .k-gl-squares[data-tone="teal"] { --sq-c: var(--teal); }
 .k-gl-squares[data-tone="cs"] { --sq-c: var(--cs); }
 .k-gl-squares[data-tone="maths"] { --sq-c: var(--maths); }
@@ -103,6 +107,8 @@
 .k-gl-bar[data-tone="cs"] { --bar-c: var(--cs); }
 .k-gl-bar[data-tone="code"] { --bar-c: var(--code); }
 .k-gl-bar[data-tone="creatives"] { --bar-c: var(--cr); }
+.k-gl-bar[data-tone="ja"] { --bar-c: var(--ja); }
+.k-gl-bar[data-tone="mind"] { --bar-c: var(--mind); }
 .k-gl-bar[data-tone="anime"] { --bar-c: var(--anime); }
 .k-gl-bar[data-tone="books"] { --bar-c: var(--books); }
 .k-gl-bar[data-tone="collection"] { --bar-c: var(--collection-hue); }
