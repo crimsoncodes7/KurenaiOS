@@ -36,7 +36,11 @@
 
     var body = el("section", { class: "k-review", "data-ui": "review.workspace", "aria-label": panel === "due" ? "Due today" : "Card stats" });
     main.appendChild(body);
-    if (panel === "stats") KOS.review.renderStats(body, arg && arg.stats, { embedded: true });
+    /* Card stats (cardstats.js) loads on first use: page-cardstats */
+    if (panel === "stats") {
+      if (KOS.review.renderStats) KOS.review.renderStats(body, arg && arg.stats, { embedded: true });
+      else KOS.lazy.placeholder(body, ["page-cardstats"], function () { body.textContent = ""; KOS.review.renderStats(body, arg && arg.stats, { embedded: true }); }, "page:cardstats");
+    }
     else KOS.review.renderDue(body, { embedded: true, run: arg && arg.run });
   }
 

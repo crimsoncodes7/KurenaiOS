@@ -5,9 +5,13 @@ Moved out of `CLAUDE.md` on 17 November 2026 (W8, AP-20). The gate is
 holds in full. Add a new suite to this list and to the count and loop in
 `CLAUDE.md`.
 
-Gate: 175 / 175 suites (`""`, 2–156, 160–164 and 180–193).
+Gate: 177 / 177 suites (`""`, 2–156, 160–164 and 180–195).
 
 What the suites hold, newest first, as recorded at each release:
+
+195 is the spaces joining the day and Home (HR-04, JM-26, MI-10 part 3, Creatives): `KOS.today.build` carries each space's daily item and reviews due and Money's notices and next bill, still writing nothing; Home's Money row shows a notice or the next bill and what is left this month, masked by Hide amounts; Creatives' theory cards are their own Review row; the Assistant's `ja_overview`/`ja_lesson` and a `today_overview` that names the spaces and Money.
+
+194 is the spaces joining Reports and Goals (JM-21, MI-10 parts 1–2, Creatives): new reports carry Japanese and Mind facts and cards (a saved report never recomputed; no Journal text, only a count), totals only in the words' payload; Japanese, Mind and Creatives-project goal types; exam-only goals list exam subjects only.
 
 193 is the quality audit's W7 batch F (Collection, Money, Productivity, one Exams finding): the Books rail counts the lens on screen and recounts when it changes (CL-09); Hide amounts masks the Wishlist, the shelves and Mangaka, one money grammar through `KOS.money.format`/`formatShown` (CL-10); no "0 ch" for a series read by the volume, "1 of 1 route" (CL-28); a re-import counts matched rows that changed nothing as `unchanged` (CL-32); Month and year's In is what came in, expected the sub-line (MG-11); Transactions' This view totals the whole view through `KOS.money.listTotals` (MG-19); Reminders' Today holds overdue reminders (PR-11); tomorrow's first task offers today's carried and overdue work, an untimed timeline row prints no dash (PR-20); an auto Focus habit counts complete sessions by the routine day (PR-32); a routine kept after its window still counts, recorded and shown as kept late (PR-35); a notice opens its record — a review, a routine, a goal — and a closed app's tap carries the router's own address (`hash`, runner and worker; SH-30); Analytics opens on the assessment with marked papers and Calibration says it reads all papers (EX-24).
 

@@ -79,7 +79,10 @@ function eq(a, b, m) { if (JSON.stringify(a) !== JSON.stringify(b)) throw new Er
    batch F): 7.92 → 7.90 MB. Their fixes added about 40 KB at boot; the
    routine player (page-player) and the report share card (page-share)
    moved to first use, 52 KB, so boot reads 7.897 MB. */
-const BOOT_BUDGET = 7.90 * 1024 * 1024;
+/* 19 Nov 2026 (the spaces join the OS: JM-21, MI-10, HR-04, JM-26):
+   7.90 → 7.89 MB. Their reads at boot added about 9 KB; Card stats
+   (cardstats.js, page-cardstats) moved to first use, 23 KB. */
+const BOOT_BUDGET = 7.89 * 1024 * 1024;
 
 /* jsdom has no User Timing: a small recorder, set before the app's scripts */
 function timing(win) {

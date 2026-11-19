@@ -348,7 +348,7 @@
     tracker: function () { return ["exam-index", "exams-pages"]; },
     review: reviewBundles,
     due: reviewBundles,
-    cardstats: reviewBundles
+    cardstats: function (arg) { return reviewBundles(arg).concat(["page-cardstats"]); }
   };
   /* W8 (AP-01 stage 2): PAGE MODULES on first use. A page whose module
      (and the modules only it uses) rides its own bundle names it here; a

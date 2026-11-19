@@ -146,8 +146,8 @@ W3 and W9 stay the other account's.
   Exam essentials, CS Paper 1's partial Companion (guides read several
   papers) and recorded attempts syncing to `kos_attempts` (migration
   `20261118000001`, applied). Gate 169.
-- W1/W7 rest (feat/w1w7-rest, 19 November 2026): suites 188–193 added;
-  gate 175. New suites on this account: 194 onwards.
+- W1/W7 rest (feat/w1w7-rest, 19 November 2026): suites 188–195 added;
+  gate 177. New suites on this account: 196 onwards.
 
 **Smoke numbers from now:** 161–164 are taken; the other account uses
 **165–179**; this account continues at 157–159 and then 185+. (142, 143, 149 and 150 stay the
