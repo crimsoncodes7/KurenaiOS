@@ -189,7 +189,10 @@
     }
 
     /* 2 — an exam inside its lead time */
-    var exams = (KOS.calendar.deadlines ? KOS.calendar.deadlines() : []).filter(function (d) { return d.ev.type === "exam"; });
+    /* HR-24: not an exam already sat today */
+    var exams = (KOS.calendar.deadlines ? KOS.calendar.deadlines() : []).filter(function (d) {
+      return d.ev.type === "exam" && !(KOS.todo && KOS.todo.examSat ? KOS.todo.examSat(d, now) : false);
+    });
     var LV = KOS.calendar.EXAM_LEVELS || [];
     function lvOf(ev) { return KOS.calendar.examLevel ? KOS.calendar.examLevel(ev) : { v: "exam", short: "Exam", leadDays: 7, goalMins: 120 }; }
     function rank(ev) { var v = lvOf(ev).v; for (var i = 0; i < LV.length; i++) if (LV[i].v === v) return i; return 0; }
@@ -219,7 +222,7 @@
       return { kind: "exam", kicker: lv.short + " " + (d.days === 0 ? "today" : d.days === 1 ? "tomorrow" : "in " + d.days + " days"),
         label: "Revise for " + d.ev.title,
         why: [d.ev.paper, d.ev.subject ? SUBJ_SHORT[d.ev.subject] : null, d.ev.time ? d.date === today ? "at " + d.ev.time : null : null].filter(Boolean).join(" · ") || lv.label,
-        subject: d.ev.subject || null, ref: d.ev.ref || null, refs: refsOfEv(d.ev),
+        subject: d.ev.subject || null, ref: d.ev.ref || null, refs: refsOfEv(d.ev), eventId: d.ev.id,
         goal: { k: "Goal", v: minsText(Math.min(done, goalMins)) + " of " + minsText(goalMins) + " for this exam today", bar: Math.round(100 * done / goalMins) },
         go: function () { if (d.ev.assessmentId) KOS.show("exams", d.ev.assessmentId); else KOS.show("calendar"); } };
     }
@@ -777,6 +780,8 @@
             if (n.subject) refs = refs.filter(function (k) { return k.indexOf(n.subject + ":") === 0; });
             if (refs.length) pre.refs = refs;
             if (n.assignmentId != null) pre.assignmentId = n.assignmentId;
+            /* HR-29: the exam by id */
+            if (n.kind === "exam" && n.eventId != null) pre.eventId = n.eventId;
             if (n.fixed && n.mins > 0) pre.mins = n.mins;
             KOS.show("focus", pre);
           };
@@ -1000,11 +1005,15 @@
           el("span", { class: "k-hours-l", text: "\u00a0" })
         ])
       ]));
-    var bySubj = { compsci: 0, maths: 0, it: 0 };
+    /* HR-23: every subject and the unlinked rest, from the sessions the total counts */
+    var bySubj = {}, splitKeys = SUBJECTS.concat(["_none"]);
+    splitKeys.forEach(function (k) { bySubj[k] = 0; });
     KOS.sessions.all().forEach(function (s) {
-      if (s.type === "media" || weekIsos.indexOf(s.date) === -1) return;
-      KOS.sessions.parts(s).forEach(function (p) { if (bySubj[p.subject] != null) bySubj[p.subject] += p.secs / 3600; });
+      if (!KOS.sessions.studySecs(s) || weekIsos.indexOf(s.date) === -1) return;
+      KOS.sessions.parts(s).forEach(function (p) { var k = p.subject && bySubj[p.subject] != null ? p.subject : "_none"; bySubj[k] += p.secs / 3600; });
     });
+    var splitHue = function (k) { return k === "_none" ? "var(--muted)" : SUBJ_HUE[k]; };
+    var splitName = function (k) { return k === "_none" ? "Unlinked" : SUBJ_SHORT[k]; };
     var learnt = 0;
     Object.keys(store.state.srs || {}).forEach(function (k) { var m = store.state.srs[k]; if (m && m.reps > 0) learnt++; });
     var delta = weekH - lastWeekH;
@@ -1033,11 +1042,11 @@
         fact(KOS.ui.num(dueN), "due", "Cards · " + KOS.ui.num(learnt) + " learnt", function () { KOS.show("due"); })
       ]),
       weekH ? el("div", {}, [
-        el("div", { class: "k-split-bar", "aria-hidden": "true" }, SUBJECTS.filter(function (sid) { return bySubj[sid] > 0; }).map(function (sid) {
-          return el("span", { style: "--f: " + bySubj[sid].toFixed(2) + "; --c: " + SUBJ_HUE[sid] });
+        el("div", { class: "k-split-bar", "aria-hidden": "true" }, splitKeys.filter(function (sid) { return bySubj[sid] > 0; }).map(function (sid) {
+          return el("span", { style: "--f: " + bySubj[sid].toFixed(2) + "; --c: " + splitHue(sid) });
         })),
-        el("div", { class: "k-split-legend" }, SUBJECTS.filter(function (sid) { return bySubj[sid] > 0; }).map(function (sid) {
-          return el("span", { style: "--c: " + SUBJ_HUE[sid] }, [el("b", { text: SUBJ_SHORT[sid] }), fmtH(bySubj[sid]) + "h"]);
+        el("div", { class: "k-split-legend", "data-ui": "home.split-legend" }, splitKeys.filter(function (sid) { return bySubj[sid] > 0; }).map(function (sid) {
+          return el("span", { style: "--c: " + splitHue(sid), "data-sid": sid }, [el("b", { text: splitName(sid) }), fmtH(bySubj[sid]) + "h"]);
         }))
       ]) : null
     ].filter(Boolean));

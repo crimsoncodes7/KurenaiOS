@@ -145,9 +145,11 @@
     var top = largestShare(s);
     if (top && s.mins) {
       var keys = Object.keys(s.bySubject).filter(function (k) { return s.bySubject[k] > 0; });
+      /* HR-26: one measure a sentence */
       out.push(keys.length > 1
-        ? SUBJECT[top] + " took the largest share, " + hm(s.bySubject[top]) + " of " + hm(s.mins) + ", across " + plural(s.sessions, "session") + " on " + s.days + " of " + s.of + " days."
-        : "All " + hm(s.mins) + " went to " + SUBJECT[top] + ", across " + plural(s.sessions, "session") + ".");
+        ? SUBJECT[top] + " took the largest share, " + hm(s.bySubject[top]) + " of " + hm(s.mins) + " over " + plural(s.sessions, "Focus session") + "."
+        : "All " + hm(s.mins) + " went to " + SUBJECT[top] + ", over " + plural(s.sessions, "Focus session") + ".");
+      if (s.days) out.push("You studied on " + s.days + " of " + s.of + " days.");
     } else if (s.days) {
       out.push("You studied on " + s.days + " of " + s.of + " days, without a timed session.");
     }
@@ -196,9 +198,10 @@
     }
     if (which === "focus") {
       if (!fo.blocks) return { headline: "No Focus blocks this " + noun + ".", sentence: "" };
-      var h = fo.hours || [], tot = h.reduce(function (a, b) { return a + b; }, 0) || 1;
-      var share = function (a, b) { return h.slice(a, b).reduce(function (x, y) { return x + y; }, 0) / tot; };
-      var when = share(18, 24) >= 0.5 ? ", most of them after 18:00" : share(4, 12) >= 0.5 ? ", most of them before noon" : ", the longest " + fo.longest + " minutes";
+      /* HR-13: the persona's own classifier */
+      var tc = KOS.report && KOS.report.timeClass ? KOS.report.timeClass(fo.hours, fo.typical) : { id: null };
+      var when = tc.id === "nightOwl" ? ", many of them late at night" : tc.id === "evening" ? ", most of them after 18:00"
+        : tc.id === "early" ? ", most of them before noon" : ", the longest " + fo.longest + " minutes";
       return { headline: plural(fo.blocks, "Focus block") + when + ".", sentence: hm(fo.mins) + " in all, in blocks of about " + fo.typical + " minutes." };
     }
     if (which === "collection") {
@@ -232,7 +235,8 @@
     var f = rep.facts, s = f.study, fo = f.focus || {}, c = f.collection, g = f.gov || {}, out = {};
     out.period = f.period + " " + f.start;
     var sm = {};
-    ["compsci", "maths", "it"].forEach(function (k) { if (s.bySubject[k]) sm[SUBJECT_SHORT[k].toLowerCase()] = s.bySubject[k]; });
+    /* HR-23: every subject */
+    Object.keys(SUBJECT_SHORT).forEach(function (k) { if (s.bySubject[k]) sm[SUBJECT_SHORT[k].toLowerCase()] = s.bySubject[k]; });
     out.study_min = sm;
     out.sessions = s.sessions;
     out.study_days = s.days + "/" + s.of;

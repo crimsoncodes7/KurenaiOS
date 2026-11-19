@@ -33,6 +33,16 @@
   var MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
   var MON3 = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   /* every subject's hue (HR-17: Code, Japanese, Mind and Creatives drew none) */
+  /* HR-23: every subject, the study spaces' too (the facts carry them all) */
+  var SUBJECTS = KOS.subjects && KOS.subjects.ids ? KOS.subjects.ids() : ["compsci", "maths", "it"];
+  function subjKeys(by, most) {
+    var keys = SUBJECTS.filter(function (k) { return by[k]; });
+    if (most && keys.length > most) {
+      var top = keys.slice().sort(function (a, b) { return by[b] - by[a]; }).slice(0, most);
+      keys = keys.filter(function (k) { return top.indexOf(k) !== -1; });
+    }
+    return keys;
+  }
   var SUBJ_HUE = Object.assign(KOS.subjects && KOS.subjects.map ? KOS.subjects.map("hue") : {}, { compsci: "var(--cs)", maths: "var(--maths)", it: "var(--it)" });
   var MOD_HUE = { anime: "var(--anime)", books: "var(--books)", vn: "var(--vn)", game: "var(--games)" };
   var MOD_LABEL = { anime: "Anime", books: "Books", vn: "Visual novels", game: "Games" };
@@ -82,7 +92,7 @@
           ch: "Your " + noun, eyebrow: cap(noun) + " in review", title: title, kanji: SEAL[f.period] || "週", chips: chips, sub: sub };
       },
       study: function () {
-        var keys = ["compsci", "maths", "it"].filter(function (k) { return s.bySubject[k]; });
+        var keys = subjKeys(s.bySubject);
         var foot = null;
         if (f.prev && f.prev.mins != null) {
           var d = s.mins - f.prev.mins;
@@ -112,7 +122,7 @@
         var hourOf = function (i) {
           var row = (fo.heat || [])[i] || [], h = 0;
           row.forEach(function (v, j) { if (v > row[h]) h = j; });
-          return 7 + h;
+          return (fo.heatFrom != null ? fo.heatFrom : 7) + h;   /* HR-08: where the saved grid starts */
         };
         var ph = hourOf(best.i);
         return { t: "quiz", hue: "var(--teal)", hue2: "var(--amber)", ch: "Quiz", eyebrow: "Guess first", title: "Which day did you focus the most?",
@@ -121,7 +131,7 @@
           reveal: DOW[best.i] + ": " + W.hm(best.m) + " of Focus, peaking " + pad2(ph) + ":00–" + pad2(ph + 1) + ":00." };
       },
       subjquiz: function () {
-        var keys = ["compsci", "maths", "it"].filter(function (k) { return s.bySubject[k]; });
+        var keys = subjKeys(s.bySubject, 4);
         var best = keys.slice().sort(function (a, b) { return s.bySubject[b] - s.bySubject[a]; })[0];
         var second = keys.slice().sort(function (a, b) { return s.bySubject[b] - s.bySubject[a]; })[1];
         return { t: "quiz", hue: "var(--teal)", hue2: "var(--maths)", ch: "Quiz", eyebrow: "Guess first", title: "Which subject got the most study time?",

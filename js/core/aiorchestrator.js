@@ -485,6 +485,8 @@
     var floor = KOS.srs.addDays(day, -TALLY_DAYS);
     Object.keys(t).forEach(function (k) { if (k < floor) delete t[k]; });
     KOS.store.save();
+    /* AP-19 */
+    if (KOS.achievements && KOS.achievements.touch) KOS.achievements.touch("assistant");
   }
   function failRequest(req, err) {
     emit(req, "onError", { message: err.message, kind: err.kind || "orchestrator" });

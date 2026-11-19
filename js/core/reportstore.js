@@ -254,10 +254,11 @@
     if (facts.rebuilt) rep.rebuilt = true;
     return rep;
   }
-  /* did anything happen? a rebuilt week with no trace is not saved */
+  /* did anything happen? HR-22: the plan only once a row was ticked (the seed fills every week) */
   function hasContent(f) {
-    return !!(f.study.mins || f.study.reviews || f.study.touched || f.focus.blocks ||
-      (f.collection && f.collection.count) || f.plan || f.tasks);
+    return !!(f.study.mins || f.study.reviews || f.study.touched || f.study.days || f.focus.blocks ||
+      (f.collection && f.collection.count) || (f.plan && f.plan.ticked) || f.tasks ||
+      f.code || f.creatives || f.routines);
   }
 
   /* The saving tick. Backfill first (oldest first, so each week can
@@ -302,11 +303,18 @@
     var lastYear = R.year(R.addDays(from, -1));
     groups.push(now >= R.readyAt(lastYear) && now - R.readyAt(lastYear) < 31 * 864e5 ? [lastYear] : []);
     var saved = [];
+    var since0 = KOS.sessions && KOS.sessions.since ? KOS.sessions.since() : null;
+    var began = since0 ? iso(new Date(since0)) : null;
     snapshots(function (e0, snaps) {
       var baseline = snaps && snaps.length ? snaps[0].id : null;
       var gi = 0;
       (function group() {
-        if (gi >= groups.length) { saving = false; cb && cb(null, saved); return; }
+        if (gi >= groups.length) {
+          saving = false;
+          /* AP-19 */
+          if (saved.length && KOS.achievements && KOS.achievements.touch) KOS.achievements.touch("reports");
+          cb && cb(null, saved); return;
+        }
         var ids = groups[gi++], i = 0, prevFacts = null;
         var latest = ids.length ? ids[ids.length - 1] : null;
         (function next() {
@@ -314,6 +322,8 @@
           var p = ids[i++];
           var isLatest = p === latest;
           if (!R.isReady(p, now)) { next(); return; }
+          /* HR-22: never a period that ended before the record began */
+          if (began && p.end < began) { next(); return; }
           getReport(p.id, function (e1, have) {
             if (have && emptyStudy(have.facts) && !(have.fix && have.fix.empty) && focusIn(p)) {
               R.build(p, { rebuilt: !!have.rebuilt, prev: prevFacts }, function (facts) {
@@ -331,7 +341,8 @@
             var rebuilt = !baseline || p.start < baseline;
             R.build(p, { rebuilt: rebuilt, prev: prevFacts }, function (facts) {
               if (!isLatest && rebuilt && !hasContent(facts)) { prevFacts = null; next(); return; }
-              if (isLatest && rebuilt && p.period !== "week" && !hasContent(facts)) { next(); return; }
+              /* HR-22: nor an empty latest one (the next tick looks again) */
+              if (isLatest && !hasContent(facts)) { next(); return; }
               var rep = record(p, facts);
               putReport(rep, function (e2) {
                 if (!e2) { saved.push(rep); prevFacts = facts; if (isLatest && !rebuilt) announce(rep); }

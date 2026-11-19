@@ -387,7 +387,11 @@ Read this file before editing or testing anything in its domain.
     `rev`), which wins the cross-device merge, so every device must run a
     version that knows `factsRev` before it runs. Weeks since 1 September are backfilled; one from before
     the first snapshot is `rebuilt` (no status moves, no invented ranges)
-    and an empty one is not saved. Words: `KOS.reportWords.template` is
+    and an empty one is not saved. HR-22: a period that ended before the
+    account's record began (`KOS.sessions.since`: the creation stamp, or
+    older ledger or rollup evidence) is never saved, the latest period is
+    not saved while empty either, and the plan counts as content only
+    once a row was ticked (the shipped seed fills every week). Words: `KOS.reportWords.template` is
     deterministic; comparisons go through `compare()` ("same as", "new
     this week", never a bare 0 or "+∞%"). Zero Governor traffic.
 102a. Reports lives under Home with no rail item (`#/reports`, the

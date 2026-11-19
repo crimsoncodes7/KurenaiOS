@@ -183,7 +183,9 @@
     sw.addEventListener("change", function () { setPrefs({ list: sw.checked }); redraw(); });
     var c = A().counts();
     return el("div", { class: "k-ach-toolbar", "data-ui": "ach.toolbar" }, [
-      el("span", { class: "k-ach-owned" }, [el("span", { class: "k-muted", text: "Owned " }), el("b", { class: "k-mono", text: String(c.owned) }), el("span", { class: "k-mono k-muted", text: " / " + c.badges })]),
+      /* AG-07 */
+      el("span", { class: "k-ach-owned", "data-ui": "ach.earned-count" }, [el("span", { class: "k-muted", text: "Earned " }), el("b", { class: "k-mono", text: String(c.earned) }), el("span", { class: "k-mono k-muted", text: " / " + c.badges }),
+        c.complete ? el("span", { class: "k-muted", text: " · " + c.complete + " complete" }) : null].filter(Boolean)),
       el("span", { class: "k-spacer" }),
       el("label", { class: "k-ach-switch" }, [el("span", { text: "List view" }), sw]),
       sel
@@ -755,12 +757,12 @@
     var tray = el("div", { class: "k-ach-tray" });
     card.appendChild(el("div", { class: "k-card-head" }, [
       el("span", { class: "k-card-title", text: "The Wall" }),
-      el("span", { class: "k-card-meta", text: c.owned + " of " + c.badges + " badges" + (t ? " · " + t.name : "") }),
+      el("span", { class: "k-card-meta", text: c.earned + " of " + c.badges + " badges earned" + (t ? " · " + t.name : "") }),
       el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "gov.wall-open", text: "Open the Wall", onclick: function () { KOS.show("achievements"); } })
     ]));
     card.appendChild(tray);
     var ids = A().showcase();
-    if (!ids.length) tray.appendChild(el("span", { class: "k-muted", text: c.owned ? "Pick six badges to show here on the Wall's Showcase." : "Your badges will gather here." }));
+    if (!ids.length) tray.appendChild(el("span", { class: "k-muted", text: c.earned ? "Pick six badges to show here on the Wall's Showcase." : "Your badges will gather here." }));
     else A().list(function (views) {
       views.forEach(function (v) { tray.appendChild(el("span", { class: "k-ach-slot" }, [medal(v, { size: "sm", pips: false })])); });
     }, { ids: ids });

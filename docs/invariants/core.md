@@ -311,7 +311,8 @@ Read this file before editing or testing anything in its domain.
     tier travels by the three-way merge, since only that side moved it.
 163. QUIET, AND ONCE. Owner events re-measure only the badges that read
     that domain (`touch`, 400 ms); the full sweep is the boot's (2.5 s) and
-    the 30-minute tick's. A device's first sweep and the two minutes after
+    the 30-minute tick's. An owner name is one of `KOS.achievements.DOMAINS`,
+    each with a call site that touches it (AP-19, smoke191). A device's first sweep and the two minutes after
     it are SILENT (earned, no overlay or ping; one toast says how many tiers
     you already had), and `state.ui.achSeen` is per device, so another
     device's pull never pings. The unlock overlay and the ping never show

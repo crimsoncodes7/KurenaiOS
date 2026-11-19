@@ -435,6 +435,10 @@ step("L · after boot the bundles arrive in idle moments, the last subject first
   assert(B["content-" + sid].indexOf(app.lazy.loaded[0]) !== -1, "the subject last studied (" + sid + ") came first: " + app.lazy.loaded[0]);
   eq(app.lazy.misses, [], "nothing read early");
   eq(app.errors.concat(app.consoleErrors), [], "no errors");
+  /* AP-19: Week by week hears each report saved (achSeen), so this boot
+     finishes its slow report tick too, as step D let E finish its own */
+  const weeksL = () => new Promise((res) => app.KOS.reportStore.list("week", (e, l) => res(e ? -1 : (l || []).length)));
+  for (let i = 0, same = 0, last = -2; i < 90 && same < 14; i++) { await app.settle(); const n = await weeksL(); same = n === last ? same + 1 : 0; last = n; }
   await app.settle(); await app.KOS.store.flush(); await E.KOS.store.flush();
   const out = [];
   /* a goal's lastMeasuredAt is WHEN its figure last changed, read off the
