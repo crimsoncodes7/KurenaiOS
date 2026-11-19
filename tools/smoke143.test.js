@@ -38,6 +38,9 @@
          and deletes nothing there.
      I · DI-23 — A REMINDER DELETED HERE does not come back for a cycle
          when its task was edited there meanwhile.
+     J · DI-02 — A FAILED SECOND CHUNK (the audit's 60 reminders with a
+         sub-task each, the second chunk answering 503) leaves what the
+         first made booked, and the next cycle makes no duplicate.
 
    Run:
      npm install jsdom fake-indexeddb   (one-time)
@@ -67,6 +70,8 @@ function fakeTodoist(log) {
     if (form.get("commands")) {
       const cmds = JSON.parse(form.get("commands"));
       st.calls.push(cmds);
+      /* `st.failWrite = n`: the n-th write call answers 503, applying nothing */
+      if (st.failWrite && st.calls.length === st.failWrite) return res(503, {});
       if (log) log.push("td:write");
       out.sync_status = {}; out.temp_id_mapping = {};
       cmds.forEach((c) => {
@@ -833,6 +838,30 @@ step("I · a reminder deleted here does not come back when its task was edited t
   env.gt.put("L1", { id: gid, title: "Return library book, edited there" });
   await d.sync("google");
   eq([K.reminders.all().map((x) => x.title), env.gt.lists.L1[gid].deleted], [[], true], "Google Tasks: not imported again, deleted there");
+});
+
+/* ---------------- J ---------------- */
+step("J · DI-02 — a failed second chunk leaves nothing made in Todoist unbooked, so the next cycle makes no duplicate", async () => {
+  const env = world(), d = await school(env);
+  const K = d.K;
+  /* the audit's case: 60 reminders with a sub-task each is 120 commands,
+     two chunks; the second answers 503 */
+  for (let i = 0; i < 60; i++) K.reminders.add({ title: "R" + i, listId: d.list.id, subs: [{ id: 1, text: "step", done: false }] });
+  env.td.failWrite = 2;
+  const r1 = await d.sync();
+  assert(!r1.ok, "the first cycle reports the failure");
+  eq(env.td.calls.map((c) => c.length), [90, 30], "two chunks, the second refused");
+  const linked1 = K.reminders.all().filter((x) => x.listId === d.list.id && x.ext && x.ext.id).length;
+  eq(linked1, 45, "the 45 reminders Todoist made are booked as soon as their chunk answers (they used to wait for the last)");
+  env.td.failWrite = 0;
+  const r2 = await d.sync();
+  assert(r2.ok, "the next cycle: " + JSON.stringify(r2));
+  const rems = K.reminders.all().filter((x) => x.listId === d.list.id);
+  eq(rems.length, 60, "60 reminders, no second copy of any (the audit saw 105)");
+  const live = Object.values(env.td.items).filter((i) => !i.is_deleted);
+  eq(live.filter((i) => !i.parent_id).length, 60, "60 tasks in Todoist, none twice");
+  eq(live.filter((i) => i.parent_id).length, 60, "and 60 sub-tasks, none twice");
+  assert(rems.every((x) => x.ext && x.ext.id && x.subs.every((s) => s.x)), "every reminder and sub-task linked");
 });
 
 (async () => {
