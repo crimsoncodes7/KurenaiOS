@@ -274,7 +274,7 @@
       var j = J().peek(), hira = 0, kata = 0;
       Object.keys(j.facets).forEach(function (k) {
         var f = j.facets[k], p = KOS.jaSrs.split(k), ch = p.item.slice(2);
-        if (p.kind !== "k" || p.skill !== "R" || ch.length !== 1 || !(f.reps && f.s >= KOS.jaSrs.HOLD)) return;
+        if (p.kind !== "k" || p.skill !== "R" || ch.length !== 1 || !KOS.jaSrs.holds(f)) return;   // JM-19: one "held a week" (the stone's own count)
         if (/[\u3041-\u3096]/.test(ch)) hira++; else kata++;
       });
       return [UI().meter({ label: "Hiragana held a week", value: Math.min(46, hira), target: 46 }), UI().meter({ label: "Katakana held a week", value: Math.min(46, kata), target: 46 })];

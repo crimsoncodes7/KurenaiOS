@@ -254,6 +254,12 @@ step("D · JM-19: thin history stays calibrating; JM-38: the plan counts blocks 
   const tl = K.ja.timeline(today);
   st.facets = saved;
   assert(tl.calibrating && tl.milestones.every((m) => !m.from && !m.to), "one word met: still calibrating");
+  /* the kana stone counts a kana "held a week" by the one test (holds): one review is not */
+  st.facets = { "k:あ|R": { reps: 1, s: 8.3, d: 5, firstAt: today, last: today, due: K.srs.addDays(today, 8) },
+    "k:い|R": { reps: 2, s: 9, d: 5, firstAt: K.srs.addDays(today, -9), last: today, due: K.srs.addDays(today, 9) } };
+  const kana = K.ja.timeline(today).milestones.find((m) => m.unit === "kana");
+  st.facets = saved;
+  eq(kana && kana.have, 1, "one kana held over a week, not the one answered once");
   const p = K.ja.planDay();
   eq(p.total, Math.round(p.reviews.min + (p.learn ? p.learn.min : 0)), "the total is reviews and new only");
   K.show("subject", "ja"); await app.settle();

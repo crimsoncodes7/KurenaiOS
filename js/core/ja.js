@@ -473,8 +473,9 @@
       if (!f.reps || p.skill !== "R") return;
       if (!first || f.firstAt < first) first = f.firstAt;
       if (p.kind === "w") firsts.push(f.firstAt);
-      // a basic kana (not combined, not small) whose reading holds a week
-      if (p.kind === "k" && BASIC.test(p.item.slice(2)) && f.s >= T().HOLD) kanaHeld++;
+      // a basic kana (not combined, not small) whose reading holds a week (JM-19: the same
+      // test as the Writing unlock, KOS.jaSrs.holds, so "held a week" means one thing)
+      if (p.kind === "k" && BASIC.test(p.item.slice(2)) && T().holds(f)) kanaHeld++;
     });
     var span = first ? T().days(first, t) : 0, have = firsts.length;
     var weeks = [0, 0, 0, 0];
