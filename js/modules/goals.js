@@ -1054,7 +1054,7 @@
       var fields = { title: title.value.trim(), type: typeId, target: t, links: l, params: params, deadline: params.by || a.date || null, milestones: [] };
       var saved = existing ? G.update(existing.id, fields) : G.add(fields);
       ov.remove();
-      announce("Goal added: " + saved.title + (saved.deadline ? " by " + shortDate(saved.deadline) : ""));
+      announce(existing ? "Goal saved · " + saved.title : "Goal added: " + saved.title + (saved.deadline ? " by " + shortDate(saved.deadline) : ""));
       KOS.show("goals", { id: saved.id });
     }
     function save() {
