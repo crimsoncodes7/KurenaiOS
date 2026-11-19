@@ -434,6 +434,19 @@
     }, function () { KOS.show("governor", "shop"); });
   };
 
+  /* the routine player (routineplayer.js, in page-player) opens only on
+     demand — Start on a routine, About to Study, a step's link — so it
+     loads on that first press; the real module replaces this forwarder */
+  var player = KOS.routinePlayer = {};
+  ["open", "preflight", "daySheet"].forEach(function (fn) {
+    player[fn] = function () {
+      var a = arguments;
+      need(["page-player"]).then(function () {
+        if (KOS.routinePlayer !== player) KOS.routinePlayer[fn].apply(null, a);
+      }, function () { if (KOS.ui && KOS.ui.toast) KOS.ui.toast("The routine player could not load. Check the connection and try again.", true); });
+    };
+  });
+
   KOS.lazy = {
     mode: LAZY ? "lazy" : "eager",
     pagesFor: pagesFor,
