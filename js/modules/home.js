@@ -326,7 +326,7 @@
        "Quadratics". Only the clear board keeps the daily goal. */
     if (rest) {
       var on = topicMins(rest.refs && rest.refs.length ? rest.refs : rest.subject && rest.ref ? [rest.subject + ":" + rest.ref] : [], rest.label);
-      return Object.assign({ kind: "general" }, rest, { goal: on > 0 ? { k: "On it today", v: minsText(on) } : null });
+      return Object.assign({ kind: "general" }, rest, { goal: on > 0 ? { k: "Today", v: minsText(on) + " on this" } : null });
     }
     rest = { kicker: "Clear", label: "Nothing is waiting", why: "No study block, exam or assignment inside a week.", go: function () { KOS.show("focus"); } };
     return Object.assign({ kind: "general" }, rest, { goal: dailyGoal(dailyGoalMins()) });

@@ -75,10 +75,10 @@ step("A · a plan row counts only the time spent on it", async () => {
   const r0 = plan0.refs[0], i = r0.indexOf(":");
   focus({ subject: r0.slice(0, i), ref: r0.slice(i + 1), refs: [r0] });
   const plan2 = K.homeFocusPlan(new Date(TODAY + "T16:00:00"));
-  eq(plan2.goal && [plan2.goal.k, plan2.goal.v, plan2.goal.bar], ["On it today", "30 min", undefined], "a session on its topic counts, with no bar to fill");
+  eq(plan2.goal && [plan2.goal.k, plan2.goal.v, plan2.goal.bar], ["Today", "30 min on this", undefined], "a session on its topic counts, with no bar to fill");
   focus({ subject: null, ref: null, refs: [], metrics: { complete: true, mins: 20, secs: 1200, rule: "blocks", objective: plan0.label }, dur: 20 * 60 });
   const plan3 = K.homeFocusPlan(new Date(TODAY + "T16:00:00"));
-  eq(plan3.goal.v, "50 min", "a session started from the card (its objective) counts too");
+  eq(plan3.goal.v, "50 min on this", "a session started from the card (its objective) counts too");
   K.pacing.removeEntry ? K.pacing.removeEntry(row.id) : null;
 });
 
