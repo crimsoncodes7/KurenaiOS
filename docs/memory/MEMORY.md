@@ -34,3 +34,4 @@
 - [Sonnet for simple agents](sonnet-for-simple-agents.md) — deterministic, well-specified agent tasks run on Sonnet to save usage; Opus for judgement
 - [Test every aspect before release](test-every-aspect-before-release.md) — rule 2026-11-18: audit first; browser, print PDF A4, every tier/subject, own files, edit/clear paths, before any release
 - [Agents save as they go](agents-save-as-they-go.md) — rule 2026-11-19: every agent commits+pushes WIP after each step; the usage limit can stop it any time
+- [Scope after W7](scope-after-w7-2026-11-19.md) — 19 Nov: spaces batch → deploy → QoL review (user requests + 127 auditor ideas); W3/W9/W10/F201/Help left for the other account
