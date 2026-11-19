@@ -11,6 +11,7 @@
   --accent: #b8323f; --accent-ink: #ffffff;
   --build: #2f7d5b; --later: #9a6a14; --no: #8a8580;
   --open: #3c6fb0; --partly: #9a6a14; --unclear: #7a5aa6; --done: #2f7d5b;
+  --rm: #5a5fb8;
   --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
   --font-mark: "Noto Serif JP", "Hiragino Mincho ProN", serif;
@@ -22,6 +23,7 @@
   --accent: #e2606b; --accent-ink: #1a0b0d;
   --build: #5cc497; --later: #e0b04f; --no: #8f8b87;
   --open: #7ba9e6; --partly: #e0b04f; --unclear: #b597e0; --done: #5cc497;
+  --rm: #9aa0f0;
   color-scheme: dark } }
 :root[data-theme="dark"] {
   --bg: #121214; --s1: #1a1a1d; --s2: #222226; --line: #2e2e33;
@@ -29,6 +31,7 @@
   --accent: #e2606b; --accent-ink: #1a0b0d;
   --build: #5cc497; --later: #e0b04f; --no: #8f8b87;
   --open: #7ba9e6; --partly: #e0b04f; --unclear: #b597e0; --done: #5cc497;
+  --rm: #9aa0f0;
   color-scheme: dark }
 * { box-sizing: border-box; }
 body { background: var(--bg); color: var(--fg); font: 15px/1.5 var(--font-body); }
@@ -81,6 +84,18 @@ details p { margin: 4px 0 0; font-family: var(--font-mono); font-size: 12px; ove
 .addnote { border: 0; background: none; color: var(--soft); font: 12px var(--font-body); cursor: pointer; padding: 2px 0; }
 textarea { grid-column: 1 / -1; width: 100%; font: 14px var(--font-body); color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; resize: vertical; min-height: 60px; }
 .empty { color: var(--muted); padding: 24px 0; text-align: center; }
+/* the two parts: quality of life, and the backlog and roadmap — never one list */
+.parts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.parts button { text-align: start; border: 1px solid var(--line); background: var(--s1); color: var(--fg); border-radius: var(--r); padding: 10px 14px; cursor: pointer; display: flex; flex-direction: column; gap: 2px; font: 600 15px var(--font-body); }
+.parts button span { font: 400 12.5px var(--font-body); color: var(--muted); font-variant-numeric: tabular-nums; }
+.parts button[aria-selected="true"] { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.parts button[data-part="rm"][aria-selected="true"] { border-color: var(--rm); box-shadow: inset 0 0 0 1px var(--rm); }
+.parthead { display: flex; flex-direction: column; gap: 4px; padding: 12px 16px; border-radius: var(--r); background: var(--s2); border-inline-start: 4px solid var(--accent); }
+.parthead[data-part="rm"] { border-inline-start-color: var(--rm); }
+.parthead b { font-size: 15px; }
+.parthead span { color: var(--muted); font-size: 13.5px; max-width: 80ch; }
+.area-h .from { font-size: 12px; color: var(--soft); }
+.wrap[data-part="rm"] .mark { color: var(--rm); }
 @media (max-width: 640px) {
   .item { grid-template-columns: minmax(0, 1fr); }
   .side { align-items: flex-start; }
@@ -89,12 +104,17 @@ textarea { grid-column: 1 / -1; width: 100%; font: 14px var(--font-body); color:
 @media (prefers-reduced-motion: no-preference) { .item { transition: border-color 0.2s, opacity 0.2s; } }
 </style>
 
-<div class="wrap">
+<div class="wrap" id="wrap" data-part="qol">
   <header>
-    <div class="kicker">KurenaiOS · quality audit · QoL</div>
-    <h1>Which quality-of-life ideas to build</h1>
-    <p class="lede">Your own requests and every auditor's QoL idea, each checked against the app on 19 November. Mark each one Build, Later or No; add a note where you want it done a certain way. Your marks save as you go.</p>
+    <div class="kicker">KurenaiOS · what to build next</div>
+    <h1>Which ideas to build</h1>
+    <p class="lede">Two separate lists, each checked against the app on 19 November: small quality-of-life improvements, and the bigger backlog and roadmap. Mark each item Build, Later or No; add a note where you want it done a certain way. Your marks save as you go.</p>
   </header>
+
+  <div class="parts" role="tablist" aria-label="Which list">
+    <button type="button" role="tab" id="t-qol" data-part="qol" aria-selected="true" aria-controls="list">Quality of life<span id="c-qol"></span></button>
+    <button type="button" role="tab" id="t-rm" data-part="rm" aria-selected="false" aria-controls="list">Backlog and roadmap<span id="c-rm"></span></button>
+  </div>
 
   <div class="bar" role="region" aria-label="Summary and filters">
     <div class="tally" aria-live="polite">
@@ -123,7 +143,8 @@ textarea { grid-column: 1 / -1; width: 100%; font: 14px var(--font-body); color:
     </div>
   </div>
 
-  <main id="list"></main>
+  <div class="parthead" id="parthead" data-part="qol"></div>
+  <main id="list" role="tabpanel"></main>
 </div>
 
 <script type="application/json" id="data">__DATA__</script>
@@ -138,14 +159,23 @@ textarea { grid-column: 1 / -1; width: 100%; font: 14px var(--font-body); color:
     "creatives": ["Creatives", "創"], "data-integrity": ["Your data", "蔵"], "exams-files-ink": ["Exams, Files and ink", "試"],
     "goals": ["Goals", "標"], "home-reports": ["Home and Reports", "灯"], "ja-mind": ["Japanese", "語"], "mind": ["Mind", "心"],
     "money-goals": ["Money", "円"], "productivity": ["Productivity", "整"], "shell": ["Navigation and shell", "枠"],
-    "shop-cosmetics": ["Shop and cosmetics", "飾"], "study-core": ["Study", "習"], "sync-disruption": ["Sync and devices", "同"]
+    "shop-cosmetics": ["Shop and cosmetics", "飾"], "study-core": ["Study", "習"], "sync-disruption": ["Sync and devices", "同"],
+    "user-backlog": ["Your backlog requests", "願"], "roadmap": ["On the roadmap", "図"], "programme": ["The quality programme, still to do", "審"], "parked": ["Parked until something unblocks it", "休"]
   };
-  var ORDER = Object.keys(AREAS);
+  var PARTS = {
+    qol: { h: "Quality of life", sub: "Small improvements to what exists: your own QoL requests and every auditor's QoL idea." },
+    rm: { h: "Backlog and roadmap", sub: "Bigger work, apart from the QoL list: your backlog and roadmap requests, what is left of the quality programme, what is parked, and the auditors' bigger feature ideas (under each app area, marked 'from the audit')." }
+  };
+  /* the roadmap part lists its own groups first, then the auditors' ideas by area ("bk:<area>") */
+  var BASE = Object.keys(AREAS).filter(function (a) { return ["user-backlog", "roadmap", "programme", "parked"].indexOf(a) < 0; });
+  var ORDERS = { qol: BASE, rm: ["user-backlog", "roadmap", "programme", "parked"].concat(BASE.map(function (a) { return "bk:" + a; })) };
+  function areaOf(a) { return AREAS[a.replace(/^bk:/, "")] || [a, "・"]; }
+  var ORDER = ORDERS.qol;
   var STATUS = { open: "Not built", partly: "Partly built", unclear: "Needs a look", done: "Already built" };
   var SIZE = { S: "small", M: "a session", L: "large" };
   var choices = {};          /* key -> {choice, note} */
   var db = null, col = null, pending = 0;
-  var f = { status: "todo", choice: "all", area: "", q: "" };
+  var f = { part: /^#backlog/.test(location.hash) ? "rm" : "qol", status: "todo", choice: "all", area: "", q: "" };
 
   function el(tag, attrs, kids) {
     var n = document.createElement(tag);
@@ -159,7 +189,12 @@ textarea { grid-column: 1 / -1; width: 100%; font: 14px var(--font-body); color:
   function docId(k) { return k.replace(/[^A-Za-z0-9_-]/g, "_"); }
 
   var areaSel = document.getElementById("f-area");
-  ORDER.forEach(function (a) { if (ITEMS.some(function (x) { return x.a === a; })) areaSel.appendChild(el("option", { value: a, text: AREAS[a][0] })); });
+  function fillAreas() {
+    areaSel.textContent = "";
+    areaSel.appendChild(el("option", { value: "", text: "Every area" }));
+    ORDER.forEach(function (a) { if (ITEMS.some(function (x) { return x.a === a && x.p === f.part; })) areaSel.appendChild(el("option", { value: a, text: areaOf(a)[0] + (/^bk:/.test(a) ? " · from the audit" : "") })); });
+    areaSel.value = "";
+  }
 
   function setStatus(text, warn) { var s = document.getElementById("save"); s.textContent = text; if (warn) s.setAttribute("data-warn", ""); else s.removeAttribute("data-warn"); }
 
@@ -175,12 +210,17 @@ textarea { grid-column: 1 / -1; width: 100%; font: 14px var(--font-body); color:
   }
 
   function tally() {
-    var n = { build: 0, later: 0, no: 0 }, todo = ITEMS.filter(function (x) { return x.s !== "done"; });
+    ["qol", "rm"].forEach(function (p) {
+      var all = ITEMS.filter(function (x) { return x.p === p && x.s !== "done"; });
+      var left = all.filter(function (x) { return !(choices[x.k] && choices[x.k].choice); }).length;
+      document.getElementById("c-" + p).textContent = all.length + " not built · " + left + " to decide";
+    });
+    var n = { build: 0, later: 0, no: 0 }, todo = ITEMS.filter(function (x) { return x.p === f.part && x.s !== "done"; });
     todo.forEach(function (x) { var c = choices[x.k] && choices[x.k].choice; if (n[c] != null) n[c]++; });
     var left = todo.length - n.build - n.later - n.no;
     ["build", "later", "no"].forEach(function (k) {
       document.getElementById("n-" + k).textContent = n[k];
-      document.getElementById("p-" + k).style.width = (100 * n[k] / todo.length) + "%";
+      document.getElementById("p-" + k).style.width = (todo.length ? 100 * n[k] / todo.length : 0) + "%";
     });
     document.getElementById("n-left").textContent = left;
   }
@@ -227,7 +267,7 @@ textarea { grid-column: 1 / -1; width: 100%; font: 14px var(--font-body); color:
     var shown = 0;
     ORDER.forEach(function (a) {
       var its = ITEMS.filter(function (x) {
-        if (x.a !== a) return false;
+        if (x.a !== a || x.p !== f.part) return false;
         if (f.area && x.a !== f.area) return false;
         if (f.status === "todo" && x.s === "done") return false;
         if (f.status === "done" && x.s !== "done") return false;
@@ -239,11 +279,16 @@ textarea { grid-column: 1 / -1; width: 100%; font: 14px var(--font-body); color:
       });
       if (!its.length) return;
       shown += its.length;
-      list.appendChild(el("section", { class: "area", "aria-labelledby": "h-" + a }, [
-        el("div", { class: "area-h" }, [el("span", { class: "mark", lang: "ja", "aria-hidden": "true", text: AREAS[a][1] }), el("h2", { id: "h-" + a, text: AREAS[a][0] }), el("span", { text: its.length + (its.length === 1 ? " idea" : " ideas") })])
+      list.appendChild(el("section", { class: "area", "aria-labelledby": "h-" + a.replace(":", "-") }, [
+        el("div", { class: "area-h" }, [el("span", { class: "mark", lang: "ja", "aria-hidden": "true", text: areaOf(a)[1] }), el("h2", { id: "h-" + a.replace(":", "-"), text: areaOf(a)[0] }),
+          /^bk:/.test(a) ? el("span", { class: "from", text: "from the audit" }) : null,
+          el("span", { text: its.length + (its.length === 1 ? " item" : " items") })])
       ].concat(its.map(row))));
     });
     if (!shown) list.appendChild(el("p", { class: "empty", text: "Nothing matches these filters." }));
+    var ph = document.getElementById("parthead");
+    ph.setAttribute("data-part", f.part); ph.textContent = "";
+    ph.appendChild(el("b", { text: PARTS[f.part].h })); ph.appendChild(el("span", { text: PARTS[f.part].sub }));
     tally();
   }
 
@@ -257,10 +302,18 @@ textarea { grid-column: 1 / -1; width: 100%; font: 14px var(--font-body); color:
     });
   }
   seg("f-status", "status"); seg("f-choice", "choice");
+  function setPart(p) {
+    f.part = p; ORDER = ORDERS[p]; f.area = "";
+    document.getElementById("wrap").setAttribute("data-part", p);
+    ["qol", "rm"].forEach(function (q) { document.getElementById("t-" + q).setAttribute("aria-selected", String(q === p)); });
+    try { history.replaceState(null, "", p === "rm" ? "#backlog" : "#qol"); } catch (e) { /* the hash is a convenience */ }
+    fillAreas(); render();
+  }
+  ["qol", "rm"].forEach(function (p) { document.getElementById("t-" + p).addEventListener("click", function () { setPart(p); }); });
   areaSel.addEventListener("change", function () { f.area = areaSel.value; render(); });
   document.getElementById("f-q").addEventListener("input", function (e) { f.q = e.target.value; render(); });
 
-  render();
+  setPart(f.part);
 
   /* marks live in the artifact's database, so Claude can read them back */
   var timer = setTimeout(function () { if (!col) setStatus("Marks can't be saved in this view; open it on claude.ai while signed in", true); }, 10000);

@@ -34,6 +34,15 @@ week or so. Everything is committed and pushed; nothing is in flight.
     https://claude.ai/artifact/RtRTKuMeBuLp5994CKZoNx (`capabilities: {db: {}}`),
     after the 17 "unclear" items were checked in a browser (now open 89,
     partly 32, done 15; findings in each item's `evidence`).
+    The page now has TWO PARTS (asked for 19 Nov): "Quality of life"
+    (qol-checked.jsonl) and "Backlog and roadmap" (roadmap-requests.jsonl:
+    the user's backlog/roadmap requests, the programme's leftovers, parked
+    items; backlog-checked-a/b.jsonl: the auditors' 83 bigger ideas, each
+    checked against the code by an agent that appends one line per idea).
+    Rebuild with `python3 docs/qol/build.py`, republish to the same link.
+    If backlog-checked-a/b hold fewer than 42/41 lines, the check stopped
+    part way: finish the missing keys (from the findings files' `backlog`
+    arrays on the audit branch) before the final republish.
     On a new account, republish this file as an artifact with
     `capabilities: {db: {}}` (rebuild from `qol-template.html` +
     `qol-checked.jsonl` if the data changes) and read the marks back with
