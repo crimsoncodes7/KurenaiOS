@@ -22,6 +22,8 @@
                 closed-app tap carries the router's own address.
      L · EX-24  Analytics opens on the assessment with marked papers;
                 Calibration says it reads all papers.
+     M · JM-32  Voice, Immersion and Sentence miner, which nothing in the
+                app can earn yet, are "Not released yet".
      Z · no errors, no request.
 
    Run: node tools/smoke193.test.js */
@@ -227,6 +229,14 @@ step("L · EX-24 Analytics opens on the evidence; Calibration says all papers", 
     const active = qa("[data-ui~='exams.analytics'] [aria-selected='true'], [data-ui~='exams.analytics'] [aria-current='true'], [data-ui~='exams.analytics'] [aria-pressed='true']").map((n) => n.textContent).join(" | ");
     assert(/Far mock/.test(active), "opens on the assessment with a marked paper: " + active);
   }
+});
+
+step("M · JM-32 badges nothing can earn yet are not released yet", async () => {
+  const defs = K.achievements.defs();
+  ["voice", "immersion", "sentence-miner"].forEach((id) => {
+    const d = defs.filter((x) => x.id === id)[0];
+    assert(d && d.soon, id + " is marked not released yet");
+  });
 });
 
 step("Z · no errors, no request", async () => {

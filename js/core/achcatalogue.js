@@ -364,8 +364,10 @@
     function () { return facetCount(function (it, sk, x) { return sk === "L" && x.s >= HOLD; }); }, { unit: "facets", glyph: "耳" });
   reg("ja", "brush", "Brush", "Kana written by hand, holding a week", ["ja"], [50, 500],
     function () { return facetCount(function (it, sk, x) { return sk === "W" && it.indexOf("k:") === 0 && x.s >= HOLD; }); }, { unit: "kana", glyph: "書" });
+  /* Voice, Immersion and Sentence miner wait for speaking, input logging
+     and mining to ship (audit JM-32): "Not released yet", not a dead badge */
   reg("ja", "voice", "Voice", "Speaking facets holding a week", ["ja"], [50, 500],
-    function () { return facetCount(function (it, sk, x) { return sk === "S" && x.s >= HOLD; }); }, { unit: "facets", glyph: "声" });
+    function () { return facetCount(function (it, sk, x) { return sk === "S" && x.s >= HOLD; }); }, { unit: "facets", glyph: "声", soon: true });
   reg("ja", "checkpoint", "Checkpoint", "Japanese checkpoints passed", ["ja"], [1, 5, 10],
     function () { var c = obj(st().japanese && st().japanese.checkpoints); return keys(c).filter(function (k) { return c[k] && c[k].passAt; }).length; },
     { unit: "checkpoints", glyph: "関" });
@@ -374,9 +376,9 @@
       var inp = obj(st().japanese && st().japanese.input), m = 0;
       keys(inp).forEach(function (d) { ["read", "listen", "raw", "jpSub"].forEach(function (k) { m += +inp[d][k] || 0; }); });
       return Math.floor(m / 6) / 10;
-    }, { unit: "hours", glyph: "浸" });
+    }, { unit: "hours", glyph: "浸", soon: true });
   reg("ja", "sentence-miner", "Sentence miner", "Lines saved from your own media", ["ja"], [10, 50, 200],
-    function () { return KOS.jaMined ? KOS.jaMined.count() : 0; }, { unit: "lines", glyph: "掘" });
+    function () { return KOS.jaMined ? KOS.jaMined.count() : 0; }, { unit: "lines", glyph: "掘", soon: true });
 
   /* ================= Set 8 · Mind ================= */
   reg("mind", "evaluated", "Evaluated", "Concepts at the ladder's last rung, Evaluate", ["mind"], [5, 25, 75],
