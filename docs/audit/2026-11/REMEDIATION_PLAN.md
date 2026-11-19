@@ -613,9 +613,11 @@ a design).
   files the backup does not hold; a backup whose files could not be read
   leaves them), **EX-45 / AA-27 FIXED** (one file size, `KOS.ui.bytes`),
   **DI-15 FIXED** (Storage measures every database, `KOS.stores.size`);
-  smoke188. LEFT in W1: **DI-02** (Todoist's failed second batch) and
-  **DI-13** (an unreadable stored state), both sync work for the Fable
-  account.
+  smoke188. Checked the same day: **DI-02 was already FIXED** by RC6
+  (6b4d8a6: the bookkeeping follows each chunk; smoke143 J now holds the
+  audit's own case, 60 reminders with the second chunk refused, no
+  duplicate) and **DI-13 by RC5** (an unreadable document is set aside,
+  never overwritten; smoke133 G). W1 has nothing left.
 
 ### W2 — Redraw policy, view lifecycle and boot (about 2–3 sessions; replaces the stopgap)
 - **The change bus.**
@@ -1196,7 +1198,7 @@ its "only goes down" rule; AP-01 stage 2 would win it back.
   Browser-checked at desktop and iPad portrait on the sample data; the
   check found and fixed Mind's welcome card collapsing at iPad widths.
   HELD for design or later: **HR-04** (Home's "what next" for the spaces),
-  **PR-06**, **JM-21** (Japanese in Goals/Reports), **MI-10** (Mind in
+  **JM-21** (Japanese in Goals/Reports), **MI-10** (Mind in
   Reports/Goals), **JM-26** (the Assistant's Japanese tools). OPEN QUESTION:
   Focus time linked to no subject is in Home's Study hours split but not in
   Reports' (adding it changes what a saved report holds).
