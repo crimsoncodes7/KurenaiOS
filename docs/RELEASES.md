@@ -15,7 +15,25 @@ the service-worker version). Git holds the rest.
   `5bece3e`). `ai-chat` is deployed as version 6 (images for Gemini, 26 October 2026); the
   `kos_reports` migration `20261012000001` is applied; so is `kos_money`
   (`20261019000001`, 19 October 2026), live since the Money and Goals release.
-- Latest release: sw `kos-exams-4` (18 November 2026, `feat/exams-audit`
+- Latest release: sw `kos-integrity-23` (19 November 2026,
+  `feat/w1w7-rest` into main; immutable https://62721e6a.kurenai-os.pages.dev;
+  the `runner` Edge Function deployed as version 10 the same day): the rest
+  of the quality audit's W1 (a restore replaces handwriting and files, one
+  file size, Storage measures every database) and every W7 finding with no
+  design — Goals judge only what happened while they existed; search finds
+  pages, Code, Creatives and the Wall and ranks titles first; Home, Reports
+  and the Wall (heat grid hours, one time classifier, no empty reports,
+  sessions' own awards, earned/complete badges); the study spaces' fixes
+  (Code, Creatives, Japanese, Mind, the study pages); Collection, Money and
+  Productivity (the Books rail by lens, Hide amounts everywhere, an
+  unchanged re-import, Money's In and This view, Today holds overdue
+  reminders, kept-late routines, a notice opens its record); then the
+  spaces join the OS — Japanese and Mind in Reports and Goals, a
+  Creatives-project goal, each space's day and Money's next bill in the day
+  model and on Home, the Assistant's Japanese tools — and Study hours counts
+  study only. Boot went down: the routine player, the report share card and
+  Card stats load on first use (budget 7.89 MB). Gate 177 (180–195).
+- Before it: sw `kos-exams-4` (18 November 2026, `feat/exams-audit`
   into main): the Exams & Papers audit (docs/exams-audit-2026-11-18.md) —
   papers on A4 sheets the same on screen and in print (questions flowing,
   answer lines carried over, a footer on every page, white paper), Print
