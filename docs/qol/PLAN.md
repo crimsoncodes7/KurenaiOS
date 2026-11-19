@@ -164,10 +164,22 @@ The plan is approved with these decisions.
    - Code keeps its drafts per device, and a retrieval keeps `code-rt:…`.
    - A part-rated Due today run picks up from its chip.
    - My 19 Nov check had marked these "partly" in error.
-5. **The toast queue with keyboard Undo** (`bk:shell#3`, `a11y-hci#4`, `shell#3`; closes W9's SH-36, SH-28, AX-02).
-6. **`bk:data-integrity#3`:** provider sync pulls and pushes the cloud state around its leased cycle.
-7. **`bk:data-integrity#4`:** a replication version column, a migration applied by hand and recorded in CLAUDE.md.
-8. **`bk:data-integrity#5`:** the audit for pages that keep a stale copy of state.
+5. ✓ **The toast queue with keyboard Undo** (`61e3d83`, `286eb3f`).
+   - Covers `bk:shell#3`, `a11y-hci#4` and `shell#3`, and closes W9's SH-36, SH-28 and AX-02, plus W3's SH-01: the stack is now centred and full-width on a phone.
+   - Undo rows stack, three at most.
+   - ⌘Z / Ctrl+Z outside a text field runs the newest Undo, and the spoken message says so.
+6. ✓ **`bk:data-integrity#3`:** already built, with no code change.
+   - Each provider cycle runs a cloud cycle before it reads the provider and before it gives the lease up (DI-01, smoke143 A).
+   - A pending add is kept on the reminder as `ext.pending`, in the synced document (smoke135).
+   - My 19 Nov check had marked it "partly" in error.
+7. **`bk:data-integrity#4`: held, not built** (see the reply of 19 Nov).
+   - A Postgres sequence number is handed out when a write starts, not when it commits. A slow write can therefore commit with a lower number after a reader's cursor has passed it: the same gap `updated_at` has.
+   - The two-minute overlap (`KOS.sideSync.since`, invariant 36d) already covers it.
+   - Making a cursor exact needs a snapshot horizon (`pg_snapshot_xmin`) served by an Edge Function. Built only if a missed row is ever seen.
+8. ✓ **`bk:data-integrity#5`:** the audit for stale copies of state.
+   - It found that `KOS.store.replaceState`, the cloud pull's take-in, replaced every top-level object. A page or module holding part of the state then wrote into a detached copy.
+   - It now takes the document in place, as a tab merge already did (invariant 33d; smoke196 G).
+   - The rest is clear: the only arrays of rows without ids are the plan's weeks, edited only through `KOS.pacing`, by `wb`. The `state.ui` writes are per device.
 9. **`rm:edge-hygiene`:** EF-01 to EF-08.
 10. **After Neon's branch is merged** (its files):
     - `bk:data-integrity#2`: random ids for assignments, reminders and events;

@@ -74,7 +74,11 @@ Read this file before editing or testing anything in its domain.
     store, the local document is kept first (`cloudsync.prereplace.<uid>`,
     and PINNED as `cloudsync.prelink.<uid>` the first time a device is
     linked: never overwritten, offered in Storage), and then the dirty
-    check, the merge and the replace run in ONE `KOS.store.transact`. An
+    check, the merge and the replace run in ONE `KOS.store.transact`. The
+    replace is IN PLACE (`KOS.store.replaceState` → `applyDoc`, 1A, 19 Nov
+    2026): every object and every row with an id keeps its identity, so a
+    page or module holding part of the state still writes into the live
+    state after it (smoke196 G). An
     edit made while that copy was being written is merged and pushed, never
     overwritten. A data URL new in the cloud copy's avatar or banner (an
     upload on an older-version device) takes the slot over a local move.

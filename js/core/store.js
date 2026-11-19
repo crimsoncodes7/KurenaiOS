@@ -1690,9 +1690,14 @@
          document: the replace is then THIS tab's one change on top of it
          (two tabs applying the same document never count it twice) */
       takeIn();
-      Object.keys(state).forEach(function (k) { delete state[k]; });
-      Object.assign(state, deepMerge(JSON.parse(JSON.stringify(DEFAULTS)), incoming));
-      scrubLegacy(state);
+      /* 1A (bk:data-integrity#5): IN PLACE, as another tab's document is
+         taken in (applyDoc → assignDeep): the result is the same document,
+         but every object and every row with an id keeps its identity, so a
+         page or module still holding `state.reminders` (or any part of it)
+         writes into the live state after a cloud pull, not into a detached
+         copy that the next save never sees. It moves docEpoch too: a whole
+         document was taken in. */
+      applyDoc(incoming);
       save();
     },
 

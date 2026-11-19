@@ -15,6 +15,9 @@
      F · the toast queue (bk:shell#3, a11y-hci#4, shell#3; W9's SH-36,
          SH-28, AX-02): Undo rows stack, a plain message never wipes one,
          ⌘Z / Ctrl+Z outside a field runs the newest, the message says so.
+     G · bk:data-integrity#5: KOS.store.replaceState (a cloud pull) takes the
+         document in IN PLACE, so a page holding part of the state writes
+         into the live state afterwards.
      D · creatives#6: the Writing Desk writes a draft on pagehide and when
          you leave the page, not only after its 600 ms pause.
 
@@ -230,6 +233,27 @@ step("F · the toast queue: Undo rows stack, ⌘Z runs the newest, the message s
   eq(rows().length, 3, "at most three rows");
   eq(T.getAttribute("aria-hidden"), "true", "the visible half stays aria-hidden (invariant 66)");
   rows().forEach((r) => r.remove());
+});
+
+step("G · a document taken in from the cloud keeps every held reference live (bk:data-integrity#5)", async () => {
+  if (!(K.store.state.reminders && K.store.state.reminders.items.length)) K.reminders.add({ title: "Held reminder" });
+  const st = K.store.state;
+  const R = st.reminders, items = R.items, row = items[0], goals = st.goals;
+  assert(row && row.id != null, "a reminder to hold");
+  const ep = K.store.docEpoch ? K.store.docEpoch() : null;
+  const doc = JSON.parse(JSON.stringify(st));
+  delete doc.ui;
+  doc.reminders.items[0].title = "Renamed on another device";
+  doc.reminders.items.push({ id: "zz-new", title: "Made elsewhere" });
+  K.store.replaceState(doc);
+  assert(K.store.state.reminders === R && K.store.state.reminders.items === items && K.store.state.goals === goals, "the held objects are the live ones");
+  assert(K.store.state.reminders.items[0] === row, "a row with an id keeps its identity");
+  eq(row.title, "Renamed on another device", "and carries the incoming document's values");
+  assert(items.some((x) => x.id === "zz-new"), "a new row arrives in the held array");
+  row.title = "Written through the held reference";
+  eq(K.store.state.reminders.items[0].title, "Written through the held reference", "a write through a held reference reaches the state");
+  if (ep != null) assert(K.store.docEpoch() > ep, "a whole document taken in moves docEpoch");
+  K.store.state.reminders.items = items.filter((x) => x.id !== "zz-new"); K.store.save();
 });
 
 (async () => {

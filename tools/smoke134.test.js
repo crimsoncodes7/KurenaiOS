@@ -309,7 +309,9 @@ step("K · an upload that finishes after the state object was replaced still set
   const out = await wait(K.profilePics.write("avatar", NEW2));
   K.attach.add = add;
   const g = K.store.state.governor;
-  assert(g !== g0, "the governor object was replaced meanwhile");
+  /* 1A (bk:data-integrity#5): a document is now taken in IN PLACE, so the
+     held governor object is the live one; the reference must land there */
+  assert(g === g0, "the document was taken in place: the held governor is the live one");
   eq([g.avatar.img, g.avatar.file], [null, out.fileId], "the LIVE state holds the reference, no inline copy");
   eq(await bytesOf(g.avatar.file), [137, 80, 78, 71, 7, 7, 7, 7, 7], "the new picture");
   eq((await avatarRecs()).length, 1, "and the picture it replaced was released");
