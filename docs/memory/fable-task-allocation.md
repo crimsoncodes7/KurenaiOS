@@ -18,3 +18,5 @@ Fable is far more capable but drains the 5-hour limit fast, so it gets only work
 **How to apply:** before starting a workstream, say which model it is meant for; if the session is on Fable and the work is on the Opus list, suggest switching. No reviewer agents on Fable ([[max-three-agents]]). Related: [[quality-audit-2026-11]].
 
 **16 Nov 2026 hand-over:** the user moved to the other account (Fable for a limited time). There Fable does AP-01 (lazy loading) then RC6; the rest of that account's list (W4's import engine, open W1/W7 P2/P3s, roadmap 5.19 item 2 IT units archived) can run on Opus or Sonnet agents. This account keeps W3, W5, W8, W10 and the other 5.19 items. Smoke numbers: other account 142, 143, 149, 150; this account 151+. Full list: docs/HANDOFF.md §0.
+
+**19 Nov 2026: Fable is no longer available (the user).** Everything runs on Opus (judgement, reviews) or Sonnet agents (well-specified mechanical work). W1's sync remainder is done anyway: DI-02 was fixed by RC6 (6b4d8a6; smoke143 J holds the audit's case) and DI-13 by RC5 (smoke133 G).

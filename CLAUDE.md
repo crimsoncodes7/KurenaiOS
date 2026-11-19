@@ -28,7 +28,8 @@ chronological diary here.
   what each suite holds: [`docs/SMOKE.md`](docs/SMOKE.md). New suites on this
   account are numbered from 180 (see `docs/HANDOFF.md`).
 - Backend as deployed: Edge Functions `ai-chat` (version 6: images for
-  Gemini), `runner` (version 7; the `kos-runner` pg_cron job every five
+  Gemini), `runner` (version 10, 19 November 2026: a notice's router address for closed-app
+  taps; the `kos-runner` pg_cron job every five
   minutes, its SQL in the gitignored `supabase/runner-cron.sql.local`),
   `github-token` (version 4; the GitHub App itself and its `GITHUB_*`
   secrets are NOT created yet), `ext-token` (version 1, its `GOOGLE_*` and
