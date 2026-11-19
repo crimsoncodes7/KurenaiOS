@@ -30,6 +30,10 @@ week or so. Everything is committed and pushed; nothing is in flight.
   - `qol-picks.html` — the review page (published from the second account
     as https://claude.ai/artifact/GaUNGxhbmcpSaLFTZj3wTY, marks in its db
     collection `decisions`; that link may not open from another account).
+    REPUBLISHED from the first account on 19 November as
+    https://claude.ai/artifact/RtRTKuMeBuLp5994CKZoNx (`capabilities: {db: {}}`),
+    after the 17 "unclear" items were checked in a browser (now open 89,
+    partly 32, done 15; findings in each item's `evidence`).
     On a new account, republish this file as an artifact with
     `capabilities: {db: {}}` (rebuild from `qol-template.html` +
     `qol-checked.jsonl` if the data changes) and read the marks back with
