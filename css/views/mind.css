@@ -394,6 +394,9 @@ button.k-mind-map-t { cursor: pointer; }
 .k-mind-pgrid > :last-child:nth-child(2n + 1) { grid-column: span 2; }
 }
 @media (max-width: 1080px) {
+/* the desk's side card sits beside its neighbours like every desk's side
+   (study.css), not a column of flex: 1 1 0 cards that shrink to nothing */
+.k-subj-side.k-mind-deskside { flex-direction: row; }
 .k-mind-jgrid { grid-template-columns: minmax(0, 1fr); }
 .k-mind-jside { position: static; }
 }
