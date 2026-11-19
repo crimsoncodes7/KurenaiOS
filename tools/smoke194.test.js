@@ -125,12 +125,12 @@ step("C · JM-21: Japanese's goal types read the ledger and the facets", async (
   eq(G.typeDef("ja-reviews").domain, "ja", "registered by Japanese");
   entry("2026-11-16", "ja", { kind: "session", n: 30, passed: 25, skills: { R: 30 } });
   entry("2026-11-17", "ja", { kind: "lesson", id: "L3", first: true });
-  const rv = G.add({ title: "JA reviews", type: "ja-reviews", target: 100, repeat: "week" });
-  const ls = G.add({ title: "JA lessons", type: "ja-lessons", target: 3, repeat: "week" });
+  const rv = G.add({ title: "JA reviews", type: "ja-reviews", target: 100, repeat: "week", startDate: "2026-11-16" });
+  const ls = G.add({ title: "JA lessons", type: "ja-lessons", target: 3, repeat: "week", startDate: "2026-11-16" });
   eq((await row(rv.id))._current, 34, "reviews passed this week: 25 + 9");
   eq((await row(ls.id))._current, 1, "lessons finished this week");
   /* kana held a week (a basic kana's Reading held) and words stable (21+ days) */
-  const J = K.store.state.ja = K.ja.normalise(K.store.state.ja);
+  const J = K.store.state.japanese = K.ja.normalise(K.store.state.japanese);
   const held = { reps: 3, s: 10, firstAt: "2026-11-01", last: "2026-11-12", d: 5, due: "2026-11-25" };
   J.facets["k:あ|R"] = held; J.facets["k:い|R"] = held; J.facets["k:う|R"] = Object.assign({}, held, { s: 3 });
   const st = { reps: 4, s: 30, firstAt: "2026-10-01", last: "2026-11-10", d: 5, due: "2026-12-20" };
@@ -147,12 +147,12 @@ step("D · MI-10 (2): Mind's goal types, and the review/recall types count Mind 
   entry("2026-11-17", "mind", { kind: "reviews", cards: 20, passed: 18, pay: 15 });
   entry("2026-11-17", "mind", { kind: "lesson", id: "m2", first: true });
   entry("2026-11-18", "mind", { kind: "lesson", id: "m2" });
-  const rv = G.add({ title: "Mind reviews", type: "mind-reviews", target: 50, repeat: "week" });
-  const ls = G.add({ title: "Mind lessons", type: "mind-lessons", target: 2, repeat: "week" });
+  const rv = G.add({ title: "Mind reviews", type: "mind-reviews", target: 50, repeat: "week", startDate: "2026-11-16" });
+  const ls = G.add({ title: "Mind lessons", type: "mind-lessons", target: 2, repeat: "week", startDate: "2026-11-16" });
   eq((await row(rv.id))._current, 18, "Mind reviews passed");
   eq((await row(ls.id))._current, 1, "a first finish only");
-  const cr = G.add({ title: "Mind cards", type: "cards-reviewed", target: 50, repeat: "week", links: { subject: "mind" } });
-  const jr = G.add({ title: "JA cards", type: "cards-reviewed", target: 50, repeat: "week", links: { subject: "ja" } });
+  const cr = G.add({ title: "Mind cards", type: "cards-reviewed", target: 50, repeat: "week", startDate: "2026-11-16", links: { subject: "mind" } });
+  const jr = G.add({ title: "JA cards", type: "cards-reviewed", target: 50, repeat: "week", startDate: "2026-11-16", links: { subject: "ja" } });
   eq((await row(cr.id))._current, 20, "Review flashcards · Mind reads Mind's review blocks");
   eq((await row(jr.id))._current, 39, "Review flashcards · Japanese reads Japanese's sessions");
   [rv, ls, cr, jr].forEach((g) => G.remove(g.id));
@@ -161,9 +161,9 @@ step("D · MI-10 (2): Mind's goal types, and the review/recall types count Mind 
 step("E · Creatives and the goals page", async () => {
   eq(G.typeDef("cr-projects").domain, "creatives", "a Creatives projects goal");
   entry("2026-11-17", "creatives", { kind: "project", unit: "u1", key: "k", first: true });
-  const pr = G.add({ title: "Projects", type: "cr-projects", target: 2, repeat: "week" });
+  const pr = G.add({ title: "Projects", type: "cr-projects", target: 2, repeat: "week", startDate: "2026-11-16" });
   eq((await row(pr.id))._current, 1, "a finished project counts");
-  const ja = G.add({ title: "JA reviews", type: "ja-reviews", target: 100, repeat: "week" });
+  const ja = G.add({ title: "JA reviews", type: "ja-reviews", target: 100, repeat: "week", startDate: "2026-11-16" });
   K.show("goals", { id: pr.id }); await app.settle(); await app.settle();
   assert(/Read from Creatives/.test(main().textContent) && !/Read from the Collection/.test(main().textContent), "a Creatives goal says what it reads");
   K.show("goals", { id: ja.id }); await app.settle(); await app.settle();
