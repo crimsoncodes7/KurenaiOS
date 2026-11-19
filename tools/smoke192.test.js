@@ -20,7 +20,7 @@
          Easy (JM-17); a thin history stays calibrating and a far end says
          so (JM-19); a weaker retake keeps the passing scores (JM-27); Type
          instead on a Writing review moves nothing (JM-30); a review touches
-         the Badge Wall (JM-32, the reg half); the Today plan counts only
+         the Badge Wall (JM-32: already, through sessions → onSession; its badge half needs achcatalogue.js); the Today plan counts only
          blocks the app runs (JM-38).
      E · MIND. The lesson inspector has the status row (JM-02); Evaluate
          survives a revision, which carries the objection forward (MI-04);
@@ -296,6 +296,14 @@ step("D · JM-30: Type instead on a Writing review moves nothing", async () => {
   assert(q("[data-ui~='ja.typed-practice']"), "and the page says it was practice");
   assert(!q("[data-ui~='ja.grade']"), "no grade shown");
   K.show("home"); await app.settle();
+});
+
+step("D · JM-32: a Japanese review re-measures the Badge Wall's Japanese badges (owner event)", async () => {
+  const A = K.achievements, orig = A.onSession, seen = [];
+  A.onSession = function (e) { seen.push(e && e.type); return orig.apply(this, arguments); };
+  try { K.ja.syncSession("s192-ja", [{ key: "k:あ|R", grade: 3, verdict: "correct" }], {}); }
+  finally { A.onSession = orig; }
+  assert(seen.indexOf("ja") >= 0, "the session's entry reached the Badge Wall: " + JSON.stringify(seen));
 });
 
 /* ---------------- E ---------------- */

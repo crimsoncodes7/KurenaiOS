@@ -262,7 +262,6 @@
     graded.forEach(function (r) { var s = T().split(r.key).skill; skills[s] = (skills[s] || 0) + 1; });
     KOS.sessions.log({ type: "ja", subject: SID, ref: o.lesson || null,
       metrics: { kind: "session", n: graded.length, passed: passed, paid: paid, capped: paid < passed * REVIEW_XP, skills: skills, lesson: o.lesson || null } });
-    if (KOS.achievements) KOS.achievements.touch("ja");   // JM-32
     return { passed: passed, paid: paid, capped: paid < passed * REVIEW_XP };
   }
 
@@ -284,9 +283,6 @@
     KOS.sessions.upsert(sid, { type: "ja", subject: SID, ref: o.lesson || null,
       metrics: { kind: "session", n: graded.length, passed: passed, paid: paid, capped: paid < passed * REVIEW_XP, skills: skills,
         lesson: o.lesson || null, done: !!o.done } });
-    /* JM-32: a review is an owner event — the Badge Wall re-measures Japanese now (debounced),
-       not on the 30-minute sweep (invariant 163) */
-    if (KOS.achievements) KOS.achievements.touch("ja");
     return { passed: passed, paid: paid, capped: paid < passed * REVIEW_XP };
   }
 
