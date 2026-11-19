@@ -18,7 +18,7 @@
        accepted anywhere.
    POST {action:"status"} (JWT) → { linked, steamId }
    POST {action:"unlink"} (JWT) → deletes the caller's own row.               */
-import { json, preflight, requireUserId, serviceRest, corsHeaders } from "../_shared/cors.ts";
+import { handler, json, preflight, requireUserId, serviceRest, corsHeaders } from "../_shared/cors.ts";
 
 const STEAM_OPENID = "https://steamcommunity.com/openid/login";
 const NONCE_TTL_MS = 10 * 60 * 1000;
@@ -110,12 +110,19 @@ async function callback(req: Request): Promise<Response> {
     if (k.startsWith("openid.")) verify.set(k, v);
   }
   verify.set("openid.mode", "check_authentication");
-  const vres = await fetch(STEAM_OPENID, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: verify.toString(),
-  });
-  const vtext = await vres.text();
+  /* EF-07 (1A): Steam unreachable is a page that says so, not the runtime's
+     bare 500 (the nonce is spent, so the way back is Link Steam again) */
+  let vres: Response, vtext: string;
+  try {
+    vres = await fetch(STEAM_OPENID, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: verify.toString(),
+    });
+    vtext = await vres.text();
+  } catch {
+    return htmlPage("Steam link failed", "Steam could not be reached to verify the sign-in. Close this tab and press Link Steam again in a minute.", false);
+  }
   if (!vres.ok || !/is_valid\s*:\s*true/.test(vtext)) {
     return htmlPage("Steam link failed", "Steam refused to verify the sign-in (the response could not be authenticated).", false);
   }
@@ -152,7 +159,7 @@ async function unlink(req: Request): Promise<Response> {
   return json({ linked: false });
 }
 
-Deno.serve(async (req) => {
+Deno.serve(handler(async (req) => {
   if (req.method === "OPTIONS") return preflight();
   if (req.method === "GET") return callback(req);
   if (req.method !== "POST") return json({ error: "Unsupported method" }, 405);
@@ -162,4 +169,4 @@ Deno.serve(async (req) => {
   if (body.action === "status") return status(req);
   if (body.action === "unlink") return unlink(req);
   return json({ error: "Unknown action." }, 400);
-});
+}));

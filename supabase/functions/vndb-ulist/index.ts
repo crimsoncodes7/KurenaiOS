@@ -15,7 +15,7 @@
    one request and never stored or logged here; the caller's Supabase JWT
    (verify_jwt is ON) is what stops the relay being an open proxy. The
    payload allow-list mirrors KOS.vndb.setUlist — nothing else reaches VNDB. */
-import { json, preflight, requireUserId } from "../_shared/cors.ts";
+import { handler, json, preflight, requireUserId } from "../_shared/cors.ts";
 
 const VNDB = "https://api.vndb.org/kana";
 
@@ -28,7 +28,7 @@ function labelList(v: unknown): number[] | null {
   });
 }
 
-Deno.serve(async (req) => {
+Deno.serve(handler(async (req) => {
   if (req.method === "OPTIONS") return preflight();
   if (req.method !== "POST") return json({ error: "POST only" }, 405);
 
@@ -82,4 +82,4 @@ Deno.serve(async (req) => {
   } catch (e) {
     return json({ error: e instanceof Error ? e.message : "VNDB is unreachable from the relay." }, 502);
   }
-});
+}));

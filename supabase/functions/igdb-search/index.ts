@@ -9,7 +9,7 @@
    → 400 invalid input · 401 no/invalid JWT · 503 not configured
    (verify_jwt is ON at the platform level too; the in-function check is
    defence in depth and yields the user id we rate-limit by design around.) */
-import { corsHeaders, json, preflight, requireUserId } from "../_shared/cors.ts";
+import { handler, corsHeaders, json, preflight, requireUserId } from "../_shared/cors.ts";
 
 /* IGDB platform ids per app platform enum (verified against IGDB docs:
    6 PC · 9 PS3 · 48 PS4 · 167 PS5 · 12 X360 · 49 XONE · 169 Series X|S ·
@@ -54,7 +54,7 @@ async function igdbQuery(clientId: string, token: string, body: string): Promise
   });
 }
 
-Deno.serve(async (req) => {
+Deno.serve(handler(async (req) => {
   if (req.method === "OPTIONS") return preflight();
   if (req.method !== "POST") return json({ error: "POST only" }, 405);
 
@@ -120,4 +120,4 @@ Deno.serve(async (req) => {
   } catch (e) {
     return json({ error: e instanceof Error ? e.message : "IGDB request failed." }, 502);
   }
-});
+}));

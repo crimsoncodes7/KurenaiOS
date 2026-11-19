@@ -21,7 +21,7 @@
    Secrets: GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, TODOIST_CLIENT_ID,
    TODOIST_CLIENT_SECRET, PUBLIC_APP_URL. Nothing a provider returns is
    logged, and no access token is stored. */
-import { json, preflight, requireUserId, serviceRest } from "../_shared/cors.ts";
+import { handler, json, preflight, requireUserId, serviceRest } from "../_shared/cors.ts";
 import { accessOf, authorizeUrl, codeOk, emailFromIdToken, isProvider, PROVIDERS, redirectAllowed, stateOk, type Provider } from "./logic.ts";
 
 function appUrl() { return Deno.env.get("PUBLIC_APP_URL") ?? "https://kurenai-os.pages.dev"; }
@@ -63,7 +63,7 @@ async function rpc(fn: string, args: Record<string, unknown>) {
   return r.ok ? r.json().catch(() => null) : null;
 }
 
-Deno.serve(async (req) => {
+Deno.serve(handler(async (req) => {
   if (req.method === "OPTIONS") return preflight();
   if (req.method !== "POST") return json({ error: "POST only" }, 405);
   const uid = await requireUserId(req);
@@ -143,4 +143,4 @@ Deno.serve(async (req) => {
     return json({ token: a.token, expires_at: a.expires_at, account: r.account });
   }
   return json({ error: "Unknown action." }, 400);
-});
+}));

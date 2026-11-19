@@ -18,6 +18,8 @@
      G · bk:data-integrity#5: KOS.store.replaceState (a cloud pull) takes the
          document in IN PLACE, so a page holding part of the state writes
          into the live state afterwards.
+     H · rm:edge-hygiene (EF-01 to EF-08): the server functions' failure
+         paths, read from their source (they run on Deno, not here).
      D · creatives#6: the Writing Desk writes a draft on pagehide and when
          you leave the page, not only after its 600 ms pause.
 
@@ -254,6 +256,27 @@ step("G · a document taken in from the cloud keeps every held reference live (b
   eq(K.store.state.reminders.items[0].title, "Written through the held reference", "a write through a held reference reaches the state");
   if (ep != null) assert(K.store.docEpoch() > ep, "a whole document taken in moves docEpoch");
   K.store.state.reminders.items = items.filter((x) => x.id !== "zz-new"); K.store.save();
+});
+
+step("H · the server functions' failure paths (rm:edge-hygiene, EF-01 to EF-08)", () => {
+  const fs = require("fs"), path = require("path"), F = path.join(__dirname, "..", "supabase", "functions");
+  const read = (f) => fs.readFileSync(path.join(F, f), "utf8");
+  const cors = read("_shared/cors.ts");
+  assert(/export function handler\(/.test(cors) && /instanceof ServerTrouble\) return json\(\{ error: msg, kind: e\.kind \}, 503\)/.test(cors), "EF-01: one wrapper answers an uncaught error with CORS and an error");
+  assert(/if \(!url \|\| !anon\) throw new ServerTrouble/.test(cors) && !/if \(!url \|\| !anon\) return null/.test(cors), "EF-08: a missing configuration is a 503, not 'sign in'");
+  assert(/catch \{\s*throw new ServerTrouble\("The sign-in server could not be reached/.test(cors), "EF-01: an auth-server blip is a 503, not an uncaught throw");
+  ["ai-chat", "ext-token", "igdb-search", "github-token", "steam-owned-games", "vndb-ulist", "steam-auth"].forEach((f) => {
+    const src = read(f + "/index.ts");
+    assert(/Deno\.serve\(handler\(async \(req\) => \{/.test(src) && /^\}\)\);\s*$/m.test(src), f + " serves through handler()");
+  });
+  assert(/let used: number \| null = null;\s*try \{ used = await usedToday/.test(read("ai-chat/index.ts")), "EF-03: one metering read never fails the health check");
+  assert(/linked: true, repo: l\.repo, account: l\.account, configured: !!c/.test(read("github-token/index.ts")), "EF-04: status says configured when linked too");
+  const run = read("runner/index.ts");
+  assert(/for \(const o of outlooks\) \{\s*try \{/.test(run) && /out\.failed\+\+/.test(run), "EF-05: one user's failure is that user's alone");
+  assert(!/^const results/m.test(run) && /const results: Result\[\] = \[\];/.test(run), "EF-06: the reply's rows are the invocation's own");
+  assert(/catch \{\s*return htmlPage\("Steam link failed", "Steam could not be reached/.test(read("steam-auth/index.ts")), "EF-07: Steam unreachable is a page that says so");
+  const cloud = fs.readFileSync(path.join(__dirname, "..", "js/core/cloud.js"), "utf8");
+  assert(/if \(!msg && status === 401\) \{ msg = EXPIRED;/.test(cloud), "EF-02: the gateway's own 401 reads as an expired session");
 });
 
 (async () => {

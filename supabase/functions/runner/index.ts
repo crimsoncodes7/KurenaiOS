@@ -71,8 +71,10 @@ async function aired(ids: number[], now: number): Promise<Aired[]> {
 /* each device's answer to the last push, returned in the tick's reply (it
    lands in net._http_response, readable only by the project's owner): the
    label, the push service's host, its status and its reason — never a key */
-const results: { label: string; host: string; status: number; reason: string }[] = [];
-async function pushAll(userId: string, subs: Sub[], msg: unknown, vapid: Vapid, topic: string): Promise<number> {
+type Result = { label: string; host: string; status: number; reason: string };
+/* EF-06 (1A): the list is the INVOCATION's own, passed in, so a tick that
+   failed part way can never hand its rows to the next tick's reply */
+async function pushAll(results: Result[], userId: string, subs: Sub[], msg: unknown, vapid: Vapid, topic: string): Promise<number> {
   let ok = 0;
   for (const s of subs) {
     let status = 0, reason = "";
@@ -103,13 +105,18 @@ Deno.serve(async (req) => {
         subject: Deno.env.get("VAPID_SUBJECT") ?? "mailto:kurenai@example.invalid" }
     : null;
   const now = Date.now();
-  const out = { users: 0, pushed: 0, runs: 0, held: 0, words: 0 };
+  const out = { users: 0, pushed: 0, runs: 0, held: 0, words: 0, failed: 0 };
 
   let outlooks: Outlook[] = [];
   try { outlooks = await rows<Outlook>("kos_outlook?select=user_id,data_json,seen_at"); }
   catch { return json({ error: "The outlook could not be read." }, 502); }
 
+  const results: Result[] = [];
+  /* EF-05 (1A): one account's failure (a claim, a PATCH, a push's cleanup)
+     is that account's alone: it is counted and the tick goes on to the next
+     user, instead of aborting every user's notifications */
   for (const o of outlooks) {
+   try {
     out.users++;
     const uid = o.user_id, d = o.data_json || {};
     const hold = present(o.seen_at, now);
@@ -167,7 +174,7 @@ Deno.serve(async (req) => {
       const due = sendable(dueItems((d.items || []).concat(extra.filter((it) => !known.has(it.id))), sent, now), hold);
       const done: string[] = [];
       for (const it of due) {
-        if (await pushAll(uid, subs, pushMessage(withWords(it, words)), vapid, it.id)) out.pushed++;
+        if (await pushAll(results, uid, subs, pushMessage(withWords(it, words)), vapid, it.id)) out.pushed++;
         done.push(it.id);
       }
       await markSent(uid, done);
@@ -203,11 +210,16 @@ Deno.serve(async (req) => {
             title: r.ok ? "Kurenai · " + (s.name || s.prompt.slice(0, 60)) : "Kurenai couldn't send “" + (s.name || s.prompt).slice(0, 50) + "”",
             body: r.text.replace(/[#>*_`|]/g, "").replace(/\s+/g, " ").slice(0, 280),
             view: "assistant", arg: { tab: "scheduled", run: s.id } });
-          if (await pushAll(uid, subs, msg, vapid, id)) out.pushed++;
+          if (await pushAll(results, uid, subs, msg, vapid, id)) out.pushed++;
           await markSent(uid, [id]);
         }
       }
     }
+   } catch {
+    /* counted in the reply (readable only by the project owner); nothing is
+       logged, as everywhere in the runner (smoke97 E) */
+    out.failed++;
+   }
   }
-  return json(results.length ? { ...out, results: results.splice(0) } : out);
+  return json(results.length ? { ...out, results } : out);
 });

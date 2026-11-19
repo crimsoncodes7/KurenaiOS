@@ -180,7 +180,15 @@ The plan is approved with these decisions.
    - It found that `KOS.store.replaceState`, the cloud pull's take-in, replaced every top-level object. A page or module holding part of the state then wrote into a detached copy.
    - It now takes the document in place, as a tab merge already did (invariant 33d; smoke196 G).
    - The rest is clear: the only arrays of rows without ids are the plan's weeks, edited only through `KOS.pacing`, by `wb`. The `state.ui` writes are per device.
-9. **`rm:edge-hygiene`:** EF-01 to EF-08.
+9. ✓ **`rm:edge-hygiene`:** EF-01 to EF-08, in the code and NOT DEPLOYED. The functions deploy separately, on your go-ahead.
+   - Every browser-facing function serves through `handler()`, so an uncaught error answers with CORS headers and an `error`.
+   - A missing configuration, or an auth server that can't be reached, is a 503 with its `kind`, never "sign in".
+   - The gateway's own 401 reads as an expired session on the client.
+   - The AI health check survives one failed metering read.
+   - github-token's status says `configured` when linked too.
+   - The runner keeps one account's failure to that account (`failed` in the reply), and its result rows are per invocation.
+   - Steam unreachable gives a page that says so.
+   - Checked with the TypeScript compiler's syntax pass and smoke196 H (no Deno on this machine).
 10. **After Neon's branch is merged** (its files):
     - `bk:data-integrity#2`: random ids for assignments, reminders and events;
     - `bk:money-goals#2` and `money-goals#7`: Money import identity, and the Bookkeeper badge counting distinct entries;

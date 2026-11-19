@@ -22,7 +22,7 @@
    Secrets: GITHUB_APP_ID, GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET,
    GITHUB_APP_PRIVATE_KEY (the .pem GitHub gives, PKCS#1 or PKCS#8).
    Nothing GitHub returns is logged, and a token is never stored. */
-import { json, preflight, requireUserId, serviceRest } from "../_shared/cors.ts";
+import { handler, json, preflight, requireUserId, serviceRest } from "../_shared/cors.ts";
 import { appJwt } from "./jwt.ts";
 
 const API = "https://api.github.com";
@@ -54,7 +54,7 @@ async function linkOf(uid: string): Promise<Link | null> {
   return Array.isArray(rows) && rows[0] ? rows[0] as Link : null;
 }
 
-Deno.serve(async (req) => {
+Deno.serve(handler(async (req) => {
   if (req.method === "OPTIONS") return preflight();
   if (req.method !== "POST") return json({ error: "POST only" }, 405);
   const uid = await requireUserId(req);
@@ -65,7 +65,9 @@ Deno.serve(async (req) => {
 
   if (input.action === "status") {
     const l = await linkOf(uid);
-    return json(l ? { linked: true, repo: l.repo, account: l.account } : { linked: false, configured: !!c });
+    /* EF-04 (1A): `configured` either way, so a linked account whose App
+       secrets were removed reads as such before `token` answers 503 */
+    return json(l ? { linked: true, repo: l.repo, account: l.account, configured: !!c } : { linked: false, configured: !!c });
   }
   if (input.action === "unlink") {
     await serviceRest(`kos_github?user_id=eq.${uid}`, { method: "DELETE" });
@@ -120,4 +122,4 @@ Deno.serve(async (req) => {
     return json({ token: r.json.token, expires_at: r.json.expires_at, repo: l.repo, ci });
   }
   return json({ error: "Unknown action." }, 400);
-});
+}));

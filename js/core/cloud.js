@@ -154,9 +154,16 @@
         err.payload = payload || null;
         cb(err, payload || null);
       }
+      /* EF-02 (1A): the gateway's own 401 (an expired session supabase-js
+         could not refresh) answers before the function runs, with no
+         `error`; say what it is rather than "non-2xx status code" */
+      var EXPIRED = "Your cloud session has expired: sign in again (Archive → Account & Cloud Sync).";
       if (ctx && typeof ctx.json === "function") {
-        ctx.json().then(function (payload) { fail(payload && payload.error, payload); })
-          .catch(function () { fail(null); });
+        ctx.json().then(function (payload) {
+          var msg = payload && payload.error;
+          if (!msg && status === 401) { msg = EXPIRED; if (payload) payload.gateway = true; }
+          fail(msg, payload);
+        }).catch(function () { fail(status === 401 ? EXPIRED : null); });
       } else {
         fail(res.error.message || "The server function failed — network?");
       }

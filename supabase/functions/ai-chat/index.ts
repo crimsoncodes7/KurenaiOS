@@ -28,7 +28,7 @@
    most two, PNG or JPEG, base64 without a data: prefix, each under
    MAX_IMAGE_CHARS. Gemini takes them as inlineData parts; DeepSeek cannot
    read pictures and the request is refused (400) rather than sent blind. */
-import { json, preflight, requireUserId, serviceRest } from "../_shared/cors.ts";
+import { handler, json, preflight, requireUserId, serviceRest } from "../_shared/cors.ts";
 
 const DAILY_CAP = clampInt(Deno.env.get("AI_DAILY_CAP"), 1, 5000, 200);
 const PROVIDER_TIMEOUT_MS = 90_000;
@@ -479,7 +479,7 @@ async function listModels(provider: string, key: string): Promise<string[] | nul
 
 /* ---------------- handler ---------------- */
 
-Deno.serve(async (req) => {
+Deno.serve(handler(async (req) => {
   if (req.method === "OPTIONS") return preflight();
   if (req.method !== "POST") return json({ error: "POST only" }, 405);
 
@@ -493,7 +493,11 @@ Deno.serve(async (req) => {
     const providers: Record<string, unknown> = {};
     for (const p of Object.keys(KEY_ENV)) {
       const key = Deno.env.get(KEY_ENV[p]);
-      providers[p] = { configured: !!key, used: await usedToday(userId, p), models: key ? await listModels(p, key) : null };
+      /* EF-03 (1A): one metering read that fails is "used: unknown" for that
+         provider, never a failed health check */
+      let used: number | null = null;
+      try { used = await usedToday(userId, p); } catch { used = null; }
+      providers[p] = { configured: !!key, used, models: key ? await listModels(p, key) : null };
     }
     return json({ providers, cap: DAILY_CAP });
   }
@@ -555,4 +559,4 @@ Deno.serve(async (req) => {
   } finally {
     clearTimeout(timer);
   }
-});
+}));

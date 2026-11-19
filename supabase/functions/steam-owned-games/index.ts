@@ -7,9 +7,9 @@
    → 200 { steamId, games: [{ appId, title, playtimeHours }] }
    → 401 no/invalid JWT · 409 no verified link · 502/503 upstream/config
    Private profiles return a specific, actionable message.               */
-import { json, preflight, requireUserId, serviceRest } from "../_shared/cors.ts";
+import { handler, json, preflight, requireUserId, serviceRest } from "../_shared/cors.ts";
 
-Deno.serve(async (req) => {
+Deno.serve(handler(async (req) => {
   if (req.method === "OPTIONS") return preflight();
   if (req.method !== "POST") return json({ error: "POST only" }, 405);
 
@@ -60,4 +60,4 @@ Deno.serve(async (req) => {
   } catch (e) {
     return json({ error: e instanceof Error ? e.message : "Steam request failed." }, 502);
   }
-});
+}));
