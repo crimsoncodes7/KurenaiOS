@@ -358,7 +358,9 @@
   var PAGES = {
     money: ["page-money"], governor: ["page-governor"], code: ["page-code"],
     mind: ["page-mind"], japanese: ["page-ja"], help: ["page-help"],
-    shrine: ["page-shrine"], reports: ["page-reports"],
+    /* the share card and export (reportshare.js) serve Reports and the
+       Shrine's poster only: page-share comes with both */
+    shrine: ["page-shrine", "page-share"], reports: ["page-reports", "page-share"],
     mediasync: ["page-sync"], aniprofile: ["page-sync"], vndbprofile: ["page-sync"]
   };
   var SPACE_DESK = { code: "page-code", mind: "page-mind", ja: "page-ja" };

@@ -105,7 +105,7 @@
     var out = el("div", { class: "k-ja-ex-out", "data-ui": "ja.exercise-out" });
     host.appendChild(body); host.appendChild(out);
     function finish(res) {
-      res.key = ex.key; res.hints = hints; res.ms = Date.now() - t0;
+      res.key = ex.key; res.hints = hints; res.ms = Date.now() - t0; res.tries = tries;   // JM-17: Easy only on a first try
       out.innerHTML = "";
       out.appendChild(U().verdict(res));
       announce(U().verdictWords(res));
@@ -160,16 +160,23 @@
         tries++;
         var r = KOS.jaStroke.check(ch, st);
         pad.mark(r);
-        var v = r.verdict === "correct" || r.verdict === "accepted" ? "correct" : r.verdict;
-        finish({ verdict: v, answer: ch, diagnosis: r.diagnosis || null, note: v === "correct" ? n + (n === 1 ? " stroke" : " strokes") + ", in order" : null });
+        /* JM-17: "accepted" stays accepted (a stroke a little off grades Good, with its note) */
+        var v = r.verdict;
+        finish({ verdict: v, answer: ch, diagnosis: r.diagnosis || null, note: v === "correct" ? n + (n === 1 ? " stroke" : " strokes") + ", in order" : v === "accepted" ? (r.note || "A stroke is a little off.") : null });
       }
       ex.retry = function () { pad.clear(); };
       var typeInstead = el("button", { type: "button", class: "k-link", "data-ui": "ja.type-instead", text: "Type instead",
         onclick: function () {
           hints++;
           body.innerHTML = "";
+          /* JM-30: typing the reading shows nothing about writing it — practice, self-marked:
+             it moves no schedule and pays nothing, and says so */
           var e2 = { key: ex.key, kind: "kana-read", skill: "W", item: ex.item };
-          mount(host, e2, function (res) { res.hints = 1; done(res); });
+          mount(host, e2, function (res) {
+            res.hints = 1; res.selfMarked = true;
+            host.appendChild(el("p", { class: "k-muted", "data-ui": "ja.typed-practice", text: "Typed, so practice only: Writing is not scheduled or paid until you write it." }));
+            done(res);
+          });
         } });
       body.appendChild(el("p", { class: "k-ja-ex-q", text: showModel ? "Write it" : "Write: " + ex.item.r }));
       body.appendChild(el("div", { class: "k-ja-write" }, [pad.node, model]));

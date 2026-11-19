@@ -218,14 +218,27 @@
         onclick: function () { KOS.show("ref", { subject: SID, ref: L.id }); } })]) : null
     ].filter(Boolean));
   }
+  /* CR-33: Continue reads the SAME place as the hero path and the unit cards (trackPlace: the
+     first lesson not done) and names its next missing check, so the desk has one answer to
+     "where am I"; a track not begun starts at its next study */
+  var NEXT_CHECK = ["read the notes", "save the studies", "pass the study check", "rate a theory card"];
   function continueCard() {
-    var ns = CR().nextStudy(CR().currentTrack());
-    if (!ns) return null;
-    var pct = lessonPct(ns.lesson.id);
-    return el("button", { type: "button", class: "k-subj-next", "data-ui": "study.continue cr.continue", onclick: function () { KOS.show("ref", { subject: SID, ref: ns.lesson.id }); } }, [
+    var tid = CR().currentTrack(), place = CR().trackPlace(tid);
+    var L = null, todo = null;
+    if (place && !place.finished) {
+      L = CR().lesson(place.lesson);
+      var ev = CR().evidence(place.lesson), miss = ev.checks.indexOf(false);
+      todo = miss >= 0 ? NEXT_CHECK[miss] : null;
+    } else if (!place) {
+      var ns = CR().nextStudy(tid); L = ns ? ns.lesson : null;
+    }
+    if (!L) return null;
+    var pct = lessonPct(L.id);
+    return el("button", { type: "button", class: "k-subj-next", "data-ui": "study.continue cr.continue", onclick: function () { KOS.show("ref", { subject: SID, ref: L.id }); } }, [
       el("span", { class: "k-subj-next-txt" }, [
         el("span", { class: "k-kicker", text: "Continue" }),
-        el("span", { class: "k-subj-next-t" }, [el("span", { class: "k-mono", text: ns.lesson.id }), ns.lesson.title]),
+        el("span", { class: "k-subj-next-t" }, [el("span", { class: "k-mono", text: L.id }), L.title]),
+        todo ? el("span", { class: "k-subj-next-why", "data-ui": "cr.continue-next", text: "Next: " + todo }) : null,
         el("span", { class: "k-bar", role: "img", "aria-label": pct + "% from evidence", style: "--p: " + pct + "%; --bar-c: var(--subj-c)" }, [el("i")])
       ]),
       el("span", { class: "k-subj-next-go", "data-state": "lit", "aria-hidden": "true", text: "→" })
@@ -316,11 +329,14 @@
   /* ---------------- tracks ---------------- */
   function tracksPage(main, focus) {
     main.appendChild(el("div", { class: "k-cr-trackgrid", "data-ui": "cr.tracks" }, CR().tracks().map(function (t) {
-      var pct = trackPct(t.id);
+      /* CR-23: the head says what the bar measures (the four checks), next to the lessons done
+         that the unit rows count; a track with nothing released has no bar, only a chip */
+      var pct = trackPct(t.id), ls = CR().lessons(t.id), lsDone = ls.filter(function (l) { return CR().done(l.id); }).length;
       return el("section", { class: "k-card k-cr-trackcard", "data-ui": "cr.track", id: "cr-track-" + t.id, "data-state": focus === t.id ? "focus" : null, "aria-label": t.name }, [
-        el("div", { class: "k-card-head" }, [el("span", { class: "k-card-title", text: t.name }), el("span", { class: "k-card-meta", text: t.units.length + " units" }),
-          el("span", { class: "k-mono k-cr-trackpct", text: pct == null ? "later" : pct + "%" })]),
-        el("span", { class: "k-bar k-bar--6", role: "img", "aria-label": t.name + ": " + (pct == null ? "not released yet" : pct + "%"), style: "--p: " + (pct || 0) + "%" }, [el("i")]),
+        el("div", { class: "k-card-head" }, [el("span", { class: "k-card-title", text: t.name }), el("span", { class: "k-card-meta", text: t.units.length + " units" + (pct == null ? "" : " · " + lsDone + " / " + ls.length + " lessons done") }),
+          pct == null ? el("span", { class: "k-chip", "data-ui": "cr.track-later", text: "Coming later" })
+            : el("span", { class: "k-mono k-cr-trackpct", text: pct + "% of checks" })]),
+        pct == null ? null : el("span", { class: "k-bar k-bar--6", role: "img", "aria-label": t.name + ": " + pct + "% of the lessons' checks", style: "--p: " + pct + "%" }, [el("i")]),
         el("ol", { class: "k-cr-unitlist" }, t.units.map(function (uid) {
           var u = CR().unit(uid), us = CR().unitState(uid);
           return el("li", { "data-state": us.state }, [

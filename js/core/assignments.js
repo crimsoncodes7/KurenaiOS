@@ -120,6 +120,11 @@
 
     var subs = (patch.subtasks != null ? patch.subtasks : b.subtasks) || [];
     if (!Array.isArray(subs)) subs = [];
+    /* ST-40: ONE owner of progress — with subtasks it is derived from them (the editor shows it
+       read-only); without, it is the figure typed */
+    if (subs.length && status !== "complete" && status !== "submitted") {
+      prog = Math.round(100 * subs.filter(function (x) { return x && x.done; }).length / subs.length);
+    }
 
     var pr = patch.priority != null ? patch.priority : b.priority;
     pr = Math.max(0, Math.min(3, parseInt(pr, 10) || 0));

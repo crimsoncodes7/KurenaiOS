@@ -42,6 +42,8 @@
     if (res.verdict === "wrong") return 1;
     if (res.verdict === "near" || res.hints) return 2;
     if (res.verdict === "accepted") return 3;
+    /* JM-17: Easy is a FIRST try inside the target — a near-miss retried is not Easy */
+    if (res.tries != null && res.tries > 1) return 3;
     return res.ms != null && targetMs && res.ms <= targetMs ? 4 : 3;
   }
 
@@ -63,10 +65,17 @@
   /* Which facets an item has now. opts.produces(item) says whether a word is in a production
      set; deep(item) whether the Kanji deep track is on; speech === false leaves out S (a word
      is never asked to be spoken while there is nothing to speak to). */
+  function holds(r) {
+    if (!r || !(r.reps >= 2) || !(r.s >= HOLD)) return false;
+    return !r.firstAt || !r.last || days(r.firstAt, r.last) >= HOLD;
+  }
   function facetsFor(item, facets, opts) {
     opts = opts || {};
     var kind = item.slice(0, item.indexOf(":"));
-    var r = facets && facets[key(item, "R")], held = !!(r && r.reps && r.s >= HOLD);
+    /* JM-12: "R holds a week" is evidence over time — two or more reviews, the last at least a
+       week after the first, and the memory still a week long — never one fast first answer
+       (FSRS's first Easy alone is s 8.3) */
+    var r = facets && facets[key(item, "R")], held = holds(r);
     if (kind === "k") return item.length > 3 ? ["R"] : ["R", "W"]; // きゃ is written as two kana already practised
     if (kind === "j") return opts.deep && opts.deep(item) ? ["R", "H"] : ["R"];
     if (kind === "s" || kind === "x") return ["L"];
@@ -170,7 +179,7 @@
   }
 
   KOS.jaSrs = {
-    key: key, split: split, gradeOf: gradeOf, review: review, facetsFor: facetsFor, introduce: introduce, unlock: unlock,
+    key: key, split: split, gradeOf: gradeOf, holds: holds, review: review, facetsFor: facetsFor, introduce: introduce, unlock: unlock,
     queue: queue, forecast: forecast, newBudget: newBudget, skills: skills, recall: recall, leech: leech,
     addDays: addDays, days: days, SKILLS: SKILLS, SECS: SECS, LEECH: LEECH, STABLE: STABLE, HOLD: HOLD
   };

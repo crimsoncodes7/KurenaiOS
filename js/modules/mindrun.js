@@ -77,7 +77,8 @@
       var lad = M().ladder(l.main);
       body.appendChild(el("div", { class: "k-mind-done", "data-ui": "mind.explain-saved" }, [UI().ladder(lad),
         el("div", {}, [el("b", { text: r.reached ? c.name + " reaches Explain." : lad && lad.rungs[1] ? "Saved. " + c.name + " is at Explain." : "Saved." }),
-          el("p", { class: "k-muted", text: r.ticked + " of " + r.of + " key points" + (r.ticked < r.of ? ". The rest come back in your reviews." : ".") })])]));
+          el("p", { class: "k-muted", text: r.short ? "Explain counts once the explain-back holds " + M().EXPLAIN_WORDS + " words or more of your own; edit it any time."
+            : r.ticked + " of " + r.of + " key points" + (r.ticked < r.of ? ". The rest come back in your reviews." : ".") })])]));
       announce(r.reached ? "Saved. " + c.name + " reaches Explain." : "Saved.");
       foot.appendChild(el("span")); foot.appendChild(el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "Done", onclick: sh.close }));
       if (o.onDone) o.onDone("saved");
@@ -91,7 +92,9 @@
     o = o || {};
     var l = M().lesson(id); if (!l || l.kind !== "contested" || !l.prompt) return;
     var prev = M().latest(id);
-    var st = { answer: prev ? prev.answer : null, conf: prev ? prev.conf : 70, reason: prev ? prev.reason : "", objection: "", reply: "", changed: "" };
+    /* MI-04: the objection and reply carry forward from the version before, as the answer does */
+    var st = { answer: prev ? prev.answer : null, conf: prev ? prev.conf : 70, reason: prev ? prev.reason : "",
+      objection: prev && prev.objection ? prev.objection : "", reply: prev && prev.reply ? prev.reply : "", changed: "" };
     var sh = UI().sheet({ kicker: id + " · the one prompt · position", title: l.prompt.q, hook: "mind.position", body: [], foot: [] });
     var body = sh.box.querySelector(".k-mind-sheet-body"), foot = sh.box.querySelector(".k-dialog-foot");
     var take;

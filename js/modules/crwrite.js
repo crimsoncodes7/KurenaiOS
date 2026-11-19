@@ -138,6 +138,10 @@
       text: proj ? "Save as milestone " + (doc.ms + 1) : "Save to Practice Log",
       onclick: function () {
         if (!area.value.trim()) { KOS.ui.toast("Write something first: anything counts.", true); return; }
+        /* CR-10: the study's setup is given, not made — saved unchanged it is not a piece of work */
+        var given = doc.lesson && doc.study && CR().study(doc.lesson, doc.study) ? CR().study(doc.lesson, doc.study).setup : null;
+        var squash = function (t) { return String(t || "").replace(/\s+/g, " ").trim(); };
+        if (given && squash(area.value) === squash(given)) { KOS.ui.toast("Write your part first: the setup is the study's, not yet yours.", true); return; }
         clearTimeout(timer);
         save(doc, function () {
           var rec = { kind: "text", title: doc.title, words: words(area.value), lesson: doc.lesson || null, study: doc.study || null, track: "write", unit: doc.unit != null ? doc.unit : null, ms: doc.ms != null ? doc.ms : null };

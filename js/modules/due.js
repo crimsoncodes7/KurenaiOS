@@ -259,7 +259,8 @@
       el("div", { class: "k-card-head" }, [el("span", { class: "k-card-title", text: "Today so far" })]),
       el("div", { class: "k-card-row" }, [el("span", { class: "k-card-row-k", text: "Reviewed" }), el("span", { class: "k-card-row-v", text: String(reviewed) })]),
       el("div", { class: "k-card-row" }, [el("span", { class: "k-card-row-k", text: "Accuracy" }), el("span", { class: "k-card-row-v", text: graded ? Math.round(100 * good / graded) + "%" : "—" })]),
-      el("div", { class: "k-card-row" }, [el("span", { class: "k-card-row-k", text: "Time" }), el("span", { class: "k-card-row-v", text: Math.round(secs / 60) + " min" })])
+      /* ST-37: the batches log their rating time (metrics.secs); a zero is not printed (77) */
+      secs >= 60 ? el("div", { class: "k-card-row", "data-ui": "review.today-time" }, [el("span", { class: "k-card-row-k", text: "Time" }), el("span", { class: "k-card-row-v", text: Math.round(secs / 60) + " min" })]) : null
     ]));
     main.appendChild(el("div", { class: "k-rv-row" }, [topics, side]));
   };
@@ -394,8 +395,20 @@
     }
     var holder = el("div", { class: "k-fc", "data-ui": "fc.wrap" });
     main.appendChild(holder);
+    /* ST-30: the run names what it reviewed — a single subject (and topic) as the entry's own,
+       a mixed run its topics as `refs` — so the subject's streak, a topic's sessions and
+       per-subject time see the reviews (sessions.parts) */
+    var sids = [], refs = [];
+    cards.forEach(function (c) {
+      if (!c.sid || !c.ref || (KOS.srs.PERSONAL_SID && c.sid === KOS.srs.PERSONAL_SID)) return;
+      if (sids.indexOf(c.sid) < 0) sids.push(c.sid);
+      var k = c.sid + ":" + c.ref; if (refs.indexOf(k) < 0) refs.push(k);
+    });
+    var oneSid = sids.length === 1 && cards.every(function (c) { return c.sid === sids[0]; }) ? sids[0] : null;
     KOS.flashcards.session(holder, cards, {
       type: "due-review",
+      sid: oneSid, ref: oneSid && refs.length === 1 ? refs[0].slice(oneSid.length + 1) : null,
+      refs: refs.length > 1 ? refs : null, noTally: true,
       runKey: "due:" + run,
       showTopic: true,
       onFinish: function () {

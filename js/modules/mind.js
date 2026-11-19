@@ -546,7 +546,11 @@
           var model = cp.map.model.map(function (m) { return { t: cp.map.claims[m.t], j: m.j, d: m.d }; });
           var sh = UI().sheet({ title: "One good map", kicker: "Yours may differ and still be right", body: [UI().argmap({ rows: model })], foot: [el("span"), el("button", { type: "button", class: "k-btn k-btn--primary", text: "Close", onclick: function () { sh.close(); } })] });
         } }),
-        el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "Next · the synthesis ›", onclick: function () { run.map = mp.value(); run.step = "synth"; save(); draw(); } })
+        el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "Next · the synthesis ›", onclick: function () {
+          run.map = mp.value();
+          /* MI-15: an unplaced map goes on, but is not yet "an argument mapped" */
+          if (!M().mapPlaced(run.map)) KOS.ui.toast("Kept as it is. It counts as mapped once one conclusion sits at the top with every other claim under it.");
+          run.step = "synth"; save(); draw(); } })
       ]));
     }
     function synthStep() {

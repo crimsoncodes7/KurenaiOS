@@ -37,6 +37,7 @@
   var REVIEW_XP = 1, REVIEW_CAP = 15, DAILY_CARDS = 15;
   var LESSON_PAY = { xp: 12, gold: 2, hp: 2 }, CHECK_PAY = { xp: 50, gold: 12, hp: 4 }, PATH_PAY = { xp: 120, gold: 30, hp: 8 };
   var EXPLAIN_SHARE = 0.6;              // key points ticked for Explain: 3 of 4, 2 of 3
+  var EXPLAIN_WORDS = 12;               // MI-06: the explain-back's own words before its ticks count
   var REVISITS = [14, 60, 180];         // a position comes back: about 2 weeks, 2 months, 6 months (§5.3)
   var RUNGS = ["Recall", "Explain", "Apply", "Evaluate"];
   var CHECKS = ["Pages read", "Check passed", "Prompt done", "First retrieval passed"];
@@ -115,9 +116,13 @@
     var ok = +choice === item.a, r = rec(id);
     r.check = obj(r.check);
     var prev = r.check[qi];
-    if (!prev || !prev.ok) r.check[qi] = { ok: ok, at: Date.now() };
+    /* MI-06: a wrong answer shows the right one, so a right answer straight after it passes the
+       check but is no evidence of Apply: `apply` holds only on a first try, or on a later day */
+    var dayOf = function (ts) { var d = new Date(ts); return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2); };
+    if (!prev || !prev.ok) r.check[qi] = { ok: ok, at: Date.now(), apply: ok && (!prev || dayOf(prev.at) < today()) };
+    else if (ok && prev.apply === false && dayOf(prev.at) < today()) { prev.apply = true; prev.at = Date.now(); }
     store.save(); syncChecks(id); maybeFinish(id);
-    return { ok: ok, why: item.why || "" };
+    return { ok: ok, why: item.why || "", counts: !!(r.check[qi] && r.check[qi].apply) };
   }
   function checkPassed(id) {
     var items = checkItems(id), r = obj(peek().lessons[id]), c = obj(r.check);
@@ -131,6 +136,9 @@
   /* ---------------- the one written prompt (decision J) ---------------- */
   /* saveExplain(id, bullets, ticks) — the explain-back: the bullets and which key points the
      learner says they covered. The ticks are the evidence for Explain. */
+  function explainWords(e) {
+    return ((e && e.bullets) || []).join(" ").split(/\s+/).filter(function (w) { return /[A-Za-z0-9\u3040-\u9fff]/.test(w); }).length;
+  }
   function saveExplain(id, bullets, ticks) {
     if (KOS.achievements) KOS.achievements.touch("mind");   // the Badge Wall (roadmap 5.16)
     var l = lesson(id); if (!l || l.kind !== "explain") return null;
@@ -142,7 +150,7 @@
     st.explains[id] = { bullets: list, ticks: tk, at: Date.now() };
     delete st.parked[id];
     store.save(); syncChecks(id);
-    return { reached: !before && rung(l.main, "Explain"), ticked: Object.keys(tk).length, of: (concept(l.main) || {}).keyPoints ? concept(l.main).keyPoints.length : 0 };
+    return { reached: !before && rung(l.main, "Explain"), short: explainWords(st.explains[id]) < EXPLAIN_WORDS, ticked: Object.keys(tk).length, of: (concept(l.main) || {}).keyPoints ? concept(l.main).keyPoints.length : 0 };
   }
   /* takePosition(id, v) — a new version, never an overwrite (invariant 138). v = { answer, conf
      (50–99), reason, objection, reply, changed } */
@@ -314,13 +322,15 @@
     Object.keys(st.explains).forEach(function (lid) {
       var l = lesson(lid), e = st.explains[lid];
       if (!l || l.main !== cid || !c.keyPoints) return;
+      /* MI-06: one bullet "x" with three ticks is not an explanation */
+      if (explainWords(e) < EXPLAIN_WORDS) return;
       var n = Object.keys(obj(e.ticks)).filter(function (k) { return +k < c.keyPoints.length; }).length;
       if (n / c.keyPoints.length >= EXPLAIN_SHARE - 1e-9) explainFrom = { lesson: lid, ticked: n, of: c.keyPoints.length };
     });
     var applyN = 0, evaluate = null;
     Object.keys(st.lessons).forEach(function (lid) {
       var l = lesson(lid), r = st.lessons[lid]; if (!l || !l.check) return;
-      l.check.forEach(function (it, qi) { if (it.apply && it.concept === cid && r.check && r.check[qi] && r.check[qi].ok) applyN++; });
+      l.check.forEach(function (it, qi) { var a = r.check && r.check[qi]; if (it.apply && it.concept === cid && a && a.ok && a.apply !== false) applyN++; });
     });
     Object.keys(st.checkpoints).forEach(function (u) {
       var cp = M().CHECKPOINTS[u], r = st.checkpoints[u]; if (!cp || !r) return;
@@ -331,11 +341,11 @@
         else if (!explainFrom) explainFrom = { checkpoint: u };
       });
     });
-    /* Evaluate: a position with an objection answered, on a lesson that teaches the concept */
+    /* Evaluate: a position with an objection answered, on a lesson that teaches the concept —
+       in ANY version (MI-04: a later revision that did not retype it never takes it away) */
     Object.keys(st.positions).forEach(function (lid) {
       var l = lesson(lid); if (!l || (l.concepts || []).indexOf(cid) < 0) return;
-      var v = latest(lid);
-      if (v && v.objection && v.reply) evaluate = { lesson: lid };
+      if (versions(lid).some(function (v) { return v.objection && v.reply; })) evaluate = { lesson: lid };
     });
     var rungs = [recall, !!explainFrom, applyN > 0, !!evaluate];
     var level = 0;
@@ -572,10 +582,17 @@
   }
 
   /* ---------------- milestones (derived, never stored) ---------------- */
+  function mapPlaced(map) {
+    var rows = Array.isArray(map) ? map : [];
+    return rows.length > 1 && rows.filter(function (r) { return r && !(r.d > 0); }).length === 1 &&
+      rows.every(function (r) { return r && (!(r.d > 0) || !!r.j); });
+  }
   function milestones() {
     var st = peek(), out = [], ps = positions();
     var mapped = null;
-    Object.keys(st.checkpoints).forEach(function (u) { var r = st.checkpoints[u]; if (r.map && r.doneAt && (!mapped || r.doneAt < mapped)) mapped = r.doneAt; });
+    /* MI-15: a MAPPED argument — one conclusion, every other claim joined under it — not any
+       stored map (an untouched one is every claim a conclusion) */
+    Object.keys(st.checkpoints).forEach(function (u) { var r = st.checkpoints[u]; if (r.map && mapPlaced(r.map) && r.doneAt && (!mapped || r.doneAt < mapped)) mapped = r.doneAt; });
     out.push({ id: "mapped", title: "First argument mapped", at: mapped });
     var firstChange = null;
     ps.forEach(function (p) { p.versions.forEach(function (v, i) { if (i && v.answer !== p.versions[i - 1].answer && (!firstChange || v.at < firstChange)) firstChange = v.at; }); });
@@ -686,7 +703,7 @@
 
   KOS.mind = {
     SID: SID, RUNGS: RUNGS, CHECKS: CHECKS, REVISITS: REVISITS, REVIEW_CAP: REVIEW_CAP, DAILY_CARDS: DAILY_CARDS,
-    LESSON_PAY: LESSON_PAY, CHECK_PAY: CHECK_PAY, PATH_PAY: PATH_PAY,
+    LESSON_PAY: LESSON_PAY, CHECK_PAY: CHECK_PAY, PATH_PAY: PATH_PAY, EXPLAIN_WORDS: EXPLAIN_WORDS,
     normalise: normalise, peek: peek, ui: ui, peekUi: peekUi,
     concept: concept, concepts: concepts, lesson: lesson, content: content, lessons: lessons, unit: unit, pathOf: pathOf, unitLessons: unitLessons,
     cardKeys: cardKeys, cardOf: cardOf, pages: pages, checkItems: checkItems, hasPrompt: hasPrompt,
@@ -697,7 +714,7 @@
     ladder: ladder, rung: rung, reach: reach, metConcepts: metConcepts, rungCounts: rungCounts, reachCounts: reachCounts, furthest: furthest,
     evidence: evidence, syncChecks: syncChecks, syncAll: syncAll, finished: finished, completed: completed, maybeFinish: maybeFinish, recordCheckpoint: recordCheckpoint, cpRule: cpRule, award: award,
     started: started, unitState: unitState, nextLesson: nextLesson, currentUnit: currentUnit, suggestedNext: suggestedNext, stats: stats,
-    milestones: milestones, tensionsDue: tensionsDue, setTension: setTension, answerOf: answerOf,
+    milestones: milestones, mapPlaced: mapPlaced, tensionsDue: tensionsDue, setTension: setTension, answerOf: answerOf,
     weekOf: weekOf, bq: bq, setBq: setBq, addBqLine: addBqLine, closeBq: closeBq,
     examSeason: examSeason, sittingOf: sittingOf, fieldItem: fieldItem, question: question, planDay: planDay,
     plannedLessons: plannedLessons, plannedUnits: plannedUnits, focusMins: focusMins

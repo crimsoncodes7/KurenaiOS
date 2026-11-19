@@ -513,8 +513,9 @@
         statTile({ k: "Completed", v: ratioText(s.done, s.total), pct: s.pct, c: "var(--green)",
           sub: pctText(s.pct) + " marked completed" }),
         statTile({ k: "Started", v: ratioText(s.touched, s.total), pct: startedPct, c: "var(--amber)",
-          sub: s.paused ? pctText(startedPct) + " opened · " + s.paused + " paused"
-                        : pctText(startedPct) + " opened at least once" }),
+          /* ST-31: the figure is topics given a status (Started, Paused or Completed), not opened */
+          sub: s.paused ? pctText(startedPct) + " given a status · " + s.paused + " paused"
+                        : pctText(startedPct) + " marked started or further" }),
         statTile({ k: "Streak", v: run + (run === 1 ? " day" : " days"), empty: !run,
           sub: run ? "consecutive days on this subject" : "study today to start one" })
       ]),
@@ -572,9 +573,11 @@
     var last = store.state.ui.lastRef[sid];
     /* IT: never into a unit done at school; the current unit first (5.19 item 2) */
     var IU = sid === "it" && KOS.itUnits ? KOS.itUnits : null;
-    var pool = IU ? LEAVES[sid].filter(function (l) { return !IU.archived(IU.unitOf(l.ref)); }) : LEAVES[sid];
+    /* CC-21: never into a unit not being taken either (F203/F205) */
+    var taking = function (ref) { var c = IU.unitOf(ref), u = c && IU.get(c); return !IU.archived(c) && !(u && u.status === "not-taken"); };
+    var pool = IU ? LEAVES[sid].filter(function (l) { return taking(l.ref); }) : LEAVES[sid];
     if (IU) { var cu = IU.current(); pool = pool.filter(function (l) { return IU.unitOf(l.ref) === cu; }).concat(pool.filter(function (l) { return IU.unitOf(l.ref) !== cu; })); }
-    var leaf = last && BYREF[sid][last] && (!IU || !IU.archived(IU.unitOf(last))) ? BYREF[sid][last] : null;
+    var leaf = last && BYREF[sid][last] && (!IU || taking(last)) ? BYREF[sid][last] : null;
     var kicker = "Continue";
     if (!leaf) {
       leaf = pool.filter(function (l) {

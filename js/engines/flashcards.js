@@ -147,7 +147,7 @@
         var graded = counts.again + counts.hard + counts.good + counts.easy;
         KOS.sessions.upsert(runSid, {
           type: opts.type || "flashcards",
-          subject: opts.sid || null, ref: opts.ref || null,
+          subject: opts.sid || null, ref: opts.ref || null, refs: opts.refs && opts.refs.length ? opts.refs.slice(0, 40) : undefined,
           metrics: { cards: gradN, again: counts.again, hard: counts.hard, good: counts.good, easy: counts.easy,
             pct: graded ? Math.round(100 * (counts.good + counts.easy) / graded) : 0,
             redo: redoG || undefined, reviews: reviews, secs: secs, done: !!done }
@@ -169,7 +169,9 @@
       el("span", { "data-ui": "fc.resumed-text" }),
       el("button", { type: "button", class: "k-link", "data-ui": "fc.start-fresh", text: "Start fresh", onclick: startFresh })
     ]);
-    var legacy = opts.sid && opts.ref ? stats(opts.sid, opts.ref) : null;
+    /* opts.noTally: a run that names its subject for the ledger only (Due today, ST-30) keeps
+       the per-topic tallies as they were — a Due review never moved them */
+    var legacy = opts.sid && opts.ref && !opts.noTally ? stats(opts.sid, opts.ref) : null;
 
     var meter = el("div", { class: "k-fc-pips", "data-ui": "fc.meter", "aria-hidden": "true" });
     /* design turn 36: a change held back from the page is said here, under

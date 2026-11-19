@@ -121,6 +121,8 @@ step("D · the quiz's record and its history", async () => {
   $(`[data-ui~='quiz.option'][data-oi='${items[1].ans}']`).click();
   eq(Q.tries("q:maths:1.1:1").map((t) => t.ok), [0, 1], "under its own key, not its place in the re-run");
   /* the inspector's Quiz best opens it */
+  /* ST-27 (smoke192): opening the Quiz tab no longer makes the record, so the test makes it */
+  S.study = S.study || {}; S.study.quiz = S.study.quiz || {};
   S.study.quiz["maths:1.1"] = { attempts: 2, best: 9, bestPct: 75, lastPct: 50 };
   K.show("ref", { subject: "maths", ref: "1.1" }, { _nav: true }); await app.settle();
   $("[data-ui~='topic.quiz-history']").click(); await app.settle();

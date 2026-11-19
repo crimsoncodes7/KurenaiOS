@@ -186,11 +186,13 @@
       clampDepths();
       box.innerHTML = "";
       var list = el("ol", { class: "k-mind-map-list", role: o.edit ? "list" : null, "aria-label": o.caption || "Argument map" });
+      /* MI-15: with several rows at the top none is yet THE conclusion — they read "claim" */
+      var topN = rows.filter(function (r) { return r.d === 0; }).length;
       rows.forEach(function (r) {
         var j = r.j ? JOINT[r.j] : null;
         var li = el("li", { class: "k-mind-map-row", "data-rid": r.id, "data-depth": String(r.d), style: "--d: " + r.d, "data-state": sel === r.id ? "selected" : null }, [
           o.edit ? el("button", { type: "button", class: "k-mind-map-grip", "data-reorder": "", "aria-label": "Move: " + r.t, text: "⠿" }) : null,
-          j ? el("span", { class: "k-mind-map-j", "data-joint": r.j }, [el("span", { "aria-hidden": "true", text: j[0] + " " }), j[1]]) : el("span", { class: "k-mind-map-j", "data-joint": "conclusion", text: "conclusion" }),
+          j ? el("span", { class: "k-mind-map-j", "data-joint": r.j }, [el("span", { "aria-hidden": "true", text: j[0] + " " }), j[1]]) : (topN > 1 && o.edit ? el("span", { class: "k-mind-map-j", "data-joint": "claim", text: "claim" }) : el("span", { class: "k-mind-map-j", "data-joint": "conclusion", text: "conclusion" })),
           o.edit ? el("button", { type: "button", class: "k-mind-map-t", "aria-pressed": String(sel === r.id), text: r.t,
             onclick: function () { sel = sel === r.id ? null : r.id; draw(r.id); },
             onkeydown: function (e) { key(e, r); } }) : el("span", { class: "k-mind-map-t", text: r.t })
@@ -198,8 +200,10 @@
         list.appendChild(li);
       });
       box.appendChild(list);
-      var tops = rows.filter(function (r) { return r.d === 0; }).length;
-      if (o.edit && tops > 1) box.appendChild(el("p", { class: "k-mind-map-warn", role: "note", text: "Two conclusions: is that right? Indent a row (Tab, or → In) to make it a reason." }));
+      var tops = topN;
+      if (o.edit && tops > 1) box.appendChild(el("p", { class: "k-mind-map-warn", "data-ui": "mind.map-warn", role: "note",
+        text: tops === rows.length ? "Every claim is still at the top. Leave the one conclusion there and indent the rest under it (Tab, or → In)."
+          : tops + " claims at the top, and an argument has one conclusion. Indent the others (Tab, or → In) to make them reasons." }));
       if (o.edit) {
         var cur = rows.filter(function (r) { return r.id === sel; })[0];
         box.appendChild(el("div", { class: "k-mind-map-tools", role: "group", "aria-label": cur ? "Move: " + cur.t : "Select a claim to move it" }, [

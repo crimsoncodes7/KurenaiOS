@@ -363,7 +363,9 @@
     var dueTime = input("time", a.dueTime || "");
     var status = select(A().STATUSES.map(function (s) { return [s.v, s.label]; }), a.status || "notStarted");
     var priority = select(A().PRIORITIES.map(function (x) { return [String(x.v), x.label]; }), String(a.priority || 0));
-    var progress = input("number", a.progress || 0, { min: "0", max: "100", step: "5" });
+    /* ST-40: with subtasks, progress is theirs — shown, not typed */
+    var fromSubs = !!(existing && (a.subtasks || []).length);
+    var progress = input("number", a.progress || 0, fromSubs ? { min: "0", max: "100", step: "5", readonly: "", "aria-readonly": "true", "data-ui": "asg.progress-derived" } : { min: "0", max: "100", step: "5" });
     var estimate = input("number", a.estimateMins || 0, { min: "0", step: "15", title: "Minutes" });
     var actual = input("number", a.actualMins || 0, { min: "0", step: "15", title: "Minutes" });
     var notes = el("textarea", { class: "k-input", rows: "3", placeholder: "Notes, feedback, what to fix…" });
@@ -415,7 +417,7 @@
         title: title.value, subject: subj.value || null, type: type.value,
         description: desc.value, assigned: assigned.value || null,
         due: due.value || null, dueTime: dueTime.value || null,
-        status: status.value, priority: priority.value, progress: progress.value,
+        status: status.value, priority: priority.value, progress: fromSubs ? undefined : progress.value,
         estimateMins: estimate.value, actualMins: actual.value,
         notes: notes.value, refs: topics.value(), alerts: chosenAlerts
       };
@@ -446,7 +448,7 @@
         f("Subject", subj), f("Type", type),
         f("Description", desc, true),
         f("Assigned", assigned), f("Due date", due), f("Due time", dueTime),
-        f("Status", status), f("Priority", priority), f("Progress %", progress),
+        f("Status", status), f("Priority", priority), f(fromSubs ? "Progress % · from subtasks" : "Progress %", progress),
         f("Estimated effort (min)", estimate), f("Actual effort (min)", actual),
         topics.el,
         el("div", { class: "k-field k-field--wide" }, [el("span", { class: "k-field-label", text: "Alerts" }), alertBox]),

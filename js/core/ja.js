@@ -202,6 +202,8 @@
     var st = S(), p = T().split(k), g = T().gradeOf(result, (item(p.item) && item(p.item).targetMs) || TARGET[p.skill]);
     if (g == null) return { grade: null, facet: st.facets[k] || null, unlocked: [] };
     var o = opts(k), before = st.facets[k] || {};
+    /* JM-12: a brand-new facet's first answer is at most Good — one tap is not ten days' memory */
+    if (g === 4 && !before.reps) g = 3;
     var f = T().review(before, g, today(), o);
     st.facets[k] = f;
     var keys = Object.keys(st.facets).length;
@@ -335,7 +337,11 @@
     var skills = cp.skills || ["R", "W", "L", "S"], sc = {};
     skills.forEach(function (s) { sc[s] = Math.max(0, Math.min(1, +(scores || {})[s] || 0)); });
     var pass = skills.every(function (s) { return sc[s] >= PASS; });
-    rec.scores = sc; rec.at = Date.now();
+    /* JM-27: `scores` are the attempt the card stands on — once passed, only another pass
+       replaces them, so a weaker retake never draws "✗ Not yet" under "Passed"; every
+       attempt is still kept as `last` */
+    if (pass || !rec.passAt) rec.scores = sc;
+    rec.last = sc; rec.at = Date.now();
     var out = { pass: pass, weak: skills.filter(function (s) { return sc[s] < PASS; }), paid: false };
     if (pass && !rec.passAt) rec.passAt = Date.now();
     if (pass && !rec.paidAt) {
@@ -413,12 +419,15 @@
     var b = T().newBudget(j.facets, t, { dailyMin: daily, inputMin: input, outputMin: output });
     var queue = T().queue(j.facets, t, KOS.srs.weights());
     var next = nextLesson(), newMin = next ? Math.max(0, Math.round(daily - input - output - b.reviewMin)) : 0;
+    /* JM-38: input and output keep their room in the budget (new material never grows into
+       it), but the app runs neither block yet — no input logging, no speaking exercise
+       (speech: false) — so they are `inApp: false`: left out of the total and the Today bar */
     return {
       day: t, dailyMin: daily,
       reviews: { n: queue.length, min: Math.round(b.reviewMin) },
       learn: next ? { lesson: next.id, title: next.title, min: newMin, items: b.newItems, heavy: b.newItems < 6 } : null,
-      input: { min: input }, output: { min: output },
-      total: Math.round(b.reviewMin + (next ? newMin : 0) + input + output)
+      input: { min: input, inApp: false }, output: { min: output, inApp: false },
+      total: Math.round(b.reviewMin + (next ? newMin : 0))
     };
   }
 
@@ -447,6 +456,7 @@
     { id: "raw", title: "Easy anime, raw", words: 5000 },
     { id: "ln", title: "A light novel", words: 8000 }
   ];
+  var MIN_WORDS = 20, CAP_DAYS = 3653;   // JM-19: the evidence a rate needs; ten years
   /* timeline(t) → { calibrating, perWeek: {lo, mid, hi}, milestones: [{ id, title, need, have, done,
      from, to }] }. Rates are words met (R facets started) a week over the last four complete weeks;
      the range is the mean ± one standard deviation (at least ±15%). Under two weeks of history it
@@ -459,8 +469,9 @@
       if (!f.reps || p.skill !== "R") return;
       if (!first || f.firstAt < first) first = f.firstAt;
       if (p.kind === "w") firsts.push(f.firstAt);
-      // a basic kana (not combined, not small) whose reading holds a week
-      if (p.kind === "k" && BASIC.test(p.item.slice(2)) && f.s >= T().HOLD) kanaHeld++;
+      // a basic kana (not combined, not small) whose reading holds a week (JM-19: the same
+      // test as the Writing unlock, KOS.jaSrs.holds, so "held a week" means one thing)
+      if (p.kind === "k" && BASIC.test(p.item.slice(2)) && T().holds(f)) kanaHeld++;
     });
     var span = first ? T().days(first, t) : 0, have = firsts.length;
     var weeks = [0, 0, 0, 0];
@@ -469,7 +480,12 @@
     var sample = weeks.slice(0, full), mean = sample.reduce(function (a, b) { return a + b; }, 0) / full;
     var sd = Math.sqrt(sample.reduce(function (a, b) { return a + (b - mean) * (b - mean); }, 0) / full);
     sd = Math.max(sd, mean * 0.15);
-    var calibrating = span < 14 || mean <= 0;
+    /* JM-19: two weeks of history is not a rate. It also takes words met in at least two
+       of the weeks sampled and MIN_WORDS met in all, or one word ten days ago projected
+       "2032 – 2084"; and an end past CAP_DAYS reads "beyond ten years at this pace" (`beyond`,
+       `to` null) instead of a date centuries out */
+    var weeksWith = sample.filter(function (n) { return n > 0; }).length;
+    var calibrating = span < 14 || mean <= 0 || have < MIN_WORDS || weeksWith < 2;
     var lo = Math.max(0.1, mean - sd), hi = mean + sd;
     return {
       calibrating: calibrating, since: first, perWeek: calibrating ? null : { lo: Math.round(lo), mid: Math.round(mean), hi: Math.round(hi) },
@@ -477,8 +493,10 @@
         var need = m.words || m.kana, got = m.kana ? kanaHeld : have, done = got >= need;
         var out = { id: m.id, title: m.title, need: need, have: got, unit: m.kana ? "kana" : "words", done: done, from: null, to: null };
         if (!done && !calibrating && !m.kana) {
-          out.from = T().addDays(t, Math.ceil((need - got) / hi * 7));
-          out.to = T().addDays(t, Math.ceil((need - got) / lo * 7));
+          var dFrom = Math.ceil((need - got) / hi * 7), dTo = Math.ceil((need - got) / lo * 7);
+          if (dTo > CAP_DAYS) out.beyond = true;
+          out.from = dFrom > CAP_DAYS ? null : T().addDays(t, dFrom);
+          out.to = dTo > CAP_DAYS ? null : T().addDays(t, dTo);
         }
         return out;
       })
@@ -503,6 +521,6 @@
     noteSpeed: noteSpeed, fluency: fluency, rework: rework,
     started: started, due: due, nextLesson: nextLesson, planDay: planDay, skills: skills, timeline: timeline,
     peek: peek, ui: U,
-    PAY: { review: REVIEW_XP, reviewCap: REVIEW_CAP, lesson: LESSON_PAY, checkpoint: CHECK_PAY, gate: GATE_PAY }, PASS: PASS, MILESTONES: MILESTONES
+    PAY: { review: REVIEW_XP, reviewCap: REVIEW_CAP, lesson: LESSON_PAY, checkpoint: CHECK_PAY, gate: GATE_PAY }, PASS: PASS, MILESTONES: MILESTONES, MIN_WORDS: MIN_WORDS
   };
 })();

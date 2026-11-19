@@ -75,7 +75,11 @@ function eq(a, b, m) { if (JSON.stringify(a) !== JSON.stringify(b)) throw new Er
    engine's judgement fixes (part periods, grid changes, breaches, the
    re-baseline, Money's evidence span) are read at boot by Home and the
    Morning Review, so they add about 14 KB to boot. */
-const BOOT_BUDGET = 7.92 * 1024 * 1024;
+/* 19 Nov 2026 (W1/W7 rest merged: search, Home · Reports, study spaces,
+   batch F): 7.92 → 7.90 MB. Their fixes added about 40 KB at boot; the
+   routine player (page-player) and the report share card (page-share)
+   moved to first use, 52 KB, so boot reads 7.897 MB. */
+const BOOT_BUDGET = 7.90 * 1024 * 1024;
 
 /* jsdom has no User Timing: a small recorder, set before the app's scripts */
 function timing(win) {
