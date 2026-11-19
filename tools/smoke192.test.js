@@ -222,15 +222,24 @@ step("C · CR-23, CR-33: the Tracks page labels its bar; Continue is the path's 
   const cards = qa("[data-ui~='cr.track']");
   assert(cards.length >= 4, "four tracks");
   const edit = cards.find((c) => /Editing/i.test(c.getAttribute("aria-label")));
-  if (edit) assert(!edit.querySelector(".k-bar") && edit.querySelector("[data-ui~='cr.track-later']"), "an unreleased track: a chip, no empty bar");
+  assert(edit && !edit.querySelector(".k-bar") && edit.querySelector("[data-ui~='cr.track-later']"), "an unreleased track: a chip, no empty bar");
   const art = cards.find((c) => /Art/i.test(c.getAttribute("aria-label")));
   assert(/% of checks/.test(art.textContent), "the bar says what it measures: " + art.querySelector(".k-card-head").textContent);
   /* A1.1's pages read: the place is A1.1 */
-  K.creatives.markPage("A1.1", 0); K.store.save();
-  const place = K.creatives.trackPlace("art");
+  for (let i = 0; i < K.creatives.evidence("A1.1").pages; i++) K.creatives.markPage("A1.1", i);
+  /* every A1.1 study saved and passed, no theory card rated: nextStudy moves on, the place stays */
+  const works = K.store.state.creatives.works = K.store.state.creatives.works || {};
+  (K.creatives.lesson("A1.1").studies || []).forEach((s, i) => {
+    works["t192-" + i] = { kind: "image", title: "s", lesson: "A1.1", study: s.id, track: "art", at: Date.now(), check: { pass: true } };
+  });
+  K.store.save();
+  const place = K.creatives.trackPlace("art"), ns = K.creatives.nextStudy("art");
+  assert(place.lesson === "A1.1" && ns.lesson.id !== "A1.1", "the two reads differ here: " + place.lesson + " / " + ns.lesson.id);
   K.show("subject", "creatives"); await app.settle();
   const c = q("[data-ui~='cr.continue']");
-  if (place && c) assert(c.textContent.indexOf(place.lesson) >= 0, "Continue names the path's place " + place.lesson + ": " + c.textContent);
+  assert(place && c && c.textContent.indexOf(place.lesson) >= 0, "Continue names the path's place " + place.lesson + ": " + c.textContent);
+  assert(/rate a theory card/.test(c.textContent), "and its next missing check: " + c.textContent);
+  Object.keys(works).filter((k) => /^t192-/.test(k)).forEach((k) => delete works[k]); K.store.save();
 });
 
 /* ---------------- D ---------------- */
