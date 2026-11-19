@@ -639,8 +639,11 @@
 <!-- RC5: the profile pictures in the file store, and mined Japanese lines on this device only (each registers its move as a repair) -->
 <script src="js/core/profilepics.js"></script>
 <script src="js/core/jamined.js"></script>
-<!-- the Sample review namespace's one-time account (store.js KOS.dataMode) -->
+<!-- the Sample review namespace's one-time account (store.js KOS.dataMode):
+     loaded only when the app opens in the Sample namespace (architecture-perf#2) -->
+<template data-lazy="sample">
 <script src="js/core/sample.js"></script>
+</template>
 <script src="js/modules/mobile-shell.js"></script>
 <script src="js/main.js"></script>
 </body>

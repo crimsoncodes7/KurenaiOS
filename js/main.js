@@ -336,14 +336,21 @@
   /* the Sample review namespace fills itself once (js/core/sample.js)
      before the first page draws; the Collection lands asynchronously, so
      the page redraws when it has */
-  if (KOS.sample) KOS.sample.ensure(function (seeded) {
+  function sampleSeeded(seeded) {
     if (!seeded) return;
     setTimeout(function () {
       KOS.refreshRailCounters();
       if (KOS.refreshHUD) KOS.refreshHUD();
       KOS.rerender({ background: "soft", changed: ["*"] });
     }, 0);
-  });
+  }
+  /* architecture-perf#2 (1A): sample.js is its own lazy bundle, fetched only
+     in an unseeded Sample namespace; a test boot (eager) has it already */
+  if (KOS.sample) KOS.sample.ensure(sampleSeeded);
+  else if (KOS.dataMode && KOS.dataMode.mode === "sample" && !(KOS.store.state.ui || {}).sampleSeeded && KOS.lazy && KOS.lazy.need) {
+    KOS.lazy.need("sample").then(function () { if (KOS.sample) KOS.sample.ensure(sampleSeeded); },
+      function (e) { console.warn("Kurenai OS: the sample account could not be loaded.", e); });
+  }
   /* Decorative art per device (34n): set before the first page draws */
   if (KOS.art) { KOS.art.apply(); KOS.art.loadOwn(function () { if (KOS.rerender) KOS.rerender({ background: "soft", changed: ["art"] }); }); }
   KOS.router.boot();

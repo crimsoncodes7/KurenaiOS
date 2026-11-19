@@ -288,7 +288,8 @@
     var c = navigator.connection;
     if (c && c.saveData) return;
     warmed = true;
-    var order = names().slice();
+    /* the sample account's bundle is only ever wanted in its own namespace */
+    var order = names().filter(function (n) { return n !== "sample" || (KOS.dataMode && KOS.dataMode.mode === "sample"); });
     list(first).forEach(function (n, i) {
       var at = order.indexOf(n);
       if (at > -1) { order.splice(at, 1); order.splice(i, 0, n); }

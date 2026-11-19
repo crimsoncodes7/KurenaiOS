@@ -180,6 +180,10 @@ The plan is approved with these decisions.
    - It found that `KOS.store.replaceState`, the cloud pull's take-in, replaced every top-level object. A page or module holding part of the state then wrote into a detached copy.
    - It now takes the document in place, as a tab merge already did (invariant 33d; smoke196 G).
    - The rest is clear: the only arrays of rows without ids are the plan's weeks, edited only through `KOS.pacing`, by `wb`. The `state.ui` writes are per device.
+8a. ✓ **The gate's two findings on 19 Nov, both from 1A:**
+   - smoke17: `cloudsync`'s snapshot of the device's own keys held references, which the in-place replace overwrote. It now takes copies.
+   - smoke142: boot went 9 KB over budget, so `architecture-perf#2` (from 1F) came forward. The sample account (`sample.js`, 25 KB) is its own lazy bundle, fetched only in the Sample namespace, and the warm-up skips it elsewhere.
+   - The boot budget moves from 7.89 to 7.87 MB.
 9. ✓ **`rm:edge-hygiene`:** EF-01 to EF-08, in the code and NOT DEPLOYED. The functions deploy separately, on your go-ahead.
    - Every browser-facing function serves through `handler()`, so an uncaught error answers with CORS headers and an `error`.
    - A missing configuration, or an auth server that can't be reached, is a 503 with its `kind`, never "sign in".

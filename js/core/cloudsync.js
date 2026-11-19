@@ -245,8 +245,14 @@
     return out;
   }
   /* snapshot this device's values before a remote document lands */
+  /* COPIES, not references (1A): the replace now takes the document in
+     place, so a held object (state.ui) would be overwritten by the remote
+     copy before it could be put back */
   function deviceSnapshot(s) {
-    return DEVICE_PATHS.map(function (p) { return [p, pathGet(s, p)]; });
+    return DEVICE_PATHS.map(function (p) {
+      var v = pathGet(s, p);
+      return [p, v && typeof v === "object" ? JSON.parse(JSON.stringify(v)) : v];
+    });
   }
   /* put them back afterwards — the remote copy must never win */
   function restoreDevice(s, snap) {

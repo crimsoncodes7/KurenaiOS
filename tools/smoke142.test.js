@@ -82,7 +82,12 @@ function eq(a, b, m) { if (JSON.stringify(a) !== JSON.stringify(b)) throw new Er
 /* 19 Nov 2026 (the spaces join the OS: JM-21, MI-10, HR-04, JM-26):
    7.90 → 7.89 MB. Their reads at boot added about 9 KB; Card stats
    (cardstats.js, page-cardstats) moved to first use, 23 KB. */
-const BOOT_BUDGET = 7.89 * 1024 * 1024;
+/* 19 Nov 2026 (1A): 7.89 → 7.87 MB. 1A's fixes added about 9 KB at boot
+   (the toast queue, the review-log reads, the in-place replace, the
+   server-error reading); the sample account (sample.js, its own bundle
+   `sample`, fetched only in an unseeded Sample namespace) left boot, 25 KB,
+   so boot reads 7.870 MB (8,251,901 bytes). */
+const BOOT_BUDGET = 7.87 * 1024 * 1024;
 
 /* jsdom has no User Timing: a small recorder, set before the app's scripts */
 function timing(win) {
