@@ -258,7 +258,7 @@
   function hasContent(f) {
     return !!(f.study.mins || f.study.reviews || f.study.touched || f.study.days || f.focus.blocks ||
       (f.collection && f.collection.count) || (f.plan && f.plan.ticked) || f.tasks ||
-      f.code || f.creatives || f.routines);
+      f.code || f.creatives || f.ja || f.mind || f.routines);
   }
 
   /* The saving tick. Backfill first (oldest first, so each week can

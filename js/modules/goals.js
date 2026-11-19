@@ -21,10 +21,11 @@
   var TABS = [["week", "This week"], ["month", "This month"], ["all", "All"], ["done", "Done"]];
   var DOMAIN = {
     study: { k: "学", label: "Study" }, productivity: { k: "集", label: "Productivity" }, money: { k: "円", label: "Money" },
-    code: { k: "C#", label: "Code", mono: true }, creatives: { k: "創", label: "Creatives" }, collection: { k: "蒐", label: "Collection" }, governor: { k: "守", label: "Governor" }
+    code: { k: "C#", label: "Code", mono: true }, creatives: { k: "創", label: "Creatives" }, ja: { k: "日", label: "Japanese" }, mind: { k: "心", label: "Mind" }, collection: { k: "蒐", label: "Collection" }, governor: { k: "守", label: "Governor" }
   };
-  var DOMAIN_ORDER = ["study", "productivity", "money", "code", "creatives", "collection", "governor"];
-  var SUBJECT_TONE = { compsci: "cs", maths: "maths", it: "it", code: "code", creatives: "creatives" };
+  var DOMAIN_ORDER = ["study", "productivity", "money", "code", "creatives", "ja", "mind", "collection", "governor"];
+  var SUBJECT_TONE = { compsci: "cs", maths: "maths", it: "it", code: "code", creatives: "creatives", ja: "ja", mind: "mind" };
+  var SPACE = /^(code|creatives|ja|mind)$/;
   var MODULE_TONE = { anime: "anime", books: "books", vn: "vn", game: "games" };
   var MODULE_K = { anime: "映", books: "本", vn: "選", game: "遊" };
   /* per visit (never stored) */
@@ -222,8 +223,7 @@
     var d = domainOf(g);
     if (g._unlinked) return null;
     if (d === "study") return SUBJECT_TONE[g.links && g.links.subject] || null;
-    if (d === "code") return "code";
-    if (d === "creatives") return "creatives";
+    if (SPACE.test(d)) return d;
     if (d === "money") return g.links && g.links.category === "collection" ? "collection" : g.type === "money-save" ? "jade" : null;
     if (d === "collection") return MODULE_TONE[g.module] || "collection";
     return null;
@@ -301,7 +301,8 @@
     if (t === "code-capstone") return ["See capstones", function () { KOS.show("code", { page: "map" }); }];
     if (t === "cr-drill-days") return ["Drills", function () { KOS.show("creatives", { page: "drills" }); }];
     if (t === "cr-words") return ["Writing Desk", function () { KOS.show("creatives", { page: "write" }); }];
-    if (t === "cr-studies") return ["Creatives", function () { KOS.show("subject", "creatives"); }];
+    if (t === "cr-studies" || t === "cr-projects") return ["Creatives", function () { KOS.show("subject", "creatives"); }];
+    if (/^(ja|mind)-/.test(t)) return [KOS.subjects.name(g.domain), function () { KOS.show("subject", g.domain); }];
     if (t === "money-save") return ["Open pot", function () { KOS.show("money", "pots"); }];
     if (t === "money-spend-under") return g.links && g.links.category === "collection" ? ["Wishlist", function () { KOS.show("wishlist"); }] : ["Budgets", function () { KOS.show("money", "budgets"); }];
     if (/^money-/.test(t)) return ["Money", function () { KOS.show("money"); }];
@@ -343,7 +344,7 @@
       spent: Math.round((g._current || 0) * 100), budget: Math.round((g._target || 0) * 100), foot: false });
     if (isMoney(g) || g._current == null) return null;
     var t = g._target || g.target;
-    if (t <= 20 && t === Math.round(t) && g._unit !== "hours") return squares(t, Math.min(t, Math.floor(g._current || 0)), g._displayOnly ? "teal" : g._domain === "code" ? "code" : g._domain === "creatives" ? "creatives" : isExam(g) ? tone(g) || "green" : "green");
+    if (t <= 20 && t === Math.round(t) && g._unit !== "hours") return squares(t, Math.min(t, Math.floor(g._current || 0)), g._displayOnly ? "teal" : SPACE.test(g._domain) ? g._domain : isExam(g) ? tone(g) || "green" : "green");
     var b = el("div", { class: "k-bar k-bar--6 k-gl-bar", "data-tone": tone(g) || null, role: "img", "aria-label": g._pct + "%" }, [el("i")]);
     b.style.setProperty("--p", Math.min(100, g._pct || 0) + "%");
     return b;
@@ -784,6 +785,7 @@
     if (d === "study" || d === "productivity") return "Read from sessions already logged and paid by Focus and study. Reading this goal pays nothing again, and meeting it records one activity-only receipt.";
     if (d === "money") return "Read from Money's entries and pots. A goal never moves money, and meeting it pays nothing.";
     if (d === "code") return "Read from Code's evidence: first passes and proven retrievals in the ledger, never a seen answer.";
+    if (SPACE.test(d)) return "Read from " + DOMAIN[d].label + "'s own entries in the ledger and its records. Reading this goal pays nothing again, and meeting it records one activity-only receipt.";
     return "Read from the Collection as it stands. Nothing is written back to a vault entry.";
   }
 
@@ -931,7 +933,7 @@
       if (def.exam) { drawExam(); autoTitle(); form.appendChild(hint); form.appendChild(err); examLine(); return; }
       /* the source: a subject, topics, a pot, a category, a capstone, a title */
       if (def.fields.subject) {
-        extra.subject = select([["", "All subjects"]].concat((KOS.subjects ? KOS.subjects.ids() : ["compsci", "maths", "it", "code"]).map(function (s) { return [s, { compsci: "Computer Science", maths: "Maths", it: "IT", code: "Code" }[s] || (KOS.subjects && KOS.subjects.name ? KOS.subjects.name(s) : s)]; })), links.subject || "", { "aria-label": "Subject" });
+        extra.subject = select([["", "All subjects"]].concat(KOS.subjects.ids(def.fields.subject === "exam" ? "exam" : null).map(function (s) { return [s, KOS.subjects.name(s)]; })), links.subject || "", { "aria-label": "Subject" });
         extra.subject.addEventListener("change", function () { links.subject = extra.subject.value || undefined; if (picker) picker.refresh(); });
         form.appendChild(field("Subject", extra.subject));
       }

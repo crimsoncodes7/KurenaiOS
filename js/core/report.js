@@ -700,6 +700,21 @@
     Object.keys(out).forEach(function (k) { if (out[k] === 0) delete out[k]; });
     return Object.keys(out).length ? out : null;
   }
+  /* Japanese and Mind (JM-21, MI-10): ledger totals; Mind's positions and Journal as counts (139) */
+  function spaceFacts(input, p, t) {
+    var o = {}, sk = {}, x = input[t] || {}, a = ms(p.start), b = ms(addDays(p.end, 1));
+    input.inRange.forEach(function (e) {
+      var m = e.type === t && e.metrics; if (!m) return;
+      if (m.kind === "session" || m.kind === "reviews") {
+        inc(o, "sessions"); inc(o, "reviews", +(m.n || m.cards) || 0); inc(o, "passed", +m.passed || 0);
+        for (var s in m.skills || {}) inc(sk, s, m.skills[s]);
+      } else if (m.first) inc(o, (m.kind === "gate" ? "checkpoint" : m.kind) + "s");
+    });
+    (x.pos || []).forEach(function (v) { if (v[0] >= a && v[0] < b) inc(o, v[1] ? "changed" : "positions"); });
+    (x.journal || []).forEach(function (at) { if (at >= a && at < b) inc(o, "journal"); });
+    if (Object.keys(sk).length) o.skills = sk;
+    return Object.keys(o).length ? o : null;
+  }
   /* Money (roadmap 5.4): the period's totals from the transactions gather()
      read, the three biggest categories, and — a month only, since budgets
      are monthly — the categories over budget. Category names are the
@@ -1072,6 +1087,7 @@
     var co = collection(input, p); if (co) f.collection = co;
     var pg = programming(input, p); if (pg) f.code = pg;
     var cr = creativeFacts(input, p); if (cr) f.creatives = cr;
+    ["ja", "mind"].forEach(function (t) { var o = spaceFacts(input, p, t); if (o) f[t] = o; });
     f.gov = governor(input, p);
     var ku = kurenai(input, p); if (ku) f.kurenai = ku;
     var mo = moneyFacts(input, p); if (mo) f.money = mo;
@@ -1244,6 +1260,11 @@
       creatives: Object.keys((S.creatives && S.creatives.works) || {}).map(function (id) {
         var w = S.creatives.works[id]; return { id: id, at: w.at, track: w.track, words: w.words || 0, portfolio: w.portfolio || null };
       }),
+      /* [time, 1 if the answer changed]: first takes and changes */
+      mind: { pos: [].concat.apply([], Object.keys((S.mind && S.mind.positions) || {}).map(function (id) {
+        var vs = Object.keys(S.mind.positions[id].versions || {}).map(function (k) { return S.mind.positions[id].versions[k]; }).sort(function (x, y) { return x.at - y.at; });
+        return vs.map(function (v, i) { return i && v.answer === vs[i - 1].answer ? null : [v.at, i ? 1 : 0]; }).filter(Boolean);
+      })) },
       rebuilt: !!opts.rebuilt,
       prev: opts.prev ? totals(opts.prev) : null
     };
@@ -1313,12 +1334,15 @@
         goals();
       });
     }
-    moneyAndGoals(function () { snaps(function () {
+    /* Journal entry times only */
+    var MJ = KOS.mindJournal;
+    function journal(next) { if (!MJ) { next(); return; } MJ.ready(function (e, l) { input.mind.journal = (l || []).map(function (x) { return x.at; }); next(); }); }
+    journal(function () { moneyAndGoals(function () { snaps(function () {
       parts(function () {
         if (!KOS.mediadb || !KOS.mediadb.available()) { input.rows = []; cb(input); return; }
         KOS.mediadb.query({}, function (err, rows) { input.rows = err ? [] : rows; cb(input); });
       });
-    }); });
+    }); }); });
   }
   function build(p, opts, cb) {
     gather(p, opts, function (input) { cb(compute(input, p)); });

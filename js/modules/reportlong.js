@@ -41,6 +41,44 @@
      1240, one from 860) — never an empty column */
   function flow(cards) { return K().masonry(cards, 3); }
 
+  /* ---------------- Japanese and Mind (JM-21, MI-10) ----------------
+     Laid out like Code's and Creatives' cards (reports.js): totals from
+     the saved f.ja / f.mind, kv rows with Japanese's reviews by skill as
+     ranked bars. Only a report saved since they were added carries them;
+     an older one simply has no card (invariant 102). Mind's Journal is a
+     count, never an entry (invariant 139). */
+  var SKILL = [["R", "Reading"], ["W", "Writing"], ["L", "Listening"], ["S", "Speaking"]];
+  function passedRow(c, k) {
+    return c.reviews ? { k: k, v: W.num(c.passed || 0) + " of " + W.num(c.reviews), tone: "teal" } : null;
+  }
+  function jaCard(rep) {
+    var c = rep.facts.ja, sk = c && c.skills;
+    if (!c) return null;
+    var rows = [passedRow(c, "Reviews passed"),
+      c.sessions ? { k: "Review sessions", v: W.num(c.sessions) } : null,
+      c.lessons ? { k: "Lessons finished", v: W.num(c.lessons), tone: "teal" } : null,
+      c.checkpoints ? { k: "Checkpoints passed", v: W.num(c.checkpoints), tone: "teal" } : null].filter(Boolean);
+    var by = sk ? SKILL.filter(function (s) { return sk[s[0]]; }).map(function (s) { return { label: s[1], value: sk[s[0]], text: W.num(sk[s[0]]), hue: "var(--ja)" }; }) : [];
+    if (!rows.length && !by.length) return null;
+    return K().card("Japanese", { className: "k-rp-card--ja", hook: "reports.ja" }, [
+      rows.length ? K().kvRows(rows) : null,
+      by.length > 1 ? el("h3", { class: "k-rp-subhead", text: "Reviewed by skill" }) : null,
+      by.length > 1 ? K().bars(by) : null
+    ]);
+  }
+  function mindCard(rep) {
+    var c = rep.facts.mind;
+    if (!c) return null;
+    var rows = [passedRow(c, "Cards passed"),
+      c.lessons ? { k: "Lessons finished", v: W.num(c.lessons), tone: "teal" } : null,
+      c.checkpoints ? { k: "Checkpoints passed", v: W.num(c.checkpoints), tone: "teal" } : null,
+      c.paths ? { k: "Paths complete", v: W.num(c.paths), tone: "teal" } : null,
+      c.positions ? { k: "Positions taken", v: W.num(c.positions) } : null,
+      c.changed ? { k: "Changed your mind", v: W.plural(c.changed, "time") } : null,
+      c.journal ? { k: "Journal entries", v: W.num(c.journal) } : null].filter(Boolean);
+    return rows.length ? K().card("Mind", { className: "k-rp-card--mind", hook: "reports.mind" }, [K().kvRows(rows)]) : null;
+  }
+
   /* ---------------- charts ---------------- */
   /* the days of a month, stacked by subject, with last month's daily
      average dashed across and labelled at its end (24c) */
@@ -304,7 +342,7 @@
     k.reportTop(holder, rep);
     holder.appendChild(monthTiles(rep));
     holder.appendChild(activityCard(rep, "Activity · by day"));
-    holder.appendChild(flow([balance(rep), masteryCard(rep), studyCard(rep), K().codeCard(rep), K().creativesCard(rep), K().creativesStrip(rep), collectionCard(rep), K().moneyCard(rep), K().goalsCard(rep), kurenaiCard(rep), planGovCard(rep), K().kurenaiSees(rep)]));
+    holder.appendChild(flow([balance(rep), masteryCard(rep), studyCard(rep), K().codeCard(rep), K().creativesCard(rep), K().creativesStrip(rep), jaCard(rep), mindCard(rep), collectionCard(rep), K().moneyCard(rep), K().goalsCard(rep), kurenaiCard(rep), planGovCard(rep), K().kurenaiSees(rep)]));
   }
 
   /* ---------------- the term (24d) ---------------- */
@@ -337,7 +375,7 @@
     var fh = focusHabits(rep);
     if (fh) holder.appendChild(fh);
     holder.appendChild(activityCard(rep, "Week by week"));
-    holder.appendChild(flow([balance(rep), masteryCard(rep), studyCard(rep), K().codeCard(rep), K().creativesCard(rep), K().creativesStrip(rep), collectionCard(rep), K().moneyCard(rep), K().goalsCard(rep), kurenaiCard(rep), planGovCard(rep), K().kurenaiSees(rep)]));
+    holder.appendChild(flow([balance(rep), masteryCard(rep), studyCard(rep), K().codeCard(rep), K().creativesCard(rep), K().creativesStrip(rep), jaCard(rep), mindCard(rep), collectionCard(rep), K().moneyCard(rep), K().goalsCard(rep), kurenaiCard(rep), planGovCard(rep), K().kurenaiSees(rep)]));
   }
 
   /* ---------------- the year (24e, 24j) ---------------- */
@@ -538,5 +576,5 @@
     else if (rep.period === "term") termPage(holder, rep, reps);
     else yearPage(holder, rep, reps);
   }
-  KOS.reportsLong = { page: page, stripChart: stripChart, monthChart: monthChart, CHAPTERS: CHAPTERS };
+  KOS.reportsLong = { page: page, jaCard: jaCard, mindCard: mindCard, stripChart: stripChart, monthChart: monthChart, CHAPTERS: CHAPTERS };
 })();
