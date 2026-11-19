@@ -10,6 +10,8 @@
          (metrics.bySubject), kept across a pick-up, and a subject's
          "Review flashcards" goal counts its own share; a one-subject run
          is unchanged and carries no split.
+     C · bk:study-core#1: Today so far (Reviewed, Accuracy) and Card stats'
+         Rating mix read the review log, one row a rating.
 
    Run: node tools/smoke196.test.js */
 "use strict";
@@ -122,6 +124,28 @@ step("B · a one-subject run carries no split", async () => {
   await rate(h, 2);
   const e = K.sessions.all().filter((x) => x.type === "due-review").slice(n0)[0];
   eq([e.subject, e.metrics.bySubject], ["maths", undefined], "the subject is the entry's own");
+  assert(!app.errors.length, "no page errors: " + app.errors.slice(0, 3).join(" | "));
+});
+
+step("C · Today so far and Card stats read the review log (bk:study-core#1)", async () => {
+  const today = K.srs.todayISO();
+  const rows = await new Promise((res) => K.reviewLog.range(today, today, (e, r) => res(e ? [] : r)));
+  const mine = rows.filter(K.reviewLog.isCard);
+  assert(mine.length >= 6, "the ratings above are in the log (" + mine.length + ")");
+  const keys = new Set(mine.map((r) => r.key)).size, ok = mine.filter((r) => r.g >= 3).length;
+  K.show("review", { tab: "due" }, { _nav: true }); await app.settle();
+  await new Promise((r) => setTimeout(r, 50)); await app.settle();
+  eq(q("[data-ui~='review.today-n']").textContent, String(keys), "Reviewed is the cards rated today, from the log");
+  eq(q("[data-ui~='review.today-acc']").textContent, Math.round(100 * ok / mine.length) + "%", "Accuracy is the log's");
+  K.show("cardstats", { subject: "maths" }, { _nav: true }); await app.settle();
+  await new Promise((r) => setTimeout(r, 50)); await app.settle();
+  const mix = q("[data-ui~='review.rating-mix'] [role='img']");
+  assert(mix, "the Rating mix is drawn");
+  const all = await new Promise((res) => K.reviewLog.all((e, r) => res(e ? [] : r)));
+  const maths = new Set(K.srs.allCards().filter((c) => c.sid === "maths").map((c) => c.key));
+  const again = all.filter((r) => maths.has(r.key) && r.g === 1).length;
+  assert(again >= 1 && new RegExp("Again " + again + "\\b").test(mix.getAttribute("aria-label")),
+    "Again counts the log's Maths Again ratings (" + again + "): " + mix.getAttribute("aria-label"));
   assert(!app.errors.length, "no page errors: " + app.errors.slice(0, 3).join(" | "));
 });
 

@@ -244,7 +244,48 @@
         ]);
       }))
     ]);
-    main.appendChild(el("div", { class: "k-cs-row" }, [perDayChart, mixCard]));
+    var csRow = el("div", { class: "k-cs-row" }, [perDayChart, mixCard]);
+    main.appendChild(csRow);
+    /* bk:study-core#1: both cards read the review log (one row a rating,
+       from every page that rates), so they agree with Total reviews. The
+       session figures above stand in until it is read, stay if it cannot
+       be, and fill the days before the log began (the FSRS switch). */
+    if (KOS.reviewLog && KOS.reviewLog.available()) {
+      var inScope = {};
+      cards.forEach(function (c) { inScope[c.key] = true; });
+      KOS.reviewLog.all(function (err, rows) {
+        if (err || !csRow.isConnected) return;
+        rows = rows.filter(function (r) { return inScope[r.key]; });
+        if (!rows.length) return;
+        var first = rows.reduce(function (m, r) { return r.day < m ? r.day : m; }, "9999");
+        var pd = {}, t30 = 0, G = [null, "again", "hard", "good", "easy"], mx = { again: 0, hard: 0, good: 0, easy: 0 };
+        Object.keys(perDay).forEach(function (d) { pd[d] = d < first ? perDay[d] : 0; });
+        rows.forEach(function (r) {
+          if (pd[r.day] !== undefined) pd[r.day]++;
+          if (G[r.g]) mx[G[r.g]]++;
+        });
+        sessions.forEach(function (e) { if (e.date < first) Object.keys(mx).forEach(function (k) { mx[k] += (e.metrics[k] || 0); }); });
+        Object.keys(pd).forEach(function (d) { t30 += pd[d]; });
+        var tot = mx.again + mx.hard + mx.good + mx.easy;
+        var dayChart = chart("Reviews per day", "last 30 days · avg " + Math.round(t30 / 30),
+          bars(Object.keys(pd).map(function (d, k, all) {
+            return { label: k === 0 || k === 14 ? d.slice(8) + "/" + d.slice(5, 7) : k === all.length - 1 ? "today" : "", value: pd[d], hint: d + ": " + pd[d] + " reviews" };
+          }), { color: color }));
+        var mxCard = el("section", { class: "k-card k-cs-card", "data-ui": "review.rating-mix", "aria-label": "Rating mix" }, [
+          el("div", { class: "k-card-head" }, [el("span", { class: "k-card-title", text: "Rating mix" })]),
+          el("div", { class: "k-cs-mixbar", role: "img", "aria-label": MIX.map(function (m) { return m[1] + " " + mx[m[0]]; }).join(", ") },
+            MIX.filter(function (m) { return mx[m[0]]; }).map(function (m) { return el("span", { style: "--f: " + mx[m[0]] + "; --c: " + m[2] }); })),
+          el("ul", { class: "k-cs-legend k-cs-legend--fill" }, MIX.map(function (m) {
+            return el("li", { style: "--c: " + m[2] }, [
+              el("span", { class: "k-cs-dot", "aria-hidden": "true" }), el("span", { text: m[1] }),
+              el("span", { class: "k-mono k-cs-legend-n", text: mx[m[0]] + (tot ? " · " + Math.round(100 * mx[m[0]] / tot) + "%" : "") })
+            ]);
+          }))
+        ]);
+        csRow.replaceChild(dayChart, perDayChart); perDayChart = dayChart;
+        csRow.replaceChild(mxCard, mixCard); mixCard = mxCard;
+      });
+    }
 
     /* due forecast, next 14 days, overdue first; recall today */
     var forecast = [{ label: "over", value: overdue, color: "var(--alarm)", hint: "Overdue: " + overdue }];

@@ -256,10 +256,24 @@
       graded += n; good += (m.good || 0) + (m.easy || 0);
       secs += s.dur || m.secs || 0;
     });
+    var reviewedV = el("span", { class: "k-card-row-v", "data-ui": "review.today-n", text: String(reviewed) });
+    var accV = el("span", { class: "k-card-row-v", "data-ui": "review.today-acc", text: graded ? Math.round(100 * good / graded) + "%" : "—" });
+    /* bk:study-core#1: the counts are the review log's (one row a rating,
+       whichever page rated it); the session figures above stand in until
+       it is read, and stay if it cannot be */
+    if (KOS.reviewLog && KOS.reviewLog.available() && KOS.reviewLog.range) {
+      KOS.reviewLog.range(today, today, function (err, rows) {
+        if (err || !reviewedV.isConnected) return;
+        var keys = {}, n = 0, ok = 0;
+        rows.filter(KOS.reviewLog.isCard).forEach(function (r) { keys[r.key] = true; n++; if (r.g >= 3) ok++; });
+        reviewedV.textContent = String(Object.keys(keys).length);
+        accV.textContent = n ? Math.round(100 * ok / n) + "%" : "—";
+      });
+    }
     side.appendChild(el("section", { class: "k-card", "data-ui": "review.today", "aria-label": "Today so far" }, [
       el("div", { class: "k-card-head" }, [el("span", { class: "k-card-title", text: "Today so far" })]),
-      el("div", { class: "k-card-row" }, [el("span", { class: "k-card-row-k", text: "Reviewed" }), el("span", { class: "k-card-row-v", text: String(reviewed) })]),
-      el("div", { class: "k-card-row" }, [el("span", { class: "k-card-row-k", text: "Accuracy" }), el("span", { class: "k-card-row-v", text: graded ? Math.round(100 * good / graded) + "%" : "—" })]),
+      el("div", { class: "k-card-row" }, [el("span", { class: "k-card-row-k", text: "Reviewed" }), reviewedV]),
+      el("div", { class: "k-card-row" }, [el("span", { class: "k-card-row-k", text: "Accuracy" }), accV]),
       /* ST-37: the batches log their rating time (metrics.secs); a zero is not printed (77) */
       secs >= 60 ? el("div", { class: "k-card-row", "data-ui": "review.today-time" }, [el("span", { class: "k-card-row-k", text: "Time" }), el("span", { class: "k-card-row-v", text: Math.round(secs / 60) + " min" })]) : null
     ]));

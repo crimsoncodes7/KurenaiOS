@@ -85,6 +85,18 @@
       t.onerror = function () { cb(t.error); };
     });
   }
+  /* the rows of days from..to (inclusive, "YYYY-MM-DD"), by the day index */
+  function range(from, to, cb) {
+    txn("readonly", function (err, t) {
+      if (err) { cb(err); return; }
+      var rq;
+      try { rq = t.objectStore(REV).index("day").getAll(window.IDBKeyRange.bound(from, to)); } catch (e) { cb(e); return; }
+      t.oncomplete = function () { cb(null, rq.result || []); };
+      t.onerror = function () { cb(t.error); };
+    });
+  }
+  /* a flashcard's row (the other sources key theirs "code:", "ja:", "mind:") */
+  function isCard(r) { return !!r && !/^(code|ja|mind):/.test(String(r.key)); }
   function count(cb) {
     txn("readonly", function (err, t) {
       if (err) { cb(err); return; }
@@ -231,6 +243,8 @@
     available: available,
     add: add,
     all: all,
+    range: range,
+    isCard: isCard,
     count: count,
     exportAll: exportAll,
     importAll: importAll,
