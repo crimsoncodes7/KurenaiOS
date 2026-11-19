@@ -40,9 +40,9 @@ week or so. Everything is committed and pushed; nothing is in flight.
     items; backlog-checked-a/b.jsonl: the auditors' 83 bigger ideas, each
     checked against the code by an agent that appends one line per idea).
     Rebuild with `python3 docs/qol/build.py`, republish to the same link.
-    If backlog-checked-a/b hold fewer than 42/41 lines, the check stopped
-    part way: finish the missing keys (from the findings files' `backlog`
-    arrays on the audit branch) before the final republish.
+    All 83 are checked (42 + 41 lines; the last 38 by hand after the
+    checkers hit the usage limit) and the page is republished (version 5:
+    Quality of life 136, Backlog and roadmap 117).
     On a new account, republish this file as an artifact with
     `capabilities: {db: {}}` (rebuild from `qol-template.html` +
     `qol-checked.jsonl` if the data changes) and read the marks back with
