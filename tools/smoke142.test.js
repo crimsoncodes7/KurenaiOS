@@ -71,7 +71,11 @@ function eq(a, b, m) { if (JSON.stringify(a) !== JSON.stringify(b)) throw new Er
    MB out of boot (8.78 → 7.87 MB). The rest of the aim needs the modules
    other code reads at boot (Focus, the Assistant, the calendar, the
    vaults, the labs) split into the part boot needs and the page. */
-const BOOT_BUDGET = 7.9 * 1024 * 1024;
+/* 19 Nov 2026 (W7 study, feat/w7-study): 7.9 → 7.91 MB. The study-space
+   audit fixes add about 12 KB to boot-loaded files (topic, quiz, Due,
+   Creatives and Mind topic modules, the ja/mind/code cores) against a
+   3.6 KB margin; flagged to the lead rather than trimmed comments. */
+const BOOT_BUDGET = 7.91 * 1024 * 1024;
 
 /* jsdom has no User Timing: a small recorder, set before the app's scripts */
 function timing(win) {

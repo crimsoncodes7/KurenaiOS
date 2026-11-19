@@ -408,7 +408,7 @@
     KOS.flashcards.session(holder, cards, {
       type: "due-review",
       sid: oneSid, ref: oneSid && refs.length === 1 ? refs[0].slice(oneSid.length + 1) : null,
-      refs: refs.length > 1 ? refs : null,
+      refs: refs.length > 1 ? refs : null, noTally: true,
       runKey: "due:" + run,
       showTopic: true,
       onFinish: function () {
