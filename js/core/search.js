@@ -52,26 +52,41 @@
     return s.length > n ? s.slice(0, n - 1) + "…" : s;
   }
 
+  /* "Wed 28 Oct", not the stored ISO (SH-18) */
+  function niceDate(iso) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso);
+    return m ? new Date(+m[1], +m[2] - 1, +m[3]).toLocaleDateString("en-GB", { weekday: "short", day: "numeric", month: "short" }) : String(iso || "");
+  }
+  var GOAL_WORD = { completed: "Reached", failed: "Missed", active: "In progress" };
+
   /* ---------------- the domains ----------------
      Each returns { label, items } or null. An item is
      { title, sub, meta, open() } — `open` is what the listbox activates,
      and it is the ONLY place a domain decides where its records live. */
 
+  /* only the exam subjects have a specification; Code, Japanese, Mind and
+     Creatives are authored lessons, each its own group (CO-38) */
   function specDomain(q, ts) {
-    if (!KOS.hub || !KOS.hub.search) return null;
-    var res = KOS.hub.search(q) || [];
-    if (!res.length) return null;
-    return {
-      id: "spec", label: "Specification",
-      items: res.slice(0, PER_DOMAIN).map(function (m) {
-        return {
-          title: m.ref + " · " + m.title,
-          sub: (window.KOS_DATA[m.subject] || {}).name || m.subject,
-          meta: m.fcHit ? "Flashcard match" : clip(m.snippet, 90),
-          open: function () { KOS.show("ref", { subject: m.subject, ref: m.ref }); }
-        };
-      })
-    };
+    var by = {}, ids = [];
+    (KOS.hub && KOS.hub.search ? KOS.hub.search(q) || [] : []).forEach(function (m) {
+      var key = KOS.subjects.isExam(m.subject) ? "spec" : "lessons-" + m.subject;
+      if (!by[key]) { by[key] = []; ids.push(key); }
+      by[key].push(m);
+    });
+    return ids.map(function (key) {
+      return {
+        id: key, view: "subject",
+        label: key === "spec" ? "Specification" : KOS.subjects.name(key.slice(8)) + " lessons",
+        items: by[key].slice(0, PER_DOMAIN).map(function (m) {
+          return {
+            title: m.ref + " · " + m.title,
+            sub: (window.KOS_DATA[m.subject] || {}).name || m.subject,
+            meta: m.noteHit ? "Notes match" : m.fcHit ? "Flashcard match" : clip(m.snippet, 90),
+            open: function () { KOS.show("ref", { subject: m.subject, ref: m.ref }); }
+          };
+        })
+      };
+    });
   }
 
   /* the user's own writing on a topic — the one part of the spec tree that
@@ -95,7 +110,7 @@
       });
     });
     if (!out.length) return null;
-    return { id: "notes", label: "Your topic notes", items: out.slice(0, PER_DOMAIN) };
+    return { id: "notes", view: "subject", label: "Your topic notes", items: out.slice(0, PER_DOMAIN) };
   }
 
   function remindersDomain(q, ts) {
@@ -106,11 +121,12 @@
     });
     if (!out.length) return null;
     return {
-      id: "reminders", label: "Reminders",
+      id: "reminders", view: "reminders", label: "Reminders",
       items: rank(out, ts, function (r) { return r.title; }).slice(0, PER_DOMAIN).map(function (r) {
         return {
           title: r.title,
-          sub: r.done ? "Completed" : (r.due ? "Due " + r.due : "No date"),
+          sub: r.done ? "Completed" : (r.due
+            ? (KOS.reminders.isOverdue && KOS.reminders.isOverdue(r) ? "Overdue · " : "Due ") + niceDate(r.due) : "No date"),
           meta: clip(r.notes || (r.tags || []).map(function (t) { return "#" + t; }).join(" "), 70),
           open: function () { KOS.show("reminders", { id: r.id, section: "all" }); }
         };
@@ -125,12 +141,12 @@
     });
     if (!out.length) return null;
     return {
-      id: "assignments", label: "Assignments",
+      id: "assignments", view: "assignments", label: "Assignments",
       items: rank(out, ts, function (a) { return a.title; }).slice(0, PER_DOMAIN).map(function (a) {
         return {
           title: a.title,
           sub: (KOS.assignments.statusLabel ? KOS.assignments.statusLabel(a.status) : a.status) +
-            (a.due ? " · due " + a.due : ""),
+            (a.due ? " · due " + niceDate(a.due) : ""),
           meta: clip(a.description, 70),
           open: function () {
             KOS.show("assignments");
@@ -149,7 +165,7 @@
     });
     if (!out.length) return null;
     return {
-      id: "calendar", label: "Calendar",
+      id: "calendar", view: "calendar", label: "Calendar",
       items: rank(out, ts, function (e) { return e.title; }).slice(0, PER_DOMAIN).map(function (ev) {
         return {
           title: ev.title || "Untitled",
@@ -172,7 +188,7 @@
     });
     if (!items.length) return null;
     return {
-      id: "planner", label: "Purchase planner",
+      id: "planner", view: "wishlist", label: "Purchase planner",
       items: rank(items, ts, function (i) { return i.title; }).slice(0, PER_DOMAIN).map(function (i) {
         return {
           title: i.title,
@@ -191,11 +207,11 @@
     });
     if (!out.length) return null;
     return {
-      id: "goals", label: "Goals",
+      id: "goals", view: "goals", label: "Goals",
       items: rank(out, ts, function (g) { return g.title; }).slice(0, PER_DOMAIN).map(function (g) {
         return {
-          title: g.title, sub: g.status || "active", meta: clip(g.description, 70),
-          open: function () { KOS.show("goals"); }
+          title: g.title, sub: GOAL_WORD[g.status] || GOAL_WORD.active, meta: clip(g.description, 70),
+          open: function () { KOS.show("goals", { id: g.id }); }
         };
       })
     };
@@ -208,7 +224,7 @@
     });
     if (!out.length) return null;
     return {
-      id: "cards", label: "Personal flashcards",
+      id: "cards", view: "personaldeck", label: "Personal flashcards",
       items: out.slice(0, PER_DOMAIN).map(function (c) {
         return {
           title: clip(c.q, 70), sub: "Personal deck", meta: clip(c.a, 70),
@@ -234,7 +250,7 @@
         if (err || !rows || !rows.length) { cb(null); return; }
         var ts = terms(q);
         cb({
-          id: "media", label: "Collection",
+          id: "media", view: "matrix", label: "Collection",
           items: rank(rows, ts, function (e) { return e.title; }).slice(0, PER_DOMAIN).map(function (e) {
             return {
               title: e.title,
@@ -268,7 +284,7 @@
       items.push({ title: w.headline, sub: "Week of " + r.start, meta: "weekly report",
         open: function () { KOS.show("reports", { period: r.period, start: r.start }); } });
     });
-    return items.length ? { id: "reports", label: "Reports", items: items } : null;
+    return items.length ? { id: "reports", view: "home", label: "Reports", items: items } : null;
   }
 
   /* Files (roadmap 5.11, invariant 150): names and aliases at once, and
@@ -285,13 +301,17 @@
       items.push({ title: h.rec.name, sub: h.where === "text" ? "p." + h.page + " · " + clip(h.snippet, 80) : (KOS.files.KIND_NAME[h.rec.kind] || "File"),
         meta: h.where === "text" ? "inside a file" : "file", open: function () { KOS.files.open(h.rec); } });
     });
-    return items.length ? { id: "files", label: "Files", items: items } : null;
+    return items.length ? { id: "files", view: "files", label: "Files", items: items } : null;
   }
 
-  /* the synchronous domains, in the order a result list should read them:
-     what you are studying, then what you owe, then what you own */
   var SYNC_DOMAINS = [specDomain, notesDomain, remindersDomain, assignmentsDomain,
     calendarDomain, personalCardsDomain, filesDomain, reportsDomain, plannerDomain, goalsDomain];
+  /* where each group reads: what you study, then what you owe, then what you own */
+  var ORDER = "spec lessons- notes code creatives drafts exams reminders assignments calendar cards files reports achievements pages media planner goals".split(" ");
+  function orderOf(g) {
+    var i = ORDER.indexOf(g.id.replace(/^(lessons-).*/, "$1"));
+    return i < 0 ? 99 : g.id === "pages" && g.rank <= 1 ? -1 : i;
+  }
 
   /* run(q, cb) — cb(groups, done) may be called TWICE: once immediately
      with everything readable from memory, once more when IndexedDB has
@@ -301,24 +321,33 @@
     var ts = terms(q);
     if (!q || norm(q).trim().length < MIN_LEN) { cb([], true); return; }
     var groups = [];
-    SYNC_DOMAINS.forEach(function (fn) {
-      var g;
-      try { g = fn(q, ts); } catch (e) { g = null; }
-      if (g && g.items && g.items.length) groups.push(g);
+    function take(g) {
+      [].concat(g).forEach(function (one) { if (one && one.items && one.items.length) groups.push(one); });
+    }
+    function sorted() {
+      return groups.map(function (g, i) { return [orderOf(g), i, g]; })
+        .sort(function (a, b) { return a[0] - b[0] || a[1] - b[1]; }).map(function (x) { return x[2]; });
+    }
+    function safe(fn) { try { take(fn(q, ts)); } catch (e) { /* one domain never blanks the box */ } }
+    SYNC_DOMAINS.forEach(safe);
+    cb(sorted(), false);
+    var pending = 2;
+    function land(g) { take(g); if (--pending === 0) cb(sorted(), true); }
+    mediaDomain(q, land);
+    /* the rest is a lazy bundle, in on the first search; a failed load leaves the core answer */
+    withMore(function (M) {
+      if (!M) { land(null); return; }
+      M.sync.concat([M.pages]).forEach(safe);
+      M.drafts(q, land);
     });
-    cb(groups.slice(), false);
-    mediaDomain(q, function (mg) {
-      if (mg && mg.items.length) {
-        /* the Collection sits after the study domains but before the
-           planning tail — it is the largest store and the least urgent */
-        var at = groups.findIndex(function (g) { return g.id === "planner" || g.id === "goals"; });
-        if (at === -1) groups.push(mg); else groups.splice(at, 0, mg);
-      }
-      cb(groups, true);
-    });
+  }
+  function withMore(fn) {
+    if (KOS.search.more) { fn(KOS.search.more); return; }
+    KOS.lazy.need(["search-more"]).then(function () { fn(KOS.search.more); }, function () { fn(null); });
   }
 
   KOS.search = { run: run, PER_DOMAIN: PER_DOMAIN, MIN_LEN: MIN_LEN,
     /* exposed so the smoke suite can assert a domain in isolation */
-    _sync: SYNC_DOMAINS, _media: mediaDomain };
+    _sync: SYNC_DOMAINS, _media: mediaDomain, _h: { norm: norm, terms: terms, hits: hits, rank: rank, clip: clip, niceDate: niceDate },
+    more: null, withMore: withMore };
 })();

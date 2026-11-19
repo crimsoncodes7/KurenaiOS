@@ -36,7 +36,7 @@
   function warmSearch() {
     if (searchWarm || !KOS.lazy) return;
     searchWarm = true;
-    var want = KOS.lazy.names().filter(function (n) { return /^content-/.test(n); });
+    var want = KOS.lazy.names().filter(function (n) { return /^(content-|search-more$)/.test(n); });
     KOS.lazy.need(want).then(function () {
       /* the box still holds a query: ask it again, now with the cards */
       var box = document.getElementById("search");
