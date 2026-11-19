@@ -128,9 +128,10 @@
       return { label: v[1], active: v[0] === view, onSelect: function () { if (v[0] !== view) go(v[0]); } };
     }), { variant: "workspace", label: "Money views", className: "k-seg--quiet k-mn-views", edge: true });
     tabs.setAttribute("data-phone-tabs", "");
+    var viewLabel = (VIEWS.filter(function (v) { return v[0] === view; })[0] || [0, "Money"])[1];
     return U.pageHeader({
-      kicker: "円 · The month",
-      title: view === "overview" ? "Money" : view === "settings" ? "Money settings" : (VIEWS.filter(function (v) { return v[0] === view; })[0] || [0, "Money"])[1],
+      kicker: "円 · " + (view === "overview" ? "The month" : view === "settings" ? "Settings" : viewLabel),
+      title: view === "overview" ? "Money" : view === "settings" ? "Money settings" : viewLabel,
       sub: sub,
       className: "k-mn-head",
       actions: [tabs, privacy, gear, view === "budgets" || view === "pots" || view === "month" || view === "settings" ? null
