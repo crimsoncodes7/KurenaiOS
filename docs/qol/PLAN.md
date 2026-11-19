@@ -155,10 +155,15 @@ The plan is approved with these decisions.
 1. ✓ **The Due today bug** (your note) and `rm:due-subject`, in `6df150e` and `3f4211a`, with smoke196.
    - A plan row on Home's Focus card is measured by the time spent on it ("Today · 25 min on this").
    - A mixed Due today run counts its cards per subject for that subject's goals.
-2. **`bk:study-core#1`:** Card stats' Reviews per day and Rating mix, and Today so far, read the review log.
+2. ✓ **`bk:study-core#1`** (`122a129`): Card stats' Reviews per day and Rating mix, and Today so far, read the review log.
    Reports stay on the session ledger: `compute` is pure and synchronous, and its facts are saved.
-3. **`creatives#6`:** the Writing Desk draft is saved on `pagehide`.
-4. **`sync-disruption#3` and `bk:sync-disruption#2`:** runs survive a reload in Japanese, Mind and Code, as flashcards already do.
+3. ✓ **`creatives#6`** (`f0cc5b8`): the Writing Desk draft is written on `pagehide`, on hiding and on leaving.
+4. ✓ **`sync-disruption#3` and `bk:sync-disruption#2`:** already true, so now tested (smoke196 E), with no code change.
+   - Japanese's sessions keep their place (`ja:reviews`, `ja:learn-…`, `ja:kana`).
+   - Mind's Daily 15 keeps its place in `state.mind.ui.daily`.
+   - Code keeps its drafts per device, and a retrieval keeps `code-rt:…`.
+   - A part-rated Due today run picks up from its chip.
+   - My 19 Nov check had marked these "partly" in error.
 5. **The toast queue with keyboard Undo** (`bk:shell#3`, `a11y-hci#4`, `shell#3`; closes W9's SH-36, SH-28, AX-02).
 6. **`bk:data-integrity#3`:** provider sync pulls and pushes the cloud state around its leased cycle.
 7. **`bk:data-integrity#4`:** a replication version column, a migration applied by hand and recorded in CLAUDE.md.

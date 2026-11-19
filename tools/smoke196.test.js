@@ -170,6 +170,30 @@ step("D · the Writing Desk saves a draft when the page hides or you leave (crea
   assert(!app.errors.length, "no page errors: " + app.errors.slice(0, 3).join(" | "));
 });
 
+step("E · a part-rated Due today run picks up when reopened from its chip (sync-disruption#3)", async () => {
+  /* six scheduled cards, due today */
+  const keys = K.srs.cardsFor("compsci", "4.2.3.1").slice(0, 6).map((c) => c.key);
+  keys.forEach((k) => { K.srs.rate(k, 2); K.store.state.srs[k].due = K.srs.addDays(K.srs.todayISO(), -1); });
+  K.store.save();
+  assert(K.srs.dueCount() >= 6, "cards are due: " + K.srs.dueCount());
+  K.show("due", undefined, { _nav: true }); await app.settle();
+  const hold = q("[data-ui~='fc.wrap']");
+  assert(hold && q("[data-ui~='fc.card']", hold), "Due today shows a card");
+  const count = () => { const m = /(\d+) left of (\d+)/.exec((q("[data-ui~='fc.count']") || {}).textContent || ""); return m ? [+m[1], +m[2]] : null; };
+  const before = count();
+  assert(before && before[0] >= 3, "a run with cards to go: " + JSON.stringify(before));
+  await rate(hold, 2); await rate(hold, 2);
+  const mid = count();
+  K.show("home", undefined, { _nav: true }); await app.settle();
+  const chip = [...D.querySelectorAll("[data-ui~='home.review-row']")].filter((b) => b.getAttribute("data-sid") === "cards")[0];
+  if (chip) chip.click(); else K.show("due", undefined, { _nav: true });
+  await app.settle();
+  const res = q("[data-ui~='fc.resumed']");
+  assert(res && !res.hidden, "the run says it was picked up");
+  eq(count(), mid, "and goes on from the next card, the same count left");
+  assert(!app.errors.length, "no page errors: " + app.errors.slice(0, 3).join(" | "));
+});
+
 (async () => {
   let failed = 0;
   for (const [name, fn] of steps) {
