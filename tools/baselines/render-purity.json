@@ -2350,11 +2350,7 @@
       "tag": "button"
      },
      "occurrence": 0,
-     "effects": {
-      "state": [
-       "study"
-      ]
-     }
+     "effects": {}
     },
     {
      "key": {
@@ -2818,11 +2814,7 @@
       "tag": "button"
      },
      "occurrence": 0,
-     "effects": {
-      "state": [
-       "study"
-      ]
-     }
+     "effects": {}
     },
     {
      "key": {
