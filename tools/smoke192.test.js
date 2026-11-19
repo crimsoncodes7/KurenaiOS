@@ -187,6 +187,22 @@ step("B · CO-32: Tasks passed is passed of the tasks there are", async () => {
 step("B · CO-07: the retrieval page names next variations, no invented dates", async () => {
   const src = require("fs").readFileSync(require("path").join(__dirname, "..", "js/modules/code.js"), "utf8");
   assert(!/ivl \* ef/.test(src), "no SM-2 projection left in the retrieval page");
+  const st = K.code.state(), today = K.srs.todayISO(), saved = st.cards;
+  st.cards = { "u10-cli": { due: today, ivl: 2, ef: 2.5, reps: 0, lapses: 0, n: 1 }, "u10-xunit": { due: today, ivl: 2, ef: 2.5, reps: 0, lapses: 0, n: 1 } };
+  K.show("code", { page: "retrieval" }); await app.settle();
+  const sub = () => q("[data-ui~='ui.page-sub']").textContent;
+  assert(/2 due today/.test(sub()), "two due: " + sub());
+  const nx = q(".k-cx-rnext");
+  if (nx) assert(!/in \d+ (days|months)/.test(nx.textContent), "no projected dates: " + nx.textContent);
+  /* three wrong answers end the card: the header follows */
+  const card = q("[data-ui~='code.retrieval-card']").parentNode;
+  for (let i = 0; i < 3; i++) {
+    const inp = card.querySelector("input, textarea"); inp.value = "nope " + i;
+    click(q("[data-ui~='code.retrieval-check']")); await app.settle();
+  }
+  assert(q("[data-ui~='code.retrieval-outcome']"), "the card is finished");
+  assert(/1 due today/.test(sub()), "the header counts what is left: " + sub());
+  st.cards = saved; K.store.save();
 });
 
 /* ---------------- C ---------------- */

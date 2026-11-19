@@ -1070,6 +1070,9 @@
           : el("p", { class: "k-cx-note", text: "That was the last one due today." }));
         out.appendChild(box);
         drawList();
+        /* CO-07: the header's count follows the answers, as the tab's does */
+        var left = due.filter(function (r) { return !done[r.id]; }).length, subN = main.querySelector("[data-ui~='ui.page-sub'] [data-ui~='part.board']");
+        if (subN) subN.textContent = "Prove each skill again from memory" + (left ? " · " + left + " due today" : " · all done today");
         KOS.refreshRailCounters && KOS.refreshRailCounters();
       }
       function check() {
