@@ -1151,8 +1151,8 @@
   /* ================= recovery mode ================= */
   /* The fastest route from Critical back to Strained: three concrete wins
      (Graphite 7a·crit / 12a2), each measured from what already happened
-     today — the session log, the plan's ticks and completed tasks. The
-     checklist is a read: it pays nothing and gates nothing (invariant 2). */
+     today — the session log and completed tasks, each a row that pays HP
+     (AG-20: a plan tick pays none, invariant 82). The checklist is a read: it pays nothing and gates nothing (invariant 2). */
   function recoveryTasks() {
     var today = KOS.srs.todayISO();
     function dayOf(ts) {

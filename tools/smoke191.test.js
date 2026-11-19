@@ -78,19 +78,40 @@ step("D · HR-22: a fresh account saves no report", async () => {
 });
 
 step("G · AA-29: no backdated carry-over notice on a fresh account", async () => {
+  const carryN = () => (K.store.state.notify.items || []).filter((n) => /^pace:carry:/.test(n.id));
+  const dropCarry = () => { K.store.state.notify.items = (K.store.state.notify.items || []).filter((n) => !/^pace:carry:/.test(n.id)); };
+  const now = K.pacing.currentWeek().wb;   /* the harness's week of 21 Sep; created Thu 24 Sep */
+  /* the shipped plan with a seed row left unticked two weeks ago: what a
+     first open finds when the seed's weeks are already behind it */
+  const seedRow = K.store.state.pacing.entries.filter((e) => e.source === "personal" && !e.done)[0];
+  const seedWb = seedRow.wb;
+  seedRow.wb = "2026-09-07"; K.store.save();
+  assert(K.pacing.carriedInto(now).some((c) => c.entry.id === seedRow.id), "the seed row carries (the case is real)");
   K.pacing.noteRollover();
-  const carry = (K.store.state.notify.items || []).filter((n) => /^pace:carry:/.test(n.id));
-  eq(carry.length, 0, "the shipped plan's earlier weeks are not this account's backlog");
-  /* an account whose record began on 1 September: its carry-over is real,
-     and stamped no earlier than the record began */
+  eq(carryN().length, 0, "the shipped plan's earlier weeks are not this account's backlog");
+  /* a row the user planned themselves in an earlier week is real backlog,
+     and its notice is stamped no earlier than the record began (Thu, not Mon 08:00) */
+  const own = K.pacing.addEntry({ wb: "2026-09-14", subject: "compsci", title: "My own row", source: "personal" });
+  assert(own, "a personal row added");
+  K.pacing.noteRollover();
+  const c1 = carryN();
+  eq(c1.length, 1, "the user's own row raises the notice");
+  assert(/^1 plan topic/.test(c1[0].title), "only the user's row counts: " + c1[0].title);
+  const began = K.sessions.since();
+  assert(c1[0].ts >= began && c1[0].ts <= Date.now(), "stamped inside the record: " + new Date(c1[0].ts));
+  dropCarry();
+  /* an account whose record began on 1 September: the seed row from the
+     week of 7 Sep is its own backlog */
   const keep = K.store.state.created;
-  const began = new Date("2026-09-01T12:00:00").getTime();
-  K.store.state.created = began;
+  K.store.state.created = new Date("2026-09-01T12:00:00").getTime();
   K.pacing.noteRollover();
-  const c2 = (K.store.state.notify.items || []).filter((n) => /^pace:carry:/.test(n.id));
-  if (c2.length) assert(c2[0].ts >= began && c2[0].ts <= Date.now(), "stamped inside the record: " + new Date(c2[0].ts));
-  K.store.state.notify.items = (K.store.state.notify.items || []).filter((n) => !/^pace:carry:/.test(n.id));
+  const c2 = carryN();
+  eq(c2.length, 1, "the notice is raised");
+  assert(/^2 plan topics/.test(c2[0].title), "both rows carried: " + c2[0].title);
+  dropCarry();
   K.store.state.created = keep;
+  K.pacing.removeEntry(own.id);
+  seedRow.wb = seedWb;
   K.store.save();
 });
 
