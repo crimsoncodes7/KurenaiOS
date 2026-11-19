@@ -1,12 +1,14 @@
 ---
 name: project-branch-and-release-state
-description: "Which git branch is live, what is deployed — check git before trusting this; prod kos-exams-3; prod kos-exams-4 (exams audit + W8); suites from 188"
+description: "Which git branch is live, what is deployed — check git before trusting this; prod kos-exams-4; feat/w1w7-rest holds the rest of W1/W7 (not deployed); suites from 194"
 metadata:
   node_type: memory
   type: project
   originSessionId: 2e2dc728-9366-4708-9ad8-6718d38edac2
   modified: 2026-11-17T21:04:49.853Z
 ---
+
+**Newest (2026-11-19, Opus): `feat/w1w7-rest` (pushed, NOT deployed; gate 175/175 = `""`, 2–156, 160–164, 180–193):** the rest of W1 (smoke188) and every design-free W7 finding in four agent batches + batch F (Goals smoke189, Search 190, Home/Reports/Wall 191, Study spaces 192, Collection/Money/Productivity/EX-24 193). Boot DOWN: page-player (routine player) and page-share (report share card) are lazy, budget 7.92 → 7.90 MB. Browser-checked desktop + iPad (fixed Mind welcome card collapse at ≤1080). Runner logic.ts now passes a `hash` for closed-app taps (SH-30): deploying needs the runner Edge Function redeployed too. Held: HR-04, PR-06, JM-21, MI-10, JM-26; open question: unlinked Focus in Reports' split. Left in W1: DI-02, DI-13 (Fable). Deploy needs the user's go-ahead + sw bump. New suites from 194.
 
 **RELEASE kos-exams-4 (2026-11-18, latest, Opus): `feat/exams-audit` (W8 speed + hub split + page bundles merged, then the Exams & Papers audit fixes f0f0e7e; docs/exams-audit-2026-11-18.md; smoke187; gate 169).** Fixed: A4 paper sheets screen=print and Print menu (paper/both/scheme, never the app); OCR F201 SAM in the index via js/data/exam-index-ocr.js (merged by exampapers.js) + OCR file-name matching; past papers inline in each exam's Papers section; grade dropdown; plain prediction line; any tier's result; attempt Edit/Delete+Undo (KOS.trackerEdit/trackerDelete); exam ⋯ Edit/Archive/Delete (KOS.examDelete) + Archived list; viewer finds OCR questions, asks/remembers pages (ui.paperPages); hub tab Library→Practice. Suites from 188.
 
