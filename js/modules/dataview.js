@@ -294,18 +294,19 @@
       el("p", { class: "k-bk-reset-p", text: "This removes everything KurenaiOS keeps on this device: study progress, notes and schedules, the Governor, the Collection, files, Money, handwriting, Mind's Journal, Creatives' work, saved Reports and the Paper library. A checked copy of this device is saved first and kept (Archive › Storage), and your sign-ins stay. A signed-in device then takes your account's copy back down." }),
       el("label", { class: "k-field" }, [el("span", { class: "k-field-label" }, ["Type ", el("b", { class: "k-mono", text: "RESET" }), " to confirm"]), input]),
       el("div", { class: "k-bk-reset-btns" }, [
-        el("button", { type: "button", class: "k-btn", text: "Export backup first", onclick: function () { overlay.remove(); exportBtn.click(); } }),
-        el("button", { type: "button", class: "k-btn k-bk-cancel", text: "Cancel", onclick: function () { overlay.remove(); } }),
+        el("button", { type: "button", class: "k-btn", text: "Export backup first", onclick: function () { overlay.close(); exportBtn.click(); } }),
+        el("button", { type: "button", class: "k-btn k-bk-cancel", text: "Cancel", onclick: function () { overlay.close(); } }),
         go
       ])
     ]);
-    var overlay = el("div", { class: "k-dialog-overlay", onclick: function (e) { if (e.target === overlay) overlay.remove(); } }, [box]);
+    var overlay = el("div", { class: "k-dialog-overlay", onclick: function (e) { if (e.target === overlay) overlay.close(); } }, [box]);
+    overlay.close = function () { overlay.remove(); };
     input.addEventListener("input", function () { go.disabled = input.value.trim() !== "RESET"; });
     /* Enter never confirms a danger dialog (invariant 49) */
     input.addEventListener("keydown", function (e) { if (e.key === "Enter") e.preventDefault(); });
     go.addEventListener("click", function () {
       if (input.value.trim() !== "RESET") return;
-      overlay.remove();
+      overlay.close();
       resetEverything();
     });
     /* headless harnesses confirm through the same hook KOS.ui.confirm honours */

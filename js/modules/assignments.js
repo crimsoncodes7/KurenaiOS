@@ -86,7 +86,7 @@
       return s;
     }
     var tools = el("div", { class: "k-asg-tools", "data-ui": "asg.tools" }, [
-      pillSelect("Filter by subject", p.subject || "", [["", "All subjects"]].concat(Object.keys(window.KOS_DATA || {}).filter(function (k) { return KOS_DATA[k] && KOS_DATA[k].sections; }).map(function (sid) { return [sid, subjName(sid)]; })), function (v) { p.subject = v; }),
+      pillSelect("Filter by subject", p.subject || "", [["", "All subjects"]].concat(KOS.subjects.ids().map(function (sid) { return [sid, KOS.subjects.name(sid)]; })), function (v) { p.subject = v; }),
       pillSelect("Filter by status", p.status || "", [["", "Any status"]].concat(A().STATUSES.map(function (s) { return [s.v, s.label]; })), function (v) { p.status = v; }),
       pillSelect("Filter by deadline", p.due || "", A().DUE_FILTERS.map(function (d) { return [d.v, d.label]; }), function (v) { p.due = v; }),
       pillSelect("Sort", p.sort || "due", A().SORTS.map(function (s) { return [s.v, "Sort: " + s.label.toLowerCase()]; }), function (v) { p.sort = v; })
@@ -354,7 +354,7 @@
     }
 
     var title = input("text", a.title || "", { placeholder: "e.g. NEA writeup — analysis section" });
-    var subj = select([["", "No subject"]].concat(Object.keys(window.KOS_DATA || {}).filter(function (k) { return KOS_DATA[k] && KOS_DATA[k].sections; }).map(function (sid) { return [sid, subjName(sid)]; })), a.subject || "");
+    var subj = select([["", "No subject"]].concat(KOS.subjects.ids().map(function (sid) { return [sid, KOS.subjects.name(sid)]; })), a.subject || "");
     var type = select(A().TYPES.map(function (t) { return [t.v, t.label]; }), a.type || "homework");
     var desc = el("textarea", { class: "k-input", rows: "2", placeholder: "What is actually being asked for?" });
     desc.value = a.description || "";
