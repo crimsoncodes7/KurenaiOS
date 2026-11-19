@@ -134,7 +134,8 @@ step("Today / Scheduled / Upcoming / Overdue / Completed derive from one array",
   R().complete(done.id, true);
 
   const ids = s => R().query({ section: s }).map(i => i.title).sort();
-  if (ids("today").join() !== "due today") throw new Error("Today: " + ids("today"));
+  /* Today holds what slipped too (audit PR-11) */
+  if (ids("today").join() !== ["due today", "was due"].sort().join()) throw new Error("Today: " + ids("today"));
   if (ids("scheduled").join() !== ["due later", "due today", "was due"].sort().join()) throw new Error("Scheduled: " + ids("scheduled"));
   if (ids("upcoming").join() !== "due later") throw new Error("Upcoming: " + ids("upcoming"));
   if (ids("overdue").join() !== "was due") throw new Error("Overdue: " + ids("overdue"));

@@ -90,8 +90,10 @@ step("a re-pull of an unchanged list leaves updatedAt alone", async () => {
   afterSecond = await only();
   assert(afterSecond.updatedAt === afterFirst.updatedAt,
     "a no-op merge restamped updatedAt — the whole vault will push every autosync cycle");
-  assert(res.updated === 1 && res.added === 0,
-    "the merge stopped happening altogether; only the timestamp should be held back");
+  /* the row is still matched and merged; a merge that changed nothing is
+     counted as unchanged, not updated (audit CL-32) */
+  assert(res.unchanged === 1 && res.updated === 0 && res.added === 0,
+    "the merge stopped happening altogether, or a no-op merge was reported as an update: " + JSON.stringify(res));
 });
 
 step("a no-op merge invents no reward and damages no data", async () => {

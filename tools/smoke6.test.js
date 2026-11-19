@@ -224,7 +224,8 @@ step("first sync inserts; second sync matches by vndbId — never duplicates", a
   const r1 = await p(cb => KOS.mediadb.bulkUpsert([inc], {}, cb));
   if (r1.added !== 1 || r1.updated !== 0) throw new Error(JSON.stringify(r1));
   const r2 = await p(cb => KOS.mediadb.bulkUpsert([inc], {}, cb));
-  if (r2.added !== 0 || r2.updated !== 1) throw new Error("dup: " + JSON.stringify(r2));
+  /* the same row again matches and changes nothing (audit CL-32: counted as unchanged, not updated) */
+  if (r2.added !== 0 || r2.updated !== 0 || r2.unchanged !== 1) throw new Error("dup: " + JSON.stringify(r2));
   const rows = await p(cb => KOS.mediadb.query({ module: "vn" }, cb));
   if (rows.length !== 1) throw new Error("rows: " + rows.length);
   vnId = rows[0].id;
