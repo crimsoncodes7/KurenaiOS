@@ -608,6 +608,15 @@ recall from three rated cards AND a quiz or paper at 70+, else Amber "not
 enough evidence". LEFT: **HR-04** (Home's "what next" for the study spaces:
 a design).
 
+- **Progress (19 Nov, `feat/w1w7-rest`, not released):** the rest of W1,
+  audited first: **DI-24 / AA-12 FIXED** (a restore replaces handwriting and
+  files the backup does not hold; a backup whose files could not be read
+  leaves them), **EX-45 / AA-27 FIXED** (one file size, `KOS.ui.bytes`),
+  **DI-15 FIXED** (Storage measures every database, `KOS.stores.size`);
+  smoke188. LEFT in W1: **DI-02** (Todoist's failed second batch) and
+  **DI-13** (an unreadable stored state), both sync work for the Fable
+  account.
+
 ### W2 — Redraw policy, view lifecycle and boot (about 2–3 sessions; replaces the stopgap)
 - **The change bus.**
   - A background change carries the keys it changed, and a view declares
@@ -1170,6 +1179,27 @@ rewritten by rule; the validator refuses the shape). Not built from turn
 choice) and "No plan" on Start fresh (the plan seed is kept). The boot
 budget in smoke142 was RAISED 8.7 → 8.85 MB for these releases, against
 its "only goes down" rule; AP-01 stage 2 would win it back.
+
+- **Progress (19 Nov, `feat/w1w7-rest`, not released; gate 175/175):**
+  every remaining W7 finding with no design, audited before fixing, in four
+  batches, each with its own suite. **Goals** (smoke189): GO-03, 04, 05, 08,
+  09, 10, 11, 18, 19, 24, 26, 27, MG-30, MG-37. **Search** (smoke190):
+  SH-06, 07, 18, 29, 34, CC-28, CO-38, CR-37, AX-32 (the extra domains are
+  the lazy bundle `search-more`). **Home, Reports, the Wall** (smoke191):
+  HR-08, 13, 22, 23, 24, 26, 29, AA-29, AG-07 (+AX-29), AG-14 (+AX-33),
+  AG-19, AG-20, AP-19. **Study spaces** (smoke192): CC-21, CM-17, CO-06, 07,
+  32, CR-10, 23, 33, JM-02, 12, 17, 19, 27, 30, 32, 38, MI-04, 06, 15, ST-27,
+  30, 31, 40 (ST-37 was already fixed). **Batch F** (smoke193): CL-09, 10,
+  28, 32, MG-11, 19, PR-11, 20, 32, 35, SH-30, EX-24. Boot went DOWN, not
+  up: the routine player (`page-player`) and the report share card
+  (`page-share`) load on first use, so the budget fell 7.92 → 7.90 MB.
+  Browser-checked at desktop and iPad portrait on the sample data; the
+  check found and fixed Mind's welcome card collapsing at iPad widths.
+  HELD for design or later: **HR-04** (Home's "what next" for the spaces),
+  **PR-06**, **JM-21** (Japanese in Goals/Reports), **MI-10** (Mind in
+  Reports/Goals), **JM-26** (the Assistant's Japanese tools). OPEN QUESTION:
+  Focus time linked to no subject is in Home's Study hours split but not in
+  Reports' (adding it changes what a saved report holds).
 
 ### W8 — Maintainability, performance and docs (about 1–2 sessions)
 - **Help & Guide.** Rewrite it for every shipped area: Money, Goals,
