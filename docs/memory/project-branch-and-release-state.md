@@ -1,12 +1,14 @@
 ---
 name: project-branch-and-release-state
-description: "Which git branch is live, what is deployed — check git before trusting this; prod kos-exams-4; feat/w1w7-rest holds the rest of W1/W7 (not deployed); suites from 194"
+description: "Which git branch is live, what is deployed — check git before trusting this; prod kos-integrity-23 (19 Nov, main 9852e2c); suites from 196"
 metadata:
   node_type: memory
   type: project
   originSessionId: 2e2dc728-9366-4708-9ad8-6718d38edac2
   modified: 2026-11-17T21:04:49.853Z
 ---
+
+**RELEASED 2026-11-19: sw `kos-integrity-23`, immutable https://62721e6a.kurenai-os.pages.dev, main fast-forwarded to feat/w1w7-rest (9852e2c); runner Edge Function v10.** Carries the rest of W1/W7 + the spaces batch (smoke194 Reports/Goals for Japanese/Mind/Creatives, smoke195 the day model/Home Money row/Assistant ja tools), Study hours = study only. Boot budget 7.89 MB (page-player, page-share, page-cardstats lazy). Gate 177. Next: the QoL review with the user (artifact https://claude.ai/artifact/GaUNGxhbmcpSaLFTZj3wTY, marks in its db collection `decisions`). New suites from 196.
 
 **Newest (2026-11-19, Opus): `feat/w1w7-rest` (pushed, NOT deployed; gate 175/175 = `""`, 2–156, 160–164, 180–193):** the rest of W1 (smoke188) and every design-free W7 finding in four agent batches + batch F (Goals smoke189, Search 190, Home/Reports/Wall 191, Study spaces 192, Collection/Money/Productivity/EX-24 193). Boot DOWN: page-player (routine player) and page-share (report share card) are lazy, budget 7.92 → 7.90 MB. Browser-checked desktop + iPad (fixed Mind welcome card collapse at ≤1080). Runner logic.ts now passes a `hash` for closed-app taps (SH-30): deploying needs the runner Edge Function redeployed too. Held: HR-04, PR-06, JM-21, MI-10, JM-26; open question: unlinked Focus in Reports' split. Left in W1: DI-02, DI-13 (Fable). Deploy needs the user's go-ahead + sw bump. New suites from 194.
 
