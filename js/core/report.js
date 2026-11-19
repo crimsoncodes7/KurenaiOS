@@ -30,7 +30,7 @@
   var SUBJECTS = ["compsci", "maths", "it"];
   var MODULES = ["anime", "books", "vn", "game"];
   var MIN_RECALL_REVIEWS = 50, MIN_CHART_DAYS = 3, MIN_PERSONA_BLOCKS = 5, MIN_STORIES = 4;
-  var HEAT_FROM = 7, HEAT_TO = 23;   // the heat grid's hours, 07–23
+  var HEAT_FROM = 7, HEAT_TO = 23;   // the heat grid's least span (HR-08)
   var DAY = 864e5;
 
   /* ---------------- dates ---------------- */
@@ -262,6 +262,10 @@
       topics: list, touched: list.length, toGreen: toGreen, moves: moves, again: again
     };
     if (max) { out.marks = marks; out.max = max; }
+    /* HR-26: days studied with no Focus time, marked on the chart */
+    var untimed = [];
+    Object.keys(studyDays).forEach(function (d) { var i = days(p.start, d); if (i >= 0 && i < n && !(dayMins[i] > 0)) untimed.push(i); });
+    if (untimed.length) out.untimed = untimed.sort(function (a, b) { return a - b; });
     /* the busiest day, for the longer periods (a week reads its chart) */
     var bi = -1;
     dayMins.forEach(function (m, i) { if (m > 0 && (bi < 0 || m > dayMins[bi])) bi = i; });
@@ -314,13 +318,36 @@
     daylight:  { name: "Daylight Scholar", kanji: "昼" }
   };
   function hhmm(h) { return pad(h) + ":00"; }
+  /* HR-13: the one time-of-day reading of Focus (minutes per hour), for
+     the persona and the overview's headline alike → {id, share} */
+  function timeClass(hours, typical) {
+    var h = hours || [], total = sum(h);
+    if (!(total > 0)) return { id: null, share: 0 };
+    var share = function (a, b) { return sum(h.slice(a, b)) / total; };
+    var late = share(21, 24) + share(0, 4), eve = share(18, 24), morn = share(4, 12);
+    if (late >= 0.35) return { id: "nightOwl", share: late };
+    if (eve >= 0.5) return { id: "evening", share: eve };
+    if (morn >= 0.5) return { id: "early", share: morn };
+    if ((typical || 0) >= 50) return { id: "deep", share: 1 };
+    return { id: "daylight", share: share(12, 18) };
+  }
   function focus(input, p) {
     var F = input.inRange.filter(function (e) { return e.type === "focus" && (e.dur || 0) > 0; });
     var n = days(p.start, p.end) + 1, heat = [], byDay = [], hourMins = [], modes = {}, lens = [], blocks = [];
     var wk = p.period === "week";
-    for (var d = 0; d < 7; d++) { heat.push([]); for (var h = HEAT_FROM; h < HEAT_TO; h++) heat[d].push(0); }
     for (var i = 0; i < n; i++) byDay.push(0);
     for (var hh = 0; hh < 24; hh++) hourMins.push(0);
+    /* HR-08: 07–23 at least, widened to every hour Focus touched (`heatFrom`) */
+    var hFrom = HEAT_FROM, hTo = HEAT_TO;
+    F.forEach(function (e) {
+      for (var t0 = e.ts - e.dur * 1000; t0 < e.ts; ) {
+        var d0 = new Date(t0), h0 = d0.getHours();
+        if (h0 < hFrom) hFrom = h0;
+        if (h0 + 1 > hTo) hTo = h0 + 1;
+        t0 = new Date(d0.getFullYear(), d0.getMonth(), d0.getDate(), h0 + 1).getTime();
+      }
+    });
+    for (var d = 0; d < 7; d++) { heat.push([]); for (var h = hFrom; h < hTo; h++) heat[d].push(0); }
     F.forEach(function (e) {
       var start = e.ts - e.dur * 1000, mins = e.dur / 60;
       lens.push(mins);
@@ -333,7 +360,7 @@
         var seg = (Math.min(next, e.ts) - t) / 60000;
         hourMins[dt.getHours()] += seg;
         var wd = (dt.getDay() + 6) % 7, hr = dt.getHours();
-        if (hr >= HEAT_FROM && hr < HEAT_TO) heat[wd][hr - HEAT_FROM] += seg;
+        if (hr >= hFrom && hr < hTo) heat[wd][hr - hFrom] += seg;
         t = next;
       }
       if (wk) {
@@ -357,20 +384,18 @@
     out.modes = modes;
     out.byDay = byDay.map(round);
     out.heat = heat.map(function (r) { return r.map(round); });
+    out.heatFrom = hFrom;
     out.hours = hourMins.map(round);
     if (wk) out.list = blocks;
     out.lengths = lens.map(round);
     /* the persona: a playful name over a factual line (README "Personas") */
     if (F.length >= MIN_PERSONA_BLOCKS && total > 0) {
-      var share = function (a, b) { return sum(hourMins.slice(a, b)) / total; };
-      var eve = share(18, 24), late = share(21, 24) + share(0, 4), morn = share(4, 12);
-      var pct = function (x) { return round(100 * x); };
-      var id, fact;
-      if (late >= 0.35) { id = "nightOwl"; fact = pct(late) + "% of your Focus came after 21:00."; }
-      else if (eve >= 0.5) { id = "evening"; fact = pct(eve) + "% of your Focus came after 18:00, in blocks of about " + out.typical + " minutes."; }
-      else if (morn >= 0.5) { id = "early"; fact = pct(morn) + "% of your Focus came before noon."; }
-      else if (out.typical >= 50) { id = "deep"; fact = "Your typical block ran " + out.typical + " minutes, the longest " + out.longest + "."; }
-      else { id = "daylight"; fact = pct(share(12, 18)) + "% of your Focus came between 12:00 and 18:00."; }
+      var tc = timeClass(hourMins, out.typical), id = tc.id, fact, pct = function (x) { return round(100 * x); };
+      if (id === "nightOwl") fact = pct(tc.share) + "% of your Focus came between 21:00 and 04:00.";
+      else if (id === "evening") fact = pct(tc.share) + "% of your Focus came after 18:00, in blocks of about " + out.typical + " minutes.";
+      else if (id === "early") fact = pct(tc.share) + "% of your Focus came before noon.";
+      else if (id === "deep") fact = "Your typical block ran " + out.typical + " minutes, the longest " + out.longest + ".";
+      else fact = pct(tc.share) + "% of your Focus came between 12:00 and 18:00.";
       out.persona = { id: id, name: PERSONAS[id].name, kanji: PERSONAS[id].kanji, fact: fact,
         stats: [[hhmm(peak), "peak hour"], [out.longest + "m", "longest block"], [String(F.length), "blocks"]] };
     }
@@ -1307,7 +1332,7 @@
     week: week, month: month, term: term, terms: terms, year: year, of: of,
     previous: previous, readyAt: readyAt, isReady: isReady,
     addDays: addDays, monday: monday,
-    compute: compute, totals: totals, gather: gather, build: build,
+    compute: compute, totals: totals, gather: gather, build: build, timeClass: timeClass,
     /* the story list a report's facts imply (pure); a one-off rebuild that
        patches a section re-derives it (the DI-27 clean-up) */
     storiesOf: stories,

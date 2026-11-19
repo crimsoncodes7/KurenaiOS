@@ -330,7 +330,9 @@
          an id only: the assignment record stays canonical, and a deleted
          assignment simply stops resolving rather than leaving a stale copy. */
       assignmentId: cfg.assignmentId != null ? cfg.assignmentId : null,
-      segs: null,                                       // the stretches, set below
+      /* HR-29 */
+      eventId: cfg.eventId != null ? cfg.eventId : null,
+      segs: null,                                      // the stretches, set below
       book: cfg.book || null,                           // 3i: {id,title}|null — the linked vault entry
       /* Build 6.5 — the session's own working record. It rides the persisted
          snapshot, so a reload brings the notes back with the clock. */
@@ -738,6 +740,7 @@
         activities: counts,
         fid: fid,
         assignmentId: main.assignmentId != null ? main.assignmentId : undefined,
+        eventId: sess.eventId != null ? sess.eventId : undefined,
         segments: parts.length > 1 ? parts.map(function (p) {
           var o = { subject: p.subject, ref: p.ref, refs: p.refs, secs: p.secs };
           if (p.assignmentId != null) o.assignmentId = p.assignmentId;
@@ -2528,6 +2531,8 @@
         assignmentId: asgSel.value ? parseInt(asgSel.value, 10) : null,
         objective: objIn.value
       };
+      /* HR-29: the exam's id, while the objective is the one it opened with */
+      if (pre && pre.eventId != null && String(objIn.value).trim() === String(pre.objective || "").trim()) cfg.eventId = pre.eventId;
       /* roadmap 5.10 (frame 33q): About to Study first, unless turned off on
          this device — or unless this form already holds the first action,
          since the form is then the pre-flight; it hands back the same cfg */

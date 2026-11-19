@@ -38,9 +38,15 @@
     var title = String(ev.title || "").trim().toLowerCase();
     return Math.round((store.state.sessions || []).reduce(function (sum, x) {
       if (x.date !== day || x.type === "media" || x.type === "todo" || x.type === "correction" || !x.dur) return sum;
-      var obj = x.metrics && x.metrics.objective;
-      if (obj && labels.indexOf(obj) !== -1) return sum + x.dur;
-      if (obj && title && !leaves.length && asg == null && String(obj).toLowerCase().indexOf(title) !== -1) return sum + x.dur;
+      /* HR-29: by the event's id; the label only for entries without one */
+      var eid = x.metrics && x.metrics.eventId;
+      if (eid != null) {
+        if (String(eid) === String(ev.id)) return sum + x.dur;
+      } else {
+        var obj = x.metrics && x.metrics.objective;
+        if (obj && labels.indexOf(obj) !== -1) return sum + x.dur;
+        if (obj && title && !leaves.length && asg == null && String(obj).toLowerCase().indexOf(title) !== -1) return sum + x.dur;
+      }
       /* by stretch: a switched session counts only its time on this */
       return sum + KOS.sessions.parts(x).reduce(function (n, p) {
         if (asg != null && p.assignmentId === asg) return n + p.secs;
@@ -56,6 +62,12 @@
     return PREP_MINS;
   }
   function hm(t) { var p = String(t || "").split(":"); return +p[0] * 60 + +p[1]; }
+  /* HR-24: a deadlines() row for an exam today whose start has passed */
+  function examSat(d, now) {
+    if (!d || !d.ev || d.ev.type !== "exam" || d.days !== 0 || !/^\d{1,2}:\d{2}$/.test(d.ev.time || "")) return false;
+    now = now || new Date();
+    return now.getHours() * 60 + now.getMinutes() >= hm(d.ev.time);
+  }
   /* is the evidence in for this directive today? (a pure read) */
   function evidence(it) {
     var today = KOS.srs.todayISO();
@@ -110,7 +122,7 @@
     }
 
     /* 2 — upcoming exams/deadlines (priority: nearest first), today's study blocks */
-    KOS.calendar.deadlines().filter(function (d) { return d.days <= 5; }).slice(0, 4).forEach(function (d) {
+    KOS.calendar.deadlines().filter(function (d) { return d.days <= 5 && !examSat(d); }).slice(0, 4).forEach(function (d) {
       out.push({
         key: "ev" + d.ev.id, kind: "ev", ev: d.ev,
         label: (d.ev.type === "exam" ? "Revise for: " : "Prepare: ") + d.ev.title +
@@ -281,7 +293,7 @@
     isChecked: isChecked,
     /* the time today that was FOR an exam or deadline (Home's Focus card
        reads the same figure) */
-    minsFor: minsFor,
+    minsFor: minsFor, examSat: examSat,
     goalMinsFor: goalMinsFor,
     pruneAuto: pruneAuto,
     addManual: addManual,

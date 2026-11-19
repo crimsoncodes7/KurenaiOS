@@ -71,7 +71,10 @@ function eq(a, b, m) { if (JSON.stringify(a) !== JSON.stringify(b)) throw new Er
    MB out of boot (8.78 → 7.87 MB). The rest of the aim needs the modules
    other code reads at boot (Focus, the Assistant, the calendar, the
    vaults, the labs) split into the part boot needs and the page. */
-const BOOT_BUDGET = 7.9 * 1024 * 1024;
+/* 18 Nov 2026 (W7, Home · Reports · Achievements audit fixes): +8 KB of
+   logic at boot (the record's first day, the heat grid's span, exam ids
+   on sessions, the empty-report guard) took boot to 7.904 MB: 7.91. */
+const BOOT_BUDGET = 7.91 * 1024 * 1024;
 
 /* jsdom has no User Timing: a small recorder, set before the app's scripts */
 function timing(win) {
@@ -431,6 +434,10 @@ step("L · after boot the bundles arrive in idle moments, the last subject first
   assert(B["content-" + sid].indexOf(app.lazy.loaded[0]) !== -1, "the subject last studied (" + sid + ") came first: " + app.lazy.loaded[0]);
   eq(app.lazy.misses, [], "nothing read early");
   eq(app.errors.concat(app.consoleErrors), [], "no errors");
+  /* AP-19: Week by week hears each report saved (achSeen), so this boot
+     finishes its slow report tick too, as step D let E finish its own */
+  const weeksL = () => new Promise((res) => app.KOS.reportStore.list("week", (e, l) => res(e ? -1 : (l || []).length)));
+  for (let i = 0, same = 0, last = -2; i < 90 && same < 14; i++) { await app.settle(); const n = await weeksL(); same = n === last ? same + 1 : 0; last = n; }
   await app.settle(); await app.KOS.store.flush(); await E.KOS.store.flush();
   const out = [];
   /* a goal's lastMeasuredAt is WHEN its figure last changed, read off the

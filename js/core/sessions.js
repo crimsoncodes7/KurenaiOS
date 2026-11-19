@@ -316,8 +316,28 @@
      read 12h 14m beside a report of 2h 32m for the same days. */
   function studySecs(e) { return e && e.type === "focus" ? (e.dur || 0) : 0; }
 
+  /* AG-14: when the record begins — the earliest of `created`, the ledger
+     and the badge rollup's months (what the ledger cut). Pure → ms | null */
+  function since() {
+    var st = store.state || {}, best = +st.created > 0 ? +st.created : Infinity;
+    (st.sessions || []).forEach(function (e) {
+      if (!e || e.type === "correction") return;
+      var t = +e.ts > 0 ? +e.ts : e.date ? +new Date(e.date + "T12:00:00") : NaN;
+      if (t > 0 && t < best) best = t;
+    });
+    var months = st.achievements && st.achievements.months;
+    if (months && typeof months === "object") Object.keys(months).forEach(function (m) {
+      if (!/^\d{4}-\d{2}$/.test(m)) return;
+      var row = months[m] || {}, any = Object.keys(row).some(function (k) { return +row[k] > 0; });
+      if (!any) return;
+      var t = new Date(+m.slice(0, 4), +m.slice(5, 7) - 1, 1).getTime();
+      if (best === Infinity || t < new Date(new Date(best).getFullYear(), new Date(best).getMonth(), 1).getTime()) best = t;
+    });
+    return best === Infinity ? null : best;
+  }
+
   KOS.sessions = {
-    studySecs: studySecs,
+    studySecs: studySecs, since: since,
     log: log,
     upsert: upsert, bySid: bySid, run: run,
     all: function () { return store.state.sessions; },

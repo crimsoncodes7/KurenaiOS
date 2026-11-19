@@ -1163,9 +1163,12 @@
     var focused = KOS.sessions.forDate(today, null).some(function (e) {
       return e.type === "focus" && !(e.metrics && e.metrics.complete === false) && (e.dur || 0) >= 25 * 60;
     });
-    var planTicks = ((store.state.pacing && store.state.pacing.entries) || []).filter(function (e) {
-      return e.done && dayOf(e.doneAt) === today;
-    }).length;
+    /* AG-20: every row pays HP (a plan tick moves none, invariant 82) */
+    var reviewed = KOS.sessions.forDate(today, null).some(function (e) {
+      var m = e.metrics || {};
+      return (e.type === "flashcards" || e.type === "due-review" || e.type === "quiz") && m.done !== false && !m.undone;
+    });
+    var lateReminder = KOS.reminders && KOS.reminders.all ? KOS.reminders.all().some(function (r) { return KOS.reminders.isOverdue(r); }) : false;
     var cleared = ((store.state.reminders && store.state.reminders.items) || []).some(function (r) {
       return r.done && r.due && dayOf(r.completedAt) === today && r.due < today;
     }) || ((store.state.assignments && store.state.assignments.items) || []).some(function (a) {
@@ -1175,10 +1178,10 @@
     return [
       { label: "25-min focus session", cur: focused ? 1 : 0, target: 1,
         go: function () { KOS.show("focus"); } },
-      { label: "Tick 2 plan items", cur: Math.min(2, planTicks), target: 2,
-        go: function () { KOS.show("pacing"); } },
+      { label: "Review your cards or take a quiz", cur: reviewed ? 1 : 0, target: 1,
+        go: function () { KOS.show("due"); } },
       { label: "Clear an overdue task", cur: cleared ? 1 : 0, target: 1,
-        go: function () { KOS.show("assignments"); } }
+        go: function () { KOS.show(lateReminder ? "reminders" : "assignments"); } }
     ];
   }
 

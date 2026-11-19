@@ -233,8 +233,14 @@ step("I · HR-02: a week saved before the history arrived is rebuilt once; nothi
   K.store.state.sessions = []; K.store.save();
   eq((await cbp((c) => RS.ensureReports(c))).length, 0, "nothing saved while the account's copy is on its way");
   K.cloudsync.settled = realSettled; K.cloud.userId = realUid;
-  /* saved empty, as on a new device before its pull */
+  /* HR-22: an empty latest week is no longer saved at all ... */
   await cbp((c) => RS.ensureReports(c));
+  eq(await cbp((c) => RS.getReport(wk.id, c)), null, "an empty week is not saved");
+  /* ... but one saved empty by an older version, as on a new device before
+     its pull, is still rebuilt once when the history arrives */
+  const emptyFacts = await wait(new Promise((res) => R.build(wk, { rebuilt: false, prev: null }, res)));
+  await cbp((c) => RS.putReport({ id: wk.id, period: wk.period, start: wk.start, end: wk.end, savedAt: Date.now(), facts: emptyFacts,
+    words: { mode: "template", headline: null, narrative: null, writtenAt: null, status: "idle" } }, c));
   const before = await cbp((c) => RS.getReport(wk.id, c));
   assert(before && !before.facts.study.mins, "last week saved with no study");
   /* the history arrives: Focus on a day of that week */

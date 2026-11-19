@@ -35,7 +35,8 @@
   var MOD_HUE = { anime: "var(--anime)", books: "var(--books)", vn: "var(--vn)", game: "var(--games)" };
   var MOD_SHORT = { anime: "Anime", books: "Books", vn: "VNs", game: "Games" };
   var MODULES = ["anime", "books", "vn", "game"];
-  var SUBJECTS = ["compsci", "maths", "it"];
+  /* HR-23: every subject */
+  var SUBJECTS = KOS.subjects && KOS.subjects.ids ? KOS.subjects.ids() : ["compsci", "maths", "it"];
   var BAND = { r: "Red", a: "Amber", g: "Green" };
   var DOW = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   var MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -43,7 +44,7 @@
   var FLOW_LABEL = { compsci: "CS", maths: "Maths", it: "IT", cards: "Flashcards", quiz: "Quiz" };
   var AREA_LABEL = { study: "Study", planner: "Plan", collection: "Collection", governor: "Governor", archive: "Archive" };
   var SEAL = { week: "週", month: "月", term: "期", year: "年" };
-  var HEAT_FROM = 7;
+  var HEAT_FROM = 7;   // a saved grid without `heatFrom` (HR-08)
 
   /* per-visit view state (never saved: a filter is not data) */
   var view = { selected: null, coll: { module: "all", layout: "covers", sort: "time", all: false }, activity: "time" };
@@ -320,6 +321,12 @@
         g.appendChild(r);
         y0 -= h;
       });
+      if (!totals[i] && opts.marks && opts.marks.indexOf(i) !== -1) {
+        var dotc = svgNode("circle", { cx: x + bw / 2, cy: H - padB - 5, r: 3.5, "data-ui": "reports.untimed-day" });
+        paint(dotc, "fill", "var(--muted)");
+        g.appendChild(dotc);
+        g.firstChild.textContent = (c.title || c.label) + ": studied, no Focus time";
+      }
       if (c.label && (i % every === 0 || i === hiI)) {
         var lt = svgNode("text", { x: x + bw / 2, y: H - padB + 15, "text-anchor": "middle", "font-size": "11",
           "font-weight": i === hiI ? "600" : "400", text: c.label });
@@ -375,10 +382,12 @@
       /* an early saved shape has day totals only: one neutral stack */
       if (!s.daySubj) { keys = ["all"]; hues = { all: "var(--teal)" }; cols = DOW.map(function (d, i) { return { label: d, parts: { all: s.dayMins[i] || 0 } }; }); }
     }
+    /* HR-26 */
+    var marks = unit === "mins" && s.untimed ? s.untimed : null;
     var chart = fluid(function (w) {
-      var c = stacked(cols, keys, hues, { unit: unit, width: w, height: opts.height || 200 });
+      var c = stacked(cols, keys, hues, { unit: unit, width: w, height: opts.height || 200, marks: marks });
       c.setAttribute("role", "img");
-      c.setAttribute("aria-label", "Study by day: " + DOW.map(function (d, i) { return d + " " + W.hm(s.dayMins[i]); }).join(", "));
+      c.setAttribute("aria-label", "Study by day: " + DOW.map(function (d, i) { return d + " " + (!s.dayMins[i] && marks && marks.indexOf(i) !== -1 ? "studied, no Focus time" : W.hm(s.dayMins[i])); }).join(", "));
       return c;
     });
     return opts.bare ? chart : el("div", { class: "k-rp-chartwrap" }, [chart, s.daySubj ? subjLegend(keys) : null].filter(Boolean));
@@ -804,19 +813,19 @@
     if (activeDays < 3) return dayTiles(f, fo.byDay || [], W.hm);
     var max = 1;
     fo.heat.forEach(function (r) { r.forEach(function (v) { if (v > max) max = v; }); });
-    var cols = fo.heat[0].length;
+    var cols = fo.heat[0].length, from = fo.heatFrom != null ? fo.heatFrom : HEAT_FROM;
     var grid = el("div", { class: "k-rp-heat", role: "img", style: "--cols: " + cols,
       "aria-label": "Focus by weekday and hour; the busiest hour " + pad2(fo.peakHour) + ":00" });
     fo.heat.forEach(function (row, d) {
       grid.appendChild(el("span", { class: "k-rp-heat-l", "aria-hidden": "true", text: "MTWTFSS".charAt(d) }));
       row.forEach(function (v, h) {
         grid.appendChild(el("span", { class: "k-rp-heat-c", style: "--a: " + (v ? (0.22 + 0.78 * v / max).toFixed(2) : "0"),
-          title: DOW[d] + " " + pad2(HEAT_FROM + h) + ":00 · " + W.hm(v) }));
+          title: DOW[d] + " " + pad2(from + h) + ":00 · " + W.hm(v) }));
       });
     });
     grid.appendChild(el("span", { "aria-hidden": "true" }));
     for (var h = 0; h < cols; h++) {
-      grid.appendChild(el("span", { class: "k-rp-heat-x", "aria-hidden": "true", text: h % 4 === 0 ? pad2(HEAT_FROM + h) : "" }));
+      grid.appendChild(el("span", { class: "k-rp-heat-x", "aria-hidden": "true", text: (from + h) % 4 === 3 || h === 0 ? pad2(from + h) : "" }));
     }
     return grid;
   }
@@ -1164,7 +1173,7 @@
       side.appendChild(card("Firsts, lasts and flow", {}, [
         fl.length ? kvRows(fl) : null,
         s.flow ? el("h3", { class: "k-rp-subhead", text: "What you studied next" }) : null,
-        s.flow ? flowList(s.flow.map(function (x) { return { from: FLOW_LABEL[x.from] || x.from, fromHue: SUBJ_HUE[x.from] || "var(--teal)", to: FLOW_LABEL[x.to] || x.to, toHue: SUBJ_HUE[x.to] || "var(--teal)", n: x.n + "×" }; })) : null
+        s.flow ? flowList(s.flow.map(function (x) { return { from: FLOW_LABEL[x.from] || W.SUBJECT_SHORT[x.from] || x.from, fromHue: SUBJ_HUE[x.from] || "var(--teal)", to: FLOW_LABEL[x.to] || W.SUBJECT_SHORT[x.to] || x.to, toHue: SUBJ_HUE[x.to] || "var(--teal)", n: x.n + "×" }; })) : null
       ].filter(Boolean)));
     }
     if (s.next) side.appendChild(nextUp(s.next));
@@ -1275,9 +1284,17 @@
       p.kanji ? el("span", { class: "k-rp-persona-ghost", lang: "ja", "aria-hidden": "true", text: p.kanji }) : null
     ].filter(Boolean));
   }
-  /* every block where it happened: a row a day, 07–23 */
+  /* every block where it happened: a row a day, 07–23 at least (HR-13) */
   function timeline(rep, list) {
-    var from = HEAT_FROM * 60, to = 23 * 60, span = to - from;
+    var from = HEAT_FROM * 60, to = 23 * 60;
+    list.forEach(function (b) {
+      var st = new Date(b.ts), m = st.getHours() * 60 + st.getMinutes();
+      if (m < from) from = Math.floor(m / 60) * 60;
+      if (m + b.mins > to) to = Math.min(24 * 60, Math.ceil((m + b.mins) / 60) * 60);
+    });
+    var span = to - from, ticks = [];
+    for (var th = from / 60; th <= to / 60; th++) if ((th - from / 60) % 2 === 0 || th === to / 60) ticks.push(th);
+    if (ticks.length > 1 && ticks[ticks.length - 1] - ticks[ticks.length - 2] < 2) ticks.splice(ticks.length - 2, 1);
     var busiest = -1, best = 0;
     var rows = DOW.map(function (d, i) {
       var day = KOS.report.addDays(rep.start, i);
@@ -1304,7 +1321,7 @@
       }))]);
     });
     var axis = el("li", { class: "k-rp-tl-row k-rp-tl-axis", "aria-hidden": "true" }, [el("span", {}), el("span", { class: "k-rp-tl-track" },
-      [7, 9, 11, 13, 15, 17, 19, 21, 23].map(function (h) { return el("span", { class: "k-rp-tl-x", style: "--l: " + (100 * (h * 60 - from) / span).toFixed(2) + "%", text: pad2(h) }); }))]);
+      ticks.map(function (h) { return el("span", { class: "k-rp-tl-x", style: "--l: " + (100 * (h * 60 - from) / span).toFixed(2) + "%", text: pad2(h % 24) }); }))]);
     return el("ol", { class: "k-rp-tl", role: "img", "aria-label": W.plural(list.length, "Focus block") + " drawn by day and time of day" }, rows.concat([axis]));
   }
   function dateIso(d) { return d.getFullYear() + "-" + pad2(d.getMonth() + 1) + "-" + pad2(d.getDate()); }
@@ -1587,7 +1604,7 @@
   /* the parts the month, term and year pages share (reportlong.js) */
   KOS.reportsKit = {
     el: el, mono: mono, dot: dot, card: card, cardHead: cardHead, more: more, tile: tile, tiles: tiles, crumbs: crumbs,
-    stacked: stacked, fluid: fluid, pack: pack, masonry: masonry, two: two, rideAlong: rideAlong, legend: legend, subjLegend: subjLegend,
+    stacked: stacked, periodChart: periodChart, fluid: fluid, pack: pack, masonry: masonry, two: two, rideAlong: rideAlong, legend: legend, subjLegend: subjLegend,
     bars: bars, kvRows: kvRows, codeCard: codeCard, creativesCard: creativesCard, creativesStrip: creativesStrip, examsCard: examsCard, moneyCard: moneyCard, goalsCard: goalsCard, kurenaiSees: kurenaiSees, splitBar: splitBar, dayTiles: dayTiles, daySubjChart: daySubjChart,
     cover: cover, coverOf: coverOf, heat: heat, lengths: lengths, personaChip: personaChip, personaCard: personaCard, hiLo: hiLo,
     flowList: flowList, nextUp: nextUp, topicRows: topicRows, genreBars: genreBars,

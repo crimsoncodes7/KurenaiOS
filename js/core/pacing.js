@@ -913,14 +913,20 @@
     if (KOS.welcome && KOS.welcome.pending()) return false;
     var now = currentWeek();
     if (!now) return false;
-    var carried = carriedInto(now.wb);
+    /* AA-29: a seed row from a week before the record began is no backlog */
+    var began = KOS.sessions && KOS.sessions.since ? KOS.sessions.since() : null;
+    var bd = began ? new Date(began) : null;
+    var beganIso = bd ? bd.getFullYear() + "-" + ("0" + (bd.getMonth() + 1)).slice(-2) + "-" + ("0" + bd.getDate()).slice(-2) : null;
+    var seedIds = {};
+    ((window.KOS_PACING && window.KOS_PACING.entries) || []).forEach(function (e) { if (e && e.id) seedIds[e.id] = true; });
+    var carried = carriedInto(now.wb).filter(function (c) { return !beganIso || !seedIds[c.entry.id] || weekEnd(c.entry.wb) >= beganIso; });
     if (!carried.length) return false;
     var p = now.wb.split("-");
     return KOS.notify.push({ id: "pace:carry:" + now.wb, kind: "pacing",
       title: carried.length + (carried.length === 1 ? " plan topic" : " plan topics") + " carried over into this week",
       body: "Unticked from earlier weeks — tick them off or move them: " +
         carried.slice(0, 3).map(function (c) { return c.entry.title; }).join(", ") + (carried.length > 3 ? "…" : ""),
-      ts: new Date(+p[0], +p[1] - 1, +p[2], 8, 0, 0, 0).getTime(),
+      ts: Math.min(Date.now(), Math.max(new Date(+p[0], +p[1] - 1, +p[2], 8, 0, 0, 0).getTime(), began || 0)),
       view: "pacing", arg: now.wb });
   }
 

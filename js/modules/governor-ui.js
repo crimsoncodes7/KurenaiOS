@@ -24,10 +24,11 @@
    governor prices from that log; invariants #1/#5), only filed into the
    Session Log's System category, coalesced per day + provider.
 
-   Rewards are not stored on a session, so a row prints only what the
-   record itself determines: a Focus row its award (KOS.governor.focusAward,
-   the one pure definition — invariant 4a), a Collection row "rest"
-   (invariant 3). Nothing re-derives the rest after the fact. */
+   A row prints what the entry itself records it was paid (`award`,
+   invariant 100) — every type, never re-priced (AG-19, invariant 4a). Only
+   a Focus entry from before awards were recorded falls back to
+   KOS.governor.focusAward; a Collection row with no pay says "rest"
+   (invariant 3). */
 (function () {
   "use strict";
   var el = KOS.ui.el, store = KOS.store;
@@ -105,7 +106,7 @@
   var CAT_TONE = { study: "teal", focus: "crimson", tasks: "green", papers: "amber", collection: "bloom", system: "muted" };
 
   function subjName(sid) {
-    return sid && KOS_DATA[sid] ? KOS_DATA[sid].name.replace("Computer Science", "CS").replace("Mathematics", "Maths") : sid;
+    return sid && KOS_DATA[sid] ? KOS_DATA[sid].name.replace("Computer Science", "CS").replace("Mathematics", "Maths") : sid && KOS.subjects && KOS.subjects.short ? KOS.subjects.short(sid) : sid;
   }
   function clock(ts) {
     return ts ? new Date(ts).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" }) : "";
@@ -168,6 +169,32 @@
         info.label = "System"; info.title = m.title || "Correction";
         info.detail = (m.xp ? m.xp + " XP" : "") + (m.gold ? (m.xp ? " · " : "") + (m.refund ? "+" : "") + m.gold + " gold" : "") + (m.note ? " · " + m.note : "");
         info.category = "system"; info.meaningful = false; break;
+      /* AG-19: the study spaces' own entries, read from their metrics
+         (they fell to "Activity · Code · Code") */
+      case "code":
+        info.label = "Code";
+        info.title = { task: m.seen ? "Task practised (answer seen)" : m.phone ? "Task passed on the phone" : m.topup ? "Task passed in full (top-up)" : "Task passed",
+          retrieval: "Retrieval answered", practice: "Practice proved", capstone: "Capstone passed", project: "Project complete",
+          kata: "Kata round" }[m.kind] || "Code work";
+        info.detail = "Code" + (s.ref ? " · " + s.ref : "") + (m.kind === "kata" && m.total ? " · " + (m.right || 0) + "/" + m.total + " right" : "")
+          + (m.kind === "capstone" && m.max ? " · " + (m.rubric || 0) + "/" + m.max : "");
+        break;
+      case "ja":
+        info.label = "Japanese";
+        info.title = { session: "Review session", lesson: "Lesson complete", checkpoint: "Checkpoint passed", gate: "Gate passed" }[m.kind] || "Japanese study";
+        info.detail = m.kind === "session" ? (m.n || 0) + " answered · " + (m.passed || 0) + " passed" + (m.capped ? " · daily cap reached" : "")
+          : "Japanese" + (s.ref ? " · " + s.ref : "");
+        break;
+      case "mind":
+        info.label = "Mind";
+        info.title = { reviews: "Review block", lesson: "Lesson complete", checkpoint: "Checkpoint passed", path: "Path complete" }[m.kind] || "Mind study";
+        info.detail = m.kind === "reviews" ? (m.cards || 0) + " cards · " + (m.passed || 0) + " passed" : "Mind" + (s.ref ? " · " + s.ref : "");
+        break;
+      case "creatives":
+        info.label = "Creatives";
+        info.title = { study: "Study made", drill: "Drill done", project: "Project complete" }[m.kind] || "Creative work";
+        info.detail = "Creatives" + (m.kind === "drill" && m.reps ? " · " + m.reps + " reps" : "") + (s.ref ? " · " + s.ref : "");
+        break;
       default:
         info.title = String(s.type || "Activity").replace(/(^|-)([a-z])/g, function (_, gap, ch) { return (gap ? " " : "") + ch.toUpperCase(); });
     }
@@ -177,8 +204,27 @@
   function isMeaningful(s) {
     return !isRoutine(s) && activityInfo(s).meaningful;
   }
-  /* what the record itself says it paid — see the header */
+  /* what the record itself says it paid — see the header. AG-19: the
+     entry's own `award` (invariant 100, written when the Governor paid
+     it), for every type; history is never re-priced (invariant 4a). Only
+     an entry from before the award was recorded falls back to the rule. */
+  function signed(n) { return (n < 0 ? "−" : "+") + Math.abs(n); }
   function rewardOf(s) {
+    var m = s.metrics || {}, a = s.award;
+    if (a && typeof a === "object") {
+      if (m.undone) return { text: "undone", tone: "muted" };
+      var xp = +a.xp || 0, gold = +a.gold || 0, hp = +a.hp || 0;
+      if (xp || gold) {
+        return { text: signed(xp) + " XP · " + signed(gold) + " ◆" + (hp ? " · " + signed(hp) + " HP" : ""), tone: xp < 0 || gold < 0 ? "red" : "gold" };
+      }
+      if (s.type === "focus") {
+        /* why a Focus entry paid nothing: its own recorded rule */
+        return m.rule !== "pomodoro" && (s.dur || 0) < 600
+          ? { text: "under 10 minutes", tone: "muted" } : { text: "award forfeited", tone: "red" };
+      }
+      if (s.type === "media" && !isRoutine(s)) return { text: "rest", tone: "teal" };
+      return null;
+    }
     if (s.type === "focus") {
       var a = KOS.governor.focusAward(Object.assign({ secs: s.dur }, s.metrics || {}));
       if (a.rule === "blocks" && !a.blocks) return { text: "under 10 minutes", tone: "muted" };
@@ -402,15 +448,19 @@
         return stage;
       }
       /* the Wall and the record, in glass */
-      var c = A ? A.counts() : { owned: 0, badges: 0, tiers: 0, tiersTotal: 0 }, life = A ? A.lifetime() : { days: 0, focusSecs: 0 };
-      var since = +store.state.created;
+      var c = A ? A.counts() : { earned: 0, complete: 0, badges: 0, tiers: 0, tiersTotal: 0 }, life = A ? A.lifetime() : { days: 0, focusSecs: 0 };
+      /* AG-14: the first day is the record's own first day — the earliest of
+         the creation stamp, the ledger and the badge rollup — never a day
+         after the history beside it */
+      var since = KOS.sessions && KOS.sessions.since ? KOS.sessions.since() || 0 : +store.state.created;
       function rec(label, value, unit) {
         return el("div", { class: "k-gv-rec" }, [el("span", { class: "k-gv-rec-k", text: label }), el("span", { class: "k-gv-rec-v k-mono" }, [value, unit ? el("small", { text: " " + unit }) : null].filter(Boolean))]);
       }
       var wall = el("section", { class: "k-gv-glass k-gv-wallg", "data-ui": "gov.wall", "aria-label": "The Wall and your record" }, [
         el("div", { class: "k-gv-wallg-head" }, [
           el("span", { class: "k-gv-glass-kick", text: "The Wall" }),
-          el("span", { class: "k-gv-wallg-n" }, [String(c.owned), el("small", { class: "k-mono", text: " / " + c.badges + " badges" })]),
+          /* AG-07: earned (any tier), as the Wall's panels and Showcase count */
+          el("span", { class: "k-gv-wallg-n" }, [String(c.earned), el("small", { class: "k-mono", text: " / " + c.badges + " badges earned" })]),
           el("span", { class: "k-spacer" }),
           o.preview ? null : el("button", { type: "button", class: "k-link", "data-ui": "gov.wall-open", text: "Open the Wall →", onclick: function () { KOS.show("achievements"); } })
         ].filter(Boolean)),

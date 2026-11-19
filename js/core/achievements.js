@@ -368,14 +368,16 @@
     });
   }
   /* the earned record alone, synchronously (the Governor's card, search) */
+  /* AG-07: `earned` = any tier (as the panels count), `complete` = every
+     tier; `owned` is `earned` for older readers */
   function counts() {
-    var A = peek(), owned = 0, tiers = 0, total = 0;
+    var A = peek(), earned = 0, complete = 0, tiers = 0, total = 0;
     DEFS.forEach(function (d) {
       total += d.tiers.length;
       var e = A.earned[d.id];
-      if (e) { tiers += Math.min(e.tier, d.tiers.length); if (e.tier >= d.tiers.length) owned++; }
+      if (e && e.tier > 0) { earned++; tiers += Math.min(e.tier, d.tiers.length); if (e.tier >= d.tiers.length) complete++; }
     });
-    return { owned: owned, badges: DEFS.length, tiers: tiers, tiersTotal: total };
+    return { earned: earned, complete: complete, owned: earned, badges: DEFS.length, tiers: tiers, tiersTotal: total };
   }
 
   /* ================= evaluate: the one writer =================
@@ -491,6 +493,9 @@
     quiz: ["ledger", "study"], exam: ["ledger", "study"], tracker: ["ledger", "exams"], todo: ["ledger", "routines", "organise"],
     code: ["ledger", "code"], ja: ["ledger", "ja"], mind: ["ledger", "mind"], creatives: ["ledger", "creatives"] };
   function onSession(e) { touch((e && TYPE_DOMAINS[e.type]) || ["ledger"]); }
+  /* AP-19: every owner name a badge may use, each touched somewhere (smoke191) */
+  var DOMAINS = ["ledger", "focus", "study", "exams", "routines", "organise", "code", "ja", "mind", "creatives",
+    "collection", "goals", "governor", "money", "ink", "files", "assistant", "reports"];
   /* a topic's progress record moved: the subject's own domain */
   function onProgress(sid) {
     var map = { code: "code", ja: "ja", mind: "mind", creatives: "creatives" };
@@ -589,7 +594,7 @@
   }
 
   KOS.achievements = {
-    SHOWCASE_MAX: SHOWCASE_MAX, SUM: SUM, MAX: MAX,
+    SHOWCASE_MAX: SHOWCASE_MAX, SUM: SUM, MAX: MAX, DOMAINS: DOMAINS.slice(), TYPE_DOMAINS: TYPE_DOMAINS,
     normalise: normalise, peek: peek,
     defineSet: defineSet, register: register, defineTitle: defineTitle,
     def: def, defs: defs, sets: sets, set: set, setDefs: setDefs,
