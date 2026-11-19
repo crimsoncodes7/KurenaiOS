@@ -17,8 +17,11 @@
        routines [KOS.routines.today rows],
        free     [{from, to, mins}],
        focus    {mins, sessions, bySubject},
-       next     {kind, title, why, kicker, subject, ref, refs, assignmentId}|null}
-     load(day, opts, cb)   the same, after the goals have been measured
+       next     {kind, title, why, kicker, subject, ref, refs, assignmentId}|null,
+       spaces   [spaces() rows] (today only),
+       money    {notices, next {name, date, days, minor}, left}|null}
+     load(day, opts, cb)   the same, after the goals have been measured and
+                           Money's month read (money.left, safeToday, over)
 
    `next` is Home's Focus ladder (KOS.homeFocusPlan, invariant 53a), read,
    never re-derived, and only for today.                                   */
@@ -278,15 +281,45 @@
       routines: KOS.routines && KOS.routines.enabled() ? safe(function () { return KOS.routines.today(now); }, []) : [],
       free: free(day, tl, school, now),
       focus: focus(day),
-      next: isToday ? next(now) : null
+      next: isToday ? next(now) : null,
+      spaces: isToday ? spaces() : [],
+      money: money(day)
     };
+  }
+  /* Money's day (HR-04): its notices and next bill, from the rules alone;
+     null with no rules. Figures are minor units: a surface masks them. */
+  function money(day) {
+    var M = KOS.money;
+    if (!M || !safe(function () { return M.rules().length; }, 0)) return null;
+    var nx = safe(function () {
+      return M.upcoming(day, addDays(day, 31), day).filter(function (o) { return o.kind !== "in" && !o.trial && o.date >= day && o.state !== "done" && o.state !== "skip"; })[0];
+    }, null);
+    return { notices: safe(function () { return M.notices(day); }, []).map(function (n) { return { id: n.id, title: n.title, view: n.view, arg: n.arg }; }),
+      next: nx ? { name: nx.name, date: nx.date, days: KOS.srs.daysBetween(day, nx.date), minor: nx.minor } : null, left: null };
+  }
+  /* the month's left to spend, safe today and categories over budget (a read) */
+  function moneyMonth(day, cb) {
+    var M = KOS.money;
+    try {
+      M.summary(M.periodKey(day), function (e, s) {
+        if (e || !s) { cb(null); return; }
+        var ins = M.insights(s, day);
+        cb({ left: ins.left, safeToday: ins.safeToday,
+          over: Object.keys(s.byCat).filter(function (k) { return s.byCat[k].over; }).map(function (k) { return (M.category(k) || {}).name || k; }) });
+      });
+    } catch (x) { cb(null); }
   }
   function load(day, opts, cb) {
     opts = opts || {};
-    if (!KOS.goals || !KOS.goals.compute) { cb(null, build(day, opts)); return; }
+    function done(o) {
+      var T = build(day, o);
+      if (!T.money) { cb(null, T); return; }
+      moneyMonth(T.date, function (m) { if (m) Object.assign(T.money, m); cb(null, T); });
+    }
+    if (!KOS.goals || !KOS.goals.compute) { done(opts); return; }
     try {
-      KOS.goals.compute(function (err, rows) { cb(null, build(day, Object.assign({}, opts, { goals: err ? [] : rows }))); }, { archived: false });
-    } catch (e) { cb(null, build(day, opts)); }
+      KOS.goals.compute(function (err, rows) { done(Object.assign({}, opts, { goals: err ? [] : rows })); }, { archived: false });
+    } catch (e) { done(opts); }
   }
 
   /* ---------------- the study spaces' dailies (design turn 40) ----------------
@@ -366,15 +399,16 @@
       base.review = mk.length ? { n: mk.length, label: "Mind", sub: (Object.keys(units).slice(0, 2).join(", ") || "Mind") + " cards",
         go: function () { KOS.show("mind", { page: "daily", mode: "reviews" }); } } : null;
       var d = safe(function () { return Mi.peekUi().daily; }, null);
-      var doneM = !!(d && d.day === day && d.doneAt);
+      var doneM = !!(d && d.day === day && d.doneAt), rv = base.revisits = safe(function () { return Mi.revisitsDue(day).length; }, 0);
       if (!mp.total && !doneM) return Object.assign(base, { done: true });
       return Object.assign(base, { daily: "Daily 15", title: "Mind · the Daily 15", short: "Daily 15",
         why: mp.exam ? "reviews only until your exams end · about 5 min" : [mp.reviews.n ? mp.reviews.n + " card" + (mp.reviews.n === 1 ? "" : "s") : null,
-          mp.sitting ? "a sitting of " + mp.sitting.lesson : null, mp.question ? "one question" : null].filter(Boolean).join(" · ") + " · about " + (mp.exam ? 5 : 15) + " min",
+          mp.sitting ? "a sitting of " + mp.sitting.lesson : null, mp.question ? "one question" : null, rv ? rv + " to revisit" : null].filter(Boolean).join(" · ") + " · about " + (mp.exam ? 5 : 15) + " min",
         mins: mp.exam ? 5 : 15, done: doneM, go: function () { KOS.show("mind", { page: "daily" }); } });
     }
     if (s.sid === "creatives") {
-      var CR = KOS.creatives, cp = safe(function () { return CR.planDay(day); }, null);
+      var CR = KOS.creatives, cp = safe(function () { return CR.planDay(day); }, null), cn = safe(function () { return CR.cardsDue(); }, 0);
+      base.review = cn ? { n: cn, label: "Creatives", sub: "theory cards", go: function () { KOS.show("review", { tab: "due", run: "creatives:*" }); } } : null;
       if (!cp || cp.state !== "today") return Object.assign(base, { done: true });
       var made = safe(function () {
         var w = CR.peek().works || {};
@@ -403,6 +437,6 @@
   }
   function space(sid, day) { return spaces(day).filter(function (x) { return x.sid === sid; })[0] || null; }
 
-  KOS.today = { build: build, load: load, free: free, bag: bag, kit: kit, schoolHours: schoolHours, isHoliday: isHoliday, day: today, MIN_FREE: MIN_FREE,
+  KOS.today = { build: build, load: load, money: money, moneyMonth: moneyMonth, free: free, bag: bag, kit: kit, schoolHours: schoolHours, isHoliday: isHoliday, day: today, MIN_FREE: MIN_FREE,
     spaces: spaces, space: space, SPACES: SPACES };
 })();

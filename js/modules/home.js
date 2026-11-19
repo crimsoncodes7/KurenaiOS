@@ -488,11 +488,13 @@
     var hpInfo = KOS.governor.hpStateInfo();
     var prof = KOS.governor.profile();
     var today = KOS.srs.todayISO();
-    var dueCards = KOS.srs.dueCards();
-    var dueN = dueCards.length;
     /* the study spaces' own review queues (design turn 40a): Japanese,
-       Code's retrieval, Mind's cards — read from each space, opened there */
+       Code's retrieval, Mind's cards, Creatives' theory cards — read from
+       each space, opened there; Creatives' leave the Flashcards row */
     var spaceRev = (KOS.today && KOS.today.spaces ? KOS.today.spaces() : []).filter(function (s) { return s.review && s.review.n > 0; });
+    var crRow = spaceRev.some(function (s) { return s.sid === "creatives"; });
+    var dueCards = KOS.srs.dueCards().filter(function (c) { return !crRow || c.sid !== "creatives"; });
+    var dueN = dueCards.length;
     var revAll = dueN + spaceRev.reduce(function (n, s) { return n + s.review.n; }, 0);
 
     /* ================= the hero ================= */
@@ -860,13 +862,14 @@
        the Focus card's Focus | Review), per device in state.ui.homeUpcoming */
     var liveGoals = KOS.goals ? KOS.goals.all().filter(function (g) { return !g.archived && g.status === "active"; }) : [];
     var upMode = liveGoals.length && KOS.store.state.ui.homeUpcoming === "goals" ? "goals" : "upcoming";
-    /* Money speaks on Home only when it has a notice (design turn 40a): a
-       bill two days ahead, a trial ending tomorrow, income a day late —
-       Money's own notices, so Hide amounts already leaves the figure out,
-       and a muted Money kind says nothing here either */
-    var moneyNote = null;
-    if (KOS.money && KOS.money.notices && !(KOS.notify && KOS.notify.isMuted && KOS.notify.isMuted("money"))) {
-      try { moneyNote = KOS.money.notices(today)[0] || null; } catch (e) { moneyNote = null; }
+    /* Money's one row in Upcoming (40a, HR-04): its notice when it has
+       one (a bill two days ahead, a trial ending, income late), else its
+       next bill; then what is left this month. None with no rules or a
+       muted Money kind; Hide amounts masks every figure. */
+    var moneyNote = null, mDay = null;
+    if (KOS.money && KOS.today && !(KOS.notify && KOS.notify.isMuted && KOS.notify.isMuted("money"))) {
+      mDay = KOS.today.money(today);
+      moneyNote = mDay && (mDay.notices[0] || (mDay.next && { title: mDay.next.name + " · " + shortDay(mDay.next.date) + " · " + KOS.money.formatShown(mDay.next.minor), view: "money", arg: "recurring", line: true })) || null;
     }
     var hasToday = todayItems.length > 0, hasUp = counts.length > 0 || urgent.length > 0 || liveGoals.length > 0 || !!moneyNote;
     /* the Today card is always there (review B), saying so when the day is
@@ -963,12 +966,16 @@
           ])
         ]));
       });
-      if (moneyNote) ucard.appendChild(el("button", { type: "button", class: "k-day-row", "data-ui": "home.money-note",
+      var mSub = el("span", { class: "k-day-sub", "data-ui": "home.money-sub", text: moneyNote && moneyNote.line ? "Money · next bill" : "Money" });
+      if (moneyNote) KOS.today.moneyMonth(today, function (m) {
+        if (m && m.left != null) mSub.textContent += " · " + KOS.money.formatShown(m.left) + " left this month";
+      });
+      if (moneyNote) ucard.appendChild(el("button", { type: "button", class: "k-day-row", "data-ui": moneyNote.line ? "home.money-line" : "home.money-note",
         onclick: function () { KOS.show(moneyNote.view || "money", moneyNote.arg); } }, [
         spaceMark("円", "var(--amber)"),
         el("span", { class: "k-day-txt" }, [
           el("span", { class: "k-day-title", text: moneyNote.title }),
-          el("span", { class: "k-day-sub", text: "Money" })
+          mSub
         ]),
         el("span", { class: "k-home-rev-go", "aria-hidden": "true", text: "›" })
       ]));
