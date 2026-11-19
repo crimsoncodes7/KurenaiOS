@@ -154,14 +154,14 @@ step("A · ST-40: with subtasks, progress is theirs and the editor shows it read
   eq(A.get(a.id).progress, 0, "a typed figure does not override the subtasks");
   A.subToggle(a.id, A.get(a.id).subtasks[0].id, true);
   eq(A.get(a.id).progress, 50, "one of two ticked: 50");
-  K.show("assignments", { id: a.id }); await app.settle();
-  const edit = qa("button").find((b) => /^Edit/.test(b.textContent.trim()));
-  if (edit) {
-    click(edit); await app.settle();
-    const f = q("[data-ui~='asg.progress-derived']");
-    assert(f && f.hasAttribute("readonly"), "the editor's Progress is read-only, from subtasks");
-    closeDialogs();
-  }
+  K.assignmentEditor(a.id, function () {}); await app.settle();
+  const f = q("[data-ui~='asg.progress-derived']");
+  assert(f && f.hasAttribute("readonly") && f.value === "50", "the editor's Progress is read-only, from subtasks: " + (f && f.value));
+  const save = qa(".k-dialog-overlay button").find((b) => /^Save/.test(b.textContent.trim()));
+  assert(save, "the editor's Save");
+  click(save); await app.settle();
+  eq(A.get(a.id).progress, 50, "saving the editor keeps the subtasks' figure");
+  closeDialogs();
   A.remove(a.id);
 });
 
