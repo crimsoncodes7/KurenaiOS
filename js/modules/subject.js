@@ -574,9 +574,10 @@
     /* IT: never into a unit done at school; the current unit first (5.19 item 2) */
     var IU = sid === "it" && KOS.itUnits ? KOS.itUnits : null;
     /* CC-21: never into a unit not being taken either (F203/F205) */
-    var pool = IU ? LEAVES[sid].filter(function (l) { var c = IU.unitOf(l.ref), u = c && IU.get(c); return !IU.archived(c) && !(u && u.status === "not-taken"); }) : LEAVES[sid];
+    var taking = function (ref) { var c = IU.unitOf(ref), u = c && IU.get(c); return !IU.archived(c) && !(u && u.status === "not-taken"); };
+    var pool = IU ? LEAVES[sid].filter(function (l) { return taking(l.ref); }) : LEAVES[sid];
     if (IU) { var cu = IU.current(); pool = pool.filter(function (l) { return IU.unitOf(l.ref) === cu; }).concat(pool.filter(function (l) { return IU.unitOf(l.ref) !== cu; })); }
-    var leaf = last && BYREF[sid][last] && (!IU || !IU.archived(IU.unitOf(last))) ? BYREF[sid][last] : null;
+    var leaf = last && BYREF[sid][last] && (!IU || taking(last)) ? BYREF[sid][last] : null;
     var kicker = "Continue";
     if (!leaf) {
       leaf = pool.filter(function (l) {

@@ -133,6 +133,16 @@ step("A · CC-21: IT's Start here is never a unit done or not taken", async () =
   assert(c, "the continue card");
   const ref = c.querySelector(".k-mono").textContent, unit = K.itUnits.unitOf(ref), u = K.itUnits.get(unit);
   assert(!K.itUnits.archived(unit) && u.status !== "not-taken", "Start here is in a unit being taken: " + ref);
+  eq(unit, K.itUnits.current(), "and in the current unit");
+  /* a unit dropped (not taken) is never where Start here or Continue lands */
+  const cur = K.itUnits.current();
+  K.itUnits.setUnit(cur, { status: "not-taken" });
+  K.store.state.ui.lastRef.it = ref;
+  K.show("subject", "it"); await app.settle();
+  const r2 = q("[data-ui~='study.continue'] .k-mono").textContent;
+  assert(K.itUnits.unitOf(r2) !== cur, "a not-taken unit is skipped, even as the last opened: " + r2);
+  K.itUnits.setUnit(cur, { status: "sitting" });
+  delete K.store.state.ui.lastRef.it;
 });
 
 step("A · ST-40: with subtasks, progress is theirs and the editor shows it read-only", async () => {
