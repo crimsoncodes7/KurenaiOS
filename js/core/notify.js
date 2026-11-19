@@ -192,6 +192,13 @@
     n.items = []; n.read = {};
     store.save(); emit();
   }
+  /* the router's own address for a notice, so the service worker opens a
+     closed app straight on it (audit SH-30: it rebuilt the hash itself and
+     dropped every object arg) */
+  function hashOf(it) {
+    if (!it || !it.view || !KOS.router || !KOS.router.routeFor) return null;
+    try { return KOS.router.routeFor(it.view, it.arg == null ? undefined : it.arg); } catch (e) { return null; }
+  }
   /* open the thing a notification is about, and count it read */
   function open(item) {
     markRead(item.id);
@@ -288,7 +295,7 @@
       return;
     }
     var opts = { body: rec.body || "", tag: rec.id, icon: "icons/icon-192.png", badge: "icons/icon-192.png",
-      data: { view: rec.view, arg: rec.arg } };
+      data: { view: rec.view, arg: rec.arg, hash: hashOf(rec) } };
     try {
       if (navigator.serviceWorker && navigator.serviceWorker.controller) {
         navigator.serviceWorker.ready.then(function (reg) {
@@ -317,7 +324,7 @@
   KOS.notify = {
     KINDS: KINDS,
     all: all, unread: unread, isRead: isRead,
-    push: push, markRead: markRead, markAllRead: markAllRead, clear: clear, open: open,
+    push: push, markRead: markRead, markAllRead: markAllRead, clear: clear, open: open, hashOf: hashOf,
     recordAiring: recordAiring, tick: tick, onChange: onChange,
     native: native, ago: ago,
     isMuted: isMuted, setMuted: setMuted, quiet: quiet, setQuiet: setQuiet, inQuiet: inQuiet,

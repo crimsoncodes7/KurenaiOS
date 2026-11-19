@@ -391,9 +391,10 @@
       ].concat([
         ["Played", String(played.length)],
         ["Owned, unplayed", String(owned.filter(function (c) { return c.status !== "completed"; }).length)],
-        ["Shelf value", spent ? "£" + spent.toFixed(2) : "—"]
+        ["Shelf value", spent ? KOS.ui.amount(Math.round(spent * 100)) : "—"]
       ].map(function (c) {
-        return el("div", { class: "k-bk-fig" }, [el("dt", { text: c[0] }), el("dd", { "data-tone": c[0] === "Owned, unplayed" && c[1] !== "0" ? "amber" : null, text: c[1] })]);
+        return el("div", { class: "k-bk-fig" }, [el("dt", { text: c[0] }), typeof c[1] === "string"
+          ? el("dd", { "data-tone": c[0] === "Owned, unplayed" && c[1] !== "0" ? "amber" : null, text: c[1] }) : el("dd", {}, [c[1]])]);
       }))));
       if (!chTotalIn.value) chTotalIn.placeholder = String(chs.length || "?");
 
@@ -475,7 +476,7 @@
         var date = el("input", { type: "date", class: "k-input", "data-ui": "ui.quick-add", "aria-label": "Purchase date of " + c.name });
         date.value = c.purchaseDate || "";
         date.addEventListener("change", function () { c.purchaseDate = date.value || null; });
-        var price = el("input", { type: "number", class: "k-input", "data-ui": "ui.quick-add", min: "0", step: "0.01", placeholder: "£", "aria-label": "Price of " + c.name });
+        var price = el("input", { type: "number", class: "k-input", "data-ui": "ui.quick-add", min: "0", step: "0.01", placeholder: KOS.money ? KOS.money.data().currency : "£", "aria-label": "Price of " + c.name });
         if (c.price != null) price.value = String(c.price);
         price.addEventListener("change", function () { var p = parseFloat(price.value); c.price = isNaN(p) ? null : p; });
         var cov = el("button", { type: "button", class: "k-input k-bk-cov", text: c.coverUrl ? "Custom ⌖" : "Add art", onclick: function (ev) {

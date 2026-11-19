@@ -780,11 +780,38 @@
   }
   /* one lazy batch (invariant 8): newest first, at most `limit` (60) rows
      older than the cursor `before` ({date, syncId}) that pass the filter */
-  function list(opts, cb) {
+  /* the totals of everything list(opts) would page through, read from
+     the index without building a row (audit MG-19: "This view" summed only
+     the rows loaded so far): {count, inn, out, pots}, the transactions
+     page's own arithmetic — a refund lowers Out, a move to a pot is Out
+     and counted apart. */
+  function listTotals(opts, cb) {
     opts = opts || {};
-    var limit = Math.min(opts.limit || 60, 200), out = [];
+    var keep = listFilter(opts), r = { count: 0, inn: 0, out: 0, pots: 0 };
+    mirror(function () {
+      txn([TX], "readonly", function (err, t) {
+        if (err) { cb(err, r); return; }
+        var rq = t.objectStore(TX).index("date").openCursor(IDBKeyRange.bound(opts.from || "0000-01-01", opts.to || "9999-12-31"));
+        rq.onsuccess = function () {
+          var c = rq.result;
+          if (!c) { cb(null, r); return; }
+          var x = c.value;
+          if (keep(x)) {
+            r.count++;
+            if (x.kind === "in") r.inn += x.minor;
+            else if (x.kind === "refund") r.out -= x.minor;
+            else if (x.kind === "transfer") { var d = x.dir === "out" ? -x.minor : x.minor; r.pots += d; r.out += d; }
+            else r.out += x.minor;
+          }
+          c.continue();
+        };
+        rq.onerror = function () { cb(rq.error, r); };
+      });
+    });
+  }
+  function listFilter(opts) {
     var q = str(opts.search, 80).toLowerCase();
-    function keep(t) {
+    return function keep(t) {
       if (opts.kind && t.kind !== opts.kind) return false;
       if (opts.cat && t.cat !== opts.cat && !(t.splits || []).some(function (s) { return s.cat === opts.cat; })) return false;
       if (opts.tag && t.tags.indexOf(opts.tag) === -1) return false;
@@ -792,7 +819,12 @@
       if (opts.src && t.src !== opts.src) return false;
       if (q && (t.payee + " " + t.note + " " + t.tags.join(" ") + " " + (t.bank ? t.bank.text : "")).toLowerCase().indexOf(q) === -1) return false;
       return true;
-    }
+    };
+  }
+  function list(opts, cb) {
+    opts = opts || {};
+    var limit = Math.min(opts.limit || 60, 200), out = [];
+    var keep = listFilter(opts);
     mirror(function () {
       txn([TX], "readonly", function (err, t) {
         if (err) { cb(err, [], null); return; }
@@ -1053,12 +1085,22 @@
   function setHidden(on) { store.state.ui.moneyHidden = !!on; store.save(); }
   function format(minor, opts) {
     opts = opts || {};
-    var cur = data().currency, neg = minor < 0, a = Math.abs(Math.round(minor || 0));
+    var cur = String(opts.currency || data().currency).trim() || "£", neg = minor < 0, a = Math.abs(Math.round(minor || 0));
     var whole = String(Math.floor(a / 100)).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
     var body = whole + (opts.whole && a % 100 === 0 ? "" : "." + pad(a % 100));
     if (opts.private) body = body.replace(/\d/g, "•");
     var sign = neg ? "−" : (opts.sign && minor > 0 ? "+" : "");
     return /^[A-Z]{3}$/.test(cur) ? sign + body + " " + cur : sign + cur + body;
+  }
+
+  /* An amount as plain text that obeys Hide amounts: every figure masked
+     ("£••.••") while it is on, so a sentence keeps its shape (audit CL-10:
+     the Wishlist, Mangaka and the shelves printed money with it on). */
+  function formatShown(minor, opts) {
+    var o = {}; opts = opts || {};
+    Object.keys(opts).forEach(function (k) { o[k] = opts[k]; });
+    if (isHidden()) o.private = true;
+    return format(minor, o);
   }
 
   /* ---------------- import (the engine; W4: MG-02…MG-08, MG-24) ----------------
@@ -1786,7 +1828,7 @@
     list: list, range: range, mirror: mirror,
     summary: summary, yearSummary: yearSummary, insights: insights, tally: tally, evidence: evidence,
     /* formatting, CSV, backup */
-    toMinor: toMinor, format: format, isHidden: isHidden, setHidden: setHidden, rangeSummary: rangeSummary,
+    listTotals: listTotals, toMinor: toMinor, format: format, formatShown: formatShown, isHidden: isHidden, setHidden: setHidden, rangeSummary: rangeSummary,
     getPic: getPic, setPic: setPic, undoBatch: undoBatch, LOW_DATA_DAYS: LOW_DATA_DAYS,
     csv: { parse: MI.read, guess: MI.guess, parseDate: MI.parseDate, decode: MI.decode, preview: previewCSV, import: importRows, export: exportCSV },
     imports: imports, importCounts: importCounts, normaliseImport: normaliseImport,

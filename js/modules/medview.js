@@ -1683,8 +1683,13 @@
   /* ---------------- filter rail (Build 3k / frame 11b) ----------------
      Status + shared Custom Lists (the two axes every medium shares), each
      row with a live count. onChange() fires when the selection changes →
-     the caller re-runs its query reading rail.status() / rail.customList(). */
-  function filterRail(module, onChange) {
+     the caller re-runs its query reading rail.status() / rail.customList().
+     o.scope(): extra query terms the page always applies (Books' lens:
+     owned volumes, or the AniList mirror), so a count is the number of
+     titles that row shows (audit CL-09); the page calls reload() when it
+     changes. */
+  function filterRail(module, onChange, o) {
+    o = o || {};
     var sel = { status: null, customList: null };
     var statusBox = el("div", { class: "k-mrail-group" });
     var listBox = el("div", { class: "k-mrail-group" });
@@ -1762,7 +1767,9 @@
 
     function reload() {
       KOS.media.customLists(module, function (e0, names) {
-        KOS.mediadb.query({ module: module }, function (err, rows) {
+        var q = { module: module }, extra = o.scope ? o.scope() : null;
+        if (extra) Object.keys(extra).forEach(function (k) { q[k] = extra[k]; });
+        KOS.mediadb.query(q, function (err, rows) {
           counts = { status: {}, list: {}, total: (rows || []).length };
           (names || []).forEach(function (n) { counts.list[n] = 0; });
           (rows || []).forEach(function (e) {

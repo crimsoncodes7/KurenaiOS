@@ -690,18 +690,31 @@
       /* the side always shows an entry: the one picked, else the newest */
       var t = shown.filter(function (x) { return x.syncId === visit.selected; })[0] || shown[0];
       if (t) side.appendChild(selectedCard(t));
-      var inn = 0, out = 0, pots = 0;
-      shown.forEach(function (x) {
-        if (x.kind === "in") inn += x.minor;
-        else if (x.kind === "refund") out -= x.minor;
-        else if (x.kind === "transfer") { pots += x.dir === "out" ? -x.minor : x.minor; out += x.dir === "out" ? -x.minor : x.minor; }
-        else out += x.minor;
-      });
-      side.appendChild(card([head("This view", shown.length + (shown.length === 1 ? " entry" : " entries") + (done ? "" : " so far") + " · " + rng.label),
+      /* the whole view's totals, not the rows loaded so far (audit MG-19) */
+      if (!totals) return;
+      var inn = totals.inn, out = totals.out, pots = totals.pots, n = totals.count;
+      side.appendChild(card([head("This view", n + (n === 1 ? " entry" : " entries") + " · " + rng.label),
         inn ? el("div", { class: "k-card-row" }, [el("span", { class: "k-mn-grow k-soft", text: "In" }), amt(inn, { plus: true, tone: "in" })]) : null,
         el("div", { class: "k-card-row" }, [el("span", { class: "k-mn-grow k-soft", text: "Out" }), amt(-out)]),
         pots ? el("p", { class: "k-muted k-mn-small", text: "Out includes " + (said(pots) || "money") + " moved to pots, which no budget counts." }) : null], "", "money.tx-view"));
     }
+    /* the same filters as load(): "out" also lists transfers */
+    var totals = null;
+    M.listTotals({ from: rng.from, to: rng.to, cat: f.cat || null, kind: f.kind === "out" ? null : f.kind || null, search: q, tag: tag || null, batch: f.source || null }, function (err, r) {
+      if (err) return;
+      if (f.kind === "out") {
+        /* listTotals has no "out or transfer" filter: count those kinds alone */
+        M.listTotals({ from: rng.from, to: rng.to, cat: f.cat || null, kind: "out", search: q, tag: tag || null, batch: f.source || null }, function (e1, a) {
+          M.listTotals({ from: rng.from, to: rng.to, cat: f.cat || null, kind: "transfer", search: q, tag: tag || null, batch: f.source || null }, function (e2, b) {
+            totals = { count: a.count + b.count, inn: 0, out: a.out + b.out, pots: b.pots };
+            drawSide();
+          });
+        });
+        return;
+      }
+      totals = r;
+      drawSide();
+    });
     drawBulk();
     load();
   }
@@ -1622,9 +1635,11 @@
           el("div", { class: "k-mn-cmp k-mn-cmp--total" }, [el("span", { text: "Spent" }), el("span", { class: "k-mn-right" }, [amt(cur.outgoings)]),
             el("span", { class: "k-mn-right" }, [hasPrev ? amt(prev.outgoings, { w: "500", tone: "muted" }) : el("span")]), el("span", { class: "k-soft k-mn-small", text: hasPrev ? change(cur.outgoings, prev.outgoings, prevName) : "" })])], "", "money.month-table");
         var ins = partial ? M.insights(Object.assign({}, cur, { from: r.from, to: r.to, length: r.days }), now) : null;
-        var inFig = ins ? ins.planned : cur.income;
+        /* what came in; what is still expected is the sub-line, never
+           added to it (audit MG-11) */
+        var inFig = cur.income;
         var side = el("div", { class: "k-mn-side" }, [card([head(monthName(key) + (partial ? " so far" : "")),
-          el("div", { class: "k-mn-figs" }, [fig("In", inFig, ins && ins.expected ? (said(ins.expected) || "some") + " still expected" : null), fig("Out", cur.outgoings + cur.toPots - cur.fromPots, cur.toPots ? (said(cur.toPots - cur.fromPots) || "some") + " of it to pots" : null)])], "", "money.month-side"),
+          el("div", { class: "k-mn-figs" }, [fig("In", inFig, ins && ins.expected ? (said(ins.expected) ? "+" + said(ins.expected) : "more") + " still expected" : null), fig("Out", cur.outgoings + cur.toPots - cur.fromPots, cur.toPots ? (said(cur.toPots - cur.fromPots) || "some") + " of it to pots" : null)])], "", "money.month-side"),
           card([head("Never printed"), el("p", { class: "k-soft k-mn-small", text: "A category new this month reads “new this month”; one with nothing reads “none this month”; no change reads “same as " + prevName + "”. Never a bare 0 or +∞%." })])]);
         page.appendChild(el("div", { class: "k-mn-cols k-mn-cols--sm" }, [table, side]));
         announce(monthLabel(key) + (partial ? ", so far" : "") + ". Spent " + (said(cur.outgoings) || "") + (hasPrev ? ", " + change(cur.outgoings, prev.outgoings, prevName) + (partial ? " than " + prevName + "'s first " + (span + 1) + " days" : "") : "") + ".");

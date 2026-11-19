@@ -18,7 +18,8 @@
             done ts|null, min bool, rest bool, snap [[id, text, optional,
             minimum, checkMorning]], paid bool, paidAs "min"|"done"|"capped"
             (how it was paid: a minimum day kept in full later is topped
-            up by the difference once, PR-24), startedAt, mins}}
+            up by the difference once, PR-24), late ts (kept after its
+            window closed, PR-35), startedAt, mins}}
    A keyed map, so the cloud merge folds two devices per key and per step.
 
    THE SNAPSHOT (invariant 142). The first write of a day freezes the
@@ -303,6 +304,17 @@
   }
   function scheduledOn(r, day) { return !!scheduleOn(r, day); }
   function windowOn(r, day) { var s = scheduleOn(r, day); return s ? s.window : null; }
+  /* has `day`'s window closed by `now`? Times are read from the day's
+     start (dayStart), so a window that runs past midnight still works */
+  function sinceStart(hm) { var p = hm.split(":"), q = dayStart().split(":"); return ((+p[0] * 60 + +p[1]) - (+q[0] * 60 + +q[1]) + 1440) % 1440; }
+  function pastWindow(r, day, now) {
+    var w = windowOn(r, day);
+    if (!w) return false;
+    var today = routineDay(now);
+    if (day < today) return true;
+    if (day > today) return false;
+    return sinceStart(hmOf(new Date(now))) >= sinceStart(w.to);
+  }
 
   /* ---------------- the log ---------------- */
   function key(id, day) { return id + "|" + day; }
@@ -388,6 +400,11 @@
     var v = verdict(r, e);
     e.done = v.done ? (e.done || now) : null;
     e.min = !!v.min;
+    /* PR-35: the window judges the day. A day kept after its window closed
+       still counts and pays (kept is kept), but is recorded as kept late,
+       so History, the player and Reports can tell it from one on time */
+    if (v.done || v.min) { if (!e.late && pastWindow(r, day, now)) e.late = now; }
+    else delete e.late;
     var award = null;
     lastPaid = null;
     if ((v.done || v.min) && !e.paid && r.days !== null) { award = pay(r, e, day, v, now); logged = lastPaid; how = "pay"; }
@@ -423,6 +440,7 @@
       var v = r ? verdict(r, e) : { done: false, min: false };
       e.done = v.done ? (e.done || Date.now()) : null;
       e.min = !!v.min;
+      if (!v.done && !v.min) delete e.late;
       /* a day this tick began, now holding nothing, goes as it came */
       if (w.created && !Object.keys(e.steps).length && !e.rest && !(e.no && Object.keys(e.no).length) && !e.paid && !e.mins) delete s.log[k];
     }
@@ -695,6 +713,7 @@
       if (v.done) c.done = e.done || 1;
       if (v.min) c.min = true;
       if (e.rest) c.rest = true;
+      if (e.late) c.late = e.late;
       s.log[k] = c; n++;
     });
     if (n) store.save();
@@ -710,10 +729,15 @@
     var L = store.state.sessions || [];
     /* minutes exactly, by stretch, as goals.js focusSecs reads them (its
        hours round to a tenth): study counts only time for a subject */
+    /* a session belongs to the ROUTINE day it was logged on (invariant
+       148: 23:30–00:30 is one night, not two days), and a Focus session
+       that ended incomplete, which pays nothing, counts nothing either
+       (audit PR-32; the Governor's own reading, governor.js) */
+    function onDay(e) { return (e.ts ? routineDay(e.ts) : e.date) === day; }
     if (a.src === "study" || a.src === "focus") {
       var secs = 0;
       L.forEach(function (e) {
-        if (e.date !== day || e.type !== "focus") return;
+        if (e.type !== "focus" || !onDay(e) || (e.metrics && e.metrics.complete === false)) return;
         KOS.sessions.parts(e).forEach(function (p) {
           if (a.src === "study" && (!p.subject || p.subject === "media")) return;
           if (!a.subject || p.subject === a.subject) secs += p.secs;
@@ -723,7 +747,7 @@
       return;
     }
     if (a.src === "ja") {
-      cb(L.filter(function (e) { return e.date === day && e.type === "ja" && e.metrics && e.metrics.kind === "session"; }).length);
+      cb(L.filter(function (e) { return onDay(e) && e.type === "ja" && e.metrics && e.metrics.kind === "session"; }).length);
       return;
     }
     var G = KOS.goals, def = G && G.typeDef ? G.typeDef(src.goal) : null;
@@ -949,7 +973,7 @@
     autoMeasure: autoMeasure, autoText: autoText, autoSync: autoSync, onSession: onSession,
     normalise: normalise, all: all, get: get, add: add, update: update, remove: remove, archive: archive,
     check: check, undoTick: undoTick, NEED_REQUIRED: NEED_REQUIRED,
-    addHabit: addHabit, templates: templates, template: template, fromTemplate: fromTemplate,
+    pastWindow: pastWindow, addHabit: addHabit, templates: templates, template: template, fromTemplate: fromTemplate,
     dayStart: dayStart, routineDay: routineDay, scheduledOn: scheduledOn, windowOn: windowOn,
     entry: entry, verdict: verdict, stateOn: stateOn, canTick: canTick,
     tick: tick, tickAll: tickAll, answerNo: answerNo, setMins: setMins, setRest: setRest, restAllowed: restAllowed,

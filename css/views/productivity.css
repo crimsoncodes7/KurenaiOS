@@ -328,6 +328,9 @@
 
 .k-rem-row { display: flex; align-items: center; gap: var(--sp-12); padding: var(--sp-6) var(--sp-10) var(--sp-6) var(--sp-14); border-radius: var(--r-16); cursor: pointer; }
 .k-rem-row:hover { background: var(--s1); }
+/* a plan row has no ✕, so its Open plan lines up with the reminders'
+   priority chips (audit PR-11) */
+.k-rem-plan .k-rem-row { padding-inline-end: calc(var(--sp-10) + var(--icon-btn-sm) + var(--sp-12)); }
 .k-rem-row[data-state~="selected"] { background: var(--s2); box-shadow: inset 0 0 0 var(--hairline) var(--line); }
 .k-rem-check { inline-size: var(--rem-check); block-size: var(--rem-check); flex: 0 0 auto; display: grid; place-items: center; padding: 0; border: 0; border-radius: 50%; background: none; box-shadow: inset 0 0 0 var(--ring-1-5) var(--muted); font-size: var(--fs-11); font-weight: var(--weight-bold); color: var(--bg); cursor: pointer; }
 .k-rem-check[data-state~="urgent"] { box-shadow: inset 0 0 0 var(--ring-1-5) var(--alarm); }
@@ -800,7 +803,7 @@
 .k-rem-group--sections { display: none; }
 .k-rem-quick-list { display: none; }
 .k-rem-del { display: none; }
-.k-rem-row { padding-inline: var(--sp-8) var(--sp-4); }
+.k-rem-row, .k-rem-plan .k-rem-row { padding-inline: var(--sp-8) var(--sp-4); }
 .k-rem-meta { flex-wrap: nowrap; overflow: hidden; white-space: nowrap; }
 /* Habits — each habit shows its week as seven squares under its name;
    today's directives become one row that opens its sheet */

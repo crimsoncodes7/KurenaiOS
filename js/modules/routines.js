@@ -96,7 +96,9 @@
     opts = opts || {};
     var mark = x.kind === "routine" || x.kind === "review";
     return el("div", { class: "k-rt-tl", "data-kind": x.kind, "data-ui": "review.tl-row" }, [
-      el("span", { class: "k-rt-tl-time k-mono" }, [x.start || "—", x.end && !mark ? el("span", { class: "k-rt-tl-end", text: x.end }) : null]),
+      /* an untimed row (a lesson with no class time) leaves the time
+         column empty rather than printing a bare dash (audit PR-20) */
+      el("span", { class: "k-rt-tl-time k-mono" }, [x.start || "", x.start && x.end && !mark ? el("span", { class: "k-rt-tl-end", text: x.end }) : null]),
       el("span", { class: "k-rt-tl-rail", "aria-hidden": "true" }, [el("span", { class: "k-rt-tl-mark", "data-kind": x.kind, style: "--c: " + hue(x.subject) })]),
       el("span", { class: "k-rt-tl-body" }, [
         el("span", { class: "k-rt-tl-title" }, [el("span", { class: "k-ellipsis", text: x.title }),
@@ -139,7 +141,7 @@
       rows.appendChild(row);
     });
     var state = R().stateOn(r, day);
-    return el("div", { class: "k-rt-list", "data-ui": "routine.checklist" }, [
+    return el("div", { class: "k-rt-list", "data-ui": "routine.checklist", "data-routine": String(r.id) }, [
       opts.head === false ? null : el("div", { class: "k-rt-list-h" }, [
         tile(markOf(r), toneOf(r)),
         el("div", { class: "k-rt-list-ht" }, [el("b", { text: r.name }), muted([schedText(r), total ? "about " + total + " min" : null].filter(Boolean).join(" · "))]),
@@ -477,6 +479,19 @@
     if (arg && arg.edit === "habits") { habitsEditor(main); return; }
     if (arg && arg.edit) { editor(main, arg.edit); return; }
     var tab = typeof arg === "string" && TABS.some(function (t) { return t[0] === arg; }) ? arg : "today";
+    /* a notice's target (audit SH-30): Today, then the review it is about
+       opened over it, or the routine it is about brought into view. The
+       address then drops it, so a reload does not open it again. */
+    var target = arg && typeof arg === "object" && (arg.review || arg.routine) ? arg : null;
+    if (target) setTimeout(function () {
+      if (KOS.router && KOS.router.replaceArg) KOS.router.replaceArg("routines", undefined);
+      if (target.review && KOS.reviewSheet) { KOS.reviewSheet.open(String(target.review)); return; }
+      var card = main.querySelector("[data-routine='" + String(target.routine).replace(/['\\]/g, "") + "']");
+      if (!card) return;
+      if (card.scrollIntoView) card.scrollIntoView({ block: "center" });
+      var go = card.querySelector("[data-ui~='routine.start']");
+      if (go) go.focus();
+    }, 0);
     main.appendChild(KOS.ui.pageHeader({ kicker: "習 · Routines", title: "Routines",
       sub: "Ordered steps you do on certain days. A habit is a routine with one step.",
       actions: [
@@ -488,7 +503,7 @@
     }), { label: "Routines" }), { keepRole: true }));
     var body = el("div", { class: "k-rt-page", "data-ui": "routine.page", "data-tab": tab });
     main.appendChild(body);
-    if (tab === "today") today(body);
+    if (tab === "today") today(body, target && target.routine ? String(target.routine) : null);
     else if (tab === "routines") routinesTab(body);
     else if (tab === "templates") templatesTab(body);
     else if (tab === "history") history(body);
@@ -573,12 +588,13 @@
       }))) : null
     ], "k-rt-reviews", "review.status-card");
   }
-  function dueNowCard() {
+  function dueNowCard(prefer) {
     var day = R().routineDay(), now = nowHm();
     var list = R().today().filter(function (x) { return x.kind !== "habit"; });
     var open = list.filter(function (x) { return x.window && x.window.from <= now && now < x.window.to && x.state !== "done" && x.state !== "min" && x.state !== "rest"; });
     var next = list.filter(function (x) { return x.window && x.window.from > now; }).sort(function (a, b) { return a.window.from < b.window.from ? -1 : 1; })[0];
-    var r = open[0] ? R().get(open[0].id) : null;
+    /* a routine notice's routine is the one shown (audit SH-30) */
+    var r = prefer && list.some(function (x) { return x.id === prefer; }) ? R().get(prefer) : open[0] ? R().get(open[0].id) : null;
     if (!r) {
       var any = list.filter(function (x) { return x.state !== "done" && x.state !== "min" && x.state !== "rest"; })[0];
       r = any ? R().get(any.id) : null;
@@ -589,9 +605,9 @@
     }
     return card([checklist(r, { day: day, note: next && next.id !== r.id ? "next: " + next.name + " at " + next.window.from : null })], "k-rt-duenow", "routine.due-now");
   }
-  function today(body) {
+  function today(body, prefer) {
     if (firstVisit()) body.appendChild(offerCard());
-    body.appendChild(el("div", { class: "k-rt-today" }, [reviewsCard(), dueNowCard(), habitTicks()]));
+    body.appendChild(el("div", { class: "k-rt-today" }, [reviewsCard(), dueNowCard(prefer), habitTicks()]));
   }
 
   /* ---------------- Routines (33k) ---------------- */
@@ -755,11 +771,16 @@
   /* six states told apart by shape: kept filled, partial half, minimum a
      ring with a dot, rest hatched, not kept an outline, not scheduled a dot */
   var HSTATE = { done: "kept", min: "min", partial: "partial", rest: "rest", missed: "not", open: "not", off: "off" };
+  var HLABEL = { done: "kept", min: "minimum", partial: "partial", rest: "rest day", missed: "not kept", open: "not kept", off: "not scheduled" };
   function heat(id, from, to) {
     var r = R().get(id) || { id: id };
     var cells = R().history(id, from, to);
     return el("div", { class: "k-rt-heat", role: "img", "aria-label": cells.filter(function (c) { return c.state === "done" || c.state === "min"; }).length + " kept in 12 weeks" },
-      cells.map(function (c) { return el("span", { "data-state": HSTATE[c.state] || "off", title: dayLabel(c.day, { weekday: "short", day: "numeric", month: "short" }) + " · " + (r.name || "") + " · " + c.state }); }));
+      cells.map(function (c) {
+        /* a day kept after its window closed says so (audit PR-35) */
+        var en = (c.state === "done" || c.state === "min") && R().entry(id, c.day);
+        return el("span", { "data-state": HSTATE[c.state] || "off", "data-late": en && en.late ? "" : null,
+          title: dayLabel(c.day, { weekday: "short", day: "numeric", month: "short" }) + " · " + (r.name || "") + " · " + (HLABEL[c.state] || c.state) + (en && en.late ? ", late" : "") }); }));
   }
   function allHeat(rs, from, to) {
     var cells = [];

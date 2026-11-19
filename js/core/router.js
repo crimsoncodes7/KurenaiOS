@@ -99,6 +99,10 @@
        or a routine's editor (`#/routines/edit/<id>`, `…/edit/new`) */
     routines: function (a) {
       if (a && a.edit) return ["edit", String(a.edit)];
+      /* a notice's target (audit SH-30): a review to open, a routine to
+         show — so a closed app's tap lands on it too */
+      if (a && a.review) return ["review", String(a.review)];
+      if (a && a.routine) return ["routine", String(a.routine)];
       return typeof a === "string" && a && a !== "today" ? [a] : null;
     },
     /* the Wall (AG-03, AX-24): a tab (`#/achievements/titles`; Sets is
@@ -150,7 +154,12 @@
       if (p[0] === "stats") return { tab: "stats" };
       return p[0] === "due" && p[1] ? { tab: "due", run: p[1] } : null;
     },
-    routines: function (p) { return p[0] === "edit" ? { edit: p[1] || "new" } : p[0] || null; },
+    routines: function (p) {
+      if (p[0] === "edit") return { edit: p[1] || "new" };
+      if (p[0] === "review" && p[1]) return { review: p[1] };
+      if (p[0] === "routine" && p[1]) return { routine: p[1] };
+      return p[0] || null;
+    },
     exams: function (p) {
       if (!p[0]) return null;
       if (p[0] === "attempt") return p[1] ? { attempt: p[1], page: p[2] || null } : null;

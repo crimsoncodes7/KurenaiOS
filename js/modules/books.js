@@ -193,12 +193,14 @@
   /* the shared grammar (audit MTX-6/U-30), plus the volume half Books
      alone tracks — "36 / 96 ch · 7 / 8 vol", spaced like everything else */
   function progressText(e) {
-    var s = KOS.media.progressText(e) || "0 ch";
+    /* no "0 ch" for a series read by the volume (audit CL-28, invariant
+       77): each half shows only when it holds something */
+    var parts = [KOS.media.progressText(e)];
     if (e.progress.volumes != null) {
       var tv = totalVolumes(e);
-      s += " · " + e.progress.volumes + (tv.n ? " / " + tv.n : "") + " vol";
+      parts.push(e.progress.volumes + (tv.n ? " / " + tv.n : "") + " vol");
     }
-    return s;
+    return parts.filter(Boolean).join(" · ");
   }
 
   /* +1 chapter — the everyday logging action, mirroring anime's +1 ep
@@ -360,9 +362,10 @@
       ].concat([
         ["Read", String(readVols || 0)],
         ["Owned, unread", String(Math.max(0, ownedUnread)), ownedUnread > 0 ? "amber" : null],
-        ["Shelf value", spent ? "£" + spent.toFixed(2) : "—"]
+        ["Shelf value", spent ? KOS.ui.amount(Math.round(spent * 100)) : "—"]
       ].map(function (c) {
-        return el("div", { class: "k-bk-fig" }, [el("dt", { text: c[0] }), el("dd", { "data-tone": c[2] || null, text: c[1] })]);
+        return el("div", { class: "k-bk-fig" }, [el("dt", { text: c[0] }), typeof c[1] === "string"
+          ? el("dd", { "data-tone": c[2] || null, text: c[1] }) : el("dd", { "data-tone": c[2] || null }, [c[1]])]);
       }))));
 
       /* quick add — picking up the newest release one at a time */
@@ -451,7 +454,7 @@
         cond.addEventListener("change", function () { v.condition = cond.value; });
         var date = input("date", { "aria-label": "Purchase date of volume " + v.number }, v.purchaseDate || "");
         date.addEventListener("change", function () { v.purchaseDate = date.value || null; });
-        var price = input("number", { min: "0", step: "0.01", placeholder: "£", "aria-label": "Price of volume " + v.number }, v.price != null ? String(v.price) : "");
+        var price = input("number", { min: "0", step: "0.01", placeholder: KOS.money ? KOS.money.data().currency : "£", "aria-label": "Price of volume " + v.number }, v.price != null ? String(v.price) : "");
         price.addEventListener("change", function () {
           var p = parseFloat(price.value);
           v.price = isNaN(p) ? null : p;
@@ -1003,7 +1006,7 @@
     e.physical.volumes.forEach(function (v) {
       var spine;
       var tip = e.title + " vol " + v.number + " · " + KOS.media.CONDITION_LABEL[v.condition] +
-        (v.purchaseDate ? " · " + v.purchaseDate : "") + (v.price ? " · £" + v.price.toFixed(2) : "");
+        (v.purchaseDate ? " · " + v.purchaseDate : "") + (v.price ? " · " + (KOS.money ? KOS.money.formatShown(Math.round(v.price * 100)) : "£" + v.price.toFixed(2)) : "");
       if (v.coverUrl) {
         spine = el("div", { class: "k-bk-spine", "data-ui": "books.spine", role: "listitem", title: tip }, [
           KOS.imageCrop.image(v.coverUrl, { alt: e.title + " volume " + v.number, loading: "lazy" }, v.coverCrop)
@@ -1082,6 +1085,7 @@
             tabBar.replaceChildren.apply(tabBar, Array.prototype.slice.call(fresh.childNodes));
             syncLayout();
             syncPrimary();
+            rail.reload();
             refresh();
           } };
       }), { variant: "card", label: "Books lens" });
@@ -1128,7 +1132,10 @@
     }
     syncLayout();
 
-    var rail = mv.filterRail("books", function () { refresh(); });
+    /* the rail counts what the lens shows (audit CL-09): the same terms
+       refresh() adds to its query */
+    function lensScope() { return p.tab === "physical" ? { owned: true } : { source: "anilist" }; }
+    var rail = mv.filterRail("books", function () { refresh(); }, { scope: lensScope });
     var bar = mv.toolbar({
       label: "Books vault controls",
       search: search, sort: sortSel, layout: layoutBtn,
@@ -1255,8 +1262,8 @@
       /* the Physical lens IS a filter on the same vault: owned volumes only.
          The Digital lens is the AniList mirror: AniList-sourced rows only
          (invariant 91) */
-      if (physical) opts.owned = true;
-      else opts.source = "anilist";
+      var scope = lensScope();
+      Object.keys(scope).forEach(function (k) { opts[k] = scope[k]; });
       /* claim the render generation BEFORE the query: switching lens mid-
          flight must not let the older query paint the newer lens */
       var token = area.begin();
@@ -1528,7 +1535,7 @@
         works.length + (works.length === 1 ? " work" : " works"),
         owned ? owned + (owned === 1 ? " volume owned" : " volumes owned") : null,
         chapters ? chapters + " ch read" : null,
-        spent ? "£" + spent.toFixed(0) + " spent" : null,
+        spent ? (KOS.money ? KOS.money.formatShown(Math.round(spent) * 100, { whole: true }) : "£" + spent.toFixed(0)) + " spent" : null,
         avg ? "★ " + scoreText(avg) : null
       ].filter(Boolean).join(" · ");
 

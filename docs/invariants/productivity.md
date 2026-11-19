@@ -73,7 +73,10 @@ Read this file before editing or testing anything in its domain.
     skipped when the ledger already holds a full pay for that day); a routine
     whose every step is optional is refused ("At least one step must be
     required", `KOS.routines.check`); a tick's Undo puts back only what the
-    tick wrote and reverses its pay through `KOS.sessions.undo`. A routine's completion (every required step, or
+    tick wrote and reverses its pay through `KOS.sessions.undo`. A day kept
+    after its window closed (`KOS.routines.pastWindow`, read from the day's
+    start) still counts, pays and streaks, but records `log.late` (the
+    moment) and says "kept late" in the player and History (audit PR-35). A routine's completion (every required step, or
     its minimum) pays `KOS.governor.routineAward` once per routine day,
     logged as a `todo` session carrying `metrics.routine`; steps, rest
     days, on-demand routines (About to Study) and unticking pay nothing; at
@@ -81,7 +84,9 @@ Read this file before editing or testing anything in its domain.
     for the day, never study. An AUTO-TRACKED habit (`auto` {src, subject,
     n}) ticks itself through `KOS.routines.autoSync` — after each session
     the ledger logs and on the review ticker — once the day's own record
-    meets n: Focus minutes by stretch (`KOS.sessions.parts`), or the Goals
+    meets n: Focus minutes by stretch (`KOS.sessions.parts`) of complete
+    sessions only, each session on the routine day it was logged on
+    (audit PR-32), or the Goals
     engine's own measure for cards, plan rows, Code tasks and retrievals,
     or a Japanese review session. It only ever ticks, pays once like any
     tick, and a tick by hand still works.

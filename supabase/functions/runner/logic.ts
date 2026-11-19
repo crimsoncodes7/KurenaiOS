@@ -67,9 +67,12 @@ export function runPrompt(brief: unknown, prompt: string, builtAt: number, tz: s
 }
 
 /* the push a notification item becomes (the service worker shows it) */
-export function pushMessage(it: { id: string; kind: string; title: string; body: string; view: string | null; arg: unknown }) {
+export function pushMessage(it: { id: string; kind: string; title: string; body: string; view: string | null; arg: unknown; hash?: string | null }) {
+  /* hash: the device's router address for the item (audit SH-30), so a
+     closed app opens on it; only a "#/…" route is passed on */
+  const hash = typeof it.hash === "string" && /^#\/[\w\-./%~!'()*]*$/.test(it.hash) ? it.hash.slice(0, 300) : null;
   return { id: it.id, kind: it.kind, title: String(it.title || "").slice(0, 200), body: String(it.body || "").slice(0, 300),
-    view: it.view ?? null, arg: it.arg ?? null };
+    view: it.view ?? null, arg: it.arg ?? null, hash };
 }
 
 /* ---------------- the Daily Review's words, written ahead ----------------

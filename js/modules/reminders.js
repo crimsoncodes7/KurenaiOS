@@ -369,7 +369,7 @@
           } }),
           el("span", { class: "k-rem-row-body" }, [
             el("span", { class: "k-rem-title", text: x.e.title }),
-            el("span", { class: "k-rem-meta" }, [el("span", { class: "k-chip", "data-tone": "muted", text: "↻ From your plan" }), el("span", { text: x.sub })])
+            el("span", { class: "k-rem-meta" }, [el("span", { text: x.sub })])
           ]),
           el("button", { type: "button", class: "k-btn k-btn--quiet k-btn--sm", text: "Open plan", onclick: function () { KOS.show("pacing"); } })
         ]));

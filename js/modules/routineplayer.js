@@ -73,7 +73,10 @@
     st.clockS = el("span", { class: "k-muted k-rt-small" });
     st.main.appendChild(el("div", { class: "k-rpl-top" }, [
       el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "aria-label": "Close (your ticks are kept)", "data-ui": "player.close", text: "✕", onclick: st.finish }),
-      el("div", { class: "k-rpl-top-t" }, [el("b", { text: r.name }), w && r.anchor === "review:morning" ? el("span", { class: "k-mono k-rt-small k-rt-text2", text: "Leave by " + w.to }) : null]),
+      el("div", { class: "k-rpl-top-t" }, [el("b", { text: r.name }),
+        /* past its window it still counts, as kept late (audit PR-35) */
+        w && R().pastWindow(r, st.day, Date.now()) ? el("span", { class: "k-rt-small k-rt-text2", "data-ui": "player.late", text: "Its window closed at " + w.to + " · it still counts, as kept late" })
+          : w && r.anchor === "review:morning" ? el("span", { class: "k-mono k-rt-small k-rt-text2", text: "Leave by " + w.to }) : null]),
       el("span", { class: "k-mono k-rt-small k-muted", text: (st.i + 1) + "/" + st.steps.length })
     ]));
     st.main.appendChild(el("div", { class: "k-rt-progress", "aria-hidden": "true" }, st.steps.map(function (x, j) { var p = el("span"); if (ticked[x.id]) KOS.ui.state(p, "on", true); else if (j === st.i) KOS.ui.state(p, "now", true); return p; })));

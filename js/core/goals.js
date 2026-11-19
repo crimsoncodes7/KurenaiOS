@@ -962,7 +962,8 @@
     var out = [], tomorrow = addDays(today, 1);
     (rows || []).forEach(function (r) {
       if (r.archived || r._displayOnly || r._unlinked) return;
-      var link = { view: "goals", arg: null };
+      /* a notice opens its goal, not the list (audit SH-30) */
+      var link = { view: "goals", arg: { id: r.id } };
       if (r._period) {
         if (r._period.to === tomorrow && r._status !== "met") {
           out.push(Object.assign({ id: "goal:" + r.id + ":end:" + r._period.key, kind: "goal",

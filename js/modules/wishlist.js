@@ -541,9 +541,14 @@
   };
 
   /* ---------------- little shared bits ---------------- */
+  /* n in major units. One grammar with Money (KOS.money.format) and Hide
+     amounts masks it (audit CL-10); an item priced in another currency
+     keeps its own. */
   function money(n, currency) {
     var v = (typeof n === "number" && !isNaN(n)) ? n : 0;
-    var cur = String(currency || budget().currency || "£").trim() || "£";
+    var cur = String(currency || budget().currency || "").trim() || undefined;
+    if (KOS.money) return KOS.money.formatShown(Math.round(v * 100), { currency: cur });
+    cur = cur || "£";
     return (/^[£$€¥]$/.test(cur) ? cur : cur + " ") + v.toFixed(2);
   }
   function daysUntil(iso) {

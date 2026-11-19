@@ -236,7 +236,7 @@ step("H · derived surfaces", async () => {
     K.store.state.ui.reminders = Object.assign({}, K.store.state.ui.reminders || {}, { section: "today", listId: null, tag: null, priority: "" });
     K.show("reminders"); await app.settle();
     const pr = $("[data-ui~='rem.plan-row']");
-    assert(pr && /From your plan/.test(pr.textContent), "From your plan rows");
+    assert(pr && /From your plan/.test($("[data-ui~='rem.from-plan']").textContent), "From your plan rows");
     const id = (wk.carried[0] || {}).entry ? wk.carried[0].entry.id : wk.rows[0].id;
     click(pr.querySelector("[data-ui~='rem.plan-check']")); await app.settle();
     eq(K.pacing.entryById(id).done, true, "ticked in the plan");

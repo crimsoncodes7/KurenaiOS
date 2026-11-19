@@ -470,7 +470,10 @@
       steps.push({ id: "tomorrow", date: tomorrow, timeline: TT.timeline, isSchoolDay: TT.isSchoolDay, exam: examTomorrow(tomorrow), bag: KOS.today.bag(tomorrow),
         due: TT.due.filter(function (x) { return x.due && x.due <= addDays(tomorrow, 2); }), warnings: TT.warnings,
         first: picks(ev.tomorrow && ev.tomorrow.first ? [ev.tomorrow.first] : [])[0] || null,
-        suggestions: suggestions(TT, []) });
+        /* tomorrow's own build has no Focus ladder and no plan rows (both
+           are today's reads), so what slipped today and the ladder's next
+           are candidates too (audit PR-20) */
+        suggestions: suggestions({ next: T.next, due: TT.due.concat(T.due.filter(function (x) { return x.overdue || x.kind === "plan"; })) }, []) });
       var pr = routinesFor("review:evening");
       if (pr.length) steps.push({ id: "prep", routines: pr });
       steps.push({ id: "winddown", note: ev.note || "", mood: ev.mood || null, energy: ev.energy || null });

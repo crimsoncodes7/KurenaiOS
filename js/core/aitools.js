@@ -1615,7 +1615,7 @@
     run: function (args, cb) {
       KOS.mediasync.run(args.source, args.module, { mode: "update" }, function (err, res) {
         if (err) { cb(err); return; }
-        cb(null, { added: res.added, updated: res.updated, removed: res.removed || 0,
+        cb(null, { added: res.added, updated: res.updated, unchanged: res.unchanged || 0, removed: res.removed || 0,
           rewardedElsewhereProgress: (res.rewards || []).length });
       });
     }

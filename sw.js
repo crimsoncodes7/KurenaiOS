@@ -144,7 +144,10 @@ self.addEventListener("notificationclick", function (e) {
   var data = (e.notification && e.notification.data) || {};
   e.waitUntil((async function () {
     var clients = await self.clients.matchAll({ type: "window", includeUncontrolled: true });
-    var hash = data.view ? "#/" + data.view + (data.arg != null && typeof data.arg !== "object" ? "/" + data.arg : "") : "";
+    /* the router's own address when the notice carries one (audit SH-30);
+       only a "#/…" route, never a URL */
+    var hash = typeof data.hash === "string" && /^#\/[\w\-./%~!'()*]*$/.test(data.hash) ? data.hash
+      : data.view ? "#/" + data.view + (data.arg != null && typeof data.arg !== "object" ? "/" + data.arg : "") : "";
     if (clients.length) {
       var c = clients[0];
       try { await c.focus(); } catch (err) { /* focus can be refused */ }
@@ -166,7 +169,7 @@ self.addEventListener("push", function (e) {
   e.waitUntil(self.registration.showNotification(String(m.title).slice(0, 200), {
     body: String(m.body || "").slice(0, 300), tag: m.id || undefined,
     icon: "icons/icon-192.png", badge: "icons/icon-192.png",
-    data: { view: m.view || null, arg: m.arg == null ? null : m.arg }
+    data: { view: m.view || null, arg: m.arg == null ? null : m.arg, hash: typeof m.hash === "string" ? m.hash : null }
   }));
 });
 

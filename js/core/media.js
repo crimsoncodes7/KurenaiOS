@@ -472,6 +472,7 @@
      every surface that shows progress goes through it so two cards can
      never disagree about spacing again. */
   var LONG_UNIT = { ep: "episodes", ch: "chapters", route: "routes", hr: "hours" };
+  var LONG_ONE = { episodes: "episode", chapters: "chapter", routes: "route", hours: "hour" };
   function progressText(e, opts) {
     opts = opts || {};
     if (!e) return "";
@@ -488,7 +489,12 @@
     /* the entry's own unit when it carries one (a VN counting chapters),
        else the module's */
     var unit = p.unit || mod.unit;
-    if (opts.long) unit = LONG_UNIT[unit] || mod.unitName || unit;
+    if (opts.long) {
+      unit = LONG_UNIT[unit] || mod.unitName || unit;
+      /* "1 of 1 route", "1 hour" (audit CL-28): the count it is read
+         against decides the number */
+      if ((total || cur) === 1 && LONG_ONE[unit]) unit = LONG_ONE[unit];
+    }
     /* "ep" / "ch" / "hr" are abbreviations and never take an s; "route" is
        a whole word and "2 / 2 route" is simply wrong */
     else if (unit.length > 3 && (total || cur) !== 1) unit = LONG_UNIT[unit] || unit;

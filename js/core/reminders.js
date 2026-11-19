@@ -461,8 +461,10 @@
   }
   var SECTIONS = [
     { id: "all", label: "All", glyph: "全", match: function (i) { return !i.done; } },
+    /* Today holds what slipped too (audit PR-11), as Apple Reminders does:
+       the Overdue group sits above Today's under the due sort */
     { id: "today", label: "Today", glyph: "今",
-      match: function (i) { return !i.done && i.due === today(); } },
+      match: function (i) { return !i.done && !!i.due && i.due <= today(); } },
     { id: "scheduled", label: "Scheduled", glyph: "暦",
       match: function (i) { return !i.done && !!i.due; } },
     { id: "upcoming", label: "Upcoming", glyph: "先",

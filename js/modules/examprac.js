@@ -41,13 +41,24 @@
   function analytics(main) {
     var u = U(), X = E();
     var list = X.upcoming().filter(function (a) { return a.tier === "real_exam" || a.tier === "mock" || a.tier === "topic_test"; });
-    var a = (anaFor && X.get(anaFor)) || list[0] || null;
+    /* opens on the assessment with the most marked papers, the nearest of
+       those tied, not simply the nearest (audit EX-24: a topic test with
+       no evidence beside six logged papers elsewhere) */
+    function markedOf(x) {
+      var rd0 = X.readiness(x);
+      return ((rd0 && rd0.attempts) || []).filter(function (e) { return (e.questions || []).some(function (q) { return q.got != null; }); }).length;
+    }
+    var best = null, bestN = 0;
+    if (!(anaFor && X.get(anaFor))) list.forEach(function (x) { var n = markedOf(x); if (n > bestN) { best = x; bestN = n; } });
+    var a = (anaFor && X.get(anaFor)) || best || list[0] || null;
     var wrap = el("div", { class: "k-ex-page", "data-ui": "exams.analytics" });
     main.appendChild(wrap);
     if (!a) { wrap.appendChild(KOS.ui.emptyState({ compact: true, mark: "紙", title: "Add an assessment to see analytics", body: "A real exam, a mock or a topic test, then log a paper against it." })); return; }
     var rd = X.readiness(a), nm = X.nextMarks(a);
     var atts = rd.attempts;
-    var tabs = KOS.ui.tabs(list.slice(0, 8).map(function (x) {
+    var shownList = list.slice(0, 8);
+    if (shownList.indexOf(a) === -1 && list.indexOf(a) !== -1) shownList[shownList.length - 1] = a;
+    var tabs = KOS.ui.tabs(shownList.map(function (x) {
       return { label: x.title, dot: u.hueOf(x), active: x.id === a.id, onSelect: function () { anaFor = x.id; KOS.rerender(); } };
     }), { variant: "workspace", label: "Assessment", edge: true });
     var marked = atts.filter(function (e) { return (e.questions || []).some(function (q) { return q.got != null; }); }).length;
@@ -141,7 +152,9 @@
   function calibrationCard() {
     var u = U();
     var cal = KOS.examStats.calibration(T().all().map(function (e) { return { predicted: e.predicted, marks: e.marks, max: e.max, subject: e.subject, date: e.date, label: e.paper || e.topic }; }));
-    var c = u.card([u.chead("Calibration", "predicted vs actual" + (cal.points.length ? " · " + u.plural(cal.points.length, "paper") : ""))], "k-ex-flexcard", "exams.a-cal");
+    /* every paper you logged, whichever assessment it was for: it says so
+       (audit EX-24), beside cards that read the chosen one */
+    var c = u.card([u.chead("Calibration", "predicted vs actual, all your papers" + (cal.points.length ? " · " + u.plural(cal.points.length, "paper") : ""))], "k-ex-flexcard", "exams.a-cal");
     if (cal.thin) {
       c.appendChild(u.quiet("A calibration chart appears after 5 predictions.", cal.have + " so far · say what you think you got before you mark it"));
       cal.points.slice(-4).forEach(function (p) { c.appendChild(el("div", { class: "k-ex-calrow" }, [el("span", { class: "k-ex-ell", text: p.label }), el("span", { class: "k-mono", text: Math.round(p.p) + "% → " + Math.round(p.a) + "%" })])); });

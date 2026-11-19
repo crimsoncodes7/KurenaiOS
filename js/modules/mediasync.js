@@ -53,10 +53,16 @@
       body: "Entries previously synced or imported from " + sourceName + " that this import no longer carries will be removed. Anything holding your own data — routes, quotes, physical volumes, notes — is kept and just updated." }, proceed);
   }
   function doneWording(res) {
+    /* only what moved, then what was already right (audit CL-32) */
     var bits = [res.added + " added", res.updated + " updated"];
+    if (res.unchanged) bits.push(res.unchanged.toLocaleString() + " already up to date");
     if (res.removed) bits.push(res.removed + " removed");
     if (res.kept) bits.push(res.kept + " kept because they have your own data attached");
     return bits.join(", ");
+  }
+  function changedWording(res) {
+    var n = res.added + res.updated + (res.removed || 0);
+    return n ? n + (n === 1 ? " entry" : " entries") + " changed" : "everything already up to date";
   }
   function syncNote(node, text, isError) {
     node.textContent = text;
@@ -218,7 +224,7 @@
                   (res.rewards && res.rewards.length ? ", " + res.rewards.length + " advanced elsewhere (rewarded)" : "") +
                   " (mirrored 1:1 by AniList id" +
                   (module === "books" ? "; the physical shelf is untouched" : "") + ").");
-                KOS.ui.toast("AniList " + noun + " sync complete: " + (res.added + res.updated) + " entries.");
+                KOS.ui.toast("AniList " + noun + " sync complete: " + changedWording(res) + ".");
                 renderEnrich();
               });
             } });
@@ -323,7 +329,7 @@
                 syncNote(vnStatus, "Done — " + doneWording(res) +
                   (res.rewards && res.rewards.length ? ", " + res.rewards.length + " advanced elsewhere (rewarded)" : "") +
                   " (matched by VNDB id; routes, chapters, quotes, CG counts and warnings untouched).");
-                KOS.ui.toast("VNDB sync complete: " + (res.added + res.updated) + " entries.");
+                KOS.ui.toast("VNDB sync complete: " + changedWording(res) + ".");
                 renderEnrich();
               });
             });

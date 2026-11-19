@@ -93,7 +93,8 @@
       .slice(0, CAP)
       .map(function (it) {
         return { id: String(it.id), kind: it.kind, at: it.at, title: String(it.title || "").slice(0, 200),
-          body: String(it.body || "").slice(0, 300), view: it.view || null, arg: it.arg === undefined ? null : it.arg };
+          body: String(it.body || "").slice(0, 300), view: it.view || null, arg: it.arg === undefined ? null : it.arg,
+          hash: KOS.notify && KOS.notify.hashOf ? KOS.notify.hashOf(it) : null };
       });
   }
 

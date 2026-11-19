@@ -1135,14 +1135,15 @@
      upsert lands on exactly one row. An EMPTY incoming list never mirrors
      — a bad pull must not empty the vault.
 
-     cb(err, {added, updated, removed, kept, rewards}).                   */
+     cb(err, {added, updated, unchanged, removed, kept, rewards}):
+     `unchanged` counts matched rows the pull left as they were.                   */
   function bulkUpsert(list, opts, cb) {
     /* the Badge Wall re-reads this domain shortly after (roadmap 5.16) */
     if (KOS.achievements) KOS.achievements.touch("collection");
     opts = opts || {};
     tx(ENTRIES, "readwrite", function (err, os) {
       if (err) { cb && cb(err); return; }
-      var added = 0, updated = 0, removed = 0, kept = 0, i = 0;
+      var added = 0, updated = 0, unchanged = 0, removed = 0, kept = 0, i = 0;
       var rewards = [];
       var tombstones = [];   // replace-pass deletions, for cloud sync (4a)
       /* identity sets of the incoming list (raw, pre-normalise — only the
@@ -1299,17 +1300,20 @@
            schema gained since it was written is not an edit */
         /* …unless the provider's activity stamp moved on: then the row is
            sent, so a device without the provider's sign-in sorts the same */
-        if (sameMaterial(normalise(old), inc) && !((inc.activityAt || 0) > (old.activityAt || 0))) inc.updatedAt = old.updatedAt;
+        var same = sameMaterial(normalise(old), inc) && !((inc.activityAt || 0) > (old.activityAt || 0));
+        if (same) inc.updatedAt = old.updatedAt;
         inc.reward = rewardSnapshot(inc);
         var rq = os.put(inc);
-        rq.onsuccess = function () { updated++; next(); };
+        /* a row that matched and changed nothing is counted apart (audit
+           CL-32), so a re-import says "already up to date", not "updated" */
+        rq.onsuccess = function () { if (same) unchanged++; else updated++; next(); };
         rq.onerror = function () { cb && cb(rq.error); };
       }
       function step() {
         if (i >= list.length) {
           recordTombstones(tombstones, function () {
             if (added || updated || removed) noteCloud();
-            cb && cb(null, { added: added, updated: updated, removed: removed, kept: kept, rewards: rewards });
+            cb && cb(null, { added: added, updated: updated, unchanged: unchanged, removed: removed, kept: kept, rewards: rewards });
           });
           return;
         }
