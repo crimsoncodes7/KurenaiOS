@@ -754,10 +754,11 @@
     /* 25a's order; a missing card's place in the first row goes to
        Governor and Kurenai, so Focus keeps its width and the Collection
        closes the second row */
-    var plan = planCard(rep), gov = governorCard(rep);
+    var plan = planCard(rep), gov = governorCard(rep), L = KOS.reportsLong || {};
     holder.appendChild(el("div", { class: "k-rp-grid", "data-ui": "reports.grid" }, pack([
       { node: studyCard(rep) }, { node: focusCard(rep) }, { node: plan || gov },
       { node: collectionCard(rep), span: 2 }, { node: plan ? gov : null }, { node: codeCard(rep) }, { node: creativesCard(rep) },
+      { node: L.jaCard && L.jaCard(rep) }, { node: L.mindCard && L.mindCard(rep) },
       { node: examsCard(rep) }, { node: moneyCard(rep) }, { node: goalsCard(rep) }, { node: kurenaiSees(rep) }
     ])));
   }
