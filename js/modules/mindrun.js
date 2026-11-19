@@ -271,7 +271,7 @@
       body.appendChild(el("ul", { class: "k-mind-sent", "data-ui": "mind.what-is-sent" }, fixed.map(function (f) { return el("li", {}, [el("b", { text: f[0] }), el("span", { text: f[1] })]); })));
       body.appendChild(el("h3", { class: "k-kicker", text: "Extras · tick to include" }));
       var xs = el("div", { class: "k-mind-ticks" });
-      if (ex) xs.appendChild(tick("Your explain-back for this lesson", ex.bullets.length + " bullets", "explain"));
+      if (ex) xs.appendChild(tick("Your explain-back for this lesson", ex.bullets.length + (ex.bullets.length === 1 ? " bullet" : " bullets"), "explain"));
       if (pos) xs.appendChild(tick("Your position here", "v" + pos.n + " · " + pos.conf + "% · its reason line", "position"));
       var entries = KOS.mindJournal.list().slice(0, 30);
       if (entries.length) {

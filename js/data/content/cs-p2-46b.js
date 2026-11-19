@@ -316,7 +316,7 @@ C["compsci:4.6.4.1"] = {
 
     { page: "Decoders and circuits with a purpose" },
     { callout: { t: "formula", h: "Method: \"explain the purpose\"", body: "Complete the truth table first, then read it **as data**: what do the outputs *mean* for the inputs? A sum and carry → an adder. Exactly one output on for each input number → a decoder. A 1 for some characters only → a classifier (letter, capital)." } },
-    { worked: { tag: "exam", title: "The 7-segment segment", src: "A-level June 2020 · P2 Q06.2–06.3 · 5 marks",
+    { worked: { tag: "exam", title: "The 7-segment display circuit", src: "A-level June 2020 · P2 Q06.2–06.3 · 5 marks",
       q: "Inputs X3 X2 X1 X0 are a decimal digit 0–9 in binary. Intermediate points: A = NOT X2; B = A AND X1; C = X1 NAND X0; D = X2 AND C; E = B OR D; Q = X3 OR E. (a) Complete the trace table for the digits 0–9. (b) Which segment does Q control?",
       steps: [
         { m: "A: 1,1,1,1,0,0,0,0,1,1 · C: 1,1,1,0,1,1,1,0,1,1", mk: "1 mark", n: "Digits 0–9 in order." },
