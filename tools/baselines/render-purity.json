@@ -171,7 +171,7 @@
       ],
       "announce": [
        "+5 XP · +31 gold · 30-day streak",
-       "Reminder 2 · done · +5 XP · +31 gold"
+       "Reminder 2 · done · +5 XP · +31 gold · Control Z to undo."
       ],
       "toast": "Reminder 2 · done · +5 XP · +31 goldUndo"
      }
@@ -225,7 +225,7 @@
       ],
       "announce": [
        "+5 XP · +31 gold · 30-day streak",
-       "Reminder 14 · done · +5 XP · +31 gold"
+       "Reminder 14 · done · +5 XP · +31 gold · Control Z to undo."
       ],
       "toast": "Reminder 14 · done · +5 XP · +31 goldUndo"
      }
@@ -6154,7 +6154,7 @@
       ],
       "announce": [
        "+5 XP · +31 gold · 30-day streak",
-       "Reminder 2 · done · +5 XP · +31 gold"
+       "Reminder 2 · done · +5 XP · +31 gold · Control Z to undo."
       ],
       "toast": "Reminder 2 · done · +5 XP · +31 goldUndo"
      }
@@ -6232,7 +6232,7 @@
       ],
       "announce": [
        "+5 XP · +31 gold · 30-day streak",
-       "Reminder 14 · done · +5 XP · +31 gold"
+       "Reminder 14 · done · +5 XP · +31 gold · Control Z to undo."
       ],
       "toast": "Reminder 14 · done · +5 XP · +31 goldUndo"
      }
@@ -6310,7 +6310,7 @@
       ],
       "announce": [
        "+5 XP · +31 gold · 30-day streak",
-       "Reminder 3 · done · +5 XP · +31 gold"
+       "Reminder 3 · done · +5 XP · +31 gold · Control Z to undo."
       ],
       "toast": "Reminder 3 · done · +5 XP · +31 goldUndo"
      }
@@ -6388,7 +6388,7 @@
       ],
       "announce": [
        "+5 XP · +31 gold · 30-day streak",
-       "Reminder 4 · done · +5 XP · +31 gold"
+       "Reminder 4 · done · +5 XP · +31 gold · Control Z to undo."
       ],
       "toast": "Reminder 4 · done · +5 XP · +31 goldUndo"
      }
@@ -6466,7 +6466,7 @@
       ],
       "announce": [
        "+5 XP · +31 gold · 30-day streak",
-       "Reminder 5 · done · +5 XP · +31 gold"
+       "Reminder 5 · done · +5 XP · +31 gold · Control Z to undo."
       ],
       "toast": "Reminder 5 · done · +5 XP · +31 goldUndo"
      }
@@ -6622,7 +6622,7 @@
       ],
       "announce": [
        "+5 XP · +31 gold · 30-day streak",
-       "Reminder 8 · done · +5 XP · +31 gold"
+       "Reminder 8 · done · +5 XP · +31 gold · Control Z to undo."
       ],
       "toast": "Reminder 8 · done · +5 XP · +31 goldUndo"
      }
@@ -6700,7 +6700,7 @@
       ],
       "announce": [
        "+5 XP · +31 gold · 30-day streak",
-       "Reminder 9 · done · +5 XP · +31 gold"
+       "Reminder 9 · done · +5 XP · +31 gold · Control Z to undo."
       ],
       "toast": "Reminder 9 · done · +5 XP · +31 goldUndo"
      }
@@ -6778,7 +6778,7 @@
       ],
       "announce": [
        "+5 XP · +31 gold · 30-day streak",
-       "Reminder 10 · done · +5 XP · +31 gold"
+       "Reminder 10 · done · +5 XP · +31 gold · Control Z to undo."
       ],
       "toast": "Reminder 10 · done · +5 XP · +31 goldUndo"
      }
@@ -6866,7 +6866,7 @@
       ],
       "announce": [
        "+5 XP · +31 gold · 30-day streak",
-       "Reminder 12 · done · +5 XP · +31 gold"
+       "Reminder 12 · done · +5 XP · +31 gold · Control Z to undo."
       ],
       "toast": "Reminder 12 · done · +5 XP · +31 goldUndo"
      }

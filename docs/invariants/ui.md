@@ -262,7 +262,13 @@ Read this file before editing or testing anything in its domain.
 65. A redraw is not navigation: `_nav`/`KOS.rerender()` changes no URL, history,
     focus or announcement. Invalid routes replace with Home.
 66. `KOS.a11y.announce()` is the sole live-region route. `#toast` is visible but
-    `aria-hidden`; reserve assertive output for required action.
+    `aria-hidden`; reserve assertive output for required action. The toast is
+    a QUEUE (1A, 19 Nov 2026): up to three rows, a row with an action held 8 s
+    and never replaced by a plain message, a row under the pointer kept until
+    it leaves. Its buttons are a pointer convenience; the keyboard route to an
+    Undo is ⌘Z / Ctrl+Z outside a text field (the newest Undo still showing,
+    and only then, so the page keeps the key otherwise), and the spoken half
+    of an Undo toast says "… · Command Z to undo." 
 67. A card with interactive descendants is not an ARIA button. Prefer native
     buttons; otherwise use `KOS.a11y.activate()` for Enter and Space.
 68. Placeholder/state text is not an accessible name. `el()` omits null/undefined

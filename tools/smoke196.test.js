@@ -12,6 +12,9 @@
          is unchanged and carries no split.
      C · bk:study-core#1: Today so far (Reviewed, Accuracy) and Card stats'
          Rating mix read the review log, one row a rating.
+     F · the toast queue (bk:shell#3, a11y-hci#4, shell#3; W9's SH-36,
+         SH-28, AX-02): Undo rows stack, a plain message never wipes one,
+         ⌘Z / Ctrl+Z outside a field runs the newest, the message says so.
      D · creatives#6: the Writing Desk writes a draft on pagehide and when
          you leave the page, not only after its 600 ms pause.
 
@@ -192,6 +195,41 @@ step("E · a part-rated Due today run picks up when reopened from its chip (sync
   assert(res && !res.hidden, "the run says it was picked up");
   eq(count(), mid, "and goes on from the next card, the same count left");
   assert(!app.errors.length, "no page errors: " + app.errors.slice(0, 3).join(" | "));
+});
+
+step("F · the toast queue: Undo rows stack, ⌘Z runs the newest, the message says so (bk:shell#3, a11y-hci#4)", async () => {
+  const T = D.getElementById("toast"), rows = () => [...T.querySelectorAll("[data-ui~='shell.toast-row']")];
+  rows().forEach((r) => r.remove());
+  const done = [];
+  const said = [];
+  const real = K.a11y.announce;
+  K.a11y.announce = function (m, o) { said.push(m); return real.apply(this, arguments); };
+  K.ui.toast("First triage", false, { label: "Undo", run: () => done.push(1) });
+  K.ui.toast("Second triage", false, { label: "Undo", run: () => done.push(2) });
+  eq(rows().map((r) => r.querySelector(".k-toast-t").textContent), ["Second triage", "First triage"], "both Undo rows stay, newest first");
+  K.ui.toast("Saved");
+  K.ui.toast("Saved again");
+  eq(rows().map((r) => r.querySelector(".k-toast-t").textContent), ["Saved again", "Second triage", "First triage"], "a plain message replaces the plain one before it, never an Undo row");
+  rows()[2].querySelector("button").click();
+  eq(done, [1], "the older row's Undo still works after a newer toast");
+  const z = (target) => target.dispatchEvent(new app.window.KeyboardEvent("keydown", { key: "z", ctrlKey: true, bubbles: true, cancelable: true }));
+  const input = D.createElement("input"); D.body.appendChild(input);
+  z(input);
+  eq(done, [1], "⌘Z in a text field is the field's own");
+  z(D.body);
+  eq(done, [1, 2], "⌘Z elsewhere runs the newest Undo still showing");
+  const ev = new app.window.KeyboardEvent("keydown", { key: "z", ctrlKey: true, bubbles: true, cancelable: true });
+  D.body.dispatchEvent(ev);
+  eq([done.length, ev.defaultPrevented], [2, false], "with no Undo showing, ⌘Z is left to the page (the ink pad's undo)");
+  input.remove();
+  K.ui.toast("Moved to tomorrow", false, { label: "Undo", run: () => {} });
+  await new Promise((r) => setTimeout(r, 80)); await app.settle();     /* the live region refills after 40 ms */
+  K.a11y.announce = real;
+  assert(said.some((m) => /^Moved to tomorrow · (Command|Control) Z to undo\.$/.test(m)), "the spoken half says how to undo: " + JSON.stringify(said.slice(-2)));
+  for (let i = 0; i < 4; i++) K.ui.toast("Row " + i, false, { label: "Undo", run: () => {} });
+  eq(rows().length, 3, "at most three rows");
+  eq(T.getAttribute("aria-hidden"), "true", "the visible half stays aria-hidden (invariant 66)");
+  rows().forEach((r) => r.remove());
 });
 
 (async () => {

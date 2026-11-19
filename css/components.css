@@ -417,27 +417,39 @@ box-shadow: var(--elev-4);
 /* at a safe moment only the values that changed take a short ring */
 [data-state~="changed"] { border-radius: var(--r-6); box-shadow: 0 0 0 var(--ring-1-5) var(--teal); transition: box-shadow var(--dur) ease; }
 
-/* ---------- toast (the visible half; KOS.a11y speaks it) ---------- */
+/* ---------- toast (the visible half; KOS.a11y speaks it) ----------
+   #toast is the stack (1A: up to three rows, newest at the bottom); each
+   .k-toast-i is one pill */
 #toast {
 position: fixed;
 inset-inline-start: 50%;
 inset-block-end: var(--sp-24);
 z-index: var(--z-toast);
+display: flex;
+flex-direction: column-reverse;
+align-items: center;
+gap: var(--sp-8);
 max-inline-size: min(var(--toast-max), calc(100% - var(--sp-32)));
-padding: var(--sp-10) var(--sp-18);
-border-radius: var(--r-pill);
-background: var(--s2);
-color: var(--text);
-font-size: var(--fs-13);
-box-shadow: var(--elev-3);
 transform: translate(-50%, var(--sp-8));
 opacity: 0;
 pointer-events: none;
 transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
 }
 #toast[data-state~="show"] { opacity: 1; transform: translate(-50%, 0); }
-#toast[data-state~="bad"] { background: color-mix(in oklch, var(--red) 30%, var(--s2)); }
-#toast[data-state~="action"] { display: flex; align-items: center; gap: var(--sp-12); padding-inline-end: var(--sp-10); pointer-events: auto; }
+.k-toast-i {
+display: flex;
+align-items: center;
+gap: var(--sp-12);
+max-inline-size: 100%;
+padding: var(--sp-10) var(--sp-18);
+border-radius: var(--r-pill);
+background: var(--s2);
+color: var(--text);
+font-size: var(--fs-13);
+box-shadow: var(--elev-3);
+}
+.k-toast-i[data-state~="bad"] { background: color-mix(in oklch, var(--red) 30%, var(--s2)); }
+.k-toast-i[data-state~="action"] { padding-inline-end: var(--sp-10); pointer-events: auto; }
 .k-toast-act { background: var(--s1); }
 
 /* ---------- the persistent notice (KOS.ui.banner): data at risk ---------- */

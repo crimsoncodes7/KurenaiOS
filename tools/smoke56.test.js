@@ -102,6 +102,14 @@ const failures = [];
 const fail = (msg) => failures.push(msg);
 
 /* ---------------- snapshots and diffs ---------------- */
+/* the toast a control shows: the NEWEST row of the stack (1A: #toast holds
+   up to three rows, so older Undo rows stay beside it), message and button */
+function toastText(document) {
+  const t = document.getElementById("toast");
+  if (!t) return "";
+  const row = t.querySelector(".k-toast-i");
+  return row ? row.textContent : t.textContent || "";
+}
 function clone(o) { return JSON.parse(JSON.stringify(o)); }
 function stateOf(KOS) {
   const s = clone(KOS.store.state);
@@ -248,12 +256,12 @@ async function main() {
     if (!node) return null;
     const before = { st: stateOf(KOS), media: await mediaOf(KOS), hash: window.location.hash,
       dialogs: dialogs().length, menus: menus().length, ann: announced.length,
-      toast: (document.getElementById("toast") || {}).textContent || "", err: errCount(), fetch: app.fetches.length };
+      toast: toastText(document), err: errCount(), fetch: app.fetches.length };
     node.dispatchEvent(new window.MouseEvent("click", { bubbles: true, cancelable: true }));
     await app.settle();
     const after = stateOf(KOS);
     const media = await mediaOf(KOS);
-    const toast = (document.getElementById("toast") || {}).textContent || "";
+    const toast = toastText(document);
     const eff = {};
     if (window.location.hash !== before.hash) eff.nav = window.location.hash;
     const opened = dialogs().slice(before.dialogs);
@@ -389,7 +397,7 @@ async function main() {
         /* replaying the whole page must not leave its last toast behind:
            a later control whose toast repeats it would read as silent */
         const toastEl = document.getElementById("toast");
-        const toastWas = toastEl ? toastEl.textContent : "";
+        const toastWas = toastEl ? toastEl.innerHTML : "";
         const seen = {};
         const pool = via ? (await render(surf.view, surf.arg), controlsIn(regions)) : list;
         for (const { key } of pool) {
@@ -398,7 +406,7 @@ async function main() {
           current[id].push(await effectsOf(surf.view, surf.arg, regions, key, o));
           actions++;
         }
-        if (toastEl) toastEl.textContent = toastWas;
+        if (toastEl) toastEl.innerHTML = toastWas;
       }
       const target = JSON.stringify(want.eff);
       return current[id].some((e) => JSON.stringify(without(rewrite(e, want.rewrites), want.drops)) === target);

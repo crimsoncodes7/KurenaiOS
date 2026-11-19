@@ -369,7 +369,7 @@ domain file AND its line here, in the same commit.
 *Accessibility, routing and search*
 - **64** The browser owns history: `router.js` wraps `KOS.show()` with hash routes so Back, Forward and OS gestures are one stack.
 - **65** A redraw is not navigation: `KOS.rerender()` changes no URL, history, focus or announcement, and invalid routes replace with Home.
-- **66** `KOS.a11y.announce()` is the sole live-region route; `#toast` is `aria-hidden` and assertive output is reserved for required action.
+- **66** `KOS.a11y.announce()` is the sole live-region route; `#toast` is an `aria-hidden` queue of up to three rows, its Undo reached by ⌘Z, and assertive output is reserved for required action.
 - **67** A card with interactive descendants is not an ARIA button; use native buttons or `KOS.a11y.activate()`.
 - **68** Placeholder or state text is not an accessible name, and `el()` omits null or undefined attributes.
 - **69** Visual hit areas are at least 32px (44px on coarse pointers) without overlapping invisible targets; round controls stay circular.

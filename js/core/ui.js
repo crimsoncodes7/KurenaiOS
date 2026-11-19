@@ -63,28 +63,81 @@
     return node;
   }
 
-  var toastTimer = null;
-  /* action (optional): {label, run} — one button in the toast ("View in
-     Transactions", "Undo"), held for 8 seconds instead of 2.6. The spoken
-     half is still the message alone; the button is a pointer convenience
-     (the toast is aria-hidden), so whatever it does must also be reachable
-     on the page. */
+  /* THE TOAST QUEUE (1A: bk:shell#3, a11y-hci#4, shell#3; W9's SH-36,
+     SH-28, AX-02). #toast holds up to three rows, newest first in the DOM
+     and drawn at the bottom, each on its own timer:
+       · a row with an action (`{label, run}`: "Undo", "View in
+         Transactions") stays 8 s, so a second triage no longer wipes the
+         first one's Undo;
+       · a plain row stays 2.6 s, longer for a long message (up to 7 s);
+       · a row under the pointer waits until the pointer leaves.
+     The buttons are a pointer convenience (#toast is aria-hidden,
+     invariant 66). The keyboard route is ⌘Z / Ctrl+Z, outside a text
+     field, which runs the newest showing Undo, and the spoken half says so.
+     Whatever an action does must also be reachable on the page. */
+  var TOAST_MAX = 3, toastRows = [];
+  function toastHost() { return document.getElementById("toast"); }
+  function toastPaint() {
+    var t = toastHost(); if (!t) return;
+    var live = toastRows.filter(function (r) { return !r.gone; });
+    if (live.length) t.setAttribute("data-state", "show" + (live[0].bad ? " bad" : "") + (live.some(function (r) { return r.action; }) ? " action" : ""));
+    else t.removeAttribute("data-state");
+  }
+  function toastDrop(row) {
+    if (row.gone) return;
+    row.gone = true; clearTimeout(row.timer);
+    toastRows = toastRows.filter(function (r) { return r !== row; });
+    if (row.node.parentNode) row.node.parentNode.removeChild(row.node);
+    toastPaint();
+  }
+  function toastArm(row, ms) {
+    clearTimeout(row.timer);
+    row.until = Date.now() + ms;
+    row.timer = setTimeout(function () { if (row.hover) row.wait = true; else toastDrop(row); }, ms);
+  }
   function toast(msg, bad, action) {
-    var t = document.getElementById("toast");
-    t.textContent = msg;
-    if (action && action.label) {
-      t.appendChild(el("button", { type: "button", class: "k-btn k-btn--sm k-toast-act", tabindex: "-1", text: action.label,
-        onclick: function () { t.removeAttribute("data-state"); action.run && action.run(); } }));
+    var t = toastHost(); if (!t) return;
+    msg = String(msg == null ? "" : msg);
+    var act = action && action.label ? action : null;
+    var node = el("div", { class: "k-toast-i", "data-ui": "shell.toast-row", "data-state": [bad ? "bad" : null, act ? "action" : null].filter(Boolean).join(" ") || null }, [el("span", { class: "k-toast-t", text: msg })]);
+    var row = { node: node, bad: !!bad, action: act, msg: msg, timer: null, hover: false, wait: false, gone: false };
+    if (act) {
+      node.appendChild(el("button", { type: "button", class: "k-btn k-btn--sm k-toast-act", tabindex: "-1", text: act.label,
+        onclick: function () { toastDrop(row); act.run && act.run(); } }));
     }
-    t.setAttribute("data-state", "show" + (bad ? " bad" : "") + (action ? " action" : ""));
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(function () { t.removeAttribute("data-state"); }, action ? 8000 : 2600);
+    node.addEventListener("pointerenter", function () { row.hover = true; });
+    node.addEventListener("pointerleave", function () { row.hover = false; if (row.wait) { row.wait = false; toastArm(row, 1500); } });
+    /* a plain message replaces an older plain one; rows with an action stay */
+    toastRows.filter(function (r) { return !r.action; }).forEach(toastDrop);
+    toastRows.unshift(row);
+    t.insertBefore(node, t.firstChild);
+    while (toastRows.length > TOAST_MAX) toastDrop(toastRows[toastRows.length - 1]);
+    toastArm(row, act ? 8000 : Math.min(7000, Math.max(2600, 1200 + 45 * msg.length)));
+    toastPaint();
     /* Phase F: #toast is the VISIBLE half and is aria-hidden; the spoken
        half goes through the one live region, so the same sentence twice
        running still announces twice and a failure interrupts rather than
-       queueing behind a confirmation. */
-    if (KOS.a11y) KOS.a11y.announce(msg, { assertive: !!bad });
+       queueing behind a confirmation. An Undo says how to reach it. */
+    var undoable = act && /^undo\b/i.test(act.label);
+    if (KOS.a11y) KOS.a11y.announce(undoable ? msg + " · " + (isMac() ? "Command" : "Control") + " Z to undo." : msg, { assertive: !!bad });
   }
+  function isMac() { return /Mac|iPhone|iPad/.test((navigator.platform || "") + " " + (navigator.userAgent || "")); }
+  /* ⌘Z / Ctrl+Z outside a text field runs the newest Undo still showing,
+     and only then: otherwise the key is left to the page (the ink pad's
+     own undo) */
+  function toastUndoNewest() {
+    var row = toastRows.filter(function (r) { return !r.gone && r.action && /^undo\b/i.test(r.action.label); })[0];
+    if (!row) return false;
+    toastDrop(row);
+    row.action.run && row.action.run();
+    return true;
+  }
+  document.addEventListener("keydown", function (e) {
+    if (!(e.metaKey || e.ctrlKey) || e.shiftKey || e.altKey || String(e.key).toLowerCase() !== "z") return;
+    var tg = e.target, typing = tg && (tg.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(tg.tagName));
+    if (typing) return;
+    if (toastUndoNewest()) { e.preventDefault(); e.stopImmediatePropagation(); }
+  });
 
   var savedTimer = null;
   function flashSaved() {
