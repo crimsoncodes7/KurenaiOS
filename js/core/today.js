@@ -18,10 +18,8 @@
        free     [{from, to, mins}],
        focus    {mins, sessions, bySubject},
        next     {kind, title, why, kicker, subject, ref, refs, assignmentId}|null,
-       spaces   [spaces() rows] (today only),
-       money    {notices, next {name, date, days, minor}, left}|null}
-     load(day, opts, cb)   the same, after the goals have been measured and
-                           Money's month read (money.left, safeToday, over)
+       spaces   [spaces() rows] (today), money {notices, next, left}|null}
+     load(day, opts, cb)   the same, with the goals measured and Money's month
 
    `next` is Home's Focus ladder (KOS.homeFocusPlan, invariant 53a), read,
    never re-derived, and only for today.                                   */
@@ -286,8 +284,7 @@
       money: money(day)
     };
   }
-  /* Money's day (HR-04): its notices and next bill, from the rules alone;
-     null with no rules. Figures are minor units: a surface masks them. */
+  /* Money's day (HR-04), from the rules; figures in minor units */
   function money(day) {
     var M = KOS.money;
     if (!M || !safe(function () { return M.rules().length; }, 0)) return null;
@@ -297,7 +294,6 @@
     return { notices: safe(function () { return M.notices(day); }, []).map(function (n) { return { id: n.id, title: n.title, view: n.view, arg: n.arg }; }),
       next: nx ? { name: nx.name, date: nx.date, days: KOS.srs.daysBetween(day, nx.date), minor: nx.minor } : null, left: null };
   }
-  /* the month's left to spend, safe today and categories over budget (a read) */
   function moneyMonth(day, cb) {
     var M = KOS.money;
     try {

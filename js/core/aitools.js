@@ -1021,10 +1021,7 @@
     }
   });
 
-  /* ======================================================================
-     JAPANESE (read only, like Code's: evidence is earned in the app,
-     grades come from validators; invariants 112–117)
-     ====================================================================== */
+  /* JAPANESE: read only, like Code's (invariants 112–117) */
   function jaReady(cb) { if (!KOS.ja || !KOS.ja.lessons || !KOS.ja.lessons().length) { cb({ error: "Japanese is not loaded." }); return false; } return true; }
   var JA_SK = { R: "reading", L: "listening", W: "writing", S: "speaking", H: "handwriting" };
   def("ja_overview", {

@@ -488,9 +488,8 @@
     var hpInfo = KOS.governor.hpStateInfo();
     var prof = KOS.governor.profile();
     var today = KOS.srs.todayISO();
-    /* the study spaces' own review queues (design turn 40a): Japanese,
-       Code's retrieval, Mind's cards, Creatives' theory cards — read from
-       each space, opened there; Creatives' leave the Flashcards row */
+    /* each space's review queue (40a), opened there; Creatives' cards
+       leave the Flashcards row for their own */
     var spaceRev = (KOS.today && KOS.today.spaces ? KOS.today.spaces() : []).filter(function (s) { return s.review && s.review.n > 0; });
     var crRow = spaceRev.some(function (s) { return s.sid === "creatives"; });
     var dueCards = KOS.srs.dueCards().filter(function (c) { return !crRow || c.sid !== "creatives"; });
@@ -862,10 +861,8 @@
        the Focus card's Focus | Review), per device in state.ui.homeUpcoming */
     var liveGoals = KOS.goals ? KOS.goals.all().filter(function (g) { return !g.archived && g.status === "active"; }) : [];
     var upMode = liveGoals.length && KOS.store.state.ui.homeUpcoming === "goals" ? "goals" : "upcoming";
-    /* Money's one row in Upcoming (40a, HR-04): its notice when it has
-       one (a bill two days ahead, a trial ending, income late), else its
-       next bill; then what is left this month. None with no rules or a
-       muted Money kind; Hide amounts masks every figure. */
+    /* Money's one row in Upcoming (40a, HR-04): its notice, else its next
+       bill, then left this month; masked by Hide amounts (invariant 53a) */
     var moneyNote = null, mDay = null;
     if (KOS.money && KOS.today && !(KOS.notify && KOS.notify.isMuted && KOS.notify.isMuted("money"))) {
       mDay = KOS.today.money(today);
