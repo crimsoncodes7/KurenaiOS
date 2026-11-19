@@ -113,6 +113,10 @@ step("A · ST-30, ST-37: a one-topic Due run names its subject and topic; no zer
   assert(e, "the run is in the ledger");
   eq([e.subject, e.ref], ["compsci", "4.2.3.1"], "logged with its subject and topic");
   eq(K.sessions.parts(e)[0].subject, "compsci", "parts() splits it to the subject");
+  assert(!qa("[data-ui~='review.today-time']").length || /[1-9]\d* min/.test(q("[data-ui~='review.today-time']").textContent), "Time is never printed as 0 min");
+  /* a mixed run names its topics: each subject it touched sees it */
+  const mixed = { type: "due-review", subject: null, ref: null, refs: ["compsci:4.2.3.1", "maths:M1.1"], metrics: {} };
+  assert(K.sessions.hasSubject(mixed, "compsci") && K.sessions.hasSubject(mixed, "maths") && !K.sessions.hasSubject(mixed, "it"), "a mixed run counts for each subject it named, and only those");
 });
 
 step("A · ST-31: Started says it counts topics given a status", async () => {

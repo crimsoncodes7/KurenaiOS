@@ -190,8 +190,12 @@
   function secsFor(e, sid) {
     return parts(e).reduce(function (n, p) { return !sid || p.subject === sid ? n + p.secs : n; }, 0);
   }
+  /* ST-30: a run across subjects (a mixed Due-today batch) names its topics in `refs`
+     ("sid:ref"), so each subject it touched sees it */
   function hasSubject(e, sid) {
-    return e.subject === sid || parts(e).some(function (p) { return p.subject === sid; });
+    return e.subject === sid || parts(e).some(function (p) {
+      return p.subject === sid || (!p.subject && p.refs.some(function (r) { return String(r).indexOf(sid + ":") === 0; }));
+    });
   }
 
   function forDate(dateISO, sid) {
