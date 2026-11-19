@@ -693,11 +693,18 @@
      sessions (n graded, passed), Mind's review blocks (cards, passed) and
      Code's retrievals (one each, "again" a lapse) — so a subject the
      editor offers is a subject the goal counts */
+  /* a mixed Due today run names no subject but counts its cards per
+     subject (metrics.bySubject): a subject's goal reads its own share */
+  function mixedShare(g, e) {
+    var b = g.links.subject && !e.subject && e.metrics && e.metrics.bySubject;
+    return b && b[g.links.subject] ? b[g.links.subject] : null;
+  }
   function reviewTally(g, ctx) {
     var t = { n: 0, again: 0 };
-    ledger(ctx, function (e) { return subjectOk(g, e); }).forEach(function (e) {
-      var x = e.metrics || {};
-      if (e.type === "flashcards" || e.type === "due-review") { t.n += +x.cards || 0; t.again += +x.again || 0; }
+    ledger(ctx, function (e) { return subjectOk(g, e) || !!mixedShare(g, e); }).forEach(function (e) {
+      var x = e.metrics || {}, share = mixedShare(g, e);
+      if (share) { t.n += +share.cards || 0; t.again += +share.again || 0; }
+      else if (e.type === "flashcards" || e.type === "due-review") { t.n += +x.cards || 0; t.again += +x.again || 0; }
       else if (e.type === "ja" && x.kind === "session") { t.n += +x.n || 0; t.again += Math.max(0, (+x.n || 0) - (+x.passed || 0)); }
       else if (e.type === "mind" && x.kind === "reviews") { t.n += +x.cards || 0; t.again += Math.max(0, (+x.cards || 0) - (+x.passed || 0)); }
       else if (e.type === "code" && x.kind === "retrieval" && x.grade) { t.n += 1; if (x.grade === "again") t.again++; }

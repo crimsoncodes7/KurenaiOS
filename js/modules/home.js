@@ -200,22 +200,26 @@
        card (the objective names it) or one whose topics meet the exam's
        linked topics. A bare timer, or another subject, is not revision for
        it (review: the goal counted every minute of the day) */
-    function examMins(ev) {
-      /* ONE definition with the Daily goal's directive (UR-30): the two
-         read the same minutes, so the card and the goal never disagree */
-      if (KOS.todo && KOS.todo.minsFor) return KOS.todo.minsFor(ev, today);
-      var label = "Revise for " + ev.title;
-      var leaves = KOS.spec.resolve(refsOfEv(ev));
+    /* minutes today FOR these topics: a session whose objective is `label`
+       (one started from this card), or, by stretch, a switched session's
+       time on these topics only */
+    function topicMins(refs, label) {
+      var leaves = refs && refs.length ? KOS.spec.resolve(refs) : [];
       return Math.round(KOS.sessions.all().reduce(function (sum, x) {
         if (x.date !== today || x.type === "media" || x.type === "todo" || !x.dur) return sum;
-        if (x.metrics && x.metrics.objective === label) return sum + x.dur;
+        if (label && x.metrics && x.metrics.objective === label) return sum + x.dur;
         if (!leaves.length) return sum;
-        /* by stretch: a switched session counts only its time on these topics */
         return sum + KOS.sessions.parts(x).reduce(function (n, p) {
           var mine = KOS.spec.resolve(p.refs);
           return mine.some(function (k) { return leaves.indexOf(k) !== -1; }) ? n + p.secs : n;
         }, 0);
       }, 0) / 60);
+    }
+    function examMins(ev) {
+      /* ONE definition with the Daily goal's directive (UR-30): the two
+         read the same minutes, so the card and the goal never disagree */
+      if (KOS.todo && KOS.todo.minsFor) return KOS.todo.minsFor(ev, today);
+      return topicMins(refsOfEv(ev), "Revise for " + ev.title);
     }
     function examPlan(d, goalMins) {
       var lv = lvOf(d.ev), done = examMins(d.ev);
@@ -316,7 +320,15 @@
       if (last && BYREF[sid][last]) rest = { kicker: "Where you left off", label: last + " " + BYREF[sid][last].title, why: KOS_DATA[sid].name,
         subject: sid, ref: last, go: (function (s2, r2) { return function () { KOS.show("ref", { subject: s2, ref: r2 }); }; })(sid, last) };
     }
-    if (!rest) rest = { kicker: "Clear", label: "Nothing is waiting", why: "No study block, exam or assignment inside a week.", go: function () { KOS.show("focus"); } };
+    /* the user, 19 Nov 2026: a plan row or a topic is measured by the time
+       spent ON IT today (a session started from this card, or a stretch on
+       its topics), never the day's total — a CS session filled the bar under
+       "Quadratics". Only the clear board keeps the daily goal. */
+    if (rest) {
+      var on = topicMins(rest.refs && rest.refs.length ? rest.refs : rest.subject && rest.ref ? [rest.subject + ":" + rest.ref] : [], rest.label);
+      return Object.assign({ kind: "general" }, rest, { goal: on > 0 ? { k: "On it today", v: minsText(on) } : null });
+    }
+    rest = { kicker: "Clear", label: "Nothing is waiting", why: "No study block, exam or assignment inside a week.", go: function () { KOS.show("focus"); } };
     return Object.assign({ kind: "general" }, rest, { goal: dailyGoal(dailyGoalMins()) });
   }
   KOS.homeFocusPlan = focusPlan;

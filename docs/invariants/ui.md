@@ -208,8 +208,11 @@ Read this file before editing or testing anything in its domain.
     Code's Daily 20, Japanese's reviews then its next lesson, Mind's Daily
     15, the Daily Creative; only spaces started, `KOS.today.spaces`; the
     card opens the space, which runs its own session, and says "Then" for
-    the rest), the next exam within six weeks, then the plan/reading with
-    the 2-hour daily goal. The Review side is one row a queue — the
+    the rest), the next exam within six weeks, then the plan row carried
+    over or where you left off, each measured by the time spent ON IT today
+    (a session started from the card, or a stretch on its topics; never the
+    day's total, and no bar, since a row has no estimate: the user, 19 Nov
+    2026), and last a clear board with the 2-hour daily goal. The Review side is one row a queue — the
     flashcards (Due today), then each space's own (Japanese, Code's
     retrieval, Mind's cards, Creatives' theory cards, which then leave the
     Flashcards row) — each opening its review, the tab counting them all.

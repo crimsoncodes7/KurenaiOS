@@ -410,6 +410,9 @@
       type: "due-review",
       sid: oneSid, ref: oneSid && refs.length === 1 ? refs[0].slice(oneSid.length + 1) : null,
       refs: refs.length > 1 ? refs : null, noTally: true,
+      /* a mixed run also counts its cards per subject (metrics.bySubject),
+         so each subject's review goals see them (rm:due-subject) */
+      split: !oneSid,
       runKey: "due:" + run,
       showTopic: true,
       onFinish: function () {

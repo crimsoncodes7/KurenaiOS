@@ -123,9 +123,13 @@
          gradN   flashcards (not redo items) that left the session
          ratedN  ratings given to flashcards (a redo item pays nothing and
                  alone makes no session, invariant 129)
-         secs    time spent rating, gaps over two minutes not counted */
+         secs    time spent rating, gaps over two minutes not counted
+         bySid   opts.split (a mixed Due today run): {sid: {cards, again}} for
+                 each card's own subject, so a subject's goals count it */
     var RUN = opts.runKey || null, R = KOS.sessions.run;
     var runSid = null, gradN = 0, redoG = 0, ratedN = 0, reviews = 0, secs = 0, lastAt = Date.now(), resumed = false;
+    var bySid = {};
+    function sidTally(c) { return c && c.sid ? (bySid[c.sid] = bySid[c.sid] || { cards: 0, again: 0 }) : null; }
     (function restore() {
       var rec = RUN ? R.get(RUN) : null;
       if (!rec || rec.kind !== "fc" || !Array.isArray(rec.queue)) return;
@@ -137,6 +141,7 @@
       graduated = rec.graduated || 0; gradN = rec.gradN || 0; redoG = rec.redoG || 0;
       ratedN = rec.rated || 0; reviews = rec.reviews || 0; secs = rec.secs || 0;
       ["again", "hard", "good", "easy"].forEach(function (k) { counts[k] = (rec.counts && rec.counts[k]) || 0; });
+      if (rec.bySid && typeof rec.bySid === "object") bySid = JSON.parse(JSON.stringify(rec.bySid));
       runSid = rec.sid || null;
       total = graduated + queue.length;
       resumed = reviews > 0;
@@ -150,17 +155,19 @@
           subject: opts.sid || null, ref: opts.ref || null, refs: opts.refs && opts.refs.length ? opts.refs.slice(0, 40) : undefined,
           metrics: { cards: gradN, again: counts.again, hard: counts.hard, good: counts.good, easy: counts.easy,
             pct: graded ? Math.round(100 * (counts.good + counts.easy) / graded) : 0,
-            redo: redoG || undefined, reviews: reviews, secs: secs, done: !!done }
+            redo: redoG || undefined, reviews: reviews, secs: secs, done: !!done,
+            bySubject: opts.split && Object.keys(bySid).length ? JSON.parse(JSON.stringify(bySid)) : undefined }
         });
       }
       if (!RUN) return;
       if (done) R.drop(RUN);
       else R.put(RUN, { kind: "fc", sid: runSid, queue: queue.map(function (i) { return cards[i].key; }), graduated: graduated,
-        gradN: gradN, redoG: redoG, rated: ratedN, reviews: reviews, secs: secs, counts: Object.assign({}, counts) });
+        gradN: gradN, redoG: redoG, rated: ratedN, reviews: reviews, secs: secs, counts: Object.assign({}, counts),
+        bySid: opts.split ? JSON.parse(JSON.stringify(bySid)) : undefined });
     }
     function startFresh() {
       if (RUN) R.drop(RUN);
-      runSid = null; gradN = 0; redoG = 0; ratedN = 0; reviews = 0; secs = 0; lastAt = Date.now(); resumed = false;
+      runSid = null; gradN = 0; redoG = 0; ratedN = 0; reviews = 0; secs = 0; lastAt = Date.now(); resumed = false; bySid = {};
       total = cards.length;
       resumedLine.hidden = true;
       restart();
@@ -399,6 +406,8 @@
         KOS.ui.toast("This card has lapsed " + rated.lapses + " times — it moves to Rework after this session.");
       }
       counts[RATE_META[r].cls]++;
+      var tal = opts.split && !c.redo ? sidTally(c) : null;
+      if (tal && r === 0) tal.again++;
       if (legacy) { legacy.seen++; r === 0 ? legacy.wrong++ : legacy.right++; }
       reviews++;
       if (!c.redo) ratedN++;
@@ -413,7 +422,7 @@
         queue.splice(at, 0, idx);
       } else {
         graduated++;
-        if (c.redo) redoG++; else gradN++;
+        if (c.redo) redoG++; else { gradN++; if (tal) tal.cards++; }
       }
       store.save();
       if (queue.length) { sync(false); show(); }

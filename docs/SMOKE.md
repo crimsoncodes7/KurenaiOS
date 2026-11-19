@@ -5,10 +5,11 @@ Moved out of `CLAUDE.md` on 17 November 2026 (W8, AP-20). The gate is
 holds in full. Add a new suite to this list and to the count and loop in
 `CLAUDE.md`.
 
-Gate: 177 / 177 suites (`""`, 2–156, 160–164 and 180–195).
+Gate: 178 / 178 suites (`""`, 2–156, 160–164 and 180–196).
 
 What the suites hold, newest first, as recorded at each release:
 
+196 is 1A's first item (the user's Due today note, rm:due-subject): Home's Focus card measures a plan row or a topic by the time spent on it today, never the day's total, and a clear board keeps the daily goal (53a); a mixed Due today run counts its cards per subject (`metrics.bySubject`, kept across a pick-up) and a subject's review goals read their share
 195 is the spaces joining the day and Home (HR-04, JM-26, MI-10 part 3, Creatives): `KOS.today.build` carries each space's daily item and reviews due and Money's notices and next bill, still writing nothing; Home's Money row shows a notice or the next bill and what is left this month, masked by Hide amounts; Creatives' theory cards are their own Review row; the Assistant's `ja_overview`/`ja_lesson` and a `today_overview` that names the spaces and Money.
 
 194 is the spaces joining Reports and Goals (JM-21, MI-10 parts 1–2, Creatives): new reports carry Japanese and Mind facts and cards (a saved report never recomputed; no Journal text, only a count), totals only in the words' payload; Japanese, Mind and Creatives-project goal types; exam-only goals list exam subjects only.
