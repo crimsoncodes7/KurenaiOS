@@ -7,7 +7,47 @@ the only things both can rely on are **Git** and the **files in the repo**.
 This page is the protocol that keeps them seamless. Nothing in it needs the
 accounts to talk to each other.
 
-## 0. The current handover (16 November 2026, evening — supersedes the list below)
+## 00. The current handover (19 November 2026 — supersedes §0 and §0a)
+
+This (second) account pauses here at a clean point; it may come back in a
+week or so. Everything is committed and pushed; nothing is in flight.
+
+- **Production:** sw `kos-integrity-23` (https://62721e6a.kurenai-os.pages.dev),
+  main = `feat/w1w7-rest` (fast-forwarded). `runner` Edge Function v10.
+  Gate 177/177 (`""`, 2–156, 160–164, 180–195). New suites from **196**.
+- **Done since §0:** the rest of W1 (DI-02 and DI-13 were already fixed;
+  W1 has nothing left), every W7 finding with no design, and the "spaces
+  join the OS" batch (HR-04, JM-21, MI-10, JM-26, Creatives). Details:
+  `docs/RELEASES.md` and the W1/W7 progress notes in the audit plan
+  (branch `audit/quality-2026-11`).
+- **Next, on whichever account picks up:** the **QoL review** with the
+  user. `docs/qol/` holds it:
+  - `qol-checked.jsonl` — all 136 QoL items (the user's 8 requests, the
+    auditors' 127 `qol` ideas, 1 QoL finding), each checked against the
+    code on 19 Nov: `status` (done 12, partly 31, open 76, unclear 17 —
+    mostly visual, check in a browser), `evidence`, `dup`, `size`,
+    `needsDesign`, `note`.
+  - `qol-picks.html` — the review page (published from the second account
+    as https://claude.ai/artifact/GaUNGxhbmcpSaLFTZj3wTY, marks in its db
+    collection `decisions`; that link may not open from another account).
+    On a new account, republish this file as an artifact with
+    `capabilities: {db: {}}` (rebuild from `qol-template.html` +
+    `qol-checked.jsonl` if the data changes) and read the marks back with
+    ArtifactData `list` on `decisions`. No marks had been made yet.
+  - Then build the items marked Build, a batch at a time, each audited
+    first, tested and browser-checked (the user's rules).
+- **Backlog, left by the user's decision (19 Nov):** W3, W9, W10, F201
+  papers 2–3, Help & Guide and the docs re-baseline, the ~4 MB boot aim,
+  UR-29. Small leftovers: a mixed Due run logs no subject (counts toward no
+  subject goal); no per-lesson Creatives Assistant tool.
+- **Rules now in force (memory, `docs/memory/`):** test every aspect before
+  a release; agents save as they go (commit + push after each item — the
+  usage limit can stop them); at most three agents; Fable is gone (Opus for
+  judgement, Sonnet for mechanical work); run full gates one at a time
+  (`SMOKE_JOBS=3` when agents share the machine); the boot budget only goes
+  down (move page-only code to first use instead).
+
+## 0. The handover of 16 November 2026, evening (kept for history)
 
 The Opus account is paused until Thursday 19 November (weekly limit). The
 OTHER account works alone until then: on **Fable** while it lasts, then on

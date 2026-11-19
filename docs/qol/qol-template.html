@@ -1,0 +1,281 @@
+<title>KurenaiOS QoL picks</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Noto+Serif+JP:wght@500&display=swap">
+<style>
+/* Layout: one reading column of idea rows grouped by app area, a sticky
+   summary-and-filter bar above; each row carries its own Build / Later / No. */
+:root {
+  --bg: #f6f5f4; --s1: #ffffff; --s2: #efedeb; --line: #dedad6;
+  --fg: #1d1b1a; --muted: #6d6863; --soft: #8f8984;
+  --accent: #b8323f; --accent-ink: #ffffff;
+  --build: #2f7d5b; --later: #9a6a14; --no: #8a8580;
+  --open: #3c6fb0; --partly: #9a6a14; --unclear: #7a5aa6; --done: #2f7d5b;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --font-mark: "Noto Serif JP", "Hiragino Mincho ProN", serif;
+  --r: 12px;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #121214; --s1: #1a1a1d; --s2: #222226; --line: #2e2e33;
+  --fg: #ecebea; --muted: #a29e9a; --soft: #7c7874;
+  --accent: #e2606b; --accent-ink: #1a0b0d;
+  --build: #5cc497; --later: #e0b04f; --no: #8f8b87;
+  --open: #7ba9e6; --partly: #e0b04f; --unclear: #b597e0; --done: #5cc497;
+  color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #121214; --s1: #1a1a1d; --s2: #222226; --line: #2e2e33;
+  --fg: #ecebea; --muted: #a29e9a; --soft: #7c7874;
+  --accent: #e2606b; --accent-ink: #1a0b0d;
+  --build: #5cc497; --later: #e0b04f; --no: #8f8b87;
+  --open: #7ba9e6; --partly: #e0b04f; --unclear: #b597e0; --done: #5cc497;
+  color-scheme: dark }
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--fg); font: 15px/1.5 var(--font-body); }
+.wrap { max-width: 1040px; margin: 0 auto; padding-block: 28px 64px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: flex; flex-direction: column; gap: 20px; }
+h1 { font-size: 28px; line-height: 1.15; margin: 0; letter-spacing: -0.01em; text-wrap: balance; }
+.kicker { font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.lede { margin: 6px 0 0; color: var(--muted); max-width: 68ch; }
+.bar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); padding-block: 10px; display: flex; flex-direction: column; gap: 10px; border-bottom: 1px solid var(--line); }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 10; background: var(--bg); }
+.tally { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; font-variant-numeric: tabular-nums; }
+.tally b { font-family: var(--font-mono); font-weight: 500; }
+.tally .t-build b { color: var(--build); } .tally .t-later b { color: var(--later); } .tally .t-no b { color: var(--no); }
+.prog { flex: 1 1 160px; height: 6px; border-radius: 3px; background: var(--s2); overflow: hidden; display: flex; min-width: 120px; }
+.prog i { display: block; height: 100%; }
+.save { font-size: 12px; color: var(--soft); }
+.save[data-warn] { color: var(--accent); }
+.filters { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.seg { display: inline-flex; background: var(--s2); border-radius: 999px; padding: 3px; gap: 2px; flex-wrap: wrap; }
+.seg button { border: 0; background: none; color: var(--muted); font: 500 13px var(--font-body); padding: 5px 11px; border-radius: 999px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--s1); color: var(--fg); box-shadow: 0 0 0 1px var(--line); }
+select, input[type="search"] { font: 14px var(--font-body); color: var(--fg); background: var(--s1); border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px; min-width: 0; }
+input[type="search"] { flex: 1 1 180px; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.area { display: flex; flex-direction: column; gap: 8px; }
+.area-h { display: flex; align-items: baseline; gap: 10px; margin-top: 10px; }
+.mark { font-family: var(--font-mark); font-size: 20px; color: var(--accent); width: 28px; text-align: center; flex: none; }
+.area-h h2 { font-size: 17px; margin: 0; }
+.area-h span { color: var(--soft); font-size: 13px; font-variant-numeric: tabular-nums; }
+.item { background: var(--s1); border: 1px solid var(--line); border-radius: var(--r); padding: 14px 16px; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px 18px; }
+.item[data-choice="build"] { border-color: color-mix(in srgb, var(--build) 55%, var(--line)); }
+.item[data-choice="no"] { opacity: 0.62; }
+.main { min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; font-size: 12px; }
+.key { font-family: var(--font-mono); color: var(--muted); }
+.pill { border-radius: 999px; padding: 1px 8px; border: 1px solid currentColor; font-weight: 500; }
+.pill[data-s="open"] { color: var(--open); } .pill[data-s="partly"] { color: var(--partly); } .pill[data-s="unclear"] { color: var(--unclear); } .pill[data-s="done"] { color: var(--done); }
+.chip { background: var(--s2); color: var(--muted); border-radius: 6px; padding: 1px 7px; }
+.note { font-weight: 600; margin: 0; }
+.orig { color: var(--muted); margin: 0; font-size: 14px; overflow-wrap: anywhere; }
+details { font-size: 13px; color: var(--soft); }
+details summary { cursor: pointer; width: fit-content; }
+details p { margin: 4px 0 0; font-family: var(--font-mono); font-size: 12px; overflow-wrap: anywhere; }
+.side { display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
+.pick { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; }
+.pick button { border: 0; background: none; color: var(--muted); font: 500 13px var(--font-body); padding: 6px 12px; cursor: pointer; min-height: 32px; }
+.pick button + button { border-left: 1px solid var(--line); }
+.pick button[aria-pressed="true"][data-v="build"] { background: var(--build); color: var(--bg); }
+.pick button[aria-pressed="true"][data-v="later"] { background: var(--later); color: var(--bg); }
+.pick button[aria-pressed="true"][data-v="no"] { background: var(--no); color: var(--bg); }
+.addnote { border: 0; background: none; color: var(--soft); font: 12px var(--font-body); cursor: pointer; padding: 2px 0; }
+textarea { grid-column: 1 / -1; width: 100%; font: 14px var(--font-body); color: var(--fg); background: var(--bg); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; resize: vertical; min-height: 60px; }
+.empty { color: var(--muted); padding: 24px 0; text-align: center; }
+@media (max-width: 640px) {
+  .item { grid-template-columns: minmax(0, 1fr); }
+  .side { align-items: flex-start; }
+  h1 { font-size: 23px; }
+}
+@media (prefers-reduced-motion: no-preference) { .item { transition: border-color 0.2s, opacity 0.2s; } }
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="kicker">KurenaiOS · quality audit · QoL</div>
+    <h1>Which quality-of-life ideas to build</h1>
+    <p class="lede">Your own requests and every auditor's QoL idea, each checked against the app on 19 November. Mark each one Build, Later or No; add a note where you want it done a certain way. Your marks save as you go.</p>
+  </header>
+
+  <div class="bar" role="region" aria-label="Summary and filters">
+    <div class="tally" aria-live="polite">
+      <span class="t-build"><b id="n-build">0</b> build</span>
+      <span class="t-later"><b id="n-later">0</b> later</span>
+      <span class="t-no"><b id="n-no">0</b> no</span>
+      <span><b id="n-left">0</b> to decide</span>
+      <div class="prog" aria-hidden="true"><i id="p-build" style="background:var(--build)"></i><i id="p-later" style="background:var(--later)"></i><i id="p-no" style="background:var(--no)"></i></div>
+      <span class="save" id="save">Connecting…</span>
+    </div>
+    <div class="filters">
+      <div class="seg" role="group" aria-label="Built already?" id="f-status">
+        <button type="button" data-v="todo" aria-pressed="true">Not built yet</button>
+        <button type="button" data-v="done" aria-pressed="false">Already built</button>
+        <button type="button" data-v="all" aria-pressed="false">All</button>
+      </div>
+      <div class="seg" role="group" aria-label="Your mark" id="f-choice">
+        <button type="button" data-v="all" aria-pressed="true">Any mark</button>
+        <button type="button" data-v="none" aria-pressed="false">Undecided</button>
+        <button type="button" data-v="build" aria-pressed="false">Build</button>
+        <button type="button" data-v="later" aria-pressed="false">Later</button>
+        <button type="button" data-v="no" aria-pressed="false">No</button>
+      </div>
+      <select id="f-area" aria-label="Area"><option value="">Every area</option></select>
+      <input type="search" id="f-q" placeholder="Search ideas" aria-label="Search ideas">
+    </div>
+  </div>
+
+  <main id="list"></main>
+</div>
+
+<script type="application/json" id="data">__DATA__</script>
+<script>
+(function () {
+  "use strict";
+  var ITEMS = JSON.parse(document.getElementById("data").textContent);
+  var AREAS = {
+    "user-request": ["Your requests", "願"], "a11y-hci": ["Accessibility", "触"], "achievements-governor": ["The Wall and the Governor", "守"],
+    "architecture-perf": ["Speed and structure", "速"], "assistant-archive": ["Assistant and Archive", "助"], "code-space": ["Code", "碼"],
+    "collection": ["Collection", "蒐"], "content-cs-it": ["CS and IT content", "学"], "content-maths": ["Maths content", "数"],
+    "creatives": ["Creatives", "創"], "data-integrity": ["Your data", "蔵"], "exams-files-ink": ["Exams, Files and ink", "試"],
+    "goals": ["Goals", "標"], "home-reports": ["Home and Reports", "灯"], "ja-mind": ["Japanese", "語"], "mind": ["Mind", "心"],
+    "money-goals": ["Money", "円"], "productivity": ["Productivity", "整"], "shell": ["Navigation and shell", "枠"],
+    "shop-cosmetics": ["Shop and cosmetics", "飾"], "study-core": ["Study", "習"], "sync-disruption": ["Sync and devices", "同"]
+  };
+  var ORDER = Object.keys(AREAS);
+  var STATUS = { open: "Not built", partly: "Partly built", unclear: "Needs a look", done: "Already built" };
+  var SIZE = { S: "small", M: "a session", L: "large" };
+  var choices = {};          /* key -> {choice, note} */
+  var db = null, col = null, pending = 0;
+  var f = { status: "todo", choice: "all", area: "", q: "" };
+
+  function el(tag, attrs, kids) {
+    var n = document.createElement(tag);
+    Object.keys(attrs || {}).forEach(function (k) {
+      var v = attrs[k]; if (v == null || v === false) return;
+      if (k === "text") n.textContent = v; else if (k.slice(0, 2) === "on") n.addEventListener(k.slice(2), v); else n.setAttribute(k, v === true ? "" : v);
+    });
+    (kids || []).forEach(function (c) { if (c) n.appendChild(typeof c === "string" ? document.createTextNode(c) : c); });
+    return n;
+  }
+  function docId(k) { return k.replace(/[^A-Za-z0-9_-]/g, "_"); }
+
+  var areaSel = document.getElementById("f-area");
+  ORDER.forEach(function (a) { if (ITEMS.some(function (x) { return x.a === a; })) areaSel.appendChild(el("option", { value: a, text: AREAS[a][0] })); });
+
+  function setStatus(text, warn) { var s = document.getElementById("save"); s.textContent = text; if (warn) s.setAttribute("data-warn", ""); else s.removeAttribute("data-warn"); }
+
+  function write(key, patch) {
+    var cur = Object.assign({ choice: null, note: "" }, choices[key] || {}, patch);
+    choices[key] = cur;
+    tally();
+    if (!col) { setStatus("Not saved: this view can't keep marks", true); return; }
+    pending++; setStatus("Saving…");
+    col.doc(docId(key)).set({ key: key, choice: cur.choice || null, note: String(cur.note || "").slice(0, 1000), at: Date.now() })
+      .then(function () { pending--; if (!pending) setStatus("Saved"); })
+      .catch(function (e) { pending--; setStatus("Could not save (" + (e && e.code || "error") + "). Your marks are kept on this page until you reload.", true); });
+  }
+
+  function tally() {
+    var n = { build: 0, later: 0, no: 0 }, todo = ITEMS.filter(function (x) { return x.s !== "done"; });
+    todo.forEach(function (x) { var c = choices[x.k] && choices[x.k].choice; if (n[c] != null) n[c]++; });
+    var left = todo.length - n.build - n.later - n.no;
+    ["build", "later", "no"].forEach(function (k) {
+      document.getElementById("n-" + k).textContent = n[k];
+      document.getElementById("p-" + k).style.width = (100 * n[k] / todo.length) + "%";
+    });
+    document.getElementById("n-left").textContent = left;
+  }
+
+  function row(x) {
+    var c = choices[x.k] || {};
+    var item = el("article", { class: "item", "data-choice": c.choice || null, "aria-label": x.n });
+    var pick = el("div", { class: "pick", role: "group", "aria-label": "Your mark for " + x.k },
+      [["build", "Build"], ["later", "Later"], ["no", "No"]].map(function (p) {
+        return el("button", { type: "button", "data-v": p[0], "aria-pressed": String(c.choice === p[0]), text: p[1], onclick: function () {
+          write(x.k, { choice: c.choice === p[0] ? null : p[0] }); render();
+        } });
+      }));
+    var ta = null;
+    function openNote() {
+      if (ta) { ta.focus(); return; }
+      ta = el("textarea", { id: "note-" + docId(x.k), "aria-label": "Note for " + x.k, placeholder: "How you want it, or why not" });
+      ta.value = c.note || "";
+      ta.addEventListener("change", function () { write(x.k, { note: ta.value }); });
+      item.appendChild(ta); ta.focus();
+    }
+    var main = el("div", { class: "main" }, [
+      el("div", { class: "meta" }, [
+        el("span", { class: "key", text: x.k }),
+        el("span", { class: "pill", "data-s": x.s, text: STATUS[x.s] || x.s }),
+        x.z ? el("span", { class: "chip", text: SIZE[x.z] || x.z }) : null,
+        x.g ? el("span", { class: "chip", text: "needs a design" }) : null,
+        x.d && x.d.length ? el("span", { class: "chip", text: "same as " + x.d.join(", ") }) : null
+      ]),
+      el("p", { class: "note", text: x.n || x.t }),
+      x.n && x.t && x.n !== x.t ? el("p", { class: "orig", text: x.t }) : null,
+      x.e ? el("details", {}, [el("summary", { text: x.s === "done" ? "Where it is" : "What's there now" }), el("p", { text: x.e })]) : null
+    ]);
+    var side = el("div", { class: "side" }, [pick, el("button", { type: "button", class: "addnote", text: c.note ? "Edit note" : "Add a note", onclick: openNote })]);
+    item.appendChild(main); item.appendChild(side);
+    if (c.note) { openNote(); ta.blur(); }
+    return item;
+  }
+
+  function render() {
+    var list = document.getElementById("list"), q = f.q.trim().toLowerCase();
+    var focusKey = document.activeElement && document.activeElement.closest && document.activeElement.closest(".item") ? document.activeElement.closest(".item").getAttribute("aria-label") : null;
+    list.textContent = "";
+    var shown = 0;
+    ORDER.forEach(function (a) {
+      var its = ITEMS.filter(function (x) {
+        if (x.a !== a) return false;
+        if (f.area && x.a !== f.area) return false;
+        if (f.status === "todo" && x.s === "done") return false;
+        if (f.status === "done" && x.s !== "done") return false;
+        var ch = choices[x.k] && choices[x.k].choice;
+        if (f.choice === "none" && ch) return false;
+        if (f.choice !== "all" && f.choice !== "none" && ch !== f.choice) return false;
+        if (q && (x.k + " " + x.t + " " + (x.n || "")).toLowerCase().indexOf(q) === -1) return false;
+        return true;
+      });
+      if (!its.length) return;
+      shown += its.length;
+      list.appendChild(el("section", { class: "area", "aria-labelledby": "h-" + a }, [
+        el("div", { class: "area-h" }, [el("span", { class: "mark", lang: "ja", "aria-hidden": "true", text: AREAS[a][1] }), el("h2", { id: "h-" + a, text: AREAS[a][0] }), el("span", { text: its.length + (its.length === 1 ? " idea" : " ideas") })])
+      ].concat(its.map(row))));
+    });
+    if (!shown) list.appendChild(el("p", { class: "empty", text: "Nothing matches these filters." }));
+    tally();
+  }
+
+  function seg(id, key) {
+    var g = document.getElementById(id);
+    g.addEventListener("click", function (e) {
+      var b = e.target.closest("button"); if (!b) return;
+      f[key] = b.getAttribute("data-v");
+      Array.prototype.forEach.call(g.querySelectorAll("button"), function (x) { x.setAttribute("aria-pressed", String(x === b)); });
+      render();
+    });
+  }
+  seg("f-status", "status"); seg("f-choice", "choice");
+  areaSel.addEventListener("change", function () { f.area = areaSel.value; render(); });
+  document.getElementById("f-q").addEventListener("input", function (e) { f.q = e.target.value; render(); });
+
+  render();
+
+  /* marks live in the artifact's database, so Claude can read them back */
+  var timer = setTimeout(function () { if (!col) setStatus("Marks can't be saved in this view; open it on claude.ai while signed in", true); }, 10000);
+  var claudeApi = window.claude;
+  if (!claudeApi || !claudeApi.use) { clearTimeout(timer); setStatus("Marks can't be saved in this view; open it on claude.ai while signed in", true); return; }
+  claudeApi.use("db").then(function (d) {
+    if (!d) { clearTimeout(timer); setStatus("Marks can't be saved in this view; open it on claude.ai while signed in", true); return; }
+    db = d; col = db.collection("decisions");
+    col.onSnapshot(function (snap) {
+      clearTimeout(timer);
+      snap.docs.forEach(function (s) { var v = s.data(); if (v && v.key) choices[v.key] = { choice: v.choice || null, note: v.note || "" }; });
+      if (!pending) setStatus("Saved");
+      var typing = document.activeElement && document.activeElement.tagName === "TEXTAREA";
+      if (!typing) render(); else tally();
+    }, function (e) { clearTimeout(timer); setStatus("Could not load your marks (" + (e && e.code || "error") + ")", true); });
+  }, function () { clearTimeout(timer); setStatus("Marks can't be saved in this view", true); });
+})();
+</script>
