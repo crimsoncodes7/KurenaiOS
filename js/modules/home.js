@@ -343,6 +343,17 @@
       return s.date === iso ? a + KOS.sessions.studySecs(s) : a;
     }, 0) / 3600;
   }
+  /* Study hours is study (the user, 19 Nov 2026): Focus time on a subject
+     or a study space only, never time linked to nothing */
+  var IS_SUBJECT = {};
+  SUBJECTS.forEach(function (sid) { IS_SUBJECT[sid] = true; });
+  function subjectSecs(s) {
+    if (!KOS.sessions.studySecs(s)) return 0;
+    return KOS.sessions.parts(s).reduce(function (a, p) { return p.subject && IS_SUBJECT[p.subject] ? a + p.secs : a; }, 0);
+  }
+  function subjectHoursOn(iso) {
+    return KOS.sessions.all().reduce(function (a, s) { return s.date === iso ? a + subjectSecs(s) : a; }, 0) / 3600;
+  }
   function fmtH(h) { return h >= 10 ? String(Math.round(h)) : String(Math.round(h * 10) / 10); }
   /* a study space's mark in its hue (碼 語 心 創), beside its daily */
   function spaceMark(mark, hue) {
@@ -969,15 +980,15 @@
     mid.appendChild(pair);
 
     /* Study hours — this week, Monday to Sunday */
-    var days = weekIsos.map(function (iso) { return { iso: iso, h: hoursOn(iso) }; });
+    var days = weekIsos.map(function (iso) { return { iso: iso, h: subjectHoursOn(iso) }; });
     var weekH = days.reduce(function (a, d) { return a + d.h; }, 0);
     /* the comparison is like for like: this week so far against the SAME
        days of last week (Monday to today's weekday). Against the whole of
        last week, a Thursday always read as a loss — and the bare figure
        never said what it was compared with. */
     var lastWeekH = 0, daysIn = weekIsos.filter(function (iso) { return iso <= today; }).length;
-    for (var lw = 0; lw < daysIn; lw++) { var ld = new Date(weekStart); ld.setDate(weekStart.getDate() - 7 + lw); lastWeekH += hoursOn(isoOf(ld)); }
-    var weekSess = KOS.sessions.all().filter(function (s) { return KOS.sessions.studySecs(s) > 0 && weekIsos.indexOf(s.date) !== -1; }).length;   /* Focus sessions, as the hours (HR-05) */
+    for (var lw = 0; lw < daysIn; lw++) { var ld = new Date(weekStart); ld.setDate(weekStart.getDate() - 7 + lw); lastWeekH += subjectHoursOn(isoOf(ld)); }
+    var weekSess = KOS.sessions.all().filter(function (s) { return subjectSecs(s) > 0 && weekIsos.indexOf(s.date) !== -1; }).length;   /* Focus sessions on a subject, as the hours (HR-05) */
     var goalH = dailyGoalMins() / 60, goalT = fmtH(goalH) + "h";
     var peak = Math.max(goalH, days.reduce(function (a, d) { return Math.max(a, d.h); }, 0));
     /* every bar and the goal line are measured in ONE track per column
@@ -1005,15 +1016,15 @@
           el("span", { class: "k-hours-l", text: "\u00a0" })
         ])
       ]));
-    /* HR-23: every subject and the unlinked rest, from the sessions the total counts */
-    var bySubj = {}, splitKeys = SUBJECTS.concat(["_none"]);
+    /* HR-23: every subject and study space, from the sessions the total counts */
+    var bySubj = {}, splitKeys = SUBJECTS.slice();
     splitKeys.forEach(function (k) { bySubj[k] = 0; });
     KOS.sessions.all().forEach(function (s) {
-      if (!KOS.sessions.studySecs(s) || weekIsos.indexOf(s.date) === -1) return;
-      KOS.sessions.parts(s).forEach(function (p) { var k = p.subject && bySubj[p.subject] != null ? p.subject : "_none"; bySubj[k] += p.secs / 3600; });
+      if (!subjectSecs(s) || weekIsos.indexOf(s.date) === -1) return;
+      KOS.sessions.parts(s).forEach(function (p) { if (p.subject && bySubj[p.subject] != null) bySubj[p.subject] += p.secs / 3600; });
     });
-    var splitHue = function (k) { return k === "_none" ? "var(--muted)" : SUBJ_HUE[k]; };
-    var splitName = function (k) { return k === "_none" ? "Unlinked" : SUBJ_SHORT[k]; };
+    var splitHue = function (k) { return SUBJ_HUE[k]; };
+    var splitName = function (k) { return SUBJ_SHORT[k]; };
     var learnt = 0;
     Object.keys(store.state.srs || {}).forEach(function (k) { var m = store.state.srs[k]; if (m && m.reps > 0) learnt++; });
     var delta = weekH - lastWeekH;

@@ -175,10 +175,12 @@ step("C · HR-23: every subject is in the split", async () => {
   K.show("home"); await app.settle();
   const leg = qa("[data-ui~='home.split-legend'] [data-sid]");
   const sids = leg.map((x) => x.getAttribute("data-sid"));
-  ["code", "ja", "compsci", "_none"].forEach((k) => assert(sids.indexOf(k) !== -1, "Home's split has " + k + ": " + sids));
+  ["code", "ja", "compsci"].forEach((k) => assert(sids.indexOf(k) !== -1, "Home's split has " + k + ": " + sids));
+  /* Study hours is study (the user, 19 Nov): Focus linked to nothing is in neither the split nor the total */
+  assert(sids.indexOf("_none") === -1 && !/Unlinked/.test(q("[data-ui~='home.split-legend']").textContent), "no Unlinked segment: " + sids);
   const sum = leg.reduce((a, x) => a + parseFloat(x.textContent.replace(/^[^\d]*/, "")), 0);
   const big = parseFloat(q(".k-hours-n").textContent);
-  assert(Math.abs(sum - big) <= 0.15, "the split adds up to the total: " + sum + " vs " + big);
+  assert(Math.abs(sum - big) <= 0.15, "the split, subjects only, adds up to the total, so the unlinked block is in neither: " + sum + " vs " + big);
 });
 
 step("D · HR-22 / AP-19: a week with Focus is saved, and Week by week hears it", async () => {
