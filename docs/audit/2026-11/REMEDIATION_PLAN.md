@@ -1197,7 +1197,16 @@ its "only goes down" rule; AP-01 stage 2 would win it back.
   (`page-share`) load on first use, so the budget fell 7.92 → 7.90 MB.
   Browser-checked at desktop and iPad portrait on the sample data; the
   check found and fixed Mind's welcome card collapsing at iPad widths.
-  HELD for design or later: **HR-04** (Home's "what next" for the spaces),
+  **RELEASED 19 Nov as sw `kos-integrity-23`** (https://62721e6a.kurenai-os.pages.dev,
+  main 9852e2c), together with the held spaces batch, now FIXED: **HR-04**
+  (each space's day and Money's next bill in `KOS.today.build` and on Home;
+  smoke195), **JM-21** and **MI-10** (Japanese and Mind in Reports and Goals;
+  smoke194), **JM-26** (the Assistant's `ja_overview`/`ja_lesson`;
+  smoke195), and a Creatives audit (a projects goal, its goals' "what it
+  reads", exam-only goals, theory cards as their own Review row). Boot
+  budget 7.89 MB. Left from this list: a mixed Due run logs no subject, so
+  it counts toward no subject goal; no per-lesson Creatives Assistant tool.
+  Before that, HELD for design or later: **HR-04** (Home's "what next" for the spaces),
   **JM-21** (Japanese in Goals/Reports), **MI-10** (Mind in
   Reports/Goals), **JM-26** (the Assistant's Japanese tools). OPEN QUESTION:
   Focus time linked to no subject is in Home's Study hours split but not in
