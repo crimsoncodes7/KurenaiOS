@@ -899,13 +899,22 @@
     var st = S();
     var attempted = Object.keys(st.tasks).filter(function (id) { return task(id) && (st.tasks[id].tries || 0) > 0; });
     var passed = attempted.filter(function (id) { return st.tasks[id].passAt; });
-    var current = ls.filter(function (l) { var p = store.peekProgress(SID, l.ref); return !p || p.status !== "done"; })[0] || ls[ls.length - 1];
+    /* CO-06: where to continue is COVERAGE, not completion — the fourth check (a retrieval)
+       comes days later and waits on the Retrieval card, so the first released lesson not yet
+       studied (KOS.code.studied); then the first not done; then the last */
+    var notDone = function (l) { var p = store.peekProgress(SID, l.ref); return !p || p.status !== "done"; };
+    var current = ls.filter(function (l) { return notDone(l) && hasLesson(l.ref) && !studied(l.ref); })[0] ||
+      ls.filter(notDone)[0] || ls[ls.length - 1];
+    /* CO-32: tasks passed OF the tasks there are in the released core lessons, as its neighbours */
+    var coreTasks = [];
+    ls.forEach(function (l) { if (hasLesson(l.ref)) tasksOf(l.ref).forEach(function (t) { coreTasks.push(t.id); }); });
+    var corePassed = coreTasks.filter(function (id) { var r = st.tasks[id]; return r && r.passAt; }).length;
     return {
       lessons: ls.length, done: done, touched: touched,
       strands: { L: strand.L[1] ? Math.round(strand.L[0] / strand.L[1]) : 0,
                  E: strand.E[1] ? Math.round(strand.E[0] / strand.E[1]) : 0,
                  S: strand.S[1] ? Math.round(strand.S[0] / strand.S[1]) : 0 },
-      tasksPassed: passed.length, tasksTried: attempted.length,
+      tasksPassed: passed.length, tasksTried: attempted.length, coreTasks: coreTasks.length, coreTasksPassed: corePassed,
       skillsProven: Object.keys(st.proven).filter(function (c) { return concept(c); }).length,
       due: dueCards().length,
       current: current || null,

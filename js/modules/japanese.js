@@ -187,7 +187,9 @@
 
   /* Today (28a): the four computed blocks as one bar with one Start */
   function todayCard() {
-    var p = J().planDay(), blocks = [["Reviews", p.reviews.min], ["New", p.learn ? p.learn.min : 0], ["Input", p.input.min], ["Output", p.output.min]];
+    /* JM-38: only the blocks the app runs; input and output join when they exist (inApp) */
+    var p = J().planDay(), blocks = [["Reviews", p.reviews.min], ["New", p.learn ? p.learn.min : 0]]
+      .concat(p.input.inApp ? [["Input", p.input.min]] : [], p.output.inApp ? [["Output", p.output.min]] : []);
     var what = p.reviews.n && p.learn ? "Reviews, then " + p.learn.lesson + " " + p.learn.title : p.learn ? p.learn.lesson + " " + p.learn.title : p.reviews.n ? "Reviews" : "All caught up";
     var box = el("section", { class: "k-card k-ja-today", "data-ui": "ja.today", "aria-label": "Today" }, [
       el("div", { class: "k-ja-today-top" }, [
@@ -198,7 +200,7 @@
       el("div", { class: "k-ja-blocks", role: "img", "aria-label": blocks.map(function (b) { return b[0] + " " + b[1] + " minutes"; }).join(", ") },
         blocks.map(function (b, i) { return el("span", { "data-block": String(i), style: "--w: " + Math.max(1, b[1]) }); })),
       el("div", { class: "k-ja-blocks-l k-mono" }, blocks.map(function (b) { return el("span", { text: b[0] + " " + b[1] }); })),
-      p.learn && p.learn.heavy && p.reviews.n ? el("p", { class: "k-ja-today-note", text: "A heavy review day: New shrinks; input stays." }) : null,
+      p.learn && p.learn.heavy && p.reviews.n ? el("p", { class: "k-ja-today-note", text: "A heavy review day: New shrinks." }) : null,
       el("div", { class: "k-ja-today-go" }, [
         el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "ja.start", text: "▶ Start",
           disabled: !p.reviews.n && !p.learn ? "" : null,
@@ -212,9 +214,9 @@
   function firstDayCard() {
     var L = J().lessons()[0];
     return el("section", { class: "k-card k-ja-today", "data-ui": "ja.today ja.first-day", "data-state": "first" }, [
-      el("div", { class: "k-ja-today-top" }, [el("span", { class: "k-kicker", text: "Today · first session" }), el("span", { class: "k-chip", style: "--chip-c: var(--subj-c)", title: "The plan settles in about two weeks.", text: "≈ 15 min" })]),
+      el("div", { class: "k-ja-today-top" }, [el("span", { class: "k-kicker", text: "Today · first session" }), el("span", { class: "k-chip", style: "--chip-c: var(--subj-c)", title: "The plan settles in about two weeks.", text: "≈ 13 min" })]),
       el("ol", { class: "k-ja-firstlist" }, [
-        ["Kana", "あ い う え お", "8"], ["Listen", "your first sounds", "5"], ["Say it", "optional", "2"]
+        ["Kana", "あ い う え お", "8"], ["Listen", "your first sounds", "5"]
       ].map(function (r) { return el("li", {}, [el("b", { text: r[0] }), el("span", { lang: /[ぁ-ん]/.test(r[1]) ? "ja" : null, text: r[1] }), el("small", { class: "k-mono", text: "≈ " + r[2] + " min" })]); })),
       el("div", { class: "k-ja-today-go" }, [
         el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "ja.start", text: "▶ Start",
@@ -263,7 +265,7 @@
     var tl = J().timeline(), next = tl.milestones.filter(function (m) { return !m.done; })[0];
     var box = el("section", { class: "k-card k-ja-stonecard", "data-ui": "ja.next-stone" }, [cardHead("Media path", "next stone", "Open →", function () { KOS.show("japanese", { page: "path" }); })]);
     if (!next) return box;
-    box.appendChild(el("div", { class: "k-ja-stonecard-t" }, [el("b", { text: next.title }), el("span", { class: "k-mono", text: tl.calibrating ? "Calibrating" : next.unit === "kana" ? "" : UI().range(next.from, next.to) })]));
+    box.appendChild(el("div", { class: "k-ja-stonecard-t" }, [el("b", { text: next.title }), el("span", { class: "k-mono", text: tl.calibrating ? "Calibrating" : next.unit === "kana" ? "" : UI().rangeOf(next) })]));
     requirementMeters(next).forEach(function (m) { box.appendChild(m); });
     return box;
   }
@@ -275,7 +277,7 @@
         if (p.kind !== "k" || p.skill !== "R" || ch.length !== 1 || !(f.reps && f.s >= KOS.jaSrs.HOLD)) return;
         if (/[\u3041-\u3096]/.test(ch)) hira++; else kata++;
       });
-      return [UI().meter({ label: "Hiragana stable", value: Math.min(46, hira), target: 46 }), UI().meter({ label: "Katakana stable", value: Math.min(46, kata), target: 46 })];
+      return [UI().meter({ label: "Hiragana held a week", value: Math.min(46, hira), target: 46 }), UI().meter({ label: "Katakana held a week", value: Math.min(46, kata), target: 46 })];
     }
     return [UI().meter({ label: "Words", value: m.have, target: m.need })];
   }
@@ -537,14 +539,14 @@
     var chosen = tl.milestones.filter(function (m) { return m.id === sel; })[0] || next || tl.milestones[0];
     main.appendChild(el("section", { class: "k-card k-ja-pathbig" }, [UI().mediaPath(tl, { large: true, selected: chosen.id,
       onSelect: function (id) { KOS.show("japanese", { page: "path", id: id }); var m = tl.milestones.filter(function (x) { return x.id === id; })[0];
-        if (m) announce(m.title + ". " + Math.round(100 * m.have / m.need) + "% there." + (tl.calibrating ? "" : m.from ? " Projected " + UI().range(m.from, m.to) + "." : "")); } })]));
+        if (m) announce(m.title + ". " + Math.round(100 * m.have / m.need) + "% there." + (tl.calibrating ? "" : m.from ? " Projected " + UI().rangeOf(m) + "." : "")); } })]));
     var pct = Math.min(100, Math.round(100 * chosen.have / Math.max(1, chosen.need)));
     var detail = el("section", { class: "k-card k-ja-stonedetail", "data-ui": "ja.stone-detail" }, [
       el("div", { class: "k-ja-stonedetail-h" }, [el("span", { class: "k-kicker", text: chosen.done ? "Reached" : chosen === next ? "Next stone" : "Later stone" }),
         el("span", { class: "k-chip", style: "--chip-c: var(--subj-c)", text: chosen.done ? "Done" : tl.calibrating ? "Calibrating" : pct + "% there" })]),
       el("h2", { text: chosen.title }),
-      tl.calibrating && !chosen.done ? el("p", { class: "k-muted", text: "A date appears after two weeks of sessions. Until then, the requirements show what it needs." })
-        : !chosen.done && chosen.unit !== "kana" ? el("p", { class: "k-ja-range" }, [el("b", { class: "k-mono", text: UI().range(chosen.from, chosen.to) }), el("small", { text: " projected · a range from your pace, never one date" })]) : null
+      tl.calibrating && !chosen.done ? el("p", { class: "k-muted", text: "A date appears after two weeks of sessions with " + KOS.ja.MIN_WORDS + " words met. Until then, the requirements show what it needs." })
+        : !chosen.done && chosen.unit !== "kana" ? el("p", { class: "k-ja-range" }, [el("b", { class: "k-mono", text: UI().rangeOf(chosen) }), el("small", { text: " projected · a range from your pace, never one date" })]) : null
     ].filter(Boolean));
     requirementMeters(chosen).forEach(function (m) { detail.appendChild(m); });
     var levers = el("section", { class: "k-card k-ja-levers", "data-ui": "ja.levers" }, [cardHead("What moves this date most", null, null)]);
@@ -556,14 +558,14 @@
       levers.appendChild(el("p", { class: "k-muted", text: "Nothing here changes your plan unless you choose it in Settings › Daily minutes." }));
     }
     main.appendChild(el("div", { class: "k-ja-twocol" }, [el("div", { class: "k-ja-col" }, [detail]), el("div", { class: "k-ja-side" }, [levers])]));
-    main.appendChild(el("section", { class: "k-card k-ja-stonesall", "data-ui": "ja.stones-all" }, [cardHead("All stones", tl.perWeek ? "about " + tl.perWeek.mid + " new words a week" : null, null),
+    main.appendChild(el("section", { class: "k-card k-ja-stonesall", "data-ui": "ja.stones-all" }, [cardHead("All stones", tl.perWeek ? "about " + tl.perWeek.mid + (tl.perWeek.mid === 1 ? " new word a week" : " new words a week") : null, null),
       el("ul", { class: "k-ja-stonelist" }, [el("li", { class: "k-ja-stonelist-h", "aria-hidden": "true" }, [el("span", { text: "Stone" }), el("span", { text: "Requirements met" }), el("span", { text: "Likely" })])]
         .concat(tl.milestones.map(function (m) {
         var pct = Math.min(100, Math.round(100 * m.have / Math.max(1, m.need)));
         return el("li", { "data-state": m.done ? "done" : null }, [el("span", { text: (m.done ? "✓ " : "") + m.title }),
           el("span", { class: "k-ja-stonelist-p" }, [el("span", { class: "k-bar", role: "img", "aria-label": pct + "% of the requirements", style: "--p: " + pct + "%; --bar-c: var(--subj-c)" }, [el("i")]),
             el("span", { class: "k-mono", text: pct + "%" })]),
-          el("span", { class: "k-mono", text: m.done ? "Done" : tl.calibrating ? "Calibrating" : UI().range(m.from, m.to) })]);
+          el("span", { class: "k-mono", text: m.done ? "Done" : m.unit === "kana" ? "Kana first" : tl.calibrating ? "Calibrating" : UI().rangeOf(m) })]);
       })))]));
   }
 
@@ -581,6 +583,9 @@
         ].filter(Boolean)),
         rec.scores ? el("div", { class: "k-ja-cp-rows" }, cp.skills.map(function (s) { return skillRow(s, rec.scores[s] || 0); })) : el("p", { class: "k-muted", text: cp.skills.map(function (s) { return UI().SKILL[s]; }).join(", ") + " · about 10 minutes" }),
         state === "passed" && rec.passAt ? el("p", { class: "k-ja-pay", text: "Passed on " + dayLabel(isoOf(rec.passAt)) + (rec.paidAt ? " · ◆ paid once" : "") }) : null,
+        /* JM-27: the rows are the passing attempt; a later, weaker retake is one line beneath */
+        state === "passed" && rec.last && rec.scores && cp.skills.some(function (s) { return (rec.last[s] || 0) !== (rec.scores[s] || 0); })
+          ? el("p", { class: "k-muted", "data-ui": "ja.checkpoint-last", text: "Last attempt · " + cp.skills.map(function (s) { return UI().SKILL[s] + " " + Math.round(100 * (rec.last[s] || 0)) + "%"; }).join(" · ") }) : null,
         el("button", { type: "button", class: isNext ? "k-btn k-btn--primary" : "k-btn", "data-intent": isNext ? "primary" : null, "data-ui": "ja.checkpoint-start",
           text: state === "passed" ? "Take it again" : state === "next" ? "▶ Start the checkpoint" : "Open (recommended later)",
           onclick: function () { KOS.show("japanese", { page: "checkpoints", id: id }); } })

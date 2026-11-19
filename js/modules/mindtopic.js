@@ -107,7 +107,10 @@
           [el("span", { class: "k-mono", "aria-hidden": "true", text: "ABCD"[i] }), op, st === "right" ? el("span", { class: "k-mind-mark", text: " ✓ Right" }) : st === "wrong" ? el("span", { class: "k-mind-mark", text: " ✗ Not this" }) : null].filter(Boolean));
       })));
       if (res) {
-        box.appendChild(el("p", { class: "k-mind-why", role: "status", text: (res.ok ? "Right. " : "Not quite. ") + it.why }));
+        /* MI-06: a scenario right only after its answer was shown passes the check, not Apply */
+        var late = res.ok && it.apply && rec()[cur] && rec()[cur].apply === false;
+        box.appendChild(el("p", { class: "k-mind-why", role: "status", "data-ui": late ? "mind.apply-later" : null,
+          text: (res.ok ? (late ? "Right, but after the answer was shown: it counts for Apply on another day. " : "Right. ") : "Not quite. ") + it.why }));
         var nx = (function () { var r2 = rec(); for (var k = 1; k <= items.length; k++) { var j = (cur + k) % items.length; if (!(r2[j] && r2[j].ok)) return j; } return -1; })();
         box.appendChild(el("div", { class: "k-mind-row" }, [
           el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: nx < 0 ? "Finish the check ›" : res.ok ? "Next ›" : "Next, and come back to this ›",
@@ -367,15 +370,33 @@
       if (ev.prompt) rows.push([l.kind === "contested" ? "Position taken" : "Explain-back done", ev.parked && !ev.promptDone ? "parked for a Daily 15" : "the lesson's one prompt", ev.checks[2]]);
       rows.push(["First retrieval passed", ev.retrieval ? "a card held" : "cards from tomorrow", ev.checks[3]]);
       var n = rows.filter(function (r) { return r[2]; }).length;
-      var node = el("section", { class: "k-ts k-mind-ts", "data-ui": "topic.status mind.status", "aria-label": "Topic status" }, [
-        el("div", { class: "k-ts-head", "data-ui": "topic.status-head" }, [el("span", { class: "k-kicker", text: "Status" }), el("span", { class: "k-ts-checks", text: n + " of " + rows.length + " checks" })]),
+      /* JM-02: the shared status row every study space carries — the percentage the desk
+         and the spine read (the shared record), the status select (invariant 107: it may
+         still be set by hand) and the confidence picker */
+      var pct = KOS.hub.leafPercent(SID, ref), tone = pct < 20 ? "low" : pct <= 70 ? "mid" : "high";
+      var rag = KOS.rag.picker(SID, ref);
+      function statusSel() {
+        var H = KOS.hub, cur = (KOS.store.peekProgress(SID, ref) || {}).status || "none";
+        var s = el("select", { class: "k-ts-select", "data-ui": "ui.status-select", id: "ts-status", "aria-label": "Topic status",
+          onchange: function () { KOS.store.setStatus(SID, ref, s.value); if (H.renderTree) H.renderTree(SID, ref); } },
+          H.STATUS.map(function (st) { return el("option", { value: st[0], text: H.STATUS_GLYPH[st[0]] + " " + st[1] }); }));
+        s.value = cur; return s;
+      }
+      var node = el("section", { class: "k-ts k-mind-ts", "data-ui": "topic.status mind.status", "data-state": tone, "aria-label": "Topic status" }, [
+        el("div", { class: "k-ts-head", "data-ui": "topic.status-head" }, [el("span", { class: "k-kicker", text: "Status" }), el("span", { class: "k-ts-checks", text: n + " of " + rows.length + " checks" }), el("strong", { class: "k-ts-pct", text: pct + "%" })]),
+        el("span", { class: "k-bar k-bar--6", role: "img", "aria-label": pct + "% from evidence", style: "--p: " + pct + "%" }, [el("i")]),
+        el("div", { class: "k-ts-row" }, [
+          el("div", { class: "k-ts-field" }, [el("label", { class: "sr-only", for: "ts-status", text: "Status" }), statusSel()]),
+          el("div", { class: "k-ts-field" }, [el("span", { class: "sr-only", text: "Confidence" }), rag.node])
+        ]),
         el("div", { class: "k-ts-checkgrid", "data-ui": "topic.checkgrid mind.checks" }, rows.map(function (r) {
           var cb = el("input", { type: "checkbox", class: "k-box", "aria-readonly": "true", tabindex: "-1", onclick: function (e) { e.preventDefault(); } });
           cb.checked = !!r[2];
           return el("label", { class: "k-ts-check k-mind-check-row", "data-ui": "topic.check", "data-state": r[2] ? "on" : null, title: "Ticks itself from evidence" }, [cb,
             el("span", { class: "k-mind-check-t" }, [el("span", { text: r[0] }), el("small", { text: r[1] })])]);
-        }))
-      ]);
+        })),
+        rag.auto
+      ].filter(Boolean));
       function onEv(e) {
         if (!node.isConnected) { document.removeEventListener("kos:mind-evidence", onEv); return; }
         if (e.detail && e.detail.ref !== ref) return;

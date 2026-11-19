@@ -147,7 +147,7 @@
         var graded = counts.again + counts.hard + counts.good + counts.easy;
         KOS.sessions.upsert(runSid, {
           type: opts.type || "flashcards",
-          subject: opts.sid || null, ref: opts.ref || null,
+          subject: opts.sid || null, ref: opts.ref || null, refs: opts.refs && opts.refs.length ? opts.refs.slice(0, 40) : undefined,
           metrics: { cards: gradN, again: counts.again, hard: counts.hard, good: counts.good, easy: counts.easy,
             pct: graded ? Math.round(100 * (counts.good + counts.easy) / graded) : 0,
             redo: redoG || undefined, reviews: reviews, secs: secs, done: !!done }

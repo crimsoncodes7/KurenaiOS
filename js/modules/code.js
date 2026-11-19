@@ -145,8 +145,10 @@
           pct: st.capstones ? Math.round(100 * st.capstones / st.capstonesTotal) : null, c: "var(--green)", sub: "The first capstone comes at the end of stage 1." }),
         statTile({ k: "Retrieval due", v: String(st.due), empty: !Object.keys(C().state().cards).length, sub: "skills to prove again today" }),
         statTile({ k: "Skills proven", v: String(st.skillsProven), empty: !st.skillsProven }),
-        statTile({ k: "Tasks passed", v: st.tasksPassed + " / " + st.tasksTried, empty: !st.tasksTried,
-          pct: st.tasksTried ? Math.round(100 * st.tasksPassed / st.tasksTried) : null, c: "var(--green)" }),
+        /* CO-32: passed of the tasks there are (released core lessons), like Lessons beside it */
+        statTile({ k: "Tasks passed", v: st.coreTasksPassed + " / " + st.coreTasks, empty: !st.tasksTried,
+          pct: st.coreTasks ? Math.round(100 * st.coreTasksPassed / st.coreTasks) : null, c: "var(--green)",
+          sub: st.tasksTried ? st.tasksPassed + " of " + st.tasksTried + " tried passed" : null }),
         (function () {
           var ks = C().katas();
           return statTile({ k: "Katas", v: String(ks.length), empty: !ks.length, sub: ks.length ? "five quick questions, against the clock" : "Five quick questions from lessons you've covered." });
@@ -1028,14 +1030,11 @@
       var go = el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "code.retrieval-check", text: kind === "write" ? "✓ Run and check" : "Check", onclick: check });
       card.appendChild(el("div", { class: "k-cx-q-row" }, [go, hintBtn, el("span", { class: "k-muted", text: "a hint grades it Hard" }), timer]));
       card.appendChild(out);
-      /* when each comes back if it goes well (Good each time) */
-      var ivl = Math.max(3, row.ivl || 2), ef = 2.5, at = 0;
+      /* what the next reviews ask, in order. CO-07: no dates — FSRS sets each from the answer
+         given (the outcome names the real one), so a projected "in 3 days" only contradicted it */
       var nextRows = [1, 2, 3].map(function (k) {
         var nv = C().variation(pickId, row.n + k);
-        if (k > 1) ivl = Math.round(ivl * ef);
-        at += ivl;
-        var when = at < 60 ? "in " + at + " days" : "in " + Math.round(at / 30) + " months";
-        return nv ? [when, "Variation " + (row.n + k), nv.label || nv.prompt] : null;
+        return nv ? [k === 1 ? "next" : k === 2 ? "then" : "after", "Variation " + (row.n + k), nv.label || nv.prompt] : null;
       }).filter(Boolean);
       if (nextRows.length) {
         stage.appendChild(el("section", { class: "k-card k-cx-rnext", "aria-label": "Next reviews" }, [

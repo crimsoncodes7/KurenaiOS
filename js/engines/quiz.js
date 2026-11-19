@@ -13,7 +13,13 @@
   var el = KOS.ui.el, store = KOS.store;
   var LETTERS = "ABCDEFGHI";
 
+  /* ST-27: a pure read — opening the Quiz tab writes nothing; the record is made by the
+     first finished attempt (record()) */
   function qstats(sid, ref) {
+    var q = (store.state.study || {}).quiz || {}, rec = q[sid + ":" + ref];
+    return rec ? rec : { attempts: 0, best: 0, lastPct: 0 };
+  }
+  function qrecord(sid, ref) {
     var st = store.state.study = store.state.study || {};
     var q = st.quiz = st.quiz || {};
     var k = sid + ":" + ref;
@@ -203,7 +209,8 @@
       function paintHead() {
         var done = Object.keys(answered).length;
         title.textContent = done === items.length ? "All " + items.length + " answered" : "Question " + (at + 1) + " of " + items.length;
-        meta.textContent = "score " + correct + (st.attempts ? " · best " + (own ? st.best + "/" + items.length : (bestPct(sid, ref, st) || 0) + "%") : " · first attempt");
+        meta.textContent = "score " + correct + (opts.practice ? " · practice: " + items.length + " to retry, the topic's score unchanged"
+          : st.attempts ? " · best " + (own ? st.best + "/" + items.length : (bestPct(sid, ref, st) || 0) + "%") : " · first attempt");
       }
       var card = null, next = null;
       function show() {
@@ -301,7 +308,14 @@
           opts.onFinish(picks, correct);
           return;
         }
-        if (!again_) {
+        if (!again_ && opts.practice) {
+          /* CM-17: a re-run of the missed (or the weakest) is practice: each answer is in the
+             question's own history and schedule, but the topic's score, its attempts and the
+             session log stay the full quiz's */
+          keep(true);
+          if (typeof opts.afterLog === "function") setTimeout(opts.afterLog, 0);
+        } else if (!again_) {
+          st = qrecord(sid, ref);
           st.attempts++;
           st.lastPct = Math.round(100 * correct / items.length);
           if (correct > st.best) st.best = correct;
@@ -335,7 +349,7 @@
           acts.appendChild(el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "Retry the " + missed.length + " missed",
             onclick: function () {
               var ix = items.map(function (_, i) { return i; }).filter(function (i) { return answered[i] != null && answered[i] !== items[i].ans; });
-              KOS.quiz.mountMCQ(holder, sid, ref, ix.map(function (i) { return items[i]; }), { keys: ix.map(function (i) { return qkeys[i]; }) });
+              KOS.quiz.mountMCQ(holder, sid, ref, ix.map(function (i) { return items[i]; }), { keys: ix.map(function (i) { return qkeys[i]; }), practice: true, afterLog: opts.afterLog });
             } }));
         }
         result.appendChild(acts);
@@ -378,7 +392,7 @@
         histBox.appendChild(el("div", { class: "k-qz-foot" }, [
           weak.length ? el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "quiz.history-weakest",
             text: "Quiz the weakest " + weak.length, onclick: function () {
-              KOS.quiz.mountMCQ(holder, sid, ref, weak.map(function (r) { return items[r.i]; }), { keys: weak.map(function (r) { return r.key; }) });
+              KOS.quiz.mountMCQ(holder, sid, ref, weak.map(function (r) { return items[r.i]; }), { keys: weak.map(function (r) { return r.key; }), practice: true, afterLog: opts.afterLog });
             } }) : null,
           el("button", { type: "button", class: "k-btn", "data-ui": "quiz.history-whole", text: "Whole quiz", onclick: function () { history(false); } }),
           best != null ? el("span", { class: "k-muted k-spacer", text: "best " + best + "% · " + st.attempts + (st.attempts === 1 ? " attempt" : " attempts") }) : null
@@ -744,6 +758,7 @@
           disabled: logged[n.i] ? "" : null, onclick: function () {
           var got = 0;
           n.parts.forEach(function (p, pi) { got += marks[pi] || 0; });
+          st = qrecord(sid, ref);   // ST-27: the record is made by a logged answer, never by a render
           st.attempts++;
           store.save();
           /* FR-3.2 — self-marked exam questions are sessions too */

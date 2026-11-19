@@ -215,11 +215,16 @@
     if (b.getFullYear() - a.getFullYear() > 1) return a.getFullYear() + " – " + b.getFullYear();
     return monthYear(from) + " – " + monthYear(to);
   }
+  /* rangeOf(milestone): its projected range; past ten years it says so (JM-19, `beyond`) */
+  function rangeOf(m) {
+    if (m && m.beyond) return m.from ? monthYear(m.from) + " – beyond ten years" : "More than ten years at this pace";
+    return range(m && m.from, m && m.to);
+  }
   function stoneWhen(m, tl) {
     if (m.done) return "Done";
-    if (tl.calibrating) return "Calibrating";
     if (m.unit === "kana") return Math.round(100 * m.have / m.need) + "% there";
-    return range(m.from, m.to);
+    if (tl.calibrating) return "Calibrating";
+    return rangeOf(m);
   }
   /* mediaPath(timeline, { large, selected, onSelect(id) }) */
   function mediaPath(tl, o) {
@@ -499,7 +504,7 @@
 
   KOS.jaUI = {
     CAST: CAST, SKILL: SKILL, plain: plain, furi: furi, skill: skill, say: say, stop: stop, synthetic: synthetic, line: line,
-    verdict: verdict, verdictWords: verdictWords, stagePath: stagePath, mediaPath: mediaPath, range: range, radar: radar,
+    verdict: verdict, verdictWords: verdictWords, stagePath: stagePath, mediaPath: mediaPath, range: range, rangeOf: rangeOf, radar: radar,
     meter: meter, seal: seal, pad: pad, scene: scene, panel: panel, IMG: IMG
   };
 })();
