@@ -12,6 +12,8 @@
          is unchanged and carries no split.
      C · bk:study-core#1: Today so far (Reviewed, Accuracy) and Card stats'
          Rating mix read the review log, one row a rating.
+     D · creatives#6: the Writing Desk writes a draft on pagehide and when
+         you leave the page, not only after its 600 ms pause.
 
    Run: node tools/smoke196.test.js */
 "use strict";
@@ -146,6 +148,25 @@ step("C · Today so far and Card stats read the review log (bk:study-core#1)", a
   const again = all.filter((r) => maths.has(r.key) && r.g === 1).length;
   assert(again >= 1 && new RegExp("Again " + again + "\\b").test(mix.getAttribute("aria-label")),
     "Again counts the log's Maths Again ratings (" + again + "): " + mix.getAttribute("aria-label"));
+  assert(!app.errors.length, "no page errors: " + app.errors.slice(0, 3).join(" | "));
+});
+
+step("D · the Writing Desk saves a draft when the page hides or you leave (creatives#6)", async () => {
+  const W = K.crWrite, CR = K.creatives;
+  W.openStudy("W1.3", "b"); await app.settle(); await app.settle();
+  const id = decodeURIComponent((/#\/creatives\/write\/([^/]+)/.exec(app.window.location.hash) || [])[1] || "");
+  assert(id, "a draft is open: " + app.window.location.hash);
+  const read = () => new Promise((res) => CR.files.get("doc:" + id, (e, d) => res(d)));
+  const paper = q("[data-ui~='cr.paper']");
+  paper.value = paper.value + " The page closed straight after this.";
+  paper.dispatchEvent(new app.window.Event("input", { bubbles: true }));
+  app.window.dispatchEvent(new app.window.Event("pagehide"));
+  await app.settle(); await new Promise((r) => setTimeout(r, 30));
+  assert(/closed straight after this/.test((await read()).text), "pagehide writes the draft at once, not 600 ms later");
+  paper.value = paper.value + " Then I left the desk.";
+  paper.dispatchEvent(new app.window.Event("input", { bubbles: true }));
+  K.show("home"); await app.settle(); await new Promise((r) => setTimeout(r, 30));
+  assert(/Then I left the desk/.test((await read()).text), "leaving the page writes it too");
   assert(!app.errors.length, "no page errors: " + app.errors.slice(0, 3).join(" | "));
 });
 

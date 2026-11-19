@@ -117,7 +117,21 @@
       count.textContent = n + (target ? " / " + target : "") + " words";
       if (bar) { bar.style.setProperty("--p", Math.min(100, Math.round(100 * n / target)) + "%"); bar.setAttribute("aria-label", n + " of " + target + " words"); }
     }
-    function later() { clearTimeout(timer); savedNote.textContent = ""; timer = setTimeout(function () { save(doc, function () { savedNote.textContent = "Saved on this device"; }); }, 600); }
+    function later() { clearTimeout(timer); savedNote.textContent = ""; timer = setTimeout(function () { timer = null; save(doc, function () { savedNote.textContent = "Saved on this device"; }); }, 600); }
+    /* creatives#6: a draft typed just before the iPad closes the page, or
+       before you leave the desk, is written at once rather than after the
+       600 ms pause it never reaches */
+    function flush() { if (!timer) return; clearTimeout(timer); timer = null; save(doc); }
+    function onHide() { if (document.visibilityState === "hidden") flush(); }
+    window.addEventListener("pagehide", flush);
+    document.addEventListener("visibilitychange", onHide);
+    /* the doc loads asynchronously: tie the listeners to this page's render
+       only while its holder is still on the page */
+    if (holder.isConnected && KOS.view && KOS.view.onDispose) KOS.view.onDispose(function () {
+      flush();
+      window.removeEventListener("pagehide", flush);
+      document.removeEventListener("visibilitychange", onHide);
+    });
     paintCount();
 
     var side = el("aside", { class: "k-cr-write-side", "aria-label": "About this draft" });
@@ -142,7 +156,7 @@
         var given = doc.lesson && doc.study && CR().study(doc.lesson, doc.study) ? CR().study(doc.lesson, doc.study).setup : null;
         var squash = function (t) { return String(t || "").replace(/\s+/g, " ").trim(); };
         if (given && squash(area.value) === squash(given)) { KOS.ui.toast("Write your part first: the setup is the study's, not yet yours.", true); return; }
-        clearTimeout(timer);
+        clearTimeout(timer); timer = null;
         save(doc, function () {
           var rec = { kind: "text", title: doc.title, words: words(area.value), lesson: doc.lesson || null, study: doc.study || null, track: "write", unit: doc.unit != null ? doc.unit : null, ms: doc.ms != null ? doc.ms : null };
           CR().addWork(rec, { text: area.value, doc: doc.id }, function (wid) {
