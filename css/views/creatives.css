@@ -156,6 +156,7 @@
 
 /* ================= a project ================= */
 .k-cr-project { display: flex; flex-direction: column; gap: var(--sp-12); }
+.k-cr-project .k-link { min-block-size: var(--hit); }
 .k-cr-project-t { margin: 0; font-size: var(--fs-22); }
 .k-cr-project p { margin: 0; }
 .k-cr-milestones { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; }
@@ -392,5 +393,6 @@
 @media (pointer: coarse) {
   .k-cr-day { inline-size: var(--hit-coarse); block-size: var(--hit-coarse); }
   .k-cr-logtools .k-pill-select { min-block-size: var(--hit-coarse); }
+  .k-cr-project .k-link { min-block-size: var(--hit-coarse); }
 }
 }

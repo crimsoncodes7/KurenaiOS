@@ -319,7 +319,7 @@
     if (page === "check") { spaceHead(main, "check", { title: "The check", sub: null }); return checkPage(main, arg.id); }
     if (page === "log") { spaceHead(main, "log", { title: "Practice Log", sub: "Only you see this" }); return logPage(main, arg.id); }
     if (page === "portfolio") { spaceHead(main, "portfolio", { title: "Portfolio", sub: null }); return portfolioPage(main); }
-    if (page === "project") { spaceHead(main, "project", { title: "Project", sub: null }); main.appendChild(projectView(arg.id)); return; }
+    if (page === "project") { spaceHead(main, "project", { title: "Project", sub: null }); main.appendChild(projectView(arg.id, { back: true })); return; }
     if (page === "add") { spaceHead(main, "add", { title: "Add your work", sub: null }); return addPage(main, arg.id); }
     if (page === "settings") { spaceHead(main, "settings", { title: "Creatives settings" }); return settingsPage(main); }
     spaceHead(main, "tracks", { title: "Tracks", sub: null });
@@ -681,12 +681,16 @@
   }
 
   /* ---------------- a unit's project ---------------- */
-  function projectView(uid) {
+  function projectView(uid, o) {
     var ps = CR().projectState(uid), u = CR().unit(uid);
     if (!ps) return KOS.ui.emptyState({ mark: "創", title: "No project here", body: "This unit's project arrives with its release." });
     var T = CR().track(u.track);
     return el("section", { class: "k-card k-cr-project", "data-ui": "cr.project", "data-state": ps.offered ? "offered" : "after" }, [
-      el("span", { class: "k-kicker", text: T.name + " " + u.n + " · project" }),
+      el("div", { class: "k-card-head" }, [
+        el("span", { class: "k-kicker", text: T.name + " " + u.n + " · project" }),
+        o && o.back && u.lessons && u.lessons.length ? el("button", { type: "button", class: "k-link", "data-ui": "cr.project-unit",
+          text: "‹ " + T.name + " " + u.n + " lessons", onclick: function () { openUnit(uid); } }) : null
+      ].filter(Boolean)),
       el("h2", { class: "k-cr-project-t", text: ps.project.t }),
       el("p", { text: ps.project.brief }),
       ps.offered ? null : el("p", { class: "k-muted", text: "Best after " + ps.project.after + "'s studies." }),
@@ -694,7 +698,11 @@
         return el("li", { "data-state": ps.ms[i] ? "done" : null }, [
           el("span", { class: "k-cr-tick", "aria-hidden": "true", text: ps.ms[i] ? "✓" : String(i + 1) }),
           el("span", { class: "k-cr-ms-t", text: m }),
-          ps.ms[i] ? el("small", { class: "k-cr-done", "data-tone": "done", text: ps.attached[i] ? "✓ work saved" : "✓ done" }) :
+          ps.ms[i] ? (ps.attached[i] && ps.works[i] && ps.works[i].length
+            ? el("button", { type: "button", class: "k-link k-cr-done", "data-tone": "done", "data-ui": "cr.ms-work",
+              "aria-label": "Open saved work for milestone " + (i + 1), text: "✓ work saved",
+              onclick: function () { openWork(ps.works[i][0]); } })
+            : el("small", { class: "k-cr-done", "data-tone": "done", text: "✓ done" })) :
             u.track === "write" && KOS.crWrite ? el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "cr.ms-write", text: "Write it", onclick: function () { KOS.crWrite.openMilestone(uid, i); } }) : null,
           ps.attached[i] ? null : el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "cr.ms-attach", text: "Add your work", onclick: function () { attachDialog(uid, i); } }),
           el("button", { type: "button", class: "k-link", "data-ui": "cr.ms-mark", text: ps.ms[i] ? "Undo" : "Mark done", onclick: function () { CR().markMilestone(uid, i, ps.ms[i]); KOS.rerender(); } })
