@@ -135,7 +135,10 @@
 .k-cr-band[data-tone="done"] { border-inline-start-color: var(--green); }
 
 /* ================= the Practice Log and the Portfolio (31j–31k) ================= */
-.k-cr-loglist { display: flex; flex-direction: column; }
+.k-cr-logtools { display: flex; flex-wrap: wrap; gap: var(--sp-8); }
+.k-cr-logtools .k-pill-select { min-block-size: var(--hit); }
+.k-cr-loglist, .k-cr-logrows { display: flex; flex-direction: column; }
+.k-cr-logmore { align-self: center; margin-block-start: var(--sp-12); }
 .k-cr-work { display: flex; align-items: center; gap: var(--sp-12); padding-block: var(--sp-10); border-block-end: var(--hairline) solid var(--line); }
 .k-cr-work:last-child { border-block-end: 0; }
 .k-cr-work[data-state="open"] { background: color-mix(in oklch, var(--cr) 6%, transparent); }
@@ -388,5 +391,6 @@
 /* CR-07: the day letters are centred, and the circles stay circles on touch */
 @media (pointer: coarse) {
   .k-cr-day { inline-size: var(--hit-coarse); block-size: var(--hit-coarse); }
+  .k-cr-logtools .k-pill-select { min-block-size: var(--hit-coarse); }
 }
 }

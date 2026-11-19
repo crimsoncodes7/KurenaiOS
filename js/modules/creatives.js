@@ -590,9 +590,68 @@
   function logPage(main, wid) {
     var all = CR().works();
     if (!all.length) { main.appendChild(spotEmpty("cr.spot.log", { mark: "◔", title: "Nothing here yet", body: "Every study you save lands here first, raw and private. Delete anything, any time." })); return; }
+    var f = KOS.view && KOS.view.memo ? KOS.view.memo("cr.logFilter", function () { return { track: "", check: "" }; }) : { track: "", check: "" };
+    var target = wid ? CR().work(wid) : null;
+    function needsCheck(w) { return !!(w.lesson && (!w.check || !w.check.pass)); }
+    function matches(w) {
+      if (f.track && w.track !== f.track) return false;
+      if (f.check === "todo" && !needsCheck(w)) return false;
+      return true;
+    }
+    if (target && !KOS.ui.redrawing && !matches(target)) {
+      if (f.track && target.track !== f.track) f.track = "";
+      if (f.check === "todo" && !needsCheck(target)) f.check = "";
+    }
+    function pillSelect(label, hook, value, options, onchange) {
+      var s = el("select", { class: "k-pill-select", "data-ui": hook, "aria-label": label },
+        options.map(function (o) { return el("option", { value: o[0], text: o[1] }); }));
+      s.value = value;
+      s.addEventListener("change", function () { target = null; onchange(s.value); paint(); });
+      return s;
+    }
+    var trackSel = pillSelect("Filter by track", "cr.log-track", f.track,
+      [["", "All tracks"]].concat(CR().tracks().map(function (t) { return [t.id, t.name]; })),
+      function (v) { f.track = v; });
+    var checkSel = pillSelect("Filter by check", "cr.log-check", f.check,
+      [["", "All pieces"], ["todo", "Check to do"]],
+      function (v) { f.check = v; });
+    main.appendChild(el("div", { class: "k-cr-logtools", "data-ui": "cr.log-tools" }, [trackSel, checkSel]));
+    var titleEl = el("span", { class: "k-card-title" });
+    var listHost = el("div", { class: "k-cr-logrows" });
     main.appendChild(el("section", { class: "k-card k-cr-loglist", "data-ui": "cr.log", "aria-label": "Practice Log" }, [
-      el("div", { class: "k-card-head" }, [el("span", { class: "k-card-title", text: all.length + (all.length === 1 ? " piece" : " pieces") }), el("span", { class: "k-card-meta", text: "newest first · prunable" })])
-    ].concat(all.map(function (w) { return workRow(w, { open: w.id === wid }); }))));
+      el("div", { class: "k-card-head" }, [titleEl, el("span", { class: "k-card-meta", text: "newest first · prunable" })]),
+      listHost
+    ]));
+    var BATCH = 60;
+    function paint() {
+      var filtered = !!(f.track || f.check);
+      var rows = all.filter(matches);
+      if (target && rows.indexOf(target) === -1) rows = [target].concat(rows);
+      var unit = all.length === 1 ? " piece" : " pieces";
+      titleEl.textContent = filtered ? rows.length + " of " + all.length + unit : all.length + unit;
+      listHost.innerHTML = "";
+      if (!rows.length) {
+        listHost.appendChild(KOS.ui.emptyState({ compact: true, mark: "◔", title: "Nothing matches these filters",
+          action: el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "cr.log-clear", text: "Clear filters", onclick: function () {
+            f.track = ""; f.check = ""; trackSel.value = ""; checkSel.value = ""; paint();
+          } }) }));
+        return;
+      }
+      var shown = 0;
+      var idx = target ? rows.indexOf(target) : -1;
+      var firstBatch = idx >= BATCH ? idx + 1 : BATCH;
+      function more(step) {
+        var old = listHost.querySelector("[data-ui~='cr.log-more']");
+        if (old) old.remove();
+        rows.slice(shown, shown + step).forEach(function (w) { listHost.appendChild(workRow(w, { open: w.id === wid })); });
+        shown = Math.min(rows.length, shown + step);
+        if (shown < rows.length) listHost.appendChild(el("button", { type: "button", class: "k-btn k-cr-logmore", "data-ui": "cr.log-more",
+          text: "Show " + Math.min(BATCH, rows.length - shown) + " more · " + shown + " of " + rows.length + " shown",
+          onclick: function () { more(BATCH); announce(shown + " of " + rows.length + " pieces shown."); } }));
+      }
+      more(firstBatch);
+    }
+    paint();
     /* CR-01: a deep link to a piece opens it ONCE, on arrival — never on a
        redraw (an action in the dialog, a background change) — and closing
        it drops the id from the address, so nothing opens it again */
@@ -600,7 +659,7 @@
       var live = KOS.view ? KOS.view.token() : function () { return true; };
       setTimeout(function () {
         if (!live()) return;
-        openWork(wid, { onClose: function () { if (KOS.router && KOS.router.replaceArg) KOS.router.replaceArg("creatives", { page: "log" }); } });
+        openWork(wid, { onClose: function () { target = null; if (KOS.router && KOS.router.replaceArg) KOS.router.replaceArg("creatives", { page: "log" }); } });
       }, 0);
     }
   }
