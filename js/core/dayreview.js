@@ -786,7 +786,7 @@
       return { kind: a.kind, id: id };
     }
     T.define("today_overview", {
-      desc: "The day in one read: the timeline (lessons, events, study blocks, routines, reviews), what is due, exam warnings, pinned goals, free time, Focus so far and the suggested next task.",
+      desc: "The day in one read: the timeline (lessons, events, study blocks, routines, reviews), what is due, exam warnings, pinned goals, free time, Focus so far, the suggested next task, each study space's daily and reviews due (Code, Japanese, Mind, Creatives) and Money's notices, next bill and left this month.",
       category: "planner", tier: "read", read: true,
       params: { day: { type: "string", enum: ["today", "tomorrow"] } },
       run: function (args, cb) {
@@ -798,7 +798,11 @@
             warnings: t.warnings.map(function (w) { return w.title + ": " + w.body; }),
             pinnedGoals: t.goals.map(function (g) { return { title: g.title, pace: g.pace }; }),
             freeMins: t.free.reduce(function (m, b) { return m + b.mins; }, 0), focusMins: t.focus.mins,
-            next: t.next ? { title: t.next.title, why: t.next.kicker } : null });
+            next: t.next ? { title: t.next.title, why: t.next.kicker } : null,
+            spaces: t.spaces.map(function (x) { return { space: x.name, daily: x.daily || null, title: x.title || null, why: x.why || null, done: !!x.done,
+              reviewsDue: x.review ? x.review.n : 0, reviews: x.review ? x.review.sub : undefined, revisitsDue: x.revisits || undefined }; }),
+            money: t.money && { notices: t.money.notices.map(function (n) { return n.title; }), nextBill: t.money.next && { name: t.money.next.name, date: t.money.next.date, amount: KOS.money.formatShown(t.money.next.minor) },
+              leftThisMonth: t.money.left == null ? null : KOS.money.formatShown(t.money.left), overBudget: t.money.over } });
         });
       } });
     T.define("review_today", {
@@ -814,7 +818,7 @@
     T.define("review_set_three", {
       desc: "Set today's three (up to three refs from today_overview's due list or next: {kind, id}). Home shows them all day.",
       category: "planner", tier: "reversible", read: false,
-      params: { refs: { type: "array", maxLen: 3, items: { type: "object", props: { kind: { type: "string", enum: ["reminder", "assignment", "plan", "event", "assessment", "topic"] }, id: { type: "string", maxLen: 80 } } } } },
+      params: { refs: { type: "array", maxLen: 3, items: { type: "object", props: { kind: { type: "string", enum: ["reminder", "assignment", "plan", "event", "assessment", "topic", "space"] }, id: { type: "string", maxLen: 80 } } } } },
       run: function (args, cb) {
         var before = ((dayRec(rday()).morning || {}).three || []).slice();
         var set = setThree((args.refs || []).map(refOf).filter(Boolean));
@@ -823,7 +827,7 @@
     T.define("review_set_first", {
       desc: "Set the first task and its two-minute first action, for today or (tomorrow: true) for tomorrow morning.",
       category: "planner", tier: "reversible", read: false,
-      params: { kind: { type: "string", required: true, enum: ["reminder", "assignment", "plan", "event", "assessment", "topic"] }, id: { type: "string", required: true, maxLen: 80 },
+      params: { kind: { type: "string", required: true, enum: ["reminder", "assignment", "plan", "event", "assessment", "topic", "space"] }, id: { type: "string", required: true, maxLen: 80 },
         action: { type: "string", maxLen: 160 }, tomorrow: { type: "boolean" } },
       run: function (args, cb) {
         var ref = refOf(args);

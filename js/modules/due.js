@@ -28,7 +28,7 @@
     /* the rapid drill's misses (roadmap 5.8 phase 5): those cards, due or not */
     if (run.indexOf("cards:") === 0) return listedCards(run.slice(6).split("|"));
     var cut = run.indexOf(":"), sid = run.slice(0, cut), ref = run.slice(cut + 1);
-    return due.filter(function (c) { return c.sid === sid && c.ref === ref; });
+    return due.filter(function (c) { return c.sid === sid && (ref === "*" || c.ref === ref); });
   }
   /* "Cram this scope" (roadmap 5.8, 29w): an assessment's due cards, then
      the cards on its weakest leaves whose recall today is under 75%,
@@ -78,6 +78,7 @@
   function topicTitle(sid, ref) {
     var leaf = KOS.hub && KOS.hub.BYREF[sid] && KOS.hub.BYREF[sid][ref];
     if (leaf) return leaf.title;
+    if (ref === "*") return (KOS.subjects.meta(sid) || {}).name || sid;   /* a space's whole queue */
     return sid === KOS.srs.PERSONAL_SID ? (ref === "vn" ? "Visual novel quotes" : "Personal cards") : ref;
   }
 

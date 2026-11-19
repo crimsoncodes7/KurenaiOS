@@ -896,7 +896,7 @@
      ====================================================================== */
   function crReady(cb) { if (!KOS.creatives || !KOS.creatives.lessons) { cb({ error: "Creatives is not loaded." }); return false; } return true; }
   def("creatives_overview", {
-    desc: "Creatives (art, graphic design, editing and writing): where each track is, lessons done, today's Daily Creative (or why it rests or is paused), theory cards due, checks passed, projects and the Portfolio's size. Never the Practice Log's contents.",
+    desc: "Creatives (art, graphic design, editing and writing): where each track is, lessons done, today's Daily Creative (whether it is done, or why it rests or is paused), theory cards due, checks passed, projects and the Portfolio's size. Never the Practice Log's contents.",
     category: "study", tier: "read", read: true, params: {},
     run: function (args, cb) {
       if (!crReady(cb)) return;
@@ -905,7 +905,8 @@
         lessonsDone: st.done, lessonsReleased: st.lessons, checksPassed: st.checks, cardsDue: st.due, portfolio: st.portfolio, minutesThisWeek: st.week,
         projects: st.projectsDone + "/" + st.projects,
         tracks: CR.tracks().map(function (t) { var pl = CR.trackPlace(t.id); return { track: t.name, released: CR.lessons(t.id).length, unit: pl ? pl.index + 1 : null, lesson: pl ? pl.lesson : null }; }),
-        today: { state: p.state, study: p.study ? p.study.lesson + "·" + p.study.study + " " + p.study.t : null, cards: p.cards, minutes: p.total || 0, backAfter: p.back || null }
+        today: { state: p.state, study: p.study ? p.study.lesson + "·" + p.study.study + " " + p.study.t : null, cards: p.cards, minutes: p.total || 0, backAfter: p.back || null,
+          done: !!(KOS.today.space("creatives") || {}).done }
       });
     }
   });
@@ -1017,6 +1018,45 @@
       cb(null, { id: c.id, name: c.name, gist: c.gist, keyPoints: c.keyPoints || [],
         rungs: M.RUNGS.map(function (r, i) { return { rung: r, holds: !!l.rungs[i] }; }),
         cards: M.cardKeys(c.id).length });
+    }
+  });
+
+  /* JAPANESE: read only, like Code's (invariants 112–117) */
+  function jaReady(cb) { if (!KOS.ja || !KOS.ja.lessons || !KOS.ja.lessons().length) { cb({ error: "Japanese is not loaded." }); return false; } return true; }
+  var JA_SK = { R: "reading", L: "listening", W: "writing", S: "speaking", H: "handwriting" };
+  def("ja_overview", {
+    desc: "Japanese: lessons done, mastery, checkpoints, kana and kanji read, words stable per skill, reviews due by skill, today's plan (reviews, the next lesson), and the timeline to each reading milestone as a range (or calibrating).",
+    category: "study", tier: "read", read: true, params: {},
+    run: function (args, cb) {
+      if (!jaReady(cb)) return;
+      var J = KOS.ja, st = J.stats(), p = J.planDay(), n = J.nextLesson(), tl = J.timeline(), by = {};
+      J.due().forEach(function (k) { var sk = JA_SK[KOS.jaSrs.split(k).skill]; if (sk) by[sk] = (by[sk] || 0) + 1; });
+      cb(null, {
+        started: J.started(), lessonsDone: st.done, lessons: st.lessons, mastery: st.mastery, checkpointsPassed: st.passed, checkpoints: st.checkpoints,
+        kanaRead: st.kanaRead, kanjiRead: st.kanjiRead, wordsStable: st.skills.words, reviewsDue: st.due, dueBySkill: by,
+        today: { reviews: p.reviews.n, reviewMinutes: p.reviews.min, learn: p.learn ? { lesson: p.learn.lesson, title: p.learn.title, minutes: p.learn.min } : null, minutes: p.total },
+        nextLesson: n ? { id: n.id, title: n.title } : null,
+        timeline: { calibrating: tl.calibrating, wordsPerWeek: tl.perWeek, milestones: tl.milestones.map(function (m) {
+          return { title: m.title, have: m.have, need: m.need, unit: m.unit, done: m.done, from: m.from || undefined, to: m.to || undefined, beyondTenYears: m.beyond || undefined }; }) }
+      });
+    }
+  });
+  def("ja_lesson", {
+    desc: "One Japanese lesson by id (e.g. \"H4\"): its four evidence checks (pages read, lines heard, practised, items held in reviews) and each item with whether it is held and when it is next due.",
+    category: "study", tier: "read", read: true,
+    params: { id: { type: "string", required: true, maxLen: 12 } },
+    run: function (args, cb) {
+      if (!jaReady(cb)) return;
+      var J = KOS.ja, L = J.lesson(args.id), F = J.peek().facets;
+      if (!L) { cb({ error: "No Japanese lesson " + args.id + "." }); return; }
+      var ev = J.evidence(L.id);
+      cb(null, { id: L.id, title: L.title, unit: L.unit,
+        checks: { pagesRead: ev.checks[0], linesHeard: ev.checks[1], practised: ev.checks[2], held: ev.checks[3] },
+        pages: ev.read + "/" + ev.pages, lines: ev.heard + "/" + ev.lines, itemsHeld: ev.held + "/" + ev.items,
+        items: (L.items || []).slice(0, 40).map(function (k) {
+          var it = J.item(k) || {}, f = F[k + "|R"] || F[k + "|L"];
+          return { item: it.w || k, reading: it.r || undefined, meaning: it.en ? it.en.join(", ") : undefined, held: !!(f && f.reps >= 2 && f.s >= KOS.jaSrs.HOLD), due: f ? f.due : null };
+        }) });
     }
   });
 

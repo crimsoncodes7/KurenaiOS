@@ -211,10 +211,12 @@ Read this file before editing or testing anything in its domain.
     the rest), the next exam within six weeks, then the plan/reading with
     the 2-hour daily goal. The Review side is one row a queue — the
     flashcards (Due today), then each space's own (Japanese, Code's
-    retrieval, Mind's cards) — each opening its review, the tab counting
-    them all. Money speaks on Home only with one of its own notices, as a
-    row inside Upcoming (no card of its own; Hide amounts and a muted Money
-    kind hold it). Below 1080 the hero's day list (Today's three) folds
+    retrieval, Mind's cards, Creatives' theory cards, which then leave the
+    Flashcards row) — each opening its review, the tab counting them all.
+    Money speaks on Home as one row inside Upcoming (no card of its own,
+    HR-04): its notice when it has one, else its next bill, then what is
+    left this month; none when Money has no rules or its kind is muted,
+    and Hide amounts masks every figure. Below 1080 the hero's day list (Today's three) folds
     under the greeting. An exam's kind is `examLevel`, kept on exams only;
     one saved without it reads its kind from its title.
 54. Study and Home use shared derivations and preserve navigation/focus on redraw.

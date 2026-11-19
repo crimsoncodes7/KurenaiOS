@@ -142,7 +142,13 @@ Read this file before editing or testing anything in its domain.
     whether today's is done, what opens it and its review queue — and a
     Today's three pick may be one (kind `space`, id the subject): resolved
     from the space, never ticked, opened where it is done; About to Study
-    leaves it out (it runs its own session).
+    leaves it out (it runs its own session). `build` carries those rows
+    for today (`spaces`, each with its review queue — Japanese, Code's
+    retrieval, Mind's cards and revisits, Creatives' theory cards) and
+    Money's day (`money`: its notices and next bill from the rules, null
+    with no rules; `load` adds the month's left to spend, safe today and
+    categories over budget). Figures stay minor units; a surface masks
+    them with Hide amounts.
 
 ### Google Calendar, Google Tasks and Todoist (157–160; docs/integrations-plan.md)
 
