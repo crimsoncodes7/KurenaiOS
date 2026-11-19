@@ -268,7 +268,7 @@ Read this file before editing or testing anything in its domain.
     it leaves. Its buttons are a pointer convenience; the keyboard route to an
     Undo is ⌘Z / Ctrl+Z outside a text field (the newest Undo still showing,
     and only then, so the page keeps the key otherwise), and the spoken half
-    of an Undo toast says "… · Command Z to undo." 
+    of an Undo toast says "… · Command Z to undo."
 67. A card with interactive descendants is not an ARIA button. Prefer native
     buttons; otherwise use `KOS.a11y.activate()` for Enter and Space.
 68. Placeholder/state text is not an accessible name. `el()` omits null/undefined

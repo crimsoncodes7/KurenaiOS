@@ -422,7 +422,9 @@ box-shadow: var(--elev-4);
    .k-toast-i is one pill */
 #toast {
 position: fixed;
-inset-inline-start: 50%;
+inset-inline: 0;
+margin-inline: auto;
+inline-size: fit-content;
 inset-block-end: var(--sp-24);
 z-index: var(--z-toast);
 display: flex;
@@ -430,12 +432,12 @@ flex-direction: column-reverse;
 align-items: center;
 gap: var(--sp-8);
 max-inline-size: min(var(--toast-max), calc(100% - var(--sp-32)));
-transform: translate(-50%, var(--sp-8));
+transform: translateY(var(--sp-8));
 opacity: 0;
 pointer-events: none;
 transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
 }
-#toast[data-state~="show"] { opacity: 1; transform: translate(-50%, 0); }
+#toast[data-state~="show"] { opacity: 1; transform: none; }
 .k-toast-i {
 display: flex;
 align-items: center;
@@ -747,6 +749,7 @@ textarea.k-input { min-block-size: calc(var(--hit) * 2.6); line-height: var(--lh
 .k-msheet--full::before { display: none; }
 .k-msheet--tall { block-size: calc(100dvh - var(--sp-24)); }
 #toast { bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom) + var(--sp-12)); }
+.k-toast-i { border-radius: var(--r-16); }
 .k-btn.k-held-chip[data-state~="float"] { inset-block-end: calc(var(--tabbar-h) + env(safe-area-inset-bottom) + var(--sp-12)); }
 .k-btn.k-held-chip { min-block-size: var(--hit-coarse); }
 }
