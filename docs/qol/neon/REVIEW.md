@@ -1,14 +1,30 @@
 # Reviewing Neon's branch — the checklist
 
-This is how the reviewer (Claude) grades `neon/qol-starter-1`.
+This is how the reviewer (Claude) grades Neon's branches: `neon/qol-starter-1` (batch 1, passed) and
+`neon/qol-batch-2` onwards.
 
-- **Every point is checked against the diff** (`git diff origin/main...neon/qol-starter-1`) and by re-running
+- **Every point is checked against the diff** (`git diff origin/main...<branch>`) and by re-running
   the tests myself, never only against the Walkthrough.
 - **Each ticket scores** pass / pass with notes / fail on each line below.
-- **The branch passes probation** with no fail on an A or B line in any ticket, at most two "with notes"
+- **A branch passes** with no fail on an A, B or R line in any ticket, at most two "with notes"
   overall, and a gate that is green when I run it.
 
 Phase 5 turns this file into the review checklist for every contributor.
+
+## R · The three rules from probation (from batch 2; a fail here fails the ticket)
+
+Batch 1 broke none of these as written, but each one cost something.
+
+- **R1 · Reproduce first.** Before editing, show the bug or the missing behaviour on `origin/main`, in the
+  browser or with a failing check, and record how in the Walkthrough. If it is not there, **stop that
+  ticket**: commit nothing for it, and report what you saw. (Batch 1's T6 changed code for a bug that
+  did not exist.)
+- **R2 · Test before committing.** A ticket's own targeted suites and checks run green BEFORE its commit,
+  and the Walkthrough gives the order: run, then commit. The full gate runs once, at the end. (Batch 1
+  committed seven tickets in six minutes and tested afterwards.)
+- **R3 · Line discipline.** The diff touches only the lines the ticket needs. No cleanup of neighbouring
+  lines, however small or however much better, and no reformatting. A neighbour that ought to change goes
+  under "Noticed, not touched". (Batch 1's T4 also rewrote the title line beside the kicker.)
 
 ## A · Correctness and honesty (a fail here fails the branch)
 
@@ -71,7 +87,7 @@ Phase 5 turns this file into the review checklist for every contributor.
 - **F3 · Uncertainty was stated** rather than guessed past.
 - **F4 · Questions it asked** were ones the brief didn't answer.
 
-## What I'll be looking for per ticket
+## What I looked for per ticket in batch 1
 
 | Ticket | A good answer shows |
 |---|---|
@@ -88,3 +104,13 @@ Phase 5 turns this file into the review checklist for every contributor.
 I write a short report: the score per ticket and per section, the three most important corrections, and
 whether Neon gets a second batch. If it does, the next batch is one size up: an M ticket in a
 single module, still outside the core files.
+
+## Batch 2: what a good answer shows
+
+| Ticket | A good answer shows |
+|---|---|
+| B1 | Exactly one entry is removed from `tools/baselines/smoke119-css.json`, by hand. The file is NOT re-recorded with `--write-baseline` (that would rewrite every line: R3). smoke119 then lists nothing as FIXED. |
+| B2 | A day bar opens Transactions showing that one day, through a new value of the existing `visit.tx.range` (read by `txRange()`), and the range select names it. Pots' "Transactions →" opens transfers only, through the existing `visit.tx.kind` and a "Moves" option in the existing kind control. Both work by keyboard (the chart already has arrow keys). No new filter state and no core change: `KOS.money.list` already filters by `kind`. Clear filters still clears both. |
+| B3 | The Practice Log filters by track and by "check to do" with the existing pill-select pattern, and draws 60 rows then a Show more button (as `files.js:267` does). A deep-linked piece (`#/creatives/log/<id>`) is shown and opened even when the filter or the batch would hide it. Filters are visit state, not stored. |
+| B4 | A done milestone with work attached links to that work through the existing `openWork`, and the project page links back to its unit's lessons. No new route; existing `k-link` / button patterns. |
+| B5 | `subjName`/`shortSubj` read `KOS.subjects.name`/`short`. The chips' text before and after is shown for every subject, and any difference is reported (R1 applies: if the texts already match, say so). |
