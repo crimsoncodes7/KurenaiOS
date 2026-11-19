@@ -1,9 +1,9 @@
-# KurenaiOS — the plan after the QoL review (draft for approval, 19 Nov 2026)
+# KurenaiOS — the plan after the QoL review (APPROVED 19 Nov 2026; 1A started)
 
 This plan uses your marks on the review page (https://claude.ai/artifact/RtRTKuMeBuLp5994CKZoNx, 210 marks:
 167 Build, 30 Later, 13 No) and your 15 notes. It puts every Build item in exactly
-one place (`docs/qol/placement.json`; the full list is in the appendix below). **Nothing
-gets built until you approve.**
+one place (`docs/qol/placement.json`; the full list is in the appendix below).
+It was approved on 19 November 2026 with decisions D1–D4 below.
 
 The six phases run in order. Within a phase, batches can overlap when they touch
 different files. The rules in force still hold:
@@ -95,7 +95,7 @@ These need **the toast queue with keyboard-reachable Undo**, which is `bk:shell#
 - the cosmetic contract (`bk:shop-cosmetics#1`);
 - the helpers and registries (`a11y-hci#2`, `architecture-perf#5`, `bk:assistant-archive#1`, `bk:assistant-archive#3`).
 
-## Build items I moved to Later (please confirm)
+## Build items moved to Later (approved, D3)
 
 These don't pay off now. None is a daily friction fix or a data-integrity fix.
 
@@ -113,19 +113,27 @@ I kept the large items that are your own requests (UR-9, UR-12, UR-13, UR-23, UR
 routines inside routines). I also kept the exam-season content because of the December mocks
 and January's IT exam.
 
-## Decisions I need from you
+## Decisions (approved 19 Nov 2026)
 
-- **D1 · The icons on Collection links.** Brand logos are trademarks, and the vaults are kept off the network. My
-  recommendation: the link's own site icon is fetched once when you save the link, kept on
-  the device, and shown as a small round icon. A plain monogram is the fallback. The alternatives are a fixed
-  set of services with icons you supply, or monograms only.
-- **D2 · Copying maths as TeX (UR-13).** The device can't read handwriting into TeX on its own.
-  My recommendation: route it through the web review pattern. Send the page to Gemini or Claude
-  on the web, paste the TeX back, and the app checks that it renders. No in-app model reads your
-  writing, the same as Exams.
-- **D3 · The seven moves to Later above.**
-- **D4 · The Neon trial's limits (see below):** a branch of its own in a separate folder, and it may
-  push only `neon/*` branches.
+The plan is approved with these decisions.
+
+- **D1 · The icons on Collection links: no live favicon fetching** (CORS, offline).
+  - **Default:** a local icon set for the common services, shipped as files with the app and drawn as `<img>`.
+    The proposed source is the CC0 Simple Icons set, to confirm at 1C.
+  - **Fallback:** a monogram for any other service.
+  - **Your own icon:** you can upload one per service or domain. It is stored on the device (media kv)
+    and rasterised to a PNG when you add it, so no inline SVG from you ever enters the page.
+- **D2 · Copying maths as TeX (UR-13): approved.** It uses the web review-pack flow: export the page, paste the TeX
+  reply back, and the app checks that it renders before saving. No in-app model reads the writing.
+- **D3 · The seven moves to Later: all approved.**
+- **D4 · The Neon trial: approved as written.** Neon works in its own folder on `neon/qol-starter-1` and pushes only
+  `neon/*` branches.
+  - **Files Neon has:** while its branch is open, 1A avoids the ones its tickets touch:
+    - `goals.js`, `money.js`, `mindrun.js`, `assignments.js`;
+    - `dataview.js`'s `resetDialog`;
+    - `css/layout.css`'s search key;
+    - `cs-p2-46b.js`.
+  - **1A's restore report:** it touches `dataview.js` elsewhere, so it lands after Neon's branch is merged.
 
 ## The phases
 
