@@ -150,6 +150,25 @@ The plan is approved with these decisions.
 | **1E · Features across areas** (23) | "Make this a goal" everywhere and Japanese/Mind goal types; Japanese practise-again, leech recovery and immersion logging; Money import steps 3–5 and the Recurring queue; Year view income; Mind review outside the Daily; Reminders → a free block or Focus; skip one showing of a repeat; Practice Log filters, thumbnails and milestone links; Creatives review packs; the showcase reorder and autosave; Reports from the subject registry; one Code runner status. | ≈ 4 sessions |
 | **1F · Speed** (4) | Boot towards ~4 MB (Focus, Assistant, aitools, calendar, vaults and labs split into a boot part and a page part); the sample account off the boot; boot marks shown in Storage; 192 px badge art for the Wall. | ≈ 2 sessions |
 
+**1A's working order** (branch `feat/qol-1a`; ✓ = done):
+
+1. ✓ **The Due today bug** (your note) and `rm:due-subject`, in `6df150e` and `3f4211a`, with smoke196.
+   - A plan row on Home's Focus card is measured by the time spent on it ("Today · 25 min on this").
+   - A mixed Due today run counts its cards per subject for that subject's goals.
+2. **`bk:study-core#1`:** Card stats' Reviews per day and Rating mix, and Today so far, read the review log.
+   Reports stay on the session ledger: `compute` is pure and synchronous, and its facts are saved.
+3. **`creatives#6`:** the Writing Desk draft is saved on `pagehide`.
+4. **`sync-disruption#3` and `bk:sync-disruption#2`:** runs survive a reload in Japanese, Mind and Code, as flashcards already do.
+5. **The toast queue with keyboard Undo** (`bk:shell#3`, `a11y-hci#4`, `shell#3`; closes W9's SH-36, SH-28, AX-02).
+6. **`bk:data-integrity#3`:** provider sync pulls and pushes the cloud state around its leased cycle.
+7. **`bk:data-integrity#4`:** a replication version column, a migration applied by hand and recorded in CLAUDE.md.
+8. **`bk:data-integrity#5`:** the audit for pages that keep a stale copy of state.
+9. **`rm:edge-hygiene`:** EF-01 to EF-08.
+10. **After Neon's branch is merged** (its files):
+    - `bk:data-integrity#2`: random ids for assignments, reminders and events;
+    - `bk:money-goals#2` and `money-goals#7`: Money import identity, and the Bookkeeper badge counting distinct entries;
+    - the one restore / first-link report: `data-integrity#3/#4/#6`, `assistant-archive#1`, `bk:collection#2`.
+
 ### Phase 2 — A full audit pass, the same as November's (≈ 3 sessions)
 
 - **Areas:** the same 21 areas the November audit used, from a11y-hci to sync-disruption.
