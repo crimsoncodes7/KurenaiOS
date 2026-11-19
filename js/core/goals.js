@@ -41,7 +41,7 @@
   window.KOS = window.KOS || {};
   var store = KOS.store;
   var TYPES = [], BY_ID = {};
-  var DOMAINS = ["study", "productivity", "money", "code", "creatives", "collection", "governor"];
+  var DOMAINS = ["study", "productivity", "money", "code", "creatives", "ja", "mind", "collection", "governor"];
   var REPEATS = ["week", "month"];
   var MAX_OUTCOMES = 104;
 
@@ -926,6 +926,23 @@
         return d && d >= ctx.from && d <= ctx.to && w.track === "write" ? n + (+w.words || 0) : n;
       }, 0), unit: "words" });
     } });
+
+  /* ---- Japanese and Mind (JM-21, MI-10): their ledger entries (reviews passed, first lesson
+     finishes), and Japanese's facets as they stand (kana held a week, words stable) ---- */
+  function spaceN(ctx, t, kind, f) {
+    return ledger(ctx, function (e) { return e.type === t && e.metrics && e.metrics.kind === kind; })
+      .reduce(function (n, e) { return n + (f ? +e.metrics[f] || 0 : e.metrics.first ? 1 : 0); }, 0);
+  }
+  [["ja", "Japanese", "session"], ["mind", "Mind", "reviews"]].forEach(function (s) {
+    register({ id: s[0] + "-reviews", domain: s[0], label: "Pass " + s[1] + " reviews", icon: "復", unit: "reviews", repeat: true,
+      measure: function (g, ctx, cb) { cb({ current: spaceN(ctx, s[0], s[2], "passed"), unit: "reviews" }); } });
+    register({ id: s[0] + "-lessons", domain: s[0], label: "Finish " + s[1] + " lessons", icon: "課", unit: "lessons", repeat: true,
+      measure: function (g, ctx, cb) { cb({ current: spaceN(ctx, s[0], "lesson"), unit: "lessons" }); } });
+  });
+  register({ id: "ja-kana-held", domain: "ja", label: "Hold the kana for a week", icon: "仮", unit: "kana",
+    measure: function (g, ctx, cb) { cb({ current: KOS.ja.timeline().milestones[0].have, unit: "kana" }); } });
+  register({ id: "ja-words-stable", domain: "ja", label: "Words stable", icon: "語", unit: "words",
+    measure: function (g, ctx, cb) { cb({ current: KOS.ja.skills().words.R, unit: "words" }); } });
 
   /* ---- Governor: displayed, never a claim of reward ---- */
   register({ id: "gov-streak", domain: "governor", label: "Reach a study streak", icon: "連", unit: "days",
