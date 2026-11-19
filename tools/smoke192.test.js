@@ -313,6 +313,11 @@ step("E · JM-02: a Mind lesson's inspector carries status, confidence and a bar
   assert(ts, "the status block");
   assert(ts.querySelector("[data-ui~='ui.status-select']"), "a status select");
   assert(ts.querySelector(".k-bar"), "a progress bar");
+  assert(ts.querySelector("[data-ui~='topic.status-field-conf']").children.length > 1, "a confidence picker");
+  const sel = ts.querySelector("[data-ui~='ui.status-select']");
+  sel.value = "paused"; sel.dispatchEvent(new W.Event("change", { bubbles: true })); await app.settle();
+  eq((K.store.peekProgress("mind", "F1.1") || {}).status, "paused", "the status is set by hand, as in a subject");
+  K.store.setStatus("mind", "F1.1", "none");
 });
 
 step("E · MI-04: Evaluate survives a revision; the revise sheet carries the objection", async () => {

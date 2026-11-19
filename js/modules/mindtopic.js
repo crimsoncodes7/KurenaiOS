@@ -378,7 +378,7 @@
       function statusSel() {
         var H = KOS.hub, cur = (KOS.store.peekProgress(SID, ref) || {}).status || "none";
         var s = el("select", { class: "k-ts-select", "data-ui": "ui.status-select", id: "ts-status", "aria-label": "Topic status",
-          onchange: function () { KOS.store.setStatus(SID, ref, s.value); if (H.renderTree) H.renderTree(SID, ref); } },
+          onchange: function () { KOS.store.setStatus(SID, ref, s.value); if (H.renderTree) H.renderTree(SID, ref); KOS.refreshRailCounters && KOS.refreshRailCounters(); } },
           H.STATUS.map(function (st) { return el("option", { value: st[0], text: H.STATUS_GLYPH[st[0]] + " " + st[1] }); }));
         s.value = cur; return s;
       }
@@ -386,8 +386,8 @@
         el("div", { class: "k-ts-head", "data-ui": "topic.status-head" }, [el("span", { class: "k-kicker", text: "Status" }), el("span", { class: "k-ts-checks", text: n + " of " + rows.length + " checks" }), el("strong", { class: "k-ts-pct", text: pct + "%" })]),
         el("span", { class: "k-bar k-bar--6", role: "img", "aria-label": pct + "% from evidence", style: "--p: " + pct + "%" }, [el("i")]),
         el("div", { class: "k-ts-row" }, [
-          el("div", { class: "k-ts-field" }, [el("label", { class: "sr-only", for: "ts-status", text: "Status" }), statusSel()]),
-          el("div", { class: "k-ts-field" }, [el("span", { class: "sr-only", text: "Confidence" }), rag.node])
+          el("div", { class: "k-ts-field", "data-ui": "topic.status-field topic.status-field-status" }, [el("label", { class: "sr-only", "data-ui": "topic.status-lbl", for: "ts-status", text: "Status" }), statusSel()]),
+          el("div", { class: "k-ts-field", "data-ui": "topic.status-field topic.status-field-conf" }, [el("span", { class: "sr-only", "data-ui": "topic.status-lbl", text: "Confidence" }), rag.node])
         ]),
         el("div", { class: "k-ts-checkgrid", "data-ui": "topic.checkgrid mind.checks" }, rows.map(function (r) {
           var cb = el("input", { type: "checkbox", class: "k-box", "aria-readonly": "true", tabindex: "-1", onclick: function (e) { e.preventDefault(); } });
