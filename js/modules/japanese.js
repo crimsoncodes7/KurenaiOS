@@ -637,9 +637,15 @@
       if (cp.skills.indexOf("W") >= 0) sections.push({ s: "W", keys: pick(prod, 5, seed + 3).concat(pick(gram, 3, seed + 4)).map(function (k) { return k + "|W"; }) });
       if (cp.skills.indexOf("L") >= 0) sections.push({ s: "L", keys: pick(words, 5, seed + 5).concat(pick(gram, 3, seed + 6)).map(function (k) { return k + "|L"; }) });
     }
-    var scores = {}, si = 0, qi = 0, right = 0;
+    var scores = {}, si = 0, qi = 0, right = 0, answered = 0, finished = false;
     var box = el("section", { class: "k-card k-ja-run", "data-ui": "ja.checkpoint-run", "aria-label": cp.title });
-    var head = el("div", { class: "k-ja-run-head" }, [el("button", { type: "button", class: "k-iconbtn", "aria-label": "Leave the checkpoint", text: "✕", onclick: function () { KOS.show("japanese", { page: "checkpoints" }); } }),
+    function leave() {
+      if (answered && !finished) {
+        KOS.ui.confirm({ title: "Leave the checkpoint?", body: "Your answers so far will not be saved or scored.", confirm: "Leave", cancel: "Stay", mark: "語" },
+          function () { KOS.show("japanese", { page: "checkpoints" }); });
+      } else KOS.show("japanese", { page: "checkpoints" });
+    }
+    var head = el("div", { class: "k-ja-run-head" }, [el("button", { type: "button", class: "k-iconbtn", "data-ui": "ja.exit", "aria-label": "Leave the checkpoint", text: "✕", onclick: leave }),
       el("span", { class: "k-ja-run-t", text: cp.title }), el("span", { class: "k-mono k-ja-run-n" })]);
     var stage = el("div", { class: "k-ja-run-stage" });
     box.appendChild(head); box.appendChild(stage); main.appendChild(box);
@@ -657,11 +663,13 @@
       /* JM-20: a checkpoint's Writing is from memory — no model to copy */
       if (ex.kind === "kana-write") ex.noModel = true;
       KOS.jaRun.mount(host, ex, function (res) {
+        answered++;
         if (res.verdict === "correct" || res.verdict === "accepted") right++;
         host.appendChild(el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "Next ›", onclick: function () { qi++; step(); } }));
       });
     }
     function result() {
+      finished = true;
       var out = J().recordCheckpoint(id, scores);
       stage.innerHTML = ""; head.lastChild.textContent = "";
       var weak = out.weak.map(function (s) { return UI().SKILL[s]; });
