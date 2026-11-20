@@ -16,7 +16,7 @@ the service-worker version). Git holds the rest.
   `kos_reports` migration `20261012000001` is applied; so is `kos_money`
   (`20261019000001`, 19 October 2026), live since the Money and Goals release.
 - Latest release: sw `kos-qol-2` (20 November 2026, `feat/qol-1a` into
-  main; immutable IMMUTABLE_URL): the QoL review's 1C (the
+  main; immutable https://b9bd31c8.kurenai-os.pages.dev): the QoL review's 1C (the
   user's own requests) and Neon's batches 3 and 4. 1C: routines inside
   routines; Shift the plan by N weeks, the plan inside a lesson's calendar
   block, the Class days fix; folders for loose notes on Files; ink — Paste,
@@ -27,7 +27,7 @@ the service-worker version). Git holds the rest.
   link and the title's own pages, shown as the service's icon (CC0 Simple
   Icons, a monogram, or your own picture). The Steam link's sign-in tab now
   comes back into the app (`steam-auth` answers with a 303 to
-  `/?steam=<code>`; redeployed after the app as STEAM_VER). Neon's batches: a
+  `/?steam=<code>`; redeployed after the app as version 9). Neon's batches: a
   missed goal's Restart and Archive, the Money Year view's in and out,
   Creatives' thumbnails and loose ends, Practise again on a passed lesson,
   Tomorrow on an overdue reminder, the showcase put in order by dragging,

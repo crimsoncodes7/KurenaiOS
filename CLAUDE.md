@@ -33,7 +33,7 @@ chronological diary here.
   the gitignored `supabase/runner-cron.sql.local`), `github-token` v7 (the
   GitHub App itself and its `GITHUB_*` secrets are NOT created yet),
   `ext-token` v3 (its `GOOGLE_*` and `TODOIST_*` secrets set), `vndb-ulist`
-  v6, `steam-auth` v8 (v9, whose callback redirects to the app, is held with `kos-qol-2`), `steam-owned-games` v7 and `igdb-search` v7, deployed
+  v6, `steam-auth` v9 (its callback redirects to the app; deployed with `kos-qol-2`), `steam-owned-games` v7 and `igdb-search` v7, deployed
   with `supabase functions deploy <name> --use-api` (no Docker). Every migration in
   `supabase/migrations/` is applied (the newest `20261118000001`, `kos_attempts`);
   a new one is applied by hand and recorded here.
