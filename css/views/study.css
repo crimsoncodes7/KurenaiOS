@@ -1182,6 +1182,12 @@ button.k-subj-next:hover { background: var(--s2); }
 /* a notes table keeps its columns: tighter cells first, then the shared
    scroller takes what still does not fit */
 .k-n-table th, .k-n-table td { padding: var(--sp-8) var(--sp-10); }
+/* worked steps on a phone: label and mark above, full width for the working */
+.k-n-wrow { grid-template-columns: minmax(0, 1fr) auto; gap: var(--sp-4) var(--sp-8); }
+.k-n-wlabel { grid-column: 1; grid-row: 1; padding-block-start: 0; }
+.k-n-wmk { grid-column: 2; grid-row: 1; }
+.k-n-wbody { grid-column: 1 / -1; grid-row: 2; }
+.k-n-wtotal .k-n-wbody { display: none; }
 }
 
 /* touch: the 44px minimum (base.css) raised the HEIGHT of every button,
