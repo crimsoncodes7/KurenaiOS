@@ -14,6 +14,8 @@
 /* ================= shared marks ================= */
 .k-cr-emblem { font-family: var(--font-kanji); font-weight: var(--weight-semibold); color: var(--cr); }
 .k-cr-kind { display: inline-grid; place-items: center; inline-size: var(--sp-32); block-size: var(--sp-32); flex: none; border-radius: 50%; font: var(--weight-semibold) var(--fs-13) var(--font-kanji); background: var(--s2); color: var(--cr); }
+.k-cr-kind[data-state="thumb"] { overflow: hidden; border-radius: var(--r-8); }
+.k-cr-work-thumb { display: block; inline-size: 100%; block-size: 100%; object-fit: cover; }
 .k-cr-chip { --chip-c: var(--cr); }
 .k-cr-grow { flex: 1; }
 .k-cr-done { display: inline-flex; align-items: center; gap: var(--sp-4); font-size: var(--fs-12-5); font-weight: var(--weight-semibold); white-space: nowrap; }

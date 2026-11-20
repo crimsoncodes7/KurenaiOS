@@ -543,8 +543,10 @@
   /* ---------------- the Practice Log (31j) and the Portfolio (31k) ---------------- */
   function workRow(w, o) {
     var L = w.lesson ? CR().lesson(w.lesson) : null;
+    var kind = el("span", { class: "k-cr-kind", lang: "ja", "aria-hidden": "true", text: kindMark(w) });
+    if (w.kind === "image" && o && o.thumb) o.thumb(w.id, kind);
     return el("article", { class: "k-cr-work", "data-ui": "cr.work", "data-state": o && o.open ? "open" : null }, [
-      el("span", { class: "k-cr-kind", lang: "ja", "aria-hidden": "true", text: kindMark(w) }),
+      kind,
       el("div", { class: "k-cr-work-t" }, [el("b", { text: w.title }),
         el("small", { class: "k-muted", text: [(CR().track(w.track) || {}).name, L ? L.id + "·" + w.study : w.unit ? "project" : null, w.words ? w.words + " words" : null, dateShort(w.at)].filter(Boolean).join(" · ") })]),
       w.check ? el("span", { class: "k-cr-done", "data-tone": w.check.pass ? "done" : "now", text: w.check.pass ? "✓ check passed" : "not yet" }) : null,
@@ -623,7 +625,26 @@
       listHost
     ]));
     var BATCH = 60;
+    var live = KOS.view ? KOS.view.token() : function () { return true; };
+    var urls = [], paintGen = 0;
+    function releaseUrls() {
+      while (urls.length) { try { URL.revokeObjectURL(urls.pop()); } catch (e) {} }
+    }
+    if (KOS.view && KOS.view.onDispose) KOS.view.onDispose(releaseUrls);
+    function loadThumb(id, slot, gen) {
+      CR().files.get(id, function (err, f) {
+        if (!f || (!f.dataUrl && !f.blob) || !live() || gen !== paintGen) return;
+        var src = f.dataUrl || (window.URL && URL.createObjectURL ? URL.createObjectURL(f.blob) : null);
+        if (!src) return;
+        if (!f.dataUrl) urls.push(src);
+        slot.innerHTML = "";
+        slot.setAttribute("data-state", "thumb");
+        slot.appendChild(el("img", { class: "k-cr-work-thumb", "data-ui": "cr.work-thumb", src: src, alt: "" }));
+      });
+    }
     function paint() {
+      var gen = ++paintGen;
+      releaseUrls();
       var filtered = !!(f.track || f.check);
       var rows = all.filter(matches);
       if (target && rows.indexOf(target) === -1) rows = [target].concat(rows);
@@ -643,7 +664,7 @@
       function more(step) {
         var old = listHost.querySelector("[data-ui~='cr.log-more']");
         if (old) old.remove();
-        rows.slice(shown, shown + step).forEach(function (w) { listHost.appendChild(workRow(w, { open: w.id === wid })); });
+        rows.slice(shown, shown + step).forEach(function (w) { listHost.appendChild(workRow(w, { open: w.id === wid, thumb: function (id, slot) { loadThumb(id, slot, gen); } })); });
         shown = Math.min(rows.length, shown + step);
         if (shown < rows.length) listHost.appendChild(el("button", { type: "button", class: "k-btn k-cr-logmore", "data-ui": "cr.log-more",
           text: "Show " + Math.min(BATCH, rows.length - shown) + " more · " + shown + " of " + rows.length + " shown",
@@ -656,7 +677,6 @@
        redraw (an action in the dialog, a background change) — and closing
        it drops the id from the address, so nothing opens it again */
     if (wid && CR().work(wid) && !KOS.ui.redrawing) {
-      var live = KOS.view ? KOS.view.token() : function () { return true; };
       setTimeout(function () {
         if (!live()) return;
         openWork(wid, { onClose: function () { target = null; if (KOS.router && KOS.router.replaceArg) KOS.router.replaceArg("creatives", { page: "log" }); } });
