@@ -792,6 +792,18 @@
       var line = KOS.codeUI.reward(outcome, names && outcome.pay ? "Proven: " + names.join(" · ") : null);
       rewardSlot.appendChild(line);
       if (outcome.why === "answer opened") rewardSlot.appendChild(el("p", { class: "k-cx-note", text: "The skills still move on the map, as “studied, not proven”. Tomorrow's retrieval asks for it again." }));
+      if (t.lesson) {
+        var ts = C().tasksOf(t.lesson), idx = ts.findIndex(function (x) { return x.id === t.id; });
+        var ordered = idx >= 0 ? ts.slice(idx + 1).concat(ts.slice(0, idx)) : ts;
+        var next = ordered.find(function (x) { return x.id !== t.id && !C().taskState(x.id).passAt; });
+        rewardSlot.appendChild(el("div", { class: "k-cx-capacts" }, [
+          next
+            ? el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "code.next-task", text: "Next task · " + next.title + " →",
+                onclick: function () { KOS.show("code", { page: "task", id: next.id }); } })
+            : el("button", { type: "button", class: "k-btn", "data-ui": "code.back-lesson", text: "Back to the lesson",
+                onclick: function () { KOS.show("ref", { subject: SID, ref: t.lesson }); } })
+        ]));
+      }
     }
 
     /* ---- the task panel: Task · Hints · Notes, collapsible ---- */
