@@ -439,7 +439,7 @@
       faces();
       badges.innerHTML = "";
       front.innerHTML = MARK + '<span class="k-fc-kind k-fc-count">Session complete</span>' +
-        '<div class="k-fc-text">' + total + (total === 1 ? " card" : " cards") + " graduated" +
+        '<div class="k-fc-text">' + total + " reviewed" +
         (counts.again === 0 ? " — clean sweep ★" : " · " + counts.again + " needed a retest") + "</div>" +
         '<span class="k-fc-hint">every card is rescheduled — check Due Today tomorrow</span>';
       KOS.content.typeset(stage);
