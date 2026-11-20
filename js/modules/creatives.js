@@ -570,7 +570,13 @@
     var foot = [
       critiqueBtn(wid, { before: function () { d.close(); } }),
       w.lesson && w.study ? el("button", { type: "button", class: "k-btn", text: "Check", onclick: function () { d.close(); KOS.show("creatives", { page: "check", id: wid }); } }) : null,
-      el("button", { type: "button", class: "k-btn", "data-ui": "cr.promote", text: w.portfolio ? "Take out of Portfolio" : "Promote…", onclick: function () { d.close(); if (w.portfolio) { CR().promote(wid, false); KOS.rerender(); } else promoteDialog(wid); } }),
+      el("button", { type: "button", class: "k-btn", "data-ui": "cr.promote", text: w.portfolio ? "Take out of Portfolio" : "Promote…", onclick: function () {
+        d.close();
+        if (w.portfolio) {
+          CR().promote(wid, false); KOS.rerender();
+          KOS.ui.toast("Taken out of Portfolio · " + w.title, false, { label: "Undo", run: function () { if (!CR().work(wid)) return; CR().promote(wid, true); KOS.rerender(); } });
+        } else promoteDialog(wid);
+      } }),
       el("button", { type: "button", class: "k-btn k-btn--danger", "data-intent": "danger", "data-ui": "cr.work-delete", text: "Delete", onclick: function () {
         d.close();
         KOS.ui.confirm({ title: "Delete this from the Practice Log?", body: "The record and its file go. Nothing else changes, and nothing it paid is taken back.", danger: true }, function () { CR().removeWork(wid); KOS.rerender(); announce("Deleted."); });
