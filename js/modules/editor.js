@@ -424,7 +424,7 @@
           el("div", { class: "k-ed-row-h" }, [
             grip("card " + (i + 1)),
             el("b", { text: "Card " + (i + 1) }),
-            el("span", { class: "k-ed-meta", text: m && m.views ? m.views + " review" + (m.views === 1 ? "" : "s") + " · due " + (m.due || "—") : "new" }),
+            el("span", { class: "k-ed-meta", text: m && m.views ? m.views + " review" + (m.views === 1 ? "" : "s") + (m.due ? " · " + (KOS.relDue ? KOS.relDue(m.due, { empty: "" }) : "due " + m.due) : "") : "new" }),
             rowTools(cards, i, save, redraw, { removeBody: "The card and its review history leave this deck." })
           ]),
           area(c.q, 2, function (v) { c.q = v; commit(); }, "Question"),

@@ -38,14 +38,20 @@
     var h = Math.floor(m / 60), r = m % 60;
     return h ? h + "h" + (r ? " " + r + "m" : "") : r + "m";
   }
+  function relDue(iso, opts) {
+    opts = opts || {};
+    if (!iso) return opts.empty !== undefined ? opts.empty : "No deadline";
+    var t = KOS.srs.todayISO(), d = KOS.srs.daysBetween(t, iso), tm = opts.time ? " · " + opts.time : "";
+    if (opts.late != null ? opts.late : d < 0) { var n = Math.max(1, -d); return n + (n === 1 ? " day overdue" : " days overdue"); }
+    if (d === 0) return "due today" + tm;
+    if (d === 1) return "due tomorrow" + tm;
+    if (d < 7) return "due in " + d + " days";
+    return "due " + fmtDue({ due: iso, dueTime: opts.time });
+  }
   function dueLine(a) {
     if (!a.due) return { text: "No deadline", late: false };
-    var t = KOS.srs.todayISO(), d = KOS.srs.daysBetween(t, a.due);
-    if (A().isOverdue(a)) { var n = Math.max(1, -d); return { text: "Overdue · " + n + (n === 1 ? " day" : " days"), late: true }; }
-    if (d === 0) return { text: "Today" + (a.dueTime ? " · " + a.dueTime : ""), late: false, soon: true };
-    if (d === 1) return { text: "Tomorrow" + (a.dueTime ? " · " + a.dueTime : ""), late: false, soon: true };
-    if (d < 7) return { text: "in " + d + " days", late: false };
-    return { text: fmtDue(a), late: false };
+    var d = KOS.srs.daysBetween(KOS.srs.todayISO(), a.due), late = A().isOverdue(a);
+    return { text: relDue(a.due, { time: a.dueTime, late: late }), late: late, soon: !late && (d === 0 || d === 1) };
   }
   function statusChip(a) {
     var s = A().STATUSES.find(function (x) { return x.v === a.status; }) || A().STATUSES[0];
@@ -513,6 +519,7 @@
     return overlay;
   }
   KOS.assignmentDetail = detailModal;
+  KOS.relDue = relDue;
 
   /* the alert ticker — in-app only, same honesty as the calendar's */
   function tick() {
