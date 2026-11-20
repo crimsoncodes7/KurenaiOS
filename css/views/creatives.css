@@ -208,7 +208,7 @@
 .k-cr-brief, .k-cr-sprint, .k-cr-versions { display: flex; flex-direction: column; gap: var(--sp-8); }
 .k-cr-brief p, .k-cr-sprint p, .k-cr-versions p { margin: 0; font-size: var(--fs-13); }
 .k-cr-brief > .k-link { align-self: flex-start; }
-.k-cr-brief .k-cr-study-dl > div { grid-template-columns: minmax(0, 1fr); gap: 0; }
+.k-cr-brief .k-cr-study-dl > div, .k-crs-brief .k-cr-study-dl > div { grid-template-columns: minmax(0, 1fr); gap: 0; }
 .k-cr-sprint-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: center; gap: var(--sp-10); font-size: var(--fs-13); }
 .k-cr-sprint-row > label { display: flex; align-items: center; gap: var(--sp-8); }
 .k-cr-num { inline-size: 100%; min-inline-size: 0; }
