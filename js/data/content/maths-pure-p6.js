@@ -46,13 +46,43 @@ C["maths:6.1"] = {
         { m: "$y = 4 - e^x$: at $x = 0$, $y = 3$; asymptote $y = 4$ (as $x \\to -\\infty$); crosses the $x$-axis where $e^x = 4$, $x = \\ln 4 \\approx 1.39$. Decreasing, falling steeply to the right.", fig: { x: [-4, 2.5], y: [-3, 5.5], axes: { xt: [-3, -2, -1, 1, 2], yt: [-2, 2, 4] }, items: [{ fn: "4-exp(x)", label: "y = 4 − eˣ", at: -2.5, pos: "s" }, { hline: 4, c: "accent3", label: "y = 4" }, { pt: [0, 3], label: "(0, 3)", pos: "e" }, { pt: [1.386, 0], label: "(ln 4, 0)", pos: "ne" }], cap: "The asymptote $y = 4$ is on the left; the curve crosses the $x$-axis at $x = \\ln 4$." } }
       ] } },
 
+    { page: "Finding constants, meeting points and inverses" },
+    { worked: { tag: "example", title: "Find $A$ and $k$ for a curve $y = Ae^{kx}$ through two points", src: "exam-style · 4 marks",
+      q: "The curve $y = Ae^{kx}$ passes through $(0, 5)$ and $(2, 20)$. Find the exact values of $A$ and $k$.",
+      steps: [
+        { h: "$x = 0$ gives $A$", m: "$5 = Ae^0 \\Rightarrow A = 5$", mk: "B1", n: "Always use the point with $x = 0$ first: $e^0 = 1$." },
+        { h: "The second point gives $k$", m: "$20 = 5e^{2k} \\Rightarrow e^{2k} = 4 \\Rightarrow 2k = \\ln 4 \\Rightarrow k = \\tfrac12\\ln 4 = \\ln 2$", mk: "M1 M1 A1", n: "\"Exact\" means leave the log: $\\ln 2$, not $0.693$." }
+      ], result: "$A = 5$, $k = \\ln 2$ (so $y = 5 \\times 2^x$)" } },
+    { worked: { tag: "example", title: "Where two exponential curves meet: a quadratic in $e^x$", src: "exam-style · 5 marks",
+      q: "Find the exact coordinates of the points where the curves $y = e^{2x}$ and $y = 3e^x - 2$ meet.",
+      steps: [
+        { h: "Set equal; spot the quadratic", m: "$e^{2x} = 3e^x - 2 \\Rightarrow (e^x)^2 - 3e^x + 2 = 0$", mk: "M1", n: "$e^{2x} = (e^x)^2$. Let $u = e^x$ if it helps: $u^2 - 3u + 2 = 0$." },
+        { h: "Factorise, then logs", m: "$(e^x - 1)(e^x - 2) = 0 \\Rightarrow e^x = 1$ or $e^x = 2 \\Rightarrow x = 0$ or $x = \\ln 2$", mk: "M1 A1" },
+        { h: "The $y$-coordinates", m: "$x = 0$: $y = e^0 = 1$. $\\; x = \\ln 2$: $y = e^{2\\ln 2} = 4$", mk: "M1 A1", n: "$e^{2\\ln 2} = (e^{\\ln 2})^2 = 2^2$. Give both points.", fig: { x: [-2, 1.2], y: [-2.5, 6], axes: { xt: [-1, 1], yt: [2, 4] }, items: [
+          { fn: "exp(2*x)", label: "y = e^(2x)", at: 0.95, pos: "w" },
+          { fn: "3*exp(x)-2", c: "accent3", label: "y = 3eˣ − 2", at: -1.5, pos: "s" },
+          { hline: -2, c: "muted", dash: true, label: "y = −2" },
+          { pt: [0, 1], label: "(0, 1)", pos: "nw" }, { pt: [0.693, 4], label: "(ln 2, 4)", pos: "e" }
+        ], cap: "The curves cross twice; $y = 3e^x - 2$ has asymptote $y = -2$, so if the quadratic gave $e^x = -1$ that root would be rejected." } }
+      ], result: "$(0, 1)$ and $(\\ln 2, 4)$" } },
+    { worked: { tag: "example", title: "Range and inverse of an exponential function", src: "exam-style · 5 marks",
+      q: "$f(x) = 3 - 2e^{-x}$, $x \\in \\mathbb{R}$. **(a)** State the range of $f$. **(b)** Find $f^{-1}(x)$ and state its domain.",
+      steps: [
+        { h: "(a) $e^{-x}$ is always positive", m: "$2e^{-x} > 0 \\Rightarrow f(x) < 3$: range $f(x) < 3$", mk: "B1", n: "The asymptote is $y = 3$, approached as $x \\to \\infty$; $f$ is unbounded below." },
+        { h: "(b) Swap and rearrange", m: "$y = 3 - 2e^{-x} \\Rightarrow e^{-x} = \\dfrac{3 - y}{2} \\Rightarrow x = -\\ln\\left(\\dfrac{3 - y}{2}\\right) = \\ln\\left(\\dfrac{2}{3 - y}\\right)$", mk: "M1 M1 A1" },
+        { m: "$f^{-1}(x) = \\ln\\left(\\dfrac{2}{3 - x}\\right)$, domain $x < 3$", mk: "B1", n: "The inverse's domain is the function's range." }
+      ], result: "(a) $f(x) < 3$ (b) $f^{-1}(x) = \\ln\\frac{2}{3 - x}$, $x < 3$" } },
+
     { page: "Exam toolkit" },
     { ul: [
       "**Asymptote of $e^{\\ldots} + c$ is $y = c$**, and it must be drawn and labelled.",
       "**$y$-intercept**: put $x = 0$ — $e^{b} + c$, not $1 + c$ unless $b = 0$.",
       "**$e^{-x}$ never reaches 0** and is never negative: $e^{-x} = -2$ has no solution.",
       "**Base between 0 and 1 decays**; do not draw it increasing.",
-      "**$a^x = b$**: logs (6.5) — not guess-and-check."
+      "**$a^x = b$**: logs (6.5) — not guess-and-check.",
+      "**Two points on $y = Ae^{kx}$**: $x = 0$ gives $A$; divide to get $e^{k\\ldots}$, then logs.",
+      "**$e^{2x}$ beside $e^x$**: a quadratic in $e^x$; reject any root where $e^x \\le 0$.",
+      "**Range of $c + Ae^{\\ldots}$** is one side of the asymptote $y = c$; the inverse's domain is that range."
     ] },
     { callout: { t: "mnemonic", h: "\"Through one, never zero, $c$ is the floor\"", body: "$a^x$ passes through $(0, 1)$, is never zero, and adding $c$ lifts the asymptote to $y = c$." } }
   ],
@@ -63,14 +93,19 @@ C["maths:6.1"] = {
     ["Solve $4^x = 100$.", "$x = \\frac{\\ln100}{\\ln4} = 3.32$."],
     ["$y = (\\frac12)^x$ compared with $y = 2^x$?", "Reflection in the $y$-axis (since $(\\frac12)^x = 2^{-x}$); decreasing."],
     ["Write $2^x$ with base $e$.", "$e^{x\\ln 2}$."],
-    ["Where does $y = 4 - e^x$ cross the $x$-axis?", "$x = \\ln 4$."]
+    ["Where does $y = 4 - e^x$ cross the $x$-axis?", "$x = \\ln 4$."],
+    ["$y = Ae^{kx}$ through $(0, 5)$ and $(2, 20)$: $A$ and $k$?", "$A = 5$, $k = \\ln 2$."],
+    ["Solve $e^{2x} - 3e^x + 2 = 0$.", "$(e^x - 1)(e^x - 2) = 0$: $x = 0$ or $\\ln 2$."],
+    ["Range of $f(x) = 3 - 2e^{-x}$?", "$f(x) < 3$."]
   ],
   quiz: [
     { q: "$y = e^{x} + 3$ has asymptote", opts: ["$y = 3$", "$y = 0$", "$x = 3$", "$y = 1$"], ans: 0, why: "$e^x \\to 0$." },
     { q: "$y$-intercept of $y = 2e^{x + 1}$:", opts: ["$2$", "$2e$", "$e^2$", "$3e$"], ans: 1, why: "$2e^1$." },
     { q: "$y = 0.7^x$ is", opts: ["increasing", "decreasing", "constant", "undefined"], ans: 1, why: "Base less than 1." },
     { q: "$e^{2x} = 5$ gives $x =$", opts: ["$\\tfrac12\\ln 5$", "$\\ln\\tfrac52$", "$\\tfrac12\\ln 10$", "$\\ln 5$"], ans: 0, why: "$2x = \\ln 5$." },
-    { q: "$y = e^{-x}$ and $y = e^x$ are related by", opts: ["reflection in the $y$-axis", "reflection in the $x$-axis", "translation", "stretch"], ans: 0, why: "$x \\to -x$." }
+    { q: "$y = e^{-x}$ and $y = e^x$ are related by", opts: ["reflection in the $y$-axis", "reflection in the $x$-axis", "translation", "stretch"], ans: 0, why: "$x \\to -x$." },
+    { q: "$e^{2x} - 5e^x + 6 = 0$ has solutions", opts: ["$\\ln 2, \\ln 3$", "$2, 3$", "$\\ln 6$ only", "$e^2, e^3$"], ans: 0, why: "$(e^x - 2)(e^x - 3) = 0$." },
+    { q: "The range of $f(x) = 1 + e^{x}$, $x \\in \\mathbb{R}$, is", opts: ["$f(x) > 1$", "$f(x) \\ge 1$", "$f(x) > 0$", "all real numbers"], ans: 0, why: "$e^x > 0$, never 0." }
   ]
 };
 
@@ -101,25 +136,70 @@ C["maths:6.2"] = {
         { h: "(a) $A$ from $t = 0$; $k$ from the doubling", m: "$A = 1000$; $2000 = 1000e^{5k} \\Rightarrow e^{5k} = 2 \\Rightarrow k = \\dfrac{\\ln 2}{5} = 0.1386$\n$N = 1000e^{0.139t}$ (or $1000e^{\\frac{t\\ln2}{5}}$)", mk: "B1 M1 M1 A1", n: "Take logs to bring $k$ down: $5k = \\ln 2$." },
         { h: "(b) $\\frac{dN}{dt} = kN$", m: "$\\dfrac{dN}{dt} = 0.1386 \\times 1000e^{0.1386 \\times 8} = 0.1386 \\times 3031.4 = 420$ bacteria per hour", mk: "M1 A1", n: "Use the exact $k = \\frac{\\ln 2}{5}$ in the calculator; $e^{8\\ln2/5} = 2^{1.6}$.", fig: { x: [0, 12], y: [0, 6000], pad: { l: 50 }, axes: { x: "t", y: "N", xt: [2, 4, 5, 6, 8, 10], yt: [1000, 2000, 3000, 4000, 5000] }, items: [{ fn: "1000*exp(0.1386*x)", label: "N = 1000e^(0.139t)", at: 10.5, pos: "w" }, { line: [[4.5, 1561], [11.5, 4501]], c: "accent2", dash: true, label: "gradient 420", lpos: 0.85, loff: 14 }, { pt: [0, 1000], label: "(0, 1000)", pos: "e" }, { pt: [5, 2000], label: "(5, 2000)", pos: "se" }, { pt: [8, 3031], label: "t = 8", pos: "se" }], cap: "The rate at $t = 8$ is the gradient of the tangent there: $kN = 0.1386 \\times 3031 \\approx 420$ per hour." } }
       ], result: "(a) $N = 1000e^{(\\ln 2/5)t}$ (b) $\\approx 420$ per hour" } },
+    { fig: { x: [-2, 1.6], y: [-0.5, 5], axes: { xt: [-1, 1], yt: [1, 2, 3, 4] }, items: [
+      { fn: "exp(0.5*x)", c: "accent3", label: "y = e^(0.5x)", at: 1.5, pos: "s" },
+      { fn: "exp(x)", label: "y = eˣ", at: 1.35, pos: "e" },
+      { fn: "exp(2*x)", c: "accent2", label: "y = e^(2x)", at: 0.75, pos: "w" },
+      { fn: "1+0.5*x", c: "accent3", dash: true, from: -1.2, to: 0.8 },
+      { fn: "1+x", dash: true, from: -0.8, to: 0.6 },
+      { fn: "1+2*x", c: "accent2", dash: true, from: -0.45, to: 0.35 },
+      { pt: [0, 1], label: "(0, 1)", pos: "nw" }
+    ], cap: "All three curves pass through $(0, 1)$, where the gradient of $e^{kx}$ is $k$: the dashed tangents have gradients $\\tfrac12$, $1$ and $2$." } },
     { worked: { tag: "exam", title: "Rate of change written in terms of $V$", src: "A-level June 2025 · P1 Q11(b)(c) · 4 marks",
       q: "$V = 1500 + Ae^{-kt}$ models a car's value. **(b)** Show that the rate of change of $V$ can be expressed as $-k(V - 1500)$. **(c)** State a limitation of the model.",
       steps: [
         { h: "(b)", m: "$\\dfrac{dV}{dt} = -kAe^{-kt}$, and from the model $Ae^{-kt} = V - 1500$, so $\\dfrac{dV}{dt} = -k(V - 1500)$", mk: "M1 A1 A1*", n: "Differentiate, then substitute the model back in. The value loses a fixed proportion $k$ of its *excess over £1500* each year." },
         { h: "(c)", m: "The value never falls below £1500 (never reaches it); or the depreciation rate is assumed to stay proportional for ever; or damage/mileage are ignored.", mk: "B1" }
-      ], result: "shown" } }
+      ], result: "shown" } },
+
+    { page: "Gradients, tangents and stationary points" },
+    { worked: { tag: "example", title: "The tangent to a sum of exponentials", src: "exam-style · 5 marks",
+      q: "The curve $C$ has equation $y = 3e^{2x} - 4e^{-x}$. Find the equation of the tangent to $C$ at the point where $x = 0$.",
+      steps: [
+        { h: "Differentiate term by term", m: "$\\dfrac{dy}{dx} = 6e^{2x} + 4e^{-x}$", mk: "M1 A1", n: "$\\frac{d}{dx}(-4e^{-x}) = (-4)(-1)e^{-x} = +4e^{-x}$: two minus signs." },
+        { h: "Gradient and point at $x = 0$", m: "$\\dfrac{dy}{dx} = 6 + 4 = 10$; $\\; y = 3 - 4 = -1$", mk: "M1" },
+        { h: "The line", m: "$y - (-1) = 10(x - 0) \\Rightarrow y = 10x - 1$", mk: "M1 A1" }
+      ], result: "$y = 10x - 1$" } },
+    { worked: { tag: "example", title: "A stationary point of $y = e^{2x} - 6x$", src: "exam-style · 6 marks",
+      q: "Find the exact coordinates of the stationary point of $y = e^{2x} - 6x$ and determine its nature.",
+      steps: [
+        { h: "Set the gradient to zero", m: "$\\dfrac{dy}{dx} = 2e^{2x} - 6 = 0 \\Rightarrow e^{2x} = 3 \\Rightarrow x = \\tfrac12\\ln 3$", mk: "M1 A1 M1" },
+        { h: "The $y$-coordinate, exactly", m: "$y = e^{\\ln 3} - 6 \\cdot \\tfrac12\\ln 3 = 3 - 3\\ln 3$", mk: "A1", n: "$e^{2 \\cdot \\frac12\\ln 3} = e^{\\ln 3} = 3$." },
+        { h: "Nature", m: "$\\dfrac{d^2y}{dx^2} = 4e^{2x} > 0$ for all $x$, so it is a minimum", mk: "M1 A1", n: "An exponential is always positive, so the sign is clear without substituting." }
+      ], result: "minimum at $\\left(\\tfrac12\\ln 3, \\; 3 - 3\\ln 3\\right)$" } },
+    { worked: { tag: "example", title: "The gradient of $a^x$", src: "routine",
+      q: "Find the gradient of $y = 2^x$ at the point where $x = 3$.",
+      steps: [
+        { h: "Rewrite with base $e$", m: "$2^x = e^{x\\ln 2} \\Rightarrow \\dfrac{dy}{dx} = \\ln 2 \\cdot e^{x\\ln 2} = 2^x\\ln 2$", n: "Here $k = \\ln 2$, a constant." },
+        { m: "At $x = 3$: $\\dfrac{dy}{dx} = 8\\ln 2 \\approx 5.55$" }
+      ], result: "$8\\ln 2$" } },
+
+    { page: "Exam toolkit" },
+    { ul: [
+      "**$\\frac{d}{dx}(e^{kx}) = ke^{kx}$**: multiply by the coefficient of $x$; the power does not change.",
+      "**$e^{-x}$ differentiates to $-e^{-x}$**: watch the double minus in $-4e^{-x} \\to +4e^{-x}$.",
+      "**$e^{\\ldots} > 0$ always**: use it to decide the sign of $\\frac{d^2y}{dx^2}$, or to reject a root.",
+      "**Rate in terms of the quantity**: differentiate, then substitute the model back in.",
+      "**$\\frac{d}{dx}(a^x) = a^x\\ln a$**, because $a^x = e^{x\\ln a}$."
+    ] }
   ],
   flashcards: [
     ["$\\frac{d}{dx}(e^{kx}) = $?", "$ke^{kx}$."],
     ["Why is $e$ the natural base for growth models?", "Because $\\frac{d}{dx}e^{kx} = ke^{kx}$: the rate is proportional to the value, which is exactly what growth/decay processes do."],
     ["Doubling time for $N = Ae^{kt}$?", "$\\frac{\\ln 2}{k}$."],
     ["$V = 1500 + Ae^{-kt}$: $\\frac{dV}{dt}$ in terms of $V$?", "$-k(V - 1500)$."],
-    ["Bacteria $1000 \\to 2000$ in 5 h with $N = 1000e^{kt}$: $k$?", "$\\frac{\\ln 2}{5} \\approx 0.139$.", 5]
+    ["Bacteria $1000 \\to 2000$ in 5 h with $N = 1000e^{kt}$: $k$?", "$\\frac{\\ln 2}{5} \\approx 0.139$.", 5],
+    ["$\\frac{d}{dx}(3e^{2x} - 4e^{-x})$?", "$6e^{2x} + 4e^{-x}$."],
+    ["$\\frac{d}{dx}(2^x)$?", "$2^x\\ln 2$."],
+    ["Stationary point of $y = e^{2x} - 6x$?", "Minimum at $(\\frac12\\ln 3, 3 - 3\\ln 3)$."]
   ],
   quiz: [
     { q: "$\\frac{d}{dx}(e^{3x}) =$", opts: ["$3e^{3x}$", "$e^{3x}$", "$3xe^{3x}$", "$e^{3}$"], ans: 0, why: "Chain rule with $k = 3$." },
     { q: "The gradient of $y = e^x$ at $x = 2$ is", opts: ["$e^2$", "2", "$2e$", "$e$"], ans: 0, why: "$\\frac{d}{dx}e^x = e^x$, so the gradient at 2 is $e^2$." },
     { q: "A quantity whose rate of change is proportional to itself is modelled by", opts: ["$y = Ae^{kt}$", "$y = At + k$", "$y = At^2$", "$y = A\\ln t$"], ans: 0, why: "Defining property of exponentials." },
-    { q: "$\\frac{d}{dt}(5e^{-0.2t}) =$", opts: ["$-e^{-0.2t}$", "$-0.2e^{-0.2t}$", "$5e^{-0.2t}$", "$-5e^{-0.2t}$"], ans: 0, why: "$5 \\times (-0.2)$." }
+    { q: "$\\frac{d}{dt}(5e^{-0.2t}) =$", opts: ["$-e^{-0.2t}$", "$-0.2e^{-0.2t}$", "$5e^{-0.2t}$", "$-5e^{-0.2t}$"], ans: 0, why: "$5 \\times (-0.2)$." },
+    { q: "The gradient of $y = e^{3x}$ at $(0, 1)$ is", opts: ["3", "1", "$e^3$", "0"], ans: 0, why: "$3e^{0} = 3$." },
+    { q: "$y = e^{x} - 2x$ has a stationary point at $x =$", opts: ["$\\ln 2$", "$2$", "$\\tfrac12$", "$e^2$"], ans: 0, why: "$e^x - 2 = 0$." }
   ]
 };
 
