@@ -19,7 +19,7 @@ X("maths:S1.1", {
     { callout: { t: "warn", h: "Large data set phrasing", body: "State the **variable** and the **outcome** in the terms of the data set: e.g. the variable is *Daily Mean Wind Direction* (qualitative — compass points), the population is *the 184 days at Hurn in 2015*, and a systematic sample of 23 takes every 8th day from a random start in the first 8 (184 ÷ 8 = 23)." } }
   ],
   flashcards: [
-    ["Population vs sample?", "The population is *every* member of the group of interest; a sample is a subset chosen to make inferences about it.", 21],
+    ["How does a population differ from a sample?", "The population is *every* member of the group of interest; a sample is a subset chosen to make inferences about it.", 21],
     ["Describe simple random sampling of size $n$.", "Number every member of the population (sampling frame); generate $n$ random numbers (or use a lottery); select the matching members.", 23],
     ["Describe stratified sampling.", "Split the population into strata (groups); take a simple random sample from each stratum in proportion to its size.", 25],
     ["When is stratified random sampling impossible?", "When there is no sampling frame for the population (e.g. the fish in a lake cannot all be listed).", 26],
@@ -78,7 +78,7 @@ X("maths:S2.1", {
     { callout: { t: "mnemonic", h: "Skew from a box plot", body: "Positive skew: median closer to $Q_1$, long right whisker. Negative skew: median closer to $Q_3$. A hospital stay / waiting time / rainfall is usually positively skewed, which is one reason a **normal model is unsuitable** (2023 Q6)." } }
   ],
   flashcards: [
-    ["Frequency density formula?", "$\\text{fd} = \\dfrac{\\text{frequency}}{\\text{class width}}$.", 15],
+    ["Write the formula for frequency density.", "$\\text{fd} = \\dfrac{\\text{frequency}}{\\text{class width}}$.", 15],
     ["A histogram bar for class $10 \\le x < 20$ is 2 cm wide and 3 cm tall and represents 24 items. What area is 1 item?", "$6 \\text{ cm}^2 = 24$ items, so 1 item $= 0.25$ cm².", 16],
     ["On a histogram the bar for class $10 \\le x < 20$ is 2 cm wide and represents 24 items (so 1 item $= 0.25$ cm²). Class $20 \\le x < 25$ has frequency 30. Width and height of its bar?", "Width $= 1$ cm (5 units at 2 cm per 10). Area $= 30 \\times 0.25 = 7.5$ cm² so height $= 7.5$ cm.", 17],
     ["Estimate the number under 11 minutes when the class $10\\text{–}15$ has frequency 20.", "Assume uniform spread: $\\tfrac{1}{5} \\times 20 = 4$ (plus every lower class).", 18],
@@ -148,7 +148,7 @@ X("maths:S2.2", {
     ["Why is using $p = 22 - 1.1t$ at $t = 30$ unreliable when the data has $2 \\le t \\le 12$?", "It is extrapolation outside the range of the data — the linear model may not hold.", 15],
     ["Regression line of $y$ on $x$ — what can it predict?", "$y$ from a given $x$ (the independent variable), not $x$ from $y$.", 16],
     ["Describe the correlation shown by points falling steeply from top-left to bottom-right.", "Strong negative correlation.", 17],
-    ["Correlation vs causation?", "Correlation shows an association; it does not show that one variable causes the other (a third factor may be involved).", 18],
+    ["Why does correlation not show causation?", "Correlation shows an association; it does not show that one variable causes the other (a third factor may be involved).", 18],
     ["$\\log_{10} y = 0.2x + 1.5$. Write $y$ in the form $ab^x$.", "$y = 10^{1.5} \\times (10^{0.2})^x = 31.6 \\times 1.58^x$.", 19],
     ["What does a linear relationship between $\\log y$ and $x$ tell you?", "$y$ grows or decays exponentially in $x$.", 20],
     ["Why might a linear regression line be unsuitable for a scatter diagram?", "The points show a curved (non-linear) pattern, or an outlier distorts the fit.", 21],
@@ -266,7 +266,7 @@ X("maths:S2.4", {
     { callout: { t: "warn", h: "Remove or keep?", body: "An outlier is only removed if it is an **error** (impossible value, recording mistake). A genuine but extreme value (a storm's rainfall) is kept — say so." } }
   ],
   flashcards: [
-    ["Mean-sd outlier rule?", "More than 2 (or 3) standard deviations from the mean: outside $\\bar x \\pm 2\\sigma$.", 14],
+    ["What is the mean ± standard deviation rule for outliers?", "More than 2 (or 3) standard deviations from the mean: outside $\\bar x \\pm 2\\sigma$.", 14],
     ["$\\bar x = 24.5$, $\\sigma = 6.2$: outlier limits?", "$12.1$ and $36.9$ — so 11 and 38 would be outliers.", 15],
     ["What does `tr` mean in the rainfall column of the large data set?", "Trace — less than 0.05 mm; treat as 0 (state the decision).", 16],
     ["What should you do with a data entry of 999 or n/a?", "Remove it — it is a code for a missing reading, not a value.", 17],
@@ -372,7 +372,7 @@ X("maths:S3.2", {
   ],
   flashcards: [
     ["Two-way table: 120 employees, 60 work from home; 30 of those are full-time. $P(\\text{FT}|\\text{home})$?", "$\\tfrac{30}{60} = 0.5$.", 13],
-    ["120 employees, 60 work from home, 30 of those full-time (FT). If $P(\\text{FT}) = \\tfrac23$ overall, are FT and working from home independent?", "No: $P(\\text{FT}|\\text{home}) = 0.5 \\ne \\tfrac23$.", 14],
+    ["120 employees, 60 work from home, 30 of those full-time (FT). If $P(\\text{FT}) = \\tfrac23$ overall, are FT and working from home independent?", "No: $P(\\text{FT} \\mid \\text{home}) = \\tfrac{30}{60} = 0.5$, which differs from $P(\\text{FT}) = \\tfrac23$, so working from home changes the chance.", 14],
     ["Bag A: 3 yellow, 5 blue; bag B: 4 yellow, 2 blue; one bead from each. $P(\\text{both yellow})$?", "$\\tfrac38 \\times \\tfrac46 = \\tfrac14$.", 15],
     ["Bag A: 3 yellow, 5 blue; bag B: 4 yellow, 2 blue; one bead from each. $P(\\text{both yellow} \\mid \\text{same colour})$?", "$P(BB) = \\tfrac58 \\times \\tfrac26 = \\tfrac{5}{24}$; $\\dfrac{6/24}{6/24 + 5/24} = \\tfrac{6}{11}$.", 16],
     ["$P(A|B')$ in terms of Venn regions?", "$\\dfrac{P(A \\cap B')}{1 - P(B)}$.", 17],
@@ -668,7 +668,7 @@ X("maths:S5.1", {
   flashcards: [
     ["What is a null hypothesis?", "The default statement about a population parameter, assumed true unless there is sufficient evidence against it.", 15],
     ["One-tailed vs two-tailed test?", "One-tailed: H₁ specifies a direction ($p > 0.3$); two-tailed: H₁ is $p \\ne 0.3$ and the level is split between the tails.", 16],
-    ["Actual significance level?", "The probability, under H₀, of the test statistic lying in the critical region.", 18],
+    ["What is the actual significance level of a test?", "The probability, under H₀, of the test statistic lying in the critical region.", 18],
     ["Hypotheses for a test of negative correlation?", "H₀: $\\rho = 0$, H₁: $\\rho < 0$.", 20],
     ["$r = -0.915$, $n = 8$, 5% one-tailed: conclusion?", "Critical value $-0.6215$; $-0.915 < -0.6215$ so reject H₀ — evidence of negative correlation.", 21],
     ["$r = -0.510$, $n = 10$, 5% one-tailed?", "Critical value $-0.5494$; $-0.510 > -0.5494$ so do not reject H₀ — insufficient evidence.", 22],
@@ -777,7 +777,7 @@ X("maths:S5.3", {
   ],
   flashcards: [
     ["Doctor's consultation time $N(10, 3^2)$ min; sample of 20 has mean 11.5. Test statistic?", "$z = \\dfrac{11.5 - 10}{3/\\sqrt{20}} = 2.24$.", 11],
-    ["Conclusion at 5% one-tailed?", "$2.24 > 1.6449$ (p-value 0.0127) — reject H₀; evidence the mean time has increased.", 12],
+    ["Consultation times are $N(10, 3^2)$; a sample of 20 gives $z = 2.24$. What does a one-tailed test for an increase conclude at 5%?", "$2.24 > 1.6449$ (p-value 0.0127) — reject H₀; evidence the mean time has increased.", 12],
     ["Critical value of $\\bar x$ for that test?", "$10 + 1.6449 \\times \\dfrac{3}{\\sqrt{20}} = 11.10$.", 13],
     ["Heights $N(177, 7.4^2)$; sample of 52 from region B has mean 175.2; two-tailed 5%?", "$z = \\dfrac{-1.8}{7.4/\\sqrt{52}} = -1.75$; $|z| < 1.96$ — do not reject H₀.", 14],
     ["Standard error of the mean?", "$\\dfrac{\\sigma}{\\sqrt n}$.", 15],

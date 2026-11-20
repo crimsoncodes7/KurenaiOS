@@ -674,7 +674,7 @@ C["it:F206.2.1"] = {
     ["What is social media aggregation?", "Collecting and combining data from several social platforms into one view so performance and audience can be compared across platforms rather than examined one at a time."],
     ["What three kinds of data does social aggregation gather?", "Performance data (reach, engagement, clicks), audience data (demographics, location, active times) and listening data (mentions and sentiment, including untagged posts)."],
     ["Give two limitations of social media aggregated data.", "Platforms define metrics differently so they are not directly comparable, private accounts and messages are invisible, and vanity metrics such as follower count can rise with no commercial effect."],
-    ["Distinguish reach, engagement and conversion.", "Reach/impressions is how many saw it, engagement is how many reacted, and conversion is how many did the thing you wanted — a post can have high reach with no engagement, or high engagement with no sales."]
+    ["Distinguish reach, engagement and conversion.", "Reach is how many saw it, engagement how many reacted, conversion how many did what you wanted — high reach can bring no engagement, and high engagement no sales."]
   ],
   quiz: [
     {
@@ -1159,7 +1159,7 @@ C["it:F206.2.3"] = {
     ["What is a gap in the market?", "A demand that is not currently being met — an audience nobody serves, a need nobody answers, a channel nobody uses, a moment nobody is present at, or a price point nobody occupies."],
     ["Give four ways data can reveal a gap in the market.", "Search terms with no matching page, high-interest low-conversion pages, site-search terms and repeated enquiries, under-served segments that convert well, competitor absence, and recurring complaints about competitors."],
     ["What three tests should a proposed market gap pass?", "Is there evidence of demand rather than just absence of supply; can this client reach and serve it; and is it big enough to matter."],
-    ["Give four signs of changing customer habits in analytics data.", "A device shift from desktop to mobile, a channel shift between platforms, a timing shift in peak activity, a content-format shift such as rising video watch time, a longer multi-device journey, or a change in what customers value."],
+    ["Give four signs of changing customer habits in analytics data.", "Any four: a shift from desktop to mobile, between platforms, in peak activity times, or to formats such as video; longer multi-device journeys; a change in what customers value."],
     ["How do you tell a genuine change of habit from a fluctuation?", "Check it holds across several periods, check it is not the same seasonal pattern as the previous year, and check no other event (outage, competitor campaign, price change) explains it."],
     ["What is a targeted campaign?", "A campaign aimed at a defined segment with a message built for them, delivered on the channels they use, in the formats they respond to, at the times they are active."],
     ["Why is narrowing the audience alone not targeting?", "Targeting also changes the message, format, channel and timing to fit that audience; the same generic advert sent to fewer people is just a smaller waste."],
@@ -1416,7 +1416,7 @@ C["it:F206.3.1"] = {
     { callout: { t: "memorise", h: "Planning", body: "**Requirements** (numbered, selected not copied) → **aim and purpose** (SMART objectives · target audience · brand identity · USP: true, distinctive, valued) → **success criteria** (metric vs KPI; baseline · target · deadline; avoid vanity metrics) → **timescales** (duration · phases · lead times · review points) and a **publishing schedule** (date · time · content, plus channel, format, owner) → **content ideas** (data · questions · competitors · keywords · trends · repurposing · funnel mapping), then filtered." }}
   ],
   flashcards: [
-    ["What are client requirements and how should they be written?", "What the client wants the campaign to achieve and the conditions it must work within — business goal, audience, budget, timescale, brand rules and constraints — selected from the scenario and written as short numbered statements, not copied back."],
+    ["What are client requirements and how should they be written?", "What the campaign must achieve and the limits it works within — goal, audience, budget, timescale, brand rules — picked from the scenario and written as short numbered statements, not copied."],
     ["What is the difference between a requirement and a solution?", "A requirement is what the client needs ('increase local enquiries'); a solution is what you propose ('run local PPC'). Keeping them separate lets you show the plan meets the brief."],
     ["What four things make up the aim and purpose of a campaign?", "Campaign objectives (SMART), the target audience, the brand identity, and the unique selling point."],
     ["What is a USP?", "The one thing that makes an organisation or product different from and better than the alternatives in a way the target customer cares about — a single distinguishing claim, not a feature list."],
@@ -1776,7 +1776,7 @@ C["it:F206.3.3"] = {
     { callout: { t: "memorise", h: "The funnel", body: "**Pre-purchase:** Engagement → Education → Research → Evaluation → **Justification** (the one people forget) → Purchase. **Post purchase:** Adoption → Retention → Expansion → Advocacy → *(loops back to engagement)*. Purpose: **coverage** of every stage, **diagnosis** of where customers are lost, and a **message matched to the stage**." }}
   ],
   flashcards: [
-    ["What is the purpose of the digital marketing funnel?", "To ensure content and channels exist for every stage rather than only for people ready to buy, to show where customers are lost so the biggest leak can be fixed, and to let each stage be measured and targeted with an appropriate message."],
+    ["What is the purpose of the digital marketing funnel?", "To cover every stage, not only people ready to buy; to show where customers are lost so the biggest leak is fixed; and to measure and target each stage with its own message."],
     ["List the six pre-purchase stages of the funnel.", "Engagement, education, research, evaluation, justification, and purchase."],
     ["List the four post-purchase stages of the funnel.", "Adoption, retention, expansion and advocacy."],
     ["What is the purpose of the engagement stage and what content suits it?", "To capture attention from people who did not know the organisation existed — short attention-grabbing video, eye-catching social posts, display advertising and influencer mentions."],
@@ -1953,7 +1953,7 @@ C["it:F206.4.1"] = {
     ["Name the four content formats in the F206 spec.", "Imagery, video, audio and text."],
     ["What does the spec say is NOT included in this topic?", "Publishing on social media and finished content — you produce prototypes, not polished published assets."],
     ["Why does imagery connect with audiences?", "It is processed almost instantly, stops the scroll, conveys mood and quality without being read, and crosses language barriers."],
-    ["Give two strengths and two weaknesses of video content.", "Strengths: it holds attention longest and demonstrates rather than describes, building trust. Weaknesses: it is the most expensive and slowest format to produce, and it needs subtitles because most social video is watched with sound off."],
+    ["Give two strengths and two weaknesses of video content.", "Strengths: it holds attention longest and shows rather than tells, building trust. Weaknesses: it is the costliest and slowest to make, and needs subtitles as most social video plays muted."],
     ["Which channels suit video content?", "TikTok, Instagram Reels, YouTube, Facebook, short native video on LinkedIn, plus landing pages and email as a linked thumbnail."],
     ["Why does audio content connect with audiences?", "It reaches people whose eyes and hands are busy — commuting, exercising, working — and a voice builds intimacy and trust unusually well."],
     ["Give one significant weakness of audio content for marketing.", "There is no visual and no clickable link in the moment, so attribution of results is difficult; it also needs good recording quality."],
@@ -2342,7 +2342,7 @@ C["it:F206.4.3"] = {
     ["Distinguish short-tail from long-tail keywords.", "Short-tail terms are broad with very high volume and competition and vague intent; long-tail terms are longer and specific with lower volume but far clearer intent, less competition and higher conversion."],
     ["Why are long-tail keywords usually better for a small client?", "They face far less competition, cost less in PPC, show clearer intent and convert at a much higher rate than broad head terms."],
     ["What is keyword stuffing and why avoid it?", "Repeating a keyword unnaturally to manipulate rankings — it reads badly, damages credibility and is penalised by search engines."],
-    ["What does the guidance say about explaining keyword choices for P8?", "The explanations do not have to be based on research — but the choice must still be explained: who would search it, what intent it shows, which content it maps to and why it suits this client."]
+    ["What does the guidance say about explaining keyword choices for P8?", "They need not come from research, but each must be explained: who would search it, the intent it shows, the content it maps to and why it suits this client."]
   ],
   quiz: [
     {
@@ -2571,7 +2571,7 @@ C["it:F206.5.1"] = {
     ["How can you test whether an executive summary works?", "Give it to someone who has not read the proposal — they should be able to state the problem, what is proposed, what it will achieve and what it costs them without asking."],
     ["What formats are acceptable for the pitch according to the guidance?", "A written report, or a written or verbal presentation; evidence can be the report, the presentation, or a video recording."],
     ["How should a pitch open, and why?", "By restating the client's situation and requirements in their own words, so they can see they have been understood before any detail is presented."],
-    ["What does 'digital elements for different channels' mean in a pitch?", "Showing the prototypes in their channel context — vertical video framed as it appears in a feed, the email as it looks in a phone inbox, the landing page as a mock-up — demonstrating a coherent but channel-appropriate campaign."],
+    ["What does 'digital elements for different channels' mean in a pitch?", "Showing each prototype in its channel — a vertical video in a feed, the email in a phone inbox, the landing page as a mock-up — so the campaign is coherent yet suits each channel."],
     ["Give four features of effective delivery.", "One idea per slide with large readable type and visuals rather than paragraphs; a measured audible pace with jargon defined; signposted structure and keeping to time; answering questions directly rather than inventing answers."],
     ["Why should a pitch address different stakeholders differently?", "A client cares about outcomes, cost and risk; a technical stakeholder cares about feasibility; a staff member cares about workload — one undifferentiated case addresses none of them well."],
     ["Name three ways feedback can be gathered after a pitch.", "A structured Q&A at the end, a short written feedback form, one-to-one follow-up conversations, or an annotated copy of the proposal returned with comments."],

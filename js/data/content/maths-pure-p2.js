@@ -253,7 +253,7 @@ C["maths:2.2"] = {
     { callout: { t: "mnemonic", h: "\"Largest square out, conjugate below\"", body: "Two moves cover the topic: pull the largest square factor out of every root; multiply by the conjugate under every fraction." } }
   ],
   flashcards: [
-    ["Three surd rules?", "$(\\sqrt x)^2 = x$; $\\sqrt{xy} = \\sqrt x\\sqrt y$; $(\\sqrt x + \\sqrt y)(\\sqrt x - \\sqrt y) = x - y$."],
+    ["State the three surd rules.", "$(\\sqrt x)^2 = x$; $\\sqrt{xy} = \\sqrt x\\sqrt y$; $(\\sqrt x + \\sqrt y)(\\sqrt x - \\sqrt y) = x - y$."],
     ["Simplify $\\sqrt{72}$.", "$\\sqrt{36 \\times 2} = 6\\sqrt2$."],
     ["Simplify $\\sqrt{50} - \\sqrt{18}$.", "$5\\sqrt2 - 3\\sqrt2 = 2\\sqrt2$."],
     ["Rationalise $\\frac{6}{\\sqrt3}$.", "$\\frac{6\\sqrt3}{3} = 2\\sqrt3$."],
@@ -471,7 +471,7 @@ C["maths:2.3"] = {
     { callout: { t: "mnemonic", h: "The formula: \"minus $b$, plus or minus root, $b$ squared minus four $a$ $c$, all over two $a$\"", body: "Not in the booklet. Say it, write it, every time — and remember the whole numerator is divided by $2a$." } }
   ],
   flashcards: [
-    ["Quadratic formula?", "$x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}$ (not in the booklet)."],
+    ["State the quadratic formula.", "$x = \\frac{-b \\pm \\sqrt{b^2 - 4ac}}{2a}$ (not in the booklet)."],
     ["Discriminant conditions for two distinct / repeated / no real roots?", "$b^2 - 4ac > 0$ / $= 0$ / $< 0$."],
     ["Complete the square: $2x^2 + 4x + 9$.", "$2(x + 1)^2 + 7$."],
     ["Complete the square: $-3x^2 + 12x + 8$.", "$-3(x - 2)^2 + 20$; maximum 20 at $x = 2$."],
@@ -962,7 +962,7 @@ C["maths:2.6"] = {
     { callout: { t: "mnemonic", h: "\"Ends first, middle checks\"", body: "Inspection: the outer terms of the quadratic factor are forced by the cubic's leading and constant terms; the middle is found from one coefficient and **checked** with the other." } }
   ],
   flashcards: [
-    ["Factor theorem?", "$(x - a)$ is a factor of $f(x)$ $\\iff$ $f(a) = 0$; $(ax - b)$ is a factor $\\iff$ $f(\\frac{b}{a}) = 0$."],
+    ["State the factor theorem.", "$(x - a)$ is a factor of $f(x)$ $\\iff$ $f(a) = 0$; $(ax - b)$ is a factor $\\iff$ $f(\\frac{b}{a}) = 0$."],
     ["$(x + 3)$ is a factor of $3x^3 + 2ax^2 - 4x + 5a$: $a$?", "$f(-3) = 0 \\Rightarrow 23a = 69 \\Rightarrow a = 3$."],
     ["Divide $2x^3 + 3x^2 - 16x + 16$ by $(x + 4)$.", "$2x^2 - 5x + 4$ (discriminant $-7$: no further real factors)."],
     ["How do you prove a cubic has exactly one real root?", "Factor out the known linear factor; show the quadratic factor has $b^2 - 4ac < 0$."],
@@ -1549,7 +1549,7 @@ C["maths:2.10"] = {
     ["$\\frac{1 + 11x - 6x^2}{(x-3)(1-2x)}$ as $A + \\frac{B}{x-3} + \\frac{C}{1-2x}$?", "$3 + \\frac{4}{x - 3} - \\frac{2}{1 - 2x}$.", 5],
     ["Why decompose before integrating $\\frac{x^2 + 8x - 3}{x + 2}$?", "Each piece integrates directly: polynomial terms and $\\ln|x + 2|$.", 6],
     ["$\\int \\frac{A}{x + a}\\,dx = $?", "$A\\ln|x + a| + c$.", 7],
-    ["Cover-up rule?", "To find the constant over $(x - a)$, cover that factor in the original fraction and evaluate the rest at $x = a$ — valid for distinct linear factors and the highest power of a repeated one.", 8],
+    ["How does the cover-up rule find a partial fraction's constant?", "To find the constant over $(x - a)$, cover that factor in the original fraction and evaluate the rest at $x = a$ — valid for distinct linear factors and the highest power of a repeated one.", 8],
     ["$\\frac{3x^3 - 8x^2 - 6x - 11}{(x+1)(x-3)}$: $A, B, C, D$?", "$3, -2, 4, -5$.", 9]
   ],
   quiz: [

@@ -400,8 +400,8 @@ C["compsci:NEA.2"] = {
     ["How many marks is the NEA design, and which AO?", "12 marks, AO3a, four levels."],
     ["What does a level 4 NEA design look like?", "Fully or nearly fully articulated — how all or almost all key aspects are structured."],
     ["Core items of a design?", "High-level overview, algorithms, data structures, database design, user interface design."],
-    ["Can design be documented after coding?", "Yes — before, during or after."],
-    ["Are screenshots acceptable for the interface?", "Yes, explained screenshots of actual screens."],
+    ["Can design be documented after coding?", "Yes — the design may be written up before, during or after coding."],
+    ["Are screenshots acceptable for the interface?", "Yes — screenshots of the actual screens are acceptable, as long as they are explained."],
     ["What made AQA's orbit-simulator design not fully articulated?", "It focused on the interface without the equations and update algorithms."],
     ["Name three Group A SQL items to show in design.", "Cross-table parameterised SQL, aggregate functions, a user-written DDL script."],
     ["What does the assessor compare the design with?", "The code — e.g. class methods matching the class diagram."]
@@ -624,8 +624,8 @@ C["compsci:NEA.4"] = {
     ["How many marks is NEA testing, and which AO?", "8 marks, AO3c, four levels."],
     ["What does level 4 NEA testing show?", "Thorough testing, robustness and that the requirements were achieved, by representative samples."],
     ["Five parts of a test explanation?", "Purpose, test data, expected outcome, actual outcome, evidence sample."],
-    ["Must every test be evidenced?", "No — carefully selected representative samples."],
-    ["Can testing evidence come from during development?", "Yes — including failures, fixes and re-tests."],
+    ["Must every test be evidenced?", "No — carefully selected, representative samples of tests are enough."],
+    ["Can testing evidence come from during development?", "Yes — evidence from development counts, including failures, fixes and re-tests."],
     ["Is video evidence allowed?", "Yes — with a test table giving time-slots and a URL."],
     ["What should be tested hardest?", "The technically challenging core objectives."],
     ["Name three C# unit-testing frameworks.", "xUnit, NUnit, MSTest."]

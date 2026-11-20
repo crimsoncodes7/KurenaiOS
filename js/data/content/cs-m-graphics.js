@@ -80,7 +80,7 @@ C["compsci:4.5.6.4"] = {
     ["Three properties of a rectangle?","e.g. x/y of a corner, width, height, fill colour, line colour, line width.","compsci:4.5.6.5:1"],
     ["Properties of a circle?","Centre x/y, radius, fill colour, line colour, line width.","compsci:4.5.6.5:2"],
     ["Why are vector files often small?","They store properties of a few objects, not every pixel.","compsci:4.5.6.5:3"],
-    ["Is \"stored as equations\" acceptable?","No.","compsci:4.5.6.5:4"],
+    ["Why does \"stored as equations\" earn no mark for how a vector graphic is stored?","It does not say what is stored: a vector graphic is a list of objects, each with properties such as coordinates, size and colour.","compsci:4.5.6.5:4"],
     ["How is a vector graphic represented?","As a list of geometric objects (lines, circles, polygons…), each with properties such as coordinates, size, colour and line thickness, stored as values in a drawing list and rendered by calculation.","compsci:4.5.6.5:8"],
     ["Give the properties stored for a line.","Start and end coordinates, colour, thickness (and style).","compsci:4.5.6.5:10"],
     ["Why can a vector image be scaled without loss of quality?","The shapes are recalculated at the new size — nothing is stored as pixels.","compsci:4.5.6.5:11"],

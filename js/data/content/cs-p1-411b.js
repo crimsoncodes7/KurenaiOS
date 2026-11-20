@@ -392,7 +392,7 @@ C["compsci:4.1.1.11"] = {
     ["Interface of a subroutine?", "Its name, parameters (number, order, types) and return type.", 5],
     ["Give two ways parameters improve subroutines.", "Avoid globals / self-contained; reusable with different values.", 6],
     ["Passing an array by value in C#?", "Copies the reference: element changes are visible, re-assignment is not.", 7],
-    ["Can a by-reference argument be an expression like x + 1?", "No — it must be a variable.", 8]
+    ["Can a by-reference argument be an expression like x + 1?", "No — a by-reference parameter must refer to a variable; an expression like x + 1 has no storage location to refer to.", 8]
   ],
   quiz: [
     { q: "void F(int x) { x = 9; } int a = 1; F(a); a is now", opts: ["1", "9", "0", "undefined"], ans: 0, why: "x is a copy passed by value, so changing it inside F leaves a as 1." },
@@ -818,7 +818,7 @@ C["compsci:4.1.1.15"] = {
     ["Why a stack?", "The most recent call is the first to finish — LIFO.", 2],
     ["Frames for Factorial(3) from Main at the deepest point?", "4 — Main, Factorial(3), (2), (1).", 4],
     ["What is a stack overflow, and what usually causes it?", "The call stack runs out of space — usually recursion with no reachable base case.", 5],
-    ["Can C# catch a StackOverflowException?", "No — the process is terminated.", 6],
+    ["Can C# catch a StackOverflowException?", "No — since .NET 2.0 a stack overflow terminates the process, so no catch block ever runs.", 6],
     ["Why can recursion keep separate values per call?", "Each call has its own frame with its own locals and parameters.", 7],
     ["Mnemonic for the components?", "RPLR — Return address, Parameters, Locals, Registers.", 8]
   ],

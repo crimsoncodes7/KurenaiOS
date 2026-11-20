@@ -132,7 +132,7 @@ X("compsci:4.4.5.1", {
     { callout: { t: "memorise", h: "Transition notation", body: "δ(current state, symbol read) = (new state, symbol written, move L/R). A **transition function** maps (state, symbol) → (state, symbol, direction). The machine **halts** when it enters a halting state or has no applicable rule." }}
   ],
   flashcards: [
-    ["List the components of a Turing machine.", "A finite set of states (including a start state and halting/accepting states), a set of transition rules, an infinitely long tape divided into cells, a read/write head that moves one cell at a time, and a state register holding the current state.", 10],
+    ["List the components of a Turing machine.", "A finite set of states (start and halting), a finite alphabet, transition rules, an infinite tape of cells, a read/write head moving one cell at a time, and a current-state register.", 10],
     ["What is a Universal Turing Machine?", "A Turing machine that can simulate any other Turing machine: the description of that machine and its input are written on the UTM's tape and the UTM executes them — it acts as an interpreter.", 11],
     ["What does a transition rule specify?", "For a current state and symbol read: the new state, the symbol to write and the direction to move (L/R).", 13],
     ["When does a Turing machine halt?", "When it enters a halting state (or no rule applies to the current state and symbol).", 14],

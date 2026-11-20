@@ -444,7 +444,7 @@ C["maths:S1.1"] = {
     ["Why can't stratified sampling be used for fish in a lake?", "There is no sampling frame — the fish cannot be listed.", 8],
     ["Quota sampling — how is it done?", "Split into groups; an interviewer fills a quota for each group, choosing non-randomly; ignore extras once a quota is full.", 9],
     ["Quota sampling — one advantage, one disadvantage?", "No sampling frame needed, quick and cheap; not random so possibly biased and no valid inference.", 10],
-    ["Opportunity sampling?", "Sampling whoever is available at the time; quick and cheap but unlikely to be representative.", 11],
+    ["What is opportunity sampling, and what is its drawback?", "Sampling whoever is available at the time; quick and cheap but unlikely to be representative.", 11],
     ["Systematic sampling — main risk?", "A periodic pattern in the list that matches the interval $k$ biases the sample.", 12],
     ["Why can two samples from one population disagree?", "Sampling variability: different members give different statistics. Larger samples vary less.", 13],
     ["LDS: which months and years?", "1 May – 31 October, 1987 and 2015 (184 days).", 14],

@@ -238,10 +238,10 @@ X("compsci:4.4.2.4", {
   ],
   flashcards: [
     ["Define a regular language.", "A language that can be represented by a regular expression — equivalently, recognised by a finite state machine.", 8],
-    ["Is every regular language finite?", "No — a* describes infinitely many strings.", 9],
+    ["Is every regular language finite?", "No — a* is regular yet describes infinitely many strings (ε, a, aa, …).", 9],
     ["Are there BNF-definable languages that are not regular?", "Yes — e.g. balanced brackets; BNF (context-free) is strictly more powerful.", 11],
     ["Is {aⁿbⁿ | n ≥ 0} regular?", "No — recognising it requires counting the a's, which needs unbounded memory.", 12],
-    ["Is 'binary strings with an even number of 1s' regular?", "Yes — a two-state FSM tracks parity.", 13],
+    ["Is 'binary strings with an even number of 1s' regular?", "Yes — a two-state FSM tracks whether the number of 1s so far is even or odd.", 13],
     ["Is the set of palindromes over {a, b} regular?", "No — matching the first half against the second needs a stack.", 14],
     ["Why are finite languages always regular?", "List every string with | — that is a regular expression.", 15]
   ],

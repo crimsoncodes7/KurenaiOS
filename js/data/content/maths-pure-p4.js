@@ -697,7 +697,7 @@ C["maths:4.2"] = {
   ],
   flashcards: [
     ["Definition of a periodic sequence of order $p$?", "$u_{n+p} = u_n$ for all $n$; $p$ is the smallest such repeat length."],
-    ["Increasing sequence?", "$u_{n+1} > u_n$ for all $n$."],
+    ["What makes a sequence increasing?", "$u_{n+1} > u_n$ for all $n$."],
     ["$a_1 = 3$, $a_{n+1} = 8 - a_n$: order and $\\sum_{n=1}^{88} a_n$?", "Order 2 ($3, 5$); $44 \\times 8 = 352$."],
     ["$a_1 = 3$, $a_{n+1} = \\frac{a_n - 3}{a_n - 2}$: first three terms and $\\sum_{r=1}^{100}$?", "$3, 0, \\frac32$; $33 \\times \\frac92 + 3 = \\frac{303}{2}$."],
     ["$u_{n+1} = ku_n - 5$, $u_1 = 6$, $u_3 = -1$: equation in $k$?", "$6k^2 - 5k - 4 = 0$, $k = \\frac43$ ($k > 0$)."],

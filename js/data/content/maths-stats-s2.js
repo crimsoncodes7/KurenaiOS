@@ -338,7 +338,7 @@ C["maths:S2.1"] = {
     { callout: { t: "mnemonic", h: "\"Area for amount, middle for polygon, top for cumulative\"", body: "Histogram area = frequency; frequency polygon plots at midpoints; cumulative frequency plots at the upper boundary." } }
   ],
   flashcards: [
-    ["Frequency density?", "Frequency ÷ class width."],
+    ["How is frequency density calculated?", "Frequency ÷ class width."],
     ["In a histogram, what represents frequency?", "The area of the bar (or area proportional to frequency)."],
     ["Bars over 15–18 (12 units), 18–22 (3), 22–24 (2) hold 78. Items per square?", "$36 + 12 + 4 = 52$ squares, so $78 \\div 52 = 1.5$."],
     ["A bar 1.2 cm wide, 10 cm high represents 15. What does 1 cm² represent?", "$15 \\div 12 = 1.25$ items (equivalently 1 item = 0.8 cm²)."],
@@ -350,7 +350,7 @@ C["maths:S2.1"] = {
     ["Comparing two box plots — what two things?", "Median (location) and IQR (spread), each in context."],
     ["Positive skew: order of mean, median, mode?", "mode < median < mean."],
     ["Positive skew from quartiles?", "$Q_3 - Q_2 > Q_2 - Q_1$."],
-    ["Boundaries for 'aged 5–9'?", "$5 \\le x < 10$.", 13],
+    ["What are the class boundaries for 'aged 5–9'?", "$5 \\le x < 10$.", 13],
     ["Boundaries for rainfall '0.1–0.5' (to 0.1 mm)?", "0.05 to 0.55.", 14]
   ],
   quiz: [
@@ -615,7 +615,7 @@ C["maths:S2.2"] = {
     ["Explanatory vs response variable?", "Explanatory ($x$-axis) is the one the other depends on; response ($y$-axis) depends on it."],
     ["Interpret $b$ in $y = a + bx$.", "For each 1-unit increase in $x$, $y$ changes by $b$ units on average (in context, with units)."],
     ["Units of the gradient of rainfall (mm) on sunshine (hours)?", "mm per hour."],
-    ["Interpolation vs extrapolation?", "Predicting inside vs outside the range of the explanatory variable's data; extrapolation is unreliable."],
+    ["How does interpolation differ from extrapolation?", "Predicting inside vs outside the range of the explanatory variable's data; extrapolation is unreliable."],
     ["Why is an LDS-based prediction for December unreliable?", "The LDS covers May–October only — extrapolation."],
     ["$p = 22 - 1.1t$: change in $p$ over 3 days?", "Decrease of 3.3."],
     ["$c = a + bm$; 3.5 lower per 500 kg; 20 at 1700 kg. $a$, $b$?", "$b = -0.007$, $a = 31.9$."],
@@ -887,8 +887,8 @@ C["maths:S2.3"] = {
     ["Edexcel rule for the median of $n$ raw values?", "$\\frac{n}{2}$: not whole → round up; whole → mean of that and the next value."],
     ["Median position for 27 values?", "13.5 → the 14th value."],
     ["$Q_1$ and $Q_3$ positions for 27 values?", "6.75 → 7th; 20.25 → 21st."],
-    ["Interpolation formula?", "$L + \\frac{\\text{position} - \\text{cf before}}{f_{\\text{class}}} \\times \\text{width}$."],
-    ["Assumption behind interpolation / midpoints?", "Values are spread evenly through each class."],
+    ["What is the linear interpolation formula for a median or quartile?", "$L + \\frac{\\text{position} - \\text{cf before}}{f_{\\text{class}}} \\times \\text{width}$."],
+    ["What assumption lies behind interpolation and class midpoints?", "Values are spread evenly through each class."],
     ["$S_{xx}$?", "$\\sum x^2 - \\frac{(\\sum x)^2}{n}$; $\\sigma = \\sqrt{S_{xx}/n}$.", 6],
     ["$n = 120$, $\\sum x = 6612$, $\\sum x^2 = 364\\,902$: $\\bar{x}$, $\\sigma$?", "55.1, 2.2.", 7],
     ["$y = \\frac{x - a}{b}$: $\\bar{x}$ and $\\sigma_x$?", "$\\bar{x} = a + b\\bar{y}$; $\\sigma_x = |b|\\sigma_y$.", 8],
@@ -1081,9 +1081,9 @@ C["maths:S2.4"] = {
     ["Where does the whisker go when there is an outlier?", "To the most extreme value that is not an outlier."],
     ["An outlier is a recording error. Do what?", "Remove (or correct) it."],
     ["An outlier is a genuine extreme. Do what?", "Keep it; consider median and IQR."],
-    ["LDS 'tr' — cleaning?", "Replace with a value in $[0, 0.05]$, e.g. 0.025."],
-    ["LDS 'n/a' — cleaning?", "Exclude the value and reduce $n$."],
-    ["Wind bearing 999 — cleaning?", "Impossible (must be 0–360): remove it."],
+    ["How do you clean a 'tr' (trace) value in the large data set?", "Replace with a value in $[0, 0.05]$, e.g. 0.025."],
+    ["How do you clean an 'n/a' value in the large data set?", "Exclude the value and reduce $n$."],
+    ["How do you clean a wind bearing of 999 in the large data set?", "Impossible (must be 0–360): remove it."],
     ["Correcting 2.3 to 3.2 in class $2 \\le w < 3.5$: effect on grouped sd?", "None — same class."],
     ["Which diagram compares two distributions best?", "Box plots on a common scale (or frequency polygons)."],
     ["Why not a bar chart for unequal class widths?", "Heights misrepresent frequency; a histogram uses area."]

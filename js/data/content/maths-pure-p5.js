@@ -211,7 +211,7 @@ C["maths:5.1"] = {
     { callout: { t: "mnemonic", h: "\"Two sides and the angle between — cosine; a side facing its angle — sine\"", body: "Decides the rule in one glance. And \"$\\pi$ is a straight line\": $180° = \\pi$, so $60° = \\frac{\\pi}{3}$ because $180 \\div 3 = 60$." } }
   ],
   flashcards: [
-    ["Cosine rule and sine rule?", "$a^2 = b^2 + c^2 - 2bc\\cos A$; $\\frac{a}{\\sin A} = \\frac{b}{\\sin B}$."],
+    ["State the cosine rule and the sine rule.", "$a^2 = b^2 + c^2 - 2bc\\cos A$; $\\frac{a}{\\sin A} = \\frac{b}{\\sin B}$."],
     ["Area of a triangle from two sides and the included angle?", "$\\frac12 ab\\sin C$."],
     ["Arc length, sector area, segment area (radians)?", "$r\\theta$; $\\frac12 r^2\\theta$; $\\frac12 r^2(\\theta - \\sin\\theta)$."],
     ["Why does the sine rule have an ambiguous case?", "$\\sin\\theta = \\sin(180° - \\theta)$; the cosine rule does not because $\\cos$ is one-to-one on $[0°, 180°]$."],
@@ -327,7 +327,7 @@ C["maths:5.2"] = {
     { callout: { t: "mnemonic", h: "\"Sine and tan lose their curves; cos keeps half a square\"", body: "$\\sin\\theta \\approx \\theta$, $\\tan\\theta \\approx \\theta$, $\\cos\\theta \\approx 1 - \\frac{\\theta^2}{2}$." } }
   ],
   flashcards: [
-    ["Small angle approximations (radians)?", "$\\sin\\theta \\approx \\theta$, $\\cos\\theta \\approx 1 - \\frac{\\theta^2}{2}$, $\\tan\\theta \\approx \\theta$."],
+    ["State the small angle approximations (in radians).", "$\\sin\\theta \\approx \\theta$, $\\cos\\theta \\approx 1 - \\frac{\\theta^2}{2}$, $\\tan\\theta \\approx \\theta$."],
     ["$\\cos 4\\theta \\approx$?", "$1 - 8\\theta^2$."],
     ["$\\frac{1 - \\cos 4\\theta}{2\\theta\\sin 3\\theta} \\approx$?", "$\\frac{8\\theta^2}{6\\theta^2} = \\frac43$."],
     ["$4\\sin\\frac{\\theta}{2} + 3\\cos^2\\theta \\approx$?", "$3 + 2\\theta - 3\\theta^2$."],

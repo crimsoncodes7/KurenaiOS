@@ -520,14 +520,14 @@ C["maths:7.4"] = {
     { callout: { t: "mnemonic", h: "\"Outside, keep the inside, times inside's derivative\"", body: "The chain rule as three movements: $\\frac{d}{dx}(\\ldots)^n = n(\\ldots)^{n-1} \\times (\\ldots)'$." } }
   ],
   flashcards: [
-    ["Product rule?", "$(uv)' = u'v + uv'$."],
-    ["Quotient rule?", "$\\left(\\frac uv\\right)' = \\frac{u'v - uv'}{v^2}$ (in the booklet)."],
-    ["Chain rule?", "$\\frac{dy}{dx} = \\frac{dy}{du}\\cdot\\frac{du}{dx}$: outside derivative × inside derivative."],
+    ["State the product rule.", "$(uv)' = u'v + uv'$."],
+    ["State the quotient rule.", "$\\left(\\frac uv\\right)' = \\frac{u'v - uv'}{v^2}$ (in the booklet)."],
+    ["State the chain rule.", "$\\frac{dy}{dx} = \\frac{dy}{du}\\cdot\\frac{du}{dx}$: outside derivative × inside derivative."],
     ["$\\frac{d}{dx}(\\cos^2 x) = $?", "$-2\\cos x\\sin x = -\\sin 2x$."],
     ["$\\frac{d}{dx}\\left(\\frac{5x^2 + 10x}{(x+1)^2}\\right) = $?", "$\\frac{10}{(x+1)^3}$."],
     ["$f = \\frac{2x - 3}{x^2 + 4}$: numerator of $f'$?", "$-2x^2 + 6x + 8$."],
     ["$\\frac{d}{dx}(\\sec x)$, $(\\text{cosec}\\,x)$, $(\\cot x)$?", "$\\sec x\\tan x$; $-\\text{cosec}\\,x\\cot x$; $-\\text{cosec}^2 x$."],
-    ["Connected rates formula?", "$\\frac{dV}{dt} = \\frac{dV}{dr}\\cdot\\frac{dr}{dt}$."],
+    ["What formula links connected rates of change?", "$\\frac{dV}{dt} = \\frac{dV}{dr}\\cdot\\frac{dr}{dt}$."],
     ["$x = \\sin y$: $\\frac{dy}{dx}$?", "$\\frac{1}{\\cos y} = \\frac{1}{\\sqrt{1 - x^2}}$."],
     ["$\\frac{x - 4}{2 + \\sqrt x}$ simplifies to…", "$\\sqrt x - 2$ (difference of two squares) — derivative $\\frac{1}{2\\sqrt x}$.", 10]
   ],
@@ -625,7 +625,7 @@ C["maths:7.5"] = {
   flashcards: [
     ["$\\frac{d}{dx}(y^2)$ and $\\frac{d}{dx}(xy)$?", "$2y\\frac{dy}{dx}$; $y + x\\frac{dy}{dx}$."],
     ["Furthest west point on an implicit curve: condition?", "$\\frac{dx}{dy} = 0$ — the denominator of $\\frac{dy}{dx}$ is zero.", 2],
-    ["Horizontal tangent: condition?", "Numerator of $\\frac{dy}{dx}$ is zero (and denominator non-zero).", 3],
+    ["For a parametric curve, what is the condition for a horizontal tangent?", "Numerator of $\\frac{dy}{dx}$ is zero (and denominator non-zero).", 3],
     ["Turning point of $y = x^x$?", "$\\ln y = x\\ln x$; $y' = x^x(1 + \\ln x) = 0$; $x = e^{-1}$.", 4],
     ["$\\frac{d}{dx}(x^2\\tan y)$?", "$2x\\tan y + x^2\\sec^2 y\\frac{dy}{dx}$.", 5],
     ["Prove a normal meets the curve only at $P$: method?", "Substitute the line, factor out the known root, show the remaining factor has no real roots.", 6],

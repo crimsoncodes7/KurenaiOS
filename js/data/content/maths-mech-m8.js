@@ -365,7 +365,7 @@ C["maths:M8.2"] = {
     ] } }
   ],
   flashcards: [
-    ["1 newton?", "The force giving 1 kg an acceleration of 1 m s$^{-2}$.", 1],
+    ["How is 1 newton defined?", "The force giving 1 kg an acceleration of 1 m s$^{-2}$.", 1],
     ["Component of $mg$ down a slope at $\\alpha$?", "$mg\\sin\\alpha$.", 2],
     ["Normal reaction on a smooth slope (no other forces)?", "$mg\\cos\\alpha$.", 3],
     ["Acceleration of a particle released on a smooth slope?", "$g\\sin\\alpha$.", 4],
@@ -483,7 +483,7 @@ C["maths:M8.3"] = {
     ] } }
   ],
   flashcards: [
-    ["Weight formula?", "$W = mg$."],
+    ["What is the formula for weight?", "$W = mg$."],
     ["Units of mass and weight?", "kg and N."],
     ["Default value of $g$?", "9.8 m s$^{-2}$."],
     ["Does $g$ depend on location?", "Yes (equator ~9.78, poles ~9.83, Moon ~1.6)."],
@@ -815,7 +815,7 @@ C["maths:M8.4"] = {
     ] } }
   ],
   flashcards: [
-    ["Newton's third law?", "If $A$ pushes or pulls $B$, then $B$ pushes or pulls $A$ with an equal and opposite force."],
+    ["State Newton's third law.", "If $A$ pushes or pulls $B$, then $B$ pushes or pulls $A$ with an equal and opposite force."],
     ["Why don't third-law pairs cancel?", "They act on different bodies."],
     ["What does \"inextensible\" give in a pulley problem?", "Both particles have the same speed and size of acceleration."],
     ["What does \"smooth pulley\" give?", "The tension is the same either side."],
@@ -824,7 +824,7 @@ C["maths:M8.4"] = {
     ["Force on a pulley with both string parts vertical?", "$2T$."],
     ["What happens to $T$ when the hanging particle hits the floor?", "It becomes zero (the string goes slack)."],
     ["Mass on a smooth table after the string goes slack?", "Moves at constant speed."],
-    ["Car-and-trailer acceleration quickly?", "Whole system: external forces = total mass × $a$."],
+    ["What is the quick way to find a car-and-trailer's acceleration?", "Whole system: external forces = total mass × $a$."],
     ["Equilibrium of a particle?", "Resolve in two perpendicular directions; each sum is zero."]
   ],
   quiz: [
@@ -1179,12 +1179,12 @@ C["maths:M8.6"] = {
     ] } }
   ],
   flashcards: [
-    ["The friction model?", "$F \\le \\mu R$; $F = \\mu R$ when moving or on the point of moving."],
-    ["Direction of friction?", "Along the surface, opposing motion or the tendency to move."],
+    ["State the friction model.", "$F \\le \\mu R$; $F = \\mu R$ when moving or on the point of moving."],
+    ["In which direction does friction act?", "Along the surface, opposing motion or the tendency to move."],
     ["What is limiting equilibrium?", "At rest, with friction at its maximum $\\mu R$."],
     ["On the point of sliding on a slope (no other forces): $\\mu$?", "$\\tan\\alpha$."],
     ["Deceleration of a body sliding on a rough horizontal plane?", "$\\mu g$."],
-    ["Acceleration sliding down a rough slope?", "$g(\\sin\\alpha - \\mu\\cos\\alpha)$."],
+    ["What is the acceleration of a particle sliding down a rough slope?", "$g(\\sin\\alpha - \\mu\\cos\\alpha)$."],
     ["Why is pushing at an angle worse than pulling?", "Pushing down increases $R$, so friction increases."],
     ["When does a body at rest on a slope start sliding?", "When $\\tan\\alpha > \\mu$."],
     ["Units of $\\mu$?", "None."],

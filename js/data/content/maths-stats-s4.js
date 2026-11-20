@@ -362,8 +362,8 @@ C["maths:S4.1"] = {
     { callout: { t: "mnemonic", h: "\"Fixed, two, free, same\"", body: "The binomial conditions: **fixed** $n$, **two** outcomes, trials **free** of each other, the **same** $p$." } }
   ],
   flashcards: [
-    ["Rule every probability distribution satisfies?", "$\\sum P(X = x) = 1$."],
-    ["Discrete uniform distribution?", "$n$ values, each with probability $\\frac1n$."],
+    ["What rule does every probability distribution satisfy?", "$\\sum P(X = x) = 1$."],
+    ["What is a discrete uniform distribution?", "$n$ values, each with probability $\\frac1n$."],
     ["Four conditions for $B(n, p)$?", "Fixed $n$; two outcomes; independent trials; constant $p$."],
     ["$P(X = x)$ for $B(n, p)$?", "$\\binom{n}{x}p^x(1 - p)^{n - x}$."],
     ["$P(X \\ge 7)$ in cumulative form?", "$1 - P(X \\le 6)$."],
@@ -623,7 +623,7 @@ C["maths:S4.2"] = {
     ["Properties of $N(\\mu, \\sigma^2)$?", "Continuous, bell-shaped, symmetrical about $\\mu$; mean = median = mode; total area 1."],
     ["Where are the points of inflection of a Normal curve?", "$x = \\mu \\pm \\sigma$."],
     ["Within $\\mu \\pm \\sigma$, $\\pm 2\\sigma$, $\\pm 3\\sigma$?", "About 68%, 95%, 99.7%."],
-    ["Standardising formula?", "$Z = \\frac{X - \\mu}{\\sigma}$."],
+    ["What is the standardising formula for a Normal variable?", "$Z = \\frac{X - \\mu}{\\sigma}$."],
     ["$z$ for 5% in the upper tail?", "1.6449."],
     ["$z$ for 2.5% in the upper tail?", "1.9600."],
     ["$P(Y < 180) = 0.8$, $\\mu = 160$. $\\sigma$?", "$\\frac{20}{0.8416} = 23.8$."],
@@ -725,10 +725,10 @@ C["maths:S4.3"] = {
     ["When is a binomial model appropriate?", "A count of successes in a fixed number of independent trials with constant probability."],
     ["When is a Normal model appropriate?", "A continuous measurement, roughly symmetrical and bell-shaped."],
     ["When is a discrete uniform model appropriate?", "A finite set of equally likely values."],
-    ["Evidence against a Normal model?", "Skew (mean far from median, histogram asymmetrical) or a large probability of impossible values."],
-    ["Evidence against a binomial model?", "Trials not independent, or the probability not constant."],
+    ["What evidence counts against a Normal model?", "Skew (mean far from median, histogram asymmetrical) or a large probability of impossible values."],
+    ["What evidence counts against a binomial model?", "Trials not independent, or the probability not constant."],
     ["Conditions for a Normal approximation to a binomial?", "$n$ large, $p$ close to 0.5."],
-    ["$B(36, 0.015)$ — Normal approximation suitable?", "No: $np = 0.54$, very skewed."],
+    ["$B(36, 0.015)$ — Normal approximation suitable?", "No: $np = 0.54$ is far below 5, so the distribution is very skewed and a Normal curve cannot fit it."],
     ["Hospital stays: mean 14.9, sd 9.3, long right tail. Normal?", "No — skewed, and it allows negative stays."]
   ],
   quiz: [

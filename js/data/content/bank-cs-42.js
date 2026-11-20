@@ -163,7 +163,7 @@ X("compsci:4.2.2.1", {
   ],
   flashcards: [
     ["Describe the steps to add an item to a linear queue in an array.", "Check the queue is not full; add 1 to the rear pointer; store the item at the position the rear pointer indicates.", 10],
-    ["Describe the steps to remove an item from a circular queue.", "Check the queue is not empty; read the item at front; add 1 to front, and if it has passed the last position set it to the first (or front ← (front+1) MOD size); reduce the size counter.", 11],
+    ["Describe the steps to remove an item from a circular queue.", "Check the queue is not empty; take the item at front; set front ← (front + 1) MOD size, wrapping to the first slot; subtract 1 from the size counter.", 11],
     ["Why does a circular queue beat a linear one in a fixed array?", "A linear queue leaves unusable space at the front after removals (or must shuffle every item up); a circular queue reuses the freed cells.", 12],
     ["How is an item added to a priority queue stored in an array?", "From the rear, move each item back one place until one with the same or higher priority is found, then insert after it.", 13],
     ["How can a stack be used to reverse a queue?", "Dequeue every item, pushing each onto the stack, until the queue is empty; then pop every item and enqueue it until the stack is empty.", 14],
@@ -336,7 +336,7 @@ X("compsci:4.2.6.1", {
     { callout: { t: "tip", body: "Rehashing / linear probing / chaining are all accepted as *a suitable method for collision handling* — name one and say what it does." }}
   ],
   flashcards: [
-    ["Describe the steps to insert a record into a hash table.", "Apply the hash function to the record's key; the result is the index where it should be stored; store it there; if that slot is occupied, use a collision-resolution method such as the next free slot.", 10],
+    ["Describe the steps to insert a record into a hash table.", "Hash the record's key to get an index; store the record there; if that slot is taken, resolve the collision, e.g. by trying the next free slot.", 10],
     ["Why is a hash table lookup faster than searching a sorted list?", "The hash function gives the location directly, so no search through the records is needed — O(1) on average.", 11],
     ["Name two collision-resolution methods.", "Linear probing (next free location, wrapping); chaining (a linked list at each index).", 13],
     ["Why do collisions slow a nearly full hash table?", "More items end up away from their calculated index, so direct access happens less often and a search from the calculated position is needed.", 14],

@@ -673,7 +673,7 @@ X("maths:9.2", {
     ["Iterate $x_{n+1} = \\sqrt{5 - 1/x_n}$ from $x_0 = 2$: $x_1, x_2$?", "$x_1 = \\sqrt{4.5} = 2.1213$, $x_2 = \\sqrt{5 - 0.4714} = 2.1281$.", 7],
     ["Turning point of $y = (8 - x)\\ln x$: derive a convergent iteration.", "$\\dfrac{dy}{dx} = -\\ln x + \\dfrac{8 - x}{x} = 0 \\Rightarrow x(1 + \\ln x) = 8 \\Rightarrow x = \\dfrac{8}{1 + \\ln x}$.", 8],
     ["When does $x_{n+1} = g(x_n)$ converge to $\\alpha$?", "When $|g'(\\alpha)| < 1$; it diverges if $|g'(\\alpha)| > 1$.", 9],
-    ["Staircase vs cobweb?", "Staircase when $g'(\\alpha) > 0$ (monotone approach); cobweb when $g'(\\alpha) < 0$ (oscillating around the root).", 10],
+    ["When does fixed-point iteration give a staircase, and when a cobweb?", "Staircase when $g'(\\alpha) > 0$ (monotone approach); cobweb when $g'(\\alpha) < 0$ (oscillating around the root).", 10],
     ["Does $x_{n+1} = 2\\ln(8 - x_n)$ converge near $\\alpha \\approx 3.13$?", "$g'(x) = -\\dfrac{2}{8 - x}$; $|g'(3.13)| = 0.41 < 1$ — converges (cobweb).", 11],
     ["$v = (10 - 0.4t)\\ln(t + 1)$: equation for maximum speed?", "$\\dfrac{dv}{dt} = -0.4\\ln(t + 1) + \\dfrac{10 - 0.4t}{t + 1} = 0$.", 12],
     ["How do you draw a cobweb diagram?", "From $x_0$ go vertically to $y = g(x)$, horizontally to $y = x$, repeat; the staircase/cobweb closes in on the intersection.", 13],

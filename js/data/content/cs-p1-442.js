@@ -529,11 +529,11 @@ C["compsci:4.4.2.4"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.4.2.1 FSMs; 4.4.2.3 regular expressions; 4.4.3.1 BNF (context-free); 4.4.5.1 Turing machines (more powerful still); 4.6 compilers' lexical analysis uses regular languages." } }
   ],
   flashcards: [
-    ["Can a regular language be infinite?", "Yes — e.g. b+.", 1],
-    ["Can an FSM without output represent every regular language?", "Yes.", 2],
+    ["Can a regular language be infinite?", "Yes — e.g. b+ matches b, bb, bbb, … — infinitely many strings, yet an FSM accepts it.", 1],
+    ["Can an FSM without output represent every regular language?", "Yes — a language is regular exactly when some FSM (without output) accepts it.", 2],
     ["Example of a non-regular language?", "{aⁿbⁿ | n ≥ 1}; balanced brackets.", 3],
     ["Why isn't aⁿbⁿ regular?", "It needs unbounded counting/memory; an FSM has finitely many states.", 4],
-    ["Can BNF describe non-regular languages?", "Yes — e.g. nested brackets.", 5],
+    ["Can BNF describe non-regular languages?", "Yes — BNF can define nested brackets, which need unbounded counting that no FSM can do.", 5],
     ["How to show a language is regular?", "Write a regular expression (or FSM) for it.", 6],
   ],
   quiz: [

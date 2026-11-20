@@ -223,8 +223,8 @@ C["compsci:4.12.1.2"] = {
   ],
   flashcards: [
     ["Name three first-class objects in most languages.", "Integers, floating-point values, characters, strings.", 1],
-    ["Are functions first-class in a functional language?", "Yes.", 2],
-    ["Can an imperative language have first-class functions?", "Yes — e.g. C# delegates/lambdas, Python, JavaScript.", 3],
+    ["Are functions first-class in a functional language?", "Yes — they can be passed as arguments, returned as results and assigned to names, like any other value.", 2],
+    ["Can an imperative language have first-class functions?", "Yes — e.g. C# delegates and lambdas, Python and JavaScript all treat functions as values.", 3],
     ["Why are higher-order functions possible?", "Because functions are first-class: they can be passed and returned.", 4],
     ["C# type for a function from int to int?", "Func<int, int>.", 6],
     ["How does first-class differ from higher-order?", "First-class describes a kind of value; higher-order describes a function that takes/returns functions.", 7]

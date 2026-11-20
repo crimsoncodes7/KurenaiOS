@@ -84,7 +84,7 @@ C["compsci:4.4.1.3"] = {
     ["Is protected hidden?","Not from subclasses — R. in the 2023 mark scheme.","compsci:4.4.1.4:5"],
     ["Define information hiding.","The process of hiding all details of an object that do not contribute to its essential characteristics — the interface is visible, the implementation is not.","compsci:4.4.1.4:8"],
     ["What is an interface?","The set of operations/methods through which other code interacts with a component.","compsci:4.4.1.4:13"],
-    ["Is the method hidden in procedural abstraction?","No — that is functional abstraction.","compsci:4.4.1.5:2"],
+    ["Is the method hidden in procedural abstraction?","No — procedural abstraction removes the actual values, leaving the method as a procedure; hiding the method itself is functional abstraction.","compsci:4.4.1.5:2"],
     ["What do the abstracted values become?","Parameters.","compsci:4.4.1.5:4"],
     ["What is a computational method?","A sequence of operations that achieves a result — what a procedure encapsulates.","compsci:4.4.1.5:14"],
     ["Two procedures, one function?","SumTo by loop and by formula compute the same mapping.","compsci:4.4.1.6:4"],

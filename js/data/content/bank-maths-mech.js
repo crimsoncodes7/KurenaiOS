@@ -26,7 +26,7 @@ X("maths:M6.1", {
     ["SI units of force, and its base-unit form?", "Newton (N) $= \\text{kg m s}^{-2}$."],
     ["Convert 72 km/h to m/s.", "$72 \\times \\dfrac{1000}{3600} = 20$ m/s."],
     ["Convert 15 m/s to km/h.", "$15 \\times 3.6 = 54$ km/h."],
-    ["Units of moment?", "Newton metres (N m)."],
+    ["What are the units of a moment?", "Newton metres (N m)."],
     ["What does modelling as a *particle* assume?", "The object has no size — all its mass acts at one point and rotation/air resistance are ignored."],
     ["What does a *light* string mean and why does it matter?", "It has no mass, so the tension is the same at every point along it."],
     ["What does *inextensible* give you?", "Connected particles have the same speed and the same magnitude of acceleration."],
@@ -376,13 +376,13 @@ X("maths:M8.1", {
     { callout: { t: "def", h: "Names of forces", body: "**Weight** $mg$ (down). **Normal reaction** $R$ (perpendicular to contact). **Tension** (string/rope, pulls). **Thrust** (rod, pushes). **Friction** (along the surface). **Driving force / resistance** (vehicles)." } }
   ],
   flashcards: [
-    ["Newton's first law?", "A body remains at rest or in uniform motion in a straight line unless acted on by a resultant force.", 9],
+    ["State Newton's first law.", "A body remains at rest or in uniform motion in a straight line unless acted on by a resultant force.", 9],
     ["What does 'moves at constant velocity' tell you about the forces?", "They are in equilibrium — resultant zero.", 10],
     ["Force $\\mathbf F_3$ that keeps the particle in equilibrium?", "$-2\\mathbf i - 6\\mathbf j$.", 12],
     ["Particle of 4 kg on a rough horizontal plane, horizontal force $P$, limiting equilibrium, $\\mu = 0.5$. $P$?", "$P = \\mu mg = 0.5 \\times 39.2 = 19.6$ N.", 13],
     ["A particle hangs from two strings at 30° and 60° to the horizontal; weight 10 N. Tensions?", "Horizontal: $T_1\\cos30° = T_2\\cos60°$; vertical: $T_1\\sin30° + T_2\\sin60° = 10$ → $T_1 = 5$ N, $T_2 = 8.66$ N.", 14],
     ["Direction of tension in a string?", "Along the string, pulling toward the string (away from the particle).", 16],
-    ["Thrust vs tension?", "Tension pulls (strings, rods); thrust pushes (rods only).", 17]
+    ["How does thrust differ from tension?", "Tension pulls (strings, rods); thrust pushes (rods only).", 17]
   ],
   quiz: [
     { q: "Forces $2\\mathbf i + 3\\mathbf j$, $-5\\mathbf i + \\mathbf j$ and $\\mathbf F$ keep a particle in equilibrium. $\\mathbf F =$", opts: ["$3\\mathbf i - 4\\mathbf j$", "$-3\\mathbf i + 4\\mathbf j$", "$3\\mathbf i + 4\\mathbf j$", "$7\\mathbf i - 2\\mathbf j$"], ans: 0, why: "The two sum to $-3\\mathbf i + 4\\mathbf j$, so $\\mathbf F = 3\\mathbf i - 4\\mathbf j$." },
@@ -423,7 +423,7 @@ X("maths:M8.2", {
     { callout: { t: "tip", h: "From force to distance", body: "Force $\\to$ acceleration $\\to$ suvat. A 3-mark tail like \"find the distance in the first 2 s from rest\" is $s = \\tfrac12|\\mathbf a|t^2$ once you have $|\\mathbf a|$." } }
   ],
   flashcards: [
-    ["Newton's second law?", "Resultant force $= $ mass $\\times$ acceleration, $\\mathbf F = m\\mathbf a$, with $\\mathbf a$ in the direction of the resultant.", 9],
+    ["State Newton's second law.", "Resultant force $= $ mass $\\times$ acceleration, $\\mathbf F = m\\mathbf a$, with $\\mathbf a$ in the direction of the resultant.", 9],
     ["Car 900 kg, resistance 300 N, accelerates at 1.5 m/s². Driving force?", "$D - 300 = 900 \\times 1.5 \\Rightarrow D = 1650$ N.", 10],
     ["$\\mathbf F_1 = 4\\mathbf i + 2\\mathbf j$, $\\mathbf F_2 = c\\mathbf i + 4\\mathbf j$ on 2 kg give $|\\mathbf a| = 5$. $c$?", "$|(4 + c)\\mathbf i + 6\\mathbf j| = 10 \\Rightarrow (4 + c)^2 = 64$, $c = 4$ or $-12$.", 11],
     ["$\\mathbf F_1 = 3\\mathbf i + \\mathbf j$, $\\mathbf F_2 = p\\mathbf i + 5\\mathbf j$; particle from rest moves in direction $\\mathbf i + 3\\mathbf j$. $p$?", "Resultant $(3 + p)\\mathbf i + 6\\mathbf j \\parallel \\mathbf i + 3\\mathbf j \\Rightarrow 3(3 + p) = 6$, $p = -1$.", 12],

@@ -332,7 +332,7 @@ C["maths:1.1"] = {
     ["Structure of a contradiction proof?", "Assume the negation; deduce; reach an impossibility; conclude the original is true."],
     ["Negation of \"at least one of $p$, $q$ is even\"?", "Both are odd."],
     ["To disprove \"for all $x$, $P(x)$\"?", "One counter-example with its arithmetic shown."],
-    ["\"Sometimes true\" — evidence?", "One case where it holds and one where it fails."],
+    ["What evidence shows a statement is \"sometimes true\"?", "One case where it holds and one where it fails."],
     ["Key step in the $\\sqrt3$ irrationality proof?", "$3 \\mid p^2 \\Rightarrow 3 \\mid p$ (justify), then $q$ too, contradicting lowest terms."],
     ["Why is $n(n+1)(n+2)$ divisible by 6?", "Among three consecutive integers there is a multiple of 2 and a multiple of 3."],
     ["Euclid's primes proof: what is $N$?", "$p_1 p_2 \\cdots p_n + 1$ — no listed prime divides it, so a new prime exists."]

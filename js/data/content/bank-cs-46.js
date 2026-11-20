@@ -208,7 +208,7 @@ X("compsci:4.6.3.1", {
     ]}
   ],
   flashcards: [
-    ["State three differences between a compiler and an interpreter.", "Compiler translates the whole program and produces object code; interpreter translates and executes line by line producing none. A compiler produces no executable on error; an interpreter runs until the first error. Compiled code runs faster and needs no translator afterwards; interpreted code needs the interpreter every run.", 11],
+    ["State three differences between a compiler and an interpreter.", "Compiler: whole program into object code; errors found before running; runs fast with no translator. Interpreter: translates and runs line by line, no object code; stops at the first error; needed every run.", 11],
     ["What does an assembler do?", "Translates assembly language mnemonics into machine code, one instruction to one instruction.", 12],
     ["Difference between an assembler and a compiler?", "Both produce object code, but an assembler takes simple mnemonics (one-to-one) while a compiler takes complex HLL statements each producing many machine instructions.", 13],
     ["Why do some compilers produce bytecode rather than machine code?", "So the program is platform-independent — it can run on any machine with the appropriate virtual machine.", 14],

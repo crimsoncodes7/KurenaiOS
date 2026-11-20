@@ -254,7 +254,7 @@ C["compsci:4.13.1.2"] = {
     ["What does high cohesion mean?", "Each module does one well-defined job."],
     ["What does low coupling mean?", "Modules depend on each other only through parameters — no shared globals."],
     ["Why dry-run a design?", "To find logic errors before coding."],
-    ["Can design be iterative?", "Yes — prototyping/agile repeats design each cycle.", 7]
+    ["Can design be iterative?", "Yes — in prototyping and agile methods the design is revisited every cycle as feedback arrives.", 7]
   ],
   quiz: [
     { q: "A hierarchy chart shows", opts: ["modules and how they decompose", "test results for each module", "user requirements and their priority", "database keys and how tables link"], ans: 0, why: "Modular structure." },

@@ -408,7 +408,7 @@ C["maths:9.3"] = {
     ] }
   ],
   flashcards: [
-    ["Newton–Raphson formula?", "$x_{n+1} = x_n - \\frac{f(x_n)}{f'(x_n)}$."],
+    ["State the Newton–Raphson formula.", "$x_{n+1} = x_n - \\frac{f(x_n)}{f'(x_n)}$."],
     ["June 2018 Q5: $2x^3 + x^2 - 1 = 0$, $x_1 = 1$: $x_2$?", "$0.75$.", 3],
     ["Why is Newton–Raphson fast?", "As a fixed-point iteration its $g'(\\alpha) = 0$; errors roughly square each step.", 4]
   ],
@@ -549,10 +549,10 @@ C["maths:9.4"] = {
     ] }
   ],
   flashcards: [
-    ["Trapezium rule?", "$\\int_a^b y\\,dx \\approx \\frac12 h[(y_0 + y_n) + 2(y_1 + \\cdots + y_{n-1})]$, $h = \\frac{b-a}{n}$."],
+    ["State the trapezium rule.", "$\\int_a^b y\\,dx \\approx \\frac12 h[(y_0 + y_n) + 2(y_1 + \\cdots + y_{n-1})]$, $h = \\frac{b-a}{n}$."],
     ["$n$ is the number of?", "Strips. Ordinates $= n + 1$."],
-    ["Convex curve gives?", "An over-estimate (chords above the arc)."],
-    ["Concave curve gives?", "An under-estimate (chords below the arc)."],
+    ["Does the trapezium rule over- or under-estimate on a convex curve?", "An over-estimate (chords above the arc)."],
+    ["Does the trapezium rule over- or under-estimate on a concave curve?", "An under-estimate (chords below the arc)."],
     ["From $\\int_3^9 \\log_3 2x \\approx 13.3$, $\\int_3^9 \\log_3 18x \\approx$?", "$\\log_3 18x = 2 + \\log_3 2x$: $12 + 13.3 = 25.3$.", 5]
   ],
   quiz: [

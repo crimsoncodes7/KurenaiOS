@@ -393,9 +393,9 @@ X("compsci:4.7.4.1", {
     ["Why are passive RFID tags used in passports?", "No battery to replace; smaller and cheaper; readable only at very short range, so harder to intercept.", 11],
     ["Give two advantages of RFID over barcodes for a warehouse.", "Tags can be read without line of sight / while items stay on the pallet; many tags read at a distance and quickly without manual scanning; tags are less easily damaged.", 12],
     ["Give two advantages of barcodes over RFID.", "Much cheaper per item; readable with existing checkout scanners; human-readable digits as a backup; no radio interference.", 13],
-    ["Describe how a barcode reader works.", "A laser or LED illuminates the code; a mirror sweeps the beam (or the user moves the reader); black bars reflect less light than white spaces; a photodiode measures the reflections and the pattern is decoded to digits, often with a check digit.", 14],
-    ["Describe how a digital camera captures an image.", "Light passes through the lens onto a CCD/CMOS sensor array; each photosensor outputs a voltage proportional to the light; RGB filters separate colour; an ADC converts each voltage to a binary pixel value; the pixels are stored as a bitmap.", 15],
-    ["Describe how a laser printer prints.", "A bitmap of the page is built; the drum is charged; a laser via a rotating mirror discharges the drum where the image is; charged toner sticks to those areas; paper passes over the drum and toner transfers; a heated fuser bonds the toner; colour printers repeat with four toners.", 16],
+    ["Describe how a barcode reader works.", "A laser or LED lights the code; black bars reflect less light than white spaces; a photodiode measures the reflections and the pattern is decoded to digits, verified by a check digit.", 14],
+    ["Describe how a digital camera captures an image.", "The lens focuses light on a CCD/CMOS sensor; each photosensor, behind a red, green or blue filter, gives a voltage proportional to the light; an ADC turns it into a binary pixel value.", 15],
+    ["Describe how a laser printer prints.", "The page is built as a bitmap; the drum is charged; a laser discharges it where the image is; toner sticks to those areas and transfers to the paper; a heated fuser bonds it.", 16],
     ["Why might a laser printer suit a small office?", "Low cost per page, fast printing, toner does not dry out, high-resolution text; with a wireless adapter it is easily shared by all devices.", 17]
   ],
   quiz: [
@@ -439,9 +439,9 @@ X("compsci:4.7.4.2", {
   ],
   flashcards: [
     ["Why does a computer need secondary storage?", "To keep programs and data when the power is off (RAM is volatile), to hold data too large for RAM, and to transfer data between machines.", 12],
-    ["Describe how a hard disk stores and reads data.", "Platters coated in magnetisable material are divided into tracks and sectors; the disk spins and the read/write head moves to the track; spots are magnetised in one of two directions to represent 0/1; the head senses the field and converts it to bits.", 13],
-    ["Describe how an optical disk is read.", "A low-power laser is focused on a spiral track of pits and lands; reflected light is measured by a photodiode; a transition between pit and land scatters the light and represents a 1, continuation represents 0.", 14],
-    ["Describe how an SSD stores data.", "In floating-gate transistors (NAND flash) with no moving parts; trapped electrons represent one bit value, their absence the other; data is organised in pages and blocks; a block must be erased before rewriting; a controller manages the process.", 15],
+    ["Describe how a hard disk stores and reads data.", "Data sits in tracks and sectors on spinning magnetisable platters; the head moves to the track and magnetises spots one of two ways for 0 and 1, reading by sensing the field.", 13],
+    ["Describe how an optical disk is read.", "A low-power laser shines on a spiral track of pits and lands; a photodiode measures the reflection; a change between pit and land scatters the light and reads as 1, no change as 0.", 14],
+    ["Describe how an SSD stores data.", "NAND flash: floating-gate transistors trap electrons (or not) to store bits, with no moving parts; data is in pages and blocks, a block is erased before rewriting, and a controller manages it.", 15],
     ["Give two advantages of SSDs over hard disks.", "Faster access / transfer; lower power; more robust (no moving parts); smaller; quieter; less heat.", 16],
     ["Give two disadvantages of SSDs.", "Higher cost per gigabyte; cells degrade after many write cycles (rising error rate).", 17],
     ["Why might a laptop have both an SSD and a hard disk?", "SSD for the OS and programs that need speed; hard disk for large files because it is cheaper per gigabyte.", 18],

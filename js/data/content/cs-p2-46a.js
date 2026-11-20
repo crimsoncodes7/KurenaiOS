@@ -132,7 +132,7 @@ C["compsci:4.6.1.1"] = {
   flashcards: [
     ["Define hardware.", "The physical / electronic components of a computer system."],
     ["What is a computer system?", "Hardware and software working together.", 2],
-    ["Is \"tangible\" enough for hardware?", "No — NE.; say physical / electronic components.", 4],
+    ["Is \"tangible\" enough for hardware?", "No — NE (not enough); say the physical, electronic components of a computer system.", 4],
     ["Is a device driver hardware or software?", "Software.", 6],
     ["Give two examples of hardware.", "e.g. processor, RAM, SSD, keyboard, monitor, data bus.", 7],
     ["Is a photo stored on disk software?", "No — it is data; software is programs.", 8]
@@ -281,7 +281,7 @@ C["compsci:4.6.1.2"] = {
     ["Three types of translator?", "Compiler, assembler, interpreter.", 3],
     ["Is a compiler system or application software?", "System software (a translator).", 4],
     ["Category of a virus checker?", "Utility (system software).", 5],
-    ["Is a bitmap image editor system software?", "No — application software.", 6],
+    ["Is a bitmap image editor system software?", "No — it is application software: it does a task for the user rather than running the computer.", 6],
     ["How does general-purpose software differ from bespoke?", "Off-the-shelf for many users vs written for one organisation.", 7],
     ["Through what does application software reach the hardware?", "The operating system.", 8]
   ],
@@ -504,7 +504,7 @@ C["compsci:4.6.1.4"] = {
     ["Describe memory management.", "Allocates areas of memory to processes, moves pages to/from a paging file, and stops a process writing outside its allocation.", 3],
     ["Describe I/O management.", "Allocates devices to processes and manages communication through device drivers.", 4],
     ["Is \"memory management\" enough?", "No — NE.; describe what is allocated and why.", 6],
-    ["Is the scheduler a hardware resource?", "No — it is OS software (R.).", 7],
+    ["Is the scheduler a hardware resource?", "No — the scheduler is OS software that shares out the processor, which is the hardware resource (R.).", 7],
     ["Two OS functions that are not resource management?", "Handling interrupts; hiding hardware complexity (also security, power management).", 8]
   ],
   quiz: [
@@ -688,7 +688,7 @@ C["compsci:4.6.2.1"] = {
     ["Three advantages of low-level languages.", "Faster execution; less memory; direct control of hardware.", 5],
     ["Why is \"faster because no translation\" wrong?", "The speed advantage is the machine code executing faster, not translation time — R.", 6],
     ["Relationship of imperative HLL to low-level?", "Same sequence/state model, abstracted: one HLL statement becomes many machine instructions.", 7],
-    ["Is SQL imperative?", "No — declarative (states what, not how).", 8],
+    ["Is SQL imperative?", "No — SQL is declarative: it states what result is wanted, not the steps to get it.", 8],
     ["When might assembly be chosen?", "New / embedded processor with no compiler or little memory; device drivers; time-critical code.", 9]
   ],
   quiz: [

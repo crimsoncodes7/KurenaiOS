@@ -102,11 +102,11 @@ C["maths:10.1"] = {
   ],
   flashcards: [
     ["$\\overrightarrow{AB}$ in terms of position vectors?", "$\\mathbf{b} - \\mathbf{a}$ (end minus start)."],
-    ["Parallel vectors?", "One is a scalar multiple of the other."],
+    ["When are two vectors parallel?", "One is a scalar multiple of the other."],
     ["$A$, $B$, $C$ collinear — test?", "$\\overrightarrow{AB} = \\lambda\\overrightarrow{AC}$."],
     ["$QS : SR = 3 : 2$: $\\overrightarrow{QS} =$?", "$\\frac35\\overrightarrow{QR}$."],
     ["Trapezium test with vectors?", "One pair of opposite sides parallel (scalar multiple), not equal in length."],
-    ["Handwritten vector convention?", "Underline it."]
+    ["How do you show a vector when handwriting?", "Underline it."]
   ],
   quiz: [
     { q: "$\\mathbf{a} = 2\\mathbf{i} - \\mathbf{j}$, $\\mathbf{b} = -\\mathbf{i} + 4\\mathbf{j}$: $\\overrightarrow{AB} =$", opts: ["$-3\\mathbf{i} + 5\\mathbf{j}$", "$3\\mathbf{i} - 5\\mathbf{j}$", "$\\mathbf{i} + 3\\mathbf{j}$", "$-2\\mathbf{i} - 4\\mathbf{j}$"], ans: 0, why: "$\\mathbf{b} - \\mathbf{a}$." },
@@ -334,7 +334,7 @@ C["maths:10.3"] = {
     ] }
   ],
   flashcards: [
-    ["Triangle law?", "Nose to tail: $\\mathbf{a} + \\mathbf{b}$ runs from the start of $\\mathbf{a}$ to the tip of $\\mathbf{b}$."],
+    ["What does the triangle law of vector addition say?", "Nose to tail: $\\mathbf{a} + \\mathbf{b}$ runs from the start of $\\mathbf{a}$ to the tip of $\\mathbf{b}$."],
     ["Midpoint $M$ of $AB$: $\\overrightarrow{OM}$?", "$\\frac12(\\mathbf{a} + \\mathbf{b})$."],
     ["Point $P$ on $AB$ with $AP : PB = m : n$?", "$\\overrightarrow{OP} = \\mathbf{a} + \\frac{m}{m+n}(\\mathbf{b} - \\mathbf{a})$."],
     ["Unknown point on a line through $C$ in direction $\\overrightarrow{CM}$?", "$\\overrightarrow{OC} + \\lambda\\overrightarrow{CM}$."],
@@ -517,7 +517,7 @@ C["maths:10.5"] = {
     ] }
   ],
   flashcards: [
-    ["Rhombus test (given a parallelogram)?", "Two adjacent sides of equal length.", 1],
+    ["Given a parallelogram, how do you show it is a rhombus?", "Two adjacent sides of equal length.", 1],
     ["Right angle at $Q$ in triangle $PQR$ — test?", "$PQ^2 + QR^2 = PR^2$.", 2],
     ["Area of a rhombus from its diagonals?", "$\\frac12 d_1 d_2$.", 3],
     ["$\\cos ABC$ from three side lengths?", "Cosine rule: $\\cos B = \\frac{AB^2 + BC^2 - AC^2}{2\\cdot AB\\cdot BC}$.", 4],

@@ -352,7 +352,7 @@ C["maths:6.4"] = {
     { callout: { t: "mnemonic", h: "\"Add → times, subtract → divide, coefficient → power\"", body: "The three laws in the direction you use them to combine. Read backwards to split." } }
   ],
   flashcards: [
-    ["Three log laws?", "$\\log xy = \\log x + \\log y$; $\\log\\frac xy = \\log x - \\log y$; $\\log x^k = k\\log x$."],
+    ["State the three laws of logarithms.", "$\\log xy = \\log x + \\log y$; $\\log\\frac xy = \\log x - \\log y$; $\\log x^k = k\\log x$."],
     ["Is $\\log(a - b) = \\log a - \\log b$?", "No — the difference of logs is the log of the quotient."],
     ["Solve $2\\log_3(x+1) = 1 + \\log_3(x+7)$.", "$(x+1)^2 = 3(x+7)$, $x = 5$ ($-4$ rejected)."],
     ["Solve $2\\log_4(2 - x) - \\log_4(x + 5) = 1$.", "$(2-x)^2 = 4(x+5)$, $x = 4 - 4\\sqrt2$ (need $x < 2$)."],

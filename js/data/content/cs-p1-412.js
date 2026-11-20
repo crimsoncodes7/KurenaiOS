@@ -260,7 +260,7 @@ C["compsci:4.1.2.2"] = {
     ["What is stepwise refinement?", "Repeatedly adding detail to each part of a design until it can be coded."],
     ["Hierarchy chart — a box?", "A subroutine (procedure/function/method/module).", 4],
     ["When is a hierarchy chart drawn?", "During the design stage.", 5],
-    ["Does a hierarchy chart show loops or decisions?", "No — only the structure of calls.", 6],
+    ["Does a hierarchy chart show loops or decisions?", "No — it shows only which modules call which; loops and decisions belong in a flowchart or pseudo-code.", 6],
     ["Three advantages of the structured approach?", "Overview/easier to understand; reuse; modules tested independently (also team working, maintenance).", 7],
     ["Name the three control structures.", "Sequence, selection, iteration.", 8]
   ],

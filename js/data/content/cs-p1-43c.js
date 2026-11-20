@@ -165,7 +165,7 @@ C["compsci:4.3.5.1"] = {
     ["What is the second standard improvement to bubble sort?", "Reduce the inner loop's upper limit by 1 each pass.", 5],
     ["What is 3 5 8 1 6 4 after one bubble sort pass?", "3 5 1 6 4 8.", 6],
     ["How much extra memory does bubble sort need?", "O(1) — it sorts in place (one Temp).", 8],
-    ["Is bubble sort tractable?", "Yes — polynomial time.", 9]
+    ["Why is bubble sort a tractable algorithm?", "It runs in polynomial time — O(n²) — and a problem solvable in polynomial time is tractable.", 9]
   ],
   quiz: [
     { q: "After pass 2 of a bubble sort on 3 5 8 1 6 4 the list is", opts: ["3 1 5 4 6 8", "1 3 4 5 6 8", "3 5 1 6 4 8", "1 3 5 8 4 6"], ans: 0, why: "A-level 2021 Q01." },
@@ -439,7 +439,7 @@ C["compsci:4.3.6.1"] = {
   flashcards: [
     ["What does relaxing an edge mean in Dijkstra's algorithm?", "If D[U] + weight < D[V], set D[V] to it and P[V] ← U.", 2],
     ["What does array P hold?", "The previous node on the shortest path to each node — used to rebuild the route.", 4],
-    ["Does Dijkstra work with negative weights?", "No.", 7],
+    ["Why can Dijkstra's algorithm fail with negative edge weights?", "It fixes a vertex's distance once the vertex is visited; a negative edge found later could still make that distance shorter.", 7],
     ["Give some applications of Dijkstra's algorithm.", "Sat-nav route planning, network routing, logistics, game path-finding.", 8]
   ],
   quiz: [

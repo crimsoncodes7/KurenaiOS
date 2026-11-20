@@ -125,7 +125,7 @@ C["compsci:4.3.1.1"] = {
     ["What is a typical application of depth-first search?", "Navigating a maze.", 3],
     ["Traversal used by a recursive cycle finder G(V, P)?", "Depth-first.", 6],
     ["Why mark vertices visited?", "To avoid processing a vertex twice and looping forever round a cycle.", 7],
-    ["Does BFS find the shortest path in a weighted graph?", "No — use Dijkstra's algorithm.", 8]
+    ["Does BFS find the shortest path in a weighted graph?", "No — BFS finds the fewest edges, ignoring weights; use Dijkstra's algorithm for the least total weight.", 8]
   ],
   quiz: [
     { q: "Which traversal visits all neighbours before going deeper?", opts: ["breadth-first", "depth-first", "in-order", "post-order"], ans: 0, why: "Breadth-first search visits all neighbours at one level before going deeper, using a queue." },

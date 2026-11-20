@@ -182,7 +182,7 @@ X("compsci:4.10.5", {
     ["What is a client–server database?", "A DBMS running on a server that many clients access over a network, with the server managing the data, integrity, security and concurrent access.", 10],
     ["Describe the lost update problem.", "Two users read and edit the same record at the same time; one saves, then the other saves — the second save overwrites the first, so the first update is lost.", 11],
     ["Describe record locking.", "When a transaction begins to edit a record, an exclusive lock is set on that record; other transactions cannot edit it until the lock is released when the first edit is completed.", 12],
-    ["Describe timestamp ordering.", "Each transaction is given a timestamp; every record stores the timestamps of its last read and write; the DBMS aborts any transaction that would read or write a record already read or written by a later transaction.", 13],
+    ["Describe timestamp ordering.", "Every transaction gets a timestamp; each record keeps its last read and write timestamps; the DBMS aborts a transaction that would read or write a record a later transaction has already read or written.", 13],
     ["Give one disadvantage of record locking.", "A record can be locked for a long time, blocking other users; deadlock can occur if two transactions each wait for the other's lock.", 16],
     ["Give one advantage of a client–server DBMS over shared files.", "Central control of integrity, security and concurrent access; consistent data for all clients.", 17]
   ],

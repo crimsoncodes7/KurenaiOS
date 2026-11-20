@@ -198,7 +198,7 @@ X("compsci:4.9.2.3", {
     ["What is the role of WPA2?", "It encrypts data transmitted over the wireless network so that intercepted transmissions cannot be read by unauthorised devices.", 12],
     ["How does a MAC address white list work?", "Each network interface card has a unique MAC address; the access point only allows devices whose MAC address is on the approved list to connect.", 13],
     ["Why is MAC filtering unsuitable for a coffee shop?", "Customers should be able to connect freely; maintaining the list is time-consuming and needs technical knowledge; customers may have several devices.", 14],
-    ["Describe CSMA/CA with RTS/CTS.", "The transmitter checks the channel is idle (waiting if busy), sends a Request To Send; the access point replies Clear To Send; the data is transmitted; the receiver acknowledges; if no CTS or ACK arrives the sender waits a random time and retries.", 15],
+    ["Describe CSMA/CA with RTS/CTS.", "Listen until the channel is idle; send Request To Send; the access point replies Clear To Send; transmit; the receiver sends an ACK. No CTS or ACK: wait a random time and retry.", 15],
     ["Why is collision avoidance used in wireless rather than collision detection?", "A wireless device cannot transmit and listen at the same time, and the hidden-node problem means it may not hear another station's transmission.", 16],
     ["What hardware does a device need to join a wireless network?", "A wireless network interface card (adapter); the network needs a wireless access point.", 17],
     ["What is the hidden node problem and how does RTS/CTS help?", "Two stations out of range of each other can both reach the access point and collide; the CTS from the access point is heard by all, reserving the channel.", 18],
@@ -244,7 +244,7 @@ X("compsci:4.9.3.1", {
     ]}
   ],
   flashcards: [
-    ["Describe how DNS works.", "DNS servers hold tables of domain names and IP addresses; the system is distributed and hierarchical — if a server cannot resolve a name it passes the query to another (higher) server; the answer is returned to the client.", 12],
+    ["Describe how DNS works.", "DNS servers hold tables of domain names and IP addresses; a server that cannot resolve a name passes the query to another, higher one; the IP address is returned to the client.", 12],
     ["What is the role of a router in packet switching?", "Reads the destination IP address, chooses the best next hop from its routing table, forwards the packet, and updates routes to reflect congestion or failures.", 14],
     ["What is a gateway?", "A device connecting two networks that use different protocols, converting between them.", 15],
     ["Name four fields in a packet besides the payload and IP addresses.", "Source/destination port numbers, sequence number, time to live (hop limit), checksum.", 17],
@@ -293,7 +293,7 @@ X("compsci:4.9.3.2", {
     ]}
   ],
   flashcards: [
-    ["Describe four ways a firewall protects a LAN.", "Blocks/allows traffic on specific ports or protocols; blocks traffic from specific IP addresses; blocks certain packet types; stateful inspection admits only packets that belong to current connections; acts as a proxy so outside hosts cannot reach LAN devices directly.", 10],
+    ["Describe four ways a firewall protects a LAN.", "Blocks or allows traffic by port or protocol; blocks given IP addresses; blocks certain packet types; stateful inspection admits only packets from current connections; acting as a proxy, it hides LAN devices.", 10],
     ["What is stateful inspection?", "The firewall keeps information about current connections and only lets through packets that are part of one.", 11],
     ["Describe how a digital signature is created and attached.", "A hash (digest) of the message is calculated and encrypted with the sender's private key to form the signature; it is appended, and message plus signature are encrypted with the receiver's public key.", 13],
     ["Describe how a digital signature is verified.", "The receiver decrypts with their private key, re-hashes the message, decrypts the signature with the sender's public key, and compares the two digests — a match authenticates the sender and confirms integrity.", 14],

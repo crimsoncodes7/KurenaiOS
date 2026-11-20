@@ -445,11 +445,11 @@ C["maths:M7.1"] = {
     ] } }
   ],
   flashcards: [
-    ["Displacement vs distance?", "Displacement is the change in position (signed); distance is the total path length (never negative)."],
+    ["How does displacement differ from distance?", "Displacement is the change in position (signed); distance is the total path length (never negative)."],
     ["When are distance and |displacement| equal?", "When the object never turns round.", 2],
     ["Where can an object change direction?", "Where its velocity is zero.", 3],
     ["Average velocity of a round trip?", "Zero — the displacement is zero.", 4],
-    ["Average speed?", "Total distance ÷ total time.", 5],
+    ["How is average speed calculated?", "Total distance ÷ total time.", 5],
     ["\"Speed at most 24.5\" in velocities?", "$-24.5 \\le v \\le 24.5$.", 6],
     ["A deceleration of 3 m s$^{-2}$ as an acceleration?", "$-3$ m s$^{-2}$ (against the motion).", 7],
     ["Distance from $O$ of $(5\\mathbf i + 12\\mathbf j)$ m?", "13 m.", 8],
@@ -954,7 +954,7 @@ C["maths:M7.3"] = {
     ] } }
   ],
   flashcards: [
-    ["Five suvat equations?", "$v = u + at$; $s = \\frac12(u + v)t$; $s = ut + \\frac12 at^2$; $s = vt - \\frac12 at^2$; $v^2 = u^2 + 2as$."],
+    ["State the five suvat equations.", "$v = u + at$; $s = \\frac12(u + v)t$; $s = ut + \\frac12 at^2$; $s = vt - \\frac12 at^2$; $v^2 = u^2 + 2as$."],
     ["Which equation has no $t$?", "$v^2 = u^2 + 2as$."],
     ["Which equation has no $u$?", "$s = vt - \\frac12 at^2$."],
     ["How is $v = u + at$ derived?", "From the gradient of the velocity-time graph."],
@@ -963,7 +963,7 @@ C["maths:M7.3"] = {
     ["Velocity at the top of a vertical throw?", "Zero."],
     ["Ball thrown up at $u$: time to the top?", "$u / g$."],
     ["Greatest height above the start of a ball thrown up at $u$?", "$u^2 / (2g)$."],
-    ["Vector suvat equations?", "$\\mathbf v = \\mathbf u + \\mathbf a t$, $\\mathbf r = \\mathbf r_0 + \\mathbf u t + \\frac12 \\mathbf a t^2$."],
+    ["State the vector suvat equations.", "$\\mathbf v = \\mathbf u + \\mathbf a t$, $\\mathbf r = \\mathbf r_0 + \\mathbf u t + \\frac12 \\mathbf a t^2$."],
     ["Condition for moving north-east?", "$v_x = v_y$, both positive."],
     ["Condition for moving parallel to $\\mathbf j$?", "$v_x = 0$."]
   ],

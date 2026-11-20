@@ -264,19 +264,19 @@ C["maths:S5.1"] = {
     { callout: { t: "mnemonic", h: "\"Hypotheses, model, probability, compare, context\"", body: "The five moves of every test, each worth a mark." } }
   ],
   flashcards: [
-    ["Null hypothesis?", "The assumed claim of no change, with \"=\": e.g. $H_0: p = 0.15$."],
+    ["What is the null hypothesis?", "The assumed claim of no change, with \"=\": e.g. $H_0: p = 0.15$."],
     ["Alternative hypothesis — one- vs two-tailed?", "$>$ or $<$ is one-tailed; $\\ne$ is two-tailed."],
-    ["Significance level means…", "The probability of incorrectly rejecting $H_0$ (when it is true)."],
-    ["Critical region?", "The values of the test statistic that lead to rejecting $H_0$."],
-    ["p-value?", "The probability, under $H_0$, of a result at least as extreme as the observed one."],
+    ["What does the significance level mean?", "The probability of incorrectly rejecting $H_0$ (when it is true)."],
+    ["What is the critical region?", "The values of the test statistic that lead to rejecting $H_0$."],
+    ["What is a p-value?", "The probability, under $H_0$, of a result at least as extreme as the observed one."],
     ["$B(30, 0.15)$, upper 5% CR?", "$X \\ge 9$ ($P = 0.0278$; $P(X \\ge 8) = 0.0698$).", 6],
     ["$B(50, 0.25)$ two-tailed 5%, tails closest to 2.5%?", "$X \\le 6$ (0.0194) or $X \\ge 19$ (0.0287).", 7],
     ["$B(40, 0.1)$ two-tailed 5%?", "$X = 0$ (0.0148) or $X \\ge 9$ (0.0155); actual 0.0303.", 8],
-    ["PMCC test hypotheses?", "$H_0: \\rho = 0$; $H_1: \\rho > 0$, $< 0$ or $\\ne 0$.", 9],
+    ["What are the hypotheses for a PMCC test?", "$H_0: \\rho = 0$; $H_1: \\rho > 0$, $< 0$ or $\\ne 0$.", 9],
     ["Critical value: $n = 16$, 5% one-tail?", "0.4259.", 10],
     ["Critical value: $n = 30$, 5% two-tail?", "0.3610 (the 2.5% column).", 11],
     ["$r = -0.510$, $n = 10$, $H_1: \\rho < 0$ at 5%?", "Not significant (cv −0.5494).", 12],
-    ["Given p-value 0.015 at 5%?", "Significant: reject $H_0$.", 13],
+    ["A test at 5% gives a p-value of 0.015. What do you conclude?", "Significant: reject $H_0$.", 13],
     ["Which tail for a two-tailed binomial test?", "Compare the observed value with $np$.", 14]
   ],
   quiz: [
