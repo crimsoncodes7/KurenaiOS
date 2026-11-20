@@ -504,7 +504,7 @@
     var cur = A().title(), f = "all", sel = (cur && cur.id) || null;
     var ok = all.filter(function (x) { return x.t.unlocked; }).length;
     var grid = el("div", { class: "k-ach-plaques", "data-ui": "ach.titles", role: "group", "aria-label": "Titles" });
-    var side = el("aside", { class: "k-card k-ach-tdetail", "data-ui": "ach.title-detail", "aria-live": "polite" });
+    var side = el("aside", { class: "k-card k-ach-tdetail", "data-ui": "ach.title-detail", "aria-live": "polite", tabindex: "-1" });
     var seg = KOS.ui.tabs([["all", "All"], ["unlocked", "Unlocked"], ["locked", "Locked"]].map(function (x) {
       return { label: x[1], active: x[0] === f, onSelect: function () { f = x[0]; paint(); } };
     }), { variant: "workspace", label: "Show titles", className: "k-seg--quiet" });
@@ -513,19 +513,29 @@
       el("span", { class: "k-spacer" }), seg, el("span", { class: "k-muted k-ach-sortnote", text: "Nearest first" })
     ]));
     body.appendChild(el("div", { class: "k-ach-titlelay" }, [grid, side]));
-    function paint() {
+    function paint(fromTap) {
       cur = A().title();
       var rows = all.filter(function (x) { return f === "all" || (f === "unlocked") === x.t.unlocked; })
         .sort(function (a, b) { return (b.t.unlocked - a.t.unlocked) || (b.p - a.p) || (a.t.name < b.t.name ? -1 : 1); });
       grid.textContent = "";
+      var selBtn = null;
       rows.forEach(function (x) {
         var b = plaque(x, { selected: x.t.id === sel, equipped: cur && cur.id === x.t.id });
-        b.addEventListener("click", function () { sel = x.t.id; paint(); });
+        b.addEventListener("click", function () { sel = x.t.id; paint(true); });
+        if (x.t.id === sel) selBtn = b;
         grid.appendChild(b);
       });
       if (!rows.length) grid.appendChild(KOS.ui.emptyState({ compact: true, body: f === "unlocked" ? "No title unlocked yet." : "Every title is unlocked." }));
       if (!sel && rows[0]) { sel = rows[0].t.id; grid.firstChild.setAttribute("aria-pressed", "true"); }
       detail(all.filter(function (x) { return x.t.id === sel; })[0]);
+      if (fromTap) {
+        var r = side.getBoundingClientRect();
+        if (window.innerWidth <= 1080 || r.top < 0 || r.bottom > window.innerHeight) {
+          var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+          if (side.scrollIntoView) side.scrollIntoView({ behavior: reduce ? "auto" : "smooth", block: "nearest" });
+          side.focus({ preventScroll: true });
+        } else if (selBtn) selBtn.focus();
+      }
     }
     function detail(x) {
       side.textContent = "";
