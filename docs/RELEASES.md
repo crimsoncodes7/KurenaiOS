@@ -15,7 +15,24 @@ the service-worker version). Git holds the rest.
   `5bece3e`). `ai-chat` is deployed as version 6 (images for Gemini, 26 October 2026); the
   `kos_reports` migration `20261012000001` is applied; so is `kos_money`
   (`20261019000001`, 19 October 2026), live since the Money and Goals release.
-- Latest release: sw `kos-integrity-23` (19 November 2026,
+- Latest release: sw `kos-qol-1` (20 November 2026, `feat/qol-1a` into
+  main; immutable URL IMMUTABLE_URL): the QoL review's batches 1A and 1B,
+  with Neon's batches 1 and 2. 1A: Due today measured per subject and by
+  time on a plan row; review counts from the review log; the Writing Desk
+  draft kept on close; the toast queue with stacked Undo and ⌘Z; a cloud
+  pull taken in place (no stale copies); random ids for assignments,
+  reminders, lists, steps and events, the Assistant's tools taking either;
+  one "what changed" report after a restore or a first link, with
+  "Download a copy of this device first"; Money's typed entry matched to
+  its statement row, and the Bookkeeper counting distinct entries. 1B: F201
+  practice papers 2 and 3; Maths' seven thin Pure leaves deepened; CS's
+  thin leaves and quiz top-ups; the flashcard pass with its checker
+  (`tools/card_lint.mjs`); one shape for exam source labels; worked totals,
+  tariff counts and "Q5 of 17". Boot: the sample account, Creatives' pages
+  and Data load on first use (budget 7.78 MB). The server-function
+  clean-ups (EF-01 to EF-08) are in the code, not deployed. Gate 179
+  (180–197).
+- Before it: sw `kos-integrity-23` (19 November 2026,
   `feat/w1w7-rest` into main; immutable https://62721e6a.kurenai-os.pages.dev;
   the `runner` Edge Function deployed as version 10 the same day): the rest
   of the quality audit's W1 (a restore replaces handwriting and files, one

@@ -1641,7 +1641,12 @@ and card treatment, and art where it helps — built on the role tokens
 (invariant 26a) so every page and Dawn's rules still hold. Fewer, better
 themes; priced in the shop again once they exist.
 
-### 5.21 A flashcard quality pass (asked for 16 November 2026) — BACKLOG
+### 5.21 A flashcard quality pass (asked for 16 November 2026) — RELEASED 20 November 2026 (1B, sw `kos-qol-1`)
+
+> `tools/card_lint.mjs` (smoke197) flags label fronts, bare yes/no backs, backs over 35 words and CS
+> calculations; every CS, Maths and IT card passes. About 500 cards rewritten in place under their keys; 45 CS
+> calculations moved to the quiz (`qk` 150+) with the later cards pinned.
+
 
 Many cards don't say what they want recalled, or recall nothing worth
 having. A card is fixed in place (its schedule key kept, invariant 87),
@@ -1670,7 +1675,7 @@ cards; a first scan flagged about 180 bare prompts and 44 yes/no answers):
   should flag bare prompts, bare yes/no answers and over-long answers, as
   `tools/quiz_bias.mjs` does for quiz options.
 
-### 5.22 F201 practice papers 2 and 3 (the Exams & Papers rework §10) — BUILT 20 November 2026 (1B, `feat/qol-1a`)
+### 5.22 F201 practice papers 2 and 3 (the Exams & Papers rework §10) — RELEASED 20 November 2026 (1B, sw `kos-qol-1`)
 
 > Paper 2 (Calderford City Council, a smart city) and paper 3 (Freshway, a
 > supermarket chain), each to the SAM's blueprint; with paper 1 the three
