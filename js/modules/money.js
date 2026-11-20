@@ -1673,7 +1673,7 @@
     M.yearSummary(first, function (err, months) {
       if (err) { failed(page); return; }
       var top = 1, planner = M.data().migratedFrom || null;
-      months.forEach(function (s) { if (s.outgoings > top) top = s.outgoings; });
+      months.forEach(function (s) { if (s.outgoings > top) top = s.outgoings; if (s.income > top) top = s.income; });
       var any = months.filter(function (s) { return s.count; });
       var curKey = M.periodKey(now);
       var strip = el("div", { class: "k-mn-year", "data-ui": "money.year", role: "list", "aria-label": "Outgoings by month" }, months.map(function (s) {
@@ -1683,18 +1683,21 @@
           "aria-label": monthLabel(s.key) + (s.count ? ", out " + (said(s.outgoings) || "") + (s.income ? ", in " + (said(s.income) || "") : "") : ", nothing recorded"),
           onclick: function () { visit.monthMode = "month"; visit.monthKey = s.key; redraw(); } }, [
           el("span", { class: "k-mono k-mn-yfig", text: s.outgoings ? (said(s.outgoings, { whole: true }) || "") : "·" }),
-          el("span", { class: "k-mn-ybar" }),
-          s.income ? el("span", { class: "k-mn-yin", "aria-hidden": "true" }) : null,
+          el("span", { class: "k-mn-ybars", "aria-hidden": "true" }, [
+            el("span", { class: "k-mn-ybar", "data-ui": "money.year-out" }),
+            el("span", { class: "k-mn-yin", "data-ui": "money.year-in", "data-state": s.income ? "has" : null })
+          ]),
           el("span", { class: "k-mn-ylabel", text: monthName(s.key).slice(0, 3) })].filter(Boolean));
         b.style.setProperty("--hv", s.outgoings ? Math.max(0.03, s.outgoings / top).toFixed(3) : "0.01");
+        b.style.setProperty("--hi", s.income ? Math.max(0.03, s.income / top).toFixed(3) : "0");
         return b;
       }));
       var empty = months.filter(function (s) { return !s.count; }).map(function (s) { return monthName(s.key); });
-      page.appendChild(card([head("Outgoings by month", "income where it was recorded, as the dashed line"), any.length < 3 && any.length ? el("p", { class: "k-muted k-mn-small", text: "More months appear as they finish." }) : null, strip,
+      page.appendChild(card([head("Outgoings by month", "outgoings and income on one scale"), any.length < 3 && any.length ? el("p", { class: "k-muted k-mn-small", text: "More months appear as they finish." }) : null, strip,
         el("ul", { class: "k-legend k-mn-legend" }, [
           el("li", { class: "k-legend-item" }, [el("span", { class: "k-mn-key", "data-k": "coll" }), "Collection only · from the Budget Planner"]),
           el("li", { class: "k-legend-item" }, [el("span", { class: "k-mn-key", "data-k": "full" }), "Everything"]),
-          el("li", { class: "k-legend-item" }, [el("span", { class: "k-mn-key", "data-k": "in" }), "Income recorded"]),
+          el("li", { class: "k-legend-item" }, [el("span", { class: "k-mn-key", "data-k": "in" }), "Income"]),
           el("li", { class: "k-legend-item" }, [el("span", { class: "k-mn-key", "data-k": "now" }), monthName(curKey) + " so far"]),
           empty.length && empty.length < 12 ? el("li", { class: "k-legend-item k-mn-legend-end", text: empty.slice(0, 3).join(", ") + (empty.length > 3 ? " and " + (empty.length - 3) + " more" : "") + ": nothing recorded" }) : null].filter(Boolean))].filter(Boolean), "", "money.year-card"));
       var full = months.filter(function (s) { return s.count && s.key !== curKey; });

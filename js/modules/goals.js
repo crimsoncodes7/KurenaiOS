@@ -531,15 +531,15 @@
         el("div", { class: "k-gl-inline" }, [el("span", { class: "k-gl-strong k-gl-grow", text: g.title }), U.paceChip("missed")]),
         el("p", { class: "k-muted k-gl-small", text: (g.deadline ? MONTHS[parse(g.deadline).getMonth()] + " · " : "") + word(g, g._current) + " of " + word(g, g._target) + (g.deadline ? " by " + shortDate(g.deadline) : "") }),
         el("div", { class: "k-gl-actions" }, [
-          btn("Restart for " + MONTHS[new Date().getMonth()], "k-btn--sm", function () { restart(g); }, "goal.restart"),
+          btn("Restart", "k-btn--sm", function () { restart(g); }, "goal.restart"),
           btn("Archive", "k-btn--sm k-btn--quiet", function () { G.archive(g.id, true); announce("Archived · " + g.title); redraw(); }, "goal.archive")])]);
     })), "", "goal.missed-card");
   }
   function restart(g) {
-    var patch = {};
-    if (g.deadline) { var span = Math.max(1, between(g.startDate, g.deadline)); patch.deadline = addDays(today(), span); }
+    var patch = {}, start = today();
+    if (g.deadline) { var span = Math.max(1, between(g.startDate, g.deadline)); patch.deadline = addDays(start, span); }
     G.restart(g.id, patch);
-    announce(g.title + " restarted for " + MONTHS[new Date().getMonth()]);
+    U.toast(g.title + " restarted" + (patch.deadline ? " · " + shortDate(start) + " – " + shortDate(patch.deadline) : " from " + shortDate(start)));
     redraw();
   }
   /* Done: met, missed, archived — kept for history */
