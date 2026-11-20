@@ -33,14 +33,14 @@ X("compsci:4.5.2.1", {
     { qk: "156", q: "Hex 2A in binary is:", opts: ["0010 1011", "1010 0010", "0010 1010", "0010 0110"], ans: 2, why: "Each hex digit is one nibble: 2 = 0010 and A (10) = 1010." }
   ],
   exam: [
-    { level: "AS", src: "AS 2019 P2 Q2", ctx: "A memory location holds the bit pattern `1101 0110`.",
+    { level: "AS", src: "AQA 2019 · P2 Q02", ctx: "A memory location holds the bit pattern `1101 0110`.",
       parts: [
         { q: "Write the bit pattern as a hexadecimal number.", marks: 1, ms: ["D6 (1)"] },
         { q: "Explain why programmers often use hexadecimal rather than binary when writing down bit patterns.", marks: 2, ms: ["Hexadecimal is shorter / easier for humans to read, write and remember and less prone to error (1)", "Because each hex digit corresponds to exactly four bits, conversion between the two is simple (1)"] }
       ] },
-    { src: "AQA 2022 P2 Q1.1", q: "Convert the binary number `1 0111 1010` to hexadecimal, showing your method.", marks: 2,
+    { src: "AQA 2022 · P2 Q01.1", q: "Convert the binary number `1 0111 1010` to hexadecimal, showing your method.", marks: 2,
       ms: ["Grouped into nibbles from the right: 0001 0111 1010 (1)", "17A (1)"] },
-    { level: "AS", src: "AS 2018 P2 Q2.2", q: "Add the hexadecimal numbers `2B` and `19`, showing your working in binary, and give the answer in hexadecimal.", marks: 2,
+    { level: "AS", src: "AQA 2018 · P2 Q02.2", q: "Add the hexadecimal numbers `2B` and `19`, showing your working in binary, and give the answer in hexadecimal.", marks: 2,
       ms: ["0010 1011 + 0001 1001 = 0100 0100 (1)", "44 (1)"] }
   ]
 });
@@ -71,13 +71,13 @@ X("compsci:4.5.4.3", {
     { qk: "153", q: "18 − 72 worked in 8-bit two's complement (00010010 + 10111000) gives:", opts: ["00110110", "11001010", "10110110", "11011010"], ans: 1, why: "Add 18 to −72: 00010010 + 10111000 = 11001010, which is −54. (00110110 is +54.)" }
   ],
   exam: [
-    { level: "AS", src: "AS 2025 P2 Q2.5", q: "Using 8-bit two's complement, calculate `00101101 − 01001100` (45 − 76). Show the two's complement of the subtrahend, the addition, and the result in denary.", marks: 3,
+    { level: "AS", src: "AQA 2025 · P2 Q02.5", q: "Using 8-bit two's complement, calculate `00101101 − 01001100` (45 − 76). Show the two's complement of the subtrahend, the addition, and the result in denary.", marks: 3,
       ms: ["Two's complement of 01001100 is 10110100 (1)", "00101101 + 10110100 = 11100001 (carry ignored) (1)", "= −31 (1)"] },
-    { level: "AS", src: "AS 2023 P2 Q3.4", q: "State the range of denary values that can be represented by an 8-bit two's complement integer.", marks: 1,
+    { level: "AS", src: "AQA 2023 · P2 Q03.4", q: "State the range of denary values that can be represented by an 8-bit two's complement integer.", marks: 1,
       ms: ["−128 to +127 (1)"] },
-    { src: "AQA 2022 P2 Q5.1", q: "Convert the two's complement value `11001101` to denary, showing your method.", marks: 2,
+    { src: "AQA 2022 · P2 Q05.1", q: "Convert the two's complement value `11001101` to denary, showing your method.", marks: 2,
       ms: ["−128 + 64 + 8 + 4 + 1 (or flip and add 1 to get 00110011 = 51, so negative) (1)", "−51 (1)"] },
-    { level: "AS", src: "AS 2018 P2 Q2.3", q: "State, in denary, the most negative value that can be represented using 12-bit two's complement, and give its bit pattern.", marks: 2,
+    { level: "AS", src: "AQA 2018 · P2 Q02.3", q: "State, in denary, the most negative value that can be represented using 12-bit two's complement, and give its bit pattern.", marks: 2,
       ms: ["−2048 (1)", "100000000000 (1)"] }
   ]
 });
@@ -125,25 +125,25 @@ X("compsci:4.5.4.4", {
     { qk: "160", q: "6.34375 in fixed point binary with 5 fraction bits is:", opts: ["110.01101", "110.10110", "110.01011", "101.01011"], ans: 2, why: "6 = 110 and 0.34375 = ¼ + 1/16 + 1/32 = .01011, so 110.01011." }
   ],
   exam: [
-    { src: "AQA 2023 P2 Q6", ctx: "A floating point system uses an 8-bit two's complement mantissa and a 4-bit two's complement exponent.",
+    { src: "AQA 2023 · P2 Q06", ctx: "A floating point system uses an 8-bit two's complement mantissa and a 4-bit two's complement exponent.",
       parts: [
         { q: "Calculate the denary value of mantissa `01101000`, exponent `1101`. Show your working.", marks: 2, ms: ["Mantissa = 0.8125 (13/16), exponent = −3 / binary point shifted 3 places left (1)", "0.1015625 (13/128) (1)"] },
         { q: "Represent −23.25 in this format, normalised. Show your working.", marks: 3, ms: ["23.25 = 10111.01 in fixed point binary (1)", "−23.25 = 101000.11 in two's complement / exponent is 5 (0101) as the point moves 5 places (1)", "Mantissa 10100011, exponent 0101 (1)"] },
         { q: "Name the type of error in each case: (i) a result so close to zero that it is stored as zero; (ii) a result too large to fit the available bits; (iii) a denary value that cannot be represented exactly.", marks: 2, ms: ["(i) underflow, (ii) overflow (1)", "(iii) rounding (accept truncation) — all three correct for 2 marks (1)"] },
         { q: "The 12 bits are to be reallocated to improve precision. Describe one way this could be done.", marks: 1, ms: ["Move one or more bits from the exponent to the mantissa (e.g. 9-bit mantissa, 3-bit exponent) / use an implicit bit in the mantissa (1)"] }
       ] },
-    { src: "AQA 2024 P2 Q4", ctx: "Same format: 8-bit mantissa, 4-bit exponent, both two's complement.",
+    { src: "AQA 2024 · P2 Q04", ctx: "Same format: 8-bit mantissa, 4-bit exponent, both two's complement.",
       parts: [
         { q: "State the closest representation of 12.765625 in this system, showing your working.", marks: 3, ms: ["12.765625 = 1100.110001 in binary (1)", "Rounded/truncated to 7 significant bits: 1100.110; exponent 4 (0100) (1)", "Mantissa 01100110, exponent 0100 (1)"] },
         { q: "State how many additional mantissa bits would be needed to represent 12.765625 exactly.", marks: 1, ms: ["3 (1)"] },
         { q: "Calculate the most negative number the system can represent.", marks: 2, ms: ["Mantissa 10000000 (−1) with exponent 0111 (7) (1)", "−2⁷ = −128 (1)"] },
         { q: "State which of the following are true: (A) fixed point arithmetic is usually faster; (B) fixed point uses a mantissa and exponent; (C) in a given number of bits fixed point can represent positive numbers closer to zero than floating point; (D) fixed point can represent some numbers more precisely; (E) floating point has a bigger range in the same bits.", marks: 2, ms: ["A, D, E true (1)", "B, C false — all five correct for 2 marks (1)"] }
       ] },
-    { src: "AQA 2020 P2 Q2.4", q: "A floating point system has a 7-bit two's complement mantissa and a 5-bit two's complement exponent. Calculate the highest and lowest values it can represent, showing your working.", marks: 3,
+    { src: "AQA 2020 · P2 Q02.4", q: "A floating point system has a 7-bit two's complement mantissa and a 5-bit two's complement exponent. Calculate the highest and lowest values it can represent, showing your working.", marks: 3,
       ms: ["Highest: mantissa 0.111111 (63/64) with exponent 01111 (15) (1)", "= 0.984375 × 2¹⁵ = 32 256 (1)", "Lowest: mantissa 1.000000 (−1) with exponent 01111 = −2¹⁵ = −32 768 (1)"] },
-    { src: "AQA 2019 P2 Q11.4", q: "A program multiplies two large floating point numbers and the result cannot be stored. Name the problem and describe how the number format could be changed to avoid it.", marks: 3,
+    { src: "AQA 2019 · P2 Q11.4", q: "A program multiplies two large floating point numbers and the result cannot be stored. Name the problem and describe how the number format could be changed to avoid it.", marks: 3,
       ms: ["Overflow — the exponent needed is larger than the available exponent bits can hold (1)", "Increase the number of bits allocated to the exponent (1)", "e.g. by reallocating bits from the mantissa to the exponent (at the cost of precision) (1)"] },
-    { level: "AS", src: "AS 2020 P2 Q2.2", q: "Represent 6.34375 in fixed point binary using 3 bits for the integer part and 5 bits for the fractional part.", marks: 2,
+    { level: "AS", src: "AQA 2020 · P2 Q02.2", q: "Represent 6.34375 in fixed point binary using 3 bits for the integer part and 5 bits for the fractional part.", marks: 2,
       ms: ["Integer part 110 (1)", "Fractional part .01011 (0.25 + 0.0625 + 0.03125) (1)"] }
   ]
 });
@@ -168,9 +168,9 @@ X("compsci:4.5.4.7", {
     { q: "Fixed point with 4 fraction bits has absolute precision:", opts: ["1/16 everywhere", "varying with magnitude", "1/4", "unlimited"], ans: 0, why: "Constant absolute precision." }
   ],
   exam: [
-    { src: "AQA 2019 P2 Q11.1", q: "A floating point system uses an 8-bit two's complement mantissa and a 4-bit two's complement exponent. Calculate the smallest positive number it can represent, showing your working.", marks: 2,
+    { src: "AQA 2019 · P2 Q11.1", q: "A floating point system uses an 8-bit two's complement mantissa and a 4-bit two's complement exponent. Calculate the smallest positive number it can represent, showing your working.", marks: 2,
       ms: ["Mantissa 01000000 (0.5) with exponent 1000 (−8) (1)", "0.5 × 2⁻⁸ = 1/512 = 0.001953125 (1)"] },
-    { src: "AQA 2023 P2 Q6.4", q: "A 12-bit floating point format is changed so that the exponent has 2 bits fewer and the mantissa 2 bits more. Describe the effect on the numbers that can be represented.", marks: 2,
+    { src: "AQA 2023 · P2 Q06.4", q: "A 12-bit floating point format is changed so that the exponent has 2 bits fewer and the mantissa 2 bits more. Describe the effect on the numbers that can be represented.", marks: 2,
       ms: ["The range of numbers is reduced (largest magnitude smaller; cannot get as close to zero) (1)", "The precision is increased — more significant bits, so values are represented more accurately (1)"] }
   ]
 });
@@ -199,13 +199,13 @@ X("compsci:4.5.4.8", {
     { qk: "154", q: "0.0011 × 2⁵ normalised is:", opts: ["0.11 × 2⁷", "0.0011 × 2³", "0.11 × 2³", "1.1 × 2²"], ans: 2, why: "Shift the point right 2 places so the mantissa starts 0.1, and subtract 2 from the exponent: 0.11 × 2³." }
   ],
   exam: [
-    { src: "AQA 2025 P2 Q12", ctx: "Four bit patterns in an 8-bit mantissa / 4-bit exponent system: A = 01101000 0011, B = 00110100 0100, C = 10000000 0111, D = 10110000 0010.",
+    { src: "AQA 2025 · P2 Q12", ctx: "Four bit patterns in an 8-bit mantissa / 4-bit exponent system: A = 01101000 0011, B = 00110100 0100, C = 10000000 0111, D = 10110000 0010.",
       parts: [
         { q: "State which pattern is not normalised.", marks: 1, ms: ["B — the mantissa begins 00 (1)"] },
         { q: "State which pattern represents the most negative normalised value.", marks: 1, ms: ["C (1)"] },
         { q: "Explain why floating point numbers are stored in normalised form.", marks: 1, ms: ["It maximises precision for a given number of bits / gives each number a unique representation (1)"] }
       ] },
-    { src: "AQA 2022 P2 Q5.2", q: "Explain two reasons why floating point numbers are stored in normalised form.", marks: 2,
+    { src: "AQA 2022 · P2 Q05.2", q: "Explain two reasons why floating point numbers are stored in normalised form.", marks: 2,
       ms: ["Maximises the precision / accuracy available for a given number of bits (must reference the number of bits) (1)", "Each number has a unique representation, so testing two numbers for equality is simpler (1)"] }
   ]
 });

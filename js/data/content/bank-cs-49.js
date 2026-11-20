@@ -34,18 +34,18 @@ X("compsci:4.9.1.1", {
     { q: "Parallel transmission is still used:", opts: ["over very short distances, such as inside a chip", "for long cables running between two buildings", "for wireless links between nearby devices", "wherever data skew must be avoided"], ans: 0, why: "Skew is negligible over millimetres." }
   ],
   exam: [
-    { level: "AS", src: "AS 2020 P2 Q10.4", q: "Describe two advantages of serial transmission over parallel transmission, explaining how each advantage arises.", marks: 4,
+    { level: "AS", src: "AQA 2020 · P2 Q10.4", q: "Describe two advantages of serial transmission over parallel transmission, explaining how each advantage arises.", marks: 4,
       ms: ["Cheaper (1) — fewer wires / less complex hardware needed (1)", "No crosstalk (1) — there is only one transmission line so bits cannot interfere (1)", "No data skew (1) — only one bit is transmitted at a time so bits arrive in order (1)", "Usable over longer distances (1) — because skew and crosstalk do not occur (1)", "Max 4 — two advantages with explanations"] },
-    { src: "AQA 2022 P2 Q2", ctx: "A sensor sends readings to a controller using asynchronous serial transmission with one start bit, seven data bits, a parity bit and one stop bit.",
+    { src: "AQA 2022 · P2 Q02", ctx: "A sensor sends readings to a controller using asynchronous serial transmission with one start bit, seven data bits, a parity bit and one stop bit.",
       parts: [
         { q: "Describe how parallel transmission differs from the serial transmission used here.", marks: 2, ms: ["Multiple bits are transmitted simultaneously (1)", "Each bit on a different wire / line (1)"] },
         { q: "State one advantage of using serial rather than parallel transmission for this link.", marks: 1, ms: ["Cheaper wiring / no crosstalk / no data skew / usable over a longer distance (1)"] },
         { q: "State the purpose of the start bit.", marks: 1, ms: ["To start the receiver's clock ticking / synchronise the receiver's clock with the transmitter's (1)"] },
         { q: "State the purpose of the stop bit.", marks: 1, ms: ["To give the receiver time to process the data / to allow the next start bit to be recognised (1)"] }
       ] },
-    { src: "AQA 2024 P2 Q3.2", q: "Explain what is meant by synchronous transmission.", marks: 1,
+    { src: "AQA 2024 · P2 Q03.2", q: "Explain what is meant by synchronous transmission.", marks: 1,
       ms: ["Transmitter and receiver are continuously synchronised by a common clock / timing information is transmitted alongside the data (1)"] },
-    { src: "AQA 2019 P2 Q9.1", q: "Explain the difference between asynchronous and synchronous serial transmission.", marks: 2,
+    { src: "AQA 2019 · P2 Q09.1", q: "Explain the difference between asynchronous and synchronous serial transmission.", marks: 2,
       ms: ["Asynchronous: no common clock; the receiver's clock is synchronised to the transmitter's by a start bit at the start of each transmission (1)", "Synchronous: transmitter and receiver are continuously synchronised by a common clock / timing signal sent with the data (1)"] }
   ]
 });
@@ -81,15 +81,15 @@ X("compsci:4.9.1.2", {
     { q: "Bit rate equals baud rate when each signal change carries:", opts: ["one bit", "two bits", "four bits", "no bits"], ans: 0, why: "Bit rate = baud rate × bits per signal change." }
   ],
   exam: [
-    { level: "AS", src: "AS 2024 P2 Q11.1", q: "Explain the difference between baud rate and bit rate, and describe how the bit rate of a link can be higher than its baud rate.", marks: 2,
+    { level: "AS", src: "AQA 2024 · P2 Q11.1", q: "Explain the difference between baud rate and bit rate, and describe how the bit rate of a link can be higher than its baud rate.", marks: 2,
       ms: ["Baud rate is the number of signal changes per second; bit rate is the number of bits transmitted per second (1)", "Bit rate exceeds baud rate when more than one bit is encoded in each signal change (e.g. using several voltage levels) (1)"] },
-    { src: "AQA 2017 P2 Q3", ctx: "A communication link uses eight distinct voltage levels and operates at 500 baud.",
+    { src: "AQA 2017 · P2 Q03", ctx: "A communication link uses eight distinct voltage levels and operates at 500 baud.",
       parts: [
         { q: "State how many bits are represented by each signal change.", marks: 1, ms: ["3 (1)"] },
         { q: "Calculate the bit rate of the link.", marks: 1, ms: ["1500 bits per second (1)"] },
         { q: "State the relationship between bandwidth and bit rate.", marks: 1, ms: ["They are directly proportional — the greater the bandwidth, the higher the bit rate (1)"] }
       ] },
-    { level: "AS", src: "AS 2017 P2 Q8.2", q: "Define the terms *bit rate* and *latency*.", marks: 2,
+    { level: "AS", src: "AQA 2017 · P2 Q08.2", q: "Define the terms *bit rate* and *latency*.", marks: 2,
       ms: ["Bit rate: the number of bits that can be transmitted in one second (1)", "Latency: the delay between an action being instigated and its effect being noticed / the time for transmitted data to arrive (1)"] }
   ]
 });
@@ -125,14 +125,14 @@ X("compsci:4.9.2.1", {
     { q: "A cable break in a physical star affects:", opts: ["the whole network, as on a bus", "only the device on that cable", "the server and every client", "nothing — the cable is shared"], ans: 1, why: "Dedicated cables." }
   ],
   exam: [
-    { level: "AS", src: "AS 2018 P2 Q8", ctx: "A small office network is wired as a physical star with a switch at the centre.",
+    { level: "AS", src: "AQA 2018 · P2 Q08", ctx: "A small office network is wired as a physical star with a switch at the centre.",
       parts: [
         { q: "Explain the difference between a physical and a logical topology.", marks: 2, ms: ["Physical: the layout / arrangement of the cabling and connections between the devices (1)", "Logical: how the data / packets flow around the network (1)"] },
         { q: "Describe how a physical star topology operates.", marks: 2, ms: ["Each device is connected by its own cable to a central switch (1)", "The switch reads the destination address of each frame and forwards it only to the intended device (1)"] }
       ] },
-    { level: "AS", src: "AS 2025 P2 Q13.3", q: "Explain how a network with a physical star topology can operate as a logical bus.", marks: 2,
+    { level: "AS", src: "AQA 2025 · P2 Q13.3", q: "Explain how a network with a physical star topology can operate as a logical bus.", marks: 2,
       ms: ["If the central device is a hub (rather than a switch) it repeats every frame to every port (1)", "So every device receives every frame, as it would on a shared bus, and only the addressed device processes it (1)"] },
-    { level: "AS", src: "AS 2020 P2 Q10.1", q: "Describe how a network with a logical bus topology operates.", marks: 3,
+    { level: "AS", src: "AQA 2020 · P2 Q10.1", q: "Describe how a network with a logical bus topology operates.", marks: 3,
       ms: ["All devices share a single communication channel / medium (1)", "A frame is broadcast to every device but only the device with the matching address processes it (1)", "A device must check the channel is free before transmitting; collisions can occur if two transmit at once (1)"] }
   ]
 });
@@ -169,14 +169,14 @@ X("compsci:4.9.2.2", {
     { q: "Resources in a peer-to-peer network are stored:", opts: ["on one central server", "on any of the computers", "in a cloud storage service", "on the router's own disk"], ans: 1, why: "With no central server, resources are stored on whichever computers hold them." }
   ],
   exam: [
-    { src: "AQA 2022 P2 Q8", ctx: "A family with four laptops and a printer sets up a home network.",
+    { src: "AQA 2022 · P2 Q08", ctx: "A family with four laptops and a printer sets up a home network.",
       parts: [
         { q: "Describe three differences between peer-to-peer and client–server networking.", marks: 3, ms: ["Peer-to-peer: each computer has equal status / can act as client and server; client–server: some computers are designated servers (1)", "Peer-to-peer: resources stored on and shared from any computer; client–server: resources stored on the server and accessed by clients (1)", "Peer-to-peer: no centralised security management; client–server: centralised security — users log in to the server (1)", "Peer-to-peer: no reliance on a central server; client–server: resources unavailable if the server is off / server hardware can be optimised (1)", "Max 3"] },
         { q: "Explain why peer-to-peer networking is more suitable for this family's network.", marks: 3, ms: ["Small number of devices / users (1)", "Users trust each other and no confidential data needs complex security (1)", "Avoids the cost of a server and the expertise needed to set one up; each user chooses what to share (1)"] }
       ] },
-    { src: "AQA 2025 P2 Q5", q: "Explain why a school would use client–server rather than peer-to-peer networking.", marks: 3,
+    { src: "AQA 2025 · P2 Q05", q: "Explain why a school would use client–server rather than peer-to-peer networking.", marks: 3,
       ms: ["Large number of users and devices to manage (1)", "Not all users can be trusted and confidential data (e.g. student records) will be stored (1)", "Complex management of access rights is needed — different groups need different privileges; centralised control of security, printing and Internet access (1)"] },
-    { level: "AS", src: "AS 2023 P2 Q13.2", q: "Describe how a client–server network operates.", marks: 2,
+    { level: "AS", src: "AQA 2023 · P2 Q13.2", q: "Describe how a client–server network operates.", marks: 2,
       ms: ["Resources / services are stored on and provided by the server (1)", "Clients send requests to the server, which responds by providing the resource (1)"] }
   ]
 });
@@ -214,17 +214,17 @@ X("compsci:4.9.2.3", {
     { q: "Hiding the SSID stops:", opts: ["every attack on the wireless network", "the network appearing in the list of available networks", "encryption of the data that is sent across the network", "anyone spoofing the MAC address of an allowed device"], ans: 1, why: "Obscurity, not encryption." }
   ],
   exam: [
-    { src: "AQA 2021 P2 Q11.5", q: "A laptop on a wireless network needs to send data to the access point. Describe how CSMA/CA with Request To Send / Clear To Send is used during the transmission.", marks: 6,
+    { src: "AQA 2021 · P2 Q11.5", q: "A laptop on a wireless network needs to send data to the access point. Describe how CSMA/CA with Request To Send / Clear To Send is used during the transmission.", marks: 6,
       ms: ["The laptop checks / listens for traffic on the channel (1)", "If another transmission is in progress it continues to wait (1)", "When the channel is idle it sends a Request To Send (RTS) to the access point (1)", "The access point responds with a Clear To Send (CTS); if no CTS is received the laptop waits a random time and re-sends the RTS (1)", "On receiving the CTS the laptop transmits its data (1)", "The access point sends an acknowledgement (ACK) when all the data is received; if no ACK arrives the data is re-sent (1)"] },
-    { level: "AS", src: "AS 2023 P2 Q12", ctx: "A coffee shop offers free wireless Internet access to customers.",
+    { level: "AS", src: "AQA 2023 · P2 Q12", ctx: "A coffee shop offers free wireless Internet access to customers.",
       parts: [
         { q: "State what an SSID is and explain how disabling its broadcast would affect customers.", marks: 2, ms: ["The name / identifier of the wireless network (1)", "The network would not appear in the list of available networks, so customers could only connect if told the name (1)"] },
         { q: "Explain the role of WPA2 on the network.", marks: 2, ms: ["Encrypts the data transmitted across the wireless network (1)", "So that an unauthorised device that intercepts the transmissions cannot read them (1)"] },
         { q: "Explain why MAC address filtering would be unsuitable for the coffee shop.", marks: 2, ms: ["The shop wants any customer to be able to connect / open access in a public space (1)", "Every customer device would have to be added manually — time-consuming, needs technical staff, and customers with several devices would be inconvenienced (1)"] }
       ] },
-    { level: "AS", src: "AS 2017 P2 Q8.4", q: "Explain how a MAC address white list improves the security of a wireless network.", marks: 2,
+    { level: "AS", src: "AQA 2017 · P2 Q08.4", q: "Explain how a MAC address white list improves the security of a wireless network.", marks: 2,
       ms: ["A MAC address is unique to each network interface card / device (1)", "The access point only allows devices whose MAC address is on the authorised list to connect; others are refused (1)"] },
-    { src: "AQA 2018 P2 Q13.1", q: "Describe two measures that could be used to improve the security of a wireless access point, explaining how each is effective.", marks: 2,
+    { src: "AQA 2018 · P2 Q13.1", q: "Describe two measures that could be used to improve the security of a wireless access point, explaining how each is effective.", marks: 2,
       ms: ["Use WPA2 — encrypts transmissions so intercepted data cannot be read without the key (1)", "Disable SSID broadcast — the network is harder to discover / must be known to connect; or a MAC address white list — only devices with a listed address can connect (1)"] }
   ]
 });
@@ -262,20 +262,20 @@ X("compsci:4.9.3.1", {
     { q: "Internet registries ensure that:", opts: ["packets arrive in the same order that they were sent", "domain names are unique and registered to owners", "routers forward packets by the shortest route", "every wireless network is encrypted with WPA2"], ans: 1, why: "Registries make sure each domain name is unique and is recorded against its registered owner." }
   ],
   exam: [
-    { src: "AQA 2022 P2 Q8.3", q: "Explain the purpose of the Domain Name System and describe how it works.", marks: 3,
+    { src: "AQA 2022 · P2 Q08.3", q: "Explain the purpose of the Domain Name System and describe how it works.", marks: 3,
       ms: ["Translates fully qualified domain names into IP addresses (1)", "DNS servers store a database / table of domain names and their IP addresses; the system is distributed and hierarchical (1)", "If a DNS server cannot resolve a lookup the query is passed to another DNS server (1)"] },
-    { src: "AQA 2023 P2 Q2", ctx: "A packet travelling across the internet contains a source IP address, a destination IP address, a checksum and the payload.",
+    { src: "AQA 2023 · P2 Q02", ctx: "A packet travelling across the internet contains a source IP address, a destination IP address, a checksum and the payload.",
       parts: [
         { q: "State two other fields typically found in a packet.", marks: 2, ms: ["Port number(s) / sequence number (1)", "Time to live / packet size / protocol identifier (1)"] },
         { q: "Describe the role of a router in packet switching.", marks: 2, ms: ["Determines which outgoing link / next router to send the packet to, using the most efficient path (1)", "Updates its routing table to reflect congestion or failures / changes the MAC address for the next hop / discards packets whose time to live has expired (1)"] }
       ] },
-    { src: "AQA 2024 P2 Q7", ctx: "The URL `http://pastpapers.aqa.org.uk/computing/2024.pdf` is entered into a browser.",
+    { src: "AQA 2024 · P2 Q07", ctx: "The URL `http://pastpapers.aqa.org.uk/computing/2024.pdf` is entered into a browser.",
       parts: [
         { q: "State the protocol and the domain name in the URL.", marks: 1, ms: ["Protocol HTTP; domain name pastpapers.aqa.org.uk (accept aqa.org.uk) (1)"] },
         { q: "Describe how domain names are organised.", marks: 2, ms: ["Hierarchically (1)", "e.g. `uk` is the top-level domain, `org` a second-level domain, `aqa` the organisation's domain and `pastpapers` a subdomain (1)"] },
         { q: "Describe the service provided by internet registries and explain why it is needed.", marks: 2, ms: ["They register domain names to organisations / store who owns each domain (1)", "To ensure domain names are unique / to enter the name-to-IP mappings into the DNS (1)"] }
       ] },
-    { src: "AQA 2023 P2 Q11.2", q: "Explain how a gateway differs from a router.", marks: 1,
+    { src: "AQA 2023 · P2 Q11.2", q: "Explain how a gateway differs from a router.", marks: 1,
       ms: ["A gateway connects networks that use different protocols, performing protocol conversion; a router connects networks using the same protocol (1)"] }
   ]
 });
@@ -313,11 +313,11 @@ X("compsci:4.9.3.2", {
     { q: "Stateful inspection allows packets that:", opts: ["come from any address on the Internet", "belong to an existing connection", "are larger than a set size", "are encrypted with a trusted key"], ans: 1, why: "Connection tracking." }
   ],
   exam: [
-    { src: "AQA 2020 P2 Q5.3", q: "Describe four ways in which a firewall could protect the computers on a LAN.", marks: 4,
+    { src: "AQA 2020 · P2 Q05.3", q: "Describe four ways in which a firewall could protect the computers on a LAN.", marks: 4,
       ms: ["Block or allow traffic on specific ports / specific protocols (1)", "Block or allow traffic from specific IP addresses (1)", "Block certain types of packet, e.g. pings (1)", "Stateful inspection — maintains information about current connections and only allows packets relevant to them (1)", "Act as a proxy so that computers on the Internet cannot access LAN devices directly (1)", "Identify unusual behaviour from a host, e.g. sending unusually large amounts of data (1)", "Max 4"] },
-    { src: "AQA 2023 P2 Q11.5", q: "Company A sends a confidential contract to Company B by email, using asymmetric encryption and a digital signature so that B can be sure the contract came from A and has not been altered. Describe the process at both the sending and receiving ends, identifying which key is used at each stage.", marks: 6,
+    { src: "AQA 2023 · P2 Q11.5", q: "Company A sends a confidential contract to Company B by email, using asymmetric encryption and a digital signature so that B can be sure the contract came from A and has not been altered. Describe the process at both the sending and receiving ends, identifying which key is used at each stage.", marks: 6,
       ms: ["A calculates a hash / message digest of the contract (1)", "A encrypts the digest with A's private key — this is the digital signature — and appends it to the message (1)", "A encrypts the message and signature with B's public key and sends them (1)", "B decrypts the message and signature with B's private key (1)", "B recalculates the hash of the message and decrypts the signature with A's public key to obtain the original digest (1)", "If the two digests match, B knows the message came from A and has not been altered (1)", "Level of response: 5–6 comprehensive with at least three keys correct; 3–4 significant parts with two keys; 1–2 a few points"] },
-    { src: "AQA 2024 P2 Q1", q: "Describe four measures an organisation could take to reduce the threat posed by viruses.", marks: 4,
+    { src: "AQA 2024 · P2 Q01", q: "Describe four measures an organisation could take to reduce the threat posed by viruses.", marks: 4,
       ms: ["Enable automatic updates of the operating system and applications so code vulnerabilities are patched (1)", "Run programs / open files in a sandbox or virtual machine so a virus cannot affect the real system (1)", "Configure a firewall to block packets from high-risk sources / use spam filters to block suspicious attachments (1)", "Set access rights so users and programs cannot modify important files; disable macros; restrict execution of unverified software (1)", "Keep backups offline so data can be recovered after an infection (1)", "Verify downloaded files with digital signatures / checksums; review and test code for vulnerabilities such as buffer overflow (1)", "Max 4 — a method must be described, not just named"] }
   ]
 });
@@ -353,13 +353,13 @@ X("compsci:4.9.4.1", {
     { q: "Routing decisions are a function of the:", opts: ["application layer", "transport layer", "network layer", "link layer"], ans: 2, why: "Routing, choosing the path for each packet, is done at the network layer using IP addresses." }
   ],
   exam: [
-    { src: "AQA 2023 P2 Q11.1", q: "Describe the role of the transport layer when an email is sent from a client to a mail server.", marks: 3,
+    { src: "AQA 2023 · P2 Q11.1", q: "Describe the role of the transport layer when an email is sent from a client to a mail server.", marks: 3,
       ms: ["Establishes an end-to-end connection between the client and the server (1)", "Splits the message into segments and adds sequence numbers so it can be reassembled in order (1)", "Adds port numbers so the data is passed to the correct application on the server / performs error detection and requests retransmission of corrupted segments / flow control (1)"] },
-    { src: "AQA 2019 P2 Q2.2", q: "Explain how the transport layer uses port numbers when a request arrives at a server running both a web server and an email server.", marks: 1,
+    { src: "AQA 2019 · P2 Q02.2", q: "Explain how the transport layer uses port numbers when a request arrives at a server running both a web server and an email server.", marks: 1,
       ms: ["It uses the destination port number to determine which server software / application should deal with the request (e.g. 80 → web server, 25 → mail server) (1)"] },
-    { src: "AQA 2019 P2 Q2.3", q: "State two functions of the network layer.", marks: 2,
+    { src: "AQA 2019 · P2 Q02.3", q: "State two functions of the network layer.", marks: 2,
       ms: ["Adds source and destination IP addresses to packets (1)", "Performs routing — selects the next hop for each packet / creates a header checksum / splits data into datagrams (1)"] },
-    { level: "AS", src: "AS 2022 P2 Q10.2", q: "Define the term *protocol*.", marks: 1,
+    { level: "AS", src: "AQA 2022 · P2 Q10.2", q: "Define the term *protocol*.", marks: 1,
       ms: ["A set of rules governing communication between devices (1)"] }
   ]
 });
@@ -396,12 +396,12 @@ X("compsci:4.9.4.2", {
     { q: "FTP is used to:", opts: ["transfer files between a client and a server", "send email between two mail servers", "look up the IP address for a domain name", "log in to a remote server securely"], ans: 0, why: "File Transfer Protocol." }
   ],
   exam: [
-    { src: "AQA 2023 P2 Q11", ctx: "A company runs its own email server, which staff access from the office and from home.",
+    { src: "AQA 2023 · P2 Q11", ctx: "A company runs its own email server, which staff access from the office and from home.",
       parts: [
         { q: "Name two application-layer protocols the email system would use and state the purpose of each.", marks: 4, ms: ["SMTP (1) — to send / transmit email to another mail server or from the client (1)", "POP3 or IMAP (1) — so clients can retrieve (POP3) / manage on the server (IMAP) their email (1)", "Accept HTTP/HTTPS for web-mail access; reject TCP / IP"] },
         { q: "Explain what is meant by a well-known port and why the mail server uses one.", marks: 2, ms: ["A port number reserved for a specific purpose / assigned by IANA (e.g. 25 for SMTP) (1)", "The client initiates the communication, so the port must be the same and known in advance for all clients (1)"] }
       ] },
-    { src: "AQA 2019 P2 Q2.1", q: "A server hosts a company's email and is administered remotely by technicians. Name two application-layer protocols that would be used and explain what each is used for.", marks: 4,
+    { src: "AQA 2019 · P2 Q02.1", q: "A server hosts a company's email and is administered remotely by technicians. Name two application-layer protocols that would be used and explain what each is used for.", marks: 4,
       ms: ["SMTP (1) — sending / transmitting email (1)", "POP3 / IMAP (1) — clients retrieving / managing email on the server (1)", "SSH (1) — a secure connection for technicians to execute commands on the server remotely (1)", "HTTPS (1) — web-based access to email or control panels (1)", "Max 4: two protocols with purposes"] }
   ]
 });
@@ -427,7 +427,7 @@ X("compsci:4.9.4.3", {
     { qk: "101", q: "A host is 192.168.64.10/20. Which address is on the same network?", opts: ["192.168.80.5", "192.168.63.1", "192.168.96.2", "192.168.75.3"], ans: 3, why: "A /20 here covers third octets 64–79, so only 75 shares the network ID 192.168.64.0." }
   ],
   exam: [
-    { src: "AQA 2021 P2 Q11.1", ctx: "A network 192.168.192.0/20 is connected to a second network 192.168.64.0/20 by Router 1. Port A of the router is on the first network and port B on the second; computer C is on the second network.",
+    { src: "AQA 2021 · P2 Q11.1", ctx: "A network 192.168.192.0/20 is connected to a second network 192.168.64.0/20 by Router 1. Port A of the router is on the first network and port B on the second; computer C is on the second network.",
       parts: [
         { q: "Give a suitable IP address for port A, for port B and for computer C.", marks: 3, ms: ["Port A: 192.168.x.y with x in 192–207 and y 0–255, not the network or broadcast address (1)", "Port B: 192.168.x.y with x in 64–79, not 192.168.64.0 or 192.168.79.255 (1)", "Computer C: another valid address in the 192.168.64.0/20 range, different from port B (1)"] },
         { q: "State the network and host parts of the address you gave for computer C.", marks: 1, ms: ["First 20 bits (192.168.64–79 prefix) are the network ID; the remaining 12 bits identify the host (1)"] }
@@ -459,13 +459,13 @@ X("compsci:4.9.4.4", {
     { q: "192.168.10.77/26 is on the network:", opts: ["192.168.10.0", "192.168.10.64", "192.168.10.77", "192.168.10.128"], ans: 1, why: "77 = 01001101; top 2 host-octet bits 01 → 64." }
   ],
   exam: [
-    { src: "AQA 2018 P2 Q5", ctx: "A network uses the subnet mask /27.",
+    { src: "AQA 2018 · P2 Q05", ctx: "A network uses the subnet mask /27.",
       parts: [
         { q: "Write the subnet mask in binary.", marks: 1, ms: ["11111111.11111111.11111111.11100000 (1)"] },
         { q: "State the maximum number of hosts that can be connected to the subnet.", marks: 1, ms: ["30 (2⁵ − 2) (1)"] },
         { q: "Computer A has address 10.0.0.40 and computer B 10.0.0.70, both with mask /27. Explain how computer A determines whether it can send a packet directly to B.", marks: 3, ms: ["A ANDs the subnet mask with its own IP address and with B's address to obtain the two network IDs (1)", "10.0.0.40 → network 10.0.0.32; 10.0.0.70 → network 10.0.0.64 (1)", "The network IDs differ, so B is on another subnet and the packet must be sent via the router / gateway (1)"] }
       ] },
-    { src: "AQA 2021 P2 Q11.2", q: "Identify the subnet mask that corresponds to a /20 network from: 255.255.255.0, 255.255.224.0, 255.255.240.0, 255.240.0.0.", marks: 1,
+    { src: "AQA 2021 · P2 Q11.2", q: "Identify the subnet mask that corresponds to a /20 network from: 255.255.255.0, 255.255.224.0, 255.255.240.0, 255.240.0.0.", marks: 1,
       ms: ["255.255.240.0 (1)"] }
   ]
 });
@@ -496,11 +496,11 @@ X("compsci:4.9.4.5", {
     { q: "'IPv6 has more addresses' as the reason NAT is not needed is:", opts: ["full marks — it gives the reason", "NE — must say every device gets a unique public address", "wrong — NAT is still needed on an IPv6 network", "half marks — it needs an example of an IPv6 address"], ans: 1, why: "Not enough: it must say that every device can have its own unique public address, so address sharing is not needed." }
   ],
   exam: [
-    { src: "AQA 2021 P2 Q11.3", q: "Explain why IPv6 has been introduced to replace IPv4.", marks: 1,
+    { src: "AQA 2021 · P2 Q11.3", q: "Explain why IPv6 has been introduced to replace IPv4.", marks: 1,
       ms: ["There are not enough unique addresses in IPv4 / IPv4 addresses are running out (1)"] },
-    { src: "AQA 2024 P2 Q7.7", q: "Explain why network address translation would no longer be needed if every network used IPv6.", marks: 1,
+    { src: "AQA 2024 · P2 Q07.7", q: "Explain why network address translation would no longer be needed if every network used IPv6.", marks: 1,
       ms: ["There are enough IPv6 addresses for every device in the world to have its own unique public / routable address (1)"] },
-    { src: "AQA 2025 P2 Q8", q: "Discuss how the exhaustion of IPv4 addresses has been managed, with reference to private addresses and NAT, DHCP, and the introduction of IPv6.", marks: 12,
+    { src: "AQA 2025 · P2 Q08", q: "Discuss how the exhaustion of IPv4 addresses has been managed, with reference to private addresses and NAT, DHCP, and the introduction of IPv6.", marks: 12,
       ms: ["IPv4: 32-bit addresses give about 4.3 billion — far fewer than the number of connected devices, so unique public addresses ran out (1–2)", "Private / non-routable address ranges (10.x, 172.16–31.x, 192.168.x) can be reused on every LAN because they are never routed on the Internet (1–2)", "NAT: the router replaces the private source address with its own public address and records the mapping (with a generated port number) in a translation table, using it to forward replies back — many devices share one public address (1–3)", "DHCP: automates allocation of addresses from a pool with leases, so addresses are reused efficiently and configuration needs no expert (1–2)", "IPv6: 128-bit addresses give enough for every device to have a unique routable address, removing the need for NAT and giving end-to-end connectivity; simpler routing, auto-configuration, better multicast; transition via dual stack (1–3)", "Level 4 (10–12): all areas with good understanding and a reasoned line; Level 3 (7–9): two areas well plus some of the third; Level 2 (4–6); Level 1 (1–3)"] }
   ]
 });
@@ -529,9 +529,9 @@ X("compsci:4.9.4.6", {
     { qk: "101", q: "Thirty school computers visit one website, and its log shows a single address because", opts: ["the router's NAT gives them one public address", "the website merges visits from the same school", "DHCP gave all thirty the same private address", "the browsers hide each computer's own address"], ans: 0, why: "Each private source address is replaced by the router's one public address as packets leave the LAN." }
   ],
   exam: [
-    { src: "AQA 2020 P2 Q5.2", q: "A computer on one home network has IP address 192.168.2.3, and a computer on a different home network has the same IP address. Explain why this does not cause a problem when both computers use the Internet.", marks: 2,
+    { src: "AQA 2020 · P2 Q05.2", q: "A computer on one home network has IP address 192.168.2.3, and a computer on a different home network has the same IP address. Explain why this does not cause a problem when both computers use the Internet.", marks: 2,
       ms: ["192.168.2.3 is a private / non-routable address that is never used on the Internet itself (1)", "Network address translation is performed by each router, replacing the private address with the router's public address as packets pass onto the Internet (1)"] },
-    { src: "AQA 2017 P2 Q9.1", q: "A router connects a LAN using the private range 192.168.0.0/24 to the Internet. State a suitable IP address for the router's LAN port and explain why the address 192.168.0.255 could not be used.", marks: 2,
+    { src: "AQA 2017 · P2 Q09.1", q: "A router connects a LAN using the private range 192.168.0.0/24 to the Internet. State a suitable IP address for the router's LAN port and explain why the address 192.168.0.255 could not be used.", marks: 2,
       ms: ["192.168.0.x where x is 1–254, e.g. 192.168.0.1 (1)", "192.168.0.255 is the broadcast address of the subnet (and .0 is the network address), so neither can be assigned to a device (1)"] }
   ]
 });
@@ -561,11 +561,11 @@ X("compsci:4.9.4.7", {
     { q: "When a lease expires and is not renewed the address:", opts: ["is lost for good", "returns to the pool", "becomes public", "is blocked for a day"], ans: 1, why: "When a lease runs out unrenewed the DHCP server takes the address back and can reuse it for another device." }
   ],
   exam: [
-    { src: "AQA 2018 P2 Q5.3", q: "Explain the purpose of DHCP, why it is used, and describe the messages exchanged when a host joins the network.", marks: 4,
+    { src: "AQA 2018 · P2 Q05.3", q: "Explain the purpose of DHCP, why it is used, and describe the messages exchanged when a host joins the network.", marks: 4,
       ms: ["Purpose: to automate the configuration of hosts connecting to a network — allocating IP address, subnet mask and default gateway (1)", "Why: reduces the need for expert knowledge / time to configure hosts; makes efficient use of a limited pool of addresses; avoids errors such as duplicate addresses (1)", "The host broadcasts a request to discover a DHCP server; the server(s) offer a configuration (1)", "The host accepts an offer (echoing it back); the server confirms the allocation (1)"] },
-    { src: "AQA 2024 P2 Q7.5", q: "Explain why a web server on a LAN should not obtain its IP address from a DHCP server.", marks: 1,
+    { src: "AQA 2024 · P2 Q07.5", q: "Explain why a web server on a LAN should not obtain its IP address from a DHCP server.", marks: 1,
       ms: ["Its IP address might change, so port forwarding (or DNS) would no longer direct traffic to it — it needs a fixed / static address (1)"] },
-    { src: "AQA 2020 P2 Q5.1", q: "State one advantage of using DHCP to allocate IP addresses on a network.", marks: 1,
+    { src: "AQA 2020 · P2 Q05.1", q: "State one advantage of using DHCP to allocate IP addresses on a network.", marks: 1,
       ms: ["No expert knowledge needed to configure hosts / less time to configure / efficient use of a limited pool of addresses / avoids duplicate addresses (1)"] }
   ]
 });
@@ -602,9 +602,9 @@ X("compsci:4.9.4.8", {
     { q: "The source port is replaced by:", opts: ["port 80, the web's port", "a port the router generates", "the destination's port number", "port 0, meaning any port"], ans: 1, why: "Unique key in the table." }
   ],
   exam: [
-    { src: "AQA 2024 P2 Q7.6", q: "A student's computer with IP address 192.168.0.4 sends an FTP request to a server on the Internet through a router whose public address is 186.7.2.31. Describe how network address translation is carried out when the request is sent and when the reply is received.", marks: 4,
+    { src: "AQA 2024 · P2 Q07.6", q: "A student's computer with IP address 192.168.0.4 sends an FTP request to a server on the Internet through a router whose public address is 186.7.2.31. Describe how network address translation is carried out when the request is sent and when the reply is received.", marks: 4,
       ms: ["When the request is sent the router replaces the source IP address 192.168.0.4 with its public address 186.7.2.31 (1)", "It replaces the source port number with a port number it generates (1)", "It adds the mapping (generated port → 192.168.0.4 and original port) to its NAT translation table (1)", "When the reply arrives the router looks up its destination port number in the table and replaces the destination address with 192.168.0.4 (and the original port), forwarding it to the student's computer (1)"] },
-    { src: "AQA 2018 P2 Q5.4", q: "Explain why a router performs network address translation for a LAN that uses private IP addresses.", marks: 2,
+    { src: "AQA 2018 · P2 Q05.4", q: "Explain why a router performs network address translation for a LAN that uses private IP addresses.", marks: 2,
       ms: ["Private addresses are non-routable — packets with a private source address cannot be replied to across the Internet (1)", "NAT substitutes the router's public address so that replies return to the router, which forwards them to the right device; many devices share one public address (1)"] }
   ]
 });
@@ -632,9 +632,9 @@ X("compsci:4.9.4.9", {
     { qk: "101", q: "Visitors reach a port-forwarded web server by connecting to", opts: ["the server's private address on port 80", "the server's MAC address on port 80", "the router's public address on the forwarded port", "the router's private address on port 80"], ans: 2, why: "Only the public address is routable; the rule on that port sends the traffic on to the server." }
   ],
   exam: [
-    { src: "AQA 2024 P2 Q7.4", q: "A school hosts its website on a server with the private IP address 192.168.0.2 behind a router with public address 186.7.2.31. Explain how computers on the Internet can access the website.", marks: 3,
+    { src: "AQA 2024 · P2 Q07.4", q: "A school hosts its website on a server with the private IP address 192.168.0.2 behind a router with public address 186.7.2.31. Explain how computers on the Internet can access the website.", marks: 3,
       ms: ["Computers on the Internet use the router's public IP address 186.7.2.31 (1)", "The router performs port forwarding, using a port-mapping table / rules (1)", "Traffic arriving on the HTTP port (80 / 443) is forwarded to the web server's address 192.168.0.2 (1)"] },
-    { src: "AQA 2018 P2 Q5.4", q: "A company's web server has a non-routable IP address. Explain what the company's router must do so that customers can reach the web server.", marks: 2,
+    { src: "AQA 2018 · P2 Q05.4", q: "A company's web server has a non-routable IP address. Explain what the company's router must do so that customers can reach the web server.", marks: 2,
       ms: ["Identify traffic arriving from outside on the HTTP(S) port — 80 / 443 (1)", "Forward it to the private IP address of the web server (port forwarding) (1)"] }
   ]
 });
@@ -670,13 +670,13 @@ X("compsci:4.9.4.10", {
     { q: "Which is XML rather than JSON?", opts: ["{\"name\": \"Kai\"}", "<name>Kai</name>", "[1, 2, 3]", "{\"a\": [1]}"], ans: 1, why: "XML wraps data in opening and closing tags; JSON uses braces, keys and values." }
   ],
   exam: [
-    { src: "AQA 2023 P2 Q5", ctx: "A web application lets users view and edit their profiles. The client-side JavaScript communicates with the server using a RESTful API that returns JSON.",
+    { src: "AQA 2023 · P2 Q05", ctx: "A web application lets users view and edit their profiles. The client-side JavaScript communicates with the server using a RESTful API that returns JSON.",
       parts: [
         { q: "Explain how URLs are used in a RESTful application.", marks: 1, ms: ["Each resource (e.g. a user's profile) is represented by a URL; the client sends HTTP requests to that URL and the server carries out the corresponding database operation (1)"] },
         { q: "State the CRUD operation and the SQL command that correspond to the HTTP methods GET, POST, PUT and DELETE.", marks: 1, ms: ["GET–Retrieve–SELECT, POST–Create–INSERT, PUT–Update–UPDATE, DELETE–Delete–DELETE (1)"] },
         { q: "Explain two reasons why the developers chose JSON rather than XML for the data returned by the API.", marks: 2, ms: ["JSON is more compact, so responses are smaller and faster to transmit (1)", "JSON is quicker / easier to parse and its structure is understood directly by JavaScript / supports arrays natively / is easier for humans to read (1)"] }
       ] },
-    { src: "AQA 2024 P2 Q7.8", q: "A stock-trading website shows live prices that update without the page being refreshed. Explain why the WebSocket protocol is more suitable than HTTP for this feature.", marks: 2,
+    { src: "AQA 2024 · P2 Q07.8", q: "A stock-trading website shows live prices that update without the page being refreshed. Explain why the WebSocket protocol is more suitable than HTTP for this feature.", marks: 2,
       ms: ["WebSocket establishes a persistent, full-duplex connection between client and server over one TCP connection (1)", "So the server can push new prices as soon as they change, with low latency, instead of the client repeatedly sending HTTP requests (1)"] }
   ]
 });
@@ -707,9 +707,9 @@ X("compsci:4.9.4.11", {
     { q: "Best for a video-editing studio:", opts: ["thin clients", "thick clients", "no clients", "hubs"], ans: 1, why: "Local processing power." }
   ],
   exam: [
-    { src: "AQA 2021 P2 Q2", q: "A college is replacing its computers with thin clients. Explain what thin-client computing is and give two reasons the college might have chosen it.", marks: 3,
+    { src: "AQA 2021 · P2 Q02", q: "A college is replacing its computers with thin clients. Explain what thin-client computing is and give two reasons the college might have chosen it.", marks: 3,
       ms: ["Processing is carried out / applications are executed on the server rather than the client (1)", "Clients can have a lower hardware specification so are cheaper to buy / consume less power / fail less often (1)", "Software is installed and updated only on the server / less configuration of clients / users cannot install unauthorised software so it is more secure / licensing per active user can be cheaper (1)", "Max 2 reasons"] },
-    { src: "AQA 2022 P2 Q11", q: "Describe the hardware requirements of a thin-client system for the clients, the server and the network.", marks: 3,
+    { src: "AQA 2022 · P2 Q11", q: "Describe the hardware requirements of a thin-client system for the clients, the server and the network.", marks: 3,
       ms: ["Clients: slower processor, less RAM, little or no secondary storage (1)", "Server: multiple processors / many cores, a large amount of RAM, many storage drives (1)", "Network: a higher-bandwidth connection, e.g. fibre / gigabit switches (1)"] }
   ]
 });

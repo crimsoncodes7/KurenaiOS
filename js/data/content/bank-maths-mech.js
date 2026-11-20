@@ -44,11 +44,11 @@ X("maths:M6.1", {
     { q: "1 N is the force giving 1 kg an acceleration of:", opts: ["9.8 m/s²", "1 m/s²", "1 m/s", "10 m/s²"], ans: 1, why: "$F = ma$: $1 = 1 \\times a$, so $a = 1$ m/s²." }
   ],
   exam: [
-    { level: "AS", src: "Edexcel AS 2022 P2 Q1", q: "A stone is modelled as a particle moving freely under gravity. State two assumptions this model makes, and for one of them explain how removing it would change the calculated time of flight.", marks: 3,
+    { level: "AS", src: "Edexcel AS 2022 · P2 Q1", q: "A stone is modelled as a particle moving freely under gravity. State two assumptions this model makes, and for one of them explain how removing it would change the calculated time of flight.", marks: 3,
       ms: ["B1: air resistance is ignored", "B1: the stone has no size / does not spin / $g$ is constant", "B1: including air resistance would reduce the speed so the stone rises less and lands sooner (shorter time of flight)"] },
-    { level: "AS", src: "Edexcel AS 2019 P2 Q2", q: "Two balls are connected by a light inextensible string passing over a smooth fixed pulley. Explain how each of the words *light*, *inextensible* and *smooth* has been used in setting up the equations of motion.", marks: 3,
+    { level: "AS", src: "Edexcel AS 2019 · P2 Q2", q: "Two balls are connected by a light inextensible string passing over a smooth fixed pulley. Explain how each of the words *light*, *inextensible* and *smooth* has been used in setting up the equations of motion.", marks: 3,
       ms: ["B1: light — the tension is the same throughout the string", "B1: inextensible — both balls have the same magnitude of acceleration", "B1: smooth — the tension is the same on each side of the pulley"] },
-    { src: "Edexcel 2023 P3 Q1", ctx: "A car of mass 900 kg travels along a straight horizontal road. Its speed increases from 54 km/h to 90 km/h in 8 seconds with constant acceleration.",
+    { src: "Edexcel 2023 · P3 Q1", ctx: "A car of mass 900 kg travels along a straight horizontal road. Its speed increases from 54 km/h to 90 km/h in 8 seconds with constant acceleration.",
       parts: [
         { q: "Convert the two speeds to m/s.", marks: 1, ms: ["B1: 15 m/s and 25 m/s"] },
         { q: "Find the acceleration and the resultant force on the car.", marks: 2, ms: ["M1: $a = \\tfrac{25 - 15}{8} = 1.25$ m/s²", "A1: $F = 900 \\times 1.25 = 1125$ N"] },
@@ -88,18 +88,18 @@ X("maths:M7.1", {
     { q: "A particle moving north-east has velocity proportional to:", opts: ["$\\mathbf i + \\mathbf j$", "$\\mathbf i - \\mathbf j$", "$\\mathbf j$", "$-\\mathbf i + \\mathbf j$"], ans: 0, why: "North-east has equal east and north parts: $\\mathbf i + \\mathbf j$." }
   ],
   exam: [
-    { src: "Edexcel Specimen P3 Q1", ctx: "A particle moves with constant acceleration $(\\mathbf i - 2\\mathbf j)$ m/s². At $t = 0$ its position vector is $(2\\mathbf i + \\mathbf j)$ m and at $t = 3$ s it is $(14\\mathbf i - 11\\mathbf j)$ m.",
+    { src: "Edexcel Specimen · P3 Q1", ctx: "A particle moves with constant acceleration $(\\mathbf i - 2\\mathbf j)$ m/s². At $t = 0$ its position vector is $(2\\mathbf i + \\mathbf j)$ m and at $t = 3$ s it is $(14\\mathbf i - 11\\mathbf j)$ m.",
       parts: [
         { q: "Find the initial velocity $\\mathbf u$ of the particle.", marks: 3, ms: ["M1: $14\\mathbf i - 11\\mathbf j = 2\\mathbf i + \\mathbf j + 3\\mathbf u + \\tfrac12(\\mathbf i - 2\\mathbf j)(9)$", "M1: $3\\mathbf u = 7.5\\mathbf i - 3\\mathbf j$", "A1: $\\mathbf u = (2.5\\mathbf i - \\mathbf j)$ m/s"] },
         { q: "Find the speed of the particle at $t = 3$ and the bearing on which it is then moving.", marks: 3, ms: ["M1: $\\mathbf v = \\mathbf u + 3\\mathbf a = 5.5\\mathbf i - 7\\mathbf j$", "A1: speed $\\sqrt{30.25 + 49} = 8.90$ m/s", "A1: bearing $90° + \\arctan\\tfrac{7}{5.5} = 141.8°$ (awrt 142°)"] }
       ] },
-    { level: "AS", src: "Edexcel AS Nov 2021 P2 Q1", ctx: "A stone is thrown vertically upwards from a point $O$ with speed 14.7 m/s and moves freely under gravity.",
+    { level: "AS", src: "Edexcel AS Nov 2021 · P2 Q1", ctx: "A stone is thrown vertically upwards from a point $O$ with speed 14.7 m/s and moves freely under gravity.",
       parts: [
         { q: "Find the time $T$ at which the stone returns to $O$.", marks: 2, ms: ["M1: $0 = 14.7T - 4.9T^2$", "A1: $T = 3$ s"] },
         { q: "Find the total distance travelled by the stone in the first 4 seconds. ($O$ is well above the ground.)", marks: 4, ms: ["M1: maximum height $\\tfrac{14.7^2}{2 \\times 9.8} = 11.025$ m", "M1: displacement at $t = 4$: $14.7(4) - 4.9(16) = -19.6$ m", "M1: distance $= 11.025 + 11.025 + 19.6$", "A1: $41.65$ m (awrt 41.6 or 41.7)"] },
         { q: "State the displacement of the stone from $O$ at $t = 4$ and explain how it differs from the distance travelled.", marks: 1, ms: ["B1: displacement $-19.6$ m (19.6 m below $O$); the distance counts the upward and downward journeys separately"] }
       ] },
-    { src: "Edexcel Oct 2021 P3 Q1", ctx: "A particle $P$ has velocity $(3\\mathbf i - 2\\mathbf j)$ m/s at $t = 0$ and moves with constant acceleration $(2\\mathbf i - 3\\mathbf j)$ m/s². At $t = 0$ it is at the point with position vector $(-\\mathbf i + 4\\mathbf j)$ m.",
+    { src: "Edexcel Oct 2021 · P3 Q1", ctx: "A particle $P$ has velocity $(3\\mathbf i - 2\\mathbf j)$ m/s at $t = 0$ and moves with constant acceleration $(2\\mathbf i - 3\\mathbf j)$ m/s². At $t = 0$ it is at the point with position vector $(-\\mathbf i + 4\\mathbf j)$ m.",
       parts: [
         { q: "Find the velocity of $P$ at $t = 2$.", marks: 2, ms: ["M1: $\\mathbf v = (3\\mathbf i - 2\\mathbf j) + 2(2\\mathbf i - 3\\mathbf j)$", "A1: $(7\\mathbf i - 8\\mathbf j)$ m/s"] },
         { q: "Find the position vector of $P$ at $t = 2$ and its distance from $O$.", marks: 3, ms: ["M1: $\\mathbf r = -\\mathbf i + 4\\mathbf j + 2(3\\mathbf i - 2\\mathbf j) + \\tfrac12(4)(2\\mathbf i - 3\\mathbf j)$", "A1: $(9\\mathbf i - 6\\mathbf j)$ m", "A1: distance $\\sqrt{117} = 10.8$ m"] }
@@ -139,24 +139,24 @@ X("maths:M7.2", {
     { q: "If the acceleration phase takes $V/2$ s and deceleration $V/3$ s, the total time is:", opts: ["$5V/6$", "$V/6$", "$V$", "$6V/5$"], ans: 0, why: "$\\tfrac V2 + \\tfrac V3 = \\tfrac{3V + 2V}{6} = \\tfrac{5V}{6}$." }
   ],
   exam: [
-    { level: "AS", src: "Edexcel AS 2022 P2 Q2", ctx: "A train travels between two stations 12 km apart in 700 s. It accelerates uniformly from rest for 60 s to speed $V$ m/s, travels at $V$ for 500 s, then decelerates uniformly to rest.",
+    { level: "AS", src: "Edexcel AS 2022 · P2 Q2", ctx: "A train travels between two stations 12 km apart in 700 s. It accelerates uniformly from rest for 60 s to speed $V$ m/s, travels at $V$ for 500 s, then decelerates uniformly to rest.",
       parts: [
         { q: "Sketch a speed–time graph for the journey.", marks: 2, ms: ["B1: trapezium shape starting and ending at $v = 0$", "B1: labelled 60, 560, 700 on the $t$-axis and $V$ on the $v$-axis"] },
         { q: "Find the value of $V$.", marks: 3, ms: ["M1: $\\tfrac12(700 + 500)V = 12000$", "A1: $600V = 12000$", "A1: $V = 20$"] },
         { q: "Find the deceleration of the train.", marks: 2, ms: ["M1: $\\tfrac{20}{140}$", "A1: $0.143$ m/s²"] }
       ] },
-    { level: "AS", src: "Edexcel AS Specimen P2 Q2", ctx: "A car starts from rest at a set of traffic lights, accelerates uniformly at 2 m/s² to a speed $V$ m/s, then immediately decelerates uniformly at 3 m/s² and comes to rest at the next set of lights 240 m away.",
+    { level: "AS", src: "Edexcel AS Specimen · P2 Q2", ctx: "A car starts from rest at a set of traffic lights, accelerates uniformly at 2 m/s² to a speed $V$ m/s, then immediately decelerates uniformly at 3 m/s² and comes to rest at the next set of lights 240 m away.",
       parts: [
         { q: "Sketch a velocity–time graph for the motion.", marks: 2, ms: ["B1: triangle from the origin to $V$ then back to zero", "B1: times $\\tfrac V2$ and $\\tfrac V3$ (or $T_1$, $T_2$) labelled"] },
         { q: "Find $V$.", marks: 4, ms: ["M1: times $\\tfrac{V}{2}$ and $\\tfrac{V}{3}$", "M1: $\\tfrac12 V\\left(\\tfrac V2 + \\tfrac V3\\right) = 240$", "A1: $\\tfrac{5V^2}{12} = 240$", "A1: $V = 24$"] },
         { q: "Find the total time taken.", marks: 1, ms: ["B1: $12 + 8 = 20$ s"] }
       ] },
-    { level: "AS", src: "Edexcel AS 2025 P2 Q1", ctx: "A runner starts from rest at $A$, accelerates uniformly to 8 m/s in 5 s, then runs at 8 m/s until reaching $B$, 400 m from $A$, at time $T$ s.",
+    { level: "AS", src: "Edexcel AS 2025 · P2 Q1", ctx: "A runner starts from rest at $A$, accelerates uniformly to 8 m/s in 5 s, then runs at 8 m/s until reaching $B$, 400 m from $A$, at time $T$ s.",
       parts: [
         { q: "Sketch a speed–time graph.", marks: 2, ms: ["B1: line from origin to $(5, 8)$ then horizontal to $(T, 8)$", "B1: labels 5, $T$, 8"] },
         { q: "Find $T$.", marks: 3, ms: ["M1: $\\tfrac12 \\times 5 \\times 8 + 8(T - 5) = 400$", "A1: $8T - 20 = 400$", "A1: $T = 52.5$"] }
       ] },
-    { src: "Edexcel 2024 P3 Q2", ctx: "A sprinter runs 200 m. She accelerates uniformly from rest to 11 m/s in 4 s, holds 11 m/s for 12 s, then decelerates uniformly to 9 m/s, crossing the line at $t = T$.",
+    { src: "Edexcel 2024 · P3 Q2", ctx: "A sprinter runs 200 m. She accelerates uniformly from rest to 11 m/s in 4 s, holds 11 m/s for 12 s, then decelerates uniformly to 9 m/s, crossing the line at $t = T$.",
       parts: [
         { q: "Find her acceleration in the first phase.", marks: 1, ms: ["B1: $2.75$ m/s²"] },
         { q: "Find the distance covered in the first 16 s.", marks: 2, ms: ["M1: $22 + 132$", "A1: $154$ m"] },
@@ -205,26 +205,26 @@ X("maths:M7.3", {
     { q: "Dropped from rest, distance after 2 s:", opts: ["19.6 m", "9.8 m", "39.2 m", "4.9 m"], ans: 0, why: "$4.9 \\times 4$." }
   ],
   exam: [
-    { level: "AS", src: "Edexcel AS 2022 P2 Q1", ctx: "A stone is projected vertically upwards with speed $U$ m/s from a point 1.8 m above horizontal ground. It reaches a maximum height of 20 m above the ground before falling to the ground at time $T$ s after projection. Model the stone as a particle moving freely under gravity.",
+    { level: "AS", src: "Edexcel AS 2022 · P2 Q1", ctx: "A stone is projected vertically upwards with speed $U$ m/s from a point 1.8 m above horizontal ground. It reaches a maximum height of 20 m above the ground before falling to the ground at time $T$ s after projection. Model the stone as a particle moving freely under gravity.",
       parts: [
         { q: "Show that $U = 18.9$ to 3 significant figures.", marks: 3, ms: ["M1: $0 = U^2 - 2 \\times 9.8 \\times 18.2$", "A1: $U^2 = 356.72$", "A1: $U = 18.89 = 18.9$"] },
         { q: "Find $T$.", marks: 4, ms: ["M1: $-1.8 = 18.9T - 4.9T^2$", "A1: $4.9T^2 - 18.9T - 1.8 = 0$", "M1: solves the quadratic", "A1: $T = 3.95$ s (rejecting the negative root)"] },
         { q: "State how air resistance would affect the value of $T$.", marks: 1, ms: ["B1: $T$ would be smaller — the stone would not rise as high"] }
       ] },
-    { level: "AS", src: "Edexcel AS 2019 P2 Q1", ctx: "A parachutist steps out of a stationary helicopter and falls freely under gravity for 3 seconds. Her parachute then opens and she decelerates uniformly, reaching the ground with speed 4 m/s. She falls a total distance of 250 m.",
+    { level: "AS", src: "Edexcel AS 2019 · P2 Q1", ctx: "A parachutist steps out of a stationary helicopter and falls freely under gravity for 3 seconds. Her parachute then opens and she decelerates uniformly, reaching the ground with speed 4 m/s. She falls a total distance of 250 m.",
       parts: [
         { q: "Find her speed when the parachute opens and the distance fallen in the first 3 s.", marks: 3, ms: ["M1: $v = 9.8 \\times 3$", "A1: $29.4$ m/s", "A1: $s = \\tfrac12 \\times 9.8 \\times 9 = 44.1$ m"] },
         { q: "Find her deceleration after the parachute opens.", marks: 3, ms: ["M1: $4^2 = 29.4^2 - 2a(250 - 44.1)$", "A1: $2a \\times 205.9 = 848.36$", "A1: $a = 2.06$ m/s²"] },
         { q: "Find the total time of the fall.", marks: 2, ms: ["M1: $4 = 29.4 - 2.06t$", "A1: $t = 12.3$ s, total $15.3$ s"] },
         { q: "Sketch a velocity–time graph for the fall.", marks: 2, ms: ["B1: line from origin to (3, 29.4)", "B1: line down to (15.3, 4)"] }
       ] },
-    { level: "AS", src: "Edexcel AS 2023 P2 Q2", ctx: "A stone is projected vertically upwards from a point $O$ with speed 19.6 m/s. It hits the ground, vertically below $O$, 5 seconds later.",
+    { level: "AS", src: "Edexcel AS 2023 · P2 Q2", ctx: "A stone is projected vertically upwards from a point $O$ with speed 19.6 m/s. It hits the ground, vertically below $O$, 5 seconds later.",
       parts: [
         { q: "Find the height of $O$ above the ground.", marks: 3, ms: ["M1: $s = 19.6(5) - 4.9(25)$", "A1: $s = -24.5$", "A1: $O$ is 24.5 m above the ground"] },
         { q: "Find the total time during which the speed of the stone is less than 9.8 m/s.", marks: 3, ms: ["M1: $v = 19.6 - 9.8t$; $v = 9.8$ at $t = 1$ and $v = -9.8$ at $t = 3$", "A1: $1 < t < 3$", "A1: 2 s"] },
         { q: "Find the speed of the stone when it hits the ground.", marks: 2, ms: ["M1: $v = 19.6 - 9.8(5)$", "A1: $29.4$ m/s"] }
       ] },
-    { level: "AS", src: "Edexcel AS Specimen P2 Q1", ctx: "A ball is projected vertically upwards with speed 14.7 m/s from a point 19.6 m above the ground. It hits the ground and rebounds with half the speed with which it hit.",
+    { level: "AS", src: "Edexcel AS Specimen · P2 Q1", ctx: "A ball is projected vertically upwards with speed 14.7 m/s from a point 19.6 m above the ground. It hits the ground and rebounds with half the speed with which it hit.",
       parts: [
         { q: "Find the speed of the ball when it first hits the ground.", marks: 3, ms: ["M1: $v^2 = 14.7^2 + 2(9.8)(19.6)$", "A1: $v^2 = 600.25$", "A1: $24.5$ m/s"] },
         { q: "Find the height to which the ball rebounds.", marks: 3, ms: ["M1: rebound speed $12.25$; $0 = 12.25^2 - 2(9.8)h$", "A1: $h = 150.06 / 19.6$", "A1: $7.66$ m"] }
@@ -269,25 +269,25 @@ X("maths:M7.4", {
     { q: "$\\mathbf r = t^2\\mathbf i + t^3\\mathbf j$: distance from $O$ at $t = 1$:", opts: ["1", "$\\sqrt2$", "2", "$\\sqrt5$"], ans: 1, why: "$(1, 1)$." }
   ],
   exam: [
-    { level: "AS", src: "Edexcel AS 2025 P2 Q4", ctx: "A particle $P$ moves on the $x$-axis. At time $t$ seconds its displacement from $O$ is $s = 2t^3 - 12t^2 + 18t$ metres, $0 \\le t \\le 4$.",
+    { level: "AS", src: "Edexcel AS 2025 · P2 Q4", ctx: "A particle $P$ moves on the $x$-axis. At time $t$ seconds its displacement from $O$ is $s = 2t^3 - 12t^2 + 18t$ metres, $0 \\le t \\le 4$.",
       parts: [
         { q: "Find the times at which $P$ is instantaneously at rest.", marks: 3, ms: ["M1: $v = 6t^2 - 24t + 18$", "M1: $6(t - 1)(t - 3) = 0$", "A1: $t = 1$ and $t = 3$"] },
         { q: "Find the total distance travelled by $P$ in the interval $0 \\le t \\le 4$.", marks: 4, ms: ["M1: $s(1) = 8$, $s(3) = 0$, $s(4) = 8$", "M1: distances $8 + 8 + 8$", "A1: 24 m", "B1: direction changes at $t = 1$ and $t = 3$ noted"] },
         { q: "Find the maximum speed of $P$ in the interval.", marks: 3, ms: ["M1: $a = 12t - 24 = 0 \\Rightarrow t = 2$, $v = -6$", "M1: compares with $v(0) = v(4) = 18$", "A1: 18 m/s"] }
       ] },
-    { src: "Edexcel 2023 P3 Q3", ctx: "A particle $P$ moves so that at time $t$ s its velocity is $\\mathbf v = (t^2 - 3t + 7)\\mathbf i + (2t^2 - 3)\\mathbf j$ m/s.",
+    { src: "Edexcel 2023 · P3 Q3", ctx: "A particle $P$ moves so that at time $t$ s its velocity is $\\mathbf v = (t^2 - 3t + 7)\\mathbf i + (2t^2 - 3)\\mathbf j$ m/s.",
       parts: [
         { q: "Find the speed of $P$ when $t = 2$.", marks: 2, ms: ["M1: $\\mathbf v = 5\\mathbf i + 5\\mathbf j$", "A1: $5\\sqrt2 = 7.07$ m/s"] },
         { q: "Show that there is exactly one positive time at which $P$ is moving parallel to $\\mathbf i + \\mathbf j$, and find it.", marks: 3, ms: ["M1: $t^2 - 3t + 7 = 2t^2 - 3$", "A1: $t^2 + 3t - 10 = (t + 5)(t - 2) = 0$", "A1: $t = 2$ only (reject $-5$)"] },
         { q: "Find the magnitude of the acceleration of $P$ at $t = 2$.", marks: 3, ms: ["M1: $\\mathbf a = (2t - 3)\\mathbf i + 4t\\mathbf j$", "A1: $\\mathbf i + 8\\mathbf j$", "A1: $\\sqrt{65} = 8.06$ m/s²"] }
       ] },
-    { src: "Edexcel 2024 P3 Q4", ctx: "A particle $P$ has position vector $\\mathbf r = ct^2\\mathbf i + t^{3/2}\\mathbf j$ metres at time $t$ s, where $c$ is a positive constant. When $t = 4$, $P$ is on a bearing of $045°$ from $O$.",
+    { src: "Edexcel 2024 · P3 Q4", ctx: "A particle $P$ has position vector $\\mathbf r = ct^2\\mathbf i + t^{3/2}\\mathbf j$ metres at time $t$ s, where $c$ is a positive constant. When $t = 4$, $P$ is on a bearing of $045°$ from $O$.",
       parts: [
         { q: "Show that $c = \\tfrac12$.", marks: 2, ms: ["M1: bearing 045 means the $\\mathbf i$ and $\\mathbf j$ components are equal: $16c = 8$", "A1: $c = \\tfrac12$"] },
         { q: "Find the speed of $P$ when $t = 4$.", marks: 3, ms: ["M1: $\\mathbf v = 2ct\\,\\mathbf i + \\tfrac32 t^{1/2}\\mathbf j$", "A1: $4\\mathbf i + 3\\mathbf j$", "A1: 5 m/s"] },
         { q: "Find the acceleration of $P$ when $t = 4$.", marks: 3, ms: ["M1: $\\mathbf a = 2c\\,\\mathbf i + \\tfrac34 t^{-1/2}\\mathbf j$", "A1: $\\mathbf i + \\tfrac38\\mathbf j$", "A1: magnitude $1.07$ m/s²"] }
       ] },
-    { level: "AS", src: "Edexcel AS 2018 P2 Q8", ctx: "A particle moves along the $x$-axis so that at time $t$ seconds its displacement from $O$ is $x = t^2(t - 1)^2$ metres.",
+    { level: "AS", src: "Edexcel AS 2018 · P2 Q8", ctx: "A particle moves along the $x$-axis so that at time $t$ seconds its displacement from $O$ is $x = t^2(t - 1)^2$ metres.",
       parts: [
         { q: "Explain why $x$ is never negative.", marks: 1, ms: ["B1: it is a product of two squares"] },
         { q: "Find the times at which the particle is instantaneously at rest.", marks: 4, ms: ["M1: expands $x = t^4 - 2t^3 + t^2$ and differentiates", "A1: $v = 4t^3 - 6t^2 + 2t$", "M1: $2t(2t - 1)(t - 1) = 0$", "A1: $t = 0, \\tfrac12, 1$"] },
@@ -334,25 +334,25 @@ X("maths:M7.5", {
     { q: "$R = \\dfrac{U^2\\sin2\\alpha}{g}$ with $U = 14$ m/s and $\\alpha = 45°$ gives:", opts: ["20 m", "10 m", "14.1 m", "40 m"], ans: 0, why: "$\\sin 90° = 1$: $R = \\tfrac{14^2}{9.8} = \\tfrac{196}{9.8} = 20$ m." }
   ],
   exam: [
-    { src: "Edexcel 2023 P3 Q5", ctx: "A ball is projected from a point $O$ on horizontal ground with speed 28 m/s at an angle $\\alpha$ above the horizontal. It passes through the point $A$ which is 40 m horizontally from $O$ and 20 m above the ground.",
+    { src: "Edexcel 2023 · P3 Q5", ctx: "A ball is projected from a point $O$ on horizontal ground with speed 28 m/s at an angle $\\alpha$ above the horizontal. It passes through the point $A$ which is 40 m horizontally from $O$ and 20 m above the ground.",
       parts: [
         { q: "Show that $\\tan^2\\alpha - 4\\tan\\alpha + 3 = 0$.", marks: 5, ms: ["M1: $t = \\dfrac{40}{28\\cos\\alpha}$", "M1: $20 = 28\\sin\\alpha\\,t - 4.9t^2$", "A1: $20 = 40\\tan\\alpha - \\dfrac{4.9 \\times 1600}{784\\cos^2\\alpha}$", "M1: $\\sec^2\\alpha = 1 + \\tan^2\\alpha$", "A1: $20 = 40\\tan\\alpha - 10 - 10\\tan^2\\alpha$, hence result (cso)"] },
         { q: "Find the two possible values of $\\alpha$.", marks: 2, ms: ["M1: $(\\tan\\alpha - 1)(\\tan\\alpha - 3) = 0$", "A1: $45°$ and $71.6°$"] },
         { q: "For the smaller angle, find the time taken to reach $A$.", marks: 2, ms: ["M1: $t = \\dfrac{40}{28\\cos 45°}$", "A1: $2.02$ s"] }
       ] },
-    { src: "Edexcel Oct 2020 P3 Q5", ctx: "A ball is projected from the top of a vertical cliff, 25 m above the sea, with speed $U$ m/s at 45° above the horizontal. It hits the sea at a point 100 m horizontally from the foot of the cliff.",
+    { src: "Edexcel Oct 2020 · P3 Q5", ctx: "A ball is projected from the top of a vertical cliff, 25 m above the sea, with speed $U$ m/s at 45° above the horizontal. It hits the sea at a point 100 m horizontally from the foot of the cliff.",
       parts: [
         { q: "Show that $U = 28$.", marks: 5, ms: ["M1: $100 = U\\cos45°\\,t$", "M1: $-25 = U\\sin45°\\,t - 4.9t^2$", "M1: substitutes $U t = 100\\sqrt2$: $-25 = 100 - 4.9t^2$", "A1: $t^2 = \\tfrac{125}{4.9}$, $t = 5.05$", "A1: $U = \\dfrac{100\\sqrt2}{5.05} = 28$ (cso)"] },
         { q: "Find the greatest height above the sea reached by the ball.", marks: 3, ms: ["M1: $v_y = 0$: $h = \\dfrac{(28\\sin45°)^2}{2 \\times 9.8}$", "A1: $h = 20$ m above the cliff top", "A1: 45 m above the sea"] },
         { q: "Find the speed of the ball as it hits the sea.", marks: 3, ms: ["M1: $v_y^2 = (28\\sin 45°)^2 + 2(9.8)(25) = 392 + 490$", "M1: $v^2 = 392 + 882$", "A1: $35.7$ m/s"] }
       ] },
-    { src: "Edexcel 2025 P3 Q5", ctx: "A stone is projected from the top of a vertical cliff of height $H$ m with speed 14 m/s at an angle $\\alpha$ above the horizontal, where $\\tan\\alpha = \\tfrac34$. The stone hits the sea 4 seconds later.",
+    { src: "Edexcel 2025 · P3 Q5", ctx: "A stone is projected from the top of a vertical cliff of height $H$ m with speed 14 m/s at an angle $\\alpha$ above the horizontal, where $\\tan\\alpha = \\tfrac34$. The stone hits the sea 4 seconds later.",
       parts: [
         { q: "Find the value of $H$.", marks: 3, ms: ["M1: $u_y = 14 \\times \\tfrac35 = 8.4$", "M1: $-H = 8.4(4) - 4.9(16)$", "A1: $H = 44.8$"] },
         { q: "Find the horizontal distance from the foot of the cliff to the point where the stone hits the sea.", marks: 2, ms: ["M1: $14 \\times \\tfrac45 \\times 4$", "A1: $44.8$ m"] },
         { q: "Find the maximum height of the stone above the sea.", marks: 3, ms: ["M1: $\\dfrac{8.4^2}{2 \\times 9.8}$", "A1: $3.6$ m above the cliff top", "A1: $48.4$ m"] }
       ] },
-    { src: "Edexcel Specimen P3 Q5", ctx: "A tennis ball is served from a height of 2.8 m with speed 45 m/s at 5° below the horizontal. The net is 12 m away horizontally and 0.9 m high.",
+    { src: "Edexcel Specimen · P3 Q5", ctx: "A tennis ball is served from a height of 2.8 m with speed 45 m/s at 5° below the horizontal. The net is 12 m away horizontally and 0.9 m high.",
       parts: [
         { q: "Find the time for the ball to reach the net.", marks: 2, ms: ["M1: $t = \\dfrac{12}{45\\cos5°}$", "A1: $0.268$ s"] },
         { q: "Show that the ball clears the net and find by how much.", marks: 4, ms: ["M1: drop $= 45\\sin5°\\,t + 4.9t^2$", "A1: $= 1.40$ m", "A1: height $2.8 - 1.40 = 1.40$ m $> 0.9$", "A1: clears by 0.50 m"] },
@@ -393,15 +393,15 @@ X("maths:M8.1", {
     { q: "Normal reaction on a particle on a smooth 30° slope with weight $W$:", opts: ["$W$", "$W\\cos30°$", "$W\\sin30°$", "0"], ans: 1, why: "Resolve perpendicular to the slope: $R = W\\cos30°$." }
   ],
   exam: [
-    { level: "AS", src: "Edexcel AS 2025 P2 Q2", ctx: "Two forces $\\mathbf F_1 = (3\\mathbf i + 2\\mathbf j)$ N and $\\mathbf F_2 = (-\\mathbf i + 4\\mathbf j)$ N act on a particle $P$ of mass 0.5 kg.",
+    { level: "AS", src: "Edexcel AS 2025 · P2 Q2", ctx: "Two forces $\\mathbf F_1 = (3\\mathbf i + 2\\mathbf j)$ N and $\\mathbf F_2 = (-\\mathbf i + 4\\mathbf j)$ N act on a particle $P$ of mass 0.5 kg.",
       parts: [
         { q: "Find the magnitude of the resultant force.", marks: 2, ms: ["M1: $2\\mathbf i + 6\\mathbf j$", "A1: $\\sqrt{40} = 6.32$ N"] },
         { q: "Find the acceleration of $P$.", marks: 2, ms: ["M1: $\\mathbf a = (2\\mathbf i + 6\\mathbf j)/0.5$", "A1: $(4\\mathbf i + 12\\mathbf j)$ m/s²"] },
         { q: "A third force $\\mathbf F_3$ is added so that $P$ moves with constant velocity. Find $\\mathbf F_3$.", marks: 1, ms: ["B1: $(-2\\mathbf i - 6\\mathbf j)$ N"] }
       ] },
-    { src: "Edexcel 2024 P3 Q1", q: "A particle of mass 4 kg rests on a rough horizontal plane. A horizontal force of magnitude $P$ N acts on the particle, which is in limiting equilibrium. The coefficient of friction is 0.5. Find $P$, and state what happens if $P$ is increased slightly.", marks: 3,
+    { src: "Edexcel 2024 · P3 Q1", q: "A particle of mass 4 kg rests on a rough horizontal plane. A horizontal force of magnitude $P$ N acts on the particle, which is in limiting equilibrium. The coefficient of friction is 0.5. Find $P$, and state what happens if $P$ is increased slightly.", marks: 3,
       ms: ["B1: $R = 4g = 39.2$", "A1: $P = \\mu R = 19.6$ N", "B1: the particle begins to slide (accelerates) in the direction of $P$"] },
-    { src: "Edexcel 2025 P3 Q2", ctx: "A particle of weight 10 N hangs in equilibrium from two light strings $PA$ and $PB$. String $PA$ makes 30° with the horizontal and $PB$ makes 60° with the horizontal.",
+    { src: "Edexcel 2025 · P3 Q2", ctx: "A particle of weight 10 N hangs in equilibrium from two light strings $PA$ and $PB$. String $PA$ makes 30° with the horizontal and $PB$ makes 60° with the horizontal.",
       parts: [
         { q: "Draw a diagram showing the forces on $P$.", marks: 1, ms: ["B1: weight down, two tensions along the strings"] },
         { q: "Find the tensions in the two strings.", marks: 5, ms: ["M1: horizontal $T_A\\cos30° = T_B\\cos60°$", "M1: vertical $T_A\\sin30° + T_B\\sin60° = 10$", "A1: $T_B = \\sqrt3\\,T_A$", "A1: $T_A = 5$ N", "A1: $T_B = 8.66$ N"] }
@@ -442,22 +442,22 @@ X("maths:M8.2", {
     { q: "$\\mathbf F = 6\\mathbf i - 8\\mathbf j$ on 2 kg: $|\\mathbf a| =$", opts: ["10", "5", "20", "$\\sqrt{50}$"], ans: 1, why: "$|\\mathbf F| = 10$, divide by 2." }
   ],
   exam: [
-    { level: "AS", src: "Edexcel AS 2024 P2 Q3", ctx: "Two forces $\\mathbf F_1 = (4\\mathbf i + 2\\mathbf j)$ N and $\\mathbf F_2 = (c\\mathbf i + 4\\mathbf j)$ N act on a particle of mass 2 kg, where $c$ is a constant. The magnitude of the acceleration is 5 m/s².",
+    { level: "AS", src: "Edexcel AS 2024 · P2 Q3", ctx: "Two forces $\\mathbf F_1 = (4\\mathbf i + 2\\mathbf j)$ N and $\\mathbf F_2 = (c\\mathbf i + 4\\mathbf j)$ N act on a particle of mass 2 kg, where $c$ is a constant. The magnitude of the acceleration is 5 m/s².",
       parts: [
         { q: "Find the two possible values of $c$.", marks: 5, ms: ["M1: resultant $(4 + c)\\mathbf i + 6\\mathbf j$", "M1: $|\\mathbf F| = 2 \\times 5 = 10$", "M1: $(4 + c)^2 + 36 = 100$", "A1: $4 + c = \\pm 8$", "A1: $c = 4$ or $c = -12$"] }
       ] },
-    { src: "Edexcel 2022 P3 Q3", ctx: "A particle $P$ of mass 0.5 kg is acted on by forces $\\mathbf F_1 = (3\\mathbf i + \\mathbf j)$ N and $\\mathbf F_2 = (p\\mathbf i + 5\\mathbf j)$ N only. $P$ starts from rest at $A$ and moves in the direction of $\\mathbf i + 3\\mathbf j$.",
+    { src: "Edexcel 2022 · P3 Q3", ctx: "A particle $P$ of mass 0.5 kg is acted on by forces $\\mathbf F_1 = (3\\mathbf i + \\mathbf j)$ N and $\\mathbf F_2 = (p\\mathbf i + 5\\mathbf j)$ N only. $P$ starts from rest at $A$ and moves in the direction of $\\mathbf i + 3\\mathbf j$.",
       parts: [
         { q: "Show that $p = -1$.", marks: 3, ms: ["M1: resultant $(3 + p)\\mathbf i + 6\\mathbf j$", "M1: parallel to $\\mathbf i + 3\\mathbf j$: $\\dfrac{6}{3 + p} = 3$", "A1: $p = -1$ (cso)"] },
         { q: "Find the acceleration of $P$.", marks: 2, ms: ["M1: $(2\\mathbf i + 6\\mathbf j)/0.5$", "A1: $(4\\mathbf i + 12\\mathbf j)$ m/s²"] },
         { q: "After 2 seconds $P$ is at $B$. Find the length $AB$.", marks: 3, ms: ["M1: $|\\mathbf a| = \\sqrt{160} = 4\\sqrt{10}$", "M1: $AB = \\tfrac12 \\times 4\\sqrt{10} \\times 2^2$", "A1: $8\\sqrt{10} = 25.3$ m"] }
       ] },
-    { level: "AS", src: "Edexcel AS 2022 P2 Q4", ctx: "A lift cage of mass 300 kg carries a block of mass 50 kg on its floor. The cage is raised by a vertical cable and accelerates upwards at 0.8 m/s².",
+    { level: "AS", src: "Edexcel AS 2022 · P2 Q4", ctx: "A lift cage of mass 300 kg carries a block of mass 50 kg on its floor. The cage is raised by a vertical cable and accelerates upwards at 0.8 m/s².",
       parts: [
         { q: "Find the tension in the cable.", marks: 3, ms: ["M1: whole system: $T - 350g = 350 \\times 0.8$", "A1: $T = 3430 + 280$", "A1: $3710$ N"] },
         { q: "Find the magnitude of the force exerted by the floor of the cage on the block.", marks: 3, ms: ["M1: block alone: $R - 50g = 50 \\times 0.8$", "A1: $R = 490 + 40$", "A1: $530$ N"] }
       ] },
-    { src: "Edexcel 2025 P3 Q3", ctx: "A particle of mass 2 kg moves on a smooth horizontal plane under a constant force $\\mathbf F$. Its velocity changes from $(3\\mathbf i - \\mathbf j)$ m/s to $(11\\mathbf i + 7\\mathbf j)$ m/s in 4 seconds.",
+    { src: "Edexcel 2025 · P3 Q3", ctx: "A particle of mass 2 kg moves on a smooth horizontal plane under a constant force $\\mathbf F$. Its velocity changes from $(3\\mathbf i - \\mathbf j)$ m/s to $(11\\mathbf i + 7\\mathbf j)$ m/s in 4 seconds.",
       parts: [
         { q: "Find $\\mathbf F$.", marks: 3, ms: ["M1: $\\mathbf a = \\dfrac{(11\\mathbf i + 7\\mathbf j) - (3\\mathbf i - \\mathbf j)}{4}$", "A1: $\\mathbf a = 2\\mathbf i + 2\\mathbf j$", "A1: $\\mathbf F = (4\\mathbf i + 4\\mathbf j)$ N"] },
         { q: "Find the magnitude of $\\mathbf F$ and the bearing on which it acts.", marks: 2, ms: ["B1: $4\\sqrt2 = 5.66$ N", "B1: bearing $045°$"] },
@@ -496,13 +496,13 @@ X("maths:M8.3", {
     { q: "Units of $g$:", opts: ["N or kg m/s²", "m/s or km/h", "m/s² or N/kg", "kg or N/m"], ans: 2, why: "Acceleration / field strength." },
   ],
   exam: [
-    { level: "AS", src: "Edexcel AS 2018 P2 Q6", ctx: "A tennis ball of mass 0.06 kg is thrown vertically upwards with speed 12 m/s from a point 1.5 m above the ground and moves freely under gravity.",
+    { level: "AS", src: "Edexcel AS 2018 · P2 Q6", ctx: "A tennis ball of mass 0.06 kg is thrown vertically upwards with speed 12 m/s from a point 1.5 m above the ground and moves freely under gravity.",
       parts: [
         { q: "Find the weight of the ball.", marks: 1, ms: ["B1: $0.588$ N"] },
         { q: "Find the maximum height above the ground reached by the ball.", marks: 3, ms: ["M1: $0 = 144 - 19.6h$", "A1: $h = 7.35$ m", "A1: $8.85$ m above the ground"] },
         { q: "Find the speed of the ball when it hits the ground.", marks: 2, ms: ["M1: $v^2 = 144 + 2(9.8)(1.5)$", "A1: $13.2$ m/s"] }
       ] },
-    { src: "Edexcel 2022 P3 Q1", ctx: "A person of mass 60 kg stands on the floor of a lift. The lift moves vertically, starting from rest, accelerating at 1.2 m/s² for 3 s, then moving at constant speed, then decelerating at 2 m/s² to rest.",
+    { src: "Edexcel 2022 · P3 Q1", ctx: "A person of mass 60 kg stands on the floor of a lift. The lift moves vertically, starting from rest, accelerating at 1.2 m/s² for 3 s, then moving at constant speed, then decelerating at 2 m/s² to rest.",
       parts: [
         { q: "Find the force exerted by the floor on the person while the lift accelerates upwards.", marks: 3, ms: ["M1: $R - 60g = 60 \\times 1.2$", "A1: $R = 588 + 72$", "A1: $660$ N"] },
         { q: "Find the force exerted by the floor on the person while the lift decelerates.", marks: 3, ms: ["M1: acceleration $2$ m/s² downwards: $60g - R = 60 \\times 2$", "A1: $R = 588 - 120$", "A1: $468$ N"] },
@@ -546,21 +546,21 @@ X("maths:M8.4", {
     { q: "N3 pair for a book on a table:", opts: ["the book's weight and the normal reaction", "book pushes table down, table pushes book up", "the book's weight and the table's weight", "friction on the book and the normal reaction"], ans: 1, why: "Same interaction, different bodies." }
   ],
   exam: [
-    { level: "AS", src: "Edexcel AS 2019 P2 Q2", ctx: "A ball $A$ of mass 3 kg lies on a smooth horizontal table. It is connected by a light inextensible string passing over a smooth pulley at the edge of the table to a ball $B$ of mass 2 kg hanging freely. The system is released from rest.",
+    { level: "AS", src: "Edexcel AS 2019 · P2 Q2", ctx: "A ball $A$ of mass 3 kg lies on a smooth horizontal table. It is connected by a light inextensible string passing over a smooth pulley at the edge of the table to a ball $B$ of mass 2 kg hanging freely. The system is released from rest.",
       parts: [
         { q: "Write down an equation of motion for each ball.", marks: 2, ms: ["B1: $A$: $T = 3a$", "B1: $B$: $2g - T = 2a$"] },
         { q: "Find the acceleration of the system and the tension in the string.", marks: 3, ms: ["M1: adds: $2g = 5a$", "A1: $a = 3.92$ m/s²", "A1: $T = 11.8$ N"] },
         { q: "Find the magnitude of the force exerted by the string on the pulley.", marks: 2, ms: ["M1: resultant of two perpendicular tensions $\\sqrt{T^2 + T^2}$", "A1: $16.6$ N"] },
         { q: "State how the answers would change if the table were rough.", marks: 1, ms: ["B1: friction on $A$ would reduce the acceleration and the tension would be larger (closer to $2g$)"] }
       ] },
-    { level: "AS", src: "Edexcel AS Nov 2021 P2 Q3", ctx: "Two particles $P$ (2 kg) and $Q$ (3 kg) are connected by a light inextensible string over a smooth fixed pulley. $Q$ is 1 m above the floor and the system is released from rest with the string taut.",
+    { level: "AS", src: "Edexcel AS Nov 2021 · P2 Q3", ctx: "Two particles $P$ (2 kg) and $Q$ (3 kg) are connected by a light inextensible string over a smooth fixed pulley. $Q$ is 1 m above the floor and the system is released from rest with the string taut.",
       parts: [
         { q: "Find the acceleration and the tension.", marks: 4, ms: ["M1: $3g - T = 3a$ and $T - 2g = 2a$", "A1: $a = \\tfrac g5 = 1.96$ m/s²", "M1: $T = 2(9.8 + 1.96)$", "A1: $23.5$ N"] },
         { q: "Find the speed of $Q$ when it hits the floor.", marks: 2, ms: ["M1: $v^2 = 2 \\times 1.96 \\times 1$", "A1: $1.98$ m/s"] },
         { q: "Given that $P$ does not reach the pulley, find the greatest height of $P$ above its starting point.", marks: 3, ms: ["M1: after $Q$ lands the string is slack; $P$ rises a further $\\dfrac{v^2}{2g}$", "A1: $0.2$ m", "A1: total $1.2$ m"] },
         { q: "State how you have used the fact that the pulley is smooth.", marks: 1, ms: ["B1: the tension is the same on both sides of the pulley"] }
       ] },
-    { level: "AS", src: "Edexcel AS 2024 P2 Q4", ctx: "A car of mass 1200 kg tows a trailer of mass 400 kg along a straight horizontal road by a light rigid tow-bar. Resistances to motion are 500 N on the car and 200 N on the trailer. The engine produces a driving force of 2100 N.",
+    { level: "AS", src: "Edexcel AS 2024 · P2 Q4", ctx: "A car of mass 1200 kg tows a trailer of mass 400 kg along a straight horizontal road by a light rigid tow-bar. Resistances to motion are 500 N on the car and 200 N on the trailer. The engine produces a driving force of 2100 N.",
       parts: [
         { q: "Find the acceleration of the car.", marks: 3, ms: ["M1: whole system $2100 - 700 = 1600a$", "A1: $1400 = 1600a$", "A1: $0.875$ m/s²"] },
         { q: "Find the tension in the tow-bar.", marks: 2, ms: ["M1: trailer: $T - 200 = 400 \\times 0.875$", "A1: $550$ N"] },
@@ -601,18 +601,18 @@ X("maths:M8.5", {
     { q: "Resultant of 6 N and 8 N at right angles:", opts: ["14 N", "10 N", "2 N", "48 N"], ans: 1, why: "$\\sqrt{6^2 + 8^2} = 10$ N." }
   ],
   exam: [
-    { src: "Edexcel Specimen P3 Q3", ctx: "A box of mass 10 kg is pulled up a rough plane inclined at 20° to the horizontal by a rope inclined at 30° to the plane. The tension in the rope is 80 N and the coefficient of friction is 0.3.",
+    { src: "Edexcel Specimen · P3 Q3", ctx: "A box of mass 10 kg is pulled up a rough plane inclined at 20° to the horizontal by a rope inclined at 30° to the plane. The tension in the rope is 80 N and the coefficient of friction is 0.3.",
       parts: [
         { q: "Find the normal reaction between the box and the plane.", marks: 3, ms: ["M1: perpendicular to plane: $R + 80\\sin30° = 10g\\cos20°$", "A1: $R = 92.09 - 40$", "A1: $52.1$ N"] },
         { q: "Find the acceleration of the box up the plane.", marks: 4, ms: ["M1: $F = 0.3R = 15.6$", "M1: $80\\cos30° - 10g\\sin20° - 15.6 = 10a$", "A1: $69.28 - 33.52 - 15.63 = 10a$", "A1: $a = 2.01$ m/s²"] },
         { q: "The rope breaks. Find the deceleration of the box while it continues to move up the plane.", marks: 3, ms: ["M1: now $R = 10g\\cos20° = 92.1$, $F = 27.6$", "M1: $10a = -(33.5 + 27.6)$", "A1: deceleration $6.11$ m/s²"] }
       ] },
-    { src: "Edexcel 2018 P3 Q7", ctx: "A crate of mass 20 kg is pulled across a rough horizontal floor by a handle inclined at 25° above the horizontal. The force in the handle is 100 N and the coefficient of friction is 0.3.",
+    { src: "Edexcel 2018 · P3 Q7", ctx: "A crate of mass 20 kg is pulled across a rough horizontal floor by a handle inclined at 25° above the horizontal. The force in the handle is 100 N and the coefficient of friction is 0.3.",
       parts: [
         { q: "Find the normal reaction.", marks: 2, ms: ["M1: $R + 100\\sin25° = 20g$", "A1: $R = 154$ N (awrt 154)"] },
         { q: "Find the acceleration of the crate.", marks: 4, ms: ["M1: $F = 0.3 \\times 153.7 = 46.1$", "M1: $100\\cos25° - 46.1 = 20a$", "A1: $90.6 - 46.1 = 20a$", "A1: $2.23$ m/s²"] }
       ] },
-    { src: "Edexcel Oct 2021 P3 Q2", ctx: "Two stones $A$ (2 kg) and $B$ (3 kg) are connected by a light inextensible string over a smooth pulley at the top of a smooth plane inclined at 30°. $A$ rests on the plane and $B$ hangs vertically. The system is released from rest.",
+    { src: "Edexcel Oct 2021 · P3 Q2", ctx: "Two stones $A$ (2 kg) and $B$ (3 kg) are connected by a light inextensible string over a smooth pulley at the top of a smooth plane inclined at 30°. $A$ rests on the plane and $B$ hangs vertically. The system is released from rest.",
       parts: [
         { q: "Find the acceleration of the system.", marks: 4, ms: ["M1: $A$: $T - 2g\\sin30° = 2a$", "M1: $B$: $3g - T = 3a$", "A1: $3g - g = 5a$", "A1: $a = 3.92$ m/s²"] },
         { q: "Find the tension in the string.", marks: 2, ms: ["M1: $T = 3(9.8 - 3.92)$", "A1: $17.6$ N"] },
@@ -655,25 +655,25 @@ X("maths:M8.6", {
     { q: "If the calculated $F$ exceeds $\\mu R$, the body:", opts: ["stays in equilibrium, with $F = \\mu R$", "cannot be in equilibrium — it moves", "has $R = 0$, so it lifts off the surface", "is smooth, so friction can be ignored"], ans: 1, why: "Friction cannot supply it." }
   ],
   exam: [
-    { src: "Edexcel 2024 P3 Q3", ctx: "A particle is released from rest on a rough plane inclined at angle $\\alpha$ to the horizontal, where $\\tan\\alpha = \\tfrac{5}{12}$. The coefficient of friction is $\\mu$, and the particle slides down the plane.",
+    { src: "Edexcel 2024 · P3 Q3", ctx: "A particle is released from rest on a rough plane inclined at angle $\\alpha$ to the horizontal, where $\\tan\\alpha = \\tfrac{5}{12}$. The coefficient of friction is $\\mu$, and the particle slides down the plane.",
       parts: [
         { q: "Show that the acceleration of the particle is $\\dfrac{g(5 - 12\\mu)}{13}$.", marks: 5, ms: ["B1: $R = mg\\cos\\alpha = \\tfrac{12}{13}mg$", "M1: $F = \\mu R$", "M1: $mg\\sin\\alpha - \\mu R = ma$", "A1: $\\tfrac{5}{13}mg - \\tfrac{12}{13}\\mu mg = ma$", "A1: $a = \\tfrac{g(5 - 12\\mu)}{13}$ (cso)"] },
         { q: "Given that the particle takes 2 seconds to slide 2.8 m from rest, find $\\mu$.", marks: 3, ms: ["M1: $2.8 = \\tfrac12 a(4) \\Rightarrow a = 1.4$", "M1: $5 - 12\\mu = \\tfrac{1.4 \\times 13}{9.8}$", "A1: $\\mu = 0.262$ (awrt 0.26)"] },
         { q: "State the largest value of $\\mu$ for which the particle would slide.", marks: 1, ms: ["B1: $\\mu < \\tfrac{5}{12}$"] }
       ] },
-    { src: "Edexcel 2022 P3 Q2", ctx: "A block of mass 5 kg rests on a rough plane inclined at 30° to the horizontal. It is held in equilibrium by a horizontal force of magnitude 20 N. The coefficient of friction is 0.4.",
+    { src: "Edexcel 2022 · P3 Q2", ctx: "A block of mass 5 kg rests on a rough plane inclined at 30° to the horizontal. It is held in equilibrium by a horizontal force of magnitude 20 N. The coefficient of friction is 0.4.",
       parts: [
         { q: "Find the normal reaction.", marks: 2, ms: ["M1: $R = 5g\\cos30° + 20\\sin30°$", "A1: $52.4$ N"] },
         { q: "Find the magnitude and direction of the frictional force.", marks: 4, ms: ["M1: along the plane: $F + 20\\cos30° = 5g\\sin30°$ (taking $F$ up the plane)", "A1: $F = 24.5 - 17.32$", "A1: $7.18$ N", "A1: acting up the plane (the block would otherwise slide down)"] },
         { q: "Verify that the block is in equilibrium.", marks: 2, ms: ["M1: $\\mu R = 0.4 \\times 52.4 = 21.0$", "A1: $7.18 < 21.0$ so friction is sufficient — equilibrium"] }
       ] },
-    { src: "Edexcel 2025 P3 Q2", ctx: "A box of mass 30 kg is dragged across a rough horizontal floor at constant speed by a rope inclined at 20° above the horizontal. The coefficient of friction is 0.5.",
+    { src: "Edexcel 2025 · P3 Q2", ctx: "A box of mass 30 kg is dragged across a rough horizontal floor at constant speed by a rope inclined at 20° above the horizontal. The coefficient of friction is 0.5.",
       parts: [
         { q: "Draw a diagram showing the forces on the box.", marks: 1, ms: ["B1: weight, $R$, $T$ at 20°, friction backward"] },
         { q: "Find the tension in the rope.", marks: 5, ms: ["M1: $R = 30g - T\\sin20°$", "M1: $T\\cos20° = 0.5R$ (constant speed)", "A1: $T(\\cos20° + 0.5\\sin20°) = 147$", "A1: $T = 132$ N (awrt 132)", "A1: $R = 249$ N"] },
         { q: "The rope is now pulled with tension 150 N at the same angle. Find the acceleration of the box.", marks: 3, ms: ["M1: $R = 294 - 150\\sin20° = 242.7$; $F = 121.3$", "M1: $150\\cos20° - 121.3 = 30a$", "A1: $a = 0.654$ m/s² (awrt 0.65)"] }
       ] },
-    { src: "Edexcel Oct 2020 P3 Q1", ctx: "A brick of mass 2 kg rests on a rough plane inclined at 20° to the horizontal and is on the point of sliding down the plane.",
+    { src: "Edexcel Oct 2020 · P3 Q1", ctx: "A brick of mass 2 kg rests on a rough plane inclined at 20° to the horizontal and is on the point of sliding down the plane.",
       parts: [
         { q: "Find the normal reaction.", marks: 2, ms: ["M1: $R = 2g\\cos20°$", "A1: $18.4$ N"] },
         { q: "Find the coefficient of friction.", marks: 3, ms: ["M1: $F = 2g\\sin20°$ and $F = \\mu R$", "M1: $\\mu = \\tan20°$", "A1: $0.364$"] },
@@ -719,25 +719,25 @@ X("maths:M9.1", {
     { q: "Number of independent equations for a rigid body in 2D equilibrium:", opts: ["1", "2", "3", "4"], ans: 2, why: "Two resolves + one moments." }
   ],
   exam: [
-    { src: "Edexcel 2023 P3 Q6", ctx: "A uniform ladder $AB$ of mass 20 kg and length $2a$ rests with $A$ on rough horizontal ground and $B$ against a smooth vertical wall, at 60° to the ground. A man of mass 80 kg stands on the ladder at the point $\\tfrac34$ of the way up from $A$, and the ladder is in limiting equilibrium.",
+    { src: "Edexcel 2023 · P3 Q6", ctx: "A uniform ladder $AB$ of mass 20 kg and length $2a$ rests with $A$ on rough horizontal ground and $B$ against a smooth vertical wall, at 60° to the ground. A man of mass 80 kg stands on the ladder at the point $\\tfrac34$ of the way up from $A$, and the ladder is in limiting equilibrium.",
       parts: [
         { q: "Draw a diagram showing the forces acting on the ladder.", marks: 1, ms: ["B1: $20g$ at midpoint, $80g$ at $\\tfrac32 a$ from $A$, $N$ horizontal at $B$, $R$ up and $F$ toward the wall at $A$"] },
         { q: "Show that the reaction at the wall is 396 N to 3 significant figures.", marks: 4, ms: ["M1: moments about $A$: $N \\times 2a\\sin60° = 20g \\times a\\cos60° + 80g \\times \\tfrac32 a\\cos60°$", "A1: $N\\sqrt3 = 10g + 60g$", "M1: $N = \\dfrac{70g}{\\sqrt3}$", "A1: $396$ N (cso)"] },
         { q: "Find the coefficient of friction between the ladder and the ground.", marks: 3, ms: ["M1: horizontal: $F = N = 396$; vertical: $R = 100g = 980$", "M1: $\\mu = F/R$", "A1: $0.404$"] },
         { q: "State one way the model could be refined.", marks: 1, ms: ["B1: treat the man as a particle at a point / include friction at the wall / the ladder may not be uniform"] }
       ] },
-    { src: "Edexcel 2022 P3 Q4", ctx: "A uniform rod $AB$ of mass 10 kg and length 4 m is freely hinged to a wall at $A$ and held at 30° above the horizontal by a light string attached at $B$ perpendicular to the rod. A particle of mass 5 kg is attached to the rod at $C$, where $AC = 3$ m.",
+    { src: "Edexcel 2022 · P3 Q4", ctx: "A uniform rod $AB$ of mass 10 kg and length 4 m is freely hinged to a wall at $A$ and held at 30° above the horizontal by a light string attached at $B$ perpendicular to the rod. A particle of mass 5 kg is attached to the rod at $C$, where $AC = 3$ m.",
       parts: [
         { q: "Find the tension in the string.", marks: 4, ms: ["M1: moments about $A$: $T \\times 4 = 10g \\times 2\\cos30° + 5g \\times 3\\cos30°$", "A1: $4T = 35g\\cos30°$", "M1: $T = \\dfrac{35 \\times 9.8 \\times 0.866}{4}$", "A1: $74.3$ N"] },
         { q: "Find the magnitude of the force exerted by the hinge on the rod.", marks: 4, ms: ["M1: horizontal: $X = T\\sin30° = 37.1$", "M1: vertical: $Y + T\\cos30° = 15g \\Rightarrow Y = 147 - 64.3 = 82.7$", "M1: $\\sqrt{X^2 + Y^2}$", "A1: $90.6$ N"] }
       ] },
-    { src: "Edexcel 2018 P3 Q9", ctx: "A plank $AB$ of length 6 m and mass 30 kg has its centre of mass 2.5 m from $A$. It rests horizontally on two supports at $C$ and $D$, where $AC = 1$ m and $AD = 4$ m. A boy of mass 40 kg stands on the plank.",
+    { src: "Edexcel 2018 · P3 Q9", ctx: "A plank $AB$ of length 6 m and mass 30 kg has its centre of mass 2.5 m from $A$. It rests horizontally on two supports at $C$ and $D$, where $AC = 1$ m and $AD = 4$ m. A boy of mass 40 kg stands on the plank.",
       parts: [
         { q: "With the boy at the midpoint of the plank, find the reactions at $C$ and $D$.", marks: 5, ms: ["M1: moments about $C$: $3R_D = 30g \\times 1.5 + 40g \\times 2$", "A1: $3R_D = 125g$", "A1: $R_D = 408$ N", "M1: $R_C + R_D = 70g$", "A1: $R_C = 278$ N"] },
         { q: "The boy walks slowly towards $B$. Find how far from $A$ he can go before the plank starts to tilt.", marks: 4, ms: ["M1: on the point of tilting $R_C = 0$", "M1: moments about $D$: $30g \\times 1.5 = 40g \\times x$", "A1: $x = 1.125$", "A1: $5.125$ m from $A$ (awrt 5.13)"] },
         { q: "State how you used the fact that the plank was modelled as a rod.", marks: 1, ms: ["B1: it is rigid and has no thickness so the forces act along one line and it does not bend"] }
       ] },
-    { src: "Edexcel 2024 P3 Q6", ctx: "A uniform rod $AB$ of weight $W$ and length $2a$ has end $A$ on rough horizontal ground and rests on a smooth peg at $C$, where $AC = \\tfrac32 a$. The rod makes angle $\\theta$ with the ground, where $\\tan\\theta = \\tfrac34$, and is in equilibrium.",
+    { src: "Edexcel 2024 · P3 Q6", ctx: "A uniform rod $AB$ of weight $W$ and length $2a$ has end $A$ on rough horizontal ground and rests on a smooth peg at $C$, where $AC = \\tfrac32 a$. The rod makes angle $\\theta$ with the ground, where $\\tan\\theta = \\tfrac34$, and is in equilibrium.",
       parts: [
         { q: "Show that the reaction at the peg is $\\tfrac{8}{15}W$.", marks: 3, ms: ["M1: moments about $A$: $S \\times \\tfrac32 a = W \\times a\\cos\\theta$", "A1: $\\tfrac32 S = \\tfrac45 W$", "A1: $S = \\tfrac{8}{15}W$ (cso)"] },
         { q: "Find the frictional force and the normal reaction at $A$ in terms of $W$.", marks: 4, ms: ["M1: horizontal: $F = S\\sin\\theta$", "A1: $F = \\tfrac{8}{15} \\times \\tfrac35 W = 0.32W$", "M1: vertical: $R + S\\cos\\theta = W$", "A1: $R = W - \\tfrac{32}{75}W = 0.573W$"] },

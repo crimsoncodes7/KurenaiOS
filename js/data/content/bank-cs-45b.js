@@ -39,23 +39,23 @@ X("compsci:4.5.5.3", {
     { q: "A checksum is calculated from:", opts: ["the packet's header only", "the packet's payload/data", "the sender's IP address", "the parity bits of each byte"], ans: 1, why: "Function of the contents." }
   ],
   exam: [
-    { level: "AS", src: "AS 2022 P2 Q4.3", ctx: "A system uses even parity on 7-bit ASCII codes, adding the parity bit as the most significant bit.",
+    { level: "AS", src: "AQA 2022 · P2 Q04.3", ctx: "A system uses even parity on 7-bit ASCII codes, adding the parity bit as the most significant bit.",
       parts: [
         { q: "Explain how the parity bit is generated.", marks: 2, ms: ["The number of 1s in the seven data bits is counted (1)", "If the total is odd the parity bit is set to 1, otherwise 0, so that the total number of 1s is even (accept: the data bits are XORed and the result is the parity bit) (1)"] },
         { q: "Write the byte transmitted for the character with ASCII code `1000111`.", marks: 1, ms: ["01000111 (four 1s already, parity bit 0) (1)"] },
         { q: "Explain how the receiver uses the parity bit and state one limitation of the method.", marks: 2, ms: ["Receiver counts the 1s; if even the byte is assumed correct, if odd it has been corrupted (1)", "An even number of bit errors is not detected / the error cannot be corrected or located (1)"] }
       ] },
-    { level: "AS", src: "AS 2017 P2 Q2.6", q: "Explain one advantage of majority voting over the use of parity bits, describing how the advantage is achieved.", marks: 2,
+    { level: "AS", src: "AQA 2017 · P2 Q02.6", q: "Explain one advantage of majority voting over the use of parity bits, describing how the advantage is achieved.", marks: 2,
       ms: ["Majority voting can correct errors as well as detect them (1)", "because the value received most often is taken as correct and the minority value discarded (1)", "Alternative: it can detect multiple-bit errors, because each bit is checked individually (1 + 1)", "Max 2"] },
-    { level: "AS", src: "AS 2023 P2 Q4", ctx: "A sensor sends each byte three times so the receiver can use majority voting.",
+    { level: "AS", src: "AQA 2023 · P2 Q04", ctx: "A sensor sends each byte three times so the receiver can use majority voting.",
       parts: [
         { q: "Explain why the byte is sent an odd number of times.", marks: 1, ms: ["So there is always a majority value — with an even count the copies could split evenly (1)"] },
         { q: "The receiver receives `10110010`, `10110110` and `10110010`. State the byte accepted.", marks: 1, ms: ["10110010 (1)"] },
         { q: "Explain why a designer might prefer parity bits to majority voting.", marks: 2, ms: ["Majority voting triples the amount of data sent (1)", "Parity adds only one bit per byte, so transmission is much faster / uses less bandwidth (1)"] }
       ] },
-    { src: "AQA 2023 P2 Q2.2", q: "Each packet sent across a network contains a checksum. Explain what the checksum is used for and outline how its value is determined.", marks: 2,
+    { src: "AQA 2023 · P2 Q02.2", q: "Each packet sent across a network contains a checksum. Explain what the checksum is used for and outline how its value is determined.", marks: 2,
       ms: ["To check whether the contents of the packet have been corrupted / changed during transmission (1)", "It is calculated by applying a function / hash to the payload of the packet (and recalculated by the receiver for comparison) (1)"] },
-    { level: "AS", src: "AS 2020 P2 Q1.4", q: "Explain what a check digit is and how it is generated.", marks: 2,
+    { level: "AS", src: "AQA 2020 · P2 Q01.4", q: "Explain what a check digit is and how it is generated.", marks: 2,
       ms: ["A digit appended to a number (such as an ISBN) to detect errors in entry or transmission (1)", "Calculated by applying an algorithm to the other digits of the number (1)"] }
   ]
 });
@@ -92,18 +92,18 @@ X("compsci:4.5.6.7", {
     { qk: "152", q: "A 17.199 MB file of 16-bit mono sound sampled at 44 100 Hz lasts about:", opts: ["24 s", "195 s", "390 s", "3 s"], ans: 1, why: "17 199 000 × 8 bits ÷ (44 100 × 16 bits a second) ≈ 195 s. Forgetting × 8 gives about 24 s." }
   ],
   exam: [
-    { src: "AQA 2023 P2 Q1", ctx: "A 3-minute mono recording is sampled at 48 000 Hz with a 16-bit sample resolution and stored uncompressed.",
+    { src: "AQA 2023 · P2 Q01", ctx: "A 3-minute mono recording is sampled at 48 000 Hz with a 16-bit sample resolution and stored uncompressed.",
       parts: [
         { q: "Calculate the file size in mebibytes to 2 decimal places, showing your working.", marks: 2, ms: ["48 000 × 16 × 180 / 8 = 17 280 000 bytes (1)", "÷ 1024² = 16.48 MiB (1)"] },
         { q: "The recording contains frequencies up to 15 000 Hz. State the minimum sampling rate that would have been needed to reproduce it faithfully.", marks: 1, ms: ["30 000 Hz (1)"] }
       ] },
-    { src: "AQA 2022 P2 Q10.1", q: "An uncompressed mono sound file of 17.199 MB was sampled at 44 100 Hz with 16-bit resolution. Calculate the duration of the recording in seconds.", marks: 3,
+    { src: "AQA 2022 · P2 Q10.1", q: "An uncompressed mono sound file of 17.199 MB was sampled at 44 100 Hz with 16-bit resolution. Calculate the duration of the recording in seconds.", marks: 3,
       ms: ["17.199 × 1 000 000 × 8 = 137 592 000 bits (1)", "÷ (44 100 × 16) (1)", "= 195 seconds (1)"] },
-    { src: "AQA 2018 P2 Q11.3", q: "Explain what is meant by quantisation error in sampled sound, its significance, and how it could be reduced.", marks: 3,
+    { src: "AQA 2018 · P2 Q11.3", q: "Explain what is meant by quantisation error in sampled sound, its significance, and how it could be reduced.", marks: 3,
       ms: ["Each measured amplitude is rounded to the nearest of the available levels (1)", "So the original signal cannot be reproduced completely accurately (1)", "Increase the sample resolution — the number of bits per sample (1)"] },
-    { src: "AQA 2025 P2 Q2.1", q: "A 50-second recording sampled at 20 000 Hz is stored in a 1.5 MB file. Calculate the sample resolution used.", marks: 2,
+    { src: "AQA 2025 · P2 Q02.1", q: "A 50-second recording sampled at 20 000 Hz is stored in a 1.5 MB file. Calculate the sample resolution used.", marks: 2,
       ms: ["1.5 × 1000 × 1000 × 8 = 12 000 000 bits ÷ (50 × 20 000 = 1 000 000 samples) (1)", "12 bits (1)"] },
-    { src: "AQA 2017 P2 Q8.2", q: "A signal containing frequencies up to 14 500 Hz is sampled at 20 000 Hz. Explain why this sample rate is too low.", marks: 2,
+    { src: "AQA 2017 · P2 Q08.2", q: "A signal containing frequencies up to 14 500 Hz is sampled at 20 000 Hz. Explain why this sample rate is too low.", marks: 2,
       ms: ["Nyquist's theorem: the sample rate must be at least twice the highest frequency in the signal (1)", "20 000 is less than 2 × 14 500 = 29 000, so components above 10 000 Hz will not be reproduced faithfully (1)"] }
   ]
 });
@@ -134,11 +134,11 @@ X("compsci:4.5.6.8", {
     { q: "'MIDI gives better quality' scores only if you add:", opts: ["that MIDI files have a smaller file size", "that no data is lost through sampling", "that MIDI uses a higher bit rate than audio", "that MIDI records more audio channels"], ans: 1, why: "Mark-scheme condition." }
   ],
   exam: [
-    { level: "AS", src: "AS 2024 P2 Q3.6", q: "Describe how MIDI represents a piece of music, and state one advantage of MIDI over sampled sound.", marks: 3,
+    { level: "AS", src: "AQA 2024 · P2 Q03.6", q: "Describe how MIDI represents a piece of music, and state one advantage of MIDI over sampled sound.", marks: 3,
       ms: ["Music is represented as a sequence of event messages / instructions (1)", "e.g. note on/off, pitch, velocity, duration, channel, instrument (1)", "Advantage: more compact / easy to edit notes and instruments / no data lost through sampling / score can be generated (1)"] },
-    { src: "AQA 2022 P2 Q10.2", q: "A composer stores her work as MIDI files rather than sampled sound. Explain three advantages of this choice.", marks: 3,
+    { src: "AQA 2022 · P2 Q10.2", q: "A composer stores her work as MIDI files rather than sampled sound. Explain three advantages of this choice.", marks: 3,
       ms: ["Files are much more compact — each note is a short message rather than thousands of samples (1)", "Easy to modify at note level — change the instrument, transpose the whole score, correct a wrong note (1)", "No data is lost through sampling; a printed score can be generated directly; the file can drive an instrument (1)", "Max 3"] },
-    { src: "AQA 2025 P2 Q2.4", q: "Explain why a MIDI file of a song is much smaller than a sampled recording of the same song, and state one reason a producer might still need a sampled recording.", marks: 3,
+    { src: "AQA 2025 · P2 Q02.4", q: "Explain why a MIDI file of a song is much smaller than a sampled recording of the same song, and state one reason a producer might still need a sampled recording.", marks: 3,
       ms: ["A MIDI file stores instructions — a few bytes per note event (1)", "A sampled recording stores tens of thousands of amplitude values per second (1)", "MIDI cannot capture real sounds such as a vocal performance, which must be sampled (1)"] }
   ]
 });
@@ -175,23 +175,23 @@ X("compsci:4.5.6.9", {
     { q: "Which is a reason to compress?", opts: ["Making transmission over a network slower", "Fitting an email attachment limit", "Improving the original file's quality", "Encrypting the file so it is secure"], ans: 1, why: "Compression makes files smaller, so an attachment can fit under an email's size limit." }
   ],
   exam: [
-    { src: "AQA 2025 P2 Q10", ctx: "A software company compresses the images and text files it distributes.",
+    { src: "AQA 2025 · P2 Q10", ctx: "A software company compresses the images and text files it distributes.",
       parts: [
         { q: "State two reasons why data is compressed.", marks: 2, ms: ["Less storage space is required (1)", "Data can be transmitted more quickly / more files fit on a device / a file fits within a size limit (1)"] },
         { q: "Explain why run-length encoding is suitable for images but dictionary-based compression is more suitable for text.", marks: 2, ms: ["In images adjacent pixels are often the same colour, giving long runs (1)", "In text the repetition is of words / substrings spread throughout the document — rarely adjacent identical characters (1)"] }
       ] },
-    { src: "AQA 2019 P2 Q3", ctx: "A paragraph of text is compressed using dictionary-based compression.",
+    { src: "AQA 2019 · P2 Q03", ctx: "A paragraph of text is compressed using dictionary-based compression.",
       parts: [
         { q: "Explain the difference between lossless and lossy compression.", marks: 1, ms: ["Lossless: the original data can be fully recovered; lossy: it cannot — some data is permanently discarded (1)"] },
         { q: "Describe how dictionary-based compression could be applied to the paragraph.", marks: 2, ms: ["A dictionary is built mapping recurring words / sequences of characters to tokens (1)", "Each occurrence in the text is replaced by its token (1)"] },
         { q: "Explain why this method is only worthwhile for large texts.", marks: 1, ms: ["A small text has little repetition, and the dictionary itself must be stored, so the compressed version may be no smaller (1)"] }
       ] },
-    { src: "AQA 2024 P2 Q2.4", ctx: "One row of an 8-bit-colour image is: `R R R B R G G B B B`.",
+    { src: "AQA 2024 · P2 Q02.4", ctx: "One row of an 8-bit-colour image is: `R R R B R G G B B B`.",
       parts: [
         { q: "State the number of bytes needed for the row before and after run-length encoding (one byte per count and per colour).", marks: 1, ms: ["Before 10, after 12 (six runs × 2) (1)"] },
         { q: "Explain why run-length encoding has not been effective here.", marks: 1, ms: ["The runs are short / the colours vary a lot, so the counts add more than they save and the file grows (1)"] }
       ] },
-    { level: "AS", src: "AS 2023 P2 Q5.4", q: "A studio stores its master recordings using lossy compression. Describe one problem this could cause.", marks: 2,
+    { level: "AS", src: "AQA 2023 · P2 Q05.4", q: "A studio stores its master recordings using lossy compression. Describe one problem this could cause.", marks: 2,
       ms: ["Data is discarded / lost when the file is stored (1)", "So the original cannot be recovered — the quality is permanently reduced and later editing is limited (1)"] }
   ]
 });
@@ -232,24 +232,24 @@ X("compsci:4.5.6.10", {
     { q: "A computationally secure cipher:", opts: ["can never be cracked, however much time an attacker has", "cannot be cracked in a practical time by known methods", "has no key, so an attacker has nothing to find", "is a one-time pad with a key used only once"], ans: 1, why: "'Never' is rejected." }
   ],
   exam: [
-    { src: "AQA 2023 P2 Q3", ctx: "A message is encrypted first with a Caesar cipher and, separately, with a Vernam cipher.",
+    { src: "AQA 2023 · P2 Q03", ctx: "A message is encrypted first with a Caesar cipher and, separately, with a Vernam cipher.",
       parts: [
         { q: "Encrypt the plaintext `SECURITY` with a Caesar cipher using a shift of 4.", marks: 1, ms: ["WIGYVMXC (1)"] },
         { q: "Describe one weakness that the Caesar cipher shares with every substitution cipher.", marks: 1, ms: ["Each plaintext letter is always encrypted to the same ciphertext letter, so ciphertext letter frequencies match plaintext frequencies (frequency analysis) / structural properties survive (1)"] },
         { q: "Explain why a general substitution cipher is harder to crack than a Caesar cipher.", marks: 1, ms: ["There are far more possible keys, and knowing how one letter is encrypted does not reveal how the others are — there is no single shift (1)"] },
         { q: "State two conditions that must be met for the Vernam cipher to be perfectly secure.", marks: 2, ms: ["The key must be at least as long as the plaintext (1)", "The key must be truly random / used only once / kept secret (1)", "Max 2"] }
       ] },
-    { level: "AS", src: "AS 2022 P2 Q4.5", q: "Encrypt the plaintext `EGG` using the Vernam cipher with the key `DAB`, using 7-bit ASCII codes (E = 1000101, G = 1000111, D = 1000100, A = 1000001, B = 1000010). Show your working and give the ciphertext in binary.", marks: 3,
+    { level: "AS", src: "AQA 2022 · P2 Q04.5", q: "Encrypt the plaintext `EGG` using the Vernam cipher with the key `DAB`, using 7-bit ASCII codes (E = 1000101, G = 1000111, D = 1000100, A = 1000001, B = 1000010). Show your working and give the ciphertext in binary.", marks: 3,
       ms: ["EGG = 1000101 1000111 1000111 (1)", "XOR applied bit by bit with 1000100 1000001 1000010 (1)", "0000001 0000110 0000101 (1)"] },
-    { src: "AQA 2019 P2 Q14", ctx: "Two companies exchange confidential documents over the internet.",
+    { src: "AQA 2019 · P2 Q14", ctx: "Two companies exchange confidential documents over the internet.",
       parts: [
         { q: "Explain what is meant by a cipher being *computationally secure*.", marks: 1, ms: ["It cannot be cracked by any known method in a reasonable / practical amount of time (1)"] },
         { q: "Describe the key exchange problem that arises if a symmetric cipher is used.", marks: 2, ms: ["The key has to be passed from the sender to the receiver (1)", "Without it being intercepted / securely (1)"] },
         { q: "State the difference between symmetric and asymmetric encryption.", marks: 1, ms: ["Symmetric: the same key is used to encrypt and decrypt; asymmetric: different but related keys are used (1)"] }
       ] },
-    { src: "AQA 2020 P2 Q9.4", q: "A Caesar decryption routine subtracts the key from each letter's ASCII code. It works for most letters but produces symbols for some. Explain the problem and how to correct it.", marks: 3,
+    { src: "AQA 2020 · P2 Q09.4", q: "A Caesar decryption routine subtracts the key from each letter's ASCII code. It works for most letters but produces symbols for some. Explain the problem and how to correct it.", marks: 3,
       ms: ["Letters near the start of the alphabet are shifted to codes below 65 ('A'), giving non-alphabetic characters (1)", "These must wrap around to the end of the alphabet (1)", "Add 26 to any code below 65 / use MOD 26 in the calculation (1)"] },
-    { level: "AS", src: "AS 2018 P2 Q4.2", q: "Explain why the Vernam cipher is more secure than the Caesar cipher.", marks: 2,
+    { level: "AS", src: "AQA 2018 · P2 Q04.2", q: "Explain why the Vernam cipher is more secure than the Caesar cipher.", marks: 2,
       ms: ["The Caesar cipher has only 25 keys and preserves letter frequencies, so it can be brute-forced or analysed (1)", "The Vernam cipher uses a random key as long as the message and used once, so every ciphertext is equally likely — there is no pattern to exploit (1)"] }
   ]
 });

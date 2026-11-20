@@ -37,16 +37,16 @@ X("compsci:4.7.1.1", {
     { q: "'A wider data bus transfers data faster' scores:", opts: ["1 — it names the right effect", "0 — say more bits per transfer", "2 — it gives cause and effect", "half — it needs an example"], ans: 1, why: "NE per mark scheme." }
   ],
   exam: [
-    { src: "AQA 2024 P2 Q3", ctx: "A computer has a 36-bit address bus, a 16-bit data bus and 16-bit memory words.",
+    { src: "AQA 2024 · P2 Q03", ctx: "A computer has a 36-bit address bus, a 16-bit data bus and 16-bit memory words.",
       parts: [
         { q: "Calculate the maximum amount of memory, in gibibytes, that can be directly addressed.", marks: 2, ms: ["2³⁶ words × 16 bits ÷ 8 = 2³⁷ bytes (1)", "÷ 1024³ = 128 GiB (1)"] },
         { q: "State how the control bus is used when the processor writes a value to main memory.", marks: 1, ms: ["It carries the write signal telling memory to store the value on the data bus at the address on the address bus (1)"] },
         { q: "Describe two roles of an I/O controller.", marks: 2, ms: ["Allows the processor to communicate with a peripheral through a port / makes the peripheral appear as registers or memory locations (1)", "Translates signals or voltages between processor and device / buffers data / allows new peripherals without redesigning the processor / generates an interrupt when data is ready (1)"] },
         { q: "Explain why buses inside the computer are parallel while peripherals are usually connected serially.", marks: 3, ms: ["Internal components are close together at fixed positions and exchange large volumes of data, whereas peripherals are further away and may be moved (1)", "Parallel buses transmit many bits simultaneously (1)", "Serial connections avoid data skew and crosstalk, allow a higher clock rate on one wire, and cheaper, longer, more flexible cables (1)"] }
       ] },
-    { level: "AS", src: "AS 2019 P2 Q7", q: "Describe how the address bus, data bus and control bus are used when the processor writes a value to a main memory location.", marks: 4,
+    { level: "AS", src: "AQA 2019 · P2 Q07", q: "Describe how the address bus, data bus and control bus are used when the processor writes a value to a main memory location.", marks: 4,
       ms: ["The address of the location is placed on the address bus (1)", "The value to be stored is placed on the data bus (1)", "A write signal is sent along the control bus (1)", "Memory stores the value from the data bus at the addressed location; the data bus is bidirectional so it can also carry values back on a read (1)"] },
-    { level: "AS", src: "AS 2022 P2 Q8.5", q: "A computer can address 4 GiB of memory. State which bus would need to be widened, and by how many lines, to allow 16 GiB to be addressed.", marks: 2,
+    { level: "AS", src: "AQA 2022 · P2 Q08.5", q: "A computer can address 4 GiB of memory. State which bus would need to be widened, and by how many lines, to allow 16 GiB to be addressed.", marks: 2,
       ms: ["The address bus (1)", "By 2 lines (each extra line doubles the addressable memory) (1)"] }
   ]
 });
@@ -77,9 +77,9 @@ X("compsci:4.7.2.1", {
     { q: "The stored program concept is associated with:", opts: ["Alan Turing", "von Neumann", "George Boole", "Edsger Dijkstra"], ans: 1, why: "The stored program concept, with instructions and data held in the same memory, comes from von Neumann's 1945 report." }
   ],
   exam: [
-    { src: "AQA 2025 P2 Q7.1", q: "State what is meant by the stored program concept.", marks: 2,
+    { src: "AQA 2025 · P2 Q07.1", q: "State what is meant by the stored program concept.", marks: 2,
       ms: ["Machine code instructions are stored in main memory (1)", "Instructions are fetched and executed serially / in order by a processor that performs arithmetic and logical operations (1)"] },
-    { level: "AS", src: "AS 2022 P2 Q8.2", q: "Describe the role of main memory when a program is executed.", marks: 2,
+    { level: "AS", src: "AQA 2022 · P2 Q08.2", q: "Describe the role of main memory when a program is executed.", marks: 2,
       ms: ["Stores the instructions to be executed and the data they use; the program is transferred into it from secondary storage (1)", "Returns the instruction / data held at the location specified on the address bus via the data bus, and stores results (1)"] }
   ]
 });
@@ -120,15 +120,15 @@ X("compsci:4.7.3.1", {
     { q: "The ALU performs:", opts: ["fetching instructions from memory", "decoding instructions into signals", "arithmetic and logical operations", "storage of the program's data"], ans: 2, why: "The ALU is the part of the CPU that does the arithmetic and the logical operations." }
   ],
   exam: [
-    { src: "AQA 2025 P2 Q7.2", q: "Describe the roles of the control unit, the general-purpose registers and the status register in a processor.", marks: 6,
+    { src: "AQA 2025 · P2 Q07.2", q: "Describe the roles of the control unit, the general-purpose registers and the status register in a processor.", marks: 6,
       ms: ["Control unit: controls fetch/load/store operations and decodes instructions (1)", "Control unit: sequences / synchronises the fetch–execute cycle and sends control signals to other components (1)", "General-purpose registers: store values that need to be accessed frequently / quickly (1)", "General-purpose registers: hold operands used by instructions and the results of executing them; the programmer decides each register's role (1)", "Status register: stores information about the result of the last arithmetic / logical instruction (1)", "Status register: its flags (zero, sign, carry, overflow…) control conditional branch instructions (1)"] },
-    { src: "AQA 2017 P2 Q1.2", q: "Explain why the instruction is copied into the current instruction register rather than being decoded directly from the memory buffer register.", marks: 2,
+    { src: "AQA 2017 · P2 Q01.2", q: "Explain why the instruction is copied into the current instruction register rather than being decoded directly from the memory buffer register.", marks: 2,
       ms: ["Executing the instruction may require further data to be fetched from (or written to) memory (1)", "Those transfers would overwrite the contents of the MBR / the CIR is wired to the control unit that decodes it (1)"] },
-    { src: "AQA 2020 P2 Q3.6", q: "When an interrupt is serviced, the processor first saves the contents of its registers (the volatile environment). Explain why.", marks: 2,
+    { src: "AQA 2020 · P2 Q03.6", q: "When an interrupt is serviced, the processor first saves the contents of its registers (the volatile environment). Explain why.", marks: 2,
       ms: ["So that the currently running process can be returned to / resumed afterwards (1)", "Because the code that deals with the interrupt will change / overwrite the register values (1)"] },
-    { level: "AS", src: "AS 2023 P2 Q8.1", q: "Explain the role of the status register, giving an example of when a flag in it would be set.", marks: 2,
+    { level: "AS", src: "AQA 2023 · P2 Q08.1", q: "Explain the role of the status register, giving an example of when a flag in it would be set.", marks: 2,
       ms: ["Provides information about the result of the last arithmetic / logical instruction, used to control conditional branches (1)", "e.g. the zero flag is set when the result of a comparison / operation is zero; the carry flag when a carry occurs; the overflow flag on overflow (1)"] },
-    { level: "AS", src: "AS 2020 P2 Q6.1", q: "State what is meant by a register.", marks: 1,
+    { level: "AS", src: "AQA 2020 · P2 Q06.1", q: "State what is meant by a register.", marks: 1,
       ms: ["A memory / storage location inside the processor (1)"] }
   ]
 });
@@ -168,15 +168,15 @@ X("compsci:4.7.3.2", {
     { q: "Interrupts are checked:", opts: ["on every pulse of the system clock", "at the end of each fetch–execute cycle", "only once, when the computer first boots up", "at the start of each decode stage"], ans: 1, why: "Standard timing." }
   ],
   exam: [
-    { level: "AS", src: "AS 2020 P2 Q6.5", q: "Describe the four steps of the fetch stage of the fetch–execute cycle and, for each, explain why it is carried out.", marks: 8,
+    { level: "AS", src: "AQA 2020 · P2 Q06.5", q: "Describe the four steps of the fetch stage of the fetch–execute cycle and, for each, explain why it is carried out.", marks: 8,
       ms: ["The contents of the PC are transferred to the MAR (1) — so the address can be sent along the address bus to memory / so the PC can then be updated (1)", "The address in the MAR is placed on the address bus with a read signal, and the contents of that location are loaded via the data bus into the MBR (1) — because not every fetch is an instruction / the value is only transiently on the bus / the MBR copes with the speed difference between processor and memory (1)", "The PC is incremented (1) — so the next instruction in sequence can be fetched (1)", "The contents of the MBR are copied to the CIR (1) — so that data fetched during execution does not overwrite the instruction / because the control unit decodes from the CIR (1)", "Max 4 descriptions, max 4 explanations"] },
-    { src: "AQA 2017 P2 Q1.1", q: "Describe how an instruction is fetched from main memory, with reference to the registers and buses involved.", marks: 4,
+    { src: "AQA 2017 · P2 Q01.1", q: "Describe how an instruction is fetched from main memory, with reference to the registers and buses involved.", marks: 4,
       ms: ["Contents of the program counter transferred to the memory address register (1)", "Address bus used to transfer this address to main memory (with a read signal on the control bus) (1)", "The instruction is transferred using the data bus into the memory buffer register (1)", "Contents of the MBR transferred to the current instruction register; PC incremented (1)"] },
-    { level: "AS", src: "AS 2025 P2 Q9.2", q: "Describe what happens during the decode stage of the fetch–execute cycle.", marks: 3,
+    { level: "AS", src: "AQA 2025 · P2 Q09.2", q: "Describe what happens during the decode stage of the fetch–execute cycle.", marks: 3,
       ms: ["The instruction held in the current instruction register is decoded (1)", "By the control unit, which determines the type of instruction to carry out (1)", "The instruction is split into opcode and operand(s) (1)"] },
-    { src: "AQA 2023 P2 Q4.2", q: "Explain what an interrupt is and describe what the processor does when it detects one.", marks: 4,
+    { src: "AQA 2023 · P2 Q04.2", q: "Explain what an interrupt is and describe what the processor does when it detects one.", marks: 4,
       ms: ["A signal sent to the processor by a hardware device or program indicating that it requires attention / an event has occurred (1)", "At the end of the current fetch–execute cycle the processor checks for interrupts and compares priority (1)", "It saves the contents of its registers (the volatile environment) onto the stack (1)", "Executes the interrupt service routine, then restores the registers and resumes the interrupted program (1)"] },
-    { level: "AS", src: "AS 2022 P2 Q8.1", q: "Place the following events of the fetch–execute cycle in the order they occur: (A) the contents of the MBR are copied to the CIR; (B) the contents of the PC are copied to the MAR; (C) the control unit decodes the contents of the CIR; (D) the result of the calculation is stored.", marks: 3,
+    { level: "AS", src: "AQA 2022 · P2 Q08.1", q: "Place the following events of the fetch–execute cycle in the order they occur: (A) the contents of the MBR are copied to the CIR; (B) the contents of the PC are copied to the MAR; (C) the control unit decodes the contents of the CIR; (D) the result of the calculation is stored.", marks: 3,
       ms: ["B first (1)", "A second, C third (1)", "D last — all correct for 3 marks (1)"] }
   ]
 });
@@ -205,15 +205,15 @@ X("compsci:4.7.3.3", {
     { q: "In `ADD R1, R2, #5` the `#5` is:", opts: ["an opcode for addition", "an immediate operand", "a direct memory address", "a register number"], ans: 1, why: "# means immediate value." }
   ],
   exam: [
-    { level: "AS", src: "AS 2018 P2 Q10", ctx: "A processor uses 16-bit instructions: bits 15–12 hold the basic operation code, bits 11–10 the addressing mode, and bits 9–0 the operand.",
+    { level: "AS", src: "AQA 2018 · P2 Q10", ctx: "A processor uses 16-bit instructions: bits 15–12 hold the basic operation code, bits 11–10 the addressing mode, and bits 9–0 the operand.",
       parts: [
         { q: "State the maximum number of different basic operations the processor can support.", marks: 1, ms: ["16 (1)"] },
         { q: "State the number of memory locations that can be addressed using direct addressing.", marks: 1, ms: ["1024 (2¹⁰) (1)"] },
         { q: "State the range of values that can be used as an immediate operand if it is interpreted as a two's complement integer.", marks: 1, ms: ["−512 to 511 (1)"] }
       ] },
-    { level: "AS", src: "AS 2023 P2 Q8.3", q: "A program compiled for one computer will not run on a computer with a different type of processor. Explain why.", marks: 2,
+    { level: "AS", src: "AQA 2023 · P2 Q08.3", q: "A program compiled for one computer will not run on a computer with a different type of processor. Explain why.", marks: 2,
       ms: ["The executable is machine code using the instruction set of the processor it was compiled for (1)", "Different processors have different instruction sets / architectures (1)"] },
-    { src: "AQA 2017 P2 Q5.1", q: "Explain the purpose of the operand in a machine code instruction and the role of the addressing mode.", marks: 2,
+    { src: "AQA 2017 · P2 Q05.1", q: "Explain the purpose of the operand in a machine code instruction and the role of the addressing mode.", marks: 2,
       ms: ["The operand is the value / data that the operation will use (1)", "The addressing mode indicates how the operand should be interpreted — whether it is the datum itself or a memory address / register number holding the datum (1)"] }
   ]
 });
@@ -237,13 +237,13 @@ X("compsci:4.7.3.4", {
     { q: "To load the value stored at address 300 into R4:", opts: ["MOV R4, #300", "LDR R4, 300", "STR R4, 300", "ADD R4, 300"], ans: 1, why: "LDR with a direct address." }
   ],
   exam: [
-    { level: "AS", src: "AS 2017 P2 Q7.3", q: "Explain the difference between direct addressing and immediate addressing.", marks: 1,
+    { level: "AS", src: "AQA 2017 · P2 Q07.3", q: "Explain the difference between direct addressing and immediate addressing.", marks: 1,
       ms: ["In direct addressing the operand is the memory address (or register number) of the datum, whereas in immediate addressing the operand is the datum itself (1)"] },
-    { level: "AS", src: "AS 2024 P2 Q7.3", q: "Other than an immediate value, state two types of value that the operand of an instruction can hold.", marks: 2,
+    { level: "AS", src: "AQA 2024 · P2 Q07.3", q: "Other than an immediate value, state two types of value that the operand of an instruction can hold.", marks: 2,
       ms: ["A register number (1)", "A memory address / location (accept an offset from a memory location) (1)"] },
-    { src: "AQA 2025 P2 Q7.4", q: "An immediate operand occupies 10 bits and is interpreted as a two's complement integer. State the most positive and most negative values it can hold.", marks: 1,
+    { src: "AQA 2025 · P2 Q07.4", q: "An immediate operand occupies 10 bits and is interpreted as a two's complement integer. State the most positive and most negative values it can hold.", marks: 1,
       ms: ["Most positive 511 (2⁹ − 1); most negative −512 (−2⁹) — both required (1)"] },
-    { level: "AS", src: "AS 2022 P2 Q9.1", q: "State which of the following instructions uses immediate addressing: (A) `LDR R3, 42` (B) `MOV R3, #42` (C) `STR R3, 42` (D) `ADD R3, R1, R2`.", marks: 1,
+    { level: "AS", src: "AQA 2022 · P2 Q09.1", q: "State which of the following instructions uses immediate addressing: (A) `LDR R3, 42` (B) `MOV R3, #42` (C) `STR R3, 42` (D) `ADD R3, R1, R2`.", marks: 1,
       ms: ["B (1)"] }
   ]
 });
@@ -280,21 +280,21 @@ X("compsci:4.7.3.5", {
     { q: "Which instruction stores a register to memory?", opts: ["LDR", "STR", "MOV", "CMP"], ans: 1, why: "STR stores a register into memory; LDR does the opposite and loads into a register." }
   ],
   exam: [
-    { level: "AS", src: "AS 2023 P2 Q9", q: "Write an assembly language program, using the AQA instruction set, that multiplies the values in memory locations 100 and 101 by repeated addition and stores the result in location 102. Assume both values are positive integers.", marks: 4,
+    { level: "AS", src: "AQA 2023 · P2 Q09", q: "Write an assembly language program, using the AQA instruction set, that multiplies the values in memory locations 100 and 101 by repeated addition and stores the result in location 102. Assume both values are positive integers.", marks: 4,
       ms: ["Values loaded into registers and a result register initialised to 0: `LDR R1, 100` / `LDR R2, 101` / `MOV R3, #0` (1)", "Loop that adds R1 to the result: `loop: ADD R3, R3, R1` (1)", "Counter decremented and tested: `SUB R2, R2, #1` / `CMP R2, #0` / `BNE loop` (1)", "Result stored and program halted: `STR R3, 102` / `HALT` (1)"] },
-    { src: "AQA 2024 P2 Q10.1", ctx: "The program below is run with memory location 200 containing `01011010`.",
+    { src: "AQA 2024 · P2 Q10.1", ctx: "The program below is run with memory location 200 containing `01011010`.",
       code: { lang: "pseudo", src: "LDR R1, 200\nMOV R2, #0\nMOV R3, #8\nloop:\nAND R4, R1, #1\nADD R2, R2, R4\nLSR R1, R1, #1\nSUB R3, R3, #1\nCMP R3, #0\nBNE loop\nAND R2, R2, #1\nSTR R2, 201\nHALT" },
       parts: [
         { q: "Complete a trace table showing the values of R1, R2, R3 and R4 for the first three iterations, and state the final value stored in location 201.", marks: 4, ms: ["R4: 0, 1, 0 and R2: 0, 1, 1 for the first three iterations (1)", "R1: 00101101, 00010110, 00001011 (1)", "R3: 7, 6, 5 (1)", "Final R2 = 4 AND 1 = 0 → location 201 holds 0 (1)"] },
         { q: "Describe the purpose of the program.", marks: 2, ms: ["Counts the number of 1s in the byte (1)", "and stores the (even) parity bit — 1 if the count is odd, 0 if even (1)"] }
       ] },
-    { level: "AS", src: "AS 2022 P2 Q9.2", q: "Translate the following pseudo-code into AQA assembly language, where `x` is in memory location 50 and `y` in location 51: `IF x > y THEN z ← x − y ELSE z ← 0 ENDIF`; store `z` in location 52.", marks: 4,
+    { level: "AS", src: "AQA 2022 · P2 Q09.2", q: "Translate the following pseudo-code into AQA assembly language, where `x` is in memory location 50 and `y` in location 51: `IF x > y THEN z ← x − y ELSE z ← 0 ENDIF`; store `z` in location 52.", marks: 4,
       ms: ["`LDR R1, 50` / `LDR R2, 51` (1)", "`CMP R1, R2` / `BGT bigger` (1)", "Else path: `MOV R3, #0` / `B store`; `bigger: SUB R3, R1, R2` (1)", "`store: STR R3, 52` / `HALT` (1)"] },
-    { src: "AQA 2020 P2 Q9.3", q: "Memory location 101 holds a plaintext character code and location 102 holds a key. Write assembly language instructions that store the Vernam-encrypted value in location 103.", marks: 3,
+    { src: "AQA 2020 · P2 Q09.3", q: "Memory location 101 holds a plaintext character code and location 102 holds a key. Write assembly language instructions that store the Vernam-encrypted value in location 103.", marks: 3,
       ms: ["Values loaded into two registers: `LDR R1, 101` / `LDR R2, 102` (1)", "Registers exclusive-ORed: `EOR R3, R1, R2` (1)", "Result stored: `STR R3, 103` (1)"] },
-    { level: "AS", src: "AS 2016 P2 Q4.2", q: "Complete the instruction `AND R2, R1, #___` so that R2 becomes 1 if the value in R1 is odd and 0 if it is even.", marks: 1,
+    { level: "AS", src: "AQA 2016 · P2 Q04.2", q: "Complete the instruction `AND R2, R1, #___` so that R2 becomes 1 if the value in R1 is odd and 0 if it is even.", marks: 1,
       ms: ["#1 (1)"] },
-    { level: "AS", src: "AS 2025 P2 Q10.2", q: "Write an AQA assembly language program that calculates the nth triangular number (1 + 2 + … + n), where n is stored in memory location 60, and stores the result in location 61.", marks: 4,
+    { level: "AS", src: "AQA 2025 · P2 Q10.2", q: "Write an AQA assembly language program that calculates the nth triangular number (1 + 2 + … + n), where n is stored in memory location 60, and stores the result in location 61.", marks: 4,
       ms: ["`LDR R1, 60` and result register set to 0 (1)", "Loop adding the counter to the total: `loop: ADD R2, R2, R1` (1)", "Counter decremented and loop repeated while it is not zero: `SUB R1, R1, #1` / `CMP R1, #0` / `BNE loop` (1)", "`STR R2, 61` / `HALT` (1)"] }
   ]
 });
@@ -319,9 +319,9 @@ X("compsci:4.7.3.6", {
     { q: "Interrupt priority decides:", opts: ["which device connected to the bus is the fastest one", "whether the current ISR is itself interrupted", "the clock speed used while the ISR runs", "the width of the bus the device uses"], ans: 1, why: "Higher priority pre-empts." }
   ],
   exam: [
-    { src: "AQA 2020 P2 Q3.5", q: "Explain the role of interrupts in a computer system.", marks: 2,
+    { src: "AQA 2020 · P2 Q03.5", q: "Explain the role of interrupts in a computer system.", marks: 2,
       ms: ["A signal from a device or program that alerts the processor that it needs attention / an event has occurred (1)", "The processor suspends the current program (saving its state), runs the interrupt service routine, then resumes — so devices are dealt with promptly without polling (1)"] },
-    { src: "AQA 2018 P2 Q7", q: "Describe what happens when the processor receives an interrupt from a keyboard while executing a program.", marks: 4,
+    { src: "AQA 2018 · P2 Q07", q: "Describe what happens when the processor receives an interrupt from a keyboard while executing a program.", marks: 4,
       ms: ["At the end of the current fetch–execute cycle the processor detects the interrupt and checks its priority (1)", "The contents of the registers (volatile environment, including the PC) are saved onto the stack (1)", "The PC is loaded with the address of the keyboard's interrupt service routine, which executes (reads the key) (1)", "The registers are restored from the stack and the original program resumes from the next instruction (1)"] }
   ]
 });
@@ -364,13 +364,13 @@ X("compsci:4.7.3.7", {
     { q: "Pipelining improves performance by:", opts: ["adding cache memory between each pipeline stage", "overlapping stages of successive instructions", "widening the buses between the stages", "raising the voltage to run each stage faster"], ans: 1, why: "Pipelining starts the next instruction's fetch while the previous one decodes or executes, so stages overlap." }
   ],
   exam: [
-    { level: "AS", src: "AS 2016 P2 Q5.6", q: "Describe three factors that affect processor performance and, for each, explain how changing it would improve performance.", marks: 6,
+    { level: "AS", src: "AQA 2016 · P2 Q05.6", q: "Describe three factors that affect processor performance and, for each, explain how changing it would improve performance.", marks: 6,
       ms: ["Clock speed (1) — more instructions executed per second / each instruction executed sooner (1)", "Number of cores (1) — instructions / processes can be executed simultaneously (1)", "Amount of cache (1) — cache is faster than main memory so the more that is held there the less often main memory is accessed (1)", "Word length (1) — more bits processed in one go (1)", "Data bus width (1) — more bits transferred at one time (1)", "Address bus width (1) — more memory can be addressed so less virtual memory is used (1)", "Number of general-purpose registers (1) — more intermediate results kept in the processor (1)", "Max 6: factor + relevant explanation"] },
-    { src: "AQA 2021 P2 Q14.3", q: "Explain what cache memory is and how increasing the amount of cache would improve the performance of a computer.", marks: 4,
+    { src: "AQA 2021 · P2 Q14.3", q: "Explain what cache memory is and how increasing the amount of cache would improve the performance of a computer.", marks: 4,
       ms: ["Memory that can be accessed very quickly, located on or close to the processor (1)", "Used to store the most frequently / recently used (or pre-fetched) instructions and data (1)", "More cache means more instructions and data can be held there (1)", "Increasing the probability of a cache hit, so fewer fetches from slower main memory are needed (1)"] },
-    { level: "AS", src: "AS 2018 P2 Q6.3", q: "Josephine's computer has a 3.2 GHz processor and Ella's has a 2.8 GHz processor with more cores. Explain when Josephine's computer would complete a task sooner.", marks: 2,
+    { level: "AS", src: "AQA 2018 · P2 Q06.3", q: "Josephine's computer has a 3.2 GHz processor and Ella's has a 2.8 GHz processor with more cores. Explain when Josephine's computer would complete a task sooner.", marks: 2,
       ms: ["The 3.2 GHz processor executes sequential instructions more quickly (1)", "So where the task cannot be parallelised across cores, the higher clock speed finishes sooner (1)"] },
-    { level: "AS", src: "AS 2024 P2 Q7.4", q: "Explain how (i) increasing the cache size and (ii) increasing the word length would each improve processor performance.", marks: 2,
+    { level: "AS", src: "AQA 2024 · P2 Q07.4", q: "Explain how (i) increasing the cache size and (ii) increasing the word length would each improve processor performance.", marks: 2,
       ms: ["(i) Increases the likelihood that the required instructions / data are found in cache, which is faster than main memory (1)", "(ii) More bits can be processed / transferred simultaneously in a single instruction (1)"] }
   ]
 });
@@ -407,16 +407,16 @@ X("compsci:4.7.4.1", {
     { q: "A barcode differs from an RFID tag because a barcode:", opts: ["needs line of sight to be read", "can be read through a box", "has its own power supply", "can be rewritten by the reader"], ans: 0, why: "It is read by reflected light." }
   ],
   exam: [
-    { level: "AS", src: "AS 2024 P2 Q9", ctx: "A passport contains a passive RFID tag storing the holder's details.",
+    { level: "AS", src: "AQA 2024 · P2 Q09", ctx: "A passport contains a passive RFID tag storing the holder's details.",
       parts: [
         { q: "Describe how data is read from the RFID tag.", marks: 3, ms: ["The RFID reader emits radio waves (1)", "The waves induce sufficient power in the tag's antenna to activate the tag / the data is stored on the tag's chip (1)", "The tag transmits its data back to the reader by radio waves, which the reader converts to binary (1)"] },
         { q: "Explain why passive tags rather than active tags are used in passports.", marks: 2, ms: ["Passive tags are smaller / cheaper / have no battery to charge or replace during the passport's ten-year life (1)", "They can only be read close to the reader, so the data is harder to intercept — a security benefit (1)"] }
       ] },
-    { src: "AQA 2021 P2 Q7.2", q: "Describe the principles of operation of a laser printer.", marks: 6,
+    { src: "AQA 2021 · P2 Q07.2", q: "Describe the principles of operation of a laser printer.", marks: 6,
       ms: ["A bitmap of the page is built in the printer's memory from the page description (1)", "The photosensitive drum is given a (negative) charge (1)", "A laser, directed by a rotating mirror, is switched on and off across the drum, neutralising the charge where the image should be dark (1)", "Toner is charged and sticks to the drum only where the laser has struck (1)", "Paper passes over the drum and the toner transfers to it, helped by a charged transfer roller (1)", "A heated fuser bonds the toner to the paper; colour printing repeats the process with four toners / drums (1)"] },
-    { level: "AS", src: "AS 2025 P2 Q11.1", q: "Describe the principles of operation of a digital camera.", marks: 3,
+    { level: "AS", src: "AQA 2025 · P2 Q11.1", q: "Describe the principles of operation of a digital camera.", marks: 3,
       ms: ["Light passes through the lens onto an array of photosensors (CCD / CMOS) (1)", "Each sensor outputs an analogue voltage proportional to the brightness of the light falling on it; red, green and blue filters give the colour components (1)", "An analogue-to-digital converter converts each voltage to a binary value, forming the pixels of a bitmap (1)"] },
-    { src: "AQA 2020 P2 Q8", ctx: "A supermarket chain uses RFID tags in its warehouses but barcodes on products in its stores.",
+    { src: "AQA 2020 · P2 Q08", ctx: "A supermarket chain uses RFID tags in its warehouses but barcodes on products in its stores.",
       parts: [
         { q: "Explain why RFID is more suitable than barcodes for identifying stock arriving at a warehouse.", marks: 2, ms: ["Many products arrive together on pallets and must be identified quickly (1)", "RFID tags can be read without removing products from the pallet / without line of sight / at a distance / many at once / without manual scanning / are less easily damaged (1)"] },
         { q: "Explain why barcodes remain more suitable for products in the store.", marks: 2, ms: ["Barcodes are far cheaper than tags / produce no electronic waste / can be read by existing checkout scanners / include human-readable digits as a backup (1)", "The extra cost of tagging every item would be passed on in prices / a nearby product cannot be scanned accidentally (1)"] }
@@ -459,19 +459,19 @@ X("compsci:4.7.4.2", {
     { q: "Optical disks spin at:", opts: ["constant angular velocity", "constant linear velocity", "random speed", "the clock speed"], ans: 1, why: "Track passes the laser at a constant rate." }
   ],
   exam: [
-    { src: "AQA 2025 P2 Q3", ctx: "Optical disks were once the main way of distributing software and video.",
+    { src: "AQA 2025 · P2 Q03", ctx: "Optical disks were once the main way of distributing software and video.",
       parts: [
         { q: "Describe the principles of operation of an optical disk drive, including how data is represented and how it is read.", marks: 6, ms: ["Data is stored on a single spiral track as pits and lands (1)", "A low-power laser beam is shone at and focused on a spot on the track (1)", "Light is reflected back from the disk and its intensity measured by a light sensor / photodiode (1)", "A continuation of pit or land reflects light whereas a transition between them scatters it (1)", "A transition represents a 1 and a continuation a 0 (accept land = 1, pit = 0 or vice versa) (1)", "The disk spins at constant linear velocity and the head moves in/out along the track (1)"] },
         { q: "Explain two reasons why optical disk drives are no longer fitted to most computers.", marks: 2, ms: ["Other devices (SSDs, flash drives) have higher capacity, faster access, are more compact and robust, and integrate drive and medium (1)", "Software and video are now downloaded or streamed and backups made to the cloud, so less content is available on optical disk (1)"] }
       ] },
-    { src: "AQA 2022 P2 Q13", ctx: "A desktop computer is fitted with a solid-state drive.",
+    { src: "AQA 2022 · P2 Q13", ctx: "A desktop computer is fitted with a solid-state drive.",
       parts: [
         { q: "Explain why the computer needs secondary storage at all.", marks: 2, ms: ["To store programs and data while the computer is turned off (1)", "Because the contents of RAM are lost when the power is off / to hold data sets too large for RAM (1)"] },
         { q: "Describe the principles of operation of a solid-state drive.", marks: 4, ms: ["Data is stored electronically with no moving parts, in floating-gate transistors (NAND flash) that keep their state without power (1)", "The presence or absence of trapped charge / electrons represents a 1 or a 0 (1)", "Data is organised into pages and blocks; a whole block must be erased before it can be rewritten (1)", "A controller manages the organisation, reading and writing of the data (1)"] }
       ] },
-    { src: "AQA 2024 P2 Q5.2", q: "State one advantage and one disadvantage of using an SSD rather than a hard disk drive.", marks: 2,
+    { src: "AQA 2024 · P2 Q05.2", q: "State one advantage and one disadvantage of using an SSD rather than a hard disk drive.", marks: 2,
       ms: ["Advantage: faster access / transfer times; lower power consumption; smaller; no moving parts so more robust and less heat (1)", "Disadvantage: higher cost per gigabyte; cells wear out — higher error rate over time (1)"] },
-    { level: "AS", src: "AS 2019 P2 Q8.1", q: "Explain why a computer might be fitted with both a hard disk drive and a solid-state drive.", marks: 2,
+    { level: "AS", src: "AQA 2019 · P2 Q08.1", q: "Explain why a computer might be fitted with both a hard disk drive and a solid-state drive.", marks: 2,
       ms: ["The SSD gives fast access for the operating system and frequently used programs (1)", "The hard disk is cheaper per unit of storage, so large files are stored there (1)"] }
   ]
 });

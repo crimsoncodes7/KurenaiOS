@@ -27,14 +27,14 @@ X("compsci:4.10.1", {
     { q: "Which relationship degree cannot be implemented directly in a relational database?", opts: ["one-to-one", "one-to-many", "many-to-many", "all can"], ans: 2, why: "Needs a linking table." }
   ],
   exam: [
-    { src: "AQA 2019 P2 Q6.1", ctx: "A veterinary practice has entities `Pet(PetID, Name, Species)`, `Vet(VetID, Name)` and `Surgery(SurgeryName, Address)`. Each pet may be brought by several customers and a customer may own several pets. Appointments are made for a pet at a surgery on a date and time.",
+    { src: "AQA 2019 · P2 Q06.1", ctx: "A veterinary practice has entities `Pet(PetID, Name, Species)`, `Vet(VetID, Name)` and `Surgery(SurgeryName, Address)`. Each pet may be brought by several customers and a customer may own several pets. Appointments are made for a pet at a surgery on a date and time.",
       parts: [
         { q: "Extend the ER diagram by adding entities `Customer`, `PetOwner` and `Appointment` with their relationships and degrees.", marks: 3, ms: ["Appointment added with one-to-many relationships from Pet and from Surgery to Appointment (1)", "Customer added with a one-to-many relationship to PetOwner (1)", "PetOwner added with a one-to-many relationship from Pet (resolving the many-to-many between Customer and Pet) (1)"] },
         { q: "State the degree of the relationship between `Surgery` and `Vet` if each vet works at exactly one surgery.", marks: 1, ms: ["One-to-many (Surgery to Vet) (1)"] }
       ] },
-    { src: "AQA 2017 P2 Q10.7", q: "A garage's database has relations `Part(PartID, Description, Price)` and `Car(CarRegNo, Make, Model, OwnerID)`. A part can be fitted to many makes and models of car, and each make and model uses many parts. Describe how the database design should be modified to record which parts fit which makes and models.", marks: 3,
+    { src: "AQA 2017 · P2 Q10.7", q: "A garage's database has relations `Part(PartID, Description, Price)` and `Car(CarRegNo, Make, Model, OwnerID)`. A part can be fitted to many makes and models of car, and each make and model uses many parts. Describe how the database design should be modified to record which parts fit which makes and models.", marks: 3,
       ms: ["Create a new relation to identify which make/model(s) of car each part can be fitted to, e.g. `PartFitsMakeModel` (1)", "Store the attributes PartID, Make and Model in the new relation (1)", "Make the combination PartID, Make, Model the entity identifier (accept a new identifier with a uniqueness constraint) (1)"] },
-    { src: "AQA 2025 P2 Q6.2", q: "A school records merits: a teacher awards a merit to a student on a date. Draw the relationships, with their degrees, between the entities `Student`, `Teacher` and `Merit`.", marks: 1,
+    { src: "AQA 2025 · P2 Q06.2", q: "A school records merits: a teacher awards a merit to a student on a date. Draw the relationships, with their degrees, between the entities `Student`, `Teacher` and `Merit`.", marks: 1,
       ms: ["Student one-to-many Merit AND Teacher one-to-many Merit; 0 marks if any incorrect relationship is drawn (1)"] }
   ]
 });
@@ -69,11 +69,11 @@ X("compsci:4.10.2", {
     { q: "A primary key value must be:", opts: ["numeric and in order", "unique and not null", "a foreign key as well", "a string of characters"], ans: 1, why: "Entity integrity." }
   ],
   exam: [
-    { src: "AQA 2021 P2 Q5.1", q: "A sports centre's `Booking` relation has attributes BookingID, FacilityID, BookingDate, StartTime, EndTime and CustomerID, with BookingID as primary key. State a valid alternative composite primary key and the assumption on which it relies.", marks: 2,
+    { src: "AQA 2021 · P2 Q05.1", q: "A sports centre's `Booking` relation has attributes BookingID, FacilityID, BookingDate, StartTime, EndTime and CustomerID, with BookingID as primary key. State a valid alternative composite primary key and the assumption on which it relies.", marks: 2,
       ms: ["(FacilityID, BookingDate, StartTime) — accept EndTime in place of StartTime (1)", "Assumes a facility cannot have two bookings starting at the same time on the same date (1)"] },
-    { src: "AQA 2023 P2 Q5.3", q: "A cinema database has relations `Showing(ShowingID, FilmID, ShowDate, ShowTime)` and `Booking(BookingID, ShowingID, CustomerID)`. Explain why executing `DELETE FROM Showing WHERE ShowDate = '29/03/2023'` might cause a problem.", marks: 2,
+    { src: "AQA 2023 · P2 Q05.3", q: "A cinema database has relations `Showing(ShowingID, FilmID, ShowDate, ShowTime)` and `Booking(BookingID, ShowingID, CustomerID)`. Explain why executing `DELETE FROM Showing WHERE ShowDate = '29/03/2023'` might cause a problem.", marks: 2,
       ms: ["There might already be bookings for showings on that date (1)", "The DBMS would prevent the delete, or the bookings would be left referencing showings that no longer exist — referential integrity would be violated; those bookings would also need deleting (1)"] },
-    { src: "AQA 2025 P2 Q6.1", q: "A school's `Merit` relation uses the composite entity identifier (StudentID, TeacherID, MeritDate). State one limitation of this design.", marks: 1,
+    { src: "AQA 2025 · P2 Q06.1", q: "A school's `Merit` relation uses the composite entity identifier (StudentID, TeacherID, MeritDate). State one limitation of this design.", marks: 1,
       ms: ["The same teacher could not award the same student more than one merit on the same day (1)"] }
   ]
 });
@@ -105,13 +105,13 @@ X("compsci:4.10.3", {
     { q: "Denormalising to speed up lookups costs:", opts: ["nothing, since the data is identical", "redundancy and extra updates", "fewer tables to join in queries", "the loss of every foreign key"], ans: 1, why: "Denormalising duplicates data, so lookups are faster but every update must change several copies." }
   ],
   exam: [
-    { src: "AQA 2023 P2 Q5.1", q: "A cinema stores, for each booking, the customer's first name, last name and telephone number, the ShowingID, and the seat numbers booked (a booking may cover several seats). Design a fully normalised set of relations for this data, showing the entity identifier of each.", marks: 5,
+    { src: "AQA 2023 · P2 Q05.1", q: "A cinema stores, for each booking, the customer's first name, last name and telephone number, the ShowingID, and the seat numbers booked (a booking may cover several seats). Design a fully normalised set of relations for this data, showing the entity identifier of each.", marks: 5,
       ms: ["`Customer(CustomerID, FirstName, LastName, TelephoneNumber)` — correct attributes and no others (1)", "`Booking(BookingID, ShowingID, CustomerID)` (accept a NumberOfSeats attribute) (1)", "`AssignedSeat(BookingID, SeatNumber)` containing the Booking identifier and the seat number (1)", "Correct entity identifiers: CustomerID; BookingID (or ShowingID + CustomerID) (1)", "Composite identifier (BookingID, SeatNumber) for AssignedSeat — all three identifiers correct for the second mark (1)"] },
-    { src: "AQA 2024 P2 Q8.5", q: "Describe two problems that can arise when a database is not normalised.", marks: 2,
+    { src: "AQA 2024 · P2 Q08.5", q: "Describe two problems that can arise when a database is not normalised.", marks: 2,
       ms: ["Data stored more than once could become inconsistent — two copies of the same item hold different values (1)", "Every copy must be updated when the data changes / data about one entity cannot be stored without a record of another (insertion anomaly) / deleting one record may delete data about another entity (deletion anomaly) (1)", "'Data redundancy' or 'wastes space' alone is not enough. Max 2"] },
-    { src: "AQA 2021 P2 Q5.2", q: "A first design stored the customer's name and telephone number in every `Booking` record. Explain why this design was rejected.", marks: 2,
+    { src: "AQA 2021 · P2 Q05.2", q: "A first design stored the customer's name and telephone number in every `Booking` record. Explain why this design was rejected.", marks: 2,
       ms: ["The design is not normalised — a customer with several bookings has their details stored more than once (1)", "The copies could become inconsistent / updates must be made to every record / deleting a customer's bookings deletes the customer / customer details cannot be stored before a booking / two customers with the same name cannot be distinguished (1)"] },
-    { src: "AQA 2022 P2 Q7.5", q: "A zoo database has `Animal(AnimalID, Name, Species)` and `AnimalLocation(AnimalID, ZooID, DateMoved)`. A designer proposes adding a `CurrentZooID` attribute to `Animal`. Give one advantage and one disadvantage of this change.", marks: 2,
+    { src: "AQA 2022 · P2 Q07.5", q: "A zoo database has `Animal(AnimalID, Name, Species)` and `AnimalLocation(AnimalID, ZooID, DateMoved)`. A designer proposes adding a `CurrentZooID` attribute to `Animal`. Give one advantage and one disadvantage of this change.", marks: 2,
       ms: ["Advantage: an animal's current location can be found with a simpler / quicker query without searching AnimalLocation (1)", "Disadvantage: introduces redundancy — the value could become inconsistent with AnimalLocation and must be updated whenever an animal moves; extra storage (1)"] }
   ]
 });
@@ -152,21 +152,21 @@ X("compsci:4.10.4", {
     { q: "A semicolon after every clause:", opts: ["is required", "is penalised", "is ignored", "adds marks"], ans: 1, why: "A semicolon ends a whole SQL statement, not each clause, so one after every clause is wrong." }
   ],
   exam: [
-    { src: "AQA 2025 P2 Q6", ctx: "Relations: `Student(StudentID, Forename, Surname, TutorGroup)`, `Teacher(TeacherID, TeacherName)`, `Merit(MeritID, StudentID, TeacherID, MeritDate, Reason)`.",
+    { src: "AQA 2025 · P2 Q06", ctx: "Relations: `Student(StudentID, Forename, Surname, TutorGroup)`, `Teacher(TeacherID, TeacherName)`, `Merit(MeritID, StudentID, TeacherID, MeritDate, Reason)`.",
       parts: [
         { q: "Write an SQL statement to add a new student with ID 2081, forename Aiko, surname Tanaka, tutor group 12B.", marks: 2, ms: ["`INSERT INTO Student (StudentID, Forename, Surname, TutorGroup)` (1)", "`VALUES (2081, 'Aiko', 'Tanaka', '12B')` (1)"] },
         { q: "Write an SQL query to list the forename and surname of every student, and the name of the teacher, for merits awarded between 01/03/2025 and 31/03/2025, sorted by surname.", marks: 6, ms: ["AO2: correct tables (Student, Teacher, Merit) and fields (Forename, Surname, TeacherName) and no others (1)", "AO2: both linking conditions Student.StudentID = Merit.StudentID AND Teacher.TeacherID = Merit.TeacherID (1)", "AO2: date range MeritDate >= '01/03/2025' AND MeritDate <= '31/03/2025' with correct AND operators (1)", "AO3: correct syntax in two or three of SELECT, FROM, WHERE, ORDER BY (1)", "AO3: fully correct syntax in all four clauses (1)", "`ORDER BY Surname` present; Max 5 if the query does not work fully (1)"] }
       ] },
-    { src: "AQA 2024 P2 Q8", ctx: "A shop's database has `Product(ProductID, Description, Price, QuantityInStock)` and `Sale(SaleID, ProductID, QuantitySold, SaleDate)`.",
+    { src: "AQA 2024 · P2 Q08", ctx: "A shop's database has `Product(ProductID, Description, Price, QuantityInStock)` and `Sale(SaleID, ProductID, QuantitySold, SaleDate)`.",
       parts: [
         { q: "Write an SQL statement to record a sale (SaleID 5120) of 3 units of product 77 on 14/06/2024.", marks: 2, ms: ["`INSERT INTO Sale (SaleID, ProductID, QuantitySold, SaleDate)` (1)", "`VALUES (5120, 77, 3, '14/06/2024')` (1)"] },
         { q: "Write an SQL statement to reduce the quantity in stock of product 77 by 3.", marks: 3, ms: ["AO2: correct table (Product) and condition WHERE ProductID = 77 (1)", "`UPDATE Product SET QuantityInStock = QuantityInStock − 3` (1)", "Fully correct syntax in UPDATE, SET and WHERE clauses (1)"] }
       ] },
-    { src: "AQA 2018 P2 Q7.2", q: "Identify two errors in the statement: `CREATE TABLE Athlete (AthleteID PRIMARY KEY, VARCHAR(20) Surname, DateOfBirth DATE)`", marks: 2,
+    { src: "AQA 2018 · P2 Q07.2", q: "Identify two errors in the statement: `CREATE TABLE Athlete (AthleteID PRIMARY KEY, VARCHAR(20) Surname, DateOfBirth DATE)`", marks: 2,
       ms: ["AthleteID has no data type (1)", "The data type VARCHAR(20) is written before the field name Surname — the field name must come first (1)"] },
-    { src: "AQA 2019 P2 Q6.3", q: "Identify two errors in the query: `SELECT Name FROM Vet, Surgery WHERE Town = Torquay`", marks: 2,
+    { src: "AQA 2019 · P2 Q06.3", q: "Identify two errors in the query: `SELECT Name FROM Vet, Surgery WHERE Town = Torquay`", marks: 2,
       ms: ["Torquay needs quotation marks as it is a string (1)", "There is no linking condition / join between Vet and Surgery, e.g. Vet.SurgeryName = Surgery.SurgeryName (1)"] },
-    { src: "AQA 2021 P2 Q5.3", q: "Complete a CREATE TABLE statement for `Booking(BookingID, FacilityID, BookingDate, StartTime, EndTime, CustomerID)` with BookingID as primary key and FacilityID and CustomerID as foreign keys.", marks: 3,
+    { src: "AQA 2021 · P2 Q05.3", q: "Complete a CREATE TABLE statement for `Booking(BookingID, FacilityID, BookingDate, StartTime, EndTime, CustomerID)` with BookingID as primary key and FacilityID and CustomerID as foreign keys.", marks: 3,
       ms: ["`CREATE TABLE Booking (BookingID INTEGER PRIMARY KEY,` with sensible types for the other fields (1)", "`FOREIGN KEY (FacilityID) REFERENCES Facility(FacilityID)` (1)", "`FOREIGN KEY (CustomerID) REFERENCES Customer(CustomerID))` (1)"] }
   ]
 });
@@ -195,11 +195,11 @@ X("compsci:4.10.5", {
     { q: "Which does the server store for timestamp ordering?", opts: ["one lock for each user who is connected", "last read and write timestamps per record", "a copy of every record before it changes", "the time each user logged in to the server"], ans: 1, why: "Needed for the rules." }
   ],
   exam: [
-    { src: "AQA 2019 P2 Q6.4", q: "Two receptionists using a client–server database can access the same appointment record at the same time. Describe a problem that could occur if the DBMS did not manage concurrent access, and explain how record locking would prevent it.", marks: 5,
+    { src: "AQA 2019 · P2 Q06.4", q: "Two receptionists using a client–server database can access the same appointment record at the same time. Describe a problem that could occur if the DBMS did not manage concurrent access, and explain how record locking would prevent it.", marks: 5,
       ms: ["Both receptionists read and edit the same record simultaneously (1)", "One saves the record, then the other saves it (1)", "The first receptionist's update is lost / overwritten — the lost update problem (1)", "Record locking: when a transaction starts editing the record an exclusive lock is set on it (1)", "Other users cannot edit the record until the lock is released when the first edit is complete (1)"] },
-    { src: "AQA 2024 P2 Q8.4", q: "Describe how timestamp ordering can be used to manage concurrent access to a database.", marks: 3,
+    { src: "AQA 2024 · P2 Q08.4", q: "Describe how timestamp ordering can be used to manage concurrent access to a database.", marks: 3,
       ms: ["A timestamp is generated for each transaction, indicating the order in which transactions started (1)", "The database records, for each record / data item, the timestamps of the last read and the last write (1)", "The server applies rules to decide whether a transaction would cause inconsistency and aborts it if so — e.g. a write is aborted if the record's read or write timestamp is later than the transaction's start (1)"] },
-    { src: "AQA 2025 P2 Q6.5", q: "Two teachers edit the same student's record at the same time. Explain what would happen if the DBMS provided no concurrency control.", marks: 2,
+    { src: "AQA 2025 · P2 Q06.5", q: "Two teachers edit the same student's record at the same time. Explain what would happen if the DBMS provided no concurrency control.", marks: 2,
       ms: ["The update made by the teacher who saved first would be lost (1)", "because the teacher who saved second overwrites it — only the second update is kept (1)"] }
   ]
 });
@@ -233,15 +233,15 @@ X("compsci:4.11.1", {
     { q: "Video files, emails and web pages illustrate which characteristic?", opts: ["volume", "velocity", "variety", "veracity"], ans: 2, why: "Unstructured forms." }
   ],
   exam: [
-    { src: "AQA 2023 P2 Q8", ctx: "A biscuit manufacturer analyses sales data from thousands of shops using a Big Data system based on a fact-based graph model.",
+    { src: "AQA 2023 · P2 Q08", ctx: "A biscuit manufacturer analyses sales data from thousands of shops using a Big Data system based on a fact-based graph model.",
       parts: [
         { q: "Two characteristics of Big Data are volume and variety. State the third characteristic and explain what it means.", marks: 1, ms: ["Velocity — the data is generated / received and must be processed very quickly (1)"] },
         { q: "Extend the graph schema to show that: the Bath store sells chocolate biscuits; a packet of iced biscuits contains 20 biscuits and costs £1.50; both products are made by Delicious Snacks, which has 75 employees and also makes cake bars.", marks: 3, ms: ["Solid line labelled 'Sells' between the Bath store oval and the chocolate biscuits oval (1)", "Two rectangles ('20 biscuits', '£1.50') joined to iced biscuits by dashed lines (1)", "Oval for Delicious Snacks with a dashed-line rectangle '75 employees', a new oval for cake bars, and solid 'Makes' lines to all three products (1)"] },
         { q: "Explain two features of functional programming that make it suitable for processing Big Data across many servers.", marks: 2, ms: ["Immutable data structures / statelessness — functions have no side-effects, so their output depends only on their inputs (1)", "So functions can be distributed to many servers, executed on parts of the data and the results combined (map-reduce); higher-order functions compose the results / the order of execution is not fixed (1)"] }
       ] },
-    { src: "AQA 2018 P2 Q14.1", q: "Describe two characteristics of Big Data.", marks: 2,
+    { src: "AQA 2018 · P2 Q14.1", q: "Describe two characteristics of Big Data.", marks: 2,
       ms: ["Volume — there is so much data that it will not fit / cannot be processed on one server (1)", "Velocity — the data is generated and must be processed at high speed / Variety — the data comes in many forms, often unstructured, and cannot be represented in a relational table (1)"] },
-    { src: "AQA 2021 P2 Q9", q: "Discuss what Big Data is, the challenges of storing and processing it, and the ethical issues raised by its use.", marks: 12,
+    { src: "AQA 2021 · P2 Q09", q: "Discuss what Big Data is, the challenges of storing and processing it, and the ethical issues raised by its use.", marks: 12,
       ms: ["What it is: data that cannot be handled by traditional tools — volume (does not fit one machine), velocity (must be processed as it arrives), variety (unstructured: text, video, sensor data) (1–3)", "Challenges: distributed storage across many servers; fact-based, immutable models that are append-only; processing with map-reduce and functional techniques; hardware failure and consistency across nodes; data quality and cleaning (1–4)", "Ethical: profiling and privacy — combining datasets reveals more than any one did; consent and purpose limitation under data protection law; bias in analyses; surveillance; security of very large personal datasets; transparency about automated decisions (1–4)", "Level 4 (10–12): all three areas with a reasoned line and examples; Level 3 (7–9): two areas well; Level 2 (4–6); Level 1 (1–3)"] }
   ]
 });
@@ -270,11 +270,11 @@ X("compsci:4.12.1.1", {
     { q: "A recursive one-argument function that is a first-class object:", opts: ["cannot be passed to another function as an argument", "can be passed as an argument and has one parameter", "has no type, as it calls itself recursively", "is imperative, since it repeats like a loop"], ans: 1, why: "2025 true statements." }
   ],
   exam: [
-    { src: "AQA 2024 P2 Q11.1", q: "A function `area` takes the radius of a circle and returns its area. Describe the co-domain of the function.", marks: 1,
+    { src: "AQA 2024 · P2 Q11.1", q: "A function `area` takes the radius of a circle and returns its area. Describe the co-domain of the function.", marks: 1,
       ms: ["The set of real numbers — all possible real-world quantities / the rational and irrational numbers (not just the symbol ℝ) (1)"] },
-    { src: "AQA 2025 P2 Q11.2", q: "A recursive function `fibonacci` takes a position in the Fibonacci sequence and returns the value at that position. State the function type of `fibonacci`.", marks: 1,
+    { src: "AQA 2025 · P2 Q11.2", q: "A recursive function `fibonacci` takes a position in the Fibonacci sequence and returns the value at that position. State the function type of `fibonacci`.", marks: 1,
       ms: ["fibonacci: ℕ → ℕ (1)"] },
-    { src: "AQA 2019 P2 Q7.1", q: "The function `double` is defined by `double(x) = 2x` for integer x. State the co-domain of `double`.", marks: 1,
+    { src: "AQA 2019 · P2 Q07.1", q: "The function `double` is defined by `double(x) = 2x` for integer x. State the co-domain of `double`.", marks: 1,
       ms: ["The set of integers / ℤ (the same set as the domain) (1)"] }
   ]
 });
@@ -299,9 +299,9 @@ X("compsci:4.12.1.2", {
     { q: "Higher-order functions depend on:", opts: ["loops that repeat a function", "functions being first-class objects", "global state shared between functions", "mutable data passed between functions"], ans: 1, why: "A function can only take or return another function if functions are first-class objects." }
   ],
   exam: [
-    { src: "AQA 2025 P2 Q11.1", q: "The recursive function `fibonacci` is defined in a functional language. State which of the following are true: (A) the function has one argument; (B) the function is a first-class object; (C) the function modifies a global variable; (D) the function must be called with a list.", marks: 1,
+    { src: "AQA 2025 · P2 Q11.1", q: "The recursive function `fibonacci` is defined in a functional language. State which of the following are true: (A) the function has one argument; (B) the function is a first-class object; (C) the function modifies a global variable; (D) the function must be called with a list.", marks: 1,
       ms: ["A and B (1)"] },
-    { src: "AQA 2020 P2 Q11.3", q: "Explain what is meant by a function being a first-class object and why this matters in functional programming.", marks: 2,
+    { src: "AQA 2020 · P2 Q11.3", q: "Explain what is meant by a function being a first-class object and why this matters in functional programming.", marks: 2,
       ms: ["A function can be used like any other value — assigned, passed as an argument, returned as a result, stored in a structure (1)", "This allows higher-order functions such as map, filter and reduce, and partial application, which are central to the paradigm (1)"] }
   ]
 });
@@ -323,9 +323,9 @@ X("compsci:4.12.1.3", {
     { q: "Applying a two-argument function to one argument gives:", opts: ["an error, as one argument is missing", "a new one-argument function", "zero, as the second argument is 0", "a list of the possible results"], ans: 1, why: "Partial application." }
   ],
   exam: [
-    { src: "AQA 2020 P2 Q11.4", q: "Using the definitions `square x = x * x` and the built-in functions head, tail and fold, evaluate: (i) `head (tail [6, 2, 9])` (ii) `square (head [3, 5])` (iii) `fold (*) 1 [2, 3, 2]`.", marks: 3,
+    { src: "AQA 2020 · P2 Q11.4", q: "Using the definitions `square x = x * x` and the built-in functions head, tail and fold, evaluate: (i) `head (tail [6, 2, 9])` (ii) `square (head [3, 5])` (iii) `fold (*) 1 [2, 3, 2]`.", marks: 3,
       ms: ["(i) 2 (1)", "(ii) 9 (1)", "(iii) 12 (1)"] },
-    { src: "AQA 2019 P2 Q7.2", q: "The functions `double x = 2x` and `inc x = x + 1` are defined for integers. Evaluate `double (inc 5)` and `inc (double 5)`.", marks: 1,
+    { src: "AQA 2019 · P2 Q07.2", q: "The functions `double x = 2x` and `inc x = x + 1` are defined for integers. Evaluate `double (inc 5)` and `inc (double 5)`.", marks: 1,
       ms: ["12 and 11 (1)"] }
   ]
 });
@@ -354,9 +354,9 @@ X("compsci:4.12.1.4", {
     { q: "An answer by example only, for 'explain partial application', is capped at:", opts: ["1", "2", "3", "0"], ans: 1, why: "Mark scheme note." }
   ],
   exam: [
-    { src: "AQA 2019 P2 Q7.3", q: "The function `add` is defined by `add x y = x + y`. Explain what happens when `add` is partially applied as `add 6`, and describe the function that results.", marks: 3,
+    { src: "AQA 2019 · P2 Q07.3", q: "The function `add` is defined by `add x y = x + y`. Explain what happens when `add` is partially applied as `add 6`, and describe the function that results.", marks: 3,
       ms: ["The function is applied to only one of its arguments — the value 6 is fixed / bound (1)", "The output of this application is a new function that takes one (fewer) argument (1)", "The new function adds 6 to its single argument: add6(x) = 6 + x (1)"] },
-    { src: "AQA 2025 P2 Q11.4", q: "Explain what is meant by partial function application.", marks: 2,
+    { src: "AQA 2025 · P2 Q11.4", q: "Explain what is meant by partial function application.", marks: 2,
       ms: ["One or more of the arguments to a function are fixed — the function is applied to some of its arguments (1)", "Creating a new function with fewer arguments, which takes the remaining arguments (1)"] }
   ]
 });
@@ -386,13 +386,13 @@ X("compsci:4.12.1.5", {
     { q: "Composition produces:", opts: ["a value", "a new function", "a list of results", "a type"], ans: 1, why: "Function-level operation." }
   ],
   exam: [
-    { src: "AQA 2022 P2 Q12", ctx: "Functions are defined as: `fu` converts a single temperature from Fahrenheit to Celsius; `fv = map fu` converts a whole list; `fw` calculates the average of a list of numbers; `fx = fw ∘ fv`; `fy = fu ∘ fw`.",
+    { src: "AQA 2022 · P2 Q12", ctx: "Functions are defined as: `fu` converts a single temperature from Fahrenheit to Celsius; `fv = map fu` converts a whole list; `fw` calculates the average of a list of numbers; `fx = fw ∘ fv`; `fy = fu ∘ fw`.",
       parts: [
         { q: "State the purpose of the function `fx`.", marks: 1, ms: ["Calculates the average temperature in Celsius of a list of Fahrenheit temperatures (1)"] },
         { q: "`fy` produces the same result as `fx`. Explain why `fy` is the better definition.", marks: 1, ms: ["Only one conversion from Fahrenheit to Celsius is performed (after averaging) instead of one per element — fewer function calls; `fv` is no longer needed (1)"] },
         { q: "Given `temps = [50, 68, 95, 86]`, state the value of `fx temps`.", marks: 1, ms: ["(10 + 20 + 35 + 30) / 4 = 23.75 (1)"] }
       ] },
-    { src: "AQA 2018 P2 Q15.3", q: "A shop defines `price` (item → its price), `sold` (the day's list of items sold) and `total = fold (+) 0`. State what the function `total ∘ map price` applied to `sold` computes.", marks: 1,
+    { src: "AQA 2018 · P2 Q15.3", q: "A shop defines `price` (item → its price), `sold` (the day's list of items sold) and `total = fold (+) 0`. State what the function `total ∘ map price` applied to `sold` computes.", marks: 1,
       ms: ["The day's total sales value / revenue (1)"] }
   ]
 });
@@ -422,12 +422,12 @@ X("compsci:4.12.2.1", {
     { q: "`fold (*) 1 [4, 5]` =", opts: ["9", "20", "1", "[20]"], ans: 1, why: "fold (*) 1 [4, 5] multiplies the elements into the start value: 1 × 4 × 5 = 20." }
   ],
   exam: [
-    { src: "AQA 2017 P2 Q6", ctx: "Lists are defined: `a = [1, 3, 5]`, `b = [12, 1, 5, 20]`, `c = [2, 4, 6]`; `square x = x * x`.",
+    { src: "AQA 2017 · P2 Q06", ctx: "Lists are defined: `a = [1, 3, 5]`, `b = [12, 1, 5, 20]`, `c = [2, 4, 6]`; `square x = x * x`.",
       parts: [
         { q: "State the result of each: `map square a`, `filter (< 10) b`, `fold (+) 0 c`.", marks: 3, ms: ["[1, 9, 25] (1)", "[1, 5] (1)", "12 (1)"] },
         { q: "Explain what is meant by a higher-order function.", marks: 1, ms: ["A function that takes a function as an argument and/or returns a function as a result (1)"] }
       ] },
-    { src: "AQA 2018 P2 Q15", ctx: "A shop records `sales = [4, 10, 8]` (items sold per product) and defines `fw = map (*5)`, `fx = fold (+) 0`, `fy = filter (> 5)` and `fz = fx ∘ fw`.",
+    { src: "AQA 2018 · P2 Q15", ctx: "A shop records `sales = [4, 10, 8]` (items sold per product) and defines `fw = map (*5)`, `fx = fold (+) 0`, `fy = filter (> 5)` and `fz = fx ∘ fw`.",
       parts: [
         { q: "State how many of the functions fw, fx, fy, fz are defined using a higher-order function.", marks: 1, ms: ["4 (all of them — fz composes two) (1)"] },
         { q: "Evaluate `fw sales`, `fy sales` and `fz sales`.", marks: 3, ms: ["[20, 50, 40] (1)", "[10, 8] (1)", "110 (1)"] }
@@ -463,17 +463,17 @@ X("compsci:4.12.3.1", {
     { q: "`length (x:xs) = 1 + length xs` on [a, b, c] makes how many calls including the initial one?", opts: ["3", "4", "1", "2"], ans: 1, why: "[a,b,c], [b,c], [c], []." }
   ],
   exam: [
-    { src: "AQA 2020 P2 Q11", ctx: "A function is defined: `total [] = 0` and `total (x:xs) = x + total xs`.",
+    { src: "AQA 2020 · P2 Q11", ctx: "A function is defined: `total [] = 0` and `total (x:xs) = x + total xs`.",
       parts: [
         { q: "State the head and tail of the list `[6, 2, 9, 4]`.", marks: 1, ms: ["head 6, tail [2, 9, 4] (1)"] },
         { q: "Explain how the function `total` calculates the sum of a list.", marks: 3, ms: ["The function is recursive — it splits the list into its head and tail (1)", "It calls itself with the tail as the argument and adds the head to the result (1)", "The recursion terminates when the list is empty, returning 0 (1)"] }
       ] },
-    { src: "AQA 2023 P2 Q12", ctx: "A function `count` is defined: `count [] = 0` and `count (x:xs) = 1 + count xs`.",
+    { src: "AQA 2023 · P2 Q12", ctx: "A function `count` is defined: `count [] = 0` and `count (x:xs) = 1 + count xs`.",
       parts: [
         { q: "Complete a trace showing each call, its argument and the value returned for `count [7, 3, 9]`.", marks: 3, ms: ["Arguments in order: [7, 3, 9], [3, 9], [9], [] (1)", "Bottom row: [] returns 0 (1)", "Values returned 3, 2, 1, 0 in order (1)"] },
         { q: "State the co-domain of `count`.", marks: 1, ms: ["The set of natural numbers / ℕ (1)"] }
       ] },
-    { src: "AQA 2017 P2 Q6.1", q: "Given `b = [12, 1, 5, 20]`, state the value of `head (tail (tail b))`.", marks: 1,
+    { src: "AQA 2017 · P2 Q06.1", q: "Given `b = [12, 1, 5, 20]`, state the value of `head (tail (tail b))`.", marks: 1,
       ms: ["5 (1)"] }
   ]
 });
@@ -504,9 +504,9 @@ X("compsci:4.13.1.1", {
     { q: "Acceptance criteria are used to:", opts: ["write the code for each module of the system", "judge whether the finished system meets its requirements", "choose the programming language the team will use", "draw the structure diagrams for the system's design"], ans: 1, why: "Evaluation basis." }
   ],
   exam: [
-    { level: "AS", src: "AS 2020 P1 Q1", q: "Describe two pieces of work that would be undertaken during the analysis stage of developing a program.", marks: 2,
+    { level: "AS", src: "AQA 2020 · P1 Q01", q: "Describe two pieces of work that would be undertaken during the analysis stage of developing a program.", marks: 2,
       ms: ["Establishing the requirements of the system by interviewing / questioning / observing the users (1)", "Investigating the current system / defining the scope of the problem / producing a specification and acceptance criteria / carrying out a feasibility study (1)"] },
-    { src: "AQA 2019 P2 Q1", q: "Explain the difference between functional and non-functional requirements, giving an example of each for an online booking system.", marks: 2,
+    { src: "AQA 2019 · P2 Q01", q: "Explain the difference between functional and non-functional requirements, giving an example of each for an online booking system.", marks: 2,
       ms: ["Functional: what the system must do, e.g. allow a customer to book a seat for a showing (1)", "Non-functional: the qualities it must have, e.g. respond within two seconds / encrypt customer data (1)"] }
   ]
 });
@@ -530,7 +530,7 @@ X("compsci:4.13.1.2", {
     { q: "A data dictionary records:", opts: ["the test data for each module", "each data item's name, type and validation", "the users' complaints about the system", "the layout of each screen in the user interface"], ans: 1, why: "A data dictionary lists each data item with its name, type and validation rules." }
   ],
   exam: [
-    { src: "AQA 2021 P2 Q3", q: "Describe three activities that take place during the design stage of a software project.", marks: 3,
+    { src: "AQA 2021 · P2 Q03", q: "Describe three activities that take place during the design stage of a software project.", marks: 3,
       ms: ["Designing the data structures / database (e.g. relations and keys) to be used (1)", "Designing the algorithms — pseudo-code or flowcharts — and the modular structure (hierarchy chart) (1)", "Designing the user interface / producing a test plan from the requirements / prototyping (1)"] }
   ]
 });
@@ -555,7 +555,7 @@ X("compsci:4.13.1.3", {
     { q: "A prototype in implementation is:", opts: ["the final product handed to the client", "an early partial version for feedback", "a test plan for the final system", "a data dictionary for each table"], ans: 1, why: "A prototype is an early, partial version that users can try, so feedback can improve the design." }
   ],
   exam: [
-    { src: "AQA 2020 P2 Q12", q: "A team of programmers is implementing a large system designed as a set of modules. Explain two practices they should follow during implementation and why.", marks: 4,
+    { src: "AQA 2020 · P2 Q12", q: "A team of programmers is implementing a large system designed as a set of modules. Explain two practices they should follow during implementation and why.", marks: 4,
       ms: ["Implement and test each module separately (1) — so errors are localised and members can work in parallel on different modules (1)", "Use meaningful identifiers, comments and consistent coding standards (1) — so the code can be understood, tested and maintained by others (1)", "Accept: use version control so changes can be merged and earlier versions recovered (1 + 1)", "Max 4"] }
   ]
 });
@@ -587,9 +587,9 @@ X("compsci:4.13.1.4", {
     { q: "Re-running old tests after a fix is:", opts: ["regression testing", "integration testing", "prototype testing", "analysis"], ans: 0, why: "Regression testing re-runs earlier tests after a change to confirm that nothing that worked has broken." }
   ],
   exam: [
-    { level: "AS", src: "AS 2016 P1 Q3", q: "A program checks that an entered age is between 16 and 18 inclusive. Name the three types of test data that should be used and give one example of each for this program.", marks: 3,
+    { level: "AS", src: "AQA 2016 · P1 Q03", q: "A program checks that an entered age is between 16 and 18 inclusive. Name the three types of test data that should be used and give one example of each for this program.", marks: 3,
       ms: ["Normal / typical — e.g. 17 (1)", "Boundary / extreme — e.g. 16, 18 (and 15, 19) (1)", "Erroneous / invalid — e.g. 'seventeen' or 40 (1)"] },
-    { src: "AQA 2022 P2 Q13", q: "Explain the difference between black-box and white-box testing, and state at which stage acceptance testing takes place and who carries it out.", marks: 3,
+    { src: "AQA 2022 · P2 Q13", q: "Explain the difference between black-box and white-box testing, and state at which stage acceptance testing takes place and who carries it out.", marks: 3,
       ms: ["Black-box: tests outputs against the specification without considering the code (1)", "White-box: tests the internal logic so every path / branch is exercised (1)", "Acceptance testing is carried out at the end, by the client / users, against the agreed requirements (1)"] }
   ]
 });
@@ -618,7 +618,7 @@ X("compsci:4.13.1.5", {
     { qk: "101", q: "A required feature was never built. In the evaluation it should be", opts: ["left out, as nothing was made to judge", "marked partly met, as other parts work", "marked met if the user did not complain", "marked not met, with the reason and a fix"], ans: 3, why: "An honest verdict with the reason and a specific next step is what earns credit." }
   ],
   exam: [
-    { src: "AQA 2018 P2 Q11", q: "Describe what is done during the evaluation stage of a software project and explain why the evaluation should be made against criteria set during analysis.", marks: 3,
+    { src: "AQA 2018 · P2 Q11", q: "Describe what is done during the evaluation stage of a software project and explain why the evaluation should be made against criteria set during analysis.", marks: 3,
       ms: ["The completed system is judged against the requirements / acceptance criteria to see how well it meets them — correctness, usability, performance (1)", "User feedback is gathered and improvements / further development recommended (1)", "Using criteria agreed earlier keeps the judgement objective — success is measured against what the client asked for, not what happened to be built (1)"] }
   ]
 });

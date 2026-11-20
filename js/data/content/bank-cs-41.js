@@ -41,13 +41,13 @@ X("compsci:4.1.1.1", {
     { q: "Which is an example of a user-defined data type?", opts: ["A record type Student with fields Name and DOB", "The built-in integer type supplied with the language", "A variable named total declared in the main program", "The Boolean value TRUE used in a condition"], ans: 0, why: "Records compose built-in types into a new named type defined by the programmer." }
   ],
   exam: [
-    { level: "AS", src: "AS 2018 P1 Q3", q: "A program stores, for each parcel, its weight in kilograms, its tracking code (e.g. `RB123456789GB`) and whether it has been delivered. State the most appropriate data type for each of the three values.", marks: 3,
+    { level: "AS", src: "AQA 2018 · P1 Q03", q: "A program stores, for each parcel, its weight in kilograms, its tracking code (e.g. `RB123456789GB`) and whether it has been delivered. State the most appropriate data type for each of the three values.", marks: 3,
       ms: ["Weight: real/float (1)", "Tracking code: string (1)", "Delivered: Boolean (1)"] },
-    { src: "AQA 2019 P1 Q2", q: "Explain what is meant by a pointer data type and give one situation in which a program would use one.", marks: 2,
+    { src: "AQA 2019 · P1 Q02", q: "Explain what is meant by a pointer data type and give one situation in which a program would use one.", marks: 2,
       ms: ["A pointer stores the memory address of another data item / object (1)", "Used to link nodes of a dynamic structure such as a linked list, or to refer to an object created at run time (1)"] },
-    { level: "AS", src: "AS 2022 P1 Q2", q: "A programmer decides to store customers' telephone numbers as strings rather than as integers. Give two reasons why this is the appropriate choice.", marks: 2,
+    { level: "AS", src: "AQA 2022 · P1 Q02", q: "A programmer decides to store customers' telephone numbers as strings rather than as integers. Give two reasons why this is the appropriate choice.", marks: 2,
       ms: ["Leading zeros would be lost if stored as an integer (1)", "A phone number may contain characters such as `+`, spaces or brackets (1)", "No arithmetic is ever performed on a phone number (1)", "Max 2"] },
-    { src: "AQA 2023 P1 Q1", ctx: "A theatre booking system records each seat as a value of a user-defined type `Seat`, with fields `Row` (a single letter), `Number` (1–40), `Price` and `Booked`.",
+    { src: "AQA 2023 · P1 Q01", ctx: "A theatre booking system records each seat as a value of a user-defined type `Seat`, with fields `Row` (a single letter), `Number` (1–40), `Price` and `Booked`.",
       parts: [
         { q: "State a suitable built-in data type for each of the four fields.", marks: 2, ms: ["Row: character (or string); Number: integer (1)", "Price: real/float (accept decimal/currency); Booked: Boolean (1)"] },
         { q: "Explain why `Seat` is described as a user-defined data type.", marks: 2, ms: ["It is defined by the programmer rather than provided by the language (1)", "It is composed of / built from language-defined (built-in) types (1)"] },
@@ -91,19 +91,19 @@ X("compsci:4.1.1.2", {
     { q: "A constant declaration differs from a variable declaration because:", opts: ["a constant cannot be given a name, only a value", "a constant's value cannot change while the program runs", "a constant uses more memory than a variable of the same type", "a constant is always an integer and cannot hold text"], ans: 1, why: "A constant is fixed for the program's lifetime; the identifier makes the value meaningful and easy to change at source." }
   ],
   exam: [
-    { level: "AS", src: "AS 2025 P1 Q2", q: "A program uses a REPEAT…UNTIL loop to read a positive integer from the user, and continues to loop while the value entered is less than 1. Explain why replacing this with a WHILE loop, keeping the same condition, would change the program's behaviour when the first value entered is −4.", marks: 2,
+    { level: "AS", src: "AQA 2025 · P1 Q02", q: "A program uses a REPEAT…UNTIL loop to read a positive integer from the user, and continues to loop while the value entered is less than 1. Explain why replacing this with a WHILE loop, keeping the same condition, would change the program's behaviour when the first value entered is −4.", marks: 2,
       ms: ["REPEAT…UNTIL tests its condition at the end, so the body (the input) executes at least once before the test (1)", "A WHILE loop tests first; with the same condition the loop body would not run / the program would not re-prompt for −4 in the same way (1)"] },
-    { level: "AS", src: "AS 2016 P1 Q5.3", q: "A program that repeatedly divides a number by 2 until it reaches 1 uses a WHILE loop. Explain why a FOR loop would have been an inappropriate choice.", marks: 1,
+    { level: "AS", src: "AQA 2016 · P1 Q05.3", q: "A program that repeatedly divides a number by 2 until it reaches 1 uses a WHILE loop. Explain why a FOR loop would have been an inappropriate choice.", marks: 1,
       ms: ["The number of iterations is not known before the loop starts / depends on the value entered, so indefinite iteration is required (1)"] },
-    { level: "AS", src: "AS 2024 P1 Q4.1", ctx: "The **digital root** of a positive integer is found by adding its digits, then adding the digits of the result, and so on until a single digit remains. For example, 9875 → 9+8+7+5 = 29 → 2+9 = 11 → 1+1 = 2, so the digital root of 9875 is 2 and it took 3 additions.",
+    { level: "AS", src: "AQA 2024 · P1 Q04.1", ctx: "The **digital root** of a positive integer is found by adding its digits, then adding the digits of the result, and so on until a single digit remains. For example, 9875 → 9+8+7+5 = 29 → 2+9 = 11 → 1+1 = 2, so the digital root of 9875 is 2 and it took 3 additions.",
       parts: [
         { q: "Write a program that asks the user for a positive integer, then outputs its digital root and the number of additions performed. Your program should reject any input less than 1 and ask again.", marks: 8,
           ms: ["Input taken and validated with a loop that re-prompts while value < 1 (1)", "Outer loop repeats while the number has more than one digit (number ≥ 10) (1)", "Inner loop extracts each digit using MOD 10 and DIV 10 (1)", "Digits accumulated into a running sum, which becomes the new number (1)", "Counter incremented once per addition pass (1)", "Correct outputs for digital root and count in the required format (1)", "Meaningful identifiers used throughout (1)", "Fully working program matching the example 9875 → 2, 3 additions (1)"] },
         { q: "Explain why the outer loop's condition cannot simply be `number ≠ digital root`.", marks: 1, ms: ["The digital root is not known until the loop finishes — the condition must use a property that can be tested at each iteration, such as the number having more than one digit (1)"] }
       ] },
-    { level: "AS", src: "AS 2017 P1 Q3.3", q: "In a program that swaps and then prints two values, the programmer copies the original inputs into two additional variables before the swap. State why these temporary variables are needed.", marks: 1,
+    { level: "AS", src: "AQA 2017 · P1 Q03.3", q: "In a program that swaps and then prints two values, the programmer copies the original inputs into two additional variables before the swap. State why these temporary variables are needed.", marks: 1,
       ms: ["To preserve the original values so they can be output / used later — otherwise they are overwritten and the output would not make sense (1)"] },
-    { src: "AQA 2020 P1 Q3", q: "Describe the difference between definite and indefinite iteration, and state, with a reason, which is more appropriate for processing each character of a string whose length is known.", marks: 3,
+    { src: "AQA 2020 · P1 Q03", q: "Describe the difference between definite and indefinite iteration, and state, with a reason, which is more appropriate for processing each character of a string whose length is known.", marks: 3,
       ms: ["Definite iteration repeats a known number of times, fixed before the loop starts (1)", "Indefinite iteration repeats until/while a condition holds, so the number of repetitions is not known in advance (1)", "Definite (FOR) is appropriate: the length of the string is known so the loop count is known before it begins (1)"] }
   ]
 });
@@ -142,13 +142,13 @@ X("compsci:4.1.1.6", {
     { q: "Using a global for a subroutine's working value risks:", opts: ["unintended side-effects elsewhere in the program", "faster execution, since the value never has to be passed", "loss of the value as soon as the call returns", "a syntax error when the subroutine is compiled"], ans: 0, why: "Other code that reads the global sees the change — the classic side-effect." }
   ],
   exam: [
-    { level: "AS", src: "AS 2024 P1 Q2.1", q: "Describe two differences between local and global variables.", marks: 2,
+    { level: "AS", src: "AQA 2024 · P1 Q02.1", q: "Describe two differences between local and global variables.", marks: 2,
       ms: ["A global is accessible from all parts of the program; a local only in the block/subroutine in which it is declared (1)", "A local is declared inside a subroutine; a global in the main program block / outside subroutines (1)", "A local only exists / uses memory while its subroutine is executing; a global exists for the whole run (1)", "Max 2"] },
-    { level: "AS", src: "AS 2024 P1 Q2.2", q: "Explain why using local variables in subroutines is considered good practice.", marks: 2,
+    { level: "AS", src: "AQA 2024 · P1 Q02.2", q: "Explain why using local variables in subroutines is considered good practice.", marks: 2,
       ms: ["Makes the subroutine self-contained / aids modularisation — it can be reused in another program (1)", "Memory is used only while the subroutine executes (1)", "Prevents unintended side-effects / accidental changes (1)", "Variable names can be reused elsewhere (1)", "Max 2"] },
-    { level: "AS", src: "AS 2019 P1 Q1", q: "A program calculates prices including VAT. The programmer declares `VAT_RATE` as a constant and stores each subtotal in a local variable of the subroutine that computes it. Explain the benefit of each decision.", marks: 3,
+    { level: "AS", src: "AQA 2019 · P1 Q01", q: "A program calculates prices including VAT. The programmer declares `VAT_RATE` as a constant and stores each subtotal in a local variable of the subroutine that computes it. Explain the benefit of each decision.", marks: 3,
       ms: ["Constant: value cannot be altered accidentally during execution (1)", "Constant: one change in the declaration updates every use / the identifier makes the code readable (1)", "Local: exists only during the call so the subroutine is self-contained / cannot cause side-effects elsewhere (1)"] },
-    { src: "AQA 2023 P1 Q2", q: "A subroutine uses a global variable `Total` as its working accumulator. Explain one problem this could cause and how a local variable would avoid it.", marks: 2,
+    { src: "AQA 2023 · P1 Q02", q: "A subroutine uses a global variable `Total` as its working accumulator. Explain one problem this could cause and how a local variable would avoid it.", marks: 2,
       ms: ["Another part of the program that reads or writes `Total` could see / cause an unexpected change — a side-effect (1)", "A local `Total` exists only inside the subroutine so nothing else can observe or alter it (1)"] }
   ]
 });
@@ -187,17 +187,17 @@ X("compsci:4.1.1.7", {
     { q: "`SUBSTRING(0, 2, \"kurenai\")` (inclusive) returns:", opts: ["\"ku\"", "\"kur\"", "\"ure\"", "\"k\""], ans: 1, why: "Indices 0, 1 and 2 inclusive → k, u, r." }
   ],
   exam: [
-    { level: "AS", src: "AS 2025 P1 Q3.1", ctx: "A word is a **palindrome** if it reads the same backwards as forwards, ignoring the case of the letters. `Level`, `noon` and `RaDar` are palindromes; `Levels` is not.",
+    { level: "AS", src: "AQA 2025 · P1 Q03.1", ctx: "A word is a **palindrome** if it reads the same backwards as forwards, ignoring the case of the letters. `Level`, `noon` and `RaDar` are palindromes; `Levels` is not.",
       parts: [
         { q: "Write a program that inputs a word and outputs whether or not it is a palindrome.", marks: 8,
           ms: ["Word input and converted to a single case (1)", "Loop over the first half of the word (up to LEN DIV 2) (1)", "Compares character i with character LEN − 1 − i (1)", "Sets a flag / exits the loop when a mismatch is found (1)", "Correct output for both cases (1)", "Alternative accepted: builds the reversed string with a loop and compares (covers loop + comparison marks)", "Meaningful identifiers (1)", "Fully working with the test cases `Level` and `Levels` (1)", "Max 8"] },
         { q: "State the value of `LEN(\"RaDar\") DIV 2` and explain why looping up to this value is sufficient.", marks: 2, ms: ["2 (1)", "Each comparison checks a pair from both ends; once the middle is reached every character has been compared (1)"] }
       ] },
-    { src: "AQA 2018 P1 Q2", q: "A subroutine takes a string and returns it with every letter shifted 3 places forward in the alphabet, so `XYZ` becomes `ABC`. Write pseudo-code for the subroutine.", marks: 5,
+    { src: "AQA 2018 · P1 Q02", q: "A subroutine takes a string and returns it with every letter shifted 3 places forward in the alphabet, so `XYZ` becomes `ABC`. Write pseudo-code for the subroutine.", marks: 5,
       ms: ["Loop through each character of the string (1)", "Converts the character to its code with CHAR_TO_CODE (1)", "Adds the shift and wraps using MOD 26 relative to the code of 'A' (1)", "Converts back with CODE_TO_CHAR and concatenates to the result (1)", "Returns the result string (1)"] },
-    { level: "AS", src: "AS 2021 P1 Q2", q: "A program reads a string containing a number, e.g. `\"42\"`, and must add 8 to it. Explain why `input + 8` may not work and state the operation needed.", marks: 2,
+    { level: "AS", src: "AQA 2021 · P1 Q02", q: "A program reads a string containing a number, e.g. `\"42\"`, and must add 8 to it. Explain why `input + 8` may not work and state the operation needed.", marks: 2,
       ms: ["The input is a string, so + would concatenate / cause a type error rather than add (1)", "Convert first with STRING_TO_INT (1)"] },
-    { src: "AQA 2022 P1 Q1", q: "State the output of each expression. (i) `POSITION(\"binary\", \"n\")` (ii) `SUBSTRING(1, 3, \"binary\")` (iii) `LEN(\"\") + 1`", marks: 3,
+    { src: "AQA 2022 · P1 Q01", q: "State the output of each expression. (i) `POSITION(\"binary\", \"n\")` (ii) `SUBSTRING(1, 3, \"binary\")` (iii) `LEN(\"\") + 1`", marks: 3,
       ms: ["(i) 2 (1)", "(ii) \"ina\" (1)", "(iii) 1 (1)"] }
   ]
 });
@@ -222,14 +222,14 @@ X("compsci:4.1.1.8", {
     { q: "The probability that `RANDOM_INT(1, 100) ≤ 25` is:", opts: ["0.25", "0.24", "0.26", "0.5"], ans: 0, why: "25 of the 100 equally likely values satisfy it." }
   ],
   exam: [
-    { level: "AS", src: "AS 2022 P1 Q3.1", ctx: "A game uses two six-sided dice. A player wins a round if the two dice show the same value (a double). A program simulates 1000 rounds and reports how many were won.",
+    { level: "AS", src: "AQA 2022 · P1 Q03.1", ctx: "A game uses two six-sided dice. A player wins a round if the two dice show the same value (a double). A program simulates 1000 rounds and reports how many were won.",
       parts: [
         { q: "Write the program.", marks: 6, ms: ["Loop repeating 1000 times (1)", "Two independent random integers in the range 1 to 6 generated each iteration (1)", "Selection comparing the two values (1)", "Counter incremented when they are equal (1)", "Result output after the loop (1)", "Fully working with meaningful identifiers (1)"] },
         { q: "The programmer runs the program twice and gets 172 and 159. Explain why the results differ and state what result would be expected in the long run.", marks: 2, ms: ["Each run generates a different random sequence (different seed) (1)", "Expected ≈ 1000 × 1/6 ≈ 167 (1)"] }
       ] },
-    { src: "AQA 2020 P2 Q4", q: "Explain why the numbers produced by a typical programming-language random function are described as pseudo-random.", marks: 2,
+    { src: "AQA 2020 · P2 Q04", q: "Explain why the numbers produced by a typical programming-language random function are described as pseudo-random.", marks: 2,
       ms: ["They are generated by a deterministic algorithm from a starting seed value (1)", "So the same seed produces the same sequence — they only appear random (1)"] },
-    { level: "AS", src: "AS 2019 P1 Q4", q: "Write a pseudo-code statement that assigns to `chance` the value TRUE with probability 0.2 and FALSE otherwise.", marks: 2,
+    { level: "AS", src: "AQA 2019 · P1 Q04", q: "Write a pseudo-code statement that assigns to `chance` the value TRUE with probability 0.2 and FALSE otherwise.", marks: 2,
       ms: ["Random integer in a suitable range generated, e.g. RANDOM_INT(1, 5) (1)", "Compared so exactly one fifth of outcomes give TRUE: `chance ← RANDOM_INT(1, 5) = 1` (1)"] }
   ]
 });
@@ -254,13 +254,13 @@ X("compsci:4.1.1.9", {
     { q: "Best use of exception handling in a data-entry loop:", opts: ["Catch conversion errors and re-prompt", "Ignore invalid input and carry on", "Terminate on the first error", "Convert everything to strings first"], ans: 0, why: "Graceful recovery keeps the program usable." }
   ],
   exam: [
-    { level: "AS", src: "AS 2023 P1 Q2", q: "A program asks the user to enter their age and converts the input to an integer. Explain how exception handling could be used to deal with a user typing `eighteen`.", marks: 3,
+    { level: "AS", src: "AQA 2023 · P1 Q02", q: "A program asks the user to enter their age and converts the input to an integer. Explain how exception handling could be used to deal with a user typing `eighteen`.", marks: 3,
       ms: ["Place the conversion inside a TRY block (1)", "The failed conversion raises an exception which transfers control to the CATCH block (1)", "The handler outputs an error message and asks for the input again rather than the program crashing (1)"] },
-    { src: "AQA 2021 P1 Q4", q: "Describe two advantages of using exception handling rather than testing for every possible error condition with selection statements.", marks: 2,
+    { src: "AQA 2021 · P1 Q04", q: "Describe two advantages of using exception handling rather than testing for every possible error condition with selection statements.", marks: 2,
       ms: ["Some run-time errors (hardware failure, file missing, network loss) cannot be predicted or tested for in advance (1)", "Separates error-handling code from the main logic, making the program easier to read / one handler can cover a whole block (1)", "Prevents the program terminating abnormally / allows recovery (1)", "Max 2"] },
-    { src: "AQA 2024 P2 Q3", q: "A subroutine opens a file, reads it and closes it. State where the close operation should be placed so that it runs even if reading the file raises an exception, and explain why this matters.", marks: 2,
+    { src: "AQA 2024 · P2 Q03", q: "A subroutine opens a file, reads it and closes it. State where the close operation should be placed so that it runs even if reading the file raises an exception, and explain why this matters.", marks: 2,
       ms: ["In a FINALLY block (after the TRY/CATCH) (1)", "Otherwise the file remains open / locked when an exception skips the close statement (1)"] },
-    { level: "AS", src: "AS 2017 P1 Q2", q: "Give two examples of situations that would raise an exception at run time.", marks: 2,
+    { level: "AS", src: "AQA 2017 · P1 Q02", q: "Give two examples of situations that would raise an exception at run time.", marks: 2,
       ms: ["Division by zero (1)", "Array index out of bounds / file not found / invalid type conversion / running out of memory (1 each, max 2)"] }
   ]
 });
@@ -299,11 +299,11 @@ X("compsci:4.1.1.10", {
     { q: "Which makes a subroutine self-contained?", opts: ["Using global variables for all its data", "Using local variables and parameters", "Making it long enough to do every task", "Calling it only once from the main program"], ans: 1, why: "All data enters via parameters and lives in locals; nothing outside is touched." }
   ],
   exam: [
-    { src: "AQA 2024 P1 Q1", q: "A programmer structures a large program as a set of subroutines. Explain three advantages of doing this.", marks: 3,
+    { src: "AQA 2024 · P1 Q01", q: "A programmer structures a large program as a set of subroutines. Explain three advantages of doing this.", marks: 3,
       ms: ["Easier to test/debug because each subroutine can be tested separately (1)", "Easier to understand because the program is an overview of named tasks (1)", "Code can be reused / called repeatedly without rewriting (1)", "Team members can implement subroutines independently (1)", "Easier to maintain because a change is made in one place (1)", "Each advantage must be different and include how it is achieved. Max 3"] },
-    { level: "AS", src: "AS 2025 P1 Q4.1", q: "Define the term *subroutine*.", marks: 1,
+    { level: "AS", src: "AQA 2025 · P1 Q04.1", q: "Define the term *subroutine*.", marks: 1,
       ms: ["A named / callable (out-of-line) block of code that can be executed by writing its name in a program statement (1)"] },
-    { src: "AQA 2019 P1 Q1", q: "State the difference between a function and a procedure, and give one example of each from a typical language's built-in subroutines.", marks: 2,
+    { src: "AQA 2019 · P1 Q01", q: "State the difference between a function and a procedure, and give one example of each from a typical language's built-in subroutines.", marks: 2,
       ms: ["A function returns a value (used in an expression); a procedure does not (called as a statement) (1)", "Function e.g. LEN / ROUND; procedure e.g. OUTPUT / PRINT (1)"] }
   ]
 });
@@ -339,11 +339,11 @@ X("compsci:4.1.1.11", {
     { q: "A parameter's scope is:", opts: ["global, across the whole of the program", "the subroutine in which it is declared", "the calling program, where its value came from", "the whole file the subroutine is written in"], ans: 1, why: "Parameters behave as locals of the subroutine." }
   ],
   exam: [
-    { level: "AS", src: "AS 2025 P1 Q4.3", q: "A subroutine that calculates delivery cost currently reads the parcel weight from a global variable. Explain two ways in which passing the weight as a parameter instead would improve the subroutine.", marks: 2,
+    { level: "AS", src: "AQA 2025 · P1 Q04.3", q: "A subroutine that calculates delivery cost currently reads the parcel weight from a global variable. Explain two ways in which passing the weight as a parameter instead would improve the subroutine.", marks: 2,
       ms: ["Avoids a global variable, so the subroutine is self-contained / encapsulated (1)", "Can be called with different weights / values / expressions (1)", "Easier to reuse in another program or to test independently (1)", "Makes it explicit which outside values are used (1)", "Max 2"] },
-    { src: "AQA 2022 P1 Q2", q: "Explain the difference between passing a parameter by value and by reference, and state which should be used for a procedure that must sort an array in place.", marks: 3,
+    { src: "AQA 2022 · P1 Q02", q: "Explain the difference between passing a parameter by value and by reference, and state which should be used for a procedure that must sort an array in place.", marks: 3,
       ms: ["By value: a copy is passed, so changes in the subroutine do not affect the caller's variable (1)", "By reference: the address is passed, so the subroutine changes the caller's variable (1)", "By reference — the array itself must be reordered (1)"] },
-    { src: "AQA 2017 P1 Q3", ctx: "A procedure is declared as `PROCEDURE Increase(n)` with body `n ← n + 10; OUTPUT n`. The main program contains `x ← 5; Increase(x); OUTPUT x`.",
+    { src: "AQA 2017 · P1 Q03", ctx: "A procedure is declared as `PROCEDURE Increase(n)` with body `n ← n + 10; OUTPUT n`. The main program contains `x ← 5; Increase(x); OUTPUT x`.",
       parts: [
         { q: "State the two values output if `n` is passed by value.", marks: 1, ms: ["15 then 5 (1)"] },
         { q: "State the two values output if `n` is passed by reference.", marks: 1, ms: ["15 then 15 (1)"] },
@@ -373,11 +373,11 @@ X("compsci:4.1.1.12", {
     { qk: "150", q: "The hex string \"A2\" converted to decimal is:", opts: ["102", "162", "42", "172"], ans: 1, why: "A is 10, so A2 = 10 × 16 + 2 = 162; 102 reads the digits as if they were base 10." }
   ],
   exam: [
-    { src: "AQA 2023 P1 Q3", q: "A function `Grade(mark)` should return `\"Pass\"` for marks of 40 or more and `\"Fail\"` otherwise. A student writes it with a single `IF mark ≥ 40 THEN RETURN \"Pass\" ENDIF`. Explain the error and write a corrected version.", marks: 3,
+    { src: "AQA 2023 · P1 Q03", q: "A function `Grade(mark)` should return `\"Pass\"` for marks of 40 or more and `\"Fail\"` otherwise. A student writes it with a single `IF mark ≥ 40 THEN RETURN \"Pass\" ENDIF`. Explain the error and write a corrected version.", marks: 3,
       ms: ["When mark < 40 no RETURN executes, so the function returns no / an undefined value (1)", "Add the ELSE branch (or a RETURN after the IF): `IF mark ≥ 40 THEN RETURN \"Pass\" ELSE RETURN \"Fail\" ENDIF` (1)", "Every path now returns a String value (1)"] },
-    { level: "AS", src: "AS 2020 P1 Q2", q: "Explain the difference between how a function and a procedure are called, giving an example statement for each.", marks: 2,
+    { level: "AS", src: "AQA 2020 · P1 Q02", q: "Explain the difference between how a function and a procedure are called, giving an example statement for each.", marks: 2,
       ms: ["A function call appears within an expression because it returns a value, e.g. `y ← Square(x) + 1` (1)", "A procedure call is a statement on its own, e.g. `DisplayMenu()` (1)"] },
-    { src: "AQA 2018 P2 Q2", q: "A subroutine must give the caller both the largest and smallest values in an array. Describe two different ways this could be achieved.", marks: 2,
+    { src: "AQA 2018 · P2 Q02", q: "A subroutine must give the caller both the largest and smallest values in an array. Describe two different ways this could be achieved.", marks: 2,
       ms: ["Return a composite value (record / array / tuple) containing both (1)", "Use two by-reference parameters that the subroutine sets (1)", "Accept: two separate functions Max and Min (1)", "Max 2"] }
   ]
 });
@@ -402,11 +402,11 @@ X("compsci:4.1.1.13", {
     { q: "Using locals rather than globals in a subroutine makes it:", opts: ["slower to call each time", "self-contained and reusable", "unable to return values", "recursive by default"], ans: 1, why: "The accepted mark-scheme phrasing." }
   ],
   exam: [
-    { level: "AS", src: "AS 2023 P1 Q3", q: "A subroutine declares a variable `count` locally. State two features of this variable that distinguish it from a global variable with the same name.", marks: 2,
+    { level: "AS", src: "AQA 2023 · P1 Q03", q: "A subroutine declares a variable `count` locally. State two features of this variable that distinguish it from a global variable with the same name.", marks: 2,
       ms: ["It can only be accessed / used inside the subroutine in which it is declared (1)", "It exists / uses memory only while the subroutine is executing (1)", "Accept: it is stored in the subroutine's stack frame (1)", "Max 2"] },
-    { src: "AQA 2021 P1 Q2.6", q: "State two items, other than local variables, that are stored in a stack frame when a subroutine is called.", marks: 2,
+    { src: "AQA 2021 · P1 Q02.6", q: "State two items, other than local variables, that are stored in a stack frame when a subroutine is called.", marks: 2,
       ms: ["Return address (1)", "Parameters (1)", "Register values (1)", "Max 2"] },
-    { src: "AQA 2020 P1 Q2", q: "A recursive function declares a local variable `half`. Explain what happens to `half` as the function calls itself three times and then returns.", marks: 3,
+    { src: "AQA 2020 · P1 Q02", q: "A recursive function declares a local variable `half`. Explain what happens to `half` as the function calls itself three times and then returns.", marks: 3,
       ms: ["Each call creates its own `half` in a new stack frame — three separate copies exist at the deepest point (1)", "Each copy holds the value for its own call and is not affected by the others (1)", "As each call returns its frame is popped and that copy of `half` is destroyed (1)"] }
   ]
 });
@@ -431,9 +431,9 @@ X("compsci:4.1.1.14", {
     { q: "Which is a legitimate use of a global?", opts: ["A loop counter in one subroutine", "A program-wide configuration value", "A temporary swap variable", "A function's return value"], ans: 1, why: "Genuinely program-wide data is the exception." }
   ],
   exam: [
-    { level: "AS", src: "AS 2019 P1 Q1", q: "A program uses a global variable `Total` that is updated by several subroutines. Explain one problem this design could cause and describe how the program could be restructured to avoid it.", marks: 3,
+    { level: "AS", src: "AQA 2019 · P1 Q01", q: "A program uses a global variable `Total` that is updated by several subroutines. Explain one problem this design could cause and describe how the program could be restructured to avoid it.", marks: 3,
       ms: ["Any subroutine can change `Total`, so an unexpected change (side-effect) in one place affects the others / is hard to trace (1)", "Pass the current total to each subroutine as a parameter (1)", "Return the updated value from the subroutine (1)"] },
-    { src: "AQA 2016 P1 Q2", q: "State two disadvantages of using global variables in a program made of many subroutines.", marks: 2,
+    { src: "AQA 2016 · P1 Q02", q: "State two disadvantages of using global variables in a program made of many subroutines.", marks: 2,
       ms: ["Subroutines are no longer self-contained, so harder to reuse / test independently (1)", "Risk of unintended side-effects when a subroutine changes the value (1)", "Occupies memory for the whole run (1)", "Names cannot be reused elsewhere (1)", "Max 2"] }
   ]
 });
@@ -464,11 +464,11 @@ X("compsci:4.1.1.15", {
     { q: "Saving register values in the frame ensures:", opts: ["faster calls, as registers need not be read again", "the caller's working values are restored on return", "recursion is impossible, so frames cannot pile up", "parameters are copied into the caller's registers"], ans: 1, why: "The callee may reuse the registers; the saved copies restore the caller's state." }
   ],
   exam: [
-    { src: "AQA 2021 P1 Q2.6", q: "State two items of information that are stored in a stack frame.", marks: 2,
+    { src: "AQA 2021 · P1 Q02.6", q: "State two items of information that are stored in a stack frame.", marks: 2,
       ms: ["Return address (1)", "Parameters (1)", "Local variables (1)", "Register values (accept an example such as the accumulator) (1)", "Max 2"] },
-    { src: "AQA 2018 P1 Q2", q: "Explain how the call stack is used when subroutine `Main` calls `Print`, which in turn calls `Format`, and how execution correctly resumes in `Main` afterwards.", marks: 4,
+    { src: "AQA 2018 · P1 Q02", q: "Explain how the call stack is used when subroutine `Main` calls `Print`, which in turn calls `Format`, and how execution correctly resumes in `Main` afterwards.", marks: 4,
       ms: ["When `Print` is called a stack frame containing its return address (the instruction after the call in Main), parameters and locals is pushed (1)", "Calling `Format` pushes a second frame on top (1)", "When `Format` returns its frame is popped and the return address in it is loaded into the program counter, resuming in `Print` (1)", "When `Print` returns its frame is popped in the same way and execution resumes at the statement after the call in `Main` — LIFO order matches the nesting of the calls (1)"] },
-    { src: "AQA 2023 P2 Q6", q: "A recursive subroutine has no base case. Explain, with reference to the call stack, what happens when it is executed.", marks: 2,
+    { src: "AQA 2023 · P2 Q06", q: "A recursive subroutine has no base case. Explain, with reference to the call stack, what happens when it is executed.", marks: 2,
       ms: ["Every call pushes another stack frame and none is ever popped because no call returns (1)", "The stack runs out of space — stack overflow — and the program crashes (1)"] }
   ]
 });
@@ -498,18 +498,18 @@ X("compsci:4.1.1.16", {
     { q: "Which structure is naturally processed by recursion?", opts: ["A stack", "A tree", "A queue", "A constant"], ans: 1, why: "Each subtree is a smaller instance of the same problem." }
   ],
   exam: [
-    { src: "AQA 2023 P2 Q12.1", ctx: "The function below is written in a functional style: `Total([]) = 0` and `Total(x:xs) = x + Total(xs)`, where `x:xs` splits a list into its head `x` and tail `xs`.",
+    { src: "AQA 2023 · P2 Q12.1", ctx: "The function below is written in a functional style: `Total([]) = 0` and `Total(x:xs) = x + Total(xs)`, where `x:xs` splits a list into its head `x` and tail `xs`.",
       parts: [
         { q: "Complete a trace table showing, for the call `Total([6, 1, 4])`, each call in order, its argument and the value it returns.", marks: 3,
           ms: ["Argument column: [6, 1, 4], [1, 4], [4], [] in order (1)", "Bottom row: argument [] returns 0 (1)", "Returned values 11, 5, 4, 0 in order (1)"] },
         { q: "State the base case of `Total`.", marks: 1, ms: ["The empty list [] (returns 0) (1)"] },
         { q: "Explain why `Total` is described as recursive.", marks: 1, ms: ["It calls itself (with the tail of the list as argument) (1)"] }
       ] },
-    { src: "AQA 2021 P1 Q2.4", q: "Explain what is meant by a recursive subroutine and by a base case.", marks: 2,
+    { src: "AQA 2021 · P1 Q02.4", q: "Explain what is meant by a recursive subroutine and by a base case.", marks: 2,
       ms: ["A recursive subroutine is one that calls itself (1)", "A base case is the circumstance in which the recursive subroutine does not call itself (1)"] },
-    { src: "AQA 2025 P2 Q11.3", q: "A programmer implements the Fibonacci sequence with `Fib(n) = Fib(n − 1) + Fib(n − 2)` and base cases `Fib(0) = 0`, `Fib(1) = 1`. Explain why this implementation is inefficient for large `n`.", marks: 2,
+    { src: "AQA 2025 · P2 Q11.3", q: "A programmer implements the Fibonacci sequence with `Fib(n) = Fib(n − 1) + Fib(n − 2)` and base cases `Fib(0) = 0`, `Fib(1) = 1`. Explain why this implementation is inefficient for large `n`.", marks: 2,
       ms: ["The same sub-problems (e.g. Fib(n − 2)) are calculated many times over (1)", "So the number of calls / time grows exponentially with n (1)"] },
-    { src: "AQA 2022 P1 Q4.5", ctx: "A recursive procedure `Visit(node)` marks `Seen[node]` as TRUE, then for each neighbour `m` of `node` that is not yet seen, calls `Visit(m)`. The graph has edges 0–1, 1–3, 0–2 and neighbours are considered in ascending order.",
+    { src: "AQA 2022 · P1 Q04.5", ctx: "A recursive procedure `Visit(node)` marks `Seen[node]` as TRUE, then for each neighbour `m` of `node` that is not yet seen, calls `Visit(m)`. The graph has edges 0–1, 1–3, 0–2 and neighbours are considered in ascending order.",
       parts: [
         { q: "List the sequence of calls made by `Visit(0)`.", marks: 2, ms: ["Visit(0), Visit(1), Visit(3) (1)", "then Visit(2) after returning to Visit(0) — no call repeated (1)"] },
         { q: "State the contents of `Seen` when the procedure completes and the base case of the recursion.", marks: 2, ms: ["Seen = [TRUE, TRUE, TRUE, TRUE] (1)", "Base case: a node with no unseen neighbours (the loop makes no call) (1)"] }
@@ -537,11 +537,11 @@ X("compsci:4.1.2.1", {
     { q: "Which pairing is correct?", opts: ["Haskell — functional", "Prolog — object-oriented", "C — declarative", "SQL — procedural"], ans: 0, why: "Haskell is the archetypal functional language." }
   ],
   exam: [
-    { src: "AQA 2019 P2 Q5", q: "Describe the difference between the procedural and object-oriented programming paradigms.", marks: 2,
+    { src: "AQA 2019 · P2 Q05", q: "Describe the difference between the procedural and object-oriented programming paradigms.", marks: 2,
       ms: ["Procedural: the program is a list of instructions organised into subroutines that operate on separate data (1)", "Object-oriented: data and the subroutines (methods) that act on it are combined into objects / defined by classes (1)"] },
-    { src: "AQA 2022 P2 Q11", q: "State two characteristics of the functional programming paradigm that distinguish it from the procedural paradigm.", marks: 2,
+    { src: "AQA 2022 · P2 Q11", q: "State two characteristics of the functional programming paradigm that distinguish it from the procedural paradigm.", marks: 2,
       ms: ["Functions have no side-effects / there is no mutable state — a function's result depends only on its arguments (1)", "Functions are first-class objects — they can be passed as arguments and returned (1)", "Computation is expressed as evaluation of functions / function composition rather than sequences of state changes (1)", "Max 2"] },
-    { src: "AQA 2017 P2 Q4", q: "Explain why a language such as SQL is described as declarative rather than procedural.", marks: 2,
+    { src: "AQA 2017 · P2 Q04", q: "Explain why a language such as SQL is described as declarative rather than procedural.", marks: 2,
       ms: ["The programmer states what result is required (1)", "Not the sequence of steps by which it is obtained — the system decides how (1)"] }
   ]
 });
@@ -565,9 +565,9 @@ X("compsci:4.1.2.2", {
     { q: "'Spaghetti code' results from:", opts: ["too many subroutines", "unstructured jumps (GOTO)", "meaningful variable names", "recursion in subroutines"], ans: 1, why: "Uncontrolled control flow." }
   ],
   exam: [
-    { src: "AQA 2020 P2 Q3", q: "Describe the structured programming approach and give two advantages of using it.", marks: 4,
+    { src: "AQA 2020 · P2 Q03", q: "Describe the structured programming approach and give two advantages of using it.", marks: 4,
       ms: ["Programs are built only from sequence, selection and iteration blocks (no GOTO) (1)", "The problem is decomposed top-down into subroutines / modules, often shown in a hierarchy chart (1)", "Advantage: modules can be tested / debugged independently (1)", "Advantage: easier to understand, maintain and reuse; suits team development (1)"] },
-    { src: "AQA 2016 P2 Q2", q: "A hierarchy chart is drawn for a program. Explain what it shows and how it supports the procedural paradigm.", marks: 2,
+    { src: "AQA 2016 · P2 Q02", q: "A hierarchy chart is drawn for a program. Explain what it shows and how it supports the procedural paradigm.", marks: 2,
       ms: ["Shows the program decomposed into modules with each module's sub-modules beneath it (1)", "Each box becomes a procedure/subroutine, so the chart is the plan for the procedural program (1)"] }
   ]
 });
@@ -610,21 +610,21 @@ X("compsci:4.1.2.3", {
     { q: "The method that runs when `new Account(500)` executes is the:", opts: ["destructor", "constructor", "getter", "override"], ans: 1, why: "Constructors initialise new objects." }
   ],
   exam: [
-    { src: "AQA 2022 P2 Q9", ctx: "A veterinary practice's software has a class `Animal` with private attributes `Name` and `Age`, a constructor, and a public method `Describe()`. Classes `Dog` and `Cat` inherit from `Animal`. `Dog` adds a private attribute `Breed` and overrides `Describe()`.",
+    { src: "AQA 2022 · P2 Q09", ctx: "A veterinary practice's software has a class `Animal` with private attributes `Name` and `Age`, a constructor, and a public method `Describe()`. Classes `Dog` and `Cat` inherit from `Animal`. `Dog` adds a private attribute `Breed` and overrides `Describe()`.",
       parts: [
         { q: "Draw a class diagram for `Animal`, `Dog` and `Cat`.", marks: 4, ms: ["Three class boxes with correct names, Dog and Cat below Animal (1)", "Inheritance arrows (open triangle) from Dog and Cat to Animal (1)", "Animal attributes shown as private (−) with Describe() public (+); constructor shown (1)", "Dog shows −Breed and its own Describe() (1)"] },
         { q: "Explain what is meant by *overriding* with reference to `Describe()`.", marks: 2, ms: ["Dog provides its own definition of Describe() with the same name as the inherited method (1)", "So calling Describe() on a Dog object runs the Dog version rather than the Animal version (1)"] },
         { q: "Explain why `Name` and `Age` are declared private and how other code can still obtain an animal's age.", marks: 2, ms: ["Encapsulation / information hiding: the attributes cannot be altered directly from outside, protecting them from invalid values (1)", "A public method (getter) such as GetAge() returns the value (1)"] },
         { q: "Write the class definition for `Cat` in pseudo-code, given that it only inherits from `Animal` and adds a Boolean attribute `Indoor` set by its constructor.", marks: 3, ms: ["`Class Cat Inherits Animal` (1)", "`Private Indoor : Boolean` (1)", "Constructor taking name, age and indoor, calling the superclass constructor and setting Indoor (1)"] }
       ] },
-    { src: "AQA 2019 P2 Q8", ctx: "In a school timetabling system a `Department` object holds a list of `Teacher` objects, and a `Lesson` object holds a `Register` object that is created and destroyed with the lesson.",
+    { src: "AQA 2019 · P2 Q08", ctx: "In a school timetabling system a `Department` object holds a list of `Teacher` objects, and a `Lesson` object holds a `Register` object that is created and destroyed with the lesson.",
       parts: [
         { q: "State, with a reason, whether the relationship between `Department` and `Teacher` is aggregation or composition.", marks: 2, ms: ["Aggregation (1)", "A Teacher can exist independently of the Department — deleting the department does not delete its teachers (1)"] },
         { q: "State, with a reason, whether the relationship between `Lesson` and `Register` is aggregation or composition, and describe how each relationship is drawn in a class diagram.", marks: 3, ms: ["Composition — the Register cannot exist without its Lesson / is destroyed with it (1)", "Composition: filled (black) diamond at the whole end of the line (1)", "Aggregation: hollow (white) diamond at the whole end (1)"] }
       ] },
-    { src: "AQA 2024 P2 Q10", q: "Explain what is meant by *polymorphism* and describe one advantage it gives a programmer.", marks: 3,
+    { src: "AQA 2024 · P2 Q10", q: "Explain what is meant by *polymorphism* and describe one advantage it gives a programmer.", marks: 3,
       ms: ["Objects of different classes can respond to the same method call (1)", "Each class provides its own implementation (overriding) and the correct one is selected by the object's class at run time (1)", "Advantage: code can process a collection of different subclass objects uniformly without selection statements for each type / new subclasses can be added without changing that code (1)"] },
-    { src: "AQA 2017 P2 Q7", q: "State what is meant by an *abstract class* and explain why a designer might make the class `Shape` abstract in a drawing program.", marks: 2,
+    { src: "AQA 2017 · P2 Q07", q: "State what is meant by an *abstract class* and explain why a designer might make the class `Shape` abstract in a drawing program.", marks: 2,
       ms: ["A class that cannot be instantiated / exists only to be inherited from (1)", "A generic 'shape' object makes no sense — only concrete subclasses (Circle, Rectangle) can be drawn; Shape defines the common interface they must implement (1)"] }
   ]
 });

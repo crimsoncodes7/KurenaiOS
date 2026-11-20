@@ -282,22 +282,31 @@ How the trial is set up:
 
 Generated from your marks (`decisions` on the review page, read 19 Nov) and `docs/qol/placement.json`. ⓝ = in Neon's starter batch.
 
-**1B's progress** (branch `feat/qol-1a`, by the mock dates first):
+**1B's progress** (branch `feat/qol-1a`; all done 20 November):
 
 - ✓ `rm:5.22` F201 practice papers 2 and 3 (`c0c67c3`): Calderford City Council and Freshway. With paper 1 they reach
   every leaf of F201 (smoke181 B).
-- `bk:content-maths#1`, the mock's leaves first:
-  - ✓ 4.3 sigma notation (`c5b5639`);
-  - ✓ 6.1 and 6.2 exponentials (`9bd4eaf`);
-  - ✓ 7.2 using a derivative (`a2e337b`) and 8.1 definite integrals;
-  - every new card and quiz item sits at the end of its leaf's bank block with a fixed key (100+), so no learner's
-    schedule moves (`6f4e237`, `306d269`; each leaf's keys compared with the commit before);
-  - next: 8.4 and 8.6 (not in the mock).
-  - The past papers hold few questions on these leaves (one each for 4.3 and 6.1), so they are deepened with the
-    exam types those topics feed (sigma form, find k, least n; constants, intersections, inverses, tangents), not
-    padded to a word count.
-- Still to do: `content-cs-it#4/#5` (CS's thin leaves and quiz top-ups, the PPE's topics first), `rm:5.21` (the
-  flashcard pass), `content-cs-it#3/#6/#7/#8` and `content-maths#2` (labels and counts, which touch pages).
+- ✓ `bk:content-maths#1`: all seven thin Pure leaves deepened with pages, figures, worked examples and an exam toolkit
+  (4.3 `c5b5639`; 6.1 and 6.2 `9bd4eaf`; 7.2 `a2e337b`; 8.1 `af800d2`; 8.4 `c0b0ffd`; 8.6 `fb01ca8`).
+  - Every new card and quiz item sits at the end of its leaf's bank block with a fixed key (100+), so no learner's
+    schedule moves (`6f4e237`, `306d269`; each leaf's keys compared with the commit before).
+  - The past papers hold few questions on these leaves, so they are deepened with the exam types those topics feed,
+    not padded to a word count.
+- ✓ `content-cs-it#4`: 4.3.4.3 (`9ac869e`), 4.2.7.1, 4.13.1.5, 4.4.4.1, 4.9.4.3, 4.9.4.6 and 4.9.4.9 each gain pages,
+  figures and worked examples (all now above the old 10th percentile), with cards and quiz items keyed 100+.
+- ✓ `content-cs-it#5`: 4.5.3.1, 4.5.4.1, 4.5.5.1 and 4.4.4.6 reach 11 quiz questions (keyed `qk` 100+).
+- ✓ `rm:5.21` the flashcard pass: `tools/card_lint.mjs` (smoke197) flags label fronts, bare yes/no backs, backs over
+  35 words and CS worked calculations. Every CS, Maths and IT card now passes: about 500 rewritten in place under
+  their own keys, and the CS calculations moved to the quiz (`qk` 150+), with the later cards pinned so no key moved.
+- ✓ `content-cs-it#2` (the 7-segment title was already fixed), `content-maths#2` (a Total row beside a worked
+  example's codes), `content-cs-it#6` (every tariff chip shows its count), `#7` (the exam card reads "Q5 of 17") and
+  `#8` (no "score 0" before an answer), in `3f9763a` with smoke196 K.
+- ✓ `content-cs-it#3`: exam source labels in one shape, "AQA 2019 · P1 Q02" / "Edexcel June 2022 · P1 Q3": the
+  separator before the paper, AQA's two-digit question numbers, "1 mark"/"n marks", and an AS item names its board
+  (its level is its own chip). No month is invented where a label has none.
+  - The one shape showed nine Maths questions listed twice, as an item and again from a worked card ("Edexcel
+    Oct 2020 · P2 Q4" in 4.1, …): recorded in smoke116's baseline, not removed, since removing an item moves the
+    keys after it. A later content pass merges each pair.
 
 ## 1A · Bugs and data integrity (21)
 

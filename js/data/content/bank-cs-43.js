@@ -30,16 +30,16 @@ X("compsci:4.3.1.1", {
     { q: "The Visited array in a traversal trace should:", opts: ["be reset to false at the start of each call", "have each flag set once and never changed", "be sorted into order after the traversal", "count the edges leading into each node"], ans: 1, why: "The mark scheme awards this specifically." }
   ],
   exam: [
-    { src: "AQA 2022 P1 Q4.5", ctx: "The recursive function `G(Node, Parent)` below is applied to an undirected graph stored as an adjacency matrix `Adj[0..3][0..3]`, with `Visited[0..3]` initially all FALSE. The graph has edges 0–1, 1–3 and 1–2.",
+    { src: "AQA 2022 · P1 Q04.5", ctx: "The recursive function `G(Node, Parent)` below is applied to an undirected graph stored as an adjacency matrix `Adj[0..3][0..3]`, with `Visited[0..3]` initially all FALSE. The graph has edges 0–1, 1–3 and 1–2.",
       code: { lang: "pseudo", src: "FUNCTION G(Node, Parent)\n   Visited[Node] ← TRUE\n   FOR N ← 0 TO 3\n      IF Adj[Node][N] = 1 AND N ≠ Parent THEN\n         IF Visited[N] = TRUE THEN RETURN TRUE\n         ELSE IF G(N, Node) = TRUE THEN RETURN TRUE ENDIF\n      ENDIF\n   ENDFOR\n   RETURN FALSE\nENDFUNCTION" },
       parts: [
         { q: "List, in order, the calls made when `G(0, −1)` is executed, and state the value returned.", marks: 3, ms: ["G(0, −1), then G(1, 0) (1)", "then G(2, 1) and G(3, 1) — the order follows N ascending (1)", "Returns FALSE (1)"] },
         { q: "State the purpose of the function.", marks: 1, ms: ["To determine whether the graph contains a cycle (1)"] },
         { q: "State which graph traversal the function performs, justifying your answer.", marks: 2, ms: ["Depth-first search (1)", "It recurses into a neighbour before considering the remaining neighbours / uses the call stack to backtrack (1)"] }
       ] },
-    { src: "AQA 2025 P1 Q3.4", q: "A recursive subroutine `IsPath(Start, End)` returns TRUE if a route exists between two nodes of a graph. State the base case(s) of the recursion.", marks: 1,
+    { src: "AQA 2025 · P1 Q03.4", q: "A recursive subroutine `IsPath(Start, End)` returns TRUE if a route exists between two nodes of a graph. State the base case(s) of the recursion.", marks: 1,
       ms: ["Start and End are the same node (1)", "Accept: there are no unvisited nodes reachable from Start (1)", "Max 1"] },
-    { src: "AQA 2019 P1 Q3", q: "Describe how a breadth-first search of a graph is carried out, and state one application for which it is more suitable than depth-first search.", marks: 4,
+    { src: "AQA 2019 · P1 Q03", q: "Describe how a breadth-first search of a graph is carried out, and state one application for which it is more suitable than depth-first search.", marks: 4,
       ms: ["Start at the given node, mark it visited and add it to a queue (1)", "Repeatedly dequeue a node and add each of its unvisited neighbours to the queue, marking them visited (1)", "Continue until the queue is empty — nodes are visited in order of distance from the start (1)", "Application: finding the shortest path (fewest edges) in an unweighted graph, e.g. fewest hops in a network (1)"] }
   ]
 });
@@ -71,18 +71,18 @@ X("compsci:4.3.2.1", {
     { q: "To output a BST in descending order, an in-order traversal should:", opts: ["visit right subtree first", "visit left subtree first", "skip the root", "use a queue"], ans: 0, why: "Right, node, left." }
   ],
   exam: [
-    { src: "AQA 2021 P1 Q2.2", ctx: "A binary tree has root `M`; `M` has left child `E` and right child `T`; `E` has left child `B` and right child `H`; `T` has left child `P`.",
+    { src: "AQA 2021 · P1 Q02.2", ctx: "A binary tree has root `M`; `M` has left child `E` and right child `T`; `E` has left child `B` and right child `H`; `T` has left child `P`.",
       parts: [
         { q: "State the output of an in-order traversal of the tree.", marks: 2, ms: ["B E H (1)", "M P T — full sequence B E H M P T (1)"] },
         { q: "State the output of a post-order traversal.", marks: 1, ms: ["B H E P T M (1)"] },
         { q: "Explain one change to the traversal algorithm that would output the in-order sequence in reverse.", marks: 1, ms: ["Traverse the right subtree before the left subtree (swap the order of the recursive calls) (1)"] }
       ] },
-    { src: "AQA 2024 P1 Q6.2", ctx: "An iterative in-order traversal uses an array `S[0..3]` as a stack with pointer `Pos` (initially −1) and a variable `Current` starting at the root. While `Current` is not null OR the stack is not empty: if `Current` is not null, push it and move to its left child; otherwise pop a node, output it and move to its right child. The tree has root 5, left child 2 (with right child 4), right child 9.",
+    { src: "AQA 2024 · P1 Q06.2", ctx: "An iterative in-order traversal uses an array `S[0..3]` as a stack with pointer `Pos` (initially −1) and a variable `Current` starting at the root. While `Current` is not null OR the stack is not empty: if `Current` is not null, push it and move to its left child; otherwise pop a node, output it and move to its right child. The tree has root 5, left child 2 (with right child 4), right child 9.",
       parts: [
         { q: "Complete a trace showing the values of `Pos`, `S`, `Current` and the output.", marks: 5, ms: ["Push 5 (Pos 0), push 2 (Pos 1); Current becomes null (1)", "Pop 2 → output 2; Current ← 4; push 4 (Pos 1); Current null (1)", "Pop 4 → output 4; Current null; pop 5 → output 5 (1)", "Current ← 9; push 9 (Pos 0); pop 9 → output 9 (1)", "Output order 2 4 5 9 with Pos never exceeding 1 (1)"] },
         { q: "State the maximum stack depth reached, and describe a four-node tree for which the depth would be 4.", marks: 2, ms: ["Depth 2 (Pos = 1) (1)", "A tree in which every node has only a left child — a left-leaning chain (1)"] }
       ] },
-    { src: "AQA 2018 P1 Q4", q: "An expression tree has root `×`, left child `+` (with children 3 and 4) and right child 2. State the output of a post-order traversal and explain what it represents.", marks: 2,
+    { src: "AQA 2018 · P1 Q04", q: "An expression tree has root `×`, left child `+` (with children 3 and 4) and right child 2. State the output of a post-order traversal and explain what it represents.", marks: 2,
       ms: ["3 4 + 2 × (1)", "The expression in Reverse Polish / postfix form, ready to evaluate with a stack (1)"] }
   ]
 });
@@ -116,15 +116,15 @@ X("compsci:4.3.3.1", {
     { q: "RPN for `a − b / c` is:", opts: ["a b − c /", "a b c / −", "a b c − /", "/ a b c"], ans: 1, why: "Division binds tighter: a (b c /) −." }
   ],
   exam: [
-    { src: "AQA 2024 P1 Q5", ctx: "A compiler converts arithmetic expressions from the form in which programmers write them into a form that is evaluated with a stack.",
+    { src: "AQA 2024 · P1 Q05", ctx: "A compiler converts arithmetic expressions from the form in which programmers write them into a form that is evaluated with a stack.",
       parts: [
         { q: "State the name of the form of expression that is evaluated with a stack.", marks: 1, ms: ["Reverse Polish Notation / RPN / postfix (1)"] },
         { q: "Convert the infix expression `6 + 2 × 5 − 3` into this form.", marks: 2, ms: ["`2 5 ×` appears together (1)", "Correct operand order with + and − placed correctly: `6 2 5 × + 3 −` (1)", "Max 1 if any error"] },
         { q: "Explain two reasons why this form is used instead of infix.", marks: 2, ms: ["Simpler for a machine to evaluate / simpler algorithm to code (1)", "No brackets or operator precedence are needed — operators appear in the order in which they are applied / no backtracking (1)"] }
       ] },
-    { src: "AQA 2018 P1 Q2.4", q: "Describe how a single stack is used to evaluate the Reverse Polish expression `4 5 2 × +`, stating the final result.", marks: 4,
+    { src: "AQA 2018 · P1 Q02.4", q: "Describe how a single stack is used to evaluate the Reverse Polish expression `4 5 2 × +`, stating the final result.", marks: 4,
       ms: ["Push 4, 5 and 2 onto the stack in order (1)", "On reaching × pop 2 and 5, multiply to give 10, push 10 (1)", "On reaching + pop 10 and 4, add to give 14, push 14 (1)", "At the end the top of the stack, 14, is the result (1)", "Max 3 if any error; 0 marks if not a LIFO description"] },
-    { src: "AQA 2021 P1 Q5.1", q: "Convert the Reverse Polish expression `9 3 / 2 4 × −` into infix notation and evaluate it.", marks: 2,
+    { src: "AQA 2021 · P1 Q05.1", q: "Convert the Reverse Polish expression `9 3 / 2 4 × −` into infix notation and evaluate it.", marks: 2,
       ms: ["9 / 3 − 2 × 4 (1)", "= 3 − 8 = −5 (1)"] }
   ]
 });
@@ -154,11 +154,11 @@ X("compsci:4.3.4.1", {
     { q: "A linear search finds the target at index 0. Comparisons made:", opts: ["0", "1", "n", "n/2"], ans: 1, why: "Best case — one comparison." }
   ],
   exam: [
-    { src: "AQA 2025 P1 Q1.4", q: "State the time complexity of a linear search and explain what this means about the number of comparisons as the list grows.", marks: 2,
+    { src: "AQA 2025 · P1 Q01.4", q: "State the time complexity of a linear search and explain what this means about the number of comparisons as the list grows.", marks: 2,
       ms: ["O(n) (1)", "As the list increases in size the maximum number of comparisons increases at the same rate / in the worst case n comparisons are needed (1)"] },
-    { src: "AQA 2025 P1 Q1.6", q: "State one advantage of a linear search over a binary search.", marks: 1,
+    { src: "AQA 2025 · P1 Q01.6", q: "State one advantage of a linear search over a binary search.", marks: 1,
       ms: ["It can be used on an unsorted list (1)"] },
-    { level: "AS", src: "AS 2022 P1 Q1", ctx: "The algorithm below searches `List[0..4] = [7, 3, 9, 3, 5]` for `Target = 3` and counts the matches.",
+    { level: "AS", src: "AQA 2022 · P1 Q01", ctx: "The algorithm below searches `List[0..4] = [7, 3, 9, 3, 5]` for `Target = 3` and counts the matches.",
       code: { lang: "pseudo", src: "Count ← 0\nFOR Z ← 0 TO 4\n   IF List[Z] = Target THEN\n      Count ← Count + 1\n   ENDIF\nENDFOR\nOUTPUT Count" },
       parts: [
         { q: "Complete a trace table with columns `Z`, `List[Z]`, `List[Z] = Target` and `Count`.", marks: 4, ms: ["Z takes 0, 1, 2, 3, 4 (1)", "List[Z] column 7, 3, 9, 3, 5 (1)", "Comparison column FALSE, TRUE, FALSE, TRUE, FALSE (1)", "Count becomes 1 then 2; output 2 (1)"] },
@@ -192,15 +192,15 @@ X("compsci:4.3.4.2", {
     { q: "The search ends unsuccessfully when:", opts: ["Mid = 0", "Low > High", "High = n", "Low = Mid"], ans: 1, why: "If Low has passed High, no items remain to check, so the item is not in the list." }
   ],
   exam: [
-    { src: "AQA 2020 P1 Q3.7", q: "State the time complexity of a binary search and explain why it has this complexity.", marks: 2,
+    { src: "AQA 2020 · P1 Q03.7", q: "State the time complexity of a binary search and explain why it has this complexity.", marks: 2,
       ms: ["O(log n) (1)", "Each comparison halves the size of the list that still has to be searched / doubling the list adds only one comparison (1)"] },
-    { src: "AQA 2025 P1 Q1.5", ctx: "A sorted array `A[0..7] = [4, 9, 15, 21, 28, 33, 40, 47]` is searched for the value 33 using a binary search with `Low = 0`, `High = 7` and `Mid = (Low + High) DIV 2`.",
+    { src: "AQA 2025 · P1 Q01.5", ctx: "A sorted array `A[0..7] = [4, 9, 15, 21, 28, 33, 40, 47]` is searched for the value 33 using a binary search with `Low = 0`, `High = 7` and `Mid = (Low + High) DIV 2`.",
       parts: [
         { q: "Show the values of `Low`, `High` and `Mid` at each step and state the number of comparisons made.", marks: 3, ms: ["Step 1: Low 0, High 7, Mid 3 (21) — 33 > 21 so Low ← 4 (1)", "Step 2: Low 4, High 7, Mid 5 (33) — found (1)", "2 comparisons (1)"] },
         { q: "State the maximum number of comparisons a binary search would need for an array of 8 items, and for an array of 16 items.", marks: 1, ms: ["4 and 5 (accept 3 and 4 if counting halvings only) (1)"] },
         { q: "Explain why a linear search might still be chosen for this array.", marks: 1, ms: ["The array is small, so the difference is negligible / linear search is simpler to implement and needs no sorted order (1)"] }
       ] },
-    { src: "AQA 2017 P1 Q2", q: "Write pseudo-code for an iterative binary search of a sorted array `A[0..N−1]` for a value `Target`, returning the index if found or −1 otherwise.", marks: 5,
+    { src: "AQA 2017 · P1 Q02", q: "Write pseudo-code for an iterative binary search of a sorted array `A[0..N−1]` for a value `Target`, returning the index if found or −1 otherwise.", marks: 5,
       ms: ["Low ← 0, High ← N − 1 initialised (1)", "Loop WHILE Low ≤ High (1)", "Mid ← (Low + High) DIV 2 and comparison A[Mid] = Target returns Mid (1)", "IF Target < A[Mid] THEN High ← Mid − 1 ELSE Low ← Mid + 1 (1)", "RETURN −1 after the loop (1)"] }
   ]
 });
@@ -228,11 +228,11 @@ X("compsci:4.3.4.3", {
     { qk: "101", q: "Inserting 10, 20, 30, 40 into an empty BST gives", opts: ["a chain of right children", "a balanced tree with root 20", "a chain of left children", "a tree with root 40"], ans: 0, why: "Each value is larger than every one before it, so each becomes the right child of the last." }
   ],
   exam: [
-    { src: "AQA 2023 P1 Q3.3", q: "State the time complexity of searching a balanced binary search tree and explain why it has this complexity.", marks: 2,
+    { src: "AQA 2023 · P1 Q03.3", q: "State the time complexity of searching a balanced binary search tree and explain why it has this complexity.", marks: 2,
       ms: ["O(log₂ n) (1)", "Every comparison halves the size of the binary tree that has to be looked at (1)"] },
-    { src: "AQA 2023 P1 Q3.4", q: "Explain why the time complexity of a binary tree search can degrade to O(n).", marks: 2,
+    { src: "AQA 2023 · P1 Q03.4", q: "Explain why the time complexity of a binary tree search can degrade to O(n).", marks: 2,
       ms: ["If the tree is unbalanced — e.g. items inserted in sorted order so every node has one child (1)", "The tree becomes a chain and the search examines every node, like a linear search (1)"] },
-    { src: "AQA 2017 P1 Q4", ctx: "A binary search tree has root 40; 40 has children 22 and 61; 22 has children 9 and 30; 61 has right child 75.",
+    { src: "AQA 2017 · P1 Q04", ctx: "A binary search tree has root 40; 40 has children 22 and 61; 22 has children 9 and 30; 61 has right child 75.",
       parts: [
         { q: "List the nodes visited when searching for 30, and when searching for 70.", marks: 2, ms: ["40, 22, 30 (1)", "40, 61, 75 — then not found (1)"] },
         { q: "State the maximum number of comparisons needed to search this tree, and explain what would happen to this number if 5, 6, 7 and 8 were inserted in that order.", marks: 2, ms: ["3 (1)", "5 becomes the left child of 9, then 6, 7 and 8 each become the right child of the previous one — a chain that makes the tree unbalanced and raises the maximum to 7 comparisons (1)"] }
@@ -271,14 +271,14 @@ X("compsci:4.3.5.1", {
     { q: "Compared with merge sort, bubble sort is:", opts: ["faster for large lists", "slower for large lists", "the same", "not a sort"], ans: 1, why: "O(n²) vs O(n log n)." }
   ],
   exam: [
-    { src: "AQA 2021 P1 Q1", q: "Show the state of the list `[9, 4, 7, 1, 6]` after each of the first three passes of a bubble sort that sorts into ascending order.", marks: 3,
+    { src: "AQA 2021 · P1 Q01", q: "Show the state of the list `[9, 4, 7, 1, 6]` after each of the first three passes of a bubble sort that sorts into ascending order.", marks: 3,
       ms: ["Pass 1: [4, 7, 1, 6, 9] (1)", "Pass 2: [4, 1, 6, 7, 9] (1)", "Pass 3: [1, 4, 6, 7, 9] (1)"] },
-    { src: "AQA 2019 P1 Q1.1", ctx: "A programmer's bubble sort always makes `N − 1` passes and always compares `N − 1` adjacent pairs in every pass.",
+    { src: "AQA 2019 · P1 Q01.1", ctx: "A programmer's bubble sort always makes `N − 1` passes and always compares `N − 1` adjacent pairs in every pass.",
       parts: [
         { q: "Describe two changes that would reduce the number of comparisons made without affecting the result.", marks: 4, ms: ["Use a flag variable that is reset to FALSE at the start of each pass and set to TRUE when a swap is made (1)", "Change the outer loop so it stops when a pass makes no swaps (1)", "After each pass reduce the upper limit of the inner loop by 1 (1)", "Because the last item of each pass is already in its final position (1)"] },
         { q: "State the time complexity of bubble sort and explain why it has this complexity.", marks: 2, ms: ["O(n²) (1)", "In each pass n items are examined and there are (at most) n passes (1)"] }
       ] },
-    { src: "AQA 2025 P1 Q1.8", q: "State the number of passes a bubble sort without a swap flag must make to guarantee that a list of 12 items is sorted.", marks: 1,
+    { src: "AQA 2025 · P1 Q01.8", q: "State the number of passes a bubble sort without a swap flag must make to guarantee that a list of 12 items is sorted.", marks: 1,
       ms: ["11 (1)"] }
   ]
 });
@@ -309,11 +309,11 @@ X("compsci:4.3.5.2", {
     { q: "Sorting 1 000 000 items, merge sort makes roughly how many times fewer operations than bubble sort?", opts: ["10", "1 000", "50 000", "1 000 000"], ans: 2, why: "n² / (n log₂ n) ≈ 10⁶ / 20 = 50 000." }
   ],
   exam: [
-    { src: "AQA 2022 P1 Q1", q: "Complete the table giving the time complexity of each algorithm: binary tree search, bubble sort, linear search, merge sort.", marks: 3,
+    { src: "AQA 2022 · P1 Q01", q: "Complete the table giving the time complexity of each algorithm: binary tree search, bubble sort, linear search, merge sort.", marks: 3,
       ms: ["Binary tree search O(log n); bubble sort O(n²) (1)", "Linear search O(n) (1)", "Merge sort O(n log n) — O(log n) is not enough (1)"] },
-    { src: "AQA 2020 P1 Q2", q: "Show how a merge sort would sort the list `[8, 3, 5, 1]`, and explain why merge sort is more efficient than bubble sort for large lists.", marks: 5,
+    { src: "AQA 2020 · P1 Q02", q: "Show how a merge sort would sort the list `[8, 3, 5, 1]`, and explain why merge sort is more efficient than bubble sort for large lists.", marks: 5,
       ms: ["Split: [8, 3] [5, 1] then [8] [3] [5] [1] (1)", "Merge pairs: [3, 8] and [1, 5] (1)", "Merge: [1, 3, 5, 8] (1)", "Merge sort is O(n log n) whereas bubble sort is O(n²) (1)", "So as n grows the number of operations for merge sort grows far more slowly (1)"] },
-    { level: "AS", src: "AS 2019 P1 Q2.2", q: "A list of numbers is rearranged by repeatedly dividing it into halves until single items remain and then combining the halves in order. Name this algorithm.", marks: 1,
+    { level: "AS", src: "AQA 2019 · P1 Q02.2", q: "A list of numbers is rearranged by repeatedly dividing it into halves until single items remain and then combining the halves in order. Name this algorithm.", marks: 1,
       ms: ["Merge sort (1)"] }
   ]
 });
@@ -345,15 +345,15 @@ X("compsci:4.3.6.1", {
     { q: "True or false: Dijkstra's algorithm can be used to prove the halting problem cannot be solved.", opts: ["True", "False"], ans: 1, why: "Unrelated — the 2022 true/false row." }
   ],
   exam: [
-    { src: "AQA 2018 P1 Q3.5", ctx: "A weighted, undirected graph has nodes 1–5 with edges 1–2 (4), 1–3 (1), 3–2 (2), 2–4 (5), 3–4 (8), 4–5 (3). Dijkstra's algorithm is run from node 1, using arrays `D` (distance, initially ∞ except D[1] = 0) and `P` (predecessor, initially −1).",
+    { src: "AQA 2018 · P1 Q03.5", ctx: "A weighted, undirected graph has nodes 1–5 with edges 1–2 (4), 1–3 (1), 3–2 (2), 2–4 (5), 3–4 (8), 4–5 (3). Dijkstra's algorithm is run from node 1, using arrays `D` (distance, initially ∞ except D[1] = 0) and `P` (predecessor, initially −1).",
       parts: [
         { q: "State the order in which nodes are removed from the priority queue.", marks: 2, ms: ["1, 3, 2 (1)", "4, 5 (1)"] },
         { q: "Give the final contents of `D` and `P`.", marks: 3, ms: ["D = [0, 3, 1, 8, 11] (1)", "D[2] set to 4 then changed to 3 and not changed again (1)", "P = [−1, 3, 1, 2, 4] (1)"] },
         { q: "State what `D[5]` represents, and explain how `P` can be used to find the route from node 1 to node 5.", marks: 2, ms: ["The shortest distance / lowest cost from node 1 to node 5 (1)", "Follow P backwards from 5: 5 ← 4 ← 2 ← 3 ← 1, giving the path 1, 3, 2, 4, 5 (1)"] }
       ] },
-    { src: "AQA 2022 P1 Q4.1", q: "State whether each statement about Dijkstra's algorithm is true or false: (i) it calculates the shortest path between a node and other nodes in a graph; (ii) it can be used to prove that the halting problem cannot be solved; (iii) it can be used with directed and undirected graphs; (iv) it can only be used with weighted graphs.", marks: 2,
+    { src: "AQA 2022 · P1 Q04.1", q: "State whether each statement about Dijkstra's algorithm is true or false: (i) it calculates the shortest path between a node and other nodes in a graph; (ii) it can be used to prove that the halting problem cannot be solved; (iii) it can be used with directed and undirected graphs; (iv) it can only be used with weighted graphs.", marks: 2,
       ms: ["(i) True, (ii) False (1)", "(iii) True, (iv) False (1)"] },
-    { src: "AQA 2017 P1 Q5.4", q: "A route-finding program uses a heuristic approach rather than Dijkstra's algorithm. Explain what is meant by a heuristic approach and why it might be chosen.", marks: 2,
+    { src: "AQA 2017 · P1 Q05.4", q: "A route-finding program uses a heuristic approach rather than Dijkstra's algorithm. Explain what is meant by a heuristic approach and why it might be chosen.", marks: 2,
       ms: ["A heuristic employs a method of finding a solution that might not be the best (1)", "It uses knowledge of the domain to cut down the search space / consider fewer nodes / consider promising nodes first, so it is faster (1)"] }
   ]
 });

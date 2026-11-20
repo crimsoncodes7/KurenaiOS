@@ -36,11 +36,11 @@ X("compsci:4.2.1.1", {
     { q: "Which is typically stored in consecutive memory locations?", opts: ["A linked list", "A static array", "A binary tree of nodes", "A hash chain"], ans: 1, why: "Contiguity is what gives arrays O(1) indexed access." }
   ],
   exam: [
-    { src: "AQA 2022 P1 Q2.2", q: "Describe three differences between static and dynamic data structures.", marks: 3,
+    { src: "AQA 2022 · P1 Q02.2", q: "Describe three differences between static and dynamic data structures.", marks: 3,
       ms: ["Static: size fixed at compile time / before the program runs; dynamic: can grow or shrink at run time (1)", "Static can waste memory when few items are stored relative to its size; dynamic uses only the space the data needs (1)", "Dynamic needs memory to store pointers to the next item(s); static does not (1)", "Static typically stores data in consecutive memory locations; dynamic does not (1)", "Max 3"] },
-    { src: "AQA 2020 P1 Q4.1", q: "A programmer is deciding whether to implement a queue of print jobs using a dynamic data structure. Describe two advantages and two disadvantages of using a dynamic data structure.", marks: 4,
+    { src: "AQA 2020 · P1 Q04.1", q: "A programmer is deciding whether to implement a queue of print jobs using a dynamic data structure. Describe two advantages and two disadvantages of using a dynamic data structure.", marks: 4,
       ms: ["Advantage: no wasted memory — resources are allocated only as needed (1)", "Advantage: can grow as jobs are added; no limit on the number of items other than hardware (1)", "Disadvantage: additional memory needed for pointers (1)", "Disadvantage: possible memory leak if memory no longer needed is not returned to the heap / direct access to an item takes longer (1)", "Max 2 advantages, max 2 disadvantages"] },
-    { src: "AQA 2017 P1 Q5.5", q: "Explain what is meant by a *memory leak* and why it is a risk specific to dynamic data structures.", marks: 2,
+    { src: "AQA 2017 · P1 Q05.5", q: "Explain what is meant by a *memory leak* and why it is a risk specific to dynamic data structures.", marks: 2,
       ms: ["Memory that is allocated but no longer needed is not returned to the heap / freed, so it cannot be reused (1)", "Only dynamic structures allocate and release memory at run time — static allocation is fixed and released when the program ends (1)"] }
   ]
 });
@@ -65,15 +65,15 @@ X("compsci:4.2.1.2", {
     { q: "A loop `FOR i ← 1 TO 10` over `A[0..9]` will:", opts: ["work correctly, visiting every element once", "miss A[0] and go out of bounds at A[10]", "process each element twice, once each way", "process only A[1] and then stop"], ans: 1, why: "Off-by-one on both ends." }
   ],
   exam: [
-    { src: "AQA 2018 P2 Q9.2", q: "State what is meant by an ordinal number and explain how ordinal numbers are used with an array.", marks: 2,
+    { src: "AQA 2018 · P2 Q09.2", q: "State what is meant by an ordinal number and explain how ordinal numbers are used with an array.", marks: 2,
       ms: ["An ordinal number shows the order / position / rank of an item (1)", "Ordinal numbers represent the position / index of the values in the array (1)"] },
-    { level: "AS", src: "AS 2016 P1 Q4.1", ctx: "The algorithm below removes duplicates from `Items[0..3] = [12, 25, 12, 53]` into `NewItems`, initially all 0.",
+    { level: "AS", src: "AQA 2016 · P1 Q04.1", ctx: "The algorithm below removes duplicates from `Items[0..3] = [12, 25, 12, 53]` into `NewItems`, initially all 0.",
       code: { lang: "pseudo", src: "NewCount ← 0\nFOR a ← 0 TO 3\n   Done ← FALSE\n   FOR b ← 0 TO NewCount − 1\n      IF NewItems[b] = Items[a] THEN Done ← TRUE ENDIF\n   ENDFOR\n   IF Done = FALSE THEN\n      NewItems[NewCount] ← Items[a]\n      NewCount ← NewCount + 1\n   ENDIF\nENDFOR" },
       parts: [
         { q: "Complete a trace table with columns `a`, `b`, `Done`, `NewCount` and `NewItems[0..3]`.", marks: 5, ms: ["a runs 0, 1, 2, 3 and stops (1)", "Done is set FALSE at the start of each outer pass and becomes TRUE only when a = 2 (1)", "NewItems becomes [12, 0, 0, 0] then [12, 25, 0, 0] after a = 1 (1)", "NewItems unchanged during a = 2 (1)", "Final NewItems = [12, 25, 53, 0] and NewCount = 3 (1)"] },
         { q: "State the purpose of the variable `Done`.", marks: 1, ms: ["A flag recording whether the current item has already been copied / is a duplicate (1)"] }
       ] },
-    { src: "AQA 2023 P1 Q3", q: "A game stores its 8 × 8 board in a two-dimensional array `Board`. Write pseudo-code that counts how many cells contain the value `\"X\"`.", marks: 4,
+    { src: "AQA 2023 · P1 Q03", q: "A game stores its 8 × 8 board in a two-dimensional array `Board`. Write pseudo-code that counts how many cells contain the value `\"X\"`.", marks: 4,
       ms: ["Counter initialised to 0 (1)", "Nested loops over rows 0–7 and columns 0–7 (1)", "Selection testing Board[r][c] = \"X\" (1)", "Counter incremented inside the selection; count available after the loops (1)"] }
   ]
 });
@@ -98,11 +98,11 @@ X("compsci:4.2.1.3", {
     { q: "Opening a file for writing when it already exists typically:", opts: ["appends", "overwrites it", "raises an exception", "reads it"], ans: 1, why: "Write mode truncates; append mode adds to the end." }
   ],
   exam: [
-    { level: "AS", src: "AS 2020 P1 Q4", q: "A program stores details of library books: title, ISBN, year of publication and whether the book is on loan. Define a suitable record structure for one book, stating the data type of each field.", marks: 3,
+    { level: "AS", src: "AQA 2020 · P1 Q04", q: "A program stores details of library books: title, ISBN, year of publication and whether the book is on loan. Define a suitable record structure for one book, stating the data type of each field.", marks: 3,
       ms: ["Record type named (e.g. `Book`) with the four fields (1)", "Title: String; ISBN: String (contains hyphens / leading digits) (1)", "Year: Integer; OnLoan: Boolean (1)"] },
-    { src: "AQA 2019 P2 Q3", q: "Describe two differences between a text file and a binary file.", marks: 2,
+    { src: "AQA 2019 · P2 Q03", q: "Describe two differences between a text file and a binary file.", marks: 2,
       ms: ["A text file stores data as (human-readable) characters, line by line; a binary file stores the internal representation of the data (1)", "Text files can be read/edited with a text editor; binary files need the program that understands the format, but are more compact / faster to load (1)"] },
-    { src: "AQA 2024 P2 Q4", q: "Write pseudo-code that opens a text file `scores.txt`, reads every line, counts how many lines contain the word `PASS`, and closes the file.", marks: 4,
+    { src: "AQA 2024 · P2 Q04", q: "Write pseudo-code that opens a text file `scores.txt`, reads every line, counts how many lines contain the word `PASS`, and closes the file.", marks: 4,
       ms: ["File opened for reading (1)", "Loop that continues until end of file (1)", "Each line read and tested for containing `PASS`, counter incremented (1)", "File closed after the loop and count output (1)"] }
   ]
 });
@@ -133,15 +133,15 @@ X("compsci:4.2.1.4", {
     { q: "Finding the 50th item of a singly linked list requires:", opts: ["one pointer calculation from the head", "traversing 50 nodes from the head", "a hash of the item's position", "sorting the list first, then a binary search"], ans: 1, why: "No random access." }
   ],
   exam: [
-    { level: "AS", src: "AS 2025 P1 Q5", q: "Explain what is meant by an *abstract data type*.", marks: 1,
+    { level: "AS", src: "AQA 2025 · P1 Q05", q: "Explain what is meant by an *abstract data type*.", marks: 1,
       ms: ["A data type where the detail of how the data are actually represented is hidden / defined by its operations (1)", "Accept: new data structures constructed from previously defined types; accept by example, e.g. a stack implemented as an array (1)", "Max 1"] },
-    { src: "AQA 2019 P1 Q4", ctx: "A linked list of integers is stored in an array of records `Node[1..6]` with fields `Data` and `Next`, plus a variable `Start`. `Start = 3`, and the records are: 1:(19, 5), 2:(7, 0), 3:(2, 6), 4:(41, 2), 5:(30, 4), 6:(11, 1). A `Next` of 0 marks the end.",
+    { src: "AQA 2019 · P1 Q04", ctx: "A linked list of integers is stored in an array of records `Node[1..6]` with fields `Data` and `Next`, plus a variable `Start`. `Start = 3`, and the records are: 1:(19, 5), 2:(7, 0), 3:(2, 6), 4:(41, 2), 5:(30, 4), 6:(11, 1). A `Next` of 0 marks the end.",
       parts: [
         { q: "List the data items in the order they appear in the linked list.", marks: 2, ms: ["2, 11, 19 (1)", "30, 41, 7 (1)"] },
         { q: "Describe the steps needed to insert the value 25 between 19 and 30, using an unused record 7.", marks: 3, ms: ["Store 25 in Node[7].Data (1)", "Set Node[7].Next to 5 (the record holding 30) (1)", "Set Node[1].Next (the record holding 19) to 7 (1)"] },
         { q: "Explain why the list would still be intact if the array records were physically reordered but the `Next` values updated accordingly.", marks: 1, ms: ["The order of the list is defined by the pointers, not by the physical positions in the array (1)"] }
       ] },
-    { src: "AQA 2016 P1 Q3", q: "Explain one benefit of a programmer using the stack ADT provided by a library rather than manipulating an array and pointer directly.", marks: 2,
+    { src: "AQA 2016 · P1 Q03", q: "Explain one benefit of a programmer using the stack ADT provided by a library rather than manipulating an array and pointer directly.", marks: 2,
       ms: ["The implementation detail is hidden, so the programmer only needs the operations push/pop/peek (1)", "The implementation can be changed (e.g. array to linked list) without altering the code that uses it / less chance of pointer errors (1)"] }
   ]
 });
@@ -180,15 +180,15 @@ X("compsci:4.2.2.1", {
     { q: "Dequeuing from a queue with size = 0 causes:", opts: ["overflow", "underflow", "a wrap-around", "nothing"], ans: 1, why: "The empty test guards against underflow." }
   ],
   exam: [
-    { src: "AQA 2023 P1 Q1", q: "A queue is implemented as a circular queue in an array indexed from 0, with variables `Front`, `Rear` and `Size`. Describe the steps involved in adding a new item to the queue.", marks: 5,
+    { src: "AQA 2023 · P1 Q01", q: "A queue is implemented as a circular queue in an array indexed from 0, with variables `Front`, `Rear` and `Size`. Describe the steps involved in adding a new item to the queue.", marks: 5,
       ms: ["Check the queue is not already full (Size < maximum) (1)", "Compare the value of Rear with the maximum index of the array (1)", "If equal set Rear to 0, otherwise add 1 to Rear (accept Rear ← (Rear + 1) MOD array size) (1)", "Insert the new item at the position indicated by Rear (1)", "Add 1 to Size (1)", "Max 4 if any errors"] },
-    { src: "AQA 2024 P1 Q2.2", q: "Describe the steps involved in removing an item from a circular queue stored in an array, where the implementation keeps a count of the current number of items.", marks: 5,
+    { src: "AQA 2024 · P1 Q02.2", q: "Describe the steps involved in removing an item from a circular queue stored in an array, where the implementation keeps a count of the current number of items.", marks: 5,
       ms: ["Check the queue is not empty (current size is not 0), otherwise report an underflow error (1)", "Process / return the item at the position indicated by the front pointer (1)", "Reduce the current-size variable by 1 (1)", "If the front pointer is at the last position of the array set it to the first position (1)", "Otherwise add 1 to the front pointer (accept front ← (front + 1) MOD size for the last two points) (1)", "Max 4 if any errors"] },
-    { src: "AQA 2024 P1 Q2.1", q: "Explain why a circular queue is a more suitable choice than a linear queue when the queue is stored in an array of fixed size.", marks: 2,
+    { src: "AQA 2024 · P1 Q02.1", q: "Explain why a circular queue is a more suitable choice than a linear queue when the queue is stored in an array of fixed size.", marks: 2,
       ms: ["In a linear queue, after items are removed, either every other item must be shuffled up one place, or the space at the front becomes unusable / only a limited number of items can ever be added (1)", "A circular queue reuses the space at the front so no shuffling is needed and no space is wasted (1)"] },
-    { src: "AQA 2020 P1 Q4.3", q: "A priority queue is stored in an array with the highest-priority item at the front. Describe the additional steps, compared with a linear queue, needed when a new item is added.", marks: 3,
+    { src: "AQA 2020 · P1 Q04.3", q: "A priority queue is stored in an array with the highest-priority item at the front. Describe the additional steps, compared with a linear queue, needed when a new item is added.", marks: 3,
       ms: ["Starting with the item at the rear, move each item back one place in the array (1)", "Until an item with the same or higher priority than the new item is found (or the front is reached) (1)", "Insert the new item in the position after that item (1)"] },
-    { src: "AQA 2022 P1 Q2.5", q: "Describe how a stack could be used to reverse the order of the items in a queue.", marks: 2,
+    { src: "AQA 2022 · P1 Q02.5", q: "Describe how a stack could be used to reverse the order of the items in a queue.", marks: 2,
       ms: ["Repeatedly dequeue the front item and push it onto the stack until the queue is empty (1)", "Repeatedly pop the top item and enqueue it (at the rear) until the stack is empty (1)"] }
   ]
 });
@@ -220,16 +220,16 @@ X("compsci:4.2.3.1", {
     { q: "Pushing operators as well as operands during RPN evaluation:", opts: ["is correct — every token is pushed", "scores zero — only operands are pushed", "is faster, as fewer pops are needed", "is needed so that brackets are handled"], ans: 1, why: "Operators are applied immediately." }
   ],
   exam: [
-    { src: "AQA 2017 P1 Q6.1", ctx: "A drawing application lets the user *undo* the last action and *repeat* the last action. A single stack is used to support both.",
+    { src: "AQA 2017 · P1 Q06.1", ctx: "A drawing application lets the user *undo* the last action and *repeat* the last action. A single stack is used to support both.",
       parts: [
         { q: "Describe how the stack is used to implement undo and repeat.", marks: 5, ms: ["A stack stores the user's completed actions (1)", "Each time an action is completed it is pushed onto the top of the stack (1)", "Unless the action is itself an undo or repeat (1)", "Repeat: the top item is peeked (read without removal, or popped and pushed back) and that action is performed again (1)", "Undo: the top item is popped from the stack and reversed (1)"] },
         { q: "State the error that occurs if undo is selected when no actions have been performed.", marks: 1, ms: ["Stack empty / underflow (1)"] }
       ] },
-    { src: "AQA 2021 P1 Q5.2", q: "Describe how a stack is used to evaluate the Reverse Polish expression `6 2 3 + −`.", marks: 4,
+    { src: "AQA 2021 · P1 Q05.2", q: "Describe how a stack is used to evaluate the Reverse Polish expression `6 2 3 + −`.", marks: 4,
       ms: ["Starting at the left, push the operands 6, 2 and 3 onto the stack (1)", "When an operator is reached pop the top two values and apply the operator to them (3 + 2 = 5) (1)", "Push the result onto the stack; repeat for − : pop 5 and 6, compute 6 − 5 = 1 and push (1)", "At the end of the expression the top of the stack (1) is the result (1)", "Max 3 if any errors; 0 marks if the description is not of a LIFO structure"] },
-    { src: "AQA 2022 P1 Q2.3", q: "A stack contains, from bottom to top, the values 12, 8, 21. State the value returned by (i) a peek operation, (ii) a pop operation followed by a peek.", marks: 2,
+    { src: "AQA 2022 · P1 Q02.3", q: "A stack contains, from bottom to top, the values 12, 8, 21. State the value returned by (i) a peek operation, (ii) a pop operation followed by a peek.", marks: 2,
       ms: ["(i) 21 (1)", "(ii) 8 (1)"] },
-    { src: "AQA 2024 P1 Q6.2", ctx: "The procedure below uses an array `T[0..3]` and a variable `Pos`, initially −1, while processing the characters of `Word = \"YKHUM\"`: for each character, if it is a vowel it is output at once; otherwise `Pos` is incremented and the character stored in `T[Pos]`. After the loop, while `Pos ≥ 0` the character `T[Pos]` is output and `Pos` decremented.",
+    { src: "AQA 2024 · P1 Q06.2", ctx: "The procedure below uses an array `T[0..3]` and a variable `Pos`, initially −1, while processing the characters of `Word = \"YKHUM\"`: for each character, if it is a vowel it is output at once; otherwise `Pos` is incremented and the character stored in `T[Pos]`. After the loop, while `Pos ≥ 0` the character `T[Pos]` is output and `Pos` decremented.",
       parts: [
         { q: "State the output of the procedure.", marks: 2, ms: ["U first (the vowel is output immediately) (1)", "then M, H, K, Y (1)"] },
         { q: "State the name of the data structure that `T` and `Pos` implement, and justify your answer.", marks: 2, ms: ["A stack / LIFO structure (1)", "Items are added and removed from the same end, indicated by Pos, so the last stored is the first output (1)"] }
@@ -267,19 +267,19 @@ X("compsci:4.2.4.1", {
     { q: "A graph with 6 vertices where every vertex connects to every other has how many undirected edges?", opts: ["15", "30", "36", "6"], ans: 0, why: "6 × 5 / 2 = 15 — dense, so use a matrix." }
   ],
   exam: [
-    { src: "AQA 2025 P1 Q3.3", ctx: "An undirected, unweighted graph has vertices 1–5 and edges 1–2, 1–3, 2–4, 3–4, 4–5.",
+    { src: "AQA 2025 · P1 Q03.3", ctx: "An undirected, unweighted graph has vertices 1–5 and edges 1–2, 1–3, 2–4, 3–4, 4–5.",
       parts: [
         { q: "Complete the adjacency matrix for the graph, using 1 for an edge and 0 for no edge.", marks: 2, ms: ["Correct 1s: (1,2),(1,3),(2,4),(3,4),(4,5) and their mirror cells (1)", "All other cells 0, including the leading diagonal (1)"] },
         { q: "Explain why this graph is not a tree.", marks: 1, ms: ["It contains a cycle (1–2–4–3–1) (1)"] },
         { q: "Represent the same graph as an adjacency list.", marks: 1, ms: ["1: 2, 3 · 2: 1, 4 · 3: 1, 4 · 4: 2, 3, 5 · 5: 4 (1)"] }
       ] },
-    { src: "AQA 2019 P1 Q3.5", q: "Explain two circumstances in which an adjacency matrix is a more appropriate representation of a graph than an adjacency list.", marks: 2,
+    { src: "AQA 2019 · P1 Q03.5", q: "Explain two circumstances in which an adjacency matrix is a more appropriate representation of a graph than an adjacency list.", marks: 2,
       ms: ["When there are many edges between vertices / the graph is dense (1)", "When edges are frequently changed (1)", "When the presence or absence of a specific edge must be tested frequently (1)", "Max 2"] },
-    { src: "AQA 2018 P1 Q3.2", q: "Explain when an adjacency list is a more appropriate representation than an adjacency matrix.", marks: 2,
+    { src: "AQA 2018 · P1 Q03.2", q: "Explain when an adjacency list is a more appropriate representation than an adjacency matrix.", marks: 2,
       ms: ["When there are few edges relative to the number of vertices / the graph is sparse (1)", "When edges are rarely changed / when specific edges do not need to be tested for frequently (1)"] },
-    { src: "AQA 2024 P1 Q6.1", q: "State two properties a graph must have to be a tree.", marks: 2,
+    { src: "AQA 2024 · P1 Q06.1", q: "State two properties a graph must have to be a tree.", marks: 2,
       ms: ["Connected (1)", "Undirected / no cycles (1)"] },
-    { src: "AQA 2019 P1 Q3.6", q: "A graph is stored as an adjacency matrix in which only the cells above the leading diagonal are used. State the type of graph for which the whole matrix would be needed instead, and explain why.", marks: 2,
+    { src: "AQA 2019 · P1 Q03.6", q: "A graph is stored as an adjacency matrix in which only the cells above the leading diagonal are used. State the type of graph for which the whole matrix would be needed instead, and explain why.", marks: 2,
       ms: ["A directed graph (digraph) (1)", "An edge from A to B does not imply an edge from B to A, so cell [A][B] and cell [B][A] can differ / the matrix is not symmetric (1)"] }
   ]
 });
@@ -310,17 +310,17 @@ X("compsci:4.2.5.1", {
     { q: "Which traversal of a BST outputs values in ascending order?", opts: ["Pre-order", "In-order", "Post-order", "Breadth-first"], ans: 1, why: "Left, node, right." }
   ],
   exam: [
-    { src: "AQA 2023 P1 Q3.1", q: "State two characteristics of a binary tree.", marks: 2,
+    { src: "AQA 2023 · P1 Q03.1", q: "State two characteristics of a binary tree.", marks: 2,
       ms: ["It has a root node / there is a parent–child relationship between nodes (1)", "Each node has no more than two child nodes (1)"] },
-    { src: "AQA 2023 P1 Q3.2", ctx: "A binary search tree is stored in an array of records `Tree` with fields `Value`, `Left` and `Right` (−1 for no child), and `Root` holds the index of the root. The incomplete algorithm below searches for `Target`.",
+    { src: "AQA 2023 · P1 Q03.2", ctx: "A binary search tree is stored in an array of records `Tree` with fields `Value`, `Left` and `Right` (−1 for no child), and `Root` holds the index of the root. The incomplete algorithm below searches for `Target`.",
       code: { lang: "pseudo", src: "Current ← Root\nFound ← FALSE\nWHILE Current ≠ −1 AND Found = FALSE\n   IF Tree[Current].Value = Target THEN\n      Found ← ......(1)......\n   ELSE\n      IF Target < Tree[Current].Value THEN\n         Current ← ......(2)......\n      ELSE\n         Current ← ......(3)......\n      ENDIF\n   ENDIF\nENDWHILE\nOUTPUT ......(4)......" },
       parts: [
         { q: "Complete the four gaps.", marks: 4, ms: ["(1) TRUE (1)", "(2) Tree[Current].Left (1)", "(3) Tree[Current].Right (1)", "(4) Found (1)"] },
         { q: "State the value of `Current` when the loop ends without finding `Target`.", marks: 1, ms: ["−1 (1)"] }
       ] },
-    { src: "AQA 2024 P1 Q6.3", q: "A recursive traversal of a five-node binary tree uses a stack. Describe the structure of a five-node tree for which the stack would need to reach its greatest depth.", marks: 2,
+    { src: "AQA 2024 · P1 Q06.3", q: "A recursive traversal of a five-node binary tree uses a stack. Describe the structure of a five-node tree for which the stack would need to reach its greatest depth.", marks: 2,
       ms: ["Every node has at most one child — the tree is a chain / no node has two children (1)", "e.g. each child is to the left of its parent, giving a depth of five (1)"] },
-    { src: "AQA 2017 P1 Q4.3", ctx: "A recursive function `Find(Target, Node)` outputs the name at `Node`, returns if it equals `Target`, and otherwise calls itself on the left child if `Target` comes alphabetically before the node's name, else on the right child. A binary search tree has root `Molly`, left child `Dev`, right child `Rosa`; `Rosa` has left child `Omar`.",
+    { src: "AQA 2017 · P1 Q04.3", ctx: "A recursive function `Find(Target, Node)` outputs the name at `Node`, returns if it equals `Target`, and otherwise calls itself on the left child if `Target` comes alphabetically before the node's name, else on the right child. A binary search tree has root `Molly`, left child `Dev`, right child `Rosa`; `Rosa` has left child `Omar`.",
       parts: [
         { q: "List the function calls and outputs produced by `Find(Omar, Molly)`.", marks: 3, ms: ["Find(Omar, Molly) → outputs Molly (1)", "Find(Omar, Rosa) → outputs Rosa (1)", "Find(Omar, Omar) → outputs Omar and stops (1)", "Max 2 if any additional calls or outputs after Omar"] },
         { q: "State the base case of `Find`.", marks: 1, ms: ["The node's name equals Target (or the node is a leaf / has no child in the required direction) (1)"] }
@@ -353,13 +353,13 @@ X("compsci:4.2.6.1", {
     { q: "Keys 15 and 25 with hash `key MOD 10` collide because:", opts: ["both are odd numbers", "both give remainder 5", "25 is larger than 15", "MOD is slow for big keys"], ans: 1, why: "15 MOD 10 = 25 MOD 10 = 5." }
   ],
   exam: [
-    { src: "AQA 2025 P1 Q1.2", q: "A membership system stores records in a hash table using the membership number as the key. Describe the steps involved in adding a new record to the hash table.", marks: 4,
+    { src: "AQA 2025 · P1 Q01.2", q: "A membership system stores records in a hash table using the membership number as the key. Describe the steps involved in adding a new record to the hash table.", marks: 4,
       ms: ["Apply the hashing algorithm / function (1)", "to the (unique / primary) key — the membership number (1)", "Insert the record at the index / address obtained (1)", "If there is already a record there, use a suitable collision-handling method, e.g. the next free location (1)"] },
-    { src: "AQA 2025 P1 Q1.1", q: "Explain why finding a record in a hash table is usually faster than finding it in a list sorted by key.", marks: 1,
+    { src: "AQA 2025 · P1 Q01.1", q: "Explain why finding a record in a hash table is usually faster than finding it in a list sorted by key.", marks: 1,
       ms: ["The hashing function determines the location directly, so there is no need to search through records (1)"] },
-    { src: "AQA 2025 P1 Q1.3", q: "Explain why, as the hash table becomes nearly full, finding a record becomes slower.", marks: 1,
+    { src: "AQA 2025 · P1 Q01.3", q: "Explain why, as the hash table becomes nearly full, finding a record becomes slower.", marks: 1,
       ms: ["More collisions occur, so more items are not stored at their calculated index and direct access happens less often — a search from the calculated position is needed (1)"] },
-    { src: "AQA 2021 P1 Q4", ctx: "A hash table of size 11 uses the hash function `key MOD 11` and linear probing. The keys 23, 45, 34 and 56 are inserted in that order into an empty table.",
+    { src: "AQA 2021 · P1 Q04", ctx: "A hash table of size 11 uses the hash function `key MOD 11` and linear probing. The keys 23, 45, 34 and 56 are inserted in that order into an empty table.",
       parts: [
         { q: "State the index at which each key is stored.", marks: 3, ms: ["23 → 1; 45 → 1 collides, probes to 2 (1)", "34 → 1 collides, probes to 3 (1)", "56 → 1 collides, probes to 4 (1)"] },
         { q: "Explain why `key MOD 11` is a poor hash function for these keys and suggest a property of a better one.", marks: 2, ms: ["All four keys hash to the same index, causing repeated collisions / clustering (1)", "A better function spreads the expected keys uniformly across the table (1)"] }
@@ -391,9 +391,9 @@ X("compsci:4.2.7.1", {
     { qk: "101", q: "A dictionary must list its keys in alphabetical order quickly. The best implementation is", opts: ["a hash table", "a balanced binary search tree", "an unsorted list of pairs", "a stack of pairs"], ans: 1, why: "An in-order traversal of a binary search tree visits the keys in order; a hash table scatters them." }
   ],
   exam: [
-    { src: "AQA 2021 P2 Q5", q: "A program must record, for each postcode area, the number of orders delivered there. Explain why a dictionary is an appropriate data structure and describe how it would be used.", marks: 3,
+    { src: "AQA 2021 · P2 Q05", q: "A program must record, for each postcode area, the number of orders delivered there. Explain why a dictionary is an appropriate data structure and describe how it would be used.", marks: 3,
       ms: ["Postcode areas are strings, so cannot be used directly as array indices — a dictionary maps any key to a value (1)", "Key = postcode area, value = count of orders (1)", "For each order, look up the key and increment its value (adding the key with value 1 if absent) (1)"] },
-    { src: "AQA 2018 P1 Q5", q: "State two operations that a dictionary abstract data type must provide, and state the property that keys in a dictionary must have.", marks: 3,
+    { src: "AQA 2018 · P1 Q05", q: "State two operations that a dictionary abstract data type must provide, and state the property that keys in a dictionary must have.", marks: 3,
       ms: ["Insert / add a key–value pair (1)", "Look up (retrieve) the value associated with a key / delete a key (1)", "Keys must be unique (1)"] }
   ]
 });
@@ -424,20 +424,20 @@ X("compsci:4.2.8.1", {
     { qk: "150", q: "The dot product [4, 3] · [2, 5] is:", opts: ["[8, 15]", "26", "23", "7"], ans: 2, why: "Multiply matching components and add: 4 × 2 + 3 × 5 = 8 + 15 = 23. A dot product is one number, not a vector." }
   ],
   exam: [
-    { src: "AQA 2020 P1 Q1", ctx: "Two vectors are `a = [3, 4]` and `b = [2, −1]`.",
+    { src: "AQA 2020 · P1 Q01", ctx: "Two vectors are `a = [3, 4]` and `b = [2, −1]`.",
       parts: [
         { q: "Calculate the magnitude of `a`.", marks: 1, ms: ["√(3² + 4²) = 5 (1)"] },
         { q: "Calculate the dot product `a · b`.", marks: 2, ms: ["3×2 = 6 and 4×(−1) = −4 (1)", "Sum = 2 (1)"] },
         { q: "State the effect on the magnitude and direction of `a` of multiplying it by the scalar 2.", marks: 2, ms: ["The direction / angle is unchanged (1)", "The magnitude is doubled (becomes 10) (1)"] },
         { q: "State the effect on the magnitude and direction of `a` of multiplying it by the scalar −1.", marks: 2, ms: ["The magnitude is unchanged (1)", "The direction is reversed / the angle changes by 180° (1)"] }
       ] },
-    { src: "AQA 2017 P1 Q5", ctx: "In a game, a guard at position `G = [2, 6]` faces in direction `F = [1, 0]`. The player is at `P = [8, 2]`. The guard can see the player when the dot product of `F` and the vector from `G` to `P` is greater than 0.",
+    { src: "AQA 2017 · P1 Q05", ctx: "In a game, a guard at position `G = [2, 6]` faces in direction `F = [1, 0]`. The player is at `P = [8, 2]`. The guard can see the player when the dot product of `F` and the vector from `G` to `P` is greater than 0.",
       parts: [
         { q: "Calculate the vector from `G` to `P`.", marks: 1, ms: ["P − G = [6, −4] (1)"] },
         { q: "Determine, showing your working, whether the guard can see the player.", marks: 2, ms: ["[1, 0] · [6, −4] = 6 + 0 = 6 (1)", "6 > 0 so the guard can see the player (1)"] },
         { q: "The player moves by the velocity vector `[−7, 1]`. State the player's new position.", marks: 1, ms: ["[1, 3] (1)"] }
       ] },
-    { src: "AQA 2023 P1 Q2", q: "Describe two ways in which a 3-dimensional vector could be represented in a program.", marks: 2,
+    { src: "AQA 2023 · P1 Q02", q: "Describe two ways in which a 3-dimensional vector could be represented in a program.", marks: 2,
       ms: ["As a list / one-dimensional array of three components, e.g. [2, 5, 1] (1)", "As a dictionary mapping index to component, e.g. {0: 2, 1: 5, 2: 1} / as a function from index to value (1)"] }
   ]
 });

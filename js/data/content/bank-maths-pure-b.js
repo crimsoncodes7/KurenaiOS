@@ -54,40 +54,40 @@ X("maths:4.1", {
     { q: "Coefficient of $x$ in $(3 - x)(1 + 2x)^4$:", opts: ["$23$", "$25$", "$24$", "$-23$"], ans: 0, why: "$(1 + 2x)^4 = 1 + 8x + \\ldots$, so $3 \\times 8 + (-1) \\times 1 = 23$." }
   ],
   exam: [
-    { level: "AS", src: "Edexcel AS 2020 P1 Q6", ctx: "$f(x) = (1 + kx)^{10}$, where $k$ is a non-zero constant.",
+    { level: "AS", src: "Edexcel AS 2020 · P1 Q6", ctx: "$f(x) = (1 + kx)^{10}$, where $k$ is a non-zero constant.",
       parts: [
         { q: "Find the first four terms, in ascending powers of $x$, of the binomial expansion of $f(x)$, writing each coefficient as simply as possible.", marks: 3, ms: ["M1: uses $\\binom{10}{r}$ with $(kx)^r$", "A1: $1 + 10kx + 45k^2x^2$", "A1: $+ 120k^3x^3$"] },
         { q: "Given that the coefficient of $x^3$ is three times the coefficient of $x$, find the possible values of $k$.", marks: 3, ms: ["M1: $120k^3 = 3 \\times 10k$", "A1: $k^2 = \\tfrac14$", "A1: $k = \\pm\\tfrac12$"] }
       ] },
-    { src: "Edexcel Oct 2020 P2 Q4", ctx: "In the binomial expansion of $(a + 2x)^7$, where $a$ is a constant, the coefficient of $x^4$ is $15\\,120$.",
+    { src: "Edexcel Oct 2020 · P2 Q4", ctx: "In the binomial expansion of $(a + 2x)^7$, where $a$ is a constant, the coefficient of $x^4$ is $15\\,120$.",
       parts: [
         { q: "Find the value of $a$.", marks: 3, ms: ["M1: $\\binom{7}{4}a^3(2x)^4 = 560a^3x^4$", "M1: $560a^3 = 15\\,120 \\Rightarrow a^3 = 27$", "A1: $a = 3$"] }
       ] },
-    { src: "Edexcel 2024 P1 Q2", ctx: "$f(x) = (1 - 9x)^{\\frac12}$.",
+    { src: "Edexcel 2024 · P1 Q2", ctx: "$f(x) = (1 - 9x)^{\\frac12}$.",
       parts: [
         { q: "Find, in ascending powers of $x$, the first four terms of the binomial expansion of $f(x)$, giving each term in simplest form.", marks: 3, ms: ["M1: $1 + \\tfrac12(-9x) + \\dfrac{\\frac12(-\\frac12)}{2!}(-9x)^2 + \\dfrac{\\frac12(-\\frac12)(-\\frac32)}{3!}(-9x)^3$ — correct structure for term 3 or 4", "A1: correct unsimplified expansion (brackets correct)", "A1: $1 - \\dfrac92 x - \\dfrac{81}{8}x^2 - \\dfrac{729}{16}x^3$"] },
         { q: "Give a reason why $x = -\\dfrac29$ should not be used in the expansion to find an approximation to $\\sqrt3$.", marks: 1, ms: ["B1: the expansion is valid for $|x| < \\tfrac19$ and $-\\tfrac29$ is outside this range"] }
       ] },
-    { src: "Edexcel 2022 P2 Q7", ctx: "$g(x) = \\sqrt{4 - 9x}$.",
+    { src: "Edexcel 2022 · P2 Q7", ctx: "$g(x) = \\sqrt{4 - 9x}$.",
       parts: [
         { q: "Find the first four terms, in ascending powers of $x$, of the binomial expansion of $g(x)$, writing each term in simplest form.", marks: 4, ms: ["B1: $2\\left(1 - \\dfrac{9x}{4}\\right)^{\\frac12}$", "M1: attempt at the expansion of $(1 + ax)^{\\frac12}$ with the correct structure for term 3 or 4", "A1: correct expansion of $\\left(1 - \\dfrac{9x}{4}\\right)^{\\frac12}$, may be unsimplified", "A1: $2 - \\dfrac94 x - \\dfrac{81}{64}x^2 - \\dfrac{729}{512}x^3$"] },
         { q: "A student uses this expansion with $x = \\dfrac19$ to find an approximation for $\\sqrt3$. Using the answer to part (a) and without doing any calculations, state whether this approximation will be an overestimate or an underestimate of $\\sqrt3$, giving a brief reason.", marks: 1, ms: ["B1: overestimate, since all terms after the first are negative (for $x > 0$)"] }
       ] },
-    { level: "AS", src: "Edexcel AS 2019 P1 Q8", ctx: "$\\left(2 + \\dfrac{3x}{4}\\right)^6$.",
+    { level: "AS", src: "Edexcel AS 2019 · P1 Q8", ctx: "$\\left(2 + \\dfrac{3x}{4}\\right)^6$.",
       parts: [
         { q: "Find the first 3 terms, in ascending powers of $x$, of the binomial expansion, giving each term in its simplest form.", marks: 4, ms: ["B1: $2^6 = 64$", "M1: $\\binom{6}{1}2^5\\left(\\dfrac{3x}{4}\\right) + \\binom{6}{2}2^4\\left(\\dfrac{3x}{4}\\right)^2$", "A1: $+ 144x$", "A1: $+ 135x^2$"] },
         { q: "Explain how you could use your expansion to estimate the value of $1.925^6$. You do not need to perform the calculation.", marks: 1, ms: ["B1ft: substitute $x = -0.1$ (from $2 + \\tfrac34 x = 1.925$) into the expansion from part (a)"] }
       ] },
-    { level: "AS", src: "Edexcel AS 2022 P1 Q6", ctx: "$\\left(3 - \\dfrac{2x}{9}\\right)^8$.",
+    { level: "AS", src: "Edexcel AS 2022 · P1 Q6", ctx: "$\\left(3 - \\dfrac{2x}{9}\\right)^8$.",
       parts: [
         { q: "Find the first four terms, in ascending powers of $x$, of the binomial expansion, giving each term in simplest form.", marks: 4, ms: ["B1: $3^8$ or $6561$", "M1: correct structure for the 2nd, 3rd or 4th term — $\\binom{8}{r}3^{8-r}\\left(-\\dfrac{2x}{9}\\right)^r$", "A1: a correct simplified 2nd or 4th term", "A1: $6561 - 3888x + 1008x^2 - \\dfrac{448}{3}x^3$"] },
         { q: "$f(x) = \\left(\\dfrac{x - 1}{2x}\\right)\\left(3 - \\dfrac{2x}{9}\\right)^8$. Find the coefficient of $x^2$ in the series expansion of $f(x)$, giving your answer as a simplified fraction.", marks: 2, ms: ["M1: $\\dfrac12 \\times 1008 + \\left(-\\dfrac{1}{2}\\right) \\times \\left(-\\dfrac{448}{3}\\right)$", "A1: $\\dfrac{1736}{3}$"] }
       ] },
-    { level: "AS", src: "Edexcel AS 2023 P1 Q14", ctx: "$(5 + 8x^2)\\left(3 - \\dfrac12 x\\right)^6$.",
+    { level: "AS", src: "Edexcel AS 2023 · P1 Q14", ctx: "$(5 + 8x^2)\\left(3 - \\dfrac12 x\\right)^6$.",
       parts: [
         { q: "Find, in simplest form, the coefficient of $x^5$ in the expansion.", marks: 5, ms: ["M1: $\\binom{6}{5}3\\left(-\\dfrac12 x\\right)^5$ or $\\binom{6}{3}27\\left(-\\dfrac12 x\\right)^3$", "A1: $-\\dfrac{9}{16}x^5$ or $-\\dfrac{135}{2}x^3$", "M1: the other required term", "M1: $5 \\times \\left(-\\dfrac{9}{16}\\right) + 8 \\times \\left(-\\dfrac{135}{2}\\right)$", "A1: $-\\dfrac{8685}{16}$"] }
       ] },
-    { src: "Edexcel Oct 2021 P1 Q9", ctx: "$f(x) = \\dfrac{50x^2 + 38x + 9}{(5x + 2)^2(1 - 2x)} \\equiv \\dfrac{A}{5x + 2} + \\dfrac{B}{(5x + 2)^2} + \\dfrac{C}{1 - 2x}$.",
+    { src: "Edexcel Oct 2021 · P1 Q9", ctx: "$f(x) = \\dfrac{50x^2 + 38x + 9}{(5x + 2)^2(1 - 2x)} \\equiv \\dfrac{A}{5x + 2} + \\dfrac{B}{(5x + 2)^2} + \\dfrac{C}{1 - 2x}$.",
       parts: [
         { q: "(i) Find the value of $B$ and the value of $C$. (ii) Show that $A = 0$.", marks: 4, ms: ["M1: $50x^2 + 38x + 9 \\equiv A(5x + 2)(1 - 2x) + B(1 - 2x) + C(5x + 2)^2$ and substitutes $x = \\tfrac12$ or $x = -\\tfrac25$", "A1: $B = 1$, $C = 2$", "M1: a third equation, e.g. $x = 0$: $9 = 2A + B + 4C$", "A1*: $A = 0$ with the argument shown"] },
         { q: "(i) Use binomial expansions to show that $f(x) = p + qx + rx^2 + \\ldots$ where $p$, $q$, $r$ are simplified fractions to be found. (ii) Find the range of values of $x$ for which this expansion is valid.", marks: 7, ms: ["M1: $(2 + 5x)^{-2} = \\dfrac14\\left(1 + \\dfrac{5x}{2}\\right)^{-2}$", "M1: expansion structure with $n = -2$", "A1: $\\dfrac14 - \\dfrac54 x + \\dfrac{75}{16}x^2$", "M1: $2(1 - 2x)^{-1} = 2 + 4x + 8x^2$", "dM1: adds the expansions", "A1: $\\dfrac94 + \\dfrac{11}{4}x + \\dfrac{203}{16}x^2$", "B1: $|x| < \\dfrac25$"] }
@@ -125,20 +125,20 @@ X("maths:4.2", {
     { q: "A sequence with $u_{n+2} = u_n$ for all $n$ has order:", opts: ["1", "2", "4", "infinite"], ans: 1, why: "Repeats every two terms." }
   ],
   exam: [
-    { src: "Edexcel 2023 P1 Q2", ctx: "A sequence is defined by $a_1 = 4$ and $a_{n+1} = a_n + 3\\cos\\left(\\dfrac{n\\pi}{2}\\right)$ for $n \\ge 1$.",
+    { src: "Edexcel 2023 · P1 Q2", ctx: "A sequence is defined by $a_1 = 4$ and $a_{n+1} = a_n + 3\\cos\\left(\\dfrac{n\\pi}{2}\\right)$ for $n \\ge 1$.",
       parts: [
         { q: "Find $a_2$, $a_3$, $a_4$ and $a_5$.", marks: 3, ms: ["M1: evaluates $\\cos\\frac{\\pi}{2} = 0$, $\\cos\\pi = -1$, $\\cos\\frac{3\\pi}{2} = 0$, $\\cos 2\\pi = 1$", "A1: $a_2 = 4$, $a_3 = 1$", "A1: $a_4 = 1$, $a_5 = 4$"] },
         { q: "State the order of the sequence.", marks: 1, ms: ["B1: 4"] },
         { q: "Find $\\displaystyle\\sum_{n=1}^{102} a_n$.", marks: 2, ms: ["M1: $25 \\times (4 + 4 + 1 + 1) + a_1 + a_2$", "A1: $250 + 8 = 258$"] }
       ] },
-    { src: "Edexcel 2024 P2 Q4", q: "A sequence is defined by $u_1 = 2$ and $u_{n+1} = \\dfrac{k u_n + 5}{u_n + 6}$, where $k$ is a constant. Given that $u_2 = u_1$, find the value of $k$.", marks: 4,
+    { src: "Edexcel 2024 · P2 Q4", q: "A sequence is defined by $u_1 = 2$ and $u_{n+1} = \\dfrac{k u_n + 5}{u_n + 6}$, where $k$ is a constant. Given that $u_2 = u_1$, find the value of $k$.", marks: 4,
       ms: ["M1: $u_2 = \\dfrac{2k + 5}{8}$", "M1: sets equal to 2: $2k + 5 = 16$", "A1: $k = \\tfrac{11}{2}$", "B1: checks the sequence is then constant (every term 2)"] },
-    { src: "Edexcel Specimen P2 Q3", ctx: "A sequence is defined by $a_1 = 4$ and $a_{n+1} = \\dfrac{a_n - 3}{a_n - 2}$.",
+    { src: "Edexcel Specimen · P2 Q3", ctx: "A sequence is defined by $a_1 = 4$ and $a_{n+1} = \\dfrac{a_n - 3}{a_n - 2}$.",
       parts: [
         { q: "Find $a_2$ and $a_3$ and hence show that the sequence is periodic, stating its order.", marks: 3, ms: ["A1: $a_2 = \\tfrac12$", "A1: $a_3 = \\dfrac{-5/2}{-3/2} = \\tfrac53$, $a_4 = \\dfrac{-4/3}{-1/3} = 4 = a_1$", "B1: periodic with order 3"] },
         { q: "Find $\\displaystyle\\sum_{n=1}^{50} a_n$, giving your answer as an exact fraction.", marks: 3, ms: ["M1: cycle sum $4 + \\tfrac12 + \\tfrac53 = \\tfrac{37}{6}$", "M1: $16 \\times \\tfrac{37}{6} + a_1 + a_2$", "A1: $\\tfrac{296}{3} + \\tfrac92 = \\tfrac{619}{6}$"] }
       ] },
-    { src: "Edexcel Oct 2021 P2 Q3", q: "A sequence is given by $u_1 = 1$ and $u_{n+1} = k - \\dfrac{2}{u_n}$, $k > 0$. Given that $u_3 = u_1$, show that $k$ satisfies a quadratic equation and find $k$.", marks: 6,
+    { src: "Edexcel Oct 2021 · P2 Q3", q: "A sequence is given by $u_1 = 1$ and $u_{n+1} = k - \\dfrac{2}{u_n}$, $k > 0$. Given that $u_3 = u_1$, show that $k$ satisfies a quadratic equation and find $k$.", marks: 6,
       ms: ["M1: $u_2 = k - 2$", "M1: $u_3 = k - \\dfrac{2}{k - 2}$", "M1: $k - \\dfrac{2}{k-2} = 1 \\Rightarrow (k-1)(k-2) = 2$", "A1: $k^2 - 3k = 0$", "A1: $k = 3$ (rejecting $k = 0$)", "B1: verifies $u_2 = 1$ so the sequence is constant — order 1 (accept a comment)"] }
   ]
 });
@@ -168,16 +168,16 @@ X("maths:4.3", {
     { qk: "101", q: "The least $n$ with $\\sum_{r=1}^{n} 2^r > 1000$ is", opts: ["9", "10", "8", "11"], ans: 0, why: "$2(2^n - 1) > 1000$: $2^n > 501$, so $n = 9$ ($2 \\times 511 = 1022$)." }
   ],
   exam: [
-    { src: "Edexcel 2018 P2 Q4", ctx: "A sequence is defined by $a_1 = 5$ and $a_{n+1} = 12 - a_n$ for $n \\ge 1$.",
+    { src: "Edexcel 2018 · P2 Q4", ctx: "A sequence is defined by $a_1 = 5$ and $a_{n+1} = 12 - a_n$ for $n \\ge 1$.",
       parts: [
         { q: "Evaluate $\\displaystyle\\sum_{r=1}^{10} (3r + 2)$.", marks: 2, ms: ["M1: arithmetic series $a = 5$, $l = 32$, $n = 10$", "A1: 185"] },
         { q: "Find $\\displaystyle\\sum_{n=1}^{75} a_n$.", marks: 3, ms: ["M1: $a_2 = 7$, $a_3 = 5$ — periodic order 2", "M1: $37 \\times (5 + 7) + a_{75}$ where $a_{75} = a_1 = 5$", "A1: $444 + 5 = 449$"] }
       ] },
-    { src: "Edexcel 2019 P2 Q8", parts: [
+    { src: "Edexcel 2019 · P2 Q8", parts: [
       { q: "Find $\\displaystyle\\sum_{r=1}^{\\infty} 8\\left(\\tfrac34\\right)^{r}$.", marks: 2, ms: ["M1: first term $6$, ratio $\\tfrac34$", "A1: $\\dfrac{6}{1 - 3/4} = 24$"] },
       { q: "Show that $\\displaystyle\\sum_{r=1}^{n} \\log_3\\left(\\dfrac{r+1}{r}\\right) = \\log_3(n+1)$.", marks: 3, ms: ["M1: writes each term as $\\log_3(r+1) - \\log_3 r$", "M1: sum telescopes: $(\\log_3 2 - \\log_3 1) + (\\log_3 3 - \\log_3 2) + \\ldots + (\\log_3(n+1) - \\log_3 n)$", "A1: $= \\log_3(n+1) - \\log_3 1 = \\log_3(n + 1)$"] }
     ] },
-    { src: "Edexcel Oct 2021 P1 Q9", q: "Evaluate $\\displaystyle\\sum_{n=1}^{\\infty} 8\\left(\\tfrac{3}{5}\\right)^n \\cos(180n)°$, giving your answer as an exact fraction.", marks: 3,
+    { src: "Edexcel Oct 2021 · P1 Q9", q: "Evaluate $\\displaystyle\\sum_{n=1}^{\\infty} 8\\left(\\tfrac{3}{5}\\right)^n \\cos(180n)°$, giving your answer as an exact fraction.", marks: 3,
       ms: ["M1: recognises $\\cos(180n)° = (-1)^n$ so the series is geometric with ratio $-\\tfrac35$", "M1: first term $-\\tfrac{24}{5}$, sum $\\dfrac{-24/5}{1 + 3/5}$", "A1: $-3$"] }
   ]
 });
@@ -213,16 +213,16 @@ X("maths:4.4", {
     { q: "If $u_n = 7n - 3$, then $d =$", opts: ["3", "7", "4", "$-3$"], ans: 1, why: "Coefficient of $n$." }
   ],
   exam: [
-    { src: "Edexcel 2022 P2 Q13", parts: [
+    { src: "Edexcel 2022 · P2 Q13", parts: [
       { q: "Prove that the sum of the first $n$ terms of an arithmetic series with first term $a$ and common difference $d$ is $S_n = \\dfrac n2\\left[2a + (n-1)d\\right]$.", marks: 3, ms: ["M1: writes $S_n$ as $a + (a + d) + \\ldots + (a + (n-1)d)$ and in reverse order", "M1: adds the two expressions term by term to obtain $2S_n = n[2a + (n-1)d]$", "A1: divides by 2 with a clear statement of the result"] },
       { q: "Kim saves money each month. She saves £80 in the first month and increases the amount by £6 each month. After $N$ months her total savings are £2740. Show that $3N^2 + 77N - 2740 = 0$, and hence find $N$.", marks: 4, ms: ["M1: $\\dfrac N2[160 + 6(N-1)] = 2740$", "A1: $N(154 + 6N) = 5480 \\Rightarrow 6N^2 + 154N - 5480 = 0 \\Rightarrow 3N^2 + 77N - 2740 = 0$ (cso)", "M1: factorises $(3N + 137)(N - 20) = 0$ or uses the formula", "A1: $N = 20$ (rejecting the negative root)"] }
     ] },
-    { src: "Edexcel Specimen P1 Q11", ctx: "The first three terms of an arithmetic sequence are $2k - 1$, $3k + 2$ and $5k - 1$, where $k$ is a constant.",
+    { src: "Edexcel Specimen · P1 Q11", ctx: "The first three terms of an arithmetic sequence are $2k - 1$, $3k + 2$ and $5k - 1$, where $k$ is a constant.",
       parts: [
         { q: "Show that $k = 6$.", marks: 2, ms: ["M1: $2(3k + 2) = (2k - 1) + (5k - 1)$", "A1: $6k + 4 = 7k - 2 \\Rightarrow k = 6$"] },
         { q: "Hence find the sum of the first 20 terms.", marks: 2, ms: ["M1: $a = 11$, $d = 9$: $S_{20} = \\tfrac{20}{2}(22 + 19 \\times 9)$", "A1: $1930$"] }
       ] },
-    { src: "Edexcel Oct 2021 P1 Q1", q: "The third term of an arithmetic series is 13 and the tenth term is 41. Find the common difference and the sum of the first 500 terms.", marks: 4,
+    { src: "Edexcel Oct 2021 · P1 Q1", q: "The third term of an arithmetic series is 13 and the tenth term is 41. Find the common difference and the sum of the first 500 terms.", marks: 4,
       ms: ["M1: $a + 2d = 13$, $a + 9d = 41$", "A1: $d = 4$, $a = 5$", "M1: $S_{500} = \\tfrac{500}{2}(10 + 499 \\times 4)$", "A1: $501\\,500$"] }
   ]
 });
@@ -264,22 +264,22 @@ X("maths:4.5", {
     { q: "Compare $S_n = \\dfrac{a(r^n - 1)}{r - 1}$ with $S_n = \\dfrac{a(1-r^n)}{1-r}$:", opts: ["they are equal for every $r \\ne 1$", "they are equal only when $r > 1$", "they are equal only when $|r| < 1$", "they differ by a factor of $-1$"], ans: 0, why: "Multiply top and bottom by $-1$." }
   ],
   exam: [
-    { src: "Edexcel Oct 2020 P1 Q15", parts: [
+    { src: "Edexcel Oct 2020 · P1 Q15", parts: [
       { q: "Prove that the sum of the first $n$ terms of a geometric series with first term $a$ and common ratio $r$ ($r \\ne 1$) is $S_n = \\dfrac{a(1 - r^n)}{1 - r}$.", marks: 3, ms: ["M1: writes $S_n = a + ar + \\ldots + ar^{n-1}$ and $rS_n = ar + \\ldots + ar^n$", "M1: subtracts to get $S_n - rS_n = a - ar^n$", "A1: factorises and divides: $S_n = \\dfrac{a(1 - r^n)}{1 - r}$"] },
       { q: "A geometric series has $S_{10} = 4S_5$ and $r > 0$, $r \\ne 1$. Find the exact value of $r$.", marks: 4, ms: ["M1: $\\dfrac{a(1 - r^{10})}{1 - r} = \\dfrac{4a(1 - r^5)}{1 - r}$", "M1: $1 - r^{10} = (1 - r^5)(1 + r^5)$ so $1 + r^5 = 4$", "A1: $r^5 = 3$", "A1: $r = 3^{1/5}$"] }
     ] },
-    { src: "Edexcel 2023 P2 Q9", ctx: "The first three terms of a geometric sequence are $k + 6$, $k$ and $2k - 9$, where $k$ is a constant.",
+    { src: "Edexcel 2023 · P2 Q9", ctx: "The first three terms of a geometric sequence are $k + 6$, $k$ and $2k - 9$, where $k$ is a constant.",
       parts: [
         { q: "Show that $k$ satisfies $k^2 + 3k - 54 = 0$.", marks: 3, ms: ["M1: $k^2 = (k + 6)(2k - 9)$", "A1: $k^2 = 2k^2 + 3k - 54$", "A1: $k^2 + 3k - 54 = 0$ — i.e. $(k + 9)(k - 6) = 0$ (cso; accept the equivalent form)"] },
         { q: "Given that the series converges, find the value of $k$ and the sum to infinity.", marks: 4, ms: ["M1: $k = 6$ or $k = -9$", "M1: $k = 6$ gives terms $12, 6, 3$ with $r = \\tfrac12$ (converges); $k = -9$ gives $-3, -9, -27$ with $r = 3$ (diverges)", "A1: $k = 6$", "A1: $S_\\infty = \\dfrac{12}{1 - 1/2} = 24$"] }
       ] },
-    { src: "Edexcel 2019 P1 Q11", ctx: "In a cross-country race, a runner takes 4 minutes for the first kilometre. Each subsequent kilometre takes 5% longer than the previous one.",
+    { src: "Edexcel 2019 · P1 Q11", ctx: "In a cross-country race, a runner takes 4 minutes for the first kilometre. Each subsequent kilometre takes 5% longer than the previous one.",
       parts: [
         { q: "Find the time taken for the 8th kilometre, to the nearest second.", marks: 2, ms: ["M1: $4 \\times 1.05^7$", "A1: 5.63 min = 5 min 38 s"] },
         { q: "The race is 15 km. Find the runner's total time, to the nearest minute.", marks: 3, ms: ["M1: $S_{15} = \\dfrac{4(1.05^{15} - 1)}{0.05}$", "A1: $= 86.3$", "A1: 86 minutes"] },
         { q: "Explain why the model is unlikely to be valid for a very long race.", marks: 1, ms: ["B1: the time per km would grow without limit / the runner would eventually stop, so a geometric increase cannot continue indefinitely"] }
       ] },
-    { src: "Edexcel Oct 2021 P2 Q5", ctx: "A company's profit in its first year was £40 000. The profit increases by 8% each year.",
+    { src: "Edexcel Oct 2021 · P2 Q5", ctx: "A company's profit in its first year was £40 000. The profit increases by 8% each year.",
       parts: [
         { q: "Find the first year in which the profit exceeds £65 000.", marks: 3, ms: ["M1: $40000 \\times 1.08^{n-1} > 65000$", "M1: $n - 1 > \\dfrac{\\ln 1.625}{\\ln 1.08} = 6.31$", "A1: year 8"] },
         { q: "Find the total profit over the first 20 years, to the nearest £1000.", marks: 2, ms: ["M1: $\\dfrac{40000(1.08^{20} - 1)}{0.08}$", "A1: £1 831 000"] }
@@ -307,12 +307,12 @@ X("maths:4.6", {
     { q: "First $n$ for which $2000 \\times 1.1^n > 5000$:", opts: ["9", "10", "11", "8"], ans: 1, why: "$n > \\ln 2.5 / \\ln 1.1 = 9.6$." }
   ],
   exam: [
-    { src: "Edexcel Oct 2020 P1 Q5", ctx: "A car has six gears. The maximum speed in first gear is 20 mph and the maximum speeds in the first four gears form an arithmetic sequence with common difference 12 mph. The maximum speeds in the fourth, fifth and sixth gears form a geometric sequence.",
+    { src: "Edexcel Oct 2020 · P1 Q5", ctx: "A car has six gears. The maximum speed in first gear is 20 mph and the maximum speeds in the first four gears form an arithmetic sequence with common difference 12 mph. The maximum speeds in the fourth, fifth and sixth gears form a geometric sequence.",
       parts: [
         { q: "Find the maximum speed in the fourth gear.", marks: 2, ms: ["M1: $20 + 3 \\times 12$", "A1: 56 mph"] },
         { q: "Given the maximum speed in sixth gear is 87.5 mph, find the common ratio of the geometric sequence and the maximum speed in fifth gear.", marks: 4, ms: ["M1: $56r^2 = 87.5$", "A1: $r^2 = 1.5625 \\Rightarrow r = 1.25$", "M1: $56 \\times 1.25$", "A1: 70 mph"] }
       ] },
-    { src: "Edexcel Specimen P2 Q8", ctx: "A farmer harvests 10 000 tonnes of wheat in year 1. The harvest increases by 1.2% each year.",
+    { src: "Edexcel Specimen · P2 Q8", ctx: "A farmer harvests 10 000 tonnes of wheat in year 1. The harvest increases by 1.2% each year.",
       parts: [
         { q: "Find the harvest in year 10, to the nearest tonne.", marks: 2, ms: ["M1: $10000 \\times 1.012^9$", "A1: 11 134 tonnes"] },
         { q: "Find the total harvest over the first 20 years, to 3 significant figures.", marks: 2, ms: ["M1: $\\dfrac{10000(1.012^{20} - 1)}{0.012}$", "A1: 224 000 tonnes"] },
@@ -359,24 +359,24 @@ X("maths:5.1", {
     { q: "Using $\\tfrac12 r^2\\theta$ with $\\theta = 60$ (degrees) is wrong because:", opts: ["the formula needs $\\theta$ in radians", "60 is too large an angle for a sector", "$r$ should be squared after multiplying", "nothing — it is correct in degrees"], ans: 0, why: "2019 error-spotting question." }
   ],
   exam: [
-    { src: "Edexcel 2018 P1 Q3", q: "A sector of a circle of radius $r$ cm has area 11 cm². The perimeter of the sector is 4 times the length of its arc. Find the exact value of $r$.", marks: 4,
+    { src: "Edexcel 2018 · P1 Q3", q: "A sector of a circle of radius $r$ cm has area 11 cm². The perimeter of the sector is 4 times the length of its arc. Find the exact value of $r$.", marks: 4,
       ms: ["M1: $2r + r\\theta = 4r\\theta$", "A1: $\\theta = \\tfrac23$", "M1: $\\tfrac12 r^2 \\times \\tfrac23 = 11$", "A1: $r = \\sqrt{33}$"] },
-    { src: "Edexcel 2024 P1 Q11", ctx: "A badge is made from three pieces sharing a common centre $O$: a semicircle of radius 6 cm, a sector of radius 6 cm with angle $\\tfrac\\pi3$, and a triangle $OAB$ with $OA = OB = 6$ cm and angle $AOB = \\tfrac\\pi3$.",
+    { src: "Edexcel 2024 · P1 Q11", ctx: "A badge is made from three pieces sharing a common centre $O$: a semicircle of radius 6 cm, a sector of radius 6 cm with angle $\\tfrac\\pi3$, and a triangle $OAB$ with $OA = OB = 6$ cm and angle $AOB = \\tfrac\\pi3$.",
       parts: [
         { q: "Find the exact area of the triangle $OAB$.", marks: 2, ms: ["M1: $\\tfrac12 \\cdot 6 \\cdot 6 \\sin\\tfrac\\pi3$", "A1: $9\\sqrt3$"] },
         { q: "Hence find the total area of the semicircle, the sector and the triangle in the form $a\\sqrt3 + b\\pi$.", marks: 2, ms: ["M1: semicircle $18\\pi$, sector $\\tfrac12 \\cdot 36 \\cdot \\tfrac\\pi3 = 6\\pi$", "A1: $9\\sqrt3 + 24\\pi$"] }
       ] },
-    { src: "Edexcel 2019 P1 Q3", ctx: "A student finds the area of a sector with radius 8 cm and angle $40°$ by writing: area $= \\tfrac12 \\times 8^2 \\times 40 = 1280$ cm².",
+    { src: "Edexcel 2019 · P1 Q3", ctx: "A student finds the area of a sector with radius 8 cm and angle $40°$ by writing: area $= \\tfrac12 \\times 8^2 \\times 40 = 1280$ cm².",
       parts: [
         { q: "Identify the error the student has made.", marks: 1, ms: ["B1: the angle must be in radians when using $\\tfrac12 r^2\\theta$"] },
         { q: "Find the correct area, giving your answer in terms of $\\pi$.", marks: 2, ms: ["M1: $40° = \\tfrac{2\\pi}{9}$ radians", "A1: $\\tfrac12 \\times 64 \\times \\tfrac{2\\pi}{9} = \\tfrac{64\\pi}{9}$ cm²"] }
       ] },
-    { level: "AS", src: "Edexcel AS 2018 P1 Q7", ctx: "Triangle $ABC$ has $AB = 6$ cm, $AC = 10$ cm and area 15 cm². Angle $BAC = \\theta$.",
+    { level: "AS", src: "Edexcel AS 2018 · P1 Q7", ctx: "Triangle $ABC$ has $AB = 6$ cm, $AC = 10$ cm and area 15 cm². Angle $BAC = \\theta$.",
       parts: [
         { q: "Find the two possible values of $\\cos\\theta$.", marks: 3, ms: ["M1: $\\tfrac12 \\times 6 \\times 10 \\times \\sin\\theta = 15$", "A1: $\\sin\\theta = \\tfrac12$, so $\\theta = 30°$ or $150°$", "A1: $\\cos\\theta = \\pm\\dfrac{\\sqrt3}{2}$"] },
         { q: "Given that $\\theta$ is obtuse, find the exact length of $BC$.", marks: 3, ms: ["M1: $BC^2 = 36 + 100 - 120\\cos 150°$", "A1: $= 136 + 60\\sqrt3$", "A1: $BC = \\sqrt{136 + 60\\sqrt3}$ cm (accept $2\\sqrt{34 + 15\\sqrt3}$)"] }
       ] },
-    { level: "AS", src: "Edexcel AS 2023 P1 Q3", q: "Three radio masts $A$, $B$ and $C$ are on horizontal ground. $B$ is 8 km from $A$ on a bearing of $050°$, and $C$ is 6 km from $A$ on a bearing of $110°$. Find the distance $BC$, giving your answer as a simplified surd.", marks: 4,
+    { level: "AS", src: "Edexcel AS 2023 · P1 Q3", q: "Three radio masts $A$, $B$ and $C$ are on horizontal ground. $B$ is 8 km from $A$ on a bearing of $050°$, and $C$ is 6 km from $A$ on a bearing of $110°$. Find the distance $BC$, giving your answer as a simplified surd.", marks: 4,
       ms: ["M1: angle $BAC = 110° - 50° = 60°$", "M1: $BC^2 = 8^2 + 6^2 - 2 \\times 8 \\times 6\\cos 60°$", "A1: $BC^2 = 52$", "A1: $BC = 2\\sqrt{13}$ km"] }
   ]
 });
@@ -399,14 +399,14 @@ X("maths:5.2", {
     { q: "$\\cos 0.2 \\approx$", opts: ["0.8", "0.98", "0.96", "1.02"], ans: 1, why: "$1 - 0.02$." }
   ],
   exam: [
-    { src: "Edexcel 2024 P1 Q5", q: "For small values of $\\theta$, show that $\\dfrac{\\theta\\tan 2\\theta}{1 - \\cos 3\\theta} \\approx k$, where $k$ is a constant to be found.", marks: 3,
+    { src: "Edexcel 2024 · P1 Q5", q: "For small values of $\\theta$, show that $\\dfrac{\\theta\\tan 2\\theta}{1 - \\cos 3\\theta} \\approx k$, where $k$ is a constant to be found.", marks: 3,
       ms: ["M1: $\\tan 2\\theta \\approx 2\\theta$", "M1: $1 - \\cos 3\\theta \\approx \\dfrac{9\\theta^2}{2}$", "A1: $\\dfrac{2\\theta^2}{9\\theta^2/2} = \\dfrac49$"] },
-    { src: "Edexcel 2019 P1 Q2", ctx: "The equation $\\cos x = 2x + 0.5$ has exactly one real root $\\alpha$.",
+    { src: "Edexcel 2019 · P1 Q2", ctx: "The equation $\\cos x = 2x + 0.5$ has exactly one real root $\\alpha$.",
       parts: [
         { q: "Show that $\\alpha$ lies between 0.2 and 0.3.", marks: 2, ms: ["M1: $f(x) = \\cos x - 2x - 0.5$: $f(0.2) = 0.080$, $f(0.3) = -0.145$", "A1: change of sign and $f$ continuous, so a root lies in $(0.2, 0.3)$"] },
         { q: "Use small-angle approximations to find an estimate for $\\alpha$, to 3 decimal places.", marks: 3, ms: ["M1: $1 - \\dfrac{x^2}{2} = 2x + 0.5$", "M1: $x^2 + 4x - 1 = 0 \\Rightarrow x = -2 \\pm \\sqrt5$", "A1: $\\alpha \\approx 0.236$"] }
       ] },
-    { src: "Edexcel Oct 2021 P1 Q4", q: "Find, in terms of $\\theta$, an approximation for $4\\sin\\left(\\dfrac\\theta2\\right) + 3\\cos 2\\theta$ when $\\theta$ is small, giving your answer in the form $a + b\\theta + c\\theta^2$.", marks: 3,
+    { src: "Edexcel Oct 2021 · P1 Q4", q: "Find, in terms of $\\theta$, an approximation for $4\\sin\\left(\\dfrac\\theta2\\right) + 3\\cos 2\\theta$ when $\\theta$ is small, giving your answer in the form $a + b\\theta + c\\theta^2$.", marks: 3,
       ms: ["M1: $\\sin\\tfrac\\theta2 \\approx \\tfrac\\theta2$", "M1: $\\cos 2\\theta \\approx 1 - 2\\theta^2$", "A1: $3 + 2\\theta - 6\\theta^2$"] }
   ]
 });
@@ -429,12 +429,12 @@ X("maths:5.3", {
     { q: "$\\sin\\theta = \\sin(180° - \\theta)$ shows sine is symmetric about:", opts: ["$\\theta = 0$", "$\\theta = 90°$", "$\\theta = 180°$", "the origin"], ans: 1, why: "$\\theta$ and $180° - \\theta$ sit equally either side of $90°$." }
   ],
   exam: [
-    { src: "Edexcel 2025 P1 Q13", ctx: "The equation $\\sin(nx) = k$, where $n$ is a positive integer and $0 < k < 1$, has exactly 6 solutions in the interval $0 \\le x < 360°$.",
+    { src: "Edexcel 2025 · P1 Q13", ctx: "The equation $\\sin(nx) = k$, where $n$ is a positive integer and $0 < k < 1$, has exactly 6 solutions in the interval $0 \\le x < 360°$.",
       parts: [
         { q: "Deduce the value of $n$.", marks: 1, ms: ["B1: $n = 3$"] },
         { q: "Hence state the number of solutions of $\\sin^2(nx) = k^2$ in the same interval.", marks: 2, ms: ["M1: $\\sin 3x = k$ or $\\sin 3x = -k$", "A1: 12"] }
       ] },
-    { level: "AS", src: "Edexcel AS 2020 P1 Q9", ctx: "The curve $y = 3\\cos x$, $0 \\le x \\le 360°$.",
+    { level: "AS", src: "Edexcel AS 2020 · P1 Q9", ctx: "The curve $y = 3\\cos x$, $0 \\le x \\le 360°$.",
       parts: [
         { q: "State the coordinates of the minimum point of the curve.", marks: 1, ms: ["B1: $(180°, -3)$"] },
         { q: "Describe fully the transformation that maps $y = \\cos x$ onto $y = 3\\cos x$.", marks: 1, ms: ["B1: stretch parallel to the $y$-axis, scale factor 3"] },
@@ -463,11 +463,11 @@ X("maths:5.4", {
     { q: "The graph of $y = \\arctan x$ approaches:", opts: ["$y = \\pm\\pi$", "$y = \\pm\\tfrac\\pi2$", "$x = \\pm\\tfrac\\pi2$", "$y = 0$"], ans: 1, why: "$\\tan x \\to \\pm\\infty$ as $x \\to \\pm\\tfrac\\pi2$, so $\\arctan x \\to \\pm\\tfrac\\pi2$." }
   ],
   exam: [
-    { src: "Edexcel 2021 P2 Q2", parts: [
+    { src: "Edexcel 2021 · P2 Q2", parts: [
       { q: "Sketch the graph of $y = \\sec x$ for $-180° \\le x \\le 180°$, stating the equations of the asymptotes.", marks: 3, ms: ["B1: U-shape with minimum $(0, 1)$", "B1: two downward branches with maxima $(\\pm 180°, -1)$", "B1: asymptotes $x = \\pm 90°$"] },
       { q: "Solve $\\sec x = -2$ for $-180° \\le x \\le 180°$.", marks: 2, ms: ["M1: $\\cos x = -\\tfrac12$", "A1: $x = \\pm 120°$"] }
     ] },
-    { src: "Edexcel 2020 P1 Q3", q: "Find the exact value of $\\arcsin\\left(\\sin\\dfrac{5\\pi}{6}\\right)$, explaining why it is not $\\dfrac{5\\pi}{6}$.", marks: 2,
+    { src: "Edexcel 2020 · P1 Q3", q: "Find the exact value of $\\arcsin\\left(\\sin\\dfrac{5\\pi}{6}\\right)$, explaining why it is not $\\dfrac{5\\pi}{6}$.", marks: 2,
       ms: ["M1: $\\sin\\dfrac{5\\pi}{6} = \\tfrac12$ so $\\arcsin\\tfrac12 = \\tfrac\\pi6$", "A1: $\\arcsin$ returns the principal value in $[-\\tfrac\\pi2, \\tfrac\\pi2]$, and $\\tfrac{5\\pi}{6}$ lies outside it"] }
   ]
 });
@@ -507,15 +507,15 @@ X("maths:5.5", {
     { q: "$\\sec\\theta\\cot\\theta =$", opts: ["$\\csc\\theta$", "$\\sin\\theta$", "$\\tan\\theta$", "$\\cos\\theta$"], ans: 0, why: "$\\dfrac{1}{\\cos}\\cdot\\dfrac{\\cos}{\\sin}$." }
   ],
   exam: [
-    { level: "AS", src: "Edexcel AS 2022 P1 Q13", parts: [
+    { level: "AS", src: "Edexcel AS 2022 · P1 Q13", parts: [
       { q: "Show that $\\dfrac{1}{\\cos\\theta} + \\tan\\theta \\equiv \\dfrac{\\cos\\theta}{1 - \\sin\\theta}$, $\\cos\\theta \\ne 0$.", marks: 3, ms: ["M1: LHS $= \\dfrac{1 + \\sin\\theta}{\\cos\\theta}$", "M1: multiplies numerator and denominator by $1 - \\sin\\theta$ and uses $1 - \\sin^2\\theta = \\cos^2\\theta$", "A1: $\\dfrac{\\cos^2\\theta}{\\cos\\theta(1 - \\sin\\theta)} = \\dfrac{\\cos\\theta}{1 - \\sin\\theta}$ (cso)"] },
       { q: "Hence solve $\\dfrac{1}{\\cos\\theta} + \\tan\\theta = 4\\cos\\theta$ for $0 \\le \\theta < 360°$.", marks: 5, ms: ["M1: $\\dfrac{\\cos\\theta}{1 - \\sin\\theta} = 4\\cos\\theta$", "A1: $\\cos\\theta = 0$ or $1 - \\sin\\theta = \\tfrac14$", "A1: $\\theta = 90°, 270°$ from $\\cos\\theta = 0$ — reject as $\\cos\\theta \\ne 0$ makes the original undefined", "M1: $\\sin\\theta = \\tfrac34$", "A1: $\\theta = 48.6°, 131.4°$"] }
     ] },
-    { src: "Edexcel Oct 2020 P1 Q12", parts: [
+    { src: "Edexcel Oct 2020 · P1 Q12", parts: [
       { q: "Show that $\\csc\\theta - \\sin\\theta \\equiv \\cos\\theta\\cot\\theta$.", marks: 3, ms: ["M1: $\\dfrac{1}{\\sin\\theta} - \\sin\\theta = \\dfrac{1 - \\sin^2\\theta}{\\sin\\theta}$", "M1: $= \\dfrac{\\cos^2\\theta}{\\sin\\theta}$", "A1: $= \\cos\\theta \\cdot \\dfrac{\\cos\\theta}{\\sin\\theta} = \\cos\\theta\\cot\\theta$"] },
       { q: "Hence solve $\\csc\\theta - \\sin\\theta = \\cos\\theta$ for $0 < \\theta < 360°$.", marks: 5, ms: ["M1: $\\cos\\theta\\cot\\theta = \\cos\\theta \\Rightarrow \\cos\\theta(\\cot\\theta - 1) = 0$", "A1: $\\cos\\theta = 0$: $90°, 270°$", "A1: $\\tan\\theta = 1$: $45°$", "A1: $225°$", "B1: all four solutions and no extras (checks $\\sin\\theta \\ne 0$)"] }
     ] },
-    { level: "AS", src: "Edexcel AS 2018 P1 Q12", q: "Show that $4\\cos\\theta - 1 = 2\\sin\\theta\\tan\\theta$ can be written as $6\\cos^2\\theta - \\cos\\theta - 2 = 0$, and hence solve $4\\cos 3x - 1 = 2\\sin 3x\\tan 3x$ for $0 \\le x < 120°$.", marks: 7,
+    { level: "AS", src: "Edexcel AS 2018 · P1 Q12", q: "Show that $4\\cos\\theta - 1 = 2\\sin\\theta\\tan\\theta$ can be written as $6\\cos^2\\theta - \\cos\\theta - 2 = 0$, and hence solve $4\\cos 3x - 1 = 2\\sin 3x\\tan 3x$ for $0 \\le x < 120°$.", marks: 7,
       ms: ["M1: $\\tan\\theta = \\dfrac{\\sin\\theta}{\\cos\\theta}$ and multiply through by $\\cos\\theta$: $4\\cos^2\\theta - \\cos\\theta = 2\\sin^2\\theta$", "M1: $\\sin^2\\theta = 1 - \\cos^2\\theta$", "A1: $6\\cos^2\\theta - \\cos\\theta - 2 = 0$ (cso)", "M1: $(3\\cos\\theta - 2)(2\\cos\\theta + 1) = 0$", "A1: $\\cos 3x = \\tfrac23$ or $-\\tfrac12$", "A1: $3x = 48.2°, 311.8°, 120°, 240°$", "A1: $x = 16.1°, 40°, 80°, 103.9°$"] }
   ]
 });
@@ -557,22 +557,22 @@ X("maths:5.6", {
     { q: "$a\\cos\\theta - b\\sin\\theta$ is written as:", opts: ["$R\\cos(\\theta - \\alpha)$", "$R\\cos(\\theta + \\alpha)$", "$R\\sin(\\theta + \\alpha)$", "$R\\tan\\theta$"], ans: 1, why: "Expanding $R\\cos(\\theta + \\alpha)$ gives $-R\\sin\\alpha\\sin\\theta$." }
   ],
   exam: [
-    { src: "Edexcel Oct 2020 P2 Q6", ctx: "The temperature $T$ °C in a greenhouse $t$ hours after 9 am is modelled by $T = 20 + \\sin\\left(\\dfrac{\\pi t}{12}\\right) + 2\\cos\\left(\\dfrac{\\pi t}{12}\\right)$, $0 \\le t \\le 24$.",
+    { src: "Edexcel Oct 2020 · P2 Q6", ctx: "The temperature $T$ °C in a greenhouse $t$ hours after 9 am is modelled by $T = 20 + \\sin\\left(\\dfrac{\\pi t}{12}\\right) + 2\\cos\\left(\\dfrac{\\pi t}{12}\\right)$, $0 \\le t \\le 24$.",
       parts: [
         { q: "Express $\\sin x + 2\\cos x$ in the form $R\\sin(x + \\alpha)$, where $R > 0$ and $0 < \\alpha < \\tfrac\\pi2$, giving $\\alpha$ to 3 decimal places.", marks: 3, ms: ["B1: $R = \\sqrt5$", "M1: $\\tan\\alpha = 2$", "A1: $\\alpha = 1.107$"] },
         { q: "Find the maximum temperature and the time at which it occurs.", marks: 4, ms: ["B1: $20 + \\sqrt5 = 22.2$ °C", "M1: $\\dfrac{\\pi t}{12} + 1.107 = \\dfrac\\pi2$", "A1: $t = 1.77$", "A1: at about 10:46 am"] }
       ] },
-    { src: "Edexcel 2024 P2 Q12", ctx: "The number of rabbits $N$ in a field $t$ months after observations began is modelled by $N = 900 + 140\\cos\\left(\\dfrac{\\pi t}{6}\\right) - 480\\sin\\left(\\dfrac{\\pi t}{6}\\right)$.",
+    { src: "Edexcel 2024 · P2 Q12", ctx: "The number of rabbits $N$ in a field $t$ months after observations began is modelled by $N = 900 + 140\\cos\\left(\\dfrac{\\pi t}{6}\\right) - 480\\sin\\left(\\dfrac{\\pi t}{6}\\right)$.",
       parts: [
         { q: "Express $140\\cos\\theta - 480\\sin\\theta$ in the form $K\\cos(\\theta + \\alpha)$, $K > 0$, $0 < \\alpha < \\tfrac\\pi2$.", marks: 3, ms: ["B1: $K = 500$", "M1: $\\tan\\alpha = \\dfrac{480}{140}$", "A1: $\\alpha = 1.287$"] },
         { q: "Find the maximum and minimum numbers of rabbits predicted by the model.", marks: 2, ms: ["B1: 1400", "B1: 400"] },
         { q: "Find the first time, to the nearest day, at which the model predicts 1200 rabbits.", marks: 4, ms: ["M1: $500\\cos\\left(\\dfrac{\\pi t}{6} + 1.287\\right) = 300$", "M1: $\\dfrac{\\pi t}{6} + 1.287 = \\arccos 0.6 = 0.927$ or $2\\pi - 0.927 = 5.356$", "A1: first positive solution from $5.356$: $t = 7.77$ months", "A1: approximately 236 days (accept 7.8 months)"] }
       ] },
-    { src: "Edexcel 2025 P1 Q14", parts: [
+    { src: "Edexcel 2025 · P1 Q14", parts: [
       { q: "Show that $\\sin(x + 30°) + \\sqrt3\\cos(x + 30°) \\equiv 2\\cos x$.", marks: 4, ms: ["M1: expands $\\sin(x + 30°) = \\dfrac{\\sqrt3}{2}\\sin x + \\tfrac12\\cos x$", "M1: expands $\\cos(x + 30°) = \\dfrac{\\sqrt3}{2}\\cos x - \\tfrac12\\sin x$", "A1: $\\dfrac{\\sqrt3}{2}\\sin x + \\tfrac12\\cos x + \\tfrac32\\cos x - \\dfrac{\\sqrt3}{2}\\sin x$", "A1: $= 2\\cos x$ (cso)"] },
       { q: "Hence solve $\\sin(x + 30°) + \\sqrt3\\cos(x + 30°) = \\sqrt2$ for $0 \\le x < 360°$.", marks: 3, ms: ["M1: $2\\cos x = \\sqrt2 \\Rightarrow \\cos x = \\dfrac{\\sqrt2}{2}$", "A1: $x = 45°$", "A1: $x = 315°$"] }
     ] },
-    { src: "Edexcel Oct 2020 P1 Q10", parts: [
+    { src: "Edexcel Oct 2020 · P1 Q10", parts: [
       { q: "Show that $\\cos 3A \\equiv 4\\cos^3 A - 3\\cos A$.", marks: 4, ms: ["M1: $\\cos(2A + A) = \\cos 2A\\cos A - \\sin 2A\\sin A$", "M1: substitutes $\\cos 2A = 2\\cos^2 A - 1$ and $\\sin 2A = 2\\sin A\\cos A$", "M1: $\\sin^2 A = 1 - \\cos^2 A$", "A1: $2\\cos^3 A - \\cos A - 2\\cos A + 2\\cos^3 A = 4\\cos^3 A - 3\\cos A$"] },
       { q: "Hence solve $1 - \\cos 3x = \\sin^2 x$ for $0 \\le x \\le \\pi$.", marks: 4, ms: ["M1: $1 - 4\\cos^3 x + 3\\cos x = 1 - \\cos^2 x$", "M1: $\\cos x(4\\cos^2 x - \\cos x - 3) = 0 \\Rightarrow \\cos x(4\\cos x + 3)(\\cos x - 1) = 0$", "A1: $\\cos x = 0, 1, -\\tfrac34$", "A1: $x = \\tfrac\\pi2, 0, 2.42$"] }
     ] }
@@ -613,19 +613,19 @@ X("maths:5.7", {
     { q: "For $\\sin(2\\theta + 10°) = k$ with $0 \\le \\theta < 180°$, the interval for $2\\theta + 10°$ is:", opts: ["$[0, 180°)$", "$[10°, 370°)$", "$[10°, 190°)$", "$[0, 360°)$"], ans: 1, why: "Transform the interval first." }
   ],
   exam: [
-    { level: "AS", src: "Edexcel AS 2023 P1 Q12", parts: [
+    { level: "AS", src: "Edexcel AS 2023 · P1 Q12", parts: [
       { q: "Show that the equation $4\\tan x = 5\\cos x$ can be written as $5\\sin^2 x + 4\\sin x - 5 = 0$.", marks: 3, ms: ["M1: $\\tan x = \\dfrac{\\sin x}{\\cos x}$ and multiplies by $\\cos x$: $4\\sin x = 5\\cos^2 x$", "M1: $\\cos^2 x = 1 - \\sin^2 x$", "A1: $5\\sin^2 x + 4\\sin x - 5 = 0$ (cso)"] },
       { q: "Hence solve $4\\tan x = 5\\cos x$ for $0 \\le x < 360°$, giving your answers to 1 decimal place.", marks: 4, ms: ["M1: $\\sin x = \\dfrac{-4 \\pm \\sqrt{16 + 100}}{10}$", "A1: $\\sin x = 0.677$ (rejecting $-1.477$)", "A1: $x = 42.6°$", "A1: $x = 137.4°$"] },
       { q: "State the number of solutions of $4\\tan 3x = 5\\cos 3x$ in $0 \\le x < 360°$.", marks: 1, ms: ["B1: 6"] }
     ] },
-    { level: "AS", src: "Edexcel AS Nov 2021 P1 Q12", ctx: "A student attempts to solve $5\\cos^2\\theta = 6\\sin\\theta$ for $0 \\le \\theta < 360°$ and writes: \"$5\\cos\\theta = 6\\tan\\theta$ … $\\cos\\theta = \\tfrac65\\tan\\theta$ … using a calculator, $\\theta = 34.5°$\".",
+    { level: "AS", src: "Edexcel AS Nov 2021 · P1 Q12", ctx: "A student attempts to solve $5\\cos^2\\theta = 6\\sin\\theta$ for $0 \\le \\theta < 360°$ and writes: \"$5\\cos\\theta = 6\\tan\\theta$ … $\\cos\\theta = \\tfrac65\\tan\\theta$ … using a calculator, $\\theta = 34.5°$\".",
       parts: [
         { q: "Identify two errors in the student's method.", marks: 2, ms: ["B1: dividing by $\\cos\\theta$ is invalid / the first line does not follow ($\\dfrac{\\sin\\theta}{\\cos\\theta}$ is not obtained by dividing $\\sin\\theta$ by $\\cos^2\\theta$ correctly)", "B1: only one solution has been given — the second-quadrant solution has been omitted"] },
         { q: "Solve the equation correctly.", marks: 5, ms: ["M1: $5(1 - \\sin^2\\theta) = 6\\sin\\theta$", "A1: $5\\sin^2\\theta + 6\\sin\\theta - 5 = 0$", "M1: $\\sin\\theta = \\dfrac{-6 + \\sqrt{136}}{10}$", "A1: $\\sin\\theta = 0.566$", "A1: $\\theta = 34.5°, 145.5°$"] }
       ] },
-    { level: "AS", src: "Edexcel AS 2025 P1 Q8", q: "Solve $\\sin^2 3x = 4\\cos^2 3x$ for $0 \\le x < 90°$, giving your answers to 1 decimal place.", marks: 5,
+    { level: "AS", src: "Edexcel AS 2025 · P1 Q8", q: "Solve $\\sin^2 3x = 4\\cos^2 3x$ for $0 \\le x < 90°$, giving your answers to 1 decimal place.", marks: 5,
       ms: ["M1: $\\tan^2 3x = 4$", "A1: $\\tan 3x = \\pm 2$", "M1: $3x = 63.4°, 116.6°, 243.4°$ (within $0 \\le 3x < 270°$)", "A1: $x = 21.1°, 38.9°$", "A1: $x = 81.1°$"] },
-    { src: "Edexcel 2022 P1 Q14", parts: [
+    { src: "Edexcel 2022 · P1 Q14", parts: [
       { q: "Given that $2\\sin(x - 60°) = \\cos(x - 30°)$, show that $\\tan x = 3\\sqrt3$.", marks: 4, ms: ["M1: expands both sides: $2(\\sin x\\cos 60° - \\cos x\\sin 60°) = \\cos x\\cos 30° + \\sin x\\sin 30°$", "A1: $\\sin x - \\sqrt3\\cos x = \\dfrac{\\sqrt3}{2}\\cos x + \\tfrac12\\sin x$", "M1: collects: $\\tfrac12\\sin x = \\dfrac{3\\sqrt3}{2}\\cos x$", "A1: $\\tan x = 3\\sqrt3$"] },
       { q: "Hence solve $2\\sin(2\\theta - 60°) = \\cos(2\\theta - 30°)$ for $0 \\le \\theta < 180°$.", marks: 3, ms: ["M1: $\\tan 2\\theta = 3\\sqrt3$", "A1: $2\\theta = 79.1°, 259.1°$", "A1: $\\theta = 39.6°, 129.6°$"] }
     ] }
@@ -651,15 +651,15 @@ X("maths:5.8", {
     { q: "$\\cot 2x \\equiv$", opts: ["$\\dfrac{\\cos 2x}{\\sin 2x}$", "$\\dfrac{\\sin 2x}{\\cos 2x}$", "$\\dfrac{2\\cos x}{\\sin x}$", "$\\dfrac{1}{\\sin 2x}$"], ans: 0, why: "$\\cot 2x = \\dfrac{1}{\\tan 2x} = \\dfrac{\\cos 2x}{\\sin 2x}$." }
   ],
   exam: [
-    { src: "Edexcel 2018 P2 Q12", parts: [
+    { src: "Edexcel 2018 · P2 Q12", parts: [
       { q: "Prove that $\\dfrac{1 - \\cos 2\\theta}{\\sin 2\\theta} \\equiv \\tan\\theta$, $\\theta \\ne \\dfrac{n\\pi}{2}$.", marks: 3, ms: ["M1: $1 - \\cos 2\\theta = 2\\sin^2\\theta$", "M1: $\\sin 2\\theta = 2\\sin\\theta\\cos\\theta$", "A1: $\\dfrac{2\\sin^2\\theta}{2\\sin\\theta\\cos\\theta} = \\tan\\theta$ (cso)"] },
       { q: "Hence solve $\\dfrac{1 - \\cos 2\\theta}{\\sin 2\\theta} = 3\\sin\\theta$ for $0 < \\theta < 180°$… for $-90° < \\theta < 90°$, $\\theta \\ne 0$.", marks: 4, ms: ["M1: $\\tan\\theta = 3\\sin\\theta \\Rightarrow \\sin\\theta = 3\\sin\\theta\\cos\\theta$", "A1: $\\sin\\theta(1 - 3\\cos\\theta) = 0$, $\\sin\\theta \\ne 0$ so $\\cos\\theta = \\tfrac13$", "A1: $\\theta = 70.5°$", "A1: $\\theta = -70.5°$"] }
     ] },
-    { src: "Edexcel Specimen P2 Q13", parts: [
+    { src: "Edexcel Specimen · P2 Q13", parts: [
       { q: "Prove that $\\csc 2x + \\cot 2x \\equiv \\cot x$, $x \\ne \\dfrac{n\\pi}{2}$.", marks: 4, ms: ["M1: $\\dfrac{1}{\\sin 2x} + \\dfrac{\\cos 2x}{\\sin 2x} = \\dfrac{1 + \\cos 2x}{\\sin 2x}$", "M1: $1 + \\cos 2x = 2\\cos^2 x$", "M1: $\\sin 2x = 2\\sin x\\cos x$", "A1: $\\dfrac{2\\cos^2 x}{2\\sin x\\cos x} = \\cot x$"] },
       { q: "Hence solve $\\csc 2x + \\cot 2x = 3\\tan x$… for $-\\tfrac\\pi2 < x < \\tfrac\\pi2$, $x \\ne 0$.", marks: 3, ms: ["M1: $\\cot x = 3\\tan x \\Rightarrow \\tan^2 x = \\tfrac13$", "A1: $\\tan x = \\pm\\dfrac{1}{\\sqrt3}$", "A1: $x = \\pm\\tfrac\\pi6$"] }
     ] },
-    { src: "Edexcel 2023 P2 Q15", q: "Prove by contradiction that if $x$ is obtuse then $\\sin x - \\cos x > 1$… complete the proof: assume $90° < x < 180°$ and $\\sin x - \\cos x \\le 1$.", marks: 3,
+    { src: "Edexcel 2023 · P2 Q15", q: "Prove by contradiction that if $x$ is obtuse then $\\sin x - \\cos x > 1$… complete the proof: assume $90° < x < 180°$ and $\\sin x - \\cos x \\le 1$.", marks: 3,
       ms: ["M1: since both $\\sin x$ and $-\\cos x$ are positive, squaring preserves the inequality: $\\sin^2 x - 2\\sin x\\cos x + \\cos^2 x \\le 1$, i.e. $1 - \\sin 2x \\le 1$", "A1: so $\\sin 2x \\ge 0$", "A1: but $180° < 2x < 360°$ gives $\\sin 2x < 0$ — a contradiction, so $\\sin x - \\cos x > 1$"] }
   ]
 });
@@ -684,13 +684,13 @@ X("maths:5.9", {
     { q: "The amplitude of $3 + 4\\cos(2t)$ is:", opts: ["3", "4", "2", "7"], ans: 1, why: "Coefficient of the cosine." }
   ],
   exam: [
-    { src: "Edexcel 2018 P1 Q8", ctx: "The depth of water in a harbour, $D$ metres, $t$ hours after midnight is modelled by $D = 5 + 2\\sin(30t)°$, $0 \\le t < 24$. A boat needs a depth of at least 6.5 m to leave the harbour.",
+    { src: "Edexcel 2018 · P1 Q8", ctx: "The depth of water in a harbour, $D$ metres, $t$ hours after midnight is modelled by $D = 5 + 2\\sin(30t)°$, $0 \\le t < 24$. A boat needs a depth of at least 6.5 m to leave the harbour.",
       parts: [
         { q: "Find the maximum depth and the first time it occurs.", marks: 2, ms: ["B1: 7 m", "B1: at $t = 3$ (3 am)"] },
         { q: "Find the earliest time after midnight at which the boat can leave.", marks: 3, ms: ["M1: $\\sin(30t)° = 0.75$", "A1: $30t = 48.6°$", "A1: $t = 1.62$ hours ≈ 01:37"] },
         { q: "State one limitation of the model.", marks: 1, ms: ["B1: e.g. real tides are not exactly sinusoidal / the period is not exactly 12 hours / weather affects depth"] }
       ] },
-    { src: "Edexcel 2022 P2 Q9", ctx: "A Ferris wheel has diameter 40 m and its lowest point is 2 m above the ground. It rotates at a constant rate, completing one revolution every 4 minutes. A passenger boards at the lowest point at time $t = 0$ minutes. The height $H$ m of the passenger above the ground is modelled by $H = a - b\\cos(ct)$.",
+    { src: "Edexcel 2022 · P2 Q9", ctx: "A Ferris wheel has diameter 40 m and its lowest point is 2 m above the ground. It rotates at a constant rate, completing one revolution every 4 minutes. A passenger boards at the lowest point at time $t = 0$ minutes. The height $H$ m of the passenger above the ground is modelled by $H = a - b\\cos(ct)$.",
       parts: [
         { q: "State the values of $a$ and $b$.", marks: 2, ms: ["B1: $a = 22$", "B1: $b = 20$"] },
         { q: "Find the value of $c$, giving your answer in terms of $\\pi$.", marks: 1, ms: ["B1: $c = \\dfrac{\\pi}{2}$"] },
@@ -722,7 +722,7 @@ X("maths:6.1", {
     { qk: "101", q: "The range of $f(x) = 1 + e^{x}$, $x \\in \\mathbb{R}$, is", opts: ["$f(x) > 1$", "$f(x) \\ge 1$", "$f(x) > 0$", "all real numbers"], ans: 0, why: "$e^x > 0$, never 0." }
   ],
   exam: [
-    { src: "Edexcel 2022 P1 Q2", parts: [
+    { src: "Edexcel 2022 · P1 Q2", parts: [
       { q: "Sketch the curve $y = 3e^{x} - 4$, showing the coordinates of any points where it meets the axes and the equation of the asymptote.", marks: 3, ms: ["B1: increasing exponential shape with asymptote $y = -4$", "B1: $y$-intercept $(0, -1)$", "B1: crosses the $x$-axis at $x = \\ln\\tfrac43$"] },
       { q: "Solve $3e^{x} - 4 = 8$, giving your answer in the form $\\ln k$.", marks: 2, ms: ["M1: $e^x = 4$", "A1: $x = \\ln 4$"] }
     ] }
@@ -753,13 +753,13 @@ X("maths:6.2", {
     { qk: "101", q: "$y = e^{x} - 2x$ has a stationary point at $x =$", opts: ["$\\ln 2$", "$2$", "$\\tfrac12$", "$e^2$"], ans: 0, why: "$e^x - 2 = 0$." }
   ],
   exam: [
-    { src: "Edexcel Oct 2021 P2 Q8", ctx: "The number of bacteria $N$ in a culture after $t$ hours is modelled by $N = Ae^{kt}$. Initially there are 500 bacteria and the number doubles every 5 hours.",
+    { src: "Edexcel Oct 2021 · P2 Q8", ctx: "The number of bacteria $N$ in a culture after $t$ hours is modelled by $N = Ae^{kt}$. Initially there are 500 bacteria and the number doubles every 5 hours.",
       parts: [
         { q: "Find the values of $A$ and $k$, giving $k$ to 3 significant figures.", marks: 3, ms: ["B1: $A = 500$", "M1: $e^{5k} = 2$", "A1: $k = \\dfrac{\\ln 2}{5} = 0.139$"] },
         { q: "Find the rate at which the number of bacteria is increasing after 8 hours.", marks: 3, ms: ["M1: $\\dfrac{dN}{dt} = 500ke^{kt}$", "M1: substitutes $t = 8$", "A1: $\\approx 210$ bacteria per hour"] },
         { q: "Explain why the model cannot be valid for large values of $t$.", marks: 1, ms: ["B1: the number of bacteria would grow without limit, but resources / space are finite"] }
       ] },
-    { level: "AS", src: "Edexcel AS Specimen P1 Q13", ctx: "The area $A$ m² of a pond covered by weed after $t$ weeks is modelled by $A = 0.2e^{0.3t}$.",
+    { level: "AS", src: "Edexcel AS Specimen · P1 Q13", ctx: "The area $A$ m² of a pond covered by weed after $t$ weeks is modelled by $A = 0.2e^{0.3t}$.",
       parts: [
         { q: "State the area covered at the start.", marks: 1, ms: ["B1: 0.2 m²"] },
         { q: "Find the rate at which the area is increasing after 6 weeks.", marks: 3, ms: ["M1: $\\dfrac{dA}{dt} = 0.06e^{0.3t}$", "M1: substitutes $t = 6$", "A1: $0.363$ m² per week"] },
@@ -788,9 +788,9 @@ X("maths:6.3", {
     { q: "$\\ln x = -1$ gives $x =$", opts: ["$-\\dfrac1e$", "$\\dfrac1e$", "$\\dfrac{1}{e^2}$", "$-e$"], ans: 1, why: "$e^{-1}$." }
   ],
   exam: [
-    { src: "Edexcel Oct 2021 P2 Q3", q: "Solve $\\log_3(12y + 5) - \\log_3(1 - 3y) = 2$, giving your answer as an exact fraction.", marks: 3,
+    { src: "Edexcel Oct 2021 · P2 Q3", q: "Solve $\\log_3(12y + 5) - \\log_3(1 - 3y) = 2$, giving your answer as an exact fraction.", marks: 3,
       ms: ["M1: $\\log_3\\dfrac{12y + 5}{1 - 3y} = 2$", "M1: $12y + 5 = 9(1 - 3y)$", "A1: $y = \\tfrac{4}{39}$"] },
-    { src: "Edexcel 2020 P2 Q1", q: "Sketch $y = \\ln(x - 2)$, stating the equation of the asymptote and the coordinates of the point where the curve crosses the $x$-axis.", marks: 3,
+    { src: "Edexcel 2020 · P2 Q1", q: "Sketch $y = \\ln(x - 2)$, stating the equation of the asymptote and the coordinates of the point where the curve crosses the $x$-axis.", marks: 3,
       ms: ["B1: log shape, increasing, defined for $x > 2$", "B1: asymptote $x = 2$", "B1: crosses at $(3, 0)$"] }
   ]
 });
@@ -832,19 +832,19 @@ X("maths:6.4", {
     { q: "'$\\dfrac{\\log 8}{\\log 2} = \\log 4$' is:", opts: ["correct", "wrong — it equals 3", "wrong — it equals $\\log 6$", "undefined"], ans: 1, why: "$\\log_2 8 = 3$." }
   ],
   exam: [
-    { src: "Edexcel Oct 2020 P1 Q3", ctx: "$2\\log_{10}(4 - x) = \\log_{10}(x + 8)$.",
+    { src: "Edexcel Oct 2020 · P1 Q3", ctx: "$2\\log_{10}(4 - x) = \\log_{10}(x + 8)$.",
       parts: [
         { q: "Show that $x^2 - 9x + 8 = 0$.", marks: 3, ms: ["M1: $\\log(4 - x)^2 = \\log(x + 8)$", "M1: $(4 - x)^2 = x + 8$", "A1: $x^2 - 9x + 8 = 0$ (cso)"] },
         { q: "Solve the equation, explaining why one solution must be rejected.", marks: 2, ms: ["A1: $x = 1$ or $x = 8$", "B1: $x = 8$ rejected because $\\log(4 - 8)$ is undefined; solution $x = 1$"] }
       ] },
-    { src: "Edexcel 2023 P1 Q6", ctx: "Given $a = \\log_{10} x$ and $b = \\log_{10}(x + 8)$, $x > 0$,",
+    { src: "Edexcel 2023 · P1 Q6", ctx: "Given $a = \\log_{10} x$ and $b = \\log_{10}(x + 8)$, $x > 0$,",
       parts: [
         { q: "Express $\\log_{10}\\left(\\dfrac{x^2}{x + 8}\\right)$ in terms of $a$ and $b$.", marks: 2, ms: ["M1: $2\\log x - \\log(x + 8)$", "A1: $2a - b$"] },
         { q: "Express $\\log_{10}\\left(10\\sqrt{x(x+8)}\\right)$ in terms of $a$ and $b$.", marks: 3, ms: ["M1: $\\log 10 + \\tfrac12\\log\\left(x(x+8)\\right)$", "M1: $1 + \\tfrac12(\\log x + \\log(x+8))$", "A1: $1 + \\tfrac12(a + b)$"] }
       ] },
-    { level: "AS", src: "Edexcel AS 2025 P1 Q10", q: "Solve $2\\log_3(x + 1) = 1 + \\log_3(x + 7)$.", marks: 5,
+    { level: "AS", src: "Edexcel AS 2025 · P1 Q10", q: "Solve $2\\log_3(x + 1) = 1 + \\log_3(x + 7)$.", marks: 5,
       ms: ["M1: $\\log_3(x+1)^2 = \\log_3 3 + \\log_3(x + 7) = \\log_3 3(x + 7)$", "M1: $(x + 1)^2 = 3(x + 7)$", "A1: $x^2 - x - 20 = 0$", "A1: $x = 5$ or $x = -4$", "B1: $x = 5$ only, since $x = -4$ makes $\\log_3(x + 1)$ undefined"] },
-    { level: "AS", src: "Edexcel AS 2018 P1 Q5", ctx: "A student's attempt to solve $\\log_2(x + 6) - \\log_2 x = 3$ reads: \"$\\dfrac{\\log_2(x + 6)}{\\log_2 x} = 3$, so $\\log_2(x + 6) = 3\\log_2 x = \\log_2 3x$, so $x + 6 = 3x$, $x = 3$.\"",
+    { level: "AS", src: "Edexcel AS 2018 · P1 Q5", ctx: "A student's attempt to solve $\\log_2(x + 6) - \\log_2 x = 3$ reads: \"$\\dfrac{\\log_2(x + 6)}{\\log_2 x} = 3$, so $\\log_2(x + 6) = 3\\log_2 x = \\log_2 3x$, so $x + 6 = 3x$, $x = 3$.\"",
       parts: [
         { q: "Identify the two errors in the student's working.", marks: 2, ms: ["B1: $\\log a - \\log b$ is $\\log\\dfrac ab$, not $\\dfrac{\\log a}{\\log b}$", "B1: $3\\log_2 x = \\log_2 x^3$, not $\\log_2 3x$"] },
         { q: "Solve the equation correctly.", marks: 3, ms: ["M1: $\\log_2\\dfrac{x + 6}{x} = 3$", "M1: $x + 6 = 8x$", "A1: $x = \\tfrac67$"] }
@@ -874,11 +874,11 @@ X("maths:6.5", {
     { q: "$10^{2x + 1} = 500$: first step:", opts: ["divide by 2: $10^{x + 1} = 250$", "take logs base 10: $2x + 1 = \\log 500$", "take square roots: $10^{x + 1} = \\sqrt{500}$", "subtract 1: $10^{2x} = 499$"], ans: 1, why: "Then $x = \\tfrac12(\\log 500 - 1)$." }
   ],
   exam: [
-    { src: "Edexcel Oct 2020 P1 Q2", q: "Solve $4^{3p - 1} = 52^{10}$, giving your answer to 3 significant figures.", marks: 3,
+    { src: "Edexcel Oct 2020 · P1 Q2", q: "Solve $4^{3p - 1} = 52^{10}$, giving your answer to 3 significant figures.", marks: 3,
       ms: ["M1: takes logs: $(3p - 1)\\ln 4 = 10\\ln 52$", "M1: $3p - 1 = \\dfrac{10\\ln 52}{\\ln 4} = 28.50$", "A1: $p = 9.83$"] },
-    { src: "Edexcel Oct 2020 P2 Q5", q: "The curves $y = 4^{x}$ and $y = 15 - 2^{x + 1}$ meet at a single point. Find the exact $x$-coordinate of this point, giving your answer in the form $\\log_2 k$.", marks: 4,
+    { src: "Edexcel Oct 2020 · P2 Q5", q: "The curves $y = 4^{x}$ and $y = 15 - 2^{x + 1}$ meet at a single point. Find the exact $x$-coordinate of this point, giving your answer in the form $\\log_2 k$.", marks: 4,
       ms: ["M1: writes $4^x = (2^x)^2$ and $2^{x+1} = 2 \\cdot 2^x$, so with $u = 2^x$: $u^2 + 2u - 15 = 0$", "A1: $(u + 5)(u - 3) = 0$", "M1: rejects $u = -5$ since $2^x > 0$", "A1: $2^x = 3 \\Rightarrow x = \\log_2 3$"] },
-    { level: "AS", src: "Edexcel AS 2020 P1 Q3", q: "Solve $3^{x - 2} \\times 4 = 2\\sqrt 2$, giving your answer in the form $x = a + \\dfrac{b\\ln 2}{\\ln 3}$ where $a$ and $b$ are rational.", marks: 4,
+    { level: "AS", src: "Edexcel AS 2020 · P1 Q3", q: "Solve $3^{x - 2} \\times 4 = 2\\sqrt 2$, giving your answer in the form $x = a + \\dfrac{b\\ln 2}{\\ln 3}$ where $a$ and $b$ are rational.", marks: 4,
       ms: ["M1: $3^{x-2} = \\dfrac{2^{3/2}}{2^2} = 2^{-1/2}$", "M1: $(x - 2)\\ln 3 = -\\tfrac12\\ln 2$", "A1: $x - 2 = -\\dfrac{\\ln 2}{2\\ln 3}$", "A1: $x = 2 - \\dfrac{\\ln 2}{2\\ln 3}$ (so $a = 2$, $b = -\\tfrac12$)"] }
   ]
 });
@@ -915,18 +915,18 @@ X("maths:6.6", {
     { q: "'The model is unreliable for $t = 50$' because:", opts: ["logs cannot be taken of large values", "it is extrapolation far beyond the data", "$b < 1$, so the model must decrease", "the gradient is too small to be trusted"], ans: 1, why: "$t = 50$ is far outside the data, so the trend may not continue." }
   ],
   exam: [
-    { level: "AS", src: "Edexcel AS 2020 P1 Q12", ctx: "The number of views $V$ of an online advert $t$ days after it is posted is modelled by $V = ab^t$. A plot of $\\log_{10} V$ against $t$ is a straight line with equation $\\log_{10} V = 0.072t + 2.379$.",
+    { level: "AS", src: "Edexcel AS 2020 · P1 Q12", ctx: "The number of views $V$ of an online advert $t$ days after it is posted is modelled by $V = ab^t$. A plot of $\\log_{10} V$ against $t$ is a straight line with equation $\\log_{10} V = 0.072t + 2.379$.",
       parts: [
         { q: "Show that $V = ab^t$ gives a linear relationship between $\\log_{10} V$ and $t$.", marks: 2, ms: ["M1: $\\log_{10} V = \\log_{10} a + \\log_{10} b^t$", "A1: $= \\log_{10} a + t\\log_{10} b$, of the form $y = mt + c$"] },
         { q: "Find the values of $a$ and $b$, to 3 significant figures, and interpret the value of $b$.", marks: 3, ms: ["A1: $a = 10^{2.379} = 239$", "A1: $b = 10^{0.072} = 1.18$", "B1: the number of views increases by 18% per day"] },
         { q: "Use the model to estimate the number of views after 30 days, and comment on the reliability of this estimate.", marks: 2, ms: ["M1: $239 \\times 1.18^{30} \\approx 34\\,000$ (accept $10^{0.072 \\times 30 + 2.379}$)", "B1: unreliable — extrapolation far beyond the data / growth will not continue at 18% per day indefinitely"] }
       ] },
-    { src: "Edexcel Oct 2021 P2 Q10", ctx: "The period $T$ seconds of a pendulum of length $l$ metres is modelled by $T = al^b$. A graph of $\\log_{10} T$ against $\\log_{10} l$ is a straight line passing through $(-1, -0.2)$ and $(0.5, 0.55)$.",
+    { src: "Edexcel Oct 2021 · P2 Q10", ctx: "The period $T$ seconds of a pendulum of length $l$ metres is modelled by $T = al^b$. A graph of $\\log_{10} T$ against $\\log_{10} l$ is a straight line passing through $(-1, -0.2)$ and $(0.5, 0.55)$.",
       parts: [
         { q: "Explain why the graph is a straight line.", marks: 2, ms: ["M1: $\\log T = \\log a + b\\log l$", "A1: linear in $\\log l$ with gradient $b$ and intercept $\\log a$"] },
         { q: "Find the values of $a$ and $b$, to 2 significant figures.", marks: 4, ms: ["M1: gradient $b = \\dfrac{0.55 + 0.2}{0.5 + 1} = 0.5$", "A1: $b = 0.50$", "M1: intercept: $\\log a = 0.55 - 0.5 \\times 0.5 = 0.3$", "A1: $a = 10^{0.3} = 2.0$"] }
       ] },
-    { src: "Edexcel 2024 P1 Q13", ctx: "The world population $P$ billions, $t$ years after 1950, is modelled by $P = ab^t$. The values $(t, \\log_{10} P)$ for the data lie close to a line with gradient 0.0064 and intercept 0.40.",
+    { src: "Edexcel 2024 · P1 Q13", ctx: "The world population $P$ billions, $t$ years after 1950, is modelled by $P = ab^t$. The values $(t, \\log_{10} P)$ for the data lie close to a line with gradient 0.0064 and intercept 0.40.",
       parts: [
         { q: "Estimate the values of $a$ and $b$ to 3 significant figures.", marks: 2, ms: ["A1: $a = 10^{0.40} = 2.51$", "A1: $b = 10^{0.0064} = 1.01$ (1.0148…)"] },
         { q: "Interpret the value of $a$.", marks: 1, ms: ["B1: the model's estimate of the world population in 1950 — about 2.5 billion"] },
@@ -976,27 +976,27 @@ X("maths:6.7", {
     { q: "Why is $\\theta = 15$ impossible for $\\theta = 18 + 65e^{-t/8}$?", opts: ["$t$ would have to be negative, before the start", "$e^{-t/8}$ is always positive so $\\theta > 18$", "the 65 makes $\\theta$ fall too slowly to reach 15", "it is possible: $\\theta = 15$ when $t \\approx 30$"], ans: 1, why: "Asymptote at 18." }
   ],
   exam: [
-    { level: "AS", src: "Edexcel AS 2020 P1 Q8", ctx: "The temperature $\\theta$ °C of a cup of tea $t$ minutes after it is made is modelled by $\\theta = 18 + 65e^{-t/8}$.",
+    { level: "AS", src: "Edexcel AS 2020 · P1 Q8", ctx: "The temperature $\\theta$ °C of a cup of tea $t$ minutes after it is made is modelled by $\\theta = 18 + 65e^{-t/8}$.",
       parts: [
         { q: "State the temperature of the tea when it is made.", marks: 1, ms: ["B1: 83 °C"] },
         { q: "Find the time taken for the tea to cool to 35 °C, to the nearest minute.", marks: 3, ms: ["M1: $e^{-t/8} = \\dfrac{17}{65}$", "M1: $t = -8\\ln\\dfrac{17}{65}$", "A1: 11 minutes"] },
         { q: "Explain why, according to the model, the tea can never reach 15 °C.", marks: 1, ms: ["B1: $e^{-t/8} > 0$ for all $t$, so $\\theta > 18$ — the temperature approaches the room temperature 18 °C but never falls below it"] },
         { q: "Find the rate at which the tea is cooling when $t = 4$.", marks: 3, ms: ["M1: $\\dfrac{d\\theta}{dt} = -\\dfrac{65}{8}e^{-t/8}$", "M1: substitutes $t = 4$", "A1: $-4.93$ °C per minute (cooling at 4.93 °C/min)"] }
       ] },
-    { level: "AS", src: "Edexcel AS 2025 P1 Q13", ctx: "The height $h$ metres of a tree $t$ years after planting is modelled by $h = 31 - Ae^{-kt}$. When planted the tree was 6 m tall; after 5 years it was 16 m tall.",
+    { level: "AS", src: "Edexcel AS 2025 · P1 Q13", ctx: "The height $h$ metres of a tree $t$ years after planting is modelled by $h = 31 - Ae^{-kt}$. When planted the tree was 6 m tall; after 5 years it was 16 m tall.",
       parts: [
         { q: "Find the value of $A$.", marks: 1, ms: ["B1: $A = 25$"] },
         { q: "Show that $k = \\tfrac15\\ln\\tfrac53$.", marks: 3, ms: ["M1: $16 = 31 - 25e^{-5k}$", "M1: $e^{-5k} = \\tfrac{15}{25} = \\tfrac35$", "A1: $-5k = \\ln\\tfrac35 \\Rightarrow k = \\tfrac15\\ln\\tfrac53$"] },
         { q: "Find the height of the tree after 20 years.", marks: 2, ms: ["M1: $h = 31 - 25e^{-4\\ln(5/3)} = 31 - 25\\left(\\tfrac35\\right)^4$", "A1: $27.8$ m"] },
         { q: "State the maximum height the model predicts and find the rate of growth after 10 years.", marks: 4, ms: ["B1: 31 m", "M1: $\\dfrac{dh}{dt} = 25ke^{-kt}$", "M1: substitutes $t = 10$, $k = 0.102$", "A1: $0.92$ m per year"] }
       ] },
-    { src: "Edexcel 2025 P1 Q9", ctx: "The total number of cars $N$ sold by a dealer $t$ months after opening is modelled by $N = 5000 - 5000e^{-0.075t}$.",
+    { src: "Edexcel 2025 · P1 Q9", ctx: "The total number of cars $N$ sold by a dealer $t$ months after opening is modelled by $N = 5000 - 5000e^{-0.075t}$.",
       parts: [
         { q: "Find the number of cars sold in the first 3 months.", marks: 2, ms: ["M1: $5000(1 - e^{-0.225})$", "A1: 1008 (accept 1007–1009)"] },
         { q: "Find the value of $T$ when $N = 3000$.", marks: 3, ms: ["M1: $e^{-0.075T} = 0.4$", "M1: $T = -\\dfrac{\\ln 0.4}{0.075}$", "A1: $T = 12.2$ months"] },
         { q: "Find the rate at which cars are being sold when $t = 12$, and comment on what happens to this rate in the long term.", marks: 3, ms: ["M1: $\\dfrac{dN}{dt} = 375e^{-0.075t}$", "A1: $375e^{-0.9} = 152$ cars per month", "B1: the rate decreases towards 0 as $t$ increases — sales slow down and total sales approach 5000"] }
       ] },
-    { src: "Edexcel Oct 2020 P2 Q9", ctx: "Ethanol is heated. Its temperature $\\theta$ °C after $t$ minutes is modelled by $\\theta = A - Be^{-0.07t}$. Initially the temperature is 12 °C, and after 10 minutes it is 42 °C.",
+    { src: "Edexcel Oct 2020 · P2 Q9", ctx: "Ethanol is heated. Its temperature $\\theta$ °C after $t$ minutes is modelled by $\\theta = A - Be^{-0.07t}$. Initially the temperature is 12 °C, and after 10 minutes it is 42 °C.",
       parts: [
         { q: "Show that $A - B = 12$ and find a second equation in $A$ and $B$.", marks: 2, ms: ["B1: $t = 0$: $A - B = 12$", "B1: $A - Be^{-0.7} = 42$"] },
         { q: "Hence find the value of $A$, to the nearest degree, and interpret it.", marks: 4, ms: ["M1: subtracts: $B(1 - e^{-0.7}) = 30$", "A1: $B = 59.6$", "A1: $A = 72$", "B1: $A$ is the temperature the ethanol approaches in the long term (the heater's limiting temperature)"] }

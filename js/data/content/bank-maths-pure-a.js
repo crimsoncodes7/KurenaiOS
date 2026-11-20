@@ -42,24 +42,24 @@ X("maths:1.1", {
     { q: "Which statement is true for all natural $n$?", opts: ["$n^2 + n + 41$ is prime", "$n^3 + 5n$ is even", "$n^2 + 2$ is divisible by 4", "$2^n + 1$ is prime"], ans: 1, why: "$n^3 + 5n = n(n^2+5)$: if $n$ even, even; if $n$ odd, $n^2 + 5$ even." }
   ],
   exam: [
-    { level: "AS", src: "Edexcel AS 2022 P1 Q14", parts: [
+    { level: "AS", src: "Edexcel AS 2022 · P1 Q14", parts: [
       { q: "Show, by means of a counter-example, that the statement \"if $x^2 > 9$ then $x > 3$\" is false.", marks: 1, ms: ["B1: a valid counter-example with the check, e.g. $x = -4$: $16 > 9$ but $-4 < 3$"] },
       { q: "Prove that for all natural numbers $n$, $n^3 + 3n^2 + 2n$ is divisible by 6.", marks: 3, ms: ["M1: factorises $n(n+1)(n+2)$", "A1: states these are three consecutive integers so one is a multiple of 2 and one is a multiple of 3", "A1: concludes the product is divisible by $2 \\times 3 = 6$ for all natural $n$ (full reasoning)"] }
     ] },
-    { src: "Edexcel 2024 P1 Q15", parts: [
+    { src: "Edexcel 2024 · P1 Q15", parts: [
       { q: "Show that $k^2 - 4k + 5$ is positive for all real values of $k$.", marks: 2, ms: ["M1: completes the square $(k-2)^2 + 1$", "A1: $(k-2)^2 \\ge 0$ so $(k-2)^2 + 1 \\ge 1 > 0$"] },
       { q: "Prove by contradiction that there are no positive integers $p$ and $q$ such that $p^2 - q^2 = 1$.", marks: 4, ms: ["B1: assumes there exist positive integers $p, q$ with $p^2 - q^2 = 1$", "M1: factorises $(p-q)(p+q) = 1$", "A1: since $p, q$ positive integers, $p + q \\ge 2$, so $(p-q)(p+q) = 1$ is impossible with integer factors (or $p - q = p + q = 1 \\Rightarrow q = 0$)", "A1: states this contradicts the assumption, so no such $p, q$ exist"] }
     ] },
-    { src: "Edexcel 2025 P2 Q8", ctx: "A student attempts to prove that the square of any integer is of the form $5n$, $5n+1$ or $5n-1$, writing: \"Any integer is $5m$, $5m+1$ or $5m+2$. $(5m)^2 = 5(5m^2)$, $(5m+1)^2 = 5(5m^2+2m)+1$, $(5m+2)^2 = 5(5m^2+4m)+4 = 5(5m^2+4m+1)-1$. Hence the result.\"",
+    { src: "Edexcel 2025 · P2 Q8", ctx: "A student attempts to prove that the square of any integer is of the form $5n$, $5n+1$ or $5n-1$, writing: \"Any integer is $5m$, $5m+1$ or $5m+2$. $(5m)^2 = 5(5m^2)$, $(5m+1)^2 = 5(5m^2+2m)+1$, $(5m+2)^2 = 5(5m^2+4m)+4 = 5(5m^2+4m+1)-1$. Hence the result.\"",
       parts: [
         { q: "Identify the error in the student's proof.", marks: 1, ms: ["B1: the cases are incomplete — integers of the form $5m+3$ and $5m+4$ (or $5m-1$, $5m-2$) have not been considered"] },
         { q: "Complete the proof.", marks: 3, ms: ["M1: $(5m+3)^2 = 25m^2 + 30m + 9 = 5(5m^2+6m+1)+4 = 5(5m^2+6m+2)-1$", "M1: $(5m+4)^2 = 25m^2 + 40m + 16 = 5(5m^2+8m+3)+1$", "A1: all five cases covered with a concluding statement that every square is $5n$, $5n+1$ or $5n-1$"] }
       ] },
-    { src: "Edexcel Specimen P2 Q14", parts: [
+    { src: "Edexcel Specimen · P2 Q14", parts: [
       { q: "Prove by contradiction that $\\sqrt 3$ is irrational.", marks: 4, ms: ["B1: assumes $\\sqrt 3 = \\frac{p}{q}$ with $p, q$ integers with no common factor", "M1: $p^2 = 3q^2$ so $p^2$ is a multiple of 3, hence $p$ is a multiple of 3, $p = 3m$", "M1: $9m^2 = 3q^2 \\Rightarrow q^2 = 3m^2$, so $q$ is also a multiple of 3", "A1: $p$ and $q$ share the factor 3, contradicting the assumption; hence $\\sqrt 3$ is irrational"] },
       { q: "Determine whether the statement \"for all real $x$, $x^2 + 4 \\ge 4x$\" is true or false, justifying your answer.", marks: 2, ms: ["M1: $x^2 - 4x + 4 = (x-2)^2$", "A1: $(x-2)^2 \\ge 0$ for all real $x$, so the statement is true"] }
     ] },
-    { level: "AS", src: "Edexcel AS 2023 P1 Q17", ctx: "Statement 1: for all real $x$, $x^3 > x^2$. Statement 2: the sum of the squares of any two consecutive even integers is a multiple of 4.",
+    { level: "AS", src: "Edexcel AS 2023 · P1 Q17", ctx: "Statement 1: for all real $x$, $x^3 > x^2$. Statement 2: the sum of the squares of any two consecutive even integers is a multiple of 4.",
       parts: [
         { q: "Show that Statement 1 is false.", marks: 1, ms: ["B1: counter-example with check, e.g. $x = \\tfrac12$: $x^3 = \\tfrac18 < \\tfrac14 = x^2$ (or $x = 0$, $x = -1$)"] },
         { q: "Prove that Statement 2 is true.", marks: 3, ms: ["M1: lets the integers be $2k$ and $2k+2$", "M1: $(2k)^2 + (2k+2)^2 = 8k^2 + 8k + 4$", "A1: $= 4(2k^2 + 2k + 1)$, a multiple of 4 for all integers $k$, with conclusion"] }
@@ -86,13 +86,13 @@ X("maths:2.1", {
     { q: "$\\dfrac{x + 2}{\\sqrt x}$ written in index form is:", opts: ["$x^{1/2} + 2x^{-1/2}$", "$x^{-1/2} + 2$", "$x^{3/2} + 2$", "$x^{1/2} + 2x^{1/2}$"], ans: 0, why: "Divide each term by $x^{1/2}$." }
   ],
   exam: [
-    { src: "Edexcel 2019 P1 Q1", q: "Given that $2^x \\times 4^y = 2\\sqrt 2$, express $y$ as a function of $x$, giving your answer in the form $y = ax + b$.", marks: 3,
+    { src: "Edexcel 2019 · P1 Q1", q: "Given that $2^x \\times 4^y = 2\\sqrt 2$, express $y$ as a function of $x$, giving your answer in the form $y = ax + b$.", marks: 3,
       ms: ["M1: writes $4^y = 2^{2y}$ and $2\\sqrt2 = 2^{3/2}$", "M1: equates indices $x + 2y = \\tfrac32$", "A1: $y = -\\tfrac12 x + \\tfrac34$"] },
-    { level: "AS", src: "Edexcel AS 2019 P1 Q2", parts: [
+    { level: "AS", src: "Edexcel AS 2019 · P1 Q2", parts: [
       { q: "Solve $16a^2 = 2\\sqrt a$, giving the non-zero solution exactly.", marks: 3, ms: ["M1: writes as $a^{3/2} = \\tfrac{1}{8}$ (or $256a^4 = 4a$)", "M1: $a = (\\tfrac18)^{2/3}$", "A1: $a = \\tfrac14$"] },
       { q: "Solve $x^4 - 5x^2 + 4 = 0$.", marks: 3, ms: ["M1: substitutes $u = x^2$: $u^2 - 5u + 4 = 0$", "A1: $u = 1$ or $u = 4$", "A1: $x = \\pm 1, \\pm 2$"] }
     ] },
-    { level: "AS", src: "Edexcel AS 2025 P1 Q5", parts: [
+    { level: "AS", src: "Edexcel AS 2025 · P1 Q5", parts: [
       { q: "Write $f(x) = \\dfrac{(2x - 3)^2}{\\sqrt x}$ in the form $ax^{3/2} + bx^{1/2} + cx^{-1/2}$.", marks: 3, ms: ["M1: expands $(2x-3)^2 = 4x^2 - 12x + 9$", "M1: divides each term by $x^{1/2}$", "A1: $4x^{3/2} - 12x^{1/2} + 9x^{-1/2}$"] },
       { q: "Hence find $\\int f(x)\\,dx$.", marks: 3, ms: ["M1: raises each power by one and divides", "A1: two terms correct, e.g. $\\tfrac85 x^{5/2} - 8x^{3/2}$", "A1: $\\tfrac85 x^{5/2} - 8x^{3/2} + 18x^{1/2} + c$"] }
     ] }
@@ -117,11 +117,11 @@ X("maths:2.2", {
     { q: "$\\sqrt{12} + \\sqrt{27} =$", opts: ["$\\sqrt{39}$", "$5\\sqrt3$", "$6\\sqrt3$", "$3\\sqrt5$"], ans: 1, why: "$2\\sqrt3 + 3\\sqrt3$." }
   ],
   exam: [
-    { level: "AS", src: "Edexcel AS 2020 P1 Q3", q: "Solve $\\sqrt{50} - x\\sqrt 2 = 3\\sqrt 8 + \\sqrt 2$, giving your answer as an integer.", marks: 3,
+    { level: "AS", src: "Edexcel AS 2020 · P1 Q3", q: "Solve $\\sqrt{50} - x\\sqrt 2 = 3\\sqrt 8 + \\sqrt 2$, giving your answer as an integer.", marks: 3,
       ms: ["M1: simplifies surds: $5\\sqrt2 - x\\sqrt2 = 6\\sqrt2 + \\sqrt2$", "M1: divides through by $\\sqrt2$: $5 - x = 7$", "A1: $x = -2$"] },
-    { level: "AS", src: "Edexcel AS 2018 P1 Q1", q: "Express $\\dfrac{3\\sqrt 5 + 4}{\\sqrt 5 - 2}$ in the form $a + b\\sqrt 5$, where $a$ and $b$ are integers.", marks: 4,
+    { level: "AS", src: "Edexcel AS 2018 · P1 Q1", q: "Express $\\dfrac{3\\sqrt 5 + 4}{\\sqrt 5 - 2}$ in the form $a + b\\sqrt 5$, where $a$ and $b$ are integers.", marks: 4,
       ms: ["M1: multiplies numerator and denominator by $\\sqrt5 + 2$", "A1: denominator $5 - 4 = 1$", "M1: expands numerator $(3\\sqrt5 + 4)(\\sqrt5 + 2) = 15 + 6\\sqrt5 + 4\\sqrt5 + 8$", "A1: $23 + 10\\sqrt5$"] },
-    { src: "Edexcel 2021 P1 Q1", q: "A rectangle has area $12 + 4\\sqrt 3$ cm² and width $2 + \\sqrt 3$ cm. Find the exact length of the rectangle in the form $a + b\\sqrt 3$.", marks: 3,
+    { src: "Edexcel 2021 · P1 Q1", q: "A rectangle has area $12 + 4\\sqrt 3$ cm² and width $2 + \\sqrt 3$ cm. Find the exact length of the rectangle in the form $a + b\\sqrt 3$.", marks: 3,
       ms: ["M1: length $= \\dfrac{12 + 4\\sqrt3}{2 + \\sqrt3}$ multiplied by $\\dfrac{2 - \\sqrt3}{2 - \\sqrt3}$", "M1: numerator $24 - 12\\sqrt3 + 8\\sqrt3 - 12 = 12 - 4\\sqrt3$, denominator $1$", "A1: $12 - 4\\sqrt3$"] }
   ]
 });
@@ -164,23 +164,23 @@ X("maths:2.3", {
     { q: "Substituting $u = x^2$ into $x^4 - 5x^2 + 4 = 0$ gives roots for $x$:", opts: ["$\\pm1, \\pm2$", "$\\pm1, \\pm4$", "$1, 2$ only", "$1, 4$ only"], ans: 0, why: "$u = 1, 4$." }
   ],
   exam: [
-    { level: "AS", src: "Edexcel AS 2018 P1 Q6", ctx: "A company sells a product at £$x$ per unit. Its weekly profit, £$P$ hundred, is modelled by $P = 100 - 6.25(x - 9)^2$ for $5 \\le x \\le 13$.",
+    { level: "AS", src: "Edexcel AS 2018 · P1 Q6", ctx: "A company sells a product at £$x$ per unit. Its weekly profit, £$P$ hundred, is modelled by $P = 100 - 6.25(x - 9)^2$ for $5 \\le x \\le 13$.",
       parts: [
         { q: "State the price that gives the maximum weekly profit and the value of that profit.", marks: 2, ms: ["B1: $x = 9$ (£9)", "B1: $P = 100$, i.e. £10 000"] },
         { q: "Find the prices at which the weekly profit is £3600.", marks: 3, ms: ["M1: $36 = 100 - 6.25(x-9)^2$", "M1: $(x-9)^2 = 10.24 \\Rightarrow x - 9 = \\pm 3.2$", "A1: $x = 5.80$ and $x = 12.20$"] },
         { q: "Give one reason why the model may not be appropriate for $x > 13$.", marks: 1, ms: ["B1: e.g. profit would become negative / customers would not buy at very high prices so demand is not captured"] }
       ] },
-    { src: "Edexcel Specimen P1 Q5", q: "The line $y = 4x + c$ meets the curve $y = x^2 + 2x - 5$ at two distinct points. Find the range of possible values of $c$.", marks: 5,
+    { src: "Edexcel Specimen · P1 Q5", q: "The line $y = 4x + c$ meets the curve $y = x^2 + 2x - 5$ at two distinct points. Find the range of possible values of $c$.", marks: 5,
       ms: ["M1: equates and collects: $x^2 - 2x - 5 - c = 0$", "M1: uses $b^2 - 4ac > 0$: $4 + 4(5 + c) > 0$", "A1: $24 + 4c > 0$", "A1: $c > -6$", "B1: answer given as an inequality / set notation $\\{c : c > -6\\}$"] },
-    { src: "Edexcel 2024 P1 Q9", ctx: "A ball is thrown from a point A and lands at a point B on horizontal ground. Its height $H$ m above the ground, $x$ m horizontally from A, is modelled by a quadratic $H = a - b(x - 9)^2$. The ball is released at height 1.8 m and reaches its greatest height of 5.85 m.",
+    { src: "Edexcel 2024 · P1 Q9", ctx: "A ball is thrown from a point A and lands at a point B on horizontal ground. Its height $H$ m above the ground, $x$ m horizontally from A, is modelled by a quadratic $H = a - b(x - 9)^2$. The ball is released at height 1.8 m and reaches its greatest height of 5.85 m.",
       parts: [
         { q: "Find the complete model.", marks: 3, ms: ["B1: $a = 5.85$", "M1: substitutes $(0, 1.8)$: $1.8 = 5.85 - 81b$", "A1: $b = 0.05$, so $H = 5.85 - 0.05(x-9)^2$"] },
         { q: "Find the horizontal distance from A to B.", marks: 2, ms: ["M1: $0 = 5.85 - 0.05(x-9)^2 \\Rightarrow (x-9)^2 = 117$", "A1: $x = 9 + \\sqrt{117} \\approx 19.8$ m (rejecting the negative root)"] },
         { q: "State one limitation of the model.", marks: 1, ms: ["B1: e.g. the ball is modelled as a particle / air resistance is ignored / the ground is assumed horizontal"] }
       ] },
-    { level: "AS", src: "Edexcel AS 2025 P1 Q9", q: "The equation $px^2 + 4x + q = 0$, where $p$ and $q$ are non-zero constants, has equal roots. Show that $pq = 4$.", marks: 3,
+    { level: "AS", src: "Edexcel AS 2025 · P1 Q9", q: "The equation $px^2 + 4x + q = 0$, where $p$ and $q$ are non-zero constants, has equal roots. Show that $pq = 4$.", marks: 3,
       ms: ["M1: uses $b^2 - 4ac = 0$", "A1: $16 - 4pq = 0$", "A1: $pq = 4$ (cso)"] },
-    { src: "Edexcel 2019 P2 Q5", ctx: "$f(x) = 2x^2 - 12x + 23$.",
+    { src: "Edexcel 2019 · P2 Q5", ctx: "$f(x) = 2x^2 - 12x + 23$.",
       parts: [
         { q: "Express $f(x)$ in the form $a(x + b)^2 + c$.", marks: 3, ms: ["M1: takes out 2: $2(x^2 - 6x) + 23$", "A1: $2(x-3)^2 - 18 + 23$", "A1: $2(x-3)^2 + 5$"] },
         { q: "Sketch $y = f(x)$, showing the coordinates of the minimum point and the $y$-intercept.", marks: 2, ms: ["B1: U-shaped parabola with minimum at $(3, 5)$", "B1: $y$-intercept $(0, 23)$, curve entirely above the $x$-axis"] },
@@ -208,17 +208,17 @@ X("maths:2.4", {
     { q: "$3x + 2y = 12$, $x - y = 1$: $x =$", opts: ["2.0", "2.8", "2.6", "3.4"], ans: 1, why: "$x = 1 + y$: $3 + 5y = 12 \\Rightarrow y = 1.8$." }
   ],
   exam: [
-    { level: "AS", src: "Edexcel AS 2024 P1 Q5", ctx: "The curve $C$ has equation $y = \\dfrac{4}{x} + 1$ and the curve $D$ has equation $y = x^2 - 2x + 3$.",
+    { level: "AS", src: "Edexcel AS 2024 · P1 Q5", ctx: "The curve $C$ has equation $y = \\dfrac{4}{x} + 1$ and the curve $D$ has equation $y = x^2 - 2x + 3$.",
       parts: [
         { q: "Show that the $x$-coordinates of the points of intersection of $C$ and $D$ satisfy $x^3 - 2x^2 + 2x - 4 = 0$.", marks: 2, ms: ["M1: equates $\\dfrac4x + 1 = x^2 - 2x + 3$ and multiplies through by $x$", "A1: $x^3 - 2x^2 + 2x - 4 = 0$ (cso)"] },
         { q: "Hence find the coordinates of the point of intersection.", marks: 4, ms: ["M1: factorises by grouping $x^2(x-2) + 2(x-2)$", "A1: $(x-2)(x^2+2) = 0$", "A1: $x = 2$ only, since $x^2 + 2 > 0$", "A1: $(2, 3)$"] }
       ] },
-    { src: "Edexcel 2022 P1 Q11", ctx: "The curves $y = x^3 - 3x^2 + 2$ and $y = 2x^2 - 4x + 2$ intersect at three points.",
+    { src: "Edexcel 2022 · P1 Q11", ctx: "The curves $y = x^3 - 3x^2 + 2$ and $y = 2x^2 - 4x + 2$ intersect at three points.",
       parts: [
         { q: "Show that the $x$-coordinates of the points of intersection satisfy $x^3 - 5x^2 + 4x = 0$.", marks: 1, ms: ["B1: $x^3 - 3x^2 + 2 = 2x^2 - 4x + 2 \\Rightarrow x^3 - 5x^2 + 4x = 0$"] },
         { q: "Find the coordinates of the three points of intersection.", marks: 4, ms: ["M1: $x(x^2 - 5x + 4) = 0$", "A1: $x(x-1)(x-4) = 0$", "A1: $x = 0, 1, 4$", "A1: points $(0, 2)$, $(1, 0)$, $(4, 18)$"] }
       ] },
-    { level: "AS", src: "Edexcel AS 2019 P1 Q7", q: "The curve $C$ has equation $y = \\dfrac{k^2}{x} - 1$, where $k > 0$, and the line $l$ has equation $y = 3 - 4x$. Given that $l$ is a tangent to $C$, find the value of $k$.", marks: 5,
+    { level: "AS", src: "Edexcel AS 2019 · P1 Q7", q: "The curve $C$ has equation $y = \\dfrac{k^2}{x} - 1$, where $k > 0$, and the line $l$ has equation $y = 3 - 4x$. Given that $l$ is a tangent to $C$, find the value of $k$.", marks: 5,
       ms: ["M1: equates: $\\dfrac{k^2}{x} - 1 = 3 - 4x$ and multiplies by $x$", "A1: $4x^2 - 4x + k^2 = 0$", "M1: uses $b^2 - 4ac = 0$ for a tangent: $16 - 16k^2 = 0$", "A1: $k^2 = 1$", "A1: $k = 1$ (rejecting $k = -1$ since $k > 0$)"] }
   ]
 });
@@ -255,19 +255,19 @@ X("maths:2.5", {
     { q: "The region above $y = x^2$ and below $y = 4$ is:", opts: ["$y \\ge x^2, y \\le 4$", "$y \\le x^2, y \\ge 4$", "$y \\ge x^2 + 4$", "$x^2 \\le 4$"], ans: 0, why: "Above means $y \\ge$." }
   ],
   exam: [
-    { level: "AS", src: "Edexcel AS 2023 P1 Q8", ctx: "The curve $y = x^2 - 4x + 5$ and the line $y = 2x$ meet at the points $A$ and $B$. The region $R$ is bounded by the curve and the line.",
+    { level: "AS", src: "Edexcel AS 2023 · P1 Q8", ctx: "The curve $y = x^2 - 4x + 5$ and the line $y = 2x$ meet at the points $A$ and $B$. The region $R$ is bounded by the curve and the line.",
       parts: [
         { q: "Find the coordinates of $A$ and $B$.", marks: 3, ms: ["M1: $x^2 - 6x + 5 = 0$", "A1: $(x-1)(x-5) = 0$, $x = 1, 5$", "A1: $A(1, 2)$, $B(5, 10)$"] },
         { q: "Write down the inequalities that define $R$.", marks: 2, ms: ["B1: $y \\ge x^2 - 4x + 5$", "B1: $y \\le 2x$ (accept with $1 \\le x \\le 5$)"] }
       ] },
-    { level: "AS", src: "Edexcel AS Nov 2021 P1 Q1", q: "Solve $x^2 - x > 20$, giving your answer in set notation.", marks: 3,
+    { level: "AS", src: "Edexcel AS Nov 2021 · P1 Q1", q: "Solve $x^2 - x > 20$, giving your answer in set notation.", marks: 3,
       ms: ["M1: $x^2 - x - 20 = (x - 5)(x + 4)$, critical values $-4, 5$", "A1: $x < -4$ or $x > 5$", "B1: $\\{x : x < -4\\} \\cup \\{x : x > 5\\}$"] },
-    { src: "Edexcel Specimen P2 Q4", parts: [
+    { src: "Edexcel Specimen · P2 Q4", parts: [
       { q: "Sketch $y = |2x - 5|$, showing where the graph meets the axes.", marks: 2, ms: ["B1: V shape with vertex on the $x$-axis at $(2.5, 0)$", "B1: $y$-intercept $(0, 5)$"] },
       { q: "Solve $|2x - 5| < 3$, giving your answer in set notation.", marks: 2, ms: ["M1: $-3 < 2x - 5 < 3$", "A1: $\\{x : 1 < x < 4\\}$"] },
       { q: "Solve $|2x - 5| \\ge x + 1$.", marks: 2, ms: ["M1: solves $2x - 5 = x + 1$ ($x = 6$) and $-(2x - 5) = x + 1$ ($x = \\tfrac43$)", "A1: $x \\le \\tfrac43$ or $x \\ge 6$"] }
     ] },
-    { level: "AS", src: "Edexcel AS 2025 P1 Q7", ctx: "A company sells chairs at £$x$ each. The weekly profit £$P$ is modelled by $P = -20x^2 + 1400x - 15000$.",
+    { level: "AS", src: "Edexcel AS 2025 · P1 Q7", ctx: "A company sells chairs at £$x$ each. The weekly profit £$P$ is modelled by $P = -20x^2 + 1400x - 15000$.",
       parts: [
         { q: "Find the range of prices for which the company makes a profit of at least £6000 per week.", marks: 4, ms: ["M1: $-20x^2 + 1400x - 15000 \\ge 6000 \\Rightarrow x^2 - 70x + 1050 \\le 0$", "M1: solves $x^2 - 70x + 1050 = 0$: $x = 35 \\pm \\sqrt{175}$", "A1: $x = 21.77…$, $48.22…$", "A1: $21.8 \\le x \\le 48.2$ (to 3 s.f.)"] },
         { q: "Explain why a price of £80 is not sensible according to the model.", marks: 1, ms: ["B1: $P(80) = -128000 + 112000 - 15000 < 0$ — the model gives a loss (customers would not buy at that price)"] }
@@ -305,28 +305,28 @@ X("maths:2.6", {
     { q: "Roots of $f(x + 2) = 0$ if $f$ has roots $-1, 3$:", opts: ["$1, 5$", "$-3, 1$", "$-1, 3$", "$-2, 6$"], ans: 1, why: "Shift left by 2." }
   ],
   exam: [
-    { src: "Edexcel 2025 P1 Q4", ctx: "$f(x) = x^3 + 2x^2 - 5x + 12$. Given that $f(-4) = 0$,",
+    { src: "Edexcel 2025 · P1 Q4", ctx: "$f(x) = x^3 + 2x^2 - 5x + 12$. Given that $f(-4) = 0$,",
       parts: [
         { q: "Write $f(x)$ in the form $(x + a)Q(x)$, where $Q(x)$ is a quadratic.", marks: 3, ms: ["B1: $a = 4$", "M1: divides / compares coefficients to find $Q(x)$", "A1: $Q(x) = x^2 - 2x + 3$"] },
         { q: "Hence prove that $-4$ is the only real root of $f(x) = 0$.", marks: 2, ms: ["M1: discriminant of $Q$: $(-2)^2 - 4(1)(3) = -8$", "A1: $< 0$ so $Q(x) = 0$ has no real roots; hence $x = -4$ is the only real root"] }
       ] },
-    { src: "Edexcel 2023 P1 Q2", ctx: "$f(x) = 3x^3 + ax^2 - 16x + 5$, where $a$ is a constant. Given that $(x - a)$ is a factor of $f(x) - 5$,",
+    { src: "Edexcel 2023 · P1 Q2", ctx: "$f(x) = 3x^3 + ax^2 - 16x + 5$, where $a$ is a constant. Given that $(x - a)$ is a factor of $f(x) - 5$,",
       parts: [
         { q: "Show that $a(a^2 - 4) = 0$.", marks: 3, ms: ["M1: $g(x) = f(x) - 5 = 3x^3 + ax^2 - 16x$ and sets $g(a) = 0$", "A1: $3a^3 + a^3 - 16a = 0$", "A1: $4a^3 - 16a = 4a(a^2 - 4) = 0$ (cso)"] },
         { q: "Given that $a$ is a negative integer, find the value of $a$ and hence solve $f(x) = 5$.", marks: 4, ms: ["B1: $a = -2$", "M1: $f(x) - 5 = x(3x^2 - 2x - 16)$", "A1: $= x(3x - 8)(x + 2)$", "A1: $x = 0, \\tfrac83, -2$"] }
       ] },
-    { level: "AS", src: "Edexcel AS 2024 P1 Q2", ctx: "$f(x) = 2x^3 + kx^2 - 17x + 20$, where $k$ is a constant. Given that $(x - 4)$ is a factor of $f(x)$,",
+    { level: "AS", src: "Edexcel AS 2024 · P1 Q2", ctx: "$f(x) = 2x^3 + kx^2 - 17x + 20$, where $k$ is a constant. Given that $(x - 4)$ is a factor of $f(x)$,",
       parts: [
         { q: "Show that $k = -5$.", marks: 2, ms: ["M1: $f(4) = 128 + 16k - 68 + 20 = 0$", "A1: $16k = -80 \\Rightarrow k = -5$"] },
         { q: "Hence write $f(x)$ as a product of three linear factors and state the roots of $f(x) = 0$.", marks: 3, ms: ["M1: $f(x) = (x-4)(2x^2 + 3x - 5)$ by comparing coefficients", "A1: $(x-4)(2x+5)(x-1)$", "A1: $x = 4, 1, -\\tfrac52$"] }
       ] },
-    { level: "AS", src: "Edexcel AS 2022 P1 Q2", ctx: "$f(x) = x^3 + x^2 - 10x + 8$.",
+    { level: "AS", src: "Edexcel AS 2022 · P1 Q2", ctx: "$f(x) = x^3 + x^2 - 10x + 8$.",
       parts: [
         { q: "Use the factor theorem to show that $(x - 2)$ is a factor of $f(x)$.", marks: 2, ms: ["M1: evaluates $f(2) = 8 + 4 - 20 + 8$", "A1: $= 0$ with the conclusion that $(x-2)$ is a factor"] },
         { q: "Factorise $f(x)$ completely.", marks: 3, ms: ["M1: $f(x) = (x-2)(x^2 + 3x - 4)$", "A1: correct quadratic", "A1: $(x-2)(x+4)(x-1)$"] },
         { q: "Hence write down the roots of $f(x - 5) = 0$.", marks: 1, ms: ["B1: $x = 7, 1, 6$"] }
       ] },
-    { level: "AS", src: "Edexcel AS 2025 P1 Q6", q: "$f(x) = 2x^3 + ax^2 + bx - 6$. Given that $(x + 3)$ is a factor of $f(x)$ and that $f'(2) = 46$, find the values of $a$ and $b$.", marks: 5,
+    { level: "AS", src: "Edexcel AS 2025 · P1 Q6", q: "$f(x) = 2x^3 + ax^2 + bx - 6$. Given that $(x + 3)$ is a factor of $f(x)$ and that $f'(2) = 46$, find the values of $a$ and $b$.", marks: 5,
       ms: ["M1: $f(-3) = -54 + 9a - 3b - 6 = 0 \\Rightarrow 3a - b = 20$", "M1: $f'(x) = 6x^2 + 2ax + b$, $f'(2) = 24 + 4a + b = 46 \\Rightarrow 4a + b = 22$", "M1: solves simultaneously ($7a = 42$)", "A1: $a = 6$", "A1: $b = -2$"] }
   ]
 });
@@ -361,16 +361,16 @@ X("maths:2.7", {
     { q: "$y$-intercept of $y = (x-2)^2(x+3)$:", opts: ["$-12$", "$12$", "$6$", "$4$"], ans: 1, why: "$4 \\times 3$." }
   ],
   exam: [
-    { level: "AS", src: "Edexcel AS 2022 P1 Q7", ctx: "The curve $C$ has equation $y = 9x - x^3$.",
+    { level: "AS", src: "Edexcel AS 2022 · P1 Q7", ctx: "The curve $C$ has equation $y = 9x - x^3$.",
       parts: [
         { q: "Factorise $9x - x^3$ completely and sketch $C$, showing the coordinates of the points where it meets the $x$-axis.", marks: 3, ms: ["B1: $x(3 - x)(3 + x)$", "B1: negative cubic shape through the origin", "B1: crosses at $(-3, 0)$, $(0, 0)$, $(3, 0)$"] },
         { q: "The line $y = k$ meets $C$ at three distinct points. Find the range of possible values of $k$.", marks: 4, ms: ["M1: $\\dfrac{dy}{dx} = 9 - 3x^2 = 0 \\Rightarrow x = \\pm\\sqrt3$", "A1: turning-point $y$-values $\\pm 6\\sqrt3$", "M1: $k$ strictly between the turning-point values", "A1: $-6\\sqrt3 < k < 6\\sqrt3$"] }
       ] },
-    { level: "AS", src: "Edexcel AS 2023 P1 Q4", parts: [
+    { level: "AS", src: "Edexcel AS 2023 · P1 Q4", parts: [
       { q: "Sketch the curve $y = \\dfrac{3}{x} + 2$, stating the equations of its asymptotes and the coordinates of any point where it meets the axes.", marks: 3, ms: ["B1: two branches of a reciprocal curve, correct quadrants", "B1: asymptotes $x = 0$ and $y = 2$", "B1: meets the $x$-axis at $(-1.5, 0)$"] },
       { q: "Hence, or otherwise, solve $\\dfrac{3}{x} + 2 > 5$.", marks: 2, ms: ["M1: $\\dfrac3x > 3$ with reference to the sketch / considers $x > 0$", "A1: $0 < x < 1$"] }
     ] },
-    { level: "AS", src: "Edexcel AS Specimen P1 Q14", ctx: "The curve $C$ has equation $y = (x - 2)^2(x + 3)$.",
+    { level: "AS", src: "Edexcel AS Specimen · P1 Q14", ctx: "The curve $C$ has equation $y = (x - 2)^2(x + 3)$.",
       parts: [
         { q: "Sketch $C$, showing the coordinates of the points where it meets the coordinate axes.", marks: 3, ms: ["B1: positive cubic shape", "B1: touches at $(2, 0)$, crosses at $(-3, 0)$", "B1: $y$-intercept $(0, 12)$"] },
         { q: "Find the exact area of the region bounded by $C$ and the $x$-axis between $x = -3$ and $x = 2$.", marks: 6, ms: ["M1: expands $(x-2)^2(x+3) = x^3 - x^2 - 8x + 12$", "M1: integrates: $\\tfrac14 x^4 - \\tfrac13 x^3 - 4x^2 + 12x$", "A1: correct integral", "M1: evaluates between $-3$ and $2$", "A1: $F(2) = \\tfrac{28}{3}$, $F(-3) = -\\tfrac{171}{4}$", "A1: area $= \\tfrac{28}{3} + \\tfrac{171}{4} = \\tfrac{625}{12}$"] }
@@ -414,26 +414,26 @@ X("maths:2.8", {
     { q: "$f(x) = 2x + 3$. $f^{-1}(x) =$", opts: ["$\\dfrac{x - 3}{2}$", "$\\dfrac{x + 3}{2}$", "$2x - 3$", "$\\dfrac{1}{2x + 3}$"], ans: 0, why: "$y = 2x + 3 \\Rightarrow x = \\tfrac{y - 3}{2}$, then swap $x$ and $y$." }
   ],
   exam: [
-    { src: "Edexcel 2023 P1 Q7", ctx: "The functions $f$ and $g$ are defined by $f(x) = 3 + \\sqrt{x - 2}$, $x \\ge 2$, and $g(x) = 2x - 5$, $x \\in \\mathbb R$.",
+    { src: "Edexcel 2023 · P1 Q7", ctx: "The functions $f$ and $g$ are defined by $f(x) = 3 + \\sqrt{x - 2}$, $x \\ge 2$, and $g(x) = 2x - 5$, $x \\in \\mathbb R$.",
       parts: [
         { q: "State the range of $f$.", marks: 1, ms: ["B1: $f(x) \\ge 3$"] },
         { q: "Find $f^{-1}(x)$, stating its domain.", marks: 3, ms: ["M1: $y - 3 = \\sqrt{x - 2}$ and squares", "A1: $f^{-1}(x) = (x - 3)^2 + 2$", "B1: domain $x \\ge 3$"] },
         { q: "Find $gf(6)$.", marks: 2, ms: ["M1: $f(6) = 3 + 2 = 5$", "A1: $g(5) = 5$"] },
         { q: "Find the exact value of $a$ for which $f(a^2 + 2) = g(a)$, given $a > 0$.", marks: 2, ms: ["M1: $3 + a = 2a - 5$", "A1: $a = 8$"] }
       ] },
-    { src: "Edexcel 2022 P1 Q10", ctx: "$f(x) = \\dfrac{4x + 3}{2x - 1}$, $x > \\tfrac12$, and $g(x) = x^2 + 1$, $x \\in \\mathbb R$.",
+    { src: "Edexcel 2022 · P1 Q10", ctx: "$f(x) = \\dfrac{4x + 3}{2x - 1}$, $x > \\tfrac12$, and $g(x) = x^2 + 1$, $x \\in \\mathbb R$.",
       parts: [
         { q: "Find $f^{-1}(x)$.", marks: 3, ms: ["M1: $y(2x - 1) = 4x + 3$", "M1: $x(2y - 4) = y + 3$", "A1: $f^{-1}(x) = \\dfrac{x + 3}{2x - 4}$"] },
         { q: "Express $f(x)$ in the form $A + \\dfrac{B}{2x - 1}$ and hence state the range of $f$.", marks: 3, ms: ["M1: $4x + 3 = 2(2x - 1) + 5$", "A1: $f(x) = 2 + \\dfrac{5}{2x - 1}$", "A1: range $f(x) > 2$"] },
         { q: "Find $gf(x)$ and state the range of $gf$.", marks: 2, ms: ["B1: $gf(x) = \\left(\\dfrac{4x+3}{2x-1}\\right)^2 + 1$", "B1: range $gf(x) > 5$"] }
       ] },
-    { src: "Edexcel 2019 P2 Q6", ctx: "$g(x) = x^2 - 4x + 1$, $x \\in \\mathbb R$, and $h(x) = x^2 - 4x + 1$, $x \\ge 2$.",
+    { src: "Edexcel 2019 · P2 Q6", ctx: "$g(x) = x^2 - 4x + 1$, $x \\in \\mathbb R$, and $h(x) = x^2 - 4x + 1$, $x \\ge 2$.",
       parts: [
         { q: "Find $gg(0)$.", marks: 2, ms: ["M1: $g(0) = 1$", "A1: $g(1) = -2$"] },
         { q: "Explain why $g$ does not have an inverse but $h$ does.", marks: 2, ms: ["B1: $g$ is not one-to-one (many-to-one), e.g. $g(0) = g(4) = 1$ / a horizontal line meets the graph twice", "B1: restricting the domain to $x \\ge 2$ (from the vertex) makes $h$ one-to-one"] },
         { q: "Find $h^{-1}(x)$ and state its domain.", marks: 4, ms: ["M1: completes the square $y = (x-2)^2 - 3$", "M1: $x = 2 + \\sqrt{y + 3}$ (positive root since $x \\ge 2$)", "A1: $h^{-1}(x) = 2 + \\sqrt{x + 3}$", "B1: domain $x \\ge -3$"] }
       ] },
-    { src: "Edexcel 2024 P2 Q8", ctx: "$f(x) = e^{x} - 2$, $x \\in \\mathbb R$, and $g(x) = \\ln(x + 4)$, $x > -4$.",
+    { src: "Edexcel 2024 · P2 Q8", ctx: "$f(x) = e^{x} - 2$, $x \\in \\mathbb R$, and $g(x) = \\ln(x + 4)$, $x > -4$.",
       parts: [
         { q: "Find $fg(x)$, giving your answer in its simplest form.", marks: 2, ms: ["M1: $e^{\\ln(x+4)} - 2$", "A1: $x + 2$"] },
         { q: "Find $f^{-1}(x)$ and state its domain.", marks: 3, ms: ["M1: $x = \\ln(y + 2)$", "A1: $f^{-1}(x) = \\ln(x + 2)$", "B1: $x > -2$"] },
@@ -480,18 +480,18 @@ X("maths:2.9", {
     { q: "$y = 3\\cos x$ compared with $y = \\cos x$ has amplitude:", opts: ["1", "3", "$\\tfrac13$", "0"], ans: 1, why: "Vertical stretch ×3." }
   ],
   exam: [
-    { src: "Edexcel 2024 P2 Q3", ctx: "The point $P(-3, 8)$ lies on the curve $y = f(x)$.",
+    { src: "Edexcel 2024 · P2 Q3", ctx: "The point $P(-3, 8)$ lies on the curve $y = f(x)$.",
       parts: [
         { q: "State the coordinates of the image of $P$ on the curve $y = f(x + 2)$.", marks: 1, ms: ["B1: $(-5, 8)$"] },
         { q: "State the coordinates of the image of $P$ on the curve $y = 3f(x)$.", marks: 1, ms: ["B1: $(-3, 24)$"] },
         { q: "State the coordinates of the image of $P$ on the curve $y = f(2x) - 1$.", marks: 2, ms: ["B1: $x$-coordinate $-1.5$", "B1: $(-1.5, 7)$"] }
       ] },
-    { level: "AS", src: "Edexcel AS 2025 P1 Q1", ctx: "The curve $y = f(x)$ has a maximum point at $(1, 4)$, crosses the $x$-axis at $(-2, 0)$ and $(3, 0)$, and has an asymptote $y = -1$.",
+    { level: "AS", src: "Edexcel AS 2025 · P1 Q1", ctx: "The curve $y = f(x)$ has a maximum point at $(1, 4)$, crosses the $x$-axis at $(-2, 0)$ and $(3, 0)$, and has an asymptote $y = -1$.",
       parts: [
         { q: "Sketch $y = f(x + 2)$, stating the coordinates of the maximum and the intercepts on the $x$-axis and the equation of the asymptote.", marks: 3, ms: ["B1: maximum at $(-1, 4)$", "B1: $x$-intercepts $(-4, 0)$ and $(1, 0)$", "B1: asymptote $y = -1$ (unchanged)"] },
         { q: "Sketch $y = -f(x)$, stating the same features.", marks: 3, ms: ["B1: minimum at $(1, -4)$", "B1: $x$-intercepts unchanged at $(-2, 0)$, $(3, 0)$", "B1: asymptote $y = 1$"] }
       ] },
-    { src: "Edexcel 2019 P2 Q5", q: "The curve $y = x^2 - 6x + 13$ is obtained from $y = x^2$ by a single translation. Describe the translation fully and state the range of $f(x) = x^2 - 6x + 13$.", marks: 3,
+    { src: "Edexcel 2019 · P2 Q5", q: "The curve $y = x^2 - 6x + 13$ is obtained from $y = x^2$ by a single translation. Describe the translation fully and state the range of $f(x) = x^2 - 6x + 13$.", marks: 3,
       ms: ["M1: completes the square $(x - 3)^2 + 4$", "A1: translation by the vector $\\binom{3}{4}$", "B1: range $f(x) \\ge 4$"] }
   ]
 });
@@ -528,14 +528,14 @@ X("maths:2.10", {
     { q: "For $\\dfrac{2x+1}{(x-3)^2} \\equiv \\dfrac{A}{x-3} + \\dfrac{B}{(x-3)^2}$, which substitution finds $B$ directly?", opts: ["$x = 0$", "$x = 3$", "$x = -3$", "$x = 1$"], ans: 1, why: "In $2x + 1 \\equiv A(x-3) + B$, $x = 3$ removes the $A$ term: $B = 7$." },
   ],
   exam: [
-    { src: "Edexcel 2025 P2 Q7", q: "Given that $\\dfrac{3x^3 - 8x^2 - 6x - 11}{(x + 1)(x - 3)} \\equiv Ax + B + \\dfrac{C}{x + 1} + \\dfrac{D}{x - 3}$, find the values of the constants $A$, $B$, $C$ and $D$.", marks: 4,
+    { src: "Edexcel 2025 · P2 Q7", q: "Given that $\\dfrac{3x^3 - 8x^2 - 6x - 11}{(x + 1)(x - 3)} \\equiv Ax + B + \\dfrac{C}{x + 1} + \\dfrac{D}{x - 3}$, find the values of the constants $A$, $B$, $C$ and $D$.", marks: 4,
       ms: ["M1: $3x^3 - 8x^2 - 6x - 11 \\equiv (Ax + B)(x^2 - 2x - 3) + C(x - 3) + D(x + 1)$", "A1: compares $x^3$: $A = 3$; $x^2$: $-2A + B = -8 \\Rightarrow B = -2$", "M1: substitutes $x = -1$: $-16 = -4C \\Rightarrow C = 4$", "A1: $x = 3$: $-20 = 4D \\Rightarrow D = -5$"] },
-    { src: "Edexcel Oct 2021 P1 Q9", ctx: "$f(x) = \\dfrac{50x^2 + 38x + 9}{(5x + 2)^2(1 - 2x)} \\equiv \\dfrac{A}{5x + 2} + \\dfrac{B}{(5x + 2)^2} + \\dfrac{C}{1 - 2x}$ (the binomial follow-on is under 4.1).",
+    { src: "Edexcel Oct 2021 · P1 Q9", ctx: "$f(x) = \\dfrac{50x^2 + 38x + 9}{(5x + 2)^2(1 - 2x)} \\equiv \\dfrac{A}{5x + 2} + \\dfrac{B}{(5x + 2)^2} + \\dfrac{C}{1 - 2x}$ (the binomial follow-on is under 4.1).",
       parts: [
         { q: "(i) Find the value of $B$ and the value of $C$. (ii) Show that $A = 0$.", marks: 4, ms: ["M1: $50x^2 + 38x + 9 \\equiv A(5x + 2)(1 - 2x) + B(1 - 2x) + C(5x + 2)^2$; substitutes $x = \\tfrac12$ or $x = -\\tfrac25$", "A1: $B = 1$ and $C = 2$", "M1: a third equation for $A$ — $x = 0$: $9 = 2A + B + 4C$, or compare $x^2$: $50 = -10A + 25C$", "A1*: $A = 0$ with the argument shown (three answers with no working score M1 A1 M0 A0)"] },
         { q: "State the range of values of $x$ for which the binomial expansion of $f(x)$ is valid.", marks: 1, ms: ["B1: $|x| < \\tfrac25$ — the tighter of $|x| < \\tfrac25$ (from $(2 + 5x)^{-2}$) and $|x| < \\tfrac12$"] }
       ] },
-    { src: "Edexcel 2018 P1 Q11", ctx: "$f(x) = \\dfrac{4x + 6}{(x + 2)(x + 4)}$, $x > 0$.",
+    { src: "Edexcel 2018 · P1 Q11", ctx: "$f(x) = \\dfrac{4x + 6}{(x + 2)(x + 4)}$, $x > 0$.",
       parts: [
         { q: "Express $f(x)$ in partial fractions.", marks: 3, ms: ["M1: $4x + 6 \\equiv A(x+4) + B(x+2)$", "A1: $A = -1$ (from $x = -2$)", "A1: $B = 5$ (from $x = -4$): $f(x) = \\dfrac{-1}{x+2} + \\dfrac{5}{x+4}$"] },
         { q: "Hence find $f'(x)$ and prove that $f$ is a decreasing function for $x > 0$.", marks: 4, ms: ["M1: differentiates each term: $f'(x) = \\dfrac{1}{(x+2)^2} - \\dfrac{5}{(x+4)^2}$", "M1: combines over a common denominator: $\\dfrac{(x+4)^2 - 5(x+2)^2}{(x+2)^2(x+4)^2}$", "A1: numerator $= -4x^2 - 12x - 4 = -4(x^2 + 3x + 1)$", "A1: for $x > 0$, $x^2 + 3x + 1 > 0$ so the numerator is negative while the denominator is positive; hence $f'(x) < 0$ and $f$ is decreasing"] }
@@ -563,13 +563,13 @@ X("maths:2.11", {
     { q: "Stating the domain $0 \\le t \\le 20$ of a model:", opts: ["is unnecessary once the equation is known", "shows where the model is justified", "changes the equation of the model", "makes the model exact on that interval"], ans: 1, why: "Outside $0 \\le t \\le 20$ there is no evidence that the model holds." }
   ],
   exam: [
-    { src: "Edexcel Specimen P1 Q6", ctx: "The cross-section of a tunnel is modelled by the curve $y = 5.4 - 0.15x^2$, where $x$ m is the horizontal distance from the centre line and $y$ m the height, for $-6 \\le x \\le 6$.",
+    { src: "Edexcel Specimen · P1 Q6", ctx: "The cross-section of a tunnel is modelled by the curve $y = 5.4 - 0.15x^2$, where $x$ m is the horizontal distance from the centre line and $y$ m the height, for $-6 \\le x \\le 6$.",
       parts: [
         { q: "Find the width of the tunnel at ground level.", marks: 2, ms: ["M1: $5.4 - 0.15x^2 = 0 \\Rightarrow x^2 = 36$", "A1: width $12$ m"] },
         { q: "A coach is 2.6 m wide and 4.5 m high. Determine, with a reason, whether the coach can pass through the centre of the tunnel.", marks: 3, ms: ["M1: height at the coach's edge $x = 1.3$: $y = 5.4 - 0.15(1.69)$", "A1: $y = 5.15$ m", "A1: $5.15 > 4.5$ so the coach fits (with reasoning about the edges)"] },
         { q: "State one limitation of the model.", marks: 1, ms: ["B1: e.g. a real tunnel is not exactly parabolic / the walls may be vertical near the ground / the model ignores the road surface"] }
       ] },
-    { level: "AS", src: "Edexcel AS 2019 P1 Q9", ctx: "The total mass of tin, $T$ tonnes, mined from a mine after $n$ years is modelled by $T = 1200 - 3(n - 20)^2$, $0 \\le n \\le 20$.",
+    { level: "AS", src: "Edexcel AS 2019 · P1 Q9", ctx: "The total mass of tin, $T$ tonnes, mined from a mine after $n$ years is modelled by $T = 1200 - 3(n - 20)^2$, $0 \\le n \\le 20$.",
       parts: [
         { q: "Find the total mass of tin mined in the first 10 years.", marks: 2, ms: ["M1: $T(10) = 1200 - 300$", "A1: 900 tonnes"] },
         { q: "State, with a reason, the maximum total mass of tin the model predicts.", marks: 2, ms: ["B1: 1200 tonnes", "B1: at $n = 20$ the completed-square term is zero, so the total stops increasing"] },
@@ -612,21 +612,21 @@ X("maths:3.1", {
     { q: "A linear model predicting negative CO₂ emissions in 2060 suggests:", opts: ["emissions will really be negative in 2060", "the model is not valid far outside the data", "the gradient of the line has been miscalculated", "nothing, as linear models are always valid"], ans: 1, why: "2060 is far outside the data, so the line need not hold there." }
   ],
   exam: [
-    { level: "AS", src: "Edexcel AS 2023 P1 Q10", ctx: "The line $l_1$ has equation $2x + 3y = 24$ and crosses the $x$-axis at $A$ and the $y$-axis at $B$. The line $l_2$ is perpendicular to $l_1$ and passes through $B$. $l_2$ crosses the $x$-axis at $C$.",
+    { level: "AS", src: "Edexcel AS 2023 · P1 Q10", ctx: "The line $l_1$ has equation $2x + 3y = 24$ and crosses the $x$-axis at $A$ and the $y$-axis at $B$. The line $l_2$ is perpendicular to $l_1$ and passes through $B$. $l_2$ crosses the $x$-axis at $C$.",
       parts: [
         { q: "Find the coordinates of $A$ and $B$.", marks: 2, ms: ["B1: $A(12, 0)$", "B1: $B(0, 8)$"] },
         { q: "Find an equation for $l_2$, giving your answer in the form $ax + by + c = 0$ where $a$, $b$, $c$ are integers.", marks: 3, ms: ["M1: gradient of $l_1$ is $-\\tfrac23$, so $l_2$ has gradient $\\tfrac32$", "M1: $y - 8 = \\tfrac32 x$", "A1: $3x - 2y + 16 = 0$"] },
         { q: "Find the exact area of triangle $ABC$.", marks: 3, ms: ["M1: $C$ at $y = 0$: $x = -\\tfrac{16}{3}$", "M1: base $AC = 12 + \\tfrac{16}{3} = \\tfrac{52}{3}$, height 8", "A1: area $= \\tfrac12 \\times \\tfrac{52}{3} \\times 8 = \\tfrac{208}{3}$"] }
       ] },
-    { level: "AS", src: "Edexcel AS 2023 P1 Q7", ctx: "A car's fuel tank holds $V$ litres after it has travelled $d$ km. When $d = 40$, $V = 45$; when $d = 160$, $V = 36$. A linear model $V = ad + b$ is proposed.",
+    { level: "AS", src: "Edexcel AS 2023 · P1 Q7", ctx: "A car's fuel tank holds $V$ litres after it has travelled $d$ km. When $d = 40$, $V = 45$; when $d = 160$, $V = 36$. A linear model $V = ad + b$ is proposed.",
       parts: [
         { q: "Find the values of $a$ and $b$.", marks: 3, ms: ["M1: $a = \\dfrac{36 - 45}{160 - 40}$", "A1: $a = -0.075$", "A1: $b = 48$"] },
         { q: "Interpret the value of $a$ in context.", marks: 1, ms: ["B1: the car uses 0.075 litres of fuel per km (fuel decreases by 0.075 litres for each km travelled)"] },
         { q: "Use the model to find the distance the car can travel before the tank is empty, and comment on the reliability of this estimate.", marks: 2, ms: ["M1: $0 = 48 - 0.075d \\Rightarrow d = 640$ km", "B1: unreliable — it is an extrapolation well beyond the data ($d \\le 160$); consumption may not stay constant"] }
       ] },
-    { level: "AS", src: "Edexcel AS 2018 P1 Q4", q: "The line $l_1$ has equation $4x - 3y + 5 = 0$. The line $l_2$ passes through the points $(3, 1)$ and $(9, 9)$. Determine whether $l_1$ and $l_2$ are parallel, perpendicular or neither, showing your working.", marks: 4,
+    { level: "AS", src: "Edexcel AS 2018 · P1 Q4", q: "The line $l_1$ has equation $4x - 3y + 5 = 0$. The line $l_2$ passes through the points $(3, 1)$ and $(9, 9)$. Determine whether $l_1$ and $l_2$ are parallel, perpendicular or neither, showing your working.", marks: 4,
       ms: ["M1: gradient of $l_1$: $y = \\tfrac43 x + \\tfrac53$, so $\\tfrac43$", "M1: gradient of $l_2$: $\\dfrac{9 - 1}{9 - 3} = \\tfrac43$", "A1: gradients equal", "A1: parallel (and not the same line since $(3,1)$ does not satisfy $l_1$: $12 - 3 + 5 \\ne 0$)"] },
-    { level: "AS", src: "Edexcel AS Specimen P1 Q3", ctx: "A tank is leaking. The volume $V$ litres of water in the tank after $t$ minutes is modelled by a linear equation. After 10 minutes there are 450 litres; after 25 minutes there are 375 litres.",
+    { level: "AS", src: "Edexcel AS Specimen · P1 Q3", ctx: "A tank is leaking. The volume $V$ litres of water in the tank after $t$ minutes is modelled by a linear equation. After 10 minutes there are 450 litres; after 25 minutes there are 375 litres.",
       parts: [
         { q: "Find a linear model for $V$ in terms of $t$.", marks: 3, ms: ["M1: gradient $\\dfrac{375 - 450}{25 - 10} = -5$", "M1: $V - 450 = -5(t - 10)$", "A1: $V = 500 - 5t$"] },
         { q: "State the initial volume of water and the time taken for the tank to empty.", marks: 2, ms: ["B1: 500 litres", "B1: 100 minutes"] },
@@ -670,28 +670,28 @@ X("maths:3.2", {
     { q: "Circles of radius 2 and 3 with centres 6 apart:", opts: ["intersect twice", "touch", "do not meet", "coincide"], ans: 2, why: "$6 > 2 + 3$." }
   ],
   exam: [
-    { src: "Edexcel 2025 P1 Q2", ctx: "The circle $C$ has equation $x^2 + y^2 - 10x + 6y + 14 = 0$.",
+    { src: "Edexcel 2025 · P1 Q2", ctx: "The circle $C$ has equation $x^2 + y^2 - 10x + 6y + 14 = 0$.",
       parts: [
         { q: "Find the coordinates of the centre of $C$ and the radius, giving the radius as a simplified surd.", marks: 3, ms: ["M1: $(x-5)^2 + (y+3)^2 = 25 + 9 - 14$", "A1: centre $(5, -3)$", "A1: $r = \\sqrt{20} = 2\\sqrt5$"] },
         { q: "Determine whether the origin lies inside, on or outside $C$.", marks: 2, ms: ["M1: distance$^2$ from centre to origin $= 25 + 9 = 34$ compared with $r^2 = 20$", "A1: $34 > 20$ so the origin is outside $C$"] }
       ] },
-    { level: "AS", src: "Edexcel AS 2025 P1 Q4", ctx: "The circle $C$ has equation $x^2 + y^2 - 4x + 6y - 3 = 0$.",
+    { level: "AS", src: "Edexcel AS 2025 · P1 Q4", ctx: "The circle $C$ has equation $x^2 + y^2 - 4x + 6y - 3 = 0$.",
       parts: [
         { q: "Find the centre and radius of $C$.", marks: 3, ms: ["M1: completes the square", "A1: centre $(2, -3)$", "A1: $r = 4$"] },
         { q: "The line $y = k$ meets $C$ at two distinct points. Find the range of possible values of $k$.", marks: 3, ms: ["M1: horizontal line within $r$ of the centre: $|k + 3| < 4$", "A1: $-7 < k$", "A1: $-7 < k < 1$"] }
       ] },
-    { src: "Edexcel 2018 P2 Q6", ctx: "The circle $C$ has centre $(a, 3)$ and passes through $P(2, 5)$. The line $y = 2x + 1$ is a tangent to $C$ at $P$.",
+    { src: "Edexcel 2018 · P2 Q6", ctx: "The circle $C$ has centre $(a, 3)$ and passes through $P(2, 5)$. The line $y = 2x + 1$ is a tangent to $C$ at $P$.",
       parts: [
         { q: "Show that $a = 6$.", marks: 3, ms: ["M1: radius $CP$ is perpendicular to the tangent, so has gradient $-\\tfrac12$", "M1: $\\dfrac{5 - 3}{2 - a} = -\\tfrac12$", "A1: $2 - a = -4 \\Rightarrow a = 6$"] },
         { q: "Find the equation of $C$.", marks: 2, ms: ["M1: $r^2 = (6-2)^2 + (3-5)^2 = 20$", "A1: $(x-6)^2 + (y-3)^2 = 20$"] },
         { q: "The line $y = 2x + k$, $k \\ne 1$, is also a tangent to $C$. Find $k$.", marks: 3, ms: ["M1: the second tangent parallel to the first touches at the diametrically opposite point $(10, 1)$", "M1: $1 = 20 + k$", "A1: $k = -19$"] }
       ] },
-    { src: "Edexcel 2024 P1 Q14", ctx: "The circle $C_1$ has equation $x^2 + y^2 - 2x - 8y + 8 = 0$. The circle $C_2$ has centre $(7, 12)$ and radius $k$.",
+    { src: "Edexcel 2024 · P1 Q14", ctx: "The circle $C_1$ has equation $x^2 + y^2 - 2x - 8y + 8 = 0$. The circle $C_2$ has centre $(7, 12)$ and radius $k$.",
       parts: [
         { q: "Find the centre and radius of $C_1$.", marks: 2, ms: ["B1: centre $(1, 4)$", "B1: radius 3"] },
         { q: "Given that $C_1$ and $C_2$ intersect at two distinct points, find the range of possible values of $k$.", marks: 4, ms: ["M1: distance between centres $\\sqrt{36 + 64} = 10$", "M1: two intersections when $|k - 3| < 10 < k + 3$", "A1: $k > 7$", "A1: $7 < k < 13$"] }
       ] },
-    { level: "AS", src: "Edexcel AS 2020 P1 Q11", ctx: "The circle $C$ has centre $(6, -5)$ and the point $P(3, -1)$ lies on $C$.",
+    { level: "AS", src: "Edexcel AS 2020 · P1 Q11", ctx: "The circle $C$ has centre $(6, -5)$ and the point $P(3, -1)$ lies on $C$.",
       parts: [
         { q: "Find the equation of the tangent to $C$ at $P$, giving your answer in the form $ax + by + c = 0$.", marks: 4, ms: ["M1: gradient of radius $\\dfrac{-1 + 5}{3 - 6} = -\\tfrac43$", "M1: tangent gradient $\\tfrac34$", "M1: $y + 1 = \\tfrac34(x - 3)$", "A1: $3x - 4y - 13 = 0$"] },
         { q: "A second circle has centre $(6, -5)$ and radius $k$ and lies entirely in the fourth quadrant. Find the range of possible values of $k$.", marks: 2, ms: ["M1: must not reach the $y$-axis (distance 6) or the $x$-axis (distance 5)", "A1: $0 < k < 5$"] }
@@ -733,21 +733,21 @@ X("maths:3.3", {
     { q: "At $t = 0$ the curve $x = t^2 - 1$, $y = t^3 - t$ is at:", opts: ["$(0, 0)$", "$(-1, 0)$", "$(1, 0)$", "$(-1, -1)$"], ans: 1, why: "$t = 0$: $x = 0 - 1 = -1$ and $y = 0 - 0 = 0$." }
   ],
   exam: [
-    { src: "Edexcel 2018 P2 Q14", ctx: "The curve $C$ has parametric equations $x = 3 + 2\\sin t$, $y = 4 + 2\\cos 2t$, $0 \\le t < 2\\pi$.",
+    { src: "Edexcel 2018 · P2 Q14", ctx: "The curve $C$ has parametric equations $x = 3 + 2\\sin t$, $y = 4 + 2\\cos 2t$, $0 \\le t < 2\\pi$.",
       parts: [
         { q: "Show that all points on $C$ satisfy $y = 6 - (x - 3)^2$.", marks: 3, ms: ["M1: $\\cos 2t = 1 - 2\\sin^2 t$", "M1: $\\sin t = \\dfrac{x-3}{2}$ substituted", "A1: $y = 4 + 2 - (x-3)^2 = 6 - (x-3)^2$ (cso)"] },
         { q: "State the domain of $x$ for which the Cartesian equation applies.", marks: 1, ms: ["B1: $1 \\le x \\le 5$"] },
         { q: "The line $y = k$ meets $C$ at exactly two points. Find the range of $k$.", marks: 2, ms: ["M1: vertex $(3, 6)$; at the ends $x = 1, 5$ the curve has $y = 2$", "A1: $2 \\le k < 6$"] }
       ] },
-    { src: "Edexcel 2025 P1 Q5", ctx: "The curve $C$ has parametric equations $x = \\dfrac{4}{t + 1}$, $y = 5(t + 2)^4$, $t > -1$. The point $P$ on $C$ has $x$-coordinate 1.",
+    { src: "Edexcel 2025 · P1 Q5", ctx: "The curve $C$ has parametric equations $x = \\dfrac{4}{t + 1}$, $y = 5(t + 2)^4$, $t > -1$. The point $P$ on $C$ has $x$-coordinate 1.",
       parts: [
         { q: "Find the $y$-coordinate of $P$.", marks: 2, ms: ["M1: $\\dfrac{4}{t+1} = 1 \\Rightarrow t = 3$", "A1: $y = 5 \\times 625 = 3125$"] },
         { q: "Find a Cartesian equation of $C$ in the form $y = f(x)$.", marks: 3, ms: ["M1: $t + 1 = \\dfrac4x \\Rightarrow t + 2 = \\dfrac4x + 1 = \\dfrac{4 + x}{x}$", "A1: $y = 5\\left(\\dfrac{4 + x}{x}\\right)^4$", "B1: domain $x > 0$"] },
         { q: "Find the gradient of $C$ at $P$.", marks: 3, ms: ["M1: $\\dfrac{dx}{dt} = -\\dfrac{4}{(t+1)^2}$, $\\dfrac{dy}{dt} = 20(t+2)^3$", "M1: $\\dfrac{dy}{dx} = \\dfrac{20(t+2)^3}{-4/(t+1)^2}$ at $t = 3$", "A1: $\\dfrac{20 \\times 125}{-4/16} = -10000$"] }
       ] },
-    { src: "Edexcel Oct 2021 P1 Q13", q: "The curve $C$ has parametric equations $x = \\dfrac{4(1 - t^2)}{1 + t^2}$, $y = \\dfrac{8t}{1 + t^2}$. Show that all points on $C$ satisfy $x^2 + y^2 = 16$.", marks: 3,
+    { src: "Edexcel Oct 2021 · P1 Q13", q: "The curve $C$ has parametric equations $x = \\dfrac{4(1 - t^2)}{1 + t^2}$, $y = \\dfrac{8t}{1 + t^2}$. Show that all points on $C$ satisfy $x^2 + y^2 = 16$.", marks: 3,
       ms: ["M1: $x^2 + y^2 = \\dfrac{16(1 - t^2)^2 + 64t^2}{(1+t^2)^2}$", "M1: numerator $16(1 - 2t^2 + t^4) + 64t^2 = 16(t^4 + 2t^2 + 1) = 16(1+t^2)^2$", "A1: $x^2 + y^2 = 16$ (cso)"] },
-    { src: "Edexcel 2023 P1 Q9", ctx: "The curve $C$ has parametric equations $x = t^2 + 6t + 5$, $y = 6\\ln(t + 3)$, $t > -3$.",
+    { src: "Edexcel 2023 · P1 Q9", ctx: "The curve $C$ has parametric equations $x = t^2 + 6t + 5$, $y = 6\\ln(t + 3)$, $t > -3$.",
       parts: [
         { q: "Show that a Cartesian equation of $C$ can be written as $y = A\\ln(x + B)$, where $A$ and $B$ are constants to be found, and state the domain of $x$.", marks: 4, ms: ["M1: $x = (t + 3)^2 - 4$", "M1: $t + 3 = \\sqrt{x + 4}$ (positive root since $t + 3 > 0$)", "A1: $y = 6\\ln\\sqrt{x + 4} = 3\\ln(x + 4)$, so $A = 3$, $B = 4$", "B1: $x > -4$"] },
         { q: "Find the equation of the tangent to $C$ at the point where $t = 1$, giving your answer in the form $y = mx + c$ with exact constants.", marks: 4, ms: ["M1: $\\dfrac{dx}{dt} = 2t + 6$, $\\dfrac{dy}{dt} = \\dfrac{6}{t+3}$", "A1: at $t = 1$: $\\dfrac{dy}{dx} = \\dfrac{6/4}{8} = \\tfrac{3}{16}$", "M1: point $(12, 6\\ln 4)$", "A1: $y = \\tfrac{3}{16}x - \\tfrac94 + 6\\ln 4$ (accept $12\\ln 2$)"] }
@@ -774,13 +774,13 @@ X("maths:3.4", {
     { q: "Domain restriction for the dam model $x = 6\\sin t$, $0 \\le t \\le \\tfrac\\pi2$:", opts: ["$-6 \\le x \\le 6$", "$0 \\le x \\le 6$", "$x \\ge 0$", "all $x$"], ans: 1, why: "$\\sin t$ from 0 to 1." }
   ],
   exam: [
-    { src: "Edexcel Oct 2020 P2 Q12", ctx: "The curved edge of a dam is modelled by the curve $C$ with parametric equations $x = 6\\sin t$, $y = 5\\sin 2t$, $0 \\le t \\le \\tfrac\\pi2$, where $x$ and $y$ are in metres. The region $R$ is bounded by $C$ and the $x$-axis.",
+    { src: "Edexcel Oct 2020 · P2 Q12", ctx: "The curved edge of a dam is modelled by the curve $C$ with parametric equations $x = 6\\sin t$, $y = 5\\sin 2t$, $0 \\le t \\le \\tfrac\\pi2$, where $x$ and $y$ are in metres. The region $R$ is bounded by $C$ and the $x$-axis.",
       parts: [
         { q: "Show that the area of $R$ is given by $\\displaystyle\\int_0^{\\pi/2} 60\\sin t\\cos^2 t\\,dt$.", marks: 3, ms: ["M1: $\\dfrac{dx}{dt} = 6\\cos t$ and area $= \\int y\\,\\dfrac{dx}{dt}dt$", "M1: $\\sin 2t = 2\\sin t\\cos t$", "A1: $\\int_0^{\\pi/2} 5 \\cdot 2\\sin t\\cos t \\cdot 6\\cos t\\,dt = \\int_0^{\\pi/2} 60\\sin t\\cos^2 t\\,dt$ (cso)"] },
         { q: "Hence find the exact area of $R$.", marks: 3, ms: ["M1: integrates to $-20\\cos^3 t$", "M1: evaluates between 0 and $\\tfrac\\pi2$", "A1: $20$ m²"] },
         { q: "Find the maximum height of the dam wall according to the model.", marks: 2, ms: ["M1: $y = 5\\sin 2t$ is greatest when $\\sin 2t = 1$", "A1: 5 m (at $x = 6\\sin\\tfrac\\pi4 = 3\\sqrt2$)"] }
       ] },
-    { src: "Edexcel 2024 P2 Q10", ctx: "The path of a ball is modelled by $x = 12t$, $y = 16t - 5t^2$, $t \\ge 0$, where $x$ and $y$ are horizontal and vertical distances in metres from the point of projection and $t$ is time in seconds.",
+    { src: "Edexcel 2024 · P2 Q10", ctx: "The path of a ball is modelled by $x = 12t$, $y = 16t - 5t^2$, $t \\ge 0$, where $x$ and $y$ are horizontal and vertical distances in metres from the point of projection and $t$ is time in seconds.",
       parts: [
         { q: "Find the greatest height reached by the ball.", marks: 3, ms: ["M1: $\\dfrac{dy}{dt} = 16 - 10t = 0$", "A1: $t = 1.6$", "A1: $y = 25.6 - 12.8 = 12.8$ m"] },
         { q: "Find the equation of the tangent to the path at the point where $t = 1$, using parametric differentiation.", marks: 3, ms: ["M1: $\\dfrac{dy}{dx} = \\dfrac{16 - 10t}{12}$", "A1: at $t = 1$: gradient $\\tfrac12$, point $(12, 11)$", "A1: $y - 11 = \\tfrac12(x - 12)$, i.e. $y = \\tfrac12 x + 5$"] },

@@ -34,12 +34,12 @@ X("compsci:4.4.4.1", {
     { qk: "101", q: "A list of 1 000 000 items will be searched only once. The quicker plan is", opts: ["one linear search", "merge sort, then binary search", "bubble sort, then binary search", "merge sort, then linear search"], ans: 0, why: "A single linear search is at most 10⁶ comparisons; sorting alone costs about 2 × 10⁷." }
   ],
   exam: [
-    { src: "AQA 2017 P1 Q3", ctx: "Four algorithms are listed: bubble sort, merge sort, linear search, binary search.",
+    { src: "AQA 2017 · P1 Q03", ctx: "Four algorithms are listed: bubble sort, merge sort, linear search, binary search.",
       parts: [
         { q: "State which of the algorithms has a time complexity of O(n log n).", marks: 1, ms: ["Merge sort (1)"] },
         { q: "State how many of the four algorithms solve tractable problems, and justify your answer.", marks: 2, ms: ["All four (1)", "Each has polynomial (or better) time complexity — none is exponential (1)"] }
       ] },
-    { src: "AQA 2024 P1 Q2", q: "A developer must choose between merge sort and bubble sort for sorting a list of 5 000 000 records held in memory. Compare the two algorithms and recommend one.", marks: 4,
+    { src: "AQA 2024 · P1 Q02", q: "A developer must choose between merge sort and bubble sort for sorting a list of 5 000 000 records held in memory. Compare the two algorithms and recommend one.", marks: 4,
       ms: ["Merge sort is O(n log n) whereas bubble sort is O(n²) (1)", "For n = 5 000 000 bubble sort needs of the order of 2.5 × 10¹³ operations, merge sort about 10⁸ — vastly fewer (1)", "Merge sort needs additional memory proportional to n; bubble sort sorts in place (1)", "Recommend merge sort: the time saving dominates and memory for a second copy is available (1)"] }
   ]
 });
@@ -70,13 +70,13 @@ X("compsci:4.4.4.2", {
     { q: "An algorithm with 2ⁿ steps for n = 30 needs roughly:", opts: ["60 steps", "900 steps", "10⁹ steps", "30! steps"], ans: 2, why: "2³⁰ ≈ 1.07 × 10⁹." }
   ],
   exam: [
-    { src: "AQA 2020 P1 Q3", ctx: "A brute-force program tries every possible assignment of athletes to lanes.",
+    { src: "AQA 2020 · P1 Q03", ctx: "A brute-force program tries every possible assignment of athletes to lanes.",
       parts: [
         { q: "State the number of different ways 4 athletes can be assigned to 4 lanes.", marks: 1, ms: ["4 × 3 × 2 × 1 = 24 (1)"] },
         { q: "State, in terms of n, the number of ways n athletes can be assigned to n lanes.", marks: 1, ms: ["n! (factorial of n) (1)"] },
         { q: "A similar program lists every anagram of a word of n characters. Explain why the number of distinct anagrams may be less than n!.", marks: 1, ms: ["The word may contain repeated characters, so some of the permutations are duplicates (1)"] }
       ] },
-    { src: "AQA 2023 P1 Q3.7", q: "Explain what is meant by an algorithm having constant time complexity.", marks: 2,
+    { src: "AQA 2023 · P1 Q03.7", q: "Explain what is meant by an algorithm having constant time complexity.", marks: 2,
       ms: ["As the size of the input increases (1)", "the time taken remains the same (1)"] }
   ]
 });
@@ -112,11 +112,11 @@ X("compsci:4.4.4.3", {
     { q: "Big-O describes:", opts: ["exact running time in seconds", "growth rate in the worst case", "memory use only, never time", "the best case for any input"], ans: 1, why: "Asymptotic upper bound." }
   ],
   exam: [
-    { src: "AQA 2020 P1 Q3.6", q: "State the time complexity of a linear search and explain why it has this complexity.", marks: 2,
+    { src: "AQA 2020 · P1 Q03.6", q: "State the time complexity of a linear search and explain why it has this complexity.", marks: 2,
       ms: ["O(n) (1)", "There is a loop that repeats n times / as the size of the list increases the time taken increases at the same rate (1)"] },
-    { src: "AQA 2023 P1 Q3", q: "An algorithm contains a loop that runs n times, and inside it a second loop that runs n times. A third, separate loop runs log n times. State the time complexity of the whole algorithm and explain your answer.", marks: 3,
+    { src: "AQA 2023 · P1 Q03", q: "An algorithm contains a loop that runs n times, and inside it a second loop that runs n times. A third, separate loop runs log n times. State the time complexity of the whole algorithm and explain your answer.", marks: 3,
       ms: ["O(n²) (1)", "The nested loops give n × n operations (1)", "The log n loop is of lower order and is ignored because n² dominates for large n (1)"] },
-    { src: "AQA 2025 P2 Q11.3", q: "A function computes the nth Fibonacci number by calling itself twice. Explain why its time complexity is exponential.", marks: 2,
+    { src: "AQA 2025 · P2 Q11.3", q: "A function computes the nth Fibonacci number by calling itself twice. Explain why its time complexity is exponential.", marks: 2,
       ms: ["Each application of the function generates two further applications, so the number of calls roughly doubles at each level (1)", "The same values are recalculated many times; the number of calls grows as O(2ⁿ) (1)"] }
   ]
 });
@@ -153,19 +153,19 @@ X("compsci:4.4.5.1", {
     { q: "A TM is more powerful than an FSM because it:", opts: ["has more states than any FSM can have", "can read and write an unbounded tape", "is faster at processing every input", "has outputs as well as accepting states"], ans: 1, why: "Unbounded read/write memory." }
   ],
   exam: [
-    { src: "AQA 2018 P1 Q4", ctx: "A Turing machine is a theoretical model of computation.",
+    { src: "AQA 2018 · P1 Q04", ctx: "A Turing machine is a theoretical model of computation.",
       parts: [
         { q: "State two components of a Turing machine.", marks: 2, ms: ["A finite set of states (with a start state and halting states) (1)", "A set of transition rules / a read-write head moving one square at a time / an infinite tape / a state register (1)", "Max 2"] },
         { q: "Explain what is meant by a Universal Turing Machine.", marks: 2, ms: ["A Turing machine that can simulate the behaviour of any other Turing machine / compute any computable sequence (1)", "The description of the other machine and its input are stored on the UTM's tape; the UTM acts as an interpreter, faithfully executing the operations (1)"] },
         { q: "Explain why a Universal Turing Machine is more powerful than any real computer.", marks: 1, ms: ["It has an infinite amount of memory / tape (1)"] }
       ] },
-    { src: "AQA 2019 P1 Q2", ctx: "A Turing machine operates on a tape holding a string of 1s followed by blanks, e.g. `1 1 □ □ □ □`. Its transition rules, starting in S0 with the head on the leftmost 1, are: S0,1 → (S1, X, R); S1,1 → (S1, 1, R); S1,□ → (S2, □, R); S2,1 → (S2, 1, R); S2,□ → (S3, 1, L); S3,1 → (S3, 1, L); S3,□ → (S4, □, L); S4,1 → (S4, 1, L); S4,X → (S0, X, R); S0,□ → (S5, □, R) — S5 halts. (X marks a processed 1.)",
+    { src: "AQA 2019 · P1 Q02", ctx: "A Turing machine operates on a tape holding a string of 1s followed by blanks, e.g. `1 1 □ □ □ □`. Its transition rules, starting in S0 with the head on the leftmost 1, are: S0,1 → (S1, X, R); S1,1 → (S1, 1, R); S1,□ → (S2, □, R); S2,1 → (S2, 1, R); S2,□ → (S3, 1, L); S3,1 → (S3, 1, L); S3,□ → (S4, □, L); S4,1 → (S4, 1, L); S4,X → (S0, X, R); S0,□ → (S5, □, R) — S5 halts. (X marks a processed 1.)",
       parts: [
         { q: "Trace the machine on the input `1 1 □ □ □ □`, showing the tape, the current state and the head position after each transition, until it halts.", marks: 5, ms: ["First transition: tape X 1 □ □ □ □, state S1, head on the second cell (1)", "Moves right over the 1 and the first blank into S2, then to the next blank and writes 1 in S3: X 1 □ 1 □ □ (1)", "Returns left through S3 and S4 to the X, then S0 moves right onto the second 1 (1)", "Processes the second 1 similarly, giving X X □ 1 1 □ (1)", "S0 reads □ → S5 and halts with the head after the two Xs; all state and head entries correct (1)", "Max 4 if any errors"] },
         { q: "State the purpose of the Turing machine.", marks: 1, ms: ["It makes a copy of the string of 1s / doubles the number of 1s on the tape (after the blank) (1)"] },
         { q: "State the purpose of the transition rule `S4,X → (S0, X, R)`.", marks: 1, ms: ["Moves the head back to the first unprocessed 1 at the start of the original string so the next 1 can be copied (1)"] }
       ] },
-    { src: "AQA 2023 P1 Q5.2", q: "A Turing machine is designed to count the zeros between two `#` symbols on its tape, assuming the tape has the form `# 0 0 … 0 #` and the machine starts in S0 on the first `#`. Describe two circumstances in which the machine could give an incorrect result.", marks: 2,
+    { src: "AQA 2023 · P1 Q05.2", q: "A Turing machine is designed to count the zeros between two `#` symbols on its tape, assuming the tape has the form `# 0 0 … 0 #` and the machine starts in S0 on the first `#`. Describe two circumstances in which the machine could give an incorrect result.", marks: 2,
       ms: ["When there are no zeros between the two # symbols (1)", "When a character other than 0 (e.g. a 1) appears between the # symbols / when the machine does not start in S0 or on the first # (1)", "Max 2"] }
   ]
 });

@@ -31,14 +31,14 @@ X("compsci:4.4.1.1", {
     { q: "Best first move in a puzzle with several clues:", opts: ["guess a value and see if it works", "find the clue that forces a unique case", "ignore the hardest clue until the end", "list every possible configuration first"], ans: 1, why: "Forced moves shrink the search space fastest." }
   ],
   exam: [
-    { src: "AQA 2018 P1 Q1.1", q: "Three sealed boxes contain, respectively, only red pens, only blue pens, and a mix of both. Every box is labelled, but every label is wrong. You may take one pen from one box without looking inside. Explain which box you should take a pen from and how you can then correctly label all three boxes.", marks: 2,
+    { src: "AQA 2018 · P1 Q01.1", q: "Three sealed boxes contain, respectively, only red pens, only blue pens, and a mix of both. Every box is labelled, but every label is wrong. You may take one pen from one box without looking inside. Explain which box you should take a pen from and how you can then correctly label all three boxes.", marks: 2,
       ms: ["Take a pen from the box labelled \"mixed\" — because that label is wrong it contains only one colour, which the pen reveals (1)", "If it is red, the box labelled \"blue\" (which cannot be blue) must be mixed and the box labelled \"red\" must be blue; and symmetrically if the pen is blue (1)"] },
-    { src: "AQA 2022 P1 Q3", ctx: "Exactly one of the following statements is true. S1: \"S3 is true.\" S2: \"S1 and S4 are true.\" S3: \"S2 is false.\" S4: \"S3 is false.\"",
+    { src: "AQA 2022 · P1 Q03", ctx: "Exactly one of the following statements is true. S1: \"S3 is true.\" S2: \"S1 and S4 are true.\" S3: \"S2 is false.\" S4: \"S3 is false.\"",
       parts: [
         { q: "Explain why S1 cannot be the true statement.", marks: 1, ms: ["If S1 were true then S3 would also be true, giving more than one true statement — contradiction (1)"] },
         { q: "Identify the true statement, justifying your answer.", marks: 2, ms: ["S3 (1)", "S3 true means S2 false (consistent); S1 false requires S3 true (consistent); S4 says S3 is false, so S4 is false — exactly one true statement (1)"] }
       ] },
-    { src: "AQA 2023 P1 Q2", ctx: "A game uses six tokens: red circle, red square, red star, green circle, green square, blue star. One is chosen secretly. You ask \"Is it red?\" — No. \"Is it a square?\" — No.",
+    { src: "AQA 2023 · P1 Q02", ctx: "A game uses six tokens: red circle, red square, red star, green circle, green square, blue star. One is chosen secretly. You ask \"Is it red?\" — No. \"Is it a square?\" — No.",
       parts: [
         { q: "State what can be deduced after the first answer.", marks: 1, ms: ["The token is one of green circle, green square or blue star (1)"] },
         { q: "State what can be deduced after the second answer.", marks: 1, ms: ["The token is the green circle or the blue star (1)"] },
@@ -74,22 +74,22 @@ X("compsci:4.4.1.2", {
     { q: "An algorithm that compares all n characters of a palindrome candidate when n/2 would do is:", opts: ["incorrect", "inefficient", "recursive", "invalid"], ans: 1, why: "Correct but does unnecessary work." }
   ],
   exam: [
-    { level: "AS", src: "AS 2017 P1 Q2.1", ctx: "The algorithm converts a hexadecimal string `H` to a denary integer. `V(c)` returns the value of a single hex digit.",
+    { level: "AS", src: "AQA 2017 · P1 Q02.1", ctx: "The algorithm converts a hexadecimal string `H` to a denary integer. `V(c)` returns the value of a single hex digit.",
       code: { lang: "pseudo", src: "Total ← 0\nFOR i ← 0 TO LEN(H) − 1\n   Digit ← V(H[i])\n   Total ← Total × 16 + Digit\nENDFOR\nOUTPUT Total" },
       parts: [
         { q: "Complete a trace table for `H = \"2F\"` with columns `i`, `H[i]`, `Digit` and `Total`.", marks: 3, ms: ["i: 0, 1; H[i]: 2, F (1)", "Digit: 2, 15 (1)", "Total: 0, 2, 47; output 47 (1)"] },
         { q: "State the purpose of the algorithm.", marks: 1, ms: ["Converts a hexadecimal number (string) to its denary value (1)"] },
         { q: "The algorithm sets `Digit` to −1 for an invalid character but continues. Explain why this does not handle invalid input effectively.", marks: 2, ms: ["The −1 is still multiplied into the total, so a wrong (not obviously invalid) value is output (1)", "The loop should stop / report an error / the input should be rejected before conversion (1)"] }
       ] },
-    { level: "AS", src: "AS 2018 P1 Q2.1", ctx: "The algorithm tests whether `N` is prime.",
+    { level: "AS", src: "AQA 2018 · P1 Q02.1", ctx: "The algorithm tests whether `N` is prime.",
       code: { lang: "pseudo", src: "Prime ← TRUE\nD ← 2\nWHILE D < N AND Prime = TRUE\n   IF N MOD D = 0 THEN Prime ← FALSE ENDIF\n   D ← D + 1\nENDWHILE\nOUTPUT Prime" },
       parts: [
         { q: "Complete a trace table for `N = 9` with columns `D`, `N MOD D`, `Prime` and `D < N AND Prime`.", marks: 3, ms: ["D: 2, 3, 4; N MOD D: 1, 0 (1)", "Prime: TRUE then FALSE after D = 3 (1)", "Condition: TRUE, TRUE, FALSE; output FALSE (1)"] },
         { q: "State the largest value of `D` the loop needs to test to decide whether `N` is prime, and explain why.", marks: 2, ms: ["√N (or D × D ≤ N) (1)", "Any factor larger than √N pairs with one smaller than √N, which would already have been found (1)"] }
       ] },
-    { level: "AS", src: "AS 2023 P1 Q4", q: "Define the term *algorithm*.", marks: 2,
+    { level: "AS", src: "AQA 2023 · P1 Q04", q: "Define the term *algorithm*.", marks: 2,
       ms: ["A sequence of steps / instructions (1)", "that can be followed to solve a problem or complete a task (accept: and that terminates) (1)"] },
-    { level: "AS", src: "AS 2020 P1 Q2", ctx: "The algorithm is meant to add up numbers entered by the user until −1 is entered, then output the total.",
+    { level: "AS", src: "AQA 2020 · P1 Q02", ctx: "The algorithm is meant to add up numbers entered by the user until −1 is entered, then output the total.",
       code: { lang: "pseudo", src: "Total ← 0\nINPUT Num\nWHILE Num ≠ −1\n   INPUT Num\n   Total ← Total + Num\nENDWHILE\nOUTPUT Total" },
       parts: [
         { q: "Trace the algorithm for the inputs 5, 8, −1, showing `Num` and `Total`.", marks: 3, ms: ["Num: 5, 8, −1 (1)", "Total: 0, 8, 7 (1)", "Output 7 (1)"] },
@@ -128,22 +128,22 @@ X("compsci:4.4.2.1", {
     { q: "Reaching a 'sink' state with no exits from which no accepting state is reachable means:", opts: ["the input so far is invalid", "the input is complete and valid", "the machine restarts from S0", "an output is produced and it halts"], ans: 0, why: "Typical 'error' state." }
   ],
   exam: [
-    { level: "AS", src: "AS 2022 P1 Q2", ctx: "A vending machine accepts 20p coins and sells one item costing 40p. It has states **Idle**, **20p inserted**, **40p inserted (item available)** and **Dispensing**. Events are: insert 20p, press Vend, press Cancel (refunds and returns to Idle), item taken (returns to Idle).",
+    { level: "AS", src: "AQA 2022 · P1 Q02", ctx: "A vending machine accepts 20p coins and sells one item costing 40p. It has states **Idle**, **20p inserted**, **40p inserted (item available)** and **Dispensing**. Events are: insert 20p, press Vend, press Cancel (refunds and returns to Idle), item taken (returns to Idle).",
       parts: [
         { q: "Draw a state transition diagram for the machine, labelling each transition with its event. Pressing Vend when less than 40p has been inserted has no effect.", marks: 5, ms: ["Four states with Idle as the start state (1)", "Idle –insert 20p→ 20p inserted; 20p inserted –insert 20p→ 40p inserted (1)", "40p inserted –press Vend→ Dispensing; Dispensing –item taken→ Idle (1)", "press Cancel from 20p inserted and from 40p inserted → Idle (1)", "press Vend in Idle and 20p inserted loops back to the same state / no other transitions (1)", "Max 4 if any errors"] },
         { q: "Explain why a finite state machine is a suitable model for this system.", marks: 1, ms: ["The machine has a small, fixed number of conditions it can be in and moves between them only in response to defined events (1)"] }
       ] },
-    { level: "AS", src: "AS 2016 P1 Q2", ctx: "An FSM has states S0 (start), S1 and S2 (accepting). Transitions: S0 on `a` → S0; S0 on `b` → S1; S1 on `b` → S1; S1 on `c` → S2; S2 on `c` → S2. Any undefined input causes rejection.",
+    { level: "AS", src: "AQA 2016 · P1 Q02", ctx: "An FSM has states S0 (start), S1 and S2 (accepting). Transitions: S0 on `a` → S0; S0 on `b` → S1; S1 on `b` → S1; S1 on `c` → S2; S2 on `c` → S2. Any undefined input causes rejection.",
       parts: [
         { q: "State whether each string is accepted: (i) `aabbc` (ii) `abcb` (iii) `bcc` (iv) `aa`.", marks: 2, ms: ["(i) accepted, (ii) rejected (1)", "(iii) accepted, (iv) rejected — ends in S0, not accepting (1)"] },
         { q: "Describe the language accepted by the FSM.", marks: 3, ms: ["Strings that start with zero or more `a`s (1)", "followed by one or more `b`s (1)", "followed by one or more `c`s (1)"] }
       ] },
-    { src: "AQA 2021 P1 Q6.1", ctx: "An FSM has states S0 (start) and S1, both accepting. From S0, input `a` goes to S1; from S1, input `b` goes to S0. No other transitions exist.",
+    { src: "AQA 2021 · P1 Q06.1", ctx: "An FSM has states S0 (start) and S1, both accepting. From S0, input `a` goes to S1; from S1, input `b` goes to S0. No other transitions exist.",
       parts: [
         { q: "Complete the state transition table for the machine.", marks: 2, ms: ["Row: current S0, input a, new S1 (1)", "Row: current S1, input b, new S0 (accept rows showing undefined inputs as reject) (1)"] },
         { q: "State two strings of length 3 or more that the machine accepts.", marks: 1, ms: ["e.g. `aba`, `abab`, `ababa` (any two) (1)"] }
       ] },
-    { src: "AQA 2017 P1 Q2", ctx: "An FSM checks ticket codes for a festival. Valid day tickets are a letter D followed by exactly three digits; valid weekend tickets are a letter W followed by exactly four digits. State S6 is an accepting state reached only by valid day tickets; S9 is reached only by valid weekend tickets; S10 is a non-accepting state with no exits, entered on any unexpected character.",
+    { src: "AQA 2017 · P1 Q02", ctx: "An FSM checks ticket codes for a festival. Valid day tickets are a letter D followed by exactly three digits; valid weekend tickets are a letter W followed by exactly four digits. State S6 is an accepting state reached only by valid day tickets; S9 is reached only by valid weekend tickets; S10 is a non-accepting state with no exits, entered on any unexpected character.",
       parts: [
         { q: "State what it means if the FSM finishes at S6.", marks: 1, ms: ["The input is a valid day ticket code (1)"] },
         { q: "State what it means if the FSM reaches S10.", marks: 1, ms: ["The input is not a valid ticket code / contains an unexpected character or extra characters (1)"] },
@@ -176,14 +176,14 @@ X("compsci:4.4.2.2", {
     { q: "{x | x ∈ ℤ ∧ −1 ≤ x ≤ 1} =", opts: ["{0, 1, 2}", "{−1, 0, 1}", "{−1, 1}", "{−1, 0, 0.5, 1}"], ans: 1, why: "Integers from −1 to 1." }
   ],
   exam: [
-    { src: "AQA 2024 P1 Q4", ctx: "Let R = {a, ab, b, bb} and T = {b, bb, bbb, …} (one or more b's).",
+    { src: "AQA 2024 · P1 Q04", ctx: "Let R = {a, ab, b, bb} and T = {b, bb, bbb, …} (one or more b's).",
       parts: [
         { q: "State what is meant by the cardinality of a set, and give the cardinality of R.", marks: 2, ms: ["The number of elements / members in a set (1)", "4 (1)"] },
         { q: "A student says the subsets of {a, b} are {a}, {b} and {a, b}. Explain what is missing.", marks: 1, ms: ["The empty set {} / Ø is also a subset (1)"] },
         { q: "State the cardinality of R ∩ T.", marks: 1, ms: ["2 (b and bb) (1)"] },
         { q: "Write a regular expression that describes the set R ∪ T.", marks: 2, ms: ["Expression covers a and ab, e.g. `ab?` or `a|ab` (1)", "Combined with `b+` using alternation: `ab?|b+` (1)", "Max 1 if any errors"] }
       ] },
-    { src: "AQA 2023 P1 Q4.3", q: "Let A = {x | x ∈ ℕ ∧ x < 4} and B = {2, 3, 5}. Write out A, A ∪ B and A \\ B, and state |A × B|.", marks: 3,
+    { src: "AQA 2023 · P1 Q04.3", q: "Let A = {x | x ∈ ℕ ∧ x < 4} and B = {2, 3, 5}. Write out A, A ∪ B and A \\ B, and state |A × B|.", marks: 3,
       ms: ["A = {0, 1, 2, 3}; A ∪ B = {0, 1, 2, 3, 5} (1)", "A \\ B = {0, 1} (1)", "|A × B| = 4 × 3 = 12 (1)"] }
   ]
 });
@@ -215,16 +215,16 @@ X("compsci:4.4.2.3", {
     { q: "Regex for 'a followed by an even, non-zero number of b's, or just an even non-zero number of b's':", opts: ["a?(bb)+", "a(bb)*", "a*(bb)+", "a?(bb)*"], ans: 0, why: "Optional a then one or more bb pairs." }
   ],
   exam: [
-    { src: "AQA 2019 P1 Q4", ctx: "A regular language is defined by the regular expression `1|01+`.",
+    { src: "AQA 2019 · P1 Q04", ctx: "A regular language is defined by the regular expression `1|01+`.",
       parts: [
         { q: "State the functionality of the `*` metacharacter and the `?` metacharacter.", marks: 2, ms: ["`*`: zero or more of the preceding element (1)", "`?`: zero or one of the preceding element / optional (1)"] },
         { q: "State whether each string belongs to the language: `1`, `0`, `01`, `011`, `10`, `0111`, `001`.", marks: 3, ms: ["1 Y, 0 N, 01 Y, 011 Y (1)", "10 N, 0111 Y (1)", "001 N — all seven correct (1)"] }
       ] },
-    { src: "AQA 2017 P1 Q2.4", q: "A product code consists of exactly two upper-case letters, followed by two or three digits, followed by an optional hyphen and, if the hyphen is present, exactly one further letter. Write a regular expression for a valid product code, using `\\a` for a letter and `\\d` for a digit.", marks: 4,
+    { src: "AQA 2017 · P1 Q02.4", q: "A product code consists of exactly two upper-case letters, followed by two or three digits, followed by an optional hyphen and, if the hyphen is present, exactly one further letter. Write a regular expression for a valid product code, using `\\a` for a letter and `\\d` for a digit.", marks: 4,
       ms: ["Starts with exactly two letters: `\\a\\a` (1)", "Two or three digits: `\\d\\d\\d?` (1)", "Optional hyphen-letter group: `(-\\a)?` (1)", "Whole expression correct: `\\a\\a\\d\\d\\d?(-\\a)?` (1)", "Max 3 if the final answer is not fully correct"] },
-    { src: "AQA 2021 P1 Q6.2", q: "An FSM accepts strings that alternate between `x` and `y`, starting with either letter, of length at least one. Write a regular expression that matches exactly the strings the FSM accepts.", marks: 3,
+    { src: "AQA 2021 · P1 Q06.2", q: "An FSM accepts strings that alternate between `x` and `y`, starting with either letter, of length at least one. Write a regular expression that matches exactly the strings the FSM accepts.", marks: 3,
       ms: ["Uses two `*` metacharacters and one `|` (1)", "Groups `(yx)*` and `(xy)*` correctly bracketed — `yx*` rejected (1)", "Fully correct: `x(yx)*|y(xy)*` (1)", "Max 2 if not fully correct"] },
-    { src: "AQA 2024 P1 Q4.6", q: "Let R = {a, ab, b, bb} and T = {b, bb, bbb, …}. Write a regular expression for the set of strings that consist of an element of R followed by zero or more `bb` pairs, excluding those that begin with `a` alone (i.e. `a` not followed by `b`).", marks: 2,
+    { src: "AQA 2024 · P1 Q04.6", q: "Let R = {a, ab, b, bb} and T = {b, bb, bbb, …}. Write a regular expression for the set of strings that consist of an element of R followed by zero or more `bb` pairs, excluding those that begin with `a` alone (i.e. `a` not followed by `b`).", marks: 2,
       ms: ["Expression contains `ab|b` (or `a?b`) (1)", "Followed by `(bb)*` — `bb*` rejected: `(ab|b)(bb)*` (1)", "Max 1 if any errors"] }
   ]
 });
@@ -254,9 +254,9 @@ X("compsci:4.4.2.4", {
     { q: "Which is the best evidence a language is regular?", opts: ["It has infinitely many strings", "You can draw an FSM for it", "It is in BNF", "It uses letters"], ans: 1, why: "A language is regular if some finite state machine can recognise it." }
   ],
   exam: [
-    { src: "AQA 2023 P1 Q4.1", q: "State whether each language is regular: A = strings of 0s and 1s ending in 1; B = {aⁿbⁿ | n ≥ 1}; C = strings over {a, b} of length exactly 4; D = palindromes over {a, b}; E = strings with an even number of a's; F = correctly nested brackets.", marks: 3,
+    { src: "AQA 2023 · P1 Q04.1", q: "State whether each language is regular: A = strings of 0s and 1s ending in 1; B = {aⁿbⁿ | n ≥ 1}; C = strings over {a, b} of length exactly 4; D = palindromes over {a, b}; E = strings with an even number of a's; F = correctly nested brackets.", marks: 3,
       ms: ["A Y, C Y (1)", "B N, D N (1)", "E Y, F N — all six correct (1)", "Banded: 1 mark any two rows, 2 marks any four, 3 marks all"] },
-    { src: "AQA 2020 P1 Q2.1", q: "State whether each statement is true or false: (i) all regular languages can be represented using a finite state machine without outputs; (ii) the set of strings defined by a regular language is always finite; (iii) there are some languages that can be represented in BNF that are not regular.", marks: 2,
+    { src: "AQA 2020 · P1 Q02.1", q: "State whether each statement is true or false: (i) all regular languages can be represented using a finite state machine without outputs; (ii) the set of strings defined by a regular language is always finite; (iii) there are some languages that can be represented in BNF that are not regular.", marks: 2,
       ms: ["(i) true, (ii) false (1)", "(iii) true — all three correct (1)"] }
   ]
 });
@@ -293,16 +293,16 @@ X("compsci:4.4.3.1", {
     { q: "In a syntax diagram a loop back represents:", opts: ["recursion / repetition", "a terminal symbol", "an error in the syntax", "alternation between choices"], ans: 0, why: "Repetition of the looped part." }
   ],
   exam: [
-    { src: "AQA 2017 P1 Q1.2", q: "Using the rule `<digit> ::= 0|1|2|3|4|5|6|7|8|9`, write a BNF production rule for `<natural>`, a natural number consisting of one or more digits.", marks: 2,
+    { src: "AQA 2017 · P1 Q01.2", q: "Using the rule `<digit> ::= 0|1|2|3|4|5|6|7|8|9`, write a BNF production rule for `<natural>`, a natural number consisting of one or more digits.", marks: 2,
       ms: ["Non-recursive case `<digit>` (1)", "Recursive case `<digit><natural>` joined with `|`: `<natural> ::= <digit> | <digit><natural>` (1)", "Max 1 if any error, e.g. missing |"] },
-    { src: "AQA 2020 P1 Q2", ctx: "A grammar for a toy language: `<sentence> ::= <np><v>` ; `<np> ::= <d><n>` ; `<d> ::= the | a` ; `<n> ::= cat | dog | robot` ; `<v> ::= sleeps | runs`.",
+    { src: "AQA 2020 · P1 Q02", ctx: "A grammar for a toy language: `<sentence> ::= <np><v>` ; `<np> ::= <d><n>` ; `<d> ::= the | a` ; `<n> ::= cat | dog | robot` ; `<v> ::= sleeps | runs`.",
       parts: [
         { q: "State whether each string is a valid sentence: `the cat sleeps`, `a robot`, `dog runs`, `a dog runs`.", marks: 1, ms: ["Y, N, N, Y (1)"] },
         { q: "Modify the grammar so that a sentence may also be a noun on its own followed by a verb, e.g. `robot runs`. Write the single modified rule.", marks: 1, ms: ["`<np> ::= <d><n> | <n>` (or `<sentence> ::= <np><v> | <n><v>`) — one rule only (1)"] },
         { q: "Calculate the number of different sentences the original grammar defines.", marks: 2, ms: ["Noun phrases 2 × 3 = 6 (1)", "6 × 2 verbs = 12 (1)"] },
         { q: "The rule for `<np>` is changed to `<np> ::= <d><n> | <d><n> and <np>`. State how many sentences the grammar now defines, and why.", marks: 1, ms: ["Infinitely many — the rule is recursive (1)"] }
       ] },
-    { src: "AQA 2024 P2 Q6", q: "Explain why BNF is used to define the syntax of programming languages rather than regular expressions.", marks: 2,
+    { src: "AQA 2024 · P2 Q06", q: "Explain why BNF is used to define the syntax of programming languages rather than regular expressions.", marks: 2,
       ms: ["Programming languages contain nested / recursive structures such as bracketed expressions and nested blocks (1)", "BNF rules can be recursive and so define these context-free structures; regular expressions (FSMs) cannot count nesting to arbitrary depth (1)"] }
   ]
 });
