@@ -95,7 +95,7 @@
     st.clockT = el("b", { class: "k-mono k-rpl-clock-t" });
     st.clockS = el("span", { class: "k-muted k-rt-small" });
     st.main.appendChild(el("div", { class: "k-rpl-top" }, [
-      el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "aria-label": "Close (your ticks are kept)", "data-ui": "player.close", text: "✕", onclick: st.finish }),
+      el("button", { type: "button", class: "k-iconbtn", "aria-label": "Close (your ticks are kept)", "data-ui": "player.close", text: "✕", onclick: st.finish }),
       el("div", { class: "k-rpl-top-t" }, [el("b", { text: r.name }),
         /* past its window it still counts, as kept late (audit PR-35) */
         w && R().pastWindow(r, st.day, Date.now()) ? el("span", { class: "k-rt-small k-rt-text2", "data-ui": "player.late", text: "Its window closed at " + w.to + " · it still counts, as kept late" })
@@ -128,8 +128,7 @@
   }
   function paintSide(st, ticked) {
     st.side.innerHTML = "";
-    st.side.appendChild(el("div", { class: "k-rt-hd" }, [el("h3", { class: "k-rt-hd-t", text: "The routine" }), el("span", { class: "k-rt-fill" }),
-      el("button", { type: "button", class: "k-btn k-btn--quiet k-btn--sm", text: "Close", onclick: st.finish })]));
+    st.side.appendChild(el("div", { class: "k-rt-hd" }, [el("h3", { class: "k-rt-hd-t", text: "The routine" })]));
     var group = null;
     st.steps.forEach(function (x, j) {
       var on = ticked.has(x);
