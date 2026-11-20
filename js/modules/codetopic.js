@@ -636,7 +636,7 @@
   function bugCard(card, ref, item, done) {
     card.appendChild(el("h3", { class: "k-cx-q-t", text: item.q || "Find the bug, fix it, then run." }));
     if (item.expect) card.appendChild(el("p", { class: "k-cx-q-sub", text: item.expect }));
-    var ed = KOS.codeUI.editor({ value: item.src, file: item.file || (KOS.code.runnerFor(ref) === "sql" ? "query.sql" : "Bug.cs"), compact: true, label: "Buggy code", onRun: go });
+    var ed = KOS.codeUI.editor({ value: item.src, file: item.file || (KOS.code.runnerFor(ref) === "sql" ? "query.sql" : "Bug.cs"), compact: true, label: "Buggy code", onRun: go, assist: false });
     card.appendChild(ed.el);
     var out = el("div", { class: "k-cx-q-out" });
     var run = el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "code.practice-check", text: "▶ Run", onclick: go });

@@ -211,7 +211,7 @@
       var initial = C().draft(key);
       var savedAt = el("span", { class: "k-cx-ws-saved", "data-ui": "code.cap-saved", text: initial != null ? "Saved on this device" : "Starter code" });
       var save = KOS.ui.debounce(function (val) { C().setDraft(key, val === spec.starter ? null : val); savedAt.textContent = "Saved on this device · " + timeLabel(Date.now()); }, 400);
-      var ed = KOS.codeUI.editor({ value: initial != null ? initial : spec.starter, file: "Program.cs", label: "Your capstone", minLines: 24,
+      var ed = KOS.codeUI.editor({ value: initial != null ? initial : spec.starter, file: "Program.cs", label: "Your capstone", minLines: 24, lesson: id,
         onRun: doRun, onChange: function (val) { savedAt.textContent = "● Saving…"; save(val); } });
 
       /* the toolbar */

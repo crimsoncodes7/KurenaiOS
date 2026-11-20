@@ -9,7 +9,7 @@
                           always shows state · position · indent · the
                           keyboard hint. States: idle, focused, running
                           (read-only), compile error (line + squiggle),
-                          runtime error, timeout.
+                          runtime error, timeout. Live help: codehelp.js.
      highlight(src)       the IDE colours (frame 19a) as k-t spans
      results(check, opts) the results list: a real <ul>; waiting, running
                           (placeholder rows), results, or the error card
@@ -107,6 +107,8 @@
     var file = opts.file || "Program.cs";
     var lang = opts.lang || (/\.sql$/i.test(file) ? "sql" : "csharp");
     var errLine = 0, errName = null, escArmed = false, readOnly = !!opts.readOnly, running = false;
+    /* hooks for the live help (codehelp.js, UR-23) */
+    var hk = {};
     var gutter = el("div", { class: "k-ced-gutter", "aria-hidden": "true" });
     var pre = el("pre", { class: "k-ced-hl", "aria-hidden": "true" });
     var ta = el("textarea", { class: "k-ced-ta", "data-ui": "code.editor-input", id: id, spellcheck: "false", autocapitalize: "off",
@@ -143,8 +145,9 @@
       var lines = highlightLines(ta.value, errLine, errName, lang);
       pre.innerHTML = lines.join("\n") + "\n ";
       var n = Math.max(lines.length, opts.minLines || 1);
-      var g = "";
-      for (var i = 1; i <= n; i++) g += '<span class="k-ced-ln"' + (i === errLine ? ' data-state="err"' : "") + ">" + (i === errLine ? "✗ " : "") + i + "</span>";
+      var g = "", sevAt = hk.lines ? hk.lines() : {};
+      if (hk.paint) hk.paint();
+      for (var i = 1; i <= n; i++) g += '<span class="k-ced-ln"' + (i === errLine ? ' data-state="err"' : sevAt[i] ? ' data-diag="' + sevAt[i] + '"' : "") + ">" + (i === errLine ? "✗ " : "") + i + "</span>";
       gutter.innerHTML = g;
       KOS.ui.state(root, "has-err", !!errLine);
       wrap.style.setProperty("--ced-err", errLine ? String(errLine) : "0");
@@ -153,9 +156,11 @@
       var v = ta.value.slice(0, ta.selectionStart || 0);
       var ln = v.split("\n").length, col = v.length - v.lastIndexOf("\n");
       posEl.textContent = "Ln " + ln + ", Col " + col;
+      if (hk.pos) hk.pos();
     }
     function changed() {
       if (errLine) { errLine = 0; errName = null; }
+      if (hk.edit) hk.edit();
       paint(); pos();
       if (state !== "ready" && state !== "edited") setState("edited");
       if (opts.onChange) opts.onChange(ta.value);
@@ -166,13 +171,14 @@
       else { ta.value = ta.value.slice(0, s) + text + ta.value.slice(e); ta.selectionStart = ta.selectionEnd = s + text.length; }
       changed();
     }
-    ta.addEventListener("input", changed);
+    ta.addEventListener("input", function (ev) { changed(); if (hk.input) hk.input(ev); });
     ta.addEventListener("keyup", pos);
     ta.addEventListener("click", pos);
-    ta.addEventListener("focus", function () { KOS.ui.state(root, "focused", true); pos(); });
-    ta.addEventListener("blur", function () { KOS.ui.state(root, "focused", false); escArmed = false; });
+    ta.addEventListener("focus", function () { KOS.ui.state(root, "focused", true); pos(); if (hk.focus) hk.focus(); });
+    ta.addEventListener("blur", function () { KOS.ui.state(root, "focused", false); escArmed = false; if (hk.blur) hk.blur(); });
     body.addEventListener("scroll", function () { /* the overlay scrolls with the body; nothing to sync */ });
     ta.addEventListener("keydown", function (ev) {
+      if (hk.keydown && hk.keydown(ev)) return;
       if ((ev.ctrlKey || ev.metaKey) && ev.key === "Enter") { ev.preventDefault(); if (opts.onRun) opts.onRun(); return; }
       if ((ev.ctrlKey || ev.metaKey) && (ev.key === "b" || ev.key === "B") && opts.onToggle) { ev.preventDefault(); opts.onToggle(); return; }
       if (ev.key === "Escape") {
@@ -217,19 +223,22 @@
     });
     ta.value = opts.value || "";
     ta.readOnly = readOnly;
+    if (lang === "csharp" && !readOnly && opts.assist !== false && KOS.codeHelp)
+      KOS.codeHelp.attach({ id: id, file: file, opts: opts, ta: ta, body: body, gutter: gutter, wrap: wrap, bar: bar, hint: hint, hooks: hk, paint: paint, pos: pos, changed: changed });
     setState("ready");
     paint(); posEl.textContent = "Ln 1, Col 1";
     return {
       el: root, input: ta,
       get value() { return ta.value; },
       files: function () { return [{ name: file, src: ta.value }]; },
-      set: function (src) { ta.value = String(src == null ? "" : src); errLine = 0; errName = null; paint(); },
+      set: function (src) { ta.value = String(src == null ? "" : src); errLine = 0; errName = null; if (hk.reset) hk.reset(); paint(); },
       focus: function () { ta.focus(); },
       state: function (s, text) { if (s === undefined) return state; setState(s, text); },
       /* mark an error line; `name` gets the squiggle (CS0103's 'totl') */
       mark: function (line, name) { errLine = line || 0; errName = name || null; paint(); },
       running: function (on) {
         running = !!on;
+        if (running && hk.blur) hk.blur();
         ta.readOnly = running || readOnly;
         note.hidden = !running;
         KOS.ui.state(root, "ro", running || readOnly);
@@ -737,7 +746,7 @@
   }
 
   KOS.codeUI = {
-    highlight: highlight, highlightLines: highlightLines, editor: editor, errorCard: errorCard, results: results,
+    highlight: highlight, highlightLines: highlightLines, KW: KW, editor: editor, errorCard: errorCard, results: results,
     diffView: diffView, reward: reward, payText: payText, hintLadder: hintLadder, evidence: evidence,
     strands: strands, where: where, dot: dot, daysText: daysText, chip: chip, stagePath: stagePath,
     listing: listing, mountListings: mountListings, keyBar: keyBar, quoted: quoted, hm: hm,

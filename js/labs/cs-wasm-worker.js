@@ -6,7 +6,8 @@
    WebSocket, EventSource, IndexedDB, Cache Storage, BroadcastChannel —
    before the first learner program runs (the sandbox invariant). It
    answers the in-app interpreter's protocol: postMessage({id, req}) →
-   {id, res}, so the checker and the pages need nothing new. It boots as
+   {id, res}, so the checker and the pages need nothing new; {id, kind:
+   "assist", req} is the editor's live help (Runner.Assist, UR-23). It boots as
    soon as it is created (started from inside a message handler, .NET's
    start-up never finishes), and requests wait for it (they arrive through
    addEventListener — see below); progress and
@@ -61,6 +62,12 @@ self.addEventListener("message", async (ev) => {
   }
   if (!msg.id) return;
   let res;
+  /* the editor's live help compiles and never runs (UR-23) */
+  if (msg.kind === "assist") {
+    try { res = JSON.parse(runner.Assist(JSON.stringify(msg.req || {}))); } catch (e) { res = null; }
+    self.postMessage({ id: msg.id, res });
+    return;
+  }
   try { res = JSON.parse(await runner.Run(JSON.stringify(msg.req || {}))); }
   catch (e) { res = { ok: false, stdout: "", steps: 0, ms: 0, error: { code: "INTERNAL", kind: "internal", msg: String((e && e.message) || e), line: 0 } }; }
   self.postMessage({ id: msg.id, res });

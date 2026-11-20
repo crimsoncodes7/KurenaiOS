@@ -3,7 +3,8 @@
    tools/cs_wasm_check.mjs: the same Runner.Run the browser worker calls.
 
      const wasm = await loadWasm();      // null when it has not been built
-     const res = await wasm.run(req);    // the interpreter's result shape  */
+     const res = await wasm.run(req);    // the interpreter's result shape
+     const help = wasm.assist(req);      // the editor's live errors and completion (UR-23) */
 "use strict";
 const fs = require("fs");
 const path = require("path");
@@ -19,7 +20,8 @@ async function loadWasm() {
   const rt = await dotnet.create();
   const runner = (await rt.getAssemblyExports("CsWasm")).Runner;
   const warm = Number(runner.Warm());
-  return { id, bootMs: Date.now() - t0, warmMs: warm, run: async (req) => JSON.parse(await runner.Run(JSON.stringify(req))) };
+  return { id, bootMs: Date.now() - t0, warmMs: warm, run: async (req) => JSON.parse(await runner.Run(JSON.stringify(req))),
+    assist: (req) => JSON.parse(runner.Assist(JSON.stringify(req))) };
 }
 
 module.exports = { loadWasm };

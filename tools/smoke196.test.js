@@ -680,6 +680,101 @@ step("S · ink: copy maths as TeX — out as a picture and a prompt, back as a r
   sf.destroy(); host.remove();
 });
 
+step("T · Code: the compiler's errors squiggled as you type, and suggestions at the caret (1C, UR-23)", async () => {
+  const W = app.window, R = K.codeRun, had = R.assist;
+  const wait = async (ms) => { await new Promise((r) => setTimeout(r, ms)); await app.settle(); };
+  /* a stand-in for Runner.Assist (tools/cs_wasm_check.mjs checks the real one) */
+  const asked = [];
+  R.assist = (req) => {
+    asked.push(req);
+    const src = req.files[0].src, out = { diags: [] };
+    const at = src.indexOf("totl");
+    if (at >= 0) out.diags.push({ file: "Program.cs", s: at, e: at + 4, sev: "error", code: "CS0103", msg: "The name 'totl' does not exist in the current context" });
+    const un = src.indexOf("int unused");
+    if (un >= 0) out.diags.push({ file: "Program.cs", s: un + 4, e: un + 10, sev: "warning", code: "CS0168", msg: "The variable 'unused' is declared but never used" });
+    if (req.pos >= 0 && req.file) {
+      const pre = src.slice(0, req.pos), w = /\w*$/.exec(pre)[0];
+      out.complete = { start: req.pos - w.length, end: req.pos, items: /Console\.\w*$/.test(pre)
+        ? [{ l: "Write", k: "method", d: "void Write(bool value) (+18 overloads)" }, { l: "WriteLine", k: "method", d: "void WriteLine() (+19 overloads)" }].filter((i) => i.l.toLowerCase().startsWith(w.toLowerCase()))
+        : [] };
+    }
+    return Promise.resolve(out);
+  };
+  const h = blank();
+  const ed = K.codeUI.editor({ value: "int total = 0;\nConsole.WriteLine(totl);\n", file: "Program.cs", lesson: "7.1" });
+  h.appendChild(ed.el);
+  const ta = ed.input, probs = q('[data-ui~="code.editor-problems"]', h);
+  assert(probs && probs.hidden && !q(".k-ced-dsq", h), "nothing is asked until the editor is used");
+  ta.dispatchEvent(new W.FocusEvent("focus"));
+  await wait(20);
+  eq(asked[0].nullable, true, "a unit 7+ lesson is checked with nullable on, as it runs");
+  const sq = q('[data-ui~="code.editor-squiggles"] .k-ced-dsq', h);
+  eq([sq && sq.textContent, sq && sq.getAttribute("data-sev")], ["totl", "error"], "the misspelt name is squiggled, as an error");
+  eq(q('.k-ced-ln[data-diag="error"]', h) && q('.k-ced-ln[data-diag="error"]', h).textContent, "2", "its line is marked in the gutter");
+  assert(!probs.hidden && /1 error — Ln 2: The name 'totl'/.test(probs.textContent), "the status bar names it: " + probs.textContent);
+  /* typing above it moves the squiggle with its word before Roslyn answers */
+  ta.value = "// sum\n" + ta.value; ta.selectionStart = ta.selectionEnd = 7;
+  ta.dispatchEvent(new W.InputEvent("input", { data: "\n", inputType: "insertLineBreak" }));
+  eq(q(".k-ced-dsq", h) && q(".k-ced-dsq", h).textContent, "totl", "an edit elsewhere keeps the squiggle on its word");
+  /* the problem button moves the caret to it */
+  ta.selectionStart = ta.selectionEnd = 0;
+  probs.click();
+  eq([ta.selectionStart, ta.selectionEnd], [ta.value.indexOf("totl"), ta.value.indexOf("totl") + 4], "the problem button selects the problem");
+  /* fixing it clears it once the compiler answers */
+  ta.value = ta.value.replace("totl", "total"); ta.dispatchEvent(new W.InputEvent("input", { data: "a", inputType: "insertText" }));
+  await wait(700);
+  assert(!q(".k-ced-dsq", h) && probs.hidden, "a fixed file has no squiggle and no problem line");
+  /* suggestions: after a dot and while typing a name */
+  const end = ta.value.length;
+  ta.value += "Console.Wr"; ta.selectionStart = ta.selectionEnd = ta.value.length;
+  ta.dispatchEvent(new W.InputEvent("input", { data: "r", inputType: "insertText" }));
+  await wait(150);
+  const pop = q('[data-ui~="code.editor-complete"]', h);
+  eq([...pop.querySelectorAll('[role="option"]')].map((o) => o.getAttribute("aria-label").split(",")[0]), ["Write", "WriteLine"], "Console.Wr offers Write and WriteLine");
+  assert(!pop.hidden && ta.getAttribute("aria-activedescendant") === pop.firstChild.id && ta.getAttribute("aria-controls") === pop.id, "the list is tied to the editor for a screen reader");
+  ta.dispatchEvent(new W.KeyboardEvent("keydown", { key: "ArrowDown", bubbles: true }));
+  ta.dispatchEvent(new W.KeyboardEvent("keydown", { key: "Enter", bubbles: true }));
+  eq(ta.value.slice(end), "Console.WriteLine", "↓ and Enter insert the second, replacing what was typed");
+  assert(pop.hidden, "and the list closes");
+  /* Esc closes the list without arming "Tab leaves" */
+  ta.value += ";\nConsole.W"; ta.selectionStart = ta.selectionEnd = ta.value.length;
+  ta.dispatchEvent(new W.InputEvent("input", { data: "W", inputType: "insertText" }));
+  await wait(150);
+  assert(!pop.hidden, "the list opens again");
+  ta.dispatchEvent(new W.KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+  assert(pop.hidden && !/Tab now leaves/.test(q('[data-ui~="code.editor-state"]', h).textContent), "Esc closes the list and nothing else");
+  /* Ctrl+Space asks with nothing typed */
+  const n0 = asked.length;
+  ta.dispatchEvent(new W.KeyboardEvent("keydown", { key: " ", code: "Space", ctrlKey: true, bubbles: true }));
+  await wait(20);
+  eq(asked.length > n0 && asked[asked.length - 1].explicit, true, "Ctrl+Space asks for suggestions");
+  /* a warning is amber, not red */
+  ed.set("int unused;\n"); ta.dispatchEvent(new W.InputEvent("input", { data: ";", inputType: "insertText" }));
+  await wait(700);
+  eq(q(".k-ced-dsq", h) && q(".k-ced-dsq", h).getAttribute("data-sev"), "warning", "an unused variable is a warning");
+  assert(K.ui.hasState(probs, "warn") && /1 warning/.test(probs.textContent), "and the status bar says warning");
+  /* without the runtime: the file's own words and the keywords, no squiggles */
+  R.assist = () => Promise.resolve(null);
+  ed.set("int total = 0;\n"); ta.value += "to"; ta.selectionStart = ta.selectionEnd = ta.value.length;
+  ta.dispatchEvent(new W.InputEvent("input", { data: "o", inputType: "insertText" }));
+  await wait(150);
+  eq([...pop.querySelectorAll('[role="option"]')].map((o) => o.getAttribute("aria-label").split(",")[0]), ["total"], "the file's own name is offered");
+  ta.dispatchEvent(new W.KeyboardEvent("keydown", { key: "Tab", bubbles: true }));
+  eq(ta.value.split("\n")[1], "total", "Tab inserts it");
+  ta.value += "."; ta.selectionStart = ta.selectionEnd = ta.value.length;
+  ta.dispatchEvent(new W.InputEvent("input", { data: ".", inputType: "insertText" }));
+  await wait(150);
+  assert(pop.hidden && !q(".k-ced-dsq", h), "after a dot nothing is guessed, and nothing is squiggled");
+  /* where help would give the answer away it is off */
+  const off = K.codeUI.editor({ value: "int x = 1", file: "Bug.cs", assist: false });
+  h.appendChild(off.el);
+  assert(!q('[data-ui~="code.editor-squiggles"]', off.el) && !q('[data-ui~="code.editor-problems"]', off.el) && !off.input.hasAttribute("aria-autocomplete"), "assist: false: no squiggles, no problem line, no list");
+  /* the bug hunt and retrieval pass it */
+  const src = require("fs").readFileSync(require("path").join(__dirname, "../js/modules/codetopic.js"), "utf8") + require("fs").readFileSync(require("path").join(__dirname, "../js/modules/code.js"), "utf8");
+  assert(/label: "Buggy code", onRun: go, assist: false/.test(src) && /label: "Your answer", onRun: check, assist: false/.test(src), "the bug hunt and retrieval switch it off");
+  R.assist = had;
+});
+
 (async () => {
   let failed = 0;
   for (const [name, fn] of steps) {

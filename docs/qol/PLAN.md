@@ -339,7 +339,11 @@ Claude Design handoff or Gemini art asks for it):
   - `UR-13` Copy as TeX (decision D2): the selection's picture and a prompt to send yourself, the reply checked
     by KaTeX before it is copied or kept on the page; loaded on first use (`ink-tex`);
   - the colour and size menu now ticks a pick made inside it and names it in its headings.
-- Left in 1C: `UR-23` (Code's live errors and completion) and `collection#1`/`#2` (the watch link with its icon).
+- ✓ `UR-23` Code's live help: the compiler's errors and warnings squiggled as you type, marked in the gutter and
+  named in the status bar (a button to the next one), and suggestions at the caret (after a dot, while typing a
+  name, Ctrl+Space). From Roslyn in the full runtime's worker (`Runner.Assist`, runtime `csw-1.2`), which compiles and
+  never runs; without the runtime, only keywords and the file's own words. Off in the bug hunt and retrieval.
+- Left in 1C: `collection#1`/`#2` (the watch link with its icon).
 
 ## 1A · Bugs and data integrity (21)
 

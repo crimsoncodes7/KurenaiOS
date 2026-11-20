@@ -91,7 +91,14 @@ Read this file before editing or testing anything in its domain.
     and before any learner statement; made on the first SQL run, a fresh
     in-memory database each run, the same 4 s watchdog; SQLite is cached
     cache-first in `kos-sqlite-<version>`, kept across deploys. Nullable
-    reference types are off in units 1–6 and on from unit 7. A
+    reference types are off in units 1–6 and on from unit 7. The editor's
+    live help (UR-23: errors as you type, suggestions at the caret) asks
+    `Runner.Assist` in the same worker through `KOS.codeRun.assist`: it
+    compiles and never runs or emits, only once the runtime is on the
+    device (typing never starts a download), and a slow answer is dropped
+    without stopping the runtime; the bug hunt and retrieval switch it off,
+    and without the runtime completion offers only keywords and the file's
+    own words. A
     capstone's Kurenai review sends only what is ticked in its "What is
     sent" dialog (Cancel first), once per press, and is skippable.
 106. PAY ONCE. `KOS.code.award()` is the one definition the Governor pays

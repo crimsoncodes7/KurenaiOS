@@ -6,6 +6,7 @@
    tools/lib/cs-wasm-node.js) AND under native .NET, and must agree byte for
    byte; it also prints the runner's start-up and compile times. Needs the
    .NET 10 SDK and a built runtime (tools/build_cs_wasm.sh).
+   It then checks the editor's live help (Runner.Assist, UR-23).
      node tools/cs_wasm_check.mjs                                            */
 import { createRequire } from "module";
 import { spawnSync } from "child_process";
@@ -51,7 +52,7 @@ function dotnet(src, stdin) {
   const f = path.join(dir, "p.cs");
   fs.writeFileSync(f, "#:property Nullable=enable\n#:property InvariantGlobalization=false\n#:property JsonSerializerIsReflectionEnabledByDefault=true\n" + usings.join("\n") + (usings.length ? "\n" : "") + "System.Globalization.CultureInfo.CurrentCulture = new System.Globalization.CultureInfo(\"en-GB\");\n" + lines.join("\n") + "\n");
   const r = spawnSync("dotnet", ["run", f], { input: stdin || "", encoding: "utf8", cwd: dir, timeout: 120000 });
-  const out = (r.stdout || "").split("\n").filter((l) => !/\.cs\(\d+,\d+\): warning /.test(l)).join("\n");
+  const out = (r.stdout || "").split("\n").filter((l) => !/\.cs\(\d+,\d+\): warning /.test(l) && !/\.csproj : warning NU\d+/.test(l)).join("\n");
   const all = out + (r.stderr || "");
   const ce = /error (CS\d{4})/.exec(all), ex = /Unhandled exception\. System\.([\w.]+)/.exec(all);
   return ce ? { kind: "compile", code: ce[1] } : ex ? { kind: "exception", code: ex[1].split(".").pop(), stdout: out.replace(/Unhandled exception[\s\S]*$/, "") } : { kind: "ok", stdout: out };
@@ -77,4 +78,36 @@ for (const [name, src, stdin] of P) {
   else console.log("✓ " + name + " (" + ms + " ms)");
 }
 console.log((bad ? "✗ " + bad + " of " + P.length + " programs differ from" : "✓ all " + P.length + " programs agree with") + " native .NET · slowest run " + worst + " ms");
-process.exit(bad ? 1 : 0);
+
+/* the editor's live help (UR-23): Runner.Assist's errors and suggestions.
+   "|" marks the caret; each case names what must (and must not) be offered. */
+const A = [
+  ["a misspelt name is CS0103 on its own span", 'int total = 0;\nConsole.WriteLine(totl);', (r) => r.diags.some((d) => d.code === "CS0103" && d.sev === "error" && d.sl === 2 && d.e - d.s === 4)],
+  ["an unused variable is a warning", 'int total = 0;', (r) => r.diags.length === 1 && r.diags[0].sev === "warning"],
+  ["a method-mode task's lone method raises nothing", 'static int Twice(int n) => n * 2;', (r) => r.diags.length === 0],
+  ["Console. offers its statics", 'Console.Wri|', (r) => names(r).join() === "Write,WriteLine"],
+  ["a List's own members come before LINQ", 'var xs = new List<int>();\nxs.|', (r) => names(r)[0] === "Add" && names(r).includes("Count") && !names(r).slice(0, 20).includes("Aggregate")],
+  ["LINQ after the prefix", 'var xs = new List<int>();\nxs.Wh|', (r) => names(r).join() === "Where"],
+  ["a string's members, after ?.", 'string? s = null;\nConsole.WriteLine(s?.Len|);', (r) => names(r).join() === "Length"],
+  ["names in scope come first", 'int count = 3;\nco|', (r) => names(r)[0] === "count" && names(r).includes("continue")],
+  ["capitals find a name", 'Console.WL|', (r) => names(r).includes("WriteLine")],
+  ["a class of your own", 'class Dog { public string Name = ""; public void Bark() {} }\nclass P { static void M() { var d = new Dog(); d.| } }', (r) => names(r).slice(0, 2).join() === "Bark,Name"],
+  ["nothing inside a string", 'Console.WriteLine("na|");', (r) => names(r).length === 0],
+  ["nothing inside a comment", '// Cons|', (r) => names(r).length === 0],
+  ["int. offers Parse", 'int.Pa|', (r) => names(r).includes("Parse") && !names(r).includes("CompareTo")]
+];
+function names(r) { return ((r.complete || {}).items || []).map((i) => i.l); }
+let abad = 0, aworst = 0;
+for (const [what, marked, ok] of A) {
+  const at = marked.indexOf("|"), src = marked.replace("|", "");
+  const t0 = Date.now();
+  const r = wasm.assist({ files: [{ name: "Program.cs", src }], nullable: true, diag: true, file: "Program.cs", pos: at });
+  aworst = Math.max(aworst, Date.now() - t0);
+  if (r.error || !ok(r)) { abad++; console.log("✗ assist: " + what + " — " + (r.error || JSON.stringify({ diags: r.diags.map((d) => d.code + "@" + d.sl), items: names(r).slice(0, 12) }))); }
+  else console.log("✓ assist: " + what);
+}
+/* an edit re-parses only its span: ten keystrokes stay quick */
+let src = 'var xs = new List<int> { 3, 1, 2 };\nforeach (var x in xs.OrderBy(v => v)) Console.WriteLine(x);\n';
+for (let i = 0; i < 10; i++) { src += "int v" + i + " = " + i + ";\n"; const t0 = Date.now(); wasm.assist({ files: [{ name: "Program.cs", src }], nullable: true }); aworst = Math.max(aworst, Date.now() - t0); }
+console.log((abad ? "✗ " + abad + " of " + A.length + " live-help cases fail" : "✓ all " + A.length + " live-help cases hold") + " · slowest answer " + aworst + " ms");
+process.exit(bad || abad ? 1 : 0);

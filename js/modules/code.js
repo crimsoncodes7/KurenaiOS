@@ -630,7 +630,7 @@
 
     /* ---- the editor and its results panel ---- */
     var initial = C().draft(t.id);
-    var ed = KOS.codeUI.editor({ value: initial != null ? initial : t.starter || "", file: t.file || C().fileFor(t.lesson), label: "Your code", minLines: 14,
+    var ed = KOS.codeUI.editor({ value: initial != null ? initial : t.starter || "", file: t.file || C().fileFor(t.lesson), label: "Your code", minLines: 14, lesson: t.lesson,
       onRun: doRun, onToggle: function () { setCollapsed(!KOS.ui.hasState(page, "collapsed")); },
       onChange: KOS.ui.debounce(function (v) { C().setDraft(t.id, v === (t.starter || "") ? null : v); }, 400) });
     /* CO-04: the input is the WHOLE first example, one line per ReadLine —
@@ -1023,7 +1023,7 @@
         });
         card.appendChild(pre);
       } else {
-        ed = KOS.codeUI.editor({ value: v.starter || "", file: C().fileFor(cd.lesson), compact: true, label: "Your answer", onRun: check });
+        ed = KOS.codeUI.editor({ value: v.starter || "", file: C().fileFor(cd.lesson), compact: true, label: "Your answer", onRun: check, assist: false });
         card.appendChild(ed.el);
         if (phone && C().ui().keybar !== false) card.appendChild(KOS.codeUI.keyBar(ed.input));
       }

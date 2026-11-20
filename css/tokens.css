@@ -601,6 +601,8 @@ color-scheme: dark;
 --cx-ed-max-h: 520px;
 --cx-ed-compact-max-h: 360px;
 --cx-gutter-w: 48px;
+--cx-pop-w: 420px;          /* the editor's suggestion list (UR-23) */
+--cx-pop-max-h: 264px;
 --cx-task-w: 400px;         /* the task panel (26f); 340 at 1080 */
 --cx-task-w-1080: 340px;
 --cx-strip-w: 44px;         /* the collapsed task strip */

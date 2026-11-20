@@ -79,7 +79,7 @@
   }
 
   /* ---------------- the full runtime ---------------- */
-  var RUNTIME_ID = "csw-1.1";
+  var RUNTIME_ID = "csw-1.2";
   var RUNTIME_DIR = "assets/code/runtime/" + RUNTIME_ID + "/";
   var WASM_BOOT = 60000, WASM_WATCHDOG = 9000;
   var rtw = null, rtSeq = 0, rtPending = {}, rtState = null, rtInfo = { loaded: 0, total: 0, ms: 0, warm: 0, size: null, error: null }, rtListeners = [];
@@ -136,6 +136,19 @@
       var t = setTimeout(function () { var p = rtPending[id]; if (!p) return; delete rtPending[id]; rtKill(); rtEmit(); res(dead()); }, ms);
       rtPending[id] = { res: res, t: t, dead: dead };
       rtw.postMessage({ id: id, req: req });
+    });
+  }
+  /* the editor's live help (codehelp.js, invariant 105): never a download;
+     a slow answer is null, never a reason to stop the runtime */
+  function rtAssist(req) {
+    var st = runtime().state;
+    if (!ui().runtime || !(st === "ready" || st === "idle" || st === "downloading")) return Promise.resolve(null);
+    if (!rtStart()) return Promise.resolve(null);
+    var id = ++rtSeq, ms = rtState === "ready" ? 8000 : WASM_BOOT;
+    return new Promise(function (res) {
+      var t = setTimeout(function () { if (rtPending[id]) { delete rtPending[id]; res(null); } }, ms);
+      rtPending[id] = { res: res, t: t, dead: function () { return null; } };
+      rtw.postMessage({ id: id, kind: "assist", req: req });
     });
   }
   function needsRuntime(st) {
@@ -367,6 +380,7 @@
     RUNTIME_ID: RUNTIME_ID,
     runtime: runtime,
     startRuntime: rtStart,
+    assist: rtAssist,
     runtimeSize: rtSize,
     removeRuntime: rtRemove,
     pruneRuntimes: rtPrune,

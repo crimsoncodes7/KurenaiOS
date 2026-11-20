@@ -40,6 +40,27 @@
 .k-ced[data-state~="ro"] .k-ced-ta { caret-color: transparent; }
 .k-ced[data-state~="running"] .k-ced-hl { opacity: 0.7; }
 .k-ced-squig { text-decoration: underline wavy var(--alarm); text-underline-offset: var(--sp-3); }
+.k-ced-diag { position: absolute; inset: 0; min-block-size: 0; color: transparent; }
+.k-ced-dsq { text-decoration: underline wavy var(--alarm); text-decoration-skip-ink: none; text-underline-offset: var(--sp-3); }
+.k-ced-dsq[data-sev="warning"] { text-decoration-color: var(--amber); }
+.k-ced-ln[data-diag="error"] { color: var(--alarm); }
+.k-ced-ln[data-diag="warning"] { color: var(--amber); }
+.k-ced-pop { position: absolute; inset-inline-start: var(--ced-pop-x, 0); inset-block-start: var(--ced-pop-y, 0); z-index: var(--z-popover); margin: 0; padding: var(--sp-4); list-style: none; inline-size: max-content; min-inline-size: calc(var(--cx-pop-w) / 2);
+  max-inline-size: min(var(--cx-pop-w), 100%); max-block-size: var(--cx-pop-max-h); overflow: auto; border-radius: var(--r-10); background: var(--s1);
+  box-shadow: var(--elev-3), inset 0 0 0 var(--hairline) var(--line); font: var(--fs-12-5) / var(--cx-lh) var(--font-mono); }
+.k-ced-pop-i { display: grid; grid-template-columns: auto auto minmax(0, 1fr); align-items: center; gap: var(--sp-8); min-block-size: var(--hit); padding-inline: var(--sp-8); border-radius: var(--r-6); color: var(--text-2); cursor: pointer; }
+.k-ced-pop-i:hover { background: var(--s2); }
+.k-ced-pop-i[aria-selected="true"] { background: color-mix(in oklch, var(--code) 22%, transparent); color: var(--text); }
+.k-ced-pop-k { inline-size: var(--sp-16); text-align: center; font-size: var(--fs-11); color: var(--code); }
+.k-ced-pop-i[data-k="keyword"] .k-ced-pop-k, .k-ced-pop-i[data-k="word"] .k-ced-pop-k { color: var(--muted); }
+.k-ced-pop-l b { color: var(--code); font-weight: var(--weight-semibold); }
+.k-ced-pop-d { min-inline-size: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--muted); font-size: var(--fs-11-5); }
+.k-ced-bar:has(.k-ced-probs) { min-block-size: var(--hit); }
+.k-ced-probs { display: inline-flex; align-items: center; min-inline-size: 0; max-inline-size: 100%; min-block-size: var(--hit); margin-block: calc(var(--sp-6) * -1); padding: 0 var(--sp-6);
+  border: 0; border-radius: var(--r-6); background: none; color: var(--alarm); font: inherit; text-align: start; cursor: pointer; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 0 1 auto; }
+.k-ced-probs[data-state~="warn"] { color: var(--amber); }
+.k-ced-probs:hover { background: var(--s2); }
+.k-ced-probs:focus-visible { outline: var(--focus-width) solid var(--focus-ring); }
 .k-ced-bar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-6) var(--sp-14); padding: var(--sp-6) var(--sp-12); border-block-start: var(--hairline) solid var(--line); font-size: var(--fs-11-5); color: var(--muted); }
 .k-ced-state { color: var(--text-2); }
 .k-ced[data-state~="pass"] .k-ced-state { color: var(--green); }
@@ -788,4 +809,8 @@ button.k-cx-dia[data-state~="passed"] { background: var(--code); }
 .k-cx-rp-hist th, .k-cx-rp-hist td { padding: var(--sp-8) var(--sp-6); border-block-end: var(--hairline) solid var(--line); text-align: start; }
 .k-cx-rp-hist th { color: var(--muted); font-weight: var(--weight-medium); }
 .k-cx-rp-hist tr[data-state~="practice"] td { color: var(--muted); }
+@media (pointer: coarse) {
+.k-ced-pop-i, .k-ced-probs { min-block-size: var(--hit-coarse); }
+.k-ced-bar:has(.k-ced-probs) { min-block-size: var(--hit-coarse); }
+}
 }
