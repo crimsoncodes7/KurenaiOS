@@ -231,6 +231,41 @@ step("F · Backup & Restore: the confirm reads the first line; the export names 
   assert(K.store.state.ui.lastBackupAt > 0, "the export records lastBackupAt");
 });
 
+step("H · the restore says what came back, from when, and what this device kept (data-integrity#3, #6, assistant-archive#1)", async () => {
+  const d = app.document;
+  const b = await snap();
+  delete b.reports;                                      /* a part the file does not carry */
+  b.exportedAt = Date.parse("2026-11-12T10:00:00Z");
+  K.store.state.sessions.splice(0, 3);
+  const had = K.store.state.sessions.length, want = b.state.sessions.length;
+  const r = await restore(new w.Blob([JSON.stringify(b)], { type: "application/json" }));
+  assert(r.counts.indexOf(want + " sessions (this device had " + had + ")") !== -1, "counted per domain, before and after: " + r.counts.join(" · "));
+  assert(r.kept.indexOf("saved reports") !== -1, "names the part the file did not carry: " + r.kept.join(", "));
+  eq(r.from, b.exportedAt, "and the backup's date");
+  const rep = K.store.state.ui.lastReport;
+  eq([rep.kind, rep.from, rep.lines[0]], ["restore", b.exportedAt, r.counts[0]], "kept on this device for Backup & Restore");
+  K.show("data");
+  await app.settle();
+  const card = d.querySelector('[data-ui~="archive.last-report"]');
+  assert(card && /Last restore · .* · a backup from 12 Nov 2026/.test(card.textContent), "Backup & Restore shows it: " + (card && card.textContent.slice(0, 200)));
+  assert(/this device's own were kept: .*saved reports/.test(card.textContent), "with what was kept: " + card.textContent.slice(0, 400));
+  /* the page's own restore: the toast says it, with Details */
+  const said = [], toast = K.ui.toast;
+  K.ui.toast = (m, bad, act) => { said.push([m, !!bad, act && act.label]); };
+  try {
+    const input = d.querySelector('#main input[type="file"][accept*="json"]');
+    Object.defineProperty(input, "files", { configurable: true, value: [new w.File([JSON.stringify(b)], "b.json", { type: "application/json" })] });
+    input.dispatchEvent(new w.Event("change"));
+    for (let i = 0; i < 200 && !d.querySelector('[role="dialog"],[role="alertdialog"]'); i++) await app.settle();
+    const go = Array.from(d.querySelectorAll('[role="dialog"] button,[role="alertdialog"] button')).find((x) => /Replace with this backup/.test(x.textContent));
+    assert(go, "the confirm");
+    go.click();
+    for (let i = 0; i < 600 && !said.some((x) => /^Restored a backup from 12 Nov 2026: /.test(x[0])); i++) await app.settle();
+  } finally { K.ui.toast = toast; }
+  const t = said.find((x) => /^Restored a backup/.test(x[0]));
+  assert(t && new RegExp(want + " sessions").test(t[0]) && t[2] === "Details", "the toast counts what came back and offers Details: " + JSON.stringify(said));
+});
+
 step("G · no errors, no request", async () => {
   eq(app.errors, [], "no error");
   assert(!app.fetches.length, "no request: " + app.fetches.slice(0, 3).join(", "));

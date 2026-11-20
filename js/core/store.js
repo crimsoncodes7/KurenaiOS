@@ -1139,6 +1139,40 @@
   }
   var recovery = new Promise(function (res) { recoverFromMirror(res); });
 
+  /* WHAT A DOCUMENT HOLDS, per domain (data-integrity#3): a restore and a
+     first link report these before and after. Counts only, never content. */
+  var TALLY = [["sessions", "sessions"], ["srs", "scheduled cards"], ["assignments.items", "assignments"],
+    ["reminders.items", "reminders"], ["calendar.events", "events"], ["exams.assessments", "exams and deadlines"],
+    ["goals.items", "goals"], ["routines.items", "routines"], ["pacing.entries", "plan rows"], ["wishlist.items", "wishlist items"]];
+  function tally(doc) {
+    var out = {};
+    TALLY.forEach(function (t) {
+      var v = t[0].split(".").reduce(function (o, k) { return o && o[k]; }, doc);
+      out[t[1]] = Array.isArray(v) ? v.length : v && typeof v === "object" ? Object.keys(v).length : 0;
+    });
+    return out;
+  }
+  /* "340 sessions (this device had 120)" for a restore; "+220 sessions" for a merge */
+  function tallyWords(after, before, merge) {
+    var out = [];
+    TALLY.forEach(function (t) {
+      var a = after[t[1]] || 0, b = before[t[1]] || 0;
+      if (merge) { if (a !== b) out.push((a > b ? "+" : "−") + Math.abs(a - b).toLocaleString("en-GB") + " " + t[1]); }
+      else if (a || b) out.push(a.toLocaleString("en-GB") + " " + t[1] + (a !== b ? " (this device had " + b.toLocaleString("en-GB") + ")" : ""));
+    });
+    return out;
+  }
+  /* the last restore or first link, for the toast and Backup & Restore
+     (assistant-archive#1): per device, like all of state.ui */
+  function noteReport(r) {
+    var st = KOS.store.state;
+    st.ui = st.ui || {};
+    st.ui.lastReport = { kind: r.kind, at: Date.now(), from: r.from || null, lines: (r.lines || []).slice(0, 40),
+      kept: (r.kept || []).slice(0, 20), missing: (r.missing || []).slice(0, 20) };
+    KOS.store.save();
+    return st.ui.lastReport;
+  }
+
   KOS.store = {
     epoch: function () { return epoch; },
     docEpoch: function () { return docEpoch; },
@@ -1451,20 +1485,31 @@
         /* a part the backup itself could not read when it was made (DI-09) */
         var gone = Array.isArray(backup && backup.missing) ? backup.missing : [];
 
+        var before = tally(KOS.store.state);
         /* Restore localStorage state */
         KOS.store.replaceState(incoming);
 
         var version = backup.kos_backup_version || 1;
         var report = { restoredSections: ["study & governor data"], missingSections: gone.map(function (m) {
           return String((m && m.part) || "a part") + " (not in this backup: " + String((m && m.reason) || "it could not be read") + ")";
-        }) };
+        }), kept: [], from: backup.exportedAt || null };
+        /* the counts before and after, kept on this device for Backup & Restore (assistant-archive#1) */
+        function finishReport() {
+          report.counts = tallyWords(tally(KOS.store.state), before, false);
+          report.cloud = !!(window.KOS && KOS.cloud && KOS.cloud.userId && KOS.cloud.userId());
+          noteReport({ kind: "restore", from: report.from, lines: report.counts.concat(report.restoredSections.slice(1)),
+            kept: report.kept, missing: report.missingSections });
+          return done && done(null, report);
+        }
+        /* data-integrity#6: a part the file does not carry leaves this device's own as it is */
+        function keep(part, label) { if (!backup[part]) report.kept.push(label); return !backup[part]; }
 
         if (version < 2) {
           report.missingSections.push(
             "media vault (not in this backup — re-sync from AniList/VNDB to restore)",
             "attachments (not in this backup — attach files again manually)"
           );
-          return done && done(null, report);
+          return finishReport();
         }
 
         function restoreMedia(next) {
@@ -1540,7 +1585,7 @@
         }
 
         function restoreMoney(next) {
-          if (!backup.money) return next();
+          if (keep("money", "money transactions")) return next();
           if (!window.KOS || !KOS.money || !KOS.money.available()) {
             report.missingSections.push("money transactions (IndexedDB unavailable)");
             return next();
@@ -1553,7 +1598,7 @@
         }
 
         function restoreReviews(next) {
-          if (!backup.reviews) return next();
+          if (keep("reviews", "the review log")) return next();
           if (!window.KOS || !KOS.reviewLog || !KOS.reviewLog.available()) {
             report.missingSections.push("review log (IndexedDB unavailable)");
             return next();
@@ -1566,7 +1611,7 @@
         }
 
         function restoreInk(next) {
-          if (!backup.ink) return next();
+          if (keep("ink", "handwriting")) return next();
           if (!window.KOS || !KOS.ink || !KOS.ink.available()) {
             report.missingSections.push("handwriting (IndexedDB unavailable)");
             return next();
@@ -1579,7 +1624,7 @@
         }
 
         function restoreCreatives(next) {
-          if (!backup.creatives) return next();
+          if (keep("creatives", "creative work")) return next();
           if (!window.KOS || !KOS.creatives || !KOS.creatives.files.available()) {
             report.missingSections.push("creative work (IndexedDB unavailable)");
             return next();
@@ -1592,7 +1637,7 @@
         }
 
         function restoreMind(next) {
-          if (!backup.mind) return next();
+          if (keep("mind", "Mind's Journal")) return next();
           if (!window.KOS || !KOS.mindJournal || !KOS.mindJournal.available()) {
             report.missingSections.push("Mind's Journal (IndexedDB unavailable)");
             return next();
@@ -1605,7 +1650,7 @@
         }
 
         function restoreLedger(next) {
-          if (!backup.ledger) return next();
+          if (keep("ledger", "older sessions")) return next();
           if (!window.KOS || !KOS.ledgerArchive || !KOS.ledgerArchive.available()) {
             report.missingSections.push("older sessions (IndexedDB unavailable)");
             return next();
@@ -1618,7 +1663,7 @@
         }
 
         function restoreJaMined(next) {
-          if (!backup.jaMined) return next();
+          if (keep("jaMined", "mined Japanese lines")) return next();
           if (!window.KOS || !KOS.jaMined || !KOS.jaMined.available()) {
             report.missingSections.push("mined Japanese lines (IndexedDB unavailable)");
             return next();
@@ -1631,7 +1676,7 @@
         }
 
         function restoreReports(next) {
-          if (!backup.reports) return next();
+          if (keep("reports", "saved reports")) return next();
           if (!window.KOS || !KOS.reportStore || !KOS.reportStore.importAll || !KOS.reportStore.available()) {
             report.missingSections.push("saved reports (IndexedDB unavailable)");
             return next();
@@ -1644,7 +1689,7 @@
         }
 
         function restoreAttempts(next) {
-          if (!backup.attempts) return next();
+          if (keep("attempts", "recorded attempts")) return next();
           if (!window.KOS || !KOS.attempts || !KOS.attempts.available()) {
             report.missingSections.push("recorded attempts (IndexedDB unavailable)");
             return next();
@@ -1662,7 +1707,7 @@
              the backup no longer carries) instead of trusting stale
              watermarks. No-op when cloud sync is absent or signed out. */
           if (window.KOS && KOS.cloudsync && KOS.cloudsync.noteRestore) KOS.cloudsync.noteRestore();
-          done && done(null, report);
+          finishReport();
         }); }); }); }); }); }); }); }); }); }); });
       }
       if (window.KOS && KOS.backupFile && file && typeof file.slice === "function") {
@@ -1685,6 +1730,8 @@
     /* Replace the whole state document in place (restore + Build 4a cloud
        pull share this path): defaults merged under, legacy fields scrubbed,
        every existing reference to KOS.store.state stays valid. */
+    tally: tally, tallyWords: tallyWords, noteReport: noteReport,
+
     replaceState: function (incoming) {
       /* first what the other tabs wrote, so this tab's base is the stored
          document: the replace is then THIS tab's one change on top of it

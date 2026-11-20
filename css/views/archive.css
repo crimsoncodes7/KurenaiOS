@@ -29,6 +29,11 @@
 .k-bk-kicker { color: var(--bk-kicker-ink); }
 .k-bk-last { margin: var(--sp-8) 0 var(--sp-4); font-size: var(--fs-26); font-weight: var(--weight-semibold); letter-spacing: var(--track-head); }
 .k-bk-last-sub { margin: 0; font-size: var(--fs-13-5); color: var(--text-2); }
+/* the last restore or first link, counted (data-integrity#3) */
+.k-bk-report { margin-block-start: var(--sp-8); }
+.k-bk-report > summary { cursor: pointer; min-block-size: var(--hit); display: flex; align-items: center; }
+.k-bk-report-list { margin: var(--sp-4) 0 0; padding-inline-start: var(--sp-18); font-size: var(--fs-12-5); color: var(--text-2); }
+.k-bk-report > .k-bk-note[data-tone="danger"] { color: var(--alarm); }
 .k-bk-facts { display: flex; flex-wrap: wrap; gap: var(--sp-10) var(--sp-24); margin: var(--sp-18) 0 var(--sp-20); }
 .k-bk-fact-k { display: block; font-size: var(--fs-11-5); color: var(--muted); }
 .k-bk-fact-v { display: block; margin-block-start: var(--sp-2); font-size: var(--fs-15); font-weight: var(--weight-semibold); }
@@ -367,5 +372,9 @@ button.k-files-way:hover { background: var(--s2); }
 @media (max-width: 700px) {
 .k-scan-body { grid-template-columns: minmax(0, 1fr); }
 .k-scan-strip { flex-direction: row; max-block-size: none; overflow-x: auto; }
+}
+/* the report's summary is a hit area on touch too (invariant 69) */
+@media (pointer: coarse) {
+.k-bk-report > summary { min-block-size: var(--hit-coarse); }
 }
 }

@@ -86,6 +86,7 @@
       if (err4) { cb(err4); return; }
       KOS.mediadb.setKV(source === "vndb" ? "vndb.lastSync" : "anilist.lastSync." + module,
         Date.now(), function () {});
+      if (KOS.media.noteSyncResult) KOS.media.noteSyncResult(source, module, res);
       KOS.media.logSyncRewards(module, res.rewards);
       cb(null, res);
     }
@@ -162,6 +163,19 @@
             ? new Date(Math.max.apply(null, stamps)).toLocaleString(undefined, { dateStyle: "medium", timeStyle: "short" }) : "Not yet";
         });
       });
+      /* bk:collection#2: what the newest pull changed, said again later */
+      var changedNode = node.querySelector("[data-fact='changed']");
+      if (changedNode) {
+        var rk = modules.map(function (m) { return "sync.result." + source + "." + m; }), got = [];
+        (function readOne(i) {
+          if (i >= rk.length) {
+            var r = got.filter(Boolean).sort(function (a, b) { return b.at - a.at; })[0];
+            changedNode.textContent = r ? doneWording(r) : "—";
+            return;
+          }
+          KOS.mediadb.getKV(rk[i], function (_e, v) { got.push(v && typeof v === "object" ? v : null); readOne(i + 1); });
+        })(0);
+      }
       var total = 0, index = 0;
       (function countImported() {
         if (index >= modules.length) { node.querySelector("[data-fact='count']").textContent = total.toLocaleString(); return; }
@@ -201,7 +215,7 @@
         setPill(aniPill, connected);
 
         if (connected) {
-          var meta = facts([["Account", conn.viewer.name], ["Sync mode", "Mirror · 1:1"], ["Last successful sync", "Checking…", "last"], ["Items imported", "Checking…", "count"]]);
+          var meta = facts([["Account", conn.viewer.name], ["Sync mode", "Mirror · 1:1"], ["Last successful sync", "Checking…", "last"], ["What it changed", "Checking…", "changed"], ["Items imported", "Checking…", "count"]]);
           connBody.appendChild(meta);
           stampFacts(meta, ["anilist.lastSync.anime", "anilist.lastSync.books"], ["anime", "books"], "anilist");
           var syncStatus = el("p", { class: "k-sy-status", "data-ui": "sync.status", "aria-live": "polite" });
@@ -307,7 +321,7 @@
         if (connected) {
           var canWrite = (conn.user.permissions || []).indexOf("listwrite") !== -1;
           var vnMeta = facts([["Account", conn.user.username + " · " + conn.user.id], ["Access", canWrite ? "Read & write" : "Read-only token"],
-            ["Last successful sync", "Checking…", "last"], ["Items imported", "Checking…", "count"]]);
+            ["Last successful sync", "Checking…", "last"], ["What it changed", "Checking…", "changed"], ["Items imported", "Checking…", "count"]]);
           vndbBody.appendChild(vnMeta);
           stampFacts(vnMeta, ["vndb.lastSync", "vndb.lastSync"], ["vn"], "vndb");
           var vnStatus = el("p", { class: "k-sy-status", "data-ui": "sync.status", "aria-live": "polite" });

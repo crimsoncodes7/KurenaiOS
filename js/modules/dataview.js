@@ -122,12 +122,8 @@
           importBtn.textContent = "Import backup…";
           file.value = "";
           if (err) { KOS.ui.toast("Import failed: " + err.message, true); return; }
-          var msg = "Restored: " + report.restoredSections.join(", ") + ".";
-          if (report.missingSections.length) {
-            msg += " Note: " + report.missingSections.join("; ") + ".";
-          }
-          KOS.ui.toast(msg);
           afterRestore();
+          reportToast(report);
         });
     }
     var importBtn = el("button", { type: "button", class: "k-btn", text: "Import backup…", title: "A complete restore, not a merge: the file replaces what's here",
@@ -141,6 +137,7 @@
       el("span", { class: "k-watermark k-bk-mark", lang: "ja", "aria-hidden": "true", text: "蔵" }),
       el("div", { class: "k-kicker k-bk-kicker", text: "Keep it safe" }),
       lastLine, lastSub,
+      s.ui && s.ui.lastReport ? lastReport(s.ui.lastReport) : null,
       el("div", { class: "k-bk-facts" }, [
         el("div", {}, [el("span", { class: "k-bk-fact-k", text: "Cloud sync" }), cloudFact]),
         el("div", {}, [el("span", { class: "k-bk-fact-k", text: "Stored on this device" }), sizeFact]),
@@ -265,12 +262,34 @@
         KOS.ui.toast("Saving a copy of this device first…");
         /* importFull re-baselines the cloud itself (noteRestore) */
         KOS.backup.restoreSafe(r.id).then(function () {
-          KOS.ui.toast("Restored the checkpoint from " + when + ".");
           afterRestore();
+          KOS.ui.toast("Restored the checkpoint from " + when + ".", false, { label: "Details", run: function () { KOS.show("data"); } });
         }).catch(function (e) { KOS.ui.toast((e && e.message) || String(e), true); });
       });
   }
 
+  /* data-integrity#3, assistant-archive#1: the restore says what came back,
+     counted, from a backup of what date; the whole report stays on Backup &
+     Restore (state.ui.lastReport, per device) */
+  function dayWords(ts) { return new Date(ts).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }); }
+  function reportToast(report) {
+    var head = report.from ? "Restored a backup from " + dayWords(report.from) : "Restored the backup";
+    var counts = (report.counts || []).map(function (l) { return l.replace(/ \(this device had [^)]*\)/, ""); });
+    KOS.ui.toast(head + (counts.length ? ": " + counts.slice(0, 3).join(", ") + (counts.length > 3 ? " and more" : "") : "") + ".", false,
+      { label: "Details", run: function () { KOS.show("data"); } });
+    if (report.missingSections && report.missingSections.length) KOS.ui.toast("Not restored: " + report.missingSections.join("; ") + ".", true);
+  }
+  function lastReport(r) {
+    var when = new Date(r.at).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" });
+    var title = r.kind === "link" ? "Linked to your account · " + when : "Last restore · " + when + (r.from ? " · a backup from " + dayWords(r.from) : "");
+    var list = el("ul", { class: "k-bk-report-list" }, (r.lines || []).map(function (l) { return el("li", { text: l }); }));
+    return el("details", { class: "k-bk-report", "data-ui": "archive.last-report", "data-kind": r.kind }, [
+      el("summary", { class: "k-bk-last-sub", text: title + " — what changed" }), list,
+      (r.kept || []).length ? el("p", { class: "k-bk-note", text: "Not in the file, so this device's own were kept: " + r.kept.join(", ") + "." }) : null,
+      (r.missing || []).length ? el("p", { class: "k-bk-note", "data-tone": "danger", text: "Not restored: " + r.missing.join("; ") + "." }) : null,
+      r.kind === "restore" ? el("p", { class: "k-bk-note", text: "If cloud sync is on, this restore became your account's copy at the next sync." }) : null
+    ].filter(Boolean));
+  }
   /* AA-17: a restore replaced the state and the stores in place. What this
      page load holds in memory follows before Home is drawn: the rail's
      profile card, the theme and cosmetics, the Files index, the ink index

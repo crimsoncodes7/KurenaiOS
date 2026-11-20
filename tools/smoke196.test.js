@@ -22,6 +22,8 @@
          paths, read from their source (they run on Deno, not here).
      D · creatives#6: the Writing Desk writes a draft on pagehide and when
          you leave the page, not only after its 600 ms pause.
+     I · bk:collection#2: Sync & Import keeps what each provider pull
+         changed and says it later ("What it changed").
 
    Run: node tools/smoke196.test.js */
 "use strict";
@@ -277,6 +279,24 @@ step("H · the server functions' failure paths (rm:edge-hygiene, EF-01 to EF-08)
   assert(/catch \{\s*return htmlPage\("Steam link failed", "Steam could not be reached/.test(read("steam-auth/index.ts")), "EF-07: Steam unreachable is a page that says so");
   const cloud = fs.readFileSync(path.join(__dirname, "..", "js/core/cloud.js"), "utf8");
   assert(/if \(!msg && status === 401\) \{ msg = EXPIRED;/.test(cloud), "EF-02: the gateway's own 401 reads as an expired session");
+});
+
+step("I · Sync & Import says what the last pull changed, read back later (bk:collection#2)", async () => {
+  K.media.noteSyncResult("anilist", "books", { added: 1, updated: 0, unchanged: 7 });
+  K.media.noteSyncResult("anilist", "anime", { added: 2, updated: 1, unchanged: 40, removed: 0 });
+  const conn = K.anilist.getConnection;
+  K.anilist.getConnection = (cb) => cb(null, { token: "t", viewer: { id: 1, name: "Tester" } });
+  try {
+    K.show("mediasync");
+    let fact = null;
+    for (let i = 0; i < 200; i++) {
+      await app.settle();
+      fact = q("[data-ui~='sync.provider-facts'] [data-fact='changed']");
+      if (fact && fact.textContent && !/Checking/.test(fact.textContent)) break;
+    }
+    assert(fact, "the fact is on the AniList card");
+    eq(fact.textContent, "2 added, 1 updated, 40 already up to date", "the newest pull's changes");
+  } finally { K.anilist.getConnection = conn; }
 });
 
 (async () => {

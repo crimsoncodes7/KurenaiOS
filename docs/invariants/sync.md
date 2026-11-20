@@ -114,6 +114,18 @@ Read this file before editing or testing anything in its domain.
     (`state.ui.localOnly`, Account & Cloud Sync). A successful push
     broadcasts a data-free "changed" note on a Realtime channel so other open
     devices pull within seconds; the timers remain the safety net.
+    WHAT A RESTORE OR FIRST LINK CHANGED IS SAID, counted (1A,
+    data-integrity#3/#4/#6, assistant-archive#1, bk:collection#2): both
+    count the state's domains before and after (`KOS.store.tally`, counts
+    only), a first link counts the Collection's rows by where they came
+    from, and a restore names the backup's date and the parts the file did
+    not carry (this device's own are kept). One toast says the first few,
+    with Details; the whole report is kept per device
+    (`state.ui.lastReport`) and shown on Backup & Restore. While a link
+    waits on a backup that will not verify, the notice offers to download
+    a copy of this device first. Sync & Import keeps what each provider
+    pull changed (`sync.result.<source>.<module>` in the media kv) and says
+    it later.
 35. The publishable key is public; RLS is the boundary. Never commit/log a token or
     service-role key. Cloud sessions and sync metadata stay out of backups.
 36. Attachment metadata syncs automatically, and so do binaries now (files

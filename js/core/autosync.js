@@ -107,6 +107,7 @@
       KOS.mediadb.bulkUpsert(mapped, KOS.media.mirrorOpts(module, listNames), function (err2, res) {
         if (err2) { report.errors.push("anilist/" + module + " write: " + err2.message); cb(null); return; }
         KOS.mediadb.setKV("anilist.lastSync." + module, Date.now(), function () {});
+        if (KOS.media.noteSyncResult) KOS.media.noteSyncResult("anilist", module, res);
         cb(res);
       });
     });
@@ -133,6 +134,7 @@
         KOS.mediadb.bulkUpsert(mapped, {}, function (err3, res) {
           if (err3) { report.errors.push("vndb write: " + err3.message); cb(); return; }
           KOS.mediadb.setKV("vndb.lastSync", Date.now(), function () {});
+          if (KOS.media.noteSyncResult) KOS.media.noteSyncResult("vndb", "vn", res);
           report.vndb = res;
           cb();
         });

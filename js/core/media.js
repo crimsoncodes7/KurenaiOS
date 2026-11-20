@@ -176,6 +176,13 @@
      never flood the log. bulkUpsert supplies the events (already filtered
      through the per-entry watermark); this just turns them into the
      session the governor prices. Returns the session or null. */
+  /* bk:collection#2: what a provider pull changed, kept per source and
+     module so Sync & Import can say it later (counts only; per device) */
+  function noteSyncResult(source, module, res) {
+    if (!res || !KOS.mediadb) return;
+    KOS.mediadb.setKV("sync.result." + source + "." + module, { at: Date.now(), added: res.added || 0, updated: res.updated || 0,
+      removed: res.removed || 0, unchanged: res.unchanged || 0, kept: res.kept || 0 }, function () {});
+  }
   function logSyncRewards(module, events) {
     if (!events || !events.length) return null;
     var units = events.reduce(function (a, ev) { return a + (ev.units || 0); }, 0);
@@ -659,7 +666,7 @@
     CONDITION_COLOR: CONDITION_COLOR,
     parseXML: parseXML,
     logActivity: logActivity,
-    logSyncRewards: logSyncRewards,
+    logSyncRewards: logSyncRewards, noteSyncResult: noteSyncResult,
     logSyncRewardBatch: logSyncRewardBatch,
     dedupeVault: dedupeVault,
     mergeRows: mergeCluster,

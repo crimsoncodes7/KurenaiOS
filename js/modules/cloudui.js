@@ -129,8 +129,19 @@
       return box;
     }
     box.appendChild(el("p", { class: "k-cloud-p k-cloud-note", text:
-      "You can link without it. A copy of this device's study record is still kept first (Archive › Storage); your Collection and files would be combined with no backup of their own, so export one first if you can." }));
-    box.appendChild(el("div", { class: "k-cloud-btns" }, [el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "cloud.link-without-backup", text: "Link without a backup", onclick: function () {
+      "You can link without it. A copy of this device's study record is still kept first (Archive › Storage); your Collection and files would be combined with no backup of their own, so download a copy first if you can." }));
+    /* data-integrity#4: a copy of this device to a file first, from here */
+    var dl = el("button", { type: "button", class: "k-btn k-btn--sm k-btn--primary", "data-intent": "primary", "data-ui": "cloud.link-download", text: "Download a copy of this device first", onclick: function () {
+      dl.disabled = true; dl.textContent = "Saving a copy…";
+      KOS.store.exportFull(function (err, info) {
+        dl.disabled = false; dl.textContent = "Download a copy of this device first";
+        if (err) { KOS.ui.toast("The copy could not be saved: " + err.message, true); return; }
+        var left = ((info && info.missing) || []).map(function (m) { return m.part; });
+        KOS.store.state.ui.lastBackupAt = Date.now(); KOS.store.save();
+        KOS.ui.toast(left.length ? "Copy saved without: " + left.join(", ") + "." : "A copy of this device is saved to your downloads.", !!left.length);
+      });
+    } });
+    box.appendChild(el("div", { class: "k-cloud-btns" }, [dl, el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "cloud.link-without-backup", text: "Link without a backup", onclick: function () {
       KOS.ui.confirm({ title: "Link this device without a backup?", danger: true, confirm: "Link without a backup",
         body: "This device's data and your account's will be combined now. Nothing is deleted by it, but there will be no full backup to go back to." }, function () {
         KOS.cloudsync.linkWithoutBackup(function (err) {

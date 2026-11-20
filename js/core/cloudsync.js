@@ -152,7 +152,7 @@
     return n || "file";
   }
   function storagePath(fileId, name) { return uid() + "/" + fileId + "/" + safeName(name); }
-  function toast(msg, bad) { if (!QUIET && KOS.ui && KOS.ui.toast) KOS.ui.toast(msg, bad); }
+  function toast(msg, bad, action) { if (!QUIET && KOS.ui && KOS.ui.toast) KOS.ui.toast(msg, bad, action); }
 
   /* ---------------- per-device keys (never synced) ----------------
      state.ui and the Collection view preferences describe THIS DEVICE's
@@ -1422,6 +1422,19 @@
      three-way merged with no common ancestor. The one place local client
      time meets server time is the newer-copy decision for a matched media
      pair — a one-time, first-link-only comparison, documented in Help. */
+  /* data-integrity#3: what the first link combined, counted: the
+     Collection's rows by where they came from, the study record's domains
+     by how many each gained or lost. Kept for Backup & Restore. */
+  var linkCounts = null;
+  function linkReport(before) {
+    var c = linkCounts || { added: 0, updated: 0, kept: 0 }, lines = [];
+    var media = [c.added ? c.added + " from the cloud" : null, c.updated ? c.updated + " updated from the cloud" : null,
+      c.kept ? c.kept + " kept as on this device" : null].filter(Boolean);
+    if (media.length) lines.push("Collection: " + media.join(", "));
+    lines = lines.concat(KOS.store.tallyWords ? KOS.store.tallyWords(KOS.store.tally(KOS.store.state), before, true) : []);
+    if (KOS.store.noteReport) KOS.store.noteReport({ kind: "link", lines: lines.length ? lines : ["Nothing new on either side: the two copies already matched"] });
+    return lines;
+  }
   function firstLinkMerge(stateRow, meta, done) {
     KOS.mediadb.query({}, function (err, locals) {
       if (err) { done(err); return; }
@@ -1436,6 +1449,7 @@
         if (!byTitleMod[tk]) byTitleMod[tk] = e;
       });
       var claimed = {};   // local id → already matched to a remote row
+      linkCounts = { added: 0, updated: 0, kept: 0 };
       function matchLocal(row) {
         var d = row.data_json || {};
         var cand = bySync[row.entry_id] || null;
@@ -1468,7 +1482,7 @@
               rec.syncId = row.entry_id;
               delete rec.id;
               KOS.mediadb.add(rec, function (e3, saved) {
-                if (!e3 && saved) meta.media[row.entry_id] = { remoteTs: row.updated_at, cleanLocal: saved.updatedAt };
+                if (!e3 && saved) { meta.media[row.entry_id] = { remoteTs: row.updated_at, cleanLocal: saved.updatedAt }; linkCounts.added++; }
                 step();
               });
               return;
@@ -1480,7 +1494,7 @@
               rec2.syncId = row.entry_id;
               rec2.id = local.id;
               KOS.mediadb.put(rec2, function (e4, saved) {
-                if (!e4 && saved) meta.media[row.entry_id] = { remoteTs: row.updated_at, cleanLocal: saved.updatedAt };
+                if (!e4 && saved) { meta.media[row.entry_id] = { remoteTs: row.updated_at, cleanLocal: saved.updatedAt }; linkCounts.updated++; }
                 step();
               });
             } else {
@@ -1488,7 +1502,7 @@
                  dirty so the next push uploads local content over it */
               local.syncId = row.entry_id;
               KOS.mediadb.put(local, function (e5, saved) {
-                if (!e5 && saved) meta.media[row.entry_id] = { remoteTs: row.updated_at, cleanLocal: null };
+                if (!e5 && saved) { meta.media[row.entry_id] = { remoteTs: row.updated_at, cleanLocal: null }; linkCounts.kept++; }
                 step();
               });
             }
@@ -1702,10 +1716,13 @@
           meta.linked = true;
           saveMeta(meta, function () { main(); });
         } else if (res.kind === "remoteOnly") {
+          var before0 = KOS.store.tally ? KOS.store.tally(KOS.store.state) : {};
+          linkCounts = null;
           adoptRemote(meta, function (eB) {
             if (eB) { finish(eB); return; }
             saveMeta(meta, function () {
-              toast("Cloud data downloaded — this device now mirrors your account.");
+              linkReport(before0);
+              toast("Cloud data downloaded — this device now mirrors your account.", false, { label: "Details", run: function () { KOS.show("data"); } });
               rerenderCurrent();
               main();
             });
@@ -1722,6 +1739,7 @@
             meta.linked = true;
             meta.state.lastPushedHash = null; cleanStateHash = null; forceNextPush = true;
             saveMeta(meta, function () {
+              if (KOS.store.noteReport) KOS.store.noteReport({ kind: "link", lines: ["This device's data became your account's copy: the account held nothing yet"] });
               toast("Local data uploaded — this account now syncs across devices.");
               main();
             });
@@ -1732,10 +1750,13 @@
           var combine = function (cp) {
             if (cp) meta.firstLinkCheckpoint = cp.id;
             delete meta.linkFail; blocked = null;
+            var before = KOS.store.tally ? KOS.store.tally(KOS.store.state) : {};
             firstLinkMerge(res.stateRow || null, meta, function (eM) {
               if (eM) { finish(eM); return; }
               saveMeta(meta, function () {
-                toast("Merged with your cloud data — media combined per entry, study state combined.");
+                var lines = linkReport(before);
+                toast("Merged with your cloud data" + (lines.length ? ": " + lines.slice(0, 3).join(", ") + (lines.length > 3 ? " and more" : "") : ", nothing new on either side") + ".", false,
+                  { label: "Details", run: function () { KOS.show("data"); } });
                 main();
               });
             });

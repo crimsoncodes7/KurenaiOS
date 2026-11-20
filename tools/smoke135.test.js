@@ -850,6 +850,7 @@ step("T · Storage offers the copy from before the first link; the sync panel of
   assert(/could not be read back/.test(note.textContent), "it says why: " + note.textContent);
   const btn = note.querySelector("[data-ui~='cloud.link-without-backup']");
   assert(btn, "with the button");
+  assert(note.querySelector("[data-ui~='cloud.link-download']"), "and one to download a copy of this device first (data-integrity#4)");
   btn.click();
   for (let i = 0; i < 400 && (K.cloudsync.isRunning() || !K.store.state.progress["maths:cloud-marker"]); i++) await app.settle();
   K.backup.checkpoint = real;
@@ -864,6 +865,33 @@ step("T · Storage offers the copy from before the first link; the sync panel of
   row.querySelector("[data-ui~='storage.kept-delete']").click();
   for (let i = 0; i < 20; i++) await app.settle();
   eq(await p((cb) => K.cloudsync.preLinked(cb)), null, "Delete takes it away");
+  eq(app.errors, [], "no page errors");
+});
+
+step("U · the first link says what it combined, counted, and keeps it for Backup & Restore (data-integrity#3)", async () => {
+  const sv = makeServer();
+  const { app, K, sync } = await linkedApp(sv, "user-u");
+  K.reminders.add({ title: "Device reminder" });
+  K.store.save();
+  const doc0 = remoteDoc({ progress: PROG });
+  doc0.reminders.items = [{ id: 41, title: "Cloud one", created: 1 }, { id: 42, title: "Cloud two", created: 2 }];
+  sv.state = { state_json: doc0, updated_at: sv.stamp() };
+  sv.media.set("m-cloud", { entry_id: "m-cloud", module: "anime", deleted: false, updated_at: sv.stamp(),
+    data_json: { title: "Cloud Show", module: "anime", status: "watching" } });
+  const said = [], toast = K.ui.toast;
+  K.cloudsync._config({ quiet: false });
+  K.ui.toast = (m, bad, act) => { said.push([m, act && act.label]); };
+  try { await sync(); } finally { K.ui.toast = toast; K.cloudsync._config({ quiet: true }); }
+  const rep = K.store.state.ui.lastReport;
+  assert(rep && rep.kind === "link", "a report was kept: " + JSON.stringify(rep));
+  assert(rep.lines.indexOf("Collection: 1 from the cloud") !== -1, "the Collection by where its rows came from: " + rep.lines.join(" · "));
+  assert(rep.lines.indexOf("+2 reminders") !== -1, "the study record by what each domain gained: " + rep.lines.join(" · "));
+  const t = said.find((x) => /^Merged with your cloud data: /.test(x[0]));
+  assert(t && /\+2 reminders/.test(t[0]) && t[1] === "Details", "the toast says it, with Details: " + JSON.stringify(said));
+  K.show("data");
+  await app.settle();
+  const card = app.document.querySelector('[data-ui~="archive.last-report"]');
+  assert(card && /Linked to your account/.test(card.textContent) && /\+2 reminders/.test(card.textContent), "Backup & Restore shows it");
   eq(app.errors, [], "no page errors");
 });
 
