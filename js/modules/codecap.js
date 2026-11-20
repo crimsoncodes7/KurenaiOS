@@ -544,7 +544,7 @@
         head = el("div", { class: "k-cx-capresult", "data-state": v.ready ? "ready" : "notyet" }, [
           el("div", {}, [el("p", { class: "k-cx-capresult-h", text: v.ready ? "Ready to submit" : "Not yet" }),
             v.missing.length ? el("ul", { class: "k-cx-capleft", "data-ui": "code.cap-missing" }, v.missing.map(function (m) {
-              return el("li", {}, [el("button", { type: "button", class: "k-link", text: m.text.charAt(0).toUpperCase() + m.text.slice(1), onclick: function () { go(m.step); } })]);
+              return el("li", {}, [el("button", { type: "button", class: "k-link", "data-ui": "code.cap-missing-go", text: m.text.charAt(0).toUpperCase() + m.text.slice(1) + " →", onclick: function () { go(m.step); } })]);
             })) : el("p", { class: "k-cx-note", text: "Every milestone passes, the rubric is marked and the write-up is long enough." })]),
           el("div", { class: "k-cx-capresult-act" }, [
             el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "code.cap-submit", text: "Submit capstone",
