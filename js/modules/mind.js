@@ -259,9 +259,13 @@
       var all = window.KOS_MIND.PATHS.filter(function (p) { return p.header === h.id; });
       /* a path with no units written yet is named on the section line, not drawn as an empty card */
       var ps = all.filter(function (p) { return p.units.length; }), later = all.filter(function (p) { return !p.units.length; });
+      var countText = all.length + (all.length === 1 ? " path" : " paths") + (later.length ? " · " + later.map(function (p) { return p.id + " " + p.title; }).join(", ") + " later" : "");
       main.appendChild(el("section", { class: "k-mind-hsec", "aria-labelledby": "mind-h-" + h.id }, [
-        el("div", { class: "k-sectionhead" }, [el("h2", { id: "mind-h-" + h.id, text: h.name }), el("span", { class: "k-sectionhead-sub",
-          text: all.length + (all.length === 1 ? " path" : " paths") + (later.length ? " · " + later.map(function (p) { return p.id + " " + p.title; }).join(", ") + " later" : "") })]),
+        el("div", { class: "k-sectionhead" }, [
+          el("h2", { id: "mind-h-" + h.id, text: h.name }),
+          h.purpose ? el("span", { class: "k-sectionhead-sub", "data-ui": "mind.path-purpose", text: h.purpose }) : null,
+          el("span", { class: "k-sectionhead-actions k-sectionhead-sub", text: countText })
+        ].filter(Boolean)),
         el("div", { class: "k-mind-pgrid" }, ps.map(pathCard))
       ]));
     });

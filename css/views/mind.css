@@ -149,6 +149,7 @@ button.k-mind-map-t { cursor: pointer; }
 .k-mind-credits { margin-block-start: var(--sp-24); font-size: var(--fs-12); }
 .k-mind-credits b { color: var(--text-2); }
 .k-mind-hsec { margin-block-end: var(--sp-28); }
+.k-mind-hsec > .k-sectionhead { flex-wrap: wrap; row-gap: var(--sp-4); }
 .k-mind-pgrid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--sp-14); align-items: stretch; }
 /* the last row closes up: its last card widens over the empty tracks (no dead space) */
 .k-mind-pgrid > :last-child:nth-child(4n + 1) { grid-column: span 4; }
