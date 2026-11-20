@@ -369,6 +369,8 @@
     creatives: ["page-creatives", "labs"],
     /* the Labs page (1F, 20 Nov 2026: the labs left boot) */
     sims: ["labs"],
+    /* the topic page (topic.js, editor.js, inktab.js: 1F) */
+    ref: ["page-topic"],
     /* the Assistant's pages: its tools, permissions and activity (1F) */
     assistant: ["ai"],
     /* Backup & Restore (and Reset everything, which only it opens) */

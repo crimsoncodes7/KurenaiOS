@@ -480,8 +480,6 @@
 <script src="js/engines/flashcards.js"></script>
 <script src="js/engines/quiz.js"></script>
 <!-- modules -->
-<script src="js/modules/editor.js"></script>
-<script src="js/modules/inktab.js"></script>
 <template data-lazy="ink-tex">
 <script src="js/modules/inktex.js"></script>
 </template>
@@ -491,7 +489,12 @@
 <script src="js/modules/searchui.js"></script>
 <script src="js/modules/home.js"></script>
 <script src="js/modules/subject.js"></script>
+<!-- the topic page, its editor and its Handwritten tab load with it (1F) -->
+<template data-lazy="page-topic">
+<script src="js/modules/editor.js"></script>
+<script src="js/modules/inktab.js"></script>
 <script src="js/modules/topic.js"></script>
+</template>
 <template data-lazy="page-data">
 <script src="js/modules/dataview.js"></script>
 </template>

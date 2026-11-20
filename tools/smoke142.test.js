@@ -113,8 +113,9 @@ function eq(a, b, m) { if (JSON.stringify(a) !== JSON.stringify(b)) throw new Er
    (js/data/intel.js, 118 KB) with topic pages; the Assistant's tool
    registry and orchestrator (aitools.js, aiorchestrator.js, 267 KB) when
    it is asked (KOS.ai.ready; a domain's tools wait in KOS.ai.whenTools).
-   6.85 MB, with room kept for Neon's batch 5. */
-const BOOT_BUDGET = 6.85 * 1024 * 1024;
+   The topic page (topic.js, editor.js, inktab.js: page-topic, 128 KB).
+   6.73 MB, with room kept for Neon's batch 5. */
+const BOOT_BUDGET = 6.73 * 1024 * 1024;
 
 /* jsdom has no User Timing: a small recorder, set before the app's scripts */
 function timing(win) {
@@ -289,8 +290,11 @@ step("F · opening a lesson shows Loading…, fetches only its subject, then dra
   const K = app.KOS, B = bundles();
   const ref = Object.keys(E.window.KOS_CONTENT).filter((k) => k.indexOf("maths:") === 0 && E.window.KOS_CONTENT[k].notes)[0].slice(6);
   let redrawAtDraw = null;
-  const inner = K.views.ref;
-  K.views.ref = function (main, arg) { redrawAtDraw = K.ui.redrawing; return inner(main, arg); };
+  /* the topic page itself arrives with its bundle (page-topic, 1F): watch
+     whichever page function is in place, the stand-in or the real one */
+  const wrap = (fn) => { const w = function (main, arg) { if (!fn.lazyStandIn) redrawAtDraw = K.ui.redrawing; return fn(main, arg); }; w.lazyStandIn = fn.lazyStandIn; return w; };
+  let current = wrap(K.views.ref);
+  Object.defineProperty(K.views, "ref", { configurable: true, enumerable: true, get: () => current, set: (v) => { current = wrap(v); } });
   K.show("ref", { subject: "maths", ref });
   const box = waiting(app);
   assert(box, "the page waits");
@@ -300,7 +304,7 @@ step("F · opening a lesson shows Loading…, fetches only its subject, then dra
   await app.settle(); await app.settle();
   assert(!waiting(app), "the wait is over");
   eq(redrawAtDraw, false, "the page's first draw is a first draw, not a redraw");
-  eq(app.lazy.loaded.slice().sort(), B["content-maths"].concat(B.labs, B.intel).sort(), "only Maths, the labs and the examiner's notes were fetched (1F)");
+  eq(app.lazy.loaded.slice().sort(), B["content-maths"].concat(B.labs, B.intel, B["page-topic"]).sort(), "only Maths, the labs, the examiner's notes and the topic page were fetched (1F)");
   eq(app.lazy.misses, [], "nothing read early");
   const h1 = app.document.querySelector("#main h1");
   assert(h1 && h1.textContent.trim(), "the lesson has its title");
