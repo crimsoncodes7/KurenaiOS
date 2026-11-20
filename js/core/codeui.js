@@ -270,7 +270,7 @@
   }
 
   /* ---------------- the full runtime (frame 26g) ---------------- */
-  var MB = function (b) { return b == null ? "?" : (b / 1e6 < 10 ? (b / 1e6).toFixed(1) : String(Math.round(b / 1e6))); };
+  var fmtB = function (b) { return b == null ? "?" : KOS.ui.bytes(b); };
   /* where Run would answer: the reason in one sentence and the ways forward */
   function runtimeCard(opts) {
     var rt = KOS.codeRun.runtime();
@@ -311,7 +311,7 @@
       box.setAttribute("data-state", rt.state);
       if (rt.state === "ready") {
         box.appendChild(head("✓ Full runtime ready"));
-        box.appendChild(el("div", { class: "k-dialog-body" }, [el("p", { text: "Works offline · " + MB(size && size.bytes) + " MB in Code storage. It compiled a first program in " + (rt.warm || rt.ms) + " ms." })]));
+        box.appendChild(el("div", { class: "k-dialog-body" }, [el("p", { text: "Works offline · " + fmtB(size && size.bytes) + " in Code storage. It compiled a first program in " + (rt.warm || rt.ms) + " ms." })]));
         var go = el("button", { type: "button", class: "k-btn k-btn--primary", "data-ui": "code.runtime-run", text: opts.onReady ? "Run it" : "Done", onclick: function () { close(); if (opts.onReady) opts.onReady(); } });
         box.appendChild(foot([go]));
         go.focus();
@@ -323,7 +323,7 @@
         if (q !== said) { said = q; announce("Downloading the full runtime, " + pct + " percent."); }
         box.appendChild(head("Downloading the full runtime"));
         box.appendChild(el("div", { class: "k-dialog-body" }, [
-          el("p", { class: "k-cx-rt-n", text: (size ? MB(size.gzip * pct / 100) + " of " + MB(size.gzip) + " MB" : pct + "%") }),
+          el("p", { class: "k-cx-rt-n", text: (size ? fmtB(size.gzip * pct / 100) + " of " + fmtB(size.gzip) : pct + "%") }),
           el("div", { class: "k-cx-rt-bar", role: "progressbar", "aria-valuemin": "0", "aria-valuemax": "100", "aria-valuenow": String(pct), "aria-label": "Download" }, [el("span", { style: "--pct:" + pct + "%" })]),
           el("p", { class: "k-cx-note", text: pct + "% · units 1–6 still run meanwhile" })
         ]));
@@ -344,7 +344,7 @@
         el("p", { text: failed ? "It stopped before the runtime was ready" + (rt.error ? " (" + rt.error + ")" : "") + ". What arrived is kept; trying again fetches the rest."
           : "Classes, records, generics and LINQ need more than the in-app runner. Download the full runtime once and it stays on this device, working offline afterwards." }),
         el("div", { class: "k-cx-rt-pkg" }, [el("span", { class: "k-cx-rt-ic", "aria-hidden": "true", text: ".NET" }),
-          el("div", {}, [el("b", { text: ".NET 10 runtime and the C# compiler" }), el("span", { class: "k-cx-note", "data-ui": "code.runtime-size", text: "≈ " + MB(size && size.gzip) + " MB download · " + MB(size && size.bytes) + " MB on this device" })])]),
+          el("div", {}, [el("b", { text: ".NET 10 runtime and the C# compiler" }), el("span", { class: "k-cx-note", "data-ui": "code.runtime-size", text: "≈ " + fmtB(size && size.gzip) + " download · " + fmtB(size && size.bytes) + " on this device" })])]),
         el("p", { class: "k-cx-note", text: "Your code still runs only on this device. Nothing is uploaded." }),
         need
       ]));
@@ -352,7 +352,7 @@
       dl.focus();
       if (navigator.storage && navigator.storage.estimate && size) navigator.storage.estimate().then(function (est) {
         var free = (est.quota || 0) - (est.usage || 0);
-        if (est.quota && free < size.bytes) { need.textContent = "Needs " + MB(size.bytes) + " MB; " + MB(free) + " MB free."; dl.disabled = true; }
+        if (est.quota && free < size.bytes) { need.textContent = "Needs " + fmtB(size.bytes) + "; " + fmtB(free) + " free."; dl.disabled = true; }
       }).catch(function () { /* no estimate */ });
     }
     function start() {

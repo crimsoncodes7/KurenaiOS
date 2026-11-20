@@ -1319,7 +1319,7 @@
   }
   function runtimeStorage() {
     var out = el("strong", { text: "—" });
-    if (KOS.codeRun.runtime().wanted) KOS.codeRun.runtimeSize().then(function (sz) { if (sz) out.textContent = (sz.bytes / 1e6).toFixed(0) + " MB"; });
+    if (KOS.codeRun.runtime().wanted) KOS.codeRun.runtimeSize().then(function (sz) { if (sz) out.textContent = KOS.ui.bytes(sz.bytes); });
     return out;
   }
   /* GitHub (docs/code-plan.md §10). v2 (docs/github-app-plan.md): your
@@ -1440,7 +1440,7 @@
       cb.checked = on;
       return el("label", { class: "k-cx-toggle" }, [el("span", { text: label }), cb]);
     }
-    var draftKB = Math.max(1, Math.round(JSON.stringify(ui.drafts || {}).length / 1024));
+    var draftBytes = JSON.stringify(ui.drafts || {}).length;
     main.appendChild(el("div", { class: "k-cx-settings" }, [
       el("section", { class: "k-card k-cx-set-wide", "aria-label": "Runner and full .NET runtime" }, [
         el("div", { class: "k-card-head" }, [el("span", { class: "k-card-title", text: "Runner and full .NET runtime" })]),
@@ -1454,7 +1454,7 @@
       el("section", { class: "k-card", "aria-label": "Storage used by Code" }, [
         el("div", { class: "k-card-head" }, [el("span", { class: "k-card-title", text: "Storage used by Code" })]),
         el("ul", { class: "k-insp-list" }, [
-          el("li", {}, [el("span", { text: "Unsaved drafts on this device" }), el("strong", { text: draftKB + " KB" })]),
+          el("li", {}, [el("span", { text: "Unsaved drafts on this device" }), el("strong", { text: KOS.ui.bytes(draftBytes) })]),
           el("li", {}, [el("span", { text: "Full runtime" }), runtimeStorage()])
         ]),
         el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "code.clear-drafts", text: "Clear drafts",
