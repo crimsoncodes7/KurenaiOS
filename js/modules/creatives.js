@@ -319,7 +319,7 @@
     if (page === "check") { spaceHead(main, "check", { title: "The check", sub: null }); return checkPage(main, arg.id); }
     if (page === "log") { spaceHead(main, "log", { title: "Practice Log", sub: "Only you see this" }); return logPage(main, arg.id); }
     if (page === "portfolio") { spaceHead(main, "portfolio", { title: "Portfolio", sub: null }); return portfolioPage(main); }
-    if (page === "project") { spaceHead(main, "project", { title: "Project", sub: null }); main.appendChild(projectView(arg.id)); return; }
+    if (page === "project") { spaceHead(main, "project", { title: "Project", sub: null }); main.appendChild(projectView(arg.id, { back: true })); return; }
     if (page === "add") { spaceHead(main, "add", { title: "Add your work", sub: null }); return addPage(main, arg.id); }
     if (page === "settings") { spaceHead(main, "settings", { title: "Creatives settings" }); return settingsPage(main); }
     spaceHead(main, "tracks", { title: "Tracks", sub: null });
@@ -590,9 +590,68 @@
   function logPage(main, wid) {
     var all = CR().works();
     if (!all.length) { main.appendChild(spotEmpty("cr.spot.log", { mark: "◔", title: "Nothing here yet", body: "Every study you save lands here first, raw and private. Delete anything, any time." })); return; }
+    var f = KOS.view && KOS.view.memo ? KOS.view.memo("cr.logFilter", function () { return { track: "", check: "" }; }) : { track: "", check: "" };
+    var target = wid ? all.find(function (w) { return w.id === wid; }) || null : null;
+    function needsCheck(w) { return !!(w.lesson && (!w.check || !w.check.pass)); }
+    function matches(w) {
+      if (f.track && w.track !== f.track) return false;
+      if (f.check === "todo" && !needsCheck(w)) return false;
+      return true;
+    }
+    if (target && !KOS.ui.redrawing && !matches(target)) {
+      if (f.track && target.track !== f.track) f.track = "";
+      if (f.check === "todo" && !needsCheck(target)) f.check = "";
+    }
+    function pillSelect(label, hook, value, options, onchange) {
+      var s = el("select", { class: "k-pill-select", "data-ui": hook, "aria-label": label },
+        options.map(function (o) { return el("option", { value: o[0], text: o[1] }); }));
+      s.value = value;
+      s.addEventListener("change", function () { target = null; onchange(s.value); paint(); });
+      return s;
+    }
+    var trackSel = pillSelect("Filter by track", "cr.log-track", f.track,
+      [["", "All tracks"]].concat(CR().tracks().map(function (t) { return [t.id, t.name]; })),
+      function (v) { f.track = v; });
+    var checkSel = pillSelect("Filter by check", "cr.log-check", f.check,
+      [["", "All pieces"], ["todo", "Check to do"]],
+      function (v) { f.check = v; });
+    main.appendChild(el("div", { class: "k-cr-logtools", "data-ui": "cr.log-tools" }, [trackSel, checkSel]));
+    var titleEl = el("span", { class: "k-card-title" });
+    var listHost = el("div", { class: "k-cr-logrows" });
     main.appendChild(el("section", { class: "k-card k-cr-loglist", "data-ui": "cr.log", "aria-label": "Practice Log" }, [
-      el("div", { class: "k-card-head" }, [el("span", { class: "k-card-title", text: all.length + (all.length === 1 ? " piece" : " pieces") }), el("span", { class: "k-card-meta", text: "newest first · prunable" })])
-    ].concat(all.map(function (w) { return workRow(w, { open: w.id === wid }); }))));
+      el("div", { class: "k-card-head" }, [titleEl, el("span", { class: "k-card-meta", text: "newest first · prunable" })]),
+      listHost
+    ]));
+    var BATCH = 60;
+    function paint() {
+      var filtered = !!(f.track || f.check);
+      var rows = all.filter(matches);
+      if (target && rows.indexOf(target) === -1) rows = [target].concat(rows);
+      var unit = all.length === 1 ? " piece" : " pieces";
+      titleEl.textContent = filtered ? rows.length + " of " + all.length + unit : all.length + unit;
+      listHost.innerHTML = "";
+      if (!rows.length) {
+        listHost.appendChild(KOS.ui.emptyState({ compact: true, mark: "◔", title: "Nothing matches these filters",
+          action: el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "cr.log-clear", text: "Clear filters", onclick: function () {
+            f.track = ""; f.check = ""; trackSel.value = ""; checkSel.value = ""; paint();
+          } }) }));
+        return;
+      }
+      var shown = 0;
+      var idx = target ? rows.indexOf(target) : -1;
+      var firstBatch = idx >= BATCH ? idx + 1 : BATCH;
+      function more(step) {
+        var old = listHost.querySelector("[data-ui~='cr.log-more']");
+        if (old) old.remove();
+        rows.slice(shown, shown + step).forEach(function (w) { listHost.appendChild(workRow(w, { open: w.id === wid })); });
+        shown = Math.min(rows.length, shown + step);
+        if (shown < rows.length) listHost.appendChild(el("button", { type: "button", class: "k-btn k-cr-logmore", "data-ui": "cr.log-more",
+          text: "Show " + Math.min(BATCH, rows.length - shown) + " more · " + shown + " of " + rows.length + " shown",
+          onclick: function () { more(BATCH); announce(shown + " of " + rows.length + " pieces shown."); } }));
+      }
+      more(firstBatch);
+    }
+    paint();
     /* CR-01: a deep link to a piece opens it ONCE, on arrival — never on a
        redraw (an action in the dialog, a background change) — and closing
        it drops the id from the address, so nothing opens it again */
@@ -600,7 +659,7 @@
       var live = KOS.view ? KOS.view.token() : function () { return true; };
       setTimeout(function () {
         if (!live()) return;
-        openWork(wid, { onClose: function () { if (KOS.router && KOS.router.replaceArg) KOS.router.replaceArg("creatives", { page: "log" }); } });
+        openWork(wid, { onClose: function () { target = null; if (KOS.router && KOS.router.replaceArg) KOS.router.replaceArg("creatives", { page: "log" }); } });
       }, 0);
     }
   }
@@ -622,12 +681,16 @@
   }
 
   /* ---------------- a unit's project ---------------- */
-  function projectView(uid) {
+  function projectView(uid, o) {
     var ps = CR().projectState(uid), u = CR().unit(uid);
     if (!ps) return KOS.ui.emptyState({ mark: "創", title: "No project here", body: "This unit's project arrives with its release." });
     var T = CR().track(u.track);
     return el("section", { class: "k-card k-cr-project", "data-ui": "cr.project", "data-state": ps.offered ? "offered" : "after" }, [
-      el("span", { class: "k-kicker", text: T.name + " " + u.n + " · project" }),
+      el("div", { class: "k-card-head" }, [
+        el("span", { class: "k-kicker", text: T.name + " " + u.n + " · project" }),
+        o && o.back && u.lessons && u.lessons.length ? el("button", { type: "button", class: "k-link", "data-ui": "cr.project-unit",
+          text: "‹ " + T.name + " " + u.n + " lessons", onclick: function () { openUnit(uid); } }) : null
+      ].filter(Boolean)),
       el("h2", { class: "k-cr-project-t", text: ps.project.t }),
       el("p", { text: ps.project.brief }),
       ps.offered ? null : el("p", { class: "k-muted", text: "Best after " + ps.project.after + "'s studies." }),
@@ -635,7 +698,11 @@
         return el("li", { "data-state": ps.ms[i] ? "done" : null }, [
           el("span", { class: "k-cr-tick", "aria-hidden": "true", text: ps.ms[i] ? "✓" : String(i + 1) }),
           el("span", { class: "k-cr-ms-t", text: m }),
-          ps.ms[i] ? el("small", { class: "k-cr-done", "data-tone": "done", text: ps.attached[i] ? "✓ work saved" : "✓ done" }) :
+          ps.ms[i] ? (ps.attached[i] && ps.works[i] && ps.works[i].length
+            ? el("button", { type: "button", class: "k-link k-cr-done", "data-tone": "done", "data-ui": "cr.ms-work",
+              "aria-label": "Work saved: open it, milestone " + (i + 1), text: "✓ work saved",
+              onclick: function () { openWork(ps.works[i][0]); } })
+            : el("small", { class: "k-cr-done", "data-tone": "done", text: "✓ done" })) :
             u.track === "write" && KOS.crWrite ? el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "cr.ms-write", text: "Write it", onclick: function () { KOS.crWrite.openMilestone(uid, i); } }) : null,
           ps.attached[i] ? null : el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "cr.ms-attach", text: "Add your work", onclick: function () { attachDialog(uid, i); } }),
           el("button", { type: "button", class: "k-link", "data-ui": "cr.ms-mark", text: ps.ms[i] ? "Undo" : "Mark done", onclick: function () { CR().markMilestone(uid, i, ps.ms[i]); KOS.rerender(); } })

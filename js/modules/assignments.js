@@ -16,10 +16,10 @@
     return u.assignments;
   }
   function subjName(sid) {
-    return (window.KOS_DATA && KOS_DATA[sid] && KOS_DATA[sid].name) || sid || "No subject";
+    return (sid && KOS.subjects.name(sid)) || "No subject";
   }
   function shortSubj(sid) {
-    return subjName(sid).replace("Computer Science", "CS").replace("Mathematics", "Maths").replace("IT: Data Analytics", "IT");
+    return (sid && KOS.subjects.short(sid)) || "No subject";
   }
   function fmtDue(a) {
     if (!a.due) return "No deadline";

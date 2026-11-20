@@ -68,6 +68,7 @@
 .k-mn-days, .k-mn-days-x { display: grid; grid-template-columns: repeat(31, minmax(0, 1fr)); gap: var(--mn-chart-gap); }
 .k-mn-days { align-items: end; block-size: var(--mn-chart-h); }
 .k-mn-day { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: var(--sp-4); block-size: 100%; min-inline-size: 0; }
+.k-mn-day[data-state~="past"] { cursor: pointer; }
 .k-mn-day-bar { display: block; inline-size: 100%; block-size: var(--h, 6%); min-block-size: var(--sp-4); border-radius: var(--sp-4) var(--sp-4) var(--sp-2) var(--sp-2); background: color-mix(in oklch, var(--text) 26%, transparent); }
 .k-mn-day-bar[data-state="today"] { background: var(--crimson); }
 .k-mn-day-dot { display: block; inline-size: var(--mn-dot); block-size: var(--mn-dot); border-radius: 50%; background: var(--teal); }
