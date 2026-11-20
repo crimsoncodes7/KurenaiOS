@@ -1,6 +1,6 @@
 # Service icons
 
-Made by `tools/gen_service_icons.mjs` from [Simple Icons](https://simpleicons.org) 16.38.0, released under
+The Collection's service icons in `assets/icons/services/`, made by `tools/gen_service_icons.mjs` from [Simple Icons](https://simpleicons.org) 16.38.0, released under
 CC0 1.0 (public domain): each brand's mark in white (or near-black) on a tile of its own colour. The marks are the
 trademarks of their owners, shown only to name the service a link opens. Do not edit these files by hand; add a
 service to `SERVICES` in `js/modules/watchlink.js` and run the tool again.
