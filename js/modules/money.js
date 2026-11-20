@@ -338,7 +338,7 @@
     var payDay = null;
     Object.keys(marks).forEach(function (k) { if (marks[k] === "pay" && !payDay) payDay = k; });
     days.forEach(function (day, idx) {
-      var cell = el("span", { class: "k-mn-day", "data-day": day });
+      var cell = el("span", { class: "k-mn-day", "data-ui": day <= now ? "money.day" : null, "data-state": day <= now ? "past" : null, "data-day": day });
       if (day < now || day === now) {
         var v = by[day] ? by[day].minor : 0;
         if (v > 0) {
@@ -359,7 +359,14 @@
     var pastDays = days.filter(function (x) { return x <= now; });
     var cur = Math.max(0, pastDays.length - 1);
     var group = el("div", { class: "k-mn-chart", "data-ui": "money.daychart", tabindex: "0", role: "group",
-      "aria-label": "Spending day by day this month. Use the arrow keys to read each day." }, [bars, labels, tip]);
+      "aria-label": "Spending day by day this month. Use the arrow keys to read each day, Enter to open Transactions for that day." }, [bars, labels, tip]);
+    function openDay(day) {
+      if (!day || pastDays.indexOf(day) === -1) return;
+      visit.tx.range = "day:" + day;
+      visit.tx.kind = "";
+      visit.tx.mode = "entries";
+      go("transactions");
+    }
     function show(idx, speak) {
       cur = Math.max(0, Math.min(pastDays.length - 1, idx));
       var day = pastDays[cur], row = by[day];
@@ -377,6 +384,7 @@
       if (e.key === "ArrowLeft" || e.key === "ArrowRight") { e.preventDefault(); show(cur + (e.key === "ArrowLeft" ? -1 : 1), true); }
       else if (e.key === "Home") { e.preventDefault(); show(0, true); }
       else if (e.key === "End") { e.preventDefault(); show(pastDays.length - 1, true); }
+      else if (e.key === "Enter") { e.preventDefault(); openDay(pastDays[cur]); }
     });
     group.addEventListener("focus", function () { show(cur, false); });
     group.addEventListener("blur", function () { tip.hidden = true; Array.prototype.forEach.call(bars.children, function (c) { U.state(c, "focus", false); }); });
@@ -385,6 +393,10 @@
       if (!t) return;
       var i2 = pastDays.indexOf(t.getAttribute("data-day"));
       if (i2 !== -1) show(i2, false);
+    });
+    bars.addEventListener("click", function (e) {
+      var t = e.target.closest && e.target.closest('[data-day][data-state~="past"]');
+      if (t) openDay(t.getAttribute("data-day"));
     });
     bars.addEventListener("mouseleave", function () { if (document.activeElement !== group) tip.hidden = true; });
     return group;
@@ -509,6 +521,10 @@
   var BADGE = { refund: ["↩ Refund", "teal"], transfer: ["⇄ Transfer", "muted"] };
   function txRange() {
     var now = today(), key = M.periodKey(now), r = M.periodRange(key);
+    if (visit.tx.range && visit.tx.range.indexOf("day:") === 0) {
+      var d = visit.tx.range.slice(4);
+      return { from: d, to: d, label: dayLabel(d) };
+    }
     switch (visit.tx.range) {
       case "last": var pr = M.periodRange(M.shiftKey(key, -1)); return { from: pr.from, to: pr.to, label: shortDate(pr.from) + " – " + shortDate(pr.to) };
       case "three": return { from: M.periodRange(M.shiftKey(key, -2)).from, to: r.to, label: "The last 3 months" };
@@ -522,9 +538,11 @@
     var search = input("search", f.search, { "data-ui": "money.tx-search", placeholder: "Search payee, note or #tag", "aria-label": "Search entries", class: "k-input k-mn-search" });
     var catSel = select([["", "Category: All"]].concat(M.categories({ archived: true }).map(function (c) { return [c.id, c.name]; })), f.cat,
       { "data-ui": "money.tx-cat", "aria-label": "Category", class: "k-input k-pill-select" });
-    var rangeSel = select([["month", rng.label && f.range === "month" ? rng.label : "This month"], ["last", "Last month"], ["three", "The last 3 months"], ["year", "This year"], ["all", "Everything"]], f.range,
+    var ranges = [["month", rng.label && f.range === "month" ? rng.label : "This month"], ["last", "Last month"], ["three", "The last 3 months"], ["year", "This year"], ["all", "Everything"]];
+    if (f.range && f.range.indexOf("day:") === 0) ranges.unshift([f.range, rng.label]);
+    var rangeSel = select(ranges, f.range,
       { "data-ui": "money.tx-range", "aria-label": "Dates", class: "k-input k-pill-select" });
-    var kinds = seg([["", "All"], ["in", "In"], ["out", "Out"]], f.kind, function (k) { f.kind = k; redraw(); }, "Entry kind", "k-mn-kinds");
+    var kinds = seg([["", "All"], ["in", "In"], ["out", "Out"], ["transfer", "Moves"]], f.kind, function (k) { f.kind = k; redraw(); }, "Entry kind", "k-mn-kinds");
     /* 39d: the imports, and the Source filter that narrows the list to one */
     var imps = M.imports ? M.imports() : [];
     if (f.source && !imps.some(function (b) { return b.id === f.source; })) f.source = "";
@@ -535,7 +553,7 @@
     var debounced = U.debounce(function () { f.search = search.value; redrawList(); }, 400);
     search.addEventListener("input", debounced);
     catSel.addEventListener("change", function () { f.cat = catSel.value; redrawList(); });
-    rangeSel.addEventListener("change", function () { f.range = rangeSel.value; redrawList(); });
+    rangeSel.addEventListener("change", function () { var wasDay = f.range && f.range.indexOf("day:") === 0; f.range = rangeSel.value; if (wasDay) redraw(); else redrawList(); });
     var importing = f.mode === "imports" && imps.length;
     page.appendChild(el("div", { class: "k-mn-toolbar", "data-ui": "money.tx-toolbar" }, (importing ? [] : [search, catSel, rangeSel, srcSel, kinds]).concat([
       el("span", { class: "k-mn-spacer" }), modes,
@@ -576,9 +594,10 @@
         cursor = next; done = !next; loading = false;
         more.textContent = "";
         if (!shown.length) {
-          var filtered = f.search || f.cat || f.kind || f.source;
+          var isDay = f.range && f.range.indexOf("day:") === 0;
+          var filtered = f.search || f.cat || f.kind || f.source || isDay;
           list.appendChild(U.emptyState({ compact: true, mark: "円", title: filtered ? "Nothing matches these filters" : "No entries in this time",
-            action: filtered ? btn("Clear filters", "k-btn--sm", function () { visit.tx = { search: "", cat: "", range: f.range, tag: "", kind: "", source: "", mode: "entries" }; redraw(); }) : null }));
+            action: filtered ? btn("Clear filters", "k-btn--sm", function () { visit.tx = { search: "", cat: "", range: isDay ? "month" : f.range, tag: "", kind: "", source: "", mode: "entries" }; redraw(); }) : null }));
           /* 39h: nothing anywhere yet — the page is the place to bring a statement in */
           if (!filtered && KOS.moneyImp) M.list({ limit: 1 }, function (e2, any) {
             if (any && any.length) return;
@@ -1372,7 +1391,7 @@
       var movesHost = el("div");
       page.appendChild(el("div", { class: "k-mn-cols" }, [movesHost, moveForm(ps, bal)]));
       M.list({ kind: "transfer", limit: 8 }, function (e, rows) {
-        movesHost.appendChild(card([head("Recent moves", "transfers, never spend", ["Transactions →", function () { visit.tx.kind = ""; go("transactions"); }]),
+        movesHost.appendChild(card([head("Recent moves", "transfers, never spend", ["Transactions →", function () { visit.tx.kind = "transfer"; visit.tx.mode = "entries"; if (visit.tx.range && visit.tx.range.indexOf("day:") === 0) visit.tx.range = "month"; go("transactions"); }]),
           (rows || []).length ? el("div", {}, rows.map(function (t) {
             var p = M.pot(t.pot);
             return el("div", { class: "k-card-row" }, [el("span", { class: "k-mono k-muted k-mn-small k-mn-day-label", text: shortDate(t.date) }), chip("⇄", "muted"),
