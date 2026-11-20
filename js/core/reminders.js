@@ -147,7 +147,7 @@
     var s = R();
     var item = normalise(patch || {});
     if (!item.title) return null;                     // a reminder needs words
-    item.id = s.nextId++;
+    item.id = store.newId("r");
     s.items.push(item);
     store.save();
     noteExt();
@@ -355,7 +355,7 @@
     if (!item || !String(text).trim()) return null;
     var s = R();
     item.subs = item.subs || [];
-    item.subs.push({ id: s.nextId++, text: String(text).trim(), done: false });
+    item.subs.push({ id: store.newId("s"), text: String(text).trim(), done: false });
     item.updatedAt = Date.now();
     store.save();
     noteExt();
@@ -388,7 +388,7 @@
     var s = R();
     var existing = s.lists.find(function (l) { return l.name.toLowerCase() === name.toLowerCase(); });
     if (existing) return existing;
-    var l = { id: s.nextId++, name: name, colour: colour || null };
+    var l = { id: store.newId("l"), name: name, colour: colour || null };
     s.lists.push(l);
     store.save();
     return l;
@@ -507,7 +507,7 @@
         return dueKey(a) < dueKey(b) ? -1 : dueKey(a) > dueKey(b) ? 1 : 0;
       }
       if (sort === "title") return a.title.localeCompare(b.title);
-      if (sort === "created") return (b.id || 0) - (a.id || 0);
+      if (sort === "created") return (b.created || 0) - (a.created || 0);
       /* due: dated first (soonest), then undated by priority */
       var ka = dueKey(a), kb = dueKey(b);
       if (ka !== kb) return ka < kb ? -1 : 1;
@@ -635,9 +635,9 @@
         due: m.date || null,
         done: !!m.done,
         listId: listId,
-        subs: (m.subs || []).map(function (x) { return { id: s.nextId++, text: x.text, done: !!x.done }; })
+        subs: (m.subs || []).map(function (x) { return { id: store.newId("s"), text: x.text, done: !!x.done }; })
       });
-      item.id = s.nextId++;
+      item.id = store.newId("r");
       item.created = m.created || today();
       if (item.done) item.completedAt = item.completedAt || Date.now();
       s.items.push(item);

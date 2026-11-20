@@ -44,7 +44,9 @@
      dealt from the calendar palette by id (invariant 46's hues) */
   var LIST_HUES = ["jade", "brass", "iris", "clay", "sage", "plum", "sky", "slate"];
   function listHue(l) {
-    var name = l && LIST_HUES.indexOf(l.colour) !== -1 ? l.colour : LIST_HUES[((l && l.id) || 0) % LIST_HUES.length];
+    /* a string id (bk:data-integrity#2) deals by its characters, so it keeps one hue */
+    var id = l && l.id, n = typeof id === "number" ? id : String(id || "").split("").reduce(function (h, ch) { return (h * 31 + ch.charCodeAt(0)) % 9973; }, 0);
+    var name = l && LIST_HUES.indexOf(l.colour) !== -1 ? l.colour : LIST_HUES[n % LIST_HUES.length];
     return "var(--cal-" + name + ")";
   }
   var PRIO_TONE = { 1: "muted", 2: "amber", 3: "crimson" };
@@ -256,7 +258,7 @@
       var patch = { title: v };
       /* adding while a list or a smart section is selected files it there —
          the obvious expectation, and it keeps the two concepts honest */
-      if (quickList.value) patch.listId = parseInt(quickList.value, 10);
+      if (quickList.value) patch.listId = KOS.store.idOf(quickList.value);
       else if (p.listId != null) patch.listId = p.listId;
       if (p.tag) patch.tags = [p.tag];
       if (p.section === "today") patch.due = KOS.srs.todayISO();
@@ -489,7 +491,7 @@
       var listSel = el("select", { class: "k-input" }, [el("option", { value: "", text: "No list" })].concat(
         R().lists().map(function (l) { return el("option", { value: String(l.id), text: l.name }); })));
       listSel.value = item.listId != null ? String(item.listId) : "";
-      listSel.addEventListener("change", function () { commit({ listId: listSel.value ? parseInt(listSel.value, 10) : null }); });
+      listSel.addEventListener("change", function () { commit({ listId: KOS.store.idOf(listSel.value) }); });
 
       var tagIn = el("input", { type: "text", class: "k-input", placeholder: "urgent, admin" });
       tagIn.value = (item.tags || []).join(", ");

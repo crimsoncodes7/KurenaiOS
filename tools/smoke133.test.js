@@ -108,21 +108,18 @@ step("B · a reminder in A and an event in B both survive; rev monotonic; memori
   assert(rev() >= r2, "the rev never goes back");
 });
 
-step("C · a stale tab does not erase A's change; the same id minted twice is re-keyed", async () => {
+step("C · a stale tab does not erase A's change; two tabs never mint the same id (bk:data-integrity#2)", async () => {
   const K = A.KOS, L = B.KOS;
-  const next = K.store.state.reminders.nextId;
-  eq(L.store.state.reminders.nextId, next, "both tabs would mint the same id");
   const a = K.reminders.add({ title: "Stale case A" });
   await A.settle();
   ls.drop();                       // B never hears of it
   const b = L.reminders.add({ title: "Stale case B" });
-  eq(a.id, b.id, "the same id was minted in both tabs");
+  assert(typeof a.id === "string" && typeof b.id === "string" && a.id !== b.id, "each tab minted its own random id (" + a.id + ", " + b.id + ")");
   await B.settle();
   const items = stored().reminders.items;
   const sa = items.filter((r) => r.title === "Stale case A"), sb = items.filter((r) => r.title === "Stale case B");
   eq([sa.length, sb.length], [1, 1], "both reminders are stored once");
-  assert(sa[0].id !== sb[0].id, "one was re-keyed (" + sa[0].id + ", " + sb[0].id + ")");
-  assert(stored().reminders.nextId > Math.max(sa[0].id, sb[0].id), "the counter passes both");
+  eq([sa[0].id, sb[0].id], [a.id, b.id], "neither was re-keyed: their ids are as minted");
   await sync();
   eq(titles(K).filter((t) => /^Stale case/.test(t)).sort(), ["Stale case A", "Stale case B"], "A converged");
   eq(JSON.stringify(K.store.state), JSON.stringify(L.store.state), "both tabs hold the same document");

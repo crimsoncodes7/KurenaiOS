@@ -1731,6 +1731,18 @@
        pull share this path): defaults merged under, legacy fields scrubbed,
        every existing reference to KOS.store.state stays valid. */
     tally: tally, tallyWords: tallyWords, noteReport: noteReport,
+    /* RECORD IDS (bk:data-integrity#2, invariant 33a): a new assignment,
+       reminder, reminder list, step or calendar event takes a random string
+       id, as Money's records do, so two devices never mint the same one;
+       ids made before stay numbers. idOf reads an id back from a form
+       value, a route or a tool argument: digits are an old number. */
+    newId: function (prefix) { return prefix + "-" + Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4); },
+    idOf: function (v) {
+      if (v == null || v === "") return null;
+      if (typeof v === "number") return v;
+      v = String(v);
+      return /^\d+$/.test(v) ? Number(v) : v;
+    },
 
     replaceState: function (incoming) {
       /* first what the other tabs wrote, so this tab's base is the stored

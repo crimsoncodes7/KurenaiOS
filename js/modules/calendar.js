@@ -281,8 +281,8 @@
     if (!statuses().some(function (s) { return s.v === status; })) status = "notStarted";
 
     var assignmentId = pick("assignmentId", null);
-    assignmentId = assignmentId == null || assignmentId === "" ? null : parseInt(assignmentId, 10);
-    if (isNaN(assignmentId)) assignmentId = null;
+    assignmentId = store.idOf(assignmentId);
+    if (typeof assignmentId === "number" && isNaN(assignmentId)) assignmentId = null;
 
     var showInCountdown = patch.showInCountdown !== undefined ? !!patch.showInCountdown
       : (b.showInCountdown !== undefined ? !!b.showInCountdown : COUNTDOWN_TYPES.indexOf(type) !== -1);
@@ -356,7 +356,7 @@
       input = Object.assign({}, input, { alerts: [DEFAULT_LEAD] });
     }
     var rec = normalise(input);
-    rec.id = c.nextId++;
+    rec.id = store.newId("e");
     c.events.push(rec);
     store.save();
     examSaved(rec);
@@ -1044,7 +1044,7 @@
       rows.appendChild(detailRow("Status", statusLabel(ev.status)));
     }
     /* Pin and Unpin: the one manual choice about where it shows (frame 33u) */
-    if (COUNTDOWN_TYPES.indexOf(ev.type) !== -1 && !ev.assessmentId && typeof ev.id === "number") {
+    if (COUNTDOWN_TYPES.indexOf(ev.type) !== -1 && !ev.assessmentId && store.state.calendar.events.some(function (x) { return x.id === ev.id; })) {
       var onRail = ev.showInCountdown !== false;
       rows.appendChild(detailRow("Countdown", el("span", { class: "k-cluster" }, [
         el("span", { text: onRail ? "Counts down" : "Unpinned from countdowns" }),
@@ -1420,7 +1420,7 @@
       } else { patch.priority = 0; patch.status = "notStarted"; }
       if (t === "study") {
         patch.durationMins = studyDur.value === "" ? null : Number(studyDur.value);
-        patch.assignmentId = assignSel.value === "" ? null : parseInt(assignSel.value, 10);
+        patch.assignmentId = store.idOf(assignSel.value);
       } else if (t !== "exam") {
         patch.durationMins = null;
       }

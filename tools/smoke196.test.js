@@ -24,6 +24,9 @@
          you leave the page, not only after its 600 ms pause.
      I · bk:collection#2: Sync & Import keeps what each provider pull
          changed and says it later ("What it changed").
+     J · bk:data-integrity#2: new assignments, reminders, lists, steps and
+         events take random string ids; old numbered records still work, and
+         the Assistant's tools take either.
 
    Run: node tools/smoke196.test.js */
 "use strict";
@@ -297,6 +300,34 @@ step("I · Sync & Import says what the last pull changed, read back later (bk:co
     assert(fact, "the fact is on the AniList card");
     eq(fact.textContent, "2 added, 1 updated, 40 already up to date", "the newest pull's changes");
   } finally { K.anilist.getConnection = conn; }
+});
+
+step("J · new assignments, reminders, lists, steps and events take random string ids; old numbers still work (bk:data-integrity#2)", async () => {
+  const a = K.assignments.add({ title: "Random id essay", subject: "compsci", due: "2026-12-01" });
+  K.assignments.subAdd(a.id, "Plan it");
+  const r = K.reminders.add({ title: "Random id reminder" });
+  K.reminders.subAdd(r.id, "Step one");
+  const l = K.reminders.addList("Random id list");
+  const ev = K.calendar.addEvent({ title: "Random id event", date: "2026-12-02", type: "personal" });
+  const RID = /^[a-z]-[a-z0-9]{12}$/;
+  [[a.id, "a"], [K.assignments.get(a.id).subtasks[0].id, "s"], [r.id, "r"], [K.reminders.get(r.id).subs[0].id, "s"], [l.id, "l"], [ev.id, "e"]].forEach(([id, p]) =>
+    assert(RID.test(id) && id[0] === p, "a random id with its prefix: " + id));
+  eq([K.store.idOf("12"), K.store.idOf(12), K.store.idOf(a.id), K.store.idOf(""), K.store.idOf(null)], [12, 12, a.id, null, null], "idOf reads an old number or a new id back");
+  /* an old record keeps its number and is found by it */
+  K.store.state.assignments.items.push({ id: 41, title: "Old numbered essay", subject: "maths", status: "todo", subtasks: [] });
+  eq(K.assignments.get(41) && K.assignments.get(41).title, "Old numbered essay", "an old numbered record is found by its number");
+  /* a goal link and a study block keep a string id as a string */
+  eq(K.goals.normaliseLinks ? K.goals.normaliseLinks({ assignmentId: a.id }).assignmentId : a.id, a.id, "a goal link keeps the string");
+  /* the Assistant: a record id is an old number or a new string */
+  const T = K.ai.tools;
+  const ok = T.validate("todo_delete_task", { id: r.id });
+  eq([ok.ok, ok.args && ok.args.id], [true, r.id], "a tool takes a string id");
+  const old = T.validate("calendar_delete_event", { id: "41" });
+  eq([old.ok, old.args && old.args.id], [true, 41], "\"41\" is the old number 41");
+  assert(!T.validate("calendar_delete_event", { id: "drop table" }).ok && T.validate("todo_tick_habit", { id: "s_ab12cd34", done: true }).ok, "anything else is refused; a routine habit's id is taken");
+  const sch = T.schemas(["calendar_delete_event"])[0].parameters.properties.id;
+  eq(sch.type, "string", "the provider sees a string");
+  K.store.state.assignments.items = K.store.state.assignments.items.filter((x) => x.id !== 41);
 });
 
 (async () => {

@@ -116,7 +116,8 @@ function stateOf(KOS) {
   const ui = s.ui; delete s.ui;
   return { data: s, ui };
 }
-function normKey(k) { return String(k).replace(/\d{10,}/g, "<ts>"); }
+/* a random record id (bk:data-integrity#2, "e-" + 12) reads the same every run */
+function normKey(k) { return String(k).replace(/\d{10,}/g, "<ts>").replace(/\b[a-z]-[a-z0-9]{12}\b/g, "<rid>"); }
 /* the changed paths between two JSON values: object keys to depth 4,
    arrays collapsed to key[] */
 function diffPaths(a, b, pre = "", depth = 0, out = []) {

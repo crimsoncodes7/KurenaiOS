@@ -144,8 +144,8 @@
     var out = {};
     if (refs.length) out.refs = refs;
     if (raw.subject && KOS.subjects && KOS.subjects.ids().indexOf(raw.subject) !== -1) out.subject = raw.subject;
-    if (raw.assignmentId != null && raw.assignmentId !== "") out.assignmentId = Number(raw.assignmentId);
-    if (raw.eventId != null && raw.eventId !== "") out.eventId = Number(raw.eventId);
+    if (raw.assignmentId != null && raw.assignmentId !== "") out.assignmentId = store.idOf(raw.assignmentId);
+    if (raw.eventId != null && raw.eventId !== "") out.eventId = store.idOf(raw.eventId);
     if (raw.pot) out.pot = String(raw.pot).slice(0, 40);
     if (raw.category) out.category = String(raw.category).slice(0, 40);
     if (raw.capstone) out.capstone = String(raw.capstone).slice(0, 40);

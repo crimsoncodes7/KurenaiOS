@@ -287,7 +287,7 @@
     return Promise.resolve(B.withCheckpoint("Before joining " + n + " duplicate reminder" + (n === 1 ? "" : "s") + " (" + LABEL[p] + ")", function () {
       X().inbound(function () {
         twinGroups(p).forEach(function (g) {
-          var order = g.slice().sort(function (a, b) { return String(a.uid || "") < String(b.uid || "") ? -1 : String(a.uid || "") > String(b.uid || "") ? 1 : a.id - b.id; });
+          var order = g.slice().sort(function (a, b) { return String(a.uid || "") < String(b.uid || "") ? -1 : String(a.uid || "") > String(b.uid || "") ? 1 : (a.created || 0) - (b.created || 0); });
           order.slice(1).forEach(function (d2) { foldInto(order[0].id, d2.id); });
         });
       });
@@ -328,7 +328,7 @@
     });
     if (!c.length) return null;
     var due = p === "todoist" ? (remote.when && remote.when.due) || null : remote.due || null;
-    var pick = c.filter(function (it) { return (it.due || null) === due; })[0] || c.slice().sort(function (a, b) { return a.id - b.id; })[0];
+    var pick = c.filter(function (it) { return (it.due || null) === due; })[0] || c.slice().sort(function (a, b) { return (a.created || 0) - (b.created || 0); })[0];
     claims.local[pick.id] = true; claims.remote[p + ":" + rid] = true;
     return pick;
   }

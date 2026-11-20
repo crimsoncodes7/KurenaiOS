@@ -44,6 +44,13 @@
     var t = d.type;
     if (t === "integer") {
       if (typeof v !== "number" || v !== Math.floor(v)) { errs.push(path + " must be an integer"); return; }
+    } else if (t === "recordId") {
+      /* bk:data-integrity#2: an old record's whole number, or a string id (a new
+         record's "a-…", a routine habit's "s_…") */
+      if (!(typeof v === "number" && v >= 1 && v === Math.floor(v)) && !(typeof v === "string" && /^([1-9][0-9]{0,9}|[a-z]{1,3}[-_][a-z0-9]{4,24})$/.test(v))) {
+        errs.push(path + " must be a record id"); return;
+      }
+      return;
     } else if (t === "number") {
       if (typeof v !== "number" || isNaN(v)) { errs.push(path + " must be a number"); return; }
     } else if (t === "string") {
@@ -87,7 +94,10 @@
     if (typeof args !== "object" || Array.isArray(args)) return { ok: false, errors: ["arguments must be an object"] };
     var errs = [];
     checkObject(args, t.params, "", errs);
-    return errs.length ? { ok: false, errors: errs } : { ok: true, args: args };
+    if (errs.length) return { ok: false, errors: errs };
+    /* a record id read back as the record holds it: "12" is the old number 12 */
+    Object.keys(t.params).forEach(function (k) { if (t.params[k].type === "recordId" && args[k] != null) args[k] = KOS.store.idOf(args[k]); });
+    return { ok: true, args: args };
   }
 
   /* descriptor → real JSON Schema for the provider side */
@@ -96,7 +106,8 @@
     var req = [];
     Object.keys(props).forEach(function (k) {
       var d = props[k], s = {};
-      s.type = d.type === "integer" ? "integer" : d.type;
+      s.type = d.type === "integer" ? "integer" : d.type === "recordId" ? "string" : d.type;
+      if (d.type === "recordId" && !d.desc) s.description = "The record's id exactly as a list or read tool gave it (a number or text such as \"a-k3j9x2pq\")";
       if (d.desc) s.description = d.desc;
       if (d.enum) s.enum = d.enum;
       if (d.min != null) s.minimum = d.min;
@@ -1197,7 +1208,7 @@
       /* Build 6.5 — the session's stated purpose. Optional, recorded on the
          session entry, and reported back by the completion review. */
       objective: { type: "string", maxLen: 200 },
-      assignmentId: { type: "integer", min: 1 }
+      assignmentId: { type: "recordId" }
     },
     run: function (args, cb) {
       if (KOS.focus.state() !== "idle") { cb(fail("A session is already running — pause, resume or end it instead.")); return; }
@@ -1249,7 +1260,7 @@
     params: {
       subject: { type: "string", enum: SUBJECTS, desc: "omit with no refs for General study" },
       refs: { type: "array", maxLen: 20, items: { type: "string", maxLen: 60 }, desc: "topics in ONE subject, as \"subject:ref\"" },
-      assignmentId: { type: "integer", min: 1 }
+      assignmentId: { type: "recordId" }
     },
     run: function (args, cb) {
       if (KOS.focus.state() === "idle") { cb(fail("No session is running.")); return; }
@@ -1880,7 +1891,7 @@
     desc: "Update a calendar event's fields.",
     category: "planner", tier: "reversible", read: false,
     params: {
-      id: { type: "integer", required: true, min: 1 },
+      id: { type: "recordId", required: true },
       changes: { type: "object", required: true, props: {
         title: { type: "string", minLen: 1, maxLen: 200 },
         date: { type: "string", maxLen: 10 },
@@ -1905,7 +1916,7 @@
   def("calendar_delete_event", {
     desc: "Delete a calendar event. Permanent.",
     category: "planner", tier: "consequential", read: false,
-    params: { id: { type: "integer", required: true, min: 1 } },
+    params: { id: { type: "recordId", required: true } },
     run: function (args, cb) {
       var prev = KOS.store.state.calendar.events.find(function (e) { return e.id === args.id; });
       if (!prev) { cb(fail("No event with id " + args.id + ".")); return; }
@@ -1966,7 +1977,7 @@
     desc: "Complete or un-complete a reminder. Completing logs the normal todo session, subject to the daily reward cap; a repeating reminder rolls forward instead of closing.",
     category: "planner", tier: "reversible", read: false,
     params: {
-      id: { type: "integer", required: true, min: 1 },
+      id: { type: "recordId", required: true },
       done: { type: "boolean", required: true }
     },
     run: function (args, cb) {
@@ -1984,7 +1995,7 @@
   def("todo_delete_task", {
     desc: "Delete a reminder. Permanent.",
     category: "planner", tier: "consequential", read: false,
-    params: { id: { type: "integer", required: true, min: 1 } },
+    params: { id: { type: "recordId", required: true } },
     run: function (args, cb) {
       var t = KOS.reminders.get(args.id);
       if (!t) { cb(fail("No reminder with id " + args.id + ".")); return; }
@@ -2009,7 +2020,7 @@
     desc: "Tick (or untick) a habit for today.",
     category: "planner", tier: "reversible", read: false,
     params: {
-      id: { type: "integer", required: true, min: 1 },
+      id: { type: "recordId", required: true },
       done: { type: "boolean", required: true }
     },
     run: function (args, cb) {
@@ -3492,7 +3503,7 @@
     desc: "Change an assignment's fields or status. Completing pays the normal once-only reward through the session log; reopening never pays again.",
     category: "planner", tier: "reversible", read: false,
     params: {
-      id: { type: "integer", required: true, min: 1 },
+      id: { type: "recordId", required: true },
       changes: { type: "object", props: ASG_FIELDS },
       status: { type: "string", enum: ["notStarted", "inProgress", "blocked", "submitted", "complete"] }
     },
@@ -3524,10 +3535,10 @@
     desc: "Add, tick/untick or remove an assignment's subtask. Subtask ticks move the assignment's progress.",
     category: "planner", tier: "reversible", read: false,
     params: {
-      id: { type: "integer", required: true, min: 1 },
+      id: { type: "recordId", required: true },
       action: { type: "string", enum: ["add", "toggle", "remove"], required: true },
       text: { type: "string", maxLen: 300 },
-      subtaskId: { type: "integer", min: 1 },
+      subtaskId: { type: "recordId" },
       done: { type: "boolean" }
     },
     run: function (args, cb) {

@@ -20,7 +20,14 @@ Read this file before editing or testing anything in its domain.
     merge per key. Same-leaf edit wars go to the local side. The push is a
     compare-and-set on `__seq`; a lost race fetches the cloud copy, merges and
     retries. The engine never asks the user which copy to keep.
-33a. Ids are per-device counters, so two devices can mint the same id for two
+33a. Assignments, reminders, reminder lists, their steps and calendar events
+    take a RANDOM STRING id (`KOS.store.newId`, "a-…", "r-…", "l-…", "s-…",
+    "e-…"; bk:data-integrity#2), as Money's, Routines' and Exams' records do,
+    so two devices never mint the same one; records made before keep their
+    numbers, and every form, route and Assistant tool reads an id back
+    through `KOS.store.idOf` (digits are an old number; tools take the
+    `recordId` type). Other records' ids are per-device counters, so two
+    devices can mint the same id for two
     records. The merge detects that (same id, absent from base, different
     origin), re-keys the LOCAL record past every id in play and rewrites every
     reference it knows (`RECORDS[].refs`). Adding a record array or a new

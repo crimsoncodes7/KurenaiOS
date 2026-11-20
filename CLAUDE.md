@@ -274,7 +274,7 @@ domain file AND its line here, in the same commit.
 - **31** Cloud sync is replication outside the Governor and media push; local save succeeds independently and offline use stays complete.
 - **32** `syncId` and `fileId` are the cross-device identities; every local deletion records a tombstone and a remote deletion is never requeued.
 - **33** Sync is push-then-pull with server timestamps and no client clock comparison; the state document is reconciled by a three-way merge.
-- **33a** Colliding per-device ids are re-keyed locally and every known reference rewritten; any new record array or cross-reference must be registered there.
+- **33a** Assignments, reminders and events take random string ids (old numbers kept, read back by `KOS.store.idOf`); other colliding per-device ids are re-keyed locally and every known reference rewritten; any new record array or cross-reference must be registered there.
 - **33b** `focus.active` is per device and owned by one tab through the `kos-focus` lock; it must never land on another device.
 - **33c** Many tabs share one state document: saves run under `kos-state-write` with a three-way merge; shared changes use `KOS.store.transact`.
 - **33d** A cloud document lands in one step: one tab cycles at a time, the local copy is kept first, and merge and replace run in one `KOS.store.transact`.

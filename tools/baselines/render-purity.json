@@ -17226,7 +17226,7 @@
      "occurrence": 0,
      "effects": {
       "state": [
-       "notify.read.cal:1:2026-09-29:10080"
+       "notify.read.cal:<rid>:2026-09-29:10080"
       ]
      }
     },
@@ -17361,7 +17361,7 @@
      "effects": {
       "nav": "#/calendar",
       "state": [
-       "notify.read.cal:1:2026-09-29:10080"
+       "notify.read.cal:<rid>:2026-09-29:10080"
       ]
      }
     },

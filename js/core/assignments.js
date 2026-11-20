@@ -186,7 +186,7 @@
     var s = A();
     var rec = normalise(patch || {});
     if (!rec.title) return null;
-    rec.id = s.nextId++;
+    rec.id = store.newId("a");
     if (!rec.assigned) rec.assigned = today();
     s.items.push(rec);
     store.save();
@@ -316,7 +316,7 @@
     if (!rec || !String(text).trim()) return null;
     var s = A();
     rec.subtasks = rec.subtasks || [];
-    rec.subtasks.push({ id: s.nextId++, text: String(text).trim(), done: false });
+    rec.subtasks.push({ id: store.newId("s"), text: String(text).trim(), done: false });
     syncProgress(rec);
     return rec;
   }

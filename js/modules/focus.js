@@ -2528,7 +2528,7 @@
         limitMin: parseInt(limitSel.value, 10) || 0,
         subject: subjSel.value || null,
         refs: subjSel.value ? topicPick.value() : [],
-        assignmentId: asgSel.value ? parseInt(asgSel.value, 10) : null,
+        assignmentId: KOS.store.idOf(asgSel.value),
         objective: objIn.value
       };
       /* HR-29: the exam's id, while the objective is the one it opened with */
