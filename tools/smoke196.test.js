@@ -523,6 +523,86 @@ step("P · folders of your own on Files: a folder is a link, one per file, delet
   await new Promise((r) => K.attach.remove(a.id, r)); await new Promise((r) => K.attach.remove(b.id, r));
 });
 
+step("Q · ink: a Paste button; a lasso across pages selects, moves and re-homes; a loop through a picture offers its part (1C, UR-10, UR-9)", async () => {
+  const W = app.window, U = K.inkUI, I = K.ink, G = I.geo;
+  /* the Paste button sits by Image and says when the clipboard holds no picture */
+  const dk = U.desk({});
+  const bar = U.toolbar(dk, {});
+  D.body.appendChild(bar);
+  const pb = bar.querySelector('[data-ui~="ink.paste"]');
+  assert(pb && pb.tagName === "BUTTON", "the Paste button is a button in the bar");
+  const nav = W.navigator;
+  Object.defineProperty(nav, "clipboard", { configurable: true, value: { read: () => Promise.resolve([{ types: ["text/plain"], getType: () => Promise.resolve(new W.Blob(["x"])) }]) } });
+  pb.click(); await app.settle();
+  assert(/no picture on the clipboard/.test(D.getElementById("toast").textContent), "no picture: it says so");
+  Object.defineProperty(nav, "clipboard", { configurable: true, value: { read: () => Promise.reject(new Error("denied")) } });
+  pb.click(); await app.settle();
+  assert(/clipboard wasn't shared/.test(D.getElementById("toast").textContent), "refused: it says so");
+  /* the colour and size menu shows a pick made inside it, at once (1C) */
+  dk.setTool("pen", true);
+  const cbtn = bar.querySelector('[data-ui~="ink.colour-btn"]');
+  assert(cbtn, "a narrow bar puts colour and size in one menu");
+  {
+    cbtn.click(); await app.settle();
+    const pop = D.querySelector(".k-ink-pop");
+    const sw = Array.from(pop.querySelectorAll('[data-ui~="ink.swatch"]'));
+    const other = sw.find((x) => x.getAttribute("aria-checked") !== "true");
+    other.click(); await app.settle(); await new Promise((r) => setTimeout(r, 5));
+    eq(sw.filter((x) => x.getAttribute("aria-checked") === "true").map((x) => x.dataset.role), [other.dataset.role], "the swatch picked in the menu is the one ticked there");
+    const head = pop.querySelector('[data-ui~="ink.option-head"]');
+    assert(head && head.textContent.indexOf(other.getAttribute("aria-label")) !== -1, "the heading names it: " + (head && head.textContent));
+    const wd = Array.from(pop.querySelectorAll('[data-ui~="ink.width"]'));
+    const w2 = wd.find((x) => x.getAttribute("aria-checked") !== "true");
+    w2.click(); await app.settle();
+    eq(wd.filter((x) => x.getAttribute("aria-checked") === "true").length, 1, "one width ticked");
+    assert(w2.getAttribute("aria-checked") === "true", "the width picked in the menu is the one ticked there");
+    D.body.click();
+  }
+  bar.remove();
+  /* two A4 pages stacked on screen, 20 px apart (500 px wide: half scale) */
+  const mk = () => { const h = D.createElement("div"); D.body.appendChild(h); return h; };
+  const p1 = I.blankPage("qa:lasso"), p2 = I.blankPage("qa:lasso");
+  const s1 = U.surface(mk(), p1, dk), s2 = U.surface(mk(), p2, dk);
+  const H = I.pageH(p1), hpx = 500 * H / I.W;
+  s1.rect = () => ({ left: 0, top: 0, width: 500, height: hpx, right: 500, bottom: hpx });
+  s2.rect = () => ({ left: 0, top: hpx + 20, width: 500, height: hpx, right: 500, bottom: 2 * hpx + 20 });
+  dk.setTool("lasso", true);
+  const a = s1._stroke([{ x: 300, y: H - 120 }, { x: 360, y: H - 100 }]);    /* near page 1's foot */
+  const b = s2._stroke([{ x: 300, y: 80 }, { x: 360, y: 100 }]);             /* near page 2's head */
+  const far = s2._stroke([{ x: 300, y: 900 }, { x: 360, y: 920 }]);          /* outside the loop */
+  /* a loop on page 1 that runs 300 units past its foot */
+  s1._lasso([{ x: 250, y: H - 200 }, { x: 450, y: H - 200 }, { x: 450, y: H + 300 }, { x: 250, y: H + 300 }]);
+  eq([s1._sel(), s2._sel()], [[a.id], [b.id]], "the loop selects on both pages it covers, and nothing outside it");
+  assert(dk.selGroup && dk.selGroup.length === 2, "one selection over two pages");
+  eq(D.querySelectorAll('[data-ui~="ink.selection"]').length, 1, "one set of chips, on the first page");
+  /* Move as one: both pages move by the same amount */
+  s1._beginMove(); s2._beginMove(); s1._moveBy(0, 40); s2._moveBy(0, 40); s1._endMove(); s2._endMove();
+  const yOf = (pg, id) => G.itemBox(pg.items.find((x) => x.id === id)).y;
+  assert(Math.abs(yOf(p2, b.id) - (G.itemBox(b).y + 40)) < 1, "page 2's part moved with page 1's");
+  /* dragged past page 1's foot, a stroke moves into page 2 */
+  s1._beginMove(); s1._moveBy(0, 200); s1._endMove();
+  const n = s1._rehome([s1]);
+  eq([n, p1.items.some((x) => x.id === a.id), p2.items.some((x) => x.id === a.id)], [1, false, true], "it now belongs to page 2");
+  const moved = p2.items.find((x) => x.id === a.id), by = G.itemBox(moved);
+  assert(by.y > 0 && by.y < 200, "placed near page 2's head, where it was dropped: y " + Math.round(by.y));
+  /* Delete acts on every page of the selection */
+  s1._lasso([{ x: 250, y: H - 300 }, { x: 450, y: H - 300 }, { x: 450, y: H + 500 }, { x: 250, y: H + 500 }]);
+  const before = p1.items.length + p2.items.length, chosen = s1._sel().length + s2._sel().length;
+  q('[data-ui~="ink.sel-delete"]').click();
+  eq(p1.items.length + p2.items.length, before - chosen, "Delete took the selection off both pages");
+  assert(p2.items.some((x) => x.id === far.id), "and nothing else");
+  /* parts of a picture: the loop cuts it without taking it */
+  const img = { id: "qaimg", k: "img", x: 100, y: 100, w: 400, h: 300, src: "data:image/png;base64,AAAA" };
+  const loop = [{ x: 120, y: 120 }, { x: 260, y: 120 }, { x: 260, y: 220 }, { x: 120, y: 220 }];
+  eq(G.cutPicture([img], loop, []).id, "qaimg", "the loop cuts the picture");
+  eq(G.cutPicture([img], loop, ["qaimg"]), null, "not when the picture itself is taken");
+  const cr = G.cropOf(img, loop, 800, 600);
+  eq([cr.x, cr.y, cr.w, cr.h, cr.sx, cr.sy, cr.sw, cr.sh], [120, 120, 140, 100, 40, 40, 280, 200], "the crop in page units and in the picture's own pixels");
+  s1._take([img]); s1._lasso(loop);
+  assert(q('[data-ui~="ink.sel-crop"]'), "Copy this part of the picture is offered");
+  s1.destroy(); s2.destroy();
+});
+
 (async () => {
   let failed = 0;
   for (const [name, fn] of steps) {

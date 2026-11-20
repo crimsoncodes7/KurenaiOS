@@ -373,7 +373,9 @@
     /* Settings › Connections (20 Nov 2026: Neon's batch 3 merged into 1C) */
     connections: ["page-connections"],
     /* the Matrix (1C, 20 Nov 2026: the plan's shift and the plan in blocks) */
-    matrix: ["page-matrix"]
+    matrix: ["page-matrix"],
+    /* the full notification feed (the header bell stays at boot): 1C's ink */
+    notifications: ["page-notifications"]
   };
   var SPACE_DESK = { code: "page-code", mind: "page-mind", ja: "page-ja", creatives: "page-creatives" };
   var SPACE_TOPIC = { mind: "page-mind", creatives: "page-creatives" };

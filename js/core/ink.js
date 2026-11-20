@@ -261,6 +261,44 @@
       return inPoly(poly, b.x + b.w / 2, b.y + b.h / 2);
     }).map(function (it) { return it.id; });
   }
+  /* ACROSS PAGES (1C, UR-9). A loop drawn past a page's edge is carried
+     onto the pages it covers: `rect` is a page's on-screen box and `h` its
+     height in page units, so a point moves page → screen → page. */
+  function mapPoints(list, from, fromH, to, toH) {
+    return list.map(function (q) {
+      var cx = from.left + q.x / W * from.width, cy = from.top + q.y / Math.max(1, fromH) * from.height;
+      return { x: (cx - to.left) / Math.max(1, to.width) * W, y: (cy - to.top) / Math.max(1, to.height) * toH };
+    });
+  }
+  /* does the loop leave the page (above or below it)? */
+  function leavesPage(poly, h) { return poly.some(function (q) { return q.y < 0 || q.y > h; }); }
+  /* PARTS OF A PICTURE: the picture a loop cuts through without taking it
+     (its middle outside the loop), when the loop overlaps it by at least a
+     tenth of the loop's own box; the latest such picture wins */
+  function cutPicture(items, poly, picked) {
+    if (poly.length < 3) return null;
+    var lb = bbox(poly), set = {};
+    (picked || []).forEach(function (id) { set[id] = 1; });
+    var hit = null;
+    items.forEach(function (it) {
+      if (it.k !== "img" || set[it.id]) return;
+      var ix = Math.max(0, Math.min(lb.x + lb.w, it.x + it.w) - Math.max(lb.x, it.x));
+      var iy = Math.max(0, Math.min(lb.y + lb.h, it.y + it.h) - Math.max(lb.y, it.y));
+      if (ix * iy >= 0.1 * Math.max(1, lb.w * lb.h)) hit = it;
+    });
+    return hit;
+  }
+  /* the part of the picture inside the loop, in the picture's own pixels:
+     the loop's box clipped to the picture, and the loop moved into it */
+  function cropOf(it, poly, natW, natH) {
+    var lb = bbox(poly);
+    var x0 = Math.max(it.x, lb.x), y0 = Math.max(it.y, lb.y), x1 = Math.min(it.x + it.w, lb.x + lb.w), y1 = Math.min(it.y + it.h, lb.y + lb.h);
+    if (x1 - x0 < 4 || y1 - y0 < 4) return null;
+    var kx = natW / Math.max(1, it.w), ky = natH / Math.max(1, it.h);
+    return { x: x0, y: y0, w: x1 - x0, h: y1 - y0,
+      sx: (x0 - it.x) * kx, sy: (y0 - it.y) * ky, sw: (x1 - x0) * kx, sh: (y1 - y0) * ky,
+      clip: poly.map(function (q) { return { x: (q.x - x0) * kx, y: (q.y - y0) * ky }; }) };
+  }
   /* move and scale the chosen items (the lasso's Move and Resize) */
   function transform(items, ids, fn) {
     var set = {};
@@ -552,7 +590,8 @@
     uid: uid,
     topicDoc: function (sid, ref) { return "topic:" + sid + ":" + ref; },
     geo: { pts: pts, pack: pack, widths: widths, smooth: smooth, baseWidth: baseWidth, textSize: textSize, rdp: rdp, bbox: bbox, snap: snap,
-      erase: erase, lassoPick: lassoPick, inPoly: inPoly, transform: transform, boxOf: boxOf, itemBox: itemBox, hitItem: hitItem },
+      erase: erase, lassoPick: lassoPick, inPoly: inPoly, transform: transform, boxOf: boxOf, itemBox: itemBox, hitItem: hitItem,
+      mapPoints: mapPoints, leavesPage: leavesPage, cutPicture: cutPicture, cropOf: cropOf },
     available: available, ready: ready, doc: doc, written: written,
     listPages: listPages, getPage: getPage, blankPage: blankPage, addPage: addPage, savePage: savePage, setDocPaper: setDocPaper,
     movePage: movePage, deletePage: deletePage, duplicatePage: duplicatePage,

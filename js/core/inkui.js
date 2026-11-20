@@ -46,6 +46,7 @@
     ruler: function () { return ["Ruler", "Two fingers place and turn it (drag it with a mouse); the pen draws along its edge."]; },
     text: function () { return ["Text", "Tap the page for a box that takes typing or Scribble."]; },
     image: function () { return ["Image", "A picture from Photos or Files. You can also paste one, or drop it on the page."]; },
+    paste: function () { return ["Paste", "Puts the picture on your clipboard onto the page (a screenshot, or one copied from Photos or Safari)."]; },
     undo: function () { return ["Undo", "Or tap the page with two fingers, or ⌘Z."]; },
     redo: function () { return ["Redo", "⇧⌘Z."]; },
     paper: function () { return ["Paper", "For new pages; pages already written keep theirs."]; },
@@ -526,19 +527,56 @@
 
     /* ---- selection (the lasso's chips, 30a) ---- */
     var chips = null;
+    /* a selection spread over pages (1C, UR-9): every page's own box is
+       drawn, and the chips sit on the first page, acting on them all */
+    function group() { var g = dk.selGroup; return g && g.length > 1 && g.indexOf(s) !== -1 ? g : null; }
+    function each(fn) { (group() || [s]).forEach(fn); }
     function paintChips(box) {
       if (chips) { chips.remove(); chips = null; }
-      if (!box || dk.prefs.tool !== "lasso") return;
-      chips = el("div", { class: "k-ink-chips", role: "toolbar", "aria-label": "Selection", "data-ui": "ink.selection" }, [
-        chip("Move", "move"), chip("Resize", "resize"),
+      if ((!box && !s.cut) || dk.prefs.tool !== "lasso") return;
+      var g = group();
+      if (g && g[0] !== s) return;
+      chips = el("div", { class: "k-ink-chips", role: "toolbar", "aria-label": "Selection", "data-ui": "ink.selection" }, box ? [
+        chip("Move", "move"), g ? null : chip("Resize", "resize"),
         KOS.ui.menu({ label: "Recolour", className: "k-btn--sm k-ink-chip", align: "start",
-          items: I.PEN_ROLES.map(function (r) { return { label: r[1], onSelect: function () { recolour(r[0]); } }; }) }),
-        el("button", { type: "button", class: "k-btn k-btn--sm k-ink-chip", "data-ui": "ink.sel-copy", text: "Copy", onclick: copySel }),
-        el("button", { type: "button", class: "k-btn k-btn--sm k-ink-chip", "data-ui": "ink.sel-delete", "data-tone": "danger", text: "Delete", onclick: deleteSel })
-      ]);
-      chips.style.setProperty("--ink-chip-x", Math.round(box.x * scale) + "px");
-      chips.style.setProperty("--ink-chip-y", Math.round((box.y + box.h + 14) * scale) + "px");
+          items: I.PEN_ROLES.map(function (r) { return { label: r[1], onSelect: function () { each(function (x) { x._recolour(r[0]); }); } }; }) }),
+        el("button", { type: "button", class: "k-btn k-btn--sm k-ink-chip", "data-ui": "ink.sel-copy", text: "Copy", onclick: function () { each(function (x) { x._copySel(); }); announce("Copied the selection."); } }),
+        el("button", { type: "button", class: "k-btn k-btn--sm k-ink-chip", "data-ui": "ink.sel-delete", "data-tone": "danger", text: "Delete", onclick: function () {
+          var n = 0; each(function (x) { n += x._deleteSel(); });
+          dk.selGroup = null;
+          announce(n === 1 ? "Deleted one item." : "Deleted " + n + " items.");
+        } }),
+        s.cut ? cropChip() : null
+      ].filter(Boolean) : [cropChip()]);
+      var at = box || G.bbox(s.cut.poly);
+      chips.style.setProperty("--ink-chip-x", Math.round(Math.max(0, at.x) * scale) + "px");
+      chips.style.setProperty("--ink-chip-y", Math.round((Math.min(ph() - 40, at.y + at.h) + 14) * scale) + "px");
       layer.appendChild(chips);
+    }
+    function cropChip() {
+      return el("button", { type: "button", class: "k-btn k-btn--sm k-ink-chip", "data-ui": "ink.sel-crop", text: "Copy this part of the picture", onclick: cropPart });
+    }
+    /* PARTS OF A PICTURE (UR-9): the loop's part of a picture becomes a new
+       picture beside it; the picture itself never changes (invariant 151) */
+    function cropPart() {
+      var c = s.cut;
+      if (!c) return;
+      s.cut = null;
+      var im = new Image();
+      im.onload = function () {
+        var cr = G.cropOf(c.it, c.poly, im.naturalWidth || c.it.w, im.naturalHeight || c.it.h);
+        var cv = document.createElement("canvas"), x = cv.getContext && cv.getContext("2d");
+        if (!cr || !x) { KOS.ui.toast("That part of the picture is too small to copy.", true); paintLive(); return; }
+        var k = Math.min(1, 1400 / Math.max(cr.sw, cr.sh));
+        cv.width = Math.max(1, Math.round(cr.sw * k)); cv.height = Math.max(1, Math.round(cr.sh * k));
+        x.scale(k, k);
+        x.beginPath(); cr.clip.forEach(function (q, i) { if (i) x.lineTo(q.x, q.y); else x.moveTo(q.x, q.y); }); x.closePath(); x.clip();
+        x.drawImage(im, cr.sx, cr.sy, cr.sw, cr.sh, 0, 0, cr.sw, cr.sh);
+        s.addItems([{ id: I.uid(), k: "img", x: Math.round(cr.x + 24), y: Math.round(cr.y + 24), w: Math.round(cr.w), h: Math.round(cr.h), src: cv.toDataURL("image/png") }]);
+        announce("Copied that part of the picture. The picture itself is unchanged.");
+      };
+      im.onerror = function () { KOS.ui.toast("That picture can't be read here.", true); paintLive(); };
+      im.src = c.it.src;
     }
     function chip(label, mode) {
       var b = el("button", { type: "button", class: "k-btn k-btn--sm k-ink-chip", "aria-pressed": String(selMode === mode), text: label,
@@ -546,26 +584,43 @@
       KOS.ui.state(b, "on", selMode === mode);
       return b;
     }
+    s._recolour = function (role) { if (sel.length) recolour(role); };
+    s._copySel = function () { if (sel.length) copySel(true); };
+    s._deleteSel = function () { var n = sel.length; if (n) deleteSel(true); return n; };
     function recolour(role) {
       var set = {}; sel.forEach(function (id) { set[id] = 1; });
       commit(page.items.map(function (it) { return set[it.id] && it.k !== "img" ? Object.assign({}, it, { role: it.k === "hl" ? (I.HL_ROLES.some(function (r) { return r[0] === role; }) ? role : it.role) : role }) : it; }));
     }
-    function copySel() {
+    function copySel(quiet) {
       var set = {}; sel.forEach(function (id) { set[id] = 1; });
       var copies = page.items.filter(function (it) { return set[it.id]; }).map(function (it) { return Object.assign({}, it, { id: I.uid() }); });
       var ids = copies.map(function (c) { return c.id; });
       var moved = G.transform(copies, ids, function (x, y) { return { x: x + 24, y: y + 24 }; });
       commit(page.items.concat(moved));
       sel = ids; paintLive();
-      announce("Copied the selection.");
+      if (!quiet) announce("Copied the selection.");
     }
-    function deleteSel() {
+    function deleteSel(quiet) {
       var set = {}; sel.forEach(function (id) { set[id] = 1; });
       var n = sel.length;
       sel = [];
       commit(page.items.filter(function (it) { return !set[it.id]; }));
-      announce(n === 1 ? "Deleted one item." : "Deleted " + n + " items.");
+      if (!quiet) announce(n === 1 ? "Deleted one item." : "Deleted " + n + " items.");
     }
+    /* the group's moving parts: every page moves its own selection by the
+       same amount, and what lands on another page moves into it */
+    var moveBase = null;
+    s._sel = function () { return sel.slice(); };
+    s._pickPoly = function (poly) { sel = G.lassoPick(page.items, poly); selMode = "move"; s.cut = null; paintLive(); return sel.slice(); };
+    s._beginMove = function () { moveBase = page.items; };
+    s._moveBy = function (dx, dy) { if (!moveBase) return; page.items = G.transform(moveBase, sel, function (x, y) { return { x: x + dx, y: y + dy }; }); redraw(); };
+    s._endMove = function () { if (!moveBase) return; var moved = page.items; page.items = moveBase; moveBase = null; if (moved !== page.items) commit(moved); };
+    s._dropIds = function (ids) {
+      var set = {}; ids.forEach(function (id) { set[id] = 1; });
+      sel = sel.filter(function (id) { return !set[id]; });
+      commit(page.items.filter(function (it) { return !set[it.id]; }));
+    };
+    s._take = function (items) { commit(page.items.concat(items)); sel = sel.concat(items.map(function (x) { return x.id; })); paintLive(); };
     s.clearSelection = function () { if (sel.length) { sel = []; paintLive(); } closeText(true); };
 
     /* ---- text boxes (Scribble works in them) ---- */
@@ -609,6 +664,8 @@
       var r = live.getBoundingClientRect();
       return { x: (e.clientX - r.left) / (r.width || 1) * I.W, y: (e.clientY - r.top) / (r.height || 1) * ph() };
     }
+    s.rect = function () { return live.getBoundingClientRect(); };
+    s.ph = ph;
     function draws(e) {
       if (opts.readOnly) return false;
       if (e.pointerType === "pen") return true;
@@ -656,11 +713,14 @@
           var corner = corners(box).filter(function (c) { return Math.hypot(c.x - q.x, c.y - q.y) < 22 / Math.max(scale, 0.3); })[0];
           var inside = q.x >= box.x - 6 && q.x <= box.x + box.w + 6 && q.y >= box.y - 6 && q.y <= box.y + box.h + 6;
           if (corner || inside) {
-            stroke = { kind: corner || selMode === "resize" ? "resize" : "move", from: q, base: page.items, box: box, corner: corner ? corner.c : "se" };
+            stroke = { kind: (corner || selMode === "resize") && !group() ? "resize" : "move", from: q, base: page.items, box: box, corner: corner ? corner.c : "se" };
+            if (stroke.kind === "move" && group()) group().forEach(function (x) { if (x !== s) x._beginMove(); });
             return;
           }
           sel = [];
         }
+        if (dk.selGroup) { dk.selGroup.forEach(function (x) { if (x !== s) x._select([]); }); dk.selGroup = null; }
+        s.cut = null;
         stroke = { kind: "lasso", list: [q], o: q, box: dk.prefs.lasso === "box" };
         liveState = { lasso: stroke.list };
         paintLive();
@@ -735,6 +795,7 @@
           fn = function (x, y) { return { x: ox + (x - ox) * k, y: oy + (y - oy) * k }; };
         }
         page.items = G.transform(stroke.base, sel, fn);
+        if (stroke.kind === "move" && group()) group().forEach(function (x) { if (x !== s) x._moveBy(dx, dy); });
         redraw();
         return;
       }
@@ -785,18 +846,14 @@
         if (st.items !== st.base) { page.items = st.base; commit(st.items); act("erase"); } else paintLive();
         return;
       }
-      if (st.kind === "lasso") {
-        liveState = null;
-        sel = G.lassoPick(page.items, st.list);
-        selMode = "move";
-        paintLive();
-        if (sel.length) announce(sel.length === 1 ? "One item selected." : sel.length + " items selected.");
-        return;
-      }
+      if (st.kind === "lasso") { finishLasso(st.list); return; }
       if (st.kind === "move" || st.kind === "resize") {
         var moved = page.items;
         page.items = st.base;
         if (moved !== st.base) commit(moved);
+        var gm = group();
+        if (st.kind === "move" && gm) gm.forEach(function (x) { if (x !== s) x._endMove(); });
+        if (st.kind === "move") rehome(gm || [s]);
         return;
       }
       var snapped = st.ruled ? null : (liveState && liveState.snapped || (st.kind === "shape" ? G.snap(st.list) : null));
@@ -825,6 +882,73 @@
       size(); redraw(); schedule();
     }
     s.grow = grow;
+    /* the lasso let go: pick on this page, and on every page the loop
+       reaches past its edge; a picture it cuts offers its part */
+    function finishLasso(list) {
+      liveState = null;
+      if (dk.selGroup) { dk.selGroup.forEach(function (x) { if (x !== s) x._select([]); }); dk.selGroup = null; }
+      sel = G.lassoPick(page.items, list);
+      selMode = "move";
+      /* past the page's edge: the same loop on every page it covers */
+      var g = sel.length ? [s] : [];
+      if (G.leavesPage(list, ph())) {
+        var from = s.rect();
+        dk.surfaces.forEach(function (o) {
+          if (o === s || o.readOnly || !o.host.isConnected) return;
+          var mp = G.mapPoints(list, from, ph(), o.rect(), o.ph());
+          if (!mp.some(function (q) { return q.y >= 0 && q.y <= o.ph(); })) return;
+          if (o._pickPoly(mp).length) g.push(o);
+        });
+      }
+      dk.selGroup = g.length > 1 ? g : null;
+      /* a loop through a picture it did not take offers its part */
+      s.cut = null;
+      var cut = G.cutPicture(page.items, list, sel);
+      if (cut) s.cut = { it: cut, poly: list.slice() };
+      paintLive();
+      /* every page of it draws again now the group is known (its chips sit on the first) */
+      g.forEach(function (x) { if (x !== s) x._select(x._sel()); });
+      var total = 0; g.forEach(function (x) { total += x._sel().length; });
+      if (total) announce((total === 1 ? "One item selected" : total + " items selected") + (g.length > 1 ? " on " + g.length + " pages." : "."));
+      else if (s.cut) announce("The loop cuts a picture: Copy this part makes a new picture of it.");
+    }
+    s._lasso = finishLasso;
+    /* an item moved past its page's edge goes to the page it now sits on,
+       when there is one (else it stays, and the page keeps it) */
+    function rehome(list) {
+      var n = 0;
+      list.forEach(function (x) {
+        var r = x.rect(), h = x.ph(), set = {};
+        x._sel().forEach(function (id) { set[id] = 1; });
+        var out = {};
+        x.page.items.forEach(function (it) {
+          if (!set[it.id]) return;
+          var b = G.itemBox(it), cy = b.y + b.h / 2;
+          if (cy >= 0 && cy <= h) return;
+          var cx = r.left + (b.x + b.w / 2) / I.W * r.width, cyc = r.top + cy / Math.max(1, h) * r.height;
+          var t = dk.surfaces.filter(function (o) {
+            if (o === x || o.readOnly || !o.host.isConnected) return false;
+            var rr = o.rect();
+            return cx >= rr.left && cx <= rr.right && cyc >= rr.top && cyc <= rr.bottom;
+          })[0];
+          if (!t) return;
+          var key = dk.surfaces.indexOf(t);
+          (out[key] = out[key] || { t: t, items: [] }).items.push(it);
+        });
+        Object.keys(out).forEach(function (key) {
+          var o = out[key], tr = o.t.rect(), th = o.t.ph();
+          var moved = o.items.map(function (it) {
+            return G.transform([it], [it.id], function (px, py) { var m = G.mapPoints([{ x: px, y: py }], r, h, tr, th)[0]; return { x: m.x, y: m.y }; })[0];
+          });
+          x._dropIds(o.items.map(function (it) { return it.id; }));
+          o.t._take(moved);
+          n += moved.length;
+        });
+      });
+      if (n) announce(n === 1 ? "One item moved to the next page." : n + " items moved onto the page they were dragged to.");
+      return n;
+    }
+    s._rehome = function (list) { return rehome(list || [s]); };
     function onCancel() { clearTimeout(holdT); if (stroke && stroke.base) page.items = stroke.base; stroke = null; liveState = null; redraw(); }
     live.addEventListener("pointerdown", onDown);
     live.addEventListener("pointermove", onMove);
@@ -913,6 +1037,7 @@
       KOS.ui.state(host, "readonly", !!opts.readOnly);
       host.setAttribute("data-tool", dk.prefs.tool);
       if (dk.prefs.tool !== "lasso" && sel.length) { sel = []; }
+      if (dk.prefs.tool !== "lasso") { s.cut = null; if (dk.selGroup) dk.selGroup = null; }
       paintLive();
     };
     var ro = null;
@@ -961,6 +1086,7 @@
     shape: [["circle", { cx: "9", cy: "14", r: "5" }], ["rect", { x: "11", y: "4", width: "9", height: "9", rx: "1" }]],
     text: [["path", { d: "M5 6V4h14v2M12 4v16M9 20h6" }]],
     image: [["rect", { x: "3", y: "5", width: "18", height: "14", rx: "2" }], ["circle", { cx: "9", cy: "10", r: "1.6" }], ["path", { d: "M21 16l-5-5-9 8" }]],
+    paste: [["rect", { x: "6", y: "4", width: "12", height: "17", rx: "2" }], ["path", { d: "M9 4V3h6v1" }], ["path", { d: "M9 11h6M9 15h4" }]],
     undo: [["path", { d: "M9 7L4 12l5 5" }], ["path", { d: "M4 12h10a6 6 0 010 12h-3", transform: "translate(0 -6)" }]],
     redo: [["path", { d: "M15 7l5 5-5 5" }], ["path", { d: "M20 12H10a6 6 0 000 12h3", transform: "translate(0 -6)" }]],
     paper: [["rect", { x: "5", y: "3", width: "14", height: "18", rx: "2" }], ["path", { d: "M8 8h8M8 12h8M8 16h5" }]],
@@ -1010,6 +1136,9 @@
     if (opts.image !== false) {
       tools.appendChild(toolBtn("image", "Image", { title: "A picture from Photos or Files", "data-ui": "ink.tool ink.image", onclick: function () { imgInput.click(); } }));
       tools.appendChild(imgInput);
+      /* UR-10 (1C): on the iPad there is no ⌘V without a keyboard, so the
+         clipboard's picture has a button of its own */
+      tools.appendChild(toolBtn("paste", "Paste", { title: "Paste the picture on the clipboard", "data-ui": "ink.tool ink.paste", onclick: function () { pasteClipboard(dk); } }));
     }
 
     /* colour and width: inline when the bar has room, else one button */
@@ -1281,11 +1410,23 @@
     if (t === "text") return { list: I.TEXT_SIZES, cur: p.textW, label: "Size" };
     return { list: I.WIDTHS, cur: p.pen.w, label: "Width", mm: true };
   }
+  /* the choice just made shows in its own group at once (the colour and
+     size menu stays open while you pick, 1C): only the toolbar's button
+     used to follow, and the open menu kept the old tick */
+  function markIn(btn) {
+    var g = btn.parentNode;
+    if (!g) return;
+    [].forEach.call(g.querySelectorAll("[role='radio']"), function (x) {
+      var on = x === btn;
+      x.setAttribute("aria-checked", String(on));
+      if (KOS.ui.hasState(x, "on") !== on && x.classList.contains("k-ink-choice")) KOS.ui.state(x, "on", on);
+    });
+  }
   function swatchGroup(dk) {
     var hl = dk.prefs.tool === "hl", roles = hl ? I.HL_ROLES : I.PEN_ROLES, cur = hl ? dk.prefs.hl.role : dk.prefs.pen.role;
     return el("div", { class: "k-ink-swatches", role: "radiogroup", "aria-label": hl ? "Highlighter colour" : "Pen colour" }, roles.map(function (r) {
       var b = el("button", { type: "button", class: "k-ink-swatch", role: "radio", "aria-checked": String(r[0] === cur), "aria-label": r[1], title: r[1],
-        "data-role": r[0], "data-ui": "ink.swatch", onclick: function () { dk.setRole(r[0]); } });
+        "data-role": r[0], "data-ui": "ink.swatch", onclick: function () { markIn(b); dk.setRole(r[0]); } });
       if (hl) KOS.ui.state(b, "hl", true);
       return b;
     }));
@@ -1294,14 +1435,15 @@
     var sz = sizesOf(dk);
     if (!sz) return null;
     return el("div", { class: "k-ink-widths", role: "radiogroup", "aria-label": sz.label }, sz.list.map(function (wd, i) {
-      return el("button", { type: "button", class: "k-ink-width", role: "radio", "aria-checked": String(sz.cur === i), "aria-label": wd[0], title: wd[0] + (sz.mm ? " · " + wd[1] + " mm" : ""),
-        "data-w": String(i), "data-ui": "ink.width", onclick: function () { dk.setWidth(i); } }, [el("span", { class: "k-ink-width-dot", "aria-hidden": "true" })]);
+      var b = el("button", { type: "button", class: "k-ink-width", role: "radio", "aria-checked": String(sz.cur === i), "aria-label": wd[0], title: wd[0] + (sz.mm ? " · " + wd[1] + " mm" : ""),
+        "data-w": String(i), "data-ui": "ink.width", onclick: function () { markIn(b); dk.setWidth(i); } }, [el("span", { class: "k-ink-width-dot", "aria-hidden": "true" })]);
+      return b;
     }));
   }
   function choiceGroup(label, list, cur, onPick) {
     return el("div", { class: "k-ink-choices", role: "radiogroup", "aria-label": label }, list.map(function (c) {
       var b = el("button", { type: "button", class: "k-chip k-ink-choice", role: "radio", "aria-checked": String(c[0] === cur), "data-ui": "ink.choice", "data-choice": c[0],
-        onclick: function () { onPick(c[0]); } }, [el("span", { text: c[1] })]);
+        onclick: function () { markIn(b); onPick(c[0]); } }, [el("span", { text: c[1] })]);
       KOS.ui.state(b, "on", c[0] === cur);
       return b;
     }));
@@ -1326,7 +1468,25 @@
     var t = dk.prefs.tool;
     var m = KOS.ui.menu({ label: optionLabel(dk), className: className, align: "start", panelClass: "k-ink-pop",
       render: function (panel) {
-        optionParts(dk).forEach(function (pt) { panel.appendChild(el("div", { class: "k-kicker", text: pt[0] })); panel.appendChild(pt[1]); });
+        /* each heading names what is chosen now ("Colour · Teal"), and
+           follows a pick made in the open menu */
+        var heads = [];
+        function now(label) {
+          var p = dk.prefs, sz = sizesOf(dk);
+          if (label === "Colour" || label === "Highlighter") return roleName(p.tool === "hl" ? I.HL_ROLES : I.PEN_ROLES, p.tool === "hl" ? p.hl.role : p.pen.role);
+          if (sz && label === sz.label) return sz.list[sz.cur][0];
+          if (label === "Erases") return p.eraser === "partial" ? "Partial" : "Whole stroke";
+          if (label === "Selects") return p.lasso === "box" ? "Box" : "Freehand";
+          return "";
+        }
+        optionParts(dk).forEach(function (pt) {
+          var h = el("div", { class: "k-kicker", "data-ui": "ink.option-head", text: pt[0] + (now(pt[0]) ? " · " + now(pt[0]) : "") });
+          heads.push([h, pt[0]]);
+          panel.appendChild(h); panel.appendChild(pt[1]);
+        });
+        panel.addEventListener("click", function () {
+          setTimeout(function () { heads.forEach(function (x) { var v = now(x[1]); x[0].textContent = x[1] + (v ? " · " + v : ""); }); }, 0);
+        });
         if (t === "pen" || t === "shape" || t === "ruler")
           panel.appendChild(el("p", { class: "k-ink-pop-note", text: dk.prefs.pressure ? "Width follows your pressure." : "This pen reports no pressure, so the width follows your speed." }));
       } });
@@ -1419,6 +1579,26 @@
   }
 
   /* a picture, downscaled to at most 1400 px and kept as a data URL */
+  /* the Paste button: the first picture on the clipboard, placed as a
+     paste is; says why when there is none or the browser refuses */
+  function pasteClipboard(dk) {
+    var cb = navigator.clipboard;
+    if (!cb || !cb.read) { KOS.ui.toast("This browser can't read the clipboard from a button. Paste with ⌘V, or drop the picture on the page.", true); return; }
+    cb.read().then(function (items) {
+      var found = null;
+      (items || []).some(function (it) {
+        var t = (it.types || []).filter(function (x) { return /^image\//.test(x); })[0];
+        if (t) found = { it: it, type: t };
+        return !!found;
+      });
+      if (!found) { KOS.ui.toast("There's no picture on the clipboard. Copy one first (a screenshot, or Copy in Photos)."); return; }
+      return found.it.getType(found.type).then(function (blob) {
+        readImage(blob, function (src, iw, ih) { dk.placeImage(src, iw, ih); });
+      });
+    }).catch(function () {
+      KOS.ui.toast("The clipboard wasn't shared. Allow Paste when the browser asks, or paste with ⌘V.", true);
+    });
+  }
   function readImage(file, cb) {
     var rd = new FileReader();
     rd.onload = function () {
@@ -1455,7 +1635,7 @@
     return function () { document.removeEventListener("keydown", onKey); };
   }
 
-  KOS.inkUI = { busy: busy, prefs: prefs, palette: palette, desk: desk, surface: surface, toolbar: toolbar, shortcuts: shortcuts,
+  KOS.inkUI = { pasteClipboard: pasteClipboard, busy: busy, prefs: prefs, palette: palette, desk: desk, surface: surface, toolbar: toolbar, shortcuts: shortcuts,
     papersPicker: papersPicker, glyph: glyph, drawItems: drawItems, TOOLS: TOOLS, dockable: dockable, floatPalette: floatPalette, readImage: readImage,
     swatchGroup: swatchGroup, widthGroup: widthGroup, phone: phone, dialog: dialog };
 })();
