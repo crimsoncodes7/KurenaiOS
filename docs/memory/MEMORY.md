@@ -35,3 +35,4 @@
 - [Test every aspect before release](test-every-aspect-before-release.md) — rule 2026-11-18: audit first; browser, print PDF A4, every tier/subject, own files, edit/clear paths, before any release
 - [Agents save as they go](agents-save-as-they-go.md) — rule 2026-11-19: every agent commits+pushes WIP after each step; the usage limit can stop it any time
 - [Scope after W7](scope-after-w7-2026-11-19.md) — 19 Nov: spaces batch done + released (kos-integrity-23); next QoL review from docs/qol/; W3/W9/W10/F201/Help in the backlog
+- [Bash mangles backslash-semicolon](bash-mangles-backslash-semicolon.md) — the Bash tool drops one backslash from a double-backslash semicolon; build backslashes with chr(92), prefer Edit for LaTeX content
