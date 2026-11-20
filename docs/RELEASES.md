@@ -16,7 +16,7 @@ the service-worker version). Git holds the rest.
   `kos_reports` migration `20261012000001` is applied; so is `kos_money`
   (`20261019000001`, 19 October 2026), live since the Money and Goals release.
 - Latest release: sw `kos-qol-1` (20 November 2026, `feat/qol-1a` into
-  main; immutable URL IMMUTABLE_URL): the QoL review's batches 1A and 1B,
+  main; immutable https://1a3b6623.kurenai-os.pages.dev): the QoL review's batches 1A and 1B,
   with Neon's batches 1 and 2. 1A: Due today measured per subject and by
   time on a plan row; review counts from the review log; the Writing Desk
   draft kept on close; the toast queue with stacked Undo and ⌘Z; a cloud
