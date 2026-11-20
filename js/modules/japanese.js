@@ -304,7 +304,9 @@
     var page = arg.page || "path";
     if (page === "session") {
       var id = arg.id || "reviews";
-      KOS.jaRun.run(main, id.indexOf("learn-") === 0 ? { kind: "learn", lesson: id.slice(6) } : { kind: "reviews" });
+      KOS.jaRun.run(main, id.indexOf("learn-") === 0 ? { kind: "learn", lesson: id.slice(6) }
+        : id.indexOf("practice-") === 0 ? { kind: "practice", lesson: id.slice(9) }
+        : { kind: "reviews" });
       return;
     }
     if (page === "reviews") { spaceHead(main, "reviews", { title: "Reviews", sub: "Facets interleaved; each card names the skill it trains" }); reviewsPage(main); return; }

@@ -431,6 +431,14 @@
       node.appendChild(cb);
       node.appendChild(body);
       if (item.priority) node.appendChild(el("span", { class: "k-chip", "data-tone": PRIO_TONE[item.priority] || null, text: R().PRIORITIES[item.priority].label }));
+      if (overdue && !item.done) node.appendChild(el("button", { type: "button", class: "k-btn k-btn--quiet k-btn--sm", "data-ui": "rem.tomorrow",
+        text: "Tomorrow", "aria-label": "Tomorrow: move “" + item.title + "” to tomorrow",
+        onclick: function () {
+          var prev = { due: item.due || null, dueTime: item.dueTime || null };
+          R().update(item.id, { due: KOS.srs.addDays(KOS.srs.todayISO(), 1), dueTime: item.dueTime || null });
+          KOS.ui.toast(item.title + " · moved to tomorrow", false, { label: "Undo", run: function () { R().update(item.id, prev); draw(); } });
+          draw();
+        } }));
       node.appendChild(el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm k-rem-del", "data-ui": "rem.delete", text: "✕", "aria-label": "Delete “" + item.title + "”",
         onclick: function () {
           KOS.ui.confirm({ title: "Delete this reminder?", body: "“" + item.title + "” and its sub-tasks.", danger: true, confirm: "Delete" },

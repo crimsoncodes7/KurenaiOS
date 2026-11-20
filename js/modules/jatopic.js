@@ -192,8 +192,11 @@
         });
         return row;
       })));
-      if (b.go) return el("div", { class: "k-ja-go" }, [el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "ja.practice-start",
-        text: "▶ Start the practice", onclick: function () { KOS.show("japanese", { page: "session", id: "learn-" + ref }); } }), el("small", { class: "k-muted", text: b.go })]);
+      if (b.go) {
+        var done = !!(KOS.ja.peek().lessons[ref] || {}).doneAt;
+        return el("div", { class: "k-ja-go" }, [el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "ja.practice-start",
+          text: done ? "▶ Practise again" : "▶ Start the practice", onclick: function () { KOS.show("japanese", { page: "session", id: (done ? "practice-" : "learn-") + ref }); } }), el("small", { class: "k-muted", text: b.go })]);
+      }
       return el("span");
     }
     function pageBody(pg) { return el("div", { class: "k-ja-page" }, pg.blocks.map(block)); }
@@ -268,7 +271,7 @@
         el("p", { class: "k-muted", text: rec.doneAt ? "Done. Its items now come back in Reviews on their own schedule; practise again any time." : "Each item is introduced, then checked: read it, write it, hear the difference. Your grade comes from your answers." }),
         el("div", { class: "k-ja-practice-items", lang: "ja" }, L.items.map(function (k) { var it = KOS.ja.item(k); return el("span", { class: "k-chip", text: it ? it.w : k }); })),
         el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "ja.practice-start",
-          text: rec.doneAt ? "▶ Practise again" : "▶ Start the practice", onclick: function () { KOS.show("japanese", { page: "session", id: "learn-" + ref }); } })
+          text: rec.doneAt ? "▶ Practise again" : "▶ Start the practice", onclick: function () { KOS.show("japanese", { page: "session", id: (rec.doneAt ? "practice-" : "learn-") + ref }); } })
       ]);
       panel.appendChild(box);
     }
