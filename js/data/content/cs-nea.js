@@ -138,15 +138,15 @@ C["compsci:NEA.0"] = {
     { callout: { t: "tip", h: "Links", body: "4.13.1 the systematic approach (analysis to evaluation, prototyping, the critical path); NEA.1–NEA.5 each section in depth; the NEA mark estimator lab." } }
   ],
   flashcards: [
-    ["NEA marks and weighting?", "75 marks, 20% of the A-level."],
-    ["The five sections and their marks?", "Analysis 9, Documented design 12, Technical solution 42, Testing 8, Evaluation 4."],
+    ["How many marks is the NEA, and what weighting?", "75 marks, 20% of the A-level."],
+    ["Name the NEA's five sections and their marks.", "Analysis 9, Documented design 12, Technical solution 42, Testing 8, Evaluation 4."],
     ["How are the 42 technical-solution marks split?", "Completeness of solution 15, Techniques used 27."],
     ["Penalty for a project not of A-level standard?", "Two levels down in every section except the technical solution (two marks in Evaluation)."],
-    ["Critical path?", "The part everything else depends on for a working system — prototype and build it first."],
+    ["What is the critical path in an NEA project?", "The part everything else depends on for a working system — prototype and build it first."],
     ["Does AQA expect a waterfall life cycle?", "No — the section order is for presentation; development should be iterative/agile."],
     ["What made AQA's quiz example A-level?", "Logins, saved scores and in-program editing; tailoring future quizzes from analysed responses reaches higher marks."],
     ["When are objectives frozen?", "Early, once the critical path is prototyped and judged achievable, by agreement with the teacher."],
-    ["Recommended lesson time?", "About 50 hours."]
+    ["How much lesson time is recommended for the NEA?", "About 50 hours."]
   ],
   quiz: [
     { q: "Which section carries the most marks?", opts: ["Technical solution (42)", "Documented design (12)", "Analysis of the problem (9)", "Testing the solution (8)"], ans: 0, why: "The technical solution is worth 42 of the 75 marks, which is 56%, the biggest section." },
@@ -263,7 +263,7 @@ C["compsci:NEA.1"] = {
     { callout: { t: "tip", h: "Links", body: "4.13.1.1 analysis; 4.10.1 E-R models; 4.4.1.3 abstraction; NEA.2 design builds on the model; NEA.5 evaluation reuses the objective list word for word." } }
   ],
   flashcards: [
-    ["Analysis marks and AO?", "9 marks, AO2b, three levels."],
+    ["How many marks is the NEA analysis, and which AO?", "9 marks, AO2b, three levels."],
     ["What does 'appropriate' mean for objectives?", "Single-purpose and detailed enough to be unambiguous."],
     ["Level 3 Analysis needs requirements arrived at by…", "dialogue with the intended users (or recipients of an investigation's outcomes)."],
     ["Core items of an Analysis?", "Background, evidence of analysis, the set of objectives."],
@@ -397,8 +397,8 @@ C["compsci:NEA.2"] = {
     { callout: { t: "tip", h: "Links", body: "4.13.1.2 design; 4.1.2.3 OOP and class diagrams; 4.10 database design and SQL; 4.2 and 4.3 data structures and algorithms; NEA.3 the code must match." } }
   ],
   flashcards: [
-    ["Design marks and AO?", "12 marks, AO3a, four levels."],
-    ["Level 4 design?", "Fully or nearly fully articulated — how all or almost all key aspects are structured."],
+    ["How many marks is the NEA design, and which AO?", "12 marks, AO3a, four levels."],
+    ["What does a level 4 NEA design look like?", "Fully or nearly fully articulated — how all or almost all key aspects are structured."],
     ["Core items of a design?", "High-level overview, algorithms, data structures, database design, user interface design."],
     ["Can design be documented after coding?", "Yes — before, during or after."],
     ["Are screenshots acceptable for the interface?", "Yes, explained screenshots of actual screens."],
@@ -515,10 +515,10 @@ C["compsci:NEA.3"] = {
     { callout: { t: "tip", h: "Links", body: "4.1 programming (subroutines, parameters, exceptions); 4.2 data structures; 4.3 algorithms; 4.10.4 SQL; 4.1.2.3 OOP; NEA.4 tests prove completeness." } }
   ],
   flashcards: [
-    ["Technical solution marks?", "42: Completeness 15 + Techniques 27."],
-    ["Techniques levels and groups?", "Level 1 (1–9) Group C, level 2 (10–18) Group B, level 3 (19–27) Group A."],
+    ["How many marks is the technical solution, and how are they split?", "42: Completeness 15 + Techniques 27."],
+    ["How do the technique levels map to groups A–C?", "Level 1 (1–9) Group C, level 2 (10–18) Group B, level 3 (19–27) Group A."],
     ["What decides the mark within a techniques level?", "Extent the criteria are met, coding style (Table 2) and effectiveness."],
-    ["Six excellent coding-style characteristics?", "Good interfaces, loose coupling, cohesion, grouped modules, defensive programming, good exception handling."],
+    ["Name the six characteristics of excellent coding style.", "Good interfaces, loose coupling, cohesion, grouped modules, defensive programming, good exception handling."],
     ["Is Table 2 cumulative?", "Yes — excellent assumes good and basic too."],
     ["Is a planned but broken technique credited?", "No — only what the code demonstrates working."],
     ["Name four Group A algorithms.", "Graph/tree traversal, recursion, hashing, merge sort (also cross-table parameterised SQL, complex user-defined algorithms)."],
@@ -621,14 +621,14 @@ C["compsci:NEA.4"] = {
     { callout: { t: "tip", h: "Links", body: "4.13.1.4 normal, boundary and erroneous data; NEA.1 objectives define what to test; NEA.3 completeness is judged from this evidence; NEA.5 evaluation cites test numbers." } }
   ],
   flashcards: [
-    ["Testing marks and AO?", "8 marks, AO3c, four levels."],
-    ["Level 4 testing shows…", "thorough testing, robustness and that the requirements were achieved, by representative samples."],
+    ["How many marks is NEA testing, and which AO?", "8 marks, AO3c, four levels."],
+    ["What does level 4 NEA testing show?", "Thorough testing, robustness and that the requirements were achieved, by representative samples."],
     ["Five parts of a test explanation?", "Purpose, test data, expected outcome, actual outcome, evidence sample."],
     ["Must every test be evidenced?", "No — carefully selected representative samples."],
     ["Can testing evidence come from during development?", "Yes — including failures, fixes and re-tests."],
     ["Is video evidence allowed?", "Yes — with a test table giving time-slots and a URL."],
     ["What should be tested hardest?", "The technically challenging core objectives."],
-    ["C# unit-testing frameworks?", "xUnit, NUnit, MSTest."]
+    ["Name three C# unit-testing frameworks.", "xUnit, NUnit, MSTest."]
   ],
   quiz: [
     { q: "A project that tests only its login screen thoroughly", opts: ["has not shown the core requirements", "gets level 4 for its thorough testing", "needs no evaluation of the other parts", "is complete, as login is the core"], ans: 0, why: "AQA guidance 4.4." },
@@ -715,8 +715,8 @@ C["compsci:NEA.5"] = {
     { callout: { t: "tip", h: "Links", body: "4.13.1.5 evaluation; NEA.1 the objectives; NEA.4 the evidence; the objective checker can re-read your list before you evaluate it." } }
   ],
   flashcards: [
-    ["Evaluation marks?", "4, one per level (AO3c)."],
-    ["Three things a level-4 evaluation has?", "Full consideration of all requirements, detailed improvements, independent feedback evaluated and discussed."],
+    ["How many marks is the NEA evaluation?", "4, one per level (AO3c)."],
+    ["What three things does a level 4 evaluation have?", "Full consideration of all requirements, detailed improvements, independent feedback evaluated and discussed."],
     ["What caps an evaluation at 3?", "Feedback obtained but not meaningfully discussed (or limited improvements)."],
     ["What caps an evaluation at 2?", "Requirements omitted or unmet ones ignored; no useful feedback."],
     ["Where does the raw feedback go?", "An appendix — analysed in the evaluation itself."],

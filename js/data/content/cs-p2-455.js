@@ -224,7 +224,7 @@ C["compsci:4.5.5.3"] = {
     ["How does majority voting work?", "Each bit sent an odd number (≥3) of times; receiver assumes the majority value.", 5],
     ["Advantage of majority voting?", "It can correct errors.", 6],
     ["Disadvantage of majority voting?", "Several times the data — slower, more bandwidth.", 7],
-    ["Gate that computes parity?", "XOR.", 10]
+    ["Which gate computes parity?", "XOR.", 10]
   ],
   quiz: [
     { q: "Even parity bit for 1100101", opts: ["0", "1", "either", "2"], ans: 0, why: "1100101 has four 1s, which is already even, so the even parity bit is 0." },

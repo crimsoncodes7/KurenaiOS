@@ -167,9 +167,9 @@ C["compsci:4.2.4.1"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.2.5.1 a tree is a special graph; 4.3.1.1 breadth- and depth-first traversal; 4.3.6.1 Dijkstra's shortest path on a weighted graph; 4.2.1.2 the matrix is a 2-D array; 4.4.1 representational abstraction (2019's puzzle as a graph); 4.4.2.1 state transition diagrams are directed graphs." } }
   ],
   flashcards: [
-    ["Graph?", "A set of vertices/nodes connected by edges/arcs."],
-    ["Adjacency matrix?", "A 2-D array: cell [i, j] holds the edge weight (or 1) if i and j are joined, else 0.", 3],
-    ["Adjacency list?", "For each vertex, a list of its adjacent vertices (and weights).", 4],
+    ["What is a graph?", "A set of vertices/nodes connected by edges/arcs."],
+    ["What is an adjacency matrix?", "A 2-D array: cell [i, j] holds the edge weight (or 1) if i and j are joined, else 0.", 3],
+    ["What is an adjacency list?", "For each vertex, a list of its adjacent vertices (and weights).", 4],
     ["Why is an undirected matrix symmetric?", "Edge i–j is also edge j–i, so [i, j] = [j, i].", 7],
     ["Which graph needs both halves of the matrix?", "A directed graph.", 8],
     ["Memory of a matrix for n vertices?", "n² cells, whatever the number of edges.", 9]
@@ -300,11 +300,11 @@ C["compsci:4.2.5.1"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.2.4.1 a tree is a graph; 4.3.2.1 pre-, in- and post-order traversal; 4.3.4.3 binary tree search; 4.3.3.1 expression trees and RPN; 4.1.1.16 recursive tree algorithms; 4.5.6.9 Huffman trees in compression." } }
   ],
   flashcards: [
-    ["Tree?", "A connected, undirected graph with no cycles."],
+    ["What is a tree?", "A connected, undirected graph with no cycles."],
     ["Edges in a tree of n vertices?", "n − 1.", 4],
     ["Two reasons a graph may not be a tree?", "It has a cycle; it is not connected (or it is directed).", 6],
     ["−1 in a Left/Right array?", "No child in that direction.", 7],
-    ["Worst-case BST shape?", "A chain (sorted insertion order) — search becomes O(n).", 8],
+    ["What is the worst-case shape of a BST, and what does it do to search?", "A chain (sorted insertion order) — search becomes O(n).", 8],
     ["Uses of rooted trees?", "BSTs, expression/syntax trees, file systems, Huffman coding, decision trees.", 9]
   ],
   quiz: [

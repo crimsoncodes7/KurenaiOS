@@ -166,14 +166,14 @@ C["compsci:4.2.2.1"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.2.3.1 stacks (LIFO vs FIFO); 4.3.1.1 breadth-first search uses a queue; 4.1.1.3 MOD for the wrap; 4.6.1.4 / OS scheduling with queues; 4.2.1.4 static vs dynamic queues; NEA simulations." } }
   ],
   flashcards: [
-    ["Queue order?", "FIFO — first in, first out."],
+    ["In what order does a queue remove items?", "FIFO — first in, first out."],
     ["Where are items added / removed?", "Added at the rear, removed from the front."],
     ["First step to add an item?", "Check the queue is not full."],
     ["First step to remove an item?", "Check the queue is not empty."],
-    ["Linear queue problem?", "Freed space at the front cannot be reused (or every item must shuffle up)."],
-    ["Circular rear update (0-based)?", "rear ← (rear + 1) MOD maxSize."],
+    ["What is the problem with a linear queue?", "Freed space at the front cannot be reused (or every item must shuffle up)."],
+    ["How is rear updated in a 0-based circular queue?", "rear ← (rear + 1) MOD maxSize."],
     ["Why a size counter in a circular queue?", "Front and rear alone cannot tell empty from full.", 7],
-    ["Uses of queues?", "Print/job queues, buffers, simulations, BFS, scheduling.", 9]
+    ["Give some uses of queues.", "Print/job queues, buffers, simulations, BFS, scheduling.", 9]
   ],
   quiz: [
     { q: "A queue is", opts: ["FIFO", "LIFO", "sorted", "random access"], ans: 0, why: "First in, first out." },
@@ -315,14 +315,14 @@ C["compsci:4.2.3.1"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.1.1.15 the call stack and stack frames; 4.1.1.16 recursion; 4.3.3.1 RPN; 4.3.1.1 depth-first search; 4.3.2.1 tree traversal; 4.2.2.1 queues (FIFO vs LIFO); 4.7.3.6 interrupts save registers on a stack." } }
   ],
   flashcards: [
-    ["Stack order?", "LIFO — last in, first out."],
-    ["Push steps?", "Check not full; add 1 to Top; store the item at S[Top]."],
-    ["Pop steps?", "Check not empty; return S[Top]; subtract 1 from Top."],
+    ["In what order does a stack remove items?", "LIFO — last in, first out."],
+    ["What are the steps of a push onto an array stack?", "Check not full; add 1 to Top; store the item at S[Top]."],
+    ["What are the steps of a pop from an array stack?", "Check not empty; return S[Top]; subtract 1 from Top."],
     ["Empty test with Top starting at −1?", "Top = −1.", 4],
     ["Full test for an array of size n?", "Top = n − 1.", 5],
     ["Pop on an empty stack?", "Stack underflow.", 6],
     ["Push on a full stack?", "Stack overflow.", 7],
-    ["5 2 7 + + =", "14.", 10]
+    ["What does the RPN expression 5 2 7 + + evaluate to?", "14.", 10]
   ],
   quiz: [
     { q: "Stack: Harry, Skye, Jib (Top = 2). Pop then Peek returns", opts: ["Skye", "Jib", "Harry", "nothing"], ans: 0, why: "Pop removes Jib." },

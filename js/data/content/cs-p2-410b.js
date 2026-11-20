@@ -325,17 +325,17 @@ C["compsci:4.10.4"] = {
   ],
   flashcards: [
     ["Order of clauses in a query?", "SELECT, FROM, WHERE, GROUP BY, HAVING, ORDER BY."],
-    ["Insert a record?", "INSERT INTO Table [(fields)] VALUES (values)."],
-    ["Change a record?", "UPDATE Table SET Field = value WHERE condition."],
-    ["Remove records?", "DELETE FROM Table WHERE condition."],
+    ["Which SQL statement inserts a record?", "INSERT INTO Table [(fields)] VALUES (values)."],
+    ["Which SQL statement changes a record?", "UPDATE Table SET Field = value WHERE condition."],
+    ["Which SQL statement removes records?", "DELETE FROM Table WHERE condition."],
     ["Define a table field?", "FieldName TYPE [PRIMARY KEY / NOT NULL], — name before type."],
     ["Composite key in CREATE TABLE?", "A separate line PRIMARY KEY (Field1, Field2)."],
     ["Foreign key in CREATE TABLE?", "FOREIGN KEY (Field) REFERENCES OtherTable(Field)."],
-    ["Linking condition?", "Table1.PK = Table2.FK in WHERE (or INNER JOIN … ON)."],
+    ["How do you link two tables in an SQL query?", "Table1.PK = Table2.FK in WHERE (or INNER JOIN … ON)."],
     ["Overlap test for [S,E] and [s,e]?", "S < e AND E > s."],
-    ["Delimiters?", "Quotes round text and dates; none round numbers."],
-    ["Descending sort?", "ORDER BY Field DESC."],
-    ["% and _ in LIKE?", "% any run of characters; _ exactly one character."]
+    ["Which values need delimiters in SQL?", "Quotes round text and dates; none round numbers."],
+    ["How do you sort descending in SQL?", "ORDER BY Field DESC."],
+    ["What do % and _ match in an SQL LIKE pattern?", "% any run of characters; _ exactly one character."]
   ],
   quiz: [
     { q: "SELECT … FROM Surgery, Vet WHERE Town = 'Torquay' returns wrong rows because", opts: ["the tables are not linked on SurgeryName", "Town is text, so it needs no quotes", "SELECT needs * to read two tables", "the Vet table has no primary key"], ans: 0, why: "Every surgery pairs with every vet." },
@@ -550,11 +550,11 @@ C["compsci:4.10.5"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.10.4 the clashing operations are UPDATE statements; 4.9.4.10 the client-server model and thin clients; 4.7.3.7 and the 2018 essay — server performance; 4.12 and 4.11.1 immutable data in functional programs avoids shared-state races; 4.6.1.4 the OS also schedules competing processes." } }
   ],
   flashcards: [
-    ["Deadlock?", "Two transactions each hold a lock the other needs, so neither can continue.", 3],
-    ["Serialisation?", "Conflicting transactions run one after another (or with an equivalent result).", 4],
+    ["What is deadlock?", "Two transactions each hold a lock the other needs, so neither can continue.", 3],
+    ["What is serialisation in concurrent access?", "Conflicting transactions run one after another (or with an equivalent result).", 4],
     ["Timestamp rule for a write?", "Abort if the record's read or write timestamp is later than the transaction's.", 6],
     ["Timestamp rule for a read?", "Abort if the record's write timestamp is later than the transaction's.", 7],
-    ["Commitment ordering?", "Transactions commit in an order consistent with their conflicts; avoids deadlock.", 8],
+    ["What is commitment ordering?", "Transactions commit in an order consistent with their conflicts; avoids deadlock.", 8],
     ["Which method can deadlock?", "Record locking.", 9]
   ],
   quiz: [

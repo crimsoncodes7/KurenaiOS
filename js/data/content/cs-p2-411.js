@@ -323,13 +323,13 @@ C["compsci:4.11.1"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.12 functional programming — map, filter, fold, immutability; 4.10.1 ER diagrams versus graph schemas; 4.10.5 distributed databases and concurrency; 4.9.4.10 JSON/XML for semi-structured data; 4.8.1 data protection law and ethics; 4.7.3.7 multi-core and parallel hardware." } }
   ],
   flashcards: [
-    ["Volume?", "So much data it will not fit on a single server.", 1],
-    ["Velocity?", "Data generated/received that must be processed very quickly (milliseconds to seconds), often streamed.", 2],
-    ["Variety?", "Data in many forms — structured, unstructured, text, multimedia.", 3],
+    ["What does volume mean in Big Data?", "So much data it will not fit on a single server.", 1],
+    ["What does velocity mean in Big Data?", "Data generated/received that must be processed very quickly (milliseconds to seconds), often streamed.", 2],
+    ["What does variety mean in Big Data?", "Data in many forms — structured, unstructured, text, multimedia.", 3],
     ["Why are relational databases unsuitable?", "They need row-and-column structure and don't scale well across multiple machines.", 4],
     ["What extracts value from unstructured Big Data?", "Machine learning techniques that find patterns.", 5],
-    ["MapReduce?", "Map a function over each server's data in parallel, group the key–value pairs, then reduce each group to a result.", 6],
-    ["Four functional features that help distribution?", "Immutable data, statelessness/no side effects, higher-order functions, execution order not fixed.", 7],
+    ["How does MapReduce work?", "Map a function over each server's data in parallel, group the key–value pairs, then reduce each group to a result.", 6],
+    ["Name four functional programming features that help distribute processing.", "Immutable data, statelessness/no side effects, higher-order functions, execution order not fixed.", 7],
     ["Graph schema: node, edge, property?", "Oval; solid labelled line; rectangle joined by a dashed line.", 9],
     ["Laws for the Big Data essay?", "DPA/GDPR, Computer Misuse Act, RIPA.", 10],
     ["Why send the function to the data?", "Moving huge data across the network is slow; only small results need to travel.", 11]

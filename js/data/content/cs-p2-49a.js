@@ -174,7 +174,7 @@ C["compsci:4.9.1.1"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.7.1.1 the data bus is synchronous parallel; USB is synchronous serial; 4.9.1.2 baud vs bit rate; 4.5.5.3 parity bits are sent within asynchronous frames; 4.9.2.3 Wi-Fi is serial over radio." } }
   ],
   flashcards: [
-    ["Parallel transmission?", "Several bits sent simultaneously, each on its own wire.", 1],
+    ["What is parallel transmission?", "Several bits sent simultaneously, each on its own wire.", 1],
     ["Purpose of the start bit?", "Starts the receiver's clock / brings it into phase with the transmitter's.", 7],
     ["Why is the internal data bus parallel?", "Short distance, fixed positions, huge volume — many bits at once.", 9]
   ],
@@ -292,8 +292,8 @@ C["compsci:4.9.1.2"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.5.1–4.5.3 powers of 2 (levels ↔ bits); 4.9.1.1 serial transmission; 4.9.4.1 the TCP/IP protocols; 4.7.3.7 data bus width is the parallel analogue of bit rate." } }
   ],
   flashcards: [
-    ["Bit rate?", "Number of bits transmitted per second.", 1],
-    ["Protocol?", "A set of rules governing communication between devices.", 4],
+    ["What is bit rate?", "Number of bits transmitted per second.", 1],
+    ["What is a protocol?", "A set of rules governing communication between devices.", 4],
     ["4 signals, 2 bits each → bit rate vs baud?", "Bit rate = 2 × baud rate.", 8]
   ],
   quiz: [
@@ -421,9 +421,9 @@ C["compsci:4.9.2.1"] = {
   ],
   flashcards: [
     ["What does a switch use to forward frames?", "The destination MAC address."],
-    ["Physical star?", "Every device connected to a central switch (or hub), sending data through it.", 3],
-    ["Switch vs hub?", "Switch forwards a frame to the recipient only; hub sends it to every device.", 4],
-    ["Logical bus?", "Data broadcast on a shared medium; all nodes read it and check the address; one transmitter at a time.", 5],
+    ["What is a physical star topology?", "Every device connected to a central switch (or hub), sending data through it.", 3],
+    ["How does a switch differ from a hub?", "Switch forwards a frame to the recipient only; hub sends it to every device.", 4],
+    ["What is a logical bus topology?", "Data broadcast on a shared medium; all nodes read it and check the address; one transmitter at a time.", 5],
     ["Why do fewer devices improve performance?", "More bandwidth each and fewer collisions.", 7]
   ],
   quiz: [
@@ -548,7 +548,7 @@ C["compsci:4.9.2.2"] = {
   ],
   flashcards: [
     ["What is a server?", "A computer that provides services/resources to clients on request."],
-    ["Client-server network?", "Servers provide services/resources; clients request them.", 2],
+    ["How does a client-server network work?", "Servers provide services/resources; clients request them.", 2],
     ["Two advantages of client-server?", "Centralised security and administration; central storage and backup; always available.", 3],
     ["Two advantages of peer-to-peer?", "No server cost or expertise; no single point of failure; scales with peers.", 4],
     ["When to choose peer-to-peer?", "Few, trusting users with no confidential data and no budget for a server.", 5],
@@ -704,10 +704,10 @@ C["compsci:4.9.2.3"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.9.2.1 a shared medium needs an access protocol; 4.5.5.3 majority voting; 4.5.6.10 and 4.9.3.2 encryption; 4.9.4.1 MAC addresses; 4.8.1 the Wi-Fi interception case (A-level 2017 Q07)." } }
   ],
   flashcards: [
-    ["Purpose of Wi-Fi?", "A wireless LAN based on international standards, letting devices connect without cables."],
+    ["What is Wi-Fi?", "A wireless LAN based on international standards, letting devices connect without cables."],
     ["Two components for wireless networking?", "Wireless network adapter (in each device) and a wireless access point."],
     ["What is an SSID?", "The locally unique identifier/name of a wireless network."],
-    ["CSMA/CA steps?", "Listen; wait if busy; RTS; CTS; transmit; ACK; retransmit if no ACK.", 6],
+    ["What are the steps of CSMA/CA with RTS/CTS?", "Listen; wait if busy; RTS; CTS; transmit; ACK; retransmit if no ACK.", 6],
     ["Why RTS/CTS?", "CTS silences all nodes in range of the receiver — solves hidden nodes.", 7],
     ["Why avoidance, not detection, in Wi-Fi?", "A radio transmitter cannot detect collisions while transmitting.", 8],
     ["What does the ACK do?", "Confirms receipt and tells other nodes they may transmit.", 9]

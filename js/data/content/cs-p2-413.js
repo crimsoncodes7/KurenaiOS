@@ -144,9 +144,9 @@ C["compsci:4.13.1.1"] = {
     ["How are requirements established?", "By interaction with the intended users."],
     ["Five ways to gather requirements?", "Interviews, questionnaires, observation, examining documents, researching existing solutions."],
     ["Why must objectives be measurable?", "So testing and evaluation can show whether each was met."],
-    ["Abstraction in analysis?", "Keeping only the details relevant to the problem when modelling the real world."],
+    ["How is abstraction used in analysis?", "Keeping only the details relevant to the problem when modelling the real world."],
     ["Prototyping's role in analysis?", "Users react to a working model, clarifying the requirements."],
-    ["Waterfall vs agile?", "Waterfall: stages in sequence, fixed requirements. Agile: short iterations with user feedback."],
+    ["How does waterfall differ from agile?", "Waterfall: stages in sequence, fixed requirements. Agile: short iterations with user feedback."],
     ["Give two tasks carried out during analysis.", "e.g. problem definition; requirements specification (also data model, interviews…)."]
   ],
   quiz: [
@@ -248,11 +248,11 @@ C["compsci:4.13.1.2"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.1.1 subroutines, parameters and local variables; 4.1.2 structured and object-oriented design; 4.3 algorithms and trace tables; 4.10.1 data model to data structures; 4.13.1.4 the design is what the tests check." } }
   ],
   flashcards: [
-    ["Four things designed?", "Data structures, algorithms, modular structure, human user interface."],
-    ["Hierarchy chart?", "A top-down diagram of a solution's modules and which calls which."],
-    ["Module interface?", "Its name, parameters, return value and purpose, documented."],
-    ["High cohesion?", "Each module does one well-defined job."],
-    ["Low coupling?", "Modules depend on each other only through parameters — no shared globals."],
+    ["Name the four things that are designed.", "Data structures, algorithms, modular structure, human user interface."],
+    ["What does a hierarchy chart show?", "A top-down diagram of a solution's modules and which calls which."],
+    ["What does a module's interface document?", "Its name, parameters, return value and purpose, documented."],
+    ["What does high cohesion mean?", "Each module does one well-defined job."],
+    ["What does low coupling mean?", "Modules depend on each other only through parameters — no shared globals."],
     ["Why dry-run a design?", "To find logic errors before coding."],
     ["Can design be iterative?", "Yes — prototyping/agile repeats design each cycle.", 7]
   ],
@@ -353,14 +353,14 @@ C["compsci:4.13.1.3"] = {
   ],
   flashcards: [
     ["Implementation turns models and algorithms into…", "data structures and code a computer can understand."],
-    ["Critical path?", "The sequence of dependent tasks determining the minimum completion time — the core features to build first."],
-    ["Three error types?", "Syntax, run-time, logic."],
+    ["What is the critical path in development?", "The sequence of dependent tasks determining the minimum completion time — the core features to build first."],
+    ["Name the three types of error.", "Syntax, run-time, logic."],
     ["Which error gives wrong output without crashing?", "A logic error."],
-    ["Python DIV and MOD?", "// and %."],
-    ["Debugging tools?", "Breakpoints, stepping, watches, trace output."],
+    ["Which Python operators do DIV and MOD?", "// and %."],
+    ["Name four debugging tools.", "Breakpoints, stepping, watches, trace output."],
     ["Three kinds of evidence for correctness?", "Logical reasoning, test data, user feedback."],
     ["Persistence of 47 (m) and 77 (a)?", "3 and 2."],
-    ["99 DIV 4 tally output?", "////V////X////V////X//// (24 symbols)."]
+    ["What does the tally program output for 99 DIV 4?", "////V////X////V////X//// (24 symbols)."]
   ],
   quiz: [
     { q: "int.Parse(\"abc\") failing during a run is", opts: ["a run-time error", "a syntax error", "a logic error", "not an error"], ans: 0, why: "Crashes at execution." },
@@ -471,10 +471,10 @@ C["compsci:4.13.1.4"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.13.1.3 debugging when a test fails; 4.4.4.3 order of complexity for efficiency; 4.1.1 validation and loops; 4.13.1.5 evaluation uses the test evidence; NEA testing section." } }
   ],
   flashcards: [
-    ["Normal data?", "Typical valid data the program should accept.", 1],
-    ["Boundary data?", "Values at the limits of the valid range (and just beyond).", 2],
-    ["Erroneous data?", "Invalid data that should be rejected.", 3],
-    ["sqrt test values 25, 1, −8?", "Normal, boundary, erroneous.", 4],
+    ["What is normal test data?", "Typical valid data the program should accept.", 1],
+    ["What is boundary test data?", "Values at the limits of the valid range (and just beyond).", 2],
+    ["What is erroneous test data?", "Invalid data that should be rejected.", 3],
+    ["For a square-root program, which kind of test data is each of 25, 1 and −8?", "Normal, boundary, erroneous.", 4],
     ["Testing for efficiency means…", "using logical reasoning about how the work grows with the input.", 5],
     ["Columns of a test plan?", "Test number, purpose, data, type, expected result, actual result, pass/fail.", 6],
   ],

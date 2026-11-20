@@ -199,13 +199,13 @@ C["compsci:4.4.4.2"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.4.4.3 Big-O classes; 4.4.4.5 intractable problems (n!, 2ⁿ); 4.12.1.1 function type: domain and co-domain; 4.3.4.2 log₂ n in binary search; maths: exponentials and logarithms." } }
   ],
   flashcards: [
-    ["Function (spec sense)?", "A mapping from a domain to a co-domain, e.g. ℕ → ℕ."],
-    ["Linear function example?", "y = 2x."],
-    ["Polynomial function example?", "y = 2x²."],
-    ["Exponential function example?", "y = 2ˣ."],
-    ["Logarithmic function example?", "y = log x."],
+    ["What is a function in the specification's sense?", "A mapping from a domain to a co-domain, e.g. ℕ → ℕ."],
+    ["Give an example of a linear function.", "y = 2x."],
+    ["Give an example of a polynomial function.", "y = 2x²."],
+    ["Give an example of an exponential function.", "y = 2ˣ."],
+    ["Give an example of a logarithmic function.", "y = log x."],
     ["Permutations of n distinct objects?", "n! (n factorial)."],
-    ["4! =", "24."],
+    ["What is 4! (4 factorial)?", "24."],
     ["Why are anagrams of n letters not always n!?", "Repeated letters make some arrangements identical."],
     ["Distinct arrangements of LEVEL?", "5!/(2!2!) = 30."],
     ["Doubling n adds how much to log₂ n?", "1."]
@@ -291,12 +291,12 @@ C["compsci:4.4.4.3"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.4.4.2 the functions; 4.3 every algorithm's Big-O; 4.4.4.5 tractable = polynomial or better; 4.1.1.16 recursion's O(2ⁿ); 4.2.6.1 O(1) hash look-up." } }
   ],
   flashcards: [
-    ["Constant time?", "O(1): time stays the same as the input grows.", 1],
-    ["Logarithmic time example?", "Binary search — O(log n).", 2],
-    ["Linear time example?", "Linear search — O(n).", 3],
-    ["Polynomial time example?", "Bubble sort — O(n²).", 4],
+    ["What does constant time, O(1), mean?", "O(1): time stays the same as the input grows.", 1],
+    ["Give an example of a logarithmic-time algorithm.", "Binary search — O(log n).", 2],
+    ["Give an example of a linear-time algorithm.", "Linear search — O(n).", 3],
+    ["Give an example of a polynomial-time algorithm.", "Bubble sort — O(n²).", 4],
     ["Sequential loops over n?", "O(n) — they add.", 7],
-    ["Loop that halves n each time?", "O(log n).", 9]
+    ["What is the time complexity of a loop that halves n each time?", "O(log n).", 9]
   ],
   quiz: [
     { q: "Constant time means", opts: ["time stays the same as n grows", "time is always exactly 1 second", "time doubles each time n grows", "time grows slowly as n grows"], ans: 0, why: "A-level 2023 Q03.7." },
@@ -413,8 +413,8 @@ C["compsci:4.4.5.1"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.4.2.1 FSMs (a Turing machine is an FSM plus a tape); 4.4.4.6 computability; 4.4.4.7 the Halting problem; 4.7.1 the stored-program concept; 4.6.3 interpreters." } }
   ],
   flashcards: [
-    ["Halting state?", "A state with no outgoing transitions.", 1],
-    ["Transition function notation?", "δ(state, read) = (new state, write, move).", 2],
+    ["What is a halting state in a Turing machine?", "A state with no outgoing transitions.", 1],
+    ["How is a Turing machine's transition function written?", "δ(state, read) = (new state, write, move).", 2],
     ["How far does the head move per step?", "One square, left or right.", 3],
     ["Why is a UTM more powerful than any real computer?", "It has infinite memory (tape).", 5],
     ["Importance of Turing machines?", "A formal model of computation that defines what is computable.", 6],

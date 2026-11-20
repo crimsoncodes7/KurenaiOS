@@ -51,7 +51,7 @@ X("compsci:4.5.4.3", {
   ],
   flashcards: [
     ["Range of 4-bit two's complement?", "−8 to +7.", 10],
-    ["Most negative 12-bit two's complement value?", "−2048 (100000000000).", 11],
+    ["What is the most negative 12-bit two's complement value, as bits?", "−2048 (100000000000).", 11],
     ["Convert 11001010 (two's complement) to denary.", "−128 + 64 + 8 + 2 = −54.", 12],
     ["Convert −72 to 8-bit two's complement.", "72 = 01001000; flip → 10110111; +1 → 10111000.", 13],
     ["How do you negate a two's complement number?", "Invert every bit and add 1 (or copy from the right up to and including the first 1, then invert the rest).", 14],

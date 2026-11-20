@@ -200,12 +200,12 @@ C["compsci:4.4.2.1"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.4.2.3 regular expressions ↔ FSMs; 4.4.2.4 regular languages; 4.4.5.1 Turing machines extend FSMs with a tape; 4.4.1.11 FSMs as automation models; 4.6 sequential circuits; NEA games and menus as state machines." } }
   ],
   flashcards: [
-    ["FSM?", "A machine with a finite set of states and transitions between them caused by inputs."],
-    ["Start state notation?", "An arrow from nowhere into the state."],
-    ["Accepting state notation?", "A double circle."],
+    ["What is a finite state machine (FSM)?", "A machine with a finite set of states and transitions between them caused by inputs."],
+    ["How is the start state shown in an FSM diagram?", "An arrow from nowhere into the state."],
+    ["How is an accepting state shown in an FSM diagram?", "A double circle."],
     ["When is a string accepted?", "When the FSM is in an accepting state at the end of the input."],
     ["State transition table columns?", "Current state, input, new state (plus output for a Mealy machine).", 5],
-    ["Trap (dead) state?", "A non-accepting state with no way out — every input loops back to it.", 7],
+    ["What is a trap (dead) state?", "A non-accepting state with no way out — every input loops back to it.", 7],
   ],
   quiz: [
     { q: "An FSM accepts a string if", opts: ["it ends in an accepting state", "it passes through an accepting state", "it never reaches a trap state", "it reads every symbol"], ans: 0, why: "An FSM accepts a string only if it is in an accepting state when the input has all been read." },
@@ -307,15 +307,15 @@ C["compsci:4.4.2.2"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.4.2.3 a regular expression describes a set of strings; 4.4.2.4 languages as sets; 4.10 SQL's UNION/INTERSECT; 4.12.1.1 domain and co-domain; maths: set notation." } }
   ],
   flashcards: [
-    ["Set?", "An unordered collection of values in which each value occurs at most once."],
-    ["Set comprehension {x | x ∈ ℕ ∧ x ≥ 1}?", "All x such that x is a natural number and x ≥ 1."],
-    ["Empty set symbols?", "{} or Ø."],
-    ["Countably infinite?", "Infinite but can be listed in order and matched one-to-one with ℕ.", 4],
-    ["Cartesian product A × B?", "All ordered pairs (a, b) with a ∈ A and b ∈ B; |A × B| = |A| × |B|.", 5],
+    ["What is a set?", "An unordered collection of values in which each value occurs at most once."],
+    ["How do you read the set comprehension {x | x ∈ ℕ ∧ x ≥ 1}?", "All x such that x is a natural number and x ≥ 1."],
+    ["What symbols denote the empty set?", "{} or Ø."],
+    ["What makes a set countably infinite?", "Infinite but can be listed in order and matched one-to-one with ℕ.", 4],
+    ["What is the Cartesian product A × B, and how big is it?", "All ordered pairs (a, b) with a ∈ A and b ∈ B; |A × B| = |A| × |B|.", 5],
     ["Subset vs proper subset?", "Subset may equal the set; a proper subset must be smaller.", 6],
     ["Subsets of {a, b}?", "Ø, {a}, {b}, {a, b}.", 7],
     ["{a, b} ∩ {c, d, bb, b}?", "{b} — cardinality 1.", 8],
-    ["{0ⁿ1ⁿ | n ≥ 1}?", "{01, 0011, 000111, …}.", 9]
+    ["Which strings are in {0ⁿ1ⁿ | n ≥ 1}?", "{01, 0011, 000111, …}.", 9]
   ],
   quiz: [
     { q: "|{c, d, bb, b}| =", opts: ["4", "5", "3", "6"], ans: 0, why: "The cardinality is the number of members, and this set has four." },
@@ -441,12 +441,12 @@ C["compsci:4.4.2.3"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.4.2.1 FSMs; 4.4.2.2 sets; 4.4.2.4 regular languages; 4.4.3.1 BNF for languages regexes can't describe; 4.1.1.7 string handling and validation; 4.13.1.4 input validation." } }
   ],
   flashcards: [
-    ["* in a regex?", "Zero or more of the preceding element."],
-    ["+ in a regex?", "One or more of the preceding element."],
-    ["? in a regex?", "Zero or one — the preceding element is optional."],
-    ["| in a regex?", "Alternation: the element before OR the element after."],
-    ["Strings matching 1|01+ from 1, 11, 01, 0111?", "1, 01, 0111 (not 11)."],
-    ["UK postcode regex (2017)?", "\\a\\a?\\d(\\a|\\d)?\\d\\a\\a."],
+    ["What does * mean in a regular expression?", "Zero or more of the preceding element."],
+    ["What does + mean in a regular expression?", "One or more of the preceding element."],
+    ["What does ? mean in a regular expression?", "Zero or one — the preceding element is optional."],
+    ["What does | mean in a regular expression?", "Alternation: the element before OR the element after."],
+    ["Which of 1, 11, 01, 0111 match the regular expression 1|01+?", "1, 01, 0111 (not 11)."],
+    ["What regular expression did AQA give for a UK postcode in 2017?", "\\a\\a?\\d(\\a|\\d)?\\d\\a\\a."],
     ["Regex for odd-length alternating a/b strings (2021)?", "a(ba)*|b(ab)*."],
     ["Regex for {a, abb, abbbb, …} ∪ {bb, bbbb, …}?", "a(bb)*|(bb)+."],
     ["Relationship between regexes and FSMs?", "Equivalent: both define exactly the regular languages."],
@@ -672,9 +672,9 @@ C["compsci:4.4.3.1"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.4.2.3–4.4.2.4 regex and regular languages; 4.1.1.16 recursion; 4.6.3 compilers — syntax analysis uses BNF grammars; 4.3.3.1 expression syntax and RPN; 4.2.5.1 parse trees." } }
   ],
   flashcards: [
-    ["::= in BNF?", "\"Is defined as\" — introduces a production rule."],
-    ["Non-terminal?", "A symbol in < > that is replaced using another rule."],
-    ["| in BNF?", "Or — separates alternatives.", 3],
+    ["What does ::= mean in BNF?", "\"Is defined as\" — introduces a production rule."],
+    ["What is a non-terminal in BNF?", "A symbol in < > that is replaced using another rule."],
+    ["What does | mean in BNF?", "Or — separates alternatives.", 3],
     ["Why can BNF describe languages regexes can't?", "Recursion allows unbounded nesting/counting; regexes (FSMs) have finite memory.", 5],
     ["Sentences from <sentence> ::= <sentence><c><sentence>?", "Infinitely many.", 7],
     ["Syntax-diagram loop in BNF?", "A recursive rule.", 8],

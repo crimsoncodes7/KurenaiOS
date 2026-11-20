@@ -167,11 +167,11 @@ C["compsci:4.9.3.1"] = {
   ],
   flashcards: [
     ["What is the Internet?", "A network of interconnected networks using TCP/IP."],
-    ["Packet switching?", "Data split into packets sent independently, possibly by different routes, reassembled at the destination."],
-    ["Packet header fields?", "Source/destination IP, sequence number, TTL, protocol, length (ports in the transport header)."],
-    ["Router?", "Connects networks and forwards each packet to the next hop using its routing table."],
-    ["FQDN?", "Domain name including the host, e.g. www.aqa.org.uk.", 6],
-    ["Purpose of DNS?", "To resolve FQDNs/domain names into IP addresses.", 8],
+    ["What is packet switching?", "Data split into packets sent independently, possibly by different routes, reassembled at the destination."],
+    ["Name the main fields of a packet header.", "Source/destination IP, sequence number, TTL, protocol, length (ports in the transport header)."],
+    ["What does a router do?", "Connects networks and forwards each packet to the next hop using its routing table."],
+    ["What is a fully qualified domain name (FQDN)?", "Domain name including the host, e.g. www.aqa.org.uk.", 6],
+    ["What is the purpose of DNS?", "To resolve FQDNs/domain names into IP addresses.", 8],
     ["Does a router change IP or MAC addresses?", "MAC addresses (for the next hop).", 10]
   ],
   quiz: [
@@ -298,13 +298,13 @@ C["compsci:4.9.3.2"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.5.6.10 symmetric ciphers (Caesar, Vernam); 4.9.4.2 HTTPS and SSH use these keys; 4.9.2.3 WPA2; 4.7.1.1 Harvard architecture stops data executing; 4.13 secure coding and testing; 4.8.1 the Computer Misuse Act." } }
   ],
   flashcards: [
-    ["Packet filtering?", "The firewall checks packet headers (IP, port, protocol) against rules to block or allow."],
-    ["Proxy server?", "Makes requests on clients' behalf so external computers never reach LAN devices directly.", 2],
-    ["Symmetric encryption?", "One shared key encrypts and decrypts; fast; key exchange problem.", 3],
-    ["Asymmetric encryption?", "Public/private key pair; encrypt with the recipient's public key, decrypt with their private key.", 4],
+    ["How does packet filtering work?", "The firewall checks packet headers (IP, port, protocol) against rules to block or allow."],
+    ["How does a proxy server protect a LAN?", "Makes requests on clients' behalf so external computers never reach LAN devices directly.", 2],
+    ["How does symmetric encryption work, and what is its drawback?", "One shared key encrypts and decrypts; fast; key exchange problem.", 3],
+    ["How does asymmetric encryption work?", "Public/private key pair; encrypt with the recipient's public key, decrypt with their private key.", 4],
     ["How is a signature verified?", "Decrypt it with the sender's public key; re-hash the message; compare digests.", 6],
     ["Virus vs worm vs trojan?", "Virus attaches to files and needs running; worm self-replicates over networks; trojan disguised as legit software.", 8],
-    ["Code-quality defence against worms?", "Prevent buffer overflows; review and test code; patched libraries.", 9]
+    ["How does code quality defend against worms?", "Prevent buffer overflows; review and test code; patched libraries.", 9]
   ],
   quiz: [
     { q: "A digital signature is created with", opts: ["the sender's private key", "the sender's public key", "the receiver's public key", "a shared symmetric key"], ans: 0, why: "Only the sender could." },
@@ -391,11 +391,11 @@ C["compsci:4.9.4.1"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.9.3.1 routing and packet fields; 4.9.4.2 application protocols and their ports; 4.9.4.8 NAT rewrites IP and port; 4.9.2.3 MAC allow lists; 4.7.4.2 the 2024 file-server essay; 4.1.2 layering is abstraction." } }
   ],
   flashcards: [
-    ["Four TCP/IP layers?", "Application, transport, network (Internet), link."],
-    ["Well-known port?", "A reserved port (0–1023) assigned by IANA to a standard service.", 5],
-    ["Client port?", "A temporary port chosen by the client OS for one connection.", 6],
+    ["Name the four TCP/IP layers, top to bottom.", "Application, transport, network (Internet), link."],
+    ["What is a well-known port?", "A reserved port (0–1023) assigned by IANA to a standard service.", 5],
+    ["What is a client port?", "A temporary port chosen by the client OS for one connection.", 6],
     ["Why do servers use well-known ports?", "Clients initiate contact and must know where to send the first request.", 7],
-    ["MAC address?", "A 48-bit hardware address of a NIC, used by the link layer within one network.", 8],
+    ["What is a MAC address?", "A 48-bit hardware address of a NIC, used by the link layer within one network.", 8],
     ["Ports for HTTP, HTTPS, SMTP, POP3, SSH?", "80, 443, 25, 110, 22.", 9]
   ],
   quiz: [
@@ -489,12 +489,12 @@ C["compsci:4.9.4.2"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.9.4.1 ports and sockets; 4.9.3.2 HTTPS certificates and SSH keys; 4.9.3.1 DNS for mail routing; 4.9.4.10 REST runs over HTTP methods; 4.9.4.9 port forwarding to a web server." } }
   ],
   flashcards: [
-    ["HTTP?", "Hypertext Transfer Protocol — browser requests web pages from a web server (port 80)."],
-    ["HTTPS?", "HTTP over an encrypted TLS connection with certificate authentication (port 443)."],
-    ["FTP?", "File Transfer Protocol — transfer files between client and server (ports 20/21)."],
+    ["What does HTTP do, and on which port?", "Hypertext Transfer Protocol — browser requests web pages from a web server (port 80)."],
+    ["What does HTTPS do, and on which port?", "HTTP over an encrypted TLS connection with certificate authentication (port 443)."],
+    ["What does FTP do, and on which ports?", "File Transfer Protocol — transfer files between client and server (ports 20/21)."],
     ["Anonymous vs non-anonymous FTP?", "Public login (often read-only) vs username + password access."],
-    ["SMTP?", "Sends email client→server and server→server (port 25)."],
-    ["POP3?", "Retrieves email from the server to the client (port 110)."],
+    ["What does SMTP do, and on which port?", "Sends email client→server and server→server (port 25)."],
+    ["What does POP3 do, and on which port?", "Retrieves email from the server to the client (port 110)."],
     ["Role of a web server?", "Stores and serves web pages/resources in text form in response to HTTP requests.", 7],
     ["Role of a web browser?", "Requests pages and resources and renders them.", 8],
     ["Role of an email server?", "Stores mailboxes; receives and forwards mail via SMTP; clients retrieve via POP3/IMAP.", 9]

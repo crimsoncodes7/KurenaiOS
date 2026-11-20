@@ -158,13 +158,13 @@ C["compsci:4.3.5.1"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.3.5.2 merge sort (O(n log n)); 4.4.4.3 O(n²) and 4.4.4.5 tractable problems; 4.1.1.2 nested iteration; 4.3.4.2 binary search needs sorted data." } }
   ],
   flashcards: [
-    ["Bubble sort?", "Repeated passes comparing adjacent items and swapping them when out of order."],
+    ["How does bubble sort work?", "Repeated passes comparing adjacent items and swapping them when out of order."],
     ["Why is bubble sort O(n²)?", "Up to n items examined per pass and up to n passes.", 2],
     ["Passes guaranteed to sort 100 items?", "99 (n − 1).", 3],
-    ["Improvement 1?", "A swapped flag: stop when a pass makes no swaps.", 4],
-    ["Improvement 2?", "Reduce the inner loop's upper limit by 1 each pass.", 5],
-    ["3 5 8 1 6 4 after one pass?", "3 5 1 6 4 8.", 6],
-    ["Extra memory needed?", "O(1) — it sorts in place (one Temp).", 8],
+    ["What is the first standard improvement to bubble sort?", "A swapped flag: stop when a pass makes no swaps.", 4],
+    ["What is the second standard improvement to bubble sort?", "Reduce the inner loop's upper limit by 1 each pass.", 5],
+    ["What is 3 5 8 1 6 4 after one bubble sort pass?", "3 5 1 6 4 8.", 6],
+    ["How much extra memory does bubble sort need?", "O(1) — it sorts in place (one Temp).", 8],
     ["Is bubble sort tractable?", "Yes — polynomial time.", 9]
   ],
   quiz: [
@@ -291,8 +291,8 @@ C["compsci:4.3.5.2"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.1.1.16 recursion; 4.3.5.1 bubble sort; 4.4.4.2 logarithms and 4.4.4.3 O(n log n); 4.4.4.5 tractable problems; 4.3.4.2 binary search's halving." } }
   ],
   flashcards: [
-    ["Base case?", "A sublist of 0 or 1 items — already sorted.", 3],
-    ["Merge step?", "Repeatedly take the smaller front item of two sorted lists; copy the remainder.", 4],
+    ["What is merge sort's base case?", "A sublist of 0 or 1 items — already sorted.", 3],
+    ["How does merge sort's merge step work?", "Repeatedly take the smaller front item of two sorted lists; copy the remainder.", 4],
     ["Which of linear search, merge sort, binary search, post-order traversal is O(n log n)?", "Merge sort.", 6],
     ["Why are bubble and merge sort tractable?", "Polynomial (or better) time complexity.", 7],
     ["Max comparisons to merge lists of sizes a and b?", "a + b − 1.", 8]
@@ -437,10 +437,10 @@ C["compsci:4.3.6.1"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.2.4.1 weighted graphs and adjacency matrices; 4.2.2.1 priority queues; 4.3.1.1 BFS for unweighted shortest paths; 4.4.4.5 heuristics for intractable problems; 4.9.3 routing in networks." } }
   ],
   flashcards: [
-    ["Relaxing an edge?", "If D[U] + weight < D[V], set D[V] to it and P[V] ← U.", 2],
+    ["What does relaxing an edge mean in Dijkstra's algorithm?", "If D[U] + weight < D[V], set D[V] to it and P[V] ← U.", 2],
     ["What does array P hold?", "The previous node on the shortest path to each node — used to rebuild the route.", 4],
     ["Does Dijkstra work with negative weights?", "No.", 7],
-    ["Applications?", "Sat-nav route planning, network routing, logistics, game path-finding.", 8]
+    ["Give some applications of Dijkstra's algorithm.", "Sat-nav route planning, network routing, logistics, game path-finding.", 8]
   ],
   quiz: [
     { q: "Dijkstra's algorithm next processes", opts: ["the unvisited node with the smallest distance", "the unvisited node joined by the cheapest single edge", "the next unvisited node in numerical order", "the unvisited node with the most edges leaving it"], ans: 0, why: "Priority queue on D." },

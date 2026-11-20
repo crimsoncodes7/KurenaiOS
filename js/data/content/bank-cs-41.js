@@ -592,7 +592,7 @@ X("compsci:4.1.2.3", {
   flashcards: [
     ["Define polymorphism.", "The same method call producing different behaviour depending on the object's class — typically via overriding.", 17],
     ["What is an abstract class?", "A class that cannot be instantiated and exists only to be inherited from, often with abstract (unimplemented) methods.", 18],
-    ["Composition vs aggregation?", "Composition: the part cannot exist without the whole (filled diamond). Aggregation: the part can exist independently (hollow diamond).", 19],
+    ["How does composition differ from aggregation?", "Composition: the part cannot exist without the whole (filled diamond). Aggregation: the part can exist independently (hollow diamond).", 19],
     ["What is a constructor?", "A special method called when an object is instantiated, used to initialise its attributes.", 20],
     ["Why make attributes private?", "So they can only be changed through methods that validate the change — protects the object's integrity (information hiding).", 21],
     ["What is method overriding?", "A subclass defining its own version of a method it inherits, replacing the superclass behaviour for objects of the subclass.", 22],

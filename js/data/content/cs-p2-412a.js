@@ -135,13 +135,13 @@ C["compsci:4.12.1.1"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.5.1 number sets ℕ ℤ ℚ ℝ; 4.12.1.4 the curried type ℤ → ℤ → ℤ; 4.12.1.5 composition needs the co-domain of f to fit the domain of g; 4.1.1.1 data types; 4.4.2.2 sets and Cartesian products." } }
   ],
   flashcards: [
-    ["Domain?", "The set from which a function's input values are chosen.", 1],
-    ["Co-domain?", "The set from which output values are chosen; not every member need be output.", 2],
+    ["What is a function's domain?", "The set from which a function's input values are chosen.", 1],
+    ["What is a function's co-domain?", "The set from which output values are chosen; not every member need be output.", 2],
     ["Type of add(x, y) on integers?", "ℤ × ℤ → ℤ.", 3],
     ["Co-domain of pred(x) = x − 1 on ℤ?", "ℤ.", 4],
     ["Describe the co-domain of f: ℕ → ℝ.", "The set of real numbers.", 6],
     ["Natural numbers in AQA?", "0, 1, 2, 3, … (0 included).", 7],
-    ["Domain and co-domain are always…", "subsets of objects in some data type.", 8]
+    ["What are a function's domain and co-domain always?", "Subsets of objects in some data type.", 8]
   ],
   quiz: [
     { q: "In f: A → B, B is the", opts: ["co-domain", "domain", "argument", "range always"], ans: 0, why: "In f: A → B, A is the domain (inputs) and B is the co-domain (the type of results)." },
@@ -227,7 +227,7 @@ C["compsci:4.12.1.2"] = {
     ["Can an imperative language have first-class functions?", "Yes — e.g. C# delegates/lambdas, Python, JavaScript.", 3],
     ["Why are higher-order functions possible?", "Because functions are first-class: they can be passed and returned.", 4],
     ["C# type for a function from int to int?", "Func<int, int>.", 6],
-    ["First-class vs higher-order?", "First-class describes a kind of value; higher-order describes a function that takes/returns functions.", 7]
+    ["How does first-class differ from higher-order?", "First-class describes a kind of value; higher-order describes a function that takes/returns functions.", 7]
   ],
   quiz: [
     { q: "Which is NOT required of a first-class object?", opts: ["it must be recursive", "it can be passed as an argument", "it can be returned", "it can be assigned to a variable"], ans: 0, why: "Recursion is unrelated." },
@@ -314,7 +314,7 @@ C["compsci:4.12.1.3"] = {
   flashcards: [
     ["Type of add in the application view?", "integer × integer → integer.", 1],
     ["How many arguments does add really take?", "One — a pair from the Cartesian product.", 2],
-    ["square 3 + 1 = ?", "10 — application binds tighter than +.", 3],
+    ["What does square 3 + 1 evaluate to, and why?", "10 — application binds tighter than +.", 3],
     ["add 3 4 groups as…", "(add 3) 4 — left-associative.", 4],
     ["How is a function application evaluated?", "substituting the argument into the function's body, innermost first.", 7]
   ],
@@ -412,7 +412,7 @@ C["compsci:4.12.1.4"] = {
     ["add: integer → (integer → integer) means…", "add takes an integer and returns a function from integer to integer.", 1],
     ["Can the brackets be dropped?", "Yes — integer → integer → integer; arrows associate to the right.", 2],
     ["What is add 4?", "A function that adds 4 to its argument.", 3],
-    ["(add 4) 6?", "10.", 4],
+    ["What does (add 4) 6 evaluate to?", "10.", 4],
     ["Type of vol 2 3 if vol: ℤ→ℤ→ℤ→ℤ?", "ℤ → ℤ.", 5],
     ["Three mark points for describing partial application?", "Arguments fixed; a new function; with fewer/remaining arguments.", 6],
     ["Partial application in C#?", "A curried Func: add = x => y => x + y; add(4) is a new function.", 7]
@@ -509,12 +509,12 @@ C["compsci:4.12.1.5"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.12.1.1 domains and co-domains must chain; 4.12.2.1 pipelines like fold (+) 0 (map square xs); 4.11.1 composing results across servers; Maths composite functions fg(x) use the same order." } }
   ],
   flashcards: [
-    ["Composition?", "Combining two functions to get a new function."],
-    ["(g ∘ f)(x) = ?", "g(f(x)) — f applied first."],
+    ["What is function composition?", "Combining two functions to get a new function."],
+    ["What does (g ∘ f)(x) mean?", "g(f(x)) — f is applied first, then g."],
     ["Type of g ∘ f if f: A → B, g: B → C?", "A → C."],
     ["What is (square ∘ pred) 3, where pred subtracts 1 and square squares?", "4."],
     ["f(x)=x+2, g(y)=y³: (g ∘ f)(x)?", "(x + 2)³."],
-    ["Haskell composition operator?", "The full stop: g . f."],
+    ["What is Haskell's composition operator?", "The full stop: g . f."],
   ],
   quiz: [
     { q: "(f ∘ g)(1) with f(x)=x+2, g(y)=y³", opts: ["3", "27", "9", "1"], ans: 0, why: "g first: 1, then +2." },

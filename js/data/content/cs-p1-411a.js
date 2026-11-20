@@ -142,10 +142,10 @@ C["compsci:4.1.1.1"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.5.4 binary representations of integers, reals and characters; 4.2.1.3 records and fields; 4.2.1.2 arrays; 4.1.2.3 classes as user-defined types; 4.2.2 and 4.2.5 pointers in queues, linked lists and trees." } }
   ],
   flashcards: [
-    ["Data type?", "Determines the values a variable can hold, the memory it uses and the operations allowed on it."],
-    ["AQA's nine data types?", "Integer, real/float, Boolean, character, string, date/time, pointer/reference, record, array."],
+    ["What three things does a variable's data type determine?", "Determines the values a variable can hold, the memory it uses and the operations allowed on it."],
+    ["Name AQA's nine data types.", "Integer, real/float, Boolean, character, string, date/time, pointer/reference, record, array."],
     ["Best type for a phone number?", "String — no arithmetic, keeps leading zeros and spaces."],
-    ["Array vs record?", "Array: many elements of one type by index. Record: fields of different types by name.", 4],
+    ["How does an array differ from a record?", "Array: many elements of one type by index. Record: fields of different types by name.", 4],
     ["C# type for money?", "decimal (double has binary rounding errors).", 6],
     ["0.1 + 0.2 == 0.3 in C# with doubles?", "False — 0.30000000000000004.", 7],
     ["Value type vs reference type in C#?", "A value type (int, struct) is copied on assignment; a reference type (class, array) copies the reference.", 8]
@@ -310,14 +310,14 @@ C["compsci:4.1.1.2"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.1.1.3 DIV and MOD in loop bodies; 4.1.1.4 and 4.1.1.5 the conditions; 4.1.1.10 subroutines; 4.7.3.5 the same structures in assembly (CMP and branches); 4.13.1.4 testing the programs you write; 4.1.2.2 structured programming." } }
   ],
   flashcards: [
-    ["Definite iteration?", "The number of iterations is known when the loop starts (FOR).", 1],
-    ["Indefinite iteration?", "The number of iterations depends on a condition tested before or after each pass.", 2],
+    ["What is definite iteration?", "The number of iterations is known when the loop starts (FOR).", 1],
+    ["What is indefinite iteration?", "The number of iterations depends on a condition tested before or after each pass.", 2],
     ["Pre-condition vs post-condition loop?", "WHILE tests at the start (may run 0 times); REPEAT / do…while tests at the end (runs at least once).", 3],
     ["REPEAT … UNTIL X ≤ 0 in C#?", "do { … } while (X > 0); — the condition is negated.", 4],
     ["Why use meaningful identifiers?", "Self-documenting code — easier to read, debug and maintain.", 5],
-    ["Sentinel value?", "A special value marking the end of input; it is not part of the data.", 6],
-    ["Read-ahead pattern?", "Input before the loop, process, then input the next value at the end of the loop body.", 7],
-    ["Nested iteration?", "A loop inside a loop; the inner loop completes for each outer pass.", 8]
+    ["What is a sentinel value?", "A special value marking the end of input; it is not part of the data.", 6],
+    ["What does the read-ahead pattern do, and where are its two reads?", "It reads the first value before the loop, so the condition can test it; the second read is the last statement of the loop body, fetching the next value.", 7],
+    ["What is nested iteration?", "A loop inside a loop; the inner loop completes for each outer pass.", 8]
   ],
   quiz: [
     { q: "A loop that must run at least once should test its condition", opts: ["at the end", "at the start", "twice", "never"], ans: 0, why: "A post-condition loop tests at the end, so its body always runs at least once." },
@@ -403,13 +403,13 @@ C["compsci:4.1.1.6"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.1.1.13 and 4.1.1.14 scope of variables; 4.1.1.2 constant declaration as a statement type; NEA Table 2: use of constants is a 'good' coding-style characteristic." } }
   ],
   flashcards: [
-    ["Variable vs constant?", "A variable's value can change while the program runs; a constant's cannot."],
+    ["How does a variable differ from a constant?", "A variable's value can change while the program runs; a constant's cannot."],
     ["Four advantages of named constants?", "Readability, one place to update, consistency, cannot be changed accidentally."],
     ["Named constant in C#?", "const int MaxLives = 3;"],
-    ["Magic number?", "An unexplained literal value in code."],
+    ["What is a magic number in code?", "An unexplained literal value in code."],
     ["Why did the GCF algorithm use Temp1 and Temp2?", "To keep the original inputs for the output."],
     ["const vs readonly in C#?", "const fixed at compile time; readonly set once at run time."],
-    ["GCF of 12 and 39?", "3."],
+    ["What is the greatest common factor of 12 and 39?", "3."],
     ["Is 'saves memory' an advantage of constants?", "No — not a creditworthy reason."]
   ],
   quiz: [
@@ -512,9 +512,9 @@ C["compsci:4.1.1.7"] = {
   flashcards: [
     ["Length of a string in C#?", "s.Length."],
     ["Position of \"Sci\" in s?", "s.IndexOf(\"Sci\") — −1 if absent."],
-    ["C# Substring arguments?", "(start index, length)."],
+    ["What are C#'s two Substring arguments?", "(start index, length)."],
     ["Character code of 'A'?", "65 — (int)'A'."],
-    ["Character with code 66?", "'B' — (char)66."],
+    ["Which character has code 66, and how do you get it in C#?", "'B' — (char)66."],
     ["Digit character to its value?", "c - '0'."],
     ["String to integer safely?", "int.TryParse(s, out int n)."],
     ["Last character of s?", "s[s.Length - 1] (or s[^1])."],
@@ -605,10 +605,10 @@ C["compsci:4.1.1.8"] = {
   flashcards: [
     ["C# for a random integer 1–6?", "rng.Next(1, 7)."],
     ["Is Next's upper bound included?", "No — it is exclusive."],
-    ["Random real in [0, 1)?", "rng.NextDouble()."],
-    ["Pseudo-random?", "Generated by a deterministic algorithm from a seed; not truly random."],
+    ["How do you get a random real in [0, 1) in C#?", "rng.NextDouble()."],
+    ["What makes a random number pseudo-random?", "Generated by a deterministic algorithm from a seed; not truly random."],
     ["Why use a seed?", "Repeatable sequences for testing and debugging."],
-    ["Random array index?", "rng.Next(array.Length)."],
+    ["How do you pick a random array index in C#?", "rng.Next(array.Length)."],
     ["Random for security keys?", "No — use a cryptographic generator."],
     ["A in the dice program?", "S DIV (T × 2): the average die value as a whole number."]
   ],

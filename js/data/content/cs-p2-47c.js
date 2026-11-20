@@ -363,7 +363,7 @@ C["compsci:4.7.4.1"] = {
   flashcards: [
     ["How does a barcode reader work?", "Light shone on the code; dark bars reflect less than light ones; a sensor measures reflection; pattern decoded."],
     ["Passive vs active RFID?", "No battery, short range, cheap vs own battery, long range, dearer.", 2],
-    ["Laser printer stages?", "Bitmap; charge drum; laser discharges image; toner sticks; transfer to paper; fuse with heat.", 6],
+    ["What are the stages of laser printing, in order?", "Bitmap; charge drum; laser discharges image; toner sticks; transfer to paper; fuse with heat.", 6],
     ["Where is the laser directed?", "At the photosensitive drum (via a rotating mirror).", 7],
   ],
   quiz: [
@@ -576,11 +576,11 @@ C["compsci:4.7.4.2"] = {
   ],
   flashcards: [
     ["How does an HDD store a bit?", "A region of magnetisable coating magnetised one way or the other.", 1],
-    ["HDD access time is…", "seek time (head to the track) + rotational delay (sector under the head).", 2],
+    ["What two delays make up a hard disk's access time?", "Seek time (head to the track) + rotational delay (sector under the head).", 2],
     ["How is data stored on an optical disk?", "Pits and lands on a spiral track; a transition = 1.", 3],
-    ["Optical disk speed?", "Constant linear velocity (variable angular speed).", 5],
+    ["At what speed does an optical disk spin?", "Constant linear velocity (variable angular speed).", 5],
     ["How does an SSD store a bit?", "Trapped (or absent) electrons in a floating-gate transistor.", 6],
-    ["SSD write rule?", "Pages written whole; a block must be erased before rewriting.", 7],
+    ["What rule limits how an SSD writes data?", "Pages written whole; a block must be erased before rewriting.", 7],
     ["Role of the SSD controller?", "Manages data organisation and reading/writing (mapping, wear levelling).", 8],
     ["Two SSD advantages over HDD?", "Faster access; lower power; shock-resistant; silent; smaller.", 9],
     ["Two HDD advantages over SSD?", "Cheaper per GB; higher capacities; no write-cycle wear.", 10],

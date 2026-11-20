@@ -127,14 +127,14 @@ C["compsci:4.2.1.1"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.2.1.4 ADTs and static vs dynamic in depth; 4.1.1.1 arrays, records and pointers as data types; 4.3 algorithms that run over these structures; 4.4.4.1 the complexity of each operation; 4.10 relational databases as structured storage." } }
   ],
   flashcards: [
-    ["Data structure?", "A collection of related data items organised in memory, with the operations allowed on them."],
-    ["FIFO structure?", "Queue."],
-    ["LIFO structure?", "Stack."],
-    ["Static data structure?", "Size fixed when created (at compile time); usually consecutive memory."],
-    ["Dynamic data structure?", "Grows and shrinks at run time; nodes linked by pointers on the heap."],
+    ["What is a data structure?", "A collection of related data items organised in memory, with the operations allowed on them."],
+    ["Which data structure is FIFO?", "Queue."],
+    ["Which data structure is LIFO?", "Stack."],
+    ["What is a static data structure?", "Size fixed when created (at compile time); usually consecutive memory."],
+    ["What is a dynamic data structure?", "Grows and shrinks at run time; nodes linked by pointers on the heap."],
     ["One disadvantage of a dynamic structure?", "Extra memory for pointers (also: memory leaks, slower direct access)."],
     ["One disadvantage of a static structure?", "Wasted memory if under-used; it can become full."],
-    ["Data abstraction?", "Hiding how data is represented; building new types from existing ones."],
+    ["What is data abstraction?", "Hiding how data is represented; building new types from existing ones."],
     ["Structure for an undo feature?", "A stack."]
   ],
   quiz: [
@@ -236,13 +236,13 @@ C["compsci:4.2.1.2"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.2.8.1 a 1-D array represents a vector; 4.2.4.1 a 2-D array is an adjacency matrix; 4.2.2.1 / 4.2.3.1 queues and stacks built on arrays; 4.3.4.2 binary search needs a sorted array; 4.5.6.4 a bitmap image is a 2-D array of pixels." } }
   ],
   flashcards: [
-    ["Array?", "A finite ordered set of elements of the same type, accessed by index."],
+    ["What is an array?", "A finite ordered set of elements of the same type, accessed by index."],
     ["First and last index of int[10] in C#?", "0 and 9."],
-    ["1-D array represents…?", "A vector (a list)."],
-    ["2-D array represents…?", "A matrix (a grid / board)."],
-    ["n-dimensional array?", "Elements of one type indexed by a tuple of n integers."],
+    ["What does a 1-D array represent?", "A vector (a list)."],
+    ["What does a 2-D array represent?", "A matrix (a grid / board)."],
+    ["What is an n-dimensional array?", "Elements of one type indexed by a tuple of n integers."],
     ["Rectangular vs jagged array in C#?", "int[,] has every row the same length; int[][] is an array of arrays whose rows may differ."],
-    ["Ordinal number?", "A number showing position/order — an array index is ordinal."],
+    ["What is an ordinal number?", "A number showing position/order — an array index is ordinal."],
     ["What does −1 mean in AQA's Left/Right arrays?", "No child — a null pointer."],
     ["Rows and columns of int[,] g in C#?", "g.GetLength(0) and g.GetLength(1)."]
   ],
@@ -343,7 +343,7 @@ C["compsci:4.2.1.3"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.1.1.1 records and user-defined types; 4.1.1.9 exceptions when a file is missing; 4.5.4 character codes (ASCII/Unicode) in text files; 4.10 databases as structured files; 4.6.4 secondary storage." } }
   ],
   flashcards: [
-    ["File?", "A collection of records or text stored permanently in secondary storage.", 2],
+    ["What is a file?", "A collection of records or text stored permanently in secondary storage.", 2],
     ["Two reasons to choose a binary file?", "Data hidden from casual reading; no type-conversion routines; smaller file.", 5],
     ["C# classes for text files?", "StreamWriter / StreamReader (or File.ReadAllLines / WriteAllLines).", 6],
     ["C# classes for binary files?", "BinaryWriter / BinaryReader.", 7],
@@ -439,12 +439,12 @@ C["compsci:4.2.1.4"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.2.1.1 static vs dynamic first look; 4.2.2–4.2.8 each ADT in detail; 4.1.2.3 classes encapsulate an ADT's representation; 4.4.1 data abstraction; 4.1.1.1 pointers and references." } }
   ],
   flashcards: [
-    ["Stack operations?", "Push, Pop, Peek/Top, IsEmpty, IsFull.", 1],
-    ["Queue operations?", "Enqueue, Dequeue, IsEmpty, IsFull.", 2],
+    ["Name the stack operations.", "Push, Pop, Peek/Top, IsEmpty, IsFull.", 1],
+    ["Name the queue operations.", "Enqueue, Dequeue, IsEmpty, IsFull.", 2],
     ["Two ways to implement a stack?", "An array with a top pointer; a linked list with a head pointer.", 3],
-    ["Linked list node holds…?", "A data value and a pointer to the next node.", 4],
-    ["Dynamic structure advantage?", "No wasted memory; grows as needed.", 5],
-    ["Heap?", "The pool of memory from which dynamic structures are allocated at run time.", 8],
+    ["What does a linked list node hold?", "A data value and a pointer to the next node.", 4],
+    ["Give one advantage of a dynamic data structure.", "No wasted memory; grows as needed.", 5],
+    ["What is the heap?", "The pool of memory from which dynamic structures are allocated at run time.", 8],
   ],
   quiz: [
     { q: "An ADT is defined by", opts: ["its operations, not its implementation", "the array or list that stores its data", "its memory address and its size", "the programming language it is written in"], ans: 0, why: "An abstract data type is defined by what operations it supports, not by how it is implemented." },

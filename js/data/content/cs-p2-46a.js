@@ -282,8 +282,8 @@ C["compsci:4.6.1.2"] = {
     ["Is a compiler system or application software?", "System software (a translator).", 4],
     ["Category of a virus checker?", "Utility (system software).", 5],
     ["Is a bitmap image editor system software?", "No — application software.", 6],
-    ["General-purpose vs bespoke?", "Off-the-shelf for many users vs written for one organisation.", 7],
-    ["Application software reaches the hardware through…", "the operating system.", 8]
+    ["How does general-purpose software differ from bespoke?", "Off-the-shelf for many users vs written for one organisation.", 7],
+    ["Through what does application software reach the hardware?", "The operating system.", 8]
   ],
   quiz: [
     { q: "Which is NOT system software?", opts: ["a photo editor", "a C# compiler", "a code library", "a backup utility"], ans: 0, why: "User-oriented task." },
@@ -385,7 +385,7 @@ C["compsci:4.6.1.3"] = {
   ],
   flashcards: [
     ["Define a utility program.", "Software performing a non-core / ancillary management function — helps maintain or configure the computer.", 1],
-    ["Three utility examples?", "e.g. virus checker, defragmenter, backup, compression, encryption.", 2],
+    ["Give three examples of utility software.", "e.g. virus checker, defragmenter, backup, compression, encryption.", 2],
     ["Define a library.", "A collection of pre-written, tested routines that can be included in / called from a program.", 3],
     ["Two reasons to use a library?", "Faster development (less code); more reliable (already tested); provides routines you could not write.", 4],
     ["Static vs dynamic linking?", "Library code copied into the executable vs loaded and shared at run time.", 5],
@@ -682,7 +682,7 @@ C["compsci:4.6.2.1"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.6.3.1 assemblers, compilers and interpreters; 4.7.3.3–4.7.3.5 instruction format, addressing modes and the AQA assembly language; 4.12 functional programming (declarative, no state); 4.10 SQL (declarative); 4.1.2 structured programming — the HLL features." } }
   ],
   flashcards: [
-    ["Two low-level languages?", "Machine code and assembly language."],
+    ["Name the two low-level languages.", "Machine code and assembly language."],
     ["Describe machine code.", "Binary instructions (opcode + operand) executed directly by the processor; processor-specific."],
     ["Describe assembly language.", "Mnemonics for machine code instructions; one-to-one with machine code; needs an assembler."],
     ["Three advantages of low-level languages.", "Faster execution; less memory; direct control of hardware.", 5],

@@ -189,14 +189,14 @@ C["compsci:4.5.6.7"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.5.6.3 the ADC that samples; 4.5.6.8 MIDI avoids sampling; 4.5.6.9 lossy compression of audio; 4.5.3.2 units; 4.5.4.5 quantisation is rounding error." } }
   ],
   flashcards: [
-    ["Sampling rate?", "Number of samples taken per second (Hz)."],
-    ["Sample resolution?", "Number of bits used to store each sample."],
-    ["Sound file size?", "rate × resolution × duration (bits)."],
+    ["What is the sampling rate?", "Number of samples taken per second (Hz)."],
+    ["What is sample resolution?", "Number of bits used to store each sample."],
+    ["How is a sound file's size calculated?", "rate × resolution × duration (bits)."],
     ["Minimum rate for 15 kHz?", "30 000 Hz.", 4],
     ["3 min, 16-bit, 44 kHz in MB?", "15.84 MB.", 5],
     ["Why does more resolution help?", "Less quantisation error — samples stored more accurately.", 6],
     ["Effect of too low a sample rate?", "High frequencies are lost / not reproduced.", 7],
-    ["8 → 10 bits: extra levels?", "768.", 8],
+    ["How many more levels does a 10-bit sample have than an 8-bit one?", "768.", 8],
     ["What is quantisation error?", "The difference between the true amplitude and the stored level.", 9]
   ],
   quiz: [
@@ -458,8 +458,8 @@ C["compsci:4.5.6.9"] = {
   ],
   flashcards: [
     ["Two reasons to compress?", "Less storage; faster transmission."],
-    ["RLE?", "Replaces runs of identical values with (count, value) pairs.", 3],
-    ["RLE of BBGGGRRRRW?", "B2 G3 R4 W1.", 4],
+    ["How does run-length encoding (RLE) compress data?", "Replaces runs of identical values with (count, value) pairs.", 3],
+    ["What is BBGGGRRRRW in run-length encoding?", "B2 G3 R4 W1.", 4],
     ["When does RLE make files bigger?", "When runs are short (e.g. photographs).", 5],
     ["Why is dictionary compression poor for short text?", "Little repetition; the dictionary must also be stored/sent.", 7],
     ["Why RLE suits images?", "Adjacent pixels are often the same colour.", 8],
@@ -652,11 +652,11 @@ C["compsci:4.5.6.10"] = {
   ],
   flashcards: [
     ["Define encryption.", "Using an algorithm and key to convert plaintext into ciphertext that cannot be understood without the key."],
-    ["Caesar cipher?", "Each letter shifted a fixed number of places, wrapping round."],
+    ["How does a Caesar cipher encrypt?", "Each letter shifted a fixed number of places, wrapping round."],
     ["SECURITY with Caesar key 4?", "WIGYVMXC."],
-    ["Vernam cipher operation?", "XOR each bit of plaintext with the key.", 4],
+    ["What operation does the Vernam cipher use?", "XOR each bit of plaintext with the key.", 4],
     ["What is perfect security?", "Nothing about the plaintext can be learnt from the ciphertext.", 6],
-    ["Computational security?", "Cannot be cracked in a practical amount of time.", 7],
+    ["What does computational security mean?", "Cannot be cracked in a practical amount of time.", 7],
     ["Assembly instruction for Vernam?", "EOR.", 10]
   ],
   quiz: [

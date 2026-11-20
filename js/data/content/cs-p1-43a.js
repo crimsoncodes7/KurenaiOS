@@ -122,7 +122,7 @@ C["compsci:4.3.1.1"] = {
   flashcards: [
     ["BFS uses which data structure?", "A queue."],
     ["DFS uses which data structure?", "A stack (or recursion, using the call stack)."],
-    ["DFS typical application?", "Navigating a maze.", 3],
+    ["What is a typical application of depth-first search?", "Navigating a maze.", 3],
     ["Traversal used by a recursive cycle finder G(V, P)?", "Depth-first.", 6],
     ["Why mark vertices visited?", "To avoid processing a vertex twice and looping forever round a cycle.", 7],
     ["Does BFS find the shortest path in a weighted graph?", "No — use Dijkstra's algorithm.", 8]
@@ -367,14 +367,14 @@ C["compsci:4.3.3.1"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.2.3.1 stacks evaluate RPN; 4.3.2.1 post-order traversal of an expression tree; 4.6.3 interpreters and bytecode; 4.4.2.3 BNF describes infix expression syntax; 4.12 prefix function application in functional languages." } }
   ],
   flashcards: [
-    ["RPN of 5 − 3?", "5 3 −."],
-    ["RPN of 3 + 4 × 2 − 1?", "3 4 2 × + 1 −."],
-    ["RPN of (3 + 4) × 5?", "3 4 + 5 ×."],
-    ["RPN of 5 + 2 × 3 + 4?", "5 2 3 × + 4 +."],
+    ["What is 5 − 3 in Reverse Polish notation?", "5 3 −."],
+    ["What is 3 + 4 × 2 − 1 in Reverse Polish notation?", "3 4 2 × + 1 −."],
+    ["What is (3 + 4) × 5 in Reverse Polish notation?", "3 4 + 5 ×."],
+    ["What is 5 + 2 × 3 + 4 in Reverse Polish notation?", "5 2 3 × + 4 +."],
     ["Two advantages of RPN?", "No brackets/precedence needed; simpler for a machine to evaluate with a stack.", 5],
     ["Where is RPN used?", "Stack-based interpreters: PostScript, bytecode (and RPN calculators).", 6],
     ["Which traversal of an expression tree gives RPN?", "Post-order.", 7],
-    ["Infix of 6 2 − 1 3 + ×?", "(6 − 2) × (1 + 3).", 8],
+    ["What is the RPN expression 6 2 − 1 3 + × in infix?", "(6 − 2) × (1 + 3).", 8],
     ["In RPN evaluation, the first value popped is…?", "The right-hand operand.", 9]
   ],
   quiz: [

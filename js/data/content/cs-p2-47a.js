@@ -274,7 +274,7 @@ C["compsci:4.7.1.1"] = {
     ["Von Neumann vs Harvard?", "One shared memory and bus for instructions and data vs separate memories and buses.", 8],
     ["Where is Harvard used?", "Embedded systems / DSP / microcontrollers.", 9],
     ["Where is von Neumann used?", "General-purpose computers.", 10],
-    ["The von Neumann bottleneck?", "Instructions and data share one bus, so they cannot be fetched at the same time.", 11],
+    ["What is the von Neumann bottleneck?", "Instructions and data share one bus, so they cannot be fetched at the same time.", 11],
     ["32-bit address bus, 1 byte per location → max memory?", "2³² = 4 294 967 296 bytes (4 GiB).", 12]
   ],
   quiz: [
@@ -374,7 +374,7 @@ C["compsci:4.7.2.1"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.7.3.2 the Fetch-Execute cycle carries the concept out; 4.7.1.1 von Neumann and Harvard; 4.6.3.1 translators produce the machine code that is stored; 4.5.6.1 instructions are just bit patterns." } }
   ],
   flashcards: [
-    ["Five key ideas the definition needs?", "Instructions, stored, main memory, fetched and executed, serially.", 1],
+    ["What five key ideas must a definition of the stored program concept include?", "Instructions, stored, main memory, fetched and executed, serially.", 1],
     ["Is the stored program concept the same as von Neumann architecture?", "No — von Neumann adds a single shared memory/bus; Harvard machines are stored-program too.", 2],
     ["Can a stored-program computer run only one program?", "No — any program can be loaded into memory.", 3],
     ["In the stored program concept, what does \"serially\" mean?", "One instruction after another, in sequence.", 6],
@@ -483,8 +483,8 @@ C["compsci:4.7.3.1"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.7.3.2 the registers in the F-E cycle; 4.6.4.1 the ALU is built from adders, registers from flip-flops; 4.5.4.6 overflow; 4.7.3.5 CMP and branches read the flags; 4.7.3.7 clock speed; 4.7.3.6 the SR's interrupt flag." } }
   ],
   flashcards: [
-    ["CIR holds…", "the instruction currently being decoded/executed.", 5],
-    ["General-purpose registers hold…", "operands and intermediate results the programmer chooses.", 9],
+    ["What does the current instruction register (CIR) hold?", "The instruction currently being decoded/executed.", 5],
+    ["What do general-purpose registers hold?", "Operands and intermediate results the programmer chooses.", 9],
     ["Which register connects to the address bus?", "MAR.", 10],
     ["Which register connects to the data bus?", "MBR.", 11]
   ],
@@ -674,10 +674,10 @@ C["compsci:4.7.3.2"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.7.3.1 the registers; 4.7.1.1 the buses; 4.7.2.1 the stored program concept; 4.7.3.6 interrupts are checked between cycles; 4.7.3.7 performance factors; 4.6.3.1 translation (the 2019 essay); 4.7.3.3 opcode and operand." } }
   ],
   flashcards: [
-    ["Fetch step 1?", "The contents of the PC are copied into the MAR."],
-    ["Fetch step 2?", "The address goes on the address bus; memory contents come back on the data bus into the MBR."],
+    ["What is the first step of the fetch stage?", "The contents of the PC are copied into the MAR."],
+    ["What is the second step of the fetch stage?", "The address goes on the address bus; memory contents come back on the data bus into the MBR."],
     ["When is the PC incremented?", "During the fetch, after its contents are copied to the MAR (often simultaneously with the memory read)."],
-    ["Fetch final step?", "The contents of the MBR are copied into the CIR."],
+    ["What is the final step of the fetch stage?", "The contents of the MBR are copied into the CIR."],
     ["Why is PC copied to MAR?", "So the address can be put on the address bus and the PC can be incremented.", 6],
     ["Why use the MBR, not straight into the CIR?", "Not every fetch is an instruction; the value is only on the bus briefly; it buffers the speed difference.", 7],
     ["Why decode from the CIR, not the MBR?", "Execute may fetch/write data through the MBR, overwriting the instruction.", 8],
@@ -790,11 +790,11 @@ C["compsci:4.7.3.6"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.7.3.2 the F-E cycle; 4.7.3.1 the status register's interrupt flag; 4.2.3.1 the stack (LIFO) saves nested contexts; 4.6.1.4 the OS handles interrupts and the scheduler's timer interrupt; 4.7.1.1 I/O controllers raise interrupts; 4.2.1.3 subroutine calls also save the PC on a stack." } }
   ],
   flashcards: [
-    ["Purpose of interrupts?", "Suspend the current process so an urgent device/condition can be serviced.", 1],
+    ["What is the purpose of interrupts?", "Suspend the current process so an urgent device/condition can be serviced.", 1],
     ["What is the volatile environment?", "The contents of the processor's registers (PC, SR, GPRs).", 4],
     ["Where is it saved?", "On the system stack.", 6],
     ["What happens to the PC on an interrupt?", "Saved, then loaded with the ISR's address; restored afterwards.", 7],
-    ["Polling vs interrupts?", "Processor repeatedly asks devices vs devices signal when they need attention.", 9]
+    ["How does polling differ from interrupts?", "Processor repeatedly asks devices vs devices signal when they need attention.", 9]
   ],
   quiz: [
     { q: "Interrupts are checked", opts: ["at the end of each F-E cycle", "in the middle of decode", "only when the computer powers on", "never while a program is running"], ans: 0, why: "Between instructions." },

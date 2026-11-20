@@ -122,8 +122,8 @@ C["compsci:4.4.1.1"] = {
     ["How to test a syllogism?", "Draw every arrangement consistent with the statements; a conclusion follows only if true in all of them."],
     ["Mislabelled boxes: which box to sample?", "The one labelled \"onions and carrots\" — it must hold only one kind.", 3],
     ["What does an answer of \"No\" tell others?", "Every case in which the person would have known is eliminated.", 5],
-    ["Checking a solution?", "Test it against every rule, not only those used to find it.", 6],
-    ["Proof by contradiction?", "Assume the claim and derive something impossible, so the claim is false.", 7]
+    ["How should you check a logic-puzzle solution?", "Test it against every rule, not only those used to find it.", 6],
+    ["How does proof by contradiction work?", "Assume the claim and derive something impossible, so the claim is false.", 7]
   ],
   quiz: [
     { q: "All A are B; no B are C. Which follows?", opts: ["No A are C", "All C are A", "Some C are A", "All B are A"], ans: 0, why: "A sits inside B, which shares nothing with C." },
@@ -234,7 +234,7 @@ C["compsci:4.4.1.2"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.1.1.2 the three combining principles; 4.1.1 every Section A program; 4.13.1.4 test data; 4.4.4 efficiency and Big-O; 4.4.4.6–4.4.4.7 problems with no algorithm." } }
   ],
   flashcards: [
-    ["Four standard constructs?", "Sequence, assignment, selection, iteration.", 1],
+    ["Name the four standard constructs of an algorithm.", "Sequence, assignment, selection, iteration.", 1],
     ["Prime test with 25: when is the factor found?", "d = 5, r = 0 → Not prime.", 2],
     ["Prime test with 5: Root?", "3.", 3],
     ["Three ways to argue for a program?", "Logical reasoning, test data, user feedback.", 7]

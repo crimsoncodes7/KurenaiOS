@@ -208,14 +208,14 @@ C["compsci:4.5.2.1"] = {
   flashcards: [
     ["What is a number base?", "The number of distinct digits a system uses; place values are powers of the base."],
     ["Why do computers use binary?", "Their circuits have two states (on/off)."],
-    ["Binary → hex method?", "Group into nibbles from the right; convert each nibble to a hex digit."],
+    ["How do you convert binary to hex?", "Group into nibbles from the right; convert each nibble to a hex digit."],
     ["00111001₂ in hex?", "39."],
     ["C57₁₆ in decimal?", "3159."],
     ["193₁₀ in hex?", "C1."],
     ["Why do programmers use hex? (one)", "More compact / easier for people to read / fewer typing errors."],
     ["Does hex save memory?", "No — the computer stores the same bits (R. in mark schemes)."],
-    ["Decimal → binary algorithm?", "Repeated division by 2, reading the remainders from last to first."],
-    ["Hex digit for 13?", "D."]
+    ["What algorithm converts decimal to binary?", "Repeated division by 2, reading the remainders from last to first."],
+    ["Which hex digit stands for 13?", "D."]
   ],
   quiz: [
     { q: "10110111₂ in hexadecimal is", opts: ["B7", "7B", "183", "B11"], ans: 0, why: "Split into nibbles: 1011 is B and 0111 is 7, so the hex value is B7." },

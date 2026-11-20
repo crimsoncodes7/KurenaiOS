@@ -137,9 +137,9 @@ C["compsci:4.1.2.1"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.1.2.2 the structured approach; 4.1.2.3 OOP in full; 4.12.1.1–4.12.3.1 the functional paradigm; 4.10.4 SQL as declarative; 4.4.1 abstraction and decomposition; NEA.4 complex OOP models earn Group A marks." } }
   ],
   flashcards: [
-    ["Procedural paradigm?", "Programs are sequences of instructions grouped into procedures/functions that act on data passed to them.", 1],
-    ["Object-oriented paradigm?", "Programs are sets of interacting objects, each encapsulating its data with the methods that act on it.", 2],
-    ["Procedural decomposition?", "Breaking a problem into smaller sub-problems, each solving an identifiable task, each possibly subdivided further.", 3],
+    ["What is the procedural paradigm?", "Programs are sequences of instructions grouped into procedures/functions that act on data passed to them.", 1],
+    ["What is the object-oriented paradigm?", "Programs are sets of interacting objects, each encapsulating its data with the methods that act on it.", 2],
+    ["What is procedural decomposition?", "Breaking a problem into smaller sub-problems, each solving an identifiable task, each possibly subdivided further.", 3],
     ["Why is OOP favoured for large systems?", "Encapsulation hides representations, so classes can change without breaking others; inheritance/composition give reuse.", 4],
     ["Two other paradigms on the A-level?", "Functional (4.12) and declarative (SQL, 4.10.4).", 7]
   ],
@@ -255,14 +255,14 @@ C["compsci:4.1.2.2"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.1.1.10 subroutines; 4.1.1.13 local variables; 4.1.1.2 the three control structures; 4.4.1 abstraction and decomposition; 4.13.1.2 design; NEA.2 design evidence (hierarchy charts and structure diagrams)." } }
   ],
   flashcards: [
-    ["Structured approach?", "Top-down design: decompose into subroutines built from sequence, selection and iteration, using locals and parameters."],
-    ["Decomposition?", "Breaking a problem into sub-problems, each accomplishing an identifiable task, decomposed further if needed."],
-    ["Stepwise refinement?", "Repeatedly adding detail to each part of a design until it can be coded."],
+    ["What is the structured approach to programming?", "Top-down design: decompose into subroutines built from sequence, selection and iteration, using locals and parameters."],
+    ["What is decomposition?", "Breaking a problem into sub-problems, each accomplishing an identifiable task, decomposed further if needed."],
+    ["What is stepwise refinement?", "Repeatedly adding detail to each part of a design until it can be coded."],
     ["Hierarchy chart — a box?", "A subroutine (procedure/function/method/module).", 4],
     ["When is a hierarchy chart drawn?", "During the design stage.", 5],
     ["Does a hierarchy chart show loops or decisions?", "No — only the structure of calls.", 6],
     ["Three advantages of the structured approach?", "Overview/easier to understand; reuse; modules tested independently (also team working, maintenance).", 7],
-    ["The three control structures?", "Sequence, selection, iteration.", 8]
+    ["Name the three control structures.", "Sequence, selection, iteration.", 8]
   ],
   quiz: [
     { q: "A box in a hierarchy chart represents", opts: ["a subroutine", "a variable", "a decision", "a loop"], ans: 0, why: "Each box in a hierarchy chart is one subroutine, with its sub-subroutines below it." },
@@ -483,20 +483,20 @@ C["compsci:4.1.2.3"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.1.1.1 references and user-defined types; 4.1.1.13 local variables vs attributes; 4.1.2.1 paradigms; 4.2.1.4 abstract data types implemented as classes (Stack, Queue); 4.4.1 abstraction and information hiding; NEA.4 complex OOP (polymorphism, interfaces) is Group A." } }
   ],
   flashcards: [
-    ["Class?", "A blueprint defining the attributes and methods common to a type of object."],
-    ["Object?", "An instance of a class."],
-    ["Instantiation?", "Creating an object from a class: new calls the constructor and a reference is assigned to a variable."],
-    ["Encapsulation?", "Bundling attributes with the methods that act on them, hiding the attributes so they are only reached through the class's methods."],
-    ["Inheritance?", "A subclass takes on the attributes and methods of its base class and can add or override — an \"is a\" relationship."],
-    ["Overriding?", "A subclass giving its own implementation of an inherited method."],
-    ["Private vs protected?", "Private: only its own class. Protected: its class and any subclass.", 7],
-    ["Public?", "Accessible from anywhere.", 8],
+    ["What is a class?", "A blueprint defining the attributes and methods common to a type of object."],
+    ["What is an object?", "An instance of a class."],
+    ["What is instantiation?", "Creating an object from a class: new calls the constructor and a reference is assigned to a variable."],
+    ["What is encapsulation?", "Bundling attributes with the methods that act on them, hiding the attributes so they are only reached through the class's methods."],
+    ["What is inheritance?", "A subclass takes on the attributes and methods of its base class and can add or override — an \"is a\" relationship."],
+    ["What is overriding?", "A subclass giving its own implementation of an inherited method."],
+    ["How does private access differ from protected?", "Private: only its own class. Protected: its class and any subclass.", 7],
+    ["What does public access allow?", "Accessible from anywhere.", 8],
     ["Virtual vs abstract method?", "Virtual has a body and MAY be overridden; abstract has no body and MUST be overridden (abstract classes only).", 9],
-    ["Static method?", "Belongs to the class, not an object; called via the class name.", 10],
-    ["Composition?", "Strong \"has a\": the whole creates and owns the parts; they share its lifetime. Black diamond.", 11],
-    ["Aggregation?", "Weak \"has a\": the whole refers to parts that exist independently. White diamond.", 12],
-    ["UML specifier symbols?", "+ public, - private, # protected.", 13],
-    ["Three OO design principles?", "Encapsulate what varies; favour composition over inheritance; program to interfaces, not implementation.", 14]
+    ["What is a static method?", "Belongs to the class, not an object; called via the class name.", 10],
+    ["What is composition, and how is it drawn?", "Strong \"has a\": the whole creates and owns the parts; they share its lifetime. Black diamond.", 11],
+    ["What is aggregation, and how is it drawn?", "Weak \"has a\": the whole refers to parts that exist independently. White diamond.", 12],
+    ["What are the three UML access specifier symbols?", "+ public, - private, # protected.", 13],
+    ["Name three OO design principles.", "Encapsulate what varies; favour composition over inheritance; program to interfaces, not implementation.", 14]
   ],
   quiz: [
     { q: "In UML, # means", opts: ["protected", "private", "public", "static"], ans: 0, why: "+ public, - private, # protected." },

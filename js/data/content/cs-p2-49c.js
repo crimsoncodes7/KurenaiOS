@@ -206,9 +206,9 @@ C["compsci:4.9.4.4"] = {
   flashcards: [
     ["Mask written as a prefix: 255.255.255.0?", "/24."],
     ["How is the network ID found?", "Bitwise AND of the IP address and the subnet mask.", 2],
-    ["/27 mask?", "255.255.255.224.", 3],
-    ["/20 mask?", "255.255.240.0.", 4],
-    ["Hosts in a /27?", "2⁵ − 2 = 30.", 5],
+    ["What is the /27 subnet mask in dotted decimal?", "255.255.255.224.", 3],
+    ["What is the /20 subnet mask in dotted decimal?", "255.255.240.0.", 4],
+    ["How many hosts can a /27 subnet hold?", "2⁵ − 2 = 30.", 5],
     ["How does a host decide to use the router?", "If its network ID differs from the destination's.", 7]
   ],
   quiz: [
@@ -277,8 +277,8 @@ C["compsci:4.9.4.5"] = {
     ["What problem do private addresses, NAT and DHCP ease for IPv4?", "The shortage of unique public addresses."],
     ["Name two IPv6 benefits besides more addresses.", "No NAT (end-to-end), simpler routing, auto-configuration, multicast, bigger packets."],
     ["How many bytes in an IPv6 address?", "16."],
-    ["IPv4 length?", "32 bits — about 4.3 billion addresses.", 6],
-    ["IPv6 length?", "128 bits — 2¹²⁸ addresses.", 7],
+    ["How long is an IPv4 address?", "32 bits — about 4.3 billion addresses.", 6],
+    ["How long is an IPv6 address?", "128 bits — 2¹²⁸ addresses.", 7],
   ],
   quiz: [
     { q: "IPv6 addresses are written in", opts: ["hexadecimal groups separated by colons", "dotted decimal, four numbers from 0 to 255", "binary only, in 128 separate digits", "MAC format, six pairs of hex digits"], ans: 0, why: "IPv6 addresses are written as groups of hexadecimal digits separated by colons." },
@@ -779,9 +779,9 @@ C["compsci:4.9.4.11"] = {
   flashcards: [
     ["Why can thin clients be more secure?", "Users cannot install software; data stays on the server."],
     ["A disadvantage of thin clients?", "Server or network failure stops every client."],
-    ["Thin client hardware?", "Slower processor, less RAM, little/no storage.", 6],
-    ["Thin-client server hardware?", "Many cores, lots of RAM, many drives.", 7],
-    ["Thin-client network need?", "High bandwidth, always available.", 8]
+    ["What hardware does a thin client need?", "Slower processor, less RAM, little/no storage.", 6],
+    ["What hardware does a thin-client server need?", "Many cores, lots of RAM, many drives.", 7],
+    ["What does a thin-client network need?", "High bandwidth, always available.", 8]
   ],
   quiz: [
     { q: "Thin-client software is updated", opts: ["once, on the server", "on every client", "never after install", "by each user in turn"], ans: 0, why: "Installed once on the server, not on every client." },

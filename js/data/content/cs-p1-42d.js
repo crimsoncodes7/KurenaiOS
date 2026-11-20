@@ -150,15 +150,15 @@ C["compsci:4.2.6.1"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.2.7.1 dictionaries are usually hash tables; 4.1.1.3 MOD; 4.3.4.1/4.3.4.2 linear and binary search for comparison; 4.4.4.3 O(1) vs O(log n); 4.5.6.10 cryptographic hashes for passwords and signatures; 4.10.2 database indexes." } }
   ],
   flashcards: [
-    ["Hash table?", "An array in which a record's position is calculated from its key by a hash function."],
-    ["Hash function?", "An algorithm mapping a key to an index in the table."],
-    ["Collision?", "Two different keys hashing to the same index."],
-    ["Rehashing?", "Finding another slot after a collision, e.g. the next free slot."],
-    ["Linear probing problem?", "Clustering — runs of filled slots make searches longer."],
-    ["Chaining?", "Each slot holds a list of all records that hashed to it."],
+    ["What is a hash table?", "An array in which a record's position is calculated from its key by a hash function."],
+    ["What is a hash function?", "An algorithm mapping a key to an index in the table."],
+    ["What is a collision in a hash table?", "Two different keys hashing to the same index."],
+    ["What is rehashing?", "Finding another slot after a collision, e.g. the next free slot."],
+    ["What problem does linear probing cause?", "Clustering — runs of filled slots make searches longer."],
+    ["How does chaining handle collisions?", "Each slot holds a list of all records that hashed to it."],
     ["Why are hash tables fast?", "The location is calculated, so no search is needed (average O(1))."],
     ["Why do hash tables slow down when nearly full?", "More collisions, so fewer records are at their calculated index."],
-    ["47 MOD 11?", "3.", 9]
+    ["What is 47 MOD 11?", "3.", 9]
   ],
   quiz: [
     { q: "With h(k) = k MOD 11 and slot 3 occupied, linear probing tries next", opts: ["slot 4", "slot 2", "slot 0", "slot 3 again"], ans: 0, why: "Linear probing moves to the next slot, here slot 4, when the one it hashed to is taken." },
@@ -374,15 +374,15 @@ C["compsci:4.2.8.1"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.2.1.2 a 1-D array represents a vector; 4.2.7.1 a vector as a dictionary; 4.12.1.1 the function interpretation (a mapping S → ℝ); 4.5.6.5 vector graphics; maths: the scalar product and cos θ." } }
   ],
   flashcards: [
-    ["Vector notation ℝ⁴?", "A 4-vector whose entries are all real numbers."],
-    ["Function interpretation of [2.0, 3.1]?", "0 ↦ 2.0, 1 ↦ 3.1 — a function from {0, 1} to ℝ."],
+    ["What does the notation ℝ⁴ mean for a vector?", "A 4-vector whose entries are all real numbers."],
+    ["How is [2.0, 3.1] read as a function?", "0 ↦ 2.0, 1 ↦ 3.1 — a function from {0, 1} to ℝ."],
     ["Three representations of a vector in code?", "List, 1-D array, dictionary (index ↦ value)."],
-    ["Vector addition achieves…?", "Translation."],
-    ["Scalar–vector multiplication achieves…?", "Scaling (a negative scalar also reverses direction)."],
+    ["What does vector addition achieve geometrically?", "Translation."],
+    ["What does scalar–vector multiplication achieve geometrically?", "Scaling (a negative scalar also reverses direction)."],
     ["Dot product of [a1, a2] and [b1, b2]?", "a1b1 + a2b2.", 6],
     ["Angle from the dot product?", "cos θ = (u · v) ÷ (|u| |v|).", 7],
-    ["Magnitude of [4, 3]?", "5.", 8],
-    ["[1, 1] · [3, −5]?", "−2.", 9],
+    ["What is the magnitude of the vector [4, 3]?", "5.", 8],
+    ["What is the dot product [1, 1] · [3, −5]?", "−2.", 9],
     ["Effect of × −1 on the angle with b?", "θ becomes 180° − θ; magnitude unchanged.", 10]
   ],
   quiz: [

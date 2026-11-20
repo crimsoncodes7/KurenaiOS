@@ -296,7 +296,7 @@ X("compsci:4.3.5.2", {
     ["How are two sorted lists merged?", "Compare the front items, move the smaller to the output, repeat; when one list is exhausted append the rest of the other.", 11],
     ["Why is merge sort called divide and conquer?", "It divides the problem into halves, solves each recursively and combines (conquers) the results.", 12],
     ["Space cost of merge sort?", "O(n) extra memory for the merged lists (bubble sort is in place).", 13],
-    ["Merge sort's best and worst cases?", "Both O(n log n) — the work is the same regardless of initial order.", 14],
+    ["What are merge sort's best- and worst-case time complexities?", "Both O(n log n) — the work is the same regardless of initial order.", 14],
     ["How many levels of splitting for 16 items?", "4 (16 → 8 → 4 → 2 → 1).", 15],
     ["Which data structure suits merge sort well that bubble sort does not?", "Linked lists — merging by re-pointing nodes needs no random access.", 16]
   ],

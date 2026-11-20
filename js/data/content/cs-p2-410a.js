@@ -253,8 +253,8 @@ C["compsci:4.10.1"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.10.2 keys turn relationships into foreign keys; 4.10.3 normalisation removes the repeating groups an unresolved M:M would cause; 4.10.4 every join condition follows a relationship line; 4.11.1 a graph schema's nodes and edges play the role of entities and relationships; 4.13.1.2 the data model is part of design; your NEA documents one." } }
   ],
   flashcards: [
-    ["Entity?", "A category of object, person, event or thing about which data is recorded."],
-    ["Entity description format?", "Entity(Attribute1, Attribute2, …) with the identifier underlined.", 3],
+    ["What is an entity?", "A category of object, person, event or thing about which data is recorded."],
+    ["How is an entity description written?", "Entity(Attribute1, Attribute2, …) with the identifier underlined.", 3],
     ["What does a crow's foot mean?", "The many end of a relationship.", 4],
     ["Three degrees of relationship?", "One-to-one, one-to-many, many-to-many.", 5],
     ["How is a many-to-many implemented?", "A linking entity with two one-to-many relationships; its identifier is usually the two foreign keys together.", 6],
@@ -414,9 +414,9 @@ C["compsci:4.10.2"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.10.1 identifiers and relationships; 4.10.3 normal forms are stated in terms of the primary key; 4.10.4 PRIMARY KEY / FOREIGN KEY in CREATE TABLE and every join condition; 4.10.5 locks work on records; 4.2.6 hashing — a primary key is what a hash index is built on." } }
   ],
   flashcards: [
-    ["Relational database?", "Data in several tables (relations), each about one entity, linked by foreign keys."],
+    ["What is a relational database?", "Data in several tables (relations), each about one entity, linked by foreign keys."],
     ["Is a foreign key unique in its own table?", "No — the same value can appear in many rows.", 5],
-    ["Cascade delete?", "Deleting a parent row also deletes the child rows that reference it.", 9]
+    ["What does a cascade delete do?", "Deleting a parent row also deletes the child rows that reference it.", 9]
   ],
   quiz: [
     { q: "A foreign key is", opts: ["the primary key of another relation, used to link tables", "a unique identifier for each row in its own relation", "any indexed field used to speed up searching", "a composite key made of two or more attributes"], ans: 0, why: "A foreign key is an attribute that is the primary key of another table, which links the two together." },
@@ -612,12 +612,12 @@ C["compsci:4.10.3"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.10.1 the 3NF relations ARE the ER diagram; 4.10.2 dependencies are stated against the primary key; 4.10.4 normalised tables need joins in SQL; 4.10.5 and 4.7.3.7 denormalising is one way to speed up a database server; 4.11.1 Big Data's unstructured data does not fit rows and columns at all." } }
   ],
   flashcards: [
-    ["Normalisation?", "Organising attributes into relations so each fact is stored once, removing redundancy and anomalies."],
-    ["1NF?", "No repeating groups; every attribute atomic; has a primary key."],
-    ["2NF?", "1NF and no partial dependencies — every non-key attribute depends on the whole key."],
-    ["3NF?", "2NF and no transitive dependencies — every non-key attribute depends on nothing but the key."],
-    ["Partial dependency?", "A non-key attribute depending on only part of a composite key."],
-    ["Transitive dependency?", "A non-key attribute depending on another non-key attribute."],
+    ["What is normalisation?", "Organising attributes into relations so each fact is stored once, removing redundancy and anomalies."],
+    ["What makes a relation first normal form (1NF)?", "No repeating groups; every attribute atomic; has a primary key."],
+    ["What makes a relation second normal form (2NF)?", "1NF and no partial dependencies — every non-key attribute depends on the whole key."],
+    ["What makes a relation third normal form (3NF)?", "2NF and no transitive dependencies — every non-key attribute depends on nothing but the key."],
+    ["What is a partial dependency?", "A non-key attribute depending on only part of a composite key."],
+    ["What is a transitive dependency?", "A non-key attribute depending on another non-key attribute."],
     ["Is a 1NF relation with a single-attribute key in 2NF?", "Yes — there is no part of the key to depend on.", 9],
     ["Denormalising: one gain, one cost?", "Quicker/simpler lookup; redundancy → possible inconsistency and extra updates.", 11]
   ],

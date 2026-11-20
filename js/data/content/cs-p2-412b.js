@@ -185,12 +185,12 @@ C["compsci:4.12.2.1"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.12.1.2 first-class functions make these possible; 4.12.1.4 (< 10) and (* 2) are partial applications; 4.12.3.1 map and filter are recursions over head and tail; 4.11.1 MapReduce; 4.10.4 SQL WHERE is a filter and the SELECT list a map." } }
   ],
   flashcards: [
-    ["map?", "Applies a function to every element of a list, returning the list of results.", 1],
-    ["map square [1,3,5]?", "[1, 9, 25].", 4],
-    ["filter (<10) [1,5,10,15]?", "[1, 5].", 5],
-    ["fold (+) 0 [9,7,2]?", "18.", 6],
-    ["fold (*) 1 [2,3,2]?", "12.", 7],
-    ["foldl (-) 10 [1,2,3] vs foldr (-) 0 [1,2,3]?", "4 vs 2.", 8],
+    ["What does map do?", "Applies a function to every element of a list, returning the list of results.", 1],
+    ["What does map square [1,3,5] return?", "[1, 9, 25].", 4],
+    ["What does filter (<10) [1,5,10,15] return?", "[1, 5].", 5],
+    ["What does fold (+) 0 [9,7,2] return?", "18.", 6],
+    ["What does fold (*) 1 [2,3,2] return?", "12.", 7],
+    ["What do foldl (-) 10 [1,2,3] and foldr (-) 0 [1,2,3] return?", "4 vs 2.", 8],
     ["C# LINQ for map / filter / fold?", "Select / Where / Aggregate.", 9],
   ],
   quiz: [
@@ -323,12 +323,12 @@ C["compsci:4.12.3.1"] = {
   ],
   flashcards: [
     ["Head of a list?", "Its first element — a single value."],
-    ["tail [7]?", "[] — the empty list.", 2],
-    ["head []?", "An error — the empty list has no head.", 3],
-    ["Prepend in Haskell?", "x : xs.", 4],
-    ["Append in Haskell?", "xs ++ [x].", 5],
-    ["Test for empty?", "null xs (or xs == []).", 6],
-    ["head(tail(tail [1,5,10,15]))?", "10.", 7],
+    ["What does tail [7] return?", "[] — the empty list.", 2],
+    ["What does head [] return?", "An error — the empty list has no head.", 3],
+    ["How do you prepend an item to a list in Haskell?", "x : xs.", 4],
+    ["How do you append an item to a list in Haskell?", "xs ++ [x].", 5],
+    ["How do you test for an empty list in Haskell?", "null xs (or xs == []).", 6],
+    ["What does head(tail(tail [1,5,10,15])) return?", "10.", 7],
     ["Two parts of every recursive list function?", "Base case for [] and a general case for (x:xs) recursing on xs.", 9],
     ["Why is append slower than prepend?", "It walks the whole list (O(n)); prepend is one step (O(1)).", 10]
   ],
