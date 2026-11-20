@@ -1,6 +1,6 @@
 ---
 name: project-branch-and-release-state
-description: "Which git branch is live, what is deployed — check git before trusting this; prod kos-qol-1 (20 Nov, main 9bbc996); suites from 198"
+description: "Which git branch is live, what is deployed — check git before trusting this; prod kos-qol-1 (20 Nov); kos-qol-2 held = Steam return + Neon 3–4 + all of 1C; suites from 198"
 metadata:
   node_type: memory
   type: project
@@ -8,7 +8,7 @@ metadata:
   modified: 2026-11-17T21:04:49.853Z
 ---
 
-**HELD for the next batch deploy (2026-11-20, feat/qol-1a): the Steam return (`/?steam=<code>`, steam-auth redirect), Neon's batch 3 (merged to main 93eafaf4) and 1C so far (routines inside routines, Shift plan, the plan in Calendar blocks, the Class days fix). sw.js stays `kos-qol-1` until then (smoke47 ties it to CLAUDE.md): bump to `kos-qol-2` AT DEPLOY, deploy the app FIRST, then `steam-auth`, then merge to main. Boot budget 7.77 MB (page-storage, page-connections, page-matrix moved out). Neon batch 4 brief on main (c386b95b), branch neon/qol-batch-4. Neon's branch neon/qol-batch-3 is cut from main 13d632b (upstream unset).**
+**HELD for the next batch deploy (2026-11-20, feat/qol-1a): the Steam return (`/?steam=<code>`, steam-auth redirect), Neon's batches 3 and 4 (both merged to main; batch 4 = 4c25ae3/ffdf3367, REPORT-4 passes with no note) and ALL of 1C (routines inside routines, Shift plan, the plan in Calendar blocks, Class days fix, notes folders, ink: paste/lasso/tables/rich text/TeX, the colour menu, Code live errors + completion UR-23, the Collection watch link with service icons). The C# runtime is now `csw-1.2` (Runner.Assist; deploy builds it when missing). sw.js stays `kos-qol-1` until then (smoke47 ties it to CLAUDE.md): bump to `kos-qol-2` AT DEPLOY, deploy the app FIRST, then `steam-auth`, then merge to main. Boot budget 7.77 MB (page-storage, page-connections, page-matrix, page-notifications, page-it moved out; ~9.7 KB free on feat/qol-1a). Service icons: assets/icons/services from CC0 Simple Icons via tools/gen_service_icons.mjs. Native .NET now prints NuGet NU1903 advisory lines: cs_diff/cs_wasm_check filter them.**
 
 **RELEASED 2026-11-20: sw `kos-qol-1`, immutable https://1a3b6623.kurenai-os.pages.dev, main fast-forwarded to feat/qol-1a (9bbc996).** The QoL review's 1A and 1B plus Neon's batches 1–2. Gate 179 (suites to 197; smoke197 = tools/card_lint.mjs). Boot budget 7.78 MB. Edge Function clean-ups EF-01..08 DEPLOYED the same day (ai-chat v13, runner v11, github-token v7, ext-token v3, vndb-ulist v6, steam-auth v8, steam-owned-games v7, igdb-search v7; `supabase functions deploy <name> --project-ref <ref> --use-api`, the ref in the main checkout's supabase/.temp). Known: steam-auth's result page is served as text/plain by Supabase (raw HTML shows), pre-existing. Held: bk:data-integrity#4 (seq cursor), Money bank-balance comparison. Next: 1C (the user's own requests, each with a short design check), Neon batch 3 (docs/qol/neon/BRIEF-3.md, branch neon/qol-batch-3 from main). Known: nine Maths exam questions are listed twice (item + worked), recorded in smoke116's baseline. New suites from 198.
 
