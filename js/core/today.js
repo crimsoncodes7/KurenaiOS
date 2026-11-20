@@ -418,6 +418,8 @@
             var w0 = safe(function () { return CR.studyWorks(cp.study.lesson, cp.study.study)[0]; }, null);
             if (w0) KOS.show("creatives", { page: "check", id: w0.id });
             else if (KOS.crStartStudy) KOS.crStartStudy(cp.study.lesson, cp.study.study);
+            /* Creatives' pages load on first use (page-creatives) */
+            else if (KOS.lazy) KOS.lazy.need("page-creatives").then(function () { KOS.crStartStudy(cp.study.lesson, cp.study.study); }, function () { KOS.show("creatives"); });
             else KOS.show("creatives");
           } else if (cp.project) KOS.show("creatives", { page: "project", id: safe(function () { return CR.lesson(cp.project.project.after).unit; }, null) });
           else KOS.show("due");

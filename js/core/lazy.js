@@ -362,10 +362,13 @@
     /* the share card and export (reportshare.js) serve Reports and the
        Shrine's poster only: page-share comes with both */
     shrine: ["page-shrine", "page-share"], reports: ["page-reports", "page-share"],
-    mediasync: ["page-sync"], aniprofile: ["page-sync"], vndbprofile: ["page-sync"]
+    mediasync: ["page-sync"], aniprofile: ["page-sync"], vndbprofile: ["page-sync"],
+    /* Creatives' pages (the Writing Desk, Drills, References, Sketch) and
+       its topic page; the space's router and nav stay at boot */
+    creatives: ["page-creatives"]
   };
-  var SPACE_DESK = { code: "page-code", mind: "page-mind", ja: "page-ja" };
-  var SPACE_TOPIC = { mind: "page-mind" };
+  var SPACE_DESK = { code: "page-code", mind: "page-mind", ja: "page-ja", creatives: "page-creatives" };
+  var SPACE_TOPIC = { mind: "page-mind", creatives: "page-creatives" };
   function pagesFor(viewId, arg) {
     var out = (PAGES[viewId] || []).slice(), sid = subjectOfArg(arg);
     if (viewId === "subject" && SPACE_DESK[sid]) out.push(SPACE_DESK[sid]);

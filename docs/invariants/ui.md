@@ -444,8 +444,11 @@ Read this file before editing or testing anything in its domain.
     is in one bundle or at boot, never both. PAGE MODULES ride bundles too
     (W8, AP-01 stage 2): `exams-pages`, and `page-money`, `page-governor`,
     `page-code`, `page-mind`, `page-ja`, `page-help`, `page-shrine`,
-    `page-reports` and `page-sync`, each named for its view in `lazy.js`'s
-    `PAGES` (a study space's desk and Mind's topic pages by subject). A
+    `page-reports`, `page-sync` and `page-creatives` (Creatives' Writing
+    Desk, Drills, References, Sketch and topic page; its router and nav stay
+    at boot, and Today's Daily Creative waits for the bundle before it
+    starts a study), each named for its view in `lazy.js`'s
+    `PAGES` (a study space's desk and Mind's and Creatives' topic pages by subject). A
     module goes into one only if nothing at boot runs or reads it: no
     listener, ticker or registration at load, and its exports called only
     by its own pages, by pages that wait for it, or behind a fallback.

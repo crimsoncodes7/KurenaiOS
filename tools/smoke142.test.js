@@ -87,7 +87,13 @@ function eq(a, b, m) { if (JSON.stringify(a) !== JSON.stringify(b)) throw new Er
    server-error reading); the sample account (sample.js, its own bundle
    `sample`, fetched only in an unseeded Sample namespace) left boot, 25 KB,
    so boot reads 7.870 MB (8,251,901 bytes). */
-const BOOT_BUDGET = 7.87 * 1024 * 1024;
+/* 20 Nov 2026 (1A item 10): 7.87 → 7.80 MB. Money's "Same as …" match
+   and the Bookkeeper's distinct count added about 3 KB at boot; Creatives'
+   pages (the Writing Desk, Drills, References, Sketch, the topic page and
+   the reference generator, page-creatives) moved to first use, 88 KB, so
+   boot reads 7.789 MB (8,167,341 bytes); the rest of 1A's report work
+   fits inside 7.80. */
+const BOOT_BUDGET = 7.80 * 1024 * 1024;
 
 /* jsdom has no User Timing: a small recorder, set before the app's scripts */
 function timing(win) {
