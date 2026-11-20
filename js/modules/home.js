@@ -431,8 +431,8 @@
     var nextR = routines.filter(function (x) { return x.window && x.window.from > hm && x.state !== "done"; }).sort(function (a, b) { return a.window.from < b.window.from ? -1 : 1; })[0];
     var habits = Rt.all({ kind: "habit" }).filter(function (h) { return Rt.scheduledOn(h, day); });
     var kept = habits.filter(function (h) { var st = Rt.stateOn(h, day); return st === "done" || st === "min"; }).length;
-    card.appendChild(cardHead("Routines", dueNow ? dueNow.name + " due now" : habits.length ? kept + " of " + habits.length + " habits today" : null,
-      "All routines →", function () { KOS.show("routines"); }));
+    var rtMeta = [dueNow ? dueNow.name + " due now" : null, habits.length ? kept + " of " + habits.length + " habits today" : null].filter(Boolean).join(" · ") || null;
+    card.appendChild(cardHead("Routines", rtMeta, "All routines →", function () { KOS.show("routines"); }));
     if (dueNow) {
       var r = Rt.get(dueNow.id);
       card.appendChild(el("div", { class: "k-home-rt-now", "data-ui": "home.routine-now" }, [
