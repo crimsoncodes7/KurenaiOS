@@ -315,7 +315,7 @@
   }
   var CODE = ["content-code"];
   /* the reworked pages and their engine ride their own bundle (design 45–47) */
-  var EXAMS = ["exam-index", "exams-deep", "exams-pages"];
+  var EXAMS = ["exam-index", "exams-deep", "exams-pages", "labs"];
   /* the bundles holding the words of the cards a review page shows: the
      ones due and the ones set aside, by the subject each belongs to */
   function reviewBundles(arg) {
@@ -333,8 +333,9 @@
     return out;
   }
   var NEEDS = {
-    ref: function (arg) { return [contentOf(subjectOfArg(arg))]; },
-    subject: function (arg) { return [contentOf(subjectOfArg(arg))]; },
+    /* the labs (1F) ride with every page that embeds or opens one */
+    ref: function (arg) { return [contentOf(subjectOfArg(arg)), "labs"]; },
+    subject: function (arg) { return [contentOf(subjectOfArg(arg)), "labs"]; },
     code: function () { return CODE; },
     /* one assessment's pages assemble its Companion and its papers from its
        subject's notes and question banks */
@@ -365,7 +366,9 @@
     mediasync: ["page-sync"], aniprofile: ["page-sync"], vndbprofile: ["page-sync"],
     /* Creatives' pages (the Writing Desk, Drills, References, Sketch) and
        its topic page; the space's router and nav stay at boot */
-    creatives: ["page-creatives"],
+    creatives: ["page-creatives", "labs"],
+    /* the Labs page (1F, 20 Nov 2026: the labs left boot) */
+    sims: ["labs"],
     /* Backup & Restore (and Reset everything, which only it opens) */
     data: ["page-data"],
     /* Settings › Storage (1C, 20 Nov 2026: routines inside routines took boot over) */

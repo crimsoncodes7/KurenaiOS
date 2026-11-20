@@ -106,8 +106,12 @@ function eq(a, b, m) { if (JSON.stringify(a) !== JSON.stringify(b)) throw new Er
    1C's ink (Paste, the lasso across pages, the menu) took it 1.8 KB over, and
    the notification feed (notifications.js, page-notifications, 21 KB) went too.
    Then 1C's Code live help and the Collection's watch link: the IT desk
-   (itdesk.js, page-it, 23 KB), drawn only on IT's subject page; 7.77 MB holds. */
-const BOOT_BUDGET = 7.77 * 1024 * 1024;
+   (itdesk.js, page-it, 23 KB), drawn only on IT's subject page; 7.77 MB holds.
+   1F (speed) then began: the labs and simulations (js/labs, 570 KB) load
+   with the pages that show them ("labs": topic, subject, exams, Creatives,
+   the Labs page; the Assistant's lab tools ask first). 7.22 MB, with room
+   kept for Neon's batch 5. */
+const BOOT_BUDGET = 7.22 * 1024 * 1024;
 
 /* jsdom has no User Timing: a small recorder, set before the app's scripts */
 function timing(win) {
@@ -293,7 +297,7 @@ step("F · opening a lesson shows Loading…, fetches only its subject, then dra
   await app.settle(); await app.settle();
   assert(!waiting(app), "the wait is over");
   eq(redrawAtDraw, false, "the page's first draw is a first draw, not a redraw");
-  eq(app.lazy.loaded.slice().sort(), B["content-maths"].slice().sort(), "only Maths was fetched");
+  eq(app.lazy.loaded.slice().sort(), B["content-maths"].concat(B.labs).sort(), "only Maths and the labs were fetched (1F)");
   eq(app.lazy.misses, [], "nothing read early");
   const h1 = app.document.querySelector("#main h1");
   assert(h1 && h1.textContent.trim(), "the lesson has its title");
