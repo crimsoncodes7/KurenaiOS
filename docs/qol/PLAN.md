@@ -497,6 +497,23 @@ before batch 5: 14 of 1D's 57 (Neon's batches 1–4 and 1A).
 
 ## 1F · Speed (4)
 
+**Progress (20 Nov, `feat/qol-1a`): boot 7.76 → 5.95 MB, budget 5.99 MB.** On first use now:
+- the labs and simulations (`labs`, 570 KB): the topic, subject, exams, Creatives and Labs pages;
+- the examiner's notes (`intel`, 118 KB): topic pages;
+- the Assistant's tool registry and orchestrator (`ai`, 267 KB): `KOS.ai.ready()`, with `KOS.ai.whenTools()` holding a
+  domain's tool registrations;
+- the topic page, its editor and Handwritten tab (`page-topic`, 128 KB);
+- the Reports pages (`page-reports`; Home's card stays at boot in `reportcard.js`);
+- the exams hub, tracker, paper viewer and practice (`exams-pages`, 310 KB);
+- the four vaults, medview and the watch link (`page-vaults`, 330 KB): `KOS.mediaEditor` loads it first.
+
+**Left:**
+- the ink and PDF layer (`inkui`, `pdfview`, 160 KB: Files' background PDF indexer and the flashcard ink pad read it);
+- page/boot splits of Focus (dock vs page), the Calendar, the Assistant's page, Routines, Goals and Pacing (Home cards
+  as `reportcard.js` does);
+- boot marks in Storage; the 192 px badge art.
+
+
 - `rm:boot-4mb` Boot down to about 4 MB (now 7.89 MB) by loading more page code on first use (partly, L)
 - `architecture-perf#1` Add performance.mark('kos-boot')/('kos-ready') in main.js and print them in Archive > Storage, so boot time is visible and testable (partly, S)
 - `architecture-perf#2` Ship js/core/sample.js (25 KB dev-only sample account) only to dev hosts or behind a lazy load (open, S)
