@@ -193,10 +193,21 @@ The plan is approved with these decisions.
    - The runner keeps one account's failure to that account (`failed` in the reply), and its result rows are per invocation.
    - Steam unreachable gives a page that says so.
    - Checked with the TypeScript compiler's syntax pass and smoke196 H (no Deno on this machine).
-10. **After Neon's branch is merged** (its files):
-    - `bk:data-integrity#2`: random ids for assignments, reminders and events;
-    - `bk:money-goals#2` and `money-goals#7`: Money import identity, and the Bookkeeper badge counting distinct entries;
-    - the one restore / first-link report: `data-integrity#3/#4/#6`, `assistant-archive#1`, `bk:collection#2`.
+10. **Item 10** (20 Nov):
+    - ✓ **`bk:money-goals#2`** (`64248eb`): a statement row of the same direction and exact amount as an entry typed by hand
+      within three days (by name, or by amount when each is the other's one candidate) is skipped as "Same as …" and the
+      typed entry takes the row's identity; Undo takes it back (smoke149 L, invariant 5a).
+      **Held:** comparing the bank's balance with Money's own running total. Money's entries include cash and pot moves
+      the bank never sees, so the comparison needs a decision on which entries count as the bank account.
+    - ✓ **`money-goals#7`** (`64248eb`): the Bookkeeper counts distinct entries (a row imported twice is one).
+    - ✓ **Boot** (`895b53b`): the commit above took boot 3 KB over budget. Creatives' pages (88 KB) moved to
+      `page-creatives`, so the budget moves 7.87 → 7.80 MB (invariant 168).
+    - ✓ **The one report** (`339c1d6`): `data-integrity#3/#4/#6`, `assistant-archive#1` and `bk:collection#2`.
+      A restore and a first link say what they changed, counted per domain, in a toast with Details and on Backup &
+      Restore; a link waiting on a backup offers "Download a copy of this device first"; Sync & Import says what the
+      last pull changed (invariant 34; smoke150 H, smoke135 U, smoke196 I).
+    - **Waiting for Neon's batch 2 to merge** (it edits `js/modules/assignments.js`): `bk:data-integrity#2`, random ids
+      for assignments, reminders and events.
 
 ### Phase 2 — A full audit pass, the same as November's (≈ 3 sessions)
 
