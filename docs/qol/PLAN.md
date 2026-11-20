@@ -351,6 +351,12 @@ Claude Design handoff or Gemini art asks for it):
   layer). Nothing is fetched from the sites. The IT desk now loads with IT's page (`page-it`) to keep boot at 7.77 MB.
 - **1C is complete.**
 
+**After 1C (20 Nov, the user's call):** Neon takes the whole of 1D in batch 5 (`docs/qol/neon/BRIEF-5.md`: 39 tickets
+in rounds A–E, round E after 1F); the reviewer does 1F, then 1E, handing Neon a few 1E tickets if 1D finishes early.
+Kept by the reviewer from 1D: `study-core#1` and `shell#5` (in `js/core/ui.js`) and `productivity#6` (boot, with 1F).
+`achievements-governor#1` is closed by the user's decision W5 42d (buying asks first; no timed Undo). Already done
+before batch 5: 14 of 1D's 57 (Neon's batches 1–4 and 1A).
+
 ## 1A · Bugs and data integrity (21)
 
 - `bk:study-core#5` Give Due today sessions per-subject segments so every subject/topic read counts review time. (open, S) — *your note: Due Today is not even currently personalised at all, say the task is Do Quadratics from pacing, even if I do CS Focus session that ber is being fille up.*
