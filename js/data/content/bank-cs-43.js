@@ -213,7 +213,9 @@ X("compsci:4.3.4.3", {
     ["How does binary tree search differ from binary search of an array?", "Same halving idea, but navigation is by child pointers rather than by index arithmetic.", 11],
     ["What ends an unsuccessful search?", "Reaching a null child pointer (−1 / 0 in an array-of-records implementation).", 12],
     ["Why are BSTs good for data that changes often?", "Insert and delete are O(log n) without shifting other items, unlike a sorted array.", 13],
-    ["What must be true for the search to work?", "The tree must be a binary SEARCH tree: left subtree values smaller, right subtree values larger, at every node.", 14]
+    ["What must be true for the search to work?", "The tree must be a binary SEARCH tree: left subtree values smaller, right subtree values larger, at every node.", 14],
+    ["Most comparisons to search a balanced BST of 1 000 values?", "10: ten levels hold up to 1 023 nodes (nine only 511).", 100],
+    ["Why can the same values give a search of 3 comparisons or of 7?", "The insertion order sets the tree's shape, and a search costs one comparison per level; sorted input makes a chain.", 101]
   ],
   quiz: [
     { q: "Searching a BST with root 50 for 30 first moves to:", opts: ["the right child", "the left child", "a leaf", "the parent"], ans: 1, why: "30 is smaller than the root 50, so the search goes left, where smaller values are stored." },
@@ -221,7 +223,9 @@ X("compsci:4.3.4.3", {
     { q: "A BST built by inserting 1, 2, 3, 4, 5 in order gives search complexity:", opts: ["O(log n)", "O(n)", "O(1)", "O(n²)"], ans: 1, why: "A right-leaning chain — no halving." },
     { q: "The search stops unsuccessfully when:", opts: ["the value is found at the root", "a null child pointer is reached", "the value is at a leaf node", "after exactly log n comparisons"], ans: 1, why: "No subtree left to search." },
     { q: "Compared with a sorted array, a BST makes insertion:", opts: ["slower, as each node must be linked", "O(log n) without shifting elements", "impossible once the tree is built", "O(1) always, whatever the shape"], ans: 1, why: "Structural advantage." },
-    { q: "'Every comparison halves the size of the tree to look at' explains:", opts: ["O(n log n)", "O(log n)", "O(n²)", "O(2ⁿ)"], ans: 1, why: "Halving ⇒ logarithmic." }
+    { q: "'Every comparison halves the size of the tree to look at' explains:", opts: ["O(n log n)", "O(log n)", "O(n²)", "O(2ⁿ)"], ans: 1, why: "Halving ⇒ logarithmic." },
+    { qk: "100", q: "A balanced BST holds 100 values. The most comparisons a search can need is", opts: ["7", "100", "50", "10"], ans: 0, why: "Seven levels hold up to 127 nodes and six only 63, so at most 7 comparisons." },
+    { qk: "101", q: "Inserting 10, 20, 30, 40 into an empty BST gives", opts: ["a chain of right children", "a balanced tree with root 20", "a chain of left children", "a tree with root 40"], ans: 0, why: "Each value is larger than every one before it, so each becomes the right child of the last." }
   ],
   exam: [
     { src: "AQA 2023 P1 Q3.3", q: "State the time complexity of searching a balanced binary search tree and explain why it has this complexity.", marks: 2,

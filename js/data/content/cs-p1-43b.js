@@ -279,6 +279,31 @@ C["compsci:4.3.4.3"] = {
     { callout: { t: "info", h: "Key idea", body: "AQA's answer for the binary tree search is **O(log n)** — the same halving argument as binary search, assuming a reasonably balanced tree." } },
     { diagram: "tl-tree" },
 
+    { page: "How insertion order shapes the tree" },
+    "A binary search tree has no fixed shape: the ORDER the values were inserted decides it, and the search costs one comparison per level it passes through. So the same values can give a search of 3 comparisons or of 7.",
+    { fig: {"w": 360, "h": 196, "items": [{"line": [[164.8, 37.4], [115.2, 74.6]], "c": "text2", "w": 1.6}, {"line": [[195.2, 37.4], [244.8, 74.6]], "c": "accent2", "w": 2.6}, {"line": [[89.5, 101.8], [70.5, 130.2]], "c": "text2", "w": 1.6}, {"line": [[110.5, 101.8], [129.5, 130.2]], "c": "text2", "w": 1.6}, {"line": [[249.5, 101.8], [230.5, 130.2]], "c": "accent2", "w": 2.6}, {"line": [[270.5, 101.8], [289.5, 130.2]], "c": "text2", "w": 1.6}, {"circle": [180, 26, 19], "fill": "accent2", "alpha": 0.3, "c": "accent2", "w": 1.6}, {"text": [180, 26], "t": "50", "size": 11, "c": "text", "b": true, "pos": "c"}, {"circle": [100, 86, 19], "fill": "accent", "alpha": 0.15, "c": "accent", "w": 1.6}, {"text": [100, 86], "t": "30", "size": 11, "c": "text", "b": true, "pos": "c"}, {"circle": [260, 86, 19], "fill": "accent2", "alpha": 0.3, "c": "accent2", "w": 1.6}, {"text": [260, 86], "t": "70", "size": 11, "c": "text", "b": true, "pos": "c"}, {"circle": [60, 146, 19], "fill": "accent", "alpha": 0.15, "c": "accent", "w": 1.6}, {"text": [60, 146], "t": "20", "size": 11, "c": "text", "b": true, "pos": "c"}, {"circle": [140, 146, 19], "fill": "accent", "alpha": 0.15, "c": "accent", "w": 1.6}, {"text": [140, 146], "t": "40", "size": 11, "c": "text", "b": true, "pos": "c"}, {"circle": [220, 146, 19], "fill": "accent2", "alpha": 0.3, "c": "accent2", "w": 1.6}, {"text": [220, 146], "t": "60", "size": 11, "c": "text", "b": true, "pos": "c"}, {"circle": [300, 146, 19], "fill": "accent", "alpha": 0.15, "c": "accent", "w": 1.6}, {"text": [300, 146], "t": "80", "size": 11, "c": "text", "b": true, "pos": "c"}, {"line": [[232, 162], [246, 178]], "c": "accent2", "w": 2.0, "dash": true}, {"text": [262, 178], "t": "no right child: 65 is absent", "size": 10, "c": "text2", "pos": "e"}], "cap": "Inserted as 50, 30, 70, 20, 40, 60, 80: seven nodes in three levels. Searching for 65 compares with 50, 70 and 60, then finds no right child of 60: three comparisons."} },
+    { fig: {"w": 360, "h": 186, "items": [{"line": [[76.6, 35.2], [123.4, 60.8]], "c": "accent2", "w": 2.6}, {"line": [[156.6, 79.2], [203.4, 104.8]], "c": "accent2", "w": 2.6}, {"line": [[236.6, 123.2], [283.4, 148.8]], "c": "accent2", "w": 2.6}, {"circle": [60, 26, 19], "fill": "accent2", "alpha": 0.3, "c": "accent2", "w": 1.6}, {"text": [60, 26], "t": "10", "size": 11, "c": "text", "b": true, "pos": "c"}, {"circle": [140, 70, 19], "fill": "accent2", "alpha": 0.3, "c": "accent2", "w": 1.6}, {"text": [140, 70], "t": "20", "size": 11, "c": "text", "b": true, "pos": "c"}, {"circle": [220, 114, 19], "fill": "accent2", "alpha": 0.3, "c": "accent2", "w": 1.6}, {"text": [220, 114], "t": "30", "size": 11, "c": "text", "b": true, "pos": "c"}, {"circle": [300, 158, 19], "fill": "accent2", "alpha": 0.3, "c": "accent2", "w": 1.6}, {"text": [300, 158], "t": "40", "size": 11, "c": "text", "b": true, "pos": "c"}], "cap": "Inserted as 10, 20, 30, 40: every new value is the largest so far, so each becomes the right child of the last. Searching for 40 compares with all four: a linear search."} },
+    { table: { head: ["Nodes n", "Fewest levels (balanced)", "Most comparisons, balanced", "Most comparisons, a chain"], rows: [
+      ["7", "3", "3", "7"],
+      ["15", "4", "4", "15"],
+      ["1 023", "10", "10", "1 023"],
+      ["1 000 000", "20", "20", "1 000 000"]
+    ] } },
+    { callout: { t: "formula", h: "Levels of a balanced tree", body: "A tree with L full levels holds 2ᴸ − 1 nodes, so n nodes need at least L = ⌈log₂(n + 1)⌉ levels, and a search of a balanced tree makes at most L comparisons." } },
+    { worked: { tag: "variation", title: "The most comparisons a search can need", q: "A balanced binary search tree holds 1 000 values. State the largest number of comparisons a search can need, and the number if the same values had been inserted in ascending order. Explain the difference.",
+      steps: [
+        { m: "Balanced: 10 levels hold up to 1 023 nodes (and 9 levels only 511), so at most 10 comparisons;", mk: "1" },
+        { m: "In ascending order every value becomes the right child of the one before: a chain of 1 000 nodes, so up to 1 000 comparisons;", mk: "1" },
+        { m: "Each comparison moves down one level, so the cost is the tree's HEIGHT: halving the remaining values in a balanced tree, removing just one in a chain.", mk: "1" }
+      ], result: "10 balanced; 1 000 as a chain" } },
+    { worked: { tag: "variation", title: "A binary search tree or binary search on a sorted array?", q: "A program stores the usernames of a club whose members join and leave every day, and searches them often. Explain one advantage and one disadvantage of storing them in a binary search tree rather than a sorted array searched by binary search.",
+      steps: [
+        { m: "Advantage: a new member is linked in as a new leaf without moving any other item (O(log n) when balanced);", mk: "1", n: "In a sorted array every later item must shift up one place to make room: O(n)." },
+        { m: "so frequent joining and leaving stays cheap;", mk: "1" },
+        { m: "Disadvantage: each node stores two pointers as well as its data, so it uses more memory;", mk: "1", n: "Or: the tree can become unbalanced, and searches then degrade towards O(n) — a sorted array's binary search is always O(log n)." },
+        { m: "and the search follows pointers instead of jumping straight to a middle index.", mk: "1" }
+      ], result: "Cheap inserts and deletes; more memory and a risk of becoming unbalanced" } },
+
     { page: "In exam questions" },
     { worked: { tag: "exam", title: "Fill the gaps in BTS", src: "A-level June 2023 · P1 Q03.2 · 4 marks",
       q: "A binary tree is stored as an array of records Tree with fields Data, Left and Right: [0] (6, 1, 4), [1] (3, 2, 3), [2] (1, −1, −1), [3] (4, −1, −1), [4] (9, −1, −1). SUBROUTINE BTS(k): Current ← __1__; WHILE Current > __2__: IF Tree[Current].Data = k THEN RETURN __3__; ELSEIF Tree[Current].Data < k THEN __4__; ELSE __5__; ENDIF; ENDWHILE; RETURN __6__. State what each label should be replaced by.",
@@ -300,6 +325,7 @@ C["compsci:4.3.4.3"] = {
       "**Equal** → found · **smaller** → left · **bigger** → right · **no child** → not found.",
       "Read the pointer test carefully: \"Data < k\" means go RIGHT.",
       "**O(log n)** for a balanced tree; the cost is the HEIGHT.",
+      "**Insertion order decides the shape**: sorted input makes a chain; at most ⌈log₂(n + 1)⌉ comparisons when balanced.",
       "Recursive versions have two base cases: found, or no child in the required direction (2017 Q04.2)."
     ] },
     { callout: { t: "miscon", h: "Misconceptions", body: [
