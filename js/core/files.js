@@ -142,6 +142,7 @@
         return (pp ? pp.title : pid.toUpperCase()) + " · " + (KOS.examIndex ? KOS.examIndex.sittingLabel(l.id.slice(j + 1)) : l.id.slice(j + 1)); }
       if (l.kind === "event") return "A calendar event";
       if (l.kind === "goal") return "A goal";
+      if (l.kind === "folder") { var fd = folder(l.id); return fd ? "Folder · " + fd.name : "A folder you deleted"; }
     } catch (e) { /* a place that has gone */ }
     return l.kind;
   }
@@ -151,6 +152,7 @@
     if (l.kind === "exam") { KOS.show("exams", l.id); return; }
     if (l.kind === "paper") { KOS.show("exams", "library"); return; }
     if (l.kind === "goal") { KOS.show("goals", l.id); return; }
+    if (l.kind === "folder") { var ui = KOS.store.state.ui; ui.files = ui.files || {}; ui.files.folder = l.id; KOS.store.save(); KOS.show("files"); return; }
     KOS.show("calendar");
   }
   function inkPrefix(r) { return (r.store === "papers" || r.alsoPaper ? "paper:" : "file:") + (r.store === "papers" ? r.id : r.fileId) + ":"; }
@@ -568,7 +570,78 @@
     setTimeout(function () { refresh(); }, 1200);
   }
 
+  /* ---------------- folders (1C, UR-14) ----------------
+     Folders of your own for files that belong to no topic. A folder is a
+     name in the synced state (`state.folders`, a keyed map under random
+     ids, so two devices' folders merge per key); a file is IN a folder by a
+     link {kind: "folder", id} like any other place (invariant 150: one file,
+     many links, never a copy), and sits in at most one folder. Deleting a
+     folder takes its links off the files and never deletes a file. A link
+     to a folder another device deleted reads "A folder you deleted". */
+  function folderMap() {
+    var st = KOS.store.state;
+    if (!st.folders || typeof st.folders !== "object" || Array.isArray(st.folders)) st.folders = {};
+    return st.folders;
+  }
+  function cleanName(n) { return String(n == null ? "" : n).replace(/\s+/g, " ").trim().slice(0, 60); }
+  function folders() {
+    var m = folderMap();
+    return Object.keys(m).filter(function (id) { return m[id] && cleanName(m[id].name); })
+      .map(function (id) { return { id: id, name: cleanName(m[id].name), at: +m[id].at || 0 }; })
+      .sort(function (a, b) { return a.name.localeCompare(b.name, "en-GB", { sensitivity: "base" }); });
+  }
+  function folder(id) { return folders().filter(function (f) { return f.id === id; })[0] || null; }
+  function addFolder(name) {
+    name = cleanName(name);
+    if (!name) return null;
+    var same = folders().filter(function (f) { return f.name.toLowerCase() === name.toLowerCase(); })[0];
+    if (same) return same;
+    var id = KOS.store.newId("fd");
+    folderMap()[id] = { name: name, at: Date.now() };
+    KOS.store.save();
+    emit();
+    return { id: id, name: name };
+  }
+  function renameFolder(id, name) {
+    name = cleanName(name);
+    var m = folderMap();
+    if (!name || !m[id]) return null;
+    m[id] = { name: name, at: m[id].at || Date.now() };
+    KOS.store.save();
+    emit();
+    return folder(id);
+  }
+  function folderOf(rec) {
+    var l = (rec && rec.links || []).filter(function (x) { return x.kind === "folder"; })[0];
+    return l ? l.id : null;
+  }
+  /* move a file into a folder (null: out of every folder), one at a time */
+  function moveToFolder(fileId, folderId, cb) {
+    var rec = byId[fileId];
+    if (!rec || rec.store !== "files") { if (cb) cb(new Error("Only your own files go in folders")); return; }
+    var drop = (rec.links || []).filter(function (l) { return l.kind === "folder" && l.id !== folderId; });
+    (function next() {
+      var l = drop.shift();
+      if (l) { A().removeLink(fileId, l, next); return; }
+      if (folderId && folderOf(rec) !== folderId) A().addLink(fileId, { kind: "folder", id: folderId }, function (err) { refresh(function () { if (cb) cb(err || null); }); });
+      else refresh(function () { if (cb) cb(null); });
+    })();
+  }
+  function removeFolder(id, cb) {
+    var m = folderMap();
+    delete m[id];
+    KOS.store.save();
+    var inIt = recs.filter(function (r) { return r.store === "files" && (r.links || []).some(function (l) { return l.kind === "folder" && l.id === id; }); });
+    (function next() {
+      var r = inIt.shift();
+      if (r) { A().removeLink(r.fileId, { kind: "folder", id: id }, next); return; }
+      refresh(function () { emit(); if (cb) cb(null); });
+    })();
+  }
+
   KOS.files = {
+    folders: folders, folder: folder, addFolder: addFolder, renameFolder: renameFolder, removeFolder: removeFolder,
+    moveToFolder: moveToFolder, folderOf: folderOf,
     KINDS: KINDS, KIND_NAME: KIND_NAME,
     ready: ready, refresh: refresh, all: all, get: get, linkedTo: linkedTo,
     add: add, named: named, dropTarget: dropTarget, report: report,

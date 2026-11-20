@@ -95,7 +95,7 @@
      assessment), event, goal, paper ("<paper>:<sitting>"). The record's
      subject/ref is its HOME link (the place it was first added, read by
      the older readers); `links` holds the rest. */
-  var LINK_KINDS = ["topic", "assignment", "exam", "event", "goal", "paper"];
+  var LINK_KINDS = ["topic", "assignment", "exam", "event", "goal", "paper", "folder"];
   function homeLink(rec) {
     if (!rec || !rec.ref || rec.ref === "_") return null;
     var m = /^assignment:(.+)$/.exec(rec.ref);

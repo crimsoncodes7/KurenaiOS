@@ -272,6 +272,12 @@
 .k-files-bar { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-8); }
 .k-files-search { flex: 1 1 var(--files-card-min); }
 .k-files-subj { gap: var(--sp-4); }
+/* folders of your own (1C, UR-14) */
+.k-files-folders { gap: var(--sp-6); }
+.k-files-folders-k { font-size: var(--fs-12); margin-inline-end: var(--sp-4); }
+.k-files-folderlist { display: flex; flex-direction: column; gap: var(--sp-6); }
+.k-files-folderbtn { justify-content: flex-start; }
+.k-files-folderbtn[aria-pressed="true"] { background: var(--s3); }
 .k-files-chip[aria-pressed="true"] { --chip-c: var(--text); background: var(--s3); }
 .k-files-inkf { display: inline-flex; align-items: center; gap: var(--sp-6); font-size: var(--fs-13); color: var(--text-2); }
 .k-files-list[data-view="grid"] { display: grid; grid-template-columns: repeat(auto-fill, minmax(var(--files-card-min), 1fr)); gap: var(--sp-12); }

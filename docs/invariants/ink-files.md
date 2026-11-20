@@ -127,10 +127,13 @@ Read this file before editing or testing anything in its domain.
     and `kurenai-os-papers` (decision A): no blob moved. A record carries
     its SHA-256 `hash`, `kind` (paper · scheme · worksheet · notes ·
     handout · photo · other), `aliases` and `links` [{kind: topic |
-    assignment | exam | event | goal | paper, id}] — its subject/ref is the
+    assignment | exam | event | goal | paper | folder, id}] — its subject/ref is the
     HOME link the older readers use, and `linkKeys` (a multiEntry index)
     lists them all, so a topic's or an assignment's list includes files
-    linked there since. A file added again (the same hash) is LINKED, not
+    linked there since. A FOLDER (1C) is a name of your own in the synced
+    `state.folders` (a keyed map, random ids); a file is in one folder at
+    most, by a `folder` link, and deleting a folder removes those links and
+    never a file. A file added again (the same hash) is LINKED, not
     stored: its `name` and `kind` are kept, the new name joins `aliases`,
     and `kind` only moves up (other < photo < handout < notes < worksheet
     < scheme < paper; a hand-picked kind may go down). A paper and an

@@ -312,7 +312,7 @@
     "mind.cards", "mind.lessons", "mind.explains", "mind.positions", "mind.parked", "mind.checkpoints",
     "mind.tensions", "mind.bq", "mind.paths",
     "achievements.earned", "media.shrine.order", "media.shrine.notes",
-    "exams.prefs", "artSlots", "todo.autoChecked", "oop.links"
+    "exams.prefs", "artSlots", "todo.autoChecked", "oop.links", "folders"
   ];
   /* SETTINGS a fresh device already holds at their shipped value: one
      counts as the user's once it differs (the IT Year 1 grade, the card

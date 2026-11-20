@@ -27,7 +27,51 @@
     return p;
   }
   var SUBJ = { compsci: "CS", maths: "Maths", it: "IT", code: "Code", ja: "Japanese" };
-  var LINKED = [["", "Linked anywhere"], ["none", "Not linked"], ["topic", "To a topic"], ["assignment", "To an assignment"], ["exam", "To an assessment"], ["paper", "Past papers"]];
+  var LINKED = [["", "Linked anywhere"], ["none", "Not linked"], ["topic", "To a topic"], ["assignment", "To an assignment"], ["exam", "To an assessment"], ["paper", "Past papers"], ["folder", "In a folder"]];
+
+  /* ---------------- folders (1C, UR-14) ---------------- */
+  /* name a folder: a small dialog, Enter saves */
+  function folderName(title, value, done) {
+    KOS.inkUI.dialog({ title: title, className: "k-files-folderdlg", hook: "files.folder-name", render: function (body, close, foot) {
+      var input = el("input", { type: "text", class: "k-input", "aria-label": "Folder name", maxlength: 60, "data-ui": "files.folder-name-in" });
+      input.value = value || "";
+      function save() {
+        var v = input.value.trim();
+        if (!v) { KOS.ui.toast("A folder needs a name.", true); return; }
+        close(); done(v);
+      }
+      input.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); save(); } });
+      body.appendChild(input);
+      foot.appendChild(el("button", { type: "button", class: "k-btn", text: "Cancel", onclick: close }));
+      foot.appendChild(el("button", { type: "button", class: "k-btn k-btn--primary", "data-ui": "files.folder-save", text: "Save", onclick: save }));
+      setTimeout(function () { input.focus(); input.select(); }, 30);
+    } });
+  }
+  /* "Move to folder…": a file sits in one folder at most */
+  function moveTo(r, after) {
+    var cur = F().folderOf(r);
+    function go(id, label) {
+      F().moveToFolder(r.fileId, id, function (err) {
+        KOS.ui.toast(err ? "That didn't work." : id ? "Moved to " + label + "." : "Taken out of its folder; it stays in Files.", !!err,
+          err ? null : { label: "Undo", run: function () { F().moveToFolder(r.fileId, cur, function () { if (after) after(); }); } });
+        if (after) after();
+      });
+    }
+    KOS.inkUI.dialog({ title: "Move “" + r.name + "” to a folder", className: "k-files-movedlg", hook: "files.move", render: function (body, close, foot) {
+      var list = el("div", { class: "k-files-folderlist", role: "group", "aria-label": "Folders" });
+      F().folders().forEach(function (f) {
+        list.appendChild(el("button", { type: "button", class: "k-btn k-files-folderbtn", "data-ui": "files.move-to", "aria-pressed": String(f.id === cur),
+          text: "▤ " + f.name, onclick: function () { close(); if (f.id !== cur) go(f.id, f.name); } }));
+      });
+      if (!F().folders().length) body.appendChild(el("p", { class: "k-drill-p", text: "No folders yet. Make one, and the file goes straight in." }));
+      body.appendChild(list);
+      if (cur) foot.appendChild(el("button", { type: "button", class: "k-btn k-btn--quiet", "data-ui": "files.move-out", text: "Take it out of its folder", onclick: function () { close(); go(null); } }));
+      foot.appendChild(el("button", { type: "button", class: "k-btn", "data-ui": "files.move-new", text: "＋ New folder…", onclick: function () {
+        close();
+        folderName("New folder", "", function (name) { var f = F().addFolder(name); if (f) go(f.id, f.name); });
+      } }));
+    } });
+  }
 
   /* ---------------- "Attach to…" (invariant 150: a link, never a copy) ---------------- */
   function attachTo(fileId, after) {
@@ -150,6 +194,7 @@
     var items = [{ label: "Open", onSelect: function () { F().open(r); } }, { label: "Where it's linked", onSelect: function () { where(r, after); } }];
     if (r.store === "files") {
       items.push({ label: "Attach to…", onSelect: function () { attachTo(r.fileId, after); } });
+      items.push({ label: F().folderOf(r) ? "Move to another folder…" : "Move to a folder…", onSelect: function () { moveTo(r, after); } });
       items.push({ label: "Change its kind", onSelect: function () { setKind(r, after); } });
       items.push({ label: "Rename", onSelect: function () { rename(r, after); } });
     }
@@ -168,14 +213,17 @@
   /* ---------------- the page ---------------- */
   KOS.views.files = function (main) {
     var p = prefs(), q = "", subj = "", kind = "", linked = "", inkOnly = false, uploaded = {};
+    /* the open folder, per device (a link to a folder opens it): "" every file */
+    if (p.folder && !F().folder(p.folder)) p.folder = "";
+    function folderLink() { return p.folder && F().folder(p.folder) ? { kind: "folder", id: p.folder } : null; }
     var fileIn = el("input", { type: "file", multiple: "", class: "sr-only", tabindex: "-1", "aria-hidden": "true", "data-ui": "files.input", onchange: function () {
       var fs = [].slice.call(fileIn.files || []);
       fileIn.value = "";
-      if (fs.length) F().add(fs, {}, function (err, res) { F().report(res); });
+      if (fs.length) F().add(fs, { link: folderLink() }, function (err, res) { F().report(res); });
     } });
     var addBtn = el("button", { type: "button", class: "k-btn k-btn--primary", "data-ui": "files.add", text: "⇪ Add files", onclick: function () { fileIn.click(); } });
     var scanBtn = KOS.fileScan ? el("button", { type: "button", class: "k-btn", "data-ui": "files.scan", text: "◫ Scan pages", onclick: function () {
-      KOS.fileScan.open({ onDone: function (file) { F().add([file], { kind: "worksheet" }, function (err, res) { F().report(res); }); } });
+      KOS.fileScan.open({ onDone: function (file) { F().add([file], { kind: "worksheet", link: folderLink() }, function (err, res) { F().report(res); }); } });
     } }) : null;
     main.appendChild(KOS.ui.pageHeader({ kicker: "Archive · 紙", title: "Files", sub: "Every file you've added, in one place — search the names and the text inside them.", actions: [scanBtn, addBtn] }));
     main.appendChild(fileIn);
@@ -192,9 +240,10 @@
     }));
     var bar = el("div", { class: "k-files-bar", "data-ui": "files.bar" }, [search, subjRow, kindSel, linkSel,
       el("label", { class: "k-files-inkf" }, [inkBox, el("span", { text: "Has my writing" })]), viewSw]);
+    var folderRow = el("div", { class: "k-cluster k-files-folders", role: "group", "aria-label": "Folders", "data-ui": "files.folders" });
     var listEl = el("div", { class: "k-files-list", "data-ui": "files.list", "aria-live": "polite" });
     var side = el("aside", { class: "k-files-side", "aria-label": "About your files" });
-    var layout = el("div", { class: "k-files", "data-ui": "files.page" }, [el("div", { class: "k-files-main" }, [bar, listEl]), side]);
+    var layout = el("div", { class: "k-files", "data-ui": "files.page" }, [el("div", { class: "k-files-main" }, [bar, folderRow, listEl]), side]);
     main.appendChild(layout);
 
     function subjBtn(id, label) {
@@ -207,6 +256,33 @@
       F().all().forEach(function (r) { if (r.subject) have[r.subject] = true; });
       Object.keys(SUBJ).forEach(function (s) { if (have[s]) subjRow.appendChild(subjBtn(s, SUBJ[s])); });
     }
+    /* the folders: All, each of yours with its count, and a new one; the
+       open folder's own Rename and Delete sit beside it */
+    function paintFolders() {
+      folderRow.innerHTML = "";
+      var fs = F().folders(), count = {};
+      folderRow.hidden = !fs.length && !F().all().length;     /* the empty page shows every way in itself */
+      F().all().forEach(function (r) { var id = F().folderOf(r); if (id) count[id] = (count[id] || 0) + 1; });
+      function chip(id, label) {
+        return el("button", { type: "button", class: "k-chip k-files-chip", "aria-pressed": String((p.folder || "") === id), "data-ui": "files.folder", "data-folder": id || null, text: label,
+          onclick: function () { p.folder = id; KOS.store.save(); paintFolders(); paint(); } });
+      }
+      folderRow.appendChild(el("span", { class: "k-muted k-files-folders-k", text: "Folders" }));
+      folderRow.appendChild(chip("", "All files"));
+      fs.forEach(function (f) { folderRow.appendChild(chip(f.id, "▤ " + f.name + (count[f.id] ? " · " + count[f.id] : ""))); });
+      folderRow.appendChild(el("button", { type: "button", class: "k-btn k-btn--sm k-btn--quiet", "data-ui": "files.folder-new", text: "＋ New folder", onclick: function () {
+        folderName("New folder", "", function (name) { var f = F().addFolder(name); if (f) { p.folder = f.id; KOS.store.save(); KOS.a11y.announce("Folder " + f.name + " made and opened. Files you add now go in it."); } paintFolders(); paint(); });
+      } }));
+      var open = p.folder ? F().folder(p.folder) : null;
+      if (open) folderRow.appendChild(KOS.ui.menu({ label: "⋯", className: "k-btn--sm k-btn--quiet", hint: "More for the folder " + open.name, items: [
+        { label: "Rename “" + open.name + "”", onSelect: function () { folderName("Rename folder", open.name, function (name) { F().renameFolder(open.id, name); paintFolders(); paint(); }); } },
+        { label: "Delete “" + open.name + "”", onSelect: function () {
+          var n = count[open.id] || 0;
+          KOS.ui.confirm({ title: "Delete the folder “" + open.name + "”?", body: n ? "Its " + n + (n === 1 ? " file stays" : " files stay") + " in Files and wherever else they're linked; only the folder goes." : "It's empty.", danger: true, confirm: "Delete folder" },
+            function () { F().removeFolder(open.id, function () { p.folder = ""; KOS.store.save(); KOS.ui.toast("Folder deleted; its files are still in Files."); paintFolders(); paint(); }); });
+        } }
+      ] }));
+    }
     search.addEventListener("input", KOS.ui.debounce(function () { q = search.value; F().loadText(function () { paint(); }); paint(); }, 160));
     kindSel.addEventListener("change", function () { kind = kindSel.value; paint(); });
     linkSel.addEventListener("change", function () { linked = linkSel.value; paint(); });
@@ -216,6 +292,7 @@
       var hits = q.trim() ? F().search(q) : F().all().map(function (r) { return { rec: r }; });
       return hits.filter(function (h) {
         var r = h.rec;
+        if (p.folder && F().folderOf(r) !== p.folder) return false;
         if (subj && r.subject !== subj) return false;
         if (kind && r.kind !== kind) return false;
         if (linked === "none" && r.links.length) return false;
@@ -255,6 +332,7 @@
       KOS.ui.state(layout, "empty", !all.length);
       if (!all.length) { listEl.appendChild(emptyPage()); return; }
       var rows = filtered();
+      if (!rows.length && p.folder && !q && !subj && !kind && !linked && !inkOnly) { listEl.appendChild(KOS.ui.emptyState({ compact: true, title: "An empty folder", body: "Add, drop or paste files while it's open and they go in it, or choose “Move to a folder…” on any file." })); return; }
       if (!rows.length) { listEl.appendChild(KOS.ui.emptyState({ compact: true, title: "Nothing matches", body: q ? "No name or text matches “" + q + "”." + (indexingLeft() ? " Some files are still being indexed." : "") : "Try another filter." })); return; }
       /* EX-16: a long list is drawn 300 at a time and SAYS so, with the
          rest one press away — never a silent stop at 300 */
@@ -324,10 +402,10 @@
         ].filter(Boolean).map(function (t) { return el("li", { text: t }); }))
       ]));
     }
-    function refresh() { F().refresh(function () { paintSubj(); paint(); paintSide(); }); }
+    function refresh() { F().refresh(function () { paintSubj(); paintFolders(); paint(); paintSide(); }); }
 
-    /* drop and paste (files plan §6): added unlinked */
-    F().dropTarget(layout, null, function () { /* the index event repaints */ });
+    /* drop and paste (files plan §6): added unlinked, or into the open folder */
+    F().dropTarget(layout, folderLink, function () { /* the index event repaints */ });
     function onPaste(e) {
       if (!layout.isConnected) { document.removeEventListener("paste", onPaste); return; }
       var t = e.target;
@@ -335,7 +413,7 @@
       var fs = [].slice.call((e.clipboardData && e.clipboardData.files) || []);
       if (!fs.length) return;
       e.preventDefault();
-      F().add(fs.map(function (f) { return F().named(f); }), {}, function (err, res) { F().report(res); });
+      F().add(fs.map(function (f) { return F().named(f); }), { link: folderLink() }, function (err, res) { F().report(res); });
     }
     KOS.view.listen(layout, document, "paste", onPaste);
     /* SY-27: the index moves after every file the background reader
@@ -350,23 +428,23 @@
       var a = document.activeElement;
       return !!(a && a !== document.body && listEl.contains(a));
     }
-    function catchUp() { if (!listOwed || !layout.isConnected || listBusy()) return; listOwed = false; paintSubj(); paint(); }
+    function catchUp() { if (!listOwed || !layout.isConnected || listBusy()) return; listOwed = false; paintSubj(); paintFolders(); paint(); }
     function onIndex() {
       if (!layout.isConnected) { window.removeEventListener("kos-files-index", onIndex); return; }
       paintSide();
       if (listBusy()) { listOwed = true; return; }
       listOwed = false;
-      paintSubj(); paint();
+      paintSubj(); paintFolders(); paint();
     }
     KOS.view.listen(layout, document, "focusout", function () { setTimeout(catchUp, 0); }, true);
     KOS.view.listen(layout, document, "click", function () { setTimeout(catchUp, 0); }, true);
     KOS.view.listen(layout, window, "kos-files-index", onIndex);
     if (KOS.cloudsync && KOS.cloudsync.uploadedFiles) KOS.cloudsync.uploadedFiles(function (err, u) { uploaded = u || {}; });
 
-    F().ready(function () { paintSubj(); paint(); paintSide(); });
+    F().ready(function () { paintSubj(); paintFolders(); paint(); paintSide(); });
     /* something shared to the app lands here (Web Share Target) */
     F().takeShared();
   };
 
-  KOS.filesUI = { attachTo: attachTo, where: where, actions: actions, free: free, size: size };
+  KOS.filesUI = { attachTo: attachTo, where: where, actions: actions, free: free, size: size, moveTo: moveTo };
 })();

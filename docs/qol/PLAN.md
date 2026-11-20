@@ -326,6 +326,10 @@ Claude Design handoff or Gemini art asks for it):
   day, your own rows and the ones carried in, each ticked from the block through `KOS.pacing` (invariant 82b). Boot:
   the Matrix moved to first use (`page-matrix`), keeping 7.77 MB.
 - Neon's batch 4 brief is on `main` (`BRIEF-4.md`): the three batch 3 carry-overs and three new tickets.
+- ✓ `UR-14` Folders on Files: "＋ New folder", a folder row with counts (the open folder per device), files added,
+  dropped, pasted or scanned while one is open go in it, "Move to a folder…" on any file (one folder at most, with
+  Undo), Rename and Delete (the files stay). A folder is a `folder` link (invariant 150) and a name in the synced
+  `state.folders`.
 
 ## 1A · Bugs and data integrity (21)
 

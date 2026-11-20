@@ -46,6 +46,8 @@
           /* Mind (roadmap 5.9): the reading mode and place, a dialogue's turn, the Daily 15 */
           mind: {} },
     oop: { classes: [], links: [], nextId: 1 },
+    /* folders of your own on the Files page (1C, UR-14): {id: {name, at}} */
+    folders: {},
     /* Code (roadmap 5.3, core/code.js): evidence, task passes, proofs and
        the retrieval schedule — keyed maps throughout, so the cloud merge
        folds two devices per key */

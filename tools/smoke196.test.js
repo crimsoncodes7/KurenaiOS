@@ -491,6 +491,38 @@ step("O · a lesson or study block carries the week's plan, ticked from the bloc
   K.calendar.deleteEvent(ev.id);
 });
 
+step("P · folders of your own on Files: a folder is a link, one per file, deleting it keeps the files (1C, UR-14)", async () => {
+  const F = K.files;
+  await new Promise((r) => F.ready(r));
+  const mk = (n, t) => new app.window.File([t], n, { type: "text/plain" });
+  await new Promise((r) => F.add([mk("QA a.txt", "alpha"), mk("QA b.txt", "beta")], {}, () => r()));
+  const a = F.all().find((x) => x.name === "QA a.txt"), b = F.all().find((x) => x.name === "QA b.txt");
+  const f1 = F.addFolder("  QA   Physics "), f2 = F.addFolder("QA Uni");
+  eq([f1.name, F.addFolder("qa physics").id], ["QA Physics", f1.id], "a name is tidied, and the same name is the same folder");
+  assert(/^fd-[a-z0-9]{12}$/.test(f1.id), "a random id: " + f1.id);
+  await new Promise((r) => F.moveToFolder(a.fileId, f1.id, r));
+  await new Promise((r) => F.moveToFolder(a.fileId, f2.id, r));
+  const a1 = F.get(a.fileId);
+  eq([F.folderOf(a1), a1.links.filter((l) => l.kind === "folder").length], [f2.id, 1], "a file sits in one folder at most");
+  eq(F.linkLabel({ kind: "folder", id: f2.id }), "Folder · QA Uni", "the link reads as the folder");
+  /* the page: the open folder filters, and a file added while it is open goes in it */
+  K.store.state.ui.files = Object.assign(K.store.state.ui.files || {}, { folder: f2.id });
+  K.show("files"); await app.settle(); await app.settle();
+  const names = () => Array.from(D.querySelectorAll('[data-ui~="files.item"] .k-files-name')).map((n) => n.textContent);
+  eq(names().filter((n) => /^QA /.test(n)), ["QA a.txt"], "the open folder shows its own files");
+  const chip = Array.from(D.querySelectorAll('[data-ui~="files.folder"]')).find((c) => /QA Uni/.test(c.textContent));
+  assert(chip && chip.getAttribute("aria-pressed") === "true" && /· 1/.test(chip.textContent), "its chip is pressed and counts 1");
+  /* deleting the folder keeps both files and drops only the folder's links */
+  await new Promise((r) => F.removeFolder(f2.id, r));
+  const a2 = F.get(a.fileId);
+  assert(a2 && !F.folderOf(a2), "the file stays, out of the folder");
+  eq(F.folders().map((x) => x.name), ["QA Physics"], "only that folder went");
+  eq(F.linkLabel({ kind: "folder", id: f2.id }), "A folder you deleted", "a link to a gone folder says so");
+  await new Promise((r) => F.removeFolder(f1.id, r));
+  K.store.state.ui.files.folder = "";
+  await new Promise((r) => K.attach.remove(a.id, r)); await new Promise((r) => K.attach.remove(b.id, r));
+});
+
 (async () => {
   let failed = 0;
   for (const [name, fn] of steps) {
