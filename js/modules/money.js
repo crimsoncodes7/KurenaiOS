@@ -284,7 +284,7 @@
         el("li", { class: "k-legend-item", text: "◷ trial ends · ● a bill · ＋ pay" })
       ])
     ].filter(Boolean));
-    var safe = el("div", { class: "k-mn-hero-side", "data-ui": "money.safe" }, [
+    var safe = el("div", { class: "k-mn-hero-side", "data-ui": "money.safe", "data-state": ins.safeToday == null ? "lowdata" : null }, [
       kicker("Safe to spend today"),
       ins.safeToday != null
         ? el("div", { class: "k-mn-safe" }, [amt(ins.safeToday, { size: "46" })])
@@ -293,7 +293,7 @@
           el("span", { class: "k-muted", text: ins.dataDays + (ins.dataDays === 1 ? " day so far" : " days so far") })]),
       ins.safeToday != null ? el("div", { class: "k-mn-safe-sub", text: "a day, for the " + ins.daysLeft + (ins.daysLeft === 1 ? " day left" : " days left") }) : null,
       ins.safeToday != null && ins.ahead ? el("div", { class: "k-mn-safe-note" }, ["after ", amt(ins.ahead, { size: "12", w: "500" }), " of bills and set-asides still to come"]) : null,
-      el("div", { class: "k-mn-spacer" }),
+      ins.safeToday != null ? el("div", { class: "k-mn-spacer" }) : null,
       heroRow("In", [ins.received ? el("span", {}, [amt(ins.received, { size: "12-5" }), " received"]) : null,
         ins.expected ? el("span", {}, [amt(ins.expected, { size: "12-5", w: "500", tone: "muted" }), ins.expectedList.length === 1 ? " expected on the " + parse(ins.expectedList[0].date).getDate() + ordinal(parse(ins.expectedList[0].date).getDate()) : " expected"]) : null]),
       heroRow("Out", [el("span", {}, [amt(ins.spent, { size: "12-5" }), " spent"]),

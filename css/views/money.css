@@ -54,6 +54,7 @@
 .k-mn-hero-of { font-size: var(--fs-14); color: var(--text-2); }
 .k-mn-hero-main > .k-mn-chips { margin: var(--sp-6) 0 var(--sp-12); }
 .k-mn-hero-side { position: relative; display: flex; flex-direction: column; gap: var(--sp-4); padding: var(--sp-20) var(--sp-22); border-radius: var(--r-22); background: color-mix(in oklch, var(--bg) 55%, transparent); }
+.k-mn-hero-side[data-state="lowdata"] { align-self: start; }
 .k-mn-safe { margin-block-start: var(--sp-8); }
 .k-mn-safe-sub { font-size: var(--fs-13); color: var(--text-2); }
 .k-mn-safe-note { font-size: var(--fs-12); color: var(--muted); line-height: var(--lh-snug); }
