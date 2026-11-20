@@ -281,6 +281,20 @@ How the trial is set up:
 
 Generated from your marks (`decisions` on the review page, read 19 Nov) and `docs/qol/placement.json`. ⓝ = in Neon's starter batch.
 
+**1B's progress** (branch `feat/qol-1a`, by the mock dates first):
+
+- ✓ `rm:5.22` F201 practice papers 2 and 3 (`c0c67c3`): Calderford City Council and Freshway. With paper 1 they reach
+  every leaf of F201 (smoke181 B).
+- `bk:content-maths#1`, the mock's leaves first:
+  - ✓ 4.3 sigma notation (`c5b5639`);
+  - ✓ 6.1 and 6.2 exponentials (`9bd4eaf`);
+  - next: 7.2 and 8.1 (in the mock), then 8.4 and 8.6.
+  - The past papers hold few questions on these leaves (one each for 4.3 and 6.1), so they are deepened with the
+    exam types those topics feed (sigma form, find k, least n; constants, intersections, inverses, tangents), not
+    padded to a word count.
+- Still to do: `content-cs-it#4/#5` (CS's thin leaves and quiz top-ups, the PPE's topics first), `rm:5.21` (the
+  flashcard pass), `content-cs-it#3/#6/#7/#8` and `content-maths#2` (labels and counts, which touch pages).
+
 ## 1A · Bugs and data integrity (21)
 
 - `bk:study-core#5` Give Due today sessions per-subject segments so every subject/topic read counts review time. (open, S) — *your note: Due Today is not even currently personalised at all, say the task is Do Quadratics from pacing, even if I do CS Focus session that ber is being fille up.*
