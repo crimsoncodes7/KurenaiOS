@@ -543,6 +543,10 @@
 <script src="js/modules/governor-ui.js"></script>
 </template>
 <script src="js/modules/artslot.js"></script>
+<!-- Exams & Papers reworked around one exam (design 45–47): its engine and
+     pages load on first use with the Exams view (invariant 168); since 1F the
+     tracker, the hub's pages, the papers' viewer and practice ride with them -->
+<template data-lazy="exams-pages">
 <script src="js/modules/tracker.js"></script>
 <script src="js/modules/exams.js"></script>
 <script src="js/modules/examviews.js"></script>
@@ -551,9 +555,6 @@
 <script src="js/modules/examguide.js"></script>
 <script src="js/modules/exampaperview.js"></script>
 <script src="js/modules/examdeep.js"></script>
-<!-- Exams & Papers reworked around one exam (design 45–47): its engine and
-     pages load on first use with the Exams view (invariant 168) -->
-<template data-lazy="exams-pages">
 <script src="js/core/examsession.js"></script>
 <script src="js/modules/examshell.js"></script>
 <script src="js/modules/examrevise.js"></script>

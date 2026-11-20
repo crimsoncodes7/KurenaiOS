@@ -309,7 +309,12 @@
     var r = typeof x === "string" ? get(x) : x;
     if (!r) { KOS.ui.toast("That file is not in the index any more.", true); return; }
     if (r.store === "files" && !r.hasBlob) { cloudOnly(r); return; }
-    /* a past paper: the paper's own viewer, with its attempts and scheme */
+    /* a past paper: the paper's own viewer, with its attempts and scheme
+       (which loads with the exams pages, 1F) */
+    if (r.paper && r.sitting && !KOS.examPractice && (r.pkind === "qp" || r.pkind === "ms") && KOS.lazy && KOS.lazy.need && !opts._loaded) {
+      KOS.lazy.need("exams-pages").then(function () { open(r, Object.assign({}, opts, { _loaded: true })); }, function () { open(r, Object.assign({}, opts, { _loaded: true })); });
+      return;
+    }
     if (r.paper && r.sitting && KOS.examPractice && KOS.examPractice.openPaper && (r.pkind === "qp" || r.pkind === "ms")) {
       var pid = r.store === "papers" ? r.id : (r.alsoPaper || "f:" + r.fileId);
       var siblings = recs.filter(function (s) { return s.paper === r.paper && s.sitting === r.sitting && s !== r && (s.part || null) === (r.part || null); });

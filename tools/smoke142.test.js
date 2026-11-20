@@ -115,9 +115,10 @@ function eq(a, b, m) { if (JSON.stringify(a) !== JSON.stringify(b)) throw new Er
    it is asked (KOS.ai.ready; a domain's tools wait in KOS.ai.whenTools).
    The topic page (topic.js, editor.js, inktab.js: page-topic, 128 KB).
    The Reports pages (reports.js, 100 KB, into page-reports), Home's report
-   card kept at boot in reportcard.js. 6.63 MB, with room kept for Neon's
-   batch 5. */
-const BOOT_BUDGET = 6.63 * 1024 * 1024;
+   card kept at boot in reportcard.js. The exams hub's pages, the tracker,
+   the papers' viewer and practice (310 KB) joined exams-pages. 6.33 MB,
+   with room kept for Neon's batch 5. */
+const BOOT_BUDGET = 6.33 * 1024 * 1024;
 
 /* jsdom has no User Timing: a small recorder, set before the app's scripts */
 function timing(win) {

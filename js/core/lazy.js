@@ -371,6 +371,8 @@
     sims: ["labs"],
     /* the topic page (topic.js, editor.js, inktab.js: 1F) */
     ref: ["page-topic"],
+    /* the exams hub and the tracker (1F: their modules joined exams-pages) */
+    exams: ["exams-pages"], tracker: ["exams-pages"],
     /* the Assistant's pages: its tools, permissions and activity (1F) */
     assistant: ["ai"],
     /* Backup & Restore (and Reset everything, which only it opens) */

@@ -808,7 +808,7 @@
         el("div", { class: "k-gl-typelist" }, examTypes.map(function (t) {
           return el("button", { type: "button", class: "k-gl-type", "data-ui": "goal.type", disabled: anyExam ? null : "", title: t.blurb || null,
             onclick: function () { next({ type: t.id }); }, text: t.label });
-        }).concat(anyExam ? [] : [btn("Add an exam first", "k-btn--sm", function () { ov.remove(); KOS.show("exams", "timetable"); KOS.examEditor(null, {}, function () { KOS.rerender(); }); }, "goal.add-exam")]))]));
+        }).concat(anyExam ? [] : [btn("Add an exam first", "k-btn--sm", function () { ov.remove(); KOS.show("exams", "timetable"); KOS.lazy.need("exams-pages").then(function () { KOS.examEditor(null, {}, function () { KOS.rerender(); }); }); }, "goal.add-exam")]))]));
     }
     DOMAIN_ORDER.concat(["manual"]).forEach(function (d) {
       var ts = d === "manual" ? [G.typeDef("custom-manual")] : G.types({ domain: d }).filter(function (t) { return t.id !== "custom-manual" && !t.exam; });
