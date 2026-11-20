@@ -114,8 +114,10 @@ function eq(a, b, m) { if (JSON.stringify(a) !== JSON.stringify(b)) throw new Er
    registry and orchestrator (aitools.js, aiorchestrator.js, 267 KB) when
    it is asked (KOS.ai.ready; a domain's tools wait in KOS.ai.whenTools).
    The topic page (topic.js, editor.js, inktab.js: page-topic, 128 KB).
-   6.73 MB, with room kept for Neon's batch 5. */
-const BOOT_BUDGET = 6.73 * 1024 * 1024;
+   The Reports pages (reports.js, 100 KB, into page-reports), Home's report
+   card kept at boot in reportcard.js. 6.63 MB, with room kept for Neon's
+   batch 5. */
+const BOOT_BUDGET = 6.63 * 1024 * 1024;
 
 /* jsdom has no User Timing: a small recorder, set before the app's scripts */
 function timing(win) {

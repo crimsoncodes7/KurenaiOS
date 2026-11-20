@@ -647,8 +647,10 @@
 <template data-lazy="page-notifications">
 <script src="js/modules/notifications.js"></script>
 </template>
-<script src="js/modules/reports.js"></script>
+<!-- Home's report card stays at boot; the Reports pages load on first use (1F) -->
+<script src="js/modules/reportcard.js"></script>
 <template data-lazy="page-reports">
+<script src="js/modules/reports.js"></script>
 <script src="js/modules/reportlong.js"></script>
 <script src="js/modules/reportstory.js"></script>
 </template>
