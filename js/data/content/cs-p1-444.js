@@ -52,7 +52,7 @@ C["compsci:4.4.4.1"] = {
     spec("4.4.4.1", ["Understand that algorithms can be compared by expressing their complexity as a function relative to the size of the problem — the size of the problem is the key issue.", "Understand that some algorithms are more efficient time-wise, and some space-wise, than other algorithms."]),
     { callout: { t: "info", h: "How AQA examines it", body: "Comparing algorithms underlies every complexity question (4.3.4–4.3.5, 4.4.4.3) but has not been examined as a stand-alone item in 2016–2025. The cards below are variations; the examined comparisons are in linear vs binary search, bubble vs merge sort and naive vs memoised Fibonacci." } },
     { h: "How these notes are organised" },
-    { ol: ["**Measure growth, not seconds**.", "**Time and space**.", "**Exam toolkit**."] },
+    { ol: ["**Measure growth, not seconds**.", "**Time and space**.", "**Counting the steps**: reading the growth off the code.", "**Choosing in practice**: when the size of the problem and the job change the answer.", "**Exam toolkit**."] },
 
     { page: "Measure growth, not seconds" },
     { kv: [
@@ -92,11 +92,71 @@ C["compsci:4.4.4.1"] = {
         { m: "(c) about 1 look-up per word → ≈ 10⁵; extra memory for the table's spare slots. Fastest, at the cost of space.", mk: "1" }
       ], result: "Hash set fastest; sorted list a good compromise" } },
 
+    { page: "Counting the steps" },
+    { callout: { t: "info", h: "Count the basic operation", body: ["Pick the operation that is repeated most: a comparison in a search or sort, an addition in a sum.", "Count how many times it runs for a problem of size n, then keep only the fastest-growing term."] } },
+    { table: { head: ["Shape of the code", "Times the operation runs", "Order"], rows: [
+      ["Statements with no loop", "a fixed number, whatever n is", "O(1)"],
+      ["One loop over the n items", "n", "O(n)"],
+      ["A loop that halves what is left each time", "about log₂ n", "O(log n)"],
+      ["A loop inside a loop, both over the items", "n × n, or n(n − 1) ÷ 2 for every pair", "O(n²)"],
+      ["Halving, then a pass over every item at each level", "about n log₂ n", "O(n log n)"],
+      ["Trying every subset of the n items", "2ⁿ", "O(2ⁿ)"]
+    ] } },
+    { fig: { w: 600, h: 186, items: [].concat(
+      boxAt(90, 24, 288, 20, null, "accent"),
+      [txt(78, 34, "16 left", { size: 10.5, c: "text2", pos: "w" })],
+      [txt(388, 34, "comparison 1: discard half", { size: 10, c: "text2", pos: "e" })],
+      boxAt(90, 54, 144, 20, null, "accent"),
+      [txt(78, 64, "8 left", { size: 10.5, c: "text2", pos: "w" })],
+      [txt(244, 64, "comparison 2: discard half", { size: 10, c: "text2", pos: "e" })],
+      boxAt(90, 84, 72, 20, null, "accent"),
+      [txt(78, 94, "4 left", { size: 10.5, c: "text2", pos: "w" })],
+      [txt(172, 94, "comparison 3: discard half", { size: 10, c: "text2", pos: "e" })],
+      boxAt(90, 114, 36, 20, null, "accent"),
+      [txt(78, 124, "2 left", { size: 10.5, c: "text2", pos: "w" })],
+      [txt(136, 124, "comparison 4: discard half", { size: 10, c: "text2", pos: "e" })],
+      boxAt(90, 144, 18, 20, null, "accent2"),
+      [txt(78, 154, "1 left", { size: 10.5, c: "text2", pos: "w" })],
+      [txt(260, 176, "16 → 8 → 4 → 2 → 1: four halvings, and log₂ 16 = 4", { size: 10.5, c: "accent2" })]
+    ), cap: "Where O(log n) comes from. Each comparison of a binary search discards half of what is left, so the number of comparisons is the number of times n can be halved before one item remains." } },
+    { worked: { tag: "variation", title: "Count the comparisons in a nested loop", q: "A routine compares every item of a list with every item after it: the outer loop runs i from 0 to n − 1 and the inner loop runs j from i + 1 to n − 1, making one comparison each time. Find the number of comparisons for n = 10, a formula for n items, and the time complexity.",
+      steps: [
+        { m: "For i = 0 the inner loop runs 9 times, then 8, 7, … down to 0: 9 + 8 + … + 1 = 45 comparisons;", mk: "1" },
+        { m: "In general (n − 1) + (n − 2) + … + 1 = n(n − 1) ÷ 2;", mk: "1" },
+        { m: "n(n − 1) ÷ 2 = ½n² − ½n; drop the lower term and the constant ½: O(n²).", mk: "1", n: "Halving the work by starting j at i + 1 does not change the order: it is still quadratic." }
+      ], result: "45; n(n − 1) ÷ 2; O(n²)", "try": [{"predict":{"code":"foreach (int n in new int[] { 10, 100 })\n{\n    int count = 0;\n    for (int i = 0; i < n; i++)\n    {\n        for (int j = i + 1; j < n; j++)\n        {\n            count++;\n        }\n    }\n    Console.WriteLine(n + \": \" + count);\n}\nint m = 1000, halvings = 0;\nwhile (m > 1)\n{\n    m = m / 2;\n    halvings++;\n}\nConsole.WriteLine(halvings);","expect":"10: 45\n100: 4950\n9","cap":"The nested loop counted for 10 and 100 items, then the halvings of 1 000 down to 1 with whole-number division. What is printed?"}}]} },
+    { worked: { tag: "variation", title: "Predict from the growth", q: "An algorithm takes 2 seconds to process 1 000 items. Estimate the time for 2 000 items if it is O(n), O(n²), O(n log n) and O(2ⁿ).",
+      steps: [
+        { m: "O(n): doubling n doubles the work, so about 4 s;", mk: "1" },
+        { m: "O(n²): doubling n multiplies the work by 2² = 4, so about 8 s;", mk: "1" },
+        { m: "O(n log n): (2 000 × log₂ 2 000) ÷ (1 000 × log₂ 1 000) ≈ 2.2, so about 4.4 s;", mk: "1" },
+        { m: "O(2ⁿ): the work is multiplied by 2¹⁰⁰⁰: it will never finish, which is why exponential algorithms are called intractable.", mk: "1" }
+      ], result: "≈ 4 s · 8 s · 4.4 s · never" } },
+
+    { page: "Choosing in practice" },
+    { callout: { t: "key", h: "The order of growth is not the whole decision", body: ["How big n will really be, how often the job runs, whether the data is already sorted and how much memory there is can each change the best choice."] } },
+    { kv: [
+      ["Size of n", "for a list of 20 items a simple O(n²) sort is fine and easier to get right"],
+      ["How often", "sorting once costs O(n log n) but makes every later search O(log n)"],
+      ["The data itself", "a nearly sorted list suits bubble sort with a swapped flag: O(n) in its best case"],
+      ["Memory", "merge sort's second list of n items may not fit on a small device; an in-place sort may be needed"],
+      ["Preconditions", "binary search is only correct on sorted data"]
+    ] },
+    { worked: { tag: "variation", title: "Is it worth sorting first?", q: "A list of 1 000 000 unsorted items must be searched k times. Compare k linear searches with one merge sort followed by k binary searches, for k = 1 and k = 100, counting comparisons in the worst case.",
+      steps: [
+        { m: "Linear: k × 1 000 000. For k = 1: 10⁶; for k = 100: 10⁸;", mk: "1" },
+        { m: "Sort then search: about n log₂ n ≈ 2 × 10⁷ to sort, plus about 20 per search;", mk: "1" },
+        { m: "k = 1: linear wins (10⁶ against about 2 × 10⁷);", mk: "1" },
+        { m: "k = 100: sorting first wins (about 2 × 10⁷ against 10⁸). The break-even is near k = 20: the more often the data is searched, the more the sort pays for itself.", mk: "1" }
+      ], result: "One search: linear. Many searches: sort first" } },
+    { callout: { t: "warn", h: "Common mistakes", body: ["Comparing two algorithms by one timing on one machine.", "Saying an algorithm is \"faster\" without saying for which sizes of n.", "Forgetting space: a faster algorithm that needs a second copy of the data may not fit.", "Keeping constants in the order: O(2n) and O(½n²) are written O(n) and O(n²)."] } },
+
     { page: "Exam toolkit" },
     { steps: [
       "Compare by how steps/memory GROW with n — not by seconds on one machine.",
       "Time-efficient and space-efficient are different questions; name which.",
-      "Constant factors matter for small n; order of growth matters for large n."
+      "Constant factors matter for small n; order of growth matters for large n.",
+      "Count the basic operation: one loop n, nested loops n², halving log₂ n; drop constants and lower terms."
     ] },
     { callout: { t: "miscon", h: "Misconceptions", body: [
       "\"Faster on my laptop means a better algorithm.\" — timings depend on hardware and input; compare growth.",

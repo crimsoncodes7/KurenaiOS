@@ -19,7 +19,9 @@ X("compsci:4.4.4.1", {
     ["Why compare algorithms by growth rate rather than by timing?", "Timings depend on hardware and implementation; growth rate describes how the algorithm scales for any machine."],
     ["Between O(n log n) and O(n²), which grows faster?", "O(n²)."],
     ["What is the space complexity of a recursive algorithm of depth d?", "O(d) for the stack frames."],
-    ["Which is better for a nearly sorted list: bubble sort with a flag or merge sort?", "Bubble sort with a flag — O(n) best case; merge sort is always O(n log n)."]
+    ["Which is better for a nearly sorted list: bubble sort with a flag or merge sort?", "Bubble sort with a flag — O(n) best case; merge sort is always O(n log n)."],
+    ["How many comparisons does a loop over every pair (j from i + 1) make for n items, and what order is it?", "n(n − 1) ÷ 2 (45 for n = 10): O(n²).", 100],
+    ["An O(n²) algorithm takes 2 s for 1 000 items. Roughly how long for 2 000?", "About 8 s: doubling n multiplies the work by 2² = 4.", 101]
   ],
   quiz: [
     { q: "Which algorithm has time complexity O(n log n)?", opts: ["Bubble sort", "Merge sort", "Linear search", "Binary search"], ans: 1, why: "Divide and conquer sort." },
@@ -27,7 +29,9 @@ X("compsci:4.4.4.1", {
     { q: "Sorting 10 000 items: bubble sort ≈ 10⁸ operations; merge sort ≈", opts: ["1.3 × 10⁴", "1.3 × 10⁵", "1.3 × 10⁶", "1.0 × 10⁸"], ans: 1, why: "n log₂ n ≈ 10 000 × 13.3." },
     { q: "All of linear search, binary search, bubble sort and merge sort are:", opts: ["intractable (too slow)", "tractable (polynomial)", "exponential (2ⁿ steps)", "non-computable (no algorithm)"], ans: 1, why: "Polynomial or better." },
     { q: "'O(log n)' for merge sort scores:", opts: ["full marks", "nothing — NE", "half", "bonus"], ans: 1, why: "It must be O(n log n)." },
-    { q: "Comparing algorithms fairly uses:", opts: ["stopwatch timings on one PC", "growth rate as n increases", "the number of lines of code", "the language each is written in"], ans: 1, why: "Machine-independent." }
+    { q: "Comparing algorithms fairly uses:", opts: ["stopwatch timings on one PC", "growth rate as n increases", "the number of lines of code", "the language each is written in"], ans: 1, why: "Machine-independent." },
+    { qk: "100", q: "A loop halves the items left on each pass until one remains. For n items it runs about", opts: ["n ÷ 2 times", "n² times", "log₂ n times", "2ⁿ times"], ans: 2, why: "Repeated halving from n down to 1 takes log₂ n steps: 16 → 8 → 4 → 2 → 1 is four." },
+    { qk: "101", q: "A list of 1 000 000 items will be searched only once. The quicker plan is", opts: ["one linear search", "merge sort, then binary search", "bubble sort, then binary search", "merge sort, then linear search"], ans: 0, why: "A single linear search is at most 10⁶ comparisons; sorting alone costs about 2 × 10⁷." }
   ],
   exam: [
     { src: "AQA 2017 P1 Q3", ctx: "Four algorithms are listed: bubble sort, merge sort, linear search, binary search.",

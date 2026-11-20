@@ -498,7 +498,7 @@ C["compsci:4.13.1.5"] = {
       ["Evaluation section of the NEA", "—", "4 (NEA)", "each objective met / partly / not, with evidence; independent feedback; improvements"]
     ] } },
     { h: "How these notes are organised" },
-    { ol: ["**Evaluating against requirements**.", "**Feedback and improvements**.", "**In exam questions**.", "**Exam toolkit**."] },
+    { ol: ["**Evaluating against requirements**.", "**Feedback and improvements**.", "**Criteria you can measure**: kinds of criterion, and how a requirement is traced to its verdict.", "**Writing the evaluation**: worked entries and the mistakes that cost marks.", "**In exam questions**.", "**Exam toolkit**."] },
     cycleFig("Evaluation", "Evaluation closes the loop: it compares the finished solution with the requirements set in analysis."),
 
     { page: "Evaluating against requirements" },
@@ -523,6 +523,56 @@ C["compsci:4.13.1.5"] = {
       ["Improvements", "specific extensions: what, why it would help, how it could be built"],
       ["Maintainability", "how easily it could be changed — modular structure, comments, meaningful names"]
     ] },
+    { h: "Ways to gather feedback" },
+    { table: { head: ["Method", "What it gives", "Watch out for"], rows: [
+      ["Observation", "the user doing real tasks while you note where they hesitate or go wrong", "people act differently when watched"],
+      ["Questionnaire", "ratings from several users that can be counted and compared", "leading questions; few replies"],
+      ["Interview", "the client's own words on each objective, with reasons", "time; the client may be too polite to criticise"]
+    ] } },
+    { callout: { t: "tip", h: "Quote the user, then judge", body: ["Feedback is evidence, not a verdict. \"It's quicker than the paper register\" supports an objective on speed; the evaluation still says which objective it supports and how far."] } },
+
+    { page: "Criteria you can measure" },
+    { callout: { t: "info", h: "An objective decides whether it can be evaluated", body: ["An evaluation can only be as precise as the objectives written in analysis.", "\"The system must be fast\" cannot be met or missed. \"A member's record is found within 2 seconds with 10 000 members stored\" can."] } },
+    { table: { head: ["Kind of criterion", "Measured by", "Example evidence"], rows: [
+      ["Functional: does it do the job?", "a test for each required feature", "test 14: a booking for a full class refused"],
+      ["Performance", "timing with realistic volumes of data", "search of 10 000 records: 0.4 s"],
+      ["Usability", "users completing set tasks; errors made; feedback", "4 of 5 staff booked a class unaided first time"],
+      ["Robustness", "erroneous and boundary test data", "letters typed into the age field rejected, no crash"],
+      ["Maintainability", "a review of the code's structure", "one subroutine per task, named constants, comments"]
+    ] } },
+    { fig: { w: 650, h: 176, items: [].concat(
+      boxAt(10, 30, 140, 58, "Objective 3", "accent", "set in analysis"),
+      boxAt(176, 30, 140, 58, "Tests 14–16", "accent", "planned in design"),
+      boxAt(342, 30, 140, 58, "Results", "accent", "from testing"),
+      boxAt(508, 30, 132, 58, "Verdict", "accent2", "in evaluation"),
+      arrow(150, 59, 176, 59, null, { c: "text2", w: 1.4 }), arrow(316, 59, 342, 59, null, { c: "text2", w: 1.4 }), arrow(482, 59, 508, 59, null, { c: "text2", w: 1.4 }),
+      [{ poly: [[574, 88], [574, 130], [80, 130], [80, 90]], close: false, c: "good", w: 1.5, dash: "5 4" },
+        { line: [[80, 100], [80, 90]], c: "good", w: 1.5, arrow: true },
+        txt(327, 146, "a partly met or unmet objective becomes an improvement: the next iteration, or maintenance", { size: 10.5, c: "good" }),
+        txt(80, 16, "refuse a booking when a class is full", { size: 10, c: "text2" }),
+        txt(246, 16, "normal · boundary · erroneous", { size: 10, c: "text2" }),
+        txt(412, 16, "all three passed", { size: 10, c: "text2" }),
+        txt(574, 16, "met, with evidence", { size: 10, c: "accent2" })]
+    ), cap: "Tracing one requirement to its verdict. Every objective should be followed the same way, so that each verdict points at the tests that prove it." } },
+    { callout: { t: "key", h: "Verdict, evidence, reason", body: ["Every line of an evaluation names the objective, says met, partly met or not met, and points at the evidence.", "Where it falls short, it says why and what would close the gap."] } },
+
+    { page: "Writing the evaluation" },
+    { worked: { tag: "variation", title: "Make an objective measurable", q: "A client asks for a booking system that is \"easy to use and quick\". Rewrite this as two objectives that could be evaluated, and state the evidence that would show each one is met.",
+      steps: [
+        { m: "Usability: a new member of staff can book a member onto a class, without help, in under one minute;", mk: "1" },
+        { m: "evidence: observe five staff doing the task and record their times and any errors;", mk: "1" },
+        { m: "Performance: the class list for any day is shown within 2 seconds with a year of bookings stored;", mk: "1" },
+        { m: "evidence: a timed test on a copy of the database filled with a year of realistic data.", mk: "1" }
+      ], result: "Two objectives, each with a number to measure against" } },
+    { worked: { tag: "variation", title: "Evaluate a solution from its evidence", q: "A school library system had three objectives: (1) a book is issued by scanning its barcode and a pupil card; (2) the overdue list is produced in under 5 seconds; (3) pupils can reserve a book online. Testing showed (1) passed every test; (2) took 9 seconds with 20 000 loans stored; (3) was not built. The librarian said issuing was \"much faster than before\". Evaluate the solution.",
+      steps: [
+        { m: "Objective 1 met: every issue test passed, and the librarian's comment confirms it is faster in real use;", mk: "1" },
+        { m: "Objective 2 partly met: the list is produced and correct, but 9 s is outside the 5 s target at a realistic volume;", mk: "1" },
+        { m: "improvement: index the loans table on its due date, so the query does not read every loan;", mk: "1" },
+        { m: "Objective 3 not met: there was no time to build it; it could be added as a web page that writes to the same reservations table;", mk: "1" },
+        { m: "Overall: the core problem, slow issuing, is solved; the system is usable now, with two clear next steps.", mk: "1" }
+      ], result: "Met · partly met · not met, each with evidence and a next step" } },
+    { callout: { t: "warn", h: "Mistakes that cost marks", body: ["Judging objectives that were never set: praise for a feature nobody asked for earns nothing.", "Hiding an objective that was not met. An honest \"not met\" with the reason and a fix earns credit; leaving it out does not.", "Evidence that is only the developer's opinion. Point at a test number, a measurement or the user's words.", "Improvements that are wishes (\"add more features\") rather than a named change and how it would be made."] } },
 
     { page: "In exam questions" },
     { worked: { tag: "exam", title: "The palindrome program's output", src: "AS June 2025 · P1 Q03.2 · 1 mark",
@@ -548,7 +598,8 @@ C["compsci:4.13.1.5"] = {
     { page: "Exam toolkit" },
     { table: { head: ["Command word", "What earns the mark"], rows: [
       ["Evaluate the solution", "Each requirement → verdict → evidence → improvement."],
-      ["Suggest improvements", "Specific: what, why it helps, how."]
+      ["Suggest improvements", "Specific: what, why it helps, how."],
+      ["Why measurable objectives?", "So each can be judged met or not met against a number set in analysis."]
     ] } },
     MS_KEY,
     { callout: { t: "mnemonic", h: "\"VEIL\"", body: "For every objective: **V**erdict · **E**vidence · **I**mprovement · **L**imitation." } },

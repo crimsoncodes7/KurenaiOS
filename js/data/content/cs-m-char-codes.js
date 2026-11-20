@@ -80,7 +80,10 @@ C["compsci:4.5.5.1"] = {
     {"q":"Standard ASCII can represent","opts":["128 characters","256 characters","65 536 characters","1.1 million characters"],"ans":0,"why":"7 bits."},
     {"q":"A reason for Unicode is","opts":["international communication with many languages","ASCII is too slow","Unicode uses fewer bits","ASCII has no digits"],"ans":0,"why":"Larger, consistent character set."},
     {"q":"UTF-8 stores an ASCII character in","opts":["1 byte","2 bytes","4 bytes","7 bytes"],"ans":0,"why":"Backward compatible."},
-    {"q":"A disadvantage of Unicode:","opts":["fewer characters","more bits per character","not compatible with ASCII","no emoji"],"ans":1,"why":"16/32 bits."}
+    {"q":"A disadvantage of Unicode:","opts":["fewer characters","more bits per character","not compatible with ASCII","no emoji"],"ans":1,"why":"16/32 bits."},
+    {"qk": "100", "q": "If 'A' is 65, the code for 'E' is", "opts": ["70", "68", "69", "101"], "ans": 2, "why": "Letters have consecutive codes: A 65, B 66, C 67, D 68, E 69. 101 is lower-case 'e'."},
+    {"qk": "101", "q": "A 20-character name stored in 7-bit ASCII needs", "opts": ["160 bits", "140 bits", "20 bits", "280 bits"], "ans": 1, "why": "20 characters × 7 bits = 140 bits."},
+    {"qk": "102", "q": "If 'a' is 97, the character with code 0110 0010 is", "opts": ["'B'", "'c'", "'a'", "'b'"], "ans": 3, "why": "0110 0010 = 98, one after 'a': 'b'."}
   ],
   exam: [
     {"src":"AQA 2025 P2 Q9","ctx":"A logic circuit takes the 7-bit ASCII code B6…B0 of a character and produces outputs Q1 = 1 when the character is a letter and Q2 = 1 when it is an upper-case letter.","parts":[{"q":"State the ASCII code ranges for upper-case and lower-case letters in denary.","marks":1,"ms":["65–90 and 97–122 (1)"]},{"q":"Explain which bit of the code distinguishes an upper-case letter from the corresponding lower-case letter.","marks":1,"ms":["Bit 5 (value 32): 0 for upper-case, 1 for lower-case (1)"]},{"q":"State the purpose of outputs Q1 and Q2.","marks":2,"ms":["Q1 = 1 indicates the character is a letter (1)","Q2 = 1 indicates the character is an upper-case letter (1)"]}]},

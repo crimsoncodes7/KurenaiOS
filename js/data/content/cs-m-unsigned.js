@@ -90,7 +90,10 @@ C["compsci:4.5.4.1"] = {
     {"q":"Multiplying by 100₂ is the same as","opts":["shifting left 2 places","shifting right 2","adding 4","shifting left 4"],"ans":0,"why":"× 4."},
     {"q":"11111111 + 00000001 in 8 bits gives","opts":["00000000 with a carry (overflow)","11111110","100000000 stored","00000001"],"ans":0,"why":"Wraps round."},
     {"q":"An 8-bit unsigned addition producing a 9th bit indicates:","opts":["negative result","overflow","underflow","rounding"],"ans":1,"why":"Result too large."},
-    {"q":"How does a processor subtract using only an adder?","opts":["It cannot","Adds the two's complement of the subtrahend","Uses division","Uses a lookup table"],"ans":1,"why":"AS 2016 P2 Q5.5."}
+    {"q":"How does a processor subtract using only an adder?","opts":["It cannot","Adds the two's complement of the subtrahend","Uses division","Uses a lookup table"],"ans":1,"why":"AS 2016 P2 Q5.5."},
+    {"qk": "100", "q": "The largest number 12 unsigned bits can hold is", "opts": ["4096", "4095", "2047", "12"], "ans": 1, "why": "2¹² − 1 = 4 095: 4 096 values, starting at 0."},
+    {"qk": "101", "q": "01101001 + 00011011 in 8-bit unsigned binary is", "opts": ["10000010", "01110100", "10000100", "10010100"], "ans": 2, "why": "105 + 27 = 132 = 128 + 4, which is 10000100."},
+    {"qk": "102", "q": "00010110 × 00000101 (22 × 5) in 8-bit binary is", "opts": ["01011110", "01101100", "00110111", "01101110"], "ans": 3, "why": "22 × 5 = 110 = 64 + 32 + 8 + 4 + 2, which is 01101110."}
   ],
   exam: [
     {"level":"AS","src":"AS 2016 P2 Q5.5","q":"A processor contains circuitry that produces the two's complement of a number. Explain how this allows subtraction to be carried out using only an addition circuit.","marks":1,"ms":["A − B is computed as A + (two's complement of B), so the same adder performs subtraction (1)"]}
