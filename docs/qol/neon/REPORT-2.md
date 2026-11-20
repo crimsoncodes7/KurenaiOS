@@ -9,7 +9,8 @@ Graded against `REVIEW.md` (sections R and A–F, and the batch 2 table) from:
 - the reviewer's own browser check at 1470×832 and 820×1180, on a fresh origin with seeded data;
 - the reviewer's own gate run: 177 / 177 in a fresh checkout (C# runtime linked in).
 
-**Verdict: not yet. One fix-up, then it passes.**
+**Verdict (20 November, after the fix-up `e0fee7d`): passes, with notes.** Merged to `main`. The first
+grade, "not yet: one fix-up", is kept below as it was written; the re-check is at the end.
 
 B3 has a real bug that its own check could not see, and that is a fail on A1. Everything else holds.
 The fix is one line, and the "Fix-up" section at the end is written to paste to Neon.
@@ -118,7 +119,35 @@ On `origin/main` the piece appears once, so this is a regression.
 > Run smoke108, smoke192 and smoke119, then the full gate once. Commit `fix(qol): creatives#2 — a deep-linked
 > piece is drawn once`, push, and add an F section to the Walkthrough.
 
+## The re-check (fix-up `e0fee7d`, 20 November)
+
+**The diff is two lines in `creatives.js`, and nothing else changed.**
+- F1: `target` now comes from `all`, by id.
+- F2: the accessible name is "Work saved: open it, milestone 1".
+- The B4 selector was left alone, as asked.
+
+**R1–R3, all pass:**
+- **R1:** it reproduced all three cases on `14e2d12` before editing, with the bad positions and counts recorded.
+- **R2:** its checks could fail this time. They counted the rows, found the piece's position and compared the button with the head. They ran green, then the targeted suites ran, then it committed.
+- **R3:** two lines, exactly.
+
+**The reviewer's own checks** were on a 72-piece log at 1470 × 832:
+
+| Deep link to | Before the fix | After the fix |
+|---|---|---|
+| Row 4 | drawn at rows 1 and 5; "60 of 73 shown" | drawn once, at row 4, open; "Show 12 more · 60 of 72 shown"; once after Show more |
+| Row 66 | drawn at the top; the batch was never extended | the first batch is extended to 66, the piece drawn once at row 66, open; "66 of 72 shown" |
+| A piece hidden by a filter, redrawn with its dialog open | — | shown once, at the top; the head reads "20 of 72 pieces" |
+
+**Gate:** 177 / 177 in a fresh checkout (smoke17 failed once under load and passed alone).
+
+**One note left:** the Walkthrough's B2 line now cites 5a, but files 168 under `spaces.md`. It is `ui.md`.
+
+**B3 is now "pass with notes".** Batch 2 has three "with notes" (B2, B3 and B4), one over the two the checklist
+allows for a clean pass. Every note is about wording, a citation or selector width, never behaviour, so the
+branch merges.
+
 ## Next
 
-Once F1 is in and the reviewer's re-check passes, the branch merges, and batch 2 counts as passed with
-notes. Neon then gets a third batch of the same size: M tickets in one module each, still outside the core files.
+Neon gets a third batch of the same size: M tickets, one module each, still outside the core files.
+It keeps the habit that fixed B3: a check that counts.
