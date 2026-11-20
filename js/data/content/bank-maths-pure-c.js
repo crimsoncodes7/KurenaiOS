@@ -430,7 +430,10 @@ X("maths:8.4", {
     ["How is the trapezium rule related to integration as a limit of a sum?", "It approximates the area with a finite number of trapezia; the integral is the limit as the strip width tends to 0."],
     ["Show $\\displaystyle\\lim_{\\delta x \\to 0}\\sum_{x=1}^{e^2} \\dfrac{2}{x}\\,\\delta x = k$ for integer $k$.", "$\\int_1^{e^2}\\dfrac2x dx = 2[\\ln x]_1^{e^2} = 4$."],
     ["What symbol replaces $\\sum$ and $\\delta x$ in the limit?", "$\\int$ and $dx$."],
-    ["If the rectangles use the left endpoint of each strip on an increasing function, the sum is an…", "Underestimate."]
+    ["If the rectangles use the left endpoint of each strip on an increasing function, the sum is an…", "Underestimate."],
+    ["$\\displaystyle\\lim_{\\delta x \\to 0}\\sum_{x=0}^{\\ln 3} e^{2x}\\,\\delta x$ as an integral, and its value?", "$\\int_0^{\\ln 3} e^{2x}\\,dx$, which is $\\frac12(9 - 1) = 4$.", 100],
+    ["For a decreasing $f$, which end of each strip gives rectangles that over-estimate the area?", "The left end: there $f$ takes its largest value on the strip.", 101],
+    ["What does $\\displaystyle\\lim_{\\delta t \\to 0}\\sum_{t=1}^{3} v\\,\\delta t$ give for a velocity $v$?", "$\\int_1^3 v\\,dt$: the displacement from $t = 1$ to $t = 3$ (the distance when $v \\ge 0$ throughout).", 102]
   ],
   quiz: [
     { q: "$\\displaystyle\\lim_{\\delta x\\to0}\\sum_{x=2}^{5} f(x)\\delta x =$", opts: ["$f(5) - f(2)$", "$\\int_2^5 f(x)dx$", "$\\int_2^5 f'(x)dx$", "$\\sum_{x=2}^{5} f(x)$"], ans: 1, why: "As $\\delta x \\to 0$ the sum of $f(x)\\delta x$ becomes $\\int_2^5 f(x)dx$." },
@@ -438,7 +441,10 @@ X("maths:8.4", {
     { q: "$\\delta x$ represents:", opts: ["the derivative of $f$ with respect to $x$", "a small change / strip width in $x$", "the limit of the sum as $x$ grows", "the area of each strip under the curve"], ans: 1, why: "$\\delta x$ is the width of each strip, a small step in $x$." },
     { q: "As $\\delta x \\to 0$ the number of strips:", opts: ["decreases to zero", "tends to infinity", "stays the same", "becomes exactly 1"], ans: 1, why: "Strips of width $\\delta x$ on a fixed interval number $\\tfrac{b - a}{\\delta x} \\to \\infty$." },
     { q: "$\\displaystyle\\lim_{\\delta x\\to0}\\sum_{x=0}^{2} 3x^2\\delta x =$", opts: ["8", "12", "4", "6"], ans: 0, why: "$[x^3]_0^2$." },
-    { q: "Integration as the limit of a sum underpins:", opts: ["the product rule for differentiating two functions", "the area interpretation of a definite integral", "the laws of logarithms for integrals", "the chain rule for connected rates of change"], ans: 1, why: "The area is the limit of the sum of strips $f(x)\\delta x$." }
+    { q: "Integration as the limit of a sum underpins:", opts: ["the product rule for differentiating two functions", "the area interpretation of a definite integral", "the laws of logarithms for integrals", "the chain rule for connected rates of change"], ans: 1, why: "The area is the limit of the sum of strips $f(x)\\delta x$." },
+    { qk: "100", q: "Four rectangles of width 0.5 under $y = x^2$ on $0 \\le x \\le 2$, each as tall as the curve at its right end, have total area", opts: ["3.75", "1.75", "2.67", "4.50"], ans: 0, why: "$0.5(0.25 + 1 + 2.25 + 4) = 3.75$, above the exact $\\frac83$." },
+    { qk: "101", q: "$\\displaystyle\\lim_{\\delta x \\to 0}\\sum_{x=1}^{e^2}\\left(x + \\frac1x\\right)\\delta x =$", opts: ["$\\frac{e^4 + 1}{2}$", "$\\frac{e^4 + 3}{2}$", "$\\frac{e^4 - 1}{2}$", "$\\frac{e^2 + 3}{2}$"], ans: 1, why: "$\\left[\\frac{x^2}{2} + \\ln x\\right]_1^{e^2} = \\frac{e^4}{2} + 2 - \\frac12$." },
+    { qk: "102", q: "As $\\delta x \\to 0$ each strip's area tends to 0. The sum $\\sum f(x)\\,\\delta x$", opts: ["tends to zero as well", "tends to the exact area", "grows without a limit", "stays at its estimate"], ans: 1, why: "The number of strips grows as $\\frac{b - a}{\\delta x}$, balancing the shrinking strips." }
   ],
   exam: [
     { src: "Edexcel 2025 P1 Q5", q: "Show that $\\displaystyle\\lim_{\\delta x \\to 0}\\sum_{x = 1}^{e^3} \\dfrac{2}{x}\\,\\delta x = k$, where $k$ is an integer to be found.", marks: 3,
