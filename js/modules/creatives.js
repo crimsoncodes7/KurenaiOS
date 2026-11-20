@@ -591,7 +591,7 @@
     var all = CR().works();
     if (!all.length) { main.appendChild(spotEmpty("cr.spot.log", { mark: "◔", title: "Nothing here yet", body: "Every study you save lands here first, raw and private. Delete anything, any time." })); return; }
     var f = KOS.view && KOS.view.memo ? KOS.view.memo("cr.logFilter", function () { return { track: "", check: "" }; }) : { track: "", check: "" };
-    var target = wid ? CR().work(wid) : null;
+    var target = wid ? all.find(function (w) { return w.id === wid; }) || null : null;
     function needsCheck(w) { return !!(w.lesson && (!w.check || !w.check.pass)); }
     function matches(w) {
       if (f.track && w.track !== f.track) return false;
@@ -700,7 +700,7 @@
           el("span", { class: "k-cr-ms-t", text: m }),
           ps.ms[i] ? (ps.attached[i] && ps.works[i] && ps.works[i].length
             ? el("button", { type: "button", class: "k-link k-cr-done", "data-tone": "done", "data-ui": "cr.ms-work",
-              "aria-label": "Open saved work for milestone " + (i + 1), text: "✓ work saved",
+              "aria-label": "Work saved: open it, milestone " + (i + 1), text: "✓ work saved",
               onclick: function () { openWork(ps.works[i][0]); } })
             : el("small", { class: "k-cr-done", "data-tone": "done", text: "✓ done" })) :
             u.track === "write" && KOS.crWrite ? el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "cr.ms-write", text: "Write it", onclick: function () { KOS.crWrite.openMilestone(uid, i); } }) : null,
