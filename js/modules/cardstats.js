@@ -395,7 +395,7 @@
             el("td", { class: "k-mono", "data-state": r.lapses ? "hot" : null, text: String(r.lapses) }),
             el("td", { class: "k-mono", text: r.recall == null ? "—" : Math.round(100 * r.recall) + "%" }),
             el("td", {}, [eff.band ? el("span", { class: "k-spine-dot", "data-band": eff.band, title: KOS.rag.BANDS[eff.band].label }) : el("span", { class: "k-muted", text: "—" })]),
-            el("td", {}, [el("button", { type: "button", class: "k-link", "data-ui": "cardstats.topic-open", "aria-label": "Charts for " + r.ref + " " + r.title, text: "Charts →", onclick: function () {
+            el("td", {}, [el("button", { type: "button", class: "k-link", title: "Charts for " + r.ref + " " + r.title, text: "charts →", onclick: function () {
               KOS.show("cardstats", { subject: r.sid, ref: r.ref });
             } })])
           ]));
