@@ -362,8 +362,12 @@
     mind: ["page-mind"], japanese: ["page-ja"], help: ["page-help"],
     /* the share card and export (reportshare.js) serve Reports and the
        Shrine's poster only: page-share comes with both */
-    shrine: ["page-shrine", "page-share"], reports: ["page-reports", "page-share"],
-    mediasync: ["page-sync"], aniprofile: ["page-sync"], vndbprofile: ["page-sync"],
+    shrine: ["page-shrine", "page-share", "page-vaults"], reports: ["page-reports", "page-share", "page-vaults"],
+    mediasync: ["page-sync", "page-vaults"], aniprofile: ["page-sync", "page-vaults"], vndbprofile: ["page-sync", "page-vaults"],
+    /* the four vaults and their shared toolkit (medview), and the pages
+       that draw its pieces (1F: they left boot together) */
+    anime: ["page-vaults"], seasonal: ["page-vaults"], books: ["page-vaults"], mangaka: ["page-vaults"],
+    vn: ["page-vaults"], game: ["page-vaults"], wishlist: ["page-vaults"],
     /* Creatives' pages (the Writing Desk, Drills, References, Sketch) and
        its topic page; the space's router and nav stay at boot */
     creatives: ["page-creatives", "labs"],
@@ -382,7 +386,7 @@
     /* Settings › Connections (20 Nov 2026: Neon's batch 3 merged into 1C) */
     connections: ["page-connections"],
     /* the Matrix (1C, 20 Nov 2026: the plan's shift and the plan in blocks) */
-    matrix: ["page-matrix"],
+    matrix: ["page-matrix", "page-vaults"],
     /* the full notification feed (the header bell stays at boot): 1C's ink */
     notifications: ["page-notifications"]
   };

@@ -1644,16 +1644,23 @@
     }
   });
 
+  /* the Games vault loads on first use (1F) */
+  function vaultsFirst(run) {
+    return function (args, cb) {
+      if (KOS.games || !(KOS.lazy && KOS.lazy.need)) { run(args, cb); return; }
+      KOS.lazy.need("page-vaults").then(function () { run(args, cb); }, function () { run(args, cb); });
+    };
+  }
   def("games_bulk_add", {
     desc: "Bulk-create Planned game drafts from a list of titles (dedupes against the vault and within the list; ONE governor session for the whole act).",
     category: "collection", tier: "consequential", read: false,
     params: { titles: { type: "array", required: true, minLen: 1, maxLen: 100, items: { type: "string", minLen: 1, maxLen: 200 } } },
-    run: function (args, cb) {
+    run: vaultsFirst(function (args, cb) {
       KOS.games.bulkAddTitles(args.titles.join("\n"), function (err, report) {
         if (err) { cb(err); return; }
         cb(null, report);
       });
-    }
+    })
   });
 
   def("collection_sync_provider", {

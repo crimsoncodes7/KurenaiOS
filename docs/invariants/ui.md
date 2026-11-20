@@ -112,7 +112,9 @@ Read this file before editing or testing anything in its domain.
     Review and Sync. (The Planner's Planner/Goals switch is gone: Goals is a
     Productivity page and the Planner is the Collection's Wishlist, 27a/27n.)
 28. Vault editors register in `KOS.mediaEditors`; hooks register in
-    `KOS.mediaEditorHooks`. Never wrap the dispatcher.
+    `KOS.mediaEditorHooks`. Never wrap the dispatcher. The editors ride the
+    vaults' bundle (`page-vaults`, 1F): the dispatcher loads it first when
+    no editor is in, and returns no overlay then.
 29. VN CG gallery is a counter only; content warnings are manual.
 30. Vault hero selection/banner/crop lives in `hero.<module>` kv, not on the entry.
     VN and Games heroes are upload-only; no new network fallback. A NEW
