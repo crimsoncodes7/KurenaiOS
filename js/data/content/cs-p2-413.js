@@ -610,11 +610,11 @@ C["compsci:4.13.1.5"] = {
     ["What is a solution evaluated against?", "The initial requirements."],
     ["Three verdicts for an objective?", "Met, partly met, not met."],
     ["What must back each verdict?", "Evidence — test results, screenshots, user feedback."],
-    ["Evaluation vs testing?", "Testing checks parts work; evaluation judges whether the whole meets the requirements."],
+    ["How does evaluation differ from testing?", "Testing checks parts work; evaluation judges whether the whole meets the requirements."],
     ["Why get user feedback?", "Independent evidence that the solution meets their needs."],
     ["Palindrome program with 'x'?", "Outputs 'Palindrome' — the sentinel is processed as data."],
-    ["A good improvement states…", "what, why it helps and how it could be done."],
-    ["VEIL?", "Verdict, Evidence, Improvement, Limitation."]
+    ["What three things does a good improvement state?", "What it is, why it helps and how it could be done."],
+    ["What does the VEIL mnemonic for an evaluation stand for?", "Verdict, Evidence, Improvement, Limitation."]
   ],
   quiz: [
     { q: "Evaluation compares the solution with", opts: ["the initial requirements", "the source code length", "other students' work", "the test data types"], ans: 0, why: "An evaluation judges how well the finished solution meets the original requirements." },

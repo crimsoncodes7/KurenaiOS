@@ -336,8 +336,8 @@ C["compsci:4.5.4.4"] = {
     ["Place values after the point?", "½, ¼, ⅛, 1/16 …"],
     ["How is a floating point number's value worked out?", "mantissa × 2^exponent.", 4],
     ["What does the exponent decide?", "Range.", 6],
-    ["What does the mantissa decide?", "Precision.", 7],
- ],
+    ["What does the mantissa decide?", "Precision.", 7]
+  ],
   quiz: [
     { q: "11011101 with 2 bits before the point is", opts: ["3.453125", "221", "3.5", "13.8125"], ans: 0, why: "With two bits before the point, 11 is 3 and .011101 is 29/64 = 0.453125, so it is 3.453125." },
     { q: "Mantissa 01000000 means", opts: ["+½", "+64", "−½", "1"], ans: 0, why: "01000000 is 0.1000000 in binary, which is a half, and the leading 0 shows it is positive." },

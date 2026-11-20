@@ -45,7 +45,7 @@ C["compsci:4.4.4.6"] = {
   flashcards: [
     ["Example of a non-computable problem?","The Halting problem.","compsci:4.4.4.6:2"],
     ["Importance of the Halting problem?","It demonstrates that non-computable problems exist.","compsci:4.4.4.6:3"],
-    ["Can more memory/speed solve a non-computable problem?","No.","compsci:4.4.4.6:5"],
+    ["Can more memory/speed solve a non-computable problem?","No — no algorithm exists for it at all, so more memory or speed cannot help.","compsci:4.4.4.6:5"],
     ["Is the Collatz conjecture non-computable?","Not known — it is unproven (open), which is different.","compsci:4.4.4.6:6"],
     ["What is a computable problem?","A problem for which an algorithm exists that produces the correct answer for every input in a finite number of steps.","compsci:4.4.4.6:8"],
     ["What is a non-computable problem?","One for which no algorithm can exist that solves every instance — e.g. the halting problem.","compsci:4.4.4.6:9"],

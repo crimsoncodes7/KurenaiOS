@@ -293,8 +293,8 @@ C["compsci:4.2.7.1"] = {
     ["Why implement a dictionary with a hash table?", "Direct access to a value from its key — no search.", 2],
     ["Dictionary for 'The green, green grass grows'?", "{'grass': 1, 'green': 2, 'grows': 1, 'the': 1}", 3],
     ["C# lookup that cannot throw for a missing key?", "TryGetValue(key, out value).", 4],
-    ["Information retrieval use?", "Word frequencies; word → list of documents containing it.", 5],
-    ["Dictionary vs array?", "Array: integer position. Dictionary: any key type.", 6],
+    ["How are dictionaries used in information retrieval?", "Word frequencies; word → list of documents containing it.", 5],
+    ["How does a dictionary differ from an array?", "Array: integer position. Dictionary: any key type.", 6],
     ["Missing key with dict[key] in C#?", "KeyNotFoundException.", 7]
   ],
   quiz: [

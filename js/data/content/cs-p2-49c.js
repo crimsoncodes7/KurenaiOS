@@ -150,13 +150,13 @@ C["compsci:4.9.4.3"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.9.4.4 subnet masks find the network ID; 4.5.2 binary and denary; 4.9.3.1 routers route on network IDs; 4.9.4.6 private ranges such as 192.168.0.0." } }
   ],
   flashcards: [
-    ["Network address of 192.168.200.5/20?", "192.168.192.0."],
-    ["Broadcast address of 192.168.64.0/20?", "192.168.79.255."],
+    ["What is the network address of 192.168.200.5/20?", "192.168.192.0."],
+    ["What is the broadcast address of 192.168.64.0/20?", "192.168.79.255."],
     ["What do hosts on one network share?", "The network ID.", 3],
     ["Which host IDs cannot be assigned?", "All 0s (network address) and all 1s (broadcast address).", 4],
     ["How many bits in an IPv4 address?", "32.", 5],
     ["In a /20 network 192.168.64.0, the third octet ranges over…", "64–79.", 6],
-    ["Valid host for 192.168.0.0/24?", "192.168.0.1 to 192.168.0.254.", 7]
+    ["Which host addresses are valid in 192.168.0.0/24?", "192.168.0.1 to 192.168.0.254.", 7]
   ],
   quiz: [
     { q: "Which can be a host on 192.168.2.0/24?", opts: ["192.168.2.17", "192.168.2.0", "192.168.2.255", "192.168.3.1"], ans: 0, why: "192.168.2.0/24 covers 192.168.2.0 to 192.168.2.255, and .17 is a valid host ID, neither all 0s nor all 1s." },
@@ -449,7 +449,7 @@ C["compsci:4.9.4.6"] = {
     ["Who assigns public addresses?", "ISPs / Internet registries."],
     ["How can a device with a private address be reached from outside?", "Through the router via NAT / port forwarding."],
     ["Is 172.20.0.5 public or private?", "Private (172.16.0.0/12)."],
-    ["Three private ranges?", "10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16.", 8],
+    ["What are the three private IPv4 address ranges?", "10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16.", 8],
     ["Why can many LANs use 192.168.0.4?", "It is private (non-routable); NAT swaps it for a public address at the router.", 9],
     ["Why do private ranges exist?", "To reuse addresses and save scarce public IPv4 addresses.", 10]
   ],

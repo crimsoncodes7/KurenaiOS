@@ -11,7 +11,7 @@
          "Read-ahead pattern?", "CIR holds…", "Yes.", "No — not enough.", a
          paragraph, "Convert 193 to hexadecimal." and "Normalise 00011010
          0011." are flagged; their rewrites are not.
-     C · A MOVED CARD KEEPS NOTHING ELSE MOVING (invariants 87, 111c). The 34
+     C · A MOVED CARD KEEPS NOTHING ELSE MOVING (invariants 87, 111c). The 45
          CS calculations that left their decks are gone from them, every
          later card of those decks keeps its schedule key (a pinned third
          element), keys stay unique, and each topic's quiz gained them as
@@ -36,7 +36,11 @@ const MOVED = {
   "compsci:4.1.1.12": [5], "compsci:4.2.8.1": [11],
   "compsci:4.5.2.1": [3, 4, 5, 10, 11, 12, 16], "compsci:4.5.4.3": [5, 12, 13, 15],
   "compsci:4.5.4.4": [2, 3, 8, 9, 11, 12, 13, 14, 15, 16, 17], "compsci:4.5.4.5": [3],
-  "compsci:4.5.4.8": [2, 4, 5, 6, 11], "compsci:4.5.6.4": [8], "compsci:4.5.6.7": [5, 13, 14]
+  "compsci:4.5.4.8": [2, 4, 5, 6, 11], "compsci:4.5.6.4": [8], "compsci:4.5.6.7": [5, 13, 14],
+  /* the merged leaves (their quiz is the cs-m file's own; 100–103 are another pass's) */
+  "compsci:4.5.3.1": ["4.5.3.2:15", "4.5.3.2:16"],
+  "compsci:4.5.4.1": ["4.5.4.1:5", "4.5.4.1:6", "4.5.4.1:8", "4.5.4.1:10", "4.5.4.2:8", "4.5.4.2:9", "4.5.4.2:13", "4.5.4.2:15"],
+  "compsci:4.5.5.1": ["4.5.5.1:12"]
 };
 /* the keys each of those decks must still hold, as before the pass */
 const KEPT = {
@@ -94,10 +98,11 @@ step("C · moved cards: gone from the deck, neighbours keep their keys, quiz ite
     const sid = t.slice(0, t.indexOf(":")), ref = t.slice(sid.length + 1);
     const keys = (C[t].flashcards || []).map((c, i) => L.shippedKey(sid, ref, c, i));
     if (new Set(keys).size !== keys.length) bad.push(t + ": duplicate card keys");
-    MOVED[t].forEach((k) => { if (keys.indexOf(t + ":" + k) >= 0) bad.push(t + ":" + k + " is still a card"); });
+    const full = (k) => (typeof k === "string" ? "compsci:" + k : t + ":" + k);
+    MOVED[t].forEach((k) => { if (keys.indexOf(full(k)) >= 0) bad.push(full(k) + " is still a card"); });
     if (KEPT[t]) KEPT[t].forEach((k) => { if (keys.indexOf(t + ":" + k) < 0) bad.push(t + ":" + k + " lost its key"); });
     const quiz = C[t].quiz || [];
-    const ours = quiz.map((it, i) => ({ it, i })).filter((x) => x.it.qk != null && +x.it.qk >= 150);
+    const ours = quiz.map((it, i) => ({ it, i })).filter((x) => x.it.qk != null && +x.it.qk >= 150 && +x.it.qk < 200);
     if (ours.length !== MOVED[t].length) bad.push(t + ": " + ours.length + " quiz items 150+, wanted " + MOVED[t].length);
     ours.forEach((x, n) => {
       if (x.it.qk !== String(150 + n)) bad.push(t + ": quiz key " + x.it.qk + " out of order");

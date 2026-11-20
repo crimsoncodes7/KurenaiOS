@@ -62,25 +62,23 @@ C["compsci:4.5.4.1"] = {
   ],
   flashcards: [
     ["Range of n-bit unsigned binary?","0 to 2ⁿ − 1.","compsci:4.5.4.1:0"],
-    ["Unsigned vs signed?","Unsigned: non-negative only; signed (two's complement) also negative.","compsci:4.5.4.1:3"],
-    ["01000011₂ unsigned?","67.","compsci:4.5.4.1:5"],
-    ["What is the pattern 10110001 as an 8-bit two's complement number?","−79.","compsci:4.5.4.1:6"],
+    ["How does unsigned binary differ from signed?","Unsigned: non-negative only; signed (two's complement) also negative.","compsci:4.5.4.1:3"],
     ["What is unsigned binary used for?","Counts, addresses, colour values, character codes.","compsci:4.5.4.1:7"],
-    ["Convert 177 to 8-bit unsigned binary.","10110001 (128 + 32 + 16 + 1).","compsci:4.5.4.1:8"],
-    ["Convert 01101101 to denary.","64 + 32 + 8 + 4 + 1 = 109.","compsci:4.5.4.1:10"],
     ["Range of an 8-bit unsigned integer?","0 to 255.","compsci:4.5.4.1:11"],
     ["Method for denary → binary?","Subtract the largest power of two that fits, repeat; or repeatedly divide by 2 reading remainders upwards.","compsci:4.5.4.1:14"],
     ["Place values of an 8-bit unsigned integer?","128 64 32 16 8 4 2 1.","compsci:4.5.4.1:15"],
-    ["1 + 1 in binary?","0 carry 1 (10₂).","compsci:4.5.4.2:0"],
+    ["What is 1 + 1 in binary addition?","0 carry 1 (10₂).","compsci:4.5.4.2:0"],
     ["How is binary multiplication done?","Shift-and-add: a shifted copy of the multiplicand for every 1 in the multiplier.","compsci:4.5.4.2:2"],
     ["What is overflow?","A result too large for the available bits.","compsci:4.5.4.2:5"],
     ["Sign of overflow in unsigned addition?","A carry out of the most significant bit.","compsci:4.5.4.2:6"],
     ["Bits needed for an n-bit × n-bit product?","Up to 2n.","compsci:4.5.4.2:7"],
-    ["Add 01101011 + 00110110.","10100001 (107 + 54 = 161).","compsci:4.5.4.2:8"],
-    ["Multiply 1101 × 11.","1101 + 11010 = 100111 (13 × 3 = 39).","compsci:4.5.4.2:9"],
     ["How is subtraction performed in a two's complement system?","Add the two's complement of the subtrahend; discard any carry out of the most significant bit.","compsci:4.5.4.2:11"],
-    ["Multiply 10110 by 10 (binary).","101100 — multiplying by 2 shifts left one place.","compsci:4.5.4.2:13"],
-    ["Check 1011 + 0110 = 10001 in denary.","11 + 6 = 17 ✓.","compsci:4.5.4.2:15"]
+    ["What are the rules of binary addition, column by column?","0 + 0 = 0; 0 + 1 = 1; 1 + 1 = 0 carry 1; 1 + 1 + 1 = 1 carry 1.","compsci:4.5.4.1:150"],
+    ["What does shifting an unsigned binary number one place left do?","Multiplies it by 2: every bit moves to the next higher place value and a 0 enters on the right.","compsci:4.5.4.1:151"],
+    ["How do you check a binary addition?","Convert both numbers and the result to denary and confirm the denary sum matches.","compsci:4.5.4.1:152"],
+    ["Why can unsigned binary not represent negative numbers?","Every bit has a positive place value, so the smallest value is 0 (all bits 0).","compsci:4.5.4.1:153"],
+    ["Why can adding two 8-bit unsigned numbers need a ninth bit?","The sum can reach 255 + 255 = 510, more than 8 bits (0 to 255) can hold — overflow.","compsci:4.5.4.1:154"],
+    ["What is the least significant bit, and what does it show?","The rightmost bit, place value 1; if it is 1 the number is odd.","compsci:4.5.4.1:155"]
   ],
   quiz: [
     {"q":"139 in 8-bit binary is","opts":["10001011","10001101","11001011","10010011"],"ans":0,"why":"128 + 8 + 2 + 1."},
@@ -93,7 +91,15 @@ C["compsci:4.5.4.1"] = {
     {"q":"How does a processor subtract using only an adder?","opts":["It cannot","Adds the two's complement of the subtrahend","Uses division","Uses a lookup table"],"ans":1,"why":"AS 2016 P2 Q5.5."},
     {"qk": "100", "q": "The largest number 12 unsigned bits can hold is", "opts": ["4096", "4095", "2047", "12"], "ans": 1, "why": "2¹² − 1 = 4 095: 4 096 values, starting at 0."},
     {"qk": "101", "q": "01101001 + 00011011 in 8-bit unsigned binary is", "opts": ["10000010", "01110100", "10000100", "10010100"], "ans": 2, "why": "105 + 27 = 132 = 128 + 4, which is 10000100."},
-    {"qk": "102", "q": "00010110 × 00000101 (22 × 5) in 8-bit binary is", "opts": ["01011110", "01101100", "00110111", "01101110"], "ans": 3, "why": "22 × 5 = 110 = 64 + 32 + 8 + 4 + 2, which is 01101110."}
+    {"qk": "102", "q": "00010110 × 00000101 (22 × 5) in 8-bit binary is", "opts": ["01011110", "01101100", "00110111", "01101110"], "ans": 3, "why": "22 × 5 = 110 = 64 + 32 + 8 + 4 + 2, which is 01101110."},
+    { qk: "150", q: "01000011 as an unsigned binary integer is:", opts: ["35", "131", "67", "194"], ans: 2, why: "64 + 2 + 1 = 67." },
+    { qk: "151", q: "10110001 as an 8-bit two's complement integer is:", opts: ["177", "−79", "−49", "−78"], ans: 1, why: "−128 + 32 + 16 + 1 = −79. 177 reads it as unsigned, −49 as sign and magnitude." },
+    { qk: "152", q: "177 in 8-bit unsigned binary is:", opts: ["10001101", "10110001", "10110011", "10100001"], ans: 1, why: "177 = 128 + 32 + 16 + 1, so 10110001." },
+    { qk: "153", q: "01101101 in denary is:", opts: ["182", "101", "93", "109"], ans: 3, why: "64 + 32 + 8 + 4 + 1 = 109. (182 reads the bits right to left.)" },
+    { qk: "154", q: "01101011 + 00110110 in 8-bit unsigned binary is:", opts: ["10100001", "10011101", "10100011", "01100001"], ans: 0, why: "107 + 54 = 161 = 10100001; check each carry from right to left." },
+    { qk: "155", q: "1101 × 11 in binary is:", opts: ["110111", "100111", "100011", "11011"], ans: 1, why: "Shift and add: 1101 + 11010 = 100111 (13 × 3 = 39)." },
+    { qk: "156", q: "10110 × 10 in binary is:", opts: ["10110", "1011", "101100", "110110"], ans: 2, why: "Multiplying by 10₂ (2) shifts every bit left one place: 10110 (22) becomes 101100 (44)." },
+    { qk: "157", q: "1011 + 0110 in binary is:", opts: ["1101", "10011", "11101", "10001"], ans: 3, why: "11 + 6 = 17, which is 10001 — the carry out of the top column makes a fifth bit." }
   ],
   exam: [
     {"level":"AS","src":"AS 2016 P2 Q5.5","q":"A processor contains circuitry that produces the two's complement of a number. Explain how this allows subtraction to be carried out using only an addition circuit.","marks":1,"ms":["A − B is computed as A + (two's complement of B), so the same adder performs subtraction (1)"]}

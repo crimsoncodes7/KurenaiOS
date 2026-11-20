@@ -51,21 +51,20 @@ C["compsci:4.5.5.1"] = {
     {"kv":[["Character code (AS 2022, 1 mark)","A **(unique) number** used to represent a character — \"code\" alone is rejected"],["Why Unicode replaced ASCII (AS 2019, 2022 — 2 marks)","To support a **larger range of characters** · because of **increased international communication** / files used in multiple countries / need for extra symbols (emoji, maths) · so that **each code is always interpreted as the same character** (no code pages)"],["A limitation of ASCII (AS 2025)","Assumes English; only 128 (2⁷) characters; no international character sets or emoji"],["Cost of Unicode (2019 A-level)","Each character needs **more bits** (16 or 32 rather than 7/8), so files are larger and transmission slower"]]}
   ],
   flashcards: [
-    ["ASCII code of '0'?","48 (0110000).","compsci:4.5.5.1:0"],
+    ["What is the ASCII code of the character '0'?","48 (0110000).","compsci:4.5.5.1:0"],
     ["Character code vs pure binary of a digit?","Code identifies the symbol ('8' = 56); pure binary is the value (8 = 00001000).","compsci:4.5.5.1:1"],
-    ["Convert '8' (00111000) to 8?","Subtract 48, or AND with 00001111.","compsci:4.5.5.1:2"],
+    ["How do you turn the character '8' (00111000) into the number 8?","Subtract 48, or AND with 00001111.","compsci:4.5.5.1:2"],
     ["Why can't character codes be added as numbers?","They are codes for symbols, not the values.","compsci:4.5.5.1:4"],
-    ["ASCII 'Q' = 1010001. 'T'?","1010100.","compsci:4.5.5.1:5"],
+    ["If ASCII 'Q' is 1010001, what is 'T'?","1010100.","compsci:4.5.5.1:5"],
     ["Which bits of a digit's ASCII code hold its value?","The low four bits.","compsci:4.5.5.1:6"],
-    ["'7' + '5' added as codes?","108 — not 12.","compsci:4.5.5.1:7"],
+    ["What do '7' + '5' give if added as character codes?","108 (55 + 53) — not 12, because the codes are added, not the digits' values.","compsci:4.5.5.1:7"],
     ["Why are the digit characters given consecutive codes?","So arithmetic on the codes converts between characters and values with one subtraction.","compsci:4.5.5.1:11"],
-    ["Convert the string \"42\" to the integer 42 using character codes.","(CODE('4') − 48) × 10 + (CODE('2') − 48) = 4 × 10 + 2.","compsci:4.5.5.1:12"],
     ["What is the code of 'A' and of 'a'?","65 and 97 — a difference of 32 (bit 5).","compsci:4.5.5.1:13"],
     ["How do you convert an upper-case letter to lower-case with a bitwise operation?","OR with 00100000 (set bit 5).","compsci:4.5.5.1:14"],
     ["How many bits in standard ASCII?","7 (128 characters).","compsci:4.5.5.2:1"],
     ["Limitation of extended ASCII?","Codes 128–255 depend on the code page — inconsistent between countries.","compsci:4.5.5.2:5"],
     ["Bits per character in UTF-8?","8 to 32.","compsci:4.5.5.2:6"],
-    ["Disadvantage of Unicode?","More bits per character — larger files, slower transmission.","compsci:4.5.5.2:7"],
+    ["What is a disadvantage of Unicode?","More bits per character — larger files, slower transmission.","compsci:4.5.5.2:7"],
     ["What is a character code?","A unique number used to represent a character in a character set.","compsci:4.5.5.2:8"],
     ["Why was Unicode introduced?","To support a much larger range of characters — international alphabets and symbols — as communication became global, with each code always meaning the same character.","compsci:4.5.5.2:10"],
     ["What are the first 128 Unicode code points?","Identical to ASCII — Unicode is backward compatible.","compsci:4.5.5.2:13"],
@@ -83,7 +82,8 @@ C["compsci:4.5.5.1"] = {
     {"q":"A disadvantage of Unicode:","opts":["fewer characters","more bits per character","not compatible with ASCII","no emoji"],"ans":1,"why":"16/32 bits."},
     {"qk": "100", "q": "If 'A' is 65, the code for 'E' is", "opts": ["70", "68", "69", "101"], "ans": 2, "why": "Letters have consecutive codes: A 65, B 66, C 67, D 68, E 69. 101 is lower-case 'e'."},
     {"qk": "101", "q": "A 20-character name stored in 7-bit ASCII needs", "opts": ["160 bits", "140 bits", "20 bits", "280 bits"], "ans": 1, "why": "20 characters × 7 bits = 140 bits."},
-    {"qk": "102", "q": "If 'a' is 97, the character with code 0110 0010 is", "opts": ["'B'", "'c'", "'a'", "'b'"], "ans": 3, "why": "0110 0010 = 98, one after 'a': 'b'."}
+    {"qk": "102", "q": "If 'a' is 97, the character with code 0110 0010 is", "opts": ["'B'", "'c'", "'a'", "'b'"], "ans": 3, "why": "0110 0010 = 98, one after 'a': 'b'."},
+    { qk: "150", q: "Using character codes, the string \"42\" becomes the integer 42 by:", opts: ["(CODE('4') − 48) + (CODE('2') − 48) × 10", "(CODE('4') − 48) × 10 + (CODE('2') − 48)", "CODE('4') × 10 + CODE('2')", "(CODE('4') + CODE('2')) − 48"], ans: 1, why: "Subtract 48 from each code to get the digit's value, then 4 × 10 + 2 = 42: the first digit is worth ten times the second." }
   ],
   exam: [
     {"src":"AQA 2025 P2 Q9","ctx":"A logic circuit takes the 7-bit ASCII code B6…B0 of a character and produces outputs Q1 = 1 when the character is a letter and Q2 = 1 when it is an upper-case letter.","parts":[{"q":"State the ASCII code ranges for upper-case and lower-case letters in denary.","marks":1,"ms":["65–90 and 97–122 (1)"]},{"q":"Explain which bit of the code distinguishes an upper-case letter from the corresponding lower-case letter.","marks":1,"ms":["Bit 5 (value 32): 0 for upper-case, 1 for lower-case (1)"]},{"q":"State the purpose of outputs Q1 and Q2.","marks":2,"ms":["Q1 = 1 indicates the character is a letter (1)","Q2 = 1 indicates the character is an upper-case letter (1)"]}]},

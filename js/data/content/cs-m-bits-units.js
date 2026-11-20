@@ -62,16 +62,14 @@ C["compsci:4.5.3.1"] = {
     ["How many distinct values can 10 bits represent?","2¹⁰ = 1024.","compsci:4.5.3.1:13"],
     ["How many bits are needed to represent 18 different values?","5 — 2⁴ = 16 is too few, 2⁵ = 32 suffices.","compsci:4.5.3.1:15"],
     ["Why is the byte the standard unit rather than the bit?","Memory is addressed byte by byte; a byte holds one character in ASCII.","compsci:4.5.3.1:16"],
-    ["1 kilobyte (AQA)?","1000 bytes (10³).","compsci:4.5.3.2:0"],
-    ["1 kibibyte?","1024 bytes (2¹⁰).","compsci:4.5.3.2:1"],
+    ["How many bytes is 1 kilobyte in AQA's usage?","1000 bytes (10³).","compsci:4.5.3.2:0"],
+    ["How many bytes is 1 kibibyte?","1024 bytes (2¹⁰).","compsci:4.5.3.2:1"],
     ["Which is larger, 2 MB or 2 MiB?","2 MiB (2 097 152 bytes).","compsci:4.5.3.2:4"],
-    ["4 GiB in KiB?","4 194 304.","compsci:4.5.3.2:5"],
-    ["Bits → bytes?","Divide by 8.","compsci:4.5.3.2:8"],
+    ["How many KiB are in 4 GiB?","4 194 304.","compsci:4.5.3.2:5"],
+    ["How do you convert a number of bits to bytes?","Divide by 8.","compsci:4.5.3.2:8"],
     ["List the binary prefixes and their powers.","kibi 2¹⁰, mebi 2²⁰, gibi 2³⁰, tebi 2⁴⁰.","compsci:4.5.3.2:11"],
     ["List the decimal prefixes.","kilo 10³, mega 10⁶, giga 10⁹, tera 10¹².","compsci:4.5.3.2:12"],
-    ["Why were binary prefixes introduced?","To remove the ambiguity of 'kilobyte' meaning 1000 or 1024 bytes.","compsci:4.5.3.2:14"],
-    ["Convert 3 MiB to bytes.","3 × 2²⁰ = 3 145 728 bytes.","compsci:4.5.3.2:15"],
-    ["Order: 2 GiB, 2500 MiB, 2 × 10⁹ bytes.","2 × 10⁹ B (1.86 GiB) < 2 GiB (2048 MiB) < 2500 MiB.","compsci:4.5.3.2:16"]
+    ["Why were binary prefixes introduced?","To remove the ambiguity of 'kilobyte' meaning 1000 or 1024 bytes.","compsci:4.5.3.2:14"]
   ],
   quiz: [
     {"q":"Bits needed for 300 different codes","opts":["9","8","10","300"],"ans":0,"why":"256 < 300 ≤ 512."},
@@ -84,7 +82,9 @@ C["compsci:4.5.3.1"] = {
     {"q":"5 GiB in KiB:","opts":["5 × 2¹⁰","5 × 2²⁰","5 × 2³⁰","5 × 10⁶"],"ans":1,"why":"GiB → KiB is two steps of 2¹⁰."},
     {"qk": "100", "q": "How many bytes are in 3 MB (a decimal prefix)?", "opts": ["3 145 728", "24 000 000", "3 000 000", "3 000"], "ans": 2, "why": "Mega is 10⁶, so 3 MB = 3 × 1 000 000 bytes; 3 145 728 would be 3 MiB."},
     {"qk": "101", "q": "A file of 4 096 bytes is how many KiB?", "opts": ["4.096", "4", "40.96", "0.4"], "ans": 1, "why": "1 KiB = 1 024 bytes, and 4 096 ÷ 1 024 = 4."},
-    {"qk": "102", "q": "The fewest bits that give each of 1 000 customers a different code:", "opts": ["11", "9", "1000", "10"], "ans": 3, "why": "2⁹ = 512 is too few; 2¹⁰ = 1 024 is enough."}
+    {"qk": "102", "q": "The fewest bits that give each of 1 000 customers a different code:", "opts": ["11", "9", "1000", "10"], "ans": 3, "why": "2⁹ = 512 is too few; 2¹⁰ = 1 024 is enough."},
+    { qk: "150", q: "3 MiB in bytes is:", opts: ["3 000 000", "3 145 728", "3 072", "3 221 225 472"], ans: 1, why: "1 MiB = 2²⁰ = 1 048 576 bytes, so 3 MiB = 3 145 728 bytes; 3 000 000 is 3 MB." },
+    { qk: "151", q: "In increasing size, 2 GiB, 2500 MiB and 2 × 10⁹ bytes are:", opts: ["2 GiB, 2 × 10⁹ bytes, 2500 MiB", "2 × 10⁹ bytes, 2 GiB, 2500 MiB", "2500 MiB, 2 GiB, 2 × 10⁹ bytes", "2 GiB, 2500 MiB, 2 × 10⁹ bytes"], ans: 1, why: "2 × 10⁹ bytes is about 1.86 GiB; 2 GiB is 2048 MiB, less than 2500 MiB." }
   ],
   exam: [
     {"level":"AS","src":"AS 2023 P2 Q2.2","q":"A field is 10 bits wide. State the number of different values it can represent.","marks":1,"ms":["1024 (2¹⁰) (1)"]},
