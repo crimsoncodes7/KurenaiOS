@@ -321,7 +321,7 @@
       return n < 10 ? Math.round(n * 10) / 10 : Math.round(n);
     }
     var pick = el("select", { class: "k-pill-select", "data-ui": "review.retention", "aria-label": "Target retention",
-      onchange: function () { KOS.srs.setRetention(+pick.value); KOS.rerender(); } },
+      onchange: function () { var v = +pick.value; KOS.srs.setRetention(v); KOS.rerender(); KOS.ui.toast("Target retention set to " + Math.round(v * 100) + "%."); } },
       TARGETS.map(function (t) { return el("option", { value: String(t), selected: t === target ? "" : null, text: Math.round(t * 100) + "%" }); }));
     /* the exam-day target (FSRS phase 2): before a real exam, a card whose
        recall on the day would fall short of it gets one review in the 7–14
@@ -330,7 +330,7 @@
       var et = KOS.srs.examTarget();
       var held = withMem.filter(function (c) { return c.meta.cap && c.meta.due < c.meta.cap && c.meta.cap > today; }).length;
       var examPick = el("select", { class: "k-pill-select", "data-ui": "review.exam-target", "aria-label": "Recall to aim for on a real exam's day",
-        onchange: function () { KOS.srs.setExamTarget(+examPick.value); KOS.rerender(); } },
+        onchange: function () { var v = +examPick.value; KOS.srs.setExamTarget(v); KOS.rerender(); KOS.ui.toast(v ? "Exam-day target set to " + Math.round(v * 100) + "%." : "Exam-day target turned off."); } },
         [0, 0.92, 0.94, 0.95, 0.96, 0.97, 0.98].map(function (t) {
           return el("option", { value: String(t), selected: t === et ? "" : null, text: t ? Math.round(t * 100) + "%" : "Off" });
         }));
