@@ -343,7 +343,13 @@ Claude Design handoff or Gemini art asks for it):
   named in the status bar (a button to the next one), and suggestions at the caret (after a dot, while typing a
   name, Ctrl+Space). From Roslyn in the full runtime's worker (`Runner.Assist`, runtime `csw-1.2`), which compiles and
   never runs; without the runtime, only keywords and the file's own words. Off in the bug hunt and retrieval.
-- Left in 1C: `collection#1`/`#2` (the watch link with its icon).
+- ✓ `collection#1`, `#2` (decision D1): where you watch, read or play a title (`watchUrl`, with a name of your own),
+  kept by every pull and merge and never pushed, and the title's own pages on AniList, MyAnimeList, VNDB and Steam,
+  each shown as the service's ICON: 30 bundled from the CC0 Simple Icons set (`tools/gen_service_icons.mjs`), a
+  monogram for any other site, or your own picture for a site, made a 64 px PNG on the device. On the card's hover
+  row, the list row, the Spotlight, and the editor's action row; the field is on each vault's Shelf (Anime: Your
+  layer). Nothing is fetched from the sites. The IT desk now loads with IT's page (`page-it`) to keep boot at 7.77 MB.
+- **1C is complete.**
 
 ## 1A · Bugs and data integrity (21)
 

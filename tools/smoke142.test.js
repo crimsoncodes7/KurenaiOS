@@ -104,7 +104,9 @@ function eq(a, b, m) { if (JSON.stringify(a) !== JSON.stringify(b)) throw new Er
    page-connections, 12 KB) moved to first use too. Then 1C's plan shift and
    plan-in-blocks: the Matrix (matrix.js, page-matrix, 22 KB) as well; then
    1C's ink (Paste, the lasso across pages, the menu) took it 1.8 KB over, and
-   the notification feed (notifications.js, page-notifications, 21 KB) went too. */
+   the notification feed (notifications.js, page-notifications, 21 KB) went too.
+   Then 1C's Code live help and the Collection's watch link: the IT desk
+   (itdesk.js, page-it, 23 KB), drawn only on IT's subject page; 7.77 MB holds. */
 const BOOT_BUDGET = 7.77 * 1024 * 1024;
 
 /* jsdom has no User Timing: a small recorder, set before the app's scripts */
@@ -380,7 +382,7 @@ step("J · every page that names what it needs opens from cold without an early 
   const exam = E.KOS.exams.all().filter((a) => a.preset === "aqa-7517-2")[0];
   const csRef = Object.keys(fxA.storage).length && Object.keys(E.KOS.store.state.edits.topics)[0].slice(8);
   const jobs = [
-    ["subject", "compsci", ["content-compsci"]], ["subject", "it", ["content-it"]], ["subject", "code", ["content-code"]],
+    ["subject", "compsci", ["content-compsci"]], ["subject", "it", ["content-it", "page-it"]], ["subject", "code", ["content-code"]],
     ["ref", { subject: "compsci", ref: csRef }, ["content-compsci"]],
     ["code", undefined, ["content-code"]],
     ["exams", undefined, ["exam-index", "exams-deep", "content-compsci", "content-maths"]],

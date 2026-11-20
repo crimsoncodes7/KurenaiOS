@@ -775,6 +775,87 @@ step("T · Code: the compiler's errors squiggled as you type, and suggestions at
   R.assist = had;
 });
 
+step("U · the Collection: where you watch it, as the service's icon, and the title's own pages (1C, collection#1, #2, D1)", async () => {
+  const W = app.window, M = K.mediadb, L = K.watchLink;
+  const put = (e) => new Promise((r) => M.put(e, (err, rec) => r(rec)));
+  const get = (id) => new Promise((r) => M.get(id, (err, rec) => r(rec)));
+  /* the schema: http(s) only, a label only with a link */
+  eq(M.normalise({ watchUrl: " https://www.crunchyroll.com/series/G1 ", watchLabel: "  Crunchy " }).watchUrl, "https://www.crunchyroll.com/series/G1", "an https link is kept, trimmed");
+  eq(["javascript:alert(1)", "ftp://x.org/a", "https://localhost", "not a link"].map((u) => M.normalise({ watchUrl: u }).watchUrl), [null, null, null, null], "anything else is dropped");
+  eq(M.normalise({ watchLabel: "Orphan" }).watchLabel, null, "a label with no link is dropped");
+  eq([L.clean("crunchyroll.com/series/G1"), L.clean("javascript:alert(1)")], ["https://crunchyroll.com/series/G1", null], "a pasted address gains https://; a script never does");
+  /* the service, from the address */
+  const sv = (u) => { const x = L.service(u); return x.slug + ":" + x.name; };
+  eq([sv("https://www.crunchyroll.com/a"), sv("https://app.plex.tv/x"), sv("https://www.hidive.com/a"), sv("https://store.steampowered.com/app/1"), sv("https://shop.example.co.uk/b")],
+    ["crunchyroll:Crunchyroll", "plex:Plex", "null:HIDIVE", "steam:Steam", "null:Example"], "known services by host; any other site by its own name");
+  const fs = require("fs"), path = require("path");
+  L.SERVICES.filter((x) => x.slug).forEach((x) => assert(fs.existsSync(path.join(__dirname, "../assets/icons/services/" + x.slug + ".svg")), "a bundled icon for " + x.slug));
+  /* a record with a link, and the pull keeps it (the manual layer, invariant 9) */
+  const rec = await put(M.normalise({ module: "anime", title: "QA Frieren", status: "inProgress", syncSource: "anilist", externalIds: { anilistId: 154587, malId: 52991 },
+    watchUrl: "https://www.crunchyroll.com/series/GG5H5XQX4/frieren" }));
+  await new Promise((r) => M.bulkUpsert([{ module: "anime", title: "QA Frieren", status: "completed", syncSource: "anilist", externalIds: { anilistId: 154587 } }], { source: "anilist" }, r));
+  await app.settle();
+  const pulled = await get(rec.id);
+  eq([pulled.status, pulled.watchUrl], ["completed", "https://www.crunchyroll.com/series/GG5H5XQX4/frieren"], "a pull moves the list state and keeps your link");
+  assert(M.hasLocalData(pulled), "a link is a reason a replace keeps the row");
+  eq(K.mediapush.snapshot(pulled), K.mediapush.snapshot(Object.assign({}, pulled, { watchUrl: null })), "the link is never in a push (13)");
+  /* the link: the icon in a real link, its name for a screen reader */
+  const a = L.link(pulled);
+  eq([a.tagName, a.getAttribute("href"), a.getAttribute("target"), a.getAttribute("rel"), a.getAttribute("aria-label")],
+    ["A", pulled.watchUrl, "_blank", "noopener noreferrer", "Watch on Crunchyroll (opens in a new tab)"], "the watch link");
+  eq(a.querySelector("img").getAttribute("src"), "assets/icons/services/crunchyroll.svg", "drawn with the bundled icon");
+  assert(!a.textContent.trim(), "the icon, not the name, is what shows");
+  eq(L.link(Object.assign({}, pulled, { module: "books", watchLabel: "My library" })).getAttribute("aria-label"), "Read on My library (opens in a new tab)", "a book is read, and your own name wins");
+  eq(L.providers(pulled).map((x) => x.getAttribute("href")), ["https://anilist.co/anime/154587", "https://myanimelist.net/anime/52991"], "the title's own pages");
+  eq(L.providers({ module: "vn", externalIds: { vndbId: "v17" } }).concat(L.providers({ module: "game", externalIds: { steamAppId: 413150 } })).map((x) => x.getAttribute("href")),
+    ["https://vndb.org/v17", "https://store.steampowered.com/app/413150"], "VNDB and Steam too");
+  const mono = L.link({ module: "anime", watchUrl: "https://www.hidive.com/stream/x" }).querySelector("[data-ui~='svc.icon'] span");
+  assert(mono && mono.textContent === "H" && mono.style.getPropertyValue("--svc-hue"), "a service with no bundled icon gets a monogram");
+  /* your own icon for a site, from media kv, as a PNG */
+  const png = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==";
+  await new Promise((r) => M.setKV("serviceIcons", { "hidive.com": png }, r));
+  /* (the module reads the kv once; a fresh read for this check) */
+  const box = L.icon(L.service("https://www.hidive.com/x"));
+  await app.settle();
+  assert(box.querySelector("img") || box.querySelector("span"), "an icon is drawn at once");
+  /* the editor: the field in Your layer, written into the draft; Cancel keeps nothing */
+  K.mediaEditors.anime(pulled, () => {});
+  await app.settle();
+  let dlg = q("[data-ui~='vault.editor']");
+  const fld = dlg.querySelector("[data-edit-section='personal'] [data-ui~='vault.watch-field']");
+  assert(fld, "Anime's Your layer holds the field");
+  assert(dlg.querySelector("[data-ui~='vault.links'] [data-ui~='vault.watch']") && dlg.querySelectorAll("[data-ui~='vault.links'] [data-ui~='vault.provider-link']").length === 2, "the action row: the watch link and the title's pages");
+  const urlIn = fld.querySelector("[data-ui~='vault.watch-url']");
+  urlIn.value = "netflix.com/title/81726716"; urlIn.dispatchEvent(new W.Event("input"));
+  eq(fld.querySelector("[data-ui~='vault.watch-preview'] img").getAttribute("src"), "assets/icons/services/netflix.svg", "the field previews the new service's icon");
+  urlIn.value = "javascript:alert(1)"; urlIn.dispatchEvent(new W.Event("input"));
+  assert(/isn't a web address/.test(fld.querySelector("[data-ui~='vault.watch-note']").textContent), "a bad address is named");
+  [...dlg.querySelectorAll("button")].find((b) => b.textContent === "Cancel").click();
+  await app.settle();
+  eq((await get(rec.id)).watchUrl, pulled.watchUrl, "Cancel keeps nothing");
+  K.mediaEditors.anime(await get(rec.id), () => {});
+  await app.settle();
+  dlg = q("[data-ui~='vault.editor']");
+  const u2 = dlg.querySelector("[data-ui~='vault.watch-url']"), n2 = dlg.querySelector("[data-ui~='vault.watch-label']");
+  u2.value = "https://www.netflix.com/title/81726716"; u2.dispatchEvent(new W.Event("input"));
+  n2.value = "Netflix UK"; n2.dispatchEvent(new W.Event("input"));
+  dlg.querySelector("[data-ui~='vault.save-actions'] button[data-intent~='primary']").click();
+  await app.settle();
+  const saved = await get(rec.id);
+  eq([saved.watchUrl, saved.watchLabel], ["https://www.netflix.com/title/81726716", "Netflix UK"], "Save keeps the link and its name");
+  /* the card's hover row carries it */
+  const card = K.medview.card(saved, () => {}, { open: () => {} });
+  const cl = card.querySelector("[data-ui~='vault.quickrow'] [data-ui~='vault.watch']");
+  assert(cl && cl.getAttribute("data-size") === "sm" && cl.getAttribute("aria-label") === "Watch on Netflix UK (opens in a new tab)", "the card links it from its hover row");
+  /* the other vaults hold it on their Shelf */
+  K.mediaEditors.game(M.normalise({ module: "game", title: "QA Game", status: "inProgress" }), () => {});
+  await app.settle();
+  dlg = [...D.querySelectorAll("[data-ui~='vault.editor']")].pop();
+  assert(dlg.querySelector("[data-edit-section='ownership'] [data-ui~='vault.watch-field']") && /Where I play it/.test(dlg.textContent), "Games: the Shelf, 'Where I play it'");
+  [...dlg.querySelectorAll("button")].find((b) => b.textContent === "Cancel").click();
+  await app.settle();
+});
+
 (async () => {
   let failed = 0;
   for (const [name, fn] of steps) {

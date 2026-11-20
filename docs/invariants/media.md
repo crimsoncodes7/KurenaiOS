@@ -32,7 +32,13 @@ Read this file before editing or testing anything in its domain.
    crop/source pairs. Custom lists: a list AniList HAS (the mirror passes
    every AniList list name, `mirrorOpts(module, names)`) follows the pull —
    membership removed there is removed here; a list only this app has
-   unions. Non-null fresh `extra` fields accrete.
+   unions. Non-null fresh `extra` fields accrete. Where you watch, read or
+   play a title (`watchUrl`, `watchLabel`; 1C, collection#1) is the manual
+   layer: http(s) only, kept by every pull, merge and fold, a reason a
+   replace never deletes the row, and never in a push (13). Its icon and
+   the title's provider pages are drawn by `KOS.watchLink` from bundled
+   CC0 icons, a monogram or your own picture rasterised to PNG in media kv
+   (`serviceIcons`); nothing is fetched from the site.
 10. VN and Game progress is derived; do not store a parallel progress value.
     A VN counts ONE source — `mediadb.vnSource()`: `progressMode` when set,
     else routes, then chapters, then `playtimeHours` against VNDB's length

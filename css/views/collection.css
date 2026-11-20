@@ -134,6 +134,23 @@
 .k-mqsel { flex: 1 1 auto; min-inline-size: 0; padding: var(--sp-7) var(--sp-12); border: 0; border-radius: var(--r-12); background: color-mix(in oklch, var(--st, var(--anime)) 22%, var(--bg)); box-shadow: inset 0 0 0 var(--hairline) color-mix(in oklch, var(--st, var(--anime)) 45%, transparent); font: inherit; font-size: var(--fs-12-5); color: var(--text); }
 .k-mplus { flex: 0 0 auto; padding: var(--sp-7) var(--sp-12); border: 0; border-radius: var(--r-12); background: none; box-shadow: inset 0 0 0 var(--hairline) var(--text-2); font: inherit; font-size: var(--fs-12-5); color: var(--text-2); white-space: nowrap; cursor: pointer; }
 .k-mplus:hover { color: var(--text); background: var(--mcard-glass); }
+/* where you watch it and the title's pages: a service's icon in a real link (1C, collection#1, #2) */
+.k-svc-link { display: inline-grid; place-items: center; flex: none; min-inline-size: var(--hit); min-block-size: var(--hit); border-radius: var(--r-8); text-decoration: none; }
+.k-svc-link:hover { background: var(--mcard-glass); }
+.k-svc-link:focus-visible { outline: var(--focus-width) solid var(--focus-ring); }
+.k-svc-ic { display: inline-grid; place-items: center; flex: none; inline-size: var(--svc-ic, var(--sp-24)); block-size: var(--svc-ic, var(--sp-24)); }
+.k-svc-link[data-size="sm"] .k-svc-ic { --svc-ic: var(--sp-20); }
+.k-svc-img { inline-size: 100%; block-size: 100%; border-radius: var(--r-6); object-fit: contain; }
+.k-svc-mono { display: grid; place-items: center; inline-size: 100%; block-size: 100%; border-radius: var(--r-6); background: oklch(var(--ph-l) var(--ph-c) var(--svc-hue, 250)); color: var(--text); font: var(--weight-bold) var(--fs-12) var(--font-ui); }
+.k-svc-row { gap: var(--sp-2); }
+.k-svc-field { display: grid; gap: var(--sp-6); }
+.k-svc-in { display: flex; align-items: center; gap: var(--sp-8); min-inline-size: 0; }
+.k-svc-in .k-input { flex: 1; min-inline-size: 0; }
+.k-svc-preview { display: inline-grid; place-items: center; inline-size: var(--sp-24); block-size: var(--sp-24); flex: none; }
+.k-svc-more { display: flex; flex-wrap: wrap; align-items: center; gap: var(--sp-6) var(--sp-10); }
+.k-svc-as { display: flex; align-items: center; gap: var(--sp-8); flex: 1 1 14rem; min-inline-size: 0; font-size: var(--fs-12-5); }
+.k-svc-as .k-input { flex: 1; min-inline-size: 0; }
+.k-svc-field .k-field-hint[data-state~="bad"] { color: var(--alarm); }
 .k-mcard > .k-mbar { position: absolute; inset-inline: var(--sp-14); inset-block-end: var(--sp-6); z-index: 1; --bar-h: var(--sp-4); --bar-c: var(--vh-accent, var(--anime)); background: var(--mcard-track); }
 
 .k-mempty { grid-column: 1 / -1; }
@@ -1071,6 +1088,7 @@
    A round control grows as a circle; a tiny inline mark keeps the
    documented dense size (invariant 69) instead of stretching. */
 @media (pointer: coarse) {
+.k-svc-link { min-inline-size: var(--hit-coarse); min-block-size: var(--hit-coarse); }
 .k-mfav, .k-mscore, .k-mlayout .k-seg-item { min-inline-size: var(--hit-coarse); min-block-size: var(--hit-coarse); }
 .k-mlayout .k-seg-item { padding-inline: 0; justify-content: center; }
 }

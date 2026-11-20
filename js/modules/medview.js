@@ -653,7 +653,7 @@
     var body = opts.raw
       ? el("div", { class: "k-medit-body", "data-ui": "vault.editor-body" }, bodyChildren)
       : el("div", { class: "k-medit-body", "data-ui": "vault.editor-body" }, [
-          el("div", { class: "k-medit-grid" + (opts.cols === 2 ? " k-medit-grid--2" : "") }, bodyChildren)
+          el("div", { class: "k-medit-grid" + (opts.cols === 2 ? " k-medit-grid--2" : ""), "data-ui": "vault.editor-grid" }, bodyChildren)
         ]);
     var sid = "med-edit-" + id + "-" + (++editorSectionSeq);
     return el("section", {
@@ -1012,6 +1012,8 @@
     }
     /* a medium may put its score beside Favourite (Books, review B) */
     if (opts.score) out.push(opts.score);
+    /* where you watch it, and the title's own pages (collection#1, #2) */
+    if (KOS.watchLink) out.push(KOS.watchLink.row(opts.entry));
     return el("div", { class: "k-medit-actions" }, [
       el("div", { class: "k-cluster" }, out),
       el("span", { class: "k-medit-sync", "data-ui": "vault.editor-sync", "data-state": /^Synced|^Linked/.test(syncLine(opts.entry)) ? "linked" : null, text: syncLine(opts.entry) })
@@ -1020,6 +1022,14 @@
   function editorModal(opts) {
     var overlay = modalOverlay();
     KOS.ui.state(overlay, "drawer", true);
+    /* the watch link's field joins the Shelf (or Your layer) of every vault */
+    if (KOS.watchLink && opts.entry) {
+      var home = ["ownership", "personal"].map(function (id) {
+        return opts.form.filter(function (n) { return n && n.getAttribute && n.getAttribute("data-edit-section") === id; })[0];
+      }).filter(Boolean)[0];
+      var grid = home && (home.querySelector("[data-ui~='vault.editor-grid']") || home.querySelector("[data-ui~='vault.editor-body']"));
+      if (grid) grid.appendChild(KOS.watchLink.field(opts.entry));
+    }
     var tabs = editorTabs(opts.form, opts.tabs);
     var name = (opts.isNew ? "Add to " : "Edit — ") + opts.label;
     var head = opts.entry && !opts.isNew
@@ -1149,7 +1159,8 @@
           ev.stopPropagation();
           bumping = ev.currentTarget.closest ? ev.currentTarget.closest("[data-ui~='vault.card'], [data-ui~='vault.row']") : null;
           opts.onBump();
-        } }) : null
+        } }) : null,
+      KOS.watchLink ? KOS.watchLink.link(e, { size: "sm" }) : null
     ].filter(Boolean));
   }
 
@@ -1255,7 +1266,8 @@
       el("span", { class: "k-mrow-c k-mrow-act" }, [
         opts.onBump ? el("button", { type: "button", class: "k-mplus", "data-ui": "vault.plus", text: "+1" + (opts.unit ? " " + opts.unit : ""),
           title: opts.bumpTitle || "Log the next one",
-          onclick: function (ev) { ev.stopPropagation(); bumping = ev.currentTarget.closest ? ev.currentTarget.closest("[data-ui~='vault.card'], [data-ui~='vault.row']") : null; opts.onBump(); } }) : null
+          onclick: function (ev) { ev.stopPropagation(); bumping = ev.currentTarget.closest ? ev.currentTarget.closest("[data-ui~='vault.card'], [data-ui~='vault.row']") : null; opts.onBump(); } }) : null,
+        KOS.watchLink ? KOS.watchLink.link(e, { size: "sm" }) : null
       ].filter(Boolean))
     ]);
     return row;
@@ -1517,6 +1529,7 @@
             el("button", { type: "button", class: "k-btn k-vhero-open", text: "Open entry", onclick: function () {
               KOS.mediaEditor(e, function () { rerender && rerender(); });
             } }),
+            KOS.watchLink ? KOS.watchLink.link(e) : null,
             menu
           ].filter(Boolean))
         ].filter(Boolean));

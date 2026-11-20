@@ -515,8 +515,11 @@
 <script src="js/modules/mind.js"></script>
 </template>
 <script src="js/modules/mindtopic.js"></script>
-<!-- the IT desk: the qualification aggregate and the units table (frames 18a–18c) -->
+<!-- the IT desk: the qualification aggregate and the units table (frames 18a–18c);
+     only IT's subject page draws it, so it loads with that page -->
+<template data-lazy="page-it">
 <script src="js/modules/itdesk.js"></script>
+</template>
 <script src="js/modules/due.js"></script>
 <script src="js/modules/calendar.js"></script>
 <script src="js/modules/todo.js"></script>
@@ -584,6 +587,8 @@
      on; each view registers its editor in KOS.mediaEditors (dispatch lives
      in core/media.js), so their relative order after medview.js is free -->
 <script src="js/modules/medview.js"></script>
+<!-- where you watch, read or play a title: icons, links and the field (1C) -->
+<script src="js/modules/watchlink.js"></script>
 <script src="js/modules/anime.js"></script>
 <script src="js/modules/books.js"></script>
 <script src="js/modules/vn.js"></script>

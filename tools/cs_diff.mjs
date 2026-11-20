@@ -36,7 +36,7 @@ if (list.some((p) => p.runner === "wasm") && !wasm) { console.error("cs_diff: un
 const dir = fs.mkdtempSync(path.join(os.tmpdir(), "kos-csdiff-"));
 const cacheFile = path.join(os.tmpdir(), "kos-csdiff-cache.json");
 const cache = !process.argv.includes("--no-cache") && fs.existsSync(cacheFile) ? JSON.parse(fs.readFileSync(cacheFile, "utf8")) : {};
-const norm = (s) => String(s || "").split("\n").filter((l) => !/\.cs\(\d+,\d+\): warning /.test(l)).join("\n").replace(/\r\n?/g, "\n").split("\n").map((l) => l.replace(/\s+$/, "")).join("\n").replace(/\n+$/, "");
+const norm = (s) => String(s || "").split("\n").filter((l) => !/\.cs\(\d+,\d+\): warning /.test(l) && !/\.csproj : warning NU\d+/.test(l)).join("\n").replace(/\r\n?/g, "\n").split("\n").map((l) => l.replace(/\s+$/, "")).join("\n").replace(/\n+$/, "");
 
 try { execFileSync("dotnet", ["--version"], { stdio: "ignore" }); }
 catch (e) { console.error("cs_diff: the .NET SDK is not installed — nothing compared."); process.exit(2); }
@@ -79,7 +79,7 @@ async function dotnet(src, stdin, files, full) {
     }
   }
   const r = await run(file, stdin, cwd);
-  r.stdout = (r.stdout || "").split("\n").filter((l) => !/\.cs\(\d+,\d+\): warning /.test(l)).join("\n");
+  r.stdout = (r.stdout || "").split("\n").filter((l) => !/\.cs\(\d+,\d+\): warning /.test(l) && !/\.csproj : warning NU\d+/.test(l)).join("\n");
   const all = (r.stdout || "") + (r.stderr || "");
   let res;
   const ce = /error (CS\d{4})/.exec(all);

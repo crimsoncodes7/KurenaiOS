@@ -560,6 +560,10 @@
     return appendJournal(base, journalDiff(normalise(stored), rec, Date.now()));
   }
 
+  function webUrl(v) {
+    var s = typeof v === "string" ? v.trim() : "";
+    return s.length <= 2000 && /^https?:\/\/[^\s/?#]+\.[^\s]*$/i.test(s) ? s : null;
+  }
   function normalise(e) {
     e = e || {};
     var now = Date.now();
@@ -603,6 +607,10 @@
          different artwork; attribution remains in `extra` as before. */
       coverCropSource: e.coverCrop ? (e.coverCropSource || e.coverUrl || null) : null,
       notes: e.notes || "",
+      /* where you watch, read or play it (1C, collection#1): your own link,
+         http(s) only, kept by every pull and merge, never pushed (13) */
+      watchUrl: webUrl(e.watchUrl),
+      watchLabel: webUrl(e.watchUrl) && e.watchLabel ? String(e.watchLabel).trim().slice(0, 60) || null : null,
       favourite: !!e.favourite,
       syncSource: e.syncSource || "manual",
       lastSyncedAt: e.lastSyncedAt != null ? e.lastSyncedAt : null,
@@ -1040,6 +1048,7 @@
       (e.cgGallery && (e.cgGallery.totalKnown != null || e.cgGallery.unlockedCount > 0)) ||
       (e.contentWarnings && e.contentWarnings.length) ||
       (e.notes && String(e.notes).trim()) ||
+      !!e.watchUrl ||
       (e.mood && e.mood.length) ||
       (e.shelves && e.shelves.length) ||
       (e.dnf && e.dnf.isDnf) ||
@@ -1059,6 +1068,7 @@
      the VN tracking layer move across when the survivor has none */
   function foldLocal(into, from) {
     into.favourite = into.favourite || from.favourite;
+    if (!into.watchUrl && from.watchUrl) { into.watchUrl = from.watchUrl; into.watchLabel = from.watchLabel || null; }
     if (from.notes && String(from.notes).trim() && from.notes !== into.notes) {
       into.notes = into.notes && String(into.notes).trim() ? into.notes + "\n\n" + from.notes : from.notes;
     }
@@ -1189,6 +1199,7 @@
         inc.syncId = old.syncId || inc.syncId;
         inc.createdAt = old.createdAt;
         inc.notes = old.notes || inc.notes;
+        if (old.watchUrl) { inc.watchUrl = old.watchUrl; inc.watchLabel = old.watchLabel || null; }
         inc.tags = old.tags.length ? old.tags : inc.tags;
         inc.favourite = old.favourite || inc.favourite;
         /* A crop is local display intent and is meaningful only for the

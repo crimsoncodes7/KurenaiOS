@@ -290,6 +290,7 @@
         out.notes = out.notes ? out.notes + "\n\n" + r.notes : r.notes;
       }
       out.favourite = out.favourite || !!r.favourite;
+      if (!out.watchUrl && r.watchUrl) { out.watchUrl = r.watchUrl; out.watchLabel = r.watchLabel || null; }
       if (!out.physical && r.physical) out.physical = r.physical;
       else if (out.physical && r.physical &&
                (r.physical.volumes || []).length > (out.physical.volumes || []).length) out.physical = r.physical;
