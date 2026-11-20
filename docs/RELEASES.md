@@ -30,7 +30,9 @@ the service-worker version). Git holds the rest.
   (`tools/card_lint.mjs`); one shape for exam source labels; worked totals,
   tariff counts and "Q5 of 17". Boot: the sample account, Creatives' pages
   and Data load on first use (budget 7.78 MB). The server-function
-  clean-ups (EF-01 to EF-08) are in the code, not deployed. Gate 179
+  clean-ups (EF-01 to EF-08) were deployed the same day: `ai-chat` v13,
+  `runner` v11, `github-token` v7, `ext-token` v3, `vndb-ulist` v6,
+  `steam-auth` v8, `steam-owned-games` v7, `igdb-search` v7. Gate 179
   (180–197).
 - Before it: sw `kos-integrity-23` (19 November 2026,
   `feat/w1w7-rest` into main; immutable https://62721e6a.kurenai-os.pages.dev;

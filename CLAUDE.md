@@ -27,13 +27,14 @@ chronological diary here.
 - Required smoke gate: 179 / 179 suites (`""`, 2–156, 160–164 and 180–197) — `npm test`;
   what each suite holds: [`docs/SMOKE.md`](docs/SMOKE.md). New suites on this
   account are numbered from 180 (see `docs/HANDOFF.md`).
-- Backend as deployed: Edge Functions `ai-chat` (version 6: images for
-  Gemini), `runner` (version 10, 19 November 2026: a notice's router address for closed-app
-  taps; the `kos-runner` pg_cron job every five
-  minutes, its SQL in the gitignored `supabase/runner-cron.sql.local`),
-  `github-token` (version 4; the GitHub App itself and its `GITHUB_*`
-  secrets are NOT created yet), `ext-token` (version 1, its `GOOGLE_*` and
-  `TODOIST_*` secrets set) and `vndb-ulist`, with the rest of `supabase/functions/`. Every migration in
+- Backend as deployed (20 November 2026, the server-function clean-ups
+  EF-01 to EF-08 with `kos-qol-1`; dashboard numbering): `ai-chat` v13,
+  `runner` v11 (the `kos-runner` pg_cron job every five minutes, its SQL in
+  the gitignored `supabase/runner-cron.sql.local`), `github-token` v7 (the
+  GitHub App itself and its `GITHUB_*` secrets are NOT created yet),
+  `ext-token` v3 (its `GOOGLE_*` and `TODOIST_*` secrets set), `vndb-ulist`
+  v6, `steam-auth` v8, `steam-owned-games` v7 and `igdb-search` v7, deployed
+  with `supabase functions deploy <name> --use-api` (no Docker). Every migration in
   `supabase/migrations/` is applied (the newest `20261118000001`, `kos_attempts`);
   a new one is applied by hand and recorded here.
 - Not yet tried against the real thing: Todoist and Google sign-in (RC6's
