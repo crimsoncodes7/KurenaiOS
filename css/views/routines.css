@@ -190,6 +190,7 @@ button.k-rt-cell { cursor: pointer; }
 .k-rt-heat > span { position: relative; aspect-ratio: 4 / 3; max-block-size: var(--rt-heat-max); border-radius: var(--r-6); box-shadow: inset 0 0 0 var(--hairline) var(--line); }
 .k-rt-heat-cell { position: relative; inline-size: var(--rt-heat); block-size: var(--rt-heat); border-radius: var(--r-2); box-shadow: inset 0 0 0 var(--hairline) var(--line); }
 .k-rt-heat [data-state="kept"], .k-rt-heat-cell[data-state="kept"] { background: var(--text-2); box-shadow: none; }
+.k-rt-heat [data-late], .k-rt-heat-cell[data-late] { box-shadow: inset 0 0 0 var(--sp-2) var(--amber); }
 .k-rt-heat [data-state="partial"], .k-rt-heat-cell[data-state="partial"] { background: linear-gradient(135deg, var(--text-2) 50%, transparent 50%); box-shadow: inset 0 0 0 var(--hairline) var(--text-2); }
 .k-rt-heat [data-state="min"], .k-rt-heat-cell[data-state="min"] { background: radial-gradient(circle, var(--text-2) 28%, transparent 30%); box-shadow: inset 0 0 0 var(--hairline) var(--text-2); }
 .k-rt-heat [data-state="rest"], .k-rt-heat-cell[data-state="rest"] { background: repeating-linear-gradient(135deg, var(--muted) 0 var(--sp-2), transparent var(--sp-2) var(--sp-4)); box-shadow: none; }

@@ -787,7 +787,7 @@
         /* a day kept after its window closed says so (audit PR-35) */
         var en = (c.state === "done" || c.state === "min") && R().entry(id, c.day);
         return el("span", { "data-state": HSTATE[c.state] || "off", "data-late": en && en.late ? "" : null,
-          title: dayLabel(c.day, { weekday: "short", day: "numeric", month: "short" }) + " · " + (r.name || "") + " · " + (HLABEL[c.state] || c.state) + (en && en.late ? ", late" : "") }); }));
+          title: dayLabel(c.day, { weekday: "short", day: "numeric", month: "short" }) + " · " + (r.name || "") + " · " + (en && en.late ? (c.state === "done" ? "kept late" : (HLABEL[c.state] || c.state) + ", kept late") : (HLABEL[c.state] || c.state)) }); }));
   }
   function allHeat(rs, from, to) {
     var cells = [];
@@ -807,8 +807,8 @@
     return el("div", { class: "k-rt-heat", role: "img", "aria-label": "All routines, last 12 weeks" }, cells);
   }
   function legend() {
-    return el("div", { class: "k-rt-legend" }, [["kept", "kept"], ["partial", "partial"], ["min", "minimum"], ["rest", "rest day"], ["not", "not kept"], ["off", "not scheduled"]].map(function (x) {
-      return el("span", { class: "k-rt-legend-i" }, [el("span", { class: "k-rt-heat-cell", "data-state": x[0] }), x[1]]);
+    return el("div", { class: "k-rt-legend" }, [["kept", "kept"], ["kept", "kept late", true], ["partial", "partial"], ["min", "minimum"], ["rest", "rest day"], ["not", "not kept"], ["off", "not scheduled"]].map(function (x) {
+      return el("span", { class: "k-rt-legend-i" }, [el("span", { class: "k-rt-heat-cell", "data-state": x[0], "data-late": x[2] ? "" : null }), x[1]]);
     }));
   }
   function history(body) {
@@ -823,15 +823,17 @@
       return s >= 14 ? Math.round(100 * k / s) + "%" : null;
     }
     function stats(list) {
-      var rest = 0, minsSum = 0, minsN = 0, log = (store.state.routines && store.state.routines.log) || {};
+      var rest = 0, late = 0, minsSum = 0, minsN = 0, log = (store.state.routines && store.state.routines.log) || {};
       list.forEach(function (r) { var x = R().summary(r.id, from, to); rest += x.rest; });
       Object.keys(log).forEach(function (k) {
         var id = k.split("|")[0], d = k.split("|")[1];
         if (d < from || d > to || !list.some(function (r) { return r.id === id; })) return;
         if (log[k] && log[k].mins) { minsSum += log[k].mins; minsN++; }
+        if (log[k] && log[k].late && (log[k].done || log[k].min)) late++;
       });
       var out = [];
       if (list.length === 1 && list[0].days !== null) { out.push(["炎 " + R().streak(list[0].id), "now"]); out.push([String(R().best(list[0].id)), "best run"]); }
+      if (late) out.push([String(late), "kept late"]);
       if (rest) out.push([String(rest), rest === 1 ? "rest day" : "rest days"]);
       if (minsN) out.push([Math.round(minsSum / minsN) + " min", "on average"]);
       return out;
