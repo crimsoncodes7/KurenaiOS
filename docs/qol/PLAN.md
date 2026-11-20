@@ -206,8 +206,9 @@ The plan is approved with these decisions.
       A restore and a first link say what they changed, counted per domain, in a toast with Details and on Backup &
       Restore; a link waiting on a backup offers "Download a copy of this device first"; Sync & Import says what the
       last pull changed (invariant 34; smoke150 H, smoke135 U, smoke196 I).
-    - **Waiting for Neon's batch 2 to merge** (it edits `js/modules/assignments.js`): `bk:data-integrity#2`, random ids
-      for assignments, reminders and events.
+    - ✓ **`bk:data-integrity#2`** (`62e9e16`), after Neon's batch 2 merged: random string ids for assignments,
+      reminders, lists, steps and events (`KOS.store.newId`), old numbers kept and read back by `KOS.store.idOf`;
+      the Assistant's tools take either (invariant 33a; smoke196 J).
 
 ### Phase 2 — A full audit pass, the same as November's (≈ 3 sessions)
 
@@ -288,7 +289,10 @@ Generated from your marks (`decisions` on the review page, read 19 Nov) and `doc
 - `bk:content-maths#1`, the mock's leaves first:
   - ✓ 4.3 sigma notation (`c5b5639`);
   - ✓ 6.1 and 6.2 exponentials (`9bd4eaf`);
-  - next: 7.2 and 8.1 (in the mock), then 8.4 and 8.6.
+  - ✓ 7.2 using a derivative (`a2e337b`) and 8.1 definite integrals;
+  - every new card and quiz item sits at the end of its leaf's bank block with a fixed key (100+), so no learner's
+    schedule moves (`6f4e237`, `306d269`; each leaf's keys compared with the commit before);
+  - next: 8.4 and 8.6 (not in the mock).
   - The past papers hold few questions on these leaves (one each for 4.3 and 6.1), so they are deepened with the
     exam types those topics feed (sigma form, find k, least n; constants, intersections, inverses, tangents), not
     padded to a word count.

@@ -306,7 +306,10 @@ X("maths:8.1", {
     ["$\\dfrac{d}{dx}\\left(\\int_1^x t^2\\,dt\\right) = ?$", "$x^2$ — differentiating the integral returns the integrand.", 9],
     ["$f'(x) = 4x + a\\sqrt x + b$ with a stationary point at $x = 1$ and $f(0) = 3$… what do you get from each condition?", "$f'(1) = 0$ gives $4 + a + b = 0$; $f(0) = 3$ gives the constant of integration; a third condition is needed for $a, b$ separately.", 10],
     ["Evaluate $\\displaystyle\\int_1^4 \\dfrac{1}{\\sqrt x}dx$.", "$[2\\sqrt x]_1^4 = 4 - 2 = 2$.", 11],
-    ["What does a definite integral represent when $f(x) \\ge 0$?", "The area between the curve and the $x$-axis over the interval.", 12]
+    ["What does a definite integral represent when $f(x) \\ge 0$?", "The area between the curve and the $x$-axis over the interval.", 12],
+    ["Why is there no $+c$ in a definite integral?", "It appears in both $F(b)$ and $F(a)$ and cancels.", 100],
+    ["$\\displaystyle\\int_1^4 \\left(3\\sqrt x - \\frac{2}{x^2}\\right) dx$?", "$\\big[2x^{3/2} + 2x^{-1}\\big]_1^4 = 16.5 - 4 = \\frac{25}{2}$.", 101],
+    ["$\\displaystyle\\int_1^k (2x + 3)\\,dx = 24$, $k > 1$: $k$?", "$k^2 + 3k - 4 = 24$: $k = 4$.", 102]
   ],
   quiz: [
     { q: "$\\displaystyle\\int_0^2 3x^2\\,dx =$", opts: ["8", "12", "4", "6"], ans: 0, why: "$[x^3]_0^2$." },
@@ -314,7 +317,9 @@ X("maths:8.1", {
     { q: "Given $f'(x)$ and one point on the curve you can find:", opts: ["$f''(x)$ only", "$f(x)$ uniquely", "$f(x)$ up to $+c$", "only $c$, not $f(x)$"], ans: 1, why: "Integrate then fix $c$." },
     { q: "$\\dfrac{d}{dx}\\displaystyle\\int_0^x \\sin t\\,dt =$", opts: ["$\\cos x$", "$\\sin x$", "$-\\cos x$", "0"], ans: 1, why: "Differentiating an integral up to $x$ gives back the integrand at $x$." },
     { q: "$\\displaystyle\\int_a^a f(x)\\,dx =$", opts: ["$f(a)$", "0", "$2f(a)$", "undefined"], ans: 1, why: "The interval has zero width: $F(a) - F(a) = 0$." },
-    { q: "$\\displaystyle\\int_5^2 f(x)dx$ equals:", opts: ["$-\\displaystyle\\int_2^5 f(x)dx$", "$\\displaystyle\\int_2^5 f(x)dx$", "$\\displaystyle\\int_{-5}^{-2} f(x)dx$", "$0$, as the limits are reversed"], ans: 0, why: "Swapping limits changes sign." }
+    { q: "$\\displaystyle\\int_5^2 f(x)dx$ equals:", opts: ["$-\\displaystyle\\int_2^5 f(x)dx$", "$\\displaystyle\\int_2^5 f(x)dx$", "$\\displaystyle\\int_{-5}^{-2} f(x)dx$", "$0$, as the limits are reversed"], ans: 0, why: "Swapping limits changes sign." },
+    { qk: "100", q: "$\\displaystyle\\int_1^3 2x\\,dx =$", opts: ["8", "9", "4", "6"], ans: 0, why: "$\\big[x^2\\big]_1^3 = 9 - 1$." },
+    { qk: "101", q: "$\\displaystyle\\int 6x^{-3}\\,dx =$", opts: ["$-3x^{-2} + c$", "$-18x^{-4} + c$", "$3x^{-2} + c$", "$-2x^{-2} + c$"], ans: 0, why: "$\\frac{6x^{-2}}{-2} = -3x^{-2}$." }
   ],
   exam: [
     { src: "Edexcel Oct 2020 P1 Q8", ctx: "$f'(x) = 6x^2 + ax - 23$, where $a$ is a constant. The curve $y = f(x)$ crosses the $y$-axis at $(0, 4)$ and $(x - 2)$ is a factor of $f(x)$.",

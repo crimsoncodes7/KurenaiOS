@@ -33,6 +33,41 @@ C["maths:8.1"] = {
         { h: "(a)", m: "$54 - 81 + 15 + k = 0 \\Rightarrow k = 12$", mk: "M1 A1*" },
         { h: "(b)", m: "$y = \\dfrac{x^4}{2} - 3x^3 + \\dfrac{5x^2}{2} + 12x + c$; $(3, -10)$: $40.5 - 81 + 22.5 + 36 + c = -10 \\Rightarrow c = -28$: crosses at $(0, -28)$", mk: "M1 A1 A1" }
       ], result: "$(0, -28)$" } },
+
+    { page: "Definite integrals" },
+    { callout: { t: "info", h: "The layout examiners want", body: [
+      "$$\\int_a^b f(x)\\,dx = \\Big[F(x)\\Big]_a^b = F(b) - F(a)$$",
+      "Write the square bracket with the limits, then the two substitutions in brackets, then the subtraction. The $+c$ is left out: it would appear in both $F(b)$ and $F(a)$ and cancel."
+    ] } },
+    { fig: { x: [-0.3, 3.6], y: [-0.5, 7], axes: { xt: [1, 2, 3], yt: [2, 4, 6] }, items: [
+      { poly: [[1, 0], [3, 0], [3, 6], [1, 2]], fill: "accent", alpha: 0.18, c: "accent", w: 0.6 },
+      { fn: "2*x", from: 0, to: 3.4, label: "y = 2x", at: 3.3, pos: "w" },
+      { vline: 1, c: "muted", dash: true }, { vline: 3, c: "muted", dash: true },
+      { text: [2, 1.4], t: "area 8", c: "text2", size: 12 }
+    ], cap: "$\\int_1^3 2x\\,dx = \\big[x^2\\big]_1^3 = 9 - 1 = 8$, the area of the shaded trapezium, $\\frac12(2 + 6) \\times 2 = 8$. With $F(x) = x^2 + 7$ instead, $(9 + 7) - (1 + 7)$ is still 8: the constant cancels." } },
+    { worked: { tag: "example", title: "A definite integral with a root and a reciprocal", src: "exam-style · 4 marks",
+      q: "Find the exact value of $\\displaystyle\\int_1^4 \\left(3\\sqrt x - \\frac{2}{x^2}\\right) dx$.",
+      steps: [
+        { h: "Powers first", m: "$3x^{1/2} - 2x^{-2}$", mk: "M1", n: "As with differentiating, rewrite before integrating." },
+        { h: "Integrate", m: "$\\Big[2x^{3/2} + 2x^{-1}\\Big]_1^4$", mk: "A1 A1", n: "$3x^{1/2} \\to \\frac{3x^{3/2}}{3/2} = 2x^{3/2}$; $\\; -2x^{-2} \\to \\frac{-2x^{-1}}{-1} = +2x^{-1}$." },
+        { h: "Substitute and subtract", m: "$\\left(2 \\times 8 + \\dfrac24\\right) - \\left(2 + 2\\right) = 16.5 - 4 = \\dfrac{25}{2}$", mk: "M1 A1", n: "$4^{3/2} = 8$. Bracket each substitution before subtracting." }
+      ], result: "$\\frac{25}{2}$" } },
+    { worked: { tag: "example", title: "Find an unknown limit", src: "exam-style · 4 marks",
+      q: "Given that $k > 1$ and $\\displaystyle\\int_1^k (2x + 3)\\,dx = 24$, find the value of $k$.",
+      steps: [
+        { h: "Integrate and substitute", m: "$\\Big[x^2 + 3x\\Big]_1^k = (k^2 + 3k) - (1 + 3) = k^2 + 3k - 4$", mk: "M1 A1" },
+        { h: "Solve", m: "$k^2 + 3k - 4 = 24 \\Rightarrow k^2 + 3k - 28 = 0 \\Rightarrow (k + 7)(k - 4) = 0$", mk: "M1" },
+        { m: "$k = 4$, since $k > 1$", mk: "A1", n: "Say why $k = -7$ is rejected." }
+      ], result: "$k = 4$" } },
+
+    { page: "Exam toolkit" },
+    { ul: [
+      "**$+c$ on every indefinite integral**, and find it when the question gives a point.",
+      "**No $+c$ in a definite integral**: it cancels.",
+      "**Rewrite as powers before integrating** roots and fractions.",
+      "**Bracket both substitutions**: $F(b) - F(a)$, not $F(b) - $ the first term of $F(a)$.",
+      "**Check by differentiating**: the derivative of your answer must be the integrand."
+    ] },
     { callout: { t: "mnemonic", h: "\"Up one, divide, plus $c$\"", body: "Power up by one, divide by the new power, add the constant — and differentiate back to check." } }
   ],
   flashcards: [
