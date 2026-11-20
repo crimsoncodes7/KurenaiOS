@@ -344,7 +344,7 @@
         el("p", { text: failed ? "It stopped before the runtime was ready" + (rt.error ? " (" + rt.error + ")" : "") + ". What arrived is kept; trying again fetches the rest."
           : "Classes, records, generics and LINQ need more than the in-app runner. Download the full runtime once and it stays on this device, working offline afterwards." }),
         el("div", { class: "k-cx-rt-pkg" }, [el("span", { class: "k-cx-rt-ic", "aria-hidden": "true", text: ".NET" }),
-          el("div", {}, [el("b", { text: ".NET 10 runtime and the C# compiler" }), el("span", { class: "k-cx-note", "data-ui": "code.runtime-size", text: "≈ " + MB(size && size.gzip) + " MB" })])]),
+          el("div", {}, [el("b", { text: ".NET 10 runtime and the C# compiler" }), el("span", { class: "k-cx-note", "data-ui": "code.runtime-size", text: "≈ " + MB(size && size.gzip) + " MB download · " + MB(size && size.bytes) + " MB on this device" })])]),
         el("p", { class: "k-cx-note", text: "Your code still runs only on this device. Nothing is uploaded." }),
         need
       ]));
