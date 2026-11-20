@@ -526,6 +526,11 @@
     }
     function end(early) {
       box.setAttribute("data-done", "1");
+      function backBtn(primary) {
+        return el("button", { type: "button", class: primary ? "k-btn k-btn--primary" : "k-btn", "data-intent": primary ? "primary" : null,
+          "data-ui": lessonId ? "ja.back-lesson" : "ja.back-desk", text: lessonId ? "Back to the lesson" : "Back to the desk",
+          onclick: function () { if (lessonId) KOS.show("ref", { subject: "ja", ref: lessonId }); else KOS.show("subject", "ja"); } });
+      }
       if (practice) {
         stage.innerHTML = ""; foot.innerHTML = "";
         var right = answers.filter(function (a) { return a.verdict === "correct" || a.verdict === "accepted"; }).length;
@@ -533,7 +538,7 @@
           el("h2", { text: answers.length ? KOS.ui.num(answers.length) + " practised" : "Nothing to practise" }),
           answers.length ? el("p", { text: right + " of " + answers.length + " right" }) : null,
           el("p", { class: "k-muted", "data-ui": "ja.practice-note", text: "Practice only — nothing was scheduled, rated or paid." }),
-          el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "Back to the desk", onclick: function () { KOS.show("subject", "ja"); } })
+          backBtn(true)
         ].filter(Boolean)));
         head.querySelector("[data-ui~='ja.progress']").textContent = "";
         announce(answers.length ? "Practice done. " + right + " of " + answers.length + " right. Nothing was scheduled, rated or paid." : "Nothing to practise.");
@@ -555,7 +560,7 @@
           el("p", { class: "k-muted", text: newPaid ? "◆ +" + newPaid + " XP for the answers you got right" : "No reward until the lesson is passed" }),
           el("div", { class: "k-ja-ex-act" }, [
             el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "ja.retry-misses", text: "Try the misses again", onclick: function () { reask(); } }),
-            el("button", { type: "button", class: "k-btn", text: "Back to the desk", onclick: function () { KOS.show("subject", "ja"); } })
+            backBtn(false)
           ])
         ]));
         head.querySelector("[data-ui~='ja.progress']").textContent = "";
@@ -571,7 +576,7 @@
         el("h2", { text: results.length ? KOS.ui.num(results.length) + " answered" : "Nothing due right now" }),
         results.length ? el("p", { text: good + " Good or Easy" + (fin.capped ? " · past today's review cap, so no more XP today" : "") }) : null,
         pay.length ? el("p", { class: "k-ja-pay", "data-ui": "ja.pay", text: "◆ " + pay.join(" · ") }) : results.length ? el("p", { class: "k-muted", text: "No reward · " + (fin.paid ? "already counted" : fin.capped ? "today's review cap reached" : "nothing passed") }) : null,
-        el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "Back to the desk", onclick: function () { KOS.show("subject", "ja"); } })
+        backBtn(true)
       ].filter(Boolean)));
       head.querySelector("[data-ui~='ja.progress']").textContent = "";
       announce(results.length ? "Session done. " + results.length + " answered." : "Nothing due right now.");

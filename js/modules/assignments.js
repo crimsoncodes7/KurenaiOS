@@ -232,14 +232,26 @@
       /* subtasks: tick, delete, add */
       var subs = a.subtasks || [];
       var subWrap = el("div", { class: "k-asg-subs" });
-      subs.forEach(function (s) {
+      subs.forEach(function (s, idx) {
         var cb = el("input", { type: "checkbox", class: "k-box", "aria-label": (s.done ? "Untick " : "Tick ") + s.text,
           onchange: function () { A().subToggle(id, s.id, cb.checked); repaint(); o.onChange && o.onChange(); } });
         cb.checked = !!s.done;
         subWrap.appendChild(el("div", { class: "k-asg-sub", "data-state": s.done ? "done" : null }, [
           cb, el("span", { class: "k-asg-sub-t", text: s.text }),
           el("button", { type: "button", class: "k-asg-x", "aria-label": "Delete subtask", text: "✕",
-            onclick: function () { A().subRemove(id, s.id); repaint(); o.onChange && o.onChange(); } })
+            onclick: function () {
+              var snap = { id: s.id, text: s.text, done: !!s.done };
+              A().subRemove(id, s.id); repaint(); o.onChange && o.onChange();
+              KOS.ui.toast("Subtask deleted · " + snap.text, false, { label: "Undo", run: function () {
+                var cur = A().get(id); if (!cur) return;
+                var list = (cur.subtasks || []).slice();
+                if (list.some(function (x) { return x && x.id === snap.id; })) return;
+                list.splice(Math.min(idx, list.length), 0, snap);
+                A().update(id, { subtasks: list, status: cur.status === "notStarted" && snap.done ? "inProgress" : cur.status });
+                if (host.isConnected) repaint();
+                o.onChange && o.onChange();
+              } });
+            } })
         ]));
       });
       var subIn = el("input", { type: "text", class: "k-asg-subin", "aria-label": "Add a subtask", placeholder: "+ Add a subtask…",
