@@ -751,10 +751,10 @@
           migrateWorkspaceKey(localKey, convo.id);
         }
         else if (err) pushRow({ kind: "warning", text: "History couldn't be started (" + err.message + ") — this conversation is unsaved." });
-        actuallySend();
+        withAI(actuallySend);
       });
     } else {
-      actuallySend();
+      withAI(actuallySend);
     }
     return true;
   }
@@ -772,7 +772,13 @@
   /* ---- deterministic single-tool run (proposal Save/Discard, contextual
      "Generate flashcards") — runs the EXACT tool through the orchestrator's
      Phase C gating/audit/receipts, no model interpretation ---- */
+  /* the orchestrator and the tools load on first use (1F) */
+  function withAI(fn) {
+    if (KOS.ai.orchestrator && KOS.ai.tools) { fn(); return; }
+    KOS.ai.ready().then(fn, function () { KOS.ui.toast("Kurenai couldn't load — check the connection and try again.", true); });
+  }
   function runToolUi(name, args, onComplete) {
+    if (!(KOS.ai.orchestrator && KOS.ai.tools)) { withAI(function () { runToolUi(name, args, onComplete); }); return; }
     if (S.busy) { KOS.ui.toast("Kurenai is busy — wait for the current step.", true); return; }
     S.busy = true;
     var characterOwner = claimLifecycle("tool", "working", toolActivity(name) + "…");
@@ -810,14 +816,14 @@
   }
   function discardProposed(row) {
     /* only clear the shared pending state if THIS row is the live one */
-    var live = KOS.ai.tools.getPendingArtifact && KOS.ai.tools.getPendingArtifact();
+    var live = KOS.ai.tools && KOS.ai.tools.getPendingArtifact && KOS.ai.tools.getPendingArtifact();
     if (live && live === row.artifact && KOS.ai.tools.clearPendingArtifact) KOS.ai.tools.clearPendingArtifact();
     row._discarded = true;
     notify();
   }
   function toggleEditProposal(row, on) { row._editing = on; notify(); }
   function commitProposalEdits(row, items) {
-    if (KOS.ai.tools.updatePendingArtifact && KOS.ai.tools.updatePendingArtifact(items)) {
+    if (KOS.ai.tools && KOS.ai.tools.updatePendingArtifact && KOS.ai.tools.updatePendingArtifact(items)) {
       row.artifact = KOS.ai.tools.getPendingArtifact();
     }
     row._editing = false;
@@ -973,7 +979,7 @@
     var items = (art && art.items) || [];
     var typeLabel = isFlash ? "flashcards" : "quiz questions";
     /* is this row still THE live pending artifact (a newer proposal replaces it)? */
-    var current = KOS.ai.tools.getPendingArtifact && KOS.ai.tools.getPendingArtifact();
+    var current = KOS.ai.tools && KOS.ai.tools.getPendingArtifact && KOS.ai.tools.getPendingArtifact();
     var live = !!art && current === art;
 
     var tagText = r._saved ? "✓ Saved to your deck"
@@ -1535,13 +1541,13 @@
       text: "↶ Undo", "aria-label": "Undo: " + toolDisplayName(r.tool), disabled: S.busy ? "" : null, onclick: function (e) {
         var b = e.currentTarget;
         b.disabled = true;
-        KOS.ai.orchestrator.undoReceipt(rc, function (err) {
+        withAI(function () { KOS.ai.orchestrator.undoReceipt(rc, function (err) {
           if (err) { b.disabled = false; KOS.ui.toast("Couldn't undo: " + err.message, true); return; }
           KOS.ui.toast("Undone: " + toolDisplayName(r.tool));
           announce("Undone: " + toolDisplayName(r.tool));
           if (KOS.refreshHUD) KOS.refreshHUD();
           notify();
-        });
+        }); });
       } });
   }
   function threadRows() {

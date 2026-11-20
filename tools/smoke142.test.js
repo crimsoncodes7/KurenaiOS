@@ -110,9 +110,11 @@ function eq(a, b, m) { if (JSON.stringify(a) !== JSON.stringify(b)) throw new Er
    1F (speed) then began: the labs and simulations (js/labs, 570 KB) load
    with the pages that show them ("labs": topic, subject, exams, Creatives,
    the Labs page; the Assistant's lab tools ask first); the examiner's notes
-   (js/data/intel.js, 118 KB) with topic pages. 7.11 MB, with room kept for
-   Neon's batch 5. */
-const BOOT_BUDGET = 7.11 * 1024 * 1024;
+   (js/data/intel.js, 118 KB) with topic pages; the Assistant's tool
+   registry and orchestrator (aitools.js, aiorchestrator.js, 267 KB) when
+   it is asked (KOS.ai.ready; a domain's tools wait in KOS.ai.whenTools).
+   6.85 MB, with room kept for Neon's batch 5. */
+const BOOT_BUDGET = 6.85 * 1024 * 1024;
 
 /* jsdom has no User Timing: a small recorder, set before the app's scripts */
 function timing(win) {
@@ -456,6 +458,11 @@ step("K · search and the Assistant's tools take everything in first", async () 
 
   const two = await lazyBoot(fxB);
   const ref = Object.keys(C).filter((k) => k.indexOf("maths:") === 0 && C[k].quiz && C[k].notes)[0].slice(6);
+  /* the tool layer is not at boot (1F): it loads when asked */
+  assert(!two.KOS.ai.orchestrator && !two.KOS.ai.tools, "the Assistant's tools and orchestrator are not loaded at boot");
+  await two.KOS.ai.ready();
+  assert(two.KOS.ai.orchestrator && two.KOS.ai.tools, "ready() brings them in");
+  assert(two.KOS.ai.tools.get("files_list"), "Files, which registered its tools before the layer loaded, is in the registry");
   const got = await new Promise((res) => {
     const seen = [];
     two.KOS.ai.orchestrator.runTool("study_get_topic", { subject: "maths", ref }, {

@@ -778,7 +778,7 @@
      carry the evening note, mood or energy. */
   function registerTools() {
     var T = KOS.ai && KOS.ai.tools;
-    if (!T || !T.define) return;
+    if (!T || !T.define) { if (KOS.ai && KOS.ai.whenTools) KOS.ai.whenTools(registerTools); return; }
     function fail(m) { return new Error(m); }
     function refOf(a) {
       if (!a || !a.kind || a.id == null) return null;

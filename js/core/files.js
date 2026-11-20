@@ -503,7 +503,7 @@
      "Ask Kurenai about this page" in the viewer shows that text first. */
   function registerTools() {
     var T = KOS.ai && KOS.ai.tools;
-    if (!T || !T.define) return;
+    if (!T || !T.define) { if (KOS.ai && KOS.ai.whenTools) KOS.ai.whenTools(registerTools); return; }
     T.define("files_list", {
       desc: "The learner's files (Files page): name, kind, size, pages of text indexed, where each is linked. Filter by search text, kind or subject. Never the content.",
       category: "study", tier: "read", read: true,

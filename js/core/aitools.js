@@ -3880,4 +3880,6 @@
       }
     }
   };
+  /* the domains that registered before this loaded (1F) */
+  if (KOS.ai._toolsLoaded) KOS.ai._toolsLoaded();
 })();
