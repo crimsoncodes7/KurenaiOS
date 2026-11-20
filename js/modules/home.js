@@ -934,12 +934,13 @@
         open.slice(0, 3).forEach(function (g) {
           var end = g._period ? g._period.to : g.deadline;
           var left = end ? Math.max(0, Math.round((new Date(end + "T12:00:00") - new Date(today + "T12:00:00")) / 86400000)) : null;
-          var ring = el("span", { class: "k-home-goalnum", "data-ui": "home.goal-num", "aria-hidden": "true" }, [el("span", { text: left == null ? "–" : String(left) })]);
+          var ring = el("span", { class: "k-home-goalnum", "data-ui": "home.goal-num", "aria-hidden": left == null ? "true" : null }, [el("span", { text: left == null ? "–" : String(left) })]);
           ring.style.setProperty("--p", Math.min(100, g._pct || 0) + "%");
+          var ringCol = el("span", { class: "k-home-goal-ringcol" }, left == null ? [ring] : [ring, " ", el("span", { class: "k-home-goalnum-lbl", text: left === 1 ? "day left" : "days left" })]);
           var chipKind = KOS.goalsUI ? KOS.goalsUI.paceKind(g) : g._pace;
           var w = KOS.goalsUI ? KOS.goalsUI.word : function (x, v) { return String(v); };
           gl.appendChild(el("button", { type: "button", class: "k-day-row", "data-ui": "home.goal-row", onclick: function () { KOS.show("goals", { id: g.id }); } }, [
-            ring,
+            ringCol,
             el("span", { class: "k-day-txt" }, [el("span", { class: "k-day-title", text: g.title }),
               el("span", { class: "k-home-goal-sub" }, [chipKind ? KOS.ui.paceChip(chipKind) : null,
                 el("span", { class: "k-day-sub", text: w(g, g._current) + " of " + w(g, g._target) + (left === 0 ? " · ends tonight" : end ? " · by " + end.slice(8, 10).replace(/^0/, "") + " " + ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"][+end.slice(5, 7) - 1] : "") })].filter(Boolean))])]));
