@@ -381,8 +381,8 @@
       rows.sort(function (a, b) { return b.lapses - a.lapses || b.due - a.due; });
       if (rows.length) {
         var table = el("table", { class: "k-cs-table", "data-ui": "chart.topics" });
-        table.appendChild(el("thead", {}, [el("tr", {}, ["Ref", "Topic", "Cards", "Tracked", "Due", "Lapses", "Recall", "RAG", ""].map(function (h) {
-          return el("th", { text: h }); }))]));
+        table.appendChild(el("thead", {}, [el("tr", {}, ["Ref", "Topic", "Cards", "Tracked", "Due", "Lapses", "Recall", "RAG", "Charts"].map(function (h) {
+          return el("th", { scope: "col", text: h }); }))]));
         var tb = el("tbody", {});
         rows.slice(0, 20).forEach(function (r) {
           var eff = KOS.rag.effective(r.sid, r.ref);
@@ -395,7 +395,7 @@
             el("td", { class: "k-mono", "data-state": r.lapses ? "hot" : null, text: String(r.lapses) }),
             el("td", { class: "k-mono", text: r.recall == null ? "—" : Math.round(100 * r.recall) + "%" }),
             el("td", {}, [eff.band ? el("span", { class: "k-spine-dot", "data-band": eff.band, title: KOS.rag.BANDS[eff.band].label }) : el("span", { class: "k-muted", text: "—" })]),
-            el("td", {}, [el("button", { type: "button", class: "k-link", text: "charts →", onclick: function () {
+            el("td", {}, [el("button", { type: "button", class: "k-link", "data-ui": "cardstats.topic-open", "aria-label": "Charts for " + r.ref + " " + r.title, text: "Charts →", onclick: function () {
               KOS.show("cardstats", { subject: r.sid, ref: r.ref });
             } })])
           ]));

@@ -838,6 +838,7 @@ button.k-subj-next:hover { background: var(--s2); }
 .k-cs-table td { padding: var(--sp-9) var(--sp-10); border-block-start: var(--hairline) solid var(--line); }
 .k-cs-ref { color: var(--c); font-weight: var(--weight-semibold); }
 .k-cs-table td[data-state~="hot"] { color: var(--red-soft); }
+.k-cs-table .k-link { display: inline-flex; align-items: center; min-block-size: var(--hit); }
 
 
 /* ================= Assignments (frame 9c) ================= */
@@ -1190,6 +1191,7 @@ button.k-subj-next:hover { background: var(--s2); }
 @media (pointer: coarse) {
 .k-ed-ib, .k-qz-step { min-inline-size: var(--hit-coarse); min-block-size: var(--hit-coarse); }
 .k-rag-pick { min-inline-size: var(--hit-coarse); min-block-size: var(--hit-coarse); }
+.k-cs-table .k-link { min-block-size: var(--hit-coarse); }
 }
 /* CM-04: a fork made before the curriculum moved — a notice in the page, not a floating layer */
 .k-topic-stale { max-inline-size: none; margin: 0 0 var(--sp-14); box-shadow: none; background: color-mix(in oklch, var(--amber) 14%, var(--s1)); }
