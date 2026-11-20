@@ -209,8 +209,11 @@
       function paintHead() {
         var done = Object.keys(answered).length;
         title.textContent = done === items.length ? "All " + items.length + " answered" : "Question " + (at + 1) + " of " + items.length;
-        meta.textContent = "score " + correct + (opts.practice ? " · practice: " + items.length + " to retry, the topic's score unchanged"
+        /* content-cs-it#8 (invariant 77): no "score 0" before anything is answered */
+        var sc = done ? "score " + correct : "";
+        meta.textContent = sc + (opts.practice ? " · practice: " + items.length + " to retry, the topic's score unchanged"
           : st.attempts ? " · best " + (own ? st.best + "/" + items.length : (bestPct(sid, ref, st) || 0) + "%") : " · first attempt");
+        meta.textContent = meta.textContent.replace(/^ · /, "");
       }
       var card = null, next = null;
       function show() {
@@ -435,7 +438,7 @@
       FILTERS.forEach(function (f) {
         var n = f[0] === "all" ? norm.length : norm.filter(function (x) { return tariff(x) === f[0]; }).length;
         if (f[0] !== "all" && !n) return;
-        chips.appendChild(pill(f[0] === "all" ? "All · " + n : f[1], function () { filter = f[0]; at = 0; keepNow(); render(); },
+        chips.appendChild(pill(f[1] + " · " + n, function () { filter = f[0]; at = 0; keepNow(); render(); },
           { "aria-pressed": String(f[0] === filter), "data-f": f[0], title: n + (n === 1 ? " question" : " questions") }));
       });
       var shuffleBtn = pill("Shuffle", function () { shuffled = !shuffled; shuffleBtn.setAttribute("aria-pressed", String(shuffled)); at = 0; render(); }, { "aria-pressed": "false" });
@@ -720,7 +723,8 @@
         var marks = marksBy[n.i] = marksBy[n.i] || {};
         var card = el("article", { class: "k-card k-qz-exam", "data-ui": "quiz.card quiz.exam" + (n.parts.length > 1 ? " quiz.multi" : "") });
         card.appendChild(el("div", { class: "k-qz-exam-top", "data-ui": "quiz.exam-top" }, [
-          el("b", { class: "k-mono", text: "Q" + (n.i + 1) }),
+          /* content-cs-it#7: the question's own number, out of the topic's, so it never reads against the filtered count */
+          el("b", { class: "k-mono", text: "Q" + (n.i + 1) + " of " + norm.length }),
           srcLine(it),
           el("span", { class: "k-qz-marks", text: n.total + (n.total === 1 ? " mark" : " marks") })
         ].filter(Boolean)));

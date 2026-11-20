@@ -603,7 +603,9 @@ X("compsci:4.13.1.5", {
     ["What is the difference between testing and evaluation?", "Testing finds errors; evaluation judges the whole system against its objectives."],
     ["What might an evaluation recommend?", "Improvements, further development, changes to the process for future projects."],
     ["What is maintenance?", "Ongoing changes after delivery — fixing bugs, adapting to new requirements, improving performance."],
-    ["Why is evaluation done against criteria fixed earlier?", "So the judgement is objective — success is measured against what was agreed, not what was built."]
+    ["Why is evaluation done against criteria fixed earlier?", "So the judgement is objective — success is measured against what was agreed, not what was built."],
+    ["Why can \"the system must be fast\" not be evaluated?", "It sets no measure: rewrite it with a number and a condition, e.g. a record found within 2 s with 10 000 stored.", 100],
+    ["What should an evaluation say about an objective that was not met?", "State it honestly, give the reason, and describe a specific change that would meet it.", 101]
   ],
   quiz: [
     { q: "Evaluation criteria should be:", opts: ["measurable and set before development", "chosen after testing to fit the results", "written by the developer alone at the end", "based on how long the project took"], ans: 0, why: "Otherwise the judgement proves nothing." },
@@ -611,7 +613,9 @@ X("compsci:4.13.1.5", {
     { q: "Testing versus evaluation:", opts: ["the same thing, under two different names for each stage", "testing finds errors; evaluation judges fitness for purpose", "evaluation is done first, then the system is tested", "neither is needed once the code compiles without errors"], ans: 1, why: "Distinct stages." },
     { q: "User feedback is gathered because:", opts: ["it is optional, but looks good", "users judge usability and fitness for purpose", "developers are not able to test their own code", "it is free, unlike professional testing"], ans: 1, why: "Client perspective." },
     { q: "An evaluation may lead to:", opts: ["nothing, once the system is live", "recommended improvements and maintenance", "deleting the system and starting again", "a return to analysis, and nothing else"], ans: 1, why: "Evaluation finds weaknesses, which lead to recommended improvements and further maintenance." },
-    { q: "Adapting a delivered system to new requirements is:", opts: ["analysis", "maintenance", "testing", "prototyping"], ans: 1, why: "Maintenance is changing a system after delivery, for example to meet new requirements." }
+    { q: "Adapting a delivered system to new requirements is:", opts: ["analysis", "maintenance", "testing", "prototyping"], ans: 1, why: "Maintenance is changing a system after delivery, for example to meet new requirements." },
+    { qk: "100", q: "Which objective can be evaluated as met or not met?", opts: ["The menus must be clear and friendly", "The program should run quickly enough", "A search returns within 2 s for 10 000 records", "Staff should find the system easy to use"], ans: 2, why: "Only this one sets a measure and the conditions to test it under." },
+    { qk: "101", q: "A required feature was never built. In the evaluation it should be", opts: ["left out, as nothing was made to judge", "marked partly met, as other parts work", "marked met if the user did not complain", "marked not met, with the reason and a fix"], ans: 3, why: "An honest verdict with the reason and a specific next step is what earns credit." }
   ],
   exam: [
     { src: "AQA 2018 P2 Q11", q: "Describe what is done during the evaluation stage of a software project and explain why the evaluation should be made against criteria set during analysis.", marks: 3,

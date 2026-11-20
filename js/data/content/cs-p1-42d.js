@@ -182,7 +182,7 @@ C["compsci:4.2.7.1"] = {
       ["Represent a vector as a dictionary", "—", "—", "4.2.8.1"]
     ] } },
     { h: "How these notes are organised" },
-    { ol: ["**Key–value pairs**.", "**Dictionaries in C#**.", "**Information retrieval**.", "**In exam questions**.", "**Exam toolkit**."] },
+    { ol: ["**Key–value pairs**.", "**Dictionaries in C#**.", "**Information retrieval**.", "**Inside a dictionary**: how it is implemented and what each choice costs.", "**Dictionaries in programs**: lookup tables, grouping and the mistakes to avoid.", "**In exam questions**.", "**Exam toolkit**."] },
 
     { page: "Key–value pairs" },
     { fig: { w: 640, h: 150, items: [].concat(
@@ -212,6 +212,59 @@ C["compsci:4.2.7.1"] = {
         { m: "Intersect the sets: {1, 3} ∩ {1, 2} = {1}.", mk: "1" }
       ], result: "Document 1" , "try": [{"predict":{"code":"var index = new Dictionary<string, List<int>>();\nstring[] docs = { \"green grass\", \"red grass\", \"green tea\" };\nfor (int d = 0; d < docs.Length; d++)\n{\n    foreach (string w in docs[d].Split(' '))\n    {\n        if (!index.ContainsKey(w)) index[w] = new List<int>();\n        index[w].Add(d + 1);\n    }\n}\n\nforeach (int n in index[\"green\"])\n{\n    if (index[\"tea\"].Contains(n)) Console.WriteLine(n);\n}\nConsole.WriteLine(index.Count);","cap":"The index built in C#, then \"green AND tea\". What is printed?"}}]} },
 
+    { page: "Inside a dictionary" },
+    { callout: { t: "info", h: "An abstract data type, not a structure in memory", body: ["A dictionary says WHAT you can do: add a pair, look a key up, change or remove a pair, test whether a key exists.", "It does not say HOW the pairs are stored. That choice decides how fast each operation is, and whether the keys come out in order."] } },
+    { fig: { w: 640, h: 214, items: [].concat(
+      boxAt(20, 44, 110, 28, "'apples'", "accent"), boxAt(20, 104, 110, 28, "'pears'", "accent"), boxAt(20, 164, 110, 28, "'plums'", "accent"),
+      boxAt(360, 20, 160, 28, null, "line"), boxAt(360, 50, 160, 28, null, "line"), boxAt(360, 80, 160, 28, "'apples' : 15", "good"),
+      boxAt(360, 110, 160, 28, null, "line"), boxAt(360, 140, 160, 28, "'pears' : 4", "good"), boxAt(360, 170, 160, 28, null, "line"),
+      boxAt(550, 80, 84, 28, "'plums' : 7", "accent2"),
+      arrow(130, 58, 356, 92, null, { c: "text2" }), arrow(130, 118, 356, 152, null, { c: "text2" }), arrow(130, 178, 356, 98, null, { c: "accent2" }),
+      [txt(196, 54, "hash → 2", { size: 10.5, c: "text2" }), txt(196, 114, "hash → 4", { size: 10.5, c: "text2" }), txt(214, 176, "hash → 2", { size: 10.5, c: "accent2" })],
+      arrow(520, 94, 550, 94, null, { c: "accent2" }),
+      [txt(75, 24, "keys", { size: 10.5, c: "text2" }), txt(440, 10, "slots of the hash table", { size: 10.5, c: "text2" }),
+        txt(366, 34, "0", { size: 10, pos: "e" }), txt(366, 64, "1", { size: 10, pos: "e" }), txt(366, 94, "2", { size: 10, pos: "e" }),
+        txt(366, 124, "3", { size: 10, pos: "e" }), txt(366, 154, "4", { size: 10, pos: "e" }), txt(366, 184, "5", { size: 10, pos: "e" }),
+        txt(592, 124, "collision:", { size: 10, c: "accent2" }), txt(592, 138, "chained on", { size: 10, c: "accent2" })]
+    ), cap: "A dictionary built on a hash table. The key is hashed to a slot index and the WHOLE pair is stored there. 'plums' hashes to the same slot as 'apples', so it is chained on; a lookup hashes the key, goes to that slot and compares the stored keys until one matches." } },
+    { callout: { t: "key", h: "Why the slot stores the key as well as the value", body: ["Two keys can hash to the same slot.", "Only by comparing the stored key with the one asked for can the dictionary tell 'apples' : 15 from 'plums' : 7."] } },
+    { h: "Four ways to store the pairs" },
+    { table: { head: ["Stored as", "Look up a key", "Add a pair", "Keys in order?"], rows: [
+      ["Unsorted list of pairs", "O(n): linear search", "O(n): must first check the key is new", "No"],
+      ["Sorted array of pairs", "O(log n): binary search", "O(n): later pairs shift up", "Yes"],
+      ["Hash table", "O(1) on average", "O(1) on average", "No"],
+      ["Balanced binary search tree", "O(log n)", "O(log n)", "Yes, by in-order traversal"]
+    ] } },
+    { callout: { t: "tip", h: "Matching the implementation to the job", body: ["Lookups by key only, as fast as possible: a hash table (C#'s Dictionary).", "Keys needed in order too, for a sorted report or the first key after a given one: a balanced tree (C#'s SortedDictionary)."] } },
+    { worked: { tag: "variation", title: "Trace a run of dictionary operations", q: "An empty dictionary d is changed by: d[\"cat\"] ← 3; d[\"dog\"] ← 5; d[\"cat\"] ← d[\"cat\"] + 1; remove \"dog\"; d[\"eel\"] ← 2. State the final contents, the number of pairs, and the value of d[\"cat\"].",
+      steps: [
+        { m: "After the first two: {cat: 3, dog: 5};", mk: "1" },
+        { m: "Assigning to an existing key REPLACES its value, so cat becomes 4 and no second 'cat' pair is made;", mk: "1", n: "The most common slip is to write {cat: 3, dog: 5, cat: 4}: a key can appear only once." },
+        { m: "Removing \"dog\" deletes the whole pair, then eel is added: {cat: 4, eel: 2}, two pairs, d[\"cat\"] = 4.", mk: "1" }
+      ], result: "{cat: 4, eel: 2}; 2 pairs; 4" } },
+    { worked: { tag: "variation", title: "An array or a dictionary?", q: "A school has 300 pupils, each with a four-digit candidate number from 1000 to 9999. A program must find a pupil's record from the candidate number. Compare storing the records in an array indexed by candidate number with storing them in a dictionary keyed by candidate number.",
+      steps: [
+        { m: "An array indexed by candidate number needs 9 000 elements for 300 pupils, so about 97% of them are unused: wasted memory;", mk: "1" },
+        { m: "though its lookup is a direct index, O(1), with no hashing;", mk: "1" },
+        { m: "A dictionary holds only the 300 pairs that exist, still with direct access by key through hashing;", mk: "1" },
+        { m: "so the dictionary suits sparse keys, and it would also accept keys that are not numbers, such as a pupil's username.", mk: "1" }
+      ], result: "Dictionary: the same direct access without 8 700 empty slots" } },
+
+    { page: "Dictionaries in programs" },
+    { kv: [
+      ["Counting", "key = an item, value = how many times it is seen (the word count)"],
+      ["Grouping", "key = a category, value = a list of the items in it (the search index)"],
+      ["Lookup table", "key = a code, value = what it stands for: letter → Morse, numeral → value, product code → price"],
+      ["Memoisation", "key = a function's argument, value = its result, so a repeated call is a lookup instead of a recomputation"]
+    ] },
+    { worked: { tag: "variation", title: "Roman numerals with a lookup table", q: "A program stores the value of each Roman numeral in a dictionary and adds them up, subtracting a numeral that comes before a larger one. Work out the value of XLIV.",
+      steps: [
+        { m: "Look up each numeral: X = 10, L = 50, I = 1, V = 5;", mk: "1" },
+        { m: "X is before the larger L, so it is subtracted: −10 + 50 = 40;", mk: "1" },
+        { m: "I is before the larger V: −1 + 5 = 4, so the total is 40 + 4 = 44.", mk: "1" }
+      ], result: "44", "try": [{"predict":{"code":"var value = new Dictionary<char, int> { ['I'] = 1, ['V'] = 5, ['X'] = 10, ['L'] = 50, ['C'] = 100 };\nforeach (string s in new string[] { \"XLIV\", \"CXIX\" })\n{\n    int total = 0;\n    for (int i = 0; i < s.Length; i++)\n    {\n        int v = value[s[i]];\n        if (i + 1 < s.Length && value[s[i + 1]] > v) total -= v;\n        else total += v;\n    }\n    Console.WriteLine(s + \" = \" + total);\n}","expect":"XLIV = 44\nCXIX = 119","cap":"The same rule in C#, for XLIV and CXIX. What is printed?"}}]} },
+    { callout: { t: "warn", h: "Common mistakes", body: ["Reading a key before checking it exists: C#'s d[key] throws KeyNotFoundException. Test with ContainsKey or use TryGetValue.", "Adding pairs to a dictionary while looping over it with foreach: C# throws InvalidOperationException. Collect the new pairs first, then add them after the loop.", "Expecting the pairs to come out in the order they went in. Use a sorted dictionary when order matters.", "Calling a dictionary 'indexed by position'. It is accessed by KEY; there is no first or second pair."] } },
+
     { page: "In exam questions" },
     { worked: { tag: "exam", title: "Why a hash table suits a dictionary", src: "A-level June 2022 · P1 Q07.4 · 1 mark",
       q: "A hash table can be used to implement a dictionary data structure. Explain why a hash table is a suitable choice.",
@@ -229,7 +282,8 @@ C["compsci:4.2.7.1"] = {
       "**Dictionary** = key → value; keys unique; look up BY KEY.",
       "**Hash table** implementation → direct access, no search.",
       "**Information retrieval**: word → frequency, or word → documents.",
-      "**C#**: Dictionary<K,V>, TryGetValue to avoid KeyNotFoundException."
+      "**C#**: Dictionary<K,V>, TryGetValue to avoid KeyNotFoundException.",
+      "**Implementation**: hash table O(1) average, unordered; balanced tree O(log n), keys in order; the slot stores the key too."
     ] },
     { callout: { t: "miscon", h: "Misconceptions", body: ["\"A dictionary keeps items in the order they were added.\" — not guaranteed by a hash table; use a sorted dictionary when order matters.", "\"Keys can repeat if the values differ.\" — every key is unique: assigning to an existing key replaces its value, and C#'s Add throws an ArgumentException."] } },
     { callout: { t: "mnemonic", h: "\"One key opens one value\"", body: "Each unique **key** unlocks exactly one **value**. Implemented as a hash table, the key leads straight to it — **direct access**, no search." } },

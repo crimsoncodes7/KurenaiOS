@@ -81,7 +81,10 @@ C["compsci:4.5.3.1"] = {
     {"q":"Which prefix represents 2³⁰?","opts":["gibi","giga","mebi","tera"],"ans":0,"why":"Binary prefix."},
     {"q":"1 MB in bytes (AQA) is","opts":["1 000 000","1 048 576","1024","8 000 000"],"ans":0,"why":"Decimal."},
     {"q":"Largest of these:","opts":["2 MiB","2 MB","2000 kB","16 000 000 bits"],"ans":0,"why":"2 097 152 bytes."},
-    {"q":"5 GiB in KiB:","opts":["5 × 2¹⁰","5 × 2²⁰","5 × 2³⁰","5 × 10⁶"],"ans":1,"why":"GiB → KiB is two steps of 2¹⁰."}
+    {"q":"5 GiB in KiB:","opts":["5 × 2¹⁰","5 × 2²⁰","5 × 2³⁰","5 × 10⁶"],"ans":1,"why":"GiB → KiB is two steps of 2¹⁰."},
+    {"qk": "100", "q": "How many bytes are in 3 MB (a decimal prefix)?", "opts": ["3 145 728", "24 000 000", "3 000 000", "3 000"], "ans": 2, "why": "Mega is 10⁶, so 3 MB = 3 × 1 000 000 bytes; 3 145 728 would be 3 MiB."},
+    {"qk": "101", "q": "A file of 4 096 bytes is how many KiB?", "opts": ["4.096", "4", "40.96", "0.4"], "ans": 1, "why": "1 KiB = 1 024 bytes, and 4 096 ÷ 1 024 = 4."},
+    {"qk": "102", "q": "The fewest bits that give each of 1 000 customers a different code:", "opts": ["11", "9", "1000", "10"], "ans": 3, "why": "2⁹ = 512 is too few; 2¹⁰ = 1 024 is enough."}
   ],
   exam: [
     {"level":"AS","src":"AS 2023 P2 Q2.2","q":"A field is 10 bits wide. State the number of different values it can represent.","marks":1,"ms":["1024 (2¹⁰) (1)"]},

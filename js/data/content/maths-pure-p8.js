@@ -340,6 +340,106 @@ C["maths:8.4"] = {
         { h: "(a)", m: "$\\displaystyle\\int_{2.1}^{6.3}\\dfrac2x\\,dx$", mk: "B1", fig: { x: [0, 7.5], y: [0, 1.4], axes: { xt: [2.1, 6.3], yt: [0.5, 1] }, items: [{ shade: { fn: "2/x", from: 2.1, to: 6.3 }, alpha: 0.22 }, { fn: "2/x", from: 1.5, to: 7.5, label: "y = 2/x", at: 2.6, pos: "ne" }, { poly: [[4, 0], [4.4, 0], [4.4, 0.5], [4, 0.5]], fill: "accent2", alpha: 0.5, c: "accent2" }], cap: "Each strip is $\\frac{2}{x}\\,\\delta x$; as $\\delta x \\to 0$ their sum becomes the area from 2.1 to 6.3." } },
         { h: "(b)", m: "$= 2\\left[\\ln x\\right]_{2.1}^{6.3} = 2\\ln\\dfrac{6.3}{2.1} = 2\\ln 3 = \\ln 9$: $k = 9$", mk: "M1 A1", n: "Quotient law then power law. (2025 P1 Q5: the same with $\\frac{2}{\\sqrt x}$ from 1.44 to 2.89 gives $[4\\sqrt x] = 4(1.7 - 1.2) = 2$.)" }
       ], result: "$\\ln 9$" } },
+
+    { page: "Strips, sums and the limit" },
+    { callout: { t: "key", h: "Two estimates squeeze the area", body: [
+      "Split $a \\le x \\le b$ into strips of width $\\delta x$.",
+      "Give each strip a rectangle whose height is a value of $f$ on that strip. Its area is $f(x)\\,\\delta x$.",
+      "Using the largest value on each strip gives an upper sum; the smallest gives a lower sum. The true area lies between them.",
+      "As $\\delta x \\to 0$ both sums tend to the same number. That common limit is $\\int_a^b f(x)\\,dx$."
+    ] } },
+    { fig: { x: [-0.2, 2.5], y: [-0.3, 4.6], axes: { xt: [0.5, 1, 1.5, 2], yt: [1, 2, 3, 4] }, items: [
+      { poly: [[0, 0], [0, 0.25], [0.5, 0.25], [0.5, 1], [1, 1], [1, 2.25], [1.5, 2.25], [1.5, 4], [2, 4], [2, 0]], fill: "accent2", alpha: 0.12, c: "accent2", w: 1.2 },
+      { poly: [[0.5, 0], [0.5, 0.25], [1, 0.25], [1, 1], [1.5, 1], [1.5, 2.25], [2, 2.25], [2, 0]], fill: "accent", alpha: 0.3, c: "accent", w: 1 },
+      { fn: "x^2", from: 0, to: 2.12, label: "y = x²", at: 2.1, pos: "e" },
+      { text: [1.25, 3.2], t: "upper 3.75", c: "accent2", size: 11, pos: "w" },
+      { text: [1.75, 0.6], t: "lower 1.75", c: "accent", size: 11 }
+    ], cap: "Four strips of width $\\delta x = 0.5$ under $y = x^2$ from 0 to 2. Heights taken at each strip's right end (outlined) total $3.75$; at the left end (filled), $1.75$. The exact area, $\\frac83 \\approx 2.67$, lies between." } },
+    { fig: { x: [-0.2, 2.5], y: [-0.3, 4.6], axes: { xt: [0.5, 1, 1.5, 2], yt: [1, 2, 3, 4] }, items: [
+      { poly: [[0, 0], [0, 0.0625], [0.25, 0.0625], [0.25, 0.25], [0.5, 0.25], [0.5, 0.5625], [0.75, 0.5625], [0.75, 1], [1, 1], [1, 1.5625], [1.25, 1.5625], [1.25, 2.25], [1.5, 2.25], [1.5, 3.0625], [1.75, 3.0625], [1.75, 4], [2, 4], [2, 0]], fill: "accent2", alpha: 0.12, c: "accent2", w: 1.2 },
+      { poly: [[0.25, 0], [0.25, 0.0625], [0.5, 0.0625], [0.5, 0.25], [0.75, 0.25], [0.75, 0.5625], [1, 0.5625], [1, 1], [1.25, 1], [1.25, 1.5625], [1.5, 1.5625], [1.5, 2.25], [1.75, 2.25], [1.75, 3.0625], [2, 3.0625], [2, 0]], fill: "accent", alpha: 0.3, c: "accent", w: 1 },
+      { fn: "x^2", from: 0, to: 2.12, label: "y = x²", at: 2.1, pos: "e" },
+      { text: [1.25, 3.2], t: "upper 3.1875", c: "accent2", size: 11, pos: "w" },
+      { text: [1.75, 0.6], t: "lower 2.1875", c: "accent", size: 11 }
+    ], cap: "Halve the width to $\\delta x = 0.25$. The gap between the sums is $\\big(f(2) - f(0)\\big)\\,\\delta x = 4\\,\\delta x$, here 1: it shrinks to 0 with $\\delta x$." } },
+    { table: { head: ["$\\delta x$", "Strips", "Lower sum", "Upper sum"], rows: [
+      ["0.5", "4", "1.75", "3.75"],
+      ["0.25", "8", "2.1875", "3.1875"],
+      ["0.1", "20", "2.47", "2.87"],
+      ["0.01", "200", "2.6467", "2.6867"],
+      ["$\\to 0$", "$\\to \\infty$", "$\\to \\frac83$", "$\\to \\frac83$"]
+    ] } },
+    { callout: { t: "info", h: "Where you have met this before", body: [
+      "The trapezium rule (9.4) is the same idea with trapezia and a fixed number of strips.",
+      "It is only an estimate. The integral is the exact value the estimates approach."
+    ] } },
+
+    { page: "Reading the notation" },
+    { table: { head: ["In the sum", "Becomes", "Example: $\\lim\\sum_{x=1}^{4} 3x^2\\,\\delta x$"], rows: [
+      ["$\\lim_{\\delta x \\to 0}\\sum$", "$\\int$", "$\\int$"],
+      ["$x = a$ to $b$ under and over $\\sum$", "the limits $a$ and $b$", "$\\int_1^4$"],
+      ["what multiplies $\\delta x$", "the integrand", "$3x^2$"],
+      ["$\\delta x$", "$dx$", "$3x^2\\,dx$, which is $\\big[x^3\\big]_1^4 = 63$"]
+    ] } },
+    { callout: { t: "warn", h: "Constants stay in the integrand", body: [
+      "Everything multiplying $\\delta x$ goes inside the integral, constants included.",
+      "$\\lim\\sum \\frac{2}{x}\\,\\delta x$ is $\\int \\frac{2}{x}\\,dx$, not $\\int \\frac1x\\,dx$."
+    ] } },
+    { callout: { t: "info", h: "The same idea in Mechanics", body: [
+      "Over a short time $\\delta t$ a particle moves about $v\\,\\delta t$.",
+      "So $\\lim_{\\delta t \\to 0}\\sum_{t=a}^{b} v\\,\\delta t = \\int_a^b v\\,dt$, the displacement from $t = a$ to $t = b$.",
+      "The variable need not be $x$: $\\delta t$ becomes $dt$."
+    ] } },
+
+    { page: "More worked" },
+    { worked: { tag: "example", title: "Rectangles over $y = \\frac1x$, then the exact area", src: "exam-style · 5 marks",
+      fig: { x: [-0.2, 3.6], y: [-0.15, 1.35], axes: { xt: [1, 1.5, 2, 2.5, 3], yt: [0.5, 1] }, items: [
+        { poly: [[1, 0], [1.5, 0], [1.5, 1], [1, 1]], fill: "accent2", alpha: 0.2, c: "accent2", w: 1 },
+        { poly: [[1.5, 0], [2, 0], [2, 0.6667], [1.5, 0.6667]], fill: "accent2", alpha: 0.2, c: "accent2", w: 1 },
+        { poly: [[2, 0], [2.5, 0], [2.5, 0.5], [2, 0.5]], fill: "accent2", alpha: 0.2, c: "accent2", w: 1 },
+        { poly: [[2.5, 0], [3, 0], [3, 0.4], [2.5, 0.4]], fill: "accent2", alpha: 0.2, c: "accent2", w: 1 },
+        { fn: "1/x", from: 0.8, to: 3.5, label: "y = 1/x", at: 3.3, pos: "n" }
+      ], cap: "Four strips of width 0.5 from $x = 1$ to $x = 3$, each rectangle as tall as the curve at the strip's left end." },
+      q: "The figure shows $y = \\frac1x$ for $1 \\le x \\le 3$ with four rectangles of width 0.5. **(a)** Find the total area of the rectangles. **(b)** Write $\\displaystyle\\lim_{\\delta x \\to 0}\\sum_{x=1}^{3}\\frac1x\\,\\delta x$ as an integral and find its exact value. **(c)** Explain why your answer to (a) is larger than your answer to (b).",
+      steps: [
+        { h: "(a)", m: "$0.5\\left(1 + \\dfrac23 + \\dfrac12 + \\dfrac25\\right) = 0.5 \\times \\dfrac{77}{30} = \\dfrac{77}{60} \\approx 1.283$", mk: "M1 A1", n: "Heights $f(1), f(1.5), f(2), f(2.5)$: the left ends." },
+        { h: "(b)", m: "$\\displaystyle\\int_1^3 \\dfrac1x\\,dx = \\Big[\\ln x\\Big]_1^3 = \\ln 3 \\approx 1.099$", mk: "B1 A1" },
+        { h: "(c)", m: "$\\frac1x$ is decreasing, so each height is the largest value on its strip: every rectangle reaches above the curve.", mk: "B1", n: "Name the shape of the function, not just \"the rectangles stick out\"." }
+      ], result: "$\\frac{77}{60}$; $\\ln 3$" } },
+    { worked: { tag: "example", title: "A sum to write in the form $\\frac{e^4 + a}{2}$", src: "exam-style · 3 marks",
+      q: "Show that $\\displaystyle\\lim_{\\delta x \\to 0}\\sum_{x=1}^{e^2}\\left(x + \\frac1x\\right)\\delta x = \\frac{e^4 + a}{2}$, where $a$ is an integer to be found.",
+      steps: [
+        { h: "Write the integral", m: "$\\displaystyle\\int_1^{e^2}\\left(x + \\dfrac1x\\right)dx$", mk: "B1", n: "The limits are the $x$-values under and over the $\\sum$." },
+        { h: "Integrate and substitute", m: "$\\left[\\dfrac{x^2}{2} + \\ln x\\right]_1^{e^2} = \\left(\\dfrac{e^4}{2} + 2\\right) - \\left(\\dfrac12 + 0\\right)$", mk: "M1", n: "$(e^2)^2 = e^4$ and $\\ln e^2 = 2$." },
+        { m: "$= \\dfrac{e^4 + 3}{2}$, so $a = 3$", mk: "A1" }
+      ], result: "$a = 3$" } },
+    { worked: { tag: "example", title: "An unknown upper limit", src: "exam-style · 4 marks",
+      q: "Given that $\\displaystyle\\lim_{\\delta x \\to 0}\\sum_{x=1}^{k}\\frac{1}{\\sqrt x}\\,\\delta x = 6$, where $k > 1$, find the value of $k$.",
+      steps: [
+        { h: "Write the integral", m: "$\\displaystyle\\int_1^k x^{-1/2}\\,dx = 6$", mk: "B1" },
+        { h: "Integrate", m: "$\\Big[2x^{1/2}\\Big]_1^k = 2\\sqrt k - 2$", mk: "M1" },
+        { h: "Solve", m: "$2\\sqrt k - 2 = 6 \\Rightarrow \\sqrt k = 4$", mk: "M1" },
+        { m: "$k = 16$", mk: "A1" }
+      ], result: "$k = 16$" } },
+    { worked: { tag: "example", title: "A sum of $v\\,\\delta t$ is a displacement", src: "exam-style · 4 marks",
+      q: "A particle moves in a straight line with velocity $v = 3t^2 - 2t$ m s$^{-1}$ at time $t$ seconds. **(a)** Write $\\displaystyle\\lim_{\\delta t \\to 0}\\sum_{t=1}^{3} v\\,\\delta t$ as an integral and evaluate it. **(b)** State what your answer represents.",
+      steps: [
+        { h: "(a)", m: "$\\displaystyle\\int_1^3 (3t^2 - 2t)\\,dt = \\Big[t^3 - t^2\\Big]_1^3 = 18 - 0 = 18$", mk: "B1 M1 A1" },
+        { h: "(b)", m: "The displacement, 18 m, between $t = 1$ and $t = 3$. As $v > 0$ for $t > \\frac23$, it is also the distance travelled.", mk: "B1", n: "Check the sign of $v$ before calling it a distance." }
+      ], result: "18 m" } },
+
+    { page: "Exam toolkit" },
+    { ul: [
+      "**Write the integral first**, with its limits and $dx$: that line is the B1.",
+      "**Limits from the sum**: the $x$-values under and over the $\\sum$, not the number of strips.",
+      "**Keep every factor** that multiplies $\\delta x$, constants included.",
+      "**Then evaluate** to the form asked: an integer $k$, $\\ln k$, $\\frac{e^4 + a}{2}$.",
+      "**Over or under?** For an increasing curve right-end heights over-estimate; for a decreasing one, left-end heights do."
+    ] },
+    { callout: { t: "miscon", h: "\"Each strip tends to 0, so the sum tends to 0\"", body: [
+      "Each strip's area does shrink, but the number of strips, $\\frac{b - a}{\\delta x}$, grows without limit.",
+      "The two effects balance: the sum tends to the area, not to 0."
+    ] } },
     { callout: { t: "mnemonic", h: "\"Sum of strips → integral; $\\delta x$ → $dx$; the $x$-range → the limits\"", body: "Three substitutions and the notation is converted." } }
   ],
   flashcards: [
@@ -523,14 +623,89 @@ C["maths:8.6"] = {
         { h: "(b)", m: "$\\displaystyle\\int_0^6\\left(x + 6 - \\dfrac{15}{x + 2}\\right)dx = \\left[\\dfrac{x^2}{2} + 6x - 15\\ln(x + 2)\\right]_0^6 = 54 - 15\\ln 8 + 15\\ln 2 = 54 - 30\\ln 2$", mk: "M1 A1 M1 A1" }
       ], result: "$54 - 30\\ln 2$" } },
 
+    { page: "The log, its modulus and its sign" },
+    { callout: { t: "key", h: "Where the log comes from", body: [
+      "By the chain rule, $\\dfrac{d}{dx}\\ln|ax + b| = \\dfrac{a}{ax + b}$.",
+      "So $\\displaystyle\\int\\frac{1}{ax + b}\\,dx = \\frac1a\\ln|ax + b| + c$. The $\\frac1a$ undoes the chain rule's factor $a$.",
+      "The modulus lets the same result hold where $ax + b < 0$."
+    ] } },
+    { fig: { x: [-4.2, 4.2], y: [-2.4, 2.4], axes: { xt: [-3, -1, 1, 3], yt: [-2, -1, 1, 2] }, items: [
+      { shade: { fn: "1/x", from: -3, to: -1 }, c: "accent", alpha: 0.25 },
+      { fn: "1/x", from: -4.1, to: -0.42 },
+      { fn: "1/x", from: 0.42, to: 4.1, label: "y = 1/x", at: 1.2, pos: "ne" },
+      { text: [-2.4, -1.5], t: "integral = −ln 3", c: "accent", size: 11 }
+    ], cap: "$\\int_{-3}^{-1}\\frac1x\\,dx = \\big[\\ln|x|\\big]_{-3}^{-1} = 0 - \\ln 3 = -\\ln 3$. The region lies below the axis, so the integral is negative. Without the modulus, $\\ln(-1)$ would be undefined. No integral of $\\frac1x$ may run across $x = 0$." } },
+    { callout: { t: "warn", h: "The sign trap", body: [
+      "$\\displaystyle\\int\\frac{1}{1 - x}\\,dx = -\\ln|1 - x| + c$.",
+      "The coefficient of $x$ is $-1$, so the $\\frac1a$ is $-1$. Differentiate your answer to check the sign."
+    ] } },
+    { worked: { tag: "example", title: "Partial fractions with a $1 - x$ factor", src: "exam-style · 5 marks",
+      q: "**(a)** Express $\\dfrac{2}{(1 - x)(1 + x)}$ in partial fractions. **(b)** Hence find the exact value of $\\displaystyle\\int_0^{1/2}\\frac{2}{(1 - x)(1 + x)}\\,dx$, giving your answer as a single logarithm.",
+      steps: [
+        { h: "(a)", m: "$2 = A(1 + x) + B(1 - x)$. $x = 1$: $A = 1$. $x = -1$: $B = 1$. So $\\dfrac{1}{1 - x} + \\dfrac{1}{1 + x}$", mk: "M1 A1" },
+        { h: "(b) Integrate", m: "$\\Big[-\\ln|1 - x| + \\ln|1 + x|\\Big]_0^{1/2}$", mk: "M1 A1", n: "The minus on the first term is the mark most often lost." },
+        { h: "Evaluate", m: "$\\left(-\\ln\\dfrac12 + \\ln\\dfrac32\\right) - 0 = \\ln 2 + \\ln\\dfrac32 = \\ln 3$", mk: "A1", n: "$-\\ln\\frac12 = \\ln 2$, then the product law." }
+      ], result: "$\\ln 3$" } },
+
+    { page: "Repeated factors and other shapes" },
+    { callout: { t: "tip", h: "Which tool for which fraction", body: [
+      "Top is a multiple of the bottom's derivative: the log of the bottom.",
+      "One linear bracket to a power $n \\ge 2$: reverse the chain rule, giving a power.",
+      "A product of different linear factors: partial fractions, then logs.",
+      "Top degree at least the bottom's: divide first."
+    ] } },
+    { worked: { tag: "example", title: "A repeated factor gives a log and a power", src: "exam-style · 6 marks",
+      q: "**(a)** Express $\\dfrac{3x + 1}{(x + 1)^2}$ in the form $\\dfrac{A}{x + 1} + \\dfrac{B}{(x + 1)^2}$. **(b)** Hence show that $\\displaystyle\\int_0^1\\frac{3x + 1}{(x + 1)^2}\\,dx = a\\ln 2 + b$, where $a$ and $b$ are integers.",
+      steps: [
+        { h: "(a)", m: "$3x + 1 = A(x + 1) + B$. Compare $x$: $A = 3$. $x = -1$: $B = -2$", mk: "M1 A1" },
+        { h: "(b) Integrate", m: "$\\displaystyle\\int_0^1\\left(\\dfrac{3}{x + 1} - \\dfrac{2}{(x + 1)^2}\\right)dx = \\left[3\\ln(x + 1) + \\dfrac{2}{x + 1}\\right]_0^1$", mk: "M1 A1", n: "$\\int -2(x + 1)^{-2}\\,dx = \\frac{-2(x + 1)^{-1}}{-1} = +\\frac{2}{x + 1}$." },
+        { h: "Evaluate", m: "$(3\\ln 2 + 1) - (0 + 2) = 3\\ln 2 - 1$", mk: "M1 A1", n: "$a = 3$, $b = -1$." }
+      ], result: "$3\\ln 2 - 1$" } },
+    { worked: { tag: "example", title: "Two rational shapes the specification names", src: "exam-style · 4 marks",
+      q: "Find $\\displaystyle\\int\\left(\\frac{6x}{x^2 + 5} + \\frac{2}{(2x - 1)^4}\\right)dx$.",
+      steps: [
+        { h: "Top is three times the bottom's derivative", m: "$\\displaystyle\\int\\dfrac{6x}{x^2 + 5}\\,dx = 3\\ln(x^2 + 5)$", mk: "M1 A1", n: "No modulus needed: $x^2 + 5 > 0$." },
+        { h: "A power of one linear bracket", m: "$\\displaystyle\\int 2(2x - 1)^{-4}\\,dx = \\dfrac{2(2x - 1)^{-3}}{(-3)(2)} = -\\dfrac{1}{3(2x - 1)^3}$", mk: "M1 A1", n: "Divide by the new power and by the 2 inside." },
+        { m: "$3\\ln(x^2 + 5) - \\dfrac{1}{3(2x - 1)^3} + c$" }
+      ], result: "$3\\ln(x^2 + 5) - \\frac{1}{3(2x - 1)^3} + c$" } },
+
+    { page: "Areas in exact form" },
+    { callout: { t: "info", h: "How this topic is examined", body: [
+      "An area under a rational curve in the form $\\ln k$ or $a\\ln 2 + b\\ln 3$ (6 to 11 marks).",
+      "A differential equation that separates into a partial-fraction integral (8.7), often a logistic model.",
+      "A parametric area whose integrand becomes a rational function (8.3)."
+    ] } },
+    { worked: { tag: "example", title: "The area under $y = \\frac{4}{x(x + 2)}$", src: "exam-style · 6 marks",
+      fig: { x: [-0.2, 4.2], y: [-0.25, 2.8], axes: { xt: [1, 2, 3, 4], yt: [0.5, 1, 1.5, 2] }, items: [
+        { shade: { fn: "4/(x*(x+2))", from: 1, to: 2 }, c: "accent", alpha: 0.25 },
+        { fn: "4/(x*(x+2))", from: 0.64, to: 4.1, label: "y = 4/(x(x+2))", at: 2.6, pos: "ne" },
+        { vline: 1, c: "muted", dash: true }, { vline: 2, c: "muted", dash: true },
+        { pt: [1, 1.3333], label: "(1, 4/3)", pos: "ne" }, { pt: [2, 0.5], label: "(2, ½)", pos: "ne" },
+        { text: [1.5, 0.3], t: "R", b: true, c: "accent" }
+      ], cap: "$R$ is bounded by the curve, the $x$-axis and the lines $x = 1$ and $x = 2$." },
+      q: "The region $R$ is bounded by $y = \\dfrac{4}{x(x + 2)}$, the $x$-axis and the lines $x = 1$ and $x = 2$. **(a)** Express $\\dfrac{4}{x(x + 2)}$ in partial fractions. **(b)** Show that the area of $R$ is $\\ln\\frac94$.",
+      steps: [
+        { h: "(a)", m: "$4 = A(x + 2) + Bx$. $x = 0$: $A = 2$. $x = -2$: $B = -2$. So $\\dfrac2x - \\dfrac{2}{x + 2}$", mk: "M1 A1" },
+        { h: "(b) Integrate", m: "$\\displaystyle\\int_1^2\\left(\\dfrac2x - \\dfrac{2}{x + 2}\\right)dx = \\Big[2\\ln x - 2\\ln(x + 2)\\Big]_1^2$", mk: "M1 A1ft", n: "Follow-through on your $A$ and $B$." },
+        { h: "Substitute", m: "$(2\\ln 2 - 2\\ln 4) - (0 - 2\\ln 3) = 2\\ln 3 - 2\\ln 2$", mk: "dM1", n: "Dependent on the integration: both limits, bracketed." },
+        { h: "Log laws", m: "$= 2\\ln\\dfrac32 = \\ln\\dfrac94$", mk: "A1*", n: "A \"show that\": every log step written out." }
+      ], result: "$\\ln\\frac94$" } },
+
     { page: "Exam toolkit" },
     { ul: [
       "**Log of a squared factor**: $\\int\\frac{1}{(x + 1)^2}$ is $-\\frac{1}{x + 1}$, not $\\ln$.",
       "**Missing $\\frac1a$**: $\\int\\frac{1}{2x - 4} = \\frac12\\ln|2x - 4|$.",
       "**Modulus dropped** when a limit makes the argument negative.",
       "**Not dividing** an improper fraction first.",
-      "**Log laws at the end**: combine to the form asked ($a\\ln 2 + b\\ln 3$, $\\ln\\frac{49}{36}$)."
+      "**Log laws at the end**: combine to the form asked ($a\\ln 2 + b\\ln 3$, $\\ln\\frac{49}{36}$).",
+      "**Sign of $\\frac1a$**: $\\int\\frac{1}{1 - x} = -\\ln|1 - x|$.",
+      "**A \"show that\"**: write every log step; the final A1 is starred."
     ] },
+    { callout: { t: "miscon", h: "\"The integral of a fraction is the log of its denominator\"", body: [
+      "Only when the top is the bottom's derivative, or a multiple of it.",
+      "$\\int\\frac{1}{x(x + 2)}\\,dx$ is not $\\ln|x(x + 2)|$: differentiating that gives $\\frac{2x + 2}{x(x + 2)}$.",
+      "Split it first: $\\frac12\\left(\\frac1x - \\frac{1}{x + 2}\\right)$ integrates to $\\frac12\\ln\\left|\\frac{x}{x + 2}\\right| + c$."
+    ] } },
     { callout: { t: "mnemonic", h: "\"Linear below → log; squared below → power; top is the derivative → log of the bottom\"", body: "Decides the integral of every rational piece." } }
   ],
   flashcards: [

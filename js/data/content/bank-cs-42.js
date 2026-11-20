@@ -376,7 +376,9 @@ X("compsci:4.2.7.1", {
     ["Why must keys be unique?", "The dictionary returns one value per key; a repeated key overwrites the previous value.", 12],
     ["Why is a dictionary more suitable than a 2D array for a phone book?", "Names are not integers, so they cannot index an array; a dictionary maps any key type to a value directly.", 13],
     ["What does looking up a missing key do?", "Raises an error / returns a null or default value, depending on the language.", 14],
-    ["How does a dictionary differ from a list of pairs?", "Lookup is by key in O(1) rather than a linear search through the pairs.", 15]
+    ["How does a dictionary differ from a list of pairs?", "Lookup is by key in O(1) rather than a linear search through the pairs.", 15],
+    ["Why does a hash-table slot store the key as well as the value?", "Two keys can hash to the same slot; comparing the stored key tells which pair is the one asked for.", 100],
+    ["Which implementation of a dictionary gives its keys back in order?", "A balanced binary search tree (C#'s SortedDictionary), by in-order traversal, with O(log n) lookups; a hash table scatters them.", 101]
   ],
   quiz: [
     { q: "In `{\"ASCII\": 128, \"Unicode\": 143859}` the keys are:", opts: ["128 and 143859", "\"ASCII\" and \"Unicode\"", "both the names and numbers", "neither — they are values"], ans: 1, why: "Keys map to values." },
@@ -384,7 +386,9 @@ X("compsci:4.2.7.1", {
     { q: "A dictionary is usually implemented with:", opts: ["a stack", "a hash table", "a queue", "a binary file"], ans: 1, why: "Hashing gives fast key lookup." },
     { q: "Best structure for mapping student ID strings to records:", opts: ["1D array", "dictionary", "stack", "linked list"], ans: 1, why: "Non-integer keys, direct lookup." },
     { q: "Counting word frequencies uses the word as the:", opts: ["value", "key", "index of an array", "hash table size"], ans: 1, why: "The word is the key used to look up its count, which is the value in the dictionary." },
-    { q: "Average lookup time in a dictionary backed by a hash table is:", opts: ["O(n)", "O(1)", "O(log n)", "O(n log n)"], ans: 1, why: "Hash the key, go to the slot." }
+    { q: "Average lookup time in a dictionary backed by a hash table is:", opts: ["O(n)", "O(1)", "O(log n)", "O(n log n)"], ans: 1, why: "Hash the key, go to the slot." },
+    { qk: "100", q: "An empty dictionary has d[\"x\"] ← 1, then d[\"y\"] ← 2, then d[\"x\"] ← 5. It now holds", opts: ["three pairs, with x twice", "two pairs: x is 6 and y is 2", "two pairs: x is 5 and y is 2", "two pairs: x is 1 and y is 2"], ans: 2, why: "Assigning to an existing key replaces its value: x becomes 5, and keys never repeat." },
+    { qk: "101", q: "A dictionary must list its keys in alphabetical order quickly. The best implementation is", opts: ["a hash table", "a balanced binary search tree", "an unsorted list of pairs", "a stack of pairs"], ans: 1, why: "An in-order traversal of a binary search tree visits the keys in order; a hash table scatters them." }
   ],
   exam: [
     { src: "AQA 2021 P2 Q5", q: "A program must record, for each postcode area, the number of orders delivered there. Explain why a dictionary is an appropriate data structure and describe how it would be used.", marks: 3,

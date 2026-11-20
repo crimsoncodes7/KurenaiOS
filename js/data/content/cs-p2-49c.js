@@ -57,7 +57,7 @@ C["compsci:4.9.4.3"] = {
       ["Suitable IP addresses for router ports / hosts in a diagram", "State", "2–3", "A-level 2017 Q09.1, 2021 Q11.1"]
     ] } },
     { h: "How these notes are organised" },
-    { ol: ["**Network ID and host ID**.", "**Choosing valid addresses**.", "**In exam questions**.", "**Exam toolkit**."] },
+    { ol: ["**Network ID and host ID**.", "**Choosing valid addresses**.", "**The split in binary**: prefix lengths, host counts and finding a network's range.", "**Why the address is split**: same network or not, and what routers store.", "**In exam questions**.", "**Exam toolkit**."] },
 
     { page: "Network ID and host ID" },
     { fig: { w: 600, h: 120, items: (function () {
@@ -84,6 +84,41 @@ C["compsci:4.9.4.3"] = {
       "For a /20 network 192.168.192.0: the third octet's top 4 bits are fixed (1100), so the third octet runs **192–207** and the fourth 0–255 — excluding 192.168.192.0 (network) and 192.168.207.255 (broadcast)."
     ] },
 
+    { page: "The split in binary" },
+    { callout: { t: "info", h: "Read the prefix as a count of bits", body: ["/n means the first n bits of the 32 are the network ID; the other 32 − n are the host ID.", "A network with h host bits has 2ʰ addresses, but 2ʰ − 2 hosts: all 0s and all 1s are reserved."] } },
+    { table: { head: ["Prefix", "Network bits", "Host bits", "Hosts on each network (2ʰ − 2)"], rows: [
+      ["/8", "8", "24", "16 777 214"],
+      ["/16", "16", "16", "65 534"],
+      ["/20", "20", "12", "4 094"],
+      ["/24", "24", "8", "254"],
+      ["/27", "27", "5", "30"],
+      ["/30", "30", "2", "2"]
+    ] } },
+    { fig: {"w": 600, "h": 124, "items": [{"poly": [[20, 40], [36, 40], [36, 66], [20, 66]], "fill": "accent", "alpha": 0.3, "c": "accent", "w": 1}, {"text": [28.0, 53.0], "t": "1", "size": 10.5, "c": "text", "b": true, "pos": "c"}, {"poly": [[36, 40], [52, 40], [52, 66], [36, 66]], "fill": "accent", "alpha": 0.3, "c": "accent", "w": 1}, {"text": [44.0, 53.0], "t": "0", "size": 10.5, "c": "text", "b": true, "pos": "c"}, {"poly": [[52, 40], [68, 40], [68, 66], [52, 66]], "fill": "accent", "alpha": 0.3, "c": "accent", "w": 1}, {"text": [60.0, 53.0], "t": "1", "size": 10.5, "c": "text", "b": true, "pos": "c"}, {"poly": [[68, 40], [84, 40], [84, 66], [68, 66]], "fill": "accent", "alpha": 0.3, "c": "accent", "w": 1}, {"text": [76.0, 53.0], "t": "0", "size": 10.5, "c": "text", "b": true, "pos": "c"}, {"poly": [[84, 40], [100, 40], [100, 66], [84, 66]], "fill": "accent", "alpha": 0.3, "c": "accent", "w": 1}, {"text": [92.0, 53.0], "t": "1", "size": 10.5, "c": "text", "b": true, "pos": "c"}, {"poly": [[100, 40], [116, 40], [116, 66], [100, 66]], "fill": "accent", "alpha": 0.3, "c": "accent", "w": 1}, {"text": [108.0, 53.0], "t": "1", "size": 10.5, "c": "text", "b": true, "pos": "c"}, {"poly": [[116, 40], [132, 40], [132, 66], [116, 66]], "fill": "accent", "alpha": 0.3, "c": "accent", "w": 1}, {"text": [124.0, 53.0], "t": "0", "size": 10.5, "c": "text", "b": true, "pos": "c"}, {"poly": [[132, 40], [148, 40], [148, 66], [132, 66]], "fill": "accent", "alpha": 0.3, "c": "accent", "w": 1}, {"text": [140.0, 53.0], "t": "0", "size": 10.5, "c": "text", "b": true, "pos": "c"}, {"poly": [[156, 40], [172, 40], [172, 66], [156, 66]], "fill": "accent", "alpha": 0.3, "c": "accent", "w": 1}, {"text": [164.0, 53.0], "t": "0", "size": 10.5, "c": "text", "b": true, "pos": "c"}, {"poly": [[172, 40], [188, 40], [188, 66], [172, 66]], "fill": "accent", "alpha": 0.3, "c": "accent", "w": 1}, {"text": [180.0, 53.0], "t": "0", "size": 10.5, "c": "text", "b": true, "pos": "c"}, {"poly": [[188, 40], [204, 40], [204, 66], [188, 66]], "fill": "accent", "alpha": 0.3, "c": "accent", "w": 1}, {"text": [196.0, 53.0], "t": "0", "size": 10.5, "c": "text", "b": true, "pos": "c"}, {"poly": [[204, 40], [220, 40], [220, 66], [204, 66]], "fill": "accent", "alpha": 0.3, "c": "accent", "w": 1}, {"text": [212.0, 53.0], "t": "1", "size": 10.5, "c": "text", "b": true, "pos": "c"}, {"poly": [[220, 40], [236, 40], [236, 66], [220, 66]], "fill": "accent", "alpha": 0.3, "c": "accent", "w": 1}, {"text": [228.0, 53.0], "t": "0", "size": 10.5, "c": "text", "b": true, "pos": "c"}, {"poly": [[236, 40], [252, 40], [252, 66], [236, 66]], "fill": "accent", "alpha": 0.3, "c": "accent", "w": 1}, {"text": [244.0, 53.0], "t": "0", "size": 10.5, "c": "text", "b": true, "pos": "c"}, {"poly": [[252, 40], [268, 40], [268, 66], [252, 66]], "fill": "accent", "alpha": 0.3, "c": "accent", "w": 1}, {"text": [260.0, 53.0], "t": "0", "size": 10.5, "c": "text", "b": true, "pos": "c"}, {"poly": [[268, 40], [284, 40], [284, 66], [268, 66]], "fill": "accent", "alpha": 0.3, "c": "accent", "w": 1}, {"text": [276.0, 53.0], "t": "0", "size": 10.5, "c": "text", "b": true, "pos": "c"}, {"poly": [[292, 40], [308, 40], [308, 66], [292, 66]], "fill": "accent", "alpha": 0.3, "c": "accent", "w": 1}, {"text": [300.0, 53.0], "t": "0", "size": 10.5, "c": "text", "b": true, "pos": "c"}, {"poly": [[308, 40], [324, 40], [324, 66], [308, 66]], "fill": "accent", "alpha": 0.3, "c": "accent", "w": 1}, {"text": [316.0, 53.0], "t": "0", "size": 10.5, "c": "text", "b": true, "pos": "c"}, {"poly": [[324, 40], [340, 40], [340, 66], [324, 66]], "fill": "accent", "alpha": 0.3, "c": "accent", "w": 1}, {"text": [332.0, 53.0], "t": "1", "size": 10.5, "c": "text", "b": true, "pos": "c"}, {"poly": [[340, 40], [356, 40], [356, 66], [340, 66]], "fill": "accent", "alpha": 0.3, "c": "accent", "w": 1}, {"text": [348.0, 53.0], "t": "0", "size": 10.5, "c": "text", "b": true, "pos": "c"}, {"poly": [[356, 40], [372, 40], [372, 66], [356, 66]], "fill": "accent2", "alpha": 0.22, "c": "accent2", "w": 1}, {"text": [364.0, 53.0], "t": "1", "size": 10.5, "c": "text", "b": true, "pos": "c"}, {"poly": [[372, 40], [388, 40], [388, 66], [372, 66]], "fill": "accent2", "alpha": 0.22, "c": "accent2", "w": 1}, {"text": [380.0, 53.0], "t": "1", "size": 10.5, "c": "text", "b": true, "pos": "c"}, {"poly": [[388, 40], [404, 40], [404, 66], [388, 66]], "fill": "accent2", "alpha": 0.22, "c": "accent2", "w": 1}, {"text": [396.0, 53.0], "t": "0", "size": 10.5, "c": "text", "b": true, "pos": "c"}, {"poly": [[404, 40], [420, 40], [420, 66], [404, 66]], "fill": "accent2", "alpha": 0.22, "c": "accent2", "w": 1}, {"text": [412.0, 53.0], "t": "1", "size": 10.5, "c": "text", "b": true, "pos": "c"}, {"poly": [[428, 40], [444, 40], [444, 66], [428, 66]], "fill": "accent2", "alpha": 0.22, "c": "accent2", "w": 1}, {"text": [436.0, 53.0], "t": "1", "size": 10.5, "c": "text", "b": true, "pos": "c"}, {"poly": [[444, 40], [460, 40], [460, 66], [444, 66]], "fill": "accent2", "alpha": 0.22, "c": "accent2", "w": 1}, {"text": [452.0, 53.0], "t": "1", "size": 10.5, "c": "text", "b": true, "pos": "c"}, {"poly": [[460, 40], [476, 40], [476, 66], [460, 66]], "fill": "accent2", "alpha": 0.22, "c": "accent2", "w": 1}, {"text": [468.0, 53.0], "t": "0", "size": 10.5, "c": "text", "b": true, "pos": "c"}, {"poly": [[476, 40], [492, 40], [492, 66], [476, 66]], "fill": "accent2", "alpha": 0.22, "c": "accent2", "w": 1}, {"text": [484.0, 53.0], "t": "0", "size": 10.5, "c": "text", "b": true, "pos": "c"}, {"poly": [[492, 40], [508, 40], [508, 66], [492, 66]], "fill": "accent2", "alpha": 0.22, "c": "accent2", "w": 1}, {"text": [500.0, 53.0], "t": "1", "size": 10.5, "c": "text", "b": true, "pos": "c"}, {"poly": [[508, 40], [524, 40], [524, 66], [508, 66]], "fill": "accent2", "alpha": 0.22, "c": "accent2", "w": 1}, {"text": [516.0, 53.0], "t": "0", "size": 10.5, "c": "text", "b": true, "pos": "c"}, {"poly": [[524, 40], [540, 40], [540, 66], [524, 66]], "fill": "accent2", "alpha": 0.22, "c": "accent2", "w": 1}, {"text": [532.0, 53.0], "t": "0", "size": 10.5, "c": "text", "b": true, "pos": "c"}, {"poly": [[540, 40], [556, 40], [556, 66], [540, 66]], "fill": "accent2", "alpha": 0.22, "c": "accent2", "w": 1}, {"text": [548.0, 53.0], "t": "0", "size": 10.5, "c": "text", "b": true, "pos": "c"}, {"text": [84, 28], "t": "172", "size": 11, "c": "text2", "b": true, "pos": "c"}, {"text": [220, 28], "t": "16", "size": 11, "c": "text2", "b": true, "pos": "c"}, {"text": [332, 28], "t": "45", "size": 11, "c": "text2", "b": true, "pos": "c"}, {"text": [492, 28], "t": "200", "size": 11, "c": "text2", "b": true, "pos": "c"}, {"line": [[356, 22], [356, 110]], "c": "danger", "w": 2, "dash": true}, {"text": [362, 22], "t": "/20 split", "size": 10, "c": "danger", "pos": "e"}, {"line": [[20, 76], [354, 76]], "c": "accent", "w": 1.6, "arrow": "both"}, {"text": [188.0, 92], "t": "network ID: 20 bits → 172.16.32.0", "size": 10.5, "c": "accent", "pos": "c"}, {"line": [[358, 76], [556, 76]], "c": "accent2", "w": 1.6, "arrow": "both"}, {"text": [456.0, 92], "t": "host ID: 12 bits", "size": 10.5, "c": "accent2", "pos": "c"}, {"text": [456.0, 108], "t": "1101 11001000", "size": 10, "c": "text2", "pos": "c"}], "cap": "172.16.45.200/20 bit by bit. The split falls after the 4th bit of the third octet, so 45 = 0010 1101 keeps its top four bits (0010 = 32) in the network ID: the network is 172.16.32.0, and the host ID is the last 12 bits."} },
+    { worked: { tag: "variation", title: "Find a /20 network's range", q: "A host has the address 172.16.45.200/20. Find the network address, the broadcast address, the first and last addresses that can be given to a host, and how many hosts the network can hold.",
+      steps: [
+        { m: "/20 leaves the first two octets whole and takes the top 4 bits of the third: 45 = 0010 1101, so the network part of it is 0010 0000 = 32;", mk: "1" },
+        { m: "Network address: every host bit 0, so 172.16.32.0; broadcast: every host bit 1, so the third octet is 0010 1111 = 47 and the address 172.16.47.255;", mk: "1" },
+        { m: "First host 172.16.32.1, last host 172.16.47.254;", mk: "1" },
+        { m: "12 host bits: 2¹² − 2 = 4 094 hosts.", mk: "1" }
+      ], result: "172.16.32.0 to 172.16.47.255; hosts .32.1 to .47.254; 4 094" } },
+    { callout: { t: "tip", h: "A shortcut for the octet that is split", body: ["The block size is 2 to the power of the host bits in that octet: a /20 keeps 4 bits of the third octet and leaves 4, so blocks of 2⁴ = 16.", "Networks start at 0, 16, 32, 48, 64 … so 45 is in the block 32–47, and 70 in 64–79."] } },
+
+    { page: "Why the address is split" },
+    { kv: [
+      ["Routers store networks, not hosts", "a routing table holds one entry for each network ID, so a router needs no entry for each of the millions of devices"],
+      ["Same network: deliver directly", "a host compares the network ID of the destination with its own; if they match, it sends the frame straight to the device on the LAN"],
+      ["Different network: send to the gateway", "otherwise the packet goes to the default gateway, the router, which forwards it on the network ID"],
+      ["Organising a site", "each department or building can be its own network, with its own network ID"]
+    ] },
+    { worked: { tag: "variation", title: "Same network or not?", q: "A computer has the address 192.168.64.10/20. It sends packets to 192.168.75.3 and to 192.168.80.5. For each, state whether it is on the same network and how the packet is delivered.",
+      steps: [
+        { m: "The computer's network: third octet 64 = 0100 0000, network ID 192.168.64.0, covering third octets 64–79;", mk: "1" },
+        { m: "192.168.75.3: 75 = 0100 1011, same top four bits 0100, so the same network: delivered directly on the LAN;", mk: "1" },
+        { m: "192.168.80.5: 80 = 0101 0000, top four bits 0101 differ, so another network: the packet is sent to the default gateway (router) to be forwarded.", mk: "1" }
+      ], result: "75.3 same network, direct; 80.5 different, via the router" } },
+    { callout: { t: "warn", h: "Common mistakes", body: ["Reading /24 as \"24 hosts\". The number is the network ID's length in bits.", "Counting 2ʰ hosts: two addresses on every network are reserved, so it is 2ʰ − 2.", "Taking the network part of a split octet in denary (45 → 40). Convert it to binary: the top bits of 45 give 32.", "Thinking the host ID alone identifies a device on the Internet. It is unique only with its network ID."] } },
+
     { page: "In exam questions" },
     { worked: { tag: "exam", title: "Addresses for two router ports", src: "A-level June 2017 · P2 Q09.1 · 2 marks",
       q: "A LAN uses IPv4. The 'Router and Firewall' port A is on network 192.168.0.0 and the 'Router 2' port B is on network 192.168.2.0 (each a /24 network). State suitable IP addresses for each port.",
@@ -106,7 +141,8 @@ C["compsci:4.9.4.3"] = {
 
     { page: "Exam toolkit" },
     { table: { head: ["Command word", "What earns the mark"], rows: [
-      ["State a suitable IP address", "Same network-ID bits as its network; host bits not all 0s / all 1s; different from other devices."]
+      ["State a suitable IP address", "Same network-ID bits as its network; host bits not all 0s / all 1s; different from other devices."],
+      ["Find the network / host count", "Network ID = the first n bits with the host bits 0; hosts = 2ʰ − 2 for h host bits."]
     ] } },
     MS_KEY,
     { callout: { t: "mnemonic", h: "\"Street then House\"", body: "The network ID is the **street** (everyone on it shares it); the host ID is the **house number** (unique on the street). House 0 is the street's name, the last house number is the megaphone (broadcast)." } },
@@ -301,7 +337,7 @@ C["compsci:4.9.4.6"] = {
       ["Public vs private (essay area)", "Explain", "—", "A-level 2025 Q08 — worked in 4.9.4.5"]
     ] } },
     { h: "How these notes are organised" },
-    { ol: ["**Routable and non-routable**.", "**In exam questions**.", "**Exam toolkit**."] },
+    { ol: ["**Routable and non-routable**.", "**Inside the private ranges**: their sizes, and telling at a glance whether an address is private.", "**One address, many homes**: what the outside world sees, and what private addressing does and does not protect.", "**A router's two addresses**: who gives out each address in a home network, and how private addressing kept IPv4 going.", "**In exam questions**.", "**Exam toolkit**."] },
 
     { page: "Routable and non-routable" },
     natFig("A home LAN: devices hold private addresses; only the router's public address is seen on the Internet."),
@@ -313,6 +349,69 @@ C["compsci:4.9.4.6"] = {
       ["Reached from outside", "directly", "only through **NAT / port forwarding** at the router"]
     ] } },
     { callout: { t: "def", h: "Why private ranges exist", body: "Because private addresses are never routed on the Internet, **every LAN can reuse the same ranges** — millions of homes use 192.168.0.x at once — saving scarce IPv4 public addresses. They also hide internal devices from direct outside access." } },
+
+    { page: "Inside the private ranges" },
+    { table: { head: ["Range", "As a prefix", "Addresses", "Typically used by"], rows: [
+      ["10.0.0.0 – 10.255.255.255", "10.0.0.0/8", "16 777 216", "large organisations, which split it into many subnets"],
+      ["172.16.0.0 – 172.31.255.255", "172.16.0.0/12", "1 048 576", "medium-sized networks"],
+      ["192.168.0.0 – 192.168.255.255", "192.168.0.0/16", "65 536", "home and small-office routers"]
+    ] } },
+    { callout: { t: "tip", h: "Testing an address at a glance", body: ["Starts with 10: private.", "Starts with 192.168: private. 192.169 and 192.167 are not.", "Starts with 172: private only if the second octet is 16 to 31. That is because /12 fixes the top four bits of the second octet as 0001, and 0001 0000 to 0001 1111 is 16 to 31.", "Anything else (in these notes): public."] } },
+    { worked: { tag: "variation", title: "On the edge of the ranges", q: "State whether each address is private or public, with a reason: (a) 172.15.0.1 (b) 172.31.255.254 (c) 192.169.0.1 (d) 10.255.0.1.",
+      steps: [
+        { m: "(a) public: the second octet 15 is below 16, so it is just outside 172.16.0.0/12;", mk: "1" },
+        { m: "(b) private: 31 is the top of the 16–31 band of 172.16.0.0/12;", mk: "1" },
+        { m: "(c) public: only 192.168.x.x is private, and the second octet here is 169;", mk: "1" },
+        { m: "(d) private: every address that starts with 10 is in 10.0.0.0/8.", mk: "1" }
+      ], result: "b and d private; a and c public" } },
+
+    { page: "One address, many homes" },
+    { fig: { w: 640, h: 214, items: [].concat(
+      boxAt(10, 30, 140, 46, "Laptop", "accent", "192.168.0.4"), boxAt(190, 30, 150, 46, "Router A", "accent2", "public 186.7.2.31"),
+      boxAt(10, 140, 140, 46, "Laptop", "accent", "192.168.0.4"), boxAt(190, 140, 150, 46, "Router B", "accent2", "public 141.134.27.8"),
+      boxAt(474, 84, 156, 50, "Web server", "good", "on the Internet"),
+      arrow(150, 53, 190, 53, null, { c: "text2", w: 1.4 }), arrow(150, 163, 190, 163, null, { c: "text2", w: 1.4 }),
+      arrow(340, 53, 474, 100, null, { c: "accent2", w: 1.6 }), arrow(340, 163, 474, 118, null, { c: "accent2", w: 1.6 }),
+      [txt(80, 18, "Home A's LAN", { size: 10.5, c: "text2" }), txt(80, 128, "Home B's LAN", { size: 10.5, c: "text2" }),
+        txt(424, 60, "source 186.7.2.31", { size: 10, c: "accent2" }), txt(424, 160, "source 141.134.27.8", { size: 10, c: "accent2" }),
+        txt(552, 152, "sees two public addresses,", { size: 10, c: "text2" }), txt(552, 166, "never 192.168.0.4", { size: 10, c: "text2" }),
+        txt(170, 204, "the same private address in both homes, with no clash", { size: 10.5, c: "accent" })]
+    ), cap: "Two laptops in different homes both hold 192.168.0.4. Each router replaces it with its own public address as packets leave (NAT), so the web server sees two different, routable sources and its replies come back to the right router." } },
+    { kv: [
+      ["What the outside world sees", "only the router's public address; every device in the LAN appears as that one address"],
+      ["What it protects", "an outside computer cannot start a connection to a private address, because no Internet router will carry the packet there"],
+      ["What it does not protect", "a private address is not secret or encrypted; a device that starts a connection out, or a forwarded port, can still be attacked, so a firewall is still needed"]
+    ] },
+    { worked: { tag: "variation", title: "Thirty pupils, one address", q: "A website's log shows 30 visits in one lesson, all from the same IP address, although they were made from 30 different school computers. Explain why.",
+      steps: [
+        { m: "The school computers have private (non-routable) addresses, unique only within the school's LAN;", mk: "1" },
+        { m: "the school's router performs NAT, replacing each computer's private source address with the router's single public address, so the website sees that one address for all 30.", mk: "1" }
+      ], result: "Private addresses behind one router's public address (NAT)" } },
+    { callout: { t: "warn", h: "Common mistakes", body: ["\"A private address is secret\" or \"encrypted\". It is simply not routed on the Internet.", "Calling every 172 address private. Only 172.16 to 172.31 is.", "Saying two homes with 192.168.0.4 are \"on different networks\" without saying the address is private or non-routable: not enough for the mark.", "Forgetting NAT: private addressing explains why the address can be reused; NAT explains how the device still reaches the Internet."] } },
+
+    { page: "A router's two addresses" },
+    { fig: { w: 640, h: 170, items: [].concat(
+      boxAt(10, 20, 150, 44, "Laptop", "accent", "192.168.0.23"), boxAt(10, 86, 150, 44, "Printer", "accent", "192.168.0.40"),
+      boxAt(250, 30, 150, 90, "Router", "accent2", "NAT · DHCP"),
+      boxAt(490, 50, 140, 50, "ISP / Internet", "good", "public addresses"),
+      arrow(160, 42, 250, 62, null, { c: "text2", w: 1.4, both: true }), arrow(160, 108, 250, 88, null, { c: "text2", w: 1.4, both: true }),
+      arrow(400, 75, 490, 75, null, { c: "good", w: 1.6, both: true }),
+      [txt(232, 138, "LAN side 192.168.0.1", { size: 10.5, c: "accent", b: true }), txt(420, 138, "WAN side 186.7.2.31", { size: 10.5, c: "good", b: true }),
+        txt(85, 160, "private: given out by the router's DHCP", { size: 10, c: "text2" })]
+    ), cap: "A home router sits on two networks, so it has two addresses: a private one on the LAN side (the devices' default gateway) and a public one on the Internet side, given by the ISP." } },
+    { table: { head: ["Address", "Example", "Given by", "Routable on the Internet?"], rows: [
+      ["A laptop at home", "192.168.0.23", "the router's DHCP server", "No"],
+      ["The router, LAN side", "192.168.0.1", "set by the administrator", "No"],
+      ["The router, Internet side", "186.7.2.31", "the ISP", "Yes"],
+      ["A website's server", "141.134.27.8", "its hosting provider", "Yes"]
+    ] } },
+    { callout: { t: "key", h: "Why IPv4 needed private ranges", body: ["IPv4 has 2³² ≈ 4.3 billion addresses: fewer than the devices that use the Internet.", "Reusing the private ranges in every LAN, with NAT at each router, lets a whole home or school share ONE public address.", "IPv6's 128-bit addresses (2¹²⁸) remove the shortage, so every device can have its own routable address (4.9.4.5)."] } },
+    { worked: { tag: "variation", title: "How private addressing stretched IPv4", q: "Explain how the use of private IP addresses has helped the supply of IPv4 addresses to last longer than expected.",
+      steps: [
+        { m: "IPv4 offers only about 4.3 billion (2³²) addresses, fewer than the number of devices connected;", mk: "1" },
+        { m: "private addresses are not routable, so the same ranges can be reused inside every LAN without clashing;", mk: "1" },
+        { m: "with NAT, all the devices in a LAN share the router's one public address, so far fewer public addresses are needed.", mk: "1" }
+      ], result: "Reuse inside LANs + NAT = one public address per site" } },
 
     { page: "In exam questions" },
     { worked: { tag: "exam", title: "Many computers, one address", src: "A-level June 2020 · P2 Q05.2 · 2 marks",
@@ -338,7 +437,8 @@ C["compsci:4.9.4.6"] = {
     { page: "Exam toolkit" },
     { table: { head: ["Command word", "What earns the mark"], rows: [
       ["Distinguish public / private", "Globally unique and routed vs locally unique and not routed."],
-      ["Explain (shared address)", "Private address + NAT swaps it for the router's public address."]
+      ["Explain (shared address)", "Private address + NAT swaps it for the router's public address."],
+      ["Public or private?", "10.x, 172.16–31.x and 192.168.x are private; give the range as the reason."]
     ] } },
     MS_KEY,
     { callout: { t: "mnemonic", h: "\"10, 172.16, 192.168 stay at home\"", body: "The three private ranges never leave the LAN; everything else is public." } },
@@ -544,7 +644,7 @@ C["compsci:4.9.4.9"] = {
       ["How the router was configured so a web server is reachable", "Explain", "2–3", "A-level 2018 Q05.4, 2024 Q07.4"]
     ] } },
     { h: "How these notes are organised" },
-    { ol: ["**The concept**.", "**In exam questions**.", "**Exam toolkit**."] },
+    { ol: ["**The concept**.", "**The forwarding table**: what the router stores, and what it does to each packet.", "**Using it safely**: fixed addresses, which ports to open, and the risks.", "**Port forwarding in context**: beside NAT and the firewall, and setting up a server at home.", "**In exam questions**.", "**Exam toolkit**."] },
 
     { page: "The concept" },
     { kv: [
@@ -561,6 +661,73 @@ C["compsci:4.9.4.9"] = {
       return it;
     })(), cap: "Visitors connect to the router's public address; the forwarding rule sends port-80 traffic to the private web server." } },
     { callout: { t: "tip", h: "Side by side: NAT vs port forwarding", body: "**NAT** maps **outgoing** connections automatically, creating table entries as LAN hosts start conversations. **Port forwarding** is a **fixed, configured** entry for **incoming** connections that no LAN host started." } },
+
+    { page: "The forwarding table" },
+    { callout: { t: "info", h: "A table of fixed rules", body: ["The administrator enters each rule once, in the router's settings.", "Each rule matches an external port (and protocol) and names the private IP address and port that the traffic goes to."] } },
+    { table: { head: ["External port", "Protocol", "Forward to (private IP)", "Internal port", "Service"], rows: [
+      ["80", "TCP", "192.168.0.2", "80", "web server (HTTP)"],
+      ["443", "TCP", "192.168.0.2", "443", "web server (HTTPS)"],
+      ["8080", "TCP", "192.168.0.5", "80", "a second web server"],
+      ["25565", "TCP", "192.168.0.9", "25565", "game server"]
+    ] } },
+    { fig: { w: 640, h: 206, items: [].concat(
+      boxAt(10, 36, 186, 50, "to 186.7.2.31 : 8080", "good", "from 203.0.113.7 : 51000"),
+      boxAt(240, 26, 160, 70, "Router", "accent2", "rule 8080 → 192.168.0.5:80"),
+      boxAt(444, 36, 186, 50, "to 192.168.0.5 : 80", "accent", "from 203.0.113.7 : 51000"),
+      arrow(196, 61, 240, 61, null, { c: "good", w: 1.6 }), arrow(400, 61, 444, 61, null, { c: "accent", w: 1.6 }),
+      boxAt(444, 130, 186, 50, "from 192.168.0.5 : 80", "accent", "to 203.0.113.7 : 51000"),
+      boxAt(10, 130, 186, 50, "from 186.7.2.31 : 8080", "good", "to 203.0.113.7 : 51000"),
+      arrow(444, 155, 400, 155, null, { c: "text2", w: 1.4, dash: "5 4" }), arrow(240, 155, 196, 155, null, { c: "text2", w: 1.4, dash: "5 4" }),
+      [{ poly: [[240, 130], [400, 130], [400, 180], [240, 180]], fill: "accent2", alpha: 0.08, c: "accent2", w: 1.2, dash: "5 4" },
+        txt(320, 148, "reply rewritten", { size: 10.5, c: "accent2", b: true }), txt(320, 164, "back to the public address", { size: 10, c: "text2" }),
+        txt(103, 16, "request arrives from the Internet", { size: 10.5, c: "text2" }), txt(537, 16, "delivered on the LAN", { size: 10.5, c: "text2" }),
+        txt(320, 198, "the visitor only ever sees 186.7.2.31 : 8080", { size: 10.5, c: "good" })]
+    ), cap: "One request through the 8080 rule. The router rewrites the destination to the second web server's private address and port; on the reply it puts its own public address and port back, so the visitor's computer recognises the answer." } },
+    { worked: { tag: "variation", title: "Where does each packet go?", q: "Using the forwarding table above, state what the router does with packets arriving at 186.7.2.31 on (a) port 443, (b) port 8080, (c) port 22.",
+      steps: [
+        { m: "(a) forwarded to 192.168.0.2 on port 443: the web server's HTTPS service;", mk: "1" },
+        { m: "(b) forwarded to 192.168.0.5, with the port changed to 80: the second web server;", mk: "1" },
+        { m: "(c) no rule matches and no device on the LAN started this connection, so the router drops it.", mk: "1" }
+      ], result: "→ .0.2:443 · → .0.5:80 · dropped" } },
+    { worked: { tag: "variation", title: "Two web servers, one public address", q: "A club runs two web servers, 192.168.0.2 and 192.168.0.5, both listening on port 80, behind a router with one public address. Explain how both can be reached from the Internet.",
+      steps: [
+        { m: "Only one rule can use external port 80, so it forwards port 80 to one server, 192.168.0.2;", mk: "1" },
+        { m: "a second rule forwards a different external port, e.g. 8080, to 192.168.0.5 port 80;", mk: "1" },
+        { m: "visitors reach the second server by giving the port: 186.7.2.31:8080.", mk: "1" }
+      ], result: "Different external ports, each forwarded to one server" } },
+
+    { page: "Using it safely" },
+    { kv: [
+      ["Give the server a fixed address", "a static IP or a DHCP reservation, or the rule will point at whichever device is given that address next"],
+      ["Forward only what is needed", "one rule per service, to one device; never forward every port to a computer"],
+      ["Keep the server patched", "a forwarded port is open to anyone on the Internet, so the software behind it must be up to date"],
+      ["Keep the firewall", "the firewall can still restrict which traffic may use the rule; port forwarding does not replace it"]
+    ] },
+    { callout: { t: "miscon", h: "Port forwarding does not make the server's address public", body: ["The server keeps its private address. Visitors use the router's public address and the port; only the router knows where the traffic really goes."] } },
+    { callout: { t: "warn", h: "Common mistakes", body: ["Leaving out the port number: the rule matches on the port.", "Saying visitors connect to the server's private address. They connect to the router's public address.", "Describing NAT instead: NAT maps outgoing connections automatically; port forwarding is a fixed rule for incoming ones.", "Forgetting the reply: the router rewrites it back to its public address and port."] } },
+
+    { page: "Port forwarding in context" },
+    { table: { head: ["", "NAT", "Port forwarding", "Firewall rule"], rows: [
+      ["Direction", "outgoing connections, and their replies", "incoming connections", "either"],
+      ["Created", "automatically, when a LAN device starts a connection", "by hand, once, by the administrator", "by hand, by the administrator"],
+      ["What it does", "swaps a private source address for the public one", "sends one external port to one private address", "allows or blocks traffic"],
+      ["Without it", "private devices cannot use the Internet", "a LAN server cannot be reached from outside", "nothing is filtered"]
+    ] } },
+    { kv: [
+      ["80", "HTTP: an unencrypted website"],
+      ["443", "HTTPS: a website over TLS"],
+      ["21", "FTP: file transfer"],
+      ["22", "SSH: remote secure login"],
+      ["25", "SMTP: sending email between servers"]
+    ] },
+    { callout: { t: "tip", h: "Well-known ports name the rule", body: ["A forwarding rule for a standard service uses its well-known port (4.9.4.1), so name it in an answer: \"traffic on port 443 (HTTPS)\"."] } },
+    { worked: { tag: "variation", title: "Hosting a website at home", q: "A student wants a website on a computer at home to be reachable from the Internet. The home router uses NAT and DHCP. Describe what must be set up.",
+      steps: [
+        { m: "Give the server computer a fixed private address, e.g. 192.168.0.2, by a static setting or a DHCP reservation;", mk: "1" },
+        { m: "add a port-forwarding rule in the router: traffic arriving on port 80 (or 443 for HTTPS) is forwarded to 192.168.0.2;", mk: "1" },
+        { m: "make sure the router's firewall allows incoming traffic on that port;", mk: "1" },
+        { m: "visitors then use the router's public IP address (or a domain name that resolves to it), not the server's private address.", mk: "1" }
+      ], result: "Fixed private IP · rule for port 80/443 · firewall allows it · visitors use the public IP" } },
 
     { page: "In exam questions" },
     { worked: { tag: "exam", title: "Configuring the External Router", src: "A-level June 2018 · P2 Q05.4 · 2 marks",
@@ -582,7 +749,7 @@ C["compsci:4.9.4.9"] = {
       ], result: ":25565 → 192.168.0.9" } },
 
     { page: "Exam toolkit" },
-    { table: { head: ["Command word", "What earns the mark"], rows: [["Explain how (configured / accessed)", "Router's public IP; traffic on the service's port; forwarded to the server's private IP."]] } },
+    { table: { head: ["Command word", "What earns the mark"], rows: [["Explain how (configured / accessed)", "Router's public IP; traffic on the service's port; forwarded to the server's private IP."], ["Two servers, one address", "A different external port for each, each forwarded to one server's private IP."]] } },
     MS_KEY,
     { callout: { t: "mnemonic", h: "\"Knock on 80, the router points you to the server\"", body: "Public IP + port → private IP. Port forwarding is the **doorman** for one door." } },
     { callout: { t: "warn", h: "Specific errors", body: ["No mention of the port number.", "Forgetting the outside world uses the ROUTER's public address.", "Letting DHCP change the server's address (4.9.4.7)."] } },

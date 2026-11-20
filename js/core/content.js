@@ -315,6 +315,30 @@
 
   /* a block carrying an `id` (an edited topic) is wrapped so the editor
      can point at it; the wrapper is display:contents and changes no layout */
+  /* content-maths#2: the total of a worked example's mark codes, beside
+     them, so a mismatch with its source's marks shows (smoke116 D's rule:
+     "M1 A1", "B2", "1" or "(2) marks"); nothing when a code is not one */
+  var MK_CODE = /^(?:d|D)?[MAB]\d+(?:ft|\*|cao|oe|cso|aef)?$/;
+  function markSum(str) {
+    var toks = String(str).trim().split(/[\s,]+/).filter(Boolean);
+    if (!toks.length) return null;
+    if (toks.every(function (t) { return MK_CODE.test(t); })) return toks.reduce(function (s, t) { return s + parseInt(/\d+/.exec(t)[0], 10); }, 0);
+    var n = /^\(?(\d+)\)?(?:\s*marks?)?$/i.exec(String(str).trim());
+    return n ? +n[1] : null;
+  }
+  function workedTotal(steps) {
+    var sum = 0, any = 0;
+    for (var i = 0; i < (steps || []).length; i++) {
+      var st = steps[i];
+      if (!st || typeof st === "string" || st.mk == null || st.mk === "") continue;
+      var v = markSum(st.mk);
+      if (v == null) return "";
+      sum += v; any++;
+    }
+    if (any < 2) return "";
+    return '<li class="k-n-wrow k-n-wtotal" data-ui="content.worked-total"><span class="k-n-wlabel">Total</span><div class="k-n-wbody"></div>' +
+      '<span class="k-n-wmk" title="Total of the mark codes">' + sum + (sum === 1 ? " mark" : " marks") + "</span></li>";
+  }
   function renderBlocks(blocks) {
     var total = "";
     /* a nested body written as ONE block (a callout's `body: {ul: […]}`)
@@ -407,7 +431,7 @@
               (st.fig && window.KOS.figures ? KOS.figures.render(st.fig) : "") +
               (st.n ? '<div class="k-n-wn">' + inline(aqaWords(st.n)) + "</div>" : "") + "</div>" +
               (st.mk ? '<span class="k-n-wmk" title="Mark">' + esc(st.mk) + "</span>" : "") + "</li>";
-          }).join("") + "</ol>" +
+          }).join("") + workedTotal(w.steps) + "</ol>" +
           (w.result ? '<div class="k-n-answer"><b>Answer</b><span>' + inline(w.result) + "</span></div>" : "") +
           /* "Your turn" (5.19, 43): a part to fill in that the app marks —
              a trace table, SQL that runs, a circuit, predict-then-Run */
