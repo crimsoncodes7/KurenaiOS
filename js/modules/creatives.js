@@ -548,7 +548,7 @@
     return el("article", { class: "k-cr-work", "data-ui": "cr.work", "data-state": o && o.open ? "open" : null }, [
       kind,
       el("div", { class: "k-cr-work-t" }, [el("b", { text: w.title }),
-        el("small", { class: "k-muted", text: [(CR().track(w.track) || {}).name, L ? L.id + "·" + w.study : w.unit ? "project" : null, w.words ? w.words + " words" : null, dateShort(w.at)].filter(Boolean).join(" · ") })]),
+        el("small", { class: "k-muted", text: [(CR().track(w.track) || {}).name, L ? L.id + (w.study ? "·" + w.study : "") : w.unit ? "project" : null, w.words ? w.words + " words" : null, dateShort(w.at)].filter(Boolean).join(" · ") })]),
       w.check ? el("span", { class: "k-cr-done", "data-tone": w.check.pass ? "done" : "now", text: w.check.pass ? "✓ check passed" : "not yet" }) : null,
       w.portfolio ? el("span", { class: "k-chip k-cr-chip", text: "In Portfolio" }) : null,
       el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "cr.work-open", text: "Open", onclick: function () { openWork(w.id); } })
@@ -639,7 +639,7 @@
         if (!f.dataUrl) urls.push(src);
         slot.innerHTML = "";
         slot.setAttribute("data-state", "thumb");
-        slot.appendChild(el("img", { class: "k-cr-work-thumb", "data-ui": "cr.work-thumb", src: src, alt: "" }));
+        slot.appendChild(el("img", { class: "k-cr-work-thumb", "data-ui": "cr.work-thumb", src: src, alt: "", decoding: "async", loading: "lazy" }));
       });
     }
     function paint() {
@@ -687,12 +687,13 @@
     var list = CR().portfolio();
     if (!list.length) { main.appendChild(spotEmpty("cr.spot.portfolio", { mark: "選", title: "Nothing promoted yet", body: "That's normal. When a piece makes you smile, open it in the Practice Log and choose “Promote”.",
       action: el("button", { type: "button", class: "k-btn", text: "Open the Practice Log", onclick: function () { KOS.show("creatives", { page: "log" }); } }) })); return; }
+    var live = KOS.view ? KOS.view.token() : function () { return true; };
     main.appendChild(el("div", { class: "k-cr-portgrid", "data-ui": "cr.portfolio" }, list.map(function (w) {
       var thumb = el("div", { class: "k-cr-thumb", "aria-hidden": "true" }, [el("span", { lang: "ja", text: kindMark(w) })]);
       CR().files.get(w.id, function (err, f) {
-        if (!f) return;
+        if (!f || !live()) return;
         thumb.innerHTML = "";
-        if (f.dataUrl) thumb.appendChild(el("img", { src: f.dataUrl, alt: "" }));
+        if (f.dataUrl) thumb.appendChild(el("img", { src: f.dataUrl, alt: "", decoding: "async", loading: "lazy" }));
         else if (f.text) thumb.appendChild(el("p", { class: "k-cr-thumb-text", text: f.text.slice(0, 220) }));
       });
       return el("button", { type: "button", class: "k-card k-cr-piece", "data-ui": "cr.piece", onclick: function () { openWork(w.id); } }, [thumb,
