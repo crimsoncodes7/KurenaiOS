@@ -334,7 +334,7 @@
   }
   var NEEDS = {
     /* the labs (1F) ride with every page that embeds or opens one */
-    ref: function (arg) { return [contentOf(subjectOfArg(arg)), "labs"]; },
+    ref: function (arg) { return [contentOf(subjectOfArg(arg)), "labs", "intel"]; },
     subject: function (arg) { return [contentOf(subjectOfArg(arg)), "labs"]; },
     code: function () { return CODE; },
     /* one assessment's pages assemble its Companion and its papers from its

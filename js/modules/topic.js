@@ -826,7 +826,7 @@
 
     /* the examiner's guidance on this spec point, as the spec tab's callouts */
     function renderIntel(into) {
-      var intel = KOS_DATA.intel[sid + ":" + ref];
+      var intel = (KOS_DATA.intel || {})[sid + ":" + ref];
       if (!intel) return;
       function callout(kind, mark, title, body, hook) {
         return el("aside", { class: "k-callout", "data-kind": kind, "data-ui": hook || null }, [
