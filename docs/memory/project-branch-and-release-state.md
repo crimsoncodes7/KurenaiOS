@@ -1,12 +1,14 @@
 ---
 name: project-branch-and-release-state
-description: "Which git branch is live, what is deployed — check git before trusting this; prod kos-integrity-23 (19 Nov, main 9852e2c); suites from 196"
+description: "Which git branch is live, what is deployed — check git before trusting this; prod kos-qol-1 (20 Nov, main 9bbc996); suites from 198"
 metadata:
   node_type: memory
   type: project
   originSessionId: 2e2dc728-9366-4708-9ad8-6718d38edac2
   modified: 2026-11-17T21:04:49.853Z
 ---
+
+**RELEASED 2026-11-20: sw `kos-qol-1`, immutable https://1a3b6623.kurenai-os.pages.dev, main fast-forwarded to feat/qol-1a (9bbc996).** The QoL review's 1A and 1B plus Neon's batches 1–2. Gate 179 (suites to 197; smoke197 = tools/card_lint.mjs). Boot budget 7.78 MB. NOT deployed: the Edge Function clean-ups EF-01..08 (runner, ai-chat, github-token, ext-token, vndb-ulist…) — they had only a syntax check (no Deno here); ask before deploying them. Held: bk:data-integrity#4 (seq cursor), Money bank-balance comparison. Next: 1C (the user's own requests, each with a short design check), Neon batch 3 (docs/qol/neon/BRIEF-3.md, branch neon/qol-batch-3 from main). Known: nine Maths exam questions are listed twice (item + worked), recorded in smoke116's baseline. New suites from 198.
 
 **RELEASED 2026-11-19: sw `kos-integrity-23`, immutable https://62721e6a.kurenai-os.pages.dev, main fast-forwarded to feat/w1w7-rest (9852e2c); runner Edge Function v10.** Carries the rest of W1/W7 + the spaces batch (smoke194 Reports/Goals for Japanese/Mind/Creatives, smoke195 the day model/Home Money row/Assistant ja tools), Study hours = study only. Boot budget 7.89 MB (page-player, page-share, page-cardstats lazy). Gate 177. Next: the QoL review with the user (artifact https://claude.ai/artifact/GaUNGxhbmcpSaLFTZj3wTY, marks in its db collection `decisions`). New suites from 196.
 
