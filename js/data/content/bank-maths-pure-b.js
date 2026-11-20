@@ -163,7 +163,9 @@ X("maths:4.3", {
     { q: "$\\sum_{r=1}^{n} (2r - 1) =$", opts: ["$n^2$", "$n(n+1)$", "$2n$", "$n^2 - 1$"], ans: 0, why: "Sum of the first $n$ odd numbers." },
     { q: "$\\sum_{r=0}^{\\infty} \\left(\\tfrac12\\right)^r =$", opts: ["1", "2", "$\\tfrac12$", "diverges"], ans: 1, why: "$\\dfrac{1}{1 - 1/2}$." },
     { q: "$\\sum_{r=1}^{100} (-1)^r =$", opts: ["0", "100", "$-1$", "1"], ans: 0, why: "$(-1 + 1) + (-1 + 1) + \\ldots$: 50 pairs, each 0." },
-    { q: "$\\sum_{r=1}^{n} \\left(\\ln(r+1) - \\ln r\\right) =$", opts: ["$\\ln n$", "$\\ln(n + 1)$", "$-\\ln(n + 1)$", "$\\ln(n - 1)$"], ans: 1, why: "Telescopes to $\\ln(n+1) - \\ln 1$." }
+    { q: "$\\sum_{r=1}^{n} \\left(\\ln(r+1) - \\ln r\\right) =$", opts: ["$\\ln n$", "$\\ln(n + 1)$", "$-\\ln(n + 1)$", "$\\ln(n - 1)$"], ans: 1, why: "Telescopes to $\\ln(n+1) - \\ln 1$." },
+    { qk: "100", q: "$2 + 5 + 8 + \\cdots + 59$ in sigma notation is", opts: ["$\\sum_{r=1}^{20}(3r - 1)$", "$\\sum_{r=1}^{19}(3r - 1)$", "$\\sum_{r=1}^{20}(3r + 2)$", "$\\sum_{r=0}^{20}(3r - 1)$"], ans: 0, why: "$3r - 1 = 59$ at $r = 20$." },
+    { qk: "101", q: "The least $n$ with $\\sum_{r=1}^{n} 2^r > 1000$ is", opts: ["9", "10", "8", "11"], ans: 0, why: "$2(2^n - 1) > 1000$: $2^n > 501$, so $n = 9$ ($2 \\times 511 = 1022$)." }
   ],
   exam: [
     { src: "Edexcel 2018 P2 Q4", ctx: "A sequence is defined by $a_1 = 5$ and $a_{n+1} = 12 - a_n$ for $n \\ge 1$.",
@@ -715,7 +717,9 @@ X("maths:6.1", {
     { q: "$y = \\left(\\tfrac12\\right)^x$ is the same as:", opts: ["$y = 2^{-x}$", "$y = -2^x$", "$y = 2^x$", "$y = \\tfrac12 \\cdot 2^x$"], ans: 0, why: "$(2^{-1})^x$." },
     { q: "$e^{\\ln 7} =$", opts: ["7", "$\\ln 7$", "1", "$e^7$"], ans: 0, why: "$e^x$ and $\\ln x$ are inverses, so $e^{\\ln 7} = 7$." },
     { q: "Solve $e^{x} = 1$:", opts: ["$x = e$", "$x = 0$", "$x = 1$", "no solution"], ans: 1, why: "$e^0 = 1$." },
-    { q: "$e^{3\\ln 2} =$", opts: ["6", "8", "$\\ln 8$", "$3\\ln 2$"], ans: 1, why: "$e^{\\ln 8}$." }
+    { q: "$e^{3\\ln 2} =$", opts: ["6", "8", "$\\ln 8$", "$3\\ln 2$"], ans: 1, why: "$e^{\\ln 8}$." },
+    { qk: "100", q: "$e^{2x} - 5e^x + 6 = 0$ has solutions", opts: ["$\\ln 2, \\ln 3$", "$2, 3$", "$\\ln 6$ only", "$e^2, e^3$"], ans: 0, why: "$(e^x - 2)(e^x - 3) = 0$." },
+    { qk: "101", q: "The range of $f(x) = 1 + e^{x}$, $x \\in \\mathbb{R}$, is", opts: ["$f(x) > 1$", "$f(x) \\ge 1$", "$f(x) > 0$", "all real numbers"], ans: 0, why: "$e^x > 0$, never 0." }
   ],
   exam: [
     { src: "Edexcel 2022 P1 Q2", parts: [
@@ -744,7 +748,9 @@ X("maths:6.2", {
     { q: "$\\dfrac{d}{dx}(2^x) =$", opts: ["$2^x$", "$x2^{x-1}$", "$2^x\\ln 2$", "$\\ln 2$"], ans: 2, why: "$2^x = e^{x\\ln 2}$, so the derivative is $2^x\\ln 2$." },
     { q: "If $\\dfrac{dN}{dt} = 0.3N$ then $N =$", opts: ["$0.3t$", "$Ae^{0.3t}$", "$0.3e^{t}$", "$N^2$"], ans: 1, why: "Growth proportional to $N$: $N = Ae^{kt}$ with $k = 0.3$." },
     { q: "Gradient of $y = e^{-x}$ at $x = 0$:", opts: ["$1$", "$-1$", "$-e$", "$e$"], ans: 1, why: "$-e^0$." },
-    { q: "Rate of change of $A = 0.2e^{0.3t}$ at $t = 5$ is:", opts: ["$0.06e^{1.5}$", "$0.2e^{1.5}$", "$0.3e^{5}$", "$e^{1.5}$"], ans: 0, why: "$0.2 \\times 0.3 e^{1.5}$." }
+    { q: "Rate of change of $A = 0.2e^{0.3t}$ at $t = 5$ is:", opts: ["$0.06e^{1.5}$", "$0.2e^{1.5}$", "$0.3e^{5}$", "$e^{1.5}$"], ans: 0, why: "$0.2 \\times 0.3 e^{1.5}$." },
+    { qk: "100", q: "The gradient of $y = e^{3x}$ at $(0, 1)$ is", opts: ["3", "1", "$e^3$", "0"], ans: 0, why: "$3e^{0} = 3$." },
+    { qk: "101", q: "$y = e^{x} - 2x$ has a stationary point at $x =$", opts: ["$\\ln 2$", "$2$", "$\\tfrac12$", "$e^2$"], ans: 0, why: "$e^x - 2 = 0$." }
   ],
   exam: [
     { src: "Edexcel Oct 2021 P2 Q8", ctx: "The number of bacteria $N$ in a culture after $t$ hours is modelled by $N = Ae^{kt}$. Initially there are 500 bacteria and the number doubles every 5 hours.",

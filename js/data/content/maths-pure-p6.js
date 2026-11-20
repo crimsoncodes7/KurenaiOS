@@ -100,9 +100,7 @@ C["maths:6.1"] = {
     { q: "$y$-intercept of $y = 2e^{x + 1}$:", opts: ["$2$", "$2e$", "$e^2$", "$3e$"], ans: 1, why: "$2e^1$." },
     { q: "$y = 0.7^x$ is", opts: ["increasing", "decreasing", "constant", "undefined"], ans: 1, why: "Base less than 1." },
     { q: "$e^{2x} = 5$ gives $x =$", opts: ["$\\tfrac12\\ln 5$", "$\\ln\\tfrac52$", "$\\tfrac12\\ln 10$", "$\\ln 5$"], ans: 0, why: "$2x = \\ln 5$." },
-    { q: "$y = e^{-x}$ and $y = e^x$ are related by", opts: ["reflection in the $y$-axis", "reflection in the $x$-axis", "translation", "stretch"], ans: 0, why: "$x \\to -x$." },
-    { q: "$e^{2x} - 5e^x + 6 = 0$ has solutions", opts: ["$\\ln 2, \\ln 3$", "$2, 3$", "$\\ln 6$ only", "$e^2, e^3$"], ans: 0, why: "$(e^x - 2)(e^x - 3) = 0$." },
-    { q: "The range of $f(x) = 1 + e^{x}$, $x \\in \\mathbb{R}$, is", opts: ["$f(x) > 1$", "$f(x) \\ge 1$", "$f(x) > 0$", "all real numbers"], ans: 0, why: "$e^x > 0$, never 0." }
+    { q: "$y = e^{-x}$ and $y = e^x$ are related by", opts: ["reflection in the $y$-axis", "reflection in the $x$-axis", "translation", "stretch"], ans: 0, why: "$x \\to -x$." }
   ]
 };
 
@@ -191,9 +189,7 @@ C["maths:6.2"] = {
     { q: "$\\frac{d}{dx}(e^{3x}) =$", opts: ["$3e^{3x}$", "$e^{3x}$", "$3xe^{3x}$", "$e^{3}$"], ans: 0, why: "Chain rule with $k = 3$." },
     { q: "The gradient of $y = e^x$ at $x = 2$ is", opts: ["$e^2$", "2", "$2e$", "$e$"], ans: 0, why: "$\\frac{d}{dx}e^x = e^x$, so the gradient at 2 is $e^2$." },
     { q: "A quantity whose rate of change is proportional to itself is modelled by", opts: ["$y = Ae^{kt}$", "$y = At + k$", "$y = At^2$", "$y = A\\ln t$"], ans: 0, why: "Defining property of exponentials." },
-    { q: "$\\frac{d}{dt}(5e^{-0.2t}) =$", opts: ["$-e^{-0.2t}$", "$-0.2e^{-0.2t}$", "$5e^{-0.2t}$", "$-5e^{-0.2t}$"], ans: 0, why: "$5 \\times (-0.2)$." },
-    { q: "The gradient of $y = e^{3x}$ at $(0, 1)$ is", opts: ["3", "1", "$e^3$", "0"], ans: 0, why: "$3e^{0} = 3$." },
-    { q: "$y = e^{x} - 2x$ has a stationary point at $x =$", opts: ["$\\ln 2$", "$2$", "$\\tfrac12$", "$e^2$"], ans: 0, why: "$e^x - 2 = 0$." }
+    { q: "$\\frac{d}{dt}(5e^{-0.2t}) =$", opts: ["$-e^{-0.2t}$", "$-0.2e^{-0.2t}$", "$5e^{-0.2t}$", "$-5e^{-0.2t}$"], ans: 0, why: "$5 \\times (-0.2)$." }
   ]
 };
 

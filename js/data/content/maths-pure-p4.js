@@ -824,9 +824,7 @@ C["maths:4.3"] = {
     { q: "$\\sum_{r=3}^{10} 4$ equals", opts: ["32", "40", "28", "4"], ans: 0, why: "8 terms of 4." },
     { q: "$\\sum_{r=1}^{n} r$ for $n = 100$:", opts: ["5050", "5000", "10100", "4950"], ans: 0, why: "$\\frac{100 \\times 101}{2}$." },
     { q: "$\\sum_{r=1}^{\\infty} 3(\\frac{1}{4})^{r}$ =", opts: ["4", "1", "$\\tfrac34$", "12"], ans: 1, why: "$a = \\frac34$, $S = \\frac{3/4}{3/4}$." },
-    { q: "$\\sum_{n=1}^{9}\\ln\\frac{n+1}{n} =$", opts: ["$\\ln 10$", "$\\ln 9$", "$9$", "$\\ln 45$"], ans: 0, why: "Telescopes to $\\ln\\frac{10}{1}$." },
-    { q: "$2 + 5 + 8 + \\cdots + 59$ in sigma notation is", opts: ["$\\sum_{r=1}^{20}(3r - 1)$", "$\\sum_{r=1}^{19}(3r - 1)$", "$\\sum_{r=1}^{20}(3r + 2)$", "$\\sum_{r=0}^{20}(3r - 1)$"], ans: 0, why: "$3r - 1 = 59$ at $r = 20$." },
-    { q: "The least $n$ with $\\sum_{r=1}^{n} 2^r > 1000$ is", opts: ["9", "10", "8", "11"], ans: 0, why: "$2(2^n - 1) > 1000$: $2^n > 501$, so $n = 9$ ($2 \\times 511 = 1022$)." }
+    { q: "$\\sum_{n=1}^{9}\\ln\\frac{n+1}{n} =$", opts: ["$\\ln 10$", "$\\ln 9$", "$9$", "$\\ln 45$"], ans: 0, why: "Telescopes to $\\ln\\frac{10}{1}$." }
   ]
 };
 
