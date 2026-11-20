@@ -151,7 +151,7 @@
       el("b", { text: proj.milestones[doc.ms] }), el("p", { class: "k-muted", text: proj.brief })
     ]));
     side.appendChild(sprintCard(doc, area));
-    side.appendChild(versionsCard(doc, area, later));
+    side.appendChild(versionsCard(doc, area, later, paintCount));
 
     var saveBtn = el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "cr.save-log",
       text: proj ? "Save as milestone " + (doc.ms + 1) : "Save to Practice Log",
@@ -198,7 +198,7 @@
         } })
     ]);
   }
-  function versionsCard(doc, area, later) {
+  function versionsCard(doc, area, later, paintCount) {
     var box = el("section", { class: "k-card k-cr-versions", "data-ui": "cr.versions" });
     function paint() {
       box.innerHTML = "";
@@ -210,7 +210,19 @@
       if (!doc.versions.length) { box.appendChild(el("p", { class: "k-muted", text: "None yet." })); return; }
       box.appendChild(el("ol", { class: "k-cr-verlist" }, doc.versions.map(function (v, i) {
         return el("li", {}, [el("span", { class: "k-mono", text: "v" + (i + 1) }), el("span", { class: "k-muted", text: fmtDate(v.at) + " · " + v.words + " words" }),
-          el("button", { type: "button", class: "k-link", "data-ui": "cr.version-diff", text: "Compare with now", onclick: function () { openDiff(doc.versions[i].text, area.value, "v" + (i + 1), "now"); } })]);
+          el("button", { type: "button", class: "k-link", "data-ui": "cr.version-diff", text: "Compare with now", onclick: function () { openDiff(doc.versions[i].text, area.value, "v" + (i + 1), "now"); } }),
+          el("button", { type: "button", class: "k-link", "data-ui": "cr.version-restore", text: "Restore this version", onclick: function () {
+            var prev = area.value, targetText = doc.versions[i].text, label = "v" + (i + 1);
+            if (prev === targetText) { KOS.ui.toast("Draft already matches " + label + "."); return; }
+            var prevLen = doc.versions.length, pushed = false;
+            if (!prevLen || doc.versions[prevLen - 1].text !== prev) { doc.versions.push({ at: Date.now(), text: prev, words: words(prev) }); pushed = true; }
+            doc.text = targetText; area.value = targetText; paintCount(); later(); paint();
+            KOS.ui.toast("Restored " + label + (pushed ? " · previous text kept as v" + doc.versions.length : ""), false, { label: "Undo", run: function () {
+              doc.text = prev;
+              if (pushed && doc.versions.length === prevLen + 1 && doc.versions[prevLen].text === prev) doc.versions.pop();
+              if (area.isConnected) { area.value = prev; paintCount(); later(); paint(); } else save(doc);
+            } });
+          } })]);
       }).reverse()));
     }
     paint();

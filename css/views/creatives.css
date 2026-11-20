@@ -214,7 +214,8 @@
 .k-cr-num { inline-size: 100%; min-inline-size: 0; }
 .k-cr-versions-h { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-8); }
 .k-cr-verlist { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: var(--sp-6); font-size: var(--fs-13); }
-.k-cr-verlist > li { display: flex; align-items: baseline; gap: var(--sp-8); flex-wrap: wrap; }
+.k-cr-verlist > li { display: flex; align-items: center; gap: var(--sp-8); flex-wrap: wrap; }
+.k-cr-verlist .k-link { display: inline-flex; align-items: center; min-block-size: var(--hit); }
 .k-cr-diff { font: var(--fs-16) / var(--lh-read) var(--font-read); white-space: pre-wrap; max-block-size: 60vh; overflow: auto; }
 .k-cr-diff-ins { text-decoration: underline; text-decoration-color: var(--green); text-decoration-thickness: var(--focus-width); background: color-mix(in oklch, var(--green) 14%, transparent); color: var(--text); }
 .k-cr-diff-del { color: var(--text-2); background: color-mix(in oklch, var(--alarm) 10%, transparent); }
@@ -397,5 +398,6 @@
   .k-cr-day { inline-size: var(--hit-coarse); block-size: var(--hit-coarse); }
   .k-cr-logtools .k-pill-select { min-block-size: var(--hit-coarse); }
   .k-cr-project .k-link { min-block-size: var(--hit-coarse); }
+  .k-cr-verlist .k-link { min-block-size: var(--hit-coarse); }
 }
 }
