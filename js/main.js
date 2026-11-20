@@ -354,6 +354,9 @@
   /* Decorative art per device (34n): set before the first page draws */
   if (KOS.art) { KOS.art.apply(); KOS.art.loadOwn(function () { if (KOS.rerender) KOS.rerender({ background: "soft", changed: ["art"] }); }); }
   KOS.router.boot();
+  /* Steam's sign-in tab coming back (`?steam=<code>`): once the first page
+     is up, say how it went and open Games */
+  if (KOS.gameapi && KOS.gameapi.boot) KOS.gameapi.boot();
   /* W2 (AP-01): the first page is up. Boot is the measure "kos-boot"; what
      was left for first use (js/core/lazy.js) is fetched in idle moments
      from a few seconds on, the subject last studied first. */

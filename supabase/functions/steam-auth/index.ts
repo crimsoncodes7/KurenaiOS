@@ -38,18 +38,15 @@ function callbackUrl(): string {
   return `${base}/functions/v1/steam-auth`;
 }
 
-function htmlPage(title: string, body: string, ok: boolean): Response {
-  const home = appUrl();
-  return new Response(
-    `<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><title>${title}</title>
-<style>body{font:16px/1.6 Georgia,serif;background:#EFE7D6;color:#332C20;display:grid;place-items:center;min-height:100vh;margin:0}
-main{max-width:420px;padding:32px;background:#F8F3E6;border-radius:14px;box-shadow:0 12px 32px rgba(46,36,18,.12);text-align:center}
-h1{font-size:22px}a{color:#5D6BA8}</style></head><body><main>
-<h1>${ok ? "✓" : "✕"} ${title}</h1><p>${body}</p>
-<p><a href="${home}">Return to Kurenai OS</a> — then reopen the Steam panel.</p>
-</main></body></html>`,
-    { status: ok ? 200 : 400, headers: { ...corsHeaders, "Content-Type": "text/html; charset=utf-8" } },
-  );
+/* The callback's answer is a redirect back into the app with a short code
+   (`/?steam=linked`, `?steam=expired`, …), never a page of its own: the
+   platform serves HTML from *.supabase.co as text/plain, so a page here was
+   shown as raw source. The app reads the code once at boot, says what it
+   means (KOS.gameapi.STEAM_RESULT) and opens Games, as the Google and
+   Todoist returns do. 303, so the browser fetches the app with GET. */
+type SteamResult = "linked" | "malformed" | "unknown" | "expired" | "cancelled" | "endpoint" | "unreachable" | "refused" | "identity" | "store";
+function backToApp(code: SteamResult): Response {
+  return new Response(null, { status: 303, headers: { ...corsHeaders, Location: `${appUrl()}/?steam=${code}` } });
 }
 
 /* ---------------- begin: mint the bound nonce ---------------- */
@@ -81,26 +78,26 @@ async function begin(req: Request): Promise<Response> {
 async function callback(req: Request): Promise<Response> {
   const url = new URL(req.url);
   const nonce = url.searchParams.get("nonce") ?? "";
-  if (!/^[0-9a-f-]{36}$/.test(nonce)) return htmlPage("Steam link failed", "Malformed request.", false);
+  if (!/^[0-9a-f-]{36}$/.test(nonce)) return backToApp("malformed");
 
   /* consume the nonce FIRST — single-use even when verification fails */
   const sel = await serviceRest(`kos_steam_auth?nonce=eq.${nonce}&select=user_id,created_at`);
   const rows = sel.ok ? await sel.json() : [];
   await serviceRest(`kos_steam_auth?nonce=eq.${nonce}`, { method: "DELETE" });
   if (!rows.length) {
-    return htmlPage("Steam link failed", "This link request is unknown or was already used. Start again from the Steam panel.", false);
+    return backToApp("unknown");
   }
   if (Date.now() - Date.parse(rows[0].created_at) > NONCE_TTL_MS) {
-    return htmlPage("Steam link expired", "The request took longer than 10 minutes. Start again from the Steam panel.", false);
+    return backToApp("expired");
   }
   const userId: string = rows[0].user_id;
 
   if (url.searchParams.get("openid.mode") !== "id_res") {
-    return htmlPage("Steam link cancelled", "Steam did not complete the sign-in.", false);
+    return backToApp("cancelled");
   }
   const returnTo = url.searchParams.get("openid.return_to") ?? "";
   if (!returnTo.startsWith(callbackUrl() + "?nonce=")) {
-    return htmlPage("Steam link failed", "The response was addressed to a different endpoint.", false);
+    return backToApp("endpoint");
   }
 
   /* THE verification: hand the whole assertion back to Steam and let STEAM
@@ -110,7 +107,7 @@ async function callback(req: Request): Promise<Response> {
     if (k.startsWith("openid.")) verify.set(k, v);
   }
   verify.set("openid.mode", "check_authentication");
-  /* EF-07 (1A): Steam unreachable is a page that says so, not the runtime's
+  /* EF-07 (1A): Steam unreachable says so (back in the app), not the runtime's
      bare 500 (the nonce is spent, so the way back is Link Steam again) */
   let vres: Response, vtext: string;
   try {
@@ -121,15 +118,15 @@ async function callback(req: Request): Promise<Response> {
     });
     vtext = await vres.text();
   } catch {
-    return htmlPage("Steam link failed", "Steam could not be reached to verify the sign-in. Close this tab and press Link Steam again in a minute.", false);
+    return backToApp("unreachable");
   }
   if (!vres.ok || !/is_valid\s*:\s*true/.test(vtext)) {
-    return htmlPage("Steam link failed", "Steam refused to verify the sign-in (the response could not be authenticated).", false);
+    return backToApp("refused");
   }
 
   const claimed = url.searchParams.get("openid.claimed_id") ?? "";
   const m = claimed.match(/^https:\/\/steamcommunity\.com\/openid\/id\/(\d{17})$/);
-  if (!m) return htmlPage("Steam link failed", "Steam returned an unrecognised identity.", false);
+  if (!m) return backToApp("identity");
   const steamId = m[1];
 
   const up = await serviceRest("kos_steam?on_conflict=user_id", {
@@ -137,9 +134,9 @@ async function callback(req: Request): Promise<Response> {
     body: JSON.stringify({ user_id: userId, steam_id: steamId, verified_at: new Date().toISOString() }),
     headers: { Prefer: "resolution=merge-duplicates,return=minimal" },
   });
-  if (!up.ok) return htmlPage("Steam link failed", "Verified, but the identity could not be stored — try again.", false);
+  if (!up.ok) return backToApp("store");
 
-  return htmlPage("Steam account linked", "Your Steam identity was verified by Steam itself and is now attached to your Kurenai account.", true);
+  return backToApp("linked");
 }
 
 /* ---------------- status / unlink ---------------- */

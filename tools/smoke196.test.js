@@ -279,7 +279,14 @@ step("H · the server functions' failure paths (rm:edge-hygiene, EF-01 to EF-08)
   const run = read("runner/index.ts");
   assert(/for \(const o of outlooks\) \{\s*try \{/.test(run) && /out\.failed\+\+/.test(run), "EF-05: one user's failure is that user's alone");
   assert(!/^const results/m.test(run) && /const results: Result\[\] = \[\];/.test(run), "EF-06: the reply's rows are the invocation's own");
-  assert(/catch \{\s*return htmlPage\("Steam link failed", "Steam could not be reached/.test(read("steam-auth/index.ts")), "EF-07: Steam unreachable is a page that says so");
+  /* EF-07, and the Steam return: every way out of the callback is a 303 back to the app with a code the app
+     knows (a page on *.supabase.co is served as text/plain, so it showed as raw source) */
+  const sa = read("steam-auth/index.ts");
+  assert(/catch \{\s*return backToApp\("unreachable"\)/.test(sa), "EF-07: Steam unreachable says so");
+  assert(!/htmlPage|text\/html/.test(sa) && /status: 303, headers: \{ \.\.\.corsHeaders, Location: `\$\{appUrl\(\)\}\/\?steam=\$\{code\}` \}/.test(sa), "the callback answers with a redirect, never a page");
+  const codes = Array.from(sa.matchAll(/backToApp\("([a-z]+)"\)/g), (m) => m[1]);
+  eq(codes.length, 10, "ten ways out of the callback");
+  codes.forEach((c) => assert(K.gameapi.STEAM_RESULT[c], "the app knows the code " + c));
   const cloud = fs.readFileSync(path.join(__dirname, "..", "js/core/cloud.js"), "utf8");
   assert(/if \(!msg && status === 401\) \{ msg = EXPIRED;/.test(cloud), "EF-02: the gateway's own 401 reads as an expired session");
 });
@@ -349,6 +356,20 @@ step("K · worked totals, tariff counts, the exam number and no score before an 
   g.querySelector('[data-f="mid"]').click();
   assert(/Q2 of 3/.test(q('[data-ui~="quiz.exam-top"]', g).textContent), "the card says its own number out of the topic's");
   g.remove();
+});
+
+step("L · Steam's sign-in tab lands back in the app: the result said once, the code taken out of the address, Games open", async () => {
+  const W = app.window;
+  W.history.replaceState(null, "", "/index.html?steam=linked#/home");
+  eq(K.gameapi.steamReturn(), "linked", "the code is read");
+  K.gameapi.boot();
+  await app.settle();
+  eq(W.location.search, "", "the code leaves the address, so a reload says nothing twice");
+  assert(/Steam account linked/.test(D.getElementById("toast").textContent), "the toast says it linked: " + D.getElementById("toast").textContent);
+  assert(/^#\/game/.test(W.location.hash), "Games open: " + W.location.hash);
+  W.history.replaceState(null, "", "/index.html?steam=bogus#/home");
+  eq(K.gameapi.steamReturn(), null, "an unknown code is ignored");
+  W.history.replaceState(null, "", "/index.html#/home");
 });
 
 (async () => {

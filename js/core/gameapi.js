@@ -46,7 +46,39 @@
   function steamUnlink(cb) { invoke("steam-auth", { action: "unlink" }, cb); }
   function steamOwnedGames(cb) { invoke("steam-owned-games", {}, cb); }
 
+  /* Steam's sign-in tab comes back here as `/?steam=<code>` (steam-auth's
+     callback redirects; a page on *.supabase.co would show as raw source).
+     The code is read once, taken out of the address, said in a toast and
+     Games opens, where Steam library… carries on. */
+  var STEAM_RESULT = {
+    linked: "Steam account linked. Open Steam library… in Games to import what you own.",
+    malformed: "Steam link failed: the request was malformed. Start again from Steam library… in Games.",
+    unknown: "Steam link failed: that link request is unknown or was already used. Start again from Steam library… in Games.",
+    expired: "Steam link expired: it took longer than 10 minutes. Start again from Steam library… in Games.",
+    cancelled: "Steam link cancelled: Steam did not complete the sign-in.",
+    endpoint: "Steam link failed: Steam's answer was addressed somewhere else. Start again from Steam library… in Games.",
+    unreachable: "Steam link failed: Steam could not be reached to verify the sign-in. Try Link Steam again in a minute.",
+    refused: "Steam link failed: Steam refused to verify the sign-in.",
+    identity: "Steam link failed: Steam returned an identity Kurenai doesn't recognise.",
+    store: "Steam link failed: verified, but the link could not be saved. Try again."
+  };
+  function steamReturn() {
+    if (typeof location === "undefined") return null;
+    var m = /[?&]steam=([a-z]+)/.exec(location.search || "");
+    return m && STEAM_RESULT[m[1]] ? m[1] : null;
+  }
+  function boot() {
+    var code = steamReturn();
+    if (!code) return;
+    try { history.replaceState(null, "", location.pathname + (location.hash || "")); } catch (e) { /* file:// */ }
+    if (KOS.ui && KOS.ui.toast) KOS.ui.toast(STEAM_RESULT[code], code !== "linked");
+    if (KOS.show) KOS.show("game");
+  }
+
   KOS.gameapi = {
+    STEAM_RESULT: STEAM_RESULT,
+    steamReturn: steamReturn,
+    boot: boot,
     ready: ready,
     igdbSearch: igdbSearch,
     steamStatus: steamStatus,

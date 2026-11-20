@@ -15,7 +15,13 @@ the service-worker version). Git holds the rest.
   `5bece3e`). `ai-chat` is deployed as version 6 (images for Gemini, 26 October 2026); the
   `kos_reports` migration `20261012000001` is applied; so is `kos_money`
   (`20261019000001`, 19 October 2026), live since the Money and Goals release.
-- Latest release: sw `kos-qol-1` (20 November 2026, `feat/qol-1a` into
+- Latest release: sw `kos-qol-2` (20 November 2026, `feat/qol-1a` into
+  main; immutable IMMUTABLE_URL; `steam-auth` STEAM_V): the Steam
+  link's sign-in tab comes back into the app. Supabase serves HTML from
+  *.supabase.co as text/plain, so steam-auth's result page showed as raw
+  source; its callback now answers with a 303 to `/?steam=<code>`, and the
+  app says the result in a toast and opens Games (smoke196 L).
+- Before it: sw `kos-qol-1` (20 November 2026, `feat/qol-1a` into
   main; immutable https://1a3b6623.kurenai-os.pages.dev): the QoL review's batches 1A and 1B,
   with Neon's batches 1 and 2. 1A: Due today measured per subject and by
   time on a plan row; review counts from the review log; the Writing Desk

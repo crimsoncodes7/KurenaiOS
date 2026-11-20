@@ -46,7 +46,7 @@ async function req(url, opts = {}, token) {
   const text = await res.text();
   let body = null;
   try { body = JSON.parse(text); } catch { body = text; }
-  return { status: res.status, body, text };
+  return { status: res.status, body, text, location: res.headers.get("location") || "" };
 }
 
 (async () => {
@@ -105,12 +105,13 @@ async function req(url, opts = {}, token) {
     `&openid.mode=id_res&openid.return_to=${encodeURIComponent(`${FN}/steam-auth?nonce=${nonce}`)}` +
     `&openid.claimed_id=${encodeURIComponent("https://steamcommunity.com/openid/id/76561190000000000")}` +
     `&openid.assoc_handle=x&openid.signed=x&openid.sig=forged`;
-  r = await req(cb, { method: "GET" });
-  ok("a forged assertion fails server-side verification", r.status === 400 && /could not be authenticated|failed/i.test(r.text), "status " + r.status + " " + r.text.slice(0, 120));
-  r = await req(cb, { method: "GET" });
-  ok("the nonce is single-use (replay refused as unknown/used)", r.status === 400 && /unknown|already used/i.test(r.text), r.text.slice(0, 120));
-  r = await req(`${FN}/steam-auth?nonce=ffffffff-ffff-4fff-8fff-ffffffffffff&openid.mode=id_res`, { method: "GET" });
-  ok("an unknown nonce is refused", r.status === 400 && /unknown|already used/i.test(r.text), r.text.slice(0, 120));
+  /* the callback answers with a 303 back to the app carrying a code (`/?steam=refused`), never a page */
+  r = await req(cb, { method: "GET", redirect: "manual" });
+  ok("a forged assertion fails server-side verification", r.status === 303 && /[?&]steam=refused$/.test(r.location), "status " + r.status + " " + r.location);
+  r = await req(cb, { method: "GET", redirect: "manual" });
+  ok("the nonce is single-use (replay refused as unknown/used)", r.status === 303 && /[?&]steam=unknown$/.test(r.location), "status " + r.status + " " + r.location);
+  r = await req(`${FN}/steam-auth?nonce=ffffffff-ffff-4fff-8fff-ffffffffffff&openid.mode=id_res`, { method: "GET", redirect: "manual" });
+  ok("an unknown nonce is refused", r.status === 303 && /[?&]steam=unknown$/.test(r.location), "status " + r.status + " " + r.location);
 
   console.log("== steam-owned-games guard ==");
   r = await req(`${FN}/steam-owned-games`, { method: "POST", body: "{}" }, token);

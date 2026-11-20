@@ -19,11 +19,11 @@ chronological diary here.
   (`docs/audit/2026-11/REMEDIATION_PLAN.md`); the Exams & Papers rework is
   `docs/exams-rework-plan.md` (branch `feat/exams-plan` until it merges).
 - Production: https://kurenai-os.pages.dev
-- Latest release: sw `kos-qol-1` (20 November 2026). Every release
+- Latest release: sw `kos-qol-2` (20 November 2026). Every release
   before it, with what it shipped, its immutable URL and its branch, is in
   [`docs/RELEASES.md`](docs/RELEASES.md), newest first; a new release adds
   its entry there and changes only this line and the next here.
-- Service-worker version: `kos-qol-1`
+- Service-worker version: `kos-qol-2`
 - Required smoke gate: 179 / 179 suites (`""`, 2–156, 160–164 and 180–197) — `npm test`;
   what each suite holds: [`docs/SMOKE.md`](docs/SMOKE.md). New suites on this
   account are numbered from 180 (see `docs/HANDOFF.md`).
@@ -33,7 +33,7 @@ chronological diary here.
   the gitignored `supabase/runner-cron.sql.local`), `github-token` v7 (the
   GitHub App itself and its `GITHUB_*` secrets are NOT created yet),
   `ext-token` v3 (its `GOOGLE_*` and `TODOIST_*` secrets set), `vndb-ulist`
-  v6, `steam-auth` v8, `steam-owned-games` v7 and `igdb-search` v7, deployed
+  v6, `steam-auth` STEAM_V (its callback redirects to the app, `?steam=<code>`), `steam-owned-games` v7 and `igdb-search` v7, deployed
   with `supabase functions deploy <name> --use-api` (no Docker). Every migration in
   `supabase/migrations/` is applied (the newest `20261118000001`, `kos_attempts`);
   a new one is applied by hand and recorded here.
