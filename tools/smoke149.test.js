@@ -494,6 +494,40 @@ step("J · two devices' imports and learned payees both survive the merge", asyn
   eq(K.cloudmerge.merge(base, c, JSON.parse(JSON.stringify(base))).doc.money.imports, [], "an import undone on one device is gone on both");
 });
 
+step("L · a statement row meets an entry you typed: \"Same as …\", and the Bookkeeper counts distinct entries (money-goals#2, #7)", async () => {
+  await wipe();
+  const typed = (date, amount, payee) => cb((c) => M.addTx({ date, amount, kind: "out", payee, cat: "other" }, c));
+  await typed("2026-11-03", 12, "Bobs Bike Shed");   // two days before the bank's row, named
+  await typed("2026-11-10", 7.5, "Latte");           // a day before, its one candidate by amount
+  await typed("2026-11-12", 4, "Lunch");             // two typed £4.00 near one bank £4.00:
+  await typed("2026-11-13", 4, "Snack");             //   by amount alone that is a guess, so no match
+  const text = "Date,Description,Amount\n05/11/2026,CARD PAYMENT TO BOBS BIKE SHED,-12.00\n11/11/2026,COSTA COFFEE,-7.50\n" +
+    "12/11/2026,TESCO STORES,-4.00\n20/11/2026,NEW SHOP,-9.99\n";
+  const pv = await preview(M.csv.parse(text, "nov.csv"));
+  eq(pv.rows.map((r) => [r.duplicate, r.dupOf || null, r.same ? [r.same.payee, r.same.date, r.same.strength] : null]), [
+    [true, "typed", ["Bobs Bike Shed", "2026-11-03", "name"]],
+    [true, "typed", ["Latte", "2026-11-10", "amount"]],
+    [false, null, null], [false, null, null]], "the named row and the one-candidate row are the typed entries; the guess is left alone");
+  eq(pv.duplicates, 2, "both are counted as already here");
+  const res = await cb((c) => M.csv.import(pv.rows, { file: "nov.csv" }, c));
+  eq([res.added, res.adopted], [2, 2], "two new entries; the two typed entries take the bank's identity");
+  let rows = await all();
+  const bobs = rows.find((t) => t.payee === "Bobs Bike Shed");
+  eq([rows.length, !!(bobs.imp && bobs.imp.k), bobs.adopt, bobs.date, bobs.src], [6, true, res.batch, "2026-11-03", "manual"], "the typed entry keeps its date and payee, and gains the identity");
+  const again = await preview(M.csv.parse(text, "nov.csv"));
+  eq([again.duplicates, again.rows.filter((r) => r.same).length], [4, 0], "the same statement again: every row is known by its identity");
+  /* the Bookkeeper: a row imported twice is one entry */
+  const A = K.achievements, bk = () => cb((c) => A.measureOne(A.def("bookkeeper"), A.makeCtx(), (v) => c(null, v)));
+  eq(await bk(), 6, "six entries");
+  await cb((c) => M.csv.import(again.rows, { file: "nov.csv", includeDuplicates: true }, c));
+  eq([(await all()).length, await bk()], [10, 6], "imported anyway: ten rows stored, still six distinct entries");
+  /* Undo takes back what an import gave a typed entry */
+  await cb((c) => M.undoBatch(res.batch, c));
+  rows = await all();
+  const b2 = rows.find((t) => t.payee === "Bobs Bike Shed" && t.src === "manual");
+  eq([!!(b2.imp && b2.imp.k), b2.adopt || null], [false, null], "undone: the typed entry is as you typed it");
+});
+
 step("K · no Governor traffic, no session, no request, no error", async () => {
   const g = K.store.state.governor;
   eq(JSON.stringify({ xp: g.xp, gold: g.gold, hp: g.hp }), gov0, "Governor untouched");

@@ -491,7 +491,20 @@
       }).length;
     }, { unit: "goals", glyph: "毎" });
   reg("goals", "bookkeeper", "Bookkeeper", "Transactions logged in Money", ["money"], [50, 250, 1000],
-    function (ctx, cb) { money(ctx, function (tx) { cb(tx ? tx.filter(function (t) { return !t.mirror && String(t.syncId || t.id || "").indexOf("wl:") !== 0; }).length : null); }); },
+    /* distinct entries (money-goals#7): a statement row imported twice
+       ("Import anyway") is one payment, known by its identity and ordinal */
+    function (ctx, cb) {
+      money(ctx, function (tx) {
+        if (!tx) { cb(null); return; }
+        var seen = {}, n = 0;
+        tx.forEach(function (t) {
+          if (t.mirror || String(t.syncId || t.id || "").indexOf("wl:") === 0) return;
+          var k = t.imp && t.imp.k ? "i:" + t.imp.k + "#" + (t.imp.occ || 1) : "s:" + (t.syncId || t.id);
+          if (!seen[k]) { seen[k] = true; n++; }
+        });
+        cb(n);
+      });
+    },
     { unit: "transactions", glyph: "帳" });
   /* a month (Money's own period) that has ended, with spending in it, and no
      budgeted category over its budget (budgets as they are set now) */

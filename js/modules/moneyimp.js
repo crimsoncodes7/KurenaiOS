@@ -274,8 +274,9 @@
           title: "Counted as this recurring payment. Press to keep it a separate entry.", text: "↻ " + r.match.name + " · " + p2.shortDate(r.match.date),
           onclick: function () { delete r.match; draw(); } }) : null,
         r.duplicate ? el("button", { type: "button", class: "k-chip k-mn-chipbtn", "data-tone": "muted", "data-ui": "money.import-dup", "aria-pressed": S.take[r.line] ? "true" : "false",
-          title: r.dupOf === "rule" ? "Already confirmed as " + (r.match && r.match.name) : "Matches an entry you have",
-          text: S.take[r.line] ? "Import anyway" : r.dupOf === "rule" ? "Already confirmed · skipped" : "Already here · skipped",
+          title: r.dupOf === "rule" ? "Already confirmed as " + (r.match && r.match.name) : r.same ? "The same as an entry you typed. Press to import it as a separate entry." : "Matches an entry you have",
+          text: S.take[r.line] ? "Import anyway" : r.dupOf === "rule" ? "Already confirmed · skipped" :
+            r.same ? "Same as " + (r.same.payee || "your entry") + " · " + p2.shortDate(r.same.date) + " · skipped" : "Already here · skipped",
           onclick: function () { S.take[r.line] = !S.take[r.line]; draw(); } }) : null,
         r.bank && r.bank.text ? el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm k-mn-rawbtn", "data-ui": "money.import-raw", "aria-expanded": S.raw[r.line] ? "true" : "false",
           "aria-label": "The bank's text", text: S.raw[r.line] ? "▴" : "▾", onclick: function () { S.raw[r.line] = !S.raw[r.line]; draw(); } }) : null

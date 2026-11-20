@@ -193,7 +193,14 @@ Read this file before editing or testing anything in its domain.
    it done (a Confirm on another device is the same record), and the rule
    learns what the bank calls it (`aliases`); an occurrence already
    confirmed makes the row a duplicate and its entry takes the row's
-   identity (`adopt`); a skipped one is never matched. Confirm OFFERS a
+   identity (`adopt`); a skipped one is never matched. A STATEMENT MEETS
+   WHAT YOU TYPED (money-goals#2): a row with no match, of the same
+   direction and exact amount as an entry typed by hand within three days
+   — by name, or by amount alone only when each is the other's one
+   candidate — is skipped as "Same as …" (`dupOf: "typed"`, the preview
+   can import it anyway) and the typed entry takes its identity (`adopt`).
+   The Bookkeeper badge counts DISTINCT entries: an imported row stored
+   twice is one, by its identity and ordinal (money-goals#7). Confirm OFFERS a
    stored bank entry of that amount instead of making a second one
    (`bankMatches`, `confirmWith`; "Your statement already has this"),
    refuses an occurrence a statement already paid,

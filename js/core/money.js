@@ -1314,8 +1314,9 @@
     var dates = out.rows.map(function (x) { return x.date; }).sort();
     out.from = dates[0]; out.to = dates[dates.length - 1];
     out.overlaps = importList().filter(function (r) { return r.stmt !== out.statement && r.from && r.to && r.from <= out.to && r.to >= out.from; });
-    range(dates[0], dates[dates.length - 1], function (err, have) {
-      var stored = {}, legacy = {}, alike = {};
+    /* three days either side: an entry you typed may sit a day or two from the bank's date */
+    range(addDays(dates[0], -MATCH_DAYS), addDays(dates[dates.length - 1], MATCH_DAYS), function (err, have) {
+      var stored = {}, legacy = {}, alike = {}, used = {};
       /* the same payment through ANOTHER export (the month as CSV, then as
          OFX): the bank's words differ, so the identity does not know it.
          Its day, amount, direction and merchant do. Counted like the
@@ -1334,7 +1335,7 @@
           if (t.imp.stmt === out.statement) out.seenStatement = true;
         } else {
           var lk = t.date + "|" + t.minor + "|" + String(t.payee || "").toLowerCase();
-          legacy[lk] = (legacy[lk] || 0) + 1;
+          (legacy[lk] = legacy[lk] || []).push(t.syncId);
         }
       });
       out.rows.forEach(function (x) {
@@ -1344,7 +1345,7 @@
           var keys = [x.bank && x.bank.text ? x.bank.text : null, x.payee].filter(function (v, i, a) { return v != null && a.indexOf(v) === i; });
           for (var i = 0; i < keys.length && !dup; i++) {
             var lk = x.date + "|" + x.minor + "|" + keys[i].toLowerCase();
-            if (legacy[lk]) { legacy[lk]--; dup = true; }
+            if (legacy[lk] && legacy[lk].length) { used[legacy[lk].pop()] = true; dup = true; }
           }
         }
         var ak = !x.own && x.bank && x.bank.text ? alikeKey(x.date, x.minor, x.kind, merchantOf(x.bank.text, x.bank.type).name) : null;
@@ -1365,6 +1366,7 @@
         x.duplicate = true; x.dupOf = "similar"; out.duplicates++;
       });
       matchRules(out);
+      matchTyped(out, (have || []).filter(function (t) { return !used[t.syncId]; }));
       cb(err || null, out);
     });
   }
@@ -1409,6 +1411,44 @@
       var x = out.rows[c.xi];
       x.match = { rule: c.rule.id, date: c.date, name: c.rule.name, strength: c.named ? "name" : "amount", state: c.done ? "done" : "open", tx: c.tx };
       if (c.done) { x.duplicate = true; x.dupOf = "rule"; out.duplicates++; }
+    });
+  }
+  /* A STATEMENT MEETS WHAT YOU TYPED (money-goals#2). A bank row with no
+     match yet, of the same direction and exact amount as an entry you
+     typed by hand within three days of it, is that entry: by NAME when the
+     entry's payee is among the bank's words (or the merchant's among the
+     entry's), by amount alone only when each is the other's one
+     candidate. The row is skipped as already here ("Same as …", which the
+     preview can undo) and the typed entry takes the row's identity
+     (`adopt`), so the next import of that statement knows it too. */
+  function typedHit(t, x) {
+    var a = payeeKey(t.payee), b = payeeKey(x.payee);
+    var hay = " " + payeeKey(x.bank ? x.bank.text : "") + " " + b + " ";
+    return (a.length >= 3 && hay.indexOf(" " + a + " ") !== -1) || (b.length >= 3 && (" " + a + " ").indexOf(" " + b + " ") !== -1);
+  }
+  function matchTyped(out, have) {
+    var typed = have.filter(function (t) {
+      return !t.imp && !t.rule && !t.mirror && t.src === "manual" && (t.kind === "out" || t.kind === "in") && !/^(wl|r):/.test(String(t.syncId));
+    });
+    if (!typed.length) return;
+    var cands = [], perRow = {}, perTx = {};
+    out.rows.forEach(function (x, xi) {
+      if (x.duplicate || x.match || x.own || (x.kind !== "out" && x.kind !== "in")) return;
+      typed.forEach(function (t) {
+        var dist = Math.abs(daysBetween(t.date, x.date));
+        if (t.kind !== x.kind || t.minor !== x.minor || dist > MATCH_DAYS) return;
+        cands.push({ xi: xi, t: t, named: typedHit(t, x), dist: dist });
+        perRow[xi] = (perRow[xi] || 0) + 1; perTx[t.syncId] = (perTx[t.syncId] || 0) + 1;
+      });
+    });
+    var rowTaken = {}, txTaken = {};
+    cands.sort(function (a, b) { return (b.named - a.named) || (a.dist - b.dist) || (a.xi - b.xi); }).forEach(function (c) {
+      if (rowTaken[c.xi] || txTaken[c.t.syncId]) return;
+      if (!c.named && (perRow[c.xi] !== 1 || perTx[c.t.syncId] !== 1)) return;
+      rowTaken[c.xi] = txTaken[c.t.syncId] = true;
+      var x = out.rows[c.xi];
+      x.duplicate = true; x.dupOf = "typed"; out.duplicates++;
+      x.same = { tx: c.t.syncId, date: c.t.date, payee: c.t.payee || "", strength: c.named ? "name" : "amount" };
     });
   }
   /* read-modify-write a set of stored transactions in ONE IndexedDB transaction */
@@ -1479,7 +1519,10 @@
       var t = normaliseTx(f);
       if (t) txs.push(t);
     });
-    var adopt = left.filter(function (x) { return x.match && x.match.state === "done" && x.match.tx; });
+    /* a skipped row that IS an entry here gives that entry its identity:
+       a confirmed occurrence's, or one you typed (`same`) */
+    function adoptOf(x) { return x.same && x.same.tx ? x.same.tx : x.match && x.match.state === "done" && x.match.tx ? x.match.tx : null; }
+    var adopt = left.filter(adoptOf);
     putRaw(txs, function (err) {
       if (err) { cb && cb(err, { added: 0, skipped: rows.length, batch: batch }); return; }
       marks.forEach(function (k) {
@@ -1496,9 +1539,9 @@
         if (m.imports.length > MAX_IMPORTS) m.imports = m.imports.slice(-MAX_IMPORTS);
       }
       if (marks.length || txs.length) store.save();
-      patchTx(adopt.map(function (x) { return x.match.tx; }), function (t) {
+      patchTx(adopt.map(adoptOf), function (t) {
         if (t.imp && t.imp.k) return null;   // it has an identity already
-        var x = adopt.filter(function (a) { return a.match.tx === t.syncId; })[0];
+        var x = adopt.filter(function (a) { return adoptOf(a) === t.syncId; })[0];
         return normaliseTx(Object.assign({}, t, { imp: x.imp, raw: x.raw, bank: x.bank, adopt: batch, updatedAt: Date.now() }));
       }, function (e2, adopted) {
         var result = { added: txs.length, skipped: rows.length - txs.length, batch: batch, linked: marks.length, adopted: adopted || 0,
