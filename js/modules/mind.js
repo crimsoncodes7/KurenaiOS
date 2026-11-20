@@ -770,7 +770,7 @@
         body.appendChild(el("section", { class: "k-card" }, [el("b", { text: "No Big Question this week yet" }),
           el("p", { class: "k-muted", text: qs.length ? "Make one of your Questions the week's Big Question, then add a line most days." : "Capture a question that's been on your mind; it can become this week's Big Question." }),
           el("div", { class: "k-mind-thumb" }, [qs.length ? el("button", { type: "button", class: "k-btn k-btn--primary", text: "Use: " + qs[0].title.slice(0, 40), onclick: function () { M().setBq(qs[0].title, qs[0].id); draw(); } })
-            : el("button", { type: "button", class: "k-btn k-btn--primary", text: "+ Capture a question", onclick: function () { KOS.mindRun.capture({ kind: "question", onDone: fin }); } }),
+            : el("button", { type: "button", class: "k-btn k-btn--primary", text: "+ Capture a question", onclick: function () { KOS.mindRun.capture({ kind: "question", offerBq: true, onDone: function (entry, asBq) { if (asBq) draw(); else fin(); } }); } }),
             el("button", { type: "button", class: "k-btn", text: "Skip today", onclick: function () { d.qSkipped = true; fin(); } })])]));
         return;
       }

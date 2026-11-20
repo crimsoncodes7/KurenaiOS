@@ -358,17 +358,20 @@
     var area = el("textarea", { class: "k-mind-text", rows: "3", "aria-label": "What to capture", placeholder: "Why do sequels feel worse even when they're the same quality?",
       oninput: function () { text = area.value; done.disabled = !text.trim(); } });
     var done = el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "mind.capture-done", disabled: "", text: "Done", onclick: save });
+    var bqIn = o.offerBq ? el("input", { type: "checkbox", "data-ui": "mind.capture-bq" }) : null;
+    var bqRow = bqIn ? el("label", { class: "k-mind-tick" }, [bqIn, el("span", { text: "Make it the Big Question" })]) : null;
     var kinds = el("div", { class: "k-mind-kinds", role: "radiogroup", "aria-label": "Kind" });
     function drawKinds() {
       kinds.innerHTML = "";
       ["insight", "quote", "question", "reflection"].forEach(function (k) {
         kinds.appendChild(el("button", { type: "button", class: "k-mind-kindpick", role: "radio", "aria-checked": String(kindOf === k), onclick: function () { kindOf = k; drawKinds(); } }, [UI().kind(k)]));
       });
+      if (bqRow) bqRow.hidden = kindOf !== "question";
     }
     drawKinds();
     var src = el("input", { type: "text", class: "k-mind-input", placeholder: "Who said it, and where (optional)", "aria-label": "Source" });
-    var sh = UI().sheet({ kicker: "Mind · Journal", title: "Quick capture", hook: "mind.capture", body: [kinds, area, el("label", { class: "k-mind-field", "data-ui": "mind.capture-source" }, [el("span", { text: "Source, for a quote" }), src]),
-      el("small", { class: "k-muted", text: "Link a concept later. Private: only you read it." })], foot: [el("span"), done], initialFocus: area, scrimCloses: false,
+    var sh = UI().sheet({ kicker: "Mind · Journal", title: "Quick capture", hook: "mind.capture", body: [kinds, area, bqRow, el("label", { class: "k-mind-field", "data-ui": "mind.capture-source" }, [el("span", { text: "Source, for a quote" }), src]),
+      el("small", { class: "k-muted", text: "Link a concept later. Private: only you read it." })].filter(Boolean), foot: [el("span"), done], initialFocus: area, scrimCloses: false,
       onClose: null });
     var origClose = sh.overlay.close;
     sh.overlay.close = function () {
@@ -378,12 +381,19 @@
     var saved = false;
     function save() {
       if (!text.trim()) return;
-      KOS.mindJournal.add({ kind: kindOf, text: text, source: src.value, concepts: o.concepts || [], lesson: o.lesson || null, src: { kind: "capture", ref: null } }, function (err) {
+      KOS.mindJournal.add({ kind: kindOf, text: text, source: src.value, concepts: o.concepts || [], lesson: o.lesson || null, src: { kind: "capture", ref: null } }, function (err, entry) {
         if (err) { KOS.ui.toast("Couldn't save it on this device.", true); return; }
         saved = true; origClose();
-        KOS.ui.toast("Captured as a" + (kindOf === "insight" ? "n " : " ") + KOS.mindJournal.LABEL[kindOf] + ". It waits in your Journal.");
-        announce("Captured as a" + (kindOf === "insight" ? "n " : " ") + KOS.mindJournal.LABEL[kindOf] + ".");
-        if (o.onDone) o.onDone();
+        var asBq = !!(bqIn && kindOf === "question" && bqIn.checked && entry && KOS.mind && KOS.mind.setBq);
+        if (asBq) {
+          KOS.mind.setBq(entry.title, entry.id);
+          KOS.ui.toast("Captured as a Question · set as this week's Big Question.");
+          announce("This week's Big Question is set.");
+        } else {
+          KOS.ui.toast("Captured as a" + (kindOf === "insight" ? "n " : " ") + KOS.mindJournal.LABEL[kindOf] + ". It waits in your Journal.");
+          announce("Captured as a" + (kindOf === "insight" ? "n " : " ") + KOS.mindJournal.LABEL[kindOf] + ".");
+        }
+        if (o.onDone) o.onDone(entry, asBq);
       });
     }
     return sh;
