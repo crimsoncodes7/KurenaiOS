@@ -897,7 +897,7 @@
         bar.appendChild(act(previewOpen ? "▾ Collapse" : "▸ Expand", function () { previewOpen = !previewOpen; renderStage(); },
           { title: previewOpen ? "Hide the preview" : "Show the preview" }));
         bar.appendChild(act("⤢ Full screen", function () { if (rec.mime === "application/pdf" && KOS.files) KOS.files.openRec(rec); else openFullscreen(rec); }));
-        if ((rec.mime === "application/pdf" || /^image\//.test(rec.mime)) && KOS.pdfView) bar.appendChild(act("✎ Write on it", function () { if (KOS.files) KOS.files.openRec(rec); else openViewer(rec); }, { "data-ui": "attach.write", title: "Open in the viewer with ink; the file itself never changes" }));
+        if ((rec.mime === "application/pdf" || /^image\//.test(rec.mime)) && (KOS.pdfView || KOS.lazy)) bar.appendChild(act("✎ Write on it", function () { if (KOS.files) KOS.files.openRec(rec); else openViewer(rec); }, { "data-ui": "attach.write", title: "Open in the viewer with ink; the file itself never changes" }));
       }
       bar.appendChild(el("span", { class: "k-spacer" }));
       if (st === "ok") {
@@ -985,7 +985,11 @@
         var openBtn = el("button", { type: "button", class: "k-att-pdfcard", "data-ui": "attach.pdf", "aria-label": "Open " + rec.name + " in the viewer",
           onclick: function () { if (KOS.files) KOS.files.openRec(rec); else openViewer(rec); } }, [el("span", { class: "k-att-pdfpage" }), el("span", { class: "k-att-pdfcta", text: "Open in the viewer ›" })]);
         host.appendChild(openBtn);
-        if (KOS.pdfView) KOS.pdfView.load(rec.blob).then(function (pdf) {
+        /* pdf.js rides the ink-ui bundle (1F) */
+        (KOS.pdfView || !KOS.lazy ? Promise.resolve() : KOS.lazy.need("ink-ui")).then(function () {
+          if (!KOS.pdfView) throw new Error("no viewer");
+          return KOS.pdfView.load(rec.blob);
+        }).then(function (pdf) {
           return pdf.getPage(1).then(function (pg) {
             if (!openBtn.isConnected) { pdf.destroy(); return; }
             var v1 = pg.getViewport({ scale: 1 }), w = Math.min(900, openBtn.clientWidth || 600), vp = pg.getViewport({ scale: w / v1.width * Math.min(2, window.devicePixelRatio || 1) });
@@ -1157,6 +1161,11 @@
     opts = opts || {};
     if (!rec || !rec.blob || !rec.blob.size) { KOS.ui.toast(rec && rec.fileId ? "This file's content is on another device — download it from the topic's Files tab." : "This file is empty.", true); return; }
     var el = KOS.ui.el;
+    if (rec.mime === "application/pdf" && !KOS.pdfView && opts.ink !== false && !opts._ink && KOS.lazy && KOS.lazy.need) {
+      var again = function () { openViewer(rec, Object.assign({}, opts, { _ink: true })); };
+      KOS.lazy.need("ink-ui").then(again, again);
+      return;
+    }
     if (rec.mime === "application/pdf" && KOS.pdfView && opts.ink !== false) {
       KOS.pdfView.open({ title: rec.name, kind: "file", fileId: rec.fileId || ("att" + rec.id), refs: rec.subject && rec.subject !== "_" && rec.ref && !/^asg:/.test(rec.ref) ? [rec.subject + ":" + rec.ref] : [],
         getBlob: function (cb) { cb(null, rec.blob); } });

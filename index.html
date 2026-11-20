@@ -163,7 +163,9 @@
 <script src="js/data/exam-archetypes.js"></script>
 <script src="js/data/exam-reports.js"></script>
 <script src="js/data/exam-playbook.js"></script>
+<template data-lazy="ink-ui">
 <script src="js/data/ink-drills.js"></script>
+</template>
 <template data-lazy="exams-deep">
 <script src="js/data/exams/aqa-7517-2-45.js"></script>
 <script src="js/data/exams/aqa-7517-2-46.js"></script>
@@ -238,8 +240,13 @@
 <script src="js/core/attempts.js"></script>
 <script src="js/core/reviewpack.js"></script>
 <script src="js/core/inksync.js"></script>
+<!-- the ink surfaces and toolbar, the answer pad, the viewer and the drills
+     (1F): the pages that write load them, and a file loads them to open -->
+<template data-lazy="ink-ui">
+<script src="js/core/inksurface.js"></script>
 <script src="js/core/inkpad.js"></script>
 <script src="js/core/pdfview.js"></script>
+</template>
 <script src="js/core/desk.js"></script>
 <script src="js/core/srs.js"></script>
 <script src="js/core/questions.js"></script>
@@ -484,7 +491,9 @@
 <script src="js/modules/inktex.js"></script>
 </template>
 <script src="js/modules/inkset.js"></script>
+<template data-lazy="ink-ui">
 <script src="js/modules/inkdrills.js"></script>
+</template>
 <script src="js/modules/hub.js"></script>
 <script src="js/modules/searchui.js"></script>
 <script src="js/modules/home.js"></script>

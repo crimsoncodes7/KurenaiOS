@@ -315,7 +315,7 @@
   }
   var CODE = ["content-code"];
   /* the reworked pages and their engine ride their own bundle (design 45–47) */
-  var EXAMS = ["exam-index", "exams-deep", "exams-pages", "labs"];
+  var EXAMS = ["exam-index", "exams-deep", "exams-pages", "labs", "ink-ui"];
   /* the bundles holding the words of the cards a review page shows: the
      ones due and the ones set aside, by the subject each belongs to */
   function reviewBundles(arg) {
@@ -347,9 +347,10 @@
       var list = a ? [a] : X && X.upcoming ? X.upcoming() : [];
       return EXAMS.concat(list.map(function (x) { return x && x.subject ? contentOf(x.subject) : null; }));
     },
-    tracker: function () { return ["exam-index", "exams-pages"]; },
-    review: reviewBundles,
-    due: reviewBundles,
+    tracker: function () { return ["exam-index", "exams-pages", "ink-ui"]; },
+    /* a card's Write mode and a written answer are the answer pad (ink-ui, 1F) */
+    review: function (arg) { return reviewBundles(arg).concat(["ink-ui"]); },
+    due: function (arg) { return reviewBundles(arg).concat(["ink-ui"]); },
     cardstats: function (arg) { return reviewBundles(arg).concat(["page-cardstats"]); }
   };
   /* W8 (AP-01 stage 2): PAGE MODULES on first use. A page whose module
@@ -370,13 +371,13 @@
     vn: ["page-vaults"], game: ["page-vaults"], wishlist: ["page-vaults"],
     /* Creatives' pages (the Writing Desk, Drills, References, Sketch) and
        its topic page; the space's router and nav stay at boot */
-    creatives: ["page-creatives", "labs"],
+    creatives: ["page-creatives", "labs", "ink-ui"],
     /* the Labs page (1F, 20 Nov 2026: the labs left boot) */
     sims: ["labs"],
     /* the topic page (topic.js, editor.js, inktab.js: 1F) */
-    ref: ["page-topic"],
+    ref: ["page-topic", "ink-ui"],
     /* the exams hub and the tracker (1F: their modules joined exams-pages) */
-    exams: ["exams-pages"], tracker: ["exams-pages"],
+    exams: ["exams-pages", "ink-ui"], tracker: ["exams-pages", "ink-ui"],
     /* the Assistant's pages: its tools, permissions and activity (1F) */
     assistant: ["ai"],
     /* Backup & Restore (and Reset everything, which only it opens) */

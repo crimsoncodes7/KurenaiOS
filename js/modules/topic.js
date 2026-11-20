@@ -268,7 +268,7 @@
     TABDEFS.forEach(function (t) {
       tabBar.appendChild(el("button", { type: "button", class: "k-topic-tab", "data-ui": "ui.tab", role: "tab",
         "data-tab": t[0], "data-label": t[1], onclick: function () { selectTab(t[0]); } },
-        [t[0] === "ink" && KOS.inkUI ? KOS.inkUI.glyph("pen") : null, t[1],
+        [t[0] === "ink" && KOS.inkUI && KOS.inkUI.glyph ? KOS.inkUI.glyph("pen") : null, t[1],
           t[3] ? el("span", { class: "k-mono", "data-ui": "ui.tab-count", text: String(t[3]) }) : null].filter(Boolean)));
     });
     /* tabs that do not fit fold behind "+N ▾", last first — the open one

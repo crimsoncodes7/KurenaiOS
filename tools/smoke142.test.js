@@ -119,8 +119,10 @@ function eq(a, b, m) { if (JSON.stringify(a) !== JSON.stringify(b)) throw new Er
    the papers' viewer and practice (310 KB) joined exams-pages. The four
    vaults, medview and the watch link (330 KB, page-vaults); KOS.mediaEditor
    loads them before opening an editor. 5.99 MB, with room kept for Neon's
-   batch 5. */
-const BOOT_BUDGET = 5.99 * 1024 * 1024;
+   batch 5. The ink layer's page part (inksurface.js: the desk, surfaces and
+   toolbar; the answer pad, the viewer, the drills, 200 KB, "ink-ui") loads
+   with the pages that write and before a file opens: 5.79 MB. */
+const BOOT_BUDGET = 5.79 * 1024 * 1024;
 
 /* jsdom has no User Timing: a small recorder, set before the app's scripts */
 function timing(win) {
@@ -309,7 +311,7 @@ step("F · opening a lesson shows Loading…, fetches only its subject, then dra
   await app.settle(); await app.settle();
   assert(!waiting(app), "the wait is over");
   eq(redrawAtDraw, false, "the page's first draw is a first draw, not a redraw");
-  eq(app.lazy.loaded.slice().sort(), B["content-maths"].concat(B.labs, B.intel, B["page-topic"]).sort(), "only Maths, the labs, the examiner's notes and the topic page were fetched (1F)");
+  eq(app.lazy.loaded.slice().sort(), B["content-maths"].concat(B.labs, B.intel, B["page-topic"], B["ink-ui"]).sort(), "only Maths, the labs, the examiner's notes, the topic page and the ink layer were fetched (1F)");
   eq(app.lazy.misses, [], "nothing read early");
   const h1 = app.document.querySelector("#main h1");
   assert(h1 && h1.textContent.trim(), "the lesson has its title");

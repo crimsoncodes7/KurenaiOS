@@ -329,6 +329,13 @@
       if (err || !blob) { if (err && /cloud|evicted/.test(err.message)) cloudOnly(r); else KOS.ui.toast("That file is not readable here" + (err && err.message === "permission" ? ": the browser needs your permission to read that folder again." : "."), true); return; }
       var rec = { name: r.name, mime: r.mime || blob.type, blob: blob, fileId: r.store === "papers" ? r.id : r.fileId, subject: r.subject, ref: null };
       var refs = topicRefs(r);
+      /* the viewer loads with the ink-ui bundle (1F): a PDF or a picture
+         waits for it, so it opens with ink as it always has */
+      if ((rec.mime === "application/pdf" || /^image\//.test(rec.mime)) && !KOS.pdfView && opts.ink !== false && !opts._ink && KOS.lazy && KOS.lazy.need) {
+        var again = function () { open(r, Object.assign({}, opts, { _ink: true })); };
+        KOS.lazy.need("ink-ui").then(again, again);
+        return;
+      }
       if (rec.mime === "application/pdf" && KOS.pdfView && opts.ink !== false) {
         KOS.pdfView.open({ title: r.name, kind: "file", fileId: rec.fileId, refs: refs, record: r, getBlob: function (cb) { cb(null, blob); } });
         return;
@@ -460,7 +467,13 @@
         blob.text().then(function (t) { finish([String(t).slice(0, 200000)]); }, function () { finish([]); });
         return;
       }
-      if (!KOS.pdfView) { indexing = null; return; }
+      if (!KOS.pdfView) {
+        /* pdf.js comes with the ink-ui bundle (1F): load it, then read this
+           file again; with no bundle (offline) the queue waits for a reload */
+        indexing = null;
+        if (KOS.lazy && KOS.lazy.need) KOS.lazy.need("ink-ui").then(function () { queue.unshift(fid); idle(nextIndex); }, function () {});
+        return;
+      }
       KOS.pdfView.load(blob).then(function (pdf) {
         var pages = [], n = Math.min(pdf.numPages, 200);
         (function page(i) {
