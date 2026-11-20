@@ -330,6 +330,27 @@ step("J · new assignments, reminders, lists, steps and events take random strin
   K.store.state.assignments.items = K.store.state.assignments.items.filter((x) => x.id !== 41);
 });
 
+step("K · worked totals, tariff counts, the exam number and no score before an answer (content-maths#2, content-cs-it#6/#7/#8)", () => {
+  const html = K.content.renderBlocks([{ worked: { tag: "exam", title: "T", src: "Test · 3 marks", q: "Q", steps: [{ m: "a", mk: "M1" }, { m: "b", mk: "A1 B1" }], result: "r" } }]);
+  const box = D.createElement("div"); box.innerHTML = html;
+  const tot = q('[data-ui="content.worked-total"]', box);
+  assert(tot && /3 marks/.test(tot.textContent), "a worked example shows the total of its mark codes");
+  box.innerHTML = K.content.renderBlocks([{ worked: { tag: "exam", title: "T", steps: [{ m: "a", mk: "see below" }, { m: "b", mk: "1" }] } }]);
+  assert(!q('[data-ui="content.worked-total"]', box), "no total when a code is not a mark code");
+  const h = D.createElement("div"); D.body.appendChild(h);
+  K.quiz.mountMCQ(h, "compsci", "4.1.1.1", [{ q: "Pick", opts: ["a", "b", "c", "d"], ans: 0, why: "w" }], { onFinish: () => {} });
+  const meta = q(".k-qz-meta", h);
+  assert(meta && !/score 0/.test(meta.textContent), "no score before an answer: " + (meta && meta.textContent));
+  h.remove();
+  const g = D.createElement("div"); D.body.appendChild(g);
+  K.quiz.mountExam(g, "compsci", "4.1.1.1", [{ src: "s", marks: 1, q: "A", ms: ["1"] }, { src: "s", marks: 4, q: "B", ms: ["1", "1", "1", "1"] }, { src: "s", marks: 4, q: "C", ms: ["1", "1", "1", "1"] }]);
+  const chips = Array.from(g.querySelectorAll("[data-f]")).map((b) => b.textContent);
+  assert(chips.includes("All · 3") && chips.includes("1–2 marks · 1") && chips.includes("3–5 marks · 2"), "each tariff chip shows its count: " + chips.join(", "));
+  g.querySelector('[data-f="mid"]').click();
+  assert(/Q2 of 3/.test(q('[data-ui~="quiz.exam-top"]', g).textContent), "the card says its own number out of the topic's");
+  g.remove();
+});
+
 (async () => {
   let failed = 0;
   for (const [name, fn] of steps) {

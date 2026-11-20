@@ -358,6 +358,7 @@ button.k-subj-next:hover { background: var(--s2); }
 .k-n-wh { color: var(--text); font-weight: var(--weight-semibold); }
 .k-n-wn { font-size: var(--fs-12-5); color: var(--muted); }
 .k-n-wmk { align-self: start; font: var(--weight-semibold) var(--fs-11) var(--font-mono); padding: var(--hairline) var(--sp-8); border-radius: var(--r-pill); background: var(--s2); color: var(--amber); }
+.k-n-wtotal .k-n-wmk { background: transparent; border: var(--hairline) solid var(--line); }
 .k-n-answer { display: flex; gap: var(--sp-10); align-items: baseline; margin-block-start: var(--sp-8); padding: var(--sp-10) var(--sp-14); border-radius: var(--r-12); background: color-mix(in oklch, var(--green) 14%, transparent); font-size: var(--fs-14); color: var(--text); }
 .k-n-answer b { color: var(--green); }
 .k-n-diagram { display: flex; align-items: center; gap: var(--sp-14); padding: var(--sp-14) var(--sp-16); border-radius: var(--r-18); background: var(--s1); text-align: start; }
