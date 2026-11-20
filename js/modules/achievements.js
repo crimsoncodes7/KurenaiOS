@@ -391,17 +391,30 @@
     var earned = views.filter(function (v) { return v.tier > 0 && !v.masked; }).sort(function (a, b) { return (b.lastAt || 0) - (a.lastAt || 0); });
     var pick = (opts.initial || A().showcase()).filter(function (id) { return byId[id]; });
     var tray = el("div", { class: "k-ach-tray", "data-ui": "ach.tray", "aria-label": "Your showcase" });
+    var order = el("ol", { class: "k-ach-order", "data-ui": "ach.order", "aria-label": "Showcase order" });
     var count = el("span", { class: "k-mono k-ach-pickn", "data-ui": "ach.pick-count" });
     var grid = el("div", { class: "k-ach-pickgrid", "data-ui": "ach.pick", role: "group", "aria-label": "Earned badges" });
     function paint() {
-      tray.textContent = "";
+      tray.textContent = ""; order.textContent = "";
       for (var i = 0; i < A().SHOWCASE_MAX; i++) {
         (function (id) { tray.appendChild(slot(id && byId[id], i, function () { toggle(id); })); })(pick[i]);
       }
+      pick.forEach(function (id, i) {
+        var v = byId[id]; if (!v) return;
+        var n = badgeName(v);
+        order.appendChild(el("li", { class: "k-ach-order-row", "data-rid": id, "data-ui": "ach.order-row" }, [
+          el("button", { type: "button", class: "k-grip", "data-reorder": "", "aria-label": "Move " + n, title: "Drag · Space lifts", text: "⠿" }),
+          el("span", { class: "k-mono k-ach-order-n", text: String(i + 1) }),
+          el("span", { class: "k-ach-order-t k-ellipsis", text: n }),
+          i ? null : el("span", { class: "k-muted k-ach-order-lead", text: "leads" })
+        ].filter(Boolean)));
+      });
       count.textContent = pick.length + " of " + A().SHOWCASE_MAX;
       Array.prototype.forEach.call(grid.children, function (b) { b.setAttribute("aria-pressed", String(pick.indexOf(b.getAttribute("data-id")) >= 0)); });
       if (opts.onChange) opts.onChange(pick.slice());
     }
+    KOS.ui.reorder(order, { rows: "[data-rid]", label: function (r) { var v = byId[r.getAttribute("data-rid")]; return v ? badgeName(v) : "Badge"; },
+      onDrop: function () { pick = [].map.call(order.querySelectorAll("[data-rid]"), function (n) { return n.getAttribute("data-rid"); }); paint(); } });
     function toggle(id) {
       var i = pick.indexOf(id), v = byId[id];
       if (i >= 0) pick.splice(i, 1);
@@ -416,11 +429,12 @@
       ].filter(Boolean)));
     });
     paint();
-    return { tray: tray, count: count, grid: grid, earned: earned, get: function () { return pick.slice(); },
+    return { tray: tray, order: order, count: count, grid: grid, earned: earned, get: function () { return pick.slice(); },
       clear: function () { pick = []; paint(); } };
   }
   function drawShowcase(body, views) {
-    var pk = showcasePicker(views);
+    var ord = null;
+    var pk = showcasePicker(views, { onChange: function (ids) { if (ord) ord.hidden = !ids.length; } });
     var save = el("button", { type: "button", class: "k-btn k-btn--primary", "data-ui": "ach.save-showcase", "data-intent": "primary", text: "Save",
       onclick: function () { A().setShowcase(pk.get()); KOS.ui.toast("Showcase saved."); KOS.a11y.announce("Showcase saved."); } });
     body.appendChild(el("section", { class: "k-card k-ach-traycard" }, [
@@ -430,6 +444,11 @@
       el("button", { type: "button", class: "k-btn", "data-ui": "ach.clear-showcase", text: "Clear", onclick: pk.clear }),
       save
     ]));
+    ord = el("section", { class: "k-card k-ach-ordercard", "data-ui": "ach.order-card", hidden: pk.get().length ? null : "" }, [
+      el("div", { class: "k-card-head" }, [el("span", { class: "k-card-title", text: "Showcase order" }), el("span", { class: "k-card-meta", text: "drag or Space + ↑↓" })]),
+      pk.order
+    ]);
+    body.appendChild(ord);
     /* AG-25: the picks are a draft until Save — a background change waits
        for it, and leaving with it unsaved asks first (as Edit seat does) */
     function unsaved() { return JSON.stringify(pk.get()) !== JSON.stringify(A().showcase()); }
