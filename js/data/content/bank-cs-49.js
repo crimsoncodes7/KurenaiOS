@@ -412,7 +412,9 @@ X("compsci:4.9.4.3", {
     ["What are the two parts of an IP address?", "The network identifier (which network) and the host identifier (which device on that network).", 9],
     ["Why does the network part matter for routing?", "Routers use the network ID to decide where to forward a packet; only the final network uses the host ID.", 11],
     ["How is the boundary between network and host parts defined?", "By the subnet mask (or the /n prefix length).", 12],
-    ["Which addresses in a subnet cannot be given to hosts?", "The all-zeros host address (the network address) and the all-ones host address (broadcast).", 13]
+    ["Which addresses in a subnet cannot be given to hosts?", "The all-zeros host address (the network address) and the all-ones host address (broadcast).", 13],
+    ["How many hosts can a /20 network hold, and why?", "4 094: 12 host bits give 2¹² = 4 096 addresses, less the network and broadcast addresses.", 100],
+    ["What is the network address of 172.16.45.200/20?", "172.16.32.0: the top four bits of 45 (0010 1101) are 0010 = 32, and every host bit is 0.", 101]
   ],
   quiz: [
     { q: "An IPv4 address has:", opts: ["16 bits", "32 bits", "64 bits", "128 bits"], ans: 1, why: "An IPv4 address is four 8-bit octets, which makes 32 bits." },
@@ -420,7 +422,9 @@ X("compsci:4.9.4.3", {
     { q: "192.168.1.0/24 — which of these is NOT assignable to a host?", opts: ["192.168.1.1", "192.168.1.254", "192.168.1.255", "192.168.1.100"], ans: 2, why: "Broadcast address." },
     { q: "IPv6 addresses are:", opts: ["32-bit", "64-bit", "128-bit", "256-bit"], ans: 2, why: "Eight 16-bit groups." },
     { q: "Two hosts on the same subnet share the same:", opts: ["host ID", "network ID", "MAC address", "port"], ans: 1, why: "Same network part." },
-    { q: "Routers on the Internet forward packets using the:", opts: ["host ID", "network ID", "MAC address", "SSID"], ans: 1, why: "Destination network." }
+    { q: "Routers on the Internet forward packets using the:", opts: ["host ID", "network ID", "MAC address", "SSID"], ans: 1, why: "Destination network." },
+    { qk: "100", q: "A /27 network can hold how many hosts?", opts: ["32", "27", "30", "5"], ans: 2, why: "32 − 27 = 5 host bits: 2⁵ = 32 addresses, less the network and broadcast addresses, is 30." },
+    { qk: "101", q: "A host is 192.168.64.10/20. Which address is on the same network?", opts: ["192.168.80.5", "192.168.63.1", "192.168.96.2", "192.168.75.3"], ans: 3, why: "A /20 here covers third octets 64–79, so only 75 shares the network ID 192.168.64.0." }
   ],
   exam: [
     { src: "AQA 2021 P2 Q11.1", ctx: "A network 192.168.192.0/20 is connected to a second network 192.168.64.0/20 by Router 1. Port A of the router is on the first network and port B on the second; computer C is on the second network.",
@@ -510,7 +514,9 @@ X("compsci:4.9.4.6", {
     ["Can a computer on the Internet send a packet directly to 192.168.0.5?", "No — the address is non-routable; it can only be reached via the LAN's public address with port forwarding.", 15],
     ["What must a router do for a private-addressed device to use the Internet?", "Network address translation — replace the private source address with its public address.", 16],
     ["Give one benefit of private addressing beyond conserving addresses.", "Security — devices are not directly reachable from the Internet.", 17],
-    ["Which address does a web server see when a home device visits it?", "The home router's public IP address.", 18]
+    ["Which address does a web server see when a home device visits it?", "The home router's public IP address.", 18],
+    ["Is 172.15.0.1 private or public, and why?", "Public: 172.16.0.0/12 covers second octets 16 to 31 only.", 100],
+    ["Does a private address protect a device from attack?", "Partly: no one outside can start a connection to it directly, but it is not secret or encrypted, so a firewall is still needed.", 101]
   ],
   quiz: [
     { q: "Private addresses are used:", opts: ["inside a LAN, behind a router", "on the public Internet backbone", "only by servers on the Internet", "only for IPv6 devices on a LAN"], ans: 0, why: "They are not routed on the Internet." },
@@ -518,7 +524,9 @@ X("compsci:4.9.4.6", {
     { q: "A private address must be unique:", opts: ["only within its own LAN", "across the whole Internet", "across every LAN in a country", "only on the day it is issued"], ans: 0, why: "Other LANs reuse the same ranges." },
     { q: "Which range is NOT private?", opts: ["10.0.0.0/8", "172.16.0.0/12", "192.168.0.0/16", "172.32.0.0/16"], ans: 3, why: "Private IPv4 ranges include 172.16.0.0 to 172.31.255.255 only, so 172.32.x.x is a public range." },
     { q: "A web server on the Internet sees requests from a home LAN coming from:", opts: ["each device's private address", "the router's public address", "the ISP's DNS", "the MAC address"], ans: 1, why: "NAT replaces the private source address with the router's public address, so the server only sees that." },
-    { q: "A benefit of private addressing:", opts: ["routing is faster with shorter addresses", "devices are not directly reachable from the Internet", "no DHCP server is needed to give out addresses", "the addresses are longer, so there are more of them"], ans: 1, why: "Security by design." }
+    { q: "A benefit of private addressing:", opts: ["routing is faster with shorter addresses", "devices are not directly reachable from the Internet", "no DHCP server is needed to give out addresses", "the addresses are longer, so there are more of them"], ans: 1, why: "Security by design." },
+    { qk: "100", q: "Which address is private?", opts: ["172.15.8.1", "192.169.0.4", "172.30.8.1", "11.0.0.1"], ans: 2, why: "172.16.0.0/12 runs from 172.16 to 172.31, so 172.30 is inside it; 172.15, 192.169 and 11 are all public." },
+    { qk: "101", q: "Thirty school computers visit one website, and its log shows a single address because", opts: ["the router's NAT gives them one public address", "the website merges visits from the same school", "DHCP gave all thirty the same private address", "the browsers hide each computer's own address"], ans: 0, why: "Each private source address is replaced by the router's one public address as packets leave the LAN." }
   ],
   exam: [
     { src: "AQA 2020 P2 Q5.2", q: "A computer on one home network has IP address 192.168.2.3, and a computer on a different home network has the same IP address. Explain why this does not cause a problem when both computers use the Internet.", marks: 2,
@@ -609,7 +617,9 @@ X("compsci:4.9.4.9", {
     ["What does the router maintain to implement forwarding?", "A port-mapping table / rules mapping external ports to internal IP addresses and ports.", 15],
     ["Why must the server have a static IP address?", "If DHCP changed it, the forwarding rule would point at the wrong device.", 16],
     ["Give a security consideration of port forwarding.", "It exposes the internal server to the Internet, so it must be patched and protected by the firewall.", 18],
-    ["Which ports would be forwarded for HTTP and HTTPS?", "80 and 443.", 19]
+    ["Which ports would be forwarded for HTTP and HTTPS?", "80 and 443.", 19],
+    ["How can two web servers on port 80 behind one router both be reached?", "Forward a different external port to each, e.g. 80 to one and 8080 to the other's port 80.", 100],
+    ["What does the router do to the reply from a port-forwarded server?", "Rewrites its source back to the router's public address and port, so the visitor recognises it.", 101]
   ],
   quiz: [
     { q: "Port forwarding directs incoming traffic on a given port to:", opts: ["every device on the whole LAN", "a specified device on the LAN", "the ISP's own servers", "a DNS server to resolve"], ans: 1, why: "Port forwarding sends traffic arriving at the router on a chosen port to one named device on the LAN." },
@@ -617,7 +627,9 @@ X("compsci:4.9.4.9", {
     { q: "The forwarding rule for a web server targets port:", opts: ["25", "80", "22", "110"], ans: 1, why: "Web servers normally listen for HTTP on port 80, so the rule forwards port 80 (HTTPS uses 443)." },
     { q: "If the server's address changes, port forwarding:", opts: ["still works", "breaks", "speeds up", "reverses"], ans: 1, why: "Rule points at old IP." },
     { q: "Which service at home most often needs port forwarding?", opts: ["a game server the owner hosts", "a browser visiting a website", "an email app reading new mail", "a phone app checking the weather"], ans: 0, why: "Outsiders must connect in to it." },
-    { q: "After a rule forwards port 22, someone outside can:", opts: ["reach the SSH server on that one LAN host", "see every device on the LAN at once", "change the router's own settings", "read all the traffic on the LAN"], ans: 0, why: "Only the named port reaches the named host." }
+    { q: "After a rule forwards port 22, someone outside can:", opts: ["reach the SSH server on that one LAN host", "see every device on the LAN at once", "change the router's own settings", "read all the traffic on the LAN"], ans: 0, why: "Only the named port reaches the named host." },
+    { qk: "100", q: "A packet reaches the router on a port with no forwarding rule, and no device on the LAN started the connection. The router", opts: ["sends it to every device on the LAN", "drops it", "forwards it to the DHCP server", "returns it to the DNS server"], ans: 1, why: "With no rule and no NAT entry there is nowhere to send it, so it is dropped." },
+    { qk: "101", q: "Visitors reach a port-forwarded web server by connecting to", opts: ["the server's private address on port 80", "the server's MAC address on port 80", "the router's public address on the forwarded port", "the router's private address on port 80"], ans: 2, why: "Only the public address is routable; the rule on that port sends the traffic on to the server." }
   ],
   exam: [
     { src: "AQA 2024 P2 Q7.4", q: "A school hosts its website on a server with the private IP address 192.168.0.2 behind a router with public address 186.7.2.31. Explain how computers on the Internet can access the website.", marks: 3,
