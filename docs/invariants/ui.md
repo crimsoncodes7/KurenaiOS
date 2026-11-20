@@ -444,7 +444,7 @@ Read this file before editing or testing anything in its domain.
     is in one bundle or at boot, never both. PAGE MODULES ride bundles too
     (W8, AP-01 stage 2): `exams-pages`, and `page-money`, `page-governor`,
     `page-code`, `page-mind`, `page-ja`, `page-help`, `page-shrine`,
-    `page-reports`, `page-sync` and `page-creatives` (Creatives' Writing
+    `page-reports`, `page-sync`, `page-data` (Backup & Restore) and `page-creatives` (Creatives' Writing
     Desk, Drills, References, Sketch and topic page; its router and nav stay
     at boot, and Today's Daily Creative waits for the bundle before it
     starts a study), each named for its view in `lazy.js`'s

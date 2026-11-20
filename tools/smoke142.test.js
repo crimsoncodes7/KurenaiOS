@@ -93,7 +93,11 @@ function eq(a, b, m) { if (JSON.stringify(a) !== JSON.stringify(b)) throw new Er
    the reference generator, page-creatives) moved to first use, 88 KB, so
    boot reads 7.789 MB (8,167,341 bytes); the rest of 1A's report work
    fits inside 7.80. */
-const BOOT_BUDGET = 7.80 * 1024 * 1024;
+/* 20 Nov 2026 (Neon's batch 2 merged into 1A): 7.80 → 7.78 MB. The batch's
+   Practice Log filters and 1A's report took boot 448 bytes over 7.80;
+   Backup & Restore (dataview.js, page-data, 29 KB) moved to first use, so
+   boot reads about 7.773 MB. */
+const BOOT_BUDGET = 7.78 * 1024 * 1024;
 
 /* jsdom has no User Timing: a small recorder, set before the app's scripts */
 function timing(win) {
@@ -383,7 +387,9 @@ step("J · every page that names what it needs opens from cold without an early 
     ["ref", { subject: "mind", ref: E.KOS.hub.LEAVES.mind[0].ref }, ["page-mind"]],
     ["money", undefined, ["page-money"]], ["governor", undefined, ["page-governor"]], ["mind", undefined, ["page-mind"]],
     ["japanese", undefined, ["page-ja"]], ["help", undefined, ["page-help"]], ["shrine", undefined, ["page-shrine"]],
-    ["reports", undefined, ["page-reports"]], ["mediasync", undefined, ["page-sync"]]
+    ["reports", undefined, ["page-reports"]], ["mediasync", undefined, ["page-sync"]],
+    /* 1A, 20 Nov 2026: Creatives' pages and Backup & Restore */
+    ["creatives", { page: "drills" }, ["page-creatives"]], ["subject", "creatives", ["page-creatives"]], ["data", undefined, ["page-data"]]
   ];
   for (const [view, arg, want] of jobs) {
     const app = await lazyBoot(fxB);
@@ -401,7 +407,7 @@ step("J · every page that names what it needs opens from cold without an early 
   }
   /* pages that need nothing never wait */
   const app = await lazyBoot(fxB);
-  ["home", "focus", "calendar", "reminders", "goals", "matrix", "assignments", "pacing", "achievements", "files", "data"].forEach((v) => {
+  ["home", "focus", "calendar", "reminders", "goals", "matrix", "assignments", "pacing", "achievements", "files"].forEach((v) => {
     app.KOS.show(v);
     assert(!waiting(app), v + " opens at once");
   });

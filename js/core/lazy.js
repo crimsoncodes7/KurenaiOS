@@ -365,7 +365,9 @@
     mediasync: ["page-sync"], aniprofile: ["page-sync"], vndbprofile: ["page-sync"],
     /* Creatives' pages (the Writing Desk, Drills, References, Sketch) and
        its topic page; the space's router and nav stay at boot */
-    creatives: ["page-creatives"]
+    creatives: ["page-creatives"],
+    /* Backup & Restore (and Reset everything, which only it opens) */
+    data: ["page-data"]
   };
   var SPACE_DESK = { code: "page-code", mind: "page-mind", ja: "page-ja", creatives: "page-creatives" };
   var SPACE_TOPIC = { mind: "page-mind", creatives: "page-creatives" };
