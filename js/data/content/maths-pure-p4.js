@@ -731,6 +731,34 @@ C["maths:4.3"] = {
       ["$\\displaystyle\\sum_{n=1}^{48} \\log_5\\!\\left(\\tfrac{n+2}{n+1}\\right)$", "telescoping product inside a log", "$\\log_5\\frac{50}{2} = 2$"]
     ] } },
 
+    { page: "Writing a series in sigma form" },
+    { callout: { t: "info", h: "Three steps", body: [
+      "**1. The general term $u_r$.** Arithmetic: $a + (r - 1)d$. Geometric: $ar^{r-1}$. Alternating signs: put in $(-1)^{r+1}$ (first term positive) or $(-1)^r$ (first term negative).",
+      "**2. The limits.** Start at $r = 1$ (or wherever the formula gives the first term), and find the upper limit by solving $u_r = $ last term.",
+      "**3. Check** the first and last terms by substituting the limits back in. A sigma with the wrong upper limit loses the accuracy mark even when the general term is right."
+    ] } },
+    { worked: { tag: "example", title: "An arithmetic and an alternating geometric series in sigma form", src: "routine",
+      q: "Write each series in sigma notation and find its value. **(a)** $3 + 7 + 11 + \\cdots + 99$ **(b)** $5 - 10 + 20 - 40 + \\cdots$ to 10 terms.",
+      steps: [
+        { h: "(a) General term, then the count", m: "$a = 3$, $d = 4$: $u_r = 3 + 4(r - 1) = 4r - 1$. Last term $4r - 1 = 99 \\Rightarrow r = 25$, so $\\displaystyle\\sum_{r=1}^{25}(4r - 1)$", n: "Check: $r = 1$ gives 3, $r = 25$ gives 99." },
+        { m: "$S_{25} = \\dfrac{25}{2}(3 + 99) = 1275$" },
+        { h: "(b) The sign alternates", m: "$a = 5$, ratio $-2$: $u_r = 5(-2)^{r-1}$, so $\\displaystyle\\sum_{r=1}^{10} 5(-2)^{r-1}$", n: "$(-2)^{r-1}$ carries the sign itself: positive when $r$ is odd." },
+        { m: "$S_{10} = \\dfrac{5\\left(1 - (-2)^{10}\\right)}{1 - (-2)} = \\dfrac{5(1 - 1024)}{3} = -1705$" }
+      ], result: "(a) $\\sum_{r=1}^{25}(4r - 1) = 1275$ (b) $\\sum_{r=1}^{10} 5(-2)^{r-1} = -1705$" } },
+    { fig: { x: [0, 7], y: [0, 7], aspect: "equal", axes: { x: "r", y: "", xt: [1, 2, 3, 4, 5], yt: [1, 2, 3, 4, 5, 6] }, items: [
+      { poly: [[0.5, 0], [1.5, 0], [1.5, 1], [0.5, 1]], fill: "accent", alpha: 0.35, c: "accent", w: 1 },
+      { poly: [[1.5, 0], [2.5, 0], [2.5, 2], [1.5, 2]], fill: "accent", alpha: 0.35, c: "accent", w: 1 },
+      { poly: [[2.5, 0], [3.5, 0], [3.5, 3], [2.5, 3]], fill: "accent", alpha: 0.35, c: "accent", w: 1 },
+      { poly: [[3.5, 0], [4.5, 0], [4.5, 4], [3.5, 4]], fill: "accent", alpha: 0.35, c: "accent", w: 1 },
+      { poly: [[4.5, 0], [5.5, 0], [5.5, 5], [4.5, 5]], fill: "accent", alpha: 0.35, c: "accent", w: 1 },
+      { poly: [[0.5, 1], [1.5, 1], [1.5, 6], [0.5, 6]], fill: "accent2", alpha: 0.15, c: "accent2", w: 1 },
+      { poly: [[1.5, 2], [2.5, 2], [2.5, 6], [1.5, 6]], fill: "accent2", alpha: 0.15, c: "accent2", w: 1 },
+      { poly: [[2.5, 3], [3.5, 3], [3.5, 6], [2.5, 6]], fill: "accent2", alpha: 0.15, c: "accent2", w: 1 },
+      { poly: [[3.5, 4], [4.5, 4], [4.5, 6], [3.5, 6]], fill: "accent2", alpha: 0.15, c: "accent2", w: 1 },
+      { poly: [[4.5, 5], [5.5, 5], [5.5, 6], [4.5, 6]], fill: "accent2", alpha: 0.15, c: "accent2", w: 1 },
+      { text: [6.2, 3], t: "n + 1 = 6", c: "text2", size: 11 }
+    ], cap: "Why $\\sum_{r=1}^{n} r = \\frac{n(n+1)}{2}$: the staircase $1 + 2 + \\cdots + 5$ and a copy turned upside down fill a $5 \\times 6$ rectangle, so the sum is half of $5 \\times 6$." } },
+
     { page: "Evaluating sums" },
     { callout: { t: "memorise", h: "Splitting and counting", body: [
       "$\\displaystyle\\sum (a_r + b_r) = \\sum a_r + \\sum b_r$ and $\\displaystyle\\sum k a_r = k\\sum a_r$ — split a sum into pieces you recognise (constant, arithmetic, geometric).",
@@ -757,13 +785,28 @@ C["maths:4.3"] = {
         { m: "$S_\\infty = \\dfrac{9/16}{1 + 3/4} = \\dfrac{9/16}{7/4} = \\dfrac{9}{28}$", mk: "A1*", n: "$|r| = \\frac34 < 1$, so the sum exists — say it." }
       ], result: "shown" } },
 
+    { worked: { tag: "example", title: "Find $k$ from the value of a sum", src: "exam-style · 4 marks",
+      q: "Given that $\\displaystyle\\sum_{r=1}^{k}(4r + 1) = 1430$, find the value of $k$.",
+      steps: [
+        { h: "Split and use the standard results", m: "$\\displaystyle\\sum_{r=1}^{k} 4r + \\sum_{r=1}^{k} 1 = 4 \\cdot \\dfrac{k(k + 1)}{2} + k = 2k^2 + 3k$", mk: "M1 A1", n: "Or treat it as arithmetic: first term 5, last term $4k + 1$, so $\\frac{k}{2}(5 + 4k + 1)$." },
+        { h: "Solve the quadratic", m: "$2k^2 + 3k - 1430 = 0 \\Rightarrow (k - 26)(2k + 55) = 0 \\Rightarrow k = 26$", mk: "M1 A1", n: "Reject $k = -27.5$: $k$ counts terms, so it is a positive integer. Say so." }
+      ], result: "$k = 26$" } },
+    { worked: { tag: "example", title: "The least $n$ for which a geometric sum passes a target", src: "exam-style · 4 marks",
+      q: "Find the least value of $n$ for which $\\displaystyle\\sum_{r=1}^{n} 3 \\times 2^r > 1\\,000\\,000$.",
+      steps: [
+        { h: "The sum", m: "First term $6$, ratio $2$: $\\displaystyle\\sum_{r=1}^{n} 3 \\times 2^r = \\dfrac{6(2^n - 1)}{2 - 1} = 6(2^n - 1)$", mk: "M1 A1", n: "The first term is the $r = 1$ term, $3 \\times 2 = 6$, not 3." },
+        { h: "Logs, then round UP", m: "$2^n > \\dfrac{10^6}{6} + 1 \\Rightarrow n > \\dfrac{\\ln 166\\,667.7}{\\ln 2} = 17.35 \\ldots \\Rightarrow n = 18$", mk: "M1 A1", n: "Check both sides: $n = 17$ gives $786\\,426$; $n = 18$ gives $1\\,572\\,858$." }
+      ], result: "$n = 18$" } },
+
     { page: "Exam toolkit" },
     { ul: [
       "**Count the terms**: upper − lower + 1.",
       "**First term of a sum starting at $r = 4$** is the $r = 4$ term, not the $r = 1$ term.",
       "**$\\sum 3$ is $3n$**, not 3.",
       "**Telescoping**: write enough terms to show the cancellation; the answer is (last numerator)/(first denominator).",
-      "**Sigma of a periodic sequence**: cycles and leftovers (4.2)."
+      "**Sigma of a periodic sequence**: cycles and leftovers (4.2).",
+      "**Writing a sigma**: check the first and last terms by substituting the limits back in.",
+      "**Least $n$**: solve with logs, round UP, and check $n$ and $n - 1$."
     ] },
     { callout: { t: "mnemonic", h: "\"Bottom to top, add them up; upper minus lower plus one\"", body: "What sigma means, and how many terms it has." } }
   ],
@@ -774,14 +817,19 @@ C["maths:4.3"] = {
     ["$\\sum_{r=1}^{16} 2^r = $?", "$2(2^{16} - 1) = 131\\,070$."],
     ["$\\sum_{r=4}^{\\infty} 20(\\frac12)^r = $?", "$\\frac{5/4}{1/2} = \\frac52$."],
     ["$\\sum_{n=1}^{48}\\log_5\\frac{n+2}{n+1} = $?", "$\\log_5\\frac{50}{2} = 2$ (telescoping)."],
-    ["$\\cos(180n)°$ equals…", "$(-1)^n$."]
+    ["$\\cos(180n)°$ equals…", "$(-1)^n$."],
+    ["Write $3 + 7 + 11 + \\cdots + 99$ in sigma notation.", "$\\sum_{r=1}^{25}(4r - 1)$."],
+    ["General term for an alternating geometric series $5 - 10 + 20 - \\cdots$?", "$5(-2)^{r-1}$."],
+    ["$\\sum_{r=1}^{k}(4r + 1)$ in terms of $k$?", "$2k^2 + 3k$."]
   ],
   quiz: [
     { q: "$\\sum_{r=1}^{5} (2r + 1) =$", opts: ["35", "30", "25", "11"], ans: 0, why: "$3 + 5 + 7 + 9 + 11$." },
     { q: "$\\sum_{r=3}^{10} 4$ equals", opts: ["32", "40", "28", "4"], ans: 0, why: "8 terms of 4." },
     { q: "$\\sum_{r=1}^{n} r$ for $n = 100$:", opts: ["5050", "5000", "10100", "4950"], ans: 0, why: "$\\frac{100 \\times 101}{2}$." },
     { q: "$\\sum_{r=1}^{\\infty} 3(\\frac{1}{4})^{r}$ =", opts: ["4", "1", "$\\tfrac34$", "12"], ans: 1, why: "$a = \\frac34$, $S = \\frac{3/4}{3/4}$." },
-    { q: "$\\sum_{n=1}^{9}\\ln\\frac{n+1}{n} =$", opts: ["$\\ln 10$", "$\\ln 9$", "$9$", "$\\ln 45$"], ans: 0, why: "Telescopes to $\\ln\\frac{10}{1}$." }
+    { q: "$\\sum_{n=1}^{9}\\ln\\frac{n+1}{n} =$", opts: ["$\\ln 10$", "$\\ln 9$", "$9$", "$\\ln 45$"], ans: 0, why: "Telescopes to $\\ln\\frac{10}{1}$." },
+    { q: "$2 + 5 + 8 + \\cdots + 59$ in sigma notation is", opts: ["$\\sum_{r=1}^{20}(3r - 1)$", "$\\sum_{r=1}^{19}(3r - 1)$", "$\\sum_{r=1}^{20}(3r + 2)$", "$\\sum_{r=0}^{20}(3r - 1)$"], ans: 0, why: "$3r - 1 = 59$ at $r = 20$." },
+    { q: "The least $n$ with $\\sum_{r=1}^{n} 2^r > 1000$ is", opts: ["9", "10", "8", "11"], ans: 0, why: "$2(2^n - 1) > 1000$: $2^n > 501$, so $n = 9$ ($2 \\times 511 = 1022$)." }
   ]
 };
 
