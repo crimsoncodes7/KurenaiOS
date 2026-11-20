@@ -12,14 +12,10 @@ X("compsci:4.5.2.1", {
     { callout: { t: "tip", body: "Binary → hex: split into groups of **four from the right**, pad the left with zeros, convert each nibble. Hex → binary: four bits per digit. Two hex digits = one byte — which is why colours, MAC addresses and memory dumps use it." }}
   ],
   flashcards: [
-    ["Convert 10110111 to hexadecimal.", "1011 = B, 0111 = 7 → B7."],
-    ["Convert 193 to hexadecimal.", "193 = 12 × 16 + 1 → C1."],
-    ["Convert 3E hex to denary.", "3 × 16 + 14 = 62."],
-    ["Why do programmers use hexadecimal rather than binary?", "It is easier for humans to read, write and remember and less error-prone, because each hex digit represents four bits so numbers are much shorter, and conversion to binary is straightforward."],
-    ["How many bits does one hex digit represent?", "Four (a nibble)."],
-    ["How many hex digits represent one byte?", "Two."],
-    ["Convert 2A hex to binary.", "0010 1010."],
-    ["Which is largest: 1011010 (binary), 5A (hex), 91 (denary)?", "1011010₂ = 90; 5A₁₆ = 90; 91 is largest."]
+    ["Why do programmers use hexadecimal rather than binary?", "It is easier for humans to read, write and remember and less error-prone, because each hex digit represents four bits so numbers are much shorter, and conversion to binary is straightforward.", 13],
+    ["How many bits does one hex digit represent?", "Four (a nibble).", 14],
+    ["How many hex digits represent one byte?", "Two.", 15],
+    ["Which is largest: 1011010 (binary), 5A (hex), 91 (denary)?", "1011010₂ = 90; 5A₁₆ = 90; 91 is largest.", 17]
   ],
   quiz: [
     { q: "11111111 in hexadecimal is:", opts: ["FF", "F0", "255", "EE"], ans: 0, why: "Two nibbles of 1111." },
@@ -27,7 +23,14 @@ X("compsci:4.5.2.1", {
     { q: "Why is hex used in memory dumps rather than binary?", opts: ["It takes up less memory than the same values in binary", "It is shorter for humans to read and converts simply to binary", "The computer stores memory contents as hex, not binary", "The processor can handle hex values faster than it handles binary"], ans: 1, why: "Memory use is unchanged." },
     { q: "Denary 45 in hex:", opts: ["2D", "45", "3C", "2F"], ans: 0, why: "45 = 2 × 16 + 13, and 13 is D, so the hex value is 2D." },
     { q: "Binary 1010 0011 in hex:", opts: ["A3", "AC", "93", "A5"], ans: 0, why: "1010 = A, 0011 = 3." },
-    { q: "How many bits are needed to store two hex digits?", opts: ["4", "8", "16", "2"], ans: 1, why: "4 bits per digit." }
+    { q: "How many bits are needed to store two hex digits?", opts: ["4", "8", "16", "2"], ans: 1, why: "4 bits per digit." },
+    { qk: "150", q: "00111001 in hexadecimal is:", opts: ["57", "39", "93", "3A"], ans: 1, why: "Split into nibbles: 0011 = 3 and 1001 = 9, giving 39. (57 is its denary value.)" },
+    { qk: "151", q: "Hex C57 in denary is:", opts: ["3087", "1287", "3159", "3165"], ans: 2, why: "C × 256 + 5 × 16 + 7 = 3072 + 80 + 7 = 3159." },
+    { qk: "152", q: "Denary 193 in hexadecimal is:", opts: ["C1", "1C", "B1", "C3"], ans: 0, why: "193 = 12 × 16 + 1, and 12 is C, so 193 is C1." },
+    { qk: "153", q: "11010110 in hexadecimal is:", opts: ["6D", "D6", "C6", "D7"], ans: 1, why: "1101 = D (13) and 0110 = 6, so the byte is D6." },
+    { qk: "154", q: "Denary 238 in hexadecimal is:", opts: ["E8", "EE", "DE", "FE"], ans: 1, why: "238 = 14 × 16 + 14, and 14 is E, so 238 is EE." },
+    { qk: "155", q: "Hex 3E in denary is:", opts: ["62", "56", "314", "60"], ans: 0, why: "3 × 16 + 14 (E = 14) = 48 + 14 = 62." },
+    { qk: "156", q: "Hex 2A in binary is:", opts: ["0010 1011", "1010 0010", "0010 1010", "0010 0110"], ans: 2, why: "Each hex digit is one nibble: 2 = 0010 and A (10) = 1010." }
   ],
   exam: [
     { level: "AS", src: "AS 2019 P2 Q2", ctx: "A memory location holds the bit pattern `1101 0110`.",
@@ -52,10 +55,7 @@ X("compsci:4.5.4.3", {
   flashcards: [
     ["Range of 4-bit two's complement?", "−8 to +7.", 10],
     ["What is the most negative 12-bit two's complement value, as bits?", "−2048 (100000000000).", 11],
-    ["Convert 11001010 (two's complement) to denary.", "−128 + 64 + 8 + 2 = −54.", 12],
-    ["Convert −72 to 8-bit two's complement.", "72 = 01001000; flip → 10110111; +1 → 10111000.", 13],
     ["How do you negate a two's complement number?", "Invert every bit and add 1 (or copy from the right up to and including the first 1, then invert the rest).", 14],
-    ["Compute 18 − 72 in 8-bit two's complement.", "00010010 + 10111000 = 11001010 = −54.", 15],
     ["Why is two's complement preferred to sign-and-magnitude?", "One representation of zero, and addition/subtraction use the same adder circuit with no special sign handling.", 16]
   ],
   quiz: [
@@ -64,7 +64,11 @@ X("compsci:4.5.4.3", {
     { q: "Range of 6-bit two's complement:", opts: ["−32 to 31", "−31 to 32", "0 to 63", "−64 to 63"], ans: 0, why: "With 6 bits the top bit is worth −2⁵ = −32, so the range is −32 to 2⁵ − 1 = 31." },
     { q: "01111111 + 00000001 in 8-bit two's complement gives:", opts: ["128 (no overflow)", "−128 (overflow)", "0 (carry out)", "−1 (overflow)"], ans: 1, why: "10000000 = −128 — signed overflow." },
     { q: "11111111 represents:", opts: ["255", "−1", "−127", "127"], ans: 1, why: "The top bit is −128 and the other seven bits add 127, so all ones is −128 + 127 = −1." },
-    { q: "To compute 12 − 5 in 8-bit two's complement you add 00001100 to:", opts: ["00000101", "11111011", "11111010", "10000101"], ans: 1, why: "−5 = flip 00000101 → 11111010, +1 → 11111011; the sum 100000111 drops the carry → 00000111 = 7." }
+    { q: "To compute 12 − 5 in 8-bit two's complement you add 00001100 to:", opts: ["00000101", "11111011", "11111010", "10000101"], ans: 1, why: "−5 = flip 00000101 → 11111010, +1 → 11111011; the sum 100000111 drops the carry → 00000111 = 7." },
+    { qk: "150", q: "−36 in 8-bit two's complement is:", opts: ["10100100", "11011100", "11011011", "00100100"], ans: 1, why: "36 = 00100100; invert to 11011011, then add 1: 11011100. (10100100 is sign and magnitude.)" },
+    { qk: "151", q: "The two's complement byte 11001010 in denary is:", opts: ["202", "−74", "−54", "−53"], ans: 2, why: "−128 + 64 + 8 + 2 = −54. 202 reads it as unsigned, −74 as sign and magnitude." },
+    { qk: "152", q: "−100 in 8-bit two's complement is:", opts: ["11100100", "10011100", "10011011", "01100100"], ans: 1, why: "100 = 01100100; invert to 10011011, then add 1: 10011100. (11100100 is sign and magnitude.)" },
+    { qk: "153", q: "18 − 72 worked in 8-bit two's complement (00010010 + 10111000) gives:", opts: ["00110110", "11001010", "10110110", "11011010"], ans: 1, why: "Add 18 to −72: 00010010 + 10111000 = 11001010, which is −54. (00110110 is +54.)" }
   ],
   exam: [
     { level: "AS", src: "AS 2025 P2 Q2.5", q: "Using 8-bit two's complement, calculate `00101101 − 01001100` (45 − 76). Show the two's complement of the subtrahend, the addition, and the result in denary.", marks: 3,
@@ -97,13 +101,6 @@ X("compsci:4.5.4.4", {
   ],
   flashcards: [
     ["In AQA floating point, where is the binary point?", "Immediately after the first (sign) bit of the mantissa; value = mantissa × 2^exponent, both two's complement.", 10],
-    ["Convert mantissa 0.1010000, exponent 0011 to denary.", "Mantissa 0.625, exponent 3 → 0.625 × 8 = 5.", 11],
-    ["Convert mantissa 1.0110000, exponent 0011 to denary.", "Mantissa −0.625, exponent 3 → −5.", 12],
-    ["Represent 58.5 as a normalised floating point number (8-bit mantissa, 4-bit exponent).", "58.5 = 111010.1 → 0.1110101 × 2⁶ → mantissa 01110101, exponent 0110.", 13],
-    ["Represent −23.25 (8-bit mantissa, 4-bit exponent).", "23.25 = 10111.01 → −23.25 = 101000.11 (two's complement) → 1.0100011 × 2⁵ → mantissa 10100011, exponent 0101.", 14],
-    ["Represent 0.15625 (8-bit mantissa, 4-bit exponent).", "0.15625 = 0.00101 → 0.101 × 2⁻² → mantissa 01010000, exponent 1110.", 15],
-    ["Convert the fixed point two's complement pattern 101100.1011 to denary.", "−32 + 8 + 4 + 0.5 + 0.125 + 0.0625 = −19.3125.", 16],
-    ["Represent 6.34375 in fixed point binary with 5 fraction bits.", "110.01011.", 17],
     ["Advantages of floating point over fixed point?", "Greater range in the same number of bits; can represent numbers much closer to zero and much larger.", 18],
     ["Advantages of fixed point over floating point?", "Faster/simpler arithmetic; some numbers represented more precisely; constant (guaranteed) absolute precision.", 19]
   ],
@@ -114,7 +111,18 @@ X("compsci:4.5.4.4", {
     { q: "The largest positive value with 8-bit mantissa and 4-bit exponent:", opts: ["0.1111111 × 2⁷", "0.1111111 × 2⁸", "1.0000000 × 2⁷", "0.1000000 × 2⁻⁸"], ans: 0, why: "Max mantissa, max exponent (0111 = 7)." },
     { q: "Fixed point beats floating point on:", opts: ["range of values for the same number of bits", "speed of arithmetic and constant precision", "precision for values very close to zero", "storing very large and very small numbers"], ans: 1, why: "2020/2024 mark scheme." },
     { q: "Unsigned fixed point 10011.011 is:", opts: ["19.375", "19.75", "19.125", "35.375"], ans: 0, why: "16 + 2 + 1 + 0.25 + 0.125." },
-    { q: "Why normalise floating point numbers?", opts: ["To make the exponent small so numbers take less memory", "To maximise precision in the bits available and make each value unique", "To remove negative values so no sign bit is needed", "To increase the range by moving more of the number's digits into the exponent"], ans: 1, why: "2022/2025 mark scheme." }
+    { q: "Why normalise floating point numbers?", opts: ["To make the exponent small so numbers take less memory", "To maximise precision in the bits available and make each value unique", "To remove negative values so no sign bit is needed", "To increase the range by moving more of the number's digits into the exponent"], ans: 1, why: "2022/2025 mark scheme." },
+    { qk: "150", q: "0011.1001 as unsigned fixed point binary is:", opts: ["3.0625", "3.5625", "3.1875", "57"], ans: 1, why: "0011 = 3; after the point 1001 = ½ + 1/16 = 0.5625, so 3.5625. 57 reads all eight bits as one integer." },
+    { qk: "151", q: "5.75 in 4.4 fixed point binary is:", opts: ["0101.0111", "0101.1010", "0110.1100", "0101.1100"], ans: 3, why: "5 = 0101 and 0.75 = ½ + ¼ = .1100, so 0101.1100." },
+    { qk: "152", q: "Mantissa 01101000, exponent 0110 (8-bit mantissa, 4-bit exponent) is:", opts: ["52", "26", "104", "0.8125"], ans: 0, why: "0.1101000 × 2⁶: move the point 6 places right to get 110100 = 52." },
+    { qk: "153", q: "Mantissa 10110000, exponent 0011 (8-bit mantissa, 4-bit exponent) is:", opts: ["5", "−3", "−5", "−0.625"], ans: 2, why: "Mantissa 1.0110000 = −1 + ¼ + ⅛ = −0.625; × 2³ = −5." },
+    { qk: "154", q: "Mantissa 0.1010000, exponent 0011 in denary is:", opts: ["0.625", "5", "2.5", "10"], ans: 1, why: "The mantissa is ½ + ⅛ = 0.625, and the exponent 3 multiplies it by 8: 5." },
+    { qk: "155", q: "Mantissa 1.1010000, exponent 0010 in denary is:", opts: ["−6.5", "1.5", "−0.375", "−1.5"], ans: 3, why: "The mantissa is −1 + ½ + ⅛ = −0.375, and the exponent 2 multiplies it by 4: −1.5." },
+    { qk: "156", q: "58.5 as a normalised floating point number (8-bit mantissa, 4-bit exponent) is:", opts: ["01110101 0101", "01110101 0110", "11101010 0110", "00111010 0111"], ans: 1, why: "58.5 = 111010.1 = 0.1110101 × 2⁶, so mantissa 01110101 and exponent 0110." },
+    { qk: "157", q: "−23.25 as a normalised floating point number (8-bit mantissa, 4-bit exponent) is:", opts: ["11011101 0101", "01011101 0101", "10100011 0101", "10100011 0100"], ans: 2, why: "23.25 = 0.1011101 × 2⁵; negate the mantissa 01011101 to 10100011 (it starts 10, so it is normalised); the exponent is 5 = 0101." },
+    { qk: "158", q: "0.15625 as a normalised floating point number (8-bit mantissa, 4-bit exponent) is:", opts: ["01010000 1110", "01010000 0010", "00101000 1111", "01010000 1101"], ans: 0, why: "0.15625 = 0.00101 = 0.101 × 2⁻², so mantissa 01010000 and exponent −2 = 1110. 00101000 1111 has the right value but is not normalised." },
+    { qk: "159", q: "The two's complement fixed point pattern 101100.1011 in denary is:", opts: ["44.6875", "−19.3125", "−12.6875", "−19.6875"], ans: 1, why: "−32 + 8 + 4 + 0.5 + 0.125 + 0.0625 = −19.3125. 44.6875 reads the pattern as unsigned." },
+    { qk: "160", q: "6.34375 in fixed point binary with 5 fraction bits is:", opts: ["110.01101", "110.10110", "110.01011", "101.01011"], ans: 2, why: "6 = 110 and 0.34375 = ¼ + 1/16 + 1/32 = .01011, so 110.01011." }
   ],
   exam: [
     { src: "AQA 2023 P2 Q6", ctx: "A floating point system uses an 8-bit two's complement mantissa and a 4-bit two's complement exponent.",
@@ -171,7 +179,6 @@ X("compsci:4.5.4.8", {
   flashcards: [
     ["What does normalised mean for a two's complement mantissa?", "It begins 01 (positive) or 10 (negative) — the first two bits differ.", 9],
     ["Why are floating point numbers normalised? (give two reasons)", "It maximises precision for a given number of bits (no leading redundant bits), and gives each number a unique representation, making equality tests simpler.", 10],
-    ["Normalise 0.0011 × 2⁵.", "0.11 × 2³ — shift the point right 2 places, subtract 2 from the exponent.", 11],
     ["Is 00110000 a normalised mantissa?", "No — it starts 00; shift left once to 01100000 and reduce the exponent by 1.", 12],
     ["Is 11000000 normalised?", "No — a negative normalised mantissa starts 10.", 13],
     ["Which is the smallest positive normalised mantissa?", "0.1000000 = 0.5.", 14],
@@ -184,7 +191,12 @@ X("compsci:4.5.4.8", {
     { q: "Why does normalisation aid equality testing?", opts: ["values are converted to whole integers", "each value has one unique representation", "the sign bit is removed from every stored value", "values are rounded to the nearest bit"], ans: 1, why: "No alternative encodings." },
     { q: "Un-normalised storage wastes:", opts: ["exponent range", "mantissa precision", "space for the sign bit", "nothing at all"], ans: 1, why: "Leading redundant bits." },
     { q: "A mantissa of 0.1111111 is:", opts: ["un-normalised, since it starts 0.1", "normalised, the largest positive", "negative, since the bits are all ones", "normalised, the smallest positive"], ans: 1, why: "A positive normalised mantissa starts 01, and 0.1111111 is the largest such value." },
-    { q: "Normalised negative mantissas begin with:", opts: ["11", "10", "01", "00"], ans: 1, why: "Normalised negative mantissas start 10: a sign bit of 1, then 0, which is what makes them normalised." }
+    { q: "Normalised negative mantissas begin with:", opts: ["11", "10", "01", "00"], ans: 1, why: "Normalised negative mantissas start 10: a sign bit of 1, then 0, which is what makes them normalised." },
+    { qk: "150", q: "Normalising mantissa 00011010, exponent 0011 gives:", opts: ["01101000 0101", "00110100 0010", "01101000 0001", "11010000 0000"], ans: 2, why: "Shift the mantissa left 2 places to start 01 (01101000) and subtract 2 from the exponent: 3 − 2 = 1 (0001)." },
+    { qk: "151", q: "13.5 as a normalised floating point number (8-bit mantissa, 4-bit exponent) is:", opts: ["01101100 0100", "01101100 0011", "00110110 0101", "11011000 0011"], ans: 0, why: "13.5 = 1101.1 = 0.11011 × 2⁴, so mantissa 01101100 and exponent 0100." },
+    { qk: "152", q: "0.375 as a normalised floating point number (8-bit mantissa, 4-bit exponent) is:", opts: ["01100000 0001", "00110000 0000", "01100000 1110", "01100000 1111"], ans: 3, why: "0.375 = 0.011 = 0.11 × 2⁻¹, so mantissa 01100000 and exponent −1 = 1111." },
+    { qk: "153", q: "−6.5 as a normalised floating point number (8-bit mantissa, 4-bit exponent) is:", opts: ["11101000 0011", "10011000 0011", "10011000 0100", "01101000 0011"], ans: 1, why: "6.5 = 0.1101 × 2³; negate the mantissa 01101000 to 10011000 (it starts 10, so it is normalised); the exponent is 3 = 0011." },
+    { qk: "154", q: "0.0011 × 2⁵ normalised is:", opts: ["0.11 × 2⁷", "0.0011 × 2³", "0.11 × 2³", "1.1 × 2²"], ans: 2, why: "Shift the point right 2 places so the mantissa starts 0.1, and subtract 2 from the exponent: 0.11 × 2³." }
   ],
   exam: [
     { src: "AQA 2025 P2 Q12", ctx: "Four bit patterns in an 8-bit mantissa / 4-bit exponent system: A = 01101000 0011, B = 00110100 0100, C = 10000000 0111, D = 10110000 0010.",

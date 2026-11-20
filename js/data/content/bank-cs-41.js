@@ -369,7 +369,8 @@ X("compsci:4.1.1.12", {
     { q: "To return both a quotient and a remainder from one function you could:", opts: ["use two RETURN statements in sequence", "return a record containing both", "return the quotient and print the remainder", "use a FOR loop"], ans: 1, why: "A single composite value carries both; the second RETURN would never run." },
     { q: "A function declared to return an Integer contains `RETURN \"done\"`. This is:", opts: ["fine", "a type error", "a run-time exception only", "a logic error"], ans: 1, why: "The returned value must match the function's declared type." },
     { q: "Which statement ends a function and supplies its value?", opts: ["END", "OUTPUT", "RETURN", "EXIT"], ans: 2, why: "RETURN both exits and delivers the value." },
-    { q: "`OUTPUT Square(4) + Square(3)` where Square returns n×n prints:", opts: ["7", "25", "49", "16 9"], ans: 1, why: "16 + 9 = 25 — each call is evaluated then added." }
+    { q: "`OUTPUT Square(4) + Square(3)` where Square returns n×n prints:", opts: ["7", "25", "49", "16 9"], ans: 1, why: "16 + 9 = 25 — each call is evaluated then added." },
+    { qk: "150", q: "The hex string \"A2\" converted to decimal is:", opts: ["102", "162", "42", "172"], ans: 1, why: "A is 10, so A2 = 10 × 16 + 2 = 162; 102 reads the digits as if they were base 10." }
   ],
   exam: [
     { src: "AQA 2023 P1 Q3", q: "A function `Grade(mark)` should return `\"Pass\"` for marks of 40 or more and `\"Fail\"` otherwise. A student writes it with a single `IF mark ≥ 40 THEN RETURN \"Pass\" ENDIF`. Explain the error and write a corrected version.", marks: 3,

@@ -455,7 +455,7 @@ C["compsci:4.6.4.1"] = {
     ["Inputs of a D-type flip-flop?", "Data (D) and clock.", 11],
     ["When does Q change on an edge-triggered D-type?", "Only on the (rising) clock edge — Q becomes D.", 12],
     ["Purpose of a 3-to-8 decoder?", "Output Qn is 1 when the binary input has the value n.", 13],
-    ["Wires crossing without a dot?", "Not connected.", 14]
+    ["In a circuit diagram, what does it mean when two wires cross without a dot?", "They are not connected — only a dot at the crossing joins them.", 14]
   ],
   quiz: [
     { q: "Which gate outputs 1 only when both inputs are 0?", opts: ["NOR", "NAND", "XOR", "AND"], ans: 0, why: "NOR is NOT OR: the OR output is 0 only when both inputs are 0, so NOR gives 1 only then." },
@@ -725,7 +725,7 @@ C["compsci:4.6.5.1"] = {
   flashcards: [
     ["Mnemonic for De Morgan?", "Break the line, change the sign.", 1],
     ["What does X + X·Y simplify to?", "X (absorption).", 2],
-    ["What does X·(X + Y) simplify to?", "X (absorption).", 3],
+    ["Simplify X·(X + Y) using the absorption law.", "X (absorption).", 3],
     ["What does X + X̄·Y simplify to?", "X + Y.", 4],
     ["X·X̄ = ? and X + X̄ = ?", "0 and 1.", 5],
     ["What do X + 1 and X·0 simplify to?", "1 and 0.", 6],

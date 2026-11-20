@@ -33,8 +33,6 @@
     "compsci:4.3.2.1 · bank·bank · \"define in order traversal\" ≈ \"define pre order traversal\"": 1,
     "compsci:4.3.2.1 · bank·bank · \"define post order traversal\" ≈ \"define pre order traversal\"": 1,
     "compsci:4.6.5.1 · bank·bank · \"simplify a b b c d d\" ≈ \"simplify a b c d\"": 1,
-    "compsci:4.6.5.1 · base·base · \"x 1 and x 0\" ≈ \"x x̄ and x x̄\"": 1,
-    "compsci:4.6.5.1 · base·base · \"x x y\" ≈ \"x x y\"": 1,
     "maths:2.9 · bank·bank · \"image of p 4 3 on y 3f x\" ≈ \"image of p 4 3 on y f 2x\"": 1
   },
   "sameCardAcrossDecks": {},

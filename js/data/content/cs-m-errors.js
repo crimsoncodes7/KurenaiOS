@@ -57,7 +57,6 @@ C["compsci:4.5.4.5"] = {
   flashcards: [
     ["Why may a fixed or floating point value be inaccurate?","Not enough bits for its significant digits, or its binary form recurs.","compsci:4.5.4.5:0"],
     ["What might the system do with 28.25 in a 7-bit mantissa?","Round to 28 or 28.5, or truncate to 28.","compsci:4.5.4.5:2"],
-    ["What is the closest (8,4) representation of 12.765625?","01100110 0100 = 12.75.","compsci:4.5.4.5:3"],
     ["Why does 0.1 + 0.2 ≠ 0.3 in code?","Each is stored rounded; the errors accumulate.","compsci:4.5.4.5:4"],
     ["How should floats be compared?","Within a tolerance, not with ==.","compsci:4.5.4.5:5"],
     ["Which fractions are exact in binary?","Those whose denominator is a power of 2.","compsci:4.5.4.5:6"],
@@ -94,7 +93,8 @@ C["compsci:4.5.4.5"] = {
     {"q":"A result too close to zero to represent is","opts":["underflow","overflow","rounding","truncation"],"ans":0,"why":"Stored as 0."},
     {"q":"To reduce floating point overflow","opts":["give the exponent more bits","give the mantissa more bits","use fixed point","normalise"],"ans":0,"why":"Range."},
     {"q":"Dividing a tiny number by a huge one so the result is stored as 0 is:","opts":["overflow","underflow","truncation","a syntax error"],"ans":1,"why":"Too close to zero."},
-    {"q":"'Stack overflow' as an answer to a floating point overflow question is:","opts":["accepted","rejected","worth half","correct"],"ans":1,"why":"Different concept."}
+    {"q":"'Stack overflow' as an answer to a floating point overflow question is:","opts":["accepted","rejected","worth half","correct"],"ans":1,"why":"Different concept."},
+    { qk: "150", q: "The closest normalised (8-bit mantissa, 4-bit exponent) value to 12.765625 is:", opts: ["01100111 0100", "01100110 0100", "01100110 0011", "00110011 0101"], ans: 1, why: "01100110 0100 = 0.1100110 × 2⁴ = 12.75, only 0.015625 away; 01100111 0100 is 12.875, further off." }
   ],
   exam: [
     {"src":"AQA 2018 P2 Q6","q":"Explain why repeatedly adding 0.1 to a floating point total one hundred times may not give exactly 10.","marks":2,"ms":["0.1 cannot be represented exactly in binary (recurring expansion), so each stored value has a small rounding error (1)","The errors accumulate over the repeated additions so the total differs slightly from 10 (1)"]},

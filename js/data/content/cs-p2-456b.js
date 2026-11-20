@@ -193,7 +193,6 @@ C["compsci:4.5.6.7"] = {
     ["What is sample resolution?", "Number of bits used to store each sample."],
     ["How is a sound file's size calculated?", "rate × resolution × duration (bits)."],
     ["Minimum rate for 15 kHz?", "30 000 Hz.", 4],
-    ["3 min, 16-bit, 44 kHz in MB?", "15.84 MB.", 5],
     ["Why does more resolution help?", "Less quantisation error — samples stored more accurately.", 6],
     ["Effect of too low a sample rate?", "High frequencies are lost / not reproduced.", 7],
     ["How many more levels does a 10-bit sample have than an 8-bit one?", "768.", 8],

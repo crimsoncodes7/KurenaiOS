@@ -68,7 +68,6 @@ C["compsci:4.5.6.4"] = {
     ["Define colour depth.","The number of bits used to represent the colour of each pixel.","compsci:4.5.6.4:0"],
     ["Colour depth for 5 colours?","3 bits.","compsci:4.5.6.4:4"],
     ["How many bits per pixel give 16 777 216 colours?","24.","compsci:4.5.6.4:6"],
-    ["What is the most colours a 1000 × 800 image can have in 400 kB?","16.","compsci:4.5.6.4:8"],
     ["What extra data does a bitmap file hold?","Metadata (width, height, colour depth …).","compsci:4.5.6.4:9"],
     ["What is a pixel?","The smallest addressable element of a bitmap image — one colour value.","compsci:4.5.6.4:10"],
     ["Define resolution.","The number of pixels in the image, usually width × height (or pixels per inch for print).","compsci:4.5.6.4:11"],
@@ -105,7 +104,8 @@ C["compsci:4.5.6.4"] = {
     {"q":"Scaling a vector image ×10:","opts":["pixelates","stays sharp — recalculated","loses colour","increases file size ×100"],"ans":1,"why":"Rendered from geometry."},
     {"q":"Best format for a company logo used at many sizes","opts":["vector","bitmap","MIDI","RLE"],"ans":0,"why":"Lossless scaling."},
     {"q":"Enlarging a bitmap causes","opts":["pixelation","recalculation","smaller files","nothing"],"ans":0,"why":"Only original pixels."},
-    {"q":"Deleting an object in a vector image","opts":["leaves no hole","leaves a blank area","corrupts it","changes the colour depth"],"ans":0,"why":"Objects are separate."}
+    {"q":"Deleting an object in a vector image","opts":["leaves no hole","leaves a blank area","corrupts it","changes the colour depth"],"ans":0,"why":"Objects are separate."},
+    { qk: "150", q: "A 1000 × 800 bitmap fits exactly in 400 kB. The most colours it can have is:", opts: ["4", "16", "32", "256"], ans: 1, why: "400 000 × 8 bits ÷ 800 000 pixels = 4 bits a pixel, and 2⁴ = 16 colours." }
   ],
   exam: [
 

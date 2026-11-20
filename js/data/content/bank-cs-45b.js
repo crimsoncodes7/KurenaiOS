@@ -76,8 +76,6 @@ X("compsci:4.5.6.7", {
   ],
   flashcards: [
     ["State Nyquist's theorem.", "To reproduce a signal faithfully the sample rate must be at least twice the highest frequency component in the signal.", 12],
-    ["File size for 30 s at 20 000 Hz, 16-bit, mono?", "30 × 20 000 × 16 / 8 = 1 200 000 bytes.", 13],
-    ["Duration of a 17.199 MB file at 44 100 Hz, 16-bit mono?", "17 199 000 × 8 / (44 100 × 16) ≈ 195 s.", 14],
     ["What is quantisation error and how is it reduced?", "The rounding of each measured amplitude to the nearest available level; reduce it by increasing the sample resolution.", 15],
     ["What does a stored sample represent?", "The amplitude of the sound wave at the instant it was sampled, as a binary number.", 16],
     ["How does increasing the sample rate affect quality and size?", "Higher frequencies captured, closer approximation — and proportionally larger file.", 17]
@@ -88,7 +86,10 @@ X("compsci:4.5.6.7", {
     { q: "16 amplitude divisions needs a resolution of:", opts: ["16 bits", "4 bits", "8 bits", "2 bits"], ans: 1, why: "16 levels need log₂ 16 = 4 bits, since 2⁴ = 16." },
     { q: "To reduce quantisation error you increase:", opts: ["sample rate", "sample resolution", "recording duration", "compression ratio"], ans: 1, why: "More bits per sample gives more amplitude levels, so each sample is closer to the true value." },
     { q: "Size of 3 minutes at 48 000 Hz, 16-bit, mono in MiB:", opts: ["16.48", "17.28", "8.24", "34.56"], ans: 0, why: "48 000 × 16 × 180 / 8 / 1024²." },
-    { q: "A 1200 Hz tone needs a minimum sample rate of:", opts: ["600 Hz", "1200 Hz", "2400 Hz", "4800 Hz"], ans: 2, why: "The Nyquist theorem says the sample rate must be at least twice the highest frequency: 2 × 1200 = 2400 Hz." }
+    { q: "A 1200 Hz tone needs a minimum sample rate of:", opts: ["600 Hz", "1200 Hz", "2400 Hz", "4800 Hz"], ans: 2, why: "The Nyquist theorem says the sample rate must be at least twice the highest frequency: 2 × 1200 = 2400 Hz." },
+    { qk: "150", q: "3 minutes of 16-bit mono sound sampled at 44 kHz needs:", opts: ["126.72 MB", "15.84 MB", "0.264 MB", "1.98 MB"], ans: 1, why: "180 s × 44 000 × 16 bits ÷ 8 = 15 840 000 bytes = 15.84 MB. Forgetting ÷ 8 gives 126.72." },
+    { qk: "151", q: "20 s of 8-bit mono sound sampled at 11 025 Hz needs:", opts: ["1 764 000 bytes", "220 500 bytes", "27 562 bytes", "441 000 bytes"], ans: 1, why: "20 × 11 025 samples × 8 bits ÷ 8 = 220 500 bytes. Without ÷ 8 the answer is in bits." },
+    { qk: "152", q: "A 17.199 MB file of 16-bit mono sound sampled at 44 100 Hz lasts about:", opts: ["24 s", "195 s", "390 s", "3 s"], ans: 1, why: "17 199 000 × 8 bits ÷ (44 100 × 16 bits a second) ≈ 195 s. Forgetting × 8 gives about 24 s." }
   ],
   exam: [
     { src: "AQA 2023 P2 Q1", ctx: "A 3-minute mono recording is sampled at 48 000 Hz with a 16-bit sample resolution and stored uncompressed.",

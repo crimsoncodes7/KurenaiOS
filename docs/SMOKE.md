@@ -5,9 +5,11 @@ Moved out of `CLAUDE.md` on 17 November 2026 (W8, AP-20). The gate is
 holds in full. Add a new suite to this list and to the count and loop in
 `CLAUDE.md`.
 
-Gate: 178 / 178 suites (`""`, 2–156, 160–164 and 180–196).
+Gate: 179 / 179 suites (`""`, 2–156, 160–164 and 180–197).
 
 What the suites hold, newest first, as recorded at each release:
+
+197 is the flashcard quality pass (roadmap 5.21, 1B): `tools/card_lint.mjs --check` clean over every CS, Maths and IT card — no bare label, no bare yes/no, no back over 35 words, no CS worked calculation — outside the reviewed `tools/card_lint-allow.json`; the rules flag what they are for and pass their rewrites; the 34 CS calculations moved to their topic's quiz as items keyed 150 upwards at its end, every later card keeping its schedule key.
 
 196 is 1A's first item (the user's Due today note, rm:due-subject): Home's Focus card measures a plan row or a topic by the time spent on it today, never the day's total, and a clear board keeps the daily goal (53a); a mixed Due today run counts its cards per subject (`metrics.bySubject`, kept across a pick-up) and a subject's review goals read their share; Today so far and Card stats' Reviews per day and Rating mix read the review log (bk:study-core#1); the Writing Desk writes a draft on pagehide and on leaving (creatives#6); a part-rated Due today run picks up from its chip (sync-disruption#3); the toast queue: Undo rows stack, ⌘Z runs the newest, the message says so (bk:shell#3, a11y-hci#4); a cloud document is taken in place, so held references stay live (bk:data-integrity#5); the server functions' failure paths, read from their source (EF-01 to EF-08)
 195 is the spaces joining the day and Home (HR-04, JM-26, MI-10 part 3, Creatives): `KOS.today.build` carries each space's daily item and reviews due and Money's notices and next bill, still writing nothing; Home's Money row shows a notice or the next bill and what is left this month, masked by Hide amounts; Creatives' theory cards are their own Review row; the Assistant's `ja_overview`/`ja_lesson` and a `today_overview` that names the spaces and Money.

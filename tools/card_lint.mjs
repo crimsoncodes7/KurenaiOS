@@ -52,12 +52,23 @@ export const LONG = 35;
 const WH = /\b(what|why|how|which|when|where|who|whose|whom)\b/i;
 const AUX = /^(is|are|was|were|does|do|did|can|could|should|would|will|has|have|had|must|may|might|shall|true or false)\b/i;
 const IMP = /^(name|state|give|define|explain|describe|list|identify|compare|contrast|distinguish|outline|write|convert|calculate|find|complete|order|match|fill|sketch|draw|show|prove|solve|evaluate|simplify|express|expand|factorise|differentiate|integrate|translate|recall|suggest|justify|interpret|trace|summarise|spot|correct|rewrite|classify|predict|estimate|work out|determine|use|apply|decide|choose|say|label|construct|derive|rearrange|sort|reduce|represent|encode|decode|normalise|add|subtract|multiply|divide|round|count|fix|rank|plot|split|pick|select|recognise)\b/i;
-const CUE = /\b(of|vs|versus|for|in|between|from|to|on|with|without|by|after|before|if|when|per|than|as|at|into|under|over)\b|[:=—–,]/i;
+const CUE = /\b(of|vs|versus|for|in|between|from|to|on|with|by|after|before|if|when|per|than|as|at|into|under|over)\b|[:=—–,]/i;
 const YESNO = /^(yes|no|true|false)\b([\s.,;:!—–-]*)([\s\S]*)$/i;
 /* a CS number-representation sum: a conversion, binary arithmetic, a
-   normalisation, a size worked out */
-const CALC_VERB = /^(Convert|Normalise|Calculate|Work out|Add|Subtract|Multiply|Divide)\b/;
-const CALC_ASK = /(\d[\d ]*(₂|₁₀|₁₆)?|\b[0-9A-F]{2,}\b) in (decimal|denary|binary|hex|hexadecimal|KiB|MiB|GiB|kB|MB|bytes)\b|[0-9A-F]+(₂|₁₀|₁₆) (in|to|unsigned)\b|^[01]{4,}(₂)? unsigned\b|→ (decimal|denary|binary|hex)\b|\bin MB\?$/i;
+   normalisation, a size worked out — a specific number (a bit pattern, a
+   subscripted or hex value, a decimal fraction, a number of two digits or
+   more) to be put into a representation, or an instruction to work one
+   out. Recognising a form ("Is 11000000 normalised?"), a range, a limit
+   or a place value is recall and stays. */
+const CALC_VERB = /^(Convert|Normalise|Calculate|Work out|Add|Subtract|Multiply|Divide|Compute|Represent)\b/;
+const CALC_NUM = /(?<![\w.])[−-]?(?:[01]{4,}(?:\.[01]+)?|[0-9A-F]+[₂₁₀₆]+|\d+\.\d+|\d{2,}|[0-9A-F]{2,}(?= hex))(?!\w)/;
+const CALC_TO = /\b(hex|hexadecimal|denary|decimal|binary|two's complement|floating point|fixed point|normalised|mantissa|unsigned|MB|kB|KiB|MiB|GiB|bytes|file size|duration)\b|\(\d,\s?\d\)/i;
+const CALC_NOT = /\b(range|most negative|smallest|highest|largest|place value|how many|why|which|subnet|what might|what happens)\b|^(is|are|does|can)\b/i;
+export function isCalc(q) {
+  const t = String(q);
+  if (/`/.test(t) || !/\d/.test(t)) return false;
+  return CALC_VERB.test(t) || (CALC_NUM.test(t) && CALC_TO.test(t) && !CALC_NOT.test(t));
+}
 
 function plain(s) { return String(s).replace(/\$[^$]*\$/g, " x ").replace(/\s+/g, " ").trim(); }
 export function words(s) { return plain(s).split(" ").filter((w) => /[\p{L}\p{N}]/u.test(w)).length; }
@@ -75,7 +86,7 @@ export function lint(sid, q, a) {
   const m = YESNO.exec(a);
   if (m && (AUX.test(t) || m[2].trim() || !m[3].trim()) && words(m[3]) < 6) out.push({ rule: "yesno", why: "a bare yes/no" });
   if (words(a) > LONG) out.push({ rule: "long", why: words(a) + " words" });
-  if (sid === "compsci" && /\d/.test(t) && (CALC_VERB.test(t) && /\b[0-9A-F]*\d[0-9A-F]*\b/.test(t) && !/`/.test(t) || CALC_ASK.test(t))) out.push({ rule: "calc", why: "a worked calculation" });
+  if (sid === "compsci" && isCalc(q)) out.push({ rule: "calc", why: "a worked calculation" });
   return out;
 }
 

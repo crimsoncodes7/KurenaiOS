@@ -402,7 +402,6 @@ X("compsci:4.2.8.1", {
     { callout: { t: "memorise", body: "Dot product `a·b = a₁b₁ + a₂b₂`; convex combination `αa + βb` with α + β = 1, α, β ≥ 0 gives a point on the line segment between them. A vector can be represented as a list `[3, 4]`, a dictionary `{0: 3, 1: 4}`, or a function from index to value." }}
   ],
   flashcards: [
-    ["Calculate [4, 3] · [2, 5].", "4×2 + 3×5 = 8 + 15 = 23.", 11],
     ["What is the magnitude of [6, 8]?", "√(6² + 8²) = √100 = 10.", 12],
     ["A position [3, −1] is moved by velocity [2, 4]. New position?", "[5, 3] — vector addition, component by component.", 13],
     ["Effect of multiplying a vector by 2?", "Direction/angle unchanged; magnitude doubled.", 14],
@@ -417,7 +416,8 @@ X("compsci:4.2.8.1", {
     { q: "Multiplying [3, 4] by 3 gives a vector of magnitude:", opts: ["5", "15", "25", "7"], ans: 1, why: "Scalar 3 × magnitude 5." },
     { q: "Which represents the vector [7, 0, 2] as a dictionary?", opts: ["{7: 0, 0: 1, 2: 2}", "{0: 7, 1: 0, 2: 2}", "{0: 2, 1: 0, 2: 7}", "[0: 7, 1: 0, 2: 2]"], ans: 1, why: "Index → component." },
     { q: "An enemy faces direction f and the hero is in direction d from it. The hero is 'in front' when:", opts: ["f · d < 0", "f · d > 0", "|f| > |d|", "f = d"], ans: 1, why: "Positive dot product means the angle between them is under 90°." },
-    { q: "0.25·[4, 8] + 0.75·[8, 0] is:", opts: ["[7, 2]", "[12, 8]", "[3, 6]", "[6, 2]"], ans: 0, why: "[1, 2] + [6, 0] = [7, 2] — a convex combination." }
+    { q: "0.25·[4, 8] + 0.75·[8, 0] is:", opts: ["[7, 2]", "[12, 8]", "[3, 6]", "[6, 2]"], ans: 0, why: "[1, 2] + [6, 0] = [7, 2] — a convex combination." },
+    { qk: "150", q: "The dot product [4, 3] · [2, 5] is:", opts: ["[8, 15]", "26", "23", "7"], ans: 2, why: "Multiply matching components and add: 4 × 2 + 3 × 5 = 8 + 15 = 23. A dot product is one number, not a vector." }
   ],
   exam: [
     { src: "AQA 2020 P1 Q1", ctx: "Two vectors are `a = [3, 4]` and `b = [2, −1]`.",

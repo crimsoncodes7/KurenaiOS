@@ -503,7 +503,6 @@ C["compsci:4.1.1.12"] = {
     ["Return several values in C#?", "A tuple/record, or out/ref parameters.", 2],
     ["What does the C# error CS0161 mean?", "\"Not all code paths return a value\" — every path of a function must return.", 3],
     ["What does int.TryParse return?", "A bool (success) and the number through an out parameter.", 4],
-    ["What is the hex string \"A2\" in decimal?", "10 × 16 + 2 = 162.", 5],
     ["\"1G\" with ToDecimal returning −1?", "1 × 16 − 1 = 15 — misleading.", 6],
     ["What is ASCII(\"1\") − 48, and why subtract 48?", "49 − 48 = 1 — the digit characters '0'–'9' have codes 48–57, so subtracting 48 gives the digit's value.", 7]
   ],

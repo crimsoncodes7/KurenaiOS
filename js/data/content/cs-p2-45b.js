@@ -193,7 +193,6 @@ C["compsci:4.5.4.3"] = {
     ["What is the range of 8-bit two's complement?", "−128 to 127.", 2],
     ["What is the range of n-bit two's complement?", "−2ⁿ⁻¹ to 2ⁿ⁻¹ − 1.", 3],
     ["How is A − B done in binary?", "Add A to the two's complement of B; discard any carry.", 4],
-    ["−36 in 8-bit two's complement?", "11011100.", 5],
     ["Why use two's complement?", "Addition works unchanged for negatives, so subtraction needs no extra circuit.", 6],
     ["What is the most negative 12-bit value?", "−2048.", 7],
     ["What is done with the carry out of the MSB?", "It is discarded.", 8]
@@ -335,14 +334,10 @@ C["compsci:4.5.4.4"] = {
   flashcards: [
     ["What is fixed point?", "Binary with the point in a fixed, agreed (unstored) position."],
     ["Place values after the point?", "½, ¼, ⅛, 1/16 …"],
-    ["What is 0011.1001 as unsigned fixed point?", "3.5625."],
-    ["What is 5.75 in 4.4 fixed point?", "0101.1100."],
-    ["How is a floating point number's value worked out?", "mantissa × 2^exponent."],
+    ["How is a floating point number's value worked out?", "mantissa × 2^exponent.", 4],
     ["What does the exponent decide?", "Range.", 6],
     ["What does the mantissa decide?", "Precision.", 7],
-    ["What value is mantissa 01101000, exponent 0110 (8,4)?", "52.", 8],
-    ["What value is mantissa 10110000, exponent 0011 (8,4)?", "−5.", 9]
-  ],
+ ],
   quiz: [
     { q: "11011101 with 2 bits before the point is", opts: ["3.453125", "221", "3.5", "13.8125"], ans: 0, why: "With two bits before the point, 11 is 3 and .011101 is 29/64 = 0.453125, so it is 3.453125." },
     { q: "Mantissa 01000000 means", opts: ["+½", "+64", "−½", "1"], ans: 0, why: "01000000 is 0.1000000 in binary, which is a half, and the leading 0 shows it is positive." },
@@ -561,11 +556,7 @@ C["compsci:4.5.4.8"] = {
   ],
   flashcards: [
     ["Two reasons to normalise?", "Maximum precision for the bits available; unique representation (simple equality tests).", 1],
-    ["Normalise 00011010 0011.", "01101000 0001.", 2],
     ["Shift the mantissa left n places — what happens to the exponent?", "Subtract n.", 3],
-    ["What is 58.5 in normalised (8,4) floating point?", "01110101 0110.", 4],
-    ["What is 0.15625 in normalised (8,4) floating point?", "01010000 1110.", 5],
-    ["What is −23.25 in normalised (8,4) floating point?", "10100011 0101.", 6],
     ["Database normalisation vs floating point normalisation?", "Different: tables without redundancy vs mantissas without wasted bits.", 8]
   ],
   quiz: [
