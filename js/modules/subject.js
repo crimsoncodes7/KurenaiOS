@@ -685,7 +685,7 @@
           onclick: function () { KOS.show("ref", { subject: sid, ref: r.ref }); } }) : null,
         el("span", { class: "k-res-host", text: host + " ↗" }),
         el("button", { type: "button", class: "k-res-del", "data-intent": "danger", "aria-label": "Delete resource " + r.name, text: "✕", onclick: function () {
-          KOS.ui.confirm({ title: "Remove resource?", body: "“" + r.name + "” will be removed from the table.", danger: true, confirm: "Remove" }, function () {
+          KOS.ui.confirm({ title: "Remove resource?", body: "“" + r.name + "” will be removed from Resources.", danger: true, confirm: "Remove" }, function () {
             R.items.splice(R.items.indexOf(r), 1);
             store.save();
             renderResources(holder, sid);
