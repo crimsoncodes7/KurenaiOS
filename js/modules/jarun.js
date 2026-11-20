@@ -375,28 +375,40 @@
   }
 
   /* ---------------- a session ---------------- */
-  /* run(main, { kind: "reviews" | "learn" | "today", lesson }) — the page for #/japanese/session */
+  /* run(main, { kind: "reviews" | "learn" | "practice" | "today", lesson }) — the page for #/japanese/session */
   function run(main, o) {
     o = o || {};
-    var lessonId = o.kind === "learn" ? o.lesson : null;
-    if (lessonId) KOS.ja.startLesson(lessonId);
-    var keys = KOS.ja.due();
-    if (lessonId) {
-      var L = KOS.ja.lesson(lessonId), mine = {};
-      L.items.forEach(function (k) { mine[k] = 1; });
-      /* the lesson's own facets, Reading first; reviews stay in their own block */
-      keys = keys.filter(function (k) { return mine[KOS.jaSrs.split(k).item]; });
-      /* the lesson's order: each item in turn, Reading before Listening before Writing */
-      var SK = { R: 0, L: 1, W: 2, S: 3 };
-      keys.sort(function (x, y) {
-        var a = KOS.jaSrs.split(x), b = KOS.jaSrs.split(y);
-        return L.items.indexOf(a.item) - L.items.indexOf(b.item) || SK[a.skill] - SK[b.skill];
+    var practice = o.kind === "practice";
+    var lessonId = (o.kind === "learn" || practice) ? o.lesson : null;
+    if (lessonId && !practice) KOS.ja.startLesson(lessonId);
+    var L = lessonId ? KOS.ja.lesson(lessonId) : null;
+    var keys;
+    if (practice && lessonId) {
+      var fac0 = KOS.ja.peek().facets;
+      keys = [];
+      ((L && L.items) || []).forEach(function (item) {
+        KOS.jaSrs.facetsFor(item, fac0, { speech: false }).forEach(function (s) { keys.push(KOS.jaSrs.key(item, s)); });
       });
+    } else {
+      keys = KOS.ja.due();
+      if (lessonId) {
+        var mine = {};
+        L.items.forEach(function (k) { mine[k] = 1; });
+        /* the lesson's own facets, Reading first; reviews stay in their own block */
+        keys = keys.filter(function (k) { return mine[KOS.jaSrs.split(k).item]; });
+        /* the lesson's order: each item in turn, Reading before Listening before Writing */
+        var SK = { R: 0, L: 1, W: 2, S: 3 };
+        keys.sort(function (x, y) {
+          var a = KOS.jaSrs.split(x), b = KOS.jaSrs.split(y);
+          return L.items.indexOf(a.item) - L.items.indexOf(b.item) || SK[a.skill] - SK[b.skill];
+        });
+      }
     }
     var list = keys.map(exercise).filter(Boolean);
+    if (practice) list.forEach(function (ex) { ex.reask = true; });
     /* the lesson's misses from an earlier sitting are not due again today: they are asked as
        practice (their schedule is already set) so the lesson can still be passed today */
-    if (lessonId) {
+    if (lessonId && !practice) {
       var inList = {};
       list.forEach(function (ex) { inList[ex.key] = 1; });
       KOS.ja.lessonMisses(lessonId).forEach(function (k) {
@@ -407,7 +419,7 @@
     }
     /* a new word, kanji or pattern is MET before it is checked: its form, reading, meaning and
        voice on one card, then the questions (kana meet theirs through the stroke animation) */
-    if (lessonId) {
+    if (lessonId && !practice) {
       var met = {}, fac = KOS.ja.peek().facets;
       list = [].concat.apply([], list.map(function (ex) {
         var item = ex.item.key;
@@ -423,7 +435,7 @@
        is still due, and a question already answered in this session is asked as practice only. */
     var RUNKEY = "ja:" + (lessonId ? "learn-" + lessonId : "reviews"), RR = KOS.sessions.run;
     var runSid = null, shownPaid = 0, resumed = false;
-    (function restore() {
+    if (!practice) (function restore() {
       var rec = RR.get(RUNKEY);
       if (!rec || rec.kind !== "ja" || !Array.isArray(rec.results) || !rec.results.length) return;
       results = rec.results.slice();
@@ -436,13 +448,13 @@
         ex.reask = true; ex.family = "Again · " + ex.family;
       });
     })();
-    function keepRun() { RR.put(RUNKEY, { kind: "ja", sid: runSid, results: results.slice(), answers: answers.slice(), shown: shownPaid }); }
+    function keepRun() { if (practice) return; RR.put(RUNKEY, { kind: "ja", sid: runSid, results: results.slice(), answers: answers.slice(), shown: shownPaid }); }
     function syncNow(done) {
-      if (!results.length) return { passed: 0, paid: 0, capped: false };
+      if (practice || !results.length) return { passed: 0, paid: 0, capped: false };
       if (!runSid) runSid = RR.newId();
       return KOS.ja.syncSession(runSid, results, { lesson: lessonId, done: !!done });
     }
-    var title = lessonId ? "New · " + lessonId + " " + KOS.ja.lesson(lessonId).title : "Reviews";
+    var title = lessonId ? (practice ? "Practise · " : "New · ") + lessonId + (L ? " " + L.title : "") : "Reviews";
     var head = el("div", { class: "k-ja-run-head" }, [
       el("button", { type: "button", class: "k-iconbtn", "data-ui": "ja.exit", "aria-label": "Leave the session", text: "✕",
         onclick: function () { leave(); } }),
@@ -464,7 +476,7 @@
       foot.innerHTML = "";
       if (i >= list.length) {
         /* a learn session asks its misses once more before it ends */
-        if (lessonId && round === 0 && KOS.ja.lessonPass(answers).misses.length) {
+        if (lessonId && !practice && round === 0 && KOS.ja.lessonPass(answers).misses.length) {
           /* the session is already in the ledger, answer by answer (W2) */
           reask(); return;
         }
@@ -514,6 +526,19 @@
     }
     function end(early) {
       box.setAttribute("data-done", "1");
+      if (practice) {
+        stage.innerHTML = ""; foot.innerHTML = "";
+        var right = answers.filter(function (a) { return a.verdict === "correct" || a.verdict === "accepted"; }).length;
+        stage.appendChild(el("div", { class: "k-ja-run-end", "data-ui": "ja.session-done", "data-state": "practice" }, [
+          el("h2", { text: answers.length ? KOS.ui.num(answers.length) + " practised" : "Nothing to practise" }),
+          answers.length ? el("p", { text: right + " of " + answers.length + " right" }) : null,
+          el("p", { class: "k-muted", "data-ui": "ja.practice-note", text: "Practice only — nothing was scheduled, rated or paid." }),
+          el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "Back to the desk", onclick: function () { KOS.show("subject", "ja"); } })
+        ].filter(Boolean)));
+        head.querySelector("[data-ui~='ja.progress']").textContent = "";
+        announce(answers.length ? "Practice done. " + right + " of " + answers.length + " right. Nothing was scheduled, rated or paid." : "Nothing to practise.");
+        return;
+      }
       /* ONE ledger entry, however many times the session ends (a retry of the misses ends again,
          and so does a session left and picked up): an end screen names only the pay not shown yet */
       var fin = syncNow(!early), newPaid = Math.max(0, fin.paid - shownPaid);
