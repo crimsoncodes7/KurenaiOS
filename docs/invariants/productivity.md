@@ -509,6 +509,9 @@ Read this file before editing or testing anything in its domain.
     assignments due inside the week; "Remind me" creates one real reminder
     (due the week's Sunday, tagged `pacing`) — a link by text, not a copy;
     the rollover notice `pace:carry:<wb>` is one notification per plan week.
+    A Calendar lesson or study block on a plan subject shows that week's plan
+    (the class lessons dated that day, my own rows and the ones carried in)
+    and ticks them through `KOS.pacing` (1C, UR-29); the event stores none of it.
     A class row's lessons are DATED by the class timetable
     (`KOS.pacing.timetable`, read with a default, stored in
     `state.pacing.timetable` only once edited): lesson i on the subject's
@@ -525,7 +528,10 @@ Read this file before editing or testing anything in its domain.
     write (school rows take the school number, personal rows the personal one)
     rather than carried. Moving a week re-points its rows in the same write;
     deleting a week that still holds rows refuses unless the caller passes
-    `cascade`. A week begins on a Monday: a date inside a week is snapped
+    `cascade`. Shifting the plan (`shiftPlan`, 1C) moves only unticked rows of
+    my own plan that no exam planner sent, by PLAN weeks (breaks stepped
+    over, a week added past the end), never before `from`, with one Undo
+    (`undoShift`). A week begins on a Monday: a date inside a week is snapped
     to its Monday, a beginning inside another week's seven days is refused,
     and a label still reading the default follows the date (PR-28). Deletes ask through `KOS.ui.confirm({danger:true})` and Delete
     never shares a control group with Save.

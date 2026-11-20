@@ -318,6 +318,14 @@ Claude Design handoff or Gemini art asks for it):
   moved to first use (`page-storage`), budget 7.78 → 7.77 MB.
 - ✓ Neon's batch 3 (C1–C5) passed with one note and is merged (`docs/qol/neon/REPORT-3.md`); with it in, Settings ›
   Connections moved to first use too (`page-connections`), keeping boot under 7.77 MB.
+- ✓ `UR-19` Shift plan… on Pacing: every unticked row of your own plan moves N plan weeks (breaks stepped over, a week
+  added past the end), one subject or all, every row or from this week on; class rows, ticked rows and the exam
+  planner's rows stay; one Undo (`KOS.pacing.shiftPlan`/`undoShift`, invariant 84). Found on the way: Class days built
+  its dialog and never opened it (live since `30fb49ec`); it opens now.
+- ✓ `UR-29` A Calendar lesson or study block on CS, Maths or IT shows that week's plan: the class lessons dated that
+  day, your own rows and the ones carried in, each ticked from the block through `KOS.pacing` (invariant 82b). Boot:
+  the Matrix moved to first use (`page-matrix`), keeping 7.77 MB.
+- Neon's batch 4 brief is on `main` (`BRIEF-4.md`): the three batch 3 carry-overs and three new tickets.
 
 ## 1A · Bugs and data integrity (21)
 

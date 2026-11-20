@@ -101,7 +101,8 @@ function eq(a, b, m) { if (JSON.stringify(a) !== JSON.stringify(b)) throw new Er
    7.77 MB. Those took boot 9.9 KB over 7.78; Settings › Storage
    (storage.js, page-storage, 21 KB) moved to first use. Neon's batch 3 then
    took it 1.4 KB over 7.77: Settings › Connections (connections.js,
-   page-connections, 12 KB) moved to first use too. */
+   page-connections, 12 KB) moved to first use too. Then 1C's plan shift and
+   plan-in-blocks: the Matrix (matrix.js, page-matrix, 22 KB) as well. */
 const BOOT_BUDGET = 7.77 * 1024 * 1024;
 
 /* jsdom has no User Timing: a small recorder, set before the app's scripts */
@@ -396,7 +397,8 @@ step("J · every page that names what it needs opens from cold without an early 
     /* 1A, 20 Nov 2026: Creatives' pages and Backup & Restore */
     ["creatives", { page: "drills" }, ["page-creatives"]], ["subject", "creatives", ["page-creatives"]], ["data", undefined, ["page-data"]],
     /* 1C, 20 Nov 2026: Settings › Storage */
-    ["storage", undefined, ["page-storage"]], ["connections", undefined, ["page-connections"]]
+    ["storage", undefined, ["page-storage"]], ["connections", undefined, ["page-connections"]],
+    ["matrix", undefined, ["page-matrix"]]
   ];
   for (const [view, arg, want] of jobs) {
     const app = await lazyBoot(fxB);
@@ -416,7 +418,7 @@ step("J · every page that names what it needs opens from cold without an early 
   }
   /* pages that need nothing never wait */
   const app = await lazyBoot(fxB);
-  ["home", "focus", "calendar", "reminders", "goals", "matrix", "assignments", "pacing", "achievements", "files"].forEach((v) => {
+  ["home", "focus", "calendar", "reminders", "goals", "assignments", "pacing", "achievements", "files"].forEach((v) => {
     app.KOS.show(v);
     assert(!waiting(app), v + " opens at once");
   });

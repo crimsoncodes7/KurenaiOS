@@ -10130,7 +10130,11 @@
       "tag": "button"
      },
      "occurrence": 0,
-     "effects": {}
+     "effects": {
+      "dialog": [
+       "Class days"
+      ]
+     }
     },
     {
      "key": {

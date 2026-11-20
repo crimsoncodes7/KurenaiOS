@@ -599,6 +599,74 @@
     return out;
   }
 
+  /* ---------------- shifting the plan (1C, UR-19) ----------------
+     shiftPlan(n, {subject, from}) moves every UNTICKED row of my own plan n
+     plan weeks later (n < 0: earlier). A plan week is a week my own plan
+     runs in (personalWk set), so breaks are stepped over; a row past the
+     last plan week gets a new one, as the reflow does. Class rows, ticked
+     rows and the Exams planner's rows (tag exam:…, invariant 126) never
+     move; `from` (a week beginning) leaves earlier rows where they are, and
+     a row is never moved before `from` or before the first plan week. `wk`
+     is derived on the write (invariant 84). Returns {moved, added, undo}:
+     undoShift(undo) puts every row back and drops a week it added that
+     holds nothing now. Pure planning: no progress, no Governor (82). */
+  function planWeekList() { return weeks().filter(function (w) { return w.personalWk != null; }); }
+  function shiftable(e, o) {
+    return e.source === "personal" && !e.done && !e.tag && (!o.subject || e.subject === o.subject) && (!o.from || e.wb >= o.from);
+  }
+  function shiftCount(n, o) {
+    o = o || {};
+    return P().entries.filter(function (e) { return shiftable(e, o); }).length;
+  }
+  function shiftPlan(n, o) {
+    o = o || {};
+    n = Math.round(+n || 0);
+    var s = P(), out = { moved: 0, added: [], undo: { rows: [], weeks: [] } };
+    if (!n) return out;
+    var list = planWeekList();
+    if (!list.length) return out;
+    var floor = 0;
+    if (o.from) { floor = list.findIndex(function (w) { return w.wb >= o.from; }); if (floor === -1) floor = list.length - 1; }
+    s.entries.forEach(function (e) {
+      if (!shiftable(e, o)) return;
+      /* the row's place among the plan weeks: its own, else the next one */
+      var at = list.findIndex(function (w) { return w.wb >= e.wb; });
+      if (at === -1) at = list.length - 1;
+      var to = Math.max(floor, at + n);
+      while (to >= list.length) {
+        var last = list[list.length - 1], wb = plusWeek(last.wb);
+        var w = normaliseWeek({ wb: wb, label: weekLabel(wb), schoolWk: null, personalWk: last.personalWk + 1,
+          note: "Personal plan only — added when the plan was shifted." });
+        if (weekAt(wb)) break;
+        s.weeks.push(w); out.added.push(wb); out.undo.weeks.push(wb);
+        list = planWeekList();
+      }
+      to = Math.min(to, list.length - 1);
+      if (list[to].wb === e.wb) return;
+      out.undo.rows.push([e.id, e.wb, e.wk]);
+      e.wb = list[to].wb;
+      e.wk = weekNumberFor(list[to], "personal");
+      out.moved++;
+    });
+    KOS.store.save();
+    return out;
+  }
+  function undoShift(u) {
+    if (!u || u.used) return false;
+    u.used = true;
+    var s = P();
+    (u.rows || []).forEach(function (r) {
+      var e = entryById(r[0]);
+      if (e) { e.wb = r[1]; e.wk = r[2]; }
+    });
+    (u.weeks || []).forEach(function (wb) {
+      if (s.entries.some(function (e) { return e.wb === wb; })) return;
+      s.weeks = s.weeks.filter(function (w) { return w.wb !== wb; });
+    });
+    KOS.store.save();
+    return true;
+  }
+
   /* ---------------- reads ---------------- */
   function weeks() {
     return P().weeks.slice().sort(function (a, b) { return a.wb < b.wb ? -1 : a.wb > b.wb ? 1 : 0; });
@@ -967,6 +1035,7 @@
 
   KOS.pacing = {
     SCHEMA: SCHEMA,
+    shiftPlan: shiftPlan, shiftCount: shiftCount, undoShift: undoShift,
     SUBJECTS: SUBJECTS,
     normalise: normalise,
     normaliseWeek: normaliseWeek,

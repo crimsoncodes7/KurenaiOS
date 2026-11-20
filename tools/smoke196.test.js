@@ -423,6 +423,74 @@ step("M · routines inside routines: a step runs another routine, mirrored both 
   R.remove(morn.id);
 });
 
+step("N · shift the plan by N weeks: unticked personal rows only, breaks stepped over, one Undo; Class days opens (1C, UR-19)", async () => {
+  const PC = K.pacing; PC.ensureSeeded();
+  const S = PC.state(), snap = JSON.stringify(S.entries.map((e) => [e.id, e.wb, e.wk])), wks = S.weeks.length;
+  const plan = PC.weeks().filter((w) => w.personalWk != null).map((w) => w.wb);
+  const pers = S.entries.filter((e) => e.source === "personal" && !e.done && !e.tag && e.subject === "maths");
+  const school = S.entries.filter((e) => e.source === "school").map((e) => e.id + e.wb).join();
+  assert(pers.length > 2 && plan.length > 4, "the seeded plan has maths rows");
+  const r0 = pers[0], at = plan.indexOf(r0.wb);
+  /* tick one, so it must stay */
+  const ticked = pers[1]; ticked.done = true;
+  eq(PC.shiftCount(2, { subject: "maths" }), pers.length - 1, "the count leaves the ticked row out");
+  const res = PC.shiftPlan(2, { subject: "maths" });
+  eq(res.moved, pers.length - 1, "every unticked maths row of my own plan moved");
+  eq(r0.wb, plan[Math.min(at + 2, plan.length - 1)] || r0.wb, "two PLAN weeks later (breaks stepped over)");
+  eq(r0.wk, PC.weekAt(r0.wb).personalWk, "wk is derived on the write");
+  eq(S.entries.filter((e) => e.source === "school").map((e) => e.id + e.wb).join(), school, "class rows never move");
+  assert(S.entries.filter((e) => e.subject === "compsci" && e.source === "personal").every((e) => !res.undo.rows.some((u) => u[0] === e.id)), "other subjects stay");
+  PC.undoShift(res.undo);
+  ticked.done = false;
+  eq([JSON.stringify(S.entries.map((e) => [e.id, e.wb, e.wk])), S.weeks.length], [snap, wks], "Undo puts every row and week back");
+  /* earlier, from a week on: never before that week */
+  const from = plan[Math.min(3, plan.length - 1)];
+  const r2 = PC.shiftPlan(-8, { from });
+  assert(S.entries.filter((e) => r2.undo.rows.some((u) => u[0] === e.id)).every((e) => e.wb >= from), "never shifted before `from`");
+  PC.undoShift(r2.undo);
+  eq(JSON.stringify(S.entries.map((e) => [e.id, e.wb, e.wk])), snap, "and back");
+  /* the page: Shift plan… and Class days both open */
+  K.show("pacing"); await app.settle();
+  q('[data-ui~="pace.shift"]').click(); await app.settle();
+  assert(/unticked row/.test(q('[data-ui~="pace.shift-preview"]').textContent), "the shift dialog previews its count");
+  D.querySelectorAll(".k-dialog-overlay").forEach((o) => (o.close ? o.close() : o.remove()));
+  q('[data-ui~="pace.timetable"]').click(); await app.settle();
+  assert(q('.k-dialog-overlay [data-ui~="pace.tt-row"]'), "Class days opens its dialog");
+  D.querySelectorAll(".k-dialog-overlay").forEach((o) => (o.close ? o.close() : o.remove()));
+});
+
+step("O · a lesson or study block carries the week's plan, ticked from the block through KOS.pacing (1C, UR-29)", async () => {
+  const PC = K.pacing; PC.ensureSeeded();
+  const day = PC.lessonsOn(TODAY).length ? TODAY : PC.weeks().map((w) => w.wb).find((d) => PC.lessonsOn(d).length);
+  const lesson = PC.lessonsOn(day)[0];
+  assert(lesson, "the seeded plan has a class lesson to test with");
+  const subj = lesson.entry.subject, w = PC.weekFor(day);
+  const ev = K.calendar.addEvent({ title: "QA lesson block", type: "lesson", subject: subj, date: day, time: "10:00", end: "11:00" });
+  K.calendar.openCountdown({ kind: "event", ev: K.store.state.calendar.events.find((e) => e.id === ev.id), date: day });
+  await app.settle();
+  const box = q('[data-ui~="cal.plan"]');
+  assert(box && /This week's plan/.test(box.textContent), "the block shows the week's plan");
+  const lc = box.querySelector('[data-ui~="cal.plan-lesson"]');
+  assert(lc, "a lesson block lists the class lessons dated that day");
+  const was = !!lesson.sat;
+  lc.click(); await app.settle();
+  eq(!!PC.lessonsOn(day).filter((x) => x.entry.id === lesson.entry.id && x.lesson.text === lesson.lesson.text)[0].sat, !was, "ticked from the block, written by KOS.pacing");
+  q('[data-ui~="cal.plan"] [data-ui~="cal.plan-lesson"]').click(); await app.settle();
+  const mine = PC.entriesFor(w.wb, subj, "personal");
+  if (mine.length) {
+    const rc = q('[data-ui~="cal.plan"] [data-ui~="cal.plan-row"]');
+    const id = mine[0].id, d0 = !!PC.entryById(id).done;
+    rc.click(); await app.settle();
+    eq(PC.entryById(id).done, !d0, "my own row ticks from the block");
+    q('[data-ui~="cal.plan"] [data-ui~="cal.plan-row"]').click(); await app.settle();
+  }
+  D.querySelectorAll(".k-dialog-overlay").forEach((o) => (o.close ? o.close() : o.remove()));
+  /* a block with no plan subject shows none; the event itself stores nothing of the plan */
+  const stored = K.store.state.calendar.events.find((e) => e.id === ev.id);
+  assert(!("plan" in stored) && !("rows" in stored), "the block stores nothing of the plan");
+  K.calendar.deleteEvent(ev.id);
+});
+
 (async () => {
   let failed = 0;
   for (const [name, fn] of steps) {

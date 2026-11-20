@@ -563,6 +563,15 @@
 .k-cal-kv > dt { color: var(--muted); }
 .k-cal-kv > dd { margin: 0; min-inline-size: 0; overflow-wrap: anywhere; }
 .k-cal-desc { margin: 0; font-size: var(--fs-13-5); line-height: var(--lh-body); white-space: pre-wrap; }
+/* the week's plan inside a lesson or study block (1C, UR-29) */
+.k-cal-plan { display: flex; flex-direction: column; gap: var(--sp-6); padding: var(--sp-12); border: var(--hairline) solid var(--line); border-radius: var(--r-12); }
+.k-cal-plan-h { display: flex; align-items: baseline; gap: var(--sp-8); flex-wrap: wrap; font-size: var(--fs-13-5); }
+.k-cal-plan-fill { flex: 1; }
+.k-cal-plan-k { margin: var(--sp-4) 0 0; }
+.k-cal-plan-row { min-block-size: var(--hit); align-items: flex-start; }
+.k-cal-plan-row[data-state="done"] .k-cal-plan-t > :first-child { color: var(--muted); text-decoration: line-through; }
+.k-cal-plan-t { display: flex; flex-direction: column; min-inline-size: 0; }
+.k-cal-plan-sub, .k-cal-plan-more, .k-cal-plan-empty { font-size: var(--fs-12); margin: 0; }
 .k-cal-foot > .k-btn--danger:first-child { margin-inline-end: auto; }
 .k-cal-form { display: flex; flex-direction: column; gap: var(--sp-14); }
 .k-cal-sec { display: flex; flex-direction: column; gap: var(--sp-12); }
@@ -894,6 +903,7 @@
 .k-rem-quick-add { min-inline-size: var(--hit-coarse); min-block-size: var(--hit-coarse); }
 .k-rem-check { min-inline-size: var(--hit); min-block-size: var(--hit); }
 .k-cal-add { min-inline-size: var(--hit-dense); min-block-size: var(--hit-dense); }
+.k-cal-plan-row { min-block-size: var(--hit-coarse); }
 }
 
 /* no hover (an iPad wider than the phone tier): a row's delete and the

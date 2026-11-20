@@ -514,7 +514,7 @@ domain file AND its line here, in the same commit.
 - **81** `KOS.pacing.normalise()` is the schema gate: row refs must be real spec leaves, and an empty `refs` is deliberate and never back-filled.
 - **82** Pacing stores no progress or mastery; coverage is read from `state.progress`, and pacing has zero Governor traffic.
 - **82a** An unticked personal row from an ended week carries over by a derived read (`carriedInto`); the record itself never changes weeks.
-- **82b** The plan lends itself to other surfaces by reads only (countdowns, Home card, Today lessons); milestones are never written as events.
+- **82b** The plan lends itself to other surfaces by reads only (countdowns, Home card, Today lessons, a Calendar block's week plan, ticked through `KOS.pacing`); milestones are never written as events.
 - **83** Ahead, aligned, behind or unplanned is set arithmetic over linked refs, and a week whose class rows have no refs makes no claim.
 - **84** The plan is edited only through `KOS.pacing`: a row's `wk` is derived on every write, a week begins on a Monday and deletes ask first.
 - **85** The braid is a one-subject picture of alignment evidence, not a second dataset, with a keyboard route of real buttons beneath it.

@@ -365,6 +365,68 @@
     ].concat(rows), [
       el("button", { type: "button", class: "k-btn k-btn--primary k-spacer", "data-intent": "primary", text: "Save", onclick: save })
     ]);
+    /* it was built and never shown, so Class days did nothing (found 20 Nov, 1C) */
+    KOS.ui.openDialog(overlay, { label: "Class days" });
+  }
+
+  /* Shift plan (1C, UR-19): move every unticked row of my own plan N plan
+     weeks, one subject or all, every row or from this week on; class rows,
+     ticked rows and exam-planner rows stay. One write through
+     KOS.pacing.shiftPlan, with Undo on the toast. */
+  function plural(n, word) { return n + " " + word + (n === 1 ? "" : "s"); }
+  function shiftDialog(selected, onDone) {
+    var overlay, pick = { n: 1, subject: "", from: "" };
+    function seg(label, ui, opts, key) {
+      var g = el("div", { class: "k-seg k-seg--quiet", role: "group", "aria-label": label, "data-ui": ui });
+      opts.forEach(function (o) {
+        var b = el("button", { type: "button", class: "k-seg-item", "aria-pressed": String(pick[key] === o[0]), text: o[1],
+          onclick: function () {
+            pick[key] = o[0];
+            g.querySelectorAll(".k-seg-item").forEach(function (x) { x.setAttribute("aria-pressed", "false"); KOS.ui.state(x, "active", false); });
+            b.setAttribute("aria-pressed", "true"); KOS.ui.state(b, "active", true);
+            paint();
+          } });
+        if (pick[key] === o[0]) KOS.ui.state(b, "active", true);
+        g.appendChild(b);
+      });
+      return g;
+    }
+    var nSel = el("select", { class: "k-input", "aria-label": "How many weeks", "data-ui": "pace.shift-n" },
+      [-4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 8].map(function (n) {
+        var o = el("option", { value: String(n), text: n > 0 ? n + (n === 1 ? " week later" : " weeks later") : -n + (n === -1 ? " week earlier" : " weeks earlier") });
+        if (n === pick.n) o.selected = true;
+        return o;
+      }));
+    nSel.addEventListener("change", function () { pick.n = +nSel.value; paint(); });
+    var thisWb = (KOS.pacing.currentWeek() || selected || {}).wb || "";
+    var preview = el("p", { class: "k-field-hint", "data-ui": "pace.shift-preview", "aria-live": "polite" });
+    var go = el("button", { type: "button", class: "k-btn k-btn--primary k-spacer", "data-intent": "primary", "data-ui": "pace.shift-go", text: "Shift",
+      onclick: function () {
+        var res = KOS.pacing.shiftPlan(pick.n, { subject: pick.subject || null, from: pick.from || null });
+        overlay.close();
+        var what = plural(res.moved, "row") + " " + Math.abs(pick.n) + (Math.abs(pick.n) === 1 ? " week " : " weeks ") + (pick.n > 0 ? "later" : "earlier");
+        KOS.ui.toast(res.moved ? "Shifted " + what + (res.added.length ? " · " + plural(res.added.length, "week") + " added" : "") : "Nothing to shift.", false,
+          res.moved ? { label: "Undo", run: function () { KOS.pacing.undoShift(res.undo); onDone && onDone(); } } : null);
+        onDone && onDone();
+      } });
+    function paint() {
+      var n = KOS.pacing.shiftCount(pick.n, { subject: pick.subject || null, from: pick.from || null });
+      preview.textContent = n ? "Moves " + plural(n, "unticked row") + " of your own plan " + Math.abs(pick.n) + (Math.abs(pick.n) === 1 ? " week " : " weeks ") +
+        (pick.n > 0 ? "later" : "earlier") + ", stepping over breaks. Class rows, ticked rows and rows the exam planner sent stay where they are."
+        : "No unticked rows of your own plan to move.";
+      go.disabled = !n;
+    }
+    overlay = dialogShell("Shift the plan", [
+      el("p", { class: "k-field-hint", text: "Fell behind, or got ahead? Move your own plan in one go." }),
+      el("label", { class: "k-field" }, [el("span", { class: "k-field-label", text: "By" }), nSel]),
+      el("div", { class: "k-field" }, [el("span", { class: "k-field-label", text: "Subject" }),
+        seg("Subject", "pace.shift-subject", [["", "All"]].concat(SUBJ.map(function (sb) { return [sb.id, sb.short || sb.name]; })), "subject")]),
+      el("div", { class: "k-field" }, [el("span", { class: "k-field-label", text: "Rows" }),
+        seg("Which rows", "pace.shift-from", [["", "Every unticked row"], [thisWb, "From this week on"]], "from")]),
+      preview
+    ], [go]);
+    paint();
+    KOS.ui.openDialog(overlay, { label: "Shift the plan", initialFocus: nSel });
   }
 
   function weekDialog(existing, onSaved) {
@@ -1061,6 +1123,8 @@
             } }),
           el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "pace.timetable", "data-phone-more": "", text: "Class days",
             onclick: function () { timetableDialog(redraw); } }),
+          el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "pace.shift", "data-phone-more": "", text: "Shift plan…",
+            onclick: function () { shiftDialog(selected, redraw); } }),
           todayWeek && !isNow ? el("button", { type: "button", class: "k-btn k-btn--sm k-btn--quiet", text: "This week",
             onclick: function () { KOS.show("pacing", { wb: todayWeek.wb }); } }) : null
         ].filter(Boolean));

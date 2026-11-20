@@ -1010,6 +1010,59 @@
     return el("button", { type: "button", class: "k-link", text: text, onclick: go });
   }
 
+  /* the week's plan inside a lesson or study block (1C, UR-29): the class
+     lessons dated that day (a lesson block), then my own rows for that week
+     and the ones carried into it, each ticked here through KOS.pacing, the
+     plan's owner (invariants 82b, 84); the block stores nothing of it */
+  var PLAN_SUBJECTS = ["compsci", "maths", "it"];
+  function planSection(ev, day, overlayOf) {
+    var P = KOS.pacing;
+    if (!P || !ev.subject || PLAN_SUBJECTS.indexOf(ev.subject) === -1 || (ev.type !== "lesson" && ev.type !== "study")) return null;
+    var w = P.weekFor(day);
+    if (!w || day < w.wb || day > P.weekEnd(w.wb)) return null;
+    var box = el("section", { class: "k-cal-plan", "data-ui": "cal.plan", "aria-label": "This week's plan" });
+    function row(label, on, sub, write, ui) {
+      var cb = el("input", { type: "checkbox", "data-ui": ui, "aria-label": (on ? "Untick " : "Tick ") + label });
+      cb.checked = on;
+      cb.addEventListener("change", function () { write(cb.checked); paint(); if (KOS.rerender) KOS.rerender({ background: "soft", changed: ["pacing"] }); });
+      var r = el("label", { class: "k-check k-cal-plan-row", "data-state": on ? "done" : null }, [cb,
+        el("span", { class: "k-cal-plan-t" }, [el("span", { class: "k-ellipsis", text: label }), sub ? el("span", { class: "k-muted k-cal-plan-sub", text: sub }) : null].filter(Boolean))]);
+      return r;
+    }
+    function paint() {
+      box.innerHTML = "";
+      var lessons = ev.type === "lesson" ? P.lessonsOn(day).filter(function (x) { return x.entry.subject === ev.subject; }) : [];
+      var mine = P.entriesFor(w.wb, ev.subject, "personal").map(function (e) { return { entry: e, late: 0 }; })
+        .concat(P.carriedInto(w.wb, ev.subject).map(function (c) { return { entry: c.entry, late: c.weeksLate }; }));
+      if (!lessons.length && !mine.length) { box.appendChild(el("p", { class: "k-muted k-cal-plan-empty", text: "Nothing planned for " + subjectName(ev.subject) + " this week." })); return; }
+      var left = mine.filter(function (x) { return !x.entry.done; }).length;
+      box.appendChild(el("div", { class: "k-cal-plan-h" }, [
+        el("b", { text: "This week's plan" }),
+        el("span", { class: "k-muted", text: (w.label || w.wb) + (mine.length ? " · " + left + " of " + mine.length + " left" : "") }),
+        el("span", { class: "k-cal-plan-fill" }),
+        linkBtn("Open in Pacing", function () { var o = overlayOf(); if (o) o.close(); KOS.show("pacing", { wb: w.wb }); })
+      ]));
+      if (lessons.length) {
+        box.appendChild(el("p", { class: "k-kicker k-cal-plan-k", text: "In class today" }));
+        lessons.forEach(function (x) {
+          box.appendChild(row(x.lesson.text, !!x.sat, x.entry.title !== x.lesson.text ? x.entry.title : null,
+            function (on) { P.setLessonSat(x.entry.id, x.lesson.text, on); }, "cal.plan-lesson"));
+        });
+      }
+      if (mine.length) {
+        box.appendChild(el("p", { class: "k-kicker k-cal-plan-k", text: "My plan" }));
+        var shown = mine.slice(0, 8);
+        shown.forEach(function (x) {
+          box.appendChild(row(x.entry.title, !!x.entry.done, x.late ? "carried over · " + x.late + (x.late === 1 ? " week" : " weeks") + " late" : null,
+            function (on) { P.setDone(x.entry.id, on); }, "cal.plan-row"));
+        });
+        if (mine.length > shown.length) box.appendChild(el("p", { class: "k-muted k-cal-plan-more", text: "and " + (mine.length - shown.length) + " more in Pacing" }));
+      }
+    }
+    paint();
+    return box;
+  }
+
   function eventDetail(ev, dateISO, onChanged) {
     /* an assessment is the hub's record: it opens there (invariant 120) */
     if (ev && ev.assessmentId) { KOS.show("exams", ev.assessmentId); return; }
@@ -1068,6 +1121,7 @@
       hueAttrs(el("span", { class: "k-cal-swatch-bar", "aria-hidden": "true" }), ev),
       rows,
       ev.description ? el("p", { class: "k-cal-desc", text: ev.description }) : null,
+      planSection(ev, when, function () { return overlay; }),
       ev.type === "study" || ev.type === "lesson"
         ? el("div", { class: "k-cluster" }, [el("button", { type: "button", class: "k-btn", text: "Start a focus session", onclick: function () {
             overlay.close();
