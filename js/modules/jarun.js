@@ -569,17 +569,33 @@
         return;
       }
       var good = results.filter(function (r) { return r.grade >= 3; }).length;
+      var misses = !early && !lessonId ? KOS.ja.lessonPass(answers).misses : [];
       var pay = [];
       if (newPaid) pay.push("+" + newPaid + " XP");
       if (paidLesson && paidLesson.paid) pay.push("+" + paidLesson.pay.xp + " XP · +" + paidLesson.pay.gold + " gold · +" + paidLesson.pay.hp + " HP");
+      var missList = misses.length ? el("ul", { class: "k-ja-misses", "data-ui": "ja.misses", "aria-label": "Missed answers" }, misses.map(function (k) {
+        var p = KOS.jaSrs.split(k), it = KOS.ja.item(p.item);
+        if (!it) return null;
+        var sub = it.r || (Array.isArray(it.en) ? it.en[0] : it.en) || "";
+        return el("li", {}, [
+          el("b", { lang: "ja", text: it.w }),
+          U().skill(p.skill, { label: false }),
+          sub ? el("span", { class: "k-muted", text: sub }) : null
+        ].filter(Boolean));
+      }).filter(Boolean)) : null;
       stage.appendChild(el("div", { class: "k-ja-run-end", "data-ui": "ja.session-done" }, [
         el("h2", { text: results.length ? KOS.ui.num(results.length) + " answered" : "Nothing due right now" }),
         results.length ? el("p", { text: good + " Good or Easy" + (fin.capped ? " · past today's review cap, so no more XP today" : "") }) : null,
         pay.length ? el("p", { class: "k-ja-pay", "data-ui": "ja.pay", text: "◆ " + pay.join(" · ") }) : results.length ? el("p", { class: "k-muted", text: "No reward · " + (fin.paid ? "already counted" : fin.capped ? "today's review cap reached" : "nothing passed") }) : null,
-        backBtn(true)
+        misses.length ? el("p", { class: "k-muted", text: "Missed · retrying is practice only, not scheduled or paid" }) : null,
+        missList,
+        misses.length ? el("div", { class: "k-ja-ex-act" }, [
+          el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "ja.retry-misses", text: "Try the misses again", onclick: function () { reask(); } }),
+          backBtn(false)
+        ]) : backBtn(true)
       ].filter(Boolean)));
       head.querySelector("[data-ui~='ja.progress']").textContent = "";
-      announce(results.length ? "Session done. " + results.length + " answered." : "Nothing due right now.");
+      announce(results.length ? "Session done. " + results.length + " answered." + (misses.length ? " " + misses.length + " missed." : "") : "Nothing due right now.");
       /* left early: it can be picked up again today; finished: the next one is a new session */
       if (early && results.length) keepRun(); else RR.drop(RUNKEY);
     }

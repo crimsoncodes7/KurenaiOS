@@ -141,6 +141,9 @@ button.k-ja-stone { cursor: pointer; border-radius: var(--r-10); }
 .k-ja-run-foot { display: flex; justify-content: flex-end; gap: var(--sp-8); }
 .k-ja-run-foot:empty { display: none; }
 .k-ja-run-end { display: flex; flex-direction: column; align-items: center; gap: var(--sp-12); text-align: center; padding-block: var(--sp-24); }
+.k-ja-misses { margin: 0; padding: 0; list-style: none; display: flex; flex-wrap: wrap; justify-content: center; gap: var(--sp-6); }
+.k-ja-misses > li { display: inline-flex; align-items: center; gap: var(--sp-6); padding: var(--sp-4) var(--sp-10); border-radius: var(--r-8); background: var(--s2); font-size: var(--fs-13); }
+.k-ja-misses b { font-weight: var(--weight-semibold); }
 .k-ja-pay { margin: 0; font: var(--weight-semibold) var(--fs-13-5) var(--font-mono); color: var(--gold); }
 .k-ja-ex { display: flex; flex-direction: column; align-items: stretch; gap: var(--sp-14); }
 .k-ja-ex-q { margin: 0; font-size: var(--fs-13); color: var(--muted); text-transform: uppercase; letter-spacing: var(--track-kicker); font-weight: var(--weight-semibold); text-align: center; }
