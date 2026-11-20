@@ -623,14 +623,89 @@ C["maths:8.6"] = {
         { h: "(b)", m: "$\\displaystyle\\int_0^6\\left(x + 6 - \\dfrac{15}{x + 2}\\right)dx = \\left[\\dfrac{x^2}{2} + 6x - 15\\ln(x + 2)\\right]_0^6 = 54 - 15\\ln 8 + 15\\ln 2 = 54 - 30\\ln 2$", mk: "M1 A1 M1 A1" }
       ], result: "$54 - 30\\ln 2$" } },
 
+    { page: "The log, its modulus and its sign" },
+    { callout: { t: "key", h: "Where the log comes from", body: [
+      "By the chain rule, $\\dfrac{d}{dx}\\ln|ax + b| = \\dfrac{a}{ax + b}$.",
+      "So $\\displaystyle\\int\\frac{1}{ax + b}\\,dx = \\frac1a\\ln|ax + b| + c$. The $\\frac1a$ undoes the chain rule's factor $a$.",
+      "The modulus lets the same result hold where $ax + b < 0$."
+    ] } },
+    { fig: { x: [-4.2, 4.2], y: [-2.4, 2.4], axes: { xt: [-3, -1, 1, 3], yt: [-2, -1, 1, 2] }, items: [
+      { shade: { fn: "1/x", from: -3, to: -1 }, c: "accent", alpha: 0.25 },
+      { fn: "1/x", from: -4.1, to: -0.42 },
+      { fn: "1/x", from: 0.42, to: 4.1, label: "y = 1/x", at: 1.2, pos: "ne" },
+      { text: [-2.4, -1.5], t: "integral = −ln 3", c: "accent", size: 11 }
+    ], cap: "$\\int_{-3}^{-1}\\frac1x\\,dx = \\big[\\ln|x|\\big]_{-3}^{-1} = 0 - \\ln 3 = -\\ln 3$. The region lies below the axis, so the integral is negative. Without the modulus, $\\ln(-1)$ would be undefined. No integral of $\\frac1x$ may run across $x = 0$." } },
+    { callout: { t: "warn", h: "The sign trap", body: [
+      "$\\displaystyle\\int\\frac{1}{1 - x}\\,dx = -\\ln|1 - x| + c$.",
+      "The coefficient of $x$ is $-1$, so the $\\frac1a$ is $-1$. Differentiate your answer to check the sign."
+    ] } },
+    { worked: { tag: "example", title: "Partial fractions with a $1 - x$ factor", src: "exam-style · 5 marks",
+      q: "**(a)** Express $\\dfrac{2}{(1 - x)(1 + x)}$ in partial fractions. **(b)** Hence find the exact value of $\\displaystyle\\int_0^{1/2}\\frac{2}{(1 - x)(1 + x)}\\,dx$, giving your answer as a single logarithm.",
+      steps: [
+        { h: "(a)", m: "$2 = A(1 + x) + B(1 - x)$. $x = 1$: $A = 1$. $x = -1$: $B = 1$. So $\\dfrac{1}{1 - x} + \\dfrac{1}{1 + x}$", mk: "M1 A1" },
+        { h: "(b) Integrate", m: "$\\Big[-\\ln|1 - x| + \\ln|1 + x|\\Big]_0^{1/2}$", mk: "M1 A1", n: "The minus on the first term is the mark most often lost." },
+        { h: "Evaluate", m: "$\\left(-\\ln\\dfrac12 + \\ln\\dfrac32\\right) - 0 = \\ln 2 + \\ln\\dfrac32 = \\ln 3$", mk: "A1", n: "$-\\ln\\frac12 = \\ln 2$, then the product law." }
+      ], result: "$\\ln 3$" } },
+
+    { page: "Repeated factors and other shapes" },
+    { callout: { t: "tip", h: "Which tool for which fraction", body: [
+      "Top is a multiple of the bottom's derivative: the log of the bottom.",
+      "One linear bracket to a power $n \\ge 2$: reverse the chain rule, giving a power.",
+      "A product of different linear factors: partial fractions, then logs.",
+      "Top degree at least the bottom's: divide first."
+    ] } },
+    { worked: { tag: "example", title: "A repeated factor gives a log and a power", src: "exam-style · 6 marks",
+      q: "**(a)** Express $\\dfrac{3x + 1}{(x + 1)^2}$ in the form $\\dfrac{A}{x + 1} + \\dfrac{B}{(x + 1)^2}$. **(b)** Hence show that $\\displaystyle\\int_0^1\\frac{3x + 1}{(x + 1)^2}\\,dx = a\\ln 2 + b$, where $a$ and $b$ are integers.",
+      steps: [
+        { h: "(a)", m: "$3x + 1 = A(x + 1) + B$. Compare $x$: $A = 3$. $x = -1$: $B = -2$", mk: "M1 A1" },
+        { h: "(b) Integrate", m: "$\\displaystyle\\int_0^1\\left(\\dfrac{3}{x + 1} - \\dfrac{2}{(x + 1)^2}\\right)dx = \\left[3\\ln(x + 1) + \\dfrac{2}{x + 1}\\right]_0^1$", mk: "M1 A1", n: "$\\int -2(x + 1)^{-2}\\,dx = \\frac{-2(x + 1)^{-1}}{-1} = +\\frac{2}{x + 1}$." },
+        { h: "Evaluate", m: "$(3\\ln 2 + 1) - (0 + 2) = 3\\ln 2 - 1$", mk: "M1 A1", n: "$a = 3$, $b = -1$." }
+      ], result: "$3\\ln 2 - 1$" } },
+    { worked: { tag: "example", title: "Two rational shapes the specification names", src: "exam-style · 4 marks",
+      q: "Find $\\displaystyle\\int\\left(\\frac{6x}{x^2 + 5} + \\frac{2}{(2x - 1)^4}\\right)dx$.",
+      steps: [
+        { h: "Top is three times the bottom's derivative", m: "$\\displaystyle\\int\\dfrac{6x}{x^2 + 5}\\,dx = 3\\ln(x^2 + 5)$", mk: "M1 A1", n: "No modulus needed: $x^2 + 5 > 0$." },
+        { h: "A power of one linear bracket", m: "$\\displaystyle\\int 2(2x - 1)^{-4}\\,dx = \\dfrac{2(2x - 1)^{-3}}{(-3)(2)} = -\\dfrac{1}{3(2x - 1)^3}$", mk: "M1 A1", n: "Divide by the new power and by the 2 inside." },
+        { m: "$3\\ln(x^2 + 5) - \\dfrac{1}{3(2x - 1)^3} + c$" }
+      ], result: "$3\\ln(x^2 + 5) - \\frac{1}{3(2x - 1)^3} + c$" } },
+
+    { page: "Areas in exact form" },
+    { callout: { t: "info", h: "How this topic is examined", body: [
+      "An area under a rational curve in the form $\\ln k$ or $a\\ln 2 + b\\ln 3$ (6 to 11 marks).",
+      "A differential equation that separates into a partial-fraction integral (8.7), often a logistic model.",
+      "A parametric area whose integrand becomes a rational function (8.3)."
+    ] } },
+    { worked: { tag: "example", title: "The area under $y = \\frac{4}{x(x + 2)}$", src: "exam-style · 6 marks",
+      fig: { x: [-0.2, 4.2], y: [-0.25, 2.8], axes: { xt: [1, 2, 3, 4], yt: [0.5, 1, 1.5, 2] }, items: [
+        { shade: { fn: "4/(x*(x+2))", from: 1, to: 2 }, c: "accent", alpha: 0.25 },
+        { fn: "4/(x*(x+2))", from: 0.64, to: 4.1, label: "y = 4/(x(x+2))", at: 2.6, pos: "ne" },
+        { vline: 1, c: "muted", dash: true }, { vline: 2, c: "muted", dash: true },
+        { pt: [1, 1.3333], label: "(1, 4/3)", pos: "ne" }, { pt: [2, 0.5], label: "(2, ½)", pos: "ne" },
+        { text: [1.5, 0.3], t: "R", b: true, c: "accent" }
+      ], cap: "$R$ is bounded by the curve, the $x$-axis and the lines $x = 1$ and $x = 2$." },
+      q: "The region $R$ is bounded by $y = \\dfrac{4}{x(x + 2)}$, the $x$-axis and the lines $x = 1$ and $x = 2$. **(a)** Express $\\dfrac{4}{x(x + 2)}$ in partial fractions. **(b)** Show that the area of $R$ is $\\ln\\frac94$.",
+      steps: [
+        { h: "(a)", m: "$4 = A(x + 2) + Bx$. $x = 0$: $A = 2$. $x = -2$: $B = -2$. So $\\dfrac2x - \\dfrac{2}{x + 2}$", mk: "M1 A1" },
+        { h: "(b) Integrate", m: "$\\displaystyle\\int_1^2\\left(\\dfrac2x - \\dfrac{2}{x + 2}\\right)dx = \\Big[2\\ln x - 2\\ln(x + 2)\\Big]_1^2$", mk: "M1 A1ft", n: "Follow-through on your $A$ and $B$." },
+        { h: "Substitute", m: "$(2\\ln 2 - 2\\ln 4) - (0 - 2\\ln 3) = 2\\ln 3 - 2\\ln 2$", mk: "dM1", n: "Dependent on the integration: both limits, bracketed." },
+        { h: "Log laws", m: "$= 2\\ln\\dfrac32 = \\ln\\dfrac94$", mk: "A1*", n: "A \"show that\": every log step written out." }
+      ], result: "$\\ln\\frac94$" } },
+
     { page: "Exam toolkit" },
     { ul: [
       "**Log of a squared factor**: $\\int\\frac{1}{(x + 1)^2}$ is $-\\frac{1}{x + 1}$, not $\\ln$.",
       "**Missing $\\frac1a$**: $\\int\\frac{1}{2x - 4} = \\frac12\\ln|2x - 4|$.",
       "**Modulus dropped** when a limit makes the argument negative.",
       "**Not dividing** an improper fraction first.",
-      "**Log laws at the end**: combine to the form asked ($a\\ln 2 + b\\ln 3$, $\\ln\\frac{49}{36}$)."
+      "**Log laws at the end**: combine to the form asked ($a\\ln 2 + b\\ln 3$, $\\ln\\frac{49}{36}$).",
+      "**Sign of $\\frac1a$**: $\\int\\frac{1}{1 - x} = -\\ln|1 - x|$.",
+      "**A \"show that\"**: write every log step; the final A1 is starred."
     ] },
+    { callout: { t: "miscon", h: "\"The integral of a fraction is the log of its denominator\"", body: [
+      "Only when the top is the bottom's derivative, or a multiple of it.",
+      "$\\int\\frac{1}{x(x + 2)}\\,dx$ is not $\\ln|x(x + 2)|$: differentiating that gives $\\frac{2x + 2}{x(x + 2)}$.",
+      "Split it first: $\\frac12\\left(\\frac1x - \\frac{1}{x + 2}\\right)$ integrates to $\\frac12\\ln\\left|\\frac{x}{x + 2}\\right| + c$."
+    ] } },
     { callout: { t: "mnemonic", h: "\"Linear below → log; squared below → power; top is the derivative → log of the bottom\"", body: "Decides the integral of every rational piece." } }
   ],
   flashcards: [

@@ -506,7 +506,10 @@ X("maths:8.6", {
     ["$\\int\\dfrac{3}{(x - 1)^2}dx$", "$-\\dfrac{3}{x - 1} + c$."],
     ["Solve $\\dfrac{dV}{dt} = \\dfrac{V}{(2t - 1)(t + 1)}$ — the key step?", "$\\int\\dfrac{dV}{V} = \\int\\left(\\dfrac{2/3}{2t - 1} - \\dfrac{1/3}{t + 1}\\right)dt$, so $\\ln V = \\tfrac13\\ln(2t-1) - \\tfrac13\\ln(t+1) + c$."],
     ["Solve $\\dfrac{dV}{dt} = \\tfrac{1}{10}V(25 - V)$ — set-up?", "$\\int\\dfrac{10}{V(25 - V)}dV = \\int dt$; $\\dfrac{10}{V(25-V)} = \\dfrac{2/5}{V} + \\dfrac{2/5}{25 - V}$."],
-    ["Why must an improper fraction be divided before integrating?", "Partial fractions apply only to proper fractions; the polynomial part integrates directly."]
+    ["Why must an improper fraction be divided before integrating?", "Partial fractions apply only to proper fractions; the polynomial part integrates directly."],
+    ["$\\int\\dfrac{1}{1 - x}\\,dx$, with its sign?", "$-\\ln|1 - x| + c$: the coefficient of $x$ is $-1$.", 100],
+    ["$\\int\\dfrac{3x + 1}{(x + 1)^2}\\,dx$ after splitting it?", "$\\dfrac{3}{x + 1} - \\dfrac{2}{(x + 1)^2}$ integrates to $3\\ln|x + 1| + \\dfrac{2}{x + 1} + c$.", 101],
+    ["$\\displaystyle\\int_{-3}^{-1}\\frac1x\\,dx$, and why that sign?", "$\\ln|-1| - \\ln|-3| = -\\ln 3$: the region lies below the $x$-axis.", 102]
   ],
   quiz: [
     { q: "$\\int\\dfrac{1}{x + 2} - \\dfrac{1}{x + 3}\\,dx =$", opts: ["$\\ln\\left|\\dfrac{x+2}{x+3}\\right| + c$", "$\\ln|(x+2)(x+3)| + c$", "$\\ln\\left|\\dfrac{x+3}{x+2}\\right| + c$", "$\\ln|x + 2| + \\ln|x + 3| + c$"], ans: 0, why: "$\\ln|x + 2| - \\ln|x + 3| = \\ln\\left|\\tfrac{x + 2}{x + 3}\\right|$." },
@@ -515,7 +518,10 @@ X("maths:8.6", {
     { q: "The logistic DE $\\dfrac{dP}{dt} = kP(L - P)$ is solved using:", opts: ["integration by parts on $P(L - P)$", "partial fractions on $\\dfrac{1}{P(L - P)}$", "the trapezium rule on $\\dfrac{1}{P(L - P)}$", "a substitution $u = P^2$ in $kP(L - P)$"], ans: 1, why: "Separable with a product denominator." },
     { q: "$\\int_0^1\\dfrac{1}{x + 1}dx =$", opts: ["1", "$\\ln 2$", "$\\ln 1$", "$\\tfrac12$"], ans: 1, why: "$[\\ln(x+1)]_0^1$." },
     { q: "$\\dfrac{1}{(x-1)(x+2)} = \\dfrac{A}{x-1} + \\dfrac{B}{x+2}$ gives $A =$", opts: ["$\\tfrac13$", "$-\\tfrac13$", "1", "3"], ans: 0, why: "$x = 1$: $1 = 3A$." },
-    { q: "$\\int \\dfrac{3}{x+2}\\,dx =$", opts: ["$3\\ln|x+2| + c$", "$\\dfrac{3}{(x+2)^2}$", "$\\ln|3x + 6|$", "$\\dfrac{-3}{x+2}$"], ans: 0, why: "$\\int \\frac{1}{x+2}\\,dx = \\ln|x+2|$, so the answer is 3 times it." }
+    { q: "$\\int \\dfrac{3}{x+2}\\,dx =$", opts: ["$3\\ln|x+2| + c$", "$\\dfrac{3}{(x+2)^2}$", "$\\ln|3x + 6|$", "$\\dfrac{-3}{x+2}$"], ans: 0, why: "$\\int \\frac{1}{x+2}\\,dx = \\ln|x+2|$, so the answer is 3 times it." },
+    { qk: "100", q: "$\\displaystyle\\int\\frac{2}{3 - 2x}\\,dx =$", opts: ["$\\ln|3 - 2x| + c$", "$-\\ln|3 - 2x| + c$", "$-2\\ln|3 - 2x| + c$", "$2\\ln|3 - 2x| + c$"], ans: 1, why: "$2 \\times \\frac{1}{-2}\\ln|3 - 2x|$: the coefficient of $x$ is $-2$." },
+    { qk: "101", q: "$\\displaystyle\\int\\frac{6x}{x^2 + 5}\\,dx =$", opts: ["$6\\ln(x^2 + 5) + c$", "$\\frac13\\ln(x^2 + 5) + c$", "$3\\ln(x^2 + 5) + c$", "$3x\\ln(x^2 + 5) + c$"], ans: 2, why: "$6x = 3 \\times 2x$, three times the bottom's derivative." },
+    { qk: "102", q: "The area under $y = \\dfrac{4}{x(x + 2)}$ from $x = 1$ to $x = 2$ is", opts: ["$\\ln\\frac32$", "$\\ln\\frac94$", "$\\ln 3$", "$2\\ln 2$"], ans: 1, why: "$\\big[2\\ln x - 2\\ln(x + 2)\\big]_1^2 = 2\\ln\\frac32$." }
   ],
   exam: [
     { src: "Edexcel 2022 P1 Q14", ctx: "The volume $V$ of a balloon satisfies $\\dfrac{dV}{dt} = \\dfrac{V}{(2t - 1)(t + 1)}$ for $t > 1$, and $V = 10$ when $t = 2$.",
