@@ -369,7 +369,9 @@
     /* Backup & Restore (and Reset everything, which only it opens) */
     data: ["page-data"],
     /* Settings › Storage (1C, 20 Nov 2026: routines inside routines took boot over) */
-    storage: ["page-storage"]
+    storage: ["page-storage"],
+    /* Settings › Connections (20 Nov 2026: Neon's batch 3 merged into 1C) */
+    connections: ["page-connections"]
   };
   var SPACE_DESK = { code: "page-code", mind: "page-mind", ja: "page-ja", creatives: "page-creatives" };
   var SPACE_TOPIC = { mind: "page-mind", creatives: "page-creatives" };

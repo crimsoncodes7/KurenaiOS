@@ -316,6 +316,8 @@ Claude Design handoff or Gemini art asks for it):
   run step ticks the inner routine, the player plays the inner steps in place under its name, and one Undo takes back
   the chain. Loops, itself and missing routines are refused (invariant 142; smoke196 M). Boot: Settings › Storage
   moved to first use (`page-storage`), budget 7.78 → 7.77 MB.
+- ✓ Neon's batch 3 (C1–C5) passed with one note and is merged (`docs/qol/neon/REPORT-3.md`); with it in, Settings ›
+  Connections moved to first use too (`page-connections`), keeping boot under 7.77 MB.
 
 ## 1A · Bugs and data integrity (21)
 
