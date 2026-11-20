@@ -532,7 +532,7 @@
         el("p", { class: "k-muted k-gl-small", text: (g.deadline ? MONTHS[parse(g.deadline).getMonth()] + " · " : "") + word(g, g._current) + " of " + word(g, g._target) + (g.deadline ? " by " + shortDate(g.deadline) : "") }),
         el("div", { class: "k-gl-actions" }, [
           btn("Restart", "k-btn--sm", function () { restart(g); }, "goal.restart"),
-          btn("Archive", "k-btn--sm k-btn--quiet", function () { G.archive(g.id, true); announce("Archived · " + g.title); redraw(); }, "goal.archive")])]);
+          btn("Archive", "k-btn--sm k-btn--quiet", function () { G.archive(g.id, true); U.toast("Archived · " + g.title); redraw(); }, "goal.archive")])]);
     })), "", "goal.missed-card");
   }
   function restart(g) {
@@ -556,7 +556,7 @@
         acts ? el("div", { class: "k-gl-actions" }, acts) : null].filter(Boolean));
     }
     var groups = [["Met", "calmly noted; nothing is paid for a goal", met, function () { return null; }],
-      ["Missed", "", missed, function (g) { return [btn("Restart", "k-btn--sm", function () { restart(g); }, "goal.restart"), btn("Archive", "k-btn--sm k-btn--quiet", function () { G.archive(g.id, true); announce("Archived · " + g.title); redraw(); }, "goal.archive")]; }],
+      ["Missed", "", missed, function (g) { return [btn("Restart", "k-btn--sm", function () { restart(g); }, "goal.restart"), btn("Archive", "k-btn--sm k-btn--quiet", function () { G.archive(g.id, true); U.toast("Archived · " + g.title); redraw(); }, "goal.archive")]; }],
       ["Archived", "", archived, function (g) { return [btn("Restore", "k-btn--sm", function () { G.archive(g.id, false); announce("Restored · " + g.title); redraw(); }, "goal.restore")]; }]];
     var list = card(groups.filter(function (x) { return x[2].length; }).map(function (x) {
       return el("div", { class: "k-gl-group" }, [el("div", { class: "k-gl-grouphead" }, [el("span", { class: "k-gl-grouptitle", text: x[0] }), x[1] ? el("span", { class: "k-muted k-gl-small", text: x[1] }) : null].filter(Boolean))]
