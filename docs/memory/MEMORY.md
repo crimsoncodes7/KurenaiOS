@@ -36,4 +36,4 @@
 - [Agents save as they go](agents-save-as-they-go.md) — rule 2026-11-19: every agent commits+pushes WIP after each step; the usage limit can stop it any time
 - [Scope after W7](scope-after-w7-2026-11-19.md) — 19 Nov: spaces batch done + released (kos-integrity-23); next QoL review from docs/qol/; W3/W9/W10/F201/Help in the backlog
 - [Bash mangles backslash-semicolon](bash-mangles-backslash-semicolon.md) — the Bash tool drops one backslash from a double-backslash semicolon; build backslashes with chr(92), prefer Edit for LaTeX content
-- [New cards go in the bank](new-cards-go-in-the-bank.md) — on a leaf with a bank block, add cards at the end of it with fixed keys 100+, never to the shipped deck (invariant 87)
+- [New cards go in the bank](new-cards-go-in-the-bank.md) — on a leaf with a bank block, add cards (key 100+) and quiz items (qk "100"+) at the end of it, never to the shipped deck (invariants 87, 111c)
