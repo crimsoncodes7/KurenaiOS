@@ -161,6 +161,9 @@ background-size: calc(var(--ink-square) * 2) calc(var(--ink-square) * 2), calc(v
 .k-ink-chip { min-block-size: var(--hit); }
 .k-ink-chip[data-state~="on"] { background: var(--text); color: var(--bg); }
 .k-ink-text { position: absolute; inset-inline-start: var(--ink-chip-x); inset-block-start: var(--ink-chip-y); min-inline-size: 40%; padding: var(--sp-2) var(--sp-4); border: var(--hairline) dashed var(--teal); border-radius: var(--r-6); background: transparent; color: var(--text); font: var(--ink-text-size) / 1.3 var(--font-ui); resize: both; }
+/* a table's cell takes its own width; the format bar sits over the box (1C, UR-12) */
+.k-ink-text[data-state~="cell"] { min-inline-size: 0; inline-size: var(--ink-text-w); resize: vertical; }
+.k-ink-fmt { gap: var(--sp-4); }
 .k-ink-start { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--sp-4); color: var(--muted); pointer-events: none; }
 .k-ink-start .k-ink-glyph { inline-size: var(--sp-24); block-size: var(--sp-24); }
 .k-ink-start-t { font-size: var(--fs-16); color: var(--text-2); }
@@ -425,4 +428,11 @@ background-size: calc(var(--ink-square) * 2) calc(var(--ink-square) * 2), calc(v
 @media (max-width: 700px) {
 .k-pv[data-state~="pins"] .k-pv-body { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) minmax(0, 0.6fr); }
 }
+/* Copy as TeX (1C, UR-13): the picture beside its buttons, the reply and its rendering */
+.k-ink-tex-row { display: flex; flex-wrap: wrap; align-items: flex-start; gap: var(--sp-12); }
+.k-ink-tex-pic { max-inline-size: min(100%, var(--ink-pop-w)); max-block-size: var(--ink-tex-pic-h); border-radius: var(--r-8); background: var(--s1); box-shadow: inset 0 0 0 var(--hairline) var(--line); }
+.k-ink-tex-pic:not([src]) { display: none; }
+.k-ink-tex-in { inline-size: 100%; font-family: var(--font-mono); }
+.k-ink-tex-out { min-block-size: var(--hit); overflow-x: auto; }
+.k-ink-tex-err { margin: 0; color: var(--alarm); font-size: var(--fs-13); }
 }

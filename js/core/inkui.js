@@ -46,6 +46,7 @@
     ruler: function () { return ["Ruler", "Two fingers place and turn it (drag it with a mouse); the pen draws along its edge."]; },
     text: function () { return ["Text", "Tap the page for a box that takes typing or Scribble."]; },
     image: function () { return ["Image", "A picture from Photos or Files. You can also paste one, or drop it on the page."]; },
+    table: function () { return ["Table", "A ruled table on the page. Tap a cell with Text to type in it; select it with the Lasso to add or take away rows and columns."]; },
     paste: function () { return ["Paste", "Puts the picture on your clipboard onto the page (a screenshot, or one copied from Photos or Safari)."]; },
     undo: function () { return ["Undo", "Or tap the page with two fingers, or ⌘Z."]; },
     redo: function () { return ["Redo", "⇧⌘Z."]; },
@@ -198,12 +199,43 @@
       ctx.fill(strokePath(sm, G.widths(sm, base)));
       return;
     }
+    if (it.k === "text" && it.tex) {
+      /* TeX kept beside the writing (UR-13): its source, as typed */
+      ctx.fillStyle = pal[it.role] || pal.ink;
+      var xs = G.textSize(it);
+      ctx.font = xs + "px " + ((getComputedStyle(document.documentElement).getPropertyValue("--font-mono") || "monospace").trim() || "monospace");
+      ctx.textBaseline = "top";
+      String(it.s || "").split("\n").forEach(function (line, i) { ctx.fillText(line, it.x, it.y + i * xs * 1.3); });
+      return;
+    }
     if (it.k === "text") {
       ctx.fillStyle = pal[it.role] || pal.ink;
       var tsz = G.textSize(it);
-      ctx.font = tsz + "px " + (getComputedStyle(document.documentElement).getPropertyValue("--font-ui") || "sans-serif");
       ctx.textBaseline = "top";
-      String(it.s || "").split("\n").forEach(function (line, i) { ctx.fillText(line, it.x, it.y + i * tsz * 1.3); });
+      String(it.s || "").split("\n").forEach(function (line, i) { richLine(ctx, line, it.x, it.y + i * tsz * 1.3, tsz); });
+      return;
+    }
+    /* a table (1C, UR-12): its rules in the box's colour, each cell's text */
+    if (it.k === "table") {
+      var col = pal[it.role] || pal.ink, sz = +it.sz || 22, tw = it.cw.reduce(function (a, b) { return a + b; }, 0), th = it.rh.reduce(function (a, b) { return a + b; }, 0);
+      ctx.save();
+      ctx.strokeStyle = col; ctx.lineWidth = Math.max(1, 1.4 / Math.max(k || 1, 0.2)); ctx.globalAlpha = 0.8;
+      ctx.strokeRect(it.x, it.y, tw, th);
+      ctx.beginPath();
+      for (var ci = 0, cx = it.x; ci < it.cw.length - 1; ci++) { cx += it.cw[ci]; ctx.moveTo(cx, it.y); ctx.lineTo(cx, it.y + th); }
+      for (var ri = 0, ry = it.y; ri < it.rh.length - 1; ri++) { ry += it.rh[ri]; ctx.moveTo(it.x, ry); ctx.lineTo(it.x + tw, ry); }
+      ctx.stroke();
+      ctx.globalAlpha = 1; ctx.fillStyle = col; ctx.textBaseline = "top";
+      for (var r = 0, y0 = it.y; r < it.rh.length; y0 += it.rh[r], r++) {
+        for (var c = 0, x0 = it.x; c < it.cw.length; x0 += it.cw[c], c++) {
+          var txt = (it.c[r] && it.c[r][c]) || "";
+          if (!txt) continue;
+          ctx.save(); ctx.beginPath(); ctx.rect(x0, y0, it.cw[c], it.rh[r]); ctx.clip();
+          txt.split("\n").forEach(function (line, li) { richLine(ctx, line, x0 + sz * 0.4, y0 + sz * 0.4 + li * sz * 1.3, sz); });
+          ctx.restore();
+        }
+      }
+      ctx.restore();
       return;
     }
     if (it.k === "img" && it.src) {
@@ -216,9 +248,27 @@
       if (im.complete && im.naturalWidth) ctx.drawImage(im, it.x, it.y, it.w, it.h);
     }
   }
+  /* one line of rich text: a bullet or number hung in the margin, then
+     its runs, bold and italic each in their own face */
+  var uiFont = null;
+  function richLine(ctx, line, x, y, sz) {
+    if (uiFont == null) uiFont = (getComputedStyle(document.documentElement).getPropertyValue("--font-ui") || "sans-serif").trim() || "sans-serif";
+    var r = G.parseRich(line), at = x;
+    function font(b, i) { ctx.font = (i ? "italic " : "") + (b ? "600 " : "") + sz + "px " + uiFont; }
+    if (r.list) {
+      font(false, false);
+      ctx.fillText(r.list, at, y);
+      at += sz * (r.list === "•" ? 1 : 1.4);
+    }
+    r.runs.forEach(function (run) {
+      font(run.b, run.i);
+      ctx.fillText(run.t, at, y);
+      at += ctx.measureText ? ctx.measureText(run.t).width : run.t.length * sz * 0.52;
+    });
+  }
   /* highlighters under everything, pictures under the ink (30b: "a
      highlighter stroke sits under the ink, never over it") */
-  var ORDER = { hl: 0, img: 1, pen: 2, text: 3 };
+  var ORDER = { hl: 0, img: 1, pen: 2, text: 3, table: 3 };
   function drawItems(ctx, items, pal, onImage) {
     items.slice().sort(function (a, b) { return (ORDER[a.k] || 0) - (ORDER[b.k] || 0); })
       .forEach(function (it) { drawItem(ctx, it, it.ps && pal.forSet ? pal.forSet(it.ps) : pal, onImage); });
@@ -300,6 +350,18 @@
         sf.addItems([Object.assign({ id: I.uid(), k: "img", x: 60, y: Math.max(10, Math.round(y)), w: Math.round(wdt), h: Math.round(hgt), src: src }, extra || {})]);
         announce("Picture added to the page.");
         return true;
+      },
+      /* a 3 × 3 table under the page's last ink, selected so it can be moved */
+      placeTable: function () {
+        var sf = d.active && d.active.host.isConnected && !d.active.readOnly ? d.active : d.surfaces.filter(function (x) { return x.host.isConnected && !x.readOnly; })[0];
+        if (!sf) { announce("Open a page to put the table on."); return null; }
+        var sz = I.TEXT_SIZES[d.prefs.textW][1], t = G.newTable(60, 0, 3, 3, sz);
+        var bx = G.itemBox(t), hgt = I.pageH(sf.page);
+        t.y = Math.round(Math.max(40, Math.min(hgt - bx.h - 30, sf.lastInkBottom() + 30)));
+        t.role = d.prefs.pen.role;
+        sf.addItems([t]);
+        announce("A 3 by 3 table added. Tap a cell with the Text tool to type in it.");
+        return t;
       },
       onDestroy: function (fn) { d.destroyers.push(fn); },
       destroyers: [],
@@ -546,12 +608,35 @@
           dk.selGroup = null;
           announce(n === 1 ? "Deleted one item." : "Deleted " + n + " items.");
         } }),
-        s.cut ? cropChip() : null
-      ].filter(Boolean) : [cropChip()]);
+        s.cut ? cropChip() : null,
+        !g && hasWriting() ? el("button", { type: "button", class: "k-btn k-btn--sm k-ink-chip", "data-ui": "ink.sel-tex", text: "Copy as TeX…", onclick: function () {
+          /* the dialog loads on first use (js/modules/inktex.js, the ink-tex bundle) */
+          var ids = sel.slice();
+          var go = function () { if (KOS.inkTeX) KOS.inkTeX.open(s, ids); };
+          if (KOS.inkTeX) go(); else if (KOS.lazy && KOS.lazy.need) KOS.lazy.need("ink-tex").then(go, function () { KOS.ui.toast("Copy as TeX couldn't load; try again online.", true); });
+        } }) : null
+      ].concat(tableChips()).filter(Boolean) : [cropChip()]);
       var at = box || G.bbox(s.cut.poly);
       chips.style.setProperty("--ink-chip-x", Math.round(Math.max(0, at.x) * scale) + "px");
       chips.style.setProperty("--ink-chip-y", Math.round((Math.min(ph() - 40, at.y + at.h) + 14) * scale) + "px");
       layer.appendChild(chips);
+    }
+    function hasWriting() { var set = {}; sel.forEach(function (id) { set[id] = 1; }); return page.items.some(function (it) { return set[it.id] && it.k === "pen"; }); }
+    /* a table chosen alone: a row or a column more, or one fewer */
+    function tableChips() {
+      if (sel.length !== 1 || group()) return [];
+      var t = page.items.filter(function (it) { return it.id === sel[0] && it.k === "table"; })[0];
+      if (!t) return [];
+      function op(label, code, ui) {
+        return el("button", { type: "button", class: "k-btn k-btn--sm k-ink-chip", "data-ui": "ink.table-" + ui, text: label, onclick: function () {
+          var n = G.tableEdit(t, code);
+          if (!n) { announce(code.slice(-1) === "-" ? "A table keeps at least one row and one column." : "That's as big as a table gets."); return; }
+          commit(page.items.map(function (it) { return it.id === t.id ? n : it; }));
+          paintLive();
+          announce(n.rh.length + " rows, " + n.cw.length + " columns.");
+        } });
+      }
+      return [op("+ Row", "row+", "row-add"), op("+ Column", "col+", "col-add"), op("− Row", "row-", "row-del"), op("− Column", "col-", "col-del")];
     }
     function cropChip() {
       return el("button", { type: "button", class: "k-btn k-btn--sm k-ink-chip", "data-ui": "ink.sel-crop", text: "Copy this part of the picture", onclick: cropPart });
@@ -625,16 +710,57 @@
 
     /* ---- text boxes (Scribble works in them) ---- */
     var textBox = null;
-    function openText(at, existing) {
+    /* the format bar over a text box (UR-12): bold, italic and the two
+       lists, written as the box's own small markup; a press keeps the
+       box's focus, so it never closes the box */
+    function formatBar(ta, at) {
+      function btn(label, aria, ui, fn) {
+        var b = el("button", { type: "button", class: "k-btn k-btn--sm k-ink-chip", "aria-label": aria, "data-ui": "ink.fmt-" + ui, text: label, onclick: function () { fn(); ta.focus(); } });
+        b.addEventListener("pointerdown", function (e) { e.preventDefault(); });
+        b.addEventListener("mousedown", function (e) { e.preventDefault(); });
+        return b;
+      }
+      function wrap(mark) {
+        var a = ta.selectionStart, z = ta.selectionEnd, v = ta.value;
+        ta.value = v.slice(0, a) + mark + v.slice(a, z) + mark + v.slice(z);
+        ta.selectionStart = a + mark.length; ta.selectionEnd = z + mark.length;
+      }
+      function list(numbered) {
+        var v = ta.value, a = v.lastIndexOf("\n", ta.selectionStart - 1) + 1, z = v.indexOf("\n", ta.selectionEnd); if (z < 0) z = v.length;
+        var lines = v.slice(a, z).split("\n"), n = 0;
+        var on = lines.every(function (l) { return numbered ? /^\s*\d{1,3}[.)]\s+/.test(l) : /^\s*[-•]\s+/.test(l); });
+        var out = lines.map(function (l) {
+          var bare = l.replace(/^\s*([-•]|\d{1,3}[.)])\s+/, "");
+          if (on) return bare;
+          n++;
+          return (numbered ? n + ". " : "- ") + bare;
+        }).join("\n");
+        ta.value = v.slice(0, a) + out + v.slice(z);
+        ta.selectionStart = a; ta.selectionEnd = a + out.length;
+      }
+      var bar = el("div", { class: "k-ink-chips k-ink-fmt", role: "toolbar", "aria-label": "Format", "data-ui": "ink.format" }, [
+        btn("B", "Bold", "bold", function () { wrap("**"); }),
+        btn("I", "Italic", "italic", function () { wrap("*"); }),
+        btn("• List", "Bulleted list", "bullets", function () { list(false); }),
+        btn("1. List", "Numbered list", "numbers", function () { list(true); })
+      ]);
+      bar.style.setProperty("--ink-chip-x", Math.round(at.x * scale) + "px");
+      bar.style.setProperty("--ink-chip-y", Math.max(0, Math.round(at.y * scale) - 44) + "px");
+      return bar;
+    }
+    function openText(at, existing, cell) {
       closeText(false);
-      var ta = el("textarea", { class: "k-ink-text", "data-ui": "ink.text", rows: "2", "aria-label": "Text on the page" });
-      ta.value = existing ? existing.s : "";
+      var ta = el("textarea", { class: "k-ink-text", "data-ui": "ink.text", rows: "2", "aria-label": cell ? "Table cell, row " + (cell.r + 1) + ", column " + (cell.c + 1) : "Text on the page" });
+      ta.value = cell ? ((cell.item.c[cell.r] && cell.item.c[cell.r][cell.c]) || "") : existing ? existing.s : "";
       ta.style.setProperty("--ink-chip-x", Math.round(at.x * scale) + "px");
       ta.style.setProperty("--ink-chip-y", Math.round(at.y * scale) + "px");
-      var tsz = existing ? G.textSize(existing) : I.TEXT_SIZES[dk.prefs.textW][1];
+      if (cell) { ta.style.setProperty("--ink-text-w", Math.round(cell.w * scale) + "px"); KOS.ui.state(ta, "cell", true); }
+      var tsz = cell ? (+cell.item.sz || 22) : existing ? G.textSize(existing) : I.TEXT_SIZES[dk.prefs.textW][1];
       ta.style.setProperty("--ink-text-size", (tsz * scale).toFixed(1) + "px");
+      var fmt = formatBar(ta, at);
+      layer.appendChild(fmt);
       layer.appendChild(ta);
-      textBox = { ta: ta, at: at, id: existing ? existing.id : null, sz: tsz };
+      textBox = { ta: ta, fmt: fmt, at: at, id: existing ? existing.id : null, sz: tsz, cell: cell || null };
       if (existing) { page.items = page.items.filter(function (x) { return x.id !== existing.id; }); textBox.was = existing; redraw(); }
       ta.addEventListener("keydown", function (e) {
         if (e.key === "Escape") { e.preventDefault(); closeText(false); }
@@ -648,6 +774,18 @@
       var tb = textBox, txt = tb.ta.value.replace(/\s+$/, "");
       textBox = null;
       tb.ta.remove();
+      if (tb.fmt) tb.fmt.remove();
+      /* a table's cell: the table takes the new text, nothing else moves */
+      if (tb.cell) {
+        var cur = page.items.filter(function (x) { return x.id === tb.cell.item.id; })[0];
+        var was0 = cur && cur.c[tb.cell.r] ? cur.c[tb.cell.r][tb.cell.c] || "" : "";
+        if (keep && cur && was0 !== txt) {
+          var nt = JSON.parse(JSON.stringify(cur));
+          nt.c[tb.cell.r][tb.cell.c] = txt.slice(0, 400);
+          commit(page.items.map(function (x) { return x.id === cur.id ? nt : x; }));
+        } else redraw();
+        return;
+      }
       var rest = page.items.filter(function (x) { return !tb.was || x.id !== tb.was.id; });
       if (tb.was) page.items = rest.concat([tb.was]); /* put it back before deciding */
       if (keep && txt) {
@@ -703,6 +841,8 @@
         return;
       }
       if (tool === "text") {
+        var tbl = page.items.filter(function (it) { return it.k === "table" && G.cellAt(it, q.x, q.y); }).pop();
+        if (tbl) { var cl = G.cellAt(tbl, q.x, q.y); openText({ x: cl.x + 2, y: cl.y + 2 }, null, { item: tbl, r: cl.r, c: cl.c, w: cl.w }); return; }
         var hit = page.items.filter(function (it) { return it.k === "text" && G.hitItem(it, q.x, q.y, 4); }).pop();
         openText(hit ? { x: hit.x, y: hit.y } : q, hit || null);
         return;
@@ -1069,6 +1209,15 @@
       return it;
     };
     s._select = function (ids) { sel = ids.slice(); paintLive(); };
+    /* for tests: the Text tool's tap, and a box closed as a tap away does */
+    s._textAt = function (q) {
+      var tbl = page.items.filter(function (it) { return it.k === "table" && G.cellAt(it, q.x, q.y); }).pop();
+      if (tbl) { var cl = G.cellAt(tbl, q.x, q.y); openText({ x: cl.x + 2, y: cl.y + 2 }, null, { item: tbl, r: cl.r, c: cl.c, w: cl.w }); return textBox && textBox.ta; }
+      var hit = page.items.filter(function (it) { return it.k === "text" && G.hitItem(it, q.x, q.y, 4); }).pop();
+      openText(hit ? { x: hit.x, y: hit.y } : q, hit || null);
+      return textBox && textBox.ta;
+    };
+    s._closeText = function () { closeText(true); };
     s.syncMode();
     size();
     redraw();
@@ -1087,6 +1236,7 @@
     text: [["path", { d: "M5 6V4h14v2M12 4v16M9 20h6" }]],
     image: [["rect", { x: "3", y: "5", width: "18", height: "14", rx: "2" }], ["circle", { cx: "9", cy: "10", r: "1.6" }], ["path", { d: "M21 16l-5-5-9 8" }]],
     paste: [["rect", { x: "6", y: "4", width: "12", height: "17", rx: "2" }], ["path", { d: "M9 4V3h6v1" }], ["path", { d: "M9 11h6M9 15h4" }]],
+    table: [["rect", { x: "3", y: "5", width: "18", height: "14", rx: "1.5" }], ["path", { d: "M3 10h18M3 15h18M9 5v14M15 5v14" }]],
     undo: [["path", { d: "M9 7L4 12l5 5" }], ["path", { d: "M4 12h10a6 6 0 010 12h-3", transform: "translate(0 -6)" }]],
     redo: [["path", { d: "M15 7l5 5-5 5" }], ["path", { d: "M20 12H10a6 6 0 000 12h3", transform: "translate(0 -6)" }]],
     paper: [["rect", { x: "5", y: "3", width: "14", height: "18", rx: "2" }], ["path", { d: "M8 8h8M8 12h8M8 16h5" }]],
@@ -1140,6 +1290,8 @@
          clipboard's picture has a button of its own */
       tools.appendChild(toolBtn("paste", "Paste", { title: "Paste the picture on the clipboard", "data-ui": "ink.tool ink.paste", onclick: function () { pasteClipboard(dk); } }));
     }
+    /* UR-12 (1C): a ruled table on the page in use */
+    if (opts.table !== false && !opts.tools) tools.appendChild(toolBtn("table", "Table", { title: "Add a table", "data-ui": "ink.tool ink.table", onclick: function () { dk.placeTable(); } }));
 
     /* colour and width: inline when the bar has room, else one button */
     var colour = el("div", { class: "k-ink-group k-ink-colour", "data-ui": "ink.colour" });

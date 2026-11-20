@@ -330,6 +330,16 @@ Claude Design handoff or Gemini art asks for it):
   dropped, pasted or scanned while one is open go in it, "Move to a folder…" on any file (one folder at most, with
   Undo), Rename and Delete (the files stay). A folder is a `folder` link (invariant 150) and a name in the synced
   `state.folders`.
+- ✓ Ink (`3515b8cf` and the next commit):
+  - `UR-10` a Paste button by Image (the clipboard's picture, placed as ⌘V places it);
+  - `UR-9` the lasso across pages (one selection, one set of chips; Move drags every page's part and an item
+    dragged onto another page moves into it) and "Copy this part of the picture";
+  - `UR-12` rich text in text boxes (a format bar writing **bold**, *italic*, bullet and numbered lists) and ruled
+    tables (Table in the bar; the Text tool types into a cell; + / − Row and Column; Resize scales the grid);
+  - `UR-13` Copy as TeX (decision D2): the selection's picture and a prompt to send yourself, the reply checked
+    by KaTeX before it is copied or kept on the page; loaded on first use (`ink-tex`);
+  - the colour and size menu now ticks a pick made inside it and names it in its headings.
+- Left in 1C: `UR-23` (Code's live errors and completion) and `collection#1`/`#2` (the watch link with its icon).
 
 ## 1A · Bugs and data integrity (21)
 

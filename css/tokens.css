@@ -251,6 +251,7 @@ color-scheme: dark;
 --ink-tool-h: 48px;
 --ink-bar-r: 18px;
 --ink-pop-w: 330px;
+--ink-tex-pic-h: 160px;    /* Copy as TeX: the selection's picture (1C) */
 --ink-swatch: 26px;
 --ink-glyph: 20px;
 --ink-page-max: 780px;

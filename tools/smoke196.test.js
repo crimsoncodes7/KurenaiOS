@@ -603,6 +603,83 @@ step("Q · ink: a Paste button; a lasso across pages selects, moves and re-homes
   s1.destroy(); s2.destroy();
 });
 
+step("R · ink: rich text in a text box and a ruled table, typed into cell by cell (1C, UR-12)", async () => {
+  const U = K.inkUI, I = K.ink, G = I.geo;
+  eq(G.parseRich("- **Bold** and *it*"), { list: "•", runs: [{ t: "Bold", b: true }, { t: " and " }, { t: "it", i: true }] }, "bold, italic and a bullet");
+  eq([G.parseRich("3. x").list, G.plainOf("1) **y** z")], ["3.", "1. y z"], "a numbered line, and the words alone");
+  eq(G.parseRich("<b>no</b>").runs, [{ t: "<b>no</b>" }], "HTML is only ever text");
+  const dk = U.desk({}), host = D.createElement("div"); D.body.appendChild(host);
+  const pg = I.blankPage("qa:table"), sf = U.surface(host, pg, dk);
+  /* a text box: the format bar writes the markup */
+  dk.setTool("text", true);
+  const ta = sf._textAt({ x: 100, y: 100 });
+  assert(ta && q('[data-ui~="ink.format"]'), "a text box comes with its format bar");
+  ta.value = "Key idea"; ta.selectionStart = 0; ta.selectionEnd = 3;
+  q('[data-ui~="ink.fmt-bold"]').click();
+  eq(ta.value, "**Key** idea", "Bold wraps the selection");
+  ta.selectionStart = 0; ta.selectionEnd = ta.value.length;
+  q('[data-ui~="ink.fmt-bullets"]').click();
+  eq(ta.value, "- **Key** idea", "a bulleted line");
+  q('[data-ui~="ink.fmt-bullets"]').click();
+  eq(ta.value, "**Key** idea", "and back");
+  sf._closeText();
+  eq(pg.items.filter((x) => x.k === "text").map((x) => x.s), ["**Key** idea"], "the box keeps its markup");
+  assert(!q('[data-ui~="ink.format"]'), "the bar goes with the box");
+  /* a table: placed, typed into, a column added, scaled */
+  const t = dk.placeTable();
+  assert(t && pg.items.some((x) => x.id === t.id && x.k === "table"), "Table puts a 3 × 3 table on the page");
+  eq([t.cw.length, t.rh.length], [3, 3], "three columns, three rows");
+  const cell = G.cellAt(t, t.x + t.cw[0] + 10, t.y + t.rh[0] + 10);
+  eq([cell.r, cell.c], [1, 1], "the cell under a point");
+  dk.setTool("text", true);
+  const cta = sf._textAt({ x: cell.x + 5, y: cell.y + 5 });
+  assert(cta && /row 2, column 2/.test(cta.getAttribute("aria-label")), "the cell opens its own box");
+  cta.value = "**f(x)**"; sf._closeText();
+  const t1 = pg.items.find((x) => x.id === t.id);
+  eq(t1.c[1][1], "**f(x)**", "the cell keeps what was typed");
+  eq(pg.items.filter((x) => x.k === "text").length, 1, "and no stray text box was made");
+  dk.setTool("lasso", true); sf._select([t.id]);
+  q('[data-ui~="ink.table-col-add"]').click();
+  const t2 = pg.items.find((x) => x.id === t.id);
+  eq([t2.cw.length, t2.c[1][1]], [4, "**f(x)**"], "+ Column adds a column and keeps the text");
+  for (let i = 0; i < 4; i++) { const b = q('[data-ui~="ink.table-row-del"]'); if (b) b.click(); }
+  eq(pg.items.find((x) => x.id === t.id).rh.length, 1, "rows come off down to one, never none");
+  const sc = G.transform([t2], [t2.id], (x, y) => ({ x: t2.x + (x - t2.x) * 2, y: t2.y + (y - t2.y) * 2 }))[0];
+  eq([sc.cw[0], sc.rh[0], sc.sz], [t2.cw[0] * 2, t2.rh[0] * 2, Math.min(120, t2.sz * 2)], "Resize scales the grid and its lettering");
+  sf.destroy(); host.remove();
+});
+
+step("S · ink: copy maths as TeX — out as a picture and a prompt, back as a reply that must render (1C, UR-13, D2)", async () => {
+  const W = app.window, U = K.inkUI, I = K.ink, G = I.geo;
+  eq(G.cleanTex("```latex\nx^2\n```"), "x^2", "a fenced reply is unwrapped");
+  eq([G.cleanTex("$$\\frac{1}{2}$$"), G.cleanTex("\\[ a+b \\]"), G.cleanTex("$y$"), G.cleanTex(" z ")], ["\\frac{1}{2}", "a+b", "y", "z"], "$$, \\[ \\] and $ come off");
+  assert(/LaTeX only/.test(G.TEX_PROMPT) && /don't solve/.test(G.TEX_PROMPT), "the prompt asks for the writing as written, LaTeX only");
+  /* the app's KaTeX (a stand-in here: the harness loads no CDN) */
+  const had = W.katex;
+  W.katex = { renderToString: (t) => { if ((t.match(/\{/g) || []).length !== (t.match(/\}/g) || []).length) throw new Error("KaTeX parse error: Expected '}'"); return "<span class=\"katex\">" + t.replace(/</g, "&lt;") + "</span>"; } };
+  eq(K.inkTeX.check("\\frac{1}{2}").ok, true, "a reply that renders is good");
+  assert(/doesn't render: Expected/.test(K.inkTeX.check("\\frac{1}{2").why), "one that doesn't says why");
+  const dk = U.desk({}), host = D.createElement("div"); D.body.appendChild(host);
+  const pg = I.blankPage("qa:tex"), sf = U.surface(host, pg, dk);
+  const st = sf._stroke([{ x: 100, y: 100 }, { x: 200, y: 140 }]);
+  dk.setTool("lasso", true); sf._select([st.id]);
+  const chip = q('[data-ui~="ink.sel-tex"]');
+  assert(chip, "a selection with writing offers Copy as TeX");
+  chip.click(); await app.settle();
+  assert(q('[data-ui~="ink.tex"]') && q('[data-ui~="ink.tex-copy-prompt"]'), "the dialog: the picture's buttons and the prompt");
+  const reply = q('[data-ui~="ink.tex-reply"]'), keep = q('[data-ui~="ink.tex-keep"]');
+  reply.value = "$$\\frac{1}{2$$"; reply.dispatchEvent(new W.Event("input")); await new Promise((r) => setTimeout(r, 300));
+  assert(q('[data-ui~="ink.tex-error"]') && keep.hasAttribute("disabled"), "a reply that doesn't render is refused, with its error");
+  reply.value = "$$\\frac{1}{2}$$"; reply.dispatchEvent(new W.Event("input")); await new Promise((r) => setTimeout(r, 300));
+  assert(q('[data-ui~="ink.tex-preview"] .katex') && !keep.hasAttribute("disabled"), "one that renders shows its preview");
+  keep.click(); await app.settle();
+  const kept = pg.items.filter((x) => x.k === "text" && x.tex);
+  eq(kept.map((x) => x.s), ["\\frac{1}{2}"], "Keep puts the cleaned TeX on the page");
+  assert(kept[0].y > G.itemBox(st).y, "under the writing");
+  if (had) W.katex = had; else delete W.katex;
+  sf.destroy(); host.remove();
+});
+
 (async () => {
   let failed = 0;
   for (const [name, fn] of steps) {

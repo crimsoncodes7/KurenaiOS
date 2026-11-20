@@ -50,7 +50,12 @@ Read this file before editing or testing anything in its domain.
     gap: colour where it leaves colour, three sizes (pen widths;
     `I.HL_WIDTHS`, `ERASER_SIZES`, `TEXT_SIZES`, the middle the old fixed
     size), and the eraser's and lasso's mode (`lasso`: free or box); a
-    highlighter stroke keeps its `w` and a text box its `sz`. The
+    highlighter stroke keeps its `w` and a text box its `sz`. A text
+    box's words take a small markup, never HTML (**bold**, *italic*, "- "
+    and "1. " lists, `geo.parseRich`), and a TABLE (`k: "table"`, column
+    widths `cw`, row heights `rh`, cells `c`) is an item like a picture
+    (1C, UR-12). The lasso reaches across pages and can copy part of a
+    picture as a new one (UR-9). The
     tool, colour, sizes, eraser and lasso modes, Pen only and what the app saw of
     the pen are per device (`state.ui.ink`, normalised in place by
     `KOS.inkUI.prefs`); nothing about the pen syncs. Squeeze, barrel roll
@@ -88,6 +93,10 @@ Read this file before editing or testing anything in its domain.
     `clip: {sid, ref}`, PNG where the browser can read it back, else the
     SVG) — never text into the curriculum or a fork (invariant 86).
 135. HANDWRITING IS READ ONLY WHEN ASKED (decision E, `KOS.inkAI`).
+    COPY AS TeX (1C, UR-13, decision D2) sends nothing: it hands YOU the
+    selection's picture and a prompt for Claude or Gemini on the web, and
+    keeps the pasted reply only once the app's own KaTeX renders it (as a
+    `tex` text item, or on the clipboard).
     Nothing appears until "Kurenai reads handwriting when asked" is on
     (Pen and ink, per device, `state.ui.inkRead`, off). Then "Mark with
     Kurenai" (30g), "Check my working" (30k) and "Compare with Kurenai"

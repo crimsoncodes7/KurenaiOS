@@ -221,13 +221,83 @@
     });
     return changed ? out : null;
   }
+  function sum(a) { return (a || []).reduce(function (t, x) { return t + (+x || 0); }, 0); }
+  /* RICH TEXT (1C, UR-12): a text box's lines take a small markup, never
+     HTML — **bold**, *italic*, a line starting "- " is a bullet and "1. "
+     a numbered item. parseRich(line) → {list: "•" | "3." | null, runs:
+     [{t, b, i}]}; plainOf(line) is the words alone (for sizes and search). */
+  function parseRich(line) {
+    line = String(line == null ? "" : line);
+    var list = null, m;
+    if ((m = /^\s*[-•]\s+/.exec(line))) { list = "•"; line = line.slice(m[0].length); }
+    else if ((m = /^\s*(\d{1,3})[.)]\s+/.exec(line))) { list = m[1] + "."; line = line.slice(m[0].length); }
+    var runs = [], re = /(\*\*[^*]+\*\*|\*[^*]+\*)/g, at = 0, x;
+    while ((x = re.exec(line))) {
+      if (x.index > at) runs.push({ t: line.slice(at, x.index) });
+      if (x[0].slice(0, 2) === "**") runs.push({ t: x[0].slice(2, -2), b: true });
+      else runs.push({ t: x[0].slice(1, -1), i: true });
+      at = x.index + x[0].length;
+    }
+    if (at < line.length) runs.push({ t: line.slice(at) });
+    return { list: list, runs: runs };
+  }
+  function plainOf(line) {
+    var r = parseRich(line);
+    return (r.list ? r.list + " " : "") + r.runs.map(function (x) { return x.t; }).join("");
+  }
+  /* TABLES (UR-12): {k: "table", x, y, cw [column widths], rh [row
+     heights], c [[cell text]], role, sz}, in page units */
+  function newTable(x, y, rows, cols, sz) {
+    rows = Math.max(1, Math.min(20, rows || 3)); cols = Math.max(1, Math.min(10, cols || 3));
+    var cw = [], rh = [], c = [];
+    for (var i = 0; i < cols; i++) cw.push(180);
+    for (var j = 0; j < rows; j++) { rh.push(Math.round((sz || 22) * 2)); var row = []; for (var k = 0; k < cols; k++) row.push(""); c.push(row); }
+    return { id: uid(), k: "table", x: x, y: y, cw: cw, rh: rh, c: c, sz: sz || 22 };
+  }
+  /* the cell under a point, with its box; null outside the table */
+  function cellAt(it, x, y) {
+    if (!it || it.k !== "table") return null;
+    var cx = it.x, cy = it.y, col = -1, row = -1;
+    for (var i = 0; i < it.cw.length; i++) { if (x >= cx && x < cx + it.cw[i]) { col = i; break; } cx += it.cw[i]; }
+    for (var j = 0; j < it.rh.length; j++) { if (y >= cy && y < cy + it.rh[j]) { row = j; break; } cy += it.rh[j]; }
+    if (col < 0 || row < 0) return null;
+    return { r: row, c: col, x: cx, y: cy, w: it.cw[col], h: it.rh[row] };
+  }
+  /* a row or a column added after the last (or removed from the end): a
+     new item, the old one untouched */
+  function tableEdit(it, op) {
+    var t = JSON.parse(JSON.stringify(it));
+    if (op === "row+" && t.rh.length < 20) { t.rh.push(t.rh[t.rh.length - 1] || 44); t.c.push(t.cw.map(function () { return ""; })); }
+    else if (op === "col+" && t.cw.length < 10) { t.cw.push(t.cw[t.cw.length - 1] || 180); t.c.forEach(function (row) { row.push(""); }); }
+    else if (op === "row-" && t.rh.length > 1) { t.rh.pop(); t.c.pop(); }
+    else if (op === "col-" && t.cw.length > 1) { t.cw.pop(); t.c.forEach(function (row) { row.pop(); }); }
+    else return null;
+    return t;
+  }
+  /* COPY MATHS AS TeX (1C, UR-13, decision D2): no model in the app reads
+     the writing. The picture and this prompt go to Claude or Gemini on the
+     web; the reply comes back, cleanTex takes off what a chat wraps round
+     it (fences, $$, \[ \]), and it is kept only once KaTeX renders it. */
+  var TEX_PROMPT = "This picture is handwritten maths. Transcribe it into LaTeX exactly as written: keep every step of the working, including any mistakes, and don't solve, finish or correct anything. Reply with the LaTeX only: no explanation, no $ signs and no code fences. For several lines use \\begin{aligned} … \\end{aligned} with & before each = and \\\\ between lines.";
+  function cleanTex(s) {
+    s = String(s == null ? "" : s).trim();
+    var m = /^```[a-zA-Z]*\s*\n?([\s\S]*?)\n?```$/.exec(s);
+    if (m) s = m[1].trim();
+    var pairs = [["$$", "$$"], ["\\[", "\\]"], ["\\(", "\\)"], ["$", "$"]];
+    for (var i = 0; i < pairs.length; i++) {
+      var a = pairs[i][0], b = pairs[i][1];
+      if (s.length > a.length + b.length && s.slice(0, a.length) === a && s.slice(-b.length) === b) { s = s.slice(a.length, s.length - b.length).trim(); break; }
+    }
+    return s;
+  }
   function itemBox(it) {
     if (it.k === "pen" || it.k === "hl") {
       var b = bbox(pts(it)), pad = baseWidth(it) / 2;
       return { x: b.x - pad, y: b.y - pad, w: b.w + 2 * pad, h: b.h + 2 * pad };
     }
+    if (it.k === "table") return { x: it.x, y: it.y, w: sum(it.cw), h: sum(it.rh) };
     if (it.k === "text") {
-      var lines = String(it.s || "").split("\n");
+      var lines = String(it.s || "").split("\n").map(function (l) { return plainOf(l); });
       var wide = Math.max.apply(null, lines.map(function (l) { return l.length; }));
       var sz = textSize(it);
       return { x: it.x, y: it.y, w: Math.max(20, wide * sz * 0.52), h: lines.length * sz * 1.3 };
@@ -311,6 +381,16 @@
       }
       var a = fn(it.x, it.y), copy = Object.assign({}, it, { x: a.x, y: a.y });
       if (it.k === "img") { var b = fn(it.x + it.w, it.y + it.h); copy.w = Math.max(8, b.x - a.x); copy.h = Math.max(8, b.y - a.y); }
+      /* a table scales its columns and rows, and its lettering with them */
+      if (it.k === "table") {
+        var tw = sum(it.cw), th = sum(it.rh), e = fn(it.x + tw, it.y + th);
+        var kx = Math.max(0.2, (e.x - a.x) / Math.max(1, tw)), ky = Math.max(0.2, (e.y - a.y) / Math.max(1, th));
+        if (Math.abs(kx - 1) > 0.001 || Math.abs(ky - 1) > 0.001) {
+          copy.cw = it.cw.map(function (w) { return Math.max(24, Math.round(w * kx)); });
+          copy.rh = it.rh.map(function (h) { return Math.max(16, Math.round(h * ky)); });
+          copy.sz = Math.max(8, Math.min(120, Math.round((+it.sz || 22) * Math.min(kx, ky) * 10) / 10));
+        }
+      }
       /* Resize scales a text box's lettering with it */
       if (it.k === "text") { var t = fn(it.x + 100, it.y), k = (t.x - a.x) / 100; if (Math.abs(k - 1) > 0.001) copy.sz = Math.max(8, Math.min(120, Math.round(textSize(it) * k * 10) / 10)); }
       return copy;
@@ -591,7 +671,9 @@
     topicDoc: function (sid, ref) { return "topic:" + sid + ":" + ref; },
     geo: { pts: pts, pack: pack, widths: widths, smooth: smooth, baseWidth: baseWidth, textSize: textSize, rdp: rdp, bbox: bbox, snap: snap,
       erase: erase, lassoPick: lassoPick, inPoly: inPoly, transform: transform, boxOf: boxOf, itemBox: itemBox, hitItem: hitItem,
-      mapPoints: mapPoints, leavesPage: leavesPage, cutPicture: cutPicture, cropOf: cropOf },
+      mapPoints: mapPoints, leavesPage: leavesPage, cutPicture: cutPicture, cropOf: cropOf,
+      parseRich: parseRich, plainOf: plainOf, newTable: newTable, cellAt: cellAt, tableEdit: tableEdit,
+      cleanTex: cleanTex, TEX_PROMPT: TEX_PROMPT },
     available: available, ready: ready, doc: doc, written: written,
     listPages: listPages, getPage: getPage, blankPage: blankPage, addPage: addPage, savePage: savePage, setDocPaper: setDocPaper,
     movePage: movePage, deletePage: deletePage, duplicatePage: duplicatePage,
