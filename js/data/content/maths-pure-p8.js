@@ -45,7 +45,7 @@ C["maths:8.1"] = {
       { vline: 1, c: "muted", dash: true }, { vline: 3, c: "muted", dash: true },
       { text: [2, 1.4], t: "area 8", c: "text2", size: 12 }
     ], cap: "$\\int_1^3 2x\\,dx = \\big[x^2\\big]_1^3 = 9 - 1 = 8$, the area of the shaded trapezium, $\\frac12(2 + 6) \\times 2 = 8$. With $F(x) = x^2 + 7$ instead, $(9 + 7) - (1 + 7)$ is still 8: the constant cancels." } },
-    { worked: { tag: "example", title: "A definite integral with a root and a reciprocal", src: "exam-style · 4 marks",
+    { worked: { tag: "example", title: "A definite integral with a root and a reciprocal", src: "exam-style · 5 marks",
       q: "Find the exact value of $\\displaystyle\\int_1^4 \\left(3\\sqrt x - \\frac{2}{x^2}\\right) dx$.",
       steps: [
         { h: "Powers first", m: "$3x^{1/2} - 2x^{-2}$", mk: "M1", n: "As with differentiating, rewrite before integrating." },

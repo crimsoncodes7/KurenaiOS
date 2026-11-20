@@ -69,7 +69,7 @@ X("maths:7.2", {
     { q: "$\\dfrac{d}{dx}\\left(\\dfrac{1}{x^2}\\right) =$", opts: ["$-\\dfrac{2}{x^3}$", "$\\dfrac{2}{x^3}$", "$-\\dfrac{1}{2x}$", "$-\\dfrac{2}{x}$"], ans: 0, why: "$x^{-2} \\to -2x^{-3} = -\\dfrac{2}{x^3}$." },
     { q: "$\\dfrac{d}{dx}(\\tan x) =$", opts: ["$\\sec x$", "$\\sec^2 x$", "$\\cot x$", "$-\\sec^2 x$"], ans: 1, why: "$\\tan x = \\tfrac{\\sin x}{\\cos x}$; the quotient rule gives $\\tfrac{1}{\\cos^2 x} = \\sec^2 x$." },
     { q: "$\\dfrac{d}{dx}(e^{kx}) = ke^{kx}$ is the reason exponential models suit:", opts: ["growth at a constant rate", "growth proportional to size", "periodic rise and fall", "decay at a constant rate"], ans: 1, why: "$\\dfrac{dy}{dx} \\propto y$." },
-    { qk: "100", q: "The gradient of $y = 2\\ln x + x^2$ is 5 when $x =$", opts: ["$\\tfrac12$ or $2$", "$2$ only", "$\\tfrac52$", "$1$ or $4$"], ans: 0, why: "$\\tfrac2x + 2x = 5 \\Rightarrow 2x^2 - 5x + 2 = 0$." },
+    { qk: "100", q: "The gradient of $y = 2\\ln x + x^2$ is 5 when $x =$", opts: ["$\\tfrac12$ or $2$", "$1$ or $\\tfrac32$", "$\\tfrac52$ or $1$", "$\\tfrac14$ or $4$"], ans: 0, why: "$\\tfrac2x + 2x = 5 \\Rightarrow 2x^2 - 5x + 2 = 0$." },
     { qk: "101", q: "The gradient of $y = \\cos 3x$ at $x = \\tfrac{\\pi}{6}$ is", opts: ["$-3$", "$3$", "$0$", "$-1$"], ans: 0, why: "$-3\\sin\\tfrac{\\pi}{2} = -3$." }
   ],
   exam: [

@@ -192,7 +192,7 @@ C["maths:7.2"] = {
       ] } },
 
     { page: "Using a derivative" },
-    "Most questions do not stop at $\\frac{dy}{dx}$: they ask for the gradient at a point, for a constant in the equation, or for the $x$ where the gradient takes a value. Each is one more step after differentiating.",
+    { callout: { t: "info", h: "After the derivative", body: "Most questions do not stop at $\\frac{dy}{dx}$: they ask for the gradient at a point, for a constant in the equation, or for the $x$ where the gradient takes a value. Each is one more step after differentiating." } },
     { worked: { tag: "example", title: "The gradient and the tangent of a trig curve at a point (radians)", src: "exam-style · 5 marks",
       q: "The curve $C$ has equation $y = 3\\sin 2x$. Find the equation of the tangent to $C$ at the point where $x = \\frac{\\pi}{6}$.",
       steps: [
