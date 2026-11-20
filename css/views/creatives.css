@@ -178,6 +178,7 @@
 .k-cr-unitrow:disabled { cursor: default; color: var(--text-2); }
 .k-cr-unitrow-t { min-inline-size: 0; font-size: var(--fs-14); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .k-cr-settings { display: flex; flex-direction: column; gap: var(--sp-16); }
+.k-cr-setbtn[aria-current="page"], .k-cr-setbtn[aria-current="page"]:hover { background: var(--text); color: var(--bg); }
 .k-cr-setrow { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-20); flex-wrap: wrap; padding-block-end: var(--sp-14); border-block-end: var(--hairline) solid var(--line); }
 .k-cr-setrow:last-child { padding-block-end: 0; border-block-end: 0; }
 .k-cr-setrow p { margin: var(--sp-2) 0 0; font-size: var(--fs-13); }

@@ -35,7 +35,7 @@
     return node;
   }
 
-  KOS.crPages = [["tracks", "Tracks"], ["write", "Writing"], ["drills", "Drills"], ["refs", "References"], ["portfolio", "Portfolio"]];
+  KOS.crPages = [["tracks", "Tracks"], ["write", "Writing"], ["drills", "Drills"], ["refs", "References"], ["log", "Practice Log"], ["portfolio", "Portfolio"]];
 
   /* a dialog through the one modal route (invariant 49) */
   function dialog(o) {
@@ -66,7 +66,7 @@
     ].filter(Boolean));
   }
   function settingsBtn(page) {
-    return el("button", { type: "button", class: "k-iconbtn", "data-ui": "cr.settings-open", "aria-label": "Creatives settings", "aria-current": page === "settings" ? "page" : null, text: "⚙",
+    return el("button", { type: "button", class: "k-iconbtn k-cr-setbtn", "data-ui": "cr.settings-open", "aria-label": "Creatives settings", "aria-current": page === "settings" ? "page" : null, text: "⚙",
       onclick: function () { KOS.show("creatives", { page: "settings" }); } });
   }
   function startFocus(ref) { KOS.show("focus", { subject: SID, ref: ref || undefined }); }
