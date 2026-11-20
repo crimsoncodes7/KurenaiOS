@@ -591,7 +591,13 @@
   }
   function logPage(main, wid) {
     var all = CR().works();
-    if (!all.length) { main.appendChild(spotEmpty("cr.spot.log", { mark: "◔", title: "Nothing here yet", body: "Every study you save lands here first, raw and private. Delete anything, any time." })); return; }
+    if (!all.length) {
+      var place = CR().trackPlace(CR().currentTrack()), L0 = (place && !place.finished && CR().lesson(place.lesson)) || CR().lessons()[0];
+      main.appendChild(spotEmpty("cr.spot.log", { mark: "◔", title: "Nothing here yet", body: "Every study you save lands here first, raw and private. Delete anything, any time.",
+        action: L0 ? el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "cr.log-start", text: "Start " + L0.id,
+          onclick: function () { KOS.show("ref", { subject: SID, ref: L0.id }); } }) : null }));
+      return;
+    }
     var f = KOS.view && KOS.view.memo ? KOS.view.memo("cr.logFilter", function () { return { track: "", check: "" }; }) : { track: "", check: "" };
     var target = wid ? all.find(function (w) { return w.id === wid; }) || null : null;
     function needsCheck(w) { return !!(w.lesson && (!w.check || !w.check.pass)); }

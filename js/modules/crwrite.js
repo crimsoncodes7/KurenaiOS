@@ -79,7 +79,12 @@
     main.appendChild(box);
     list(function (docs) {
       if (!rows.isConnected) return;
-      if (!docs.length) { rows.appendChild(KOS.ui.emptyState({ compact: true, mark: "文", title: "No drafts yet" })); return; }
+      if (!docs.length) {
+        rows.appendChild(KOS.ui.emptyState({ compact: true, mark: "文", title: "No drafts yet",
+          action: el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "cr.draft-empty-new", text: "New draft",
+            onclick: function () { create({ title: "Untitled" }, function (id) { if (id) KOS.show("creatives", { page: "write", id: id }); }); } }) }));
+        return;
+      }
       docs.forEach(function (d) {
         rows.appendChild(el("button", { type: "button", class: "k-cr-draftrow", role: "listitem", "data-ui": "cr.draft-row", onclick: function () { KOS.show("creatives", { page: "write", id: d.id.slice(4) }); } }, [
           el("span", { class: "k-cr-draftrow-t", text: d.title }),
