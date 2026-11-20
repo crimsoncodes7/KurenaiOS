@@ -662,7 +662,7 @@
   function jaCp(id) { var c = obj(st().japanese && st().japanese.checkpoints)[id]; return !!(c && c.passAt); }
   function jaReleased(u) { return !!(window.KOS_JA && window.KOS_JA.CHECKPOINTS && window.KOS_JA.CHECKPOINTS["cp-" + u]); }
   [["H", "Hiragana", "s0h"], ["K", "Katakana", "s0k"]].forEach(function (u) {
-    reg("u-ja", "ja-" + u[0].toLowerCase(), u[1], "The " + u[1].toLowerCase() + " checkpoint passed", ["ja"], [1], function () { return jaCp("cp-" + u[0]) ? 1 : 0; }, { art: "app.badge.ja." + u[2] });
+    reg("u-ja", "ja-" + u[0].toLowerCase(), u[0] === "H" ? "Hiragana checkpoint" : u[1], "The " + u[1].toLowerCase() + " checkpoint passed", ["ja"], [1], function () { return jaCp("cp-" + u[0]) ? 1 : 0; }, { art: "app.badge.ja." + u[2] });
   });
   reg("u-ja", "ja-s0", "Stage 0: The sounds and the kana", "Both kana checkpoints passed", ["ja"], [2], function () { return (jaCp("cp-H") ? 1 : 0) + (jaCp("cp-K") ? 1 : 0); },
     { unit: "checkpoints", art: "app.badge.ja.s0", gold: true });
