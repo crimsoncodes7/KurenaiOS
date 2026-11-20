@@ -191,6 +191,41 @@ C["maths:7.2"] = {
         { m: "$y = \\tan 4x$: $\\dfrac{dy}{dx} = 4\\sec^2 4x$" }
       ] } },
 
+    { page: "Using a derivative" },
+    "Most questions do not stop at $\\frac{dy}{dx}$: they ask for the gradient at a point, for a constant in the equation, or for the $x$ where the gradient takes a value. Each is one more step after differentiating.",
+    { worked: { tag: "example", title: "The gradient and the tangent of a trig curve at a point (radians)", src: "exam-style · 5 marks",
+      q: "The curve $C$ has equation $y = 3\\sin 2x$. Find the equation of the tangent to $C$ at the point where $x = \\frac{\\pi}{6}$.",
+      steps: [
+        { h: "Differentiate", m: "$\\dfrac{dy}{dx} = 6\\cos 2x$", mk: "M1 A1", n: "The $2$ inside comes out front: $3 \\times 2 = 6$." },
+        { h: "Gradient and point, in radians", m: "At $x = \\frac{\\pi}{6}$: $\\dfrac{dy}{dx} = 6\\cos\\frac{\\pi}{3} = 3$; $\\; y = 3\\sin\\frac{\\pi}{3} = \\dfrac{3\\sqrt3}{2}$", mk: "M1", n: "Exact values: $\\cos\\frac{\\pi}{3} = \\frac12$, $\\sin\\frac{\\pi}{3} = \\frac{\\sqrt3}{2}$." },
+        { h: "The line", m: "$y - \\dfrac{3\\sqrt3}{2} = 3\\left(x - \\dfrac{\\pi}{6}\\right) \\Rightarrow y = 3x - \\dfrac{\\pi}{2} + \\dfrac{3\\sqrt3}{2}$", mk: "M1 A1", fig: { x: [-0.3, 2], y: [-3.5, 4.5], axes: { xt: [0.5, 1, 1.5], yt: [-3, 3] }, items: [
+          { fn: "3*sin(2*x)", label: "y = 3 sin 2x", at: 1.25, pos: "e" },
+          { fn: "3*x-1.5708+2.598", c: "accent2", dash: true, from: 0, to: 1.1, label: "tangent, gradient 3", lpos: 0.15, loff: 12 },
+          { pt: [0.5236, 2.598], label: "(π/6, 3√3/2)", pos: "w" }
+        ], cap: "At $x = \\frac{\\pi}{6}$ the curve is still rising, with gradient 3; it peaks at $x = \\frac{\\pi}{4}$, where $\\cos 2x = 0$." } }
+      ], result: "$y = 3x - \\frac{\\pi}{2} + \\frac{3\\sqrt3}{2}$" } },
+    { worked: { tag: "example", title: "Find two constants from two gradients", src: "exam-style · 4 marks",
+      q: "The curve $y = ax^3 + bx$ has gradient 5 at $x = 1$ and gradient 23 at $x = 2$. Find $a$ and $b$.",
+      steps: [
+        { h: "Differentiate with the letters left in", m: "$\\dfrac{dy}{dx} = 3ax^2 + b$", mk: "M1" },
+        { h: "Two equations", m: "$x = 1$: $3a + b = 5$; $\\quad x = 2$: $12a + b = 23$", mk: "M1 A1" },
+        { h: "Subtract", m: "$9a = 18 \\Rightarrow a = 2$, $b = 5 - 6 = -1$", mk: "A1", n: "Check: $3(2)(4) - 1 = 23$ ✓." }
+      ], result: "$a = 2$, $b = -1$" } },
+    { worked: { tag: "example", title: "Where the gradient takes a given value: a root term", src: "exam-style · 5 marks",
+      q: "$y = 4\\sqrt x - x$, $x > 0$. Find the value of $x$ where **(a)** the gradient is zero, **(b)** the gradient is $-\\frac12$.",
+      steps: [
+        { h: "Differentiate", m: "$y = 4x^{1/2} - x \\Rightarrow \\dfrac{dy}{dx} = 2x^{-1/2} - 1 = \\dfrac{2}{\\sqrt x} - 1$", mk: "M1 A1" },
+        { h: "(a)", m: "$\\dfrac{2}{\\sqrt x} = 1 \\Rightarrow \\sqrt x = 2 \\Rightarrow x = 4$", mk: "A1" },
+        { h: "(b)", m: "$\\dfrac{2}{\\sqrt x} - 1 = -\\dfrac12 \\Rightarrow \\dfrac{2}{\\sqrt x} = \\dfrac12 \\Rightarrow \\sqrt x = 4 \\Rightarrow x = 16$", mk: "M1 A1", n: "Make $\\sqrt x$ the subject, then square." }
+      ], result: "(a) $x = 4$ (b) $x = 16$" } },
+    { worked: { tag: "example", title: "Where the gradient takes a given value: a log term gives a quadratic", src: "exam-style · 5 marks",
+      q: "Find the values of $x$ for which the curve $y = 2\\ln x + x^2$, $x > 0$, has gradient 5.",
+      steps: [
+        { h: "Differentiate", m: "$\\dfrac{dy}{dx} = \\dfrac2x + 2x$", mk: "M1 A1" },
+        { h: "Set equal to 5 and clear the fraction", m: "$\\dfrac2x + 2x = 5 \\Rightarrow 2 + 2x^2 = 5x \\Rightarrow 2x^2 - 5x + 2 = 0$", mk: "M1", n: "Multiply through by $x$; it is positive, so nothing is lost." },
+        { h: "Solve, and check the domain", m: "$(2x - 1)(x - 2) = 0 \\Rightarrow x = \\tfrac12$ or $x = 2$", mk: "A1 A1", n: "Both are positive, so both stand." }
+      ], result: "$x = \\frac12$ or $x = 2$" } },
+
     { page: "Exam toolkit" },
     { ul: [
       "**Not rewriting first**: differentiating $\\frac{x^2 + 3x}{4x^2}$ term-by-term without splitting; \"differentiating\" a bracket by differentiating each factor.",
@@ -198,7 +233,9 @@ C["maths:7.2"] = {
       "**Sign of $\\cos$**: $\\frac{d}{dx}\\cos kx = -k\\sin kx$.",
       "**$\\ln$ of a product**: $\\ln 5x$ differentiates to $\\frac1x$, not $\\frac{1}{5x}$ (write $\\ln 5 + \\ln x$).",
       "**$a^x$ needs the $\\ln a$**.",
-      "**Degrees**: trig derivatives are false in degrees — the question will be in radians."
+      "**Degrees**: trig derivatives are false in degrees — the question will be in radians.",
+      "**Gradient at a point**: differentiate first, then substitute; never substitute into $y$ and differentiate a number.",
+      "**Unknown constants**: keep the letters through the differentiation; each given gradient is one equation."
     ] },
     { callout: { t: "mnemonic", h: "\"Rewrite, then power down\"", body: "Get everything to $ax^n$ (or a standard function) first; only then multiply by the power and drop it by one." } }
   ],

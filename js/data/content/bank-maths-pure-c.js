@@ -57,7 +57,10 @@ X("maths:7.2", {
     ["Differentiate $\\dfrac{(2x - 3)^2}{\\sqrt x}$… first step?", "Expand and write as powers: $4x^{3/2} - 12x^{1/2} + 9x^{-1/2}$, then $6x^{1/2} - 6x^{-1/2} - \\tfrac92 x^{-3/2}$."],
     ["Gradient of $y = x^3 - 4x$ at $x = 2$?", "$3(4) - 4 = 8$."],
     ["Differentiate $y = \\ln(x^2)$.", "$\\dfrac{2}{x}$ (since $\\ln x^2 = 2\\ln x$)."],
-    ["Differentiate $y = e^{-x/8}$.", "$-\\tfrac18 e^{-x/8}$."]
+    ["Differentiate $y = e^{-x/8}$.", "$-\\tfrac18 e^{-x/8}$."],
+    ["Gradient of $y = 3\\sin 2x$ at $x = \\frac{\\pi}{6}$?", "$6\\cos\\frac{\\pi}{3} = 3$.", 100],
+    ["$y = ax^3 + bx$ has gradient 5 at $x = 1$ and 23 at $x = 2$: $a$, $b$?", "$3a + b = 5$, $12a + b = 23$: $a = 2$, $b = -1$.", 101],
+    ["Where does $y = 4\\sqrt x - x$ have gradient 0?", "$\\frac{2}{\\sqrt x} - 1 = 0$: $x = 4$.", 102]
   ],
   quiz: [
     { q: "$\\dfrac{d}{dx}(5x^{-2}) =$", opts: ["$-10x^{-3}$", "$10x^{-1}$", "$-10x^{-1}$", "$5x^{-3}$"], ans: 0, why: "Multiply by the power, reduce by one." },
@@ -65,7 +68,9 @@ X("maths:7.2", {
     { q: "$\\dfrac{d}{dx}(\\ln 5x) =$", opts: ["$\\dfrac{5}{x}$", "$\\dfrac{1}{5x}$", "$\\dfrac1x$", "$5\\ln x$"], ans: 2, why: "$\\ln 5x = \\ln 5 + \\ln x$." },
     { q: "$\\dfrac{d}{dx}\\left(\\dfrac{1}{x^2}\\right) =$", opts: ["$-\\dfrac{2}{x^3}$", "$\\dfrac{2}{x^3}$", "$-\\dfrac{1}{2x}$", "$-\\dfrac{2}{x}$"], ans: 0, why: "$x^{-2} \\to -2x^{-3} = -\\dfrac{2}{x^3}$." },
     { q: "$\\dfrac{d}{dx}(\\tan x) =$", opts: ["$\\sec x$", "$\\sec^2 x$", "$\\cot x$", "$-\\sec^2 x$"], ans: 1, why: "$\\tan x = \\tfrac{\\sin x}{\\cos x}$; the quotient rule gives $\\tfrac{1}{\\cos^2 x} = \\sec^2 x$." },
-    { q: "$\\dfrac{d}{dx}(e^{kx}) = ke^{kx}$ is the reason exponential models suit:", opts: ["growth at a constant rate", "growth proportional to size", "periodic rise and fall", "decay at a constant rate"], ans: 1, why: "$\\dfrac{dy}{dx} \\propto y$." }
+    { q: "$\\dfrac{d}{dx}(e^{kx}) = ke^{kx}$ is the reason exponential models suit:", opts: ["growth at a constant rate", "growth proportional to size", "periodic rise and fall", "decay at a constant rate"], ans: 1, why: "$\\dfrac{dy}{dx} \\propto y$." },
+    { qk: "100", q: "The gradient of $y = 2\\ln x + x^2$ is 5 when $x =$", opts: ["$\\tfrac12$ or $2$", "$2$ only", "$\\tfrac52$", "$1$ or $4$"], ans: 0, why: "$\\tfrac2x + 2x = 5 \\Rightarrow 2x^2 - 5x + 2 = 0$." },
+    { qk: "101", q: "The gradient of $y = \\cos 3x$ at $x = \\tfrac{\\pi}{6}$ is", opts: ["$-3$", "$3$", "$0$", "$-1$"], ans: 0, why: "$-3\\sin\\tfrac{\\pi}{2} = -3$." }
   ],
   exam: [
     { level: "AS", src: "Edexcel AS 2019 P1 Q5", ctx: "The curve $C$ has equation $y = 3x^2 + \\dfrac{2}{x} + 2$, $x > 0$.",
