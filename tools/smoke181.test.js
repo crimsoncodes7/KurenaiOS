@@ -8,11 +8,13 @@
          levels-of-response part has its level descriptors and indicative
          content, an (ii) names the (i) it builds on and comes after it, a
          table to complete has blanks, a data table is rectangular.
-     B · OCR F201 paper 1 follows the SAM's blueprint: 1 h 30, 60 marks, eight
-         questions of 9 · 9 · 5 · 5 · 2 · 18 · 8 · 4, one 6-mark Analyse and
-         one 9-mark Discuss, one organisation named in the context.
-     C · an assessment on the preset gets it as paper 1 (paper 2 onwards is
-         generated until more are written); the paper page draws the
+     B · each OCR F201 paper (three, roadmap 5.22) follows the SAM's
+         blueprint: 1 h 30, 60 marks, eight questions of 9 · 9 · 5 · 5 · 2 ·
+         18 · 8 · 4, one 6-mark Analyse and one 9-mark Discuss, a table to
+         clean, a table to complete, a linked (i)/(ii), its own organisation;
+         together they reach every leaf of the specification.
+     C · an assessment on the preset gets them as papers 1–3 (paper 4
+         onwards is generated until more are written); the paper page draws the
          context, the data table, the table to complete, [n] marks and no
          Edexcel total line; the scheme prints the levels; timed mode shows
          the case study and the tally marks a 9-marker by mark.
@@ -75,13 +77,24 @@ step("A · every authored paper meets the contract", async () => {
   assert(n >= 1, "at least one paper");
 });
 
-step("B · F201 paper 1 is the SAM's blueprint", async () => {
-  const p = PAPERS["ocr-f201"][0];
-  eq(p.questions.map((q) => q.parts.reduce((s, x) => s + x.marks, 0)), [9, 9, 5, 5, 2, 18, 8, 4], "marks a question");
-  const ext = [].concat(...p.questions.map((q) => q.parts)).filter((x) => x.levels).map((x) => [x.marks, x.command]);
-  eq(ext, [[6, "Analyse"], [9, "Discuss"]], "one 6-mark Analyse and one 9-mark Discuss");
-  const leaves = new Set([].concat(...p.questions.map((q) => q.parts.map((x) => x.ref.split(".").slice(0, 2).join(".")))));
-  ["F201.1", "F201.2", "F201.3", "F201.4", "F201.5"].forEach((ta) => assert(leaves.has(ta), "covers topic area " + ta));
+step("B · every F201 paper is the SAM's blueprint, each its own organisation (roadmap 5.22)", async () => {
+  const all = PAPERS["ocr-f201"];
+  eq(all.length, 3, "three F201 papers");
+  all.forEach((p, i) => {
+    const tag = "paper " + (i + 1);
+    eq(p.questions.map((q) => q.parts.reduce((s, x) => s + x.marks, 0)), [9, 9, 5, 5, 2, 18, 8, 4], tag + " marks a question");
+    const parts = [].concat(...p.questions.map((q) => q.parts));
+    const ext = parts.filter((x) => x.levels).map((x) => [x.marks, x.command]);
+    eq(ext, [[6, "Analyse"], [9, "Discuss"]], tag + " one 6-mark Analyse and one 9-mark Discuss");
+    assert(parts.some((x) => x.table) && parts.some((x) => x.fill) && parts.some((x) => x.dependsOn), tag + " a table to clean, a table to complete and a linked (i)/(ii)");
+    const leaves = new Set(parts.map((x) => x.ref.split(".").slice(0, 2).join(".")));
+    ["F201.1", "F201.2", "F201.3", "F201.4", "F201.5"].forEach((ta) => assert(leaves.has(ta), tag + " covers topic area " + ta));
+  });
+  eq(new Set(all.map((p) => p.org)).size, 3, "three different organisations");
+  /* together they reach every leaf of the specification */
+  const reached = new Set([].concat(...all.map((p) => [].concat(...p.questions.map((q) => q.parts.map((x) => x.ref))))));
+  ["1.1", "1.2", "1.3", "1.4", "2.1", "2.2", "2.3", "2.4", "2.5", "2.6", "3.1", "4.1", "4.2", "5.1", "5.2"].forEach((l) =>
+    assert(reached.has("F201." + l), "the three papers reach F201." + l));
 });
 
 step("C · the paper page, the scheme and timed mode", async () => {
@@ -89,7 +102,8 @@ step("C · the paper page, the scheme and timed mode", async () => {
   eq(a.durationMins, 90, "the preset's time is the SAM's");
   const paper = K.examPaper.build(a, 1);
   eq([paper.kind, paper.marks, paper.mins, paper.format], ["authored", 60, 90, "ocr-case"], "paper 1 is the authored paper");
-  assert(K.examPaper.build(a, 2).kind !== "authored", "paper 2 is generated until more are written");
+  eq([K.examPaper.build(a, 2).kind, K.examPaper.build(a, 2).org, K.examPaper.build(a, 3).org], ["authored", "Calderford City Council", "Freshway"], "papers 2 and 3 are authored too");
+  assert(K.examPaper.build(a, 4).kind !== "authored", "paper 4 is generated until more are written");
   K.show("exams", { id: a.id, tab: "paper", sub: "1" }); await app.settle();
   const main = app.document.querySelector("#main");
   assert(main.querySelector("[data-ui~='exams.pcontext']") && /Coastline Energy/.test(main.textContent), "the context");

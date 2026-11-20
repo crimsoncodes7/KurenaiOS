@@ -1670,7 +1670,12 @@ cards; a first scan flagged about 180 bare prompts and 44 yes/no answers):
   should flag bare prompts, bare yes/no answers and over-long answers, as
   `tools/quiz_bias.mjs` does for quiz options.
 
-### 5.22 F201 practice papers 2 and 3 (the Exams & Papers rework §10) — BACKLOG
+### 5.22 F201 practice papers 2 and 3 (the Exams & Papers rework §10) — BUILT 20 November 2026 (1B, `feat/qol-1a`)
+
+> Paper 2 (Calderford City Council, a smart city) and paper 3 (Freshway, a
+> supermarket chain), each to the SAM's blueprint; with paper 1 the three
+> reach every leaf of F201 (smoke181 B). Not yet released.
+
 
 Moved to the backlog by the user on 18 November 2026, once paper 1 of each
 December mock was written. Two more OCR F201 case-study papers, each its
