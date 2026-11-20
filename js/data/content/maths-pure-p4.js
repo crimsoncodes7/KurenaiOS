@@ -817,10 +817,7 @@ C["maths:4.3"] = {
     ["$\\sum_{r=1}^{16} 2^r = $?", "$2(2^{16} - 1) = 131\\,070$."],
     ["$\\sum_{r=4}^{\\infty} 20(\\frac12)^r = $?", "$\\frac{5/4}{1/2} = \\frac52$."],
     ["$\\sum_{n=1}^{48}\\log_5\\frac{n+2}{n+1} = $?", "$\\log_5\\frac{50}{2} = 2$ (telescoping)."],
-    ["$\\cos(180n)°$ equals…", "$(-1)^n$."],
-    ["Write $3 + 7 + 11 + \\cdots + 99$ in sigma notation.", "$\\sum_{r=1}^{25}(4r - 1)$."],
-    ["General term for an alternating geometric series $5 - 10 + 20 - \\cdots$?", "$5(-2)^{r-1}$."],
-    ["$\\sum_{r=1}^{k}(4r + 1)$ in terms of $k$?", "$2k^2 + 3k$."]
+    ["$\\cos(180n)°$ equals…", "$(-1)^n$."]
   ],
   quiz: [
     { q: "$\\sum_{r=1}^{5} (2r + 1) =$", opts: ["35", "30", "25", "11"], ans: 0, why: "$3 + 5 + 7 + 9 + 11$." },

@@ -93,10 +93,7 @@ C["maths:6.1"] = {
     ["Solve $4^x = 100$.", "$x = \\frac{\\ln100}{\\ln4} = 3.32$."],
     ["$y = (\\frac12)^x$ compared with $y = 2^x$?", "Reflection in the $y$-axis (since $(\\frac12)^x = 2^{-x}$); decreasing."],
     ["Write $2^x$ with base $e$.", "$e^{x\\ln 2}$."],
-    ["Where does $y = 4 - e^x$ cross the $x$-axis?", "$x = \\ln 4$."],
-    ["$y = Ae^{kx}$ through $(0, 5)$ and $(2, 20)$: $A$ and $k$?", "$A = 5$, $k = \\ln 2$."],
-    ["Solve $e^{2x} - 3e^x + 2 = 0$.", "$(e^x - 1)(e^x - 2) = 0$: $x = 0$ or $\\ln 2$."],
-    ["Range of $f(x) = 3 - 2e^{-x}$?", "$f(x) < 3$."]
+    ["Where does $y = 4 - e^x$ cross the $x$-axis?", "$x = \\ln 4$."]
   ],
   quiz: [
     { q: "$y = e^{x} + 3$ has asymptote", opts: ["$y = 3$", "$y = 0$", "$x = 3$", "$y = 1$"], ans: 0, why: "$e^x \\to 0$." },
@@ -188,10 +185,7 @@ C["maths:6.2"] = {
     ["Why is $e$ the natural base for growth models?", "Because $\\frac{d}{dx}e^{kx} = ke^{kx}$: the rate is proportional to the value, which is exactly what growth/decay processes do."],
     ["Doubling time for $N = Ae^{kt}$?", "$\\frac{\\ln 2}{k}$."],
     ["$V = 1500 + Ae^{-kt}$: $\\frac{dV}{dt}$ in terms of $V$?", "$-k(V - 1500)$."],
-    ["Bacteria $1000 \\to 2000$ in 5 h with $N = 1000e^{kt}$: $k$?", "$\\frac{\\ln 2}{5} \\approx 0.139$.", 5],
-    ["$\\frac{d}{dx}(3e^{2x} - 4e^{-x})$?", "$6e^{2x} + 4e^{-x}$."],
-    ["$\\frac{d}{dx}(2^x)$?", "$2^x\\ln 2$."],
-    ["Stationary point of $y = e^{2x} - 6x$?", "Minimum at $(\\frac12\\ln 3, 3 - 3\\ln 3)$."]
+    ["Bacteria $1000 \\to 2000$ in 5 h with $N = 1000e^{kt}$: $k$?", "$\\frac{\\ln 2}{5} \\approx 0.139$.", 5]
   ],
   quiz: [
     { q: "$\\frac{d}{dx}(e^{3x}) =$", opts: ["$3e^{3x}$", "$e^{3x}$", "$3xe^{3x}$", "$e^{3}$"], ans: 0, why: "Chain rule with $k = 3$." },

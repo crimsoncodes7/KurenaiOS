@@ -152,7 +152,10 @@ X("maths:4.3", {
     ["Evaluate $\\displaystyle\\sum_{r=1}^{12} 3$.", "36 (twelve copies of 3)."],
     ["Evaluate $\\displaystyle\\sum_{r=5}^{10} (2r)$.", "$\\sum_{1}^{10} 2r - \\sum_{1}^{4} 2r = 110 - 20 = 90$."],
     ["Simplify $\\displaystyle\\sum_{r=1}^{n} (\\log_2 r - \\log_2(r+1))$… telescoping.", "$\\log_2 1 - \\log_2(n+1) = -\\log_2(n + 1)$."],
-    ["Evaluate $\\displaystyle\\sum_{n=1}^{\\infty} 5\\left(\\tfrac25\\right)^n \\cos(180n)°$.", "$\\cos(180n)° = (-1)^n$: geometric with $a = -2$, $r = -\\tfrac25$: $\\dfrac{-2}{1 + 2/5} = -\\tfrac{10}{7}$."]
+    ["Evaluate $\\displaystyle\\sum_{n=1}^{\\infty} 5\\left(\\tfrac25\\right)^n \\cos(180n)°$.", "$\\cos(180n)° = (-1)^n$: geometric with $a = -2$, $r = -\\tfrac25$: $\\dfrac{-2}{1 + 2/5} = -\\tfrac{10}{7}$."],
+    ["Write $3 + 7 + 11 + \\cdots + 99$ in sigma notation.", "$\\sum_{r=1}^{25}(4r - 1)$.", 100],
+    ["General term for an alternating geometric series $5 - 10 + 20 - \\cdots$?", "$5(-2)^{r-1}$.", 101],
+    ["$\\sum_{r=1}^{k}(4r + 1)$ in terms of $k$?", "$2k^2 + 3k$.", 102]
   ],
   quiz: [
     { q: "$\\sum_{r=1}^{5} r^2 =$", opts: ["15", "55", "25", "30"], ans: 1, why: "$1 + 4 + 9 + 16 + 25$." },
@@ -701,7 +704,10 @@ X("maths:6.1", {
     ["Sketch $y = e^x - 3$.", "Through $(0, -2)$, asymptote $y = -3$, crosses the $x$-axis at $x = \\ln 3$."],
     ["Why is $y = a^x$ only defined for $a > 0$?", "For negative $a$, non-integer powers are undefined in the reals.", 11],
     ["What is $e$ (to 3 s.f.) and why is it special?", "$2.72$; $y = e^x$ is its own derivative — the gradient equals the $y$-value everywhere.", 12],
-    ["Describe $y = 3e^{x}$ relative to $y = e^x$.", "Stretch parallel to the $y$-axis, scale factor 3; $y$-intercept $(0, 3)$.", 14]
+    ["Describe $y = 3e^{x}$ relative to $y = e^x$.", "Stretch parallel to the $y$-axis, scale factor 3; $y$-intercept $(0, 3)$.", 14],
+    ["$y = Ae^{kx}$ through $(0, 5)$ and $(2, 20)$: $A$ and $k$?", "$A = 5$, $k = \\ln 2$.", 100],
+    ["Solve $e^{2x} - 3e^x + 2 = 0$.", "$(e^x - 1)(e^x - 2) = 0$: $x = 0$ or $\\ln 2$.", 101],
+    ["Range of $f(x) = 3 - 2e^{-x}$?", "$f(x) < 3$.", 102]
   ],
   quiz: [
     { q: "$y = 5^x$ passes through:", opts: ["$(0, 5)$", "$(0, 1)$", "$(1, 0)$", "$(0, 0)$"], ans: 1, why: "$5^0 = 1$." },
@@ -727,7 +733,10 @@ X("maths:6.2", {
     ["Differentiate $y = 4e^{-2x}$.", "$-8e^{-2x}$.", 10],
     ["Interpret $\\dfrac{dV}{dt} = -0.25V$ for a car's value.", "The value decreases at a rate proportional to its current value — 25% per year continuous depreciation.", 11],
     ["Tangent to $y = e^{2x}$ at $x = 0$?", "Gradient 2, point $(0, 1)$: $y = 2x + 1$.", 12],
-    ["$\\dfrac{d}{dx}(a^x) = ?$", "$a^x\\ln a$.", 13]
+    ["$\\dfrac{d}{dx}(a^x) = ?$", "$a^x\\ln a$.", 13],
+    ["$\\frac{d}{dx}(3e^{2x} - 4e^{-x})$?", "$6e^{2x} + 4e^{-x}$.", 100],
+    ["$\\frac{d}{dx}(2^x)$?", "$2^x\\ln 2$.", 101],
+    ["Stationary point of $y = e^{2x} - 6x$?", "Minimum at $(\\frac12\\ln 3, 3 - 3\\ln 3)$.", 102]
   ],
   quiz: [
     { q: "$\\dfrac{d}{dx}(e^{5x}) =$", opts: ["$e^{5x}$", "$5e^{5x}$", "$5e^{4x}$", "$e^{5}$"], ans: 1, why: "$\\tfrac{d}{dx}e^{kx} = ke^{kx}$ with $k = 5$." },
