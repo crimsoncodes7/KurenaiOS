@@ -31,9 +31,8 @@
     var r = R().get(id);
     if (!r) return;
     var day = opts.day || R().routineDay();
-    var steps = r.steps.filter(function (s) { return !s.checkMorning; });
-    var e0 = R().entry(r.id, day), ticked = (e0 && e0.steps) || {};
-    var i = steps.findIndex(function (s) { return !ticked[s.id]; });
+    var steps = slots(r, day);
+    var i = steps.findIndex(function (s) { return !isOn(s, day); });
     var st = { r: r, day: day, steps: steps, i: i === -1 ? 0 : i, started: Date.now(), stepStart: Date.now(), skipped: {}, done: false, award: null, timer: null, lock: null };
     var main = el("div", { class: "k-rpl-main" });
     var side = el("aside", { class: "k-rpl-side", "aria-label": "The routine" });
@@ -59,14 +58,38 @@
       else if (ev.key === "s" || ev.key === "S") { ev.preventDefault(); next(st, false); }
     });
   }
+  /* the player's steps: a step that runs another routine (1C) plays that
+     routine's own steps in its place, each ticked in THAT routine's log
+     (`rid`), so it keeps its own streak and pay and the outer step follows */
+  function slots(r, day) {
+    var out = [];
+    R().stepsFor(r, R().entry(r.id, day)).forEach(function (s0) {
+      var full = r.steps.filter(function (x) { return x.id === s0.id; })[0];
+      var s = Object.assign({}, full || {}, s0);
+      if (s.checkMorning) return;
+      var inner = s.run && s.run !== r.id ? R().get(s.run) : null;
+      if (inner && !inner.archived) {
+        R().stepsFor(inner, R().entry(inner.id, day)).forEach(function (x0) {
+          var xf = inner.steps.filter(function (y) { return y.id === x0.id; })[0];
+          var x = Object.assign({}, xf || {}, x0);
+          if (x.checkMorning || x.run) return;
+          out.push(Object.assign(x, { rid: inner.id, group: inner.name }));
+        });
+        return;
+      }
+      out.push(Object.assign(s, { rid: r.id }));
+    });
+    return out;
+  }
+  function isOn(x, day) { var e = R().entry(x.rid, day); return !!(e && e.steps && e.steps[x.id]); }
   function current(st) { return st.steps[st.i]; }
   function paint(st) {
     var r = st.r, s = current(st), w = R().windowOn(r, st.day);
-    var e = R().entry(r.id, st.day), ticked = (e && e.steps) || {};
+    var ticked = { has: function (x) { return isOn(x, st.day); } };
     st.main.innerHTML = "";
     st.main.setAttribute("data-tint", U().toneOf(r) || "afternoon");
     if (st.done) { paintDone(st); paintSide(st, ticked); return; }
-    var left = st.steps.slice(st.i + 1).filter(function (x) { return !ticked[x.id]; });
+    var left = st.steps.slice(st.i + 1).filter(function (x) { return !ticked.has(x); });
     var leftMins = left.reduce(function (m, x) { return m + (x.mins || 0); }, 0);
     st.ring = ring();
     st.clockT = el("b", { class: "k-mono k-rpl-clock-t" });
@@ -79,10 +102,11 @@
           : w && r.anchor === "review:morning" ? el("span", { class: "k-mono k-rt-small k-rt-text2", text: "Leave by " + w.to }) : null]),
       el("span", { class: "k-mono k-rt-small k-muted", text: (st.i + 1) + "/" + st.steps.length })
     ]));
-    st.main.appendChild(el("div", { class: "k-rt-progress", "aria-hidden": "true" }, st.steps.map(function (x, j) { var p = el("span"); if (ticked[x.id]) KOS.ui.state(p, "on", true); else if (j === st.i) KOS.ui.state(p, "now", true); return p; })));
+    st.main.appendChild(el("div", { class: "k-rt-progress", "aria-hidden": "true" }, st.steps.map(function (x, j) { var p = el("span"); if (ticked.has(x)) KOS.ui.state(p, "on", true); else if (j === st.i) KOS.ui.state(p, "now", true); return p; })));
     var linkFocus = s.link && s.link.kind === "focus";
     st.main.appendChild(el("div", { class: "k-rpl-step", "data-ui": "player.step" }, [
       el("span", { class: "k-kicker", text: "Step " + (st.i + 1) + " of " + st.steps.length + (s.optional ? " · optional" : "") }),
+      s.group ? el("span", { class: "k-rt-small k-rt-text2", "data-ui": "player.inner", text: "↻ " + s.group }) : null,
       el("h2", { class: "k-rpl-name", text: s.text }),
       s.mins ? el("div", { class: "k-rpl-clock", role: "timer", "aria-live": "off" }, [st.ring.svg, el("div", { class: "k-rpl-clock-in" }, [st.clockT, st.clockS])])
         : el("div", { class: "k-rpl-clock k-rpl-clock--plain" }, [st.clockT, st.clockS]),
@@ -106,10 +130,16 @@
     st.side.innerHTML = "";
     st.side.appendChild(el("div", { class: "k-rt-hd" }, [el("h3", { class: "k-rt-hd-t", text: "The routine" }), el("span", { class: "k-rt-fill" }),
       el("button", { type: "button", class: "k-btn k-btn--quiet k-btn--sm", text: "Close", onclick: st.finish })]));
+    var group = null;
     st.steps.forEach(function (x, j) {
-      var on = !!ticked[x.id];
-      var row = el("div", { class: "k-rt-step" + (j === st.i && !st.done ? " k-rpl-now" : "") }, [
-        U().check(on, (on ? "Untick " : "Tick ") + x.text, function () { R().tick(st.r.id, x.id, !on, { day: st.day }); paint(st); }),
+      var on = ticked.has(x);
+      /* the inner routine's steps sit under its name */
+      if ((x.group || null) !== group) {
+        group = x.group || null;
+        if (group) st.side.appendChild(el("div", { class: "k-rt-small k-rt-text2 k-rpl-group", "data-ui": "player.group", text: "↻ " + group }));
+      }
+      var row = el("div", { class: "k-rt-step" + (j === st.i && !st.done ? " k-rpl-now" : "") + (x.group ? " k-rpl-in" : "") }, [
+        U().check(on, (on ? "Untick " : "Tick ") + x.text, function () { R().tick(x.rid, x.id, !on, { day: st.day }); paint(st); }),
         el("span", { class: "k-rt-step-t k-ellipsis", text: x.text }),
         st.skipped[x.id] && !on ? el("span", { class: "k-muted", text: "–" }) : null,
         x.mins ? el("span", { class: "k-mono k-rt-step-m", text: x.mins + "′" }) : null
@@ -146,16 +176,16 @@
   }
   function tickHere(st) {
     var s = current(st);
-    var res = R().tick(st.r.id, s.id, true, { day: st.day });
-    if (res && res.award) st.award = res.award;
+    var res = R().tick(s.rid, s.id, true, { day: st.day });
+    /* a step that keeps an inner routine can pay it and the outer one too */
+    if (res && res.award) st.award = st.award ? { xp: (st.award.xp || 0) + (res.award.xp || 0), gold: (st.award.gold || 0) + (res.award.gold || 0), hp: (st.award.hp || 0) + (res.award.hp || 0) } : res.award;
     return res;
   }
   function next(st, tick) {
     var s = current(st);
     if (tick) tickHere(st); else st.skipped[s.id] = true;
-    var e = R().entry(st.r.id, st.day), ticked = (e && e.steps) || {};
-    var j = st.steps.findIndex(function (x, k) { return k > st.i && !ticked[x.id] && !st.skipped[x.id]; });
-    if (j === -1) j = st.steps.findIndex(function (x) { return !ticked[x.id] && !st.skipped[x.id]; });
+    var j = st.steps.findIndex(function (x, k) { return k > st.i && !isOn(x, st.day) && !st.skipped[x.id]; });
+    if (j === -1) j = st.steps.findIndex(function (x) { return !isOn(x, st.day) && !st.skipped[x.id]; });
     if (j === -1) { st.done = true; KOS.a11y && KOS.a11y.announce(st.r.name + (R().verdict(st.r, R().entry(st.r.id, st.day)).done ? " kept." : " finished.") + (st.award ? " " + U().rewardText(st.award) : "")); }
     else {
       st.i = j;
@@ -182,7 +212,7 @@
       el("h2", { class: "k-rpl-name", text: kept ? st.r.name + " kept" : st.r.name }),
       el("p", { class: "k-rt-text2", text: v.n + " of " + v.of + (mins ? " · " + mins + " min" : "") + (kept ? "" : " · partial") }),
       award ? U().reward(award) : null,
-      kept && st.r.days !== null && R().streak(st.r.id) ? el("span", { class: "k-muted k-rt-small", text: "炎 " + R().streak(st.r.id) + " days" }) : null,
+      kept && st.r.days !== null && R().streak(st.r.id) ? el("span", { class: "k-muted k-rt-small", text: "炎 " + R().streak(st.r.id) + (R().streak(st.r.id) === 1 ? " day" : " days") }) : null,
       el("button", { type: "button", class: "k-btn k-btn--primary", "data-ui": "player.close-done", text: "Close", onclick: st.finish })
     ]));
   }

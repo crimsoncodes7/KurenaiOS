@@ -308,6 +308,15 @@ Generated from your marks (`decisions` on the review page, read 19 Nov) and `doc
     Oct 2020 · P2 Q4" in 4.1, …): recorded in smoke116's baseline, not removed, since removing an item moves the
     keys after it. A later content pass merges each pair.
 
+**1C's progress** (branch `feat/qol-1a`; no design checks needed, as you said on 20 November — a piece that needs a
+Claude Design handoff or Gemini art asks for it):
+
+- ✓ `routines-in-routines`: a step can run another routine ("↻ Run a routine…" in the editor). The inner routine keeps
+  its own log, streak and pay; the outer step mirrors it both ways (ticked while the inner day is kept), ticking the
+  run step ticks the inner routine, the player plays the inner steps in place under its name, and one Undo takes back
+  the chain. Loops, itself and missing routines are refused (invariant 142; smoke196 M). Boot: Settings › Storage
+  moved to first use (`page-storage`), budget 7.78 → 7.77 MB.
+
 ## 1A · Bugs and data integrity (21)
 
 - `bk:study-core#5` Give Due today sessions per-subject segments so every subject/topic read counts review time. (open, S) — *your note: Due Today is not even currently personalised at all, say the task is Do Quadratics from pacing, even if I do CS Focus session that ber is being fille up.*

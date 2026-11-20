@@ -118,24 +118,30 @@
     opts = opts || {};
     var day = opts.day || R().routineDay();
     var e = R().entry(r.id, day);
-    var steps = (e && e.snap ? e.snap.map(function (x) { return { id: x[0], text: x[1], optional: !!x[2], minimum: !!x[3], checkMorning: !!x[4] }; }) : r.steps)
+    var steps = R().stepsFor(r, e)
       .map(function (s) { var full = r.steps.filter(function (x) { return x.id === s.id; })[0]; return Object.assign({}, full || {}, s); })
       .filter(function (s) { return !s.checkMorning; });
     var ticked = (e && e.steps) || {};
     var req = steps.filter(function (s) { return !s.optional; });
     var n = req.filter(function (s) { return ticked[s.id]; }).length;
-    var total = steps.reduce(function (m, s) { return m + (s.mins || 0); }, 0);
+    /* a step that runs another routine (1C): named and timed by that routine,
+       with how far it has got today; ticking it ticks that routine */
+    function innerOf(s) { var t = s.run ? R().get(s.run) : null; return t && !t.archived ? t : null; }
+    function minsOf(s) { var t = innerOf(s); return t ? t.steps.reduce(function (m, x) { return m + (x.optional ? 0 : x.mins || 0); }, 0) : s.mins || 0; }
+    var total = steps.reduce(function (m, s) { return m + minsOf(s); }, 0);
     var w = R().windowOn(r, day);
     var rows = el("div", { class: "k-rt-steps", "data-ui": "routine.steps" });
     steps.forEach(function (s) {
-      var on = !!ticked[s.id];
-      var row = el("div", { class: "k-rt-step", "data-ui": "routine.step" }, [
-        check(on, (on ? "Untick " : "Tick ") + s.text, function () { tickStep(r, s.id, !on, { day: day }, opts.after); }),
-        el("span", { class: "k-rt-step-t k-ellipsis", text: s.text }),
+      var on = !!ticked[s.id], inner = innerOf(s), name = inner ? inner.name : s.text;
+      var iv = inner ? R().verdict(inner, R().entry(inner.id, day)) : null;
+      var row = el("div", { class: "k-rt-step", "data-ui": "routine.step" + (inner ? " routine.run-step" : "") }, [
+        check(on, (on ? "Untick " : "Tick ") + name + (inner ? ", all its steps" : ""), function () { tickStep(r, s.id, !on, { day: day }, opts.after); }),
+        el("span", { class: "k-rt-step-t k-ellipsis", text: name }),
+        inner ? el("span", { class: "k-rt-small k-rt-text2", "data-ui": "routine.run-progress", text: "↻ " + iv.n + " of " + iv.of }) : null,
         s.optional ? muted("optional") : null,
         s.minimum ? el("span", { class: "k-rt-min", text: "◐ minimum" }) : null,
         s.link ? el("button", { type: "button", class: "k-link k-rt-small", "data-ui": "routine.step-link", text: "↗ " + linkLabel(s.link), onclick: function () { openLink(s.link, r, s); } }) : null,
-        s.mins ? el("span", { class: "k-mono k-rt-step-m", text: s.mins + " min" }) : null
+        minsOf(s) ? el("span", { class: "k-mono k-rt-step-m", text: minsOf(s) + " min" }) : null
       ]);
       if (on) KOS.ui.state(row, "done", true);
       rows.appendChild(row);
@@ -672,7 +678,8 @@
   }
   function routineCard(r) {
     var pct = r.days === null ? null : share(r), streak = R().streak(r.id), best = R().best(r.id);
-    var total = r.steps.reduce(function (m, s) { return m + (s.mins || 0); }, 0);
+    /* a step that runs another routine counts that routine's minutes (1C) */
+    var total = r.steps.reduce(function (m, s) { var t = s.run ? R().get(s.run) : null; return m + (t && !t.archived ? t.steps.reduce(function (n, x) { return n + (x.optional ? 0 : x.mins || 0); }, 0) : s.mins || 0); }, 0);
     var uses = r.days === null ? Object.keys((store.state.routines && store.state.routines.log) || {}).filter(function (k) { return k.indexOf(r.id + "|") === 0 && k.split("|")[1] >= KOS.srs.addDays(R().routineDay(), -30); }).length : 0;
     return el("article", { class: "k-card k-rt-card k-rt-rcard", "data-ui": "routine.card" }, [
       el("div", { class: "k-rt-cover" }, [el("img", { src: coverOf(r), alt: "", loading: "lazy" }), tile(markOf(r), toneOf(r))]),
@@ -972,8 +979,10 @@
     var markIn = el("input", { type: "text", class: "k-input k-rt-markin", value: d.mark || "", maxlength: 2, "aria-label": "Mark (one character)", placeholder: "習" });
     var stepsBox = el("div", { class: "k-rt-esteps", "data-ui": "routine.editor-steps" });
     var totalBox = el("div", { class: "k-rt-total" });
+    /* a step that runs another routine (1C): its minutes are that routine's own */
+    function stepMins(s) { var t = s.run ? R().get(s.run) : null; return t ? t.steps.reduce(function (m, x) { return m + (x.optional ? 0 : +x.mins || 0); }, 0) : +s.mins || 0; }
     function paintTotal() {
-      var t = d.steps.reduce(function (m, s) { return m + (+s.mins || 0); }, 0);
+      var t = d.steps.reduce(function (m, s) { return m + stepMins(s); }, 0);
       totalBox.innerHTML = "";
       var w = d.window ? mins(d.window.to) - mins(d.window.from) : 0;
       totalBox.appendChild(el("div", { class: "k-rt-hd" }, [el("b", { text: t + " min" }), muted(w ? "of a " + w + " min window" : "in all"), el("span", { class: "k-rt-fill" }),
@@ -985,6 +994,7 @@
     function paintSteps(focusId) {
       stepsBox.innerHTML = "";
       d.steps.forEach(function (s, i) {
+        if (s.run && R().get(s.run)) { stepsBox.appendChild(runRow(s, i)); return; }
         var t = el("input", { type: "text", class: "k-rt-step-in", value: s.text, placeholder: "Step " + (i + 1), "aria-label": "Step " + (i + 1) });
         t.addEventListener("input", function () { s.text = t.value; });
         var m = el("input", { type: "number", min: 0, max: 240, class: "k-input k-mono k-rt-step-mins", value: s.mins || 0, "aria-label": "Minutes for " + (s.text || "step " + (i + 1)) });
@@ -1009,6 +1019,53 @@
         if (focusId === s.id) setTimeout(function () { t.focus(); }, 0);
       });
     }
+    /* a step that runs another routine: its name and minutes come from that
+       routine; it can be the minimum, optional, moved or deleted */
+    function runRow(s, i) {
+      var inner = R().get(s.run), n = inner.steps.length;
+      s.text = inner.name;
+      var opt = el("input", { type: "checkbox", role: "switch", class: "k-switch", "aria-label": "Optional" }); opt.checked = !!s.optional;
+      opt.addEventListener("change", function () { s.optional = opt.checked; if (s.optional) s.minimum = false; paintSteps(); });
+      var more = KOS.ui.menu({ label: "⋯", className: "k-btn--quiet k-btn--sm", hint: "More for this step", items: [
+        { label: s.minimum ? "◐ Not the minimum" : "◐ Make this the minimum", onSelect: function () { d.steps.forEach(function (x) { x.minimum = false; }); s.minimum = !s.minimum && !s.optional ? true : false; paintSteps(); paintTotal(); } },
+        { label: "Edit " + inner.name, onSelect: function () { KOS.show("routines", { edit: inner.id }); } },
+        { label: "Delete this step", onSelect: function () { d.steps.splice(i, 1); if (!d.steps.length) d.steps.push({ id: "n" + Date.now(), text: "", mins: 0 }); paintSteps(); paintTotal(); } }
+      ] });
+      return el("div", { class: "k-rt-estep", "data-rid": s.id, "data-ui": "routine.editor-step routine.run-step" }, [
+        el("button", { type: "button", class: "k-grip", "data-reorder": "", "data-ui": "routine.grip", "aria-label": "Move " + inner.name, title: "Drag to move · Space lifts it", text: "⠿" }),
+        el("div", { class: "k-rt-estep-t" }, [el("b", { class: "k-rt-run-name", text: (inner.mark ? inner.mark + " " : "") + inner.name }),
+          el("div", { class: "k-cluster k-rt-estep-tags" }, [el("span", { class: "k-rt-small k-rt-text2", text: "↻ runs this routine · " + n + (n === 1 ? " step" : " steps") }),
+            s.minimum ? el("span", { class: "k-rt-min", text: "◐ minimum" }) : null].filter(Boolean))]),
+        el("span", { class: "k-mono k-rt-step-m", "aria-label": stepMins(s) + " minutes", text: stepMins(s) + "′" }),
+        el("label", { class: "k-cluster k-rt-small k-rt-text2" }, [opt, "Optional"]), more
+      ]);
+    }
+    /* the routines this one may run: not itself, not archived, not one that
+       already runs it (a loop), and not one it runs already */
+    function runChoices() {
+      var selfId = cur ? cur.id : null;
+      return R().all().filter(function (x) {
+        if (x.id === selfId) return false;
+        if (selfId && R().runsOf(x.id)[selfId]) return false;
+        return !d.steps.some(function (s) { return s.run === x.id; });
+      });
+    }
+    var runBtnBox = el("span", { class: "k-rt-run-add", "data-ui": "routine.add-run" });
+    function paintRunBtn() {
+      runBtnBox.innerHTML = "";
+      var list = runChoices();
+      if (!list.length) return;
+      runBtnBox.appendChild(KOS.ui.menu({ label: "↻ Run a routine…", className: "k-btn--quiet k-btn--sm", hint: "Add a step that runs one of your routines",
+        items: list.map(function (x) {
+          return { label: (x.mark ? x.mark + " " : "") + x.name + " · " + x.steps.length + (x.steps.length === 1 ? " step" : " steps"), onSelect: function () {
+            if (d.steps.length === 1 && !d.steps[0].text) d.steps = [];
+            d.steps.push({ id: "n" + Date.now().toString(36), text: x.name, mins: 0, run: x.id });
+            paintSteps(); paintTotal(); paintRunBtn();
+            KOS.a11y && KOS.a11y.announce(x.name + " added as a step");
+          } };
+        }) }));
+    }
+    paintRunBtn();
     KOS.ui.reorder(stepsBox, { rows: "[data-rid]", label: function (row) { var s = d.steps.filter(function (x) { return x.id === row.getAttribute("data-rid"); })[0]; return s ? s.text || "step" : "step"; },
       onDrop: function (row, list, index) {
         var id2 = row.getAttribute("data-rid");
@@ -1067,11 +1124,14 @@
       d.name = nameIn.value.trim() || (d.steps[0] && d.steps[0].text) || "Routine";
       d.mark = markIn.value.trim();
       d.steps = d.steps.filter(function (s) { return String(s.text || "").trim(); });
+      /* a step whose routine was deleted or archived since is an ordinary step now */
+      d.steps.forEach(function (s) { var t = s.run ? R().get(s.run) : null; if (s.run && (!t || t.archived)) delete s.run; });
       if (!d.steps.length) { KOS.ui.toast("A routine needs at least one step.", true); return; }
       /* PR-23: all optional could never be kept */
-      if (R().check(d.steps)) { KOS.ui.toast(R().check(d.steps), true); return; }
+      var why = R().check(d.steps, cur ? cur.id : null);
+      if (why) { KOS.ui.toast(why + ".", true); return; }
       var patch = { name: d.name, mark: d.mark, steps: d.steps, days: d.days, window: d.window, weekend: d.weekend, anchor: d.anchor, remind: d.remind };
-      if (d.steps.length === 1 && d.kind === "custom" && isNew) patch.kind = "habit";
+      if (d.steps.length === 1 && d.kind === "custom" && isNew && !d.steps[0].run) patch.kind = "habit";
       var r = isNew ? R().add(Object.assign({ kind: d.kind }, patch)) : R().update(cur.id, patch);
       KOS.ui.toast("Saved. Applies from the next day you start it.");
       KOS.show("routines", r.kind === "habit" ? "routines" : "routines");
@@ -1080,7 +1140,7 @@
       el("div", { class: "k-rt-ehead" }, [markIn, nameIn]),
       el("div", { class: "k-rt-hd" }, [el("h3", { class: "k-rt-hd-t", text: "Steps" }), muted("drag ⠿ or Space then ↑↓ to reorder")]),
       stepsBox,
-      el("div", { class: "k-rt-add" }, [el("span", { "aria-hidden": "true", text: "＋" }), addIn, muted("estimate after a comma: “Pack lunch, 4”")])
+      el("div", { class: "k-rt-add" }, [el("span", { "aria-hidden": "true", text: "＋" }), addIn, muted("estimate after a comma: “Pack lunch, 4”"), runBtnBox])
     ], "k-rt-ecard"));
     wrap.appendChild(el("div", { class: "k-rt-col" }, [
       card([head("Schedule"),

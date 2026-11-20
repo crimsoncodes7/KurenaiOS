@@ -372,6 +372,57 @@ step("L · Steam's sign-in tab lands back in the app: the result said once, the 
   W.history.replaceState(null, "", "/index.html#/home");
 });
 
+step("M · routines inside routines: a step runs another routine, mirrored both ways, each paid once (1C)", async () => {
+  const R = K.routines;
+  if (!R.enabled()) R.enable(true);
+  const skin = R.add({ name: "Skincare QA", kind: "custom", days: [], steps: [{ text: "Cleanse", mins: 2 }, { text: "Moisturise", mins: 1 }, { text: "Serum", optional: true }] });
+  const morn = R.add({ name: "Morning QA", kind: "morning", days: [], steps: [{ text: "Water" }, { text: "Skincare QA", run: skin.id }, { text: "Stretch" }] });
+  /* the checks: never itself, never a loop, never a missing routine */
+  eq([R.check([{ text: "x", run: morn.id }], morn.id), R.check([{ text: "y", run: morn.id }], skin.id), R.check([{ text: "z", run: "r_gone" }], skin.id)],
+    [R.RUN_SELF, R.RUN_LOOP, R.RUN_GONE], "itself, a loop and a missing routine are refused");
+  assert(R.update(skin.id, { steps: [{ text: "Back", run: morn.id }] }) === null, "update refuses a loop");
+  const day = R.routineDay(), run = morn.steps[1];
+  const on = (id, sid) => !!((R.entry(id, day) || {}).steps || {})[sid];
+  /* ticked inside: the outer step follows only once the inner routine is kept */
+  R.tick(skin.id, skin.steps[0].id, true);
+  eq(on(morn.id, run.id), false, "one inner step leaves the outer step open");
+  const res = R.tick(skin.id, skin.steps[1].id, true);
+  eq([R.stateOn(R.get(skin.id), day), on(morn.id, run.id)], ["done", true], "the inner routine kept ticks the outer step");
+  R.undoTick(res.undo);
+  eq([R.stateOn(R.get(skin.id), day), on(morn.id, run.id)], ["partial", false], "Undo takes back the inner tick and the mirrored one");
+  /* the run step itself ticks the inner routine's required steps */
+  R.tick(morn.id, run.id, true);
+  eq([R.stateOn(R.get(skin.id), day), on(morn.id, run.id), on(skin.id, skin.steps[2].id)], ["done", true, false], "ticking the run step keeps the inner routine, optional steps left");
+  R.tick(morn.id, morn.steps[0].id, true); R.tick(morn.id, morn.steps[2].id, true);
+  const paid = K.store.state.sessions.filter((e) => e.metrics && e.metrics.routine && !e.metrics.undone && [skin.id, morn.id].includes(e.metrics.routine));
+  eq(paid.map((e) => e.metrics.routine).sort(), [morn.id, skin.id].sort(), "each routine is paid its own completion, once");
+  eq(R.entry(morn.id, day).snap[1][6], skin.id, "the day's snapshot keeps the run");
+  /* unticking the run step unticks what the inner routine had ticked */
+  R.tick(morn.id, run.id, false);
+  eq([R.stateOn(R.get(skin.id), day), on(morn.id, run.id)], ["open", false], "unticking the run step clears the inner routine");
+  /* the checklist names it, with the inner progress; the player plays the inner steps in place */
+  const list = K.rtUI.checklist(R.get(morn.id));
+  const row = list.querySelector('[data-ui~="routine.run-step"]');
+  assert(row && /Skincare QA/.test(row.textContent) && /0 of 2/.test(row.textContent), "the checklist row: " + (row && row.textContent));
+  K.routinePlayer.open(morn.id); await app.settle();
+  const side = Array.from(D.querySelectorAll(".k-rpl-side [data-ui~='player.group']")).map((x) => x.textContent);
+  eq(side, ["↻ Skincare QA"], "the player shows the inner routine's steps under its name");
+  for (let k = 0; k < 6 && q("[data-ui~='player.done']"); k++) { q("[data-ui~='player.done']").click(); await app.settle(); }
+  eq([R.stateOn(R.get(skin.id), day), R.stateOn(R.get(morn.id), day)], ["done", "done"], "playing it through keeps both");
+  const close = q("[data-ui~='player.close-done']"); if (close) close.click();
+  await app.settle();
+  /* the editor offers the routines it may run, and a deleted one becomes an ordinary step */
+  K.show("routines", { edit: skin.id }); await app.settle();
+  assert(!q('[data-ui~="routine.add-run"] [data-ui~="ui.menu-button"]'), "Skincare can't run Morning (Morning runs it): no routine to offer");
+  K.show("routines", { edit: "new" }); await app.settle();
+  assert(q('[data-ui~="routine.add-run"] [data-ui~="ui.menu-button"]'), "a new routine is offered the routines it may run");
+  R.remove(skin.id);
+  eq(R.check(R.get(morn.id).steps, morn.id), R.RUN_GONE, "a run whose routine was deleted is caught by check");
+  K.show("routines", { edit: morn.id }); await app.settle();
+  eq(D.querySelectorAll('[data-ui~="routine.run-step"]').length, 0, "the editor draws it as an ordinary step");
+  R.remove(morn.id);
+});
+
 (async () => {
   let failed = 0;
   for (const [name, fn] of steps) {

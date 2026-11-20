@@ -97,7 +97,10 @@ function eq(a, b, m) { if (JSON.stringify(a) !== JSON.stringify(b)) throw new Er
    Practice Log filters and 1A's report took boot 448 bytes over 7.80;
    Backup & Restore (dataview.js, page-data, 29 KB) moved to first use, so
    boot reads about 7.773 MB. */
-const BOOT_BUDGET = 7.78 * 1024 * 1024;
+/* 20 Nov 2026 (1C, routines inside routines, and the Steam return): 7.78 →
+   7.77 MB. Those took boot 9.9 KB over 7.78; Settings › Storage
+   (storage.js, page-storage, 21 KB) moved to first use. */
+const BOOT_BUDGET = 7.77 * 1024 * 1024;
 
 /* jsdom has no User Timing: a small recorder, set before the app's scripts */
 function timing(win) {
@@ -389,7 +392,9 @@ step("J · every page that names what it needs opens from cold without an early 
     ["japanese", undefined, ["page-ja"]], ["help", undefined, ["page-help"]], ["shrine", undefined, ["page-shrine"]],
     ["reports", undefined, ["page-reports"]], ["mediasync", undefined, ["page-sync"]],
     /* 1A, 20 Nov 2026: Creatives' pages and Backup & Restore */
-    ["creatives", { page: "drills" }, ["page-creatives"]], ["subject", "creatives", ["page-creatives"]], ["data", undefined, ["page-data"]]
+    ["creatives", { page: "drills" }, ["page-creatives"]], ["subject", "creatives", ["page-creatives"]], ["data", undefined, ["page-data"]],
+    /* 1C, 20 Nov 2026: Settings › Storage */
+    ["storage", undefined, ["page-storage"]]
   ];
   for (const [view, arg, want] of jobs) {
     const app = await lazyBoot(fxB);
@@ -397,6 +402,8 @@ step("J · every page that names what it needs opens from cold without an early 
     app.KOS.show(view, arg);
     assert(waiting(app), name + " waits");
     await app.settle(); await app.settle();
+    /* Storage measures every database after it draws: let that finish before the window closes */
+    if (view === "storage") for (let k = 0; k < 8; k++) await app.settle();
     assert(!waiting(app), name + " drew");
     assert(mainText(app).length > 100, name + " has a page: " + mainText(app).length);
     want.forEach((b) => assert(app.KOS.lazy.ready(b), name + " has " + b));

@@ -23,7 +23,7 @@ chronological diary here.
   before it, with what it shipped, its immutable URL and its branch, is in
   [`docs/RELEASES.md`](docs/RELEASES.md), newest first; a new release adds
   its entry there and changes only this line and the next here.
-- Service-worker version: `kos-qol-1` (`kos-qol-2` is built on `feat/qol-1a`, held for the next batch)
+- Service-worker version: `kos-qol-1`
 - Required smoke gate: 179 / 179 suites (`""`, 2–156, 160–164 and 180–197) — `npm test`;
   what each suite holds: [`docs/SMOKE.md`](docs/SMOKE.md). New suites on this
   account are numbered from 180 (see `docs/HANDOFF.md`).
@@ -484,7 +484,7 @@ domain file AND its line here, in the same commit.
 - **97** The header bell shows the five newest items, the full feed is the `notifications` view, and read state syncs with the state document.
 - **98** Device alerts need the per-device `state.ui.notifyDevice` opt-in and granted permission, and fire only for fresh items while the page is hidden.
 *Routines and the Daily Review*
-- **142** `state.routines` is the one routine record, with habits as one-step routines in the fixed Daily habits routine and past days frozen in `snap`.
+- **142** `state.routines` is the one routine record, with habits as one-step routines in the fixed Daily habits routine, past days frozen in `snap`, and a step that runs another routine mirroring it.
 - **143** A routine completion pays once per routine day via `KOS.governor.routineAward`; steps and rest days pay nothing, minimum days top up once.
 - **144** A Daily Review stores only its own state and changes everything else through the record's owner, with Undo, no Governor traffic and no streak.
 - **145** `KOS.dayReview.due(now)` is pure and offers at most one review; it never opens by itself over Focus, a dialog or a deep link.

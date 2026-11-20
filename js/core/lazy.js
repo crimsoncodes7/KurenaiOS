@@ -367,7 +367,9 @@
        its topic page; the space's router and nav stay at boot */
     creatives: ["page-creatives"],
     /* Backup & Restore (and Reset everything, which only it opens) */
-    data: ["page-data"]
+    data: ["page-data"],
+    /* Settings › Storage (1C, 20 Nov 2026: routines inside routines took boot over) */
+    storage: ["page-storage"]
   };
   var SPACE_DESK = { code: "page-code", mind: "page-mind", ja: "page-ja", creatives: "page-creatives" };
   var SPACE_TOPIC = { mind: "page-mind", creatives: "page-creatives" };

@@ -66,7 +66,14 @@ Read this file before editing or testing anything in its domain.
     own editor (`#/routines/edit/habits`: a row per habit, each opening
     its repeats, time and reminder, and auto-tracking in place; it can't
     be renamed or removed). Today only ticks; History only READS (its week
-    grid has no tick and no add).
+    grid has no tick and no add). A step may RUN another routine (`run`,
+    1C): the inner routine keeps its own log, streak and pay, and the
+    outer step MIRRORS it, written through by `KOS.routines.tick` (ticked
+    while the inner day is kept, unticked when it no longer is; ticking
+    the run step ticks the inner routine's required steps; one Undo takes
+    back the chain). `check` refuses a run of itself, of a missing or
+    archived routine, or round a loop; a run whose routine has gone is an
+    ordinary step.
 143. ROUTINES PAY ONCE. A day records how it was paid (`log.paidAs`: min,
     done or capped); a minimum day later kept in full is topped up ONCE by the
     difference (a `todo` entry with `metrics.topUp`, outside the daily cap,
@@ -78,7 +85,8 @@ Read this file before editing or testing anything in its domain.
     start) still counts, pays and streaks, but records `log.late` (the
     moment) and says "kept late" in the player and History (audit PR-35). A routine's completion (every required step, or
     its minimum) pays `KOS.governor.routineAward` once per routine day,
-    logged as a `todo` session carrying `metrics.routine`; steps, rest
+    logged as a `todo` session carrying `metrics.routine` (a routine run
+    inside another is its own completion, so both pay, under one cap); steps, rest
     days, on-demand routines (About to Study) and unticking pay nothing; at
     most 8 rewarded completions a calendar day. A completion is activity
     for the day, never study. An AUTO-TRACKED habit (`auto` {src, subject,

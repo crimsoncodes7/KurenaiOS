@@ -54,6 +54,20 @@
    logs and on the review ticker; it only ever ticks (a tick by hand still
    works, and pays once like any tick).
 
+   ROUTINES INSIDE ROUTINES (1C, asked for by the user). A step may RUN
+   another routine (`run`: its id), as a Morning routine runs your Skincare
+   routine. The inner routine keeps its own log, streak and pay; the step
+   in the outer one MIRRORS it, written through: the outer step is ticked
+   when the inner routine's day is kept (in full or at its minimum) and
+   unticked when it no longer is, however the inner one was ticked (in the
+   outer player, on its own card, by auto-tracking). Ticking the run step
+   itself ticks the inner routine's required steps; unticking it unticks
+   what the inner routine had ticked that day. Each routine pays its own
+   completion once (invariant 143), so keeping Morning with Skincare inside
+   is two completions under the one daily cap. A run never points at the
+   routine itself, a missing or archived one, or round in a loop (check).
+   A step whose routine has gone is an ordinary step.
+
    Reads (all, get, entry, stateOn, streak, history, habitsView, due …)
    write nothing.                                                          */
 (function () {
@@ -155,6 +169,7 @@
     var note = str(s.note, 400); if (note) out.note = note;
     var link = normaliseLink(s.link); if (link) out.link = link;
     if (HM.test(s.at)) out.at = s.at;
+    if (typeof s.run === "string" && s.run) out.run = s.run.slice(0, 40);
     return out;
   }
   /* a habit's times of day: 2–6 distinct HH:MM, in order; else null */
@@ -234,12 +249,44 @@
   /* PR-23: a routine whose steps are all optional could never be kept, so
      add and update refuse it (null) and say why through check() */
   var NEED_REQUIRED = "At least one step must be required";
-  function check(steps) {
-    var list = Array.isArray(steps) ? steps.map(normaliseStep) : [];
-    return list.length && !required(list).length ? NEED_REQUIRED : null;
+  var RUN_SELF = "A routine can't run itself";
+  var RUN_GONE = "That routine no longer exists";
+  var RUN_LOOP = "That would run in a loop: the routine already runs this one";
+  /* the routines a routine runs, at any depth (its own run steps, theirs …) */
+  function runsOf(id, seen) {
+    seen = seen || {};
+    var r = get(id);
+    (r ? r.steps : []).forEach(function (st) {
+      if (st.run && !seen[st.run]) { seen[st.run] = true; runsOf(st.run, seen); }
+    });
+    return seen;
   }
+  /* check(steps, selfId): why these steps can't be saved, or null */
+  function check(steps, selfId) {
+    var list = Array.isArray(steps) ? steps.map(normaliseStep) : [];
+    if (list.length && !required(list).length) return NEED_REQUIRED;
+    for (var i = 0; i < list.length; i++) {
+      var run = list[i].run;
+      if (!run) continue;
+      if (selfId && run === selfId) return RUN_SELF;
+      var t = get(run);
+      if (!t || t.archived) return RUN_GONE;
+      if (selfId && runsOf(run)[selfId]) return RUN_LOOP;
+    }
+    return null;
+  }
+  /* the routines that run this one, and their steps that do it */
+  function parentsOf(id) {
+    var out = [];
+    all().forEach(function (p) {
+      p.steps.forEach(function (st) { if (st.run === id) out.push({ r: p, step: st.id }); });
+    });
+    return out;
+  }
+  /* what a run step reads as: the inner routine's own name while it exists */
+  function runName(step) { var t = step && step.run ? get(step.run) : null; return t ? t.name : step ? step.text : ""; }
   function add(spec) {
-    if (spec && spec.steps !== undefined && check(spec.steps)) return null;
+    if (spec && spec.steps !== undefined && check(spec.steps, spec.id)) return null;
     var s = R(), rec = normalise(spec || {});
     while (get(rec.id)) rec.id = rid("r");
     rec.order = s.items.length;
@@ -250,7 +297,7 @@
   function update(id, patch) {
     var s = R(), cur = get(id);
     if (!cur) return null;
-    if (patch && patch.steps !== undefined && check(patch.steps)) return null;
+    if (patch && patch.steps !== undefined && check(patch.steps, id)) return null;
     var next = normalise(Object.assign({}, patch || {}, { id: id, createdAt: cur.createdAt }), cur);
     s.items[s.items.indexOf(cur)] = next;
     store.save();
@@ -323,11 +370,16 @@
     return s && s.log ? s.log[key(id, day)] || null : null;
   }
   function snapOf(r) {
-    return r.steps.map(function (s) { var x = [s.id, s.text, s.optional ? 1 : 0, s.minimum ? 1 : 0, s.checkMorning ? 1 : 0]; if (s.at) x.push(s.at); return x; });
+    return r.steps.map(function (s) {
+      var x = [s.id, s.text, s.optional ? 1 : 0, s.minimum ? 1 : 0, s.checkMorning ? 1 : 0];
+      if (s.at || s.run) x.push(s.at || 0);
+      if (s.run) x.push(s.run);
+      return x;
+    });
   }
   /* the steps a day is judged against: its snapshot, else the routine now */
   function stepsFor(r, e) {
-    if (e && Array.isArray(e.snap)) return e.snap.map(function (x) { var o = { id: x[0], text: x[1], optional: !!x[2], minimum: !!x[3], checkMorning: !!x[4] }; if (x[5]) o.at = x[5]; return o; });
+    if (e && Array.isArray(e.snap)) return e.snap.map(function (x) { var o = { id: x[0], text: x[1], optional: !!x[2], minimum: !!x[3], checkMorning: !!x[4] }; if (x[5]) o.at = x[5]; if (x[6]) o.run = x[6]; return o; });
     return r ? r.steps : [];
   }
   function required(steps) { return steps.filter(function (s) { return !s.optional; }); }
@@ -378,13 +430,78 @@
     return e;
   }
 
-  /* tick(id, stepId, on, {day, now, silent}) → {ok, why, state, award} */
+  function addAward(a, b) {
+    if (!a) return b || null;
+    if (!b) return a;
+    return { xp: (a.xp || 0) + (b.xp || 0), gold: (a.gold || 0) + (b.gold || 0), hp: (a.hp || 0) + (b.hp || 0) };
+  }
+  /* tick(id, stepId, on, {day, now, silent}) → {ok, why, state, award, undo}.
+     A step that runs another routine ticks THAT routine's steps instead;
+     any tick is then mirrored onto the routines that run this one */
   function tick(id, stepId, on, opts) {
     opts = opts || {};
     var r = get(id), now = opts.now || Date.now();
     if (!r) return { ok: false, why: "No routine with that id." };
     var day = opts.day || routineDay(now);
-    if (!canTick(r, day, now)) return { ok: false, why: day < routineDay(now) ? "That day has closed." : "That day hasn't started." };
+    var st = stepsFor(r, entry(id, day)).filter(function (x) { return x.id === stepId; })[0];
+    var inner = st && st.run && !opts.mirror ? get(st.run) : null;
+    if (inner && !inner.archived && st.run !== id) return tickRun(r, st, inner, on, day, now, opts);
+    var res = tickOne(r, stepId, on, day, now, opts);
+    if (res.ok) mirrorUp(r, day, now, res, opts.seen);
+    return res;
+  }
+  /* the run step itself: tick the inner routine's required steps (or untick
+     what it had ticked that day); the mirror brings the outer step along */
+  function tickRun(r, st, inner, on, day, now, opts) {
+    if (!canTick(r, day, now) && !opts.via) return { ok: false, why: day < routineDay(now) ? "That day has closed." : "That day hasn't started." };
+    /* the outer routine is NOT marked seen here: the inner ticks must
+       mirror back onto it (check() already refuses a loop) */
+    var seen = Object.assign({}, opts.seen || {});
+    var ie = entry(inner.id, day), on0 = (ie && ie.steps) || {};
+    var todo = stepsFor(inner, ie).filter(function (x) {
+      return on === false ? !!on0[x.id] : !x.optional && !x.checkMorning && !on0[x.id];
+    });
+    var chain = [], award = null;
+    todo.forEach(function (x) {
+      var res = tick(inner.id, x.id, on !== false, { day: day, now: now, via: true, seen: seen });
+      if (res.ok) { chain.push(res.undo); award = addAward(award, res.award); }
+    });
+    /* nothing to change inside (already kept, or already clear): bring the
+       outer step into line with the inner routine directly */
+    if (!chain.length) {
+      var iv = verdict(inner, entry(inner.id, day)), want = !!(iv.done || iv.min);
+      var e = entry(r.id, day), has = !!(e && e.steps && e.steps[st.id]);
+      if (has !== want) {
+        var own = tickOne(r, st.id, want, day, now, { via: true });
+        if (own.ok) { chain.push(own.undo); award = addAward(award, own.award); mirrorUp(r, day, now, own, seen); if (own.undo.chain) { chain = chain.concat(own.undo.chain); delete own.undo.chain; } }
+      }
+    }
+    var v = verdict(r, entry(r.id, day));
+    store.save();
+    return { ok: true, state: v.done ? "done" : v.min ? "min" : "partial", award: award, undo: { chain: chain } };
+  }
+  /* written through: every routine that runs `r` has its run step ticked
+     while r's day is kept, and unticked when it no longer is */
+  function mirrorUp(r, day, now, res, seen) {
+    seen = Object.assign({}, seen || {}); seen[r.id] = true;
+    var v = verdict(r, entry(r.id, day)), kept = !!(v.done || v.min);
+    parentsOf(r.id).forEach(function (p) {
+      if (seen[p.r.id]) return;
+      var pe = entry(p.r.id, day);
+      if (!stepsFor(p.r, pe).some(function (x) { return x.id === p.step && x.run === r.id; })) return;
+      var has = !!(pe && pe.steps && pe.steps[p.step]);
+      if (has === kept) return;
+      var pr = tick(p.r.id, p.step, kept, { day: day, now: now, mirror: true, via: true, seen: seen });
+      if (pr.ok) {
+        res.undo.chain = (res.undo.chain || []).concat([pr.undo]);
+        res.award = addAward(res.award, pr.award);
+      }
+    });
+  }
+  function tickOne(r, stepId, on, day, now, opts) {
+    var id = r.id;
+    opts = opts || {};
+    if (!canTick(r, day, now) && !opts.via) return { ok: false, why: day < routineDay(now) ? "That day has closed." : "That day hasn't started." };
     var e0 = entry(id, day);
     var steps = stepsFor(r, e0);
     if (!steps.some(function (s) { return s.id === stepId; })) return { ok: false, why: "No such step on that day." };
@@ -423,8 +540,12 @@
      ticked since, an edit or a merged tick are left alone (RC21). Once
      only: a second call does nothing. */
   function undoTick(u) {
-    if (!u || !u.id || !u.day || u.used) return false;
+    if (!u || u.used) return false;
     u.used = true;
+    /* a tick that ran another routine, or was mirrored onto the routines
+       that run this one: those go back first, newest first */
+    if (Array.isArray(u.chain)) u.chain.slice().reverse().forEach(undoTick);
+    if (!u.id || !u.day) return !!u.chain;
     var s = R(), k = key(u.id, u.day), e = s.log[k], w = u.was || {}, r = get(u.id);
     if (e && u.step) {
       if (!e.steps || typeof e.steps !== "object") e.steps = {};
@@ -973,6 +1094,7 @@
     autoMeasure: autoMeasure, autoText: autoText, autoSync: autoSync, onSession: onSession,
     normalise: normalise, all: all, get: get, add: add, update: update, remove: remove, archive: archive,
     check: check, undoTick: undoTick, NEED_REQUIRED: NEED_REQUIRED,
+    RUN_SELF: RUN_SELF, RUN_GONE: RUN_GONE, RUN_LOOP: RUN_LOOP, runsOf: runsOf, parentsOf: parentsOf, runName: runName,
     pastWindow: pastWindow, addHabit: addHabit, templates: templates, template: template, fromTemplate: fromTemplate,
     dayStart: dayStart, routineDay: routineDay, scheduledOn: scheduledOn, windowOn: windowOn,
     entry: entry, verdict: verdict, stateOn: stateOn, canTick: canTick,

@@ -380,6 +380,11 @@ button.k-rt-cell { cursor: pointer; }
 .k-rpl-side { display: flex; flex-direction: column; gap: var(--sp-4); padding: var(--sp-24); border-inline-start: var(--hairline) solid var(--line); overflow-y: auto; background: var(--bg); }
 .k-rpl-now .k-rt-step-t { font-weight: var(--weight-semibold); }
 .k-rpl-side-f { margin-block-start: auto; }
+/* routines inside routines (1C): the inner routine's steps sit under its name, set in */
+.k-rpl-group { padding-block-start: var(--sp-8); }
+.k-rpl-in { padding-inline-start: var(--sp-12); }
+.k-rt-run-name { font-weight: var(--weight-semibold); }
+.k-rt-run-add { margin-inline-start: auto; }
 .k-rpl-fin { gap: var(--sp-12); }
 .k-rpl-spot { inline-size: var(--rt-spot-w); max-block-size: var(--rt-spot-h); object-fit: contain; }
 .k-rpl-sheet { inline-size: min(100%, var(--rv-preflight-w)); }

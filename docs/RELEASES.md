@@ -16,7 +16,8 @@ the service-worker version). Git holds the rest.
   `kos_reports` migration `20261012000001` is applied; so is `kos_money`
   (`20261019000001`, 19 October 2026), live since the Money and Goals release.
 - Built, NOT deployed (held for the next batch at the user's word): sw
-  `kos-qol-2` on `feat/qol-1a`, with `steam-auth` to redeploy after the app: the Steam
+  `kos-qol-2` on `feat/qol-1a` (bump `sw.js` when it deploys), with `steam-auth` to redeploy
+  after the app, and 1C's routines inside routines: the Steam
   link's sign-in tab comes back into the app. Supabase serves HTML from
   *.supabase.co as text/plain, so steam-auth's result page showed as raw
   source; its callback now answers with a 303 to `/?steam=<code>`, and the
