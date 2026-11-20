@@ -15,14 +15,27 @@ the service-worker version). Git holds the rest.
   `5bece3e`). `ai-chat` is deployed as version 6 (images for Gemini, 26 October 2026); the
   `kos_reports` migration `20261012000001` is applied; so is `kos_money`
   (`20261019000001`, 19 October 2026), live since the Money and Goals release.
-- Built, NOT deployed (held for the next batch at the user's word): sw
-  `kos-qol-2` on `feat/qol-1a` (bump `sw.js` when it deploys), with `steam-auth` to redeploy
-  after the app, and 1C's routines inside routines: the Steam
-  link's sign-in tab comes back into the app. Supabase serves HTML from
-  *.supabase.co as text/plain, so steam-auth's result page showed as raw
-  source; its callback now answers with a 303 to `/?steam=<code>`, and the
-  app says the result in a toast and opens Games (smoke196 L).
-- Latest release: sw `kos-qol-1` (20 November 2026, `feat/qol-1a` into
+- Latest release: sw `kos-qol-2` (20 November 2026, `feat/qol-1a` into
+  main; immutable IMMUTABLE_URL): the QoL review's 1C (the
+  user's own requests) and Neon's batches 3 and 4. 1C: routines inside
+  routines; Shift the plan by N weeks, the plan inside a lesson's calendar
+  block, the Class days fix; folders for loose notes on Files; ink — Paste,
+  the lasso across pages (and "Copy this part of the picture"), rich text
+  and ruled tables, Copy as TeX checked by KaTeX, the colour menu ticking
+  its pick; Code's live errors and suggestions as you type, from Roslyn in
+  the full runtime (`csw-1.2`, `Runner.Assist`); the Collection's watch
+  link and the title's own pages, shown as the service's icon (CC0 Simple
+  Icons, a monogram, or your own picture). The Steam link's sign-in tab now
+  comes back into the app (`steam-auth` answers with a 303 to
+  `/?steam=<code>`; redeployed after the app as STEAM_VER). Neon's batches: a
+  missed goal's Restart and Archive, the Money Year view's in and out,
+  Creatives' thumbnails and loose ends, Practise again on a passed lesson,
+  Tomorrow on an overdue reminder, the showcase put in order by dragging,
+  a lesson's session back to its lesson and a checkpoint that asks before
+  it is left, Undo on a deleted subtask. Boot: Settings' Storage and
+  Connections, the Matrix, the notification feed and the IT desk load on
+  first use (budget 7.77 MB). Gate 179.
+- Before it: sw `kos-qol-1` (20 November 2026, `feat/qol-1a` into
   main; immutable https://1a3b6623.kurenai-os.pages.dev): the QoL review's batches 1A and 1B,
   with Neon's batches 1 and 2. 1A: Due today measured per subject and by
   time on a plan row; review counts from the review log; the Writing Desk
