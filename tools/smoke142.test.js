@@ -97,7 +97,10 @@ function eq(a, b, m) { if (JSON.stringify(a) !== JSON.stringify(b)) throw new Er
    Practice Log filters and 1A's report took boot 448 bytes over 7.80;
    Backup & Restore (dataview.js, page-data, 29 KB) moved to first use, so
    boot reads about 7.773 MB. */
-const BOOT_BUDGET = 7.78 * 1024 * 1024;
+/* 20 Nov 2026 (Neon's batch 4 met the budget with 1.7 KB of room): the
+   notification feed (notifications.js, page-notifications, 21 KB) moves to
+   first use, and the budget goes 7.78 → 7.77 MB. */
+const BOOT_BUDGET = 7.77 * 1024 * 1024;
 
 /* jsdom has no User Timing: a small recorder, set before the app's scripts */
 function timing(win) {
@@ -389,7 +392,8 @@ step("J · every page that names what it needs opens from cold without an early 
     ["japanese", undefined, ["page-ja"]], ["help", undefined, ["page-help"]], ["shrine", undefined, ["page-shrine"]],
     ["reports", undefined, ["page-reports"]], ["mediasync", undefined, ["page-sync"]],
     /* 1A, 20 Nov 2026: Creatives' pages and Backup & Restore */
-    ["creatives", { page: "drills" }, ["page-creatives"]], ["subject", "creatives", ["page-creatives"]], ["data", undefined, ["page-data"]]
+    ["creatives", { page: "drills" }, ["page-creatives"]], ["subject", "creatives", ["page-creatives"]], ["data", undefined, ["page-data"]],
+    ["notifications", undefined, ["page-notifications"]]
   ];
   for (const [view, arg, want] of jobs) {
     const app = await lazyBoot(fxB);

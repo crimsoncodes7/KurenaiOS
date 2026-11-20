@@ -367,7 +367,9 @@
        its topic page; the space's router and nav stay at boot */
     creatives: ["page-creatives"],
     /* Backup & Restore (and Reset everything, which only it opens) */
-    data: ["page-data"]
+    data: ["page-data"],
+    /* the full notification feed (the header bell stays at boot): room for Neon's batch 4 */
+    notifications: ["page-notifications"]
   };
   var SPACE_DESK = { code: "page-code", mind: "page-mind", ja: "page-ja", creatives: "page-creatives" };
   var SPACE_TOPIC = { mind: "page-mind", creatives: "page-creatives" };
