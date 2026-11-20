@@ -358,16 +358,28 @@
   /* ---------------- Recent: the tiers earned, newest first ---------------- */
   function drawRecent(body, views) {
     var byId = {}; views.forEach(function (v) { byId[v.id] = v; });
-    var rows = A().earnedIn("0000-01-01", "9999-12-31").reverse().slice(0, 60);
+    var raw = A().earnedIn("0000-01-01", "9999-12-31").reverse(), rows = [], lastById = {};
+    raw.forEach(function (r) {
+      var g = lastById[r.id];
+      if (g && Math.abs(g.at - r.at) <= 60000) {
+        g.lo = Math.min(g.lo, r.tier); g.hi = Math.max(g.hi, r.tier);
+        if (r.at > g.at) g.at = r.at;
+      } else {
+        g = { id: r.id, lo: r.tier, hi: r.tier, at: r.at };
+        rows.push(g); lastById[r.id] = g;
+      }
+    });
+    rows = rows.slice(0, 60);
     if (!rows.length) { body.appendChild(KOS.ui.emptyState({ title: "No badges yet", body: "The first one is never far: a Focus session, ten reviews, a week of days." })); return; }
     var list = el("ul", { class: "k-card k-ach-list", "data-ui": "ach.recent", "aria-label": "Recently earned" });
     rows.forEach(function (r) {
       var v = byId[r.id]; if (!v) return;
       var s = A().set(v.set);
+      var label = r.lo === r.hi ? badgeName(v, r.hi) : v.def.name + " " + roman(r.lo) + "–" + roman(r.hi);
       var li = el("li", { class: "k-ach-row", "data-state": "earned" }, [
         el("button", { type: "button", class: "k-ach-row-btn", "aria-label": "Open " + v.def.name, onclick: openFor(v, views) }, [
-          medal(v, { size: "row", tier: r.tier, decorative: true }),
-          el("span", { class: "k-ach-row-txt" }, [el("b", { text: badgeName(v, r.tier) }),
+          medal(v, { size: "row", tier: r.hi, decorative: true }),
+          el("span", { class: "k-ach-row-txt" }, [el("b", { text: label }),
             el("span", { class: "k-ach-row-sub" }, [v.def.what + " · ", el("span", { class: "k-ach-row-set", text: s ? s.name : "" })])]),
           el("span"),
           el("span", { class: "k-ach-row-date", text: dateText(r.at) })
