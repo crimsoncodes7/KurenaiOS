@@ -19,7 +19,8 @@
          does not.
      F · A FINISHED QUIZ UPDATES ITS INSPECTOR (ST-19); a page header takes
          its own page's art on a first visit (MG-17).
-     G · AN UNSAVED SHOWCASE ASKS BEFORE IT IS LEFT (AG-25).
+     G · THE SHOWCASE AUTOSAVES (achievements-governor#3): picking saves at
+         once, removing has Undo, and leaving asks nothing.
      H · THE SCREEN OFF ON A PHONE (UR-5). A running session hidden and then
          discarded by the system comes back paused and offers the minutes
          the screen was off; counting them adds them, capped by the phase;
@@ -187,20 +188,23 @@ step("F · a page header takes its own page's art on the first visit", async () 
 });
 
 /* ---------------- G ---------------- */
-step("G · leaving an unsaved showcase asks first", async () => {
+step("G · showcase picks autosave and leaving asks nothing", async () => {
   /* one earned badge to pick */
   const views = await new Promise((r) => K.achievements.list(r));
   const v = views.find((x) => !x.masked) || views[0];
   K.store.state.achievements.earned[v.id] = { tier: 1, at: Date.now(), t: { "1": Date.now() } };
+  K.achievements.setShowcase([]);
   K.store.save();
   K.show("achievements", "showcase"); await app.settle(); await wait(10); await app.settle();
+  assert(!$("[data-ui~='ach.save-showcase']"), "no Save button on autosaved showcase");
   const medal = $("[data-ui~='ach.pick-item']");
   assert(medal, "a medal to pick");
   click(medal); await app.settle();
-  const ok = K.show("home");
-  eq(ok, false, "leaving was held to ask");
-  assert($("[data-ui~='ui.confirm']"), "the question");
-  $$(".k-dialog-overlay").forEach((o) => o.remove());
+  eq(K.achievements.showcase(), [v.id], "picking autosaved immediately");
+  const ok = K.show("home"); await app.settle();
+  assert(ok !== false, "leaving is not blocked");
+  eq(K.currentNav().viewId, "home", "navigated away to home");
+  assert(!$("[data-ui~='ui.confirm']"), "no Leave without saving dialog");
 });
 
 /* ---------------- H ---------------- */
