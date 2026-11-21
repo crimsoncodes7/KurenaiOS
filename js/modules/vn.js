@@ -857,12 +857,16 @@
         if (!rows.length) {
           area.clear();
           area.holder.appendChild(mv.emptyState(
-            p.layout === "chapters"
-              ? "No visual novel is tracked by chapter yet — open one and add its chapters on the Chapters tab."
-              : filtered
+            filtered
               ? "Nothing matches this filter."
+              : p.layout === "chapters"
+              ? "No visual novel is tracked by chapter yet — open one and add its chapters on the Chapters tab."
               : "The VN vault is empty. Connect your VNDB (a personal token — one paste, no OAuth dance) or add a title by hand, then build its route list as you play.",
-            [
+            filtered ? [
+              el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "vault.clear-filters", text: "Clear filters", onclick: function () {
+                rail.clear(); genreSel.value = ""; devSel.value = ""; search.value = ""; bar.sync(); refresh();
+              } })
+            ] : [
               el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } }),
               el("button", { type: "button", class: "k-btn", text: "+ Add manually", onclick: function () { vnEditor(null, refreshAll); } })
             ]));

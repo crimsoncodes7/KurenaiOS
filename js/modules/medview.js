@@ -1801,6 +1801,7 @@
       root: root,
       status: function () { return sel.status; },
       customList: function () { return sel.customList; },
+      clear: function () { sel.status = null; sel.customList = null; render(); },
       reload: reload
     };
   }

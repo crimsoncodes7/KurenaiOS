@@ -744,7 +744,11 @@
             filtered
               ? "Nothing matches this filter."
               : "The Games vault is empty. Paste your library in bulk — one title per line, straight off Steam's library page — or add games one at a time. There's no import API a browser is allowed to use; this is the whole toolkit, honestly stated.",
-            [
+            filtered ? [
+              el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "vault.clear-filters", text: "Clear filters", onclick: function () {
+                rail.clear(); platSel.value = ""; genreSel.value = ""; tierSel.value = ""; search.value = ""; bar.sync(); refresh();
+              } })
+            ] : [
               el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "▤ Bulk add from a pasted list", onclick: function () { bulkAddModal(refreshAll); } }),
               el("button", { type: "button", class: "k-btn", text: "+ Add one game", onclick: function () { gamesEditor(null, refreshAll); } })
             ]));

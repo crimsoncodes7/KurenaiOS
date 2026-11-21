@@ -1304,7 +1304,11 @@
                 : physical
                   ? "No physical volumes recorded yet — add a book to the shelf (the range tool takes a whole box set in one go), or scan a barcode with ◫ Find book."
                   : "The digital shelf mirrors your AniList manga list. Connect AniList and the whole list lands in one sync.",
-              physical ? [
+              filtered ? [
+                el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "vault.clear-filters", text: "Clear filters", onclick: function () {
+                  rail.clear(); fmtSel.value = ""; genreSel.value = ""; moodSel.value = ""; shelfSel.value = ""; search.value = ""; bar.sync(); refresh();
+                } })
+              ] : physical ? [
                 el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "◫ Find book / ISBN", onclick: function () { openLookup(true, refreshAll); } }),
                 el("button", { type: "button", class: "k-btn", text: "+ Add to shelf", onclick: function () { booksEditor(null, refreshAll); } })
               ] : [

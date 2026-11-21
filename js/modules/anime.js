@@ -391,7 +391,11 @@
             filtered
               ? "Nothing matches this filter."
               : "The vault is a mirror of your AniList anime list. Connect AniList and the whole list lands in one sync.",
-            [
+            filtered ? [
+              el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "vault.clear-filters", text: "Clear filters", onclick: function () {
+                rail.clear(); genreSel.value = ""; tagSel.value = ""; search.value = ""; bar.sync(); refresh();
+              } })
+            ] : [
               el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "⇅ Sync & Import", onclick: function () { KOS.show("mediasync"); } }),
               el("button", { type: "button", class: "k-btn", text: "⊕ Find new", onclick: function () { KOS.mediaSearch.open("anime", refreshAll); } })
             ]));
