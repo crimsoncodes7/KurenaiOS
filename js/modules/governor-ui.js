@@ -1128,13 +1128,16 @@
       var kinds = {};
       owned.forEach(function (c) { if (c.kind !== "lab") kinds[c.kind] = (kinds[c.kind] || 0) + 1; });
       var KN = { outfit: "outfits", scene: "scenes", hall: "halls", banner: "banners", theme: "themes", avatar: "avatars", frame: "frames", seal: "seals", shelfskin: "shelves", shrinestyle: "Shrine cards", finish: "finishes", paper: "papers", penset: "pen sets" };
+      var ks = Object.keys(kinds);
       var pin = KOS.governor.pinned();
       var left = el("div", { class: "k-gv-shop-purse" }, [
         el("div", { class: "k-gv-stage-kick", text: "Your gold" }),
         el("div", { class: "k-gv-shop-bal k-mono", "data-ui": "shop.balance", text: goldN(g.gold) }),
-        Object.keys(kinds).length ? el("div", { class: "k-gv-shop-owned" }, Object.keys(kinds).slice(0, 5).map(function (k) {
+        ks.length ? el("div", { class: "k-gv-shop-owned" }, ks.slice(0, 5).map(function (k) {
           return el("span", { class: "k-chip", "data-tone": "muted", text: kinds[k] + " " + (KN[k] || k) });
-        })) : null,
+        }).concat(ks.length > 5 ? [el("span", { class: "k-chip", "data-tone": "muted", "data-ui": "shop.owned-more",
+          title: ks.slice(5).map(function (k) { return kinds[k] + " " + (KN[k] || k); }).join(", "),
+          text: "+" + (ks.length - 5) + " more" })] : [])) : null,
         pin ? el("div", { class: "k-gv-glass k-gv-shop-pin", "data-ui": "shop.pin" }, [
           el("div", { class: "k-gv-glass-kick", text: "Saving for" }),
           el("div", { class: "k-gv-shop-pin-t" }, [el("b", { text: pin.name }), el("span", { class: "k-mono", text: goldN(Math.max(0, pin.price - g.gold)) + " more" })]),
