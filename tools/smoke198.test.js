@@ -220,26 +220,37 @@ step("D · Code: shared per-runner status and boot timeout never blames learner 
     const host = D.createElement("div");
     const btn = D.createElement("button");
     btn.type = "button"; btn.textContent = "▶ Run";
-    host.appendChild(btn); D.body.appendChild(host);
+    const btn2 = D.createElement("button");
+    btn2.type = "button"; btn2.textContent = "✓ Check";
+    host.appendChild(btn); host.appendChild(btn2); D.body.appendChild(host);
     K.codeUI.bindRun(btn, { runner: "sql" });
+    K.codeUI.bindRun(btn2, { runner: "sql", limit: false });
+
+    eq(host.querySelectorAll("[data-ui~='code.run-limit']").length, 1, "at most one run-limit span per bar");
+    const lim = host.querySelector("[data-ui~='code.run-limit']");
+    assert(lim && lim.hidden, "run-limit hidden while idle");
 
     eq(R.runnerStatus("sql").state, "ready", "SQL starts ready before first run");
     eq(R.status("sql"), "ready", "status(sql) mirrors runnerStatus");
     const p1 = R.run({ lang: "sql", src: "SELECT 1;" });
     eq(R.runnerStatus("sql").state, "booting", "fresh SQL worker enters booting");
     assert(btn.disabled && btn.getAttribute("data-runner-state") === "booting", "bound button disables while booting");
+    eq(btn.textContent, "Loading SQLite…", "Run shows Loading SQLite… while SQLite boots");
+    assert(!lim.hidden && lim.textContent === "8 s limit", "SQLite boot shows 8 s limit beside Run: " + lim.textContent);
 
     const sqlw = workers[workers.length - 1];
     sqlw.emit({ type: "ready" });
     eq(R.runnerStatus("sql").state, "busy", "after ready with run in flight, SQL is busy");
     assert(btn.disabled && btn.getAttribute("data-runner-state") === "busy", "bound button stays disabled while busy");
+    eq(btn.textContent, "▶ Run", "Run restores label once busy after boot");
+    assert(!lim.hidden && lim.textContent === "4 s limit", "SQL busy shows 4 s limit beside Run: " + lim.textContent);
 
     const reqId = sqlw.posted[0].id;
     sqlw.emit({ id: reqId, res: { ok: true, stdout: "1", sets: [], ms: 2 } });
     const r1 = await p1;
     assert(r1.ok, "SQL run succeeded");
     eq(R.runnerStatus("sql").state, "ready", "SQL returns to ready");
-    assert(!btn.disabled && btn.textContent === "▶ Run", "bound button re-enabled with original label");
+    assert(!btn.disabled && btn.textContent === "▶ Run" && lim.hidden, "bound button re-enabled, label restored, limit hidden at idle");
     off();
 
     /* 2. Warm SQL timeout STILL reads as learner timeout (watchdog 4000 ms untouched) */
@@ -269,14 +280,25 @@ step("D · Code: shared per-runner status and boot timeout never blames learner 
     R._reset();
     K.store.state.ui.code = K.store.state.ui.code || {};
     K.store.state.ui.code.runtime = true;
+    const wHost = D.createElement("div");
+    const wBtn = D.createElement("button");
+    wBtn.type = "button"; wBtn.textContent = "▶ Run";
+    wHost.appendChild(wBtn); D.body.appendChild(wHost);
+    K.codeUI.bindRun(wBtn, { runner: "wasm" });
+    const wLim = wHost.querySelector("[data-ui~='code.run-limit']");
     seenTimeouts.length = 0;
-    const coldWasm = await R.run({ files: [{ name: "Program.cs", src: "Console.WriteLine(1);" }], lesson: "7.1" });
+    const pWasm = R.run({ files: [{ name: "Program.cs", src: "Console.WriteLine(1);" }], lesson: "7.1" });
+    eq(wBtn.textContent, "Starting .NET…", "Run shows Starting .NET… while .NET boots");
+    assert(wLim && !wLim.hidden && wLim.textContent === "60 s limit", ".NET boot shows 60 s limit beside Run: " + (wLim && wLim.textContent));
+    const coldWasm = await pWasm;
     assert(seenTimeouts.includes(60000), "cold WASM keeps 60000 ms boot watchdog: " + JSON.stringify(seenTimeouts));
     assert(!coldWasm.ok && coldWasm.error.kind === "runner", "cold WASM boot timeout is kind=runner: " + JSON.stringify(coldWasm.error));
     eq(R.runnerStatus("wasm").state, "failed", "WASM status becomes failed");
+    assert(!wBtn.disabled && wBtn.textContent === "▶ Run" && wLim.hidden, "WASM failure restores Run label and hides limit");
     const wasmCard = K.codeUI.errorCard(coldWasm.error);
     assert(!/loop|Did not finish/i.test(wasmCard.textContent), "WASM boot timeout never blames learner loop: " + wasmCard.textContent);
 
+    wHost.remove();
     host.remove();
   } finally {
     fastTimers = false;

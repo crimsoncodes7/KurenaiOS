@@ -277,6 +277,9 @@
     if (!btn || !R || !R.runnerStatus) return { off: function () {}, sync: function () {} };
     var runner = R.runnerFor ? R.runnerFor(opts.runner || opts.lesson || "interp") : "interp";
     var baseLabel = opts.label || btn.textContent;
+    var bootLabel = runner === "sql" ? "Loading SQLite…" : runner === "wasm" ? "Starting .NET…" : "Starting runner…";
+    var showLimit = opts.limit !== false;
+    var limitEl = showLimit ? el("span", { class: "k-cx-runlimit k-mono", "data-ui": "code.run-limit", hidden: "" }) : null;
     var seen = false, off = null;
     function apply(st) {
       if (btn.isConnected) seen = true;
@@ -286,11 +289,25 @@
       var active = st.state === "booting" || st.state === "busy";
       var extraDisabled = opts.disabled ? !!opts.disabled() : false;
       btn.disabled = active || extraDisabled;
-      if (opts.busyLabel && st.state === "busy") btn.textContent = opts.busyLabel;
-      else if (st.state === "ready" || st.state === "failed" || !active) btn.textContent = baseLabel;
+      if (st.state === "booting" && showLimit) btn.textContent = bootLabel;
+      else if (st.state === "busy") {
+        if (opts.busyLabel) btn.textContent = opts.busyLabel;
+        else if (showLimit) btn.textContent = baseLabel;
+      } else btn.textContent = baseLabel;
+      if (limitEl) {
+        if (!limitEl.parentNode && btn.parentNode) btn.parentNode.insertBefore(limitEl, btn.nextSibling);
+        var limMs = st.state === "booting" ? (st.bootMs || st.limitMs) : st.limitMs;
+        limitEl.textContent = limMs ? Math.round(limMs / 1000) + " s limit" : "";
+        limitEl.hidden = !active || !limMs;
+      }
       if (opts.onStatus) opts.onStatus(st);
     }
     apply(R.runnerStatus(runner));
+    if (limitEl && !limitEl.parentNode && typeof Promise === "function") {
+      Promise.resolve().then(function () {
+        if (limitEl && !limitEl.parentNode && btn.parentNode) btn.parentNode.insertBefore(limitEl, btn.nextSibling);
+      });
+    }
     off = R.onStatus(function (st) { if (st.runner === runner) apply(st); });
     return {
       off: function () { if (off) { off(); off = null; } },
