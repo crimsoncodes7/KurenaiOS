@@ -834,9 +834,9 @@
     var monthEnd = G.monthEndISO();
     var weekendSat = addDays(now, (6 - parse(now).getDay() + 7) % 7);
     if (seed.weekend) start.value = weekendSat;
-    var deadline = input("date", g.deadline || (seed.deadline === "month" ? monthEnd : seed.weekend ? addDays(weekendSat, 1) : ""), { "aria-label": "Deadline" });
+    var deadline = input("date", g.deadline || (seed.deadline === "month" ? monthEnd : seed.weekend ? addDays(weekendSat, 1) : /^\d{4}-\d{2}-\d{2}$/.test(String(seed.deadline || "")) ? seed.deadline : ""), { "aria-label": "Deadline" });
     var milestones = (g.milestones || []).slice();
-    var links = Object.assign({}, g.links || {});
+    var links = Object.assign({}, seed.links || {}, g.links || {});
     var err = el("p", { class: "k-field-error", role: "alert", hidden: "" });
     var hint = el("p", { class: "k-gl-hint k-gl-small" });
     var form = el("div", { class: "k-gl-form" });
@@ -947,7 +947,7 @@
         form.appendChild(field("Media", extra.module));
       }
       if (def.fields.linked) {
-        extra.linked = titlePicker(g.linkedEntryId);
+        extra.linked = titlePicker(g.linkedEntryId != null ? g.linkedEntryId : seed.linkedEntryId);
         form.appendChild(extra.linked.node);
       }
       if (def.fields.filter) {
@@ -966,7 +966,7 @@
         var habitsOnly = typeId === "habit-streak";
         var rs = R.all().filter(function (r) { return !habitsOnly || r.kind === "habit" || r.legacyHabit != null; })
           .map(function (r) { return [r.id, r.name]; });
-        var p0 = g.params || {}, cur = p0.routine || p0.habit;
+        var p0 = Object.assign({}, seed.params || {}, g.params || {}), cur = p0.routine || p0.habit;
         var curR = cur != null && R.resolve ? R.resolve(cur) : null;
         extra.routine = select(rs, curR ? curR.id : (rs[0] || [])[0], { "aria-label": habitsOnly ? "Habit" : "Routine", "data-ui": "goals.routine-pick" });
         form.appendChild(field(habitsOnly ? "Habit" : "Routine", rs.length ? extra.routine

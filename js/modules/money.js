@@ -1086,6 +1086,14 @@
         c.budgetFrom === "wishlist" ? null : { label: c.rollover ? "Turn rollover off" : "Turn rollover on", onSelect: function () {
           M.updateCategory(c.id, { rollover: !c.rollover }); announce(c.name + (c.rollover ? " rollover off" : " rollover on")); redraw(); } },
         { label: "See entries", onSelect: function () { visit.tx.cat = c.id; go("transactions"); } },
+        { label: "Make this a goal", onSelect: function () {
+          KOS.lazy.need("page-goals").then(function () {
+            if (KOS.goalsUI && KOS.goalsUI.newGoal) KOS.goalsUI.newGoal({
+              type: "money-spend-under", title: "Keep " + c.name + " under budget",
+              target: b != null ? b / 100 : undefined, repeat: "month", links: { category: c.id }
+            });
+          });
+        } },
         c.id === "collection" || c.id === "other" ? null : { sep: true },
         c.id === "collection" || c.id === "other" ? null : { label: "Archive…", onSelect: function () {
           U.confirm({ title: "Archive " + c.name + "?", confirm: "Archive", mark: "▣",
@@ -1435,7 +1443,8 @@
         btn("Move out", "", function () { moveDialog2(p, "out"); }, "money.pot-out"),
         btn("Edit", "k-btn--quiet", function () { potDialog(p); }, "money.pot-edit"),
         goal ? el("button", { type: "button", class: "k-mn-goalpill", "data-ui": "money.pot-goal", onclick: function () { KOS.show("goals", { id: goal.id }); } }, [
-          el("span", { class: "k-kanji k-muted", "aria-hidden": "true", text: "標" }), goal.title]) : null].filter(Boolean))
+          el("span", { class: "k-kanji k-muted", "aria-hidden": "true", text: "標" }), goal.title])
+          : btn("Make this a goal", "k-btn--quiet", function () { openPotGoal(p); }, "money.pot-make-goal")].filter(Boolean))
     ].filter(Boolean));
     if (goal) KOS.goals.compute(function (e, rows) {
       var g = (rows || []).filter(function (x) { return x.id === goal.id; })[0];
@@ -1484,12 +1493,21 @@
     });
     return host;
   }
+  function openPotGoal(p) {
+    KOS.lazy.need("page-goals").then(function () {
+      if (KOS.goalsUI && KOS.goalsUI.newGoal) KOS.goalsUI.newGoal({
+        type: "money-save", title: "Save for " + p.name,
+        target: p.target ? p.target / 100 : 100, deadline: p.by || undefined, links: { pot: p.id }
+      });
+    });
+  }
   function potCard(p, bal) {
     var now = today(), days = p.by ? between(now, p.by) : null, reached = p.target && bal >= p.target;
     var rule = M.rules().filter(function (r) { return r.kind === "transfer" && r.pot === p.id; })[0];
     var each = p.target && p.by ? M.setAside(p, bal, now) : null;
     var more = U.menu({ label: "⋯", className: "k-btn--quiet k-mn-potmore", items: [
       { label: "Edit", onSelect: function () { potDialog(p); } },
+      { label: "Make this a goal", onSelect: function () { openPotGoal(p); } },
       { label: "Lead with this pot", onSelect: function () { M.pots({ archived: true }).forEach(function (x) { if (x.pinned) M.updatePot(x.id, { pinned: false }); }); M.updatePot(p.id, { pinned: true }); redraw(); } },
       { sep: true },
       { label: "Close pot…", onSelect: function () { closePot(p, bal); } }] });

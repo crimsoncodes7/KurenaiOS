@@ -20,6 +20,9 @@
                           gold balance against item price; Shop's sheet and pin
                           offer "Add to Goals"; reaching price marks Met with
                           payout "none" and never buys.
+     F · bk:goals#2       "Make this a goal" on routine, Money pot, exam
+                          readiness, Collection title, and Money budget opens
+                          KOS.goalsUI.newGoal pre-filled via existing links.
 
    Run: node tools/smoke198.test.js                                         */
 "use strict";
@@ -385,6 +388,93 @@ step("E · Shop: Save gold for X as a goal, Add to Goals, met without buying or 
   gov.owned = origOwned;
   gov.shopPin = origPin;
   K.store.save();
+  eq(app.errors, [], "no page errors");
+});
+
+/* ---------------- F · bk:goals#2 ---------------- */
+step("F · Make this a goal from routine, Money pot, exam readiness, Collection title, and Money budget (bk:goals#2)", async () => {
+  const G = K.goals;
+  const madeIds = [];
+  const sessBefore = K.sessions.all().length;
+
+  /* 1. Routine */
+  const rt = K.routines.add({ name: "Evening wind-down", kind: "routine", days: [1, 2, 3, 4, 5], steps: [{ text: "Tidy desk" }, { text: "Pack bag" }] });
+  K.show("routines", "routines"); await app.settle();
+  const rtBtn = q("[data-ui~='routine.make-goal']");
+  assert(rtBtn && /Make this a goal/.test(rtBtn.textContent), "routine card has Make this a goal");
+  click(rtBtn); await app.settle(); await app.settle();
+  let ed = q("[data-ui~='goal.editor']");
+  assert(ed, "routine opened goal editor");
+  click(q("[data-ui~='goal.save']", ed)); await app.settle();
+  const gRt = G.all().find((x) => x.type === "routine-days" && x.params && x.params.routine === rt.id);
+  assert(gRt, "routine goal linked via params.routine");
+  madeIds.push(gRt.id);
+
+  /* 2. Money pot */
+  const pot = K.money.addPot({ name: "Japan flight", targetAmount: 650, by: "2027-06-01" });
+  K.show("money", "pots"); await app.settle(); await app.settle();
+  const potBtn = q("[data-ui~='money.pot-make-goal']");
+  assert(potBtn && /Make this a goal/.test(potBtn.textContent), "Money pot hero has Make this a goal");
+  click(potBtn); await app.settle(); await app.settle();
+  ed = q("[data-ui~='goal.editor']");
+  assert(ed, "Money pot opened goal editor");
+  click(q("[data-ui~='goal.save']", ed)); await app.settle();
+  const gPot = G.all().find((x) => x.type === "money-save" && x.links && x.links.pot === pot.id);
+  assert(gPot && gPot.target === 650 && gPot.deadline === "2027-06-01", "pot goal linked via links.pot with major-unit target & deadline: " + JSON.stringify(gPot));
+  madeIds.push(gPot.id);
+
+  /* 3. Exam readiness */
+  const ex = K.exams.add({ title: "CS Paper 1 Mock", subject: "compsci", tier: "mock", date: "2027-02-15", scope: { include: ["compsci:4.1"] } });
+  K.show("exams", { id: ex.id, tab: "today" }); await app.settle(); await app.settle();
+  const exBtn = q("[data-ui~='exams.make-goal']");
+  assert(exBtn && /Make this a goal/.test(exBtn.textContent), "exam readiness view has Make this a goal");
+  click(exBtn); await app.settle(); await app.settle();
+  ed = q("[data-ui~='goal.editor']");
+  assert(ed, "exam readiness opened goal editor");
+  click(q("[data-ui~='goal.save']", ed)); await app.settle();
+  const gEx = G.all().find((x) => x.links && x.links.examId === ex.id);
+  assert(gEx && gEx.type === "exam_recall", "exam goal linked via links.examId (invariant 128): " + JSON.stringify(gEx));
+  madeIds.push(gEx.id);
+
+  /* 4. Collection title */
+  const entry = await new Promise((res, rej) => K.mediadb.put({
+    module: "anime", title: "Mushishi", status: "inProgress",
+    progress: { current: 5, total: 26, unit: "episodes" }
+  }, (err, rec) => (err ? rej(err) : res(rec))));
+  await K.lazy.need("page-vaults");
+  K.mediaEditor(entry, () => {}); await app.settle();
+  const vBtn = q("[data-ui~='vault.make-goal']");
+  assert(vBtn && /Make this a goal/.test(vBtn.textContent), "Collection title editor has Make this a goal");
+  click(vBtn); await app.settle(); await app.settle();
+  assert(!q("[data-ui~='vault.editor']"), "Collection editor closed cleanly before goal editor");
+  ed = q("[data-ui~='goal.editor']");
+  assert(ed, "Collection title opened goal editor");
+  click(q("[data-ui~='goal.save']", ed)); await app.settle();
+  const gCol = G.all().find((x) => x.linkedEntryId === entry.id);
+  assert(gCol && gCol.type === "finish-series", "Collection goal linked via linkedEntryId: " + JSON.stringify(gCol));
+  madeIds.push(gCol.id);
+
+  /* 5. Money budget */
+  K.money.setBudget("food", 180);
+  K.show("money", "budgets"); await app.settle(); await app.settle();
+  const budRow = qa("[data-ui~='money.bud-row']").find((r) => /Food/i.test(r.textContent));
+  assert(budRow, "Food budget row rendered");
+  click(q("[data-ui~='ui.menu-button']", budRow)); await app.settle();
+  const budMenuItem = qa("[role='menuitem']").find((m) => /Make this a goal/.test(m.textContent));
+  assert(budMenuItem, "Money budget row menu has Make this a goal");
+  click(budMenuItem); await app.settle(); await app.settle();
+  ed = q("[data-ui~='goal.editor']");
+  assert(ed, "Money budget opened goal editor");
+  click(q("[data-ui~='goal.save']", ed)); await app.settle();
+  const gBud = G.all().find((x) => x.type === "money-spend-under" && x.links && x.links.category === "food");
+  assert(gBud && gBud.target === 180 && gBud.repeat === "month", "budget goal linked via links.category with major-unit target: " + JSON.stringify(gBud));
+  madeIds.push(gBud.id);
+
+  eq(K.sessions.all().length, sessBefore, "creating goals logs no Governor sessions");
+  madeIds.forEach((id) => G.remove(id));
+  K.routines.remove(rt.id);
+  K.exams.remove(ex.id);
+  await new Promise((res) => K.mediadb.remove(entry.id, () => res()));
   eq(app.errors, [], "no page errors");
 });
 
