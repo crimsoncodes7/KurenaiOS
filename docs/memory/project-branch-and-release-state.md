@@ -1,12 +1,14 @@
 ---
 name: project-branch-and-release-state
-description: "Which git branch is live, what is deployed — check git before trusting this; prod kos-qol-2 (20 Nov, main 3a06e5ff) = all of 1C + Neon 3–4 + Steam return; suites from 198"
+description: "Which git branch is live, what is deployed — check git before trusting this; prod kos-qol-2 (20 Nov); main 3872c387 (21 Nov) adds all of 1F, NOT deployed; suites from 198"
 metadata:
   node_type: memory
   type: project
   originSessionId: 2e2dc728-9366-4708-9ad8-6718d38edac2
   modified: 2026-11-17T21:04:49.853Z
 ---
+
+**1F COMPLETE 2026-11-21, on main (3872c387, fast-forwarded from feat/qol-1a), NOT DEPLOYED (prod still kos-qol-2).** Boot 7.76 → 5.11 MB, budget 5.15 MB, gate 179. Page bundles split from BOOT PARTS: ink-ui (inksurface/inkpad/pdfview/inkdrills; inkui.js boot keeps prefs/palette/dialog + the Write it out listener), page-pacing (pacecard.js boot), page-goals (goalwords.js), page-routines (rtkit.js = KOS.rtUI), page-calendar (calpage.js; calendar.js keeps store + forwarders), page-assistant (assistantpage.js), page-reminders (reminders.js keeps tick + alert ticker), page-achievements (achievementspage.js); wishlistpage.js in page-vaults; jaui/jastroke/jatopic + ja data in page-ja; codetopic in page-code, mindtopic in page-mind. Pattern: boot exports `_k`, page aliases; a boot part keeps every ticker/listener (the reminder ticker was nearly lost — audit top-level statements). 192 px badge art in assets/app/img/sm (tools/gen_badge_small.py). kos-ready + KOS.lazy.timing + Storage rows. zsh: pass a suite list as ${=S}. Dev browser: unregister the SW + clear caches before every reload or old boot files mix with new page files. Neon's batch 5 rounds C/D touch split files (routines, goals, reminders, achievements): Neon should merge origin/main before them. Next: 1E.
 
 **RELEASED 2026-11-20 (evening): sw `kos-qol-2`, immutable https://b9bd31c8.kurenai-os.pages.dev, main fast-forwarded to feat/qol-1a (3a06e5ff).** All of 1C (routines inside routines, Shift plan, plan in Calendar blocks, Class days fix, notes folders, ink paste/lasso/tables/rich text/TeX, colour menu, Code live errors + completion UR-23 on runtime `csw-1.2`, the Collection watch link with service icons), the Steam return, Neon's batches 3 and 4. `steam-auth` v9 deployed after the app (303 to `/?steam=<code>`). Boot budget 7.77 MB (~9.7 KB free; page-storage, page-connections, page-matrix, page-notifications, page-it on first use). Gate 179. Service icons: assets/icons/services from CC0 Simple Icons via tools/gen_service_icons.mjs, credits in docs/service-icons.md (deploy ships no .md under assets). Native .NET prints NuGet NU1903 advisory lines: cs_diff/cs_wasm_check filter them. Next: the QoL plan's later phases (docs/qol/PLAN.md); Neon batch 5 when wanted.
 

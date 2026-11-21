@@ -529,4 +529,17 @@
       if ("invoke" in opts) _invoke = opts.invoke;
     }
   };
+  /* the tool layer (aitools.js, aiorchestrator.js) loads on first use (1F,
+     invariant 168): ready() fetches it, and a domain that registers its own
+     tools before then waits in whenTools until it lands */
+  var toolWaiters = [];
+  KOS.ai.whenTools = function (fn) {
+    if (KOS.ai.tools && KOS.ai.tools.define) fn();
+    else if (toolWaiters.indexOf(fn) === -1) toolWaiters.push(fn);
+  };
+  KOS.ai._toolsLoaded = function () { toolWaiters.splice(0).forEach(function (fn) { try { fn(); } catch (e) { /* that domain's own failure */ } }); };
+  KOS.ai.ready = function () {
+    if (KOS.ai.tools && KOS.ai.orchestrator) return Promise.resolve();
+    return KOS.lazy && KOS.lazy.need ? KOS.lazy.need("ai") : Promise.resolve();
+  };
 })();

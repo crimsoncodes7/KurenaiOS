@@ -148,7 +148,7 @@ The plan is approved with these decisions.
 | **1C · Your requests** (11) | Routines inside routines; pacing shift (UR-19) and pacing in calendar blocks (UR-29); folders for loose notes; paste a picture; ink tables and formatting; lasso across pages; copy as TeX (D2); Roslyn completion in Code; the watch link with the service's icon (D1). Each starts with a short design check with you. | ≈ 6 sessions |
 | **1D · Daily friction** (57 small items) | Grouped by area, one commit each. Neon's seven starter tickets come from here. | ≈ 3 sessions |
 | **1E · Features across areas** (23) | "Make this a goal" everywhere and Japanese/Mind goal types; Japanese practise-again, leech recovery and immersion logging; Money import steps 3–5 and the Recurring queue; Year view income; Mind review outside the Daily; Reminders → a free block or Focus; skip one showing of a repeat; Practice Log filters, thumbnails and milestone links; Creatives review packs; the showcase reorder and autosave; Reports from the subject registry; one Code runner status. | ≈ 4 sessions |
-| **1F · Speed** (4) | Boot towards ~4 MB (Focus, Assistant, aitools, calendar, vaults and labs split into a boot part and a page part); the sample account off the boot; boot marks shown in Storage; 192 px badge art for the Wall. | ≈ 2 sessions |
+| **1F · Speed** (4) ✓ 21 Nov | Boot towards ~4 MB (Focus, Assistant, aitools, calendar, vaults and labs split into a boot part and a page part); the sample account off the boot; boot marks shown in Storage; 192 px badge art for the Wall. | ≈ 2 sessions |
 
 **1A's working order** (branch `feat/qol-1a`; ✓ = done):
 
@@ -353,7 +353,7 @@ Claude Design handoff or Gemini art asks for it):
 
 **After 1C (20 Nov, the user's call):** Neon takes the whole of 1D in batch 5 (`docs/qol/neon/BRIEF-5.md`: 39 tickets
 in rounds A–E, round E after 1F); the reviewer does 1F, then 1E, handing Neon a few 1E tickets if 1D finishes early.
-Kept by the reviewer from 1D: `study-core#1` and `shell#5` (in `js/core/ui.js`) and `productivity#6` (boot, with 1F).
+Kept by the reviewer from 1D: `study-core#1` and `shell#5` (in `js/core/ui.js`) and `productivity#6` (boot, with 1F); all three ✓ in 1F.
 `achievements-governor#1` is closed by the user's decision W5 42d (buying asks first; no timed Undo). Already done
 before batch 5: 14 of 1D's 57 (Neon's batches 1–4 and 1A).
 
@@ -497,10 +497,43 @@ before batch 5: 14 of 1D's 57 (Neon's batches 1–4 and 1A).
 
 ## 1F · Speed (4)
 
-- `rm:boot-4mb` Boot down to about 4 MB (now 7.89 MB) by loading more page code on first use (partly, L)
-- `architecture-perf#1` Add performance.mark('kos-boot')/('kos-ready') in main.js and print them in Archive > Storage, so boot time is visible and testable (partly, S)
-- `architecture-perf#2` Ship js/core/sample.js (25 KB dev-only sample account) only to dev hosts or behind a lazy load (open, S)
-- `architecture-perf#6` Badge art is 384 px for 56-80 px medals (299 files, 11.7 MB); a 192 px variant for the Wall grid would halve its 3.7 MB first load (open, M)
+**1F is complete (21 Nov, `feat/qol-1a`): boot 7.76 → 5.11 MB (−34 %), budget 5.15 MB; gate 179/179.**
+What boot parses now, and what loads on first use:
+- the labs and simulations (`labs`, 570 KB): the topic, subject, exams, Creatives and Labs pages;
+- the examiner's notes (`intel`, 118 KB): topic pages;
+- the Assistant's tool registry and orchestrator (`ai`, 267 KB): `KOS.ai.ready()`, with `KOS.ai.whenTools()` holding a
+  domain's tool registrations; the Assistant's own page (`page-assistant`, 59 KB; the drawer and `ask` stay);
+- the topic page, its editor and Handwritten tab (`page-topic`, 128 KB);
+- the Reports pages (`page-reports`; Home's card stays at boot in `reportcard.js`);
+- the exams hub, tracker, paper viewer and practice (`exams-pages`, 310 KB);
+- the four vaults, medview, the watch link and the Wishlist planner (`page-vaults`, 370 KB): `KOS.mediaEditor` loads
+  it first; `KOS.wishlist`'s record stays;
+- the ink layer's surfaces, the answer pad, the viewer and the drills (`ink-ui`, 200 KB): the pages that write, and
+  Files before it opens a PDF or picture; `inkui.js` keeps the settings, palette, drawing and dialog;
+- Pacing (`page-pacing`; Home's card is `pacecard.js`), Goals (`page-goals`; `goalwords.js`), Routines
+  (`page-routines`; `KOS.rtUI` is `rtkit.js`), the Calendar (`page-calendar`; the store, chips and countdowns stay and
+  its dialogs forward), Reminders (`page-reminders`; the tick and the alert ticker stay) and the Badge Wall
+  (`page-achievements`; the medal and toasts stay);
+- Japanese's writing square, voices, stroke check and topic page (into `page-ja`, 161 KB), and Code's and Mind's topic
+  modules (into `page-code` and `page-mind`, 76 KB).
+
+Also in 1F: the 192 px badge art (`tools/gen_badge_small.py`, 3.24 → 1.06 MB for the medals of 96 px or less;
+architecture-perf#6), `kos-ready` and Settings › Storage's two timing rows (architecture-perf#1), and the three 1D
+items kept by the reviewer (shell#5, study-core#1, productivity#6). architecture-perf#2 (the sample account) came
+forward in 1A.
+
+**Why not 4 MB:** what boots now is what the first page, the background passes and the cloud need at once. The next
+2 MB are the specification data the spine draws (`compsci.js`, `maths.js`, `it.js`, 268 KB), the lazy index's
+past-paper questions (181 KB, kept because readiness is computed from them), Supabase (202 KB, which the cloud cycle
+uses from the first second), the pacing seed (64 KB, which the first link and the carry-over read), Focus's state
+machine, and the engines and stores themselves. The clean splits left are small (Focus's setup page and the Files
+page, about 70 KB together). Each needs a
+design change, not a split; they are better done, if at all, with Phase 5's infrastructure.
+
+- ✓ `rm:boot-4mb` Boot down to about 4 MB (now 7.89 MB) by loading more page code on first use (partly, L) — 5.11 MB; see above
+- ✓ `architecture-perf#1` Add performance.mark('kos-boot')/('kos-ready') in main.js and print them in Archive > Storage, so boot time is visible and testable (partly, S)
+- ✓ `architecture-perf#2` Ship js/core/sample.js (25 KB dev-only sample account) only to dev hosts or behind a lazy load (open, S)
+- ✓ `architecture-perf#6` Badge art is 384 px for 56-80 px medals (299 files, 11.7 MB); a 192 px variant for the Wall grid would halve its 3.7 MB first load (open, M)
 
 ## Phase 3 · folded into W3 (13)
 

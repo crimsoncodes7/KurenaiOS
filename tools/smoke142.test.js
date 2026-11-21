@@ -106,8 +106,34 @@ function eq(a, b, m) { if (JSON.stringify(a) !== JSON.stringify(b)) throw new Er
    1C's ink (Paste, the lasso across pages, the menu) took it 1.8 KB over, and
    the notification feed (notifications.js, page-notifications, 21 KB) went too.
    Then 1C's Code live help and the Collection's watch link: the IT desk
-   (itdesk.js, page-it, 23 KB), drawn only on IT's subject page; 7.77 MB holds. */
-const BOOT_BUDGET = 7.77 * 1024 * 1024;
+   (itdesk.js, page-it, 23 KB), drawn only on IT's subject page; 7.77 MB holds.
+   1F (speed) then began: the labs and simulations (js/labs, 570 KB) load
+   with the pages that show them ("labs": topic, subject, exams, Creatives,
+   the Labs page; the Assistant's lab tools ask first); the examiner's notes
+   (js/data/intel.js, 118 KB) with topic pages; the Assistant's tool
+   registry and orchestrator (aitools.js, aiorchestrator.js, 267 KB) when
+   it is asked (KOS.ai.ready; a domain's tools wait in KOS.ai.whenTools).
+   The topic page (topic.js, editor.js, inktab.js: page-topic, 128 KB).
+   The Reports pages (reports.js, 100 KB, into page-reports), Home's report
+   card kept at boot in reportcard.js. The exams hub's pages, the tracker,
+   the papers' viewer and practice (310 KB) joined exams-pages. The four
+   vaults, medview and the watch link (330 KB, page-vaults); KOS.mediaEditor
+   loads them before opening an editor. 5.99 MB, with room kept for Neon's
+   batch 5. The ink layer's page part (inksurface.js: the desk, surfaces and
+   toolbar; the answer pad, the viewer, the drills, 200 KB, "ink-ui") loads
+   with the pages that write and before a file opens: 5.79 MB. Then the
+   pages split from the boot parts others read: Pacing (Home's card is
+   pacecard.js), Goals (goalwords.js), Routines (KOS.rtUI is rtkit.js), the
+   Calendar (its store, chips and countdowns stay; its dialogs forward),
+   the Wishlist planner (into page-vaults) and the Assistant's page (the
+   drawer stays): 5.43 MB. Japanese's writing square, voices, stroke check,
+   topic page and their data (jaui, jastroke, jatopic, ja-strokes, ja-audio,
+   161 KB) joined page-ja: 5.27 MB. Code's and Mind's topic modules
+   (codetopic.js, mindtopic.js, 76 KB) joined their spaces' bundles: 5.20 MB.
+   The Reminders page (its tick and alert ticker stay) and the Badge Wall
+   (the medal, toasts and the Wall card stay) went too, and the boot timings
+   (kos-ready, KOS.lazy.timing, Settings › Storage) came: 5.15 MB. */
+const BOOT_BUDGET = 5.15 * 1024 * 1024;
 
 /* jsdom has no User Timing: a small recorder, set before the app's scripts */
 function timing(win) {
@@ -282,8 +308,11 @@ step("F · opening a lesson shows Loading…, fetches only its subject, then dra
   const K = app.KOS, B = bundles();
   const ref = Object.keys(E.window.KOS_CONTENT).filter((k) => k.indexOf("maths:") === 0 && E.window.KOS_CONTENT[k].notes)[0].slice(6);
   let redrawAtDraw = null;
-  const inner = K.views.ref;
-  K.views.ref = function (main, arg) { redrawAtDraw = K.ui.redrawing; return inner(main, arg); };
+  /* the topic page itself arrives with its bundle (page-topic, 1F): watch
+     whichever page function is in place, the stand-in or the real one */
+  const wrap = (fn) => { const w = function (main, arg) { if (!fn.lazyStandIn) redrawAtDraw = K.ui.redrawing; return fn(main, arg); }; w.lazyStandIn = fn.lazyStandIn; return w; };
+  let current = wrap(K.views.ref);
+  Object.defineProperty(K.views, "ref", { configurable: true, enumerable: true, get: () => current, set: (v) => { current = wrap(v); } });
   K.show("ref", { subject: "maths", ref });
   const box = waiting(app);
   assert(box, "the page waits");
@@ -293,7 +322,7 @@ step("F · opening a lesson shows Loading…, fetches only its subject, then dra
   await app.settle(); await app.settle();
   assert(!waiting(app), "the wait is over");
   eq(redrawAtDraw, false, "the page's first draw is a first draw, not a redraw");
-  eq(app.lazy.loaded.slice().sort(), B["content-maths"].slice().sort(), "only Maths was fetched");
+  eq(app.lazy.loaded.slice().sort(), B["content-maths"].concat(B.labs, B.intel, B["page-topic"], B["ink-ui"]).sort(), "only Maths, the labs, the examiner's notes, the topic page and the ink layer were fetched (1F)");
   eq(app.lazy.misses, [], "nothing read early");
   const h1 = app.document.querySelector("#main h1");
   assert(h1 && h1.textContent.trim(), "the lesson has its title");
@@ -395,14 +424,21 @@ step("J · every page that names what it needs opens from cold without an early 
     /* W8 (AP-01 stage 2): page modules on first use */
     ["code", "units", ["content-code", "page-code"]], ["subject", "mind", ["page-mind"]], ["subject", "ja", ["page-ja"]],
     ["ref", { subject: "mind", ref: E.KOS.hub.LEAVES.mind[0].ref }, ["page-mind"]],
-    ["money", undefined, ["page-money"]], ["governor", undefined, ["page-governor"]], ["mind", undefined, ["page-mind"]],
+    ["money", undefined, ["page-money"]], ["governor", undefined, ["page-governor", "page-achievements"]], ["mind", undefined, ["page-mind"]],
     ["japanese", undefined, ["page-ja"]], ["help", undefined, ["page-help"]], ["shrine", undefined, ["page-shrine"]],
     ["reports", undefined, ["page-reports"]], ["mediasync", undefined, ["page-sync"]],
     /* 1A, 20 Nov 2026: Creatives' pages and Backup & Restore */
     ["creatives", { page: "drills" }, ["page-creatives"]], ["subject", "creatives", ["page-creatives"]], ["data", undefined, ["page-data"]],
     /* 1C, 20 Nov 2026: Settings › Storage */
     ["storage", undefined, ["page-storage"]], ["connections", undefined, ["page-connections"]],
-    ["matrix", undefined, ["page-matrix"]], ["notifications", undefined, ["page-notifications"]]
+    ["matrix", undefined, ["page-matrix"]], ["notifications", undefined, ["page-notifications"]],
+    /* 1F, 20 Nov 2026: the pages split from their Home cards, and the ink layer */
+    ["calendar", undefined, ["page-calendar"]], ["goals", undefined, ["page-goals"]], ["pacing", undefined, ["page-pacing"]],
+    ["routines", undefined, ["page-routines"]], ["assistant", undefined, ["ai", "page-assistant"]], ["wishlist", undefined, ["page-vaults"]],
+    ["ref", { subject: "maths", ref: E.KOS.hub.LEAVES.maths[0].ref }, ["content-maths", "page-topic", "ink-ui"]],
+    ["ref", { subject: "code", ref: E.KOS.hub.LEAVES.code[0].ref }, ["content-code", "page-code", "page-topic"]],
+    ["ref", { subject: "ja", ref: E.KOS.hub.LEAVES.ja[0].ref }, ["page-ja", "page-topic"]],
+    ["reminders", undefined, ["page-reminders"]], ["achievements", undefined, ["page-achievements"]]
   ];
   for (const [view, arg, want] of jobs) {
     const app = await lazyBoot(fxB);
@@ -422,7 +458,7 @@ step("J · every page that names what it needs opens from cold without an early 
   }
   /* pages that need nothing never wait */
   const app = await lazyBoot(fxB);
-  ["home", "focus", "calendar", "reminders", "goals", "assignments", "pacing", "achievements", "files"].forEach((v) => {
+  ["home", "focus", "assignments", "files"].forEach((v) => {
     app.KOS.show(v);
     assert(!waiting(app), v + " opens at once");
   });
@@ -451,6 +487,11 @@ step("K · search and the Assistant's tools take everything in first", async () 
 
   const two = await lazyBoot(fxB);
   const ref = Object.keys(C).filter((k) => k.indexOf("maths:") === 0 && C[k].quiz && C[k].notes)[0].slice(6);
+  /* the tool layer is not at boot (1F): it loads when asked */
+  assert(!two.KOS.ai.orchestrator && !two.KOS.ai.tools, "the Assistant's tools and orchestrator are not loaded at boot");
+  await two.KOS.ai.ready();
+  assert(two.KOS.ai.orchestrator && two.KOS.ai.tools, "ready() brings them in");
+  assert(two.KOS.ai.tools.get("files_list"), "Files, which registered its tools before the layer loaded, is in the registry");
   const got = await new Promise((res) => {
     const seen = [];
     two.KOS.ai.orchestrator.runTool("study_get_topic", { subject: "maths", ref }, {
@@ -467,9 +508,24 @@ step("K · search and the Assistant's tools take everything in first", async () 
 /* ---------------- L ---------------- */
 step("L · after boot the bundles arrive in idle moments, the last subject first, and the state is the eager one", async () => {
   const fx = await seed();
-  const app = await lazyBoot(fx, { longTimers: true, lazyWarm: true });
+  const app = await lazyBoot(fx, { longTimers: true, lazyWarm: true, before: (w) => {
+    timing(w);
+    /* what KOS.lazy.timing reads back (1F, architecture-perf#1) */
+    w.performance.getEntriesByName = (name) => w.__timing.filter((x) => x[0] === "measure" && x[1] === name).map(() => ({ duration: name === "kos-boot" ? 900 : 4200 }));
+  } });
   for (let i = 0; i < 12 && pendingOf(app).length; i++) await app.settle();
   eq(pendingOf(app), [], "everything arrived");
+  for (let i = 0; i < 3 && app.window.__timing.map((x) => x.join(" ")).indexOf("mark kos-ready") < 0; i++) await app.settle();
+  assert(app.window.__timing.map((x) => x.join(" ")).indexOf("measure kos-ready kos-boot-start kos-ready") >= 0, "the warm-up ends with the measure kos-ready: " + app.window.__timing.map((x) => x.join(" ")));
+  const tm = app.KOS.lazy.timing();
+  eq([tm.boot, tm.ready, tm.loaded === tm.bundles], [900, 4200, true], "KOS.lazy.timing reads both measures back");
+  /* Settings › Storage says them */
+  app.KOS.show("storage");
+  for (let k = 0; k < 10 && !app.document.querySelector("[data-ui~='storage.boot']"); k++) await app.settle();
+  const row = app.document.querySelector("[data-ui~='storage.boot']"), row2 = app.document.querySelector("[data-ui~='storage.boot-ready']");
+  eq([row && row.textContent, row2 && row2.textContent], ["First page, this start900 ms", "Everything loaded4.2 s"], "Storage shows this start");
+  app.KOS.show("home");   /* back where it was, for the saved state below */
+  await app.settle();
   const B = bundles(), sid = app.KOS.store.state.ui.subject;
   assert(B["content-" + sid].indexOf(app.lazy.loaded[0]) !== -1, "the subject last studied (" + sid + ") came first: " + app.lazy.loaded[0]);
   eq(app.lazy.misses, [], "nothing read early");

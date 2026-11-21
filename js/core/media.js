@@ -402,6 +402,12 @@
   KOS.mediaEditors = {};
   KOS.mediaEditorHooks = [];
   KOS.mediaEditor = function (entry, onSaved) {
+    /* the editors ride the vaults' bundle (1F): from search, the Shrine or
+       the Matrix, load it first and then open (callers need no overlay back) */
+    if (!KOS.mediaEditors.anime && KOS.lazy && KOS.lazy.need) {
+      KOS.lazy.need("page-vaults").then(function () { if (KOS.mediaEditors.anime) KOS.mediaEditor(entry, onSaved); });
+      return null;
+    }
     var id = entry && entry.module;
     if (id === "manga" || id === "ln") id = "books";   // pre-v3 rows
     var editor = (id && KOS.mediaEditors[id]) || KOS.mediaEditors.anime;

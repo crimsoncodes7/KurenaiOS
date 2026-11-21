@@ -34,6 +34,8 @@
    KOS.lazy.all()         → need every bundle (search, the Assistant's tools)
    KOS.lazy.warm(first)   → fetch the rest in idle moments, after boot
    KOS.lazy.on(fn)        → fn(name) after a bundle has loaded
+   KOS.lazy.timing()      → {boot, ready, bundles, loaded}: this start's
+                            "kos-boot" and "kos-ready" measures, in ms
    KOS.lazy.stub / isStub → the stand-ins, for lazy-index.js and the
                             registries that replace them                  */
 (function () {
@@ -296,13 +298,32 @@
     });
     (function next() {
       var todo = order.filter(function (n) { return !isIn(n); });
-      if (!todo.length) return;
+      if (!todo.length) { markReady(); return; }
       idle(function () {
         /* a page waiting for its own bundle has the connection to itself */
         if (waiting()) { setTimeout(next, 400); return; }
         loadOne(todo[0]).then(next, function () { /* offline: a page asks again when it is opened */ });
       });
     })();
+  }
+
+  /* "kos-ready" (1F, architecture-perf#1): every bundle is in, so every page
+     opens at once; Settings › Storage shows it beside "kos-boot" */
+  var readyMarked = false;
+  function markReady() {
+    if (readyMarked) return;
+    readyMarked = true;
+    try { performance.mark("kos-ready"); performance.measure("kos-ready", "kos-boot-start", "kos-ready"); } catch (e) { /* no User Timing */ }
+  }
+  function measured(name) {
+    try { var m = performance.getEntriesByName(name, "measure"); return m.length ? Math.round(m[m.length - 1].duration) : null; } catch (e) { return null; }
+  }
+  /* this start's timings: ms to the first page (`boot`), ms until every
+     bundle was in (`ready`, null while the warm-up runs), and the bundles in */
+  function timing() {
+    var all = names();
+    return { boot: measured("kos-boot"), ready: measured("kos-ready"), mode: LAZY ? "lazy" : "eager",
+      bundles: all.length, loaded: all.filter(isIn).length };
   }
 
   /* ---------------- what a page needs ---------------- */
@@ -315,7 +336,7 @@
   }
   var CODE = ["content-code"];
   /* the reworked pages and their engine ride their own bundle (design 45–47) */
-  var EXAMS = ["exam-index", "exams-deep", "exams-pages"];
+  var EXAMS = ["exam-index", "exams-deep", "exams-pages", "labs", "ink-ui"];
   /* the bundles holding the words of the cards a review page shows: the
      ones due and the ones set aside, by the subject each belongs to */
   function reviewBundles(arg) {
@@ -333,8 +354,9 @@
     return out;
   }
   var NEEDS = {
-    ref: function (arg) { return [contentOf(subjectOfArg(arg))]; },
-    subject: function (arg) { return [contentOf(subjectOfArg(arg))]; },
+    /* the labs (1F) ride with every page that embeds or opens one */
+    ref: function (arg) { return [contentOf(subjectOfArg(arg)), "labs", "intel"]; },
+    subject: function (arg) { return [contentOf(subjectOfArg(arg)), "labs"]; },
     code: function () { return CODE; },
     /* one assessment's pages assemble its Companion and its papers from its
        subject's notes and question banks */
@@ -346,9 +368,10 @@
       var list = a ? [a] : X && X.upcoming ? X.upcoming() : [];
       return EXAMS.concat(list.map(function (x) { return x && x.subject ? contentOf(x.subject) : null; }));
     },
-    tracker: function () { return ["exam-index", "exams-pages"]; },
-    review: reviewBundles,
-    due: reviewBundles,
+    tracker: function () { return ["exam-index", "exams-pages", "ink-ui"]; },
+    /* a card's Write mode and a written answer are the answer pad (ink-ui, 1F) */
+    review: function (arg) { return reviewBundles(arg).concat(["ink-ui"]); },
+    due: function (arg) { return reviewBundles(arg).concat(["ink-ui"]); },
     cardstats: function (arg) { return reviewBundles(arg).concat(["page-cardstats"]); }
   };
   /* W8 (AP-01 stage 2): PAGE MODULES on first use. A page whose module
@@ -357,15 +380,27 @@
      space's bundle too. Until the bundle is in, KOS.views.<view> is a
      stand-in (below), so a route to it is valid from the first moment. */
   var PAGES = {
-    money: ["page-money"], governor: ["page-governor"], code: ["page-code"],
+    money: ["page-money"], governor: ["page-governor", "page-achievements"], code: ["page-code"],
     mind: ["page-mind"], japanese: ["page-ja"], help: ["page-help"],
     /* the share card and export (reportshare.js) serve Reports and the
        Shrine's poster only: page-share comes with both */
-    shrine: ["page-shrine", "page-share"], reports: ["page-reports", "page-share"],
-    mediasync: ["page-sync"], aniprofile: ["page-sync"], vndbprofile: ["page-sync"],
+    shrine: ["page-shrine", "page-share", "page-vaults"], reports: ["page-reports", "page-share", "page-vaults"],
+    mediasync: ["page-sync", "page-vaults"], aniprofile: ["page-sync", "page-vaults"], vndbprofile: ["page-sync", "page-vaults"],
+    /* the four vaults and their shared toolkit (medview), and the pages
+       that draw its pieces (1F: they left boot together) */
+    anime: ["page-vaults"], seasonal: ["page-vaults"], books: ["page-vaults"], mangaka: ["page-vaults"],
+    vn: ["page-vaults"], game: ["page-vaults"], wishlist: ["page-vaults"],
     /* Creatives' pages (the Writing Desk, Drills, References, Sketch) and
        its topic page; the space's router and nav stay at boot */
-    creatives: ["page-creatives"],
+    creatives: ["page-creatives", "labs", "ink-ui"],
+    /* the Labs page (1F, 20 Nov 2026: the labs left boot) */
+    sims: ["labs"],
+    /* the topic page (topic.js, editor.js, inktab.js: 1F) */
+    ref: ["page-topic", "ink-ui"],
+    /* the exams hub and the tracker (1F: their modules joined exams-pages) */
+    exams: ["exams-pages", "ink-ui"], tracker: ["exams-pages", "ink-ui"],
+    /* the Assistant's page and the tools it shows (1F; the drawer stays at boot) */
+    assistant: ["ai", "page-assistant"],
     /* Backup & Restore (and Reset everything, which only it opens) */
     data: ["page-data"],
     /* Settings › Storage (1C, 20 Nov 2026: routines inside routines took boot over) */
@@ -373,13 +408,28 @@
     /* Settings › Connections (20 Nov 2026: Neon's batch 3 merged into 1C) */
     connections: ["page-connections"],
     /* the Matrix (1C, 20 Nov 2026: the plan's shift and the plan in blocks) */
-    matrix: ["page-matrix"],
+    matrix: ["page-matrix", "page-vaults"],
     /* the full notification feed (the header bell stays at boot): 1C's ink */
-    notifications: ["page-notifications"]
+    notifications: ["page-notifications"],
+    /* the Pacing page and the braid (1F; Home's card stays at boot in pacecard.js) */
+    pacing: ["page-pacing"],
+    /* the Goals page and its dialogs (1F; the words Home reads stay in goalwords.js) */
+    goals: ["page-goals"],
+    /* the Routines page and its editors (1F; KOS.rtUI stays at boot in rtkit.js) */
+    routines: ["page-routines"], tasks: ["page-routines"],
+    /* the Calendar page and its dialogs (1F; the event store, the chips and
+       the countdown widget stay at boot, and KOS.calendar's dialogs load it) */
+    calendar: ["page-calendar"],
+    /* the Reminders page (1F; the one tick, KOS.reminderTick, stays at boot) */
+    reminders: ["page-reminders"],
+    /* the Badge Wall (1F; the medal, toasts and the Wall card stay at boot) */
+    achievements: ["page-achievements"]
   };
   /* it: the IT desk (1C, 20 Nov 2026: the Collection's watch link) */
   var SPACE_DESK = { code: "page-code", mind: "page-mind", ja: "page-ja", creatives: "page-creatives", it: "page-it" };
-  var SPACE_TOPIC = { mind: "page-mind", creatives: "page-creatives" };
+  /* ja, code: a Japanese or Code topic page draws with jatopic.js or
+     codetopic.js, in its space's bundle (1F; Mind's mindtopic.js too) */
+  var SPACE_TOPIC = { mind: "page-mind", creatives: "page-creatives", ja: "page-ja", code: "page-code" };
   function pagesFor(viewId, arg) {
     var out = (PAGES[viewId] || []).slice(), sid = subjectOfArg(arg);
     if (viewId === "subject" && SPACE_DESK[sid]) out.push(SPACE_DESK[sid]);
@@ -474,6 +524,7 @@
     need: need,
     all: function () { return need(names()); },
     warm: warm,
+    timing: timing,
     on: function (fn) { listeners.push(fn); },
     stub: stub,
     isStub: isStub,

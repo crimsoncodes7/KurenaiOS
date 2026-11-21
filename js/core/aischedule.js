@@ -172,7 +172,14 @@
     var s = get(id);
     if (!s) { cb(new Error("No such schedule.")); return false; }
     if (busy()) { cb(new Error("Kurenai is busy — it will try again shortly.")); return false; }
-    if (!KOS.ai.orchestrator) { cb(new Error("The assistant is not available.")); return false; }
+    if (!KOS.ai.orchestrator) {
+      /* the orchestrator loads on first use (1F): fetch it, then run */
+      if (KOS.ai.ready && !opts._loaded) {
+        KOS.ai.ready().then(function () { run(id, Object.assign({}, opts, { _loaded: true }), cb); }, function () { cb(new Error("The assistant is not available.")); });
+        return true;
+      }
+      cb(new Error("The assistant is not available.")); return false;
+    }
     var now = new Date(), date = today(now), prevRun = s.lastRun;
     running = { id: s.id, startedAt: now.getTime() };
     emit();

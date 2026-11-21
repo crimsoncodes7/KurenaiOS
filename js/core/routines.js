@@ -993,7 +993,7 @@
   /* ---------------- the Assistant's tools (plan §10.8; registered when on) ---------------- */
   function registerTools() {
     var T = KOS.ai && KOS.ai.tools;
-    if (!T || !T.define) return;
+    if (!T || !T.define) { if (KOS.ai && KOS.ai.whenTools) KOS.ai.whenTools(registerTools); return; }
     function fail(m) { return new Error(m); }
     function brief(r, day) {
       var e = entry(r.id, day), v = verdict(r, e);

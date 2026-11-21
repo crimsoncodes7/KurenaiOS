@@ -1644,16 +1644,23 @@
     }
   });
 
+  /* the Games vault loads on first use (1F) */
+  function vaultsFirst(run) {
+    return function (args, cb) {
+      if (KOS.games || !(KOS.lazy && KOS.lazy.need)) { run(args, cb); return; }
+      KOS.lazy.need("page-vaults").then(function () { run(args, cb); }, function () { run(args, cb); });
+    };
+  }
   def("games_bulk_add", {
     desc: "Bulk-create Planned game drafts from a list of titles (dedupes against the vault and within the list; ONE governor session for the whole act).",
     category: "collection", tier: "consequential", read: false,
     params: { titles: { type: "array", required: true, minLen: 1, maxLen: 100, items: { type: "string", minLen: 1, maxLen: 200 } } },
-    run: function (args, cb) {
+    run: vaultsFirst(function (args, cb) {
       KOS.games.bulkAddTitles(args.titles.join("\n"), function (err, report) {
         if (err) { cb(err); return; }
         cb(null, report);
       });
-    }
+    })
   });
 
   def("collection_sync_provider", {
@@ -2806,7 +2813,7 @@
       page: { type: "string", maxLen: 40 },
       id: { type: "string", maxLen: 60 }
     },
-    run: function (args, cb) {
+    run: labsFirst(function (args, cb) {
       var arg;
       if (args.view === "sims" && args.lab) {
         if (!KOS.sims || !KOS.sims.get(args.lab)) { cb(fail("No lab with id '" + args.lab + "' — call labs_list for the ids.")); return; }
@@ -2828,9 +2835,16 @@
       }
       KOS.show(args.view, arg);
       cb(null, { navigated: true, view: args.view });
-    }
+    })
   });
 
+  /* the labs load on first use (1F): a tool that reads them asks first */
+  function labsFirst(run) {
+    return function (args, cb) {
+      if (KOS.sims || !(KOS.lazy && KOS.lazy.need)) { run(args, cb); return; }
+      KOS.lazy.need("labs").then(function () { run(args, cb); }, function () { run(args, cb); });
+    };
+  }
   /* the labs (design part 2, frame 20): what exists, where it sits in the
      specification, and whether the Governor's one-time gold unlock still
      stands in front of it (invariant 2). Read-only: unlocking is the shop's
@@ -2842,7 +2856,7 @@
       subject: { type: "string", enum: SUBJECTS },
       search: { type: "string", maxLen: 60 }
     },
-    run: function (args, cb) {
+    run: labsFirst(function (args, cb) {
       if (!KOS.sims) { cb(null, { labs: [] }); return; }
       var q = (args.search || "").toLowerCase().trim();
       var labs = KOS.sims.all().filter(function (s) {
@@ -2856,7 +2870,7 @@
           locked: !acc.ok, price: !acc.ok && acc.item ? acc.item.price : null };
       });
       cb(null, { count: labs.length, labs: labs.slice(0, 60) });
-    }
+    })
   });
 
   /* scheduled prompts (core/aischedule.js): a message Kurenai sends at a
@@ -3873,4 +3887,6 @@
       }
     }
   };
+  /* the domains that registered before this loaded (1F) */
+  if (KOS.ai._toolsLoaded) KOS.ai._toolsLoaded();
 })();

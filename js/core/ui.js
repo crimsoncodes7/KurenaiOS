@@ -469,7 +469,8 @@
      The rail carries the section; the subnav (in-page, above #main)
      carries the views inside it. ---- */
   var SECTION_OF = {
-    home: "home",
+    /* Reports are Home's (no rail item of their own): Home stays lit (shell#5) */
+    home: "home", reports: "home",
     subject: "study", ref: "study", review: "study", due: "study", cardstats: "study", code: "study", japanese: "study", mind: "study", creatives: "study",
     tracker: "study", exams: "study", pacing: "study", personaldeck: "study", assignments: "study",
     worked: "study", trace: "study", oop: "study", sims: "study",
@@ -622,6 +623,15 @@
     });
     return opts.edge ? edgeTrack(list, opts.label) : list;
   };
+  /* bring a strip's selected tab into sight when it is scrolled out of it
+     (study-core#1): any tab strip that scrolls calls this after a change */
+  KOS.ui.revealSelected = function (list) {
+    var on = list && list.querySelector("[aria-selected='true'], [aria-current='page']");
+    if (!on || on.hidden || list.scrollWidth <= list.clientWidth) return;
+    var lr = list.getBoundingClientRect(), r = on.getBoundingClientRect();
+    if (r.right > lr.right) list.scrollLeft += r.right - lr.right + 8;
+    else if (r.left < lr.left) list.scrollLeft -= lr.left - r.left + 8;
+  };
   /* the shared edge-marked tab scroller (design 15n): a strip that does not
      fit never wraps; the side with hidden tabs shows a fade in the track's
      colour and a ‹ / › that scrolls one track width, both gone at that end,
@@ -632,16 +642,24 @@
       /* a tab picked redraws the page: the strip keeps its scroll, and
          reveals the active tab only when it is out of sight */
       keep: "tabs:" + (label || ""),
-      reveal: function () { return null; } });
-    var later = window.requestAnimationFrame || function (fn) { return setTimeout(fn, 0); };
-    later(function () {
-      var on = list.querySelector("[aria-selected='true'], [aria-current='page']");
-      if (on && list.scrollWidth > list.clientWidth) {
-        var left = on.offsetLeft - list.offsetLeft;
-        if (left + on.offsetWidth > list.scrollLeft + list.clientWidth || left < list.scrollLeft) list.scrollLeft = Math.max(0, left - 8);
-      }
+      reveal: function () { return null; },
+      /* the remembered scroll may hide the tab now active: reveal it after (study-core#1) */
+      afterPlace: function () { revealActive(); } });
+    /* the active tab is brought into sight when the strip mounts, after a
+       remembered scroll is put back, and whenever the selection changes in
+       place (study-core#1: topic tabs, the flashcard modes) */
+    function revealActive() {
+      KOS.ui.revealSelected(list);
       if (wrap.sync) wrap.sync();
-    });
+    }
+    var later = window.requestAnimationFrame || function (fn) { return setTimeout(fn, 0); };
+    later(revealActive);
+    if (typeof window.MutationObserver === "function") {
+      try {
+        new window.MutationObserver(function () { later(revealActive); })
+          .observe(list, { subtree: true, attributes: true, attributeFilter: ["aria-selected", "aria-current"] });
+      } catch (e) { /* no observers */ }
+    }
     return wrap;
   }
 
@@ -829,6 +847,7 @@
         if (scrollMemo[opts.keep] != null) node.scrollLeft = scrollMemo[opts.keep];
         else if (typeof opts.reveal === "function") { var x = opts.reveal(node); if (x != null) node.scrollLeft = Math.max(0, x); }
         sync();
+        if (opts.afterPlace) opts.afterPlace();
       };
       setTimeout(place, 0);   /* once mounted; before the tabs' reveal frame, and in a background tab too */
     }

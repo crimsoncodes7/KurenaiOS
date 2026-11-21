@@ -163,7 +163,9 @@
 <script src="js/data/exam-archetypes.js"></script>
 <script src="js/data/exam-reports.js"></script>
 <script src="js/data/exam-playbook.js"></script>
+<template data-lazy="ink-ui">
 <script src="js/data/ink-drills.js"></script>
+</template>
 <template data-lazy="exams-deep">
 <script src="js/data/exams/aqa-7517-2-45.js"></script>
 <script src="js/data/exams/aqa-7517-2-46.js"></script>
@@ -181,17 +183,23 @@
 </template>
 <script src="js/data/code.js"></script>
 <script src="js/data/lazy-index.js"></script>
+<template data-lazy="page-ja">
 <script src="js/data/ja-strokes.js"></script>
+</template>
 <script src="js/data/ja.js"></script>
 <script src="js/data/ja-s1.js"></script>
+<template data-lazy="page-ja">
 <script src="js/data/ja-audio.js"></script>
+</template>
 <script src="js/data/creatives.js"></script>
 <script src="js/data/mind.js"></script>
 <script src="js/core/subjects.js"></script>
 <!-- the integrated weekly plan, imported once from Notion; a SEED that
      js/core/pacing.js copies into state.pacing on first run -->
 <script src="js/data/pacing.js"></script>
+<template data-lazy="intel">
 <script src="js/data/intel.js"></script>
+</template>
 <!-- core -->
 <script src="js/core/store.js"></script>
 <!-- RC4: the store registry — every IndexedDB database, what a backup
@@ -236,15 +244,22 @@
 <script src="js/core/attempts.js"></script>
 <script src="js/core/reviewpack.js"></script>
 <script src="js/core/inksync.js"></script>
+<!-- the ink surfaces and toolbar, the answer pad, the viewer and the drills
+     (1F): the pages that write load them, and a file loads them to open -->
+<template data-lazy="ink-ui">
+<script src="js/core/inksurface.js"></script>
 <script src="js/core/inkpad.js"></script>
 <script src="js/core/pdfview.js"></script>
+</template>
 <script src="js/core/desk.js"></script>
 <script src="js/core/srs.js"></script>
 <script src="js/core/questions.js"></script>
 <script src="js/data/moved-cards.js"></script>
 <script src="js/core/jakana.js"></script>
 <script src="js/core/jaconj.js"></script>
+<template data-lazy="page-ja">
 <script src="js/core/jastroke.js"></script>
+</template>
 <script src="js/core/javalid.js"></script>
 <script src="js/core/jasrs.js"></script>
 <script src="js/core/sessions.js"></script>
@@ -289,8 +304,12 @@
      transport + Gemini/DeepSeek via the ai-chat Edge Function) and the
      explicit tool registry (binds to domain modules lazily at call time) -->
 <script src="js/core/ai.js"></script>
+<!-- the tool registry and the orchestrator load on first use (1F): the
+     Assistant's send, its pages and a scheduled message ask for them -->
+<template data-lazy="ai">
 <script src="js/core/aitools.js"></script>
 <script src="js/core/aiorchestrator.js"></script>
+</template>
 <script src="js/core/aimemory.js"></script>
 <script src="js/core/aischedule.js"></script>
 <script src="js/core/report.js"></script>
@@ -299,7 +318,9 @@
 <script src="js/core/coderun.js"></script>
 <script src="js/core/code.js"></script>
 <script src="js/core/ja.js"></script>
+<template data-lazy="page-ja">
 <script src="js/core/jaui.js"></script>
+</template>
 <script src="js/core/creatives.js"></script>
 <script src="js/core/mindtree.js"></script>
 <script src="js/core/mind.js"></script>
@@ -474,23 +495,28 @@
 <script src="js/engines/flashcards.js"></script>
 <script src="js/engines/quiz.js"></script>
 <!-- modules -->
-<script src="js/modules/editor.js"></script>
-<script src="js/modules/inktab.js"></script>
 <template data-lazy="ink-tex">
 <script src="js/modules/inktex.js"></script>
 </template>
 <script src="js/modules/inkset.js"></script>
+<template data-lazy="ink-ui">
 <script src="js/modules/inkdrills.js"></script>
+</template>
 <script src="js/modules/hub.js"></script>
 <script src="js/modules/searchui.js"></script>
 <script src="js/modules/home.js"></script>
 <script src="js/modules/subject.js"></script>
+<!-- the topic page, its editor and its Handwritten tab load with it (1F) -->
+<template data-lazy="page-topic">
+<script src="js/modules/editor.js"></script>
+<script src="js/modules/inktab.js"></script>
 <script src="js/modules/topic.js"></script>
+</template>
 <template data-lazy="page-data">
 <script src="js/modules/dataview.js"></script>
 </template>
-<script src="js/modules/codetopic.js"></script>
 <template data-lazy="page-code">
+<script src="js/modules/codetopic.js"></script>
 <script src="js/modules/codehelp.js"></script>
 <script src="js/modules/code.js"></script>
 <script src="js/modules/codecap.js"></script>
@@ -500,7 +526,9 @@
 <script src="js/modules/jarun.js"></script>
 <script src="js/modules/japanese.js"></script>
 </template>
+<template data-lazy="page-ja">
 <script src="js/modules/jatopic.js"></script>
+</template>
 <script src="js/modules/creatives.js"></script>
 <template data-lazy="page-creatives">
 <script src="js/modules/crwrite.js"></script>
@@ -514,7 +542,9 @@
 <script src="js/modules/mindrun.js"></script>
 <script src="js/modules/mind.js"></script>
 </template>
+<template data-lazy="page-mind">
 <script src="js/modules/mindtopic.js"></script>
+</template>
 <!-- the IT desk: the qualification aggregate and the units table (frames 18a–18c);
      only IT's subject page draws it, so it loads with that page -->
 <template data-lazy="page-it">
@@ -522,18 +552,31 @@
 </template>
 <script src="js/modules/due.js"></script>
 <script src="js/modules/calendar.js"></script>
+<template data-lazy="page-calendar">
+<script src="js/modules/calpage.js"></script>
+</template>
 <script src="js/modules/todo.js"></script>
+<script src="js/modules/rtkit.js"></script>
+<template data-lazy="page-routines">
 <script src="js/modules/routines.js"></script>
+</template>
 <script src="js/modules/dayreview.js"></script>
 <template data-lazy="page-player">
 <script src="js/modules/routineplayer.js"></script>
 </template>
 <script src="js/modules/reminders.js"></script>
+<template data-lazy="page-reminders">
+<script src="js/modules/reminderspage.js"></script>
+</template>
 <script src="js/modules/assignments.js"></script>
 <template data-lazy="page-governor">
 <script src="js/modules/governor-ui.js"></script>
 </template>
 <script src="js/modules/artslot.js"></script>
+<!-- Exams & Papers reworked around one exam (design 45–47): its engine and
+     pages load on first use with the Exams view (invariant 168); since 1F the
+     tracker, the hub's pages, the papers' viewer and practice ride with them -->
+<template data-lazy="exams-pages">
 <script src="js/modules/tracker.js"></script>
 <script src="js/modules/exams.js"></script>
 <script src="js/modules/examviews.js"></script>
@@ -542,9 +585,6 @@
 <script src="js/modules/examguide.js"></script>
 <script src="js/modules/exampaperview.js"></script>
 <script src="js/modules/examdeep.js"></script>
-<!-- Exams & Papers reworked around one exam (design 45–47): its engine and
-     pages load on first use with the Exams view (invariant 168) -->
-<template data-lazy="exams-pages">
 <script src="js/core/examsession.js"></script>
 <script src="js/modules/examshell.js"></script>
 <script src="js/modules/examrevise.js"></script>
@@ -571,12 +611,18 @@
 <script src="js/modules/help.js"></script>
 </template>
 <script src="js/modules/focus.js"></script>
+<script src="js/modules/pacecard.js"></script>
+<template data-lazy="page-pacing">
 <script src="js/modules/pacing.js"></script>
+</template>
 <script src="js/modules/cloudui.js"></script>
 <script src="js/modules/welcome.js"></script>
 <!-- Category 6 Phase E: the Kurenai Assistant surfaces (drawer + page +
      contextual actions) over the Phase A–D services -->
 <script src="js/modules/assistant.js"></script>
+<template data-lazy="page-assistant">
+<script src="js/modules/assistantpage.js"></script>
+</template>
 <!-- Phase 2: the Live2D binding for the assistant renderer seam. Contains no
      Cubism SDK/Core/model and downloads none, so it stays inert on the
      deployed build; enable() refuses until a runtime is installed by hand
@@ -586,6 +632,7 @@
      (cover/lazy list/pills/empty states/editor shell) the four views build
      on; each view registers its editor in KOS.mediaEditors (dispatch lives
      in core/media.js), so their relative order after medview.js is free -->
+<template data-lazy="page-vaults">
 <script src="js/modules/medview.js"></script>
 <!-- where you watch, read or play a title: icons, links and the field (1C) -->
 <script src="js/modules/watchlink.js"></script>
@@ -593,6 +640,7 @@
 <script src="js/modules/books.js"></script>
 <script src="js/modules/vn.js"></script>
 <script src="js/modules/games.js"></script>
+</template>
 <template data-lazy="page-sync">
 <script src="js/modules/aniprofile.js"></script>
 <script src="js/modules/vndbprofile.js"></script>
@@ -600,7 +648,13 @@
 <!-- wishlist.js registers a KOS.mediaEditorHooks entry for the reverse
      "on your wishlist" surfacing -->
 <script src="js/modules/wishlist.js"></script>
+<template data-lazy="page-vaults">
+<script src="js/modules/wishlistpage.js"></script>
+</template>
+<script src="js/modules/goalwords.js"></script>
+<template data-lazy="page-goals">
 <script src="js/modules/goals.js"></script>
+</template>
 <template data-lazy="page-money">
 <script src="js/modules/money.js"></script>
 <script src="js/modules/moneyimp.js"></script>
@@ -615,6 +669,8 @@
 <script src="js/modules/mediasync.js"></script>
 </template>
 <script src="js/modules/mediasearch.js"></script>
+<!-- the labs and simulations (1F): loaded with the pages that show them -->
+<template data-lazy="labs">
 <script src="js/labs/worked.js"></script>
 <script src="js/labs/lab.js"></script>
 <script src="js/labs/trace.js"></script>
@@ -630,13 +686,16 @@
 <script src="js/labs/sims-cs.js"></script>
 <script src="js/labs/nea-tools.js"></script>
 <script src="js/labs/worked-extra.js"></script>
+</template>
 <!-- Category 7 Phase E: responsive shell presentation only. Canonical
      routing/search listeners stay in ui.js, searchui.js and main.js. -->
 <template data-lazy="page-notifications">
 <script src="js/modules/notifications.js"></script>
 </template>
-<script src="js/modules/reports.js"></script>
+<!-- Home's report card stays at boot; the Reports pages load on first use (1F) -->
+<script src="js/modules/reportcard.js"></script>
 <template data-lazy="page-reports">
+<script src="js/modules/reports.js"></script>
 <script src="js/modules/reportlong.js"></script>
 <script src="js/modules/reportstory.js"></script>
 </template>
@@ -648,6 +707,9 @@
 <script src="js/data/achievements-art.js"></script>
 <script src="js/core/achcatalogue.js"></script>
 <script src="js/modules/achievements.js"></script>
+<template data-lazy="page-achievements">
+<script src="js/modules/achievementspage.js"></script>
+</template>
 <!-- the backup-before-change safeguard (quality W0): a verified snapshotFull
      in its own IndexedDB, after every store it reads -->
 <script src="js/core/backup.js"></script>

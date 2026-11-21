@@ -268,7 +268,7 @@
     TABDEFS.forEach(function (t) {
       tabBar.appendChild(el("button", { type: "button", class: "k-topic-tab", "data-ui": "ui.tab", role: "tab",
         "data-tab": t[0], "data-label": t[1], onclick: function () { selectTab(t[0]); } },
-        [t[0] === "ink" && KOS.inkUI ? KOS.inkUI.glyph("pen") : null, t[1],
+        [t[0] === "ink" && KOS.inkUI && KOS.inkUI.glyph ? KOS.inkUI.glyph("pen") : null, t[1],
           t[3] ? el("span", { class: "k-mono", "data-ui": "ui.tab-count", text: String(t[3]) }) : null].filter(Boolean)));
     });
     /* tabs that do not fit fold behind "+N ▾", last first — the open one
@@ -318,6 +318,8 @@
         var last = btns.filter(function (b) { return !b.hidden && b.dataset.tab !== curTab; }).pop();
         if (last) { last.hidden = true; hidden.unshift(last); moreMenu(); }
       }
+      /* on a phone the open tab is brought into sight (study-core#1) */
+      if (phoneTier) KOS.ui.revealSelected(tabBar);
     }
     if (typeof window.ResizeObserver === "function") {
       var lastW = 0;
@@ -826,7 +828,7 @@
 
     /* the examiner's guidance on this spec point, as the spec tab's callouts */
     function renderIntel(into) {
-      var intel = KOS_DATA.intel[sid + ":" + ref];
+      var intel = (KOS_DATA.intel || {})[sid + ":" + ref];
       if (!intel) return;
       function callout(kind, mark, title, body, hook) {
         return el("aside", { class: "k-callout", "data-kind": kind, "data-ui": hook || null }, [

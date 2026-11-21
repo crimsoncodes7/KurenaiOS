@@ -199,11 +199,8 @@
         G.linkExam(g.id, sel.value); ov.remove(); announce("Linked to " + a.title); redraw();
       }, "goal.link-save") : null].filter(Boolean), "goal.link-dialog", "k-gl-dialog--form");
   }
-  function isMoney(g) { return /^[£$€¥]$|^[A-Z]{3}$/.test(g._unit || ""); }
-  function hm(hours) {
-    var m = Math.round((hours || 0) * 60);
-    return Math.floor(m / 60) + " h" + (m % 60 ? " " + (m % 60) + " m" : "");
-  }
+  /* the words Home and the exams pages share are js/modules/goalwords.js, at boot (1F) */
+  var isMoney = KOS.goalsUI.isMoney, hm = KOS.goalsUI.hm, word = KOS.goalsUI.word, paceKind = KOS.goalsUI.paceKind;
   /* a figure in its own unit: hours as "7 h 40 m", money as an amount */
   function figure(g, v, opts) {
     opts = opts || {};
@@ -211,12 +208,6 @@
     if (isMoney(g)) return U.amount(Math.round(v * 100), { size: opts.size || "30" });
     if (g._unit === "hours") return el("span", { class: "k-gl-big", "data-size": opts.size || null, text: hm(v) });
     return el("span", { class: "k-gl-big", "data-size": opts.size || null, text: String(Math.round(v * 10) / 10) });
-  }
-  function word(g, v) {
-    if (v == null) return "–";
-    if (isMoney(g)) return KOS.money && KOS.money.isHidden() ? "" : KOS.money.format(Math.round(v * 100));
-    if (g._unit === "hours") return hm(v);
-    return String(Math.round(v * 10) / 10) + (g._unit ? " " + g._unit : "");
   }
   function domainOf(g) { return g._domain || g.domain || "collection"; }
   function tone(g) {
@@ -240,18 +231,6 @@
     return el("span", { class: cls, text: markOf(g) });
   }
   function markOf(g) { if (isExam(g)) return "試"; return domainOf(g) === "collection" && g.module ? MODULE_K[g.module] : (DOMAIN[domainOf(g)] || DOMAIN.collection).k; }
-  /* the chip a goal shows: its pace, or why it has none */
-  function paceKind(g) {
-    if (g.archived) return "archived";
-    if (g._unlinked) return null;
-    if (g._displayOnly) return "display";
-    /* a stay-under goal still running has no line: Under or Over */
-    if (g._direction === "under" && g._status !== "completed" && g._status !== "failed") return g._pace || "under";
-    if (g._status === "completed" || g._status === "met") return "met";
-    if (g._status === "failed") return "missed";
-    if (g.type === "code-capstone" && !g._current) return "notyet";
-    return g._pace || (g._period || g.deadline ? null : "none");
-  }
   function daysLeft(g) {
     var end = g._period ? g._period.to : g.deadline;
     return end ? between(today(), end) : null;
@@ -808,7 +787,7 @@
         el("div", { class: "k-gl-typelist" }, examTypes.map(function (t) {
           return el("button", { type: "button", class: "k-gl-type", "data-ui": "goal.type", disabled: anyExam ? null : "", title: t.blurb || null,
             onclick: function () { next({ type: t.id }); }, text: t.label });
-        }).concat(anyExam ? [] : [btn("Add an exam first", "k-btn--sm", function () { ov.remove(); KOS.show("exams", "timetable"); KOS.examEditor(null, {}, function () { KOS.rerender(); }); }, "goal.add-exam")]))]));
+        }).concat(anyExam ? [] : [btn("Add an exam first", "k-btn--sm", function () { ov.remove(); KOS.show("exams", "timetable"); KOS.lazy.need("exams-pages").then(function () { KOS.examEditor(null, {}, function () { KOS.rerender(); }); }); }, "goal.add-exam")]))]));
     }
     DOMAIN_ORDER.concat(["manual"]).forEach(function (d) {
       var ts = d === "manual" ? [G.typeDef("custom-manual")] : G.types({ domain: d }).filter(function (t) { return t.id !== "custom-manual" && !t.exam; });
@@ -1086,5 +1065,5 @@
   }
   /* the old entry point other pages and tests call */
   KOS.goalEditor = function (existing) { if (existing) goalDialog(existing); else newGoal(); };
-  KOS.goalsUI = { newGoal: newGoal, goalDialog: goalDialog, paceKind: paceKind, word: word, hm: hm, actionFor: actionFor, nextStep: nextStep };
+  Object.assign(KOS.goalsUI, { newGoal: newGoal, goalDialog: goalDialog, actionFor: actionFor, nextStep: nextStep });
 })();

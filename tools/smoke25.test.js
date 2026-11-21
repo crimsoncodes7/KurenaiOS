@@ -203,7 +203,8 @@ step("a new-conversation submit routes to the configured Ollama model (not empty
 console.log("== fix source contract ==");
 
 step("the Settings model input saves on `input`, not only `change`", async () => {
-  const src = fs.readFileSync(path.join(ROOT, "js/modules/assistant.js"), "utf8");
+  /* the Settings panel is the Assistant's page, js/modules/assistantpage.js since 1F */
+  const src = fs.readFileSync(path.join(ROOT, "js/modules/assistantpage.js"), "utf8");
   assert(/modelIn\.addEventListener\("input", save\)/.test(src),
     "the model input must persist on `input` (the unsaved-value fix)");
   assert(/ollamaIn\.addEventListener\("input"/.test(src),

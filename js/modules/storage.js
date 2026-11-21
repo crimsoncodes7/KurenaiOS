@@ -160,6 +160,15 @@
           el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "storage.persist", text: "Ask to keep this data", onclick: function () {
             navigator.storage.persist().then(function (ok) { KOS.store.state.ui.persistAsked = Date.now(); KOS.store.save(); KOS.ui.toast(ok ? "The browser will keep this data." : "The browser said no for now; it decides by how you use the app.", !ok); paint(); });
           } })]));
+        /* this start (1F, architecture-perf#1): how long until the first page,
+           and until every part of the app was in (KOS.lazy.timing) */
+        var tm = KOS.lazy && KOS.lazy.timing ? KOS.lazy.timing() : null;
+        if (tm && tm.boot != null) {
+          var secs = function (ms) { return ms < 1000 ? ms + " ms" : (ms / 1000).toFixed(ms < 10000 ? 1 : 0) + " s"; };
+          dev.appendChild(el("div", { class: "k-st-row", "data-ui": "storage.boot" }, [el("span", { class: "k-st-row-t", text: "First page, this start" }), el("span", { class: "k-mono", text: secs(tm.boot) })]));
+          dev.appendChild(el("div", { class: "k-st-row", "data-ui": "storage.boot-ready" }, [el("span", { class: "k-st-row-t", text: "Everything loaded" }),
+            el("span", { class: "k-mono", text: tm.ready != null ? secs(tm.ready) : tm.loaded + " of " + tm.bundles + " parts so far" })]));
+        }
       });
 
       /* the app's own record: the state document in localStorage (RC5) */
