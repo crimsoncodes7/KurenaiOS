@@ -399,5 +399,29 @@
     return sh;
   }
 
-  KOS.mindRun = { explain: explain, position: position, revisitCard: revisitCard, dialogue: dialogue, ask: ask, capture: capture, MODES: MODES };
+  /* ================= shared concept-card rating stage ================= */
+  function cardStage(o) {
+    var cd = M().cardOf(o.key);
+    if (!cd) return;
+    var pv = M().preview(o.key);
+    o.body.appendChild(el("div", { class: "k-mind-flash", "data-ui": o.cardHook || "mind.daily-card" }, [
+      el("span", { class: "k-mono k-muted", text: "Card " + o.n + " of " + o.total }),
+      cd.kind === "distinction" ? el("span", { class: "k-kicker", text: "Key distinction" }) : null,
+      el("b", { class: "k-mind-flash-q", text: cd.q }),
+      o.shown ? el("p", { class: "k-mind-flash-a", text: cd.a }) : null,
+      o.shown ? el("small", { class: "k-muted", text: cd.concept.name + (cd.concept.lesson ? " · " + cd.concept.lesson : "") }) : null
+    ].filter(Boolean)));
+    var g = el("div", { class: "k-mind-thumb k-mind-grades", role: "group", "aria-label": o.shown ? "How well did you recall it?" : "Answer" });
+    if (!o.shown) g.appendChild(el("button", { type: "button", class: "k-btn k-btn--primary", "data-ui": "mind.show-answer", text: "Show the answer", onclick: function () { if (o.onShow) o.onShow(); } }));
+    else [["Again", 1, "again"], ["Hard", 2, "hard"], ["Good", 3, "good"], ["Easy", 4, "easy"]].forEach(function (x) {
+      g.appendChild(el("button", { type: "button", class: "k-mind-grade", "data-ui": "mind.grade", "data-grade": x[2], onclick: function () {
+        var r = M().rateCard(o.key, x[1]);
+        announce(x[0] + ". Back in " + r.ivl + (r.ivl === 1 ? " day." : " days."));
+        if (o.onRate) o.onRate(o.key, x[1], r);
+      } }, [el("b", { text: x[0] }), el("small", { class: "k-mono", text: pv[x[2]] + " d" })]));
+    });
+    o.body.appendChild(g);
+  }
+
+  KOS.mindRun = { explain: explain, position: position, revisitCard: revisitCard, dialogue: dialogue, ask: ask, capture: capture, cardStage: cardStage, MODES: MODES };
 })();

@@ -9,6 +9,9 @@
      B · productivity#9   Calendar: "Skip this showing" on a repeating local
                           event skips one date (single record, Undo restores,
                           skipped detail says so, not offered on Google-linked).
+     C · mind#3           Mind desk shows "Review my Mind cards (N due)" only
+                          when due; runs the due cards outside Daily 15 using
+                          FSRS rating without touching ui.daily or Focus.
 
    Run: node tools/smoke198.test.js                                         */
 "use strict";
@@ -119,6 +122,58 @@ step("B · Calendar: Skip this showing skips one date with Undo, shows skipped d
   K.calendar.eventDetail(gev, TODAY); await app.settle();
   assert(!q("[data-ui~='cal.skip']"), "Skip not offered on Google-linked event (invariant 159)");
   qa(".k-dialog-overlay").forEach((o) => o.close ? o.close() : o.remove());
+  eq(app.errors, [], "no page errors");
+});
+
+/* ---------------- C · mind#3 ---------------- */
+step("C · Mind desk offers Review my Mind cards (N due) only when due and runs them outside Daily 15 (mind#3)", async () => {
+  K.store.state.mind = K.mind.normalise({});
+  if (K.store.state.ui && K.store.state.ui.mind) delete K.store.state.ui.mind.daily;
+  K.store.save();
+
+  /* 0 due -> entry is absent */
+  K.show("subject", "mind"); await app.settle();
+  assert(!q("[data-ui~='mind.review-cards']"), "hidden when 0 Mind cards are due");
+
+  /* Seed 2 due cards -> entry appears and desk draw writes nothing */
+  const cid = K.mind.concepts()[0].id;
+  K.mind.introduce(cid, K.srs.addDays(TODAY, -2));
+  K.store.save();
+  const dueBefore = K.mind.due(TODAY, true);
+  assert(dueBefore.length >= 2, "seeded due cards: " + dueBefore.length);
+  const snap = JSON.stringify(K.store.state.mind);
+  K.show("subject", "mind"); await app.settle();
+  eq(JSON.stringify(K.store.state.mind), snap, "drawing Mind desk writes nothing (invariant 137)");
+
+  const btn = q("[data-ui~='mind.review-cards']");
+  assert(btn && btn.textContent.includes("Review my Mind cards (" + dueBefore.length + " due)"), "desk shows Review my Mind cards (N due): " + (btn && btn.textContent));
+
+  /* Open standalone card review -> ui.daily untouched, Focus idle */
+  const sessBefore = K.sessions.all().filter((s) => s.type === "mind" && s.metrics && s.metrics.kind === "reviews").length;
+  click(btn); await app.settle();
+  eq(K.currentNav().viewId, "mind", "on mind view");
+  eq(K.currentNav().arg, { page: "cards" }, "on #/mind/cards");
+  assert(!(K.store.state.ui && K.store.state.ui.mind && K.store.state.ui.mind.daily), "ui.daily untouched");
+  eq(K.focus.state(), "idle", "no Focus stopwatch started");
+
+  /* Rate every due card through the shared FSRS stage */
+  for (let i = 0; i < dueBefore.length; i++) {
+    assert(q("[data-ui~='mind.review-card']"), "card " + (i + 1) + " rendered");
+    click(q("[data-ui~='mind.show-answer']")); await app.settle();
+    const good = q("[data-ui~='mind.grade'][data-grade='good']");
+    assert(good, "Good rating button rendered");
+    click(good); await app.settle();
+  }
+  assert(q("[data-ui~='mind.cards-done']"), "completion screen rendered");
+  eq(K.mind.due(TODAY, true).length, 0, "all due cards rescheduled via FSRS");
+  const sessAfter = K.sessions.all().filter((s) => s.type === "mind" && s.metrics && s.metrics.kind === "reviews").length;
+  eq(sessAfter, sessBefore + 1, "one mind review ledger entry logged");
+  assert(!(K.store.state.ui && K.store.state.ui.mind && K.store.state.ui.mind.daily), "ui.daily still untouched after finish");
+
+  /* Returning to Mind desk hides the entry and does not double-log on dispose */
+  K.show("subject", "mind"); await app.settle();
+  assert(!q("[data-ui~='mind.review-cards']"), "hidden once all cards are reviewed");
+  eq(K.sessions.all().filter((s) => s.type === "mind" && s.metrics && s.metrics.kind === "reviews").length, sessBefore + 1, "no double-log on dispose");
   eq(app.errors, [], "no page errors");
 });
 
