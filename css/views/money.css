@@ -443,7 +443,8 @@ button.k-mn-cmp:hover { background: var(--s2); }
 .k-mn-learn { display: flex; align-items: center; flex-wrap: wrap; gap: var(--sp-8); padding: var(--sp-8) var(--sp-10); border-radius: var(--r-12); background: var(--teal-wash); font-size: var(--fs-12-5); color: var(--text); }
 .k-mn-recon { display: inline-flex; align-items: baseline; gap: var(--sp-4); }
 .k-mn-done { display: flex; flex-direction: column; align-items: flex-start; gap: var(--sp-4); }
-.k-mn-suggest .k-card-row { gap: var(--sp-10); }
+.k-mn-suggest .k-card-row { flex-wrap: wrap; gap: var(--sp-8) var(--sp-10); }
+.k-mn-suggest .k-mn-grow { min-inline-size: var(--mn-sub-next); }
 /* Transactions › Imports (39d) */
 .k-mn-batches { display: flex; flex-direction: column; }
 .k-mn-batch { padding-block: var(--sp-12); border-block-start: var(--hairline) solid var(--line); }
