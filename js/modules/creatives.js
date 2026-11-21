@@ -541,6 +541,7 @@
   KOS.crOpenWork = function (wid) { openWork(wid); };
 
   /* ---------------- the Practice Log (31j) and the Portfolio (31k) ---------------- */
+  function needsCheck(w) { return !!(w.lesson && (!w.check || !w.check.pass)); }
   function workRow(w, o) {
     var L = w.lesson ? CR().lesson(w.lesson) : null;
     var kind = el("span", { class: "k-cr-kind", lang: "ja", "aria-hidden": "true", text: kindMark(w) });
@@ -549,7 +550,8 @@
       kind,
       el("div", { class: "k-cr-work-t" }, [el("b", { text: w.title }),
         el("small", { class: "k-muted", text: [(CR().track(w.track) || {}).name, L ? L.id + (w.study ? "·" + w.study : "") : w.unit ? "project" : null, w.words ? w.words + " words" : null, dateShort(w.at)].filter(Boolean).join(" · ") })]),
-      w.check ? el("span", { class: "k-cr-done", "data-tone": w.check.pass ? "done" : "now", text: w.check.pass ? "✓ check passed" : "not yet" }) : null,
+      w.check && w.check.pass ? el("span", { class: "k-cr-done", "data-tone": "done", text: "✓ check passed" })
+        : needsCheck(w) ? el("span", { class: "k-chip k-cr-chip", "data-ui": "cr.work-todo", text: "Check to do" }) : null,
       w.portfolio ? el("span", { class: "k-chip k-cr-chip", text: "In Portfolio" }) : null,
       el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "cr.work-open", text: "Open", onclick: function () { openWork(w.id); } })
     ].filter(Boolean));
@@ -606,7 +608,6 @@
     }
     var f = KOS.view && KOS.view.memo ? KOS.view.memo("cr.logFilter", function () { return { track: "", check: "" }; }) : { track: "", check: "" };
     var target = wid ? all.find(function (w) { return w.id === wid; }) || null : null;
-    function needsCheck(w) { return !!(w.lesson && (!w.check || !w.check.pass)); }
     function matches(w) {
       if (f.track && w.track !== f.track) return false;
       if (f.check === "todo" && !needsCheck(w)) return false;
