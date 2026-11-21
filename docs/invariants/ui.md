@@ -456,8 +456,27 @@ Read this file before editing or testing anything in its domain.
     by its own pages, by pages that wait for it, or behind a fallback.
     Until it is in, `KOS.views.<view>` is a stand-in that waits the same way
     (so a route to it is valid from the first moment) and `KOS.openShop`
-    forwards to the shop once `page-governor` is in. Japanese, Mind and
-    Creatives content, the labs and every other module still load at boot.
+    forwards to the shop once `page-governor` is in. 1F (20 Nov 2026) moved
+    more page code to first use, each with a BOOT PART that stays: the labs
+    (`labs`), the examiner's notes (`intel`), the Assistant's tools (`ai`,
+    behind `KOS.ai.ready()`; a domain's tool registrations wait in
+    `KOS.ai.whenTools`), the topic page (`page-topic`), the exams pages
+    (`exams-pages`), the vaults and the Wishlist planner (`page-vaults`;
+    `KOS.mediaEditor` and `KOS.wishlist`'s record stay at boot), Reports
+    (`page-reports`; Home's card is `reportcard.js`), Pacing (`page-pacing`;
+    Home's card is `pacecard.js`), Goals (`page-goals`; the words Home and
+    the exams pages read are `goalwords.js`), Routines (`page-routines`;
+    `KOS.rtUI` is `rtkit.js`), the Calendar (`page-calendar`; the event
+    store, chips and countdown widget stay, and `KOS.calendar`'s dialogs are
+    forwarders that load it), the Assistant's page (`page-assistant`; the
+    drawer and `ask` stay), the ink layer's surfaces, the answer pad, the
+    viewer and the drills (`ink-ui`; `inkui.js` keeps the settings, palette,
+    drawing and the ink dialog, and Files loads it before opening a PDF or
+    picture) and Japanese's writing square, voices and topic page
+    (`page-ja`). The split is always the same: the boot part exports what
+    the page reads (`_k`), the page aliases it, and a mutable value is read
+    through a getter. Mind and Creatives content and the remaining modules
+    still load at boot.
     Until a bundle
     is in, `js/data/lazy-index.js` (GENERATED; `node tools/gen_lazy_index.mjs`
     after changing a lazy file, smoke142 B fails when it is stale) puts a

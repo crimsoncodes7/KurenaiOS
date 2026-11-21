@@ -378,8 +378,8 @@
     ref: ["page-topic", "ink-ui"],
     /* the exams hub and the tracker (1F: their modules joined exams-pages) */
     exams: ["exams-pages", "ink-ui"], tracker: ["exams-pages", "ink-ui"],
-    /* the Assistant's pages: its tools, permissions and activity (1F) */
-    assistant: ["ai"],
+    /* the Assistant's page and the tools it shows (1F; the drawer stays at boot) */
+    assistant: ["ai", "page-assistant"],
     /* Backup & Restore (and Reset everything, which only it opens) */
     data: ["page-data"],
     /* Settings › Storage (1C, 20 Nov 2026: routines inside routines took boot over) */
@@ -389,7 +389,16 @@
     /* the Matrix (1C, 20 Nov 2026: the plan's shift and the plan in blocks) */
     matrix: ["page-matrix", "page-vaults"],
     /* the full notification feed (the header bell stays at boot): 1C's ink */
-    notifications: ["page-notifications"]
+    notifications: ["page-notifications"],
+    /* the Pacing page and the braid (1F; Home's card stays at boot in pacecard.js) */
+    pacing: ["page-pacing"],
+    /* the Goals page and its dialogs (1F; the words Home reads stay in goalwords.js) */
+    goals: ["page-goals"],
+    /* the Routines page and its editors (1F; KOS.rtUI stays at boot in rtkit.js) */
+    routines: ["page-routines"], tasks: ["page-routines"],
+    /* the Calendar page and its dialogs (1F; the event store, the chips and
+       the countdown widget stay at boot, and KOS.calendar's dialogs load it) */
+    calendar: ["page-calendar"]
   };
   /* it: the IT desk (1C, 20 Nov 2026: the Collection's watch link) */
   var SPACE_DESK = { code: "page-code", mind: "page-mind", ja: "page-ja", creatives: "page-creatives", it: "page-it" };

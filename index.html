@@ -540,8 +540,14 @@
 </template>
 <script src="js/modules/due.js"></script>
 <script src="js/modules/calendar.js"></script>
+<template data-lazy="page-calendar">
+<script src="js/modules/calpage.js"></script>
+</template>
 <script src="js/modules/todo.js"></script>
+<script src="js/modules/rtkit.js"></script>
+<template data-lazy="page-routines">
 <script src="js/modules/routines.js"></script>
+</template>
 <script src="js/modules/dayreview.js"></script>
 <template data-lazy="page-player">
 <script src="js/modules/routineplayer.js"></script>
@@ -590,12 +596,18 @@
 <script src="js/modules/help.js"></script>
 </template>
 <script src="js/modules/focus.js"></script>
+<script src="js/modules/pacecard.js"></script>
+<template data-lazy="page-pacing">
 <script src="js/modules/pacing.js"></script>
+</template>
 <script src="js/modules/cloudui.js"></script>
 <script src="js/modules/welcome.js"></script>
 <!-- Category 6 Phase E: the Kurenai Assistant surfaces (drawer + page +
      contextual actions) over the Phase A–D services -->
 <script src="js/modules/assistant.js"></script>
+<template data-lazy="page-assistant">
+<script src="js/modules/assistantpage.js"></script>
+</template>
 <!-- Phase 2: the Live2D binding for the assistant renderer seam. Contains no
      Cubism SDK/Core/model and downloads none, so it stays inert on the
      deployed build; enable() refuses until a runtime is installed by hand
@@ -621,7 +633,13 @@
 <!-- wishlist.js registers a KOS.mediaEditorHooks entry for the reverse
      "on your wishlist" surfacing -->
 <script src="js/modules/wishlist.js"></script>
+<template data-lazy="page-vaults">
+<script src="js/modules/wishlistpage.js"></script>
+</template>
+<script src="js/modules/goalwords.js"></script>
+<template data-lazy="page-goals">
 <script src="js/modules/goals.js"></script>
+</template>
 <template data-lazy="page-money">
 <script src="js/modules/money.js"></script>
 <script src="js/modules/moneyimp.js"></script>

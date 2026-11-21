@@ -121,8 +121,13 @@ function eq(a, b, m) { if (JSON.stringify(a) !== JSON.stringify(b)) throw new Er
    loads them before opening an editor. 5.99 MB, with room kept for Neon's
    batch 5. The ink layer's page part (inksurface.js: the desk, surfaces and
    toolbar; the answer pad, the viewer, the drills, 200 KB, "ink-ui") loads
-   with the pages that write and before a file opens: 5.79 MB. */
-const BOOT_BUDGET = 5.79 * 1024 * 1024;
+   with the pages that write and before a file opens: 5.79 MB. Then the
+   pages split from the boot parts others read: Pacing (Home's card is
+   pacecard.js), Goals (goalwords.js), Routines (KOS.rtUI is rtkit.js), the
+   Calendar (its store, chips and countdowns stay; its dialogs forward),
+   the Wishlist planner (into page-vaults) and the Assistant's page (the
+   drawer stays): 5.43 MB. */
+const BOOT_BUDGET = 5.43 * 1024 * 1024;
 
 /* jsdom has no User Timing: a small recorder, set before the app's scripts */
 function timing(win) {
@@ -420,7 +425,11 @@ step("J · every page that names what it needs opens from cold without an early 
     ["creatives", { page: "drills" }, ["page-creatives"]], ["subject", "creatives", ["page-creatives"]], ["data", undefined, ["page-data"]],
     /* 1C, 20 Nov 2026: Settings › Storage */
     ["storage", undefined, ["page-storage"]], ["connections", undefined, ["page-connections"]],
-    ["matrix", undefined, ["page-matrix"]], ["notifications", undefined, ["page-notifications"]]
+    ["matrix", undefined, ["page-matrix"]], ["notifications", undefined, ["page-notifications"]],
+    /* 1F, 20 Nov 2026: the pages split from their Home cards, and the ink layer */
+    ["calendar", undefined, ["page-calendar"]], ["goals", undefined, ["page-goals"]], ["pacing", undefined, ["page-pacing"]],
+    ["routines", undefined, ["page-routines"]], ["assistant", undefined, ["ai", "page-assistant"]], ["wishlist", undefined, ["page-vaults"]],
+    ["ref", { subject: "maths", ref: E.KOS.hub.LEAVES.maths[0].ref }, ["content-maths", "page-topic", "ink-ui"]]
   ];
   for (const [view, arg, want] of jobs) {
     const app = await lazyBoot(fxB);
@@ -440,7 +449,7 @@ step("J · every page that names what it needs opens from cold without an early 
   }
   /* pages that need nothing never wait */
   const app = await lazyBoot(fxB);
-  ["home", "focus", "calendar", "reminders", "goals", "assignments", "pacing", "achievements", "files"].forEach((v) => {
+  ["home", "focus", "reminders", "assignments", "achievements", "files"].forEach((v) => {
     app.KOS.show(v);
     assert(!waiting(app), v + " opens at once");
   });
