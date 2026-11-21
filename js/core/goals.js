@@ -948,10 +948,21 @@
     register({ id: s[0] + "-lessons", domain: s[0], label: "Finish " + s[1] + " lessons", icon: "課", unit: "lessons", repeat: true,
       measure: function (g, ctx, cb) { cb({ current: spaceN(ctx, s[0], "lesson"), unit: "lessons" }); } });
   });
+  register({ id: "ja-facets", domain: "ja", label: "Review Japanese facets", icon: "面", unit: "facets", repeat: true,
+    measure: function (g, ctx, cb) { cb({ current: spaceN(ctx, "ja", "session", "n"), unit: "facets" }); } });
   register({ id: "ja-kana-held", domain: "ja", label: "Hold the kana for a week", icon: "仮", unit: "kana",
     measure: function (g, ctx, cb) { cb({ current: KOS.ja.timeline().milestones[0].have, unit: "kana" }); } });
   register({ id: "ja-words-stable", domain: "ja", label: "Words stable", icon: "語", unit: "words",
     measure: function (g, ctx, cb) { cb({ current: KOS.ja.skills().words.R, unit: "words" }); } });
+  register({ id: "mind-daily15", domain: "mind", label: "Keep Mind Daily 15 days", icon: "日", unit: "days", repeat: true,
+    measure: function (g, ctx, cb) {
+      var days = {};
+      ledger(ctx, function (e) { return e.type === "focus" && e.subject === "mind" && e.metrics && e.metrics.objective === "Mind · Daily 15"; })
+        .forEach(function (e) { days[e.date] = 1; });
+      var d = store.state.ui && store.state.ui.mind && store.state.ui.mind.daily;
+      if (d && d.doneAt && d.day && d.day >= ctx.from && d.day <= ctx.to) days[d.day] = 1;
+      cb({ current: Object.keys(days).length, unit: "days" });
+    } });
 
   /* ---- Governor: displayed, never a claim of reward ---- */
   register({ id: "gov-streak", domain: "governor", label: "Reach a study streak", icon: "連", unit: "days",
