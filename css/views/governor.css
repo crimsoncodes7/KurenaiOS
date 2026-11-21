@@ -183,6 +183,7 @@ button.k-gv-ring:hover { filter: brightness(1.08); }
 .k-gv-editor .k-ach-pickgrid { --ach-pick-cols: 6; gap: var(--sp-8); }
 .k-gv-editor .k-ach-pick { padding: var(--sp-8) 0; gap: 0; }
 .k-gv-bg-own { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--sp-10); }
+.k-gv-bg-own > :only-child { grid-column: 1 / -1; }
 .k-gv-bg-up { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--sp-4); block-size: var(--sp-104, var(--ach-medal-ph)); border: var(--ring-1-5) dashed var(--line); border-radius: var(--r-14); background: none; color: var(--text-2); font: inherit; font-size: var(--fs-13); cursor: pointer; }
 .k-gv-bg-up small { font-size: var(--fs-11); color: var(--muted); }
 .k-gv-bg-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--sp-8); max-block-size: var(--menu-max-h); overflow-y: auto; padding: var(--sp-2); }
