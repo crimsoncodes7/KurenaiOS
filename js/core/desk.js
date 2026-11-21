@@ -43,11 +43,23 @@
     ["Flashcards", [["Space", "Flip"], ["1 – 4", "Again → Easy"]]]
   ];
   var keysEl = null, holdT = null;
+  function activeGroups() {
+    var out = [SHORTCUTS[0]];
+    if ((KOS.pdfView && KOS.pdfView.viewing && KOS.pdfView.viewing()) || document.querySelector("[data-ui~='pv.viewer']")) {
+      out.push(SHORTCUTS[2]);
+      return out;
+    }
+    var r = KOS.router && KOS.router.parse ? KOS.router.parse(location.hash) : null;
+    var v = r && r.viewId;
+    if (v === "ink" || (v === "creatives" && r.arg && r.arg.page === "sketch") || document.querySelector("[data-ui~='ink.toolbar']")) out.push(SHORTCUTS[1]);
+    if (v === "review" || document.querySelector("[data-ui~='fc.card']")) out.push(SHORTCUTS[3]);
+    return out;
+  }
   function show() {
     if (keysEl) return;
     /* a passive list while ⌘ is held, not a dialog: it takes no focus */
     keysEl = el("aside", { class: "k-desk-keys", "data-ui": "desk.shortcuts", role: "note", "aria-label": "Keyboard shortcuts" },
-      SHORTCUTS.map(function (g) {
+      activeGroups().map(function (g) {
         return el("section", { class: "k-desk-keys-g" }, [el("h3", { class: "k-kicker", text: g[0] })].concat(g[1].map(function (k) {
           return el("div", { class: "k-desk-keys-row" }, [el("kbd", { class: "k-mono", text: k[0] }), el("span", { text: k[1] })]);
         })));
