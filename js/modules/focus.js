@@ -1503,7 +1503,10 @@
         return;
       }
       var mring = el("span", { class: "k-fx-mini-ring", "data-ui": "focus.mini-ring", "aria-hidden": "true" });
+      mring.style.setProperty("--pct", cr.pct + "%");
+      var miniLabel = S.objective ? (S.subject ? shortName(S.subject) + " · " + S.objective : S.objective) : subj;
       dockEl.appendChild(el("div", { class: "k-fx-mini-row" }, [grip, mring, clock, pauseBtn, expand]));
+      dockEl.appendChild(el("span", { class: "k-fx-mini-topic", "data-ui": "focus.mini-sub", text: miniLabel, title: miniLabel }));
       return;
     }
     /* large */
