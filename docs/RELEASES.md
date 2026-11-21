@@ -15,7 +15,18 @@ the service-worker version). Git holds the rest.
   `5bece3e`). `ai-chat` is deployed as version 6 (images for Gemini, 26 October 2026); the
   `kos_reports` migration `20261012000001` is applied; so is `kos_money`
   (`20261019000001`, 19 October 2026), live since the Money and Goals release.
-- Latest release: sw `kos-qol-2` (20 November 2026, `feat/qol-1a` into
+- Latest release: sw `kos-qol-3` (21 November 2026, `feat/qol-1a` into
+  main `0a2d6982`; immutable https://ccdf9562.kurenai-os.pages.dev): the QoL
+  review's 1F (speed) and 1D (Neon's batch 5). 1F: boot 7.76 → 5.11 MB — the
+  labs, examiner's notes, the Assistant's tools and page, the topic page,
+  Reports, the exams pages, the vaults and Wishlist planner, the ink layer
+  (`ink-ui`), Pacing, Goals, Routines, the Calendar, Reminders, the Badge
+  Wall and Japanese's writing square load on first use, each leaving a boot
+  part (invariant 168); 192 px badge art; boot timings in Settings ›
+  Storage; Home lit on Reports, the picked tab revealed, unknown event
+  types repaired. 1D: Neon's 39 tickets in five rounds (REPORT-5, no note).
+  No server change.
+- Previous release: sw `kos-qol-2` (20 November 2026, `feat/qol-1a` into
   main; immutable https://b9bd31c8.kurenai-os.pages.dev): the QoL review's 1C (the
   user's own requests) and Neon's batches 3 and 4. 1C: routines inside
   routines; Shift the plan by N weeks, the plan inside a lesson's calendar
