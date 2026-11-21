@@ -318,6 +318,8 @@
         var last = btns.filter(function (b) { return !b.hidden && b.dataset.tab !== curTab; }).pop();
         if (last) { last.hidden = true; hidden.unshift(last); moreMenu(); }
       }
+      /* on a phone the open tab is brought into sight (study-core#1) */
+      if (phoneTier) KOS.ui.revealSelected(tabBar);
     }
     if (typeof window.ResizeObserver === "function") {
       var lastW = 0;

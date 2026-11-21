@@ -145,7 +145,11 @@ Read this file before editing or testing anything in its domain.
     `tools/gen_icons.mjs` (the header's bloom on
     the Graphite ground; never hand-edit the PNGs).
 41. `KOS.calendar.normalise()` is the event schema gate; `state.calendar.v` is not
-    placed in store defaults. `time` remains the start-time field.
+    placed in store defaults. `time` remains the start-time field. A stored
+    event whose type or colour the gate does not know (an import, an old
+    seed) is repaired to the gate's default by the boot pass
+    (`migrateRefs`, a migration, so `updatedAt` stays), and a chip draws
+    such an event as Personal's hue, never as none (productivity#6).
 42. Event alerts are per-record. New exam/deadline defaults are applied only in
     `addEvent()`, never by normalisation.
 43. Recurrence is computed from one record, never materialised into copies.
@@ -473,8 +477,15 @@ Read this file before editing or testing anything in its domain.
     viewer and the drills (`ink-ui`; `inkui.js` keeps the settings, palette,
     drawing and the ink dialog, and Files loads it before opening a PDF or
     picture), Japanese's writing square, voices and topic page (`page-ja`),
-    and Code's and Mind's topic modules (`page-code`, `page-mind`; a topic
-    page of Japanese, Code, Mind or Creatives loads its space's bundle). The split is always the same: the boot part exports what
+    Code's and Mind's topic modules (`page-code`, `page-mind`; a topic
+    page of Japanese, Code, Mind or Creatives loads its space's bundle),
+    Reminders (`page-reminders`; the one tick and the alert ticker stay)
+    and the Badge Wall (`page-achievements`, which the Governor's page loads
+    too; the medal, the earned toasts and the Wall card stay). A boot part
+    keeps every TICKER, LISTENER and REGISTRATION its module had at load (a
+    page bundle holds none, so nothing waits for a page to be opened to
+    run): the notes' Write it out listener is `inkui.js`'s and loads the
+    drills first. The split is always the same: the boot part exports what
     the page reads (`_k`), the page aliases it, and a mutable value is read
     through a getter. Mind and Creatives content and the remaining modules
     still load at boot.
@@ -512,7 +523,9 @@ Read this file before editing or testing anything in its domain.
     subject last studied first; never when the device asks to save data),
     so later pages open at once and a 30-minute tick finds the real
     thing. Boot is timed: the marks `kos-boot-start` and `kos-interactive`
-    and the measure `kos-boot`. A new lazy subject or registry means: its
+    and the measure `kos-boot`, then `kos-ready` (the mark and measure)
+    when the warm-up has every bundle in; `KOS.lazy.timing()` reads them
+    back and Settings › Storage shows this start's two figures. A new lazy subject or registry means: its
     template block, its rows in the generator, its stand-in in `install`,
     its page's `NEEDS`, and its readers checked by smoke142's sweep.
 

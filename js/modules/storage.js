@@ -164,11 +164,10 @@
            and until every part of the app was in (KOS.lazy.timing) */
         var tm = KOS.lazy && KOS.lazy.timing ? KOS.lazy.timing() : null;
         if (tm && tm.boot != null) {
-          var secs = function (ms) { return (ms / 1000).toFixed(ms < 10000 ? 1 : 0) + " s"; };
-          dev.appendChild(el("div", { class: "k-st-row", "data-ui": "storage.boot" }, [
-            el("span", { class: "k-st-row-t", text: "This start" }),
-            el("span", { class: "k-mono", text: "first page in " + secs(tm.boot) + (tm.ready != null ? " · everything in by " + secs(tm.ready)
-              : tm.loaded < tm.bundles ? " · " + tm.loaded + " of " + tm.bundles + " parts in so far" : "") })]));
+          var secs = function (ms) { return ms < 1000 ? ms + " ms" : (ms / 1000).toFixed(ms < 10000 ? 1 : 0) + " s"; };
+          dev.appendChild(el("div", { class: "k-st-row", "data-ui": "storage.boot" }, [el("span", { class: "k-st-row-t", text: "First page, this start" }), el("span", { class: "k-mono", text: secs(tm.boot) })]));
+          dev.appendChild(el("div", { class: "k-st-row", "data-ui": "storage.boot-ready" }, [el("span", { class: "k-st-row-t", text: "Everything loaded" }),
+            el("span", { class: "k-mono", text: tm.ready != null ? secs(tm.ready) : tm.loaded + " of " + tm.bundles + " parts so far" })]));
         }
       });
 

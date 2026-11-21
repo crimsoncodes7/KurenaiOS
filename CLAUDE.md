@@ -75,6 +75,7 @@ node tools/cs_wasm_check.mjs           # that runtime against native .NET
 node tools/validator_check.mjs         # the Rider validator end to end (needs NuGet and git)
 node tools/gen_code_projects.mjs       # after editing a Rider project's scaffold in tools/code-projects/
 node tools/gen_lazy_index.mjs          # js/data/lazy-index.js, after changing any file inside a <template data-lazy> block (--check)
+python3 tools/gen_badge_small.py       # the Badge Wall's 192 px medal art (assets/app/img/sm), after importing badge art (--check)
 ```
 
 For responsive or shared-component work, run the dense audit and inspect images,

@@ -623,6 +623,15 @@
     });
     return opts.edge ? edgeTrack(list, opts.label) : list;
   };
+  /* bring a strip's selected tab into sight when it is scrolled out of it
+     (study-core#1): any tab strip that scrolls calls this after a change */
+  KOS.ui.revealSelected = function (list) {
+    var on = list && list.querySelector("[aria-selected='true'], [aria-current='page']");
+    if (!on || on.hidden || list.scrollWidth <= list.clientWidth) return;
+    var lr = list.getBoundingClientRect(), r = on.getBoundingClientRect();
+    if (r.right > lr.right) list.scrollLeft += r.right - lr.right + 8;
+    else if (r.left < lr.left) list.scrollLeft -= lr.left - r.left + 8;
+  };
   /* the shared edge-marked tab scroller (design 15n): a strip that does not
      fit never wraps; the side with hidden tabs shows a fade in the track's
      colour and a ‹ / › that scrolls one track width, both gone at that end,
@@ -640,11 +649,7 @@
        remembered scroll is put back, and whenever the selection changes in
        place (study-core#1: topic tabs, the flashcard modes) */
     function revealActive() {
-      var on = list.querySelector("[aria-selected='true'], [aria-current='page']");
-      if (on && list.scrollWidth > list.clientWidth) {
-        var left = on.offsetLeft - list.offsetLeft;
-        if (left + on.offsetWidth > list.scrollLeft + list.clientWidth || left < list.scrollLeft) list.scrollLeft = Math.max(0, left - 8);
-      }
+      KOS.ui.revealSelected(list);
       if (wrap.sync) wrap.sync();
     }
     var later = window.requestAnimationFrame || function (fn) { return setTimeout(fn, 0); };

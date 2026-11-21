@@ -522,8 +522,8 @@ step("L · after boot the bundles arrive in idle moments, the last subject first
   /* Settings › Storage says them */
   app.KOS.show("storage");
   for (let k = 0; k < 10 && !app.document.querySelector("[data-ui~='storage.boot']"); k++) await app.settle();
-  const row = app.document.querySelector("[data-ui~='storage.boot']");
-  assert(row && /first page in 0\.9 s · everything in by 4\.2 s/.test(row.textContent), "Storage shows this start: " + (row && row.textContent));
+  const row = app.document.querySelector("[data-ui~='storage.boot']"), row2 = app.document.querySelector("[data-ui~='storage.boot-ready']");
+  eq([row && row.textContent, row2 && row2.textContent], ["First page, this start900 ms", "Everything loaded4.2 s"], "Storage shows this start");
   app.KOS.show("home");   /* back where it was, for the saved state below */
   await app.settle();
   const B = bundles(), sid = app.KOS.store.state.ui.subject;
