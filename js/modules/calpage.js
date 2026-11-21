@@ -893,11 +893,13 @@
     /* the grid is the whole day; the body scrolls, and opens on the
        working day or the week's earliest event, whichever is earlier
        (review A: 8:00–17:00 was all there was) */
-    var lo = 0, hi = 24 * 60, first = 8 * 60;
+    var lo = 0, hi = 24 * 60, first = 8 * 60, earliest = null;
     days.forEach(function (d) {
       d.items.events.forEach(function (ev) {
         if (ev.allDay || !ev.time) return;
-        first = Math.min(first, Math.floor(mins(ev.time) / 60) * 60);
+        var m0 = Math.floor(mins(ev.time) / 60) * 60;
+        first = Math.min(first, m0);
+        if (earliest == null || m0 < earliest) earliest = m0;
       });
     });
     var hours = [];
@@ -983,15 +985,17 @@
     });
     wrap.appendChild(grid);
     host.appendChild(wrap);
-    /* a week holding today opens centred on NOW (review B); any other
-       week on its earliest event or the working day */
+    /* a week holding today opens centred on NOW during working hours
+       (07:00–22:00); outside working hours it opens on the first timed event
+       or 07:00; any other week opens on its earliest event or the working day */
     var holdsToday = days.some(function (d) { return d.iso === t; });
     function openAt() {
       var hourPx = grid.scrollHeight / hours.length || 0;
       if (!hourPx) return;
-      grid.scrollTop = holdsToday
-        ? Math.max(0, (nowMinutes() - lo) / 60 * hourPx - grid.clientHeight / 2)
-        : Math.max(0, (first - lo) / 60 * hourPx - hourPx / 2);
+      var nowM = nowMinutes(), inHours = nowM >= 7 * 60 && nowM < 22 * 60;
+      grid.scrollTop = holdsToday && inHours
+        ? Math.max(0, (nowM - lo) / 60 * hourPx - grid.clientHeight / 2)
+        : Math.max(0, ((holdsToday ? (earliest != null ? earliest : 7 * 60) : first) - lo) / 60 * hourPx - hourPx / 2);
     }
     openAt();
     if (!grid.scrollTop && window.requestAnimationFrame) window.requestAnimationFrame(openAt);
