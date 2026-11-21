@@ -974,6 +974,13 @@
       var xp = (store.state.governor && store.state.governor.xp) || 0;
       cb({ current: KOS.governor ? KOS.governor.levelInfo(xp).level : null, unit: "level" });
     } });
+  register({ id: "gov-gold", domain: "governor", label: "Save gold for a shop item", icon: "金", unit: "gold",
+    displayOnly: true,
+    measure: function (g, ctx, cb) {
+      var gold = (store.state.governor && store.state.governor.gold) || 0;
+      var it = g.params && g.params.item && KOS.governor && KOS.governor.item ? KOS.governor.item(g.params.item) : null;
+      cb({ current: gold, target: it && it.price ? it.price : g.target, unit: "gold", meta: it ? it.name : "" });
+    } });
 
   /* ================= notices (the `goal` notification kind) =================
      What a goal has to say, from a compute()'s rows — pure, so the ticker

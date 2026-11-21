@@ -16,6 +16,10 @@
                           shared across Code's Run buttons; boot timeout never
                           reads as learner code being wrong; warm timeout still
                           reads as Did not finish.
+     E · shop-cosmetics#2 "Save gold for X" goal type (gov-gold) measured from
+                          gold balance against item price; Shop's sheet and pin
+                          offer "Add to Goals"; reaching price marks Met with
+                          payout "none" and never buys.
 
    Run: node tools/smoke198.test.js                                         */
 "use strict";
@@ -308,6 +312,79 @@ step("D · Code: shared per-runner status and boot timeout never blames learner 
     W.clearTimeout = origClearTimeout;
     if (K.store.state.ui && K.store.state.ui.code) delete K.store.state.ui.code.runtime;
   }
+  eq(app.errors, [], "no page errors");
+});
+
+/* ---------------- E · shop-cosmetics#2 ---------------- */
+step("E · Shop: Save gold for X as a goal, Add to Goals, met without buying or paying (shop-cosmetics#2)", async () => {
+  const G = K.goals, gov = K.store.state.governor;
+  const origGold = gov.gold;
+  const origOwned = gov.owned.slice();
+  const origPin = gov.shopPin;
+  const sessBefore = K.sessions.all().length;
+  eq(G.typeDef("gov-gold").id, "gov-gold", "gov-gold type registered");
+  assert(G.typeDef("gov-gold").displayOnly, "gov-gold is displayOnly (payout: none)");
+
+  /* Pick an unowned paid item and ensure gold < price */
+  const item = K.governor.catalog().find((c) => c.price > 0 && !c.retired && !K.governor.owns(c.id));
+  assert(item, "found an unowned paid shop item");
+  gov.gold = Math.max(0, item.price - 20);
+  K.store.save();
+
+  K.show("governor", "shop");
+  await app.settle();
+  const moreBtn = q("[data-ui~='shop.more']");
+  assert(moreBtn, "unaffordable item has shop.more button");
+  click(moreBtn);
+  await app.settle();
+
+  const sheet = q("[data-ui~='shop.sheet']");
+  assert(sheet, "shop preview sheet opened");
+  const addBtn = q("[data-ui~='shop.add-goal']", sheet);
+  assert(addBtn && /Add to Goals/.test(addBtn.textContent), "sheet offers Add to Goals alongside Pin as a goal");
+
+  /* Click Add to Goals -> closes shop sheet, loads page-goals, opens pre-filled goal editor */
+  click(addBtn);
+  await app.settle();
+  await app.settle();
+  assert(!q("[data-ui~='shop.sheet']"), "shop sheet closed cleanly before goal editor");
+  const ed = q("[data-ui~='goal.editor']");
+  assert(ed, "pre-filled goal editor opened");
+  const saveBtn = q("[data-ui~='goal.save']", ed);
+  click(saveBtn);
+  await app.settle();
+
+  const saved = G.all().find((x) => x.type === "gov-gold");
+  assert(saved && saved.params && saved.params.item, "gov-gold goal saved with params.item");
+  const linkedItem = K.governor.item(saved.params.item);
+  assert(linkedItem && linkedItem.price > 0, "params.item resolves in catalog");
+
+  /* Below price -> active */
+  gov.gold = Math.max(0, linkedItem.price - 10);
+  let rows = await new Promise((r) => G.compute((_, xs) => r(xs)));
+  let row = rows.find((x) => x.id === saved.id);
+  eq([row._current, row._target, row._status], [gov.gold, linkedItem.price, "active"], "below price is active with live gold balance");
+
+  /* At/above price -> completed, payout "none", zero sessions, item NOT auto-bought */
+  gov.gold = linkedItem.price;
+  rows = await new Promise((r) => G.compute((_, xs) => r(xs)));
+  row = rows.find((x) => x.id === saved.id);
+  eq([row._current, row._target, row._status], [linkedItem.price, linkedItem.price, "completed"], "reaching price marks goal completed");
+  const receipt = K.store.state.goals.completionLedger[saved.id];
+  eq(receipt && receipt.payout, "none", "Governor-value goal records payout: none (invariant 5b)");
+  eq(K.sessions.all().length, sessBefore, "goal never logs a session or pays");
+  assert(!K.governor.owns(linkedItem.id), "goal never auto-buys the item (W5 42d)");
+
+  /* Action opens Gold Shop, never buys */
+  const act = K.goalsUI.actionFor(row);
+  assert(act && /Shop/i.test(act[0]), "goal action opens Shop: " + JSON.stringify(act && act[0]));
+
+  /* Clean up */
+  G.remove(saved.id);
+  gov.gold = origGold;
+  gov.owned = origOwned;
+  gov.shopPin = origPin;
+  K.store.save();
   eq(app.errors, [], "no page errors");
 });
 

@@ -290,6 +290,7 @@
     if (t === "no-overdue") return ["Assignments", function () { KOS.show("assignments"); }];
     if (t === "study-paper-score") return ["Exams & Papers", function () { KOS.show("tracker"); }];
     if (t === "custom-manual" && g._status === "active") return ["+1", function () { G.nudge(g.id, 1); announce(g.title + ", " + ((g.current || 0) + 1) + " of " + g.target); redraw(); }];
+    if (t === "gov-gold") return ["Open Shop", function () { KOS.show("governor", "shop"); }];
     if (domainOf(g) === "collection") return ["Collection", function () { KOS.show(g.module ? (g.module === "game" ? "game" : g.module) : "matrix"); }];
     return null;
   }
@@ -971,6 +972,19 @@
         form.appendChild(field(habitsOnly ? "Habit" : "Routine", rs.length ? extra.routine
           : el("span", { class: "k-muted", text: habitsOnly ? "No habits yet — add one in Routines." : "No routines yet — make one in Routines." })));
       }
+      if (typeId === "gov-gold" && KOS.governor && KOS.governor.catalog) {
+        var curItem = (g.params && g.params.item) || (seed.params && seed.params.item) || "";
+        var items = KOS.governor.catalog().filter(function (c) {
+          return c.price > 0 && !c.retired && (!KOS.governor.owns(c.id) || c.id === curItem);
+        });
+        var opts = [["", "Any amount"]].concat(items.map(function (c) { return [c.id, c.name + " · " + c.price + " gold"]; }));
+        extra.shopItem = select(opts, curItem, { "aria-label": "Shop item", "data-ui": "goal.shop-item" });
+        extra.shopItem.addEventListener("change", function () {
+          var chosen = extra.shopItem.value ? KOS.governor.item(extra.shopItem.value) : null;
+          if (chosen && countIn) { countIn.value = String(chosen.price); if (!xs.titled) title.value = "Save gold for " + chosen.name; line(); }
+        });
+        form.appendChild(field("Shop item", extra.shopItem, "Target follows the item's price. Reaching it never buys on its own."));
+      }
       /* how much */
       var target = money ? targetIn.node : el("div", { class: "k-gl-stepper" }, [
         el("button", { type: "button", class: "k-iconbtn", "aria-label": "Less", text: "−", onclick: function () { countIn.value = Math.max(0, (+countIn.value || 0) - (def.unit === "hours" ? 1 : 1)); line(); } }),
@@ -1044,13 +1058,18 @@
       if (!repeat && deadline.value && start.value && deadline.value < start.value) { err.hidden = false; err.textContent = "✕ The deadline is before the start"; return; }
       if (def.fields.pot && !links.pot) { err.hidden = false; err.textContent = "✕ Choose a pot"; return; }
       var fields = { title: title.value.trim(), type: typeId, target: t, repeat: repeat || null, weekFrom: repeat === "week" ? weekFrom : null,
-        startDate: start.value || now, deadline: repeat ? null : (deadline.value || null), milestones: milestones, links: links };
+        startDate: start.value || now, deadline: repeat ? null : (deadline.value || null), milestones: milestones, links: links,
+        params: Object.assign({}, seed.params || {}, g.params || {}) };
       if (extra.module) fields.module = extra.module.value || null;
       if (extra.linked) fields.linkedEntryId = extra.linked.value ? Number(extra.linked.value) : null;
       if (extra.filterKind) { fields.filterKind = extra.filterKind.value; fields.filterValue = extra.filterValue.value; }
+      if (extra.shopItem) {
+        if (extra.shopItem.value) fields.params.item = extra.shopItem.value;
+        else delete fields.params.item;
+      }
       if (extra.routine) {
         if (!extra.routine.value) { err.hidden = false; err.textContent = typeId === "habit-streak" ? "✕ Choose a habit" : "✕ Choose a routine"; return; }
-        fields.params = Object.assign({}, g.params || {}, { routine: extra.routine.value });
+        fields.params.routine = extra.routine.value;
         delete fields.params.habit;
       }
       if (def.linked && !fields.linkedEntryId) { err.hidden = false; err.textContent = "✕ Choose the title this goal follows"; return; }
