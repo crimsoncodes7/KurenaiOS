@@ -146,7 +146,7 @@ The plan is approved with these decisions.
 | **1A · Bugs and data integrity** (21) | The Due today bug; review counts from the review log; the Writing Desk draft saved on close; flashcard and Japanese/Mind/Code runs that survive a reload; one "what changed" report after a restore or first link (merging `data-integrity#3/#4/#6`, `assistant-archive#1`, `bk:collection#2`); random ids for assignments, reminders and events; provider sync around each cycle; a replication version column (a migration, applied by hand and recorded); the stale-copy audit; Money import identity; the Bookkeeper badge counting distinct entries; the server-function clean-ups; the toast queue. | ≈ 4 sessions |
 | **1B · Exam-season content** (11) | F201 papers 2–3; Maths' seven thin Pure topics; CS's thin topics and quiz top-ups; the flashcard quality pass (5.21); exam labels, the mark total beside codes, and other CS/IT fixes. Done by the mock dates first, then the rest. | ≈ 5 sessions, Opus |
 | **1C · Your requests** (11) | Routines inside routines; pacing shift (UR-19) and pacing in calendar blocks (UR-29); folders for loose notes; paste a picture; ink tables and formatting; lasso across pages; copy as TeX (D2); Roslyn completion in Code; the watch link with the service's icon (D1). Each starts with a short design check with you. | ≈ 6 sessions |
-| **1D · Daily friction** (57 small items) | Grouped by area, one commit each. Neon's seven starter tickets come from here. | ≈ 3 sessions |
+| **1D · Daily friction** (57 small items) ✓ 21 Nov | Grouped by area, one commit each. Neon's seven starter tickets come from here. | ≈ 3 sessions |
 | **1E · Features across areas** (23) | "Make this a goal" everywhere and Japanese/Mind goal types; Japanese practise-again, leech recovery and immersion logging; Money import steps 3–5 and the Recurring queue; Year view income; Mind review outside the Daily; Reminders → a free block or Focus; skip one showing of a repeat; Practice Log filters, thumbnails and milestone links; Creatives review packs; the showcase reorder and autosave; Reports from the subject registry; one Code runner status. | ≈ 4 sessions |
 | **1F · Speed** (4) ✓ 21 Nov | Boot towards ~4 MB (Focus, Assistant, aitools, calendar, vaults and labs split into a boot part and a page part); the sample account off the boot; boot marks shown in Storage; 192 px badge art for the Wall. | ≈ 2 sessions |
 
@@ -410,6 +410,13 @@ before batch 5: 14 of 1D's 57 (Neon's batches 1–4 and 1A).
 - `collection#2` Add 'Open on AniList / VNDB ↗' from externalIds in the editor header. (partly, S) — *your note: Show Company Icon rather than full text.*
 
 ## 1D · Daily friction (small fixes, by area) (57)
+
+**1D is complete (21 Nov).** Neon's batch 5 (`neon/qol-batch-5`, 39 tickets in rounds A–E) passed with no note
+(`docs/qol/neon/REPORT-5.md`) and is on `main`; the reviewer's three kept items landed in 1F; the other 14 were done
+before batch 5. Follow-ups Neon noticed and left (all S): the topic inspector's raw Next review date, "≈ 1 reviews a
+day", a Code task's clock ticking after a pass, Creatives Settings lighting "Creatives" in the strip, the two Katakana
+badges' shared name, a Shop card's foot clipping at 375 px, late days on the All routines heatmap, captions for
+Reports' Reviews and Recall tiles, and the Daily Review skipping Time when the last free block is filled.
 
 - `productivity#1` Daily Review Time left: after placing a block, mark the row 'Placed 15:30' (and remove that free block) so the same item isn't placed twice. (partly, S)
 - `productivity#2` Week view: open on the first event or 07:00 when 'now' is outside working hours, instead of centring on 05:00. (open, S)
