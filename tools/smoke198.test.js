@@ -6,6 +6,9 @@
      A · productivity#5   Reminders inspector: "Place in a free block" makes a
                           study block with Undo and shows "Placed HH:MM";
                           "Focus on this" opens Focus pre-filled without starting.
+     B · productivity#9   Calendar: "Skip this showing" on a repeating local
+                          event skips one date (single record, Undo restores,
+                          skipped detail says so, not offered on Google-linked).
 
    Run: node tools/smoke198.test.js                                         */
 "use strict";
@@ -65,6 +68,57 @@ step("A · Reminders inspector offers Place in a free block (with Undo) and Focu
   const objIn = q("[data-ui~='focus.obj-in']");
   assert(objIn && objIn.value === r.title, "Focus objective pre-filled: " + (objIn && objIn.value));
   eq(K.focus.state(), "idle", "Focus did not auto-start (invariant 4e)");
+  eq(app.errors, [], "no page errors");
+});
+
+/* ---------------- B · productivity#9 ---------------- */
+step("B · Calendar: Skip this showing skips one date with Undo, shows skipped detail, and hides on Google-linked events (productivity#9)", async () => {
+  /* 1. normalise keeps only valid ISO dates, sorted & unique; non-repeating clears skip */
+  const n1 = K.calendar.normalise({ title: "Lab", date: TODAY, recur: "weekly", skip: ["2026-12-05", "bad", "2026-11-28", "2026-11-28"] });
+  eq(n1.skip, ["2026-11-28", "2026-12-05"], "normalise keeps valid sorted unique ISO dates");
+  const n2 = K.calendar.normalise({ title: "Once", date: TODAY, recur: "none", skip: ["2026-11-28"] });
+  eq(n2.skip, [], "non-repeating clears skip");
+
+  /* 2. repeating local event: Skip this showing removes only that date from one record, Undo restores */
+  const nextWk = K.srs.addDays(TODAY, 7);
+  const ev = K.calendar.addEvent({ title: "Weekly seminar", type: "lesson", date: TODAY, time: "14:00", durationMins: 60, recur: "weekly" });
+  const beforeLen = K.store.state.calendar.events.length;
+  eq(K.calendar.occursOn(ev, TODAY), true, "occurs on first date");
+  eq(K.calendar.occursOn(ev, nextWk), true, "occurs next week");
+
+  K.show("calendar"); await app.settle();
+  K.calendar.eventDetail(ev, TODAY); await app.settle();
+  const skipBtn = q("[data-ui~='cal.skip']");
+  assert(skipBtn, "Skip this showing button is offered on local repeating event");
+  click(skipBtn); await app.settle();
+
+  const updated = K.calendar.getEvent(ev.id);
+  eq(K.store.state.calendar.events.length, beforeLen, "still ONE record (invariant 43)");
+  eq(updated.skip, [TODAY], "date recorded in skip");
+  eq(K.calendar.occursOn(updated, TODAY), false, "skipped date no longer occurs");
+  eq(K.calendar.occursOn(updated, nextWk), true, "next week still occurs");
+  eq(K.calendar.eventsOn(TODAY).some((x) => x.id === ev.id), false, "absent from eventsOn(skippedDate)");
+
+  /* 3. detail of the skipped date says so */
+  K.calendar.eventDetail(updated, TODAY); await app.settle();
+  const skipNote = q("[data-ui~='cal.skipped-note']");
+  assert(skipNote && /Skipped/.test(skipNote.textContent), "detail of skipped date says so: " + (skipNote && skipNote.textContent));
+  assert(!q("[data-ui~='cal.skip']"), "Skip button not shown when already skipped");
+  qa(".k-dialog-overlay").forEach((o) => o.close ? o.close() : o.remove());
+
+  /* Undo restores the showing */
+  const undoBtn = qa("[data-ui~='shell.toast-row'] button").find((b) => /Undo/i.test(b.textContent));
+  assert(undoBtn, "Undo toast action is shown");
+  click(undoBtn); await app.settle();
+  const restored = K.calendar.getEvent(ev.id);
+  eq(restored.skip, [], "Undo clears skip");
+  eq(K.calendar.occursOn(restored, TODAY), true, "showing occurs again after Undo");
+
+  /* 4. Google-linked repeating event does NOT offer Skip this showing (invariant 159) */
+  const gev = K.calendar.addEvent({ title: "Google weekly", type: "personal", date: TODAY, time: "16:00", recur: "weekly", ext: { g: { id: "gcal123" } } });
+  K.calendar.eventDetail(gev, TODAY); await app.settle();
+  assert(!q("[data-ui~='cal.skip']"), "Skip not offered on Google-linked event (invariant 159)");
+  qa(".k-dialog-overlay").forEach((o) => o.close ? o.close() : o.remove());
   eq(app.errors, [], "no page errors");
 });
 

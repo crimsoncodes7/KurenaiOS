@@ -255,6 +255,10 @@
     var until = pick("recurUntil", null);
     until = isDate(until) && until >= date ? until : null;
     if (recur === "none") until = null;
+    var skip = pick("skip", null);
+    if (!Array.isArray(skip)) skip = [];
+    skip = skip.filter(isDate).filter(function (x, i, a) { return a.indexOf(x) === i; }).sort();
+    if (recur === "none") skip = [];
 
     var colour = pick("colour", "");
     if (!COLOURS.some(function (c) { return c.v === colour; })) colour = "";
@@ -310,6 +314,7 @@
       colour: colour,
       recur: recur,
       recurUntil: until,
+      skip: skip,
       alerts: alerts,
       /* exam-only */
       paper: String(pick("paper", "") || "").trim(),
@@ -418,6 +423,7 @@
     /* a showing Google Calendar cancelled or moved (roadmap 5.15): the one
        record keeps the dates it skips; a moved one is drawn from Google */
     if (ev.ext && ev.ext.g && Array.isArray(ev.ext.g.skip) && ev.ext.g.skip.indexOf(dateISO) !== -1) return false;
+    if (Array.isArray(ev.skip) && ev.skip.indexOf(dateISO) !== -1) return false;
     var r = ev.recur || "none";
     if (r === "none") return dateISO === ev.date;
     if (r === "daily") return true;
