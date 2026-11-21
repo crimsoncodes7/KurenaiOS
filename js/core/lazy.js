@@ -34,6 +34,8 @@
    KOS.lazy.all()         → need every bundle (search, the Assistant's tools)
    KOS.lazy.warm(first)   → fetch the rest in idle moments, after boot
    KOS.lazy.on(fn)        → fn(name) after a bundle has loaded
+   KOS.lazy.timing()      → {boot, ready, bundles, loaded}: this start's
+                            "kos-boot" and "kos-ready" measures, in ms
    KOS.lazy.stub / isStub → the stand-ins, for lazy-index.js and the
                             registries that replace them                  */
 (function () {
@@ -296,13 +298,32 @@
     });
     (function next() {
       var todo = order.filter(function (n) { return !isIn(n); });
-      if (!todo.length) return;
+      if (!todo.length) { markReady(); return; }
       idle(function () {
         /* a page waiting for its own bundle has the connection to itself */
         if (waiting()) { setTimeout(next, 400); return; }
         loadOne(todo[0]).then(next, function () { /* offline: a page asks again when it is opened */ });
       });
     })();
+  }
+
+  /* "kos-ready" (1F, architecture-perf#1): every bundle is in, so every page
+     opens at once; Settings › Storage shows it beside "kos-boot" */
+  var readyMarked = false;
+  function markReady() {
+    if (readyMarked) return;
+    readyMarked = true;
+    try { performance.mark("kos-ready"); performance.measure("kos-ready", "kos-boot-start", "kos-ready"); } catch (e) { /* no User Timing */ }
+  }
+  function measured(name) {
+    try { var m = performance.getEntriesByName(name, "measure"); return m.length ? Math.round(m[m.length - 1].duration) : null; } catch (e) { return null; }
+  }
+  /* this start's timings: ms to the first page (`boot`), ms until every
+     bundle was in (`ready`, null while the warm-up runs), and the bundles in */
+  function timing() {
+    var all = names();
+    return { boot: measured("kos-boot"), ready: measured("kos-ready"), mode: LAZY ? "lazy" : "eager",
+      bundles: all.length, loaded: all.filter(isIn).length };
   }
 
   /* ---------------- what a page needs ---------------- */
@@ -359,7 +380,7 @@
      space's bundle too. Until the bundle is in, KOS.views.<view> is a
      stand-in (below), so a route to it is valid from the first moment. */
   var PAGES = {
-    money: ["page-money"], governor: ["page-governor"], code: ["page-code"],
+    money: ["page-money"], governor: ["page-governor", "page-achievements"], code: ["page-code"],
     mind: ["page-mind"], japanese: ["page-ja"], help: ["page-help"],
     /* the share card and export (reportshare.js) serve Reports and the
        Shrine's poster only: page-share comes with both */
@@ -398,7 +419,11 @@
     routines: ["page-routines"], tasks: ["page-routines"],
     /* the Calendar page and its dialogs (1F; the event store, the chips and
        the countdown widget stay at boot, and KOS.calendar's dialogs load it) */
-    calendar: ["page-calendar"]
+    calendar: ["page-calendar"],
+    /* the Reminders page (1F; the one tick, KOS.reminderTick, stays at boot) */
+    reminders: ["page-reminders"],
+    /* the Badge Wall (1F; the medal, toasts and the Wall card stay at boot) */
+    achievements: ["page-achievements"]
   };
   /* it: the IT desk (1C, 20 Nov 2026: the Collection's watch link) */
   var SPACE_DESK = { code: "page-code", mind: "page-mind", ja: "page-ja", creatives: "page-creatives", it: "page-it" };
@@ -499,6 +524,7 @@
     need: need,
     all: function () { return need(names()); },
     warm: warm,
+    timing: timing,
     on: function (fn) { listeners.push(fn); },
     stub: stub,
     isStub: isStub,

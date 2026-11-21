@@ -201,7 +201,7 @@ step("Governor and Shrine remaining empty surfaces use the shared primitive", ()
    global search finds reminders); what stays pinned is a quick-add
    placeholder short enough for the phone field. */
 step("the compact quick-add placeholder stays readable", () => {
-  assert(/placeholder:\s*"Add a reminder…"/.test(read("js/modules/reminders.js")),
+  assert(/placeholder:\s*"Add a reminder…"/.test(read("js/modules/reminderspage.js")),
     "the phone reminder placeholder is crowded again");
 });
 

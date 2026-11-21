@@ -375,11 +375,9 @@
     return items;
   }
 
-  /* the notes' "Write it out" buttons: one listener for every notes view */
-  document.addEventListener("click", function (e) {
-    var b = e.target.closest && e.target.closest("[data-ui~='content.writeout']");
-    if (!b) return;
-    e.preventDefault(); e.stopPropagation();
+  /* the notes' "Write it out" buttons: the one listener is at boot (inkui.js),
+     which loads this bundle and then hands the button here */
+  function writeOutFrom(b) {
     var fig = b.closest("[data-w]"), art = b.closest("[data-topic]");
     if (!fig || !art) { KOS.ui.toast("Open the topic's notes to write this one out."); return; }
     var t = art.getAttribute("data-topic"), i = t.indexOf(":"), sid = t.slice(0, i), ref = t.slice(i + 1);
@@ -388,8 +386,8 @@
     all.forEach(function (w, k) { if (at < 0 && KOS.content.workedKey(w) === fig.getAttribute("data-w")) at = k; });
     if (at < 0) { KOS.ui.toast("That example could not be found in the notes."); return; }
     writeOutWorked(all[at], sid, ref, at);
-  }, true);
+  }
 
   KOS.inkDrills = { writeOut: writeOut, writeOutWorked: writeOutWorked, workedIn: workedIn, blurt: blurt, pointsOf: pointsOf,
-    diagram: diagram, drillsFor: drillsFor, mathsPanel: mathsPanel, checkButton: checkButton, menuItems: menuItems };
+    diagram: diagram, drillsFor: drillsFor, mathsPanel: mathsPanel, checkButton: checkButton, menuItems: menuItems, writeOutFrom: writeOutFrom };
 })();

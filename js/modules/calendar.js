@@ -181,12 +181,18 @@
     var list = Array.isArray(ev.refs) ? ev.refs : (Array.isArray(ev.topics) ? ev.topics : []);
     return KOS.spec.normaliseRefs(list, { subject: ev.subject || undefined, max: 20 });
   }
-  /* boot pass: `topics` → `refs` on stored events. Only the link field
-     moves (a migration is not an edit, so updatedAt stays); idempotent. */
+  /* boot pass: `topics` → `refs` on stored events, and a type or colour the
+     schema gate does not know (an import's "other", an old seed) becomes
+     the gate's own default, so every event has a hue (productivity#6). Only
+     those fields move (a migration is not an edit, so updatedAt stays);
+     idempotent. */
   function migrateRefs() {
     var c = cal(), changed = 0;
     c.events.forEach(function (ev) {
-      if (!ev || (Array.isArray(ev.refs) && ev.topics === undefined)) return;
+      if (!ev) return;
+      if (!TYPE_LABEL[ev.type]) { ev.type = "personal"; changed++; }
+      if (ev.colour && !COLOURS.some(function (x) { return x.v === ev.colour; })) { ev.colour = ""; changed++; }
+      if (Array.isArray(ev.refs) && ev.topics === undefined) return;
       ev.refs = refsOf(ev);
       delete ev.topics;
       changed++;
@@ -859,8 +865,9 @@
      stylesheet turns those into the hue.
      ================================================================ */
   function hueAttrs(node, ev) {
-    node.setAttribute("data-type", ev.type);
-    if (ev.colour) node.setAttribute("data-colour", ev.colour);
+    /* a type or colour the gate does not know draws as Personal's, never as no hue (productivity#6) */
+    node.setAttribute("data-type", TYPE_LABEL[ev.type] ? ev.type : "personal");
+    if (ev.colour && COLOURS.some(function (x) { return x.v === ev.colour; })) node.setAttribute("data-colour", ev.colour);
     return node;
   }
   function eventChip(ev, dateISO, onChanged, opts) {

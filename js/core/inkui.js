@@ -281,6 +281,16 @@
     KOS.ui.openDialog(overlay, { labelledBy: title, initialFocus: o.focus ? o.focus() : null });
     return { close: close, body: body };
   }
+  /* the notes' "Write it out" buttons (js/core/content.js), wherever notes
+     are drawn: one listener at boot, which loads the drills (ink-ui) first */
+  document.addEventListener("click", function (e) {
+    var b = e.target.closest && e.target.closest("[data-ui~='content.writeout']");
+    if (!b) return;
+    e.preventDefault(); e.stopPropagation();
+    if (KOS.inkDrills) { KOS.inkDrills.writeOutFrom(b); return; }
+    if (KOS.lazy && KOS.lazy.need) KOS.lazy.need("ink-ui").then(function () { if (KOS.inkDrills && b.isConnected) KOS.inkDrills.writeOutFrom(b); },
+      function () { KOS.ui.toast("Write it out couldn't load; try again online.", true); });
+  }, true);
   /* the surfaces, the toolbar and the palette load with the ink-ui bundle
      (js/core/inksurface.js, 1F); until then nothing is being written */
   KOS.inkUI = { busy: function () { return false; }, prefs: prefs, palette: palette, drawItems: drawItems, drawItem: drawItem,

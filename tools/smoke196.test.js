@@ -856,6 +856,32 @@ step("U · the Collection: where you watch it, as the service's icon, and the ti
   await app.settle();
 });
 
+step("V · speed: a small medal reads the 192 px badge art, a large one the full art, and every badge has its copy (1F, architecture-perf#6)", async () => {
+  const fs = require("fs"), path = require("path"), cp = require("child_process");
+  const out = cp.execFileSync("python3", [path.join(__dirname, "gen_badge_small.py"), "--check"], { encoding: "utf8" });
+  assert(/all \d+ badges have a 192 px copy/.test(out), "every square badge has its small copy: " + out);
+  const A = K.achievements, d = A.defs().filter((x) => x.art && !x.hidden && fs.existsSync(path.join(__dirname, "..", "assets/app/img", x.art + ".webp")))[0];
+  const v = d ? A.viewOf(d, A.makeCtx(), 0) : null;
+  assert(v, "a badge with art to draw");
+  const src = (o) => { const m = K.achUI.medal(v, o).querySelector("img"); return m ? m.getAttribute("src") : null; };
+  const small = src({ size: "base" }), large = src({ size: "lg" }), laid = src({ px: 64 });
+  eq([small, large, laid], ["assets/app/img/sm/" + v.def.art + ".webp", "assets/app/img/" + v.def.art + ".webp", "assets/app/img/sm/" + v.def.art + ".webp"], "88 and 64 px read the copy, 208 px the full art");
+  assert(fs.existsSync(path.join(__dirname, "..", small)), "the copy is on disk");
+});
+
+step("W · Home stays lit on Reports, and an event of a type the calendar does not know still has a hue (shell#5, productivity#6)", async () => {
+  K.show("reports"); await app.settle(); await app.settle();
+  const lit = [...D.querySelectorAll("[data-ui~='shell.rail-item']")].filter((b) => b.getAttribute("aria-current") === "page").map((b) => b.dataset.section);
+  eq(lit, ["home"], "Reports light Home on the rail");
+  /* an imported event typed "other", with a colour no longer offered */
+  const c = K.store.state.calendar;
+  c.events.push({ id: 9901, title: "Imported thing", date: TODAY, type: "other", colour: "plaid", allDay: true, alerts: [], refs: [], v: c.v, updatedAt: 5 });
+  const ev = c.events.find((e) => e.id === 9901);
+  K.calendar.migrateRefs();
+  eq([ev.type, ev.colour, ev.updatedAt], ["personal", "", 5], "the boot pass gives it the gate's default type and drops the unknown colour, as a migration");
+  K.show("home"); await app.settle();
+});
+
 (async () => {
   let failed = 0;
   for (const [name, fn] of steps) {
