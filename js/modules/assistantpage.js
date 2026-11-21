@@ -757,7 +757,7 @@
     var cats = {};
     tools.forEach(function (t) { (cats[t.category] = cats[t.category] || []).push(t); });
     var areas = Object.keys(cats).sort();
-    var filterIn = el("input", { class: "k-input k-asst-filter", type: "search", placeholder: "⌕ Filter tools", "aria-label": "Filter tools" });
+    var filterIn = el("input", { class: "k-input k-asst-filter", type: "search", placeholder: "⌕ Filter tools or tier", "aria-label": "Filter tools or tier" });
     var reset = el("button", { class: "k-btn k-btn--sm", type: "button", text: "Reset to defaults", onclick: function () {
       var changed = Object.keys(perTool()).filter(function (n) { return perTool()[n]; });
       if (!changed.length) { KOS.ui.toast("Every tool is already on its default."); return; }
@@ -793,7 +793,8 @@
           var r = KOS.ai.orchestrator.setPermission(t.name, sel.value === "" ? null : sel.value);
           if (!r.ok) { KOS.ui.toast(r.msg, true); sel.value = ""; }
         });
-        rows.appendChild(el("div", { class: "k-asst-perm", "data-ui": "asst.perm-row", "data-name": (toolDisplayName(t.name) + " " + t.name).toLowerCase() }, [
+        rows.appendChild(el("div", { class: "k-asst-perm", "data-ui": "asst.perm-row", "data-name": (toolDisplayName(t.name) + " " + t.name).toLowerCase(),
+          "data-tier": (t.tier + " " + tierLabel(t.tier)).toLowerCase() }, [
           el("div", { class: "k-asst-perm-txt" }, [
             el("div", { class: "k-asst-perm-t", text: toolDisplayName(t.name) }),
             el("div", { class: "k-asst-perm-d", text: t.desc || "KurenaiOS assistant action" }),
@@ -829,7 +830,10 @@
       groups.querySelectorAll("[data-ui~='asst.perm-group']").forEach(function (g) {
         var hits = 0;
         g.querySelectorAll("[data-ui~='asst.perm-row']").forEach(function (r) {
-          var on = !q || r.getAttribute("data-name").indexOf(q) !== -1;
+          var sel = r.querySelector("select"), opt = sel && sel.options[sel.selectedIndex];
+          var hay = ((r.getAttribute("data-name") || "") + " " + (r.getAttribute("data-tier") || "") + " " +
+            (sel ? sel.value : "") + " " + (opt ? opt.textContent : "")).toLowerCase();
+          var on = !q || hay.indexOf(q) !== -1;
           r.hidden = !on; if (on) hits++;
         });
         g.hidden = !!q && !hits;
