@@ -535,7 +535,9 @@
 
     /* 27n: Mark purchased says exactly what it will do, then does it */
     function doPurchase(it) {
-      var M = KOS.money, was = { status: it.status, price: it.price, priority: it.priority };
+      var M = KOS.money, was = { status: it.status, price: it.price, priority: it.priority,
+        linkedEntryId: it.linkedEntryId != null ? it.linkedEntryId : null,
+        collectionAppliedAt: it.collectionAppliedAt || null };
       var price = KOS.ui.amountField({ value: it.price ? Math.round(it.price * 100) : null, label: "Paid" });
       var on = el("input", { type: "date", class: "k-input", "aria-label": "On" });
       on.value = dayKey(now());
@@ -566,10 +568,7 @@
         markPurchased(it.id, isFinite(ts) ? ts : null);
         delete selected[it.id];
         renderPlanner();
-        KOS.ui.toast("Added to Money · Collection › " + medium + " · " + (M ? M.format(Math.round(v * 100)) : money(v)), false, {
-          label: "View in Transactions", run: function () { KOS.show("money", "transactions"); } });
-        if (KOS.a11y) KOS.a11y.announce("Added to Money: Collection, " + medium + ", " + money(v) + ". " + it.title + " moved to Purchased.");
-        afterPurchase(it, was);
+        afterPurchase(it, was, v, medium);
       } });
       KOS.medview.dialogBox(overlay, "plan.buy-dialog", "Mark purchased", it.title + " · " + medium,
         el("div", { class: "k-dialog-body k-pl-form", "data-ui": "ui.form" }, [
@@ -580,18 +579,44 @@
           el("button", { type: "button", class: "k-btn", text: "Cancel", onclick: function () { overlay.close(); } }), go]));
       KOS.ui.openDialog(overlay, { label: "Mark purchased", initialFocus: price.input });
     }
-    function afterPurchase(it, was) {
+    function afterPurchase(it, was, v, medium) {
+      var M = KOS.money, amt = M ? M.format(Math.round(v * 100)) : money(v);
       handoffPurchased(it.id, function (err, entry, detail) {
         renderPlanner();
-        if (err) {
-          KOS.ui.toast("Purchase kept. Collection needs attention before it can link.", true);
-          return;
+        var undone = false;
+        function undoPurchase() {
+          if (undone) return;
+          undone = true;
+          setStatus(it.id, was.status);
+          update(it.id, { price: was.price, priority: was.priority,
+            linkedEntryId: was.linkedEntryId, collectionAppliedAt: was.collectionAppliedAt,
+            collectionHandoffError: null });
+          function finishUndo() {
+            renderPlanner();
+            KOS.ui.toast("Purchase undone · " + it.title + ".");
+          }
+          if (detail && detail.created && entry && KOS.mediadb && KOS.mediadb.remove) {
+            KOS.mediadb.remove(entry.id, function () { finishUndo(); });
+          } else if (detail && detail.physicalVolume && !detail.created && entry && KOS.mediadb && KOS.mediadb.get) {
+            var volNo = it.physicalVolumeNumber || 1;
+            KOS.mediadb.get(entry.id, function (gErr, rec) {
+              if (!gErr && rec && rec.physical && Array.isArray(rec.physical.volumes)) {
+                rec.physical.volumes = rec.physical.volumes.filter(function (x) { return Number(x.number) !== Number(volNo); });
+                KOS.mediadb.put(rec, function () { finishUndo(); });
+              } else finishUndo();
+            });
+          } else {
+            finishUndo();
+          }
         }
-        if (detail && detail.duplicateVolume) {
-          KOS.ui.toast("Purchase recorded — that book volume is already in the Physical Vault.");
-        } else if (entry) {
-          KOS.ui.toast(it.module === "books" ? "Added to the Physical Vault." : "Added to Collection as planned.");
-        }
+        var msg = err
+          ? "Purchased " + it.title + " (" + amt + "). Collection needs attention."
+          : detail && detail.duplicateVolume
+            ? "Purchased " + it.title + " (" + amt + ") — volume already on shelf."
+            : entry
+              ? "Purchased " + it.title + " (" + amt + ") · added to " + (it.module === "books" ? "Physical Vault" : "Collection › " + medium) + "."
+              : "Purchased " + it.title + " (" + amt + ").";
+        KOS.ui.toast(msg, !!err, { label: "Undo", run: undoPurchase });
       });
     }
 
