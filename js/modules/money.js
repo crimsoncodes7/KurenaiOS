@@ -974,7 +974,7 @@
             ov.close();
             M.confirmWith(r.id, date, t.syncId, function (e2) {
               if (e2) { U.toast(e2.message, true); return; }
-              announce(r.name + " counted from your statement");
+              U.toast(r.name + " counted from your statement", false, { label: "Undo", run: function () { M.unmark(r.id, date, function () { redraw(); }); } });
               redraw();
             });
           }, "money.confirm-bank")], { hook: "money.confirm-bank-dialog" });
@@ -984,7 +984,8 @@
     M.confirm(r.id, date, { amount: amount == null ? null : amount / 100, date: onDate || null }, function (err, tx) {
       if (err) { U.toast(err.message, true); return; }
       var c = r.kind === "in" ? "received" : r.kind === "transfer" ? "set aside" : "confirmed";
-      announce(r.name + " " + c + (M.isHidden() ? "" : ", " + money(tx.minor)) + (r.kind === "out" ? ", added to " + cat(r.cat).name : ""));
+      U.toast(r.name + " " + c + (M.isHidden() ? "" : ", " + money(tx.minor)) + (r.kind === "out" ? ", added to " + cat(r.cat).name : ""), false,
+        { label: "Undo", run: function () { M.unmark(r.id, date, function () { redraw(); }); } });
       redraw();
     });
   }
@@ -1210,58 +1211,118 @@
     var mainCol = el("div", { class: "k-mn-stack" });
     var side = el("div", { class: "k-mn-side" });
     page.appendChild(el("div", { class: "k-mn-cols" }, [mainCol, side]));
-    /* due occurrences: passed or today, not confirmed or skipped, this month or last */
-    var due = M.upcoming(addDays(now, -14), now, now).filter(function (o) { return o.state === "due" && !visit.left[o.rule + ":" + o.date] && !o.trial; });
-    due.sort(function (a, b) { return a.date < b.date ? 1 : -1; });
-    var seen = {};
-    due.filter(function (o) { if (seen[o.rule]) return false; seen[o.rule] = true; return true; }).slice(0, 3).forEach(function (o) { mainCol.appendChild(dueCard(o, now)); });
+    /* every past occurrence neither confirmed nor skipped, computed from each rule (invariant 43) */
+    var due = unconfirmedList(rs, now);
+    if (due.length) mainCol.appendChild(unconfirmedCard(due, now));
     mainCol.appendChild(rulesCard(rs, now));
     side.appendChild(ruleEditor(visit.ruleEdit && visit.ruleEdit !== "new" ? M.rule(visit.ruleEdit) : null));
   }
-  function dueCard(o, now) {
-    var r = M.rule(o.rule), c = cat(r.cat);
-    var occ = M.occurrences(r, addDays(o.date, -40), addDays(o.date, 40));
-    var at = occ.indexOf(o.date), strip = occ.slice(Math.max(0, at - 3), at + 2);
-    var stateWord = { done: "✓ Confirmed", skip: "— Skipped", due: "● Due", upcoming: "○ Upcoming" };
-    var noteHost = el("div");
-    var otherHost = el("div");
-    var whenWord = o.date === now ? "Due today" : "Due · " + between(o.date, now) + (between(o.date, now) === 1 ? " day ago" : " days ago");
-    var node = card([
-      el("div", { class: "k-mn-duehead" }, [tile("↻", r.kind === "transfer" ? "jade" : c.tone), el("div", { class: "k-mn-grow" }, [kicker(whenWord),
-        el("div", { class: "k-mn-duetitle" }, [r.name + " · ", amt(o.minor, { size: "18" })]),
-        el("div", { class: "k-muted k-mn-small", text: cap(everyLabel(r)) + " · " + (r.kind === "transfer" ? (M.pot(r.pot) ? M.pot(r.pot).name + " pot" : "a pot") : r.kind === "in" ? "Income" : c.name) })])]),
-      el("ol", { class: "k-mn-occ", "aria-label": "Occurrences" }, strip.map(function (d) {
-        var st = M.occurrenceState(r, d, now), m = r.marks[d];
-        return el("li", { class: "k-mn-occ-i", "data-state": d === o.date ? "current" : null }, [
-          el("span", { class: "k-mono k-muted k-mn-tiny", text: dayLabel(d) }),
-          chip(d === o.date ? (o.date === now ? "● Due today" : "● Due") : (st === "done" && m && m.changed ? "✓ Confirmed · changed" : stateWord[st]),
-            st === "done" ? "green" : d === o.date ? "crimson" : "muted"),
-          st === "skip" ? el("span", { class: "k-muted k-mn-tiny", text: "no entry" }) : amt(st === "done" && m && m.minor ? m.minor : M.amountOn(r, d), { size: "12-5", w: "500" })]);
-      })),
-      otherHost,
-      el("div", { class: "k-mn-actions" }, [
-        btn((r.kind === "in" ? "Received " : "Confirm ") + said(o.minor), "k-btn--primary", function () { confirmOcc(r, o.date, null); }, "money.occ-confirm"),
-        btn(r.kind === "in" ? "Received a different amount" : "Confirm a different amount", "", function () {
-          otherHost.textContent = "";
-          var af = U.amountField({ value: o.minor, label: "Amount" });
-          otherHost.appendChild(el("div", { class: "k-mn-inline" }, [af.node, btn("Confirm", "k-btn--sm k-btn--primary", function () { if (af.validate()) confirmOcc(r, o.date, af.value()); })]));
-          af.input.focus();
-        }, "money.occ-other"),
-        btn("Skip this one", "", function () {
-          M.skip(r.id, o.date, function () { announce("Skipped · " + r.name + ", " + shortDate(o.date)); redraw(); });
-        }, "money.occ-skip"),
-        btn("Leave it upcoming", "k-btn--quiet", function () { visit.left[r.id + ":" + o.date] = true; redraw(); }, "money.occ-leave")]),
-      noteHost
-    ], "k-mn-due", "money.due");
-    if (r.kind === "out" && r.cat) {
-      M.summary(M.periodKey(o.date), function (err, s) {
-        var row = s && s.byCat[r.cat];
-        if (row && row.budget != null && row.net + o.minor > (row.effective != null ? row.effective : row.budget)) {
-          noteHost.appendChild(el("p", { class: "k-mn-warn k-mn-small" }, ["◷ Confirming takes " + c.name + " to ", amt(row.net + o.minor, { size: "12" }), " of ", amt(row.effective != null ? row.effective : row.budget, { size: "12" }), "."]));
-        }
+  function unconfirmedList(rs, now) {
+    var out = [];
+    rs.forEach(function (r) {
+      M.occurrences(r, r.start, now).forEach(function (d) {
+        if (r.trialEnd && d <= r.trialEnd) return;
+        if (M.occurrenceState(r, d, now) !== "due") return;
+        out.push({ rule: r.id, r: r, name: r.name, date: d, minor: M.amountOn(r, d), kind: r.kind, cat: r.cat, pot: r.pot });
+      });
+    });
+    return out.sort(function (a, b) { return a.date < b.date ? 1 : a.date > b.date ? -1 : a.name.localeCompare(b.name); });
+  }
+  function unmarkMany(done) {
+    var i = 0;
+    (function next() {
+      if (i >= done.length) { announce("Undone · " + done.length + (done.length === 1 ? " occurrence" : " occurrences") + " back in the queue"); redraw(); return; }
+      var x = done[i++];
+      M.unmark(x.rule, x.date, next);
+    })();
+  }
+  function unconfirmedCard(items, now) {
+    var live = KOS.view ? KOS.view.token() : function () { return true; };
+    var matchedCount = 0;
+    var cap = visit.occAll ? items.length : Math.min(items.length, 12);
+    var countText = items.length + (items.length === 1 ? " past occurrence" : " past occurrences");
+    function confirmAll() {
+      var net = items.reduce(function (n, o) { return n + (o.kind === "in" ? o.minor : -o.minor); }, 0);
+      var note = matchedCount ? " " + matchedCount + (matchedCount === 1 ? " matches an imported statement entry — link it individually if you do not want a second entry." : " match imported statement entries — link those individually if you do not want duplicate entries.") : "";
+      U.confirm({ title: "Confirm all " + items.length + "?", confirm: "Confirm all", mark: "↻",
+        body: "Adds " + items.length + (items.length === 1 ? " entry" : " entries") + (M.isHidden() ? "" : " (net " + money(net, { sign: true }) + ")") + " to Money." + note }, function () {
+        var todo = items.slice(), done = [], i = 0;
+        (function next() {
+          if (i >= todo.length) {
+            if (done.length) U.toast("Confirmed " + done.length + (done.length === 1 ? " occurrence" : " occurrences"), false, { label: "Undo", run: function () { unmarkMany(done); } });
+            redraw();
+            return;
+          }
+          var o = todo[i++];
+          M.confirm(o.rule, o.date, {}, function (err) { if (!err) done.push({ rule: o.rule, date: o.date }); next(); });
+        })();
       });
     }
-    return node;
+    function skipAll() {
+      U.confirm({ title: "Skip all " + items.length + "?", confirm: "Skip all", mark: "↻",
+        body: "Marks all " + items.length + (items.length === 1 ? " past occurrence" : " past occurrences") + " as skipped without creating entries." }, function () {
+        var todo = items.slice(), done = [], i = 0;
+        (function next() {
+          if (i >= todo.length) {
+            if (done.length) U.toast("Skipped " + done.length + (done.length === 1 ? " occurrence" : " occurrences"), false, { label: "Undo", run: function () { unmarkMany(done); } });
+            redraw();
+            return;
+          }
+          var o = todo[i++];
+          M.skip(o.rule, o.date, function (err) { if (!err) done.push({ rule: o.rule, date: o.date }); next(); });
+        })();
+      });
+    }
+    var list = el("div", { class: "k-mn-qlist", role: "list", "aria-label": "Not yet confirmed occurrences" });
+    items.slice(0, cap).forEach(function (o) {
+      var r = o.r, c = cat(r.cat);
+      var ago = between(o.date, now);
+      var when = o.date === now ? "Today" : dayLabel(o.date) + " · " + ago + (ago === 1 ? " day ago" : " days ago");
+      var sub = r.kind === "transfer" ? (M.pot(r.pot) ? M.pot(r.pot).name + " pot" : "Set-aside") : r.kind === "in" ? "Income" : c.name;
+      var signed = o.kind === "in" ? o.minor : -o.minor;
+      var row = el("div", { class: "k-mn-qrow", role: "listitem", "data-ui": "money.occ-row" }, [
+        el("div", { class: "k-mn-qmain" }, [
+          dot(r.kind === "transfer" ? "jade" : c.tone),
+          el("div", { class: "k-mn-grow k-mn-fname" }, [
+            el("span", { class: "k-mn-strong k-ellipsis", text: o.name }),
+            el("span", { class: "k-muted k-mn-small k-ellipsis", text: when + " · " + sub })]),
+          amt(signed, { size: "13", plus: o.kind === "in", tone: o.kind === "in" ? "in" : o.kind === "transfer" ? "transfer" : null }),
+          el("div", { class: "k-mn-actions" }, [
+            btn((r.kind === "in" ? "Received " : "Confirm ") + said(o.minor), "k-btn--sm k-btn--primary", function () { confirmOcc(r, o.date, null); }, "money.occ-confirm"),
+            btn("Different amount", "k-btn--sm", function () { amountDialog(r, o.date); }, "money.occ-other"),
+            btn("Skip", "k-btn--sm k-btn--quiet", function () {
+              M.skip(r.id, o.date, function () {
+                U.toast("Skipped · " + r.name + ", " + shortDate(o.date), false, { label: "Undo", run: function () { M.unmark(r.id, o.date, function () { redraw(); }); } });
+                redraw();
+              });
+            }, "money.occ-skip")])])]);
+      list.appendChild(row);
+      if (o.kind === "out" || o.kind === "in") {
+        M.bankMatches(o.rule, o.date, function (err, found) {
+          if (err || !found || !found.length || !live() || !row.isConnected) return;
+          matchedCount++;
+          var t = found[0];
+          row.appendChild(el("div", { class: "k-mn-qmatch", "data-ui": "money.occ-match" }, [
+            el("span", { class: "k-mn-grow", text: "Matches statement · " + (t.payee || (t.bank && t.bank.text) || "Imported entry") + " · " + shortDate(t.date) }),
+            btn("Use statement entry", "k-btn--sm", function () {
+              M.confirmWith(o.rule, o.date, t.syncId, function (e2) {
+                if (e2) { U.toast(e2.message, true); return; }
+                U.toast(o.name + " counted from your statement", false, { label: "Undo", run: function () { M.unmark(o.rule, o.date, function () { redraw(); }); } });
+                redraw();
+              });
+            }, "money.occ-use-bank")]));
+        });
+      }
+    });
+    var moreBtn = cap < items.length ? el("div", { class: "k-mn-more" }, [btn("Show all " + items.length, "k-btn--sm k-btn--quiet", function () { visit.occAll = true; redraw(); }, "money.occ-more")]) : null;
+    return card([
+      el("div", { class: "k-mn-qhead" }, [
+        el("h2", { class: "k-card-title", text: "Not yet confirmed" }),
+        el("span", { class: "k-card-meta", text: countText }),
+        el("span", { class: "k-mn-spacer" }),
+        items.length > 1 ? btn("Confirm all", "k-btn--sm", confirmAll, "money.occ-confirm-all") : null,
+        items.length > 1 ? btn("Skip all", "k-btn--sm k-btn--quiet", skipAll, "money.occ-skip-all") : null].filter(Boolean)),
+      list, moreBtn].filter(Boolean), "k-mn-queue", "money.unconfirmed");
   }
   function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
   function rulesCard(rs, now) {

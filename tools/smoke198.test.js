@@ -23,6 +23,10 @@
      F · bk:goals#2       "Make this a goal" on routine, Money pot, exam
                           readiness, Collection title, and Money budget opens
                           KOS.goalsUI.newGoal pre-filled via existing links.
+     G · bk:money-goals#6 Recurring "Not yet confirmed" queue lists every past
+                          unconfirmed occurrence (>14 days), offers inline bank
+                          match via confirmWith only on press, and Confirm all /
+                          Skip all ask first and support Undo.
 
    Run: node tools/smoke198.test.js                                         */
 "use strict";
@@ -475,6 +479,89 @@ step("F · Make this a goal from routine, Money pot, exam readiness, Collection 
   K.routines.remove(rt.id);
   K.exams.remove(ex.id);
   await new Promise((res) => K.mediadb.remove(entry.id, () => res()));
+  eq(app.errors, [], "no page errors");
+});
+
+/* ---------------- G · bk:money-goals#6 ---------------- */
+step("G · Recurring Not yet confirmed queue lists every past occurrence with match, Confirm all and Skip all Undo (bk:money-goals#6)", async () => {
+  const M = K.money;
+  const cb = (fn) => new Promise((res, rej) => fn((e, v) => (e ? rej(e) : res(v))));
+  const allTx = async () => (await cb((c) => M.exportAll(c))).tx;
+  const until = async (fn, n) => { for (let i = 0; i < (n || 60) && !fn(); i++) await app.settle(); return fn(); };
+  const sessBefore = K.sessions.all().length;
+  const govBefore = JSON.stringify({ xp: K.store.state.governor.xp, gold: K.store.state.governor.gold, hp: K.store.state.governor.hp });
+
+  await cb((c) => M.importAll({ tx: [], del: [] }, c));
+  K.store.state.money = M.normalise({});
+  K.store.save();
+
+  /* Import a bank row BEFORE adding the rules so it sits unlinked (for inline bankMatches) */
+  const parsed = M.csv.parse("Date,Description,Amount\n19/11/2026,VODAFONE LTD,-10.00\n", "nov.csv");
+  const pv = await cb((c) => M.csv.preview(parsed, M.csv.guess(parsed.header), {}, c));
+  await cb((c) => M.csv.import(pv.rows, { file: "nov.csv", format: parsed.format }, c));
+  eq((await allTx()).length, 1, "one imported bank row");
+
+  /* Two monthly rules starting months ago -> 4 + 3 = 7 unconfirmed past occurrences */
+  const ph = M.addRule({ name: "Phone", kind: "out", cat: "bills", minor: 1000, every: { n: 1, unit: "month" }, start: "2026-08-20" });
+  const mu = M.addRule({ name: "Music", kind: "out", cat: "subscriptions", minor: 599, every: { n: 1, unit: "month" }, start: "2026-09-18" });
+
+  K.show("money", "recurring"); await app.settle(); await app.settle();
+  const snap = JSON.stringify(K.store.state.money);
+  K.rerender(); await app.settle(); await app.settle();
+  eq(JSON.stringify(K.store.state.money), snap, "rendering Recurring queue writes nothing");
+
+  const queue = q("[data-ui~='money.unconfirmed']");
+  assert(queue, "Not yet confirmed queue card is rendered");
+  eq(qa("[data-ui='money.occ-row']", queue).length, 7, "all 7 past occurrences across >14 days are listed");
+
+  /* Inline bank match appears WITHOUT auto-confirming */
+  const useBtn = await until(() => q("[data-ui='money.occ-use-bank']", q("[data-ui~='money.unconfirmed']")));
+  assert(useBtn, "inline suggested statement match button appears");
+  assert(!M.rule(ph.id).marks["2026-11-20"], "bank match is NEVER confirmed automatically");
+
+  /* Press Use statement entry -> confirmWith (no duplicate tx), Undo releases bank row intact */
+  click(useBtn);
+  await until(() => M.rule(ph.id).marks["2026-11-20"] && M.rule(ph.id).marks["2026-11-20"].s === "done");
+  eq((await allTx()).length, 1, "confirmWith links the existing bank row without adding a second tx");
+  const undoBank = q(".k-toast-act");
+  assert(undoBank && /Undo/.test(undoBank.textContent), "confirmWith shows Undo toast");
+  click(undoBank);
+  await until(() => !M.rule(ph.id).marks["2026-11-20"]);
+  eq((await allTx()).length, 1, "Undo after confirmWith keeps the bank row intact");
+
+  /* Re-link the bank match, leaving 6 past occurrences in the queue */
+  const useBtn2 = await until(() => q("[data-ui='money.occ-use-bank']", q("[data-ui~='money.unconfirmed']")));
+  click(useBtn2);
+  await until(() => M.rule(ph.id).marks["2026-11-20"] && M.rule(ph.id).marks["2026-11-20"].s === "done");
+  await until(() => qa("[data-ui='money.occ-row']", q("[data-ui~='money.unconfirmed']")).length === 6);
+
+  /* Skip all asks first, skips all 6, and Undo restores all 6 */
+  click(q("[data-ui='money.occ-skip-all']")); await app.settle();
+  const skipDlg = q("[role='alertdialog']");
+  assert(skipDlg && /Skip/.test(skipDlg.textContent), "Skip all asks for confirmation first");
+  click(q("[data-ui~='ui.confirm-yes']", skipDlg));
+  await until(() => !q("[data-ui~='money.unconfirmed']"));
+  eq(Object.keys(M.rule(mu.id).marks).length, 3, "all 3 Music occurrences marked skip");
+  const undoSkip = q(".k-toast-act");
+  assert(undoSkip && /Undo/.test(undoSkip.textContent), "Skip all offers Undo toast");
+  click(undoSkip);
+  await until(() => q("[data-ui~='money.unconfirmed']") && qa("[data-ui='money.occ-row']", q("[data-ui~='money.unconfirmed']")).length === 6);
+
+  /* Confirm all asks first, confirms all 6, and Undo removes the 6 created transactions */
+  click(q("[data-ui='money.occ-confirm-all']")); await app.settle();
+  const confDlg = q("[role='alertdialog']");
+  assert(confDlg && /Confirm/.test(confDlg.textContent), "Confirm all asks for confirmation first");
+  click(q("[data-ui~='ui.confirm-yes']", confDlg));
+  await until(() => !q("[data-ui~='money.unconfirmed']"));
+  eq((await allTx()).length, 7, "Confirm all created 6 entries beside the 1 bank entry");
+  const undoConf = q(".k-toast-act");
+  assert(undoConf && /Undo/.test(undoConf.textContent), "Confirm all offers Undo toast");
+  click(undoConf);
+  await until(() => q("[data-ui~='money.unconfirmed']") && qa("[data-ui='money.occ-row']", q("[data-ui~='money.unconfirmed']")).length === 6);
+  eq((await allTx()).length, 1, "Undo after Confirm all removes the 6 created entries and leaves the bank row");
+
+  eq(K.sessions.all().length, sessBefore, "zero Governor sessions");
+  eq(JSON.stringify({ xp: K.store.state.governor.xp, gold: K.store.state.governor.gold, hp: K.store.state.governor.hp }), govBefore, "Governor untouched");
   eq(app.errors, [], "no page errors");
 });
 

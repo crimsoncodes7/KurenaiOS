@@ -213,6 +213,15 @@
 .k-mn-tone[aria-checked="true"] { outline: var(--focus-width) solid var(--text); outline-offset: var(--sp-2); }
 
 /* ---------- 27e · Recurring and Subscriptions ---------- */
+.k-mn-queue { display: flex; flex-direction: column; gap: var(--sp-10); }
+.k-mn-qhead { display: flex; align-items: center; flex-wrap: wrap; gap: var(--sp-8) var(--sp-10); }
+.k-mn-qlist { display: flex; flex-direction: column; }
+.k-mn-qrow { display: flex; flex-direction: column; gap: var(--sp-8); padding-block: var(--sp-10); border-block-start: var(--hairline) solid var(--line); }
+.k-mn-qrow:first-child { border-block-start: 0; padding-block-start: var(--sp-4); }
+.k-mn-qmain { display: flex; align-items: center; flex-wrap: wrap; gap: var(--sp-8) var(--sp-12); }
+.k-mn-qmain > .k-mn-grow { min-inline-size: var(--mn-sub-next); }
+.k-mn-qmatch { display: flex; align-items: center; flex-wrap: wrap; gap: var(--sp-8) var(--sp-10); padding: var(--sp-8) var(--sp-10); border-radius: var(--r-12); background: var(--teal-wash); font-size: var(--fs-12-5); color: var(--text); }
+.k-mn-qmatch > .k-mn-grow { min-inline-size: var(--mn-sub-next); }
 .k-mn-due { display: flex; flex-direction: column; gap: var(--sp-12); }
 .k-mn-duehead { display: flex; align-items: center; gap: var(--sp-12); }
 .k-mn-duetitle { display: flex; align-items: baseline; gap: var(--sp-4); margin-block-start: var(--sp-2); font-size: var(--fs-18); font-weight: var(--weight-semibold); }
