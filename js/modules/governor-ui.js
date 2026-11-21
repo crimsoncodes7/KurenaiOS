@@ -1242,7 +1242,7 @@
     /* the preview sheet (34h): the picture with Try on running, the words,
        the price; out of reach, the goal line and Pin, never a greyed Buy */
     function shopSheet(it) {
-      var st = wareState(it), afford = g.gold >= it.price;
+      var st = wareState(it), afford = g.gold >= it.price, isPinned = !!(KOS.governor.pinned() && g.shopPin === it.id);
       var body = el("div", { class: "k-gv-sheet" }, [
         el("div", { class: "k-gv-sheet-pv" }, [shopPreview(it, true)]),
         el("div", { class: "k-gv-sheet-txt" }, [
@@ -1263,7 +1263,7 @@
           (st === "buy" || st === "try") && !afford ? el("div", { class: "k-gv-sheet-goal", "data-ui": "shop.goal" }, [
             el("div", { class: "k-mono", text: goldN(it.price - g.gold) + " more" }),
             el("span", { class: "k-bar", style: "--p: " + Math.round(100 * g.gold / it.price) + "%; --bar-c: var(--gold)" }),
-            el("p", { class: "k-muted", text: "Not enough gold yet. Pin it and it waits on the Stage; no reminders." })
+            el("p", { class: "k-muted", text: isPinned ? "Pinned on the Stage; no reminders." : "Not enough gold yet. Pin it and it waits on the Stage; no reminders." })
           ]) : null
         ].filter(Boolean))
       ]);
@@ -1272,8 +1272,8 @@
         if (KOS.governor.canTry(it))
           actions.push({ label: st === "try" ? "Stop trying on" : "Try on", onClick: function () { KOS.governor.tryItem(it.id); render(); } });
         if (afford) actions.push({ label: "Buy · " + goldN(it.price), primary: true, onClick: function () { confirmBuy([it], function () { if (buyWare(it)) render(); }); } });
-        else actions.push({ label: KOS.governor.pinned() && g.shopPin === it.id ? "Pinned" : "Pin as a goal", primary: true,
-          onClick: function () { KOS.governor.setPinned(it.id); render(); } });
+        else if (isPinned) actions.push({ label: "Unpin", onClick: function () { KOS.governor.setPinned(null); render(); } });
+        else actions.push({ label: "Pin as a goal", primary: true, onClick: function () { KOS.governor.setPinned(it.id); render(); } });
       } else if (it.kind === "unlock") {
         if (it.area !== "all") actions.push({ label: it.area === "vault" ? "Open a vault" : "Upload a picture", primary: true, onClick: function () { openUpload(it.area); } });
       } else if (st === "on") {
