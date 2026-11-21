@@ -130,11 +130,12 @@
     tabs.setAttribute("data-phone-tabs", "");
     var viewLabel = (VIEWS.filter(function (v) { return v[0] === view; })[0] || [0, "Money"])[1];
     return U.pageHeader({
-      kicker: "円 · " + (view === "overview" ? "The month" : view === "settings" ? "Settings" : viewLabel),
-      title: view === "overview" ? "Money" : view === "settings" ? "Money settings" : viewLabel,
+      kicker: "円 · " + (view === "overview" ? "The month" : view === "settings" ? "Settings" : view === "imports" ? "Imports" : viewLabel),
+      title: view === "overview" ? "Money" : view === "settings" ? "Money settings" : view === "imports" ? "Imports" : viewLabel,
       sub: sub,
       className: "k-mn-head",
-      actions: [tabs, privacy, gear, view === "budgets" || view === "pots" || view === "month" || view === "settings" ? null
+      actions: [tabs, privacy, gear, view === "imports" ? btn("Import…", "k-btn--primary", function () { importDialog(); }, "money.import")
+        : view === "budgets" || view === "pots" || view === "month" || view === "settings" ? null
         : btn("＋ Add entry", "k-btn--primary k-mn-add", function () { entryEditor(null); }, "money.add")]
     });
   }
@@ -147,13 +148,14 @@
       KOS.moneyImp.merchantPage(main, arg.slice(9));
       return;
     }
-    var view = VIEWS.some(function (v) { return v[0] === arg; }) || arg === "settings" ? arg : "overview";
+    var view = VIEWS.some(function (v) { return v[0] === arg; }) || arg === "settings" || arg === "imports" ? arg : "overview";
     var key = M.periodKey(today()), r = M.periodRange(key);
     var subs = {
       overview: monthName(key) + " so far · " + (between(r.from, today()) + 1) + " of " + r.days + " days",
       transactions: "Every entry, typed, imported or made by a rule",
       budgets: null, recurring: "Payments, income and set-asides made by a rule",
-      pots: null, month: "What came in, what went out", settings: "Rules for imported statements"
+      pots: null, month: "What came in, what went out", settings: "Rules for imported statements",
+      imports: "Statements brought into Money, each undoable"
     };
     var page = el("div", { class: "k-mn", "data-ui": "money.page", "data-view": view });
     main.appendChild(header(view, subs[view]));
@@ -543,10 +545,14 @@
     var rangeSel = select(ranges, f.range,
       { "data-ui": "money.tx-range", "aria-label": "Dates", class: "k-input k-pill-select" });
     var kinds = seg([["", "All"], ["in", "In"], ["out", "Out"], ["transfer", "Moves"]], f.kind, function (k) { f.kind = k; redraw(); }, "Entry kind", "k-mn-kinds");
-    /* 39d: the imports, and the Source filter that narrows the list to one */
+    /* 39d: the imports, and the Source filter that narrows the list to one or all imported files */
     var imps = M.imports ? M.imports() : [];
-    if (f.source && !imps.some(function (b) { return b.id === f.source; })) f.source = "";
-    var srcSel = imps.length ? select([["", "Source: All"]].concat(imps.map(function (b) { return [b.id, "Source: " + (b.file || "an import")]; })), f.source,
+    if (f.source && f.source !== "__csv__" && !imps.some(function (b) { return b.id === f.source; })) f.source = "";
+    if (f.source === "__csv__" && !imps.length) f.source = "";
+    var srcOpts = [["", "Source: All"]]
+      .concat(imps.length > 1 ? [["__csv__", "Source: Imported (all files)"]] : [])
+      .concat(imps.map(function (b) { return [b.id, "Source: " + (b.file || "an import")]; }));
+    var srcSel = imps.length ? select(srcOpts, f.source,
       { "data-ui": "money.tx-source", "aria-label": "Source", class: "k-input k-pill-select k-mn-srcsel" }) : null;
     if (srcSel) srcSel.addEventListener("change", function () { f.source = srcSel.value; if (f.source) f.range = "all"; redraw(); });
     var modes = imps.length ? seg([["entries", "Entries"], ["imports", "Imports"]], f.mode || "entries", function (m) { f.mode = m; redraw(); }, "Entries or imports", "k-mn-modes") : null;
@@ -567,20 +573,43 @@
   }
   function drawList(host, side) {
     var f = visit.tx, rng = txRange(), cursor = null, done = false, shown = [];
+    var allBox = el("input", { type: "checkbox", class: "k-box", "data-ui": "money.tx-select-all", "aria-label": "Select all loaded entries" });
+    var allLabel = el("span", { class: "k-muted k-mn-small", text: "Select all" });
+    var selBar = el("div", { class: "k-mn-selbar", hidden: "" }, [el("label", { class: "k-mn-selall" }, [allBox, allLabel])]);
     var bulk = el("div", { class: "k-mn-bulk", "data-ui": "money.bulk", hidden: "" });
     var list = el("div", { class: "k-mn-tx", "data-ui": "money.tx-list", role: "list", "aria-label": "Entries" });
     var more = el("div", { class: "k-mn-more k-muted", "data-ui": "money.tx-more" });
-    var holder = card([bulk, list, more], "k-mn-txcard", "money.tx-card");
+    var holder = card([selBar, bulk, list, more], "k-mn-txcard", "money.tx-card");
     host.appendChild(holder);
+    function syncSelectAll() {
+      selBar.hidden = !shown.length;
+      if (!shown.length) return;
+      var ticked = shown.filter(function (t) { return !!visit.ticked[t.syncId]; }).length;
+      allBox.checked = ticked === shown.length;
+      allBox.indeterminate = ticked > 0 && ticked < shown.length;
+      allLabel.textContent = ticked === shown.length ? "All " + shown.length + " selected" : "Select all (" + shown.length + ")";
+    }
+    allBox.addEventListener("change", function () {
+      var on = allBox.checked;
+      shown.forEach(function (t) { if (on) visit.ticked[t.syncId] = t; else delete visit.ticked[t.syncId]; });
+      Array.prototype.forEach.call(list.querySelectorAll('[data-ui="money.tx-row"]'), function (r) {
+        var b = r.querySelector('[data-ui="money.tx-tick"]');
+        if (b) b.checked = on;
+        U.state(r, "ticked", on);
+      });
+      drawBulk();
+    });
     var groups = {};
     var q = f.search.trim(), tag = "";
     var m = q.match(/(^|\s)#([\w-]+)/);
     if (m) { tag = m[2]; q = q.replace(m[0], "").trim(); }
+    var batchOpt = f.source && f.source !== "__csv__" ? f.source : null;
+    var srcOpt = f.source === "__csv__" ? "csv" : null;
     var loading = false;
     function load() {
       if (done || loading) return;
       loading = true;
-      M.list({ from: rng.from, to: rng.to, cat: f.cat || null, kind: f.kind === "out" ? null : f.kind || null, search: q, tag: tag || null, batch: f.source || null, before: cursor, limit: 60 }, function (err, rows, next) {
+      M.list({ from: rng.from, to: rng.to, cat: f.cat || null, kind: f.kind === "out" ? null : f.kind || null, search: q, tag: tag || null, batch: batchOpt, src: srcOpt, before: cursor, limit: 60 }, function (err, rows, next) {
         rows = (rows || []).filter(function (t) { return f.kind !== "out" || t.kind === "out" || t.kind === "transfer"; });
         rows.forEach(function (t) {
           shown.push(t);
@@ -593,6 +622,7 @@
         });
         cursor = next; done = !next; loading = false;
         more.textContent = "";
+        syncSelectAll();
         if (!shown.length) {
           var isDay = f.range && f.range.indexOf("day:") === 0;
           var filtered = f.search || f.cat || f.kind || f.source || isDay;
@@ -668,6 +698,7 @@
       return row;
     }
     function drawBulk() {
+      syncSelectAll();
       var ids = Object.keys(visit.ticked);
       bulk.hidden = !ids.length;
       bulk.textContent = "";
@@ -720,12 +751,12 @@
     }
     /* the same filters as load(): "out" also lists transfers */
     var totals = null;
-    M.listTotals({ from: rng.from, to: rng.to, cat: f.cat || null, kind: f.kind === "out" ? null : f.kind || null, search: q, tag: tag || null, batch: f.source || null }, function (err, r) {
+    M.listTotals({ from: rng.from, to: rng.to, cat: f.cat || null, kind: f.kind === "out" ? null : f.kind || null, search: q, tag: tag || null, batch: batchOpt, src: srcOpt }, function (err, r) {
       if (err) return;
       if (f.kind === "out") {
         /* listTotals has no "out or transfer" filter: count those kinds alone */
-        M.listTotals({ from: rng.from, to: rng.to, cat: f.cat || null, kind: "out", search: q, tag: tag || null, batch: f.source || null }, function (e1, a) {
-          M.listTotals({ from: rng.from, to: rng.to, cat: f.cat || null, kind: "transfer", search: q, tag: tag || null, batch: f.source || null }, function (e2, b) {
+        M.listTotals({ from: rng.from, to: rng.to, cat: f.cat || null, kind: "out", search: q, tag: tag || null, batch: batchOpt, src: srcOpt }, function (e1, a) {
+          M.listTotals({ from: rng.from, to: rng.to, cat: f.cat || null, kind: "transfer", search: q, tag: tag || null, batch: batchOpt, src: srcOpt }, function (e2, b) {
             totals = { count: a.count + b.count, inn: 0, out: a.out + b.out, pots: b.pots };
             drawSide();
           });
@@ -1733,7 +1764,16 @@
     });
   }
 
-  var RENDER = { overview: overview, transactions: transactions, budgets: budgets, recurring: recurring, pots: pots, month: monthYear, settings: function (page) { KOS.moneyImp.settings(page); } };
+  var RENDER = {
+    overview: overview, transactions: transactions, budgets: budgets, recurring: recurring, pots: pots, month: monthYear,
+    settings: function (page) { KOS.moneyImp.settings(page); },
+    imports: function (page) {
+      var listHost = el("div", { class: "k-mn-txlist-host" });
+      var side = el("div", { class: "k-mn-side" });
+      page.appendChild(el("div", { class: "k-mn-cols k-mn-cols--sm" }, [listHost, side]));
+      KOS.moneyImp.importsView(listHost, side);
+    }
+  };
   /* other pages open these */
   KOS.moneyUI = { entryEditor: entryEditor, importDialog: importDialog };
   /* the parts moneyimp.js draws with (design turn 39), so both files speak one language */
