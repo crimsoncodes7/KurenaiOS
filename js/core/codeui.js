@@ -256,17 +256,46 @@
     if (err && err.kind === "runtime") return runtimeCard(opts);
     var x = KOS.codeRun.explain(err);
     if (!x) return null;
-    return el("div", { class: "k-cx-err", "data-ui": "code.error-card", "data-kind": err.kind, role: "group", "aria-label": x.kind }, [
+    var isRunner = err.kind === "runner";
+    return el("div", { class: isRunner ? "k-cx-err k-cx-rtcard" : "k-cx-err", "data-ui": "code.error-card", "data-kind": err.kind, role: "group", "aria-label": x.kind }, [
       el("div", { class: "k-cx-err-head" }, [
-        el("b", { text: "✗ " + x.kind }),
-        err.kind === "timeout" ? null : el("span", { class: "k-mono", text: x.code }),
+        el("b", { text: (isRunner ? "◇ " : "✗ ") + x.kind }),
+        err.kind === "timeout" || isRunner ? null : el("span", { class: "k-mono", text: x.code }),
         x.line ? el("span", { class: "k-cx-err-line", text: "line " + x.line }) : null
       ].filter(Boolean)),
-      x.msg ? el("p", { class: "k-cx-err-raw k-mono", text: err.kind === "timeout" ? (opts.caseNo ? "Stopped after 2 seconds in case " + opts.caseNo + "." : x.msg) : x.msg }) : null,
-      x.plain ? el("p", { class: "k-cx-err-plain", text: err.kind === "timeout" ? "Did not finish — is there a loop whose condition never becomes false?" : x.plain }) : null,
+      x.msg ? el("p", { class: isRunner ? "k-cx-err-plain" : "k-cx-err-raw k-mono", text: err.kind === "timeout" ? (opts.caseNo ? "Stopped after 2 seconds in case " + opts.caseNo + "." : x.msg) : x.msg }) : null,
+      !isRunner && x.plain ? el("p", { class: "k-cx-err-plain", text: err.kind === "timeout" ? "Did not finish — is there a loop whose condition never becomes false?" : x.plain }) : null,
       x.usually ? el("p", { class: "k-cx-err-why", text: "Usually because: " + x.usually }) : null,
       opts.after ? el("p", { class: "k-cx-err-after", text: opts.after }) : null
     ].filter(Boolean));
+  }
+
+  /* ---------------- shared runner status for every Run button ---------------- */
+  function bindRun(btn, opts) {
+    opts = opts || {};
+    var R = KOS.codeRun;
+    if (!btn || !R || !R.runnerStatus) return { off: function () {}, sync: function () {} };
+    var runner = R.runnerFor ? R.runnerFor(opts.runner || opts.lesson || "interp") : "interp";
+    var baseLabel = opts.label || btn.textContent;
+    var seen = false, off = null;
+    function apply(st) {
+      if (btn.isConnected) seen = true;
+      else if (seen && off) { off(); off = null; return; }
+      btn.setAttribute("data-runner", st.runner);
+      btn.setAttribute("data-runner-state", st.state);
+      var active = st.state === "booting" || st.state === "busy";
+      var extraDisabled = opts.disabled ? !!opts.disabled() : false;
+      btn.disabled = active || extraDisabled;
+      if (opts.busyLabel && st.state === "busy") btn.textContent = opts.busyLabel;
+      else if (st.state === "ready" || st.state === "failed" || !active) btn.textContent = baseLabel;
+      if (opts.onStatus) opts.onStatus(st);
+    }
+    apply(R.runnerStatus(runner));
+    off = R.onStatus(function (st) { if (st.runner === runner) apply(st); });
+    return {
+      off: function () { if (off) { off(); off = null; } },
+      sync: function () { apply(R.runnerStatus(runner)); }
+    };
   }
 
   /* ---------------- the full runtime (frame 26g) ---------------- */
@@ -403,6 +432,11 @@
     if (check.compile) {
       sum.textContent = "Compile error " + check.compile.code + (check.compile.line ? " on line " + check.compile.line : "");
       box.appendChild(errorCard(check.compile, { after: "The results list is replaced until it compiles. Nothing was run." }));
+      return box;
+    }
+    if (check.runner) {
+      sum.textContent = "Runner did not start";
+      box.appendChild(errorCard(check.runner, { after: "Your code was not checked. Try again." }));
       return box;
     }
     var fails = check.results.filter(function (r) { return !r.ok && !r.skipped; });
@@ -669,6 +703,7 @@
         try { navigator.clipboard.writeText(ed.value).then(done, done); } catch (e) { done(); }
       } });
     var runBtn = el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "code.listing-run", text: "▶ Run", onclick: go });
+    var runBind = bindRun(runBtn, { lesson: opts.lesson, label: "▶ Run" });
     ed = editor({ value: orig, file: run.cap || "Listing", lang: opts.lesson && KOS.code && KOS.code.runnerFor(opts.lesson) === "sql" ? "sql" : null, compact: true, noBar: true, label: "Listing" + (run.cap ? ": " + run.cap : ""),
       actions: [runBtn, reset, copy],
       onRun: go,
@@ -680,11 +715,17 @@
       runBtn.disabled = true;
       ed.running(true);
       KOS.codeRun.run({ files: ed.files(), stdin: run.stdin || "", fs: run.fs, db: run.db, lesson: opts.lesson }).then(function (r) {
-        runBtn.disabled = false;
+        runBind.sync();
         ed.running(false);
         out.hidden = false;
         out.innerHTML = "";
         if (r.error && r.error.kind === "runtime") { ed.state("ready"); out.appendChild(runtimeCard({ onReady: go })); return; }
+        if (r.error && r.error.kind === "runner") {
+          ed.state("ready", "Runner problem");
+          out.appendChild(errorCard(r.error));
+          KOS.a11y && KOS.a11y.announce && KOS.a11y.announce(r.error.msg || "The runner did not start.");
+          return;
+        }
         out.appendChild(el("span", { class: "k-cx-out-k", text: "Output" }));
         if (r.ok) {
           ed.state("pass", "Ran");
@@ -751,6 +792,7 @@
     strands: strands, where: where, dot: dot, daysText: daysText, chip: chip, stagePath: stagePath,
     listing: listing, mountListings: mountListings, keyBar: keyBar, quoted: quoted, hm: hm,
     filesPanel: filesPanel, writtenPanel: writtenPanel,
-    runtimeCard: runtimeCard, runtimeOffer: runtimeOffer, warningsPanel: warningsPanel
+    runtimeCard: runtimeCard, runtimeOffer: runtimeOffer, warningsPanel: warningsPanel,
+    bindRun: bindRun
   };
 })();

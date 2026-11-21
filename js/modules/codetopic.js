@@ -580,13 +580,14 @@
     var out = el("div", { class: "k-cx-q-out" });
     var check = el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "code.practice-check", text: "Check",
       onclick: function () {
+        if (check.disabled) return;
         check.disabled = true;
         KOS.codeRun.run({ files: [{ name: KOS.code.fileFor(ref), src: item.src }], stdin: item.stdin || "", fs: item.fs, db: item.db, lesson: ref }).then(function (r) {
-          check.disabled = false;
+          checkBind.sync();
           out.innerHTML = "";
           var real = r.ok ? KOS.codeRun.norm(r.stdout) : null;
           var ok = r.ok && KOS.codeRun.sameAnswer(ans.value, r.stdout, sqlQ ? "sql" : null);
-          if (!r.ok) { out.appendChild(KOS.codeUI.errorCard(r.error)); return; }
+          if (!r.ok) { out.appendChild(KOS.codeUI.errorCard(r.error)); if (r.error && r.error.kind === "runner") announce(r.error.msg || "The runner did not start."); return; }
           out.appendChild(verdict(ok, ok ? "Right · prints " + KOS.codeRun.firstLine(real) : "Not yet · it prints " + KOS.codeRun.firstLine(real)));
           if (item.why) out.appendChild(el("p", { class: "k-cx-why" }, [el("b", { text: "Why · " }), el("span", { html: KOS.content.inline(item.why) })]));
           announce(ok ? "Right. Prints " + KOS.codeRun.firstLine(real) + "." : "Not yet. It prints " + KOS.codeRun.firstLine(real) + ".");
@@ -594,6 +595,7 @@
           else out.appendChild(el("button", { type: "button", class: "k-btn", text: "Try again", onclick: function () { out.innerHTML = ""; ans.focus(); } }));
         });
       } });
+    var checkBind = KOS.codeUI.bindRun(check, { lesson: ref, label: "Check" });
     card.appendChild(el("div", { class: "k-cx-q-row" }, [ans, check]));
     card.appendChild(out);
   }
@@ -614,12 +616,14 @@
     var out = el("div", { class: "k-cx-q-out" });
     var check = el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "code.practice-check", text: "Check",
       onclick: function () {
+        if (check.disabled) return;
         var src = parts.map(function (part, i) { return part + (i < inputs.length ? inputs[i].value : ""); }).join("");
         check.disabled = true;
         var cases = item.cases || [{ stdin: item.stdin || "", out: item.out }];
         KOS.codeRun.check({ mode: "program", cases: cases, fs: item.fs, db: item.db, lesson: ref }, [{ name: KOS.code.fileFor(ref), src: src }]).then(function (c) {
-          check.disabled = false;
+          checkBind.sync();
           out.innerHTML = "";
+          if (c.runner) { out.appendChild(KOS.codeUI.errorCard(c.runner)); announce(c.runner.msg || "The runner did not start."); return; }
           if (c.compile) { out.appendChild(KOS.codeUI.errorCard(c.compile)); announce("Compile error " + c.compile.code + "."); return; }
           var ok = c.passed;
           out.appendChild(verdict(ok, ok ? "Runs · " + c.pass + " of " + c.total + " cases" : c.pass + " of " + c.total + " cases pass"));
@@ -630,6 +634,7 @@
           if (ok) { KOS.code.recordPractice(ref, item.id, item.concepts); out.appendChild(done()); }
         });
       } });
+    var checkBind = KOS.codeUI.bindRun(check, { lesson: ref, label: "Check" });
     card.appendChild(el("div", { class: "k-cx-q-row" }, [check]));
     card.appendChild(out);
   }
@@ -640,13 +645,16 @@
     card.appendChild(ed.el);
     var out = el("div", { class: "k-cx-q-out" });
     var run = el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "code.practice-check", text: "▶ Run", onclick: go });
+    var runBind = KOS.codeUI.bindRun(run, { lesson: ref, label: "▶ Run" });
     card.appendChild(el("div", { class: "k-cx-q-row" }, [run, el("button", { type: "button", class: "k-btn k-btn--quiet", text: "Reset", onclick: function () { ed.set(item.src); out.innerHTML = ""; } })]));
     card.appendChild(out);
     function go() {
+      if (run.disabled) return;
       run.disabled = true; ed.running(true);
       KOS.codeRun.check({ mode: "program", cases: item.cases || [{ stdin: item.stdin || "", out: item.out }], fs: item.fs, db: item.db, lesson: ref }, ed.files()).then(function (c) {
-        run.disabled = false; ed.running(false);
+        runBind.sync(); ed.running(false);
         out.innerHTML = "";
+        if (c.runner) { ed.state("ready", "Runner problem"); out.appendChild(KOS.codeUI.errorCard(c.runner)); announce(c.runner.msg || "The runner did not start."); return; }
         if (c.compile) { ed.state("compile", "1 compile error"); ed.mark(c.compile.line, KOS.codeUI.quoted(c.compile.msg)); out.appendChild(KOS.codeUI.errorCard(c.compile)); return; }
         var ok = c.passed;
         ed.state(ok ? "pass" : "fail", ok ? "Fixed" : "Not fixed yet");

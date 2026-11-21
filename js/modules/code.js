@@ -614,8 +614,11 @@
     var tick = setInterval(function () { if (!timer.isConnected) { clearInterval(tick); return; } timer.textContent = "◷ " + mmss(Math.round((Date.now() - started) / 1000)); }, 1000);
     openTimers.push(tick);
     var runBtn = el("button", { type: "button", class: "k-btn", "data-ui": "code.run", text: "▶ Run", onclick: doRun });
+    var checkLabel = "✓ Check · " + plural(spec.cases.length, "test");
     var checkBtn = el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "code.check",
-      text: "✓ Check · " + plural(spec.cases.length, "test"), onclick: doCheck });
+      text: checkLabel, onclick: doCheck });
+    var runBind = KOS.codeUI.bindRun(runBtn, { lesson: t.lesson, label: "▶ Run" });
+    var checkBind = KOS.codeUI.bindRun(checkBtn, { lesson: t.lesson, label: checkLabel, limit: false });
     var crumb = el("nav", { class: "k-cx-crumb", "aria-label": "Breadcrumb" }, [
       el("button", { type: "button", class: "k-link", text: "Code", onclick: function () { KOS.show("subject", SID); } }), " › ",
       arg.from === "daily" ? "Daily 20 › " + dayLabel(KOS.srs.todayISO())
@@ -688,8 +691,6 @@
     var results = el("section", { class: "k-cx-respanel", "aria-label": "Output, tests and problems" }, [
       el("div", { class: "k-cx-respanel-h" }, [tabBar, live]), outPane, testsPane, probPane, rewardSlot
     ]);
-    var notReady = KOS.codeRun.status() !== "ready";
-    if (notReady) { checkBtn.disabled = true; checkBtn.title = "The in-app runner is getting ready"; }
     var codeCol = el("div", { class: "k-cx-codecol" }, [ed.el, results]);
     page.appendChild(el("div", { class: "k-cx-taskgrid" }, [codeCol, taskPanel()]));
     if (phone && C().ui().keybar !== false) page.appendChild(KOS.codeUI.keyBar(ed.input));
@@ -704,7 +705,7 @@
       var req = t.mode === "method" && t.examples && t.examples[0] ? { files: ed.files(), mode: "method", call: { name: t.method, args: t.examples[0].args }, lesson: t.lesson }
         : { files: ed.files(), stdin: stdin.value, fs: (t.examples && t.examples[0] && t.examples[0].fs) || t.fs, db: t.db, lesson: t.lesson };
       KOS.codeRun.run(req).then(function (r) {
-        runBtn.disabled = false; ed.running(false);
+        runBind.sync(); checkBind.sync(); ed.running(false);
         outBody.innerHTML = "";
         if (r.ok) {
           ed.state("ready", "Ran");
@@ -722,6 +723,7 @@
     }
     function showError(e, into) {
       if (e.kind === "runtime") { ed.state("ready"); into.appendChild(KOS.codeUI.errorCard(e, { onReady: doRun })); say("This task needs the full C# runtime."); return; }
+      if (e.kind === "runner") { ed.state("ready", "Runner problem"); into.appendChild(KOS.codeUI.errorCard(e)); say(e.msg || "The runner did not start."); return; }
       ed.state(e.kind === "compile" ? "compile" : e.kind === "timeout" ? "timeout" : "exception",
         e.kind === "compile" ? "1 compile error" : e.kind === "timeout" ? "Did not finish" : "Stopped: exception");
       if (e.line) ed.mark(e.line, KOS.codeUI.quoted(e.msg));
@@ -748,11 +750,15 @@
       say("Running " + plural(spec.cases.length, "case") + ".");
       KOS.codeRun.check(spec, ed.files()).then(function (c) {
         lastCheck = c;
-        checkBtn.disabled = false; runBtn.disabled = false; ed.running(false);
-        checkBtn.textContent = "✓ Check · " + plural(spec.cases.length, "test");
+        runBind.sync(); checkBind.sync(); ed.running(false);
         testsPane.innerHTML = "";
         probPane.innerHTML = "";
         testsPane.appendChild(KOS.codeUI.results(c, { method: t.mode === "method" ? t.method : null }));
+        if (c.runner) {
+          ed.state("ready", "Runner problem");
+          say(c.runner.msg || "The runner did not start.");
+          return;
+        }
         var outcome = C().recordCheck(t.id, c, { phone: phone });
         lastOutcome = outcome;
         /* a first pass goes to GitHub when it is connected (never on a re-run) */
@@ -1039,7 +1045,9 @@
         card.appendChild(ed.el);
         if (phone && C().ui().keybar !== false) card.appendChild(KOS.codeUI.keyBar(ed.input));
       }
-      var go = el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "code.retrieval-check", text: kind === "write" ? "✓ Run and check" : "Check", onclick: check });
+      var goLabel = kind === "write" ? "✓ Run and check" : "Check";
+      var go = el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "code.retrieval-check", text: goLabel, onclick: check });
+      var goBind = kind !== "command" ? KOS.codeUI.bindRun(go, { lesson: cd.lesson, label: goLabel, disabled: function () { return !!done[pickId]; } }) : null;
       card.appendChild(el("div", { class: "k-cx-q-row" }, [go, hintBtn, el("span", { class: "k-muted", text: "a hint grades it Hard" }), timer]));
       card.appendChild(out);
       /* what the next reviews ask, in order. CO-07: no dates — FSRS sets each from the answer
@@ -1100,7 +1108,13 @@
         if (kind === "predict") {
           go.disabled = true;
           KOS.codeRun.run({ files: [{ name: C().fileFor(cd.lesson), src: v.src }], stdin: v.stdin || "", fs: v.fs, db: v.db, lesson: cd.lesson }).then(function (r) {
-            go.disabled = false;
+            if (goBind) goBind.sync(); else go.disabled = false;
+            if (!r.ok && r.error && (r.error.kind === "runner" || r.error.kind === "runtime")) {
+              tries = Math.max(0, tries - 1); keepAttempt();
+              out.appendChild(el("div", { class: "k-cx-try", "data-ui": "code.retrieval-try" }, [KOS.codeUI.errorCard(r.error, { onReady: check })]));
+              announce(r.error.msg || "The runner did not start.");
+              return;
+            }
             var real = r.ok ? KOS.codeRun.norm(r.stdout) : "";
             if (r.ok && KOS.codeRun.sameAnswer(ans.value, r.stdout, C().runnerFor(cd.lesson) === "sql" ? "sql" : null)) return finish(true);
             tryAgain("Not yet. " + (tries >= 3 ? "" : "Try again."));
@@ -1113,10 +1127,27 @@
         go.disabled = true;
         if (ed) ed.running(true);
         KOS.codeRun.check({ mode: v.mode || "program", method: v.method, cases: v.cases, rules: v.rules, fs: v.fs, db: v.db, answer: v.answer, lesson: cd.lesson }, files).then(function (c) {
-          go.disabled = false;
+          if (goBind) goBind.sync(); else go.disabled = false;
           if (ed) ed.running(false);
+          if (c.runner) {
+            tries = Math.max(0, tries - 1); keepAttempt();
+            if (ed) ed.state("ready", "Runner problem");
+            out.appendChild(el("div", { class: "k-cx-try", "data-ui": "code.retrieval-try" }, [KOS.codeUI.errorCard(c.runner)]));
+            announce(c.runner.msg || "The runner did not start.");
+            return;
+          }
           if (c.passed) return finish(true);
-          if (c.compile) { if (ed) { ed.state("compile", "1 compile error"); ed.mark(c.compile.line, KOS.codeUI.quoted(c.compile.msg)); } tryAgain(null, KOS.codeUI.errorCard(c.compile)); return; }
+          if (c.compile) {
+            if (c.compile.kind === "runtime") {
+              tries = Math.max(0, tries - 1); keepAttempt();
+              out.appendChild(el("div", { class: "k-cx-try", "data-ui": "code.retrieval-try" }, [KOS.codeUI.errorCard(c.compile, { onReady: check })]));
+              announce("This card needs the full C# runtime.");
+              return;
+            }
+            if (ed) { ed.state("compile", "1 compile error"); ed.mark(c.compile.line, KOS.codeUI.quoted(c.compile.msg)); }
+            tryAgain(null, KOS.codeUI.errorCard(c.compile));
+            return;
+          }
           if (c.rule) { tryAgain("✗ Not yet · output matched · rule failed. " + c.rule.msg); return; }
           tryAgain(null, KOS.codeUI.results(c));
         });

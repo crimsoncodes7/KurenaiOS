@@ -218,6 +218,8 @@
       var runBtn = el("button", { type: "button", class: "k-btn", "data-ui": "code.run", text: "▶ Run", onclick: doRun });
       var allBtn = el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "code.cap-test-all",
         text: "✓ Run all tests", onclick: function () { testFrom(0); } });
+      var runBind = KOS.codeUI.bindRun(runBtn, { lesson: id, label: "▶ Run" });
+      var allBind = KOS.codeUI.bindRun(allBtn, { lesson: id, label: "✓ Run all tests", limit: false });
       var count = el("span", { class: "k-cx-ws-count k-mono", "data-ui": "code.cap-count" });
       var toolbar = el("div", { class: "k-cx-ws-bar" }, [
         el("span", { class: "k-cx-ws-name" }, [el("b", { text: spec.title }), " ", KOS.codeUI.evidence("app")]),
@@ -274,8 +276,10 @@
         scroll.appendChild(el("p", { class: "k-cx-ws-last", "data-state": mv.done ? "pass" : mv.run ? "fail" : null, "data-ui": "code.cap-m-badge",
           text: mv.done ? "✓ All " + mv.total + " pass · " + timeLabel(mv.at) : mv.run ? "✗ " + (mv.total - mv.pass) + " of " + mv.total + " failing · " + timeLabel(mv.at) : "Not run yet" }));
         var nx = spec.milestones[msPick + 1];
+        var msBtn = el("button", { type: "button", class: "k-btn k-btn--primary", "data-ui": "code.cap-test", text: "Run M" + (msPick + 1) + " tests", onclick: function () { runMilestone(m, ed); } });
+        KOS.codeUI.bindRun(msBtn, { lesson: id, label: "Run M" + (msPick + 1) + " tests", limit: false });
         scroll.appendChild(el("div", { class: "k-cx-ws-ms-f" }, [
-          el("button", { type: "button", class: "k-btn k-btn--primary", "data-ui": "code.cap-test", text: "Run M" + (msPick + 1) + " tests", onclick: function () { runMilestone(m, ed); } }),
+          msBtn,
           nx ? el("button", { type: "button", class: "k-btn", text: "Next: M" + (msPick + 2) + " ›", onclick: function () { msPick++; stdin.value = (nx.cases[0] || {}).stdin || ""; drawMs(); } })
             : bv.all ? nextBtn("rubric", "Rubric ›") : null
         ].filter(Boolean)));
@@ -294,9 +298,10 @@
       drawMs();
 
       function doRun() {
+        if (runBtn.disabled) return;
         runBtn.disabled = true; ed.running(true); tool("run");
         KOS.codeRun.run({ files: ed.files(), stdin: stdin.value, fs: spec.fs, lesson: id }).then(function (r) {
-          runBtn.disabled = false; ed.running(false);
+          runBind.sync(); allBind.sync(); ed.running(false);
           out.innerHTML = "";
           if (r.stdout) out.appendChild(el("pre", { class: "k-cx-out-pre k-mono", "data-ui": "code.stdout", text: r.stdout.replace(/\n$/, "") }));
           var wrote = KOS.codeUI.writtenPanel(spec.fs, r.fs);
@@ -307,6 +312,11 @@
             ed.state("ready");
             out.appendChild(KOS.codeUI.errorCard(r.error, { onReady: doRun }));
             say("This capstone needs the full C# runtime.");
+          }
+          else if (r.error.kind === "runner") {
+            ed.state("ready", "Runner problem");
+            out.appendChild(KOS.codeUI.errorCard(r.error));
+            say(r.error.msg || "The runner did not start.");
           }
           else {
             ed.state(r.error.kind === "compile" ? "compile" : r.error.kind === "timeout" ? "timeout" : "exception");
@@ -330,7 +340,7 @@
         if (i === 0) firstFail = null;
         var ms = spec.milestones;
         if (i >= ms.length) {
-          running = false; allBtn.disabled = false; drawSteps();
+          running = false; runBind.sync(); allBind.sync(); drawSteps();
           if (firstFail) { showResults(firstFail[0], firstFail[1]); msPick = ms.indexOf(firstFail[0]); ed.state("fail", "Milestone " + (msPick + 1) + " failing"); }
           else { ed.state("pass", "Every acceptance test passes"); say("Every acceptance test passes. The rubric is next."); }
           drawMs();
@@ -339,7 +349,7 @@
         running = true; allBtn.disabled = true;
         runMilestone(ms[i], ed, true).then(function (c) {
           if (!c.passed && !firstFail) firstFail = [ms[i], c];
-          if (c.compile) { running = false; allBtn.disabled = false; drawSteps(); drawMs(); return; }
+          if (c.compile || c.runner) { running = false; runBind.sync(); allBind.sync(); drawSteps(); drawMs(); return; }
           testFrom(i + 1);
         });
       }
@@ -353,6 +363,12 @@
             edr.state("ready");
             if (resPanel) { resPanel.innerHTML = ""; resPanel.appendChild(KOS.codeUI.errorCard(c.compile, { onReady: function () { runMilestone(m, edr); } })); }
             say("This capstone needs the full C# runtime.");
+            return c;
+          }
+          if (c.runner) {
+            edr.state("ready", "Runner problem");
+            showResults(m, c);
+            say(c.runner.msg || "The runner did not start.");
             return c;
           }
           C().recordMilestone(id, m.id, c.compile ? 0 : c.pass, c.total);

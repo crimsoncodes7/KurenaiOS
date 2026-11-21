@@ -12,6 +12,10 @@
      C · mind#3           Mind desk shows "Review my Mind cards (N due)" only
                           when due; runs the due cards outside Daily 15 using
                           FSRS rating without touching ui.daily or Focus.
+     D · bk:code-space#1  One per-runner status (booting, ready, busy, failed)
+                          shared across Code's Run buttons; boot timeout never
+                          reads as learner code being wrong; warm timeout still
+                          reads as Did not finish.
 
    Run: node tools/smoke198.test.js                                         */
 "use strict";
@@ -174,6 +178,114 @@ step("C · Mind desk offers Review my Mind cards (N due) only when due and runs 
   K.show("subject", "mind"); await app.settle();
   assert(!q("[data-ui~='mind.review-cards']"), "hidden once all cards are reviewed");
   eq(K.sessions.all().filter((s) => s.type === "mind" && s.metrics && s.metrics.kind === "reviews").length, sessBefore + 1, "no double-log on dispose");
+  eq(app.errors, [], "no page errors");
+});
+
+/* ---------------- D · bk:code-space#1 ---------------- */
+step("D · Code: shared per-runner status and boot timeout never blames learner code (bk:code-space#1)", async () => {
+  const W = app.window, R = K.codeRun;
+  assert(typeof R.runnerStatus === "function" && typeof R.onStatus === "function", "runnerStatus and onStatus exported on KOS.codeRun");
+  assert(typeof K.codeUI.bindRun === "function", "KOS.codeUI.bindRun exported");
+
+  /* Fake Worker factory to control boot, ready, reply and hang deterministically */
+  const origWorker = W.Worker, origSetTimeout = W.setTimeout, origClearTimeout = W.clearTimeout;
+  const workers = [];
+  const seenTimeouts = [];
+  let fastTimers = false;
+  W.setTimeout = function (fn, ms) {
+    seenTimeouts.push(ms);
+    if (fastTimers && ms >= 4000) return setTimeout(fn, 5);
+    return origSetTimeout(fn, ms);
+  };
+  W.clearTimeout = function (id) {
+    if (fastTimers && id && typeof id === "object") { clearTimeout(id); return; }
+    return origClearTimeout(id);
+  };
+  W.Worker = function FakeWorker(url) {
+    const inst = {
+      url, posted: [], terminated: false, onmessage: null, onerror: null,
+      postMessage(d) { this.posted.push(d); },
+      terminate() { this.terminated = true; },
+      emit(data) { if (this.onmessage) this.onmessage({ data }); },
+      fail(msg) { if (this.onerror) this.onerror({ message: msg || "boom" }); }
+    };
+    workers.push(inst);
+    return inst;
+  };
+  try {
+    R._reset();
+    /* 1. SQL boot lifecycle: ready -> booting -> busy -> ready, and bindRun tracks it */
+    const seen = [];
+    const off = R.onStatus((st) => { if (st.runner === "sql") seen.push(st.state); });
+    const host = D.createElement("div");
+    const btn = D.createElement("button");
+    btn.type = "button"; btn.textContent = "▶ Run";
+    host.appendChild(btn); D.body.appendChild(host);
+    K.codeUI.bindRun(btn, { runner: "sql" });
+
+    eq(R.runnerStatus("sql").state, "ready", "SQL starts ready before first run");
+    eq(R.status("sql"), "ready", "status(sql) mirrors runnerStatus");
+    const p1 = R.run({ lang: "sql", src: "SELECT 1;" });
+    eq(R.runnerStatus("sql").state, "booting", "fresh SQL worker enters booting");
+    assert(btn.disabled && btn.getAttribute("data-runner-state") === "booting", "bound button disables while booting");
+
+    const sqlw = workers[workers.length - 1];
+    sqlw.emit({ type: "ready" });
+    eq(R.runnerStatus("sql").state, "busy", "after ready with run in flight, SQL is busy");
+    assert(btn.disabled && btn.getAttribute("data-runner-state") === "busy", "bound button stays disabled while busy");
+
+    const reqId = sqlw.posted[0].id;
+    sqlw.emit({ id: reqId, res: { ok: true, stdout: "1", sets: [], ms: 2 } });
+    const r1 = await p1;
+    assert(r1.ok, "SQL run succeeded");
+    eq(R.runnerStatus("sql").state, "ready", "SQL returns to ready");
+    assert(!btn.disabled && btn.textContent === "▶ Run", "bound button re-enabled with original label");
+    off();
+
+    /* 2. Warm SQL timeout STILL reads as learner timeout (watchdog 4000 ms untouched) */
+    fastTimers = true;
+    seenTimeouts.length = 0;
+    const warmTo = await R.run({ lang: "sql", src: "WITH RECURSIVE r(x) AS (SELECT 1 UNION ALL SELECT x+1 FROM r) SELECT * FROM r;" });
+    assert(seenTimeouts.includes(4000), "warm SQL keeps 4000 ms watchdog: " + JSON.stringify(seenTimeouts));
+    assert(!warmTo.ok && warmTo.error.kind === "timeout", "warm timeout keeps kind=timeout: " + JSON.stringify(warmTo.error));
+    const warmCard = K.codeUI.errorCard(warmTo.error);
+    assert(/Did not finish/.test(warmCard.textContent), "warm timeout card reads Did not finish");
+
+    /* 3. Cold SQL boot timeout (fresh 8000 ms untouched) NEVER reads as learner code being wrong */
+    R._reset();
+    seenTimeouts.length = 0;
+    const coldSqlCheck = await R.check({ mode: "program", lang: "sql", cases: [{ stdin: "", out: "1" }] }, [{ name: "q.sql", src: "SELECT 1;" }]);
+    assert(seenTimeouts.includes(8000), "fresh SQL keeps 8000 ms boot watchdog: " + JSON.stringify(seenTimeouts));
+    assert(!coldSqlCheck.passed && coldSqlCheck.runner && coldSqlCheck.runner.kind === "runner", "boot timeout sets c.runner: " + JSON.stringify(coldSqlCheck));
+    assert(!coldSqlCheck.stopped && !coldSqlCheck.compile && coldSqlCheck.results.length === 0, "boot timeout does not fail case 1 or blame compile");
+    eq(R.runnerStatus("sql").state, "failed", "SQL runner status becomes failed");
+    assert(!btn.disabled && btn.textContent === "▶ Run", "failed state restores original label and re-enables for retry");
+    const bootCard = K.codeUI.errorCard(coldSqlCheck.runner);
+    assert(!/loop|Did not finish/i.test(bootCard.textContent), "boot timeout card never blames learner loop: " + bootCard.textContent);
+    const resEl = K.codeUI.results(coldSqlCheck);
+    assert(!/0 of 1 pass|Compile error/i.test(resEl.textContent), "results panel does not mark learner code wrong: " + resEl.textContent);
+
+    /* 4. Cold WASM (.NET) boot timeout (60000 ms untouched) NEVER reads as learner code being wrong */
+    R._reset();
+    K.store.state.ui.code = K.store.state.ui.code || {};
+    K.store.state.ui.code.runtime = true;
+    seenTimeouts.length = 0;
+    const coldWasm = await R.run({ files: [{ name: "Program.cs", src: "Console.WriteLine(1);" }], lesson: "7.1" });
+    assert(seenTimeouts.includes(60000), "cold WASM keeps 60000 ms boot watchdog: " + JSON.stringify(seenTimeouts));
+    assert(!coldWasm.ok && coldWasm.error.kind === "runner", "cold WASM boot timeout is kind=runner: " + JSON.stringify(coldWasm.error));
+    eq(R.runnerStatus("wasm").state, "failed", "WASM status becomes failed");
+    const wasmCard = K.codeUI.errorCard(coldWasm.error);
+    assert(!/loop|Did not finish/i.test(wasmCard.textContent), "WASM boot timeout never blames learner loop: " + wasmCard.textContent);
+
+    host.remove();
+  } finally {
+    fastTimers = false;
+    R._reset();
+    W.Worker = origWorker;
+    W.setTimeout = origSetTimeout;
+    W.clearTimeout = origClearTimeout;
+    if (K.store.state.ui && K.store.state.ui.code) delete K.store.state.ui.code.runtime;
+  }
   eq(app.errors, [], "no page errors");
 });
 
