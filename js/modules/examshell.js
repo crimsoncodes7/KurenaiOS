@@ -611,16 +611,14 @@
   }
   /* ⋯ on an exam (audit U11): its details, Archive, Delete */
   function examMenu(a) {
-    var canGoal = !!(KOS.goalsExams && KOS.goalsExams.typesFor && KOS.goalsExams.typesFor(a).length);
     var m = KOS.ui.menu({ label: "⋯", className: "k-btn--quiet", hint: "Edit, archive or delete " + a.title, align: "end", items: [
       { label: "Edit details", onSelect: function () { KOS.examEditor(a, {}, function () { KOS.rerender(); }); } },
-      canGoal ? { label: "Make this a goal", onSelect: function () { openExamGoal(a); } } : null,
       { label: a.archived ? "Bring back from the archive" : "Archive", onSelect: function () {
         E().update(a.id, { archived: !a.archived });
         announce(a.archived ? a.title + " is back." : a.title + " archived: off the list and the plan, kept with its attempts.");
         KOS.rerender();
       } },
-      { label: "Delete…", onSelect: function () { if (KOS.examDelete) KOS.examDelete(a); } }].filter(Boolean) });
+      { label: "Delete…", onSelect: function () { if (KOS.examDelete) KOS.examDelete(a); } }] });
     m.setAttribute("data-ui", "ui.menu-button exams.exam-more");
     m.setAttribute("aria-label", "More for " + a.title);
     return m;
