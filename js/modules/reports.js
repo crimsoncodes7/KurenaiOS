@@ -762,13 +762,22 @@
       { node: examsCard(rep) }, { node: moneyCard(rep) }, { node: goalsCard(rep) }, { node: kurenaiSees(rep) }
     ])));
   }
+  function topicsSub(s) {
+    if (!s || !s.touched) return null;
+    if (s.toGreen) return s.toGreen + " to Green";
+    var bands = (s.topics || []).filter(function (t) { return t.band; });
+    var green = bands.filter(function (t) { return t.band === "g"; }).length;
+    if (bands.length === s.touched && green === s.touched) return "all Green";
+    if (bands.length) return green + " of " + s.touched + " Green";
+    return W.plural(s.touched, "topic") + " studied";
+  }
   function weekTiles(f) {
     var s = f.study, fo = f.focus, c = f.collection, g = f.gov, prev = f.prev;
     var cmp = prev ? W.compare(s.mins, prev.mins, "last wk", "mins") : null;
     return tiles([
       tile("Studied", W.hm(s.mins), s.sessions ? W.plural(s.sessions, "session") : null, cmp),
       s.recall != null ? tile("Recall", s.recall + "%", W.plural(s.reviews, "review")) : (s.reviews ? tile("Reviews", W.num(s.reviews), null) : null),
-      s.touched ? tile("Topics", s.touched, s.toGreen ? s.toGreen + " to Green" : null) : null,
+      s.touched ? tile("Topics", s.touched, topicsSub(s)) : null,
       fo.blocks ? tile("Focus", fo.blocks, "longest " + fo.longest + "m") : null,
       f.plan ? tile("Plan", f.plan.ticked + "/" + f.plan.planned, f.plan.carried ? f.plan.carried + " carried" : "all ticked") : null,
       f.code && (f.code.tasks || f.code.skills) ? tile("Code", W.num(f.code.tasks || 0), "tasks" + (f.code.skills ? " · " + W.plural(f.code.skills, "skill") : "")) : null,
@@ -1121,7 +1130,7 @@
     overviewHead(holder, rep, "study");
     holder.appendChild(tiles([
       tile("Studied", W.hm(s.mins), s.sessions ? W.plural(s.sessions, "session") + " · " + W.plural(s.days, "day") : null, prev ? W.compare(s.mins, prev.mins, prevLbl(rep), "mins") : null),
-      s.touched ? tile("Topics", s.touched, s.toGreen ? s.toGreen + " to Green" : null, prev ? W.compare(s.touched, prev.touched, prevLbl(rep)) : null) : null,
+      s.touched ? tile("Topics", s.touched, topicsSub(s), prev ? W.compare(s.touched, prev.touched, prevLbl(rep)) : null) : null,
       s.reviews ? tile("Reviews", W.num(s.reviews), null, prev ? W.compare(s.reviews, prev.reviews, prevLbl(rep)) : null) : null,
       s.recall != null ? tile("Recall", s.recall + "%", null, prev && prev.recall != null ? W.compare(s.recall, prev.recall, prevLbl(rep), "pct") : null) : null,
       s.quizzes ? tile("Quizzes", s.quizzes, s.quizPct != null ? "average " + s.quizPct + "%" : null) : null,
