@@ -402,7 +402,8 @@
   };
   /* it: the IT desk (1C, 20 Nov 2026: the Collection's watch link) */
   var SPACE_DESK = { code: "page-code", mind: "page-mind", ja: "page-ja", creatives: "page-creatives", it: "page-it" };
-  var SPACE_TOPIC = { mind: "page-mind", creatives: "page-creatives" };
+  /* ja: a Japanese topic page draws with jatopic.js and jaui.js (1F) */
+  var SPACE_TOPIC = { mind: "page-mind", creatives: "page-creatives", ja: "page-ja" };
   function pagesFor(viewId, arg) {
     var out = (PAGES[viewId] || []).slice(), sid = subjectOfArg(arg);
     if (viewId === "subject" && SPACE_DESK[sid]) out.push(SPACE_DESK[sid]);

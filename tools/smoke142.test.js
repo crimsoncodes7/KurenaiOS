@@ -126,8 +126,10 @@ function eq(a, b, m) { if (JSON.stringify(a) !== JSON.stringify(b)) throw new Er
    pacecard.js), Goals (goalwords.js), Routines (KOS.rtUI is rtkit.js), the
    Calendar (its store, chips and countdowns stay; its dialogs forward),
    the Wishlist planner (into page-vaults) and the Assistant's page (the
-   drawer stays): 5.43 MB. */
-const BOOT_BUDGET = 5.43 * 1024 * 1024;
+   drawer stays): 5.43 MB. Japanese's writing square, voices, stroke check,
+   topic page and their data (jaui, jastroke, jatopic, ja-strokes, ja-audio,
+   161 KB) joined page-ja: 5.27 MB. */
+const BOOT_BUDGET = 5.27 * 1024 * 1024;
 
 /* jsdom has no User Timing: a small recorder, set before the app's scripts */
 function timing(win) {
