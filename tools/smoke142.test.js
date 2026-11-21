@@ -128,8 +128,9 @@ function eq(a, b, m) { if (JSON.stringify(a) !== JSON.stringify(b)) throw new Er
    the Wishlist planner (into page-vaults) and the Assistant's page (the
    drawer stays): 5.43 MB. Japanese's writing square, voices, stroke check,
    topic page and their data (jaui, jastroke, jatopic, ja-strokes, ja-audio,
-   161 KB) joined page-ja: 5.27 MB. */
-const BOOT_BUDGET = 5.27 * 1024 * 1024;
+   161 KB) joined page-ja: 5.27 MB. Code's and Mind's topic modules
+   (codetopic.js, mindtopic.js, 76 KB) joined their spaces' bundles: 5.20 MB. */
+const BOOT_BUDGET = 5.20 * 1024 * 1024;
 
 /* jsdom has no User Timing: a small recorder, set before the app's scripts */
 function timing(win) {
@@ -431,7 +432,9 @@ step("J · every page that names what it needs opens from cold without an early 
     /* 1F, 20 Nov 2026: the pages split from their Home cards, and the ink layer */
     ["calendar", undefined, ["page-calendar"]], ["goals", undefined, ["page-goals"]], ["pacing", undefined, ["page-pacing"]],
     ["routines", undefined, ["page-routines"]], ["assistant", undefined, ["ai", "page-assistant"]], ["wishlist", undefined, ["page-vaults"]],
-    ["ref", { subject: "maths", ref: E.KOS.hub.LEAVES.maths[0].ref }, ["content-maths", "page-topic", "ink-ui"]]
+    ["ref", { subject: "maths", ref: E.KOS.hub.LEAVES.maths[0].ref }, ["content-maths", "page-topic", "ink-ui"]],
+    ["ref", { subject: "code", ref: E.KOS.hub.LEAVES.code[0].ref }, ["content-code", "page-code", "page-topic"]],
+    ["ref", { subject: "ja", ref: E.KOS.hub.LEAVES.ja[0].ref }, ["page-ja", "page-topic"]]
   ];
   for (const [view, arg, want] of jobs) {
     const app = await lazyBoot(fxB);

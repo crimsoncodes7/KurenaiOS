@@ -472,8 +472,9 @@ Read this file before editing or testing anything in its domain.
     drawer and `ask` stay), the ink layer's surfaces, the answer pad, the
     viewer and the drills (`ink-ui`; `inkui.js` keeps the settings, palette,
     drawing and the ink dialog, and Files loads it before opening a PDF or
-    picture) and Japanese's writing square, voices and topic page
-    (`page-ja`). The split is always the same: the boot part exports what
+    picture), Japanese's writing square, voices and topic page (`page-ja`),
+    and Code's and Mind's topic modules (`page-code`, `page-mind`; a topic
+    page of Japanese, Code, Mind or Creatives loads its space's bundle). The split is always the same: the boot part exports what
     the page reads (`_k`), the page aliases it, and a mutable value is read
     through a getter. Mind and Creatives content and the remaining modules
     still load at boot.
