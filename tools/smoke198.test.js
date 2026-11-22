@@ -32,6 +32,10 @@
                           erases lapses; desk lists set-aside facets with
                           "Relearn from the lesson" and "Back in the schedule"
                           with Undo.
+     I · bk:ja-mind#5     Logging Japanese immersion through Focus: optional
+                          Watching/Reading/Listening choice on Focus for ja,
+                          paid solely by KOS.governor.focusAward, read from the
+                          ledger on Japanese desk using KOS.sessions.parts.
 
    Run: node tools/smoke198.test.js                                         */
 "use strict";
@@ -631,6 +635,81 @@ step("H · Japanese leech recovery: unleech with leechBase and desk actions with
   eq([cur.lapses, cur.leechBase, S.leech(cur)], [12, 8, true], "set aside again after 4 more lapses (12)");
 
   eq(K.sessions.all().length, sessBefore, "leech recovery logs zero Governor sessions");
+  eq(app.errors, [], "no page errors");
+});
+
+/* ---------------- I · bk:ja-mind#5 ---------------- */
+step("I · Logging Japanese immersion through Focus, paid by focusAward and read from ledger (bk:ja-mind#5)", async () => {
+  await K.lazy.need("page-ja");
+  /* Disable preflight on this device so Focus start runs straight through */
+  K.store.state.ui.focusPreflight = false;
+  /* Clear prior ja focus entries and input tallies for clean accounting */
+  K.store.state.sessions = K.store.state.sessions.filter((e) => !(e.type === "focus" && e.subject === "ja"));
+  if (K.store.state.japanese) K.store.state.japanese.input = {};
+  K.store.save();
+
+  /* 1. Japanese desk "Log immersion" opens Focus pre-filled without starting (invariant 4e) */
+  K.show("subject", "ja"); await app.settle(); await app.settle();
+  const logBtn = q("[data-ui~='ja.log-immersion']");
+  assert(logBtn, "Japanese desk offers Log immersion");
+  click(logBtn); await app.settle();
+  assert(!K.focus.activeId(), "Log immersion never starts a session (invariant 4e)");
+  const immSel = q("[data-ui~='focus.ja-immersion']");
+  assert(immSel && !immSel.closest("[hidden]"), "Japanese immersion selector is visible on Focus when subject is ja");
+  eq(immSel.value, "watch", "pre-filled to Watching");
+  const optVals = [...immSel.options].map((o) => o.value);
+  assert(optVals.includes("") && optVals.includes("watch") && optVals.includes("read") && optVals.includes("listen"), "offers Study, Watching, Reading, Listening: " + optVals.join(","));
+
+  /* Switching away from ja hides the immersion selector */
+  const subjSel = q("[data-ui~='focus.link-row'] select");
+  subjSel.value = "compsci"; subjSel.dispatchEvent(new app.window.Event("change")); await app.settle();
+  assert(!!immSel.closest("[hidden]"), "immersion selector hides for non-ja subject");
+  subjSel.value = "ja"; subjSel.dispatchEvent(new app.window.Event("change")); await app.settle();
+  assert(!immSel.closest("[hidden]"), "immersion selector reappears for ja");
+
+  /* 2. Running a 30-min immersion session pays exact focusAward and logs metrics.immersion */
+  const xp0 = K.store.state.governor.xp, gold0 = K.store.state.governor.gold;
+  const jaLogsBefore = K.sessions.all().filter((e) => e.type === "ja").length;
+  K.focus.start({ mode: "custom", workMin: 30, breakMin: 0, subject: "ja", immersion: "watch" });
+  const act = K.focus.session();
+  assert(act && act.immersion === "watch", "active focus session carries immersion");
+  K.focus._debugAdvance(1800);
+  K.focus.endEarly({ confirmed: true, review: false });
+  await app.settle();
+
+  const want = K.governor.focusAward({ rule: "blocks", secs: 1800, pauses: 0 });
+  eq([K.store.state.governor.xp - xp0, K.store.state.governor.gold - gold0], [want.xp, want.gold], "paid solely by KOS.governor.focusAward (invariant 4a)");
+  eq(K.sessions.all().filter((e) => e.type === "ja").length, jaLogsBefore, "no extra ja ledger entry");
+  const logged = K.sessions.all().slice(-1)[0];
+  eq([logged.type, logged.subject, logged.metrics.immersion], ["focus", "ja", "watch"], "logged ordinary focus entry tagged watch");
+
+  /* Non-immersion session leaves metrics.immersion absent (clean) */
+  K.focus.start({ mode: "custom", workMin: 10, breakMin: 0, subject: "ja" });
+  K.focus._debugAdvance(600);
+  K.focus.endEarly({ confirmed: true, review: false });
+  await app.settle();
+  const plain = K.sessions.all().slice(-1)[0];
+  assert(!("immersion" in plain.metrics), "non-immersion session leaves metrics.immersion absent");
+
+  /* 3. Multi-stretch session counts ONLY ja stretch; undone entry ignored */
+  K.sessions.log({
+    type: "focus", subject: "ja", dur: 1800,
+    metrics: { complete: true, mode: "custom", rule: "blocks", secs: 1800, mins: 30, immersion: "read",
+      segments: [{ subject: "ja", secs: 1200 }, { subject: "compsci", secs: 600 }] }
+  });
+  K.sessions.log({
+    type: "focus", subject: "ja", dur: 1800,
+    metrics: { complete: true, mode: "custom", rule: "blocks", secs: 1800, mins: 30, immersion: "listen", undone: true }
+  });
+
+  K.show("subject", "ja"); await app.settle(); await app.settle();
+  const snap = JSON.stringify(K.store.state.japanese);
+  K.rerender(); await app.settle();
+  eq(JSON.stringify(K.store.state.japanese), snap, "Japanese desk render writes nothing");
+  const card = q("[data-ui~='ja.input-week']");
+  assert(card && /50 m/.test(card.textContent) && /Watching/.test(card.textContent) && /30 m/.test(card.textContent) && /Reading/.test(card.textContent) && /20 m/.test(card.textContent),
+    "Input this week reads 30 m watch + 20 m ja-only read = 50 m: " + (card && card.textContent));
+  assert(!/Listening/.test(card.textContent), "undone listening session is ignored");
   eq(app.errors, [], "no page errors");
 });
 

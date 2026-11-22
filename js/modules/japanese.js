@@ -23,11 +23,11 @@
   function today() { return KOS.srs.todayISO(); }
   function isoOf(ts) { var d = new Date(ts); return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2); }
   function dayLabel(iso) { var d = new Date(iso + "T12:00:00"); return DOW[d.getDay()] + " " + d.getDate() + " " + MON[d.getMonth()]; }
-  function cardHead(title, meta, link, go) {
+  function cardHead(title, meta, link, go, hook) {
     return el("div", { class: "k-card-head" }, [
       el("span", { class: "k-card-title", text: title }),
       meta ? el("span", { class: "k-card-meta", text: meta }) : null,
-      link ? el("button", { type: "button", class: "k-link", text: link, onclick: go }) : null
+      link ? el("button", { type: "button", class: "k-link", "data-ui": hook || null, text: link, onclick: go }) : null
     ].filter(Boolean));
   }
   function statTile(o) {
@@ -47,9 +47,18 @@
   }
   function hmText(mins) { mins = Math.round(mins || 0); var h = Math.floor(mins / 60), m = mins % 60; return h ? h + " h " + (m < 10 ? "0" : "") + m : m + " m"; }
   function weekInput() {
-    var j = J().peek(), out = { read: 0, listen: 0, raw: 0, jpSub: 0 };
-    for (var i = 0; i < 7; i++) { var d = KOS.jaSrs.addDays(today(), -i), r = j.input[d] || {}; Object.keys(out).forEach(function (k) { out[k] += r[k] || 0; }); }
-    out.total = out.read + out.listen + out.raw + out.jpSub;
+    var j = J().peek(), out = { watch: 0, read: 0, listen: 0, raw: 0, jpSub: 0 };
+    var end = today(), start = KOS.jaSrs.addDays(end, -6);
+    for (var i = 0; i < 7; i++) { var d = KOS.jaSrs.addDays(end, -i), r = j.input[d] || {}; Object.keys(out).forEach(function (k) { out[k] += r[k] || 0; }); }
+    KOS.sessions.all().forEach(function (e) {
+      if (!e || e.type !== "focus" || e.date < start || e.date > end) return;
+      if (!e.metrics || !e.metrics.immersion || KOS.sessions.undone(e)) return;
+      var k = e.metrics.immersion;
+      if (out[k] == null) return;
+      var mins = Math.round(KOS.sessions.secsFor(e, SID) / 60);
+      if (mins > 0) out[k] += mins;
+    });
+    out.total = out.watch + out.read + out.listen + out.raw + out.jpSub;
     return out;
   }
 
@@ -332,13 +341,15 @@
     return [UI().meter({ label: "Words", value: m.have, target: m.need })];
   }
   function inputCard(wi) {
-    var box = el("section", { class: "k-card k-ja-input-card", "data-ui": "ja.input-week" }, [cardHead("Input this week", null, null)]);
+    var box = el("section", { class: "k-card k-ja-input-card", "data-ui": "ja.input-week" }, [
+      cardHead("Input this week", null, "Log immersion →", function () { KOS.show("focus", { subject: SID, immersion: "watch" }); }, "ja.log-immersion")
+    ]);
     if (!wi.total) {
-      box.appendChild(KOS.ui.emptyState({ compact: true, body: "Watching and reading in Japanese counts here, through Focus." }));
+      box.appendChild(KOS.ui.emptyState({ compact: true, body: "Watching, reading and listening in Japanese count here, through Focus." }));
       return box;
     }
     box.appendChild(el("strong", { class: "k-ja-input-v", text: hmText(wi.total) }));
-    [["Raw", wi.raw], ["JP subtitles", wi.jpSub], ["Reader", wi.read], ["Listening", wi.listen]].forEach(function (r) {
+    [["Watching", wi.watch], ["Reading", wi.read], ["Listening", wi.listen], ["Raw", wi.raw], ["JP subtitles", wi.jpSub]].forEach(function (r) {
       if (r[1]) box.appendChild(el("div", { class: "k-ja-input-row" }, [el("span", { text: r[0] }), el("span", { class: "k-mono", text: hmText(r[1]) })]));
     });
     return box;
