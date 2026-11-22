@@ -135,6 +135,24 @@
 
   /* paragraph text: inline markup, and a typed new line is a line break */
   function para(s) { return inline(s).replace(/\n/g, "<br>"); }
+  /* rich text for flashcards, quizzes, exam prompts & mark schemes: fast-paths
+     plain single-line text through inline(), and upgrades strings containing
+     fenced code blocks, pipe tables, lists, blockquotes or paragraph breaks
+     through markdown() so structured code/tables never dump as raw text */
+  function isBlockText(s) {
+    var t = String(s == null ? "" : s);
+    if (t.indexOf("\n") === -1) return false;
+    return /(?:^|\n)\s{0,3}(?:```|~~~)/.test(t) ||
+      /(?:^|\n)\s*\|.+\|\s*\n\s*\|?[\s:|-]{3,}/.test(t) ||
+      /(?:^|\n)\s{0,3}(?:[-+*]|\d+[.)])\s+/.test(t) ||
+      /(?:^|\n)\s{0,3}>\s+/.test(t) ||
+      /\n\s*\n/.test(t);
+  }
+  function rich(s) {
+    var t = String(s == null ? "" : s);
+    if (isBlockText(t)) return markdown(t);
+    return t.indexOf("\n") !== -1 ? para(t) : inline(t);
+  }
 
   /* ---------------- Markdown ----------------
      A small block-level Markdown for the {md} block and the editor: ATX
@@ -641,17 +659,31 @@
          named as that, never "modelled on" a paper that does not exist */
       if (/^\w+-style\b/.test(w.src)) src = w.src.replace(/\s*·\s*\d+\s*marks?\s*$/, "");
       var ms = (w.steps || []).map(function (st) {
-        /* a mark-scheme bullet is inline text: the card's display-size
-           fractions become inline fractions */
-        var line = (st.h ? "**" + st.h + "** " : "") + String(st.m || "").replace(/\n+/g, "; ").replace(/\\dfrac/g, "\\frac").replace(/\\displaystyle\s*/g, "");
-        if (st.mk) line += " [" + st.mk + "]";
+        /* a mark-scheme bullet keeps fenced code / tables intact; plain prose
+           collapses single line wraps and converts display fractions */
+        var raw = String(st.m || "").replace(/\\dfrac/g, "\\frac").replace(/\\displaystyle\s*/g, "");
+        var body = isBlockText(raw) ? raw : raw.replace(/\n+/g, "; ");
+        var line = (st.h ? "**" + st.h + "** " : "") + body;
+        if (st.mk) line += (isBlockText(raw) ? "\n[" : " [") + st.mk + "]";
         return line;
       }).filter(function (l) { return l.trim(); });
       if (w.result) ms.push("**Answer:** " + w.result);
       var item = { q: w.q, marks: marks, ms: ms, src: src };
-      /* the question's figure and its part to fill in go with it (5.19) */
+      /* the question's figure and any exam-appropriate interactive part go with
+         it (5.19); embedded { lab } sandboxes and Notes-only "Your turn"
+         variations never belong on Exam Questions */
       if (w.fig) item.fig = w.fig;
-      if (w.try) item.try = w.try;
+      if (Array.isArray(w.try)) {
+        var examTry = w.try.filter(function (tb) {
+          if (!tb || typeof tb !== "object" || tb.lab || tb.notesOnly) return false;
+          if (w.examTry === true) return true;
+          var inner = tb.trace || tb.grid || tb.sql || tb.gates || tb.predict || null;
+          var cap = inner && inner.cap ? String(inner.cap) : "";
+          if (/^\s*(\*\*)?your turn\b|^\s*now\s+|^\s*the same\b|without the worked/i.test(cap)) return false;
+          return true;
+        });
+        if (examTry.length) item.try = examTry;
+      }
       if (lvl) item.level = lvl;
       out.push(item);
     });
@@ -668,6 +700,8 @@
     splitPages: splitPages,
     typeset: typeset,
     inline: inline,
+    rich: rich,
+    isBlockText: isBlockText,
     aqaWords: aqaWords,
     paperKey: paperKey,
     markdown: markdown,

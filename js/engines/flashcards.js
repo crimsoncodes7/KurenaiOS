@@ -322,12 +322,15 @@
       flipped = false;
       KOS.ui.state(stage, "flipped", false);
       faces();
+      var richQ = KOS.content.isBlockText && KOS.content.isBlockText(c.q);
+      var richA = KOS.content.isBlockText && KOS.content.isBlockText(c.a);
+      var qLead = richQ ? String(c.q || "").split(/\n+/)[0].replace(/```.*$/, "").trim() || "Question" : c.q;
       front.innerHTML = MARK + '<span class="k-fc-kind k-fc-count" data-ui="fc.count">Question · ' + queue.length + " left of " + total + "</span>" +
-        '<div class="k-fc-text">' + KOS.content.inline(c.q) + "</div>" +
+        (richQ ? '<div class="k-fc-text k-prose">' : '<div class="k-fc-text">') + KOS.content.rich(c.q) + "</div>" +
         '<span class="k-fc-hint">press to flip</span>';
       back.innerHTML = MARK + '<span class="k-fc-kind k-fc-count">Answer</span>' +
-        '<div class="k-fc-text">' + KOS.content.inline(c.a) + "</div>" +
-        '<span class="k-fc-q">Q · ' + KOS.content.inline(c.q) + "</span>";
+        (richA ? '<div class="k-fc-text k-prose">' : '<div class="k-fc-text">') + KOS.content.rich(c.a) + "</div>" +
+        '<span class="k-fc-q">Q · ' + KOS.content.inline(qLead) + "</span>";
       badges.innerHTML = badgeHtml(c);
       /* a redo item clipped from a paper carries its picture (files plan
          R4), kept in ink under "redo:<attempt>:<question>" */
@@ -364,8 +367,9 @@
       faces();
       KOS.ui.state(rateRow, "concealed", true);
       answerFor(null);
+      var skipRich = KOS.content.isBlockText && KOS.content.isBlockText(c.q);
       front.innerHTML = MARK + '<span class="k-chip" data-tone="teal" data-ui="fc.elsewhere">Already reviewed on another device</span>' +
-        '<div class="k-fc-text">' + KOS.content.inline(c.q) + "</div>";
+        (skipRich ? '<div class="k-fc-text k-prose">' : '<div class="k-fc-text">') + KOS.content.rich(c.q) + "</div>";
       if (KOS.a11y) KOS.a11y.announce("Already reviewed on another device. Skipped.");
       setTimeout(function () {
         skipping = false;
@@ -589,8 +593,8 @@
       var row = el("li", { class: "k-fc-row", "data-ui": "fc.row", "data-state": c.custom ? "custom" : null }, [
         el("span", { class: "k-fc-row-n k-mono", "aria-hidden": "true", text: String(i + 1) }),
         el("div", { class: "k-fc-row-main" }, [
-          el("div", { class: "k-fc-row-q", html: KOS.content.inline(c.q) }),
-          el("div", { class: "k-fc-row-a", html: KOS.content.inline(c.a) })
+          el("div", { class: "k-fc-row-q" + (KOS.content.isBlockText && KOS.content.isBlockText(c.q) ? " k-prose" : ""), html: KOS.content.rich(c.q) }),
+          el("div", { class: "k-fc-row-a" + (KOS.content.isBlockText && KOS.content.isBlockText(c.a) ? " k-prose" : ""), html: KOS.content.rich(c.a) })
         ]),
         el("div", { class: "k-fc-row-side" }, [
           badge,
