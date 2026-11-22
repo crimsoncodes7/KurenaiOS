@@ -100,6 +100,7 @@
     /* Routines (roadmap 5.10): random string ids, never re-keyed; the log
        (routines.log) is a keyed map and merges per day and per step */
     { path: "routines.items", id: "id" },
+    { path: "errorLog.items", id: "id" },
     { path: "oop.classes", id: "id", counter: "oop.nextId",
       refs: [{ kind: "field", path: "oop.links", field: "child" },
              { kind: "field", path: "oop.links", field: "parent" }] }

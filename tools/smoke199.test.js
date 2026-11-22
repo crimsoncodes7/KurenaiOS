@@ -360,6 +360,113 @@ step("F · Daily Reviews support per-day slot times across scheduler, holidays, 
   eq(app.errors, [], "no page errors");
 });
 
+/* ---------------- G · U7 Universal Error Log store, sync & lazy hub ---------------- */
+step("G · Universal Error Log store, 3-way sync, flashcard push, insights & lazy hub (U7)", async () => {
+  const K = app.KOS;
+  assert(K.errorLog && typeof K.errorLog.add === "function", "KOS.errorLog core store exists");
+  const E = K.errorLog;
+  const govBefore = JSON.stringify(K.store.state.governor);
+  const sessBefore = K.store.state.sessions.length;
+
+  /* 1. Empty hub state: single primary CTA in empty card, Pattern Insights suppressed */
+  K.show("errorlog"); await app.settle(); await app.settle();
+  assert(q("[data-ui~='errorlog.empty']"), "Empty state shown when no errors logged");
+  assert(!q("[data-ui~='errorlog.insights']"), "Pattern Insights suppressed when empty");
+  assert(!q("[data-ui~='errorlog.head-add']"), "Header + Log mistake hidden when empty so empty CTA is sole primary");
+
+  /* 2. CRUD, dedupe, lifecycle (open -> revisited -> resolved), Undo restore */
+  const e1 = E.add({
+    subject: "compsci", space: "study", topicRef: "4.1.1.2", topicTitle: "Programming constructs",
+    source: "quiz", title: "Mixed up pre-order and in-order BST traversal",
+    context: "Picked: Pre-order · Correct: In-order",
+    wrongNote: "Confused root-first with sorted order.",
+    ruleNote: "In-order visits Left -> Root -> Right (ascending BST).",
+    mistakeTypes: ["concept", "recall"],
+    dedupeKey: "quiz:compsci:4.1.1.2:bst"
+  });
+  assert(e1 && /^err_/.test(e1.id), "random string id minted");
+  const e1Dup = E.add({ subject: "compsci", source: "quiz", title: "Duplicate", dedupeKey: "quiz:compsci:4.1.1.2:bst" });
+  eq(e1Dup.id, e1.id, "dedupeKey prevents duplicate open log entries");
+
+  const e2 = E.add({
+    subject: "code", space: "code", topicRef: "binary-search", topicTitle: "Binary Search",
+    source: "code", title: "BinarySearch returns -1 on single-element array",
+    context: "Case 4 failed: expected 0, got -1",
+    wrongNote: "Used lo < hi instead of lo <= hi.",
+    ruleNote: "Use while (lo <= hi) with inclusive bounds.",
+    mistakeTypes: ["edge"]
+  });
+  eq(E.openCount(), 2, "openCount counts unresolved items");
+  eq(E.openCount("compsci", "4.1.1.2"), 1, "openCount filters by subject + topicRef");
+
+  /* Lifecycle: revisit -> resolve -> delete -> restore */
+  E.markRevisited(e1.id);
+  eq(E.get(e1.id).status, "revisited", "markRevisited transitions open -> revisited");
+  eq(E.get(e1.id).reviewCount, 1, "reviewCount incremented");
+  E.setStatus(e1.id, "resolved");
+  eq(E.get(e1.id).status, "resolved", "setStatus resolves entry");
+  eq(E.openCount(), 1, "resolved entry leaves openCount");
+  E.setStatus(e1.id, "open");
+  const removed = E.remove(e2.id);
+  assert(removed && !E.get(e2.id), "remove deletes entry and returns snapshot");
+  E.restore(removed);
+  assert(E.get(e2.id), "restore puts deleted entry back cleanly");
+
+  /* 3. Pattern Insights: honest share % (not 100% on tied 1-count types) */
+  const ins = E.insights();
+  assert(ins.byType.length >= 2 && ins.byTopic.length >= 2, "insights derived when >= 2 entries");
+  assert(ins.byType.every((x) => x.pct < 100), "honest percentage share (tied 1-of-2 types are 50%, not 100%)");
+
+  /* 4. 1-click Flashcard push for BOTH exam subject and non-exam space, no duplicates */
+  const cardsBefore = K.store.state.custom.cards.length;
+  const f1 = E.toFlashcard(e1.id);
+  assert(f1.ok && !f1.already && f1.card.sid === "compsci" && f1.card.ref === "4.1.1.2", "exam entry pushes to topic deck");
+  const f1Again = E.toFlashcard(e1.id);
+  assert(f1Again.ok && f1Again.already && f1Again.cardId === f1.card.id, "second push does not duplicate flashcard");
+  const f2 = E.toFlashcard(e2.id);
+  assert(f2.ok && !f2.already && f2.card.sid === "personal", "non-exam space entry routes safely to personal FSRS bucket");
+  eq(K.store.state.custom.cards.length, cardsBefore + 2, "exactly 2 custom cards created");
+
+  /* 5. 3-way cloudmerge on errorLog.items */
+  const base = { errorLog: { v: 1, items: [e1] } };
+  const local = { errorLog: { v: 1, items: [e1, e2] } };
+  const e3 = { id: "err_remote99", subject: "maths", space: "study", source: "ink", title: "Sign slip", status: "open", mistakeTypes: ["careless"], createdAt: Date.now(), updatedAt: Date.now() };
+  const remote = { errorLog: { v: 1, items: [e1, e3] } };
+  const merged = K.cloudmerge.merge(base, local, remote).doc;
+  assert(merged.errorLog.items.some((x) => x.id === e2.id) && merged.errorLog.items.some((x) => x.id === e3.id), "cloudMerge merges errorLog.items by id across devices");
+
+  /* 6. Hub UI: Pattern Insights, top-row mistake chips, filters, Quick Error Drill & manual modal */
+  K.show("errorlog"); await app.settle(); await app.settle();
+  assert(q("[data-ui~='errorlog.insights']"), "Pattern Insights rendered when >= 2 items");
+  const firstHead = q("[data-ui~='errorlog.card-head']");
+  assert(firstHead && firstHead.querySelector("[data-ui~='errorlog.tag']"), "mistake-type pills sit on the top metadata row");
+  assert(!q("[data-ui~='errorlog.card-delete']"), "Delete kept out of card footer (lives inside Edit dialog)");
+
+  /* Quick Error Drill */
+  click(q("[data-ui~='errorlog.start-drill']")); await app.settle();
+  assert(q("[data-ui~='errorlog.drill']"), "Quick Error Drill view opens");
+  assert(q("[data-ui~='errorlog.drill-back']"), "Back to Error Log link shown in Drill");
+  click(q("[data-ui~='errorlog.drill-reveal']")); await app.settle();
+  click(q("[data-ui~='errorlog.drill-resolve']")); await app.settle();
+  assert(E.openCount() === 1, "Drill resolved one error cleanly");
+
+  /* Manual capture dialog exposes Subject + optional Topic fields */
+  click(q("[data-ui~='errorlog.drill-back']")); await app.settle();
+  click(q("[data-ui~='errorlog.head-add']")); await app.settle();
+  assert(q("[data-ui~='errorlog.dlg-subject']"), "Manual Log mistake dialog shows Subject selector");
+  K.ui.closeDialogs(); await app.settle();
+
+  /* Clean up */
+  K.srs.deleteCustom(f1.card.id);
+  K.srs.deleteCustom(f2.card.id);
+  E.remove(e1.id);
+  E.remove(e2.id);
+
+  eq(JSON.stringify(K.store.state.governor), govBefore, "Error Log creates zero Governor traffic");
+  eq(K.store.state.sessions.length, sessBefore, "Error Log logs zero sessions");
+  eq(app.errors, [], "no page errors");
+});
+
 (async () => {
   let failed = 0;
   for (const [name, fn] of steps) {

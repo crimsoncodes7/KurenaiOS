@@ -778,6 +778,11 @@ color-scheme: dark;
 --pace-shift-w: 740px;
 --pace-preview-w: 1080px;
 --pace-shift-dur: 1.9s;
+--el-bar-lbl-w: 124px;
+--el-search-min: 220px;
+--el-sel-min: 132px;
+--el-dlg-w: 620px;
+--el-drill-max: 760px;
 
 /* ---------- Collection (frames 11a–11k) ---------- */
 --st-inProgress: var(--anime);

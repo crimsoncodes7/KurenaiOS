@@ -82,6 +82,13 @@
       if (a.tab && a.tab !== "week") return [a.tab];
       return a.wb ? [a.wb] : null;
     },
+    errorlog: function (a) {
+      if (!a) return null;
+      if (a === "drill" || a.mode === "drill") return ["drill"].concat(a.subject ? [a.subject] : [], a.topicRef ? [a.topicRef] : []);
+      if (typeof a === "string") return [a];
+      if (a.subject) return a.topicRef ? [a.subject, a.topicRef] : [a.subject];
+      return null;
+    },
     /* the Exams hub (roadmap 5.8, frame 29a): a hub tab (`#/exams/plan`,
        `#/exams/practice/analytics`, `#/exams/timetable/load`), one
        assessment (`#/exams/<id>`, `#/exams/<id>/room`) or one attempt
@@ -177,6 +184,11 @@
     pacing: function (p) {
       if (!p[0]) return null;
       return /^\d{4}-\d{2}-\d{2}$/.test(p[0]) ? { wb: p[0], tab: "week" } : { tab: p[0] };
+    },
+    errorlog: function (p) {
+      if (!p[0]) return null;
+      if (p[0] === "drill") return { mode: "drill", subject: p[1] || null, topicRef: p.slice(2).join("/") || null };
+      return { subject: p[0], topicRef: p.slice(1).join("/") || null };
     }
   };
 

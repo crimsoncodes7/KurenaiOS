@@ -413,6 +413,8 @@
     notifications: ["page-notifications"],
     /* the Pacing page and the braid (1F; Home's card stays at boot in pacecard.js) */
     pacing: ["page-pacing"],
+    /* the Universal Error Log hub, Drill and Capture sheet (U7) */
+    errorlog: ["page-errorlog"],
     /* the Goals page and its dialogs (1F; the words Home reads stay in goalwords.js) */
     goals: ["page-goals"],
     /* the Routines page and its editors (1F; KOS.rtUI stays at boot in rtkit.js) */
