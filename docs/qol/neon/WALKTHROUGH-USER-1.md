@@ -222,3 +222,14 @@ slowest: smoke75 147 s, smoke56 113 s, smoke142 49 s, smoke44 24 s, smoke45 19 s
 
 run_smoke: 180 / 180 passed in 342.4 s wall (1024 s summed)
 ```
+
+### Round 4 · Post-review Error Log UI Polish
+
+- **Commit:** `fix(custom): U7 — polish Error Log header alignment, modal topic picker and context pill`
+- **Files:** `js/modules/errorlog.js`, `css/views/study.css`, `tools/smoke199.test.js`.
+- **What changed:**
+  - Moved `Auto-log quiz misses` switch into the Error Log page header row alongside `Quick Error Drill` and `+ Log mistake`, and unified both header buttons to identical sizing (`k-el-hbtn`, `36 px` height).
+  - Removed `.k-el-sel` override from the modal's `Subject / Space` `<select>` so it uses the exact same `var(--s3)` surface as all other modal inputs.
+  - Replaced the manual modal's plain Topic text box with the shared `KOS.topicPicker` (`levels: ["leaf"]`, `multi: false`) for exam subjects so logged errors store canonical `topicRef`, `topicTitle`, and `deepLink` (with a clean fallback text field for non-exam spaces).
+  - Aligned `Handwritten working · Ink tab` (`.k-el-dlg-ctx`) flush-left with the modal title and labels, and right-aligned the `CS · 4.2.1.2 · Ink` pill cleanly beside `✕` inside `.k-el-dlg-hside`.
+- **Verification:** `node --check`, `smoke199` (9/9), `smoke55` (14/14), `smoke56`, `smoke142`, `smoke45` — all pass; live Chrome (`1470×832` & `375×812`) verified pixel-aligned header buttons (`36 px` each), matching `--s3` modal select surface, shared `KOS.topicPicker`, flush-left context subtitle, and right-aligned pill.

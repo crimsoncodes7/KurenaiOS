@@ -450,10 +450,13 @@ step("G · Universal Error Log store, 3-way sync, flashcard push, insights & laz
   click(q("[data-ui~='errorlog.drill-resolve']")); await app.settle();
   assert(E.openCount() === 1, "Drill resolved one error cleanly");
 
-  /* Manual capture dialog exposes Subject + optional Topic fields */
+  /* Manual capture dialog exposes Subject + shared KOS.topicPicker (for exam subjects) and Auto-log in header */
   click(q("[data-ui~='errorlog.drill-back']")); await app.settle();
+  const pageHead = q("[data-ui~='ui.page-head']");
+  assert(pageHead && pageHead.querySelector("[data-ui~='errorlog.auto-quiz']"), "Auto-log quiz misses toggle sits in the Error Log header row");
   click(q("[data-ui~='errorlog.head-add']")); await app.settle();
   assert(q("[data-ui~='errorlog.dlg-subject']"), "Manual Log mistake dialog shows Subject selector");
+  assert(q("[data-ui~='errorlog.dlg'] [data-ui~='topic-picker']"), "Manual Log mistake dialog uses shared KOS.topicPicker for exam subjects");
   K.ui.closeDialogs(); await app.settle();
 
   /* Clean up */

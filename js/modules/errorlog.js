@@ -45,15 +45,41 @@
     function close() { if (overlay && overlay.close) overlay.close(); }
 
     var pickedTypes = (Array.isArray(seed.mistakeTypes) ? seed.mistakeTypes : []).slice();
-    var subjSel = el("select", { class: "k-input k-el-sel", "aria-label": "Subject or space", "data-ui": "errorlog.dlg-subject" },
+    var subjSel = el("select", { class: "k-input", "aria-label": "Subject or space", "data-ui": "errorlog.dlg-subject" },
       E().SUBJECTS.map(function (s) {
         var o = el("option", { value: s.id, text: s.label });
         if ((seed.subject || "compsci") === s.id) o.selected = true;
         return o;
       }));
+    var isSpecSubj = function (s) { return !!(KOS.spec && Array.isArray(KOS.spec.SUBJECTS) && KOS.spec.SUBJECTS.indexOf(s) !== -1); };
+    var initSpecKey = (seed.subject && seed.topicRef && isSpecSubj(seed.subject) && KOS.spec.node && KOS.spec.node(seed.subject + ":" + seed.topicRef))
+      ? [seed.subject + ":" + seed.topicRef] : [];
+    var topicPick = (typeof KOS.topicPicker === "function") ? KOS.topicPicker({
+      label: "Topic (optional)",
+      multi: false,
+      levels: ["leaf"],
+      placeholder: "Pick a topic…",
+      value: initSpecKey,
+      subject: function () { return isSpecSubj(subjSel.value) ? subjSel.value : null; }
+    }) : null;
     var topicIn = el("input", { type: "text", class: "k-input", "data-ui": "errorlog.dlg-topic",
-      placeholder: "e.g. 4.3.2.1 or Integration by parts", "aria-label": "Topic or reference (optional)" });
+      placeholder: "e.g. L07 or Kanji reading", "aria-label": "Topic or lesson (optional)" });
     topicIn.value = seed.topicTitle || seed.topicRef || "";
+    var topicFallbackField = el("label", { class: "k-field" }, [el("span", { class: "k-field-label", text: "Topic / lesson (optional)" }), topicIn]);
+    function syncTopicField() {
+      var usePicker = !!(topicPick && isSpecSubj(subjSel.value));
+      if (topicPick) {
+        topicPick.el.hidden = !usePicker;
+        if (usePicker) topicPick.refresh();
+      }
+      topicFallbackField.hidden = usePicker;
+    }
+    subjSel.addEventListener("change", syncTopicField);
+    syncTopicField();
+    function closeAll() {
+      if (topicPick && topicPick.close) topicPick.close();
+      close();
+    }
 
     var titleIn = el("input", { type: "text", class: "k-input", "data-ui": "errorlog.dlg-title",
       placeholder: "What question, problem, or step tripped you up?", "aria-label": "Question or task" });
@@ -94,9 +120,17 @@
       };
       if (creating && !prefilled) {
         data.subject = subjSel.value;
-        var rawTop = topicIn.value.trim();
-        data.topicRef = rawTop || null;
-        data.topicTitle = rawTop;
+        if (topicPick && isSpecSubj(subjSel.value)) {
+          var pickedKey = (topicPick.value() || [])[0] || null;
+          var pNode = pickedKey && KOS.spec && KOS.spec.node ? KOS.spec.node(pickedKey) : null;
+          data.topicRef = pNode ? pNode.ref : null;
+          data.topicTitle = pNode ? pNode.title : "";
+          data.deepLink = pNode ? { view: "ref", arg: { subject: pNode.subject, ref: pNode.ref } } : null;
+        } else {
+          var rawTop = topicIn.value.trim();
+          data.topicRef = rawTop || null;
+          data.topicTitle = rawTop;
+        }
         data.source = seed.source || "manual";
       } else if (creating) {
         data.subject = seed.subject || "general";
@@ -110,7 +144,7 @@
       }
       var saved = creating ? E().add(data) : E().update(existing.id, data);
       KOS.ui.toast(creating ? "Saved to Error Log." : "Mistake updated.");
-      close();
+      closeAll();
       if (onSaved) onSaved(saved);
     }
 
@@ -124,13 +158,14 @@
 
     var bodyKids = [];
     if (creating && !prefilled) {
+      var topicWrap = el("div", { class: "k-el-topicwrap" }, [topicPick ? topicPick.el : null, topicFallbackField].filter(Boolean));
       bodyKids.push(el("div", { class: "k-el-fgrid" }, [
         el("label", { class: "k-field" }, [el("span", { class: "k-field-label", text: "Subject / Space" }), subjSel]),
-        el("label", { class: "k-field" }, [el("span", { class: "k-field-label", text: "Topic (optional)" }), topicIn])
+        topicWrap
       ]));
     }
     if (seed.context) {
-      bodyKids.push(el("p", { class: "k-el-ctx", text: seed.context }));
+      bodyKids.push(el("p", { class: "k-el-dlg-ctx", text: seed.context }));
     }
     bodyKids.push(
       el("label", { class: "k-field" }, [el("span", { class: "k-field-label", text: "Question or task" }), titleIn]),
@@ -144,7 +179,7 @@
       text: "Delete mistake",
       onclick: function () {
         var snap = E().remove(existing.id);
-        close();
+        closeAll();
         KOS.ui.toast("Mistake removed.", false, snap ? {
           label: "Undo",
           run: function () { E().restore(snap); if (onSaved) onSaved(snap); else KOS.rerender(); }
@@ -154,16 +189,16 @@
     }) : null;
 
     overlay = el("div", { class: "k-dialog-overlay" });
-    overlay.close = function () { overlay.remove(); };
+    overlay.close = function () { if (topicPick && topicPick.close) topicPick.close(); overlay.remove(); };
+    var closeBtn = el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", text: "✕", "aria-label": "Close", onclick: closeAll });
     overlay.appendChild(el("div", { class: "k-dialog k-el-dlg", "data-ui": "ui.dialog errorlog.dlg" }, [
       el("div", { class: "k-dialog-head", "data-ui": "ui.dialog-head" }, [
         el("h2", { class: "k-dialog-title", "data-ui": "ui.dialog-title", text: creating ? "Log mistake" : "Edit mistake" }),
-        ctxPill,
-        el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", text: "✕", "aria-label": "Close", onclick: close })
-      ].filter(Boolean)),
+        el("div", { class: "k-el-dlg-hside" }, [ctxPill, closeBtn].filter(Boolean))
+      ]),
       el("div", { class: "k-dialog-body k-el-dlg-body" }, bodyKids),
       el("div", { class: "k-dialog-foot", "data-ui": "errorlog.dlg-actions" }, [
-        el("button", { type: "button", class: "k-btn", text: "Cancel", onclick: close }),
+        el("button", { type: "button", class: "k-btn", text: "Cancel", onclick: closeAll }),
         el("button", { type: "button", class: "k-btn k-btn--primary k-spacer", "data-intent": "primary", "data-ui": "errorlog.dlg-save",
           text: creating ? "Save to Error Log" : "Save changes", onclick: save })
       ]),
@@ -344,12 +379,22 @@
       var resolvedItems = allItems.filter(function (x) { return x.status === "resolved"; });
       var isEmpty = allItems.length === 0;
 
+      /* Auto-log quiz misses toggle lives cleanly in the header row alongside Quick Error Drill & + Log mistake */
+      var autoSw = el("input", { type: "checkbox", role: "switch", class: "k-switch", "data-ui": "errorlog.auto-quiz",
+        "aria-label": "Auto-log quiz misses" });
+      autoSw.checked = !!E().getSetting("autoLogQuiz", false);
+      autoSw.addEventListener("change", function () {
+        E().setSetting("autoLogQuiz", autoSw.checked);
+        KOS.ui.toast(autoSw.checked ? "Quiz misses will log automatically." : "Auto-log quiz misses turned off.");
+      });
+      var autoTog = el("label", { class: "k-el-autotog" }, [autoSw, el("span", { text: "Auto-log quiz misses" })]);
+
       /* Empty state: hide header + Log mistake so empty card's CTA is sole primary */
-      var headActions = [];
+      var headActions = [autoTog];
       if (!isEmpty) {
         if (openItems.length) {
           headActions.push(el("button", {
-            type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "errorlog.start-drill",
+            type: "button", class: "k-btn k-btn--primary k-el-hbtn", "data-intent": "primary", "data-ui": "errorlog.start-drill",
             text: "▶ Quick Error Drill (" + openItems.length + ")",
             onclick: function () {
               KOS.show("errorlog", { mode: "drill", subject: state.subject || undefined, topicRef: state.topicRef || undefined });
@@ -357,7 +402,7 @@
           }));
         }
         headActions.push(el("button", {
-          type: "button", class: openItems.length ? "k-btn" : "k-btn k-btn--primary",
+          type: "button", class: (openItems.length ? "k-btn" : "k-btn k-btn--primary") + " k-el-hbtn",
           "data-intent": openItems.length ? null : "primary",
           "data-ui": "errorlog.head-add", text: "+ Log mistake",
           onclick: function () { openDialog({ source: "manual" }, function () { renderAll(); }); }
@@ -497,20 +542,9 @@
         })));
       srcF.addEventListener("change", function () { state.source = srcF.value; state.limit = PAGE_SIZE; paintList(); });
 
-      var autoSw = el("input", { type: "checkbox", role: "switch", class: "k-switch", "data-ui": "errorlog.auto-quiz",
-        "aria-label": "Auto-log quiz misses" });
-      autoSw.checked = !!E().getSetting("autoLogQuiz", false);
-      autoSw.addEventListener("change", function () {
-        E().setSetting("autoLogQuiz", autoSw.checked);
-        KOS.ui.toast(autoSw.checked ? "Quiz misses will log automatically." : "Auto-log quiz misses turned off.");
-      });
-
-      var activeTopicBar = el("div", { class: "k-el-activebar" });
+      var activeTopicBar = el("div", { class: "k-el-activebar", hidden: "" });
       body.appendChild(el("div", { class: "k-el-bar" }, [statusSeg, searchIn, subjF, typeF, srcF]));
-      body.appendChild(el("div", { class: "k-el-subbar" }, [
-        activeTopicBar,
-        el("label", { class: "k-el-autotog" }, [autoSw, el("span", { text: "Auto-log quiz misses" })])
-      ]));
+      body.appendChild(activeTopicBar);
 
       var listMount = el("div", { class: "k-el-list", "data-ui": "errorlog.list" });
       body.appendChild(listMount);
@@ -520,6 +554,7 @@
         typeF.value = state.mistakeType;
         srcF.value = state.source;
         activeTopicBar.innerHTML = "";
+        activeTopicBar.hidden = !state.topicRef;
         if (state.topicRef) {
           activeTopicBar.appendChild(el("button", {
             type: "button", class: "k-btn k-btn--sm k-btn--quiet", "data-ui": "errorlog.clear-topic",
