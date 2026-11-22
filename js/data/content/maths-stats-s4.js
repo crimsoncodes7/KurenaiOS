@@ -119,7 +119,7 @@ C["maths:S4.1"] = {
       q: "A biased spinner lands on 1, 2, 3 or 4. $X$ is the number it lands on, with $P(X = r) = P(X = r + 2)$ for $r = 1, 2$, and $P(X = 2) = 0.35$. **(a)** Find the complete probability distribution of $X$. The random variable $Y = \\dfrac{12}{X}$. **(c)** Find $P(Y - X \\le 4)$.",
       steps: [
         { h: "(a) Use each fact", m: "$P(X = 4) = P(X = 2) = 0.35$; $\\quad P(X = 1) = P(X = 3)$ and they share $1 - 0.7 = 0.3$", mk: "M1" },
-        { m: "$x$: 1, 2, 3, 4 with $P(X = x)$: 0.15, 0.35, 0.15, 0.35", mk: "A1" },
+        { m: "| $x$ | $1$ | $2$ | $3$ | $4$ |\n| --- | --- | --- | --- | --- |\n| $P(X = x)$ | $0.15$ | $0.35$ | $0.15$ | $0.35$ |", mk: "A1" },
         { h: "(c) Turn the event into an inequality in $X$", m: "$\\dfrac{12}{X} - X \\le 4 \\;\\Rightarrow\\; 12 - X^2 \\le 4X$ (as $X > 0$) $\\;\\Rightarrow\\; X^2 + 4X - 12 \\ge 0$", mk: "M1" },
         { m: "$(X + 6)(X - 2) \\ge 0 \\;\\Rightarrow\\; X \\ge 2$", mk: "M1", n: "Or tabulate: $Y - X$ is 11, 4, 1, −1 for $X = 1, 2, 3, 4$." },
         { m: "$P(X \\ge 2) = 0.35 + 0.15 + 0.35 = 0.85$", mk: "A1" }
@@ -159,7 +159,7 @@ C["maths:S4.1"] = {
     { h: "2.1  Two independent observations" },
     "For two independent observations, list every pair that gives the event and **multiply** the probabilities in each pair, then **add** the pairs. Remember both orders.",
     { worked: { tag: "exam", title: "Find constants, then the probability of a total", src: "AS June 2020 · P2 Q3 · 6 marks",
-      q: "A player scores $S$ = 0, 1, 2, 3 or 4 points with probabilities $a$, $b$, $c$, 0.1, 0.15. The probability of scoring less than 2 points is twice the probability of scoring at least 2 points. Games are independent. John plays twice and adds the scores. Calculate the probability that the total is 6.",
+      q: "A player's score $S$ in a game has probability distribution:\n\n| $s$ | $0$ | $1$ | $2$ | $3$ | $4$ |\n| --- | --- | --- | --- | --- | --- |\n| $P(S = s)$ | $a$ | $b$ | $c$ | $0.1$ | $0.15$ |\n\nThe probability of scoring less than 2 points is twice the probability of scoring at least 2 points. Games are independent. John plays twice and adds the scores. Calculate the probability that the total is 6.",
       steps: [
         { h: "Translate the condition", m: "$P(S < 2) = a + b$, $\\; P(S \\ge 2) = c + 0.25$: $\\; a + b = 2(c + 0.25)$", mk: "M1" },
         { h: "Sum to 1", m: "$a + b + c + 0.25 = 1 \\;\\Rightarrow\\; 2c + 0.5 + c + 0.25 = 1 \\;\\Rightarrow\\; c = \\dfrac{1}{12}$", mk: "M1 A1", n: "You never need $a$ and $b$ separately — only $c$ and the given values." },
@@ -179,7 +179,7 @@ C["maths:S4.1"] = {
     { h: "2.2  Stopping rules" },
     "\"Repeat until …\" questions build a distribution of the **number of trials**. Each value is one path: failures, then the stopping event.",
     { worked: { tag: "exam", title: "Spin until a 7, at most 4 times", src: "AS June 2024 · P2 Q5 · 8 marks",
-      q: "A biased spinner scores 6, 7, 8, 10 with probabilities 0.5, 0.2, $q$, $q$. **(a)** Find $q$. Karen spins until she gets a 7 or has taken 4 spins. **(b)** Show that the probability that she stops after her 3rd spin is 0.128. $S$ is the number of spins she takes. **(c)** Find the probability distribution of $S$. $N$ is the number of 7s she gets. **(d)** Find $P(S > N)$.",
+      q: "A biased spinner has the following probability distribution:\n\n| Score | $6$ | $7$ | $8$ | $10$ |\n| --- | --- | --- | --- | --- |\n| Probability | $0.5$ | $0.2$ | $q$ | $q$ |\n\n**(a)** Find $q$. Karen spins until she gets a 7 or has taken 4 spins. **(b)** Show that the probability that she stops after her 3rd spin is 0.128. $S$ is the number of spins she takes. **(c)** Find the probability distribution of $S$. $N$ is the number of 7s she gets. **(d)** Find $P(S > N)$.",
       steps: [
         { h: "(a)", m: "$0.5 + 0.2 + 2q = 1 \\;\\Rightarrow\\; q = 0.15$", mk: "B1" },
         { h: "(b) Not 7, not 7, then 7", m: "$0.8 \\times 0.8 \\times 0.2 = 0.128$", mk: "M1 A1*" },

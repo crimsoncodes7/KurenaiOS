@@ -20,22 +20,16 @@ X("maths:S1.1", {
   ],
   flashcards: [
     ["How does a population differ from a sample?", "The population is *every* member of the group of interest; a sample is a subset chosen to make inferences about it.", 21],
-    ["Describe simple random sampling of size $n$.", "Number every member of the population (sampling frame); generate $n$ random numbers (or use a lottery); select the matching members.", 23],
     ["Describe stratified sampling.", "Split the population into strata (groups); take a simple random sample from each stratum in proportion to its size.", 25],
-    ["When is stratified random sampling impossible?", "When there is no sampling frame for the population (e.g. the fish in a lake cannot all be listed).", 26],
-    ["Opportunity (convenience) sampling — one advantage, one disadvantage?", "Quick and cheap; but not random, so likely to be unrepresentative/biased.", 27],
     ["Quota sampling — how does it differ from stratified?", "The population is split into groups and a quota is filled from each, but the members are chosen *non-randomly* by the interviewer.", 28],
     ["Census — advantage and disadvantage?", "Every member is used so the result is completely accurate; but it is expensive/time-consuming and testing may destroy the items.", 29],
     ["Stratified sample of 80 from 350 mirror carp, 250 common carp, 200 leather carp?", "$\\tfrac{350}{800} \\times 80 = 35$, $\\tfrac{250}{800} \\times 80 = 25$, $\\tfrac{200}{800} \\times 80 = 20$.", 30]
   ],
   quiz: [
     { q: "A quota sample differs from a stratified sample because:", opts: ["it splits the population into no groups at all", "it needs a full sampling frame for every group", "the choice within each group is not random", "its sample is always larger than a stratified one"], ans: 2, why: "Quota fills each group with whoever is available; stratified samples at random within each stratum." },
-    { q: "Systematic sampling of 25 from 500 uses every:", opts: ["25th", "20th", "5th", "50th"], ans: 1, why: "$500 \\div 25 = 20$." },
-    { q: "Stratified sampling requires:", opts: ["a random start and a fixed interval", "strata sizes in proportion to the population", "the interviewer's judgement of who to ask", "a census of every member of the population"], ans: 1, why: "Proportional random sampling from each stratum." },
-    { q: "A census is inappropriate when:", opts: ["the population is small", "testing destroys the item", "a sampling frame exists", "accuracy matters"], ans: 1, why: "Testing every item would destroy the whole population, so sample instead." },
-    { q: "Which is a random sampling method?", opts: ["quota", "opportunity", "systematic", "judgement"], ans: 2, why: "Random start then fixed interval." },
-    { q: "In the large data set, 'Daily Mean Wind Direction' is:", opts: ["continuous", "discrete quantitative", "qualitative", "a bivariate variable"], ans: 2, why: "Compass points — categories." },
-    { q: "The reason a sample cannot be perfectly representative:", opts: ["sampling error / natural variation", "the sample is always too small", "bias always occurs in sampling", "the sampling frame is always wrong"], ans: 0, why: "Two random samples give different values: natural variation, not bias." }
+    { q: "Stratified sampling requires:", opts: ["a random start and a fixed interval", "strata sizes in proportion to the population", "the interviewer's judgement of who to ask", "a census of every member of the population"], ans: 1, why: "Proportional random sampling from each stratum.", oi: 10 },
+    { q: "Which is a random sampling method?", opts: ["quota", "opportunity", "systematic", "judgement"], ans: 2, why: "Random start then fixed interval.", oi: 12 },
+    { q: "In the large data set, 'Daily Mean Wind Direction' is:", opts: ["continuous", "discrete quantitative", "qualitative", "a bivariate variable"], ans: 2, why: "Compass points — categories.", oi: 13 }
   ],
   exam: [
     { level: "AS", src: "Edexcel AS 2020 · P2 Q4", ctx: "A fishery wants to estimate the mean length of the carp in a lake. The lake holds mirror carp, common carp and leather carp. A previous survey gave estimates of 350 mirror, 250 common and 200 leather carp.",
@@ -78,24 +72,19 @@ X("maths:S2.1", {
     { callout: { t: "mnemonic", h: "Skew from a box plot", body: "Positive skew: median closer to $Q_1$, long right whisker. Negative skew: median closer to $Q_3$. A hospital stay / waiting time / rainfall is usually positively skewed, which is one reason a **normal model is unsuitable** (2023 Q6)." } }
   ],
   flashcards: [
-    ["Write the formula for frequency density.", "$\\text{fd} = \\dfrac{\\text{frequency}}{\\text{class width}}$.", 15],
-    ["A histogram bar for class $10 \\le x < 20$ is 2 cm wide and 3 cm tall and represents 24 items. What area is 1 item?", "$6 \\text{ cm}^2 = 24$ items, so 1 item $= 0.25$ cm².", 16],
     ["On a histogram the bar for class $10 \\le x < 20$ is 2 cm wide and represents 24 items (so 1 item $= 0.25$ cm²). Class $20 \\le x < 25$ has frequency 30. Width and height of its bar?", "Width $= 1$ cm (5 units at 2 cm per 10). Area $= 30 \\times 0.25 = 7.5$ cm² so height $= 7.5$ cm.", 17],
     ["Estimate the number under 11 minutes when the class $10\\text{–}15$ has frequency 20.", "Assume uniform spread: $\\tfrac{1}{5} \\times 20 = 4$ (plus every lower class).", 18],
     ["Outlier fences with $Q_1 = 8$, $Q_3 = 17$?", "IQR $= 9$; fences $8 - 13.5 = -5.5$ and $17 + 13.5 = 30.5$.", 20],
-    ["How do you compare two box plots for a mark scheme?", "One comparison of location (median), one of spread (IQR/range), both in context.", 21],
     ["Cumulative frequency graph: how do you read the median for $n = 80$?", "Read across from cumulative frequency 40 to the curve, then down.", 22],
     ["Why might a histogram show a normal model is unsuitable?", "The distribution is skewed (not symmetric) or has a tail/cut-off.", 23],
     ["Why must class boundaries be used for continuous data?", "E.g. '10–19' recorded to the nearest unit has boundaries 9.5 and 19.5 — the width is 10, not 9.", 24]
   ],
   quiz: [
-    { q: "Frequency density for class $30 \\le x < 50$ with frequency 8:", opts: ["0.4", "160", "2.5", "8"], ans: 0, why: "$8 \\div 20$." },
-    { q: "In a histogram, frequency is proportional to:", opts: ["height", "width", "area", "the number of bars"], ans: 2, why: "Frequency $=$ frequency density $\\times$ class width, which is the bar's area." },
-    { q: "Median position from a cumulative frequency curve with $n = 120$:", opts: ["60", "61", "30", "120"], ans: 0, why: "$n/2$ on the axis." },
-    { q: "In a box plot, the box shows:", opts: ["min to max", "$Q_1$ to $Q_3$", "mean $\\pm$ sd", "the range"], ans: 1, why: "The middle 50%." },
-    { q: "A box plot with the median close to $Q_3$ shows:", opts: ["positive skew", "negative skew", "no skew", "an outlier"], ans: 1, why: "The median near $Q_3$ means the lower half is spread out: a tail to the left." },
-    { q: "Estimating a proportion within a histogram class assumes:", opts: ["the data follow a normal shape", "values evenly spread in the class", "the class contains the mode", "values cluster at the class midpoint"], ans: 1, why: "Interpolating inside a class assumes the values are spread evenly across it." },
-    { q: "'Ages 20–29' (whole years) has class width:", opts: ["9", "10", "9.5", "29"], ans: 1, why: "Boundaries 20 and 30." }
+    { q: "Median position from a cumulative frequency curve with $n = 120$:", opts: ["60", "61", "30", "120"], ans: 0, why: "$n/2$ on the axis.", oi: 9 },
+    { q: "In a box plot, the box shows:", opts: ["min to max", "$Q_1$ to $Q_3$", "mean $\\pm$ sd", "the range"], ans: 1, why: "The middle 50%.", oi: 10 },
+    { q: "A box plot with the median close to $Q_3$ shows:", opts: ["positive skew", "negative skew", "no skew", "an outlier"], ans: 1, why: "The median near $Q_3$ means the lower half is spread out: a tail to the left.", oi: 11 },
+    { q: "Estimating a proportion within a histogram class assumes:", opts: ["the data follow a normal shape", "values evenly spread in the class", "the class contains the mode", "values cluster at the class midpoint"], ans: 1, why: "Interpolating inside a class assumes the values are spread evenly across it.", oi: 12 },
+    { q: "'Ages 20–29' (whole years) has class width:", opts: ["9", "10", "9.5", "29"], ans: 1, why: "Boundaries 20 and 30.", oi: 13 }
   ],
   exam: [
     { src: "Edexcel Specimen · P3 Q1", ctx: "A histogram shows the lengths (mm) of 200 leaves. The bar for $10 \\le l < 20$ is 2 cm wide and 3 cm high and represents 24 leaves.",
@@ -104,7 +93,7 @@ X("maths:S2.1", {
         { q: "The class $20 \\le l < 25$ has frequency 30. Find the width and height of its bar.", marks: 3, ms: ["B1: width $= 1$ cm", "M1: area $= 30 \\times 0.25 = 7.5$ cm²", "A1: height $= 7.5$ cm"] },
         { q: "Estimate the number of leaves with length between 15 mm and 22 mm.", marks: 2, ms: ["M1: $\\tfrac{5}{10} \\times 24 + \\tfrac{2}{5} \\times 30$", "A1: $12 + 12 = 24$"] }
       ] },
-    { level: "AS", src: "Edexcel AS 2020 · P2 Q1", ctx: "The times, $t$ minutes, taken by 50 people to complete a crossword are summarised: $0 \\le t < 5$: 6, $5 \\le t < 10$: 14, $10 \\le t < 15$: 20, $15 \\le t < 25$: 10.",
+    { level: "AS", src: "Edexcel AS 2020 · P2 Q1", ctx: "The times, $t$ minutes, taken by 50 people to complete a crossword are summarised below:\n\n| Time ($t$ minutes) | $0 \\le t < 5$ | $5 \\le t < 10$ | $10 \\le t < 15$ | $15 \\le t < 25$ |\n| --- | --- | --- | --- | --- |\n| Frequency | $6$ | $14$ | $20$ | $10$ |",
       parts: [
         { q: "Draw a histogram to represent the data — state the frequency densities you would use.", marks: 2, ms: ["M1: fd $= f \\div$ width", "A1: $1.2, 2.8, 4, 1$"] },
         { q: "Estimate the percentage of people who took less than 11 minutes.", marks: 2, ms: ["M1: $6 + 14 + \\tfrac15 \\times 20 = 24$", "A1: $48\\%$"] }
@@ -115,7 +104,7 @@ X("maths:S2.1", {
         { q: "Draw a box plot for the data.", marks: 3, ms: ["B1: box $1.8$, $4.1$, $7.4$ with the median inside", "B1: whiskers from 0.2 to 15.6", "B1: outlier marked at 21.5 with a cross"] },
         { q: "Describe the skewness of the distribution and interpret it.", marks: 2, ms: ["B1: positive skew ($Q_3 - Q_2 = 3.3 > Q_2 - Q_1 = 2.3$; long upper whisker)", "B1: most days have little rain with a few very wet days"] }
       ] },
-    { src: "Edexcel 2023 · P3 Q6", ctx: "A histogram summarises the time, $h$ hours, that 160 patients spent in a hospital department: $0 \\le h < 2$: 24, $2 \\le h < 3$: 40, $3 \\le h < 4$: 46, $4 \\le h < 6$: 36, $6 \\le h < 10$: 14.",
+    { src: "Edexcel 2023 · P3 Q6", ctx: "A histogram summarises the time, $h$ hours, that 160 patients spent in a hospital department:\n\n| Time ($h$ hours) | $0 \\le h < 2$ | $2 \\le h < 3$ | $3 \\le h < 4$ | $4 \\le h < 6$ | $6 \\le h < 10$ |\n| --- | --- | --- | --- | --- | --- |\n| Frequency | $24$ | $40$ | $46$ | $36$ | $14$ |",
       parts: [
         { q: "Estimate the probability that a randomly chosen patient spent more than 5 hours in the department.", marks: 2, ms: ["M1: $\\tfrac12 \\times 36 + 14 = 32$", "A1: $\\tfrac{32}{160} = 0.2$"] },
         { q: "Estimate the mean time.", marks: 2, ms: ["M1: $\\sum fx = 24 + 100 + 161 + 180 + 112 = 577$", "A1: $577 \\div 160 = 3.61$ hours"] },
@@ -144,11 +133,8 @@ X("maths:S2.2", {
     { callout: { t: "warn", h: "Describe the correlation", body: "Three words: **strength**, **direction**, **context** — \"strong negative correlation between pressure and rainfall\". Then, if asked for a large-data-set variable, name one exactly (Daily Mean Temperature, Daily Total Rainfall, Daily Mean Pressure, Daily Mean Windspeed, Daily Maximum Gust, Daily Total Sunshine, Daily Mean Visibility, Daily Maximum Relative Humidity, Daily Mean Cloud Cover)." } }
   ],
   flashcards: [
-    ["Interpret the gradient of $p = 22 - 1.1t$ (price £, $t$ years old).", "For each additional year of age the price falls by £1.10 (per year)… i.e. £1100 if in thousands — always quote the units.", 14],
-    ["Why is using $p = 22 - 1.1t$ at $t = 30$ unreliable when the data has $2 \\le t \\le 12$?", "It is extrapolation outside the range of the data — the linear model may not hold.", 15],
     ["Regression line of $y$ on $x$ — what can it predict?", "$y$ from a given $x$ (the independent variable), not $x$ from $y$.", 16],
     ["Describe the correlation shown by points falling steeply from top-left to bottom-right.", "Strong negative correlation.", 17],
-    ["Why does correlation not show causation?", "Correlation shows an association; it does not show that one variable causes the other (a third factor may be involved).", 18],
     ["$\\log_{10} y = 0.2x + 1.5$. Write $y$ in the form $ab^x$.", "$y = 10^{1.5} \\times (10^{0.2})^x = 31.6 \\times 1.58^x$.", 19],
     ["What does a linear relationship between $\\log y$ and $x$ tell you?", "$y$ grows or decays exponentially in $x$.", 20],
     ["Why might a linear regression line be unsuitable for a scatter diagram?", "The points show a curved (non-linear) pattern, or an outlier distorts the fit.", 21],
@@ -157,12 +143,10 @@ X("maths:S2.2", {
   ],
   quiz: [
     { q: "$y = 3.2 + 0.8x$: the gradient means", opts: ["each unit increase in $x$ increases $y$ by 3.2", "each unit increase in $x$ increases $y$ by 0.8", "each unit increase in $y$ increases $x$ by 0.8", "the correlation coefficient between them is 0.8"], ans: 1, why: "The gradient 0.8 is the change in $y$ for each 1 added to $x$." },
-    { q: "Predicting at $x = 50$ when data cover $5 \\le x \\le 20$ is:", opts: ["interpolation — reliable", "extrapolation — unreliable", "valid, as the line is linear", "impossible without more data"], ans: 1, why: "$x = 50$ is outside $5 \\le x \\le 20$, so this is extrapolation." },
-    { q: "PMCC $= 0.95$ shows:", opts: ["strong positive linear correlation", "weak positive linear correlation", "that $x$ causes the change in $y$", "strong negative linear correlation"], ans: 0, why: "Close to 1." },
-    { q: "The independent variable in 'sales against advertising spend' is:", opts: ["sales revenue", "advertising spend", "either variable", "neither variable"], ans: 1, why: "Advertising spend is set by the firm; sales respond to it." },
-    { q: "$\\log y = a + bx$ gives $y =$", opts: ["$10^a + 10^{bx}$", "$10^a \\cdot 10^{bx}$", "$10^a \\cdot x^b$", "$a \\cdot 10^{bx}$"], ans: 1, why: "$y = 10^{a + bx} = 10^a \\cdot 10^{bx}$." },
-    { q: "$\\log y = a + b\\log x$ gives $y =$", opts: ["$10^a x^b$", "$ab^x$", "$a + bx$", "$b\\cdot 10^{ax}$"], ans: 0, why: "$y = 10^{a + b\\log x} = 10^a \\cdot x^b$." },
-    { q: "'Ice-cream sales and drownings are correlated' is best explained by:", opts: ["ice-cream sales cause drownings", "a third variable (hot weather)", "sampling error in the data", "extrapolation beyond the data"], ans: 1, why: "Hot weather raises both, so neither causes the other." }
+    { q: "PMCC $= 0.95$ shows:", opts: ["strong positive linear correlation", "weak positive linear correlation", "that $x$ causes the change in $y$", "strong negative linear correlation"], ans: 0, why: "Close to 1.", oi: 8 },
+    { q: "The independent variable in 'sales against advertising spend' is:", opts: ["sales revenue", "advertising spend", "either variable", "neither variable"], ans: 1, why: "Advertising spend is set by the firm; sales respond to it.", oi: 9 },
+    { q: "$\\log y = a + bx$ gives $y =$", opts: ["$10^a + 10^{bx}$", "$10^a \\cdot 10^{bx}$", "$10^a \\cdot x^b$", "$a \\cdot 10^{bx}$"], ans: 1, why: "$y = 10^{a + bx} = 10^a \\cdot 10^{bx}$.", oi: 10 },
+    { q: "$\\log y = a + b\\log x$ gives $y =$", opts: ["$10^a x^b$", "$ab^x$", "$a + bx$", "$b\\cdot 10^{ax}$"], ans: 0, why: "$y = 10^{a + b\\log x} = 10^a \\cdot x^b$.", oi: 11 }
   ],
   exam: [
     { level: "AS", src: "Edexcel AS 2022 · P2 Q1", ctx: "A garage records the age, $t$ years, and price, $p$ thousand pounds, of 12 second-hand cars of one model, with $2 \\le t \\le 9$. The regression line is $p = 22 - 1.1t$.",
@@ -204,28 +188,22 @@ X("maths:S2.3", {
     { callout: { t: "tip", h: "Comparing two data sets", body: "Two sentences: one comparing a **location** (mean/median), one comparing a **spread** (sd/IQR), each *in context*: \"Coach B's runners have a lower mean time so are faster on average; their sd is larger so their times are more variable.\"" } }
   ],
   flashcards: [
-    ["Standard deviation from $\\sum x$ and $\\sum x^2$?", "$\\sigma = \\sqrt{\\dfrac{\\sum x^2}{n} - \\left(\\dfrac{\\sum x}{n}\\right)^2}$.", 15],
     ["$n = 12$, $\\sum x = 780$, $\\sum x^2 = 50850$. Mean and sd?", "$\\bar x = 65$; $\\sigma^2 = 4237.5 - 4225 = 12.5$; $\\sigma = 3.54$.", 16],
     ["Coding $y = x - 1010$: $\\bar y = 3.2$, $\\sigma_y = 5.46$. Mean and sd of $x$?", "$\\bar x = 1013.2$, $\\sigma_x = 5.46$ (unchanged).", 17],
-    ["Coding $y = \\dfrac{x - 20}{5}$ with $\\sigma_y = 1.4$. $\\sigma_x$?", "$5 \\times 1.4 = 7$.", 18],
-    ["Every value is reduced by 5 g. Effect on mean and sd?", "Mean decreases by 5 g; sd unchanged.", 19],
     ["Every value is multiplied by 1.2. Effect on mean and sd?", "Both multiplied by 1.2.", 20],
     ["Median by interpolation: $n = 60$, cf before the class $10 \\le x < 20$ is 22, class frequency 22.", "$10 + \\dfrac{30 - 22}{22} \\times 10 = 13.6$.", 21],
     ["Grouped mean: what value represents each class?", "The midpoint of the class.", 22],
-    ["Mean vs median — when is the median preferred?", "When the data are skewed or contain outliers (the median is unaffected by extreme values).", 23],
     ["IQR of grouped data — which positions?", "$Q_1$ at $\\tfrac n4$, $Q_3$ at $\\tfrac{3n}{4}$ by interpolation.", 24]
   ],
   quiz: [
     { q: "$\\sum x = 200$, $\\sum x^2 = 4300$, $n = 10$: variance $=$", opts: ["30", "430", "20", "$\\sqrt{30}$"], ans: 0, why: "$430 - 400$." },
-    { q: "Adding 3 to every value changes:", opts: ["mean only", "sd only", "both", "neither"], ans: 0, why: "Each value moves by 3, so the mean rises by 3; the spread is unchanged." },
-    { q: "Coding $y = 2x$ makes the sd of $y$:", opts: ["the same", "double", "half", "four times"], ans: 1, why: "$\\sigma_y = 2\\sigma_x$: scaling by 2 doubles every distance from the mean." },
-    { q: "Median position (grouped, Edexcel) for $n = 50$:", opts: ["25", "25.5", "26", "24"], ans: 0, why: "$n/2$." },
-    { q: "Estimated grouped mean uses:", opts: ["class widths", "class midpoints", "upper bounds", "frequency densities"], ans: 1, why: "Each class is represented by its midpoint: $\\bar x \\approx \\tfrac{\\sum fx}{\\sum f}$." },
-    { q: "A distribution with mean > median is usually:", opts: ["negatively skewed", "positively skewed", "symmetric", "uniform"], ans: 1, why: "Tail pulls the mean up." },
-    { q: "Comparing two classes' test results needs:", opts: ["the means of the two classes, with no other figures", "a measure of location and of spread, in context", "the range of each class, compared side by side", "a histogram of each class drawn on the same axes"], ans: 1, why: "Compare a location (mean or median) and a spread (sd or IQR), in context." }
+    { q: "Coding $y = 2x$ makes the sd of $y$:", opts: ["the same", "double", "half", "four times"], ans: 1, why: "$\\sigma_y = 2\\sigma_x$: scaling by 2 doubles every distance from the mean.", oi: 8 },
+    { q: "Median position (grouped, Edexcel) for $n = 50$:", opts: ["25", "25.5", "26", "24"], ans: 0, why: "$n/2$.", oi: 9 },
+    { q: "A distribution with mean > median is usually:", opts: ["negatively skewed", "positively skewed", "symmetric", "uniform"], ans: 1, why: "Tail pulls the mean up.", oi: 11 },
+    { q: "Comparing two classes' test results needs:", opts: ["the means of the two classes, with no other figures", "a measure of location and of spread, in context", "the range of each class, compared side by side", "a histogram of each class drawn on the same axes"], ans: 1, why: "Compare a location (mean or median) and a spread (sd or IQR), in context.", oi: 12 }
   ],
   exam: [
-    { level: "AS", src: "Edexcel AS 2023 · P2 Q1", ctx: "The weights, $w$ grams, of 50 plums are summarised: $20 \\le w < 30$: 5, $30 \\le w < 40$: 12, $40 \\le w < 50$: 18, $50 \\le w < 60$: 10, $60 \\le w < 80$: 5.",
+    { level: "AS", src: "Edexcel AS 2023 · P2 Q1", ctx: "The weights, $w$ grams, of 50 plums are summarised below:\n\n| Weight ($w$ g) | $20 \\le w < 30$ | $30 \\le w < 40$ | $40 \\le w < 50$ | $50 \\le w < 60$ | $60 \\le w < 80$ |\n| --- | --- | --- | --- | --- | --- |\n| Frequency | $5$ | $12$ | $18$ | $10$ | $5$ |",
       parts: [
         { q: "Show that an estimate of the mean weight is 45.1 g.", marks: 2, ms: ["M1: $\\sum fx = 125 + 420 + 810 + 550 + 350 = 2255$", "A1: $2255 \\div 50 = 45.1$"] },
         { q: "Estimate the standard deviation.", marks: 3, ms: ["M1: $\\sum fx^2 = 3125 + 14700 + 36450 + 30250 + 24500 = 109025$", "M1: $\\sqrt{\\tfrac{109025}{50} - 45.1^2}$", "A1: $\\sqrt{146.49} = 12.1$ g"] },
@@ -242,7 +220,7 @@ X("maths:S2.3", {
         { q: "Find the mean and standard deviation of Coach A's runners' times.", marks: 3, ms: ["B1: $\\bar x = 65$", "M1: $\\sqrt{\\tfrac{50850}{12} - 65^2}$", "A1: $\\sigma = 3.54$ s"] },
         { q: "Compare the two groups of runners.", marks: 2, ms: ["B1: Coach B's runners have a lower mean time so are faster on average", "B1: Coach B's times have a larger sd so are more varied/less consistent"] }
       ] },
-    { level: "AS", src: "Edexcel AS 2022 · P2 Q3", ctx: "The heights, $h$ cm, of 60 seedlings: $0 \\le h < 5$: 8, $5 \\le h < 10$: 14, $10 \\le h < 20$: 22, $20 \\le h < 30$: 12, $30 \\le h < 50$: 4.",
+    { level: "AS", src: "Edexcel AS 2022 · P2 Q3", ctx: "The heights, $h$ cm, of 60 seedlings are summarised below:\n\n| Height ($h$ cm) | $0 \\le h < 5$ | $5 \\le h < 10$ | $10 \\le h < 20$ | $20 \\le h < 30$ | $30 \\le h < 50$ |\n| --- | --- | --- | --- | --- | --- |\n| Frequency | $8$ | $14$ | $22$ | $12$ | $4$ |",
       parts: [
         { q: "Use linear interpolation to estimate the median height.", marks: 2, ms: ["M1: $10 + \\dfrac{30 - 22}{22} \\times 10$", "A1: $13.6$ cm"] },
         { q: "State an assumption made in using interpolation.", marks: 1, ms: ["B1: the heights are evenly (uniformly) spread within each class"] },
@@ -266,21 +244,14 @@ X("maths:S2.4", {
     { callout: { t: "warn", h: "Remove or keep?", body: "An outlier is only removed if it is an **error** (impossible value, recording mistake). A genuine but extreme value (a storm's rainfall) is kept — say so." } }
   ],
   flashcards: [
-    ["What is the mean ± standard deviation rule for outliers?", "More than 2 (or 3) standard deviations from the mean: outside $\\bar x \\pm 2\\sigma$.", 14],
     ["$\\bar x = 24.5$, $\\sigma = 6.2$: outlier limits?", "$12.1$ and $36.9$ — so 11 and 38 would be outliers.", 15],
-    ["What does `tr` mean in the rainfall column of the large data set?", "Trace — less than 0.05 mm; treat as 0 (state the decision).", 16],
-    ["What should you do with a data entry of 999 or n/a?", "Remove it — it is a code for a missing reading, not a value.", 17],
-    ["When should an outlier be removed?", "Only when it is an error/impossible; a genuine extreme value is kept.", 18],
     ["Why remove an outlier before calculating the mean and sd?", "They are heavily influenced by extreme values; the median and IQR are not.", 19],
     ["Effect of removing a high outlier on mean and sd?", "Both decrease.", 20]
   ],
   quiz: [
-    { q: "$Q_1 = 15$, $Q_3 = 27$: upper fence ($1.5$ IQR):", opts: ["45", "39", "42", "33"], ans: 0, why: "$27 + 18$." },
-    { q: "A 'tr' rainfall reading is best treated as:", opts: ["missing", "0", "0.05", "an outlier"], ans: 1, why: "Trace ≈ 0." },
-    { q: "A Daily Total Rainfall entry of $-1$ mm should be:", opts: ["kept, as it was recorded", "removed as an error", "set to 1 mm instead", "averaged with the days around it"], ans: 1, why: "Rainfall cannot be negative, so $-1$ mm is an error to remove." },
-    { q: "Which statistic is unaffected by an outlier?", opts: ["mean", "sd", "median", "range"], ans: 2, why: "The median depends only on the middle value, not on the extremes." },
-    { q: "Outlier rule 'more than 3 sd from the mean' with $\\bar x = 50$, $\\sigma = 4$: 63 is", opts: ["an outlier", "not an outlier", "the mean", "$Q_3$"], ans: 0, why: "$> 62$." },
-    { q: "Removing a low outlier makes the mean:", opts: ["increase", "decrease", "unchanged", "zero"], ans: 0, why: "A low value pulls the mean down, so removing it raises the mean." }
+    { q: "A Daily Total Rainfall entry of $-1$ mm should be:", opts: ["kept, as it was recorded", "removed as an error", "set to 1 mm instead", "averaged with the days around it"], ans: 1, why: "Rainfall cannot be negative, so $-1$ mm is an error to remove.", oi: 7 },
+    { q: "Which statistic is unaffected by an outlier?", opts: ["mean", "sd", "median", "range"], ans: 2, why: "The median depends only on the middle value, not on the extremes.", oi: 8 },
+    { q: "Removing a low outlier makes the mean:", opts: ["increase", "decrease", "unchanged", "zero"], ans: 0, why: "A low value pulls the mean down, so removing it raises the mean.", oi: 10 }
   ],
   exam: [
     { level: "AS", src: "Edexcel AS 2019 · P2 Q4", ctx: "Jade is investigating Daily Total Rainfall (mm) at Hurn in 2015 from the large data set. Her sample of 20 days contains the values `tr` twice, and one day recorded as 25.4.",
@@ -314,8 +285,6 @@ X("maths:S3.1", {
     { callout: { t: "miscon", h: "Mutually exclusive ≠ independent", body: "If $A$ and $B$ are mutually exclusive with $P(A), P(B) > 0$ they **cannot** be independent: $P(A \\cap B) = 0 \\ne P(A)P(B)$. Knowing $A$ happened tells you $B$ did not." } }
   ],
   flashcards: [
-    ["Condition for mutually exclusive events?", "$P(A \\cap B) = 0$; then $P(A \\cup B) = P(A) + P(B)$."],
-    ["Condition for independent events?", "$P(A \\cap B) = P(A) \\times P(B)$, equivalently $P(A|B) = P(A)$."],
     ["$P(A) = 0.25$, $P(C) = 0.4$, $A$ and $C$ independent: $P(A \\cap C)$?", "$0.1$.", 16],
     ["Test: 60 students, 24 in Art, 30 in Music, 12 in both. Independent?", "$P(A)P(M) = 0.4 \\times 0.5 = 0.2 = \\tfrac{12}{60}$ — yes.", 18],
     ["60 students: 24 in Art, 30 in Music and 15 in both. Are Art and Music independent?", "$\\tfrac{15}{60} = 0.25 \\ne 0.2$ — not independent.", 19],
@@ -326,10 +295,9 @@ X("maths:S3.1", {
   quiz: [
     { q: "$P(A) = 0.5$, $P(B) = 0.3$, independent: $P(A \\cup B) =$", opts: ["0.8", "0.65", "0.15", "0.35"], ans: 1, why: "$0.5 + 0.3 - 0.15$." },
     { q: "$P(A) = 0.5$, $P(B) = 0.4$, $P(A \\cap B) = 0.15$. $P(\\text{neither})$ =", opts: ["0.25", "0.75", "0.10", "0.35"], ans: 0, why: "$P(A \\cup B) = 0.5 + 0.4 - 0.15 = 0.75$, so neither is $1 - 0.75 = 0.25$." },
-    { q: "$P(A) = 0.5$, $P(B) = 0.4$, $P(A \\cap B) = 0.25$. The events are:", opts: ["independent", "not independent", "mutually exclusive", "exhaustive"], ans: 1, why: "$0.5 \\times 0.4 = 0.2 \\ne 0.25$, so not independent; and $P(A \\cap B) \\ne 0$." },
-    { q: "In a Venn diagram, mutually exclusive events are drawn:", opts: ["overlapping", "not overlapping", "one inside the other", "as a single circle"], ans: 1, why: "Mutually exclusive means $P(A \\cap B) = 0$: no common region." },
-    { q: "$P(A \\cap B') $ where $P(A) = 0.6$, $P(A \\cap B) = 0.2$:", opts: ["0.4", "0.8", "0.2", "0.6"], ans: 0, why: "$A$ minus the overlap." },
-    { q: "Exhaustive events satisfy:", opts: ["$P(A \\cap B) = 0$", "$P(A \\cup B) = 1$", "$P(A) = P(B)$", "$P(A)P(B) = 1$"], ans: 1, why: "Exhaustive events cover the sample space: $P(A \\cup B) = 1$." }
+    { q: "In a Venn diagram, mutually exclusive events are drawn:", opts: ["overlapping", "not overlapping", "one inside the other", "as a single circle"], ans: 1, why: "Mutually exclusive means $P(A \\cap B) = 0$: no common region.", oi: 9 },
+    { q: "$P(A \\cap B') $ where $P(A) = 0.6$, $P(A \\cap B) = 0.2$:", opts: ["0.4", "0.8", "0.2", "0.6"], ans: 0, why: "$A$ minus the overlap.", oi: 10 },
+    { q: "Exhaustive events satisfy:", opts: ["$P(A \\cap B) = 0$", "$P(A \\cup B) = 1$", "$P(A) = P(B)$", "$P(A)P(B) = 1$"], ans: 1, why: "Exhaustive events cover the sample space: $P(A \\cup B) = 1$.", oi: 11 }
   ],
   exam: [
     { level: "AS", src: "Edexcel AS 2019 · P2 Q2", ctx: "Events $A$, $B$ and $C$ have $P(A) = 0.25$, $P(C) = 0.4$, $P(B \\cap C) = 0.1$ and $P(B \\cap A' \\cap C') = 0.15$. $A$ and $B$ are mutually exclusive; $A$ and $C$ are independent.",
@@ -347,9 +315,7 @@ X("maths:S3.1", {
       parts: [
         { q: "Find the percentage of the factory's components that are faulty.", marks: 2, ms: ["M1: $0.4 \\times 0.03 + 0.35 \\times 0.05 + 0.25 \\times 0.02$", "A1: $0.0345 = 3.45\\%$"] },
         { q: "Explain why the events 'the component is faulty' and 'the component is from $A$' are not independent.", marks: 2, ms: ["M1: $P(F|A) = 0.03$ but $P(F) = 0.0345$", "A1: not equal so not independent"] }
-      ] },
-    { level: "AS", src: "Edexcel AS Nov 2021 · P2 Q1", q: "The Venn diagram shows $P(A \\cap B) = p$, $P(A \\cap B') = 0.2$, $P(B \\cap A') = 0.35$, $P(A' \\cap B') = 0.3$. Find $p$, and state, with a reason, whether $A$ and $B$ are mutually exclusive.", marks: 3,
-      ms: ["M1: $0.2 + p + 0.35 + 0.3 = 1$", "A1: $p = 0.15$", "B1: not mutually exclusive as $P(A \\cap B) = 0.15 \\ne 0$"] }
+      ] }
   ]
 });
 
@@ -376,17 +342,12 @@ X("maths:S3.2", {
     ["Bag A: 3 yellow, 5 blue; bag B: 4 yellow, 2 blue; one bead from each. $P(\\text{both yellow})$?", "$\\tfrac38 \\times \\tfrac46 = \\tfrac14$.", 15],
     ["Bag A: 3 yellow, 5 blue; bag B: 4 yellow, 2 blue; one bead from each. $P(\\text{both yellow} \\mid \\text{same colour})$?", "$P(BB) = \\tfrac58 \\times \\tfrac26 = \\tfrac{5}{24}$; $\\dfrac{6/24}{6/24 + 5/24} = \\tfrac{6}{11}$.", 16],
     ["$P(A|B')$ in terms of Venn regions?", "$\\dfrac{P(A \\cap B')}{1 - P(B)}$.", 17],
-    ["Given $A$ and $B$ independent, $P(A|B') = $?", "$P(A)$.", 18],
     ["'Given that exactly one of $A$, $B$ occurs, find the probability it was $A$.'", "$\\dfrac{P(A \\cap B')}{P(A \\cap B') + P(A' \\cap B)}$.", 19],
     ["Tree diagram: second-branch probabilities are…", "Conditional on the first branch — they change when sampling without replacement.", 20]
   ],
   quiz: [
-    { q: "$P(A \\cap B) = 0.2$, $P(B) = 0.5$: $P(A|B) =$", opts: ["0.1", "0.4", "0.7", "0.25"], ans: 1, why: "$0.2/0.5$." },
-    { q: "A bag has 3 red and 2 blue balls; two are drawn without replacement. $P(\\text{second red} \\mid \\text{first red}) =$", opts: ["$\\tfrac12$", "$\\tfrac35$", "$\\tfrac{3}{10}$", "$\\tfrac25$"], ans: 0, why: "After one red, 2 red remain among 4 balls: $\\tfrac24 = \\tfrac12$." },
-    { q: "In a two-way table, $P(\\text{row}|\\text{column})$ divides by:", opts: ["the grand total", "the column total", "the row total", "1"], ans: 1, why: "Restrict to the column." },
-    { q: "Without replacement, 2 red from 5 red and 3 blue: $P(RR) =$", opts: ["$\\tfrac{25}{64}$", "$\\tfrac{5}{14}$", "$\\tfrac{10}{56}$", "$\\tfrac{2}{8}$"], ans: 1, why: "$\\tfrac58 \\times \\tfrac47$." },
-    { q: "$P(B|A) = 0.6$, $P(A) = 0.5$: $P(A \\cap B) =$", opts: ["0.3", "1.1", "0.1", "0.83"], ans: 0, why: "$P(A \\cap B) = P(A) \\times P(B \\mid A) = 0.5 \\times 0.6 = 0.3$." },
-    { q: "$P(A) = 0.6$, $P(B) = 0.2$, independent: $P(A|B') =$", opts: ["0.6", "0.48", "0.8", "0.12"], ans: 0, why: "Independent, so $B'$ says nothing about $A$: $P(A \\mid B') = P(A) = 0.6$." }
+    { q: "A bag has 3 red and 2 blue balls; two are drawn without replacement. $P(\\text{second red} \\mid \\text{first red}) =$", opts: ["$\\tfrac12$", "$\\tfrac35$", "$\\tfrac{3}{10}$", "$\\tfrac25$"], ans: 0, why: "After one red, 2 red remain among 4 balls: $\\tfrac24 = \\tfrac12$.", oi: 6 },
+    { q: "$P(A) = 0.6$, $P(B) = 0.2$, independent: $P(A|B') =$", opts: ["0.6", "0.48", "0.8", "0.12"], ans: 0, why: "Independent, so $B'$ says nothing about $A$: $P(A \\mid B') = P(A) = 0.6$.", oi: 10 }
   ],
   exam: [
     { src: "Edexcel 2022 · P3 Q5", ctx: "A company has 120 employees. 80 are full-time (FT) and 40 part-time (PT). Of the full-time staff, 30 usually work from home; of the part-time staff, 30 usually work from home.",
@@ -429,20 +390,16 @@ X("maths:S3.3", {
   flashcards: [
     ["Bag A: 2 red, 3 green; bag B: 4 red, 1 green. One ball moved A→B, then one drawn from B. $P(\\text{green drawn})$?", "$\\tfrac35 \\times \\tfrac26 + \\tfrac25 \\times \\tfrac16 = \\tfrac{8}{30} = \\tfrac{4}{15}$."],
     ["Bag A: 2 red, 3 green; bag B: 4 red, 1 green. One ball moved A→B, then one drawn from B and it is green. $P(\\text{the moved ball was green})$?", "$\\dfrac{6/30}{8/30} = \\tfrac34$."],
-    ["Two assumptions when modelling free throws with a fixed probability $p$?", "Each throw is independent of the others; $p$ is constant for every throw."],
-    ["Why might it be unrealistic to model free throws as independent with a constant probability $p$?", "A player may gain confidence after a success (not independent) or tire (probability changes)."],
-    ["A spinner lands on $x$ with probability $\\tfrac x{10}$, $x = 1, 2, 3, 4$. Given $X = x$, a coin with $P(\\text{head}) = \\tfrac{k}{x}$ is tossed. Find $P(\\text{head})$ in terms of $k$.", "$\\sum \\tfrac{x}{10}\\cdot\\tfrac{k}{x} = \\tfrac{4k}{10} = 0.4k$."],
-    ["'Probability of rain each day is 0.3, days independent' — realistic?", "No — weather on consecutive days is correlated and the probability varies with season."],
-    ["When is 'with replacement' a reasonable simplification of 'without'?", "When the population is very large compared with the sample so probabilities barely change."],
-    ["How do you bound $P(A|B)$ when a Venn region $x$ is unknown?", "Write it as a function of $x$ and substitute the extreme allowed values of $x$."]
+    ["Why might it be unrealistic to model free throws as independent with a constant probability $p$?", "A player may gain confidence after a success (not independent) or tire (probability changes).", 13],
+    ["A spinner lands on $x$ with probability $\\tfrac x{10}$, $x = 1, 2, 3, 4$. Given $X = x$, a coin with $P(\\text{head}) = \\tfrac{k}{x}$ is tossed. Find $P(\\text{head})$ in terms of $k$.", "$\\sum \\tfrac{x}{10}\\cdot\\tfrac{k}{x} = \\tfrac{4k}{10} = 0.4k$.", 14],
+    ["How do you bound $P(A|B)$ when a Venn region $x$ is unknown?", "Write it as a function of $x$ and substitute the extreme allowed values of $x$.", 17]
   ],
   quiz: [
-    { q: "A model assumes shots at goal are independent. A reason it may fail:", opts: ["the goal stays the same size", "confidence changes after a goal", "the ball is always spherical", "the probability of a goal is small"], ans: 1, why: "A goal can change the next shot's chance, so the shots are not independent." },
-    { q: "Moving a ball between bags then drawing: the second probabilities are", opts: ["fixed, whatever was moved", "conditional on what was moved", "always $\\tfrac12$ for each colour", "independent of the first draw"], ans: 1, why: "What was moved changes the second bag, so its probabilities are conditional." },
-    { q: "Drawing 2 cards from a full pack without replacement: $P(\\text{second is an ace})$ is", opts: ["$\\tfrac{4}{52}$", "$\\tfrac{3}{51}$", "$\\tfrac{4}{51}$", "0"], ans: 0, why: "By symmetry, same as the first." },
-    { q: "'The probability a component is faulty is 0.02 and components are independent' is a:", opts: ["binomial model", "normal model", "uniform model", "regression model"], ans: 0, why: "Fixed $n$, constant $p$, independent trials." },
-    { q: "A model gives $P(\\text{heights} < 0) = 0.001$. This shows the model is", opts: ["exact, since the probability is tiny", "an approximation with a small flaw", "useless, since heights cannot be negative", "discrete, as heights are whole numbers"], ans: 1, why: "A tiny probability of an impossible value is a small flaw; the model still fits well." },
-    { q: "The best critique of a model states:", opts: ["'it is only a model' as a general point", "a specific assumption and why it may fail in context", "that the answer the model gives is wrong", "that the sample used to fit the model is too small"], ans: 1, why: "Name one assumption and say why it may fail in this context." }
+    { q: "Moving a ball between bags then drawing: the second probabilities are", opts: ["fixed, whatever was moved", "conditional on what was moved", "always $\\tfrac12$ for each colour", "independent of the first draw"], ans: 1, why: "What was moved changes the second bag, so its probabilities are conditional.", oi: 6 },
+    { q: "Drawing 2 cards from a full pack without replacement: $P(\\text{second is an ace})$ is", opts: ["$\\tfrac{4}{52}$", "$\\tfrac{3}{51}$", "$\\tfrac{4}{51}$", "0"], ans: 0, why: "By symmetry, same as the first.", oi: 7 },
+    { q: "'The probability a component is faulty is 0.02 and components are independent' is a:", opts: ["binomial model", "normal model", "uniform model", "regression model"], ans: 0, why: "Fixed $n$, constant $p$, independent trials.", oi: 8 },
+    { q: "A model gives $P(\\text{heights} < 0) = 0.001$. This shows the model is", opts: ["exact, since the probability is tiny", "an approximation with a small flaw", "useless, since heights cannot be negative", "discrete, as heights are whole numbers"], ans: 1, why: "A tiny probability of an impossible value is a small flaw; the model still fits well.", oi: 9 },
+    { q: "The best critique of a model states:", opts: ["'it is only a model' as a general point", "a specific assumption and why it may fail in context", "that the answer the model gives is wrong", "that the sample used to fit the model is too small"], ans: 1, why: "Name one assumption and say why it may fail in this context.", oi: 10 }
   ],
   exam: [
     { level: "AS", src: "Edexcel AS Nov 2021 · P2 Q5", ctx: "Bag $A$ contains 2 red and 3 green balls. Bag $B$ contains 4 red and 1 green ball. A ball is taken at random from $A$ and placed in $B$; then a ball is taken at random from $B$.",
@@ -482,24 +439,20 @@ X("maths:S4.1", {
     { callout: { t: "warn", h: "Set the calculation out", body: "$P(X_1 + X_2 = 5) = P(1,4) + P(4,1) + P(2,3) + P(3,2)$ — listing the pairs is the method mark; a bare answer with no pairs shown drops it." } }
   ],
   flashcards: [
-    ["$P(X = x) = kx$, $x = 1, 2, 3, 4$. Find $k$.", "$k(1 + 2 + 3 + 4) = 1 \\Rightarrow k = 0.1$."],
-    ["$P(X = x) = 0.1x$ for $x = 1, 2, 3, 4$. $P(X_1 + X_2 = 5)$ for two independent spins?", "$2(0.1 \\times 0.4 + 0.2 \\times 0.3) = 0.2$."],
-    ["$P(X = x) = \\log_{10}\\dfrac{x + 1}{x}$, $x = 1, \\dots, 9$. Why is this a valid distribution?", "Sum telescopes: $\\log_{10}\\tfrac21 + \\dots + \\log_{10}\\tfrac{10}{9} = \\log_{10} 10 = 1$."],
-    ["$P(X = x) = \\log_{10}\\dfrac{x + 1}{x}$, $x = 1, \\dots, 9$. $P(X > 4)$?", "$\\log_{10}\\tfrac{10}{5} = \\log_{10} 2 = 0.301$."],
-    ["Discrete uniform on $\\{1, \\dots, 5\\}$: $P(X = 2)$?", "$0.2$."],
-    ["Why is a discrete uniform a poor model for Daily Mean Cloud Cover (oktas)?", "The observed frequencies are not equal — high oktas (7, 8) occur far more often."],
-    ["Spin until the first 4, $P(4) = 0.3$. $P(N = 3)$?", "$0.7^2 \\times 0.3 = 0.147$."],
-    ["Spin until the first 4, $P(4) = 0.3$. $P(N \\le 3)$?", "$1 - 0.7^3 = 0.657$."],
-    ["Two biased spinners, $R$ and $G$; $X = mR + nG$ — how do you find $m$, $n$ from a given distribution of $X$?", "Match the smallest and largest values of $X$ to $m \\cdot \\min R + n \\cdot \\min G$ etc."],
-    ["Conditions for a binomial model?", "Fixed number of trials, two outcomes, constant probability, independent trials."]
+    ["$P(X = x) = 0.1x$ for $x = 1, 2, 3, 4$. $P(X_1 + X_2 = 5)$ for two independent spins?", "$2(0.1 \\times 0.4 + 0.2 \\times 0.3) = 0.2$.", 17],
+    ["$P(X = x) = \\log_{10}\\dfrac{x + 1}{x}$, $x = 1, \\dots, 9$. Why is this a valid distribution?", "Sum telescopes: $\\log_{10}\\tfrac21 + \\dots + \\log_{10}\\tfrac{10}{9} = \\log_{10} 10 = 1$.", 18],
+    ["$P(X = x) = \\log_{10}\\dfrac{x + 1}{x}$, $x = 1, \\dots, 9$. $P(X > 4)$?", "$\\log_{10}\\tfrac{10}{5} = \\log_{10} 2 = 0.301$.", 19],
+    ["Discrete uniform on $\\{1, \\dots, 5\\}$: $P(X = 2)$?", "$0.2$.", 20],
+    ["Spin until the first 4, $P(4) = 0.3$. $P(N = 3)$?", "$0.7^2 \\times 0.3 = 0.147$.", 22],
+    ["Spin until the first 4, $P(4) = 0.3$. $P(N \\le 3)$?", "$1 - 0.7^3 = 0.657$.", 23],
+    ["Two biased spinners, $R$ and $G$; $X = mR + nG$ — how do you find $m$, $n$ from a given distribution of $X$?", "Match the smallest and largest values of $X$ to $m \\cdot \\min R + n \\cdot \\min G$ etc.", 24]
   ],
   quiz: [
     { q: "$P(X = x) = \\dfrac{k}{x}$ for $x = 1, 2, 4$: $k =$", opts: ["$\\tfrac47$", "$\\tfrac17$", "$\\tfrac74$", "1"], ans: 0, why: "$k(1 + \\tfrac12 + \\tfrac14) = 1$." },
-    { q: "A fair 5-sided spinner's score has distribution:", opts: ["binomial with $n = 5$", "discrete uniform", "normal with mean 3", "geometric with $p = \\tfrac15$"], ans: 1, why: "Scores 1 to 5 each have probability $\\tfrac15$: discrete uniform." },
-    { q: "Number of 2s in 20 spins of a fair 5-sided spinner:", opts: ["$B(20, 0.2)$", "$B(5, 0.2)$", "uniform", "$B(20, 0.5)$"], ans: 0, why: "20 independent spins, each a 2 with $p = \\tfrac15$: $B(20, 0.2)$." },
-    { q: "$P(X_1 = X_2)$ for independent copies of $X$ is:", opts: ["$\\sum P(X = x)^2$", "$2\\sum P(X = x)$", "$P(X = x)$", "1"], ans: 0, why: "$P(X_1 = X_2 = x) = P(X = x)^2$; add over every value $x$." },
-    { q: "'Spin until the first success' has how many trials?", opts: ["fixed — so it is binomial", "not fixed — so not binomial", "always exactly 1 trial", "$n$, fixed in advance"], ans: 1, why: "Binomial needs a fixed $n$; here the number of trials varies." },
-    { q: "Cloud cover in oktas is:", opts: ["continuous (0–8)", "discrete (0–8)", "qualitative", "always 8"], ans: 1, why: "Oktas are whole numbers from 0 to 8: discrete." }
+    { q: "Number of 2s in 20 spins of a fair 5-sided spinner:", opts: ["$B(20, 0.2)$", "$B(5, 0.2)$", "uniform", "$B(20, 0.5)$"], ans: 0, why: "20 independent spins, each a 2 with $p = \\tfrac15$: $B(20, 0.2)$.", oi: 9 },
+    { q: "$P(X_1 = X_2)$ for independent copies of $X$ is:", opts: ["$\\sum P(X = x)^2$", "$2\\sum P(X = x)$", "$P(X = x)$", "1"], ans: 0, why: "$P(X_1 = X_2 = x) = P(X = x)^2$; add over every value $x$.", oi: 10 },
+    { q: "'Spin until the first success' has how many trials?", opts: ["fixed — so it is binomial", "not fixed — so not binomial", "always exactly 1 trial", "$n$, fixed in advance"], ans: 1, why: "Binomial needs a fixed $n$; here the number of trials varies.", oi: 11 },
+    { q: "Cloud cover in oktas is:", opts: ["continuous (0–8)", "discrete (0–8)", "qualitative", "always 8"], ans: 1, why: "Oktas are whole numbers from 0 to 8: discrete.", oi: 12 }
   ],
   exam: [
     { src: "Edexcel Oct 2020 · P3 Q4", ctx: "A spinner gives score $X$ with $P(X = x) = kx$ for $x = 1, 2, 3, 4$.",
@@ -520,9 +473,7 @@ X("maths:S4.1", {
         { q: "Find $P(N \\le 3)$.", marks: 2, ms: ["M1: $1 - 0.7^3$", "A1: $0.657$"] },
         { q: "Explain why $N$ does not have a binomial distribution.", marks: 1, ms: ["B1: the number of trials is not fixed (it stops at the first 4)"] },
         { q: "Nia instead spins exactly 10 times and counts the number of 4s, $Y$. Find $P(Y = 2)$.", marks: 2, ms: ["M1: $Y \\sim B(10, 0.3)$; $\\binom{10}{2}0.3^2 0.7^8$", "A1: $0.233$"] }
-      ] },
-    { src: "Edexcel 2018 · P3 Q1", q: "Jamil suggests that the Daily Mean Cloud Cover (oktas) at Hurn in the large data set can be modelled by a discrete uniform distribution on $\\{0, 1, \\dots, 8\\}$. Using this model, find $P(X \\ge 7)$, and comment on the suitability of the model given that a sample of 30 days contained 14 days with cloud cover 7 or 8.", marks: 4,
-      ms: ["M1: $P(X \\ge 7) = \\tfrac29$", "A1: $0.222$", "M1: expected under the model $30 \\times \\tfrac29 = 6.7$ days vs observed 14", "A1: the model is not suitable — high cloud cover is far more common than the uniform model predicts"] }
+      ] }
   ]
 });
 
@@ -544,26 +495,17 @@ X("maths:S4.2", {
     ["$P(X < a) = 0.1$ for $N(200, \\sigma^2)$ with $a = 196$: find $\\sigma$.", "$\\dfrac{196 - 200}{\\sigma} = -1.2816 \\Rightarrow \\sigma = 3.12$."],
     ["Heights: $P(H < 160) = 0.4$ and $P(H > 170) = 0.15$. Find $\\mu$ and $\\sigma$.", "$160 = \\mu - 0.2533\\sigma$ and $170 = \\mu + 1.0364\\sigma$; subtracting, $1.2897\\sigma = 10 \\Rightarrow \\sigma = 7.75$, $\\mu = 162.0$."],
     ["Female heights $N(162, 6.5^2)$: 90th percentile?", "$162 + 1.2816 \\times 6.5 = 170.3$ cm.", 19],
-    ["$P(H > 170 \\mid H > 165)$ for that distribution?", "$\\dfrac{P(Z > 1.231)}{P(Z > 0.4615)} = \\dfrac{0.1092}{0.3222} = 0.339$.", 20],
-    ["Normal distribution: proportion within one sd / two sd of the mean?", "About 68% and 95%.", 21],
+    ["For $H \\sim N(162, 6.5^2)$, find $P(H > 170 \\mid H > 165)$.", "$\\dfrac{P(Z > 1.231)}{P(Z > 0.4615)} = \\dfrac{0.1092}{0.3222} = 0.339$.", 20],
     ["Expected number out of 500 rods with $P(\\text{reject}) = 0.1$?", "50.", 23],
     ["Parameters of the approximation to $B(200, 0.3)$?", "$N(60, 42)$: $\\mu = np = 60$, $\\sigma^2 = np(1-p) = 42$.", "maths:S4.3:10"],
-    ["Continuity correction for $P(X \\ge 70)$?", "$P(Y > 69.5)$.", "maths:S4.3:11"],
-    ["Continuity correction for $P(X < 70)$?", "$P(Y < 69.5)$.", "maths:S4.3:12"],
     ["Continuity correction for $P(65 \\le X \\le 70)$?", "$P(64.5 < Y < 70.5)$.", "maths:S4.3:13"],
     ["$P(X \\ge 70)$ for $B(200, 0.3)$ via the approximation?", "$P\\left(Z > \\dfrac{69.5 - 60}{\\sqrt{42}}\\right) = P(Z > 1.466) = 0.0713$.", "maths:S4.3:14"]
   ],
   quiz: [
     { q: "$X \\sim N(50, 5^2)$: $P(X < 60) =$", opts: ["0.9772", "0.8413", "0.5", "0.0228"], ans: 0, why: "$z = 2$." },
-    { q: "$P(Z < z) = 0.95$: $z =$", opts: ["1.96", "1.6449", "1.2816", "2.3263"], ans: 1, why: "From the table, $\\Phi(1.6449) = 0.95$; 1.96 is for 0.975." },
-    { q: "$P(\\mu - \\sigma < X < \\mu + \\sigma) \\approx$", opts: ["0.5", "0.68", "0.95", "0.997"], ans: 1, why: "About 68% of a normal distribution lies within one sd of the mean." },
-    { q: "To find $\\sigma$ from $P(X < 30) = 0.2$, $\\mu = 35$:", opts: ["$\\sigma = 5/0.8416$", "$\\sigma = 5 \\times 0.8416$", "$\\sigma = 0.2 \\times 5$", "impossible"], ans: 0, why: "$-5/\\sigma = -0.8416$." },
-    { q: "Two unknowns $\\mu$, $\\sigma$ need:", opts: ["one probability statement", "two probability statements", "the mode and one probability", "the median and nothing else"], ans: 1, why: "Each probability gives one equation in $\\mu$ and $\\sigma$; two are needed." },
-    { q: "Normal curve is symmetric about:", opts: ["0", "$\\mu$", "$\\sigma$", "the median only"], ans: 1, why: "Mean = median = mode." },
-    { q: "$P(X = 20)$ exactly for a continuous $X$ is:", opts: ["0", "$P(X < 20)$", "0.5", "undefined"], ans: 0, why: "A single point has zero width, so zero area under the curve." },
-    { q: "$B(100, 0.5)$ approximates to:", opts: ["$N(50, 25)$", "$N(50, 5)$", "$N(100, 25)$", "$N(50, 50)$"], ans: 0, why: "$np = 50$, $npq = 25$." },
-    { q: "$P(X \\le 40)$ with continuity correction:", opts: ["$P(Y < 40.5)$", "$P(Y < 39.5)$", "$P(Y < 40)$", "$P(Y > 40.5)$"], ans: 0, why: "Include the 40 bar." },
-    { q: "Which needs a continuity correction?", opts: ["normal → normal", "binomial → normal", "uniform → uniform", "none"], ans: 1, why: "A discrete binomial is approximated by a continuous normal, so correct by 0.5." }
+    { q: "To find $\\sigma$ from $P(X < 30) = 0.2$, $\\mu = 35$:", opts: ["$\\sigma = 5/0.8416$", "$\\sigma = 5 \\times 0.8416$", "$\\sigma = 0.2 \\times 5$", "impossible"], ans: 0, why: "$-5/\\sigma = -0.8416$.", oi: 9 },
+    { q: "$P(X \\le 40)$ with continuity correction:", opts: ["$P(Y < 40.5)$", "$P(Y < 39.5)$", "$P(Y < 40)$", "$P(Y > 40.5)$"], ans: 0, why: "Include the 40 bar.", oi: 14 },
+    { q: "Which needs a continuity correction?", opts: ["normal → normal", "binomial → normal", "uniform → uniform", "none"], ans: 1, why: "A discrete binomial is approximated by a continuous normal, so correct by 0.5.", oi: 15 }
   ],
   exam: [
     { src: "Edexcel 2018 · P3 Q5", ctx: "The lifetime, $L$ hours, of a battery is modelled by $N(18, 4^2)$. A calculator needs two batteries and works only while both are working.",
@@ -608,16 +550,13 @@ X("maths:S4.3", {
     { callout: { t: "warn", h: "Which way does the 0.5 go?", body: "Draw the bars: $X \\ge 70$ starts at the *left edge* of the 70 bar, i.e. 69.5. $X > 70$ starts at 70.5. If in doubt write the equivalent integer inequality first ($X > 70 \\Leftrightarrow X \\ge 71$)." } }
   ],
   flashcards: [
-    ["Four conditions for a binomial model?", "Fixed number of trials; each trial success/failure; constant probability; trials independent."],
-    ["When is the normal approximation to the binomial reasonable?", "$n$ large and $p$ close to 0.5 (so $np$ and $n(1-p)$ are both large, e.g. $> 5$)."],
     ["Why might a normal model be unsuitable for waiting times?", "Times are positively skewed and cannot be negative.", 15],
     ["A quota sample vs random sample for a binomial model — which is justified?", "Only a random sample gives independent trials with constant $p$.", 16],
     ["Discrete uniform vs binomial — how to tell?", "Uniform: each outcome equally likely (one trial); binomial: counting successes over $n$ trials.", 17]
   ],
   quiz: [
     { q: "Normal approximation is poor when:", opts: ["$p = 0.5$, $n = 100$", "$n = 1000$, $p = 0.4$", "$p = 0.02$, $n = 20$", "$np = 50$, $p = 0.5$"], ans: 2, why: "Skewed, small $np$." },
-    { q: "A model for the number of faulty items in a batch of 50, $p = 0.04$:", opts: ["$B(50, 0.04)$", "$N(2, 1.92)$", "uniform", "geometric"], ans: 0, why: "Binomial; $np$ too small for normal." },
-    { q: "'Height of a randomly chosen adult' is best modelled by:", opts: ["binomial", "normal", "discrete uniform", "none"], ans: 1, why: "Height is continuous and roughly symmetric about its mean." }
+    { q: "A model for the number of faulty items in a batch of 50, $p = 0.04$:", opts: ["$B(50, 0.04)$", "$N(2, 1.92)$", "uniform", "geometric"], ans: 0, why: "Binomial; $np$ too small for normal." }
   ],
   exam: [
     { src: "Edexcel Specimen · P3 Q3", ctx: "A supermarket finds that 30% of its bags of apples contain at least one bruised apple. A random sample of 200 bags is checked; $X$ is the number containing a bruised apple.",
@@ -666,40 +605,29 @@ X("maths:S5.1", {
     { callout: { t: "warn", h: "Common critique targets (AS 2019 Q5)", body: "Wrong tail; $P(X = 8)$ used instead of $P(X \\ge 8)$; hypotheses about the sample not the population; conclusion 'proves' H₁; comparing a probability with 0.95 rather than 0.05." } }
   ],
   flashcards: [
-    ["What is a null hypothesis?", "The default statement about a population parameter, assumed true unless there is sufficient evidence against it.", 15],
-    ["One-tailed vs two-tailed test?", "One-tailed: H₁ specifies a direction ($p > 0.3$); two-tailed: H₁ is $p \\ne 0.3$ and the level is split between the tails.", 16],
     ["What is the actual significance level of a test?", "The probability, under H₀, of the test statistic lying in the critical region.", 18],
-    ["Hypotheses for a test of negative correlation?", "H₀: $\\rho = 0$, H₁: $\\rho < 0$.", 20],
     ["$r = -0.915$, $n = 8$, 5% one-tailed: conclusion?", "Critical value $-0.6215$; $-0.915 < -0.6215$ so reject H₀ — evidence of negative correlation.", 21],
-    ["$r = -0.510$, $n = 10$, 5% one-tailed?", "Critical value $-0.5494$; $-0.510 > -0.5494$ so do not reject H₀ — insufficient evidence.", 22],
     ["How should a conclusion be worded?", "'Reject H₀ (or not); there is (insufficient) evidence at the 5% level that … in context'.", 23],
     ["Why is 'H₀: the coin is fair' not acceptable?", "Hypotheses must be about a parameter: H₀: $p = 0.5$.", 24]
   ],
   quiz: [
     { q: "H₁: $p > 0.2$ is a:", opts: ["two-tailed", "one-tailed (upper)", "one-tailed (lower)", "null"], ans: 1, why: "H₁ says $p$ is larger, so the critical region is in the upper tail." },
-    { q: "A one-tailed test at 5% is changed to two-tailed at 5%. The critical region:", opts: ["stays as one tail of 5%", "splits into two tails of 2.5%", "becomes one tail of 10%", "splits into two tails of 5%"], ans: 1, why: "The 5% is shared between the tails: 2.5% in each." },
-    { q: "p-value 0.03 with level 0.05:", opts: ["reject H₀", "accept H₀", "no conclusion", "increase $n$"], ans: 0, why: "$0.03 < 0.05$." },
-    { q: "'Insufficient evidence to reject H₀' means:", opts: ["H₀ has been proved true", "H₁ has been shown to be true", "the data are consistent with H₀", "the test failed to give a result"], ans: 2, why: "A test can only fail to find evidence; it never proves H₀." },
-    { q: "Critical value for $r$ with $n = 20$, 5% one-tailed:", opts: ["0.3783", "0.4438", "0.5494", "0.6215"], ans: 0, why: "From the PMCC table, $n = 20$ at 5% one-tailed gives 0.3783." },
-    { q: "The actual significance level is:", opts: ["the significance level, always 5%", "$P(\\text{critical region} \\mid H_0)$", "the p-value of the observed result", "$P(\\text{critical region} \\mid H_1)$"], ans: 1, why: "It is the true probability of rejecting H₀ when H₀ is true." },
-    { q: "$r = 0.42$ from 20 pairs; critical value 0.3783 (5%, H₁: $\\rho > 0$). Conclusion:", opts: ["do not reject H₀: no evidence of correlation", "reject H₀: evidence of positive correlation", "reject H₀: evidence of negative correlation", "accept H₀: the correlation is zero"], ans: 1, why: "$0.42 > 0.3783$, so $r$ is in the critical region." }
+    { q: "'Insufficient evidence to reject H₀' means:", opts: ["H₀ has been proved true", "H₁ has been shown to be true", "the data are consistent with H₀", "the test failed to give a result"], ans: 2, why: "A test can only fail to find evidence; it never proves H₀.", oi: 9 },
+    { q: "Critical value for $r$ with $n = 20$, 5% one-tailed:", opts: ["0.3783", "0.4438", "0.5494", "0.6215"], ans: 0, why: "From the PMCC table, $n = 20$ at 5% one-tailed gives 0.3783.", oi: 10 },
+    { q: "$r = 0.42$ from 20 pairs; critical value 0.3783 (5%, H₁: $\\rho > 0$). Conclusion:", opts: ["do not reject H₀: no evidence of correlation", "reject H₀: evidence of positive correlation", "reject H₀: evidence of negative correlation", "accept H₀: the correlation is zero"], ans: 1, why: "$0.42 > 0.3783$, so $r$ is in the critical region.", oi: 12 }
   ],
   exam: [
-    { src: "Edexcel 2018 · P3 Q2", q: "A biologist records the altitude (m) and mean temperature (°C) at 8 weather stations and finds a product moment correlation coefficient of $-0.915$. Test, at the 5% level, whether there is evidence of negative correlation between altitude and temperature. State your hypotheses clearly.", marks: 4,
-      ms: ["B1: H₀: $\\rho = 0$, H₁: $\\rho < 0$", "M1: critical value for $n = 8$, one-tailed 5%: $-0.6215$", "A1: $-0.915 < -0.6215$ so reject H₀", "A1: there is evidence of negative correlation between altitude and temperature"] },
-    { src: "Edexcel 2024 · P3 Q2", ctx: "A biologist fits the regression line $d = 45.2 - 1.8w$ for the distance flown, $d$ km, by 10 migrating birds against their wing damage score $w$. The PMCC is $-0.510$.",
+    { qk: "12", src: "Edexcel 2024 · P3 Q2", ctx: "A biologist fits the regression line $d = 45.2 - 1.8w$ for the distance flown, $d$ km, by 10 migrating birds against their wing damage score $w$. The PMCC is $-0.510$.",
       parts: [
         { q: "Interpret the gradient of the regression line.", marks: 1, ms: ["B1: each extra point of wing damage reduces the distance flown by 1.8 km"] },
         { q: "Test at the 5% level whether there is negative correlation between $w$ and $d$.", marks: 4, ms: ["B1: H₀: $\\rho = 0$, H₁: $\\rho < 0$", "M1: critical value ($n = 10$) $-0.5494$", "A1: $-0.510 > -0.5494$ so do not reject H₀", "A1: insufficient evidence of negative correlation between wing damage and distance"] },
         { q: "State the effect on the conclusion of using a 10% significance level instead.", marks: 1, ms: ["B1: critical value $-0.4428$; $-0.510 < -0.4428$ so H₀ would be rejected"] }
       ] },
-    { level: "AS", src: "Edexcel AS 2019 · P2 Q5", ctx: "A shop believes 15% of customers buy chocolate. After a display is moved, a random sample of 30 customers contains 8 who buy chocolate. Julie tests whether the proportion has increased. Her working: \"H₀: $p = 0.15$, H₁: $p > 0.15$. $P(X = 8) = 0.042 < 0.05$, so the proportion has increased.\"",
+    { qk: "13", level: "AS", src: "Edexcel AS 2019 · P2 Q5", ctx: "A shop believes 15% of customers buy chocolate. After a display is moved, a random sample of 30 customers contains 8 who buy chocolate. Julie tests whether the proportion has increased. Her working:\n\n- H₀: $p = 0.15$, H₁: $p > 0.15$\n- $P(X = 8) = 0.042 < 0.05$, so the proportion has increased",
       parts: [
         { q: "Identify two errors in Julie's test.", marks: 2, ms: ["B1: she should use $P(X \\ge 8)$, not $P(X = 8)$", "B1: the conclusion should be phrased as evidence, not 'has increased' (and should be in terms of rejecting H₀)"] },
         { q: "Carry out the test correctly at the 5% level.", marks: 3, ms: ["M1: $X \\sim B(30, 0.15)$, $P(X \\ge 8) = 1 - 0.9302$", "A1: $0.0698 > 0.05$", "A1: do not reject H₀; insufficient evidence that the proportion buying chocolate has increased"] }
-      ] },
-    { src: "Edexcel 2022 · P3 Q6", q: "Data on hours of exercise per week, $x$, and resting heart rate, $y$, were recorded for 12 adults; the PMCC between $x$ and $\\log_{10} y$ is $-0.897$. Test, at the 1% level, whether there is evidence of negative correlation, and explain what the result implies about the relationship between $x$ and $y$.", marks: 5,
-      ms: ["B1: H₀: $\\rho = 0$, H₁: $\\rho < 0$", "M1: critical value $n = 12$, 1% one-tailed: $-0.6581$", "A1: $-0.897 < -0.6581$ so reject H₀", "A1: evidence of negative correlation between exercise and $\\log$ of heart rate", "B1: so resting heart rate decreases exponentially with hours of exercise"] }
+      ] }
   ]
 });
 
@@ -724,16 +652,13 @@ X("maths:S5.2", {
     ["$X \\sim B(40, 0.25)$, two-tailed 5%: critical region?", "$X \\le 4$ ($0.0160$) or $X \\ge 17$ ($0.0116$); actual level 2.76%."],
     ["$B(30, 0.15)$, observed 8, H₁: $p > 0.15$: p-value?", "$P(X \\ge 8) = 1 - 0.9302 = 0.0698 > 0.05$ — do not reject."],
     ["$B(200, 0.015)$, two-tailed 5%: critical region?", "Lower: none ($P(0) = 0.0487$); upper $X \\ge 7$ ($0.0113$)."],
-    ["How is the conclusion worded when the observed value is in the critical region?", "'Reject H₀; there is evidence at the 5% level that [context]'."],
-    ["Why must the tail probability be ≤ the tail level, not 'closest to'?", "Edexcel's convention: the critical region cannot have probability greater than the significance level."]
+    ["Why must the tail probability be ≤ the tail level, not 'closest to'?", "Edexcel's convention: the critical region cannot have probability greater than the significance level.", 19]
   ],
   quiz: [
-    { q: "H₁: $p \\ne 0.3$ at 5%: each tail uses", opts: ["0.05", "0.025", "0.1", "0.3"], ans: 1, why: "Two-tailed, so the 5% splits into 0.025 in each tail." },
-    { q: "Observed $X = 6$, critical region $X \\ge 6$:", opts: ["reject H₀", "do not reject H₀", "inconclusive", "retest"], ans: 0, why: "$X = 6$ lies in the critical region $X \\ge 6$, so reject H₀." },
-    { q: "$P(X \\ge 5) = 0.0432$, $P(X \\ge 6) = 0.0113$ at 2.5% tail: CR is", opts: ["$X \\ge 5$", "$X \\ge 6$", "$X \\ge 4$", "$X > 6$"], ans: 1, why: "$0.0432 > 0.025$." },
-    { q: "Actual significance level equals:", opts: ["5%, the nominal significance level", "the sum of critical-region probabilities", "the p-value of the observed result", "the sum of the acceptance-region probabilities"], ans: 1, why: "Add $P(X = x)$ under H₀ over every $x$ in the critical region." },
-    { q: "'Test whether the proportion has changed' is:", opts: ["one-tailed", "two-tailed", "not a test", "a PMCC test"], ans: 1, why: "'Changed' = either direction." },
-    { q: "Under H₀: $p = 0.2$ with $n = 25$, the model for $X$ is:", opts: ["$B(25, 0.2)$", "$N(5, 4)$", "uniform", "$B(20, 0.25)$"], ans: 0, why: "25 trials, success probability 0.2 under H₀: $X \\sim B(25, 0.2)$." }
+    { q: "Observed $X = 6$, critical region $X \\ge 6$:", opts: ["reject H₀", "do not reject H₀", "inconclusive", "retest"], ans: 0, why: "$X = 6$ lies in the critical region $X \\ge 6$, so reject H₀.", oi: 6 },
+    { q: "$P(X \\ge 5) = 0.0432$, $P(X \\ge 6) = 0.0113$ at 2.5% tail: CR is", opts: ["$X \\ge 5$", "$X \\ge 6$", "$X \\ge 4$", "$X > 6$"], ans: 1, why: "$0.0432 > 0.025$.", oi: 7 },
+    { q: "Actual significance level equals:", opts: ["5%, the nominal significance level", "the sum of critical-region probabilities", "the p-value of the observed result", "the sum of the acceptance-region probabilities"], ans: 1, why: "Add $P(X = x)$ under H₀ over every $x$ in the critical region.", oi: 8 },
+    { q: "Under H₀: $p = 0.2$ with $n = 25$, the model for $X$ is:", opts: ["$B(25, 0.2)$", "$N(5, 4)$", "uniform", "$B(20, 0.25)$"], ans: 0, why: "25 trials, success probability 0.2 under H₀: $X \\sim B(25, 0.2)$.", oi: 10 }
   ],
   exam: [
     { src: "Edexcel 2022 · P3 Q4", ctx: "A dentist believes 10% of patients arrive late. A new reminder system is introduced and she takes a random sample of 20 patients to test whether the proportion arriving late has changed.",
@@ -778,20 +703,14 @@ X("maths:S5.3", {
   flashcards: [
     ["Doctor's consultation time $N(10, 3^2)$ min; sample of 20 has mean 11.5. Test statistic?", "$z = \\dfrac{11.5 - 10}{3/\\sqrt{20}} = 2.24$.", 11],
     ["Consultation times are $N(10, 3^2)$; a sample of 20 gives $z = 2.24$. What does a one-tailed test for an increase conclude at 5%?", "$2.24 > 1.6449$ (p-value 0.0127) — reject H₀; evidence the mean time has increased.", 12],
-    ["Critical value of $\\bar x$ for that test?", "$10 + 1.6449 \\times \\dfrac{3}{\\sqrt{20}} = 11.10$.", 13],
     ["Heights $N(177, 7.4^2)$; sample of 52 from region B has mean 175.2; two-tailed 5%?", "$z = \\dfrac{-1.8}{7.4/\\sqrt{52}} = -1.75$; $|z| < 1.96$ — do not reject H₀.", 14],
-    ["Standard error of the mean?", "$\\dfrac{\\sigma}{\\sqrt n}$.", 15],
     ["Effect of increasing $n$ on the test?", "Smaller standard error, so the same difference in means gives a larger $|z|$ — more likely to be significant.", 16],
-    ["What assumption about $\\sigma$ is made?", "The population standard deviation is known and unchanged under H₁.", 17],
-    ["Hypotheses for 'the mean is different from 177'?", "H₀: $\\mu = 177$, H₁: $\\mu \\ne 177$.", 18]
+    ["What assumption about $\\sigma$ is made?", "The population standard deviation is known and unchanged under H₁.", 17]
   ],
   quiz: [
-    { q: "$\\sigma = 6$, $n = 36$: sd of $\\bar X$ is", opts: ["6", "1", "$\\tfrac16$", "36"], ans: 1, why: "$6/\\sqrt{36}$." },
-    { q: "One-tailed 5% critical $z$:", opts: ["1.96", "1.6449", "2.3263", "1.2816"], ans: 1, why: "From the table, $P(Z > 1.6449) = 0.05$ in one tail." },
-    { q: "$z = 2.24$ two-tailed 5%:", opts: ["reject H₀", "do not reject", "inconclusive", "need $n$"], ans: 0, why: "$> 1.96$." },
-    { q: "Test statistic for a normal mean test:", opts: ["$\\dfrac{\\bar x - \\mu}{\\sigma}$", "$\\dfrac{\\bar x - \\mu}{\\sigma/\\sqrt n}$", "$\\dfrac{x - \\mu}{\\sigma}$", "$\\dfrac{\\bar x - \\mu}{\\sigma^2/n}$"], ans: 1, why: "$\\bar X \\sim N(\\mu, \\tfrac{\\sigma^2}{n})$, so divide by $\\tfrac{\\sigma}{\\sqrt n}$." },
-    { q: "Quadrupling $n$ halves:", opts: ["the mean $\\mu$", "the standard error", "the standard deviation $\\sigma$", "the p-value of the test"], ans: 1, why: "$\\sqrt 4 = 2$." },
-    { q: "A p-value of 0.0127 at the 1% level:", opts: ["reject H₀ in favour of H₁", "do not reject H₀", "reject H₁ and accept H₀", "accept H₁ at the 1% level"], ans: 1, why: "$0.0127 > 0.01$." }
+    { q: "$z = 2.24$ two-tailed 5%:", opts: ["reject H₀", "do not reject", "inconclusive", "need $n$"], ans: 0, why: "$> 1.96$.", oi: 7 },
+    { q: "Quadrupling $n$ halves:", opts: ["the mean $\\mu$", "the standard error", "the standard deviation $\\sigma$", "the p-value of the test"], ans: 1, why: "$\\sqrt 4 = 2$.", oi: 9 },
+    { q: "A p-value of 0.0127 at the 1% level:", opts: ["reject H₀ in favour of H₁", "do not reject H₀", "reject H₁ and accept H₀", "accept H₁ at the 1% level"], ans: 1, why: "$0.0127 > 0.01$.", oi: 10 }
   ],
   exam: [
     { src: "Edexcel Oct 2020 · P3 Q5", ctx: "The time a doctor spends with a patient is modelled by $N(10, 3^2)$ minutes. After a change in procedure, a random sample of 20 consultations has mean 11.5 minutes. The practice manager believes the mean time has increased.",
