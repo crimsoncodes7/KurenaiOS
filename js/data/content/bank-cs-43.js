@@ -179,8 +179,6 @@ X("compsci:4.3.4.2", {
     ["Precondition for binary search?", "The list must be sorted (and allow direct access by index).", 11],
     ["Maximum comparisons for 1000 items?", "About 10 (2^10 = 1024).", 12],
     ["If the list doubles, how many more comparisons are needed in the worst case?", "One.", 13],
-    ["How is the middle index calculated?", "Mid ← (Low + High) DIV 2.", 14],
-    ["When does the search conclude 'not found'?", "When Low > High — the range is empty.", 15],
     ["Why is binary search unsuitable for a linked list?", "It needs direct access to the middle item; a linked list must be traversed, losing the O(log n) benefit.", 16]
   ],
   quiz: [
@@ -255,9 +253,6 @@ X("compsci:4.3.5.1", {
   flashcards: [
     ["Describe one pass of bubble sort.", "Compare each adjacent pair from the start; swap if out of order; the largest unsorted item 'bubbles' to the end.", 10],
     ["Time complexity of bubble sort?", "O(n²) — up to n passes, each examining n items.", 11],
-    ["How many passes guarantee that n items are sorted?", "n − 1.", 12],
-    ["Describe the swap-flag optimisation.", "Reset a flag at the start of each pass; set it when a swap occurs; stop the outer loop when a whole pass makes no swap.", 13],
-    ["Describe the shrinking-range optimisation.", "After each pass the last item is in place, so reduce the inner loop's upper limit by one each pass.", 14],
     ["Best case of bubble sort with the swap flag?", "An already sorted list — one pass, O(n).", 15],
     ["Why is bubble sort rarely used in practice?", "Quadratic time — for large n, merge sort (O(n log n)) is dramatically faster.", 16],
     ["What is the state of [5, 1, 4, 2] after one pass?", "[1, 4, 2, 5].", 17]
@@ -293,7 +288,6 @@ X("compsci:4.3.5.2", {
   flashcards: [
     ["Describe merge sort.", "Split the list in half repeatedly until each sub-list has one item; then merge pairs of sub-lists into sorted lists by repeatedly taking the smaller front item, until one sorted list remains.", 9],
     ["Time complexity of merge sort?", "O(n log n) — log n levels of splitting, n work per level to merge.", 10],
-    ["How are two sorted lists merged?", "Compare the front items, move the smaller to the output, repeat; when one list is exhausted append the rest of the other.", 11],
     ["Why is merge sort called divide and conquer?", "It divides the problem into halves, solves each recursively and combines (conquers) the results.", 12],
     ["Space cost of merge sort?", "O(n) extra memory for the merged lists (bubble sort is in place).", 13],
     ["What are merge sort's best- and worst-case time complexities?", "Both O(n log n) — the work is the same regardless of initial order.", 14],
@@ -329,7 +323,6 @@ X("compsci:4.3.6.1", {
   flashcards: [
     ["State the purpose of Dijkstra's algorithm.", "To find the shortest (lowest-cost) path from a start node to every other node — or to a particular node — in a weighted graph.", 10],
     ["What does the distance array hold at the end?", "The shortest distance from the start node to each node.", 11],
-    ["What is the predecessor array for?", "It stores the previous node on the shortest path to each node so the path itself can be recreated by working backwards.", 12],
     ["Can Dijkstra's algorithm be used on directed graphs? Unweighted graphs?", "Yes to both (treat unweighted edges as weight 1).", 13],
     ["What restriction does Dijkstra's algorithm have?", "Edge weights must be non-negative.", 14],
     ["Which node is processed next at each step?", "The unvisited node with the smallest current distance (a priority queue).", 15],
@@ -338,11 +331,10 @@ X("compsci:4.3.6.1", {
   ],
   quiz: [
     { q: "The final distance array of Dijkstra's algorithm represents:", opts: ["the shortest route from the start to each node", "the shortest distance from the start to each node", "the number of edges from the start to each node", "the order in which the nodes were visited"], ans: 1, why: "'Shortest route' is what the predecessor array reconstructs." },
-    { q: "Which node does Dijkstra process next?", opts: ["The unvisited node that was most recently added to the queue", "The unvisited node with the smallest tentative distance", "A random unvisited node, to avoid bias in the search", "The unvisited node with the most edges leading from it"], ans: 1, why: "Greedy choice via a priority queue." },
-    { q: "Dijkstra's algorithm CANNOT be used when:", opts: ["the graph is directed", "edges have negative weights", "the graph is unweighted", "the graph has over 1000 nodes"], ans: 1, why: "Negative weights break the greedy assumption." },
-    { q: "A heuristic approach:", opts: ["always finds the optimum, but faster than brute force", "may not find the best solution but reduces the search", "is a data structure for storing the best solution", "is exponential, as it tries every possible route"], ans: 1, why: "The 2017 mark-scheme definition." },
-    { q: "In a trace, a node's distance stops changing once:", opts: ["it is dequeued/visited", "the trace ends", "its predecessor is set", "it has two edges"], ans: 0, why: "Visited nodes have final distances." },
-    { q: "True or false: Dijkstra's algorithm can be used to prove the halting problem cannot be solved.", opts: ["True", "False"], ans: 1, why: "Unrelated — the 2022 true/false row." }
+    { oi: 6, q: "Dijkstra's algorithm CANNOT be used when:", opts: ["the graph is directed", "edges have negative weights", "the graph is unweighted", "the graph has over 1000 nodes"], ans: 1, why: "Negative weights break the greedy assumption." },
+    { oi: 7, q: "A heuristic approach:", opts: ["always finds the optimum, but faster than brute force", "may not find the best solution but reduces the search", "is a data structure for storing the best solution", "is exponential, as it tries every possible route"], ans: 1, why: "The 2017 mark-scheme definition." },
+    { oi: 8, q: "In a trace, a node's distance stops changing once:", opts: ["it is dequeued/visited", "the trace ends", "its predecessor is set", "it has two edges"], ans: 0, why: "Visited nodes have final distances." },
+    { oi: 9, q: "True or false: Dijkstra's algorithm can be used to prove the halting problem cannot be solved.", opts: ["True", "False"], ans: 1, why: "Unrelated — the 2022 true/false row." }
   ],
   exam: [
     { src: "AQA 2018 · P1 Q03.5", ctx: "A weighted, undirected graph has nodes 1–5 with edges 1–2 (4), 1–3 (1), 3–2 (2), 2–4 (5), 3–4 (8), 4–5 (3). Dijkstra's algorithm is run from node 1, using arrays `D` (distance, initially ∞ except D[1] = 0) and `P` (predecessor, initially −1).",

@@ -16,10 +16,9 @@ X("compsci:4.4.4.1", {
     ["What two measures are used to compare algorithms?", "Time complexity (how running time grows with input size n) and space complexity (how memory grows)."],
     ["Which of the standard algorithms needs extra memory proportional to n?", "Merge sort (for the merged lists); bubble sort is in place."],
     ["Which standard algorithm requires sorted input?", "Binary search."],
-    ["Why compare algorithms by growth rate rather than by timing?", "Timings depend on hardware and implementation; growth rate describes how the algorithm scales for any machine."],
-    ["Between O(n log n) and O(n²), which grows faster?", "O(n²)."],
-    ["What is the space complexity of a recursive algorithm of depth d?", "O(d) for the stack frames."],
-    ["Which is better for a nearly sorted list: bubble sort with a flag or merge sort?", "Bubble sort with a flag — O(n) best case; merge sort is always O(n log n)."],
+    ["Between O(n log n) and O(n²), which grows faster?", "O(n²).", 13],
+    ["What is the space complexity of a recursive algorithm of depth d?", "O(d) for the stack frames.", 14],
+    ["Which is better for a nearly sorted list: bubble sort with a flag or merge sort?", "Bubble sort with a flag — O(n) best case; merge sort is always O(n log n).", 15],
     ["How many comparisons does a loop over every pair (j from i + 1) make for n items, and what order is it?", "n(n − 1) ÷ 2 (45 for n = 10): O(n²).", 100],
     ["An O(n²) algorithm takes 2 s for 1 000 items. Roughly how long for 2 000?", "About 8 s: doubling n multiplies the work by 2² = 4.", 101]
   ],
@@ -29,7 +28,6 @@ X("compsci:4.4.4.1", {
     { q: "Sorting 10 000 items: bubble sort ≈ 10⁸ operations; merge sort ≈", opts: ["1.3 × 10⁴", "1.3 × 10⁵", "1.3 × 10⁶", "1.0 × 10⁸"], ans: 1, why: "n log₂ n ≈ 10 000 × 13.3." },
     { q: "All of linear search, binary search, bubble sort and merge sort are:", opts: ["intractable (too slow)", "tractable (polynomial)", "exponential (2ⁿ steps)", "non-computable (no algorithm)"], ans: 1, why: "Polynomial or better." },
     { q: "'O(log n)' for merge sort scores:", opts: ["full marks", "nothing — NE", "half", "bonus"], ans: 1, why: "It must be O(n log n)." },
-    { q: "Comparing algorithms fairly uses:", opts: ["stopwatch timings on one PC", "growth rate as n increases", "the number of lines of code", "the language each is written in"], ans: 1, why: "Machine-independent." },
     { qk: "100", q: "A loop halves the items left on each pass until one remains. For n items it runs about", opts: ["n ÷ 2 times", "n² times", "log₂ n times", "2ⁿ times"], ans: 2, why: "Repeated halving from n down to 1 takes log₂ n steps: 16 → 8 → 4 → 2 → 1 is four." },
     { qk: "101", q: "A list of 1 000 000 items will be searched only once. The quicker plan is", opts: ["one linear search", "merge sort, then binary search", "bubble sort, then binary search", "merge sort, then linear search"], ans: 0, why: "A single linear search is at most 10⁶ comparisons; sorting alone costs about 2 × 10⁷." }
   ],
@@ -52,14 +50,12 @@ X("compsci:4.4.4.2", {
     { callout: { t: "memorise", body: "**Constant-time** (2023, 2 marks): *as the size of the input increases, the time taken remains the same.* A linear function f(n) = an + b; polynomial nᵏ; exponential kⁿ; logarithmic log n. Know how to read them off a graph and which dominates." }}
   ],
   flashcards: [
-    ["How many permutations of n distinct items are there?", "n! = n × (n − 1) × … × 1."],
-    ["Why does a word with repeated letters have fewer than n! distinct anagrams?", "Swapping identical letters gives the same string, so some permutations are duplicates."],
-    ["Order these by growth for large n: n², 2ⁿ, log n, n!, n.", "log n < n < n² < 2ⁿ < n!."],
-    ["What is a linear function?", "f(n) = an + b — output grows in direct proportion to n."],
-    ["What is an exponential function?", "f(n) = kⁿ — the variable is in the exponent; doubles (or more) with each unit increase of n."],
-    ["What is a logarithmic function?", "f(n) = log n — grows very slowly; doubling n adds a constant."],
-    ["What does 'constant time' mean?", "The time taken does not change as the input size increases."],
-    ["Evaluate 2¹⁰ and log₂ 1024.", "1024 and 10."]
+    ["Order these by growth for large n: n², 2ⁿ, log n, n!, n.", "log n < n < n² < 2ⁿ < n!.", 12],
+    ["What is a linear function?", "f(n) = an + b — output grows in direct proportion to n.", 13],
+    ["What is an exponential function?", "f(n) = kⁿ — the variable is in the exponent; doubles (or more) with each unit increase of n.", 14],
+    ["What is a logarithmic function?", "f(n) = log n — grows very slowly; doubling n adds a constant.", 15],
+    ["What does 'constant time' mean?", "The time taken does not change as the input size increases.", 16],
+    ["Evaluate 2¹⁰ and log₂ 1024.", "1024 and 10.", 17]
   ],
   quiz: [
     { q: "How many ways can 3 of 5 runners take gold, silver and bronze?", opts: ["60", "125", "10", "15"], ans: 0, why: "Order matters for gold, silver and bronze, so it is a permutation: 5 × 4 × 3 = 60." },
@@ -104,12 +100,10 @@ X("compsci:4.4.4.3", {
     ["Order of complexity for accessing an array element by index?", "O(1).", 17]
   ],
   quiz: [
-    { q: "O(5n + 20) simplifies to:", opts: ["O(n)", "O(5n)", "O(20)", "O(n²)"], ans: 0, why: "Big-O ignores constant factors and lower-order terms, so 5n + 20 reduces to O(n)." },
-    { q: "Two nested loops over n items give:", opts: ["O(n)", "O(2n)", "O(n²)", "O(log n)"], ans: 2, why: "A loop of n inside a loop of n does n × n steps, which is O(n²)." },
-    { q: "Which is the slowest-growing?", opts: ["O(n)", "O(log n)", "O(n log n)", "O(1)"], ans: 3, why: "Constant time does not grow at all, so O(1) grows more slowly than any of the others." },
-    { q: "Naive recursive Fibonacci is:", opts: ["O(n)", "O(n²)", "O(2ⁿ)", "O(log n)"], ans: 2, why: "Two calls per call — exponential." },
-    { q: "'Each comparison halves the remaining list' justifies:", opts: ["O(n log n)", "O(log n)", "O(n²)", "O(1)"], ans: 1, why: "Halving ⇒ logarithm." },
-    { q: "Big-O describes:", opts: ["exact running time in seconds", "growth rate in the worst case", "memory use only, never time", "the best case for any input"], ans: 1, why: "Asymptotic upper bound." }
+    { oi: 6, q: "Which is the slowest-growing?", opts: ["O(n)", "O(log n)", "O(n log n)", "O(1)"], ans: 3, why: "Constant time does not grow at all, so O(1) grows more slowly than any of the others." },
+    { oi: 7, q: "Naive recursive Fibonacci is:", opts: ["O(n)", "O(n²)", "O(2ⁿ)", "O(log n)"], ans: 2, why: "Two calls per call — exponential." },
+    { oi: 8, q: "'Each comparison halves the remaining list' justifies:", opts: ["O(n log n)", "O(log n)", "O(n²)", "O(1)"], ans: 1, why: "Halving ⇒ logarithm." },
+    { oi: 9, q: "Big-O describes:", opts: ["exact running time in seconds", "growth rate in the worst case", "memory use only, never time", "the best case for any input"], ans: 1, why: "Asymptotic upper bound." }
   ],
   exam: [
     { src: "AQA 2020 · P1 Q03.6", q: "State the time complexity of a linear search and explain why it has this complexity.", marks: 2,
@@ -140,8 +134,6 @@ X("compsci:4.4.5.1", {
     ["What is a Universal Turing Machine?", "A Turing machine that can simulate any other Turing machine: the description of that machine and its input are written on the UTM's tape and the UTM executes them — it acts as an interpreter.", 11],
     ["What does a transition rule specify?", "For a current state and symbol read: the new state, the symbol to write and the direction to move (L/R).", 13],
     ["When does a Turing machine halt?", "When it enters a halting state (or no rule applies to the current state and symbol).", 14],
-    ["What is the significance of the Turing machine?", "It is a formal model of computation: anything computable can be computed by a TM (Church–Turing thesis).", 15],
-    ["What is a transition function?", "The mapping δ(state, symbol) → (state′, symbol′, direction) that defines the machine's behaviour.", 16],
     ["Describe a TM that adds 1 to a binary number.", "Move right to the end; move left replacing 1s with 0s until a 0 (or blank) is found; write 1; halt.", 17]
   ],
   quiz: [

@@ -89,7 +89,7 @@ C["compsci:4.4.1.1"] = {
         { m: "If it is an onion, the box labelled \"onions\" contains carrots and the box labelled \"carrots\" contains onions and carrots. If it is a carrot, the box labelled \"carrots\" contains onions and the box labelled \"onions\" contains onions and carrots;", mk: "1" }
       ], result: "Sample the \"onions and carrots\" box" } },
     { worked: { tag: "exam", title: "Why Statement 1 fails", src: "A-level June 2022 · P1 Q03.1 · 1 mark",
-      q: "Which one of these six statements is correct? 1: All of the statements below are correct. 2: None of the statements below are correct. 3: All of the statements above are correct. 4: Exactly one of the statements above is correct. 5: None of the statements above are correct. 6: None of the statements above are correct. Explain why Statement 1 is not correct.",
+      q: "Which one of these six statements is correct?\n\n1. All of the statements below are correct.\n2. None of the statements below are correct.\n3. All of the statements above are correct.\n4. Exactly one of the statements above is correct.\n5. None of the statements above are correct.\n6. None of the statements above are correct.\n\nExplain why Statement 1 is not correct.",
       steps: [{ m: "If Statement 1 were correct, Statement 5 (or 6) would be correct, which would mean Statement 1 is false // it would make Statement 2 correct, so all the others would have to be both correct and incorrect // only one statement is correct, so Statement 1 cannot be;", mk: "1" }],
       result: "It contradicts itself through 5 and 6" } },
     { worked: { tag: "exam", title: "Which statement is correct?", src: "A-level June 2022 · P1 Q03.2 · 1 mark",
@@ -120,7 +120,6 @@ C["compsci:4.4.1.1"] = {
   ],
   flashcards: [
     ["How to test a syllogism?", "Draw every arrangement consistent with the statements; a conclusion follows only if true in all of them."],
-    ["Mislabelled boxes: which box to sample?", "The one labelled \"onions and carrots\" — it must hold only one kind.", 3],
     ["What does an answer of \"No\" tell others?", "Every case in which the person would have known is eliminated.", 5],
     ["How should you check a logic-puzzle solution?", "Test it against every rule, not only those used to find it.", 6],
     ["How does proof by contradiction work?", "Assume the claim and derive something impossible, so the claim is false.", 7]
@@ -179,7 +178,7 @@ C["compsci:4.4.1.2"] = {
       steps: [
         { m: "Only half the string needs checking: pairs (0, Max), (1, Max − 1)… meet in the middle — loop i < s.Length / 2.", mk: "1" },
         { m: "Stop as soon as a mismatch is found: return false inside the loop.", mk: "1" },
-        { m: "static bool IsPalindrome(string s) { for (int i = 0; i < s.Length / 2; i++) if (s[i] != s[s.Length - 1 - i]) return false; return true; }", mk: "code", n: "madam: 2 comparisons instead of 5; adam: stops after 1." }
+        { m: "```cs\nstatic bool IsPalindrome(string s)\n{\n    for (int i = 0; i < s.Length / 2; i++)\n        if (s[i] != s[s.Length - 1 - i]) return false;\n    return true;\n}\n```", mk: "code", n: "madam: 2 comparisons instead of 5; adam: stops after 1." }
       ], result: "Half the comparisons, early exit" , "try": [{"predict":{"code":"foreach (string s in new string[] { \"racecar\", \"rabbit\" })\n{\n    int max = s.Length - 1, slow = 0, fast = 0;\n    for (int i = 0; i <= max; i++) slow++;          // the original: every i\n    for (int i = 0; i < s.Length / 2; i++)          // half the string …\n    {\n        fast++;\n        if (s[i] != s[max - i]) break;              // … and stop at a mismatch\n    }\n    Console.WriteLine(s + \" \" + slow + \" \" + fast);\n}","expect":"racecar 7 3\nrabbit 6 1","cap":"Count the comparisons each version makes."}}]} },
 
     { page: "In exam questions" },
@@ -188,7 +187,7 @@ C["compsci:4.4.1.2"] = {
       steps: [{ m: "A sequence of steps (to complete a task);", mk: "1", n: "R. \"set\" of steps — order matters." }, { m: "That always terminates // runs in finite time;", mk: "1" }],
       result: "Sequence of steps that always terminates" } },
     { worked: { tag: "exam", title: "Trace the prime test with 5", src: "AS June 2018 · P1 Q02.1 · 3 marks",
-      q: "INPUT Number; Root ← 1; WHILE (Root * Root) < Number: Root ← Root + 1; ENDWHILE; d ← 2; FactorFound ← FALSE; WHILE (FactorFound = FALSE) AND (d <= Root): r ← Number MOD d; IF r = 0 THEN FactorFound ← TRUE; d ← d + 1; ENDWHILE; IF FactorFound = FALSE THEN OUTPUT \"Prime\" ELSE OUTPUT \"Not prime\". Hand-trace with columns Number, Root, d, FactorFound, r, Output, using 5 as the input.",
+      q: "Consider the following algorithm:\n\n```pseudo\nINPUT Number\nRoot ← 1\nWHILE (Root * Root) < Number\n  Root ← Root + 1\nENDWHILE\nd ← 2\nFactorFound ← FALSE\nWHILE (FactorFound = FALSE) AND (d <= Root)\n  r ← Number MOD d\n  IF r = 0 THEN FactorFound ← TRUE\n  d ← d + 1\nENDWHILE\nIF FactorFound = FALSE THEN\n  OUTPUT \"Prime\"\nELSE\n  OUTPUT \"Not prime\"\nENDIF\n```\n\nHand-trace with columns `Number`, `Root`, `d`, `FactorFound`, `r`, and `Output`, using `5` as the input.",
       steps: [
         { m: "Root: 1, 2, 3; d: 2, 3, 4;", mk: "1" },
         { m: "r: 1, 2;", mk: "1" },
@@ -200,21 +199,21 @@ C["compsci:4.4.1.2"] = {
         { m: "Root: 1, 2, 3, 4, 5; d: 2, 3, 4, 5, 6;", mk: "1" },
         { m: "r: 1, 1, 1, 0;", mk: "1" },
         { m: "FactorFound FALSE then TRUE; Output Not prime;", mk: "1", n: "The loop stops because FactorFound is TRUE, even though d (6) has passed Root." }
-      ], result: "r 0 at d = 5 → Not prime" , "try": [{"trace":{"code":"Root ← 1\nWHILE (Root * Root) < Number\n  Root ← Root + 1\nENDWHILE\nd ← 2\nFactorFound ← FALSE\nWHILE (FactorFound = FALSE) AND (d <= Root)\n  r ← Number MOD d\n  IF r = 0 THEN FactorFound ← TRUE\n  d ← d + 1\nENDWHILE\nIF FactorFound = FALSE THEN OUTPUT \"Prime\"\nELSE OUTPUT \"Not prime\"","lang":"pseudo","cols":["Root","d","FactorFound","r","Output"],"rows":[["1","","","",""],["2","","","",""],["3","","","",""],["4","","","",""],["","2","FALSE","",""],["","3","","1",""],["","4","TRUE","0",""],["","","","","Not prime"]],"given":[[0,0],[0,1],[0,2],[0,3],[0,4],[4,1],[5,1],[6,1]],"cap":"Number = 15. A value is written only on the row where it changes; d is given to show where each pass of the second loop starts."}}]} },
+      ], result: "r 0 at d = 5 → Not prime" , "try": [{"notesOnly":true,"trace":{"code":"Root ← 1\nWHILE (Root * Root) < Number\n  Root ← Root + 1\nENDWHILE\nd ← 2\nFactorFound ← FALSE\nWHILE (FactorFound = FALSE) AND (d <= Root)\n  r ← Number MOD d\n  IF r = 0 THEN FactorFound ← TRUE\n  d ← d + 1\nENDWHILE\nIF FactorFound = FALSE THEN OUTPUT \"Prime\"\nELSE OUTPUT \"Not prime\"","lang":"pseudo","cols":["Root","d","FactorFound","r","Output"],"rows":[["1","","","",""],["2","","","",""],["3","","","",""],["4","","","",""],["","2","FALSE","",""],["","3","","1",""],["","4","TRUE","0",""],["","","","","Not prime"]],"given":[[0,0],[0,1],[0,2],[0,3],[0,4],[4,1],[5,1],[6,1]],"cap":"Number = 15. A value is written only on the row where it changes; d is given to show where each pass of the second loop starts."}}]} },
     { worked: { tag: "exam", title: "Purpose of the de-duplicator", src: "AS June 2016 · P1 Q04.2 · 1 mark",
       q: "An algorithm copies Items[0] into NewItems, then for each later item checks whether it is already in NewItems and copies it across only if it is not. For Items = 12, 25, 12, 53 it gives NewItems = 12, 25, 53. Explain the purpose of the algorithm.",
       steps: [{ m: "To remove duplicate items from the list // NewItems contains the unique items from Items;", mk: "1" }],
       result: "Removes duplicates" } },
     { worked: { tag: "exam", title: "Purpose of the MOD/DIV loop", src: "AS June 2019 · P1 Q03.3 · 1 mark",
-      q: "NumberOut ← 0; Count ← 0; WHILE NumberIn > 0: Count ← Count + 1; PartValue ← NumberIn MOD 2; NumberIn ← NumberIn DIV 2; FOR i ← 1 TO Count − 1: PartValue ← PartValue * 10; ENDFOR; NumberOut ← NumberOut + PartValue; ENDWHILE; OUTPUT NumberOut. What is the purpose of this algorithm?",
+      q: "Consider the following algorithm:\n\n```pseudo\nNumberOut ← 0\nCount ← 0\nWHILE NumberIn > 0\n  Count ← Count + 1\n  PartValue ← NumberIn MOD 2\n  NumberIn ← NumberIn DIV 2\n  FOR i ← 1 TO Count − 1\n    PartValue ← PartValue * 10\n  ENDFOR\n  NumberOut ← NumberOut + PartValue\nENDWHILE\nOUTPUT NumberOut\n```\n\nWhat is the purpose of this algorithm?",
       steps: [{ m: "Converts a (positive) decimal/denary number to binary;", mk: "1", n: "22 → 10110, 29 → 11101 (checked in 4.1.1.3)." }],
-      result: "Denary → binary" , "try": [{"predict":{"code":"foreach (int start in new int[] { 13, 6 })\n{\n    int numberIn = start, numberOut = 0, count = 0;\n    while (numberIn > 0)\n    {\n        count = count + 1;\n        int partValue = numberIn % 2;\n        numberIn = numberIn / 2;\n        for (int i = 1; i <= count - 1; i++) partValue = partValue * 10;\n        numberOut = numberOut + partValue;\n    }\n    Console.WriteLine(numberOut);\n}","expect":"1101\n110","cap":"The algorithm in C#, for 13 and then 6."}}]} },
+      result: "Denary → binary" , "try": [{"notesOnly":true,"predict":{"code":"foreach (int start in new int[] { 13, 6 })\n{\n    int numberIn = start, numberOut = 0, count = 0;\n    while (numberIn > 0)\n    {\n        count = count + 1;\n        int partValue = numberIn % 2;\n        numberIn = numberIn / 2;\n        for (int i = 1; i <= count - 1; i++) partValue = partValue * 10;\n        numberOut = numberOut + partValue;\n    }\n    Console.WriteLine(numberOut);\n}","expect":"1101\n110","cap":"The algorithm in C#, for 13 and then 6."}}]} },
     { worked: { tag: "exam", title: "What the valid inputs share", src: "AS June 2020 · P1 Q03.3 · 1 mark",
       q: "An algorithm multiplies Product by 1, 2, 3, … until Product ≥ X; if X = Product it outputs 1 to Factor, otherwise \"No result\". What is true for all valid inputs for X that output a list of numbers, which is not true for inputs that output No result?",
       steps: [{ m: "X is a factorial number (greater than 1) // X is the product of consecutive whole numbers starting at 1;", mk: "1", n: "720 = 6! → 1 2 3 4 5 6; 600 → No result." }],
       result: "X is a factorial" } },
     { worked: { tag: "exam", title: "Why the palindrome check is inefficient", src: "AS June 2025 · P1 Q03.3 · 1 mark",
-      q: "A palindrome check sets Matched ← True, then FOR i ← 0 TO Max: IF S[i] ≠ S[Max − i] THEN Matched ← False. State one reason why the algorithm is not efficient.",
+      q: "A palindrome check sets `Matched ← True`, then runs:\n\n```pseudo\nFOR i ← 0 TO Max\n  IF S[i] ≠ S[Max − i] THEN\n    Matched ← False\n  ENDIF\nENDFOR\n```\n\nState one reason why the algorithm is not efficient.",
       steps: [{ m: "It makes unnecessary comparisons — the first and last letters are compared twice // the loop continues after a mismatch has been found // it keeps iterating after Matched has been set to False;", mk: "1" }],
       result: "Repeats comparisons; doesn't stop early" } },
 

@@ -147,7 +147,7 @@ C["compsci:4.4.2.1"] = {
       steps: [
         { m: "111011x: NO — the 0 goes to S2, then 1 sends it to S4;", mk: "1" },
         { m: "1110x: YES; 111001x: NO (a second 0 from S2 goes to S4);", mk: "1", n: "1 mark for one row correct, 2 for all rows. Checked in C#." }
-      ], result: "NO · YES · NO" , "try": [{"grid":{"cols":["String","Accepted?"],"rows":[["x","YES"],["0x","YES"],["11x0","NO"],["100x","NO"],["1111x","YES"],["01x","NO"]],"given":[[0,0],[1,0],[2,0],[3,0],[4,0],[5,0]],"cap":"Six more strings for the same machine: YES or NO."}}]} },
+      ], result: "NO · YES · NO" , "try": [{"notesOnly":true,"grid":{"cols":["String","Accepted?"],"rows":[["x","YES"],["0x","YES"],["11x0","NO"],["100x","NO"],["1111x","YES"],["01x","NO"]],"given":[[0,0],[1,0],[2,0],[3,0],[4,0],[5,0]],"cap":"Six more strings for the same machine: YES or NO."}}]} },
     { worked: { tag: "exam", title: "Describe the language", src: "AS June 2016 · P1 Q02.2 · 3 marks",
       q: "In words, describe the language (set of strings) that is accepted by the FSM above.",
       steps: [
@@ -180,7 +180,7 @@ C["compsci:4.4.2.1"] = {
       steps: [
         { m: "Rows with current state S2: (S2, a, S5) and (S2, b, S4);", mk: "1" },
         { m: "Rows with new state S2: (S0, b, S2) and (S5, b, S2);", mk: "1", n: "I. order of rows." }
-      ], result: "S2 a→S5 · S2 b→S4 · S0 b→S2 · S5 b→S2" , "try": [{"grid":{"cols":["Current state","Input","New state"],"rows":[["S0","a","S1"],["S0","b","S2"],["S1","a","S4"],["S1","b","S3"],["S3","a","S1"],["S3","b","S4"]],"given":[[0,0],[0,1],[1,0],[1,1],[2,0],[2,1],[3,0],[3,1],[4,0],[4,1],[5,0],[5,1]],"cap":"Now the rows for the other side of the machine: S0, S1 and S3."}}]} },
+      ], result: "S2 a→S5 · S2 b→S4 · S0 b→S2 · S5 b→S2" , "try": [{"notesOnly":true,"grid":{"cols":["Current state","Input","New state"],"rows":[["S0","a","S1"],["S0","b","S2"],["S1","a","S4"],["S1","b","S3"],["S3","a","S1"],["S3","b","S4"]],"given":[[0,0],[0,1],[1,0],[1,1],[2,0],[2,1],[3,0],[3,1],[4,0],[4,1],[5,0],[5,1]],"cap":"Now the rows for the other side of the machine: S0, S1 and S3."}}]} },
     FIG_AL21,
 
     { page: "Exam toolkit" },
@@ -388,7 +388,7 @@ C["compsci:4.4.2.3"] = {
       steps: [
         { m: "1 Y · 11 N · 01 Y · 0111 Y;", mk: "2", n: "The language is {1} ∪ {0 followed by one or more 1s}." },
         { m: "0101 N · 111 N · 0011 N;", mk: "1", n: "1 mark for four rows, 2 for five, 3 for all seven. Checked in C#." }
-      ], result: "Y N Y Y N N N" , "try": [{"grid":{"cols":["String","Matches 0*1(0|1)?"],"rows":[["1","Y"],["01","Y"],["0010","Y"],["100","N"],["011","Y"],["0","N"]],"given":[[0,0],[1,0],[2,0],[3,0],[4,0],[5,0]],"cap":"The same task for another expression. Then try them in the sandbox below."}},{"lab":"regex-sandbox"}]} },
+      ], result: "Y N Y Y N N N" , "try": [{"notesOnly":true,"grid":{"cols":["String","Matches 0*1(0|1)?"],"rows":[["1","Y"],["01","Y"],["0010","Y"],["100","N"],["011","Y"],["0","N"]],"given":[[0,0],[1,0],[2,0],[3,0],[4,0],[5,0]],"cap":"The same task for another expression. Then try them in the sandbox below."}}]} },
     { worked: { tag: "exam", title: "A regex for a UK postcode", src: "A-level June 2017 · P1 Q02.4 · 4 marks",
       q: "A UK postcode (ignoring spaces) is 1 or 2 letters, followed by 1 digit or 2 digits or 1 digit then 1 letter, followed by 1 digit, followed by 2 letters. \\d means any digit and \\a any letter (e.g. \\d\\d\\a\\d is two digits, a letter, a digit). Write a regular expression for a valid UK postcode, using the | metacharacter only once.",
       steps: [
@@ -446,11 +446,10 @@ C["compsci:4.4.2.3"] = {
     ["What does ? mean in a regular expression?", "Zero or one — the preceding element is optional."],
     ["What does | mean in a regular expression?", "Alternation: the element before OR the element after."],
     ["Which of 1, 11, 01, 0111 match the regular expression 1|01+?", "1, 01, 0111 (not 11)."],
-    ["What regular expression did AQA give for a UK postcode in 2017?", "\\a\\a?\\d(\\a|\\d)?\\d\\a\\a."],
-    ["Regex for odd-length alternating a/b strings (2021)?", "a(ba)*|b(ab)*."],
-    ["Regex for {a, abb, abbbb, …} ∪ {bb, bbbb, …}?", "a(bb)*|(bb)+."],
-    ["Relationship between regexes and FSMs?", "Equivalent: both define exactly the regular languages."],
-    ["Why anchor a regex in C# with ^ $?", "IsMatch otherwise accepts a match anywhere in the string."]
+    ["Regex for odd-length alternating a/b strings (2021)?", "a(ba)*|b(ab)*.", 6],
+    ["Regex for {a, abb, abbbb, …} ∪ {bb, bbbb, …}?", "a(bb)*|(bb)+.", 7],
+    ["Relationship between regexes and FSMs?", "Equivalent: both define exactly the regular languages.", 8],
+    ["Why anchor a regex in C# with ^ $?", "IsMatch otherwise accepts a match anywhere in the string.", 9]
   ],
   quiz: [
     { q: "Which string matches ab+?", opts: ["abbb", "aabb", "babb", "abba"], ans: 0, why: "One or more b's after a." },
@@ -493,7 +492,7 @@ C["compsci:4.4.2.4"] = {
 
     { page: "Beyond regular" },
     { code: { lang: "csharp", src: "// { aⁿbⁿ | n ≥ 0 } needs to COUNT the a's — unbounded memory, so no FSM/regex can do it.\n// A recursive (BNF-style) rule can:   <s> ::= ε | a <s> b\nstatic bool AnBn(string s) =>\n    s == \"\" || (s.Length >= 2 && s[0] == 'a' && s[^1] == 'b' && AnBn(s[1..^1]));\n\nConsole.WriteLine(AnBn(\"aabb\") + \" \" + AnBn(\"aab\"));   // True False", cap: "Checked by running. Recursion = a stack = memory an FSM does not have." } },
-    { worked: { tag: "variation", title: "Regular or not?", q: "Are these regular? (a) {aⁿb | n ≥ 1}; (b) (a|b)+ab*; (c) {aⁿbⁿ | n ≥ 1}; (d) <string> ::= <term><op><term> | ( <string> ), <op> ::= ÷ | −, <term> ::= a | b.",
+    { worked: { tag: "variation", title: "Regular or not?", q: "Are these languages regular?\n\n- **(a)** `{aⁿb | n ≥ 1}`\n- **(b)** `(a|b)+ab*`\n- **(c)** `{aⁿbⁿ | n ≥ 1}`\n- **(d)**\n```BNF\n<string> ::= <term><op><term> | ( <string> )\n<op>     ::= ÷ | −\n<term>   ::= a | b\n```",
       steps: [
         { m: "(a) Yes — a+b. (b) Yes — it is a regular expression.", mk: "1" },
         { m: "(c) No — equal numbers of a's and b's need unbounded counting.", mk: "1" },
@@ -508,7 +507,7 @@ C["compsci:4.4.2.4"] = {
 
     { page: "In exam questions" },
     { worked: { tag: "exam", title: "True or false about regular languages", src: "A-level June 2020 · P1 Q02.1 · 2 marks",
-      q: "A regular language is a language that can be defined by a regular expression. Show which statements are true or false: (a) all regular languages can be represented using a finite state machine without outputs; (b) the set of strings defined by a regular language is always finite in size; (c) there are some languages which can be represented in Backus-Naur Form (BNF) that are not regular languages.",
+      q: "A regular language is a language that can be defined by a regular expression. Show which statements are true or false:\n\n- **(a)** all regular languages can be represented using a finite state machine without outputs\n- **(b)** the set of strings defined by a regular language is always finite in size\n- **(c)** there are some languages which can be represented in Backus-Naur Form (BNF) that are not regular languages.",
       steps: [
         { m: "(a) True · (b) False;", mk: "1", n: "b+ is regular and infinite." },
         { m: "(c) True;", mk: "1", n: "1 mark for two rows correct; 2 for all three." }
@@ -628,19 +627,19 @@ C["compsci:4.4.3.1"] = {
         { m: "87.000: Yes;", mk: "1" },
         { m: "97+12: No — there is no decimal point, and + may only follow E;", mk: "1" },
         { m: "12.31E+12: Yes;", mk: "1", n: "One mark per correct row. Checked against the described syntax in C#." }
-      ], result: "Yes · No · Yes" , "try": [{"grid":{"cols":["String","Valid real number?"],"rows":[["0.5","Yes"],["3.14E-2","Yes"],[".5","No"],["7.E+1","No"],["42","No"]],"given":[[0,0],[1,0],[2,0],[3,0],[4,0]],"cap":"The same definition: natural, point, natural, then optionally E, a sign and a natural."}},{"lab":"bnf-checker"}]} },
+      ], result: "Yes · No · Yes" , "try": [{"notesOnly":true,"grid":{"cols":["String","Valid real number?"],"rows":[["0.5","Yes"],["3.14E-2","Yes"],[".5","No"],["7.E+1","No"],["42","No"]],"given":[[0,0],[1,0],[2,0],[3,0],[4,0]],"cap":"The same definition: natural, point, natural, then optionally E, a sign and a natural."}}]} },
     { worked: { tag: "exam", title: "BNF for a natural number", src: "A-level June 2017 · P1 Q01.2 · 2 marks",
-      q: "In BNF a digit is defined as <digit> ::= 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9. Write a BNF production rule to define a natural number (one or more digits, drawn as a loop in the syntax diagram).",
+      q: "In BNF a digit is defined as:\n\n```BNF\n<digit> ::= 0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9\n```\n\nWrite a BNF production rule to define a natural number (one or more digits, drawn as a loop in the syntax diagram).",
       steps: [
         { m: "Non-recursive case: <natural> ::= <digit> …", mk: "1" },
         { m: "… | <digit><natural> — the recursive case;", mk: "1", n: "A. the cases swapped, or other names for <natural>. Max 1 if any errors, e.g. a missing |." }
       ], result: "<natural> ::= <digit> | <digit><natural>" } },
     { worked: { tag: "exam", title: "One rule for <sentence>", src: "A-level June 2020 · P1 Q02.2 · 1 mark",
-      q: "Rules: <sentence> ::= <np><v>; <sentence> ::= <v><np>; <np> ::= <d><n>; <n> ::= human | dog | cat | baby; <d> ::= a | the; <v> ::= ate | slept | drank | cuddle; <c> ::= and | but | or. Write a single rule that could replace the two rules with <sentence> on the left-hand side, without changing what a valid sentence is.",
+      q: "Consider the following BNF rules:\n\n```BNF\n<sentence> ::= <np><v>\n<sentence> ::= <v><np>\n<np>       ::= <d><n>\n<n>        ::= human | dog | cat | baby\n<d>        ::= a | the\n<v>        ::= ate | slept | drank | cuddle\n<c>        ::= and | but | or\n```\n\nWrite a single rule that could replace the two rules with `<sentence>` on the left-hand side, without changing what a valid sentence is.",
       steps: [{ m: "<sentence> ::= <np><v> | <v><np>;", mk: "1", n: "R. any answer of more than one rule." }], result: "<np><v> | <v><np>" } },
     { worked: { tag: "exam", title: "Which are valid sentences?", src: "A-level June 2020 · P1 Q02.3 · 1 mark",
       q: "Using those rules, which of these are valid sentences: cuddle the cat; drank a human; the cat slept; cat or dog?",
-      steps: [{ m: "Y, Y, Y, N;", mk: "1", n: "cat or dog has no <d> before cat and no <v>. Checked in C#." , "fig": {"w":500,"h":220,"items":[{"line":[[240,33],[130,67]],"c":"text2","w":1.6},{"line":[[240,33],[340,67]],"c":"text2","w":1.6},{"line":[[130,93],[130,127]],"c":"text2","w":1.6},{"line":[[340,93],[280,127]],"c":"text2","w":1.6},{"line":[[340,93],[400,127]],"c":"text2","w":1.6},{"line":[[280,153],[280,187]],"c":"text2","w":1.6},{"line":[[400,153],[400,187]],"c":"text2","w":1.6},{"poly":[[198,7],[282,7],[282,33],[198,33]],"fill":"accent","alpha":0.16,"c":"accent","w":1.6},{"text":[240,20],"t":"<sentence>","size":11.5,"c":"text","b":true,"pos":"c"},{"poly":[[88,67],[172,67],[172,93],[88,93]],"fill":"accent","alpha":0.16,"c":"accent","w":1.6},{"text":[130,80],"t":"<v>","size":11.5,"c":"text","b":true,"pos":"c"},{"poly":[[298,67],[382,67],[382,93],[298,93]],"fill":"accent","alpha":0.16,"c":"accent","w":1.6},{"text":[340,80],"t":"<np>","size":11.5,"c":"text","b":true,"pos":"c"},{"poly":[[238,127],[322,127],[322,153],[238,153]],"fill":"accent","alpha":0.16,"c":"accent","w":1.6},{"text":[280,140],"t":"<d>","size":11.5,"c":"text","b":true,"pos":"c"},{"poly":[[358,127],[442,127],[442,153],[358,153]],"fill":"accent","alpha":0.16,"c":"accent","w":1.6},{"text":[400,140],"t":"<n>","size":11.5,"c":"text","b":true,"pos":"c"},{"poly":[[88,127],[172,127],[172,153],[88,153]],"fill":"accent2","alpha":0.16,"c":"accent2","w":1.6},{"text":[130,140],"t":"cuddle","size":11.5,"c":"text","b":true,"pos":"c"},{"poly":[[238,187],[322,187],[322,213],[238,213]],"fill":"accent2","alpha":0.16,"c":"accent2","w":1.6},{"text":[280,200],"t":"the","size":11.5,"c":"text","b":true,"pos":"c"},{"poly":[[358,187],[442,187],[442,213],[358,213]],"fill":"accent2","alpha":0.16,"c":"accent2","w":1.6},{"text":[400,200],"t":"cat","size":11.5,"c":"text","b":true,"pos":"c"}],"cap":"\"cuddle the cat\" parsed by <sentence> ::= <v><np>: every leaf is a terminal."}}], result: "Y Y Y N" , "try": [{"grid":{"cols":["Sentence","Valid?"],"rows":[["the dog drank","Y"],["slept a baby","Y"],["a cat","N"],["ate the dog","Y"],["the human ate but","N"]],"given":[[0,0],[1,0],[2,0],[3,0],[4,0]],"cap":"Five more, using the original rules: Y or N."}}]} },
+      steps: [{ m: "Y, Y, Y, N;", mk: "1", n: "cat or dog has no <d> before cat and no <v>. Checked in C#." , "fig": {"w":500,"h":220,"items":[{"line":[[240,33],[130,67]],"c":"text2","w":1.6},{"line":[[240,33],[340,67]],"c":"text2","w":1.6},{"line":[[130,93],[130,127]],"c":"text2","w":1.6},{"line":[[340,93],[280,127]],"c":"text2","w":1.6},{"line":[[340,93],[400,127]],"c":"text2","w":1.6},{"line":[[280,153],[280,187]],"c":"text2","w":1.6},{"line":[[400,153],[400,187]],"c":"text2","w":1.6},{"poly":[[198,7],[282,7],[282,33],[198,33]],"fill":"accent","alpha":0.16,"c":"accent","w":1.6},{"text":[240,20],"t":"<sentence>","size":11.5,"c":"text","b":true,"pos":"c"},{"poly":[[88,67],[172,67],[172,93],[88,93]],"fill":"accent","alpha":0.16,"c":"accent","w":1.6},{"text":[130,80],"t":"<v>","size":11.5,"c":"text","b":true,"pos":"c"},{"poly":[[298,67],[382,67],[382,93],[298,93]],"fill":"accent","alpha":0.16,"c":"accent","w":1.6},{"text":[340,80],"t":"<np>","size":11.5,"c":"text","b":true,"pos":"c"},{"poly":[[238,127],[322,127],[322,153],[238,153]],"fill":"accent","alpha":0.16,"c":"accent","w":1.6},{"text":[280,140],"t":"<d>","size":11.5,"c":"text","b":true,"pos":"c"},{"poly":[[358,127],[442,127],[442,153],[358,153]],"fill":"accent","alpha":0.16,"c":"accent","w":1.6},{"text":[400,140],"t":"<n>","size":11.5,"c":"text","b":true,"pos":"c"},{"poly":[[88,127],[172,127],[172,153],[88,153]],"fill":"accent2","alpha":0.16,"c":"accent2","w":1.6},{"text":[130,140],"t":"cuddle","size":11.5,"c":"text","b":true,"pos":"c"},{"poly":[[238,187],[322,187],[322,213],[238,213]],"fill":"accent2","alpha":0.16,"c":"accent2","w":1.6},{"text":[280,200],"t":"the","size":11.5,"c":"text","b":true,"pos":"c"},{"poly":[[358,187],[442,187],[442,213],[358,213]],"fill":"accent2","alpha":0.16,"c":"accent2","w":1.6},{"text":[400,200],"t":"cat","size":11.5,"c":"text","b":true,"pos":"c"}],"cap":"\"cuddle the cat\" parsed by <sentence> ::= <v><np>: every leaf is a terminal."}}], result: "Y Y Y N" , "try": [{"notesOnly":true,"grid":{"cols":["Sentence","Valid?"],"rows":[["the dog drank","Y"],["slept a baby","Y"],["a cat","N"],["ate the dog","Y"],["the human ate but","N"]],"given":[[0,0],[1,0],[2,0],[3,0],[4,0]],"cap":"Five more, using the original rules: Y or N."}}]} },
     { worked: { tag: "exam", title: "Allow \"dog slept\"", src: "A-level June 2020 · P1 Q02.4 · 1 mark",
       q: "The sentence dog slept is not currently valid. Change the language by adding or modifying exactly one rule so that dog slept is valid. You must not use the terminals dog or slept directly.",
       steps: [{ m: "<np> ::= <d><n> | <n> // <sentence> ::= <np><v> | <n><v> // add <sentence> ::= <n><v> // add <np> ::= <n>;", mk: "1" }],

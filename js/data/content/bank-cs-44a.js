@@ -19,7 +19,6 @@ X("compsci:4.4.1.1", {
     ["What is problem solving in the specification's sense?", "Identifying a problem, decomposing it, representing it and devising an algorithm to solve it — a systematic approach rather than guessing.", 11],
     ["Why write deductions as 'because … so …'?", "The mark is for the justification: the examiner needs to see the reasoning, not just the answer.", 12],
     ["What is meant by 'the search space' of a puzzle?", "The set of all possible configurations; each deduction shrinks it.", 13],
-    ["How do you check a puzzle answer?", "Substitute it back into every clue and confirm none is violated.", 14],
     ["What is a logical contradiction in a puzzle?", "A case in which some statement would have to be both true and false — that case is impossible and can be discarded.", 15]
   ],
   quiz: [
@@ -58,7 +57,7 @@ X("compsci:4.4.1.2", {
   flashcards: [
     ["Define the term algorithm.", "A sequence of unambiguous steps that can be followed to solve a problem or complete a task, and which terminates.", 8],
     ["What is a trace table?", "A table recording the values of every variable (and any output) after each statement or iteration, used to follow an algorithm by hand.", 9],
-    ["Trace: `t ← 0; FOR i ← 1 TO 3: t ← t + i × i`. Final t?", "1 + 4 + 9 = 14.", 10],
+    ["Trace this pseudocode — what is the final value of `t`?\n\n```pseudo\nt ← 0\nFOR i ← 1 TO 3\n  t ← t + i × i\nENDFOR\n```", "1 + 4 + 9 = 14.", 10],
     ["What does `Total ← Total × 16 + Value` inside a loop over hex digits compute?", "The denary value of a hexadecimal string, one digit at a time (Horner's method).", 11],
     ["What is a sentinel value?", "A special input (e.g. −1) that signals the end of data and terminates a loop.", 12],
     ["Why might an algorithm keep looping after it has found its answer?", "The loop condition only checks the counter, not a Found/Done flag — an inefficiency examiners ask you to identify.", 13],
@@ -66,7 +65,7 @@ X("compsci:4.4.1.2", {
     ["What should you write in a trace table cell when a value does not change?", "Leave it blank (or repeat only if the scheme says 'I. repeated values').", 15]
   ],
   quiz: [
-    { q: "For input \"1A\" the algorithm `Total ← 0; for each char: Total ← Total × 16 + value(char)` gives:", opts: ["26", "161", "17", "10"], ans: 0, why: "1 → 1; then 1×16 + 10 = 26." },
+    { q: "For input `\"1A\"`, what does this algorithm give?\n\n```pseudo\nTotal ← 0\nFOR EACH char\n  Total ← Total × 16 + value(char)\nENDFOR\n```", opts: ["26", "161", "17", "10"], ans: 0, why: "1 → 1; then 1×16 + 10 = 26." },
     { q: "A loop `WHILE d < n AND Prime` stops early because:", opts: ["n is prime, so the loop has no more divisors to test", "the flag Prime becomes FALSE when a divisor is found", "d overflows once it passes the square root of n", "MOD is undefined when d becomes larger than n"], ans: 1, why: "The compound condition uses the flag." },
     { q: "In a trace table you add a row:", opts: ["per variable used anywhere in the program", "per statement/iteration that changes a value", "per column, so each value has its own row", "once, at the end, with the final values"], ans: 1, why: "Rows follow execution." },
     { q: "'Sequence of steps that solves a problem' describes:", opts: ["a program", "an algorithm", "a data structure", "a compiler"], ans: 1, why: "Language-independent definition." },
@@ -113,7 +112,6 @@ X("compsci:4.4.2.1", {
   ],
   flashcards: [
     ["What are the components of a finite state machine?", "A finite set of states, a start state, transitions labelled by input (and optionally output), and a set of accepting states (for recognisers).", 10],
-    ["When does an FSM without output accept a string?", "When, after reading all the input, it is in an accepting state (and no undefined transition was met).", 12],
     ["What is a Mealy machine?", "An FSM whose outputs are produced on transitions, written input | output.", 13],
     ["What happens if a transition is not defined for an input?", "The FSM halts / rejects the input.", 15],
     ["Describe the language accepted by: start S0; S0 –1→ S0; S0 –0→ S1; S0 –x→ S2; S1 –x→ S2; S2 accepting.", "Zero or more 1s, optionally followed by one 0, ending with x.", 16],
@@ -203,8 +201,7 @@ X("compsci:4.4.2.3", {
   ],
   flashcards: [
     ["Difference between `ab*` and `(ab)*`?", "`ab*` = a followed by any number of b; `(ab)*` = any number of repetitions of ab (including none).", 14],
-    ["Regex for a UK postcode: 1–2 letters, digit, optional letter-or-digit, digit, two letters?", "`\\a\\a?\\d(\\a|\\d)?\\d\\a\\a`", 16],
-    ["Which strings match `1|01+`?", "`1`, and `0` followed by one or more 1s: 01, 011, 0111…", 17]
+    ["Regex for a UK postcode: 1–2 letters, digit, optional letter-or-digit, digit, two letters?", "`\\a\\a?\\d(\\a|\\d)?\\d\\a\\a`", 16]
   ],
   quiz: [
     { q: "`colou?r` matches:", opts: ["color and colour", "colouur and colour", "colr and color", "only colour, not color"], ans: 0, why: "? makes the u optional." },
@@ -238,9 +235,6 @@ X("compsci:4.4.2.4", {
   ],
   flashcards: [
     ["Define a regular language.", "A language that can be represented by a regular expression — equivalently, recognised by a finite state machine.", 8],
-    ["Is every regular language finite?", "No — a* is regular yet describes infinitely many strings (ε, a, aa, …).", 9],
-    ["Are there BNF-definable languages that are not regular?", "Yes — e.g. balanced brackets; BNF (context-free) is strictly more powerful.", 11],
-    ["Is {aⁿbⁿ | n ≥ 0} regular?", "No — recognising it requires counting the a's, which needs unbounded memory.", 12],
     ["Is 'binary strings with an even number of 1s' regular?", "Yes — a two-state FSM tracks whether the number of 1s so far is even or odd.", 13],
     ["Is the set of palindromes over {a, b} regular?", "No — matching the first half against the second needs a stack.", 14],
     ["Why are finite languages always regular?", "List every string with | — that is a regular expression.", 15]
@@ -276,21 +270,17 @@ X("compsci:4.4.3.1", {
     { callout: { t: "memorise", body: "**Why BNF and not regex?** BNF rules can be **recursive**, so they can define **context-free** languages such as nested brackets and arithmetic expressions, which no regular expression / FSM can. Terminal symbols are in quotes or plain; non-terminals in `< >`; `::=` means *is defined as*; `|` separates alternatives." }}
   ],
   flashcards: [
-    ["What does `::=` mean in BNF?", "'Is defined as' — the non-terminal on the left can be replaced by the sequence on the right.", 10],
     ["What is a terminal symbol?", "A symbol that appears in the final string and cannot be expanded further (e.g. a digit or keyword).", 11],
-    ["What is a non-terminal symbol?", "A symbol in angle brackets that is defined by a rule and can be expanded.", 12],
     ["Write a BNF rule for a natural number.", "`<natural> ::= <digit> | <digit><natural>` with `<digit> ::= 0|1|…|9`.", 13],
-    ["Why can BNF define languages that regular expressions cannot?", "BNF rules can be recursive, allowing unbounded nesting (context-free languages).", 14],
     ["How many sentences does `<s> ::= <a><b>` define if <a> has 3 options and <b> has 5?", "15.", 15],
     ["What is a syntax diagram?", "A graphical form of BNF: boxes for symbols joined by arrows showing allowed sequences and loops.", 17]
   ],
   quiz: [
     { q: "`<int> ::= <digit> | <digit><int>` is:", opts: ["invalid", "recursive", "a regular expression", "a terminal"], ans: 1, why: "It refers to itself." },
     { q: "In `<expr> ::= <term> | <expr> + <term>`, `+` is a:", opts: ["non-terminal", "terminal", "rule", "metacharacter"], ans: 1, why: "Literal symbol in the output." },
-    { q: "Balanced brackets can be defined in BNF but not by a regex because:", opts: ["regex has no symbols for writing brackets", "BNF allows recursion / unbounded nesting", "BNF is newer and has more features", "regex is case-sensitive and BNF is not"], ans: 1, why: "Context-free power." },
-    { q: "`<greeting> ::= hello <name> | hi <name>`; `<name> ::= Ann | Bo`. How many greetings?", opts: ["2", "3", "4", "infinite"], ans: 2, why: "Each greeting is one of 2 openings (hello/hi) followed by one of 2 names, so 2 × 2 = 4." },
-    { q: "To allow `<sentence>` to also be just a noun, you:", opts: ["write a second rule for <sentence>", "add `| <n>` to the existing rule", "delete the rule", "use a regex"], ans: 1, why: "One rule with alternatives." },
-    { q: "In a syntax diagram a loop back represents:", opts: ["recursion / repetition", "a terminal symbol", "an error in the syntax", "alternation between choices"], ans: 0, why: "Repetition of the looped part." }
+    { oi: 7, q: "`<greeting> ::= hello <name> | hi <name>`; `<name> ::= Ann | Bo`. How many greetings?", opts: ["2", "3", "4", "infinite"], ans: 2, why: "Each greeting is one of 2 openings (hello/hi) followed by one of 2 names, so 2 × 2 = 4." },
+    { oi: 8, q: "To allow `<sentence>` to also be just a noun, you:", opts: ["write a second rule for <sentence>", "add `| <n>` to the existing rule", "delete the rule", "use a regex"], ans: 1, why: "One rule with alternatives." },
+    { oi: 9, q: "In a syntax diagram a loop back represents:", opts: ["recursion / repetition", "a terminal symbol", "an error in the syntax", "alternation between choices"], ans: 0, why: "Repetition of the looped part." }
   ],
   exam: [
     { src: "AQA 2017 · P1 Q01.2", q: "Using the rule `<digit> ::= 0|1|2|3|4|5|6|7|8|9`, write a BNF production rule for `<natural>`, a natural number consisting of one or more digits.", marks: 2,

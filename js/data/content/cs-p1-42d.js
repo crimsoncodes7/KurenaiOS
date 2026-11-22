@@ -113,7 +113,7 @@ C["compsci:4.2.6.1"] = {
         { m: "The result is the location in the table where the record should be stored;", mk: "1" },
         { m: "If the location is not empty;", mk: "1" },
         { m: "…then use the next free location (or another feasible collision-resolution method);", mk: "1" }
-      ], result: "Hash the KEY → location → collision? → next free" , "try": [{"lab":"hash-table"}]} },
+      ], result: "Hash the KEY → location → collision? → next free" } },
     { worked: { tag: "exam", title: "Why faster than a sorted list", src: "A-level June 2025 · P1 Q01.1 · 1 mark",
       q: "Two data structures that can be used to store a collection of data records are a hash table and a sorted list. Explain why a record in a hash table can normally be found more quickly than a record in a sorted list.",
       steps: [{ m: "The hashing algorithm determines the memory location/index to use // there is no need to search through the records to find the required one;", mk: "1", n: "A sorted list still needs a binary search: O(log n) comparisons vs about O(1)." }],
@@ -236,7 +236,7 @@ C["compsci:4.2.7.1"] = {
       ["Balanced binary search tree", "O(log n)", "O(log n)", "Yes, by in-order traversal"]
     ] } },
     { callout: { t: "tip", h: "Matching the implementation to the job", body: ["Lookups by key only, as fast as possible: a hash table (C#'s Dictionary).", "Keys needed in order too, for a sorted report or the first key after a given one: a balanced tree (C#'s SortedDictionary)."] } },
-    { worked: { tag: "variation", title: "Trace a run of dictionary operations", q: "An empty dictionary d is changed by: d[\"cat\"] ← 3; d[\"dog\"] ← 5; d[\"cat\"] ← d[\"cat\"] + 1; remove \"dog\"; d[\"eel\"] ← 2. State the final contents, the number of pairs, and the value of d[\"cat\"].",
+    { worked: { tag: "variation", title: "Trace a run of dictionary operations", q: "An empty dictionary `d` is changed by:\n\n```pseudo\nd[\"cat\"] ← 3\nd[\"dog\"] ← 5\nd[\"cat\"] ← d[\"cat\"] + 1\nremove \"dog\"\nd[\"eel\"] ← 2\n```\n\nState the final contents, the number of pairs, and the value of `d[\"cat\"]`.",
       steps: [
         { m: "After the first two: {cat: 3, dog: 5};", mk: "1" },
         { m: "Assigning to an existing key REPLACES its value, so cat becomes 4 and no second 'cat' pair is made;", mk: "1", n: "The most common slip is to write {cat: 3, dog: 5, cat: 4}: a key can appear only once." },
@@ -391,12 +391,12 @@ C["compsci:4.2.8.1"] = {
       steps: [{ m: "[8, 3];", mk: "1", n: "I. missing or different brackets." }],
       result: "[8, 3]" } },
     { worked: { tag: "exam", title: "Can the enemy see the hero now?", src: "A-level June 2017 · P1 Q05.3 · 3 marks",
-      q: "The algorithm: u ← [1, 1]; v ← [position of hero] − [position of enemy]; IF u.v > 0 THEN EnemyCanSee ← True ELSE EnemyCanSee ← False. The enemy is at [2, 7] and the hero has moved to [8, 3]. Complete a table of v, u.v and EnemyCanSee.",
+      q: "Consider the algorithm:\n\n```pseudo\nu ← [1, 1]\nv ← [position of hero] − [position of enemy]\nIF u.v > 0 THEN\n  EnemyCanSee ← True\nELSE\n  EnemyCanSee ← False\nENDIF\n```\n\nThe enemy is at `[2, 7]` and the hero has moved to `[8, 3]`. Complete a table of `v`, `u.v` and `EnemyCanSee`.",
       steps: [
         { m: "v = [8, 3] − [2, 7] = [6, −4];", mk: "1" },
         { m: "u.v = 1 × 6 + 1 × (−4) = 2;", mk: "1" },
         { m: "EnemyCanSee = True (2 > 0);", mk: "1", n: "A. follow-through from a wrong answer to 05.2. Checked in C#." }
-      ], result: "[6, −4] · 2 · True" , "fig": {"x":[0,10],"y":[0,9],"aspect":"equal","w":420,"h":380,"items":[{"line":[[2,7],[3.4,8.4]],"arrow":true,"c":"accent","label":"u","loff":10},{"line":[[2,7],[8,3]],"arrow":true,"c":"accent2","label":"v","loff":12},{"pt":[2,7],"label":"enemy [2, 7]","pos":"sw"},{"pt":[8,3],"label":"hero [8, 3]","pos":"s","c":"accent2"}],"cap":"The enemy looks along u; v points from the enemy to the hero."}, "try": [{"grid":{"cols":["Hero at","v x","v y","u.v","EnemyCanSee"],"rows":[["[0, 4]","-2","-3","-5","False"],["[5, 6]","3","-1","2","True"],["[4, 5]","2","-2","0","False"]],"given":[[0,0],[1,0],[2,0]],"cap":"The enemy stays at [2, 7] looking along u = [1, 1]. Complete a row for each place the hero might be."}}]} },
+      ], result: "[6, −4] · 2 · True" , "fig": {"x":[0,10],"y":[0,9],"aspect":"equal","w":420,"h":380,"items":[{"line":[[2,7],[3.4,8.4]],"arrow":true,"c":"accent","label":"u","loff":10},{"line":[[2,7],[8,3]],"arrow":true,"c":"accent2","label":"v","loff":12},{"pt":[2,7],"label":"enemy [2, 7]","pos":"sw"},{"pt":[8,3],"label":"hero [8, 3]","pos":"s","c":"accent2"}],"cap":"The enemy looks along u; v points from the enemy to the hero."}, "try": [{"notesOnly":true,"grid":{"cols":["Hero at","v x","v y","u.v","EnemyCanSee"],"rows":[["[0, 4]","-2","-3","-5","False"],["[5, 6]","3","-1","2","True"],["[4, 5]","2","-2","0","False"]],"given":[[0,0],[1,0],[2,0]],"cap":"The enemy stays at [2, 7] looking along u = [1, 1]. Complete a row for each place the hero might be."}}]} },
     { worked: { tag: "exam", title: "Magnitude of b", src: "A-level June 2020 · P1 Q01.1 · 1 mark",
       q: "Vectors a = [4, 3] and b = [4, 0]. The magnitude of a vector, represented as an arrow, is the length of the arrow; the magnitude of a is 5 because √(4² + 3²) = 5. What is the magnitude of vector b?",
       steps: [{ m: "4 // √(4² + 0²);", mk: "1" }], result: "4" , "fig": {"x":[-0.6,5],"y":[-0.6,3.8],"aspect":"equal","w":400,"h":300,"items":[{"line":[[0,0],[4,3]],"arrow":true,"c":"accent","label":"a = [4, 3]","lpos":0.65,"loff":14},{"line":[[0,0],[4,0]],"arrow":true,"c":"accent2","label":"b = [4, 0]","lpos":0.5,"loff":-14},{"arc":[0,0,44,0,36.87],"label":"θ"}],"cap":"θ is the angle between a and b."}} },
@@ -405,7 +405,7 @@ C["compsci:4.2.8.1"] = {
       steps: [
         { m: "Multiply corresponding components: 4 × 4 = 16 and 3 × 0 = 0;", mk: "1" },
         { m: "Add the products: 16 + 0 = 16;", mk: "1", n: "2 marks for 16; if wrong, max 1 for working." }
-      ], result: "16" , "try": [{"lab":"cs-vector"}]} },
+      ], result: "16" } },
     { worked: { tag: "exam", title: "Multiply by 2", src: "A-level June 2020 · P1 Q01.3 · 2 marks",
       q: "Describe what will happen to the angle θ (between a = [4, 3] and b = [4, 0]) and the magnitude of vector a when vector a is multiplied by the scalar 2.",
       steps: [{ m: "The angle will stay the same // the direction will not change;", mk: "1" }, { m: "The magnitude will be doubled — it becomes 10;", mk: "1" }],
