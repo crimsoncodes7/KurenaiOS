@@ -263,6 +263,20 @@ button.k-rt-cell { cursor: pointer; }
 .k-rt-pday-meta[data-tone="over"] { color: var(--crimson); font-weight: var(--weight-semibold); }
 .k-rt-pday-meta[data-tone="tight"] { color: var(--amber); }
 .k-rt-pday-off { grid-column: 2 / -1; font-size: var(--fs-12); color: var(--text-2); padding-inline-start: var(--sp-4); }
+/* U6: Daily Reviews per-day schedule editor */
+.k-rt-rv-toggles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--sp-8); padding-block-end: var(--sp-10); border-block-end: var(--hairline) solid var(--line); }
+.k-rt-rv-tog { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-8); padding: var(--sp-8) var(--sp-10); border-radius: var(--r-12); background: var(--s1); box-shadow: inset 0 0 0 var(--hairline) var(--line); }
+.k-rt-rv-tog-n { display: inline-flex; align-items: center; gap: var(--sp-8); font-size: var(--fs-12-5); font-weight: var(--weight-medium); }
+.k-rt-rv-tog .k-rt-tile--sm { box-shadow: inset 0 0 0 var(--hairline) var(--line); }
+.k-rt-rv-grid { display: flex; flex-direction: column; gap: var(--sp-4); margin-block-start: var(--sp-4); }
+.k-rt-rv-row { display: grid; grid-template-columns: var(--sp-40) repeat(3, minmax(0, 1fr)); gap: var(--sp-8); align-items: center; padding: var(--sp-4) var(--sp-6); border-radius: var(--r-10); }
+.k-rt-rv-row--h { padding-block: 0 var(--sp-4); }
+.k-rt-rv-row--wknd { background: color-mix(in oklch, var(--s2) 65%, transparent); }
+.k-rt-rv-day { font-size: var(--fs-12); font-weight: var(--weight-semibold); color: var(--text-2); }
+.k-rt-rv-row--wknd .k-rt-rv-day { color: var(--amber); }
+.k-rt-rv-colh { font-size: var(--fs-11); color: var(--muted); text-align: start; padding-inline-start: var(--sp-6); }
+.k-rt-rv-off { display: flex; align-items: center; min-block-size: var(--hit); padding-inline: var(--sp-10); border-radius: var(--r-10); background: color-mix(in oklch, var(--s2) 45%, transparent); font-size: var(--fs-11); color: var(--muted); }
+.k-rt-rv-in { inline-size: 100%; min-inline-size: 0; padding: var(--sp-5) var(--sp-6); font-size: var(--fs-12-5); text-align: start; }
 
 /* ================= the review sheet ================= */
 .k-dr-overlay { padding: var(--sp-24); }
@@ -514,6 +528,10 @@ button.k-rt-cell { cursor: pointer; }
 .k-rt-pday { grid-template-columns: var(--rv-tap) minmax(0, 1fr) auto minmax(0, 1fr); row-gap: var(--sp-4); }
 .k-rt-pday-meta { grid-column: 2 / -1; text-align: start; }
 .k-rt-pday-btn { min-block-size: var(--hit-coarse); }
+.k-rt-rv-toggles { grid-template-columns: minmax(0, 1fr); gap: var(--sp-6); }
+.k-rt-rv-row { grid-template-columns: var(--sp-32) repeat(3, minmax(0, 1fr)); gap: var(--sp-4); padding: var(--sp-4) var(--sp-2); }
+.k-rt-rv-colh { padding-inline-start: var(--sp-2); }
+.k-rt-rv-in { padding: var(--sp-4) var(--sp-2); font-size: var(--fs-11-5); }
 .k-pl { inline-size: 100%; block-size: 100%; border-radius: 0; }
 .k-rpl-name { font-size: var(--fs-40); }
 .k-rpl-clock { inline-size: var(--rv-clock-sm); block-size: var(--rv-clock-sm); }

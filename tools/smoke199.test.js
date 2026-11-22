@@ -308,6 +308,58 @@ step("E · Routines support per-day time windows across scheduler, player, remin
   eq(app.errors, [], "no page errors");
 });
 
+/* ---------------- F · U6 Daily Reviews per-day flexible schedules ---------------- */
+step("F · Daily Reviews support per-day slot times across scheduler, holidays, Home and Settings (U6)", async () => {
+  const K = app.KOS;
+  const V = K.dayReview;
+  const origCfg = JSON.parse(JSON.stringify(V.cfg()));
+
+  const mon = "2026-11-23"; /* Mon (dow 1) */
+  const tue = "2026-11-24"; /* Tue (dow 2) */
+  const sat = "2026-11-28"; /* Sat (dow 6) */
+
+  /* 1. Core slotTime, due(), holiday fallback & legacy compatibility */
+  const c0 = V.setConfig({
+    slots: {
+      morning: { on: true, weekday: "07:00", weekend: "09:00", days: { "1": "07:00", "2": "10:00", "6": "09:30" } },
+      afternoon: { on: true, weekday: "16:30", weekend: "15:00", days: { "1": "16:30", "2": "18:00" } }
+    }
+  });
+  assert(c0.slots.morning.days && c0.slots.morning.days["2"] === "10:00", "slot.days normalised and persisted");
+  eq(V.slotTime("morning", mon), "07:00", "Monday morning resolves to 07:00");
+  eq(V.slotTime("morning", tue), "10:00", "Tuesday morning resolves to 10:00");
+  eq(V.slotTime("afternoon", tue), "18:00", "Tuesday afternoon resolves to 18:00");
+  eq(V.slotTime("morning", sat), "09:30", "Saturday morning resolves to 09:30");
+
+  /* At 08:30, Mon morning (07:00) is due, Tue morning (10:00) is NOT due yet */
+  const mon0830 = new Date(2026, 10, 23, 8, 30).getTime();
+  const tue0830 = new Date(2026, 10, 24, 8, 30).getTime();
+  assert(V.due(mon0830) && V.due(mon0830).slot === "morning", "due() offers morning at Mon 08:30");
+  eq(V.due(tue0830), null, "due() waits until Tue 10:00 on later college day");
+
+  /* School holiday weekday falls back to weekend time rather than early weekday time */
+  const brkWk = K.pacing.weeks().find((w) => K.pacing.isBreak(w));
+  if (brkWk) {
+    eq(V.slotTime("morning", brkWk.wb), "09:30", "holiday weekday falls back to weekend time");
+  }
+
+  /* 2. Settings UI: Simple | Per day toggle, 7-day grid, Copy Mon -> weekdays */
+  K.show("routines", "settings"); await app.settle(); await app.settle();
+  assert(q("[data-ui~='review.sched-mode']"), "Daily Reviews schedule mode toggle rendered");
+  assert(qa("[data-ui~='review.day-time']").length >= 14, "Per day review time inputs rendered");
+  click(q("[data-ui~='review.copy-mon']")); await app.settle();
+  eq(V.slotTime("morning", tue), "07:00", "Copy Mon -> weekdays copied Monday morning to Tuesday");
+
+  /* Switch back to Simple mode clears per-day overrides cleanly */
+  const simpleBtn = [...qa("[data-ui~='review.sched-mode'] button")].find((b) => /Simple/.test(b.textContent));
+  click(simpleBtn); await app.settle();
+  assert(!V.cfg().slots.morning.days, "Switching back to Simple clears per-day overrides");
+
+  /* Restore original review settings */
+  V.setConfig(origCfg);
+  eq(app.errors, [], "no page errors");
+});
+
 (async () => {
   let failed = 0;
   for (const [name, fn] of steps) {

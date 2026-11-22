@@ -97,6 +97,14 @@
       if (r.on === false) out.slots[s].on = false;
       if (HM.test(r.weekday)) out.slots[s].weekday = r.weekday;
       if (HM.test(r.weekend)) out.slots[s].weekend = r.weekend;
+      if (r.days && typeof r.days === "object" && !Array.isArray(r.days)) {
+        var dm = {}, dn = 0;
+        for (var d = 0; d <= 6; d++) {
+          var k = String(d);
+          if (HM.test(r.days[k])) { dm[k] = r.days[k]; dn++; }
+        }
+        if (dn) out.slots[s].days = dm;
+      }
     });
     if (Array.isArray(raw.weekendDays)) out.weekendDays = raw.weekendDays.map(Number).filter(function (d, i, a) { return d >= 0 && d <= 6 && a.indexOf(d) === i; }).sort();
     if (raw.holidays === "off") out.holidays = "off";
@@ -124,9 +132,13 @@
   }
   /* setConfig(patch): only the settings, through the gate */
   function setConfig(patch) {
-    var s = data(), next = normalise(Object.assign({}, cfg(), patch || {}, {
-      slots: Object.assign({}, cfg().slots, (patch && patch.slots) || {})
-    }));
+    var s = data(), cur = cfg(), mergedSlots = {};
+    SLOTS.forEach(function (k) {
+      mergedSlots[k] = patch && patch.slots && patch.slots[k]
+        ? Object.assign({}, cur.slots[k], patch.slots[k])
+        : cur.slots[k];
+    });
+    var next = normalise(Object.assign({}, cur, patch || {}, { slots: mergedSlots }));
     Object.keys(s).forEach(function (k) { if (k !== "days" && k !== "v" && !(k in next)) delete s[k]; });
     Object.keys(next).forEach(function (k) { s[k] = next[k]; });
     store.save();
@@ -134,18 +146,26 @@
   }
 
   /* ---------------- the slots ---------------- */
+  function isHolidayDay(day) {
+    var c = cfg();
+    return c.holidays === "auto" && !!(KOS.today && KOS.today.isHoliday && safe(function () { return KOS.today.isHoliday(day); }, false));
+  }
   function weekendLike(day) {
     var c = cfg();
     if (c.weekendDays.indexOf(dow(day)) !== -1) return true;
-    return c.holidays === "auto" && !!(KOS.today && KOS.today.isHoliday && safe(function () { return KOS.today.isHoliday(day); }, false));
+    return isHolidayDay(day);
   }
   /* Easy week (plan §17.5): only the Morning Review, until its end date */
   function easy(day) { var u = cfg().easyUntil; return !!u && (day || rday()) <= u; }
   function slotTime(slot, day) {
-    var s = cfg().slots[slot];
+    var c = cfg(), s = c.slots[slot];
     if (!s || !s.on) return null;
-    if (slot !== "morning" && easy(day)) return null;
-    return weekendLike(day || rday()) ? s.weekend : s.weekday;
+    var iso = day || rday();
+    if (slot !== "morning" && easy(iso)) return null;
+    var d = dow(iso), isWknd = c.weekendDays.indexOf(d) !== -1;
+    if (!isWknd && isHolidayDay(iso)) return (s.days && (s.days["6"] || s.days["0"])) || s.weekend;
+    if (s.days && HM.test(s.days[String(d)])) return s.days[String(d)];
+    return isWknd ? s.weekend : s.weekday;
   }
   /* minutes since the day started, so 00:30 sorts after 22:00 */
   function offset(hm) { return (mins(hm) - mins(cfg().dayStart) + 1440) % 1440; }

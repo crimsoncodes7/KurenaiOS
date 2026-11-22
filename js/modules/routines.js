@@ -669,18 +669,112 @@
       return i;
     }
     var mk = { morning: "朝", afternoon: "昼", evening: "夜" };
-    var slots = el("div", { class: "k-rt-slots" }, [el("div", { class: "k-rt-slot k-rt-slot--h" }, [el("span"), el("span"), muted("Weekdays"), muted("Weekends"), muted("On")])]
-      .concat(V().SLOTS.map(function (s) {
-        var o = c.slots[s];
-        function set(patch) { var sl = {}; sl[s] = Object.assign({}, o, patch); V().setConfig({ slots: sl }); KOS.rerender(); }
-        return el("div", { class: "k-rt-slot", "data-ui": "review.slot-setting" }, [tile(mk[s], s), el("span", { text: s.charAt(0).toUpperCase() + s.slice(1) }),
-          timeIn(o.weekday, function (v) { set({ weekday: v }); }, s + " review, weekdays"),
-          timeIn(o.weekend, function (v) { set({ weekend: v }); }, s + " review, weekends"),
-          sw(o.on, function (v) { set({ on: v }); }, s + " review on")]);
+    var hasPerDay = V().SLOTS.some(function (s) { return !!(c.slots[s] && c.slots[s].days && Object.keys(c.slots[s].days).length); });
+    var DAY3S = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    var DAY_ORDS = [1, 2, 3, 4, 5, 6, 0];
+    function resolvedSlotDay(s, x) {
+      var o = c.slots[s];
+      if (o.days && o.days[String(x)]) return o.days[String(x)];
+      return c.weekendDays.indexOf(x) !== -1 ? o.weekend : o.weekday;
+    }
+    var rvModeSeg = el("div", { class: "k-seg k-seg--quiet k-rt-mode-seg", role: "group", "aria-label": "Review schedule mode", "data-ui": "review.sched-mode" }, [
+      ["simple", "Simple"], ["perday", "Per day"]
+    ].map(function (pair) {
+      var on = (pair[0] === "perday") === hasPerDay;
+      var b = el("button", { type: "button", class: "k-seg-item", "aria-pressed": String(on), text: pair[1],
+        onclick: function () {
+          if (on) return;
+          var nextSlots = {};
+          if (pair[0] === "perday") {
+            V().SLOTS.forEach(function (s) {
+              var o = c.slots[s], dm = {};
+              DAY_ORDS.forEach(function (x) { dm[String(x)] = resolvedSlotDay(s, x); });
+              nextSlots[s] = Object.assign({}, o, { days: dm });
+            });
+          } else {
+            V().SLOTS.forEach(function (s) {
+              var o = c.slots[s];
+              nextSlots[s] = { on: o.on, weekday: resolvedSlotDay(s, 1), weekend: resolvedSlotDay(s, 6), days: null };
+            });
+          }
+          V().setConfig({ slots: nextSlots });
+          KOS.rerender();
+        } });
+      if (on) KOS.ui.state(b, "active", true);
+      return b;
+    }));
+    var slotsEl;
+    if (!hasPerDay) {
+      slotsEl = el("div", { class: "k-rt-slots" }, [el("div", { class: "k-rt-slot k-rt-slot--h" }, [el("span"), el("span"), muted("Weekdays"), muted("Weekends"), muted("On")])]
+        .concat(V().SLOTS.map(function (s) {
+          var o = c.slots[s];
+          function set(patch) { var sl = {}; sl[s] = Object.assign({}, o, patch); V().setConfig({ slots: sl }); KOS.rerender(); }
+          return el("div", { class: "k-rt-slot", "data-ui": "review.slot-setting" }, [tile(mk[s], s), el("span", { text: s.charAt(0).toUpperCase() + s.slice(1) }),
+            timeIn(o.weekday, function (v) { set({ weekday: v }); }, s + " review, weekdays"),
+            timeIn(o.weekend, function (v) { set({ weekend: v }); }, s + " review, weekends"),
+            sw(o.on, function (v) { set({ on: v }); }, s + " review on")]);
+        })));
+    } else {
+      var toggles = el("div", { class: "k-rt-rv-toggles" }, V().SLOTS.map(function (s) {
+        var o = c.slots[s], lbl = s.charAt(0).toUpperCase() + s.slice(1);
+        return el("label", { class: "k-rt-rv-tog", "data-ui": "review.slot-setting" }, [
+          el("span", { class: "k-rt-rv-tog-n" }, [tile(mk[s], s, true), el("span", { text: lbl })]),
+          sw(o.on, function (v) { var sl = {}; sl[s] = { on: v }; V().setConfig({ slots: sl }); KOS.rerender(); }, lbl + " review on")
+        ]);
+      }));
+      var copyMonRv = el("button", { type: "button", class: "k-btn k-btn--quiet k-btn--sm", "data-ui": "review.copy-mon",
+        text: "Copy Mon → weekdays",
+        onclick: function () {
+          var nextSlots = {};
+          V().SLOTS.forEach(function (s) {
+            var o = c.slots[s], dm = Object.assign({}, o.days || {}), monT = resolvedSlotDay(s, 1);
+            [2, 3, 4, 5].forEach(function (x) { dm[String(x)] = monT; });
+            nextSlots[s] = { days: dm, weekday: monT };
+          });
+          V().setConfig({ slots: nextSlots });
+          KOS.ui.toast("Copied Monday's review times to weekdays.");
+          KOS.rerender();
+        } });
+      var grid = el("div", { class: "k-rt-rv-grid", "data-ui": "review.perday-grid" }, [
+        el("div", { class: "k-rt-rv-row k-rt-rv-row--h", "aria-hidden": "true" }, [
+          el("span"),
+          el("span", { class: "k-rt-rv-colh", text: "Morning" }),
+          el("span", { class: "k-rt-rv-colh", text: "Afternoon" }),
+          el("span", { class: "k-rt-rv-colh", text: "Evening" })
+        ])
+      ].concat(DAY_ORDS.map(function (x) {
+        var wknd = c.weekendDays.indexOf(x) !== -1;
+        return el("div", { class: "k-rt-rv-row" + (wknd ? " k-rt-rv-row--wknd" : "") }, [
+          el("span", { class: "k-rt-rv-day", text: DAY3S[x] })
+        ].concat(V().SLOTS.map(function (s) {
+          var o = c.slots[s];
+          if (!o.on) return el("span", { class: "k-rt-rv-off", text: "Off" });
+          var curT = resolvedSlotDay(s, x);
+          var inp = el("input", { type: "time", class: "k-input k-mono k-rt-rv-in", "data-ui": "review.day-time",
+            "data-slot": s, "data-day": String(x), value: curT, step: 300,
+            "aria-label": s.charAt(0).toUpperCase() + s.slice(1) + " review on " + DAYN[x] });
+          inp.addEventListener("change", function () {
+            if (!/^\d{2}:\d{2}$/.test(inp.value)) return;
+            var latest = V().cfg().slots[s], dm = Object.assign({}, latest.days || {});
+            DAY_ORDS.forEach(function (dx) { if (!dm[String(dx)]) dm[String(dx)] = resolvedSlotDay(s, dx); });
+            dm[String(x)] = inp.value;
+            var sl = {}; sl[s] = { days: dm };
+            if (x === 6) sl[s].weekend = inp.value;
+            V().setConfig({ slots: sl });
+            KOS.rerender();
+          });
+          return inp;
+        })));
       })));
+      slotsEl = el("div", { class: "k-rt-sched-box" }, [
+        toggles,
+        el("div", { class: "k-rt-pday-tools" }, [muted("Each day uses its own review times"), copyMonRv]),
+        grid
+      ]);
+    }
     var easyOn = !!V().cfg().easyUntil && V().easy();
     var col1 = el("div", { class: "k-rt-col" }, [
-      card([head("The three reviews"), slots, el("p", { class: "k-muted k-rt-small", text: "School holidays use the weekend times (weeks with no lessons in Pacing)." })]),
+      card([el("div", { class: "k-rt-sched-head" }, [head("The three reviews"), rvModeSeg]), slotsEl, el("p", { class: "k-muted k-rt-small", text: "School holidays use the weekend times (weeks with no lessons in Pacing)." })]),
       card([head("Behaviour"),
         setRow("Open the review by itself", "on the first app open in its slot; never over Focus, a dialog or the Exam Room", sw(c.autoOpen, function (v) { V().setConfig({ autoOpen: v }); }, "Open the review by itself")),
         setRow("The day starts at", "routines and reviews after midnight still count for the evening before",
