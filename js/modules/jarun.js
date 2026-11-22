@@ -577,10 +577,22 @@
         var p = KOS.jaSrs.split(k), it = KOS.ja.item(p.item);
         if (!it) return null;
         var sub = it.r || (Array.isArray(it.en) ? it.en[0] : it.en) || "";
+        var logPill = (KOS.errorLog && KOS.errorLog.inlinePill) ? KOS.errorLog.inlinePill({
+          subject: "ja",
+          space: "ja",
+          topicRef: p.item,
+          topicTitle: it.w,
+          source: "ja",
+          title: it.w + (sub ? " (" + sub + ")" : "") + " — missed " + p.skill,
+          context: [p.skill, sub].filter(Boolean).join(" · "),
+          dedupeKey: "ja:" + p.item + ":" + p.skill,
+          deepLink: { view: "japanese", arg: { page: "path" } }
+        }, { hook: "ja.log-error", undoHook: "ja.log-undo", label: "+ Log" }) : null;
         return el("li", {}, [
           el("b", { lang: "ja", text: it.w }),
           U().skill(p.skill, { label: false }),
-          sub ? el("span", { class: "k-muted", text: sub }) : null
+          sub ? el("span", { class: "k-muted", text: sub }) : null,
+          logPill
         ].filter(Boolean));
       }).filter(Boolean)) : null;
       stage.appendChild(el("div", { class: "k-ja-run-end", "data-ui": "ja.session-done" }, [

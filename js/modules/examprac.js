@@ -381,6 +381,17 @@
         el("div", { class: "k-ex-inline" }, q.tags.length ? q.tags.map(function (t) { return tagChip(t, true); }) : [u.muted("untagged", "k-ex-italic")]),
         el("div", { class: "k-ex-grow" }),
         el("div", { class: "k-ex-cardfoot" }, [q.redo ? el("span", { class: "k-ex-ok", text: "✓ Redo item made" }) : u.btn("＋ Redo item", "sm", function () { setRedo(e0, [q.q], true); }),
+          (KOS.errorLog && KOS.errorLog.inlinePill) ? KOS.errorLog.inlinePill({
+            subject: (nodes[0] && nodes[0].subject) || e0.subject || "general",
+            space: "study",
+            topicRef: (nodes[0] && nodes[0].ref) || null,
+            topicTitle: (nodes[0] && nodes[0].title) || (e0.paper || ""),
+            source: "paper",
+            title: (e0.paper || "Past paper") + " " + q.q + " — " + (q.why || (nodes[0] ? nodes[0].title : "lost " + q.lost + " marks")),
+            context: "Scored " + q.got + " / " + q.max + " (−" + q.lost + " marks)" + (src ? " · " + src : ""),
+            dedupeKey: "paper:" + e0.uid + ":" + q.q,
+            deepLink: { view: "exams", arg: { attempt: e0.uid, page: "marks" } }
+          }, { hook: "exams.log-error", undoHook: "exams.log-undo", label: "+ Log error" }) : null,
           nodes[0] ? u.btn("Open the topic", "quiet sm", function () { KOS.show("ref", { subject: nodes[0].subject, ref: nodes[0].ref }); }) : null].filter(Boolean))], "k-ex-flexcard", "exams.pm-costly");
     })));
     var notRedo = pm.costly.filter(function (q) { return !q.redo; });

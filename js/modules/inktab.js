@@ -143,6 +143,24 @@
           return { label: (d.title || "Working") + " · " + when(d.at), onSelect: function () { KOS.inkPad.viewDoc(d.key, (d.title || "Working") + " · " + when(d.at)); } };
         }) }));
       if (KOS.inkDrills) side.appendChild(KOS.ui.menu({ label: "Drills", className: "k-btn--quiet k-btn--sm", align: "end", hint: "Blurt, diagram drills and Write it out", items: KOS.inkDrills.menuItems(sid, ref, KOS.spec.node ? ((KOS.spec.node(sid + ":" + ref) || {}).title || ref) : ref) }));
+      if (KOS.errorLog && KOS.errorLog.openCapture) {
+        var inkTitle = KOS.spec && KOS.spec.node ? ((KOS.spec.node(sid + ":" + ref) || {}).title || ref) : ref;
+        side.appendChild(el("button", {
+          type: "button", class: "k-btn k-btn--quiet k-btn--sm", "data-ui": "ink.log-error",
+          text: "+ Log error",
+          onclick: function () {
+            KOS.errorLog.openCapture({
+              subject: sid || "general",
+              space: "study",
+              topicRef: ref || null,
+              topicTitle: inkTitle || "",
+              source: "ink",
+              context: "Handwritten working · Ink tab",
+              deepLink: sid && ref ? { view: "ref", arg: { subject: sid, ref: ref } } : null
+            });
+          }
+        }));
+      }
       if (side.childNodes.length) opts.modeSlot.appendChild(side);
     }
     /* the view on screen: side by side folds to Page in portrait, and All

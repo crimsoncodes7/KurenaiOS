@@ -267,6 +267,57 @@
     if (KOS.errorLogUI && KOS.errorLogUI.openDialog) { openNow(); return; }
     if (KOS.lazy && KOS.lazy.ensure) KOS.lazy.ensure(["page-errorlog"], openNow);
   }
+  function inlinePill(seedOrFn, opts) {
+    opts = opts || {};
+    var el = KOS.ui.el;
+    var label = opts.label || "+ Log mistake";
+    var hook = opts.hook || "errorlog.inline-add";
+    var undoHook = opts.undoHook || "errorlog.inline-undo";
+    function readSeed() { return typeof seedOrFn === "function" ? (seedOrFn() || {}) : (seedOrFn || {}); }
+    var initSeed = readSeed();
+    var entry = initSeed.dedupeKey ? rawItems().filter(function (x) { return x.dedupeKey === initSeed.dedupeKey && x.status !== "resolved"; })[0] || null : null;
+    if (!entry && opts.auto) {
+      entry = quickLog(initSeed).entry;
+      if (KOS.refreshRailCounters) KOS.refreshRailCounters();
+    }
+    var box = el("span", { class: "k-el-inline", "data-ui": "errorlog.inline" });
+    function paint(refocus) {
+      box.innerHTML = "";
+      var primary;
+      if (entry && get(entry.id)) {
+        primary = el("button", {
+          type: "button", class: "k-el-inline-btn", "data-state": "logged", "data-ui": hook,
+          text: "✓ Logged · Tag reason",
+          onclick: function () { openCapture(get(entry.id) || entry, function () { paint(); }); }
+        });
+        box.appendChild(primary);
+        box.appendChild(el("button", {
+          type: "button", class: "k-el-inline-undo", "data-ui": undoHook,
+          text: "Undo",
+          onclick: function () {
+            remove(entry.id);
+            entry = null;
+            if (KOS.refreshRailCounters) KOS.refreshRailCounters();
+            paint(true);
+          }
+        }));
+      } else {
+        primary = el("button", {
+          type: "button", class: "k-el-inline-btn", "data-ui": hook,
+          text: label,
+          onclick: function () {
+            entry = quickLog(readSeed()).entry;
+            if (KOS.refreshRailCounters) KOS.refreshRailCounters();
+            paint(true);
+          }
+        });
+        box.appendChild(primary);
+      }
+      if (refocus && primary && primary.focus) primary.focus();
+    }
+    paint();
+    return box;
+  }
 
   KOS.errorLog = {
     MISTAKE_TYPES: MISTAKE_TYPES, TYPE_MAP: TYPE_MAP,
@@ -277,6 +328,6 @@
     add: add, update: update, remove: remove, restore: restore,
     setStatus: setStatus, markRevisited: markRevisited,
     hasLinkedCard: hasLinkedCard, toFlashcard: toFlashcard,
-    quickLog: quickLog, openCapture: openCapture
+    quickLog: quickLog, openCapture: openCapture, inlinePill: inlinePill
   };
 })();

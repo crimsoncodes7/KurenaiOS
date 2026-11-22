@@ -467,6 +467,112 @@ step("G · Universal Error Log store, 3-way sync, flashcard push, insights & laz
   eq(app.errors, [], "no page errors");
 });
 
+/* ---------------- H · U8 Low-friction Error Log capture across surfaces + Topic surfacing ---------------- */
+step("H · Low-friction Error Log capture across Quiz/Exam-Q/Ink/Code/JA/Exams & Topic surfacing (U8)", async () => {
+  const K = app.KOS;
+  const E = K.errorLog;
+  K.store.state.errorLog = { v: 1, items: [], settings: { autoLogQuiz: false } };
+  const govBefore = JSON.stringify(K.store.state.governor);
+  const sessBefore = K.store.state.sessions.length;
+
+  assert(typeof E.inlinePill === "function", "KOS.errorLog.inlinePill helper exists");
+
+  /* 1. Topic surfacing: absent when 0 open errors, visible when >= 1, deep-links to filtered Error Log */
+  const sid = "compsci";
+  const firstLeaf = K.spec.leaves(sid)[0];
+  assert(firstLeaf && firstLeaf.ref, "CS has a first spec leaf");
+  K.show("ref", { subject: sid, ref: firstLeaf.ref }); await app.settle(); await app.settle();
+  assert(!q("[data-ui~='topic.open-errors']"), "Topic page hides open-errors pill when 0 open errors");
+
+  const seeded = E.add({ subject: sid, topicRef: firstLeaf.ref, topicTitle: firstLeaf.title, source: "quiz", title: "Topic surfacing test error" });
+  K.rerender(); await app.settle();
+  const topicPill = q("[data-ui~='topic.open-errors']");
+  assert(topicPill, "Topic page shows subtle open-errors pill when topic has open errors");
+  assert(/1 open error/i.test(topicPill.textContent), "Topic pill displays accurate open error count");
+  click(topicPill); await app.settle(); await app.settle();
+  assert(q("[data-ui~='errorlog.list']"), "Clicking topic open-errors pill navigates to Error Log hub");
+  assert(q("[data-ui~='errorlog.clear-topic']"), "Error Log hub opens filtered to that exact topic");
+  E.remove(seeded.id);
+
+  /* 2. Quiz MCQ wrong answer: manual 1-tap mode vs Auto-log quiz misses mode */
+  K.show("ref", { subject: sid, ref: firstLeaf.ref }); await app.settle(); await app.settle();
+  assert(K.quiz && typeof K.quiz.mountMCQ === "function", "KOS.quiz loaded on topic page");
+  const sampleItems = [
+    { q: "Which data structure uses LIFO order?", opts: ["Stack", "Queue", "Heap", "Graph"], ans: 0, why: "A stack is Last-In First-Out." }
+  ];
+  const hostManual = app.document.createElement("div");
+  app.document.body.appendChild(hostManual);
+  E.setSetting("autoLogQuiz", false);
+  K.quiz.mountMCQ(hostManual, sid, firstLeaf.ref, sampleItems, { bare: true, onFinish: () => {} });
+  const wrongBtnM = Array.from(hostManual.querySelectorAll("[data-ui~='quiz.option']")).find((b) => !/Stack/.test(b.textContent));
+  assert(wrongBtnM, "found wrong option in manual MCQ");
+  click(wrongBtnM); await app.settle();
+  const logBtnM = hostManual.querySelector("[data-ui~='quiz.log-error']");
+  assert(logBtnM, "wrong MCQ answer renders 1-tap + Log mistake pill");
+  eq(E.openCount(), 0, "manual mode does not auto-log before tap");
+  click(logBtnM); await app.settle();
+  eq(E.openCount(), 1, "1-tap logs mistake immediately");
+  const logBtnMAfter = hostManual.querySelector("[data-ui~='quiz.log-error']");
+  assert(logBtnMAfter && /Logged/i.test(logBtnMAfter.textContent), "button flips to Logged · Tag reason");
+  const undoM = hostManual.querySelector("[data-ui~='quiz.log-undo']");
+  assert(undoM, "Undo control appears after logging");
+  click(undoM); await app.settle();
+  eq(E.openCount(), 0, "Undo removes the logged mistake");
+  hostManual.remove();
+
+  /* Auto-log quiz misses mode */
+  const hostAuto = app.document.createElement("div");
+  app.document.body.appendChild(hostAuto);
+  E.setSetting("autoLogQuiz", true);
+  K.quiz.mountMCQ(hostAuto, sid, firstLeaf.ref, sampleItems, { bare: true, onFinish: () => {} });
+  const wrongBtnA = Array.from(hostAuto.querySelectorAll("[data-ui~='quiz.option']")).find((b) => !/Stack/.test(b.textContent));
+  click(wrongBtnA); await app.settle();
+  eq(E.openCount(), 1, "autoLogQuiz=true automatically logs wrong quiz answer");
+  const logBtnA = hostAuto.querySelector("[data-ui~='quiz.log-error']");
+  assert(logBtnA && /Logged/i.test(logBtnA.textContent), "auto-logged pill shows Logged · Tag reason");
+  const undoA = hostAuto.querySelector("[data-ui~='quiz.log-undo']");
+  assert(undoA, "auto-logged pill provides Undo");
+  click(undoA); await app.settle();
+  eq(E.openCount(), 0, "Undo cleanly removes auto-logged quiz mistake");
+  E.setSetting("autoLogQuiz", false);
+  hostAuto.remove();
+
+  /* 3. Exam-Q self-mark panel renders + Log mistake pill on reveal */
+  const hostExam = app.document.createElement("div");
+  app.document.body.appendChild(hostExam);
+  K.quiz.mountExam(hostExam, sid, firstLeaf.ref, [
+    { q: "Explain why a stack overflow occurs in recursion.", marks: 2, scheme: ["Base case missing or never reached (1)", "Call stack exceeds memory limit (1)"] }
+  ], { bare: true });
+  const revBtn = hostExam.querySelector("[data-ui~='quiz.reveal']");
+  assert(revBtn, "Exam-Q reveal button present");
+  click(revBtn); await app.settle();
+  const examLog = hostExam.querySelector("[data-ui~='quiz.log-error']");
+  assert(examLog, "Exam-Q mark scheme panel renders + Log mistake pill");
+  click(examLog); await app.settle();
+  eq(E.openCount(), 1, "Exam-Q + Log mistake logs error with source exam-q");
+  eq(E.all()[0].source, "exam-q", "Exam-Q error carries source=exam-q");
+  E.remove(E.all()[0].id);
+  hostExam.remove();
+
+  /* 4. Ink tab toolbar exposes Log error button */
+  const inkTabBtn = q("[data-ui~='topic.tab-ink']");
+  if (inkTabBtn) {
+    click(inkTabBtn); await app.settle(); await app.settle();
+    assert(q("[data-ui~='ink.log-error']"), "Ink tab toolbar exposes Log error button");
+  }
+
+  /* 5. Code, Japanese, and Exams surfaces carry their capture hooks */
+  const fsMod = require("fs");
+  assert(fsMod.readFileSync("js/modules/code.js", "utf8").includes("code.log-error"), "code.js wires code.log-error");
+  assert(fsMod.readFileSync("js/modules/jarun.js", "utf8").includes("ja.log-error"), "jarun.js wires ja.log-error");
+  assert(fsMod.readFileSync("js/modules/examprac.js", "utf8").includes("exams.log-error"), "examprac.js wires exams.log-error");
+  assert(fsMod.readFileSync("js/modules/examreview.js", "utf8").includes("exams.log-error"), "examreview.js wires exams.log-error");
+
+  eq(JSON.stringify(K.store.state.governor), govBefore, "U8 captures create zero Governor traffic");
+  eq(K.store.state.sessions.length, sessBefore, "U8 captures log zero sessions");
+  eq(app.errors, [], "no page errors");
+});
+
 (async () => {
   let failed = 0;
   for (const [name, fn] of steps) {
