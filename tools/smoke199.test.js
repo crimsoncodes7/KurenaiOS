@@ -79,6 +79,56 @@ step("B · Home hero lightens blue scrim overlay and lets artwork breathe in Gra
   assert(dawnPeak <= 0.60, "Dawn --home-hero-scrim peak alpha should be lightened (<= 0.60), got " + dawnPeak);
 });
 
+/* ---------------- C · U3 Home Routines (4 habits + smart rotation) & Reminders (3 rows) ---------------- */
+step("C · Home shows 4 habits with smart rotation on completion and 3 reminders (U3)", async () => {
+  const R = K.routines;
+  const today = K.srs.todayISO();
+  K.store.state.welcome = { seen: true, mode: "own" };
+  /* Add a routine due now (clock is 13:00) so dueNow is active */
+  R.add({
+    name: "Midday Reset", kind: "custom", mark: "昼", tone: "teal",
+    days: [0, 1, 2, 3, 4, 5, 6], window: { from: "12:00", to: "15:00" },
+    steps: [{ title: "Step 1" }]
+  });
+  const names = ["H1 Water", "H2 Read", "H3 Stretch", "H4 Anki", "H5 Desk", "H6 Walk"];
+  names.forEach((n) => R.add({ name: n, kind: "habit", days: [0, 1, 2, 3, 4, 5, 6], steps: [{ title: n }] }));
+  ["R1 One", "R2 Two", "R3 Three", "R4 Four", "R5 Five"].forEach((t, i) => {
+    K.reminders.add({ title: t, due: K.srs.addDays(today, i - 1) });
+  });
+  K.store.save();
+
+  K.show("home"); await app.settle();
+  const snap = () => { const c = Object.assign({}, K.store.state); delete c.ui; return JSON.stringify(c); };
+  const beforeRender = snap();
+  K.rerender(); await app.settle();
+  eq(snap(), beforeRender, "Home render writes nothing");
+
+  const habitNames = () => qa("[data-ui~='home.routines'] [data-ui~='home.routine-tick']").map((n) => (n.getAttribute("aria-label") || "").replace(/^(?:Tick|Untick) /, "").replace(/ for today$/, ""));
+  assert(q("[data-ui~='home.routine-now']"), "dueNow routine is active");
+  eq(habitNames(), ["H1 Water", "H2 Read", "H3 Stretch", "H4 Anki"], "4 habits visible even when dueNow is active");
+
+  /* Tick H1: completed habit rotates out, H5 surfaces into the 4 visible slots */
+  click(qa("[data-ui~='home.routines'] [data-ui~='home.routine-tick']")[0]); await app.settle();
+  eq(habitNames(), ["H2 Read", "H3 Stretch", "H4 Anki", "H5 Desk"], "completed H1 rotated out and H5 surfaced");
+
+  /* Tick H2 and H3: 3 undone remain (H4, H5, H6), so 1st completed (H1) backfills slot 4 */
+  click(qa("[data-ui~='home.routines'] [data-ui~='home.routine-tick']")[0]); await app.settle();
+  click(qa("[data-ui~='home.routines'] [data-ui~='home.routine-tick']")[0]); await app.settle();
+  eq(habitNames(), ["H4 Anki", "H5 Desk", "H6 Walk", "H1 Water"], "undone habits stay first and completed H1 backfills 4th slot");
+
+  /* Tick remaining 3 undone: all 6 done -> first 4 completed stay cleanly populated */
+  click(qa("[data-ui~='home.routines'] [data-ui~='home.routine-tick']")[0]); await app.settle();
+  click(qa("[data-ui~='home.routines'] [data-ui~='home.routine-tick']")[0]); await app.settle();
+  click(qa("[data-ui~='home.routines'] [data-ui~='home.routine-tick']")[0]); await app.settle();
+  eq(habitNames(), ["H1 Water", "H2 Read", "H3 Stretch", "H4 Anki"], "all done backfills all 4 slots");
+
+  /* Reminders card shows 3 open rows and reports 3 of 5 */
+  const remCard = q("[data-ui~='rem.sum']");
+  assert(remCard && /3 of 5/.test(remCard.textContent), "Reminders meta reports 3 of 5: " + (remCard && remCard.textContent));
+  eq(qa("[data-ui~='rem.sum'] [data-ui~='home.reminder-tick']").length, 3, "Reminders shows 3 rows on Home");
+  eq(app.errors, [], "no page errors");
+});
+
 (async () => {
   let failed = 0;
   for (const [name, fn] of steps) {

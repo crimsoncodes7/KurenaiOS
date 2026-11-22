@@ -447,10 +447,14 @@
     }
     var rgrid = el("div", { class: "k-routines" });
     var weekStart = (function () { var d = new Date(today + "T12:00:00"); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return d; })();
-    /* an even count, so the two-column grid never ends in a gap */
-    var nH = Math.min(habits.length, dueNow ? 2 : 4);
-    if (nH > 1 && nH % 2) nH--;
-    habits.slice(0, nH).forEach(function (h) {
+    /* U3: show up to 4 habits (2 rows), surfacing undone habits first and
+       backfilling remaining slots with settled habits so none stay hidden */
+    var openH = [], doneH = [];
+    habits.forEach(function (h) {
+      var s0 = Rt.stateOn(h, day);
+      if (s0 === "done" || s0 === "min" || s0 === "rest") doneH.push(h); else openH.push(h);
+    });
+    openH.concat(doneH).slice(0, 4).forEach(function (h) {
       var st = Rt.stateOn(h, day), on = st === "done" || st === "min";
       var weekKept = 0;
       for (var i = 0; i < 7; i++) { var d = new Date(weekStart); d.setDate(weekStart.getDate() + i); var iso = isoOf(d); if (iso <= today) { var s2 = Rt.stateOn(h, iso); if (s2 === "done" || s2 === "min") weekKept++; } }
@@ -654,13 +658,13 @@
       .sort(function (a, b) { return (a.due || "9999") < (b.due || "9999") ? -1 : (a.due || "9999") > (b.due || "9999") ? 1 : 0; });
     var remLate = remOpen.filter(function (r) { return r.due && r.due < today; }).length;
     var reminders = el("section", { class: "k-card", "data-ui": "rem.sum", "aria-label": "Reminders" }, [
-      cardHead("Reminders", remOpen.length ? Math.min(2, remOpen.length) + " of " + remOpen.length + (remLate ? " · " + remLate + " overdue" : "") : null,
+      cardHead("Reminders", remOpen.length ? Math.min(3, remOpen.length) + " of " + remOpen.length + (remLate ? " · " + remLate + " overdue" : "") : null,
         "All →", function () { KOS.show("reminders"); })
     ]);
     if (!remOpen.length) {
       reminders.appendChild(KOS.ui.emptyState({ compact: true, body: "Nothing on the list." }));
     } else {
-      remOpen.slice(0, 2).forEach(function (r) {
+      remOpen.slice(0, 3).forEach(function (r) {
         var when = !r.due ? "" : r.due === today ? "Today" : r.due === KOS.srs.addDays(today, 1) ? "Tomorrow" : r.due < today ? shortDay(r.due) : shortDay(r.due);
         var row = el("button", { type: "button", class: "k-check-row", "data-ui": "home.reminder-tick", "aria-pressed": "false",
           "aria-label": "Complete " + r.title,
