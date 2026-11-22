@@ -201,6 +201,10 @@ button.k-ja-stone { cursor: pointer; border-radius: var(--r-10); }
 .k-ja-input-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(var(--sp-64), 1fr)); gap: var(--sp-10); }
 .k-ja-rework { display: flex; flex-direction: column; gap: var(--sp-8); }
 .k-ja-rework-row { display: flex; align-items: center; gap: var(--sp-10); }
+.k-ja-leech-row { display: flex; flex-direction: column; gap: var(--sp-8); align-items: stretch; }
+.k-ja-leech-main { display: flex; align-items: center; gap: var(--sp-10); }
+.k-ja-leech-main > .k-day-txt { flex: 1 1 0; min-inline-size: 0; }
+.k-ja-leech-acts { display: flex; flex-wrap: wrap; gap: var(--sp-8); }
 .k-ja-lapses { margin-inline-start: auto; font: var(--fs-11-5) var(--font-mono); color: var(--amber); }
 
 /* ================= reviews (28f) ================= */

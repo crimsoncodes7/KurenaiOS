@@ -25,7 +25,7 @@
 
   var SKILLS = ["R", "W", "L", "S"];
   var SECS = { R: 8, L: 10, W: 15, S: 20, H: 15 }; // seconds a review takes, for the load forecast
-  var LEECH = 8, STABLE = 21, HOLD = 7;
+  var LEECH = 8, LEECH_AGAIN = 4, STABLE = 21, HOLD = 7;
 
   function F() { return KOS.fsrs; }
   function addDays(iso, n) { var t = Date.parse(iso + "T12:00:00Z") + n * DAY, d = new Date(t); return d.toISOString().slice(0, 10); }
@@ -55,11 +55,13 @@
     var el = prev && f.last ? Math.max(0, days(f.last, today)) : 0;
     var nx = F().schedule(prev, g, el, { retention: opts.retention, seed: opts.seed || "ja|" + today, w: opts.w });
     var ivl = Math.max(1, nx.ivl); // no session requeues a facet: an Again comes back tomorrow
-    return {
+    var out = {
       s: r4(nx.s), d: r4(nx.d), ivl: ivl, due: addDays(today, ivl), last: today,
       reps: (f.reps || 0) + 1, lapses: (f.lapses || 0) + (g === 1 && f.reps ? 1 : 0),
       firstAt: f.firstAt || today
     };
+    if (f.leechBase != null) out.leechBase = f.leechBase;
+    return out;
   }
 
   /* Which facets an item has now. opts.produces(item) says whether a word is in a production
@@ -101,7 +103,16 @@
     return out;
   }
 
-  function leech(f) { return !!(f && f.lapses >= LEECH); }
+  function leechThreshold(f) { return f && f.leechBase != null ? f.leechBase + LEECH_AGAIN : LEECH; }
+  function leech(f) { return !!(f && f.lapses >= leechThreshold(f)); }
+  function unleech(k, facets) {
+    var map = facets || (KOS.store && KOS.store.state && KOS.store.state.japanese && KOS.store.state.japanese.facets);
+    var f = map && map[k];
+    if (!f || !leech(f)) return false;
+    f.leechBase = f.lapses;
+    if (!facets && KOS.store && KOS.store.save) KOS.store.save();
+    return true;
+  }
   function recall(f, today, w) { return f && f.reps && f.s > 0 ? F().retrievability(Math.max(0, days(f.last, today)), f.s, w) : 0; }
 
   /* queue(facets, today, w) → due facet keys: most overdue first, then the weakest; leeches set
@@ -180,7 +191,7 @@
 
   KOS.jaSrs = {
     key: key, split: split, gradeOf: gradeOf, holds: holds, review: review, facetsFor: facetsFor, introduce: introduce, unlock: unlock,
-    queue: queue, forecast: forecast, newBudget: newBudget, skills: skills, recall: recall, leech: leech,
-    addDays: addDays, days: days, SKILLS: SKILLS, SECS: SECS, LEECH: LEECH, STABLE: STABLE, HOLD: HOLD
+    queue: queue, forecast: forecast, newBudget: newBudget, skills: skills, recall: recall, leech: leech, unleech: unleech,
+    addDays: addDays, days: days, SKILLS: SKILLS, SECS: SECS, LEECH: LEECH, LEECH_AGAIN: LEECH_AGAIN, STABLE: STABLE, HOLD: HOLD
   };
 })(typeof window !== "undefined" ? window : globalThis);

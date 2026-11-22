@@ -27,6 +27,11 @@
                           unconfirmed occurrence (>14 days), offers inline bank
                           match via confirmWith only on press, and Confirm all /
                           Skip all ask first and support Undo.
+     H · bk:ja-mind#4     Japanese leech recovery: KOS.jaSrs.unleech mirrors
+                          KOS.srs.unleech with leechBase (+4 lapses), never
+                          erases lapses; desk lists set-aside facets with
+                          "Relearn from the lesson" and "Back in the schedule"
+                          with Undo.
 
    Run: node tools/smoke198.test.js                                         */
 "use strict";
@@ -562,6 +567,70 @@ step("G · Recurring Not yet confirmed queue lists every past occurrence with ma
 
   eq(K.sessions.all().length, sessBefore, "zero Governor sessions");
   eq(JSON.stringify({ xp: K.store.state.governor.xp, gold: K.store.state.governor.gold, hp: K.store.state.governor.hp }), govBefore, "Governor untouched");
+  eq(app.errors, [], "no page errors");
+});
+
+/* ---------------- H · bk:ja-mind#4 ---------------- */
+step("H · Japanese leech recovery: unleech with leechBase and desk actions with Undo (bk:ja-mind#4)", async () => {
+  await K.lazy.need("page-ja");
+  const J = K.ja, S = K.jaSrs;
+  const sessBefore = K.sessions.all().length;
+  J.startLesson("H1");
+  const k = "k:あ|R";
+  const f = K.store.state.japanese.facets[k];
+  f.reps = 10; f.lapses = 8; f.s = 1.2; f.d = 8; f.due = TODAY; f.last = "2026-11-19"; f.firstAt = "2026-11-01";
+  delete f.leechBase;
+  if (K.store.state.japanese.facets["k:あ|W"]) K.store.state.japanese.facets["k:あ|W"].due = "2026-11-22";
+  K.store.save();
+
+  assert(S.leech(f), "8 lapses is a leech");
+  assert(!J.due(TODAY).includes(k), "leech is out of due queue");
+  assert(typeof S.unleech === "function", "KOS.jaSrs.unleech is exported");
+
+  K.show("subject", "ja"); await app.settle(); await app.settle();
+  const snap = JSON.stringify(K.store.state.japanese);
+  K.rerender(); await app.settle();
+  eq(JSON.stringify(K.store.state.japanese), snap, "rendering Japanese desk writes nothing");
+
+  const leechRow = q("[data-ui~='ja.leech-row']");
+  assert(leechRow, "desk lists set-aside facet");
+  const relearnBtn = q("[data-ui~='ja.leech-lesson']", leechRow);
+  const backBtn = q("[data-ui~='ja.leech-unleech']", leechRow);
+  assert(relearnBtn && /Relearn from the lesson/.test(relearnBtn.textContent), "Relearn from the lesson button");
+  assert(backBtn && /Back in the schedule/.test(backBtn.textContent), "Back in the schedule button");
+
+  /* Relearn opens the owning lesson */
+  click(relearnBtn); await app.settle();
+  assert(/#\/ref\/ja\/H1/.test(app.window.location.hash), "Relearn navigates to H1: " + app.window.location.hash);
+
+  /* Back in the schedule calls unleech, keeps lapses === 8, sets leechBase === 8, returns to due(), and Undo restores exact state */
+  K.show("subject", "ja"); await app.settle(); await app.settle();
+  const beforeJson = JSON.stringify(K.store.state.japanese.facets[k]);
+  click(q("[data-ui~='ja.leech-unleech']")); await app.settle();
+  const after = K.store.state.japanese.facets[k];
+  eq([after.lapses, after.leechBase, S.leech(after)], [8, 8, false], "lapses kept, leechBase set, no longer leech");
+  assert(J.due(TODAY).includes(k), "facet is back in due queue");
+
+  /* Undo restores exact pre-unleech facet (no leechBase key left behind) */
+  const undoBtn = q(".k-toast-act");
+  assert(undoBtn && /Undo/.test(undoBtn.textContent), "Undo toast offered");
+  click(undoBtn); await app.settle();
+  eq(JSON.stringify(K.store.state.japanese.facets[k]), beforeJson, "Undo deletes leechBase and matches prior serialised state");
+  assert(S.leech(K.store.state.japanese.facets[k]), "Undo puts facet back as set aside");
+
+  /* Unleech again and check review() preserves leechBase and re-leeches only after +4 lapses (lapses === 12) */
+  assert(S.unleech(k) === true, "unleech returns true");
+  assert(S.unleech(k) === false, "unleech on non-leech returns false");
+  let cur = K.store.state.japanese.facets[k];
+  for (let i = 0; i < 3; i++) {
+    cur = S.review(cur, 1, TODAY, { retention: 0.9 });
+    eq(cur.leechBase, 8, "review preserves leechBase across lapses");
+    assert(!S.leech(cur), "still not leech at " + cur.lapses + " lapses");
+  }
+  cur = S.review(cur, 1, TODAY, { retention: 0.9 });
+  eq([cur.lapses, cur.leechBase, S.leech(cur)], [12, 8, true], "set aside again after 4 more lapses (12)");
+
+  eq(K.sessions.all().length, sessBefore, "leech recovery logs zero Governor sessions");
   eq(app.errors, [], "no page errors");
 });
 
