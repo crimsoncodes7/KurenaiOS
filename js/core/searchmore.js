@@ -32,6 +32,7 @@
     ["Assignments", "assignments", undefined, "homework coursework deadlines"],
     ["Exams & Papers", "exams", undefined, "exam mock past papers timetable readiness"],
     ["Pacing", "pacing", undefined, "weekly plan term schedule"],
+    ["Error Log", "errorlog", undefined, "mistakes errors log wrong drill"],
     ["Personal deck", "personaldeck", undefined, "my flashcards"],
     ["Labs and simulations", "sims", undefined, "labs simulators interactive"],
     ["Trace Lab", "trace", undefined, "trace tables algorithms dry run"],
