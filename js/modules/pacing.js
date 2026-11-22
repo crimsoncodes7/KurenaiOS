@@ -44,6 +44,7 @@
   ];
   var HUE = { compsci: "var(--cs)", maths: "var(--maths)", it: "var(--it)" };
   var DOW = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  var ISO_DOW = [[1, "Mon"], [2, "Tue"], [3, "Wed"], [4, "Thu"], [5, "Fri"], [6, "Sat"], [7, "Sun"]];
   var NAME = {};
   SUBJ.forEach(function (s) { NAME[s.id] = s.name; });
 
@@ -107,7 +108,7 @@
       ]),
       el("div", { class: "k-dialog-body k-pace-dlg-body" }, body.filter(Boolean)),
       el("div", { class: "k-dialog-foot", "data-ui": "pace.dlg-actions" }, actions.filter(Boolean)),
-      danger ? el("div", { class: "k-pace-dlg-danger", "data-ui": "pace.dlg-danger" }, [danger]) : null
+      danger ? el("div", { class: "k-pace-dlg-danger", "data-ui": "pace.dlg-danger" }, (Array.isArray(danger) ? danger : [danger]).filter(Boolean)) : null
     ].filter(Boolean)));
     return overlay;
   }
@@ -148,6 +149,10 @@
 
     var weekSel = select(KOS.pacing.weeks().map(function (w) { return [w.wb, w.label]; }));
     weekSel.value = e.wb || defaults.wb || (KOS.pacing.weeks()[0] || {}).wb || "";
+
+    var daySel = select([["", "Auto"]].concat(ISO_DOW.map(function (d) { return [String(d[0]), d[1]]; })));
+    daySel.setAttribute("data-ui", "pace.dlg-day");
+    daySel.value = e.day ? String(e.day) : "";
 
     var title = input("text", { placeholder: "e.g. Graph traversal: depth-first & breadth-first" });
     title.value = e.title || "";
@@ -269,7 +274,8 @@
         refs: KOS.spec.normaliseRefs(picker.value(), { leavesOnly: true, subject: subjSel.value, oneSubject: true })
           .map(function (k) { return k.slice(k.indexOf(":") + 1); }),
         done: doneBox.checked,
-        doneAt: doneBox.checked ? (e.done && e.doneAt ? e.doneAt : Date.now()) : null
+        doneAt: doneBox.checked ? (e.done && e.doneAt ? e.doneAt : Date.now()) : null,
+        day: daySel.value ? parseInt(daySel.value, 10) : null
       };
       var saved = creating ? KOS.pacing.addEntry(data) : KOS.pacing.updateEntry(e.id, data);
       if (!saved) { KOS.ui.toast("That could not be saved — check the week and subject.", true); return; }
@@ -288,7 +294,7 @@
       metaChips,
       el("div", { class: "k-pace-fgrid" }, [
         field("Register", sourceSel), field("Subject", subjSel), field("Week", weekSel),
-        kindField, areaField, paperField
+        field("Weekday", daySel), kindField, areaField, paperField
       ]),
       field("Title", title),
       field("Detail", detail),
@@ -302,7 +308,20 @@
       el("button", { type: "button", class: "k-btn k-btn--primary k-spacer", "data-intent": "primary", text: creating ? "Add row" : "Save changes", onclick: save })
     ],
     /* Delete is deliberately not in the same control group as Save */
-    creating ? null : el("button", { type: "button", class: "k-btn k-btn--danger k-btn--sm", "data-intent": "danger", text: "Delete this row", onclick: function () {
+    creating ? null : [
+      el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "pace.dlg-hide",
+        text: e.hidden ? "Restore row" : "Hide row",
+        onclick: function () {
+          var nextHidden = !e.hidden;
+          KOS.pacing.setHidden(e.id, nextHidden);
+          KOS.ui.toast(nextHidden ? "Row hidden." : "Row restored.", false, {
+            label: "Undo",
+            run: function () { KOS.pacing.setHidden(e.id, !nextHidden); onSaved && onSaved(e); }
+          });
+          close();
+          onSaved && onSaved(e);
+        } }),
+      el("button", { type: "button", class: "k-btn k-btn--danger k-btn--sm", "data-intent": "danger", text: "Delete this row", onclick: function () {
       KOS.ui.confirm({
         title: "Delete this plan row?",
         body: "“" + e.title + "” will be removed from " + ((KOS.pacing.weekAt(e.wb) || {}).label || e.wb)
@@ -314,7 +333,7 @@
         close();
         onSaved && onSaved(null);
       });
-    } }));
+    } })]);
     onShape();
     KOS.ui.openDialog(overlay);
     if (creating) title.focus();
@@ -329,7 +348,6 @@
   /* the class timetable: which weekdays each subject is taught. It dates
      the week's lessons (KOS.pacing.lessonPlan) — the Home Today card lists
      them and a class milestone counts down to its real day. */
-  var ISO_DOW = [[1, "Mon"], [2, "Tue"], [3, "Wed"], [4, "Thu"], [5, "Fri"], [6, "Sat"], [7, "Sun"]];
   function timetableDialog(onSaved) {
     var overlay;
     var pick = {};
@@ -369,64 +387,349 @@
     KOS.ui.openDialog(overlay, { label: "Class days" });
   }
 
-  /* Shift plan (1C, UR-19): move every unticked row of my own plan N plan
-     weeks, one subject or all, every row or from this week on; class rows,
-     ticked rows and exam-planner rows stay. One write through
-     KOS.pacing.shiftPlan, with Undo on the toast. */
+  /* Shift plan (1C, UR-19; expanded in U4): 2-step Configure → Preview flow.
+     Supports My plan, In class, or Both; optional ticked & exam-planner rows;
+     previews exact 2–4 week moves with real Pacing subject cards before
+     committing one write through KOS.pacing.shiftPlan with Undo on toast. */
   function plural(n, word) { return n + " " + word + (n === 1 ? "" : "s"); }
   function shiftDialog(selected, onDone) {
-    var overlay, pick = { n: 1, subject: "", from: "" };
-    function seg(label, ui, opts, key) {
-      var g = el("div", { class: "k-seg k-seg--quiet", role: "group", "aria-label": label, "data-ui": ui });
+    var overlay, step = "config";
+    var thisWb = (KOS.pacing.currentWeek() || selected || {}).wb || "";
+    var pick = { source: "personal", subject: "", dir: 1, weeks: 1, from: "", includeDone: false, includeExam: false };
+    var MORE_WEEKS = [5, 6, 8, 10, 12];
+
+    function shiftDelta() { return pick.dir * pick.weeks; }
+    function shiftOpts() {
+      return {
+        source: pick.source,
+        subject: pick.subject || null,
+        from: pick.from || null,
+        includeDone: pick.includeDone,
+        includeExam: pick.source === "school" ? false : pick.includeExam
+      };
+    }
+
+    function seg(label, ui, opts, key, extra) {
+      var g = el("div", { class: "k-seg k-seg--quiet k-pace-shift-seg", role: "group", "aria-label": label, "data-ui": ui });
+      var btns = [];
       opts.forEach(function (o) {
         var b = el("button", { type: "button", class: "k-seg-item", "aria-pressed": String(pick[key] === o[0]), text: o[1],
           onclick: function () {
             pick[key] = o[0];
-            g.querySelectorAll(".k-seg-item").forEach(function (x) { x.setAttribute("aria-pressed", "false"); KOS.ui.state(x, "active", false); });
-            b.setAttribute("aria-pressed", "true"); KOS.ui.state(b, "active", true);
+            syncSeg();
             paint();
           } });
-        if (pick[key] === o[0]) KOS.ui.state(b, "active", true);
+        btns.push([o[0], b]);
         g.appendChild(b);
       });
-      return g;
+      function syncSeg() {
+        btns.forEach(function (pair) {
+          var on = pick[key] === pair[0];
+          pair[1].setAttribute("aria-pressed", String(on));
+          KOS.ui.state(pair[1], "active", on);
+        });
+        if (extra && extra.sync) extra.sync();
+      }
+      if (extra && extra.tail) g.appendChild(extra.tail);
+      syncSeg();
+      return { el: g, sync: syncSeg };
     }
-    var nSel = el("select", { class: "k-input", "aria-label": "How many weeks", "data-ui": "pace.shift-n" },
-      [-4, -3, -2, -1, 1, 2, 3, 4, 5, 6, 8].map(function (n) {
-        var o = el("option", { value: String(n), text: n > 0 ? n + (n === 1 ? " week later" : " weeks later") : -n + (n === -1 ? " week earlier" : " weeks earlier") });
-        if (n === pick.n) o.selected = true;
-        return o;
-      }));
-    nSel.addEventListener("change", function () { pick.n = +nSel.value; paint(); });
-    var thisWb = (KOS.pacing.currentWeek() || selected || {}).wb || "";
-    var preview = el("p", { class: "k-field-hint", "data-ui": "pace.shift-preview", "aria-live": "polite" });
-    var go = el("button", { type: "button", class: "k-btn k-btn--primary k-spacer", "data-intent": "primary", "data-ui": "pace.shift-go", text: "Shift",
+
+    var regSeg = seg("Register", "pace.shift-source", [
+      ["personal", "My plan"], ["school", "In class"], ["both", "Both"]
+    ], "source");
+    var subjSeg = seg("Subject", "pace.shift-subject", [
+      ["", "All"], ["compsci", "Computer Science"], ["maths", "Maths"], ["it", "IT"]
+    ], "subject");
+    var dirSeg = seg("Direction", "pace.shift-dir", [
+      [-1, "Earlier"], [1, "Later"]
+    ], "dir");
+
+    var moreBtn = KOS.ui.menu({
+      label: "More",
+      className: "k-pace-shift-more",
+      align: "end",
+      items: MORE_WEEKS.map(function (w) {
+        return {
+          label: w + " weeks",
+          onSelect: function () { pick.weeks = w; weeksSeg.sync(); paint(); }
+        };
+      })
+    });
+    moreBtn.setAttribute("data-ui", "ui.menu-button pace.shift-more");
+    moreBtn.setAttribute("aria-label", "More week options");
+    function syncMoreBtn() {
+      var custom = pick.weeks > 4;
+      var lbl = moreBtn.querySelector("[data-ui='ui.menu-label']");
+      if (lbl) lbl.textContent = custom ? pick.weeks + "w" : "More";
+      moreBtn.setAttribute("aria-pressed", String(custom));
+      KOS.ui.state(moreBtn, "active", custom);
+    }
+    var weeksSeg = seg("Weeks", "pace.shift-weeks", [
+      [1, "1w"], [2, "2w"], [3, "3w"], [4, "4w"]
+    ], "weeks", { tail: moreBtn, sync: syncMoreBtn });
+
+    var fromSeg = seg("Scope", "pace.shift-from", [
+      ["", "Every matching row"], [thisWb, "From this week on"]
+    ], "from");
+
+    var doneChk = el("input", { type: "checkbox", class: "k-box", "data-ui": "pace.shift-done" });
+    doneChk.addEventListener("change", function () { pick.includeDone = doneChk.checked; paint(); });
+    var examChk = el("input", { type: "checkbox", class: "k-box", "data-ui": "pace.shift-exam" });
+    examChk.addEventListener("change", function () { pick.includeExam = examChk.checked; paint(); });
+    var examOpt = el("label", { class: "k-pace-shift-opt" }, [examChk, el("span", { text: "Include exam-planner rows" })]);
+
+    var summary = el("p", { class: "k-pace-shift-summary", "data-ui": "pace.shift-preview", "aria-live": "polite" });
+
+    var step1Pane = el("div", { class: "k-pace-shift-pane", "data-ui": "pace.shift-step1" }, [
+      el("p", { class: "k-field-hint k-pace-shift-intro", text: "Keep college lessons and self-study aligned when a class moves ahead or falls behind." }),
+      el("div", { class: "k-pace-shift-row" }, [
+        el("div", { class: "k-field" }, [el("span", { class: "k-field-label", text: "Register" }), regSeg.el]),
+        el("div", { class: "k-field" }, [el("span", { class: "k-field-label", text: "Subject" }), subjSeg.el])
+      ]),
+      el("div", { class: "k-pace-shift-row" }, [
+        el("div", { class: "k-field" }, [
+          el("span", { class: "k-field-label", text: "Shift by" }),
+          el("div", { class: "k-pace-shift-by" }, [dirSeg.el, weeksSeg.el])
+        ]),
+        el("div", { class: "k-field" }, [el("span", { class: "k-field-label", text: "Scope" }), fromSeg.el])
+      ]),
+      el("div", { class: "k-pace-shift-opts" }, [
+        el("label", { class: "k-pace-shift-opt" }, [doneChk, el("span", { text: "Include ticked rows" })]),
+        examOpt
+      ]),
+      summary
+    ]);
+
+    var step2Pane = el("div", { class: "k-pace-shift-pane", "data-ui": "pace.shift-step2", hidden: true });
+    var stepLabel = el("span", { class: "k-pace-shift-step", "data-ui": "pace.shift-step", text: "Step 1 of 2 · Configure" });
+
+    var cancelBtn = el("button", { type: "button", class: "k-btn", text: "Cancel", onclick: function () { overlay.close(); } });
+    var backBtn = el("button", { type: "button", class: "k-btn", "data-ui": "pace.shift-back", text: "← Back", hidden: true,
+      onclick: function () { setStep("config"); } });
+    var nextBtn = el("button", { type: "button", class: "k-btn k-btn--primary k-spacer", "data-intent": "primary", "data-ui": "pace.shift-next", text: "Preview →",
+      onclick: function () { setStep("preview"); } });
+    var goBtn = el("button", { type: "button", class: "k-btn k-btn--primary k-spacer", "data-intent": "primary", "data-ui": "pace.shift-go", text: "Confirm shift", hidden: true,
       onclick: function () {
-        var res = KOS.pacing.shiftPlan(pick.n, { subject: pick.subject || null, from: pick.from || null });
+        var n = shiftDelta();
+        var res = KOS.pacing.shiftPlan(n, shiftOpts());
         overlay.close();
-        var what = plural(res.moved, "row") + " " + Math.abs(pick.n) + (Math.abs(pick.n) === 1 ? " week " : " weeks ") + (pick.n > 0 ? "later" : "earlier");
+        var what = plural(res.moved, "row") + " " + Math.abs(n) + (Math.abs(n) === 1 ? " week " : " weeks ") + (n > 0 ? "later" : "earlier");
         KOS.ui.toast(res.moved ? "Shifted " + what + (res.added.length ? " · " + plural(res.added.length, "week") + " added" : "") : "Nothing to shift.", false,
           res.moved ? { label: "Undo", run: function () { KOS.pacing.undoShift(res.undo); onDone && onDone(); } } : null);
         onDone && onDone();
       } });
-    function paint() {
-      var n = KOS.pacing.shiftCount(pick.n, { subject: pick.subject || null, from: pick.from || null });
-      preview.textContent = n ? "Moves " + plural(n, "unticked row") + " of your own plan " + Math.abs(pick.n) + (Math.abs(pick.n) === 1 ? " week " : " weeks ") +
-        (pick.n > 0 ? "later" : "earlier") + ", stepping over breaks. Class rows, ticked rows and rows the exam planner sent stay where they are."
-        : "No unticked rows of your own plan to move.";
-      go.disabled = !n;
+
+    function regWord() {
+      return pick.source === "school" ? "In class" : pick.source === "both" ? "In class & My plan" : "My plan";
     }
-    overlay = dialogShell("Shift the plan", [
-      el("p", { class: "k-field-hint", text: "Fell behind, or got ahead? Move your own plan in one go." }),
-      el("label", { class: "k-field" }, [el("span", { class: "k-field-label", text: "By" }), nSel]),
-      el("div", { class: "k-field" }, [el("span", { class: "k-field-label", text: "Subject" }),
-        seg("Subject", "pace.shift-subject", [["", "All"]].concat(SUBJ.map(function (sb) { return [sb.id, sb.short || sb.name]; })), "subject")]),
-      el("div", { class: "k-field" }, [el("span", { class: "k-field-label", text: "Rows" }),
-        seg("Which rows", "pace.shift-from", [["", "Every unticked row"], [thisWb, "From this week on"]], "from")]),
-      preview
-    ], [go]);
+    function subjWord() {
+      if (!pick.subject) return "";
+      var found = SUBJ.filter(function (s) { return s.id === pick.subject; })[0];
+      return found ? found.name : pick.subject;
+    }
+
+    function prevRowNode(r) {
+      var tick = el("span", { class: "k-pace-prev-tick", "data-done": String(!!r.done), "aria-hidden": "true", text: r.done ? "✓" : "" });
+      return el("div", { class: "k-pace-prev-row", "data-move": r.move, "data-done": String(!!r.done) }, [
+        tick,
+        el("span", { class: "k-pace-prev-txt" }, [
+          el("span", { class: "k-pace-prev-t", text: r.title }),
+          el("span", { class: "k-pace-prev-m", text: r.meta })
+        ])
+      ]);
+    }
+
+    function renderStep2(pv) {
+      step2Pane.innerHTML = "";
+      var n = shiftDelta();
+      var deltaChip = el("span", { class: "k-chip", text: (n > 0 ? "+" : "−") + Math.abs(n) + "w · " + (n > 0 ? "later" : "earlier") });
+      var subjChip = pick.subject ? (function () {
+        var c = el("span", { class: "k-chip", text: subjWord() });
+        c.style.setProperty("--chip-c", HUE[pick.subject]);
+        return c;
+      })() : null;
+      var chips = el("div", { class: "k-pace-prev-chips" }, [
+        el("span", { class: "k-chip", text: regWord() }),
+        subjChip,
+        deltaChip,
+        el("span", { class: "k-chip", text: pick.from ? "From this week on" : "Every matching row" }),
+        el("span", { class: "k-chip", text: plural(pv.moves.length, "row") + " moving" })
+      ].filter(Boolean));
+      function leg(color, label) {
+        var d = el("span", { class: "k-pace-prev-dot", "aria-hidden": "true" });
+        d.style.setProperty("--dot-c", color);
+        return el("span", { class: "k-pace-prev-key" }, [d, el("span", { text: label })]);
+      }
+      step2Pane.appendChild(el("div", { class: "k-pace-prev-bar" }, [
+        chips,
+        el("div", { class: "k-pace-prev-legend" }, [
+          leg("var(--cs)", "Arriving"),
+          leg("var(--amber)", "Leaving"),
+          leg("var(--muted)", "Anchored")
+        ])
+      ]));
+
+      var movedMap = {};
+      pv.moves.forEach(function (m) { movedMap[m.id] = m; });
+
+      var cols = Math.max(1, Math.min(4, pv.windowWeeks.length || 1));
+      var grid = el("div", { class: "k-pace-prev-grid", "data-ui": "pace.shift-visual pace.shift-timeline" });
+      grid.style.setProperty("--prev-cols", String(cols));
+
+      pv.windowWeeks.forEach(function (w) {
+        var wkCard = el("section", { class: "k-pace-prev-wk", "data-ui": "pace.prev-wk", "aria-label": w.label });
+        if (w.isBreak) KOS.ui.state(wkCard, "break", true);
+        if (w.added) KOS.ui.state(wkCard, "added", true);
+        var tagText = w.added ? "+New" : w.isBreak ? "Break" : weekTag(w, pick.source === "personal" ? "personal" : "school");
+        wkCard.appendChild(el("div", { class: "k-pace-prev-wkh" }, [
+          el("b", { text: w.label }),
+          el("span", { text: tagText })
+        ]));
+
+        var subjs = pick.subject ? SUBJ.filter(function (s) { return s.id === pick.subject; }) : SUBJ;
+        var builtCards = 0;
+        subjs.forEach(function (sb) {
+          function collect(src) {
+            var rows = [];
+            pv.moves.forEach(function (m) {
+              if (m.toWb === w.wb && m.subject === sb.id && m.source === src) {
+                rows.push({ move: "arriving", title: m.title, done: m.done, meta: "← " + m.fromLabel + " (" + (n > 0 ? "+" : "−") + Math.abs(n) + "w)" });
+              }
+            });
+            pv.moves.forEach(function (m) {
+              if (m.fromWb === w.wb && m.subject === sb.id && m.source === src) {
+                rows.push({ move: "leaving", title: m.title, done: m.done, meta: "→ " + m.toLabel });
+              }
+            });
+            if (!w.added) {
+              KOS.pacing.entriesFor(w.wb, sb.id, src).forEach(function (e) {
+                if (!movedMap[e.id]) {
+                  rows.push({
+                    move: "anchored", title: e.title, done: !!e.done,
+                    meta: e.done ? "Ticked · stays here" : e.tag ? "Exam planner · anchored" : (src === "school" ? "In class · stays here" : "My plan · anchored")
+                  });
+                }
+              });
+            }
+            return rows;
+          }
+          var clsRows = collect("school");
+          var myRows = collect("personal");
+          if (!clsRows.length && !myRows.length) return;
+          builtCards++;
+          var sc = el("div", { class: "k-pace-prev-subj" }, [
+            el("h3", { class: "k-pace-col-h" }, [
+              el("span", { class: "k-pace-col-dot", "aria-hidden": "true" }),
+              el("span", { text: sb.short || sb.name })
+            ])
+          ]);
+          sc.style.setProperty("--pace-hue", HUE[sb.id]);
+          function addReg(label, hued, list) {
+            if (!list.length) return;
+            var k = el("p", { class: "k-kicker k-pace-reg-k", text: label });
+            if (hued) KOS.ui.state(k, "hued", true);
+            var shown = list.slice(0, 3);
+            var reg = el("div", { class: "k-pace-reg" }, [k].concat(shown.map(prevRowNode)));
+            if (list.length > shown.length) {
+              reg.appendChild(el("div", { class: "k-pace-prev-more", text: "+" + (list.length - shown.length) + " more" }));
+            }
+            sc.appendChild(reg);
+          }
+          addReg("In class", true, clsRows);
+          addReg("My plan", false, myRows);
+          wkCard.appendChild(sc);
+        });
+
+        if (w.isBreak && !builtCards) {
+          wkCard.appendChild(el("div", { class: "k-pace-prev-jump", text: n > 0 ? "Steps over →" : "← Steps over" }));
+        } else if (!builtCards) {
+          wkCard.appendChild(el("p", { class: "k-pace-none", text: "No matching rows in this week." }));
+        }
+        grid.appendChild(wkCard);
+      });
+      step2Pane.appendChild(grid);
+
+      var noteParts = [];
+      if (pv.breaksSkipped.length) {
+        var brkNames = [];
+        pv.breaksSkipped.forEach(function (b) {
+          var clean = String(b.label || "").toLowerCase().replace(/\b\w/g, function (c) { return c.toUpperCase(); });
+          if (clean && brkNames.indexOf(clean) === -1) brkNames.push(clean);
+        });
+        noteParts.push(pv.breaksSkipped.length <= 2 && brkNames.length
+          ? "Steps over " + brkNames.join(" & ")
+          : "Steps over " + plural(pv.breaksSkipped.length, "break"));
+      }
+      if (pv.addedWeeks.length) noteParts.push("Adds " + plural(pv.addedWeeks.length, "new week") + " at the end");
+      noteParts.push("Showing " + plural(pv.windowWeeks.length, "key week") + " · " + plural(pv.moves.length, "row") + " moving in total");
+      step2Pane.appendChild(el("p", { class: "k-pace-prev-note", text: noteParts.join(" · ") + "." }));
+    }
+
+    function setStep(next) {
+      step = next;
+      var dlg = overlay.querySelector("[data-ui~='pace.dlg']");
+      if (dlg) dlg.setAttribute("data-step", step);
+      stepLabel.textContent = step === "preview" ? "Step 2 of 2 · Preview" : "Step 1 of 2 · Configure";
+      step1Pane.hidden = step !== "config";
+      step2Pane.hidden = step !== "preview";
+      cancelBtn.hidden = step !== "config";
+      nextBtn.hidden = step !== "config";
+      backBtn.hidden = step !== "preview";
+      goBtn.hidden = step !== "preview";
+      if (step === "preview") {
+        var pv = KOS.pacing.shiftPreview(shiftDelta(), shiftOpts());
+        renderStep2(pv);
+        goBtn.textContent = "Confirm shift (" + plural(pv.moves.length, "row") + ")";
+        goBtn.disabled = !pv.moves.length;
+        backBtn.focus();
+      } else {
+        step2Pane.innerHTML = "";
+        nextBtn.focus();
+      }
+    }
+
+    function paint() {
+      var isSchoolOnly = pick.source === "school";
+      examChk.disabled = isSchoolOnly;
+      KOS.ui.state(examOpt, "disabled", isSchoolOnly);
+      var n = shiftDelta();
+      var pv = KOS.pacing.shiftPreview(n, shiftOpts());
+      var count = pv.moves.length;
+      if (count) {
+        var rowKind = pick.includeDone ? "row" : "unticked row";
+        var subjPart = pick.subject ? " in " + subjWord() : "";
+        var brkPart = pv.breaksSkipped.length ? ", stepping over " + plural(pv.breaksSkipped.length, "break") : "";
+        var addPart = pv.addedWeeks.length ? " and adding " + plural(pv.addedWeeks.length, "new week") : "";
+        var stay = [];
+        if (pick.source === "personal") stay.push("In class rows");
+        if (pick.source === "school") stay.push("My plan rows");
+        if (!pick.includeDone) stay.push("ticked rows");
+        if (!pick.includeExam && pick.source !== "school") stay.push("exam-planner rows");
+        summary.textContent = "Moves " + plural(count, rowKind) + " (" + regWord() + subjPart + ") "
+          + Math.abs(n) + (Math.abs(n) === 1 ? " week " : " weeks ") + (n > 0 ? "later" : "earlier")
+          + brkPart + addPart + "."
+          + (stay.length ? " " + stay.join(", ") + " stay anchored." : "");
+      } else {
+        summary.textContent = "No matching rows to move with these filters.";
+      }
+      nextBtn.disabled = !count;
+    }
+
+    overlay = el("div", { class: "k-dialog-overlay" });
+    overlay.close = function () { overlay.remove(); };
+    overlay.appendChild(el("div", { class: "k-dialog k-pace-dlg k-pace-shift-dlg", "data-ui": "ui.dialog pace.dlg pace.shift-dlg", "data-step": "config" }, [
+      el("div", { class: "k-dialog-head", "data-ui": "ui.dialog-head" }, [
+        el("h2", { class: "k-dialog-title", "data-ui": "ui.dialog-title", text: "Shift the plan" }),
+        stepLabel,
+        el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", text: "✕", "aria-label": "Close", onclick: function () { overlay.close(); } })
+      ]),
+      el("div", { class: "k-dialog-body k-pace-dlg-body" }, [step1Pane, step2Pane]),
+      el("div", { class: "k-dialog-foot", "data-ui": "pace.dlg-actions" }, [cancelBtn, backBtn, nextBtn, goBtn])
+    ]));
+
     paint();
-    KOS.ui.openDialog(overlay, { label: "Shift the plan", initialFocus: nSel });
+    KOS.ui.openDialog(overlay, { label: "Shift the plan" });
   }
 
   function weekDialog(existing, onSaved) {
@@ -868,33 +1171,140 @@
       ribbonHolder.appendChild(wrap);
     }
 
-    /* ---------------- one subject column (frame 10f) ----------------
+    /* ---------------- one subject column (frame 10f; U4 customisation) ----------------
        A subject is two registers under one header: what class does this
-       week and my own plan, each row a tick beside the row's own button.
-       No add buttons on the column (the banner's "+ Add row" opens the one
-       dialog) and no alignment prose — the braid is where the comparison
-       lives (review B). */
+       week and my own plan, each with its own "+" add trigger and per-row
+       "⋯" menu for move/reorder/hide/edit. */
+    var showHidden = false;
     function kicker(text, hue) {
       var k = el("p", { class: "k-kicker k-pace-reg-k", text: text });
       if (hue) KOS.ui.state(k, "hued", true);
       return k;
+    }
+    function regHead(text, hue, sid, source) {
+      return el("div", { class: "k-pace-reg-head" }, [
+        kicker(text, hue),
+        el("button", {
+          type: "button",
+          class: "k-btn k-btn--quiet k-pace-reg-add",
+          "data-ui": "pace.add-reg",
+          "data-subject": sid,
+          "data-source": source,
+          "aria-label": "Add " + text + " row to " + NAME[sid] + " in " + selected.label,
+          title: "Add " + text + " row",
+          text: "+",
+          onclick: function () { entryDialog(null, { wb: selected.wb, subject: sid, source: source }, redraw); }
+        })
+      ]);
+    }
+    function rowMenu(e, siblings, idx) {
+      if (e.hidden) {
+        return el("button", {
+          type: "button",
+          class: "k-btn k-btn--sm k-pace-unhide",
+          "data-ui": "pace.unhide",
+          "aria-label": "Restore " + e.title,
+          text: "Restore",
+          onclick: function () {
+            KOS.pacing.setHidden(e.id, false);
+            KOS.ui.toast("Row restored.");
+            redraw();
+          }
+        });
+      }
+      var allWks = KOS.pacing.weeks();
+      var wkIdx = allWks.findIndex(function (w) { return w.wb === e.wb; });
+      var prevWk = wkIdx > 0 ? allWks[wkIdx - 1] : null;
+      var nextWk = wkIdx >= 0 && wkIdx < allWks.length - 1 ? allWks[wkIdx + 1] : null;
+      var items = [];
+      if (prevWk) {
+        items.push({
+          label: "Move to previous week",
+          hint: prevWk.label,
+          onSelect: function () {
+            var oldWb = e.wb;
+            var res = KOS.pacing.moveEntryWeek(e.id, -1);
+            if (res) {
+              KOS.ui.toast("Moved to " + ((KOS.pacing.weekAt(res.toWb) || {}).label || res.toWb) + ".", false, {
+                label: "Undo",
+                run: function () { KOS.pacing.moveEntryWeek(e.id, oldWb); redraw(); }
+              });
+              redraw();
+            }
+          }
+        });
+      }
+      items.push({
+        label: "Move to next week",
+        hint: nextWk ? nextWk.label : "Adds a new week",
+        onSelect: function () {
+          var oldWb = e.wb;
+          var res = KOS.pacing.moveEntryWeek(e.id, 1);
+          if (res) {
+            KOS.ui.toast("Moved to " + ((KOS.pacing.weekAt(res.toWb) || {}).label || res.toWb) + ".", false, {
+              label: "Undo",
+              run: function () { KOS.pacing.moveEntryWeek(e.id, oldWb); redraw(); }
+            });
+            redraw();
+          }
+        }
+      });
+      if (siblings && idx > 0) {
+        items.push({
+          label: "Move up",
+          onSelect: function () { KOS.pacing.reorderEntry(e.id, -1); redraw(); }
+        });
+      }
+      if (siblings && idx >= 0 && idx < siblings.length - 1) {
+        items.push({
+          label: "Move down",
+          onSelect: function () { KOS.pacing.reorderEntry(e.id, 1); redraw(); }
+        });
+      }
+      items.push({ sep: true });
+      items.push({
+        label: "Hide row",
+        onSelect: function () {
+          KOS.pacing.setHidden(e.id, true);
+          KOS.ui.toast("Row hidden.", false, {
+            label: "Undo",
+            run: function () { KOS.pacing.setHidden(e.id, false); redraw(); }
+          });
+          redraw();
+        }
+      });
+      items.push({
+        label: "Edit…",
+        onSelect: function () { entryDialog(e, null, redraw); }
+      });
+      var btn = KOS.ui.menu({
+        label: "⋯",
+        className: "k-btn--quiet k-pace-row-more",
+        align: "end",
+        items: items
+      });
+      btn.setAttribute("data-ui", "ui.menu-button pace.row-menu");
+      btn.setAttribute("aria-label", "Actions for " + e.title);
+      return btn;
     }
     function refLine(e) {
       return (e.refs || []).length ? e.refs.join(" · ") : [e.area, e.paper].filter(Boolean).join(" · ");
     }
     function subjectColumn(sid) {
       var meta = SUBJ.filter(function (s) { return s.id === sid; })[0];
-      var classRows = KOS.pacing.entriesFor(selected.wb, sid, "school");
-      var myRows = KOS.pacing.entriesFor(selected.wb, sid, "personal");
+      var classRows = KOS.pacing.entriesFor(selected.wb, sid, "school", { includeHidden: showHidden });
+      var myRows = KOS.pacing.entriesFor(selected.wb, sid, "personal", { includeHidden: showHidden });
+      var visibleClass = classRows.filter(function (e) { return !e.hidden; });
+      var visibleMine = myRows.filter(function (e) { return !e.hidden; });
       var carried = KOS.pacing.carriedInto(selected.wb, sid);
-      /* the count is of ticks: each class lesson, each plan row */
+      /* the count is of visible ticks: each class lesson, each plan row */
       var marks = [];
-      classRows.forEach(function (e) {
+      visibleClass.forEach(function (e) {
         var ls = KOS.pacing.lessonsOf(e);
         if (!ls.length) marks.push(!!e.done);
         ls.forEach(function (l) { marks.push(KOS.pacing.lessonSat(e, l.text)); });
       });
-      myRows.forEach(function (e) { marks.push(!!e.done); });
+      visibleMine.forEach(function (e) { marks.push(!!e.done); });
       var all = marks;
       var ticked = marks.filter(Boolean).length;
 
@@ -907,28 +1317,34 @@
       ].filter(Boolean)));
 
       /* register 1 — the room */
-      var classBox = el("div", { class: "k-pace-reg", "data-ui": "pace.reg-class" }, [kicker("In class", true)]);
+      var classBox = el("div", { class: "k-pace-reg", "data-ui": "pace.reg-class" }, [regHead("In class", true, sid, "school")]);
       if (!classRows.length) classBox.appendChild(el("p", { class: "k-pace-none", text: "Nothing scheduled." }));
-      classRows.forEach(function (e) { classBox.appendChild(classBlock(e)); });
+      classRows.forEach(function (e) {
+        var vIdx = visibleClass.indexOf(e);
+        classBox.appendChild(classBlock(e, visibleClass, vIdx));
+      });
       col.appendChild(classBox);
 
       /* register 2 — my own curriculum: what carried in from earlier weeks
          first, each marked "carried", then the week's own rows */
-      var mineBox = el("div", { class: "k-pace-reg", "data-ui": "pace.reg-mine" }, [kicker("My plan")]);
+      var mineBox = el("div", { class: "k-pace-reg", "data-ui": "pace.reg-mine" }, [regHead("My plan", false, sid, "personal")]);
       if (!myRows.length && !carried.length) {
         mineBox.appendChild(el("p", { class: "k-pace-none", text:
           KOS.pacing.isBreak(selected) ? "Half term — nothing scheduled." : "Nothing scheduled." }));
       }
-      carried.forEach(function (c) { mineBox.appendChild(tickRow(c.entry, c, "plan")); });
-      myRows.forEach(function (e) { mineBox.appendChild(tickRow(e, null, "plan")); });
+      carried.forEach(function (c) { mineBox.appendChild(tickRow(c.entry, c, "plan", null, -1)); });
+      myRows.forEach(function (e) {
+        var vIdx = visibleMine.indexOf(e);
+        mineBox.appendChild(tickRow(e, null, "plan", visibleMine, vIdx));
+      });
       col.appendChild(mineBox);
       return col;
     }
 
     /* one row: the tick, then the row's button (title over its refs), then
-       a "carried" chip on a row showing in a later week than its own. The
-       tick and the button are siblings, never one inside the other. */
-    function tickRow(e, carry, kind) {
+       a "carried" chip or weekday picker, and the "⋯" row menu (or Restore).
+       The tick and the button are siblings, never one inside the other. */
+    function tickRow(e, carry, kind, siblings, idx) {
       var cov = kind === "plan" ? KOS.pacing.coverage(e) : null;
       var tone = e.done ? "ticked" : cov ? topicTone(cov) : "none";
       var tick = el("input", { type: "checkbox", class: "k-pace-tick-in", "aria-label": (e.done ? "Untick " : "Tick off ") + e.title,
@@ -943,13 +1359,27 @@
       var sub = refLine(e);
       var btn = el("button", { type: "button", class: "k-pace-row-btn", "data-ui": kind === "class" ? "pace.class" : "pace.row",
         title: lessons.length > 1 ? lessons.length + " lessons — open for the list" : null,
-        "aria-label": e.title + (e.done ? " — ticked off" : cov ? " — " + TONE_WORD[tone] : "")
+        "aria-label": e.title + (e.hidden ? " — hidden" : "") + (e.done ? " — ticked off" : cov ? " — " + TONE_WORD[tone] : "")
           + (carry ? ", carried over from " + from + ", " + carry.weeksLate + (carry.weeksLate === 1 ? " week" : " weeks") + " behind" : "")
           + (lessons.length > 1 ? ", " + lessons.length + " lessons" : ""),
         onclick: function () { entryDialog(e, null, redraw); } }, [
         el("b", { class: "k-pace-row-title", text: e.title }),
         sub ? el("span", { class: "k-pace-row-m k-mono", "data-ui": "part.sub", text: sub }) : null
       ].filter(Boolean));
+      var dayCtl = null;
+      if (!e.hidden && kind === "class") {
+        var daySel = el("select", { class: "k-select k-pace-lesson-day", "data-ui": "pace.entry-day", "aria-label": "Day for " + e.title,
+          title: e.day ? "Moved from the class timetable" : "Runs on class days (Auto)",
+          onchange: function () { KOS.pacing.setEntryDay(e.id, daySel.value ? parseInt(daySel.value, 10) : null); redraw(); } },
+          [["", "Auto"]].concat(ISO_DOW.map(function (d) { return [String(d[0]), d[1]]; })).map(function (o) {
+            return el("option", { value: o[0], text: o[1] });
+          }));
+        daySel.value = e.day ? String(e.day) : "";
+        if (e.day) KOS.ui.state(daySel, "moved", true);
+        dayCtl = daySel;
+      } else if (!e.hidden && kind === "plan" && e.day >= 1 && e.day <= 7) {
+        dayCtl = el("span", { class: "k-pace-day-chip", "data-ui": "pace.entry-day", text: ISO_DOW[e.day - 1][1] });
+      }
       var row = el("div", { class: "k-pace-plan", "data-ui": kind === "class" ? "pace.class-row" : "pace.plan-row" + (carry ? " pace.carried" : "") }, [
         el("label", { class: "k-pace-tick", "data-ui": "pace.tick", title: e.done ? "Ticked off" : kind === "class" ? "Tick when you have sat it" : "Tick off when done" }, [tick]),
         btn,
@@ -963,9 +1393,11 @@
               KOS.ui.toast("Moved into " + selected.label + ".");
               redraw();
             } })
-        ]) : null
+        ]) : dayCtl,
+        rowMenu(e, siblings, idx)
       ].filter(Boolean));
       if (e.done) KOS.ui.state(row, "is-done", true);
+      if (e.hidden) KOS.ui.state(row, "is-hidden", true);
       if (carry) KOS.ui.state(row, "is-carried", true);
       if (kind === "class" && (e.kind === "Mock" || e.kind === "Assessment")) KOS.ui.state(row, "is-assess", true);
       return row;
@@ -975,19 +1407,22 @@
        (title over its refs, opening the dialog) and its lessons sit under
        it on the page, EACH with its own tick — "I sat that lesson". A row
        listing no lessons is its own single lesson. */
-    function classBlock(e) {
+    function classBlock(e, siblings, idx) {
       var lessons = KOS.pacing.lessonsOf(e);
       var plan = KOS.pacing.lessonPlan(e);
-      if (lessons.length < 2) return tickRow(e, null, "class");
+      if (lessons.length < 2) return tickRow(e, null, "class", siblings, idx);
       var sub = refLine(e);
       var satN = lessons.filter(function (l) { return KOS.pacing.lessonSat(e, l.text); }).length;
       var box = el("div", { class: "k-pace-cls", "data-ui": "pace.class-row" }, [
-        el("button", { type: "button", class: "k-pace-row-btn k-pace-cls-head", "data-ui": "pace.class",
-          "aria-label": e.title + ", " + satN + " of " + lessons.length + " lessons sat",
-          onclick: function () { entryDialog(e, null, redraw); } }, [
-          el("b", { class: "k-pace-row-title", text: e.title }),
-          sub ? el("span", { class: "k-pace-row-m k-mono", "data-ui": "part.sub", text: sub }) : null
-        ].filter(Boolean)),
+        el("div", { class: "k-pace-cls-top" }, [
+          el("button", { type: "button", class: "k-pace-row-btn k-pace-cls-head", "data-ui": "pace.class",
+            "aria-label": e.title + (e.hidden ? " — hidden" : "") + ", " + satN + " of " + lessons.length + " lessons sat",
+            onclick: function () { entryDialog(e, null, redraw); } }, [
+            el("b", { class: "k-pace-row-title", text: e.title }),
+            sub ? el("span", { class: "k-pace-row-m k-mono", "data-ui": "part.sub", text: sub }) : null
+          ].filter(Boolean)),
+          rowMenu(e, siblings, idx)
+        ]),
         el("ul", { class: "k-pace-cls-lessons", "data-ui": "pace.lessons" }, lessons.map(function (l, li0) {
           var on = KOS.pacing.lessonSat(e, l.text);
           var lp = plan[li0] || { days: [] };
@@ -1011,6 +1446,7 @@
         }))
       ]);
       if (e.done) KOS.ui.state(box, "is-done", true);
+      if (e.hidden) KOS.ui.state(box, "is-hidden", true);
       return box;
     }
 
@@ -1021,6 +1457,9 @@
       var ws = KOS.pacing.weekStatus(selected.wb);
       var isNow = todayWeek && todayWeek.wb === selected.wb;
       var past = todayWeek && selected.wb < todayWeek.wb;
+      var hiddenN = KOS.pacing.entriesFor(selected.wb, null, null, { includeHidden: true })
+        .filter(function (e) { return e.hidden; }).length;
+      if (!hiddenN) showHidden = false;
 
       /* the banner (10f), concise: whose week it is in the kicker, the one
          figure as the title with the week's actions beside it, the rule
@@ -1050,6 +1489,10 @@
             onclick: function () { timetableDialog(redraw); } }),
           el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "pace.shift", "data-phone-more": "", text: "Shift plan…",
             onclick: function () { shiftDialog(selected, redraw); } }),
+          hiddenN ? el("button", { type: "button", class: "k-btn k-btn--sm" + (showHidden ? " k-btn--primary" : " k-btn--quiet"),
+            "data-ui": "pace.show-hidden", "aria-pressed": String(showHidden),
+            text: showHidden ? "Hide hidden (" + hiddenN + ")" : "Hidden (" + hiddenN + ")",
+            onclick: function () { showHidden = !showHidden; buildWeek(); } }) : null,
           todayWeek && !isNow ? el("button", { type: "button", class: "k-btn k-btn--sm k-btn--quiet", text: "This week",
             onclick: function () { KOS.show("pacing", { wb: todayWeek.wb }); } }) : null
         ].filter(Boolean));

@@ -775,6 +775,9 @@ color-scheme: dark;
 --pace-braid-title-w: 180px;
 --pace-merge-ref-w: 90px;
 --pace-merge-tone-w: 170px;
+--pace-shift-w: 740px;
+--pace-preview-w: 1080px;
+--pace-shift-dur: 1.9s;
 
 /* ---------- Collection (frames 11a–11k) ---------- */
 --st-inProgress: var(--anime);

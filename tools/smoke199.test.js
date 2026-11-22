@@ -129,6 +129,104 @@ step("C · Home shows 4 habits with smart rotation on completion and 3 reminders
   eq(app.errors, [], "no page errors");
 });
 
+/* ---------------- D · U4 Pacing full customisation & 2-step Shift preview ---------------- */
+step("D · Pacing shifts In class / Both with preview, Undo, and per-row customisation (U4)", async () => {
+  const PC = K.pacing;
+  PC.ensureSeeded();
+  const S = PC.state();
+  const govBefore = JSON.stringify(K.store.state.governor);
+  const sessBefore = K.store.state.sessions.length;
+  const snapAll = () => JSON.stringify({
+    w: S.weeks.map((w) => [w.wb, w.schoolWk, w.personalWk]),
+    e: S.entries.map((e) => [e.id, e.wb, e.wk, !!e.hidden, e.order == null ? null : e.order, e.day == null ? null : e.day])
+  });
+  const baseSnap = snapAll();
+
+  /* 1. Shift In class (school) Maths +2 school weeks, stepping over breaks, leaving My plan & ticked rows anchored */
+  assert(typeof PC.shiftPreview === "function", "KOS.pacing.shiftPreview exists");
+  const schoolWks = PC.weeks().filter((w) => w.schoolWk != null).map((w) => w.wb);
+  const mathsSchool = S.entries.filter((e) => e.source === "school" && e.subject === "maths" && !e.done && !e.hidden);
+  const persSnap = S.entries.filter((e) => e.source === "personal").map((e) => e.id + "@" + e.wb).join(",");
+  assert(mathsSchool.length >= 2 && schoolWks.length >= 4, "seeded plan has school maths rows");
+  const m0 = mathsSchool[0], mTick = mathsSchool[1];
+  mTick.done = true;
+  const m0Idx = schoolWks.indexOf(m0.wb);
+  const prev = PC.shiftPreview(2, { source: "school", subject: "maths" });
+  eq(prev.moves.length, mathsSchool.length - 1, "preview counts unticked school maths rows");
+  assert(prev.windowWeeks && prev.windowWeeks.length >= 2 && prev.windowWeeks.length <= 4, "preview builds 2–4 week window");
+  eq(snapAll(), baseSnap, "shiftPreview is pure and writes nothing");
+
+  const rSchool = PC.shiftPlan(2, { source: "school", subject: "maths" });
+  eq(rSchool.moved, mathsSchool.length - 1, "shifted unticked school maths rows");
+  eq(m0.wb, schoolWks[Math.min(m0Idx + 2, schoolWks.length - 1)], "school row stepped 2 school weeks over breaks");
+  eq(m0.wk, PC.weekAt(m0.wb).schoolWk, "school row wk derived from destination schoolWk (invariant 84)");
+  eq(S.entries.filter((e) => e.source === "personal").map((e) => e.id + "@" + e.wb).join(","), persSnap, "personal rows untouched");
+  assert(!rSchool.undo.rows.some((u) => u[0] === mTick.id), "ticked school row stayed anchored");
+  PC.undoShift(rSchool.undo);
+  mTick.done = false;
+  eq(snapAll(), baseSnap, "undoShift restored school rows and weeks exactly");
+
+  /* 2. Shift Both including ticked and exam-planner rows, and earlier with from floor */
+  const examRow = PC.addEntry({ source: "personal", subject: "maths", wb: schoolWks[3], title: "Exam drill", tag: "exam:ex1" });
+  mTick.done = true;
+  const rBoth = PC.shiftPlan(-2, { source: "both", subject: "maths", from: schoolWks[2], includeDone: true, includeExam: true });
+  assert(rBoth.schoolMoved > 0 && rBoth.personalMoved > 0, "Both moved both school and personal rows");
+  assert(rBoth.undo.rows.some((u) => u[0] === examRow.id), "includeExam moved exam-planner row");
+  assert(S.entries.filter((e) => rBoth.undo.rows.some((u) => u[0] === e.id)).every((e) => e.wb >= schoolWks[2]), "floor respected");
+  PC.undoShift(rBoth.undo);
+  mTick.done = false;
+  PC.removeEntry(examRow.id);
+  eq(snapAll(), baseSnap, "undoShift restored Both shift cleanly");
+
+  /* 3. Per-row customisation: moveEntryWeek, reorderEntry, setEntryDay, setHidden */
+  const wbTest = m0.wb;
+  const cAdd = PC.addEntry({ source: "school", subject: "maths", wb: wbTest, title: "Custom class row" });
+  const beforeOrder = PC.entriesFor(wbTest, "maths", "school").map((e) => e.id);
+  assert(beforeOrder.indexOf(cAdd.id) > 0, "added row sits after existing row");
+  PC.reorderEntry(cAdd.id, -1);
+  const afterOrder = PC.entriesFor(wbTest, "maths", "school").map((e) => e.id);
+  assert(afterOrder.indexOf(cAdd.id) === beforeOrder.indexOf(cAdd.id) - 1, "reorderEntry moved row up");
+
+  PC.setEntryDay(cAdd.id, 4);
+  eq(PC.entryById(cAdd.id).day, 4, "setEntryDay stored weekday override");
+  eq(PC.lessonPlan(PC.entryById(cAdd.id))[0].days, [4], "lessonPlan honours single-lesson class day override");
+
+  const mvRes = PC.moveEntryWeek(cAdd.id, 1);
+  assert(mvRes.ok && PC.entryById(cAdd.id).wb !== wbTest, "moveEntryWeek moved single class row +1 week");
+  PC.moveEntryWeek(cAdd.id, wbTest);
+  eq(PC.entryById(cAdd.id).wb, wbTest, "moveEntryWeek moved row back by wb");
+
+  PC.setHidden(cAdd.id, true);
+  assert(!PC.entriesFor(wbTest, "maths", "school").some((e) => e.id === cAdd.id), "hidden row omitted from entriesFor");
+  assert(PC.entriesFor(wbTest, "maths", "school", { includeHidden: true }).some((e) => e.id === cAdd.id), "hidden row returned with includeHidden");
+  PC.setHidden(cAdd.id, false);
+  assert(PC.entriesFor(wbTest, "maths", "school").some((e) => e.id === cAdd.id), "unhidden row restored");
+  PC.removeEntry(cAdd.id);
+
+  /* 4. 2-step Shift UI (Configure -> Preview -> Back -> Confirm shift) + per-register + & row menu */
+  K.show("pacing", { wb: wbTest }); await app.settle(); await app.settle();
+  assert(qa("[data-ui~='pace.add-reg']").length >= 6, "per-register + buttons rendered across subjects");
+  assert(qa("[data-ui~='pace.row-menu']").length >= 1, "row action menus rendered");
+
+  click(q("[data-ui~='pace.shift']")); await app.settle();
+  assert(q("[data-ui~='pace.shift-source']"), "Step 1 shows Register selector");
+  assert(/Computer Science/.test(q("[data-ui~='pace.shift-subject']").textContent), "Subject uses Computer Science");
+  assert(!q("[data-ui~='pace.shift-visual']"), "Step 1 does not crowd inline visual preview");
+  const inClassBtn = [...qa("[data-ui~='pace.shift-source'] button")].find((b) => /In class/.test(b.textContent));
+  click(inClassBtn); await app.settle();
+  click(q("[data-ui~='pace.shift-next']")); await app.settle();
+  assert(q("[data-ui~='pace.shift-visual']"), "Step 2 shows real Pacing card shift preview");
+  assert(q("[data-ui~='pace.shift-back']"), "Step 2 offers Back button");
+  assert(q("[data-ui~='pace.shift-go']"), "Step 2 offers Confirm shift button");
+  click(q("[data-ui~='pace.shift-back']")); await app.settle();
+  assert(q("[data-ui~='pace.shift-source']"), "Back returns to Step 1 preserving state");
+  K.ui.closeDialogs(); await app.settle();
+
+  eq(JSON.stringify(K.store.state.governor), govBefore, "Pacing customisation creates zero Governor traffic (invariant 82)");
+  eq(K.store.state.sessions.length, sessBefore, "Pacing customisation logs zero sessions");
+  eq(app.errors, [], "no page errors");
+});
+
 (async () => {
   let failed = 0;
   for (const [name, fn] of steps) {

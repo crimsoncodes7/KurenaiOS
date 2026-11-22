@@ -124,7 +124,11 @@
       lessonDays: cleanLessonDays(e.lessonDays),
       /* a row the Exams planner sent (invariant 126): "exam:<assessment
          id>", so it can be replaced or undone as a set; empty otherwise */
-      tag: /^exam:[a-z0-9]{1,24}$/.test(str(e.tag)) ? str(e.tag) : ""
+      tag: /^exam:[a-z0-9]{1,24}$/.test(str(e.tag)) ? str(e.tag) : "",
+      /* U4: per-row customisation (soft-hide, sync-safe order, optional weekday 1..7) */
+      hidden: !!e.hidden,
+      order: intOrNull(e.order),
+      day: (function (d) { return d >= 1 && d <= 7 ? d : null; })(intOrNull(e.day))
     };
   }
   function cleanLessonDays(m) {
@@ -561,12 +565,14 @@
     if (whole) ls = [{ text: e.title, tone: /Mock|Assessment/.test(e.kind) ? "assess" : /NEA/.test(e.kind) ? "nea" : "lesson" }];
     var tt = timetable(e.subject);
     var over = e.lessonDays || {};
+    var rowDay = ls.length === 1 && e.day >= 1 && e.day <= 7 ? e.day : null;
     return ls.map(function (l, i) {
       var days = over[l.text] ? [over[l.text]]
+        : rowDay ? [rowDay]
         : !tt.length ? []
         : ls.length === 1 ? tt.slice()
         : [tt[Math.min(i, tt.length - 1)]];
-      return { text: l.text, tone: l.tone, whole: whole, index: i, moved: !!over[l.text], days: days,
+      return { text: l.text, tone: l.tone, whole: whole, index: i, moved: !!(over[l.text] || rowDay), days: days,
         dates: days.map(function (d) { return KOS.srs ? KOS.srs.addDays(e.wb, d - 1) : e.wb; }) };
     });
   }
@@ -599,54 +605,165 @@
     return out;
   }
 
-  /* ---------------- shifting the plan (1C, UR-19) ----------------
-     shiftPlan(n, {subject, from}) moves every UNTICKED row of my own plan n
-     plan weeks later (n < 0: earlier). A plan week is a week my own plan
-     runs in (personalWk set), so breaks are stepped over; a row past the
-     last plan week gets a new one, as the reflow does. Class rows, ticked
-     rows and the Exams planner's rows (tag exam:…, invariant 126) never
-     move; `from` (a week beginning) leaves earlier rows where they are, and
-     a row is never moved before `from` or before the first plan week. `wk`
-     is derived on the write (invariant 84). Returns {moved, added, undo}:
-     undoShift(undo) puts every row back and drops a week it added that
-     holds nothing now. Pure planning: no progress, no Governor (82). */
-  function planWeekList() { return weeks().filter(function (w) { return w.personalWk != null; }); }
+  /* ---------------- shifting the plan (1C, UR-19; expanded in U4) ----------------
+     shiftPlan(n, o) moves matching rows n teaching weeks later (n < 0: earlier).
+     Defaults stay backwards-compatible: source "personal", unticked, non-exam.
+     U4 adds source "school" | "both", includeDone, includeExam, and pure
+     shiftPreview(n, o) so the 2-step Shift UI previews exact moves, breaks
+     stepped over and added weeks before writing. `wk` is derived on every write
+     (invariant 84). Pure planning: no progress, no Governor (82). */
+  function shiftSource(o) {
+    var s = o && o.source;
+    return s === "school" || s === "both" ? s : "personal";
+  }
+  function weekListFor(src, allWeeks) {
+    return (allWeeks || weeks()).filter(function (w) {
+      return src === "school" ? w.schoolWk != null : w.personalWk != null;
+    });
+  }
   function shiftable(e, o) {
-    return e.source === "personal" && !e.done && !e.tag && (!o.subject || e.subject === o.subject) && (!o.from || e.wb >= o.from);
-  }
-  function shiftCount(n, o) {
     o = o || {};
-    return P().entries.filter(function (e) { return shiftable(e, o); }).length;
+    var src = shiftSource(o);
+    if (e.hidden) return false;
+    if (src === "personal" && e.source !== "personal") return false;
+    if (src === "school" && e.source !== "school") return false;
+    if (!o.includeDone && e.done) return false;
+    if (!o.includeExam && e.tag) return false;
+    if (o.subject && e.subject !== o.subject) return false;
+    if (o.from && e.wb < o.from) return false;
+    return true;
   }
-  function shiftPlan(n, o) {
+  function shiftPreview(n, o) {
     o = o || {};
     n = Math.round(+n || 0);
-    var s = P(), out = { moved: 0, added: [], undo: { rows: [], weeks: [] } };
+    var out = { n: n, moves: [], addedWeeks: [], breaksSkipped: [], schoolMoved: 0, personalMoved: 0, examMoved: 0, windowWeeks: [] };
     if (!n) return out;
-    var list = planWeekList();
-    if (!list.length) return out;
-    var floor = 0;
-    if (o.from) { floor = list.findIndex(function (w) { return w.wb >= o.from; }); if (floor === -1) floor = list.length - 1; }
-    s.entries.forEach(function (e) {
+    var simWeeks = weeks().map(function (w) { return Object.assign({}, w); });
+    var addedMap = {};
+    function findSim(wb) { for (var i = 0; i < simWeeks.length; i++) if (simWeeks[i].wb === wb) return simWeeks[i]; return null; }
+    function ensureNextWeek(src) {
+      var list = weekListFor(src, simWeeks);
+      if (!list.length) return null;
+      var last = list[list.length - 1], wb = plusWeek(last.wb);
+      var ex = findSim(wb);
+      if (ex) {
+        if (src === "school" && ex.schoolWk == null) ex.schoolWk = last.schoolWk + 1;
+        if (src === "personal" && ex.personalWk == null) ex.personalWk = last.personalWk + 1;
+        if (addedMap[wb]) addedMap[wb] = ex;
+        return ex;
+      }
+      var nw = normaliseWeek({
+        wb: wb, label: weekLabel(wb),
+        schoolWk: src === "school" ? last.schoolWk + 1 : null,
+        personalWk: src === "personal" ? last.personalWk + 1 : null,
+        note: "Added when the plan was shifted."
+      });
+      simWeeks.push(nw);
+      simWeeks.sort(function (a, b) { return a.wb < b.wb ? -1 : a.wb > b.wb ? 1 : 0; });
+      addedMap[wb] = nw;
+      return nw;
+    }
+    var breakSeen = {};
+    P().entries.forEach(function (e) {
       if (!shiftable(e, o)) return;
-      /* the row's place among the plan weeks: its own, else the next one */
+      var list = weekListFor(e.source, simWeeks);
+      if (!list.length) return;
+      var floor = 0;
+      if (o.from) { floor = list.findIndex(function (w) { return w.wb >= o.from; }); if (floor === -1) floor = list.length - 1; }
       var at = list.findIndex(function (w) { return w.wb >= e.wb; });
       if (at === -1) at = list.length - 1;
       var to = Math.max(floor, at + n);
       while (to >= list.length) {
-        var last = list[list.length - 1], wb = plusWeek(last.wb);
-        var w = normaliseWeek({ wb: wb, label: weekLabel(wb), schoolWk: null, personalWk: last.personalWk + 1,
-          note: "Personal plan only — added when the plan was shifted." });
-        if (weekAt(wb)) break;
-        s.weeks.push(w); out.added.push(wb); out.undo.weeks.push(wb);
-        list = planWeekList();
+        if (!ensureNextWeek(e.source)) break;
+        list = weekListFor(e.source, simWeeks);
       }
       to = Math.min(to, list.length - 1);
-      if (list[to].wb === e.wb) return;
+      var dest = list[to];
+      if (!dest || dest.wb === e.wb) return;
+      var lo = e.wb < dest.wb ? e.wb : dest.wb, hi = e.wb < dest.wb ? dest.wb : e.wb;
+      var stepped = [];
+      simWeeks.forEach(function (w) {
+        if (w.wb > lo && w.wb < hi && isBreak(w)) {
+          var lbl = w.note ? w.note.split(/[—.–]/)[0].trim() : w.label;
+          stepped.push(w.wb);
+          if (!breakSeen[w.wb]) { breakSeen[w.wb] = true; out.breaksSkipped.push({ wb: w.wb, label: lbl || w.label }); }
+        }
+      });
+      var srcW = findSim(e.wb);
+      out.moves.push({
+        id: e.id, title: e.title, source: e.source, subject: e.subject,
+        fromWb: e.wb, toWb: dest.wb,
+        fromLabel: srcW ? srcW.label : e.wb, toLabel: dest.label,
+        toWk: weekNumberFor(dest, e.source),
+        done: !!e.done, tag: e.tag || "", addedWeek: !!addedMap[dest.wb], stepsBreaks: stepped
+      });
+      if (e.source === "school") out.schoolMoved++; else out.personalMoved++;
+      if (e.tag) out.examMoved++;
+    });
+    out.addedWeeks = Object.keys(addedMap).sort().map(function (wb) { return addedMap[wb]; });
+
+    /* Build a focused 2–4 week preview window showing source, stepped break, and destination */
+    if (out.moves.length) {
+      var sorted = out.moves.slice().sort(function (a, b) { return a.fromWb < b.fromWb ? -1 : a.fromWb > b.fromWb ? 1 : 0; });
+      var anchor = (o.from && sorted.filter(function (m) { return m.fromWb >= o.from; })[0]) || sorted[0];
+      var i0 = simWeeks.findIndex(function (w) { return w.wb === anchor.fromWb; });
+      var i1 = simWeeks.findIndex(function (w) { return w.wb === anchor.toWb; });
+      var loI = Math.min(i0, i1), hiI = Math.max(i0, i1);
+      var picked = [];
+      if (hiI - loI <= 3) {
+        var endI = Math.min(simWeeks.length, loI + 4);
+        var startI = Math.max(0, endI - Math.min(4, Math.max(2, hiI - loI + 1)));
+        if (hiI - loI + 1 <= 4) { startI = loI; endI = Math.min(simWeeks.length, loI + 4); }
+        picked = simWeeks.slice(startI, endI);
+      } else {
+        var idxSet = [loI];
+        if (loI + 1 < hiI) {
+          var brkIdx = simWeeks.findIndex(function (w, k) { return k > loI && k < hiI && isBreak(w); });
+          if (brkIdx !== -1) {
+            if (loI + 1 < brkIdx) idxSet.push(loI + 1);
+            idxSet.push(brkIdx);
+          } else {
+            idxSet.push(loI + 1);
+          }
+        }
+        idxSet.push(hiI);
+        picked = idxSet.slice(0, 4).map(function (k) { return simWeeks[k]; });
+      }
+      out.windowWeeks = picked.map(function (w) {
+        return Object.assign({}, w, { isBreak: isBreak(w), added: !!addedMap[w.wb] });
+      });
+    }
+    return out;
+  }
+  function shiftCount(n, o) {
+    return shiftPreview(n, o).moves.length;
+  }
+  function shiftPlan(n, o) {
+    o = o || {};
+    n = Math.round(+n || 0);
+    var s = P(), out = { moved: 0, schoolMoved: 0, personalMoved: 0, added: [], undo: { rows: [], weeks: [], weekPatches: [] } };
+    var pv = shiftPreview(n, o);
+    if (!pv.moves.length) return out;
+    pv.addedWeeks.forEach(function (nw) {
+      var ex = weekAt(nw.wb);
+      if (ex) {
+        out.undo.weekPatches.push([ex.wb, ex.schoolWk, ex.personalWk]);
+        if (nw.schoolWk != null && ex.schoolWk == null) ex.schoolWk = nw.schoolWk;
+        if (nw.personalWk != null && ex.personalWk == null) ex.personalWk = nw.personalWk;
+      } else {
+        s.weeks.push(normaliseWeek(nw));
+        out.added.push(nw.wb);
+        out.undo.weeks.push(nw.wb);
+      }
+    });
+    pv.moves.forEach(function (m) {
+      var e = entryById(m.id), dest = weekAt(m.toWb);
+      if (!e || !dest) return;
       out.undo.rows.push([e.id, e.wb, e.wk]);
-      e.wb = list[to].wb;
-      e.wk = weekNumberFor(list[to], "personal");
+      e.wb = dest.wb;
+      e.wk = weekNumberFor(dest, e.source);
       out.moved++;
+      if (e.source === "school") out.schoolMoved++; else out.personalMoved++;
     });
     KOS.store.save();
     return out;
@@ -659,12 +776,82 @@
       var e = entryById(r[0]);
       if (e) { e.wb = r[1]; e.wk = r[2]; }
     });
+    (u.weekPatches || []).forEach(function (p) {
+      var w = weekAt(p[0]);
+      if (w) { w.schoolWk = p[1]; w.personalWk = p[2]; }
+    });
     (u.weeks || []).forEach(function (wb) {
       if (s.entries.some(function (e) { return e.wb === wb; })) return;
       s.weeks = s.weeks.filter(function (w) { return w.wb !== wb; });
     });
     KOS.store.save();
     return true;
+  }
+
+  /* ---------------- U4: per-row customisation (hide, week move, reorder, weekday) ---------------- */
+  function setHidden(id, val) {
+    var e = entryById(id);
+    if (!e) return { ok: false };
+    var prev = !!e.hidden;
+    e.hidden = !!val;
+    KOS.store.save();
+    return { ok: true, prev: prev, entry: e };
+  }
+  function moveEntryWeek(id, target) {
+    var e = entryById(id);
+    if (!e) return { ok: false };
+    var prevWb = e.wb, prevWk = e.wk, dest = null, addedWeek = null;
+    if (typeof target === "number") {
+      var delta = Math.round(target);
+      if (!delta) return { ok: false };
+      var list = weekListFor(e.source);
+      if (!list.length) return { ok: false };
+      var at = list.findIndex(function (w) { return w.wb >= e.wb; });
+      if (at === -1) at = list.length - 1;
+      var to = Math.max(0, at + delta);
+      while (to >= list.length) {
+        var last = list[list.length - 1], wb = plusWeek(last.wb);
+        if (weekAt(wb)) break;
+        var nw = normaliseWeek({
+          wb: wb, label: weekLabel(wb),
+          schoolWk: e.source === "school" ? last.schoolWk + 1 : null,
+          personalWk: e.source === "personal" ? last.personalWk + 1 : null,
+          note: "Added when moving a row."
+        });
+        P().weeks.push(nw);
+        addedWeek = wb;
+        list = weekListFor(e.source);
+      }
+      dest = list[Math.min(to, list.length - 1)];
+    } else {
+      dest = weekAt(str(target));
+    }
+    if (!dest || dest.wb === e.wb) return { ok: false };
+    e.wb = dest.wb;
+    e.wk = weekNumberFor(dest, e.source);
+    KOS.store.save();
+    return { ok: true, prevWb: prevWb, prevWk: prevWk, wb: dest.wb, addedWeek: addedWeek };
+  }
+  function reorderEntry(id, dir) {
+    var e = entryById(id);
+    if (!e || !dir) return false;
+    var sibs = entriesFor(e.wb, e.subject, e.source);
+    var i = sibs.findIndex(function (x) { return x.id === id; });
+    var j = i + (dir < 0 ? -1 : 1);
+    if (i === -1 || j < 0 || j >= sibs.length) return false;
+    var tmp = sibs[i]; sibs[i] = sibs[j]; sibs[j] = tmp;
+    sibs.forEach(function (x, k) { x.order = k; });
+    KOS.store.save();
+    return true;
+  }
+  function setEntryDay(id, dow) {
+    var e = entryById(id);
+    if (!e) return null;
+    var d = intOrNull(dow);
+    e.day = d >= 1 && d <= 7 ? d : null;
+    if (e.source === "school" && lessonsOf(e).length <= 1) e.lessonDays = {};
+    KOS.store.save();
+    return e;
   }
 
   /* ---------------- reads ---------------- */
@@ -678,12 +865,23 @@
   function entryById(id) {
     return P().entries.filter(function (e) { return e.id === id; })[0] || null;
   }
-  function entriesFor(wb, subject, source) {
-    return P().entries.filter(function (e) {
+  function entriesFor(wb, subject, source, opts) {
+    var incH = !!(opts && opts.includeHidden);
+    var list = P().entries.map(function (e, idx) { return { e: e, idx: idx }; }).filter(function (x) {
+      var e = x.e;
       return e.wb === wb
+        && (incH || !e.hidden)
         && (!subject || e.subject === subject)
         && (!source || e.source === source);
     });
+    if (list.some(function (x) { return x.e.order != null; })) {
+      list.sort(function (a, b) {
+        var oa = a.e.order != null ? a.e.order : 1e9 + a.idx;
+        var ob = b.e.order != null ? b.e.order : 1e9 + b.idx;
+        return oa - ob || a.idx - b.idx;
+      });
+    }
+    return list.map(function (x) { return x.e; });
   }
 
   /* the week a date falls in: the last week beginning on or before it, and
@@ -789,7 +987,7 @@
          is what decides whether class is revisiting or introducing it */
       var best = null, bestIdx = Infinity;
       P().entries.forEach(function (e) {
-        if (e.source !== "personal" || e.subject !== subject) return;
+        if (e.hidden || e.source !== "personal" || e.subject !== subject) return;
         if (e.refs.indexOf(ref) === -1) return;
         var i = indexOfWb(e.wb);
         if (i !== -1 && i < bestIdx) { bestIdx = i; best = e; }
@@ -885,7 +1083,7 @@
     if (!now || here === -1) return [];
     var nowIdx = indexOfWb(now.wb);
     return P().entries.filter(function (e) {
-      if (e.source !== "personal" || e.done) return false;
+      if (e.hidden || e.source !== "personal" || e.done) return false;
       if (subject && e.subject !== subject) return false;
       var from = indexOfWb(e.wb);
       return from !== -1 && from < here && from < nowIdx;
@@ -957,7 +1155,7 @@
     var today = KOS.srs ? KOS.srs.todayISO() : new Date().toISOString().slice(0, 10);
     var out = [];
     P().entries.forEach(function (e) {
-      if (e.source !== "school" || !MILESTONE_KINDS[e.kind]) return;
+      if (e.hidden || e.source !== "school" || !MILESTONE_KINDS[e.kind]) return;
       if (subject && e.subject !== subject) return;
       var end = weekEnd(e.wb);
       if (end < today) return;                       /* the week has passed */
@@ -1035,7 +1233,8 @@
 
   KOS.pacing = {
     SCHEMA: SCHEMA,
-    shiftPlan: shiftPlan, shiftCount: shiftCount, undoShift: undoShift,
+    shiftPlan: shiftPlan, shiftCount: shiftCount, shiftPreview: shiftPreview, undoShift: undoShift,
+    setHidden: setHidden, moveEntryWeek: moveEntryWeek, reorderEntry: reorderEntry, setEntryDay: setEntryDay,
     SUBJECTS: SUBJECTS,
     normalise: normalise,
     normaliseWeek: normaliseWeek,
