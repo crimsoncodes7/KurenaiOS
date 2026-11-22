@@ -57,6 +57,28 @@ step("A · Kurenai panel centres figure, aligns aura behind body, and prevents a
     "empty drawer mascot frame prevents head clipping too, got: " + (drawerFrame && drawerFrame[0]));
 });
 
+/* ---------------- B · U2 Home hero lighter blue overlay ---------------- */
+step("B · Home hero lightens blue scrim overlay and lets artwork breathe in Graphite and Dawn (U2)", () => {
+  const tokens = fs.readFileSync(path.join(ROOT, "css/tokens.css"), "utf8");
+  const themes = fs.readFileSync(path.join(ROOT, "css/themes.css"), "utf8");
+  const home = fs.readFileSync(path.join(ROOT, "css/views/home.css"), "utf8");
+
+  assert(/--home-art-op:\s*0\.8\d/.test(tokens), "tokens.css defines raised --home-art-op for Graphite");
+  assert(/--home-art-op:\s*0\.6\d/.test(themes), "themes.css defines raised --home-art-op for Dawn");
+  assert(/\.k-home-hero\s*>\s*\.k-art\s*\{[^}]*--art-op:\s*var\(--home-art-op\)/.test(home),
+    "home.css binds --art-op: var(--home-art-op) on .k-home-hero > .k-art");
+
+  const duskScrim = tokens.match(/--home-hero-scrim:\s*([^;]+);/);
+  assert(duskScrim, "Graphite --home-hero-scrim exists");
+  const duskPeak = Math.max(...[...duskScrim[1].matchAll(/\/\s*(0?\.\d+)\)/g)].map((m) => parseFloat(m[1])));
+  assert(duskPeak <= 0.55, "Graphite --home-hero-scrim peak alpha should be lightened (<= 0.55), got " + duskPeak);
+
+  const dawnScrim = themes.match(/--home-hero-scrim:\s*([^;]+);/);
+  assert(dawnScrim, "Dawn --home-hero-scrim exists");
+  const dawnPeak = Math.max(...[...dawnScrim[1].matchAll(/\/\s*(0?\.\d+)\)/g)].map((m) => parseFloat(m[1])));
+  assert(dawnPeak <= 0.60, "Dawn --home-hero-scrim peak alpha should be lightened (<= 0.60), got " + dawnPeak);
+});
+
 (async () => {
   let failed = 0;
   for (const [name, fn] of steps) {

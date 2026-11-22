@@ -1358,7 +1358,7 @@ color-scheme: dark;
 --asst-confirm-bg: linear-gradient(150deg, oklch(from var(--amber) 0.27 calc(c * 0.417) h / 0.45), var(--s1) 60%);
 /* the heroes (Home frame 7a, the Governor 12a) on the theme's hero tint */
 --home-hero-bg: var(--hero-tint);
---home-hero-scrim: linear-gradient(90deg, oklch(from var(--hero-tint) l calc(c + 0.005) h / 0.8) 0%, oklch(from var(--hero-tint) l calc(c + 0.005) h / 0.55) 30%, oklch(from var(--hero-tint) l calc(c + 0.005) h / 0.12) 54%, transparent 64%, oklch(from var(--hero-tint) calc(l - 0.03) calc(c - 0.01) h / 0.5) 78%, oklch(from var(--hero-tint) calc(l - 0.03) calc(c - 0.01) h / 0.7) 100%);
+--home-hero-scrim: linear-gradient(90deg, oklch(from var(--hero-tint) l calc(c + 0.005) h / 0.48) 0%, oklch(from var(--hero-tint) l calc(c + 0.005) h / 0.28) 30%, oklch(from var(--hero-tint) l calc(c + 0.005) h / 0.06) 54%, transparent 64%, oklch(from var(--hero-tint) calc(l - 0.03) calc(c - 0.01) h / 0.26) 78%, oklch(from var(--hero-tint) calc(l - 0.03) calc(c - 0.01) h / 0.42) 100%);
 --home-hero-ink: oklch(from var(--hero-tint) 0.8 calc(c + 0.02) h);
 --home-goal-ink: oklch(from var(--hero-tint) 0.82 calc(c + 0.01) calc(h - 35));
 --home-ring-track: oklch(from var(--hero-tint) calc(l + 0.12) c h);
@@ -1419,6 +1419,7 @@ color-scheme: dark;
    always fades into its own --bg, and the Seat's glass. Dawn restates the
    dials (themes.css); Decorative art off zeroes them (:root[data-art=off]). */
 --art-op-hero: 0.62;
+--home-art-op: 0.84;
 --art-op-stage: 0.9;
 --art-op-hall: 0.8;
 --art-filter: none;
