@@ -340,7 +340,7 @@ C["it:F201.3.1"] = {
         { m: "Flag fraudulent card payments as accurately as possible → **random forest** (accuracy first)." },
         { m: "Spot the odd sensor reading in a factory → **k-means** (far from every centroid)." }
       ], result: "Unlabelled → k-means; explain → tree; accuracy → forest",
-      try: [{ grid: { cols: ["Task", "Algorithm"], rows: [
+      try: [{ notesOnly: true, grid: { cols: ["Task", "Algorithm"], rows: [
         ["Find types of hospital patient by their visit patterns (no labels)", "k-means"],
         ["Predict house prices as accurately as possible from 40 features", "random forest"],
         ["A council must explain every parking-permit refusal", "decision tree"],
@@ -390,7 +390,7 @@ C["it:F201.3.1"] = {
       ], result: "Data trains the AI (1) + AI generates data that improves it (1)" } },
     lor9("a random forest"),
     { worked: { tag: "exam", title: "Should TuneWave switch to a random forest?", src: "OCR-style · Discuss · 9 marks",
-      q: "TuneWave currently uses a single decision tree to predict which subscribers will cancel. Its analysts propose replacing it with a random forest. Discuss whether TuneWave should use a random forest. You should consider: the benefits of using a random forest; the limitations of using a random forest; whether you would recommend it.",
+      q: "TuneWave currently uses a single decision tree to predict which subscribers will cancel. Its analysts propose replacing it with a random forest. Discuss whether TuneWave should use a random forest.\n\nYou should consider:\n- the benefits of using a random forest\n- the limitations of using a random forest\n- whether you would recommend it.",
       steps: [
         { m: "Purpose: a random forest builds many trees on random samples of the subscriber data and takes a majority vote on 'cancel' or 'stay'.", mk: "1", n: "Modelled on the shape of SAM Q6(c). Shows understanding — supports every level." },
         { m: "Benefit: more accurate than one tree, so fewer at-risk subscribers are missed and fewer retention discounts are wasted on loyal ones.", mk: "1", n: "Benefit applied to TuneWave — L2/L3." },
@@ -458,7 +458,6 @@ C["it:F201.3.1"] = {
     ["Give two benefits of AI in data science.", "Analyses huge volumes fast; finds hidden patterns; predicts so action is early; works consistently 24/7; personalises at scale.", 110],
     ["Give two limitations of AI in data science.", "Biased/poor data gives biased/wrong results; black-box decisions are hard to explain; costly; privacy risk; finds correlation not cause.", 111],
     ["List the stages of developing an AI model.", "Define the problem → collect and prepare data → choose an algorithm → train → test on unseen data → deploy and monitor.", 112],
-    ["Which algorithm would you pick to explain a loan refusal to the applicant, and why?", "A decision tree — its route of tests is a readable reason.", 113],
     ["How can k-means detect anomalies?", "A record that lies far from every centroid doesn't fit any group, so it is flagged as unusual.", 114],
     ["What is NOT in the 3.1 spec, so need not be learnt?", "The historical development of AI and machine learning.", 115]
   ],
@@ -569,7 +568,7 @@ C["it:F201.4.1"] = {
       ["7 · Accountability", "Take responsibility and be able to **prove** compliance.", "Records of processing, DPIAs, staff training logs."]
     ] } },
     { callout: { t: "warn", h: "Principles are not rights", body: "\"Right to access\" is a **right**; \"accuracy\" is a **principle**. A question asking for principles gets no marks for rights, and the reverse." } },
-    { worked: { tag: "example", title: "Which principle is broken?", q: "PulseFit (a) keeps ex-members' bank details for ten years 'just in case', (b) asks new members for their religion, (c) leaves printed health forms on reception. Name the principle each breaks.",
+    { worked: { tag: "example", title: "Which principle is broken?", q: "PulseFit:\n- **(a)** keeps ex-members' bank details for ten years 'just in case'\n- **(b)** asks new members for their religion\n- **(c)** leaves printed health forms on reception.\n\nName the principle each breaks.",
       steps: [
         { m: "(a) No reason to keep them → **storage limitation**." },
         { m: "(b) Not needed to run a gym membership → **data minimisation**.", n: "Religion is also special category data — doubly hard to justify." },
@@ -683,13 +682,13 @@ C["it:F201.4.1"] = {
         { m: "…storage limitation (1); integrity and confidentiality / security (1); accountability (1).", mk: "1", n: "Do not accept rights (e.g. 'right to access') — they are not principles. Mark only the first two answers." }
       ], result: "Any two of the seven principles (1 + 1)" } },
     { worked: { tag: "exam", title: "Identify the principle broken", src: "OCR-style · Identify · 3 marks",
-      q: "An audit of PulseFit finds three problems. Identify the UK GDPR principle each one breaks: (a) members' addresses are years out of date; (b) members' data was shared with an energy-drink brand for its own adverts; (c) the app asks for members' National Insurance numbers.",
+      q: "An audit of PulseFit finds three problems. Identify the UK GDPR principle each one breaks:\n- **(a)** members' addresses are years out of date\n- **(b)** members' data was shared with an energy-drink brand for its own adverts\n- **(c)** the app asks for members' National Insurance numbers.",
       steps: [
         { m: "(a) Accuracy (1)", mk: "1" },
         { m: "(b) Purpose limitation (1)", mk: "1", n: "Also accept lawfulness, fairness and transparency." },
         { m: "(c) Data minimisation (1)", mk: "1" }
       ], result: "Accuracy; purpose limitation; data minimisation",
-      try: [{ grid: { cols: ["Problem found", "Principle broken"], rows: [
+      try: [{ notesOnly: true, grid: { cols: ["Problem found", "Principle broken"], rows: [
         ["Cancelled members' records are never deleted", "storage limitation"],
         ["The members' database has no password", "integrity and confidentiality"],
         ["PulseFit can't show any record of how it handles data", "accountability"],
@@ -765,14 +764,12 @@ C["it:F201.4.1"] = {
     ["List the seven principles of UK GDPR.", "Lawfulness, fairness and transparency; purpose limitation; data minimisation; accuracy; storage limitation; integrity and confidentiality; accountability.", 2],
     ["What does the 'right to be forgotten' let a person do?", "Have their personal data erased when there's no longer a good reason to keep it — the right to erasure.", 3],
     ["What does valid marketing consent require?", "Freely given, specific, informed, unambiguous opt-in by a clear action, recorded, and as easy to withdraw as to give.", 4],
-    ["State the maximum UK GDPR fine.", "£17.5 million or 4% of annual worldwide turnover, whichever is higher.", 7],
     ["How do organisational policies mitigate non-compliance?", "They set rules staff follow (retention, access, training, breach response), so principles are met and breaches are less likely.", 9],
     ["List the eight rights of data subjects.", "Informed, access, rectification, erasure, restrict processing, data portability, object, rights on automated decision-making and profiling.", 100],
     ["What is personal data?", "Any information relating to an identified or identifiable living person.", 101],
     ["Give four examples of special category data.", "Health, ethnic origin, religion, political opinions, trade union membership, genetic, biometric, sex life or sexual orientation.", 102],
     ["Name the six lawful bases for processing.", "Consent, contract, legal obligation, vital interests, public task, legitimate interests.", 103],
     ["How quickly must a serious data breach be reported to the ICO?", "Within 72 hours of becoming aware, if it risks people's rights.", 104],
-    ["How long does an organisation have to answer a subject access request?", "One month (extendable for complex requests), normally free of charge.", 105],
     ["What is PECR and when does it apply?", "The Privacy and Electronic Communications Regulations — rules for marketing by email, text and phone, and for cookies, alongside UK GDPR.", 106],
     ["What is the 'soft opt-in'?", "Emailing existing customers about similar products without fresh consent, if they could opt out when their details were taken and in every message.", 107],
     ["Name four impacts of non-compliance on an organisation.", "Fines, reputational damage and lost trust, legal action and compensation, increased costs, business disruption, investigations.", 8],
@@ -1009,7 +1006,7 @@ C["it:F201.4.2"] = {
       ], result: "Reason (1) + application to Brightpath (1), for each principle" } },
     lor9("automated decision making"),
     { worked: { tag: "exam", title: "Should Brightpath automate shortlisting?", src: "OCR-style · Discuss · 9 marks",
-      q: "Discuss whether Brightpath should use automated decision making to shortlist candidates. You should consider: the benefits to Brightpath and to candidates; the risks and limitations; whether you would recommend it.",
+      q: "Discuss whether Brightpath should use automated decision making to shortlist candidates.\n\nYou should consider:\n- the benefits to Brightpath and to candidates\n- the risks and limitations\n- whether you would recommend it.",
       steps: [
         { m: "Benefit: 40,000 CVs a year can be screened in minutes, freeing recruiters to interview and filling roles faster.", mk: "1", n: "Benefit in context — L2/L3." },
         { m: "Benefit: the same criteria are applied to every CV, reducing one recruiter's personal prejudice or tiredness.", mk: "1", n: "L2/L3." },
@@ -1048,9 +1045,7 @@ C["it:F201.4.2"] = {
     ["What rights does UK GDPR give over significant automated decisions?", "To be told, to give their view, to have a human review the decision, and to contest it.", 1],
     ["What is algorithmic bias and what causes it?", "Systematically unfair outcomes from an algorithm — caused by biased or unrepresentative training data, proxies, designer choices and feedback loops.", 2],
     ["Name two emerging ethical debates around data.", "Generative AI trained on scraped data; live facial recognition; workplace monitoring; health data and private firms; children's data; deepfakes.", 5],
-    ["Name the three principles of the Data Ethics Framework.", "Transparency, accountability, fairness.", 6],
     ["List the five actions of the Data Ethics Framework.", "Define public benefit and user need; involve diverse expertise; comply with the law; review data quality and limitations; evaluate wider policy implications.", 100],
-    ["State the three inclusive data principles the SAM credits.", "All population groups included; data up to date; data (and selection) transparent.", 101],
     ["What is a proxy variable in automated decision making?", "A neutral-looking feature (e.g. postcode) that stands in for a protected one (e.g. ethnicity), letting bias back in.", 102],
     ["Why is pseudonymised data still personal data?", "It can be linked back to the person using the separately kept key.", 103],
     ["How is anonymised data different from pseudonymised data?", "Anonymised data can't reasonably identify anyone, so it isn't personal data; pseudonymised data can be re-linked.", 104],
@@ -1550,7 +1545,7 @@ C["it:F201.5.2"] = {
         { m: "Limitation: cameras, sensors and the app track where residents go (1)…", mk: "1" },
         { m: "…so residents lose privacy and their data could be misused or breached, with no real way to opt out (1).", mk: "1", n: "Also accept: digital exclusion (1) — residents without smartphones can't use the app's services (1); cyber-attack (1) disrupts lights or transport (1). Answers must be about residents." }
       ], result: "Benefit (1) + effect on residents (1); limitation (1) + effect (1)",
-      try: [{ grid: { cols: ["Effect on Harbourton residents", "Benefit or limitation"], rows: [
+      try: [{ notesOnly: true, grid: { cols: ["Effect on Harbourton residents", "Benefit or limitation"], rows: [
         ["Bins are emptied before they overflow", "benefit"],
         ["An elderly resident with no smartphone can't report repairs", "limitation"],
         ["Hackers turn off the city's traffic lights", "limitation"],
@@ -1572,7 +1567,7 @@ C["it:F201.5.2"] = {
       ], result: "Benefit (1) + effect (1); limitation (1) + effect (1)" } },
     lor9("a smart city"),
     { worked: { tag: "exam", title: "Should Harbourton become a smart city?", src: "OCR-style · Discuss · 9 marks",
-      q: "Discuss whether Harbourton City Council should become a smart city. You should consider: the benefits to the council and residents; the limitations; whether you would recommend it.",
+      q: "Discuss whether Harbourton City Council should become a smart city.\n\nYou should consider:\n- the benefits to the council and residents\n- the limitations\n- whether you would recommend it.",
       steps: [
         { m: "Use: road sensors, bus GPS and lights share data on one platform to re-time signals and give buses priority — shorter journeys and less pollution.", mk: "1", n: "A use explained in context — every level." },
         { m: "Benefit: bin sensors and dimming street lights cut fuel, energy and staff costs — money the council can spend elsewhere.", mk: "1", n: "Benefit to the council — L2/L3." },
@@ -1616,7 +1611,6 @@ C["it:F201.5.2"] = {
     ["How does a smart city optimise its operations?", "Collects data from many sources, shares it on a platform, combines and analyses it, then acts — re-timing lights, routing bins, dimming lights.", 1],
     ["Give two benefits of a smart city.", "Less congestion and pollution; lower energy costs; faster services and emergency response; evidence for planning.", 2],
     ["Give two limitations of a smart city.", "Surveillance and privacy loss; cyber-attack risk; high cost; digital exclusion; dependence on technology.", 3],
-    ["Name the four emerging social developments driven by big data.", "Personalised healthcare, smart homes, traffic management, urban and community planning.", 4],
     ["How does personalised healthcare affect individuals?", "Earlier diagnosis and treatment that suits them, care at home — but sensitive data at risk, anxiety and unequal access.", 5],
     ["How do smart homes affect individuals?", "Convenience, lower bills and independence — but privacy, hacking, cost and dependence on one maker.", 6],
     ["How does data-driven urban planning affect communities?", "Services go where needed — but groups missing from the data can be overlooked and people may feel unheard.", 7],

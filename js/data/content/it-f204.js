@@ -150,16 +150,15 @@ C["it:F204.1.1"] = {
   ],
   flashcards: [
     ["Define the Internet of Everything.", "The networked connection of people, data, process and things, so that connections become more relevant and valuable — turning information into actions that create new capabilities and richer experiences."],
-    ["How does the IoE differ from the IoT?", "IoT is only the connected *things* (devices exchanging data). IoE adds the *people* who use it, the *data* generated, and the *process* that delivers the right information to the right person at the right time."],
-    ["Name the five sectors that use the IoE.", "Health; Home; City/neighbourhood; Industry; The environment."],
-    ["Give three uses of the IoE in the health sector.", "Any three of: disability aids, health analytics, connected medical devices, wearable sensors, social safety wearables (fall detectors/panic pendants), weather-safety alerts."],
-    ["Give three uses of the IoE in the home sector.", "Energy generation/monitoring/reduction (smart meters, solar), living aids, security/surveillance (cameras, smart locks), and home automation systems."],
-    ["Give three uses of the IoE in a city or neighbourhood.", "Environmental control, intelligent cities, public services (smart bins/lighting), traffic management, and transport (live tracking, ticketing, parking sensors)."],
-    ["Give three industrial uses of the IoE.", "Emergency services, new developments (digital twins/robotics), production refinement, remote working, safety systems, and workforce aids (exoskeletons, wearables)."],
-    ["Give three environmental uses of the IoE.", "Environmental monitoring, flood detection networks, illegal deforestation monitoring, landslide detection, pollution monitoring, and wildlife tracking."],
-    ["What is a social safety wearable?", "A worn device — fall detector, panic pendant, location tracker — that automatically alerts a carer or emergency service when a vulnerable person is at risk."],
-    ["How is the IoE used to detect illegal deforestation?", "Acoustic sensors hidden in the forest canopy recognise chainsaw or vehicle noise and alert rangers in near-real time, supported by satellite imagery."],
-    ["Why should an NEA proposal name its sector explicitly?", "It anchors the typical devices, users, comparable systems and legal pressure points for that context, showing informed decisions rather than generic ones."]
+    ["Name the five sectors that use the IoE.", "Health; Home; City/neighbourhood; Industry; The environment.", 2],
+    ["Give three uses of the IoE in the health sector.", "Any three of: disability aids, health analytics, connected medical devices, wearable sensors, social safety wearables (fall detectors/panic pendants), weather-safety alerts.", 3],
+    ["Give three uses of the IoE in the home sector.", "Energy generation/monitoring/reduction (smart meters, solar), living aids, security/surveillance (cameras, smart locks), and home automation systems.", 4],
+    ["Give three uses of the IoE in a city or neighbourhood.", "Environmental control, intelligent cities, public services (smart bins/lighting), traffic management, and transport (live tracking, ticketing, parking sensors).", 5],
+    ["Give three industrial uses of the IoE.", "Emergency services, new developments (digital twins/robotics), production refinement, remote working, safety systems, and workforce aids (exoskeletons, wearables).", 6],
+    ["Give three environmental uses of the IoE.", "Environmental monitoring, flood detection networks, illegal deforestation monitoring, landslide detection, pollution monitoring, and wildlife tracking.", 7],
+    ["What is a social safety wearable?", "A worn device — fall detector, panic pendant, location tracker — that automatically alerts a carer or emergency service when a vulnerable person is at risk.", 8],
+    ["How is the IoE used to detect illegal deforestation?", "Acoustic sensors hidden in the forest canopy recognise chainsaw or vehicle noise and alert rangers in near-real time, supported by satellite imagery.", 9],
+    ["Why should an NEA proposal name its sector explicitly?", "It anchors the typical devices, users, comparable systems and legal pressure points for that context, showing informed decisions rather than generic ones.", 10]
   ],
   quiz: [
     {
@@ -2742,16 +2741,15 @@ C["it:F204.5.3"] = {
     ["Why does data ownership matter in an IoE solution?", "It decides who may sell, share, analyse, retain or move the data, and who is accountable if it is lost or wrong — vendor contracts often quietly assign ownership to the manufacturer."],
     ["How is data ownership addressed in a proposal?", "State ownership explicitly in the contract, distinguish controller from processor with a written processor agreement, guarantee export in an open format, and define what happens to data at the end of the contract."],
     ["What is 'function creep' and why is it a privacy issue?", "Data collected for one purpose is later used for another — e.g. safety monitoring reused for performance management — breaching the purpose-limitation principle."],
-    ["List four UK GDPR principles that constrain an IoE design.", "Purpose limitation, data minimisation, storage limitation (retention), and integrity/confidentiality (security); also lawfulness/fairness/transparency, accuracy and accountability."],
-    ["What is privacy by design in an IoE context?", "Building privacy in from the start — collecting the minimum data, preferring anonymised or aggregated values, processing at the edge, setting retention limits, clear notices and consent, and completing a DPIA for high-risk processing."],
-    ["Why does the spec list stalking as a separate consideration?", "Because IoE location and monitoring technology is genuinely used to track and control people — trackers, connected cars, cameras and wearables can be misused by an abusive partner, family member or employer."],
-    ["Give three design features that reduce the risk of an IoE system enabling stalking.", "Show monitoring with persistent indicators and logs; require the subject's own consent and account; let them see, revoke and remove device access; allow no covert tracking mode."],
-    ["What are the two meanings of 'data access' in F204?", "Who within the system is permitted to see what data, and the data subject's legal right to obtain a copy of their personal data (plus rectification, erasure, restriction, portability and objection)."],
-    ["How should internal data access be controlled?", "Role-based access control on least privilege, individual named accounts with strong authentication and MFA for admins, full audit logging, and documented third-party processor agreements."],
-    ["What is the ICO and one duty it enforces?", "The UK's data protection regulator — it registers controllers, issues codes of practice and enforcement notices and fines; qualifying personal data breaches must be reported to it within 72 hours."],
-    ["When does the Computer Misuse Act 1990 apply to an IoE solution?", "Unauthorised access to, or modification/impairment of, the devices or data is a criminal offence — so attacking or hijacking an IoE device is a crime, and the security design defines the boundary of authorisation."],
-    ["When is the Freedom of Information Act relevant to an IoE proposal?", "When the client is a public authority — the recorded information the solution holds may be requestable by the public, so it must be retrievable and personal data redacted."],
-    ["Give an example of something lawful but ethically questionable in an IoE solution.", "Continuously monitoring a care resident's movements with consent obtained from a person who may lack capacity — lawful on paper, but questionable on proportionality and dignity."]
+    ["What is privacy by design in an IoE context?", "Building privacy in from the start — collecting the minimum data, preferring anonymised or aggregated values, processing at the edge, setting retention limits, clear notices and consent, and completing a DPIA for high-risk processing.", 6],
+    ["Why does the spec list stalking as a separate consideration?", "Because IoE location and monitoring technology is genuinely used to track and control people — trackers, connected cars, cameras and wearables can be misused by an abusive partner, family member or employer.", 7],
+    ["Give three design features that reduce the risk of an IoE system enabling stalking.", "Show monitoring with persistent indicators and logs; require the subject's own consent and account; let them see, revoke and remove device access; allow no covert tracking mode.", 8],
+    ["What are the two meanings of 'data access' in F204?", "Who within the system is permitted to see what data, and the data subject's legal right to obtain a copy of their personal data (plus rectification, erasure, restriction, portability and objection).", 9],
+    ["How should internal data access be controlled?", "Role-based access control on least privilege, individual named accounts with strong authentication and MFA for admins, full audit logging, and documented third-party processor agreements.", 10],
+    ["What is the ICO and one duty it enforces?", "The UK's data protection regulator — it registers controllers, issues codes of practice and enforcement notices and fines; qualifying personal data breaches must be reported to it within 72 hours.", 11],
+    ["When does the Computer Misuse Act 1990 apply to an IoE solution?", "Unauthorised access to, or modification/impairment of, the devices or data is a criminal offence — so attacking or hijacking an IoE device is a crime, and the security design defines the boundary of authorisation.", 12],
+    ["When is the Freedom of Information Act relevant to an IoE proposal?", "When the client is a public authority — the recorded information the solution holds may be requestable by the public, so it must be retrievable and personal data redacted.", 13],
+    ["Give an example of something lawful but ethically questionable in an IoE solution.", "Continuously monitoring a care resident's movements with consent obtained from a person who may lack capacity — lawful on paper, but questionable on proportionality and dignity.", 14]
   ],
   quiz: [
     {
@@ -3105,12 +3103,11 @@ C["it:F204.6.2"] = {
     ["Give two strengths of verbal feedback.", "It is rich and detailed and lets you probe with 'why?' until you find the real reason; tone and hesitation also reveal doubts a form would hide."],
     ["Give two limitations of verbal feedback.", "It must be recorded accurately or it is lost, and the interviewer can unintentionally lead the answer; people are also less candid face to face."],
     ["How should verbal feedback be recorded?", "Contemporaneous notes in a prepared table (who, which feature, the point), ideally with a recording made with permission, and points read back to confirm accuracy."],
-    ["What must the feedback for M7 focus on?", "The additional idea for the solution — the assessment guidance is explicit that feedback focuses on the additional idea."],
-    ["What must D4 improvements be based on?", "The feedback actually received — improvements must be traceable to real feedback, not invented."],
-    ["List the six steps for analysing feedback.", "Collate into one table, categorise into themes, weigh by frequency/strength/source, resolve conflicts with justification, convert accepted points into specific improvements, and justify what you reject."],
-    ["Why is 'three people said the dashboard was confusing' not analysis?", "It is a summary — analysis explains which part, why, the pattern across respondents, the specific change that follows, and the trade-off accepted."],
-    ["Give an example of a good open feedback question.", "'What would stop you using this feature every day?' or 'Which part would you drop if the budget was cut?' — specific, open, and about the feature rather than about you."],
-    ["Why should rejected feedback be documented?", "Explaining why a point is not being acted on — out of scope, unaffordable, or contradicted by stronger feedback — is itself analysis; silently ignoring it is not."]
+    ["What must D4 improvements be based on?", "The feedback actually received — improvements must be traceable to real feedback, not invented.", 9],
+    ["List the six steps for analysing feedback.", "Collate into one table, categorise into themes, weigh by frequency/strength/source, resolve conflicts with justification, convert accepted points into specific improvements, and justify what you reject.", 10],
+    ["Why is 'three people said the dashboard was confusing' not analysis?", "It is a summary — analysis explains which part, why, the pattern across respondents, the specific change that follows, and the trade-off accepted.", 11],
+    ["Give an example of a good open feedback question.", "'What would stop you using this feature every day?' or 'Which part would you drop if the budget was cut?' — specific, open, and about the feature rather than about you.", 12],
+    ["Why should rejected feedback be documented?", "Explaining why a point is not being acted on — out of scope, unaffordable, or contradicted by stronger feedback — is itself analysis; silently ignoring it is not.", 13]
   ],
   quiz: [
     {
@@ -3629,10 +3626,9 @@ C["it:F204.6.5"] = {
     ["Give three rules for drawing a correct flowchart.", "One Start with every path reaching an End; every decision branch labelled; one action per process box; loops returning to a specific box; correct symbol for each element."],
     ["Name the four elements of a data flow diagram.", "External entity, process, data store, and labelled data flow."],
     ["What is the key difference between a flowchart and a DFD?", "A flowchart shows control — order, decisions and loops. A DFD shows data — what moves where and what it is called; it contains no decisions or diamonds."],
-    ["What is a Level 0 (context) data flow diagram?", "The whole system shown as one process with its external entities and the main data flows in and out — it defines the system boundary."],
-    ["What is a Level 1 data flow diagram used for?", "Breaking the single context process into the main processes and data stores — ideal for M5 because each process can be placed at device, edge, fog or cloud."],
-    ["What is a wireframe?", "A low-fidelity labelled layout sketch of a screen — boxes, placeholder text and labels showing what goes where and what each control does, deliberately unstyled."],
-    ["What should a good wireframe set include beyond the main screen?", "A detail view and an alert/confirmation screen, plus the loading, empty and error states, consistent navigation, and interaction notes."],
+    ["What is a Level 1 data flow diagram used for?", "Breaking the single context process into the main processes and data stores — ideal for M5 because each process can be placed at device, edge, fog or cloud.", 7],
+    ["What is a wireframe?", "A low-fidelity labelled layout sketch of a screen — boxes, placeholder text and labels showing what goes where and what each control does, deliberately unstyled.", 8],
+    ["What should a good wireframe set include beyond the main screen?", "A detail view and an alert/confirmation screen, plus the loading, empty and error states, consistent navigation, and interaction notes.", 9],
     ["Which diagram best shows device interactions?", "A labelled system/network diagram — each device as a box and each link as an arrow carrying the connectivity method and the data it moves.", 11],
     ["Why must diagrams be referenced in the text?", "An unreferenced diagram earns little; figures should be numbered, referred to in the prose, and must agree with what the writing says.", 12],
     ["Which criteria require technical documentation in F204?", "M5 explicitly requires appropriate technical documentation for processing; P9 requires annotated wireframes; and P2 may use a flow chart for the four pillars.", 13]

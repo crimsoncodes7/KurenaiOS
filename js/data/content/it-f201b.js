@@ -160,7 +160,7 @@ C["it:F201.2.1"] = {
         "Data that arrives in other forms must be **converted** before it fits."
       ]
     ] } },
-    { worked: { tag: "example", title: "Continuous or discrete?", q: "A festival records: (a) the number of wristbands scanned at a gate each minute; (b) the noise level at the stage in decibels; (c) the number of bar staff on shift; (d) the time each queue takes to clear.",
+    { worked: { tag: "example", title: "Continuous or discrete?", q: "A festival records:\n- **(a)** the number of wristbands scanned at a gate each minute\n- **(b)** the noise level at the stage in decibels\n- **(c)** the number of bar staff on shift\n- **(d)** the time each queue takes to clear.",
       steps: [
         { m: "(a) **Discrete** — wristbands are counted in whole numbers.", mk: "✓" },
         { m: "(b) **Continuous** — sound level is measured and can be any value (94.6 dB).", mk: "✓" },
@@ -277,17 +277,17 @@ C["it:F201.2.1"] = {
     { worked: { tag: "exam", title: "Two other examples of structured data", src: "OCR-style · State · 2 marks",
       q: "Skyline records every bar sale as transactional data, which is structured data. State two other examples of structured data.",
       steps: [
-        { m: "Any two from: continuous data (1) · discrete data (1) · relational database (1) · spreadsheet file data (1).", mk: "2", n: "Modelled on SAM Q3(c). One mark for each correct answer; correct answers only." },
+        { m: "Any two from:\n- continuous data (1)\n- discrete data (1)\n- relational database (1)\n- spreadsheet file data (1).", mk: "2", n: "Modelled on SAM Q3(c). One mark for each correct answer; correct answers only." },
         { m: "Do not accept: transactional data — it is already given in the question.", mk: "0", n: "The SAM's scheme rules this out in the same way. Read the stem for the example you must not repeat." }
       ], result: "e.g. relational database; spreadsheet file data" } },
     { worked: { tag: "exam", title: "Classify the festival's data", src: "OCR-style · Identify · 3 marks",
-      q: "Skyline collects (i) bar card payments, (ii) videos that festival-goers post online, (iii) emails sent to its customer service team. Identify the type of big data each one is.",
+      q: "Skyline collects:\n- **(i)** bar card payments\n- **(ii)** videos that festival-goers post online\n- **(iii)** emails sent to its customer service team.\n\nIdentify the type of big data each one is.",
       steps: [
         { m: "(i) Structured (1).", mk: "1", n: "Each payment is a transaction with fixed fields." },
         { m: "(ii) Unstructured (1).", mk: "1", n: "Social media and entertainment data: no predefined model." },
         { m: "(iii) Semi-structured (1).", mk: "1", n: "Header fields are structured, the body is free text. Do not accept: unstructured." }
       ], result: "Structured · unstructured · semi-structured",
-      "try": [{ grid: { cols: ["Skyline's data", "Type of big data"], rows: [
+      "try": [{ notesOnly: true, grid: { cols: ["Skyline's data", "Type of big data"], rows: [
         ["Online ticket sales table", "structured"],
         ["Satellite images of each site", "unstructured"],
         ["XML feed from a ticket agent", "semi-structured"],
@@ -379,7 +379,6 @@ C["it:F201.2.1"] = {
     ["Name the two kinds of unstructured data in the specification.", "Social media and entertainment data, and weather data.", 101],
     ["Name the four kinds of semi-structured data in the specification.", "Emails, XML, zipped files, web pages.", 102],
     ["Why is an email semi-structured rather than unstructured?", "Its header fields (To, From, Date, Subject) are labelled and organised, while its body is free text.", 103],
-    ["Why is a zipped file classed as semi-structured?", "The archive holds an index of each file's name, size and date (structured), but the files inside can be anything.", 104],
     ["What is transactional data, and how is it captured?", "A record of each transaction — what was bought or booked, when, where, how much and by whom — captured by tills, card terminals and online checkouts.", 105],
     ["Give two limitations of unstructured data for an organisation.", "It is hard and slow to analyse (needs AI and specialist skills), and its veracity is low — fake accounts, sarcasm, spam.", 106],
     ["Which type of big data makes up most of the data in the world?", "Unstructured data — posts, images, video, audio and sensor feeds far outweigh tables.", 107],
@@ -611,7 +610,7 @@ C["it:F201.2.2"] = {
         "Automated rules can introduce new, systematic errors."
       ]
     ] } },
-    { worked: { tag: "example", title: "Pick the technique", q: "Which cleaning technique fixes each problem? (a) Weights typed as “12.5kg” in a number field. (b) “Swansea”, “swansea” and “SWANSEA” in the town field. (c) A blank date of last visit.",
+    { worked: { tag: "example", title: "Pick the technique", q: "Which cleaning technique fixes each problem?\n- **(a)** Weights typed as “12.5kg” in a number field.\n- **(b)** “Swansea”, “swansea” and “SWANSEA” in the town field.\n- **(c)** A blank date of last visit.",
       steps: [
         { m: "(a) **Converting data type** — the text must become a number (12.5) before averages can be worked out.", mk: "✓" },
         { m: "(b) **Fix structural errors** — inconsistent capitalisation splits one town into three groups.", mk: "✓" },
@@ -629,7 +628,7 @@ C["it:F201.2.2"] = {
         { m: "Fix structural errors (1) — record 5 has an email address in the Owner field.", mk: "1" },
         { m: "Validate data (1) — record 4's weight of 640 kg is out of range for a pet.", mk: "", n: "Any three of the four. Credit any other appropriate technique that fits a record." }
       ], result: "Removing duplicates · fix missing data · fix structural errors (or validate data)",
-      "try": [{ grid: { cols: ["Problem in PawsCare's data", "Cleaning technique"], rows: [
+      "try": [{ notesOnly: true, grid: { cols: ["Problem in PawsCare's data", "Cleaning technique"], rows: [
         ["The same pet appears twice with identical details", "removing duplicates"],
         ["A column of owners' fax numbers no one will analyse", "removing irrelevant data"],
         ["Weights stored as text, so they cannot be averaged", "converting data type"],
@@ -640,7 +639,7 @@ C["it:F201.2.2"] = {
         ["A dog's age recorded as 87 years", "validate data"]
       ], given: [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [6, 0], [7, 0]], cap: "Type the technique's name as the spec words it: removing duplicates, removing irrelevant data, converting data type, clear formatting, fix structural errors, language translation, fix missing data, validate data." } }] } },
     { worked: { tag: "exam", title: "What data wrangling is", src: "OCR-style · Complete · 3 marks",
-      q: "Complete the sentences about data wrangling using words from the list: raw, consistent, analysed, deleted, encrypted, accurate. Data wrangling takes (1) ____ data from different sources and changes it into a (2) ____ format so that it can be (3) ____ by software. It takes time, but the results are more reliable.",
+      q: "Complete the sentences about data wrangling using words from the list: `raw`, `consistent`, `analysed`, `deleted`, `encrypted`, `accurate`.\n\nData wrangling takes **(1)** ____ data from different sources and changes it into a **(2)** ____ format so that it can be **(3)** ____ by software. It takes time, but the results are more reliable.",
       steps: [
         { m: "(1) raw (1)", mk: "1", n: "Modelled on SAM Q1(d), with our own sentences. Correct answers only." },
         { m: "(2) consistent (1)", mk: "1" },
@@ -650,7 +649,7 @@ C["it:F201.2.2"] = {
     { worked: { tag: "exam", title: "Two ways to prepare textual data", src: "OCR-style · State · 2 marks",
       q: "PawsCare's records include vets' free-text notes. State two ways textual data can be prepared before it is analysed.",
       steps: [
-        { m: "Any two from: make the case consistent (1) · remove extra spaces and stray characters (1) · standardise spellings and abbreviations (1) · correct spelling mistakes (1) · code free text into categories (1) · translate into one language (1).", mk: "2", n: "One mark each. Credit any other appropriate response." }
+        { m: "Any two from:\n- make the case consistent (1)\n- remove extra spaces and stray characters (1)\n- standardise spellings and abbreviations (1)\n- correct spelling mistakes (1)\n- code free text into categories (1)\n- translate into one language (1).", mk: "2", n: "One mark each. Credit any other appropriate response." }
       ], result: "e.g. consistent case; standardised spellings" } },
     { worked: { tag: "exam", title: "A benefit and a limitation of fixing missing data", src: "OCR-style · Explain · 4 marks",
       q: "Some of PawsCare's records have no weight. The data team plans to fill each blank with the average weight for that breed. Explain one benefit and one limitation to PawsCare of fixing missing data in this way.",
@@ -719,7 +718,6 @@ C["it:F201.2.2"] = {
     ["Give one benefit and one limitation of data cleaning.", "Benefit: accurate, reliable analysis. Limitation: time-consuming and never finished — new data arrives dirty.", 6],
     ["Why is language translation a cleaning technique?", "Text arrives in several languages but the analysis or AI model works in one; translating includes everyone's data.", 7],
     ["List the eight cleaning techniques in the specification.", "Removing duplicates, removing irrelevant data, converting data type, clear formatting, fix structural errors, language translation, fix missing data, validate data.", 100],
-    ["What does the clear formatting technique remove?", "Formatting carried over from the source — bold, colours, merged cells, hyperlinks, hidden characters, HTML tags — leaving plain values.", 101],
     ["When would you use converting data type?", "When numbers or dates are stored as text (“12.5”, “03/02/2026” as a string), so they cannot be calculated or sorted.", 102],
     ["Give two examples of a structural error in data.", "Inconsistent naming or capitalisation (“Lab”, “labrador”), and a value in the wrong field (an email in the Name column).", 103],
     ["Give two ways numeric data can be prepared.", "Use one unit throughout, and store values as numbers without symbols (“£1,250” → 1250); also one date format, consistent decimal places.", 104],
@@ -893,14 +891,14 @@ C["it:F201.2.3"] = {
         { m: "…to discover patterns, trends, relationships or anomalies that support decision-making (1).", mk: "1", n: "Credit any other appropriate response." }
       ], result: "Analysing large datasets to find patterns that help decisions" } },
     { worked: { tag: "exam", title: "Which technique answers which question?", src: "OCR-style · Identify · 4 marks",
-      q: "BrightVolt's managers ask: (i) How much gas did customers use last January? (ii) Why did calls to the helpline rise last week? (iii) Which customers are likely to miss a payment? (iv) What price should each tariff be set at next month? Identify the data mining technique that answers each question.",
+      q: "BrightVolt's managers ask:\n- **(i)** How much gas did customers use last January?\n- **(ii)** Why did calls to the helpline rise last week?\n- **(iii)** Which customers are likely to miss a payment?\n- **(iv)** What price should each tariff be set at next month?\n\nIdentify the data mining technique that answers each question.",
       steps: [
         { m: "(i) Descriptive (1).", mk: "1" },
         { m: "(ii) Diagnostic (1).", mk: "1" },
         { m: "(iii) Predictive (1).", mk: "1" },
         { m: "(iv) Prescriptive (1).", mk: "1", n: "Correct answers only. Key words: how much → describe; why → diagnose; likely → predict; should → prescribe." }
       ], result: "Descriptive · diagnostic · predictive · prescriptive",
-      "try": [{ grid: { cols: ["BrightVolt's question", "Technique"], rows: [
+      "try": [{ notesOnly: true, grid: { cols: ["BrightVolt's question", "Technique"], rows: [
         ["Which region used the most electricity in 2025?", "descriptive"],
         ["Why did complaints rise after the new app launched?", "diagnostic"],
         ["How much electricity will be needed during next week's cold snap?", "predictive"],
@@ -922,7 +920,7 @@ C["it:F201.2.3"] = {
       ], result: "What happened vs why it happened" } },
     lor9("prescriptive data mining"),
     { worked: { tag: "exam", title: "Should BrightVolt use prescriptive mining?", src: "OCR-style · Discuss · 9 marks",
-      q: "BrightVolt is considering using prescriptive data mining to decide automatically which offer to make to each customer when their fixed tariff ends. Discuss whether BrightVolt should use prescriptive data mining to make these decisions. In your answer you must write about: any benefits to BrightVolt; any limitations to BrightVolt; whether you would recommend that BrightVolt uses prescriptive data mining and your reasons.",
+      q: "BrightVolt is considering using prescriptive data mining to decide automatically which offer to make to each customer when their fixed tariff ends. Discuss whether BrightVolt should use prescriptive data mining to make these decisions.\n\nIn your answer you must write about:\n- any benefits to BrightVolt\n- any limitations to BrightVolt\n- whether you would recommend that BrightVolt uses prescriptive data mining and your reasons.",
       steps: [
         { m: "Purpose: prescriptive mining recommends the best action by testing options against predictions — here, the offer most likely to keep each customer profitably.", mk: "1", n: "Shows understanding of the technique (all levels)." },
         { m: "Benefit: it can weigh millions of customers and many tariffs quickly, far beyond what staff could, so every customer gets a tailored offer on time.", mk: "1", n: "Benefit in context — Level 2 needs some of these." },
@@ -980,7 +978,6 @@ C["it:F201.2.3"] = {
     ["Give one benefit and one limitation of prescriptive data mining.", "Benefit: says exactly what action to take, quickly and at scale. Limitation: the most complex and only as good as the prediction beneath it.", 7],
     ["Name the four data mining techniques in order of difficulty.", "Descriptive, diagnostic, predictive, prescriptive.", 100],
     ["Give one benefit and one limitation of descriptive data mining.", "Benefit: easy to understand and quick to produce. Limitation: says what happened, not why or what next.", 101],
-    ["Give one limitation of diagnostic data mining.", "Correlation is not causation — a link it finds may be coincidence; it also needs detailed data and skilled analysts.", 102],
     ["Name four kinds of pattern data mining looks for.", "Trends, associations (things occurring together), groups of similar records, and anomalies (records unlike the rest).", 103],
     ["Which two data mining techniques look back, and which two look forward?", "Back: descriptive and diagnostic. Forward: predictive and prescriptive.", 104],
     ["Why can prescriptive data mining raise UK GDPR concerns?", "It can make automated decisions about people; individuals have rights around such decisions, including human review and an explanation.", 105],
@@ -1143,7 +1140,7 @@ C["it:F201.2.4"] = {
       ["NoSQL database", "Handles variety (no fixed schema) · scales out for volume and velocity · stays available if a node fails.", "Weaker consistency than relational databases · no single standard query language · complex joins and transactions are harder · fewer staff with the skills."],
       ["Data integration", "One version of the truth · automates wrangling and loading · saves staff time · keeps data current.", "Complex to set up and map · a failure can stop the data flow · poor source data spreads everywhere · data must be secured in transit."]
     ] } },
-    { worked: { tag: "example", title: "Which platform?", q: "Weyford Hospitals Trust wants to (a) show bed occupancy live on a screen in each ward, (b) store millions of readings from bedside monitors in many formats, (c) bring its three hospitals' systems into one view. Which platform suits each?",
+    { worked: { tag: "example", title: "Which platform?", q: "Weyford Hospitals Trust wants to:\n- **(a)** show bed occupancy live on a screen in each ward\n- **(b)** store millions of readings from bedside monitors in many formats\n- **(c)** bring its three hospitals' systems into one view.\n\nWhich platform suits each?",
       steps: [
         { m: "(a) **Data visualisation software** — a live dashboard.", mk: "✓" },
         { m: "(b) **NoSQL database** — flexible schema, scales out for volume and velocity.", mk: "✓" },
@@ -1208,7 +1205,7 @@ C["it:F201.2.4"] = {
     { worked: { tag: "exam", title: "Two characteristics of a private cloud", src: "OCR-style · State · 2 marks",
       q: "Weyford stores its patient records in a private cloud. State two characteristics of a private cloud.",
       steps: [
-        { m: "Any two from: the infrastructure is only accessible to one organisation (1) · it is accessed through an intranet (1) · it can be accessed remotely through the internet with permission levels (1).", mk: "2", n: "Modelled on SAM Q4(a). One mark each. Credit any other appropriate response, e.g. controlled and maintained by the organisation itself (1)." },
+        { m: "Any two from:\n- the infrastructure is only accessible to one organisation (1)\n- it is accessed through an intranet (1)\n- it can be accessed remotely through the internet with permission levels (1).", mk: "2", n: "Modelled on SAM Q4(a). One mark each. Credit any other appropriate response, e.g. controlled and maintained by the organisation itself (1)." },
         { m: "Do not accept: “it is secure” on its own — say why (one organisation only, permission levels).", mk: "0" }
       ], result: "One organisation only · intranet / permission-level remote access" } },
     { worked: { tag: "exam", title: "A limitation of the private cloud", src: "OCR-style · Explain · 2 marks",
@@ -1220,7 +1217,7 @@ C["it:F201.2.4"] = {
     { worked: { tag: "exam", title: "Another storage area", src: "OCR-style · State · 1 mark",
       q: "State one other storage area Weyford could use to store its patient records.",
       steps: [
-        { m: "Any one from: public cloud (1) · data lake (1) · data warehouse (1) · solid state drives (1).", mk: "1", n: "Modelled on SAM Q4(c). Correct answer only. Do not accept: private cloud (given in the stem)." }
+        { m: "Any one from:\n- public cloud (1)\n- data lake (1)\n- data warehouse (1)\n- solid state drives (1).", mk: "1", n: "Modelled on SAM Q4(c). Correct answer only. Do not accept: private cloud (given in the stem)." }
       ], result: "e.g. data warehouse" } },
     { worked: { tag: "exam", title: "Visualisation software: a benefit and a limitation", src: "OCR-style · Explain · 4 marks",
       q: "Weyford's analysts will present bed-occupancy findings to the trust's board. Explain one benefit and one limitation to Weyford of using data visualisation software to present these findings.",
@@ -1246,7 +1243,7 @@ C["it:F201.2.4"] = {
       ], result: "Level 3: several factors, each explained for the trust, weighed to a view" } },
     lor9("public cloud storage"),
     { worked: { tag: "exam", title: "Should the trust move to a public cloud?", src: "OCR-style · Discuss · 9 marks",
-      q: "Weyford is running out of space for scan images in its private cloud and is considering moving them to a public cloud. Discuss whether Weyford should store its scan images in a public cloud. In your answer you must write about: any benefits to Weyford; any limitations to Weyford; whether you would recommend that Weyford uses a public cloud and your reasons.",
+      q: "Weyford is running out of space for scan images in its private cloud and is considering moving them to a public cloud. Discuss whether Weyford should store its scan images in a public cloud.\n\nIn your answer you must write about:\n- any benefits to Weyford\n- any limitations to Weyford\n- whether you would recommend that Weyford uses a public cloud and your reasons.",
       steps: [
         { m: "Benefit: capacity scales on demand, so the growing volume of scans never runs out of space and no new hardware has to be bought and installed.", mk: "1", n: "Benefits in context support Level 2; both sides are needed for Level 3." },
         { m: "Benefit: the provider maintains, updates and backs up the infrastructure under an SLA, freeing the trust's own IT staff.", mk: "1" },
@@ -1313,7 +1310,6 @@ C["it:F201.2.4"] = {
     ["State two characteristics of a private cloud.", "Only accessible to one organisation; accessed through an intranet, or remotely through the internet with permission levels.", 100],
     ["List four factors that influence the choice of server configuration.", "Volume and growth, velocity (real-time needs), reliability, security and compliance — also staff skills, control and workload predictability.", 101],
     ["What is a NoSQL database, and when is it used?", "A non-relational database with a flexible schema that scales out — used for large volumes of semi-structured or unstructured, fast-changing data.", 102],
-    ["What is the purpose of a data integration platform?", "To combine data from many sources into one consistent view, usually through ETL pipelines.", 103],
     ["Give one benefit and one limitation of data visualisation software.", "Benefit: patterns seen at a glance and shared easily. Limitation: wrong data or a poor chart misleads, leading to bad decisions.", 104],
     ["Why does blockchain's design conflict with UK GDPR?", "Records cannot be changed or deleted, but data subjects have rights to rectification and erasure.", 105],
     ["Give one benefit and one limitation of DNA data storage.", "Benefit: enormous capacity in a tiny space for a very long time. Limitation: very slow and expensive to write and read — archives only, still experimental.", 106],
@@ -1423,7 +1419,7 @@ C["it:F201.2.5"] = {
       ["Skills", "Business knowledge, statistics, BI tools", "Advanced statistics, programming, ML, domain knowledge"]
     ] } },
     { callout: { t: "tip", h: "The difference in one sentence", body: "**Data analytics answers the questions you already have from the data you already have; data science builds the models that find new questions and predict or automate the answers.**" } },
-    { worked: { tag: "example", title: "Analytics or science?", q: "Say whether each task is data analytics or data science: (a) a monthly report of A&E waiting times by hospital; (b) a model that reads chest X-rays and flags likely pneumonia.",
+    { worked: { tag: "example", title: "Analytics or science?", q: "Say whether each task is data analytics or data science:\n- **(a)** a monthly report of A&E waiting times by hospital\n- **(b)** a model that reads chest X-rays and flags likely pneumonia.",
       steps: [
         { m: "(a) **Data analytics** — a known question answered from existing structured data, as a report.", mk: "✓" },
         { m: "(b) **Data science** — a machine learning model built on unstructured image data that predicts and automates.", mk: "✓", n: "Report on a set question → analytics. Model that learns, predicts or automates → science." }
@@ -1476,7 +1472,7 @@ C["it:F201.2.5"] = {
         { m: "Data analytics examines existing data to answer specific, known questions — e.g. which series were watched most (1)…", mk: "1" },
         { m: "…whereas data science is a wider field that uses programming, machine learning and AI to build models that predict or discover new questions — e.g. a recommendation engine (1).", mk: "1", n: "Both sides needed. Credit: analytics is part of data science (1); analytics mostly structured data, science raw and unstructured too (1)." }
       ], result: "Known questions from existing data vs models that predict and discover",
-      "try": [{ grid: { cols: ["StreamBox task", "Analytics or science?"], rows: [
+      "try": [{ notesOnly: true, grid: { cols: ["StreamBox task", "Analytics or science?"], rows: [
         ["A weekly report of the ten most-watched series", "analytics"],
         ["A model that learns what each viewer will watch next", "science"],
         ["A dashboard of subscribers gained and lost by month", "analytics"],
@@ -1486,7 +1482,7 @@ C["it:F201.2.5"] = {
       ], given: [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0]], cap: "Type analytics or science." } }] } },
     lor9("data science"),
     { worked: { tag: "exam", title: "Should StreamBox build its own recommendation model?", src: "OCR-style · Discuss · 9 marks",
-      q: "StreamBox currently uses data analytics reports to choose which series to promote on its home page. It is considering employing a data science team to build a recommendation model that personalises the home page for each subscriber. Discuss whether StreamBox should use data science in this way. In your answer you must write about: any benefits to StreamBox; any limitations to StreamBox; whether you would recommend that StreamBox uses data science in this way and your reasons.",
+      q: "StreamBox currently uses data analytics reports to choose which series to promote on its home page. It is considering employing a data science team to build a recommendation model that personalises the home page for each subscriber. Discuss whether StreamBox should use data science in this way.\n\nIn your answer you must write about:\n- any benefits to StreamBox\n- any limitations to StreamBox\n- whether you would recommend that StreamBox uses data science in this way and your reasons.",
       steps: [
         { m: "Difference stated: analytics reports show what was popular overall; data science would build a model that learns from each subscriber's own history and predicts what they will watch.", mk: "1", n: "Shows the difference — supports every level." },
         { m: "Benefit: each subscriber sees series they are likely to enjoy, so they watch more and are less likely to cancel — protecting subscription income.", mk: "1", n: "Benefits in context: Level 2 needs some." },
@@ -1532,7 +1528,6 @@ C["it:F201.2.5"] = {
     ] } }
   ],
   flashcards: [
-    ["What is the purpose of data analytics?", "To make sense of collected data — analysing it to identify trends and patterns that support decision-making.", 0],
     ["What is the purpose of data science?", "To extract knowledge from large, complex data and build models and algorithms (machine learning, AI) that predict, automate and discover.", 1],
     ["What is the key difference between data analytics and data science?", "Analytics answers known questions from existing data; data science is the wider field that builds models to predict and discover new questions.", 2],
     ["Give typical tools used for data analytics.", "Spreadsheets, SQL, data analytics software and data visualisation dashboards.", 3],
@@ -1540,25 +1535,22 @@ C["it:F201.2.5"] = {
     ["Give one limitation of data analytics.", "It mostly explains the past, depends on clean structured data and only answers the questions asked.", 6],
     ["Give one limitation of data science.", "It needs scarce specialist skills, takes time with no guaranteed result, and biased data gives biased models.", 7],
     ["Which of the two works with raw, unstructured data?", "Data science; data analytics usually works on structured, cleaned data.", 8],
-    ["How is data analytics related to data science?", "Data analytics is one part of the wider field of data science.", 100],
     ["Name the three disciplines data science combines.", "Statistics and maths, computing (programming, machine learning, AI), and domain knowledge of the business.", 101],
     ["How could a bank use data analytics and data science?", "Analytics: reports on loan defaults and app use. Science: real-time fraud detection and machine-learning credit scoring.", 102],
     ["How could a hospital use data analytics and data science?", "Analytics: waiting-time and bed-occupancy dashboards. Science: AI that reads scans; predicting which patients will deteriorate.", 103],
     ["How could a retailer use data analytics and data science?", "Analytics: best and worst sellers, stock levels. Science: product recommendations, demand forecasting, dynamic pricing.", 104],
     ["How could an energy company use data science?", "Forecast demand using weather data, and predict faults in the network before they happen.", 105],
-    ["Name the nine application areas of big data analytics.", "Banking; communications, media and entertainment; education; energy and utilities; government; healthcare; insurance; manufacturing; retail.", 106],
     ["What does each produce as its main output?", "Data analytics: reports, dashboards and insights. Data science: models, algorithms and automated products.", 107]
   ],
   quiz: [
-    { q: "Which best describes the purpose of data analytics?", opts: ["Find trends to support decisions", "Build robots for the warehouse", "Store raw data in a data lake", "Write new programming languages"], ans: 0, why: "Analytics makes sense of collected data, identifying trends and patterns to inform decisions." },
-    { q: "Which task is data science rather than data analytics?", opts: ["A report of last month's sales", "A dashboard of waiting times", "A model predicting fraud live", "A chart of exam results by class"], ans: 2, why: "Building a model that predicts and automates is data science." },
-    { q: "How are the two fields related?", opts: ["Science is part of analytics", "Analytics is part of science", "They never overlap at all", "They are exactly the same"], ans: 1, why: "Data analytics is one part of the wider field of data science." },
-    { q: "Which data does data science typically use that analytics often does not?", opts: ["Cleaned sales tables", "Monthly KPI totals", "Spreadsheet summaries", "Raw unstructured data"], ans: 3, why: "Data science works with raw, large and unstructured data such as text and images." },
-    { q: "A hospital wants AI to flag likely tumours on scans. This is…", opts: ["Data science", "Data analytics", "Data wrangling", "Data archiving"], ans: 0, why: "A machine-learning model on image data is data science." },
-    { q: "Which is a limitation of data science?", opts: ["It only ever explains the past", "It needs scarce specialist skills", "It cannot handle any big data", "It only works inside spreadsheets"], ans: 1, why: "Data scientists combine rare skills in statistics, programming and ML." },
-    { q: "Which question is a typical data analytics question?", opts: ["What new product could we invent?", "Can a model write our adverts?", "Which store sold most last month?", "Can AI read handwritten forms?"], ans: 2, why: "A known question about existing data is data analytics." },
-    { q: "Which sector would use telematics models to price each driver's policy?", opts: ["Education", "Retail", "Government", "Insurance"], ans: 3, why: "Insurers use data science on telematics data to price risk." },
-    { q: "Which output is typical of data analytics?", opts: ["A dashboard of trends", "A trained AI model", "A new algorithm", "A self-driving system"], ans: 0, why: "Analytics outputs reports and dashboards; models and algorithms are data science outputs." }
+    { q: "Which task is data science rather than data analytics?", opts: ["A report of last month's sales", "A dashboard of waiting times", "A model predicting fraud live", "A chart of exam results by class"], ans: 2, why: "Building a model that predicts and automates is data science.", oi: 1 },
+    { q: "How are the two fields related?", opts: ["Science is part of analytics", "Analytics is part of science", "They never overlap at all", "They are exactly the same"], ans: 1, why: "Data analytics is one part of the wider field of data science.", oi: 2 },
+    { q: "Which data does data science typically use that analytics often does not?", opts: ["Cleaned sales tables", "Monthly KPI totals", "Spreadsheet summaries", "Raw unstructured data"], ans: 3, why: "Data science works with raw, large and unstructured data such as text and images.", oi: 3 },
+    { q: "A hospital wants AI to flag likely tumours on scans. This is…", opts: ["Data science", "Data analytics", "Data wrangling", "Data archiving"], ans: 0, why: "A machine-learning model on image data is data science.", oi: 4 },
+    { q: "Which is a limitation of data science?", opts: ["It only ever explains the past", "It needs scarce specialist skills", "It cannot handle any big data", "It only works inside spreadsheets"], ans: 1, why: "Data scientists combine rare skills in statistics, programming and ML.", oi: 5 },
+    { q: "Which question is a typical data analytics question?", opts: ["What new product could we invent?", "Can a model write our adverts?", "Which store sold most last month?", "Can AI read handwritten forms?"], ans: 2, why: "A known question about existing data is data analytics.", oi: 6 },
+    { q: "Which sector would use telematics models to price each driver's policy?", opts: ["Education", "Retail", "Government", "Insurance"], ans: 3, why: "Insurers use data science on telematics data to price risk.", oi: 7 },
+    { q: "Which output is typical of data analytics?", opts: ["A dashboard of trends", "A trained AI model", "A new algorithm", "A self-driving system"], ans: 0, why: "Analytics outputs reports and dashboards; models and algorithms are data science outputs.", oi: 8 }
   ]
 };
 
@@ -1758,7 +1750,7 @@ C["it:F201.2.6"] = {
       { h: "Find groups nobody has defined yet?", m: "Cluster analysis.", n: "Customer segments; fraud outliers." },
       { h: "Data at regular intervals — find the pattern and forecast?", m: "Time series analysis.", n: "Monthly claims; hourly demand." }
     ] },
-    { worked: { tag: "example", title: "Which technique fits?", q: "A garden centre chain wants to (a) forecast next spring's compost sales from five years of monthly sales; (b) find natural groups among its loyalty-card customers.",
+    { worked: { tag: "example", title: "Which technique fits?", q: "A garden centre chain wants to:\n- **(a)** forecast next spring's compost sales from five years of monthly sales\n- **(b)** find natural groups among its loyalty-card customers.",
       steps: [
         { m: "(a) **Time series analysis** — monthly data over years, with a strong spring season, to forecast.", mk: "✓" },
         { m: "(b) **Cluster analysis** — groups are not known in advance; the analysis finds them.", mk: "✓", n: "Name the technique, then give the reason from its purpose." }
@@ -1777,17 +1769,17 @@ C["it:F201.2.6"] = {
     { worked: { tag: "exam", title: "Two other techniques", src: "OCR-style · State · 2 marks",
       q: "ShieldDrive uses time series analysis on its monthly claims. State two data analytic techniques, other than time series analysis.",
       steps: [
-        { m: "Any two from: regression analysis (1) · Monte Carlo simulation (1) · factor analysis (1) · cohort analysis (1) · cluster analysis (1).", mk: "2", n: "Modelled on SAM Q6(d). One mark each." },
+        { m: "Any two from:\n- regression analysis (1)\n- Monte Carlo simulation (1)\n- factor analysis (1)\n- cohort analysis (1)\n- cluster analysis (1).", mk: "2", n: "Modelled on SAM Q6(d). One mark each." },
         { m: "Do not accept: time series analysis — it is named in the question.", mk: "0" }
       ], result: "e.g. regression analysis; cohort analysis" } },
     { worked: { tag: "exam", title: "The right technique for each task", src: "OCR-style · Identify · 3 marks",
-      q: "ShieldDrive wants to: (i) find out how much a driver's age and annual mileage affect the cost of their claims; (ii) estimate the probability that next winter's storm claims exceed its reserve; (iii) compare how many customers who joined in each month of 2025 renewed a year later. Identify the most suitable data analytic technique for each task.",
+      q: "ShieldDrive wants to:\n- **(i)** find out how much a driver's age and annual mileage affect the cost of their claims\n- **(ii)** estimate the probability that next winter's storm claims exceed its reserve\n- **(iii)** compare how many customers who joined in each month of 2025 renewed a year later.\n\nIdentify the most suitable data analytic technique for each task.",
       steps: [
         { m: "(i) Regression analysis (1).", mk: "1" },
         { m: "(ii) Monte Carlo simulation (1).", mk: "1" },
         { m: "(iii) Cohort analysis (1).", mk: "1", n: "Correct answers only. Clue words: how much affect → regression; probability under uncertainty → Monte Carlo; groups by joining month → cohort." }
       ], result: "Regression · Monte Carlo · cohort",
-      "try": [{ grid: { cols: ["ShieldDrive's task", "Technique"], rows: [
+      "try": [{ notesOnly: true, grid: { cols: ["ShieldDrive's task", "Technique"], rows: [
         ["Predict a claim's cost from the car's age and value", "regression"],
         ["Model 10,000 possible flood seasons to set a reserve", "monte carlo"],
         ["Reduce 30 survey questions to a few underlying themes", "factor"],
@@ -1820,7 +1812,7 @@ C["it:F201.2.6"] = {
       ], result: "Level 3: trend, season, forecast and anomalies — each tied to staffing and budgets — weighed with limitations" } },
     lor9("Monte Carlo simulation"),
     { worked: { tag: "exam", title: "Should ShieldDrive use Monte Carlo simulation?", src: "OCR-style · Discuss · 9 marks",
-      q: "ShieldDrive must decide how much money to keep in reserve to pay storm-damage claims next winter. Discuss whether ShieldDrive should use Monte Carlo simulation to make this decision. In your answer you must write about: any benefits to ShieldDrive; any limitations to ShieldDrive; whether you would recommend that ShieldDrive uses Monte Carlo simulation and your reasons.",
+      q: "ShieldDrive must decide how much money to keep in reserve to pay storm-damage claims next winter. Discuss whether ShieldDrive should use Monte Carlo simulation to make this decision.\n\nIn your answer you must write about:\n- any benefits to ShieldDrive\n- any limitations to ShieldDrive\n- whether you would recommend that ShieldDrive uses Monte Carlo simulation and your reasons.",
       steps: [
         { m: "Purpose: Monte Carlo runs a model of the winter thousands of times with random values for the uncertain inputs (number of storms, their strength, how many customers are hit, repair costs), giving the range of total claims and the probability of each.", mk: "1", n: "Shows what the technique is — the base of every level. Modelled on the structure of SAM Q6(c)." },
         { m: "Benefit: instead of one guess, ShieldDrive sees how likely each total is — e.g. the reserve needed to cover 97% of simulated winters — so it can choose its level of risk.", mk: "1", n: "Benefits in context." },
@@ -1874,7 +1866,6 @@ C["it:F201.2.6"] = {
     ["What does cluster analysis group data by?", "Similarity — items in a cluster are more alike than items in other clusters; the groups are found by the analysis, not set in advance.", 7],
     ["What is the key difference between cluster and cohort analysis?", "Cohort groups are defined beforehand by a shared start; cluster groups are discovered from the data.", 8],
     ["What is the purpose of time series analysis?", "To find the trend and seasonal patterns in data recorded at regular intervals, and forecast future values.", 9],
-    ["Give one limitation of time series analysis.", "It assumes past patterns continue, so one-off events break forecasts; it shows when, not why.", 10],
     ["Name the six data analytic techniques in the specification.", "Regression analysis, Monte Carlo simulation, factor analysis, cohort analysis, cluster analysis, time series analysis.", 100],
     ["Give two benefits of cluster analysis to a retailer.", "Clear links between customer groups and products; groups can be analysed separately to inform decisions — also spots unusual (possibly fraudulent) transactions.", 101],
     ["Give two limitations of cluster analysis.", "Incorrect selection of data gives incorrect results, and associations can be false if groups are formed badly — leading to wrong decisions.", 102],
