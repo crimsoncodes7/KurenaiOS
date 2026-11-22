@@ -70,3 +70,41 @@ run_smoke: 180 / 180 passed in 558.0 s wall (1670 s summed)
 ### Round 1 · Noticed, not touched
 
 - `css/themes.css:112` and `:115` both set `--hero-tint: oklch(0.95 0.02 235);` (pre-existing duplicate line); left untouched per R3.
+
+---
+
+## Round 2 · Full Customisation for Pacing (U4 + 2-step Shift preview)
+
+### U4 · Full Pacing customisation for In class & My plan + 2-step Shift visual preview
+
+- **R1 inspection:** `js/core/pacing.js` (`shiftPlan` / `shiftCount`) previously filtered strictly to `source === "personal"`, `!e.done`, and `!e.tag`, leaving `In class` rows impossible to bulk-shift or re-sequence individually. `js/modules/pacing.js` had no per-register `+` button, no row-level move/reorder/hide menu, no single-lesson/personal weekday override, and `shiftDialog` used a bare `<select>` with text-only preview.
+- **Commit:** `25a1b650` — `feat(custom): U4 — full Pacing customisation for In class and My plan with 2-step Shift preview`
+- **Files and lines:**
+  - `js/core/pacing.js`: `:103–128` (backwards-compatible `hidden`, `order`, `day` fields in `normalise`), `:561–578` (`lessonPlan` honours single-lesson `e.day` override), `:608–795` (pure `shiftPreview(n, o)` supporting `source: "personal" | "school" | "both"`, `includeDone`, `includeExam`, stepping breaks per register, simulating virtual `+New` weeks, and building 2–4 week `windowWeeks`; `shiftCount`, `shiftPlan`, and `undoShift` with `weekPatches` + empty added-week cleanup), `:800–875` (`setHidden`, `moveEntryWeek`, `reorderEntry`, `setEntryDay`), `:424–435` (`entriesFor` excludes hidden by default and stably sorts by `order`; `!e.hidden` guards in `alignment`, `carriedInto`, `classMilestones`).
+  - `js/modules/pacing.js` (lazy `page-pacing`): `:46` (hoisted `ISO_DOW`), `:110` (`dialogShell` danger array support), `:151–335` (`entryDialog` Weekday selector + `Hide row`/`Restore row` with Undo toast), `:391–705` (2-step `shiftDialog`: Step 1 Configure with zero-waste segmented rows, `Register`, `Subject` with `Computer Science`, `Shift by` `Earlier | Later` + `1w–4w` + `More ▾` menu, `Scope`, `Include ticked rows`, `Include exam-planner rows`, and `Preview →`; Step 2 Preview rendering real Pacing subject cards with `--pace-hue`, `In class` / `My plan` registers, circular ticks, arriving/leaving/anchored rows, break jumps, `+New` weeks, `← Back`, and `Confirm shift (N rows)` with Undo toast), `:1164–1365` (per-register `+` buttons on `In class` & `My plan`, `⋯` row action menu via `KOS.ui.menu` for move prev/next week, reorder up/down, hide with Undo, edit; single-lesson `In class` day `<select>` & `My plan` day chip; week-banner `Hidden (N)` toggle + 1-click `Restore`).
+  - `css/tokens.css`: `:778–780` (`--pace-shift-w: 740px`, `--pace-preview-w: 1080px`, `--pace-shift-dur: 1.9s`).
+  - `css/views/productivity.css`: `:640–668` (register head `+`, row `⋯` menu, hidden row muted style, day chip), `:719–780` (2-step Shift dialog + real Pacing card preview styles, `@keyframes paceRowArrive`, `@media (prefers-reduced-motion: reduce)`), `:847–990` (responsive collapse inside existing `860px`, `700px`, `pointer: coarse`, `hover: none` blocks).
+  - `tools/smoke199.test.js`: `:130–228` (Step D verified failing before fix and passing after — covers `shiftPreview`, `shiftPlan`/`undoShift` across `In class` & `Both`, `reorderEntry`, `setEntryDay`/`lessonPlan`, `moveEntryWeek`, `setHidden`, 2-step Shift DOM flow, per-register `+`, row `⋯` menus, and zero Governor/session traffic).
+- **Invariants:** `pacing` invariants 81–84 (derived `wk`, zero Governor/session writes, no study progress writes, canonical `KOS.pacing` writes); `sync.md` 31–33a (`pacing.entries` keyed by `id` in `cloudmerge.js:88`); `ui.md` 26, 26a, 47–49, 69 (`smoke55` + `smoke56`). `smoke196.test.js` step N passed completely untouched.
+- **Verification (run before committing):**
+  - `node --check js/core/pacing.js`, `node --check js/modules/pacing.js`, `node tools/gen_lazy_index.mjs --check` (`402 KB`) — pass.
+  - Targeted suites: `smoke199` (5/5), `smoke49`, `smoke55` (14/14), `smoke56`, `smoke103`, `smoke104`, `smoke135`, `smoke142` (12/12), `smoke185` (13/13), `smoke191` (14/14), `smoke196` (26/26) — all pass.
+  - Live Chrome (`1470×832`, `820×1180`, `375×812`, Graphite & Dawn, plus `prefers-reduced-motion: reduce`): verified 6 per-register `+` buttons, 12 row `⋯` menus, `Hidden (1)` toggle, Step 1 (`740 px` desktop, zero dead space, `Computer Science`, Scope beside Shift by), Step 2 (`1080 px` desktop, 4-week real Pacing subject cards, `paceRowArrive` animation active normally and `"none"` under `prefers-reduced-motion: reduce`).
+
+### Round 2 · Boot bytes
+
+- **End of Round 2 (`25a1b650`):** `5,364,420` B (`5.1159 MB`) against the `5,400,166` B (`5.15 MB`) budget — **`35,746` B (`34.91 KB`) free**.
+
+### Round 2 · Full gate summary
+
+```text
+run_smoke: 180 suite run(s), 3 worker(s), 300 s timeout (smoke56, smoke75 900 s), failures re-run alone at the end
+...
+  ok   smoke197      3.5 s
+  ok   smoke199      2.1 s
+  ok   smoke196      6.4 s
+
+slowest: smoke75 134 s, smoke56 105 s, smoke142 41 s, smoke44 22 s, smoke45 18 s
+
+run_smoke: 180 / 180 passed in 293.0 s wall (875 s summed)
+```
