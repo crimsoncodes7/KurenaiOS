@@ -157,3 +157,68 @@ slowest: smoke75 148 s, smoke56 113 s, smoke142 55 s, smoke44 25 s, smoke45 18 s
 
 run_smoke: 180 / 180 passed in 361.9 s wall (1083 s summed)
 ```
+
+---
+
+## Round 4 · Universal Error Log & Low-Friction Capture (U7–U8)
+
+### U7 · Universal Error Log core store, 3-way sync & lazy Hub
+
+- **Commits:**
+  - `5cbda7e2` — `feat(custom): U7 — Universal Error Log store, sync and lazy hub`
+  - `7734300b` — `fix(custom): U7 — register Error Log in global search pages and Assistant navigation`
+- **Files:** `js/core/errorlog.js` (new), `js/modules/errorlog.js` (new lazy `page-errorlog`), `index.html`, `js/core/lazy.js`, `js/core/router.js`, `js/core/ui.js`, `js/modules/hub.js`, `js/core/cloudmerge.js`, `js/core/searchmore.js`, `js/core/aitools.js`, `css/tokens.css`, `css/views/study.css`, `tools/ui-migration.json`, `tools/smoke199.test.js` (Step G).
+- **What changed:**
+  - Added canonical `KOS.errorLog` store (`state.errorLog = { v: 1, items: [], settings: { autoLogQuiz: false } }`) covering all 8 exam & non-exam study spaces (`compsci`, `maths`, `it`, `code`, `ja`, `mind`, `creatives`, `general`), 7 mistake types (`concept`, `misread`, `careless`, `method`, `recall`, `time`, `edge`), and 7 capture sources (`quiz`, `exam-q`, `code`, `ja`, `ink`, `paper`, `manual`).
+  - Wired `errorLog.items` (keyed by `id`) into `KOS.cloudmerge` (`RECORDS`) for multi-device 3-way sync.
+  - Wired deduped 1-click **Turn into flashcard** (`KOS.errorLog.toFlashcard(id)`): routes exam subjects with a `topicRef` straight into `(subject, topicRef)` via `KOS.srs.addCustom`, and non-exam spaces safely into `KOS.srs.PERSONAL_SID` (`"personal"`), refusing duplicates on re-click.
+  - Built lazy `page-errorlog` view (`#/errorlog`, `#/errorlog/drill`, `#/errorlog/<subject>`, `#/errorlog/<subject>/<topicRef>`) with Study sub-nav entry + live open-count badge (`pc-errorlog`), global search (`PAGES`), and Kurenai Assistant navigation (`NAV_VIEWS`):
+    - **Honest Pattern Insights** (`>= 2` items): mistake-type bars scaled proportionally to their actual share of total logged entries over a full-width track (never stretched to 100% on ties), plus Top error-prone topics clickable to filter.
+    - **Compact, scannable cards:** mistake-type pills placed directly on the top metadata row alongside Subject, Source, and Status; side-by-side `What went wrong` / `Rule for next time` grid; Delete kept inside the Edit dialog (with Undo toast) so card footers stay uncluttered.
+    - **Single empty-state CTA:** when empty, the header `+ Log mistake` button is hidden so `+ Log your first mistake` in the empty card is the sole primary CTA.
+    - **Cohesive filters & capture:** bordered `All subjects` / `All mistake types` / `All sources` selects matching search input, `Auto-log quiz misses` switch (`state.errorLog.settings.autoLogQuiz`), compact context pill when pre-filled vs Subject + optional Topic selector when opened manually.
+    - **Quick Error Drill (`#/errorlog/drill`):** active-recall card flow with `← Back to Error Log` exit link and `Space` (reveal) / `1` (still shaky) / `2` (mark resolved) keyboard shortcuts.
+  - Zero Governor writes and zero sessions logged.
+- **Verification:**
+  - `node --check`, `node tools/gen_lazy_index.mjs --check`, `smoke199` (Step G), `smoke55`, `smoke56`, `smoke142`, `smoke45`, `smoke74`, `smoke76`, `smoke190` — all pass.
+  - Live Chrome (`1470×832`, `820×1180`, `375×812`, Graphite & Atelier Dawn): verified empty state (sole CTA), populated hub (honest share-% bars, top-row mistake chips, side-by-side notes, bordered selects), manual Log mistake modal, Quick Error Drill, and zero overflow or page errors.
+
+### U8 · Low-friction 1-tap Error Log capture across study surfaces & Topic surfacing
+
+- **Commit:** `157ac693` — `feat(custom): U8 — low-friction 1-tap Error Log capture across study surfaces and topic surfacing`
+- **Files:** `js/core/errorlog.js`, `css/views/study.css`, `js/engines/quiz.js`, `js/modules/code.js`, `js/modules/jarun.js`, `js/modules/inktab.js`, `js/modules/examreview.js`, `js/modules/examprac.js`, `js/modules/topic.js`, `tools/smoke199.test.js` (Step H).
+- **What changed:**
+  - Added shared `KOS.errorLog.inlinePill(seedOrFn, opts)` helper supporting 1-tap instant capture (`+ Log mistake` → `✓ Logged · Tag reason` + `Undo`, retaining keyboard focus on state flip, deduped via `dedupeKey`, and refreshing Study sub-nav counters) plus `auto: true` mode for `Auto-log quiz misses`.
+  - Wired low-friction capture across all 6 practical study surfaces (all in lazy bundles, zero boot cost):
+    - **Quizzes (`js/engines/quiz.js` `marked`):** wrong MCQ answers show 1-tap `+ Log mistake` (or auto-log quietly into `✓ Logged · Tag reason · Undo` when `Auto-log quiz misses` is enabled).
+    - **Exam Questions (`js/engines/quiz.js` `mountExam`):** mark-scheme self-mark footer renders `+ Log mistake` capturing dynamic `awarded / total` marks and `source: "exam-q"`.
+    - **Code (`js/modules/code.js` `check`):** failed checks (compile error, timeout/exception, rule fail, or failing test cases) render 1-tap `+ Log mistake` in `rewardSlot`.
+    - **Japanese (`js/modules/jarun.js` `end`):** each item in `ul[data-ui="ja.misses"]` gets a compact 1-tap `+ Log` pill tied to item id, word, reading/gloss, and missed skill.
+    - **Ink tab (`js/modules/inktab.js` `paintMode`):** compact `+ Log error` button beside `Drills` opening pre-filled capture (`source: "ink"`) for the active topic.
+    - **Exams & Papers (`js/modules/examreview.js` & `js/modules/examprac.js`):** `+ Log error` on the Marks lost card and 1-tap `+ Log error` on each costly-question card linked to paper, question number, lost marks, and spec node.
+  - **Topic-level surfacing (`js/modules/topic.js`):** when a topic has `>= 1` open error, shows a quiet amber pill (`data-ui="topic.open-errors"`, `● N open error(s) on this topic · Review →`) deep-linking straight to `#/errorlog/<subject>/<topicRef>`; completely hidden when 0.
+- **Verification:**
+  - `node --check`, `node tools/gen_lazy_index.mjs --check`, `smoke199` (all 9 steps A–H), `smoke55`, `smoke56`, `smoke142`, `smoke107`, `smoke135`, `smoke185`, `smoke196` — all pass.
+  - Live Chrome (`1470×832` and `375×812`): verified Topic surfacing pill, Quiz wrong answer `+ Log mistake` → 1-tap `✓ Logged · Tag reason` + `Undo`, zero overflow, zero page errors.
+
+### Round 4 · Boot bytes (final branch total)
+
+- **End of Round 4 (`7734300b`):** `5,384,580` B (`5.1351 MB`) against the `5,400,166` B (`5.15 MB`) budget — **`15,586` B (`15.22 KB`) free**.
+
+### Round 4 · Final full gate summary
+
+```text
+run_smoke: 180 suite run(s), 3 worker(s), 300 s timeout (smoke56, smoke75 900 s), failures re-run alone at the end
+...
+  ok   smoke190      7.5 s
+  ok   smoke193      3.3 s
+  ok   smoke194      2.5 s
+  ok   smoke195      3.5 s
+  ok   smoke197      3.6 s
+  ok   smoke199      2.5 s
+  ok   smoke196      6.7 s
+
+slowest: smoke75 147 s, smoke56 113 s, smoke142 49 s, smoke44 24 s, smoke45 19 s
+
+run_smoke: 180 / 180 passed in 342.4 s wall (1024 s summed)
+```
