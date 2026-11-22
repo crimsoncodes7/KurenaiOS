@@ -2488,6 +2488,10 @@
       }
     }
     var asgField = field("Assignment (optional)", asgSel, true);
+    var linkRow = el("div", { class: "k-fx-pair", "data-ui": "focus.link-row" }, [
+      field("Link to subject", subjSel), topicPick.el, asgField
+    ]);
+    form.appendChild(linkRow);
     var immSel = el("select", { class: "k-input", "data-ui": "focus.ja-immersion", "aria-label": "Japanese immersion" }, [
       el("option", { value: "", text: "Study / lessons" }),
       el("option", { value: "watch", text: "Watching" }),
@@ -2495,11 +2499,8 @@
       el("option", { value: "listen", text: "Listening" })
     ]);
     immSel.value = cfg.subject === "ja" && IMMERSION_KINDS.indexOf(cfg.immersion) !== -1 ? cfg.immersion : "";
-    var immField = field("Japanese immersion (optional)", immSel, true);
-    var linkRow = el("div", { class: "k-fx-pair", "data-ui": "focus.link-row" }, [
-      field("Link to subject", subjSel), topicPick.el, asgField, immField
-    ]);
-    form.appendChild(linkRow);
+    var immField = field("Japanese immersion (optional)", immSel);
+    form.appendChild(immField);
 
     /* Build 6.5 — the objective. One line, optional, and the last thing asked
        before starting: it is what the completion review reports back. */
