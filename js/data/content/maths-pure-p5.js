@@ -596,7 +596,7 @@ C["maths:5.5"] = {
         { h: "(c) $3x$ runs over $(0, 5400°]$ — 15 full periods of $360°$", m: "Two solutions per period: $15 \\times 2 = 30$ solutions", mk: "M1 A1", n: "Count periods of the transformed variable; each period has the same two solutions." }
       ], result: "(b) $42.6°, 137.4°$ (c) 30" } },
     { worked: { tag: "exam", title: "Spot the student's errors: dividing by $\\sin x$ and forgetting the negative root", src: "AS Nov 2021 · P1 Q12(ii) · 2 marks",
-      q: "A student solves $3\\tan x - 5\\sin x = 0$ for $-90° < x < 90°$ as follows: $3\\frac{\\sin x}{\\cos x} - 5\\sin x = 0 \\Rightarrow 3\\sin x - 5\\sin x\\cos x = 0 \\Rightarrow 3 - 5\\cos x = 0 \\Rightarrow \\cos x = \\frac35 \\Rightarrow x = 53.1°$. Identify two errors or omissions.",
+      q: "A student solves $3\\tan x - 5\\sin x = 0$ for $-90° < x < 90°$ as follows:\n\n- $3\\frac{\\sin x}{\\cos x} - 5\\sin x = 0$\n- $3\\sin x - 5\\sin x\\cos x = 0$\n- $3 - 5\\cos x = 0$\n- $\\cos x = \\frac35 \\Rightarrow x = 53.1°$\n\nIdentify two errors or omissions.",
       steps: [
         { m: "**1.** Dividing by $\\sin x$ loses the solution $\\sin x = 0$, i.e. $x = 0$. The line should be $\\sin x(3 - 5\\cos x) = 0$.", mk: "B1" },
         { fig: { x: [-92, 92], y: [-8, 8], axes: { xt: [{ v: -53.1, label: "−53.1°" }, { v: 53.1, label: "53.1°" }], yt: [-4, 4] }, items: [
@@ -768,7 +768,7 @@ C["maths:5.7"] = {
       "Expect twice as many solutions for $2\\theta$ and three times as many for $3\\theta$ — the interval for $u$ is that much longer."
     ] } },
     { worked: { tag: "exam", title: "$\\sin(2\\theta + 10°) = -0.6$ over a wide interval; a student's errors", src: "AS Specimen · P1 Q11(i), (ii)(a) · 7 marks",
-      q: "**(i)** Solve, for $-90° \\le \\theta < 270°$, $\\sin(2\\theta + 10°) = -0.6$, to one decimal place. **(ii)(a)** A student solves $7\\tan x = 8\\sin x$ for $-90° < x < 90°$ by writing $7\\frac{\\sin x}{\\cos x} = 8\\sin x \\Rightarrow 7\\sin x = 8\\sin x\\cos x \\Rightarrow 7 = 8\\cos x \\Rightarrow \\cos x = \\frac78 \\Rightarrow x = 29.0°$. Identify two mistakes.",
+      q: "**(i)** Solve, for $-90° \\le \\theta < 270°$, $\\sin(2\\theta + 10°) = -0.6$, to one decimal place.\n\n**(ii)(a)** A student solves $7\\tan x = 8\\sin x$ for $-90° < x < 90°$ by writing:\n\n- $7\\frac{\\sin x}{\\cos x} = 8\\sin x$\n- $7\\sin x = 8\\sin x\\cos x$\n- $7 = 8\\cos x$\n- $\\cos x = \\frac78 \\Rightarrow x = 29.0°$\n\nIdentify two mistakes.",
       steps: [
         { h: "(i) $u = 2\\theta + 10°$, $-170° \\le u < 550°$", m: "$\\sin u = -0.6$: principal value $u_0 = -36.87°$. Solutions: $-36.87°$, $180° + 36.87° = 216.87°$, and adding $360°$: $323.13°$; also $-36.87° - 180° + \\ldots$: check $-143.13°$ ($= -180° + 36.87°$) is in range ✓; $576.87°$ is not.\n$u = -143.13°, -36.87°, 216.87°, 323.13°$", mk: "M1 A1 A1", n: "Four values of $u$ in a $720°$ window — two per period, as expected." },
         { fig: { x: [-95, 275], y: [-1.3, 1.3], axes: { x: "θ", xt: [{ v: -76.6, label: "−76.6°" }, { v: -23.4, label: "−23.4°" }, { v: 103.4, label: "103.4°" }, { v: 156.6, label: "156.6°" }], yt: [-0.6, 1] }, items: [
