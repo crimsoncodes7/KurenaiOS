@@ -133,7 +133,7 @@ C["compsci:4.6.4.1"] = {
     { callout: { t: "miscon", h: "\"NOT AND\" for NAND", body: "AS 2022 Q07.2: **R. NOT AND** — the gate is called **NAND**. (AS 2017 accepted \"NOT AND\"; do not rely on it.) XOR: accept XOR // EOR // EXOR // Exclusive OR." } },
     { worked: { tag: "exam", title: "Name the gate (0 1 1 0)", src: "AS June 2016 · P2 Q05.1 · 1 mark",
       q: "Figure 5 shows a gate with inputs X, Y and output Z, and its truth table: 0 0 → 0, 0 1 → 1, 1 0 → 1, 1 1 → 0. What is the name of the logic gate?",
-      steps: [{ m: "XOR // EOR // Exclusive OR;", mk: "1 mark" }], result: "XOR", try: [{ gates: { inputs: ["X", "Y"], gates: [{ id: "G", type: "NOR", in: ["X", "Y"] }], out: "G", outName: "Z", pick: "G", cap: "**Your turn.** This gate's wanted column is 1, 0, 0, 0. Pick the gate, then try the inputs." } }] } },
+      steps: [{ m: "XOR // EOR // Exclusive OR;", mk: "1 mark" }], result: "XOR", try: [{ notesOnly: true, gates: { inputs: ["X", "Y"], gates: [{ id: "G", type: "NOR", in: ["X", "Y"] }], out: "G", outName: "Z", pick: "G", cap: "**Your turn.** This gate's wanted column is 1, 0, 0, 0. Pick the gate, then try the inputs." } }] } },
     { worked: { tag: "exam", title: "Name the gate (1 1 1 0)", src: "AS June 2017 · P2 Q05.1 · 1 mark",
       q: "A gate's truth table is 0 0 → 1, 0 1 → 1, 1 0 → 1, 1 1 → 0, and its symbol is an AND shape with a circle on its output. What is the name of the logic gate?",
       steps: [{ m: "NAND;", mk: "1 mark" }], result: "NAND" } },
@@ -142,13 +142,13 @@ C["compsci:4.6.4.1"] = {
       steps: [{ m: "NOR;", mk: "1 mark" }], result: "NOR" } },
     { worked: { tag: "exam", title: "Complete A NAND B", src: "AS June 2020 · P2 Q05.1 · 1 mark",
       q: "Complete the truth table for A NAND B (rows A B = 00, 01, 10, 11).",
-      steps: [{ m: "1, 1, 1, 0", mk: "1 mark" }], result: "1 1 1 0", try: [{ gates: { inputs: ["A", "B"], gates: [{ id: "G", type: "NOR", in: ["A", "B"] }], out: "G", fill: true, cap: "**Your turn.** The gate is a **NOR** now: fill in its output column." } }] } },
+      steps: [{ m: "1, 1, 1, 0", mk: "1 mark" }], result: "1 1 1 0", try: [{ notesOnly: true, gates: { inputs: ["A", "B"], gates: [{ id: "G", type: "NOR", in: ["A", "B"] }], out: "G", fill: true, cap: "**Your turn.** The gate is a **NOR** now: fill in its output column." } }] } },
     { worked: { tag: "exam", title: "Two gates by symbol and table", src: "AS June 2022 · P2 Q07.1–07.2 · 2 marks",
       q: "(a) State which logic gate has the truth table 0 0 → 1, 0 1 → 0, 1 0 → 0, 1 1 → 0. (b) State the logic gate whose symbol is an AND shape with a bubble on the output.",
       steps: [{ m: "(a) NOR;", mk: "1 mark" }, { m: "(b) NAND;", mk: "1 mark", n: "R. NOT AND." }], result: "NOR; NAND" } },
     { worked: { tag: "exam", title: "OR and NAND tables", src: "A-level June 2019 · P2 Q08.1 · 1 mark",
       q: "Complete the truth tables for the OR and NAND gates.",
-      steps: [{ m: "OR: 0, 1, 1, 1 · NAND: 1, 1, 1, 0", mk: "1 mark", n: "All values in both output columns must be correct." }], result: "0111 and 1110", try: [{ gates: { inputs: ["A", "B"], gates: [{ id: "G", type: "XOR", in: ["A", "B"] }], out: "G", fill: true, cap: "**Your turn.** Fill in the column for **A XOR B**." } }] } },
+      steps: [{ m: "OR: 0, 1, 1, 1 · NAND: 1, 1, 1, 0", mk: "1 mark", n: "All values in both output columns must be correct." }], result: "0111 and 1110", try: [{ notesOnly: true, gates: { inputs: ["A", "B"], gates: [{ id: "G", type: "XOR", in: ["A", "B"] }], out: "G", fill: true, cap: "**Your turn.** Fill in the column for **A XOR B**." } }] } },
     { worked: { tag: "exam", title: "XOR and its operation (the parity circuit)", src: "AS June 2025 · P2 Q07.1 · 2 marks",
       q: "A logic circuit computes a parity bit for a 4-bit message using three logic gates all of the same type; for the message 1001 it outputs 0. State the name of the type of gate used and explain its operation.",
       steps: [
@@ -204,7 +204,7 @@ C["compsci:4.6.4.1"] = {
       steps: [
         { m: "L: 0,0,0,0,0,0,1,1 · M: 0,0,0,0,0,1,0,1", mk: "1 mark" },
         { m: "Z: 0,0,0,0,0,1,1,1", mk: "1 mark", n: "A. FT from L and M. R. a column with more than one value in a cell." }
-      ], result: "Z = A·(B + C)", try: [{ gates: { inputs: ["A", "B", "C"], gates: [{ id: "O", type: "OR", in: ["B", "C"] }, { id: "Z", type: "AND", in: ["A", "O"] }], out: "Z", outName: "Z", pick: "O", cap: "**Your turn.** $Z = A \\cdot B + A \\cdot C$ factorises to $A \\cdot (B + C)$: two gates instead of three. Pick the hidden gate." } }] } },
+      ], result: "Z = A·(B + C)", try: [{ notesOnly: true, gates: { inputs: ["A", "B", "C"], gates: [{ id: "O", type: "OR", in: ["B", "C"] }, { id: "Z", type: "AND", in: ["A", "O"] }], out: "Z", outName: "Z", pick: "O", cap: "**Your turn.** $Z = A \\cdot B + A \\cdot C$ factorises to $A \\cdot (B + C)$: two gates instead of three. Pick the hidden gate." } }] } },
     { fig: circuit(420, 190, function (add, it) {
       var n1 = add(gate("NOT", 50, 50)), a1 = add(gate("AND", 150, 60)), o1 = add(gate("OR", 150, 150)), a2 = add(gate("AND", 260, 105)), n2 = add(gate("NOT", 330, 105));
       it.push(lab(12, 50, "A"), lab(12, 70, "B"), lab(12, 140, "C"), lab(12, 160, "D"));
@@ -534,26 +534,26 @@ C["compsci:4.6.5.1"] = {
         { m: "$\\overline{B}$: 1, 0, 1, 0 and $\\overline{A}$: 1, 1, 0, 0", mk: "1 mark" },
         { m: "$\\overline{A} \\cdot B$: 0, 1, 0, 0", mk: "1 mark" },
         { m: "$A + \\overline{B}$: 1, 0, 1, 1 and $\\overline{\\overline{A} \\cdot B}$: 1, 0, 1, 1 — identical columns prove the equivalence.", mk: "1 mark", n: "I. order of columns." }
-      ], result: "Both columns 1 0 1 1", try: [{ grid: { cols: ["A", "B", "$\\overline{B}$", "$A \\cdot \\overline{B}$", "$\\overline{A} + B$", "$\\overline{\\overline{A} + B}$"], rows: [["0", "0", "1", "0", "1", "0"], ["0", "1", "0", "0", "1", "0"], ["1", "0", "1", "1", "0", "1"], ["1", "1", "0", "0", "1", "0"]], given: [[0, 0], [0, 1], [1, 0], [1, 1], [2, 0], [2, 1], [3, 0], [3, 1]], cap: "**Your turn.** The dual: complete the table to show $A \\cdot \\overline{B} = \\overline{\\overline{A} + B}$." } }] } },
+      ], result: "Both columns 1 0 1 1", try: [{ notesOnly: true, grid: { cols: ["A", "B", "$\\overline{B}$", "$A \\cdot \\overline{B}$", "$\\overline{A} + B$", "$\\overline{\\overline{A} + B}$"], rows: [["0", "0", "1", "0", "1", "0"], ["0", "1", "0", "0", "1", "0"], ["1", "0", "1", "1", "0", "1"], ["1", "1", "0", "0", "1", "0"]], given: [[0, 0], [0, 1], [1, 0], [1, 1], [2, 0], [2, 1], [3, 0], [3, 1]], cap: "**Your turn.** The dual: complete the table to show $A \\cdot \\overline{B} = \\overline{\\overline{A} + B}$." } }] } },
     { worked: { tag: "exam", title: "Complete the table; name the law", src: "A-level June 2022 · P2 Q03.1–03.2 · 2 marks",
       q: "Complete the truth table with columns A + B, $\\overline{A}$, $\\overline{B}$, $\\overline{A} \\cdot \\overline{B}$, $\\overline{\\overline{A} \\cdot \\overline{B}}$, then state the name of the law it demonstrates.",
       steps: [
         { m: "A + B: 0,1,1,1 · $\\overline{A}$: 1,1,0,0 · $\\overline{B}$: 1,0,1,0 · $\\overline{A} \\cdot \\overline{B}$: 1,0,0,0 · $\\overline{\\overline{A} \\cdot \\overline{B}}$: 0,1,1,1", mk: "1 mark" },
         { m: "De Morgan's (law);", mk: "1 mark" }
-      ], result: "De Morgan's law", try: [{ grid: { cols: ["A", "B", "$A \\cdot B$", "$\\overline{A \\cdot B}$", "$\\overline{A}$", "$\\overline{B}$", "$\\overline{A} + \\overline{B}$"], rows: [["0", "0", "0", "1", "1", "1", "1"], ["0", "1", "0", "1", "1", "0", "1"], ["1", "0", "0", "1", "0", "1", "1"], ["1", "1", "1", "0", "0", "0", "0"]], given: [[0, 0], [0, 1], [1, 0], [1, 1], [2, 0], [2, 1], [3, 0], [3, 1]], cap: "**Your turn.** De Morgan's other law: complete the table and compare the second column with the last." } }] } },
+      ], result: "De Morgan's law", try: [{ notesOnly: true, grid: { cols: ["A", "B", "$A \\cdot B$", "$\\overline{A \\cdot B}$", "$\\overline{A}$", "$\\overline{B}$", "$\\overline{A} + \\overline{B}$"], rows: [["0", "0", "0", "1", "1", "1", "1"], ["0", "1", "0", "1", "1", "0", "1"], ["1", "0", "0", "1", "0", "1", "1"], ["1", "1", "1", "0", "0", "0", "0"]], given: [[0, 0], [0, 1], [1, 0], [1, 1], [2, 0], [2, 1], [3, 0], [3, 1]], cap: "**Your turn.** De Morgan's other law: complete the table and compare the second column with the last." } }] } },
     { worked: { tag: "exam", title: "The single replacement gate", src: "AS June 2019 · P2 Q06.3 · 1 mark",
       q: "De Morgan's laws can be applied to enable a combination of gates to be replaced by a single gate. What single gate could replace the combination in $\\overline{\\overline{A} \\cdot \\overline{B}}$?",
       steps: [{ m: "$\\overline{\\overline{A} \\cdot \\overline{B}} = \\overline{\\overline{A}} + \\overline{\\overline{B}} = A + B$ → **OR**;", mk: "1 mark", n: "A. A + B." }], result: "OR", try: [{ gates: { inputs: ["A", "B"], gates: [{ id: "G", type: "OR", in: ["A", "B"] }], out: "G", pick: "G", cap: "**Your turn.** The wanted column is $\\overline{\\overline{A} \\cdot \\overline{B}}$'s: pick the one gate that replaces the combination." } }] } },
     { worked: { tag: "exam", title: "Apply De Morgan", src: "AS June 2025 · P2 Q08.1 · 1 mark",
       q: "Apply De Morgan's law to $\\overline{A \\cdot B}$.",
-      steps: [{ m: "$\\overline{A} + \\overline{B}$", mk: "1 mark" }], result: "Ā + B̄", try: [{ grid: { cols: ["A", "B", "$\\overline{A + B}$", "$\\overline{A} \\cdot \\overline{B}$"], rows: [["0", "0", "1", "1"], ["0", "1", "0", "0"], ["1", "0", "0", "0"], ["1", "1", "0", "0"]], given: [[0, 0], [0, 1], [1, 0], [1, 1], [2, 0], [2, 1], [3, 0], [3, 1]], cap: "**Your turn.** The other law, $\\overline{A + B} = \\overline{A} \\cdot \\overline{B}$: complete both columns." } }] } },
+      steps: [{ m: "$\\overline{A} + \\overline{B}$", mk: "1 mark" }], result: "Ā + B̄", try: [{ notesOnly: true, grid: { cols: ["A", "B", "$\\overline{A + B}$", "$\\overline{A} \\cdot \\overline{B}$"], rows: [["0", "0", "1", "1"], ["0", "1", "0", "0"], ["1", "0", "0", "0"], ["1", "1", "0", "0"]], given: [[0, 0], [0, 1], [1, 0], [1, 1], [2, 0], [2, 1], [3, 0], [3, 1]], cap: "**Your turn.** The other law, $\\overline{A + B} = \\overline{A} \\cdot \\overline{B}$: complete both columns." } }] } },
     { worked: { tag: "exam", title: "Simplify using a truth table", src: "AS June 2022 · P2 Q07.4 · 3 marks",
       q: "Complete the truth table with columns $\\overline{B}$, $(A + \\overline{B})$, $(A + \\overline{B}) \\cdot B$, then use the final column to give a simplified expression for $(A + \\overline{B}) \\cdot B$.",
       steps: [
         { m: "$A + \\overline{B}$: 1, 0, 1, 1 (with $\\overline{B}$: 1, 0, 1, 0)", mk: "1 mark" },
         { m: "$(A + \\overline{B}) \\cdot B$: 0, 0, 0, 1", mk: "1 mark" },
         { m: "Only row 11 gives 1 → $A \\cdot B$", mk: "1 mark", n: "Algebra agrees: $A \\cdot B + \\overline{B} \\cdot B = A \\cdot B + 0$." }
-      ], result: "A·B", try: [{ grid: { cols: ["A", "B", "$\\overline{A}$", "$A + B$", "$(A + B) \\cdot \\overline{A}$"], rows: [["0", "0", "1", "0", "0"], ["0", "1", "1", "1", "1"], ["1", "0", "0", "1", "0"], ["1", "1", "0", "1", "0"]], given: [[0, 0], [0, 1], [1, 0], [1, 1], [2, 0], [2, 1], [3, 0], [3, 1]], cap: "**Your turn.** Simplify $(A + B) \\cdot \\overline{A}$ the same way: the last column is one AND — which?" } }] } },
+      ], result: "A·B", try: [{ notesOnly: true, grid: { cols: ["A", "B", "$\\overline{A}$", "$A + B$", "$(A + B) \\cdot \\overline{A}$"], rows: [["0", "0", "1", "0", "0"], ["0", "1", "1", "1", "1"], ["1", "0", "0", "1", "0"], ["1", "1", "0", "1", "0"]], given: [[0, 0], [0, 1], [1, 0], [1, 1], [2, 0], [2, 1], [3, 0], [3, 1]], cap: "**Your turn.** Simplify $(A + B) \\cdot \\overline{A}$ the same way: the last column is one AND — which?" } }] } },
     { callout: { t: "tip", h: "Side by side: two meanings of \"normalisation\"", body: "Simplifying a Boolean expression is often loosely called *reducing* or *normalising* it — not to be confused with **normalising a floating-point number** (4.5.4.8: shift so the mantissa starts 01 or 10, for maximum precision) or **normalising a database** (4.10.4: remove redundancy to third normal form). All three remove waste; none is the same operation." } },
 
     { page: "How simplifications are marked" },

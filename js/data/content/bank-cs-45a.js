@@ -150,14 +150,13 @@ X("compsci:4.5.4.4", {
 
 X("compsci:4.5.4.7", {
   flashcards: [
-    ["What determines the range of a floating point number?", "The number of bits in the exponent."],
-    ["What determines the precision?", "The number of bits in the mantissa."],
-    ["Effect of moving a bit from mantissa to exponent?", "Range increases, precision decreases."],
-    ["Largest positive value with 8-bit mantissa and 4-bit exponent?", "0.1111111 × 2⁷ = 127/128 × 128 = 127."],
-    ["Smallest positive normalised value with an 8-bit mantissa and 4-bit exponent?", "0.1000000 × 2⁻⁸ = 0.5 × 1/256 = 1/512."],
-    ["Why can a floating point system represent values closer to zero than fixed point?", "A negative exponent shifts the point left as far as the exponent allows; fixed point has a fixed number of fraction bits."],
-    ["What is the trade-off in a fixed total number of bits?", "Range (exponent) versus precision (mantissa)."],
-    ["How many bits does IEEE single precision use for mantissa and exponent?", "23 (plus implicit 1) and 8, with a sign bit — 32 in total."]
+    ["What determines the precision?", "The number of bits in the mantissa.", 9],
+    ["Effect of moving a bit from mantissa to exponent?", "Range increases, precision decreases.", 10],
+    ["Largest positive value with 8-bit mantissa and 4-bit exponent?", "0.1111111 × 2⁷ = 127/128 × 128 = 127.", 11],
+    ["Smallest positive normalised value with an 8-bit mantissa and 4-bit exponent?", "0.1000000 × 2⁻⁸ = 0.5 × 1/256 = 1/512.", 12],
+    ["Why can a floating point system represent values closer to zero than fixed point?", "A negative exponent shifts the point left as far as the exponent allows; fixed point has a fixed number of fraction bits.", 13],
+    ["What is the trade-off in a fixed total number of bits?", "Range (exponent) versus precision (mantissa).", 14],
+    ["How many bits does IEEE single precision use for mantissa and exponent?", "23 (plus implicit 1) and 8, with a sign bit — 32 in total.", 15]
   ],
   quiz: [
     { q: "To increase range without adding bits you:", opts: ["move bits from exponent to mantissa", "move bits from mantissa to exponent", "normalise the mantissa and exponent", "switch to a fixed point representation"], ans: 1, why: "Exponent controls range." },

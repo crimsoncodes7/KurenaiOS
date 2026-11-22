@@ -7,9 +7,9 @@
 | Batch | Scope | Status | Commit | Key Gates |
 |---|---|---|---|---|
 | **Batch 1** | Renderer, CSS & `examFromWorked` fixes + `tools/smoke200.test.js` | **DONE** | `770a5ed1` | `smoke200` 4/4, `smoke55` 14/14, `smoke56` pass, `smoke142` 12/12, `smoke153` 8/8, `smoke155` 10/10, `smoke197` 4/4 |
-| **Batch 2** | Computer Science Part 1 (`4.1–4.4`: `cs-p1-*.js`, `bank-cs-41..44*.js`) | **DONE** | *(pending commit)* | `srs_guard` 0 shifts (`-45` FC, `-16` Qz), `validate_content` 0 errs, `card_lint` 0 flagged, `smoke65`, `smoke66`, `smoke153`, `smoke155`, `smoke197`, `smoke200`, `smoke142` |
-| **Batch 3** | Computer Science Part 2 (`4.5–4.13`, `cs-m-*.js`, `cs-nea.js`, `bank-cs-45..413.js`) | **NEXT** | — | Same CS gates + `smoke142` + SRS key-stability check |
-| **Batch 4** | Mathematics Part 1 (Pure: `maths-pure-*.js`, `bank-maths-pure-*.js`) | Pending | — | `fill_check.mjs`, `card_lint.mjs --check`, `smoke153`, `smoke155`, `smoke197`, `smoke200` + SRS key-stability check |
+| **Batch 2** | Computer Science Part 1 (`4.1–4.4`: `cs-p1-*.js`, `bank-cs-41..44*.js`) | **DONE** | `ed30b976` | `srs_guard` 0 shifts (`-45` FC, `-16` Qz), `validate_content` 0 errs, `card_lint` 0 flagged, `smoke65`, `smoke66`, `smoke153`, `smoke155`, `smoke197`, `smoke200`, `smoke142` |
+| **Batch 3** | Computer Science Part 2 (`4.5–4.13`, `cs-m-*.js`, `cs-nea.js`, `bank-cs-45..413.js`) | **DONE** | *(pending commit)* | `srs_guard` 0 shifts (`-61` FC, `-18` Qz, `-13` Ex), `validate_content` 0 errs, `card_lint` 0 flagged, `smoke65`, `smoke66`, `smoke153`, `smoke155`, `smoke197`, `smoke200`, `smoke142` |
+| **Batch 4** | Mathematics Part 1 (Pure: `maths-pure-*.js`, `bank-maths-pure-*.js`) | **NEXT** | — | `fill_check.mjs`, `card_lint.mjs --check`, `smoke153`, `smoke155`, `smoke197`, `smoke200` + SRS key-stability check |
 | **Batch 5** | Mathematics Part 2 (Stats & Mechanics: `maths-stats-*.js`, `maths-mech-*.js`, `bank-maths-stats.js`, `bank-maths-mech.js`) | Pending | — | Same Maths gates + `smoke142` + SRS key-stability check |
 | **Batch 6** | IT: Data Analytics (`it-*.js`) | Pending | — | `fill_check.mjs`, `card_lint.mjs --check`, `smoke153`, `smoke156`, `smoke197`, `smoke200` + SRS key-stability check |
 | **Batch 7** | Other Study Spaces (Code, Japanese, Mind, Creatives) | Pending | — | `code_unit_check.js`, `ja_valid_check.mjs`, `mind_tree_check.mjs`, `smoke74`, `smoke76`, `smoke92`, `smoke100`, `smoke105`, `smoke108`, `smoke200` |

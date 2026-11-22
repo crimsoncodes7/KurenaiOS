@@ -129,7 +129,7 @@ C["compsci:4.9.4.3"] = {
         { m: "A: 192.168.x.y with x in 192–207, y in 0–255 (e.g. 192.168.192.1);", mk: "1 mark", n: "R. 192.168.192.0 and 192.168.207.255." },
         { m: "B: 192.168.x.y with x in 64–79 (e.g. 192.168.64.1);", mk: "1 mark", n: "R. 192.168.64.0 and 192.168.79.255." },
         { m: "C: another address with x in 64–79, different from B (e.g. 192.168.64.20);", mk: "1 mark", n: "R. the same answer as B." }
-      ], result: "Third octet 192–207 / 64–79", try: [{ grid: { cols: ["IP address", "Prefix", "Network ID"], rows: [["192.168.200.5", "/20", "192.168.192.0"], ["192.168.70.9", "/20", "192.168.64.0"], ["10.4.37.200", "/20", "10.4.32.0"], ["172.16.255.1", "/20", "172.16.240.0"]], given: [[0, 0], [0, 1], [1, 0], [1, 1], [2, 0], [2, 1], [3, 0], [3, 1]], cap: "**Your turn.** AND each address with 255.255.240.0: only the third octet needs working out in binary." } }] } },
+      ], result: "Third octet 192–207 / 64–79", try: [{ notesOnly: true, grid: { cols: ["IP address", "Prefix", "Network ID"], rows: [["192.168.200.5", "/20", "192.168.192.0"], ["192.168.70.9", "/20", "192.168.64.0"], ["10.4.37.200", "/20", "10.4.32.0"], ["172.16.255.1", "/20", "172.16.240.0"]], given: [[0, 0], [0, 1], [1, 0], [1, 1], [2, 0], [2, 1], [3, 0], [3, 1]], cap: "**Your turn.** AND each address with 255.255.240.0: only the third octet needs working out in binary." } }] } },
 
     { worked: { tag: "variation", title: "Valid host or not?", q: "Network 192.168.64.0/20. For each, say whether it can be given to a device: (a) 192.168.70.9 (b) 192.168.79.255 (c) 192.168.80.1 (d) 192.168.64.0.",
       steps: [
@@ -153,8 +153,6 @@ C["compsci:4.9.4.3"] = {
     ["What is the network address of 192.168.200.5/20?", "192.168.192.0."],
     ["What is the broadcast address of 192.168.64.0/20?", "192.168.79.255."],
     ["What do hosts on one network share?", "The network ID.", 3],
-    ["Which host IDs cannot be assigned?", "All 0s (network address) and all 1s (broadcast address).", 4],
-    ["How many bits in an IPv4 address?", "32.", 5],
     ["In a /20 network 192.168.64.0, the third octet ranges over…", "64–79.", 6],
     ["Which host addresses are valid in 192.168.0.0/24?", "192.168.0.1 to 192.168.0.254.", 7]
   ],
@@ -220,13 +218,13 @@ C["compsci:4.9.4.4"] = {
     { page: "In exam questions" },
     { worked: { tag: "exam", title: "The /27 mask in binary", src: "A-level June 2018 · P2 Q05.1 · 1 mark",
       q: "A company LAN is divided into subnets: 27 bits are allocated to the network / subnet identifier. In binary, write out the subnet mask programmed into the devices.",
-      steps: [{ m: "**11111111 11111111 11111111 11100000** (27 ones, 5 zeros = 255.255.255.224)", mk: "1 mark" }], result: "27 ones, 5 zeros", try: [{ grid: { cols: ["Prefix", "Mask in binary (spaces between octets)", "Dotted decimal"], rows: [["/20", "11111111 11111111 11110000 00000000", "255.255.240.0"], ["/24", "11111111 11111111 11111111 00000000", "255.255.255.0"], ["/26", "11111111 11111111 11111111 11000000", "255.255.255.192"], ["/28", "11111111 11111111 11111111 11110000", "255.255.255.240"]], given: [[0, 0], [1, 0], [2, 0], [3, 0]], cap: "**Your turn.** Write each mask both ways." } }] } },
+      steps: [{ m: "**11111111 11111111 11111111 11100000** (27 ones, 5 zeros = 255.255.255.224)", mk: "1 mark" }], result: "27 ones, 5 zeros", try: [{ notesOnly: true, grid: { cols: ["Prefix", "Mask in binary (spaces between octets)", "Dotted decimal"], rows: [["/20", "11111111 11111111 11110000 00000000", "255.255.240.0"], ["/24", "11111111 11111111 11111111 00000000", "255.255.255.0"], ["/26", "11111111 11111111 11111111 11000000", "255.255.255.192"], ["/28", "11111111 11111111 11111111 11110000", "255.255.255.240"]], given: [[0, 0], [1, 0], [2, 0], [3, 0]], cap: "**Your turn.** Write each mask both ways." } }] } },
     { worked: { tag: "exam", title: "How many devices on subnet Z?", src: "A-level June 2018 · P2 Q05.2 · 1 mark",
       q: "Subnet Z consists of all devices directly connected to Switch B, with the 27-bit network ID. What is the maximum number of devices that could be connected to subnet Z at the same time?",
-      steps: [{ m: "5 host bits → $2^5 − 2$ = **30**", mk: "1 mark", n: "A. 32, 2⁵, 31 or 2⁵ − 1 this time only." }], result: "30", try: [{ grid: { cols: ["Prefix", "Maximum devices"], rows: [["/24", "254"], ["/26", "62"], ["/29", "6"], ["/20", "4094"]], given: [[0, 0], [1, 0], [2, 0], [3, 0]], cap: "**Your turn.** 2 to the number of host bits, less the network and broadcast addresses." } }] } },
+      steps: [{ m: "5 host bits → $2^5 − 2$ = **30**", mk: "1 mark", n: "A. 32, 2⁵, 31 or 2⁵ − 1 this time only." }], result: "30", try: [{ notesOnly: true, grid: { cols: ["Prefix", "Maximum devices"], rows: [["/24", "254"], ["/26", "62"], ["/29", "6"], ["/20", "4094"]], given: [[0, 0], [1, 0], [2, 0], [3, 0]], cap: "**Your turn.** 2 to the number of host bits, less the network and broadcast addresses." } }] } },
     { worked: { tag: "exam", title: "Which mask?", src: "A-level June 2021 · P2 Q11.2 · 1 mark",
-      q: "20 bits are allocated to network IDs and 12 to host IDs. Which subnet mask has been assigned? A 255.255.0.0 · B 255.255.15.0 · C 255.255.240.0 · D 255.255.255.0.",
-      steps: [{ m: "**C** 255.255.240.0 — 8 + 8 + 4 ones: 240 = 11110000;", mk: "1 mark" }], result: "C", try: [{ grid: { cols: ["", "Octet 1", "Octet 2", "Octet 3", "Octet 4"], rows: [["IP address", "11000000", "10101000", "11001000", "00000101"], ["Mask 255.255.240.0", "11111111", "11111111", "11110000", "00000000"], ["AND", "11000000", "10101000", "11000000", "00000000"], ["Network ID (decimal)", "192", "168", "192", "0"]], given: [[0, 0], [1, 0], [2, 0], [3, 0], [0, 1], [0, 2], [0, 3], [0, 4]], cap: "**Your turn.** Find the network ID of 192.168.200.5 with mask C: write the mask in binary, AND it bit by bit, then convert back." } }] } },
+      q: "20 bits are allocated to network IDs and 12 to host IDs. Which subnet mask has been assigned?\n\n- **A** `255.255.0.0`\n- **B** `255.255.15.0`\n- **C** `255.255.240.0`\n- **D** `255.255.255.0`",
+      steps: [{ m: "**C** 255.255.240.0 — 8 + 8 + 4 ones: 240 = 11110000;", mk: "1 mark" }], result: "C", try: [{ notesOnly: true, grid: { cols: ["", "Octet 1", "Octet 2", "Octet 3", "Octet 4"], rows: [["IP address", "11000000", "10101000", "11001000", "00000101"], ["Mask 255.255.240.0", "11111111", "11111111", "11110000", "00000000"], ["AND", "11000000", "10101000", "11000000", "00000000"], ["Network ID (decimal)", "192", "168", "192", "0"]], given: [[0, 0], [1, 0], [2, 0], [3, 0], [0, 1], [0, 2], [0, 3], [0, 4]], cap: "**Your turn.** Find the network ID of 192.168.200.5 with mask C: write the mask in binary, AND it bit by bit, then convert back." } }] } },
 
     { page: "Exam toolkit" },
     { table: { head: ["Command word", "What earns the mark"], rows: [
@@ -244,8 +242,7 @@ C["compsci:4.9.4.4"] = {
     ["How is the network ID found?", "Bitwise AND of the IP address and the subnet mask.", 2],
     ["What is the /27 subnet mask in dotted decimal?", "255.255.255.224.", 3],
     ["What is the /20 subnet mask in dotted decimal?", "255.255.240.0.", 4],
-    ["How many hosts can a /27 subnet hold?", "2⁵ − 2 = 30.", 5],
-    ["How does a host decide to use the router?", "If its network ID differs from the destination's.", 7]
+    ["How many hosts can a /27 subnet hold?", "2⁵ − 2 = 30.", 5]
   ],
   quiz: [
     { q: "192.168.2.3 AND 255.255.255.0 =", opts: ["192.168.2.0", "192.168.2.3", "0.0.0.3", "255.255.255.3"], ans: 0, why: "Host bits zeroed." },
@@ -450,7 +447,6 @@ C["compsci:4.9.4.6"] = {
     ["How can a device with a private address be reached from outside?", "Through the router via NAT / port forwarding."],
     ["Is 172.20.0.5 public or private?", "Private (172.16.0.0/12)."],
     ["What are the three private IPv4 address ranges?", "10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16.", 8],
-    ["Why can many LANs use 192.168.0.4?", "It is private (non-routable); NAT swaps it for a public address at the router.", 9],
     ["Why do private ranges exist?", "To reuse addresses and save scarce public IPv4 addresses.", 10]
   ],
   quiz: [
@@ -528,8 +524,7 @@ C["compsci:4.9.4.7"] = {
   ],
   flashcards: [
     ["Does DHCP need expert knowledge on each host?", "No — that is one of its benefits.", 1],
-    ["How does a new host find a DHCP server?", "It broadcasts a DISCOVER message.", 2],
-    ["Why use DHCP?", "No manual configuration; avoids duplicate addresses; reuses a limited pool.", 7],
+    ["How does a new host find a DHCP server?", "It broadcasts a DISCOVER message.", 2]
   ],
   quiz: [
     { q: "Why avoid DHCP for a server reached by port forwarding?", opts: ["its IP address could change", "DHCP is too slow for servers", "servers cannot use IP addresses", "DHCP encrypts the server's traffic"], ans: 0, why: "A DHCP address can change, and a port forwarding rule points at one address, so the rule would stop working." },
@@ -832,10 +827,10 @@ C["compsci:4.9.4.10"] = {
 
     { page: "In exam questions" },
     { worked: { tag: "exam", title: "Which CRUD/REST statement is false?", src: "A-level June 2020 · P2 Q04.1 · 1 mark",
-      q: "Which is false? A CRUD is an acronym for Create, Retrieve, Update, Delete. B REST allows JavaScript to communicate with the server using HTTP. C The database is connected to the web browser using REST. D The REST API will be created and run on the client computer.",
+      q: "Which statement is false?\n\n- **A** CRUD is an acronym for Create, Retrieve, Update, Delete.\n- **B** REST allows JavaScript to communicate with the server using HTTP.\n- **C** The database is connected to the web browser using REST.\n- **D** The REST API will be created and run on the client computer.",
       steps: [{ m: "**D** — the REST API is created and run on the **server**;", mk: "1 mark" }], result: "D" } },
     { worked: { tag: "exam", title: "XML or JSON; why JSON", src: "A-level June 2020 · P2 Q04.2–04.3 · 3 marks",
-      q: "Two property records are encoded two ways; Representation 2 uses tags like <PropertyID>8026</PropertyID>. (a) Which encoding is Representation 2? (b) State two reasons why JSON could be argued to be better than XML.",
+      q: "Two property records are encoded two ways; Representation 2 uses tags like `<PropertyID>8026</PropertyID>`.\n\n(a) Which encoding is Representation 2?\n(b) State two reasons why JSON could be argued to be better than XML.",
       steps: [
         { m: "(a) **B** XML;", mk: "1 mark" },
         { m: "(b) More compact — smaller files, faster transmission;", mk: "1 mark" },
@@ -845,13 +840,13 @@ C["compsci:4.9.4.10"] = {
       q: "A cinema booking website uses CRUD and REST. Describe what Uniform Resource Locators (URLs) are used for in a RESTful application.",
       steps: [{ m: "Each resource is represented by a URL // entering a URL causes the server to retrieve the relevant data // URLs are sent between client and server using HTTP;", mk: "1 mark" }], result: "A URL per resource" } },
     { worked: { tag: "exam", title: "REST to SQL", src: "A-level June 2023 · P2 Q05.5 · 1 mark",
-      q: "Which row correctly shows how REST maps CRUD to SQL? A GET→FETCH, POST→CREATE, DELETE→DELETE, PUT→UPDATE · B GET→SELECT, POST→INSERT, DELETE→DELETE, PUT→UPDATE · C GET→SELECT, POST→INSERT, DELETE→DELETE, PUT→CREATE · D GET→SELECT, POST→UPDATE, DELETE→DELETE, PUT→INSERT · E GET→UPDATE, POST→SELECT, DELETE→DELETE, PUT→CREATE",
-      steps: [{ m: "**B**;", mk: "1 mark" }], result: "B", try: [{ sql: { setup: "CREATE TABLE Film (FilmID INTEGER PRIMARY KEY, FilmName TEXT, Duration INTEGER, Certificate TEXT);\nINSERT INTO Film VALUES (1, 'Paper Moons', 104, 'PG'), (2, 'The Long Night', 131, '15'), (3, 'Harbour Lights', 97, '12A'), (4, 'Northbound', 118, '12A'), (5, 'Small Hours', 89, 'U');", answer: "SELECT FilmName, Duration\nFROM Film\nWHERE Certificate = '12A';", cap: "**Your turn.** The booking app sends GET /films?certificate=12A. Write the SELECT the server runs: the name and duration of every 12A film." } }] } },
+      q: "Which row correctly shows how REST maps CRUD to SQL?\n\n| Row | GET | POST | DELETE | PUT |\n|---|---|---|---|---|\n| **A** | FETCH | CREATE | DELETE | UPDATE |\n| **B** | SELECT | INSERT | DELETE | UPDATE |\n| **C** | SELECT | INSERT | DELETE | CREATE |\n| **D** | SELECT | UPDATE | DELETE | INSERT |\n| **E** | UPDATE | SELECT | DELETE | CREATE |",
+      steps: [{ m: "**B**;", mk: "1 mark" }], result: "B", try: [{ notesOnly: true, sql: { setup: "CREATE TABLE Film (FilmID INTEGER PRIMARY KEY, FilmName TEXT, Duration INTEGER, Certificate TEXT);\nINSERT INTO Film VALUES (1, 'Paper Moons', 104, 'PG'), (2, 'The Long Night', 131, '15'), (3, 'Harbour Lights', 97, '12A'), (4, 'Northbound', 118, '12A'), (5, 'Small Hours', 89, 'U');", answer: "SELECT FilmName, Duration\nFROM Film\nWHERE Certificate = '12A';", cap: "**Your turn.** The booking app sends GET /films?certificate=12A. Write the SELECT the server runs: the name and duration of every 12A film." } }] } },
     { worked: { tag: "exam", title: "Why JSON for film data", src: "A-level June 2023 · P2 Q05.6 · 2 marks",
       q: "JSON is used to encode datasets passed between the server and the booking application. State two reasons why JSON might have been chosen instead of XML.",
       steps: [{ m: "More compact — smaller, so faster to transmit;", mk: "1 mark" }, { m: "quicker to parse / understood directly by JavaScript // easier for humans to read;", mk: "1 mark" }], result: "Compact; quick to parse" } },
     { worked: { tag: "exam", title: "The true WebSocket statement", src: "A-level June 2024 · P2 Q07.8 · 1 mark",
-      q: "Which statement about the WebSocket protocol is true? A all messages use XML · B all messages have a digital signature · C messages can only originate from the web server · D the protocol establishes a full-duplex communication channel · E it operates at the network layer.",
+      q: "Which statement about the WebSocket protocol is true?\n\n- **A** All messages use XML.\n- **B** All messages have a digital signature.\n- **C** Messages can only originate from the web server.\n- **D** The protocol establishes a full-duplex communication channel.\n- **E** It operates at the network layer.",
       steps: [{ m: "**D**;", mk: "1 mark" }], result: "D" } },
 
     { page: "Exam toolkit" },
@@ -868,7 +863,6 @@ C["compsci:4.9.4.10"] = {
   flashcards: [
     ["Why use WebSockets?", "Either side can send at any time — low latency, no polling (chat, games, live data).", 2],
     ["Where does the REST API run?", "On the server; browser JavaScript calls it over HTTP.", 5],
-    ["Four advantages of JSON over XML?", "Easier to read, more compact, easier to create, quicker to parse.", 6],
     ["What do URLs identify in REST?", "Resources.", 7]
   ],
   quiz: [

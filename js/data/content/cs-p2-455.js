@@ -82,13 +82,13 @@ C["compsci:4.5.5.3"] = {
       ], result: "Four 1s → parity 0" } },
     { worked: { tag: "exam", title: "Calculate an odd parity bit", src: "AS June 2017 · P2 Q02.5 · 1 mark",
       q: "The 7-bit ASCII character 1001110 is to be transmitted. The system uses odd parity with the parity bit in the MSB. Calculate the parity bit.",
-      steps: [{ m: "1001110 has four 1s (even), so for odd parity the parity bit is **1**", mk: "1 mark" }], result: "1", try: [{ grid: { cols: ["7-bit code", "odd parity bit"], rows: [["1100101", "1"], ["0110111", "0"], ["1111111", "0"], ["0000001", "0"], ["1010100", "0"]], given: [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0]], cap: "**Your turn.** Odd parity: the parity bit makes the total number of 1s odd." } }] } },
+      steps: [{ m: "1001110 has four 1s (even), so for odd parity the parity bit is **1**", mk: "1 mark" }], result: "1", try: [{ notesOnly: true, grid: { cols: ["7-bit code", "odd parity bit"], rows: [["1100101", "1"], ["0110111", "0"], ["1111111", "0"], ["0000001", "0"], ["1010100", "0"]], given: [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0]], cap: "**Your turn.** Odd parity: the parity bit makes the total number of 1s odd." } }] } },
     { worked: { tag: "exam", title: "Describe, then write, an even parity bit", src: "AS June 2022 · P2 Q04.3–04.4 · 3 marks",
       q: "The 7-bit ASCII character code 1010011 is to be sent across a network using a parity system. (a) Describe how the parity bit would be generated using even parity. (b) Write the parity bit.",
       steps: [
         { h: "(a)", m: "The number of 1s is counted; if the total is even, the parity bit is set to 0, otherwise to 1 (so the total number of 1s is even);", mk: "2 marks", n: "Or: the bits are XORed with each other; the result is the parity bit. MAX 2." },
         { h: "(b)", m: "1010011 has four 1s → **0**", mk: "1 mark" }
-      ], result: "Parity bit 0", try: [{ grid: { cols: ["7-bit code", "even parity bit"], rows: [["1100101", "0"], ["0110111", "1"], ["1111111", "1"], ["0000001", "1"], ["1010100", "1"]], given: [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0]], cap: "**Your turn.** Even parity this time: write each parity bit." } }] } },
+      ], result: "Parity bit 0", try: [{ notesOnly: true, grid: { cols: ["7-bit code", "even parity bit"], rows: [["1100101", "0"], ["0110111", "1"], ["1111111", "1"], ["0000001", "1"], ["1010100", "1"]], given: [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0]], cap: "**Your turn.** Even parity this time: write each parity bit." } }] } },
     { worked: { tag: "exam", title: "How the receiver detects an error", src: "AS June 2020 · P2 Q10.3 · 2 marks",
       q: "A data transmission system uses even parity; each byte has seven data bits and one parity bit. Explain how the receiver will perform error detection on a received byte.",
       steps: [
@@ -97,21 +97,21 @@ C["compsci:4.5.5.3"] = {
       ], result: "Count the 1s: even OK, odd error" } },
     { worked: { tag: "exam", title: "Which byte arrived corrupted?", src: "AS June 2023 · P2 Q04.3 · 1 mark",
       q: "Each byte contains a 7-bit ASCII code with a parity bit; odd parity was used with the parity bit leftmost. Received: 01010010 01000001 11001101. Circle the byte the system calculates has been received incorrectly.",
-      steps: [{ h: "Count the 1s in each byte", m: "01010010 → 3 (odd ✓); 01000001 → 2 (even ✗); 11001101 → 5 (odd ✓)" }, { m: "The **second byte, 01000001**", mk: "1 mark" }], result: "01000001", try: [{ grid: { cols: ["Received byte (odd parity)", "Passes the check? (yes / no)"], rows: [["11010010", "no"], ["00110001", "yes"], ["10000000", "yes"], ["01111111", "yes"], ["11100101", "yes"]], given: [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0]], cap: "**Your turn.** Odd parity, parity bit leftmost: which of these pass?" } }] } },
+      steps: [{ h: "Count the 1s in each byte", m: "01010010 → 3 (odd ✓); 01000001 → 2 (even ✗); 11001101 → 5 (odd ✓)" }, { m: "The **second byte, 01000001**", mk: "1 mark" }], result: "01000001", try: [{ notesOnly: true, grid: { cols: ["Received byte (odd parity)", "Passes the check? (yes / no)"], rows: [["11010010", "no"], ["00110001", "yes"], ["10000000", "yes"], ["01111111", "yes"], ["11100101", "yes"]], given: [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0]], cap: "**Your turn.** Odd parity, parity bit leftmost: which of these pass?" } }] } },
     { worked: { tag: "exam", title: "A full asynchronous frame for '4'", src: "A-level June 2019 · P2 Q09.2 · 3 marks",
       q: "The ASCII code for the digit '0' is 48 in decimal; other digits follow in sequence. The digit '4' is transmitted using asynchronous serial transmission and even parity, the parity bit in the most significant bit of the data byte. Complete the frame: start bit, parity bit, ASCII code, stop bit.",
       steps: [
         { m: "Start bit and stop bit with **opposite values** (e.g. start 1, stop 0);", mk: "1 mark", n: "Synoptic: 4.9.1.1 asynchronous transmission." },
         { m: "ASCII code for '4' = 52 = **0110100**;", mk: "1 mark" },
         { m: "three 1s → even parity bit **1**;", mk: "1 mark" }
-      ], result: "start | 1 0110100 | stop", try: [{ grid: { cols: ["Digit", "7-bit ASCII code", "even parity bit"], rows: [["7", "0110111", "1"], ["2", "0110010", "1"], ["9", "0111001", "0"]], given: [[0, 0], [1, 0], [2, 0]], cap: "**Your turn.** '0' is 48: write the code and the even parity bit for each digit." } }] } },
+      ], result: "start | 1 0110100 | stop", try: [{ notesOnly: true, grid: { cols: ["Digit", "7-bit ASCII code", "even parity bit"], rows: [["7", "0110111", "1"], ["2", "0110010", "1"], ["9", "0111001", "0"]], given: [[0, 0], [1, 0], [2, 0]], cap: "**Your turn.** '0' is 48: write the code and the even parity bit for each digit." } }] } },
     { worked: { tag: "exam", title: "How many frames are valid?", src: "A-level June 2023 · P2 Q10.1 · 1 mark",
       q: "An asynchronous system sends 7-bit ASCII with even parity: each 10-bit pattern is start bit, 7 data bits, parity bit, stop bit. Patterns: (1) 1011101101 (2) 1101111000 (3) 0100001110 (4) 1011110000 (5) 1100000100. How many could be valid transmissions of a single character?",
       steps: [
         { h: "Two tests", m: "start bit ≠ stop bit; the eight middle bits have an even number of 1s" },
         { m: "(1) start = stop ✗; (2) five 1s ✗; (3) start = stop ✗; (4) four 1s ✓; (5) two 1s ✓" },
         { m: "**2**", mk: "1 mark" }
-      ], result: "2", try: [{ grid: { cols: ["10-bit pattern", "Valid? (yes / no)"], rows: [["0110110001", "yes"], ["1001110010", "yes"], ["0101010100", "no"], ["1111000000", "no"], ["0000111111", "no"]], given: [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0]], cap: "**Your turn.** Same system — start bit, 7 data bits, even parity bit, stop bit: which could be valid?" } }] } },
+      ], result: "2", try: [{ notesOnly: true, grid: { cols: ["10-bit pattern", "Valid? (yes / no)"], rows: [["0110110001", "yes"], ["1001110010", "yes"], ["0101010100", "no"], ["1111000000", "no"], ["0000111111", "no"]], given: [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0]], cap: "**Your turn.** Same system — start bit, 7 data bits, even parity bit, stop bit: which could be valid?" } }] } },
     { worked: { tag: "exam", title: "A parity circuit of XOR gates", src: "AS June 2025 · P2 Q07.1–07.4 · 8 marks",
       q: "A circuit of three gates of the same type computes a parity bit for a 4-bit message; for 1001 it outputs 0. (a) Name the gate type and explain its operation. (b) State the type of parity computed, with a reason. (c) Alice sends a 4-bit message to Bob with a parity bit: describe how, and how Bob detects an error, stating when each uses the circuit. (d) Describe one limitation of a parity bit.",
       steps: [
@@ -155,7 +155,7 @@ C["compsci:4.5.5.3"] = {
       ], result: "Odd number of copies; majority taken" } },
     { worked: { tag: "exam", title: "Decode a majority-voted byte", src: "AS June 2020 · P2 Q01.3 · 1 mark",
       q: "One byte is transmitted with majority voting. Received: 111 000 000 110 001 101 111 011. Shade the byte the receiver will assume was sent: A 10010011; B 10011011; C 10010111; D 10011110.",
-      steps: [{ m: "Majorities: 1 0 0 1 0 1 1 1 → **C (10010111)**", mk: "1 mark" }], result: "C", try: [{ grid: { cols: ["Three copies received", "Bit assumed"], rows: [["110", "1"], ["001", "0"], ["111", "1"], ["010", "0"], ["100", "0"], ["011", "1"], ["101", "1"], ["000", "0"]], given: [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [6, 0], [7, 0]], cap: "**Your turn.** Decode another byte, one bit at a time. The byte assumed is the eight answers in order." } }] } },
+      steps: [{ m: "Majorities: 1 0 0 1 0 1 1 1 → **C (10010111)**", mk: "1 mark" }], result: "C", try: [{ notesOnly: true, grid: { cols: ["Three copies received", "Bit assumed"], rows: [["110", "1"], ["001", "0"], ["111", "1"], ["010", "0"], ["100", "0"], ["011", "1"], ["101", "1"], ["000", "0"]], given: [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [6, 0], [7, 0]], cap: "**Your turn.** Decode another byte, one bit at a time. The byte assumed is the eight answers in order." } }] } },
     { worked: { tag: "exam", title: "Five copies, not four", src: "AS June 2023 · P2 Q04.1 · 1 mark",
       q: "Explain why it is better for a majority voting system to send each bit five times instead of four.",
       steps: [{ m: "With five copies there is always a majority; with four, a bit could be received as two 0s and two 1s, giving no majority (five can also correct two changed copies).", mk: "1 mark" }], result: "An odd count guarantees a majority" } },

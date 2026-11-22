@@ -269,12 +269,12 @@ C["compsci:4.9.1.2"] = {
         { m: "(a) $2^3 = 8$ → **3** bits;", mk: "1 mark" },
         { m: "(b) 3 × 500 = **1500** bits per second;", mk: "1 mark", n: "A. (your answer to (a)) × 500." },
         { m: "(c) **B** — the straight line through the origin (directly proportional);", mk: "1 mark" }
-      ], result: "3 bits; 1500 bps; proportional", try: [{ grid: { cols: ["Voltage levels", "Bits per signal", "Baud rate", "Bit rate (bit/s)"], rows: [["2", "1", "1200", "1200"], ["4", "2", "600", "1200"], ["8", "3", "500", "1500"], ["16", "4", "2400", "9600"]], given: [[0, 0], [0, 2], [1, 0], [1, 2], [2, 0], [2, 2], [3, 0], [3, 2]], cap: "**Your turn.** Bits per signal = log₂ (levels); bit rate = bits per signal × baud rate." } }] } },
+      ], result: "3 bits; 1500 bps; proportional", try: [{ notesOnly: true, grid: { cols: ["Voltage levels", "Bits per signal", "Baud rate", "Bit rate (bit/s)"], rows: [["2", "1", "1200", "1200"], ["4", "2", "600", "1200"], ["8", "3", "500", "1500"], ["16", "4", "2400", "9600"]], given: [[0, 0], [0, 2], [1, 0], [1, 2], [2, 0], [2, 2], [3, 0], [3, 2]], cap: "**Your turn.** Bits per signal = log₂ (levels); bit rate = bits per signal × baud rate." } }] } },
     { worked: { tag: "exam", title: "Four signals, two bits each", src: "A-level June 2021 · P2 Q03.1–03.2 · 2 marks",
       q: "A system can transmit four different signals, each representing two bits. (a) Describe the exact relationship between the bit rate and the baud rate. (b) Describe the relationship between the bit rate and the bandwidth of the medium.",
       steps: [{ m: "(a) The bit rate is **double** the baud rate (2:1);", mk: "1 mark", fig: { x: [0, 5.2], y: [-0.4, 3.8], w: 520, h: 230, axes: { x: "time (one signal per period)", y: "level", xt: [0, 1, 2, 3, 4, 5], yt: [{ v: 0, label: "0" }, { v: 1, label: "1" }, { v: 2, label: "2" }, { v: 3, label: "3" }] }, items: [{ poly: [[0, 2], [1, 2], [1, 1], [2, 1], [2, 3], [3, 3], [3, 0], [4, 0], [4, 2], [5, 2]], close: false, c: "accent", w: 2.4 }, { text: [0.5, 2.35], t: "10", b: true, c: "accent2", size: 12 }, { text: [1.5, 1.35], t: "01", b: true, c: "accent2", size: 12 }, { text: [2.5, 3.35], t: "11", b: true, c: "accent2", size: 12 }, { text: [3.5, 0.35], t: "00", b: true, c: "accent2", size: 12 }, { text: [4.5, 2.35], t: "10", b: true, c: "accent2", size: 12 }, { vline: 1, c: "muted", w: 1 }, { vline: 2, c: "muted", w: 1 }, { vline: 3, c: "muted", w: 1 }, { vline: 4, c: "muted", w: 1 }], cap: "Four levels, so each signal change carries 2 bits: five signals send 10 01 11 00 10 — ten bits. Bit rate = 2 × baud rate." } }, { m: "(b) They are directly proportional — the greater the bandwidth, the higher the bit rate;", mk: "1 mark", n: "NE. \"bandwidth constrains bit rate\"." }], result: "×2; proportional" } },
     { worked: { tag: "exam", title: "Which statement is false?", src: "A-level June 2022 · P2 Q02.3 · 1 mark",
-      q: "Which is false? A The bit rate can be higher than the baud rate. B Latency is the rate at which signals on a wire can change. C Bandwidth is the range of frequencies a medium can transmit without significant loss. D The greater the bandwidth the higher the achievable bit rate.",
+      q: "Which statement is false?\n\n- **A** The bit rate can be higher than the baud rate.\n- **B** Latency is the rate at which signals on a wire can change.\n- **C** Bandwidth is the range of frequencies a medium can transmit without significant loss.\n- **D** The greater the bandwidth the higher the achievable bit rate.",
       steps: [{ m: "**B** — that describes baud rate; latency is a delay;", mk: "1 mark" }], result: "B" } },
     { worked: { tag: "exam", title: "Pick the bandwidth graph", src: "A-level June 2023 · P2 Q10.4 · 1 mark",
       q: "Which line on the graph (A–D) shows the correct relationship between the bandwidth and the bit rate of a communications medium?",
@@ -421,9 +421,7 @@ C["compsci:4.9.2.1"] = {
   ],
   flashcards: [
     ["What does a switch use to forward frames?", "The destination MAC address."],
-    ["What is a physical star topology?", "Every device connected to a central switch (or hub), sending data through it.", 3],
     ["How does a switch differ from a hub?", "Switch forwards a frame to the recipient only; hub sends it to every device.", 4],
-    ["What is a logical bus topology?", "Data broadcast on a shared medium; all nodes read it and check the address; one transmitter at a time.", 5],
     ["Why do fewer devices improve performance?", "More bandwidth each and fewer collisions.", 7]
   ],
   quiz: [
@@ -548,12 +546,10 @@ C["compsci:4.9.2.2"] = {
   ],
   flashcards: [
     ["What is a server?", "A computer that provides services/resources to clients on request."],
-    ["How does a client-server network work?", "Servers provide services/resources; clients request them.", 2],
     ["Two advantages of client-server?", "Centralised security and administration; central storage and backup; always available.", 3],
     ["Two advantages of peer-to-peer?", "No server cost or expertise; no single point of failure; scales with peers.", 4],
     ["When to choose peer-to-peer?", "Few, trusting users with no confidential data and no budget for a server.", 5],
-    ["When to choose client-server?", "Many users, confidential data, different access rights (school, bank).", 6],
-    ["A disadvantage of peer-to-peer availability?", "A resource is unavailable if the peer holding it is turned off.", 7]
+    ["When to choose client-server?", "Many users, confidential data, different access rights (school, bank).", 6]
   ],
   quiz: [
     { q: "In peer-to-peer networking", opts: ["each computer has equal status", "one server holds all files", "logins are checked by one server", "clients cannot share their files"], ans: 0, why: "In peer-to-peer every computer has equal status, acting as client and server as needed." },
@@ -707,10 +703,7 @@ C["compsci:4.9.2.3"] = {
     ["What is Wi-Fi?", "A wireless LAN based on international standards, letting devices connect without cables."],
     ["Two components for wireless networking?", "Wireless network adapter (in each device) and a wireless access point."],
     ["What is an SSID?", "The locally unique identifier/name of a wireless network."],
-    ["What are the steps of CSMA/CA with RTS/CTS?", "Listen; wait if busy; RTS; CTS; transmit; ACK; retransmit if no ACK.", 6],
-    ["Why RTS/CTS?", "CTS silences all nodes in range of the receiver — solves hidden nodes.", 7],
-    ["Why avoidance, not detection, in Wi-Fi?", "A radio transmitter cannot detect collisions while transmitting.", 8],
-    ["What does the ACK do?", "Confirms receipt and tells other nodes they may transmit.", 9]
+    ["Why RTS/CTS?", "CTS silences all nodes in range of the receiver — solves hidden nodes.", 7]
   ],
   quiz: [
     { q: "Which only stops devices CONNECTING, not eavesdropping?", opts: ["MAC allow list", "WPA2 encryption", "both", "neither"], ans: 0, why: "Listening needs no connection." },

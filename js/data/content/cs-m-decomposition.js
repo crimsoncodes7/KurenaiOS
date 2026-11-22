@@ -46,7 +46,6 @@ C["compsci:4.4.1.9"] = {
     {"callout":{"t":"tip","body":"Pair it with the AS 2024 *structured approach* question — the same decomposition gives an overview of the program, lets modules be tested independently, distributed among a team and reused."}}
   ],
   flashcards: [
-    ["Three mark points for decomposition?","Smaller sub-problems; each an identifiable task; each may be subdivided.","compsci:4.4.1.9:1"],
     ["How does decomposition differ from composition?","Splitting vs combining.","compsci:4.4.1.9:4"],
     ["Give one benefit of decomposition.","Smaller parts are easier to solve, test and share in a team.","compsci:4.4.1.9:5"],
     ["Each leaf of a decomposition becomes…?","A subroutine (module).","compsci:4.4.1.9:7"],

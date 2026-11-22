@@ -23,7 +23,6 @@ X("compsci:4.5.5.3", {
     ["Describe how an even parity bit is generated.", "Count the 1s in the data bits; if the count is odd the parity bit is set to 1, otherwise 0, so the total number of 1s is even (equivalently, XOR all the data bits).", 11],
     ["How does a receiver check even parity?", "Counts the 1s in the received byte: an even total is assumed correct, an odd total means corruption.", 12],
     ["State two limitations of parity bits.", "Errors that change an even number of bits go undetected; errors can be detected but not corrected (their position is unknown).", 13],
-    ["Describe majority voting.", "Each bit (or byte) is sent an odd number of times, at least three; the receiver takes the value received most often as the value sent.", 14],
     ["Give two advantages of majority voting over parity.", "It can correct errors, not just detect them; it can detect multi-bit errors.", 15],
     ["Why might parity be chosen instead of majority voting?", "Much less redundant data (one bit per byte vs three copies), so faster transmission.", 16],
     ["What is a checksum?", "A value calculated from the packet's payload by a function, sent with the data and recalculated on receipt to detect corruption.", 17],
@@ -117,7 +116,6 @@ X("compsci:4.5.6.8", {
   ],
   flashcards: [
     ["How does MIDI represent music?", "As a sequence of event messages (instructions) — e.g. note on, note off, pitch, velocity, duration, channel, instrument — rather than as sampled sound.", 8],
-    ["Give three items a MIDI message might contain.", "Note on/off, note number (pitch), velocity (loudness), channel, instrument/program, duration, pitch bend.", 9],
     ["Give three advantages of MIDI over sampled sound.", "Much more compact; easy to edit individual notes or change instruments; no quantisation/sampling loss; a score can be generated from the file.", 10],
     ["Give one limitation of MIDI.", "It cannot represent real recorded sounds such as a voice — only instructions for synthesised instruments.", 11],
     ["Why are MIDI files small?", "A note is a few bytes of instruction rather than thousands of samples.", 12],
@@ -156,10 +154,8 @@ X("compsci:4.5.6.9", {
     ]}}
   ],
   flashcards: [
-    ["Give two reasons files are compressed.", "Less storage space; faster transmission / less bandwidth; more files fit on a device or within a size limit.", 10],
     ["Define lossless compression.", "Compression from which the original data can be fully recovered — it is reversible.", 11],
     ["Define lossy compression.", "Compression that permanently discards some (less important) data, so the original cannot be recovered.", 12],
-    ["Describe run-length encoding.", "Consecutive identical values (a run) are stored as a pair: the value and the number of repetitions.", 13],
     ["RLE the row: B B G G G R R R R W.", "(B, 2) (G, 3) (R, 4) (W, 1).", 14],
     ["Why can RLE increase file size?", "Each run needs two values; if runs are mostly length 1 (varied colours) the counts add more than they save.", 15],
     ["Describe dictionary-based compression.", "Build a dictionary mapping recurring substrings/words to short tokens; replace each occurrence in the text with its token; store the dictionary with the data.", 16],
@@ -175,23 +171,12 @@ X("compsci:4.5.6.9", {
     { q: "Which is a reason to compress?", opts: ["Making transmission over a network slower", "Fitting an email attachment limit", "Improving the original file's quality", "Encrypting the file so it is secure"], ans: 1, why: "Compression makes files smaller, so an attachment can fit under an email's size limit." }
   ],
   exam: [
-    { src: "AQA 2025 · P2 Q10", ctx: "A software company compresses the images and text files it distributes.",
-      parts: [
-        { q: "State two reasons why data is compressed.", marks: 2, ms: ["Less storage space is required (1)", "Data can be transmitted more quickly / more files fit on a device / a file fits within a size limit (1)"] },
-        { q: "Explain why run-length encoding is suitable for images but dictionary-based compression is more suitable for text.", marks: 2, ms: ["In images adjacent pixels are often the same colour, giving long runs (1)", "In text the repetition is of words / substrings spread throughout the document — rarely adjacent identical characters (1)"] }
-      ] },
-    { src: "AQA 2019 · P2 Q03", ctx: "A paragraph of text is compressed using dictionary-based compression.",
-      parts: [
-        { q: "Explain the difference between lossless and lossy compression.", marks: 1, ms: ["Lossless: the original data can be fully recovered; lossy: it cannot — some data is permanently discarded (1)"] },
-        { q: "Describe how dictionary-based compression could be applied to the paragraph.", marks: 2, ms: ["A dictionary is built mapping recurring words / sequences of characters to tokens (1)", "Each occurrence in the text is replaced by its token (1)"] },
-        { q: "Explain why this method is only worthwhile for large texts.", marks: 1, ms: ["A small text has little repetition, and the dictionary itself must be stored, so the compressed version may be no smaller (1)"] }
-      ] },
-    { src: "AQA 2024 · P2 Q02.4", ctx: "One row of an 8-bit-colour image is: `R R R B R G G B B B`.",
+    { qk: "15", src: "AQA 2024 · P2 Q02.4", ctx: "One row of an 8-bit-colour image is: `R R R B R G G B B B`.",
       parts: [
         { q: "State the number of bytes needed for the row before and after run-length encoding (one byte per count and per colour).", marks: 1, ms: ["Before 10, after 12 (six runs × 2) (1)"] },
         { q: "Explain why run-length encoding has not been effective here.", marks: 1, ms: ["The runs are short / the colours vary a lot, so the counts add more than they save and the file grows (1)"] }
       ] },
-    { level: "AS", src: "AQA 2023 · P2 Q05.4", q: "A studio stores its master recordings using lossy compression. Describe one problem this could cause.", marks: 2,
+    { qk: "16", level: "AS", src: "AQA 2023 · P2 Q05.4", q: "A studio stores its master recordings using lossy compression. Describe one problem this could cause.", marks: 2,
       ms: ["Data is discarded / lost when the file is stored (1)", "So the original cannot be recovered — the quality is permanently reduced and later editing is limited (1)"] }
   ]
 });
@@ -217,7 +202,6 @@ X("compsci:4.5.6.10", {
     ["Why is a general substitution cipher harder to crack than Caesar?", "There are 26! possible keys and no pattern — learning one letter's replacement reveals nothing about the others.", 14],
     ["Describe the Vernam cipher.", "Convert plaintext and a random key of equal length to binary; XOR them bit by bit; the result is the ciphertext; XOR with the key again recovers the plaintext.", 15],
     ["Conditions for the Vernam cipher to be perfectly secure?", "The key is truly random, at least as long as the plaintext, used only once, and kept secret.", 16],
-    ["What does computationally secure mean?", "The cipher cannot be cracked by any known method in a reasonable (polynomial) amount of time — not that it can never be cracked.", 17],
     ["Symmetric vs asymmetric encryption?", "Symmetric: the same key encrypts and decrypts. Asymmetric: a pair of different but related keys — one encrypts, the other decrypts.", 18],
     ["What is the key exchange problem?", "With symmetric encryption the key must be passed to the receiver securely, without interception.", 19],
     ["What is a weakness shared by every substitution cipher?", "Each plaintext letter always maps to the same ciphertext letter, preserving frequencies and structure.", 20]
@@ -232,24 +216,17 @@ X("compsci:4.5.6.10", {
     { q: "A computationally secure cipher:", opts: ["can never be cracked, however much time an attacker has", "cannot be cracked in a practical time by known methods", "has no key, so an attacker has nothing to find", "is a one-time pad with a key used only once"], ans: 1, why: "'Never' is rejected." }
   ],
   exam: [
-    { src: "AQA 2023 · P2 Q03", ctx: "A message is encrypted first with a Caesar cipher and, separately, with a Vernam cipher.",
-      parts: [
-        { q: "Encrypt the plaintext `SECURITY` with a Caesar cipher using a shift of 4.", marks: 1, ms: ["WIGYVMXC (1)"] },
-        { q: "Describe one weakness that the Caesar cipher shares with every substitution cipher.", marks: 1, ms: ["Each plaintext letter is always encrypted to the same ciphertext letter, so ciphertext letter frequencies match plaintext frequencies (frequency analysis) / structural properties survive (1)"] },
-        { q: "Explain why a general substitution cipher is harder to crack than a Caesar cipher.", marks: 1, ms: ["There are far more possible keys, and knowing how one letter is encrypted does not reveal how the others are — there is no single shift (1)"] },
-        { q: "State two conditions that must be met for the Vernam cipher to be perfectly secure.", marks: 2, ms: ["The key must be at least as long as the plaintext (1)", "The key must be truly random / used only once / kept secret (1)", "Max 2"] }
-      ] },
-    { level: "AS", src: "AQA 2022 · P2 Q04.5", q: "Encrypt the plaintext `EGG` using the Vernam cipher with the key `DAB`, using 7-bit ASCII codes (E = 1000101, G = 1000111, D = 1000100, A = 1000001, B = 1000010). Show your working and give the ciphertext in binary.", marks: 3,
+    { qk: "19", level: "AS", src: "AQA 2022 · P2 Q04.5", q: "Encrypt the plaintext `EGG` using the Vernam cipher with the key `DAB`, using 7-bit ASCII codes (E = 1000101, G = 1000111, D = 1000100, A = 1000001, B = 1000010). Show your working and give the ciphertext in binary.", marks: 3,
       ms: ["EGG = 1000101 1000111 1000111 (1)", "XOR applied bit by bit with 1000100 1000001 1000010 (1)", "0000001 0000110 0000101 (1)"] },
-    { src: "AQA 2019 · P2 Q14", ctx: "Two companies exchange confidential documents over the internet.",
+    { qk: "20", src: "AQA 2019 · P2 Q14", ctx: "Two companies exchange confidential documents over the internet.",
       parts: [
         { q: "Explain what is meant by a cipher being *computationally secure*.", marks: 1, ms: ["It cannot be cracked by any known method in a reasonable / practical amount of time (1)"] },
         { q: "Describe the key exchange problem that arises if a symmetric cipher is used.", marks: 2, ms: ["The key has to be passed from the sender to the receiver (1)", "Without it being intercepted / securely (1)"] },
         { q: "State the difference between symmetric and asymmetric encryption.", marks: 1, ms: ["Symmetric: the same key is used to encrypt and decrypt; asymmetric: different but related keys are used (1)"] }
       ] },
-    { src: "AQA 2020 · P2 Q09.4", q: "A Caesar decryption routine subtracts the key from each letter's ASCII code. It works for most letters but produces symbols for some. Explain the problem and how to correct it.", marks: 3,
+    { qk: "21", src: "AQA 2020 · P2 Q09.4", q: "A Caesar decryption routine subtracts the key from each letter's ASCII code. It works for most letters but produces symbols for some. Explain the problem and how to correct it.", marks: 3,
       ms: ["Letters near the start of the alphabet are shifted to codes below 65 ('A'), giving non-alphabetic characters (1)", "These must wrap around to the end of the alphabet (1)", "Add 26 to any code below 65 / use MOD 26 in the calculation (1)"] },
-    { level: "AS", src: "AQA 2018 · P2 Q04.2", q: "Explain why the Vernam cipher is more secure than the Caesar cipher.", marks: 2,
+    { qk: "22", level: "AS", src: "AQA 2018 · P2 Q04.2", q: "Explain why the Vernam cipher is more secure than the Caesar cipher.", marks: 2,
       ms: ["The Caesar cipher has only 25 keys and preserves letter frequencies, so it can be brute-forced or analysed (1)", "The Vernam cipher uses a random key as long as the message and used once, so every ciphertext is equally likely — there is no pattern to exploit (1)"] }
   ]
 });

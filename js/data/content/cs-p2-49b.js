@@ -169,7 +169,6 @@ C["compsci:4.9.3.1"] = {
     ["What is the Internet?", "A network of interconnected networks using TCP/IP."],
     ["What is packet switching?", "Data split into packets sent independently, possibly by different routes, reassembled at the destination."],
     ["Name the main fields of a packet header.", "Source/destination IP, sequence number, TTL, protocol, length (ports in the transport header)."],
-    ["What does a router do?", "Connects networks and forwards each packet to the next hop using its routing table."],
     ["What is a fully qualified domain name (FQDN)?", "Domain name including the host, e.g. www.aqa.org.uk.", 6],
     ["What is the purpose of DNS?", "To resolve FQDNs/domain names into IP addresses.", 8],
     ["Does a router change IP or MAC addresses?", "MAC addresses (for the next hop).", 10]
@@ -267,7 +266,7 @@ C["compsci:4.9.3.2"] = {
         { m: "the message is rehashed — a new digest is calculated from it;", mk: "1 mark" },
         { m: "A's public key is used to decrypt the digital signature, giving the received digest;", mk: "1 mark" },
         { m: "if the received and recalculated digests match, B knows A sent the message;", mk: "1 mark", n: "NE. \"knows it was not tampered with\" as the authentication point." }
-      ], result: "B private, rehash, A public, compare", try: [{ grid: { cols: ["Step", "Key used"], rows: [["A signs the message (encrypts its digest)", "A's private key"], ["A encrypts the message and signature", "B's public key"], ["B decrypts the message and signature", "B's private key"], ["B decrypts the signature to get the digest", "A's public key"]], given: [[0, 0], [1, 0], [2, 0], [3, 0]], cap: "**Your turn.** One key for each step — type it like **B's public key**." } }] } },
+      ], result: "B private, rehash, A public, compare", try: [{ notesOnly: true, grid: { cols: ["Step", "Key used"], rows: [["A signs the message (encrypts its digest)", "A's private key"], ["A encrypts the message and signature", "B's public key"], ["B decrypts the message and signature", "B's private key"], ["B decrypts the signature to get the digest", "A's public key"]], given: [[0, 0], [1, 0], [2, 0], [3, 0]], cap: "**Your turn.** One key for each step — type it like **B's public key**." } }] } },
     { worked: { tag: "exam", title: "Sign, encrypt, decrypt, verify (6 marks)", src: "A-level June 2023 · P2 Q11.5 · 6 marks",
       q: "A confidential email from Computer A to Computer B will be encrypted using asymmetric encryption with a digital signature. Describe how A will encrypt the message and create the signature, and how B will decrypt it and verify it was sent by A, referring to the specific keys.",
       steps: [
@@ -302,7 +301,6 @@ C["compsci:4.9.3.2"] = {
     ["How does a proxy server protect a LAN?", "Makes requests on clients' behalf so external computers never reach LAN devices directly.", 2],
     ["How does symmetric encryption work, and what is its drawback?", "One shared key encrypts and decrypts; fast; key exchange problem.", 3],
     ["How does asymmetric encryption work?", "Public/private key pair; encrypt with the recipient's public key, decrypt with their private key.", 4],
-    ["How is a signature verified?", "Decrypt it with the sender's public key; re-hash the message; compare digests.", 6],
     ["Virus vs worm vs trojan?", "Virus attaches to files and needs running; worm self-replicates over networks; trojan disguised as legit software.", 8],
     ["How does code quality defend against worms?", "Prevent buffer overflows; review and test code; patched libraries.", 9]
   ],
@@ -364,7 +362,7 @@ C["compsci:4.9.4.1"] = {
     { page: "In exam questions" },
     { worked: { tag: "exam", title: "Which application gets it?", src: "A-level June 2019 · P2 Q02.2 · 1 mark",
       q: "Explain how the transport layer of the TCP/IP stack determines which application-layer software on the server should deal with a received request.",
-      steps: [{ m: "It uses the port number in the request — e.g. port 25 → the SMTP email server software;", mk: "1 mark" }], result: "Port number", try: [{ grid: { cols: ["Application-layer protocol", "Well-known port"], rows: [["FTP", "21"], ["SSH", "22"], ["SMTP", "25"], ["HTTP", "80"], ["POP3", "110"], ["HTTPS", "443"]], given: [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0]], cap: "**Your turn.** The port numbers the transport layer reads." } }] } },
+      steps: [{ m: "It uses the port number in the request — e.g. port 25 → the SMTP email server software;", mk: "1 mark" }], result: "Port number", try: [{ notesOnly: true, grid: { cols: ["Application-layer protocol", "Well-known port"], rows: [["FTP", "21"], ["SSH", "22"], ["SMTP", "25"], ["HTTP", "80"], ["POP3", "110"], ["HTTPS", "443"]], given: [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0]], cap: "**Your turn.** The port numbers the transport layer reads." } }] } },
     { worked: { tag: "exam", title: "One network-layer function", src: "A-level June 2019 · P2 Q02.3 · 1 mark",
       q: "Describe one function of the network layer of the TCP/IP stack.",
       steps: [{ m: "Adds the source and destination IP addresses to the datagrams // performs routing — selects the next host / hop for each datagram;", mk: "1 mark", n: "Also: header checksum; encapsulating data into datagrams. R. MAC address. NE. \"adds IP address\"; NE. \"determines where to send data\"." }], result: "IP addressing / routing" } },

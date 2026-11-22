@@ -82,7 +82,7 @@ C["compsci:4.5.6.7"] = {
         { m: "Length 180 s, resolution 16 bits, rate 44 000 Hz identified;", mk: "1 mark" },
         { m: "180 × 16 × 44 000 = 126 720 000 bits (= 1 584 000 bytes ÷ … )", mk: "1 mark" },
         { m: "÷ 8 ÷ 1 000 000 = **15.84 MB**", mk: "1 mark" }
-      ], result: "15.84 MB", try: [{ grid: { cols: ["Sample rate (Hz)", "Resolution (bits)", "Duration (s)", "Size (bytes)"], rows: [["8000", "8", "10", "80000"], ["44100", "16", "60", "5292000"], ["22050", "16", "30", "1323000"], ["48000", "24", "5", "720000"]], given: [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2], [2, 0], [2, 1], [2, 2], [3, 0], [3, 1], [3, 2]], cap: "**Your turn.** rate × resolution × duration ÷ 8. Type the number of bytes, digits only." } }] } },
+      ], result: "15.84 MB", try: [{ notesOnly: true, grid: { cols: ["Sample rate (Hz)", "Resolution (bits)", "Duration (s)", "Size (bytes)"], rows: [["8000", "8", "10", "80000"], ["44100", "16", "60", "5292000"], ["22050", "16", "30", "1323000"], ["48000", "24", "5", "720000"]], given: [[0, 0], [0, 1], [0, 2], [1, 0], [1, 1], [1, 2], [2, 0], [2, 1], [2, 2], [3, 0], [3, 1], [3, 2]], cap: "**Your turn.** rate × resolution × duration ÷ 8. Type the number of bytes, digits only." } }] } },
     { worked: { tag: "exam", title: "3 minutes 20 seconds at 44.1 kHz", src: "AS June 2019 · P2 Q04.2 · 3 marks",
       q: "A sound lasts 3 minutes and 20 seconds. It is sampled at 44.1 kHz with a 16-bit sample resolution. Calculate the minimum storage space, in MB, to store it. Show your working.",
       steps: [
@@ -112,7 +112,7 @@ C["compsci:4.5.6.7"] = {
         { m: "12 096 × 1000 × 8 = 96 768 000 bits", mk: "1 mark" },
         { m: "÷ (96 000 × 24 = 2 304 000)", mk: "1 mark" },
         { m: "= **42 seconds**", mk: "1 mark", n: "2 marks for 42 without a unit." }
-      ], result: "42 s", try: [{ grid: { cols: ["Size (bytes)", "Sample rate (Hz)", "Resolution (bits)", "Duration (s)"], rows: [["960000", "8000", "16", "60"], ["1764000", "44100", "16", "20"], ["2400000", "16000", "16", "75"]], given: [[0, 0], [0, 1], [0, 3], [1, 0], [1, 1], [1, 2], [2, 0], [2, 2], [2, 3]], cap: "**Your turn.** One value is missing in each row: rearrange size × 8 = rate × resolution × duration." } }] } },
+      ], result: "42 s", try: [{ notesOnly: true, grid: { cols: ["Size (bytes)", "Sample rate (Hz)", "Resolution (bits)", "Duration (s)"], rows: [["960000", "8000", "16", "60"], ["1764000", "44100", "16", "20"], ["2400000", "16000", "16", "75"]], given: [[0, 0], [0, 1], [0, 3], [1, 0], [1, 1], [1, 2], [2, 0], [2, 2], [2, 3]], cap: "**Your turn.** One value is missing in each row: rearrange size × 8 = rate × resolution × duration." } }] } },
     { worked: { tag: "exam", title: "Duration from 17.199 MB", src: "A-level June 2022 · P2 Q10.1 · 3 marks",
       q: "A recording uses a sampling rate of 44 100 Hz and 16-bit resolution; the file is 17.199 megabytes. Calculate the duration in seconds, showing your working.",
       steps: [
@@ -125,7 +125,7 @@ C["compsci:4.5.6.7"] = {
       steps: [{ m: "1.5 × 1000 × 1000 × 8 = 50 × 20 000 × resolution", mk: "1 mark" }, { m: "12 000 000 ÷ 1 000 000 = **12 bits**", mk: "1 mark" }], result: "12 bits" } },
     { worked: { tag: "exam", title: "More levels from two more bits", src: "AS June 2019 · P2 Q04.1 · 1 mark",
       q: "Sampling with an 8-bit sample resolution approximates each sample to one of 256 levels. If the resolution is increased to 10 bits, how many more levels are available?",
-      steps: [{ m: "2¹⁰ − 2⁸ = 1024 − 256 = **768**", mk: "1 mark" }], result: "768", try: [{ grid: { cols: ["Resolution (bits)", "Levels"], rows: [["4", "16"], ["8", "256"], ["12", "4096"], ["16", "65536"]], given: [[0, 0], [1, 0], [2, 0], [3, 0]], cap: "**Your turn.** n bits give 2ⁿ levels." } }] } },
+      steps: [{ m: "2¹⁰ − 2⁸ = 1024 − 256 = **768**", mk: "1 mark" }], result: "768", try: [{ notesOnly: true, grid: { cols: ["Resolution (bits)", "Levels"], rows: [["4", "16"], ["8", "256"], ["12", "4096"], ["16", "65536"]], given: [[0, 0], [1, 0], [2, 0], [3, 0]], cap: "**Your turn.** n bits give 2ⁿ levels." } }] } },
 
     { page: "Nyquist's theorem" },
     { callout: { t: "def", h: "Nyquist's theorem", body: "To reproduce a signal accurately, you must sample at a rate that is **at least double the highest frequency** (component) in the original signal. Sampling more slowly loses the higher frequencies (they are aliased)." } },
@@ -147,7 +147,7 @@ C["compsci:4.5.6.7"] = {
       ], result: "Needs ≥ 29 000 Hz" } },
     { worked: { tag: "exam", title: "Minimum rate for 1200 Hz", src: "A-level June 2018 · P2 Q11.4 · 1 mark",
       q: "The highest frequency present in a signal's waveform is 1200 Hz. What is the minimum sample rate that preserves all of the frequencies?",
-      steps: [{ m: "2 × 1200 = **2400 Hz**", mk: "1 mark" }], result: "2400 Hz", try: [{ grid: { cols: ["Highest frequency (Hz)", "Minimum sample rate (Hz)"], rows: [["440", "880"], ["4000", "8000"], ["18000", "36000"], ["22050", "44100"]], given: [[0, 0], [1, 0], [2, 0], [3, 1]], cap: "**Your turn.** Nyquist both ways: the last row gives the rate." } }] } },
+      steps: [{ m: "2 × 1200 = **2400 Hz**", mk: "1 mark" }], result: "2400 Hz", try: [{ notesOnly: true, grid: { cols: ["Highest frequency (Hz)", "Minimum sample rate (Hz)"], rows: [["440", "880"], ["4000", "8000"], ["18000", "36000"], ["22050", "44100"]], given: [[0, 0], [1, 0], [2, 0], [3, 1]], cap: "**Your turn.** Nyquist both ways: the last row gives the rate." } }] } },
     { worked: { tag: "exam", title: "Minimum rate for 15 000 Hz", src: "A-level June 2023 · P2 Q01.2 · 1 mark",
       q: "The highest frequency component in a sound is 15 000 Hz. What is the minimum sampling rate that ensures all the frequencies are preserved?",
       steps: [{ m: "**30 000 Hz**", mk: "1 mark" }], result: "30 000 Hz" } },
@@ -367,7 +367,7 @@ C["compsci:4.5.6.9"] = {
     ), cap: "AS June 2025: BBGGGRRRRW → (B, 2) (G, 3) (R, 4) (W, 1). Only runs longer than 2 actually save space." } },
     { worked: { tag: "exam", title: "State the RLE", src: "AS June 2025 · P2 Q05.2 · 1 mark",
       q: "Run length encoding (RLE) can be used to compress data. State the RLE for the data BBGGGRRRRW.",
-      steps: [{ m: "**(B, 2) (G, 3) (R, 4) (W, 1)**", mk: "1 mark", n: "A. the count and value either way round if consistent; I. brackets and commas (B2 G3 R4 W1)." }], result: "B2 G3 R4 W1", try: [{ grid: { cols: ["Data", "RLE"], rows: [["AAABBBBC", "A3 B4 C1"], ["WWWWWWBWWW", "W6 B1 W3"], ["RRGGGGGGB", "R2 G6 B1"], ["KKKKKKKK", "K8"]], given: [[0, 0], [1, 0], [2, 0], [3, 0]], cap: "**Your turn.** Write each like B2 G3 R4 W1 — the value, its count, a space between runs." } }] } },
+      steps: [{ m: "**(B, 2) (G, 3) (R, 4) (W, 1)**", mk: "1 mark", n: "A. the count and value either way round if consistent; I. brackets and commas (B2 G3 R4 W1)." }], result: "B2 G3 R4 W1", try: [{ notesOnly: true, grid: { cols: ["Data", "RLE"], rows: [["AAABBBBC", "A3 B4 C1"], ["WWWWWWBWWW", "W6 B1 W3"], ["RRGGGGGGB", "R2 G6 B1"], ["KKKKKKKK", "K8"]], given: [[0, 0], [1, 0], [2, 0], [3, 0]], cap: "**Your turn.** Write each like B2 G3 R4 W1 — the value, its count, a space between runs." } }] } },
     { worked: { tag: "exam", title: "Describe RLE for an image", src: "AS June 2016 · P2 Q06.4 · 2 marks",
       q: "Image files are often compressed so they take up less storage space. Describe how run length encoding (RLE) could be used to compress a bitmap image.",
       steps: [
@@ -525,10 +525,10 @@ C["compsci:4.5.6.10"] = {
     })(), cap: "A Caesar cipher with key 4: every letter moves four places on, wrapping round the end of the alphabet." } },
     { worked: { tag: "exam", title: "Encrypt SECURITY with key 4", src: "A-level June 2023 · P2 Q03.1 · 1 mark",
       q: "Encrypt the plaintext SECURITY using the Caesar cipher with a key of 4.",
-      steps: [{ m: "S→W, E→I, C→G, U→Y, R→V, I→M, T→X, Y→C (wraps)" }, { m: "**WIGYVMXC**", mk: "1 mark" }], result: "WIGYVMXC", try: [{ grid: { cols: ["Plaintext", "Ciphertext (key 4)"], rows: [["HELLO", "LIPPS"], ["ZEBRA", "DIFVE"], ["WAXY", "AEBC"], ["QUIZ", "UYMD"]], given: [[0, 0], [1, 0], [2, 0], [3, 0]], cap: "**Your turn.** Shift each letter four on, wrapping Z round to A." } }] } },
+      steps: [{ m: "S→W, E→I, C→G, U→Y, R→V, I→M, T→X, Y→C (wraps)" }, { m: "**WIGYVMXC**", mk: "1 mark" }], result: "WIGYVMXC", try: [{ notesOnly: true, grid: { cols: ["Plaintext", "Ciphertext (key 4)"], rows: [["HELLO", "LIPPS"], ["ZEBRA", "DIFVE"], ["WAXY", "AEBC"], ["QUIZ", "UYMD"]], given: [[0, 0], [1, 0], [2, 0], [3, 0]], cap: "**Your turn.** Shift each letter four on, wrapping Z round to A." } }] } },
     { worked: { tag: "exam", title: "Decrypt with shift 4", src: "AS June 2024 · P2 Q04.1 · 1 mark",
       q: "A message is encrypted using a Caesar cipher with a shift value of four (A in plaintext becomes E). The ciphertext is WSSDI. What is the plaintext?",
-      steps: [{ m: "Shift each letter back 4: W→S, S→O, S→O, D→Z (wraps), I→E" }, { m: "**SOOZE**", mk: "1 mark" }], result: "SOOZE", try: [{ grid: { cols: ["Ciphertext", "Plaintext"], rows: [["EXXEGO", "ATTACK"], ["FVEMR", "BRAIN"], ["DIVS", "ZERO"]], given: [[0, 0], [1, 0], [2, 0]], cap: "**Your turn.** Shift each letter four back, wrapping A round to Z." } }] } },
+      steps: [{ m: "Shift each letter back 4: W→S, S→O, S→O, D→Z (wraps), I→E" }, { m: "**SOOZE**", mk: "1 mark" }], result: "SOOZE", try: [{ notesOnly: true, grid: { cols: ["Ciphertext", "Plaintext"], rows: [["EXXEGO", "ATTACK"], ["FVEMR", "BRAIN"], ["DIVS", "ZERO"]], given: [[0, 0], [1, 0], [2, 0]], cap: "**Your turn.** Shift each letter four back, wrapping A round to Z." } }] } },
     { worked: { tag: "exam", title: "Decrypt with the wheel's setting", src: "A-level June 2017 · P2 Q02.1 · 1 mark",
       q: "With the cipher wheel settings shown, the plaintext COMPUTER encrypts to IUSVAZKX. Decrypt the ciphertext QGOZRKT using the same settings.",
       steps: [{ h: "Find the key", m: "C → I is a shift of 6" }, { m: "shift back 6: **KAITLEN**", mk: "1 mark" }], result: "KAITLEN" } },
@@ -559,7 +559,7 @@ C["compsci:4.5.6.10"] = {
         { m: "HOG = **1001000 1001111 1000111**", mk: "1 mark" },
         { m: "XOR each bit: 1010011 ⊕ 1001000, 1001111 ⊕ 1001111, 1001110 ⊕ 1000111", mk: "1 mark" },
         { m: "= **0011011 0000000 0001001** (21 bits)", mk: "1 mark", n: "R. a result equal to HOG or SON. Note the middle character: O XOR O = 0000000 — reusing a letter of the key in the same place leaks it, one reason keys must be random." }
-      ], result: "0011011 0000000 0001001", try: [{ grid: { cols: ["Plaintext", "7-bit ASCII", "Key", "7-bit ASCII", "Ciphertext"], rows: [["C", "1000011", "D", "1000100", "0000111"], ["A", "1000001", "O", "1001111", "0001110"], ["T", "1010100", "G", "1000111", "0010011"]], given: [[0, 0], [0, 2], [1, 0], [1, 2], [2, 0], [2, 2]], cap: "**Your turn.** Encrypt 'CAT' with the key 'DOG' ('A' is 1000001): XOR each pair of bits." } }] } },
+      ], result: "0011011 0000000 0001001", try: [{ notesOnly: true, grid: { cols: ["Plaintext", "7-bit ASCII", "Key", "7-bit ASCII", "Ciphertext"], rows: [["C", "1000011", "D", "1000100", "0000111"], ["A", "1000001", "O", "1001111", "0001110"], ["T", "1010100", "G", "1000111", "0010011"]], given: [[0, 0], [0, 2], [1, 0], [1, 2], [2, 0], [2, 2]], cap: "**Your turn.** Encrypt 'CAT' with the key 'DOG' ('A' is 1000001): XOR each pair of bits." } }] } },
     { worked: { tag: "exam", title: "Encrypt DAB with key EGG", src: "AS June 2022 · P2 Q04.5 · 3 marks",
       q: "'A' is 1000001 in 7-bit ASCII and other characters follow in sequence ('D' is 1000100); 'DAB' is 1000100 1000001 1000010. What bit pattern results from encrypting 'DAB' using a Vernam cipher with the key 'EGG'? Show your working.",
       steps: [
@@ -617,19 +617,19 @@ C["compsci:4.5.6.10"] = {
         { m: "`ADD R2, R0, R1`;", mk: "1 mark" },
         { m: "`SUB R2, R2, #26`;", mk: "1 mark" },
         { m: "`CMP R2, #26` with `BLT store` and the label `store:` on the STR (or `CMP R2, #25` / `BGT adjust` on the SUB);", mk: "1 mark", n: "Max 3 if any errors. Synoptic: 4.7.3.5 the AQA instruction set." }
-      ], result: "Add, compare with 26, subtract 26 if needed, store", try: [{ trace: { code: "      LDR R0, 100\n      LDR R1, 101\n      ADD R2, R0, R1\n      CMP R2, #26\n      BLT store\n      SUB R2, R2, #26\nstore: STR R2, 102\n      HALT", lang: "asm", cols: ["Instruction", "R0", "R1", "R2", "Location 102"], rows: [["LDR R0, 100", "23", "", "", ""], ["LDR R1, 101", "", "5", "", ""], ["ADD R2, R0, R1", "", "", "28", ""], ["CMP R2, #26", "", "", "", ""], ["BLT store", "", "", "", ""], ["SUB R2, R2, #26", "", "", "2", ""], ["STR R2, 102", "", "", "", "2"]], given: [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [6, 0]], cap: "**Your turn.** Location 100 holds 23 (X) and 101 holds the key 5. Write a value only where the instruction changes it." } }] } },
+      ], result: "Add, compare with 26, subtract 26 if needed, store", try: [{ notesOnly: true, trace: { code: "      LDR R0, 100\n      LDR R1, 101\n      ADD R2, R0, R1\n      CMP R2, #26\n      BLT store\n      SUB R2, R2, #26\nstore: STR R2, 102\n      HALT", lang: "asm", cols: ["Instruction", "R0", "R1", "R2", "Location 102"], rows: [["LDR R0, 100", "23", "", "", ""], ["LDR R1, 101", "", "5", "", ""], ["ADD R2, R0, R1", "", "", "28", ""], ["CMP R2, #26", "", "", "", ""], ["BLT store", "", "", "", ""], ["SUB R2, R2, #26", "", "", "2", ""], ["STR R2, 102", "", "", "", "2"]], given: [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0], [5, 0], [6, 0]], cap: "**Your turn.** Location 100 holds 23 (X) and 101 holds the key 5. Write a value only where the instruction changes it." } }] } },
     { worked: { tag: "exam", title: "Vernam in assembly", src: "A-level June 2020 · P2 Q09.3 · 3 marks",
       q: "The Vernam cipher encrypts a plaintext character by performing a logical operation between it and part of the key. Write an assembly language program (AQA instruction set) to do this: the plaintext character code is in memory location 101, the key part in 102, and the ciphertext is to be stored in 103.",
       steps: [
         { m: "`LDR R1, 101` and `LDR R2, 102` — load both values into registers;", mk: "1 mark" },
         { m: "`EOR R3, R1, R2` — exclusive OR them;", mk: "1 mark" },
         { m: "`STR R3, 103` — store the result;", mk: "1 mark" }
-      ], result: "LDR, LDR, EOR, STR", try: [{ trace: { code: "LDR R1, 101\nLDR R2, 102\nEOR R3, R1, R2\nSTR R3, 103\nHALT", lang: "asm", cols: ["Instruction", "R1", "R2", "R3", "Location 103"], rows: [["LDR R1, 101", "1000011", "", "", ""], ["LDR R2, 102", "", "1001011", "", ""], ["EOR R3, R1, R2", "", "", "0001000", ""], ["STR R3, 103", "", "", "", "0001000"]], given: [[0, 0], [1, 0], [2, 0], [3, 0]], cap: "**Your turn.** Location 101 holds 'C' (1000011) and 102 the key part 'K' (1001011). Trace it in binary, writing a value only where it changes." } }] } },
+      ], result: "LDR, LDR, EOR, STR", try: [{ notesOnly: true, trace: { code: "LDR R1, 101\nLDR R2, 102\nEOR R3, R1, R2\nSTR R3, 103\nHALT", lang: "asm", cols: ["Instruction", "R1", "R2", "R3", "Location 103"], rows: [["LDR R1, 101", "1000011", "", "", ""], ["LDR R2, 102", "", "1001011", "", ""], ["EOR R3, R1, R2", "", "", "0001000", ""], ["STR R3, 103", "", "", "", "0001000"]], given: [[0, 0], [1, 0], [2, 0], [3, 0]], cap: "**Your turn.** Location 101 holds 'C' (1000011) and 102 the key part 'K' (1001011). Trace it in binary, writing a value only where it changes." } }] } },
     { worked: { tag: "exam", title: "The registers in a Caesar program", src: "A-level June 2018 · P2 Q12.1 · 2 marks",
-      q: "An incomplete assembly program implements: IF characterCode ≥ 65 AND ≤ 90 THEN encryptedCode ← characterCode + keyValue, subtracting 26 if it exceeds 90; ELSE encryptedCode ← characterCode. It begins CMP R1, #65 / BLT doNotEncrypt / CMP R1, #90 / BGT doNotEncrypt / ADD R3, R1, R2. Explain the purpose of registers R1, R2 and R3.",
+      q: "An incomplete assembly program implements:\n\n```pseudo\nIF characterCode ≥ 65 AND characterCode ≤ 90 THEN\n  encryptedCode ← characterCode + keyValue\n  IF encryptedCode > 90 THEN\n    encryptedCode ← encryptedCode − 26\n  ENDIF\nELSE\n  encryptedCode ← characterCode\nENDIF\n```\n\nIt begins:\n\n```asm\nCMP R1, #65\nBLT doNotEncrypt\nCMP R1, #90\nBGT doNotEncrypt\nADD R3, R1, R2\n```\n\nExplain the purpose of registers R1, R2 and R3.",
       steps: [{ m: "R1: the plaintext letter (characterCode); R2: the key (the shift, keyValue); R3: the ciphertext letter (encryptedCode).", mk: "2 marks", n: "1 mark for one or two correct; 2 for all three." }], result: "R1 plaintext, R2 key, R3 ciphertext" } },
     { worked: { tag: "exam", title: "Fix the Caesar decryption", src: "A-level June 2020 · P2 Q09.4 · 3 marks",
-      q: "A message was encrypted with the Caesar cipher, key 5 (capital letters only, ASCII 65–90). This pseudocode is supposed to decrypt one capital letter but does not work properly: asciicode ← CHAR_TO_INT(c); asciicode ← asciicode − 5; plaintext ← INT_TO_CHAR(asciicode). Explain the problem and how it could be rectified.",
+      q: "A message was encrypted with the Caesar cipher, key 5 (capital letters only, ASCII 65–90). This pseudocode is supposed to decrypt one capital letter but does not work properly:\n\n```pseudo\nasciicode ← CHAR_TO_INT(c)\nasciicode ← asciicode − 5\nplaintext ← INT_TO_CHAR(asciicode)\n```\n\nExplain the problem and how it could be rectified.",
       steps: [
         { h: "Problem", m: "Letters A–E are shifted back before 'A' (below ASCII 65) and become non-alphabetic characters;", mk: "1 mark", n: "R. \"some values will not be valid ASCII codes\"." },
         { h: "Fix", m: "they must wrap round to the end of the alphabet — use an IF to check whether the code is below 65;", mk: "1 mark" },
