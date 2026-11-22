@@ -934,11 +934,10 @@
       ["What is `1.0 / 0`?", "∞ (positive infinity)."]
     ],
     quiz: [
-      { q: "Which type for a bank balance?", opts: ["int", "double", "decimal", "float"], ans: 2, why: "Money must be exact in pennies." },
-      { q: "`int.MaxValue + 1` at run time gives…", opts: ["an OverflowException", "int.MinValue", "2147483648", "0"], ans: 1, why: "Unchecked int arithmetic wraps." },
-      { q: "`decimal d = 2.5;` gives…", opts: ["2.5, as a decimal", "CS0664 — needs 2.5m", "2, rounded down to fit", "a warning only, then 2.5"], ans: 1, why: "2.5 is a double literal." },
-      { q: "What range does an int have?", opts: ["±32,767, like a short", "±2,147,483,647 roughly", "±9.2 quintillion, like a long", "0 to about 4.3 billion, unsigned"], ans: 1, why: "32-bit two's complement." },
-      { q: "`0.1 + 0.2 == 0.3` with doubles is…", opts: ["True", "False", "a compile error", "NaN"], ans: 1, why: "The sum is 0.30000000000000004." }
+      { q: "Which type for a bank balance?", opts: ["int", "double", "decimal", "float"], ans: 2, why: "Money must be exact in pennies.", oi: 0 },
+      { q: "`int.MaxValue + 1` at run time gives…", opts: ["an OverflowException", "int.MinValue", "2147483648", "0"], ans: 1, why: "Unchecked int arithmetic wraps.", oi: 1 },
+      { q: "`decimal d = 2.5;` gives…", opts: ["2.5, as a decimal", "CS0664 — needs 2.5m", "2, rounded down to fit", "a warning only, then 2.5"], ans: 1, why: "2.5 is a double literal.", oi: 2 },
+      { q: "What range does an int have?", opts: ["±32,767, like a short", "±2,147,483,647 roughly", "±9.2 quintillion, like a long", "0 to about 4.3 billion, unsigned"], ans: 1, why: "32-bit two's complement.", oi: 3 }
     ]
   });
   K.add({ tasks: {

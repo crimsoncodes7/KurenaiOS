@@ -507,7 +507,7 @@
         { id: "f1", q: "Fill the gap with the return type of an async method that gives back an int.", src: 'Console.WriteLine(await Three());\n\nstatic async @@ Three() { await Task.Delay(5); return 3; }', out: "3", answer: "Task<int>", concepts: ["async-await"] }
       ],
       bug: [
-        { id: "b1", q: "It should print the length, 11.", src: 'var len = LengthAsync("hello world");\nConsole.WriteLine(len.IsCompleted ? "?" : "not ready");\n\nstatic async Task<int> LengthAsync(string s) { await Task.Delay(20); return s.Length; }', out: "11", fixedText: "prints 11", why: "The Task was never awaited; write Console.WriteLine(await LengthAsync(\"hello world\"));", concepts: ["async-await"] }
+        { id: "b1", q: "It should print the length, 11.", src: 'var len = LengthAsync("hello world");\nConsole.WriteLine(len.IsCompleted ? "?" : "not ready");\n\nstatic async Task<int> LengthAsync(string s) { await Task.Delay(20); return s.Length; }', out: "11", fixedText: "prints 11", why: "The Task was never awaited; write `Console.WriteLine(await LengthAsync(\"hello world\"));`", concepts: ["async-await"] }
       ]
     },
     flashcards: [
@@ -515,7 +515,7 @@
       ["What does await do?", "Pauses this method until the task finishes, without blocking the thread, and gives its result."],
       ["Return type for an async method with a result?", "Task<T>."],
       ["Where does an exception in an async method surface?", "At the await of its Task."],
-      ["When is async void acceptable?", "Only for event handlers."],
+      ["When is async void acceptable?", "Only for event handlers (which must catch their own exceptions)."],
       ["What naming convention do async methods follow?", "The Async suffix: LoadAsync."]
     ],
     quiz: [
@@ -809,12 +809,11 @@
       ]
     },
     flashcards: [
-      ["Why avoid async void?", "It cannot be awaited and its exceptions are not observed by the caller."],
-      ["Where is async void acceptable?", "Event handlers — which must catch their own exceptions."],
-      ["What is fire and forget?", "Calling an async method without awaiting it; errors are lost (warning CS4014)."],
-      ["Why never .Result or .Wait()?", "They block the thread and can deadlock a UI; await instead."],
-      ["What is wrong with list.ForEach(async x => …)?", "ForEach takes an Action: the async lambdas are async void and nobody waits for them."],
-      ["What does CS4008 mean?", "You tried to await a method that returns void."]
+      ["Why avoid async void?", "It cannot be awaited and its exceptions are not observed by the caller.", 0],
+      ["What is fire and forget?", "Calling an async method without awaiting it; errors are lost (warning CS4014).", 2],
+      ["Why never .Result or .Wait()?", "They block the thread and can deadlock a UI; await instead.", 3],
+      ["What is wrong with list.ForEach(async x => …)?", "ForEach takes an Action: the async lambdas are async void and nobody waits for them.", 4],
+      ["What does CS4008 mean?", "You tried to await a method that returns void.", 5]
     ],
     quiz: [
       { q: "`SaveAsync();` with no await…", opts: ["waits for the save to finish first", "starts it and moves on; errors are lost", "is a compile error in an async method", "runs it twice, once now and once later"], ans: 1, why: "Fire and forget (CS4014)." },
@@ -904,12 +903,11 @@
       ]
     },
     flashcards: [
-      ["Why put the server behind an interface?", "So the downloader can be run against a fake (tests, offline) and a real HttpClient alike."],
-      ["How do you stop one failure ending the batch?", "Each download catches its own exception and returns a result record."],
-      ["What limits concurrency?", "A SemaphoreSlim: WaitAsync before, Release in finally."],
-      ["What is backoff?", "Waiting longer before each retry."],
-      ["Which failures are worth retrying?", "Transient ones: timeouts, 503 busy — not 404 or 401."],
-      ["How many HttpClients should a program make?", "One, shared."]
+      ["Why put the server behind an interface?", "So the downloader can be run against a fake (tests, offline) and a real HttpClient alike.", 0],
+      ["How do you stop one failure ending the batch?", "Each download catches its own exception and returns a result record.", 1],
+      ["What is backoff?", "Waiting longer before each retry.", 3],
+      ["Which failures are worth retrying?", "Transient ones: timeouts, 503 busy — not 404 or 401.", 4],
+      ["How many HttpClients should a program make?", "One, shared.", 5]
     ],
     quiz: [
       { q: "Retrying a 404 Not Found…", opts: ["usually helps", "will fail every time", "is required", "turns it into a 200"], ans: 1, why: "It is not transient." },

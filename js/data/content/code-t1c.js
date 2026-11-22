@@ -239,7 +239,7 @@
       { h: "EnsureCreated, then Migrate" },
       sh("a database made by EnsureCreated has no history table", "Microsoft.Data.Sqlite.SqliteException (0x80004005): SQLite Error 1: 'table \"Books\" already exists'."),
       page("Connections"),
-      { ul: [ "**Back:** T1A.7's CREATE TABLE and constraints; T1.12's model; Bridge B's Git — a migration is committed with the change that caused it.", "**Next:** T1.15 changes the relationships and needs a migration for it; T1F migrates a server's database.", "**The project:** milestone 3 is your first migration — and every later milestone must keep them up to date." ] },
+      { ul: [ "**Back:** T1A.7's `CREATE TABLE` and constraints; T1.12's model; Bridge B's Git — a migration is committed with the change that caused it.", "**Next:** T1.15 changes the relationships and needs a migration for it; T1F migrates a server's database.", "**The project:** milestone 3 is your first migration — and every later milestone must keep them up to date." ] },
       page("Good practice"),
       { ul: [ "Add the migration in the same commit as the model change.", "Read `Up` before you run it: a rename that came out as drop-and-add would lose a column's data.", "Keep a test that `HasPendingModelChanges()` is false." ] },
       page("Practise"),

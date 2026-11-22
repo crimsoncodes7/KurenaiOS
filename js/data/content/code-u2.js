@@ -112,10 +112,9 @@
       ["How should two doubles be compared?", "With a tolerance: `Math.Abs(x - y) < 1e-9`."]
     ],
     quiz: [
-      { q: "`int n = 4; Console.WriteLine(n >= 4);` prints…", opts: ["True", "False", "4", "an error"], ans: 0, why: "4 is at least 4." },
-      { q: "Which line will not compile?", opts: ["bool b = 3 < 4;", "bool b = (x == 2);", "bool b = (x = 2);", "bool b = !false;"], ans: 2, why: "x = 2 is an int-valued assignment, not a bool." },
-      { q: "`\"apple\" == \"Apple\"` is…", opts: ["True", "False", "an error", "null"], ans: 1, why: "Case-sensitive." },
-      { q: "A good name for a bool?", opts: ["loginFlag2", "checkLogin", "isLoggedIn", "b"], ans: 2, why: "It reads as a question." }
+      { q: "`int n = 4; Console.WriteLine(n >= 4);` prints…", opts: ["True", "False", "4", "an error"], ans: 0, why: "4 is at least 4.", oi: 0 },
+      { q: "Which line will not compile?", opts: ["bool b = 3 < 4;", "bool b = (x == 2);", "bool b = (x = 2);", "bool b = !false;"], ans: 2, why: "x = 2 is an int-valued assignment, not a bool.", oi: 1 },
+      { q: "A good name for a bool?", opts: ["loginFlag2", "checkLogin", "isLoggedIn", "b"], ans: 2, why: "It reads as a question.", oi: 3 }
     ]
   });
   K.add({ tasks: {

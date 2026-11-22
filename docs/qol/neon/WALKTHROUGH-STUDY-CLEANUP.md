@@ -631,3 +631,33 @@
 ## Before / After Counts Summary
 
 *(Finalised in Batch 8 alongside full `SMOKE_JOBS=3 npm test` release gate output.)*
+
+
+---
+
+## Batch 7 — Other Study Spaces (Code, Japanese, Mind, Creatives)
+
+### Reformatting & Audit Summary
+
+Audited all 44 Batch 7 files (`code-*.js` excluding generated `code-projects-files.js`, `ja-*.js`, `ja.js`, `ja-s1.js`, `mind-*.js`, `mind.js`, and `cr-*.js`). Zero walls of text (>350 chars), zero HTML tags in prose, and zero misplaced lab/widget tags were found.
+
+4 inline code formatting fixes were applied across 4 Code files:
+- `js/data/content/code-t1a.js` (`code:T1.2` `flashcards[0][1]`): wrapped `SELECT … FROM … WHERE … ORDER BY … LIMIT …` in backticks.
+- `js/data/content/code-t1c.js` (`code:T1.14` `notes[30].ul[0]`): wrapped `CREATE TABLE` in backticks.
+- `js/data/content/code-u7.js` (`code:7.3` `practice.bug[0].why`): wrapped `public int Area => Width * Width;` in backticks.
+- `js/data/content/code-u11.js` (`code:11.5` `practice.bug[0].why`): wrapped `Console.WriteLine(await LengthAsync("hello world"));` in backticks, and enriched `code:11.5` `flashcards[4]` answer (`"Only for event handlers (which must catch their own exceptions)."`).
+
+Japanese (`KOS_JA.ITEMS`, 440 items), Mind (`KOS_MIND.CONCEPTS`, 16 concepts / 27 cards), and Creatives (`creatives:*`, 24 topics / 118 cards) had 0 duplicate items (Japanese `w:` word items vs `j:` kanji items vs `g:` grammar items are distinct SRS modes).
+
+### Deduplication Ledger (Batch 7 — `-5` Flashcards, `-3` Quizzes, `0` SRS Key Shifts)
+
+| Subject & Topic | Removed Item ID & Exact Question Text | Kept Canonical Item ID & Exact Question Text | Reason |
+|---|---|---|---|
+| `code:1.7` | `q:code:1.7:4` — "`0.1 + 0.2 == 0.3` with doubles is…" | `q:code:7.10:2` — "`0.1 + 0.2 == 0.3` with doubles is…" | Exact duplicate MCQ on binary floating-point inaccuracy (`oi` preserved on `code:1.7`; `code:7.10` kept at 3 quizzes for `code_unit_check.js`). |
+| `code:2.1` | `q:code:2.1:2` — "`"apple" == "Apple"` is…" | `q:code:5.6:2` — "`"Apple" == "apple"` is…" | Exact duplicate MCQ on case-sensitive `==` string equality (`oi` preserved on `code:2.1`; `code:5.6` kept at 3 quizzes for `code_unit_check.js`). |
+| `code:3.3` | `code:3.3:1` — "Can code after a loop use a variable declared inside it?" | `code:2.5:5` — "Can you use a variable declared inside a loop after it?" | Exact duplicate loop-variable scope card (`No — it is out of scope (CS0103)`, `c[2]` preserved). |
+| `code:3.6` | `q:code:3.6:1` — "Which never throws on bad text?" | `q:code:5.4:1` — "Which never throws on bad text?" | Exact duplicate MCQ identifying `int.TryParse` as non-throwing (`oi` preserved on `code:3.6`; `code:5.4` kept at 3 quizzes for `code_unit_check.js`). |
+| `code:5.4` | `code:5.4:0` — "What does `int.TryParse` return?" | `code:3.5:3` — "What does `int.TryParse(s, out int n)` return?" | Duplicate `int.TryParse` return-value card (`code:3.5:3` covers both the `bool` return and `out` parameter, `c[2]` preserved). |
+| `code:10.7` | `code:10.7:3` — "What is a guard clause?" | `code:2.8:2` — "What is a guard clause?" | Exact duplicate guard clause definition card (`c[2]` preserved). |
+| `code:11.8` | `code:11.8:1` — "Where is async void acceptable?" | `code:11.5:4` — "When is async void acceptable?" | Duplicate `async void` event-handler rule card; exception-catching note merged into `code:11.5:4` (`c[2]` preserved). |
+| `code:11.9` | `code:11.9:2` — "What limits concurrency?" | `code:11.6:4` — "How do you limit concurrency?" | Exact duplicate `SemaphoreSlim` concurrency-limiting card (`c[2]` preserved). |

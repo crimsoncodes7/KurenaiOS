@@ -12,8 +12,8 @@
 | **Batch 4** | Mathematics Part 1 (Pure: `maths-pure-*.js`, `bank-maths-pure-*.js`) | **DONE** | `657f56ad` | `srs_guard` 0 shifts (`-74` FC, `-79` Qz, `-10` Ex), `gen_moved_cards --check` 78 cards, `fill_check` OK, `card_lint` 0 flagged, `smoke116`, `smoke138`, `smoke142`, `smoke153`, `smoke155`, `smoke197`, `smoke200` |
 | **Batch 5** | Mathematics Part 2 (Stats & Mechanics: `maths-stats-*.js`, `maths-mech-*.js`, `bank-maths-stats.js`, `bank-maths-mech.js`) | **DONE** | `f7ee006b` | `srs_guard` 0 shifts (`-78` FC, `-67` Qz, `-5` Ex), `gen_moved_cards --check` 78 cards, `fill_check` OK, `card_lint` 0 flagged, `smoke116`, `smoke138`, `smoke142`, `smoke153`, `smoke155`, `smoke197`, `smoke200` |
 | **Batch 6** | IT: Data Analytics (`it-*.js`) | **DONE** | *(pending commit)* | `srs_guard` 0 shifts (`-25` FC, `-2` Qz, `0` Ex), `fill_check.mjs` OK, `card_lint.mjs --check` 0 flagged, `smoke116`, `smoke142`, `smoke153`, `smoke156`, `smoke197`, `smoke200` |
-| **Batch 7** | Other Study Spaces (Code, Japanese, Mind, Creatives) | **NEXT** | — | `code_unit_check.js`, `ja_valid_check.mjs`, `mind_tree_check.mjs`, `smoke74`, `smoke76`, `smoke92`, `smoke100`, `smoke105`, `smoke108`, `smoke200` |
-| **Batch 8** | Cross-Topic Final Deduplication Pass, Before/After Counts & Full `SMOKE_JOBS=3 npm test` Gate | Pending | — | Full release gate (181/181) + final boot bytes |
+| **Batch 7** | Other Study Spaces (Code, Japanese, Mind, Creatives) | **DONE** | *(pending commit)* | `srs_guard` 0 shifts (`-5` FC, `-3` Qz), `ja_valid_check.mjs` 128/128, `mind_tree_check.mjs` 8/8, `code_unit_check.js` (5./7./10./11.), `gen_lazy_index.mjs --check`, `smoke74`, `smoke76`, `smoke92`, `smoke100`, `smoke105`, `smoke108`, `smoke200` |
+| **Batch 8** | Cross-Topic Final Deduplication Pass, Before/After Counts & Full `SMOKE_JOBS=3 npm test` Gate | **NEXT** | — | Full release gate (181/181) + final boot bytes |
 
 ## Baseline Inventory (Start of `neon/study-cleanup-1`, `f26102f5`)
 
