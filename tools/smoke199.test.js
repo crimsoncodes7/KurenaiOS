@@ -227,6 +227,87 @@ step("D · Pacing shifts In class / Both with preview, Undo, and per-row customi
   eq(app.errors, [], "no page errors");
 });
 
+/* ---------------- E · U5 Routines per-day flexible schedules ---------------- */
+step("E · Routines support per-day time windows across scheduler, player, reminders and editor (U5)", async () => {
+  const K = app.KOS;
+  const R = K.routines;
+  R.enable(true);
+
+  /* 1. Core per-day dayWindows normalise, resolution, pastWindow, today, forecast & legacy fallback */
+  const mon = "2026-11-23"; /* Monday (dow 1) */
+  const tue = "2026-11-24"; /* Tuesday (dow 2) */
+  const wed = "2026-11-25"; /* Wednesday (dow 3) */
+  const sat = "2026-11-28"; /* Saturday (dow 6) */
+
+  const legacy = R.add({
+    name: "Legacy Morning", kind: "morning",
+    steps: [{ text: "Hydrate", mins: 5 }],
+    days: [], window: { from: "07:00", to: "08:00" },
+    weekend: { days: [0, 6], window: { from: "09:00", to: "10:30" } }
+  });
+  eq(R.windowOn(legacy, mon), { from: "07:00", to: "08:00" }, "legacy weekday window preserved");
+  eq(R.windowOn(legacy, sat), { from: "09:00", to: "10:30" }, "legacy weekend window preserved");
+
+  const flex = R.add({
+    name: "College Morning", kind: "morning",
+    steps: [{ text: "Shower", mins: 15 }, { text: "Breakfast", mins: 20 }, { text: "Pack", mins: 10 }],
+    days: [1, 2, 3, 4, 5],
+    window: { from: "07:00", to: "08:30" },
+    dayWindows: {
+      "1": { from: "07:00", to: "08:15" },
+      "2": { from: "09:30", to: "11:00" },
+      "3": { from: "07:15", to: "07:50" } /* 35m < 45m steps -> tight/over */
+    },
+    remind: true
+  });
+  assert(flex.dayWindows && flex.dayWindows["2"].from === "09:30", "dayWindows normalised and persisted");
+  eq(R.windowOn(flex, mon), { from: "07:00", to: "08:15" }, "Monday resolves per-day window");
+  eq(R.windowOn(flex, tue), { from: "09:30", to: "11:00" }, "Tuesday resolves later college-day window");
+  eq(R.windowOn(flex, wed), { from: "07:15", to: "07:50" }, "Wednesday resolves tight window");
+
+  /* pastWindow uses that specific day's window: 08:30 is late on Mon (to 08:15) but NOT late on Tue (to 11:00) */
+  const mon0830 = new Date(2026, 10, 23, 8, 30).getTime();
+  const tue0830 = new Date(2026, 10, 24, 8, 30).getTime();
+  assert(R.pastWindow(flex, mon, mon0830) === true, "pastWindow true on Mon at 08:30");
+  assert(R.pastWindow(flex, tue, tue0830) === false, "pastWindow false on Tue at 08:30");
+
+  /* today() & forecast() emit Tuesday's 09:30–11:00 window */
+  const tueToday = R.today(tue0830).find((x) => x.id === flex.id);
+  eq(tueToday.window, { from: "09:30", to: "11:00" }, "today() resolves Tuesday window");
+  const tueFrom = new Date(2026, 10, 24, 9, 0).getTime();
+  const tueTo = new Date(2026, 10, 24, 10, 0).getTime();
+  const fc = R.forecast(tueFrom, tueTo).filter((n) => n.id.indexOf(flex.id) !== -1);
+  eq(fc.length, 1, "forecast fires reminder at Tuesday's 09:30 start");
+
+  /* 2. Editor UI: Per day mode renders, Copy Mon guard works, tightest readout warns, Save persists */
+  K.show("routines", { edit: flex.id }); await app.settle(); await app.settle();
+  assert(q("[data-ui~='routine.sched-mode']"), "Schedule mode toggle rendered");
+  assert(q("[data-ui~='routine.pdays']"), "Per day table opens automatically for routine with dayWindows");
+  const totalTxt = q("[data-ui~='routine.total']").textContent;
+  assert(/Wed/i.test(totalTxt) && /over/i.test(totalTxt), "totalBox flags Wednesday as over-window: " + totalTxt);
+
+  /* Copy Mon -> weekdays updates Tue from 09:30 to 07:00 */
+  click(q("[data-ui~='routine.copy-mon']")); await app.settle();
+  const tueFromIn = q("[data-ui~='routine.pday-from'][data-day='2']");
+  eq(tueFromIn.value, "07:00", "Copy Mon -> weekdays copied Monday start to Tuesday");
+
+  /* Disable Monday -> Copy Mon button becomes disabled */
+  click(q("[data-ui~='routine.pday-toggle'][data-day='1']")); await app.settle();
+  assert(q("[data-ui~='routine.copy-mon']").disabled, "Copy Mon -> weekdays disabled when Monday is off");
+  /* Re-enable Monday and change Tuesday back to 10:00-11:30 then Save */
+  click(q("[data-ui~='routine.pday-toggle'][data-day='1']")); await app.settle();
+  const tueF = q("[data-ui~='routine.pday-from'][data-day='2']");
+  const tueT = q("[data-ui~='routine.pday-to'][data-day='2']");
+  tueF.value = "10:00"; tueF.dispatchEvent(new app.window.Event("change", { bubbles: true }));
+  tueT.value = "11:30"; tueT.dispatchEvent(new app.window.Event("change", { bubbles: true }));
+  click(q("[data-ui~='routine.save']")); await app.settle();
+  eq(R.windowOn(R.get(flex.id), tue), { from: "10:00", to: "11:30" }, "Editor save persisted updated per-day window");
+
+  R.remove(legacy.id);
+  R.remove(flex.id);
+  eq(app.errors, [], "no page errors");
+});
+
 (async () => {
   let failed = 0;
   for (const [name, fn] of steps) {
