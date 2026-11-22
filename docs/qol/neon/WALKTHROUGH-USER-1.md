@@ -108,3 +108,52 @@ slowest: smoke75 134 s, smoke56 105 s, smoke142 41 s, smoke44 22 s, smoke45 18 s
 
 run_smoke: 180 / 180 passed in 293.0 s wall (875 s summed)
 ```
+
+---
+
+## Round 3 · Per-Day Flexible Schedules for Routines & Daily Reviews (U5, U6)
+
+### U5 · Routines: full per-day schedule customisation
+
+- **R1 inspection:** `js/core/routines.js:341–351` (`scheduleOn`) only supported one `window` plus one `weekend` override. All downstream readers (`windowOn`, `pastWindow`, `setRest`, `today`, `notice`, `reviewNear`, `forecast`, `KOS.today`, `KOS.dayReview`, Home, History) already resolved through `windowOn(r, day)`, while `js/modules/rtkit.js:151, :175–182, :212` and `js/modules/routines.js:750–758` still read raw `r.window`.
+- **Commit:** `e3bc8cac` — `feat(custom): U5 — per-day flexible schedule windows for Routines`
+- **Files and lines:**
+  - `js/core/routines.js`: `:134–144` (`normaliseWindow` rejects zero-length windows, added `normaliseDayWindows` for keyed `"0".."6"` map), `:225–226` (`normalise` preserves non-empty `dayWindows`), `:358–366` (`scheduleOn` resolves `dayWindows[dow]` → `weekend.window` → `window`).
+  - `js/modules/rtkit.js`: `:151` (`checklist` passes `day` to `schedText`), `:175–192` (`schedText` shows resolved day window when `day` is given or `varies by day` summary), `:225–226` (`habitTicks` reads `R().windowOn(h, day)`).
+  - `js/modules/routines.js` (lazy `page-routines`): `:746–804` (`paintTotal` computes tightest active day in `Per day` mode, warns in crimson when over, and updates live per-day `+Nm / −Nm` readouts), `:888–1065` (`Simple | Per day` mode switch, guarded `"Copy Mon → weekdays"` disabled when Monday is off or blank, `From`/`Until` column headers, 7-row Mon–Sun schedule editor with interactive off-day toggles).
+  - `css/views/routines.css`: `:237–266` (tokenized `.k-rt-sched-*`, `.k-rt-pday*`, high-contrast off-day rows, crimson over-window bar), `:450–465` & `:512–525` (responsive wrapping at `1240px`, `1080px`, `700px` so time inputs never clip in the real Routine Editor right-hand sidebar).
+  - `tools/smoke199.test.js`: `:231–312` (Step E verified failing before fix and passing after — covers `dayWindows`, legacy weekday/weekend fallback, `pastWindow`, `today()`, `forecast()`, editor `Per day` UI, tightest-day warning, `Copy Mon` + disabled guard, and save persistence).
+- **Verification (run before committing):**
+  - `node --check`, `node tools/gen_lazy_index.mjs --check`, `smoke199` (6/6), `smoke55` (14/14), `smoke101`, `smoke102`, `smoke103`, `smoke104`, `smoke107`, `smoke160`–`164`, `smoke196` — all pass.
+  - Live Chrome inside the real Routine Editor sidebar (`1470×832` `cardW: 432 px / minInputW: 147 px`, `1120×832` `minInputW: 104 px`, `820×1180`, `375×812`, Graphite & Dawn): zero clipping, zero horizontal overflow, clear off-day pills, `From`/`Until` headers aligned.
+
+### U6 · Daily Reviews: full per-day schedule customisation
+
+- **R1 inspection:** `js/core/dayreview.js:144–149` (`slotTime`) returned only `s.weekend` or `s.weekday`, while every consumer (`slots`, `due`, `recent`, `ahead`, `forecast`, `KOS.today`, Home's `"Afternoon review · at HH:MM"`, `routines.js`, `dayreview.js`) already reads `slotTime(slot, day)`.
+- **Commit:** `be732c13` — `feat(custom): U6 — per-day flexible schedule times for Daily Reviews`
+- **Files and lines:**
+  - `js/core/dayreview.js`: `:94–108` (`normalise` validates optional per-slot `days` `"0".."6"` map), `:133–168` (`setConfig` merges per-slot patches cleanly; `slotTime` resolves school holidays to weekend time, otherwise `s.days[dow]` → weekend/weekday fallback).
+  - `js/modules/routines.js` (`settings` tab): `:671–773` (`Simple | Per day` mode switch on `"The three reviews"`, top 3 slot switches with uniform kanji square badges `朝` / `昼` / `夜`, `"Copy Mon → weekdays"` helper, left-aligned `Morning / Afternoon / Evening` headers, 7-row `Mon`–`Sun` time grid).
+  - `css/views/routines.css`: `:266–280` & `:528–534` (uniform `.k-rt-rv-tog` square badges, left-aligned headers/inputs, mobile collapse at `700px`).
+  - `tools/smoke199.test.js`: `:314–364` (Step F verified failing before fix and passing after — covers `slotTime`, `due()` gating on later college days, school holiday weekend fallback, Settings `Per day` grid, `Copy Mon → weekdays`, and clean revert to `Simple`).
+- **Verification (run before committing):**
+  - `node --check`, `node tools/gen_lazy_index.mjs --check`, `smoke199` (7/7), `smoke55` (14/14), `smoke101`–`104`, `smoke107` — all pass.
+  - Live Chrome (`1470×832` `minW: 158 px`, `820×1180`, `375×812`, Graphite & Dawn): uniform rounded square badges on `朝` / `昼` / `夜`, left-aligned headers and inputs, zero overflow.
+
+### Round 3 · Boot bytes
+
+- **End of Round 3 (`be732c13`):** `5,366,226` B (`5.1176 MB`) against the `5,400,166` B (`5.15 MB`) budget — **`33,940` B (`33.14 KB`) free**.
+
+### Round 3 · Full gate summary
+
+```text
+run_smoke: 180 suite run(s), 3 worker(s), 300 s timeout (smoke56, smoke75 900 s), failures re-run alone at the end
+...
+  ok   smoke197      5.0 s
+  ok   smoke199      3.1 s
+  ok   smoke196      8.2 s
+
+slowest: smoke75 148 s, smoke56 113 s, smoke142 55 s, smoke44 25 s, smoke45 18 s
+
+run_smoke: 180 / 180 passed in 361.9 s wall (1083 s summed)
+```
