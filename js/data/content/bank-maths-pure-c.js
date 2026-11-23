@@ -95,13 +95,13 @@ X("maths:7.3", {
     { callout: { t: "warn", body: "In a 'show that $S = \\ldots$' the algebra must be complete and the given form reached exactly. Use the second derivative — not 'it is obviously a minimum' — and give the **value of the quantity**, not only $x$." }}
   ],
   flashcards: [
-    ["Tangent to $y = 2x^3 - 4x + 5$ at $P(2, 13)$?", "$\\dfrac{dy}{dx} = 6x^2 - 4 = 20$: $y - 13 = 20(x - 2)$, i.e. $y = 20x - 27$."],
-    ["Normal to $y = x^2 - 3x$ at $x = 1$?", "Point $(1, -2)$, $\\dfrac{dy}{dx} = -1$, normal gradient 1: $y = x - 3$."],
-    ["Stationary points of $y = x^3 - 3x^2 - 9x + 1$ and their nature?", "$3x^2 - 6x - 9 = 0 \\Rightarrow x = -1, 3$; $y'' = 6x - 6$: max at $(-1, 6)$, min at $(3, -26)$."],
-    ["A closed cylinder has volume $500\\pi$. Show $S = 2\\pi r^2 + \\dfrac{1000\\pi}{r}$.", "$h = \\dfrac{500}{r^2}$; $S = 2\\pi r^2 + 2\\pi r h = 2\\pi r^2 + \\dfrac{1000\\pi}{r}$."],
-    ["Minimise $S = 2\\pi r^2 + \\dfrac{1000\\pi}{r}$.", "$S' = 4\\pi r - \\dfrac{1000\\pi}{r^2} = 0 \\Rightarrow r^3 = 250 \\Rightarrow r = 6.30$; $S'' = 4\\pi + \\dfrac{2000\\pi}{r^3} > 0$ so minimum; $S = 748$."],
-    ["For which $x$ is $y = 2x^3 - 15x^2 + 24x$ decreasing?", "$6x^2 - 30x + 24 < 0 \\Rightarrow (x - 1)(x - 4) < 0 \\Rightarrow 1 < x < 4$."],
-    ["Verify that $x = 2$ is a stationary point of $y = x^3 - 12x$ and classify it.", "$y' = 3x^2 - 12 = 0$ at $x = 2$ ✓; $y'' = 6x = 12 > 0$: minimum."],
+    ["Tangent to $y = 2x^3 - 4x + 5$ at $P(2, 13)$?", "$\\dfrac{dy}{dx} = 6x^2 - 4 = 20$: $y - 13 = 20(x - 2)$, i.e. $y = 20x - 27$.", 9],
+    ["Normal to $y = x^2 - 3x$ at $x = 1$?", "Point $(1, -2)$, $\\dfrac{dy}{dx} = -1$, normal gradient 1: $y = x - 3$.", 10],
+    ["Stationary points of $y = x^3 - 3x^2 - 9x + 1$ and their nature?", "$3x^2 - 6x - 9 = 0 \\Rightarrow x = -1, 3$; $y'' = 6x - 6$: max at $(-1, 6)$, min at $(3, -26)$.", 11],
+    ["A closed cylinder has volume $500\\pi$. Show $S = 2\\pi r^2 + \\dfrac{1000\\pi}{r}$.", "$h = \\dfrac{500}{r^2}$; $S = 2\\pi r^2 + 2\\pi r h = 2\\pi r^2 + \\dfrac{1000\\pi}{r}$.", 12],
+    ["Minimise $S = 2\\pi r^2 + \\dfrac{1000\\pi}{r}$.", "$S' = 4\\pi r - \\dfrac{1000\\pi}{r^2} = 0 \\Rightarrow r^3 = 250 \\Rightarrow r = 6.30$; $S'' = 4\\pi + \\dfrac{2000\\pi}{r^3} > 0$ so minimum; $S = 748$.", 13],
+    ["For which $x$ is $y = 2x^3 - 15x^2 + 24x$ decreasing?", "$6x^2 - 30x + 24 < 0 \\Rightarrow (x - 1)(x - 4) < 0 \\Rightarrow 1 < x < 4$.", 14],
+    ["Verify that $x = 2$ is a stationary point of $y = x^3 - 12x$ and classify it.", "$y' = 3x^2 - 12 = 0$ at $x = 2$ ✓; $y'' = 6x = 12 > 0$: minimum.", 15],
     ["Show $f(x) = x + \\dfrac{4}{x}$ ($x > 0$) has a minimum and find it.", "$f' = 1 - \\dfrac{4}{x^2} = 0 \\Rightarrow x = 2$; $f'' = \\dfrac{8}{x^3} > 0$; minimum value 4.", 17],
     ["A quartic has turning points at $x = -1, 0, 2$; $f'(x) = kx(x+1)(x-2)$. Where is $f'(x) \\ge 0$?", "For $k > 0$: $-1 \\le x \\le 0$ or $x \\ge 2$.", 18]
   ],

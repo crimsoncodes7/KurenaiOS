@@ -403,14 +403,13 @@ C["maths:7.3"] = {
   ],
   flashcards: [
     ["Gradient of the normal at a point where $f'(a) = 2$?", "$-\\frac12$."],
-    ["How do you show a line is a tangent to a curve algebraically?", "Equating gives a repeated root at the point of contact."],
-    ["Nature test when $f''(a) = 0$?", "Check the sign of $f'$ on either side of $a$."],
-    ["$y = 2x^3 - 2x^2 - 2x + 8$ increasing where?", "$6x^2 - 4x - 2 > 0$: $x < -\\frac13$ or $x > 1$."],
-    ["Tank: $\\pi r^2 h + \\frac23\\pi r^3 = 6$; surface area in $r$?", "$S = \\frac{12}{r} + \\frac53\\pi r^2$."],
-    ["Minimise $C = \\frac{1500}{v} + \\frac{2v}{11} + 60$.", "$v^2 = 8250$, $v = 90.8$; $C'' = \\frac{3000}{v^3} > 0$."],
-    ["Area between $y = x^3 - 10x^2 + 27x - 23$ and its tangent $y = 2x - 23$?", "$\\int_0^5 (x^3 - 10x^2 + 25x)dx = \\frac{625}{12}$."],
-    ["Stationary points of $4(x^2 - 2)e^{-2x}$?", "$2 + x - x^2 = 0$: $(2, 8e^{-4})$, $(-1, -4e^2)$."],
-    ["Two tangents to $y = 8x - x^{5/2}$ at $O$ and $A(4, 0)$ meet at…", "$(2.4, 19.2)$; region area $\\frac{384}{35}$."]
+    ["Nature test when $f''(a) = 0$?", "Check the sign of $f'$ on either side of $a$.", 2],
+    ["$y = 2x^3 - 2x^2 - 2x + 8$ increasing where?", "$6x^2 - 4x - 2 > 0$: $x < -\\frac13$ or $x > 1$.", 3],
+    ["Tank: $\\pi r^2 h + \\frac23\\pi r^3 = 6$; surface area in $r$?", "$S = \\frac{12}{r} + \\frac53\\pi r^2$.", 4],
+    ["Minimise $C = \\frac{1500}{v} + \\frac{2v}{11} + 60$.", "$v^2 = 8250$, $v = 90.8$; $C'' = \\frac{3000}{v^3} > 0$.", 5],
+    ["Area between $y = x^3 - 10x^2 + 27x - 23$ and its tangent $y = 2x - 23$?", "$\\int_0^5 (x^3 - 10x^2 + 25x)dx = \\frac{625}{12}$.", 6],
+    ["Stationary points of $4(x^2 - 2)e^{-2x}$?", "$2 + x - x^2 = 0$: $(2, 8e^{-4})$, $(-1, -4e^2)$.", 7],
+    ["Two tangents to $y = 8x - x^{5/2}$ at $O$ and $A(4, 0)$ meet at…", "$(2.4, 19.2)$; region area $\\frac{384}{35}$.", 8]
   ],
   quiz: [
     { q: "Tangent to $y = x^2$ at $(3, 9)$:", opts: ["$y = 6x - 9$", "$y = 6x + 9$", "$y = 3x$", "$y = 9x - 18$"], ans: 0, why: "$m = 6$." },

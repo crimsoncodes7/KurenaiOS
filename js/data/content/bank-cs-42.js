@@ -18,7 +18,7 @@ X("compsci:4.2.1.1", {
     ]}}
   ],
   flashcards: [
-    ["State two advantages of a dynamic data structure over a static one.", "No wasted memory — only what the data needs; it can grow as more items are added, with no fixed limit except hardware."],
+    ["State two advantages of a dynamic data structure over a static one.", "No wasted memory — only what the data needs; it can grow as more items are added, with no fixed limit except hardware.", 9],
     ["When is a static structure's size decided?", "At compile time / before the program runs / when the code is translated.", 11],
     ["Why can a static structure waste memory?", "If the number of items stored is small relative to the declared size, the unused slots are still allocated.", 12],
     ["What is a memory leak?", "Memory allocated dynamically that is no longer needed but never returned to the heap, so it cannot be reused.", 13],

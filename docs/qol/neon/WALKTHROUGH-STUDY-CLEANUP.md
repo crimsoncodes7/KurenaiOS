@@ -628,9 +628,42 @@
 | `it:F206.6.1` | `it:F206.6.1:0` — "Name the three stages of Boud, Keogh and Walker's reflection model." | `q:it:F206.6.1:0` — "What are the three stages of Boud, Keogh and Walker's model?" | Word-for-word duplicate stages of Boud, Keogh and Walker's reflection model (experience, reflective process, outcomes, `c[2]` preserved). |
 ---
 
+## Batch 8 — Cross-Topic Final Deduplication Sweep (`-3` Flashcards, `0` Quizzes, `0` Exam Qs, `0` SRS Key Shifts)
+
+A final cross-topic sweep across all 4,233 exam-subject items (`compsci`, `maths`, `it`) found 3 remaining exact cross-topic duplicates:
+
+| Subject & Topic | Removed Item ID & Exact Question Text | Kept Canonical Item ID & Exact Question Text | Reason |
+|---|---|---|---|
+| `compsci:4.2.1.1` | `compsci:4.2.1.1:7` — "What is data abstraction?" | `compsci:4.4.1.3:compsci:4.4.1.7:0` — "What is data abstraction?" | Exact cross-topic duplicate definition (`c[2]` preserved on `cs-p1-42a.js:8` and `bank-cs-42.js:9`). |
+| `compsci:4.4.1.9` | `compsci:4.4.1.9:compsci:4.4.1.9:9` — "What is procedural decomposition?" | `compsci:4.1.2.1:3` — "What is procedural decomposition?" | Exact cross-topic duplicate definition (kept `compsci:4.1.2.1:3` to preserve minimum deck size; all `c[2]` keys preserved). |
+| `maths:7.3` | `maths:7.3:1` — "How do you show a line is a tangent to a curve algebraically?" | `maths:2.3:5` — "How do you show a line is a tangent to a curve algebraically?" | Exact cross-topic duplicate question (`c[2]` preserved on `maths-pure-p7.js:2..8` and `bank-maths-pure-c.js:9..15`; `js/data/moved-cards.js` preserved). |
+
+---
+
 ## Before / After Counts Summary
 
-*(Finalised in Batch 8 alongside full `SMOKE_JOBS=3 npm test` release gate output.)*
+Baseline recorded at `f26102f5` (start of `neon/study-cleanup-1`) vs final counts after Batch 8:
+
+| Subject / Space | Topics | Flashcards (Before → After / Δ) | Quizzes (Before → After / Δ) | Exam Qs (Before → After / Δ) |
+|---|---:|---:|---:|---:|
+| Computer Science | 131 | 2,000 → **1,892** (`-108`) | 1,419 → **1,385** (`-34`) | 994 → **981** (`-13`) |
+| Mathematics | 89 | 1,485 → **1,332** (`-153`) | 1,074 → **928** (`-146`) | 969 → **954** (`-15`) |
+| IT: Data Analytics | 49 | 698 → **673** (`-25`) | 343 → **341** (`-2`) | 194 → **194** (`0`) |
+| Code | 179 | 1,077 → **1,072** (`-5`) | 568 → **565** (`-3`) | — (258 tasks / 135 cards) |
+| Japanese | 28 | 440 items (`0`) | — | — |
+| Mind | — | 16 concepts / 27 cards (`0`) | — | — |
+| Creatives | 24 | 118 → **118** (`0`) | 0 → **0** (`0`) | 0 → **0** (`0`) |
+| **Total Deduplicated** | — | **`-291` Flashcards** | **`-185` Quizzes** | **`-28` Exam Qs** (**`-504` items**, `0` SRS key shifts) |
+
+### Final Release Gate Output (`neon/study-cleanup-1`)
+
+- `node tools/gen_moved_cards.mjs --check`: `gen_moved_cards: current (78 cards)`
+- `node tools/gen_lazy_index.mjs --check`: `lazy-index.js is current (403 KB)`
+- `node tools/fill_check.mjs`: `fill_check: 987 fig, 208 grid, 28 sql, 37 gates, 53 predict, 12 lab` → `fill_check: OK`
+- `node tools/card_lint.mjs --check`: `compsci 1892 cards · 0 flagged · 0 allowed`, `maths 1332 cards · 0 flagged · 0 allowed`, `it 673 cards · 0 flagged · 0 allowed` → `card_lint: clean (0 allowed)`
+- `node tools/smoke142.test.js`: `all 12 steps passed` (boot bytes `5,359,779` B / `5.1115 MB` against `5,400,166` B / `5.15 MB` cap — **`39.44 KB` free**; `13.80 MB` lazy)
+- `node tools/smoke56.test.js`: `smoke56: 53 surfaces, 1631 controls replayed, 42 rebuilt view(s)` → `ALL PASS`
+- `SMOKE_JOBS=3 npm test`: `run_smoke: 180 / 180 passed in 292.8 s wall (874 s summed)` (`slowest: smoke75 134 s, smoke56 103 s, smoke142 42 s, smoke44 22 s, smoke45 18 s`)
 
 
 ---

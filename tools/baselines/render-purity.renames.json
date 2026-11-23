@@ -11,28 +11,28 @@
       "surface": "home",
       "hooks": "ui.tab",
       "from": "^Review$",
-      "to": "Review 186",
-      "why": "Design turn 40 (17 November 2026): Up next's Review tab counts every queue it splits — the flashcards and each study space's reviews — so the seeded account's tab reads Review 186."
+      "to": "Review 179",
+      "why": "Design turn 40 + Study cleanup Batches 2-8: Up next's Review tab counts every queue it splits, so after cross-subject deduplication the seeded account's tab reads Review 179."
     },
     {
       "surface": "home",
       "hooks": "home.fact",
       "from": "^198 cards due$",
-      "to": "186 cards due",
-      "why": "W6 (CC-07, 16 November 2026): the CS decks' cards that asked the same fact twice were removed, so the seeded account's due flashcards fall from 198 to 186 (154 → 146 overdue)."
+      "to": "179 cards due",
+      "why": "W6 (CC-07) + Study cleanup Batches 2-8: duplicate flashcards were removed across subjects, so the seeded account's due flashcards fall from 198 to 179 (154 -> 143 overdue)."
     },
     {
       "surface": "home",
       "hooks": "habit.tick",
       "from": "^Open: Clear 198 due flashcards \\(154 overdue\\)$",
-      "to": "Open: Clear 186 due flashcards (146 overdue)",
-      "why": "W6 (CC-07, 16 November 2026): the CS decks' cards that asked the same fact twice were removed, so the seeded account's due flashcards fall from 198 to 186 (154 → 146 overdue)."
+      "to": "Open: Clear 179 due flashcards (143 overdue)",
+      "why": "W6 (CC-07) + Study cleanup Batches 2-8: duplicate flashcards were removed across subjects, so the seeded account's due flashcards fall from 198 to 179 (154 -> 143 overdue)."
     },
     {
       "hooks": "shell.rail-item",
       "from": "^学Study198$",
-      "to": "学Study186",
-      "why": "W6 (CC-07, 16 November 2026): the CS decks' cards that asked the same fact twice were removed, so the seeded account's due flashcards fall from 198 to 186 (154 → 146 overdue)."
+      "to": "学Study179",
+      "why": "W6 (CC-07) + Study cleanup Batches 2-8: duplicate flashcards were removed across subjects, so the seeded account's due flashcards fall from 198 to 179 (154 -> 143 overdue)."
     },
     {
       "surface": "home",

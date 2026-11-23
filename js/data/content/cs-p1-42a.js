@@ -134,8 +134,7 @@ C["compsci:4.2.1.1"] = {
     ["What is a dynamic data structure?", "Grows and shrinks at run time; nodes linked by pointers on the heap."],
     ["One disadvantage of a dynamic structure?", "Extra memory for pointers (also: memory leaks, slower direct access)."],
     ["One disadvantage of a static structure?", "Wasted memory if under-used; it can become full."],
-    ["What is data abstraction?", "Hiding how data is represented; building new types from existing ones."],
-    ["Structure for an undo feature?", "A stack."]
+    ["Structure for an undo feature?", "A stack.", 8]
   ],
   quiz: [
     { q: "A structure whose size is fixed at compile time is", opts: ["static", "dynamic", "abstract", "recursive"], ans: 0, why: "A static structure has its size fixed at compile time, while a dynamic one can grow and shrink." },
