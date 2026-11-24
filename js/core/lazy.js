@@ -381,7 +381,7 @@
      stand-in (below), so a route to it is valid from the first moment. */
   var PAGES = {
     money: ["page-money"], governor: ["page-governor", "page-achievements"], code: ["page-code"],
-    mind: ["page-mind"], japanese: ["page-ja"], help: ["page-help"],
+    mind: ["page-mind", "ink-ui"], japanese: ["page-ja"], help: ["page-help"],
     /* the share card and export (reportshare.js) serve Reports and the
        Shrine's poster only: page-share comes with both */
     shrine: ["page-shrine", "page-share", "page-vaults"], reports: ["page-reports", "page-share", "page-vaults"],

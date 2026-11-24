@@ -62,9 +62,10 @@
   /* FR-1.5 — the per-card history panel */
   /* stability: the days until recall falls to 90% (FSRS, core/fsrs.js) */
   function stabText(s) { return s < 1 ? "under a day" : s < 30 ? Math.round(s) + (Math.round(s) === 1 ? " day" : " days") : ivlText(Math.round(s)); }
-  function metricsPanel(card) {
-    var m = KOS.srs.peek(card.key);
-    var mem = KOS.srs.memory(card.key);
+  function metricsPanel(card, srs) {
+    srs = srs || KOS.srs;
+    var m = srs.peek(card.key);
+    var mem = srs.memory(card.key);
     var rows = m ? [
       ["Reviews", String(m.views)],
       ["Current rating", m.lastRating === null ? "—" : RATE_META[m.lastRating].label],
@@ -86,10 +87,11 @@
     return dl;
   }
   /* the card's history as one line: "seen 4× · last Tue 22 Sep · 1 lapse · recall ≈ 87%" */
-  function historyLine(card) {
-    var m = KOS.srs.peek(card.key);
+  function historyLine(card, srs) {
+    srs = srs || KOS.srs;
+    var m = srs.peek(card.key);
     if (!m || !m.views) return "new card — enters the schedule on its first rating";
-    var mem = KOS.srs.memory(card.key);
+    var mem = srs.memory(card.key);
     return ["seen " + m.views + "×", m.last ? "last " + dayName(m.last) : null,
       m.lapses ? m.lapses + (m.lapses === 1 ? " lapse" : " lapses") : null,
       mem ? "recall ≈ " + Math.round(mem.r * 100) + "%" : null,
@@ -146,8 +148,9 @@
       total = graduated + queue.length;
       resumed = reviews > 0;
     })();
+    var srs = opts.srs || KOS.srs;
     function sync(done) {
-      if (ratedN) {
+      if (ratedN && !opts.noSessionLog) {
         if (!runSid) runSid = R.newId();
         var graded = counts.again + counts.hard + counts.good + counts.easy;
         KOS.sessions.upsert(runSid, {
@@ -187,7 +190,7 @@
     /* what each card's record said when the run began: a card rated on
        another device since (a pull landed mid-run) is not asked again */
     var seen0 = {}, mine = {}, skipping = false;
-    cards.forEach(function (c) { seen0[c.key] = (KOS.srs.peek(c.key) || {}).last || null; });
+    cards.forEach(function (c) { seen0[c.key] = (srs.peek(c.key) || {}).last || null; });
     var front = el("div", { class: "k-fc-face", "data-ui": "fc.front" });
     var back = el("div", { class: "k-fc-face", "data-ui": "fc.back", "data-side": "back", "aria-hidden": "true" });
     /* review B: the card turns over (a real flip, not a swap), inside its
@@ -292,12 +295,12 @@
       infoWrap.innerHTML = "";
       if (finished || infoWrap.hidden) return;
       infoWrap.appendChild(el("h3", { class: "k-kicker", text: "Tracking history — this card" }));
-      infoWrap.appendChild(metricsPanel(cur()));
+      infoWrap.appendChild(metricsPanel(cur(), srs));
     }
     function paintDeck() {
       var today = KOS.srs.todayISO(), due = 0, fresh = 0, learnt = 0;
       cards.forEach(function (c) {
-        var m = KOS.srs.peek(c.key);
+        var m = srs.peek(c.key);
         if (!m || !m.due) fresh++;
         else { learnt++; if (m.due <= today) due++; }
       });
@@ -308,16 +311,18 @@
     function badgeHtml(c) {
       var b = "";
       if (opts.showTopic) b += '<span class="k-chip" data-ui="fc.topic">' + KOS.hub.esc(c.sid + " · " + c.ref) + "</span>";
+      if (c.tag) b += '<span class="k-chip" data-ui="fc.tag">' + KOS.hub.esc(c.tag) + "</span>";
+      if (c.concept) b += '<span class="k-chip" data-ui="fc.concept">' + KOS.hub.esc(c.concept) + "</span>";
       if (c.custom) b += '<span class="k-chip" data-ui="fc.custom" data-tone="bloom">' + (c.ai ? "AI · Custom" : "Custom") + "</span>";
       if (c.redo) b += '<span class="k-chip" data-ui="fc.redo">Redo · self-marked</span>';
-      b += '<span class="k-chip" data-tone="muted" data-ui="fc.due">' + KOS.hub.esc(dueLabel(KOS.srs.peek(c.key))) + "</span>";
+      b += '<span class="k-chip" data-tone="muted" data-ui="fc.due">' + KOS.hub.esc(dueLabel(srs.peek(c.key))) + "</span>";
       return b;
     }
     var MARK = '<span class="k-fc-mark" aria-hidden="true">札</span>';
 
     function show() {
       var c = cur();
-      var rec = KOS.srs.peek(c.key);
+      var rec = srs.peek(c.key);
       if (!mine[c.key] && rec && rec.last && rec.last === KOS.srs.todayISO() && rec.last !== seen0[c.key]) { skipElsewhere(c); return; }
       flipped = false;
       KOS.ui.state(stage, "flipped", false);
@@ -341,13 +346,13 @@
       KOS.content.typeset(stage);
       KOS.ui.state(rateRow, "concealed", true);
       RATE_META.forEach(function (r, i) {
-        rateRow.children[i].querySelector("[data-ui~='fc.r-hint']").textContent = ivlText(KOS.srs.preview(c.key, i));
+        rateRow.children[i].querySelector("[data-ui~='fc.r-hint']").textContent = ivlText(srs.preview(c.key, i));
       });
       meter.innerHTML = "";
       for (var i = 0; i < total; i++) {
         meter.appendChild(el("span", { "data-ui": "fc.pip", "data-state": i < graduated ? "done" : i === graduated ? "cur" : null }));
       }
-      history.textContent = historyLine(c);
+      history.textContent = historyLine(c, srs);
       lifeStats.textContent = counts.again + counts.hard + counts.good + counts.easy
         ? "This session: " + counts.again + " again · " + counts.hard + " hard · " + counts.good + " good · " + counts.easy + " easy" : "";
       paintDeck();
@@ -397,14 +402,15 @@
       mine[c.key] = true;
       /* long-term schedule updates on EVERY rating — the FSRS opinion.
          The in-session requeue below is a separate mechanism. */
-      var wasLeech = !!(KOS.srs.peek(c.key) || {}).leech;
-      var rated = KOS.srs.rate(c.key, r);
+      var wasLeech = !!(srs.peek(c.key) || {}).leech;
+      var rated = srs.rate(c.key, r);
       if (pad) pad.logged({ grade: r, card: c.key });
-      if (rated.leech && !wasLeech) {
+      if (rated && rated.leech && !wasLeech) {
         /* phase 2: lapsed too often to keep drilling — it finishes this
            session, then waits in Rework with its topic's notes */
         KOS.ui.toast("This card has lapsed " + rated.lapses + " times — it moves to Rework after this session.");
       }
+      if (opts.onRate) opts.onRate(c, r, rated);
       counts[RATE_META[r].cls]++;
       var tal = opts.split && !c.redo ? sidTally(c) : null;
       if (tal && r === 0) tal.again++;
@@ -415,7 +421,7 @@
       secs += Math.max(0, Math.min(120, Math.round((now - lastAt) / 1000)));
       lastAt = now;
       var idx = queue.shift();
-      if (r === 0) {
+      if (r === 0 && opts.requeueAgain !== false) {
         /* fix it NOW: back into the current session queue, a few cards on
            (or at the end of a short queue) so it resurfaces quickly */
         var at = Math.min(queue.length, 3);
@@ -465,7 +471,7 @@
       if (RUN) R.drop(RUN);
       heldLine.setAttribute("data-run-line", "");
       seen0 = {}; mine = {};
-      cards.forEach(function (c) { seen0[c.key] = (KOS.srs.peek(c.key) || {}).last || null; });
+      cards.forEach(function (c) { seen0[c.key] = (srs.peek(c.key) || {}).last || null; });
       runSid = null; gradN = 0; redoG = 0; ratedN = 0; reviews = 0; secs = 0; lastAt = Date.now();
       total = cards.length;
       queue = cards.map(function (_, i) { return i; });
@@ -541,19 +547,21 @@
      the one place a card's wording changes, and "Edit deck" opens it. A
      deck with no topic page (the Personal Deck) keeps its own form. */
   function managePanel(holder, sid, ref, rerender, opts) {
-    var cards = KOS.srs.cardsFor(sid, ref);
-    var forked = KOS.edits && KOS.edits.has(sid, ref, "flashcards");
-    var inlineCrud = !(opts && (opts.onEdit || opts.editing));
+    opts = opts || {};
+    var srs = opts.srs || KOS.srs;
+    var cards = typeof opts.cards === "function" ? opts.cards() : Array.isArray(opts.cards) ? opts.cards : KOS.srs.cardsFor(sid, ref);
+    var forked = !opts.noCrud && KOS.edits && KOS.edits.has(sid, ref, "flashcards");
+    var inlineCrud = !opts.noCrud && !(opts.onEdit || opts.editing);
     var wrap = el("div", { class: "k-fc-manage", "data-ui": "fc.manage" });
     var head = el("div", { class: "k-sectionhead" }, [
       el("h2", { text: cards.length + (cards.length === 1 ? " card" : " cards") + " in this deck" }),
-      el("span", { class: "k-sectionhead-sub", "data-ui": "part.sub", text: forked
+      el("span", { class: "k-sectionhead-sub", "data-ui": "part.sub", text: opts.deckSub || (forked
         ? "Your edited version of the curriculum's deck."
-        : "Curriculum cards and your own, with each card's review history." })
+        : "Curriculum cards and your own, with each card's review history.") })
     ]);
     var actions = el("span", { class: "k-sectionhead-actions" });
     head.appendChild(actions);
-    if (opts && opts.onEdit && !opts.editing) actions.appendChild(el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "✎ Edit deck", onclick: opts.onEdit }));
+    if (!opts.noCrud && opts.onEdit && !opts.editing) actions.appendChild(el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "✎ Edit deck", onclick: opts.onEdit }));
     wrap.appendChild(head);
     var addHolder = el("div", {});
     if (inlineCrud) {
@@ -567,13 +575,13 @@
     }
     if (!cards.length) {
       wrap.appendChild(KOS.ui.emptyState({ compact: true, mark: "札", title: "No cards yet",
-        body: inlineCrud ? "Add the first card above." : "Edit the deck to write the first card." }));
+        body: inlineCrud ? "Add the first card above." : opts.emptyText || "Edit the deck to write the first card." }));
       holder.appendChild(wrap);
       return;
     }
     var list = el("ol", { class: "k-fc-list", "aria-label": "Cards in this deck" });
     cards.forEach(function (c, i) {
-      var m = KOS.srs.peek(c.key);
+      var m = srs.peek(c.key);
       var detail = el("div", { class: "k-fc-row-detail", hidden: "" });
       var info = el("button", { type: "button", class: "k-fc-row-info", "aria-expanded": "false",
         "aria-label": "Review history for card " + (i + 1), title: "Review history",
@@ -585,7 +593,7 @@
         } }, [m && m.views ? m.views + " review" + (m.views === 1 ? "" : "s") : "new", el("span", { "aria-hidden": "true", text: " ▾" })]);
       var badge = c.custom
         ? el("span", { class: "k-chip", "data-ui": "fc.custom", "data-tone": "bloom", text: c.ai ? "AI · Custom" : "Custom" })
-        : el("span", { class: "k-chip", "data-tone": "muted", text: forked ? "Edited" : "Curriculum" });
+        : el("span", { class: "k-chip", "data-tone": "muted", text: c.tag || (forked ? "Edited" : "Curriculum") });
       var row = el("li", { class: "k-fc-row", "data-ui": "fc.row", "data-state": c.custom ? "custom" : null }, [
         el("span", { class: "k-fc-row-n k-mono", "aria-hidden": "true", text: String(i + 1) }),
         el("div", { class: "k-fc-row-main" }, [
@@ -607,7 +615,7 @@
         ].filter(Boolean)),
         detail
       ]);
-      detail.appendChild(metricsPanel(c));
+      detail.appendChild(metricsPanel(c, srs));
       list.appendChild(row);
       KOS.content.typeset(row);
     });
@@ -619,7 +627,10 @@
   function mount(holder, sid, ref, opts) {
     opts = opts || {};
     holder.innerHTML = "";
-    var cards = KOS.srs.cardsFor(sid, ref);
+    function readCards() {
+      return typeof opts.cards === "function" ? opts.cards() : Array.isArray(opts.cards) ? opts.cards : KOS.srs.cardsFor(sid, ref);
+    }
+    var cards = readCards();
     var mode = "study";
 
     var studyTab = el("button", { type: "button", class: "k-seg-item", "data-ui": "fc.mode", role: "tab", text: "Study", onclick: function () { mode = "study"; render(); } });
@@ -628,7 +639,7 @@
       el("div", { class: "k-seg k-seg--loose", role: "tablist", "aria-label": "Flashcards" }, [studyTab, deckTab]),
       /* a topic page writes cards in the study editor; a deck with no page
          adds them in the deck browser's own form */
-      opts.editing || !opts.onEdit ? null : el("button", { type: "button", class: "k-seg-item k-fc-new", "data-ui": "fc.new", text: "+ New card",
+      opts.noCrud || opts.editing || !opts.onEdit ? null : el("button", { type: "button", class: "k-seg-item k-fc-new", "data-ui": "fc.new", text: "+ New card",
         onclick: function () { opts.onEdit(); } })
     ].filter(Boolean));
     var body = el("div", { class: "k-fc-body" });
@@ -636,7 +647,7 @@
     holder.appendChild(body);
 
     function render() {
-      cards = KOS.srs.cardsFor(sid, ref);
+      cards = readCards();
       [studyTab, deckTab].forEach(function (b, i) {
         var on = (i === 0) === (mode === "study");
         KOS.ui.state(b, "active", on);
@@ -647,8 +658,11 @@
       if (mode === "study") {
         var holder2 = el("div", { class: "k-fc" });
         body.appendChild(holder2);
-        session(holder2, cards, { sid: sid, ref: ref, type: "flashcards", runKey: "fc:" + sid + ":" + ref,
-          emptyText: opts.onEdit ? "No cards on this topic yet — press Edit to write the first one." : "No cards yet — add the first one under Deck." });
+        session(holder2, cards, { sid: sid, ref: ref, type: "flashcards",
+          runKey: opts.runKey === null ? null : opts.runKey || "fc:" + sid + ":" + ref,
+          srs: opts.srs, noSessionLog: opts.noSessionLog, noTally: opts.noTally,
+          requeueAgain: opts.requeueAgain, onRate: opts.onRate,
+          emptyText: opts.emptyText || (opts.onEdit ? "No cards on this topic yet — press Edit to write the first one." : "No cards yet — add the first one under Deck.") });
       } else {
         managePanel(body, sid, ref, render, opts);
       }

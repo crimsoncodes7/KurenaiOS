@@ -228,9 +228,6 @@ button.k-mind-map-t { cursor: pointer; }
 .k-mind-concept-h { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-10); }
 .k-mind-concept p { margin: 0; }
 .k-mind-links { display: flex; flex-wrap: wrap; gap: var(--sp-6); align-items: center; margin: 0; font-size: var(--fs-13); }
-.k-mind-cardlist { display: grid; gap: var(--sp-8); }
-.k-mind-cardrow { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: var(--sp-12); padding: var(--sp-10) var(--sp-14); border-radius: var(--r-10); background: var(--s2); }
-.k-mind-cardrow p { margin: var(--sp-4) 0 0; }
 .k-mind-sources { margin: 0; padding: 0; list-style: none; display: grid; gap: var(--sp-8); }
 .k-mind-chips { display: flex; flex-wrap: wrap; gap: var(--sp-6); }
 .k-mind-ts .k-ts-checkgrid { grid-template-columns: minmax(0, 1fr); }
@@ -257,9 +254,11 @@ button.k-mind-map-t { cursor: pointer; }
 .k-mind-tick { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--sp-10); align-items: center; padding: var(--sp-8) var(--sp-12); border-radius: var(--r-10); background: var(--s2); min-block-size: var(--hit-coarse); cursor: pointer; }
 .k-mind-tick small { color: var(--muted); }
 .k-mind-field { display: grid; gap: var(--sp-4); font-size: var(--fs-13); color: var(--text-2); }
-.k-mind-text, .k-mind-input, .k-mind-select { inline-size: 100%; padding: var(--sp-8) var(--sp-12); border-radius: var(--r-10); border: var(--hairline) solid var(--line); background: var(--s2); color: var(--text); font: inherit; font-size: var(--fs-15); }
+.k-mind-text, .k-mind-input, .k-mind-select { inline-size: 100%; padding: var(--sp-10) var(--sp-14); border: 0; border-radius: var(--r-14); background: var(--s3); color: var(--text); font: inherit; font-size: var(--fs-13-5); }
+.k-mind-text:focus-visible, .k-mind-input:focus-visible, .k-mind-select:focus-visible { outline: var(--focus-width) solid var(--focus-ring); outline-offset: 0; }
+.k-mind-input, .k-mind-select { min-block-size: var(--hit); }
 .k-mind-select { inline-size: auto; }
-.k-mind-text { resize: vertical; line-height: var(--lh-body); }
+.k-mind-text { min-block-size: calc(var(--hit) * 2.2); resize: vertical; line-height: var(--lh-body); }
 .k-mind-obj { padding: var(--sp-10) var(--sp-12); border-radius: var(--r-10); border: var(--hairline) dashed var(--line); display: grid; gap: var(--sp-8); }
 .k-mind-obj summary { cursor: pointer; }
 .k-mind-obj summary small { color: var(--muted); }
@@ -372,15 +371,8 @@ button.k-mind-map-t { cursor: pointer; }
 .k-mind-thumb { display: grid; gap: var(--sp-8); }
 .k-mind-thumb > .k-btn { min-block-size: var(--hit-coarse); justify-content: center; }
 .k-mind-sitnav { grid-template-columns: auto minmax(0, 1fr); }
-.k-mind-flash { display: grid; gap: var(--sp-10); padding: var(--sp-20); border-radius: var(--r-16); background: var(--s2); min-block-size: 14rem; align-content: start; }
-.k-mind-flash-q { font-size: var(--fs-20); line-height: var(--lh-snug); }
-.k-mind-flash-a { margin: 0; padding-block-start: var(--sp-10); border-block-start: var(--hairline) solid var(--line); font-size: var(--fs-16); }
-.k-mind-grades { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-.k-mind-grades > .k-btn { grid-column: 1 / -1; }
-.k-mind-grade { display: grid; gap: var(--sp-2); justify-items: center; align-content: center; min-block-size: var(--mind-grade-h); border-radius: var(--r-12); border: var(--hairline) solid var(--line); background: var(--s2); color: var(--text); font: inherit; cursor: pointer; }
-.k-mind-grade small { color: var(--muted); }
-.k-mind-grade[data-grade="again"] b { color: var(--alarm); }
-.k-mind-grade[data-grade="good"] b { color: var(--green); }
+.k-mind-run-b > .k-fc, .k-mind-cp > .k-fc { inline-size: 100%; }
+.k-mind-cp-self { display: flex; align-items: center; justify-content: center; gap: var(--sp-10); flex-wrap: wrap; margin-block-start: var(--sp-16); }
 .k-mind-dl { margin: 0; display: grid; gap: var(--sp-6); }
 .k-mind-dl > div { display: grid; grid-template-columns: var(--desk-k-w) minmax(0, 1fr); gap: var(--sp-10); padding: var(--sp-8) var(--sp-12); border-radius: var(--r-10); background: var(--s2); }
 .k-mind-dl dt { color: var(--muted); font-size: var(--fs-12-5); }

@@ -506,39 +506,109 @@
       if (run.step === "done") return doneStep();
     }
     function cardsStep() {
-      var k = cp.cards[run.i], cd = M().cardOf(k), shown = false;
-      var face = el("div", { class: "k-mind-flash", "data-ui": "mind.cp-card" }, [el("span", { class: "k-mono k-muted", text: "Card " + (run.i + 1) + " of " + cp.cards.length }), el("b", { class: "k-mind-flash-q", text: cd.q })]);
-      var ans = el("p", { class: "k-mind-flash-a", hidden: "", text: cd.a });
-      var btns = el("div", { class: "k-mind-row" });
-      face.appendChild(ans);
-      box.appendChild(face);
-      box.appendChild(btns);
+      var k = cp.cards[run.i], cd = M().cardOf(k), flipped = false;
+      var wrap = el("div", { class: "k-fc", "data-ui": "mind.cp-card" });
+      var pips = el("div", { class: "k-fc-pips", "aria-hidden": "true" }, cp.cards.map(function (_, idx) {
+        return el("span", { "data-state": idx < run.i ? "done" : idx === run.i ? "cur" : null });
+      }));
+      var front = el("div", { class: "k-fc-face", "data-ui": "fc.front" }, [
+        el("span", { class: "k-fc-mark", "aria-hidden": "true", text: "札" }),
+        el("span", { class: "k-fc-kind k-fc-count", text: "Card " + (run.i + 1) + " of " + cp.cards.length }),
+        el("div", { class: "k-fc-text", text: cd.q }),
+        el("span", { class: "k-fc-hint", text: "press to flip" })
+      ]);
+      var back = el("div", { class: "k-fc-face", "data-ui": "fc.back", "data-side": "back", "aria-hidden": "true" }, [
+        el("span", { class: "k-fc-mark", "aria-hidden": "true", text: "札" }),
+        el("span", { class: "k-fc-kind k-fc-count", text: "Answer" }),
+        el("div", { class: "k-fc-text", text: cd.a }),
+        el("span", { class: "k-fc-q", text: "Q · " + cd.q })
+      ]);
+      var stage = el("button", { type: "button", class: "k-fc-card", "data-ui": "fc.card", "aria-label": "Flashcard — press to flip", onclick: flip }, [
+        el("span", { class: "k-fc-inner" }, [front, back])
+      ]);
+      var stack = el("div", { class: "k-fc-stack" }, [el("span", { class: "k-fc-under", "aria-hidden": "true" }), stage]);
+      var btns = el("div", { class: "k-mind-cp-self" });
+      var note = el("small", { class: "k-muted", text: "Self-marked: it moves no schedule." });
+      function grade(v) {
+        run.cards += v; run.i++;
+        if (run.i >= cp.cards.length) { run.step = "apply"; run.i = 0; }
+        save(); draw();
+      }
+      function flip() {
+        flipped = !flipped;
+        KOS.ui.state(stage, "flipped", flipped);
+        front.setAttribute("aria-hidden", String(flipped));
+        back.setAttribute("aria-hidden", String(!flipped));
+        paint();
+      }
       function paint() {
         btns.innerHTML = "";
-        if (!shown) { btns.appendChild(el("button", { type: "button", class: "k-btn k-btn--primary", text: "Show the answer", onclick: function () { shown = true; ans.hidden = false; paint(); } })); return; }
-        [["Had it", 1], ["Not quite", 0]].forEach(function (g) {
-          btns.appendChild(el("button", { type: "button", class: "k-btn", text: g[0], onclick: function () {
-            run.cards += g[1]; run.i++; if (run.i >= cp.cards.length) { run.step = "apply"; run.i = 0; } save(); draw(); } }));
-        });
-        btns.appendChild(el("small", { class: "k-muted", text: "Self-marked: it moves no schedule." }));
+        if (!flipped) {
+          btns.appendChild(el("button", { type: "button", class: "k-btn k-btn--primary", text: "Show answer", onclick: flip }));
+          return;
+        }
+        btns.appendChild(el("button", { type: "button", class: "k-btn k-btn--primary", text: "Had it", onclick: function () { grade(1); } }));
+        btns.appendChild(el("button", { type: "button", class: "k-btn", text: "Not quite", onclick: function () { grade(0); } }));
+        btns.appendChild(note);
       }
+      function onKey(e) {
+        if (!wrap.isConnected) { document.removeEventListener("keydown", onKey); return; }
+        if (e.metaKey || e.ctrlKey || e.altKey) return;
+        var t = e.target; if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName || ""))) return;
+        if (e.key === " " || e.key === "Enter") { e.preventDefault(); flip(); }
+        else if (flipped && e.key === "1") { e.preventDefault(); grade(1); }
+        else if (flipped && e.key === "2") { e.preventDefault(); grade(0); }
+      }
+      document.addEventListener("keydown", onKey);
+      wrap.appendChild(pips);
+      wrap.appendChild(stack);
+      wrap.appendChild(btns);
+      box.appendChild(wrap);
       paint();
     }
     function applyStep() {
       var it = cp.apply[run.i], ans = run.ans;
-      box.appendChild(el("span", { class: "k-mono k-muted", text: "Scenario " + (run.i + 1) + " of " + cp.apply.length }));
-      box.appendChild(el("h3", { class: "k-mind-vote-q", text: it.q }));
-      box.appendChild(el("div", { class: "k-mind-opts", role: "group", "aria-label": "Answers" }, it.options.map(function (op, i) {
+      var card = el("div", { class: "k-card k-qz-card" });
+      card.appendChild(el("div", { class: "k-qz-head" }, [
+        el("span", { class: "k-qz-title", text: "Scenario " + (run.i + 1) + " of " + cp.apply.length }),
+        el("span", { class: "k-chip", text: "Apply" })
+      ]));
+      card.appendChild(el("div", { class: "k-qz-q", text: it.q }));
+      function pick(i) {
+        if (ans != null) return;
+        run.ans = i; if (i === it.a) run.apply[run.i] = true; save();
+        announce(i === it.a ? "Right." : "Not quite."); draw();
+      }
+      function next() {
+        run.ans = null; run.i++; if (run.i >= cp.apply.length) { run.step = "map"; run.i = 0; }
+        save(); draw();
+      }
+      card.appendChild(el("div", { class: "k-qz-opts", role: "group", "aria-label": "Answers" }, it.options.map(function (op, i) {
         var st = ans != null ? (i === it.a ? "right" : i === ans ? "wrong" : null) : null;
-        return el("button", { type: "button", class: "k-mind-opt", "data-state": st, disabled: ans != null ? "" : null, onclick: function () {
-          run.ans = i; if (i === it.a) run.apply[run.i] = true; save(); announce(i === it.a ? "Right." : "Not quite."); draw(); } },
-          [el("span", { class: "k-mono", "aria-hidden": "true", text: "ABCD"[i] }), op, st === "right" ? el("span", { class: "k-mind-mark", text: " ✓ Right" }) : st === "wrong" ? el("span", { class: "k-mind-mark", text: " ✗ Not this" }) : null].filter(Boolean));
+        return el("button", { type: "button", class: "k-qz-opt", "data-state": st, disabled: ans != null ? "" : null, onclick: function () { pick(i); } }, [
+          el("span", { class: "k-qz-letter", "aria-hidden": "true", text: "ABCD"[i] }),
+          el("span", { class: "k-qz-opt-t", text: op }),
+          st === "right" ? el("span", { class: "k-qz-verdict", text: "✓ Right" }) : st === "wrong" ? el("span", { class: "k-qz-verdict", text: "✗ Not this" }) : null
+        ].filter(Boolean));
       })));
       if (ans != null) {
-        box.appendChild(el("p", { class: "k-mind-why", role: "status", text: it.why }));
-        box.appendChild(el("button", { type: "button", class: "k-btn k-btn--primary", text: "Next ›", onclick: function () {
-          run.ans = null; run.i++; if (run.i >= cp.apply.length) { run.step = "map"; run.i = 0; } save(); draw(); } }));
+        card.appendChild(el("p", { class: "k-qz-why", role: "status", text: it.why }));
+        card.appendChild(el("div", { class: "k-qz-foot" }, [
+          el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "Next ›", onclick: next })
+        ]));
       }
+      function onKey(e) {
+        if (!card.isConnected) { document.removeEventListener("keydown", onKey); return; }
+        if (e.metaKey || e.ctrlKey || e.altKey) return;
+        var t = e.target; if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName || ""))) return;
+        if (ans == null) {
+          var idx = "1234".indexOf(e.key);
+          if (idx < 0) idx = "abcd".indexOf(String(e.key || "").toLowerCase());
+          if (idx >= 0 && idx < it.options.length) { e.preventDefault(); pick(idx); }
+        } else if (e.key === "Enter" || e.key === "ArrowRight") { e.preventDefault(); next(); }
+      }
+      document.addEventListener("keydown", onKey);
+      box.appendChild(card);
     }
     function mapStep() {
       var rows = run.map || cp.map.claims.map(function (t, i) { return { id: "c" + i, t: t, j: null, d: 0 }; });
@@ -673,30 +743,32 @@
       return q.kind === "parked" ? "A parked prompt · " + q.lesson : q.kind === "revisit" ? "A revisit · your " + q.lesson + " position" : q.kind === "tension" ? "A tension between two answers"
         : q.kind === "field" ? "Field Guide · name it" : q.sunday ? "The Big Question · Sunday synthesis" : "The week's Big Question";
     }
-    /* part 1 · reviews: one card at a time, self-graded on FSRS, logged as ONE entry */
+    /* part 1 · reviews: canonical KOS.flashcards.session over Mind's FSRS cards,
+       logged as ONE Mind ledger entry on completion (invariant 137) */
     function reviews() {
       var queue = M().due(t).filter(function (k) { return !d.results.some(function (r) { return r.key === k; }); });
       if (!queue.length) {
         if (d.results.length && !d.logged) { var out = M().finishReviews(d.results); d.logged = true; d.paid = out.paid; save(); announce("Reviews done."); }
         return nextAfter("reviews");
       }
-      var k = queue[0], cd = M().cardOf(k), n = d.results.length + 1, total = d.results.length + queue.length, shown = !!d.shown;
-      var pv = M().preview(k);
-      body.appendChild(el("div", { class: "k-mind-flash", "data-ui": "mind.daily-card" }, [
-        el("span", { class: "k-mono k-muted", text: "Card " + n + " of " + total }),
-        cd.kind === "distinction" ? el("span", { class: "k-kicker", text: "Key distinction" }) : null,
-        el("b", { class: "k-mind-flash-q", text: cd.q }),
-        shown ? el("p", { class: "k-mind-flash-a", text: cd.a }) : null,
-        shown ? el("small", { class: "k-muted", text: cd.concept.name + (cd.concept.lesson ? " · " + cd.concept.lesson : "") }) : null
-      ].filter(Boolean)));
-      var g = el("div", { class: "k-mind-thumb k-mind-grades", role: "group", "aria-label": shown ? "How well did you recall it?" : "Answer" });
-      if (!shown) g.appendChild(el("button", { type: "button", class: "k-btn k-btn--primary", "data-ui": "mind.show-answer", text: "Show the answer", onclick: function () { d.shown = true; save(); draw(); } }));
-      else [["Again", 1, "again"], ["Hard", 2, "hard"], ["Good", 3, "good"], ["Easy", 4, "easy"]].forEach(function (x) {
-        g.appendChild(el("button", { type: "button", class: "k-mind-grade", "data-ui": "mind.grade", "data-grade": x[2], onclick: function () {
-          var r = M().rateCard(k, x[1]); d.results.push({ key: k, grade: x[1] }); d.shown = false; save();
-          announce(x[0] + ". Back in " + r.ivl + (r.ivl === 1 ? " day." : " days.")); draw(); } }, [el("b", { text: x[0] }), el("small", { class: "k-mono", text: pv[x[2]] + " d" })]));
+      var GRADE_LABELS = ["Again", "Hard", "Good", "Easy"];
+      var fcWrap = el("div", { class: "k-fc", "data-ui": "fc.wrap mind.daily-card" });
+      body.appendChild(fcWrap);
+      KOS.flashcards.session(fcWrap, mindCardList(queue), {
+        srs: mindSrs(),
+        noSessionLog: true,
+        noTally: true,
+        requeueAgain: false,
+        onRate: function (c, idx, rated) {
+          d.results.push({ key: c.key, grade: idx + 1 });
+          save();
+          if (rated) announce(GRADE_LABELS[idx] + ". Back in " + rated.ivl + (rated.ivl === 1 ? " day." : " days."));
+        },
+        onFinish: function () {
+          if (d.results.length && !d.logged) { var out = M().finishReviews(d.results); d.logged = true; d.paid = out.paid; save(); announce("Reviews done."); }
+          nextAfter("reviews");
+        }
       });
-      body.appendChild(g);
     }
     /* part 2 · the sitting: the lesson's pages, from the first unread to the sitting's break */
     function sitting() {
@@ -810,5 +882,60 @@
     draw();
   }
 
-  KOS.mindPages = { checkpoint: checkpoint, journalRow: journalRow, when: when, allEntries: allEntries, tensionCard: tensionCard };
+  /* Mind SRS adapter for the canonical KOS.flashcards engine: reads and writes
+     state.mind.cards["<concept>:<i>"] without touching state.srs or state.study.fc. */
+  function mindCardList(keys) {
+    return (keys || []).map(function (k) {
+      var cd = M().cardOf(k);
+      if (!cd) return null;
+      return {
+        key: k,
+        q: cd.q,
+        a: cd.a,
+        tag: cd.kind === "distinction" ? "Key distinction" : null,
+        concept: cd.concept ? cd.concept.name + (cd.concept.lesson ? " · " + cd.concept.lesson : "") : null
+      };
+    }).filter(Boolean);
+  }
+  function mindSrs() {
+    var GK = ["again", "hard", "good", "easy"];
+    return {
+      peek: function (k) {
+        var s = M().peek().cards[k];
+        if (!s) return null;
+        return {
+          views: (s.reps || 0) + (s.lapses || 0),
+          last: s.last || null,
+          due: s.due || null,
+          ivl: s.ivl || 0,
+          lapses: s.lapses || 0,
+          lastRating: s.g ? s.g - 1 : null,
+          leech: null,
+          cap: null
+        };
+      },
+      memory: function (k) {
+        var s = M().peek().cards[k];
+        if (!s || (!s.reps && !s.s)) return null;
+        var m = KOS.fsrs.recordMemory(s, KOS.srs.weights());
+        if (!m) return null;
+        var el = s.last ? Math.max(0, KOS.srs.daysBetween(s.last, KOS.srs.todayISO())) : 0;
+        return { s: m.s, d: m.d, r: KOS.fsrs.recall(m.s, el) };
+      },
+      preview: function (k, idx) {
+        var pv = M().preview(k);
+        return pv[GK[idx]] || 1;
+      },
+      rate: function (k, idx) {
+        if (!M().peek().cards[k]) {
+          var cd = M().cardOf(k);
+          if (cd && cd.concept) M().introduce(cd.concept.id);
+        }
+        var r = M().rateCard(k, idx + 1);
+        return r ? { key: k, grade: r.grade, ivl: r.ivl, due: r.due, lapses: (M().peek().cards[k] || {}).lapses || 0 } : null;
+      }
+    };
+  }
+
+  KOS.mindPages = { checkpoint: checkpoint, journalRow: journalRow, when: when, allEntries: allEntries, tensionCard: tensionCard, srs: mindSrs, cards: mindCardList };
 })();
