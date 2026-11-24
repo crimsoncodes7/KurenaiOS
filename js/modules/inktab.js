@@ -112,6 +112,9 @@
        ink of the page in use, or on the next page when it does not fit */
     var dk = KOS.inkUI.desk({ placeImage: function (sf, src, iw, ih, extra) { placeOn(sf, src, iw, ih, extra, "the picture"); return true; } });
     var sheets = [], io = null, unkey = null, destroyed = false;
+    /* Keep an active Handwriting tab from being auto-torn down by safePoint("idle")
+       during background syncs; manual Refresh still works and leaving the tab releases it. */
+    if (KOS.view && KOS.view.hold) KOS.view.hold(function () { return !destroyed && root.isConnected; });
 
     function written() { return I.written(key); }
     function related() {
