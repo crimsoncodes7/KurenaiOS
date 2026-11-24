@@ -65,7 +65,7 @@
         if (c.by === "condition") {
           body.appendChild(el("div", { class: "k-art-conds" }, CONDS.map(function (k) {
             var cur = (c.conds || {})[k[0]] || "";
-            var sel = el("select", { class: "k-input k-input--sm", "aria-label": k[1] + ": picture" },
+            var sel = el("select", { class: "k-input", "aria-label": k[1] + ": picture" },
               [el("option", { value: "", text: "Off" })].concat(list.map(function (p) { return el("option", { value: p.id, text: p.name }); })));
             sel.value = cur;
             sel.addEventListener("change", function () { var cs = Object.assign({}, c.conds || {}); cs[k[0]] = sel.value || null; save({ conds: cs }); });
