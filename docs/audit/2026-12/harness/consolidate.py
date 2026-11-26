@@ -59,6 +59,16 @@ def read_jsonl(path):
 
 
 def load(area):
+    st, summary, cov, fs = _load(area)
+    # the copy pass (the user's own data, slot 7) writes <area>.copy.jsonl, ids <prefix>-90 upward
+    cp = os.path.join(FD, area + ".copy.jsonl")
+    if os.path.exists(cp):
+        have = set(f.get("id") for f in fs)
+        fs = fs + [dict(f, copyPass=True) for f in read_jsonl(cp) if f.get("id") not in have]
+    return st, summary, cov, fs
+
+
+def _load(area):
     final, part = os.path.join(FD, area + ".json"), os.path.join(FD, area + ".jsonl")
     if os.path.exists(final):
         o = json.load(open(final))
