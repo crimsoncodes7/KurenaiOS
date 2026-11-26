@@ -38,11 +38,16 @@ and no provider is ever called. Nothing touches production or the real account.
   calendar, reminders, assignments, plan, money).
 - **sample**: the app's own Sample account (`KOS.dataMode` "sample").
 - **empty**: the app's own Empty account (`KOS.dataMode` "empty").
-- **copy**: the user's own data, restored from a full backup into a slot's
-  default namespace. **Not run in Batch 1:** the backup path was not supplied.
-  When it is, each batch's areas get a copy pass. Privacy: screenshots of the
-  copy are never committed, and no finding quotes a Journal entry, a note's
-  text or a Money amount from it.
+- **copy**: the user's own data — their full backup of 26 Nov restored by the
+  app's own `KOS.store.importFull` into harness **slot 7**, started with
+  `KOS_OFFLINE=1` so its Chrome reaches no host but 127.0.0.1 (no cloud, no
+  provider). Signed out. The file sits in the git-ignored
+  `audit-evidence/2026-12/copy/`. Batch 1's areas get one copy pass after
+  their auditors finish; later batches use slot 7 as their fourth account.
+  **Privacy:** screenshots of the copy stay in the evidence folder and are
+  never committed; no finding quotes a Journal entry, a note's text, a
+  message or a Money amount from it — describe the shape ("a 3-line note",
+  "an amount over £1,000") instead.
 
 ## Viewports
 

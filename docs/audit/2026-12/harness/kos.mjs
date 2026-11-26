@@ -6,6 +6,7 @@
 
    node kos.mjs start <n>                 start server + chrome (idempotent)
    node kos.mjs stop <n>
+   KOS_OFFLINE=1 node kos.mjs start <n>   the slot's Chrome reaches no host but 127.0.0.1 (the copy account)
    node kos.mjs seed <n>                  seed the dense sample account (responsive_audit's seeder)
    node kos.mjs reset <n>                 wipe storage (all namespaces) and reload
    node kos.mjs account <n> <mine|empty|sample>
@@ -45,7 +46,9 @@ async function start() {
   }
   if (!await up(`http://127.0.0.1:${CDP}/json/version`)) {
     spawn(CHROME, ["--headless=new", `--remote-debugging-port=${CDP}`, `--user-data-dir=/tmp/kosqa-${n}`,
-      "--no-first-run", "--no-default-browser-check", "--hide-scrollbars", "--window-size=1470,832", URL0],
+      "--no-first-run", "--no-default-browser-check", "--hide-scrollbars", "--window-size=1470,832",
+      /* KOS_OFFLINE=1: every host but this machine is unreachable (the copy slot: no cloud, no provider) */
+      ...(process.env.KOS_OFFLINE ? ["--host-resolver-rules=MAP * ~NOTFOUND , EXCLUDE 127.0.0.1"] : []), URL0],
       { detached: true, stdio: "ignore" }).unref();
   }
   for (let i = 0; i < 120; i++) { if (await up(`http://127.0.0.1:${CDP}/json/version`) && await up(URL0)) break; await sleep(500); }
