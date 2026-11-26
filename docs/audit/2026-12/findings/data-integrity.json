@@ -1,0 +1,318 @@
+{
+ "area": "data-integrity",
+ "summary": "No P0. One P1: taking a document in place (cloud land, another tab's write, Restore) aliases two rows that share an id, silently overwriting one (DI-33) — proven on Daily Review picks with ordinary pre-1A ids and on duplicate-id ledger entries. P2s: the re-key misses four stored event/session ids (DI-28); a first link drops U4 Pacing row customisations (DI-29); orphaned question schedules from the 504-item clean-up count and take daily cap slots for ever (DI-30). P3s: the Wall showcase merges position by position (DI-31); a deleted exam attempt returns for a sync cycle (DI-32). November's 27: all fixed except DI-03, whose definition of user data missed Phase 1's new fields (DI-29).",
+ "coverage": "Code reading of js/core/cloudmerge.js (RECORDS refs, rekey, sets, atomic lists), store.js (applyDoc/assignDeep/assignList, replaceState, tally, snapshotFull/importFull), cloudsync.js (userData, stripSeeds, SETTINGS), errorlog.js, attempts.js, inksync.js, money.js (typed match, adopt), questions.js, sessions.js, goals.js (new types), jasrs.js (unleech), ext.js/extgcal.js/exttasks.js (bookkeeping, EF shapes). Runtime: Node test harness (tools/lib/app-harness.js, fake IndexedDB, injected fake clouds; no network) for two-device merges, a full backup round trip into an empty device, orphaned schedules, attempts replication and in-place apply; 16 DI smoke suites re-run, all pass (114,124,126,127,129,133,134,135,141,143,147,150,17,188,196,81). Harness slot 5 started and seeded (dense) but browser probes were not needed beyond that; one harness eval on the dense namespace was refused by the permission system, so the duplicate-id scan ran on tools/lib/seed.js's account instead. NOT covered: the user's own data copy (not available — so DI-33's ledger case and DI-30's orphan count are unmeasured on real data); Supabase, kos_* tables and the undeployed EF-01–EF-08 functions were read, never called (the client's ext-token handler reads both the old and the new 503 {error,kind} shapes); real Todoist/Google; Money's Confirm all / Bookkeeper and the Imports route (left to money-goals); KOS.repairs plans were not re-run; iPad/print paths are not in this area.",
+ "findings": [
+  {
+   "id": "DI-28",
+   "severity": "P2",
+   "category": "data",
+   "title": "The merge's re-key misses four stored event/session ids: a session's metrics.eventId, focus.active.eventId, an assessment's links.calendarId and a correction's metrics.reverses",
+   "detail": "Invariant 33a says EVERY place an id is stored is listed in RECORDS[].refs, so a re-keyed record keeps its links. Measured with KOS.cloudmerge.merge in the test harness (merge_refs.js T1, T3): a first link (no base) of two devices that each hold an old numeric calendar event id 7 (pre-1A records keep their numbers) re-keys the local event to 8 and rewrites calendar.notified, goals links.eventId and the Daily Review picks, but leaves (a) the local Focus session's metrics.eventId = 7, (b) focus.active.eventId = 7 and (c) the local assessment's links.calendarId = 7 all pointing at the REMOTE event 7 ('CS deadline'). (a) is read by Today's directives (js/modules/todo.js:42, HR-29: minutes worked on an event are counted BY metrics.eventId), so that day's 50 study minutes count towards the other device's deadline and the study block loses them; (b) is logged into metrics.eventId when the running session ends (js/modules/focus.js:743); (c) feeds the derived event's alertKey (js/core/exams.js:484). Likewise a re-keyed session (sessions are counter ids and are re-keyed, T3: local 2 -> 4) leaves its Undo correction's metrics.reverses = 2 naming the remote quiz entry (written js/core/sessions.js:231; nothing reads it today, so (d) is latent). New events have random ids since 1A, so the window is: pre-1A numeric events, or any no-base merge (first link of two devices with history).",
+   "rootCause": "js/core/cloudmerge.js:63-66 — the calendar.events spec lists refs notified, goals links.eventId and review only; no {kind:'deep', path:'sessions', field:'metrics.eventId'}, {kind:'deep', path:'focus.active', one:true, field:'eventId'} or {kind:'deep', path:'exams.assessments', map:true, field:'links.calendarId'}; the sessions spec (cloudmerge.js:52) has no refs at all (metrics.reverses).",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/data-integrity/merge_refs.js — T1 {rekeyed:2, events:[[8,'Maths study block'],[7,'CS deadline']], sessions:[[3,'media',null],[4,'focus',7]], focusActiveEventId:7, assessmentCalendarId:7}; T3 correction [3,'correction',2] after local 2 re-keyed to 4; run twice, same result",
+   "fix": "Add the three deep refs to calendar.events and a {kind:'deep', path:'sessions', field:'metrics.reverses'} ref to sessions in RECORDS; extend smoke143 D's every-place check to them.",
+   "effort": "S",
+   "devices": [
+    "mac",
+    "ipad"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": "1A (62e9e162) — random ids for new events narrowed but did not close it",
+   "regressionOf": null,
+   "invariants": [
+    "33a"
+   ]
+  },
+  {
+   "id": "DI-29",
+   "severity": "P2",
+   "category": "data",
+   "title": "A first link drops this device's Pacing row customisations (U4 hidden, order, day): pacingTouched does not see them, so the account's plan replaces it",
+   "detail": "U4 added per-row `hidden`, `order` and `day` to Pacing rows. The first-link (no-base) merge replaces this device's whole `pacing` with the account's whenever `pacingTouched` says the device never touched its plan (stripSeeds, js/core/cloudsync.js:474), and `KOS.cloudsync.userData` uses the same test to decide whether the device holds data at all. Measured in the test harness (userdata_u4.js, run twice): on a pristine boot (252 seeded rows) setting entries[0].hidden = true, or order on two rows, or day = 4, leaves userData() === null; flipping `done` returns 'pacing'. So a device whose plan edits are only hides, reorders or weekday moves (and any device at all, when its other data is elsewhere) has those edits overwritten by the account's plan on its first sign-in: hidden rows come back, the order and weekdays reset. The same test also ignores the Daily Review's configuration (`dayReview.config`, incl. U6's per-day slot times): a device whose only change is its review times reads as pristine (userData null) and adopts the account's.",
+   "rootCause": "js/core/cloudsync.js:384-397 — pacingTouched compares done, note, sat, lessonDays, tag, wb and title against the seed row, not hidden, order or day; js/core/cloudsync.js:474 take('pacing') then replaces the device's plan; dayReview.config is in neither SETTINGS (321) nor EVIDENCE_MAPS (306).",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/data-integrity/userdata_u4.js → {\"pristine\":null,\"rows\":252,\"hidden\":null,\"order\":null,\"day\":null,\"done\":\"pacing\",\"reviewCfg\":null,\"errorLogSettings\":null}",
+   "fix": "In pacingTouched compare !!e.hidden, e.order and e.day with the seed row (seed rows have none); count a dayReview.config that differs from KOS.dayReview's defaults as a SETTINGS entry. Add both to smoke135/smoke143's userData cases.",
+   "effort": "S",
+   "devices": [
+    "mac",
+    "ipad"
+   ],
+   "accounts": [
+    "empty"
+   ],
+   "phase1": "U4 (Pacing row hidden/order/day), U6 (per-day review slots)",
+   "regressionOf": "DI-03",
+   "invariants": [
+    "34",
+    "84"
+   ]
+  },
+  {
+   "id": "DI-30",
+   "severity": "P2",
+   "category": "data",
+   "title": "A question schedule whose item is gone (504 removed by the study clean-up, or a fork deletion) is still due for ever: it is counted in 'questions back today' and takes one of the subject's daily cap slots",
+   "detail": "KOS.questions.dueToday() reads every q:/e: key in state.srs (scheduled(), js/core/questions.js:163-170) without asking whether the item still exists; the Due run then passes over a key whose item is gone (js/modules/due.js:341-344). Nothing ever moves or drops that schedule, so it stays overdue for ever. Measured in the test harness (orphan_one.js, twice): 10 real compsci 4.2.1.1 questions due today plus the schedule of q:compsci:4.2.1.1:4 ('Which statement about a static data structure is correct?', removed by the clean-up 3ca78aa5) → dueToday() {total:10, waiting:1, by.compsci:{due:11, cap:10, left:10}}, the orphan holds a cap slot, only 9 runnable, and one real question is pushed to 'waiting'. The Review page's count (due.js:114, 142, 159) says 10 questions while the run serves 9. With N orphans in a subject, N of its 10 daily slots are lost every day; at 10 the subject's questions never come back. Flashcards are not affected (dueCards walks allCards, js/core/srs.js:468), but Home's 'learnt' fact counts every srs key with reps > 0, orphans included (js/modules/home.js:1050). Invariant 87/111c keys themselves hold: the kept items carry their old place (`oi` / third element), spot-checked on 4.2.1.1 (quiz ids 0,1,2,3,5..9; exam 0..3). The user's own data copy was not available, so how many orphans the real account holds is not measured; questions joined the schedule on 16 Nov, so any removed item answered since then is one.",
+   "rootCause": "js/core/questions.js:163-170 — scheduled() lists keys from state.srs, not from the effective material; dueToday() (174-201) counts and caps them before the page resolves them with itemOf().",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/data-integrity/orphan_one.js → {\"orphanResolves\":false,\"total\":10,\"waiting\":1,\"by\":{\"due\":11,\"cap\":10,\"done\":0,\"left\":10},\"orphanTakesSlot\":true,\"realInList\":9,\"runnable\":9}; ids_421.js (4.2.1.1 ids after the clean-up)",
+   "fix": "In dueToday skip a key whose itemOf() is null once its topic's material is loaded (KOS.lazy: a not-yet-loaded topic must not be judged gone), so it neither counts nor takes a cap slot; leave the srs record (a restored item comes back with its schedule). Count Home's 'learnt' over existing cards/questions only.",
+   "effort": "S",
+   "devices": [
+    "mac",
+    "ipad",
+    "iphone"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": "Study clean-up (3ca78aa5, 504 items removed)",
+   "regressionOf": null,
+   "invariants": [
+    "111c",
+    "87"
+   ]
+  },
+  {
+   "id": "DI-31",
+   "severity": "P3",
+   "category": "data",
+   "title": "The Wall showcase is an ordered list merged position by position: two devices reordering it can double one badge and silently drop another",
+   "detail": "state.achievements.showcase (up to six badge ids, in order) is not under ATOMIC_PREFIX, so when both devices changed it and the lengths match the merge combines it element by element (cloudmerge.js mergeValue, same-length primitive arrays). Measured with KOS.cloudmerge.merge: base [a,b,c], local [b,a,c], remote [a,c,b] → [b,a,b]; KOS.achievements' normaliser then removes the duplicate (js/core/achievements.js:79), so 'c' leaves the showcase on both devices. Phase 1 (achievements-governor#3, a41c4675) made the Wall autosave every move, so each drag is now a saved change that can meet the other device's. The invariant text for ATOMIC_PREFIX names exactly this failure for the Shrine's tie orders.",
+   "rootCause": "js/core/cloudmerge.js:161 — ATOMIC_PREFIX lists media.shrine.order. and srsCfg.fit.w only; achievements.showcase falls to the element-wise primitive-array branch (cloudmerge.js:520-523).",
+   "evidence": "node -e merge probe (run twice): [[\"b\",\"a\",\"b\"],[\"b\",\"a\",\"d\",\"c\"]] for the two cases; js/core/achievements.js:79, 532",
+   "fix": "Add \"achievements.showcase\" to ATOMIC_PREFIX (a both-sides change is one leaf, local wins) and a case to smoke146.",
+   "effort": "S",
+   "devices": [
+    "mac",
+    "ipad"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": "achievements-governor#3 Wall autosave (a41c4675)",
+   "regressionOf": null,
+   "invariants": [
+    "33",
+    "162"
+   ]
+  },
+  {
+   "id": "DI-32",
+   "severity": "P3",
+   "category": "data",
+   "title": "A deleted exam attempt comes back for a sync cycle: kos_attempts pulls BEFORE it pushes its tombstone, and the two-minute overlap re-delivers the row",
+   "detail": "Measured with KOS.attempts and an injected fake cloud (KOS.attempts._setCloudApi, server-stamped updated_at; attempts_resurrect.js, run twice): record and end an attempt, sync twice (pushed 1, then the echo skipped), wait, delete it (local list 0, tombstone queued in attempts.del), sync → {pushed:1, pulled:1}: the pull ran first with the overlap (KOS.sideSync.since), found the row it no longer holds and put it back (local list 1); the tombstone then reached the server. Only the NEXT cycle pulls the tombstone and deletes it (local 0). After a delete the next run is soonSync's 20 s, then nothing until the 30-minute timer or another change, so the attempt sits in the list, the paper's stats and readiness for up to half an hour. Because the cursor is the newest row's own stamp, this hits any deletion of the most recently synced attempt. Money and Mind push first and skip their echo by stamp (js/core/money.js syncCloud, js/core/mindjournal.js:205-246), so they do not. A second, narrower gap: the push ends with kvSet('attempts.del', []) (attempts.js:340), wiping a tombstone that remove() added while the upload was in flight, so that deletion never reaches the server or the other devices.",
+   "rootCause": "js/core/attempts.js:292-347 — syncCloud pulls first and treats a pulled row this device does not hold (`mine` undefined after a local delete) as new, without consulting the pending tombstones in attempts.del; and clears the whole tombstone list after the push instead of only the uids it sent.",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/data-integrity/attempts_resurrect.js → {\"localAfterDelete\":0,\"s3\":{\"pushed\":1,\"pulled\":1,\"deleted\":0},\"localAfterSync\":1,\"serverDeleted\":true,\"s4\":{\"pushed\":0,\"pulled\":0,\"deleted\":1},\"localAfterSync2\":0}",
+   "fix": "Push before pull (invariant 33's order, as money/mind do), or skip a pulled uid that is in attempts.del; after the push remove only the tombstones whose uids were sent.",
+   "effort": "S",
+   "devices": [
+    "mac",
+    "ipad"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": null,
+   "regressionOf": null,
+   "invariants": [
+    "32",
+    "33",
+    "36d"
+   ]
+  },
+  {
+   "id": "DI-33",
+   "severity": "P1",
+   "category": "data",
+   "title": "Taking a document in place (cloud land, another tab's save, Restore) merges two rows that share an id into one object: the first row's data is overwritten and saved",
+   "detail": "store.js applyDoc → assignDeep → assignList keeps each row's identity by indexing the CURRENT array by typeof+id and, for every incoming row, re-using the matching current object. When an array holds two rows with the same id, both incoming rows map to the SAME current object: it is assigned the first row, then overwritten with the second, and pushed twice. Measured in the test harness, twice each: (1) Daily Review picks — dayReview.days[d].morning.three = [{kind:'reminder',id:3},{kind:'assignment',id:3},{kind:'event',id:7}] through KOS.store.replaceState(copy of the same state) → memory AND localStorage hold [{assignment 3},{assignment 3},{event 7}]: the reminder pick is gone (review_three_apply.js). Old reminders and assignments both counted from 1 (pre-1A), so a review naming 'reminder 12' and 'assignment 12' is ordinary data. (2) Two ledger entries with id 5 (a focus session on 1 Sep, a quiz on 2 Sep) → after replaceState localStorage holds two copies of the quiz; the focus session, its minutes and its day are lost (dupid_apply.js: storedBefore [[5,1000,'focus'],[5,2000,'quiz']] → storedAfter [[5,2000,'quiz'],[5,2000,'quiz']]). js/core/sessions.js:32-34 says older ledgers may already hold such duplicate ids. The same path runs on EVERY cloud document landing (33d, since 1A 373d8104), every adopt of another tab's write (33c takeIn, since RC5 af71fd27) and every Restore or checkpoint restore (importFull → replaceState) — so the safety net itself corrupts what it restores. KOS.cloudmerge.merge on the same document does not (it re-keys the duplicate, 5 → 6). The user's own data copy was not available, so whether their ledger holds duplicate-id sessions is unmeasured; if it does, this is silent ledger loss on every pull (P0 grade). The seeded test account holds none (dupscan.js).",
+   "rootCause": "js/core/store.js:807-822 — assignList builds byId from dst and returns the same matched object for every src row with that key (no 'used' marker, no check that ids are unique within the array); arrays of refs like the review's {kind,id} picks share ids across kinds by design.",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/data-integrity/review_three_apply.js → {\"memory\":[{\"kind\":\"assignment\",\"id\":3},{\"kind\":\"assignment\",\"id\":3},{\"kind\":\"event\",\"id\":7}],\"stored\":[same]}; dupid_apply.js + inline probe → storedAfter [[5,2000,\"quiz\"],[5,2000,\"quiz\"]], mergeSame [[6,1000,\"focus\"],[5,2000,\"quiz\"]]",
+   "fix": "In assignList re-use a dst object at most once (delete it from byId when taken) and fall back to plain replacement for an array whose src ids are not unique (or whose rows carry `kind`: key such rows by kind+id). Add a smoke196 case: duplicate ids and mixed-kind {kind,id} picks survive replaceState, takeIn and importFull unchanged.",
+   "effort": "S",
+   "devices": [
+    "mac",
+    "ipad",
+    "iphone"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": "1A (373d8104) — replaceState in place; the tab adopt path since RC5 (af71fd27)",
+   "regressionOf": null,
+   "invariants": [
+    "33c",
+    "33d",
+    "1a"
+   ]
+  }
+ ],
+ "novRecheck": [
+  {
+   "id": "DI-27",
+   "severity": "P0",
+   "verdict": "fixed",
+   "note": "Node probe di27.js: an anime and a manga sharing MAL id 77, bulkUpsert three times → 2 added, then 0 updated / 0 rewards, modules unchanged; smoke114/126/127/129 pass"
+  },
+  {
+   "id": "DI-01",
+   "severity": "P1",
+   "verdict": "fixed",
+   "note": "smoke143 (20 steps) passes: twins fold after a verified checkpoint; exttasks.js foldInto read"
+  },
+  {
+   "id": "DI-02",
+   "severity": "P1",
+   "verdict": "fixed",
+   "note": "smoke143 passes (a failed second batch keeps the first batch's links)"
+  },
+  {
+   "id": "DI-03",
+   "severity": "P1",
+   "verdict": "regressed",
+   "note": "userData/stripSeeds hold for everything they knew (smoke135 27/27, smoke17), but Phase 1's Pacing row fields hidden/order/day and the Daily Review config fall outside them: DI-29"
+  },
+  {
+   "id": "DI-04",
+   "severity": "P1",
+   "verdict": "fixed",
+   "note": "smoke133 (17) passes: kos-state-write lock, three-way tab merge, two tabs mint different ids; see DI-33 for a new defect in the adopt path's in-place apply"
+  },
+  {
+   "id": "DI-05",
+   "severity": "P2",
+   "verdict": "fixed",
+   "note": "not individually re-run; covered by the passing DI suites (smoke133–135, 141, 143, 147, 150) — expected fixed by W1"
+  },
+  {
+   "id": "DI-06",
+   "severity": "P2",
+   "verdict": "fixed",
+   "note": "not individually re-run; covered by the passing DI suites (smoke133–135, 141, 143, 147, 150) — expected fixed by W1"
+  },
+  {
+   "id": "DI-07",
+   "severity": "P2",
+   "verdict": "fixed",
+   "note": "assignment refs rewritten (smoke143 D; merge_refs.js T4 for reminders/lists/review picks); calendar-event and session refs were never listed: DI-28 (new)"
+  },
+  {
+   "id": "DI-08",
+   "severity": "P2",
+   "verdict": "fixed",
+   "note": "sampled: extgcal.js:434 unlinks on 404 instead of deleting"
+  },
+  {
+   "id": "DI-09",
+   "severity": "P2",
+   "verdict": "fixed",
+   "note": "smoke150 10/10; roundtrip.js: seeded device → backupFile.write (267,554 bytes) → empty device importFull → every part identical but state.ui (per-device), errorLog and U4 pacing fields intact"
+  },
+  {
+   "id": "DI-10",
+   "severity": "P2",
+   "verdict": "fixed",
+   "note": "smoke133/134 pass (mirror primary when localStorage is full)"
+  },
+  {
+   "id": "DI-11",
+   "severity": "P2",
+   "verdict": "fixed",
+   "note": "every side store pulls with KOS.sideSync.since (money 1758, mind 229, reviews 174, reports 434, ink 137, attempts 306); see DI-32 for the attempts pull order"
+  },
+  {
+   "id": "DI-16",
+   "severity": "P2",
+   "verdict": "fixed",
+   "note": "not individually re-run; covered by the passing DI suites (smoke133–135, 141, 143, 147, 150) — expected fixed by W1"
+  },
+  {
+   "id": "DI-17",
+   "severity": "P2",
+   "verdict": "fixed",
+   "note": "not individually re-run; covered by the passing DI suites (smoke133–135, 141, 143, 147, 150) — expected fixed by W1"
+  },
+  {
+   "id": "DI-18",
+   "severity": "P2",
+   "verdict": "fixed",
+   "note": "sampled: creatives DB carries the namespace suffix (smoke134 F scans every indexedDB.open)"
+  },
+  {
+   "id": "DI-19",
+   "severity": "P2",
+   "verdict": "fixed",
+   "note": "not individually re-run; covered by the passing DI suites (smoke133–135, 141, 143, 147, 150) — expected fixed by W1"
+  },
+  {
+   "id": "DI-20",
+   "severity": "P2",
+   "verdict": "fixed",
+   "note": "not individually re-run; covered by the passing DI suites (smoke133–135, 141, 143, 147, 150) — expected fixed by W1"
+  },
+  {
+   "id": "DI-21",
+   "severity": "P2",
+   "verdict": "fixed",
+   "note": "sampled: smoke134 passes (Reset clears every registry database but checkpoints)"
+  },
+  {
+   "id": "DI-22",
+   "severity": "P2",
+   "verdict": "fixed",
+   "note": "sampled: smoke124 passes (danger dialog, verified checkpoint before replace)"
+  },
+  {
+   "id": "DI-12",
+   "severity": "P3",
+   "verdict": "fixed",
+   "note": "not individually re-run; covered by the passing DI suites (smoke133–135, 141, 143, 147, 150) — expected fixed by W1"
+  },
+  {
+   "id": "DI-13",
+   "severity": "P3",
+   "verdict": "fixed",
+   "note": "sampled: store.js quarantines an unreadable copy before writing (smoke133)"
+  },
+  {
+   "id": "DI-14",
+   "severity": "P3",
+   "verdict": "fixed",
+   "note": "not individually re-run; covered by the passing DI suites (smoke133–135, 141, 143, 147, 150) — expected fixed by W1"
+  },
+  {
+   "id": "DI-15",
+   "severity": "P3",
+   "verdict": "fixed",
+   "note": "not individually re-run; covered by the passing DI suites (smoke133–135, 141, 143, 147, 150) — expected fixed by W1"
+  },
+  {
+   "id": "DI-23",
+   "severity": "P3",
+   "verdict": "fixed",
+   "note": "not individually re-run; covered by the passing DI suites (smoke133–135, 141, 143, 147, 150) — expected fixed by W1"
+  },
+  {
+   "id": "DI-24",
+   "severity": "P3",
+   "verdict": "fixed",
+   "note": "sampled: roundtrip.js report 'attachments (none in this backup; this device's removed)'; smoke150/188"
+  },
+  {
+   "id": "DI-25",
+   "severity": "P3",
+   "verdict": "fixed",
+   "note": "sampled: smoke81/134; japanese.mined is a DEVICE_PATH and lives in kurenai-os-ja-mined"
+  },
+  {
+   "id": "DI-26",
+   "severity": "P3",
+   "verdict": "fixed",
+   "note": "not individually re-run; covered by the passing DI suites (smoke133–135, 141, 143, 147, 150) — expected fixed by W1"
+  }
+ ]
+}
