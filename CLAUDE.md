@@ -24,7 +24,7 @@ chronological diary here.
   [`docs/RELEASES.md`](docs/RELEASES.md), newest first; a new release adds
   its entry there and changes only this line and the next here.
 - Service-worker version: `kos-qol-3`
-- Required smoke gate: 179 / 179 suites (`""`, 2–156, 160–164 and 180–197) — `npm test`;
+- Required smoke gate: 183 / 183 suites (`""`, 2–156, 160–164 and 180–201) — `npm test`;
   what each suite holds: [`docs/SMOKE.md`](docs/SMOKE.md). New suites on this
   account are numbered from 180 (see `docs/HANDOFF.md`).
 - Backend as deployed (20 November 2026, the server-function clean-ups
@@ -59,7 +59,7 @@ from `file://`. Use HTTP for PWA, cloud and browser-audit work.
 python3 tools/dev_server.py 8765       # http.server with no-store, so edits show on one reload
 npm install jsdom fake-indexeddb       # test-only dependencies, once
 npm test                               # the whole smoke gate in parallel (tools/run_smoke.mjs; --skip, --repeat)
-for i in "" {2..156} {160..164} {180..197}; do node "tools/smoke${i}.test.js"; done   # the same, one at a time
+for i in "" {2..156} {160..164} {180..201}; do node "tools/smoke${i}.test.js"; done   # the same, one at a time
 node tools/fill_check.mjs              # every figure and part to fill in (5.19): figures compile, SQL runs, predicts run
 node tools/gen_moved_cards.mjs         # js/data/moved-cards.js: Maths' several-step cards that live as exam questions (5.19; --check)
 node tools/ja_valid_check.mjs          # Japanese: kana, conjugation, every validator, strokes on every kana
@@ -163,8 +163,8 @@ non-navigation redraw path.
 ### Persistence
 
 - `KOS.store.state` in `localStorage`: study state, UI, economy, sessions,
-  calendar/reminders/assignments, planner/goals, the integrated weekly plan
-  and Assistant preferences. Shared by every open tab (invariant 33c);
+  calendar/reminders/assignments, planner/goals, the integrated weekly plan,
+  the Error Log (`state.errorLog`, merged by id) and Assistant preferences. Shared by every open tab (invariant 33c);
   mirrored to `kurenai-os-statemirror` IndexedDB (the last document, the
   copy before a recovery and any unreadable copy set aside), which becomes
   the primary for the session when localStorage is full.
@@ -532,7 +532,8 @@ depth contracts, merges, banks, callout kinds, the lab system) is in
 
 - Home: Reports (`#/reports[/<week|month|term|year>]`, no rail item; from
   the bell, the Home card, Home's Study hours card and search).
-- Study: subjects, Review, Assignments, Exams & Papers and Pacing.
+- Study: subjects, Review, Assignments, Exams & Papers, Pacing and the
+  Error Log (`#/errorlog[/<subject>[/<ref>]]`, `#/errorlog/drill`).
   Pacing has two identities in one route and they cannot collide, because a
   week is always an ISO date: `#/pacing/YYYY-MM-DD` is the week surface and
   `#/pacing/braid` is the whole-term branch graph, which spans every week and

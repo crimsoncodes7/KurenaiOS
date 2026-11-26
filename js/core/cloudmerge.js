@@ -51,7 +51,9 @@
   var RECORDS = [
     { path: "sessions", id: "id", counter: null, sortBy: "ts", cap: 2000 },
     { path: "custom.cards", id: "id", counter: "custom.nextId",
-      refs: [{ kind: "mapKey", path: "srs", fmt: function (id) { return "u" + id; } }] },
+      refs: [{ kind: "mapKey", path: "srs", fmt: function (id) { return "u" + id; } },
+             /* the Error Log entry a mistake was turned into a card from (U7) */
+             { kind: "field", path: "errorLog.items", field: "cardId" }] },
     { path: "custom.quizzes", id: "id", counter: "custom.nextId" },
     /* DI-07: EVERY place an id is stored is listed here. A re-keyed record
        whose references were not rewritten left its goal, its exam link, its

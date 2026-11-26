@@ -283,7 +283,8 @@
         KOS.content.typeset(why);
         if (!ok && KOS.errorLog && KOS.errorLog.inlinePill) {
           var tNode = (KOS.spec && KOS.spec.node && sid && ref) ? KOS.spec.node(sid + ":" + ref) : null;
-          var qPlain = String(item.q || "").replace(/<[^>]+>/g, "").trim();
+          /* the title is one line: a question's fenced code and line breaks stay in the quiz */
+          var qPlain = String(item.q || "").split(/\n\s*```/)[0].replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
           var pickTxt = (item.opts && item.opts[oi] != null) ? String(item.opts[oi]).replace(/<[^>]+>/g, "").trim() : "";
           var rightTxt = (item.opts && item.opts[item.ans] != null) ? String(item.opts[item.ans]).replace(/<[^>]+>/g, "").trim() : "";
           var ctxLine = [pickTxt ? "Picked: " + pickTxt : "", rightTxt ? "Correct: " + rightTxt : ""].filter(Boolean).join(" · ");
@@ -663,7 +664,7 @@
           ].filter(Boolean)));
           if (KOS.errorLog && KOS.errorLog.inlinePill) {
             var exNode = (KOS.spec && KOS.spec.node && sid && ref) ? KOS.spec.node(sid + ":" + ref) : null;
-            var exPlain = String(part.q || title || "").replace(/<[^>]+>/g, "").trim();
+            var exPlain = String(part.q || title || "").split(/\n\s*```/)[0].replace(/<[^>]+>/g, "").replace(/\s+/g, " ").trim();
             self.appendChild(el("div", { class: "k-el-inline-row" }, [
               KOS.errorLog.inlinePill(function () {
                 var got = award == null ? fromTicks() : award;

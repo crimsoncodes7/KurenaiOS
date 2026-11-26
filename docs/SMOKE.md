@@ -5,9 +5,15 @@ Moved out of `CLAUDE.md` on 17 November 2026 (W8, AP-20). The gate is
 holds in full. Add a new suite to this list and to the count and loop in
 `CLAUDE.md`.
 
-Gate: 179 / 179 suites (`""`, 2–156, 160–164 and 180–197).
+Gate: 183 / 183 suites (`""`, 2–156, 160–164 and 180–201).
 
 What the suites hold, newest first, as recorded at each release:
+
+200 is the Study clean-up (`neon/study-cleanup-1`, user-authorised): flashcards, quizzes, exam prompts and mark schemes draw fenced code, tables and lists through `KOS.content.rich` instead of raw text; a wide trace table scrolls inside its own frame and drops below its code at five columns or more; an exam item derived from a worked example carries no lab and no Notes-only "Your turn"; and the 504 duplicate cards, quiz items and exam items removed across every subject and space leave every remaining item on its old schedule key (invariants 87, 111c).
+
+199 is the user's own customisations (`neon/user-custom-1`, user-authorised): Home's hero, four habits and three reminders; Pacing's rows hidden, moved a week, reordered and given a weekday, and the two-step Shift with its preview of every move, break stepped over and week added, school rows and ticked rows included on request, one Undo (invariant 84); Routines' and the Daily Review's times per weekday; and the Universal Error Log — its store, its three-way merge by id, the hub and Drill, and capture from a quiz, an exam question, a past paper, the Ink tab, Code and Japanese, with Undo and no Governor traffic.
+
+198 is Neon's batch 6, the rest of 1E: the Check to do pill, Reminders' Place in a free block and Focus on this, Skip this showing (not on a Google event, 159), the showcase's autosave with Undo, Mind cards outside the Daily 15 (#/mind/cards, one ledger entry), one subject registry for Reports, Code's runner status and boot timeout, three new goal types and Make this a goal, Money's card repeats, Imports route and Recurring queue (5a), Japanese leech recovery (`unleech`) and immersion through Focus (116).
 
 201 is the UX Polish & Design Standardisation branch (`neon/ux-polish-1`, user-authorised): Home's hero Rotate → By condition row layout contract (no crushed label column or undefined `.k-input--sm`); iPad scroll-to-top jolt protection (active Handwriting/Ink tab held against `safePoint("idle")` while manual Refresh still works, temporary `#main` `minBlockSize` floor cleared on navigation/dispose/settle, and `KOS.ui.redrawing` keeping `#main.scrollTop`); Mind Daily 15 Reviews and Mind Lesson Cards tabs standardised on `KOS.flashcards` (`Study | Deck`, `Type | Write | Think`, `札` watermark card, `THIS CARD / THIS DECK / KEYS` panel, preserving `state.mind.cards`, single-entry 15 XP daily cap, and read-only render invariants) plus Mind Lesson Check canonical `.k-qz-*` markup and keyboard shortcuts; and Exams Card drill using `KOS.ui.emptyState`.
 

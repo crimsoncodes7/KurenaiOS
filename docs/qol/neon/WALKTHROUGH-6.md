@@ -103,43 +103,43 @@ Branch cut from `origin/main` at `f26102f5`. All commits carry the trailer `Agen
 ### Round A · Screenshots
 
 ````carousel
-![A1 Practice Log 1470×832](/Users/fj/.gemini/antigravity/brain/554582e8-c166-49bd-a151-8cb41a6a0456/b6_a1_1470.png)
+*Screenshot: A1 Practice Log 1470×832 (in the Antigravity session, not in the repo).*
 <!-- slide -->
-![A1 Practice Log Dawn 1470×832](/Users/fj/.gemini/antigravity/brain/554582e8-c166-49bd-a151-8cb41a6a0456/b6_a1_dawn_1470.png)
+*Screenshot: A1 Practice Log Dawn 1470×832 (in the Antigravity session, not in the repo).*
 <!-- slide -->
-![A1 Practice Log 375×812](/Users/fj/.gemini/antigravity/brain/554582e8-c166-49bd-a151-8cb41a6a0456/b6_a1_375.png)
+*Screenshot: A1 Practice Log 375×812 (in the Antigravity session, not in the repo).*
 <!-- slide -->
-![A2 Reminders inspector 1470×832](/Users/fj/.gemini/antigravity/brain/554582e8-c166-49bd-a151-8cb41a6a0456/b6_a2_1470.png)
+*Screenshot: A2 Reminders inspector 1470×832 (in the Antigravity session, not in the repo).*
 <!-- slide -->
-![A2 Reminders placed state 1470×832](/Users/fj/.gemini/antigravity/brain/554582e8-c166-49bd-a151-8cb41a6a0456/b6_a2_placed_1470.png)
+*Screenshot: A2 Reminders placed state 1470×832 (in the Antigravity session, not in the repo).*
 <!-- slide -->
-![A2 Reminders 375×812](/Users/fj/.gemini/antigravity/brain/554582e8-c166-49bd-a151-8cb41a6a0456/b6_a2_375.png)
+*Screenshot: A2 Reminders 375×812 (in the Antigravity session, not in the repo).*
 ````
 
 ````carousel
-![A3 Calendar Skip this showing 1470×832](/Users/fj/.gemini/antigravity/brain/554582e8-c166-49bd-a151-8cb41a6a0456/b6_a3_1470.png)
+*Screenshot: A3 Calendar Skip this showing 1470×832 (in the Antigravity session, not in the repo).*
 <!-- slide -->
-![A3 Calendar Skipped date detail 1470×832](/Users/fj/.gemini/antigravity/brain/554582e8-c166-49bd-a151-8cb41a6a0456/b6_a3_skipped_1470.png)
+*Screenshot: A3 Calendar Skipped date detail 1470×832 (in the Antigravity session, not in the repo).*
 <!-- slide -->
-![A3 Calendar 375×812](/Users/fj/.gemini/antigravity/brain/554582e8-c166-49bd-a151-8cb41a6a0456/b6_a3_375.png)
+*Screenshot: A3 Calendar 375×812 (in the Antigravity session, not in the repo).*
 <!-- slide -->
-![A4 Achievements showcase autosave 1470×832](/Users/fj/.gemini/antigravity/brain/554582e8-c166-49bd-a151-8cb41a6a0456/b6_a4_1470.png)
+*Screenshot: A4 Achievements showcase autosave 1470×832 (in the Antigravity session, not in the repo).*
 <!-- slide -->
-![A4 Achievements showcase 375×812](/Users/fj/.gemini/antigravity/brain/554582e8-c166-49bd-a151-8cb41a6a0456/b6_a4_375.png)
+*Screenshot: A4 Achievements showcase 375×812 (in the Antigravity session, not in the repo).*
 ````
 
 ````carousel
-![A5 Mind desk with Review bar 1470×832](/Users/fj/.gemini/antigravity/brain/554582e8-c166-49bd-a151-8cb41a6a0456/b6_a5_desk_1470.png)
+*Screenshot: A5 Mind desk with Review bar 1470×832 (in the Antigravity session, not in the repo).*
 <!-- slide -->
-![A5 Mind standalone cards page 1470×832](/Users/fj/.gemini/antigravity/brain/554582e8-c166-49bd-a151-8cb41a6a0456/b6_a5_cards_1470.png)
+*Screenshot: A5 Mind standalone cards page 1470×832 (in the Antigravity session, not in the repo).*
 <!-- slide -->
-![A5 Mind desk 375×812](/Users/fj/.gemini/antigravity/brain/554582e8-c166-49bd-a151-8cb41a6a0456/b6_a5_375.png)
+*Screenshot: A5 Mind desk 375×812 (in the Antigravity session, not in the repo).*
 <!-- slide -->
-![A6 Reports 1470×832](/Users/fj/.gemini/antigravity/brain/554582e8-c166-49bd-a151-8cb41a6a0456/b6_a6_1470.png)
+*Screenshot: A6 Reports 1470×832 (in the Antigravity session, not in the repo).*
 <!-- slide -->
-![A6 Reports 820×1180](/Users/fj/.gemini/antigravity/brain/554582e8-c166-49bd-a151-8cb41a6a0456/b6_a6_820.png)
+*Screenshot: A6 Reports 820×1180 (in the Antigravity session, not in the repo).*
 <!-- slide -->
-![A6 Reports 375×812](/Users/fj/.gemini/antigravity/brain/554582e8-c166-49bd-a151-8cb41a6a0456/b6_a6_375.png)
+*Screenshot: A6 Reports 375×812 (in the Antigravity session, not in the repo).*
 ````
 
 ### Round A · Boot bytes
@@ -216,17 +216,17 @@ New gate count: **180** suites (up from 179 with `tools/smoke198.test.js`).
 ### Round B · Screenshots
 
 ````carousel
-![B1 Calm Runner did not start card 1470×832](/Users/fj/.gemini/antigravity/brain/554582e8-c166-49bd-a151-8cb41a6a0456/b6_b1_1470.png)
+*Screenshot: B1 Calm Runner did not start card 1470×832 (in the Antigravity session, not in the repo).*
 <!-- slide -->
-![B2 SQL task Loading SQLite + 8 s limit 1470×832](/Users/fj/.gemini/antigravity/brain/554582e8-c166-49bd-a151-8cb41a6a0456/b6_b2_sql_task_1470.png)
+*Screenshot: B2 SQL task Loading SQLite + 8 s limit 1470×832 (in the Antigravity session, not in the repo).*
 <!-- slide -->
-![B2 SQL task 375×812](/Users/fj/.gemini/antigravity/brain/554582e8-c166-49bd-a151-8cb41a6a0456/b6_b2_sql_task_375.png)
+*Screenshot: B2 SQL task 375×812 (in the Antigravity session, not in the repo).*
 <!-- slide -->
-![B2 SQL listing 1470×832](/Users/fj/.gemini/antigravity/brain/554582e8-c166-49bd-a151-8cb41a6a0456/b6_b2_sql_list_1470.png)
+*Screenshot: B2 SQL listing 1470×832 (in the Antigravity session, not in the repo).*
 <!-- slide -->
-![B2 SQL listing 375×812](/Users/fj/.gemini/antigravity/brain/554582e8-c166-49bd-a151-8cb41a6a0456/b6_b2_sql_list_375.png)
+*Screenshot: B2 SQL listing 375×812 (in the Antigravity session, not in the repo).*
 <!-- slide -->
-![B2 .NET listing Starting .NET + 60 s limit 1470×832](/Users/fj/.gemini/antigravity/brain/554582e8-c166-49bd-a151-8cb41a6a0456/b6_b2_wasm_list_1470.png)
+*Screenshot: B2 .NET listing Starting .NET + 60 s limit 1470×832 (in the Antigravity session, not in the repo).*
 ````
 
 ### Round B · Boot bytes
@@ -315,21 +315,21 @@ run_smoke: 180 / 180 passed in 309.5 s wall (924 s summed)
 ### Round C · Screenshots
 
 ````carousel
-![C1 New Japanese and Mind goal types 1470×832](/Users/fj/.gemini/antigravity/brain/554582e8-c166-49bd-a151-8cb41a6a0456/b6_c1_1470.png)
+*Screenshot: C1 New Japanese and Mind goal types 1470×832 (in the Antigravity session, not in the repo).*
 <!-- slide -->
-![C2 Shop sheet Add to Goals 1470×832](/Users/fj/.gemini/antigravity/brain/554582e8-c166-49bd-a151-8cb41a6a0456/b6_c2_sheet_1470.png)
+*Screenshot: C2 Shop sheet Add to Goals 1470×832 (in the Antigravity session, not in the repo).*
 <!-- slide -->
-![C2 Save gold for X goal dialog 820×1180](/Users/fj/.gemini/antigravity/brain/554582e8-c166-49bd-a151-8cb41a6a0456/b6_c2_goal_820.png)
+*Screenshot: C2 Save gold for X goal dialog 820×1180 (in the Antigravity session, not in the repo).*
 <!-- slide -->
-![C3 Routine Make this a goal 1470×832](/Users/fj/.gemini/antigravity/brain/554582e8-c166-49bd-a151-8cb41a6a0456/b6_c3_routine_1470.png)
+*Screenshot: C3 Routine Make this a goal 1470×832 (in the Antigravity session, not in the repo).*
 <!-- slide -->
-![C3 Money Pot Make this a goal 375×812](/Users/fj/.gemini/antigravity/brain/554582e8-c166-49bd-a151-8cb41a6a0456/b6_c3_pot_375.png)
+*Screenshot: C3 Money Pot Make this a goal 375×812 (in the Antigravity session, not in the repo).*
 <!-- slide -->
-![C3 Exam Today Make this a goal 820×1180](/Users/fj/.gemini/antigravity/brain/554582e8-c166-49bd-a151-8cb41a6a0456/b6_c3_exam_820.png)
+*Screenshot: C3 Exam Today Make this a goal 820×1180 (in the Antigravity session, not in the repo).*
 <!-- slide -->
-![C3 Collection editor Make this a goal 1470×832](/Users/fj/.gemini/antigravity/brain/554582e8-c166-49bd-a151-8cb41a6a0456/b6_c3_vault_1470.png)
+*Screenshot: C3 Collection editor Make this a goal 1470×832 (in the Antigravity session, not in the repo).*
 <!-- slide -->
-![C3 Budget Make this a goal pre-filled dialog 1470×832](/Users/fj/.gemini/antigravity/brain/554582e8-c166-49bd-a151-8cb41a6a0456/b6_c3_budgoal_1470.png)
+*Screenshot: C3 Budget Make this a goal pre-filled dialog 1470×832 (in the Antigravity session, not in the repo).*
 ````
 
 ### Round C · Boot bytes
@@ -416,21 +416,21 @@ run_smoke: 180 / 180 passed in 395.6 s wall (1178 s summed)
 ### Round D · Screenshots
 
 ````carousel
-![D1 Monthly card repeat suggestion on import Done 1470×832](/Users/fj/.gemini/antigravity/brain/554582e8-c166-49bd-a151-8cb41a6a0456/b6_d1_done_1470.png)
+*Screenshot: D1 Monthly card repeat suggestion on import Done 1470×832 (in the Antigravity session, not in the repo).*
 <!-- slide -->
-![D1 Make it recurring rule editor dialog 1470×832](/Users/fj/.gemini/antigravity/brain/554582e8-c166-49bd-a151-8cb41a6a0456/b6_d1_rule_1470.png)
+*Screenshot: D1 Make it recurring rule editor dialog 1470×832 (in the Antigravity session, not in the repo).*
 <!-- slide -->
-![D1 Monthly card repeat suggestion 375×812](/Users/fj/.gemini/antigravity/brain/554582e8-c166-49bd-a151-8cb41a6a0456/b6_d1_done_375.png)
+*Screenshot: D1 Monthly card repeat suggestion 375×812 (in the Antigravity session, not in the repo).*
 <!-- slide -->
-![D2 Money Imports direct route 1470×832](/Users/fj/.gemini/antigravity/brain/554582e8-c166-49bd-a151-8cb41a6a0456/b6_d2_imports_1470.png)
+*Screenshot: D2 Money Imports direct route 1470×832 (in the Antigravity session, not in the repo).*
 <!-- slide -->
-![D2 Transactions Imported filter and Select all 1470×832](/Users/fj/.gemini/antigravity/brain/554582e8-c166-49bd-a151-8cb41a6a0456/b6_d2_tx_1470.png)
+*Screenshot: D2 Transactions Imported filter and Select all 1470×832 (in the Antigravity session, not in the repo).*
 <!-- slide -->
-![D3 Not yet confirmed Recurring queue 1470×832](/Users/fj/.gemini/antigravity/brain/554582e8-c166-49bd-a151-8cb41a6a0456/b6_d3_1470.png)
+*Screenshot: D3 Not yet confirmed Recurring queue 1470×832 (in the Antigravity session, not in the repo).*
 <!-- slide -->
-![D3 Not yet confirmed Recurring queue 820×1180](/Users/fj/.gemini/antigravity/brain/554582e8-c166-49bd-a151-8cb41a6a0456/b6_d3_820.png)
+*Screenshot: D3 Not yet confirmed Recurring queue 820×1180 (in the Antigravity session, not in the repo).*
 <!-- slide -->
-![D3 Not yet confirmed Recurring queue 375×812](/Users/fj/.gemini/antigravity/brain/554582e8-c166-49bd-a151-8cb41a6a0456/b6_d3_375.png)
+*Screenshot: D3 Not yet confirmed Recurring queue 375×812 (in the Antigravity session, not in the repo).*
 ````
 
 ### Round D · Boot bytes
@@ -501,17 +501,17 @@ run_smoke: 180 / 180 passed in 379.6 s wall (1136 s summed)
 ### Round E · Screenshots
 
 ````carousel
-![E1 Japanese desk Rework leech recovery 1470×832](/Users/fj/.gemini/antigravity/brain/554582e8-c166-49bd-a151-8cb41a6a0456/b6_e1_1470.png)
+*Screenshot: E1 Japanese desk Rework leech recovery 1470×832 (in the Antigravity session, not in the repo).*
 <!-- slide -->
-![E1 Japanese desk Rework leech recovery 375×812](/Users/fj/.gemini/antigravity/brain/554582e8-c166-49bd-a151-8cb41a6a0456/b6_e1_375.png)
+*Screenshot: E1 Japanese desk Rework leech recovery 375×812 (in the Antigravity session, not in the repo).*
 <!-- slide -->
-![E2 Japanese desk Input this week + Rework 1470×832](/Users/fj/.gemini/antigravity/brain/554582e8-c166-49bd-a151-8cb41a6a0456/b6_e2_desk_1470.png)
+*Screenshot: E2 Japanese desk Input this week + Rework 1470×832 (in the Antigravity session, not in the repo).*
 <!-- slide -->
-![E2 Japanese desk Input this week 375×812](/Users/fj/.gemini/antigravity/brain/554582e8-c166-49bd-a151-8cb41a6a0456/b6_e2_desk_375.png)
+*Screenshot: E2 Japanese desk Input this week 375×812 (in the Antigravity session, not in the repo).*
 <!-- slide -->
-![E2 Focus setup Japanese immersion selector 1470×832](/Users/fj/.gemini/antigravity/brain/554582e8-c166-49bd-a151-8cb41a6a0456/b6_e2_focus_1470.png)
+*Screenshot: E2 Focus setup Japanese immersion selector 1470×832 (in the Antigravity session, not in the repo).*
 <!-- slide -->
-![E2 Focus setup Japanese immersion selector 375×812](/Users/fj/.gemini/antigravity/brain/554582e8-c166-49bd-a151-8cb41a6a0456/b6_e2_focus_375.png)
+*Screenshot: E2 Focus setup Japanese immersion selector 375×812 (in the Antigravity session, not in the repo).*
 ````
 
 ### Round E · Boot bytes
@@ -549,7 +549,7 @@ run_smoke: 180 / 180 passed in 296.4 s wall (886 s summed)
 - **Tickets delivered:** 16 / 16 across Rounds A–E (`18` commits on top of `origin/main`, including two full-gate regression fixes `89cd0aba` for `smoke187` and `153dd3fa` for `smoke34`).
 - **Core-file exceptions used (exact brief scope only):**
   - `js/core/report.js` (A6 — read `KOS.subjects` as the one subject registry)
-  - `js/core/goals.js` (C1 — `ja-facets`, `mind-daily15`; C2 — `gold-save` goal kind)
+  - `js/core/goals.js` (C1 — `ja-facets`, `mind-daily15`; C2 — `gov-gold` goal kind)
   - `js/core/jasrs.js` (E1 — `unleech` + `leechBase` / `LEECH_AGAIN = 4`)
   - No other off-limits core files touched; `js/data/lazy-index.js`, `compsci.js`, `maths.js`, `it.js` untouched and current (`node tools/gen_lazy_index.mjs --check` passes at `402 KB`).
 - **Boot budget:** `5,369,207` B (`5.1205 MB`) vs `5,400,166` B (`5.15 MB`) budget (`30,959` B / `30.23 KB` headroom).

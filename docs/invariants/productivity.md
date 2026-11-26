@@ -528,10 +528,19 @@ Read this file before editing or testing anything in its domain.
     write (school rows take the school number, personal rows the personal one)
     rather than carried. Moving a week re-points its rows in the same write;
     deleting a week that still holds rows refuses unless the caller passes
-    `cascade`. Shifting the plan (`shiftPlan`, 1C) moves only unticked rows of
-    my own plan that no exam planner sent, by PLAN weeks (breaks stepped
-    over, a week added past the end), never before `from`, with one Undo
-    (`undoShift`). A week begins on a Monday: a date inside a week is snapped
+    `cascade`. Shifting the plan (`shiftPlan`, 1C) moves by default only
+    unticked rows of my own plan that no exam planner sent, by PLAN weeks
+    (breaks stepped over, a week added past the end), never before `from`,
+    with one Undo (`undoShift`); U4 widens it on request — `source`
+    "school" or "both" (school rows step by school weeks), `includeDone`,
+    `includeExam` — and the page shows the pure `shiftPreview(n, o)` (every
+    move, each break stepped over, each week added) before anything is
+    written. A row can be hidden (`hidden`, a soft delete every derived read
+    leaves out and Show hidden brings back), moved one week (`moveEntryWeek`,
+    `wk` derived again), reordered within its week and subject (`order`,
+    `reorderEntry`) and given a weekday (`day`, 1–7, `setEntryDay`); each
+    write is one Undo. These page-only writes live in js/modules/pacing.js
+    and join `KOS.pacing` when the page loads. A week begins on a Monday: a date inside a week is snapped
     to its Monday, a beginning inside another week's seven days is refused,
     and a label still reading the default follows the date (PR-28). Deletes ask through `KOS.ui.confirm({danger:true})` and Delete
     never shares a control group with Save.

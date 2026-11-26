@@ -14,7 +14,7 @@ const SURFACES = [
   ["subject", "compsci"], ["subject", "maths"], ["subject", "it"], ["subject", "code"], ["subject", "ja"], ["subject", "mind"], ["subject", "creatives"],
   ["ref", { subject: "compsci", ref: "4.2.3.1" }], ["ref", { subject: "maths", ref: "5.7" }], ["ref", { subject: "it", ref: "F200.1.1" }],
   ["review"], ["due"], ["cardstats"], ["personaldeck"], ["assignments"], ["tracker"],
-  ["exams"], ["exams", "readiness"], ["exams", "plan"], ["exams", "practice"], ["pacing"], ["pacing", { tab: "braid" }],
+  ["exams"], ["exams", "readiness"], ["exams", "plan"], ["exams", "practice"], ["pacing"], ["pacing", { tab: "braid" }], ["errorlog"],
   ["code", { page: "map" }], ["code", { page: "skills" }], ["code", { page: "retrieval" }],
   ["japanese", { page: "path" }], ["japanese", { page: "kana" }], ["japanese", { page: "reviews" }], ["japanese", { page: "skills" }],
   ["mind", { page: "path" }], ["mind", { page: "journal" }], ["mind", { page: "positions" }],

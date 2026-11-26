@@ -433,7 +433,7 @@ step("J · every page that names what it needs opens from cold without an early 
     ["storage", undefined, ["page-storage"]], ["connections", undefined, ["page-connections"]],
     ["matrix", undefined, ["page-matrix"]], ["notifications", undefined, ["page-notifications"]],
     /* 1F, 20 Nov 2026: the pages split from their Home cards, and the ink layer */
-    ["calendar", undefined, ["page-calendar"]], ["goals", undefined, ["page-goals"]], ["pacing", undefined, ["page-pacing"]],
+    ["calendar", undefined, ["page-calendar"]], ["goals", undefined, ["page-goals"]], ["pacing", undefined, ["page-pacing"]], ["errorlog", undefined, ["page-errorlog"]],
     ["routines", undefined, ["page-routines"]], ["assistant", undefined, ["ai", "page-assistant"]], ["wishlist", undefined, ["page-vaults"]],
     ["ref", { subject: "maths", ref: E.KOS.hub.LEAVES.maths[0].ref }, ["content-maths", "page-topic", "ink-ui"]],
     ["ref", { subject: "code", ref: E.KOS.hub.LEAVES.code[0].ref }, ["content-code", "page-code", "page-topic"]],

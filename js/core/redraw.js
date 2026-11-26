@@ -52,7 +52,7 @@
      what the page really reads while it draws. `ui` is per device and is
      never a reason to redraw. */
   var STUDY = ["progress", "srs", "srsCfg", "questions", "custom", "edits", "sessions", "tracker", "exams", "itUnits",
-    "pacing", "assignments", "calendar", "resources"];
+    "pacing", "assignments", "calendar", "resources", "errorLog"];
   var SPACES = ["code", "japanese", "mind", "creatives"];
   var VAULT = ["media", "db:media", "artSlots", "art"];
   var READS = {
@@ -67,6 +67,7 @@
     tracker: STUDY.concat(["db:files"]),
     exams: STUDY.concat(["goals", "governor", "db:files", "notify", "artSlots", "art"]),
     pacing: ["pacing", "progress", "assignments", "calendar", "reminders", "exams", "srs"],
+    errorlog: ["errorLog", "custom", "srs"],
     code: ["code", "progress", "srs", "srsCfg", "sessions", "governor", "edits", "goals"],
     japanese: ["japanese", "progress", "srs", "srsCfg", "sessions", "governor", "edits"],
     mind: ["mind", "progress", "srs", "srsCfg", "sessions", "governor", "edits", "db:mind"],
@@ -99,7 +100,7 @@
   };
   /* work lives in the page itself: a background change waits for the reader */
   var TASK = { ref: 1, due: 1, review: 1, personaldeck: 1, code: 1, japanese: 1, mind: 1, creatives: 1,
-    exams: 1, tracker: 1, assistant: 1, worked: 1, trace: 1, oop: 1, sims: 1, files: 1,
+    exams: 1, tracker: 1, errorlog: 1, assistant: 1, worked: 1, trace: 1, oop: 1, sims: 1, files: 1,
     anime: 1, books: 1, vn: 1, game: 1, mangaka: 1, seasonal: 1, wishlist: 1, shrine: 1 };
 
   function readsOf(viewId, arg) {
