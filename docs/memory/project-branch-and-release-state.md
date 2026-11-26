@@ -1,12 +1,14 @@
 ---
 name: project-branch-and-release-state
-description: "Which git branch is live, what is deployed — check git before trusting this; prod kos-qol-2 (20 Nov); main 58184d8e (21 Nov) adds all of 1F and 1D (Neon batch 5), NOT deployed; suites from 198"
+description: "Which git branch is live, what is deployed — check git before trusting this; prod kos-qol-4 (26 Nov, main e36a8f86: Neon's 4 branches incl. 1E); gate 183; next: Phase 2 planning"
 metadata:
   node_type: memory
   type: project
   originSessionId: 2e2dc728-9366-4708-9ad8-6718d38edac2
   modified: 2026-11-17T21:04:49.853Z
 ---
+
+**26 Nov 2026: RELEASED kos-qol-4 (main e36a8f86, immutable https://6e0fa0f7.kurenai-os.pages.dev): Neon's study-cleanup-1, user-custom-1, ux-polish-1 and qol-batch-6 (all of 1E) merged via integrate/qol-6, mind.js conflict resolved onto KOS.flashcards.session, boot trimmed to 5,389,075 B (11 KB free), Error Log 33a/164 gaps fixed; gate 183/183. No REPORT-6 written (reviewed inline at merge). Next: plan Phase 2. /usr/local/bin/node was missing that day: tests ran with PATH=/usr/local/n/versions/node/24.18.0/bin.**
 
 **1D COMPLETE 2026-11-21: Neon's batch 5 (39 tickets, rounds A–E) passed with no note (docs/qol/neon/REPORT-5.md), fast-forwarded onto main (58184d8e); gate 179. Neon's walkthroughs live in ~/.gemini/antigravity/brain/554582e8-…/walkthrough.md (not in the repo). Still NOT deployed (prod kos-qol-2). Next: 1E.**
 
