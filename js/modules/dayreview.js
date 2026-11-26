@@ -632,27 +632,34 @@
     return bar;
   }
   function mins(hm) { var p = String(hm).split(":"); return +p[0] * 60 + +p[1]; }
-  function placeRow(x, free) {
-    var day = R().routineDay();
+  function placeControl(x, free, opts) {
+    opts = opts || {};
+    var day = opts.day || (R() ? R().routineDay() : KOS.srs.todayISO());
     var placed = (KOS.calendar && KOS.calendar.eventsOn ? KOS.calendar.eventsOn(day) : []).filter(function (ev) {
       if (ev.type !== "study") return false;
       if (x.ref && x.ref.kind === "assignment" && ev.assignmentId != null) return String(ev.assignmentId) === String(x.ref.id);
       return ev.title === x.title;
     })[0] || null;
+    if (placed) return el("span", { class: "k-chip", "data-ui": opts.placedHook || "review.placed", text: "Placed " + placed.time });
     var need = Math.min(90, x.estimateMins || 45);
-    var fits = placed ? [] : free.filter(function (b) { return b.mins >= Math.min(need, 25); });
-    var place = placed
-      ? el("span", { class: "k-chip", "data-ui": "review.placed", text: "Placed " + placed.time })
-      : fits.length ? KOS.ui.menu({ label: "Place in a free block", className: "k-btn--sm", hint: "Make a study block", items: fits.map(function (b) {
-        var len = Math.min(need, b.mins), end = b.from.split(":"); var e = mins(b.from) + len;
-        return { label: b.from + "–" + pad(Math.floor(e / 60)) + ":" + pad(e % 60), hint: U().hmText(b.mins) + " free", onSelect: function () {
-          var ev = KOS.calendar.addEvent({ type: "study", title: x.title, date: day, time: b.from, durationMins: len, subject: x.subject || null,
-            assignmentId: x.ref.kind === "assignment" ? x.ref.id : null });
-          if (!ev) { KOS.ui.toast("Couldn't place it.", true); return; }
-          KOS.ui.toast("Study block " + ev.time + " · " + x.title, false, { label: "Undo", run: function () { KOS.calendar.deleteEvent(ev.id); repaint(); } });
-          repaint();
-        } };
-      }) }) : null;
+    var fits = (free || []).filter(function (b) { return b.mins >= Math.min(need, 25); });
+    if (!fits.length) return null;
+    var after = opts.onChange || repaint;
+    var btn = KOS.ui.menu({ label: "Place in a free block", className: "k-btn--sm", hint: "Make a study block", items: fits.map(function (b) {
+      var len = Math.min(need, b.mins), e = mins(b.from) + len;
+      return { label: b.from + "–" + pad(Math.floor(e / 60)) + ":" + pad(e % 60), hint: (U() ? U().hmText(b.mins) : b.mins + " m") + " free", onSelect: function () {
+        var ev = KOS.calendar.addEvent({ type: "study", title: x.title, date: day, time: b.from, durationMins: len, subject: x.subject || null,
+          assignmentId: x.ref && x.ref.kind === "assignment" ? x.ref.id : null });
+        if (!ev) { KOS.ui.toast("Couldn't place it.", true); return; }
+        KOS.ui.toast("Study block " + ev.time + " · " + x.title, false, { label: "Undo", run: function () { KOS.calendar.deleteEvent(ev.id); after(); } });
+        after();
+      } };
+    }) });
+    if (opts.hook) btn.setAttribute("data-ui", (btn.getAttribute("data-ui") ? btn.getAttribute("data-ui") + " " : "") + opts.hook);
+    return btn;
+  }
+  function placeRow(x, free) {
+    var place = placeControl(x, free);
     return el("div", { class: "k-dr-place", "data-ui": "review.place-row" }, [U().bar(hue(x.subject)), el("div", { class: "k-rt-grow" }, [el("div", { class: "k-dr-row-t k-ellipsis", text: x.title }), muted(dueSub(x))]),
       el("div", { class: "k-cluster" }, [place,
         el("button", { type: "button", class: "k-btn k-btn--quiet k-btn--sm", text: "Tomorrow", onclick: function () { var r = V().triage(x.ref, "tomorrow"); if (r.ok) KOS.ui.toast(x.title + " · moved to tomorrow", false, { label: "Undo", run: function () { r.undo(); repaint(); } }); else KOS.ui.toast(r.why, true); repaint(); } }),
@@ -819,5 +826,5 @@
     document.addEventListener("visibilitychange", function () { if (document.visibilityState === "visible") setTimeout(maybeOpen, 600); });
   }
 
-  KOS.reviewSheet = { open: openSheet, close: close, chip: paintChip, maybeOpen: maybeOpen, start: start, isOpen: function () { return !!open; }, slot: function () { return open && open.slot; } };
+  KOS.reviewSheet = { open: openSheet, close: close, chip: paintChip, maybeOpen: maybeOpen, start: start, isOpen: function () { return !!open; }, slot: function () { return open && open.slot; }, placeControl: placeControl };
 })();

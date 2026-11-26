@@ -72,6 +72,8 @@
   var MODES = ["pomodoro", "custom", "stopwatch", "until"];
   var NUDGES = [0, 25, 50, 90];              // break nudge, minutes (0 = off)
   var LIMITS = [0, 60, 120, 180, 240];       // stopwatch self-stop, minutes (0 = none)
+  var IMMERSION_KINDS = ["watch", "read", "listen"];
+  var IMMERSION_LABEL = { watch: "Watching", read: "Reading", listen: "Listening" };
 
   /* Build 6.5 — set while the page is genuinely going away (refresh, close,
      an external navigation). The unload fires its own visibilitychange, and
@@ -326,6 +328,7 @@
       subject: links.subject,
       ref: links.ref,
       refs: links.refs,
+      immersion: !reading0 && links.subject === "ja" && IMMERSION_KINDS.indexOf(cfg.immersion) !== -1 ? cfg.immersion : null,
       /* Build 6.4 — the assignment this session is being spent on. Stored as
          an id only: the assignment record stays canonical, and a deleted
          assignment simply stops resolving rather than leaving a stale copy. */
@@ -366,6 +369,7 @@
       var prev = f.lastConfig || {};
       f.lastConfig = { mode: mode, workMin: cfg.workMin != null ? cfg.workMin : prev.workMin, breakMin: cfg.workMin != null ? cfg.breakMin : prev.breakMin,
         subject: links.subject || "", ref: links.ref || "", refs: links.refs };
+      if (S.immersion) f.lastConfig.immersion = S.immersion;
       if (openEnded({ mode: mode })) f.lastConfig.nudgeMin = nudgeMin;
       else if (prev.nudgeMin != null) f.lastConfig.nudgeMin = prev.nudgeMin;
       if (mode === "stopwatch") f.lastConfig.limitMin = limitMin;
@@ -715,39 +719,41 @@
        governor pays off this one entry. Everything the review collects is a
        later annotation on it — never a second reward, and never a
        precondition for the session having happened. */
+    var logMetrics = {
+      complete: complete,
+      mode: sess.mode,
+      rule: rule,
+      secs: dur,
+      blocks: rule === "blocks" ? Math.floor(dur / KOS.governor.FOCUS_BLOCK.secs) : undefined,
+      until: sess.until || undefined,
+      ended: endedAs,
+      mins: Math.round(dur / 60),
+      cycles: cycles,
+      pauses: sess.pauses,
+      distractions: sess.distractions.length,
+      /* deliberately NOT "marks": that key already means exam marks on
+         tracker entries, and the Governor chronicle reads it generically */
+      selfMarks: (sess.marks || []).length,
+      restores: sess.restores || 0,
+      notes: (sess.notes || []).length,
+      objective: sess.objective || undefined,
+      activities: counts,
+      fid: fid,
+      assignmentId: main.assignmentId != null ? main.assignmentId : undefined,
+      eventId: sess.eventId != null ? sess.eventId : undefined,
+      segments: parts.length > 1 ? parts.map(function (p) {
+        var o = { subject: p.subject, ref: p.ref, refs: p.refs, secs: p.secs };
+        if (p.assignmentId != null) o.assignmentId = p.assignmentId;
+        return o;
+      }) : undefined,
+      summary: summary
+    };
+    if (sess.immersion && parts.some(function (p) { return p.subject === "ja" && p.secs > 0; })) logMetrics.immersion = sess.immersion;
     var entry = KOS.sessions.log({
       type: "focus",
       subject: main.subject, ref: main.ref, refs: main.refs,
       dur: dur,
-      metrics: {
-        complete: complete,
-        mode: sess.mode,
-        rule: rule,
-        secs: dur,
-        blocks: rule === "blocks" ? Math.floor(dur / KOS.governor.FOCUS_BLOCK.secs) : undefined,
-        until: sess.until || undefined,
-        ended: endedAs,
-        mins: Math.round(dur / 60),
-        cycles: cycles,
-        pauses: sess.pauses,
-        distractions: sess.distractions.length,
-        /* deliberately NOT "marks": that key already means exam marks on
-           tracker entries, and the Governor chronicle reads it generically */
-        selfMarks: (sess.marks || []).length,
-        restores: sess.restores || 0,
-        notes: (sess.notes || []).length,
-        objective: sess.objective || undefined,
-        activities: counts,
-        fid: fid,
-        assignmentId: main.assignmentId != null ? main.assignmentId : undefined,
-        eventId: sess.eventId != null ? sess.eventId : undefined,
-        segments: parts.length > 1 ? parts.map(function (p) {
-          var o = { subject: p.subject, ref: p.ref, refs: p.refs, secs: p.secs };
-          if (p.assignmentId != null) o.assignmentId = p.assignmentId;
-          return o;
-        }) : undefined,
-        summary: summary
-      }
+      metrics: logMetrics
     });
     var award = KOS.governor.lastAward ? KOS.governor.lastAward() : null;
 
@@ -965,6 +971,9 @@
         var leaf = KOS.hub.BYREF[S.subject] && KOS.hub.BYREF[S.subject][S.ref];
         if (leaf) rc.title = S.ref + " " + leaf.title;
         topic.appendChild(rc);
+      }
+      if (S.subject === "ja" && S.immersion && IMMERSION_LABEL[S.immersion]) {
+        topic.appendChild(chip("Immersion · " + IMMERSION_LABEL[S.immersion], "var(--ja)", "focus.ja-immersion-chip"));
       }
     }
     box.appendChild(topic);
@@ -2273,6 +2282,7 @@
          paper) is the whole subject, never its first unit */
       cfg.subject = preSubj; cfg.ref = ""; cfg.refs = preRefs.length === 1 ? preRefs : [];
       cfg.assignmentId = pre.assignmentId != null ? pre.assignmentId : null;
+      cfg.immersion = preSubj === "ja" && IMMERSION_KINDS.indexOf(pre.immersion) !== -1 ? pre.immersion : null;
     }
     if (pre && pre.mins > 0) { cfg.mode = "custom"; cfg.workMin = Math.max(1, Math.min(240, Math.round(pre.mins))); cfg.breakMin = 0; }
     var mode = MODES.indexOf(cfg.mode) !== -1 ? cfg.mode : "pomodoro";
@@ -2482,6 +2492,15 @@
       field("Link to subject", subjSel), topicPick.el, asgField
     ]);
     form.appendChild(linkRow);
+    var immSel = el("select", { class: "k-input", "data-ui": "focus.ja-immersion", "aria-label": "Japanese immersion" }, [
+      el("option", { value: "", text: "Study / lessons" }),
+      el("option", { value: "watch", text: "Watching" }),
+      el("option", { value: "read", text: "Reading" }),
+      el("option", { value: "listen", text: "Listening" })
+    ]);
+    immSel.value = cfg.subject === "ja" && IMMERSION_KINDS.indexOf(cfg.immersion) !== -1 ? cfg.immersion : "";
+    var immField = field("Japanese immersion (optional)", immSel);
+    form.appendChild(immField);
 
     /* Build 6.5 — the objective. One line, optional, and the last thing asked
        before starting: it is what the completion review reports back. */
@@ -2532,6 +2551,7 @@
         subject: subjSel.value || null,
         refs: subjSel.value ? topicPick.value() : [],
         assignmentId: KOS.store.idOf(asgSel.value),
+        immersion: subjSel.value === "ja" && immSel.value ? immSel.value : null,
         objective: objIn.value
       };
       /* HR-29: the exam's id, while the objective is the one it opened with */
@@ -2684,6 +2704,9 @@
       untilSumField.hidden = rd || mode !== "until";
       topicPick.el.hidden = rd;
       asgField.hidden = rd;
+      var isJa = subjSel.value === "ja";
+      immField.hidden = !isJa;
+      if (!isJa) immSel.value = "";
       objField.hidden = rd;
       penField.hidden = rd;
       /* study until: the summary, or the one error that stops a start */

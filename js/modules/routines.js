@@ -467,6 +467,15 @@
       el("div", { class: "k-cluster k-rt-rcard-f" }, [
         el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "routine.start", text: "▶ Start", onclick: function () { KOS.routinePlayer.open(r.id); } }),
         el("button", { type: "button", class: "k-btn k-btn--quiet k-btn--sm", text: "Edit", onclick: function () { KOS.show("routines", { edit: r.id }); } }),
+        el("button", { type: "button", class: "k-btn k-btn--quiet k-btn--sm", "data-ui": "routine.make-goal", text: "Make this a goal", onclick: function () {
+          KOS.lazy.need("page-goals").then(function () {
+            if (KOS.goalsUI && KOS.goalsUI.newGoal) KOS.goalsUI.newGoal({
+              type: "routine-days", title: "Keep " + r.name,
+              target: r.days && r.days.length ? r.days.length : 5,
+              repeat: "week", params: { routine: r.id }
+            });
+          });
+        } }),
         el("span", { class: "k-rt-fill" }),
         r.days !== null && (streak || best) ? muted("炎 " + streak + " · best " + best) : null
       ])

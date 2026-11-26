@@ -974,7 +974,7 @@
       ].filter(Boolean))
     ]);
   }
-  function editorActions(opts) {
+  function editorActions(opts, overlay) {
     var out = [];
     /* bump: { input, unit, max } steps a number field; { run, label }
        does its own step (a VN's next route) — label() null means done */
@@ -1014,6 +1014,21 @@
     if (opts.score) out.push(opts.score);
     /* where you watch it, and the title's own pages (collection#1, #2) */
     if (KOS.watchLink) out.push(KOS.watchLink.row(opts.entry));
+    if (opts.entry && opts.entry.id != null) {
+      out.push(el("button", { type: "button", class: "k-btn k-btn--quiet k-btn--sm", "data-ui": "vault.make-goal", text: "Make this a goal", onclick: function () {
+        var e = opts.entry;
+        var hasTotal = !!(e.progress && e.progress.total);
+        if (overlay && overlay.close) overlay.close();
+        KOS.lazy.need("page-goals").then(function () {
+          if (KOS.goalsUI && KOS.goalsUI.newGoal) KOS.goalsUI.newGoal({
+            type: hasTotal ? "finish-series" : "specific-title",
+            title: "Finish " + e.title,
+            linkedEntryId: e.id,
+            target: hasTotal ? e.progress.total : 1
+          });
+        });
+      } }));
+    }
     return el("div", { class: "k-medit-actions" }, [
       el("div", { class: "k-cluster" }, out),
       el("span", { class: "k-medit-sync", "data-ui": "vault.editor-sync", "data-state": /^Synced|^Linked/.test(syncLine(opts.entry)) ? "linked" : null, text: syncLine(opts.entry) })
@@ -1033,7 +1048,7 @@
     var tabs = editorTabs(opts.form, opts.tabs);
     var name = (opts.isNew ? "Add to " : "Edit — ") + opts.label;
     var head = opts.entry && !opts.isNew
-      ? el("div", { class: "k-medit-top" }, [editorBanner(opts, overlay), editorActions(opts), tabs.bar].filter(Boolean))
+      ? el("div", { class: "k-medit-top" }, [editorBanner(opts, overlay), editorActions(opts, overlay), tabs.bar].filter(Boolean))
       : el("div", { class: "k-medit-top" }, [
           el("div", { class: "k-dialog-head", "data-ui": "ui.dialog-head" }, [
             el("div", { class: "k-medit-heading" }, [

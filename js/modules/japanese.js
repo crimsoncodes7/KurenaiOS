@@ -23,11 +23,11 @@
   function today() { return KOS.srs.todayISO(); }
   function isoOf(ts) { var d = new Date(ts); return d.getFullYear() + "-" + ("0" + (d.getMonth() + 1)).slice(-2) + "-" + ("0" + d.getDate()).slice(-2); }
   function dayLabel(iso) { var d = new Date(iso + "T12:00:00"); return DOW[d.getDay()] + " " + d.getDate() + " " + MON[d.getMonth()]; }
-  function cardHead(title, meta, link, go) {
+  function cardHead(title, meta, link, go, hook) {
     return el("div", { class: "k-card-head" }, [
       el("span", { class: "k-card-title", text: title }),
       meta ? el("span", { class: "k-card-meta", text: meta }) : null,
-      link ? el("button", { type: "button", class: "k-link", text: link, onclick: go }) : null
+      link ? el("button", { type: "button", class: "k-link", "data-ui": hook || null, text: link, onclick: go }) : null
     ].filter(Boolean));
   }
   function statTile(o) {
@@ -47,9 +47,18 @@
   }
   function hmText(mins) { mins = Math.round(mins || 0); var h = Math.floor(mins / 60), m = mins % 60; return h ? h + " h " + (m < 10 ? "0" : "") + m : m + " m"; }
   function weekInput() {
-    var j = J().peek(), out = { read: 0, listen: 0, raw: 0, jpSub: 0 };
-    for (var i = 0; i < 7; i++) { var d = KOS.jaSrs.addDays(today(), -i), r = j.input[d] || {}; Object.keys(out).forEach(function (k) { out[k] += r[k] || 0; }); }
-    out.total = out.read + out.listen + out.raw + out.jpSub;
+    var j = J().peek(), out = { watch: 0, read: 0, listen: 0, raw: 0, jpSub: 0 };
+    var end = today(), start = KOS.jaSrs.addDays(end, -6);
+    for (var i = 0; i < 7; i++) { var d = KOS.jaSrs.addDays(end, -i), r = j.input[d] || {}; Object.keys(out).forEach(function (k) { out[k] += r[k] || 0; }); }
+    KOS.sessions.all().forEach(function (e) {
+      if (!e || e.type !== "focus" || e.date < start || e.date > end) return;
+      if (!e.metrics || !e.metrics.immersion || KOS.sessions.undone(e)) return;
+      var k = e.metrics.immersion;
+      if (out[k] == null) return;
+      var mins = Math.round(KOS.sessions.secsFor(e, SID) / 60);
+      if (mins > 0) out[k] += mins;
+    });
+    out.total = out.watch + out.read + out.listen + out.raw + out.jpSub;
     return out;
   }
 
@@ -237,6 +246,51 @@
       el("span", { class: "k-subj-next-go", "data-state": "lit", "aria-hidden": "true", text: "→" })
     ]);
   }
+  function lessonForItem(itemKey) {
+    return J().lessons().filter(function (l) { return (l.items || []).indexOf(itemKey) >= 0; })[0] || null;
+  }
+  function leeches() {
+    var j = J().peek();
+    return Object.keys(j.facets).filter(function (k) { return KOS.jaSrs.leech(j.facets[k]); })
+      .map(function (k) {
+        var p = KOS.jaSrs.split(k);
+        return { key: k, item: J().item(p.item), skill: p.skill, lapses: j.facets[k].lapses, facet: j.facets[k], lesson: lessonForItem(p.item) };
+      })
+      .filter(function (r) { return r.item; })
+      .sort(function (a, b) { return b.lapses - a.lapses; });
+  }
+  function leechRows(list, limit) {
+    return list.slice(0, limit || list.length).map(function (r) {
+      return el("div", { class: "k-day-row k-ja-leech-row", "data-ui": "ja.leech-row" }, [
+        el("div", { class: "k-ja-leech-main" }, [
+          el("span", { class: "k-ja-lapses", text: r.lapses + "×" }),
+          el("span", { class: "k-day-txt" }, [
+            el("span", { class: "k-day-title", lang: "ja", text: r.item.w }),
+            el("span", { class: "k-day-sub" }, [UI().skill(r.skill, { label: false }), " " + (r.item.r || "")])
+          ]),
+          el("span", { class: "k-chip", "data-tone": "amber", text: "Set aside" })
+        ]),
+        el("div", { class: "k-ja-leech-acts" }, [
+          r.lesson ? el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "ja.leech-lesson", text: "Relearn from the lesson",
+            onclick: function () { KOS.show("ref", { subject: SID, ref: r.lesson.id }); } }) : null,
+          el("button", { type: "button", class: "k-btn k-btn--sm k-btn--quiet", "data-ui": "ja.leech-unleech", text: "Back in the schedule",
+            onclick: function () {
+              var prevBase = r.facet.leechBase;
+              if (!KOS.jaSrs.unleech(r.key)) return;
+              KOS.ui.toast("Back in the schedule · " + r.item.w, false, { label: "Undo", run: function () {
+                var fs = KOS.store.state.japanese && KOS.store.state.japanese.facets;
+                var cur = fs && fs[r.key];
+                if (!cur) return;
+                if (prevBase == null) delete cur.leechBase; else cur.leechBase = prevBase;
+                KOS.store.save();
+                KOS.rerender();
+              } });
+              KOS.rerender();
+            } })
+        ].filter(Boolean))
+      ]);
+    });
+  }
   function reworkRows(list, limit) {
     return list.slice(0, limit || list.length).map(function (r) {
       return el("div", { class: "k-day-row k-ja-rework-row", "data-ui": "ja.rework-row" }, [
@@ -249,16 +303,21 @@
     });
   }
   function reworkCard() {
-    var list = J().rework();
+    var setAside = leeches(), asideKeys = {};
+    setAside.forEach(function (r) { asideKeys[r.key] = true; });
+    var slip = J().rework().filter(function (r) { return !asideKeys[r.key]; });
+    var meta = [setAside.length ? setAside.length + " set aside" : null, slip.length ? slip.length + " slipping" : null].filter(Boolean).join(" · ");
     var box = el("section", { class: "k-card k-ja-rework", "data-ui": "ja.rework", "aria-label": "Rework" }, [
       el("div", { class: "k-card-head" }, [
         el("span", { class: "k-card-title", text: "Rework" }),
-        list.length ? el("span", { class: "k-card-meta", "data-tone": "ja", text: list.length + " slipping" }) : null,
+        meta ? el("span", { class: "k-card-meta", "data-tone": "ja", text: meta }) : null,
         el("button", { type: "button", class: "k-link", text: "Skill map →", onclick: function () { KOS.show("japanese", { page: "skills" }); } })
       ].filter(Boolean))
     ]);
-    if (!list.length) { box.appendChild(KOS.ui.emptyState({ compact: true, body: "Nothing keeps slipping right now." })); return box; }
-    reworkRows(list, 4).forEach(function (r) { box.appendChild(r); });
+    if (!setAside.length && !slip.length) { box.appendChild(KOS.ui.emptyState({ compact: true, body: "Nothing keeps slipping right now." })); return box; }
+    leechRows(setAside, 4).forEach(function (r) { box.appendChild(r); });
+    var left = Math.max(0, 4 - setAside.length);
+    if (left) reworkRows(slip, left).forEach(function (r) { box.appendChild(r); });
     return box;
   }
   function nextStoneCard() {
@@ -282,13 +341,15 @@
     return [UI().meter({ label: "Words", value: m.have, target: m.need })];
   }
   function inputCard(wi) {
-    var box = el("section", { class: "k-card k-ja-input-card", "data-ui": "ja.input-week" }, [cardHead("Input this week", null, null)]);
+    var box = el("section", { class: "k-card k-ja-input-card", "data-ui": "ja.input-week" }, [
+      cardHead("Input this week", null, "Log immersion →", function () { KOS.show("focus", { subject: SID, immersion: "watch" }); }, "ja.log-immersion")
+    ]);
     if (!wi.total) {
-      box.appendChild(KOS.ui.emptyState({ compact: true, body: "Watching and reading in Japanese counts here, through Focus." }));
+      box.appendChild(KOS.ui.emptyState({ compact: true, body: "Watching, reading and listening in Japanese count here, through Focus." }));
       return box;
     }
     box.appendChild(el("strong", { class: "k-ja-input-v", text: hmText(wi.total) }));
-    [["Raw", wi.raw], ["JP subtitles", wi.jpSub], ["Reader", wi.read], ["Listening", wi.listen]].forEach(function (r) {
+    [["Watching", wi.watch], ["Reading", wi.read], ["Listening", wi.listen], ["Raw", wi.raw], ["JP subtitles", wi.jpSub]].forEach(function (r) {
       if (r[1]) box.appendChild(el("div", { class: "k-ja-input-row" }, [el("span", { text: r[0] }), el("span", { class: "k-mono", text: hmText(r[1]) })]));
     });
     return box;
@@ -513,10 +574,16 @@
       el("section", { class: "k-card", "data-ui": "ja.skill-units" }, [cardHead("By unit", "% of the unit's items stable in that skill; 80 is the checkpoint line", null), table,
         el("p", { class: "k-muted", text: "Kana have no Listening or Speaking facet of their own." })]),
       (function () {
-        var list = J().rework();
-        var box = el("section", { class: "k-card k-ja-rework", "data-ui": "ja.rework" }, [cardHead("Rework", list.length ? "items that keep slipping · " + list.length : null, null)]);
-        if (!list.length) box.appendChild(KOS.ui.emptyState({ compact: true, body: "Nothing keeps slipping right now." }));
-        else reworkRows(list).forEach(function (r) { box.appendChild(r); });
+        var setAside = leeches(), asideKeys = {};
+        setAside.forEach(function (r) { asideKeys[r.key] = true; });
+        var slip = J().rework().filter(function (r) { return !asideKeys[r.key]; });
+        var meta = [setAside.length ? setAside.length + " set aside" : null, slip.length ? slip.length + " slipping" : null].filter(Boolean).join(" · ");
+        var box = el("section", { class: "k-card k-ja-rework", "data-ui": "ja.rework" }, [cardHead("Rework", meta || null, null)]);
+        if (!setAside.length && !slip.length) box.appendChild(KOS.ui.emptyState({ compact: true, body: "Nothing keeps slipping right now." }));
+        else {
+          leechRows(setAside).forEach(function (r) { box.appendChild(r); });
+          reworkRows(slip).forEach(function (r) { box.appendChild(r); });
+        }
         box.appendChild(el("p", { class: "k-muted", text: "Rework teaches the item again from its own lesson. It is not a penalty and has no reward." }));
         return box;
       })()

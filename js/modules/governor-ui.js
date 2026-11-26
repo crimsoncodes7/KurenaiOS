@@ -1117,6 +1117,22 @@
       }
     }
 
+    function goalForShopItem(itemId) {
+      if (!KOS.goals || !KOS.goals.all) return null;
+      return KOS.goals.all().filter(function (x) {
+        return !x.archived && x.type === "gov-gold" && x.params && x.params.item === itemId;
+      })[0] || null;
+    }
+    function openShopGoal(it) {
+      var existing = goalForShopItem(it.id);
+      if (existing) { KOS.show("goals", { id: existing.id }); return; }
+      KOS.lazy.need("page-goals").then(function () {
+        if (KOS.goalsUI && KOS.goalsUI.newGoal) {
+          KOS.goalsUI.newGoal({ type: "gov-gold", title: "Save gold for " + it.name, target: it.price, params: { item: it.id } });
+        }
+      });
+    }
+
     /* the Stage (34g): the banner, the balance, Try on, Kurenai */
     function shopStage(cat) {
       var stage = el("section", { class: "k-gv-stage k-gv-shopstage", "data-ui": "gov.treasury", "aria-label": "Your gold" });
@@ -1130,6 +1146,7 @@
       var KN = { outfit: "outfits", scene: "scenes", hall: "halls", banner: "banners", theme: "themes", avatar: "avatars", frame: "frames", seal: "seals", shelfskin: "shelves", shrinestyle: "Shrine cards", finish: "finishes", paper: "papers", penset: "pen sets" };
       var ks = Object.keys(kinds);
       var pin = KOS.governor.pinned();
+      var pinGoal = pin ? goalForShopItem(pin.id) : null;
       var left = el("div", { class: "k-gv-shop-purse" }, [
         el("div", { class: "k-gv-stage-kick", text: "Your gold" }),
         el("div", { class: "k-gv-shop-bal k-mono", "data-ui": "shop.balance", text: goldN(g.gold) }),
@@ -1142,7 +1159,10 @@
           el("div", { class: "k-gv-glass-kick", text: "Saving for" }),
           el("div", { class: "k-gv-shop-pin-t" }, [el("b", { text: pin.name }), el("span", { class: "k-mono", text: goldN(Math.max(0, pin.price - g.gold)) + " more" })]),
           el("span", { class: "k-bar", style: "--p: " + Math.min(100, Math.round(100 * g.gold / pin.price)) + "%; --bar-c: var(--gold)" }),
-          el("button", { type: "button", class: "k-link", text: "Unpin", onclick: function () { KOS.governor.setPinned(null); render(); } })
+          el("div", { class: "k-cluster" }, [
+            el("button", { type: "button", class: "k-link", "data-ui": "shop.pin-add-goal", text: pinGoal ? "In Goals →" : "Add to Goals", onclick: function () { openShopGoal(pin); } }),
+            el("button", { type: "button", class: "k-link", text: "Unpin", onclick: function () { KOS.governor.setPinned(null); render(); } })
+          ])
         ]) : null
       ].filter(Boolean));
       var tried = KOS.governor.trying();
@@ -1272,8 +1292,12 @@
         if (KOS.governor.canTry(it))
           actions.push({ label: st === "try" ? "Stop trying on" : "Try on", onClick: function () { KOS.governor.tryItem(it.id); render(); } });
         if (afford) actions.push({ label: "Buy · " + goldN(it.price), primary: true, onClick: function () { confirmBuy([it], function () { if (buyWare(it)) render(); }); } });
-        else if (isPinned) actions.push({ label: "Unpin", onClick: function () { KOS.governor.setPinned(null); render(); } });
-        else actions.push({ label: "Pin as a goal", primary: true, onClick: function () { KOS.governor.setPinned(it.id); render(); } });
+        else {
+          var existingGoal = goalForShopItem(it.id);
+          actions.push({ label: existingGoal ? "View in Goals" : "Add to Goals", hook: "shop.add-goal", onClick: function () { openShopGoal(it); } });
+          if (isPinned) actions.push({ label: "Unpin", onClick: function () { KOS.governor.setPinned(null); render(); } });
+          else actions.push({ label: "Pin as a goal", primary: true, onClick: function () { KOS.governor.setPinned(it.id); render(); } });
+        }
       } else if (it.kind === "unlock") {
         if (it.area !== "all") actions.push({ label: it.area === "vault" ? "Open a vault" : "Upload a picture", primary: true, onClick: function () { openUpload(it.area); } });
       } else if (st === "on") {
@@ -1293,8 +1317,8 @@
         actions.length ? el("div", { class: "k-dialog-foot" }, [
           st === "buy" || st === "try" ? el("p", { class: "k-muted k-gv-sheet-note", text: "Try on is never saved." }) : el("span", { class: "k-gv-ware-gap" })
         ].concat(actions.map(function (a) {
-          return el("button", { type: "button", class: "k-btn" + (a.primary ? " k-gv-buy" : ""), text: a.label,
-            onclick: function () { a.onClick(); close(); } });
+          return el("button", { type: "button", class: "k-btn" + (a.primary ? " k-gv-buy" : ""), "data-ui": a.hook || null, text: a.label,
+            onclick: function () { close(); a.onClick(); } });
         }))) : null
       ].filter(Boolean));
       overlay.appendChild(box);

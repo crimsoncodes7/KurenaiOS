@@ -119,6 +119,8 @@ button.k-mind-map-t { cursor: pointer; }
 .k-mind-go { grid-column: 2; grid-row: 1 / span 3; display: grid; place-items: center; inline-size: var(--subj-go); block-size: var(--subj-go); border-radius: 50%; background: var(--mind); color: var(--mind-ink); }
 .k-mind-unitline { display: flex; align-items: baseline; gap: var(--sp-8); flex-wrap: wrap; }
 .k-mind-row { display: flex; align-items: center; gap: var(--sp-8); flex-wrap: wrap; }
+.k-mind-duebar { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-12); flex-wrap: wrap; }
+.k-mind-duebar-t { display: flex; align-items: baseline; gap: var(--sp-10); flex-wrap: wrap; }
 .k-mind-offline { margin: 0; padding: var(--sp-8) var(--sp-12); border-radius: var(--r-8); background: var(--s2); color: var(--text-2); font-size: var(--fs-13); }
 .k-mind-jcard { display: flex; flex-direction: column; gap: var(--sp-8); }
 .k-mind-jlist { display: grid; gap: var(--sp-2); }

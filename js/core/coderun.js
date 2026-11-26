@@ -37,7 +37,34 @@
 
   var SRC = "js/labs/cs-interp.js";
   var WATCHDOG = 4000;
-  var worker = null, seq = 0, pending = {}, broken = false, loading = null;
+  var worker = null, seq = 0, pending = {}, broken = false, loading = null, interpBusy = 0;
+  var statusListeners = [];
+  function runnerFor(arg) {
+    if (arg === "sql" || arg === "wasm" || arg === "interp") return arg;
+    if (arg && typeof arg === "object") {
+      if (arg.lang === "sql") return "sql";
+      if (arg.runner === "sql" || arg.runner === "wasm" || arg.runner === "interp") return arg.runner;
+      arg = arg.lesson;
+    }
+    return arg && KOS.code && KOS.code.runnerFor ? KOS.code.runnerFor(arg) : "interp";
+  }
+  function runnerName(which) {
+    return which === "sql" ? "SQLite" : which === "wasm" ? "The full .NET runtime" : "The in-app runner";
+  }
+  function bootTimeoutErr(which, ms) {
+    return { ok: false, stdout: "", steps: 0, ms: ms,
+      error: { code: "BOOT_TIMEOUT", kind: "runner", runner: which, line: 0,
+        msg: runnerName(which) + " took too long to start — your code was not run. Try again." } };
+  }
+  function runnerFailedErr(which, detail) {
+    return { ok: false, stdout: "", steps: 0, ms: 0,
+      error: { code: "RUNNER_FAILED", kind: "runner", runner: which, line: 0,
+        msg: runnerName(which) + " stopped before your code could run" + (detail ? " (" + detail + ")" : "") + ". Try again." } };
+  }
+  function emitStatus(which) {
+    var st = runnerStatus(which);
+    statusListeners.slice().forEach(function (f) { try { f(st); } catch (e) { /* a listener's problem */ } });
+  }
 
   function canWork() {
     return !broken && typeof window.Worker === "function" && /^https?:$/.test(location.protocol);
@@ -50,15 +77,17 @@
         if (!p) return;
         clearTimeout(p.t);
         delete pending[ev.data.id];
+        emitStatus("interp");
         p.res(ev.data.res);
       };
-      w.onerror = function () { broken = true; kill(); };
+      w.onerror = function (e) { broken = true; kill(runnerFailedErr("interp", e && e.message)); emitStatus("interp"); };
       return w;
-    } catch (e) { broken = true; return null; }
+    } catch (e) { broken = true; emitStatus("interp"); return null; }
   }
-  function kill() {
+  function kill(errRes) {
     if (worker) { try { worker.terminate(); } catch (e) { /* gone */ } }
     worker = null;
+    if (errRes) Object.keys(pending).forEach(function (id) { var p = pending[id]; clearTimeout(p.t); delete pending[id]; p.res(errRes); });
   }
   /* the in-page interpreter, loaded once (file:// and the test harness) */
   function inPage() {
@@ -67,10 +96,11 @@
     loading = new Promise(function (res) {
       var s = document.createElement("script");
       s.src = SRC;
-      s.onload = function () { res(window.CSI || null); };
-      s.onerror = function () { res(null); };
+      s.onload = function () { emitStatus("interp"); res(window.CSI || null); };
+      s.onerror = function () { broken = true; emitStatus("interp"); res(null); };
       document.head.appendChild(s);
     });
+    emitStatus("interp");
     return loading;
   }
   function unavailable() {
@@ -84,7 +114,7 @@
   var WASM_BOOT = 60000, WASM_WATCHDOG = 9000;
   var rtw = null, rtSeq = 0, rtPending = {}, rtState = null, rtInfo = { loaded: 0, total: 0, ms: 0, warm: 0, size: null, error: null }, rtListeners = [];
   function ui() { var u = KOS.store && KOS.store.state && KOS.store.state.ui; return u ? (u.code = u.code || {}) : {}; }
-  function rtEmit() { rtListeners.slice().forEach(function (f) { try { f(runtime()); } catch (e) { /* a listener's problem */ } }); }
+  function rtEmit() { rtListeners.slice().forEach(function (f) { try { f(runtime()); } catch (e) { /* a listener's problem */ } }); emitStatus("wasm"); }
   function rtSet(st) { rtState = st; rtEmit(); }
   /* absent · offline · downloading · ready · failed (and "file" where workers cannot run) */
   function runtime() {
@@ -93,10 +123,10 @@
       : ui().runtime ? (navigator.onLine === false && !rtw ? "offline" : "idle") : "absent";
     return { id: RUNTIME_ID, state: st, wanted: !!ui().runtime, loaded: rtInfo.loaded, total: rtInfo.total, ms: rtInfo.ms, warm: rtInfo.warm, size: rtInfo.size, error: rtInfo.error };
   }
-  function rtKill() {
+  function rtKill(why) {
     if (rtw) { try { rtw.terminate(); } catch (e) { /* gone */ } }
     rtw = null;
-    Object.keys(rtPending).forEach(function (id) { var p = rtPending[id]; clearTimeout(p.t); delete rtPending[id]; p.res(p.dead()); });
+    Object.keys(rtPending).forEach(function (id) { var p = rtPending[id]; clearTimeout(p.t); delete rtPending[id]; p.res(p.dead(why)); });
     if (rtState === "ready" || rtState === "downloading") rtState = null;
   }
   function rtMake() {
@@ -106,13 +136,14 @@
         var d = ev.data || {};
         if (d.type === "progress") { rtInfo.loaded = d.loaded; rtInfo.total = d.total; rtEmit(); return; }
         if (d.type === "ready") { rtInfo.ms = d.ms; rtInfo.warm = d.warm; rtInfo.error = null; rtSet("ready"); return; }
-        if (d.type === "failed") { rtInfo.error = d.msg; rtSet(navigator.onLine === false ? "offline" : "failed"); return; }
+        if (d.type === "failed") { rtInfo.error = d.msg; rtKill("failed"); rtSet(navigator.onLine === false ? "offline" : "failed"); return; }
         var p = rtPending[d.id];
         if (!p) return;
         clearTimeout(p.t); delete rtPending[d.id];
+        if (!p.assist) emitStatus("wasm");
         p.res(d.res);
       };
-      w.onerror = function (e) { rtInfo.error = (e && e.message) || "the worker stopped"; rtKill(); rtSet(navigator.onLine === false ? "offline" : "failed"); };
+      w.onerror = function (e) { rtInfo.error = (e && e.message) || "the worker stopped"; rtKill("failed"); rtSet(navigator.onLine === false ? "offline" : "failed"); };
       return w;
     } catch (e) { rtInfo.error = String(e && e.message || e); rtSet("failed"); return null; }
   }
@@ -131,10 +162,25 @@
     var id = ++rtSeq;
     var ms = rtState === "ready" ? WASM_WATCHDOG : WASM_BOOT;
     return new Promise(function (res) {
-      var dead = function () { return { ok: false, stdout: "", steps: 0, ms: ms,
-        error: { code: "TIMEOUT", kind: "timeout", msg: "Stopped after " + (ms / 1000) + " seconds.", line: 0 } }; };
-      var t = setTimeout(function () { var p = rtPending[id]; if (!p) return; delete rtPending[id]; rtKill(); rtEmit(); res(dead()); }, ms);
+      var dead = function (why) {
+        if (why === "failed") return runnerFailedErr("wasm", rtInfo.error);
+        if (rtState !== "ready") return bootTimeoutErr("wasm", ms);
+        return { ok: false, stdout: "", steps: 0, ms: ms,
+          error: { code: "TIMEOUT", kind: "timeout", msg: "Stopped after " + (ms / 1000) + " seconds.", line: 0 } };
+      };
+      var t = setTimeout(function () {
+        var p = rtPending[id];
+        if (!p) return;
+        delete rtPending[id];
+        var booting = rtState !== "ready";
+        rtKill();
+        if (booting) { rtInfo.error = "timed out while starting"; rtSet("failed"); }
+        else rtEmit();
+        res(booting ? bootTimeoutErr("wasm", ms) : { ok: false, stdout: "", steps: 0, ms: ms,
+          error: { code: "TIMEOUT", kind: "timeout", msg: "Stopped after " + (ms / 1000) + " seconds.", line: 0 } });
+      }, ms);
       rtPending[id] = { res: res, t: t, dead: dead };
+      emitStatus("wasm");
       rtw.postMessage({ id: id, req: req });
     });
   }
@@ -147,7 +193,7 @@
     var id = ++rtSeq, ms = rtState === "ready" ? 8000 : WASM_BOOT;
     return new Promise(function (res) {
       var t = setTimeout(function () { if (rtPending[id]) { delete rtPending[id]; res(null); } }, ms);
-      rtPending[id] = { res: res, t: t, dead: function () { return null; } };
+      rtPending[id] = { res: res, t: t, assist: true, dead: function () { return null; } };
       rtw.postMessage({ id: id, kind: "assist", req: req });
     });
   }
@@ -183,38 +229,54 @@
      created on the first SQL run, so nothing of it is fetched before a
      lesson asks; each run is a fresh in-memory database seeded with the
      lesson's dataset (req.seed). The same watchdog as the interpreter. */
-  var sqlw = null, sqlPending = {}, sqlBroken = false;
-  function sqlKill() {
+  var sqlw = null, sqlPending = {}, sqlBroken = false, sqlReady = false, sqlFailed = false, sqlError = null;
+  function sqlKill(errRes) {
     if (sqlw) { try { sqlw.terminate(); } catch (e) { /* gone */ } }
     sqlw = null;
+    sqlReady = false;
+    if (errRes) Object.keys(sqlPending).forEach(function (id) { var p = sqlPending[id]; clearTimeout(p.t); delete sqlPending[id]; p.res(errRes); });
   }
   function sqlMake() {
     try {
+      sqlReady = false; sqlFailed = false; sqlError = null;
       var w = new window.Worker("js/labs/sql-worker.js");
       w.onmessage = function (ev) {
-        var p = sqlPending[ev.data && ev.data.id];
+        var d = ev.data || {};
+        if (d.type === "ready") { sqlReady = true; sqlFailed = false; sqlError = null; emitStatus("sql"); return; }
+        if (d.type === "failed") { sqlFailed = true; sqlError = d.msg || "SQLite could not load"; sqlKill(runnerFailedErr("sql", sqlError)); emitStatus("sql"); return; }
+        var p = sqlPending[d.id];
         if (!p) return;
-        clearTimeout(p.t); delete sqlPending[ev.data.id];
-        p.res(ev.data.res);
+        sqlReady = true;
+        clearTimeout(p.t); delete sqlPending[d.id];
+        emitStatus("sql");
+        p.res(d.res);
       };
-      w.onerror = function () { sqlBroken = true; sqlKill(); };
+      w.onerror = function (e) { sqlBroken = true; sqlFailed = true; sqlError = (e && e.message) || "the worker stopped"; sqlKill(runnerFailedErr("sql", sqlError)); emitStatus("sql"); };
       return w;
-    } catch (e) { sqlBroken = true; return null; }
+    } catch (e) { sqlBroken = true; sqlFailed = true; sqlError = String((e && e.message) || e); emitStatus("sql"); return null; }
   }
   function sqlRun(req) {
     var src = req.src != null ? req.src : (req.files || []).map(function (f) { return f.src; }).join("\n");
     var fresh = !sqlw;
+    if (sqlFailed && !sqlw) { sqlBroken = false; sqlFailed = false; sqlError = null; }
     if (sqlBroken || typeof window.Worker !== "function" || !/^https?:$/.test(location.protocol) || !(sqlw = sqlw || sqlMake())) {
       return Promise.resolve({ ok: false, stdout: "", steps: 0, ms: 0, error: { code: "SQL_UNAVAILABLE", kind: "runner", line: 0,
         msg: "SQL runs in a worker, which needs the app served over http(s)." } });
     }
     var id = ++seq;
+    var ms = fresh ? WATCHDOG + 4000 : WATCHDOG;
     return new Promise(function (res) {
       var t = setTimeout(function () {
-        sqlKill(); delete sqlPending[id];
-        res({ ok: false, stdout: "", steps: 0, ms: WATCHDOG, error: { code: "TIMEOUT", kind: "timeout", msg: "Stopped after " + (WATCHDOG / 1000) + " seconds.", line: 0 } });
-      }, fresh ? WATCHDOG + 4000 : WATCHDOG);  /* a new worker also loads SQLite (~700 KB) */
+        var booting = !sqlReady;
+        delete sqlPending[id];
+        if (booting) { sqlFailed = true; sqlError = "timed out while starting"; }
+        sqlKill();
+        emitStatus("sql");
+        res(booting ? bootTimeoutErr("sql", ms)
+          : { ok: false, stdout: "", steps: 0, ms: WATCHDOG, error: { code: "TIMEOUT", kind: "timeout", msg: "Stopped after " + (WATCHDOG / 1000) + " seconds.", line: 0 } });
+      }, ms);  /* a new worker also loads SQLite (~700 KB) */
       sqlPending[id] = { res: res, t: t };
+      emitStatus("sql");
       sqlw.postMessage({ id: id, req: { src: src, seed: req.seed || "" } });
     }).then(function (r) {
       /* the checker's shape: SQL errors read as a runtime stop, with SQLite's words */
@@ -243,19 +305,40 @@
           var t = setTimeout(function () {
             kill();
             delete pending[id];
+            emitStatus("interp");
             res({ ok: false, stdout: "", steps: 0, ms: WATCHDOG,
               error: { code: "TIMEOUT", kind: "timeout", msg: "Stopped after " + (WATCHDOG / 1000) + " seconds.", line: 0 } });
           }, WATCHDOG);
           pending[id] = { res: res, t: t };
+          emitStatus("interp");
           worker.postMessage({ id: id, req: req });
         });
       }
     }
-    return inPage().then(function (csi) { return csi ? csi.run(req) : unavailable(); });
+    interpBusy++; emitStatus("interp");
+    return inPage().then(function (csi) {
+      interpBusy = Math.max(0, interpBusy - 1); emitStatus("interp");
+      return csi ? csi.run(req) : unavailable();
+    });
   }
-  function status() {
-    if (canWork() || window.CSI) return "ready";
-    return loading ? "loading" : "ready";
+  /* unified per-runner status: booting | ready | busy | failed */
+  function runnerStatus(which) {
+    var r = runnerFor(which);
+    if (r === "sql") {
+      var sSt = (sqlBroken || sqlFailed) ? "failed" : (sqlw && !sqlReady) ? "booting" : Object.keys(sqlPending).length ? "busy" : "ready";
+      return { runner: "sql", state: sSt, limitMs: WATCHDOG, bootMs: WATCHDOG + 4000, error: sqlError };
+    }
+    if (r === "wasm") {
+      var rt = runtime();
+      var wBusy = Object.keys(rtPending).some(function (id) { return !rtPending[id].assist; });
+      var wSt = rt.state === "downloading" ? "booting" : (rt.state === "failed" || rt.state === "offline" || rt.state === "file") ? "failed" : wBusy ? "busy" : "ready";
+      return { runner: "wasm", state: wSt, limitMs: WASM_WATCHDOG, bootMs: WASM_BOOT, error: rt.error };
+    }
+    var iSt = (broken && !window.CSI) ? "failed" : (loading && !window.CSI) ? "booting" : (interpBusy > 0 || Object.keys(pending).length > 0) ? "busy" : "ready";
+    return { runner: "interp", state: iSt, limitMs: WATCHDOG, bootMs: WATCHDOG, error: null };
+  }
+  function status(which) {
+    return runnerStatus(which || "interp").state;
   }
 
   /* ---------------- comparing output ---------------- */
@@ -298,15 +381,22 @@
     /* a case with no written output (an SQL card's variation) expects what
        the item's own answer prints on the same data: run that first */
     if (spec.answer && (spec.cases || []).some(function (c) { return c.out == null; })) {
+      var refErr = null;
       return Promise.all(spec.cases.map(function (c) {
         if (c.out != null) return c;
         return run({ files: [{ name: "answer", src: spec.answer }], stdin: c.stdin || "", fs: c.fs || spec.fs, seed: c.seed || spec.seed, db: c.db || spec.db, lang: spec.lang, lesson: spec.lesson, runner: spec.runner })
-          .then(function (r) { return Object.assign({}, c, { out: r.ok ? r.stdout : "(the answer did not run)" }); });
-      })).then(function (cs) { return check(Object.assign({}, spec, { cases: cs, answer: null }), files); });
+          .then(function (r) {
+            if (!r.ok && r.error && r.error.kind === "runner") { refErr = refErr || r.error; return c; }
+            return Object.assign({}, c, { out: r.ok ? r.stdout : "(the answer did not run)" });
+          });
+      })).then(function (cs) {
+        if (refErr) return { compile: null, runner: refErr, results: [], pass: 0, total: cs.length, stopped: null, rule: null, ms: 0, passed: false };
+        return check(Object.assign({}, spec, { cases: cs, answer: null }), files);
+      });
     }
     var cases = spec.cases || [];
     var results = [];
-    var out = { compile: null, results: results, pass: 0, total: cases.length, stopped: null, rule: null, ms: 0 };
+    var out = { compile: null, runner: null, results: results, pass: 0, total: cases.length, stopped: null, rule: null, ms: 0 };
     function one(i) {
       if (i >= cases.length) return Promise.resolve(out);
       var c = cases[i];
@@ -317,6 +407,12 @@
         out.ms += r.ms || 0;
         if (!r.ok && r.error && (r.error.kind === "compile" || r.error.kind === "unsupported" || r.error.kind === "runtime")) {
           out.compile = r.error;
+          results.length = 0;
+          out.pass = 0;
+          return out;
+        }
+        if (!r.ok && r.error && r.error.kind === "runner") {
+          out.runner = r.error;
           results.length = 0;
           out.pass = 0;
           return out;
@@ -339,7 +435,7 @@
     }
     return one(0).then(function () {
       /* rules speak only once every case passes */
-      if (!out.compile && !out.stopped && out.pass === out.total && spec.rules && spec.rules.length) {
+      if (!out.compile && !out.runner && !out.stopped && out.pass === out.total && spec.rules && spec.rules.length) {
         var src = files.map(function (f) { return f.src; }).join("\n");
         for (var j = 0; j < spec.rules.length; j++) {
           var rule = spec.rules[j];
@@ -348,7 +444,7 @@
           if (!ok) { out.rule = { id: rule.id || String(j), msg: rule.msg }; break; }
         }
       }
-      out.passed = !out.compile && !out.stopped && out.pass === out.total && !out.rule;
+      out.passed = !out.compile && !out.runner && !out.stopped && out.pass === out.total && !out.rule;
       return out;
     });
   }
@@ -364,9 +460,11 @@
       : err.kind === "timeout" ? "Did not finish"
       : err.kind === "unsupported" ? "Beyond the in-app runner"
       : err.kind === "runtime" ? "Needs the full C# runtime"
+      : err.kind === "runner" ? (err.code === "BOOT_TIMEOUT" ? "Runner did not start" : "Runner problem")
       : err.kind === "sql" ? "SQLite error" : "Runner problem";
     return { kind: kind, code: err.code, line: err.line || 0, msg: err.msg,
-      plain: d ? d.plain : null, usually: d ? d.usually : null };
+      plain: d ? d.plain : (err.kind === "runner" ? "Your code was not run. Try again." : null),
+      usually: d ? d.usually : null };
   }
 
   KOS.codeRun = {
@@ -376,7 +474,10 @@
     diff: diff,
     explain: explain,
     firstLine: firstLine,
+    runnerFor: runnerFor,
+    runnerStatus: runnerStatus,
     status: status,
+    onStatus: function (f) { statusListeners.push(f); return function () { statusListeners = statusListeners.filter(function (g) { return g !== f; }); }; },
     RUNTIME_ID: RUNTIME_ID,
     runtime: runtime,
     startRuntime: rtStart,
@@ -386,6 +487,11 @@
     pruneRuntimes: rtPrune,
     onRuntime: function (f) { rtListeners.push(f); return function () { rtListeners = rtListeners.filter(function (g) { return g !== f; }); }; },
     /* tests: forget the workers so the next run starts fresh ones */
-    _reset: function () { kill(); broken = false; loading = null; rtKill(); rtState = null; sqlKill(); sqlBroken = false; }
+    _reset: function () {
+      kill(); broken = false; loading = null; interpBusy = 0;
+      rtKill(); rtState = null; rtInfo.error = null;
+      sqlKill(); sqlBroken = false; sqlReady = false; sqlFailed = false; sqlError = null;
+      emitStatus("interp"); emitStatus("wasm"); emitStatus("sql");
+    }
   };
 })();

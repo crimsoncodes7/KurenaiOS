@@ -291,7 +291,7 @@
   }
 
   /* ---------------- the showcase (35e): the tray, then every earned badge ----------------
-     The same six as the Governor's Seat; Save is the only commit. */
+     The same six as the Governor's Seat; on the Wall each change saves at once. */
   function slot(v, i, onRemove) {
     return v ? el("button", { type: "button", class: "k-ach-slot", "data-ui": "ach.slot", "aria-label": "Take " + badgeName(v) + " out of the showcase", onclick: onRemove }, [medal(v, { size: "sm", pips: false, decorative: true })])
       : el("span", { class: "k-ach-slot", "data-empty": "", "aria-hidden": "true" });
@@ -305,7 +305,7 @@
     var order = el("ol", { class: "k-ach-order", "data-ui": "ach.order", "aria-label": "Showcase order" });
     var count = el("span", { class: "k-mono k-ach-pickn", "data-ui": "ach.pick-count" });
     var grid = el("div", { class: "k-ach-pickgrid", "data-ui": "ach.pick", role: "group", "aria-label": "Earned badges" });
-    function paint() {
+    function paint(meta) {
       tray.textContent = ""; order.textContent = "";
       for (var i = 0; i < A().SHOWCASE_MAX; i++) {
         (function (id) { tray.appendChild(slot(id && byId[id], i, function () { toggle(id); })); })(pick[i]);
@@ -322,51 +322,56 @@
       });
       count.textContent = pick.length + " of " + A().SHOWCASE_MAX;
       Array.prototype.forEach.call(grid.children, function (b) { b.setAttribute("aria-pressed", String(pick.indexOf(b.getAttribute("data-id")) >= 0)); });
-      if (opts.onChange) opts.onChange(pick.slice());
+      if (opts.onChange) opts.onChange(pick.slice(), meta || null);
     }
     KOS.ui.reorder(order, { rows: "[data-rid]", label: function (r) { var v = byId[r.getAttribute("data-rid")]; return v ? badgeName(v) : "Badge"; },
-      onDrop: function () { pick = [].map.call(order.querySelectorAll("[data-rid]"), function (n) { return n.getAttribute("data-rid"); }); paint(); } });
+      onDrop: function () {
+        var prev = pick.slice();
+        pick = [].map.call(order.querySelectorAll("[data-rid]"), function (n) { return n.getAttribute("data-rid"); });
+        paint({ action: "reorder", prev: prev });
+      } });
     function toggle(id) {
-      var i = pick.indexOf(id), v = byId[id];
+      var i = pick.indexOf(id), v = byId[id], prev = pick.slice();
       if (i >= 0) pick.splice(i, 1);
       else if (pick.length < A().SHOWCASE_MAX) pick.push(id);
       else { KOS.ui.state(count, "shake", false); void count.offsetWidth; KOS.ui.state(count, "shake", true); KOS.a11y.announce("Six at most — remove one first."); KOS.ui.toast("Six at most — remove one first."); return; }
-      paint();
-      KOS.a11y.announce(badgeName(v) + (i >= 0 ? " removed, " : " added, ") + pick.length + " of " + A().SHOWCASE_MAX + ".");
+      paint({ action: i >= 0 ? "remove" : "add", id: id, name: badgeName(v), prev: prev });
+      if (i < 0 || !opts.silentRemove) KOS.a11y.announce(badgeName(v) + (i >= 0 ? " removed, " : " added, ") + pick.length + " of " + A().SHOWCASE_MAX + ".");
     }
     earned.forEach(function (v) {
       grid.appendChild(el("button", { type: "button", class: "k-ach-pick", "data-id": v.id, "data-ui": "ach.pick-item", onclick: function () { toggle(v.id); } }, [
         medal(v, { px: opts.small ? 44 : 64, decorative: true, pips: !opts.small }), opts.small ? null : el("span", { text: badgeName(v) })
       ].filter(Boolean)));
     });
-    paint();
+    paint(null);
     return { tray: tray, order: order, count: count, grid: grid, earned: earned, get: function () { return pick.slice(); },
-      clear: function () { pick = []; paint(); } };
+      set: function (ids) { pick = (ids || []).filter(function (id) { return byId[id]; }); paint(null); },
+      clear: function () { if (!pick.length) return; var prev = pick.slice(); pick = []; paint({ action: "clear", prev: prev }); } };
   }
   function drawShowcase(body, views) {
     var ord = null;
-    var pk = showcasePicker(views, { onChange: function (ids) { if (ord) ord.hidden = !ids.length; } });
-    var save = el("button", { type: "button", class: "k-btn k-btn--primary", "data-ui": "ach.save-showcase", "data-intent": "primary", text: "Save",
-      onclick: function () { A().setShowcase(pk.get()); KOS.ui.toast("Showcase saved."); KOS.a11y.announce("Showcase saved."); } });
+    var pk = showcasePicker(views, { silentRemove: true, onChange: function (ids, meta) {
+      if (ord) ord.hidden = !ids.length;
+      if (!meta) return;
+      A().setShowcase(ids);
+      if (meta.action === "remove" || meta.action === "clear") {
+        var prev = meta.prev;
+        KOS.ui.toast(meta.action === "clear" ? "Showcase cleared." : meta.name + " removed from showcase.", false, {
+          label: "Undo", run: function () { A().setShowcase(prev); if (pk.tray.isConnected) pk.set(prev); }
+        });
+      }
+    } });
     body.appendChild(el("section", { class: "k-card k-ach-traycard" }, [
       pk.tray,
       el("span", { class: "k-spacer" }),
       el("div", { class: "k-ach-traycount" }, [pk.count, el("span", { class: "k-muted", text: "tap a medal to add or remove it" })]),
-      el("button", { type: "button", class: "k-btn", "data-ui": "ach.clear-showcase", text: "Clear", onclick: pk.clear }),
-      save
+      el("button", { type: "button", class: "k-btn", "data-ui": "ach.clear-showcase", text: "Clear", onclick: pk.clear })
     ]));
     ord = el("section", { class: "k-card k-ach-ordercard", "data-ui": "ach.order-card", hidden: pk.get().length ? null : "" }, [
       el("div", { class: "k-card-head" }, [el("span", { class: "k-card-title", text: "Showcase order" }), el("span", { class: "k-card-meta", text: "drag or Space + ↑↓" })]),
       pk.order
     ]);
     body.appendChild(ord);
-    /* AG-25: the picks are a draft until Save — a background change waits
-       for it, and leaving with it unsaved asks first (as Edit seat does) */
-    function unsaved() { return JSON.stringify(pk.get()) !== JSON.stringify(A().showcase()); }
-    if (KOS.view) {
-      KOS.view.hold(unsaved);
-      KOS.view.guard(function () { return unsaved() ? { title: "Leave without saving?", body: "Your changes to the showcase have not been saved." } : null; });
-    }
     if (!pk.earned.length) { body.appendChild(KOS.ui.emptyState({ compact: true, title: "Nothing earned yet", body: "Earn a badge to show it here." })); return; }
     body.appendChild(el("div", { class: "k-ach-sec" }, [el("h2", { class: "k-ach-sec-t", text: "Earned" }), el("span", { class: "k-muted", text: pk.earned.length + " badges, newest first" })]));
     body.appendChild(pk.grid);

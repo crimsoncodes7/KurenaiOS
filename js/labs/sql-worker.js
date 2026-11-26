@@ -12,7 +12,11 @@ var ready = self.initSqlJs({ locateFile: function (f) { return "../../assets/cod
   ["fetch", "XMLHttpRequest", "WebSocket", "EventSource", "importScripts", "indexedDB", "caches", "BroadcastChannel"].forEach(function (k) {
     try { Object.defineProperty(self, k, { value: undefined, configurable: false, writable: false }); } catch (e) { try { self[k] = undefined; } catch (e2) { /* gone */ } }
   });
+  self.postMessage({ type: "ready" });
   return SQL;
+}, function (e) {
+  self.postMessage({ type: "failed", msg: String((e && e.message) || e) });
+  throw e;
 });
 self.addEventListener("message", function (ev) {
   var d = ev.data || {};

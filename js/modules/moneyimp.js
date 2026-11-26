@@ -320,6 +320,48 @@
         }, "money.import-learn-yes"),
         p2.btn("Just this one", "k-btn--sm k-btn--quiet", function () { S.learn = null; draw(); }, "money.import-learn-no")]);
     }
+    function monthlyCardRepeats(take, from, to, existing, cb) {
+      var p2 = P();
+      var cands = take.filter(function (x) { return !x.duplicate && x.kind === "out" && x.payee && !(x.match && x.match.state === "open"); })
+        .sort(function (a, b) { return a.date < b.date ? 1 : a.date > b.date ? -1 : 0; });
+      if (!cands.length) { cb([]); return; }
+      var seen = {};
+      (existing || []).forEach(function (s) { seen[M.payeeKey(s.name) + "|" + s.minor] = true; });
+      var rules = M.rules().filter(function (r) { return r.kind === "out"; });
+      function covered(k, minor) {
+        return rules.some(function (r) {
+          if (r.minor !== minor) return false;
+          var keys = [M.payeeKey(r.name), M.payeeKey(r.payee)].concat(r.aliases || []);
+          return keys.indexOf(k) !== -1;
+        });
+      }
+      var start = p2.addDays(from || p2.today(), -40), end = to || p2.today();
+      M.range(start, end, function (err, stored) {
+        if (err || !stored) { cb([]); return; }
+        var byKey = {};
+        stored.forEach(function (t) {
+          if (t.kind !== "out" || !t.payee) return;
+          var sk = M.payeeKey(t.payee) + "|" + t.minor;
+          if (!byKey[sk]) byKey[sk] = {};
+          byKey[sk][t.date] = true;
+        });
+        var extra = [];
+        cands.forEach(function (x) {
+          var k = M.payeeKey(x.payee), sk = k + "|" + x.minor;
+          if (!k || seen[sk] || covered(k, x.minor) || !byKey[sk]) return;
+          var dates = Object.keys(byKey[sk]).sort();
+          var hit = false;
+          for (var i = 1; i < dates.length && !hit; i++) {
+            var gap = p2.between(dates[i - 1], dates[i]);
+            if (gap >= 25 && gap <= 35) hit = true;
+          }
+          if (!hit) return;
+          seen[sk] = true;
+          extra.push({ name: x.payee, minor: x.minor, cat: x.cat, type: (x.bank && x.bank.type) || "", date: x.date, kind: "out", monthly: true });
+        });
+        cb(extra);
+      });
+    }
     function doImport() {
       var p2 = P();
       if (S.busy) return;
@@ -331,8 +373,13 @@
         if (err) { fail(err.message + "."); return; }
         var leftOther = take.filter(function (r) { return !r.duplicate && r.catFrom === "default" && !(r.match && r.match.state === "open"); }).length;
         S.result = { added: out.added, here: take.filter(function (r) { return r.duplicate; }).length, bad: S.pv.errors.length, batch: out.batch,
-          linked: out.linked, created: out.created, suggest: out.suggest || [], other: leftOther, replaced: !!S.replaces };
+          linked: out.linked, created: out.created, suggest: (out.suggest || []).slice(), other: leftOther, replaced: !!S.replaces };
         S.step = 2; p2.announce("Imported " + plural(out.added, "entry", "entries") + "."); draw(); KOS.rerender();
+        monthlyCardRepeats(take, S.pv && S.pv.from, S.pv && S.pv.to, S.result.suggest, function (extra) {
+          if (!extra.length || !body.isConnected || S.step !== 2 || !S.result || S.result.batch !== out.batch) return;
+          S.result.suggest = S.result.suggest.concat(extra);
+          draw();
+        });
       });
     }
 
@@ -352,11 +399,31 @@
       if (r.created && (r.created.cats || r.created.pots)) body.appendChild(el("p", { class: "k-muted k-mn-small", text: "Made " +
         [r.created.cats ? plural(r.created.cats, "category", "categories") : null, r.created.pots ? plural(r.created.pots, "pot") : null].filter(Boolean).join(" and ") + " the file named." }));
       if (r.suggest.length) {
-        body.appendChild(p2.card([p2.head("Looks like regular payments", "Direct Debits and standing orders with no recurring rule")].concat(r.suggest.slice(0, 5).map(function (s) {
-          return el("div", { class: "k-card-row" }, [typeChip(s.type), el("span", { class: "k-mn-grow k-ellipsis", text: s.name }), p2.amt(-s.minor, { size: "13" }),
+        var hasMonthly = r.suggest.some(function (s) { return s.monthly; });
+        body.appendChild(p2.card([p2.head("Looks like regular payments", hasMonthly ? "Direct Debits, standing orders and monthly card payments with no recurring rule" : "Direct Debits and standing orders with no recurring rule")].concat(r.suggest.slice(0, 5).map(function (s) {
+          return el("div", { class: "k-card-row", "data-ui": "money.import-suggest-row" }, [typeChip(s.type),
+            el("span", { class: "k-mn-grow k-ellipsis", text: s.name }),
+            s.monthly ? el("span", { class: "k-muted k-mn-small", text: "monthly" }) : null,
+            p2.amt(-s.minor, { size: "13" }),
             p2.btn("Make it recurring", "k-btn--sm", function () {
-              p2.ruleEditor(null, { name: s.name, kind: "out", cat: s.cat || "bills", minor: s.minor, start: s.date, every: { n: 1, unit: "month" } });
-            }, "money.import-suggest")]);
+              var before = M.rules().length;
+              var ed = p2.ruleEditor(null, { name: s.name, kind: "out", cat: s.cat || "bills", minor: s.minor, start: s.date, every: { n: 1, unit: "month" }, sub: s.cat === "subscriptions" });
+              var hd = ed.querySelector(".k-card-head"); if (hd) hd.remove();
+              var rDlg = p2.dialogBox("Make it recurring", "↻", [ed], null, { hook: "money.suggest-rule-dialog", cls: "k-msheet--full" });
+              ed.addEventListener("click", function (ev) {
+                var b = ev.target && ev.target.closest && ev.target.closest("button");
+                if (!b) return;
+                if (b.getAttribute("data-ui") === "money.rule-save") {
+                  if (M.rules().length > before) {
+                    rDlg.close();
+                    S.result.suggest = S.result.suggest.filter(function (x) { return x !== s; });
+                    if (body.isConnected && S.step === 2) draw();
+                  }
+                } else if (b.textContent === "Cancel") {
+                  rDlg.close();
+                }
+              });
+            }, "money.import-suggest")].filter(Boolean));
         })), "k-mn-suggest", "money.import-suggestions"));
       }
       foot.appendChild(p2.btn("Undo import", "k-btn--quiet", function () {

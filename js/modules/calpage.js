@@ -133,11 +133,39 @@
     /* an assessment is the hub's record: it opens there (invariant 120) */
     if (ev && ev.assessmentId) { KOS.show("exams", ev.assessmentId); return; }
     var overlay;
-    var when = dateISO && occursOn(ev, dateISO) ? dateISO : (nextOccurrence(ev, today()) || ev.date);
+    var repeats = (ev.recur || "none") !== "none";
+    var googleLinked = !!(ev.ext && ev.ext.g && ev.ext.g.id);
+    var stored = !ev.assessmentId && store.state.calendar.events.some(function (x) { return x.id === ev.id; });
+    var localSkips = Array.isArray(ev.skip) ? ev.skip : [];
+    var gSkips = ev.ext && ev.ext.g && Array.isArray(ev.ext.g.skip) ? ev.ext.g.skip : [];
+    var skippedThis = !!(dateISO && repeats && (localSkips.indexOf(dateISO) !== -1 || gSkips.indexOf(dateISO) !== -1));
+    var when = dateISO && (occursOn(ev, dateISO) || skippedThis) ? dateISO : (nextOccurrence(ev, today()) || ev.date);
     var rows = el("dl", { class: "k-cal-kvs" });
 
     rows.appendChild(detailRow("When", prettyDate(when) + " · " + timeRange(ev)));
-    if ((ev.recur || "none") !== "none") rows.appendChild(detailRow("Repeats", describeRecur(ev).replace(/^Repeats /, "")));
+    if (repeats) rows.appendChild(detailRow("Repeats", describeRecur(ev).replace(/^Repeats /, "")));
+    function unskipBtn(d, label) {
+      return el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "cal.unskip", text: label, "aria-label": "Restore " + prettyDate(d), onclick: function () {
+        var prev = localSkips.slice();
+        updateEvent(ev.id, { skip: prev.filter(function (x) { return x !== d; }) });
+        overlay.close();
+        if (onChanged) onChanged(); else KOS.rerender();
+        KOS.ui.toast("Restored " + prettyDate(d) + " · " + ev.title, false, { label: "Undo", run: function () {
+          updateEvent(ev.id, { skip: prev });
+          if (onChanged) onChanged(); else KOS.rerender();
+        } });
+      } });
+    }
+    if (skippedThis) {
+      rows.appendChild(detailRow("Skipped", el("span", { class: "k-cluster", "data-ui": "cal.skipped-note" }, [
+        el("span", { text: "Skipped on " + prettyDate(when) }),
+        localSkips.indexOf(when) !== -1 && !googleLinked && stored ? unskipBtn(when, "Restore showing") : null
+      ].filter(Boolean))));
+    } else if (repeats && stored && !googleLinked && localSkips.length) {
+      rows.appendChild(detailRow("Skipped", el("span", { class: "k-cluster", "data-ui": "cal.skipped-list" }, localSkips.map(function (d) {
+        return el("span", { class: "k-cluster" }, [el("span", { text: prettyDate(d) }), unskipBtn(d, "Restore")]);
+      }))));
+    }
     if (ev.subject) rows.appendChild(detailRow("Subject", subjectName(ev.subject)));
     if (ev.ref) {
       rows.appendChild(detailRow("Topic", linkBtn(topicLabel(ev.subject, ev.ref), function () {
@@ -183,19 +211,33 @@
     }
     if (ev.alerts.length) rows.appendChild(detailRow("Alerts", ev.alerts.map(alertLabel).join(", ")));
 
+    var bodyActs = [];
+    if ((ev.type === "study" || ev.type === "lesson") && !skippedThis) {
+      bodyActs.push(el("button", { type: "button", class: "k-btn", text: "Start a focus session", onclick: function () {
+        overlay.close();
+        /* the Focus page owns the set-up (invariant 4e): it opens filled
+           with the block's link, its assignment and its own length */
+        KOS.show("focus", focusArg(ev));
+      } }));
+    }
+    if (repeats && stored && !googleLinked && !skippedThis && when) {
+      bodyActs.push(el("button", { type: "button", class: "k-btn", "data-ui": "cal.skip", text: "Skip this showing", onclick: function () {
+        var prev = localSkips.slice();
+        updateEvent(ev.id, { skip: prev.concat([when]) });
+        overlay.close();
+        if (onChanged) onChanged(); else KOS.rerender();
+        KOS.ui.toast("Skipped " + prettyDate(when) + " · " + ev.title, false, { label: "Undo", run: function () {
+          updateEvent(ev.id, { skip: prev });
+          if (onChanged) onChanged(); else KOS.rerender();
+        } });
+      } }));
+    }
     var body = el("div", { class: "k-dialog-body k-cal-detail" }, [
       hueAttrs(el("span", { class: "k-cal-swatch-bar", "aria-hidden": "true" }), ev),
       rows,
       ev.description ? el("p", { class: "k-cal-desc", text: ev.description }) : null,
       planSection(ev, when, function () { return overlay; }),
-      ev.type === "study" || ev.type === "lesson"
-        ? el("div", { class: "k-cluster" }, [el("button", { type: "button", class: "k-btn", text: "Start a focus session", onclick: function () {
-            overlay.close();
-            /* the Focus page owns the set-up (invariant 4e): it opens filled
-               with the block's link, its assignment and its own length */
-            KOS.show("focus", focusArg(ev));
-          } })])
-        : null
+      bodyActs.length ? el("div", { class: "k-cluster" }, bodyActs) : null
     ].filter(Boolean));
 
     overlay = dialog("cal.detail-modal", TYPE_LABEL[ev.type], ev.title || "Untitled", [body], foot([

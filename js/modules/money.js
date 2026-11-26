@@ -130,11 +130,12 @@
     tabs.setAttribute("data-phone-tabs", "");
     var viewLabel = (VIEWS.filter(function (v) { return v[0] === view; })[0] || [0, "Money"])[1];
     return U.pageHeader({
-      kicker: "円 · " + (view === "overview" ? "The month" : view === "settings" ? "Settings" : viewLabel),
-      title: view === "overview" ? "Money" : view === "settings" ? "Money settings" : viewLabel,
+      kicker: "円 · " + (view === "overview" ? "The month" : view === "settings" ? "Settings" : view === "imports" ? "Imports" : viewLabel),
+      title: view === "overview" ? "Money" : view === "settings" ? "Money settings" : view === "imports" ? "Imports" : viewLabel,
       sub: sub,
       className: "k-mn-head",
-      actions: [tabs, privacy, gear, view === "budgets" || view === "pots" || view === "month" || view === "settings" ? null
+      actions: [tabs, privacy, gear, view === "imports" ? btn("Import…", "k-btn--primary", function () { importDialog(); }, "money.import")
+        : view === "budgets" || view === "pots" || view === "month" || view === "settings" ? null
         : btn("＋ Add entry", "k-btn--primary k-mn-add", function () { entryEditor(null); }, "money.add")]
     });
   }
@@ -147,13 +148,14 @@
       KOS.moneyImp.merchantPage(main, arg.slice(9));
       return;
     }
-    var view = VIEWS.some(function (v) { return v[0] === arg; }) || arg === "settings" ? arg : "overview";
+    var view = VIEWS.some(function (v) { return v[0] === arg; }) || arg === "settings" || arg === "imports" ? arg : "overview";
     var key = M.periodKey(today()), r = M.periodRange(key);
     var subs = {
       overview: monthName(key) + " so far · " + (between(r.from, today()) + 1) + " of " + r.days + " days",
       transactions: "Every entry, typed, imported or made by a rule",
       budgets: null, recurring: "Payments, income and set-asides made by a rule",
-      pots: null, month: "What came in, what went out", settings: "Rules for imported statements"
+      pots: null, month: "What came in, what went out", settings: "Rules for imported statements",
+      imports: "Statements brought into Money, each undoable"
     };
     var page = el("div", { class: "k-mn", "data-ui": "money.page", "data-view": view });
     main.appendChild(header(view, subs[view]));
@@ -543,10 +545,14 @@
     var rangeSel = select(ranges, f.range,
       { "data-ui": "money.tx-range", "aria-label": "Dates", class: "k-input k-pill-select" });
     var kinds = seg([["", "All"], ["in", "In"], ["out", "Out"], ["transfer", "Moves"]], f.kind, function (k) { f.kind = k; redraw(); }, "Entry kind", "k-mn-kinds");
-    /* 39d: the imports, and the Source filter that narrows the list to one */
+    /* 39d: the imports, and the Source filter that narrows the list to one or all imported files */
     var imps = M.imports ? M.imports() : [];
-    if (f.source && !imps.some(function (b) { return b.id === f.source; })) f.source = "";
-    var srcSel = imps.length ? select([["", "Source: All"]].concat(imps.map(function (b) { return [b.id, "Source: " + (b.file || "an import")]; })), f.source,
+    if (f.source && f.source !== "__csv__" && !imps.some(function (b) { return b.id === f.source; })) f.source = "";
+    if (f.source === "__csv__" && !imps.length) f.source = "";
+    var srcOpts = [["", "Source: All"]]
+      .concat(imps.length > 1 ? [["__csv__", "Source: Imported (all files)"]] : [])
+      .concat(imps.map(function (b) { return [b.id, "Source: " + (b.file || "an import")]; }));
+    var srcSel = imps.length ? select(srcOpts, f.source,
       { "data-ui": "money.tx-source", "aria-label": "Source", class: "k-input k-pill-select k-mn-srcsel" }) : null;
     if (srcSel) srcSel.addEventListener("change", function () { f.source = srcSel.value; if (f.source) f.range = "all"; redraw(); });
     var modes = imps.length ? seg([["entries", "Entries"], ["imports", "Imports"]], f.mode || "entries", function (m) { f.mode = m; redraw(); }, "Entries or imports", "k-mn-modes") : null;
@@ -567,20 +573,43 @@
   }
   function drawList(host, side) {
     var f = visit.tx, rng = txRange(), cursor = null, done = false, shown = [];
+    var allBox = el("input", { type: "checkbox", class: "k-box", "data-ui": "money.tx-select-all", "aria-label": "Select all loaded entries" });
+    var allLabel = el("span", { class: "k-muted k-mn-small", text: "Select all" });
+    var selBar = el("div", { class: "k-mn-selbar", hidden: "" }, [el("label", { class: "k-mn-selall" }, [allBox, allLabel])]);
     var bulk = el("div", { class: "k-mn-bulk", "data-ui": "money.bulk", hidden: "" });
     var list = el("div", { class: "k-mn-tx", "data-ui": "money.tx-list", role: "list", "aria-label": "Entries" });
     var more = el("div", { class: "k-mn-more k-muted", "data-ui": "money.tx-more" });
-    var holder = card([bulk, list, more], "k-mn-txcard", "money.tx-card");
+    var holder = card([selBar, bulk, list, more], "k-mn-txcard", "money.tx-card");
     host.appendChild(holder);
+    function syncSelectAll() {
+      selBar.hidden = !shown.length;
+      if (!shown.length) return;
+      var ticked = shown.filter(function (t) { return !!visit.ticked[t.syncId]; }).length;
+      allBox.checked = ticked === shown.length;
+      allBox.indeterminate = ticked > 0 && ticked < shown.length;
+      allLabel.textContent = ticked === shown.length ? "All " + shown.length + " selected" : "Select all (" + shown.length + ")";
+    }
+    allBox.addEventListener("change", function () {
+      var on = allBox.checked;
+      shown.forEach(function (t) { if (on) visit.ticked[t.syncId] = t; else delete visit.ticked[t.syncId]; });
+      Array.prototype.forEach.call(list.querySelectorAll('[data-ui="money.tx-row"]'), function (r) {
+        var b = r.querySelector('[data-ui="money.tx-tick"]');
+        if (b) b.checked = on;
+        U.state(r, "ticked", on);
+      });
+      drawBulk();
+    });
     var groups = {};
     var q = f.search.trim(), tag = "";
     var m = q.match(/(^|\s)#([\w-]+)/);
     if (m) { tag = m[2]; q = q.replace(m[0], "").trim(); }
+    var batchOpt = f.source && f.source !== "__csv__" ? f.source : null;
+    var srcOpt = f.source === "__csv__" ? "csv" : null;
     var loading = false;
     function load() {
       if (done || loading) return;
       loading = true;
-      M.list({ from: rng.from, to: rng.to, cat: f.cat || null, kind: f.kind === "out" ? null : f.kind || null, search: q, tag: tag || null, batch: f.source || null, before: cursor, limit: 60 }, function (err, rows, next) {
+      M.list({ from: rng.from, to: rng.to, cat: f.cat || null, kind: f.kind === "out" ? null : f.kind || null, search: q, tag: tag || null, batch: batchOpt, src: srcOpt, before: cursor, limit: 60 }, function (err, rows, next) {
         rows = (rows || []).filter(function (t) { return f.kind !== "out" || t.kind === "out" || t.kind === "transfer"; });
         rows.forEach(function (t) {
           shown.push(t);
@@ -593,6 +622,7 @@
         });
         cursor = next; done = !next; loading = false;
         more.textContent = "";
+        syncSelectAll();
         if (!shown.length) {
           var isDay = f.range && f.range.indexOf("day:") === 0;
           var filtered = f.search || f.cat || f.kind || f.source || isDay;
@@ -668,6 +698,7 @@
       return row;
     }
     function drawBulk() {
+      syncSelectAll();
       var ids = Object.keys(visit.ticked);
       bulk.hidden = !ids.length;
       bulk.textContent = "";
@@ -720,12 +751,12 @@
     }
     /* the same filters as load(): "out" also lists transfers */
     var totals = null;
-    M.listTotals({ from: rng.from, to: rng.to, cat: f.cat || null, kind: f.kind === "out" ? null : f.kind || null, search: q, tag: tag || null, batch: f.source || null }, function (err, r) {
+    M.listTotals({ from: rng.from, to: rng.to, cat: f.cat || null, kind: f.kind === "out" ? null : f.kind || null, search: q, tag: tag || null, batch: batchOpt, src: srcOpt }, function (err, r) {
       if (err) return;
       if (f.kind === "out") {
         /* listTotals has no "out or transfer" filter: count those kinds alone */
-        M.listTotals({ from: rng.from, to: rng.to, cat: f.cat || null, kind: "out", search: q, tag: tag || null, batch: f.source || null }, function (e1, a) {
-          M.listTotals({ from: rng.from, to: rng.to, cat: f.cat || null, kind: "transfer", search: q, tag: tag || null, batch: f.source || null }, function (e2, b) {
+        M.listTotals({ from: rng.from, to: rng.to, cat: f.cat || null, kind: "out", search: q, tag: tag || null, batch: batchOpt, src: srcOpt }, function (e1, a) {
+          M.listTotals({ from: rng.from, to: rng.to, cat: f.cat || null, kind: "transfer", search: q, tag: tag || null, batch: batchOpt, src: srcOpt }, function (e2, b) {
             totals = { count: a.count + b.count, inn: 0, out: a.out + b.out, pots: b.pots };
             drawSide();
           });
@@ -943,7 +974,7 @@
             ov.close();
             M.confirmWith(r.id, date, t.syncId, function (e2) {
               if (e2) { U.toast(e2.message, true); return; }
-              announce(r.name + " counted from your statement");
+              U.toast(r.name + " counted from your statement", false, { label: "Undo", run: function () { M.unmark(r.id, date, function () { redraw(); }); } });
               redraw();
             });
           }, "money.confirm-bank")], { hook: "money.confirm-bank-dialog" });
@@ -953,7 +984,8 @@
     M.confirm(r.id, date, { amount: amount == null ? null : amount / 100, date: onDate || null }, function (err, tx) {
       if (err) { U.toast(err.message, true); return; }
       var c = r.kind === "in" ? "received" : r.kind === "transfer" ? "set aside" : "confirmed";
-      announce(r.name + " " + c + (M.isHidden() ? "" : ", " + money(tx.minor)) + (r.kind === "out" ? ", added to " + cat(r.cat).name : ""));
+      U.toast(r.name + " " + c + (M.isHidden() ? "" : ", " + money(tx.minor)) + (r.kind === "out" ? ", added to " + cat(r.cat).name : ""), false,
+        { label: "Undo", run: function () { M.unmark(r.id, date, function () { redraw(); }); } });
       redraw();
     });
   }
@@ -1086,6 +1118,14 @@
         c.budgetFrom === "wishlist" ? null : { label: c.rollover ? "Turn rollover off" : "Turn rollover on", onSelect: function () {
           M.updateCategory(c.id, { rollover: !c.rollover }); announce(c.name + (c.rollover ? " rollover off" : " rollover on")); redraw(); } },
         { label: "See entries", onSelect: function () { visit.tx.cat = c.id; go("transactions"); } },
+        { label: "Make this a goal", onSelect: function () {
+          KOS.lazy.need("page-goals").then(function () {
+            if (KOS.goalsUI && KOS.goalsUI.newGoal) KOS.goalsUI.newGoal({
+              type: "money-spend-under", title: "Keep " + c.name + " under budget",
+              target: b != null ? b / 100 : undefined, repeat: "month", links: { category: c.id }
+            });
+          });
+        } },
         c.id === "collection" || c.id === "other" ? null : { sep: true },
         c.id === "collection" || c.id === "other" ? null : { label: "Archive…", onSelect: function () {
           U.confirm({ title: "Archive " + c.name + "?", confirm: "Archive", mark: "▣",
@@ -1171,58 +1211,118 @@
     var mainCol = el("div", { class: "k-mn-stack" });
     var side = el("div", { class: "k-mn-side" });
     page.appendChild(el("div", { class: "k-mn-cols" }, [mainCol, side]));
-    /* due occurrences: passed or today, not confirmed or skipped, this month or last */
-    var due = M.upcoming(addDays(now, -14), now, now).filter(function (o) { return o.state === "due" && !visit.left[o.rule + ":" + o.date] && !o.trial; });
-    due.sort(function (a, b) { return a.date < b.date ? 1 : -1; });
-    var seen = {};
-    due.filter(function (o) { if (seen[o.rule]) return false; seen[o.rule] = true; return true; }).slice(0, 3).forEach(function (o) { mainCol.appendChild(dueCard(o, now)); });
+    /* every past occurrence neither confirmed nor skipped, computed from each rule (invariant 43) */
+    var due = unconfirmedList(rs, now);
+    if (due.length) mainCol.appendChild(unconfirmedCard(due, now));
     mainCol.appendChild(rulesCard(rs, now));
     side.appendChild(ruleEditor(visit.ruleEdit && visit.ruleEdit !== "new" ? M.rule(visit.ruleEdit) : null));
   }
-  function dueCard(o, now) {
-    var r = M.rule(o.rule), c = cat(r.cat);
-    var occ = M.occurrences(r, addDays(o.date, -40), addDays(o.date, 40));
-    var at = occ.indexOf(o.date), strip = occ.slice(Math.max(0, at - 3), at + 2);
-    var stateWord = { done: "✓ Confirmed", skip: "— Skipped", due: "● Due", upcoming: "○ Upcoming" };
-    var noteHost = el("div");
-    var otherHost = el("div");
-    var whenWord = o.date === now ? "Due today" : "Due · " + between(o.date, now) + (between(o.date, now) === 1 ? " day ago" : " days ago");
-    var node = card([
-      el("div", { class: "k-mn-duehead" }, [tile("↻", r.kind === "transfer" ? "jade" : c.tone), el("div", { class: "k-mn-grow" }, [kicker(whenWord),
-        el("div", { class: "k-mn-duetitle" }, [r.name + " · ", amt(o.minor, { size: "18" })]),
-        el("div", { class: "k-muted k-mn-small", text: cap(everyLabel(r)) + " · " + (r.kind === "transfer" ? (M.pot(r.pot) ? M.pot(r.pot).name + " pot" : "a pot") : r.kind === "in" ? "Income" : c.name) })])]),
-      el("ol", { class: "k-mn-occ", "aria-label": "Occurrences" }, strip.map(function (d) {
-        var st = M.occurrenceState(r, d, now), m = r.marks[d];
-        return el("li", { class: "k-mn-occ-i", "data-state": d === o.date ? "current" : null }, [
-          el("span", { class: "k-mono k-muted k-mn-tiny", text: dayLabel(d) }),
-          chip(d === o.date ? (o.date === now ? "● Due today" : "● Due") : (st === "done" && m && m.changed ? "✓ Confirmed · changed" : stateWord[st]),
-            st === "done" ? "green" : d === o.date ? "crimson" : "muted"),
-          st === "skip" ? el("span", { class: "k-muted k-mn-tiny", text: "no entry" }) : amt(st === "done" && m && m.minor ? m.minor : M.amountOn(r, d), { size: "12-5", w: "500" })]);
-      })),
-      otherHost,
-      el("div", { class: "k-mn-actions" }, [
-        btn((r.kind === "in" ? "Received " : "Confirm ") + said(o.minor), "k-btn--primary", function () { confirmOcc(r, o.date, null); }, "money.occ-confirm"),
-        btn(r.kind === "in" ? "Received a different amount" : "Confirm a different amount", "", function () {
-          otherHost.textContent = "";
-          var af = U.amountField({ value: o.minor, label: "Amount" });
-          otherHost.appendChild(el("div", { class: "k-mn-inline" }, [af.node, btn("Confirm", "k-btn--sm k-btn--primary", function () { if (af.validate()) confirmOcc(r, o.date, af.value()); })]));
-          af.input.focus();
-        }, "money.occ-other"),
-        btn("Skip this one", "", function () {
-          M.skip(r.id, o.date, function () { announce("Skipped · " + r.name + ", " + shortDate(o.date)); redraw(); });
-        }, "money.occ-skip"),
-        btn("Leave it upcoming", "k-btn--quiet", function () { visit.left[r.id + ":" + o.date] = true; redraw(); }, "money.occ-leave")]),
-      noteHost
-    ], "k-mn-due", "money.due");
-    if (r.kind === "out" && r.cat) {
-      M.summary(M.periodKey(o.date), function (err, s) {
-        var row = s && s.byCat[r.cat];
-        if (row && row.budget != null && row.net + o.minor > (row.effective != null ? row.effective : row.budget)) {
-          noteHost.appendChild(el("p", { class: "k-mn-warn k-mn-small" }, ["◷ Confirming takes " + c.name + " to ", amt(row.net + o.minor, { size: "12" }), " of ", amt(row.effective != null ? row.effective : row.budget, { size: "12" }), "."]));
-        }
+  function unconfirmedList(rs, now) {
+    var out = [];
+    rs.forEach(function (r) {
+      M.occurrences(r, r.start, now).forEach(function (d) {
+        if (r.trialEnd && d <= r.trialEnd) return;
+        if (M.occurrenceState(r, d, now) !== "due") return;
+        out.push({ rule: r.id, r: r, name: r.name, date: d, minor: M.amountOn(r, d), kind: r.kind, cat: r.cat, pot: r.pot });
+      });
+    });
+    return out.sort(function (a, b) { return a.date < b.date ? 1 : a.date > b.date ? -1 : a.name.localeCompare(b.name); });
+  }
+  function unmarkMany(done) {
+    var i = 0;
+    (function next() {
+      if (i >= done.length) { announce("Undone · " + done.length + (done.length === 1 ? " occurrence" : " occurrences") + " back in the queue"); redraw(); return; }
+      var x = done[i++];
+      M.unmark(x.rule, x.date, next);
+    })();
+  }
+  function unconfirmedCard(items, now) {
+    var live = KOS.view ? KOS.view.token() : function () { return true; };
+    var matchedCount = 0;
+    var cap = visit.occAll ? items.length : Math.min(items.length, 12);
+    var countText = items.length + (items.length === 1 ? " past occurrence" : " past occurrences");
+    function confirmAll() {
+      var net = items.reduce(function (n, o) { return n + (o.kind === "in" ? o.minor : -o.minor); }, 0);
+      var note = matchedCount ? " " + matchedCount + (matchedCount === 1 ? " matches an imported statement entry — link it individually if you do not want a second entry." : " match imported statement entries — link those individually if you do not want duplicate entries.") : "";
+      U.confirm({ title: "Confirm all " + items.length + "?", confirm: "Confirm all", mark: "↻",
+        body: "Adds " + items.length + (items.length === 1 ? " entry" : " entries") + (M.isHidden() ? "" : " (net " + money(net, { sign: true }) + ")") + " to Money." + note }, function () {
+        var todo = items.slice(), done = [], i = 0;
+        (function next() {
+          if (i >= todo.length) {
+            if (done.length) U.toast("Confirmed " + done.length + (done.length === 1 ? " occurrence" : " occurrences"), false, { label: "Undo", run: function () { unmarkMany(done); } });
+            redraw();
+            return;
+          }
+          var o = todo[i++];
+          M.confirm(o.rule, o.date, {}, function (err) { if (!err) done.push({ rule: o.rule, date: o.date }); next(); });
+        })();
       });
     }
-    return node;
+    function skipAll() {
+      U.confirm({ title: "Skip all " + items.length + "?", confirm: "Skip all", mark: "↻",
+        body: "Marks all " + items.length + (items.length === 1 ? " past occurrence" : " past occurrences") + " as skipped without creating entries." }, function () {
+        var todo = items.slice(), done = [], i = 0;
+        (function next() {
+          if (i >= todo.length) {
+            if (done.length) U.toast("Skipped " + done.length + (done.length === 1 ? " occurrence" : " occurrences"), false, { label: "Undo", run: function () { unmarkMany(done); } });
+            redraw();
+            return;
+          }
+          var o = todo[i++];
+          M.skip(o.rule, o.date, function (err) { if (!err) done.push({ rule: o.rule, date: o.date }); next(); });
+        })();
+      });
+    }
+    var list = el("div", { class: "k-mn-qlist", role: "list", "aria-label": "Not yet confirmed occurrences" });
+    items.slice(0, cap).forEach(function (o) {
+      var r = o.r, c = cat(r.cat);
+      var ago = between(o.date, now);
+      var when = o.date === now ? "Today" : dayLabel(o.date) + " · " + ago + (ago === 1 ? " day ago" : " days ago");
+      var sub = r.kind === "transfer" ? (M.pot(r.pot) ? M.pot(r.pot).name + " pot" : "Set-aside") : r.kind === "in" ? "Income" : c.name;
+      var signed = o.kind === "in" ? o.minor : -o.minor;
+      var row = el("div", { class: "k-mn-qrow", role: "listitem", "data-ui": "money.occ-row" }, [
+        el("div", { class: "k-mn-qmain" }, [
+          dot(r.kind === "transfer" ? "jade" : c.tone),
+          el("div", { class: "k-mn-grow k-mn-fname" }, [
+            el("span", { class: "k-mn-strong k-ellipsis", text: o.name }),
+            el("span", { class: "k-muted k-mn-small k-ellipsis", text: when + " · " + sub })]),
+          amt(signed, { size: "13", plus: o.kind === "in", tone: o.kind === "in" ? "in" : o.kind === "transfer" ? "transfer" : null }),
+          el("div", { class: "k-mn-actions" }, [
+            btn((r.kind === "in" ? "Received " : "Confirm ") + said(o.minor), "k-btn--sm k-btn--primary", function () { confirmOcc(r, o.date, null); }, "money.occ-confirm"),
+            btn("Different amount", "k-btn--sm", function () { amountDialog(r, o.date); }, "money.occ-other"),
+            btn("Skip", "k-btn--sm k-btn--quiet", function () {
+              M.skip(r.id, o.date, function () {
+                U.toast("Skipped · " + r.name + ", " + shortDate(o.date), false, { label: "Undo", run: function () { M.unmark(r.id, o.date, function () { redraw(); }); } });
+                redraw();
+              });
+            }, "money.occ-skip")])])]);
+      list.appendChild(row);
+      if (o.kind === "out" || o.kind === "in") {
+        M.bankMatches(o.rule, o.date, function (err, found) {
+          if (err || !found || !found.length || !live() || !row.isConnected) return;
+          matchedCount++;
+          var t = found[0];
+          row.appendChild(el("div", { class: "k-mn-qmatch", "data-ui": "money.occ-match" }, [
+            el("span", { class: "k-mn-grow", text: "Matches statement · " + (t.payee || (t.bank && t.bank.text) || "Imported entry") + " · " + shortDate(t.date) }),
+            btn("Use statement entry", "k-btn--sm", function () {
+              M.confirmWith(o.rule, o.date, t.syncId, function (e2) {
+                if (e2) { U.toast(e2.message, true); return; }
+                U.toast(o.name + " counted from your statement", false, { label: "Undo", run: function () { M.unmark(o.rule, o.date, function () { redraw(); }); } });
+                redraw();
+              });
+            }, "money.occ-use-bank")]));
+        });
+      }
+    });
+    var moreBtn = cap < items.length ? el("div", { class: "k-mn-more" }, [btn("Show all " + items.length, "k-btn--sm k-btn--quiet", function () { visit.occAll = true; redraw(); }, "money.occ-more")]) : null;
+    return card([
+      el("div", { class: "k-mn-qhead" }, [
+        el("h2", { class: "k-card-title", text: "Not yet confirmed" }),
+        el("span", { class: "k-card-meta", text: countText }),
+        el("span", { class: "k-mn-spacer" }),
+        items.length > 1 ? btn("Confirm all", "k-btn--sm", confirmAll, "money.occ-confirm-all") : null,
+        items.length > 1 ? btn("Skip all", "k-btn--sm k-btn--quiet", skipAll, "money.occ-skip-all") : null].filter(Boolean)),
+      list, moreBtn].filter(Boolean), "k-mn-queue", "money.unconfirmed");
   }
   function cap(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
   function rulesCard(rs, now) {
@@ -1435,7 +1535,8 @@
         btn("Move out", "", function () { moveDialog2(p, "out"); }, "money.pot-out"),
         btn("Edit", "k-btn--quiet", function () { potDialog(p); }, "money.pot-edit"),
         goal ? el("button", { type: "button", class: "k-mn-goalpill", "data-ui": "money.pot-goal", onclick: function () { KOS.show("goals", { id: goal.id }); } }, [
-          el("span", { class: "k-kanji k-muted", "aria-hidden": "true", text: "標" }), goal.title]) : null].filter(Boolean))
+          el("span", { class: "k-kanji k-muted", "aria-hidden": "true", text: "標" }), goal.title])
+          : btn("Make this a goal", "k-btn--quiet", function () { openPotGoal(p); }, "money.pot-make-goal")].filter(Boolean))
     ].filter(Boolean));
     if (goal) KOS.goals.compute(function (e, rows) {
       var g = (rows || []).filter(function (x) { return x.id === goal.id; })[0];
@@ -1484,12 +1585,21 @@
     });
     return host;
   }
+  function openPotGoal(p) {
+    KOS.lazy.need("page-goals").then(function () {
+      if (KOS.goalsUI && KOS.goalsUI.newGoal) KOS.goalsUI.newGoal({
+        type: "money-save", title: "Save for " + p.name,
+        target: p.target ? p.target / 100 : 100, deadline: p.by || undefined, links: { pot: p.id }
+      });
+    });
+  }
   function potCard(p, bal) {
     var now = today(), days = p.by ? between(now, p.by) : null, reached = p.target && bal >= p.target;
     var rule = M.rules().filter(function (r) { return r.kind === "transfer" && r.pot === p.id; })[0];
     var each = p.target && p.by ? M.setAside(p, bal, now) : null;
     var more = U.menu({ label: "⋯", className: "k-btn--quiet k-mn-potmore", items: [
       { label: "Edit", onSelect: function () { potDialog(p); } },
+      { label: "Make this a goal", onSelect: function () { openPotGoal(p); } },
       { label: "Lead with this pot", onSelect: function () { M.pots({ archived: true }).forEach(function (x) { if (x.pinned) M.updatePot(x.id, { pinned: false }); }); M.updatePot(p.id, { pinned: true }); redraw(); } },
       { sep: true },
       { label: "Close pot…", onSelect: function () { closePot(p, bal); } }] });
@@ -1715,7 +1825,16 @@
     });
   }
 
-  var RENDER = { overview: overview, transactions: transactions, budgets: budgets, recurring: recurring, pots: pots, month: monthYear, settings: function (page) { KOS.moneyImp.settings(page); } };
+  var RENDER = {
+    overview: overview, transactions: transactions, budgets: budgets, recurring: recurring, pots: pots, month: monthYear,
+    settings: function (page) { KOS.moneyImp.settings(page); },
+    imports: function (page) {
+      var listHost = el("div", { class: "k-mn-txlist-host" });
+      var side = el("div", { class: "k-mn-side" });
+      page.appendChild(el("div", { class: "k-mn-cols k-mn-cols--sm" }, [listHost, side]));
+      KOS.moneyImp.importsView(listHost, side);
+    }
+  };
   /* other pages open these */
   KOS.moneyUI = { entryEditor: entryEditor, importDialog: importDialog };
   /* the parts moneyimp.js draws with (design turn 39), so both files speak one language */

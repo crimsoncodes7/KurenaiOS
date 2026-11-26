@@ -376,11 +376,23 @@
       !timed ? null : st.practice.got != null ? cell("Practice", st.practice.got + "/" + st.practice.max, st.practice.sub) : cell("Practice", null, null, st.practice.action, function () { KOS.show("exams", { id: a.id, tab: "papers" }); }),
       !timed ? null : st.calibration.v != null ? cell("Calibration", (st.calibration.v > 0 ? "+" : "") + st.calibration.v, st.calibration.sub) : cell("Calibration", null, null, st.calibration.action, function () { KOS.show("exams", { id: a.id, tab: "papers" }); })].filter(Boolean));
   }
+  function openExamGoal(a) {
+    var ts = KOS.goalsExams && KOS.goalsExams.typesFor ? KOS.goalsExams.typesFor(a) : [];
+    if (!ts.length) return;
+    var gType = ts.indexOf("exam_recall") !== -1 ? "exam_recall" : ts[0];
+    KOS.lazy.need("page-goals").then(function () {
+      if (KOS.goalsUI && KOS.goalsUI.newGoal) KOS.goalsUI.newGoal({ type: gType, examId: a.id, links: { examId: a.id } });
+    });
+  }
   function todaySec(content, a) {
     var td = S().today(a);
+    var canGoal = !!(KOS.goalsExams && KOS.goalsExams.typesFor && KOS.goalsExams.typesFor(a).length);
     var bits = [U().pretty(today()), td.paperDay ? "paper day" : null, td.steps.length ? td.done + " of " + td.steps.length + " done" : null].filter(Boolean).join(" · ");
-    sectionHead(content, "Today", bits, [td.skipped ? btn("Undo skip", "quiet sm", function () { S().skip(a, false); KOS.rerender(); }, { "data-ui": "exams.skip" })
-      : td.steps.length ? btn("Skip today", "quiet sm", function () { S().skip(a, true); announce("Today skipped for " + a.title + "."); KOS.rerender(); }, { "data-ui": "exams.skip" }) : null]);
+    sectionHead(content, "Today", bits, [
+      canGoal ? btn("Make this a goal", "quiet sm", function () { openExamGoal(a); }, { "data-ui": "exams.make-goal" }) : null,
+      td.skipped ? btn("Undo skip", "quiet sm", function () { S().skip(a, false); KOS.rerender(); }, { "data-ui": "exams.skip" })
+        : td.steps.length ? btn("Skip today", "quiet sm", function () { S().skip(a, true); announce("Today skipped for " + a.title + "."); KOS.rerender(); }, { "data-ui": "exams.skip" }) : null
+    ]);
     if (a.tier === "retrieval_test" && KOS.examParts) content.appendChild(KOS.examParts.quizCard(a));
     else content.appendChild(stripEl(a, td.strip));
     if (a.tier === "topic_test") content.appendChild(el("p", { class: "k-ex-muted k-ex-small", "data-ui": "exams.topic-note", text: "No timed-practice signal and no grade range at this tier: a topic test is marked by your teacher's own scheme. Log the result and it feeds your topic colours." }));

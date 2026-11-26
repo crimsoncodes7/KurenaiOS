@@ -27,7 +27,7 @@
   "use strict";
   window.KOS = window.KOS || {};
 
-  var SUBJECTS = ["compsci", "maths", "it"];
+  var SUBJECTS = KOS.subjects && KOS.subjects.ids ? KOS.subjects.ids("exam") : ["compsci", "maths", "it"];
   var MODULES = ["anime", "books", "vn", "game"];
   var MIN_RECALL_REVIEWS = 50, MIN_CHART_DAYS = 3, MIN_PERSONA_BLOCKS = 5, MIN_STORIES = 4;
   var HEAT_FROM = 7, HEAT_TO = 23;   // the heat grid's least span (HR-08)

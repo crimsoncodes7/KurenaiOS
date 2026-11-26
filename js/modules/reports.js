@@ -31,17 +31,24 @@
   var el = KOS.ui.el, W = KOS.reportWords;
 
   /* every subject's hue (HR-17: Code, Japanese, Mind and Creatives drew none) */
-  var SUBJ_HUE = Object.assign(KOS.subjects && KOS.subjects.map ? KOS.subjects.map("hue") : {}, { compsci: "var(--cs)", maths: "var(--maths)", it: "var(--it)" });
+  var SUBJ_HUE = KOS.subjects && KOS.subjects.map ? KOS.subjects.map("hue") : {};
   var MOD_HUE = { anime: "var(--anime)", books: "var(--books)", vn: "var(--vn)", game: "var(--games)" };
   var MOD_SHORT = { anime: "Anime", books: "Books", vn: "VNs", game: "Games" };
   var MODULES = ["anime", "books", "vn", "game"];
   /* HR-23: every subject */
-  var SUBJECTS = KOS.subjects && KOS.subjects.ids ? KOS.subjects.ids() : ["compsci", "maths", "it"];
+  var SUBJECTS = KOS.subjects && KOS.subjects.ids ? KOS.subjects.ids() : [];
+  function subjShort(k) { return (KOS.subjects && KOS.subjects.meta && KOS.subjects.meta(k) ? KOS.subjects.short(k) : W.SUBJECT_SHORT[k]) || k; }
+  function subjKeys(obj) {
+    var seen = {}, out = [];
+    SUBJECTS.forEach(function (k) { if (obj && obj[k]) { seen[k] = 1; out.push(k); } });
+    Object.keys(obj || {}).forEach(function (k) { if (obj[k] && !seen[k]) out.push(k); });
+    return out;
+  }
   var BAND = { r: "Red", a: "Amber", g: "Green" };
   var DOW = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
   var MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   var SECTIONS = { study: "Study", focus: "Focus and plan", collection: "Collection" };
-  var FLOW_LABEL = { compsci: "CS", maths: "Maths", it: "IT", cards: "Flashcards", quiz: "Quiz" };
+  var FLOW_LABEL = Object.assign(KOS.subjects && KOS.subjects.map ? KOS.subjects.map("short") : {}, { cards: "Flashcards", quiz: "Quiz" });
   var AREA_LABEL = { study: "Study", planner: "Plan", collection: "Collection", governor: "Governor", archive: "Archive" };
   var SEAL = { week: "週", month: "月", term: "期", year: "年" };
   var HEAT_FROM = 7;   // a saved grid without `heatFrom` (HR-08)
@@ -368,7 +375,7 @@
     opts = opts || {};
     var s = f.study;
     if (!s.chartDays) return dayTiles(f, s.dayMins, W.hm);
-    var keys = SUBJECTS.filter(function (k) { return s.bySubject[k]; });
+    var keys = subjKeys(s.bySubject);
     var hues = SUBJ_HUE, cols, unit = "mins";
     if (opts.sessions && f.focus && f.focus.list) {
       cols = DOW.map(function (d, i) {
@@ -392,7 +399,7 @@
     });
     return opts.bare ? chart : el("div", { class: "k-rp-chartwrap" }, [chart, s.daySubj ? subjLegend(keys) : null].filter(Boolean));
   }
-  function subjLegend(keys) { return legend(keys.map(function (k) { return { hue: SUBJ_HUE[k], label: W.SUBJECT_SHORT[k] }; })); }
+  function subjLegend(keys) { return legend(keys.map(function (k) { return { hue: SUBJ_HUE[k] || "var(--muted)", label: subjShort(k) }; })); }
   /* the chart a report's period reads by: its days (a week, a month) or
      its weeks / months (a term, a year) */
   function periodChart(rep, opts) {
@@ -717,7 +724,7 @@
     function paintActivity() {
       activity.textContent = "";
       var canSessions = rep.period === "week" && f.focus && f.focus.list && f.focus.list.length && s.chartDays;
-      var keys = SUBJECTS.filter(function (k) { return s.bySubject[k]; });
+      var keys = subjKeys(s.bySubject);
       activity.appendChild(cardHead(rep.period === "week" || rep.period === "month" ? "Activity" : rep.period === "year" ? "Activity · by month" : "Activity · by week", {
         meta: null,
         right: el("span", { class: "k-rp-head-tools" }, [
@@ -806,8 +813,8 @@
   }
   function studyCard(rep) {
     var f = rep.facts, s = f.study;
-    var keys = SUBJECTS.filter(function (k) { return s.bySubject[k]; });
-    var parts = keys.map(function (k) { return { label: W.SUBJECT_SHORT[k], value: s.bySubject[k], text: W.hm(s.bySubject[k]), hue: SUBJ_HUE[k] }; });
+    var keys = subjKeys(s.bySubject);
+    var parts = keys.map(function (k) { return { label: subjShort(k), value: s.bySubject[k], text: W.hm(s.bySubject[k]), hue: SUBJ_HUE[k] || "var(--muted)" }; });
     var top = s.topics.slice(0, 5);
     if (!parts.length && !top.length) return null;   // nothing studied: the Studied tile says so
     return card("Study", { go: function () { open(rep, "study"); }, className: "k-rp-card--study" }, [
@@ -1067,7 +1074,7 @@
     var x = rep.facts.exams, prev = rep.facts.prev;
     if (!x || !(x.timed || x.marked)) return null;
     var by = x.bySubject || {};
-    var subj = Object.keys(by).map(function (k) { return (SUBJ_SHORT_RP[k] || k) + " " + by[k]; }).join(", ");
+    var subj = Object.keys(by).map(function (k) { return subjShort(k) + " " + by[k]; }).join(", ");
     var cmp = x.avg != null && prev && prev.examAvg != null ? (x.avg > prev.examAvg ? "up from " : x.avg < prev.examAvg ? "down from " : "same as ") + prev.examAvg + "% last time" : null;
     var calTxt = x.calibration == null ? null : x.calibration > 2 ? "you over-predict a little" : x.calibration < -2 ? "you under-predict a little" : "your predictions are close";
     return card("Exams and papers", { className: "k-rp-card--exams", meta: rep.period === "week" ? "this week" : "this " + rep.period }, [
@@ -1081,7 +1088,6 @@
       el("button", { type: "button", class: "k-link", "data-ui": "reports.exams-open", text: "Exams & Papers →", onclick: function () { KOS.show("exams", { tab: "practice", sub: "analytics" }); } })
     ].filter(Boolean));
   }
-  var SUBJ_SHORT_RP = { compsci: "CS", maths: "Maths", it: "IT" };
   /* what Kurenai's words are written from (27o) */
   function kurenaiSees(rep) {
     if (!rep.facts.money && !rep.facts.goals && !rep.facts.exams) return null;

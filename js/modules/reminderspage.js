@@ -512,6 +512,24 @@
         onclick: function () { tickItem(item.id, !item.done, draw); } });
       if (item.priority === 3 && !item.done) KOS.ui.state(check, "urgent", true);
 
+      var actRow = null;
+      if (!item.done) {
+        var day = KOS.routines && KOS.routines.routineDay ? KOS.routines.routineDay() : KOS.srs.todayISO();
+        var free = KOS.today && KOS.today.build ? (KOS.today.build(day).free || []) : [];
+        var itemId = item.id;
+        var refreshInsp = function () { if (insp.isConnected && selectedId === itemId) renderInsp(); };
+        var placeBtn = KOS.reviewSheet && KOS.reviewSheet.placeControl
+          ? KOS.reviewSheet.placeControl({ title: item.title, ref: { kind: "reminder", id: item.id } }, free,
+              { day: day, onChange: refreshInsp, hook: "rem.place", placedHook: "rem.placed" })
+          : null;
+        var focusBtn = el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "rem.focus", text: "Focus on this",
+          onclick: function () {
+            if (inspSheet) { var sh = inspSheet; inspSheet = null; sh.close(); }
+            KOS.show("focus", { objective: item.title });
+          } });
+        actRow = el("div", { class: "k-cluster k-rem-i-foot", "data-ui": "rem.insp-actions" }, [placeBtn, focusBtn].filter(Boolean));
+      }
+
       insp.appendChild(el("div", { class: "k-rem-insp-head" }, [
         el("h2", { class: "k-kicker", text: "Reminder" }),
         el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", text: "✕", "aria-label": "Close detail",
@@ -530,6 +548,7 @@
         field("Notes", notesIn),
         el("section", { class: "k-rem-block", "data-ui": "rem.i-block" }, [el("h3", { class: "k-field-label", text: "Sub-tasks" }), subWrap]),
         rewardNote,
+        actRow,
         el("div", { class: "k-cluster k-rem-i-foot" }, [
           el("button", { type: "button", class: "k-btn k-btn--sm", text: item.done ? "↺ Mark not done" : "✓ Complete",
             onclick: function () { tickItem(item.id, !item.done, draw); } }),

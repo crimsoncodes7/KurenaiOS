@@ -73,9 +73,22 @@
       })),
       el("div", { class: "k-mind-hero-path" }, [orderPath()])
     ]);
+    var dueN = M().due(today(), true).length;
     var side = el("div", { class: "k-subj-side k-mind-deskside" }, [first ? welcomeCard() : dailyCard(), !first && next ? continueCard(next) : null].filter(Boolean));
     if (KOS.art) KOS.art.layer(hero, "desk:" + "mind", { eager: true });
     main.appendChild(el("div", { class: "k-subj-row", "data-ui": "study.desk-top" }, [hero, side]));
+
+    if (dueN) {
+      main.appendChild(el("section", { class: "k-card k-mind-duebar", "data-ui": "mind.review-bar", "aria-label": "Mind card reviews" }, [
+        el("span", { class: "k-mind-duebar-t" }, [
+          el("span", { class: "k-kicker", text: "Card reviews" }),
+          el("span", { class: "k-muted", text: "Review your due concept cards outside the Daily 15." })
+        ]),
+        el("button", { type: "button", class: "k-btn", "data-ui": "mind.review-cards",
+          text: "Review my Mind cards (" + dueN + " due)",
+          onclick: function () { KOS.show("mind", { page: "cards" }); } })
+      ]));
+    }
 
     var analytics = el("section", { class: "k-card k-sa", "data-ui": "study.analytics mind.analytics", "aria-label": "Subject analytics" }, [
       el("div", { class: "k-card-head" }, [
@@ -219,6 +232,7 @@
     main.style.setProperty("--subj-c", "var(--mind)");
     KOS.shell.tree("none");   // the inner pages have no spine; a lesson page brings it back
     if (page === "daily") return daily(main, arg);
+    if (page === "cards") return cardsPage(main);
     shellActions();
     if (page === "journal") return journal(main, arg);
     if (page === "positions") return positionsPage(main);
@@ -748,7 +762,7 @@
     function reviews() {
       var queue = M().due(t).filter(function (k) { return !d.results.some(function (r) { return r.key === k; }); });
       if (!queue.length) {
-        if (d.results.length && !d.logged) { var out = M().finishReviews(d.results); d.logged = true; d.paid = out.paid; save(); announce("Reviews done."); }
+        if (d.results.length && !d.logged) { d.logged = true; var out = M().finishReviews(d.results); d.paid = out.paid; save(); announce("Reviews done."); }
         return nextAfter("reviews");
       }
       var GRADE_LABELS = ["Again", "Hard", "Good", "Easy"];
@@ -765,7 +779,7 @@
           if (rated) announce(GRADE_LABELS[idx] + ". Back in " + rated.ivl + (rated.ivl === 1 ? " day." : " days."));
         },
         onFinish: function () {
-          if (d.results.length && !d.logged) { var out = M().finishReviews(d.results); d.logged = true; d.paid = out.paid; save(); announce("Reviews done."); }
+          if (d.results.length && !d.logged) { d.logged = true; var out = M().finishReviews(d.results); d.paid = out.paid; save(); announce("Reviews done."); }
           nextAfter("reviews");
         }
       });
@@ -935,6 +949,71 @@
         return r ? { key: k, grade: r.grade, ivl: r.ivl, due: r.due, lapses: (M().peek().cards[k] || {}).lapses || 0 } : null;
       }
     };
+  }
+
+  /* ======================================================================
+     standalone Mind card review (#/mind/cards) — outside the Daily 15
+     ====================================================================== */
+  function cardsPage(main) {
+    var t = today(), results = [], logged = false, paid = 0;
+    function finishOnce() {
+      if (logged || !results.length) return;
+      logged = true;
+      var out = M().finishReviews(results);
+      paid = out ? out.paid : 0;
+    }
+    if (KOS.view && KOS.view.onDispose) KOS.view.onDispose(finishOnce);
+    var frame = el("div", { class: "k-mind-run", "data-ui": "mind.cards-run" });
+    var countEl = el("span", { class: "k-mono k-muted" });
+    frame.appendChild(el("div", { class: "k-mind-run-h" }, [
+      el("button", { type: "button", class: "k-iconbtn", "data-ui": "mind.cards-close", "aria-label": "Back to Mind", text: "✕",
+        onclick: function () { finishOnce(); KOS.show("subject", SID); } }),
+      el("span", { class: "k-kicker", text: "Card reviews · Mind" }), countEl
+    ]));
+    var body = el("div", { class: "k-mind-run-b" });
+    frame.appendChild(body);
+    main.appendChild(frame);
+    function draw() {
+      body.innerHTML = "";
+      var queue = M().due(t, true).filter(function (k) { return !results.some(function (r) { return r.key === k; }); });
+      if (!queue.length) {
+        /* only on a fresh page: a run in progress ends in the session's onFinish */
+        countEl.textContent = "";
+        body.appendChild(KOS.ui.emptyState({ compact: true, mark: "心", title: "No Mind cards due", body: "Your concept cards are all caught up for today.",
+          action: el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "Back to Mind", onclick: function () { KOS.show("subject", SID); } }) }));
+        return;
+      }
+      var GRADE_LABELS = ["Again", "Hard", "Good", "Easy"];
+      countEl.textContent = queue.length + (queue.length === 1 ? " card due" : " cards due");
+      var fcWrap = el("div", { class: "k-fc", "data-ui": "fc.wrap mind.review-card" });
+      body.appendChild(fcWrap);
+      KOS.flashcards.session(fcWrap, mindCardList(queue), {
+        srs: mindSrs(),
+        noSessionLog: true,
+        noTally: true,
+        requeueAgain: false,
+        onRate: function (c, idx, rated) {
+          results.push({ key: c.key, grade: idx + 1 });
+          if (rated) announce(GRADE_LABELS[idx] + ". Back in " + rated.ivl + (rated.ivl === 1 ? " day." : " days."));
+        },
+        onFinish: function () {
+          finishOnce();
+          countEl.textContent = "";
+          announce("Reviews done.");
+          body.appendChild(el("div", { class: "k-mind-done", "data-ui": "mind.cards-done" }, [
+            el("span", { class: "k-mind-emblem", lang: "ja", "aria-hidden": "true", text: "心" }),
+            el("div", {}, [
+              el("b", { text: "All due cards reviewed." }),
+              el("p", { class: "k-mind-read", text: results.length + (results.length === 1 ? " card rated" : " cards rated") + (paid ? " · +" + paid + " XP" : "") + "." })
+            ])
+          ]));
+          body.appendChild(el("div", { class: "k-mind-thumb" }, [
+            el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "Back to Mind", onclick: function () { KOS.show("subject", SID); } })
+          ]));
+        }
+      });
+    }
+    draw();
   }
 
   KOS.mindPages = { checkpoint: checkpoint, journalRow: journalRow, when: when, allEntries: allEntries, tensionCard: tensionCard, srs: mindSrs, cards: mindCardList };
