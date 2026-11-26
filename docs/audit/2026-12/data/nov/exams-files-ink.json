@@ -1,0 +1,496 @@
+{
+ "area": "exams-files-ink",
+ "source": "origin/audit/quality-2026-11:docs/audit/2026-11/findings.json + data/plan-mapping.json",
+ "findings": [
+  {
+   "id": "EX-01",
+   "severity": "P1",
+   "title": "Marks by question: a question added with '＋ Question' can't be given its Max or its topic",
+   "workstream": "W6",
+   "expected": "fixed",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/exams-files-ink/seed-marks-addq-ipad.png, /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/exams-files-ink/seed-marks-ipad.png; js/modules/examprac.js:410 addRow pushes {max:null, refs:[]}; :436-438 the row renders node title (read-only) and q.max as text; js/modules/tracker.js:192 questions only come from an index fill",
+   "rootCause": "Marks page was built around index-filled questions; addRow never got editors for max/refs",
+   "fix": "Make Max a small number input on rows without an index max, and the Topic cell a KOS.topicPicker button (scoped to the assessment's leaves) on every row; keep index-filled values as defaults."
+  },
+  {
+   "id": "EX-02",
+   "severity": "P1",
+   "title": "Exam Room on iPhone: the 'Before you go in' checklist is drawn on top of the rapid-recall list",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/exams-files-ink/seed-room-iphone.png; css/views/exams.css:505 (.k-exr flex column, overflow-y auto) and :513 (.k-exr-body flex: 1 1 auto; min-block-size: 0); phone rules :933-937 don't change it",
+   "rootCause": "flex item allowed to shrink below its content in a scroll container",
+   "fix": "Give .k-exr-body flex-shrink: 0 (or min-block-size: auto) so the room scrolls instead of overlapping; at phone width also consider putting the checklist right under the ring."
+  },
+  {
+   "id": "EX-03",
+   "severity": "P1",
+   "title": "On iPhone the floating ink palette is 500px wide on a 402px screen: Undo and Redo are off-screen",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/exams-files-ink/seed-ink-iphone.png; eval at iphone: ink.palette rect [20,716,500,62], scrollWidth 500, buttons '32x32 44x48 ×6 76x50 44x48 44x48'; js/core/inkui.js:1146-1171 (six tools + colour + history), css/views/ink.css:201-203 ('icons' state hides tool labels only)",
+   "rootCause": "Palette content width not budgeted for the phone tier",
+   "fix": "In the 'icons' state also hide the colour button's text (dot + caret only), and when root.scrollWidth > innerWidth − 40 move Shape and Ruler into the grip's More menu (or wrap to two rows). Clamp place() so a palette wider than the screen is centred and scrollable rather than clipped."
+  },
+  {
+   "id": "EX-28",
+   "severity": "P1",
+   "title": "Timed paper: the question navigator's squares are crushed to 7px slivers on iPad and iPhone (17px on Mac)",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/exams-files-ink/b4-timed-reload-ipadl.png, /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/exams-files-ink/b4-timed-iphone.png; measured .k-ex-tnav-b: ipadl '1:7x44 … 10:14x44', iphone same, mac '17x30' (n=51); css/views/exams.css:741-742 (.k-ex-tnav display:flex; .k-ex-tnav-b inline-size var(--ex-tnav-b) with no flex-shrink:0); css/tokens.css:1229 (--ex-tnav-b 30px)",
+   "rootCause": "flex items without flex-shrink:0 inside a scroller",
+   "fix": "flex: none on .k-ex-tnav-b (and on touch raise it to 44x44 per invariant 69, a square not an oval) so the declared scroller scrolls; reveal the current square on redraw (scroller({reveal}))."
+  },
+  {
+   "id": "EX-04",
+   "severity": "P2",
+   "title": "A transparent PNG pasted or dropped onto an ink page gets a black background",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "js/core/inkui.js:1400-1413 (c.toDataURL('image/jpeg', 0.86) with no fill first); compare js/core/imagecrop.js:110-124 which keeps PNG/WebP or fills a background before JPEG",
+   "rootCause": "Unconditional JPEG encoding of user pictures",
+   "fix": "Keep image/png when the source is PNG/WebP/GIF (or when the canvas has any alpha < 255), or fill the canvas white before drawImage when JPEG is chosen."
+  },
+  {
+   "id": "EX-05",
+   "severity": "P2",
+   "title": "Readiness band line on iPhone squeezes the sentence into a ~80px column, one word per line",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/exams-files-ink/empty-readiness-iphone.png (top card); js/modules/examviews.js:45-48 builds the line with .k-ex-grow; css/views/exams.css:20 .k-ex-grow { flex: 1 1 0; min-inline-size: 0 } inside .k-ex-bandline (exams.css:279, flex-wrap: wrap)",
+   "rootCause": "flex-basis 0 on a wrapping flex item never wraps, it shrinks",
+   "fix": "In .k-ex-bandline give the text a real basis (flex: 1 1 16rem) so it wraps to its own full-width line when narrow; or stack the bandline in a column under 560."
+  },
+  {
+   "id": "EX-06",
+   "severity": "P2",
+   "title": "Planner rows on iPhone truncate every topic name to a few letters and wrap the group total",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/exams-files-ink/empty-plan-iphone.png; js/modules/examviews.js:239-243 (chip and title inside one .k-ex-ell); css/views/exams.css:384 .k-ex-prow grid-template-columns: minmax(0,1fr) auto var(--sp-64)",
+   "rootCause": "Fixed three-column row with single-line ellipsis at phone width",
+   "fix": "Under 560 put the session squares under the text (grid-template-areas) and let the title wrap to two lines (line-clamp 2) with the chip on the why line; give the header total white-space: nowrap."
+  },
+  {
+   "id": "EX-07",
+   "severity": "P2",
+   "title": "Files list is one big aria-live region: every keystroke in search re-announces up to 300 cards",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "js/modules/files.js:185 (aria-live on files.list), :238-249 paint() rebuilds it; search handler :202",
+   "rootCause": "",
+   "fix": "Drop aria-live from the list; announce one short line through KOS.a11y.announce ('12 files match') after a search/filter change (invariant 66)."
+  },
+  {
+   "id": "EX-08",
+   "severity": "P2",
+   "title": "Marks by question on touch: tag chips are 24px tall and the Got field 28px",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "measure on ipad #/exams/attempt/j3hkb7ji/marks: button.k-ex-tag 88x24, 60x24 …; exams.got 64x28; /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/exams-files-ink/seed-marks-ipad.png",
+   "rootCause": "",
+   "fix": "Under (pointer: coarse) raise .k-ex-tag and .k-ex-gotin to 44px min-block-size (the row can grow), or switch to a two-column tag grid on touch."
+  },
+  {
+   "id": "EX-09",
+   "severity": "P2",
+   "title": "Exam Room text over the classroom painting is low-contrast (blacklist on Mac, plan line on iPad)",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/exams-files-ink/seed-room-mac.png (right column), /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/exams-files-ink/seed-room-ipad.png (plan line under 'Sports hall · seat 14')",
+   "rootCause": "",
+   "fix": "Put the side columns on the same frosted card the recall items use (with a darker scrim), or darken the painting layer behind text (a gradient scrim on the art layer 'exam:room'); raise muted text to --text-2 in the room."
+  },
+  {
+   "id": "EX-10",
+   "severity": "P2",
+   "title": "Exam Season on iPhone: 'Highest-risk topics' shows each topic as 'Finite …', 'Abstr…' (51px)",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/exams-files-ink/seed-hub-iphone.png (Highest-risk topics card); measure: div.k-ex-strong 51x20 at x=38; css/views/exams.css:408 grid-template-columns: minmax(0,1fr) var(--ex-bar-w) var(--sp-40) auto",
+   "rootCause": "",
+   "fix": "Under 560 drop the bar to its own row under the name (or shrink --ex-bar-w to ~48px) so the name gets the width."
+  },
+  {
+   "id": "EX-11",
+   "severity": "P2",
+   "title": "Planner's 'Next week' preview is one run-on paragraph of titles and times",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/exams-files-ink/seed-plan-mac.png (right column 'Next week'); js/modules/examviews.js:216",
+   "rootCause": "",
+   "fix": "Render next week as compact rows (name · mono time, top 5 + 'and N more'), with 'leaves the plan' as its own muted line."
+  },
+  {
+   "id": "EX-12",
+   "severity": "P2",
+   "title": "Floating palette's grip (the only way to Text, Image and Paper while floating) is 32x32",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/exams-files-ink/seed-ink-float-ipad.png; eval at ipad: grip 'Move the palette, or more tools' 32x32; css/views/ink.css:204 (min-inline-size: var(--hit))",
+   "rootCause": "",
+   "fix": "Use --hit-coarse (44) under (pointer: coarse), and add a visible ⋯ More button to the palette rather than overloading the drag handle."
+  },
+  {
+   "id": "EX-29",
+   "severity": "P2",
+   "title": "Post-mortem headline reads '40 of null.' (and 'of null' under the big figure) for an attempt logged without 'Out of'",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/exams-files-ink/b4-attempt-mac.png; eval: tracker entry 2j9jbmjg {marks:40,max:null}; h1 outerHTML '<h1 class=\"k-ex-pmtitle\">40 of null.</h1>'; js/modules/examprac.js:329 (title) and :334 (u.muted('of '+e.max...)); js/modules/tracker.js:340 allows x=null with m set",
+   "rootCause": "examprac.js formats e.max without the null guard used elsewhere",
+   "fix": "In examprac.js print 'You got 40' / just the figure when max is null (as tracker.js:530 already does with `e.marks != null && e.max`); or have the quick log ask for Out of when Marks is filled."
+  },
+  {
+   "id": "EX-30",
+   "severity": "P2",
+   "title": "Companion hero always says 'Start the rapid drill · 15', even when the scope has nothing to drill (it opens '0 of 0 right · 1 min')",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/exams-files-ink/b4-guide-mac.png, /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/exams-files-ink/b4-drill-empty-mac.png; js/modules/examguide.js:82 (literal 'Start the rapid drill · 15'), :286 (card's empty state), :368-377 (drillDialog runs with dr.items=[] and goes straight to finish)",
+   "rootCause": "",
+   "fix": "Build the hero button from C().drill(a).items.length (hide or disable it at 0, matching the card), and have finish() say 'Nothing to drill' rather than a 0 of 0 score; round the time from seconds."
+  },
+  {
+   "id": "EX-31",
+   "severity": "P2",
+   "title": "Full Companion's shape rows: two unlabeled number columns explained only in a footnote; on iPad portrait the shape title gets 108px and wraps to 4 lines",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/exams-files-ink/b4-deep-ipad.png; measured #/exams/vwg6vybh/deep at ipad: row 304px, grid-template-columns '108px 92px 64px', title height 97px; css/tokens.css:1190-1191 (--ex-arow-f 92px, --ex-arow-v 64px); css/views/exams.css:819; js/modules/examdeep.js:92-100 (footnote at :100)",
+   "rootCause": "",
+   "fix": "Give the unit card a header row ('Seen', 'Worked') or inline the figures under the title ('2 of 9 papers · 4 variations'); use auto-sized columns and a larger --ex-unit-min (one card per row under ~900px)."
+  },
+  {
+   "id": "EX-32",
+   "severity": "P2",
+   "title": "Timed paper with Rest breaks off: Pause hides the clock as 'Paused' while the paper's time keeps running, and time-up never fires while paused",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "eval at mac after Pause: clock 'Paused', restBreaks undefined (off), elapsed still counting (usedSec 79); js/modules/exampaperview.js:40-44 (used()), :165 (clockEl shows 'Paused'), :169 (time-up gated on !s.paused), :188 (announce says the clock keeps running)",
+   "rootCause": "",
+   "fix": "When restBreaks is off keep showing clock(left) with a 'paused' badge, and let time-up fire regardless of s.paused."
+  },
+  {
+   "id": "EX-33",
+   "severity": "P2",
+   "title": "'Mark it yourself' tally: rows show only a question number and anonymous '○ ✓' chips; 'Mark schemes ›' closes the dialog and throws away every tick",
+   "workstream": "W6",
+   "expected": "fixed",
+   "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/exams-files-ink/b4-tally-ipad.png; measured .k-ex-mchip at ipad 39x26, 25x26; js/modules/exampaperview.js:250-283 (row = number, chips, got), :287 ('Mark schemes ›' → ov.close(); KOS.show(...)); js/core/exampaper.js:154-181 (chip labels ✓ or the code only)",
+   "rootCause": "",
+   "fix": "Show each part's mark-scheme lines beside its chips inside the tally (the line index is already on every chip, c.line), so marking needs no navigation; if a link stays, open the scheme in place or keep the ticks in state.ui; 44px chips on coarse pointers."
+  },
+  {
+   "id": "EX-34",
+   "severity": "P2",
+   "title": "Results › IT units: the grade word ('Distinction') overflows a 24px column and runs off the card's right edge",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/exams-files-ink/b4-results-ipad.png, /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/exams-files-ink/b4-results-mac.png; measured at ipad: grade <b> box 758-782 holding 'Distinction'; css/views/exams.css:425 (.k-ex-unitum grid-template-columns: var(--ex-num-w) minmax(0,1fr) var(--ex-ums-w) var(--sp-24)); js/modules/examviews.js:454-456",
+   "rootCause": "",
+   "fix": "Make the grade column auto (or a chip in the UMS cell), or print the short grade (D/M/P) with the word as its title."
+  },
+  {
+   "id": "EX-35",
+   "severity": "P2",
+   "title": "Files' subject filter chips read inverted: the selected chip is the dark one, the unselected chip looks highlighted",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/exams-files-ink/b4-files-ipad.png, /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/exams-files-ink/b4-files-chips-ipad.png; computed at ipad: All aria-pressed=true bg oklch(0.14 0.008 265); CS aria-pressed=false bg oklch(0.78 0.01 265 / 0.18); sizes 31x44, 34x44; css/views/archive.css:259; css/tokens.css:46 (--s3 0.14); js/modules/files.js:191",
+   "rootCause": "",
+   "fix": "Use the shared segmented control (KOS.ui.tabs / the subject pill pattern with hue dots) or give the pressed chip --chip-c var(--text) with a lighter fill (e.g. --s4/--text wash); min-inline-size 44px on coarse pointers."
+  },
+  {
+   "id": "EX-36",
+   "severity": "P2",
+   "title": "Scan pages: the four corner handles are 30px dots on iPad and iPhone, the device the camera flow is for",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/exams-files-ink/b4-scan-photo-ipad.png; measured scan.handle 30x30 at ipad; css/tokens.css:274 (--scan-handle: 30px); css/views/archive.css:343 (min-inline-size:0; min-block-size:0)",
+   "rootCause": "",
+   "fix": "On (pointer: coarse) give each handle a 44px hit area (a transparent ring around a smaller visible dot) and show a magnifier loupe while dragging."
+  },
+  {
+   "id": "EX-37",
+   "severity": "P2",
+   "title": "Answer pad (Write) inherits a tool its bar doesn't offer: pick Ruler on a Handwritten page and every answer pad opens with the ruler across it and no tool selected",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/exams-files-ink/b4-ink-ruler-ipadl.png then /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/exams-files-ink/b4-pad-write-ipad.png; eval: pad bar tools Pen:false Highlight:false Eraser:false, ruler visible, gone after tapping Pen; js/core/inkpad.js:30 (STRIP_TOOLS) and :86 (tools passed to the bar); js/core/inkui.js:405 (drawRuler whenever dk.prefs.tool === 'ruler'), :626, :659, :984 (the bar's set is not applied to prefs.tool)",
+   "rootCause": "",
+   "fix": "When a surface mounts with a tool set, use a surface-local tool (fall back to 'pen' if prefs.tool is not in opts.tools) without overwriting the page's choice."
+  },
+  {
+   "id": "EX-38",
+   "severity": "P2",
+   "title": "Side by side on iPad landscape: the docked ink bar is 474px wide and scrolls, hiding Undo, Redo, Paper and Float behind a › arrow",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/exams-files-ink/b4-ink-side-ipadl.png; eval at ipadl: toolbar 636..1110 (474px), Undo x beyond the bar's right edge; js/modules/inktab.js (ink.side-page), js/core/inkui.js dockable bar",
+   "rootCause": "",
+   "fix": "In a narrow pane put Undo/Redo first (or pin them outside the scroller) and fold Paper/Float into the ⠿ menu, as the floating palette does; or default the palette to floating in Side by side."
+  },
+  {
+   "id": "EX-39",
+   "severity": "P2",
+   "title": "A brand-new account's Exams hub is built around the Calendar's 'SAMPLE — Mock exam (edit me)', migrated into a real assessment",
+   "workstream": "W1",
+   "expected": "fixed",
+   "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/exams-files-ink/b4-empty-guide-ipad.png; after `kos reset`: KOS.exams.all() = [['SAMPLE — Mock exam (edit me)','mock','2026-11-11','maths']], sessions 0; js/modules/calendar.js:697-712 (seedSamples), js/core/exams.js:413-430 (fromEvent/migrate)",
+   "rootCause": "",
+   "fix": "Drop the exam from the calendar samples (the hub has its own empty state and templates), or mark samples (sample:true) and have migrate() skip them; offer a one-tap 'Remove sample data'."
+  },
+  {
+   "id": "EX-40",
+   "severity": "P2",
+   "title": "Start-by is too strict: a one-topic test 3 days away needing 30 minutes is born 'Start-by passed · 7 days ago' and lands in Needs attention",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/exams-files-ink/b4-timetable-dawn-ipad.png; eval fixture {topic_test:{days:3,startBy:'2026-10-30',passed:true,why:'3 days of buffer + 0.5 h at about 2.3 h a week'}, retrieval_test:{days:2,passed:true}, mock:{days:10,passed:true}}; js/core/exams.js:543-544 (Math.ceil to weeks, then + buffer), :549 (passed); js/modules/exams.js:110, :458",
+   "rootCause": "week-granular ceiling plus fixed buffer, and no floor at the creation date",
+   "fix": "Compute the run-up in days (hoursNeeded / (share/7)), never put start-by before the assessment's creation date, and say 'Start now · 30 min needed' instead of 'passed' when the need still fits before the date."
+  },
+  {
+   "id": "EX-13",
+   "severity": "P3",
+   "title": "Pen and ink says a pen without pressure follows 'speed and tilt'; tilt is never read",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "js/modules/inkset.js:56 text; grep 'tilt' js/core/ink.js js/core/inkui.js returns nothing",
+   "rootCause": "",
+   "fix": "Say 'so the width follows your speed.'"
+  },
+  {
+   "id": "EX-14",
+   "severity": "P3",
+   "title": "Readiness 'Coverage' rows on iPhone ellipsise topic names while the Pacing note keeps full width",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/exams-files-ink/empty-readiness-iphone.png (Coverage list); measure: span.k-ex-ell widths 84-146px at 402px",
+   "rootCause": "",
+   "fix": "Let the note go under the title at phone width, or shorten it to the date ('18 Jan') with the word Pacing in the column header."
+  },
+  {
+   "id": "EX-15",
+   "severity": "P3",
+   "title": "Exam season and Quiet the rest switches: 20px tall hit area on touch, and no role=switch",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "measure on ipad: exams.season label height 20, input 34x20; js/modules/exams.js:263-270, js/modules/examviews.js:287-295 vs js/modules/storage.js:113",
+   "rootCause": "",
+   "fix": "Give .k-ex-seasonsw/.k-ex-quietsw min-block-size 44px under (pointer: coarse) and add role='switch' to both inputs."
+  },
+  {
+   "id": "EX-16",
+   "severity": "P3",
+   "title": "Files list silently stops at 300 files",
+   "workstream": "W8",
+   "expected": "partly (W8 did only what paid off)",
+   "evidence": "js/modules/files.js:249",
+   "rootCause": "",
+   "fix": "Lazy-load in batches of 60 like the vaults (invariant 8) or print 'Showing 300 of N — search or filter to narrow'."
+  },
+  {
+   "id": "EX-17",
+   "severity": "P3",
+   "title": "Pen and ink page leaves a dead block under 'On this device' on iPad landscape and Mac",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/exams-files-ink/empty-pen-ipadl.png (1180x820)",
+   "rootCause": "",
+   "fix": "Use the masonry/column flow (columns: 2 or the Reports 'pack' helper) for .k-pen-grid so short cards stack."
+  },
+  {
+   "id": "EX-18",
+   "severity": "P3",
+   "title": "Exam Room's keep-awake is lost after the iPad is switched away and back",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "js/modules/examroom.js:154 (single navigator.wakeLock.request); compare js/core/desk.js:25-36",
+   "rootCause": "",
+   "fix": "Reuse KOS.desk's wake-lock helper, or listen for visibilitychange while the room is connected and re-request."
+  },
+  {
+   "id": "EX-19",
+   "severity": "P3",
+   "title": "Marks page: 'Use 19 · Keep 40' are unstyled text links that wrap apart, and a 'Keys · no mouse needed' card shows on touch devices",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/exams-files-ink/seed-marks-ipad.png (TOTAL card and Keys card); js/modules/examprac.js:457-458, :400",
+   "rootCause": "",
+   "fix": "Render Use/Keep as two small buttons on their own row; show the Keys card only when (hover: hover) or a keyboard has been used (KOS.desk's hold-⌘ detection)."
+  },
+  {
+   "id": "EX-20",
+   "severity": "P3",
+   "title": "Exam Room's countdown says 'until 09:00' when the exam is weeks away",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/exams-files-ink/seed-room-mac.png; js/modules/examroom.js:107 (until = a.time ? 'until ' + a.time …)",
+   "rootCause": "",
+   "fix": "When the exam is not today, say 'until Sat 12 Dec · 09:00'."
+  },
+  {
+   "id": "EX-21",
+   "severity": "P3",
+   "title": "Small touch targets in the assessment page: Goals '＋' is 12x44, 'Edit' 22x44, checklist boxes 18x18",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "measure ipad/iphone #/exams/wkwsbeqr: exams.goal-add 12x44, button.k-link 'Edit' 22x44, exams.check 18x18; #/exams/<id>/room exams.room-check 18x18; js/modules/exams.js:846",
+   "rootCause": "",
+   "fix": "Use a k-btn--sm 'Add a goal' (the card already has one below), widen k-link hit areas with padding-inline on coarse pointers, and make the whole checklist row the label."
+  },
+  {
+   "id": "EX-22",
+   "severity": "P3",
+   "title": "Planner allocation legend: a long name wraps under its colour dot, leaving the dot alone on a line",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/exams-files-ink/seed-plan-mac.png (legend under the bar); js/modules/examviews.js:233 (dot + .k-ex-ell inside .k-ex-inline); css/views/exams.css:36 .k-ex-inline { flex-wrap: wrap }",
+   "rootCause": "",
+   "fix": "Use a non-wrapping row for the legend entry (flex-wrap: nowrap, the name min-inline-size: 0 with ellipsis)."
+  },
+  {
+   "id": "EX-23",
+   "severity": "P3",
+   "title": "Practice attempts: an unlabeled checkbox on every row",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/exams-files-ink/seed-practice-ipad.png; measure: input.k-box 'Reviewed' 18x18 per row",
+   "rootCause": "",
+   "fix": "Add a visible 'Reviewed' header over the column, or a small text toggle chip ('Reviewed ✓'); raise to 44px on touch."
+  },
+  {
+   "id": "EX-24",
+   "severity": "P3",
+   "title": "Analytics opens on the nearest assessment even when it has no evidence, while Calibration below counts every paper",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/exams-files-ink/seed-analytics-ipad.png",
+   "rootCause": "",
+   "fix": "Default to the assessment with the most marked papers (or remember the last pick per device), and label Calibration 'all papers'."
+  },
+  {
+   "id": "EX-25",
+   "severity": "P3",
+   "title": "Predicted paper 1 for CS Paper 2 totals 99 marks and 2 h 29 min against a 100-mark, 2 h 30 board paper",
+   "workstream": "W6",
+   "expected": "fixed",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/exams-files-ink/seed-paper-ipadl.png (This paper card)",
+   "rootCause": "",
+   "fix": "Let KOS.examPaper.build top up to the blueprint total (a 1-mark item or allow one item over) and take the time from the preset's durationMins."
+  },
+  {
+   "id": "EX-26",
+   "severity": "P3",
+   "title": "Handwritten tab tells you pages 'stay on this device', but ink syncs to your account when signed in",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/exams-files-ink/seed-ink-ipadl.png; js/modules/inktab.js:178",
+   "rootCause": "",
+   "fix": "Branch on KOS.cloud.signedIn(): 'and sync to your other devices' when signed in, 'stay on this device (and in the full backup)' when not."
+  },
+  {
+   "id": "EX-27",
+   "severity": "P3",
+   "title": "Topic tab strip on iPhone doesn't reveal the selected tab (Handwritten is off-screen)",
+   "workstream": "W2",
+   "expected": "fixed",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/exams-files-ink/seed-ink-iphone.png (tab strip)",
+   "rootCause": "",
+   "fix": "Call the scroller's reveal on the active tab after openTab (KOS.ui.scroller({reveal}))."
+  },
+  {
+   "id": "EX-41",
+   "severity": "P3",
+   "title": "Post-mortem's empty state stretches 'Marks by question' into a 1166px pill under one short sentence",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/exams-files-ink/b4-attempt-mac.png (button 258..1424 px wide); js/modules/examprac.js:337 (u.card([u.quiet(...), u.btn('Marks by question','primary sm')]) – the card is a column flex so the button stretches)",
+   "rootCause": "",
+   "fix": "Put the button inline (align-self:flex-start) or move the CTA into the hero and drop the duplicate sentence."
+  },
+  {
+   "id": "EX-42",
+   "severity": "P3",
+   "title": "Timed paper: a reload does not come back paused, contrary to the module's documented contract",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "Started timed, reloaded: state.ui.examPaperSess.paused null, Pause button reads 'Pause', clock 2:28:15 still counting (/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/exams-files-ink/b4-timed-reload-ipadl.png); js/modules/exampaperview.js:16-17 (comment) vs :157 (no-op)",
+   "rootCause": "",
+   "fix": "Decide the rule: set s.paused = Date.now() on a fresh page load (like Focus, invariant 4c) or remove the dead line and fix the comment."
+  },
+  {
+   "id": "EX-43",
+   "severity": "P3",
+   "title": "Paper library says your PDFs 'never sync … and are never uploaded' while offering 'Keep in my cloud' and showing a 'Synced' row",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/exams-files-ink/b4-practice-library-ipad.png; CLAUDE.md invariant 125 ('A paper stays on the device … unless you press \"Keep in my cloud\"')",
+   "rootCause": "",
+   "fix": "Reword: 'They stay in this browser unless you press Keep in my cloud on a paper; they are never in a backup.'"
+  },
+  {
+   "id": "EX-44",
+   "severity": "P3",
+   "title": "Scan pages dialog: an emoji camera icon, instructions shown before any photo, and a 'Remove this page' button styled like a disabled primary",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/exams-files-ink/b4-scan-ipad.png, /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/exams-files-ink/b4-scan-photo-ipad.png; js/core/filescan.js (scan.take label, scan.drop)",
+   "rootCause": "",
+   "fix": "Use the app's glyph style for the camera, show the drag instruction only once a photo is on the stage, and style Remove as a quiet danger link."
+  },
+  {
+   "id": "EX-45",
+   "severity": "P3",
+   "title": "Three different file-size formatters: the same 16-byte file is '1 KB' in Files, '0 KB' in Storage and '16 B' on a topic's Files tab; Storage lists '0 KB' rows",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/exams-files-ink/b4-storage-ipad.png, /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/exams-files-ink/b4-files-ipad.png; js/modules/storage.js:22, js/modules/files.js:20, js/modules/attachments.js:596-598",
+   "rootCause": "",
+   "fix": "One size formatter in KOS.ui (or KOS.files) used by all three; hide zero rows or say 'none'; let the Free up space card shrink or merge with Files in your cloud while signed out."
+  },
+  {
+   "id": "EX-46",
+   "severity": "P3",
+   "title": "New assessment dialog: the two-column form leaves holes (Duration, Extra time, Target grade each alone on a row) and pre-fills the Title with 'Real exam'",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/exams-files-ink/b4-editor-ipad.png; measured dialog 760x1148 scrollHeight 1252; inputs 39-42px tall; iPhone computed font-size 13.5px on .k-input; js/modules/exams.js editor() (exams.title value), css/base.css:159 vs css/components.css:414",
+   "rootCause": "",
+   "fix": "Pair the singles (Duration+Extra time, Target grade+Calculator) so the grid has no holes; use the tier name as a placeholder and derive the title on save only when empty."
+  },
+  {
+   "id": "EX-47",
+   "severity": "P3",
+   "title": "Readiness band prints 'limiting: RAG' under 'Not enough evidence' — a limiting signal named when there is no evidence at all",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/exams-files-ink/b4-season-dawn-mac.png (all five season cards); eval fixture output band.thin limit rag; js/modules/exams.js:93-103 (comment vs `var lim = b.band === 'ready' ? null : b.limitName`)",
+   "rootCause": "",
+   "fix": "Show the limit only for at_risk, and for on_track only when one signal is weak; for Thin say which signals are silent ('needs: recall, a timed paper')."
+  },
+  {
+   "id": "EX-48",
+   "severity": "P3",
+   "title": "Practice's empty state points to a '+ Log entry' button that does not exist (the button is '+ Log a result') and offers no action of its own",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/exams-files-ink/b4-empty-practice-iphone.png; js/modules/tracker.js:460",
+   "rootCause": "",
+   "fix": "Give the empty state the action itself (KOS.ui.emptyState({action: Log a result})) and use the same label as the header."
+  },
+  {
+   "id": "EX-49",
+   "severity": "P3",
+   "title": "An open dialog survives Back/hash navigation: the 'Mark it yourself' tally stayed on screen over the next pages",
+   "workstream": "W2",
+   "expected": "fixed",
+   "evidence": "shots taken after navigating with the tally open showed it over each page (first attempt of b4-results-ipad.png); js/core/router.js:284-306 (onPop/hashchange render with no dialog handling)",
+   "rootCause": "",
+   "fix": "On a navigation render, close (or ask about) open dialogs — or treat Back while a dialog is open as closing the dialog, as native sheets do."
+  }
+ ]
+}

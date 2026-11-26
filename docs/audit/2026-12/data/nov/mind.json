@@ -1,0 +1,196 @@
+{
+ "area": "mind",
+ "source": "origin/audit/quality-2026-11:docs/audit/2026-11/findings.json + data/plan-mapping.json",
+ "findings": [
+  {
+   "id": "MI-01",
+   "severity": "P1",
+   "title": "The F1 checkpoint lesson (F1.8) can never reach Completed: its fourth check reads retrieval over the lesson's concepts, and a checkpoint lesson has none",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "eval (slot 11): after recordCheckpoint('F1'), markPage('F1.8',0) and rateCard(...,3) on argument and induction cards → evidence('F1.8').checks [true,true,null,false], peekProgress('mind','F1.8') {status:'started', check:[true,true,false,false]}, completed('F1.8') false, KOS_MIND.LESSONS['F1.8'].concepts []",
+   "rootCause": "evidence() derives 'retrieval' from l.concepts, which the checkpoint lesson registration leaves empty (js/data/content/mind-f1.js checkpoint lesson)",
+   "fix": "In evidence(), for a checkpoint lesson read the concepts from M().CHECKPOINTS[l.unit].concepts (or its cards) — or treat the checkpoint itself (cards step) as its retrieval; add a smoke110 case that a fully done checkpoint lesson reaches status done."
+  },
+  {
+   "id": "MI-02",
+   "severity": "P1",
+   "title": "Mind desk on iPhone and iPad portrait: the Daily 15 and Continue cards are crushed to 40px — the Start button, the plan and the lesson title are cut off",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/mind/s-desk-iphone-daily.png; eval (seeded, Exam Season stubbed off): ipad cardH 40 scrollH 189, Start bottom 873 vs card bottom 744; iphone cardH 40 scrollH 189, Start bottom 747 vs card bottom 618; mac (Exam Season on) card 191.6px, scrollHeight 254, overflow hidden, button top 340",
+   "rootCause": "Mind's side column overrides the shared side layout with a flex column that, combined with flex:1 1 0 and min-block-size:0/overflow:hidden, collapses its children",
+   "fix": "Give .k-mind-deskside the same treatment as Japanese/Creatives under 1080px (grid, or flex-basis auto), and on the Mac let the Daily card's content set a minimum (min-block-size: min-content) or drop the strip/blurb before the button rather than clipping the button; add the Mind desk to smoke/visual audit at 820 and 402."
+  },
+  {
+   "id": "MI-03",
+   "severity": "P2",
+   "title": "Mind ladder: most F1 concepts can never climb past Recall/Apply — 5 of 16 concepts have no route to any rung above Recall, only 3 can reach Evaluate",
+   "workstream": "W6",
+   "expected": "fixed",
+   "evidence": "eval over KOS_MIND (slot 11): 'premise E[] A[] V[]', 'deduction E[] A[] V[]', 'straw-man E[] A[] V[]', 'false-dilemma E[] A[] V[]', 'bandwagon E[] A[] V[]', 'soundness E[] A[F1.3#2] V[]', 'standard-form E[F1.2] A[] V[]', 'steelman E[] A[F1.7#1] V[F1.7,cp]'; rules in js/core/mind.js:278-318 (ladder); hero bars js/modules/mind.js:66-72; furthest js/core/mind.js:497-503",
+   "rootCause": "Ladder rules require per-concept evidence sources that the F1 content file only provides for the lesson 'main' concepts; nothing checks reachability.",
+   "fix": "Either author a route for every rung of every concept (apply items for each fallacy/premise/deduction; explain-back key points or checkpoint rubric rows for the rest), or let a concept declare which rungs it has (`rungs: ['Recall','Apply']`) and draw/count only those, computing the hero bars and 'furthest' over reachable rungs. smoke110 should assert every concept has a source for every rung it shows."
+  },
+  {
+   "id": "MI-04",
+   "severity": "P2",
+   "title": "Evaluate is lost whenever a position is revised: the revise sheet starts with an empty objection/reply and the ladder reads only the latest version",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "eval (slot 11): takePosition('F1.7',{answer:1,objection:'o',reply:'y'}) → ladder('steelman').rungs[3] true, ladder('charity').rungs[3] true; then takePosition('F1.7',{answer:1,conf:60,reason:'r2'}) (what the revise sheet sends when the objection is not retyped) → ladder('steelman').rungs[3] false",
+   "rootCause": "ladder uses only the latest version; position() sheet does not carry the objection forward",
+   "fix": "Evaluate should hold if ANY version (or any non-retired position) has an objection answered; and pre-fill the revise sheet's objection/reply from the previous version (open the details when present)."
+  },
+  {
+   "id": "MI-05",
+   "severity": "P2",
+   "title": "Checkpoint pays 50 XP / 12 gold / +4 HP and marks itself passed with nothing right; a retake then erases the Explain/Evaluate rungs it gave",
+   "workstream": "W1",
+   "expected": "fixed",
+   "evidence": "eval (slot 11): recordCheckpoint('F1',{cards:0,apply:{},synth:{bullets:['x'],ticks:{0:true,2:true}}}) → {paid:true}, governor 0/0 → 50/12; ledger [F1.8,{kind:'checkpoint',first:true},{xp:50,gold:12}]; ladder('argument').rungs[1] true, ladder('induction').rungs[3] true; retake recordCheckpoint('F1',{synth:{bullets:['y'],ticks:{}}}) → both false",
+   "rootCause": "recordCheckpoint has no pass condition and replaces the record on every attempt",
+   "fix": "Define a pass rule (e.g. ≥ 2 of 3 scenarios right and ≥ half the rubric) and pay only on the first PASS, saying what is missing otherwise; keep the best attempt (merge apply/ticks by OR, or store attempts and read the best) so a retake never lowers a rung."
+  },
+  {
+   "id": "MI-06",
+   "severity": "P2",
+   "title": "Apply and Explain rungs are earned without showing understanding: Apply after the check has revealed the answer, Explain from one one-character bullet",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "eval (slot 11): answerCheck('F1.3',3,0) → ok:false, ladder('validity').apply 0; answerCheck('F1.3',3,1) → ok:true, apply 1, rungs [F,F,T,F]; saveExplain('F1.3',['x'],{0:1,1:1,2:1}) → {reached:true,ticked:3,of:4} with evidence('F1.3').read 0 of 6",
+   "rootCause": "answerCheck records ok on any later right answer; saveExplain trusts ticks with no text threshold",
+   "fix": "Count Apply only when the scenario is right at the FIRST attempt of a visit (or on a later day, with the answer not revealed in the same session); for a retried item show 'Right, but it counts next time'. For Explain require a minimum (e.g. ≥ 3 bullets or ~20 words) before ticks count, and order the prompt after the pages."
+  },
+  {
+   "id": "MI-07",
+   "severity": "P2",
+   "title": "Exam Season Daily 15 with no cards due still offers '▶ Reviews · 5 min', which ends instantly as 'Done for today. 1 minute.'",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/mind/s-mind-daily-mac.png; eval: planDay() {exam:true,reviews:{n:0,min:0},total:0}; after clicking: #main text 'Done for today. 1 minute.', ui.mind.daily {step:'done',mins:1,doneAt:…}; chip js/modules/mind.js:126 (p.exam ? '≈ 5 min'), intro js/modules/mind.js:640-647, stopFocus mins js/modules/mind.js:617",
+   "rootCause": "The exam branch of the Daily UI ignores reviews.n === 0",
+   "fix": "When plan.total is 0 show a quiet state ('Nothing due today — your sitting waits for after your exams') with no Start, or offer an optional 'Read anyway'; read the chip from plan.total; never write doneAt for an empty run."
+  },
+  {
+   "id": "MI-08",
+   "severity": "P2",
+   "title": "Ask Kurenai offline: 'Saved to ask when you're online. You will see \"What is sent\" again' — the queue is written and never read",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "grep -rn askQueue js/ → only js/modules/mindrun.js:299-300 (write); message text js/modules/mindrun.js:303; js/modules/mind.js:136",
+   "rootCause": "Feature half-built: producer without consumer",
+   "fix": "Either implement the queue (on 'online' or the next Mind open, show a 'You asked while offline' card that reopens the What is sent step for each queued item) or say plainly 'You're offline — try again when connected' and keep the typed words in the sheet."
+  },
+  {
+   "id": "MI-09",
+   "severity": "P2",
+   "title": "Journal entries cannot be edited or linked to a concept after capture, though capture says 'Link a concept later'",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "js/modules/mindrun.js:371 'Link a concept later'; entryCard js/modules/mind.js:316-341 (buttons); /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/mind/s-journal2-mac.png",
+   "rootCause": "No edit UI on top of the existing put()",
+   "fix": "Add an Edit action on each entry that reopens the capture sheet pre-filled (kind, text, source, concept chips from metConcepts) and saves through KOS.mindJournal.put (it already keeps id and bumps updatedAt for sync); show the source field only for Quote."
+  },
+  {
+   "id": "MI-10",
+   "severity": "P2",
+   "title": "Mind is barely joined to the rest of the OS: no Reports facts or milestones, Goals' card/recall types silently read 0 for Mind, and Home/Today never mention the Daily 15 or Mind cards due",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "grep -rln 'KOS.mind' js/ → only ui, aitools, achcatalogue, achievements, governor, art, subjects, hub, governor-ui (no report.js, goals.js, today.js, dayreview.js); eval: JSON of KOS.today.build() contains no 'mind'/'Mind' field (only 'reminder' substrings); goals.js:557-572 type filter",
+   "rootCause": "Mind shipped as a self-contained space; the joins listed in the plan were not built",
+   "fix": "Add mindFacts to report.js (reviews passed, lessons finished, checkpoints, positions taken/changed, Journal counts — totals only), let cards-reviewed/recall-rate read type 'mind' review entries when the subject is Mind (or hide Mind from those pickers), and give KOS.today a Mind item (Daily 15 not done / cards due / revisit due) through KOS.mind.planDay."
+  },
+  {
+   "id": "MI-11",
+   "severity": "P2",
+   "title": "iPhone: Ask Kurenai's 'What is sent' sheet is wider than the screen — its text and boxes are cut off on the right",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/mind/s-F1.3-iphone.png; eval (iphone): .k-mind-sheet-body scrollWidth 449, clientWidth 362; children P/UL/H3/DIV/P all 20→469",
+   "rootCause": "Select intrinsic width from long option labels with no max-inline-size in a grid sheet body",
+   "fix": "Give .k-mind-select (and the sheet's grid children) min-inline-size: 0; max-inline-size: 100%, so a long option never sets the track width; add the Ask sheet to the responsive audit at 402px."
+  },
+  {
+   "id": "MI-12",
+   "severity": "P3",
+   "title": "Inspector 'Ask Kurenai' grid: 'Explain it differently' overflows its button's padding at mac width",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/mind/e-F1.1-mac.png (inspector, Ask Kurenai); eval: text width 116.25 in a 118.5px .k-btn--sm with padding 14px 14px; grid-template-columns 118.5px 118.5px",
+   "rootCause": "Fixed two-column grid with nowrap labels in a 243px inspector",
+   "fix": "Let the grid fall to one column when a label does not fit (grid-template-columns: repeat(auto-fit, minmax(max-content, 1fr))) or shorten the label to 'Differently' / 'Say it simpler'. css/views/mind.css:236, js/modules/mindrun.js:216"
+  },
+  {
+   "id": "MI-13",
+   "severity": "P3",
+   "title": "Dialogue 'Skip to summary' on the first question gives an empty '0 turns' summary, and 'Save to Journal' saves an empty Reflection (counted by the Journal badge)",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/mind/s-dialogue-0turns-mac.png; eval: KOS.mindJournal.list() → ['reflection','Dialogue: Is every disagreement an argument?',''] after the save; js/modules/mindrun.js:186-205 (onEnd builds the save button whatever the path length)",
+   "rootCause": "onEnd does not check path.length; journal add accepts empty text",
+   "fix": "Hide 'Skip to summary' until at least one turn is taken (or make it 'Leave'), and when the path is empty show 'Nothing to sum up yet' with Run it again only; refuse an empty text in KOS.mindJournal.add."
+  },
+  {
+   "id": "MI-14",
+   "severity": "P3",
+   "title": "Ask Kurenai's 'What is sent' pre-ticks the explain-back under 'Extras · tick to include', summarises instead of printing the payload, and says '1 bullets'",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/mind/s-ask-sent-mac.png; eval: checkbox [true, 'Your explain-back for this lesson 1 bullets']; payload() js/modules/mindrun.js:251-261 vs whatIsSent list :265-269; tick sub-line :277",
+   "rootCause": "Extras default derived from existence of an explain-back; summary list built separately from payload()",
+   "fix": "Default extras off (or keep the default but say 'included · untick to leave out'); add a 'Show the exact text' disclosure printing payload(); pluralise ('1 bullet')."
+  },
+  {
+   "id": "MI-15",
+   "severity": "P3",
+   "title": "Checkpoint Argument Mapper: every claim starts as 'conclusion', the warning says 'Two conclusions' for five, and an untouched map still earns 'First argument mapped'",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/mind/s-cp-map-ipad.png; js/core/mindui.js:202 (fixed text); js/modules/mind.js:537 (rows seeded d:0, j:null) and :545 (Next stores mp.value())",
+   "rootCause": "Static warning text; milestone reads presence of r.map",
+   "fix": "Word the warning from the count ('5 conclusions — only one claim is the conclusion'); start rows unplaced (a neutral 'claim' label) and count the milestone only when the map has exactly one top row and every other row has a joint."
+  },
+  {
+   "id": "MI-16",
+   "severity": "P3",
+   "title": "Mind's sheets (Ask Kurenai, Quick capture, Explain-back, Position) stay open over the next page after Back or any navigation",
+   "workstream": "W2",
+   "expected": "fixed",
+   "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/mind/s-F1.8-ipad.png and s-desk-dawn-mac.png (Ask sheet for F1.3 over other pages); eval: KOS.ui.confirm then history.back() → 0 dialogs; KOS.mindRun.capture({}) then history.back() → 1 dialog remains; js/core/mindui.js:344-359",
+   "rootCause": "Custom sheet wrapper without the shared navigation close",
+   "fix": "Close Mind sheets on navigation (listen for the router's nav event / popstate in sheet(), or route through the same close-on-navigate path the shared dialogs use), keeping the capture's 'Discard this?' guard for unsaved text."
+  },
+  {
+   "id": "MI-17",
+   "severity": "P3",
+   "title": "Concept neighbours ('the opposite of · Straw man', 'leads to · Steelmanning') are plain chips, not links to the concept or its lesson",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/mind/s-F1.6-concepts-mac.png; js/modules/mindtopic.js:323-327 (UI().ladder twice; chips as span.k-chip)",
+   "rootCause": "Links rendered as static chips",
+   "fix": "Make each neighbour a button to KOS.show('ref', {subject:'mind', ref: concept.lesson, tab:'concepts'}) scrolled to the concept; drop the small header ladder or the large one."
+  },
+  {
+   "id": "MI-18",
+   "severity": "P3",
+   "title": "Positions page never says when a position comes back, and Keep/Retire act instantly with no undo",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/mind/s-mind-positions-mac.png; versionsCard js/modules/mind.js:413-428 (no revisit line); revisitCard js/modules/mindrun.js:159-170; eval: position('F1.7').revisit {stage:0, due:'2026-11-19'} not rendered",
+   "rootCause": "Revisit state stored but not presented",
+   "fix": "Add 'Comes back on <date> · revisit 1 of 3' (or 'Retired') to each versions card with a Retire action; give Keep/Retire an Undo toast; size the versions list to its content (two columns at 1470)."
+  },
+  {
+   "id": "MI-19",
+   "severity": "P3",
+   "title": "Mind polish: Journal card and empty Foundation strip leave large dead areas; selects render larger than the chips beside them; search glyph tiny",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/mind/e-subdesk-mac.png, e-desk-mac.png (path), s-journal2-mac.png, s-F1.8-ipad2.png, s-F1.7-close-mac.png",
+   "rootCause": "Page-specific sizing in css/views/mind.css (e.g. .k-mind-text/.k-mind-select :258-259) rather than the shared control scale",
+   "fix": "Let the Journal card shrink or show the Big Question / milestones under few entries; lay Foundation's units in the same 4-up grid as the other headers; size .k-mind-select to the 13–14px control scale; drop the ⌕ glyph (the input is already labelled); give Retake/Revise intrinsic widths."
+  }
+ ]
+}

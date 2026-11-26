@@ -1,0 +1,386 @@
+{
+ "area": "code-space",
+ "source": "origin/audit/quality-2026-11:docs/audit/2026-11/findings.json + data/plan-mapping.json",
+ "findings": [
+  {
+   "id": "CO-01",
+   "severity": "P1",
+   "title": "Stage path on touch devices: unit squares become 28x44 bars and capstone diamonds render as skewed slashes",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/code-space/desk-empty-ipad.png, /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/code-space/desk-empty-iphone.png; eval at iphone: .k-cx-dia offsetWidth 16 x offsetHeight 44 with transform rotate(45deg); .k-cx-sq 28x44. css/base.css:115-119 (coarse min-block-size: var(--hit-coarse) on every button) vs css/views/code.css:132,137 (fixed inline-size/block-size), buttons made at js/core/codeui.js:556,567",
+   "rootCause": "The global coarse-pointer rule raises min-block-size of every <button> to 44px (invariant 69) but the path's square/diamond buttons only set inline-size/block-size, so height grows and width does not; the diamond is then rotated.",
+   "fix": "Give .k-cx-sq and .k-cx-dia min-block-size: 0 (they are visual marks; the diamond is tabindex -1) and put the 44px hit area on a transparent ::before or wrapper, or raise width with height for the squares (invariant 69: a round/square control must raise its width too)."
+  },
+  {
+   "id": "CO-02",
+   "severity": "P1",
+   "title": "iPhone desk: Daily 20 and Continue squeezed side by side; the Open-lesson button's label spills out of its pill",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/code-space/desk-empty-iphone-d20.png (dpr 2), /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/code-space/desk-empty-iphone.png; eval iphone: [data-ui=code.daily20-lesson] 144x44, scrollWidth 153, white-space nowrap; .k-cx-d20 width 180. css/views/study.css:1074-1076 (side becomes a row of flex:1 1 0 cards), button at js/modules/code.js:221-223",
+   "rootCause": "The phone/compact rule lays the side column as a row of two equal cards whatever their width; k-btn is nowrap with no max-inline-size or ellipsis, and the label names the lesson in full.",
+   "fix": "Under 560px stack the two side cards (flex-direction: column) or fold Continue into the Daily 20 card when the Daily 20's job is 'Finish 1.1 first' (they point at the same lesson). Shorten the button to 'Open 1.1' or allow wrapping/ellipsis (.k-fit-btn)."
+  },
+  {
+   "id": "CO-03",
+   "severity": "P1",
+   "title": "Desk side column: a real Daily 20 task crushes the Continue card to 41px and clips its 'CONTINUE' label (Mac, iPad landscape)",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/code-space/desk-prog-mac.png (CONTINUE at y~396 cut); eval mac: .k-cx-d20 239px tall, [data-ui=study.continue] clientHeight 41 vs scrollHeight 62; side 292 = hero 292. css/views/study.css:50 (.k-subj-side > :first-child flex: 1 1 auto), :54 (contain: size), :55 (> * { min-block-size: 0; overflow: hidden }); js/modules/code.js:124, 228-234, 51-55",
+   "rootCause": "The side column is size-contained to the hero's height and its children may shrink to zero with overflow hidden; the Daily 20 card (first child, flex 1 1 auto) takes what it needs, so the second card is what gives way and is clipped rather than the layout growing.",
+   "fix": "Give the Continue card flex: 0 0 auto (never shrink below its content) and let the Daily 20 card scroll/clip instead, or drop size containment when the content is taller than the hero; render concept chips as one non-wrapping scroller or limit to two chips + '+1'."
+  },
+  {
+   "id": "CO-04",
+   "severity": "P1",
+   "title": "Task Run can only feed ONE line of input: a correct answer to any multi-line task crashes with ArgumentNullException",
+   "workstream": "W6",
+   "expected": "fixed",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/code-space/task-run-multiline-mac.png; eval: set editor to KOS.code.task('2.9-guess').answer, click Run -> output 'ArgumentNullException line 5'; Object.values(KOS_CODE.TASKS) with multi-line examples[0].stdin = 158. js/modules/code.js:633-635 (input type text, split first line), :694 (stdin: stdin.value)",
+   "rootCause": "Run's input was built as a one-line text field and deliberately truncates the example to its first line; an <input> cannot hold newlines.",
+   "fix": "Use an auto-growing <textarea> (rows = example line count) prefilled with the whole first example stdin; keep Ctrl+Enter to run. Optionally a menu to load example N."
+  },
+  {
+   "id": "CO-05",
+   "severity": "P2",
+   "title": "Subject analytics card stretches its eight tiles over the Retrieval-due list's height, leaving ~120px gaps between rows",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/code-space/desk-prog-mac.png, /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/code-space/desk-empty-ipad.png, /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/code-space/desk-empty-mac.png; eval mac: .k-sa 412px tall = retrieval-due 412px. css/views/study.css:77-78",
+   "rootCause": "grid-auto-rows: 1fr with flex: 1 1 0 makes the tile rows absorb whatever height the neighbouring card imposes; tiles centre their content vertically.",
+   "fix": "Size the grid to its content (grid-auto-rows: auto, align-content: start) and let the Retrieval-due list cap/scroll, or put the shorter column on sticky ride-along (the Reports pack rule). On narrow widths use 4 columns of compact tiles or hide zero/dash tiles (invariant 77)."
+  },
+  {
+   "id": "CO-06",
+   "severity": "P2",
+   "title": "Continue keeps pointing at 1.1 after the learner has worked through 22 lessons",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "eval after marking pages/listings/tasks for 22 lessons: stats().current.ref = '1.1', evidence('1.1').checks = [true,true,true,false]; /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/code-space/desk-prog-mac.png (Continue 1.1). js/core/code.js:870 (current = first not done), js/modules/code.js:250-262",
+   "rootCause": "'Where to continue' is derived from completion (which includes a time-gated retrieval) instead of coverage (KOS.code.studied) or the last lesson touched.",
+   "fix": "Continue at the first lesson not yet studied (KOS.code.studied false), or the most recently touched unfinished lesson; leave pending retrievals to the Retrieval card."
+  },
+  {
+   "id": "CO-07",
+   "severity": "P2",
+   "title": "Retrieval's 'Next reviews will ask…' dates come from a hard-coded SM-2 formula and contradict the real FSRS schedule",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/code-space/retrieval-after-check-mac.png (next in 8 days vs table in 3 days); js/modules/code.js:1013-1020 (var ivl = Math.max(3, row.ivl||2), ef = 2.5 … ivl*ef)",
+   "rootCause": "The projection predates the FSRS switch and was not moved to KOS.fsrs; it is not redrawn after a rating.",
+   "fix": "Project with KOS.fsrs (Good each time from the card's current s/d with KOS.srs.weights() and the retention) or drop the dates and keep only the variation list; redraw after finish()."
+  },
+  {
+   "id": "CO-08",
+   "severity": "P2",
+   "title": "Capstone step bar: steps 2-6 are 26x40 targets on iPhone and every step is 40px tall on iPad",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/code-space/capstone-C1-iphone.png; DOM measurement iphone: k-cx-step 26x40 (x5), ipad 75x40. css/views/code.css:505 (.k-cx-step min-block-size: var(--sp-40)) — a class rule that beats the zero-specificity coarse rule in css/base.css:115-119",
+   "rootCause": "The step's own min-block-size (40px) overrides the global touch minimum and no coarse-pointer tier raises it; compact steps have no min-inline-size.",
+   "fix": "Under (pointer: coarse) give .k-cx-step min-block-size and min-inline-size var(--hit-coarse) (circles stay drawn at 26px inside the 44px button)."
+  },
+  {
+   "id": "CO-09",
+   "severity": "P2",
+   "title": "On iPhone every Code sub-page loses its own title: a task, a track, the skill map, katas and settings all read just 'Code'",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/code-space/task-2.9-guess-iphone.png, /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/code-space/track-T1-iphone.png; eval iphone on #/code/task/2.9-guess: h1.k-ptitle-h 'Code' visible, .k-pagehead (with h1 'Guessing game') display:none. js/modules/mobile-shell.js:551 (title = data-phone-title-text || cur.label || h1), css/components.css:651-652",
+   "rootCause": "syncTitleBar prefers the current destination's label over the page's own h1; Code's sub-pages are all under the 'Code' destination and set no [data-phone-title-text].",
+   "fix": "In Code's pages mark the page title with data-phone-title-text (or make syncTitleBar prefer the page h1 when the view has a sub-page arg), keeping the kicker 'Code · task' as the bar's section line."
+  },
+  {
+   "id": "CO-10",
+   "severity": "P2",
+   "title": "Lesson listings' Run / Reset / Copy are 33px tall on iPad and iPhone",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/code-space/topic-1.1-iphone.png; eval iphone: [data-ui=code.listing-run] height 33.25; DOM measurement ipad #/ref/code/1.1. css/views/code.css:152 (.k-cx-listing .k-ced-head .k-btn { min-block-size: var(--hit-dense) }) overrides css/components.css:678",
+   "rootCause": "A dense override for the listing head with no (pointer: coarse) tier; specificity beats the coarse .k-btn rule.",
+   "fix": "Wrap code.css:152 in @media (pointer: fine) or add a coarse tier restoring var(--hit-coarse)."
+  },
+  {
+   "id": "CO-11",
+   "severity": "P2",
+   "title": "iPad portrait: 'Start focus' wraps to its own 44px row and the subject pills cut 'Creatives' down to a lone dot",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/code-space/desk-prog-ipad.png, /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/code-space/desk-empty-ipad.png; eval ipad: Start focus at top 138 in .k-page-actions row of 44px below the nav row. css/layout.css:346 (.k-stage-head flex-wrap: wrap), :349; js/modules/code.js:89-91",
+   "rootCause": "The stage head wraps rather than compacting; #subnav (subject pills + 4 Code links) is wider than 820 minus the button, and the pill scroller has no fade/arrow at that width.",
+   "fix": "At ≤860 move Start focus into the hero (or make it an icon button), or put Code's four links in a second compact row; give the pill strip a declared KOS.ui.scroller with edge arrows so a partial pill is never shown as a bare dot."
+  },
+  {
+   "id": "CO-17",
+   "severity": "P2",
+   "title": "Concept id collision: 'validation' is defined for T2.17 and for B.8, and B.8's (loaded later) replaces T2.17's, so T2.17 has no concept of its own",
+   "workstream": "W6",
+   "expected": "fixed",
+   "evidence": "js/data/content/code-t2e.js:26, :411; js/data/content/code-ub.js:38, :587; index.html:396-397",
+   "rootCause": "Concept ids are a flat global namespace with no uniqueness check at registration or in smoke75",
+   "fix": "Rename T2.17's concept (e.g. 'form-validation') keeping any stored proof keys via a one-time rename, and make KOS_CODE.add throw (or smoke75 fail) on a duplicate concept/task/card id"
+  },
+  {
+   "id": "CO-18",
+   "severity": "P2",
+   "title": "Code settings: 'Practice focus' slider is permanently disabled, whatever tracks are started",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "js/modules/code.js:1442-1447 (disabled:\"\", value \"0\", no handler); grep for a reader of the share finds none (only css/views/code.css:493); shots/code-space/settings-mac.png",
+   "rootCause": "Placeholder from the design turn shipped as a static disabled control",
+   "fix": "Either build the mix (store ui.trackShare, read it in KOS.code.planDay) or remove the card and say in one line how the Daily 20 chooses between Core and Tracks."
+  },
+  {
+   "id": "CO-19",
+   "severity": "P2",
+   "title": "SQL tasks: a slow first SQLite load fails a correct answer as an infinite loop, and the kill makes every retry cold again",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "eval: Check on #/code/task/T1.2-recent after reload → tests pane text quoted above (12339 ms); eval: two consecutive KOS.codeRun.run SQL calls → both {code:'TIMEOUT', msg:'Stopped after 4 seconds.'}; raw new Worker('js/labs/sql-worker.js') → 16295 ms, res.ms 4080. Code: js/core/coderun.js:199-203 (timeout → sqlKill → next run fresh), :174-177; js/core/codeui.js:256-257 (hard-coded '2 seconds' and loop advice for every timeout); js/data/code.js:424",
+   "rootCause": "Watchdog covers worker boot + run together and kills the booted worker; error copy assumes C#",
+   "fix": "Separate loading from running: post a warm-up message and wait for a 'ready' reply before starting the per-run watchdog (or show 'Loading SQLite…' while it loads); on a timeout keep the loaded worker when the run never started; make the timeout card language-aware (no loop advice for SQL) and print the real limit."
+  },
+  {
+   "id": "CO-20",
+   "severity": "P2",
+   "title": "SQL task examples: the expected result table wraps mid-row in a half-width column beside an empty '(none)' input",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/code-space/b4-sqltask-mac.png (#/code/task/T1.3-vat, mac 1470x832); css/views/code.css:323 (two equal columns), :327 (pre-wrap); js/modules/code.js:823-826 (always Input + Output), :633-635 (stdin always made)",
+   "rootCause": "Task view assumes a console program with stdin",
+   "fix": "For lang sql (and any example with no stdin) drop the Input column and give the output the full width with white-space: pre and its own horizontal scroller; hide the STDIN row when the runner is sql."
+  },
+  {
+   "id": "CO-21",
+   "severity": "P2",
+   "title": "Error and runtime cards: the heading ('✗ Compile error', '◇ The in-app runner can't run this') is near-black on a dark card",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/code-space/b4-compile-error-mac.png, shots/code-space/b4-runtime-offer-mac.png; eval: .k-cx-err-head color oklch(0.16 0.02 22) on bg oklch(0.3012 0.044 290.7) / oklch(0.815 0.095 224 / 0.12); css/views/code.css:79 (color: var(--alarm-ink)); css/tokens.css:1276",
+   "rootCause": "Wrong token: --alarm-ink is ink for an alarm fill, not for a wash",
+   "fix": "Use --alarm (or --text with the ✗ in --alarm) for the head on the wash; give the runtime card its own --code/--text head colour."
+  },
+  {
+   "id": "CO-22",
+   "severity": "P2",
+   "title": "iPhone lesson listings: the caption is crushed into a ~110px column beside Run/Reset/Copy and wraps to five lines",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/code-space/b4-topic-T1.2-listing-iphone.png (#/ref/code/T1.2, iphone 402x874); DOM: .k-ced-head > .k-ced-file 'WHERE keeps the rows whose condition is true' + .k-ced-actions; css/views/code.css:20 (display:flex, no wrap), :22 (.k-ced-file as a tab with a bottom border), :25",
+   "rootCause": "Editor head designed for a short file name is reused for sentence captions",
+   "fix": "Let the head wrap (flex-wrap: wrap; caption flex: 1 1 100% under 560px) or move the caption above the head as a figure caption; keep the tab style only for real file names."
+  },
+  {
+   "id": "CO-12",
+   "severity": "P3",
+   "title": "Stage path scroller clips the current unit's square and its focus ring at its left edge",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/code-space/desk-empty-iphone-d20.png; eval iphone: U1 left 34 = scroller left 34. css/views/code.css:134 (ring drawn by box-shadow outside the box)",
+   "rootCause": "The scroller has no inline padding to hold the box-shadow ring of the first/last item.",
+   "fix": "Give the path row padding-inline of 2*focus-width (or scroll-padding) so the ring is inside the clip."
+  },
+  {
+   "id": "CO-13",
+   "severity": "P3",
+   "title": "Phone 'Best on a computer' task shows the example OUTPUT without its input",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/code-space/task-2.9-guess-iphone.png; js/modules/code.js:907 (only t.examples[0].out)",
+   "rootCause": "phoneLater renders only the out half of the example.",
+   "fix": "Render the same two-column Input/Output example as the desktop task panel, full width."
+  },
+  {
+   "id": "CO-14",
+   "severity": "P3",
+   "title": "Rider project's 'Lessons it proves' is string-sorted: 10.1, 10.10, 10.2, 10.3 …",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/code-space/project-rp-u10-library-mac.png; js/modules/coderider.js:71 (refs.sort() — lexicographic)",
+   "rootCause": "Array.prototype.sort with no comparator on dotted refs.",
+   "fix": "Sort by the lesson's spine index (C().lesson(r).idx) or a numeric dotted comparator."
+  },
+  {
+   "id": "CO-15",
+   "severity": "P3",
+   "title": "After a task passes the page offers no next step and its clock keeps running",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/code-space/task-checked-mac.png; eval: header time 00:47 then 00:50 after pass",
+   "rootCause": "The pass handler writes the reward line but does not stop the task timer or render a forward action.",
+   "fix": "On a proven pass stop the clock (show the time taken) and add a primary 'Next' (the next task of the lesson, or back to the Daily 20/desk)."
+  },
+  {
+   "id": "CO-16",
+   "severity": "P3",
+   "title": "Daily 20 marked Done still says 'you haven't proven Input loops in code yet'",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "eval #/subject/code .k-cx-d20 innerText after passing 2.9-guess; js/modules/code.js:234-240 (why printed whatever plan.done)",
+   "rootCause": "planDay's why is computed for the morning pick and printed even when done.",
+   "fix": "When plan.done, replace the why with what was proven ('Proven today: Input loops, while, Ternary')."
+  },
+  {
+   "id": "CO-23",
+   "severity": "P3",
+   "title": "On the Katas page the section strip lights 'Code' instead of 'Katas'",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/code-space/b4-empty-kata-mac.png vs b4-empty-retrieval-mac.png; js/core/ui.js:1514 (activeView list is retrieval|skills|map, 'kata' missing) while ui.js:1490 adds a Katas pill with page 'kata'",
+   "rootCause": "Hand-maintained duplicate list of Code pill pages at ui.js:1514",
+   "fix": "Add 'kata' to the page list in ui.js:1514 (better: derive the list from the pushed items' page values so a new pill can't drift)."
+  },
+  {
+   "id": "CO-24",
+   "severity": "P3",
+   "title": "Code settings states the in-app runner's time limit as 2 seconds; the runner actually allows 2.5 s and the watchdog 4 s",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "js/modules/code.js:1428 ('time limit 2 seconds a run'); js/core/coderun.js:217 (ms: 2500), :39 (WATCHDOG = 4000), :202/:234 ('Stopped after ' + WATCHDOG/1000)",
+   "rootCause": "Literal copy not tied to the runner constants",
+   "fix": "Derive the label from the same constant the runner uses (export it from KOS.codeRun)."
+  },
+  {
+   "id": "CO-25",
+   "severity": "P3",
+   "title": "'See the answer?' says only today's first pass loses its reward; in fact the task never pays again",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "Reproduced on #/code/task/1.1-box: confirm, pass → 'No reward · you opened the answer at 10:37', taskState passAt null; js/core/code.js:324 (no day check), :340-356 (seen pass never sets passAt); dialog text js/modules/code.js:875-876; shots/code-space/b4-seeanswer-mac.png",
+   "rootCause": "Dialog copy out of step with quote()",
+   "fix": "Say 'this task will no longer pay a reward' (or add a day limit to the rule if that was the intent)."
+  },
+  {
+   "id": "CO-26",
+   "severity": "P3",
+   "title": "Task page: the Problems tab says 0 while it lists the compile error from Run",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "#/code/task/1.2-types, Run 'Console.WriteLine(x);' → shots/code-space/b4-compile-error-mac.png (tab reads Problems 0); eval Problems pane text 'CS0103 · line 1 · The name 'x' does not exist…'; js/modules/code.js:663-667 (pc = lastCheck && lastCheck.compile)",
+   "rootCause": "Count and pane read different results",
+   "fix": "Count from the last result shown (Run or Check), the same source that fills the pane."
+  },
+  {
+   "id": "CO-27",
+   "severity": "P3",
+   "title": "Runtime card on a task says 'You can still read the listing and its output below' — there is no listing below",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/code-space/b4-runtime-offer-mac.png (#/code/task/7.1-rect); js/core/codeui.js:278",
+   "rootCause": "One string for two contexts",
+   "fix": "Pass the context (listing | task) and word the closing line for each; on a task say Check needs the runtime too."
+  },
+  {
+   "id": "CO-28",
+   "severity": "P3",
+   "title": "Check on a unit 7+ task without the runtime reports 'Compile error RUNTIME'",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "eval: tests pane text 'Results\\nCompile error RUNTIME\\n◇ The in-app runner can't run this…'; js/core/codeui.js:394-397 (any check.compile is titled 'Compile error ' + code); js/core/coderun.js:142 (missing runtime returned as an error with code RUNTIME); js/modules/code.js:680-681",
+   "rootCause": "Runtime absence travels through the compile-error path",
+   "fix": "Special-case kind 'runtime' in results() (summary 'Needs the full runtime'), or disable Check with a reason until the runtime is ready."
+  },
+  {
+   "id": "CO-29",
+   "severity": "P3",
+   "title": "Retrieval due list and skill map truncate the names the learner needs (lesson and card titles end in '…')",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/code-space/b4-retrieval-seed-mac.png; shots/code-space/b4-skills-seed-ipadl.png; measurements: ELLIP b 'Where the docs say it' 135x20 (mac), ELLIP span.k-cx-skrow-l '1.1 Your first program' 82x18 inside button.k-cx-skrow 570x40 (ipadl)",
+   "rootCause": "Fixed column widths with nowrap+ellipsis",
+   "fix": "Let the titles wrap to two lines (line-clamp 2) in the due list; in the skill map give the lesson column a minmax() share or show just the ref with the title as a tooltip/second line."
+  },
+  {
+   "id": "CO-30",
+   "severity": "P3",
+   "title": "Skill map rows are 40px tall on touch devices",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "measurement (pointer:coarse): button.k-cx-skrow 570x40 (ipadl), 358x40 (iphone) on #/code/skills",
+   "rootCause": "Dense row height not raised for coarse pointers",
+   "fix": "min-block-size: var(--hit) on .k-cx-skrow under (pointer: coarse)."
+  },
+  {
+   "id": "CO-31",
+   "severity": "P3",
+   "title": "Track T2 page: five part cards in a fixed three-column grid leave an empty cell, and the cards stretch to equal heights with blank bottoms",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/code-space/b4-trackT2-mac.png (#/code/track/T2, mac, seeded); css/views/code.css:470 (repeat(3, minmax(0,1fr))); js/modules/code.js:524 (needs note text)",
+   "rootCause": "Fixed column count independent of part count",
+   "fix": "Let the last row's card(s) span the leftover columns (or use the app's pack/masonry used by Reports), align-items: start, and keep the done count on one line with the title (or always below). Reword the note: 'Not met yet — tap a unit to open it. The track is open anyway.'"
+  },
+  {
+   "id": "CO-32",
+   "severity": "P3",
+   "title": "Desk analytics: 'Tasks passed 28 / 30' means passed of tried, unlike every other 'x / y' tile, and its bar reads as nearly finished",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "shots/code-space/b4-desk-dawn-seed-mac.png (seeded + 27 API passes); js/modules/code.js:147-148 (v: tasksPassed + ' / ' + tasksTried, pct passed/tried); js/core/code.js:876",
+   "rootCause": "Ratio semantics differ within one tile grid",
+   "fix": "Show passed of total tasks in released lessons (or label it 'first-try rate' / '28 of 30 tried') so the bar means progress like its neighbours."
+  },
+  {
+   "id": "CO-33",
+   "severity": "P3",
+   "title": "Unknown Code ids leave the bad URL in the address bar while another page is drawn",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "eval: hashes after navigation unchanged ('#/code/task/nope-1' with h1 'Code'; the others with 'Curriculum map'); js/modules/code.js:594 (KOS.show('subject') inside pageTask), :1579 (return pageMap for any unknown page), :1574-1578; js/modules/codecap.js:44; pageTrack has the same fallback",
+   "rootCause": "Fallback navigation inside a render bypasses the router's URL handling",
+   "fix": "Resolve ids in the router's decoder (return null for unknown ids so the router replaces the route), or call the router's replace path instead of KOS.show from inside a view."
+  },
+  {
+   "id": "CO-34",
+   "severity": "P3",
+   "title": "'For the computer' shows only the newest four saved tasks and offers no way to reach the rest",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "eval: KOS.code.laterList().length = 6, desk [data-ui~=code.later] rows = 4, no 'more'; shots/code-space/b4-desk-later-mac.png; js/modules/code.js:353 (items.slice(0, 4)); grep: laterList used only at js/modules/code.js:345",
+   "rootCause": "Hard cap without overflow affordance",
+   "fix": "Show the count in the head ('6 saved') and a 'Show all' disclosure, or list all (they are short rows)."
+  },
+  {
+   "id": "CO-35",
+   "severity": "P3",
+   "title": "Retrieval 'Due' listbox: arrow keys move a selection screen readers never hear, and the card does not follow until Enter",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "eval on #/code/retrieval (8 due): after focus + ArrowDown, activeElement = list, aria-activedescendant null, selected option '2 Write a small class', stage still 'RETRIEVAL · T1A · FILTER AND SORT'; js/modules/code.js:930 (listbox), :940-951 (options without id), :952-956 (keydown only redraws the list)",
+   "rootCause": "Custom listbox without the activedescendant contract",
+   "fix": "Give each option an id and set aria-activedescendant on move (or use roving tabindex on buttons), and draw the picked card on arrow as a click does."
+  },
+  {
+   "id": "CO-36",
+   "severity": "P3",
+   "title": "With 'Phone tasks' switched off, a unit 1–3 task on the phone says 'This one needs a wide editor' and gives no way back",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "eval at iphone size, ui.phoneTasks=false → #/code/task/1.4-hours shows 'Best on a computer … This one needs a wide editor…'; shots/code-space/b4-phone-off-iphone.png; js/modules/code.js:908 (fixed copy); js/core/code.js:909 (phoneFit false when phoneTasks off)",
+   "rootCause": "One reason string for two causes",
+   "fix": "When the task would fit but the setting is off, say 'Phone tasks are off in Code settings' with a link (or a 'Do it here anyway' button)."
+  },
+  {
+   "id": "CO-37",
+   "severity": "P3",
+   "title": "Capstone and Rider project briefs stop at 620px inside an 832px card, leaving a 190px empty strip",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/code-space/b4-cap-C4-build-mac.png; shots/code-space/b4-empty-projT1b-mac.png; eval: card 832px, .k-prose.k-cx-capbrief 620px (max-width 620px), gap 190px",
+   "rootCause": "Reading-width cap applied inside an already-narrow card",
+   "fix": "Drop the cap inside a card that already sits beside a side column (the card itself is the measure), or narrow the card and widen the milestone column."
+  },
+  {
+   "id": "CO-38",
+   "severity": "P3",
+   "title": "Search finds Code lessons only under 'Specification' and never finds capstones, Rider projects or tasks",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "eval: search 'LINQ' => 'Specification: 9.6 · Extension methods / 9.8 …'; 'Gradebook' => no groups; js/core/search.js (no Code capstone/project/task source)",
+   "rootCause": "Search indexes the spec tree only",
+   "fix": "Label the group by subject ('Code lessons') and add capstones, projects and tasks (title → #/code/capstone|project|task/<id>) as a Code source."
+  }
+ ]
+}

@@ -1,0 +1,416 @@
+{
+ "area": "shop-cosmetics",
+ "source": "origin/audit/quality-2026-11:docs/audit/2026-11/findings.json + data/plan-mapping.json",
+ "findings": [
+  {
+   "id": "SC-01",
+   "severity": "P1",
+   "title": "Shop avatar previews: the painted avatar escapes its disc (drawn top-left, overflowing the card) and the disc sits empty, offset",
+   "workstream": "W5",
+   "expected": "fixed",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/ef-1.png and /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/ef-2.png (Avatars rows); eval getBoundingClientRect on .k-gv-ware[data-kind=avatar]; js/modules/governor-ui.js:1227-1228 (img(it.art) uses the default class k-gv-apv-img); css/views/governor.css:589 (.k-gv-apv-img position:absolute; inset:0) vs :602-603 (.k-gv-apv-disc has no position:relative)",
+   "rootCause": "Generic absolute-positioned image class reused inside a non-positioned disc",
+   "fix": "Give the avatar img its own class (e.g. img(it.art,'k-gv-apv-disc-img')) instead of k-gv-apv-img, or make .k-gv-apv-disc position:relative and the img inset:9%; centre with object-fit:contain. Re-check the art itself: several avatar PNGs carry a baked dark disc (koi, lamp) so a second CSS disc doubles it."
+  },
+  {
+   "id": "SC-02",
+   "severity": "P1",
+   "title": "Try on panel's 'Buy · ◈ 4,500' button is illegible (dark ink on dark glass)",
+   "workstream": "W5",
+   "expected": "fixed",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/seed-tryon-outfit.png (button left of 'Stop'); eval: getComputedStyle([data-ui~=shop.buy-tried]) color oklch(0.2 0.03 70), bg oklch(0.14 0.01 265/0.72); css/views/governor.css:57 '.k-gv-stage .k-btn { background: var(--gv-glass) }' (specificity 0,2,0) overrides css/views/governor.css:567 '.k-gv-buy { background: var(--gold) }' (0,1,0)",
+   "rootCause": "CSS specificity: stage glass-button rule beats the buy colour rule",
+   "fix": "Raise the buy rule's specificity (.k-gv-stage .k-gv-buy, or :where() on the stage rule) so a gold buy button keeps its gold fill on the Stage."
+  },
+  {
+   "id": "SC-03",
+   "severity": "P1",
+   "title": "A painted frame on the Seat spills over 'Level 53', the title chip and past the stage edge",
+   "workstream": "W5",
+   "expected": "fixed",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/seed-status-mac.png; eval: frame art [228,190,296,296], .k-gv-name [500,274,329,58], 'Pick a title' [500,340], stage [236,202] overflow hidden; css/layout.css:254 (.k-avatar-frame-art 152% + 2*--fo, absolutely positioned); js/core/governor.js avatarNode (frame drawn 'outside the box ... never changes layout')",
+   "rootCause": "Painted frames are absolutely positioned overflow with no layout space reserved",
+   "fix": "Reserve the frame's bleed where a large framed avatar sits (padding/margin on the Seat's face column equal to (frame - avatar)/2, or a CSS var the host exposes, e.g. --frame-bleed), and scale painted frames so their inner hole meets the HP ring instead of a fixed 152%."
+  },
+  {
+   "id": "SC-04",
+   "severity": "P1",
+   "title": "Seals are sold as 'the topbar mark' but the topbar has no mark any more; the painted stamp art is never shown in use",
+   "workstream": "W5",
+   "expected": "fixed",
+   "evidence": "eval: document.querySelector('[data-ui~=shell.brand-mark']) -> null; brand outerHTML = img + 'Kurenai'; js/core/governor.js:782-783; js/modules/governor-ui.js:235-244 (ring seal glyph only); wardrobe label in governor-ui.js WARD ['seal','Seal','The topbar mark']; /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/seed-assistant-gala.png (topbar shows the bloom logo with seal-hikari worn)",
+   "rootCause": "Topbar markup changed (brand image) without updating applyCosmetics/the seal feature",
+   "fix": "Decide where a seal shows and draw its stamp there: e.g. replace the topbar bloom with the worn seal's stamp (keep the bloom for 紅), and use the stamp art (not a crimson text disc) on the Seat ring and the Share card; fix the Wardrobe caption to match."
+  },
+  {
+   "id": "SC-05",
+   "severity": "P1",
+   "title": "All 10 painted shelf skins and Shrine card styles never show: their picture URL resolves to /css/views/assets/... (404)",
+   "workstream": "W5",
+   "expected": "fixed",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/shelf-compare.png (top: default, middle: Walnut CSS skin, bottom: Sakura wood painted skin = nothing); /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/seed-books-shelf-sakura.png; /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/seed-shrine-gold-frost.png; eval: getComputedStyle(.k-bk-shelf).backgroundImage = url(http://127.0.0.1:9104/css/views/assets/app/img/app.shelf.sakura.webp); Shrine hero cover ::after = .../css/views/assets/app/img/app.shrinecard.frost.webp; curl 404 vs /assets/app/img/... 200; js/modules/books.js:1285; js/modules/shrine.js:954; css/views/collection.css:532-534",
+   "rootCause": "Relative url() inside an inline CSS custom property resolves against the consuming stylesheet's URL",
+   "fix": "Set the variable to an absolute URL, as dayreview.js:142 already does: 'url(\"' + new URL('assets/app/img/' + art + '.webp', location.href).href + '\")'. Then re-check each skin's look (keep a board under the painted back panel). Add a smoke check that every --skin-art resolves."
+  },
+  {
+   "id": "SC-06",
+   "severity": "P1",
+   "title": "Shop frame previews: the avatar is a small disc lost inside a big painted ring (55px avatar in a 179px frame)",
+   "workstream": "W5",
+   "expected": "fixed",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/seed-shop-frames.png; eval: Sakura ring frame-art [486,4375,179,179], avatar [548,4433,55,55]; image analysis: inner hole radius/half-width app.frame.sakura 0.73, ice 0.74, koi 0.67; js/modules/governor-ui.js:1229-1230 (avatarNode(big ? 120 : 64) inside .k-gv-apv-frame 76%); css/views/governor.css:604-607 (avatar * 0.86)",
+   "rootCause": "Preview avatar uses a fixed pixel size unrelated to the frame's box",
+   "fix": "Size the preview avatar as a fraction of the frame box (e.g. inline-size: 66% of .k-gv-apv-frame, matching the worn 1/1.52 rule) instead of a fixed 64/120px; better, store each frame's measured hole ratio in the catalogue and use it both worn and in the shop so the ring hugs the HP ring."
+  },
+  {
+   "id": "SC-07",
+   "severity": "P1",
+   "title": "With a painted frame worn, every CSS frame card in the shop previews the WORN frame instead of its own",
+   "workstream": "W5",
+   "expected": "fixed",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/seed-shop-frames.png (top row: four different CSS frames all drawn as the Koi ring); js/modules/governor-ui.js:1258-1265 (case 'frame' in shopPreview); css/layout.css:255",
+   "rootCause": "Preview reuses the live avatar node including the worn frame layer",
+   "fix": "Strip .k-avatar-frame-art from the node (as frameChip does) before setting data-frame, or give avatarNode an option {frame: id|null} so previews never inherit the worn frame; the same applies to the banner preview's avatarNode."
+  },
+  {
+   "id": "SC-08",
+   "severity": "P1",
+   "title": "A painted frame on Home's hero and on the phone overlaps the greeting and is cut off by the hero's edge",
+   "workstream": "W5",
+   "expected": "fixed",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/seed-home-mac.png, /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/seed-home-iphone.png, /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/seed-status-iphone.png; eval Home: frame [235,102,163,163], avatar [269,137,94,94], hero [236,80,1210,207] overflow hidden, h1 [392,161]; css/layout.css:254",
+   "rootCause": "Painted frame overflow with no reserved space",
+   "fix": "Reserve the frame bleed in every host that shows a large framed avatar (Home ring, Seat face, Avatar stage, phone stage): pad the ring's container by (frame-avatar)/2 or shrink the painted frame to the HP ring (using each frame's hole ratio) so nothing spills."
+  },
+  {
+   "id": "SC-20",
+   "severity": "P1",
+   "title": "Worn painted avatars are clipped by their circle and sized inconsistently (fox ears, crane wings, lamp head, dragon tail cut; cat and lantern float small)",
+   "workstream": "W5",
+   "expected": "fixed",
+   "evidence": "audit-evidence/2026-11/qa/shots/shop-cosmetics/b3/avatar-montage.png, audit-evidence/2026-11/qa/shots/shop-cosmetics/b3/avatar-row1-2x.png; image sizes via PIL (assets/app/img/app.avatar.*.webp); css/layout.css:250-251 (.k-avatar overflow hidden, .k-avatar-art object-fit: contain); js/core/governor.js:697-699",
+   "rootCause": "Art generated as rectangular cut-outs with content in the corners, displayed contain-fit in a circular clip.",
+   "fix": "Recompose the art for a circle: each avatar keyed to fit inside an inscribed circle of ~88% of a square canvas, on a consistent ground (either all full painted discs or all cut-outs on --s2), then keep object-fit: contain. Short of new art, pad the img (inline-size/block-size ~78%) so cut-out corners clear the circle, and a per-item focal/scale in the catalogue for outliers (cat, lantern)."
+  },
+  {
+   "id": "SC-21",
+   "severity": "P1",
+   "title": "Worn painted frames leave a dark empty band between the avatar and the ring (the ring's hole is ~75% of the art, the avatar is drawn at 66%)",
+   "workstream": "W5",
+   "expected": "fixed",
+   "evidence": "audit-evidence/2026-11/qa/shots/shop-cosmetics/b3/frames-2x.png, audit-evidence/2026-11/qa/shots/shop-cosmetics/b3/avatar-montage.png (bottom rows); hole radii measured with PIL on assets/app/img/app.frame.*.webp; css/layout.css:254 (152% fixed), :260-262 (--fo)",
+   "rootCause": "A single fixed 152% scale assumed a 66% hole; the imported art's holes are 73-78% and some are off-centre.",
+   "fix": "Store each frame's measured hole ratio and centre offset in the catalogue (e.g. hole:0.75, cx/cy) and size the art as avatarOuter / hole (≈133%, not 152%) positioned by its hole centre; let the art cover the HP ring instead of sitting outside it, or re-key the art so every hole is a centred circle of one fixed ratio."
+  },
+  {
+   "id": "SC-09",
+   "severity": "P2",
+   "title": "Pen set 'Study set' (◈500) changes nothing: it maps the pen to exactly the default roles",
+   "workstream": "W5",
+   "expected": "fixed",
+   "evidence": "css/views/ink.css:37-42 (no study rule); js/core/governor.js:515; css/views/governor.css (k-gv-apv-pens default --p1 text, --p2 crimson, --p3 teal = the no-penset look)",
+   "rootCause": "Catalogue item added without its CSS mapping",
+   "fix": "Give the Study set its own mapping (e.g. ink=text, accent=amber 'mark', teal=green 'note') in ink.css and the preview, or drop the item and refund owners."
+  },
+  {
+   "id": "SC-10",
+   "severity": "P2",
+   "title": "Repainted art for the original 16 cosmetics is imported but never used (frames, shelf skins, Shrine cards, seals)",
+   "workstream": "W5",
+   "expected": "fixed",
+   "evidence": "grep 'frame.gilt|shelf.walnut|shrinecard.gilded|app.seal.homura' js css -> no hits; js/core/governor.js:414-432 (no art); /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/ef-2.png (Frames rows), /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/ef-3.png (Seals rows, Rai/Hoshi cards half empty)",
+   "rootCause": "Catalogue rows not updated when the repaint batch was imported",
+   "fix": "Add art: 'app.frame.gilt' etc. to the 16 legacy rows (frame-gold->app.frame.gilt, frame-crimson->app.frame.bloom, ...) with painted:true so avatarNode/the Books shelf/the Shrine/the seal preview take the painted path; keep ids so ownership is unchanged."
+  },
+  {
+   "id": "SC-11",
+   "severity": "P2",
+   "title": "Shop Stage: no Kurenai mannequin unless an outfit is worn or tried; the third column is empty",
+   "workstream": "W5",
+   "expected": "fixed",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/empty-shop-mac.png; assets/app/img/app.ach.pano.kurenai.webp (no figure); js/modules/governor-ui.js:1015-1019",
+   "rootCause": "Assumed the panorama contains Kurenai",
+   "fix": "When no outfit is worn, draw the default redesign sprite (app.base.kurenai) as the mannequin; an outfit swaps it."
+  },
+  {
+   "id": "SC-12",
+   "severity": "P2",
+   "title": "Wardrobe: notebook papers and pen sets are shown as meaningless capital-letter tiles (K, D, I, M, M, 2 / S, E, S)",
+   "workstream": "W5",
+   "expected": "fixed",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/av-1.png (top rows); js/modules/governor-ui.js wardrobe chips: 'it.art ? img : el(span.k-gv-ward-k, text: it.glyph || it.name.charAt(0))'",
+   "rootCause": "Wardrobe chip only knows art or a glyph",
+   "fix": "Reuse artPreview's paper swatch (.k-gv-apv-paper[data-paper]) and pen strokes (.k-gv-apv-pens[data-set]) as the chip picture for these kinds."
+  },
+  {
+   "id": "SC-13",
+   "severity": "P2",
+   "title": "Avatar & profile stage: the painted frame clips into 'LIVE IDENTITY' / 'Level 53' and the stage's middle third is empty",
+   "workstream": "W5",
+   "expected": "fixed",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/av-hero-zoom.png, /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/av-0.png; eval rects: identity-stage [268,259,602,106], id-txt [396,284,181,55], controls [894,240,520,145]",
+   "rootCause": "Frame bleed not reserved; fixed-width controls column",
+   "fix": "Same bleed reservation as the Seat; let the controls column take the remaining width (or move the status/next-step facts into the middle) so the stage has no dead band."
+  },
+  {
+   "id": "SC-14",
+   "severity": "P2",
+   "title": "Focus scene 'First snow': secondary text on the running stage is unreadable over the bright window; the assignment chip runs off the left edge",
+   "workstream": "W5",
+   "expected": "fixed",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/seed-focus-running.png (mac 1470x832, scene-snow, Pomodoro running on an NEA assignment); css/components.css:694 (focus art scrim/opacity tokens)",
+   "rootCause": "One scrim strength for every scene; unconstrained chip width",
+   "fix": "Put the side columns' text on a glass panel (as the clock has) or raise --art-scrim-stage per scene (a per-scene dial like Dawn's), and clamp the assignment chip (max-inline-size:100%; text-overflow:ellipsis)."
+  },
+  {
+   "id": "SC-15",
+   "severity": "P2",
+   "title": "Share-card finishes: the card looks nothing like the shop preview (Washi turns muddy brown), the finish reaches only the Reports card, and the shop preview's text is illegible on Washi",
+   "workstream": "W5",
+   "expected": "fixed",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/seed-share-washi.png (Reports share dialog with finish-washi worn); /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/ef-1.png (shop finish previews: Washi text invisible); js/modules/reportshare.js:92-104 (0.55 alpha picture then 0.5 lacquer); js/modules/shrine.js:127-135 (styles list: only gold/crimson/ink + 3 legacy); js/modules/governor-ui.js artPreview case 'finish'",
+   "rootCause": "Finish implemented as a dimmed underlay; preview drawn separately from the real card",
+   "fix": "Make each finish a real treatment designed for the card (paper as the ground with dark ink text for Washi; a foil rim gradient for Foil; grain overlay for Film), render the shop preview from the same card() function scaled down, add a finish row to the share dialog, and apply it to the Shrine card too."
+  },
+  {
+   "id": "SC-16",
+   "severity": "P2",
+   "title": "Ink toolbar's Paper button says 'Lined' on every bought paper (Kraft, Slate, Iso, Manuscript, Staff, 2 mm graph)",
+   "workstream": "W5",
+   "expected": "fixed",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/seed-ink-graph-sketch.png (toolbar right end 'Lined' while the page is graph); eval: .k-ink-paper-btn text 'Lined▾', .k-ink-page data-paper 'graph'; js/core/inkui.js:1020; js/core/ink.js:42-56 (PAPERS vs SHOP_PAPERS / papers())",
+   "rootCause": "Label lookup uses the built-in list only",
+   "fix": "Look the label up in I.papers() (built-in + owned shop papers), or in PAPERS.concat(SHOP_PAPERS)."
+  },
+  {
+   "id": "SC-17",
+   "severity": "P2",
+   "title": "'Try on' for Focus scenes, Shrine halls and share-card finishes shows nothing: the try-on ends the moment you leave the shop",
+   "workstream": "W5",
+   "expected": "fixed",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/seed-tryon-scene-hall.png (Trying on: The night train, Moon hall, Washi; stage images = app.banner.snow + the outfit only); js/modules/governor-ui.js:1039 (canTry list), 1092 (sheet Try on kinds), 271-294 (stageBg ignores tried kinds); js/core/ui.js:1494-1497",
+   "rootCause": "Try on wired to state only; no renderer for most kinds on the shop page",
+   "fix": "Make the Stage the fitting room: while a scene/hall/banner is tried, draw it as the Stage ground (with the 25:00 clock or the 01 rank over it); a finish as a mini share card; avatar/frame/seal on a live identity chip. Or remove Try on from kinds that cannot be shown."
+  },
+  {
+   "id": "SC-18",
+   "severity": "P2",
+   "title": "Preview sheet of an owned item is a dead end: no Use / Take off, no 'Owned' or 'In use' state, and half the dialog is empty",
+   "workstream": "W5",
+   "expected": "fixed",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/seed-sheet-owned-frame.png; js/modules/governor-ui.js:1090-1098 (actions only when st is buy/try), 1104 (footer omitted when no actions)",
+   "rootCause": "Sheet actions written for the purchase states only",
+   "fix": "Add the card's own actions to the sheet for owned states (Use / Take off, Unlocked · where it shows), a status chip, and a 'Where it shows' line per kind (the Wardrobe's captions); size the dialog to its content."
+  },
+  {
+   "id": "SC-19",
+   "severity": "P2",
+   "title": "Two sources of truth for the Focus scene / Shrine hall / banner: the shop's 'Use' says 'In use' while the picture drawer's rule silently wins",
+   "workstream": "W5",
+   "expected": "fixed",
+   "evidence": "eval after clicking the library thumb in KOS.artSlot.open('focus') then KOS.governor.wear('scene','scene-train'): {cfg:{mode:'one',pick:'app.focus.library'}, worn:'scene-train', pick:'app.focus.library'}; /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/shop-cosmetics/seed-drawer-focus.png; js/core/art.js:118-126 (rotated: cfg wins), 168 (fallback to G.scene only without cfg), 143-152 (explain); js/modules/governor-ui.js wareActive/wareUse",
+   "rootCause": "Rotation rule added beside the existing worn-item field instead of replacing it",
+   "fix": "Make one record: 'Use' in the shop/Wardrobe should write the drawer rule ({mode:'one', pick: art}) or clear it, and the drawer's One picture should mark/write g.scene; the drawer's initial state should select the worn item and explain should say 'always' for the implicit one-picture state."
+  },
+  {
+   "id": "SC-22",
+   "severity": "P2",
+   "title": "Ten of the 23 paid shop themes are near-copies of free Graphite (same near-black ground, accent within dE 2-6 of Graphite's crimson)",
+   "workstream": "W5",
+   "expected": "fixed",
+   "evidence": "audit-evidence/2026-11/qa/themes4.json (resolved tokens per theme via themecontrast.js); scratchpad th.py output (dE table); shots/shop-cosmetics/theme-sheet-0.png, theme-sheet-1.png, theme-sheet-2.png and shots/shop-cosmetics/themes/*.png; css/themes.css e.g. :379 azure-corset-noir --crimson: oklch(0.66 0.19 22)",
+   "rootCause": "themes.css overrides only the role colours but every dark theme copies Graphite's ground lightness/chroma and most red/pink themes pick an accent hue within ~10 degrees of Graphite's.",
+   "fix": "Retire the ten (catalogue flag like retired banners, governor.js:529) or redesign each with a distinct ground (lightness 0.18-0.24 and real chroma, not 0.15/0.04) and an accent hue at least ~15 dE from Graphite."
+  },
+  {
+   "id": "SC-23",
+   "severity": "P2",
+   "title": "Theme cards' lead swatch promises a colour the theme never uses as its accent (Azure Corset Noir, Porcelain Sky Night, Jade Camellia: blue/green swatch, red/coral buttons)",
+   "workstream": "W5",
+   "expected": "fixed",
+   "evidence": "js/core/governor.js:397,403,406,402,405,392 (sw arrays) vs css/themes.css :379 (--crimson hue 22) and themes4.json accents; scratchpad th.py 'accent vs card swatch' column",
+   "rootCause": "Swatches are hand-typed in the catalogue, separately from css/themes.css.",
+   "fix": "Order sw so sw[0] is the resolved --crimson, or change --crimson to the advertised hue. Better: derive the swatches from the theme block itself (read --crimson/--teal/--gold off a data-theme probe) so they can never drift."
+  },
+  {
+   "id": "SC-24",
+   "severity": "P2",
+   "title": "Wardrobe chip names are cut off for 22 of the owned items (Exam se…, Moon ra…, The nigh…, every seal, most papers)",
+   "workstream": "W5",
+   "expected": "fixed",
+   "evidence": "eval on #/governor/avatar: [...document.querySelectorAll('.k-gv-ward-n')].filter(e=>e.scrollWidth>e.clientWidth) -> 22 names; audit-evidence/2026-11/qa/shots/shop-cosmetics/b3/avatar-pbanner-sakura.png; js/modules/governor-ui.js:1371",
+   "rootCause": "Fixed-width chip with single-line ellipsis.",
+   "fix": "Let the name wrap to two lines (line-clamp 2) and widen chips to ~84px, or drop the redundant word ('seal', 'The') from the short label; add title= the full name."
+  },
+  {
+   "id": "SC-25",
+   "severity": "P2",
+   "title": "Switching between two painted avatars loses your own photo: taking the second off falls back to the default seal, not your picture",
+   "workstream": "W5",
+   "expected": "fixed",
+   "evidence": "eval log: [['Cat','art','custom'],['Fox','art','art'],['Fox','seal','art']], final kind 'seal', hasImg true; js/modules/governor-ui.js:885-887 (prevKind = g.avatar.kind unconditionally)",
+   "rootCause": "prevKind overwritten on every art-to-art switch.",
+   "fix": "Only record prevKind when leaving a non-art kind: if (g.avatar.kind !== 'art') g.avatar.prevKind = g.avatar.kind; and on take-off restore 'custom' whenever g.avatar.img exists."
+  },
+  {
+   "id": "SC-26",
+   "severity": "P2",
+   "title": "One click on a card's Buy spends up to 12,000 gold with no confirmation and no undo, and silently re-dresses the app",
+   "workstream": "W5",
+   "expected": "fixed",
+   "evidence": "js/modules/governor-ui.js:1045-1046 (card Buy -> buyWare), :893-903 (buy + wareUse + toast, no undo); js/core/governor.js:542-556 (buy has no inverse)",
+   "rootCause": "buyWare couples purchase and equip, no reversible step.",
+   "fix": "Route the card's Buy through the preview sheet (or KOS.ui.confirm) showing price and balance after, and offer 'Undo' on the toast for ~10 s (refund + remove from owned, restore what was worn). Ask 'Use it now?' instead of auto-applying, or apply only kinds with nothing currently worn."
+  },
+  {
+   "id": "SC-27",
+   "severity": "P2",
+   "title": "Owned 'Your own picture' unlocks: a 6-line green text block instead of a button, and no way to reach the picture drawer from the shop",
+   "workstream": "W5",
+   "expected": "fixed",
+   "evidence": "audit-evidence/2026-11/qa/shots/shop-cosmetics/b3/shop-unlocks-iphone.png; eval: .k-gv-ware-name 'Vault heroes…' clientWidth 149 < scrollWidth 177; js/modules/governor-ui.js:1050-1051 (static span), :1239-1243 (preview label)",
+   "rootCause": "Unlock state rendered as prose rather than an action.",
+   "fix": "Replace the span with a button 'Upload a picture' that opens KOS.artSlot.open(it.area) (for 'all', a small menu of areas); drop the redundant Owned chip; let names wrap to 2 lines."
+  },
+  {
+   "id": "SC-29",
+   "severity": "P2",
+   "title": "On iPad portrait (701-1080px) the Assistant shows no Kurenai at all, so a bought outfit (4,500-10,000 gold) is invisible there",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "audit-evidence/2026-11/qa/shots/shop-cosmetics/b4/assistant-gala-ipad.png (no figure, empty upper half), b4/assistant-gala-iphone.png; eval of skin imgs per size: mac 277x443, ipadl 218x443, ipad 0x0/0x0, iphone 205x398 inside the 56px portrait; css/views/assistant.css:530-532 (.k-asst-presence display:none at max-width 1080) and :338-343 (portrait row only at max-width 700)",
+   "rootCause": "Two breakpoint rules that do not meet: the presence is hidden from 1080 down, the substitute only appears from 700 down.",
+   "fix": "Extend the portrait row (or a compact standing figure) to the 701-1080 band so every width shows Kurenai in her outfit; use the freed vertical space for her instead of blank."
+  },
+  {
+   "id": "SC-30",
+   "severity": "P2",
+   "title": "Washi Morning (light shop theme, 1,500 gold) keeps the dark-ground red: every overdue/alarm text is 3.2:1 on its cards",
+   "workstream": "W5",
+   "expected": "fixed",
+   "evidence": "eval resolving each token inside a [data-theme] probe: washi-morning --red 3.23, --alarm 3.23 vs atelier-dawn 5.78; themes4.json washi-morning alarmOnS1 3.23; css/themes.css:850-866 (washi block, no --red) vs :93 (Dawn's --red); grep 'color: var(--alarm)' css -> 61 rules",
+   "rootCause": "Only Dawn was treated as a light theme when the fixed status colours were tuned; the newer light theme copied the role overrides but not the light-ground status restatement.",
+   "fix": "Give washi-morning the same light-ground --red restatement as Dawn (and check --red-soft/--crit washes derive from it); add a smoke check that every theme's --alarm on --s1 is >= 4.5:1."
+  },
+  {
+   "id": "SC-31",
+   "severity": "P2",
+   "title": "Picture drawer 'Rotate by season / time of day' ignores what the pictures are: First snow never shows in winter, the rooftop and First snow never show at all, the night train shows at 2 pm",
+   "workstream": "W5",
+   "expected": "fixed",
+   "evidence": "eval: setCfg('focus',{mode:'rotate',period:'season'}) rotated for 15 Jan/Apr/Jul/Oct -> library/train/shrine/cafe; period 'tod' 8/14/19/23h -> library/train/shrine/cafe; condition mode with period 'day' -> 'by the day'; js/core/art.js:131-137 (index by position), js/modules/artslot.js:65 (period hidden in condition mode) and :73 ('Otherwise the season decides')",
+   "rootCause": "Rotation treats the pool as an anonymous list; only Home's four seasonal heroes happen to line up with SEASONS order.",
+   "fix": "Give each scene/hall catalogue item its own season and time-of-day tags (snow: winter + evening, rooftop/train: night, library: afternoon...) and rotate among the owned pictures that match, falling back to all; set period 'season' when switching to condition mode (or show the period there)."
+  },
+  {
+   "id": "SC-32",
+   "severity": "P2",
+   "title": "Edit your seat > Background offers '+ Upload an image' with 0 gold and no unlock, bypassing the 3,000-gold 'Profile banner' unlock (invariant 2)",
+   "workstream": "W1",
+   "expected": "fixed",
+   "evidence": "audit-evidence/2026-11/qa/shots/shop-cosmetics/b4/empty-edit-bg-upload.png; eval on empty account: {gold:0, ownsBanner:false, canUpload:false, uploadBtn:true}; js/modules/governor-ui.js:743-758 (no canUpload check), js/core/governor.js:930-934 (setCustomBanner -> bannerCropper(source)), :920-922 (allowUpload only hides the in-dialog button); js/core/art.js:60-63,85-99 (art.own.<slot> kv store)",
+   "rootCause": "The unlock was added to the drawer and the banner cropper's own button, not to the older Edit-seat upload path that feeds the same banner.",
+   "fix": "Gate the tile on KOS.art.canUpload('banner') (show the lock with 'Open in the shop' otherwise, as the drawer does) and make the drawer's 'Your own' banner and g.bannerImg one store."
+  },
+  {
+   "id": "SC-33",
+   "severity": "P2",
+   "title": "'Try anything on before you buy' is not true for 65 of the items (avatars, frames, seals, banners, shelf skins, Shrine cards, papers, pen sets: 34,060 gold)",
+   "workstream": "W5",
+   "expected": "fixed",
+   "evidence": "js/modules/governor-ui.js:1013 (promise text), :1039 (canTry exclusions), :1089-1090 (sheet Try on only for outfit/scene/hall/finish/theme); js/core/governor.js:826-831 (tryItem returns unless theme or WEAR kind), :805 (WEAR); eval: 65 non-retired items, 34,060 gold",
+   "rootCause": "",
+   "fix": "Either extend the transient try-on to the profile kinds (frame/avatar/seal/banner on the stage's identity block; shelf/Shrine card on a sample row) or change the copy to name what can be tried."
+  },
+  {
+   "id": "SC-34",
+   "severity": "P2",
+   "title": "Exam and Sketch pen sets barely differ from the default, label their swatches wrongly, and silently recolour every stroke already written",
+   "workstream": "W5",
+   "expected": "fixed",
+   "evidence": "eval KOS.inkUI.palette(host) after KOS.governor.wear('penset', id): default/study identical; exam {accent:'rgb(232,95,97)',teal:'rgb(131,134,142)'}; sketch {ink:'rgb(180,183,190)',accent:'rgb(230,169,197)',teal:'rgb(235,197,115)',amber:'rgb(230,181,93)',bloom:'rgb(230,169,197)'}; css/views/ink.css:37-42; js/core/inkui.js:1265-1266 (aria-label/title from PEN_ROLES names); js/core/ink.js:56 (PEN_ROLES)",
+   "rootCause": "Pen sets were implemented as CSS remaps of the shared roles on :root rather than as new roles.",
+   "fix": "Give each set distinct colours and its own swatch names (Pen/Red pen/Pencil; Graphite/Wash/Highlight) and apply the set to NEW strokes only (store the resolved set on the stroke, or have the set add roles rather than remap existing ones)."
+  },
+  {
+   "id": "SC-28",
+   "severity": "P3",
+   "title": "'Kurenai bloom' frame (◈90) renders as eight blocky pink squares, not petals",
+   "workstream": "W5",
+   "expected": "fixed",
+   "evidence": "audit-evidence/2026-11/qa/shots/shop-cosmetics/b3/frames-2x.png (frame-crimson); css/layout.css:272-274",
+   "rootCause": "Conic-gradient approximation of petals.",
+   "fix": "Retire the four CSS frames (as the CSS banners were) now that painted frames exist, or redraw the bloom as an SVG petal mask."
+  },
+  {
+   "id": "SC-35",
+   "severity": "P3",
+   "title": "Two outfit descriptions do not match their art: 'Day off' promises a soft cardigan (art: a hoodie), 'Exam season' a blazer and lanyard (art: grey cardigan and glasses, no lanyard)",
+   "workstream": "W5",
+   "expected": "fixed",
+   "evidence": "audit-evidence/2026-11/qa/shots/shop-cosmetics/b4/shop-outfits.png; js/core/governor.js:448 (outfit-exam desc 'Blazer and lanyard'), :451 (outfit-dayoff desc 'A soft cardigan'); assets/app/img/app.skin.kurenai.exam.webp, app.skin.kurenai.dayoff.webp",
+   "rootCause": "",
+   "fix": "Reword the two descriptions to what is painted (or re-brief the art in art-source/app manifest)."
+  },
+  {
+   "id": "SC-36",
+   "severity": "P3",
+   "title": "Edit your seat: the aria-hidden preview still holds three keyboard-focusable buttons (Study, Rest rhythm, 'Open full log ->'); Enter on the last leaves the editor and drops the draft",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "eval on #/governor/edit: .k-gv-prev focusables n=3 ['Study','Rest rhythm','Open full log ->'], inert=false, pointer-events none; js/modules/governor-ui.js:669 (prevBox aria-hidden, no inert); css/views/governor.css:150",
+   "rootCause": "",
+   "fix": "Set prevBox.inert = true (or build the stage with o.preview suppressing the cadence tabs and log link)."
+  },
+  {
+   "id": "SC-37",
+   "severity": "P3",
+   "title": "Empty Wardrobe and Theme card waste most of the page: 12 cells of 'In the Gold Shop ->' with 120px gaps, a 2-card Theme row on a 1,200px card, and 'Rotate or your own' offered for kinds you own none of",
+   "workstream": "W5",
+   "expected": "fixed",
+   "evidence": "audit-evidence/2026-11/qa/shots/shop-cosmetics/b4/empty-avatar-mac.png, b4/empty-avatar-mac-top.png, b4/empty-avatar-iphone.png; js/modules/governor-ui.js:1415 (unowned chip -> KOS.show('governor','shop') with no department), :1450",
+   "rootCause": "",
+   "fix": "Collapse unowned kinds into one 'Not yet owned: outfits, avatars, ... -> Gold Shop' line (each deep-linking to its department via shopSel), show 'Rotate or your own' only with 2+ owned or the unlock, and let the Theme row fill the width (theme grid with more columns or the theme toggle beside it)."
+  },
+  {
+   "id": "SC-38",
+   "severity": "P3",
+   "title": "A locked lab sends you to the top of the shop with no Buy here, never says it unlocks the whole Trace Lab, and repeats '180' on four cards",
+   "workstream": "W5",
+   "expected": "fixed",
+   "evidence": "audit-evidence/2026-11/qa/shots/shop-cosmetics/b4/empty-sims-locked.png, b4/empty-sim-locked-open.png; js/core/governor.js:596-626 (KOS.show('governor','shop') with no department; dead isHp branch; grep why:'hp' -> no producer); js/modules/governor-ui.js:849 (shopSel module var, no route arg)",
+   "rootCause": "",
+   "fix": "Add an 'Unlock Trace Lab · 180' button on the lock when affordable (buy + rerender), name the lab and the sims it opens, deep-link 'Open the Gold Shop' to #/governor/shop with the labs department, and delete the HP branch."
+  },
+  {
+   "id": "SC-39",
+   "severity": "P3",
+   "title": "Gold is drawn with two different glyphs: ◈ in the Gold Shop, ◆ in the HUD, Seat, labs and rewards",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "audit-evidence/2026-11/qa/shots/shop-cosmetics/b4/shop-allowned-mac.png (◈ hero vs ◆ sidebar); grep: ◈ 17 uses in 9 files, ◆ 70 uses in 34 files; js/modules/governor-ui.js:851 (goldN '◈'), :496, js/core/governor.js:1176 ('◆')",
+   "rootCause": "",
+   "fix": "One gold formatter (e.g. KOS.ui.gold(n)) used everywhere, with one glyph."
+  },
+  {
+   "id": "SC-40",
+   "severity": "P3",
+   "title": "Every shop action (Buy, Use, Take off, Try on, Pin) rebuilds the whole shop and drops keyboard focus to <main>",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "eval mac and iphone: click [data-ui~=shop.use] -> scroll before/after stage=9285/9285 (mac), 15438/15438 (iphone); focus after: MAIN; js/modules/governor-ui.js:1041,1045,1053,1057 (each onclick ends in render())",
+   "rootCause": "",
+   "fix": "After render(), restore focus to the same card's new primary control (find by data-ware id), or update the card in place instead of re-rendering the page."
+  },
+  {
+   "id": "SC-41",
+   "severity": "P3",
+   "title": "The free default theme (Atelier Dusk) shows 'In use' with a 'Take off' button that does nothing; taking off any theme stores the legacy id 'kurenai'",
+   "workstream": "W5",
+   "expected": "fixed",
+   "evidence": "eval: buy+use Lantern Hall, click its shop.take-off -> {theme:'kurenai', data-theme:'' , Atelier Dusk data-ware 'on', take-off present}; clicking Dusk's take-off -> unchanged state and no new toast; js/modules/governor-ui.js:878 (theme off -> setTheme('kurenai')), :1053 (exception only for free scene), :1117-1120 (chosenTheme)",
+   "rootCause": "",
+   "fix": "Hide Take off on the default theme (it == 'Graphite, the default'); have taking off a theme set 'atelier-dusk' explicitly."
+  }
+ ]
+}

@@ -1,0 +1,316 @@
+{
+ "area": "home-reports",
+ "source": "origin/audit/quality-2026-11:docs/audit/2026-11/findings.json + data/plan-mapping.json",
+ "findings": [
+  {
+   "id": "HR-01",
+   "severity": "P1",
+   "title": "Mind and Creatives are pushed off-screen in Home's Continue row (fixed subject order, 4 visible, no scroll affordance)",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/home-reports/seed-home-mac-continue.png; eval of .k-desks: clientWidth 1210, scrollWidth 2434; js/modules/hub.js:1558-1563 (filter + fixed SUBJECTS order); css/views/home.css:183 (grid-auto-columns quarter width, overflow-x:auto); js/core/mind.js:430, js/core/creatives.js:255 (started())",
+   "rootCause": "Fixed registry order plus a 4-column horizontal scroller with no affordance; started() reads only lesson records.",
+   "fix": "Order the study desks by recency (last studied time from the ledger / ui.lastRef timestamps) so what you are doing is always in the first four; make the row wrap into a second line on desktop/iPad (auto-fill minmax columns) or add visible prev/next buttons and an edge fade with a 'N more' count; let started() also count Mind's Journal/positions/cards and Creatives' works."
+  },
+  {
+   "id": "HR-02",
+   "severity": "P1",
+   "title": "Weekly/monthly reports saved before the history arrives are frozen as 'A quiet week for study' forever",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/home-reports/seed-home-mac-all-desks.png (Week in review card 0m beside Study hours 9.2); eval KOS.reportStore.cached(): week:2026-10-19 {mins:0,sessions:0} created 1793576817945; ledger has type focus on 2026-10-20..25; js/core/reportstore.js:228-231 (hasContent counts plan/tasks), :275-279 (latest week always saved, a saved report is never rebuilt)",
+   "rootCause": "Save-once reports are created from an incomplete ledger; hasContent treats seeded Pacing rows as activity.",
+   "fix": "Do not let plan/tasks alone make a rebuilt week 'content'; hold the first ensureReports until the first cloud pull has completed (or until KOS.cloud says signed-out), and after importFull / first cloud link re-run the backfill with a 'replace rebuilt reports whose facts are empty or older than the newest ledger entry in their period' rule (rebuilt reports were never shown as final anyway)."
+  },
+  {
+   "id": "HR-03",
+   "severity": "P1",
+   "title": "iPad portrait Home has no Daily goal, no Today's three, no Recovery list and no Start focus in the hero",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/home-reports/seed-home-ipad.png (hero without Daily goal); eval at --size ipad: goal display none; css/views/home.css:221-223 (@media (max-width:1080px){.k-home-goal{display:none}}), :244 (re-shown only under 700)",
+   "rootCause": "A display:none for the middle tier that predates Today's three and Recovery being placed in the same slot.",
+   "fix": "In the 701-1080 tier put the goal block under the greeting as a full-width row (as the phone tier does with grid-column 1/-1) instead of hiding it."
+  },
+  {
+   "id": "HR-04",
+   "severity": "P1",
+   "title": "Home does not answer 'what next' for Code, Japanese, Mind, Creatives or Money",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "eval: KOS.code.planDay() -> lesson 1.1 'Your first program'; KOS.mind.planDay() and KOS.creatives.planDay() return day plans; Home innerText matches no money/bill/budget; js/modules/hub.js:1041-1730 (reads list); js/core/today.js (no ja/code/mind/creatives/money reads)",
+   "rootCause": "Home and the day model predate the study spaces and Money; each space built its own daily plan without registering it with the day model.",
+   "fix": "Give KOS.today.build a 'spaces' read (each space's planDay summary: Code Daily 20, Japanese reviews + next lesson, Mind Daily 15, Creatives Daily Creative) and a money read (KOS.money.notices(today,{hide}) and safe-to-spend), then: count all due cards in the Due card (split by space), add the spaces' daily items as Up next rungs / Today rows, and a compact Money line (next bill, left this month) on Home."
+  },
+  {
+   "id": "HR-05",
+   "severity": "P1",
+   "title": "Home 'Study hours' and Reports 'Studied' measure different things (12h14m vs 2h32m for the same week)",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "eval over state.sessions 2026-09-28..10-04: non-media dur 734 min, focus dur 152 min; js/modules/hub.js:917-921 (hoursOn), :636-649; js/core/report.js:185-200, :254; /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/home-reports/seed-report-0928-study.png",
+   "rootCause": "Two independent minute definitions (hub.js vs report.js).",
+   "fix": "Define study minutes once (e.g. KOS.sessions.studyMins(range), using isStudy + parts) and have Home, Reports, Goals' study-hours type and the Daily goal all call it; exclude todo/external and media; if non-Focus activities count, count them in Reports too (or say 'Focus time' on both)."
+  },
+  {
+   "id": "HR-16",
+   "severity": "P1",
+   "title": "Streak milestone bonuses are paid again every day: before the first study session the streak 'ends yesterday', which moves each milestone's key date by one day",
+   "workstream": "W1",
+   "expected": "fixed",
+   "evidence": "eval reproduction (slot 2, seeded): gold [12531,12586,12587], m0 vs m1 above; js/core/governor.js:330-339; js/core/sessions.js:166-175 (streak ends today or yesterday); Home tick: js/modules/hub.js:1199 (KOS.reminders.complete then rerender), toast '+5 XP · +55 gold · 36-day streak x4'",
+   "rootCause": "The milestone key is derived from today's date and a streak length that refers to a run which may end yesterday",
+   "fix": "Key a milestone to the run's start date (the first day of the run, which does not move whether it ends today or yesterday), e.g. runStart = lastActiveDay - (stk-1), and store the run start once per milestone. Better: pay a milestone only on the session that makes the streak reach exactly ms days ending today. Note ms, not stk, in the text."
+  },
+  {
+   "id": "HR-17",
+   "severity": "P1",
+   "title": "Report words print 'undefined took the largest share' when Code, Japanese, Mind or Creatives got the most Focus time, and that text is saved for good",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "eval (slot 2, seeded + qa Code/ja focus sessions): bySubject {maths:49, it:17, code:360, ja:60}, narrative 'undefined took the largest share…'; js/core/reportwords.js:17 (SUBJECT has 3 keys), :45-50, :93, :138-141; js/core/report.js:30 (SUBJECTS = compsci, maths, it), :196-199 (inc(bySubject, pt.subject) for any subject)",
+   "rootCause": "Reports hard-code the three exam subjects although the ledger carries seven",
+   "fix": "Name subjects through KOS.subjects.name(sid) (and their hue through KOS.subjects) everywhere in report.js, reportwords.js, reports.js, reportstory.js, reportshare.js; add a smoke case with a Code-heavy week. Consider re-generating template words for saved reports whose narrative contains 'undefined'."
+  },
+  {
+   "id": "HR-18",
+   "severity": "P1",
+   "title": "Hero 'Daily goal' directives pay XP and gold on a self-tick with no evidence, and untick/re-tick pays again without limit",
+   "workstream": "W1",
+   "expected": "fixed",
+   "evidence": "eval (slot 2 seeded): [[71807,12531,601],[..,'false'],[71812,12532,602,'true'],[71812,12532,602,'false'],[71817,12533,603,'true']]; js/modules/hub.js:1162-1169; js/modules/todo.js:56-69 (log on tick, no reversal on untick)",
+   "rootCause": "Legacy generated to-do list's manual tick logs a paid session each time it becomes true",
+   "fix": "Derive the directive's tick from its evidence (cards due cleared, the exam's revision minutes met, the assignment's progress), as KOS.todo's auto items should. If a manual tick stays, pay once per key per day (store the paid key) and never on re-tick, or pay nothing (activity only, like external ticks, invariant 160)."
+  },
+  {
+   "id": "HR-31",
+   "severity": "P1",
+   "title": "Reports count a title as active in the period for ANY journal event — a score change, a status tidy-up or a sync echo — so titles with no real progress appear in a week's Collection (and its story, genres, flows)",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "js/core/report.js:452-456 (every journal kind); js/core/mediadb.js journalFacts/journalDiff (score is a journalled kind); user report 8 Nov in chat.",
+   "rootCause": "'Activity' is not defined. Reports treat the journal as a list of things done, but it is a list of fields changed.",
+   "fix": "Define activity once (one derivation, invariant 26d): progress, volumes, chapter, route or hours moving FORWARD, a start or finish date in the period, or a media session that names the row. Score, notes, tags and status moves without progress (onHold, dropped, planned, a 'completed' with no progress in range) are list edits and do not make a title active. Keep them for a separate 'list changes' line if wanted. Apply it in collection() and anything else that reads the journal for activity (Home and Collection 'this week', goals). Add a smoke: a score-only week shows no title."
+  },
+  {
+   "id": "HR-06",
+   "severity": "P2",
+   "title": "Hero 'Daily goal' counts 5 items but shows only 3, with no way to reach the other 2",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/home-reports/seed-home-mac-all-desks.png (DAILY GOAL 0 / 5, three rows); js/modules/hub.js:1153-1173",
+   "rootCause": "slice(0,3) for display but the full length in the counter.",
+   "fix": "Show '+N more' linking to the full list (Routines Today / Reminders), or count only what is shown; make Start focus start the first unchecked directive like Today's three does; let auto items tick themselves from evidence rather than by hand."
+  },
+  {
+   "id": "HR-07",
+   "severity": "P2",
+   "title": "Hero's season chip ('Autumn · by season') covers the Daily goal count",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/home-reports/seed-home-ipadl-hero-crop.png; css/components.css:703-705; js/modules/hub.js hero goal head",
+   "rootCause": "An absolute overlay in the slot the goal column also occupies.",
+   "fix": "Reserve space for the chip in the hero (padding-block-start on .k-home-goal when the hero has art) or move the chip to the bottom-right/after the goal list; on touch, make it a small icon button."
+  },
+  {
+   "id": "HR-08",
+   "severity": "P2",
+   "title": "Report Focus heat map drops every block between 23:00 and 07:00 (late-night study vanishes; contradicts the Night Owl line)",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/home-reports/seed-report-week-0928.png; eval facts.focus.heat vs hours/list; js/core/report.js:33, :321, :336, :369",
+   "rootCause": "Fixed 07-23 grid window with no overflow bucket.",
+   "fix": "Make the grid span the hours that actually hold focus (min/max of the period's hours, at least 07-23), or fold the night into a labelled 23-07 column; word the persona with the range it measured ('after 21:00 or before 04:00')."
+  },
+  {
+   "id": "HR-09",
+   "severity": "P2",
+   "title": "Share/Export dialog stays open across navigation (Back, swipe-back, hash change) and shows the previous report over another page",
+   "workstream": "W2",
+   "expected": "fixed",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/home-reports/reports-iphone.png (28 Sep share sheet over the 19-25 Oct report); /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/home-reports/home-dawn-mac.png (same sheet over Home); js/core/router.js:284-306 (onPop renders without closing dialogs); js/core/ui.js:155 openDialog",
+   "rootCause": "openDialog and router are not coordinated; navigation does not dismiss modals.",
+   "fix": "In router renderRoute/onPop, close every open KOS.ui dialog (call its close, which restores focus) before rendering; or have openDialog push a history entry so Back closes the dialog first (the iOS sheet convention)."
+  },
+  {
+   "id": "HR-10",
+   "severity": "P2",
+   "title": "Home's middle rows leave large empty areas inside equal-height cards (Today, Due today, Study hours, Week in review)",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/home-reports/seed-home-mac-all-desks.png, /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/home-reports/home-dawn-mac.png, /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/home-reports/empty-home-mac.png; eval: .k-upnext 326px tall, last row bottom 661, button top 729",
+   "rootCause": "Grid rows stretch cards; empty states and empty charts keep their full height.",
+   "fix": "Let Today's empty state collapse and give the freed height to Upcoming/Goals (align-items:start plus masonry like Reports' pack), or fill it with the next timed item tomorrow / the next lesson day; pin Due today's button directly under its rows; hide the hours plot (keep figures) when the week has no minutes and the report chart when facts.study.chartDays is false."
+  },
+  {
+   "id": "HR-11",
+   "severity": "P2",
+   "title": "Upcoming caps at 3 rows: two overdue assignments hide the mock exam 4 days away, with no 'N more' and a link to Assignments only",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/home-reports/seed-home-mac-all-desks.png (Upcoming), hero daily goal lists the mock; js/modules/hub.js:1430-1458",
+   "rootCause": "Fixed 3-row budget with overdue assignments taking precedence over every other kind.",
+   "fix": "Always reserve one row for the next exam (or merge urgent + countdowns sorted by urgency with exams weighted), add '+N more' linking to Countdowns/Exams & Deadlines, and label the link by what it opens."
+  },
+  {
+   "id": "HR-19",
+   "severity": "P2",
+   "title": "iPhone hero: the XP line shares a row with the 200px XP bar and has 6px of slack, so it collides as soon as glyph metrics or the number grow",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/home-reports/b4-home-iphone.png, /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/home-reports/seed-home-iphone-hero.png; eval --size iphone: .k-bar rect x36 w200, '.k-home-level .k-mono' x246..340, box 36..366 minus padding; css/views/home.css:31-34 (.k-home-level flex-wrap, .k-bar flex 0 1 var(--home-xp-w)); css/tokens.css:393 (--home-xp-w: 200px); js/modules/hub.js (level line markup: b, span.k-bar, span.k-mono, dot, hp)",
+   "rootCause": "Fixed-width bar plus nowrap mono text sharing one flex line with almost no slack",
+   "fix": "Under 700px make the bar its own full-width row (flex-basis 100%) with the 'N XP to L' text right-aligned on the row above it beside the level name, or use a grid: [level name | XP to next] over [bar spanning both]. Drop the fixed 200px basis."
+  },
+  {
+   "id": "HR-20",
+   "severity": "P2",
+   "title": "Touch targets under 44px on Home's week plan and across Reports (tick boxes 18x18, '31 more this week' 19px, crumbs 20px, 'Full overview ›' 19px, 'What is sent' 19px)",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "measure script (scratchpad measure.js) at --size ipad and iphone: Home small=['Tick off … <input> 18x18' x5, '31 more this week <button.k-plan-more> 104x19']; #/reports/week/2026-10-19 small=['Reports <button.k-rp-crumb> 48x20','ⓘ What is sent 88x19','Full overview: Study 85x19', …]; #/reports/week/…/study '4.5.4.1… <button.k-rp-tlink> 300x20'",
+   "rootCause": "The coarse-pointer minimum is applied to .k-btn and native buttons with padding, not to the text-link button classes",
+   "fix": "Under (pointer: coarse), give k-link/k-rp-crumb/k-rp-more/k-rp-textbtn/k-rp-tlink a min-block-size of var(--hit-coarse) with inline padding (or a ::before hit area that does not overlap neighbours), and wrap the plan checkbox in a 44px label hit area."
+  },
+  {
+   "id": "HR-21",
+   "severity": "P2",
+   "title": "Home's one-tap reminder and habit ticks complete and pay at once with no Undo",
+   "workstream": "W1",
+   "expected": "fixed",
+   "evidence": "eval: clicked [data-ui~=home.reminder-tick] 'Complete Email the exams officer…': toast '+5 XP · +55 gold · …', no button in #toast, the next row became first; js/modules/hub.js:1196-1200; habits: hub.js:1011-1014",
+   "rootCause": "Digest card added a write without the undo affordance used on owner pages",
+   "fix": "Show the toast with Undo (KOS.ui.toast with an action) that calls KOS.reminders.complete(id,false) and reverses the session (or delay the pay for the toast's lifetime); the same for habit ticks."
+  },
+  {
+   "id": "HR-22",
+   "severity": "P2",
+   "title": "A brand-new, empty account saves three weekly reports and a monthly one ('A quiet week for study', 0m) and Home announces them as '2 new'",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/home-reports/b4-empty-reports-mac.png, /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/home-reports/b4-empty-home-mac.png; eval after reset: week:2026-10-26/-19/-12 rebuilt=true {m:0,d:0}, month:2026-10 {m:0,d:0}; js/core/reportstore.js:228-231 (hasContent includes f.plan || f.tasks), :277-278 (latest week saved even when empty)",
+   "rootCause": "hasContent counts the seeded plan, which exists for every week, as content",
+   "fix": "Do not backfill a period that ends before state.created (or before the first ledger entry); count the plan only when a row was ticked or carried in that period; skip the latest week when it has no study, focus, collection or tick content (keep the empty-state copy for Reports instead)."
+  },
+  {
+   "id": "HR-23",
+   "severity": "P2",
+   "title": "Study-space time is in the totals but missing from every subject split (Home's Study hours bar, Reports' Activity chart, legend, story)",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "eval: Home before {big:'7.4 hours · 16 sessions', split:'CS1h Maths2.8h IT3.6h'}, after two 1h focus entries (code, ja) {big:'9.4 hours · 18 sessions +1.2h', split unchanged}; js/modules/hub.js:1500-1504; js/modules/reports.js:37, :1577-1579",
+   "rootCause": "Pre-5.3 three-subject lists kept in Home and Reports",
+   "fix": "Build the split from KOS.subjects.ids() (or the keys present) with each subject's hue; group the study spaces as 'Spaces' if the bar gets too busy."
+  },
+  {
+   "id": "HR-24",
+   "severity": "P2",
+   "title": "Home's Focus card and hero keep saying 'Revise for <exam> · at 14:00' after the exam has been sat (all evening)",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "eval: KOS.homeFocusPlan(new Date(today+'T15:00')) and ('T23:30') -> 'exam | Exam today | Revise for Revision block 28 | IT · at 14:00'; js/modules/hub.js:787-815 (exam rung, no time test); the session it starts: state.focus.active {mode:'custom', workMin:90, subject:'it', refs:[], objective:'Revise for Revision block 28'}",
+   "rootCause": "Lead-time test is by date only",
+   "fix": "In rung 2, skip an exam dated today whose time (or end time) has passed, and fall through to the next rung (a post-mortem/log result prompt would be the natural next step: 'Log how Revision block 28 went'). Apply the same filter to the hero directive generator."
+  },
+  {
+   "id": "HR-25",
+   "severity": "P2",
+   "title": "Weekly report page: the Study and 'Governor and Kurenai' cards are stretched to the Focus card's height and are mostly empty",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/home-reports/b4-report-celestial-mac.png; eval --size mac on #/reports/week/2026-10-05: Study h308 empty 168, Governor and Kurenai h308 empty 201; month 2026-09 Study h348 empty 98",
+   "rootCause": "The grid row stretches its items, and a thin week does not trigger the pack rule",
+   "fix": "Let the row use the masonry/pack path (align-items:start plus measured columns), or move Governor and Kurenai under Study in one column beside Focus; give the Topics tile a caption (e.g. 'touched' or the top topic)."
+  },
+  {
+   "id": "HR-12",
+   "severity": "P3",
+   "title": "Home Goals list: the ring's number (days left) has no unit and is hidden from assistive tech",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/home-reports/seed-home-goals-switch.png; js/modules/hub.js:1413-1415",
+   "rootCause": "Number-only badge reused from the Upcoming countdown style.",
+   "fix": "Print '39d' (or 'days' under the figure) and include it in the row's accessible text (e.g. '39 days left')."
+  },
+  {
+   "id": "HR-13",
+   "severity": "P3",
+   "title": "Focus overview headline and persona contradict ('most of them before noon' beside 'Night Owl'), and blocks outside 07-23 are drawn at the 07 edge",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/home-reports/seed-report-0928-focus.png; js/core/reportwords.js:192; js/core/report.js:366-371",
+   "rootCause": "Two independent time-of-day classifiers with different windows.",
+   "fix": "Derive the headline clause from the persona (or order the tests the same way) and widen the ribbon axis to the period's real first/last hour."
+  },
+  {
+   "id": "HR-14",
+   "severity": "P3",
+   "title": "Story player top controls: speed and close are below the 32px hit size and not the same shape as Pause",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/home-reports/story-1.png, /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/home-reports/story-iphone.png; eval button rects Speed 34x25, Pause 34x34, Close 34x34",
+   "rootCause": "Per-control sizing in reportstory CSS.",
+   "fix": "Give the three header controls one size (36-44 circles), keep the decorative glyph behind a scrim or lower in the frame below the text block, and drop one of the duplicate chips."
+  },
+  {
+   "id": "HR-15",
+   "severity": "P3",
+   "title": "Week's plan card header wraps 'Pacing →' onto its own line and truncates every row title",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/home-reports/seed-home-mac-continue-scrolled.png, /private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/shots/home-reports/seed-home-iphone.png; eval .k-plan-head children rects",
+   "rootCause": "Header packs four facts plus a link into one flex row with wrap.",
+   "fix": "Move the count/meter under the title (sub-line) and keep the link on the title row; put 'N weeks behind' as a single header fact when all rows share it, freeing the row width; let titles wrap to two lines."
+  },
+  {
+   "id": "HR-26",
+   "severity": "P3",
+   "title": "Week report text says 'across 6 sessions on 7 of 7 days' next to a chart that shows Thursday at zero",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/home-reports/b4-reports-iphone-full.png; js/core/report.js:183-188 (studyDays from any isStudy entry, sessions from focus only), :254; js/core/reportwords.js:140",
+   "rootCause": "Two denominators in one sentence",
+   "fix": "Say 'studied on 7 of 7 days; 6 Focus sessions came to 2h 23m', or count days from Focus minutes when the sentence is about Focus time; let the chart show non-Focus study days (a dot for cards/quiz) so a study day never draws as zero."
+  },
+  {
+   "id": "HR-27",
+   "severity": "P3",
+   "title": "Home's Upcoming shows raw subject ids ('4 days overdue · compsci', 'NEA milestone in class · compsci')",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/home-reports/b4-home-routines-mac.png (Upcoming: '4 days overdue · compsci', 'today · NEA milestone in class · compsci · Fri 6 Nov'); js/modules/hub.js:1442; js/modules/calendar.js:536",
+   "rootCause": "Raw id concatenated",
+   "fix": "Use KOS.subjects.short(sid) / name(sid) in both strings."
+  },
+  {
+   "id": "HR-28",
+   "severity": "P3",
+   "title": "Routines card hides most habits with no 'N more' (a due routine leaves room for 2; an odd count drops one)",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/home-reports/b4-home-routines-mac.png (5 habits + Morning Routine due: 2 habit rows, header 'Morning Routine due now'); js/modules/hub.js:980-981, 989-994",
+   "rootCause": "Fixed cap for grid evenness",
+   "fix": "Add a '+3 more habits' row linking to Routines' Today, and keep 'N of M habits' in the header as a second meta even while a routine is due; or wrap all of today's habits as compact chips."
+  },
+  {
+   "id": "HR-29",
+   "severity": "P3",
+   "title": "Exam revision time on Home is matched by the session's objective text, so renaming the exam (or two exams with one title) breaks the goal",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "js/modules/hub.js:790-800 (examMins by label); eval of state.focus.active after Home's Start focus: objective 'Revise for Revision block 28', no examId/eventId",
+   "rootCause": "Identity by display text",
+   "fix": "Carry the event/assessment id on the session (metrics.examId) when it starts from the Focus card and count by id; keep the label match only for old entries."
+  },
+  {
+   "id": "HR-30",
+   "severity": "P3",
+   "title": "Home jumps up 43px on a redraw when you are at the bottom: the Collection desk's rows are filled after the render",
+   "workstream": "W2",
+   "expected": "fixed",
+   "evidence": "eval --size mac: scrollTop 679 -> 636 after KOS.rerender({background:true}); at 400 the position is kept (scrollHeight 1408 right after the render, 1451 after 800ms); js/modules/hub.js:1601-1606 (empty medRows/medFoot), :1645 fillCollectionCard",
+   "rootCause": "Async fill after a synchronous redraw with no reserved height",
+   "fix": "Reserve the desk's rows (min-block-size, or render the last known stats from a per-device cache and update in place) so the page height does not change during the redraw."
+  }
+ ]
+}

@@ -1,0 +1,276 @@
+{
+ "area": "goals",
+ "source": "origin/audit/quality-2026-11:docs/audit/2026-11/findings.json + data/plan-mapping.json",
+ "findings": [
+  {
+   "id": "GO-02",
+   "severity": "P1",
+   "title": "UR-20 verified: Collection goal types read the whole vault, so a goal starting today is Met at once and pays the Goal getter badge",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "eval fx1/seed compute: rows 'titles-completed | 222 | 10 | completed', 'library-size | 1880 | 100 | completed', 'episodes-watched | 13326 | 100 | completed'; completionLedger ids 1,2,4,5,6,9; achievements.earned goal-getter tier 1; js/core/goals-collection.js:49-53,54-57,87-94 (mods() reads mediadb.stats aggregate); js/core/goals.js:438-441 (receipt + achievements.touch); js/modules/goals.js:892 (Starts/Deadline offered for every non-repeat type); js/core/achcatalogue.js:461-462; after deleting and recreating fixture goals the ledger held 13 receipts for 2 live goals and Goal getter II (10 goals) unlocked (screenshot shots/goals/routine-days-saved-mac.png)",
+   "rootCause": "goals-collection.js types were moved unchanged from Collection Goals v2, which measured vault state, while the v3 editor gives every type a start date and a pace line",
+   "fix": "Measure the period from the media activity journal (mediadb journal [ts,kind,from,to], invariant 99): completions/status->completed, progress/volume/hour deltas and favourites added with ts in [start, deadline]; purchases by purchasedAt (as spend-below already does); library-size by createdAt. Then mark these types repeat-capable. Until then, record a baseline at creation (onCreate, as topics-green does) and measure the delta. Decide with the user whether goal-getter earned this way is revoked (needs an explicit exception to invariant 162)."
+  },
+  {
+   "id": "GO-06",
+   "severity": "P1",
+   "title": "'Keep a routine on N days' and 'A routine's streak' can never be linked to a routine: the editor has no routine field",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "eval: editor text 'Keep a routine on N days ... Title Target Repeats ... Starts Deadline · optional Milestones' and saved params '{}'; compute -> ['Keep a routine on N days', null, 'No routine linked', 'active']; js/core/routines.js:750-764; js/modules/goals.js:828-902 (no routine field)",
+   "rootCause": "types registered by routines.js after the editor was built; the editor only knows fields it hard-codes",
+   "fix": "Add a fields.routine flag to both types and a Routine select (KOS.routines.all(), including Daily habits) in goalDialog that writes params.routine; refuse Save without one. Offer 'Make this a goal' from a routine's page."
+  },
+  {
+   "id": "GO-07",
+   "severity": "P1",
+   "title": "'A habit's streak' lists habits from the frozen pre-Routines store, so habits made in Routines can't be picked",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "eval: routines ['r_hf2bclf7m:habit:Stretch','r_zzd3e2f7u:evening:Evening wind-down'], todo.habits [], editor select 'Habit' options []; shots/goals/editor-habit-streak-mac.png; js/modules/goals.js:878-881; js/core/goals.js:638-655",
+   "rootCause": "editor reads the legacy habit list; measure reads Routines",
+   "fix": "Fill the select from KOS.routines.habitsView() (or all routines of kind habit) and store params.routine; better, retire habit-streak in favour of routine-streak with a routine picker (keep old records readable)."
+  },
+  {
+   "id": "GO-23",
+   "severity": "P1",
+   "title": "UR-22 verified through Goals: one 0% quiz per topic turns five topics Green and completes 'Move topics to Green' at once",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "eval fx8: bands ['g','g','g','g','g'] after study.quiz[k]={attempts:1,lastPct:0}; goal '5|5|completed'; completionLedger receipt {type:'topics-green',payout:'activity-only'}; js/modules/rag.js:29-90 (score from 100, quiz cap 25, Green >= 70); js/core/goals.js:534-546, 574-581; js/core/goals-exams.js:58-66",
+   "rootCause": "rag.js auto() subtracts capped penalties from 100 with no evidence floor",
+   "fix": "Fix RAG as UR-22 proposes (evidence-weighted score, minimum evidence before any band, Green only when recall and practice both clear their bar). In Goals, count a leaf only when its band rests on enough evidence (e.g. rag.auto(...).evidence >= threshold) and judge topics-green on the deadline (hold) rather than on first touch."
+  },
+  {
+   "id": "GO-25",
+   "severity": "P1",
+   "title": "Editing a title goal silently relinks it to another title; only the first 60 in-progress titles can ever be linked",
+   "workstream": "W1",
+   "expected": "fixed",
+   "evidence": "eval: options ['1:Aaa Watching'], selected '1', goal.linkedEntryId 2 -> 1 after Save; js/modules/goals.js:864-871, 955",
+   "rootCause": "select filled from a filtered, capped query without the current value",
+   "fix": "Always include the goal's current title as the selected option; replace the capped select with a search picker over the whole vault (any status), as the Collection's own pickers do."
+  },
+  {
+   "id": "GO-03",
+   "severity": "P2",
+   "title": "Repeating goals count activity from before the goal started in their first period (week and month)",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "eval fx2: weekly outcomes {'2026-10-12':{met:true,value:2}} with startDate 2026-10-14 and the only Oct 12-18 session dated 2026-10-13; monthly outcomes {'2026-10':{met:true,value:15}} with startDate 2026-10-20; js/core/goals.js:379-397 (closePeriods), 418-419 (from = per.from)",
+   "rootCause": "period ranges ignore startDate",
+   "fix": "Clamp each period's from to max(per.from, g.startDate) when measuring (and prorate or mark the first partial period 'partial' so a 3-day first week is not judged against a 7-day target), or start the first period at the next boundary."
+  },
+  {
+   "id": "GO-04",
+   "severity": "P2",
+   "title": "Changing a repeating goal's 'week runs' or its repeat keeps the old periods: history fills with overlapping weeks and months",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "eval fx2 wStart.outcomes (6 keys); eval fx3 after repeat:'month' -> keys ['2026-10-12','2026-10-14','2026-10-19','2026-10-21','2026-10-26','2026-10-28','2026-10'], run 2; js/core/goals.js:162-168 (normalise keeps outcomes), 266 (merge on same repeat)",
+   "rootCause": "outcomes keyed by period start are carried across a change of period grid",
+   "fix": "When repeat or weekFrom changes, drop (or archive under a separate key) outcomes whose keys do not match the new period grid, and re-judge from startDate; say so in the editor ('the history restarts')."
+  },
+  {
+   "id": "GO-05",
+   "severity": "P2",
+   "title": "A met goal stays 'Met' after its target is raised or a manual count is lowered (10% shown as Met)",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "eval fx2: man {st:'completed'} -> after nudge -2 {st:'completed',cur:1} -> after target 10 {st:'completed',cur:1,tgt:10,pct:10}; js/core/goals.js:305 (sticky completed), 259-272 (update), js/modules/goals.js:243 (+1 only); grep: reopen not referenced in js/modules/goals.js; tick(): notice 'goal:3:done | Goal reached — Finish Zzz | 0 of 1 title' after the goal's link changed",
+   "rootCause": "completion is sticky by design for evidence types but edits are not treated as a new judgement",
+   "fix": "In update(), if target/type/links/startDate/deadline change on a completed goal, re-derive (clear completedAt; keep the ledger receipt so nothing is paid twice). Give manual goals a stepper (-1/+1 or a 'Set count' field in Edit) and an Undo toast after +1."
+  },
+  {
+   "id": "GO-08",
+   "severity": "P2",
+   "title": "Stay-under goals on live state (No overdue assignment, Carry-overs cleared, Subscriptions below) flip between Missed and active and are judged only at the moment they are looked at",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "eval fx5: a '3|failed|failed|1' -> b (overdue 0) '0|active|active|0|under' -> c (deadline 2026-11-04) '0|completed' -> d (overdue 3 again) '3|completed'; js/core/goals.js:656-674 (live measures), 307-311 (under-direction derive), 251 (month-end default)",
+   "rootCause": "state types are judged like range counts",
+   "fix": "For live stay-under types, record a breach (first day current>target inside the range) into params and judge from it: failed once breached (or 'held N of M days'), completed only if never breached by the deadline. Alternatively derive from history: assignments' due/submitted dates give overdue days in the range."
+  },
+  {
+   "id": "GO-11",
+   "severity": "P2",
+   "title": "'Review flashcards' and 'Keep recall' offer Japanese, Mind and Code but never count their reviews",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "eval: cards-reviewed editor subject options [':All subjects','compsci','maths','it','code','ja','mind','creatives']; js/core/goals.js:557-571 (type filter); js/core/ja.js:228, js/core/mind.js:272 (their session types)",
+   "rootCause": "measure hard-codes two session types while the editor lists KOS.subjects.ids()",
+   "fix": "Count review sessions by kind across owners (flashcards, due-review, ja reviews, mind reviews, Code retrievals) or restrict the select to subjects whose reviews the measure reads; the same review-log rows (KOS.reviewLog, src per owner) could be the single source."
+  },
+  {
+   "id": "GO-12",
+   "severity": "P2",
+   "title": "iPhone: 'Aim at something new' template rows are 180px tall for one line of text",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/goals/dense-all-iphone.png (bottom); eval: .k-gl-tplrow sizes ['322x180','322x180','322x180']; css/views/goals.css:122 (.k-gl-tplrow flex: 1 1 var(--gl-tpl-min)) with 207/226 (flex-direction: column)",
+   "rootCause": "flex-basis applies on the main axis, which flips to vertical",
+   "fix": "Reset flex: 0 0 auto on .k-gl-tplrow when the list is a column (phone rule), or set the basis only in the row layout."
+  },
+  {
+   "id": "GO-13",
+   "severity": "P2",
+   "title": "iPhone: goal cards hide the deadline, the pace chip and the action button",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/goals/dense-all-iphone.png; eval (iphone): hidden ['k-gl-bandtop','k-gl-cardfoot'], card text 'Focus blocks by Sunday 5 of 30 blocks 25 to go.'; css/views/goals.css:229,233",
+   "rootCause": "phone rule hides parts instead of recomposing them",
+   "fix": "Keep a compact one-line foot on phone (pace chip + 'n days left') and the action as an icon button, instead of hiding both."
+  },
+  {
+   "id": "GO-16",
+   "severity": "P2",
+   "title": "iPhone: the goal's pace chart labels shrink to about 6px",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/goals/detail-weekly-iphone.png; eval (iphone): svg text heights [8,8,8,8]; js/modules/goals.js:583-611 (fixed viewBox scaled by width)",
+   "rootCause": "",
+   "fix": "Draw the chart at the container's pixel width (ResizeObserver or a phone viewBox) as the lab plots do, or render axis labels in HTML at a fixed size."
+  },
+  {
+   "id": "GO-22",
+   "severity": "P2",
+   "title": "Goal editor: 'Every month' is cut off in the Repeats control beside a money amount (mac)",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/goals/dense-all-dawn-mac.png (dialog open); eval: seg [797,1007], 'Every month' button [968,1073], scrollWidth 281 vs clientWidth 210; js/modules/goals.js:888-889",
+   "rootCause": "",
+   "fix": "Put Repeats on its own row (or let the row wrap when the segment's min-content exceeds its track); k-seg--fill should never shrink below its content."
+  },
+  {
+   "id": "GO-24",
+   "severity": "P2",
+   "title": "Editing a 'Move topics to Green' goal's subject or topics keeps the old baseline, so it can be met instantly",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "eval fx8: g2 baseline 0 (IT) -> update links {subject:'maths'} -> '5|3|completed|5 green now|0'; js/core/goals.js:268 (onCreate only on type change), 574-576; js/core/goals.js:849-855 (linkExam)",
+   "rootCause": "",
+   "fix": "Re-run def.onCreate (re-baseline) in update()/linkExam whenever links, refs, subject or params that the measure reads change, before computing; tell the user 'counting from now'."
+  },
+  {
+   "id": "GO-27",
+   "severity": "P2",
+   "title": "Projected-recall goal with too little data shows '–' and a meaningless 'The line says 4.3%', without saying why",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "shots/goals/detail-exam-mac.png; eval: page text has no 'Appears after'/'20 rated cards' and no 'Review'; js/core/goals-exams.js:111-121 (baseline 0 when thin), js/core/goals.js:474 (_expected drawn whenever reach + not noPace); js/modules/goals.js:548-560",
+   "rootCause": "",
+   "fix": "When the baseline is unknown (thin), store null and draw no line until the first measured figure becomes the baseline; print _meta under '–' on the goal page and add the type's action (examAction/actionFor) to the page header."
+  },
+  {
+   "id": "GO-01",
+   "severity": "P3",
+   "title": "First-goal template grid leaves an empty sixth column at 1470 (auto-fill)",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/goals/empty-all-mac.png; eval: .k-gl-tpls gridTemplateColumns = 186px x6 with 5 children; css/views/goals.css:138 repeat(auto-fill, minmax(var(--gl-tpl-min),1fr))",
+   "rootCause": "auto-fill keeps empty tracks; auto-fit collapses them",
+   "fix": "Use repeat(auto-fit, minmax(...,1fr)) so the five tiles stretch across the card (or cap columns at the template count)."
+  },
+  {
+   "id": "GO-09",
+   "severity": "P3",
+   "title": "Reports drop repeating-goal periods that straddle a report boundary (weeks from a weekday, payday months)",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "js/core/report.js:698-711 (day = period key, kept only if p.start<=day<=p.end); js/core/goals.js:63-81 (weekFrom 'start' keys, money periods)",
+   "rootCause": "outcome keyed by start, report built when the period may still be open",
+   "fix": "Attribute an outcome to the report whose range holds the period's END (or the judgement date at), so every period lands exactly once after it has been judged."
+  },
+  {
+   "id": "GO-10",
+   "severity": "P3",
+   "title": "A stay-under goal breached early never sends its 'Goal missed' notice",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "js/core/goals.js:818-820 (missed only after deadline), 864-873 (at = failedAt, dropped when older than NEWS_MS); fx5 shows failedAt set on creation day for no-overdue",
+   "rootCause": "news window measured from the status change, not from the event the notice reports",
+   "fix": "Use the deadline (or max(failedAt, deadline)) as the news time for ':missed'; key ':done' by completedAt day or the restart's startDate."
+  },
+  {
+   "id": "GO-14",
+   "severity": "P3",
+   "title": "iPhone: Domain filter pills overflow the screen edge as an undeclared, scrollbar-less scroller",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/goals/dense-all-iphone.png; eval iphone over: k-gl-domain r=422/522/619; mac small: goal.domain 58x29; css/views/goals.css:235; js/modules/goals.js:358-363",
+   "rootCause": "",
+   "fix": "Wrap the pills in KOS.ui.scroller (or let them wrap to two lines on phone); raise pill height to 32px (44 on touch)."
+  },
+  {
+   "id": "GO-15",
+   "severity": "P3",
+   "title": "A custom manual goal is filed under Collection",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/goals/dense-all-mac.png (card 'Read three papers on memory', pill 'Collection'); js/core/goals.js:548; js/modules/goals.js:711-712, 244",
+   "rootCause": "",
+   "fix": "Give manual goals their own 'Personal' domain (or let the user pick the domain in the editor) and a neutral mark."
+  },
+  {
+   "id": "GO-17",
+   "severity": "P3",
+   "title": "'Every week so far' history bars overflow and are cut off at the card edge on iPhone",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/goals/detail-weekly-iphone.png; eval: hist width 326, scrollWidth 728, overflowX auto; js/modules/goals.js:613-636",
+   "rootCause": "",
+   "fix": "Use KOS.ui.scroller with reveal of the open period (newest at the right), or compress the bars to fit (12 periods at 24px)."
+  },
+  {
+   "id": "GO-18",
+   "severity": "P3",
+   "title": "Spend-below goals are judged Met for months with no Money records at all",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "shots/goals/dense-all-ipad.png (card 'Eating out under £60', ✓✓ and 'Under'); js/core/goals.js:680-689 (no-rows -> 0); closePeriods writes met:true",
+   "rootCause": "",
+   "fix": "Treat a period with no transactions (or before the first one) as 'no evidence' (current null) so it is not judged; say 'No spending recorded' instead."
+  },
+  {
+   "id": "GO-19",
+   "severity": "P3",
+   "title": "Hero's 'behind / on track / met this week' counts every open goal, not this week's",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "shots/goals/week-mac.png (All 3 vs 4/4/1); js/modules/goals.js:322 (hero(lead, open)), 388 (counts over open)",
+   "rootCause": "",
+   "fix": "Pass the tab's goals (shown) and label the counts by tab ('this week' / 'this month' / 'open'); skip display-only goals."
+  },
+  {
+   "id": "GO-20",
+   "severity": "P3",
+   "title": "Home's Goals card: an unlabeled number in each ring and doubled units ('5 blocks of 30 blocks')",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/goals/home-goals-mac.png; eval (iphone) rows '3 / 10 hours of study a week / Behind / 1 h 6 m of 10 h · by 8 Nov', '25 / 400 cards this month / … 0 cards of 400 cards'; js/modules/hub.js:1414-1425",
+   "rootCause": "",
+   "fix": "Label the ring ('3d' / 'days left' under it) or put the percent in it; print the unit once ('5 of 30 blocks')."
+  },
+  {
+   "id": "GO-21",
+   "severity": "P3",
+   "title": "Phone search sheet files Goals under Collection",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "js/modules/hub.js:3592-3593",
+   "rootCause": "",
+   "fix": "Map goals to 'Productivity'."
+  },
+  {
+   "id": "GO-26",
+   "severity": "P3",
+   "title": "Met and missed goals stay pinned to the Morning Review and Home, using up the three pin slots",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "shots/goals/detail-collection-met-mac.png ('Met' chip beside 'Pin to the morning'); js/core/goals.js:215-225; js/core/today.js:169-178; js/modules/goals.js:541-546",
+   "rootCause": "",
+   "fix": "Exclude completed/failed goals from pinned() (keep the flag for history) and hide the Pin button on a finished goal; unpin on archive/complete."
+  }
+ ]
+}

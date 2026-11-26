@@ -1,0 +1,396 @@
+{
+ "area": "creatives",
+ "source": "origin/audit/quality-2026-11:docs/audit/2026-11/findings.json + data/plan-mapping.json",
+ "findings": [
+  {
+   "id": "CR-01",
+   "severity": "P1",
+   "title": "Practice Log work dialog reopens itself after every action and stacks on each redraw (#/creatives/log/<id>)",
+   "workstream": "W2",
+   "expected": "fixed",
+   "evidence": "eval: after cr.promote click count of [data-ui=\"cr.dialog\"] stays 1 with button now 'Promote…'; after KOS.rerender() count 1 -> 2; js/modules/creatives.js:567 'if (wid && CR().work(wid)) setTimeout(function () { openWork(wid); }, 0);' inside logPage; :542 and :559 call d.close(); KOS.rerender(); landing routes js/modules/crwrite.js:147, crdrills.js:85, creatives.js:620 | RECHECK 8 Nov (kos-redraw-1): eval cr2/rc1.js on kos-redraw-1: Promote -> dialog count 1 with 'Take out of Portfolio'; explicit KOS.rerender() -> 2 dialogs; navigation to #/creatives/portfolio and #/home -> still 2 (the redraw stopgap only holds BACKGROUND redraws; an explicit rerender still stacks)",
+   "rootCause": "Render-time side effect: logPage opens a dialog from the route arg on every render, and the route keeps the id.",
+   "fix": "Open the deep-linked dialog only on navigation, not on redraw (check KOS.ui.redrawing / a one-shot flag), and after opening replace the route with #/creatives/log (KOS.show with replace) or clear the id when the dialog closes; the row's open state can stay as a highlight."
+  },
+  {
+   "id": "CR-02",
+   "severity": "P1",
+   "title": "On iPhone, Creatives settings (and Start focus) cannot be reached: the gear lives in the page actions, which the phone shell hides",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "eval --size iphone on #/subject/creatives: [data-ui=\"cr.settings-open\"] height 0, hidden by DIV.k-stage-head; [data-ui=\"cr.focus\"] height 0; section menu items as listed (no Settings); css/layout.css:445 ':root[data-shell=\"ready\"] .k-stage-head { display: none; }'; js/modules/mobile-shell.js:559-562 (moves only [data-phone-action]); js/modules/creatives.js:69-70 settingsBtn and :295-296 spaceHead (no data-phone-action) | RECHECK 8 Nov (kos-redraw-1): eval --size iphone on #/subject/creatives: [cr.settings-open] 0x0, [cr.focus] 0x0",
+   "rootCause": "Space page actions are not marked for the phone title bar.",
+   "fix": "Mark the gear (and Start focus, or rely on the Focus tab) with data-phone-action so the phone title bar carries it, or add 'Settings' to KOS.crPages' phone menu."
+  },
+  {
+   "id": "CR-25",
+   "severity": "P1",
+   "title": "Rating a Creatives theory card never ticks the lesson's fourth check: syncAll() exists but nothing calls it, so mastery stays at 75% and the lesson never completes",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "eval fixture audit-evidence/2026-11/qa/cr2/b1.js: afterPass '1110:started', cardHeld true, evidence [true,true,true,true], afterCard '1110:started', leafPct 75; grep -rn 'syncAll' js -> only js/core/creatives.js:247 (definition) and :481 (export); js/core/creatives.js:240-247; UI repro eval on #/ref/creatives/W1.3: before '1110', Theory cards tab -> Good -> after '1110', evAfter '1111', inspector '3 of 4 checks', leaf 75",
+   "rootCause": "The fourth check depends on another domain's record (the card schedule) but has no change hook; the repair function was written but never wired.",
+   "fix": "Call KOS.creatives.syncChecks for the card's lesson whenever a key starting 'creatives:' is rated (a hook in KOS.srs.rate like Code/Mind's syncConcept, or a 'kos-srs-rated' event), and run syncAll() once at boot to repair stuck lessons."
+  },
+  {
+   "id": "CR-03",
+   "severity": "P2",
+   "title": "A work dialog stays open over other pages after navigation (Back, hash change), stacking duplicates",
+   "workstream": "W2",
+   "expected": "fixed",
+   "evidence": "eval: [cr.dialog] count 1 after location.hash='#/creatives/portfolio', 2 after returning to log/<id>, still 2 on #/home; shots/creatives/n/dense-mac-portfolio.png (first capture: dialog of a removed work over Portfolio); js/core/ui.js:155 openDialog has no navigation hook; js/core/router.js:302 hashchange handler does not close open dialogs | RECHECK 8 Nov (kos-redraw-1): eval cr2/rc1.js: dialogs 2 after location.hash='#/creatives/portfolio', 2 on #/home",
+   "rootCause": "KOS.ui.openDialog dialogs are not tied to the route; the router never closes them.",
+   "fix": "In router.js, before rendering a navigation (not a redraw), close every open KOS.ui dialog (or have openDialog register a close on the next route change); keep it out of KOS.rerender."
+  },
+  {
+   "id": "CR-04",
+   "severity": "P2",
+   "title": "Creatives desk hero is taller than the other study spaces' heroes (341 vs 292-339 px) and its analytics card is stretched with empty bands",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "eval on #/subject/<code|ja|mind|creatives> at mac: study.desk-top heights 292/339/296/341; section.k-sa height 253/253/253/378; tile label tops 591 and 754 (Creatives) vs 511 and 611 (Code); shots/creatives/n/dense-mac-desk.png | RECHECK 8 Nov (kos-redraw-1): eval at mac: desk-top heights code 292 / ja 339 / mind 296 / creatives 341; analytics card 253 vs 378 (creatives); iPad landscape desk-top 509",
+   "rootCause": "The desk skeleton lets each space's hero content set its height; the analytics row stretches to its side card.",
+   "fix": "Give the four study-space heroes one fixed min/max height token (or cap the track-bar block to the ring's height with a compact bar layout), and align the analytics row with align-items:start plus a capped Portfolio list (3 items) so the stat grid keeps its natural 253 px height."
+  },
+  {
+   "id": "CR-05",
+   "severity": "P2",
+   "title": "Daily Creative card in Exam Season is a tall empty card with no way to do today's study anyway",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/creatives/n/dense-mac-desk.png, dense-ipad-desk.png, dense-iphone-desk.png; js/modules/creatives.js:160-200 (dailyCard) | RECHECK 8 Nov (kos-redraw-1): shots/creatives/t/dense-mac-desk.png ('Paused for Exam Season · Back after Fri 11 Dec', no action, ~200 px card)",
+   "rootCause": "",
+   "fix": "Add a quiet 'Do one anyway' (planDay ignoring the pause) and a 'Settings' link inside the paused state; shrink the card to content or let Continue take the freed height."
+  },
+  {
+   "id": "CR-06",
+   "severity": "P2",
+   "title": "Subject pill strip hides the active 'Creatives' pill off the right edge on iPad portrait",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "eval --size ipad: active .k-seg-item 'Creatives' left 355 right 457, scroller .k-seg left 88 right 369 scrollLeft 0 scrollWidth 456 clientWidth 281; shots/creatives/n/dense-ipad-desk.png (white half-pill beside 'Mind'); css/components.css:52 .k-seg overflow-x:auto; scrollbar-width:none; strip built in js/core/ui.js:1445-1480 | RECHECK 8 Nov (kos-redraw-1): eval --size ipad: active 'Creatives' pill 355-457, scroller 88-369, scrollLeft 0, scrollWidth 456 / clientWidth 281",
+   "rootCause": "Undeclared overflow on the shared .k-seg; no reveal of the active item.",
+   "fix": "Build the subject group through KOS.ui.scroller({reveal}) so the active pill is scrolled into view and the overflow is declared with arrows/fade (invariant 50), or collapse the group to the active subject plus a menu below 1080 px."
+  },
+  {
+   "id": "CR-07",
+   "severity": "P2",
+   "title": "Settings 'Your days': the S M T W T F S letters sit at the left edge of their circles, and on touch the circles are 40x44 ovals",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "measure: button[cr.day] dx=-14.6/-13.0/-15.0/-12.3 px at mac, ipad and iphone; size 40.0x44.0 at ipad/iphone; computed text-align:start, min-height 44px; shots/creatives/n/dense-ipad-settings.png; css/views/creatives.css:179 (.k-cr-day: inline-size/block-size var(--cr-day)=40px, no text-align, no display:grid); css/base.css:24 ':where(button){text-align: inherit}'; css/base.css:115-120 coarse min-block-size; css/tokens.css:420 --cr-day: 40px | RECHECK 8 Nov (kos-redraw-1): sweep: dx -14.6/-13.0/-15.0/-12.3 px at mac, ipad, iphone; 40x44 ovals on ipad/iphone; shots/creatives/t/settings-dawn-ipad.png",
+   "rootCause": "A hand-rolled round button that does not centre its label nor follow the coarse-pointer circle rule.",
+   "fix": ".k-cr-day { display:grid; place-items:center; } and under (pointer: coarse) set inline-size and block-size to var(--hit-coarse) (44px) together (or use the shared round icon-button primitive)."
+  },
+  {
+   "id": "CR-08",
+   "severity": "P2",
+   "title": "A Writing study's '▶ Start' (and a project's 'Write it') makes a NEW draft every time instead of reopening the unfinished one",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "eval: KOS.crWrite.openStudy('W1.1','a') twice -> #/creatives/write/mvzi1k0viya1 and #/creatives/write/mvzi1lmk5f7t; drafts list shows two identical rows; js/modules/crwrite.js:34-43 (openStudy/openMilestone always create()); js/modules/crtopic.js:40 and :71-72 (study card offers only '▶ Start'/'Another rep'); js/modules/creatives.js:601 | RECHECK 8 Nov (kos-redraw-1): eval: openStudy('W2.2','a') twice -> #/creatives/write/mw7l5pwfdtd7 and /mw7l5qmybfra, drafts 2 -> 4",
+   "rootCause": "Draft creation is not keyed to its study; the study card does not read drafts.",
+   "fix": "In openStudy/openMilestone look up the newest unsaved draft with the same lesson+study (or unit+ms) and open it; on the study card show 'Continue draft' when one exists, keeping 'Another rep' for a deliberate new one."
+  },
+  {
+   "id": "CR-09",
+   "severity": "P2",
+   "title": "Writing Desk 'Save to Practice Log' (and Add your work's Save) saves twice on a double tap",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "eval on #/creatives/write/<draft>: b.click(); b.click() -> works +2, two 'W1.1·a Ten things, ten sentences 49' records; js/modules/crwrite.js:136-148 (no disabled); js/modules/creatives.js:617-631 (addPage go.onclick, no guard) vs js/modules/crsketch.js:67 and crdrills.js:83 which disable | RECHECK 8 Nov (kos-redraw-1): eval cr2/rc4.js: two clicks -> two works 'W1.2·a Unflatten a paragraph 84' (also doubles the 'Write words' goal, goals.js:762-768)",
+   "rootCause": "",
+   "fix": "Disable the button and show 'Saving…' on first press (as crsketch.js:67), re-enable on failure."
+  },
+  {
+   "id": "CR-10",
+   "severity": "P2",
+   "title": "A Writing study can be 'saved' with only the given setup text: the untouched 80% counts as made work",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "eval: draft opened by KOS.crWrite.openStudy('W1.1','a') saved unchanged -> work 'W1.1·a Ten things, ten sentences' words 49; js/modules/crwrite.js:36-39 (text: s.setup) and :139 (only area.value.trim() checked) | RECHECK 8 Nov (kos-redraw-1): eval: W2.2·a saved unchanged -> work 31 words; shots/creatives/t/write-mac.png shows the study's own instruction ('Every sentence below is about the same length…') inside the draft, so it is saved, counted and sent to a critique; the 'Write words' goal (goals.js:762-768) counts it",
+   "rootCause": "",
+   "fix": "Refuse to save (toast 'Write your part first') while the text still equals the setup, or count only words beyond the setup (store setup length on the doc and use it for words/the guard)."
+  },
+  {
+   "id": "CR-11",
+   "severity": "P2",
+   "title": "Writing Desk drafts cannot be deleted or tidied: every 'New draft' and every study Start adds a permanent row",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "grep -i 'delet|remove|.del(' js/modules/crwrite.js -> no match; js/modules/crwrite.js:75 (New draft creates immediately), :83-88 (row = open only); shots/creatives/n/dense-mac-write.png | RECHECK 8 Nov (kos-redraw-1): js/modules/crwrite.js:71-91 has no delete; drafts list grew 2 -> 4 in this run",
+   "rootCause": "",
+   "fix": "Add a row menu (Delete with confirm, through KOS.ui.confirm danger), mark drafts already saved to the Practice Log ('Saved · 2 Nov'), and create a 'New draft' record only on first input."
+  },
+  {
+   "id": "CR-12",
+   "severity": "P2",
+   "title": "Lesson inspector checklist: each label sits half a column away from its checkbox (.k-cr-check class collision)",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/creatives/n/dense-mac-lessonA11.png; eval on #/ref/creatives/A1.1 at mac: label.k-cr-check display grid, grid-template-columns 111.5px 111.5px, input left 1207, label span left 1339; css/views/creatives.css:107 (.k-cr-check flex, intended) overridden by :117 (.k-cr-check grid for 'Good for this unit') and :358; js/modules/crtopic.js:240 (label class 'k-ts-check k-cr-check') and js/modules/creatives.js:391 (check page 'k-cr-check') | RECHECK 8 Nov (kos-redraw-1): changed: at mac still 'grid-template-columns 111.5px 111.5px', checkbox x 1207 vs label x 1339 (holds); at iPad portrait the label drops to its own row below the box (cb top 933, text top 971, single 708 px column)",
+   "rootCause": "Two unrelated components share one class name in css/views/creatives.css.",
+   "fix": "Rename one of the two (e.g. the check page's container to .k-cr-checkpage) and keep .k-cr-check flex for the inspector rows; smoke55 could flag duplicate class definitions in one view file."
+  },
+  {
+   "id": "CR-13",
+   "severity": "P2",
+   "title": "iPhone lesson page: the tab strip gets 181 px, so only 'Notes' and half of 'Micro-studies' show; Theory cards and Project are hidden behind an arrow",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/creatives/n/dense-iphone-lessonW11.png; eval --size iphone on #/ref/creatives/W1.1: tab strip left 16 width 181, tabs as listed, Edit at x 320 w 66; css/views/study.css:208-213 (.k-topic-tabrow one flex row; no rule under the 700 px tier at :1114 to wrap the actions); js/modules/hub.js:2670 (edit bar button in the row) | RECHECK 8 Nov (kos-redraw-1): eval --size iphone #/ref/creatives/W1.1: strip width 181, scrollWidth 345; sweep also flags 'Project' tab overlapping the Edit control",
+   "rootCause": "Shared topic tab row has no phone composition for its action buttons.",
+   "fix": "Under 700 px put Working/Edit on their own row (or fold them into a ⋯ menu / icon-only 44px buttons) so the tab scroller gets the full width, and reveal the active tab."
+  },
+  {
+   "id": "CR-14",
+   "severity": "P2",
+   "title": "The check page shows an Art study's 'Expected beginner output' as text only: the beginner picture is dropped",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/creatives/n/dense-mac-check.png, dense-mac-check2.png (#/creatives/check/<A2.1 work>); js/modules/creatives.js:352-353 and :396-398 (no beginner.art); js/modules/crtopic.js:140 draws KOS.crArt('cr.beginner.'+b.beginner.art) on the lesson; js/data/content/cr-a2.js:24 art:'A2.1'; assets/creatives/img/cr.beginner.A2.1.webp present | RECHECK 8 Nov (kos-redraw-1): js/modules/creatives.js:352-353, :396-398 unchanged (beginner.text only)",
+   "rootCause": "",
+   "fix": "Reuse the lesson's beginner figure (factor crtopic.js:138-142 into KOS.crBeginner(b) and call it from checkPage), and place it in the right column above the form or side by side with the work at >=1080 px."
+  },
+  {
+   "id": "CR-15",
+   "severity": "P2",
+   "title": "Reopening a study's check shows a blank form and silently overwrites the earlier result (a pass can become 'Not yet')",
+   "workstream": "W1",
+   "expected": "fixed",
+   "evidence": "shots/creatives/n/dense-mac-check.png (work A2.1.a #0 whose check is pass, form blank); js/modules/creatives.js:354 'answers = L.check.rows.map(function () { return null; })' (never reads w.check), :364 setCheck overwrite; js/core/creatives.js:163-170 (w.check replaced) | RECHECK 8 Nov (kos-redraw-1): js/modules/creatives.js:354 (answers start null) and js/core/creatives.js:163-167 (setCheck overwrites) unchanged",
+   "rootCause": "",
+   "fix": "Prefill answers and note from w.check and show 'Checked 2 Nov · passed'; when a pass would turn into Not yet, say so on the button ('Change to Not yet') or keep the earlier pass on the record; add a 'Back to the lesson' link in the page header."
+  },
+  {
+   "id": "CR-16",
+   "severity": "P2",
+   "title": "Hierarchy drill: five identical 'Bold' toggles with no line in their name, 32 px tall on touch; − M + read as plain text",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/creatives/n/iphone-hierarchy.png; eval --size iphone: Bold 57x32, aria-label null x5; −/+ 44x44 bg oklch(0.2 0.009 265) border 0; measure clip span.k-crd-ctrl-t 428>410 (mac), 428>133 (iphone); js/modules/crdrills.js:220 (bold button, no aria-label), :223; css/views/creatives.css:259-262 | RECHECK 8 Nov (kos-redraw-1): eval mac and iphone: five Bold buttons 57x32, aria-label null",
+   "rootCause": "",
+   "fix": "aria-label 'Bold: <line>' (keep aria-pressed); give .k-crd-opt the coarse 44 px height; draw −/+ with the bordered icon-button style and label the size readout ('Size M'); let the line name wrap to two lines instead of ellipsis."
+  },
+  {
+   "id": "CR-17",
+   "severity": "P2",
+   "title": "On iPhone, Creatives sub-pages lose their title: Practice Log, Settings, The check and Project all read 'Creatives'",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "eval --size iphone: visible h1 = 'Creatives' on #/creatives/log, /settings, /check/x, /project/A1; 'Drills' on /drills/grid; shots/creatives/n/iphone-log.png; js/modules/mobile-shell.js:551 (title = data-phone-title-text || cur.label || h1); js/core/ui.js:1466 (creatives pages outside KOS.crPages light the subject pill); js/modules/creatives.js:295-296 pageHeader without data-phone-title-text | RECHECK 8 Nov (kos-redraw-1): eval --size iphone: visible h1 'Creatives' on log, settings, check/x, project/A1, add, sketch; Writing Desk reads 'Writing' (shots/creatives/t/write-iphone.png)",
+   "rootCause": "",
+   "fix": "Have spaceHead mark its page title with data-phone-title-text (as other views can), so the bar reads 'Practice Log' etc.; keep the sub-line under it on the phone."
+  },
+  {
+   "id": "CR-18",
+   "severity": "P2",
+   "title": "Sketchbook on iPad portrait: the brief, timer, reference and 'Save to Practice Log' are below a 1,078 px canvas, off screen",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/creatives/n/ipad-sketch.png; eval --size ipad: .k-crs-stage top 284 h 1078, .k-crs-side top 1382, timer top 1516, save top 1570, innerHeight 1180; css/views/creatives.css:333-335 and the one-column rule at :359-360 (inside the 860 px tier) | RECHECK 8 Nov (kos-redraw-1): eval --size ipad: .k-crs-stage top 284 h 1078, side top 1382, save top 1620, innerHeight 1180",
+   "rootCause": "",
+   "fix": "Below 1080 px put a compact bar above the page (timer, Momentum, Save, Reference toggle) and move the brief/steps into a collapsible drawer, or keep the two-column layout down to 700 px with a narrower side column."
+  },
+  {
+   "id": "CR-19",
+   "severity": "P2",
+   "title": "'Add your work' is a bare 720 px form with a raw browser file button, a 490 px dead column beside it, no preview and no drop target",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/creatives/n/mac-add.png; eval: [cr.add] left 236 right 956, #main right 1446; js/modules/creatives.js:610-640 (addPage); css/views/creatives.css:181 (.k-cr-addform max-inline-size) | RECHECK 8 Nov (kos-redraw-1): eval mac: [cr.add] 236-956 wide 720 in #main 1210",
+   "rootCause": "",
+   "fix": "Lay it out as two columns at >=1080 px: a drop zone + preview (reuse KOS.files' drop target styling, hide the native input behind a .k-btn 'Choose a picture or text') and the form with the study's brief and 'Good for this unit' beside it; add 'Back to the lesson'."
+  },
+  {
+   "id": "CR-20",
+   "severity": "P2",
+   "title": "A unit project pays 150 XP, 40 gold and +10 HP for three 'Mark done' taps with no work saved",
+   "workstream": "W1",
+   "expected": "fixed",
+   "evidence": "eval on empty account: 3 x click 'Mark done' on #/creatives/project/A2 -> governor xp/gold [0,0] -> [150,40], creatives.paid {project:A2}, works 0; js/core/creatives.js:200-218 (markMilestone 'or by hand', pays when all reached); js/modules/creatives.js:~600 (Mark done button per milestone) | RECHECK 8 Nov (kos-redraw-1): eval on #/creatives/project/A3: 3x Mark done, works 0 -> xp/gold 172/20 -> 322/60",
+   "rootCause": "markMilestone accepts a bare tick as evidence and pays on it.",
+   "fix": "Let a hand-marked milestone count only when a work is attached (offer 'Attach a piece from the Practice Log' / 'Add your work' instead of a bare tick), or keep hand ticks for progress but pay the project only when each milestone has a saved work."
+  },
+  {
+   "id": "CR-26",
+   "severity": "P2",
+   "title": "Creatives settings 'Minutes' (10/20/30 min, 'How long a day's study runs') changes nothing: the Daily Creative ignores it",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "eval: m10 ['today',10,12,12], m20 ['today',20,12,12], m30 ['today',30,12,12]; js/core/creatives.js:302-321 (planDay never uses p.minutes except to echo it at :306); js/modules/creatives.js:650-652, :661 (the setting and its help text); grep -rn 'minutes' shows no other reader",
+   "rootCause": "Setting wired to storage but never consumed by planDay().",
+   "fix": "Either size the day by it (pick the study/cards that fit, or say 'about 20 min · this study runs 12') or remove the control."
+  },
+  {
+   "id": "CR-27",
+   "severity": "P2",
+   "title": "The check's 'Yes, mostly' / 'Not yet' buttons are 32 px tall on iPad and iPhone",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "measure sweep cr2/dense-ipad-*.json and dense-iphone-*.json on #/creatives/check/<id>: button[cr.choice] 'Yes, mostly' 105x32, 'Not yet' 82x32",
+   "rootCause": ".k-cr-choice is a custom button outside the shared touch-size rule.",
+   "fix": "Give .k-cr-choice the shared min-height token for coarse pointers (44 px), or make them k-btn."
+  },
+  {
+   "id": "CR-28",
+   "severity": "P2",
+   "title": "Font pairing drill: the face options are 32 px tall on touch",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "measure sweep cr2/empty-iphone.json #/creatives/drills/pairing: 9 small targets, button.k-crd-opt 'Shippori Mincho (display' 228x32, 'Onest (sans)' 108x32",
+   "rootCause": ".k-crd-opt lacks the coarse-pointer size.",
+   "fix": "Coarse-pointer min-height 44 px on .k-crd-opt."
+  },
+  {
+   "id": "CR-29",
+   "severity": "P2",
+   "title": "On iPhone the check page cuts the work's title off at the card edge and puts the check itself two screens below the whole piece",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/creatives/t/checkW-iphone.png; eval --size iphone on #/creatives/check/<W1.1 work>: title right 621, scrollWidth 583, card right 386, white-space normal; check-form top 1711, innerHeight 874; css/components.css:97 (.k-card-title flex: 0 0 auto); js/modules/creatives.js:391-408; measure sweep cr2/l-ipadl-6.json on #/creatives/check/<id>: overlap span.k-card-title 'Rain at the window — a v' X span.k-kicker 'Good for Writing 1'",
+   "rootCause": "Shared card-title flex rule; desktop column order reused on the phone.",
+   "fix": "Let card titles shrink and wrap (flex: 1 1 auto; min-width 0; overflow-wrap) and, under 700 px, put the bar and the form before the piece or clamp the piece with 'Show all'."
+  },
+  {
+   "id": "CR-21",
+   "severity": "P3",
+   "title": "Work dialog: the picture sits left with a 252 px empty strip beside it, the note is jammed under it, and nothing says when/where the piece was made",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/creatives/n/dense-mac-workdlg.png; eval: img left 343 right 903 in dialog 315-1155; note top 595, img bottom 595; js/modules/creatives.js:527-537 (openWork body); css/views/creatives.css:120 (.k-cr-mine-img display:block, no margin-inline:auto), :144 | RECHECK 8 Nov (kos-redraw-1): eval cr2/rc1.js: dialog 315-1155, img 343-903, img bottom 595",
+   "rootCause": "",
+   "fix": "Centre the media (margin-inline:auto) with a gap token before the note, and add the row's meta line (track · lesson·study · date · words · check) under the title using kindMark(w) as the dialog mark."
+  },
+  {
+   "id": "CR-22",
+   "severity": "P3",
+   "title": "Lesson spine's subject switch clips the active 'Creatives' pill on iPad landscape",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/creatives/n/ipadl-lessonD11.png; eval --size ipadl: [study.spine-subjects] left 84 right 293 scrollWidth 220 clientWidth 209 scrollLeft 0; active 'Creatives' 238-302; js/modules/hub.js:439 (k-seg k-seg--fill k-spine-subjects); css/components.css:52 | RECHECK 8 Nov (kos-redraw-1): eval --size ipadl: spine-subjects 84-293, scrollWidth 220 / clientWidth 209, scrollLeft 0",
+   "rootCause": "",
+   "fix": "Use the subject's short label in the spine (or a menu) when space is short, or build it as a KOS.ui.scroller with reveal of the active pill."
+  },
+  {
+   "id": "CR-23",
+   "severity": "P3",
+   "title": "Tracks page: a track's bar says 33% while every unit row beside it says 0 / 3; an unreleased track draws a full-width empty bar",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "shots/creatives/n/dense-mac-desk.png (first capture, #/creatives Tracks page: Art 33% vs A1 0 / 3; Editing empty bar); js/modules/creatives.js:74-78 (trackPct = mean leafPercent) vs :327-329 (us.done + ' / ' + us.total); :323 bar drawn when pct == null | RECHECK 8 Nov (kos-redraw-1): eval mac #/creatives: Art '33%' with rows 'A1 … 0 / 3', 'A2 … 0 / 3', 'A3 … 0 / 3'",
+   "rootCause": "",
+   "fix": "Label the bar ('33% of checks') or show lessons done/total in the head to match the rows; omit the bar for a track with no released unit and show a 'Coming later' chip instead."
+  },
+  {
+   "id": "CR-24",
+   "severity": "P3",
+   "title": "Palette drill: the Hue sliders are plain accent bars with no spectrum and no value, so you pick a hue blind",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/creatives/n/dawn-mac-palette.png; js/modules/crdrills.js:273-280 (k-crd-range, aria-label '… · Hue', 0-359) | RECHECK 8 Nov (kos-redraw-1): js/modules/crdrills.js:272-280 unchanged; also the range inputs are 16 px tall on iPad/iPhone (sweep: input.k-crd-range 185x16 / 135x16)",
+   "rootCause": "",
+   "fix": "Paint the hue input's track with a linear-gradient over oklch hues at the colour's lightness/chroma and the lightness track from dark to light; show the numeric value beside each label."
+  },
+  {
+   "id": "CR-30",
+   "severity": "P3",
+   "title": "Creatives settings 'Your days': tapping the last remaining day does nothing, with no message",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "js/modules/creatives.js:648; js/core/creatives.js:75 (setPrefs({days:[all false]}) -> prefs().days all true, eval)",
+   "rootCause": "Silent guard in the click handler.",
+   "fix": "Disable the last pressed day with a title, or toast 'Keep at least one day' and announce it."
+  },
+  {
+   "id": "CR-31",
+   "severity": "P3",
+   "title": "After undoing a paid project milestone the project page promises '150 XP, 40 gold and +10 HP' again, but re-completing pays nothing",
+   "workstream": "W1",
+   "expected": "fixed",
+   "evidence": "eval on #/creatives/project/A3: 3x Mark done -> xp/gold 172/20 -> 322/60; Undo -> done false, doneAt true, stats.projectsDone 0, footer 'Pays 150 XP, 40 gold and +10 HP when every milestone is reached.'; Mark done again -> 322/60 (no pay); js/modules/creatives.js:605, js/core/creatives.js:211-216",
+   "rootCause": "Footer reads milestone state, not the pay ledger.",
+   "fix": "Read paid['project:'+uid]: when paid say 'Paid on <date> · no further reward'."
+  },
+  {
+   "id": "CR-32",
+   "severity": "P3",
+   "title": "A drill batch pays 6 XP even when nothing was touched: pressing Check and Next through every round earns the day's reward",
+   "workstream": "W1",
+   "expected": "fixed",
+   "evidence": "eval cr2/dr.js: hierarchy '0 of 2 within range+6 XP' dxp 6; palette '0 of 2 within range+6 XP'; measure '0 of 1 within range+6 XP'; js/modules/crdrills.js:76-78, js/core/creatives.js:182-189",
+   "rootCause": "No evidence of effort required before logDrill pays.",
+   "fix": "Pay only a batch where each round's controls changed from their start values (or at least one round 'within range')."
+  },
+  {
+   "id": "CR-33",
+   "severity": "P3",
+   "title": "Desk 'Continue' points at the next study (A2.2) while the hero path and unit cards mark a different unit (A1) as current",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "shots/creatives/t/dense-mac-desk.png (Continue A2.2; path A1 ringed); js/modules/creatives.js:221-233 vs :143-162 and js/core/creatives.js:266-285",
+   "rootCause": "Two different definitions of the current position.",
+   "fix": "Derive both from one 'place' (e.g. Continue names the lesson whose next missing check is cards: 'A1.1 · rate a theory card')."
+  },
+  {
+   "id": "CR-34",
+   "severity": "P3",
+   "title": "Writing sprint: the word target is never measured; it only becomes text in the Focus objective",
+   "workstream": "QOL",
+   "expected": "open",
+   "evidence": "js/modules/crwrite.js:160-176 (tgt only used in objective, area.focus() after KOS.rerender())",
+   "rootCause": "Sprint is a thin wrapper over Focus with no word tracking.",
+   "fix": "Record the word count at start, show 'n / 150 this sprint' in the foot while Focus runs, and focus the new textarea after the redraw."
+  },
+  {
+   "id": "CR-35",
+   "severity": "P3",
+   "title": "On a rest day the Daily Creative card says only 'Next on Monday': no way to do today's study anyway, and due theory cards are hidden",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/creatives/t/rest-mac.png; eval after setPrefs (today off): planDay().state 'rest', card children DIV 17 / IMG 80 / H2 23 px in a 238 px card; js/core/creatives.js:308-312, js/modules/creatives.js:173-174, :202",
+   "rootCause": "Rest state short-circuits the plan and the card has no actions for it.",
+   "fix": "On rest: keep 'Cards · n min' when cards are due and a quiet 'Do today's study anyway' link to the next study."
+  },
+  {
+   "id": "CR-36",
+   "severity": "P3",
+   "title": "'Add your work' accepts confusing input: every piece is 'Untitled' and has no track, a link without https:// is refused as 'Choose a file or paste a link', a file and a link together silently drop the link, any other file is stored as text",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "eval cr2/add.js: md -> ['text','Untitled',7,null,null]; badlink -> added 0, toast 'Choose a file or paste a link.'; both -> text work, link dropped; pdf -> ['text','Untitled',3]; js/modules/creatives.js:611-640 (title value '', rec.track absent, link regex /^https?:\\/\\//, else-branch readAsText)",
+   "rootCause": "Minimal form with no validation or defaults.",
+   "fix": "Default the title to the file name (sans extension); add a track choice for free pieces; accept a bare domain by prefixing https:// or say 'Links start with https://'; refuse unsupported types by name."
+  },
+  {
+   "id": "CR-37",
+   "severity": "P3",
+   "title": "Global search does not find Creatives work: Portfolio pieces and Writing Desk drafts never appear (lessons do, via the spec)",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "eval KOS.search.run: 'Ghosted lines' -> 'Specification:A1.1 · Ghosted lines'; 'Rain at the window' (a promoted work title) -> no groups; grep -n 'creatives' js/core/search.js -> no match",
+   "rootCause": "No search domain registered for Creatives.",
+   "fix": "Add a Creatives search domain over the Portfolio (titles, 'made from') and drafts, opening the work dialog / desk; keep the Practice Log out."
+  },
+  {
+   "id": "CR-38",
+   "severity": "P3",
+   "title": "References page: the lab's zoom − + Fit buttons are 24 px on iPad",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "measure sweep cr2/l-ipadl-4.json and cr2/empty-ipad-*.json #/creatives/refs: button.k-lab-zoom-b '−' 24x24, '+' 24x24, [lab.zoom-fit] 'Fit' 30x24",
+   "rootCause": "Lab zoom buttons use a dense size with no coarse-pointer override.",
+   "fix": "Coarse-pointer sizing for .k-lab-zoom-b (44 px hit area via the shared token)."
+  },
+  {
+   "id": "CR-39",
+   "severity": "P3",
+   "title": "A check link to a work that is not on this account ('Nothing to check here') is a dead end with no way onward",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/creatives/t/shop-azure-check-mac.png (azure-butterfly theme, #/creatives/check/<deleted id>); js/modules/creatives.js:341",
+   "rootCause": "emptyState called without action.",
+   "fix": "Give the empty state an action to the Practice Log (and the lesson when known)."
+  }
+ ]
+}

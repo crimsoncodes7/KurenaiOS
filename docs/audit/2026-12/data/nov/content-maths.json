@@ -1,0 +1,286 @@
+{
+ "area": "content-maths",
+ "source": "origin/audit/quality-2026-11:docs/audit/2026-11/findings.json + data/plan-mapping.json",
+ "findings": [
+  {
+   "id": "CM-01",
+   "severity": "P1",
+   "title": "Specification tab shows garbled PDF-extraction text on most Maths leaves (M7.3 included)",
+   "workstream": "W6",
+   "expected": "fixed",
+   "evidence": "shots/content-maths/m73-spec-mac.png; shots/content-maths/p5-6-spec-mac.png; cm/spine.txt (every leaf's spec text); tools/gen_data.py:240-255 (maths_group copies clean(x) of the extracted lines) | RECHECK 8 Nov (kos-redraw-1): Re-shot on kos-redraw-1: shots/content-maths/top-m73-spec-mac.png (Guidance: 'r = ut +1at2', 'e.g. , with vectors', '2 given in i - j'); js/data/maths.js still has 25 'need to learn:'; no commit to tools/gen_data.py or js/data/maths.js since 56b1a8c.",
+   "rootCause": "The spec spine is generated from a PDF text extraction (/home/claude/extract) that splits equations and kerned headings, and no override or cleanup pass exists for Maths.",
+   "fix": "Hand-author the 89 Maths spec entries from the Edexcel 9MA0 PDF as typeset blocks (LaTeX in $…$). Either fix the extractor or add a checked-in override table that gen_data.py applies (as SHORT does), and regenerate. Drop the \"need to learn:\" headers. Add a smoke test that refuses fragment lines (≤4 characters, runs of single letters, \"need to learn\")."
+  },
+  {
+   "id": "CM-02",
+   "severity": "P1",
+   "title": "Quiz answers are almost always A or B, and options are never shuffled",
+   "workstream": "W6",
+   "expected": "fixed",
+   "evidence": "cm/metrics.json ansDist per leaf; js/engines/quiz.js:66 (Shuffle shuffles order only), :88-96 (item.opts rendered in order, answer compared to item.ans at :113); e.g. js/data/content/maths-mech-m7.js:305-306 (every item ans: 0); shots/content-maths/m73-quiz-ipad.png (Q1 answer A) | RECHECK 8 Nov (kos-redraw-1): Re-measured: base answers A 380/498, bank answers B 381/560 (D appears 1+1 times); js/engines/quiz.js:66 Shuffle reorders questions only, :88-96 options in authored order. New repro: answering A to every question of M7.3 scores 9/13 = 69% (cm/qz-retry.js), which the RAG then reads as Green.",
+   "rootCause": "Authors put the right answer first (bank authors second), and the engine trusts the authored order.",
+   "fix": "In mountMCQ, shuffle a per-question option permutation at mount and on Retry, seeded per attempt, and map clicks back to the original index so the stats and the why text stay valid. Optionally also rebalance the authored ans positions so a fixed order is fair too."
+  },
+  {
+   "id": "CM-14",
+   "severity": "P1",
+   "title": "Exam questions self-mark ignores the M1/A1 codes on Maths worked-derived items, and the Answer line counts as a mark",
+   "workstream": "W6",
+   "expected": "fixed",
+   "evidence": "shots/content-maths/selfmark-answerline-mac.png (Answer ticked → Awarded 1/3; step 1 shows [M1 A1] but '1'); eval on #/ref/maths/1.1 Exam questions: onlyAnswerTicked '1', onlyStep1Ticked '1'; counts via eval over KOS_CONTENT: derived parts 592 (perMark 106, more 112, fewer 374), bank 652 all perMark; js/core/content.js:547-555 (ms = one line per step + '[mk]', Answer pushed as a point); js/engines/quiz.js:264-268 (needsM tests /^\\s*A\\d/), :286-296 (perMark / proportional fromTicks)",
+   "rootCause": "examFromWorked emits one scheme point per step (several marks) plus the answer, but the tally assumes one point = one mark or scales proportionally",
+   "fix": "In examFromWorked, expand each step into one point per mark code (e.g. '[M1] …', '[A1] …' with the step text on the first), so the scheme is one point per mark like the banks; do not push the Answer as a point (show it as a separate 'Answer' line under the scheme). Alternatively give points a weight parsed from their [codes] and make fromTicks sum weights and needsM read the code tokens. Add a smoke check: Σ point weights = marks for every exam part."
+  },
+  {
+   "id": "CM-03",
+   "severity": "P2",
+   "title": "\"Write it out\" chip overlaps worked-example titles on every device and is only 23px tall",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/content-maths/writeout-overlap-mac.png; shots/content-maths/m73-notes-p6-iphone.png; measured: btn rect [233,618,81,23] while .k-n-worked-head starts at y=626, width 334 (iphone); css/views/ink.css:300; js/core/content.js:373; css/views/study.css:346 | RECHECK 8 Nov (kos-redraw-1): shots/content-maths/top-writeout-8-3-mac.png ('Write it out' over 'P1 Q5 · 5 marks'); cm/wo2.js output; css/views/ink.css:300 (position:absolute; inset-inline-end calc(var(--sp-8)*9); min-block-size:0).",
+   "rootCause": "An absolutely positioned control added onto a flex header that wraps freely.",
+   "fix": "Put the chip in the head's flex flow (margin-inline-start:auto, before Copy) instead of absolute positioning, or give the head padding-inline-end equal to the chip's and Copy's widths. Raise the hit area to 44px for coarse pointers."
+  },
+  {
+   "id": "CM-04",
+   "severity": "P2",
+   "title": "A curriculum fork silently hides later curriculum upgrades (plausible cause of \"M7.3 is basically bare\")",
+   "workstream": "W6",
+   "expected": "fixed",
+   "evidence": "js/core/edits.js:1-60 (no base hash or staleness check: grep for stale/baseHash finds nothing); git log -- js/data/content/maths-mech-m7.js (a9f64b5, 4d791ca); shots/content-maths/m73-mac.png (shipped content present) | RECHECK 8 Nov (kos-redraw-1): js/core/edits.js:199-207 set() stores only the kind and updatedAt — no shipped hash or version; fixture: KOS.edits.set('maths','M7.3','notes', first 3 blocks) then reopen: no notice on the Notes tab or inspector (eval, then reset); shots/content-maths/top-m73-forked-mac.png taken after the reset shows the shipped 8 pages.",
+   "rootCause": "The fork model has no notion of the base version it was taken from.",
+   "fix": "Record a hash of the shipped kind on each fork (fork.base). When the shipped hash differs, show a banner on the tab: \"The curriculum for this topic was updated after you edited it: View new · Keep mine · Merge (append your rows)\". Check the user's real state for state.edits.topics['maths:M7.3'] (or 'maths:S7.3')."
+  },
+  {
+   "id": "CM-05",
+   "severity": "P2",
+   "title": "Bank files duplicate base flashcards and quiz items in the same leaf (17 exact repeats, about 45 same-answer groups)",
+   "workstream": "W6",
+   "expected": "fixed",
+   "evidence": "/private/tmp/claude-501/-Users-fj-Developer-KurenaiOS---Web/083a292e-9158-4ad4-8d86-0c9b8abd3917/scratchpad/qa/cm/dups2.json; e.g. js/data/content/maths-pure-p8.js:505 vs bank-maths-pure-c.js:457 (\"Before integrating x²/(x−1) you should\") | RECHECK 8 Nov (kos-redraw-1): Re-run cm/dups2.js: 66 near-duplicate pairs inside a leaf, 17 exact repeats (e.g. 2.1 '$8^{2/3}$ =' qz0 and qz8b; 4.1 four exact repeats; M7.3 fc1 = qz10b), 27 same-answer pairs, 14 near-duplicates across leaves; no content commit since 56b1a8c.",
+   "rootCause": "KOS.content.extend concatenates bank arrays blindly, and no test checks for duplicates.",
+   "fix": "Delete or replace the bank items flagged in dups2.json with new item shapes. Add a smoke test that canonicalises q and the answer (\\dfrac→\\frac, strip spaces) and fails on an exact or same-answer duplicate inside one leaf. Removing flashcards must follow invariant 87 (carry the original index as a third element)."
+  },
+  {
+   "id": "CM-06",
+   "severity": "P2",
+   "title": "Thin notes on core Pure and Applied leaves (depth very uneven: 200 to 8,700 words)",
+   "workstream": "W6",
+   "expected": "fixed",
+   "evidence": "cm/metrics.json; table printed by cm/metrics.js; shots/content-maths/p8-4-notes-mac.png (8.4 is one short page) | RECHECK 8 Nov (kos-redraw-1): Re-run cm/metrics.js: 8.4 185 words (one page), 8.1 235, 6.1 302, 6.2 331, 4.3 413, 7.2 439 vs 4.1 8,667; 6.2, 8.1 and 8.4 have no page markers at all.",
+   "rootCause": "The depth rewrite stopped short on P6 to P8 and several small leaves. The files for P1, P9, P10 and M7 to M9 are dated 8 October and P2 to P8 27 October, and the light leaves were never brought up to the contract.",
+   "fix": "Run the per-section depth pipeline used for 4.1, 2.x and M7 on P6 (6.1–6.5), P7.2, P8.1, 8.2, 8.4, 8.6, 8.8, 4.3, 4.6, 5.4, 10.4, 9.5, S4.3 and M8.3. Target at least 3 pages, at least 5 exam-tagged worked examples with Edexcel marks, a figure where a picture helps, and an exam toolkit page."
+  },
+  {
+   "id": "CM-07",
+   "severity": "P2",
+   "title": "Statistics and Mechanics leaf titles are cut-off 80-character spec sentences, unlike the short Pure titles",
+   "workstream": "W6",
+   "expected": "fixed",
+   "evidence": "shots/content-maths/m73-mac.png (title and spine); shots/content-maths/m73-notes-iphone.png; tools/gen_data.py:249 (80-char truncation), :287-301 (SHORT_S and its lookup by c[\"ref\"]); js/data/maths.js:989 (\"S1.1\"), :1287 (\"M7.3\") | RECHECK 8 Nov (kos-redraw-1): 21 of 89 leaf titles still end in '…' (every S and M leaf longer than 80 characters); spine in shots/content-maths/top-m73-spec-mac.png ('simple, discrete probability di…' starts lower-case); tools/gen_data.py:249 and the SHORT_S lookup by c['ref'] ('S1.1') against keys like '1.1'.",
+   "rootCause": "The short-title table is keyed by refs that never match the stats and mech children, and the generator's source is not available to re-run.",
+   "fix": "Key SHORT_S by the final refs (S1.1…S5.3, M6.1…M9.1) and add a payload-only pass, like --mech-refs, that applies titles to the checked-in maths.js. Then regenerate."
+  },
+  {
+   "id": "CM-08",
+   "severity": "P2",
+   "title": "Wrong flashcard answer: 9.3 Newton–Raphson from x0 = 0 gives x1 = −2.5, not 2.5",
+   "workstream": "W6",
+   "expected": "fixed",
+   "evidence": "js/data/content/bank-maths-pure-c.js:646 | RECHECK 8 Nov (kos-redraw-1): js/data/content/bank-maths-pure-c.js:646 unchanged: answer says '$x_1 = 2.5$'; x1 = 0 − f(0)/f'(0) = 0 − (−5)/(−2) = −2.5.",
+   "rootCause": "An arithmetic sign slip in the bank author's answer, with no automated check on numeric answers.",
+   "fix": "Rewrite the card, e.g. \"Where would NR fail for $f(x)=x^3-2x-5$?\" → \"Where $f'(x_0)=0$: $x_0=\\pm\\sqrt{2/3}$\". Or keep the x0 = 0 example with \"$x_1=-2.5$ (far from the root 2.09)\". Keep its schedule key (invariant 87)."
+  },
+  {
+   "id": "CM-15",
+   "severity": "P2",
+   "title": "24 exam-style worked examples carry mark codes that do not add up to their stated marks",
+   "workstream": "W6",
+   "expected": "fixed",
+   "evidence": "audit-evidence/2026-11/qa/cm/mk2.js output (24 rows: leaf | title | stated | sum of step codes); e.g. node cm/mk.js 'Tide model' → mks [\"B1 M1 A1\",\"B1\",\"B1\",\"M1 A1 A1\"] vs src 'A-level Specimen · P1 Q13 · 11 marks'",
+   "rootCause": "Hand-authored mk codes, with no check that their sum equals the src mark count (smoke65/66 hold CS to a depth contract; Maths has no equivalent mark-sum lint)",
+   "fix": "Correct each of the 24 from the published mark scheme: add the missing codes or fix the total. Add a lint (in the Maths smoke) that the sum of the codes equals the src marks for every exam-tagged worked example."
+  },
+  {
+   "id": "CM-16",
+   "severity": "P2",
+   "title": "Newton–Raphson generator prints a 'Root estimate' that is not a root in about a third of its random examples",
+   "workstream": "W6",
+   "expected": "fixed",
+   "evidence": "eval on slot 7: 400 runs of KOS.worked.byIds(['newraph'])[0] → bad 138; examples quoted above; js/labs/worked.js:704 (Root estimate step printed unconditionally after three iterations)",
+   "rootCause": "",
+   "fix": "Iterate until |x_{n+1} − x_n| < 1e-6 (cap about 20) and show the first three steps plus 'converges to …'. Or pick x0 near a root (from a sign change). If it does not converge, say so ('not converged yet: f(x3) = …')."
+  },
+  {
+   "id": "CM-17",
+   "severity": "P2",
+   "title": "'Retry the N missed' overwrites the topic's quiz score with the retry's: 9/13 then 4/4 records lastPct 100 and the head reads 'best 9/4'",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "audit-evidence/2026-11/qa/cm/qz-retry.js (eval on slot 7, output quoted); shots/content-maths/top-quizbest-inspector-mac.png ('best 9/13', inspector 'Quiz attempts 2', 'Data says Green'); js/engines/quiz.js:156-165, :178-181; js/modules/rag.js:63-71",
+   "rootCause": "The missed-retry reuses mountMCQ's normal finish path, which assumes items is the topic's whole quiz.",
+   "fix": "Pass a 'practice' flag for the missed retry: do not touch st.lastPct/best (or record it under a separate missedRetry field), log it as a practice session (or not at all), and print the head as 'retrying 4 missed' instead of best/total."
+  },
+  {
+   "id": "CM-18",
+   "severity": "P2",
+   "title": "One mediocre quiz makes a Maths topic 'Data says Green': the RAG starts at 100 and a 69% quiz only takes 8 points off",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "shots/content-maths/top-quizbest-inspector-mac.png; js/modules/rag.js:17 (band), :63-71 (quiz penalty capped at 25), :103 (no minimum evidence); eval qz-retry.js before the retry: lastPct 69 → band g",
+   "rootCause": "Subtractive scoring from 100 with capped penalties and no evidence threshold.",
+   "fix": "Make the auto band evidence-weighted: start from 'no claim' and require a minimum amount of evidence (e.g. ≥ N cards rated or a quiz ≥ 80 % plus another signal) before Green; map a lone quiz to a score proportional to its percentage rather than a capped deduction."
+  },
+  {
+   "id": "CM-19",
+   "severity": "P2",
+   "title": "Long worked-step lines push the topic page sideways on iPhone: 14 lines in 9 Maths leaves run up to 114px past the screen",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "audit-evidence/2026-11/qa/cm/ovf.js → cm/ovf-iphone.json (433 pages, 14 katex lines offscreen), cm/ovf-ipad.json (0); shots/content-maths/top-s21-clip-iphone.png (S2.1 page 4 after the page was panned to the σ line: labels gone, line runs past the card); eval: main.scrollWidth 516 / clientWidth 402 on #/ref/maths/S2.1; js/core/content.js:382 (.k-n-wm wraps para(st.m)); css/views/study.css:351-356",
+   "rootCause": "Inline \\displaystyle maths in a grid cell with no horizontal scroller.",
+   "fix": "Give .k-n-wm (and other step/answer bodies) overflow-x: auto with the same tab-stop-when-scrolls rule as tables, or render a step whose maths is wider than its column as a display block; on phones stack the Step label above the body to give the maths the full width."
+  },
+  {
+   "id": "CM-20",
+   "severity": "P2",
+   "title": "On iPhone the Maths plot labs draw their axis numbers at 5.7px (half the 11px label floor)",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "audit-evidence/2026-11/qa/cm/simtxt.js (iphone/ipad/mac output quoted above); shots/content-maths/top-sim-9-4-iphone.png (dpr 2); shots/content-maths/sim-9-3-iphone.png; js/labs/lab.js:252, :317-326, :481 (lab.narrow)",
+   "rootCause": "Label sizes are fixed in viewBox units, so they shrink with the stage.",
+   "fix": "Scale label size by the stage's px-per-unit (size = 11px / scale, capped) or switch plots to a narrower viewBox when lab.narrow() is true (as the floating-point and subnetting labs do), and thin the ticks (every other tick) so the bigger labels do not collide."
+  },
+  {
+   "id": "CM-09",
+   "severity": "P3",
+   "title": "Cards filed under the wrong leaf",
+   "workstream": "W6",
+   "expected": "fixed",
+   "evidence": "cm/load.js dumps; read with the node print script (outputs quoted in this audit); bank-maths-pure-*.js, bank-maths-mech.js, bank-maths-stats.js | RECHECK 8 Nov (kos-redraw-1): No commit to bank-maths-*.js since 56b1a8c; the cards quoted in the first audit are still in place (re-read via cm/load.js).",
+   "rootCause": "Bank items were grouped by past-paper question rather than by spec point.",
+   "fix": "Move these items to their own leaves, keeping each card's original key as a whole-key third element (invariant 87), or replace them with items on the leaf's own skill."
+  },
+  {
+   "id": "CM-10",
+   "severity": "P3",
+   "title": "\"Past-paper patterns\" pages are one wall-of-text paragraph",
+   "workstream": "W6",
+   "expected": "fixed",
+   "evidence": "shots/content-maths/m73-pastpaper-mac.png; js/data/content/bank-maths-*.js (each X(…) notes: [{page:\"Past-paper patterns\"}, \"<long string>\"]); counted by a script: 57 paragraphs over 60 words, 55 after the bank page | RECHECK 8 Nov (kos-redraw-1): Re-counted: 64 paragraphs on 'Past-paper patterns' pages, 59 of them over 60 words, the longest 157 words (count method differs slightly from the first audit's 57).",
+   "rootCause": "The bank files were written as prose summaries before the short-lines rule.",
+   "fix": "Convert each to a {table:{head:[Question shape, Marks, Seen in]}} or a {ul} of one shape per line, or fold it into the leaf's existing overview table and drop the page."
+  },
+  {
+   "id": "CM-11",
+   "severity": "P3",
+   "title": "29 leaves have no figure where a picture would teach",
+   "workstream": "W6",
+   "expected": "fixed",
+   "evidence": "cm/metrics.json figs column | RECHECK 8 Nov (kos-redraw-1): cm/metrics.json: 29 leaves with no figure (2.1, 2.2, 2.10, 2.11, 3.4, 4.1–4.6, 5.5, 5.6, 5.8, 5.9, 6.4, 6.5, 7.2, 7.4–7.6, 8.1, 8.2, 8.5–8.8, 9.5, S3.3). All 184 existing figures render without an error (cm/figs.js).",
+   "rootCause": "Figures were added only as each section was rewritten at depth.",
+   "fix": "Add declarative {fig} diagrams (core/figures.js) to these leaves during the depth pass. They are SVG-declarative, so no raster art is needed."
+  },
+  {
+   "id": "CM-12",
+   "severity": "P3",
+   "title": "Units such as \"m s$^{-1}$\" break across lines",
+   "workstream": "W6",
+   "expected": "fixed",
+   "evidence": "shots/content-maths/m72-notes-dawn-mac.png | RECHECK 8 Nov (kos-redraw-1): No change to the content files or css since 56b1a8c (git log empty); not re-shot on this build — shots/content-maths/m72-notes-dawn-mac.png from the first audit.",
+   "rootCause": "A breakable space plus a separate math segment for the exponent.",
+   "fix": "Author units as a single KaTeX segment, e.g. $\\text{m s}^{-1}$ or $5\\ \\text{m}\\,\\text{s}^{-1}$, or have inline() replace the space before a unit with U+00A0 and wrap the unit in a white-space:nowrap span."
+  },
+  {
+   "id": "CM-13",
+   "severity": "P3",
+   "title": "Two-option quiz items in a 4-option quiz",
+   "workstream": "W6",
+   "expected": "fixed",
+   "evidence": "cm/dups.json quizBad entries maths:8.1 #9 and maths:4.5 #12 (bank-maths-pure-c.js, bank-maths-pure-b.js) | RECHECK 8 Nov (kos-redraw-1): cm/beh1.js re-run: quizBad still maths:4.5 Q13 and maths:8.1 Q10 (bank items with 2 options).",
+   "rootCause": "Bank authoring.",
+   "fix": "Rewrite them as 4-option items, or as flashcards."
+  },
+  {
+   "id": "CM-21",
+   "severity": "P3",
+   "title": "A worked example citing two questions becomes a 4-mark exam item whose scheme covers 7 marks",
+   "workstream": "W6",
+   "expected": "fixed",
+   "evidence": "eval: KOS_CONTENT['maths:7.1'].exam item → {marks:4, src:'Edexcel June 2018 · P1 Q10 · 4 marks; A-level June 2022 · P2 Q4', level:'AS'}; js/core/content.js:542-546",
+   "rootCause": "",
+   "fix": "Either split the worked example into two cards (one per question), or have examFromWorked sum every 'N marks' in src and strip each. The first is cleaner."
+  },
+  {
+   "id": "CM-22",
+   "severity": "P3",
+   "title": "Normal-distribution generator writes the symmetric interval backwards, e.g. P(61 < X < 51)",
+   "workstream": "W6",
+   "expected": "fixed",
+   "evidence": "eval on slot 7: normal solve with {mu:56,sg:2,x:51} → 'P(61 < X < 51) = 0.9876 (symmetric interval about μ)'; js/labs/worked.js:549",
+   "rootCause": "",
+   "fix": "Print P(min(x, 2μ−x) < X < max(x, 2μ−x))."
+  },
+  {
+   "id": "CM-23",
+   "severity": "P3",
+   "title": "Hypothesis-test generators draw contradictory set-ups (testing p < p0 with x far above the mean)",
+   "workstream": "W6",
+   "expected": "fixed",
+   "evidence": "eval on slot 7 (400-run sweeps of every one of the 36 Maths generators: no exceptions or NaN; hyptestSilly 187/400; projectile '−0' 174/400); js/labs/worked.js:752 (hyptest random); js/labs/worked-extra.js:356-373 (projectile)",
+   "rootCause": "",
+   "fix": "hyptest: draw x from the alternative's side (below n·p0 for 'lower'), and draw h in the projectile generator only when h > 0 or drop the term. Use a shared signed formatter that brackets negatives inside a product or after a minus sign."
+  },
+  {
+   "id": "CM-24",
+   "severity": "P3",
+   "title": "Seven Maths callouts use an undefined kind 'key' and render as an unlabelled teal Tip",
+   "workstream": "W6",
+   "expected": "fixed",
+   "evidence": "audit-evidence/2026-11/qa/cm/beh1.js output 'bad callout types: key 7'; grep -rn 't: \"key\"' js/data/content → maths-pure-p1.js:152, maths-pure-p10.js:27, :437 and maths-pure-p9.js; js/core/content.js:346 (CALLOUT_META[t] || tip); css/views/study.css:321-334 (no key rule)",
+   "rootCause": "",
+   "fix": "Either add a 'key' kind to CALLOUT_META and the stylesheet (e.g. 'Key idea', crimson), or change the seven to an existing kind. Then make validate_content.js reject unknown callout kinds."
+  },
+  {
+   "id": "CM-25",
+   "severity": "P3",
+   "title": "Two bank items depend on the item before them and break when the quiz is shuffled (M8.4 'Tension then:')",
+   "workstream": "W6",
+   "expected": "fixed",
+   "evidence": "js/data/content/bank-maths-mech.js (M8.4 quiz, items 5–6); node print of maths:M8.4 quiz: 'Q5b Two 4 kg masses hang over a smooth pulley. Acceleration: … Q6b Tension then:'; stem-dependency regex sweep over KOS_CONTENT maths quiz",
+   "rootCause": "",
+   "fix": "Make Q6 self-contained: 'Two 4 kg masses hang over a smooth pulley. The tension is:'."
+  },
+  {
+   "id": "CM-26",
+   "severity": "P3",
+   "title": "6.4 flashcard question mixes base 2 and base 10 in one garbled stem",
+   "workstream": "W6",
+   "expected": "fixed",
+   "evidence": "js/data/content/bank-maths-pure-b.js:739",
+   "rootCause": "",
+   "fix": "Rewrite the stem as 'Solve log(x+3) + log(x+10) = 2 + 2 log x (base 10).'"
+  },
+  {
+   "id": "CM-27",
+   "severity": "P3",
+   "title": "A third of Maths quiz explanations are a bare label: 352 of 1,058 'why' lines are three words or fewer with no working ('Definition.' ×9, 'Chain rule.' ×9, 'Add.', 'Tables.')",
+   "workstream": "W6",
+   "expected": "fixed",
+   "evidence": "node one-liner over cm/load.js (KOS_CONTENT maths quiz): 352/1058 label-only, by source {base 99, bank 253}; examples: maths:2.2 Q11 'Conjugate.', maths:2.3 Q14 'Vertex.', maths:2.5 Q10 'Union.'; js/data/content/bank-maths-*.js",
+   "rootCause": "Bank items were authored with terse whys and no length/quality check in validate_content.",
+   "fix": "Rewrite the label-only whys as one line of working that names the misconception behind the most tempting wrong option (e.g. 'Multiply by the conjugate $3-\\sqrt7$, so the denominator becomes $9-7=2$')."
+  },
+  {
+   "id": "CM-28",
+   "severity": "P3",
+   "title": "Four Pure leaf titles show raw caret notation ('e^x', 'Gradient of e^kx', 'Solving a^x = b', 'Differentiating x^n, e^kx…') in the spine, heading and search",
+   "workstream": "W6",
+   "expected": "fixed",
+   "evidence": "shots/content-maths/top-51-fig-azure-ipadl.png (spine: 'Exponential functions & e^x', 'Gradient of e^kx', 'Solving a^x = b'); tools/gen_data.py SHORT entries 6.1, 6.2, 6.5, 7.2; js/data/maths.js:521",
+   "rootCause": "Generated titles are plain strings written with ASCII exponents.",
+   "fix": "Use Unicode superscripts in the titles (eˣ, eᵏˣ, aˣ, xⁿ) in the SHORT table and regenerate js/data/maths.js with --format-existing."
+  }
+ ]
+}

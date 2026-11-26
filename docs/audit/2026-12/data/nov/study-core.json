@@ -1,0 +1,436 @@
+{
+ "area": "study-core",
+ "source": "origin/audit/quality-2026-11:docs/audit/2026-11/findings.json + data/plan-mapping.json",
+ "findings": [
+  {
+   "id": "ST-25",
+   "severity": "P0",
+   "title": "Deleting an assignment permanently deletes every file linked to it, including files that belong to a topic or another record",
+   "workstream": "W1",
+   "expected": "fixed",
+   "evidence": "eval fixture (seeded account): KOS.attach.add(\"compsci\",\"4.2.3.1\", file, …, {links:[{kind:\"assignment\",id:\"29\"}]}); topic list before: [\"topic-notes.txt|[]\", \"topic-notes.txt|[{kind:assignment,id:29}]\"]; KOS.assignments.remove(29); topic list after: [\"topic-notes.txt\"] (the linked file is gone from the topic). js/core/assignments.js:203-208, :220-231; js/modules/attachments.js:275-292 (list includes the links index), :392-411 (remove deletes and tombstones); js/modules/assignments.js:454-457 (confirm text).",
+   "rootCause": "Assignment deletion predates the many-links file index (R1) and still treats every listed file as owned.",
+   "fix": "In removeAttachments, for each file use the Files detach rule: removeLink(fileId, {kind:\"assignment\", id}) when the file has another link (topic home or other links), and delete only files whose sole link is the assignment; list those in the confirm body."
+  },
+  {
+   "id": "ST-01",
+   "severity": "P1",
+   "title": "IT desk on iPad portrait: the qualification-boundary chart is crushed to 52px and its numbers overlap; the units table truncates every unit name",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/study-core/s-it-ipad.png (full page), zoom shots/study-core/s-it-agg-ipad-crop.png; eval --size ipad: it.agg 716 wide, it.target at x442 w340; k-it-name ellipsised at 95px. css/views/study.css:996 (.k-it-agg three columns), :1031 (.k-it-tr six columns), the single-column/stacked rules only at study.css:1123-1125 (the <=700 tier); tokens.css:657-661 fixed widths; js/modules/itdesk.js:109 caption. | Recheck 6 Nov (kos-redraw-1, slot 5): Re-measured on kos-redraw-1 --size ipad: it.agg 716 wide, it.target x442 w340, the boundary chart 48x8 with P/M/D/D* labels overlapping; unit names 95px, all five truncated (shots/study-core/t-it-ipad.png).",
+   "rootCause": "desktop grid with fixed side columns has no tier between 1080 and 700",
+   "fix": "Add an 860px tier (invariant 47 breakpoints): .k-it-agg two columns (left+ruler stacked, target/need on the right) or one column; .k-it-tr switch to the stacked grid-template-areas layout already written for <=700. Give the ruler numbers a min width or drop them below the bar when narrow."
+  },
+  {
+   "id": "ST-02",
+   "severity": "P1",
+   "title": "iPhone topic page: the Working and Edit buttons squeeze the tab strip to ~181px, hiding the selected tab",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/study-core/q-topic-notes-iphone.png (Notes), shots/study-core/q-quiz-result-iphone.png (Quiz selected but invisible); eval --size iphone on #/ref/compsci/4.1.1.1 Notes: .k-topic-tabs clientWidth 181, scrollWidth 621. css/views/study.css:208-213 (.k-topic-tabrow one flex row; :not(.k-scroller) flex:none); js/modules/hub.js:2746 (scroller, moreSlot, workBtn, editBtn in one row). | Recheck 6 Nov (kos-redraw-1, slot 5): eval --size iphone #/ref/compsci/4.1.1.4: tab strip 181x44 at x16; shots/study-core/t-spine-iphone.png shows 'Specification  Notes 1 ›' (count 14 clipped to 1).",
+   "rootCause": "tools share the tab row with no narrow-width tier",
+   "fix": "Under 700px wrap the tools onto their own line (.k-topic-tabrow {flex-wrap: wrap} with the scroller at flex-basis 100%, or move Working/Edit into the reader row beside the page picker / the ⋯ fold), so the tab strip always gets the full width."
+  },
+  {
+   "id": "ST-03",
+   "severity": "P1",
+   "title": "'Quiz best' shows a raw count as a percentage: 6 of 11 right reads 'Quiz best 6%'",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "eval: state.study.quiz['compsci:4.2.2.1'] = {attempts:1, best:6, lastPct:55}; inspector text 'Quiz best\\n6%'; quiz head 'score 0 · best 6/11'. js/engines/quiz.js:159 (best = correct count), :77 (prints best + '/' + items.length); js/modules/hub.js:3224 and :2200 pctText(best); hub.js:126 max over topics. | Recheck 6 Nov (kos-redraw-1, slot 5): Fixture on the empty account: 5 of 11 right -> state.study.quiz {attempts:1,best:5,lastPct:45}; CS desk analytics 'Quiz best | 5% | 1 attempt across 1 topic'. The subject desk tile has the same bug (js/modules/hub.js:119-129 max of raw counts, :2200 pctText + bar pct = count), not only the inspector (hub.js:3224) and js/engines/quiz.js:159.",
+   "rootCause": "two readers disagree on the unit of study.quiz[k].best",
+   "fix": "Store best as a percent (bestPct) in the quiz engine, migrate existing records once at the store gate (best/len where the deck length is known, else keep), and print '/n' only from a stored count; or keep the count and make hub.js divide by the topic's quiz length. Add a smoke check that the inspector and the quiz header agree."
+  },
+  {
+   "id": "ST-04",
+   "severity": "P1",
+   "title": "Cards reviewed in an unfinished flashcard batch are never logged: no streak, no pay, 'Today so far · Reviewed 0'",
+   "workstream": "W2",
+   "expected": "fixed",
+   "evidence": "eval: on #/due rated 5 cards Good, navigated to #/review: 0 new sessions, 'Today so far Reviewed 0 Accuracy —', dueCount 308 -> 303. js/engines/flashcards.js:325-353 (sessions.log only in finish()); js/modules/due.js:222-230 and js/modules/cardstats.js:218-228 read only those session entries. shots/study-core/q-cardstats-mac.png (Total reviews 5,810 beside an empty Reviews per day and an all-zero Rating mix). | Recheck 6 Nov (kos-redraw-1, slot 5): Empty account fixture: 3 cards rated Good on #/ref/compsci/4.2.2.1 then left: state.srs 3 keys, sessions 0 before and after leaving; only a full 16-card batch logged one flashcards entry (31 XP). Same in a Due today run left after an Again (leech fixture). js/engines/flashcards.js:325-355 logs only in finish().",
+   "rootCause": "session logged only in finish(); review surfaces read session metrics rather than the review log",
+   "fix": "Log the batch when the view is left or hidden (the page-hide / KOS.show teardown the engine already notes at :373), paying for the cards rated so far, once (a session id held by the engine and updated, never logged twice); or cap a due batch at a size people finish (e.g. 20-50 with 'Next 50'). Read 'Reviewed today' and Reviews per day from KOS.reviewLog (one row per rating) instead of session metrics."
+  },
+  {
+   "id": "ST-05",
+   "severity": "P1",
+   "title": "Assignment detail: 'Focus on this' and the Complete/Submitted/Blocked buttons sit ~1,000px below the panel's content, off-screen",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/study-core/q-asg-open-mac.png (panel ends at ATTACHMENTS, no actions visible); eval: .k-asg-foot y 1577 (margin-top 984px), previous block bottom 577, .k-asg-panel height 1569 sticky. css/views/study.css:864 (min-block-size: 100%), :886 (.k-asg-foot margin-block-start: auto); js/modules/assignments.js:305-321. | Recheck 6 Nov (kos-redraw-1, slot 5): eval mac with 8 fixture assignments: .k-asg-foot margin-top 412px, previous block bottom y550, foot at y977 below a 745px viewport; the gap grows with the list length (the panel stretches to the list column). On iPad portrait (stacked) the margin is 0.",
+   "rootCause": "stretched sticky panel + auto margin footer",
+   "fix": "Size the panel to the viewport: max-block-size: calc(100dvh - header) with overflow-y: auto and no min-block-size: 100% (align-self: start), so the sticky panel sticks and the foot sits at its bottom edge; or drop margin-block-start: auto and put the actions right under the stats."
+  },
+  {
+   "id": "ST-06",
+   "severity": "P1",
+   "title": "On iPad and iPhone, tapping an assignment opens its detail at the bottom of the page, out of sight",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/study-core/q-asg-tap-ipadl.png (row highlighted, no detail); eval after tapping row 2: panel top y=2109 (ipadl, viewport 820), 2629 (ipad, 1180), 2729 (iphone, 874), not in a dialog. css/views/study.css:1057-1059 (@media max-width 1240: one column, panel static); js/modules/assignments.js has no scrollIntoView/openDialog for the detail. | Recheck 6 Nov (kos-redraw-1, slot 5): eval --size ipad (seeded, 21 items): after tapping row 2 the detail panel top is y=3483 (viewport 1180), scrollY stays 0.",
+   "rootCause": "master-detail layout collapses to a stacked list with no navigation to the detail",
+   "fix": "Below 1240 open the detail in a KOS.ui.openDialog sheet (bottom sheet on the phone, side sheet on the iPad) or expand it inline under the tapped row; at minimum scrollIntoView the panel and move focus to its heading."
+  },
+  {
+   "id": "ST-26",
+   "severity": "P1",
+   "title": "IT desk: an out-of-range mark typed over a saved one (e.g. 459 for 45) and Enter silently erases the unit's result",
+   "workstream": "W1",
+   "expected": "fixed",
+   "evidence": "eval #/subject/it: F200 {status:done, raw:45} row \"F200 … | Done | ≈45 / 60 | Merit\"; edit, type 459 (input data-state bad), Enter -> KOS.itUnits.get(\"F200\") {status:\"sitting\", raw:null, ums:null}; row \"Sitting · date not set | + Enter mark | —\"; no toast. js/modules/itdesk.js:221-225 (invalid -> value \"\"), :277-282 (empty on a done unit -> clearResult).",
+   "rootCause": "",
+   "fix": "Distinguish an emptied field (inp.value === \"\") from an invalid one: on invalid, keep editing, focus the field and say \"Enter 0–60\"; clearing a result should ask (or offer Undo)."
+  },
+  {
+   "id": "ST-07",
+   "severity": "P2",
+   "title": "Topic inspector and Assignments controls stay 30-32px tall on iPad touch (below the 44px minimum)",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "eval on #/ref/compsci/4.2.1.1 --size ipad: asst.ctx-btn minHeight 32px, ui.status-select 32px, topic.reader-page-select min-height 0 -> 30px, label.k-ts-check 33px; #/assignments ui.status-select 148x30. css/views/study.css:414 '.k-insp-asst button {min-block-size: var(--hit)}' (0,1,1) beats css/views/assistant.css:517 coarse rule (0,1,0); css/views/study.css:231 '.k-topic-page-select {min-block-size: 0}'; study.css:428 '.k-ts-select {min-block-size: var(--rag-pick)}' (32px) override css/base.css:115-119. | Recheck 6 Nov (kos-redraw-1, slot 5): Sweep --size ipad: ui.status-select 560x32, asst.ctx-btn 350x32, topic.reader-page-select 30px, input.k-box 18x18, Assignments ui.status-select 30px tall, k-asg-subin 35px; also Card stats review.retention 67x30 and review.exam-target 66x30, and the Handwritten tab's ink.paper-chip 32px and 'Draw with a finger' switch 34x20 on iPad and iPhone (sc5-ipad.json, tabs5-ipad.json, tabs5-iphone.json).",
+   "rootCause": "base.css touch rule is :where() zero specificity, so any class that sets min-block-size (even 0) wins",
+   "fix": "Add these to the study.css coarse block at :1184 (.k-insp-asst button, .k-ts-select, .k-topic-page-select, .k-ts-check, the assignment filter selects -> min-block-size: var(--hit-coarse)); or make the base touch rule a layered override that view rules can't silently undercut (e.g. a tools/smoke check that every control under pointer:coarse measures >=44)."
+  },
+  {
+   "id": "ST-08",
+   "severity": "P2",
+   "title": "Study-space heroes are seven different heights on one shared component",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/study-core/heroes-compare-mac.png (CS, Code, Japanese, Mind, Creatives cropped one above the other), shots/study-core/ipad-cs-vs-maths.png; eval scratchpad/qa/sc-hero.js at mac/ipad/iphone (numbers above). Duplicated per-space rules: css/views/code.css:162-163, css/views/japanese.css:82,172, css/views/mind.css:103-104, css/views/creatives.css:26-27 (identical grid-template-rows/path padding/border written four times); css/views/study.css:54-55 makes the side column follow the hero. | Recheck 6 Nov (kos-redraw-1, slot 5): Re-measured (hero5.js): mac CS/Maths/IT 189, Code 292, Mind 296, Japanese 339, Creatives 341; iPad CS 347, Maths/IT 297, Code 459, Mind 482, Ja 507, Cr 509; iPhone CS 255, Maths/IT 205, Cr 309, Code 379, Mind 402, Ja 438 — identical to the first audit.",
+   "rootCause": "each study space extends the shared hero with its own path/bars markup and duplicated CSS; height is content-driven",
+   "fix": "Promote the path strip to one shared part of the hero (.k-subj-hero-path in study.css with a fixed row height, one label style, shared ellipsis rule) and give the bar column a fixed number of rows (pad to 4 or set a fixed hero min-block-size per breakpoint) so every desk's hero is one height; give CS/Maths/IT a path strip too (their units, as Course units already lists) or a matching fixed height. Let the side 'Start here' cards size to content and fill the rest with the next card (Due/Deadlines) instead of stretching."
+  },
+  {
+   "id": "ST-09",
+   "severity": "P2",
+   "title": "Subject pills clip 'Study spa…' inside a nested scroller on iPad portrait",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/study-core/ipad-cs-vs-maths.png (top nav row); eval --size ipad: .k-seg x88 w288 scrollWidth 330 overflow auto, parent .k-subnav w716 sw716. css/components.css:52 (.k-seg overflow-x:auto, max-inline-size:100%), css/components.css:80 (.k-subnav flex). | Recheck 6 Nov (kos-redraw-1, slot 5): eval --size ipad #/subject/maths: .k-seg x88 w223 scrollWidth 330 overflow-x auto (narrower than before: 223 vs 288).",
+   "rootCause": "nested shrinkable scroller inside the declared scroller",
+   "fix": ".k-subnav > .k-seg { flex: none; } so the declared outer k-subnav-scroller owns overflow (it already has arrows), as invariant 50 requires."
+  },
+  {
+   "id": "ST-10",
+   "severity": "P2",
+   "title": "Assignment list rows draw a rule through the middle: .k-asg-sub is two different things",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/study-core/s-assign-mac.png, zoom shots/study-core/s-assign-row-crop.png; elementsFromPoint under the title hits .k-asg-sub. css/views/study.css:856 (.k-asg-sub as caption) vs css/views/study.css:879 (.k-asg-sub as subtask row with border-block-start). | Recheck 6 Nov (kos-redraw-1, slot 5): css/views/study.css:856 and :879 still both define .k-asg-sub (list sub-line and subtask row with border-block-start); js/modules/assignments.js:158 and :239 use the one class for both.",
+   "rootCause": "class-name collision between two components in one stylesheet",
+   "fix": "Rename the subtask row (e.g. .k-asg-subtask, and its -t/-x parts) in js/modules/assignments.js and study.css:879-883; add the pair to smoke55's collision guard like the Review/Wishlist ones."
+  },
+  {
+   "id": "ST-11",
+   "severity": "P2",
+   "title": "Weakest/Continue card ellipsises a word mid-title on the phone ('4.5.4.8 Norm… of floating point form')",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/study-core/s-compsci-iphone-next-crop.png (dpr2); .k-subj-next-t measured 110x65 on iphone. css/views/study.css:60 (nowrap/overflow/ellipsis), :1171 (white-space: normal only). | Recheck 6 Nov (kos-redraw-1, slot 5): Sweep --size iphone #/subject/compsci: span.k-subj-next-t 110x65 ellipsis ('4.5.4.8 Normalisation of floati…'); also on mac 208x22 and iPad 270x22.",
+   "rootCause": "ellipsis rules kept when wrapping is enabled",
+   "fix": "At <=700 set overflow: visible; text-overflow: clip; overflow-wrap: anywhere (or a -webkit-line-clamp: 3 box) on .k-subj-next-t; put the ref on its own line in the phone layout; add a space or aria-label between ref and title."
+  },
+  {
+   "id": "ST-12",
+   "severity": "P2",
+   "title": "A topic's tab strip forgets its scroll on every redraw, leaving the selected tab off-screen on the phone",
+   "workstream": "W2",
+   "expected": "fixed",
+   "evidence": "eval --size iphone #/ref/compsci/4.1.1.4: after selecting Handwritten the tab is at x 223-330 (scrollLeft 275); after KOS.rerender() it is at x 498-605, scrollLeft 0. shots/study-core/q-topic-spec-iphone.png. js/modules/hub.js:2746 KOS.ui.scroller(tabBar, {keepRole, prevLabel, nextLabel}) with no keep/reveal. | Recheck 6 Nov (kos-redraw-1, slot 5): eval --size iphone #/ref/compsci/4.1.1.4: Handwritten selected, after KOS.rerender() the tab is at x 498 w107 (off a 402px screen), strip scrollLeft 0.",
+   "rootCause": "scroller created without keep/reveal",
+   "fix": "Pass keep: 'topic-tabs' and reveal: the selected tab (KOS.ui.scroller({keep, reveal})) as the term ribbon and edge-marked tabs do, and reveal the selected tab on a tab change too."
+  },
+  {
+   "id": "ST-13",
+   "severity": "P2",
+   "title": "Due today's progress meter draws one pip per card: a 308-card queue is a 108px wall of 308 dashes",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/study-core/q-due-mac.png; eval on #/due: [data-ui~=fc.pip] count 308, fc.meter 560x108. js/engines/flashcards.js:271-273, css/views/study.css:453-455. | Recheck 6 Nov (kos-redraw-1, slot 5): eval: Overdue-first run on the seeded account draws 245 fc.pip spans; js/engines/flashcards.js:271-273 unchanged.",
+   "rootCause": "meter scales linearly with deck size",
+   "fix": "Above ~30 cards draw one continuous bar (done/total, with the current position) instead of pips, e.g. KOS.ui progress bar with a 'n of N' label; keep pips for small topic decks."
+  },
+  {
+   "id": "ST-14",
+   "severity": "P2",
+   "title": "Card stats' RAG column is always empty: the dot is a 0x0 inline span",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/study-core/q-cardstats-mac.png (RAG column blank); eval: table td .k-spine-dot getBoundingClientRect 0x0, display inline, data-band 'a'. js/modules/cardstats.js:357, css/views/study.css:162. | Recheck 6 Nov (kos-redraw-1, slot 5): eval #/cardstats: table td .k-spine-dot 0x0, display inline.",
+   "rootCause": "component rule assumes a flex parent",
+   "fix": "Give .k-spine-dot display:inline-block (or render KOS.rag's chip with its label, 'Amber'), and label the last column ('Charts') or make the whole row the link."
+  },
+  {
+   "id": "ST-15",
+   "severity": "P2",
+   "title": "The spec spine drawer (iPad portrait, iPhone) opens at the top of the subject, not at the topic you are on, and does not take focus",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/study-core/q-spine-iphone.png (drawer at 4.1 while on 4.4.1.3 Kinds of abstraction); eval --size iphone and --size ipad after clicking [data-ui~=study.spine-open]: current entry y 2416/2424, drawer scrollTop 0, activeElement BODY. js/modules/hub.js:368-375 setTreeClosed only toggles drawerOpen/applyTreeCollapsed; no scrollIntoView or focus. | Recheck 6 Nov (kos-redraw-1, slot 5): eval --size iphone #/ref/compsci/4.4.1.3, open the spine: the active leaf 'Kinds of abstraction' is at y 2416 inside the drawer, focus stays on body.",
+   "rootCause": "drawer open path does no reveal/focus management",
+   "fix": "When the drawer opens, scroll the aria-current entry into view (block: 'center') and focus it (or the filter); trap/restore focus as an overlay (or use KOS.ui.openDialog's focus handling) and return focus to ☰ on close."
+  },
+  {
+   "id": "ST-16",
+   "severity": "P2",
+   "title": "Card stats' Due forecast draws the coming days' bars in --s3, darker than the card they sit on (near invisible)",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/study-core/q-cardstats-mac.png and shots/study-core/q-cardstats-dawn-ipadl.png (Due forecast); eval: rect fill oklch(0.14 0.008 265), body oklch(0.165 0.008 265). js/modules/cardstats.js:268 bars(forecast, {color: 'var(--s3)'}). | Recheck 6 Nov (kos-redraw-1, slot 5): eval #/cardstats: SVG rect fills include oklch(0.14 0.008 265) on a card of oklch(0.2 0.009 265).",
+   "rootCause": "surface token used as a data colour",
+   "fix": "Use the scope hue (HUE[sid] / --teal, as Reviews per day does) or --muted for future days, keeping --alarm for overdue; check the result in Dawn and a shop theme."
+  },
+  {
+   "id": "ST-17",
+   "severity": "P2",
+   "title": "On iPad portrait the topic inspector is stacked under the whole tab, ~1,700-2,600px down, behind a right-pointing collapse chevron",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/study-core/empty-topic-ipad.png (Inspector heading under the notes, '›' at right); measurement --size ipad on #/ref/compsci/4.1.1.1: ui.status-select y 1765, asst.ctx-btn y 2591 (Spec), 1227/2053 (Notes). | Recheck 6 Nov (kos-redraw-1, slot 5): Sweep --size ipad: inspector's ui.status-select at y 839-1785 depending on the tab, Ask Kurenai at y 1613-2071, all below the panel.",
+   "rootCause": "no tier for the inspector between the side column and the phone layout",
+   "fix": "Between 700 and 1080 open the inspector as an overlay side sheet from a header button (as the spine drawer does), or as a compact strip of status + checks above the tabs with the rest in a sheet; give the stacked state a down/up chevron."
+  },
+  {
+   "id": "ST-27",
+   "severity": "P2",
+   "title": "Opening a topic's Quiz tab writes a quiz record, and the subject desk then reports \"Quiz best 0% · 0 attempts across 1 topic\"",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "eval (empty account): state.study.quiz before {} ; after clicking [data-tab=quiz] on #/ref/compsci/4.2.2.1 {\"compsci:4.2.2.1\":{attempts:0,best:0,lastPct:0}}; #/subject/compsci analytics tile text \"Quiz best | 0% | 0 attempts across 1 topic\". js/engines/quiz.js:16-21 (q[k] = q[k] || {...}), :58; js/modules/hub.js:119-129, :2200-2203.",
+   "rootCause": "Read helper doubles as initialiser.",
+   "fix": "Make qstats a pure read (return a default without assigning) and create the record only in finish(); subjectQuizStats should skip records with attempts 0."
+  },
+  {
+   "id": "ST-28",
+   "severity": "P2",
+   "title": "Assignment status buttons: a finished assignment shows two \"↺ Reopen\" buttons that do different things, and an open one offers \"Reopen\" to mean \"set back to Not started\"",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "eval on fixture id 18 (3 subtasks ticked, Complete): buttons [\"✎ Edit\",\"Unpin\",\"◉ Focus on this\",\"↺ Reopen\",\"↺ Reopen\",\"Blocked\",\"⇪ Submitted\"]; after the first Reopen status \"notStarted\", progress 100. js/modules/assignments.js:306-313.",
+   "rootCause": "",
+   "fix": "For a finished assignment show ONE Reopen (to In progress, or Not started when progress is 0); for an open one label the button \"Not started\"."
+  },
+  {
+   "id": "ST-29",
+   "severity": "P2",
+   "title": "Due today's By topic list cuts every topic name to ~18 characters on the phone while its second line sits half empty",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/study-core/t-review-iphone.png; measurement --size iphone #/review: 20 ELLIP span.k-rv-topic-t 158x21; --size ipad: 16 ELLIP 253x21 (sc5-iphone.json, sc5-ipad.json).",
+   "rootCause": "",
+   "fix": "Under 700px let the title take the full first line and wrap to two lines (line-clamp 2), with the ▶ moved to the chip line or the whole row the button."
+  },
+  {
+   "id": "ST-30",
+   "severity": "P2",
+   "title": "Due today reviews are logged with no subject or topic, even a one-topic run, so they never count for a subject's streak, the topic's sessions or per-subject time",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "eval: KOS.show(\"review\",{tab:\"due\",run:\"compsci:4.2.3.1\"}), 7 cards rated -> last entry {type:\"due-review\", subject:null, ref:null, metrics:{cards:7,…}}, KOS.sessions.parts(e) subject null. js/modules/due.js:258-264; js/engines/flashcards.js:349-354; js/core/sessions.js:166-176.",
+   "rootCause": "",
+   "fix": "Pass sid/ref for a topic run; for a mixed run log refs (and a subject when single) or metrics.segments per subject so parts() splits it."
+  },
+  {
+   "id": "ST-18",
+   "severity": "P3",
+   "title": "Unit cards print 'completed · 0 started' (a supporting zero, invariant 77)",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/study-core/e-compsci-mac.png (Course units row); js/modules/hub.js:2065 always appends ' completed · ' + started + ' started'. | Recheck 6 Nov (kos-redraw-1, slot 5): eval --size ipad #/subject/maths (seeded): 'P1 | Proof | 0 / 1 completed · 0 started'; empty iPhone CS desk shot shots/study-core/t-empty-cs-iphone.png '0 / 17 completed · 0 started'.",
+   "rootCause": "hub.js:2065 unconditional string",
+   "fix": "Append ' · n started' only when started > 0."
+  },
+  {
+   "id": "ST-19",
+   "severity": "P3",
+   "title": "Inspector's Quiz best and attempts do not update when a quiz finishes",
+   "workstream": "W2",
+   "expected": "fixed",
+   "evidence": "eval on #/ref/compsci/4.2.2.1: after the last 'See your score', record attempts 1 / best 6, inspector still 'Quiz best 0%'; after KOS.rerender() it reads 6%. js/engines/quiz.js:150-165 finish() saves and logs but does not refresh the inspector. | Recheck 6 Nov (kos-redraw-1, slot 5): Fixture: after the quiz's 'See your score' the record is {attempts:1,best:5} but the inspector still reads 'Quiz best 0%', 'Quiz attempts —'; the inspector also stays stale after a finished flashcard batch ('Card views 3', 'Cards scheduled 3 / 16' while 16 were rated) — kos-redraw-1 holds the background redraw on study pages, so nothing refreshes it until navigation.",
+   "rootCause": "engine writes state without notifying the inspector",
+   "fix": "Have finish() trigger the topic page's inspector refresh (the same hook the flashcard engine uses after a rating), or KOS.rerender with keep."
+  },
+  {
+   "id": "ST-20",
+   "severity": "P3",
+   "title": "Streak milestone note repeats '36-day streak' once per milestone, and missing milestone records pay every past milestone at once",
+   "workstream": "W1",
+   "expected": "fixed",
+   "evidence": "eval KOS.governor.lastAward(): {gold:56, notes:['36-day streak' x4]}; state.governor.milestones afterwards streak3..30 dated 09-30..10-27. js/core/governor.js:330-339. | Recheck 6 Nov (kos-redraw-1, slot 5): Completing an assignment on the seeded account: toast '+5 XP · +55 gold · 36-day streak, 36-day streak, 36-day streak, 36-day streak'; js/core/governor.js:329-340 unchanged.",
+   "rootCause": "note uses stk; milestone key derived from a recomputed streak length",
+   "fix": "Push ms + '-day streak' (and collapse to one note), pay only the highest newly reached milestone when several are pending, and key the run by its first ledger date that is not subject to the cap (or store the run start once)."
+  },
+  {
+   "id": "ST-21",
+   "severity": "P3",
+   "title": "Quiz \"Next question\" shows a keyboard Enter hint (↵) on touch devices",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/study-core/q-quiz-result-iphone.png | Recheck 6 Nov (kos-redraw-1, slot 5): eval --size iphone (touch) on the Quiz tab: Next question button text 'Next question →\\n↵' with the ↵ span display flex.",
+   "rootCause": "kbd hint rendered regardless of input type",
+   "fix": "Hide key hints under (hover: none) and (pointer: coarse), as other kbd hints should be."
+  },
+  {
+   "id": "ST-22",
+   "severity": "P3",
+   "title": "Study editor card headers print raw ISO dates and wrap \"Card 1\" onto two lines on the phone",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/study-core/q-editor-mac.png, shots/study-core/q-editor-iphone.png | Recheck 6 Nov (kos-redraw-1, slot 5): js/modules/editor.js:423-424 unchanged: 'due ' + m.due prints the raw ISO date.",
+   "rootCause": "raw card.due string in js/modules/editor.js row header",
+   "fix": "Format with the app date helper (\"due 29 Oct\", \"4 days overdue\"), keep the label nowrap, and put the meta on its own line under the phone tier."
+  },
+  {
+   "id": "ST-23",
+   "severity": "P3",
+   "title": "Empty Review, Due today and Assignments are dead ends with zero rows and placeholder panels",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/study-core/q-empty-review-mac.png, q-empty-due-mac.png, q-empty-assignments-mac.png; js/modules/due.js:222-236 (Today so far always drawn). | Recheck 6 Nov (kos-redraw-1, slot 5): shots/study-core/t-empty-review-mac.png (empty account): '0 cards due', 'Nothing due in any topic today', Today so far Reviewed 0 / Accuracy — / Time 0 min, Next 7 days with an empty week.",
+   "rootCause": "empty states render the populated layout's scaffolding",
+   "fix": "Hide 'Today so far' until something was reviewed today and collapse the empty forecast to its sub-line; give Due today's empty state the next action from KOS.homeFocusPlan / Continue; hide the assignment filters and the detail column while the list is empty and let the empty state with its 'New assignment' button take the width."
+  },
+  {
+   "id": "ST-24",
+   "severity": "P3",
+   "title": "New assignment: a missing title is reported only in a toast; the field is not marked or focused, and a subject-less assignment can never be focused on",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/study-core/q-asg-new-iphone.png; eval --size iphone: after Save, title aria-invalid null, activeElement not the title, #toast text 'An assignment needs a title.'; field heights 39-42. js/modules/assignments.js:316 (Focus button only when a.subject). | Recheck 6 Nov (kos-redraw-1, slot 5): eval (empty account): Save with no title -> toast 'An assignment needs a title.', title aria-invalid null (focus was already on the title from opening).",
+   "rootCause": "validation via toast only; Focus link gated on subject",
+   "fix": "Mark the field (aria-invalid + aria-describedby to an inline error) and focus it; either require a subject or let Focus run on a subject-less assignment (Focus's own subject picker); raise sheet controls to --hit-coarse."
+  },
+  {
+   "id": "ST-31",
+   "severity": "P3",
+   "title": "Subject analytics \"Started\" says \"opened at least once\" but counts only topics given a status by hand",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "eval #/subject/compsci after the fixture: analytics tiles [\"Started | 0 / 131 | 0% opened at least once\", \"Reviewed | 16 / 2111\", \"Quiz best | 5% | 1 attempt across 1 topic\", \"Streak | 1 day\"]. js/modules/hub.js:75, :2190-2192.",
+   "rootCause": "",
+   "fix": "Reword to \"given a status\" / \"marked started or further\", or count topics with any evidence (cards rated, quiz attempted, pages read)."
+  },
+  {
+   "id": "ST-32",
+   "severity": "P3",
+   "title": "An unknown topic ref shows the subject desk under the bad #/ref URL instead of replacing the route",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/study-core/t-badref-mac.png; eval: location.hash \"#/ref/compsci/4.2.2.2\", #main h1 \"Computer Science\".",
+   "rootCause": "",
+   "fix": "In KOS.views.ref, when the leaf is unknown, history.replaceState to #/subject/<sid> (or Home) and toast \"That topic is not in the specification\"."
+  },
+  {
+   "id": "ST-33",
+   "severity": "P3",
+   "title": "Subject analytics tiles stretch to the side column: ~40% of each tile is blank and the explanatory sub-lines are screen-reader only",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/study-core/t-badref-mac.png (CS desk, mac); eval: tile height 117, k-sa-k y426 h19, k-sa-v y449 h41, bar y495 h3; part.caption class sr-only. css/views/study.css:77-78; js/modules/hub.js:2185-2210.",
+   "rootCause": "",
+   "fix": "Show the sub-line visibly (12px muted) in the space that is already there, or let the grid size to content and the side column align differently."
+  },
+  {
+   "id": "ST-34",
+   "severity": "P3",
+   "title": "An assignment due earlier today reads \"Overdue · 1 day\"",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "eval fixture KOS.assignments.add({due: today, dueTime: \"00:01\"}) on #/assignments: row text \"ZZ fixture late today / CS · Homework / 0% / Overdue · 1 day / Overdue\". js/modules/assignments.js:44.",
+   "rootCause": "",
+   "fix": "When daysLeft is 0, print \"Overdue · since \" + dueTime (or \"Late today\")."
+  },
+  {
+   "id": "ST-35",
+   "severity": "P3",
+   "title": "Assignments have no URL of their own: #/assignments/<id> is ignored and a reload or Back loses the open assignment",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "eval: KOS.show(\"assignments\",{id:18}) -> location.hash \"#/assignments\", panel \"ZZ fixture tonight\"; after location.reload() panel \"NEA — Analysis section…\" (id 1); #/assignments/18 -> panel id 1. js/core/router.js:54-147 (no assignments entry); js/modules/assignments.js:67-72; js/modules/goals.js:660.",
+   "rootCause": "",
+   "fix": "Add assignments to ENCODE/DECODE ({id} <-> /<id>) and pass {id} from Goals and Home."
+  },
+  {
+   "id": "ST-36",
+   "severity": "P3",
+   "title": "The Notes page you were on is forgotten: Back, returning to the topic or any foreground redraw reopens page 1",
+   "workstream": "W2",
+   "expected": "fixed",
+   "evidence": "eval #/ref/compsci/4.2.3.1: page select \"1\" (page 2) -> after KOS.rerender() \"0\"; after history.back() from #/subject/compsci \"0\"; re-entering \"0\". (Inspector status/confidence/check changes do keep the page.) js/modules/hub.js:2983 (cur = o.keep ? notePage : 0).",
+   "rootCause": "",
+   "fix": "Remember the page per topic per device (state.ui.notePage[\"sid:ref\"]) and reopen it on redraw, Back and return; keep 0 for a first visit."
+  },
+  {
+   "id": "ST-37",
+   "severity": "P3",
+   "title": "Today so far's \"Time\" never counts a review: the flashcard engine logs no duration",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "eval: today's ledger [\"flashcards:2042:{complete:true}\" (seed), \"due-review:null:{cards:7,…}\" (mine, dur null)]; Today so far \"Reviewed 7 · Accuracy 88% · Time 34 min\" where all 34 min are the seed entry. js/modules/due.js:222-235; js/engines/flashcards.js:349-354 (no dur).",
+   "rootCause": "",
+   "fix": "Record the batch's active seconds (first flip to finish, idle gaps capped) as dur; hide Time when it is 0."
+  },
+  {
+   "id": "ST-38",
+   "severity": "P3",
+   "title": "Subject Resources accept a \"file path\" the link can never open: /Users/…/week1.pdf becomes a link into the app's own site",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "eval #/subject/maths: Add, name \"Week 1 sheet\", link \"/Users/fj/Documents/week1.pdf\" -> rendered a.href \"http://127.0.0.1:9105/Users/fj/Documents/week1.pdf\". js/modules/hub.js:2316-2318 (href: r.url), :2335-2348 (placeholder \"https://… or file path\", no validation).",
+   "rootCause": "",
+   "fix": "Accept http(s) URLs only (prefix https:// when missing a scheme), and point \"a file\" to Files (Add file → linked to the subject/topic)."
+  },
+  {
+   "id": "ST-39",
+   "severity": "P3",
+   "title": "Card stats with no history: one figure in a full-width card, and the page header changes shape between Due today and Card stats",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/study-core/t-empty-cardstats-mac.png vs shots/study-core/t-empty-review-mac.png (mac, empty account).",
+   "rootCause": "",
+   "fix": "Put the scope pills in the body (a section header), keep one header for both tabs; in the low-data state merge the scope count into the empty-state line."
+  },
+  {
+   "id": "ST-40",
+   "severity": "P3",
+   "title": "Assignment progress has two owners: the editor's Progress % is silently overwritten by the subtasks",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "eval KOS.assignments: add({progress:40}) p=40; subAdd -> 0; update({progress:80}) -> 80; subToggle(done) -> 100; subToggle(undone) -> 0. js/core/assignments.js:279-312 (subAdd/subToggle -> syncProgress); js/modules/assignments.js editModal Progress % field.",
+   "rootCause": "",
+   "fix": "When an assignment has subtasks, show progress as derived (read-only, \"from subtasks\") in the editor; otherwise keep the manual field."
+  },
+  {
+   "id": "ST-41",
+   "severity": "P3",
+   "title": "The spec spine truncates most unit names on the Mac: \"Algebra and functi…\", \"Fundamentals of data structure…\"",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/study-core/t-topic-dawn-mac.png (Maths spine, Dawn); measurement mac #/ref/compsci/4.2.3.1: ELLIP span.k-spine-title 138x21 ×12, k-spine-grp-t 188x17, part.lead 197x20 (sc5-mac.json).",
+   "rootCause": "",
+   "fix": "Allow two lines (line-clamp: 2) for unit titles and leaf leads; or drop the common \"Fundamentals of\" prefix in the spine label."
+  },
+  {
+   "id": "ST-42",
+   "severity": "P3",
+   "title": "Topic inspector prints a column of dashes on a topic with no activity (8 \"—\" rows)",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/study-core/t-topic-dawn-mac.png (#/ref/maths/1.1, empty account, Dawn); js/modules/hub.js:3215-3235 (li(label, value, empty) rows always drawn).",
+   "rootCause": "",
+   "fix": "Collapse the Recall record/Next review sections to one sentence until the topic has any evidence; print each row only when it has a value."
+  },
+  {
+   "id": "ST-43",
+   "severity": "P3",
+   "title": "Inspector's \"Review queue\" prints a raw ISO date (\"2026-11-08\")",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "eval inspector text on #/ref/compsci/4.2.2.1 after rating its cards: \"NEXT REVIEW\\nReview queue\\n2026-11-08\". js/modules/hub.js:3229 (nextTxt = t.next).",
+   "rootCause": "",
+   "fix": "Format with the shared day label (\"Sun 8 Nov · in 2 days\")."
+  }
+ ]
+}

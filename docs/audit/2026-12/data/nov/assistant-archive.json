@@ -1,0 +1,296 @@
+{
+ "area": "assistant-archive",
+ "source": "origin/audit/quality-2026-11:docs/audit/2026-11/findings.json + data/plan-mapping.json",
+ "findings": [
+  {
+   "id": "AA-01",
+   "severity": "P1",
+   "title": "'Undoable' Assistant actions cannot be undone: the undo each tool returns is collected and never offered",
+   "workstream": "W2",
+   "expected": "fixed",
+   "evidence": "shots/assistant-archive/chat-tool-add-mac.png; eval: buttons in .k-asst-thread = ['Copy'], state.reminders.items[0].title 'Revise BFS and DFS'. js/core/aitools.js:1919-1920 (undo returned); js/core/aiorchestrator.js:754 (req.undos.push), :451, :1046 (lastUndos exposed); grep finds no caller of lastUndos/undos outside aiorchestrator.js; js/modules/assistant.js:2518 ('runs, undoable')",
+   "rootCause": "Undo plumbing finished in the orchestrator but the presentation half was never built",
+   "fix": "Render an Undo button on each verified-action card (and a toast with Undo, as Day Review does) wired to that call's undo.run, marking the card and the audit row 'Undone'. Keep it available until the conversation changes."
+  },
+  {
+   "id": "AA-02",
+   "severity": "P1",
+   "title": "Reopened chat starts at the oldest message, and from then on new replies and approval cards land off-screen",
+   "workstream": "W2",
+   "expected": "fixed",
+   "evidence": "shots/assistant-archive/chat-approval-mac.png (approval pending, card not visible, thread at top); eval {reopen:{st:0,sh:1110,ch:617}, after send:{st:0,sh:1268}}. js/modules/assistant.js:1615-1623 (atBottom measured before the scroller is in the document; no scroll on own send or on a pending card)",
+   "rootCause": "atBottom computed on a detached node; no explicit scroll on send/approval",
+   "fix": "Scroll to the end after the first mount (requestAnimationFrame after insertion) and always when the user sends or a confirmation card appears; keep the 'only if at bottom' rule only for streamed additions, and show a 'New message ↓' pill when not following."
+  },
+  {
+   "id": "AA-11",
+   "severity": "P1",
+   "title": "Import backup replaces everything on this device the moment a file is picked: no confirmation, no summary, no undo",
+   "workstream": "W1",
+   "expected": "fixed",
+   "evidence": "audit-evidence/2026-11/qa/rt18/ink2.js result {money:['tA','tB'] (tZ gone), dialog:false}; js/modules/hub.js:3356-3378 (onchange -> importFull directly), 3376 title-only warning; js/core/store.js:623 replaceState before any check of what is lost, :727 noteRestore",
+   "rootCause": "Restore was wired as a direct file-input action; the danger-dialog pattern used by Reset was never applied to the equally destructive import.",
+   "fix": "Before restoring, parse the file and show a KOS.ui.openDialog danger confirm (Cancel focused) naming the backup's date and counts against what is on this device now, offering 'Export a backup of this device first'; say that a signed-in device will overwrite the cloud copy."
+  },
+  {
+   "id": "AA-03",
+   "severity": "P2",
+   "title": "Composer hint 'Shift + Enter for a new line' floats mid-height while the send button sits at the bottom",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/assistant-archive/composer-multiline-crop.png (5 lines: hint y=729, send y=760..800, textarea 675..800); chat-mac.png; chat-ipad.png shows the hint on touch. css/views/assistant.css:214 (.k-asst-composer align-items:flex-end), :220 (.k-asst-hint align-self:center); js/modules/assistant.js:913 (hint omitted only when compact)",
+   "rootCause": ".k-asst-hint align-self:center inside a flex-end row",
+   "fix": "Give the hint align-self:flex-end with a margin-block-end that puts its centre on the send button's centre (or move it under the box as a small caption, left of the send). Hide it under (pointer:coarse) / when no hover, not only in compact mode."
+  },
+  {
+   "id": "AA-04",
+   "severity": "P2",
+   "title": "Opening a Morning/Evening review notification lands on Routines Today and never opens the review",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "eval: clicking the 'Morning review' row on #/notifications → location.hash '#/routines', no dialog open. js/core/dayreview.js:713 (view:'routines', arg:{review:slot}); js/core/notify.js:196-199 (open); js/modules/routines.js:469-473 (arg.review never read); grep finds no reader of arg.review anywhere.",
+   "rootCause": "Producer and consumer of the notification's arg disagree; no handler for {review}",
+   "fix": "In KOS.views.routines (or better, in notify.open for kind 'review') call KOS.reviewSheet.open(arg.review) after drawing Today, the way the header chip opens it."
+  },
+  {
+   "id": "AA-05",
+   "severity": "P2",
+   "title": "History's 'Open Account & Cloud Sync' button opens the Collection's Sync & Import page, which has no sign-in",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "js/modules/assistant.js:2075 onclick KOS.show(\"mediasync\"); eval KOS.show('mediasync') → headings 'Sync & Import, AniList, VNDB, Games…', no input[type=email]; the sign-in form is on #/data (shots/assistant-archive/data-mac.png).",
+   "rootCause": "Hard-coded wrong view id",
+   "fix": "KOS.show('data') and focus the account card's email field (one shared helper, e.g. KOS.cloudUI.openSignIn(), used by every 'sign in first' message)."
+  },
+  {
+   "id": "AA-06",
+   "severity": "P2",
+   "title": "Every 'sign in first' message points to 'Archive → Account & Cloud Sync', a page that does not exist, and offers no button",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/assistant-archive/chat-send-signedout-mac.png; shots/assistant-archive/memory-mac.png; js/core/ai.js:152,154; js/modules/assistant.js:2299; js/core/cloud.js:142-143; js/core/gameapi.js:23,25; js/core/vndb.js:112,281; js/core/ui.js:430-438 (Archive strip names)",
+   "rootCause": "Navigation text duplicated in many string literals instead of one link helper; page renamed in review A",
+   "fix": "Name it as the UI does ('Archive › Backup & Restore › Account & Cloud Sync') and render an inline 'Sign in' action on the Assistant error card and the Memory/History empty states that opens #/data with the email field focused. Signed out with no Ollama model, show a one-line notice above the composer before the first send instead of failing after it."
+  },
+  {
+   "id": "AA-07",
+   "severity": "P2",
+   "title": "Activity (signed out) shows every action as 'Proposed … Started' forever, with no time",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/assistant-archive/activity-after-mac.png (after a todo_add_task that the chat reported complete). js/modules/assistant.js:2587-2590 (filter r.kind === 'insert'); js/core/aiorchestrator.js:232-250 (status changes are separate 'update' rows; the insert payload has no created_at)",
+   "rootCause": "Queue reader ignores update rows; insert payload lacks a timestamp",
+   "fix": "When reading the queue, fold each 'update' patch into its insert by id and use the queue entry's ts as created_at."
+  },
+  {
+   "id": "AA-12",
+   "severity": "P2",
+   "title": "Restoring a backup MERGES handwriting instead of replacing it (every other store is cleared first)",
+   "workstream": "W1",
+   "expected": "fixed",
+   "evidence": "rt18/ink2.js result inkDocs ['topic:cs:4.1.1','topic:cs:4.1.2'] vs money ['tA','tB']; js/core/ink.js:531-541 (no clear) vs js/core/money.js:1097, js/core/mediadb.js:1373-1374, js/core/reviewlog.js:108, js/core/mindjournal.js:167, js/core/creatives.js:467",
+   "rootCause": "ink.importAll was written as an additive put, unlike the shared clear-then-put pattern of the other importAll functions.",
+   "fix": "Clear docs, pages, base and dead (and reset the in-memory index) in ink.importAll before putting the backup's pages, like the other stores."
+  },
+  {
+   "id": "AA-13",
+   "severity": "P2",
+   "title": "Full backup leaves out saved Reports (weeks, months, words) and Money pot pictures, so a restore loses them",
+   "workstream": "W1",
+   "expected": "fixed",
+   "evidence": "Round trip: /tmp/kosqa18-before.json reports 11 -> after restore 5 (keys month:2026-09, month:2026-10, week:2026-10-12/19/26); backup keys = state, mediaEntries, mediaKV, attachments, creatives, ink, mind, money{tx,del}, reviews; js/core/store.js:513-585 (no reportStore / pics step); js/core/money.js:1079-1090 exports TX/DEL only",
+   "rootCause": "Each new IndexedDB was added to the backup by hand; reports and pot pictures were missed and nothing checks the backup covers every kurenai-os-* database.",
+   "fix": "Add KOS.reportStore.exportAll/importAll (reports + snapshots) and the money pics store to snapshotFull/importFull and the report list in the toast; update the Data page's 'What a backup covers'."
+  },
+  {
+   "id": "AA-14",
+   "severity": "P2",
+   "title": "Scheduled tab's day buttons are 32x44 ovals on iPad and iPhone",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/assistant-archive/sched-ipad.png; DOM measure at ipad and iphone: every 'Monday'..'Sunday' button 32x44; css/views/assistant.css:464 (.k-asst-day inline-size: var(--hit) with border-radius 50%)",
+   "rootCause": "Width bound to --hit while the global coarse rule only lifts min-block-size.",
+   "fix": "Under (pointer: coarse) set inline-size and min-inline-size to the touch hit size as well (or use the shared round-icon-button primitive)."
+  },
+  {
+   "id": "AA-15",
+   "severity": "P2",
+   "title": "Toggling a notification filter (or any Notifications switch) redraws the page and drops keyboard focus to <body>",
+   "workstream": "W2",
+   "expected": "fixed",
+   "evidence": "eval: after clicking the 'Calendar notifications' switch swStill:false, activeElement MAIN; after 'Daily Review' activeElement BODY; js/modules/notifications.js:320-321, js/core/notify.js:102-108 (emit), :115-119",
+   "rootCause": "The notify change event triggers a full view rebuild instead of a targeted update, with no focus restoration.",
+   "fix": "Update the switch and counts in place (or restore focus by data-ui/aria-label after the redraw, as KOS.rerender does for other views)."
+  },
+  {
+   "id": "AA-16",
+   "severity": "P2",
+   "title": "Help & Guide is badly out of date: no entry for the Assistant, Money, Goals, Reports, Exams hub, Code, Japanese, Mind, Creatives, Achievements or Connections, and several entries describe removed features",
+   "workstream": "W8",
+   "expected": "partly (W8 did only what paid off)",
+   "evidence": "shots/assistant-archive/help-seed-mac.png, help-iphone.png; eval guide search: {japanese:'Nothing matches', assistant:'Nothing matches', money:['Kurenai\\'s words'], goal:['Planner']}; js/modules/help.js:9-110 (SECTIONS), :11, :13, :57, :61, :79, :106",
+   "rootCause": "Help is a hand-maintained array with no test tying it to the registered views, so each release added pages without guide entries.",
+   "fix": "Add a section per study space and per Productivity/Archive page added since (Assistant, Money, Goals, Reports, Exams hub, Achievements, Connections, Wishlist), rewrite the stale entries, give every section a kanji, and add a smoke check that every rail view has a Help entry."
+  },
+  {
+   "id": "AA-17",
+   "severity": "P2",
+   "title": "After a backup restore the rail's profile card and the file index stay stale (Level 1, 0 gold; 'No files on this device yet')",
+   "workstream": "W2",
+   "expected": "fixed",
+   "evidence": "shots/assistant-archive/data-seed-mac.png (rail card Level 1 / 0 gold vs 'Level 53 · ◆12,476' in What a backup covers); shots/assistant-archive/storage-seed-mac.png; eval {g:{xp:71802,gold:12476}, lvl:53, card:'Your profile — Level 1, Healthy, 0 gold'}; eval KOS.files.all().length 0 before refresh, 1 after; js/modules/hub.js:3370-3372; js/core/cloudsync.js:723-731",
+   "rootCause": "Each in-memory cache (HUD, files index) is refreshed only by its own events; replaceState has no broadcast that the caches subscribe to.",
+   "fix": "Give restore and remote-apply one 'state replaced' hook that calls refreshHUD, KOS.files.refresh, the theme apply and the rail counters (or simply reload the page after a restore, as the safest complete answer)."
+  },
+  {
+   "id": "AA-18",
+   "severity": "P2",
+   "title": "Assistant Settings' 'Simple data requests' route is a dead control: nothing ever asks for the crud category, yet its 'Ollama · no model set' status shows on every Assistant page",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/assistant-archive/settings-mac.png, memory-mac.png (footer); grep: the only uses of 'crud' are js/core/ai.js:35,44,87, js/core/aitools.js:3739 (a tool-ranking hint), js/modules/assistant.js:2136,2231; categories passed: assistant.js:686 and :1702 default 'complex'",
+   "rootCause": "The four-category routing was designed before the single submission path settled on 'complex'; the setting outlived its caller.",
+   "fix": "Either route the composer's short data requests to 'crud' (a real classifier) or remove the row and its footer status; default the route to Gemini rather than an Ollama route with no model."
+  },
+  {
+   "id": "AA-19",
+   "severity": "P2",
+   "title": "Permissions offers 'Ask first' for read-only tools, but a read tool set to Ask first still runs without asking",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "eval: schedule_list tier 'read', options ['Default · runs freely','Ask first','Blocked']; js/modules/assistant.js:2517 (Ask first offered when tier !== consequential); js/core/aiorchestrator.js:147-155 (effectiveMode 'ask'), :726 (pause only for consequential or reversible+ask)",
+   "rootCause": "The pause condition encodes tier rules instead of reading the effective mode.",
+   "fix": "Pause whenever mode === 'ask' regardless of tier (keep the read tools' approval card short), or stop offering Ask first on read tools."
+  },
+  {
+   "id": "AA-20",
+   "severity": "P2",
+   "title": "Assistant chat header's Project picker and Pin are 21px-tall chips on iPad (touch targets far under 44px)",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "eval at ipad: 'Conversation project' 93x21 (k-asst-chip-select), 'Pin current conversation' 45x21 (k-asst-chip-btn); shots/assistant-archive/chat-head-ipad.png, chat-dawn-mac.png; js/modules/assistant.js:1811, :2026",
+   "rootCause": "Chip styles are desktop-dense and outside the global touch rule's selector.",
+   "fix": "Give the header chips the touch block-size under (pointer: coarse) (padding or a ::before hit area that does not overlap neighbours, invariant 69)."
+  },
+  {
+   "id": "AA-08",
+   "severity": "P3",
+   "title": "Assistant's side status card prints the full error as an uppercase letter-spaced eyebrow, cut off mid-word",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/assistant-archive/chat-send-signedout-mac.png (bottom-right card); js/modules/assistant.js:724 setVisual('error', 'Failed: ' + clampText(p.message, 80))",
+   "rootCause": "State label fed the provider error text",
+   "fix": "Set the label to a short state ('Couldn't finish') and leave the message in the thread."
+  },
+  {
+   "id": "AA-09",
+   "severity": "P3",
+   "title": "Verified-action card shows internals: raw tool id, 'done', and 'Target · #1'",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/assistant-archive/chat-tool-add-mac.png",
+   "rootCause": "Card renders the tool result envelope directly",
+   "fix": "Show the human result (\"Added 'Revise BFS and DFS' to Reminders\") with an Open link to the record and Undo; keep the tool id for Activity only."
+  },
+  {
+   "id": "AA-10",
+   "severity": "P3",
+   "title": "No space between consecutive blocks in an Assistant reply (table runs straight into the code block)",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/assistant-archive/chat-tool-add-mac.png; eval: table bottom 560.7 = codeblock top 560.7, margin-bottom/top 0px",
+   "rootCause": "Rich blocks (.k-asst-table, .k-asst-codeblock) carry no block spacing",
+   "fix": "Give the message body a flow gap (e.g. .k-asst-msg-body > * + * { margin-block-start: var(--sp-10) }) instead of per-element margins."
+  },
+  {
+   "id": "AA-21",
+   "severity": "P3",
+   "title": "Morning Review text has a double full stop and lower-cases the warning's title ('revision block 24 is 7 days away..')",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/assistant-archive/notif-seeded-mac.png (Morning review row: 'Exam season is on: revision block 24 is 7 days away.. A good first task'); js/core/dayreview.js:540; body built at js/core/exams.js:1078",
+   "rootCause": "String concatenation assumes the warning body has no punctuation and no proper nouns.",
+   "fix": "Strip a trailing full stop before appending and do not lower-case the body (lower-case only the first character if needed)."
+  },
+  {
+   "id": "AA-22",
+   "severity": "P3",
+   "title": "Permissions on iPhone: each area's disclosure chevron is pushed off-screen and the filter field floats unaligned",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/assistant-archive/perm-iphone.png; eval at iphone: .k-asst-chev rect [414,385,6,20], parent row [38..364]; filter 200x32 vs Reset 44 tall; js/modules/assistant.js:2494, 2545-2553",
+   "rootCause": "Desktop flex row with fixed widths and no phone tier.",
+   "fix": "Let the summary row wrap (tier dots onto a second line) or drop the tool count at phone width; make the filter fill the row width under 560px and match the button height."
+  },
+  {
+   "id": "AA-23",
+   "severity": "P3",
+   "title": "Storage page leaves dead space: a lone card on the last row and three mostly empty cards stretched to the tallest one",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/assistant-archive/storage-seed-mac.png; js/modules/storage.js:127-140",
+   "rootCause": "Fixed grid with align-items: stretch and no handling of an odd card count or empty states.",
+   "fix": "Use the pack/masonry rule Reports uses (last card widens), fold the empty-state cards into one 'Nothing to tidy' line, and add the media vault and the rest of local data to 'By kind of data'."
+  },
+  {
+   "id": "AA-24",
+   "severity": "P3",
+   "title": "Account & Cloud Sync card still says attachment files upload only with 'Sync files now'",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "js/modules/cloudui.js:211, :230; js/modules/storage.js:112-115; js/core/cloudsync.js:1207, 1376",
+   "rootCause": "Copy not updated when automatic upload shipped.",
+   "fix": "Reword to 'Files under 25 MB upload on their own (Storage); Sync files now sends the rest.'"
+  },
+  {
+   "id": "AA-25",
+   "severity": "P3",
+   "title": "A scheduled message cannot be edited, its row repeats the time and uses a bare checkbox instead of the app's switch",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/assistant-archive/sched-row-mac.png; eval: row controls ['Send Morning plan on schedule' (checkbox), 'Run Morning plan now', 'Delete Morning plan']; toasts ['Pick at least one day.'] with an empty prompt",
+   "rootCause": "Row built as a minimal list item; editing was never implemented.",
+   "fix": "Add Edit (reuse the form, prefilled), use KOS.ui switch styling, drop the duplicate time from the meta line, and validate the prompt first."
+  },
+  {
+   "id": "AA-26",
+   "severity": "P3",
+   "title": "'What a backup covers' lists six things and omits half of what the file holds (Money, review log, handwriting, Mind's Journal, Creatives work, goals, routines, exams) while saying nothing about what it leaves out",
+   "workstream": "W1",
+   "expected": "fixed",
+   "evidence": "shots/assistant-archive/data-iphone.png, data-seed-mac.png; js/modules/hub.js:3405-3432 (six cover() rows); js/core/store.js:513-585 (what snapshotFull actually writes)",
+   "rootCause": "Coverage text is hand-written and was not extended as stores were added.",
+   "fix": "Build the list from the same table snapshotFull uses (one row per store with its count) and add a 'Not in the file' line."
+  },
+  {
+   "id": "AA-27",
+   "severity": "P3",
+   "title": "Storage rounds small data to '0 KB' (a 5-byte file, 2 ink pages) while Pen and ink says '1 KB of ink'",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "shots/assistant-archive/storage-iphone.png ('notes.txt 0 KB · Notes', 'Your ink 0 KB'); Pen and ink storage card '1 page in 2 notebooks · 1 KB of ink on this device'; js/modules/storage.js:22; js/modules/inkset.js:110",
+   "rootCause": "Two local size formatters with different rounding.",
+   "fix": "Share one byte formatter (ui.js) that prints '< 1 KB' (or bytes) for small non-zero sizes."
+  },
+  {
+   "id": "AA-28",
+   "severity": "P3",
+   "title": "Archive pages disagree on their kicker: 'The archive · 通' on Backup, Help and Notifications, 'Settings · 庫' on Storage, Pen and ink and Connections",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/assistant-archive/notif-seeded-mac.png, data-seed-mac.png, help-seed-mac.png vs storage-seed-mac.png, pen-seed-mac.png, connections-seed-mac.png, storage-empty-ipad.png",
+   "rootCause": "Pages built at different times each pass their own pageHeader kicker.",
+   "fix": "Use one kicker ('The archive · <kanji>') for every page in the strip and decide whether all Archive pages get the band or none."
+  },
+  {
+   "id": "AA-29",
+   "severity": "P3",
+   "title": "A fresh install's first notification is backdated: '23 plan topics carried over into this week', dated Monday 08:00, before the app existed",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "shots/assistant-archive/notif-empty-mac.png (reset slot: 'MONDAY 2 NOVEMBER · 23 plan topics carried over into this week · 08:00')",
+   "rootCause": "The carry-over notice is derived from the seeded plan's week dates with no reference to when the account began.",
+   "fix": "Do not raise pace:carry for weeks that ended before the install (state.created), and stamp a notice with the time it was raised, not the week start."
+  }
+ ]
+}

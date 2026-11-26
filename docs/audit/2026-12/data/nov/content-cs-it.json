@@ -1,0 +1,286 @@
+{
+ "area": "content-cs-it",
+ "source": "origin/audit/quality-2026-11:docs/audit/2026-11/findings.json + data/plan-mapping.json",
+ "findings": [
+  {
+   "id": "CC-01",
+   "severity": "P1",
+   "title": "IT spec text for F206.6.1, F204.6.5, F202.5.1, F201.5.2, F200.5.3 (and F200.2.x/F202.2.x) holds garbled PDF dumps of the assessment criteria",
+   "workstream": "W6",
+   "expected": "fixed",
+   "evidence": "js/data/it.js:2246-2283 (F206.6.1 content/info); node scan of dump.json: strings >260 chars listed per leaf (F206.6.1 2271/894/2884, F204.6.5 2164/1007/2510, F202.5.1 2330/538/2502, F201.5.2 324/328/308/831, F200.5.3 331/308/876)",
+   "rootCause": "PDF parser in tools/gen_data.py appends trailing unit-level sections (criteria tables, guidance, synoptic tables) to the last topic leaf and mis-splits two-column 'To include' boxes.",
+   "fix": "Fix tools/gen_data.py's IT parser to stop each leaf at the 'Assessment criteria'/'Assessment guidance'/'Synoptic assessment' headings and at page-column breaks, and to join 'To include:' continuation lines into bullet rows; regenerate it.js (invariant 24) and add a smoke check that no IT spec string exceeds ~300 chars or starts with 'include:'."
+  },
+  {
+   "id": "CC-02",
+   "severity": "P1",
+   "title": "IT spec has a duplicate leaf: F206.6.1 'Ways to reflect' and 'Overview of the assessment' share a ref, so 'Ways to reflect' cannot be opened",
+   "workstream": "W6",
+   "expected": "fixed",
+   "evidence": "js/data/it.js:2246 and :2285 both 'ref': 'F206.6.1'; js/data/it.js:946-950; /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/content-cs-it/it-f2061-spec-ipad.png (title 'Overview of the assessment', Notes 4 / Flashcards 14 are Ways to reflect's); eval on #cols: rows 'Ways to reflect F206.6.1' and 'Overview of the assessment F206.6.1', h1 after KOS.show('ref',{subject:'it',ref:'F206.6.1'}) = 'Overview of the assessment'",
+   "rootCause": "Generator does not filter non-topic headings and has no uniqueness check on refs.",
+   "fix": "In gen_data.py drop qualification-overview nodes ('Overview of the assessment', 'NEA Units') and assert ref uniqueness at generation; regenerate it.js; rename/prune any stored state keyed to F201.5.3 at the store gate like IT_NOT_TAKEN."
+  },
+  {
+   "id": "CC-03",
+   "severity": "P1",
+   "title": "Quiz answers are guessable: the correct option is A or B in 94% of CS questions (D only 12 of 1,347) and options are never shuffled",
+   "workstream": "W6",
+   "expected": "fixed",
+   "evidence": "node content-cs-it/quiz.js over dump.json: compsci [677,590,68,12], it [17,211,57,3]; longest-correct compsci 688/1347, it 201/288; js/engines/quiz.js:88 item.opts.forEach renders in authored order (shuffle at :25 is only applied to question order, :66)",
+   "rootCause": "Authoring habit (answer written first) plus an engine that never permutes options.",
+   "fix": "Shuffle each question's options at render with a deterministic per-question seed (map ans through the permutation; keep keyboard 1–4 on the displayed order) and rebalance the longest-option bias by trimming correct options or lengthening distractors in the authored banks; add a smoke check that no leaf has >50% of answers at one index after shuffling is off."
+  },
+  {
+   "id": "CC-04",
+   "severity": "P1",
+   "title": "'Write it out' pill on worked examples overlaps the example's title on iPhone and iPad",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/content-cs-it/cs-4641-p3-iphone.png; eval at iphone: button rect x233 y824 w81 h23 position:absolute over title text; ipad hit 14/72, mac 1/72; css/views/ink.css:300 .k-n-writeout { position: absolute; inset-block-start: var(--sp-8); inset-inline-end: calc(var(--sp-8) * 9) }; js/core/content.js:373",
+   "rootCause": "Absolute positioning with a fixed inset instead of taking part in the header's layout.",
+   "fix": "Put the button in the worked card's head row as a flex item (title flex:1, min-width:0; actions group with Copy), wrapping under the title below 560px; give it the touch minimum height on coarse pointers."
+  },
+  {
+   "id": "CC-05",
+   "severity": "P2",
+   "title": "Same past-paper question appears twice in a CS leaf's Exam questions (worked card + bank item): 202 duplicate groups across 88 of 131 leaves",
+   "workstream": "W6",
+   "expected": "fixed",
+   "evidence": "node script over dump.json keyed on year-paper-question: 202 groups, 88 leaves, 1194 items; js/core/content.js:515 extend() concatenates exam without de-duplication; js/core/content.js:546 builds 'AQA June …' src vs bank files' 'AQA 2025 P1 Q1.1'",
+   "rootCause": "Bank files were authored independently of the worked cards; extend() concatenates blindly.",
+   "fix": "Drop the bank item when a worked card of the same leaf cites the same series/paper/question (do it in the bank files, or dedupe in extend() by a normalised src key), and normalise src labels to one format; add a smoke66 check for duplicate src within a leaf."
+  },
+  {
+   "id": "CC-06",
+   "severity": "P2",
+   "title": "Steps blocks in 4.5.x notes render prose as monospace code with literal **bold** and a redundant '1.' heading",
+   "workstream": "W6",
+   "expected": "fixed",
+   "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/content-cs-it/cs-4521-steps-literal-bold-mac.png; js/data/content/cs-p2-45a.js:104 { h: '1.', m: 'Divide by the base; record the **remainder**…' }; js/core/content.js:404 esc(st.m)",
+   "rootCause": "Authoring misuse of the steps schema (m is the monospace working line, n the inline note).",
+   "fix": "Move the prose to n (rendered through inline()) and drop the numeric h in those six leaves; optionally have validate_content.js flag markdown inside steps[].m and h matching /^\\d+\\.$/."
+  },
+  {
+   "id": "CC-07",
+   "severity": "P2",
+   "title": "~30 CS flashcard decks ask the same fact twice ('Bandwidth?' + 'Define bandwidth.'), plus 11 cards duplicated across neighbouring leaves",
+   "workstream": "W6",
+   "expected": "fixed",
+   "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/content-cs-it/strict.txt (43 within-leaf pairs, confirmed by reading), /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/content-cs-it/cross.txt (11 cross-leaf pairs), /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/content-cs-it/dupes.txt (looser 800-line list); js/data/content/cs-p2-*.js flashcards arrays",
+   "rootCause": "Cards appended during the depth rewrite without de-duplicating against the original deck; no automated near-duplicate check.",
+   "fix": "Keep the fuller 'Define X.' card and delete the terse twin in each pair; when deleting, add the original position as the third element to every later card (invariant 87) so schedules do not shift. Pick one Boolean notation per deck. Add a smoke66 near-duplicate check (token Jaccard on the question ≥ 0.9 within a leaf)."
+  },
+  {
+   "id": "CC-08",
+   "severity": "P2",
+   "title": "IT F201 (the unit still to sit) is much thinner than CS: no worked answers, 3 exam items and 5–6 quiz questions per leaf",
+   "workstream": "W6",
+   "expected": "fixed",
+   "evidence": "content-cs-it/metrics.txt (it F201.* rows: w0 fg0 ex3 q5-6); node scan: 15/150 IT exam q end with '[n]'; dump.json F201.2.3 spec ['□ Data mining','• Diagnostic Prescriptive □','□','□ Does','□']; /Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/content-cs-it/it-f2013-p1-ipadl.png (a 60-word note page, half the iPad landscape screen empty)",
+   "rootCause": "IT content was written to a lighter contract than smoke65/66 hold CS to; no IT depth smoke.",
+   "fix": "Add per F201 leaf: two worked exam answers (one 6-mark levels-of-response 'Discuss' with a band commentary), 6+ exam items across Describe/Explain/Discuss, 10 quiz questions, a scenario-based case per page; strip the '[n]' suffix from IT exam q text (marks already carry it)."
+  },
+  {
+   "id": "CC-14",
+   "severity": "P2",
+   "title": "Derived exam items make the worked card's one-line 'Answer:' summary a tickable mark point, so full marks can be self-awarded with a real point missing",
+   "workstream": "W6",
+   "expected": "fixed",
+   "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/content-cs-it/exam-4621-q042-selfmark-mac.png; kos eval (exam2.js): allStepsNoAnswer 3, oneStepMissingButAnswer 3; js/core/content.js:568 (ms.push('**Answer:** '…)); js/engines/quiz.js:288 perMark, :294 fromTicks min(total,n); node count over dump.json: derivedWithAnswer 801, pointsGtMarks 729, pointsEqMarks 29",
+   "rootCause": "examFromWorked mixes the model answer into the mark-scheme array that the tally counts.",
+   "fix": "Render the Answer line as a non-tickable 'Model answer' row (e.g. ms item {answer:true} or a separate `answer` field on the item) and exclude it from points.length; re-check 4.7.3.5 Q07.1 which then has 3 points for 4 marks (see the mark-sum finding)."
+  },
+  {
+   "id": "CC-15",
+   "severity": "P2",
+   "title": "Restoring an older backup folds a merged CS leaf's progress by dropping it: a completed member leaf loses to a weaker record on the kept leaf",
+   "workstream": "W1",
+   "expected": "fixed",
+   "evidence": "node audit-evidence/2026-11/qa/content-cs-it/alias2.js → replaceState-> {\"compsci:4.5.1.1\":{\"conf\":1,\"checks\":{\"covered\":true}}}, lastRef 4.4.1.5→4.4.1.3; js/core/store.js:371-374 (if (!hasOwnProperty(o, nk)) o[nk] = o[k]; delete o[k]); store.js:318-323 comment 'the kept leaf's wins'",
+   "rootCause": "A generic key rename with 'kept wins' semantics is applied to records that should be combined.",
+   "fix": "For the progress/notes/quiz maps, merge the member record into the kept one (max checks, max conf, best status, concatenated notes) instead of discarding it; keep 'kept wins' only for scalar fields that conflict. Add a smoke case with three members and a weak kept record."
+  },
+  {
+   "id": "CC-16",
+   "severity": "P2",
+   "title": "On iPhone a worked example keeps its 84px 'GIVEN / STEP n' label column, squeezing the working into 61% of the card",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/content-cs-it/recheck-writeout-4641-iphone.png (4.6.4.1, 'Trace Figure 5 and write G'); kos eval at iphone: card 370, label [34, 84], body [130, 226], gap 12; css/tokens.css:562 --wk-label-w: 84px; css/views/study.css:351 .k-n-wrow grid-template-columns: var(--wk-label-w) minmax(0,1fr) auto (no narrower tier)",
+   "rootCause": "The worked-row grid has no phone tier.",
+   "fix": "Below 560px stack the row: the label as a small kicker on its own line (with the mark chip beside it), the body full width (a 560 tier in study.css, widest-first per invariant 48)."
+  },
+  {
+   "id": "CC-17",
+   "severity": "P2",
+   "title": "Self-mark tally ignores a worked step's own mark weight ('[3 marks]'), so 60 derived CS exam items cannot reach full marks from their real mark points",
+   "workstream": "W6",
+   "expected": "fixed",
+   "evidence": "js/core/content.js:547-552 (ms line + ' [' + st.mk + ']'), js/engines/quiz.js:288-295 (perMark, fromTicks scaling); js/data/content/cs-p2-47b.js:355-375; node over content-cs-it/dump.json: derived items 801, realPoints<marks 60, weighted steps 34 (4.5.3.1, 4.5.4.5, 4.5.4.7, 4.5.5.3, 4.5.6.1 …)",
+   "rootCause": "Mark weights are stored as free text in st.mk and flattened into display text; the tally has no notion of a point's weight.",
+   "fix": "Carry the step weight as data (ms item {t, w}) and let fromTicks sum weights; author the missing final mark point where a worked card's steps add up to fewer marks than its src (e.g. 4.7.3.5 Q07.1 needs a 'whole loop correct' point); add a smoke check that step weights sum to the src marks."
+  },
+  {
+   "id": "CC-18",
+   "severity": "P2",
+   "title": "Back from a notes diagram (or any detour) reopens the topic's notes on page 1, losing the reading place",
+   "workstream": "W2",
+   "expected": "fixed",
+   "evidence": "kos eval content-cs-it/diagback.js at mac: {pg:2, h1:'#/sims/tl-list', back:'#/ref/compsci/4.2.1.1', tab:'Notes7', page:'0'}; js/modules/hub.js:2983 (cur = o.keep ? notePage : 0 — notePage is a closure variable that does not survive re-entering the view); js/core/content.js:450-453 (diagram click → KOS.sims.open)",
+   "rootCause": "The reader page is view-local state, reset on every KOS.show of the topic.",
+   "fix": "Remember the note page per topic per device (state.ui.notePage['sid:ref'], like state.ui.lastProd) and reopen on it; or open the diagram's lab in a dialog/side pane over the notes (KOS.sims.embed already exists)."
+  },
+  {
+   "id": "CC-19",
+   "severity": "P2",
+   "title": "In the light shop theme Washi Morning, code in notes is nearly invisible: keywords 1.7:1, strings and numbers 1.3:1",
+   "workstream": "W5",
+   "expected": "fixed",
+   "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/content-cs-it/cs-4104-p3-washi-mac.png; kos eval content-cs-it/codecontrast.js (contrast vs the code block ground): washi-morning kw 1.68, num 1.33, str 1.33, com 6.01; atelier-dawn kw 5.01 num 4.4 str 4.79; atelier-dusk kw 8.8; css/tokens.css:555 (--syn-kw l 0.76), css/themes.css:156-161 (Dawn only), css/themes.css:850 (washi-morning has no --syn-*), css/views/study.css:314",
+   "rootCause": "Syntax colours are absolute values tuned per ground and restated only for Dawn, not derived from a role.",
+   "fix": "Derive --syn-* from a lightness role (as invariant 26a asks of derived tokens) or give washi-morning the Dawn syntax block; add a theme-contrast check over --syn-* to tools/smoke (themecontrast.js already measures text roles)."
+  },
+  {
+   "id": "CC-20",
+   "severity": "P2",
+   "title": "IT desk on iPad portrait: the qualification boundary bar collapses to 48px, its 120/180/240/270 labels print on top of each other",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/content-cs-it/it-f2015-3-nea-units-ipad.png; kos eval at ipad: .k-it-cap w 48 h 131, ticks 120@371-391, 180@381-401, 240@390-410, 270@395-415 (overlapping); ipadl w 252; mac w 542; css/views/study.css:996 (grid), :1114-1123 (stacks only under 700px), css/tokens.css:657-658",
+   "rootCause": "Two fixed side columns plus gaps consume the width between 700 and ~900px; no intermediate tier.",
+   "fix": "At max-width 1080px put the middle column on its own row (grid-template-areas: 'l r' 'm m'), or give .k-it-agg-m a min-inline-size of ~240px and let the grid wrap; check 820 and 701px."
+  },
+  {
+   "id": "CC-21",
+   "severity": "P2",
+   "title": "IT desk's 'Start here' sends you to F200.1.1, a unit already sat and with no notes, instead of F201/F206",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/content-cs-it/it-f2015-3-nea-units-ipad.png ('START HERE F200.1.1' above 'F200 … Done · ≈51/60 Distinction'); js/modules/hub.js:2215-2224 continueCard (filters only by peekProgress status); content-cs-it/inv.json leavesNoContent lists every F200.* and F202.* leaf",
+   "rootCause": "continueCard is subject-generic and does not consult the IT unit statuses (invariant 26f).",
+   "fix": "For sid 'it', skip leaves whose unit KOS.itUnits marks done or not-taken (and leaves with no content) before choosing; fall back to the first leaf of a 'sitting' unit."
+  },
+  {
+   "id": "CC-09",
+   "severity": "P3",
+   "title": "Bold containing an *italic* word renders literal ** in three IT F204 callouts",
+   "workstream": "W6",
+   "expected": "fixed",
+   "evidence": "kos eval: KOS.content.inline('a **b *c* d** e') -> 'a **b <em>c</em> d** e'; js/core/content.js:109; js/data/content/it-f204.js:72, :544, :2189; render sweep content-cs-it/sweep-121.json",
+   "rootCause": "Inline markdown regex excludes * inside **…**.",
+   "fix": "Allow single-asterisk italics inside bold (process em inside strong: /\\*\\*((?:[^*]|\\*(?!\\*))+)\\*\\*/), and fix the misplaced quote at it-f204.js:2189."
+  },
+  {
+   "id": "CC-10",
+   "severity": "P3",
+   "title": "Flashcards filed under the wrong leaf",
+   "workstream": "W6",
+   "expected": "fixed",
+   "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/content-cs-it/fit.txt (cards scored against other leaves' notes vocabulary, top hits confirmed by reading)",
+   "rootCause": "Cards authored as synoptic links ended up as plain recall cards in the wrong deck.",
+   "fix": "Move each card to its home leaf (with a whole-key third element so its schedule follows, invariant 87) or delete it where the home leaf already has the fact."
+  },
+  {
+   "id": "CC-11",
+   "severity": "P3",
+   "title": "validate_content reports 9 errors in the CS merged leaves (cs-m-*) and 92 in IT: bare top-level paragraphs",
+   "workstream": "W0",
+   "expected": "fixed",
+   "evidence": "node tools/validate_content.js js/data/content/cs-*.js → '45 file(s) checked — 9 error(s), 190 warning(s)'; it-*.js → '92 error(s), 120 warning(s)'; js/data/content/cs-m-errors.js, cs-m-bit-patterns.js",
+   "rootCause": "The merged-leaf files were written after the validator pass, and the validator is not part of the smoke gate.",
+   "fix": "Wrap each flagged paragraph in the fitting callout (tip for exam technique, formula for file-size rules); for IT, turn the 'Characteristics/When used' lines into a kv or table block per technique; add validate_content to the smoke gate so it cannot regress."
+  },
+  {
+   "id": "CC-12",
+   "severity": "P3",
+   "title": "AQA mark-scheme shorthand (I., A., R., MAX, DPT) is used ~228 times with no explanation anywhere",
+   "workstream": "W6",
+   "expected": "fixed",
+   "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/content-cs-it/cs-4641-p3-iphone.png (step 3 note 'I. an incorrect gate for B·C.'); grep '\"[IAR]\\. ' js/data/content/cs-*.js bank-cs-*.js → 228; js/data/content/cs-p1-411a.js, cs-p1-42c.js, cs-p1-43b.js",
+   "rootCause": "Mark points copied in AQA's house style without a reader-facing gloss.",
+   "fix": "Expand them at render in worked-step notes and mark-scheme bullets (I. → 'Ignore:', A. → 'Accept:', R. → 'Reject:') with a title on MAX/DPT, or add a one-line legend to the Exam questions tab and the worked card's footer."
+  },
+  {
+   "id": "CC-13",
+   "severity": "P3",
+   "title": "Functional-programming code is tagged 'text' (no Haskell label or highlighting) and assembly shows the raw label 'asm'",
+   "workstream": "W6",
+   "expected": "fixed",
+   "evidence": "dump scan of notes code blocks: 4.12.1.2/1.3/1.4/1.5/2.1/3.1 lang 'text', 4.7.3.5 lang 'asm'; js/core/content.js:70 LANG_NAME (no haskell/asm), :74 esc(LANG_NAME[lang] || lang)",
+   "rootCause": "No highlighter/label for the two non-C# languages the AQA spec uses.",
+   "fix": "Tag those blocks lang 'haskell' and add 'haskell: \"Haskell\"', 'asm: \"AQA assembly\"' to LANG_NAME with a small keyword set in highlightCode (comments --, ::, ->)."
+  },
+  {
+   "id": "CC-22",
+   "severity": "P3",
+   "title": "Six CS quizzes ask the identical question twice (same stem, same answer), e.g. 4.9.4.6 '172.32.0.5 is' as Q1 and Q2",
+   "workstream": "W6",
+   "expected": "fixed",
+   "evidence": "node over dump.json (exact lower-cased stem match): 7 pairs in 7 leaves, 6 with the same answer; js/data/content/cs-p2-49c.js:358-359 (two identical lines)",
+   "rootCause": "Copy-paste during authoring; no duplicate check in smoke65/66.",
+   "fix": "Replace the second item in each pair with a new question on another point of the leaf (4.9.4.6: a 10.x or 192.168.x address; 4.9.4.9: what a forwarded port maps to). Add an exact-duplicate check to the content lint."
+  },
+  {
+   "id": "CC-23",
+   "severity": "P3",
+   "title": "A third of quiz explanations say nothing: 502 of 1,635 'why' lines are under 16 characters ('Definition.' ×44, 'See the notes.' ×10, 'Spec.' ×6)",
+   "workstream": "W6",
+   "expected": "fixed",
+   "evidence": "node over dump.json: total 1635, why.length<16: 502; js/engines/quiz.js:123-125 (why rendered after '✕ Not quite · '); js/data/content/cs-p2-49c.js:358",
+   "rootCause": "Terse authoring of the older quiz layer; no minimum in the contract.",
+   "fix": "Rewrite short explanations as one sentence that says why the right option is right AND why the tempting wrong one is wrong; lint why.length >= 25 in the content gate."
+  },
+  {
+   "id": "CC-24",
+   "severity": "P3",
+   "title": "Copy on a worked example pastes 'Write it out' as its first line and every formula one symbol per line",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "kos eval at mac on #/ref/compsci/4.6.4.1 notes page 3, clipboard captured: \"Write it out\\nExam-style\\nTrace Figure 5 and write G … STEP 4\\n(b)\\n𝐺\\n=\\n𝐵\\n⋅\\n𝐶\\n+\\n𝐴…\"; js/core/content.js:474-480 (hide list = content.copy + [aria-hidden='true']); content.js:383 (writeout button inside the figure)",
+   "rootCause": "The copy routine reads layout text and only knows about two kinds of decoration.",
+   "fix": "Also hide [data-ui~='content.writeout'] during the read, and before reading replace each .katex with its TeX source (the <annotation encoding='application/x-tex'> text wrapped in $…$) or with the MathML's textContent on one line."
+  },
+  {
+   "id": "CC-25",
+   "severity": "P3",
+   "title": "IT exam mark schemes give one bullet per two marks, so the tally awards IT answers in steps of 2 (97 of 150 items)",
+   "workstream": "W6",
+   "expected": "fixed",
+   "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/content-cs-it/it-f2022-exam-selfmark-mac.png (one tick → AWARDED 2 / 4); kos eval content-cs-it/itex.js: points 2, afterOneTick '2'; js/data/content/it-f201.js exam arrays; js/engines/quiz.js:294",
+   "rootCause": "IT content authored mark schemes as prose bullets per idea rather than per mark.",
+   "fix": "Split IT mark-scheme bullets into one point per mark (the '(1)' markers give the split), and strip trailing '[n]' from IT question text."
+  },
+  {
+   "id": "CC-26",
+   "severity": "P3",
+   "title": "Notes diagram buttons promise 'Open simulation →' but 8 of them open a gold-locked lab with no hint on the button",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/content-cs-it/diagram-tl-list-locked-mac.png; kos eval: ids.filter(i=>!KOS.governor.simAccess(i).ok) → tl-list:180, tl-queue:180, tl-stack:180, tl-tree:180, sort-viz:100, fsm-lab:100; js/core/content.js:353-360 (button built with no access check); js/labs/sims.js:223-228 (index card does show the lock)",
+   "rootCause": "The content renderer builds the diagram button without consulting the Governor's lab access.",
+   "fix": "In renderBlocks' diagram branch read KOS.governor.simAccess(id) and, when locked, show '◆ 180 · Locked' instead of 'Open simulation →' (aria-label too), or render the free sibling sim where one exists."
+  },
+  {
+   "id": "CC-27",
+   "severity": "P3",
+   "title": "On iPhone the exam card's '0 / 2 marks' total wraps onto two lines beside the two footer buttons",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "/Users/fj/Developer/KurenaiOS - Web/audit-evidence/2026-11/qa/shots/content-cs-it/exam-4113-iphone.png; kos eval at iphone: .k-qz-sum h 39 w 57 (line-height 19.5), parent .k-qz-foot.k-qz-exam-foot w 322; js/engines/quiz.js:437",
+   "rootCause": "The exam footer row has no small-screen composition; the total is the only shrinkable item.",
+   "fix": "white-space: nowrap on .k-qz-sum and let the footer wrap the buttons to their own row under 560px (or drop the duplicate total, which the AWARDED row already shows)."
+  },
+  {
+   "id": "CC-28",
+   "severity": "P3",
+   "title": "Search finds a CS/IT topic only by its spec wording or flashcards: words taught in the notes, quiz and exam questions return nothing",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "kos eval KOS.search.run: 'imputation' → [], 'Lessons learnt Assessment criteria' → ['F206.6.1 · Ways to reflect']; js/modules/hub.js:47-56 (SEARCH_INDEX: text + fctext only), :3539-3563 searchSpec; js/data/content/it-f201.js:736-786",
+   "rootCause": "The spec search index predates the deep notes and was never widened to them.",
+   "fix": "Add a third, lower-ranked tier to SEARCH_INDEX built once from each leaf's notes headings/defs/callout titles (and quiz/exam stems), with a 'Notes match' meta like 'Flashcard match'."
+  }
+ ]
+}

@@ -1,0 +1,196 @@
+{
+ "area": "architecture-perf",
+ "source": "origin/audit/quality-2026-11:docs/audit/2026-11/findings.json + data/plan-mapping.json",
+ "findings": [
+  {
+   "id": "AP-01",
+   "severity": "P1",
+   "title": "Boot loads ~16.6 MB of JavaScript in 340 synchronous script tags, most of it curriculum content no first view needs",
+   "workstream": "W2",
+   "expected": "fixed",
+   "evidence": "arch20/boot.mjs runs on slot 20 (6 Nov): {jsN:346, jsMB:16.9, domInteractive:53357, longTasks:78, longMs:51726} and {domInteractive:70719, longTasks:87} on Home; python count of index.html <script src> = 346; arch20/trace-boot-dense.txt (script evaluation, achcatalogue.js 943 ms) | earlier: audit-evidence/2026-11/qa/arch/prof-boot-empty.txt; index.html lines 48-55 (only defer tags) and the 340-script list; sizes via stat: exam-index.js 566,954 B, code-projects-files.js 382,808 B, it-f204.js 299,469 B, hub.js 232,148 B, aitools.js 208,176 B; Performance API: domInteractive 14,993 ms, longtasks 61 / 15,441 ms; dense account warm reload (SW controlling, V8 code cache): data-shell=ready at 21,064 ms, 35 long tasks totalling 19,166 ms, heap 58 MB (machine shared with other audit slots, load avg ~5)",
+   "rootCause": "Classic script-tag design (chosen so file:// works) with no lazy-loading layer; every new study space appended its whole content to index.html.",
+   "fix": "Keep the script-tag architecture but split content into lazily loaded bundles: KOS.content.get(key) already funnels every read, so make content files register a loader per subject/unit (a tiny manifest listing keys -> file) and inject the script on first open of a topic, a desk or search (search can use a prebuilt title/keyword index). Load exam-index.js only on #/exams, code-projects-files.js only on export, ja/mind/creatives content only when their desk opens. Target: boot payload under ~4 MB. Also add performance.mark('kos-boot-start'/'kos-interactive') in main.js so the cost is tracked by a smoke test budget."
+  },
+  {
+   "id": "AP-03",
+   "severity": "P2",
+   "title": "Cold-path cost after boot: the first render of each heavy view takes 0.5-2.8 s on the dense account (Exams, Code map, Due, Pacing, Calendar), then 20-200 ms",
+   "workstream": "W8",
+   "expected": "partly (W8 did only what paid off)",
+   "evidence": "arch20/views.js -> arch20/views-out.txt; eval topic1 6735 ms / topic2 3884 ms | earlier: eval timings above (slot 18, seeded); audit-evidence/2026-11/qa/arch/prof-boot-dense.txt (readiness js/core/exams.js:635 1314 ms self in the boot profile, exams.js:945 predictPass 893 ms), arch/prof-code.txt, arch/prof-calendar.txt; js/core/code.js:166-190, 856-895; js/modules/code.js:417-490; js/modules/calendar.js:546-570, 1762-1800; js/core/exams.js:635-720, 943-960",
+   "rootCause": "Pure derive-on-read design (a good contract) without any memoisation layer, so composite pages multiply the cost; plus eager loading of all code.",
+   "fix": "Add a cheap per-tick memo: a KOS.store revision counter bumped by save(), and memoise the heavy pure reads (exams.readiness/leaves, code stats/unitState/pageCount, calendar derivedOn for a month range, srs.allCards) on (args, revision, day). Shipped content is immutable at runtime (invariant 86), so pageCount/listingsOf can be cached forever. For the calendar, compute derived items for the visible range once and bucket by date. Pair with lazy content loading (boot finding) to cut compile cost."
+  },
+  {
+   "id": "AP-04",
+   "severity": "P2",
+   "title": "The four study spaces each re-implement the same lesson machinery (paged reader with dwell, evidence, syncChecks, award, planDay), and the copies have already drifted",
+   "workstream": "W8",
+   "expected": "partly (W8 did only what paid off)",
+   "evidence": "grep var DWELL js/modules/*topic.js (6 Nov); grep -l function syncChecks|award|planDay js/core | earlier: grep 'var DWELL' in js/modules/{codetopic,jatopic,mindtopic,crtopic}.js; diff of jatopic.js:213-260 vs mindtopic.js:269-316 (42 differing lines); grep 'function syncChecks|function award|function planDay|function evidence' finds one per space in js/core/{code,ja,mind,creatives}.js",
+   "rootCause": "Each study space was built in its own release branch by copying the previous one (comments say 'the pager as Code's and Japanese's'), with no shared component extracted afterwards.",
+   "fix": "Extract a shared KOS.lessonReader({pages, peekRead, markPage, onChanged, label}) into js/core/ (the pager, dots, dwell/leave timing, 'Your notes' guard, Next/Prev) and have the four topic modules mount it; then a small KOS.studySpace helper for the checks-sync pattern (evidence -> want[] -> store.setCheck diff) that each core calls with its own evidence(). Do it before the next study space rather than as a rewrite: start with the reader, which has the visible drift."
+  },
+  {
+   "id": "AP-05",
+   "severity": "P2",
+   "title": "README, AGENTS, PROGRESS and HANDOFF each name a different 'current' release and smoke gate; Mind and Creatives are still listed as planned",
+   "workstream": "W8",
+   "expected": "partly (W8 did only what paid off)",
+   "evidence": "README.md:18-22, 213-216; AGENTS.md:145-148; PROGRESS.md:20-24; docs/HANDOFF.md:45-52; grep -ic achievement = 0 in README/AGENTS/PROGRESS/HANDOFF/GUIDE | earlier: grep -n 'kos-' README.md PROGRESS.md docs/HANDOFF.md AGENTS.md; grep -n 'suites' README.md AGENTS.md PROGRESS.md CLAUDE.md; README.md:30-38; docs/GUIDE.md:418-426; grep -c 'Todoist|Google Calendar' README.md AGENTS.md docs/GUIDE.md PROGRESS.md = 0",
+   "rootCause": "Each release updates CLAUDE.md (and sometimes memory) but not the other status docs; the same facts are restated in five files with no check.",
+   "fix": "Make one file the single source of 'current release, sw version, gate count' (PROGRESS.md's table) and have README/AGENTS/HANDOFF link to it instead of restating; add a smoke check that sw.js VERSION, the highest smoke number and PROGRESS.md's table agree. Move CLAUDE.md's release diary into PROGRESS.md (or git tags) and keep CLAUDE.md to architecture, ownership and invariants. Update GUIDE §5 and README's feature list for Mind, Creatives and the integrations."
+  },
+  {
+   "id": "AP-06",
+   "severity": "P2",
+   "title": "In-app Help & Guide has no entry for Japanese, Mind, Creatives, Money, Goals or the Google/Todoist connections",
+   "workstream": "W8",
+   "expected": "partly (W8 did only what paid off)",
+   "evidence": "grep -ci per word in js/modules/help.js (Japanese 0, Creatives 0, Todoist 0, Achievement 0, Wall 0, Try on 0, Wardrobe 0); js/modules/help.js:79; git log -1 -- js/modules/help.js = c4a5772 2026-10-26 | earlier: grep -c for each word in js/modules/help.js; js/modules/help.js:229 (the page header)",
+   "rootCause": "Help content is hand-written per release and was not extended after the Files release.",
+   "fix": "Add Help & Guide sections for each study space (how a lesson counts as done, what pays, the Daily plan), Money (Hide amounts, recurring rules, the planner mirror), Goals (repeating goals, pace) and Connections; reuse docs/GUIDE.md's plain-words text as the source."
+  },
+  {
+   "id": "AP-07",
+   "severity": "P2",
+   "title": "The public repository tracks personal data and one-off clutter at its root (an AniList/MAL export, local Claude settings, spec PDFs, repair scripts, old plans)",
+   "workstream": "W8",
+   "expected": "partly (W8 did only what paid off)",
+   "evidence": "git ls-files | grep (6 Nov); git check-ignore -v; du -sh audit-evidence | earlier: gh repo view --json visibility -> PUBLIC; git ls-files 'Phase 3 Context' Context .claude fix_*.py CATEGORY* KURENAIOS_FULL_UI_UX_AUDIT.md; head of scrape_anilistanime.xml shows <user_name> and <user_total_anime>650; git log -1 -- fix_damage.py = a29a716 2026-06-13",
+   "rootCause": "Working material was committed during early phases and never cleaned; no root-level policy.",
+   "fix": "git rm --cached the personal export and .claude/settings.local.json (add both to .gitignore); move Context/, 'Phase 3 Context/' and the CATEGORY*/KURENAIOS_* docs to docs/archive/ (or out of the repo, since the spec PDFs are the boards' documents); delete the fix_*.py scripts (history keeps them); move media_budget_planner.html/prompt.md/recovery/artifacts to prototypes/ or outside the repo. Consider purging the export from history if the repo stays public."
+  },
+  {
+   "id": "AP-08",
+   "severity": "P2",
+   "title": "Detached pages leak: global listeners are removed only when their event next fires, so every visited topic/Files/lesson page stays in memory",
+   "workstream": "W2",
+   "expected": "fixed",
+   "evidence": "arch20/mem2.txt and arch20/mem.txt (this build); grep -rEn isConnected[^;]*removeEventListener js | wc -l = 15 | earlier: audit-evidence/2026-11/qa/arch/mem.txt, arch/mem2.txt; eval: 5 paste listeners after 5 Files visits; grep 'isConnected[^;]*removeEventListener' = 15 sites listed",
+   "rootCause": "No view lifecycle: KOS.show replaces #main with innerHTML='' and has no unmount step, so each module invented a lazy self-removal.",
+   "fix": "Give KOS.show a teardown hook: views register cleanups via a KOS.ui.onLeave(fn) (or an AbortController per render, passing {signal} to addEventListener) that KOS.show calls before clearing #main; replace the 15 lazy removals with it. Add a smoke check that navigating 20 views leaves the listener count flat (jsdom can count via a wrapped addEventListener)."
+  },
+  {
+   "id": "AP-09",
+   "severity": "P2",
+   "title": "hub.js is a 3,899-line grab bag: Home (~900 lines), the subject page, a 953-line KOS.views.ref topic function, Backup & Restore, the header search listbox and rail counters",
+   "workstream": "W8",
+   "expected": "partly (W8 did only what paid off)",
+   "evidence": "wc -l js/modules/hub.js js/core/aitools.js js/modules/governor-ui.js (6 Nov); git diff --stat f4fa493..HEAD | earlier: wc -l js/modules/hub.js = 3899; grep -n '^  KOS\\.' js/modules/hub.js (lines 340-3888); awk 2349-3301 = 953 lines; grep -ho 'KOS\\.[a-zA-Z]+' | sort -u = 209; guard count 430",
+   "rootCause": "Home and the topic page grew in place across Categories 1-7 and every study-space release; the file was never split after the UI rebuild.",
+   "fix": "Necessary (low risk, mechanical): move KOS.views.home and its helpers to js/modules/home.js, Backup & Restore to js/modules/backup.js, the search listbox to js/core/searchui.js; split KOS.views.ref into a topic shell plus per-tab renderers registered by subject (KOS.topicTabs.register), which is also where the study spaces' cx flags belong. Split aitools.js by domain (each owner registers its tools, as goals do). High value: replace silent 'KOS.x &&' guards for hard dependencies with a boot-time assertion of required modules so a load-order slip fails loudly in smoke."
+  },
+  {
+   "id": "AP-10",
+   "severity": "P2",
+   "title": "KOS.rerender() drops keyboard focus to <body> on every redraw, including background ones (cloud pull, habit auto-tick)",
+   "workstream": "W2",
+   "expected": "fixed",
+   "evidence": "eval on slot 20 (6 Nov): {home:{before:\"Revise for: AQA 7517 Paper 2\",after:\"BODY\"}, calendar:{before:\"Show\",after:\"BODY\"}, money, achievements, governor, routines all BODY}; js/core/ui.js:355-372 | earlier: eval on slot 18: {home:{ms:225,focusedBefore:'home.review-line',after:'BODY'}, calendar:{ms:326,after:'BODY'}, routines, reminders, money all BODY}; js/core/ui.js:344-357; js/core/cloudsync.js:723-731; js/core/routines.js:699",
+   "rootCause": "Redraw is implemented as navigation (rebuild #main) with only scroll restoration.",
+   "fix": "In KOS.rerender, before the redraw record the focused element's identity inside #main (closest [data-ui] plus data-key/data-id/aria-label and its index among matches) and after it focus the equivalent node with {preventScroll:true}, falling back to #main without announcing; skip background redraws while focus is inside #main and the user is typing (or defer them until blur)."
+  },
+  {
+   "id": "AP-14",
+   "severity": "P2",
+   "title": "Edit your seat loses its unsaved draft (and its tab) on any background redraw: governor is not a held view",
+   "workstream": "W2",
+   "expected": "fixed",
+   "evidence": "eval on slot 20 (seeded): before {tabSel:'Background', mid pressed '1000…', lit:'lit'} → after soft rerender {afterTab:'Showcase', lit2:null}; shots/architecture-perf/gov-edit-mac.png; js/core/ui.js:357-372 (TASK_VIEWS, holdBackground); js/modules/governor-ui.js:660-686; eval slot 20 (6 Nov) Wall showcase {mid:1,cnt:\"1 of 6\",after:0,cntAfter:\"0 of 6\",stored:0}",
+   "rootCause": "The redraw stopgap's hold list is a hand-maintained set of view ids in ui.js; any page added later with transient in-page state is unprotected by default.",
+   "fix": "Short term: add governor (the edit arg) and any page with an in-page draft to the held list, or let a view declare itself held (e.g. KOS.views.x.holdsDraft = arg => …) so the list is not a central guess. Proper fix: the view lifecycle in the backlog (a view can veto or persist its draft before a redraw); the Edit seat draft could also live in state.ui like other per-device drafts."
+  },
+  {
+   "id": "AP-15",
+   "severity": "P2",
+   "title": "Badge measuring runs synchronously on the main thread: the Governor's Seat measures all 254 badges twice per render, and every topic tick re-measures 44 study badges",
+   "workstream": "W8",
+   "expected": "partly (W8 did only what paid off)",
+   "evidence": "arch20/prof-governor.txt (CPU profile of KOS.show('governor')); eval on slot 20: {listCallsPerGovernorRender:2, list first 3929 ms / second 138 ms, evalStudy 13555 then 3112 then 1324 ms}, longtask observer after KOS.achievements.onProgress('cs') = [541]; js/core/achievements.js:239-262, 296-341, 446-466; js/modules/governor-ui.js:358, 527, 732; arch20/bootsteps.mjs [show 13708 ms on the Wall]; arch20/views-out.txt; eval longtasks after touch [920,631]; savesPerNoopSweep 0",
+   "rootCause": "list() and evaluate() both measure from scratch with a per-call context; measures reuse un-memoised derived reads; all of it runs synchronously.",
+   "fix": "Keep the last evaluate's per-badge values (in memory, keyed by a store revision or the ledgerKey already computed at achievements.js:134) and let list() read them instead of re-measuring; measure only when the owning domain's revision moved. Run the domain re-measure in idle slices (requestIdleCallback, a few badges per slice) so a tick never blocks input. The memo layer for readiness/code evidence recommended in the backlog would cut the rest."
+  },
+  {
+   "id": "AP-17",
+   "severity": "P2",
+   "title": "Opening a Wall set by link and leaving before the badges are measured pops the set dialog over whatever page you are on",
+   "workstream": "W2",
+   "expected": "fixed",
+   "evidence": "shots/architecture-perf/ach-set-dialog-over-home.png; eval on slot 20: {view:home, hash:#/home, dialog:CS, Maths and IT Study ... Into the green, after:911}; js/modules/achievements.js:126-135",
+   "rootCause": "A wrong staleness check (parentNode of an inner node is never null) on an async render callback; no shared per-view cancellation token.",
+   "fix": "Make the guard `if (!body.isConnected) return;` (or compare a render token / KOS.currentNav() with the one at call time), and the same in governor-ui.js:358/527/732, whose callbacks have no guard at all. Long term: the view lifecycle (AbortController per view) recommended in the backlog."
+  },
+  {
+   "id": "AP-18",
+   "severity": "P2",
+   "title": "Every boot runs the exam cap pass over all cards (0.7-1 s) and readiness about fifteen times before the first page settles",
+   "workstream": "W8",
+   "expected": "partly (W8 did only what paid off)",
+   "evidence": "node arch20/bootsteps.mjs 20 → [show 13708 ms (the restored Wall), today.build 2830, srs.examPass 2772, exams.readiness 1826, 658, 97, 86 ... x15, exams.freezePass 203]; eval: examPass 1010 ms then 712 ms, returns 0; readiness over 11 upcoming exams 1300 ms; js/main.js:138; js/core/srs.js:182-222",
+   "rootCause": "Pure derive-on-read functions with linear lookups, called from several boot paths without a memo or a changed-inputs check.",
+   "fix": "Build a Set of leaf keys per exam once in examIndex (or a leaf->exam map) so examFor is O(1); hoist weights(); run examPass only when its inputs changed (a hash of the cap list and the exam-day target kept in state.srsCfg) or in an idle callback after first paint. Memoise readiness per assessment on a store revision (the memo layer in the backlog)."
+  },
+  {
+   "id": "AP-11",
+   "severity": "P3",
+   "title": "~110 lines of dead CSS: the retired Habits page (79 lines of .k-hb-*) and canvas-era lab classes",
+   "workstream": "W8",
+   "expected": "partly (W8 did only what paid off)",
+   "evidence": "python scan of css vs js+index.html with dynamic-prefix exclusion (6 Nov): 133 unreferenced; grep -c k-hb- css/views/productivity.css = 79; grep k-gv-seals js -> none, css:3; git log -S k-gv-seals -> 892d6f2 | earlier: python scan of css/*.css + css/views/*.css vs js/**/*.js + index.html (66 unreferenced, list in this finding); grep -c 'k-hb-' css/views/productivity.css = 79",
+   "rootCause": "Rebuilds remove views but not their stylesheet sections; no unused-CSS gate.",
+   "fix": "Delete the k-hb-* block and the unreferenced lab rules after a quick visual audit; add a smoke check that every .k- class in css/ is referenced somewhere in js/ or index.html (allowing an explicit list of prefix-built names)."
+  },
+  {
+   "id": "AP-12",
+   "severity": "P3",
+   "title": "The 112-suite smoke gate takes ~14 CPU-minutes with no runner, no npm script and no CI; two suites are 41% of it",
+   "workstream": "W0",
+   "expected": "fixed",
+   "evidence": "arch20/gate-summary.txt; cat package.json; ls .github -> none | earlier: /tmp timing run: count 111 + smoke.test.js run separately (3 s), sum 849 s, no failures; package.json (no scripts); ls .github/workflows -> none; wc -l tools/smoke*.test.js = 38936",
+   "rootCause": "Suites were added one per release without a harness.",
+   "fix": "Add tools/run_smoke.mjs that runs suites in parallel (os.cpus()-1) with a summary and non-zero exit, and 'npm test' pointing to it; a GitHub Actions workflow on push to main for the fast suites (skip the .NET/SQLite differentials). Split smoke75 so the content check runs only when js/data/content/code-* changed."
+  },
+  {
+   "id": "AP-13",
+   "severity": "P3",
+   "title": "Date and formatting helpers are re-implemented per file (pad x18, addDays x14, iso/isoOf x16, hm x11, rid x8)",
+   "workstream": "W8",
+   "expected": "partly (W8 did only what paid off)",
+   "evidence": "grep -l per helper over js/{core,modules,labs,engines}/*.js (6 Nov) | earlier: grep -l 'function pad(' etc. over js/{core,modules,labs,engines}/*.js; grep -h -A3 'function iso(|function isoOf(' shows 5 distinct implementations",
+   "rootCause": "IIFE-per-file modules with no shared utility module for dates; copying a helper was the path of least resistance.",
+   "fix": "Add KOS.date (iso, parse, addDays, daysBetween, weekStart, hm, pad) in js/core next to srs, make KOS.srs's date functions delegate to it, and replace local copies opportunistically when a file is touched; a smoke rule can refuse new local 'function addDays(' definitions."
+  },
+  {
+   "id": "AP-16",
+   "severity": "P3",
+   "title": "The smoke gate is not reliable under load: five suites fail when run three at a time and pass alone",
+   "workstream": "W0",
+   "expected": "fixed",
+   "evidence": "arch20/gate-summary.txt (exit code, ms, suite; sorted by time); scratchpad logs: smoke4 'STEP anime vault renders + lazy fallback…: Error: no cards rendered' tools/smoke4.test.js:390; smoke17 'applyCosmetics was not called after a remote state applied'; smoke16 TypeError tools/smoke16.test.js:550; serial re-runs all exit 0",
+   "rootCause": "Tests wait fixed times for async work (IndexedDB, timers) inside jsdom.",
+   "fix": "Replace fixed sleeps in those five suites with waits on a condition (poll for the cards, the announcement, the applyCosmetics call); then add a parallel runner (npm test) with a per-suite timeout."
+  },
+  {
+   "id": "AP-19",
+   "severity": "P3",
+   "title": "Writing, Files, Kurenai and Reports badges never hear their owners: they wait for the 30-minute sweep",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "grep -rhoE achievements.touch domains (collection 2, creatives 3, exams 3, goals 1, governor 1, ja 2, mind 3, money 1, organise 2, study 1); owners in js/core/achcatalogue.js:520-549 (ink, files, assistant, reports); js/core/achievements.js:446-466, 543",
+   "rootCause": "Owner domains are free strings with no registry; touch call sites were added only for the domains that existed in the first owner set.",
+   "fix": "Touch ink on KOS.ink.savePage (the kos-ink event already exists), files on KOS.files.add/link, assistant on the tally write, reports on reportStore save; add a smoke113 assertion that every owner domain named in the catalogue is in a known DOMAINS list that call sites use."
+  },
+  {
+   "id": "AP-20",
+   "severity": "P3",
+   "title": "CLAUDE.md is 186 KB (2,415 lines) loaded into every agent session, and its 271-line Current baseline is a release diary with stale entries",
+   "workstream": "W8",
+   "expected": "partly (W8 did only what paid off)",
+   "evidence": "wc -c CLAUDE.md = 186,526; awk: Current baseline = 271 lines; CLAUDE.md:195, 203, 266, 836, 2370",
+   "rootCause": "Each release appended a paragraph to the baseline instead of replacing it.",
+   "fix": "Cut Current baseline to five lines (production URL, current sw version, smoke gate, migrations applied, where the roadmap is) and move the release diary to docs/RELEASES.md or Git tags; fix Habits -> Routines; consider splitting the invariants per domain into docs/invariants/<domain>.md with CLAUDE.md keeping the index and the cross-cutting ones."
+  }
+ ]
+}

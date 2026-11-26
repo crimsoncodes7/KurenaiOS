@@ -1,0 +1,446 @@
+{
+ "area": "money-goals",
+ "source": "origin/audit/quality-2026-11:docs/audit/2026-11/findings.json + data/plan-mapping.json",
+ "findings": [
+  {
+   "id": "MG-01",
+   "severity": "P0",
+   "title": "Duplicate transactions after re-importing: de-dupe key includes payee, so a second import mapped differently is all 'new'",
+   "workstream": "W1",
+   "expected": "fixed",
+   "evidence": "js/core/money.js:1025-1031 (key date|minor|payee), js/modules/money.js:587,591; eval scratchpad t2.js: reimportNoteMapped {dups:0, rows:2}, reimportSame {dups:2}; shots/money-goals/tx-dups-all-mac.png",
+   "rootCause": "Dedupe depends on user-chosen mapping; raw source text not kept.",
+   "fix": "Key duplicates on date+amount+kind+normalised bank text (payee OR note OR raw description, stored as tx.raw), with the bank's own id (OFX FITID / balance-chain) when present; keep the raw description on every imported row; offer 'Replace the previous import of this period' in the preview when a batch overlaps."
+  },
+  {
+   "id": "MG-02",
+   "severity": "P1",
+   "title": "Santander midata CSV is refused: 'Merchant/Description' and 'Debit/Credit' headers are not recognised",
+   "workstream": "W4",
+   "expected": "fixed",
+   "evidence": "js/core/money.js:970-977 (GUESS), js/modules/money.js:937-940; dialog run over money-samples/midata-comma.csv, midata-cp1252.csv",
+   "rootCause": "Exact-match header regexes plus a hard gate before the manual mapper.",
+   "fix": "Add patterns (merchant/description, debit/credit, 'amount (£)', 'money in/out (£)'); and never hard-fail on unguessed headers: open the Columns step with the unmatched columns and let the user map them."
+  },
+  {
+   "id": "MG-03",
+   "severity": "P1",
+   "title": "Import only reads the first line as the header: midata with a leading blank line or a semicolon delimiter, and Online Banking CSV with an account preamble, all fail",
+   "workstream": "W4",
+   "expected": "fixed",
+   "evidence": "js/core/money.js:947-969 (delimiter and header from line 1); dialog run over money-samples/midata-semicolon.csv, santander-online-excel.csv",
+   "rootCause": "Header = rows[0], delimiter sniffed from text.split(/\\r?\\n/)[0].",
+   "fix": "Detect the delimiter over the first ~10 non-empty lines; scan the first 20 rows for the first row that matches date+amount header patterns and treat everything above as preamble (show it as 'Skipped: 3 header lines'); drop trailing empty columns."
+  },
+  {
+   "id": "MG-04",
+   "severity": "P1",
+   "title": "Santander's other exports (.txt, QIF, OFX) are not supported at all; the picker accepts .txt but cannot read it",
+   "workstream": "W4",
+   "expected": "fixed",
+   "evidence": "js/modules/money.js:889 (accept), js/core/money.js:947; dialog run over the three samples",
+   "rootCause": "Single CSV parser path.",
+   "fix": "Add format sniffing: OFX/QFX (parse STMTTRN, use FITID as the dedupe key, LEDGERBAL to reconcile), QIF (D/T/P/M/^ records), the Santander .txt block format; name the format detected in the Columns step. Keep CSV for everything else."
+  },
+  {
+   "id": "MG-05",
+   "severity": "P1",
+   "title": "No way to see, undo or replace an import after the result dialog closes",
+   "workstream": "W4",
+   "expected": "fixed",
+   "evidence": "js/modules/money.js:915-917 (only undo), js/core/money.js:1050-1056 (only definition), 690-712 (list keep(): kind/cat/tag/search); grep undoBatch: 2 hits",
+   "rootCause": "Batch metadata is not stored anywhere but on rows; UI only exposes it in a transient dialog.",
+   "fix": "An 'Imports' list (Transactions › Imports or Settings): file name, date range, rows, when imported, with Undo/Delete and 'Replace with a new file'. Store {batch, fileName, from, to, n, at} in state.money.imports. Add a Source filter and Select all in view."
+  },
+  {
+   "id": "MG-06",
+   "severity": "P1",
+   "title": "Unquoted thousands separators shift columns: '£1,234.56' imports silently as £1.00",
+   "workstream": "W4",
+   "expected": "fixed",
+   "evidence": "js/core/money.js:947-969, 1005-1013; eval t2.js thousands: row ['27/10/2026','STUDENT FINANCE','£1','234.56','£1','500.00'] → pv [['in',100]]",
+   "rootCause": "Parser trusts column positions without validating row width.",
+   "fix": "Flag rows whose cell count differs from the header ('Row 3 has 6 cells, the header has 5'), and for the known Santander layout re-join a split £n,nnn.nn amount; show the running Balance column so a mismatch is visible."
+  },
+  {
+   "id": "MG-07",
+   "severity": "P1",
+   "title": "A recurring rule's 'Confirm' and an imported bank row for the same payment double-count",
+   "workstream": "W4",
+   "expected": "fixed",
+   "evidence": "js/core/money.js:414-433, 1025-1031; eval t3.js confirmVsImport {dup:false}; #/money/recurring due card 'Student Finance · £450.00 | Due · 12 days ago'",
+   "rootCause": "Rules and imports are two independent writers of the same real-world payment.",
+   "fix": "On import, match rows to due occurrences (same amount ±0, date within ±3 days, payee alias set on the rule) and MARK the occurrence done pointing at the imported tx instead of creating a new one; on Confirm, offer 'Use the bank entry from 27 Oct' when one matches."
+  },
+  {
+   "id": "MG-08",
+   "severity": "P1",
+   "title": "Imported rows are unusable as information: raw bank strings, everything in Other, Type and Balance columns discarded",
+   "workstream": "W4",
+   "expected": "fixed",
+   "evidence": "js/core/money.js:1019-1021, 1041; js/modules/money.js:962 (map options: date/payee/amount/out/in/note only); dialog map ['Type=>','Balance=>']",
+   "rootCause": "Import engine was built as a column copier ('the pages are phase 2' comment at money.js:946).",
+   "fix": "Revamp (see summary): store raw text, derive a clean merchant (strip 'CARD PAYMENT TO', '(VIA APPLE PAY)', ', ON dd-mm-yyyy', ',n.nn GBP, RATE …', store numbers, title-case); payee rules {match -> merchant, category} learned when the user sets a category ('Always put Heron Foods in Food?'); a built-in UK merchant table (Tesco, Heron Foods, Greggs, Stagecoach, Google, Spotify, SLC…); Type DD/SO -> suggest a recurring rule; Balance -> reconcile and show 'Matches the bank: £120.10'."
+  },
+  {
+   "id": "MG-09",
+   "severity": "P1",
+   "title": "iPhone: Money's Transactions, Month and year, Import/Export CSV and Goals' This week/This month/Done are unreachable",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "js/modules/mobile-shell.js:457-463, css/components.css:652-654; eval iphone: ctl list, sheet ['Focus Timer','Reminders10','Routines','Calendar','Money✓','Goals']; shots/money-goals/overview-iphone.png",
+   "rootCause": "Phone title bar prefers the section subnav and the CSS hides page tabs unconditionally.",
+   "fix": "In destinations(), when the page carries [data-phone-tabs] list those tabs in the sheet (as a second group under the section list), or keep the page tabs visible as a k-scroller strip under the title bar for Money and Goals."
+  },
+  {
+   "id": "MG-10",
+   "severity": "P1",
+   "title": "Import preview hides the payee and amount, and the Import button is below the fold",
+   "workstream": "W4",
+   "expected": "fixed",
+   "evidence": "eval scratchpad open.js mac {pvcard:[823,260,264,381], pvgrid:'150px 74px 0px 90px', amt:[1148,…], go y 860}; ipad {go:[624,1182,…]}; iphone {payee w 0, amt x 345 w 47, pvcard w 362}; css/views/money.css:135,169,176; shots/money-goals/import-preview-mac.png",
+   "rootCause": "Dialog width token from Goals + fixed grid columns.",
+   "fix": "Give the import dialog its own wide token (~1080px, full sheet on iPad), stack Columns above Preview below ~900px, shrink the state chip to its content, pin the footer (sticky) so Import is always visible."
+  },
+  {
+   "id": "MG-23",
+   "severity": "P1",
+   "title": "Two genuine identical payments on the same day in one statement: the second is marked 'Already have' and skipped by default",
+   "workstream": "W1",
+   "expected": "fixed",
+   "evidence": "js/core/money.js:1027-1031 (keys[k] = true inside the file loop); eval of the import dialog with money-samples/midata-workaround.csv: pv row 2 '≈ Already have … matches an entry on 29 Oct Skip'",
+   "rootCause": "Within-file repeats are deliberately folded into the duplicate set.",
+   "fix": "Compare file rows only against what is STORED, not against earlier rows of the same file; for stored matches count multiplicity (n identical rows in the file vs m stored) and only flag the surplus. With a balance column (or OFX FITID) use it as part of the identity."
+  },
+  {
+   "id": "MG-24",
+   "severity": "P1",
+   "title": "Re-importing the app's own CSV export turns every outgoing into income and files the category as a note",
+   "workstream": "W4",
+   "expected": "fixed",
+   "evidence": "js/core/money.js:973-977 (note: /category/), 1005-1013 (sign from the minus), 1058-1076 (export unsigned + Type); eval: roundtrip kinds {in: 40}, pv[0] ['2026-10-01','in',1438,'Steam','Other']",
+   "rootCause": "Export and import were written independently; the importer has no notion of a direction column.",
+   "fix": "Recognise the app's own header exactly and import it losslessly (Type → kind, Category → cat by name, Pot → pot, Tags). Generally, offer a 'Type/Direction' column mapping (DEB/DD/SO/FPO = out, FPI/BGC/CR = in)."
+  },
+  {
+   "id": "MG-25",
+   "severity": "P1",
+   "title": "iPhone and iPad portrait: tapping a transaction shows nothing; its Edit and Delete sit below the whole list",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "css/views/money.css:343-345 (side under the list ≤860px); js/modules/money.js:601-602 (row click only re-draws the side); eval iphone: editY 4644 vs innerHeight 874; eval ipad: rowY 684, editY 4288; shots/money-goals/r2-tx-iphone.png",
+   "rootCause": "The desktop master-detail layout is stacked without changing the interaction.",
+   "fix": "Under 860px open the entry in a sheet (the entry editor or the Selected card as a k-msheet) on tap; keep 'This view' above the list as a summary line."
+  },
+  {
+   "id": "MG-11",
+   "severity": "P2",
+   "title": "Month and year: 'In' shows expected income as if received",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "js/modules/money.js:1695-1697 (inFig = ins.planned); shots/money-goals/r2-month-mac.png",
+   "rootCause": "inFig uses ins.planned",
+   "fix": "fig('In', cur.income, expected ? '+' + said(expected) + ' still expected' : null)."
+  },
+  {
+   "id": "MG-12",
+   "severity": "P2",
+   "title": "'Never printed' card shows designer rules to the user",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "js/modules/money.js:1698; shots/money-goals/r2-month-mac.png",
+   "rootCause": "Design annotation shipped as UI copy.",
+   "fix": "Remove the card; use the column for something useful (top merchants this month, biggest change, the month's subscriptions)."
+  },
+  {
+   "id": "MG-13",
+   "severity": "P2",
+   "title": "Money's section tabs jump between pages (Add entry button appears on some pages only)",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "eval hdr.js mac: tabs rects per route; js/modules/money.js:134-135",
+   "rootCause": "header() actions differ per view in js/modules/money.js",
+   "fix": "Keep Add entry (or a placeholder of equal width) on every Money page, or put the section tabs on their own row left-aligned under the title as other Productivity pages do."
+  },
+  {
+   "id": "MG-14",
+   "severity": "P2",
+   "title": "Pots: empty right column beside the pot cards, and Move money's tabs/select clipped",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/money-goals/r2-pots-mac.png",
+   "rootCause": "Fixed-column pot grid; segmented control without wrap.",
+   "fix": "Use auto-fill grid with minmax so cards stretch (or put Move money in the empty column); let the Move money segments wrap and put From/To on separate rows under ~360px."
+  },
+  {
+   "id": "MG-15",
+   "severity": "P2",
+   "title": "iPhone Recurring: the third occurrence tile is cut off at the card edge",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "DOM measure iphone (mg-m2.js): overflow ['k-mn-occ-i:Sat 28 Nov○ Upcoming£1.59 r=410', …]",
+   "rootCause": "Fixed 3-column occurrence grid without a phone tier",
+   "fix": "Under 560px show two tiles (last + next) or wrap them; make the tile row a KOS.ui.scroller if three are needed; collapse New rule behind the + New rule button on phone."
+  },
+  {
+   "id": "MG-16",
+   "severity": "P2",
+   "title": "Goal page: status chip unreadable on the painted band, and a mostly empty page",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/money-goals/r2-goal-detail-mac.png",
+   "rootCause": "Detail page draws only aggregate facts.",
+   "fix": "Give band chips a solid scrim background (as the Hide amounts pill has); for count goals list the counted/remaining items with links into the vault (connected OS); round the line for integer units ('on pace: 0 of 12 by today')."
+  },
+  {
+   "id": "MG-17",
+   "severity": "P2",
+   "title": "Painted page header shows the PREVIOUS page's picture (Goals shows Money's jar, Money shows Goals' mountain)",
+   "workstream": "W2",
+   "expected": "fixed",
+   "evidence": "eval hdr.js imgs per route (mac and ipad); js/core/ui.js:589-592, 1540-1543; shots/money-goals/r2-goals-week-empty-mac.png (Money's jar on Goals)",
+   "rootCause": "Ordering in KOS.show: state.ui.view assigned after render.",
+   "fix": "Set KOS.store.state.ui.view (or a transient KOS.ui.rendering = viewId) before calling KOS.views[viewId], or have pageHeader take the view id from the router's current call."
+  },
+  {
+   "id": "MG-18",
+   "severity": "P2",
+   "title": "CSS class collision: first-run steps and the import stepper share .k-mn-steps/.k-mn-step, breaking both",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "eval empty account: k-mn-step-n x [893,921,897]; css/views/money.css:158-163 vs 319-321; shots/money-goals/r2-money-empty-mac.png",
+   "rootCause": "Duplicate selectors in one view stylesheet.",
+   "fix": "Rename one set (e.g. .k-mn-istep for the import stepper) and set align-items: stretch on the first-run list."
+  },
+  {
+   "id": "MG-19",
+   "severity": "P2",
+   "title": "Transactions 'This view' totals cover only the rows loaded so far",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "eval #/money/transactions range=all; js/modules/money.js:652-670 (sums shown)",
+   "rootCause": "Totals derived from the rendered batch.",
+   "fix": "Compute the range totals with KOS.money.rangeSummary(from,to) (index read, no rendering) and keep the lazy list for rows only."
+  },
+  {
+   "id": "MG-20",
+   "severity": "P2",
+   "title": "iPad: Money header wraps Add entry to its own row and clips Hide amounts; filter selects are 30px on touch",
+   "workstream": "W3",
+   "expected": "open (Phase 3)",
+   "evidence": "eval hdr.js ipad; DOM measure ipad/iphone/ipadl (m4.js, touch threshold at every width); shots/money-goals/tx-ipad.png",
+   "rootCause": "Header actions row not tiered for 701-1080; pill-select lacks coarse-pointer sizing.",
+   "fix": "Move section tabs to their own row below the title at <=1080px; apply the coarse-pointer 44px rule to .k-pill-select and menu buttons."
+  },
+  {
+   "id": "MG-26",
+   "severity": "P2",
+   "title": "Amounts written as (3.45) or 3.45 DR import as money in",
+   "workstream": "W4",
+   "expected": "fixed",
+   "evidence": "js/core/money.js:63-70; dialog preview of money-samples/odd-amounts.csv: 'PAREN NEG +£3.45', 'DR SUFFIX +£3.45', row 5 'no amount'",
+   "rootCause": "toMinor only knows a leading minus.",
+   "fix": "In toMinor treat (x), trailing '-', 'DR'/'CR' and 'D'/'C' suffixes as signs; flag any row whose sign was inferred."
+  },
+  {
+   "id": "MG-27",
+   "severity": "P2",
+   "title": "Editing a transfer into a move between two pots keeps the original and adds two new entries",
+   "workstream": "W4",
+   "expected": "fixed",
+   "evidence": "js/modules/money.js:814-821 (early return before line 832 updateTx); eval: before [[2026-10-28,laptop,in,12000]] after adds [laptop,out,12000],[emergency,in,12000]",
+   "rootCause": "The between-pots path was written for new entries only.",
+   "fix": "When editing, turn the existing entry into one half (updateTx) and add only the other; or delete the original in the same step with an undo."
+  },
+  {
+   "id": "MG-28",
+   "severity": "P2",
+   "title": "Bulk 'Set category' puts income entries into spending categories",
+   "workstream": "W4",
+   "expected": "fixed",
+   "evidence": "js/modules/money.js:622-624, 641-649; eval: income £40 → {kind:'in', cat:'food'}, summary food {income:4000, out:1000}",
+   "rootCause": "",
+   "fix": "Split the menu (Out categories for out/refund rows, In categories for income) or skip and report rows whose kind does not match the chosen category."
+  },
+  {
+   "id": "MG-29",
+   "severity": "P2",
+   "title": "Recurring: an occurrence left unconfirmed for more than 14 days disappears; older months are never offered",
+   "workstream": "W4",
+   "expected": "fixed",
+   "evidence": "js/modules/money.js:1213-1216 (14-day window, one per rule, slice 3), 1251 (visit.left); eval on #/money/recurring: due cards [Google One 11 days ago, Student Finance 12, Phone 14]; Spotify occurrences 2026-08-12/09-12/10-12 all 'due'",
+   "rootCause": "The due list is a recent window, not 'everything not yet decided'.",
+   "fix": "List every unconfirmed past occurrence (grouped per rule, 'Spotify · 3 not confirmed'), with Confirm all / Skip all; mark the rule row with a due count; once bank import exists, match them to imported rows instead."
+  },
+  {
+   "id": "MG-30",
+   "severity": "P2",
+   "title": "Money goals are met with no evidence: 'No-spend days' counts days with no entries at all, and 'Spend under' is met by an empty month",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "js/core/goals.js:680-711; empty account (reset), goals added via KOS.goals.add: #/goals text '✓ Met | 5 no-spend days | 7 | of 5 days | Met. Nothing more to do here.' and 'Your run … 2 met this week'; shots/money-goals/r2-goals-thin-mac.png; shots/money-goals/r2-overview-dawn-mac.png (chip '7 no-spend days', '1 day so far')",
+   "rootCause": "Absence of data is read as absence of spending.",
+   "fix": "Require evidence that Money is in use for the period (entries on at least N days, or an import covering the range) before judging; otherwise read 'Not enough entries to judge'. Start counting from the goal's creation day."
+  },
+  {
+   "id": "MG-31",
+   "severity": "P2",
+   "title": "Budgets: the Payday day picker does nothing while the month starts on the 1st, then Payday ignores the day you picked",
+   "workstream": "W4",
+   "expected": "fixed",
+   "evidence": "js/modules/money.js:1093-1097, 198-202; eval on #/money/budgets: pick 15 → monthStart 1; click Payday → monthStart 28",
+   "rootCause": "The select is gated on the current mode instead of setting it.",
+   "fix": "Picking a day should switch to Payday on that day; show the day picker in first-run; allow Last day of the month (periodRange already clamps)."
+  },
+  {
+   "id": "MG-32",
+   "severity": "P2",
+   "title": "New entry: switching Out to In keeps the Out category, so income is saved under Food while the picker shows Job",
+   "workstream": "W4",
+   "expected": "fixed",
+   "evidence": "js/modules/money.js:736-737 (lines start with food), 765-767 (select drawn from the new kind, ln.cat untouched), 731 (placeholder fixed at creation); UI repro: New entry → In → 12.34 → Save: stored ['in','food',1234], summary food {income:1234}",
+   "rootCause": "Select value and model diverge when the option set changes.",
+   "fix": "On a kind switch reset each line's cat to the new kind's default when it is not one of that kind's categories (and update the placeholder)."
+  },
+  {
+   "id": "MG-21",
+   "severity": "P3",
+   "title": "Phone section sheet stays open across navigation and shows the wrong page ticked",
+   "workstream": "W2",
+   "expected": "fixed",
+   "evidence": "shots/money-goals/r2-stale-sheet-iphone.png, shots/money-goals/r2-month-mac.png and first r2-pots-mac attempt (sheet over the Mac page); DOM: section.k-msheet[data-ui~='shell.section-sheet']",
+   "rootCause": "mobile-shell openSection overlay not tied to navigation.",
+   "fix": "Close activeSectionOverlay on every KOS.show / hashchange in mobile-shell.js."
+  },
+  {
+   "id": "MG-22",
+   "severity": "P3",
+   "title": "Goals: zero counts printed and empty-state card leaves a dead half",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "shots/money-goals/r2-goals-week-empty-mac.png; #/goals text with three Money goals: '0 | behind this week | 1 | on track this week | 2 | met this week'",
+   "rootCause": "Pill count and stat tone not zero-aware.",
+   "fix": "Hide the count at 0 (or the whole domain pill row when empty); put New goal / templates in the empty card; use muted tone for a zero 'behind'."
+  },
+  {
+   "id": "MG-33",
+   "severity": "P3",
+   "title": "Import error rows read 'no date i can read' (lower-case I)",
+   "workstream": "W4",
+   "expected": "fixed",
+   "evidence": "js/modules/money.js:998 (e.reason.toLowerCase()); dialog preview of odd-amounts.csv",
+   "rootCause": "",
+   "fix": "Lower-case only the first character, or write the reasons in sentence form already."
+  },
+  {
+   "id": "MG-34",
+   "severity": "P3",
+   "title": "Editing a confirmed recurring entry's amount leaves Recurring showing the old amount",
+   "workstream": "W4",
+   "expected": "fixed",
+   "evidence": "js/core/money.js:454-458 (upcoming reads m.minor), 666-675 (updateTx ignores rule); eval editConfirmed {recurringShows:1000, txIs:2000}",
+   "rootCause": "",
+   "fix": "Read the amount from the linked transaction, or update the mark (and its changed flag) in updateTx when cur.rule is set."
+  },
+  {
+   "id": "MG-35",
+   "severity": "P3",
+   "title": "Transactions search ignores category names and amounts",
+   "workstream": "W4",
+   "expected": "fixed",
+   "evidence": "js/core/money.js:698 (keep: payee+note+tags); eval search {byCat:0, byAmount:0} with matching entries present",
+   "rootCause": "",
+   "fix": "Include the category name and the formatted amount in the haystack (or parse a number query as an amount match)."
+  },
+  {
+   "id": "MG-36",
+   "severity": "P3",
+   "title": "A closed pot cannot be reopened, and the money still in it drops out of every view",
+   "workstream": "W4",
+   "expected": "fixed",
+   "evidence": "js/modules/money.js:1556-1560 (closePot), 459-475 and 753 (pots() only); grep 'Reopen|reopen' finds nothing",
+   "rootCause": "",
+   "fix": "Add a 'Closed pots' list with Reopen (like Budgets' Archived categories), or move the remaining balance back to Main as part of closing."
+  },
+  {
+   "id": "MG-37",
+   "severity": "P3",
+   "title": "With Hide amounts on, a money goal's figure reads '– / of · 8 of 30 days gone'",
+   "workstream": "W7",
+   "expected": "fixed",
+   "evidence": "shots/money-goals/r2-goal-money-hidden-mac.png (#/goals/10, 'Spend under 200', Hide amounts on)",
+   "rootCause": "",
+   "fix": "Use KOS.ui.amount's mask for goal figures too, or drop the whole 'of …' phrase when hidden."
+  },
+  {
+   "id": "MG-38",
+   "severity": "P3",
+   "title": "Recurring rule rows are role=button cards that contain buttons",
+   "workstream": "W9",
+   "expected": "open (Phase 3)",
+   "evidence": "js/modules/money.js:1285-1288",
+   "rootCause": "",
+   "fix": "Make the name a real button (or link) and keep the row a plain listitem."
+  },
+  {
+   "id": "MG-39",
+   "severity": "P3",
+   "title": "Income categories can be added but never renamed, recoloured or archived",
+   "workstream": "W4",
+   "expected": "fixed",
+   "evidence": "js/modules/money.js:1067 (out only), 1119-1131 (actions per out row), 1188-1190 (budget field regardless of kind); js/core/money.js:113 (in → budget null)",
+   "rootCause": "",
+   "fix": "Add an 'Income categories' card on Budgets' side (rename, colour, archive), and hide the budget field when Income is picked."
+  },
+  {
+   "id": "MG-40",
+   "severity": "P3",
+   "title": "Month and year: a past month's category row opens Transactions on 'Everything', and Export CSV ignores the month on screen",
+   "workstream": "W4",
+   "expected": "fixed",
+   "evidence": "js/modules/money.js:1681 (range 'all' unless current), 1655 + 1022-1036 (exportDialog uses txRange())",
+   "rootCause": "",
+   "fix": "Add a custom from/to range to Transactions and pass the month's range; give the export dialog the caller's range."
+  },
+  {
+   "id": "MG-41",
+   "severity": "P3",
+   "title": "Year view: 'Set aside · 2 pots' counts every open pot, and the dashed income line carries no amount",
+   "workstream": "W4",
+   "expected": "fixed",
+   "evidence": "js/modules/money.js:1742 (M.pots().length), 1722 (k-mn-yin with no height variable); shots/money-goals/r2-year-mac.png",
+   "rootCause": "",
+   "fix": "Count the pots that received money in the range; draw income at its height (or print it under the bar)."
+  },
+  {
+   "id": "MG-42",
+   "severity": "P3",
+   "title": "A subscription's price rise can never be recorded: setPrice has no caller, and editing the amount re-prices past occurrences",
+   "workstream": "W4",
+   "expected": "fixed",
+   "evidence": "grep setPrice: only js/core/money.js:390 and the export; js/modules/money.js:436, 452, 1275 read priceChange; ruleEditor save → updateRule(minor)",
+   "rootCause": "",
+   "fix": "When the amount of a rule with confirmed history changes, ask 'From when?' and call setPrice(id, amount, from)."
+  },
+  {
+   "id": "MG-43",
+   "severity": "P3",
+   "title": "Import preview shows only the first 80 rows without saying so",
+   "workstream": "W4",
+   "expected": "fixed",
+   "evidence": "js/modules/money.js:989 (slice(0, 80)), 1001 (header counts all rows)",
+   "rootCause": "",
+   "fix": "Virtualise or page the preview, and put duplicates and errors first with counts."
+  },
+  {
+   "id": "MG-44",
+   "severity": "P3",
+   "title": "CSV export does not neutralise cells that start with = + - @ (bank descriptions can carry formulas into Excel)",
+   "workstream": "W4",
+   "expected": "fixed",
+   "evidence": "js/core/money.js:1057 (csvCell), js/modules/money.js:1039-1046 (selection export, same rule)",
+   "rootCause": "",
+   "fix": "Prefix a single quote (or a tab) to cells beginning with = + - @, as OWASP recommends for CSV export."
+  }
+ ]
+}
