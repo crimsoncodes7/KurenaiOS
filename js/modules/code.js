@@ -781,7 +781,28 @@
           if (outcome.pay) say("All " + c.total + " pass. " + KOS.codeUI.payText(outcome.pay).replace(/ · /g, ", ") + ".");
           else say("All " + c.total + " pass. No reward: " + (outcome.why || "practice") + ".");
           paintReward(outcome, conceptNames);
-        } else paintReward();
+        } else {
+          paintReward();
+          if (KOS.errorLog && KOS.errorLog.inlinePill) {
+            var failCtx = c.compile ? "Compile error" :
+              c.stopped ? (c.stopped.error.kind === "timeout" ? "Timed out on case " + (c.stopped.at + 1) : "Runtime exception " + (c.stopped.error.code || "") + " on case " + (c.stopped.at + 1)) :
+              c.rule ? ("Rule failed: " + c.rule.msg) :
+              ((c.total - c.pass) + " of " + c.total + " test cases failing");
+            rewardSlot.appendChild(el("div", { class: "k-el-inline-row" }, [
+              KOS.errorLog.inlinePill({
+                subject: "code",
+                space: "code",
+                topicRef: t.lesson || t.id,
+                topicTitle: t.title || t.id,
+                source: "code",
+                title: (t.title || t.id) + " — " + failCtx,
+                context: failCtx,
+                dedupeKey: "code:" + t.id + ":" + failCtx.slice(0, 48),
+                deepLink: { view: "code", arg: { page: "task", id: t.id } }
+              }, { hook: "code.log-error", undoHook: "code.log-undo" })
+            ]));
+          }
+        }
         counts();
         KOS.refreshRailCounters && KOS.refreshRailCounters();
       });

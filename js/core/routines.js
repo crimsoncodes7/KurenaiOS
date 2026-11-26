@@ -132,8 +132,17 @@
 
   /* ---------------- the gate ---------------- */
   function normaliseWindow(w) {
-    if (!w || !HM.test(w.from) || !HM.test(w.to)) return null;
+    if (!w || !HM.test(w.from) || !HM.test(w.to) || w.from === w.to) return null;
     return { from: w.from, to: w.to };
+  }
+  function normaliseDayWindows(dw) {
+    if (!dw || typeof dw !== "object" || Array.isArray(dw)) return null;
+    var out = {}, n = 0;
+    for (var d = 0; d <= 6; d++) {
+      var k = String(d), w = normaliseWindow(dw[k]);
+      if (w) { out[k] = w; n++; }
+    }
+    return n ? out : null;
   }
   function normaliseDays(d) {
     if (d === null) return null;
@@ -214,6 +223,8 @@
     if (pick("legacyHabit") != null) out.legacyHabit = String(pick("legacyHabit"));
     if (typeof pick("template") === "string" && pick("template")) out.template = pick("template").slice(0, 30);
     if (out.weekend && !out.weekend.window && !out.weekend.days.length) out.weekend = null;
+    var dw = normaliseDayWindows(pick("dayWindows"));
+    if (dw) out.dayWindows = dw;
     var every = Math.round(+pick("every") || 0);
     if (every >= 2 && every <= 14 && out.days !== null) {
       out.every = every;
@@ -344,10 +355,13 @@
       var gap = daysBetween(r.from, day);
       return gap >= 0 && gap % r.every === 0 ? { window: r.window } : null;
     }
-    var w = r.weekend && weekendDays().indexOf(dow(day)) !== -1 ? r.weekend : null;
+    var d = dow(day);
+    var w = r.weekend && weekendDays().indexOf(d) !== -1 ? r.weekend : null;
     var days = w && w.days.length ? w.days : r.days;
-    var on = !days.length || days.indexOf(dow(day)) !== -1;
-    return on ? { window: (w && w.window) || r.window } : null;
+    var on = !days.length || days.indexOf(d) !== -1;
+    if (!on) return null;
+    var dw = r.dayWindows && r.dayWindows[String(d)];
+    return { window: dw || (w && w.window) || r.window };
   }
   function scheduledOn(r, day) { return !!scheduleOn(r, day); }
   function windowOn(r, day) { var s = scheduleOn(r, day); return s ? s.window : null; }

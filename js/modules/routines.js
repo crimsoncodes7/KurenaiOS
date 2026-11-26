@@ -669,18 +669,112 @@
       return i;
     }
     var mk = { morning: "朝", afternoon: "昼", evening: "夜" };
-    var slots = el("div", { class: "k-rt-slots" }, [el("div", { class: "k-rt-slot k-rt-slot--h" }, [el("span"), el("span"), muted("Weekdays"), muted("Weekends"), muted("On")])]
-      .concat(V().SLOTS.map(function (s) {
-        var o = c.slots[s];
-        function set(patch) { var sl = {}; sl[s] = Object.assign({}, o, patch); V().setConfig({ slots: sl }); KOS.rerender(); }
-        return el("div", { class: "k-rt-slot", "data-ui": "review.slot-setting" }, [tile(mk[s], s), el("span", { text: s.charAt(0).toUpperCase() + s.slice(1) }),
-          timeIn(o.weekday, function (v) { set({ weekday: v }); }, s + " review, weekdays"),
-          timeIn(o.weekend, function (v) { set({ weekend: v }); }, s + " review, weekends"),
-          sw(o.on, function (v) { set({ on: v }); }, s + " review on")]);
+    var hasPerDay = V().SLOTS.some(function (s) { return !!(c.slots[s] && c.slots[s].days && Object.keys(c.slots[s].days).length); });
+    var DAY3S = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    var DAY_ORDS = [1, 2, 3, 4, 5, 6, 0];
+    function resolvedSlotDay(s, x) {
+      var o = c.slots[s];
+      if (o.days && o.days[String(x)]) return o.days[String(x)];
+      return c.weekendDays.indexOf(x) !== -1 ? o.weekend : o.weekday;
+    }
+    var rvModeSeg = el("div", { class: "k-seg k-seg--quiet k-rt-mode-seg", role: "group", "aria-label": "Review schedule mode", "data-ui": "review.sched-mode" }, [
+      ["simple", "Simple"], ["perday", "Per day"]
+    ].map(function (pair) {
+      var on = (pair[0] === "perday") === hasPerDay;
+      var b = el("button", { type: "button", class: "k-seg-item", "aria-pressed": String(on), text: pair[1],
+        onclick: function () {
+          if (on) return;
+          var nextSlots = {};
+          if (pair[0] === "perday") {
+            V().SLOTS.forEach(function (s) {
+              var o = c.slots[s], dm = {};
+              DAY_ORDS.forEach(function (x) { dm[String(x)] = resolvedSlotDay(s, x); });
+              nextSlots[s] = Object.assign({}, o, { days: dm });
+            });
+          } else {
+            V().SLOTS.forEach(function (s) {
+              var o = c.slots[s];
+              nextSlots[s] = { on: o.on, weekday: resolvedSlotDay(s, 1), weekend: resolvedSlotDay(s, 6), days: null };
+            });
+          }
+          V().setConfig({ slots: nextSlots });
+          KOS.rerender();
+        } });
+      if (on) KOS.ui.state(b, "active", true);
+      return b;
+    }));
+    var slotsEl;
+    if (!hasPerDay) {
+      slotsEl = el("div", { class: "k-rt-slots" }, [el("div", { class: "k-rt-slot k-rt-slot--h" }, [el("span"), el("span"), muted("Weekdays"), muted("Weekends"), muted("On")])]
+        .concat(V().SLOTS.map(function (s) {
+          var o = c.slots[s];
+          function set(patch) { var sl = {}; sl[s] = Object.assign({}, o, patch); V().setConfig({ slots: sl }); KOS.rerender(); }
+          return el("div", { class: "k-rt-slot", "data-ui": "review.slot-setting" }, [tile(mk[s], s), el("span", { text: s.charAt(0).toUpperCase() + s.slice(1) }),
+            timeIn(o.weekday, function (v) { set({ weekday: v }); }, s + " review, weekdays"),
+            timeIn(o.weekend, function (v) { set({ weekend: v }); }, s + " review, weekends"),
+            sw(o.on, function (v) { set({ on: v }); }, s + " review on")]);
+        })));
+    } else {
+      var toggles = el("div", { class: "k-rt-rv-toggles" }, V().SLOTS.map(function (s) {
+        var o = c.slots[s], lbl = s.charAt(0).toUpperCase() + s.slice(1);
+        return el("label", { class: "k-rt-rv-tog", "data-ui": "review.slot-setting" }, [
+          el("span", { class: "k-rt-rv-tog-n" }, [tile(mk[s], s, true), el("span", { text: lbl })]),
+          sw(o.on, function (v) { var sl = {}; sl[s] = { on: v }; V().setConfig({ slots: sl }); KOS.rerender(); }, lbl + " review on")
+        ]);
+      }));
+      var copyMonRv = el("button", { type: "button", class: "k-btn k-btn--quiet k-btn--sm", "data-ui": "review.copy-mon",
+        text: "Copy Mon → weekdays",
+        onclick: function () {
+          var nextSlots = {};
+          V().SLOTS.forEach(function (s) {
+            var o = c.slots[s], dm = Object.assign({}, o.days || {}), monT = resolvedSlotDay(s, 1);
+            [2, 3, 4, 5].forEach(function (x) { dm[String(x)] = monT; });
+            nextSlots[s] = { days: dm, weekday: monT };
+          });
+          V().setConfig({ slots: nextSlots });
+          KOS.ui.toast("Copied Monday's review times to weekdays.");
+          KOS.rerender();
+        } });
+      var grid = el("div", { class: "k-rt-rv-grid", "data-ui": "review.perday-grid" }, [
+        el("div", { class: "k-rt-rv-row k-rt-rv-row--h", "aria-hidden": "true" }, [
+          el("span"),
+          el("span", { class: "k-rt-rv-colh", text: "Morning" }),
+          el("span", { class: "k-rt-rv-colh", text: "Afternoon" }),
+          el("span", { class: "k-rt-rv-colh", text: "Evening" })
+        ])
+      ].concat(DAY_ORDS.map(function (x) {
+        var wknd = c.weekendDays.indexOf(x) !== -1;
+        return el("div", { class: "k-rt-rv-row" + (wknd ? " k-rt-rv-row--wknd" : "") }, [
+          el("span", { class: "k-rt-rv-day", text: DAY3S[x] })
+        ].concat(V().SLOTS.map(function (s) {
+          var o = c.slots[s];
+          if (!o.on) return el("span", { class: "k-rt-rv-off", text: "Off" });
+          var curT = resolvedSlotDay(s, x);
+          var inp = el("input", { type: "time", class: "k-input k-mono k-rt-rv-in", "data-ui": "review.day-time",
+            "data-slot": s, "data-day": String(x), value: curT, step: 300,
+            "aria-label": s.charAt(0).toUpperCase() + s.slice(1) + " review on " + DAYN[x] });
+          inp.addEventListener("change", function () {
+            if (!/^\d{2}:\d{2}$/.test(inp.value)) return;
+            var latest = V().cfg().slots[s], dm = Object.assign({}, latest.days || {});
+            DAY_ORDS.forEach(function (dx) { if (!dm[String(dx)]) dm[String(dx)] = resolvedSlotDay(s, dx); });
+            dm[String(x)] = inp.value;
+            var sl = {}; sl[s] = { days: dm };
+            if (x === 6) sl[s].weekend = inp.value;
+            V().setConfig({ slots: sl });
+            KOS.rerender();
+          });
+          return inp;
+        })));
       })));
+      slotsEl = el("div", { class: "k-rt-sched-box" }, [
+        toggles,
+        el("div", { class: "k-rt-pday-tools" }, [muted("Each day uses its own review times"), copyMonRv]),
+        grid
+      ]);
+    }
     var easyOn = !!V().cfg().easyUntil && V().easy();
     var col1 = el("div", { class: "k-rt-col" }, [
-      card([head("The three reviews"), slots, el("p", { class: "k-muted k-rt-small", text: "School holidays use the weekend times (weeks with no lessons in Pacing)." })]),
+      card([el("div", { class: "k-rt-sched-head" }, [head("The three reviews"), rvModeSeg]), slotsEl, el("p", { class: "k-muted k-rt-small", text: "School holidays use the weekend times (weeks with no lessons in Pacing)." })]),
       card([head("Behaviour"),
         setRow("Open the review by itself", "on the first app open in its slot; never over Focus, a dialog or the Exam Room", sw(c.autoOpen, function (v) { V().setConfig({ autoOpen: v }); }, "Open the review by itself")),
         setRow("The day starts at", "routines and reviews after midnight still count for the evening before",
@@ -743,18 +837,64 @@
     var nameIn = el("input", { type: "text", class: "k-input k-rt-name", value: d.name, placeholder: "Name this routine", "aria-label": "Routine name", "data-ui": "routine.name" });
     var markIn = el("input", { type: "text", class: "k-input k-rt-markin", value: d.mark || "", maxlength: 2, "aria-label": "Mark (one character)", placeholder: "習" });
     var stepsBox = el("div", { class: "k-rt-esteps", "data-ui": "routine.editor-steps" });
-    var totalBox = el("div", { class: "k-rt-total" });
+    var totalBox = el("div", { class: "k-rt-total", "data-ui": "routine.total" });
+    var DAY3 = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    var DAY_ORD = [1, 2, 3, 4, 5, 6, 0];
+    var schedMode = d.dayWindows && Object.keys(d.dayWindows).length ? "perday" : "simple";
+    function winDur(w) { return w && w.from && w.to && w.from !== w.to ? (mins(w.to) - mins(w.from) + 1440) % 1440 : 0; }
+    function activeDays() { return d.days === null ? [] : !d.days.length ? [0, 1, 2, 3, 4, 5, 6] : d.days.slice(); }
+    function dayOn(x) { return activeDays().indexOf(x) !== -1; }
+    function resolvedDayWin(x) {
+      var k = String(x);
+      if (d.dayWindows && d.dayWindows[k]) return d.dayWindows[k];
+      if (d.weekend && d.weekend.window && (x === 0 || x === 6)) return d.weekend.window;
+      return d.window || null;
+    }
     /* a step that runs another routine (1C): its minutes are that routine's own */
     function stepMins(s) { var t = s.run ? R().get(s.run) : null; return t ? t.steps.reduce(function (m, x) { return m + (x.optional ? 0 : +x.mins || 0); }, 0) : +s.mins || 0; }
     function paintTotal() {
       var t = d.steps.reduce(function (m, s) { return m + stepMins(s); }, 0);
       totalBox.innerHTML = "";
-      var w = d.window ? mins(d.window.to) - mins(d.window.from) : 0;
-      totalBox.appendChild(el("div", { class: "k-rt-hd" }, [el("b", { text: t + " min" }), muted(w ? "of a " + w + " min window" : "in all"), el("span", { class: "k-rt-fill" }),
-        w ? el("span", { class: "k-rt-small k-rt-text2", text: t <= w ? (w - t) + " min to spare" : (t - w) + " min over the window" }) : null]));
-      if (w) totalBox.appendChild(el("div", { class: "k-rt-totalbar" }, [el("span", { style: "--p: " + Math.min(100, Math.round(100 * t / w)) + "%" })]));
+      var w = 0, tightDay = null;
+      if (schedMode === "perday" && d.days !== null) {
+        DAY_ORD.forEach(function (x) {
+          if (!dayOn(x)) return;
+          var dur = winDur(resolvedDayWin(x));
+          if (dur && (!w || dur < w)) { w = dur; tightDay = x; }
+        });
+      } else if (d.days !== null) {
+        w = winDur(d.window);
+      }
+      var over = !!(w && t > w);
+      var subText = !w ? (schedMode === "perday" && d.days !== null ? "in all · set a window to check fit" : "in all")
+        : tightDay != null ? "tightest: " + DAY3[tightDay] + " (" + w + " min)" : "of a " + w + " min window";
+      var spareText = !w ? null : over
+        ? (t - w) + " min over" + (tightDay != null ? " on " + DAY3[tightDay] : " the window")
+        : (w - t) + " min to spare";
+      totalBox.appendChild(el("div", { class: "k-rt-hd" }, [
+        el("b", { text: t + " min" }), muted(subText), el("span", { class: "k-rt-fill" }),
+        spareText ? el("span", { class: "k-rt-small " + (over ? "k-rt-total-over" : "k-rt-text2"), text: spareText }) : null
+      ]));
+      if (w) {
+        var fill = el("span");
+        fill.style.setProperty("--p", Math.min(100, Math.round(100 * t / w)) + "%");
+        var barEl = el("div", { class: "k-rt-totalbar" }, [fill]);
+        if (over) KOS.ui.state(barEl, "over", true);
+        totalBox.appendChild(barEl);
+      }
       var m = d.steps.filter(function (s) { return s.minimum; })[0];
       if (m) totalBox.appendChild(muted("Minimum version: " + (m.text || "this step") + " alone"));
+      if (schedMode === "perday" && perDayBox) {
+        perDayBox.querySelectorAll("[data-ui='routine.pday-meta']").forEach(function (elM) {
+          var x = +elM.getAttribute("data-day"), wDur = winDur(resolvedDayWin(x));
+          if (!wDur) { elM.textContent = "—"; elM.removeAttribute("data-tone"); elM.title = "No window set"; return; }
+          var diff = wDur - t, tone = diff < 0 ? "over" : diff <= 15 ? "tight" : null;
+          elM.textContent = diff >= 0 ? "+" + diff + "m" : "−" + (-diff) + "m";
+          if (tone) elM.setAttribute("data-tone", tone); else elM.removeAttribute("data-tone");
+          elM.title = wDur + " min window · " + (diff >= 0 ? diff + " min to spare" : (-diff) + " min over");
+          elM.setAttribute("aria-label", elM.title);
+        });
+      }
     }
     function paintSteps(focusId) {
       stepsBox.innerHTML = "";
@@ -851,34 +991,179 @@
     paintTotal();
 
     var days = el("div", { class: "k-rt-days", role: "group", "aria-label": "Days" });
+    function toggleDay(x) {
+      var cur2 = d.days === null || !d.days.length ? [0, 1, 2, 3, 4, 5, 6] : d.days.slice();
+      if (d.days === null) cur2 = [];
+      var i = cur2.indexOf(x);
+      if (i === -1) cur2.push(x); else cur2.splice(i, 1);
+      d.days = cur2.length === 7 ? [] : cur2.length ? cur2.sort() : null;
+      demand.checked = d.days === null;
+      paintSchedule();
+    }
     function paintDays() {
       days.innerHTML = "";
-      [1, 2, 3, 4, 5, 6, 0].forEach(function (x) {
-        var on = d.days === null ? false : !d.days.length || d.days.indexOf(x) !== -1;
-        days.appendChild(el("button", { type: "button", class: "k-rt-day", role: "checkbox", "aria-checked": String(on), "aria-label": ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][x],
-          text: "SMTWTFS".charAt(x), onclick: function () {
-            var cur2 = d.days === null || !d.days.length ? [0, 1, 2, 3, 4, 5, 6] : d.days.slice();
-            if (d.days === null) cur2 = [];
-            var i = cur2.indexOf(x);
-            if (i === -1) cur2.push(x); else cur2.splice(i, 1);
-            d.days = cur2.length === 7 ? [] : cur2.length ? cur2.sort() : null;
-            paintDays();
-          } }));
+      DAY_ORD.forEach(function (x) {
+        var on = dayOn(x);
+        days.appendChild(el("button", { type: "button", class: "k-rt-day", role: "checkbox", "aria-checked": String(on), "aria-label": DAYN[x],
+          text: "SMTWTFS".charAt(x), onclick: function () { toggleDay(x); } }));
       });
     }
-    paintDays();
     var demand = el("input", { type: "checkbox", role: "switch", class: "k-switch", "aria-label": "No schedule (on demand)" }); demand.checked = d.days === null;
-    demand.addEventListener("change", function () { d.days = demand.checked ? null : [1, 2, 3, 4, 5]; paintDays(); });
+    demand.addEventListener("change", function () { d.days = demand.checked ? null : [1, 2, 3, 4, 5]; paintSchedule(); });
     var fromIn = el("input", { type: "time", class: "k-input k-mono", value: d.window ? d.window.from : "", "aria-label": "From" });
     var toIn = el("input", { type: "time", class: "k-input k-mono", value: d.window ? d.window.to : "", "aria-label": "Until" });
-    function readWin() { d.window = fromIn.value && toIn.value && fromIn.value < toIn.value ? { from: fromIn.value, to: toIn.value } : null; paintTotal(); }
+    function readWin() { d.window = fromIn.value && toIn.value && fromIn.value !== toIn.value ? { from: fromIn.value, to: toIn.value } : null; paintTotal(); }
     fromIn.addEventListener("change", readWin); toIn.addEventListener("change", readWin);
     var wkOn = el("input", { type: "checkbox", role: "switch", class: "k-switch", "aria-label": "A different weekend schedule" }); wkOn.checked = !!(d.weekend && d.weekend.window);
     var wkFrom = el("input", { type: "time", class: "k-input k-mono", value: d.weekend && d.weekend.window ? d.weekend.window.from : "", "aria-label": "Weekend from" });
     var wkTo = el("input", { type: "time", class: "k-input k-mono", value: d.weekend && d.weekend.window ? d.weekend.window.to : "", "aria-label": "Weekend until" });
     var wkRow = el("div", { class: "k-rt-2col", hidden: wkOn.checked ? null : true }, [wkFrom, wkTo]);
-    function readWk() { wkRow.hidden = !wkOn.checked; d.weekend = wkOn.checked && wkFrom.value && wkTo.value && wkFrom.value < wkTo.value ? { days: [0, 6], window: { from: wkFrom.value, to: wkTo.value } } : null; }
+    function readWk() { wkRow.hidden = !wkOn.checked; d.weekend = wkOn.checked && wkFrom.value && wkTo.value && wkFrom.value !== wkTo.value ? { days: [0, 6], window: { from: wkFrom.value, to: wkTo.value } } : null; }
     [wkOn, wkFrom, wkTo].forEach(function (x) { x.addEventListener("change", readWk); });
+
+    /* U5: Simple | Per day mode switcher + Mon–Sun per-day editor */
+    var draftDayTimes = {};
+    var modeSeg = el("div", { class: "k-seg k-seg--quiet k-rt-mode-seg", role: "group", "aria-label": "Schedule mode", "data-ui": "routine.sched-mode" });
+    var simpleBox = el("div", { class: "k-rt-sched-box" }, [
+      el("div", { class: "k-field" }, [el("span", { class: "k-field-label", text: "Days" }), days]),
+      el("div", { class: "k-rt-2col" }, [el("label", { class: "k-field" }, [el("span", { class: "k-field-label", text: "From" }), fromIn]), el("label", { class: "k-field" }, [el("span", { class: "k-field-label", text: "Until" }), toIn])]),
+      el("div", { class: "k-rt-set" }, [el("div", { class: "k-rt-grow" }, [el("div", { text: "A different weekend schedule" }), muted("Saturday and Sunday")]), wkOn]),
+      wkRow
+    ]);
+    var perDayBox = el("div", { class: "k-rt-sched-box" });
+    function seedPerDay() {
+      d.dayWindows = d.dayWindows ? Object.assign({}, d.dayWindows) : {};
+      DAY_ORD.forEach(function (x) {
+        var k = String(x);
+        if (!d.dayWindows[k] && dayOn(x)) {
+          var rw = resolvedDayWin(x);
+          if (rw) d.dayWindows[k] = { from: rw.from, to: rw.to };
+        }
+      });
+    }
+    function collapseToSimple() {
+      var wd = null, we = null;
+      [1, 2, 3, 4, 5].forEach(function (x) { if (!wd && dayOn(x)) wd = resolvedDayWin(x); });
+      [6, 0].forEach(function (x) { if (!we && dayOn(x)) we = resolvedDayWin(x); });
+      d.window = wd || we || d.window || null;
+      fromIn.value = d.window ? d.window.from : "";
+      toIn.value = d.window ? d.window.to : "";
+      if (we && (!d.window || we.from !== d.window.from || we.to !== d.window.to)) {
+        d.weekend = { days: [0, 6], window: { from: we.from, to: we.to } };
+        wkOn.checked = true; wkFrom.value = we.from; wkTo.value = we.to; wkRow.hidden = false;
+      } else {
+        d.weekend = null; wkOn.checked = false; wkFrom.value = ""; wkTo.value = ""; wkRow.hidden = true;
+      }
+      d.dayWindows = null;
+      draftDayTimes = {};
+    }
+    function paintModeSeg() {
+      modeSeg.innerHTML = "";
+      [["simple", "Simple"], ["perday", "Per day"]].forEach(function (pair) {
+        var on = schedMode === pair[0];
+        var b = el("button", { type: "button", class: "k-seg-item", "aria-pressed": String(on), disabled: d.days === null ? true : null, text: pair[1],
+          onclick: function () {
+            if (schedMode === pair[0] || d.days === null) return;
+            schedMode = pair[0];
+            if (schedMode === "perday") seedPerDay(); else collapseToSimple();
+            paintSchedule();
+          } });
+        if (on) KOS.ui.state(b, "active", true);
+        modeSeg.appendChild(b);
+      });
+    }
+    function paintPerDay() {
+      perDayBox.innerHTML = "";
+      if (schedMode !== "perday" || d.days === null) return;
+      var tMins = d.steps.reduce(function (m, s) { return m + stepMins(s); }, 0);
+      var monWin = dayOn(1) ? resolvedDayWin(1) : null;
+      var copyBtn = el("button", { type: "button", class: "k-btn k-btn--quiet k-btn--sm", "data-ui": "routine.copy-mon",
+        disabled: !(dayOn(1) && monWin) ? true : null,
+        title: dayOn(1) && monWin ? "Copy Monday's window to enabled weekdays (Tue–Fri)" : "Enable Monday with a window first",
+        text: "Copy Mon → weekdays",
+        onclick: function () {
+          var mw = resolvedDayWin(1);
+          if (!dayOn(1) || !mw) return;
+          d.dayWindows = d.dayWindows || {};
+          [2, 3, 4, 5].forEach(function (x) {
+            if (dayOn(x)) {
+              d.dayWindows[String(x)] = { from: mw.from, to: mw.to };
+              delete draftDayTimes[String(x)];
+            }
+          });
+          KOS.ui.toast("Copied Monday's window to weekdays.");
+          paintSchedule();
+        } });
+      perDayBox.appendChild(el("div", { class: "k-rt-pday-tools" }, [
+        muted("Tap a day to toggle; set each day's From and Until"),
+        copyBtn
+      ]));
+      var list = el("div", { class: "k-rt-pdays", "data-ui": "routine.pdays" }, [
+        el("div", { class: "k-rt-pday k-rt-pday--h", "aria-hidden": "true" }, [
+          el("span"),
+          el("span", { class: "k-rt-pday-colh", text: "From" }),
+          el("span"),
+          el("span", { class: "k-rt-pday-colh", text: "Until" }),
+          el("span")
+        ])
+      ]);
+      DAY_ORD.forEach(function (x) {
+        var k = String(x), on = dayOn(x);
+        var tog = el("button", { type: "button", class: "k-rt-pday-btn", "data-ui": "routine.pday-toggle", "data-day": k,
+          "aria-pressed": String(on), "aria-label": (on ? "Disable " : "Enable ") + DAYN[x], text: DAY3[x],
+          onclick: function () { toggleDay(x); } });
+        if (!on) {
+          var offRow = el("div", { class: "k-rt-pday", "data-day": k }, [
+            tog,
+            el("span", { class: "k-rt-pday-off", text: "Off · tap " + DAY3[x] + " to enable" })
+          ]);
+          KOS.ui.state(offRow, "off", true);
+          list.appendChild(offRow);
+          return;
+        }
+        var curW = draftDayTimes[k] || resolvedDayWin(x) || { from: "", to: "" };
+        var fIn = el("input", { type: "time", class: "k-input k-mono k-rt-pday-in", "data-ui": "routine.pday-from", "data-day": k,
+          value: curW.from || "", "aria-label": DAYN[x] + " from" });
+        var tIn = el("input", { type: "time", class: "k-input k-mono k-rt-pday-in", "data-ui": "routine.pday-to", "data-day": k,
+          value: curW.to || "", "aria-label": DAYN[x] + " until" });
+        var wDur = winDur(curW);
+        var metaText = "—", metaTone = null, metaTitle = "No window set";
+        if (wDur) {
+          var diff = wDur - tMins;
+          metaText = diff >= 0 ? "+" + diff + "m" : "−" + (-diff) + "m";
+          metaTone = diff < 0 ? "over" : diff <= 15 ? "tight" : null;
+          metaTitle = wDur + " min window · " + (diff >= 0 ? diff + " min to spare" : (-diff) + " min over");
+        }
+        var metaEl = el("span", { class: "k-rt-pday-meta", "data-ui": "routine.pday-meta", "data-day": k, "data-tone": metaTone, title: metaTitle, "aria-label": metaTitle, text: metaText });
+        function onTime() {
+          d.dayWindows = d.dayWindows || {};
+          if (fIn.value && tIn.value && fIn.value !== tIn.value) {
+            d.dayWindows[k] = { from: fIn.value, to: tIn.value };
+            delete draftDayTimes[k];
+          } else {
+            draftDayTimes[k] = { from: fIn.value, to: tIn.value };
+            delete d.dayWindows[k];
+          }
+          paintPerDay();
+          paintTotal();
+        }
+        fIn.addEventListener("change", onTime);
+        tIn.addEventListener("change", onTime);
+        list.appendChild(el("div", { class: "k-rt-pday", "data-day": k }, [
+          tog, fIn, el("span", { class: "k-rt-pday-sep", "aria-hidden": "true", text: "–" }), tIn, metaEl
+        ]));
+      });
+      perDayBox.appendChild(list);
+    }
+    function paintSchedule() {
+      paintModeSeg();
+      paintDays();
+      simpleBox.hidden = d.days === null || schedMode !== "simple";
+      perDayBox.hidden = d.days === null || schedMode !== "perday";
+      paintPerDay();
+      paintTotal();
+    }
+    paintSchedule();
     var anchorSel = el("select", { class: "k-input", "aria-label": "Review" }, [["", "None"], ["review:morning", "Morning review · shows inline"], ["review:evening", "Evening review · shows inline"], ["focus", "Before Focus (the pre-flight)"]].map(function (o) {
       var op = el("option", { value: o[0], text: o[1] }); if ((d.anchor || "") === o[0]) op.selected = true; return op;
     }));
@@ -895,7 +1180,8 @@
       /* PR-23: all optional could never be kept */
       var why = R().check(d.steps, cur ? cur.id : null);
       if (why) { KOS.ui.toast(why + ".", true); return; }
-      var patch = { name: d.name, mark: d.mark, steps: d.steps, days: d.days, window: d.window, weekend: d.weekend, anchor: d.anchor, remind: d.remind };
+      var patch = { name: d.name, mark: d.mark, steps: d.steps, days: d.days, window: d.window, weekend: d.weekend,
+        dayWindows: schedMode === "perday" && d.days !== null ? (d.dayWindows || null) : null, anchor: d.anchor, remind: d.remind };
       if (d.steps.length === 1 && d.kind === "custom" && isNew && !d.steps[0].run) patch.kind = "habit";
       var r = isNew ? R().add(Object.assign({ kind: d.kind }, patch)) : R().update(cur.id, patch);
       KOS.ui.toast("Saved. Applies from the next day you start it.");
@@ -908,12 +1194,11 @@
       el("div", { class: "k-rt-add" }, [el("span", { "aria-hidden": "true", text: "＋" }), addIn, muted("estimate after a comma: “Pack lunch, 4”"), runBtnBox])
     ], "k-rt-ecard"));
     wrap.appendChild(el("div", { class: "k-rt-col" }, [
-      card([head("Schedule"),
+      card([
+        el("div", { class: "k-rt-sched-head" }, [head("Schedule"), modeSeg]),
         el("div", { class: "k-rt-set" }, [el("div", { class: "k-rt-grow" }, [el("div", { text: "No schedule" }), muted("on demand, like About to Study: no streak")]), demand]),
-        el("div", { class: "k-field" }, [el("span", { class: "k-field-label", text: "Days" }), days]),
-        el("div", { class: "k-rt-2col" }, [el("label", { class: "k-field" }, [el("span", { class: "k-field-label", text: "From" }), fromIn]), el("label", { class: "k-field" }, [el("span", { class: "k-field-label", text: "Until" }), toIn])]),
-        el("div", { class: "k-rt-set" }, [el("div", { class: "k-rt-grow" }, [el("div", { text: "A different weekend schedule" }), muted("Saturday and Sunday")]), wkOn]),
-        wkRow,
+        simpleBox,
+        perDayBox,
         totalBox
       ]),
       card([head("Where it belongs"),

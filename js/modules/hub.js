@@ -349,6 +349,7 @@
     count("pc-review", n2);
     if (KOS.code && document.getElementById("pc-code-due")) count("pc-code-due", KOS.code.dueCards().length);
     if (KOS.assignments && KOS.assignments.urgent) count("pc-assign", KOS.assignments.urgent().length);
+    if (KOS.errorLog && KOS.errorLog.openCount) count("pc-errorlog", KOS.errorLog.openCount());
     if (KOS.reminders && KOS.reminders.counts) {
       var rc = KOS.reminders.counts().sections || {};
       count("pc-rem", (rc.today || 0) + (rc.overdue || 0));

@@ -131,8 +131,22 @@
         U().muted(prev.marks + " → " + gotN)]) : null,
       g ? el("div", { class: "k-xv-grade", "data-ui": "exams.review-grade" }, [U().muted("Estimated grade"), el("b", { text: g.grade + (g.next ? ", " + g.next.need + " to " + g.next.grade : "") }), U().muted("from " + g.from)]) : null].filter(Boolean));
     var lost = lossCols(a, e);
+    var lostBtn = (max - gotN > 0 && KOS.errorLog && KOS.errorLog.openCapture) ? el("button", {
+      type: "button", class: "k-btn k-btn--quiet k-btn--sm", "data-ui": "exams.log-error", text: "+ Log error",
+      onclick: function () {
+        KOS.errorLog.openCapture({
+          subject: a.subject || "general",
+          space: "study",
+          topicTitle: e.paper || a.title || "Past paper",
+          source: "paper",
+          title: (e.paper || a.title || "Paper") + " — " + (max - gotN) + " marks lost",
+          context: "Scored " + gotN + " / " + max + " on " + (e.paper || "attempt"),
+          deepLink: { view: "exams", arg: { id: a.id, tab: "review" } }
+        });
+      }
+    }) : null;
     var lossCard = el("section", { class: "k-card k-xv-lost", "data-ui": "exams.review-lost" }, [
-      el("div", { class: "k-ex-inline" }, [el("b", { text: "Marks lost" }), U().muted((max - gotN) + " of " + max + " · by where they went")]),
+      el("div", { class: "k-ex-inline" }, [el("b", { text: "Marks lost" }), U().muted((max - gotN) + " of " + max + " · by where they went"), lostBtn ? el("span", { class: "k-ex-grow" }) : null, lostBtn].filter(Boolean)),
       el("div", { class: "k-xv-lostcols" }, lost.map(function (col) {
         var mx = col.rows.reduce(function (m, r) { return Math.max(m, r[1]); }, 1);
         return el("div", { class: "k-xv-lostcol" }, [el("div", { class: "k-xs-celllabel", text: col.title })].concat(col.rows.length ? col.rows.slice(0, 5).map(function (r) {

@@ -148,7 +148,7 @@
     return el("div", { class: "k-rt-list", "data-ui": "routine.checklist", "data-routine": String(r.id) }, [
       opts.head === false ? null : el("div", { class: "k-rt-list-h" }, [
         tile(markOf(r), toneOf(r)),
-        el("div", { class: "k-rt-list-ht" }, [el("b", { text: r.name }), muted([schedText(r), total ? "about " + total + " min" : null].filter(Boolean).join(" · "))]),
+        el("div", { class: "k-rt-list-ht" }, [el("b", { text: r.name }), muted([schedText(r, day), total ? "about " + total + " min" : null].filter(Boolean).join(" · "))]),
         w && opts.leave !== false && r.anchor === "review:morning" ? el("div", { class: "k-rt-leave" }, [el("b", { class: "k-mono", text: "Leave by " + w.to }), muted(leaveText(w.to))]) : null,
         opts.start === false ? null : el("button", { type: "button", class: "k-btn k-btn--primary k-btn--sm", "data-ui": "routine.start", text: "▶ Start", onclick: function () { if (KOS.routinePlayer) KOS.routinePlayer.open(r.id, { day: day }); } })
       ]),
@@ -172,12 +172,26 @@
     var d = mins(to) - mins(nowHm());
     return d > 0 && d < 240 ? d + " min from now" : "";
   }
-  function schedText(r) {
+  function schedText(r, day) {
     if (r.days === null) return "no schedule";
     if (r.every) return "every " + r.every + " days" + (r.window ? " · " + r.window.from + "–" + r.window.to : "");
     var d = r.days || [];
     var days = !d.length ? "every day" : d.join() === "1,2,3,4,5" ? "weekdays" : d.join() === "0,6" ? "weekends"
       : d.map(function (x) { return ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"][x]; }).join(", ");
+    if (day) {
+      var w0 = R().windowOn(r, day);
+      return days + (w0 ? " · " + w0.from + "–" + w0.to : "");
+    }
+    if (r.dayWindows) {
+      var uniq = {};
+      (d.length ? d : [0, 1, 2, 3, 4, 5, 6]).forEach(function (x) {
+        var wx = r.dayWindows[String(x)] || r.window;
+        if (wx) uniq[wx.from + "–" + wx.to] = true;
+      });
+      var ks = Object.keys(uniq);
+      if (ks.length > 1) return days + " · varies by day";
+      if (ks.length === 1) return days + " · " + ks[0];
+    }
     return days + (r.window ? " · " + r.window.from + "–" + r.window.to : "");
   }
   function linkLabel(l) {
@@ -208,8 +222,8 @@
     /* today's habits first, then the rest of the week's, quieter */
     due.concat(hs.filter(function (h) { return due.indexOf(h) === -1; })).forEach(function (h) {
       var st = R().stateOn(h, day), on = st === "done" || st === "min", s0 = h.steps[0], today0 = R().scheduledOn(h, day);
-      var streak = R().streak(h.id), e = R().entry(h.id, day);
-      var sub = !today0 ? "not today · " + schedText(h) : h.auto ? (on && e && e.auto ? "自 ticked itself · " : "自 ") + R().autoText(h.auto) : h.window ? h.window.from + "–" + h.window.to : "";
+      var streak = R().streak(h.id), e = R().entry(h.id, day), hw = R().windowOn(h, day);
+      var sub = !today0 ? "not today · " + schedText(h) : h.auto ? (on && e && e.auto ? "自 ticked itself · " : "自 ") + R().autoText(h.auto) : hw ? hw.from + "–" + hw.to : "";
       var subEl = sub ? muted(sub) : null;
       if (h.auto && today0 && !on && subEl) R().autoMeasure(h.auto, day, function (v) { if (v != null) subEl.textContent = "自 " + Math.min(v, h.auto.n) + " of " + R().autoText(h.auto); });
       /* several times a day: a tick per time, the day kept with the last */

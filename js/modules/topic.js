@@ -128,6 +128,12 @@
       "◐ " + pctText(leafPercent(sid, ref))
     ]);
     var paperNote = leaf.section.paper ? ((PAPER_NOTE[sid] || {})[paperLabel(sid, leaf.section.paper)] || [paperLabel(sid, leaf.section.paper)])[0] : null;
+    var openErrCount = (KOS.errorLog && KOS.errorLog.openCount) ? KOS.errorLog.openCount(sid, ref) : 0;
+    var openErrPill = openErrCount > 0 ? el("button", {
+      type: "button", class: "k-el-topic-pill", "data-ui": "topic.open-errors",
+      text: "● " + openErrCount + " open " + (openErrCount === 1 ? "error" : "errors") + " on this topic · Review →",
+      onclick: function () { KOS.show("errorlog", { subject: sid, topicRef: ref }); }
+    }) : null;
     var head = el("header", { class: "k-topic-head", "data-ui": "topic.head" }, [
       el("div", { class: "k-topic-prow" }, [
         treeOpenButton(),
@@ -140,8 +146,9 @@
           el("span", { class: "k-topic-ref", "data-ui": "gov.seal", text: leaf.ref })
         ]),
         pathLine,
-        el("p", { class: "k-topic-pmeta", text: [leaf.ref, d.name, paperNote].filter(Boolean).join(" · ") })
-      ]),
+        el("p", { class: "k-topic-pmeta", text: [leaf.ref, d.name, paperNote].filter(Boolean).join(" · ") }),
+        openErrPill
+      ].filter(Boolean)),
       /* the ONE spine opener rides the phone row (a display:contents
          wrapper above the phone tier), so it is not repeated here */
       el("div", { class: "k-topic-steps" }, [stepBtn(prevLeaf, "prev"), stepBtn(nextLeaf, "next")])

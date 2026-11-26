@@ -472,7 +472,7 @@
     /* Reports are Home's (no rail item of their own): Home stays lit (shell#5) */
     home: "home", reports: "home",
     subject: "study", ref: "study", review: "study", due: "study", cardstats: "study", code: "study", japanese: "study", mind: "study", creatives: "study",
-    tracker: "study", exams: "study", pacing: "study", personaldeck: "study", assignments: "study",
+    tracker: "study", exams: "study", pacing: "study", errorlog: "study", personaldeck: "study", assignments: "study",
     worked: "study", trace: "study", oop: "study", sims: "study",
     focus: "productivity", calendar: "productivity", tasks: "productivity", routines: "productivity",
     reminders: "productivity", money: "productivity", goals: "productivity",
@@ -502,7 +502,8 @@
       { label: "Review", view: "review", count: "pc-review", tone: "neutral" },
       { label: "Assignments", view: "assignments", count: "pc-assign", tone: "urgent" },
       { label: "Exams & Papers", view: "exams" },
-      { label: "Pacing", view: "pacing" }
+      { label: "Pacing", view: "pacing" },
+      { label: "Error Log", view: "errorlog", count: "pc-errorlog", tone: "neutral" }
     ],
     productivity: [
       { label: "Focus Timer", view: "focus" },

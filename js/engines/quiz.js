@@ -281,6 +281,32 @@
         why.insertAdjacentHTML("beforeend", KOS.content.rich(item.why || ""));
         card.insertBefore(why, card.lastChild);
         KOS.content.typeset(why);
+        if (!ok && KOS.errorLog && KOS.errorLog.inlinePill) {
+          var tNode = (KOS.spec && KOS.spec.node && sid && ref) ? KOS.spec.node(sid + ":" + ref) : null;
+          var qPlain = String(item.q || "").replace(/<[^>]+>/g, "").trim();
+          var pickTxt = (item.opts && item.opts[oi] != null) ? String(item.opts[oi]).replace(/<[^>]+>/g, "").trim() : "";
+          var rightTxt = (item.opts && item.opts[item.ans] != null) ? String(item.opts[item.ans]).replace(/<[^>]+>/g, "").trim() : "";
+          var ctxLine = [pickTxt ? "Picked: " + pickTxt : "", rightTxt ? "Correct: " + rightTxt : ""].filter(Boolean).join(" · ");
+          var errRow = el("div", { class: "k-el-inline-row" }, [
+            KOS.errorLog.inlinePill({
+              subject: sid || "general",
+              space: (KOS.errorLog.SUBJ_MAP && KOS.errorLog.SUBJ_MAP[sid] && KOS.errorLog.SUBJ_MAP[sid].exam) ? "study" : (sid || "general"),
+              topicRef: ref || null,
+              topicTitle: (tNode && tNode.title) || "",
+              source: "quiz",
+              title: qPlain || "Quiz question",
+              context: ctxLine,
+              ruleNote: String(item.why || "").replace(/<[^>]+>/g, "").trim().slice(0, 240),
+              dedupeKey: "quiz:" + (sid || "gen") + ":" + (ref || "") + ":" + qi + ":" + qPlain.slice(0, 48),
+              deepLink: sid && ref ? { view: "ref", arg: { subject: sid, ref: ref } } : null
+            }, {
+              hook: "quiz.log-error",
+              undoHook: "quiz.log-undo",
+              auto: KOS.errorLog.getSetting("autoLogQuiz", false)
+            })
+          ]);
+          card.insertBefore(errRow, card.lastChild);
+        }
         next.hidden = false;
       }
       function advance() {
@@ -635,6 +661,26 @@
             exact ? null : el("button", { type: "button", class: "k-qz-step", "data-ui": "quiz.award-up", "aria-label": "One mark more", text: "+", onclick: function () { step(1); } }),
             el("span", { class: "k-mono k-muted", text: "/ " + total })
           ].filter(Boolean)));
+          if (KOS.errorLog && KOS.errorLog.inlinePill) {
+            var exNode = (KOS.spec && KOS.spec.node && sid && ref) ? KOS.spec.node(sid + ":" + ref) : null;
+            var exPlain = String(part.q || title || "").replace(/<[^>]+>/g, "").trim();
+            self.appendChild(el("div", { class: "k-el-inline-row" }, [
+              KOS.errorLog.inlinePill(function () {
+                var got = award == null ? fromTicks() : award;
+                return {
+                  subject: sid || "general",
+                  space: "study",
+                  topicRef: ref || null,
+                  topicTitle: (exNode && exNode.title) || "",
+                  source: "exam-q",
+                  title: exPlain || (title || "Exam question"),
+                  context: "Self-marked " + got + " / " + total + " marks" + (label ? " · Part " + label : ""),
+                  dedupeKey: "examq:" + (sid || "gen") + ":" + (ref || "") + ":" + (label || "") + ":" + exPlain.slice(0, 48),
+                  deepLink: sid && ref ? { view: "ref", arg: { subject: sid, ref: ref } } : null
+                };
+              }, { hook: "quiz.log-error", undoHook: "quiz.log-undo" })
+            ]));
+          }
           show();
           ms.appendChild(self);
           if (part.note) ms.appendChild(el("p", { class: "k-qz-note", html: KOS.content.inline(part.note) }));

@@ -125,7 +125,8 @@
     "js/modules/routineplayer.js",
     "js/modules/connections.js",
     "css/views/achievements.css",
-    "js/modules/achievements.js"
+    "js/modules/achievements.js",
+    "js/modules/errorlog.js"
   ],
   "views": {
     "home": {},
@@ -184,6 +185,7 @@
     },
     "routines": {},
     "connections": {},
-    "achievements": {}
+    "achievements": {},
+    "errorlog": {}
   }
 }

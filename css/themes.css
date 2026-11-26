@@ -64,6 +64,7 @@ color-scheme: dark;
 color-scheme: light;
 /* on paper the painting is lifted and lowered, never darkened behind type */
 --art-op-hero: 0.34;
+--home-art-op: 0.62;
 --art-op-stage: 0.62;
 --art-op-hall: 0.5;
 --art-filter: saturate(0.85) brightness(1.18);
@@ -145,7 +146,7 @@ color-scheme: light;
 --gv-rec-bg-strained: linear-gradient(120deg, color-mix(in oklab, var(--amber) 14%, var(--s1)), var(--s1) 60%);
 --gv-bal-bg: linear-gradient(120deg, color-mix(in oklab, var(--amber) 12%, var(--s1)), var(--s1) 60%);
 --asst-confirm-bg: linear-gradient(150deg, color-mix(in oklab, var(--amber) 12%, var(--s1)), var(--s1) 60%);
---home-hero-scrim: linear-gradient(90deg, oklch(from var(--hero-tint) l c h / 0.85) 0%, oklch(from var(--hero-tint) l c h / 0.6) 30%, oklch(from var(--hero-tint) l c h / 0.15) 54%, transparent 64%, oklch(from var(--hero-tint) l c h / 0.5) 78%, oklch(from var(--hero-tint) l c h / 0.7) 100%);
+--home-hero-scrim: linear-gradient(90deg, oklch(from var(--hero-tint) l c h / 0.56) 0%, oklch(from var(--hero-tint) l c h / 0.34) 30%, oklch(from var(--hero-tint) l c h / 0.08) 54%, transparent 64%, oklch(from var(--hero-tint) l c h / 0.28) 78%, oklch(from var(--hero-tint) l c h / 0.44) 100%);
 --home-hero-ink: oklch(from var(--hero-tint) 0.42 0.08 h);
 --home-goal-ink: oklch(0.42 0.06 200);
 --home-ring-track: oklch(from var(--hero-tint) calc(l - 0.1) c h);

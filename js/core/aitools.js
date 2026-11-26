@@ -2793,7 +2793,7 @@
      APP — navigation + context
      ====================================================================== */
   var NAV_VIEWS = ["home", "subject", "ref", "review", "due", "cardstats", "tracker", "exams",
-    "personaldeck", "focus", "calendar", "tasks", "reminders", "assignments", "pacing",
+    "personaldeck", "focus", "calendar", "tasks", "reminders", "assignments", "pacing", "errorlog",
     "notifications", "matrix", "anime", "books", "vn",
     "game", "seasonal", "mangaka", "wishlist", "goals", "shrine", "aniprofile",
     "vndbprofile", "mediasync", "governor", "data", "help",
