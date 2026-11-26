@@ -22,28 +22,22 @@ X("maths:7.1", {
     ["Prove from first principles that $\\dfrac{d}{dx}(\\sin x) = \\cos x$.", "$\\dfrac{\\sin(x+h) - \\sin x}{h} = \\sin x\\dfrac{\\cos h - 1}{h} + \\cos x\\dfrac{\\sin h}{h} \\to \\sin x \\cdot 0 + \\cos x \\cdot 1$.", 11],
     ["Prove from first principles that $\\dfrac{d}{d\\theta}(\\cos\\theta) = -\\sin\\theta$.", "$\\dfrac{\\cos\\theta\\cos h - \\sin\\theta\\sin h - \\cos\\theta}{h} = \\cos\\theta\\dfrac{\\cos h - 1}{h} - \\sin\\theta\\dfrac{\\sin h}{h} \\to -\\sin\\theta$.", 12],
     ["Which two limits are quoted in trig first-principles proofs?", "$\\dfrac{\\sin h}{h} \\to 1$ and $\\dfrac{\\cos h - 1}{h} \\to 0$ as $h \\to 0$.", 13],
-    ["Gradient of the chord from $P(2, 4)$ to $Q(2 + h, (2+h)^2)$ on $y = x^2$?", "$\\dfrac{(2+h)^2 - 4}{h} = 4 + h$; as $h \\to 0$ the tangent gradient is 4.", 14],
-    ["Why is $f(x + h) - f(x)$ divided by $h$?", "It is the gradient of the chord between $x$ and $x + h$; the limit as $h \\to 0$ is the tangent gradient.", 15]
+    ["Gradient of the chord from $P(2, 4)$ to $Q(2 + h, (2+h)^2)$ on $y = x^2$?", "$\\dfrac{(2+h)^2 - 4}{h} = 4 + h$; as $h \\to 0$ the tangent gradient is 4.", 14]
   ],
   quiz: [
     { q: "$\\displaystyle\\lim_{h \\to 0}\\dfrac{(x+h)^2 - x^2}{h} =$", opts: ["$x$", "$2x$", "$2x + h$", "$x^2$"], ans: 1, why: "Cancel then take the limit." },
     { q: "Using $\\sin(x + h) = \\sin x\\cos h + \\cos x\\sin h$, $\\dfrac{\\sin(x + h) - \\sin x}{h}$ tends to:", opts: ["$\\cos x$", "$\\sin x$", "$-\\cos x$", "$-\\sin x$"], ans: 0, why: "$\\sin x \\cdot \\tfrac{\\cos h - 1}{h} + \\cos x \\cdot \\tfrac{\\sin h}{h} \\to 0 + \\cos x$." },
     { q: "$\\dfrac{\\cos h - 1}{h} \\to$ as $h \\to 0$:", opts: ["0", "1", "$-1$", "$-\\tfrac12$"], ans: 0, why: "$\\approx -h/2 \\to 0$." },
     { q: "The expression $\\dfrac{f(x+h) - f(x)}{h}$ is the gradient of:", opts: ["the tangent", "a chord", "the normal", "the curve"], ans: 1, why: "It joins $(x, f(x))$ and $(x+h, f(x+h))$: a chord, until $h \\to 0$." },
-    { q: "In the first-principles proof for $x^3$, the term that survives is:", opts: ["$3x^2$", "$3x^2h$", "$h^2$", "$x^3$"], ans: 0, why: "Others contain $h$." },
-    { q: "Omitting $\\lim_{h \\to 0}$ from the working:", opts: ["is fine", "loses accuracy marks", "gains marks", "changes the answer"], ans: 1, why: "The limit notation is marked: putting $h = 0$ without $\\lim$ loses the A1." }
+    { q: "In the first-principles proof for $x^3$, the term that survives is:", opts: ["$3x^2$", "$3x^2h$", "$h^2$", "$x^3$"], ans: 0, why: "Others contain $h$." }
   ],
   exam: [
-    { src: "Edexcel 2024 · P1 Q4", q: "Prove, from first principles, that the derivative of $x^2$ is $2x$.", marks: 3,
-      ms: ["M1: $f'(x) = \\lim_{h \\to 0}\\dfrac{(x+h)^2 - x^2}{h}$", "M1: expands and simplifies to $\\dfrac{2xh + h^2}{h} = 2x + h$", "A1: states that as $h \\to 0$ this tends to $2x$, with correct limit notation throughout"] },
-    { src: "Edexcel 2023 · P1 Q12", q: "Prove, from first principles, that the derivative of $\\sin x$ is $\\cos x$. You may assume that $\\dfrac{\\sin h}{h} \\to 1$ and $\\dfrac{\\cos h - 1}{h} \\to 0$ as $h \\to 0$.", marks: 5,
-      ms: ["M1: $\\lim_{h \\to 0}\\dfrac{\\sin(x + h) - \\sin x}{h}$", "M1: expands $\\sin(x + h) = \\sin x\\cos h + \\cos x\\sin h$", "M1: rearranges to $\\sin x\\left(\\dfrac{\\cos h - 1}{h}\\right) + \\cos x\\left(\\dfrac{\\sin h}{h}\\right)$", "A1: applies the given limits", "A1: $= \\cos x$ with correct notation throughout"] },
-    { level: "AS", src: "Edexcel AS Nov 2021 · P1 Q5", ctx: "The point $P(3, 9)$ lies on the curve $y = x^2$. The point $Q$ has $x$-coordinate $3 + h$.",
+    { qk: "11", level: "AS", src: "Edexcel AS Nov 2021 · P1 Q5", ctx: "The point $P(3, 9)$ lies on the curve $y = x^2$. The point $Q$ has $x$-coordinate $3 + h$.",
       parts: [
         { q: "Show that the gradient of the chord $PQ$ is $6 + h$.", marks: 3, ms: ["M1: $y_Q = (3 + h)^2 = 9 + 6h + h^2$", "M1: gradient $= \\dfrac{9 + 6h + h^2 - 9}{h}$", "A1: $= 6 + h$"] },
         { q: "Explain how the gradient of the tangent at $P$ can be deduced from this result.", marks: 2, ms: ["M1: as $h \\to 0$, $Q \\to P$ and the chord tends to the tangent", "A1: gradient of the tangent is $\\lim_{h\\to 0}(6 + h) = 6$"] }
       ] },
-    { src: "Edexcel 2018 · P2 Q9", q: "Prove, from first principles, that the derivative of $\\cos\\theta$ is $-\\sin\\theta$.", marks: 5,
+    { qk: "12", src: "Edexcel 2018 · P2 Q9", q: "Prove, from first principles, that the derivative of $\\cos\\theta$ is $-\\sin\\theta$.", marks: 5,
       ms: ["M1: $\\lim_{h \\to 0}\\dfrac{\\cos(\\theta + h) - \\cos\\theta}{h}$", "M1: $\\cos(\\theta + h) = \\cos\\theta\\cos h - \\sin\\theta\\sin h$", "M1: $\\cos\\theta\\left(\\dfrac{\\cos h - 1}{h}\\right) - \\sin\\theta\\left(\\dfrac{\\sin h}{h}\\right)$", "A1: uses $\\dfrac{\\cos h - 1}{h} \\to 0$, $\\dfrac{\\sin h}{h} \\to 1$", "A1: $= -\\sin\\theta$"] }
   ]
 });
@@ -52,23 +46,19 @@ X("maths:7.2", {
   flashcards: [
     ["Differentiate $y = 3x^2 + \\dfrac{2}{x} + 2$.", "$6x - \\dfrac{2}{x^2}$."],
     ["Differentiate $y = 4\\sqrt x - \\dfrac{5}{x^3}$.", "$2x^{-1/2} + 15x^{-4}$."],
-    ["Differentiate $e^{3x}$, $\\sin 2x$, $\\cos 5x$, $\\tan x$, $\\ln 4x$.", "$3e^{3x}$, $2\\cos 2x$, $-5\\sin 5x$, $\\sec^2 x$, $\\dfrac1x$."],
-    ["Differentiate $y = 3^x$.", "$3^x\\ln 3$."],
-    ["Differentiate $\\dfrac{(2x - 3)^2}{\\sqrt x}$… first step?", "Expand and write as powers: $4x^{3/2} - 12x^{1/2} + 9x^{-1/2}$, then $6x^{1/2} - 6x^{-1/2} - \\tfrac92 x^{-3/2}$."],
-    ["Gradient of $y = x^3 - 4x$ at $x = 2$?", "$3(4) - 4 = 8$."],
-    ["Differentiate $y = \\ln(x^2)$.", "$\\dfrac{2}{x}$ (since $\\ln x^2 = 2\\ln x$)."],
-    ["Differentiate $y = e^{-x/8}$.", "$-\\tfrac18 e^{-x/8}$."],
+    ["Differentiate $\\dfrac{(2x - 3)^2}{\\sqrt x}$… first step?", "Expand and write as powers: $4x^{3/2} - 12x^{1/2} + 9x^{-1/2}$, then $6x^{1/2} - 6x^{-1/2} - \\tfrac92 x^{-3/2}$.", 12],
+    ["Gradient of $y = x^3 - 4x$ at $x = 2$?", "$3(4) - 4 = 8$.", 13],
+    ["Differentiate $y = \\ln(x^2)$.", "$\\dfrac{2}{x}$ (since $\\ln x^2 = 2\\ln x$).", 14],
+    ["Differentiate $y = e^{-x/8}$.", "$-\\tfrac18 e^{-x/8}$.", 15],
     ["Gradient of $y = 3\\sin 2x$ at $x = \\frac{\\pi}{6}$?", "$6\\cos\\frac{\\pi}{3} = 3$.", 100],
     ["$y = ax^3 + bx$ has gradient 5 at $x = 1$ and 23 at $x = 2$: $a$, $b$?", "$3a + b = 5$, $12a + b = 23$: $a = 2$, $b = -1$.", 101],
     ["Where does $y = 4\\sqrt x - x$ have gradient 0?", "$\\frac{2}{\\sqrt x} - 1 = 0$: $x = 4$.", 102]
   ],
   quiz: [
-    { q: "$\\dfrac{d}{dx}(5x^{-2}) =$", opts: ["$-10x^{-3}$", "$10x^{-1}$", "$-10x^{-1}$", "$5x^{-3}$"], ans: 0, why: "Multiply by the power, reduce by one." },
-    { q: "$\\dfrac{d}{dx}(\\sin 3x) =$", opts: ["$\\cos 3x$", "$3\\cos 3x$", "$-3\\cos 3x$", "$3\\sin 3x$"], ans: 1, why: "$\\tfrac{d}{dx}\\sin kx = k\\cos kx$ with $k = 3$." },
-    { q: "$\\dfrac{d}{dx}(\\ln 5x) =$", opts: ["$\\dfrac{5}{x}$", "$\\dfrac{1}{5x}$", "$\\dfrac1x$", "$5\\ln x$"], ans: 2, why: "$\\ln 5x = \\ln 5 + \\ln x$." },
-    { q: "$\\dfrac{d}{dx}\\left(\\dfrac{1}{x^2}\\right) =$", opts: ["$-\\dfrac{2}{x^3}$", "$\\dfrac{2}{x^3}$", "$-\\dfrac{1}{2x}$", "$-\\dfrac{2}{x}$"], ans: 0, why: "$x^{-2} \\to -2x^{-3} = -\\dfrac{2}{x^3}$." },
-    { q: "$\\dfrac{d}{dx}(\\tan x) =$", opts: ["$\\sec x$", "$\\sec^2 x$", "$\\cot x$", "$-\\sec^2 x$"], ans: 1, why: "$\\tan x = \\tfrac{\\sin x}{\\cos x}$; the quotient rule gives $\\tfrac{1}{\\cos^2 x} = \\sec^2 x$." },
-    { q: "$\\dfrac{d}{dx}(e^{kx}) = ke^{kx}$ is the reason exponential models suit:", opts: ["growth at a constant rate", "growth proportional to size", "periodic rise and fall", "decay at a constant rate"], ans: 1, why: "$\\dfrac{dy}{dx} \\propto y$." },
+    { q: "$\\dfrac{d}{dx}(\\sin 3x) =$", opts: ["$\\cos 3x$", "$3\\cos 3x$", "$-3\\cos 3x$", "$3\\sin 3x$"], ans: 1, why: "$\\tfrac{d}{dx}\\sin kx = k\\cos kx$ with $k = 3$.", oi: 7 },
+    { q: "$\\dfrac{d}{dx}\\left(\\dfrac{1}{x^2}\\right) =$", opts: ["$-\\dfrac{2}{x^3}$", "$\\dfrac{2}{x^3}$", "$-\\dfrac{1}{2x}$", "$-\\dfrac{2}{x}$"], ans: 0, why: "$x^{-2} \\to -2x^{-3} = -\\dfrac{2}{x^3}$.", oi: 9 },
+    { q: "$\\dfrac{d}{dx}(\\tan x) =$", opts: ["$\\sec x$", "$\\sec^2 x$", "$\\cot x$", "$-\\sec^2 x$"], ans: 1, why: "$\\tan x = \\tfrac{\\sin x}{\\cos x}$; the quotient rule gives $\\tfrac{1}{\\cos^2 x} = \\sec^2 x$.", oi: 10 },
+    { q: "$\\dfrac{d}{dx}(e^{kx}) = ke^{kx}$ is the reason exponential models suit:", opts: ["growth at a constant rate", "growth proportional to size", "periodic rise and fall", "decay at a constant rate"], ans: 1, why: "$\\dfrac{dy}{dx} \\propto y$.", oi: 11 },
     { qk: "100", q: "The gradient of $y = 2\\ln x + x^2$ is 5 when $x =$", opts: ["$\\tfrac12$ or $2$", "$1$ or $\\tfrac32$", "$\\tfrac52$ or $1$", "$\\tfrac14$ or $4$"], ans: 0, why: "$\\tfrac2x + 2x = 5 \\Rightarrow 2x^2 - 5x + 2 = 0$." },
     { qk: "101", q: "The gradient of $y = \\cos 3x$ at $x = \\tfrac{\\pi}{6}$ is", opts: ["$-3$", "$3$", "$0$", "$-1$"], ans: 0, why: "$-3\\sin\\tfrac{\\pi}{2} = -3$." }
   ],
@@ -105,42 +95,37 @@ X("maths:7.3", {
     { callout: { t: "warn", body: "In a 'show that $S = \\ldots$' the algebra must be complete and the given form reached exactly. Use the second derivative — not 'it is obviously a minimum' — and give the **value of the quantity**, not only $x$." }}
   ],
   flashcards: [
-    ["Tangent to $y = 2x^3 - 4x + 5$ at $P(2, 13)$?", "$\\dfrac{dy}{dx} = 6x^2 - 4 = 20$: $y - 13 = 20(x - 2)$, i.e. $y = 20x - 27$."],
-    ["Normal to $y = x^2 - 3x$ at $x = 1$?", "Point $(1, -2)$, $\\dfrac{dy}{dx} = -1$, normal gradient 1: $y = x - 3$."],
-    ["Stationary points of $y = x^3 - 3x^2 - 9x + 1$ and their nature?", "$3x^2 - 6x - 9 = 0 \\Rightarrow x = -1, 3$; $y'' = 6x - 6$: max at $(-1, 6)$, min at $(3, -26)$."],
-    ["A closed cylinder has volume $500\\pi$. Show $S = 2\\pi r^2 + \\dfrac{1000\\pi}{r}$.", "$h = \\dfrac{500}{r^2}$; $S = 2\\pi r^2 + 2\\pi r h = 2\\pi r^2 + \\dfrac{1000\\pi}{r}$."],
-    ["Minimise $S = 2\\pi r^2 + \\dfrac{1000\\pi}{r}$.", "$S' = 4\\pi r - \\dfrac{1000\\pi}{r^2} = 0 \\Rightarrow r^3 = 250 \\Rightarrow r = 6.30$; $S'' = 4\\pi + \\dfrac{2000\\pi}{r^3} > 0$ so minimum; $S = 748$."],
-    ["For which $x$ is $y = 2x^3 - 15x^2 + 24x$ decreasing?", "$6x^2 - 30x + 24 < 0 \\Rightarrow (x - 1)(x - 4) < 0 \\Rightarrow 1 < x < 4$."],
-    ["Verify that $x = 2$ is a stationary point of $y = x^3 - 12x$ and classify it.", "$y' = 3x^2 - 12 = 0$ at $x = 2$ ✓; $y'' = 6x = 12 > 0$: minimum."],
-    ["What does 'the curve is convex' mean and how is it tested?", "$f''(x) > 0$ on the interval — the gradient is increasing."],
-    ["Show $f(x) = x + \\dfrac{4}{x}$ ($x > 0$) has a minimum and find it.", "$f' = 1 - \\dfrac{4}{x^2} = 0 \\Rightarrow x = 2$; $f'' = \\dfrac{8}{x^3} > 0$; minimum value 4."],
-    ["A quartic has turning points at $x = -1, 0, 2$; $f'(x) = kx(x+1)(x-2)$. Where is $f'(x) \\ge 0$?", "For $k > 0$: $-1 \\le x \\le 0$ or $x \\ge 2$."]
+    ["Tangent to $y = 2x^3 - 4x + 5$ at $P(2, 13)$?", "$\\dfrac{dy}{dx} = 6x^2 - 4 = 20$: $y - 13 = 20(x - 2)$, i.e. $y = 20x - 27$.", 9],
+    ["Normal to $y = x^2 - 3x$ at $x = 1$?", "Point $(1, -2)$, $\\dfrac{dy}{dx} = -1$, normal gradient 1: $y = x - 3$.", 10],
+    ["Stationary points of $y = x^3 - 3x^2 - 9x + 1$ and their nature?", "$3x^2 - 6x - 9 = 0 \\Rightarrow x = -1, 3$; $y'' = 6x - 6$: max at $(-1, 6)$, min at $(3, -26)$.", 11],
+    ["A closed cylinder has volume $500\\pi$. Show $S = 2\\pi r^2 + \\dfrac{1000\\pi}{r}$.", "$h = \\dfrac{500}{r^2}$; $S = 2\\pi r^2 + 2\\pi r h = 2\\pi r^2 + \\dfrac{1000\\pi}{r}$.", 12],
+    ["Minimise $S = 2\\pi r^2 + \\dfrac{1000\\pi}{r}$.", "$S' = 4\\pi r - \\dfrac{1000\\pi}{r^2} = 0 \\Rightarrow r^3 = 250 \\Rightarrow r = 6.30$; $S'' = 4\\pi + \\dfrac{2000\\pi}{r^3} > 0$ so minimum; $S = 748$.", 13],
+    ["For which $x$ is $y = 2x^3 - 15x^2 + 24x$ decreasing?", "$6x^2 - 30x + 24 < 0 \\Rightarrow (x - 1)(x - 4) < 0 \\Rightarrow 1 < x < 4$.", 14],
+    ["Verify that $x = 2$ is a stationary point of $y = x^3 - 12x$ and classify it.", "$y' = 3x^2 - 12 = 0$ at $x = 2$ ✓; $y'' = 6x = 12 > 0$: minimum.", 15],
+    ["Show $f(x) = x + \\dfrac{4}{x}$ ($x > 0$) has a minimum and find it.", "$f' = 1 - \\dfrac{4}{x^2} = 0 \\Rightarrow x = 2$; $f'' = \\dfrac{8}{x^3} > 0$; minimum value 4.", 17],
+    ["A quartic has turning points at $x = -1, 0, 2$; $f'(x) = kx(x+1)(x-2)$. Where is $f'(x) \\ge 0$?", "For $k > 0$: $-1 \\le x \\le 0$ or $x \\ge 2$.", 18]
   ],
   quiz: [
-    { q: "Gradient of the normal where the tangent gradient is $\\tfrac23$:", opts: ["$-\\tfrac23$", "$-\\tfrac32$", "$\\tfrac32$", "$\\tfrac23$"], ans: 1, why: "$\\tfrac23 \\times m = -1$, so $m = -\\tfrac32$." },
-    { q: "$f''(x) < 0$ at a stationary point means:", opts: ["minimum", "maximum", "inflection", "nothing"], ans: 1, why: "$f'' < 0$: the gradient falls through zero, so it is a maximum." },
-    { q: "$y = x^3 - 3x$ has stationary points at:", opts: ["$x = 0$", "$x = \\pm 1$", "$x = \\pm\\sqrt3$", "$x = 3$"], ans: 1, why: "$3x^2 - 3 = 0$." },
-    { q: "'Verify that $x = 3$ is a stationary point' requires:", opts: ["solving $f'(x) = 0$", "showing $f'(3) = 0$", "finding $f(3)$", "sketching"], ans: 1, why: "Only $f'(3) = 0$ needs checking: substitute $x = 3$ into $f'(x)$." },
-    { q: "A function is decreasing where:", opts: ["$f(x) < 0$", "$f'(x) < 0$", "$f''(x) < 0$", "$x < 0$"], ans: 1, why: "Decreasing means a negative gradient: $f'(x) < 0$." },
-    { q: "In an optimisation problem the constraint is used to:", opts: ["find the maximum directly without calculus", "eliminate a variable before differentiating", "check the answer after differentiating", "find the second derivative of the function"], ans: 1, why: "The constraint writes the quantity in one variable; then differentiate." },
-    { q: "A point where $f''(x) = 0$ and changes sign is:", opts: ["a maximum turning point", "a minimum turning point", "a point of inflection", "a root of the function"], ans: 2, why: "$f''$ changing sign means the concavity changes there." }
+    { q: "$y = x^3 - 3x$ has stationary points at:", opts: ["$x = 0$", "$x = \\pm 1$", "$x = \\pm\\sqrt3$", "$x = 3$"], ans: 1, why: "$3x^2 - 3 = 0$.", oi: 8 },
+    { q: "'Verify that $x = 3$ is a stationary point' requires:", opts: ["solving $f'(x) = 0$", "showing $f'(3) = 0$", "finding $f(3)$", "sketching"], ans: 1, why: "Only $f'(3) = 0$ needs checking: substitute $x = 3$ into $f'(x)$.", oi: 9 },
+    { q: "A function is decreasing where:", opts: ["$f(x) < 0$", "$f'(x) < 0$", "$f''(x) < 0$", "$x < 0$"], ans: 1, why: "Decreasing means a negative gradient: $f'(x) < 0$.", oi: 10 },
+    { q: "In an optimisation problem the constraint is used to:", opts: ["find the maximum directly without calculus", "eliminate a variable before differentiating", "check the answer after differentiating", "find the second derivative of the function"], ans: 1, why: "The constraint writes the quantity in one variable; then differentiate.", oi: 11 },
+    { q: "A point where $f''(x) = 0$ and changes sign is:", opts: ["a maximum turning point", "a minimum turning point", "a point of inflection", "a root of the function"], ans: 2, why: "$f''$ changing sign means the concavity changes there.", oi: 12 }
   ],
   exam: [
-    { level: "AS", src: "Edexcel AS 2020 · P1 Q1", q: "The curve $C$ has equation $y = 2x^3 - 4x + 5$. Find the equation of the tangent to $C$ at the point $P(2, 13)$, giving your answer in the form $y = mx + c$.", marks: 4,
-      ms: ["M1: $\\dfrac{dy}{dx} = 6x^2 - 4$", "A1: gradient at $P$ is 20", "M1: $y - 13 = 20(x - 2)$", "A1: $y = 20x - 27$"] },
-    { level: "AS", src: "Edexcel AS 2022 · P1 Q12", ctx: "A closed cylindrical tin has radius $r$ cm and height $h$ cm, and a volume of $500$ cm³. The metal for the top and bottom costs 0.2 p per cm² and the metal for the curved surface costs 0.1 p per cm².",
+    { qk: "11", level: "AS", src: "Edexcel AS 2022 · P1 Q12", ctx: "A closed cylindrical tin has radius $r$ cm and height $h$ cm, and a volume of $500$ cm³. The metal for the top and bottom costs 0.2 p per cm² and the metal for the curved surface costs 0.1 p per cm².",
       parts: [
         { q: "Show that the total cost $C$ pence of the metal is given by $C = 0.4\\pi r^2 + \\dfrac{100}{r}$.", marks: 4, ms: ["M1: $\\pi r^2 h = 500 \\Rightarrow h = \\dfrac{500}{\\pi r^2}$", "M1: $C = 0.2 \\times 2\\pi r^2 + 0.1 \\times 2\\pi r h$", "M1: substitutes $h$: $0.2\\pi r h = \\dfrac{100}{r}$", "A1: $C = 0.4\\pi r^2 + \\dfrac{100}{r}$ (cso)"] },
         { q: "Use calculus to find the value of $r$ that minimises $C$, and find the minimum cost.", marks: 5, ms: ["M1: $\\dfrac{dC}{dr} = 0.8\\pi r - \\dfrac{100}{r^2}$", "M1: sets to zero: $r^3 = \\dfrac{100}{0.8\\pi}$", "A1: $r = 3.41$ cm", "M1: $\\dfrac{d^2C}{dr^2} = 0.8\\pi + \\dfrac{200}{r^3} > 0$, so a minimum", "A1: $C = 43.9$ p"] }
       ] },
-    { src: "Edexcel 2019 · P1 Q13", ctx: "A closed water tank is made from a cylinder of radius $r$ m and height $h$ m with a hemisphere of radius $r$ m on top. The volume of the tank is 6 m³.",
+    { qk: "12", src: "Edexcel 2019 · P1 Q13", ctx: "A closed water tank is made from a cylinder of radius $r$ m and height $h$ m with a hemisphere of radius $r$ m on top. The volume of the tank is 6 m³.",
       parts: [
         { q: "Show that the surface area $S$ m² of the tank is given by $S = \\dfrac{12}{r} + \\dfrac{5\\pi r^2}{3}$.", marks: 4, ms: ["M1: $\\pi r^2 h + \\tfrac23\\pi r^3 = 6 \\Rightarrow h = \\dfrac{6}{\\pi r^2} - \\dfrac{2r}{3}$", "M1: $S = \\pi r^2 + 2\\pi r h + 2\\pi r^2$", "M1: substitutes $h$: $2\\pi r h = \\dfrac{12}{r} - \\dfrac{4\\pi r^2}{3}$", "A1: $S = \\dfrac{12}{r} + 3\\pi r^2 - \\dfrac{4\\pi r^2}{3} = \\dfrac{12}{r} + \\dfrac{5\\pi r^2}{3}$ (cso)"] },
         { q: "Find the value of $r$ for which $S$ is a minimum, and the minimum value of $S$.", marks: 5, ms: ["M1: $\\dfrac{dS}{dr} = -\\dfrac{12}{r^2} + \\dfrac{10\\pi r}{3}$", "M1: $= 0 \\Rightarrow r^3 = \\dfrac{36}{10\\pi} = \\dfrac{18}{5\\pi}$", "A1: $r = 1.05$", "M1: $\\dfrac{d^2S}{dr^2} = \\dfrac{24}{r^3} + \\dfrac{10\\pi}{3} > 0$ confirms a minimum", "A1: $S = 17.2$ m²"] }
       ] },
-    { level: "AS", src: "Edexcel AS 2023 · P1 Q1", q: "$y = x^3 - 6x^2 + 9x + 2$. Find $\\dfrac{dy}{dx}$ and hence find the range of values of $x$ for which $y$ is decreasing.", marks: 4,
+    { qk: "13", level: "AS", src: "Edexcel AS 2023 · P1 Q1", q: "$y = x^3 - 6x^2 + 9x + 2$. Find $\\dfrac{dy}{dx}$ and hence find the range of values of $x$ for which $y$ is decreasing.", marks: 4,
       ms: ["M1: $\\dfrac{dy}{dx} = 3x^2 - 12x + 9$", "M1: $3(x - 1)(x - 3) < 0$", "A1: critical values 1 and 3", "A1: $1 < x < 3$"] },
-    { src: "Edexcel 2025 · P1 Q7", ctx: "The curve $C$ has equation $y = f(x)$ where $f(x) = x^4 + ax^3 + bx^2 + 7$, and has turning points at $x = 0$, $x = 1$ and $x = 3$.",
+    { qk: "14", src: "Edexcel 2025 · P1 Q7", ctx: "The curve $C$ has equation $y = f(x)$ where $f(x) = x^4 + ax^3 + bx^2 + 7$, and has turning points at $x = 0$, $x = 1$ and $x = 3$.",
       parts: [
         { q: "Find the set of values of $x$ for which $f'(x) \\ge 0$.", marks: 2, ms: ["M1: $f'(x) = 4x(x - 1)(x - 3)$ (positive leading coefficient)", "A1: $0 \\le x \\le 1$ or $x \\ge 3$"] },
         { q: "Find the values of $a$ and $b$.", marks: 3, ms: ["M1: expands $4x(x-1)(x-3) = 4x^3 - 16x^2 + 12x$", "A1: compares with $4x^3 + 3ax^2 + 2bx$: $a = -\\tfrac{16}{3}$", "A1: $b = 6$"] }
@@ -173,13 +158,12 @@ X("maths:7.4", {
     ["Differentiate $y = \\dfrac{x + 2}{(x + 1)^2}$ into the form $\\dfrac{A}{(x+1)^n}$.", "$\\dfrac{(x+1)^2 - 2(x+2)(x+1)}{(x+1)^4} = \\dfrac{(x + 1) - 2(x + 2)}{(x+1)^3} = \\dfrac{-x - 3}{(x+1)^3}$.", 20]
   ],
   quiz: [
-    { q: "$\\dfrac{d}{dx}(xe^x) =$", opts: ["$e^x$", "$e^x(x + 1)$", "$xe^x$", "$e^x(x - 1)$"], ans: 1, why: "$u = x$, $v = e^x$: $u'v + uv' = e^x + xe^x = e^x(x + 1)$." },
-    { q: "$\\dfrac{d}{dx}(\\cos^3 x) =$", opts: ["$3\\cos^2 x$", "$-3\\cos^2 x\\sin x$", "$3\\cos^2 x\\sin x$", "$-\\sin^3 x$"], ans: 1, why: "$3\\cos^2 x \\times (-\\sin x) = -3\\cos^2 x\\sin x$." },
-    { q: "$\\dfrac{d}{dx}\\left(\\dfrac{1}{x^2 + 1}\\right) =$", opts: ["$\\dfrac{-2x}{(x^2+1)^2}$", "$\\dfrac{2x}{(x^2+1)^2}$", "$\\dfrac{1}{2x}$", "$-\\dfrac{1}{(x^2+1)^2}$"], ans: 0, why: "Chain on $(x^2+1)^{-1}$." },
-    { q: "Turning points of $y = e^{-x}\\sin x$ satisfy:", opts: ["$\\tan x = 1$", "$\\tan x = -1$", "$\\sin x = 0$", "$\\cos x = 0$"], ans: 0, why: "$e^{-x}(\\cos x - \\sin x) = 0$." },
-    { q: "$\\dfrac{dy}{dx}$ when $x = y^3 + y$:", opts: ["$3y^2 + 1$", "$\\dfrac{1}{3y^2 + 1}$", "$\\dfrac{1}{3y^2}$", "$\\dfrac{1}{y^3 + y}$"], ans: 1, why: "Reciprocal of $\\dfrac{dx}{dy}$." },
-    { q: "In the quotient rule the denominator becomes:", opts: ["$v$", "$v^2$", "$u^2$", "$uv$"], ans: 1, why: "$\\dfrac{u'v - uv'}{v^2}$." },
-    { q: "$\\dfrac{dV}{dt} = \\dfrac{dV}{dr}\\cdot\\dfrac{dr}{dt}$ is:", opts: ["the product rule for two functions", "the chain rule for connected rates", "implicit differentiation of $V$", "the quotient rule for rates"], ans: 1, why: "Rates linked through $r$." }
+    { q: "$\\dfrac{d}{dx}(\\cos^3 x) =$", opts: ["$3\\cos^2 x$", "$-3\\cos^2 x\\sin x$", "$3\\cos^2 x\\sin x$", "$-\\sin^3 x$"], ans: 1, why: "$3\\cos^2 x \\times (-\\sin x) = -3\\cos^2 x\\sin x$.", oi: 7 },
+    { q: "$\\dfrac{d}{dx}\\left(\\dfrac{1}{x^2 + 1}\\right) =$", opts: ["$\\dfrac{-2x}{(x^2+1)^2}$", "$\\dfrac{2x}{(x^2+1)^2}$", "$\\dfrac{1}{2x}$", "$-\\dfrac{1}{(x^2+1)^2}$"], ans: 0, why: "Chain on $(x^2+1)^{-1}$.", oi: 8 },
+    { q: "Turning points of $y = e^{-x}\\sin x$ satisfy:", opts: ["$\\tan x = 1$", "$\\tan x = -1$", "$\\sin x = 0$", "$\\cos x = 0$"], ans: 0, why: "$e^{-x}(\\cos x - \\sin x) = 0$.", oi: 9 },
+    { q: "$\\dfrac{dy}{dx}$ when $x = y^3 + y$:", opts: ["$3y^2 + 1$", "$\\dfrac{1}{3y^2 + 1}$", "$\\dfrac{1}{3y^2}$", "$\\dfrac{1}{y^3 + y}$"], ans: 1, why: "Reciprocal of $\\dfrac{dx}{dy}$.", oi: 10 },
+    { q: "In the quotient rule the denominator becomes:", opts: ["$v$", "$v^2$", "$u^2$", "$uv$"], ans: 1, why: "$\\dfrac{u'v - uv'}{v^2}$.", oi: 11 },
+    { q: "$\\dfrac{dV}{dt} = \\dfrac{dV}{dr}\\cdot\\dfrac{dr}{dt}$ is:", opts: ["the product rule for two functions", "the chain rule for connected rates", "implicit differentiation of $V$", "the quotient rule for rates"], ans: 1, why: "Rates linked through $r$.", oi: 12 }
   ],
   exam: [
     { src: "Edexcel 2022 · P2 Q12", ctx: "$f(x) = \\dfrac{e^{3x}}{4x^2 + k}$, where $k$ is a positive constant.",
@@ -222,10 +206,8 @@ X("maths:7.5", {
   ],
   flashcards: [
     ["Differentiate $x^2 + y^2 = 25$ implicitly.", "$2x + 2y\\dfrac{dy}{dx} = 0 \\Rightarrow \\dfrac{dy}{dx} = -\\dfrac xy$.", 8],
-    ["$\\dfrac{d}{dx}(3y^2) = ?$", "$6y\\dfrac{dy}{dx}$.", 10],
     ["$x^2 - 2xy + 3y^2 = 50$: find $\\dfrac{dy}{dx}$.", "$2x - 2y - 2x\\dfrac{dy}{dx} + 6y\\dfrac{dy}{dx} = 0 \\Rightarrow \\dfrac{dy}{dx} = \\dfrac{x - y}{x - 3y}$.", 11],
     ["Where is the tangent to $x^2 - 2xy + 3y^2 = 50$ parallel to the $x$-axis?", "$x = y$: substitute: $2x^2 = 50 \\Rightarrow (5, 5)$ and $(-5, -5)$.", 12],
-    ["$y = x^x$: find $\\dfrac{dy}{dx}$.", "$\\ln y = x\\ln x \\Rightarrow \\dfrac{dy}{dx} = x^x(\\ln x + 1)$.", 13],
     ["$x^2\\tan y = 9$: show $\\dfrac{dy}{dx} = -\\dfrac{2\\tan y}{x\\sec^2 y}$… or in terms of $x$?", "$2x\\tan y + x^2\\sec^2 y\\dfrac{dy}{dx} = 0 \\Rightarrow \\dfrac{dy}{dx} = -\\dfrac{2\\tan y}{x\\sec^2 y} = -\\dfrac{18x}{x^4 + 81}$ using $\\tan y = 9/x^2$.", 14],
     ["$\\sin x + \\cos y = 0.5$: tangent parallel to the $x$-axis where?", "$\\cos x - \\sin y\\dfrac{dy}{dx} = 0$; $\\dfrac{dy}{dx} = 0 \\Rightarrow \\cos x = 0 \\Rightarrow x = \\tfrac\\pi2$; then $\\cos y = -0.5$, $y = \\tfrac{2\\pi}{3}$.", 15],
     ["Normal at $P(-2, 3)$ to $x^3 + 2xy + 3y^2 = 7$?", "$3x^2 + 2y + 2x y' + 6y y' = 0$; at $P$: $12 + 6 + (-4 + 18)y' = 0 \\Rightarrow y' = -\\tfrac97$; normal gradient $\\tfrac79$: $y - 3 = \\tfrac79(x + 2)$.", 16],
@@ -263,20 +245,17 @@ X("maths:7.5", {
 X("maths:7.6", {
   flashcards: [
     ["The rate of increase of $n$ is proportional to $\\sqrt n$. Write a differential equation.", "$\\dfrac{dn}{dt} = k\\sqrt n$, $k > 0$."],
-    ["A balloon's volume decreases at a constant rate $c$. Show $\\dfrac{dr}{dt} = -\\dfrac{k}{r^2}$.", "$V = \\tfrac43\\pi r^3$, $\\dfrac{dV}{dt} = 4\\pi r^2\\dfrac{dr}{dt} = -c \\Rightarrow \\dfrac{dr}{dt} = -\\dfrac{c}{4\\pi r^2}$.", 9],
     ["Water flows into a tank at 9 litres/min and out at a rate proportional to the volume ($0.3V$). Differential equation?", "$\\dfrac{dV}{dt} = 9 - 0.3V$.", 10],
-    ["Newton's law of cooling: differential equation?", "$\\dfrac{d\\theta}{dt} = -k(\\theta - \\theta_{room})$.", 11],
     ["Population growth with a limit $L$ (logistic): form?", "$\\dfrac{dN}{dt} = kN(L - N)$.", 12],
     ["A cuboid tank of base area $A$ fills so that $\\dfrac{dV}{dt} = \\dfrac{c}{\\sqrt h}$. Show $\\dfrac{dh}{dt} = \\dfrac{\\lambda}{\\sqrt h}$.", "$V = Ah \\Rightarrow \\dfrac{dV}{dt} = A\\dfrac{dh}{dt}$, so $\\dfrac{dh}{dt} = \\dfrac{c}{A\\sqrt h}$, $\\lambda = \\dfrac cA$.", 13],
     ["Why is $k$ negative in a decay model $\\dfrac{dN}{dt} = kN$?", "The rate of change is negative — $N$ decreases as $t$ increases.", 14]
   ],
   quiz: [
-    { q: "'Rate of change of $P$ is proportional to $P$' is:", opts: ["$\\dfrac{dP}{dt} = kP$", "$P = kt$", "$\\dfrac{dP}{dt} = k$", "$\\dfrac{dP}{dt} = \\dfrac kP$"], ans: 0, why: "'Proportional to $P$' means $\\tfrac{dP}{dt} = kP$ for a constant $k$." },
-    { q: "'$A$ increases at a rate proportional to the square root of $A$':", opts: ["$\\dfrac{dA}{dt} = k\\sqrt A$", "$\\dfrac{dA}{dt} = \\dfrac{k}{\\sqrt A}$", "$\\dfrac{dA}{dt} = kA^2$", "$A = k\\sqrt t$"], ans: 0, why: "'Rate' is $\\tfrac{dA}{dt}$; 'proportional to $\\sqrt A$' gives $k\\sqrt A$, with $k > 0$." },
-    { q: "For a tank with inflow 5 and outflow $0.2V$:", opts: ["$\\dfrac{dV}{dt} = 5 + 0.2V$", "$\\dfrac{dV}{dt} = 5 - 0.2V$", "$\\dfrac{dV}{dt} = 0.2V - 5$", "$V = 5 - 0.2t$"], ans: 1, why: "Rate in is 5, rate out is $0.2V$: $\\tfrac{dV}{dt} = 5 - 0.2V$." },
-    { q: "In $\\dfrac{dV}{dt} = 4\\pi r^2\\dfrac{dr}{dt}$ the factor $4\\pi r^2$ is:", opts: ["the volume", "$\\dfrac{dV}{dr}$", "the surface area only by coincidence", "$\\dfrac{dr}{dV}$"], ans: 1, why: "$V = \\tfrac43\\pi r^3$, so $\\tfrac{dV}{dr} = 4\\pi r^2$ in the chain rule." },
-    { q: "Newton cooling: $\\theta$ approaches:", opts: ["zero degrees", "room temperature", "the starting temperature", "the constant $k$"], ans: 1, why: "$\\tfrac{d\\theta}{dt} = -k(\\theta - \\theta_{\\text{room}})$ is 0 at room temperature." },
-    { q: "The constant of proportionality is found from:", opts: ["the differential equation alone", "a given data point / rate", "differentiating again", "guessing"], ans: 1, why: "Substitute a known rate or value into the equation to find $k$." }
+    { q: "'$A$ increases at a rate proportional to the square root of $A$':", opts: ["$\\dfrac{dA}{dt} = k\\sqrt A$", "$\\dfrac{dA}{dt} = \\dfrac{k}{\\sqrt A}$", "$\\dfrac{dA}{dt} = kA^2$", "$A = k\\sqrt t$"], ans: 0, why: "'Rate' is $\\tfrac{dA}{dt}$; 'proportional to $\\sqrt A$' gives $k\\sqrt A$, with $k > 0$.", oi: 6 },
+    { q: "For a tank with inflow 5 and outflow $0.2V$:", opts: ["$\\dfrac{dV}{dt} = 5 + 0.2V$", "$\\dfrac{dV}{dt} = 5 - 0.2V$", "$\\dfrac{dV}{dt} = 0.2V - 5$", "$V = 5 - 0.2t$"], ans: 1, why: "Rate in is 5, rate out is $0.2V$: $\\tfrac{dV}{dt} = 5 - 0.2V$.", oi: 7 },
+    { q: "In $\\dfrac{dV}{dt} = 4\\pi r^2\\dfrac{dr}{dt}$ the factor $4\\pi r^2$ is:", opts: ["the volume", "$\\dfrac{dV}{dr}$", "the surface area only by coincidence", "$\\dfrac{dr}{dV}$"], ans: 1, why: "$V = \\tfrac43\\pi r^3$, so $\\tfrac{dV}{dr} = 4\\pi r^2$ in the chain rule.", oi: 8 },
+    { q: "Newton cooling: $\\theta$ approaches:", opts: ["zero degrees", "room temperature", "the starting temperature", "the constant $k$"], ans: 1, why: "$\\tfrac{d\\theta}{dt} = -k(\\theta - \\theta_{\\text{room}})$ is 0 at room temperature.", oi: 9 },
+    { q: "The constant of proportionality is found from:", opts: ["the differential equation alone", "a given data point / rate", "differentiating again", "guessing"], ans: 1, why: "Substitute a known rate or value into the equation to find $k$.", oi: 10 }
   ],
   exam: [
     { src: "Edexcel Oct 2020 · P2 Q14", ctx: "A spherical balloon is deflating. Its volume decreases at a constant rate of $c$ cm³ per second.",
@@ -300,9 +279,8 @@ X("maths:7.6", {
 
 X("maths:8.1", {
   flashcards: [
-    ["State the Fundamental Theorem of Calculus.", "If $F'(x) = f(x)$ then $\\displaystyle\\int_a^b f(x)\\,dx = F(b) - F(a)$ — integration is the reverse of differentiation."],
-    ["$f'(x) = 6x^2 + ax - 23$ and $f(0) = 4$. Write $f(x)$.", "$f(x) = 2x^3 + \\tfrac a2 x^2 - 23x + 4$."],
-    ["Given $\\dfrac{dy}{dx} = 3x^2 - 4$ and the curve passes through $(2, 5)$, find $y$.", "$y = x^3 - 4x + c$; $8 - 8 + c = 5 \\Rightarrow y = x^3 - 4x + 5$."],
+    ["$f'(x) = 6x^2 + ax - 23$ and $f(0) = 4$. Write $f(x)$.", "$f(x) = 2x^3 + \\tfrac a2 x^2 - 23x + 4$.", 6],
+    ["Given $\\dfrac{dy}{dx} = 3x^2 - 4$ and the curve passes through $(2, 5)$, find $y$.", "$y = x^3 - 4x + c$; $8 - 8 + c = 5 \\Rightarrow y = x^3 - 4x + 5$.", 7],
     ["$\\dfrac{d}{dx}\\left(\\int_1^x t^2\\,dt\\right) = ?$", "$x^2$ — differentiating the integral returns the integrand.", 9],
     ["$f'(x) = 4x + a\\sqrt x + b$ with a stationary point at $x = 1$ and $f(0) = 3$… what do you get from each condition?", "$f'(1) = 0$ gives $4 + a + b = 0$; $f(0) = 3$ gives the constant of integration; a third condition is needed for $a, b$ separately.", 10],
     ["Evaluate $\\displaystyle\\int_1^4 \\dfrac{1}{\\sqrt x}dx$.", "$[2\\sqrt x]_1^4 = 4 - 2 = 2$.", 11],
@@ -318,7 +296,6 @@ X("maths:8.1", {
     { q: "$\\dfrac{d}{dx}\\displaystyle\\int_0^x \\sin t\\,dt =$", opts: ["$\\cos x$", "$\\sin x$", "$-\\cos x$", "0"], ans: 1, why: "Differentiating an integral up to $x$ gives back the integrand at $x$." },
     { q: "$\\displaystyle\\int_a^a f(x)\\,dx =$", opts: ["$f(a)$", "0", "$2f(a)$", "undefined"], ans: 1, why: "The interval has zero width: $F(a) - F(a) = 0$." },
     { q: "$\\displaystyle\\int_5^2 f(x)dx$ equals:", opts: ["$-\\displaystyle\\int_2^5 f(x)dx$", "$\\displaystyle\\int_2^5 f(x)dx$", "$\\displaystyle\\int_{-5}^{-2} f(x)dx$", "$0$, as the limits are reversed"], ans: 0, why: "Swapping limits changes sign." },
-    { qk: "100", q: "$\\displaystyle\\int_1^3 2x\\,dx =$", opts: ["8", "9", "4", "6"], ans: 0, why: "$\\big[x^2\\big]_1^3 = 9 - 1$." },
     { qk: "101", q: "$\\displaystyle\\int 6x^{-3}\\,dx =$", opts: ["$-3x^{-2} + c$", "$-18x^{-4} + c$", "$3x^{-2} + c$", "$-2x^{-2} + c$"], ans: 0, why: "$\\frac{6x^{-2}}{-2} = -3x^{-2}$." }
   ],
   exam: [
@@ -340,20 +317,15 @@ X("maths:8.2", {
     ["$\\int \\left(\\dfrac{2}{x^3} - 6\\sqrt x + 1\\right)dx$", "$-\\dfrac{1}{x^2} - 4x^{3/2} + x + c$.", 9],
     ["$\\int \\dfrac{3x^4 - 4}{2x^3}dx$", "$\\int\\left(\\tfrac32 x - 2x^{-3}\\right)dx = \\tfrac34 x^2 + x^{-2} + c$.", 10],
     ["$\\int \\dfrac{2x - 3}{\\sqrt x}dx$", "$\\int(2x^{1/2} - 3x^{-1/2})dx = \\tfrac43 x^{3/2} - 6x^{1/2} + c$.", 11],
-    ["$\\int e^{3x}dx$, $\\int \\sin 2x\\,dx$, $\\int \\cos 5x\\,dx$", "$\\tfrac13 e^{3x}$, $-\\tfrac12\\cos 2x$, $\\tfrac15\\sin 5x$ ($+c$).", 12],
-    ["$\\int \\dfrac{1}{x}dx$ and $\\int \\dfrac{1}{3x - 2}dx$", "$\\ln|x| + c$; $\\tfrac13\\ln|3x - 2| + c$.", 13],
     ["$\\int \\sin^2 x\\,dx$", "Use $\\sin^2 x = \\tfrac12(1 - \\cos 2x)$: $\\tfrac x2 - \\tfrac14\\sin 2x + c$.", 15],
     ["$\\int \\dfrac{1}{x^4} + 6x^2 + 3\\,dx$", "$-\\dfrac{1}{3x^3} + 2x^3 + 3x + c$.", 16],
     ["$\\int \\dfrac{x}{x^2 + 3}dx$", "$\\tfrac12\\ln(x^2 + 3) + c$ — the numerator is half the derivative of the denominator.", 18]
   ],
   quiz: [
     { q: "$\\int x^{-1/2}dx =$", opts: ["$2x^{1/2} + c$", "$\\tfrac12 x^{1/2} + c$", "$-\\tfrac12 x^{-3/2} + c$", "$\\ln x + c$"], ans: 0, why: "Raise power to $\\tfrac12$, divide by $\\tfrac12$." },
-    { q: "$\\int \\cos 3x\\,dx =$", opts: ["$3\\sin 3x$", "$\\tfrac13\\sin 3x + c$", "$-\\tfrac13\\sin 3x + c$", "$\\sin 3x + c$"], ans: 1, why: "Divide by the inner derivative." },
-    { q: "$\\int e^{-x/8}dx =$", opts: ["$-8e^{-x/8} + c$", "$-\\tfrac18 e^{-x/8} + c$", "$8e^{-x/8} + c$", "$e^{-x/8} + c$"], ans: 0, why: "Divide by $-\\tfrac18$." },
-    { q: "$\\int \\dfrac{4}{x}dx =$", opts: ["$4\\ln|x| + c$", "$-\\dfrac{4}{x^2}$", "$\\ln|4x|$", "$4x^{-2}$"], ans: 0, why: "$\\int \\frac1x\\,dx = \\ln|x|$, times 4." },
-    { q: "$\\int \\dfrac{1}{(3x - 1)^2}dx =$", opts: ["$-\\dfrac{1}{3(3x - 1)} + c$", "$\\dfrac{1}{3(3x - 1)} + c$", "$-\\dfrac{1}{3x - 1} + c$", "$-\\dfrac{3}{3x - 1} + c$"], ans: 0, why: "Power $-1$ then divide by 3." },
-    { q: "To integrate $\\cos^2 x$ use:", opts: ["$\\cos^2 x = \\tfrac12(1 - \\cos 2x)$", "$\\cos^2 x = \\tfrac12(1 + \\cos 2x)$", "the product rule on $\\cos x \\cdot \\cos x$", "$\\cos^2 x = \\sec^2 x - 1$"], ans: 1, why: "$\\cos 2x = 2\\cos^2 x - 1$, so $\\cos^2 x = \\tfrac12(1 + \\cos 2x)$." },
-    { q: "$\\int \\dfrac{2x}{x^2 + 1}dx =$", opts: ["$\\ln(x^2 + 1) + c$", "$2\\ln(x^2 + 1)$", "$\\dfrac{x^2}{x^2+1}$", "$\\arctan x$"], ans: 0, why: "$\\dfrac{f'}{f}$." }
+    { q: "$\\int \\dfrac{1}{(3x - 1)^2}dx =$", opts: ["$-\\dfrac{1}{3(3x - 1)} + c$", "$\\dfrac{1}{3(3x - 1)} + c$", "$-\\dfrac{1}{3x - 1} + c$", "$-\\dfrac{3}{3x - 1} + c$"], ans: 0, why: "Power $-1$ then divide by 3.", oi: 10 },
+    { q: "To integrate $\\cos^2 x$ use:", opts: ["$\\cos^2 x = \\tfrac12(1 - \\cos 2x)$", "$\\cos^2 x = \\tfrac12(1 + \\cos 2x)$", "the product rule on $\\cos x \\cdot \\cos x$", "$\\cos^2 x = \\sec^2 x - 1$"], ans: 1, why: "$\\cos 2x = 2\\cos^2 x - 1$, so $\\cos^2 x = \\tfrac12(1 + \\cos 2x)$.", oi: 11 },
+    { q: "$\\int \\dfrac{2x}{x^2 + 1}dx =$", opts: ["$\\ln(x^2 + 1) + c$", "$2\\ln(x^2 + 1)$", "$\\dfrac{x^2}{x^2+1}$", "$\\arctan x$"], ans: 0, why: "$\\dfrac{f'}{f}$.", oi: 12 }
   ],
   exam: [
     { level: "AS", src: "Edexcel AS Nov 2021 · P1 Q3", q: "Find $\\displaystyle\\int \\dfrac{3x^4 - 4}{2x^3}\\,dx$, giving each term in its simplest form.", marks: 4,
@@ -394,11 +366,9 @@ X("maths:8.3", {
   ],
   quiz: [
     { q: "$\\int_0^3 (x^2 - 3x)dx$ is negative because:", opts: ["a mistake in the integration", "the curve is below the $x$-axis on $(0, 3)$", "the limits have been put in the wrong way round", "$x^2$ is negative between 0 and 3"], ans: 1, why: "$x^2 - 3x = x(x - 3) < 0$ for $0 < x < 3$: the curve is below the axis." },
-    { q: "Area between $y = f(x)$ (above) and $y = g(x)$ (below) from $a$ to $b$:", opts: ["$\\int_a^b f + g$", "$\\int_a^b (f - g)$", "$\\int_a^b f \\cdot g$", "$\\int_a^b |f|$"], ans: 1, why: "The area between curves is the integral of upper minus lower, $f - g$." },
-    { q: "Area between $y = x^2$ and $y = 2x$:", opts: ["$\\tfrac43$", "$\\tfrac83$", "$4$", "$-\\tfrac43$"], ans: 0, why: "They meet at $x = 0, 2$: $\\int_0^2 (2x - x^2)dx = 4 - \\tfrac83 = \\tfrac43$." },
-    { q: "The area of $\\int_0^4 \\sqrt x\\,dx$ is:", opts: ["$\\tfrac{16}{3}$", "$\\tfrac{32}{3}$", "$\\tfrac{8}{3}$", "$\\tfrac{4}{3}$"], ans: 0, why: "$\\tfrac23 \\cdot 8$." },
-    { q: "To find where a tangent meets the curve again you:", opts: ["differentiate again and set the second derivative to zero", "solve curve = tangent; the point of contact is a repeated root", "integrate the curve between the tangent's two roots", "find the normal at the point and solve it with the curve"], ans: 1, why: "$(x - a)^2$ factor." },
-    { q: "Region $R$ under a curve but above the $x$-axis between $x = 1$ and $x = 3$ where $f(2) < 0$:", opts: ["one integral from 1 to 3, as it is", "split at the root and add magnitudes", "no area, since $f(2) < 0$ cancels it", "use the normal at $x = 2$ instead"], ans: 1, why: "$f$ changes sign between 1 and 3, so split at the root and add the sizes." }
+    { q: "The area of $\\int_0^4 \\sqrt x\\,dx$ is:", opts: ["$\\tfrac{16}{3}$", "$\\tfrac{32}{3}$", "$\\tfrac{8}{3}$", "$\\tfrac{4}{3}$"], ans: 0, why: "$\\tfrac23 \\cdot 8$.", oi: 8 },
+    { q: "To find where a tangent meets the curve again you:", opts: ["differentiate again and set the second derivative to zero", "solve curve = tangent; the point of contact is a repeated root", "integrate the curve between the tangent's two roots", "find the normal at the point and solve it with the curve"], ans: 1, why: "$(x - a)^2$ factor.", oi: 9 },
+    { q: "Region $R$ under a curve but above the $x$-axis between $x = 1$ and $x = 3$ where $f(2) < 0$:", opts: ["one integral from 1 to 3, as it is", "split at the root and add magnitudes", "no area, since $f(2) < 0$ cancels it", "use the normal at $x = 2$ instead"], ans: 1, why: "$f$ changes sign between 1 and 3, so split at the root and add the sizes.", oi: 10 }
   ],
   exam: [
     { level: "AS", src: "Edexcel AS 2022 · P1 Q10", ctx: "The curve $C$ has equation $y = x^2 + 4x + 1$. The tangent to $C$ at the point $P(1, 6)$ crosses the $y$-axis at $Q$. The region $R$ is bounded by $C$, the tangent and the $y$-axis.",
@@ -424,24 +394,21 @@ X("maths:8.3", {
 X("maths:8.4", {
   flashcards: [
     ["Express $\\displaystyle\\lim_{\\delta x \\to 0}\\sum_{x=1}^{4} \\dfrac{2}{x}\\,\\delta x$ as an integral and evaluate it.", "$\\int_1^4 \\dfrac2x dx = 2\\ln 4 = \\ln 16$."],
-    ["What does $\\sum y\\,\\delta x$ represent?", "The total area of thin rectangles of width $\\delta x$ and height $y$ approximating the area under the curve."],
-    ["Why does the limit as $\\delta x \\to 0$ give the exact area?", "The rectangles become infinitely thin so the overestimate/underestimate from the tops vanishes."],
-    ["Express $\\displaystyle\\lim_{\\delta x \\to 0}\\sum_{x=0}^{3} x^2\\,\\delta x$ as an integral.", "$\\int_0^3 x^2\\,dx = 9$."],
-    ["How is the trapezium rule related to integration as a limit of a sum?", "It approximates the area with a finite number of trapezia; the integral is the limit as the strip width tends to 0."],
-    ["Show $\\displaystyle\\lim_{\\delta x \\to 0}\\sum_{x=1}^{e^2} \\dfrac{2}{x}\\,\\delta x = k$ for integer $k$.", "$\\int_1^{e^2}\\dfrac2x dx = 2[\\ln x]_1^{e^2} = 4$."],
-    ["What symbol replaces $\\sum$ and $\\delta x$ in the limit?", "$\\int$ and $dx$."],
-    ["If the rectangles use the left endpoint of each strip on an increasing function, the sum is an…", "Underestimate."],
+    ["Why does the limit as $\\delta x \\to 0$ give the exact area?", "The rectangles become infinitely thin so the overestimate/underestimate from the tops vanishes.", 6],
+    ["Express $\\displaystyle\\lim_{\\delta x \\to 0}\\sum_{x=0}^{3} x^2\\,\\delta x$ as an integral.", "$\\int_0^3 x^2\\,dx = 9$.", 7],
+    ["How is the trapezium rule related to integration as a limit of a sum?", "It approximates the area with a finite number of trapezia; the integral is the limit as the strip width tends to 0.", 8],
+    ["Show $\\displaystyle\\lim_{\\delta x \\to 0}\\sum_{x=1}^{e^2} \\dfrac{2}{x}\\,\\delta x = k$ for integer $k$.", "$\\int_1^{e^2}\\dfrac2x dx = 2[\\ln x]_1^{e^2} = 4$.", 9],
+    ["If the rectangles use the left endpoint of each strip on an increasing function, the sum is an…", "Underestimate.", 11],
     ["$\\displaystyle\\lim_{\\delta x \\to 0}\\sum_{x=0}^{\\ln 3} e^{2x}\\,\\delta x$ as an integral, and its value?", "$\\int_0^{\\ln 3} e^{2x}\\,dx$, which is $\\frac12(9 - 1) = 4$.", 100],
     ["For a decreasing $f$, which end of each strip gives rectangles that over-estimate the area?", "The left end: there $f$ takes its largest value on the strip.", 101],
     ["What does $\\displaystyle\\lim_{\\delta t \\to 0}\\sum_{t=1}^{3} v\\,\\delta t$ give for a velocity $v$?", "$\\int_1^3 v\\,dt$: the displacement from $t = 1$ to $t = 3$ (the distance when $v \\ge 0$ throughout).", 102]
   ],
   quiz: [
-    { q: "$\\displaystyle\\lim_{\\delta x\\to0}\\sum_{x=2}^{5} f(x)\\delta x =$", opts: ["$f(5) - f(2)$", "$\\int_2^5 f(x)dx$", "$\\int_2^5 f'(x)dx$", "$\\sum_{x=2}^{5} f(x)$"], ans: 1, why: "As $\\delta x \\to 0$ the sum of $f(x)\\delta x$ becomes $\\int_2^5 f(x)dx$." },
-    { q: "$\\displaystyle\\lim_{\\delta x\\to0}\\sum_{x=1}^{8}\\dfrac{2}{x}\\delta x =$", opts: ["$\\ln 8$", "$\\ln 64$", "$2\\ln 7$", "$\\ln 16$"], ans: 1, why: "$2\\ln 8 = \\ln 64$." },
-    { q: "$\\delta x$ represents:", opts: ["the derivative of $f$ with respect to $x$", "a small change / strip width in $x$", "the limit of the sum as $x$ grows", "the area of each strip under the curve"], ans: 1, why: "$\\delta x$ is the width of each strip, a small step in $x$." },
-    { q: "As $\\delta x \\to 0$ the number of strips:", opts: ["decreases to zero", "tends to infinity", "stays the same", "becomes exactly 1"], ans: 1, why: "Strips of width $\\delta x$ on a fixed interval number $\\tfrac{b - a}{\\delta x} \\to \\infty$." },
-    { q: "$\\displaystyle\\lim_{\\delta x\\to0}\\sum_{x=0}^{2} 3x^2\\delta x =$", opts: ["8", "12", "4", "6"], ans: 0, why: "$[x^3]_0^2$." },
-    { q: "Integration as the limit of a sum underpins:", opts: ["the product rule for differentiating two functions", "the area interpretation of a definite integral", "the laws of logarithms for integrals", "the chain rule for connected rates of change"], ans: 1, why: "The area is the limit of the sum of strips $f(x)\\delta x$." },
+    { q: "$\\displaystyle\\lim_{\\delta x\\to0}\\sum_{x=1}^{8}\\dfrac{2}{x}\\delta x =$", opts: ["$\\ln 8$", "$\\ln 64$", "$2\\ln 7$", "$\\ln 16$"], ans: 1, why: "$2\\ln 8 = \\ln 64$.", oi: 4 },
+    { q: "$\\delta x$ represents:", opts: ["the derivative of $f$ with respect to $x$", "a small change / strip width in $x$", "the limit of the sum as $x$ grows", "the area of each strip under the curve"], ans: 1, why: "$\\delta x$ is the width of each strip, a small step in $x$.", oi: 5 },
+    { q: "As $\\delta x \\to 0$ the number of strips:", opts: ["decreases to zero", "tends to infinity", "stays the same", "becomes exactly 1"], ans: 1, why: "Strips of width $\\delta x$ on a fixed interval number $\\tfrac{b - a}{\\delta x} \\to \\infty$.", oi: 6 },
+    { q: "$\\displaystyle\\lim_{\\delta x\\to0}\\sum_{x=0}^{2} 3x^2\\delta x =$", opts: ["8", "12", "4", "6"], ans: 0, why: "$[x^3]_0^2$.", oi: 7 },
+    { q: "Integration as the limit of a sum underpins:", opts: ["the product rule for differentiating two functions", "the area interpretation of a definite integral", "the laws of logarithms for integrals", "the chain rule for connected rates of change"], ans: 1, why: "The area is the limit of the sum of strips $f(x)\\delta x$.", oi: 8 },
     { qk: "100", q: "Four rectangles of width 0.5 under $y = x^2$ on $0 \\le x \\le 2$, each as tall as the curve at its right end, have total area", opts: ["3.75", "1.75", "2.67", "4.50"], ans: 0, why: "$0.5(0.25 + 1 + 2.25 + 4) = 3.75$, above the exact $\\frac83$." },
     { qk: "101", q: "$\\displaystyle\\lim_{\\delta x \\to 0}\\sum_{x=1}^{e^2}\\left(x + \\frac1x\\right)\\delta x =$", opts: ["$\\frac{e^4 + 1}{2}$", "$\\frac{e^4 + 3}{2}$", "$\\frac{e^4 - 1}{2}$", "$\\frac{e^2 + 3}{2}$"], ans: 1, why: "$\\left[\\frac{x^2}{2} + \\ln x\\right]_1^{e^2} = \\frac{e^4}{2} + 2 - \\frac12$." },
     { qk: "102", q: "As $\\delta x \\to 0$ each strip's area tends to 0. The sum $\\sum f(x)\\,\\delta x$", opts: ["tends to zero as well", "tends to the exact area", "grows without a limit", "stays at its estimate"], ans: 1, why: "The number of strips grows as $\\frac{b - a}{\\delta x}$, balancing the shrinking strips." }
@@ -468,22 +435,19 @@ X("maths:8.5", {
   ],
   flashcards: [
     ["$\\int x e^{2x}dx$", "Parts, $u = x$: $\\tfrac x2 e^{2x} - \\tfrac14 e^{2x} + c$.", 10],
-    ["$\\int x^3\\ln x\\,dx$", "$u = \\ln x$: $\\tfrac{x^4}{4}\\ln x - \\tfrac{x^4}{16} + c$.", 11],
     ["$\\int_1^{e^2} x^3\\ln x\\,dx$", "$\\left[\\tfrac{x^4}{4}\\ln x - \\tfrac{x^4}{16}\\right]_1^{e^2} = \\tfrac{e^8}{2} - \\tfrac{e^8}{16} + \\tfrac{1}{16} = \\tfrac{7e^8}{16} + \\tfrac{1}{16}$.", 12],
     ["$\\int 2x(x^2 + 2)^{3/2}dx$", "$u = x^2 + 2$: $\\tfrac25(x^2 + 2)^{5/2} + c$.", 14],
     ["$\\int_1^4 \\dfrac{1}{1 + \\sqrt x}dx$ with $u = 1 + \\sqrt x$", "$x = (u-1)^2$, $dx = 2(u-1)du$, limits $2 \\to 3$: $\\int_2^3 \\dfrac{2(u-1)}{u}du = [2u - 2\\ln u]_2^3 = 2 - 2\\ln\\tfrac32$.", 15],
     ["$\\int_0^{a}\\sqrt{x(a - x)}\\,dx$ with $x = a\\sin^2\\theta$… set-up?", "$dx = 2a\\sin\\theta\\cos\\theta\\,d\\theta$, limits $0 \\to \\tfrac\\pi2$; integrand becomes $a\\sin\\theta\\cos\\theta \\cdot 2a\\sin\\theta\\cos\\theta = \\tfrac{a^2}{2}\\sin^2 2\\theta$; result $\\tfrac{\\pi a^2}{8}$.", 16],
-    ["$\\int x^2 e^{-3x}dx$ needs parts how many times?", "Twice — each application reduces the power of $x$ by one.", 17],
-    ["Which substitution for $\\int\\dfrac{1}{\\sqrt{4 - x^2}}dx$?", "$x = 2\\sin u$: gives $\\int du = u = \\arcsin\\tfrac x2$.", 18],
+    ["Which substitution for $\\int\\dfrac{1}{\\sqrt{4 - x^2}}dx$?", "$x = 2\\sin u$: gives $\\int du = u = \\arcsin\\tfrac x2$.", 18]
   ],
   quiz: [
     { q: "For $\\int x\\cos x\\,dx$ choose $u =$", opts: ["$\\cos x$", "$x$", "$x\\cos x$", "$\\sin x$"], ans: 1, why: "Differentiates to 1." },
     { q: "With $u = x^2 + 1$, $du =$", opts: ["$2x\\,dx$", "$x\\,dx$", "$2x^2\\,dx$", "$2\\,dx$"], ans: 0, why: "$\\dfrac{du}{dx} = 2x$." },
     { q: "$\\int_0^1$ with $u = 1 + x^2$ has $u$-limits:", opts: ["0 to 1", "1 to 2", "0 to 2", "1 to 1"], ans: 1, why: "$x = 0 \\Rightarrow u = 1$; $x = 1 \\Rightarrow u = 2$." },
-    { q: "$\\int \\ln x\\,dx =$", opts: ["$\\dfrac1x + c$", "$x\\ln x - x + c$", "$x\\ln x + x + c$", "$\\ln x - x + c$"], ans: 1, why: "Parts with $dv = 1$." },
-    { q: "$\\int x\\cos x\\,dx =$", opts: ["$x\\sin x + \\cos x + c$", "$x\\sin x - \\cos x + c$", "$-x\\sin x + \\cos x + c$", "$\\tfrac{x^2}{2}\\sin x + c$"], ans: 0, why: "Parts, $u = x$, $v' = \\cos x$: $x\\sin x - \\int \\sin x\\,dx = x\\sin x + \\cos x + c$." },
-    { q: "In $\\int f'(x)\\left[f(x)\\right]^n dx$ the answer is:", opts: ["$\\dfrac{[f(x)]^{n+1}}{n+1} + c$", "$\\dfrac{[f(x)]^{n-1}}{n-1} + c$", "$f'(x)\\dfrac{[f(x)]^{n+1}}{n+1} + c$", "$(n+1)[f(x)]^{n+1} + c$"], ans: 0, why: "Differentiating $\\tfrac{[f(x)]^{n+1}}{n+1}$ gives $f'(x)[f(x)]^n$ by the chain rule." },
-    { q: "The substitution $x = 3\\sin\\theta$ simplifies:", opts: ["$\\sqrt{9 + x^2}$", "$\\sqrt{9 - x^2}$", "$x^2 - 9$", "$e^x$"], ans: 1, why: "$9 - 9\\sin^2 = 9\\cos^2$." }
+    { q: "$\\int x\\cos x\\,dx =$", opts: ["$x\\sin x + \\cos x + c$", "$x\\sin x - \\cos x + c$", "$-x\\sin x + \\cos x + c$", "$\\tfrac{x^2}{2}\\sin x + c$"], ans: 0, why: "Parts, $u = x$, $v' = \\cos x$: $x\\sin x - \\int \\sin x\\,dx = x\\sin x + \\cos x + c$.", oi: 10 },
+    { q: "In $\\int f'(x)\\left[f(x)\\right]^n dx$ the answer is:", opts: ["$\\dfrac{[f(x)]^{n+1}}{n+1} + c$", "$\\dfrac{[f(x)]^{n-1}}{n-1} + c$", "$f'(x)\\dfrac{[f(x)]^{n+1}}{n+1} + c$", "$(n+1)[f(x)]^{n+1} + c$"], ans: 0, why: "Differentiating $\\tfrac{[f(x)]^{n+1}}{n+1}$ gives $f'(x)[f(x)]^n$ by the chain rule.", oi: 11 },
+    { q: "The substitution $x = 3\\sin\\theta$ simplifies:", opts: ["$\\sqrt{9 + x^2}$", "$\\sqrt{9 - x^2}$", "$x^2 - 9$", "$e^x$"], ans: 1, why: "$9 - 9\\sin^2 = 9\\cos^2$.", oi: 12 }
   ],
   exam: [
     { src: "Edexcel 2022 · P2 Q12", q: "Show that $\\displaystyle\\int_1^{e^2} x^3\\ln x\\,dx = ae^8 + b$, where $a$ and $b$ are rational constants to be found.", marks: 5,
@@ -503,10 +467,9 @@ X("maths:8.6", {
     ["$\\int\\dfrac{1}{(x - 1)(x + 2)}dx$", "$\\tfrac13\\ln\\left|\\dfrac{x - 1}{x + 2}\\right| + c$."],
     ["$\\int_2^4\\dfrac{2x + 3}{x(x + 1)}dx$", "$\\dfrac{3}{x} - \\dfrac{1}{x+1}$: $[3\\ln x - \\ln(x+1)]_2^4 = 3\\ln 2 - \\ln 5 + \\ln 3 = \\ln\\tfrac{24}{5}$."],
     ["$\\int\\dfrac{x^2 + 1}{x + 1}dx$", "Divide: $x - 1 + \\dfrac{2}{x+1}$: $\\tfrac{x^2}{2} - x + 2\\ln|x + 1| + c$."],
-    ["$\\int\\dfrac{3}{(x - 1)^2}dx$", "$-\\dfrac{3}{x - 1} + c$."],
-    ["Solve $\\dfrac{dV}{dt} = \\dfrac{V}{(2t - 1)(t + 1)}$ — the key step?", "$\\int\\dfrac{dV}{V} = \\int\\left(\\dfrac{2/3}{2t - 1} - \\dfrac{1/3}{t + 1}\\right)dt$, so $\\ln V = \\tfrac13\\ln(2t-1) - \\tfrac13\\ln(t+1) + c$."],
-    ["Solve $\\dfrac{dV}{dt} = \\tfrac{1}{10}V(25 - V)$ — set-up?", "$\\int\\dfrac{10}{V(25 - V)}dV = \\int dt$; $\\dfrac{10}{V(25-V)} = \\dfrac{2/5}{V} + \\dfrac{2/5}{25 - V}$."],
-    ["Why must an improper fraction be divided before integrating?", "Partial fractions apply only to proper fractions; the polynomial part integrates directly."],
+    ["Solve $\\dfrac{dV}{dt} = \\dfrac{V}{(2t - 1)(t + 1)}$ — the key step?", "$\\int\\dfrac{dV}{V} = \\int\\left(\\dfrac{2/3}{2t - 1} - \\dfrac{1/3}{t + 1}\\right)dt$, so $\\ln V = \\tfrac13\\ln(2t-1) - \\tfrac13\\ln(t+1) + c$.", 12],
+    ["Solve $\\dfrac{dV}{dt} = \\tfrac{1}{10}V(25 - V)$ — set-up?", "$\\int\\dfrac{10}{V(25 - V)}dV = \\int dt$; $\\dfrac{10}{V(25-V)} = \\dfrac{2/5}{V} + \\dfrac{2/5}{25 - V}$.", 13],
+    ["Why must an improper fraction be divided before integrating?", "Partial fractions apply only to proper fractions; the polynomial part integrates directly.", 14],
     ["$\\int\\dfrac{1}{1 - x}\\,dx$, with its sign?", "$-\\ln|1 - x| + c$: the coefficient of $x$ is $-1$.", 100],
     ["$\\int\\dfrac{3x + 1}{(x + 1)^2}\\,dx$ after splitting it?", "$\\dfrac{3}{x + 1} - \\dfrac{2}{(x + 1)^2}$ integrates to $3\\ln|x + 1| + \\dfrac{2}{x + 1} + c$.", 101],
     ["$\\displaystyle\\int_{-3}^{-1}\\frac1x\\,dx$, and why that sign?", "$\\ln|-1| - \\ln|-3| = -\\ln 3$: the region lies below the $x$-axis.", 102]
@@ -518,7 +481,6 @@ X("maths:8.6", {
     { q: "The logistic DE $\\dfrac{dP}{dt} = kP(L - P)$ is solved using:", opts: ["integration by parts on $P(L - P)$", "partial fractions on $\\dfrac{1}{P(L - P)}$", "the trapezium rule on $\\dfrac{1}{P(L - P)}$", "a substitution $u = P^2$ in $kP(L - P)$"], ans: 1, why: "Separable with a product denominator." },
     { q: "$\\int_0^1\\dfrac{1}{x + 1}dx =$", opts: ["1", "$\\ln 2$", "$\\ln 1$", "$\\tfrac12$"], ans: 1, why: "$[\\ln(x+1)]_0^1$." },
     { q: "$\\dfrac{1}{(x-1)(x+2)} = \\dfrac{A}{x-1} + \\dfrac{B}{x+2}$ gives $A =$", opts: ["$\\tfrac13$", "$-\\tfrac13$", "1", "3"], ans: 0, why: "$x = 1$: $1 = 3A$." },
-    { q: "$\\int \\dfrac{3}{x+2}\\,dx =$", opts: ["$3\\ln|x+2| + c$", "$\\dfrac{3}{(x+2)^2}$", "$\\ln|3x + 6|$", "$\\dfrac{-3}{x+2}$"], ans: 0, why: "$\\int \\frac{1}{x+2}\\,dx = \\ln|x+2|$, so the answer is 3 times it." },
     { qk: "100", q: "$\\displaystyle\\int\\frac{2}{3 - 2x}\\,dx =$", opts: ["$\\ln|3 - 2x| + c$", "$-\\ln|3 - 2x| + c$", "$-2\\ln|3 - 2x| + c$", "$2\\ln|3 - 2x| + c$"], ans: 1, why: "$2 \\times \\frac{1}{-2}\\ln|3 - 2x|$: the coefficient of $x$ is $-2$." },
     { qk: "101", q: "$\\displaystyle\\int\\frac{6x}{x^2 + 5}\\,dx =$", opts: ["$6\\ln(x^2 + 5) + c$", "$\\frac13\\ln(x^2 + 5) + c$", "$3\\ln(x^2 + 5) + c$", "$3x\\ln(x^2 + 5) + c$"], ans: 2, why: "$6x = 3 \\times 2x$, three times the bottom's derivative." },
     { qk: "102", q: "The area under $y = \\dfrac{4}{x(x + 2)}$ from $x = 1$ to $x = 2$ is", opts: ["$\\ln\\frac32$", "$\\ln\\frac94$", "$\\ln 3$", "$2\\ln 2$"], ans: 1, why: "$\\big[2\\ln x - 2\\ln(x + 2)\\big]_1^2 = 2\\ln\\frac32$." }
@@ -554,18 +516,16 @@ X("maths:8.7", {
     ["Solve $\\dfrac{dr}{dt} = -\\dfrac{k}{r^2}$ with $r = 8$ at $t = 0$.", "$\\tfrac13 r^3 = -kt + \\tfrac{512}{3}$, so $r^3 = 512 - 3kt$.", 11],
     ["Solve $\\dfrac{dH}{dt} = -0.12e^{-0.2t}$, $H = 1.2$ at $t = 0$.", "$H = 0.6e^{-0.2t} + 0.6$.", 12],
     ["General solution of $\\dfrac{dy}{dx} = \\dfrac{y}{x}$?", "$\\ln y = \\ln x + c \\Rightarrow y = Ax$.", 13],
-    ["Solve $\\dfrac{dN}{dt} = kN$, $N(0) = N_0$.", "$N = N_0e^{kt}$.", 14],
     ["Solve $\\dfrac{dy}{dx} = \\dfrac{2x}{y}$.", "$\\int y\\,dy = \\int 2x\\,dx \\Rightarrow \\tfrac{y^2}{2} = x^2 + c$.", 15],
     ["Why is the constant found after integrating, not before?", "The condition applies to the solution, which only exists once both sides are integrated.", 16],
     ["Solve $\\dfrac{dV}{dt} = \\tfrac{1}{10}V(25 - V)$ with $V(0) = 5$ — final form?", "$\\tfrac{2}{5}\\ln\\dfrac{V}{25 - V} = t + c$; $V = \\dfrac{25}{1 + 4e^{-2.5t}}$.", 17]
   ],
   quiz: [
-    { q: "$\\dfrac{dy}{dx} = 3y$ has general solution:", opts: ["$y = 3x + c$", "$y = Ae^{3x}$", "$y = e^{3x}$", "$y = 3e^{x}$"], ans: 1, why: "$\\ln y = 3x + c$." },
-    { q: "Separating $\\dfrac{dy}{dx} = \\dfrac{x^2}{y}$ gives:", opts: ["$\\int y\\,dy = \\int x^2\\,dx$", "$\\int\\dfrac{1}{y}dy = \\int x^2 dx$", "$\\int y\\,dx = \\int x^2 dy$", "$y = x^3$"], ans: 0, why: "Multiply by $y\\,dx$." },
-    { q: "A particular solution is found using:", opts: ["a second derivative of the solution", "an initial / boundary condition", "the general solution alone", "partial fractions"], ans: 1, why: "Fixes $c$." },
-    { q: "$\\ln y = \\sin x + c$ rearranges to:", opts: ["$y = \\sin x + A$", "$y = Ae^{\\sin x}$", "$y = e^{\\sin x} + c$", "$y = A\\sin x$"], ans: 1, why: "$A = e^c$." },
-    { q: "The DE $\\dfrac{dy}{dx} = x + y$:", opts: ["is separable", "is not separable", "has solution $y = e^{x}$", "has solution $y = x^2$"], ans: 1, why: "$x + y$ is a sum: it cannot be written as $f(x)g(y)$." },
-    { q: "In $\\dfrac{dV}{dt} = 9 - 6V$, separating gives $\\int\\dfrac{1}{9 - 6V}dV =$", opts: ["$\\int dt$", "$\\int V\\,dt$", "$\\int 6\\,dt$", "$\\int\\dfrac{1}{t}dt$"], ans: 0, why: "Divide by $9 - 6V$ and multiply by $dt$: the right side is $\\int 1\\,dt$." }
+    { q: "Separating $\\dfrac{dy}{dx} = \\dfrac{x^2}{y}$ gives:", opts: ["$\\int y\\,dy = \\int x^2\\,dx$", "$\\int\\dfrac{1}{y}dy = \\int x^2 dx$", "$\\int y\\,dx = \\int x^2 dy$", "$y = x^3$"], ans: 0, why: "Multiply by $y\\,dx$.", oi: 6 },
+    { q: "A particular solution is found using:", opts: ["a second derivative of the solution", "an initial / boundary condition", "the general solution alone", "partial fractions"], ans: 1, why: "Fixes $c$.", oi: 7 },
+    { q: "$\\ln y = \\sin x + c$ rearranges to:", opts: ["$y = \\sin x + A$", "$y = Ae^{\\sin x}$", "$y = e^{\\sin x} + c$", "$y = A\\sin x$"], ans: 1, why: "$A = e^c$.", oi: 8 },
+    { q: "The DE $\\dfrac{dy}{dx} = x + y$:", opts: ["is separable", "is not separable", "has solution $y = e^{x}$", "has solution $y = x^2$"], ans: 1, why: "$x + y$ is a sum: it cannot be written as $f(x)g(y)$.", oi: 9 },
+    { q: "In $\\dfrac{dV}{dt} = 9 - 6V$, separating gives $\\int\\dfrac{1}{9 - 6V}dV =$", opts: ["$\\int dt$", "$\\int V\\,dt$", "$\\int 6\\,dt$", "$\\int\\dfrac{1}{t}dt$"], ans: 0, why: "Divide by $9 - 6V$ and multiply by $dt$: the right side is $\\int 1\\,dt$.", oi: 10 }
   ],
   exam: [
     { src: "Edexcel 2018 · P2 Q10", ctx: "The height $H$ metres of a plant $t$ days after planting satisfies $\\dfrac{dH}{dt} = \\dfrac{H\\cos(0.25t)}{40}$, and $H = 5$ when $t = 0$.",
@@ -590,21 +550,19 @@ X("maths:8.7", {
 X("maths:8.8", {
   flashcards: [
     ["$V = \\dfrac{25}{1 + 4e^{-2.5t}}$: what does the model say as $t \\to \\infty$?", "$V \\to 25$ — the reservoir fills towards a limit of 25 000 litres (an upper bound)."],
-    ["A mint dissolves with $r^3 = 512 - 64t$. When has it completely dissolved?", "$r = 0$ at $t = 8$ minutes."],
-    ["$N = 3 + 7e^{-0.25t}$ for a mouse population: long-term value and initial value?", "3 (thousand) and 10 (thousand)."],
-    ["Show $\\dfrac{dN}{dt} = -0.25(N - 3)$ for $N = 3 + 7e^{-0.25t}$.", "$\\dfrac{dN}{dt} = -1.75e^{-0.25t} = -0.25 \\times 7e^{-0.25t} = -0.25(N - 3)$."],
-    ["When is the rate of decrease of $N$ greatest?", "At $t = 0$ — $|\\dfrac{dN}{dt}|$ is largest when $e^{-0.25t}$ is largest."],
-    ["What is a limitation of $H = 5e^{0.1\\sin 0.25t}$ as a plant-height model?", "It predicts the plant shrinking periodically, which real plants do not do."],
-    ["Solution $h = (512 - 64t)^{1/3}$ — state the domain.", "$0 \\le t \\le 8$; beyond that $r$ would be negative."],
-    ["In a solution $V = 1.5 - 1.5e^{-0.3t}$, interpret 1.5 and 0.3.", "1.5 litres is the limiting volume; 0.3 controls how quickly it is approached (the outflow constant)."]
+    ["$N = 3 + 7e^{-0.25t}$ for a mouse population: long-term value and initial value?", "3 (thousand) and 10 (thousand).", 8],
+    ["Show $\\dfrac{dN}{dt} = -0.25(N - 3)$ for $N = 3 + 7e^{-0.25t}$.", "$\\dfrac{dN}{dt} = -1.75e^{-0.25t} = -0.25 \\times 7e^{-0.25t} = -0.25(N - 3)$.", 9],
+    ["When is the rate of decrease of $N$ greatest?", "At $t = 0$ — $|\\dfrac{dN}{dt}|$ is largest when $e^{-0.25t}$ is largest.", 10],
+    ["What is a limitation of $H = 5e^{0.1\\sin 0.25t}$ as a plant-height model?", "It predicts the plant shrinking periodically, which real plants do not do.", 11],
+    ["Solution $h = (512 - 64t)^{1/3}$ — state the domain.", "$0 \\le t \\le 8$; beyond that $r$ would be negative.", 12],
+    ["In a solution $V = 1.5 - 1.5e^{-0.3t}$, interpret 1.5 and 0.3.", "1.5 litres is the limiting volume; 0.3 controls how quickly it is approached (the outflow constant).", 13]
   ],
   quiz: [
     { q: "$V = \\dfrac{25}{1 + 4e^{-2.5t}}$ at $t = 0$ is:", opts: ["25", "5", "0", "4"], ans: 1, why: "$\\dfrac{25}{5}$." },
-    { q: "A solution $r = (512 - 64t)^{1/3}$ is valid for:", opts: ["all $t \\ge 0$", "$0 \\le t \\le 8$", "$t \\ge 8$ only", "$0 \\le t \\le 512$"], ans: 1, why: "$r \\ge 0$." },
-    { q: "A limit value in a DE solution represents:", opts: ["the initial condition", "the long-term equilibrium", "the maximum rate", "the constant of integration"], ans: 1, why: "As $t \\to \\infty$." },
-    { q: "$N = 3 + 7e^{-0.25t}$ has its greatest rate of change at:", opts: ["$t = 0$", "$t = 3$", "$t \\to \\infty$", "$t = 7$"], ans: 0, why: "Exponential decay steepest at the start." },
-    { q: "A DE solution that gives negative population for large $t$ shows:", opts: ["the population really dies out", "the model is not valid there", "a calculation error was made", "nothing about the model"], ans: 1, why: "A population cannot be negative, so the model fails for large $t$." },
-    { q: "Interpreting $k$ in $\\dfrac{dN}{dt} = -kN$:", opts: ["the initial size of the population", "the proportional rate of decrease", "the limit the population approaches", "the time taken for $N$ to halve"], ans: 1, why: "$\\tfrac{dN}{dt} = -kN$: the rate of decrease is $k$ times the size." }
+    { q: "A limit value in a DE solution represents:", opts: ["the initial condition", "the long-term equilibrium", "the maximum rate", "the constant of integration"], ans: 1, why: "As $t \\to \\infty$.", oi: 6 },
+    { q: "$N = 3 + 7e^{-0.25t}$ has its greatest rate of change at:", opts: ["$t = 0$", "$t = 3$", "$t \\to \\infty$", "$t = 7$"], ans: 0, why: "Exponential decay steepest at the start.", oi: 7 },
+    { q: "A DE solution that gives negative population for large $t$ shows:", opts: ["the population really dies out", "the model is not valid there", "a calculation error was made", "nothing about the model"], ans: 1, why: "A population cannot be negative, so the model fails for large $t$.", oi: 8 },
+    { q: "Interpreting $k$ in $\\dfrac{dN}{dt} = -kN$:", opts: ["the initial size of the population", "the proportional rate of decrease", "the limit the population approaches", "the time taken for $N$ to halve"], ans: 1, why: "$\\tfrac{dN}{dt} = -kN$: the rate of decrease is $k$ times the size.", oi: 9 }
   ],
   exam: [
     { src: "Edexcel 2018 · P1 Q14", ctx: "The number of mice $N$ (thousands) in a field $t$ months after a cull is modelled by $N = 3 + 7e^{-0.25t}$.",
@@ -636,20 +594,15 @@ X("maths:9.1", {
   flashcards: [
     ["Show $x^3 - 5x + 1 = 0$ has a root between 2 and 3.", "$f(2) = -1 < 0$, $f(3) = 13 > 0$; change of sign and $f$ continuous, so a root lies in $(2, 3)$."],
     ["Why must continuity be mentioned?", "A function like $\\dfrac1x$ changes sign across $x = 0$ without having a root there."],
-    ["Show $\\alpha = 1.52$ to 2 d.p. is a root of $f(x) = 0$… method?", "Show $f(1.515)$ and $f(1.525)$ have opposite signs."],
-    ["When can a sign-change test miss a root?", "When there are two (an even number of) roots in the interval — the sign returns to what it was."],
-    ["$f(x) = 2\\ln(8 - x) - x$: show a root lies in $(3, 4)$.", "$f(3) = 2\\ln 5 - 3 = 0.22$, $f(4) = 2\\ln 4 - 4 = -1.23$; sign change, continuous, so a root in $(3, 4)$."],
-    ["What does 'sufficiently well behaved' mean in the spec?", "Continuous on the interval — no asymptotes or jumps."],
-    ["Show $\\tan x - x - 1 = 0$ has a root in $(1.1, 1.2)$… caution?", "Check $\\tan$ is continuous there (asymptote is at $\\pi/2 \\approx 1.57$, outside), then test the signs."],
-    ["Root of $x^2 - 2 = 0$ lies in $(1.41, 1.42)$: verify.", "$f(1.41) = -0.0119$, $f(1.42) = 0.0164$; sign change, so $\\sqrt2 \\in (1.41, 1.42)$."]
+    ["$f(x) = 2\\ln(8 - x) - x$: show a root lies in $(3, 4)$.", "$f(3) = 2\\ln 5 - 3 = 0.22$, $f(4) = 2\\ln 4 - 4 = -1.23$; sign change, continuous, so a root in $(3, 4)$.", 10],
+    ["What does 'sufficiently well behaved' mean in the spec?", "Continuous on the interval — no asymptotes or jumps.", 11],
+    ["Show $\\tan x - x - 1 = 0$ has a root in $(1.1, 1.2)$… caution?", "Check $\\tan$ is continuous there (asymptote is at $\\pi/2 \\approx 1.57$, outside), then test the signs.", 12],
+    ["Root of $x^2 - 2 = 0$ lies in $(1.41, 1.42)$: verify.", "$f(1.41) = -0.0119$, $f(1.42) = 0.0164$; sign change, so $\\sqrt2 \\in (1.41, 1.42)$.", 13]
   ],
   quiz: [
-    { q: "$f(1) = -2$, $f(2) = 3$ and $f$ continuous. Conclusion:", opts: ["exactly one root in $(1, 2)$", "at least one root in $(1, 2)$", "no root", "root at 1.5"], ans: 1, why: "Could be more than one." },
-    { q: "A sign change across an asymptote:", opts: ["proves there is a root", "does not prove a root", "proves there are two roots", "is impossible for any function"], ans: 1, why: "$f$ is not continuous at an asymptote, so a sign change proves nothing." },
-    { q: "To show a root is 2.4 (1 d.p.) test:", opts: ["$f(2.4)$ only", "$f(2.35)$ and $f(2.45)$", "$f(2)$ and $f(3)$", "$f(2.3)$ and $f(2.4)$"], ans: 1, why: "2.4 to 1 d.p. means $2.35 \\le x < 2.45$: test both ends." },
-    { q: "$f(a) > 0$ and $f(b) > 0$ means:", opts: ["there is no root in $(a, b)$", "not necessarily — there could be two", "there is exactly one root in $(a, b)$", "$f$ is positive everywhere on $(a, b)$"], ans: 1, why: "Even number of crossings." },
-    { q: "The essential phrase in the conclusion:", opts: ["'the answer is a root'", "'change of sign and continuous'", "'approximately equal to zero'", "'by calculator to 3 d.p.'"], ans: 1, why: "A sign change proves a root only if $f$ is continuous on the interval." },
-    { q: "$f(x) = \\dfrac{1}{x - 2}$: $f(1) < 0 < f(3)$ but:", opts: ["there is a root at $x = 2$ itself", "there is no root — $f$ is discontinuous at 2", "the root lies between 2 and 3, near 2.5", "$f$ is continuous, so a root lies in $(1, 3)$"], ans: 1, why: "$f$ is undefined at $x = 2$: the sign changes across the asymptote." }
+    { q: "A sign change across an asymptote:", opts: ["proves there is a root", "does not prove a root", "proves there are two roots", "is impossible for any function"], ans: 1, why: "$f$ is not continuous at an asymptote, so a sign change proves nothing.", oi: 5 },
+    { q: "$f(a) > 0$ and $f(b) > 0$ means:", opts: ["there is no root in $(a, b)$", "not necessarily — there could be two", "there is exactly one root in $(a, b)$", "$f$ is positive everywhere on $(a, b)$"], ans: 1, why: "Even number of crossings.", oi: 7 },
+    { q: "The essential phrase in the conclusion:", opts: ["'the answer is a root'", "'change of sign and continuous'", "'approximately equal to zero'", "'by calculator to 3 d.p.'"], ans: 1, why: "A sign change proves a root only if $f$ is continuous on the interval.", oi: 8 }
   ],
   exam: [
     { src: "Edexcel 2018 · P2 Q4", ctx: "The curve $y = 2\\ln(8 - x)$ meets the line $y = x$ at the point with $x$-coordinate $\\alpha$.",
@@ -684,21 +637,17 @@ X("maths:9.2", {
     ["Show $x^3 - 5x + 1 = 0$ can be written as $x = \\sqrt{5 - \\dfrac1x}$.", "$x^3 = 5x - 1 \\Rightarrow x^2 = 5 - \\dfrac1x \\Rightarrow x = \\sqrt{5 - \\dfrac1x}$.", 6],
     ["Iterate $x_{n+1} = \\sqrt{5 - 1/x_n}$ from $x_0 = 2$: $x_1, x_2$?", "$x_1 = \\sqrt{4.5} = 2.1213$, $x_2 = \\sqrt{5 - 0.4714} = 2.1281$.", 7],
     ["Turning point of $y = (8 - x)\\ln x$: derive a convergent iteration.", "$\\dfrac{dy}{dx} = -\\ln x + \\dfrac{8 - x}{x} = 0 \\Rightarrow x(1 + \\ln x) = 8 \\Rightarrow x = \\dfrac{8}{1 + \\ln x}$.", 8],
-    ["When does $x_{n+1} = g(x_n)$ converge to $\\alpha$?", "When $|g'(\\alpha)| < 1$; it diverges if $|g'(\\alpha)| > 1$.", 9],
     ["When does fixed-point iteration give a staircase, and when a cobweb?", "Staircase when $g'(\\alpha) > 0$ (monotone approach); cobweb when $g'(\\alpha) < 0$ (oscillating around the root).", 10],
     ["Does $x_{n+1} = 2\\ln(8 - x_n)$ converge near $\\alpha \\approx 3.13$?", "$g'(x) = -\\dfrac{2}{8 - x}$; $|g'(3.13)| = 0.41 < 1$ — converges (cobweb).", 11],
     ["$v = (10 - 0.4t)\\ln(t + 1)$: equation for maximum speed?", "$\\dfrac{dv}{dt} = -0.4\\ln(t + 1) + \\dfrac{10 - 0.4t}{t + 1} = 0$.", 12],
-    ["How do you draw a cobweb diagram?", "From $x_0$ go vertically to $y = g(x)$, horizontally to $y = x$, repeat; the staircase/cobweb closes in on the intersection.", 13],
     ["Verify a root is 2.128 to 3 d.p.", "$f(2.1275)$ and $f(2.1285)$ have opposite signs.", 14],
     ["Why might an iteration find a different root from the one wanted?", "Different starting values (and different rearrangements) converge to different fixed points — or diverge.", 15]
   ],
   quiz: [
     { q: "$x^2 - 3x + 1 = 0$ rearranged as $x = g(x)$:", opts: ["$x = \\dfrac{x^2 + 1}{3}$", "$x = \\dfrac{x^2 - 1}{3}$", "$x = \\dfrac{3}{x^2 + 1}$", "$x = 3x^2 + 1$"], ans: 0, why: "Isolate $3x$." },
-    { q: "Iteration converges to $\\alpha$ when:", opts: ["$|g'(\\alpha)| > 1$", "$|g'(\\alpha)| < 1$", "$g(\\alpha) = 0$", "$x_0 = \\alpha$"], ans: 1, why: "Near $\\alpha$ each error is scaled by about $g'(\\alpha)$, so $|g'(\\alpha)| < 1$ shrinks it." },
-    { q: "A cobweb diagram occurs when $g'(\\alpha)$ is:", opts: ["positive", "negative", "zero", "large"], ans: 1, why: "$g'(\\alpha) < 0$ puts the iterates on alternate sides of $\\alpha$." },
-    { q: "$x_{n+1} = e^{8/x_n - 1}$ with $x_0 = 3.5$: $x_1 =$", opts: ["3.55", "3.60", "3.61", "3.72"], ans: 2, why: "$e^{1.2857} = 3.617$." },
-    { q: "Working to 3 d.p. during iteration:", opts: ["is fine, as the answer is to 3 d.p.", "risks rounding errors — keep more figures", "speeds up convergence to the root", "is required, as the answer is given to 3 d.p."], ans: 1, why: "Rounding each step adds error; keep full figures and round at the end." },
-    { q: "A staircase diagram shows:", opts: ["divergence whenever $-1 < g'(\\alpha) < 1$", "monotone convergence when $0 < g'(\\alpha) < 1$", "oscillating convergence when $-1 < g'(\\alpha) < 0$", "monotone convergence when $g'(\\alpha) > 1$"], ans: 1, why: "Same side each step." }
+    { q: "$x_{n+1} = e^{8/x_n - 1}$ with $x_0 = 3.5$: $x_1 =$", opts: ["3.55", "3.60", "3.61", "3.72"], ans: 2, why: "$e^{1.2857} = 3.617$.", oi: 7 },
+    { q: "Working to 3 d.p. during iteration:", opts: ["is fine, as the answer is to 3 d.p.", "risks rounding errors — keep more figures", "speeds up convergence to the root", "is required, as the answer is given to 3 d.p."], ans: 1, why: "Rounding each step adds error; keep full figures and round at the end.", oi: 8 },
+    { q: "A staircase diagram shows:", opts: ["divergence whenever $-1 < g'(\\alpha) < 1$", "monotone convergence when $0 < g'(\\alpha) < 1$", "oscillating convergence when $-1 < g'(\\alpha) < 0$", "monotone convergence when $g'(\\alpha) > 1$"], ans: 1, why: "Same side each step.", oi: 9 }
   ],
   exam: [
     { src: "Edexcel Specimen · P2 Q6", ctx: "The curve $C$ has equation $y = (8 - x)\\ln x$, $x > 0$. The point $P$ is the maximum point of $C$.",
@@ -735,17 +684,14 @@ X("maths:9.3", {
     ["Geometric meaning of one NR step?", "The tangent at $(x_n, f(x_n))$ is drawn; $x_{n+1}$ is where it meets the $x$-axis.", 9],
     ["When does NR fail?", "When $f'(x_n) = 0$ (horizontal tangent), when $x_0$ is near a turning point (tangent shoots off), or it converges to a different root.", 10],
     ["NR for $f(x) = 8\\sin(x/2) - 3x + 9$ from $x_0 = 4$: $x_1$?", "$f(4) = 8\\sin 2 - 12 + 9 = 4.27$; $f'(x) = 4\\cos(x/2) - 3$, $f'(4) = 4\\cos 2 - 3 = -4.66$; $x_1 = 4 + 0.916 = 4.92$.", 11],
-    ["Why does NR usually converge faster than $x = g(x)$ iteration?", "It uses gradient information — convergence is quadratic (the number of correct figures roughly doubles each step).", 12],
-    ["NR for $f(x) = \\tan x - 3x + 1$ from $x_0 = 1.2$ — $f'(x)$?", "$f'(x) = \\sec^2 x - 3$.", 13],
-    ["If $f'(x_0) = 0$ what happens geometrically?", "The tangent is parallel to the $x$-axis and never meets it — $x_1$ is undefined.", 14]
+    ["NR for $f(x) = \\tan x - 3x + 1$ from $x_0 = 1.2$ — $f'(x)$?", "$f'(x) = \\sec^2 x - 3$.", 13]
   ],
   quiz: [
     { q: "NR uses:", opts: ["chords", "tangents", "rectangles", "trapezia"], ans: 1, why: "Each step follows the tangent at $x_n$ to where it meets the $x$-axis." },
-    { q: "NR fails immediately if:", opts: ["$f(x_0) = 0$", "$f'(x_0) = 0$", "$x_0 > 0$", "$f''(x_0) = 0$"], ans: 1, why: "$x_1 = x_0 - \\tfrac{f(x_0)}{f'(x_0)}$ divides by $f'(x_0) = 0$." },
-    { q: "For $f(x) = x^2 - 2$, NR gives $x_{n+1} =$", opts: ["$\\dfrac{x_n}{2} + \\dfrac{1}{x_n}$", "$\\dfrac{x_n}{2} - \\dfrac{1}{x_n}$", "$x_n - \\dfrac{x_n^2 - 2}{x_n}$", "$\\dfrac{x_n}{2} + \\dfrac{2}{x_n}$"], ans: 0, why: "$x - \\dfrac{x^2 - 2}{2x}$." },
-    { q: "NR on $f(x) = x^3 - 5$ from $x_0 = 2$: $x_1 =$", opts: ["1.75", "2.25", "1.5", "1.71"], ans: 0, why: "$x_1 = 2 - \\dfrac{8 - 5}{3 \\times 4} = 2 - 0.25 = 1.75$." },
-    { q: "A starting value near a turning point:", opts: ["converges fastest, as the slope is small", "may send the tangent far from the root", "is required for the method to work", "gives an exact root in one step"], ans: 1, why: "Near a turning point $f'(x_0) \\approx 0$, so $\\tfrac{f(x_0)}{f'(x_0)}$ is huge." },
-    { q: "NR convergence is typically:", opts: ["linear — one digit gained each step", "quadratic — digits double each step", "random — it depends on $x_0$ only", "cubic — digits triple each step"], ans: 1, why: "The error is roughly squared each step, so the correct digits double." }
+    { q: "For $f(x) = x^2 - 2$, NR gives $x_{n+1} =$", opts: ["$\\dfrac{x_n}{2} + \\dfrac{1}{x_n}$", "$\\dfrac{x_n}{2} - \\dfrac{1}{x_n}$", "$x_n - \\dfrac{x_n^2 - 2}{x_n}$", "$\\dfrac{x_n}{2} + \\dfrac{2}{x_n}$"], ans: 0, why: "$x - \\dfrac{x^2 - 2}{2x}$.", oi: 6 },
+    { q: "NR on $f(x) = x^3 - 5$ from $x_0 = 2$: $x_1 =$", opts: ["1.75", "2.25", "1.5", "1.71"], ans: 0, why: "$x_1 = 2 - \\dfrac{8 - 5}{3 \\times 4} = 2 - 0.25 = 1.75$.", oi: 7 },
+    { q: "A starting value near a turning point:", opts: ["converges fastest, as the slope is small", "may send the tangent far from the root", "is required for the method to work", "gives an exact root in one step"], ans: 1, why: "Near a turning point $f'(x_0) \\approx 0$, so $\\tfrac{f(x_0)}{f'(x_0)}$ is huge.", oi: 8 },
+    { q: "NR convergence is typically:", opts: ["linear — one digit gained each step", "quadratic — digits double each step", "random — it depends on $x_0$ only", "cubic — digits triple each step"], ans: 1, why: "The error is roughly squared each step, so the correct digits double.", oi: 9 }
   ],
   exam: [
     { src: "Edexcel 2018 · P1 Q5", ctx: "$f(x) = x^3 - 2x - 5$ has exactly one real root $\\alpha$.",
@@ -781,22 +727,20 @@ X("maths:9.4", {
   ],
   flashcards: [
     ["Five ordinates from $x = 1$ to $x = 3$: what is $h$?", "Four strips: $h = 0.5$.", 7],
-    ["Table $y$: 1, 1.5, 2.2, 3.1, 4.5 at $h = 0.5$. Estimate.", "$\\tfrac{0.5}{2}[1 + 4.5 + 2(1.5 + 2.2 + 3.1)] = 0.25 \\times 19.1 = 4.775$.", 8],
+    ["Estimate the integral with $h = 0.5$:\n\n| $y_0$ | $y_1$ | $y_2$ | $y_3$ | $y_4$ |\n| --- | --- | --- | --- | --- |\n| $1$ | $1.5$ | $2.2$ | $3.1$ | $4.5$ |", "$\\tfrac{0.5}{2}[1 + 4.5 + 2(1.5 + 2.2 + 3.1)] = 0.25 \\times 19.1 = 4.775$.", 8],
     ["Given $\\int_1^3 f(x)dx \\approx 4.78$, deduce $\\int_1^3 (2f(x) + 1)dx$.", "$2 \\times 4.78 + 2 = 11.56$.", 9],
     ["Given $\\int_1^3 f(x)dx \\approx 4.78$, deduce $\\int_{0.5}^{1.5} f(2x)dx$.", "$\\tfrac12\\int_1^3 f(u)du = 2.39$.", 10],
-    ["When is the trapezium rule an overestimate?", "When the curve is convex (bends upward — $f'' > 0$) on the interval, the chords lie above the curve.", 11],
     ["How can the estimate be improved?", "Use more strips (smaller $h$).", 12],
-    ["Speed table every 5 s: 0, 12, 21, 27, 31 m/s. Estimate distance.", "$\\tfrac52[0 + 31 + 2(12 + 21 + 27)] = 2.5 \\times 151 = 377.5$ m.", 13],
+    ["Estimate the distance from this speed table ($h = 5$ s):\n\n| $t$ (s) | $0$ | $5$ | $10$ | $15$ | $20$ |\n| --- | --- | --- | --- | --- | --- |\n| $v$ (m/s) | $0$ | $12$ | $21$ | $27$ | $31$ |", "$\\tfrac52[0 + 31 + 2(12 + 21 + 27)] = 2.5 \\times 151 = 377.5$ m.", 13],
     ["Percentage error of an estimate 4.78 against the exact 4.62?", "$\\dfrac{0.16}{4.62} \\times 100 = 3.5\\%$.", 14],
     ["Table with unknown $y$-values $a$, $b$: area 17.59 and $a + b = 7.2$… how do you solve?", "The rule gives a linear equation in $a$ and $b$; with the sum, solve simultaneously.", 15]
   ],
   quiz: [
     { q: "Six ordinates means how many strips?", opts: ["6", "5", "7", "3"], ans: 1, why: "$n$ strips need $n + 1$ ordinates." },
-    { q: "For $\\int_0^2$ with 4 strips, $h =$", opts: ["0.4", "0.5", "2", "0.25"], ans: 1, why: "$2/4$." },
-    { q: "For a concave (bending down) curve the trapezium rule gives:", opts: ["an overestimate", "an underestimate", "the exact value", "zero"], ans: 1, why: "Each chord lies below a concave curve, so the trapezia miss some area." },
-    { q: "$\\int_a^b (f(x) + 3)dx$ from an estimate $E$ of $\\int_a^b f$:", opts: ["$E + 3$", "$E + 3(b - a)$", "$3E + (b - a)$", "$E + 3(a - b)$"], ans: 1, why: "$\\int_a^b 3\\,dx = 3(b - a)$ is added to $E$." },
-    { q: "In the rule, interior ordinates are multiplied by:", opts: ["1", "2", "4", "$h$"], ans: 1, why: "Shared by two trapezia." },
-    { q: "Doubling the number of strips generally:", opts: ["doubles the error", "reduces the error", "has no effect", "halves the area"], ans: 1, why: "Narrower strips follow the curve more closely, so the error falls." }
+    { q: "For a concave (bending down) curve the trapezium rule gives:", opts: ["an overestimate", "an underestimate", "the exact value", "zero"], ans: 1, why: "Each chord lies below a concave curve, so the trapezia miss some area.", oi: 6 },
+    { q: "$\\int_a^b (f(x) + 3)dx$ from an estimate $E$ of $\\int_a^b f$:", opts: ["$E + 3$", "$E + 3(b - a)$", "$3E + (b - a)$", "$E + 3(a - b)$"], ans: 1, why: "$\\int_a^b 3\\,dx = 3(b - a)$ is added to $E$.", oi: 7 },
+    { q: "In the rule, interior ordinates are multiplied by:", opts: ["1", "2", "4", "$h$"], ans: 1, why: "Shared by two trapezia.", oi: 8 },
+    { q: "Doubling the number of strips generally:", opts: ["doubles the error", "reduces the error", "has no effect", "halves the area"], ans: 1, why: "Narrower strips follow the curve more closely, so the error falls.", oi: 9 }
   ],
   exam: [
     { src: "Edexcel Oct 2021 · P2 Q11", ctx: "The curve $y = (\\ln x)^2$ and the region $R$ bounded by the curve, the $x$-axis and the line $x = 4$. The table gives values of $y$ to 3 decimal places.",
@@ -825,22 +769,20 @@ X("maths:9.4", {
 
 X("maths:9.5", {
   flashcards: [
-    ["A runway-length estimate from a speed table uses which method?", "The trapezium rule on $v$ against $t$ — distance is the area under the speed–time graph."],
-    ["Why is the trapezium estimate of distance from an increasing-but-flattening speed graph an underestimate?", "The curve is concave, so each chord lies below it."],
-    ["A maximum speed problem leads to $t = g(t)$. Why iterate rather than solve exactly?", "The equation mixes $t$ and $\\ln(t + 1)$ — no algebraic solution exists."],
-    ["Turning point of $f(x) = 7xe^x/\\sqrt{e^{3x} - 2}$… why numerical?", "$f'(x) = 0$ gives a transcendental equation solvable only by iteration."],
-    ["How do you verify an iteration's answer is correct to 3 d.p.?", "Change of sign of the original equation over the interval $[\\alpha - 0.0005, \\alpha + 0.0005]$."],
-    ["What does 'interval bisection' involve?", "Repeatedly halving an interval containing a root, keeping the half with the sign change."],
-    ["Estimate the area of a lake from width measurements every 10 m: 0, 12, 18, 21, 15, 0.", "$\\tfrac{10}{2}[0 + 0 + 2(12 + 18 + 21 + 15)] = 660$ m²."],
-    ["Why give the number of decimal places when reporting an iteration?", "The value is an approximation; the accuracy claimed must be stated and justified."]
+    ["Why is the trapezium estimate of distance from an increasing-but-flattening speed graph an underestimate?", "The curve is concave, so each chord lies below it.", 6],
+    ["A maximum speed problem leads to $t = g(t)$. Why iterate rather than solve exactly?", "The equation mixes $t$ and $\\ln(t + 1)$ — no algebraic solution exists.", 7],
+    ["Turning point of $f(x) = 7xe^x/\\sqrt{e^{3x} - 2}$… why numerical?", "$f'(x) = 0$ gives a transcendental equation solvable only by iteration.", 8],
+    ["How do you verify an iteration's answer is correct to 3 d.p.?", "Change of sign of the original equation over the interval $[\\alpha - 0.0005, \\alpha + 0.0005]$.", 9],
+    ["What does 'interval bisection' involve?", "Repeatedly halving an interval containing a root, keeping the half with the sign change.", 10],
+    ["Estimate the area of a lake from width measurements every 10 m:\n\n| $x$ (m) | $0$ | $10$ | $20$ | $30$ | $40$ | $50$ |\n| --- | --- | --- | --- | --- | --- | --- |\n| $w$ (m) | $0$ | $12$ | $18$ | $21$ | $15$ | $0$ |", "$\\tfrac{10}{2}[0 + 0 + 2(12 + 18 + 21 + 15)] = 660$ m².", 11],
+    ["Why give the number of decimal places when reporting an iteration?", "The value is an approximation; the accuracy claimed must be stated and justified.", 12]
   ],
   quiz: [
-    { q: "Distance from a speed–time table is estimated by:", opts: ["Newton–Raphson", "the trapezium rule", "differentiation", "a cobweb diagram"], ans: 1, why: "Area under $v$–$t$." },
-    { q: "'Solve $x = \\cos x$ to 2 d.p.' is best done by:", opts: ["factorising $x - \\cos x$", "iteration $x_{n+1} = \\cos x_n$", "the quadratic formula after squaring", "integrating both sides of the equation"], ans: 1, why: "$x = \\cos x$ has no algebraic solution, so iterate $x_{n+1} = \\cos x_n$." },
-    { q: "A change-of-sign check after iteration:", opts: ["is optional", "confirms the stated accuracy", "finds a second root", "is a proof of convergence"], ans: 1, why: "A sign change across the rounding interval confirms the stated accuracy." },
-    { q: "Interval bisection halves the interval:", opts: ["once, giving the root to 1 d.p.", "until the required accuracy is reached", "twice, then the midpoint is the root", "never — it doubles the interval"], ans: 1, why: "Each step halves the interval; repeat until it is within the accuracy." },
-    { q: "A car model $v = 15t - te^{0.2t}$: the time of maximum speed satisfies:", opts: ["$15 - e^{0.2t}(1 + 0.2t) = 0$", "$15 - 0.2te^{0.2t} = 0$", "$15 - e^{0.2t}(1 - 0.2t) = 0$", "$15t - te^{0.2t} = 0$"], ans: 0, why: "Product rule on $te^{0.2t}$." },
-    { q: "Numerical methods are needed when:", opts: ["the equation is quadratic", "no exact algebraic method exists", "the answer is an integer", "the equation has more than one root"], ans: 1, why: "Equations such as $x = \\cos x$ or $e^x = 3x$ have no exact method." }
+    { q: "'Solve $x = \\cos x$ to 2 d.p.' is best done by:", opts: ["factorising $x - \\cos x$", "iteration $x_{n+1} = \\cos x_n$", "the quadratic formula after squaring", "integrating both sides of the equation"], ans: 1, why: "$x = \\cos x$ has no algebraic solution, so iterate $x_{n+1} = \\cos x_n$.", oi: 5 },
+    { q: "A change-of-sign check after iteration:", opts: ["is optional", "confirms the stated accuracy", "finds a second root", "is a proof of convergence"], ans: 1, why: "A sign change across the rounding interval confirms the stated accuracy.", oi: 6 },
+    { q: "Interval bisection halves the interval:", opts: ["once, giving the root to 1 d.p.", "until the required accuracy is reached", "twice, then the midpoint is the root", "never — it doubles the interval"], ans: 1, why: "Each step halves the interval; repeat until it is within the accuracy.", oi: 7 },
+    { q: "A car model $v = 15t - te^{0.2t}$: the time of maximum speed satisfies:", opts: ["$15 - e^{0.2t}(1 + 0.2t) = 0$", "$15 - 0.2te^{0.2t} = 0$", "$15 - e^{0.2t}(1 - 0.2t) = 0$", "$15t - te^{0.2t} = 0$"], ans: 0, why: "Product rule on $te^{0.2t}$.", oi: 8 },
+    { q: "Numerical methods are needed when:", opts: ["the equation is quadratic", "no exact algebraic method exists", "the answer is an integer", "the equation has more than one root"], ans: 1, why: "Equations such as $x = \\cos x$ or $e^x = 3x$ have no exact method.", oi: 9 }
   ],
   exam: [
     { src: "Edexcel 2025 · P2 Q9", ctx: "The speed $v$ m/s of a racing car $t$ seconds after the start is modelled by $v = 15t - te^{0.2t}$, $0 \\le t \\le 12$.",
@@ -849,7 +791,7 @@ X("maths:9.5", {
         { q: "Use the iteration $t_{n+1} = 5\\ln\\left(\\dfrac{15}{1 + 0.2t_n}\\right)$ with $t_0 = 8$ to find $t_1$, $t_2$ and $t_3$ to 3 decimal places.", marks: 2, ms: ["A1: $t_1 = 5\\ln\\dfrac{15}{2.6} = 8.762$", "A1: $t_2 = 8.478$, $t_3 = 8.582$"] },
         { q: "Given that the maximum occurs at $t = 8.55$ (2 d.p.), find the maximum speed to the nearest m/s.", marks: 2, ms: ["M1: $v = 15(8.55) - 8.55e^{1.71}$", "A1: $128.3 - 47.3 = 81$ m/s"] }
       ] },
-    { src: "Edexcel 2019 · P2 Q2", q: "During a test, the speed of a train is recorded every 10 seconds: $0, 8, 15, 20, 24, 27$ m/s. Estimate the distance travelled in the 50 seconds using the trapezium rule, and explain how a better estimate could be obtained.", marks: 4,
+    { src: "Edexcel 2019 · P2 Q2", q: "During a test, the speed of a train is recorded every 10 seconds:\n\n| $t$ (s) | $0$ | $10$ | $20$ | $30$ | $40$ | $50$ |\n| --- | --- | --- | --- | --- | --- | --- |\n| $v$ (m/s) | $0$ | $8$ | $15$ | $20$ | $24$ | $27$ |\n\nEstimate the distance travelled in the 50 seconds using the trapezium rule, and explain how a better estimate could be obtained.", marks: 4,
       ms: ["M1: $\\tfrac{10}{2}[0 + 27 + 2(8 + 15 + 20 + 24)]$", "A1: $5 \\times 161$", "A1: 805 m", "B1: record the speed more frequently (smaller time intervals / more strips)"] }
   ]
 });
@@ -883,13 +825,11 @@ X("maths:10.1", {
     ["Points on line $AB$ with $|AP| = 2|BP|$?", "Two: $P$ between $A$ and $B$ with $\\mathbf p = \\mathbf a + \\tfrac23(\\mathbf b - \\mathbf a)$, and $P$ beyond $B$ with $\\mathbf p = \\mathbf a + 2(\\mathbf b - \\mathbf a)$."]
   ],
   quiz: [
-    { q: "$\\overrightarrow{AB} =$", opts: ["$\\mathbf a - \\mathbf b$", "$\\mathbf b - \\mathbf a$", "$\\mathbf a + \\mathbf b$", "$\\mathbf b$"], ans: 1, why: "$\\overrightarrow{AB} = \\overrightarrow{AO} + \\overrightarrow{OB} = -\\mathbf a + \\mathbf b$." },
-    { q: "$|2\\mathbf i - 3\\mathbf j + 6\\mathbf k| =$", opts: ["7", "11", "$\\sqrt{11}$", "5"], ans: 0, why: "$\\sqrt{4 + 9 + 36}$." },
-    { q: "$\\mathbf u = 2\\mathbf i + \\mathbf j$ and $\\mathbf v = -6\\mathbf i - 3\\mathbf j$ are:", opts: ["perpendicular", "parallel", "equal", "unit"], ans: 1, why: "$\\mathbf v = -3\\mathbf u$." },
-    { q: "Midpoint $M$ of $AB$ has position vector:", opts: ["$\\mathbf a + \\mathbf b$", "$\\tfrac12(\\mathbf a + \\mathbf b)$", "$\\mathbf b - \\mathbf a$", "$\\tfrac12(\\mathbf b - \\mathbf a)$"], ans: 1, why: "$\\mathbf a + \\tfrac12(\\mathbf b - \\mathbf a) = \\tfrac12(\\mathbf a + \\mathbf b)$." },
-    { q: "A quadrilateral with exactly one pair of parallel sides is a:", opts: ["parallelogram", "trapezium", "rhombus", "kite"], ans: 1, why: "A trapezium has one pair of parallel sides; a parallelogram has two." },
-    { q: "$\\mathbf a = \\begin{pmatrix}1\\\\2\\\\3\\end{pmatrix}$, $\\mathbf b = \\begin{pmatrix}3\\\\5\\\\7\\end{pmatrix}$: $\\overrightarrow{AB}$ has magnitude", opts: ["$\\sqrt{29}$", "$\\sqrt{14}$", "$\\sqrt{83}$", "5"], ans: 0, why: "$\\sqrt{4 + 9 + 16}$." },
-    { q: "Three points are collinear if:", opts: ["$|\\overrightarrow{AB}| = |\\overrightarrow{AC}|$", "$\\overrightarrow{AB} = k\\overrightarrow{AC}$", "$\\overrightarrow{AB} + \\overrightarrow{AC} = 0$", "they form a triangle"], ans: 1, why: "Parallel through a common point." }
+    { q: "$|2\\mathbf i - 3\\mathbf j + 6\\mathbf k| =$", opts: ["7", "11", "$\\sqrt{11}$", "5"], ans: 0, why: "$\\sqrt{4 + 9 + 36}$.", oi: 5 },
+    { q: "$\\mathbf u = 2\\mathbf i + \\mathbf j$ and $\\mathbf v = -6\\mathbf i - 3\\mathbf j$ are:", opts: ["perpendicular", "parallel", "equal", "unit"], ans: 1, why: "$\\mathbf v = -3\\mathbf u$.", oi: 6 },
+    { q: "Midpoint $M$ of $AB$ has position vector:", opts: ["$\\mathbf a + \\mathbf b$", "$\\tfrac12(\\mathbf a + \\mathbf b)$", "$\\mathbf b - \\mathbf a$", "$\\tfrac12(\\mathbf b - \\mathbf a)$"], ans: 1, why: "$\\mathbf a + \\tfrac12(\\mathbf b - \\mathbf a) = \\tfrac12(\\mathbf a + \\mathbf b)$.", oi: 7 },
+    { q: "A quadrilateral with exactly one pair of parallel sides is a:", opts: ["parallelogram", "trapezium", "rhombus", "kite"], ans: 1, why: "A trapezium has one pair of parallel sides; a parallelogram has two.", oi: 8 },
+    { q: "$\\mathbf a = \\begin{pmatrix}1\\\\2\\\\3\\end{pmatrix}$, $\\mathbf b = \\begin{pmatrix}3\\\\5\\\\7\\end{pmatrix}$: $\\overrightarrow{AB}$ has magnitude", opts: ["$\\sqrt{29}$", "$\\sqrt{14}$", "$\\sqrt{83}$", "5"], ans: 0, why: "$\\sqrt{4 + 9 + 16}$.", oi: 9 }
   ],
   exam: [
     { src: "Edexcel 2025 · P1 Q10", ctx: "$\\overrightarrow{PQ} = 3\\mathbf i - 2\\mathbf j + 6\\mathbf k$ and $\\overrightarrow{QR} = 6\\mathbf i + 3\\mathbf j - 2\\mathbf k$.",
@@ -920,20 +860,17 @@ X("maths:10.2", {
   flashcards: [
     ["Magnitude of $5\\mathbf i - 12\\mathbf j$?", "13."],
     ["Direction of $3\\mathbf i + 4\\mathbf j$ as an angle from the positive $x$-axis?", "$\\arctan\\tfrac43 = 53.1°$."],
-    ["Write the vector of magnitude 10 at $30°$ above the positive $x$-axis in component form.", "$10\\cos 30°\\,\\mathbf i + 10\\sin 30°\\,\\mathbf j = 5\\sqrt3\\,\\mathbf i + 5\\mathbf j$."],
-    ["Bearing of the vector $-4\\mathbf i + 4\\mathbf j$?", "Pointing north-west: bearing $315°$."],
-    ["A boat moves from $(2, 3)$ to $(8, 11)$ in 2 hours. Speed and bearing?", "Displacement $6\\mathbf i + 8\\mathbf j$, distance 10, speed 5 km/h; bearing $\\arctan\\tfrac68 = 36.9°$ (measured from north)."],
-    ["Unit vector in the direction of $2\\mathbf i - 2\\mathbf j + \\mathbf k$?", "$\\tfrac13(2\\mathbf i - 2\\mathbf j + \\mathbf k)$."],
-    ["Smallest integer $a$ such that $|a\\mathbf i + 2\\mathbf j + 3\\mathbf k| > \\sqrt{38}$?", "$a^2 + 13 > 38 \\Rightarrow a^2 > 25 \\Rightarrow a = 6$."],
-    ["Angle between $\\mathbf m = 3\\mathbf i + 4\\mathbf j$ and $\\mathbf m - \\mathbf n$ where $\\mathbf n = \\mathbf i + 7\\mathbf j$?", "$\\mathbf m - \\mathbf n = 2\\mathbf i - 3\\mathbf j$; angles $53.1°$ and $-56.3°$: angle between $= 109.4°$."]
+    ["Bearing of the vector $-4\\mathbf i + 4\\mathbf j$?", "Pointing north-west: bearing $315°$.", 9],
+    ["A boat moves from $(2, 3)$ to $(8, 11)$ in 2 hours. Speed and bearing?", "Displacement $6\\mathbf i + 8\\mathbf j$, distance 10, speed 5 km/h; bearing $\\arctan\\tfrac68 = 36.9°$ (measured from north).", 10],
+    ["Unit vector in the direction of $2\\mathbf i - 2\\mathbf j + \\mathbf k$?", "$\\tfrac13(2\\mathbf i - 2\\mathbf j + \\mathbf k)$.", 11],
+    ["Smallest integer $a$ such that $|a\\mathbf i + 2\\mathbf j + 3\\mathbf k| > \\sqrt{38}$?", "$a^2 + 13 > 38 \\Rightarrow a^2 > 25 \\Rightarrow a = 6$.", 12],
+    ["Angle between $\\mathbf m = 3\\mathbf i + 4\\mathbf j$ and $\\mathbf m - \\mathbf n$ where $\\mathbf n = \\mathbf i + 7\\mathbf j$?", "$\\mathbf m - \\mathbf n = 2\\mathbf i - 3\\mathbf j$; angles $53.1°$ and $-56.3°$: angle between $= 109.4°$.", 13]
   ],
   quiz: [
-    { q: "$|-6\\mathbf i + 8\\mathbf j| =$", opts: ["2", "10", "14", "$\\sqrt{28}$"], ans: 1, why: "$\\sqrt{36 + 64}$." },
-    { q: "The angle $4\\mathbf i + 4\\mathbf j$ makes with $\\mathbf i$:", opts: ["$30°$", "$45°$", "$60°$", "$90°$"], ans: 1, why: "$\\tan\\theta = \\tfrac44 = 1$, so $\\theta = 45°$." },
-    { q: "Vector of magnitude 6 in the direction of $\\mathbf i - \\mathbf j$… wait: $2\\mathbf i - 2\\mathbf j$ scaled to magnitude 6 is:", opts: ["$3\\mathbf i - 3\\mathbf j$", "$3\\sqrt2(\\mathbf i - \\mathbf j)$", "$6\\mathbf i - 6\\mathbf j$", "$6\\sqrt2(\\mathbf i - \\mathbf j)$"], ans: 1, why: "Unit vector $\\tfrac{1}{\\sqrt2}(\\mathbf i - \\mathbf j)$ times 6." },
-    { q: "A bearing is measured:", opts: ["anticlockwise from east", "clockwise from north", "from the $x$-axis", "from south"], ans: 1, why: "Bearings start at north and turn clockwise, written with three figures." },
-    { q: "$|\\mathbf a + \\mathbf b| = |\\mathbf a| + |\\mathbf b|$ means:", opts: ["$\\mathbf a$ and $\\mathbf b$ are perpendicular to each other", "$\\mathbf a$ and $\\mathbf b$ are parallel in the same direction", "$\\mathbf a$ and $\\mathbf b$ are parallel in opposite directions", "this is impossible for non-zero vectors"], ans: 1, why: "Triangle inequality equality case." },
-    { q: "Converting magnitude 8 at $120°$ to components gives $x =$", opts: ["4", "$-4$", "$4\\sqrt3$", "$-4\\sqrt3$"], ans: 1, why: "$8\\cos 120°$." }
+    { q: "The angle $4\\mathbf i + 4\\mathbf j$ makes with $\\mathbf i$:", opts: ["$30°$", "$45°$", "$60°$", "$90°$"], ans: 1, why: "$\\tan\\theta = \\tfrac44 = 1$, so $\\theta = 45°$.", oi: 5 },
+    { q: "Vector of magnitude 6 in the direction of $2\\mathbf i - 2\\mathbf j$:", opts: ["$3\\mathbf i - 3\\mathbf j$", "$3\\sqrt2(\\mathbf i - \\mathbf j)$", "$6\\mathbf i - 6\\mathbf j$", "$6\\sqrt2(\\mathbf i - \\mathbf j)$"], ans: 1, why: "Unit vector $\\tfrac{1}{\\sqrt2}(\\mathbf i - \\mathbf j)$ times 6.", oi: 6 },
+    { q: "A bearing is measured:", opts: ["anticlockwise from east", "clockwise from north", "from the $x$-axis", "from south"], ans: 1, why: "Bearings start at north and turn clockwise, written with three figures.", oi: 7 },
+    { q: "Converting magnitude 8 at $120°$ to components gives $x =$", opts: ["4", "$-4$", "$4\\sqrt3$", "$-4\\sqrt3$"], ans: 1, why: "$8\\cos 120°$.", oi: 9 }
   ],
   exam: [
     { level: "AS", src: "Edexcel AS 2020 · P1 Q2", ctx: "A boat is at the point with position vector $(2\\mathbf i + 5\\mathbf j)$ km at 1 pm and at $(14\\mathbf i + 10\\mathbf j)$ km at 3 pm, moving with constant velocity. The unit vectors $\\mathbf i$ and $\\mathbf j$ are due east and due north.",
@@ -956,7 +893,6 @@ X("maths:10.2", {
 X("maths:10.3", {
   flashcards: [
     ["$\\mathbf a = 2\\mathbf i + \\mathbf j$, $\\mathbf b = -\\mathbf i + 3\\mathbf j$. Find $2\\mathbf a - 3\\mathbf b$.", "$7\\mathbf i - 7\\mathbf j$.", 6],
-    ["Geometric meaning of $\\mathbf a + \\mathbf b$?", "Place $\\mathbf b$'s tail at $\\mathbf a$'s head; the resultant runs from $\\mathbf a$'s tail to $\\mathbf b$'s head (triangle law).", 7],
     ["Geometric meaning of $k\\mathbf a$ for $k < 0$?", "A vector parallel to $\\mathbf a$, $|k|$ times as long, in the opposite direction.", 8],
     ["$\\overrightarrow{OA} = \\mathbf a$, $\\overrightarrow{OB} = \\mathbf b$, $C$ divides $OA$ with $OC : CA = 1 : 2$. Find $\\overrightarrow{CB}$.", "$\\mathbf b - \\tfrac13\\mathbf a$.", 10],
     ["Line through $C$ and $M$ meets $OB$ at $N$. How do you find the ratio $ON : NB$?", "Write $\\overrightarrow{ON}$ two ways — as $\\lambda\\mathbf b$ and as $\\overrightarrow{OC} + \\mu\\overrightarrow{CM}$ — and equate coefficients of $\\mathbf a$ and $\\mathbf b$.", 11],
@@ -989,7 +925,6 @@ X("maths:10.3", {
 
 X("maths:10.4", {
   flashcards: [
-    ["Distance between points with position vectors $\\mathbf a = \\mathbf i + 2\\mathbf j - \\mathbf k$ and $\\mathbf b = 3\\mathbf i - \\mathbf j + 4\\mathbf k$?", "$|\\mathbf b - \\mathbf a| = |2\\mathbf i - 3\\mathbf j + 5\\mathbf k| = \\sqrt{38}$.", 5],
     ["$\\overrightarrow{AB} = \\overrightarrow{BD}$ with $\\mathbf a = (1, 2, 3)$, $\\mathbf b = (4, 0, 5)$. Find $\\mathbf d$.", "$\\mathbf d = 2\\mathbf b - \\mathbf a = (7, -2, 7)$.", 6],
     ["$|AC| = 4$ where $\\mathbf a = (1, 2, 3)$, $\\mathbf c = (a, 2, 3 + 2\\sqrt3)$: find $a$.", "$(a - 1)^2 + 12 = 16 \\Rightarrow a = 3$ or $-1$.", 7],
     ["Position vector of the point dividing $AB$ in the ratio $2 : 3$?", "$\\mathbf a + \\tfrac25(\\mathbf b - \\mathbf a) = \\tfrac35\\mathbf a + \\tfrac25\\mathbf b$.", 8],

@@ -304,12 +304,11 @@
       ]
     },
     flashcards: [
-      ["What is a variable's scope?", "The block it is declared in, from the declaration to the closing brace."],
-      ["Can code after a loop use a variable declared inside it?", "No — it is out of scope (CS0103)."],
-      ["Why does a method's local start fresh on every call?", "Each call gets a new stack frame; the old one is discarded on return."],
-      ["What does `static` on a local method forbid?", "Using the program's variables: it may use only its parameters and its own locals."],
-      ["What is CS0136?", "Declaring a name inside a block where that name is already in use."],
-      ["Local vs global (AQA)?", "Local: declared in a subroutine, lives for one call. Global: visible to the whole program."]
+      ["What is a variable's scope?", "The block it is declared in, from the declaration to the closing brace.", 0],
+      ["Why does a method's local start fresh on every call?", "Each call gets a new stack frame; the old one is discarded on return.", 2],
+      ["What does `static` on a local method forbid?", "Using the program's variables: it may use only its parameters and its own locals.", 3],
+      ["What is CS0136?", "Declaring a name inside a block where that name is already in use.", 4],
+      ["Local vs global (AQA)?", "Local: declared in a subroutine, lives for one call. Global: visible to the whole program.", 5]
     ],
     quiz: [
       { q: "Two `for (int i …)` loops one after the other…", opts: ["compile fine", "give CS0136", "share one i", "give CS0103"], ans: 0, why: "Each loop's i is scoped to that loop." },
@@ -602,10 +601,9 @@
       ["What does `nameof(age)` give?", "The text \"age\" — the parameter's name, kept right if it is renamed."]
     ],
     quiz: [
-      { q: "Where do guard clauses go?", opts: ["at the end", "at the top", "in a loop", "anywhere"], ans: 1, why: "Reject bad input before the work." },
-      { q: "Which never throws on bad text?", opts: ["int.Parse", "int.TryParse", "Convert.ToInt32", "(int)"], ans: 1, why: "It returns false instead." },
-      { q: "A method's caller passes −3 for an age. Best response?", opts: ["return 0 and let the caller check", "throw ArgumentOutOfRangeException", "print a warning and carry on", "use Math.Abs to make it 3"], ans: 1, why: "The caller has a bug; say so loudly." },
-      { q: "`throw` inside a method…", opts: ["returns a value", "stops the method at once", "prints a message and continues", "is a compile error"], ans: 1, why: "Control leaves immediately." }
+      { q: "Where do guard clauses go?", opts: ["at the end", "at the top", "in a loop", "anywhere"], ans: 1, why: "Reject bad input before the work.", oi: 0 },
+      { q: "A method's caller passes −3 for an age. Best response?", opts: ["return 0 and let the caller check", "throw ArgumentOutOfRangeException", "print a warning and carry on", "use Math.Abs to make it 3"], ans: 1, why: "The caller has a bug; say so loudly.", oi: 2 },
+      { q: "`throw` inside a method…", opts: ["returns a value", "stops the method at once", "prints a message and continues", "is a compile error"], ans: 1, why: "Control leaves immediately.", oi: 3 }
     ]
   });
   K.add({ tasks: {

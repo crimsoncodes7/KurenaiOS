@@ -124,12 +124,12 @@ C["compsci:4.12.2.1"] = {
 
     { page: "In exam questions" },
     { worked: { tag: "exam", title: "map, filter, fold on lists", src: "A-level June 2017 · P2 Q06.2 · 3 marks",
-      q: "square x = x * x; a = [1, 3, 5]; b = [1, 5, 10, 15]; c = [9, 7, 2]. Calculate the results of the function calls map square a, filter (<10) b and fold (+) 0 c.",
+      q: "Consider the definitions below:\n\n```hs\nsquare x = x * x\na = [1, 3, 5]\nb = [1, 5, 10, 15]\nc = [9, 7, 2]\n```\n\nCalculate the results of the function calls `map square a`, `filter (<10) b` and `fold (+) 0 c`.",
       steps: [
         { m: "map square a = [1, 9, 25];", mk: "1 mark" },
         { m: "filter (<10) b = [1, 5];", mk: "1 mark", n: "A. [5, 1] this time." },
         { m: "fold (+) 0 c = 0 + 9 + 7 + 2 = 18;", mk: "1 mark" }
-      ], result: "[1,9,25] · [1,5] · 18", try: [{ predict: { code: "Func<int, int> square = x => x * x;\nConsole.WriteLine(string.Join(\",\", new[] { 2, 4, 6 }.Select(square)));\nConsole.WriteLine(string.Join(\",\", new[] { 3, 12, 8, 15, 1 }.Where(x => x < 10)));\nConsole.WriteLine(new[] { 4, 5, 6 }.Aggregate(0, (acc, x) => acc + x));", expect: "4,16,36\n3,8,1\n15", cap: "**Your turn.** map, filter and fold in C# — Select, Where and Aggregate — on new lists. What does it print?" } }], fig: { w: 560, h: 190, items: (function () {
+      ], result: "[1,9,25] · [1,5] · 18", try: [{ notesOnly: true, predict: { code: "Func<int, int> square = x => x * x;\nConsole.WriteLine(string.Join(\",\", new[] { 2, 4, 6 }.Select(square)));\nConsole.WriteLine(string.Join(\",\", new[] { 3, 12, 8, 15, 1 }.Where(x => x < 10)));\nConsole.WriteLine(new[] { 4, 5, 6 }.Aggregate(0, (acc, x) => acc + x));", expect: "4,16,36\n3,8,1\n15", cap: "**Your turn.** map, filter and fold in C# — Select, Where and Aggregate — on new lists. What does it print?" } }], fig: { w: 560, h: 190, items: (function () {
       var it = [];
       function cells(x, y, vals, col) { vals.forEach(function (v, i) { it.push({ poly: [[x + i * 38, y], [x + i * 38 + 38, y], [x + i * 38 + 38, y + 30], [x + i * 38, y + 30]], fill: col, alpha: 0.16, c: col, w: 1.3 }, { text: [x + i * 38 + 19, y + 15], t: String(v), b: true, size: 12.5, c: "text" }); }); }
       cells(20, 15, [1, 3, 5], "accent"); cells(390, 15, [1, 9, 25], "good");
@@ -144,7 +144,7 @@ C["compsci:4.12.2.1"] = {
       q: "map is an example of a higher-order function. Explain what a higher-order function is.",
       steps: [{ m: "A function that takes a function as an argument and/or returns a function as its result;", mk: "1 mark", n: "NE. \"a function that uses another function\"; R. an explanation of map only." }], result: "Takes or returns a function" } },
     { worked: { tag: "exam", title: "How many use a higher-order function", src: "A-level June 2018 · P2 Q15.1 · 1 mark",
-      q: "fw [a,b] = a * b; fx c = map fw c; fy d = fold (+) 0 d; fz e = fy (fx e). How many of the four functions (fw, fx, fy, fz) use a higher-order function?",
+      q: "Consider the definitions below:\n\n```hs\nfw [a,b] = a * b\nfx c = map fw c\nfy d = fold (+) 0 d\nfz e = fy (fx e)\n```\n\nHow many of the four functions (`fw`, `fx`, `fy`, `fz`) use a higher-order function?",
       steps: [{ m: "fx uses map and fy uses fold. fw uses only ×; fz applies fy and fx but passes no function." }, { m: "2;", mk: "1 mark" }], result: "2" } },
     { worked: { tag: "exam", title: "Explain higher-order (2 marks)", src: "A-level June 2020 · P2 Q11.3 · 2 marks",
       q: "Functional programming languages support higher-order functions such as map and fold. Explain what a higher-order function is.",
@@ -153,19 +153,19 @@ C["compsci:4.12.2.1"] = {
         { m: "and/or returns a function as its result;", mk: "1 mark", n: "Max 2. A. parameter / input for argument." }
       ], result: "Function as argument; function as result" } },
     { worked: { tag: "exam", title: "A product fold", src: "A-level June 2020 · P2 Q11.4 · 1 mark",
-      q: "What is the result of this application of the fold function? fold (*) 1 [2, 3, 2]",
-      steps: [{ m: "1 × 2 = 2; 2 × 3 = 6; 6 × 2 = 12;" }, { m: "12;", mk: "1 mark" }], result: "12", try: [{ predict: { code: "Console.WriteLine(new[] { 3, 4, 5 }.Aggregate(1, (acc, x) => acc * x));", expect: "60", cap: "**Your turn.** fold (*) 1 [3, 4, 5] in C#: what does it print?" } }] } },
+      q: "What is the result of this application of the `fold` function?\n\n`fold (*) 1 [2, 3, 2]`",
+      steps: [{ m: "1 × 2 = 2; 2 × 3 = 6; 6 × 2 = 12;" }, { m: "12;", mk: "1 mark" }], result: "12", try: [{ notesOnly: true, predict: { code: "Console.WriteLine(new[] { 3, 4, 5 }.Aggregate(1, (acc, x) => acc * x));", expect: "60", cap: "**Your turn.** fold (*) 1 [3, 4, 5] in C#: what does it print?" } }] } },
     { worked: { tag: "exam", title: "Which includes a higher-order function", src: "A-level June 2022 · P2 Q12.1 · 1 mark",
-      q: "fu a = (a - 32) * 5 / 9; fv b = map fu b; fx [] = 0; fx (x:xs) = x + fx (xs); fy c = fx (c) / fw (c). Which of fu, fv, fx, fy includes a higher-order function in its definition?",
+      q: "Consider the definitions below:\n\n```hs\nfu a = (a - 32) * 5 / 9\nfv b = map fu b\nfx [] = 0\nfx (x:xs) = x + fx (xs)\nfy c = fx (c) / fw (c)\n```\n\nWhich of `fu`, `fv`, `fx`, `fy` includes a higher-order function in its definition?",
       steps: [{ m: "fv;", mk: "1 mark", n: "It uses map. fx is recursive, not higher-order." }], result: "fv" } },
     { worked: { tag: "exam", title: "Temperatures: calculate the results", src: "A-level June 2022 · P2 Q12.3 · 4 marks",
-      q: "temps = [50, 68, 95, 86]; fu a = (a - 32) * 5 / 9; fv b = map fu b; fw [] = 0; fw (x:xs) = 1 + fw (xs); fx [] = 0; fx (x:xs) = x + fx (xs); fy c = fx (c) / fw (c); fz d = fy (fv (d)). Calculate the results of fu 50, fv temps, fw temps and fz temps.",
+      q: "Consider the definitions below:\n\n```hs\ntemps = [50, 68, 95, 86]\nfu a = (a - 32) * 5 / 9\nfv b = map fu b\nfw [] = 0\nfw (x:xs) = 1 + fw (xs)\nfx [] = 0\nfx (x:xs) = x + fx (xs)\nfy c = fx (c) / fw (c)\nfz d = fy (fv (d))\n```\n\nCalculate the results of `fu 50`, `fv temps`, `fw temps` and `fz temps`.",
       steps: [
         { m: "fu 50 = (50 − 32) × 5 / 9 = 10.0;", mk: "1 mark", n: "A. 10." },
         { m: "fv temps = [10.0, 20.0, 35.0, 30.0];", mk: "1 mark", n: "R. no brackets." },
         { m: "fw temps = 4 — it counts the elements;", mk: "1 mark" },
         { m: "fz temps = (10 + 20 + 35 + 30) / 4 = 95 / 4 = 23.75;", mk: "1 mark", n: "A. 95/4; follow-through from your row-2 list and row-3 count." }
-      ], result: "10.0 · [10.0, 20.0, 35.0, 30.0] · 4 · 23.75", try: [{ predict: { code: "var temps = new List<double> { 41, 59, 104 };\nvar c = temps.Select(f => (f - 32) * 5 / 9).ToList();\nConsole.WriteLine(string.Join(\",\", c));\nConsole.WriteLine(c.Count);\nConsole.WriteLine(c.Sum() / c.Count);", expect: "5,15,40\n3\n20", cap: "**Your turn.** fv, fw and fz in C# on three new temperatures. What are the three lines?" } }] } },
+      ], result: "10.0 · [10.0, 20.0, 35.0, 30.0] · 4 · 23.75", try: [{ notesOnly: true, predict: { code: "var temps = new List<double> { 41, 59, 104 };\nvar c = temps.Select(f => (f - 32) * 5 / 9).ToList();\nConsole.WriteLine(string.Join(\",\", c));\nConsole.WriteLine(c.Count);\nConsole.WriteLine(c.Sum() / c.Count);", expect: "5,15,40\n3\n20", cap: "**Your turn.** fv, fw and fz in C# on three new temperatures. What are the three lines?" } }] } },
     { worked: { tag: "variation", title: "Write the pipeline", q: "scores = [45, 82, 67, 91, 30]. Using map, filter and fold, write expressions for (a) the scores of 50 or more (b) each score as a percentage of 120, as a decimal (c) the total of the scores of 50 or more. Give each result.",
       steps: [
         { m: "(a) filter (>= 50) scores = [82, 67, 91]", mk: "1" },
@@ -282,27 +282,27 @@ C["compsci:4.12.3.1"] = {
     { page: "In exam questions" },
     { worked: { tag: "exam", title: "head(tail(tail b))", src: "A-level June 2017 · P2 Q06.1 · 1 mark",
       q: "b = [1, 5, 10, 15]. What is the list or value that is the result of applying the functions head(tail(tail b))?",
-      steps: [{ m: "tail b = [5, 10, 15]; tail of that = [10, 15]; head = 10" }, { m: "10;", mk: "1 mark" }], result: "10", try: [{ grid: { cols: ["Expression (b = [2, 4, 6, 8])", "Result"], rows: [["tail b", "[4, 6, 8]"], ["head (tail b)", "4"], ["tail (tail (tail b))", "[8]"], ["head (tail (tail (tail b)))", "8"]], given: [[0, 0], [1, 0], [2, 0], [3, 0]], cap: "**Your turn.** Write a list like [4, 6, 8]." } }] } },
+      steps: [{ m: "tail b = [5, 10, 15]; tail of that = [10, 15]; head = 10" }, { m: "10;", mk: "1 mark" }], result: "10", try: [{ notesOnly: true, grid: { cols: ["Expression (b = [2, 4, 6, 8])", "Result"], rows: [["tail b", "[4, 6, 8]"], ["head (tail b)", "4"], ["tail (tail (tail b))", "[8]"], ["head (tail (tail (tail b)))", "8"]], given: [[0, 0], [1, 0], [2, 0], [3, 0]], cap: "**Your turn.** Write a list like [4, 6, 8]." } }] } },
     { worked: { tag: "exam", title: "Head and tail of towers", src: "A-level June 2020 · P2 Q11.1 · 1 mark",
       q: "towers = [\"Blackpool\", \"Paris\", \"New Brighton\", \"Toronto\"]. What are the head and tail of this list?",
       steps: [{ m: "Head: \"Blackpool\"; Tail: [\"Paris\", \"New Brighton\", \"Toronto\"];", mk: "1 mark (both)", n: "I. missing quotation marks; A. missing tail brackets this time only." }], result: "\"Blackpool\" · [\"Paris\", \"New Brighton\", \"Toronto\"]" } },
     { worked: { tag: "exam", title: "How total works", src: "A-level June 2020 · P2 Q11.2 · 3 marks",
-      q: "total [] = 0 and total (x:xs) = x + total (xs), where [] is the empty list and (x:xs) splits a list into its head x and tail xs. Describe how the total function works to add up all of the numbers in a list.",
+      q: "Consider the function below, where `[]` is the empty list and `(x:xs)` splits a list into its head `x` and tail `xs`:\n\n```hs\ntotal [] = 0\ntotal (x:xs) = x + total (xs)\n```\n\nDescribe how the `total` function works to add up all of the numbers in a list.",
       steps: [
         { m: "The function is recursive / splits the list into its head and tail;", mk: "1 mark" },
         { m: "It calls itself with the tail of the list, and each call adds the head to the total of the tail;", mk: "1 mark" },
         { m: "The recursion terminates when the list is empty, returning 0;", mk: "1 mark", n: "Max 3 from: recursive; head/tail split; calls itself on the tail; adds head to the sum of the tail; stops at [] returning 0." }
-      ], result: "Head + total of tail, down to [] = 0", try: [{ predict: { code: "int Total(List<int> xs) => xs.Count == 0 ? 0 : xs[0] + Total(xs.Skip(1).ToList());\nConsole.WriteLine(Total(new List<int> { 6, 1, 8 }));", expect: "15", cap: "**Your turn.** total in C#: the head plus the total of the tail, until the list is empty. What does it print?" } }] } },
+      ], result: "Head + total of tail, down to [] = 0", try: [{ notesOnly: true, predict: { code: "int Total(List<int> xs) => xs.Count == 0 ? 0 : xs[0] + Total(xs.Skip(1).ToList());\nConsole.WriteLine(Total(new List<int> { 6, 1, 8 }));", expect: "15", cap: "**Your turn.** total in C#: the head plus the total of the tail, until the list is empty. What does it print?" } }] } },
     { worked: { tag: "exam", title: "Which functions are recursive", src: "A-level June 2022 · P2 Q12.2 · 1 mark",
-      q: "fu a = (a - 32) * 5 / 9; fv b = map fu b; fw [] = 0; fw (x:xs) = 1 + fw (xs); fx [] = 0; fx (x:xs) = x + fx (xs). Which two of fu, fv, fw, fx use recursion in their definitions?",
+      q: "Consider the definitions below:\n\n```hs\nfu a = (a - 32) * 5 / 9\nfv b = map fu b\nfw [] = 0\nfw (x:xs) = 1 + fw (xs)\nfx [] = 0\nfx (x:xs) = x + fx (xs)\n```\n\nWhich two of `fu`, `fv`, `fw`, `fx` use recursion in their definitions?",
       steps: [{ m: "fw and fx — each calls itself on the tail;", mk: "1 mark", n: "R. if the number of shaded lozenges is not 2. fv uses map — higher-order, not recursive in its own definition." }], result: "fw and fx" } },
     { worked: { tag: "exam", title: "Trace FunctionZ [4, 2, 5, 3]", src: "A-level June 2023 · P2 Q12.1 · 3 marks",
-      q: "FunctionZ [] = 0 and FunctionZ (x:xs) = x + 2 * FunctionZ (xs). Complete a table of the argument passed to each call of FunctionZ and the value returned by each call, when FunctionZ [4, 2, 5, 3] is evaluated.",
+      q: "Consider the function below:\n\n```hs\nFunctionZ [] = 0\nFunctionZ (x:xs) = x + 2 * FunctionZ (xs)\n```\n\nComplete a table of the argument passed to each call of `FunctionZ` and the value returned by each call, when `FunctionZ [4, 2, 5, 3]` is evaluated.",
       steps: [
         { m: "Arguments in order: [4, 2, 5, 3], [2, 5, 3], [5, 3], [3], [] — the middle three: [2, 5, 3], [5, 3], [3];", mk: "1 mark", n: "A. destructured forms 2:[5,3] etc.; R. missing brackets." },
         { m: "Last call: argument [] returns 0;", mk: "1 mark" },
         { m: "Returned values, from the first call: 52, 24, 11, 3 — because 3 + 2×0 = 3; 5 + 2×3 = 11; 2 + 2×11 = 24; 4 + 2×24 = 52;", mk: "1 mark" }
-      ], result: "52, 24, 11, 3, 0", try: [{ grid: { cols: ["Argument", "Value returned"], rows: [["[1, 3, 2]", "15"], ["[3, 2]", "7"], ["[2]", "2"], ["[]", "0"]], given: [[0, 0], [1, 0], [2, 0], [3, 0]], cap: "**Your turn.** FunctionZ [1, 3, 2]: the value each call returns." } }] } },
+      ], result: "52, 24, 11, 3, 0", try: [{ notesOnly: true, grid: { cols: ["Argument", "Value returned"], rows: [["[1, 3, 2]", "15"], ["[3, 2]", "7"], ["[2]", "2"], ["[]", "0"]], given: [[0, 0], [1, 0], [2, 0], [3, 0]], cap: "**Your turn.** FunctionZ [1, 3, 2]: the value each call returns." } }] } },
     { worked: { tag: "variation", title: "Write maxList", q: "Write a recursive function maxList that returns the largest value in a non-empty list of integers, and trace maxList [3, 9, 4].",
       steps: [
         { m: "maxList [x] = x — base case: a one-element list", mk: "1" },
@@ -322,7 +322,6 @@ C["compsci:4.12.3.1"] = {
     { callout: { t: "tip", h: "Synoptic links", body: "4.2.3 stacks — the pending calls; 4.1.1.16 recursive techniques and base cases; 4.12.2.1 map and filter are recursions over head/tail; 4.4.4.3 order of complexity — prepend O(1) vs append O(n); 4.2.1.4 lists as a data structure." } }
   ],
   flashcards: [
-    ["Head of a list?", "Its first element — a single value."],
     ["What does tail [7] return?", "[] — the empty list.", 2],
     ["What does head [] return?", "An error — the empty list has no head.", 3],
     ["How do you prepend an item to a list in Haskell?", "x : xs.", 4],

@@ -74,16 +74,14 @@ X("maths:2.1", {
     ["Write $\\dfrac{3x^2 - 5}{\\sqrt x}$ as a sum of powers of $x$.", "$3x^{3/2} - 5x^{-1/2}$.", 15],
     ["Evaluate $16^{-3/4}$.", "$(16^{1/4})^{-3} = 2^{-3} = \\tfrac18$.", 16],
     ["Solve $3^{x-2} \\times 4 = 2\\sqrt 2$… what first step?", "Write $2\\sqrt2 = 2^{3/2}$ and $4 = 2^2$: $3^{x-2} = 2^{-1/2}$, then take logs: $x = 2 - \\dfrac{\\ln 2}{2\\ln 3}$.", 17],
-    ["Solve $16a^2 = 2\\sqrt a$.", "$a^{3/2} = \\tfrac18 \\Rightarrow a = (\\tfrac18)^{2/3} = \\tfrac14$ (and $a = 0$).", 18],
-    ["If $3^x = 7^y$, find $\\dfrac{x}{y}$ exactly.", "$x\\ln 3 = y \\ln 7 \\Rightarrow \\dfrac{x}{y} = \\dfrac{\\ln 7}{\\ln 3} = \\log_3 7$.", 19]
+    ["Solve $16a^2 = 2\\sqrt a$.", "$a^{3/2} = \\tfrac18 \\Rightarrow a = (\\tfrac18)^{2/3} = \\tfrac14$ (and $a = 0$).", 18]
   ],
   quiz: [
     { q: "$27^{-2/3} =$", opts: ["$\\tfrac19$", "$-\\tfrac19$", "$-18$", "$9$"], ans: 0, why: "$27^{-2/3} = 1/(\\sqrt[3]{27})^2 = 1/3^2 = \\tfrac19$." },
     { q: "$x^{-1/2}$ equals:", opts: ["$-\\dfrac{1}{\\sqrt x}$", "$\\dfrac{1}{\\sqrt x}$", "$\\dfrac{1}{x^2}$", "$-\\dfrac{x}{2}$"], ans: 1, why: "Negative index = reciprocal; half = root." },
     { q: "$\\dfrac{x^5 \\cdot x^{-2}}{x^{-1}} =$", opts: ["$x^2$", "$x^4$", "$x^{-2}$", "$x^8$"], ans: 1, why: "$5 - 2 + 1 = 4$." },
-    { q: "If $4^x = 8$, then $x =$", opts: ["2", "3/2", "1/2", "3"], ans: 1, why: "$2^{2x} = 2^3$." },
-    { q: "$(27x^6)^{1/3} =$", opts: ["$9x^2$", "$3x^2$", "$3x^3$", "$27x^2$"], ans: 1, why: "Cube root of each factor." },
-    { q: "$\\dfrac{x + 2}{\\sqrt x}$ written in index form is:", opts: ["$x^{1/2} + 2x^{-1/2}$", "$x^{-1/2} + 2$", "$x^{3/2} + 2$", "$x^{1/2} + 2x^{1/2}$"], ans: 0, why: "Divide each term by $x^{1/2}$." }
+    { q: "$(27x^6)^{1/3} =$", opts: ["$9x^2$", "$3x^2$", "$3x^3$", "$27x^2$"], ans: 1, why: "Cube root of each factor.", oi: 12 },
+    { q: "$\\dfrac{x + 2}{\\sqrt x}$ written in index form is:", opts: ["$x^{1/2} + 2x^{-1/2}$", "$x^{-1/2} + 2$", "$x^{3/2} + 2$", "$x^{1/2} + 2x^{1/2}$"], ans: 0, why: "Divide each term by $x^{1/2}$.", oi: 13 }
   ],
   exam: [
     { src: "Edexcel 2019 · P1 Q1", q: "Given that $2^x \\times 4^y = 2\\sqrt 2$, express $y$ as a function of $x$, giving your answer in the form $y = ax + b$.", marks: 3,
@@ -160,8 +158,7 @@ X("maths:2.3", {
     { q: "$2x^2 + 3x + 5 = 0$ has:", opts: ["two real roots", "equal roots", "no real roots", "one positive root"], ans: 2, why: "$9 - 40 < 0$." },
     { q: "$y = x^2 + 2x + k$ touches the $x$-axis when $k =$", opts: ["0", "1", "2", "4"], ans: 1, why: "$4 - 4k = 0$." },
     { q: "A model $T = 1200 - 3(n-20)^2$: maximum $T$ is:", opts: ["1200 at $n = 20$", "3 at $n = 20$", "1200 at $n = 0$", "20"], ans: 0, why: "$-3(n-20)^2 \\le 0$, so $T \\le 1200$, with equality at $n = 20$." },
-    { q: "Solve $x^2 - x > 20$:", opts: ["$-4 < x < 5$", "$x < -4$ or $x > 5$", "$x < -5$ or $x > 4$", "$-5 < x < 4$"], ans: 1, why: "Roots $-4, 5$; positive outside." },
-    { q: "Substituting $u = x^2$ into $x^4 - 5x^2 + 4 = 0$ gives roots for $x$:", opts: ["$\\pm1, \\pm2$", "$\\pm1, \\pm4$", "$1, 2$ only", "$1, 4$ only"], ans: 0, why: "$u = 1, 4$." }
+    { q: "Solve $x^2 - x > 20$:", opts: ["$-4 < x < 5$", "$x < -4$ or $x > 5$", "$x < -5$ or $x > 4$", "$-5 < x < 4$"], ans: 1, why: "Roots $-4, 5$; positive outside." }
   ],
   exam: [
     { level: "AS", src: "Edexcel AS 2018 · P1 Q6", ctx: "A company sells a product at £$x$ per unit. Its weekly profit, £$P$ hundred, is modelled by $P = 100 - 6.25(x - 9)^2$ for $5 \\le x \\le 13$.",
@@ -195,9 +192,8 @@ X("maths:2.4", {
     ["Solve $x + y = 5$, $xy = 6$.", "$x(5-x) = 6 \\Rightarrow x^2 - 5x + 6 = 0$: $(2, 3)$ and $(3, 2)$."],
     ["Line meets curve at exactly one point means…", "The resulting quadratic has equal roots — discriminant zero — the line is a tangent."],
     ["Find where $y = 3x - 2$ meets $y = x^2 - x + 1$.", "$x^2 - 4x + 3 = 0 \\Rightarrow x = 1, 3$: points $(1, 1)$ and $(3, 7)$."],
-    ["Why substitute rather than eliminate with one linear, one quadratic?", "Rearranging the linear equation and substituting produces a single quadratic in one variable."],
-    ["Solve $2x - y = 4$ and $x^2 + xy = 12$.", "$y = 2x - 4$: $x^2 + 2x^2 - 4x = 12 \\Rightarrow 3x^2 - 4x - 12 = 0$; $x = \\dfrac{4 \\pm \\sqrt{160}}{6} = \\dfrac{2 \\pm 2\\sqrt{10}}{3}$."],
-    ["Line $y = mx$ and circle $(x-4)^2 + y^2 = 4$: condition for two intersections?", "$(1 + m^2)x^2 - 8x + 12 = 0$, discriminant $64 - 48(1 + m^2) > 0 \\Rightarrow m^2 < \\tfrac13$."],
+    ["Solve $2x - y = 4$ and $x^2 + xy = 12$.", "$y = 2x - 4$: $x^2 + 2x^2 - 4x = 12 \\Rightarrow 3x^2 - 4x - 12 = 0$; $x = \\dfrac{4 \\pm \\sqrt{160}}{6} = \\dfrac{2 \\pm 2\\sqrt{10}}{3}$.", 14],
+    ["Line $y = mx$ and circle $(x-4)^2 + y^2 = 4$: condition for two intersections?", "$(1 + m^2)x^2 - 8x + 12 = 0$, discriminant $64 - 48(1 + m^2) > 0 \\Rightarrow m^2 < \\tfrac13$.", 15]
   ],
   quiz: [
     { q: "Solving $y = x + 1$ with $y = x^2 - 1$ gives $x$ values:", opts: ["$-1, 2$", "$1, 2$", "$0, 1$", "$-2, 1$"], ans: 0, why: "$x^2 - x - 2 = 0$." },
@@ -240,7 +236,6 @@ X("maths:2.5", {
     ["Solve $x^2 - x > 20$ in set notation.", "$(x-5)(x+4) > 0$: $\\{x : x < -4\\} \\cup \\{x : x > 5\\}$.", 11],
     ["Solve $3 - 2x \\ge 4x + 9$.", "$-6 \\ge 6x \\Rightarrow x \\le -1$.", 12],
     ["Solve $x^2 + 3x - 10 \\le 0$.", "$(x+5)(x-2) \\le 0 \\Rightarrow -5 \\le x \\le 2$.", 13],
-    ["Region $R$ below the line $y = 2x + 1$, above the curve $y = x^2 - 2$, right of the $y$-axis. Inequalities?", "$y \\le 2x + 1$, $y \\ge x^2 - 2$, $x \\ge 0$.", 14],
     ["Solve $|2x - 5| < 3$.", "$-3 < 2x - 5 < 3 \\Rightarrow 1 < x < 4$.", 15],
     ["Solve $|x + 1| > 2$.", "$x + 1 > 2$ or $x + 1 < -2$: $x > 1$ or $x < -3$.", 16],
     ["Solve $\\dfrac{3}{x} > 1$ for $x \\ne 0$.", "Sketch or cases: $0 < x < 3$ (for $x < 0$ the LHS is negative so never $> 1$).", 17],
@@ -249,10 +244,7 @@ X("maths:2.5", {
   quiz: [
     { q: "$x^2 < 16$ is equivalent to:", opts: ["$x < 4$", "$-4 < x < 4$", "$x < -4$ or $x > 4$", "$x > 4$"], ans: 1, why: "$x^2 - 16 = (x-4)(x+4) < 0$ between the roots $\\pm4$." },
     { q: "$(x - 2)(x + 3) > 0$ is satisfied by:", opts: ["$-3 < x < 2$", "$x < -3$ or $x > 2$", "$x < -2$ or $x > 3$", "$-2 < x < 3$"], ans: 1, why: "Positive outside the roots." },
-    { q: "The set $\\{x : x < 1\\} \\cup \\{x : x > 5\\}$ describes:", opts: ["$1 < x < 5$", "$x < 1$ or $x > 5$", "$x \\le 1$ or $x \\ge 5$", "$1 \\le x \\le 5$"], ans: 1, why: "$\\cup$ means 'or': either $x < 1$ or $x > 5$." },
-    { q: "Dividing an inequality by $-2$:", opts: ["keeps the sign the same", "reverses the sign", "removes the inequality", "squares both sides"], ans: 1, why: "$-2x < 6 \\Rightarrow x > -3$: dividing by a negative flips the sign." },
-    { q: "$|x - 3| \\le 2$ means:", opts: ["$1 \\le x \\le 5$", "$x \\le 5$", "$x \\ge 1$", "$-2 \\le x \\le 2$"], ans: 0, why: "Within 2 of 3." },
-    { q: "The region above $y = x^2$ and below $y = 4$ is:", opts: ["$y \\ge x^2, y \\le 4$", "$y \\le x^2, y \\ge 4$", "$y \\ge x^2 + 4$", "$x^2 \\le 4$"], ans: 0, why: "Above means $y \\ge$." }
+    { q: "$|x - 3| \\le 2$ means:", opts: ["$1 \\le x \\le 5$", "$x \\le 5$", "$x \\ge 1$", "$-2 \\le x \\le 2$"], ans: 0, why: "Within 2 of 3.", oi: 11 }
   ],
   exam: [
     { level: "AS", src: "Edexcel AS 2023 · P1 Q8", ctx: "The curve $y = x^2 - 4x + 5$ and the line $y = 2x$ meet at the points $A$ and $B$. The region $R$ is bounded by the curve and the line.",
@@ -260,14 +252,12 @@ X("maths:2.5", {
         { q: "Find the coordinates of $A$ and $B$.", marks: 3, ms: ["M1: $x^2 - 6x + 5 = 0$", "A1: $(x-1)(x-5) = 0$, $x = 1, 5$", "A1: $A(1, 2)$, $B(5, 10)$"] },
         { q: "Write down the inequalities that define $R$.", marks: 2, ms: ["B1: $y \\ge x^2 - 4x + 5$", "B1: $y \\le 2x$ (accept with $1 \\le x \\le 5$)"] }
       ] },
-    { level: "AS", src: "Edexcel AS Nov 2021 · P1 Q1", q: "Solve $x^2 - x > 20$, giving your answer in set notation.", marks: 3,
-      ms: ["M1: $x^2 - x - 20 = (x - 5)(x + 4)$, critical values $-4, 5$", "A1: $x < -4$ or $x > 5$", "B1: $\\{x : x < -4\\} \\cup \\{x : x > 5\\}$"] },
-    { src: "Edexcel Specimen · P2 Q4", parts: [
+    { qk: "7", src: "Edexcel Specimen · P2 Q4", parts: [
       { q: "Sketch $y = |2x - 5|$, showing where the graph meets the axes.", marks: 2, ms: ["B1: V shape with vertex on the $x$-axis at $(2.5, 0)$", "B1: $y$-intercept $(0, 5)$"] },
       { q: "Solve $|2x - 5| < 3$, giving your answer in set notation.", marks: 2, ms: ["M1: $-3 < 2x - 5 < 3$", "A1: $\\{x : 1 < x < 4\\}$"] },
       { q: "Solve $|2x - 5| \\ge x + 1$.", marks: 2, ms: ["M1: solves $2x - 5 = x + 1$ ($x = 6$) and $-(2x - 5) = x + 1$ ($x = \\tfrac43$)", "A1: $x \\le \\tfrac43$ or $x \\ge 6$"] }
     ] },
-    { level: "AS", src: "Edexcel AS 2025 · P1 Q7", ctx: "A company sells chairs at £$x$ each. The weekly profit £$P$ is modelled by $P = -20x^2 + 1400x - 15000$.",
+    { qk: "8", level: "AS", src: "Edexcel AS 2025 · P1 Q7", ctx: "A company sells chairs at £$x$ each. The weekly profit £$P$ is modelled by $P = -20x^2 + 1400x - 15000$.",
       parts: [
         { q: "Find the range of prices for which the company makes a profit of at least £6000 per week.", marks: 4, ms: ["M1: $-20x^2 + 1400x - 15000 \\ge 6000 \\Rightarrow x^2 - 70x + 1050 \\le 0$", "M1: solves $x^2 - 70x + 1050 = 0$: $x = 35 \\pm \\sqrt{175}$", "A1: $x = 21.77…$, $48.22…$", "A1: $21.8 \\le x \\le 48.2$ (to 3 s.f.)"] },
         { q: "Explain why a price of £80 is not sensible according to the model.", marks: 1, ms: ["B1: $P(80) = -128000 + 112000 - 15000 < 0$ — the model gives a loss (customers would not buy at that price)"] }
@@ -290,19 +280,15 @@ X("maths:2.6", {
     ["$(x + 3)$ is a factor of $f(x) = 2x^3 + ax^2 - 5x + 6$. Find $a$.", "$f(-3) = -54 + 9a + 15 + 6 = 0 \\Rightarrow a = \\tfrac{33}{9} = \\tfrac{11}{3}$.", 13],
     ["Factorise $2x^3 - 24x^2 + 40x$ completely.", "$2x(x^2 - 12x + 20) = 2x(x-2)(x-10)$.", 14],
     ["Given $f(-4) = 0$ for $f(x) = x^3 + 2x^2 - 5x + 12$, write $f(x) = (x+4)Q(x)$.", "$Q(x) = x^2 - 2x + 3$ (check: constant $12 = 4 \\times 3$, $x^2$: $-2 + 4 = 2$).", 15],
-    ["How do you prove $x = -4$ is the only real root of $(x+4)(x^2 - 2x + 3) = 0$?", "The discriminant of $x^2 - 2x + 3$ is $4 - 12 < 0$, so it has no real roots.", 16],
     ["Solve $3x^3 - 17x^2 - 6x = 0$, hence solve $3(y-2)^3 - 17(y-2)^2 - 6(y-2) = 0$.", "$x(3x + 1)(x - 6) = 0 \\Rightarrow x = 0, -\\tfrac13, 6$; hence $y = 2, \\tfrac53, 8$.", 17],
     ["Remainder when $f(x) = x^3 - 2x + 1$ is divided by $(x - 2)$?", "$f(2) = 8 - 4 + 1 = 5$.", 18],
-    ["Divide $x^3 - 7x - 6$ by $(x + 1)$.", "$x^2 - x - 6 = (x - 3)(x + 2)$; so $x^3 - 7x - 6 = (x+1)(x+2)(x-3)$.", 20],
-    ["$(2x + k)$ is a factor of $f(x)$. Which value makes $f$ zero?", "$x = -\\tfrac{k}{2}$: $f(-\\tfrac k2) = 0$.", 21]
+    ["Divide $x^3 - 7x - 6$ by $(x + 1)$.", "$x^2 - x - 6 = (x - 3)(x + 2)$; so $x^3 - 7x - 6 = (x+1)(x+2)(x-3)$.", 20]
   ],
   quiz: [
     { q: "$f(x) = x^3 - 4x^2 + x + k$ has a factor $(x - 1)$. $k =$", opts: ["$2$", "$-2$", "$4$", "$6$"], ans: 0, why: "$f(1) = 1 - 4 + 1 + k = 0$, so $k = 2$." },
     { q: "$f(x) = x^3 - 6x^2 + 11x - 6$. Which is a factor?", opts: ["$(x + 1)$", "$(x - 1)$", "$(x - 4)$", "$(x + 2)$"], ans: 1, why: "$f(1) = 0$." },
     { q: "Remainder of $x^3 + 1$ divided by $(x + 2)$:", opts: ["$-7$", "$9$", "$7$", "$-9$"], ans: 0, why: "$(-2)^3 + 1$." },
-    { q: "$x^3 - x^2 - 6x = 0$ has how many real roots?", opts: ["1", "2", "3", "0"], ans: 2, why: "$x(x - 3)(x + 2) = 0$: $x = 0, 3, -2$." },
-    { q: "If $f(x) = (x - 1)(x - 5)^2$, the graph:", opts: ["crosses at 1 and 5", "crosses at 1 and touches at 5", "touches at 1 and crosses at 5", "has no roots"], ans: 1, why: "$(x-5)^2$ is a repeated factor, so the curve touches at $x = 5$." },
-    { q: "Roots of $f(x + 2) = 0$ if $f$ has roots $-1, 3$:", opts: ["$1, 5$", "$-3, 1$", "$-1, 3$", "$-2, 6$"], ans: 1, why: "Shift left by 2." }
+    { q: "$x^3 - x^2 - 6x = 0$ has how many real roots?", opts: ["1", "2", "3", "0"], ans: 2, why: "$x(x - 3)(x + 2) = 0$: $x = 0, 3, -2$." }
   ],
   exam: [
     { src: "Edexcel 2025 · P1 Q4", ctx: "$f(x) = x^3 + 2x^2 - 5x + 12$. Given that $f(-4) = 0$,",
@@ -346,19 +332,17 @@ X("maths:2.7", {
   flashcards: [
     ["Sketch $y = x(x - 3)(x + 2)$: intercepts and shape.", "Crosses at $-2, 0, 3$; positive cubic (rises to the right); passes through the origin."],
     ["Sketch $y = (x - 2)^2(x + 3)$.", "Touches the $x$-axis at $x = 2$, crosses at $x = -3$, $y$-intercept 12, positive cubic shape."],
-    ["Factorise and sketch $y = 9x - x^3$.", "$y = x(3 - x)(3 + x)$: roots $-3, 0, 3$; negative cubic (falls to the right).", 15],
     ["$y = 9x - x^3$: for which $k$ does $y = k$ meet the curve at three points?", "Turning points at $x = \\pm\\sqrt3$ with $y = \\pm 6\\sqrt3$: $-6\\sqrt3 < k < 6\\sqrt3$.", 16],
     ["$y$ is inversely proportional to $x^2$ and $y = 4$ when $x = 3$. Find $y$ when $x = 6$.", "$y = \\dfrac{36}{x^2}$, so $y = 1$.", 17],
     ["Sketch $y = \\dfrac{1}{x^2}$.", "Both branches above the $x$-axis, asymptotes $x = 0$, $y = 0$, symmetric about the $y$-axis.", 18],
     ["Where does $y = x^3 - 4x$ cross the axes?", "$x(x-2)(x+2)$: at $-2, 0, 2$.", 19]
   ],
   quiz: [
-    { q: "$y = (x + 1)(x - 3)^2$ touches the $x$-axis at:", opts: ["$x = -1$", "$x = 3$", "$x = 0$", "nowhere"], ans: 1, why: "$(x - 3)^2$ is a repeated factor: a double root at $x = 3$." },
-    { q: "The horizontal asymptote of $y = \\dfrac{2}{x} + 5$ is:", opts: ["$y = 2$", "$y = 5$", "$x = 5$", "$y = 0$"], ans: 1, why: "As $x \\to \\infty$, $y \\to 5$." },
-    { q: "A negative cubic $y = -x^3 + \\ldots$:", opts: ["rises to the right", "falls to the right", "is a parabola", "has no roots"], ans: 1, why: "For large $x$, $-x^3$ dominates and is negative." },
-    { q: "$y \\propto \\dfrac{1}{x}$ and $y = 2$ when $x = 6$. When $x = 4$, $y =$", opts: ["3", "4/3", "12", "1.5"], ans: 0, why: "$k = 12$." },
-    { q: "How many times does $y = k$ meet $y = x^3 - 3x$ when $k = 0$?", opts: ["1", "2", "3", "0"], ans: 2, why: "Roots $0, \\pm\\sqrt3$." },
-    { q: "$y$-intercept of $y = (x-2)^2(x+3)$:", opts: ["$-12$", "$12$", "$6$", "$4$"], ans: 1, why: "$4 \\times 3$." }
+    { q: "The horizontal asymptote of $y = \\dfrac{2}{x} + 5$ is:", opts: ["$y = 2$", "$y = 5$", "$x = 5$", "$y = 0$"], ans: 1, why: "As $x \\to \\infty$, $y \\to 5$.", oi: 9 },
+    { q: "A negative cubic $y = -x^3 + \\ldots$:", opts: ["rises to the right", "falls to the right", "is a parabola", "has no roots"], ans: 1, why: "For large $x$, $-x^3$ dominates and is negative.", oi: 10 },
+    { q: "$y \\propto \\dfrac{1}{x}$ and $y = 2$ when $x = 6$. When $x = 4$, $y =$", opts: ["3", "4/3", "12", "1.5"], ans: 0, why: "$k = 12$.", oi: 11 },
+    { q: "How many times does $y = k$ meet $y = x^3 - 3x$ when $k = 0$?", opts: ["1", "2", "3", "0"], ans: 2, why: "Roots $0, \\pm\\sqrt3$.", oi: 12 },
+    { q: "$y$-intercept of $y = (x-2)^2(x+3)$:", opts: ["$-12$", "$12$", "$6$", "$4$"], ans: 1, why: "$4 \\times 3$.", oi: 13 }
   ],
   exam: [
     { level: "AS", src: "Edexcel AS 2022 · P1 Q7", ctx: "The curve $C$ has equation $y = 9x - x^3$.",
@@ -397,7 +381,6 @@ X("maths:2.8", {
     ["$f(x) = \\dfrac{2x + 1}{x - 3}$, $x \\ne 3$. Find $f^{-1}(x)$.", "$y(x-3) = 2x + 1 \\Rightarrow x(y - 2) = 3y + 1 \\Rightarrow f^{-1}(x) = \\dfrac{3x + 1}{x - 2}$, $x \\ne 2$.", 12],
     ["Range of $f(x) = 3 + \\sqrt{x - 2}$, $x \\ge 2$?", "$f(x) \\ge 3$.", 13],
     ["$f(x) = 2x - 1$, $g(x) = x^2 + 3$. Find $gf(x)$ and $fg(x)$.", "$gf(x) = (2x-1)^2 + 3 = 4x^2 - 4x + 4$; $fg(x) = 2x^2 + 5$.", 15],
-    ["Why does $g(x) = x^2 - 4$, $x \\in \\mathbb R$, have no inverse?", "It is not one-to-one — e.g. $g(2) = g(-2) = 0$ — so the inverse would not be a function.", 16],
     ["Find $f^{-1}(7)$ for $f(x) = \\dfrac{5x - 2}{x + 1}$.", "Solve $\\dfrac{5x-2}{x+1} = 7$: $5x - 2 = 7x + 7 \\Rightarrow x = -4.5$.", 17],
     ["Relationship between the graphs of $f$ and $f^{-1}$?", "Reflections of each other in the line $y = x$.", 18],
     ["$f(x) = \\dfrac{4x + 3}{2x - 1}$: express in the form $A + \\dfrac{B}{2x - 1}$ and state the range.", "$2 + \\dfrac{5}{2x - 1}$; range $f(x) \\ne 2$.", 19],
@@ -405,13 +388,11 @@ X("maths:2.8", {
     ["$f(x) = 4|x - 3| - 5$. Range?", "$f(x) \\ge -5$.", 21]
   ],
   quiz: [
-    { q: "$f(x) = 3x + 2$, $g(x) = x^2$. $fg(2) =$", opts: ["14", "64", "10", "16"], ans: 0, why: "$g(2) = 4$, $f(4) = 14$." },
-    { q: "The domain of $f^{-1}$ equals:", opts: ["the domain of $f$", "the range of $f$", "$\\mathbb R$", "$x > 0$"], ans: 1, why: "Inputs of the inverse are outputs of $f$." },
-    { q: "$f(x) = \\dfrac{x}{x - 1}$. $f^{-1}(x) =$", opts: ["$\\dfrac{x}{x-1}$", "$\\dfrac{x-1}{x}$", "$\\dfrac{1}{x-1}$", "$x - 1$"], ans: 0, why: "$y(x-1) = x \\Rightarrow x = \\dfrac{y}{y-1}$ — self-inverse." },
-    { q: "$f(x) = x^2$, $x \\in \\mathbb R$, has no inverse because:", opts: ["$f(2) = f(-2)$, so it is many-to-one", "its range is all of $\\mathbb R$", "it is not continuous at $x = 0$", "its graph is not a straight line"], ans: 0, why: "$f(2) = f(-2) = 4$: one output comes from two inputs." },
-    { q: "Range of $f(x) = x^2 + 2$, $x \\in \\mathbb R$:", opts: ["$f(x) \\ge 0$", "$f(x) \\ge 2$", "$f(x) > 2$", "$\\mathbb R$"], ans: 1, why: "Minimum 2 at $x = 0$." },
-    { q: "$ff(x)$ for $f(x) = 1 - x$:", opts: ["$x$", "$1 - 2x$", "$2 - x$", "$x - 1$"], ans: 0, why: "$1 - (1 - x)$." },
-    { q: "$f(x) = 2x + 3$. $f^{-1}(x) =$", opts: ["$\\dfrac{x - 3}{2}$", "$\\dfrac{x + 3}{2}$", "$2x - 3$", "$\\dfrac{1}{2x + 3}$"], ans: 0, why: "$y = 2x + 3 \\Rightarrow x = \\tfrac{y - 3}{2}$, then swap $x$ and $y$." }
+    { q: "The domain of $f^{-1}$ equals:", opts: ["the domain of $f$", "the range of $f$", "$\\mathbb R$", "$x > 0$"], ans: 1, why: "Inputs of the inverse are outputs of $f$.", oi: 8 },
+    { q: "$f(x) = \\dfrac{x}{x - 1}$. $f^{-1}(x) =$", opts: ["$\\dfrac{x}{x-1}$", "$\\dfrac{x-1}{x}$", "$\\dfrac{1}{x-1}$", "$x - 1$"], ans: 0, why: "$y(x-1) = x \\Rightarrow x = \\dfrac{y}{y-1}$ — self-inverse.", oi: 9 },
+    { q: "$f(x) = x^2$, $x \\in \\mathbb R$, has no inverse because:", opts: ["$f(2) = f(-2)$, so it is many-to-one", "its range is all of $\\mathbb R$", "it is not continuous at $x = 0$", "its graph is not a straight line"], ans: 0, why: "$f(2) = f(-2) = 4$: one output comes from two inputs.", oi: 10 },
+    { q: "Range of $f(x) = x^2 + 2$, $x \\in \\mathbb R$:", opts: ["$f(x) \\ge 0$", "$f(x) \\ge 2$", "$f(x) > 2$", "$\\mathbb R$"], ans: 1, why: "Minimum 2 at $x = 0$.", oi: 11 },
+    { q: "$ff(x)$ for $f(x) = 1 - x$:", opts: ["$x$", "$1 - 2x$", "$2 - x$", "$x - 1$"], ans: 0, why: "$1 - (1 - x)$.", oi: 12 }
   ],
   exam: [
     { src: "Edexcel 2023 · P1 Q7", ctx: "The functions $f$ and $g$ are defined by $f(x) = 3 + \\sqrt{x - 2}$, $x \\ge 2$, and $g(x) = 2x - 5$, $x \\in \\mathbb R$.",
@@ -463,21 +444,19 @@ X("maths:2.9", {
   flashcards: [
     ["$P(4, -3)$ lies on $y = f(x)$. Image on $y = f(x + 2)$?", "$(2, -3)$."],
     ["Image of $P(4, -3)$ on $y = 3f(x)$?", "$(4, -9)$."],
-    ["Image of $P(4, -3)$ on $y = f(2x)$?", "$(2, -3)$."],
-    ["Image of $P(4, -3)$ on $y = -f(x) + 1$?", "$(4, 4)$."],
-    ["Describe the transformation from $y = x^2$ to $y = (x - 3)^2 + 5$.", "Translation by $\\binom{3}{5}$."],
+    ["Image of $P(4, -3)$ on $y = -f(x) + 1$?", "$(4, 4)$.", 14],
+    ["Describe the transformation from $y = x^2$ to $y = (x - 3)^2 + 5$.", "Translation by $\\binom{3}{5}$.", 15],
     ["Asymptote $y = 2$ of $y = f(x)$: its image under $y = f(x) - 5$?", "$y = -3$.", 17],
     ["Describe $y = \\sin x \\to y = \\sin(3x)$.", "Stretch parallel to the $x$-axis, scale factor $\\tfrac13$.", 18],
     ["$y = f(x)$ has a maximum at $(2, 6)$. Maximum of $y = 2f(x - 1)$?", "$(3, 12)$.", 19],
     ["Order matters: $y = 2f(x) + 1$ vs $y = 2(f(x) + 1)$ on $(a, b)$?", "$(a, 2b + 1)$ vs $(a, 2b + 2)$.", 20]
   ],
   quiz: [
-    { q: "$y = f(x - 4)$ translates the graph:", opts: ["4 left", "4 right", "4 up", "4 down"], ans: 1, why: "Opposite sign inside the bracket." },
-    { q: "$y = f(3x)$ is a stretch parallel to the $x$-axis with scale factor:", opts: ["$3$", "$\\tfrac13$", "$-\\tfrac13$", "$-3$"], ans: 1, why: "Squashes towards the $y$-axis." },
-    { q: "Image of $(6, 2)$ under $y = f(x) - 3$:", opts: ["$(3, -1)$", "$(6, -1)$", "$(6, 5)$", "$(9, -1)$"], ans: 1, why: "Subtract 3 from $y$." },
-    { q: "$y = -f(x)$ is a reflection in:", opts: ["the $x$-axis", "the $y$-axis", "$y = x$", "the origin"], ans: 0, why: "Negates $y$." },
-    { q: "The minimum $(1, -4)$ of $y = f(x)$ under $y = f(x + 1) + 4$ becomes:", opts: ["$(2, 0)$", "$(0, 0)$", "$(0, -8)$", "$(2, -8)$"], ans: 1, why: "Left 1, up 4." },
-    { q: "$y = 3\\cos x$ compared with $y = \\cos x$ has amplitude:", opts: ["1", "3", "$\\tfrac13$", "0"], ans: 1, why: "Vertical stretch ×3." }
+    { q: "$y = f(3x)$ is a stretch parallel to the $x$-axis with scale factor:", opts: ["$3$", "$\\tfrac13$", "$-\\tfrac13$", "$-3$"], ans: 1, why: "Squashes towards the $y$-axis.", oi: 8 },
+    { q: "Image of $(6, 2)$ under $y = f(x) - 3$:", opts: ["$(3, -1)$", "$(6, -1)$", "$(6, 5)$", "$(9, -1)$"], ans: 1, why: "Subtract 3 from $y$.", oi: 9 },
+    { q: "$y = -f(x)$ is a reflection in:", opts: ["the $x$-axis", "the $y$-axis", "$y = x$", "the origin"], ans: 0, why: "Negates $y$.", oi: 10 },
+    { q: "The minimum $(1, -4)$ of $y = f(x)$ under $y = f(x + 1) + 4$ becomes:", opts: ["$(2, 0)$", "$(0, 0)$", "$(0, -8)$", "$(2, -8)$"], ans: 1, why: "Left 1, up 4.", oi: 11 },
+    { q: "$y = 3\\cos x$ compared with $y = \\cos x$ has amplitude:", opts: ["1", "3", "$\\tfrac13$", "0"], ans: 1, why: "Vertical stretch ×3.", oi: 12 }
   ],
   exam: [
     { src: "Edexcel 2024 · P2 Q3", ctx: "The point $P(-3, 8)$ lies on the curve $y = f(x)$.",
@@ -514,28 +493,22 @@ X("maths:2.10", {
     ["Express $\\dfrac{5x + 7}{(x+1)(x+3)}$ in partial fractions.", "$\\dfrac{1}{x+1} + \\dfrac{4}{x+3}$ ($x = -1$: $2 = 2A$; $x = -3$: $-8 = -2B$).", 10],
     ["Express $\\dfrac{3x + 1}{(x - 1)^2}$ in partial fractions.", "$\\dfrac{3}{x - 1} + \\dfrac{4}{(x-1)^2}$.", 11],
     ["Express $\\dfrac{2x^2 + 5x + 6}{(x+1)(x+2)}$ in partial fractions.", "Improper: $2 + \\dfrac{-x + 2}{(x+1)(x+2)} = 2 + \\dfrac{3}{x+1} - \\dfrac{4}{x+2}$.", 12],
-    ["Form for $\\dfrac{7}{(x - 2)(x + 1)^2}$?", "$\\dfrac{A}{x-2} + \\dfrac{B}{x+1} + \\dfrac{C}{(x+1)^2}$.", 13],
-    ["When must you divide first?", "When the numerator's degree is at least the denominator's — the fraction is improper.", 14],
     ["How do you find $B$ in $\\dfrac{A}{x-1} + \\dfrac{B}{(x-1)^2}$?", "Substitute $x = 1$ into the identity $N(x) = A(x-1) + B$.", 15],
-    ["Express $\\dfrac{x}{(2x + 1)(x - 3)}$ in partial fractions.", "$x = 3$: $3 = 7B \\Rightarrow B = \\tfrac37$; $x = -\\tfrac12$: $-\\tfrac12 = -\\tfrac72 A \\Rightarrow A = \\tfrac17$: $\\dfrac{1}{7(2x+1)} + \\dfrac{3}{7(x-3)}$.", 16],
-    ["Why are partial fractions needed before integrating $\\dfrac{1}{(x+1)(x+3)}$?", "Each term $\\dfrac{A}{x + a}$ integrates to $A\\ln|x + a|$; the product form cannot be integrated directly.", 17]
+    ["Express $\\dfrac{x}{(2x + 1)(x - 3)}$ in partial fractions.", "$x = 3$: $3 = 7B \\Rightarrow B = \\tfrac37$; $x = -\\tfrac12$: $-\\tfrac12 = -\\tfrac72 A \\Rightarrow A = \\tfrac17$: $\\dfrac{1}{7(2x+1)} + \\dfrac{3}{7(x-3)}$.", 16]
   ],
   quiz: [
     { q: "$\\dfrac{1}{(x+1)(x+2)} =$", opts: ["$\\dfrac{1}{x+1} - \\dfrac{1}{x+2}$", "$\\dfrac{1}{x+1} + \\dfrac{1}{x+2}$", "$\\dfrac{2}{x+1} - \\dfrac{1}{x+2}$", "$\\dfrac{1}{x+2} - \\dfrac{1}{x+1}$"], ans: 0, why: "$x = -1$: $A = 1$; $x = -2$: $B = -1$." },
     { q: "$\\dfrac{x^2 + 3}{x^2 - 1} \\equiv 1 + \\dfrac{A}{x - 1} + \\dfrac{B}{x + 1}$. $B =$", opts: ["$-2$", "$2$", "$4$", "$-4$"], ans: 0, why: "$\\dfrac{x^2 + 3}{x^2 - 1} = 1 + \\dfrac{4}{(x-1)(x+1)}$; cover up at $x = -1$: $B = \\dfrac{4}{-2} = -2$." },
     { q: "$\\dfrac{x^2}{x^2 - 1}$ is:", opts: ["proper — split it straight away", "improper — divide first", "already in partial fractions", "undefined for every $x$"], ans: 1, why: "Numerator and denominator are both degree 2, so divide first." },
-    { q: "In $\\dfrac{5x + 7}{(x+1)(x+3)} \\equiv \\dfrac{A}{x+1} + \\dfrac{B}{x+3}$, $A =$", opts: ["1", "4", "2", "$-1$"], ans: 0, why: "$x = -1$: $2 = 2A$." },
-    { q: "For $\\dfrac{2x+1}{(x-3)^2} \\equiv \\dfrac{A}{x-3} + \\dfrac{B}{(x-3)^2}$, which substitution finds $B$ directly?", opts: ["$x = 0$", "$x = 3$", "$x = -3$", "$x = 1$"], ans: 1, why: "In $2x + 1 \\equiv A(x-3) + B$, $x = 3$ removes the $A$ term: $B = 7$." },
+    { q: "For $\\dfrac{2x+1}{(x-3)^2} \\equiv \\dfrac{A}{x-3} + \\dfrac{B}{(x-3)^2}$, which substitution finds $B$ directly?", opts: ["$x = 0$", "$x = 3$", "$x = -3$", "$x = 1$"], ans: 1, why: "In $2x + 1 \\equiv A(x-3) + B$, $x = 3$ removes the $A$ term: $B = 7$.", oi: 10 }
   ],
   exam: [
-    { src: "Edexcel 2025 · P2 Q7", q: "Given that $\\dfrac{3x^3 - 8x^2 - 6x - 11}{(x + 1)(x - 3)} \\equiv Ax + B + \\dfrac{C}{x + 1} + \\dfrac{D}{x - 3}$, find the values of the constants $A$, $B$, $C$ and $D$.", marks: 4,
-      ms: ["M1: $3x^3 - 8x^2 - 6x - 11 \\equiv (Ax + B)(x^2 - 2x - 3) + C(x - 3) + D(x + 1)$", "A1: compares $x^3$: $A = 3$; $x^2$: $-2A + B = -8 \\Rightarrow B = -2$", "M1: substitutes $x = -1$: $-16 = -4C \\Rightarrow C = 4$", "A1: $x = 3$: $-20 = 4D \\Rightarrow D = -5$"] },
-    { src: "Edexcel Oct 2021 · P1 Q9", ctx: "$f(x) = \\dfrac{50x^2 + 38x + 9}{(5x + 2)^2(1 - 2x)} \\equiv \\dfrac{A}{5x + 2} + \\dfrac{B}{(5x + 2)^2} + \\dfrac{C}{1 - 2x}$ (the binomial follow-on is under 4.1).",
+    { qk: "6", src: "Edexcel Oct 2021 · P1 Q9", ctx: "$f(x) = \\dfrac{50x^2 + 38x + 9}{(5x + 2)^2(1 - 2x)} \\equiv \\dfrac{A}{5x + 2} + \\dfrac{B}{(5x + 2)^2} + \\dfrac{C}{1 - 2x}$ (the binomial follow-on is under 4.1).",
       parts: [
         { q: "(i) Find the value of $B$ and the value of $C$. (ii) Show that $A = 0$.", marks: 4, ms: ["M1: $50x^2 + 38x + 9 \\equiv A(5x + 2)(1 - 2x) + B(1 - 2x) + C(5x + 2)^2$; substitutes $x = \\tfrac12$ or $x = -\\tfrac25$", "A1: $B = 1$ and $C = 2$", "M1: a third equation for $A$ — $x = 0$: $9 = 2A + B + 4C$, or compare $x^2$: $50 = -10A + 25C$", "A1*: $A = 0$ with the argument shown (three answers with no working score M1 A1 M0 A0)"] },
         { q: "State the range of values of $x$ for which the binomial expansion of $f(x)$ is valid.", marks: 1, ms: ["B1: $|x| < \\tfrac25$ — the tighter of $|x| < \\tfrac25$ (from $(2 + 5x)^{-2}$) and $|x| < \\tfrac12$"] }
       ] },
-    { src: "Edexcel 2018 · P1 Q11", ctx: "$f(x) = \\dfrac{4x + 6}{(x + 2)(x + 4)}$, $x > 0$.",
+    { qk: "7", src: "Edexcel 2018 · P1 Q11", ctx: "$f(x) = \\dfrac{4x + 6}{(x + 2)(x + 4)}$, $x > 0$.",
       parts: [
         { q: "Express $f(x)$ in partial fractions.", marks: 3, ms: ["M1: $4x + 6 \\equiv A(x+4) + B(x+2)$", "A1: $A = -1$ (from $x = -2$)", "A1: $B = 5$ (from $x = -4$): $f(x) = \\dfrac{-1}{x+2} + \\dfrac{5}{x+4}$"] },
         { q: "Hence find $f'(x)$ and prove that $f$ is a decreasing function for $x > 0$.", marks: 4, ms: ["M1: differentiates each term: $f'(x) = \\dfrac{1}{(x+2)^2} - \\dfrac{5}{(x+4)^2}$", "M1: combines over a common denominator: $\\dfrac{(x+4)^2 - 5(x+2)^2}{(x+2)^2(x+4)^2}$", "A1: numerator $= -4x^2 - 12x - 4 = -4(x^2 + 3x + 1)$", "A1: for $x > 0$, $x^2 + 3x + 1 > 0$ so the numerator is negative while the denominator is positive; hence $f'(x) < 0$ and $f$ is decreasing"] }
@@ -551,16 +524,14 @@ X("maths:2.11", {
     ["Linear model for CO₂ emissions predicts a negative value in 2050. Comment.", "Extrapolation far beyond the data is unreliable; emissions cannot be negative, so the model breaks down."],
     ["A tunnel is modelled by $y = 6 - 0.15x^2$. Does a coach 4 m wide and 4.2 m tall fit?", "At $x = 2$, $y = 5.4 > 4.2$, so yes — the edges of the coach clear the tunnel."],
     ["Why give the domain of a model?", "The model is only justified where data exists or the situation makes sense (e.g. $0 \\le t \\le 20$)."],
-    ["Interpret the constant 100 in $P = 100 - 6.25(x - 9)^2$.", "The maximum profit (£10 000) achieved at the optimal price $x = 9$."],
-    ["Give two assumptions in modelling a thrown ball with a quadratic.", "Air resistance is negligible; the ball is a particle; the ground is horizontal; $g$ is constant."]
+    ["Interpret the constant 100 in $P = 100 - 6.25(x - 9)^2$.", "The maximum profit (£10 000) achieved at the optimal price $x = 9$."]
   ],
   quiz: [
     { q: "A model gives a negative height for a ball. This indicates:", opts: ["a calculation error in the working", "the model is outside its valid domain", "the ball has gone below the ground", "nothing — negative heights are fine"], ans: 1, why: "Physical impossibility marks the domain limit." },
-    { q: "Ignoring air resistance in a projectile model is:", opts: ["a refinement of the model", "an assumption / limitation", "a calculation in the model", "an error that must be fixed"], ans: 1, why: "Leaving out air resistance simplifies the model: an assumption, not a fact." },
-    { q: "Using a model well beyond the data range is called:", opts: ["interpolation", "extrapolation", "refinement", "validation"], ans: 1, why: "Beyond the data the pattern may not hold, so extrapolation is less reliable." },
-    { q: "A refinement of a linear cooling model might be:", opts: ["dropping the data that does not fit the line", "an exponential model approaching room temperature", "a steeper straight line so it cools more quickly", "removing the units so that the model is simpler to use"], ans: 1, why: "A cooling body levels off at room temperature; a straight line cannot." },
-    { q: "The quadratic model for a tunnel $y = 6 - 0.15x^2$ has a maximum height:", opts: ["0.15 m", "6 m", "4 m", "40 m"], ans: 1, why: "At $x = 0$." },
-    { q: "Stating the domain $0 \\le t \\le 20$ of a model:", opts: ["is unnecessary once the equation is known", "shows where the model is justified", "changes the equation of the model", "makes the model exact on that interval"], ans: 1, why: "Outside $0 \\le t \\le 20$ there is no evidence that the model holds." }
+    { q: "Using a model well beyond the data range is called:", opts: ["interpolation", "extrapolation", "refinement", "validation"], ans: 1, why: "Beyond the data the pattern may not hold, so extrapolation is less reliable.", oi: 7 },
+    { q: "A refinement of a linear cooling model might be:", opts: ["dropping the data that does not fit the line", "an exponential model approaching room temperature", "a steeper straight line so it cools more quickly", "removing the units so that the model is simpler to use"], ans: 1, why: "A cooling body levels off at room temperature; a straight line cannot.", oi: 8 },
+    { q: "The quadratic model for a tunnel $y = 6 - 0.15x^2$ has a maximum height:", opts: ["0.15 m", "6 m", "4 m", "40 m"], ans: 1, why: "At $x = 0$.", oi: 9 },
+    { q: "Stating the domain $0 \\le t \\le 20$ of a model:", opts: ["is unnecessary once the equation is known", "shows where the model is justified", "changes the equation of the model", "makes the model exact on that interval"], ans: 1, why: "Outside $0 \\le t \\le 20$ there is no evidence that the model holds.", oi: 10 }
   ],
   exam: [
     { src: "Edexcel Specimen · P1 Q6", ctx: "The cross-section of a tunnel is modelled by the curve $y = 5.4 - 0.15x^2$, where $x$ m is the horizontal distance from the centre line and $y$ m the height, for $-6 \\le x \\le 6$.",
@@ -604,12 +575,9 @@ X("maths:3.1", {
     ["Where does $y = 2x + 3$ meet $y = -\\tfrac12 x + 8$?", "$2x + 3 = -\\tfrac12 x + 8 \\Rightarrow x = 2$, point $(2, 7)$."]
   ],
   quiz: [
-    { q: "Gradient of the line through $(-1, 4)$ and $(3, -2)$:", opts: ["$-\\tfrac32$", "$\\tfrac32$", "$-\\tfrac23$", "$3$"], ans: 0, why: "$\\dfrac{-6}{4}$." },
-    { q: "Perpendicular gradient to $\\tfrac45$:", opts: ["$-\\tfrac45$", "$\\tfrac54$", "$-\\tfrac54$", "$\\tfrac45$"], ans: 2, why: "$\\tfrac45 \\times m = -1$, so $m = -\\tfrac54$." },
-    { q: "$3x - 4y + 8 = 0$ has gradient:", opts: ["$3$", "$\\tfrac34$", "$-\\tfrac34$", "$-\\tfrac43$"], ans: 1, why: "$y = \\tfrac34 x + 2$." },
-    { q: "Midpoint of $(2, 5)$ and $(-4, 1)$:", opts: ["$(-1, 3)$", "$(3, 2)$", "$(-2, 4)$", "$(1, 3)$"], ans: 0, why: "$\\left(\\tfrac{2 - 4}{2}, \\tfrac{5 + 1}{2}\\right) = (-1, 3)$." },
-    { q: "In $C = 40 + 0.06t$ (cost in £ against minutes), 0.06 is:", opts: ["the fixed charge", "the cost per minute", "the total cost", "the number of minutes"], ans: 1, why: "Gradient = rate." },
-    { q: "A linear model predicting negative CO₂ emissions in 2060 suggests:", opts: ["emissions will really be negative in 2060", "the model is not valid far outside the data", "the gradient of the line has been miscalculated", "nothing, as linear models are always valid"], ans: 1, why: "2060 is far outside the data, so the line need not hold there." }
+    { q: "Midpoint of $(2, 5)$ and $(-4, 1)$:", opts: ["$(-1, 3)$", "$(3, 2)$", "$(-2, 4)$", "$(1, 3)$"], ans: 0, why: "$\\left(\\tfrac{2 - 4}{2}, \\tfrac{5 + 1}{2}\\right) = (-1, 3)$.", oi: 9 },
+    { q: "In $C = 40 + 0.06t$ (cost in £ against minutes), 0.06 is:", opts: ["the fixed charge", "the cost per minute", "the total cost", "the number of minutes"], ans: 1, why: "Gradient = rate.", oi: 10 },
+    { q: "A linear model predicting negative CO₂ emissions in 2060 suggests:", opts: ["emissions will really be negative in 2060", "the model is not valid far outside the data", "the gradient of the line has been miscalculated", "nothing, as linear models are always valid"], ans: 1, why: "2060 is far outside the data, so the line need not hold there.", oi: 11 }
   ],
   exam: [
     { level: "AS", src: "Edexcel AS 2023 · P1 Q10", ctx: "The line $l_1$ has equation $2x + 3y = 24$ and crosses the $x$-axis at $A$ and the $y$-axis at $B$. The line $l_2$ is perpendicular to $l_1$ and passes through $B$. $l_2$ crosses the $x$-axis at $C$.",
@@ -650,16 +618,13 @@ X("maths:3.2", {
     ]}}
   ],
   flashcards: [
-    ["Centre and radius of $x^2 + y^2 - 6x + 4y - 12 = 0$?", "$(x-3)^2 + (y+2)^2 = 25$: centre $(3, -2)$, radius 5."],
-    ["Tangent to $(x-1)^2 + (y-2)^2 = 25$ at $(4, 6)$?", "Radius gradient $\\tfrac43$, tangent gradient $-\\tfrac34$: $y - 6 = -\\tfrac34(x - 4) \\Rightarrow 3x + 4y = 36$."],
-    ["Is $(0, 0)$ inside $(x-2)^2 + (y+1)^2 = 8$?", "Distance$^2$ from centre $= 4 + 1 = 5 < 8$, so inside."],
-    ["Circle centre $(5, -3)$ does not cut the $x$-axis. Condition on $r$?", "$r < 3$."],
-    ["Line $y = k$ cuts $x^2 + y^2 - 4x - 2y - 4 = 0$ at two points. Range of $k$?", "Centre $(2, 1)$, $r = 3$: $-2 < k < 4$."],
-    ["Equation of the circle with diameter endpoints $(1, 2)$ and $(7, 10)$?", "Centre $(4, 6)$, radius 5: $(x-4)^2 + (y-6)^2 = 25$."],
-    ["Shortest distance from $(7, 8)$ to the circle centre $(1, 0)$, radius 4?", "Distance to centre $10$, minus $r$: 6."],
-    ["Two circles with radii 3 and $k$, centres 5 apart, intersect at two points. Range of $k$?", "$|3 - k| < 5 < 3 + k \\Rightarrow 2 < k < 8$."],
-    ["Circle through $(0, 0)$ with centre $(3, 4)$: equation?", "$r = 5$: $(x-3)^2 + (y-4)^2 = 25$."],
-    ["$y = mx$ is a tangent to $(x - 4)^2 + y^2 = 4$. Find $m$.", "$(1 + m^2)x^2 - 8x + 12 = 0$, discriminant zero: $64 = 48(1 + m^2) \\Rightarrow m = \\pm\\dfrac{1}{\\sqrt3}$."]
+    ["Tangent to $(x-1)^2 + (y-2)^2 = 25$ at $(4, 6)$?", "Radius gradient $\\tfrac43$, tangent gradient $-\\tfrac34$: $y - 6 = -\\tfrac34(x - 4) \\Rightarrow 3x + 4y = 36$.", 13],
+    ["Line $y = k$ cuts $x^2 + y^2 - 4x - 2y - 4 = 0$ at two points. Range of $k$?", "Centre $(2, 1)$, $r = 3$: $-2 < k < 4$.", 16],
+    ["Equation of the circle with diameter endpoints $(1, 2)$ and $(7, 10)$?", "Centre $(4, 6)$, radius 5: $(x-4)^2 + (y-6)^2 = 25$.", 17],
+    ["Shortest distance from $(7, 8)$ to the circle centre $(1, 0)$, radius 4?", "Distance to centre $10$, minus $r$: 6.", 18],
+    ["Two circles with radii 3 and $k$, centres 5 apart, intersect at two points. Range of $k$?", "$|3 - k| < 5 < 3 + k \\Rightarrow 2 < k < 8$.", 19],
+    ["Circle through $(0, 0)$ with centre $(3, 4)$: equation?", "$r = 5$: $(x-3)^2 + (y-4)^2 = 25$.", 20],
+    ["$y = mx$ is a tangent to $(x - 4)^2 + y^2 = 4$. Find $m$.", "$(1 + m^2)x^2 - 8x + 12 = 0$, discriminant zero: $64 = 48(1 + m^2) \\Rightarrow m = \\pm\\dfrac{1}{\\sqrt3}$.", 21]
   ],
   quiz: [
     { q: "Centre of $x^2 + y^2 + 8x - 2y + 1 = 0$:", opts: ["$(4, -1)$", "$(-4, 1)$", "$(8, -2)$", "$(-8, 2)$"], ans: 1, why: "Half the coefficients, sign changed." },
@@ -726,11 +691,9 @@ X("maths:3.3", {
   ],
   quiz: [
     { q: "$x = 2t$, $y = t^2 - 1$ in Cartesian form is:", opts: ["$y = \\dfrac{x^2}{4} - 1$", "$y = \\dfrac{x^2}{2} - 1$", "$y = 4x^2 - 1$", "$y = \\dfrac{x^2 - 1}{4}$"], ans: 0, why: "$t = \\tfrac x2$, so $y = \\tfrac{x^2}{4} - 1$." },
-    { q: "$\\dfrac{dy}{dx}$ for a parametric curve equals:", opts: ["$\\dfrac{dx/dt}{dy/dt}$", "$\\dfrac{dy/dt}{dx/dt}$", "$\\dfrac{dy}{dt} \\cdot \\dfrac{dx}{dt}$", "$\\dfrac{dy}{dt}$"], ans: 1, why: "$\\frac{dy}{dx} = \\frac{dy}{dt} \\times \\frac{dt}{dx}$, by the chain rule." },
-    { q: "$x = 2\\cos t$, $y = 3\\sin t$ describes:", opts: ["a circle $x^2 + y^2 = 13$", "an ellipse $\\dfrac{x^2}{4} + \\dfrac{y^2}{9} = 1$", "an ellipse $\\dfrac{x^2}{9} + \\dfrac{y^2}{4} = 1$", "an ellipse $\\dfrac{x^2}{2} + \\dfrac{y^2}{3} = 1$"], ans: 1, why: "$\\cos^2 + \\sin^2 = 1$." },
-    { q: "Range of $x = 4 + 3\\cos t$:", opts: ["$-3 \\le x \\le 3$", "$1 \\le x \\le 7$", "$4 \\le x \\le 7$", "all real"], ans: 1, why: "$-1 \\le \\cos t \\le 1$." },
-    { q: "To eliminate $t$ from $x = \\sin t$, $y = \\cos 2t$ use:", opts: ["$\\cos 2t = 2\\cos^2 t - 1$", "$\\cos 2t = 1 - 2\\sin^2 t$", "$\\sin 2t = 2\\sin t\\cos t$", "$\\tan t = \\sin t / \\cos t$"], ans: 1, why: "Express in $\\sin t = x$." },
-    { q: "At $t = 0$ the curve $x = t^2 - 1$, $y = t^3 - t$ is at:", opts: ["$(0, 0)$", "$(-1, 0)$", "$(1, 0)$", "$(-1, -1)$"], ans: 1, why: "$t = 0$: $x = 0 - 1 = -1$ and $y = 0 - 0 = 0$." }
+    { q: "$x = 2\\cos t$, $y = 3\\sin t$ describes:", opts: ["a circle $x^2 + y^2 = 13$", "an ellipse $\\dfrac{x^2}{4} + \\dfrac{y^2}{9} = 1$", "an ellipse $\\dfrac{x^2}{9} + \\dfrac{y^2}{4} = 1$", "an ellipse $\\dfrac{x^2}{2} + \\dfrac{y^2}{3} = 1$"], ans: 1, why: "$\\cos^2 + \\sin^2 = 1$.", oi: 8 },
+    { q: "Range of $x = 4 + 3\\cos t$:", opts: ["$-3 \\le x \\le 3$", "$1 \\le x \\le 7$", "$4 \\le x \\le 7$", "all real"], ans: 1, why: "$-1 \\le \\cos t \\le 1$.", oi: 9 },
+    { q: "At $t = 0$ the curve $x = t^2 - 1$, $y = t^3 - t$ is at:", opts: ["$(0, 0)$", "$(-1, 0)$", "$(1, 0)$", "$(-1, -1)$"], ans: 1, why: "$t = 0$: $x = 0 - 1 = -1$ and $y = 0 - 0 = 0$.", oi: 11 }
   ],
   exam: [
     { src: "Edexcel 2018 · P2 Q14", ctx: "The curve $C$ has parametric equations $x = 3 + 2\\sin t$, $y = 4 + 2\\cos 2t$, $0 \\le t < 2\\pi$.",
@@ -767,11 +730,10 @@ X("maths:3.4", {
   ],
   quiz: [
     { q: "A parametric model $x = 3t$, $y = 4t - t^2$ hits the ground ($y = 0$) at $t =$", opts: ["0 only", "4", "2", "3"], ans: 1, why: "$t(4 - t) = 0$." },
-    { q: "The parametric area under a curve is:", opts: ["$\\int x\\,dy$", "$\\int y \\dfrac{dx}{dt} dt$", "$\\int y\\,dt$", "$\\int \\dfrac{dy}{dt} dx$"], ans: 1, why: "Substitution $dx = \\dfrac{dx}{dt}dt$." },
-    { q: "$x = 5\\cos t$, $y = 5\\sin t$, $0 \\le t \\le \\pi$ models:", opts: ["a full circle of radius 5", "an upper semicircle of radius 5", "a lower semicircle of radius 5", "a right-hand semicircle of radius 5"], ans: 1, why: "$y \\ge 0$." },
-    { q: "In $x = 20t$, $y = 15t - 5t^2$, the constant 20 represents:", opts: ["the initial height", "the horizontal speed", "the horizontal range", "the time of flight"], ans: 1, why: "$dx/dt$." },
-    { q: "A parametric model of a Ferris-wheel seat uses $t$ as:", opts: ["radius", "time", "height", "angle only"], ans: 1, why: "Position depends on time." },
-    { q: "Domain restriction for the dam model $x = 6\\sin t$, $0 \\le t \\le \\tfrac\\pi2$:", opts: ["$-6 \\le x \\le 6$", "$0 \\le x \\le 6$", "$x \\ge 0$", "all $x$"], ans: 1, why: "$\\sin t$ from 0 to 1." }
+    { q: "$x = 5\\cos t$, $y = 5\\sin t$, $0 \\le t \\le \\pi$ models:", opts: ["a full circle of radius 5", "an upper semicircle of radius 5", "a lower semicircle of radius 5", "a right-hand semicircle of radius 5"], ans: 1, why: "$y \\ge 0$.", oi: 6 },
+    { q: "In $x = 20t$, $y = 15t - 5t^2$, the constant 20 represents:", opts: ["the initial height", "the horizontal speed", "the horizontal range", "the time of flight"], ans: 1, why: "$dx/dt$.", oi: 7 },
+    { q: "A parametric model of a Ferris-wheel seat uses $t$ as:", opts: ["radius", "time", "height", "angle only"], ans: 1, why: "Position depends on time.", oi: 8 },
+    { q: "Domain restriction for the dam model $x = 6\\sin t$, $0 \\le t \\le \\tfrac\\pi2$:", opts: ["$-6 \\le x \\le 6$", "$0 \\le x \\le 6$", "$x \\ge 0$", "all $x$"], ans: 1, why: "$\\sin t$ from 0 to 1.", oi: 9 }
   ],
   exam: [
     { src: "Edexcel Oct 2020 · P2 Q12", ctx: "The curved edge of a dam is modelled by the curve $C$ with parametric equations $x = 6\\sin t$, $y = 5\\sin 2t$, $0 \\le t \\le \\tfrac\\pi2$, where $x$ and $y$ are in metres. The region $R$ is bounded by $C$ and the $x$-axis.",

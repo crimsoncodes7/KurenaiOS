@@ -220,8 +220,9 @@
         var qi = order[at], item = items[qi];
         stage.innerHTML = "";
         var opts = el("div", { class: "k-qz-opts", role: "group", "aria-label": "Answers" });
+        var richQ = KOS.content.isBlockText && KOS.content.isBlockText(item.q);
         card = el("article", { class: "k-card k-qz-card", "data-ui": "quiz.card" }, [
-          el("div", { class: "k-qz-q", "data-ui": "quiz.q", html: KOS.content.inline(item.q) }),
+          el("div", { class: "k-qz-q" + (richQ ? " k-prose" : ""), "data-ui": "quiz.q", html: KOS.content.rich(item.q) }),
           /* the item's figure above its options (5.19, 43b) */
           item.fig ? el("div", { class: "k-prose k-qz-fig", "data-ui": "quiz.fig", html: KOS.content.renderBlocks([{ fig: item.fig }]) }) : null,
           opts
@@ -273,10 +274,11 @@
           if (i === item.ans) { KOS.ui.state(b, "right", true); b.appendChild(el("span", { class: "k-qz-verdict", text: "Correct" })); }
           else if (i === oi) { KOS.ui.state(b, "wrong", true); b.appendChild(el("span", { class: "k-qz-verdict", text: "Your answer" })); }
         });
-        var why = el("p", { class: "k-qz-why", "data-ui": "quiz.why", "data-state": ok ? "ok" : "no" }, [
-          el("b", { text: (ok ? "✓ Correct" : "✕ Not quite") + " · " })
+        var richWhy = KOS.content.isBlockText && KOS.content.isBlockText(item.why || "");
+        var why = el(richWhy ? "div" : "p", { class: "k-qz-why" + (richWhy ? " k-prose" : ""), "data-ui": "quiz.why", "data-state": ok ? "ok" : "no" }, [
+          el("b", { text: (ok ? "✓ Correct" : "✕ Not quite") + (richWhy ? "" : " · ") })
         ]);
-        why.insertAdjacentHTML("beforeend", KOS.content.inline(item.why || ""));
+        why.insertAdjacentHTML("beforeend", KOS.content.rich(item.why || ""));
         card.insertBefore(why, card.lastChild);
         KOS.content.typeset(why);
         next.hidden = false;
@@ -510,7 +512,7 @@
         wrap.appendChild(el("div", { class: "k-qz-part-q" }, [
           label ? el("span", { class: "k-mono k-muted", "data-ui": "quiz.part-l", text: label }) : null,
           /* CC-25: the tariff is the chip beside it; a trailing "[4]" is not repeated */
-          el("span", { class: "k-qz-part-t", html: KOS.content.inline(String(part.q || "").replace(/\s*\[\d+(?:\s*marks?)?\]\s*$/i, "")) }),
+          el("div", { class: "k-qz-part-t k-prose", html: KOS.content.rich(String(part.q || "").replace(/\s*\[\d+(?:\s*marks?)?\]\s*$/i, "")) }),
           /* a single-part item already carries its total in the header */
           label ? el("span", { class: "k-qz-marks", text: "[" + part.marks + (part.marks === 1 ? " mark" : " marks") + "]" }) : null
         ].filter(Boolean)));
@@ -588,12 +590,15 @@
             var mi = needsM(points, i);
             var sug = el("span", { class: "k-qz-point-sug" });
             sugSlots.push(sug);
-            self.appendChild(el("label", { class: "k-qz-point" }, [cb, el("span", { class: "k-qz-point-t" }, [el("span", { html: KOS.content.inline(KOS.content.aqaWords(m)) }),
+            var richPt = KOS.content.isBlockText && KOS.content.isBlockText(m);
+            self.appendChild(el("label", { class: "k-qz-point" }, [cb, el("span", { class: "k-qz-point-t" + (richPt ? " k-prose" : "") }, [el("span", { html: KOS.content.rich(KOS.content.aqaWords(m)) }),
               mi >= 0 && !ticks[mi] ? el("span", { class: "k-qz-needs", text: "needs " + ((String(points[mi]).match(/M\d/) || ["M"])[0]) }) : null, sug].filter(Boolean)),
               exact || weighted ? el("span", { class: "k-mono k-muted", "data-ui": "quiz.point-w", text: String(weights[i]) }) : null].filter(Boolean)));
           });
           answers.forEach(function (m) {
-            self.appendChild(el("p", { class: "k-qz-model", "data-ui": "quiz.model-answer", html: KOS.content.inline(String(m).replace(/^\s*\*\*Answer:\*\*\s*/, "<b>Model answer:</b> ")) }));
+            var bodyM = String(m).replace(/^\s*\*\*Answer:\*\*\s*/, "");
+            var richM = KOS.content.isBlockText && KOS.content.isBlockText(bodyM);
+            self.appendChild(el(richM ? "div" : "p", { class: "k-qz-model" + (richM ? " k-prose" : ""), "data-ui": "quiz.model-answer", html: "<b>Model answer:</b> " + KOS.content.rich(bodyM) }));
           });
           /* Mark with Kurenai (30g): only with the setting on, only on ink */
           if (ans && points.length && KOS.inkAI && KOS.inkAI.reads() && ans.mode() === "write") {
@@ -730,9 +735,9 @@
         ].filter(Boolean)));
         if (it.ctx) card.appendChild(el("div", { class: "k-prose k-qz-stem", html: Array.isArray(it.ctx) ? KOS.content.renderBlocks(it.ctx) : "<p>" + KOS.content.inline(it.ctx) + "</p>" }));
         if (it.code) card.appendChild(el("div", { class: "k-prose k-qz-stem", html: KOS.content.renderBlocks([{ code: it.code }]) }));
-        /* the question's figure, and a part the app marks (5.19, 43) */
+        /* the question's figure above the parts; an interactive part sits right
+           below the question stem so the learner reads the prompt first (5.19, 43) */
         if (it.fig) card.appendChild(el("div", { class: "k-prose k-qz-stem", "data-ui": "quiz.fig", html: KOS.content.renderBlocks([{ fig: it.fig }]) }));
-        if (it.try) card.appendChild(el("div", { class: "k-prose k-qz-stem", "data-ui": "quiz.try", html: KOS.content.renderBlocks(it.try) }));
         var sum = el("span", { class: "k-qz-sum", "data-ui": "quiz.sum" });
         function paintSum() {
           var got = 0;
@@ -746,6 +751,12 @@
           card.appendChild(b.node);
           return b;
         });
+        if (it.try) {
+          var tryBox = el("div", { class: "k-prose k-qz-stem", "data-ui": "quiz.try", html: KOS.content.renderBlocks(it.try) });
+          var firstPartQ = n.parts.length === 1 && blocks[0] && blocks[0].node && blocks[0].node.querySelector(".k-qz-part-q");
+          if (firstPartQ && firstPartQ.parentNode) firstPartQ.parentNode.insertBefore(tryBox, firstPartQ.nextSibling);
+          else card.appendChild(tryBox);
+        }
         var done = el("span", { class: "k-qz-logged", "data-ui": "quiz.logged", text: logged[n.i] ? "Logged " + logged[n.i].got + "/" + logged[n.i].max : "" });
         var revealBtn = el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "quiz.reveal", text: "Reveal mark scheme", onclick: function () {
           revealed = !revealed;

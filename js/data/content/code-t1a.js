@@ -234,7 +234,7 @@
       ]
     },
     flashcards: [
-      ["The order of a query's clauses?", "SELECT … FROM … WHERE … ORDER BY … LIMIT …"],
+      ["The order of a query's clauses?", "`SELECT … FROM … WHERE … ORDER BY … LIMIT …`"],
       ["Is a query's row order promised without ORDER BY?", "No — it may change when the table changes."],
       ["What does BETWEEN 2 AND 5 include?", "Both ends: 2 ≤ x ≤ 5."],
       ["In LIKE, what do % and _ match?", "% any run of characters (even none); _ exactly one."],

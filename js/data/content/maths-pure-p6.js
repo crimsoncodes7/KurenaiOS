@@ -328,7 +328,7 @@ C["maths:6.4"] = {
         { h: "(c) Single fraction, then split", m: "$8 + \\dfrac{64}{x} = \\dfrac{8(x + 8)}{x}$, so $\\log_2 8 + \\log_2(x + 8) - \\log_2 x = 3 + b - a$", mk: "M1 M1 A1", n: "$\\log_2 8 = 3$. The whole skill is spotting $x + 8$ inside the expression." }
       ], result: "(a) $\\frac a2$ (b) $a + b$ (c) $3 + b - a$" } },
     { worked: { tag: "exam", title: "Find the student's two errors", src: "AS June 2018 · P1 Q5 · 5 marks",
-      q: "A student solves $2\\log_2 x - \\log_2\\sqrt x = 3$: \"$2\\log_2\\left(\\frac{x}{\\sqrt x}\\right) = 3$ (subtraction law); $2\\log_2(\\sqrt x) = 3$; $\\log_2 x = 3$ (power law); $x = 2^3 = 9$.\" **(a)** Identify two errors. **(b)** Write out the correct solution.",
+      q: "A student solves $2\\log_2 x - \\log_2\\sqrt x = 3$:\n\n- $2\\log_2\\left(\\frac{x}{\\sqrt x}\\right) = 3$ (subtraction law)\n- $2\\log_2(\\sqrt x) = 3$\n- $\\log_2 x = 3$ (power law)\n- $x = 2^3 = 9$\n\n**(a)** Identify two errors. **(b)** Write out the correct solution.",
       steps: [
         { h: "(a)", m: "**1.** The subtraction law was applied with the 2 still outside: $2\\log_2 x - \\log_2\\sqrt x$ is $\\log_2 x^2 - \\log_2\\sqrt x$, not $2\\log_2(x/\\sqrt x)$. **2.** $2^3 = 8$, not 9 (and \"$2\\log_2\\sqrt x = \\log_2 x$\" happened to be right, but by luck).", mk: "B1 B1" },
         { h: "(b)", m: "$\\log_2 x^2 - \\log_2 x^{1/2} = \\log_2 x^{3/2} = 3 \\Rightarrow x^{3/2} = 8 \\Rightarrow x = 8^{2/3} = 4$", mk: "M1 M1 A1" }

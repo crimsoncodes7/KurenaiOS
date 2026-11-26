@@ -222,7 +222,7 @@ C["compsci:4.13.1.2"] = {
       steps: [
         { m: "Trace: (12, 39) → (12, 27) → (12, 15) → (12, 3) → (9, 3) → (6, 3) → (3, 3)." },
         { m: "The prompts, 12 and 39 being entered, and the output \"3 is GCF of 12 and 39\";", mk: "1 mark", n: "Must match your own code's prompts; the code for 03.1 must be sensible." }
-      ], result: "3 is GCF of 12 and 39", try: [{ trace: { code: "Temp1 <- Number1\nTemp2 <- Number2\nWHILE Temp1 != Temp2\n  IF Temp1 > Temp2 THEN Temp1 <- Temp1 - Temp2\n  ELSE Temp2 <- Temp2 - Temp1\n  ENDIF\nENDWHILE\nResult <- Temp1", lang: "pseudo", cols: ["Temp1", "Temp2"], rows: [["18", "30"], ["18", "12"], ["6", "12"], ["6", "6"]], cap: "**Your turn.** Trace it with Number1 = 18 and Number2 = 30: one row per pass, both values each time. The GCF is the last Temp1." } }] } },
+      ], result: "3 is GCF of 12 and 39", try: [{ notesOnly: true, trace: { code: "Temp1 <- Number1\nTemp2 <- Number2\nWHILE Temp1 != Temp2\n  IF Temp1 > Temp2 THEN Temp1 <- Temp1 - Temp2\n  ELSE Temp2 <- Temp2 - Temp1\n  ENDIF\nENDWHILE\nResult <- Temp1", lang: "pseudo", cols: ["Temp1", "Temp2"], rows: [["18", "30"], ["18", "12"], ["6", "12"], ["6", "6"]], cap: "**Your turn.** Trace it with Number1 = 18 and Number2 = 30: one row per pass, both values each time. The GCF is the last Temp1." } }] } },
     { worked: { tag: "exam", title: "Test the dice design", src: "AS June 2022 · P1 Q03.2 · 1 mark",
       q: "A design repeatedly generates two random integers N1 and N2 from 1 to 6, outputting them, adding them to S and counting turns T; C counts turns with at least one 6 and D counts doubles; it stops when C = 3 or D = 3, then outputs C, D and A = S DIV (T * 2). What must the screen capture of one run show to earn the mark?",
       steps: [
@@ -316,24 +316,24 @@ C["compsci:4.13.1.3"] = {
 
     { page: "In exam questions" },
     { worked: { tag: "exam", title: "Persistence tests", src: "AS June 2016 · P1 Q05.2 · 1 mark",
-      q: "A program implements this design: input Value (0–99) and Operation ('a' or 'm'); Count ← 0; WHILE Value > 9: if Operation = 'a' then Value ← (Value DIV 10) + (Value MOD 10) else Value ← (Value DIV 10) * (Value MOD 10); Count ← Count + 1; then output \"The persistence is: \" and Count. Test it by entering 47 followed by m, and 77 followed by a. What must the screen captures show?",
+      q: "A program implements this design:\n\n```pseudo\nINPUT Value (0–99) and Operation ('a' or 'm')\nCount ← 0\nWHILE Value > 9\n  IF Operation = 'a' THEN\n    Value ← (Value DIV 10) + (Value MOD 10)\n  ELSE\n    Value ← (Value DIV 10) * (Value MOD 10)\n  ENDIF\n  Count ← Count + 1\nENDWHILE\nOUTPUT \"The persistence is: \", Count\n```\n\nTest it by entering 47 followed by `m`, and 77 followed by `a`. What must the screen captures show?",
       steps: [
         { m: "47, m: 4 × 7 = 28 → 2 × 8 = 16 → 1 × 6 = 6 — three steps → \"The persistence is: 3\"." },
         { m: "77, a: 7 + 7 = 14 → 1 + 4 = 5 — two steps → \"The persistence is: 2\"." },
         { m: "Both tests showing the data entered, the right choice (m / a) and the correct persistence;", mk: "1 mark" }
       ], result: "3 and 2" } },
     { worked: { tag: "exam", title: "Binary-looking output", src: "AS June 2019 · P1 Q03.2 · 1 mark",
-      q: "A program implements: input NumberIn; NumberOut ← 0; Count ← 0; WHILE NumberIn > 0: Count ← Count + 1; PartValue ← NumberIn MOD 2; NumberIn ← NumberIn DIV 2; multiply PartValue by 10 (Count − 1) times; NumberOut ← NumberOut + PartValue; then output \"The result is: \" NumberOut. Test it by entering 22, then 29, then −1 (separate runs). What must the screen capture show?",
+      q: "A program implements this design:\n\n```pseudo\nINPUT NumberIn\nNumberOut ← 0\nCount ← 0\nWHILE NumberIn > 0\n  Count ← Count + 1\n  PartValue ← NumberIn MOD 2\n  NumberIn ← NumberIn DIV 2\n  multiply PartValue by 10 (Count − 1) times\n  NumberOut ← NumberOut + PartValue\nENDWHILE\nOUTPUT \"The result is: \", NumberOut\n```\n\nTest it by entering 22, then 29, then −1 (separate runs). What must the screen capture show?",
       steps: [
         { m: "22 → \"The result is: 10110\"; 29 → \"The result is: 11101\" — each number's binary digits, built as a denary number." },
         { m: "−1 → the loop never runs → \"The result is: 0\";", mk: "1 mark", n: "All three tests must be shown." }
-      ], result: "10110 · 11101 · 0", try: [{ predict: { code: "int numberIn = 19;\nint numberOut = 0, count = 0;\nwhile (numberIn > 0)\n{\n    count++;\n    int partValue = numberIn % 2;\n    numberIn = numberIn / 2;\n    for (int i = 1; i < count; i++)\n    {\n        partValue = partValue * 10;\n    }\n    numberOut = numberOut + partValue;\n}\nConsole.WriteLine(\"The result is: \" + numberOut);", expect: "The result is: 10011", cap: "**Your turn.** The 2019 program in C#, with 19 typed in. What does the screen show?" } }] } },
+      ], result: "10110 · 11101 · 0", try: [{ notesOnly: true, predict: { code: "int numberIn = 19;\nint numberOut = 0, count = 0;\nwhile (numberIn > 0)\n{\n    count++;\n    int partValue = numberIn % 2;\n    numberIn = numberIn / 2;\n    for (int i = 1; i < count; i++)\n    {\n        partValue = partValue * 10;\n    }\n    numberOut = numberOut + partValue;\n}\nConsole.WriteLine(\"The result is: \" + numberOut);", expect: "The result is: 10011", cap: "**Your turn.** The 2019 program in C#, with 19 typed in. What does the screen show?" } }] } },
     { worked: { tag: "exam", title: "Tally marks", src: "AS June 2024 · P1 Q04.2 · 1 mark",
-      q: "A program implements: input Number1 and Number2; Number ← the larger DIV the smaller; then for Count from 1 to Number output (without new lines) \"X\" if Count MOD 10 = 0, else \"V\" if Count MOD 5 = 0, else \"/\". Test it by entering 4 then 99. What must the screen capture show?",
+      q: "A program implements this design:\n\n```pseudo\nINPUT Number1, Number2\nNumber ← larger DIV smaller\nFOR Count ← 1 TO Number\n  IF Count MOD 10 = 0 THEN OUTPUT \"X\"\n  ELSE IF Count MOD 5 = 0 THEN OUTPUT \"V\"\n  ELSE OUTPUT \"/\"\n  ENDIF  // without new lines\nENDFOR\n```\n\nTest it by entering 4 then 99. What must the screen capture show?",
       steps: [
         { m: "99 DIV 4 = 24, so 24 symbols: positions 5 and 15 are V; 10 and 20 are X." },
         { m: "////V////X////V////X////;", mk: "1 mark" }
-      ], result: "////V////X////V////X////", try: [{ predict: { code: "int number1 = 8, number2 = 99;\nint number = Math.Max(number1, number2) / Math.Min(number1, number2);\nfor (int count = 1; count <= number; count++)\n{\n    if (count % 10 == 0) Console.Write(\"X\");\n    else if (count % 5 == 0) Console.Write(\"V\");\n    else Console.Write(\"/\");\n}\nConsole.WriteLine();", expect: "////V////X//", cap: "**Your turn.** The tally program with 8 and 99. What is printed?" } }] } },
+      ], result: "////V////X////V////X////", try: [{ notesOnly: true, predict: { code: "int number1 = 8, number2 = 99;\nint number = Math.Max(number1, number2) / Math.Min(number1, number2);\nfor (int count = 1; count <= number; count++)\n{\n    if (count % 10 == 0) Console.Write(\"X\");\n    else if (count % 5 == 0) Console.Write(\"V\");\n    else Console.Write(\"/\");\n}\nConsole.WriteLine();", expect: "////V////X//", cap: "**Your turn.** The tally program with 8 and 99. What is printed?" } }] } },
     { worked: { tag: "variation", title: "Find the logic error", q: "A student's Python for the 2019 design prints 'The result is: 1011' for 22. Their loop is: for i in range(1, count - 1): part_value *= 10. Explain the error and fix it.",
       steps: [
         { m: "FOR i ← 1 TO Count − 1 runs Count − 1 times; range(1, count - 1) runs only Count − 2 times — off by one.", mk: "1" },
@@ -432,7 +432,7 @@ C["compsci:4.13.1.4"] = {
         { m: "25 — normal / valid / typical;" },
         { m: "1 — boundary / extreme (the smallest positive integer);" },
         { m: "−8 — erroneous / invalid;", mk: "1 mark one row · 2 marks all three" }
-      ], result: "normal, boundary, erroneous", try: [{ grid: { cols: ["Value (a mark from 1 to 100 is accepted)", "Type of test data"], rows: [["37", "normal"], ["1", "boundary"], ["100", "boundary"], ["250", "erroneous"], ["seven", "erroneous"]], given: [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0]], cap: "**Your turn.** Type **normal**, **boundary** or **erroneous** for each." } }] } },
+      ], result: "normal, boundary, erroneous", try: [{ notesOnly: true, grid: { cols: ["Value (a mark from 1 to 100 is accepted)", "Type of test data"], rows: [["37", "normal"], ["1", "boundary"], ["100", "boundary"], ["250", "erroneous"], ["seven", "erroneous"]], given: [[0, 0], [1, 0], [2, 0], [3, 0], [4, 0]], cap: "**Your turn.** Type **normal**, **boundary** or **erroneous** for each." } }] } },
     { worked: { tag: "exam", title: "Validation-loop tests", src: "AS June 2018 · P1 Q03.2 · 1 mark",
       q: "A program repeatedly asks \"Enter a positive whole number: \" until the number is from 1 to 10, outputting \"Number too large.\" above 10 and \"Not a positive number.\" below 1; it then outputs c for k from 0 to Number − 1, starting c ← 1 and updating c ← (c * (Number − 1 − k)) DIV (k + 1). Test it by entering −3, then 11, then 10. What must the screen capture show?",
       steps: [
@@ -440,18 +440,18 @@ C["compsci:4.13.1.4"] = {
         { m: "10 → 1 9 36 84 126 126 84 36 9 1 (row 9 of Pascal's triangle) — all three in the capture;", mk: "1 mark", n: "A. the numbers on separate lines; A. input on a new line." }
       ], result: "two messages, then 1 9 36 84 126 126 84 36 9 1" } },
     { worked: { tag: "exam", title: "Factorial test", src: "AS June 2020 · P1 Q03.2 · 1 mark",
-      q: "A program inputs X (> 1); Product ← 1, Factor ← 0; WHILE Product < X: Factor ← Factor + 1, Product ← Product * Factor; IF X = Product it outputs 1 to Factor, else \"No result\". Test it by entering 720, then 600. What must the screen capture show?",
+      q: "A program implements this design (with X > 1):\n\n```pseudo\nINPUT X\nProduct ← 1\nFactor ← 0\nWHILE Product < X\n  Factor ← Factor + 1\n  Product ← Product * Factor\nENDWHILE\nIF X = Product THEN\n  OUTPUT 1 TO Factor\nELSE\n  OUTPUT \"No result\"\nENDIF\n```\n\nTest it by entering 720, then 600. What must the screen capture show?",
       steps: [
         { m: "720: products 1, 2, 6, 24, 120, 720 → equal at Factor 6 → outputs 1 2 3 4 5 6 (720 = 6!)." },
         { m: "600: products reach 720 > 600 without equalling it → \"No result\";", mk: "1 mark", n: "A. same or separate lines." }
-      ], result: "1 2 3 4 5 6 · No result", try: [{ predict: { code: "foreach (int x in new[] { 120, 100 })\n{\n    int product = 1, factor = 0;\n    while (product < x)\n    {\n        factor++;\n        product = product * factor;\n    }\n    if (x == product)\n    {\n        string line = \"1\";\n        for (int i = 2; i <= factor; i++) line = line + \" \" + i;\n        Console.WriteLine(line);\n    }\n    else Console.WriteLine(\"No result\");\n}", expect: "1 2 3 4 5\nNo result", cap: "**Your turn.** The same test with 120, then 100. What are the two lines?" } }] } },
+      ], result: "1 2 3 4 5 6 · No result", try: [{ notesOnly: true, predict: { code: "foreach (int x in new[] { 120, 100 })\n{\n    int product = 1, factor = 0;\n    while (product < x)\n    {\n        factor++;\n        product = product * factor;\n    }\n    if (x == product)\n    {\n        string line = \"1\";\n        for (int i = 2; i <= factor; i++) line = line + \" \" + i;\n        Console.WriteLine(line);\n    }\n    else Console.WriteLine(\"No result\");\n}", expect: "1 2 3 4 5\nNo result", cap: "**Your turn.** The same test with 120, then 100. What are the two lines?" } }] } },
     { worked: { tag: "exam", title: "Prime-factor tests", src: "AS June 2023 · P1 Q05.2 · 1 mark",
       q: "A program inputs Number (> 1) and, trying X from 2 upwards, outputs each distinct prime factor once while dividing it out and counting every division in Count; it finally outputs Count. Test it by entering 23, then 25, then 1260. What must the screen capture show?",
       steps: [
         { m: "23 (prime): 23 then 1." },
         { m: "25 = 5²: 5 then 2." },
         { m: "1260 = 2² × 3² × 5 × 7: 2 3 5 7 then 6;", mk: "1 mark" }
-      ], result: "23,1 · 5,2 · 2 3 5 7,6", try: [{ predict: { code: "int number = 84, x = 2, count = 0;\nwhile (number > 1)\n{\n    if (number % x == 0)\n    {\n        Console.WriteLine(x);\n        while (number % x == 0)\n        {\n            number = number / x;\n            count++;\n        }\n    }\n    x++;\n}\nConsole.WriteLine(count);", expect: "2\n3\n7\n4", cap: "**Your turn.** The prime-factor program with 84 (= 2² × 3 × 7). What does it print?" } }] } },
+      ], result: "23,1 · 5,2 · 2 3 5 7,6", try: [{ notesOnly: true, predict: { code: "int number = 84, x = 2, count = 0;\nwhile (number > 1)\n{\n    if (number % x == 0)\n    {\n        Console.WriteLine(x);\n        while (number % x == 0)\n        {\n            number = number / x;\n            count++;\n        }\n    }\n    x++;\n}\nConsole.WriteLine(count);", expect: "2\n3\n7\n4", cap: "**Your turn.** The prime-factor program with 84 (= 2² × 3 × 7). What does it print?" } }] } },
     { worked: { tag: "variation", title: "Choose the test data", q: "A function accepts an exam mark, an integer from 0 to 80. Give two normal, four boundary and two erroneous values, with the expected outcome of each.",
       steps: [
         { m: "Normal: 37, 64 — accepted.", mk: "1" },
@@ -581,7 +581,7 @@ C["compsci:4.13.1.5"] = {
         { m: "madam → Palindrome; maam → Palindrome; adam → Not a palindrome; aam → Not a palindrome;" },
         { m: "x → Palindrome (the check runs before the loop condition is re-tested) — all in the capture;", mk: "1 mark" },
         { h: "Evaluation", m: "Against the requirement \"x ends the program\", the final output is unwanted: the sentinel is processed as data. It is partly met — fix by testing S = \"x\" before the check (or reading before the loop and at its end)." }
-      ], result: "P, P, N, N, then P for x", try: [{ predict: { code: "foreach (string s in new[] { \"level\", \"noon\", \"ab\", \"x\" })\n{\n    int max = s.Length - 1;\n    bool same = true;\n    for (int i = 0; i <= max; i++)\n    {\n        if (s[i] != s[max - i]) same = false;\n    }\n    Console.WriteLine(same ? \"Palindrome\" : \"Not a palindrome\");\n}", expect: "Palindrome\nPalindrome\nNot a palindrome\nPalindrome", cap: "**Your turn.** The check on level, noon, ab and the sentinel x. What are the four lines — and which one should not be there?" } }] } },
+      ], result: "P, P, N, N, then P for x", try: [{ notesOnly: true, predict: { code: "foreach (string s in new[] { \"level\", \"noon\", \"ab\", \"x\" })\n{\n    int max = s.Length - 1;\n    bool same = true;\n    for (int i = 0; i <= max; i++)\n    {\n        if (s[i] != s[max - i]) same = false;\n    }\n    Console.WriteLine(same ? \"Palindrome\" : \"Not a palindrome\");\n}", expect: "Palindrome\nPalindrome\nNot a palindrome\nPalindrome", cap: "**Your turn.** The check on level, noon, ab and the sentinel x. What are the four lines — and which one should not be there?" } }] } },
     { worked: { tag: "variation", title: "Evaluate one objective", q: "Objective: \"Accept a whole number from 1 to 10, rejecting others with a message.\" The 2018 test plan's evidence: −3 and 11 rejected with messages; 10 and 1 accepted. Write the evaluation entry.",
       steps: [
         { m: "Verdict: met.", mk: "1" },

@@ -2341,8 +2341,7 @@ C["it:F206.4.3"] = {
     ["Name the four types of search intent.", "Informational ('how to…'), navigational (a brand name), commercial ('best… review') and transactional ('buy… near me')."],
     ["Distinguish short-tail from long-tail keywords.", "Short-tail terms are broad with very high volume and competition and vague intent; long-tail terms are longer and specific with lower volume but far clearer intent, less competition and higher conversion."],
     ["Why are long-tail keywords usually better for a small client?", "They face far less competition, cost less in PPC, show clearer intent and convert at a much higher rate than broad head terms."],
-    ["What is keyword stuffing and why avoid it?", "Repeating a keyword unnaturally to manipulate rankings — it reads badly, damages credibility and is penalised by search engines."],
-    ["What does the guidance say about explaining keyword choices for P8?", "They need not come from research, but each must be explained: who would search it, the intent it shows, the content it maps to and why it suits this client."]
+    ["What does the guidance say about explaining keyword choices for P8?", "They need not come from research, but each must be explained: who would search it, the intent it shows, the content it maps to and why it suits this client.", 15]
   ],
   quiz: [
     {
@@ -2570,16 +2569,14 @@ C["it:F206.5.1"] = {
     ["What else is worth including in an executive summary?", "The key data finding driving the plan, the main channels and formats, the KPIs and targets, the timescale, and what is required from the client in budget, approvals and resources."],
     ["How can you test whether an executive summary works?", "Give it to someone who has not read the proposal — they should be able to state the problem, what is proposed, what it will achieve and what it costs them without asking."],
     ["What formats are acceptable for the pitch according to the guidance?", "A written report, or a written or verbal presentation; evidence can be the report, the presentation, or a video recording."],
-    ["How should a pitch open, and why?", "By restating the client's situation and requirements in their own words, so they can see they have been understood before any detail is presented."],
-    ["What does 'digital elements for different channels' mean in a pitch?", "Showing each prototype in its channel — a vertical video in a feed, the email in a phone inbox, the landing page as a mock-up — so the campaign is coherent yet suits each channel."],
-    ["Give four features of effective delivery.", "One idea per slide with large readable type and visuals rather than paragraphs; a measured audible pace with jargon defined; signposted structure and keeping to time; answering questions directly rather than inventing answers."],
-    ["Why should a pitch address different stakeholders differently?", "A client cares about outcomes, cost and risk; a technical stakeholder cares about feasibility; a staff member cares about workload — one undifferentiated case addresses none of them well."],
-    ["Name three ways feedback can be gathered after a pitch.", "A structured Q&A at the end, a short written feedback form, one-to-one follow-up conversations, or an annotated copy of the proposal returned with comments."],
-    ["Why are specific feedback questions better than 'any thoughts?'", "Open vague questions produce politeness; questions about named elements produce usable evidence that can actually be analysed."],
-    ["What form can evidence of gathering feedback take?", "Notes or a report — a structured record of who said what, about which element and how strongly."],
-    ["List the steps for analysing feedback for M6.", "Collate the points, categorise them into themes, weigh them by source, frequency and strength, and resolve conflicts by stating them openly and justifying which side is followed."],
-    ["What must an adaptation for D4 show?", "A specific traceable change — what was changed, which feedback prompted it, and what effect it is expected to have, ideally with before and after."],
-    ["Why is declining a piece of feedback sometimes the right answer?", "A suggestion may contradict the client's stated requirement, exceed the budget or conflict with stronger feedback; declining with a documented reason demonstrates the judgement the criterion tests."]
+    ["What does 'digital elements for different channels' mean in a pitch?", "Showing each prototype in its channel — a vertical video in a feed, the email in a phone inbox, the landing page as a mock-up — so the campaign is coherent yet suits each channel.", 6],
+    ["Give four features of effective delivery.", "One idea per slide with large readable type and visuals rather than paragraphs; a measured audible pace with jargon defined; signposted structure and keeping to time; answering questions directly rather than inventing answers.", 7],
+    ["Why should a pitch address different stakeholders differently?", "A client cares about outcomes, cost and risk; a technical stakeholder cares about feasibility; a staff member cares about workload — one undifferentiated case addresses none of them well.", 8],
+    ["Name three ways feedback can be gathered after a pitch.", "A structured Q&A at the end, a short written feedback form, one-to-one follow-up conversations, or an annotated copy of the proposal returned with comments.", 9],
+    ["Why are specific feedback questions better than 'any thoughts?'", "Open vague questions produce politeness; questions about named elements produce usable evidence that can actually be analysed.", 10],
+    ["What form can evidence of gathering feedback take?", "Notes or a report — a structured record of who said what, about which element and how strongly.", 11],
+    ["What must an adaptation for D4 show?", "A specific traceable change — what was changed, which feedback prompted it, and what effect it is expected to have, ideally with before and after.", 13],
+    ["Why is declining a piece of feedback sometimes the right answer?", "A suggestion may contradict the client's stated requirement, exceed the budget or conflict with stronger feedback; declining with a documented reason demonstrates the judgement the criterion tests.", 14]
   ],
   quiz: [
     {
@@ -2774,20 +2771,19 @@ C["it:F206.6.1"] = {
     { callout: { t: "memorise", h: "Reflection", body: "**Boud, Keogh and Walker:** experience → reflective process (*return to the experience · attend to feelings · re-evaluate*) → outcomes. **Processes to evaluate:** data analysis · campaign planning · content prototyping · communicating with stakeholders. **Tools and techniques:** visualisation · planning · prototyping · presentation delivery · feedback gathering. **Lessons:** stated as future actions, tied to evidence, including what worked. **Commands:** P12 describe · M7 explain what you would do differently · D5 evaluate how far the processes met the client's requirements." }}
   ],
   flashcards: [
-    ["Name the three stages of Boud, Keogh and Walker's reflection model.", "Experience, reflective process, and outcomes."],
-    ["What does the 'experience' stage of the model consist of?", "What actually happened — the behaviour (what you did), the ideas (what you thought and decided) and the feelings (how you felt at the time)."],
-    ["What three activities make up the reflective process stage?", "Returning to the experience and describing it without judgement, attending to feelings (using positive ones and removing obstructing negative ones), and re-evaluating the experience in the light of your intentions and existing knowledge."],
-    ["Why does the model insist on attending to feelings?", "Unresolved negative feelings block learning by making an episode too uncomfortable to examine, while positive ones enable it — so feelings must be dealt with before re-evaluation can happen."],
-    ["What is the 'outcomes' stage?", "What changes as a result — a new perspective, a change in behaviour, readiness to apply something differently, or a commitment to act. Reflection with no outcome is only description."],
-    ["Name the four processes F206 asks you to evaluate.", "Analysis of data, campaign planning, content prototyping, and communicating with stakeholders."],
-    ["Name the five categories of tools and techniques to evaluate.", "Data visualisation tools, planning techniques, prototyping tools, presentation delivery, and tools for gathering feedback."],
-    ["What questions test the effectiveness of your data analysis process?", "Did it answer the client's question; was the data cleaned and filtered with exclusions justified; were rates used rather than raw totals; did any finding actually change a decision; were limitations acknowledged."],
-    ["What questions test the effectiveness of your campaign planning process?", "Were objectives SMART and traceable to requirements; was the audience evidenced not assumed; was the whole marketing mix addressed; was every funnel stage covered; was the schedule realistic once lead times and approvals were counted."],
-    ["What do the command words P12, M7 and D5 require respectively?", "P12 — describe the processes followed. M7 — explain what could be done differently in future. D5 — evaluate how far the processes allowed a campaign to be developed that meets the client's requirements."],
-    ["How should a lesson learnt be stated to be usable?", "As a specific future action tied to the evidence that produced it — 'I will produce a dependency list at planning and start non-dependent work in parallel', not 'I should manage time better'."],
-    ["Why should a reflection include what worked?", "So effective practices are repeated deliberately rather than by accident, and because a reflection where everything went wrong is as unconvincing as one where everything went well."],
-    ["What are the two classic failure modes of a reflection?", "The diary — describing what happened day by day with no evaluation; and the apology — expressing feelings of inadequacy with no analysis or action."],
-    ["How should D5 be anchored to be a genuine evaluation?", "To the client's numbered requirements one at a time, judging whether the process produced something meeting each requirement, and whether it was the process or luck that achieved it."]
+    ["What does the 'experience' stage of the model consist of?", "What actually happened — the behaviour (what you did), the ideas (what you thought and decided) and the feelings (how you felt at the time).", 1],
+    ["What three activities make up the reflective process stage?", "Returning to the experience and describing it without judgement, attending to feelings (using positive ones and removing obstructing negative ones), and re-evaluating the experience in the light of your intentions and existing knowledge.", 2],
+    ["Why does the model insist on attending to feelings?", "Unresolved negative feelings block learning by making an episode too uncomfortable to examine, while positive ones enable it — so feelings must be dealt with before re-evaluation can happen.", 3],
+    ["What is the 'outcomes' stage?", "What changes as a result — a new perspective, a change in behaviour, readiness to apply something differently, or a commitment to act. Reflection with no outcome is only description.", 4],
+    ["Name the four processes F206 asks you to evaluate.", "Analysis of data, campaign planning, content prototyping, and communicating with stakeholders.", 5],
+    ["Name the five categories of tools and techniques to evaluate.", "Data visualisation tools, planning techniques, prototyping tools, presentation delivery, and tools for gathering feedback.", 6],
+    ["What questions test the effectiveness of your data analysis process?", "Did it answer the client's question; was the data cleaned and filtered with exclusions justified; were rates used rather than raw totals; did any finding actually change a decision; were limitations acknowledged.", 7],
+    ["What questions test the effectiveness of your campaign planning process?", "Were objectives SMART and traceable to requirements; was the audience evidenced not assumed; was the whole marketing mix addressed; was every funnel stage covered; was the schedule realistic once lead times and approvals were counted.", 8],
+    ["What do the command words P12, M7 and D5 require respectively?", "P12 — describe the processes followed. M7 — explain what could be done differently in future. D5 — evaluate how far the processes allowed a campaign to be developed that meets the client's requirements.", 9],
+    ["How should a lesson learnt be stated to be usable?", "As a specific future action tied to the evidence that produced it — 'I will produce a dependency list at planning and start non-dependent work in parallel', not 'I should manage time better'.", 10],
+    ["Why should a reflection include what worked?", "So effective practices are repeated deliberately rather than by accident, and because a reflection where everything went wrong is as unconvincing as one where everything went well.", 11],
+    ["What are the two classic failure modes of a reflection?", "The diary — describing what happened day by day with no evaluation; and the apology — expressing feelings of inadequacy with no analysis or action.", 12],
+    ["How should D5 be anchored to be a genuine evaluation?", "To the client's numbered requirements one at a time, judging whether the process produced something meeting each requirement, and whether it was the process or luck that achieved it.", 13]
   ],
   quiz: [
     {

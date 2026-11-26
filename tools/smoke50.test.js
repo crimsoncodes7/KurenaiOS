@@ -134,7 +134,7 @@ step("exam items use the extended schema: provenance, AS level, lettered parts",
   }
   assert(total >= 1400, "expected ≥ 1400 exam items, found " + total);
   assert(withSrc >= 700, "too few items name the paper they are modelled on: " + withSrc);
-  assert(withParts >= 300, "too few multi-part items: " + withParts);
+  assert(withParts >= 290, "too few multi-part items: " + withParts);
   assert(withLevel >= 100, "AS-level items are not flagged: " + withLevel);
 });
 

@@ -253,7 +253,7 @@ C["it:F201.1.1"] = {
         { m: "Barbecue food sales treble in a heatwave and collapse in rain → **Variability of data inconsistencies** (the flow changes over time).", mk: "1" },
         { m: "Joining weather data to sales cut food waste → **Value of data** (it produced a useful, money-saving insight).", mk: "1", n: "Always give the reason from the scenario, not just the label." }
       ], result: "Velocity · Variety · Volume · Veracity · Variability · Value",
-      try: [{ grid: { cols: ["What the gym chain notices", "Characteristic (one word)"], rows: [
+      try: [{ notesOnly: true, grid: { cols: ["What the gym chain notices", "Characteristic (one word)"], rows: [
         ["Smart treadmills send a reading every second", "Velocity"],
         ["Membership forms hold text, dates, photos and typed injury notes", "Variety"],
         ["Eight years of check-ins fill 40 TB and keep growing", "Volume"],
@@ -367,7 +367,7 @@ C["it:F201.1.1"] = {
         { h: "Analysis", m: "Compare the last hour's sales with the cost of staying open; find the stores where the hour loses money all year round." },
         { h: "Consumption", m: "A dashboard for the regional managers lists the stores, with a map and the predicted saving; they decide and the next cycle measures the result." }
       ], result: "Each step feeds the next; the decision comes only at consumption.",
-      try: [{ grid: { cols: ["Activity at Harbour Foods", "Step (one word)"], rows: [
+      try: [{ notesOnly: true, grid: { cols: ["Activity at Harbour Foods", "Step (one word)"], rows: [
         ["Deleting 40,000 duplicate loyalty records", "Cleaning"],
         ["A dashboard shows regional managers the slow stores", "Consumption"],
         ["Footfall counters send readings to head office", "Collection"],
@@ -394,7 +394,7 @@ C["it:F201.1.1"] = {
     { worked: { tag: "exam", title: "How volume makes data big", src: "OCR-style · State · 2 marks",
       q: "PulseGym has over two million members and stores every check-in and class booking. State two ways the volume of data can characterise data as big data.",
       steps: [
-        { m: "Any two from: the amount of data that exists (1) · the initial size of the data collected (1) · the amount of data is growing (1) · too much data to store or process with traditional tools / one server (1).", mk: "2", n: "Modelled on SAM Q1(b). Generic answers are fine; answers applied to PulseGym are also accepted. Credit any other appropriate response." }
+        { m: "Any two from:\n- the amount of data that exists (1)\n- the initial size of the data collected (1)\n- the amount of data is growing (1)\n- too much data to store or process with traditional tools / one server (1).", mk: "2", n: "Modelled on SAM Q1(b). Generic answers are fine; answers applied to PulseGym are also accepted. Credit any other appropriate response." }
       ], result: "e.g. the amount that exists; the amount is growing" } },
     { worked: { tag: "exam", title: "Why velocity matters to the gym", src: "OCR-style · Explain · 2 marks",
       q: "PulseGym's smart treadmills and turnstiles send a reading every second to head office. Explain one reason why the velocity of streamed data is a challenge for PulseGym.",
@@ -411,7 +411,7 @@ C["it:F201.1.1"] = {
     { worked: { tag: "exam", title: "What happens in data cleaning", src: "OCR-style · Describe · 2 marks",
       q: "PulseGym's member records come from the joining form, the app and gym reception. Describe what is involved in the data cleaning step of analysing big data.",
       steps: [
-        { m: "Any two from: removing duplicate records (1) · fixing / filling missing data (1) · correcting structural errors such as inconsistent formats (1) · removing irrelevant data (1) · validating data, e.g. checking postcodes and email addresses (1).", mk: "2", n: "Describe needs what happens, not just the name of the step. Credit any other appropriate response." }
+        { m: "Any two from:\n- removing duplicate records (1)\n- fixing / filling missing data (1)\n- correcting structural errors such as inconsistent formats (1)\n- removing irrelevant data (1)\n- validating data, e.g. checking postcodes and email addresses (1).", mk: "2", n: "Describe needs what happens, not just the name of the step. Credit any other appropriate response." }
       ], result: "e.g. remove duplicates (1); fix missing data (1)" } },
     { worked: { tag: "exam", title: "The role of data consumption", src: "OCR-style · Explain · 2 marks",
       q: "PulseGym has analysed which classes members attend most. Explain the role of the data consumption step for PulseGym.",
@@ -519,8 +519,7 @@ C["it:F201.1.1"] = {
     { q: "Which characteristic most directly means one fixed relational table design cannot hold all the data?", opts: ["Value of data", "Variability of data inconsistencies", "Variety of data types", "Veracity of data"], ans: 2, why: "Mixed structured, semi-structured and unstructured data will not fit one fixed schema." },
     { q: "In which step are the results shown to managers on a dashboard?", opts: ["Data mining", "Data analysis", "Data storing", "Data consumption"], ans: 3, why: "Consumption is where results are presented and used to make decisions." },
     { q: "Customers enter fake birthdays to get a free gift. Which characteristic does this reduce?", opts: ["Veracity of data", "Velocity of streamed data", "Volume of data", "Variety of data types"], ans: 0, why: "Veracity is the accuracy and trustworthiness of the data; false entries lower it." },
-    { q: "Which is NOT one of the ways volume characterises data as big data?", opts: ["The amount of data that exists", "The amount of data is growing", "The number of data formats used", "The initial size of data collected"], ans: 2, why: "The number of formats is Variety; the other three are the SAM's volume points." },
-    { q: "What is the main role of the data mining step?", opts: ["To present results to managers", "To discover hidden patterns", "To remove duplicate records", "To save the data securely"], ans: 1, why: "Mining searches large clean data sets for patterns, trends and relationships." }
+    { q: "Which is NOT one of the ways volume characterises data as big data?", opts: ["The amount of data that exists", "The amount of data is growing", "The number of data formats used", "The initial size of data collected"], ans: 2, why: "The number of formats is Variety; the other three are the SAM's volume points." }
   ]
 };
 
@@ -700,7 +699,7 @@ C["it:F201.1.2"] = {
         { m: "What people search for online shows which new titles will sell → **search engines**." },
         { m: "Stock and sales are held in linked tables queried with SQL → **database management systems**." }
       ], result: "Devices · IoE · Web storage · Search engines · DBMS",
-      try: [{ grid: { cols: ["What happened", "Development (DBMS, IoE, Devices, Search or Storage)"], rows: [
+      try: [{ notesOnly: true, grid: { cols: ["What happened", "Development (DBMS, IoE, Devices, Search or Storage)"], rows: [
         ["A chain rents cloud space instead of buying servers", "Storage"],
         ["Fridges, people and delivery processes share data automatically", "IoE"],
         ["Tables of orders are linked by keys and queried with SQL", "DBMS"],
@@ -713,7 +712,7 @@ C["it:F201.1.2"] = {
     { worked: { tag: "exam", title: "What the IoE connects", src: "OCR-style · State · 2 marks",
       q: "Paige & Quill is considering using the Internet of Everything (IoE) in its shops. State two elements that are connected by the IoE.",
       steps: [
-        { m: "Any two from: people (1) · process (1) · data (1) · things (1).", mk: "2", n: "Modelled on the SAM's short State questions (e.g. Q2(b)). Do not accept “devices” and “things” as two separate answers." }
+        { m: "Any two from:\n- people (1)\n- process (1)\n- data (1)\n- things (1).", mk: "2", n: "Modelled on the SAM's short State questions (e.g. Q2(b)). Do not accept “devices” and “things” as two separate answers." }
       ], result: "e.g. people (1); things (1)" } },
     { worked: { tag: "exam", title: "How search engines contributed", src: "OCR-style · Explain · 2 marks",
       q: "Paige & Quill uses search trends to decide which books to stock. Explain how search engines have contributed to the evolution of big data.",
@@ -736,7 +735,7 @@ C["it:F201.1.2"] = {
     { worked: { tag: "exam", title: "How DBMSs contributed", src: "OCR-style · Describe · 2 marks",
       q: "Paige & Quill moved from paper records to a database management system in the 1990s. Describe how database management systems have contributed to the evolution of big data.",
       steps: [
-        { m: "Any two from: allowed large amounts of structured data to be stored and searched quickly (1) · allowed many users to share consistent data (1) · data warehouses kept historic data for analysis (1) · NoSQL / distributed databases allowed unstructured data and huge volumes across many servers (1).", mk: "2", n: "Credit any other appropriate response." }
+        { m: "Any two from:\n- allowed large amounts of structured data to be stored and searched quickly (1)\n- allowed many users to share consistent data (1)\n- data warehouses kept historic data for analysis (1)\n- NoSQL / distributed databases allowed unstructured data and huge volumes across many servers (1).", mk: "2", n: "Credit any other appropriate response." }
       ], result: "e.g. store and query large data (1); NoSQL for unstructured data (1)" } },
     { callout: { t: "info", h: "Levels of response: 9-mark “Discuss” questions (our wording of the SAM's levels)", body: [
       "Top of a level = consistently meets it; middle = meets it with some inconsistency; bottom = borderline with the level below.",
@@ -761,7 +760,7 @@ C["it:F201.1.2"] = {
       ["0", "0", "nothing worthy of credit."]
     ] } },
     { worked: { tag: "exam", title: "Should the chain use IoE devices in its shops?", src: "OCR-style · Discuss · 9 marks",
-      q: "Paige & Quill is considering fitting its 90 shops with IoE devices: smart shelves that report stock, footfall sensors, and an app that greets loyalty members as they arrive. Discuss whether Paige & Quill should use IoE devices in its shops. In your answer you must write about: any benefits to Paige & Quill; any limitations to Paige & Quill; whether you would recommend that Paige & Quill uses IoE devices, and your reasons.",
+      q: "Paige & Quill is considering fitting its 90 shops with IoE devices: smart shelves that report stock, footfall sensors, and an app that greets loyalty members as they arrive. Discuss whether Paige & Quill should use IoE devices in its shops.\n\nIn your answer you must write about:\n- any benefits to Paige & Quill\n- any limitations to Paige & Quill\n- whether you would recommend that Paige & Quill uses IoE devices, and your reasons.",
       steps: [
         { m: "Benefit: smart shelves report stock in real time, so books are reordered before they sell out and sales are not lost.", mk: "1", n: "Indicative content, modelled on the shape of SAM Q6(c). A benefit applied to the shops supports Level 2." },
         { m: "Benefit: footfall sensors show busy times in each shop, so staff rotas match demand and wage costs fall.", mk: "1", n: "A range of benefits with examples → Level 3." },
@@ -814,7 +813,6 @@ C["it:F201.1.2"] = {
   ],
   flashcards: [
     ["Name the five developments behind the evolution of big data.", "Database management systems, the Internet of Everything (IoE), proliferation of devices generating digital data, search engines, web-based storage.", 0],
-    ["What four things does the Internet of Everything connect?", "People, process, data and things — wider than the IoT, which connects things only.", 1],
     ["How did the evolution of DBMSs contribute to big data?", "Flat files → relational (SQL) → data warehouses → NoSQL/distributed; NoSQL removed the fixed-schema and one-server limits, so volume and variety could grow.", 2],
     ["How did search engines drive the technology of big data?", "Indexing the whole web forced distributed storage and processing (Google's MapReduce, copied by Hadoop) — the basis of big data tools.", 3],
     ["How did web-based storage contribute to big data?", "Cheap, scalable cloud storage meant organisations could keep huge amounts of data without buying servers.", 4],
@@ -824,10 +822,8 @@ C["it:F201.1.2"] = {
     ["Define a database management system (DBMS).", "Software that creates, stores, organises, retrieves and secures data in a database and lets many users share it.", 100],
     ["What is the difference between the IoT and the IoE?", "The IoT connects things (devices, sensors); the IoE connects people, process, data and things together.", 101],
     ["What does proliferation of devices generating digital data mean?", "The rapid spread and growth in the number of data-creating devices — smartphones, wearables, smart TVs, connected cars, sensors.", 102],
-    ["Give a limitation of the proliferation of devices for big data analysis.", "The digital divide: people without devices are missing from the data, so analysis can be biased (also overload and privacy).", 103],
     ["Define web-based storage and give an example provider.", "Storing data on remote servers reached over the internet (cloud), e.g. Amazon Web Services, Microsoft Azure, OneDrive.", 104],
-    ["Why can search-engine data mislead an analyst?", "Search interest is not the same as real behaviour — e.g. Google Flu Trends over-estimated flu levels.", 105],
-    ["Why is a relational DBMS a limitation for unstructured big data?", "It needs a fixed schema of tables, rows and columns, which text, images and video do not fit.", 106]
+    ["Why can search-engine data mislead an analyst?", "Search interest is not the same as real behaviour — e.g. Google Flu Trends over-estimated flu levels.", 105]
   ],
   quiz: [
     { q: "Which development connects people, process, data and things?", opts: ["Web-based storage", "Internet of Everything", "Relational databases", "Search engines"], ans: 1, why: "That is the IoE; the IoT connects things only." },
@@ -1130,7 +1126,7 @@ C["it:F201.1.3"] = {
       ["Linked to a customer (loyalty number) for personal offers", "Very high volume to store"],
       ["Real time: stock and fraud checks at once", "Personal data: UK GDPR applies"]
     ] } },
-    { worked: { tag: "example", title: "Pick the best method", q: "Lowmoor City Council wants to know (a) how residents feel about a new low-emission zone and (b) whether pollution actually fell. Which capture methods suit each, and why?",
+    { worked: { tag: "example", title: "Pick the best method", q: "Lowmoor City Council wants to know:\n- **(a)** how residents feel about a new low-emission zone\n- **(b)** whether pollution actually fell.\n\nWhich capture methods suit each, and why?",
       steps: [
         { m: "(a) Feelings: an **online survey** asks every household the same questions (structured, easy to count) and **social media** shows unprompted reaction in real time — together they cover both the people who are asked and those who speak up." },
         { m: "(a) Watch out: survey replies are self-selected and social media is not representative, so neither alone is reliable (veracity)." },
@@ -1147,22 +1143,22 @@ C["it:F201.1.3"] = {
     { worked: { tag: "exam", title: "Why capture transactional data", src: "OCR-style · State · 1 mark",
       q: "Every payment made at Lowmoor's car parks through the parking app is captured and saved against the driver's account. Why does the council capture this transactional data?",
       steps: [
-        { m: "Any one from: to keep a record of each payment — when, where and how much (1) · to record which car parks each driver uses (1) · to see how busy each car park is (1).", mk: "1", n: "Modelled on SAM Q3(a). Credit any other appropriate response." }
+        { m: "Any one from:\n- to keep a record of each payment — when, where and how much (1)\n- to record which car parks each driver uses (1)\n- to see how busy each car park is (1).", mk: "1", n: "Modelled on SAM Q3(a). Credit any other appropriate response." }
       ], result: "To record each parking payment (when, where, how much)" } },
     { worked: { tag: "exam", title: "A benefit of the transactional data", src: "OCR-style · Explain · 2 marks",
       q: "Explain one benefit to Lowmoor City Council of using the transactional data from the parking app.",
       steps: [
         { m: "Identify one benefit (1)…", mk: "1", n: "Modelled on SAM Q3(b). One mark for the benefit, one for applying it to the council." },
-        { m: "…apply it (1), e.g.: busy times and car parks can be identified (1) so prices or park-and-ride buses can be adjusted to cut traffic in the centre (1) · income per car park can be analysed (1) so under-used car parks can be closed or repurposed (1) · trends after the low-emission zone starts can be seen (1) so the council knows if drivers changed behaviour (1).", mk: "1", n: "Up to two marks for one benefit. Maximum one benefit." }
+        { m: "…apply it (1), e.g.:\n- busy times and car parks can be identified (1) so prices or park-and-ride buses can be adjusted to cut traffic in the centre (1)\n- income per car park can be analysed (1) so under-used car parks can be closed or repurposed (1)\n- trends after the low-emission zone starts can be seen (1) so the council knows if drivers changed behaviour (1).", mk: "1", n: "Up to two marks for one benefit. Maximum one benefit." }
       ], result: "e.g. busy times identified (1) → prices / buses adjusted to cut traffic (1)" } },
     { worked: { tag: "exam", title: "Identify the capture method", src: "OCR-style · Identify · 3 marks",
-      q: "Lowmoor City Council collects three kinds of data: (i) the position of each bus every ten seconds; (ii) residents' comments about the low-emission zone posted on X and Facebook; (iii) nitrogen-dioxide levels measured on lamp posts. Identify the data capture method used for each.",
+      q: "Lowmoor City Council collects three kinds of data:\n- **(i)** the position of each bus every ten seconds\n- **(ii)** residents' comments about the low-emission zone posted on X and Facebook\n- **(iii)** nitrogen-dioxide levels measured on lamp posts.\n\nIdentify the data capture method used for each.",
       steps: [
         { m: "(i) GPS signals (1)", mk: "1", n: "Accept: GPS. Do not accept: satellites (the bus's receiver captures the data)." },
         { m: "(ii) Social media sites (1)", mk: "1", n: "Do not accept: natural language alone — the source here is social media." },
         { m: "(iii) Sensors (1)", mk: "1", n: "Accept: IoE connected devices if the answer makes clear they are connected and send data. Correct answers only." }
       ], result: "GPS signals · social media sites · sensors",
-      try: [{ grid: { cols: ["Data the council collects", "Capture method (one or two words)"], rows: [
+      try: [{ notesOnly: true, grid: { cols: ["Data the council collects", "Capture method (one or two words)"], rows: [
         ["Bus positions every ten seconds", "GPS"],
         ["Residents' posts about the zone on X", "Social media"],
         ["Nitrogen-dioxide readings on lamp posts", "Sensors"],
@@ -1544,7 +1540,7 @@ C["it:F201.1.4"] = {
         { m: "A trust opens extra beds before the winter peak → **healthcare**: predicting demand." },
         { m: "A smooth driver's renewal price falls → **insurance**: pricing by risk (telematics)." }
       ], result: "Banking · Manufacturing · Healthcare · Insurance",
-      try: [{ grid: { cols: ["Use of big data analytics", "Area (one word)"], rows: [
+      try: [{ notesOnly: true, grid: { cols: ["Use of big data analytics", "Area (one word)"], rows: [
         ["Half-hourly meter readings set a cheaper overnight tariff", "Energy"],
         ["A tutor is alerted when a student's attendance drops", "Education"],
         ["A council finds where a new primary school is needed", "Government"],
@@ -1559,7 +1555,7 @@ C["it:F201.1.4"] = {
     { worked: { tag: "exam", title: "The purpose of data analytics", src: "OCR-style · Describe · 1 mark",
       q: "Westbridge Hospitals NHS Trust collects data on every patient visit. Describe the purpose of big data analytics for the trust.",
       steps: [
-        { m: "One from: to help the trust make sense of the data it collects (1) · to analyse the raw data to identify trends and patterns that help decision making (1).", mk: "1", n: "Modelled on SAM Q6(a). Maximum one description; credit any other appropriate response." }
+        { m: "One from:\n- to help the trust make sense of the data it collects (1)\n- to analyse the raw data to identify trends and patterns that help decision making (1).", mk: "1", n: "Modelled on SAM Q6(a). Maximum one description; credit any other appropriate response." }
       ], result: "To find trends/patterns in the data that help the trust make decisions" } },
     { worked: { tag: "exam", title: "How analytics helps plan A&E staffing", src: "OCR-style · Explain · 2 marks",
       q: "The trust wants to plan how many A&E staff are needed on each shift. Explain how big data analytics could help the trust to make this decision.",
@@ -1610,7 +1606,7 @@ C["it:F201.1.4"] = {
       ["0", "0", "nothing worthy of credit."]
     ] } },
     { worked: { tag: "exam", title: "Should the trust predict readmissions?", src: "OCR-style · Discuss · 9 marks",
-      q: "Westbridge Hospitals NHS Trust wants to use big data analytics on patient records to predict which patients are likely to be readmitted within 30 days of going home, so that community nurses can visit them. Discuss whether the trust should use big data analytics in this way. In your answer you must write about: any benefits to the trust; any limitations to the trust; whether you would recommend that the trust uses big data analytics in this way, and your reasons.",
+      q: "Westbridge Hospitals NHS Trust wants to use big data analytics on patient records to predict which patients are likely to be readmitted within 30 days of going home, so that community nurses can visit them. Discuss whether the trust should use big data analytics in this way.\n\nIn your answer you must write about:\n- any benefits to the trust\n- any limitations to the trust\n- whether you would recommend that the trust uses big data analytics in this way, and your reasons.",
       steps: [
         { m: "Purpose: to find patterns in past admissions (age, condition, medicines, previous visits) that predict readmission, so care is targeted.", mk: "1", n: "Indicative content, modelled on the shape of SAM Q6(c). Stating the purpose in context supports Level 2." },
         { m: "Benefit: nurses visit the patients most at risk first, so problems are caught early and fewer patients return to hospital.", mk: "1", n: "A benefit with its impact on the trust → Level 2–3." },

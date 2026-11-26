@@ -20,7 +20,6 @@ X("compsci:4.9.1.1", {
     ["State three advantages of serial over parallel transmission.", "Cheaper (fewer wires, simpler hardware); no crosstalk between wires; no data skew, so usable over longer distances and at higher clock rates.", 12],
     ["What is data skew?", "In parallel transmission, bits sent simultaneously arrive at slightly different times because the wires differ, worsening with distance.", 13],
     ["What is crosstalk?", "Interference between adjacent parallel wires, corrupting the signals.", 14],
-    ["Why are internal buses parallel?", "Distances are short and fixed and large volumes of data move constantly, so sending many bits at once is worthwhile.", 15],
     ["What is synchronous transmission?", "Transmitter and receiver are continuously synchronised by a common clock signal, with timing information sent alongside the data.", 16],
     ["What is asynchronous transmission?", "No shared clock; each byte is framed by a start bit, which synchronises the receiver's clock for that transmission, and a stop bit.", 17],
     ["What is the purpose of the stop bit?", "To give the receiver time to process the received data and to allow the next start bit to be recognised.", 19]
@@ -153,20 +152,17 @@ X("compsci:4.9.2.2", {
   flashcards: [
     ["Describe client–server networking.", "One or more computers act as servers holding resources; the other computers are clients that request services / resources from the servers, with centralised security and administration.", 8],
     ["Describe peer-to-peer networking.", "Every computer has equal status and can act as both client and server; resources are stored on and shared from any machine; there is no central server or centralised security.", 9],
-    ["Why does peer-to-peer suit a household of students?", "Few devices; users trust each other; no confidential data needing complex security; no server to buy or configure.", 10],
-    ["Why does client–server suit a school?", "Many users, not all trustworthy; confidential data; complex access rights needed; centralised management of security, printing and Internet access.", 11],
     ["Give one disadvantage of client–server.", "Resources are unavailable if the server fails; a server and expertise to configure it cost money.", 12],
     ["Give one disadvantage of peer-to-peer.", "No central security or backup; each machine must be on for its resources to be available; management is harder as the network grows.", 13],
     ["Why does peer-to-peer suit a large file-sharing network?", "The load is spread across many peers rather than one server; the same file can be shared from many machines.", 14],
     ["Which model can optimise hardware for providing services?", "Client–server — the server can have fast disks, more RAM, etc.", 15]
   ],
   quiz: [
-    { q: "In a peer-to-peer network each computer:", opts: ["is a client only, using a separate server", "has equal status and can act as client and server", "is a server only, sharing its files with the others", "needs a central login server to sign users in"], ans: 1, why: "In peer-to-peer every computer has equal status and can both request and provide resources." },
-    { q: "Centralised security management is a feature of:", opts: ["peer-to-peer", "client–server", "bus topology", "wireless"], ans: 1, why: "Log in to the server." },
-    { q: "A bank chooses client–server because:", opts: ["it is always cheaper to set up and run than peer-to-peer", "confidential data needs central control and access rights", "servers are optional, so it can grow without buying one", "peers would be faster for many users at once"], ans: 1, why: "AS 2018 P2 Q8.3." },
-    { q: "A weakness of client–server:", opts: ["there is no central backup of the shared data", "resources unavailable if the server is down", "there is no way to control user access", "every computer has equal status on it"], ans: 1, why: "Single point of dependence." },
-    { q: "'Cheaper' as a reason for peer-to-peer scores only if you add:", opts: ["a price for each computer", "that no server needs to be bought", "the topology of the network", "the protocol the computers use to talk"], ans: 1, why: "R. cheaper without explanation." },
-    { q: "Resources in a peer-to-peer network are stored:", opts: ["on one central server", "on any of the computers", "in a cloud storage service", "on the router's own disk"], ans: 1, why: "With no central server, resources are stored on whichever computers hold them." }
+    { oi: 5, q: "Centralised security management is a feature of:", opts: ["peer-to-peer", "client–server", "bus topology", "wireless"], ans: 1, why: "Log in to the server." },
+    { oi: 6, q: "A bank chooses client–server because:", opts: ["it is always cheaper to set up and run than peer-to-peer", "confidential data needs central control and access rights", "servers are optional, so it can grow without buying one", "peers would be faster for many users at once"], ans: 1, why: "AS 2018 P2 Q8.3." },
+    { oi: 7, q: "A weakness of client–server:", opts: ["there is no central backup of the shared data", "resources unavailable if the server is down", "there is no way to control user access", "every computer has equal status on it"], ans: 1, why: "Single point of dependence." },
+    { oi: 8, q: "'Cheaper' as a reason for peer-to-peer scores only if you add:", opts: ["a price for each computer", "that no server needs to be bought", "the topology of the network", "the protocol the computers use to talk"], ans: 1, why: "R. cheaper without explanation." },
+    { oi: 9, q: "Resources in a peer-to-peer network are stored:", opts: ["on one central server", "on any of the computers", "in a cloud storage service", "on the router's own disk"], ans: 1, why: "With no central server, resources are stored on whichever computers hold them." }
   ],
   exam: [
     { src: "AQA 2022 · P2 Q08", ctx: "A family with four laptops and a printer sets up a home network.",
@@ -200,7 +196,6 @@ X("compsci:4.9.2.3", {
     ["Why is MAC filtering unsuitable for a coffee shop?", "Customers should be able to connect freely; maintaining the list is time-consuming and needs technical knowledge; customers may have several devices.", 14],
     ["Describe CSMA/CA with RTS/CTS.", "Listen until the channel is idle; send Request To Send; the access point replies Clear To Send; transmit; the receiver sends an ACK. No CTS or ACK: wait a random time and retry.", 15],
     ["Why is collision avoidance used in wireless rather than collision detection?", "A wireless device cannot transmit and listen at the same time, and the hidden-node problem means it may not hear another station's transmission.", 16],
-    ["What hardware does a device need to join a wireless network?", "A wireless network interface card (adapter); the network needs a wireless access point.", 17],
     ["What is the hidden node problem and how does RTS/CTS help?", "Two stations out of range of each other can both reach the access point and collide; the CTS from the access point is heard by all, reserving the channel.", 18],
     ["What does an ACK do in CSMA/CA?", "Confirms the data arrived intact; its absence triggers retransmission.", 19]
   ],
@@ -253,13 +248,10 @@ X("compsci:4.9.3.1", {
     ["What is a URL?", "Uniform Resource Locator — protocol, domain name (or IP) and path identifying a resource, e.g. http://www.example.org/index.html.", 20]
   ],
   quiz: [
-    { q: "DNS converts:", opts: ["IP addresses to MAC addresses", "domain names to IP addresses", "URLs to files", "packets to frames"], ans: 1, why: "Name resolution." },
-    { q: "If a local DNS server cannot resolve a name it:", opts: ["returns an error straight to the client", "passes the query to another DNS server", "guesses the nearest matching address", "uses NAT to find the address"], ans: 1, why: "Distributed hierarchy." },
-    { q: "A router decides:", opts: ["the entire path to the destination", "the next hop for each packet", "the packet's contents", "the domain name"], ans: 1, why: "A router reads each packet's destination and chooses the next hop, one step at a time." },
-    { q: "A gateway differs from a router because it:", opts: ["is faster at forwarding packets", "connects networks using different protocols", "assigns an IP address to every device that joins", "encrypts all traffic leaving the network"], ans: 1, why: "Protocol conversion." },
-    { q: "In `https://shop.example.co.uk/basket`, the top-level domain is:", opts: ["shop", "example", "co", "uk"], ans: 3, why: "The top-level domain is the last part of the domain name, which here is uk." },
-    { q: "Time to live in a packet header:", opts: ["records how old the file being sent in the packet is", "limits the hops a packet makes before it is discarded", "is the checksum used to check the header for errors", "is the port number of the application it is sent to"], ans: 1, why: "Prevents endless looping." },
-    { q: "Internet registries ensure that:", opts: ["packets arrive in the same order that they were sent", "domain names are unique and registered to owners", "routers forward packets by the shortest route", "every wireless network is encrypted with WPA2"], ans: 1, why: "Registries make sure each domain name is unique and is recorded against its registered owner." }
+    { oi: 5, q: "If a local DNS server cannot resolve a name it:", opts: ["returns an error straight to the client", "passes the query to another DNS server", "guesses the nearest matching address", "uses NAT to find the address"], ans: 1, why: "Distributed hierarchy." },
+    { oi: 6, q: "A router decides:", opts: ["the entire path to the destination", "the next hop for each packet", "the packet's contents", "the domain name"], ans: 1, why: "A router reads each packet's destination and chooses the next hop, one step at a time." },
+    { oi: 8, q: "In `https://shop.example.co.uk/basket`, the top-level domain is:", opts: ["shop", "example", "co", "uk"], ans: 3, why: "The top-level domain is the last part of the domain name, which here is uk." },
+    { oi: 10, q: "Internet registries ensure that:", opts: ["packets arrive in the same order that they were sent", "domain names are unique and registered to owners", "routers forward packets by the shortest route", "every wireless network is encrypted with WPA2"], ans: 1, why: "Registries make sure each domain name is unique and is recorded against its registered owner." }
   ],
   exam: [
     { src: "AQA 2022 · P2 Q08.3", q: "Explain the purpose of the Domain Name System and describe how it works.", marks: 3,
@@ -345,12 +337,10 @@ X("compsci:4.9.4.1", {
     ["What is encapsulation in the stack?", "Each layer adds its own header around the data from the layer above as it passes down the stack; headers are removed in reverse on receipt.", 18]
   ],
   quiz: [
-    { q: "Port numbers are added by the:", opts: ["application layer", "transport layer", "network layer", "link layer"], ans: 1, why: "Port numbers are added by the transport layer (in the TCP header) to identify the application at each end." },
-    { q: "IP addresses are added by the:", opts: ["transport layer", "network layer", "link layer", "application layer"], ans: 1, why: "IP addresses are added by the network layer, in the IP header, so packets can be routed." },
-    { q: "MAC addresses:", opts: ["stay the same end to end", "change at each hop", "are added by TCP", "are the same as IP addresses"], ans: 1, why: "Link-layer, local." },
-    { q: "Splitting data into numbered segments is done by:", opts: ["IP", "TCP", "HTTP", "Ethernet"], ans: 1, why: "Transport layer." },
-    { q: "A protocol is best defined as:", opts: ["a standard for the cables used", "a set of rules for communication", "an IP address for each device", "a device that routes packets"], ans: 1, why: "A protocol is an agreed set of rules for how devices communicate, so they understand each other." },
-    { q: "Routing decisions are a function of the:", opts: ["application layer", "transport layer", "network layer", "link layer"], ans: 2, why: "Routing, choosing the path for each packet, is done at the network layer using IP addresses." }
+    { oi: 5, q: "IP addresses are added by the:", opts: ["transport layer", "network layer", "link layer", "application layer"], ans: 1, why: "IP addresses are added by the network layer, in the IP header, so packets can be routed." },
+    { oi: 6, q: "MAC addresses:", opts: ["stay the same end to end", "change at each hop", "are added by TCP", "are the same as IP addresses"], ans: 1, why: "Link-layer, local." },
+    { oi: 7, q: "Splitting data into numbered segments is done by:", opts: ["IP", "TCP", "HTTP", "Ethernet"], ans: 1, why: "Transport layer." },
+    { oi: 8, q: "A protocol is best defined as:", opts: ["a standard for the cables used", "a set of rules for communication", "an IP address for each device", "a device that routes packets"], ans: 1, why: "A protocol is an agreed set of rules for how devices communicate, so they understand each other." }
   ],
   exam: [
     { src: "AQA 2023 · P2 Q11.1", q: "Describe the role of the transport layer when an email is sent from a client to a mail server.", marks: 3,
@@ -548,7 +538,6 @@ X("compsci:4.9.4.7", {
     ["Describe the DHCP exchange.", "The host broadcasts a discover message; DHCP servers offer a configuration; the host requests (accepts) one; the server acknowledges the allocation with a lease.", 13],
     ["What is a DHCP lease?", "The period for which an allocated address is valid; the host must renew it or the address returns to the pool.", 14],
     ["Why should a web server not use DHCP?", "Its IP address might change, so port forwarding rules and DNS entries would no longer reach it — it needs a static (or reserved) address.", 15],
-    ["What does the host send first and how?", "A discover message, broadcast because it has no address yet.", 16],
     ["What information besides the IP address does DHCP provide?", "Subnet mask, default gateway address, DNS server address, lease time.", 17],
     ["How does DHCP help a café with many visiting devices?", "Addresses are handed out on demand and reclaimed when leases expire, so a small pool serves many transient users.", 18]
   ],
@@ -585,7 +574,6 @@ X("compsci:4.9.4.8", {
   ],
   flashcards: [
     ["What is network address translation?", "The process by which a router replaces the private IP addresses of LAN devices with its own public address on outgoing packets, and reverses the change on replies.", 11],
-    ["What does the router change on an outgoing packet?", "The source IP address (private → the router's public address) and the source port number (→ a port number the router generates).", 12],
     ["What is the NAT translation table?", "The router's record mapping each generated port number to the private IP address and port of the device that made the request.", 13],
     ["How does the router direct a reply to the right device?", "It looks up the reply's destination port number in the translation table and rewrites the destination IP and port to the original private values.", 14],
     ["Why is NAT needed?", "Private addresses are not routable on the Internet, and one public address can be shared by many devices.", 15],
@@ -615,9 +603,7 @@ X("compsci:4.9.4.9", {
     ["Why is port forwarding needed for a LAN web server?", "Outside computers can only address the router's public IP; the router must forward traffic on port 80/443 to the web server's private address.", 13],
     ["What address do outside users use to reach the server?", "The router's public IP address (e.g. 186.7.2.31).", 14],
     ["What does the router maintain to implement forwarding?", "A port-mapping table / rules mapping external ports to internal IP addresses and ports.", 15],
-    ["Why must the server have a static IP address?", "If DHCP changed it, the forwarding rule would point at the wrong device.", 16],
     ["Give a security consideration of port forwarding.", "It exposes the internal server to the Internet, so it must be patched and protected by the firewall.", 18],
-    ["Which ports would be forwarded for HTTP and HTTPS?", "80 and 443.", 19],
     ["How can two web servers on port 80 behind one router both be reached?", "Forward a different external port to each, e.g. 80 to one and 8080 to the other's port 80.", 100],
     ["What does the router do to the reply from a port-forwarded server?", "Rewrites its source back to the router's public address and port, so the visitor recognises it.", 101]
   ],
@@ -662,12 +648,10 @@ X("compsci:4.9.4.10", {
     ["What is CRUD?", "The four database operations: Create, Retrieve (Read), Update, Delete.", 15]
   ],
   quiz: [
-    { q: "A REST GET request corresponds to SQL:", opts: ["INSERT", "SELECT", "UPDATE", "DELETE"], ans: 1, why: "A GET request only retrieves data, like SELECT, which reads rows without changing them." },
-    { q: "A REST POST request corresponds to CRUD:", opts: ["Create", "Retrieve", "Update", "Delete"], ans: 0, why: "Create → INSERT." },
-    { q: "JSON is preferred to XML because it is:", opts: ["older and supported by more systems", "more compact and quicker to parse", "encrypted, so it is more secure", "made only for programs in Java"], ans: 1, why: "Mark-scheme points." },
-    { q: "In REST each resource is identified by:", opts: ["a port", "a URL", "a MAC address", "a cookie"], ans: 1, why: "URL per resource." },
-    { q: "The WebSocket protocol provides:", opts: ["one-way request/response messages", "a full-duplex persistent connection", "file transfer between two servers", "email delivery between mail servers"], ans: 1, why: "2024 true statement." },
-    { q: "Which is XML rather than JSON?", opts: ["{\"name\": \"Kai\"}", "<name>Kai</name>", "[1, 2, 3]", "{\"a\": [1]}"], ans: 1, why: "XML wraps data in opening and closing tags; JSON uses braces, keys and values." }
+    { oi: 4, q: "A REST GET request corresponds to SQL:", opts: ["INSERT", "SELECT", "UPDATE", "DELETE"], ans: 1, why: "A GET request only retrieves data, like SELECT, which reads rows without changing them." },
+    { oi: 5, q: "A REST POST request corresponds to CRUD:", opts: ["Create", "Retrieve", "Update", "Delete"], ans: 0, why: "Create → INSERT." },
+    { oi: 7, q: "In REST each resource is identified by:", opts: ["a port", "a URL", "a MAC address", "a cookie"], ans: 1, why: "URL per resource." },
+    { oi: 9, q: "Which is XML rather than JSON?", opts: ["{\"name\": \"Kai\"}", "<name>Kai</name>", "[1, 2, 3]", "{\"a\": [1]}"], ans: 1, why: "XML wraps data in opening and closing tags; JSON uses braces, keys and values." }
   ],
   exam: [
     { src: "AQA 2023 · P2 Q05", ctx: "A web application lets users view and edit their profiles. The client-side JavaScript communicates with the server using a RESTful API that returns JSON.",
@@ -692,7 +676,6 @@ X("compsci:4.9.4.11", {
     ["What is thin-client computing?", "Processing is carried out on the server — applications execute there — and the client only handles input and display.", 10],
     ["What is thick-client computing?", "Processing is carried out on the client, which runs the applications locally; the server provides files and services.", 11],
     ["Give three reasons to choose thin clients.", "Clients are cheaper (lower specification); software is installed and updated only on the server; users cannot install unauthorised software; clients need less configuration, use less power and fail less often.", 12],
-    ["What hardware does a thin-client system need?", "Low-spec clients (slow processor, little RAM, little or no storage); a powerful server (many cores, lots of RAM, many drives); a high-bandwidth network.", 13],
     ["Give two disadvantages of thin clients.", "Dependence on the server and network — if either fails nothing works; high bandwidth needed; server is expensive.", 14],
     ["Give two advantages of thick clients.", "Work continues if the network is down; less network traffic; better for demanding applications such as video editing.", 15],
     ["Where is application software installed in a thin-client system?", "Only on the server.", 16],

@@ -330,7 +330,6 @@ C["compsci:4.11.1"] = {
     ["What extracts value from unstructured Big Data?", "Machine learning techniques that find patterns.", 5],
     ["How does MapReduce work?", "Map a function over each server's data in parallel, group the key–value pairs, then reduce each group to a result.", 6],
     ["Name four functional programming features that help distribute processing.", "Immutable data, statelessness/no side effects, higher-order functions, execution order not fixed.", 7],
-    ["Graph schema: node, edge, property?", "Oval; solid labelled line; rectangle joined by a dashed line.", 9],
     ["Laws for the Big Data essay?", "DPA/GDPR, Computer Misuse Act, RIPA.", 10],
     ["Why send the function to the data?", "Moving huge data across the network is slow; only small results need to travel.", 11]
   ],

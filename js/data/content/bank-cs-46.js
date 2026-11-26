@@ -79,7 +79,6 @@ X("compsci:4.6.1.3", {
     ["Why use library programs?", "Pre-written, already tested code saves development time and reduces errors; programs share one copy.", 10],
     ["What is a translator?", "System software that converts source code into a form the processor can execute: assembler, compiler or interpreter.", 11],
     ["What is a device driver?", "System software that lets the OS communicate with a specific piece of hardware.", 12],
-    ["Give three utility programs.", "Disk defragmenter, virus scanner, backup software (also compression and encryption tools).", 13],
     ["Is a device driver application software?", "No — it is system software controlling hardware.", 14],
     ["How does system software 'provide a virtual machine'?", "It presents a simplified interface so programs and users need not deal with raw hardware.", 15],
     ["Which system software runs first when a computer boots?", "The BIOS/firmware loader, then the operating system.", 16]
@@ -117,9 +116,6 @@ X("compsci:4.6.1.4", {
     { callout: { t: "tip", body: "*A resource the OS manages* (AS 2018, 2023, 2024): processor time, main memory, secondary storage, I/O devices, network access — name the resource **and** the management action." }}
   ],
   flashcards: [
-    ["Describe the OS's processor-management role.", "It allocates processor time / cores to processes, scheduling which runs when and for how long (time slices).", 9],
-    ["Describe the OS's memory-management role.", "It allocates RAM to processes, moves data between RAM and the paging file (virtual memory), and prevents processes writing outside their allocation.", 10],
-    ["Describe the OS's I/O-management role.", "It allocates I/O devices to processes, manages communication with them via drivers, and installs drivers for new devices.", 11],
     ["Describe the OS's file-management role.", "It allocates space on storage devices, decides where files are saved, and organises them into directories.", 12],
     ["What does 'the OS hides the complexity of the hardware' mean?", "It provides a virtual machine — a simplified interface so users and programs need not deal with the raw hardware.", 13],
     ["How does the OS handle interrupts?", "When an interrupt occurs it saves the current state and calls the appropriate interrupt service routine.", 14],
@@ -211,7 +207,6 @@ X("compsci:4.6.3.1", {
     ["State three differences between a compiler and an interpreter.", "Compiler: whole program into object code; errors found before running; runs fast with no translator. Interpreter: translates and runs line by line, no object code; stops at the first error; needed every run.", 11],
     ["What does an assembler do?", "Translates assembly language mnemonics into machine code, one instruction to one instruction.", 12],
     ["Difference between an assembler and a compiler?", "Both produce object code, but an assembler takes simple mnemonics (one-to-one) while a compiler takes complex HLL statements each producing many machine instructions.", 13],
-    ["Why do some compilers produce bytecode rather than machine code?", "So the program is platform-independent — it can run on any machine with the appropriate virtual machine.", 14],
     ["How is bytecode executed?", "A virtual machine interprets it instruction by instruction, or just-in-time compiles it to native machine code before running it.", 15],
     ["Advantage of interpreters during development?", "Errors are reported as they are reached and code can be tested immediately without a full compile; partially correct programs run.", 16],
     ["Which translator is needed to run a compiled program on a customer's machine?", "None — the executable runs directly (given the same processor type).", 18]
@@ -227,14 +222,9 @@ X("compsci:4.6.3.1", {
   exam: [
     { level: "AS", src: "AQA 2017 · P2 Q04.1", q: "Describe four differences between a compiler and an interpreter.", marks: 4,
       ms: ["A compiler translates the whole source code at once; an interpreter analyses it line by line (1)", "A compiler produces object / machine code; an interpreter produces none, executing each line as it goes (1)", "A compiler produces no executable if an error is found; an interpreter runs the program up to the first error (1)", "Compiled code runs faster and does not need the compiler or source afterwards; interpreted code needs the interpreter and source every run / is more portable (1)", "Max 3 if all points concern only one translator"] },
-    { level: "AS", src: "AQA 2018 · P2 Q11", ctx: "Some compilers produce bytecode rather than machine code.",
-      parts: [
-        { q: "Explain why a compiler might produce bytecode.", marks: 1, ms: ["The code may need to run on multiple platforms / the target platform is not known — platform independence (1)"] },
-        { q: "Describe how a bytecode program is executed.", marks: 2, ms: ["A virtual machine on the target computer (1)", "either interprets the bytecode one instruction at a time, or just-in-time compiles it into machine code for that processor (1)"] }
-      ] },
-    { level: "AS", src: "AQA 2025 · P2 Q06.5", q: "Describe the role of an assembler and state how it differs from a compiler.", marks: 2,
+    { qk: "12", level: "AS", src: "AQA 2025 · P2 Q06.5", q: "Describe the role of an assembler and state how it differs from a compiler.", marks: 2,
       ms: ["Translates assembly language mnemonics into machine code, one assembly instruction to one machine instruction (1)", "A compiler translates complex high-level statements, each into many machine code instructions (1)"] },
-    { src: "AQA 2019 · P2 Q05", q: "A high-level language program can be compiled or interpreted. Explain why translation is necessary, and describe the differences between compilation and interpretation.", marks: 6,
+    { qk: "13", src: "AQA 2019 · P2 Q05", q: "A high-level language program can be compiled or interpreted. Explain why translation is necessary, and describe the differences between compilation and interpretation.", marks: 6,
       ms: ["The processor can only execute machine code; high-level instructions are not machine code (1)", "Compiler translates the whole program and produces an executable; interpreter translates line by line producing none (1)", "Compiler produces nothing if there is an error; interpreter runs until the first error (1)", "A compiled program is translated once; an interpreter translates every run and may translate a loop's instructions repeatedly (1)", "Compiled code needs no translator to run but is tied to one processor type; interpreted source needs the interpreter present but is portable (1)", "Compiled code executes faster; a compiler may instead emit bytecode for a virtual machine (1)"] }
   ]
 });
@@ -271,21 +261,16 @@ X("compsci:4.6.4.1", {
     { q: "Full adders are chained to add multi-bit numbers by:", opts: ["feeding each carry-out into the next carry-in", "feeding each sum into the next adder's input", "using one half adder for every bit", "sharing one carry output between all bits"], ans: 0, why: "A ripple-carry adder." }
   ],
   exam: [
-    { src: "AQA 2023 · P2 Q09", ctx: "A circuit has inputs A and B and outputs S and C. Its truth table is: A=0,B=0 → S=0,C=0; 0,1 → 1,0; 1,0 → 1,0; 1,1 → 0,1.",
-      parts: [
-        { q: "Draw a circuit that produces these outputs using two gates.", marks: 3, ms: ["A and B connected to an XOR gate whose output is S (1)", "A and B connected to an AND gate whose output is C (1)", "Both gates share the same two inputs; no other gates (1)"] },
-        { q: "State the purpose of the circuit.", marks: 1, ms: ["It adds two bits together — it is a half adder (1)"] }
-      ] },
-    { src: "AQA 2024 · P2 Q06", ctx: "A circuit implements Q = (A . ¬B) + ¬(C + D).",
+    { qk: "29", src: "AQA 2024 · P2 Q06", ctx: "A circuit implements Q = (A . ¬B) + ¬(C + D).",
       parts: [
         { q: "Draw the logic circuit, using AND, OR, NOT and NOR gates as appropriate.", marks: 4, ms: ["B connected to a NOT gate (1)", "A and the output of the NOT gate connected to an AND gate (1)", "C and D connected to a NOR gate (accept OR followed by NOT) (1)", "Outputs of the AND and NOR gates connected to an OR gate whose output is Q (1)", "Max 3 if the logic is not fully correct"] },
         { q: "The output Q is connected to the D input of a D-type flip-flop. Describe what happens to the flip-flop's output when a clock pulse arrives.", marks: 1, ms: ["The output Q of the flip-flop changes to the current value of D (1)"] }
       ] },
-    { src: "AQA 2017 · P2 Q04.4", q: "State the general purpose of a D-type flip-flop and explain the role of its clock input.", marks: 3,
+    { qk: "30", src: "AQA 2017 · P2 Q04.4", q: "State the general purpose of a D-type flip-flop and explain the role of its clock input.", marks: 3,
       ms: ["To store the state of its data input — it acts as a one-bit memory (1)", "The clock input triggers the flip-flop so that, on the pulse, the stored state is updated to the current value of D (1)", "It also synchronises the operation of a group of flip-flops (1)"] },
-    { level: "AS", src: "AQA 2020 · P2 Q05.2", q: "Draw a circuit that produces the XOR of inputs A and B using only AND, OR and NOT gates, and write the Boolean expression it implements.", marks: 3,
+    { qk: "31", level: "AS", src: "AQA 2020 · P2 Q05.2", q: "Draw a circuit that produces the XOR of inputs A and B using only AND, OR and NOT gates, and write the Boolean expression it implements.", marks: 3,
       ms: ["Expression A.¬B + ¬A.B (1)", "Two NOT gates (one per input) feeding two AND gates paired with the other input (1)", "AND outputs combined by an OR gate (1)"] },
-    { level: "AS", src: "AQA 2019 · P2 Q06.2", q: "A conveyor belt motor must run when the start button is pressed and the guard is closed, or when the manual override is on and the guard is closed. Write a Boolean expression for the motor output M and draw the logic circuit.", marks: 3,
+    { qk: "32", level: "AS", src: "AQA 2019 · P2 Q06.2", q: "A conveyor belt motor must run when the start button is pressed and the guard is closed, or when the manual override is on and the guard is closed. Write a Boolean expression for the motor output M and draw the logic circuit.", marks: 3,
       ms: ["M = (S + O) . G (accept S.G + O.G) (1)", "S and O into an OR gate (1)", "OR output and G into an AND gate whose output is M (1)"] }
   ]
 });
@@ -325,14 +310,9 @@ X("compsci:4.6.5.1", {
   exam: [
     { src: "AQA 2018 · P2 Q10", q: "Simplify the Boolean expression `(A + B) . (B + C . (D + ¬D))`, showing each step and the law used.", marks: 4,
       ms: ["D + ¬D = 1 so C.(D + ¬D) = C: (A + B).(B + C) (1)", "Expand: A.B + A.C + B.B + B.C = A.B + A.C + B + B.C (distribution; B.B = B) (1)", "Absorption B + A.B = B and B + B.C = B: A.C + B (1)", "Final answer B + A.C (1)"] },
-    { src: "AQA 2019 · P2 Q08", ctx: "A circuit is described by the expression `¬(¬(¬B . A) . ¬B) + A . B`.",
-      parts: [
-        { q: "Simplify the expression, stating the law used at each step.", marks: 4, ms: ["De Morgan on the outer bar: ¬(¬(¬B.A)) + ¬(¬B) = ¬B.A + B (double NOTs cancel) (1)", "So the expression is ¬B.A + B + A.B; absorption B + A.B = B gives ¬B.A + B (1)", "Redundancy theorem X + ¬X.Y = X + Y with X = B, Y = A (1)", "Final answer A + B (1)"] },
-        { q: "Explain why `A . ¬A = 0` for every value of A.", marks: 2, ms: ["If A is 0 then ¬A is 1, and if A is 1 then ¬A is 0 — one input to the AND is always 0 (1)", "An AND outputs 1 only when both inputs are 1, so the output is always 0 (1)"] }
-      ] },
-    { src: "AQA 2025 · P2 Q13", q: "Simplify `¬(A . ¬(A + B)) + ¬(¬C + D)`, showing your working.", marks: 4,
+    { qk: "25", src: "AQA 2025 · P2 Q13", q: "Simplify `¬(A . ¬(A + B)) + ¬(¬C + D)`, showing your working.", marks: 4,
       ms: ["De Morgan: ¬(A + B) = ¬A.¬B, so A . ¬A . ¬B = 0 (identity X.¬X = 0) (1)", "¬0 = 1, so the first term is 1 (1)", "De Morgan on the second term: ¬(¬C + D) = C . ¬D (1)", "1 + C.¬D = 1 — final answer 1 (identity 1 + X = 1) (1)"] },
-    { src: "AQA 2022 · P2 Q03", ctx: "Two expressions are claimed to be equivalent: `¬(A + B)` and `¬A . ¬B`.",
+    { qk: "26", src: "AQA 2022 · P2 Q03", ctx: "Two expressions are claimed to be equivalent: `¬(A + B)` and `¬A . ¬B`.",
       parts: [
         { q: "Complete a truth table to demonstrate that the two expressions are equivalent.", marks: 1, ms: ["Both columns: 1, 0, 0, 0 for AB = 00, 01, 10, 11 (1)"] },
         { q: "State the name of the law demonstrated.", marks: 1, ms: ["De Morgan's law (1)"] },

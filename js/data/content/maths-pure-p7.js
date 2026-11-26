@@ -98,7 +98,7 @@ C["maths:7.1"] = {
         { h: "(ii) $f''(1) = 0$ — so test the sign of $f''$ either side", m: "$\\dfrac{d^2y}{dx^2} = 12(5x^2 - 12x + 7) = 12(5x - 7)(x - 1)$: at $x = 0.9$ it is $12(-2.5)(-0.1) > 0$, at $x = 1.1$ it is $12(-1.5)(0.1) < 0$. The second derivative changes sign at $x = 1$, so it is a point of inflection (and, with $f'(1) = 0$, a stationary point of inflection).", mk: "M1 A1 A1", n: "Or: $f'''(1) = -24 \\ne 0$. Or: $f'$ has the same sign either side of 1 (factorise $f' = 4(x - 1)^2(5x - 8)$). Any one, with the reasoning stated.", fig: { x: [0.4, 2.2], y: [1, 6], axes: { xt: [1, 1.4, 1.6, 2], yt: [2, 3, 4, 5] }, items: [{ fn: "5*x^4-24*x^3+42*x^2-32*x+11", from: 0.4, to: 2.2 }, { hline: 2, c: "muted" }, { pt: [1, 2], label: "(1, 2)", pos: "n" }, { pt: [1.6, 1.784], c: "accent3", label: "min", pos: "s" }], cap: "At $x = 1$ the curve is flat but keeps falling on both sides — a stationary point of inflection; the minimum comes later, at $x = 1.6$." } }
       ], result: "shown" } },
     { worked: { tag: "exam", title: "Sketch the gradient function from a curve; pick the right $\\frac{dy}{dx}$", src: "AS June 2025 · P1 Q12 · 5 marks",
-      q: "A curve has a maximum at $x = -2$, a minimum at $x = 1$, and is increasing for $x < -2$ and $x > 1$. **(a)** Sketch the graph of $\\frac{dy}{dx}$ against $x$. **(b)** Which of these could be $\\frac{dy}{dx}$: $(x + 2)(x - 1)$, $-(x + 2)(x - 1)$, $(x - 2)(x + 1)$? Explain.",
+      q: "A curve has a maximum at $x = -2$, a minimum at $x = 1$, and is increasing for $x < -2$ and $x > 1$.\n\n**(a)** Sketch the graph of $\\frac{dy}{dx}$ against $x$.\n\n**(b)** Which of these could be $\\frac{dy}{dx}$? Explain.\n\n- $(x + 2)(x - 1)$\n- $-(x + 2)(x - 1)$\n- $(x - 2)(x + 1)$",
       steps: [
         { h: "(a) Read the sign of the gradient", m: "Positive for $x < -2$, zero at $-2$, negative between $-2$ and $1$, zero at $1$, positive after: a U-shaped parabola through $(-2, 0)$ and $(1, 0)$, below the axis between them.", mk: "B1 B1", fig: { x: [-4, 3], y: [-3, 4], axes: { xt: [-2, 1], yt: [-2, 2] }, items: [ { fn: "(x+2)*(x-1)", label: "dy/dx", at: 2.4, pos: "w" }, { pt: [-2, 0], label: "max of y", pos: "nw" }, { pt: [1, 0], label: "min of y", pos: "ne" } ], cap: "The gradient graph crosses the axis where the curve turns: going down through zero at a maximum, up through zero at a minimum." } },
         { h: "(b)", m: "$\\dfrac{dy}{dx} = (x + 2)(x - 1)$: zero at $-2$ and $1$ and positive outside them. $-(x + 2)(x - 1)$ has the wrong sign; $(x - 2)(x + 1)$ has the wrong roots.", mk: "M1 A1 A1" }
@@ -403,14 +403,13 @@ C["maths:7.3"] = {
   ],
   flashcards: [
     ["Gradient of the normal at a point where $f'(a) = 2$?", "$-\\frac12$."],
-    ["How do you show a line is a tangent to a curve algebraically?", "Equating gives a repeated root at the point of contact."],
-    ["Nature test when $f''(a) = 0$?", "Check the sign of $f'$ on either side of $a$."],
-    ["$y = 2x^3 - 2x^2 - 2x + 8$ increasing where?", "$6x^2 - 4x - 2 > 0$: $x < -\\frac13$ or $x > 1$."],
-    ["Tank: $\\pi r^2 h + \\frac23\\pi r^3 = 6$; surface area in $r$?", "$S = \\frac{12}{r} + \\frac53\\pi r^2$."],
-    ["Minimise $C = \\frac{1500}{v} + \\frac{2v}{11} + 60$.", "$v^2 = 8250$, $v = 90.8$; $C'' = \\frac{3000}{v^3} > 0$."],
-    ["Area between $y = x^3 - 10x^2 + 27x - 23$ and its tangent $y = 2x - 23$?", "$\\int_0^5 (x^3 - 10x^2 + 25x)dx = \\frac{625}{12}$."],
-    ["Stationary points of $4(x^2 - 2)e^{-2x}$?", "$2 + x - x^2 = 0$: $(2, 8e^{-4})$, $(-1, -4e^2)$."],
-    ["Two tangents to $y = 8x - x^{5/2}$ at $O$ and $A(4, 0)$ meet at…", "$(2.4, 19.2)$; region area $\\frac{384}{35}$."]
+    ["Nature test when $f''(a) = 0$?", "Check the sign of $f'$ on either side of $a$.", 2],
+    ["$y = 2x^3 - 2x^2 - 2x + 8$ increasing where?", "$6x^2 - 4x - 2 > 0$: $x < -\\frac13$ or $x > 1$.", 3],
+    ["Tank: $\\pi r^2 h + \\frac23\\pi r^3 = 6$; surface area in $r$?", "$S = \\frac{12}{r} + \\frac53\\pi r^2$.", 4],
+    ["Minimise $C = \\frac{1500}{v} + \\frac{2v}{11} + 60$.", "$v^2 = 8250$, $v = 90.8$; $C'' = \\frac{3000}{v^3} > 0$.", 5],
+    ["Area between $y = x^3 - 10x^2 + 27x - 23$ and its tangent $y = 2x - 23$?", "$\\int_0^5 (x^3 - 10x^2 + 25x)dx = \\frac{625}{12}$.", 6],
+    ["Stationary points of $4(x^2 - 2)e^{-2x}$?", "$2 + x - x^2 = 0$: $(2, 8e^{-4})$, $(-1, -4e^2)$.", 7],
+    ["Two tangents to $y = 8x - x^{5/2}$ at $O$ and $A(4, 0)$ meet at…", "$(2.4, 19.2)$; region area $\\frac{384}{35}$.", 8]
   ],
   quiz: [
     { q: "Tangent to $y = x^2$ at $(3, 9)$:", opts: ["$y = 6x - 9$", "$y = 6x + 9$", "$y = 3x$", "$y = 9x - 18$"], ans: 0, why: "$m = 6$." },

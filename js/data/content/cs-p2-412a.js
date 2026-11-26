@@ -114,13 +114,13 @@ C["compsci:4.12.1.1"] = {
       q: "The functions add(x,y) = x + y, square(x) = x² and pred(x) = x − 1 are defined. The domain of square and pred is the set of integers ℤ and the domain of add is ℤ × ℤ. What is the co-domain of the pred function?",
       steps: [{ m: "(The set of) integers / ℤ — the same set as the domain;", mk: "1 mark", n: "Subtracting 1 from any integer gives an integer." }], result: "ℤ" } },
     { worked: { tag: "exam", title: "Co-domain of FunctionZ", src: "A-level June 2023 · P2 Q12.2 · 1 mark",
-      q: "FunctionZ [] = 0 and FunctionZ (x:xs) = x + 2 * FunctionZ (xs). All of the values in lists passed to FunctionZ are members of the set of integers. Which is the co-domain of the function? A the set of integers · B irrational numbers · C natural numbers · D rational numbers · E real numbers",
+      q: "Consider the function below:\n\n```hs\nFunctionZ [] = 0\nFunctionZ (x:xs) = x + 2 * FunctionZ (xs)\n```\n\nAll of the values in lists passed to `FunctionZ` are members of the set of integers. Which is the co-domain of the function?\n\n- **A** The set of integers\n- **B** Irrational numbers\n- **C** Natural numbers\n- **D** Rational numbers\n- **E** Real numbers",
       steps: [{ m: "Only + and × 2 are applied to integers, and the base case is 0, so every result is an integer — possibly negative, so not ℕ." }, { m: "A;", mk: "1 mark" }], result: "A — integers" } },
     { worked: { tag: "exam", title: "Describe the co-domain", src: "A-level June 2024 · P2 Q11.1 · 1 mark",
       q: "A functional programming function f has the function type f: ℕ → ℝ. Describe the co-domain of the function f.",
       steps: [{ m: "The set of real numbers — all possible real-world quantities / every number on the number line (rational and irrational);", mk: "1 mark", n: "NE. the symbol ℝ alone; TO. if another set is then described." }], result: "The set of real numbers" } },
     { worked: { tag: "exam", title: "Type of fibonacci", src: "A-level June 2025 · P2 Q11.2 · 1 mark",
-      q: "fibonacci 1 = 1, fibonacci 2 = 1, fibonacci n = fibonacci (n - 1) + fibonacci (n - 2) gives the nth term of 1, 1, 2, 3, 5, 8, … Which is the function type of fibonacci? A ℕ→ℕ · B ℚ→ℤ · C ℝ→ℤ · D ℤ→ℕ",
+      q: "Consider the function below, which gives the nth term of `1, 1, 2, 3, 5, 8, …`:\n\n```hs\nfibonacci 1 = 1\nfibonacci 2 = 1\nfibonacci n = fibonacci (n - 1) + fibonacci (n - 2)\n```\n\nWhich is the function type of `fibonacci`?\n\n- **A** `ℕ → ℕ`\n- **B** `ℚ → ℤ`\n- **C** `ℝ → ℤ`\n- **D** `ℤ → ℕ`",
       steps: [{ m: "The argument is a position (a natural number); every term is a positive whole number." }, { m: "A;", mk: "1 mark" }], result: "A — ℕ → ℕ" } },
 
     { page: "Exam toolkit" },
@@ -137,7 +137,6 @@ C["compsci:4.12.1.1"] = {
   flashcards: [
     ["What is a function's domain?", "The set from which a function's input values are chosen.", 1],
     ["What is a function's co-domain?", "The set from which output values are chosen; not every member need be output.", 2],
-    ["Type of add(x, y) on integers?", "ℤ × ℤ → ℤ.", 3],
     ["Co-domain of pred(x) = x − 1 on ℤ?", "ℤ.", 4],
     ["Describe the co-domain of f: ℕ → ℝ.", "The set of real numbers.", 6],
     ["Natural numbers in AQA?", "0, 1, 2, 3, … (0 included).", 7],
@@ -196,12 +195,12 @@ C["compsci:4.12.1.2"] = {
 
     { page: "In exam questions" },
     { worked: { tag: "exam", title: "True statements about fibonacci", src: "A-level June 2025 · P2 Q11.1 · 1 mark",
-      q: "fibonacci 1 = 1, fibonacci 2 = 1, fibonacci n = fibonacci (n - 1) + fibonacci (n - 2). Shade all of the statements that are true about the fibonacci function: A the function has one argument · B the function is a first-class object · C the function outputs a list · D the function uses a higher-order function",
+      q: "Consider the function below:\n\n```hs\nfibonacci 1 = 1\nfibonacci 2 = 1\nfibonacci n = fibonacci (n - 1) + fibonacci (n - 2)\n```\n\nShade all of the statements that are true about the `fibonacci` function:\n\n- **A** The function has one argument.\n- **B** The function is a first-class object.\n- **C** The function outputs a list.\n- **D** The function uses a higher-order function.",
       steps: [
         { m: "A true — one argument, n. B true — in a functional language every function is a first-class object. C false — it outputs a number. D false — it only calls itself and uses +, −." },
         { m: "A and B;", mk: "1 mark", n: "R. if the number of shaded lozenges is not two." }
       ], result: "A and B" } },
-    { worked: { tag: "variation", title: "Spot the first-class use", q: "Which lines use a function as a first-class object? (1) total = sum xs (2) result = map negate xs (3) inc = (+ 1) (4) n = length xs + 1 (5) makeMultiplier k = \\x -> k * x",
+    { worked: { tag: "variation", title: "Spot the first-class use", q: "Which lines use a function as a first-class object?\n\n```hs\n(1) total = sum xs\n(2) result = map negate xs\n(3) inc = (+ 1)\n(4) n = length xs + 1\n(5) makeMultiplier k = \\x -> k * x\n```",
       steps: [
         { m: "(2) negate is passed as an argument to map.", mk: "1" },
         { m: "(3) a function (+ 1) is assigned to the name inc.", mk: "1" },
@@ -225,7 +224,6 @@ C["compsci:4.12.1.2"] = {
     ["Name three first-class objects in most languages.", "Integers, floating-point values, characters, strings.", 1],
     ["Are functions first-class in a functional language?", "Yes — they can be passed as arguments, returned as results and assigned to names, like any other value.", 2],
     ["Can an imperative language have first-class functions?", "Yes — e.g. C# delegates and lambdas, Python and JavaScript all treat functions as values.", 3],
-    ["Why are higher-order functions possible?", "Because functions are first-class: they can be passed and returned.", 4],
     ["C# type for a function from int to int?", "Func<int, int>.", 6],
     ["How does first-class differ from higher-order?", "First-class describes a kind of value; higher-order describes a function that takes/returns functions.", 7]
   ],
@@ -284,12 +282,12 @@ C["compsci:4.12.1.3"] = {
 
     { page: "In exam questions" },
     { worked: { tag: "exam", title: "Calculate the shop results", src: "A-level June 2018 · P2 Q15.2 · 3 marks",
-      q: "fw [a,b] = a * b; fx c = map fw c; fy d = fold (+) 0 d; fz e = fy (fx e); sales = [[10,2], [2,25], [4,8]]. Calculate the results of the function calls fw [4,3], fx sales and fz sales.",
+      q: "Consider the definitions below:\n\n```hs\nfw [a,b] = a * b\nfx c = map fw c\nfy d = fold (+) 0 d\nfz e = fy (fx e)\nsales = [[10,2], [2,25], [4,8]]\n```\n\nCalculate the results of the function calls `fw [4,3]`, `fx sales` and `fz sales`.",
       steps: [
         { m: "fw [4,3] = 4 × 3 = 12;", mk: "1 mark" },
         { m: "fx sales = [20, 50, 32];", mk: "1 mark", n: "R. no brackets; R. each element in a separate list." },
         { m: "fz sales = 20 + 50 + 32 = 102;", mk: "1 mark" }
-      ], result: "12 · [20, 50, 32] · 102", try: [{ predict: { code: "int[][] sales = { new[] { 3, 5 }, new[] { 10, 4 }, new[] { 1, 7 } };\nFunc<int[], int> fw = p => p[0] * p[1];\nvar fx = sales.Select(fw).ToList();\nConsole.WriteLine(string.Join(\",\", fx));\nConsole.WriteLine(fx.Aggregate(0, (acc, x) => acc + x));", expect: "15,40,7\n62", cap: "**Your turn.** The same pipeline in C#: fw multiplies a pair, Select is map and Aggregate is fold. What does it print for these sales?" } }] } },
+      ], result: "12 · [20, 50, 32] · 102", try: [{ notesOnly: true, predict: { code: "int[][] sales = { new[] { 3, 5 }, new[] { 10, 4 }, new[] { 1, 7 } };\nFunc<int[], int> fw = p => p[0] * p[1];\nvar fx = sales.Select(fw).ToList();\nConsole.WriteLine(string.Join(\",\", fx));\nConsole.WriteLine(fx.Aggregate(0, (acc, x) => acc + x));", expect: "15,40,7\n62", cap: "**Your turn.** The same pipeline in C#: fw multiplies a pair, Select is map and Aggregate is fold. What does it print for these sales?" } }] } },
     { worked: { tag: "exam", title: "What fz sales represents", src: "A-level June 2018 · P2 Q15.3 · 1 mark",
       q: "In the shop program, each sublist of sales holds a price-and-quantity pair for the products sold in one day (e.g. [10,2] means 10 units priced at £2). In the context of the shop, explain what the result of the function call fz sales represents.",
       steps: [{ m: "The total value of the day's sales / the day's income or revenue for all products;", mk: "1 mark", n: "A. total profit as BOD; NE. \"sales\" or \"total sales\"." }], result: "The day's total revenue" } },
@@ -383,7 +381,7 @@ C["compsci:4.12.1.4"] = {
         { m: "add is applied to one of its arguments, e.g. 4 — that argument is fixed;", mk: "1 mark (AO1)" },
         { m: "The output of this application is a new function (e.g. add4), which takes one argument;", mk: "1 mark (AO1)" },
         { m: "The new function always adds 4 to its argument; applying it to 6 gives 10;", mk: "1 mark (AO2)", n: "Use the same value (4 or 6) throughout. An example alone, add4(x) = 4 + x, scores max 2 without a description." }
-      ], result: "add 4 → a new function x ↦ 4 + x; (add 4) 6 = 10", try: [{ predict: { code: "Func<int, Func<int, int>> add = x => y => x + y;\nvar add10 = add(10);\nConsole.WriteLine(add10(5));\nConsole.WriteLine(add(3)(add10(1)));", expect: "15\n14", cap: "**Your turn.** add is curried, so add(10) is a new function. What is printed?" } }] } },
+      ], result: "add 4 → a new function x ↦ 4 + x; (add 4) 6 = 10", try: [{ notesOnly: true, predict: { code: "Func<int, Func<int, int>> add = x => y => x + y;\nvar add10 = add(10);\nConsole.WriteLine(add10(5));\nConsole.WriteLine(add(3)(add10(1)));", expect: "15\n14", cap: "**Your turn.** add is curried, so add(10) is a new function. What is printed?" } }] } },
     { worked: { tag: "exam", title: "What partial application is", src: "A-level June 2025 · P2 Q11.4 · 2 marks",
       q: "Describe what partial function application is.",
       steps: [
@@ -477,15 +475,15 @@ C["compsci:4.12.1.5"] = {
     { page: "In exam questions" },
     { worked: { tag: "exam", title: "square ∘ pred applied to 3", src: "A-level June 2019 · P2 Q07.2 · 1 mark",
       q: "square(x) = x² and pred(x) = x − 1, both on the integers. What is the result of applying square ∘ pred to the argument 3?",
-      steps: [{ m: "pred first: pred(3) = 2; then square: square(2) = 4;" }, { m: "4;", mk: "1 mark" }], result: "4", try: [{ predict: { code: "Func<int, int> square = x => x * x;\nFunc<int, int> pred = x => x - 1;\nFunc<int, int> squareAfterPred = x => square(pred(x));   // square ∘ pred\nFunc<int, int> predAfterSquare = x => pred(square(x));   // pred ∘ square\nConsole.WriteLine(squareAfterPred(3));\nConsole.WriteLine(predAfterSquare(3));", expect: "4\n8", cap: "**Your turn.** Composition in C#, both orders: what does each line print?" } }] } },
+      steps: [{ m: "pred first: pred(3) = 2; then square: square(2) = 4;" }, { m: "4;", mk: "1 mark" }], result: "4", try: [{ notesOnly: true, predict: { code: "Func<int, int> square = x => x * x;\nFunc<int, int> pred = x => x - 1;\nFunc<int, int> squareAfterPred = x => square(pred(x));   // square ∘ pred\nFunc<int, int> predAfterSquare = x => pred(square(x));   // pred ∘ square\nConsole.WriteLine(squareAfterPred(3));\nConsole.WriteLine(predAfterSquare(3));", expect: "4\n8", cap: "**Your turn.** Composition in C#, both orders: what does each line print?" } }] } },
     { worked: { tag: "exam", title: "The purpose of fz", src: "A-level June 2022 · P2 Q12.4 · 1 mark",
-      q: "temps = [50, 68, 95, 86]; fu a = (a - 32) * 5 / 9; fv b = map fu b; fw [] = 0; fw (x:xs) = 1 + fw (xs); fx [] = 0; fx (x:xs) = x + fx (xs); fy c = fx (c) / fw (c); fz d = fy (fv (d)). Explain the purpose of the function fz.",
+      q: "Consider the definitions below:\n\n```hs\ntemps = [50, 68, 95, 86]\nfu a = (a - 32) * 5 / 9\nfv b = map fu b\nfw [] = 0\nfw (x:xs) = 1 + fw (xs)\nfx [] = 0\nfx (x:xs) = x + fx (xs)\nfy c = fx (c) / fw (c)\nfz d = fy (fv (d))\n```\n\nExplain the purpose of the function `fz`.",
       steps: [
         { m: "fu converts °F to °C; fv converts every item of a list; fw counts the items; fx sums them; fy divides the sum by the count — the mean." },
         { m: "fz calculates the average temperature in centigrade from a list of temperatures in Fahrenheit;", mk: "1 mark", n: "NE. \"calculates the average of a list of numbers\" — say centigrade from Fahrenheit." }
       ], result: "Mean temperature in °C" } },
     { worked: { tag: "exam", title: "A better composition", src: "A-level June 2022 · P2 Q12.5 · 1 mark",
-      q: "With the functions of the temperature program, it is proposed to change fz to fz d = fu (fy (d)). Explain why this new definition could be considered an improvement over fz d = fy (fv (d)).",
+      q: "With the functions of the temperature program, it is proposed to change `fz` to `fz d = fu (fy (d))`. Explain why this new definition could be considered an improvement over `fz d = fy (fv (d))`.",
       steps: [
         { m: "New: average the Fahrenheit values first, then convert once: fu (fy d) = fu 74.75 = 23.75 — the same answer, because the conversion is linear." },
         { m: "Only one conversion from Fahrenheit to centigrade is done (instead of one per temperature) / fv is no longer needed;", mk: "1 mark", n: "A. fewer calculations or function calls; NE. \"faster\" or \"more efficient\" alone." }

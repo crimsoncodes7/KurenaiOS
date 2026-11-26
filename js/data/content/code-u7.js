@@ -303,7 +303,7 @@
         { id: "f1", q: "Fill the gap so anyone can read Count but only the class can change it.", src: 'var b = new Basket();\nb.Add();\nb.Add();\nConsole.WriteLine(b.Count);\n\nclass Basket\n{\n    public int Count { get; @@ }\n    public void Add() => Count++;\n}', out: "2", concepts: ["encapsulation"] }
       ],
       bug: [
-        { id: "b1", q: "Area should follow Width: after setting Width to 5 it should print 25.", src: 'var sq = new Square { Width = 2 };\nsq.Width = 5;\nConsole.WriteLine(sq.Area);\n\nclass Square\n{\n    public int Width { get; set; }\n    public int Area { get; } = 0;\n}', out: "25", fixedText: "prints 25", why: "Make Area computed: public int Area => Width * Width;", concepts: ["properties"] }
+        { id: "b1", q: "Area should follow Width: after setting Width to 5 it should print 25.", src: 'var sq = new Square { Width = 2 };\nsq.Width = 5;\nConsole.WriteLine(sq.Area);\n\nclass Square\n{\n    public int Width { get; set; }\n    public int Area { get; } = 0;\n}', out: "25", fixedText: "prints 25", why: "Make Area computed: `public int Area => Width * Width;`", concepts: ["properties"] }
       ]
     },
     flashcards: [

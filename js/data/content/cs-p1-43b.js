@@ -87,7 +87,7 @@ C["compsci:4.3.4.1"] = {
       steps: [
         { h: "AO1 knowledge", m: "O(n);", mk: "1" },
         { h: "AO1 understanding", m: "As the size of the list increases, the time taken increases at the same rate // there is a loop that repeats n times;", mk: "1" }
-      ], result: "O(n) — time grows in proportion to n" , "try": [{"lab":"linear-search"}]} },
+      ], result: "O(n) — time grows in proportion to n" } },
     { worked: { tag: "exam", title: "Why O(n)?", src: "A-level June 2025 · P1 Q01.4 · 1 mark",
       q: "Explain why the linear search algorithm has time complexity of O(n).",
       steps: [{ m: "As the list increases in size, the maximum number of comparisons increases at the same rate;", mk: "1", n: "A. in the worst case n comparisons will be needed. NE. \"n comparisons are needed\" — it must be the WORST case/maximum." }],
@@ -183,14 +183,14 @@ C["compsci:4.3.4.2"] = {
 
     { page: "In exam questions" },
     { worked: { tag: "exam", title: "Hand-trace A(38, 0, 18)", src: "AS June 2022 · P1 Q01 · 5 marks",
-      q: "List = [2, 8, 12, 18, 25, 29, 36, 42, 49, 51, 57, 61, 68, 71, 79, 83, 84, 91, 97] (indices 0–18). SUBROUTINE A(S, X, Y): P ← −1; WHILE P = −1 AND X <= Y: Z ← (X + Y) DIV 2; IF List[Z] = S THEN P ← Z ELSE IF List[Z] < S THEN X ← Z + 1 ELSE Y ← Z − 1; ENDWHILE; RETURN P. Complete a table with columns S, X, Y, P, Z, List[Z] for Result ← A(38, 0, 18); the first row is S 38, X 0, Y 18, P −1.",
+      q: "`List = [2, 8, 12, 18, 25, 29, 36, 42, 49, 51, 57, 61, 68, 71, 79, 83, 84, 91, 97]` (indices `0`–`18`).\n\n```pseudo\nSUBROUTINE A(S, X, Y)\n  P ← −1\n  WHILE P = −1 AND X <= Y\n    Z ← (X + Y) DIV 2\n    IF List[Z] = S THEN\n      P ← Z\n    ELSE IF List[Z] < S THEN\n      X ← Z + 1\n    ELSE\n      Y ← Z − 1\n    ENDIF\n  ENDWHILE\n  RETURN P\nENDSUBROUTINE\n```\n\nComplete a trace table with columns `S`, `X`, `Y`, `P`, `Z` and `List[Z]` for `Result ← A(38, 0, 18)`; the first row is `S = 38`, `X = 0`, `Y = 18`, `P = −1`.",
       steps: [
         { m: "Z = 9, List[Z] = 51 → Y = 8;", mk: "1" },
         { m: "Z = 4, List[Z] = 25 → X = 5;", mk: "1" },
         { m: "Z = 6, List[Z] = 36 → X = 7;", mk: "1" },
         { m: "Z = 7, List[Z] = 42 → Y = 6 (loop ends: X > Y);", mk: "1" },
         { m: "Result: −1;", mk: "1", n: "One mark per correct set of values in sequence; A. values sharing a row. Max 4 if any errors." }
-      ], result: "Z 9, 4, 6, 7 → −1" , "try": [{"trace":{"code":"P ← −1\nWHILE P = −1 AND X <= Y\n  Z ← (X + Y) DIV 2\n  IF List[Z] = S THEN\n    P ← Z\n  ELSE IF List[Z] < S THEN\n    X ← Z + 1\n  ELSE\n    Y ← Z − 1\n  ENDIF\nENDWHILE\nRETURN P","lang":"pseudo","cols":["S","X","Y","P","Z","List[Z]"],"rows":[["68","0","18","-1","",""],["68","10","18","-1","9","51"],["68","10","13","-1","14","79"],["68","12","13","-1","11","61"],["68","12","13","12","12","68"]],"given":[[0,0],[0,1],[0,2],[0,3],[0,4],[0,5],[1,0],[2,0],[3,0],[4,0]],"cap":"Now A(68, 0, 18) on the same list. One row per pass of the loop, every cell filled with the values at the end of the pass."}},{"lab":"binary-search"}]} },
+      ], result: "Z 9, 4, 6, 7 → −1" , "try": [{"notesOnly":true,"trace":{"code":"P ← −1\nWHILE P = −1 AND X <= Y\n  Z ← (X + Y) DIV 2\n  IF List[Z] = S THEN\n    P ← Z\n  ELSE IF List[Z] < S THEN\n    X ← Z + 1\n  ELSE\n    Y ← Z − 1\n  ENDIF\nENDWHILE\nRETURN P","lang":"pseudo","cols":["S","X","Y","P","Z","List[Z]"],"rows":[["68","0","18","-1","",""],["68","10","18","-1","9","51"],["68","10","13","-1","14","79"],["68","12","13","-1","11","61"],["68","12","13","12","12","68"]],"given":[[0,0],[0,1],[0,2],[0,3],[0,4],[0,5],[1,0],[2,0],[3,0],[4,0]],"cap":"Now A(68, 0, 18) on the same list. One row per pass of the loop, every cell filled with the values at the end of the pass."}}]} },
     { worked: { tag: "exam", title: "Complexity of binary search", src: "A-level June 2020 · P1 Q03.7 · 2 marks",
       q: "From O(1), O(nᵏ), O(kⁿ), O(n), O(log n) and O(n log n), state which is the time complexity of the binary search algorithm and explain why it has that time complexity.",
       steps: [
@@ -206,7 +206,7 @@ C["compsci:4.3.4.2"] = {
     { worked: { tag: "exam", title: "Why O(log n), 2025", src: "A-level June 2025 · P1 Q01.5 · 1 mark",
       q: "Explain why the binary search algorithm has time complexity of O(log n).",
       steps: [{ m: "As the list increases in size the maximum number of comparisons increases at a decreasing rate // each comparison halves the number of items still to be considered;", mk: "1" }],
-      result: "Max comparisons grow at a decreasing rate" , "try": [{"grid":{"cols":["n","Linear search (max)","Binary search (max)"],"rows":[["8","8","4"],["16","16","5"],["1024","1024","11"],["1000000","1000000","20"]],"given":[[0,0],[1,0],[2,0],[3,0]],"cap":"The most comparisons each search can need on a sorted list of n items. (Binary: ⌊log₂ n⌋ + 1.)"}}]} },
+      result: "Max comparisons grow at a decreasing rate" , "try": [{"notesOnly":true,"grid":{"cols":["n","Linear search (max)","Binary search (max)"],"rows":[["8","8","4"],["16","16","5"],["1024","1024","11"],["1000000","1000000","20"]],"given":[[0,0],[1,0],[2,0],[3,0]],"cap":"The most comparisons each search can need on a sorted list of n items. (Binary: ⌊log₂ n⌋ + 1.)"}}]} },
 
     { page: "Exam toolkit" },
     { steps: [
@@ -306,7 +306,7 @@ C["compsci:4.3.4.3"] = {
 
     { page: "In exam questions" },
     { worked: { tag: "exam", title: "Fill the gaps in BTS", src: "A-level June 2023 · P1 Q03.2 · 4 marks",
-      q: "A binary tree is stored as an array of records Tree with fields Data, Left and Right: [0] (6, 1, 4), [1] (3, 2, 3), [2] (1, −1, −1), [3] (4, −1, −1), [4] (9, −1, −1). SUBROUTINE BTS(k): Current ← __1__; WHILE Current > __2__: IF Tree[Current].Data = k THEN RETURN __3__; ELSEIF Tree[Current].Data < k THEN __4__; ELSE __5__; ENDIF; ENDWHILE; RETURN __6__. State what each label should be replaced by.",
+      q: "A binary tree is stored as an array of records `Tree` with fields `Data`, `Left` and `Right`:\n\n| Index | `Data` | `Left` | `Right` |\n|---|---|---|---|\n| `0` | 6 | 1 | 4 |\n| `1` | 3 | 2 | 3 |\n| `2` | 1 | −1 | −1 |\n| `3` | 4 | −1 | −1 |\n| `4` | 9 | −1 | −1 |\n\n```pseudo\nSUBROUTINE BTS(k)\n  Current ← __1__\n  WHILE Current > __2__\n    IF Tree[Current].Data = k THEN\n      RETURN __3__\n    ELSEIF Tree[Current].Data < k THEN\n      __4__\n    ELSE\n      __5__\n    ENDIF\n  ENDWHILE\n  RETURN __6__\nENDSUBROUTINE\n```\n\nState what each label (`__1__`–`__6__`) should be replaced by.",
       steps: [
         { m: "Row 1: 0;", mk: "1", n: "The root's index." },
         { m: "Row 2: −1;", mk: "1" },

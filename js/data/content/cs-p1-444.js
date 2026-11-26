@@ -316,14 +316,14 @@ C["compsci:4.4.4.3"] = {
       "A loop that halves or doubles its control variable is O(log n).",
       "Keep the dominant term; drop constants and lower terms."
     ] },
-    { worked: { tag: "variation", title: "Derive the complexity", q: "Give the time complexity of: (a) for i in 1..n: for j in 1..10: x++; (b) for i in 1..n: for j in 1..n: for k in 1..n: x++; (c) a loop for i in 1..n followed by a separate loop for j in 1..n; (d) while n > 1: n ← n DIV 2.",
+    { worked: { tag: "variation", title: "Derive the complexity", q: "Give the time complexity of:\n\n- **(a)** `for i in 1..n: for j in 1..10: x++`\n- **(b)** `for i in 1..n: for j in 1..n: for k in 1..n: x++`\n- **(c)** a loop for `i` in `1..n` followed by a separate loop for `j` in `1..n`\n- **(d)** `while n > 1: n ← n DIV 2`",
       steps: [
         { m: "(a) 10n → O(n) — the inner loop is a constant 10.", mk: "1" },
         { m: "(b) n³ → O(n³), polynomial.", mk: "1" },
         { m: "(c) n + n = 2n → O(n) — sequential loops add.", mk: "1" },
         { m: "(d) O(log n) — n halves each time.", mk: "1" }
       ], result: "O(n) · O(n³) · O(n) · O(log n)" , "try": [{"predict":{"code":"int n = 16;\nint a = 0, b = 0, c = 0, d = 0;\nfor (int i = 1; i <= n; i++) for (int j = 1; j <= 10; j++) a++;\nfor (int i = 1; i <= n; i++) for (int j = 1; j <= n; j++) for (int k = 1; k <= n; k++) b++;\nfor (int i = 1; i <= n; i++) c++;\nfor (int j = 1; j <= n; j++) c++;\nint m = n;\nwhile (m > 1) { m = m / 2; d++; }\nConsole.WriteLine(a + \" \" + b + \" \" + c + \" \" + d);","expect":"160 4096 32 4","cap":"The four fragments in C#, counting their steps for n = 16."}}]} },
-    { worked: { tag: "variation", title: "A loop inside a halving loop", q: "What is the time complexity of: for (int i = 0; i < n; i++) for (int j = 1; j < n; j *= 2) count++; ?",
+    { worked: { tag: "variation", title: "A loop inside a halving loop", q: "What is the time complexity of the following code?\n\n```cs\nfor (int i = 0; i < n; i++)\n    for (int j = 1; j < n; j *= 2)\n        count++;\n```",
       steps: [
         { m: "The outer loop runs n times.", mk: "1" },
         { m: "The inner loop doubles j each time, so it runs about log₂ n times.", mk: "1" },

@@ -149,7 +149,7 @@
       r.forEach(function (exp, ci) {
         /* a value is mono and centred; a sentence (an IT problem to classify) reads as prose */
         if (given[ri + "," + ci]) { var prose = String(exp).length > 24 && /\s/.test(String(exp)); tr.appendChild(el("span", { class: "k-fill-cell" + (prose ? "" : " k-mono"), role: "cell", "data-state": "given", "data-kind": prose ? "prose" : null, text: String(exp) })); return; }
-        var inp = el("input", { class: "k-fill-cell k-fill-in k-mono", type: "text", autocomplete: "off", spellcheck: "false",
+        var inp = el("input", { class: "k-fill-cell k-fill-in k-mono", type: "text", size: "4", autocomplete: "off", spellcheck: "false",
           "aria-label": "Row " + (ri + 1) + ", " + String(cols[ci] || "column " + (ci + 1)).replace(/\$/g, "") });
         inp.addEventListener("input", function () { inp.removeAttribute("data-state"); });
         inputs.push({ inp: inp, r: ri, c: ci, exp: exp });
@@ -189,7 +189,10 @@
       el("span", { class: "k-fill-gap" }),
       el("button", { type: "button", class: "k-btn k-btn--sm k-btn--primary", "data-ui": "fill.check", text: "Check", onclick: check })
     ]);
-    var body = spec.code ? el("div", { class: "k-fill-split" }, [code(spec.code, spec.lang), tbl]) : tbl;
+    var tblWrap = el("div", { class: "k-fill-scroll", "data-scroller": "true" }, [tbl]);
+    var body = spec.code
+      ? el("div", { class: "k-fill-split", "data-wide": cols.length >= 5 ? "" : null }, [code(spec.code, spec.lang), tblWrap])
+      : tblWrap;
     return shell(spec.code ? "trace" : "grid", [body, acts, out], spec.cap);
   }
 

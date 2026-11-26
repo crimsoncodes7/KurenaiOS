@@ -143,7 +143,7 @@ C["maths:1.1"] = {
         { m: "$(3k + 2)^2 = 9k^2 + 12k + 4 = 3(3k^2 + 4k + 1) + 1$ — one more than a multiple of 3\nThese three forms cover every natural number, so the result holds.", mk: "A1", n: "The $+4$ splits as $3 + 1$. Conclusion sentence required." }
       ], result: "$3k^2$, $3(\\ldots) + 1$, $3(\\ldots) + 1$" } },
     { worked: { tag: "exam", title: "Correct an error and complete a mod-5 proof", src: "A-level June 2025 · P1 Q8 · 5 marks",
-      q: "A student proves that the square of any number is of the form $5n$ or $5n \\pm 1$. Their work: $m = 5k$: $m^2 = 25k^2 = 5(5k^2)$. $m = 5k + 1$: $m^2 = 25k^2 + 10k + 1 = 5(5k^2 + 2k) + 1$. $m = 5k + 2$: $m^2 = 25k^2 + 10k + 4 = 5(5k^2 + 2k + 1) - 1$. **(a)** Identify and correct an algebraic error. **(b)** Show the calculations and statements required to complete the proof.",
+      q: "A student proves that the square of any number is of the form $5n$ or $5n \\pm 1$. Their work:\n\n- $m = 5k$: $m^2 = 25k^2 = 5(5k^2)$\n- $m = 5k + 1$: $m^2 = 25k^2 + 10k + 1 = 5(5k^2 + 2k) + 1$\n- $m = 5k + 2$: $m^2 = 25k^2 + 10k + 4 = 5(5k^2 + 2k + 1) - 1$\n\n**(a)** Identify and correct an algebraic error. **(b)** Show the calculations and statements required to complete the proof.",
       steps: [
         { h: "(a)", m: "$(5k + 2)^2 = 25k^2 + 20k + 4$, not $10k$. Correct: $25k^2 + 20k + 4 = 5(5k^2 + 4k + 1) - 1$.", mk: "B1", n: "$2 \\times 5k \\times 2 = 20k$." },
         { h: "(b) Remaining cases", m: "$m = 5k + 3$: $m^2 = 25k^2 + 30k + 9 = 5(5k^2 + 6k + 2) - 1$\n$m = 5k + 4$: $m^2 = 25k^2 + 40k + 16 = 5(5k^2 + 8k + 3) + 1$", mk: "M1 A1 A1", n: "$9 = 10 - 1$; $16 = 15 + 1$." },

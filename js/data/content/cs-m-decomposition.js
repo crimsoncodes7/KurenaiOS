@@ -46,12 +46,10 @@ C["compsci:4.4.1.9"] = {
     {"callout":{"t":"tip","body":"Pair it with the AS 2024 *structured approach* question — the same decomposition gives an overview of the program, lets modules be tested independently, distributed among a team and reused."}}
   ],
   flashcards: [
-    ["Three mark points for decomposition?","Smaller sub-problems; each an identifiable task; each may be subdivided.","compsci:4.4.1.9:1"],
     ["How does decomposition differ from composition?","Splitting vs combining.","compsci:4.4.1.9:4"],
     ["Give one benefit of decomposition.","Smaller parts are easier to solve, test and share in a team.","compsci:4.4.1.9:5"],
     ["Each leaf of a decomposition becomes…?","A subroutine (module).","compsci:4.4.1.9:7"],
     ["Define decomposition.","Breaking a problem into smaller sub-problems, each of which solves an identifiable task and may itself be further subdivided.","compsci:4.4.1.9:8"],
-    ["What is procedural decomposition?","Decomposing a program into subroutines (procedures/functions), each performing one identifiable task.","compsci:4.4.1.9:9"],
     ["When does decomposition stop?","When each sub-problem performs a single task that can be solved directly.","compsci:4.4.1.9:10"],
     ["What diagram shows a decomposition?","A hierarchy (structure) chart.","compsci:4.4.1.9:12"],
     ["Decompose 'produce a report of exam results'.","Read the results; calculate statistics; sort; format the output; print/save.","compsci:4.4.1.9:14"],

@@ -468,12 +468,11 @@
       { table: { head: ["Smell", "Fix"], rows: [["d, f, x2", "Rename"], ["0.25m in a formula", "Introduce Constant"], ["// what the next line does", "Extract Method with that name"]] } }
     ],
     flashcards: [
-      ["How should a boolean be named?", "As a question: isLate, hasGrace, canRenew."],
-      ["What is a magic number?", "A literal with an unexplained meaning; name it as a constant."],
-      ["What should a comment explain?", "Why — not what the code already says."],
-      ["What is a guard clause?", "An early return or throw for a special case, before the main path."],
-      ["Why avoid boolean flag parameters?", "The call site (Calculate(loan, true)) does not say what true means; split the method."],
-      ["Why keep compiler warnings at zero?", "Each is a possible bug; among many, the important one is missed."]
+      ["How should a boolean be named?", "As a question: isLate, hasGrace, canRenew.", 0],
+      ["What is a magic number?", "A literal with an unexplained meaning; name it as a constant.", 1],
+      ["What should a comment explain?", "Why — not what the code already says.", 2],
+      ["Why avoid boolean flag parameters?", "The call site (Calculate(loan, true)) does not say what true means; split the method.", 4],
+      ["Why keep compiler warnings at zero?", "Each is a possible bug; among many, the important one is missed.", 5]
     ],
     quiz: [
       { q: "The best name for an int holding how many days a loan is overdue:", opts: ["d", "x", "daysLate", "Days_late_int"], ans: 2, why: "Says what it is, in camelCase." },

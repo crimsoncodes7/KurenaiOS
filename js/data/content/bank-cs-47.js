@@ -37,16 +37,9 @@ X("compsci:4.7.1.1", {
     { q: "'A wider data bus transfers data faster' scores:", opts: ["1 — it names the right effect", "0 — say more bits per transfer", "2 — it gives cause and effect", "half — it needs an example"], ans: 1, why: "NE per mark scheme." }
   ],
   exam: [
-    { src: "AQA 2024 · P2 Q03", ctx: "A computer has a 36-bit address bus, a 16-bit data bus and 16-bit memory words.",
-      parts: [
-        { q: "Calculate the maximum amount of memory, in gibibytes, that can be directly addressed.", marks: 2, ms: ["2³⁶ words × 16 bits ÷ 8 = 2³⁷ bytes (1)", "÷ 1024³ = 128 GiB (1)"] },
-        { q: "State how the control bus is used when the processor writes a value to main memory.", marks: 1, ms: ["It carries the write signal telling memory to store the value on the data bus at the address on the address bus (1)"] },
-        { q: "Describe two roles of an I/O controller.", marks: 2, ms: ["Allows the processor to communicate with a peripheral through a port / makes the peripheral appear as registers or memory locations (1)", "Translates signals or voltages between processor and device / buffers data / allows new peripherals without redesigning the processor / generates an interrupt when data is ready (1)"] },
-        { q: "Explain why buses inside the computer are parallel while peripherals are usually connected serially.", marks: 3, ms: ["Internal components are close together at fixed positions and exchange large volumes of data, whereas peripherals are further away and may be moved (1)", "Parallel buses transmit many bits simultaneously (1)", "Serial connections avoid data skew and crosstalk, allow a higher clock rate on one wire, and cheaper, longer, more flexible cables (1)"] }
-      ] },
-    { level: "AS", src: "AQA 2019 · P2 Q07", q: "Describe how the address bus, data bus and control bus are used when the processor writes a value to a main memory location.", marks: 4,
+    { qk: "16", level: "AS", src: "AQA 2019 · P2 Q07", q: "Describe how the address bus, data bus and control bus are used when the processor writes a value to a main memory location.", marks: 4,
       ms: ["The address of the location is placed on the address bus (1)", "The value to be stored is placed on the data bus (1)", "A write signal is sent along the control bus (1)", "Memory stores the value from the data bus at the addressed location; the data bus is bidirectional so it can also carry values back on a read (1)"] },
-    { level: "AS", src: "AQA 2022 · P2 Q08.5", q: "A computer can address 4 GiB of memory. State which bus would need to be widened, and by how many lines, to allow 16 GiB to be addressed.", marks: 2,
+    { qk: "17", level: "AS", src: "AQA 2022 · P2 Q08.5", q: "A computer can address 4 GiB of memory. State which bus would need to be widened, and by how many lines, to allow 16 GiB to be addressed.", marks: 2,
       ms: ["The address bus (1)", "By 2 lines (each extra line doubles the addressable memory) (1)"] }
   ]
 });
@@ -193,7 +186,6 @@ X("compsci:4.7.3.3", {
     ["What are the two parts of a machine code instruction?", "The opcode (the operation to perform, including addressing-mode bits) and the operand(s) (the data, register number or address to use).", 10],
     ["A 6-bit opcode field supports how many operations?", "2⁶ = 64.", 11],
     ["A 10-bit operand with direct addressing can address how many locations?", "2¹⁰ = 1024.", 12],
-    ["Why is a compiled executable processor-specific?", "It is machine code using the instruction set of the processor it was compiled for, and different processors have different instruction sets.", 14],
     ["How does the processor know whether an operand is data or an address?", "From the addressing-mode bits in the opcode.", 16]
   ],
   quiz: [
@@ -348,9 +340,7 @@ X("compsci:4.7.3.7", {
     ["When does a higher clock speed NOT help much?", "When the task can be parallelised and a processor with more cores could split it — or when the bottleneck is memory/disk.", 11],
     ["How do more cores improve performance?", "Multiple instructions / processes execute simultaneously — provided the software is written to use parallel processing.", 12],
     ["What is cache memory?", "Very fast memory on or close to the processor storing the most frequently or recently used instructions and data.", 13],
-    ["How does more cache improve performance?", "More items fit, so the probability of a cache hit rises and fewer slow fetches from main memory are needed.", 14],
     ["How does word length affect performance?", "A larger word means more bits are processed or transferred in a single operation.", 15],
-    ["How does data bus width affect performance?", "More bits move between memory and processor per transfer, so fewer transfers are needed.", 16],
     ["How does address bus width affect performance?", "More memory can be addressed / installed, reducing reliance on slower virtual memory.", 17],
     ["What is pipelining?", "Overlapping the fetch, decode and execute stages of successive instructions so the processor does not idle between stages.", 18],
     ["Why do more general-purpose registers help?", "Intermediate values stay inside the processor instead of being written to and read from main memory.", 19]
@@ -393,9 +383,7 @@ X("compsci:4.7.4.1", {
     ["Why are passive RFID tags used in passports?", "No battery to replace; smaller and cheaper; readable only at very short range, so harder to intercept.", 11],
     ["Give two advantages of RFID over barcodes for a warehouse.", "Tags can be read without line of sight / while items stay on the pallet; many tags read at a distance and quickly without manual scanning; tags are less easily damaged.", 12],
     ["Give two advantages of barcodes over RFID.", "Much cheaper per item; readable with existing checkout scanners; human-readable digits as a backup; no radio interference.", 13],
-    ["Describe how a barcode reader works.", "A laser or LED lights the code; black bars reflect less light than white spaces; a photodiode measures the reflections and the pattern is decoded to digits, verified by a check digit.", 14],
     ["Describe how a digital camera captures an image.", "The lens focuses light on a CCD/CMOS sensor; each photosensor, behind a red, green or blue filter, gives a voltage proportional to the light; an ADC turns it into a binary pixel value.", 15],
-    ["Describe how a laser printer prints.", "The page is built as a bitmap; the drum is charged; a laser discharges it where the image is; toner sticks to those areas and transfers to the paper; a heated fuser bonds it.", 16],
     ["Why might a laser printer suit a small office?", "Low cost per page, fast printing, toner does not dry out, high-resolution text; with a wireless adapter it is easily shared by all devices.", 17]
   ],
   quiz: [
@@ -407,20 +395,10 @@ X("compsci:4.7.4.1", {
     { q: "A barcode differs from an RFID tag because a barcode:", opts: ["needs line of sight to be read", "can be read through a box", "has its own power supply", "can be rewritten by the reader"], ans: 0, why: "It is read by reflected light." }
   ],
   exam: [
-    { level: "AS", src: "AQA 2024 · P2 Q09", ctx: "A passport contains a passive RFID tag storing the holder's details.",
-      parts: [
-        { q: "Describe how data is read from the RFID tag.", marks: 3, ms: ["The RFID reader emits radio waves (1)", "The waves induce sufficient power in the tag's antenna to activate the tag / the data is stored on the tag's chip (1)", "The tag transmits its data back to the reader by radio waves, which the reader converts to binary (1)"] },
-        { q: "Explain why passive tags rather than active tags are used in passports.", marks: 2, ms: ["Passive tags are smaller / cheaper / have no battery to charge or replace during the passport's ten-year life (1)", "They can only be read close to the reader, so the data is harder to intercept — a security benefit (1)"] }
-      ] },
-    { src: "AQA 2021 · P2 Q07.2", q: "Describe the principles of operation of a laser printer.", marks: 6,
+    { qk: "11", src: "AQA 2021 · P2 Q07.2", q: "Describe the principles of operation of a laser printer.", marks: 6,
       ms: ["A bitmap of the page is built in the printer's memory from the page description (1)", "The photosensitive drum is given a (negative) charge (1)", "A laser, directed by a rotating mirror, is switched on and off across the drum, neutralising the charge where the image should be dark (1)", "Toner is charged and sticks to the drum only where the laser has struck (1)", "Paper passes over the drum and the toner transfers to it, helped by a charged transfer roller (1)", "A heated fuser bonds the toner to the paper; colour printing repeats the process with four toners / drums (1)"] },
-    { level: "AS", src: "AQA 2025 · P2 Q11.1", q: "Describe the principles of operation of a digital camera.", marks: 3,
-      ms: ["Light passes through the lens onto an array of photosensors (CCD / CMOS) (1)", "Each sensor outputs an analogue voltage proportional to the brightness of the light falling on it; red, green and blue filters give the colour components (1)", "An analogue-to-digital converter converts each voltage to a binary value, forming the pixels of a bitmap (1)"] },
-    { src: "AQA 2020 · P2 Q08", ctx: "A supermarket chain uses RFID tags in its warehouses but barcodes on products in its stores.",
-      parts: [
-        { q: "Explain why RFID is more suitable than barcodes for identifying stock arriving at a warehouse.", marks: 2, ms: ["Many products arrive together on pallets and must be identified quickly (1)", "RFID tags can be read without removing products from the pallet / without line of sight / at a distance / many at once / without manual scanning / are less easily damaged (1)"] },
-        { q: "Explain why barcodes remain more suitable for products in the store.", marks: 2, ms: ["Barcodes are far cheaper than tags / produce no electronic waste / can be read by existing checkout scanners / include human-readable digits as a backup (1)", "The extra cost of tagging every item would be passed on in prices / a nearby product cannot be scanned accidentally (1)"] }
-      ] }
+    { qk: "12", level: "AS", src: "AQA 2025 · P2 Q11.1", q: "Describe the principles of operation of a digital camera.", marks: 3,
+      ms: ["Light passes through the lens onto an array of photosensors (CCD / CMOS) (1)", "Each sensor outputs an analogue voltage proportional to the brightness of the light falling on it; red, green and blue filters give the colour components (1)", "An analogue-to-digital converter converts each voltage to a binary value, forming the pixels of a bitmap (1)"] }
   ]
 });
 
@@ -442,7 +420,6 @@ X("compsci:4.7.4.2", {
     ["Describe how a hard disk stores and reads data.", "Data sits in tracks and sectors on spinning magnetisable platters; the head moves to the track and magnetises spots one of two ways for 0 and 1, reading by sensing the field.", 13],
     ["Describe how an optical disk is read.", "A low-power laser shines on a spiral track of pits and lands; a photodiode measures the reflection; a change between pit and land scatters the light and reads as 1, no change as 0.", 14],
     ["Describe how an SSD stores data.", "NAND flash: floating-gate transistors trap electrons (or not) to store bits, with no moving parts; data is in pages and blocks, a block is erased before rewriting, and a controller manages it.", 15],
-    ["Give two advantages of SSDs over hard disks.", "Faster access / transfer; lower power; more robust (no moving parts); smaller; quieter; less heat.", 16],
     ["Give two disadvantages of SSDs.", "Higher cost per gigabyte; cells degrade after many write cycles (rising error rate).", 17],
     ["Why might a laptop have both an SSD and a hard disk?", "SSD for the OS and programs that need speed; hard disk for large files because it is cheaper per gigabyte.", 18],
     ["Why are optical drives disappearing?", "Flash storage and SSDs have greater capacity and speed and are more compact and robust; content is downloaded, streamed or stored in the cloud.", 19],
@@ -459,19 +436,9 @@ X("compsci:4.7.4.2", {
     { q: "Optical disks spin at:", opts: ["constant angular velocity", "constant linear velocity", "random speed", "the clock speed"], ans: 1, why: "Track passes the laser at a constant rate." }
   ],
   exam: [
-    { src: "AQA 2025 · P2 Q03", ctx: "Optical disks were once the main way of distributing software and video.",
-      parts: [
-        { q: "Describe the principles of operation of an optical disk drive, including how data is represented and how it is read.", marks: 6, ms: ["Data is stored on a single spiral track as pits and lands (1)", "A low-power laser beam is shone at and focused on a spot on the track (1)", "Light is reflected back from the disk and its intensity measured by a light sensor / photodiode (1)", "A continuation of pit or land reflects light whereas a transition between them scatters it (1)", "A transition represents a 1 and a continuation a 0 (accept land = 1, pit = 0 or vice versa) (1)", "The disk spins at constant linear velocity and the head moves in/out along the track (1)"] },
-        { q: "Explain two reasons why optical disk drives are no longer fitted to most computers.", marks: 2, ms: ["Other devices (SSDs, flash drives) have higher capacity, faster access, are more compact and robust, and integrate drive and medium (1)", "Software and video are now downloaded or streamed and backups made to the cloud, so less content is available on optical disk (1)"] }
-      ] },
-    { src: "AQA 2022 · P2 Q13", ctx: "A desktop computer is fitted with a solid-state drive.",
-      parts: [
-        { q: "Explain why the computer needs secondary storage at all.", marks: 2, ms: ["To store programs and data while the computer is turned off (1)", "Because the contents of RAM are lost when the power is off / to hold data sets too large for RAM (1)"] },
-        { q: "Describe the principles of operation of a solid-state drive.", marks: 4, ms: ["Data is stored electronically with no moving parts, in floating-gate transistors (NAND flash) that keep their state without power (1)", "The presence or absence of trapped charge / electrons represents a 1 or a 0 (1)", "Data is organised into pages and blocks; a whole block must be erased before it can be rewritten (1)", "A controller manages the organisation, reading and writing of the data (1)"] }
-      ] },
-    { src: "AQA 2024 · P2 Q05.2", q: "State one advantage and one disadvantage of using an SSD rather than a hard disk drive.", marks: 2,
+    { qk: "15", src: "AQA 2024 · P2 Q05.2", q: "State one advantage and one disadvantage of using an SSD rather than a hard disk drive.", marks: 2,
       ms: ["Advantage: faster access / transfer times; lower power consumption; smaller; no moving parts so more robust and less heat (1)", "Disadvantage: higher cost per gigabyte; cells wear out — higher error rate over time (1)"] },
-    { level: "AS", src: "AQA 2019 · P2 Q08.1", q: "Explain why a computer might be fitted with both a hard disk drive and a solid-state drive.", marks: 2,
+    { qk: "16", level: "AS", src: "AQA 2019 · P2 Q08.1", q: "Explain why a computer might be fitted with both a hard disk drive and a solid-state drive.", marks: 2,
       ms: ["The SSD gives fast access for the operating system and frequently used programs (1)", "The hard disk is cheaper per unit of storage, so large files are stored there (1)"] }
   ]
 });

@@ -18,22 +18,20 @@ X("compsci:4.2.1.1", {
     ]}}
   ],
   flashcards: [
-    ["State two advantages of a dynamic data structure over a static one.", "No wasted memory — only what the data needs; it can grow as more items are added, with no fixed limit except hardware."],
-    ["State two disadvantages of a dynamic data structure.", "Extra memory for pointers; risk of memory leaks if freed memory is not returned to the heap; direct access to an item can take longer."],
-    ["When is a static structure's size decided?", "At compile time / before the program runs / when the code is translated."],
-    ["Why can a static structure waste memory?", "If the number of items stored is small relative to the declared size, the unused slots are still allocated."],
-    ["What is a memory leak?", "Memory allocated dynamically that is no longer needed but never returned to the heap, so it cannot be reused."],
-    ["Where in memory do dynamic structures get their nodes?", "The heap, allocated at run time as items are added."],
-    ["Why is direct access slower in a dynamic structure?", "Nodes are not in consecutive locations, so the structure must be traversed via pointers to reach an item."],
-    ["Which structures does the specification list as abstract data types?", "Queue, stack, graph, tree, hash table, dictionary, vector (plus arrays, records and files as concrete structures)."]
+    ["State two advantages of a dynamic data structure over a static one.", "No wasted memory — only what the data needs; it can grow as more items are added, with no fixed limit except hardware.", 9],
+    ["When is a static structure's size decided?", "At compile time / before the program runs / when the code is translated.", 11],
+    ["Why can a static structure waste memory?", "If the number of items stored is small relative to the declared size, the unused slots are still allocated.", 12],
+    ["What is a memory leak?", "Memory allocated dynamically that is no longer needed but never returned to the heap, so it cannot be reused.", 13],
+    ["Where in memory do dynamic structures get their nodes?", "The heap, allocated at run time as items are added.", 14],
+    ["Why is direct access slower in a dynamic structure?", "Nodes are not in consecutive locations, so the structure must be traversed via pointers to reach an item.", 15],
+    ["Which structures does the specification list as abstract data types?", "Queue, stack, graph, tree, hash table, dictionary, vector (plus arrays, records and files as concrete structures).", 16]
   ],
   quiz: [
-    { q: "Which statement about a static data structure is correct?", opts: ["Its size can change while the program runs", "Its size is fixed before the program runs", "It always uses pointers to link its items", "It is stored on the heap and grows as needed"], ans: 1, why: "Static = size fixed at compile time; storage is usually a contiguous block." },
-    { q: "A disadvantage of dynamic structures accepted by examiners is:", opts: ["they cannot store strings", "extra memory is needed for pointers", "they are always slower to insert into", "they cannot be searched"], ans: 1, why: "Each node carries pointer(s) — real overhead." },
-    { q: "'Dynamic structures use pointers' scores nothing because:", opts: ["it is false — dynamic structures never use pointers", "it does not say what the pointers cost — memory to store them", "pointers are static, so they cannot belong to dynamic structures", "the examiners dislike the word pointer in any answer"], ans: 1, why: "The mark scheme marks it NE — not enough — without the memory cost." },
-    { q: "A structure that allocates all its storage at creation even if unused until later is:", opts: ["dynamic", "static", "recursive", "hashed"], ans: 1, why: "Static allocation happens up front." },
-    { q: "Memory leaks are a risk in:", opts: ["static arrays whose size is fixed before the program runs", "dynamic structures whose freed nodes are not returned to the heap", "constants that are declared but never used in the program", "registers that are not cleared when a subroutine returns"], ans: 1, why: "Un-returned heap memory accumulates." },
-    { q: "Which is typically stored in consecutive memory locations?", opts: ["A linked list", "A static array", "A binary tree of nodes", "A hash chain"], ans: 1, why: "Contiguity is what gives arrays O(1) indexed access." }
+    { oi: 5, q: "A disadvantage of dynamic structures accepted by examiners is:", opts: ["they cannot store strings", "extra memory is needed for pointers", "they are always slower to insert into", "they cannot be searched"], ans: 1, why: "Each node carries pointer(s) — real overhead." },
+    { oi: 6, q: "'Dynamic structures use pointers' scores nothing because:", opts: ["it is false — dynamic structures never use pointers", "it does not say what the pointers cost — memory to store them", "pointers are static, so they cannot belong to dynamic structures", "the examiners dislike the word pointer in any answer"], ans: 1, why: "The mark scheme marks it NE — not enough — without the memory cost." },
+    { oi: 7, q: "A structure that allocates all its storage at creation even if unused until later is:", opts: ["dynamic", "static", "recursive", "hashed"], ans: 1, why: "Static allocation happens up front." },
+    { oi: 8, q: "Memory leaks are a risk in:", opts: ["static arrays whose size is fixed before the program runs", "dynamic structures whose freed nodes are not returned to the heap", "constants that are declared but never used in the program", "registers that are not cleared when a subroutine returns"], ans: 1, why: "Un-returned heap memory accumulates." },
+    { oi: 9, q: "Which is typically stored in consecutive memory locations?", opts: ["A linked list", "A static array", "A binary tree of nodes", "A hash chain"], ans: 1, why: "Contiguity is what gives arrays O(1) indexed access." }
   ],
   exam: [
     { src: "AQA 2022 · P1 Q02.2", q: "Describe three differences between static and dynamic data structures.", marks: 3,
@@ -173,11 +171,9 @@ X("compsci:4.2.2.1", {
   ],
   quiz: [
     { q: "First step when adding to any array-based queue:", opts: ["Increment the rear pointer", "Check the queue is not full", "Store the item at the rear", "Set the front pointer to 0"], ans: 1, why: "Overflow test before any pointer moves." },
-    { q: "A circular queue in Q[0..4] has rear = 4. After an enqueue, rear becomes:", opts: ["5", "0", "4", "−1"], ans: 1, why: "(4 + 1) MOD 5 = 0." },
-    { q: "Why can a linear queue in a 5-cell array report 'full' with only one item?", opts: ["It sorts the items, so the empty cells move to the end", "Front has advanced and the cells behind it are unusable", "MOD fails when the rear pointer passes the last cell", "Items are lost each time one is removed from the front"], ans: 1, why: "Dead space at the front is never reused." },
-    { q: "Inserting into an array-based priority queue involves:", opts: ["always inserting at the rear, whatever its priority", "shifting items back until one of same or higher priority is found", "hashing the priority to find the item's index in the array", "using a second array to hold the items of higher priority"], ans: 1, why: "The 2020 mark-scheme steps." },
-    { q: "To reverse a queue using one stack you:", opts: ["dequeue all onto the stack, then pop all back", "pop all from the stack, then push them all back", "enqueue the whole stack at the rear of the queue", "sort the queue into reverse order with the stack"], ans: 0, why: "LIFO after FIFO reverses the order." },
-    { q: "Dequeuing from a queue with size = 0 causes:", opts: ["overflow", "underflow", "a wrap-around", "nothing"], ans: 1, why: "The empty test guards against underflow." }
+    { oi: 7, q: "Why can a linear queue in a 5-cell array report 'full' with only one item?", opts: ["It sorts the items, so the empty cells move to the end", "Front has advanced and the cells behind it are unusable", "MOD fails when the rear pointer passes the last cell", "Items are lost each time one is removed from the front"], ans: 1, why: "Dead space at the front is never reused." },
+    { oi: 8, q: "Inserting into an array-based priority queue involves:", opts: ["always inserting at the rear, whatever its priority", "shifting items back until one of same or higher priority is found", "hashing the priority to find the item's index in the array", "using a second array to hold the items of higher priority"], ans: 1, why: "The 2020 mark-scheme steps." },
+    { oi: 9, q: "To reverse a queue using one stack you:", opts: ["dequeue all onto the stack, then pop all back", "pop all from the stack, then push them all back", "enqueue the whole stack at the rear of the queue", "sort the queue into reverse order with the stack"], ans: 0, why: "LIFO after FIFO reverses the order." }
   ],
   exam: [
     { src: "AQA 2023 · P1 Q01", q: "A queue is implemented as a circular queue in an array indexed from 0, with variables `Front`, `Rear` and `Size`. Describe the steps involved in adding a new item to the queue.", marks: 5,
@@ -203,7 +199,6 @@ X("compsci:4.2.3.1", {
   ],
   flashcards: [
     ["What is the difference between peek and pop?", "Peek returns the top item without removing it; pop removes and returns it.", 11],
-    ["What error occurs when popping an empty stack?", "Underflow (stack empty error).", 12],
     ["Describe how a stack evaluates an RPN expression.", "Scan left to right; push operands; on an operator pop two operands, apply it, push the result; the final top item is the answer.", 13],
     ["How can one stack implement undo and repeat?", "Push each completed action; repeat peeks the top item and performs it again; undo pops the top item.", 14],
     ["What are the two tests before push and pop?", "Full test before push (overflow); empty test before pop (underflow).", 15],
@@ -260,11 +255,10 @@ X("compsci:4.2.4.1", {
   ],
   quiz: [
     { q: "A graph with 200 vertices and 210 edges is best stored as:", opts: ["an adjacency matrix", "an adjacency list", "a stack", "a hash table"], ans: 1, why: "Very sparse — a 200×200 matrix would be almost all zeros." },
-    { q: "Testing whether an edge exists between two given vertices is O(1) with:", opts: ["an adjacency list", "an adjacency matrix", "a linked list", "a queue"], ans: 1, why: "Direct index [i][j]." },
-    { q: "An adjacency matrix that is NOT symmetric represents:", opts: ["an undirected graph", "a directed graph", "a tree", "an invalid graph"], ans: 1, why: "Asymmetry means edges have direction." },
-    { q: "A connected undirected graph with a cycle is:", opts: ["a tree", "not a tree", "a rooted tree", "a binary tree"], ans: 1, why: "Trees have no cycles." },
-    { q: "In a weighted graph's matrix, the entry for an edge is:", opts: ["1", "its weight", "0", "the vertex name"], ans: 1, why: "Weight; 0 or ∞ marks no edge." },
-    { q: "A graph with 6 vertices where every vertex connects to every other has how many undirected edges?", opts: ["15", "30", "36", "6"], ans: 0, why: "6 × 5 / 2 = 15 — dense, so use a matrix." }
+    { oi: 6, q: "An adjacency matrix that is NOT symmetric represents:", opts: ["an undirected graph", "a directed graph", "a tree", "an invalid graph"], ans: 1, why: "Asymmetry means edges have direction." },
+    { oi: 7, q: "A connected undirected graph with a cycle is:", opts: ["a tree", "not a tree", "a rooted tree", "a binary tree"], ans: 1, why: "Trees have no cycles." },
+    { oi: 8, q: "In a weighted graph's matrix, the entry for an edge is:", opts: ["1", "its weight", "0", "the vertex name"], ans: 1, why: "Weight; 0 or ∞ marks no edge." },
+    { oi: 9, q: "A graph with 6 vertices where every vertex connects to every other has how many undirected edges?", opts: ["15", "30", "36", "6"], ans: 0, why: "6 × 5 / 2 = 15 — dense, so use a matrix." }
   ],
   exam: [
     { src: "AQA 2025 · P1 Q03.3", ctx: "An undirected, unweighted graph has vertices 1–5 and edges 1–2, 1–3, 2–4, 3–4, 4–5.",
@@ -337,9 +331,7 @@ X("compsci:4.2.6.1", {
   ],
   flashcards: [
     ["Describe the steps to insert a record into a hash table.", "Hash the record's key to get an index; store the record there; if that slot is taken, resolve the collision, e.g. by trying the next free slot.", 10],
-    ["Why is a hash table lookup faster than searching a sorted list?", "The hash function gives the location directly, so no search through the records is needed — O(1) on average.", 11],
     ["Name two collision-resolution methods.", "Linear probing (next free location, wrapping); chaining (a linked list at each index).", 13],
-    ["Why do collisions slow a nearly full hash table?", "More items end up away from their calculated index, so direct access happens less often and a search from the calculated position is needed.", 14],
     ["What is the load factor?", "Number of items ÷ number of slots; performance degrades as it approaches 1, so tables are resized/rehashed.", 15],
     ["How is a record found in a hash table?", "Hash its key to get the index; check that slot; if it holds a different key, follow the collision method until found or an empty slot is reached.", 16],
     ["What makes a good hash function?", "Fast to compute, spreads keys uniformly across the table, deterministic (same key → same index).", 17]
@@ -409,10 +401,8 @@ X("compsci:4.2.8.1", {
     ["What is the magnitude of [6, 8]?", "√(6² + 8²) = √100 = 10.", 12],
     ["A position [3, −1] is moved by velocity [2, 4]. New position?", "[5, 3] — vector addition, component by component.", 13],
     ["Effect of multiplying a vector by 2?", "Direction/angle unchanged; magnitude doubled.", 14],
-    ["Effect of multiplying a vector by −1?", "Magnitude unchanged; direction reversed (angle 180° from the original).", 15],
     ["What does a dot product of 0 tell you?", "The vectors are perpendicular.", 16],
-    ["What is a convex combination of vectors u and v?", "αu + βv where α + β = 1 and α, β ≥ 0 — a point on the segment joining them.", 17],
-    ["Three ways to represent a vector in a program?", "A list/array of components, a dictionary index→value, or a function mapping index to value.", 18]
+    ["What is a convex combination of vectors u and v?", "αu + βv where α + β = 1 and α, β ≥ 0 — a point on the segment joining them.", 17]
   ],
   quiz: [
     { q: "[1, 2] · [3, −1] =", opts: ["1", "5", "−1", "7"], ans: 0, why: "1×3 + 2×(−1) = 3 − 2 = 1." },

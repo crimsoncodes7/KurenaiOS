@@ -388,12 +388,11 @@
       ]
     },
     flashcards: [
-      ["What does `int.TryParse` return?", "A bool: true if the text was a whole number."],
-      ["The value after a failed TryParse?", "0 (the type's default) — do not use it."],
-      ["Does `int.TryParse(\" 7 \", …)` succeed?", "Yes — surrounding spaces are allowed."],
-      ["Does `int.TryParse(\"3.5\", …)` succeed?", "No — use double.TryParse."],
-      ["Parse vs TryParse?", "Parse throws on bad input; TryParse returns false."],
-      ["`int.Parse(\"99999999999\")` throws…", "OverflowException."]
+      ["The value after a failed TryParse?", "0 (the type's default) — do not use it.", 1],
+      ["Does `int.TryParse(\" 7 \", …)` succeed?", "Yes — surrounding spaces are allowed.", 2],
+      ["Does `int.TryParse(\"3.5\", …)` succeed?", "No — use double.TryParse.", 3],
+      ["Parse vs TryParse?", "Parse throws on bad input; TryParse returns false.", 4],
+      ["`int.Parse(\"99999999999\")` throws…", "OverflowException.", 5]
     ],
     quiz: [
       { q: "`int.TryParse(\"12a\", out int n)` sets n to…", opts: ["12", "0", "-1", "nothing"], ans: 1, why: "It failed: n is 0." },
