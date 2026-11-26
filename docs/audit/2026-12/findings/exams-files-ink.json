@@ -1,0 +1,476 @@
+{
+ "area": "exams-files-ink",
+ "summary": "15 new findings (EX-50–64): 0 P0, 3 P1, 9 P2, 3 P3. The reworked Exams hub (never audited before: it landed 18 Nov) records attempts with wrong scores when Finish and log is pressed on an unmarked or part-marked paper (EX-54). 1C's ink tables lose every cell's text but the last when you tap from cell to cell (EX-59). A written-on file loses its writing from Files and from Download once an identical past paper joins it (EX-63). 1F's lazy split is sound: every exams, ink and Files surface works cold and from deep links. The issues it touches are U8's Error Log capture, which needs a second press on a cold load (EX-57), and 1C's Paste and Table, which push Paper and Float off the docked bar (EX-58). F201 papers 2–3 meet the A4 / 'not a board paper' contract in print, but the side panel calls them 'Predicted' (EX-51). Neon T2 (scroll jolt) and T4 (card drill) check out.",
+ "coverage": {
+  "accounts": {
+   "dense": "main data account (slot 2 default namespace, seeded) plus three assessments made through the New assessment form: OCR F201 real exam, AQA 7517 Paper 2 real exam, Edexcel Pure mock",
+   "sample": "All exams, the CS mock's Revise and timed card drill, Files, a Maths topic",
+   "empty": "All exams, Timetable, Results, Practice › Paper files, Files, Pen and ink at mac and iphone",
+   "copy": "NOT RUN: the user's data copy was not available in this batch (a separate pass will do it)"
+  },
+  "sizes": [
+   "mac",
+   "ipadl",
+   "ipad",
+   "iphone",
+   "split",
+   "slide"
+  ],
+  "cold": "Every exams route (All exams, each of the eight sections, paper/1, deep, timetable, results, practice, practice/library, load, tracker), #/files, #/pen, #/storage reloaded on the route at mac: all draw, no lazy misses, no console errors. Topic page Handwritten tab, the PDF viewer from Files, a sat paper and the Review all opened cold.",
+  "notCovered": [
+   "Lasso across pages and across part of a picture (UR-9) not driven end to end",
+   "Scan pages (camera) and Share to KurenaiOS",
+   "Ink sync / clash dialog (needs a cloud sign-in, out of bounds)",
+   "Mark with Kurenai / Check my working (need a provider)",
+   "Side by side view and All pages notebook only seen, not exercised",
+   "Real Apple Pencil pressure: strokes were driven with CDP mouse events (pointerType mouse), which the engine treats as a pen",
+   "Print of Revise's guide and of drawn (bank) papers — authored F201 papers 1–3 printed to A4 PDF",
+   "the user's copy account"
+  ]
+ },
+ "findings": [
+  {
+   "id": "EX-50",
+   "severity": "P2",
+   "category": "bug",
+   "title": "Exam Plan ignores its own 'h a week': at '1 h a week' every week is planned at 2 h (3 h in the last week)",
+   "detail": "An F201 real exam (12 Jan 2027) on the dense account, Plan section, budget select at '1 h a week' (the header reads '1 h a week for Real exam'). KOS.examSession.schedule(a) places 60 min in the first week, then 120 min in each of the next five weeks (topic 30 + paper 90) and 180 min in the week of 4 Jan (topic 30, paper 90, redo 30, cheat sheet 30). Week cards print '2 h 00' / '3 h 00' under a header promising 1 h. Send to the plan writes those rows into Pacing as they are. Reproduced twice (eval and the Plan screenshot). Expected: a paper that does not fit the week's hours is not placed (or the week shows that it is over, and the header's figure is the planned one).",
+   "rootCause": "js/core/examsession.js:464 — `if (fits(d, pm) || !d.items.length) place(...)`: a paper is placed whenever its day is empty, even when `fits` says the week's minutes are spent; the redo, cheat-sheet and night-before items (458–460) are placed with no `fits` check at all.",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/exams-files-ink/exam-f201-plan-mac-dense.png; eval KOS.examSession.schedule(F201) → hours 1, weeks 60,120,120,120,120,120,180,20 min",
+   "fix": "Drop the `|| !d.items.length` escape (or only allow it when the week has nothing yet and say 'over by n min' on the week card); run the fixed last-week items through `fits` too, or show the plan's real weekly total beside the budget.",
+   "effort": "S",
+   "devices": [
+    "mac",
+    "ipadl",
+    "ipad",
+    "iphone",
+    "split",
+    "slide"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": null,
+   "regressionOf": null,
+   "invariants": [
+    "126",
+    "130b"
+   ]
+  },
+  {
+   "id": "EX-51",
+   "severity": "P2",
+   "category": "copy",
+   "title": "An authored F201 practice paper's side panel calls the papers 'Predicted paper 1/2/3', lists the paper you are on, and describes it as a shape-weighted draw",
+   "detail": "Open #/exams/<F201>/paper/2 (or /1, /3). The 'Another paper' card offers 'Predicted paper 1 ›', 'Predicted paper 2 ›' (the paper already open) and 'Predicted paper 3 ›'. F201 has no Companion, so nothing is predicted (invariant 130: only a full Companion makes a predicted paper); the papers are the authored 'Practice paper 1 · Coastline Energy', '2 · Calderford City Council', '3 · Freshway'. 'Where the questions come from' says 'Original questions written by KurenaiOS for this paper's question shapes, weighted to its high-yield topics and to the shapes due by their pattern … The mark scheme names each question's shape' — none of which is true of an authored paper. 'This paper' says 'about 10 questions a sitting' for an 8-question paper. On paper 4 (a bank draw) the list correctly omits nothing but calls the authored papers just 'Practice paper 1/2/3'. Reproduced on papers 1 and 2, cold and warm.",
+   "rootCause": "js/modules/exampaperview.js:110-117 — the side panel only knows 'practice' vs everything else, so kind 'authored' takes the predicted wording; the seed filter `n !== paper.seed` compares a number with the authored paper's string seed (js/core/exampaper.js:137 `seed: String(n)`), so the current paper is never excluded.",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/exams-files-ink/paper-f201-2-mac-dense.png; eval on /paper/1 → typeof seed 'string', seed buttons ['Predicted paper 1','Predicted paper 2','Predicted paper 3']",
+   "fix": "Give 'authored' its own branch: 'Written whole by KurenaiOS in the board's format — not a board paper', title each link from KOS.examPaper.authoredList (e.g. 'Practice paper 2 · Calderford City Council'), compare seeds as numbers, and use bp.questions only for drawn papers.",
+   "effort": "S",
+   "devices": [
+    "mac",
+    "ipadl",
+    "ipad",
+    "iphone",
+    "split",
+    "slide"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": "1B (c0c67c39) — papers 2 and 3 made the list three authored papers",
+   "regressionOf": null,
+   "invariants": [
+    "127",
+    "130"
+   ]
+  },
+  {
+   "id": "EX-52",
+   "severity": "P2",
+   "category": "layout",
+   "title": "At 700 px and under (phone, iPad Split View and Slide Over) an exam's header actions vanish with no substitute, and a deep-linked Papers/Plan/Questions section draws under the Cards row",
+   "detail": "iphone 402, split 590, slide 375, dense account, F201 exam. On every section the header's 'Edit scope', '＋ Log a result' and '⋯' (the exam's Edit/Archive/Delete) measure 0×0; on Revise the header's 'Card drill' and '⎙ Print the guide' are gone; on a sat paper (#/exams/<id>/paper/2) '‹ Papers' is 0×0. The only ways round are the All exams list (its row ⋯ and its own '＋ Log a result'). The phone list shows Today, Topics, Revise, Cards and Review (D5), but on an iPad in Split View the same rules apply, so the device the Papers are for loses them. Opening #/exams/<id>/papers at 590 (a link from Today's paper card, search or Home) draws the Papers list directly under the 'Cards · 0 due' row, as if it were the Cards section's content, with no Papers row. Reproduced at iphone and split, twice each.",
+   "rootCause": "css/views/exams.css:1238 — `@media (max-width: 700px) { .k-xs-head .k-ex-actions { display: none; } }` hides the whole action slot (js/modules/examshell.js:260-272 puts every action, and the paper view's '‹ Papers' from js/modules/exampaperview.js:80, in it); js/modules/examshell.js:39 `PHONE` lists only today/topics/revise/cards/review, so a non-phone section's body has no row of its own and lands after the last row drawn (344).",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/exams-files-ink/exam-f201-today-iphone-dense.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/exams-files-ink/exam-f201-papers-split-dense.png; eval at iphone: Edit scope 0x0, ＋ Log a result 0x0, ⋯ 0x0, exams.paper-back 0x0",
+   "fix": "Keep the action slot on the phone as one ⋯ menu (Edit scope, Log a result, Edit, Archive, Delete, and the section's own actions such as Card drill and Print); when a non-phone section is open at ≤700 px give it its own row (or redirect to Today with the 'Papers · on the iPad and Mac' note), and let Split View on a touch iPad keep Papers.",
+   "effort": "M",
+   "devices": [
+    "iphone",
+    "split",
+    "slide"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": null,
+   "regressionOf": null,
+   "invariants": [
+    "130b",
+    "50b"
+   ]
+  },
+  {
+   "id": "EX-53",
+   "severity": "P3",
+   "category": "layout",
+   "title": "F201 papers: the '(b)(i)' label breaks over two lines and '(ii)' repeats '(b)', on screen and in print",
+   "detail": "Every authored F201 paper (1, 2 and 3) has a linked (i)/(ii) part in question 7 labelled '(b)(i)' and '(b)(ii)'. The label column is one '(a)' wide, so the sheet prints '(b)' on one line and '(i)' on the next, then '(b)' again over '(ii)'. OCR's format (invariant 127, ocr-case: 'lettered and (i)/(ii) parts') prints '(b) (i)' once and '(ii)' alone. Seen in the A4 print of papers 1–3 (sheet 9) and on the same sheet on screen.",
+   "rootCause": "js/modules/exampaperview.js:252 draws `p.label` whole in the fixed-width label cell; the data (js/data/exams/papers/ocr-f201-1.js:193/196, -2.js:190/193, -3.js:189/193) carries the parent letter in both labels.",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/exams-files-ink/print-f201-2-p9.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/exams-files-ink/print-f201-2-w1.pdf",
+   "fix": "In the label cell print a (ii) whose (i) sits just before it as '(ii)' alone, and let the cell take '(b) (i)' on one line (min-content width or nowrap).",
+   "effort": "S",
+   "devices": [
+    "mac",
+    "ipad"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": "1B (c0c67c39)",
+   "regressionOf": null,
+   "invariants": [
+    "127"
+   ]
+  },
+  {
+   "id": "EX-54",
+   "severity": "P1",
+   "category": "data",
+   "title": "Finish and log on a sat paper logs an unmarked or part-marked paper as a real score (0/60, 2/60) with no warning — and simply viewing a part marks it 0",
+   "detail": "F201 practice paper 3, dense account, mac: Start timed → Finish → confirm → on the marking screen (part 1(a) of 23 shown, nothing ticked) press 'Finish and log' in the bar. One attempt is logged as 0 of 60 (tracker uid jrk5arni, questions 1(a) got 0, the other 22 null); the Review shows 'Score 0 of 60', '▼ -2 on Practice paper 2', an estimated grade below Pass, and the tracker session pays (+8 XP, +1 gold). Paper 2 with only 1(a) and 1(b) ticked logged as 2 of 60, 'Marks lost 58 of 60', 'Below Pass, 22 to Pass'. 'Finish and log' sits in the bar from the first part on and asks nothing, although toAttempt has a 'not marked' path (marks null) and 'Mark later' exists. The attempt then feeds the exam's Practice cell, the trend, calibration and the grade/score goal (invariant 128 reads 'the best timed paper'). Reproduced on two sittings.",
+   "rootCause": "js/modules/exampaperview.js:450/489 — drawing a part calls `tk(q.n, j)`, which creates an empty tick object; js/core/exampaper.js:274 `marked = !!(ticks[q.n] && ticks[q.n][j])` counts that empty object as marked (got 0), so the total becomes 0 instead of null; and logIt (exampaperview.js:550) sums only the marked parts and never warns that 22 of 23 are unmarked. KOS.attempts.setMarks (557) uses `Object.keys(m).length`, so the two records disagree.",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/exams-files-ink/after-log-ipadl-dense.png; eval KOS.tracker.all() for useq77yy → [k2q7ahpd 2/60], [jrk5arni 0/60, only 1(a) got 0]; sessions award {xp 8, gold 1, hp 2}",
+   "fix": "In toAttempt treat a part as marked only when its tick object has a key (or a level was chosen); when parts remain unmarked, have Finish and log confirm 'n of 23 parts are not marked — log what you marked (scaled), or Mark later', and log marks null when none is marked.",
+   "effort": "S",
+   "devices": [
+    "mac",
+    "ipadl",
+    "ipad"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": null,
+   "regressionOf": null,
+   "invariants": [
+    "124",
+    "127",
+    "130b"
+   ]
+  },
+  {
+   "id": "EX-55",
+   "severity": "P2",
+   "category": "bug",
+   "title": "Right after Finish and log, Review says the attempt 'has no recorded journal: it was logged, not sat in the app' — the journal link is still being written",
+   "detail": "Sit a paper timed in the app, Finish, Finish and log: the app opens the attempt's Review, whose timing card reads 'This attempt has no recorded journal: it was logged, not sat in the app, so there is no timing to show.' Reopening the same review a moment later shows 'Minutes per mark … Pacing …' from the journal. Reproduced on both sittings (k2q7ahpd at ipadl, jrk5arni at mac). The first page the user sees after sitting a paper tells them it was not sat in the app.",
+   "rootCause": "js/modules/exampaperview.js:558-567 — logIt calls KOS.attempts.setMarks(rec, …, e.uid) (async IndexedDB get+put, js/core/attempts.js:220-227) and then KOS.show(review) at once; examreview.js:211-216 findRec lists attempts and matches `r.tracker === e.uid` before the put has landed.",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/exams-files-ink/after-log-ipadl-dense.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/exams-files-ink/review-reopen-ipadl-dense.png",
+   "fix": "Navigate to the review from setMarks' callback, or let findRec also match the live/just-ended record by `aid` + `seed` + ended time (or pass the rec uid in the route).",
+   "effort": "S",
+   "devices": [
+    "mac",
+    "ipadl"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": null,
+   "regressionOf": null,
+   "invariants": [
+    "130a"
+   ]
+  },
+  {
+   "id": "EX-56",
+   "severity": "P2",
+   "category": "touch",
+   "title": "Marking a sat paper on iPad: the scheme's tick chips are 26 px tall — their coarse-pointer 44 px rule is overridden by the base rule below it",
+   "detail": "ipadl (pointer: coarse), the marking screen after Finish: each scheme line's '○ ✓' chip (exams.mchip, also the level's 'a mark inside it' chips) measures 44×26. These are the controls you press most while marking on the iPad. Reproduced at ipadl and ipad.",
+   "rootCause": "css/views/exams.css:820 `@media (pointer: coarse) { .k-ex-mchip { min-block-size: var(--hit-coarse); … } }` comes BEFORE the base rule at 823 `.k-ex-mchip { … min-block-size: var(--sp-26); … }` with the same specificity, so the base rule wins the cascade.",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/exams-files-ink/marking-ipadl-dense.png; eval exams.mchip 44x26 at ipadl",
+   "fix": "Move the coarse-pointer rule after the base rule (or into the `floors` layer); invariant 69.",
+   "effort": "S",
+   "devices": [
+    "ipadl",
+    "ipad"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": null,
+   "regressionOf": null,
+   "invariants": [
+    "69"
+   ]
+  },
+  {
+   "id": "EX-57",
+   "severity": "P2",
+   "category": "bug",
+   "title": "'+ Log error' on the Ink tab and the exam Review does nothing on its first press after a load: the Error Log capture asks a lazy-loader method that does not exist",
+   "detail": "Cold-load a topic page (ipadl), open Handwritten and press '+ Log error' within the first seconds: no sheet opens (KOS.errorLogUI false before, no .k-dialog-overlay 3 s later). The same on a cold exam Review's Marks lost card '+ Log error' (mac). A second press later works, only because the background warm-up has loaded page-errorlog by then; with Save-Data on (lazy.js:291 skips warming) it would never open until the Error Log page is visited. The post-mortem's costly-card pill works (it logs without the sheet). Also: the Review's capture saves topicRef null and topicTitle = the paper's title, so the Error Log hub lists 'Practice paper 2 · Real exam' as an error-prone TOPIC, and its deep link opens the exam's latest review, not this attempt. Reproduced twice on each surface.",
+   "rootCause": "js/core/errorlog.js:166 — `if (KOS.lazy && KOS.lazy.ensure) KOS.lazy.ensure([\"page-errorlog\"], openNow)`: KOS.lazy has no `ensure` (js/core/lazy.js:519 exports need/needs/…), so when the bundle is not in yet openCapture silently returns. js/modules/examreview.js:132-143 passes no topicRef and a deepLink without `sub: 'a:' + e.uid`.",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/exams-files-ink/review-logerror-cold-mac-dense.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/exams-files-ink/review-logerror-second-mac-dense.png; eval cold ink tab: {before:false, after:true, dialog:false}; error entry err_gh3rk42nps topicRef null",
+   "fix": "Use `KOS.lazy.need('page-errorlog').then(openNow)`; on the Review pass the costliest lost topic as topicRef (lossCols already has it) and `sub: 'a:' + e.uid` in the deep link.",
+   "effort": "S",
+   "devices": [
+    "mac",
+    "ipadl"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": "U8 (157ac693)",
+   "regressionOf": null,
+   "invariants": [
+    "168"
+   ]
+  },
+  {
+   "id": "EX-58",
+   "severity": "P2",
+   "category": "layout",
+   "title": "The docked ink bar now overflows in Page view on Mac and both iPad orientations: Paste and Table pushed Paper and Float behind the › arrow",
+   "detail": "A topic's Handwritten tab, Page view, docked bar. Measured bar track scrollWidth vs clientWidth: mac 966/774 (Paper's right edge at 1277, Float 1344, past the 1110 px visible end), ipadl 812/732 (Paper 1131, Float 1184 on a 1180 screen), ipad 812/704. Paper and Float — the only way to float the palette — need the scroller arrow; on iPad landscape the Redo button is the last one fully visible. November's EX-38 (open, Phase 3) was this in Side by side only; 1C added two 44 px tools (Paste, UR-10; Table, UR-12) so it now happens on the default Page view at every size above the phone.",
+   "rootCause": "js/core/inksurface.js — the toolbar adds `ink.paste` and `ink.table` to the one row (3515b8cf, da07fa6f) without a narrower layout; the bar is a KOS.ui scroller (.k-ink-barwrap), so the overflow is hidden rather than wrapped.",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/exams-files-ink/inktab-ipadl-dense.png; eval .k-ink-bar scrollWidth/clientWidth mac 966/774, ipadl 812/732, ipad 812/704",
+   "fix": "Group Image, Paste and Table under one 'Insert ▾' tool (or move Paste into the Image tool's options slot), or let the bar wrap to two rows when docked above 860 px, so Paper and Float stay visible.",
+   "effort": "M",
+   "devices": [
+    "mac",
+    "ipadl",
+    "ipad"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": "1C UR-10/UR-12 (3515b8cf, da07fa6f)",
+   "regressionOf": null,
+   "invariants": [
+    "132",
+    "50"
+   ]
+  },
+  {
+   "id": "EX-59",
+   "severity": "P1",
+   "category": "data",
+   "title": "Ink Text tool: tapping the next table cell (or another spot) with the pen or mouse throws away what was typed in the open box — filling a table keeps only the last cell",
+   "detail": "Topic 4.5.4.1, Handwritten tab, ipadl, mouse (a pen takes the same path). Add a table (UR-12), choose Text, tap cell A1 and type 'A1', tap B1 and type 'B1', tap C1 and type 'C1', then tap outside the page: the stored table is [['','','C1'],…] — A1 and B1 are gone. The same with free text boxes: type 'hello', tap lower down and type 'world' → only 'world' is stored. No message, no Undo for it. Reproduced three times (cells and free text). The only ways to keep a box are ⌘/Ctrl+Enter or tapping outside the page; Escape discards on purpose.",
+   "rootCause": "js/core/inksurface.js:503-504 — openText begins with `closeText(false)` (discard), and the page's pointerdown (onDown, ~575-596) calls `e.preventDefault()` before opening the next box, so the open textarea never blurs and its blur handler (521, which closes with keep=true) never runs. The 1C table makes this the normal way to work (tap cell after cell); the free-text loss predates Phase 1 (same line at f479433b inkui.js:574).",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/exams-files-ink/ink-text-lost-ipadl-dense.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/exams-files-ink/ink-table-typing-ipadl-dense.png; eval listPages: table [['','','C1'],…], text 'world' only",
+   "fix": "In openText call `closeText(true)` (keep) — Escape stays the discard path — so moving to another cell or spot saves the box first.",
+   "effort": "S",
+   "devices": [
+    "mac",
+    "ipadl",
+    "ipad"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": "1C UR-12 (da07fa6f)",
+   "regressionOf": null,
+   "invariants": [
+    "132"
+   ]
+  },
+  {
+   "id": "EX-60",
+   "severity": "P3",
+   "category": "bug",
+   "title": "Copy as TeX keeps a reply with a sentence before its code fence: 'Sure! ```latex …```' renders (as italic prose) and goes on the page",
+   "detail": "Lasso a stroke → Copy as TeX… → paste the reply 'Sure! ```latex\\n\\frac{1}{2} + x^2\\n```' (what a chat model often sends despite the prompt). The preview renders 'Sure!‘‘‘latex ½ + x²‘‘‘' and 'Keep it on the page' is enabled, so the junk is kept as a tex item. A reply of just the fenced block is cleaned correctly, and one with '$$' inside prose is refused with a KaTeX error. The 'kept only once KaTeX renders it' guard does not catch prose, because KaTeX renders words as maths italics.",
+   "rootCause": "js/core/ink.js:282-291 cleanTex strips a fence only when it spans the whole reply (`/^```…```$/`) and the $ pairs only at both ends; js/modules/inktex.js:30-35 texCheck accepts anything KaTeX renders.",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/exams-files-ink/ink-tex-good-ipadl-dense.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/exams-files-ink/ink-tex-bad-ipadl-dense.png",
+   "fix": "In cleanTex take the first fenced block found anywhere in the reply (and the first $$…$$ / \\[…\\] span) before checking; optionally refuse a result containing a run of plain words.",
+   "effort": "S",
+   "devices": [
+    "ipadl"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": "1C UR-13 (da07fa6f)",
+   "regressionOf": null,
+   "invariants": [
+    "135"
+   ]
+  },
+  {
+   "id": "EX-61",
+   "severity": "P2",
+   "category": "bug",
+   "title": "'Download with my writing' (and Download the original) on the Mac opens the share sheet instead of downloading",
+   "detail": "Files page on mac (Chrome, which supports Web Share with files): ⋯ › 'Download with my writing' on a written-on PDF calls navigator.share with 'worksheet (with my writing).pdf' (17,344 bytes; its writing is correctly flattened onto page 1) instead of saving it. The same path serves 'Download the original', a topic's Files tab and the viewer's Save a copy. On macOS the share sheet has no plain 'save to Downloads', so the menu item named Download does not download; on the iPad the sheet's Save to Files is a fair stand-in. Reproduced twice with navigator.share stubbed to capture the call; with share available no anchor download ever fires.",
+   "rootCause": "js/core/inkexport.js:115-123 — deliver() prefers navigator.share whenever navigator.canShare({files}) is true, for every caller; js/modules/files.js:159-163 'download' calls deliver, not download().",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/exams-files-ink/download-with-writing-p1.png; eval navigator.canShare(files) true on mac; captured share call ['worksheet (with my writing).pdf 17344']",
+   "fix": "Give deliver a mode: Download items call KOS.inkExport.download (anchor) on a fine pointer / non-touch device and keep the share sheet for Share and for touch iPad/iPhone.",
+   "effort": "S",
+   "devices": [
+    "mac"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": null,
+   "regressionOf": null,
+   "invariants": [
+    "151"
+   ]
+  },
+  {
+   "id": "EX-62",
+   "severity": "P2",
+   "category": "touch",
+   "title": "Exam Topics: tapping a confidence chip re-sorts the list under your finger (the next tap rates a different topic), and the chip is 24 px tall on touch",
+   "detail": "F201 exam › Topics, the default 'Weakest first' sort, ipadl. Tap the third topic's '○ Rate it' (1.4 The purpose… of big data, y 666): it becomes Red and moves to row 2 (y 621), so the topic now under the finger is another one; tap it again where it now is → Amber; once more → Green, and it jumps to row 15 (y 1206). Tapping the same spot three times to reach Green (the chip cycles Red · Amber · Green, invariant 130b) instead rates three different topics. Each chip measures 53–70 × 24 px with pointer: coarse (invariant 69 wants 44). Reproduced twice.",
+   "rootCause": "js/modules/examshell.js:456 — the rows are `S().weakest(tops)` on every draw and the chip's onTap redraws the section at once, so a rated row moves; css/views/exams.css:1150 `.k-xs-rag { min-block-size: var(--sp-24) }` with no coarse-pointer floor.",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/exams-files-ink/exam-f201-topics-ipadl-dense.png; eval: row index 2 → 1 → 1 → 14 (y 666 → 621 → 621 → 1206) across Red, Amber, Green",
+   "fix": "Keep the order fixed for the visit (sort once into KOS.view.memo and re-sort only on leaving or on the Sort control), or redraw only the chip; give .k-xs-rag the --hit-coarse floor under pointer: coarse.",
+   "effort": "S",
+   "devices": [
+    "ipadl",
+    "ipad",
+    "iphone",
+    "split",
+    "slide",
+    "mac"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": null,
+   "regressionOf": null,
+   "invariants": [
+    "130b",
+    "69",
+    "165"
+   ]
+  },
+  {
+   "id": "EX-63",
+   "severity": "P1",
+   "category": "bug",
+   "title": "Once a past paper with the same bytes joins a written-on file, Files stops seeing its writing: the ✎ badge and 'Has my writing' drop it and 'Download with my writing' silently gives the original",
+   "detail": "Files (dense, mac/ipadl): add worksheet.pdf, write two strokes on page 1 in the viewer (layer file:<fileId>:default, inked {page:2}); the card says '✎ 1 page' and Download gives 'worksheet (with my writing).pdf' with the strokes. Then import the same PDF into Exams › Practice › Paper files (any name). By design (invariant 150) the two show as one file, promoted to kind 'paper' with `alsoPaper` set. From then on KOS.files.writing(r) is 0: the card has no ✎, the 'Has my writing' filter hides it, and withWriting returns {ink:false, name:'worksheet.pdf'}, so Download/Share hand over the plain original with no message — invariant 151 says every Download or Share of a written-on file carries the writing. The writing is still in kurenai-os-ink and the viewer still shows it (it opens file:<fileId>:default), so it is hidden, not lost. Reproduced by eval and on the card.",
+   "rootCause": "js/core/files.js:158 — `inkPrefix(r)` switches to 'paper:' + r.fileId + ':' as soon as `r.alsoPaper` is set, so the existing 'file:<fileId>:default' layer no longer matches; writing() (160-166) and latestLayer() (175-181) only add 'paper:<alsoPaper>:' and never look at the file: layer.",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/exams-files-ink/files-merged-open-ipadl-dense.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/exams-files-ink/download-with-writing-p1.png; eval record alsoPaper 'ppmwxrhurrbhsm1b', ink docs ['file:f90b3a96…:default {b1c2…:2}'], KOS.files.writing(r) 0, withWriting → {ink:false, name:'worksheet.pdf'}",
+   "fix": "Have writing() and latestLayer() read both prefixes for a store-'files' record — 'file:<fileId>:' always, plus 'paper:<alsoPaper>:' when set — and keep inkPrefix for opening only.",
+   "effort": "S",
+   "devices": [
+    "mac",
+    "ipadl",
+    "ipad",
+    "iphone",
+    "split",
+    "slide"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": null,
+   "regressionOf": null,
+   "invariants": [
+    "150",
+    "151"
+   ]
+  },
+  {
+   "id": "EX-64",
+   "severity": "P3",
+   "category": "copy",
+   "title": "Files points to 'Exams & Papers › Library' and an 'Exams' Library' card; the place is now Exams & Papers › Practice › Paper files",
+   "detail": "The Files page's 'Getting files in' card ends 'Past papers come in through Exams & Papers › Library.' and the empty Files page offers a card 'Exams' Library'. Since the rework the tab row reads Exams · Timetable · Results · Practice · Load and the library is Practice's 'Paper files' tab (an exam's Papers section calls it 'Manage your paper files'); there is no 'Library' anywhere a student can see. Seen on mac and iphone, dense and Empty.",
+   "rootCause": "js/modules/files.js:374 ('Exams' Library') and js/modules/files.js:401 ('Exams & Papers › Library') were not renamed with the tab (js/modules/examshell.js:109 labels it 'Practice').",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/exams-files-ink/files-after-add-mac-dense.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/exams-files-ink/empty-mac-contact.png",
+   "fix": "Say 'Exams & Papers › Practice › Paper files' (and name the card 'Paper files').",
+   "effort": "S",
+   "devices": [
+    "mac",
+    "iphone"
+   ],
+   "accounts": [
+    "dense",
+    "empty"
+   ],
+   "phase1": null,
+   "regressionOf": null,
+   "invariants": []
+  }
+ ],
+ "novRecheck": [
+  {
+   "id": "EX-01",
+   "verdict": "fixed",
+   "note": "Marks by question: a row added with '＋ Question' has its 'Out of' field and, on the current row, the topic picker (examprac.js:469-480)."
+  },
+  {
+   "id": "EX-33",
+   "verdict": "fixed",
+   "note": "The new marking screen prints each scheme line beside its chip; there is no separate tally dialog to lose work."
+  },
+  {
+   "id": "EX-39",
+   "verdict": "fixed",
+   "note": "Empty account: All exams shows 0 exams and 'Add your first exam', no migrated SAMPLE mock."
+  },
+  {
+   "id": "EX-40",
+   "verdict": "fixed",
+   "note": "KOS.exams.startBy on a one-topic test 3 days away gives start-by today, '3 days of buffer', not 'passed · 7 days ago'."
+  },
+  {
+   "id": "EX-24",
+   "verdict": "fixed",
+   "note": "Practice › Analytics opens on the exam with marked papers (F201, 2 marked papers)."
+  },
+  {
+   "id": "EX-25",
+   "verdict": "fixed",
+   "note": "CS Paper 2 predicted papers 1–3 build to 100 marks and 150 min."
+  },
+  {
+   "id": "EX-27",
+   "verdict": "fixed",
+   "note": "iPhone topic tab strip scrolls to show Handwritten when it is selected (inktab-iphone-dense.png)."
+  },
+  {
+   "id": "EX-45",
+   "verdict": "fixed",
+   "note": "Files (1.6 KB, 1 KB) and Storage use the one KOS.ui.bytes formatter; 1D reused it in Code storage."
+  },
+  {
+   "id": "EX-47",
+   "verdict": "fixed",
+   "note": "The readiness band is gone in the rework (130b: no readiness band)."
+  },
+  {
+   "id": "EX-49",
+   "verdict": "fixed",
+   "note": "New assessment dialog closes on hash navigation to #/files; Back does not bring it back."
+  },
+  {
+   "id": "EX-16",
+   "verdict": "fixed",
+   "note": "files.js:337-339 draws 300 at a time and says so with the rest one press away (read in code; 300 files not seeded)."
+  },
+  {
+   "id": "EX-38",
+   "verdict": "still open",
+   "note": "Made worse by 1C: see EX-58 (now overflows in Page view on Mac and both iPad orientations, not only Side by side)."
+  },
+  {
+   "id": "EX-03",
+   "verdict": "still open",
+   "note": "Not re-measured beyond the phone shots; not worsened as seen (open, Phase 3)."
+  },
+  {
+   "id": "EX-08",
+   "verdict": "still open",
+   "note": "Old Marks page chips unchanged; the new marking screen's chips have the same problem (EX-56)."
+  }
+ ]
+}
