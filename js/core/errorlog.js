@@ -5,8 +5,9 @@
      with random string ids ("err_<...>"), merged by id in cloudmerge.js.
    - Zero Governor traffic, zero session logging (invariants 1–3).
    - Pure derived reads (all, openCount, insights) write nothing.
-   - Heavy UI (Hub, Quick Error Drill, Capture Sheet) lives in lazy
-     js/modules/errorlog.js (bundle "page-errorlog") to protect boot budget. */
+   - Heavy UI (Hub, Quick Error Drill, Capture Sheet) and the hub's own
+     reads and edits live in lazy js/modules/errorlog.js (bundle
+     "page-errorlog") to protect the boot budget; boot keeps capture. */
 (function () {
   "use strict";
   window.KOS = window.KOS || {};
@@ -112,23 +113,6 @@
   function get(id) {
     return rawItems().filter(function (x) { return x.id === id; })[0] || null;
   }
-  function all(filter) {
-    filter = filter || {};
-    var q = filter.q ? String(filter.q).trim().toLowerCase() : "";
-    return rawItems().filter(function (x) {
-      if (filter.status === "open" && x.status === "resolved") return false;
-      if (filter.status === "resolved" && x.status !== "resolved") return false;
-      if (filter.subject && x.subject !== filter.subject) return false;
-      if (filter.topicRef && x.topicRef !== filter.topicRef) return false;
-      if (filter.source && x.source !== filter.source) return false;
-      if (filter.mistakeType && (!x.mistakeTypes || x.mistakeTypes.indexOf(filter.mistakeType) === -1)) return false;
-      if (q) {
-        var hay = (x.title + " " + x.context + " " + x.wrongNote + " " + x.ruleNote + " " + x.topicTitle + " " + (x.topicRef || "")).toLowerCase();
-        if (hay.indexOf(q) === -1) return false;
-      }
-      return true;
-    }).sort(function (a, b) { return (b.createdAt || 0) - (a.createdAt || 0); });
-  }
   function openCount(subject, topicRef) {
     return rawItems().filter(function (x) {
       if (x.status === "resolved") return false;
@@ -137,40 +121,10 @@
       return true;
     }).length;
   }
-  function insights(list) {
-    var items = Array.isArray(list) ? list : rawItems();
-    var total = items.length;
-    if (total < 2) return { total: total, open: 0, byType: [], byTopic: [] };
-    var open = 0, typeCounts = {}, topicMap = {};
-    items.forEach(function (x) {
-      var isOpen = x.status !== "resolved";
-      if (isOpen) open++;
-      (x.mistakeTypes || []).forEach(function (t) { typeCounts[t] = (typeCounts[t] || 0) + 1; });
-      if (x.topicRef || x.topicTitle) {
-        var tk = x.subject + "|" + (x.topicRef || x.topicTitle);
-        if (!topicMap[tk]) topicMap[tk] = { subject: x.subject, topicRef: x.topicRef, topicTitle: x.topicTitle || x.topicRef, open: 0, total: 0 };
-        topicMap[tk].total++;
-        if (isOpen) topicMap[tk].open++;
-      }
-    });
-    var byType = Object.keys(typeCounts).map(function (id) {
-      var c = typeCounts[id];
-      return { id: id, label: TYPE_MAP[id] || id, count: c, pct: Math.round(100 * c / total) };
-    }).sort(function (a, b) { return b.count - a.count || a.label.localeCompare(b.label); }).slice(0, 5);
-    var byTopic = Object.keys(topicMap).map(function (k) { return topicMap[k]; })
-      .sort(function (a, b) { return b.open - a.open || b.total - a.total; }).slice(0, 4);
-    return { total: total, open: open, byType: byType, byTopic: byTopic };
-  }
   function getSetting(k, dflt) {
     var s = peek();
     if (s && s.settings && s.settings[k] !== undefined) return s.settings[k];
     return dflt;
-  }
-  function setSetting(k, v) {
-    var s = E();
-    s.settings[k] = v;
-    store.save();
-    return v;
   }
 
   /* ---------------- writes (zero Governor traffic) ---------------- */
@@ -188,15 +142,6 @@
     bumpCounters();
     return rec;
   }
-  function update(id, patch) {
-    var s = E(), i = s.items.findIndex(function (x) { return x.id === id; });
-    if (i === -1) return null;
-    var next = normalise(Object.assign({}, patch || {}, { id: id, createdAt: s.items[i].createdAt }), s.items[i]);
-    s.items[i] = next;
-    store.save();
-    bumpCounters();
-    return next;
-  }
   function remove(id) {
     var s = E(), i = s.items.findIndex(function (x) { return x.id === id; });
     if (i === -1) return null;
@@ -205,53 +150,6 @@
     store.save();
     bumpCounters();
     return snap;
-  }
-  function restore(snap) {
-    if (!snap || !snap.id) return null;
-    var s = E();
-    if (get(snap.id)) return get(snap.id);
-    var rec = normalise(snap, snap);
-    rec.createdAt = snap.createdAt || rec.createdAt;
-    s.items.push(rec);
-    store.save();
-    bumpCounters();
-    return rec;
-  }
-  function setStatus(id, status) {
-    if (!STATUSES[status]) return null;
-    return update(id, { status: status, resolvedAt: status === "resolved" ? Date.now() : null });
-  }
-  function markRevisited(id) {
-    var cur = get(id);
-    if (!cur) return null;
-    return update(id, {
-      status: cur.status === "resolved" ? "resolved" : "revisited",
-      reviewCount: (cur.reviewCount || 0) + 1,
-      lastReviewedAt: Date.now()
-    });
-  }
-
-  /* 1-click Flashcard push into canonical FSRS deck (deduped) */
-  function hasLinkedCard(entry) {
-    if (!entry || entry.cardId == null) return false;
-    var cards = (store.state.custom && store.state.custom.cards) || [];
-    return cards.some(function (c) { return c.id === entry.cardId; });
-  }
-  function toFlashcard(id) {
-    var cur = get(id);
-    if (!cur || !KOS.srs || !KOS.srs.addCustom) return { ok: false, why: "Flashcard store unavailable." };
-    if (hasLinkedCard(cur)) return { ok: true, already: true, cardId: cur.cardId };
-    var meta = SUBJ_MAP[cur.subject] || SUBJ_MAP.general;
-    var sid = meta.exam && cur.topicRef ? cur.subject : (KOS.srs.PERSONAL_SID || "personal");
-    var ref = meta.exam && cur.topicRef ? cur.topicRef : (cur.topicRef ? cur.subject + ":" + cur.topicRef : cur.subject);
-    var q = cur.title + (cur.context ? "\n" + cur.context : "");
-    var aParts = [];
-    if (cur.ruleNote) aParts.push("Rule: " + cur.ruleNote);
-    if (cur.wrongNote) aParts.push("Avoid: " + cur.wrongNote);
-    var a = aParts.length ? aParts.join("\n") : (cur.context || "Review this mistake carefully.");
-    var card = KOS.srs.addCustom(sid, ref, q, a, { src: { module: "errorlog", entryId: cur.id, title: cur.title } });
-    update(cur.id, { cardId: card.id });
-    return { ok: true, already: false, card: card, cardId: card.id };
   }
 
   /* 1-tap non-blocking capture + lazy Quick Capture drawer */
@@ -323,11 +221,12 @@
     MISTAKE_TYPES: MISTAKE_TYPES, TYPE_MAP: TYPE_MAP,
     SOURCES: SOURCES, SOURCE_MAP: SOURCE_MAP,
     SUBJECTS: SUBJECTS, SUBJ_MAP: SUBJ_MAP,
-    normalise: normalise, get: get, all: all, openCount: openCount, insights: insights,
-    getSetting: getSetting, setSetting: setSetting,
-    add: add, update: update, remove: remove, restore: restore,
-    setStatus: setStatus, markRevisited: markRevisited,
-    hasLinkedCard: hasLinkedCard, toFlashcard: toFlashcard,
-    quickLog: quickLog, openCapture: openCapture, inlinePill: inlinePill
+    normalise: normalise, get: get, openCount: openCount, getSetting: getSetting,
+    add: add, remove: remove,
+    quickLog: quickLog, openCapture: openCapture, inlinePill: inlinePill,
+    /* the hub's reads and edits (all, insights, setSetting, update, restore,
+       setStatus, markRevisited, hasLinkedCard, toFlashcard) join from
+       js/modules/errorlog.js (page-errorlog), with these */
+    _k: { E: E, rawItems: rawItems, bumpCounters: bumpCounters, TYPE_MAP: TYPE_MAP, STATUSES: STATUSES, SUBJ_MAP: SUBJ_MAP }
   };
 })();

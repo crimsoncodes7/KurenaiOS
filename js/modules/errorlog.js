@@ -5,6 +5,121 @@
    - Uses KOS.ui.openDialog for capture/edit; never touches Governor or sessions. */
 (function () {
   "use strict";
+
+  /* ================= the hub's reads and edits =================
+     Part of KOS.errorLog, kept here because only the hub and its dialogs
+     call them (boot budget). Zero Governor traffic; pure reads write nothing. */
+  (function () {
+    var L = KOS.errorLog, K = L._k, store = KOS.store;
+    var E = K.E, rawItems = K.rawItems, bumpCounters = K.bumpCounters, TYPE_MAP = K.TYPE_MAP, STATUSES = K.STATUSES, SUBJ_MAP = K.SUBJ_MAP;
+    var get = L.get, normalise = L.normalise;
+
+    function all(filter) {
+      filter = filter || {};
+      var q = filter.q ? String(filter.q).trim().toLowerCase() : "";
+      return rawItems().filter(function (x) {
+        if (filter.status === "open" && x.status === "resolved") return false;
+        if (filter.status === "resolved" && x.status !== "resolved") return false;
+        if (filter.subject && x.subject !== filter.subject) return false;
+        if (filter.topicRef && x.topicRef !== filter.topicRef) return false;
+        if (filter.source && x.source !== filter.source) return false;
+        if (filter.mistakeType && (!x.mistakeTypes || x.mistakeTypes.indexOf(filter.mistakeType) === -1)) return false;
+        if (q) {
+          var hay = (x.title + " " + x.context + " " + x.wrongNote + " " + x.ruleNote + " " + x.topicTitle + " " + (x.topicRef || "")).toLowerCase();
+          if (hay.indexOf(q) === -1) return false;
+        }
+        return true;
+      }).sort(function (a, b) { return (b.createdAt || 0) - (a.createdAt || 0); });
+    }
+    function insights(list) {
+      var items = Array.isArray(list) ? list : rawItems();
+      var total = items.length;
+      if (total < 2) return { total: total, open: 0, byType: [], byTopic: [] };
+      var open = 0, typeCounts = {}, topicMap = {};
+      items.forEach(function (x) {
+        var isOpen = x.status !== "resolved";
+        if (isOpen) open++;
+        (x.mistakeTypes || []).forEach(function (t) { typeCounts[t] = (typeCounts[t] || 0) + 1; });
+        if (x.topicRef || x.topicTitle) {
+          var tk = x.subject + "|" + (x.topicRef || x.topicTitle);
+          if (!topicMap[tk]) topicMap[tk] = { subject: x.subject, topicRef: x.topicRef, topicTitle: x.topicTitle || x.topicRef, open: 0, total: 0 };
+          topicMap[tk].total++;
+          if (isOpen) topicMap[tk].open++;
+        }
+      });
+      var byType = Object.keys(typeCounts).map(function (id) {
+        var c = typeCounts[id];
+        return { id: id, label: TYPE_MAP[id] || id, count: c, pct: Math.round(100 * c / total) };
+      }).sort(function (a, b) { return b.count - a.count || a.label.localeCompare(b.label); }).slice(0, 5);
+      var byTopic = Object.keys(topicMap).map(function (k) { return topicMap[k]; })
+        .sort(function (a, b) { return b.open - a.open || b.total - a.total; }).slice(0, 4);
+      return { total: total, open: open, byType: byType, byTopic: byTopic };
+    }
+    function setSetting(k, v) {
+      var s = E();
+      s.settings[k] = v;
+      store.save();
+      return v;
+    }
+    function update(id, patch) {
+      var s = E(), i = s.items.findIndex(function (x) { return x.id === id; });
+      if (i === -1) return null;
+      var next = normalise(Object.assign({}, patch || {}, { id: id, createdAt: s.items[i].createdAt }), s.items[i]);
+      s.items[i] = next;
+      store.save();
+      bumpCounters();
+      return next;
+    }
+    function restore(snap) {
+      if (!snap || !snap.id) return null;
+      var s = E();
+      if (get(snap.id)) return get(snap.id);
+      var rec = normalise(snap, snap);
+      rec.createdAt = snap.createdAt || rec.createdAt;
+      s.items.push(rec);
+      store.save();
+      bumpCounters();
+      return rec;
+    }
+    function setStatus(id, status) {
+      if (!STATUSES[status]) return null;
+      return update(id, { status: status, resolvedAt: status === "resolved" ? Date.now() : null });
+    }
+    function markRevisited(id) {
+      var cur = get(id);
+      if (!cur) return null;
+      return update(id, {
+        status: cur.status === "resolved" ? "resolved" : "revisited",
+        reviewCount: (cur.reviewCount || 0) + 1,
+        lastReviewedAt: Date.now()
+      });
+    }
+    /* 1-click Flashcard push into canonical FSRS deck (deduped) */
+    function hasLinkedCard(entry) {
+      if (!entry || entry.cardId == null) return false;
+      var cards = (store.state.custom && store.state.custom.cards) || [];
+      return cards.some(function (c) { return c.id === entry.cardId; });
+    }
+    function toFlashcard(id) {
+      var cur = get(id);
+      if (!cur || !KOS.srs || !KOS.srs.addCustom) return { ok: false, why: "Flashcard store unavailable." };
+      if (hasLinkedCard(cur)) return { ok: true, already: true, cardId: cur.cardId };
+      var meta = SUBJ_MAP[cur.subject] || SUBJ_MAP.general;
+      var sid = meta.exam && cur.topicRef ? cur.subject : (KOS.srs.PERSONAL_SID || "personal");
+      var ref = meta.exam && cur.topicRef ? cur.topicRef : (cur.topicRef ? cur.subject + ":" + cur.topicRef : cur.subject);
+      var q = cur.title + (cur.context ? "\n" + cur.context : "");
+      var aParts = [];
+      if (cur.ruleNote) aParts.push("Rule: " + cur.ruleNote);
+      if (cur.wrongNote) aParts.push("Avoid: " + cur.wrongNote);
+      var a = aParts.length ? aParts.join("\n") : (cur.context || "Review this mistake carefully.");
+      var card = KOS.srs.addCustom(sid, ref, q, a, { src: { module: "errorlog", entryId: cur.id, title: cur.title } });
+      update(cur.id, { cardId: card.id });
+      return { ok: true, already: false, card: card, cardId: card.id };
+    }
+
+    Object.assign(L, { all: all, insights: insights, setSetting: setSetting, update: update, restore: restore,
+      setStatus: setStatus, markRevisited: markRevisited, hasLinkedCard: hasLinkedCard, toFlashcard: toFlashcard });
+  })();
   var el = KOS.ui.el;
   var E = function () { return KOS.errorLog; };
   var BAR_TONES = ["var(--crimson)", "var(--amber)", "var(--maths)", "var(--teal)", "var(--it)"];
