@@ -167,6 +167,7 @@
           try { if (KOS.ui.closeDialogs) KOS.ui.closeDialogs(); } finally { navigating = false; }
         }
         visitKey = k; visitMemo = {};
+        clearFloor();
         clearPending();
       } else if (pending) {
         /* the same page drawn again: the chip goes back into its new header */
@@ -353,7 +354,12 @@
   function scrollers() {
     return [document.getElementById("stage"), mainEl(), document.scrollingElement].filter(Boolean);
   }
-  var redrawLater = null;
+  var redrawLater = null, floorTimer = null, lastRestoreAt = 0;
+  function clearFloor() {
+    clearTimeout(floorTimer); floorTimer = null;
+    var m = mainEl();
+    if (m && m.style.minBlockSize) m.style.minBlockSize = "";
+  }
   function redrawNow(opts) {
     opts = opts || {};
     /* never under a pen: a redraw mid-stroke on the iPad. It waits for the
@@ -366,8 +372,17 @@
     clearPending();
     var sc = scrollers(), tops = sc.map(function (e) { return e.scrollTop; });
     var cap = capture(!!opts.preserve);
-    if (!KOS.ui.redrawNow()) return false;
-    function put() { sc.forEach(function (e, i) { if (tops[i]) e.scrollTop = tops[i]; }); }
+    var mBefore = mainEl(), prevH = mBefore ? mBefore.scrollHeight : 0;
+    /* Hold #main's previous height across the DOM rebuild so iPadOS WebKit
+       cannot clamp #stage.scrollTop to 0 and paint at the top while sync or
+       async content (such as Ink sheets from IndexedDB) mounts. */
+    clearFloor();
+    if (mBefore && prevH && tops.some(Boolean)) mBefore.style.minBlockSize = prevH + "px";
+    if (!KOS.ui.redrawNow()) { clearFloor(); return false; }
+    function put() {
+      lastRestoreAt = Date.now();
+      sc.forEach(function (e, i) { if (tops[i]) e.scrollTop = tops[i]; });
+    }
     put();
     restore(cap);
     /* async content (a vault's rows from IndexedDB, images) lands later:
@@ -384,16 +399,21 @@
       });
     }
     var mine = render;
+    var m0 = mainEl();
+    if (m0 && m0.style.minBlockSize) {
+      KOS.view.onDispose(clearFloor);
+      floorTimer = setTimeout(function () { clearFloor(); again(); }, 600);
+    }
     if (typeof requestAnimationFrame === "function") requestAnimationFrame(again);
     /* as the page grows (rows arriving, pictures loading), until the reader
        scrolls or the render ends */
-    var m0 = mainEl();
     if (m0 && typeof ResizeObserver === "function" && (tops.some(Boolean) || cap.scrolls.length)) {
       var ro = new ResizeObserver(function () {
         if (lastTouch > at || !mine || !mine.alive) { ro.disconnect(); return; }
         again();
       });
       ro.observe(m0);
+      if (m0.firstElementChild) ro.observe(m0.firstElementChild);
       KOS.view.onDispose(function () { ro.disconnect(); });
     }
     return true;
@@ -405,6 +425,9 @@
   ["pointerdown", "keydown", "wheel", "touchstart", "input"].forEach(function (ev) {
     document.addEventListener(ev, function () { lastTouch = Date.now(); }, { capture: true, passive: true });
   });
+  document.addEventListener("scroll", function () {
+    if (Date.now() - lastRestoreAt > 120) lastTouch = Date.now();
+  }, { capture: true, passive: true });
   document.addEventListener("pointerdown", function () { pointerDown = true; }, { capture: true, passive: true });
   ["pointerup", "pointercancel"].forEach(function (ev) {
     document.addEventListener(ev, function () { pointerDown = false; }, { capture: true, passive: true });

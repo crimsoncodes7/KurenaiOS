@@ -80,14 +80,45 @@
     draw();
     return box;
   }
-  /* the check (32f): one item at a time; wrong explains and carries no penalty */
+  /* the check (32f): one item at a time in canonical quiz styling; wrong explains and carries no penalty */
   function check(ref, onPassed) {
     var items = M().checkItems(ref), box = el("section", { class: "k-mind-check", "data-ui": "mind.check", "aria-label": "Check" });
-    var cur = 0;
+    var cur = 0, lastAns = null;
     function rec() { return ((M().peek().lessons[ref] || {}).check) || {}; }
     function firstOpen() { var r = rec(); for (var i = 0; i < items.length; i++) if (!(r[i] && r[i].ok)) return i; return -1; }
     cur = Math.max(0, firstOpen());
+    function pick(i) {
+      if (lastAns != null && lastAns >= 0) return;
+      var o = M().answerCheck(ref, cur, i);
+      changed(ref);
+      announce(o.ok ? "Right." : "Not quite.");
+      draw(i);
+      if (M().checkPassed(ref) && onPassed) onPassed();
+    }
+    function next() {
+      var r2 = rec(), nx = -1;
+      for (var k = 1; k <= items.length; k++) { var j = (cur + k) % items.length; if (!(r2[j] && r2[j].ok)) { nx = j; break; } }
+      if (nx < 0) { draw(); return; }
+      cur = nx; draw();
+    }
+    function onKey(e) {
+      if (!box.isConnected) { document.removeEventListener("keydown", onKey); return; }
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+      var t = e.target; if (t && (t.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(t.tagName || ""))) return;
+      if (firstOpen() < 0 && lastAns == null) return;
+      if (lastAns != null && lastAns >= 0) {
+        if (e.key === "Enter" || e.key === "ArrowRight") { e.preventDefault(); next(); }
+        return;
+      }
+      var it = items[cur];
+      if (!it) return;
+      var idx = "1234".indexOf(e.key);
+      if (idx < 0) idx = "abcd".indexOf(String(e.key || "").toLowerCase());
+      if (idx >= 0 && idx < it.options.length) { e.preventDefault(); pick(idx); }
+    }
+    document.addEventListener("keydown", onKey);
     function draw(answer) {
+      lastAns = answer != null ? answer : null;
       box.innerHTML = "";
       var r = rec(), right = items.filter(function (_, i) { return r[i] && r[i].ok; }).length;
       if (firstOpen() < 0 && answer == null) {
@@ -97,27 +128,35 @@
         return;
       }
       var it = items[cur];
-      box.appendChild(el("div", { class: "k-mind-check-h" }, [el("span", { class: "k-mono", text: (cur + 1) + " / " + items.length }), it.apply ? el("span", { class: "k-chip", text: "Apply scenario" }) : null].filter(Boolean)));
-      box.appendChild(el("h3", { class: "k-mind-vote-q", text: it.q.replace(/^Apply · /, "") }));
+      var card = el("div", { class: "k-card k-qz-card" });
+      card.appendChild(el("div", { class: "k-qz-head" }, [
+        el("span", { class: "k-qz-title", text: "Question " + (cur + 1) + " of " + items.length }),
+        it.apply ? el("span", { class: "k-chip", text: "Apply scenario" }) : null,
+        el("span", { class: "k-qz-meta k-qz-tools", text: right + " right so far" })
+      ].filter(Boolean)));
+      card.appendChild(el("div", { class: "k-qz-q", text: it.q.replace(/^Apply · /, "") }));
       var res = answer != null && answer >= 0 ? { ok: answer === it.a } : null;
-      box.appendChild(el("div", { class: "k-mind-opts", role: "group", "aria-label": "Answers" }, it.options.map(function (op, i) {
+      card.appendChild(el("div", { class: "k-qz-opts", role: "group", "aria-label": "Answers" }, it.options.map(function (op, i) {
         var st = res ? (i === it.a ? "right" : i === answer ? "wrong" : null) : null;
-        return el("button", { type: "button", class: "k-mind-opt", "data-ui": "mind.check-option", "data-state": st, disabled: res ? "" : null,
-          onclick: function () { var o = M().answerCheck(ref, cur, i); changed(ref); announce(o.ok ? "Right." : "Not quite."); draw(i); if (M().checkPassed(ref) && onPassed) onPassed(); } },
-          [el("span", { class: "k-mono", "aria-hidden": "true", text: "ABCD"[i] }), op, st === "right" ? el("span", { class: "k-mind-mark", text: " ✓ Right" }) : st === "wrong" ? el("span", { class: "k-mind-mark", text: " ✗ Not this" }) : null].filter(Boolean));
+        return el("button", { type: "button", class: "k-qz-opt", "data-ui": "mind.check-option", "data-state": st, disabled: res ? "" : null,
+          onclick: function () { pick(i); } }, [
+          el("span", { class: "k-qz-letter", "aria-hidden": "true", text: "ABCD"[i] }),
+          el("span", { class: "k-qz-opt-t", text: op }),
+          st === "right" ? el("span", { class: "k-qz-verdict", text: "✓ Right" }) : st === "wrong" ? el("span", { class: "k-qz-verdict", text: "✗ Not this" }) : null
+        ].filter(Boolean));
       })));
       if (res) {
         /* MI-06: a scenario right only after its answer was shown passes the check, not Apply */
         var late = res.ok && it.apply && rec()[cur] && rec()[cur].apply === false;
-        box.appendChild(el("p", { class: "k-mind-why", role: "status", "data-ui": late ? "mind.apply-later" : null,
+        card.appendChild(el("p", { class: "k-qz-why", role: "status", "data-ui": late ? "mind.apply-later" : null,
           text: (res.ok ? (late ? "Right, but after the answer was shown: it counts for Apply on another day. " : "Right. ") : "Not quite. ") + it.why }));
         var nx = (function () { var r2 = rec(); for (var k = 1; k <= items.length; k++) { var j = (cur + k) % items.length; if (!(r2[j] && r2[j].ok)) return j; } return -1; })();
-        box.appendChild(el("div", { class: "k-mind-row" }, [
+        card.appendChild(el("div", { class: "k-qz-foot" }, [
           el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: nx < 0 ? "Finish the check ›" : res.ok ? "Next ›" : "Next, and come back to this ›",
-            onclick: function () { if (nx < 0) { draw(); return; } cur = nx; draw(); } }),
-          el("small", { class: "k-muted", text: right + " right so far" })
+            onclick: next })
         ]));
       }
+      box.appendChild(card);
     }
     draw();
     return box;
@@ -334,16 +373,23 @@
       })));
     }
     function renderCards(panel) {
-      var st = M().peek().cards, ks = cardKeys();
-      if (!ks.length) { panel.appendChild(KOS.ui.emptyState({ compact: true, body: "This lesson has no cards." })); return; }
-      panel.appendChild(el("p", { class: "k-muted", text: M().finished(ref) ? "These come back in your Daily 15 on their own schedule." : "These join your reviews the day after you finish the lesson." }));
-      panel.appendChild(el("div", { class: "k-mind-cardlist", role: "list" }, ks.map(function (k) {
-        var cd = M().cardOf(k), s = st[k];
-        return el("div", { class: "k-mind-cardrow", role: "listitem" }, [
-          el("div", {}, [el("b", { text: cd.q }), el("p", { class: "k-muted", text: cd.a })]),
-          el("span", { class: "k-mono k-muted", text: s && s.due ? (s.reps ? "next " + s.due : "from " + s.due) : "—" })
-        ]);
-      })));
+      var ks = cardKeys();
+      if (!ks.length) { panel.appendChild(KOS.ui.emptyState({ compact: true, mark: "札", title: "No cards on this lesson", body: "This lesson has no cards." })); return; }
+      var GRADE_LABELS = ["Again", "Hard", "Good", "Easy"];
+      KOS.flashcards.mount(panel, SID, ref, {
+        cards: function () { return KOS.mindPages.cards(cardKeys()); },
+        srs: KOS.mindPages.srs(),
+        noCrud: true,
+        noSessionLog: true,
+        noTally: true,
+        requeueAgain: false,
+        runKey: null,
+        deckSub: M().finished(ref) ? "These come back in your Daily 15 on their own schedule." : "These join your reviews the day after you finish the lesson.",
+        onRate: function (c, idx, rated) {
+          changed(ref);
+          if (rated) announce(GRADE_LABELS[idx] + ". Back in " + rated.ivl + (rated.ivl === 1 ? " day." : " days."));
+        }
+      });
     }
     function renderSources(panel) {
       panel.appendChild(el("ul", { class: "k-mind-sources" }, sources().map(function (s) {

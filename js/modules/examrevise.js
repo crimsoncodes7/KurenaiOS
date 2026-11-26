@@ -607,7 +607,7 @@
         el("div", { class: "k-ex-inline" }, [btn("Again", "primary sm", function () { KOS.rerender(); }), btn("Back to Revise", "sm", function () { KOS.show("exams", { id: a.id, tab: "revise" }); })])].filter(Boolean)));
       announce("Card drill " + (secs < 300 ? "under 5 minutes" : "timed out") + ", done. " + (rated.length - missed.length) + " of " + rated.length + ".");
     }
-    if (!cards.length) { holder.appendChild(el("p", { class: "k-ex-muted", text: "No cards in this scope yet." })); ring.remove(); return; }
+    if (!cards.length) { holder.appendChild(KOS.ui.emptyState({ compact: true, mark: "札", title: "No cards in this scope yet", body: "Add flashcards to the topics in this scope to drill them here." })); ring.remove(); return; }
     KOS.flashcards.session(holder, cards, { type: "due-review", runKey: "drill:" + a.id, showTopic: true, onFinish: finish });
     paint();
     timer = setInterval(function () { if (!ring.isConnected) { clearInterval(timer); return; } paint(); }, 1000);
