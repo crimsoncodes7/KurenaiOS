@@ -43,3 +43,46 @@ November is empty).
   sign is the data's, but its size is doubled by MG-90. November has no
   entry at all, and instead of a £0.00 hero the page shows the first-run
   onboarding (MG-91).
+
+## Goals
+
+What the copy holds: 10 goals (ids 1, 2, 3, 5–11; `nextId` 12), 2
+archived: 1 custom manual (due 27 Nov, 0 of 1), 1 weekly study-hours goal
+(Mon–Sun, 5 judged weeks, all missed), 1 Collection count goal (missed,
+archived) and 7 exam goals (2 on the 13 Nov topic test, 5 on the 15 Jan IT
+F201 exam). Completion ledger empty; 8 notification items name a goal.
+Every `links.examId` resolves. No new finding.
+
+- Measured against their sources: the study-hours goal reads 6.4 h this
+  week = the ledger's Focus parts for 23–27 Nov exactly (5 entries); the
+  weeks of 9 and 16 Nov were stored at exactly the ledger's figure (11.9 h,
+  10.0 h). Three older outcomes differ from today's reading and are kept,
+  as invariant 5b wants (judged once): 19 Oct stores 9.8 h measured over
+  the whole Mon–Sun week although the goal began on Sun 25 Oct (today's
+  code would read 0 h for that one day), and 26 Oct / 2 Nov store 10.2 h /
+  6.2 h where the ledger now holds 12.0 h / 8.9 h (judged on 2 and 10 Nov
+  by pre-remediation code; no entry was added after the judgement). All
+  five verdicts are 'not met' either way (target 21 h), so no verdict is
+  wrong. The exam goals read correctly: grade goals 'Measured once the
+  result is logged' (no result logged; the 13 Nov one stays active, by
+  design of resultJudge), recall 'Appears after 20 rated cards' (0 rated of
+  236 in scope), topics green 0 of 15, papers 0 of 4, checklist 2 of 19.
+- **GO-28** (actions after a re-key act on the other device's goal):
+  measured on the copy: all 10 goals carry small counter ids (1–11, next
+  12), so any goal made on a second device before a pull collides; 8
+  notifications reference goals by id. Exposure is the whole list.
+- **GO-29** (title goals store a per-device vault id): measured on the
+  copy: 0 goals of a title type (no `linkedEntryId`) — no impact today.
+- **GO-31** (Restart on a start-day weekly goal deletes history): measured
+  on the copy: the one repeating goal runs Monday to Sunday (`weekFrom`
+  unset), the control case that keeps its outcomes — its 5 recorded weeks
+  are not at risk.
+- **GO-32** (editing a passed exam's goal shows another exam): measured on
+  the copy: it bites. Goal 5 (the 13 Nov topic test, passed, no result)
+  opens its editor with the Exam select holding one option, the 15 Jan
+  exam, and not its own; the dialog was cancelled without saving.
+- **GO-34** (Daily 15 days), **GO-35** (Money goal amounts): no such goal
+  on the copy.
+- **GO-37** (hero counts too-early goals as on track): measured on the
+  copy: the hero reads 4 behind · 0 on track · 0 met — no too-early goal
+  today, so no inflation.
