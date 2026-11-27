@@ -182,7 +182,6 @@
 <script src="js/data/exam-essentials.js"></script>
 </template>
 <script src="js/data/code.js"></script>
-<script src="js/data/lazy-index.js"></script>
 <template data-lazy="page-ja">
 <script src="js/data/ja-strokes.js"></script>
 </template>
@@ -480,6 +479,12 @@
 <template data-lazy="code-projects">
 <script src="js/data/content/code-projects-files.js"></script>
 </template>
+<!-- the stand-ins for the lazy bundles (js/core/lazy.js install): HERE, below
+     every bundle the index names, because install() can only see the
+     <template data-lazy> blocks the parser has already read. Above them it
+     dropped every content row on a real page load (December audit AP-21);
+     smoke142 A holds the order. -->
+<script src="js/data/lazy-index.js"></script>
 <script src="js/data/content/ja-s0.js"></script>
 <script src="js/data/content/ja-f1.js"></script>
 <script src="js/data/content/ja-f2.js"></script>
