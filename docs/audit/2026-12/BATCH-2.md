@@ -49,6 +49,11 @@ git diff 34e21d43 19afe3f0      # 5 files, +150 / −14
 |---|---|---|
 | `fix/2026-12-GO-28` (`42682ed6`, from `0c93408a`) | **GO-28 (P0):** the goal page's ⋯ menu and its other buttons hold a row COPY with the old id. After a pull re-keys this device's goal, Delete (confirmed with the dialog open) and Archive acted on the other device's goal, and the deletion replicated. Every action now resolves the live goal when pressed: the same id while it is the same goal (`createdAt`), else the goal carrying the row's `createdAt`, else nothing, with a toast. Gate 183/183. | smoke196 G4 (fails on `kos-qol-5`) |
 
+| `fix/2026-12-small` (`893b8ffa`, ON TOP of `fix/2026-12-GO-28`) | Three findings of a line or two each. **ST-47/EX-57/AP-22:** `openCapture` called `KOS.lazy.ensure`, which does not exist, and now calls `KOS.lazy.need`; the first capture on a lazy boot now opens the sheet. **CARBON-1-1:** search's `examsDomain` treated the assessments map as an array, and now reads `KOS.exams.all()`; an added assessment is found under "Exams & Papers". **MI-91:** Save to Journal (Ask Kurenai and a dialogue's end card) saved again on its second press, and now saves once and then only opens the Journal. Gate 183/183. | Checked in Node; no new suite step |
+
+Merging `fix/2026-12-small` brings GO-28 with it. The user asked for Carbon's
+check before both are merged and deployed together.
+
 **Not done:** random string ids for goals, the finding's fuller fix. The router
 parses goal ids as numbers, and on the copy all 10 goals have counter ids
 1–11. The notification ids and links, and the Google Calendar uids, that name
@@ -80,6 +85,19 @@ a goal by id are still not re-keyed (GO-28's last paragraph).
   from two different switches.
 - **SY-33 on real devices:** the user's devices get the fix only once they
   accept the update.
+
+## What Carbon can do while the lead is paused (until the weekly reset)
+
+1. **This batch:** the verdicts, the omission hunt and the §1 sanity check.
+2. **The two fix branches:** review `fix/2026-12-GO-28` and `fix/2026-12-small`
+   (diff each against `0c93408a`), and run smoke196 and the gate on each.
+3. **Horizontal Sweep 2:** lifecycle, routing and contract drift (CARBON.md),
+   not run yet. Batch 3 covers the shell and routing, so its results feed
+   straight in.
+4. **Optional, read-only:** a diff-scoped omission hunt for Batch 3's areas
+   ahead of time (content-cs-it, content-maths, home-reports, shell,
+   assistant-archive). Number its findings `CARBON-3-pre-<n>` so the Batch 3
+   auditors can verify them instead of finding them twice.
 
 ## Verify first
 
