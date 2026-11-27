@@ -633,11 +633,6 @@
    "note": "The own export reads back (types, categories), but re-importing it over the same data duplicates every statement-imported entry: MG-60."
   },
   {
-   "id": "MG-11",
-   "verdict": "not reproducible",
-   "note": "Month view's In shows received; expected shown apart (not re-measured in detail)."
-  },
-  {
    "id": "MG-17",
    "verdict": "fixed",
    "note": "Money shows the jar header, Goals the mountain, after navigating between them."

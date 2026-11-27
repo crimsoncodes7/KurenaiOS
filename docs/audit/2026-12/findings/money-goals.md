@@ -53,7 +53,6 @@ Money on 0c93408a (kos-qol-5). No P0. 22 findings: 2 P1, 13 P2, 7 P3. The two P1
 | MG-10 | fixed | Preview footer pinned with Import N entries visible at mac, iphone and slide. |
 | MG-23 | fixed | Two GREGGS £2.10 rows on 13 Nov in one statement both imported. |
 | MG-24 | regressed | The own export reads back (types, categories), but re-importing it over the same data duplicates every statement-imported entry: MG-60. |
-| MG-11 | not reproducible | Month view's In shows received; expected shown apart (not re-measured in detail). |
 | MG-17 | fixed | Money shows the jar header, Goals the mountain, after navigating between them. |
 | MG-19 | fixed | This view totals come from listTotals (75 entries, Everything, with 60 rows loaded). |
 | MG-26 | still open | Brackets and DR still read as money in: new finding MG-56. |
