@@ -1,0 +1,371 @@
+{
+ "area": "mind",
+ "summary": "9 findings: P0 0, P1 3, P2 3, P3 3. Phase 1 moved Mind's reviews onto the shared flashcards session; the pay path around it has holes: the desk's 'One more card set' never logs (MI-20), a reload on #/mind/cards loses the run's entry (MI-22), Restart double-counts (MI-21), and the lesson Cards tab reviews without a ledger entry (MI-24). On phones a lesson's tabs are unreachable (MI-27). Checkpoint, ladder, positions, dialogues, Ask Kurenai's What is sent and the Daily 15 end to end all work; November's fixed P1 (MI-01) and sampled P2/P3s hold.",
+ "coverage": {
+  "routes": [
+   "#/subject/mind (desk: hero, Daily card, Continue, Review my Mind cards bar, analytics, Journal card, path strip, milestones)",
+   "#/mind/daily (intro, reviews, sitting, question: Big Question capture with 'Make it the Big Question', BQ line, Field Guide item; done; One more card set from the done screen and from the desk; Exam Season and normal)",
+   "#/mind/cards (cold route, Type/Write/Think, Card stats, Restart, redraw, reload)",
+   "#/mind/path",
+   "#/mind/journal",
+   "#/mind/positions (revisit Keep)",
+   "#/ref/mind/F1.1–F1.8 (Lesson pages, Check on .k-qz markup with keys, Cards tab Study/Deck, inspector status/RAG/checks, checkpoint: cards, apply, map, synthesis, pass/pay, retake)",
+   "Sheets: Ask Kurenai (What is sent; never sent), Quick capture, Explain-back, Position, dialogue (inline, run to its summary, no network)"
+  ],
+  "sizes": [
+   "mac",
+   "ipadl",
+   "ipad",
+   "iphone",
+   "split",
+   "slide"
+  ],
+  "accounts": [
+   "dense (slot 4 seeded, Mind state built by hand: F1.1–F1.5 finished, cards aged)",
+   "empty",
+   "sample (no Mind data: same as empty for Mind)"
+  ],
+  "notCovered": [
+   "copy account (slot 7) — not used",
+   "Tensions: none authored yet (KOS_MIND.TENSIONS empty), so the tension card and question could not be driven",
+   "Ask Kurenai Send and the offline queue (never calls the model, by rule)",
+   "Undo: the shared review session has none; nothing to test",
+   "MI-07 (Exam Season, 0 due) and MI-13/MI-14/MI-17/MI-18/MI-19 not re-driven (open, Phase 3)"
+  ]
+ },
+ "findings": [
+  {
+   "id": "MI-20",
+   "severity": "P1",
+   "category": "bug",
+   "title": "The desk's 'One more card set' (after the Daily 15 is done) rates cards on FSRS but logs no ledger entry and pays nothing; its end screen repeats the first set's '+N XP'",
+   "detail": "Finish the Daily 15's reviews, go back to the Mind desk, press the Daily card's 'One more card set' (shown while cards are still due). The run opens via KOS.show('mind',{page:'daily',mode:'cards'}), which resets d.results but leaves d.logged = true from the first set, so onFinish's `if (d.results.length && !d.logged)` never calls finishReviews. Empty account (27 cards due, Exam Season on): first set 15 × Again → one entry {cards 15, passed 0, pay 0}; desk 'One more card set' → 10 × Good → ledger unchanged (still one entry), d.paid 0, governor XP 0; should be a second entry {cards 10, passed 10, pay 10}. Dense account (18 due): first set 15 Good → entry {cards 18…, pay 15}; desk extra set 3 × Good → no entry, and the done screen reads 'Reviews +15 XP' (the first set's d.paid). The FSRS schedules and the review log move, so the reviews happened but the ledger (study streak activity, Mind goals, Reports) never sees them and the +1 XP a passed card under the 15 cap is lost. The in-page 'One more card set' on the done screen does reset d.logged (mind.js:891) and works. Reproduced on dense and empty, mac. Worse, the reset at line 696 runs on EVERY render that carries mode 'cards' — KOS.rerender() re-enters the view with the same arg — so a redraw mid-set wipes the set's results: rate 2 → d.results 2 → KOS.rerender() → d.results 0 and the run restarts at 'Question · 15 left of 15' (dense). Even once d.logged is reset, a background redraw would drop the ratings before them.",
+   "rootCause": "js/modules/mind.js:696 — the mode 'cards' entry resets d.step/d.extra/d.results but not d.logged (nor d.paid); onFinish at js/modules/mind.js:781-784 gates finishReviews on !d.logged; done() at :887 prints the stale d.paid",
+   "evidence": "eval (empty, slot 4): after set 1 ledger [[2026-11-27,15,0,0,0]]; after desk extra set of 10 Good: d.results 10, d.logged true, d.paid 0, ledger still [[2026-11-27,15,0,0,0]], governor.xp 0. Dense: extra set of 3 → ledger unchanged [[2026-11-27,18,18,15,15]], #main 'Done for today. 1 minute: 3 cards. Reviews +15 XP'",
+   "fix": "Do the extra-set reset once, when the set is started (in the desk button's handler or by consuming arg.mode after first use), never in the render: reset d.results, d.logged = false and d.paid = 0 there (one helper shared with the done screen's button, mind.js:891). Then every card set ends in its own finishReviews entry under the 15 XP cap (invariant 137, 5) and a redraw keeps its place (invariant 165).",
+   "effort": "S",
+   "devices": [
+    "mac",
+    "ipadl",
+    "ipad",
+    "iphone",
+    "split",
+    "slide"
+   ],
+   "accounts": [
+    "dense",
+    "empty"
+   ],
+   "phase1": null,
+   "regressionOf": null,
+   "invariants": [
+    "137",
+    "5",
+    "1",
+    "165"
+   ]
+  },
+  {
+   "id": "MI-21",
+   "severity": "P2",
+   "category": "bug",
+   "title": "Daily 15 and #/mind/cards: the shared session's '↺ Restart' re-asks cards already rated today, re-rates them on FSRS and counts them twice in the one ledger entry",
+   "detail": "In the Daily 15 reviews (dense, 15 due), rate 3 Good, press ↺ Restart: the run starts again at 'Question · 15 left of 15' with the same first card. Rating 2 more pushes argument:1 and soundness:1 into d.results a second time and re-rates them (argument:1 reps 1→2, ivl 2, same day). Finishing the run logged ONE entry {cards: 18, passed: 18, pay 15} for 15 distinct cards, and the done screen says '18 cards'. Pay is capped at 15 a day, so it overpays only under the cap (5 due → Restart → 10 'passed', +10 XP instead of +5), but the card count reaching goals and Reports is wrong, and a second same-day FSRS rating moves the schedule twice. The same holds for #/mind/cards (same session, results array in the closure). Shuffle is harmless. Reproduced twice (mac, dense).",
+   "rootCause": "js/engines/flashcards.js:474-485 restart() rebuilds the queue from the card list given at draw time; Mind's callers (js/modules/mind.js:766-786 Daily, :985-1015 cards page) pass that list once and push every onRate into results without de-duplicating; finishReviews (js/core/mind.js:285-293) counts graded.length",
+   "evidence": "eval (dense): d.results keys ['argument:1','soundness:1','standard-form:1','argument:1','soundness:1'] after Restart; final ledger [2026-11-27, cards 18, passed 18, pay 15]; d.results 18 entries, 15 distinct; #main 'Done for today. 1 minute: 18 cards.'",
+   "fix": "For Mind's runs pass a `noRestart` option (or have restart() drop cards already rated in this run: filter `mine`), and make finishReviews count distinct keys (last grade wins) so one sitting can never count a card twice.",
+   "effort": "S",
+   "devices": [
+    "mac",
+    "ipadl",
+    "ipad",
+    "iphone",
+    "split",
+    "slide"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": "Neon ux-polish T3 (29ee1108) — the Daily's reviews moved onto KOS.flashcards.session, which brought Restart",
+   "regressionOf": null,
+   "invariants": [
+    "137",
+    "111"
+   ]
+  },
+  {
+   "id": "MI-22",
+   "severity": "P1",
+   "category": "data",
+   "title": "#/mind/cards: a reload, a closed tab or an iPad killing the app mid-run loses the run's ledger entry — the cards are rescheduled but never logged or paid",
+   "detail": "Open 'Review my Mind cards (N due)', rate some cards, then reload (or close the tab / let iPadOS evict the PWA). The ratings already moved FSRS (rateCard saves at once) but the run's results live only in the render's closure and are logged by KOS.view.onDispose or the ✕ button — neither runs on unload. Empty account (13 XP of headroom under the 15 cap): 4 × Good → due 27→23, reload → ledger unchanged ([15,0,0],[2,2,2]), governor XP 2 → 2 (should be one entry {cards 4, passed 4, pay 4} and +4 XP). Dense: 4 × Good then reload → 7 cards moved, no entry for the 4. Coming back starts a fresh run ('Question · 11 left of 11') with no 'Picked up where you left off'. Related to SY-34 (a redraw splits the run in two — re-confirmed: rate 3, KOS.rerender() → entry {cards 3} and 'Question · 15 left of 15'), but this is the loss case, and it is the common way an iPad session ends. The Daily 15 keeps its results in state.ui.mind.daily and survives a reload. Reproduced twice (dense, empty; mac).",
+   "rootCause": "js/modules/mind.js:957-965 — results/logged live in cardsPage's closure; finishOnce is registered only with KOS.view.onDispose (not run on pagehide/unload) and the ✕ button; the session runs with runKey null and noSessionLog (mind.js:986-991), so neither KOS.sessions.run nor KOS.sessions.upsert keeps anything",
+   "evidence": "eval (empty, slot 4): before reload ledger reviews [[15,0,0],[2,2,2]], due 23 after 4 rated; after location.reload(): same ledger, governor.xp 2, paidToday 2. Dense: after reload 7 cards due > today, ledger reviews [[18,15],[3,0]] only (the 3 from the SY-34 redraw)",
+   "fix": "Log the run as it goes, as the shared engine does for every other deck (invariant 167): give the Mind session a runKey ('mind:cards:<day>') and log through KOS.sessions.upsert with metrics.kind 'reviews' and pay by difference under the cap — or at least keep results in state.ui.mind (like the Daily's d.results) and finish an unlogged run on the next Mind open. This also fixes SY-34.",
+   "effort": "M",
+   "devices": [
+    "mac",
+    "ipadl",
+    "ipad",
+    "iphone",
+    "split",
+    "slide"
+   ],
+   "accounts": [
+    "dense",
+    "empty"
+   ],
+   "phase1": "1E mind#3 (328e6856) and its merge onto the shared session (bb7144ac)",
+   "regressionOf": null,
+   "invariants": [
+    "137",
+    "167",
+    "5"
+   ]
+  },
+  {
+   "id": "MI-23",
+   "severity": "P3",
+   "category": "bug",
+   "title": "Daily 15 reviews: after a reload or any redraw mid-run the 'capped at 15' run grows past 15 — the cards beyond the cap slide into the queue",
+   "detail": "Dense, 18 cards due, Exam Season: the intro says '15 cards due · capped at 15' and the run starts 'Question · 15 left of 15'. Rate 5, reload (or any KOS.rerender of the page): the run comes back as 'Question · 13 left of 13', so the sitting becomes 5 + 13 = 18 cards. The progress pips restart at 13 and the run is no longer the 4–5 minutes the plan promised. Reproduced twice (dense, mac: once after a reload, once after a Chrome restart with the run in state.ui).",
+   "rootCause": "js/modules/mind.js:763 — reviews() rebuilds the queue as M().due(t) (the first 15 cards CURRENTLY due) minus d.results; the cards already rated are no longer due, so cards 16+ take their place. The cap is applied to what is due now, not to the sitting.",
+   "evidence": "eval (dense, slot 4): d.results 5 after reload, #main fc.count 'Question · 13 left of 13'; KOS.mind.due(today,true).length 13 before the reload",
+   "fix": "Cap the queue by what the sitting has left: `queue.slice(0, Math.max(0, M().DAILY_CARDS - d.results.length))` unless d.extra; or freeze the day's queue in d.queue when the run starts.",
+   "effort": "S",
+   "devices": [
+    "mac",
+    "ipadl",
+    "ipad",
+    "iphone",
+    "split",
+    "slide"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": null,
+   "regressionOf": null,
+   "invariants": [
+    "137"
+   ]
+  },
+  {
+   "id": "MI-24",
+   "severity": "P2",
+   "category": "bug",
+   "title": "A lesson's Cards tab is now a live FSRS review with no ledger entry: rating there schedules cards of a lesson not yet finished, ticks 'First retrieval passed' and Recall, and logs and pays nothing",
+   "detail": "Phase 1 turned the lesson Cards tab from a read-only list into KOS.flashcards.mount over the Mind SRS adapter. Empty account, F1.6 not started (0 of 6 pages, check 0 of 3), its concept's cards not yet introduced: Cards tab → Study shows 'Question · 2 left of 2', '2 new'; rating both Good creates charity:0/1 (adapter's rate() calls M().introduce), schedules them (due 29 Nov, reps 1), sets the shared progress check 4 'First retrieval passed' (progress [false,false,false,true]) and the Recall rung — while the inspector still says 'cards from tomorrow' and the Deck tab says 'These join your reviews the day after you finish the lesson.' No ledger entry is written (sessions +0, XP +0), so these reviews never count as study activity, never reach Mind goals or Reports, and never get the +1 XP a passed card that invariant 137 gives a review block; the engine's end card says 'check Due Today tomorrow', but Mind cards are not in Due Today. The same rating done in the Daily 15 or #/mind/cards is one paid entry. Reproduced twice (F1.6 on empty after deleting its cards; and the dense F1.1 tab re-rating already scheduled cards, ledger unchanged).",
+   "rootCause": "js/modules/mindtopic.js:375-392 — renderCards mounts the shared engine with noSessionLog: true, runKey: null and no onFinish → finishReviews; js/modules/mind.js:943-948 (mindSrs().rate) introduces the concept on first rating whatever the lesson's state; the end-card hint is fixed text in js/engines/flashcards.js:454",
+   "evidence": "eval (empty, slot 4): before {checks [F,F,F,F], ladder charity [F,F,F,F], no charity cards}; after rating 2 Good: cards charity:0/1 due 2026-11-29 reps 1, evidence checks [F,F,F,T], peekProgress check [F,F,F,T], ladder [T,F,F,F], finished false, ledger +0, XP +0. Screenshot /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/mind/lesson-cards-mac-empty.png",
+   "fix": "Pick one meaning and say it: either (a) keep the tab as review — log it like the cards page (finishReviews on finish, through the same run record as MI-22) and only offer the session once the lesson is finished (before that, the Deck list with 'from tomorrow'); or (b) make it practice — a self-marked run that moves no schedule (like the checkpoint's cards) and say so. Pass an end-card hint through opts so Mind's says 'They come back in your Daily 15'.",
+   "effort": "M",
+   "devices": [
+    "mac",
+    "ipadl",
+    "ipad",
+    "iphone",
+    "split",
+    "slide"
+   ],
+   "accounts": [
+    "empty",
+    "dense"
+   ],
+   "phase1": "Neon ux-polish T3 (29ee1108) — the Cards tab on KOS.flashcards.mount",
+   "regressionOf": null,
+   "invariants": [
+    "137",
+    "107",
+    "111"
+   ]
+  },
+  {
+   "id": "MI-25",
+   "severity": "P3",
+   "category": "ui",
+   "title": "Today/Home's 'Mind · N cards' review item still opens the Daily 15, so once the Daily 15 is done it lands on 'Done for today' instead of the new #/mind/cards run",
+   "detail": "Dense, Daily 15 done today, 26 Mind cards still due: KOS.today.build() gives the Mind review item {n: 26, sub: 'F1 cards'}; its go() calls KOS.show('mind',{page:'daily',mode:'reviews'}), which renders 'Done for today. … Back to Mind · One more card set' — no card on screen; the learner must find a second button (and that button's run is the one MI-20 leaves unlogged). Phase 1 added #/mind/cards ('Review my Mind cards (N due)') exactly for reviewing outside the Daily 15, but the cross-app entry points were not pointed at it. Reproduced twice (dense, mac and iphone).",
+   "rootCause": "js/core/today.js:395-396 — base.review.go always routes to the Daily 15 (mode 'reviews' only matters while the Daily is at its intro, js/modules/mind.js:695)",
+   "evidence": "eval (dense, slot 4): today mind item {review:{n:26,label:'Mind',sub:'F1 cards'}, done:true}; after go(): #main 'DAILY 15 · MIND | ✓ Reviews | 心 | Done for today. | … | Back to Mind | One more card set'",
+   "fix": "Route the review item to KOS.show('mind',{page:'cards'}) when today's Daily 15 is done (or always — the Daily item has its own go()), so a due-cards chip opens cards.",
+   "effort": "S",
+   "devices": [
+    "mac",
+    "ipadl",
+    "ipad",
+    "iphone",
+    "split",
+    "slide"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": "1E mind#3 (328e6856) added #/mind/cards without re-pointing Today's Mind review item",
+   "regressionOf": null,
+   "invariants": [
+    "149"
+   ]
+  },
+  {
+   "id": "MI-26",
+   "severity": "P3",
+   "category": "copy",
+   "title": "Mind inspector on a lesson without a written prompt (F1.5, the F1.8 checkpoint) reads '2 of 3 checks · 50%' — the count says thirds, the percentage says quarters",
+   "detail": "JM-02's fix gave Mind's inspector the shared status row (percentage from the shared progress record) beside Mind's own check list. A lesson with no prompt has three checks, but syncChecks writes four slots: [read, check, retrieval, all three]. So 1 of 3 shows 25%, 2 of 3 shows 50%, and 3 of 3 jumps to 100%. Empty account F1.5 (pages read, check passed, no card held yet): '2 of 3 checks', '50%', progress [T,T,F,F], leafPercent 50. Dense F1.8 before its checkpoint passed: '2 of 3 checks · 50%' with a half-filled bar. The desk ring and spine read the same 50%, so only the 'of 3' wording disagrees. Reproduced twice (empty F1.5, dense F1.8; mac).",
+   "rootCause": "js/core/mind.js:403 (syncChecks: the fourth slot holds only once the other three do) vs js/modules/mindtopic.js:432 (the row count is rows.length = 3)",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/mind/inspector-F1.5-mac-empty.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/mind/cp-cards-mac-dense.png (F1.8 '2 of 3 checks 50%'); eval peekProgress('mind','F1.5').check [true,true,false,false]",
+   "fix": "Say the record's own count on a three-check lesson ('2 of 4 checks', the fourth named 'All three done'), or weight the three-check lesson's slots so n of 3 maps to n/3 (write slot 3 as retrieval and slot 4 as check-passed AND read, giving 33/67/100).",
+   "effort": "S",
+   "devices": [
+    "mac",
+    "ipadl",
+    "ipad",
+    "iphone",
+    "split",
+    "slide"
+   ],
+   "accounts": [
+    "empty",
+    "dense"
+   ],
+   "phase1": null,
+   "regressionOf": null,
+   "invariants": [
+    "137",
+    "107"
+   ]
+  },
+  {
+   "id": "MI-27",
+   "severity": "P1",
+   "category": "layout",
+   "title": "iPhone and Slide Over: a Mind lesson's tabs (Lesson, Concepts, Cards, Journal, Files) collapse to a 0–5 px scroller under Working, Edit and Learn/Reference — the Cards tab and the rest cannot be reached",
+   "detail": "#/ref/mind/F1.6 and F1.1, empty account. The topic tab row holds the tab scroller, Working (92 px), Edit (66 px) and Mind's Learn/Reference switch (.k-mind-headtools, 166 px). At iphone 402×874 the scroller measures 5 px, at slide 375×796 0 px; the row shows only '› ‹' at the left edge, and hit-testing each tab's centre lands on 'Working', 'Edit' or 'Learn' instead (elementFromPoint: Lesson → topic.work, Cards → topic.edit-bar, Journal → the Learn segment). At 375 the row also overflows #main (scrollWidth 381 vs 375). So on a phone the lesson's Cards tab (the Phase 1 review surface), Concepts and the lesson Journal are unreachable; split (590) keeps a 193 px scroller. Same shared row as CO-43 (Code), but Mind's own switch is a different item: fixing only css/views/code.css would leave Mind broken. Reproduced on F1.6 and F1.1 (iphone), and F1.6 at slide.",
+   "rootCause": "js/modules/mindtopic.js:244-255 ctx.modeSwitch returns .k-mind-headtools (css/views/mind.css:177, inline-flex, no shrink rule) into the tab row built by js/modules/topic.js (scroller + Working + Edit); css/views/study.css gives the scroller flex: 1 1 auto; min-inline-size: 0, so it alone absorbs the shortfall down to 0 — no phone tier wraps the row",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/mind/lesson-top-iphone-empty.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/mind/lesson-top-slide-empty.png; eval: iphone row children [k-scroller 5, k-topic-more 0, Working 92, Edit 66, k-mind-headtools 166]; slide [k-scroller 0, …], #main scrollWidth 381/375",
+   "fix": "Fix the shared row once (CO-43): under 700px let .k-topic-tabrow wrap with the scroller on its own full-width line (flex-basis: 100%) and give the scroller a min-inline-size, or move every space's Learn/Reference switch into the reader's pager row; add a Mind lesson at 402 and 375 to the responsive audit.",
+   "effort": "S",
+   "devices": [
+    "iphone",
+    "slide"
+   ],
+   "accounts": [
+    "empty"
+   ],
+   "phase1": null,
+   "regressionOf": null,
+   "invariants": [
+    "47",
+    "50",
+    "69"
+   ]
+  },
+  {
+   "id": "MI-28",
+   "severity": "P2",
+   "category": "layout",
+   "title": "iPhone and Slide Over: the position sheet's foot squeezes 'Ask Kurenai to push back' into a third of the row, and its label spills over the 'Take this position' button",
+   "detail": "Open a contested lesson's prompt (F1.7, KOS.mindRun.position) at iphone 402: the foot's three buttons share the row equally (Later 20–134, Ask Kurenai to push back 142–256, Take this position 264–382); the middle label needs 134 px in a 114 px button (scrollWidth 134 / clientWidth 114), so its text runs over the primary button and the primary's own label reads 'ake this position' in the screenshot. Slide 375: 129 in 105, and the primary is 110/109. Split 590 fits. The primary is the sheet's one action and its label is the part that gets covered. Reproduced at iphone and slide (empty).",
+   "rootCause": "js/modules/mindrun.js:119-126 puts three buttons in the shared .k-dialog-foot; css/components.css:747 (phone tier) gives each .k-btn flex: 1 1 0, so a long label gets a third of the row and overflows instead of wrapping",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/mind/position-sheet-iphone-empty.png; eval iphone ['Later [20-134] sw114/cw114','Ask Kurenai to push back [142-256] sw134/cw114','Take this position [264-382] sw118/cw118']; slide ['Ask Kurenai to push back [133-238] sw129/cw105','Take this position [246-355] sw110/cw109']",
+   "fix": "Shorten the label ('Push back ↗' or 'Ask Kurenai') or move it out of the foot (an 'Ask Kurenai to push back' link under the objection box), leaving Later and Take this position in the foot; generally let .k-dialog-foot > .k-btn wrap its label (white-space: normal) or take flex-basis auto under 560px.",
+   "effort": "S",
+   "devices": [
+    "iphone",
+    "slide"
+   ],
+   "accounts": [
+    "empty"
+   ],
+   "phase1": null,
+   "regressionOf": null,
+   "invariants": [
+    "50",
+    "69"
+   ]
+  }
+ ],
+ "novRecheck": [
+  {
+   "id": "MI-01",
+   "verdict": "fixed",
+   "note": "F1.8 reaches Completed: after the checkpoint pass peekProgress('mind','F1.8') {status:'done', check:[T,T,T,T]}; lessonConcepts reads the checkpoint's concepts (js/core/mind.js:367-371)"
+  },
+  {
+   "id": "MI-02",
+   "verdict": "still open",
+   "note": "open (Phase 3), not worse: mac Daily card 192px tall, scrollHeight 254, overflow hidden, its Start button at 340–376 below the card's bottom 334 (same as November); ipadl/ipad/iphone/split/slide now fit (card height = scrollHeight). Phase 1's 'Review my Mind cards' bar gives a second way in."
+  },
+  {
+   "id": "MI-03",
+   "verdict": "fixed",
+   "note": "KOS.mind.reach() per concept (e.g. premise 1000, bandwagon 1000, charity 1111); desk bars count reachable rungs only"
+  },
+  {
+   "id": "MI-04",
+   "verdict": "fixed",
+   "note": "takePosition with objection then a revision without → ladder('steelman').rungs[3] stays true"
+  },
+  {
+   "id": "MI-05",
+   "verdict": "fixed",
+   "note": "checkpoint drive: 2 of 4 rubric + 3/3 scenarios → pass, one entry {50,12,4}; retake with nothing → pass false, paid false, rungs unchanged, ledger +0"
+  },
+  {
+   "id": "MI-06",
+   "verdict": "fixed",
+   "note": "wrong then right on an apply item → counts false, apply 0; explain-back of one bullet with 3 ticks → short true, Explain rung false"
+  },
+  {
+   "id": "MI-09",
+   "verdict": "still open",
+   "note": "open (Phase 3): no Edit on Journal entries; capture still shows 'Source, for a quote' for a Question"
+  },
+  {
+   "id": "MI-10",
+   "verdict": "fixed",
+   "note": "report.js gathers Journal times only and mind facts; goals.js has Mind reviews/lessons/Daily 15 types; KOS.today.build has a Mind item (see MI-25 for its route)"
+  },
+  {
+   "id": "MI-11",
+   "verdict": "not reproducible",
+   "note": "Ask Kurenai sheet at iphone (confirm step) and the explain/position sheets: body scrollWidth = clientWidth (362/362)"
+  },
+  {
+   "id": "MI-12",
+   "verdict": "still open",
+   "note": "open (Phase 3): inspector 'Explain it differently' still overruns its button at mac (lesson-cards-mac-empty.png)"
+  },
+  {
+   "id": "MI-15",
+   "verdict": "fixed",
+   "note": "map rows start as neutral 'claim', warning worded from the state; milestone 'mapped' false for an untouched map after a pass"
+  },
+  {
+   "id": "MI-16",
+   "verdict": "fixed",
+   "note": "capture sheet then history.back() → 0 Mind sheets open; Ask sheet closes on KOS.show"
+  },
+  {
+   "id": "JM-02",
+   "verdict": "fixed",
+   "note": "Mind inspector has the shared status select, RAG picker and percentage (see MI-26 for its 'of 3' wording)"
+  },
+  {
+   "id": "JM-04",
+   "verdict": "fixed",
+   "note": "Path shows Y3.U1–Y3.U3"
+  },
+  {
+   "id": "SY-34",
+   "verdict": "still open",
+   "note": "Batch 1 finding re-confirmed (dense): rate 3 on #/mind/cards, KOS.rerender() → a {cards:3} entry and the run restarts 'Question · 15 left of 15'. Its worse sibling — a reload loses the run's entry — is MI-22."
+  },
+  {
+   "id": "CARBON-1-3",
+   "verdict": "confirmed",
+   "note": "mind.cards IS in FACET_PATH (js/core/cloudmerge.js:141): a three-way merge kept the newer remote card record whole {reps 0, lapses 1, s 1.5, due 2026-11-25, leech true}, no chimera"
+  }
+ ]
+}
