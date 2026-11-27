@@ -163,7 +163,8 @@
       if (KOS.errorLogUI && KOS.errorLogUI.openDialog) KOS.errorLogUI.openDialog(specOrEntry, onSaved);
     }
     if (KOS.errorLogUI && KOS.errorLogUI.openDialog) { openNow(); return; }
-    if (KOS.lazy && KOS.lazy.ensure) KOS.lazy.ensure(["page-errorlog"], openNow);
+    /* December audit ST-47/EX-57: KOS.lazy has need(), never ensure() */
+    if (KOS.lazy && KOS.lazy.need) KOS.lazy.need(["page-errorlog"]).then(openNow, function (e) { console.error("Kurenai OS: " + (e && e.message)); });
   }
   function inlinePill(seedOrFn, opts) {
     opts = opts || {};

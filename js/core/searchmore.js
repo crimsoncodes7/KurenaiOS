@@ -102,7 +102,8 @@
   /* Exams & Papers: an assessment by its title, subject or paper */
   function examsDomain(q, ts) {
     var ex = KOS.store.state.exams;
-    var all = (ex && ex.assessments) || [];
+    /* assessments are a keyed map (invariant 120), never an array (December audit CARBON-1-1) */
+    var all = KOS.exams && KOS.exams.all ? KOS.exams.all() : Object.keys((ex && ex.assessments) || {}).map(function (k) { return ex.assessments[k]; });
     var out = all.filter(function (a) {
       return a && !a.deleted && hits((a.title || "") + " " + (a.subject || "") + " " + (a.tier || "") + " " + (a.preset || ""), ts);
     });

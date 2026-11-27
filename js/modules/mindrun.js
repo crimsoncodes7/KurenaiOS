@@ -190,11 +190,14 @@
         onEnd: function (sum, path) {
           delete ui.tree[tree.id]; place = {}; KOS.store.save();
           var concepts = (l && (l.concepts || [])) || [];
+          var dSaved = false;   /* MI-91, as above */
           var saveBtn = el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "mind.dialogue-save", text: "≋ Save to Journal",
             onclick: function () {
+              if (dSaved) { KOS.show("mind", { page: "journal" }); return; }
+              dSaved = true;
               KOS.mindJournal.add({ kind: "reflection", title: "Dialogue: " + tree.title, text: sum, concepts: concepts.slice(0, 3), lesson: id, src: { kind: "dialogue", ref: tree.id } }, function (err) {
-                if (err) { KOS.ui.toast("Couldn't save to the Journal on this device.", true); return; }
-                saveBtn.textContent = "In your Journal ›"; saveBtn.onclick = function () { KOS.show("mind", { page: "journal" }); };
+                if (err) { dSaved = false; KOS.ui.toast("Couldn't save to the Journal on this device.", true); return; }
+                saveBtn.textContent = "In your Journal ›";
                 announce("Saved to your Journal as a Reflection.");
               });
             } });
@@ -334,12 +337,18 @@
       body.appendChild(el("div", { class: "k-mind-reply", "data-ui": "mind.ask-reply" }, [UI().avatar("kurenai", "thinking"), el("p", { class: "k-mind-read", text: t })]));
       body.appendChild(el("small", { class: "k-muted", text: (MODES.filter(function (m) { return m[0] === mode; })[0] || ["", "A second look"])[1] + " · nothing here sets mastery" }));
       announce("Reply from Kurenai.");
+      /* December audit MI-91: el() binds onclick with addEventListener, so a
+         later `save.onclick =` ADDED a second handler and the first saved
+         again; once saved, the one handler only opens the Journal */
+      var saved = false;
       var save = el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", "data-ui": "mind.ask-save", text: "≋ Save to Journal",
         onclick: function () {
+          if (saved) { sh.close(); KOS.show("mind", { page: "journal" }); return; }
+          saved = true;
           KOS.mindJournal.add({ kind: "reflection", title: (MODES.filter(function (m) { return m[0] === mode; })[0] || ["", "Kurenai"])[1] + (c ? " on " + c.name.toLowerCase() : ""),
             text: (typed.trim() ? "Q: " + typed.trim() + "\n\n" : "") + t, concepts: c ? [c.id] : [], lesson: ctx.lesson || null, src: { kind: "kurenai", ref: mode } }, function (err) {
-            if (err) { KOS.ui.toast("Couldn't save to the Journal on this device.", true); return; }
-            save.textContent = "In your Journal ›"; save.onclick = function () { sh.close(); KOS.show("mind", { page: "journal" }); };
+            if (err) { saved = false; KOS.ui.toast("Couldn't save to the Journal on this device.", true); return; }
+            save.textContent = "In your Journal ›";
             announce("Saved to your Journal.");
           });
         } });
