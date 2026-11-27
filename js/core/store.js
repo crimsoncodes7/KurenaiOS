@@ -667,7 +667,8 @@
             var other = parseDoc(cur.json);
             if (other) {
               var bj = mJson != null ? mJson : lsJson;
-              applyDoc(KOS.cloudmerge.merge(bj != null ? parseDoc(bj) : null, jclone(state), other, TAB_MERGE).doc);
+              var mres = KOS.cloudmerge.merge(bj != null ? parseDoc(bj) : null, jclone(state), other, TAB_MERGE);
+              applyDoc(mres.doc, mres.renames);
               health.merges++;
             }
           }
@@ -804,24 +805,44 @@
       else if (a !== b) dst[k] = b;
     });
   }
+  /* a row's identity for keeping its object: its id, and its kind where rows
+     of several kinds share one array (a Daily Review's picks: reminder 3 and
+     assignment 3 are two rows). Each current object is taken by ONE incoming
+     row at most, so two rows that share an id never fold into one object
+     (December audit DI-33). */
+  function rowKey(x) { return typeof x.id + ":" + x.id + (x.kind != null ? "|" + x.kind : ""); }
   function assignList(dst, src) {
     var byId = null;
     if (dst.length && isObj(dst[0]) && dst[0].id != null) {
       byId = {};
-      dst.forEach(function (x) { if (isObj(x) && x.id != null) byId[typeof x.id + ":" + x.id] = x; });
+      dst.forEach(function (x) { if (isObj(x) && x.id != null && !byId[rowKey(x)]) byId[rowKey(x)] = x; });
     }
     var out = src.map(function (b) {
       if (byId && isObj(b) && b.id != null) {
-        var a = byId[typeof b.id + ":" + b.id];
-        if (a) { assignDeep(a, b); return a; }
+        var k = rowKey(b), a = byId[k];
+        if (a) { delete byId[k]; assignDeep(a, b); return a; }
       }
       return b;
     });
     dst.length = 0;
     for (var i = 0; i < out.length; i++) dst.push(out[i]);
   }
-  function applyDoc(doc) {
+  /* a merge that re-keyed this device's records (cloudmerge renames) moves
+     each LIVE object to its new id first, so it keeps its own record when
+     the document lands and an editor holding it saves that record, never the
+     other device's that now owns the old id (December audit SY-38) */
+  function moveRenamed(renames) {
+    (renames || []).forEach(function (r) {
+      var arr = String(r.path).split(".").reduce(function (o, k) { return o && o[k]; }, state);
+      if (!Array.isArray(arr)) return;
+      for (var i = 0; i < arr.length; i++) {
+        if (isObj(arr[i]) && arr[i][r.id] === r.from) { arr[i][r.id] = r.to; return; }
+      }
+    });
+  }
+  function applyDoc(doc, renames) {
     bump(); docEpoch++;
+    moveRenamed(renames);
     var next = deepMerge(JSON.parse(JSON.stringify(DEFAULTS)), doc);
     scrubLegacy(next);
     assignDeep(state, next);
@@ -832,7 +853,7 @@
   function mergeIn(other, raw, rev) {
     var bj = isSibling(rev) ? prevJson : lsJson;
     var res = KOS.cloudmerge.merge(bj != null ? parseDoc(bj) : null, jclone(state), other, TAB_MERGE);
-    applyDoc(res.doc);
+    applyDoc(res.doc, res.renames);
     setBase(raw, rev);
     health.merges++;
     return res;
@@ -1746,7 +1767,8 @@
       return /^\d+$/.test(v) ? Number(v) : v;
     },
 
-    replaceState: function (incoming) {
+    /* renames: a cloud merge's re-keyed records (cloudsync), moved first */
+    replaceState: function (incoming, renames) {
       /* first what the other tabs wrote, so this tab's base is the stored
          document: the replace is then THIS tab's one change on top of it
          (two tabs applying the same document never count it twice) */
@@ -1758,7 +1780,7 @@
          writes into the live state after a cloud pull, not into a detached
          copy that the next save never sees. It moves docEpoch too: a whole
          document was taken in. */
-      applyDoc(incoming);
+      applyDoc(incoming, renames);
       save();
     },
 

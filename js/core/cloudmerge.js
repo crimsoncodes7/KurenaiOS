@@ -345,8 +345,12 @@
     });
   }
   /* Give every colliding LOCAL record a fresh id before the merge sees it.
-     Returns the number of records re-keyed. Mutates `local` only. */
-  function rekeyCollisions(base, local, remote) {
+     Returns the number of records re-keyed. Mutates `local` only. Each
+     rename is pushed to `renames` ({path, id, from, to}) so the store can
+     move the LIVE object to its new id before it takes the merged document
+     in (December audit SY-38): an editor holding the record then saves its
+     own record, not the other device's that took the old id. */
+  function rekeyCollisions(base, local, remote, renames) {
     var renamed = 0;
     /* fresh ids come from the counter's whole family, so a counter shared
        by two arrays (reminder items and lists) never hands out a number
@@ -388,6 +392,7 @@
         var oldId = rec[spec.id];
         var newId = spec.prefix ? spec.prefix + next : next;
         rec[spec.id] = newId;
+        if (renames) renames.push({ path: spec.path, id: spec.id, from: oldId, to: newId });
         rewriteRefs(local, spec, oldId, newId);
         if (spec.counter) {
           var cur = pathGet(local, spec.counter);
@@ -562,7 +567,7 @@
     return nl > 0 && nr > 0 && shared === 0;
   }
 
-  /* merge(base, local, remote[, opts]) → { doc, stats, rekeyed }
+  /* merge(base, local, remote[, opts]) → { doc, stats, rekeyed, renames }
      `base` may be null (no common ancestor). Inputs are not mutated.
      opts.sumEqual: an additive counter moved by the SAME amount on both
      sides is summed, not taken as one change (the tab merge only, and only
@@ -572,7 +577,8 @@
     var L = clone(isPlain(local) ? local : {});
     var R = clone(isPlain(remote) ? remote : {});
     var stats = { added: 0, deleted: 0, conflicts: 0 };
-    var rekeyed = rekeyCollisions(B, L, R);
+    var renames = [];
+    var rekeyed = rekeyCollisions(B, L, R, renames);
     var preferRemote = false;
     if (!B) {
       var ls = Array.isArray(L.sessions) ? L.sessions.length : 0;
@@ -582,7 +588,7 @@
     var ctx = { preferRemote: preferRemote, stats: stats, sumEqual: !!(opts && opts.sumEqual) && ownSessions(B, L, R) };
     var doc = mergeValue(B === null ? undefined : B, L, R, ctx, "");
     reconcileProgress(doc);
-    return { doc: doc, stats: stats, rekeyed: rekeyed };
+    return { doc: doc, stats: stats, rekeyed: rekeyed, renames: renames };
   }
 
   KOS.cloudmerge = {

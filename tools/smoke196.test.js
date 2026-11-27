@@ -263,6 +263,47 @@ step("G · a document taken in from the cloud keeps every held reference live (b
   K.store.state.reminders.items = items.filter((x) => x.id !== "zz-new"); K.store.save();
 });
 
+step("G2 · a pull that re-keys a held record keeps it, and rows sharing an id stay apart (December audit SY-38, DI-33)", async () => {
+  const st = K.store.state;
+  /* SY-38: two devices add a goal under the same counter id before they sync */
+  const base = JSON.parse(JSON.stringify(st)); delete base.ui;
+  const nid = Math.max(st.goals.nextId || 1, ...st.goals.items.map((g) => +g.id || 0).concat(0).map((n) => n + 1));
+  st.goals.items.push({ id: nid, title: "LOCAL goal", type: "focus-hours", target: 10, createdAt: 1764000000000 });
+  st.goals.nextId = nid + 1; K.store.save();
+  const held = st.goals.items.find((g) => g.id === nid);          /* what an open editor holds */
+  const local = JSON.parse(JSON.stringify(st)); delete local.ui;
+  const remote = JSON.parse(JSON.stringify(base));
+  remote.goals.items.push({ id: nid, title: "REMOTE goal", type: "focus-hours", target: 3, createdAt: 1764000500000 });
+  remote.goals.nextId = nid + 1;
+  const res = K.cloudmerge.merge(base, local, remote);
+  assert(res.renames.some((r) => r.path === "goals.items" && r.from === nid), "the merge reports the re-key: " + JSON.stringify(res.renames));
+  K.store.replaceState(res.doc, res.renames);
+  const items = K.store.state.goals.items;
+  assert(items.indexOf(held) !== -1 && held.id !== nid, "the held object is still this device's goal, under its new id");
+  eq(held.title, "LOCAL goal", "and still holds this device's goal");
+  eq(items.find((g) => g.id === nid).title, "REMOTE goal", "the other device's goal keeps the old id");
+  K.goals.update(held.id, { title: "LOCAL goal (edited)" });       /* the editor saves by existing.id */
+  eq(items.find((g) => g.id === nid).title, "REMOTE goal", "saving the held goal never writes the other device's");
+  eq(items.find((g) => g.id === held.id).title, "LOCAL goal (edited)", "the edit reaches this device's goal");
+  K.store.state.goals.items = K.store.state.goals.items.filter((g) => g !== held && g.id !== nid); K.store.save();
+
+  /* DI-33: rows that share an id — picks of several kinds, an old ledger's duplicate ids */
+  const day = "2026-11-20";
+  st.dayReview = st.dayReview || {}; st.dayReview.days = st.dayReview.days || {};
+  st.dayReview.days[day] = { morning: { three: [{ kind: "reminder", id: 3 }, { kind: "assignment", id: 3 }, { kind: "event", id: 7 }] } };
+  st.sessions.push({ id: 987654, ts: 1, date: "2026-09-01", type: "focus", subject: "maths", minutes: 25 },
+    { id: 987654, ts: 2, date: "2026-09-02", type: "quiz", subject: "maths" });
+  K.store.save();
+  K.store.replaceState(JSON.parse(JSON.stringify(st)));
+  eq(K.store.state.dayReview.days[day].morning.three.map((p) => p.kind + " " + p.id), ["reminder 3", "assignment 3", "event 7"], "every pick keeps its kind");
+  eq(K.store.state.sessions.filter((s) => s.id === 987654).map((s) => s.type), ["focus", "quiz"], "two ledger rows that share an id both survive");
+  if (K.store.flush) K.store.flush();
+  const stored = JSON.parse(app.window.localStorage.getItem("kurenai-os-v1"));
+  eq(stored.sessions.filter((s) => s.id === 987654).map((s) => s.type), ["focus", "quiz"], "and both are saved");
+  K.store.state.sessions = K.store.state.sessions.filter((s) => s.id !== 987654);
+  delete K.store.state.dayReview.days[day]; K.store.save();
+});
+
 step("H · the server functions' failure paths (rm:edge-hygiene, EF-01 to EF-08)", () => {
   const fs = require("fs"), path = require("path"), F = path.join(__dirname, "..", "supabase", "functions");
   const read = (f) => fs.readFileSync(path.join(F, f), "utf8");
