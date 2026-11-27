@@ -206,6 +206,27 @@ step("D · T4: Exams Card drill empty state uses KOS.ui.emptyState", async (app)
   assert(empty, "Exams Card drill renders canonical KOS.ui.emptyState when scope has no cards");
 });
 
+step("E · a Mind card reviewed before opens in the card review and its history (December audit SY-33)", async (app) => {
+  const { KOS, document } = app;
+  const today = KOS.srs.todayISO();
+  const cid = KOS.mind.concepts()[2].id;
+  KOS.mind.introduce(cid, KOS.srs.addDays(today, -12));
+  const key = KOS.mind.due(today, true)[0];
+  assert(key, "a Mind card is due");
+  KOS.mind.rateCard(key, 3);                       /* reviewed once: it now has a stability */
+  const rec = KOS.mind.peek().cards[key];
+  rec.last = KOS.srs.addDays(today, -6); rec.due = today;
+  KOS.store.save();
+  const errs0 = app.errors.length;
+  KOS.show("mind", { page: "cards" });
+  await app.settle();
+  eq(app.errors.slice(errs0), [], "no page error drawing a reviewed card (KOS.fsrs.recall did not exist)");
+  assert(document.querySelector("[data-ui~='mind.review-card'] [data-ui~='fc.card']"), "the review card is drawn");
+  const mem = KOS.mindPages.srs().memory(key);
+  assert(mem && mem.r > 0 && mem.r < 1, "the card's recall is a probability: " + JSON.stringify(mem));
+  KOS.show("subject", "mind"); await app.settle();
+});
+
 (async () => {
   const app = await boot();
   let failed = 0;
