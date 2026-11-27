@@ -45,6 +45,20 @@
   function shortDate(s) { var d = parse(s); return d.getDate() + " " + MON3[d.getMonth()]; }
   function announce(t) { if (KOS.a11y && KOS.a11y.announce) KOS.a11y.announce(t); }
   function redraw() { KOS.rerender(); }
+  /* GO-28 (December audit): a row is a COPY drawn with the id its goal had
+     then. Goals still take per-device counter ids, so a pull can re-key ours
+     and give its old id to another device's goal; every action here acts on
+     the live goal the row was drawn from — the same id while it is still the
+     same goal (its createdAt), else the goal with its createdAt — and on
+     nothing, with a word, when it is gone. */
+  function liveId(g) {
+    var cur = g && G.get(g.id);
+    if (cur && (cur.createdAt == null || g.createdAt == null || cur.createdAt === g.createdAt)) return cur.id;
+    var mine = g && g.createdAt != null ? G.all().filter(function (x) { return x.createdAt === g.createdAt; })[0] : null;
+    if (mine) return mine.id;
+    U.toast("This goal changed on another device. Look again before acting on it.", true);
+    return null;
+  }
   function btn(text, cls, onclick, hook, extra) {
     return el("button", Object.assign({ type: "button", class: "k-btn" + (cls ? " " + cls : ""), "data-ui": hook || null, text: text, onclick: onclick }, extra || {}));
   }
@@ -196,7 +210,7 @@
       : el("p", { class: "k-muted k-gl-small", text: "No exam it can follow is coming up. Add one in Exams first." })],
       [el("span"), btn("Cancel", "", function () { ov.remove(); }), list.length ? btn("Link", "k-btn--primary", function () {
         var a = KOS.exams.get(sel.value);
-        G.linkExam(g.id, sel.value); ov.remove(); announce("Linked to " + a.title); redraw();
+        G.linkExam(liveId(g), sel.value); ov.remove(); announce("Linked to " + a.title); redraw();
       }, "goal.link-save") : null].filter(Boolean), "goal.link-dialog", "k-gl-dialog--form");
   }
   /* the words Home and the exams pages share are js/modules/goalwords.js, at boot (1F) */
@@ -289,7 +303,7 @@
     if (t === "todos-done" || t === "habit-streak") return ["Habits", function () { KOS.show("tasks"); }];
     if (t === "no-overdue") return ["Assignments", function () { KOS.show("assignments"); }];
     if (t === "study-paper-score") return ["Exams & Papers", function () { KOS.show("tracker"); }];
-    if (t === "custom-manual" && g._status === "active") return ["+1", function () { G.nudge(g.id, 1); announce(g.title + ", " + ((g.current || 0) + 1) + " of " + g.target); redraw(); }];
+    if (t === "custom-manual" && g._status === "active") return ["+1", function () { G.nudge(liveId(g), 1); announce(g.title + ", " + ((g.current || 0) + 1) + " of " + g.target); redraw(); }];
     if (t === "gov-gold") return ["Open Shop", function () { KOS.show("governor", "shop"); }];
     if (domainOf(g) === "collection") return ["Collection", function () { KOS.show(g.module ? (g.module === "game" ? "game" : g.module) : "matrix"); }];
     return null;
@@ -512,13 +526,13 @@
         el("p", { class: "k-muted k-gl-small", text: (g.deadline ? MONTHS[parse(g.deadline).getMonth()] + " · " : "") + word(g, g._current) + " of " + word(g, g._target) + (g.deadline ? " by " + shortDate(g.deadline) : "") }),
         el("div", { class: "k-gl-actions" }, [
           btn("Restart", "k-btn--sm", function () { restart(g); }, "goal.restart"),
-          btn("Archive", "k-btn--sm k-btn--quiet", function () { G.archive(g.id, true); U.toast("Archived · " + g.title); redraw(); }, "goal.archive")])]);
+          btn("Archive", "k-btn--sm k-btn--quiet", function () { G.archive(liveId(g), true); U.toast("Archived · " + g.title); redraw(); }, "goal.archive")])]);
     })), "", "goal.missed-card");
   }
   function restart(g) {
     var patch = {}, start = today();
     if (g.deadline) { var span = Math.max(1, between(g.startDate, g.deadline)); patch.deadline = addDays(start, span); }
-    G.restart(g.id, patch);
+    G.restart(liveId(g), patch);
     U.toast(g.title + " restarted" + (patch.deadline ? " · " + shortDate(start) + " – " + shortDate(patch.deadline) : " from " + shortDate(start)));
     redraw();
   }
@@ -536,8 +550,8 @@
         acts ? el("div", { class: "k-gl-actions" }, acts) : null].filter(Boolean));
     }
     var groups = [["Met", "calmly noted; nothing is paid for a goal", met, function () { return null; }],
-      ["Missed", "", missed, function (g) { return [btn("Restart", "k-btn--sm", function () { restart(g); }, "goal.restart"), btn("Archive", "k-btn--sm k-btn--quiet", function () { G.archive(g.id, true); U.toast("Archived · " + g.title); redraw(); }, "goal.archive")]; }],
-      ["Archived", "", archived, function (g) { return [btn("Restore", "k-btn--sm", function () { G.archive(g.id, false); announce("Restored · " + g.title); redraw(); }, "goal.restore")]; }]];
+      ["Missed", "", missed, function (g) { return [btn("Restart", "k-btn--sm", function () { restart(g); }, "goal.restart"), btn("Archive", "k-btn--sm k-btn--quiet", function () { G.archive(liveId(g), true); U.toast("Archived · " + g.title); redraw(); }, "goal.archive")]; }],
+      ["Archived", "", archived, function (g) { return [btn("Restore", "k-btn--sm", function () { G.archive(liveId(g), false); announce("Restored · " + g.title); redraw(); }, "goal.restore")]; }]];
     var list = card(groups.filter(function (x) { return x[2].length; }).map(function (x) {
       return el("div", { class: "k-gl-group" }, [el("div", { class: "k-gl-grouphead" }, [el("span", { class: "k-gl-grouptitle", text: x[0] }), x[1] ? el("span", { class: "k-muted k-gl-small", text: x[1] }) : null].filter(Boolean))]
         .concat(x[2].map(function (g) { return row(g, x[3](g)); })));
@@ -583,12 +597,12 @@
         : g.deadline ? "From " + dayLabel(g.startDate) + " to " + dayLabel(g.deadline) : "From " + dayLabel(g.startDate) + " · no deadline";
       var more = U.menu({ label: "⋯", className: "k-btn--quiet k-gl-more", items: [
         { label: "Restart", onSelect: function () { restart(g); } },
-        { label: g.archived ? "Restore" : "Archive", onSelect: function () { G.archive(g.id, !g.archived); announce((g.archived ? "Restored · " : "Archived · ") + g.title); redraw(); } },
+        { label: g.archived ? "Restore" : "Archive", onSelect: function () { G.archive(liveId(g), !g.archived); announce((g.archived ? "Restored · " : "Archived · ") + g.title); redraw(); } },
         { sep: true },
         { label: "Delete…", onSelect: function () {
           U.confirm({ title: "Delete this goal?", danger: true, confirm: "Delete",
             body: "“" + g.title + "” and its history of periods go. Archive keeps it instead. The activity it counted is not touched." }, function () {
-            G.remove(g.id); announce("Goal deleted"); KOS.show("goals");
+            G.remove(liveId(g)); announce("Goal deleted"); KOS.show("goals");
           });
         } }] });
       more.setAttribute("aria-label", "More for this goal");
@@ -597,12 +611,12 @@
           /* roadmap 5.10 (frame 33v): up to three goals pinned to the Morning Review and Home */
           /* GO-26: a met or missed goal leaves the morning; no Pin offered */
           g.archived || finishedRow(g) ? null : btn(g.pinned ? "📌 Pinned · Unpin" : "📌 Pin to the morning", "", function () {
-            var r = G.pin(g.id, !g.pinned);
+            var r = G.pin(liveId(g), !g.pinned);
             if (!r.ok) { U.toast(r.why, true); return; }
             announce(g.pinned ? "Unpinned" : "Pinned to the morning review");
             redraw();
           }, "goal.pin")].concat(headActions(g), [
-          btn("Edit", "", function () { goalDialog(G.get(id)); }, "goal.edit"), more]).filter(Boolean) }));
+          btn("Edit", "", function () { var lid = liveId(g); if (lid != null) goalDialog(G.get(lid)); }, "goal.edit"), more]).filter(Boolean) }));
       var mainCol = el("div", { class: "k-mn-stack" }), side = el("div", { class: "k-mn-side" });
       page.appendChild(el("div", { class: "k-mn-cols k-mn-cols--sm" }, [mainCol, side]));
       /* the three figures and the pace chart */
@@ -645,8 +659,8 @@
   function headActions(g) {
     if (g.archived || g._unlinked) return [];
     if (g.kind === "manual") return [
-      (g.current || 0) > 0 ? btn("−1", "", function () { G.nudge(g.id, -1); announce(g.title + ", " + Math.max(0, (g.current || 0) - 1) + " of " + g.target); redraw(); }, "goal.minus") : null,
-      g._status === "failed" ? null : btn("+1", "k-btn--primary", function () { G.nudge(g.id, 1); announce(g.title + ", " + ((g.current || 0) + 1) + " of " + g.target); redraw(); }, "goal.plus")];
+      (g.current || 0) > 0 ? btn("−1", "", function () { G.nudge(liveId(g), -1); announce(g.title + ", " + Math.max(0, (g.current || 0) - 1) + " of " + g.target); redraw(); }, "goal.minus") : null,
+      g._status === "failed" ? null : btn("+1", "k-btn--primary", function () { G.nudge(liveId(g), 1); announce(g.title + ", " + ((g.current || 0) + 1) + " of " + g.target); redraw(); }, "goal.plus")];
     if (finishedRow(g)) return [];
     var act = actionFor(g);
     return act ? [btn(act[0], "k-btn--primary", act[1], "goal.detail-action")] : [];
@@ -722,7 +736,7 @@
       rows.push(el("div", { class: "k-card-row k-gl-link", "data-state": ok ? null : "dead" }, [el("span", { class: "k-tile", "aria-hidden": "true", text: mark }),
         el("div", { class: "k-gl-grow" }, [el("div", { class: "k-gl-strong k-gl-linktitle", text: title }), el("div", { class: "k-muted k-gl-small", text: sub })]),
         ok ? (onOpen ? el("button", { type: "button", class: "k-link", text: "›", "aria-label": "Open " + title, onclick: onOpen }) : null)
-          : btn("Remove link", "k-btn--sm k-btn--quiet", function () { var l = Object.assign({}, links); delete l[key]; G.update(g.id, { links: l }); announce("Link removed"); redraw(); }, "goal.unlink")].filter(Boolean)));
+          : btn("Remove link", "k-btn--sm k-btn--quiet", function () { var l = Object.assign({}, links); delete l[key]; G.update(liveId(g), { links: l }); announce("Link removed"); redraw(); }, "goal.unlink")].filter(Boolean)));
     }
     if (isExam(g)) {
       var xa = examOf(g);

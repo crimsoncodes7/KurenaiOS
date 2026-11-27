@@ -304,6 +304,48 @@ step("G2 · a pull that re-keys a held record keeps it, and rows sharing an id s
   delete K.store.state.dayReview.days[day]; K.store.save();
 });
 
+step("G4 · the goal page's Delete and Archive act on the goal shown, after a pull re-keys it (December audit GO-28)", async () => {
+  const W = app.window, KEY = "kurenai-os-v1", REVK = KEY + ".rev", st = K.store.state;
+  function rekeyFromOtherTab(nid, mine) {
+    const doc = JSON.parse(W.localStorage.getItem(KEY));
+    doc.goals.items = doc.goals.items.filter((g) => g.id !== nid)
+      .concat([{ id: nid, title: "THEIR goal", kind: "manual", type: "custom-manual", target: 5, current: 0, createdAt: 1764000900000 + nid },
+               Object.assign({}, mine, { id: nid + 1 })]);
+    doc.goals.nextId = nid + 2;
+    W.localStorage.setItem(KEY, JSON.stringify(doc));
+    W.localStorage.setItem(REVK, String((parseInt(W.localStorage.getItem(REVK), 10) || 0) + 1));
+  }
+  function menuItem(label) {
+    q("[aria-label='More for this goal']").click();
+    return [...D.querySelectorAll("[role='menuitem'], .k-menu button, .k-menu-item")].find((b) => b.textContent.trim() === label);
+  }
+  for (const action of ["Delete…", "Archive"]) {
+    const nid = Math.max(st.goals.nextId || 1, ...st.goals.items.map((g) => +g.id || 0).concat(0).map((n) => n + 1)) + 20;
+    const mine = K.goals.add({ title: "MY goal", kind: "manual", type: "custom-manual", target: 5 });
+    /* give it the id the other device's goal will collide with */
+    const live = st.goals.items.find((g) => g.id === mine.id); live.id = nid; st.goals.nextId = nid + 1;
+    K.store.save(); if (K.store.flush) K.store.flush();
+    K.show("goals", { id: nid }); await app.settle();
+    const item = menuItem(action);
+    assert(item, "the goal page's ⋯ menu offers " + action);
+    const copy = JSON.parse(JSON.stringify(live));
+    if (action === "Delete…") {
+      item.click(); await app.settle();                         /* the danger confirm is open … */
+      rekeyFromOtherTab(nid, copy); K.store.sync();              /* … when another tab's pull lands */
+      const ok = [...D.querySelectorAll(".k-dialog button")].find((b) => b.textContent.trim() === "Delete");
+      assert(ok, "the Delete confirm is open"); ok.click(); await app.settle();
+      eq(st.goals.items.filter((g) => g.id === nid || g.id === nid + 1).map((g) => [g.id, g.title]), [[nid, "THEIR goal"]], "Delete removed MY goal and kept theirs");
+    } else {
+      rekeyFromOtherTab(nid, copy); K.store.sync();              /* the pull lands with the page drawn */
+      item.click(); await app.settle();
+      eq(st.goals.items.filter((g) => g.id === nid || g.id === nid + 1).map((g) => [g.id, g.title, !!g.archived]),
+        [[nid, "THEIR goal", false], [nid + 1, "MY goal", true]], "Archive archived MY goal, not theirs");
+    }
+    K.store.state.goals.items = st.goals.items.filter((g) => g.id !== nid && g.id !== nid + 1); K.store.save();
+    D.querySelectorAll(".k-dialog-overlay").forEach((o) => o.remove());
+  }
+});
+
 step("G3 · another TAB's write that re-keyed a held record: the held object follows it, clean or dirty (SY-38, Carbon's two-tab case)", async () => {
   const W = app.window, KEY = "kurenai-os-v1", REVK = KEY + ".rev";
   const st = K.store.state;
