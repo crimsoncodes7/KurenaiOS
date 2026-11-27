@@ -934,7 +934,7 @@
         var m = KOS.fsrs.recordMemory(s, KOS.srs.weights());
         if (!m) return null;
         var el = s.last ? Math.max(0, KOS.srs.daysBetween(s.last, KOS.srs.todayISO())) : 0;
-        return { s: m.s, d: m.d, r: KOS.fsrs.recall(m.s, el) };
+        return { s: m.s, d: m.d, r: KOS.fsrs.retrievability(el, m.s, KOS.srs.weights()) };
       },
       preview: function (k, idx) {
         var pv = M().preview(k);

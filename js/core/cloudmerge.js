@@ -252,6 +252,25 @@
      rest of the record agrees. */
   var PRECISE = ["ts", "created", "createdAt", "addedAt", "added"];
   var NAMES = ["title", "name", "q", "text", "topic"];
+  /* creation stamps: two rows whose stamps differ are two records; two rows
+     with the same (non-empty) stamps are one */
+  function stampsDiffer(a, b) {
+    for (var i = 0; i < PRECISE.length; i++) {
+      var f = PRECISE[i];
+      if (a[f] != null && b[f] != null && a[f] !== b[f]) return true;
+    }
+    return false;
+  }
+  function sameStamps(a, b) {
+    var any = false;
+    for (var i = 0; i < PRECISE.length; i++) {
+      var f = PRECISE[i];
+      if (a[f] == null && b[f] == null) continue;
+      if (a[f] !== b[f]) return false;
+      any = true;
+    }
+    return any;
+  }
   function sameOrigin(a, b) {
     for (var i = 0; i < PRECISE.length; i++) {
       var f = PRECISE[i], x = a[f], y = b[f];
@@ -345,8 +364,12 @@
     });
   }
   /* Give every colliding LOCAL record a fresh id before the merge sees it.
-     Returns the number of records re-keyed. Mutates `local` only. */
-  function rekeyCollisions(base, local, remote) {
+     Returns the number of records re-keyed. Mutates `local` only. Each
+     rename is pushed to `renames` ({path, id, from, to}) so the store can
+     move the LIVE object to its new id before it takes the merged document
+     in (December audit SY-38): an editor holding the record then saves its
+     own record, not the other device's that took the old id. */
+  function rekeyCollisions(base, local, remote, renames) {
     var renamed = 0;
     /* fresh ids come from the counter's whole family, so a counter shared
        by two arrays (reminder items and lists) never hands out a number
@@ -371,6 +394,35 @@
       ceiling[key] = m;
       return m;
     }
+    /* MOVED: another tab or device already re-keyed this device's record and
+       its document is the remote one — the remote holds a DIFFERENT record
+       (another creation stamp) under the id, and ours under a new id. Our
+       copy and the base's follow it to that id first, so this side's
+       changes merge into our record, never into the other device's
+       (December audit SY-38, Carbon's two-tab case). */
+    RECORDS.forEach(function (spec) {
+      if (!spec.counter && spec.path !== "sessions") return;
+      var L = pathGet(local, spec.path), R = pathGet(remote, spec.path), B = pathGet(base, spec.path);
+      if (!Array.isArray(L) || !Array.isArray(R) || !Array.isArray(B) || !L.length || !R.length) return;
+      var inR = {}, inB = {};
+      R.forEach(function (r) { if (isPlain(r)) inR[String(r[spec.id])] = r; });
+      B.forEach(function (r) { if (isPlain(r)) inB[String(r[spec.id])] = r; });
+      L.forEach(function (rec) {
+        if (!isPlain(rec)) return;
+        var k = String(rec[spec.id]), b = inB[k], r = inR[k];
+        if (!b || !r || !stampsDiffer(b, r) || !sameStamps(rec, b)) return;
+        var moved = null;
+        for (var i = 0; i < R.length; i++) {
+          if (isPlain(R[i]) && String(R[i][spec.id]) !== k && sameStamps(R[i], b)) { moved = R[i]; break; }
+        }
+        if (!moved) return;
+        var oldId = rec[spec.id], newId = moved[spec.id];
+        rec[spec.id] = newId; rewriteRefs(local, spec, oldId, newId);
+        b[spec.id] = newId; rewriteRefs(base, spec, oldId, newId);
+        if (renames) renames.push({ path: spec.path, id: spec.id, from: oldId, to: newId });
+        renamed++;
+      });
+    });
     RECORDS.forEach(function (spec) {
       if (!spec.counter && spec.path !== "sessions") return;   // keyed by a natural key
       var L = pathGet(local, spec.path), R = pathGet(remote, spec.path), B = pathGet(base, spec.path);
@@ -388,6 +440,7 @@
         var oldId = rec[spec.id];
         var newId = spec.prefix ? spec.prefix + next : next;
         rec[spec.id] = newId;
+        if (renames) renames.push({ path: spec.path, id: spec.id, from: oldId, to: newId });
         rewriteRefs(local, spec, oldId, newId);
         if (spec.counter) {
           var cur = pathGet(local, spec.counter);
@@ -562,7 +615,7 @@
     return nl > 0 && nr > 0 && shared === 0;
   }
 
-  /* merge(base, local, remote[, opts]) → { doc, stats, rekeyed }
+  /* merge(base, local, remote[, opts]) → { doc, stats, rekeyed, renames }
      `base` may be null (no common ancestor). Inputs are not mutated.
      opts.sumEqual: an additive counter moved by the SAME amount on both
      sides is summed, not taken as one change (the tab merge only, and only
@@ -572,7 +625,8 @@
     var L = clone(isPlain(local) ? local : {});
     var R = clone(isPlain(remote) ? remote : {});
     var stats = { added: 0, deleted: 0, conflicts: 0 };
-    var rekeyed = rekeyCollisions(B, L, R);
+    var renames = [];
+    var rekeyed = rekeyCollisions(B, L, R, renames);
     var preferRemote = false;
     if (!B) {
       var ls = Array.isArray(L.sessions) ? L.sessions.length : 0;
@@ -582,7 +636,7 @@
     var ctx = { preferRemote: preferRemote, stats: stats, sumEqual: !!(opts && opts.sumEqual) && ownSessions(B, L, R) };
     var doc = mergeValue(B === null ? undefined : B, L, R, ctx, "");
     reconcileProgress(doc);
-    return { doc: doc, stats: stats, rekeyed: rekeyed };
+    return { doc: doc, stats: stats, rekeyed: rekeyed, renames: renames };
   }
 
   KOS.cloudmerge = {

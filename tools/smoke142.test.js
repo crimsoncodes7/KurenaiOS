@@ -194,6 +194,22 @@ step("A · boot parses under the budget, and every lazy file is one tag in one b
   eq(local[0], "js/core/lazy.js", "the loader runs first");
   assert(all.indexOf("js/data/lazy-index.js") > all.indexOf("js/data/code.js"), "the index follows js/data/code.js");
   assert(all.indexOf("js/data/lazy-index.js") < all.findIndex((s) => /^js\/modules\//.test(s)), "the index comes before the page modules");
+  /* December audit AP-21: a browser runs the index while the page is still
+     being read, and install() sees only the <template data-lazy> blocks
+     above it (the test loader reads the whole page first, so a boot here
+     cannot show it). Every bundle the index stands in for must be above it. */
+  const at = html.indexOf('<script src="js/data/lazy-index.js">');
+  const above = new Set([...html.slice(0, at).matchAll(/<template data-lazy="([^"]+)"/g)].map((m) => m[1]));
+  const ixSrc = fs.readFileSync(path.join(ROOT, "js/data/lazy-index.js"), "utf8");
+  const ixAt = ixSrc.indexOf("window.KOS_LAZY_INDEX");
+  const IX = JSON.parse(ixSrc.slice(ixSrc.indexOf("{", ixAt), ixSrc.indexOf(";\n", ixAt)));
+  const named = new Set((IX.content || []).map((r) => r[1]));
+  if (IX.code && Object.keys(IX.code).length) named.add("content-code");
+  if (IX.exams && IX.exams.index) named.add("exam-index");
+  if (IX.exams && IX.exams.deep) named.add("exams-deep");
+  assert(named.size >= 4, "the index names its bundles: " + [...named]);
+  const below = [...named].filter((b) => !above.has(b));
+  eq(below, [], "every bundle the index stands in for is parsed before js/data/lazy-index.js runs");
   /* the service worker reads the same tags */
   const sw = fs.readFileSync(path.join(ROOT, "sw.js"), "utf8");
   assert(sw.indexOf("/<script[^>]*\\ssrc=\"([^\"]+)\"/g") !== -1, "sw.js still derives its precache from every script tag");

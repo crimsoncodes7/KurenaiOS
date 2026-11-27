@@ -497,7 +497,13 @@ Read this file before editing or testing anything in its domain.
     list break ties by it): the light fields kept whole and a SUMMARY of
     the structure — a topic's pages, each flashcard's schedule key
     (invariant 87), quiz and exam counts, a Code lesson's listing and
-    practice ids, a task's tier and concepts. The past-paper index keeps
+    practice ids, a task's tier and concepts. Its tag sits BELOW every
+    `<template data-lazy>` it stands in for: a browser runs it while the
+    page is still being read, and `install()` sees only the templates
+    already parsed (above them it put no stand-in for any content, so the
+    due queue was short until the warm-up, and for good under Save-Data:
+    December audit AP-21; smoke142 A holds the order, which a test loader,
+    reading the whole page first, cannot show). The past-paper index keeps
     its papers, questions and A-level-only leaves at boot, because
     readiness, a scope and a goal are COMPUTED from them; only its topic
     packs wait. Whatever is computed, saved or scheduled reads the
