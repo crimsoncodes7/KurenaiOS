@@ -1,0 +1,273 @@
+{
+ "area": "architecture-perf",
+ "summary": "6 new findings (P1 1, P2 2, P3 3). The Phase 1 splits hold: all 56 lazy routes open from a cold reload with no error or miss at mac and iPhone 4x CPU, no page bundle registers a listener or ticker at load, listeners stay flat across 90 navigations, and every page-part API used from boot code waits for its bundle except one (AP-22, ST-47/EX-57). The main defect predates Phase 1: in a real browser the curriculum stand-ins are never installed because lazy-index.js runs before the content templates are parsed (AP-21, the root cause of ST-52 and ST-51), so due counts are short until the warm-up and for good under Save-Data, where a partial Due run pays the backlog bonus. The service worker mixes versions after a deploy (AP-23); the boot timing row understates (AP-24); docs drift (AP-25) and one copied split (AP-26). November: 12 fixed, 7 still open (all W8 'partly' or Later).",
+ "coverage": {
+  "slot": 6,
+  "baseline": "fa4264d0 (sw kos-qol-4)",
+  "accounts": [
+   "mine (dense)",
+   "sample",
+   "empty (+8 scheduled cards)"
+  ],
+  "viewports": [
+   "mac",
+   "iphone (CPU 4x)"
+  ],
+  "measured": [
+   "real reloads via CDP with Page.navigate through about:blank (true cold loads, SW and caches cleared; Save-Data emulated to stop the warm-up)",
+   "kos-boot/kos-interactive/kos-ready, domInteractive, FCP, long tasks, boot JS bytes on Home/Due/Exams/Calendar at mac 1x and iphone 4x, empty and dense",
+   "time to real page vs placeholder on #/exams, a topic, the Wall, a vault",
+   "all 56 lazy routes cold at mac and iphone 4x",
+   "the page-part API diff before/after KOS.lazy.all() and every reference to it outside its bundle (168 lines)",
+   "listeners and tickers registered during bundle load (0)",
+   "listener/DOM/heap growth over 3 x 30 views",
+   "the service worker via smoke121's worker harness (a live non-dev-host copy did not finish precaching in headless Chrome)",
+   "boot/page split pairs for copied helpers",
+   "docs vs code (invariant 168, ownership.md, SMOKE.md, HANDOFF, README, AGENTS, CLAUDE.md)",
+   "heavy view first draw and redraw, badge list, readiness, exam pass on the dense account"
+  ],
+  "notCovered": [
+   "iPad sizes for timing (layout is not this area's)",
+   "a live service-worker update on a non-dev host",
+   "the copy account (separate pass)",
+   "boot on a real iPhone/Safari (no requestIdleCallback there: the warm-up falls back to setTimeout)"
+  ]
+ },
+ "findings": [
+  {
+   "id": "AP-21",
+   "severity": "P1",
+   "category": "bug",
+   "title": "In a real browser the curriculum stand-ins are never installed: lazy-index.js runs before the content templates are parsed, so every page load counts only Mind/Creatives/Japanese cards until the warm-up (and for good under Save-Data), and a partial Due run pays the backlog bonus",
+   "detail": "Root cause of ST-52 and ST-51 (both predate Phase 1: the order has been the same since W2, 6b19b4bb, 15 Nov). index.html:185 runs js/data/lazy-index.js, which calls KOS.lazy.install() at once; install() builds its bundle list from files() (js/core/lazy.js:62-76), a querySelectorAll over the <template data-lazy> nodes parsed SO FAR. Recorded at the moment KOS_LAZY_INDEX is assigned (a setter in an init script): readyState 'loading', templates seen = [exam-index, ink-ui, exams-deep] — 3 of 44 bundles. Every content row is dropped by 'if (!known[bundle]) return' (lazy.js:219) and the Code registries by 'known[\"content-code\"]' (lazy.js:224), because content-compsci/maths/it/code are templates at index.html:352-479. Only exam-index/exams-deep stand-ins exist. So at boot KOS_CONTENT holds 52 keys (Mind, Creatives, Japanese, which load at boot), 0 stubs; KOS.srs.cardsFor('compsci','4.5.2.1') = 0 (11 once loaded). WHEN: every page load in a real browser (cold or warm, SW or not, any account), not only an empty cache; it lasts until the warm-up brings content-* in, which starts 5 s after kos-interactive (js/main.js:364) — measured 6.2-7.3 s after navigation at mac and at iphone 4x CPU. It is NEVER corrected when (a) navigator.connection.saveData is true (warm() returns at lazy.js:291; Chrome Data Saver / Lite mode) or (b) offline with the bundles uncached: then no stand-in ever misses, so nothing loads. Pages drawn in the window are not redrawn when content arrives (no miss, no lazy.on redraw): the Due page reloaded at #/due showed '3 due · 3 learnt', the Review tab badge 3 and the rail's Study count 3 at 11 s, with all 43 bundles in and 8 cards due (due-reload-11s). NUMBERS: Empty account with 8 cards due yesterday (3 Creatives, 5 CS/Maths/IT): due count 3 at boot, 8 after warm-up; with Save-Data 3 for good, Home's daily goal 'Clear 3 due flashcards (3 overdue)'. PAY (reproduced twice, Save-Data): Due today offers '3 cards · the whole queue'; rating them Good logs a due-review entry with metrics.cleared=true and receipt {xp 26, gold 25, hp 12} — the backlog-cleared bonus (+20 gold, +6 HP, js/core/governor.js:445 via KOS.srs.dueCount()===0) while 5 schedules are still due. SAMPLE (ST-51): js/core/sample.js:66-72 seeds S.srs from KOS.srs.cardsFor(), which returns [] for CS/Maths/IT before content loads, so the Sample account has 0 card schedules (eval: srsKeys 0). Production users see it: the parser behaviour is the browser's, the test loader's is not — tools/lib/app-harness.js builds the whole JSDOM before any script runs, so files() sees all 44 templates and smoke142's zero-miss and eager==lazy checks pass while the browser fails them. Side effect: 220 KB of the 412 KB lazy-index.js (its content and Code rows, the largest file boot parses) is parsed on every load and never used in a browser.",
+   "rootCause": "index.html:185 (lazy-index.js placed before the content <template data-lazy> blocks at 352-479) + js/core/lazy.js:211-224 install() trusting files() while document.readyState==='loading' (lazy.js:62-76 even notes the list is whole only at the end of parsing); js/main.js:364 warm-up as the only path that brings content in when nothing misses; js/core/lazy.js:291 skips warm-up on saveData.",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/due-reload-11s-mac-empty8.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/due-reload-2s-mac-empty8.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/home-savedata-14s-mac-empty8.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/due-savedata-14s-mac-empty8.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/run-due2-mac-empty8.json (atInstall {templates:[exam-index,ink-ui,exams-deep], readyState:loading}); /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/run-due-mac-empty8.json (due 3 → 8 while page stays '3 due'); /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/run-iphone4x-home-empty8.json (cs cards 0 → 11 at 6.6 s); /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/pay-savedata-run2.txt; helper /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/cdp.mjs with sc-due2.json, sc-savedata.json",
+   "fix": "Install the stand-ins only once every template is parsed: move the <script src=\"js/data/lazy-index.js\"> tag below the last <template data-lazy> (index.html, before the page modules and js/main.js, which already read cards), or let install() take the bundle names from the index rows themselves (each row names its bundle) instead of files(). Add a browser-order case to smoke142: a loader that evaluates each boot script with only the HTML above it in the DOM, so files() sees what a parser would. Then re-seed the Sample account (ST-51). The warm-up should not be the only path that brings content in: name the content-* bundles in NEEDS for home/due/review/cardstats (or let reviewBundles fall back to every content bundle with schedules), so Save-Data and a slow warm-up still count every card.",
+   "effort": "S",
+   "devices": [
+    "mac",
+    "iphone"
+   ],
+   "accounts": [
+    "empty",
+    "sample",
+    "mine"
+   ],
+   "phase1": null,
+   "regressionOf": null,
+   "invariants": [
+    "168",
+    "111",
+    "167",
+    "1"
+   ]
+  },
+  {
+   "id": "AP-22",
+   "severity": "P2",
+   "category": "bug",
+   "title": "KOS.errorLog.openCapture asks for KOS.lazy.ensure, which lazy.js never defined, and the existence guard hides it: every Error Log capture before page-errorlog is in does nothing",
+   "detail": "Root cause of ST-47 and EX-57, checked across the codebase. The page-part API was measured by booting lazy with Save-Data (so the warm-up does not run), snapshotting every KOS namespace's keys, calling KOS.lazy.all() and diffing: 85 namespaces and 8 extended ones (pacing's shift/row edits, errorLog's 9 hub methods, goalsUI's dialogs, achUI, ai.tools/orchestrator, mediaEditors, review.renderStats, routinePlayer.taskChoices) appear only when a bundle loads. Every reference to them from boot code or from another bundle (168 lines, xref.tsv) was read: all but one wait first (KOS.lazy.need / placeholder / NEEDS / PAGES, e.g. all seven 'Make this a goal' buttons, KOS.mediaEditor, KOS.files.open's past paper, Today's Daily Creative, Card stats). The exception is js/core/errorlog.js:161-167: when KOS.errorLogUI is absent it calls KOS.lazy.ensure(['page-errorlog'], openNow), but KOS.lazy (js/core/lazy.js:519-548) exports need/ready/all/… and no ensure; the 'if (KOS.lazy && KOS.lazy.ensure)' guard turns the missing method into a silent no-op. Grep of every KOS.lazy.<method> use in js/ finds no other missing method. Measured twice (Save-Data reload, Home): typeof KOS.lazy.ensure 'undefined'; openCapture({…}) → 0 dialogs after 2.5 s, page-errorlog still not loaded; after KOS.lazy.need('page-errorlog') the same call opens 'Log mistake'. Callers: the inline pill's '✓ Logged · Tag reason' (errorlog.js:189, every topic quiz/exam), '+ Log error' on the Ink tab (inktab.js:155) and the exam Review (examreview.js:137). On a normal boot it works only once the warm-up has reached page-errorlog (5-8 s); under Save-Data or offline-uncached never, until #/errorlog is visited. smoke cannot see it: the test loader is eager, so KOS.errorLogUI exists at boot and the branch never runs.",
+   "rootCause": "js/core/errorlog.js:166 calls a method that does not exist (KOS.lazy.need is the API, js/core/lazy.js:526); the existence-guard idiom (AP-09) hides a hard dependency, and no smoke boots lazy before page-errorlog to press it",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/elcap.txt (two runs of /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/sc-elcap.json via /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/cdp.mjs); /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/api-diff.json and /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/xref.tsv (made by /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/xref.py: every page-part member and every reference outside its bundle); grep -rnoE 'KOS\\.lazy\\.[a-zA-Z_]+' js → 'ensure' only at errorlog.js:166",
+   "fix": "errorlog.js:166 → KOS.lazy.need(['page-errorlog']).then(openNow, function(){ KOS.ui.toast('The Error Log could not load. Check the connection and try again.', true); }); drop the guard. Add to smoke142 a lazy boot (no warm) that presses the pill's Tag reason and asserts the dialog, and a static check that every KOS.lazy.<name> used in js/ is exported by lazy.js.",
+   "effort": "S",
+   "devices": [
+    "mac",
+    "ipad",
+    "iphone"
+   ],
+   "accounts": [
+    "empty",
+    "sample",
+    "mine"
+   ],
+   "phase1": "U7 Error Log (Neon's batch, merged in Phase 1)",
+   "regressionOf": null,
+   "invariants": [
+    "168"
+   ]
+  },
+  {
+   "id": "AP-23",
+   "severity": "P2",
+   "category": "arch",
+   "title": "The service worker mixes versions after a deploy: stale-while-revalidate writes the new deploy's scripts into the old version's cache, so the old index.html runs new scripts until the update is accepted",
+   "detail": "sw.js says 'a page is always one version' and serves navigations from the index.html cached with the worker's own VERSION (sw.js:255-273, invariant 37). But every same-origin script and stylesheet is stale-while-revalidate into that SAME cache (sw.js:186-199, 280): the first load after a deploy serves the old copy and, in the background, puts the NEW deploy's file into kos-static-<OLD VERSION>. The new worker meanwhile waits for the user's 'Reload now' (invariant 38). If the user says Later, or simply reloads/relaunches the PWA, the next load pairs the old index.html (old template/bundle lists, old script order) with whichever new scripts were refreshed — each file switching only when it is next requested, so lazy bundles stay old until opened. A release that adds a file, moves a function between files or changes a boot part/page part split (1F did all three) can then throw at boot or miss a page part. Reproduced twice with the project's own worker harness: tools/smoke121.test.js step C evaluates sw.js, deploys B, fetches js/core/store.js twice from worker A and logs 'note C: SWR put deploy B's js/core/store.js into kos-static-kos-smoke-a — A's shell now loads B's script (mixed version until the update is accepted)'; the suite records it as a note, never a failure, since 8 Nov (969371e4). It is in no November finding and not in the QoL plan (architecture-perf#3 there is only about re-downloading). A live repro on a non-dev host was attempted (a copy served as kos.test) but the headless worker's precache did not finish in that setup, so the evidence is the worker harness and the code.",
+   "rootCause": "sw.js:280 staleWhileRevalidate(e, STATIC_CACHE) for every same-origin GET, with STATIC_CACHE = 'kos-static-' + VERSION (sw.js:44-45) shared with the shell served at sw.js:261-264; cache.put of the network response at sw.js:190",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/smoke121-noteC.txt (two runs); tools/smoke121.test.js:163-182; sw.js:1-40 header, 186-199, 255-280",
+   "fix": "Serve precached same-origin statics CACHE-FIRST from the worker's own version cache with no background refresh (the precache is already derived from index.html, and a deploy bumps VERSION, invariant 38), keeping SWR only for the CDN runtime cache; anything not precached may go network-then-cache. Turn smoke121's note C into an assertion that A's cache never receives B's bytes.",
+   "effort": "S",
+   "devices": [
+    "mac",
+    "ipad",
+    "iphone"
+   ],
+   "accounts": [
+    "mine"
+   ],
+   "phase1": null,
+   "regressionOf": null,
+   "invariants": [
+    "37",
+    "38"
+   ]
+  },
+  {
+   "id": "AP-24",
+   "severity": "P3",
+   "category": "perf",
+   "title": "Settings › Storage's 'First page, this start' is not the first page: kos-boot starts at the first script, not navigation, and ends before a page that waits for its bundles has drawn",
+   "detail": "KOS.lazy.timing().boot is the measure kos-boot from 'kos-boot-start' (js/core/lazy.js:46, the first app script, index.html:151, after the HTML and every stylesheet in <head>) to 'kos-interactive' (js/main.js:363, right after KOS.router.boot()). Two gaps, measured on real reloads: (1) the time before the first script is left out — at mac kos-boot-start fell at 230-914 ms after navigation (e.g. boot shown 199 ms while kos-interactive was at 1,113 ms; iphone 4x: shown 102 ms, interactive at 769 ms); (2) on a route whose page names bundles (#/exams, a topic, the Wall, a vault) router.boot() has only drawn the 'Loading…' stand-in when the mark is taken: #/ref/compsci/4.5.2.1 at iphone 4x showed boot 394 ms, but the real page replaced the placeholder at 1,123 ms after navigation (kos-interactive 538 ms); #/exams 354 ms shown vs page at 757 ms. So the row reads 0.1-0.4 s where the reader waited 0.75-1.4 s, and smoke142 L only checks that the figures exist.",
+   "rootCause": "js/core/lazy.js:46 (start mark at the first script) and js/main.js:363 (end mark before KOS.lazy.placeholder's first real draw, js/core/lazy.js:466-472); js/modules/storage.js:163-170 labels it 'First page'",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/run-mac-warm1.json; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/matrix-empty8.txt; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/fp-empty8.txt (made by /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/fp.sh: probe of #main for [data-ui~=lazy.wait] every 50 ms); helper /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/cdp.mjs",
+   "fix": "Measure from navigation start (performance.measure('kos-boot', {start: 0, end: 'kos-interactive'}) or use performance.timeOrigin) and mark 'kos-first-page' in KOS.lazy.placeholder's draw (or in KOS.show's first real draw), showing that as 'First page'; keep kos-boot as a separate script-time figure if wanted.",
+   "effort": "S",
+   "devices": [
+    "mac",
+    "iphone"
+   ],
+   "accounts": [
+    "empty"
+   ],
+   "phase1": "1F architecture-perf#1 (kos-ready and the Storage rows)",
+   "regressionOf": null,
+   "invariants": [
+    "168"
+   ]
+  },
+  {
+   "id": "AP-25",
+   "severity": "P3",
+   "category": "docs",
+   "title": "Docs drift after Phase 1: invariant 168 names 32 of the 44 lazy bundles, claims a browser-level guarantee only the jsdom loader gives, and HANDOFF still says new suites start at 196 (196–201 are taken)",
+   "detail": "(1) docs/invariants/ui.md 168 is the contract for loading on first use, but 12 bundles in index.html appear nowhere in it: ink-tex, page-cardstats, page-connections, page-errorlog, page-it, page-matrix, page-notifications, page-player, page-share, page-storage, sample, search-more (script: every data-lazy name vs a backticked mention in the 168 paragraph; docs/ownership.md names only 2 bundles at all). A contributor reading 168 cannot tell that the Error Log, Card stats, Storage, Connections, the Matrix, Notifications, the routine player, the share card, IT's desk, search's extra domains and the Sample account are page parts with boot parts that must keep their tickers. (2) 168 says smoke142 holds 'boot, Home, the background passes … to ZERO misses, and the same account booted eager and lazy to the same saved state'; that is true only of tools/lib/app-harness.js, which parses the whole HTML before running any script — the browser does not (AP-21), so the contract reads as met while production differs. (3) docs/HANDOFF.md:15-17 still gives production as kos-integrity-23 and 'Gate 177/177 … New suites from 196', while CLAUDE.md and docs/SMOKE.md are at kos-qol-4 and 183/183 with suites 196-201 in use — the next suite number in HANDOFF collides. README.md:33 and AGENTS.md:145 still say 106 suites (AP-05, W8 partly; Phase 4 re-baselines them).",
+   "rootCause": "docs/invariants/ui.md:443-531 grew a sentence per batch instead of a table generated from lazy.js PAGES/SPACE_*; docs/HANDOFF.md §00 written 19 Nov and not touched by Phase 1",
+   "evidence": "bash loop over grep -o 'data-lazy=\"[^\"]*\"' index.html vs sed -n '/^168\\./,/^### Responsive/p' docs/invariants/ui.md (12 with 0 mentions); docs/HANDOFF.md:15-17; docs/SMOKE.md:8; CLAUDE.md Current baseline; ls tools/smoke*.test.js = 183 (196-201 present)",
+   "fix": "Replace 168's bundle prose with a short table (bundle → view or reader → boot part), or say the table lives in js/core/lazy.js PAGES/SPACE_DESK/SPACE_TOPIC and smoke142 checks it; add the browser-order caveat until AP-21's fix lands; update HANDOFF §00's production line and 'new suites from 202'.",
+   "effort": "S",
+   "devices": [],
+   "accounts": [],
+   "phase1": "1F (the twelve splits) and Neon's batches",
+   "regressionOf": null,
+   "invariants": [
+    "168"
+   ]
+  },
+  {
+   "id": "AP-26",
+   "severity": "P3",
+   "category": "arch",
+   "title": "The Reports split copied five helpers into the boot part instead of sharing them: Home's report card and the Reports page each have their own parse, dm, range, weekOf and mono",
+   "detail": "Invariant 168: 'the split is always the same: the boot part exports what the page reads (_k), the page aliases it'. Comparing every 1F boot part with its page part (function names with identical normalised bodies): only reportcard.js/reports.js copy logic — parse, dm, range, weekOf and mono are byte-identical in js/modules/reportcard.js:18-33 and js/modules/reports.js:60-102 (also achievements.js 'A' and inkui.js 'el', one-line accessors, harmless). weekOf is the report's name ('Week of 5 Oct', the month, the term label, '2025–26'), so a change to how a period is named on the Reports page will not reach Home's card. The other ten splits share through _k/getters as the invariant says.",
+   "rootCause": "js/modules/reportcard.js:18-33 (copied at the 1F split, 1F page-reports) rather than exported from the boot part and aliased in reports.js",
+   "evidence": "python pair scan (functions with identical bodies across each boot/page pair): reportcard|reports 5 of 6 shared names identical; js/modules/reportcard.js:18-33; js/modules/reports.js:60-102",
+   "fix": "Export the five from reportcard.js (KOS.reportCard._k or KOS.reportsKit's boot half) and alias them in reports.js; delete the copies.",
+   "effort": "S",
+   "devices": [],
+   "accounts": [],
+   "phase1": "1F page-reports split",
+   "regressionOf": null,
+   "invariants": [
+    "168"
+   ]
+  }
+ ],
+ "novRecheck": [
+  {
+   "id": "AP-01",
+   "verdict": "fixed",
+   "note": "Boot parses 177 scripts, 5,389,922 bytes (was 346 / 16.9 MB); every one of 56 routes opened from a cold reload (Save-Data, no warm-up) draws with no error and 0 misses at mac and iphone 4x CPU (/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/cold-mac-mine.txt, cold-iphone4x-mine.txt); first page 0.2-1.4 s after navigation. The lazy design has one new defect in a real browser: AP-21."
+  },
+  {
+   "id": "AP-03",
+   "verdict": "still open",
+   "note": "Partly better: dense account, all bundles in, Code's map first draw 1,014 ms and a KOS.rerender() of it 1,672 ms, the Wall 727/713 ms, Exams 313/573 ms, Governor 298/562 ms; Due, Pacing, Calendar, Home now 13-270 ms (/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/views-dense-mac.txt). The memo layer is in Later (bk:architecture-perf#3)."
+  },
+  {
+   "id": "AP-04",
+   "verdict": "still open",
+   "note": "Four DWELL readers (codetopic, crtopic, jatopic, mindtopic) and four syncChecks (core code, creatives, ja, mind) remain; Later (bk:architecture-perf#4)."
+  },
+  {
+   "id": "AP-05",
+   "verdict": "still open",
+   "note": "README.md:33 and AGENTS.md:145 still say 106 suites, README's sw kos-files-1; HANDOFF §00 at kos-integrity-23 and 'new suites from 196' (AP-25). CLAUDE.md and docs/SMOKE.md are current. Phase 4 re-baselines."
+  },
+  {
+   "id": "AP-06",
+   "verdict": "still open",
+   "note": "js/modules/help.js: Japanese 0, Creatives 0, Todoist 0, Achievement 0 mentions; Phase 4."
+  },
+  {
+   "id": "AP-07",
+   "verdict": "still open",
+   "note": "Partly fixed: the AniList export, .claude/settings.local.json and fix_*.py are no longer tracked and the old plans are in docs/archive/; Context/ still tracks 12 files (board specification PDFs, a .docx, revision HTML, screenshots)."
+  },
+  {
+   "id": "AP-08",
+   "verdict": "fixed",
+   "note": "window/document listeners counted through a wrapped addEventListener: 84, 84, 84 after three rounds of 30 views; DOM nodes 2,529 each round; heap 89 → 71 MB (/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/leak1.json)."
+  },
+  {
+   "id": "AP-09",
+   "verdict": "still open",
+   "note": "Partly fixed: hub.js 3,899 → 830 lines (home.js 1,267, topic.js 1,002 split out); aitools.js 3,892, focus.js 2,909, governor-ui.js 1,957 lines remain; Later (bk:architecture-perf#5)."
+  },
+  {
+   "id": "AP-10",
+   "verdict": "fixed",
+   "note": "Focus survives a background redraw on Home, Calendar, Money and the Wall (same control after); on Routines a focused scroller arrow that the redraw hides falls back to the page heading, not <body>."
+  },
+  {
+   "id": "AP-11",
+   "verdict": "fixed",
+   "note": "The 79-line .k-hb-* block is gone (0 in css/views); the full unused-class scan was not re-run."
+  },
+  {
+   "id": "AP-12",
+   "verdict": "fixed",
+   "note": "npm test runs tools/run_smoke.mjs; .github/workflows/smoke.yml exists; gate 183 suites."
+  },
+  {
+   "id": "AP-13",
+   "verdict": "still open",
+   "note": "Local copies: pad 20, addDays 17, iso 12, isoOf 10, hm 13, rid 12 files (Nov 19/15/11/7/11/8); Phase 1 added one rid, the rest grew in W0-W8."
+  },
+  {
+   "id": "AP-14",
+   "verdict": "fixed",
+   "note": "Edit your seat: Background tab chosen, a background redraw keeps Background (KOS.view.memo)."
+  },
+  {
+   "id": "AP-15",
+   "verdict": "fixed",
+   "note": "KOS.achievements.list 117 ms then 68 ms on the dense account (was 3,929 / 138 ms); the Wall's first draw is still 727 ms (AP-03)."
+  },
+  {
+   "id": "AP-16",
+   "verdict": "fixed",
+   "note": "smoke4, smoke16 and smoke17 run three at a time, twice: all pass (/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/ap16-parallel.txt)."
+  },
+  {
+   "id": "AP-17",
+   "verdict": "fixed",
+   "note": "KOS.show('achievements','set/app') then Home 30 ms later: no dialog after 5 s (KOS.view.token, achievementspage.js:33)."
+  },
+  {
+   "id": "AP-18",
+   "verdict": "fixed",
+   "note": "Boot's exam pass is skipped by its signature (js/main.js:158, srs.js:220-224; examPass 0 ms, 0 changes on reload); readiness over every upcoming exam 14 ms; no long task before kos-interactive on the dense account at mac or iphone 4x."
+  },
+  {
+   "id": "AP-19",
+   "verdict": "fixed",
+   "note": "Ink, Files and Journal events re-measure their badges (js/core/achievements.js:498, 590); assistant and reports touch on write."
+  },
+  {
+   "id": "AP-20",
+   "verdict": "fixed",
+   "note": "CLAUDE.md 186,526 → 47,965 bytes; the baseline is a dozen lines; invariants live in docs/invariants/<domain>.md and releases in docs/RELEASES.md."
+  }
+ ]
+}
