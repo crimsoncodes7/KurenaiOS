@@ -14,11 +14,11 @@ Status: **complete** = the auditor finished and re-checked its P0/P1s; **partial
 | SY | Background redraws / cloud sync disrupting work | 1 | complete | 1 | 1 | 7 | 4 | 13 |
 | DI | Reliability and data integrity (store, merge, sync, IndexedDB, integrations) | 1 | complete | 0 | 3 | 1 | 2 | 6 |
 | AP | Architecture, maintainability, performance, loading, docs drift | 1 | complete | 0 | 1 | 2 | 3 | 6 |
-| MG | Money; Goals pages only | 2 | not run | 0 | 0 | 0 | 0 | 0 |
-| GO | Goals: every goal type's measurement, editor, notices, joins | 2 | not run | 0 | 0 | 0 | 0 | 0 |
-| JM | Japanese study space | 2 | not run | 0 | 0 | 0 | 0 | 0 |
-| MI | Mind study space | 2 | not run | 0 | 0 | 0 | 0 | 0 |
-| CO | Code study space | 2 | not run | 0 | 0 | 0 | 0 | 0 |
+| MG | Money; Goals pages only | 2 | complete | 0 | 3 | 14 | 7 | 24 |
+| GO | Goals: every goal type's measurement, editor, notices, joins | 2 | complete | 1 | 2 | 5 | 3 | 11 |
+| JM | Japanese study space | 2 | complete | 0 | 2 | 3 | 7 | 12 |
+| MI | Mind study space | 2 | complete | 0 | 3 | 4 | 4 | 11 |
+| CO | Code study space | 2 | complete | 0 | 1 | 2 | 6 | 9 |
 | CC | A-Level CS and OCR IT content quality | 3 | not run | 0 | 0 | 0 | 0 | 0 |
 | CM | A-Level Maths content quality | 3 | not run | 0 | 0 | 0 | 0 | 0 |
 | HR | Home and Reports | 3 | not run | 0 | 0 | 0 | 0 | 0 |
@@ -30,7 +30,7 @@ Status: **complete** = the auditor finished and re-checked its P0/P1s; **partial
 | SC | Gold Shop, cosmetics, themes | 4 | not run | 0 | 0 | 0 | 0 | 0 |
 | AX | Cross-cutting accessibility and HCI | 4 | not run | 0 | 0 | 0 | 0 | 0 |
 | CARBON | Found by Carbon in batch 1 (omission hunt, sweeps) | 1 | complete | 0 | 2 | 2 | 0 | 4 |
-| | **All** | | | 1 | 13 | 35 | 20 | 69 |
+| | **All** | | | 2 | 24 | 63 | 47 | 136 |
 
 ## Every P0 and P1
 
@@ -46,6 +46,18 @@ Status: **complete** = the auditor finished and re-checked its P0/P1s; **partial
 - **DI-30** [P1] A question schedule whose item is gone (504 removed by the study clean-up, or a fork deletion) is still due for ever: it is counted in 'questions back today' and takes one of the subject's daily cap slots · Carbon: RECLASSIFY
 - **DI-33** [P1] Taking a document in place (cloud land, another tab's save, Restore) merges two rows that share an id into one object: the first row's data is overwritten and saved · Carbon: CONFIRMED
 - **AP-21** [P1] In a real browser the curriculum stand-ins are never installed: lazy-index.js runs before the content templates are parsed, so every page load counts only Mind/Creatives/Japanese cards until the warm-up (and for good under Save-Data), and a partial Due run pays the backlog bonus · Carbon: CONFIRMED
+- **MG-51** [P1] A typed entry that took a statement's identity is not recognised by the same month's other export: OFX/QIF import the payment again · regression of MG-01
+- **MG-61** [P1] Import preview offers 'Replace it' for any one-day overlap, and replacing deletes the whole earlier import (a 3-row file wiped 73 entries)
+- **MG-90** [P1] An import made before W4 has no import record, so the real account's doubled statement (MG-01) can be neither seen nor undone: every month May–Oct reads twice its spending and income
+- **GO-28** [P0] After a pull re-keys a colliding goal, the goal page's Delete and Archive act on the OTHER device's goal (the confirm names yours) · regression of SY-38
+- **GO-29** [P1] A title goal (Finish a series / Complete a specific title) stores the vault's per-device row id, so on the other device it measures a different title
+- **GO-31** [P1] Restart on a repeating goal whose week runs from its start day deletes every recorded week ('Every period, kept … never deleted') · regression of GO-04
+- **JM-40** [P1] A checkpoint counts every Check press: answer wrong, then retype (or pick the other option, or redraw) and press again, and the question scores right — Reading shows '200%', and a run whose every first answer was wrong passes and pays 60 XP · 15 gold · +5 HP
+- **JM-41** [P1] Kana page: pressing Check or Enter again on one answer records it again — each press is another FSRS review of the same facet, another review-log row, another '+1 XP' and another 'Next ›' (5 presses: reps 5, 5 log rows, +5 XP, set '5 of 20')
+- **MI-20** [P1] The desk's 'One more card set' (after the Daily 15 is done) rates cards on FSRS but logs no ledger entry and pays nothing; its end screen repeats the first set's '+N XP'
+- **MI-22** [P1] #/mind/cards: a reload, a closed tab or an iPad killing the app mid-run loses the run's ledger entry — the cards are rescheduled but never logged or paid
+- **MI-27** [P1] iPhone and Slide Over: a Mind lesson's tabs (Lesson, Concepts, Cards, Journal, Files) collapse to a 0–5 px scroller under Working, Edit and Learn/Reference — the Cards tab and the rest cannot be reached
+- **CO-43** [P1] iPhone and Slide Over: a Code lesson's tabs (Notes, Practice, Flashcards, Quiz, Tasks, Files) shrink to a 0–5 px strip — only two overlapping chevrons show
 - **CARBON-1-1** [P1] Global search's Exams & Papers domain throws 'all.filter is not a function' on every query, making all assessments unsearchable
 - **CARBON-1-3** [P1] cloudmerge merges state.srs and state.code.cards field by field instead of atomically by latest review, discarding newer reviews and creating chimera FSRS/leech records
 
@@ -790,6 +802,685 @@ No P0. One P1: taking a document in place (cloud land, another tab's write, Rest
 - **Accounts:** ["empty", "sample", "mine"]
 - **Phase 1 change:** U7 Error Log (Neon's batch, merged in Phase 1)
 - **Carbon:** {"verdict": "REJECTED", "note": "Duplicate of ST-47 (and the lazy-load half of EX-57): identical defect, root cause, and 1-line fix at js/core/errorlog.js:166 (`KOS.lazy.ensure` -> `KOS.lazy.need`). AP's 168-callsite xref sweep is valuable negative verification that no other page-part caller has this bug, but it should not be double-counted as a separate remediation item."}
+
+## MG · Money; Goals pages only (complete)
+
+Money on 0c93408a (kos-qol-5). No P0. 22 findings: 2 P1, 13 P2, 7 P3. The two P1s are both in the import engine: an entry you typed that adopted a statement row's identity (money-goals#2) is not recognised by the same month's other export, so OFX/QIF/CSV import the payment again (MG-51); and 'Replace it' is offered for any one-day overlap and deletes every entry of the earlier import (a 3-row file wiped 73, MG-61). Phase 1 features mostly work end to end (day chart → Transactions, Select all, Imported source, Imports route, monthly card repeats → Make it recurring, Not yet confirmed with Confirm all/Skip all and Undo, typed matches with adoption and Undo, Make this a goal from pots and budgets) but with gaps: Confirm all double-counts statement matches (MG-48), pot cards make duplicate goals (MG-46), the budget goal starts today and reads 'Under' for an over-budget month (MG-62), the Pots Moves link opens an empty list (MG-64), the Imports page has no way in (MG-50). Several November W4 P2/P3s listed as fixed were never shipped (MG-26, 27, 28, 31, 32, 35, 36, 41, 42, 44 → MG-54..59). Money stayed free of Governor and network traffic (sessions/gold/XP/HP unchanged; only font requests).
+
+**Coverage.** {"routes": ["#/money", "#/money/transactions", "#/money/budgets", "#/money/recurring", "#/money/pots", "#/money/month (Month and Year)", "#/money/settings", "#/money/imports", "#/money/merchant/greggs", "#/goals/<id> for pot and budget goals"], "sizes": ["mac", "ipadl", "ipad", "iphone", "split", "slide"], "accounts": ["dense (Money built through the app: 6 rules, 2 pots, ~100 typed entries, 3-month generated midata statement + Santander fixtures)", "empty", "sample (no Money data, same as empty)"], "flows": ["import File→Preview→Done for all six fixtures and a generated 75-row statement", "typed-entry matches (name and amount) with adoption and Undo", "Undo import from the Imports page", "Replace", "monthly card repeats suggestion → Make it recurring", "Not yet confirmed: Confirm all, Skip all, Undo, statement match", "day chart → Transactions for a day", "Select all + bulk actions", "Source: Imported (all files)", "Pots Moves link", "Make this a goal from pot hero, pot card and budget", "Hide amounts on every page", "cold load of every sub-route", "entry editor kind switch", "transfer edit", "payday picker", "own-export round trip"], "notCovered": ["the user's copy (slot 7, separate pass)", "pot pictures (upload) — not exercised", "Money settings › Rules: learning and forgetting a payee rule end to end", "cloud sync of kos_money (signed out by protocol)", "multi-tab and background redraw on Money pages beyond READS", "keyboard/screen-reader pass of the new queue and preview"]}
+
+### MG-51 [P1] A typed entry that took a statement's identity is not recognised by the same month's other export: OFX/QIF import the payment again
+
+- **What:** Dense account. A typed entry 'Heron Foods' £3.45 on 28 Oct. Import midata-autumn.csv: its HERON FOODS 29/10 £3.45 row is skipped as 'Same as Heron Foods · 28 Oct' and the typed entry adopts the row's identity (money-goals#2) — correct. Then import Santander's OFX (or QIF) of the same October (tools/fixtures/money/santander.ofx): the preview lists '29 Oct · Heron Foods · −£3.45' as NEW, and importing stores a second £3.45 Heron Foods entry (t-xqkfzz1a5pxj, src csv) beside the typed one. The same payment through another export is supposed to be known by day, amount, direction and merchant (dupOf 'similar'), and it is for rows that came in as imports — but not for one a typed entry adopted. Reproduced with OFX twice (import, undo, preview again) and with QIF.
+- **Root cause:** js/core/money.js:1329 builds the 'similar' index only from t.src === 'csv' rows, and an adopting entry keeps src 'manual' and its own typed date (28 Oct, not the bank's 29 Oct); js/core/money.js:1430-1432 matchTyped then skips it because it now has t.imp. So once adopted, the entry is invisible to both checks.
+- **Evidence:** /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/import-preview-ofx-after-adopt-mac-dense.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/import-preview-qif-after-adopt-mac-dense.png; eval range 26–30 Oct: 't-wupfy1octyaz | manual | 345 | Heron Foods' and 't-xqkfzz1a5pxj | csv | 345 | Heron Foods | b-wdzmasea5pxj'
+- **Fix:** Index an adopting entry (t.adopt or t.imp with src manual/rule) in alike under the BANK's date and merchant taken from t.imp/t.bank (keep the bank's date on the identity when adopting), so a second export of the same payment is 'similar'; cover it in smoke149/161.
+- **Devices:** ["mac", "ipad", "iphone"]
+- **Accounts:** ["dense"]
+- **Regression of:** MG-01
+- **Phase 1 change:** money-goals#2 (64248eb9)
+
+### MG-61 [P1] Import preview offers 'Replace it' for any one-day overlap, and replacing deletes the whole earlier import (a 3-row file wiped 73 entries)
+
+- **What:** With midata-autumn.csv (20 Aug – 25 Nov, 73 entries) imported, preview a 3-row CSV covering 2–4 Nov: the note says 'Covers the same days as midata-autumn.csv (20 Aug – 25 Nov) · Replace it'. Press it ('Replaces midata-autumn.csv · its entries go once these are in') and import: Done says 'Imported 3 entries · the earlier import replaced'; Aug–Nov now holds 111 entries instead of 181 (all 73 of the earlier file gone, including the months the new file never covered) and 16 recurring occurrences it had paid are open again. Undo on the new import removes only its 3; the old entries come back only by importing the old file again. The offer appeared twice (mac, iphone); the loss measured once, then restored by re-importing. The import record's range is also the ADDED rows' range, not the statement's (midata-semicolon.csv, 25–29 Oct, is recorded as 28–29 Oct).
+- **Root cause:** js/core/money.js:1316 out.overlaps = any import whose from/to intersects by a day; js/modules/moneyimp.js:224-226 offers Replace on overlaps[0]; js/core/money.js:1550 importRows → undoBatch(opts.replaces) removes every entry of the old batch regardless of the new file's days; js/core/money.js:1532-1533 from/to come from txs (added rows).
+- **Evidence:** /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/import-replace-offer-mac-dense.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/import-preview-mg26-iphone-dense.png; eval before {count:181, imports:['midata-semicolon.csv:2','midata-autumn.csv:73'], marks:17} after {count:111, imports:['mg26.csv:3','midata-semicolon.csv:2'], marks:1}
+- **Fix:** Offer Replace only when the new statement covers the old one's days (from ≤ old.from and to ≥ old.to); when replacing, remove only the old entries dated inside the new file's range; record the statement's own first/last day on the import; make Undo of a replacing import restore what it removed.
+- **Devices:** ["mac", "iphone"]
+- **Accounts:** ["dense"]
+
+### MG-90 [P1] An import made before W4 has no import record, so the real account's doubled statement (MG-01) can be neither seen nor undone: every month May–Oct reads twice its spending and income
+
+- **What:** Copy account (the user's backup of 26 Nov). Money holds 395 entries: 393 from two CSV batches made 64 s apart on 31 Oct (194 rows with no payee, then 199 with payees; both 1 May – 30 Oct) and 2 Collection mirrors. 392 of the 393 imported rows share their day, amount and direction with a row of the other batch: it is November's MG-01 (a second import mapped differently is all 'new'), made before W4's identity existed. W4 fixed MG-01 and MG-05 for imports made since, but state.money has no 'imports' key at all, so: #/money/imports says 'No statement imported yet' (KOS.money.imports() = [] while importCounts() = {two batches: 194, 199}); Transactions shows no Source filter (no [data-ui=money.tx-source]) at mac and iPhone; there is no Undo or Replace for either batch; and the rows carry no identity or bank text. Measured: every month's outgoings are 1.94–2.23× one batch's and income exactly 2× (Oct 1.99/1.98), so Overview, Budgets, Month and year, By merchant and every Money goal read double on the real data. The only way out today is to delete ~194 entries one by one or by hand-picked Select (both batches are mostly 'Other', so no filter isolates one). Reproduced twice (eval at mac and iPhone, screenshots of Imports and Transactions).
+- **Root cause:** js/core/money.js:262-267 (normalise) reads m.imports only and back-fills nothing from stored tx.batch groups (comment :284 'a document saved before imports … reads as having none'); js/modules/moneyimp.js:450-455 importsView lists M.imports() only; js/modules/money.js:550-556 hides the Source select when imps is empty; js/core/money.js:1568 undoBatch could remove a legacy batch but nothing calls it for one. Origin: November MG-01/MG-05 fixed forward only by W4 (39c1794f).
+- **Evidence:** /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/copy/money-imports-mac-copy.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/copy/money-tx-iphone-copy.png; eval /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/copy/mg2.js (batches, crossBatchSameDayAmountRows 392) and /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/copy/mg3.js (month ratios); js/core/money.js:262-267, :1568
+- **Fix:** Back-fill an import record for each stored tx.batch with no record (from/to/n from its rows, file 'Imported before 16 Nov', format csv) in M.normalise or a one-off KOS.repairs entry (invariant 1a, checkpoint first), so the Imports page offers Undo for each; and have the Imports page flag two batches whose rows pair one-for-one by day, amount and direction ('looks like the same statement twice').
+- **Devices:** ["mac", "ipadl", "ipad", "iphone", "split", "slide"]
+- **Accounts:** ["copy"]
+
+### MG-46 [P2] Pots: a non-lead pot's ⋯ › Make this a goal makes a new goal every time and the card never shows the goal it has
+
+- **What:** #/money/pots with two pots (Laptop leads, Emergency below). Emergency ⋯ › Make this a goal › Save goal, then again: state.goals.items holds two 'Save for Emergency' money-save goals linked to the same pot (ids 11 and 12). The Emergency card shows no goal pill and keeps offering 'Make this a goal'; only the lead pot (potHero) looks for an existing goal and swaps the button for the pill. The preset also invents a £100 target for a pot with no target (Emergency has none) without saying so. Reproduced twice.
+- **Root cause:** js/modules/money.js:1602 — potCard's menu always lists 'Make this a goal' and the card body never reads KOS.goals; only potHero (js/modules/money.js:1518, 1536-1539) checks g.links.pot. openPotGoal (js/modules/money.js:1588-1594) passes target: p.target ? p.target/100 : 100.
+- **Evidence:** /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/pot-emergency-twogoals-mac-dense.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/pot-emergency-goal-dialog-mac-dense.png; eval goals: ['10 Save for Laptop','11 Save for Emergency','12 Save for Emergency']
+- **Fix:** In potCard, look up the pot's money-save goal as potHero does: show the 標 pill (open the goal) and replace the menu item with 'Open goal'; leave the target empty when the pot has none so the reader types it.
+- **Devices:** ["mac", "ipadl", "ipad", "iphone", "split", "slide"]
+- **Accounts:** ["dense"]
+- **Phase 1 change:** bk:goals#2 (7456781b)
+
+### MG-48 [P2] Recurring › Confirm all writes a second entry for an occurrence the statement already holds (it only warns)
+
+- **What:** Dense account, midata-autumn.csv imported (73 rows), then a Netflix rule made from Done's 'Make it recurring' (start 12 Nov). Recurring's 'Not yet confirmed' lists Netflix 12 Nov with 'Matches statement · Netflix · 12 Nov — Use statement entry'. Confirm all › Confirm all: the 12 Nov day now holds r:<rule>:2026-11-12 (src rule, £5.99) AND the imported t-… (src csv, £5.99) — £5.99 counted twice in Out, Subscriptions and safe-to-spend. The dialog body says '1 matches an imported statement entry — link it individually if you do not want a second entry', but the bulk action already knows the single candidate. Also matchedCount is filled by async bankMatches callbacks, so a Confirm all pressed before they land says nothing. Reproduced twice (Undo restores 191→179 entries correctly).
+- **Root cause:** js/modules/money.js:1244-1260 (confirmAll) calls M.confirm for every item; the per-row bankMatches result (js/modules/money.js:1301-1315) is only drawn as a button and never used by confirmAll. Invariant 5a: Confirm OFFERS a stored bank entry instead of making a second one.
+- **Evidence:** /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/recurring-confirmall-dialog-mac-dense.png; eval Netflix 12 Nov before ['t-y7otqy6wyx04|csv|599'], after ['r:r-9iafu3vhzmhj:2026-11-12|rule|599','t-y7otqy6wyx04|csv|599']
+- **Fix:** In confirmAll, run bankMatches per item and use M.confirmWith for an item with exactly one candidate (as 'Use statement entry' does), counting those as linked in the dialog; only items with no statement entry get M.confirm.
+- **Devices:** ["mac", "ipad", "iphone"]
+- **Accounts:** ["dense"]
+- **Regression of:** MG-07
+- **Phase 1 change:** bk:money-goals#6 (104a5873)
+
+### MG-49 [P2] Import preview: a row that pays a recurring rule shows 'Other income', counts as 'to categorise', and the category you pick is thrown away
+
+- **What:** Preview of midata-autumn.csv: 6 'Acme Cafe Ltd Wages' rows matched to the Job pay rule (teal '↻ Job pay' chip) show the picker on 'Other income' in its amber 'choose' state and make up all 6 of the '6 to categorise' count; the 'To categorise' filter lists only them. On import they are stored under the rule's category (Job), and Done says nothing is left to categorise. Choosing 'Allowance' on the 14 Nov row before importing is ignored: the stored entry is r:<rule>:2026-11-14 with cat 'job'. So the preview shows a category that will not be stored, asks for work that is not needed, and offers a choice that has no effect. Reproduced twice (two previews; the override run once). Second run on the Empty account: a 'Phone' rule filed under Subscriptions matches midata-comma's VODAFONE DD row; the preview shows it under Bills (merchant table), picking Food there even offers the 'Always file Vodafone like this' rule, and the stored entry is r:<rule>:2026-10-25 in Subscriptions.
+- **Root cause:** js/core/money.js:1387-1422 matchRules sets x.match but leaves x.cat/x.catFrom from the merchant table; js/core/money.js:1512 importRows then overwrites f.cat = r.cat for a matched row; js/modules/moneyimp.js:208-215 counts() and :292-305 catControl treat catFrom 'default' as to-categorise regardless of x.match.
+- **Evidence:** /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/import-preview-tocategorise-mac-dense.png; eval stored ['r:r-vqtz6fs2tyai:2026-11-14|job|Job pay'] after picking Allowance; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/import-preview-matched-out-mac-empty.png
+- **Fix:** When matchRules links a row, set x.cat = r.cat and x.catFrom = 'rule' (shown as 'the rule'); either disable the picker on a matched row or honour a choice the reader made (f.cat = x.catFrom === 'you' ? x.cat : r.cat).
+- **Devices:** ["mac", "ipad", "iphone"]
+- **Accounts:** ["dense"]
+
+### MG-52 [P2] Money's bar charts: By week heights do not follow the printed amounts, and outgoing bars (By week, Year view) are drawn darker than the card
+
+- **What:** Dense account after the autumn import, #/money at mac and iphone. By week prints £243.87, £147.25, £198.31, £152.35, £71.81; --h is 100%, 60%, 81%, 62%, 29% but the measured bars are 70, 66, 70, 68 and 32 px — the first four look the same height. The past bars are filled with --s3 (oklch 0.14) on a card of oklch 0.20, so they read as holes, not bars. Measured twice (mac, iphone; identical). The Year view (Month and year › Year) uses the same dark fill for its 'Everything' outgoing bars: beside money-goals#1's bright green income bars, August–October's outgoings (£254–£691) are almost invisible on the card (year-mac-dense.png); the legend swatch for 'Everything' is the same near-black.
+- **Root cause:** css/views/money.css:490-491 — .k-mn-wk is a flex column 100% high holding the value, the bar (block-size: var(--h), a % of the whole column) and the label; the three together overflow and flex-shrink squeezes every bar towards the same height. The bar colour is var(--s3), below the card surface.
+- **Evidence:** /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/overview-iphone-dense.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/overview-mac-dense.png; eval [{v:'£243.87',h:'100%',px:70},{v:'£147.25',h:'60%',px:66},{v:'£198.31',h:'81%',px:70},{v:'£152.35',h:'62%',px:68},{v:'£71.81',h:'29%',px:32}]; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/year-mac-dense.png
+- **Fix:** Give the bar its own track (a flex:1 1 0; min-block-size:0 wrapper) and set the bar's height as a % of that track with flex-shrink:0; colour past weeks with a chart token above the surface (as By merchant's bars do).
+- **Devices:** ["mac", "ipadl", "ipad", "iphone", "split", "slide"]
+- **Accounts:** ["dense"]
+- **Phase 1 change:** money-goals#1 (62db01c3) puts bright income bars beside the dark outgoing ones
+
+### MG-54 [P2] Transactions bulk 'Set category' still files income under a spending category (MG-28 not fixed)
+
+- **What:** Tick one income entry (Gran +£30, Gifts received) › Set category: the menu lists only spending categories; choosing Social stores {kind:'in', cat:'social'}. With Select all over November, the Job pay income (a confirmed rule occurrence) was filed under Food: summary('2026-11').byCat.food = {out: £602.29, income: £120}, so Food's row and 'over budget' figures mix income in. Reproduced twice. There is no Undo for the bulk change either.
+- **Root cause:** js/modules/money.js (drawBulk → bulkSet) excludes only wishlist and transfer rows; it applies an 'out' category to kind 'in' rows. No W4 commit touched it (git log 4c3fc33..0c93408a).
+- **Evidence:** /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/tx-bulk-cat-income-mac-dense.png; eval Gran after: ['in|social']; summary food income 12000
+- **Fix:** As November said: offer In categories for income rows (or skip and name rows whose kind does not fit), and give the bulk change an Undo toast.
+- **Devices:** ["mac", "ipad", "iphone"]
+- **Accounts:** ["dense"]
+- **Regression of:** MG-28
+- **Phase 1 change:** bk:money-goals#4 Select all (4a1d07d2) makes it one click for the whole month
+
+### MG-55 [P2] New entry: switching Out to In still saves the Out category while the picker shows Job (MG-32 not fixed)
+
+- **What:** Transactions › ＋ Add entry › In › amount 12.34 › Save: the Category picker shows 'Job' (value job) but the stored entry is {kind:'in', cat:'food'}. Food then carries £12.34 of income. Reproduced twice (both test entries deleted after).
+- **Root cause:** js/modules/money.js:855-856 the kind switch (seg … function (k) { kind = k; draw(); }) redraws the select from the In categories but leaves lines[i].cat at the Out default 'food' (line 846); the select's value falls back to its first option while the model keeps 'food'.
+- **Evidence:** /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/entry-in-switch-mac-dense.png; eval stored ['in|food|1234','in|food|1234']
+- **Fix:** On a kind switch, reset each line's cat to the new kind's default when it is not one of that kind's categories (November's fix).
+- **Devices:** ["mac", "ipad", "iphone"]
+- **Accounts:** ["dense"]
+- **Regression of:** MG-32
+
+### MG-56 [P2] Import reads '(3.45)' and '3.45 DR' as money in, and '=1+1' as £11.00 (MG-26 not fixed)
+
+- **What:** A CSV with Date,Description,Amount rows '(3.45)', '3.45 DR' and '=1+1': the preview shows +£3.45, +£3.45 and +£11.00, all as income (Other income), so importing turns two payments out into money in and invents £11. Reproduced twice (mac, iphone previews).
+- **Root cause:** js/core/moneyimport.js:68-75 amount() strips every character but digits, '.', ',', '-' — brackets, DR/CR and operators are dropped, and the sign is lost.
+- **Evidence:** /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/import-preview-mg26-mac-dense.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/stmts/mg26.csv
+- **Fix:** Treat '(n)' and a trailing DR as negative and CR as positive; refuse a cell with any other non-number character (report the row as unreadable instead of guessing).
+- **Devices:** ["mac", "iphone"]
+- **Accounts:** ["dense"]
+- **Regression of:** MG-26
+
+### MG-57 [P2] Editing a pot move into a between-pots move still keeps the original and adds two (MG-27 not fixed)
+
+- **What:** Edit the 2 Sep '£40 into Emergency' move, set From to Laptop (To stays Emergency), Save: the list now holds the original Emergency +£40 plus a new Laptop −£40 and a second Emergency +£40 — Emergency shows £40 too much and Laptop goes to −£40. Reproduced (and November's evidence is the same code path); the test entries were removed.
+- **Root cause:** js/modules/money.js:924-930 — the between-pots branch calls M.addTx twice and returns before the 'existing' updateTx at :940, so an edit never touches the entry being edited.
+- **Evidence:** eval transfers before ['2026-10-02|Emergency|in|2500','2026-09-02|Emergency|in|4000'] after [+ '2026-09-02|Laptop|out|4000', '2026-09-02|Emergency|in|4000' twice]
+- **Fix:** When editing, update the existing entry into one half (updateTx) and add only the other (November's fix).
+- **Devices:** ["mac"]
+- **Accounts:** ["dense"]
+- **Regression of:** MG-27
+
+### MG-58 [P2] Budgets › Payday picker still does nothing while the month starts on the 1st (MG-31 not fixed)
+
+- **What:** #/money/budgets with 'The 1st' on: choose 15th in 'Payday is the' — the select shows 15th but monthStart stays 1; pressing 'Payday · the 28th' then starts the month on the 28th, not the 15th you chose. Reproduced twice.
+- **Root cause:** js/modules/money.js:1090 — dayPick's change handler only applies when M.data().monthStart !== 1; the seg's label and value use the fixed payday 28 (:1086).
+- **Evidence:** /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/budgets-payday-pick-mac-dense.png; eval monthStart 1 after picking 15 (twice)
+- **Fix:** Picking a day switches to Payday on that day (November's fix).
+- **Devices:** ["mac"]
+- **Accounts:** ["dense"]
+- **Regression of:** MG-31
+
+### MG-60 [P2] Importing the app's own CSV export over the same data brings back every statement-imported entry as new
+
+- **What:** Transactions › Export CSV for September (48 entries: 30 typed, 18 from the bank statement), then Import… that file: the preview marks the 30 typed entries 'Already here' but lists all 18 imported ones (PureGym, Stagecoach, Spotify, Job pay, Netflix…) as new, so importing doubles them. Invariant 5a says the app's own export reads back without loss; restoring an export onto a device that already has part of it is exactly when the de-duplication matters. Reproduced twice (two previews, 30 already here each time).
+- **Root cause:** js/core/money.js:1328-1340 previewCSV: an own-export row carries no bank text, so the 'similar' check never runs for it, and stored entries WITH an identity (t.imp) are left out of the legacy date|amount|payee index — only typed entries are found. The own row's imp.k is built from the export's cells, never the bank's, so the identity check misses too.
+- **Evidence:** /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/import-preview-own-export-mac-dense.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/stmts/own-export-sep.csv; eval September {manual:30, 'csv+imp':18}
+- **Fix:** For x.own rows, also compare against every stored entry by date, amount, kind and payee (each used once), not only those without an identity; or write the entry's syncId into the export (an 'Id' column) and match on it.
+- **Devices:** ["mac"]
+- **Accounts:** ["dense"]
+- **Regression of:** MG-24
+
+### MG-62 [P2] Budgets › Make this a goal on an over-budget category shows the month as 'Under · No spending recorded'
+
+- **What:** November Transport: £118.90 spent of a £40.00 budget ('Over by £78.90' on Budgets and the Overview). Transport ⋯ › Make this a goal (bk:goals#2) › Save goal opens 'Keep Transport under budget · This month runs Sun 1 Nov – Mon 30 Nov · ● Under' with THIS MONTH '–  No spending recorded'. The preset leaves Starts on today (27 Nov), so the goal measures November only from 27 Nov (GO-03 partial period), finds nothing and still wears the 'Under' chip, while the page's own header says the month runs from 1 Nov. From the budget row the reader expects the budget's month. Seen twice (mac on save, iphone after reload).
+- **Root cause:** js/modules/money.js:1121-1127 newGoal preset has no start; js/modules/goals.js goalDialog defaults Starts to today, and js/core/goals.js money-spend-under (:837-849) measures ctx.from = the goal's start, returning current null ('No spending recorded') which the page still draws as Under.
+- **Evidence:** /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/budget-makegoal-dialog-mac-dense.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/budget-goal-page-mac-dense.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/budget-goal-page-iphone-dense.png; goal {id:13,target:40,repeat:'month',links:{category:'transport'}}
+- **Fix:** Pass start: M.periodRange(M.periodKey(today())).from in the budget preset (the month Money is showing), and do not draw a status chip while current is null.
+- **Devices:** ["mac", "iphone"]
+- **Accounts:** ["dense"]
+- **Phase 1 change:** bk:goals#2 (7456781b)
+
+### MG-63 [P2] Overview's 'Left to spend' shows a negative figure (−£10.50) when the month has no income at all
+
+- **What:** Empty account with two November entries (£4.50 Greggs, £6.00 Stagecoach), no income entry and no income rule: #/money's hero reads 'LEFT TO SPEND · NOVEMBER  −£10.50' in 60px, with no 'of … coming in' line. Money has no evidence of what came in, so there is nothing to have left: the invariant says a figure about the rest of the month (left, safe to spend, the projection) is null without its evidence. A student who logs only spending always sees a red-looking negative balance. (When left is null the hero would print £0.00 instead — also a figure without evidence.) Seen twice (mac and iPad landscape, same account).
+- **Root cause:** js/core/money.js:1056 left = planned || outAll ? planned − outAll : null, so spending alone yields a negative left; js/modules/money.js:277 draws amt(ins.left == null ? 0 : ins.left).
+- **Evidence:** /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/overview-ipadl-empty-lowdata.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/overview-mac-empty-lowdata.png
+- **Fix:** left = planned ? planned − outAll : null; with no income, lead the hero with 'Spent this month' (s.outgoings) and a line 'Add an income or a rule to see what is left', never a 0 or negative 'left'.
+- **Devices:** ["mac", "ipadl", "iphone"]
+- **Accounts:** ["empty"]
+
+### MG-64 [P2] Pots › Recent moves › 'Transactions →' opens an empty list: it sets Moves but keeps the old date range and Source filter
+
+- **What:** #/money/pots lists two recent moves (2 Sep, 2 Oct, into Emergency). 'Transactions →' (money-goals#3) opens Transactions with Moves selected but the range still 'This month' (1–30 Nov): 'Nothing matches these filters', This view 0 entries. On a second visit after using Source: Imported (all files), the range was Everything but the Source filter stayed on Imported, so the moves (typed transfers) were filtered out again — empty both times. Reproduced twice (mac, iphone).
+- **Root cause:** js/modules/money.js:1494 the link sets visit.tx.kind = 'transfer' and mode, and resets range only when it is a day; it leaves visit.tx.range (default 'month'), source, cat and search as they were.
+- **Evidence:** /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/tx-moves-from-pots-mac-dense.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/tx-moves-from-pots-iphone-dense.png
+- **Fix:** Set visit.tx = {search:'', cat:'', range:'all', tag:'', kind:'transfer', source:'', mode:'entries'} (as seeBatch does), or a range that covers the moves listed.
+- **Devices:** ["mac", "iphone"]
+- **Accounts:** ["dense"]
+- **Phase 1 change:** money-goals#3 (618ab91d)
+
+### MG-91 [P2] Money's Overview shows the first-run 'Nothing here yet · Add your first income' to an account with six months of entries, whenever the current month has none and there is no rule or pot
+
+- **What:** Copy account: 395 entries from 1 May to 30 Oct, no recurring rule, no pot, nothing yet in November. #/money (mac and iPhone, 27 Nov) draws the whole first-visit page: '円 · First run · Nothing here yet', the three set-up steps (currency, month start, 'Add your first income', 'Import a statement', 'Set a budget') and a ghosted preview — no hero, no Next card, no By merchant/By week, nothing of October. The header still says 'November so far · 27 of 30 days'. A student who logs a statement once a month sees the onboarding again every month until the import, and is told to set up what is already set up. Reproduced twice (mac and iPhone screenshots; [data-ui=money.first-step] present, no hero).
+- **Root cause:** js/modules/money.js:182 — empty = !s.count && !M.rules().length && !M.pots().length, where s is the CURRENT period's summary (js/core/money.js:988-994, tally(cur)), so a month without entries reads as an account without any.
+- **Evidence:** /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/copy/money-overview-mac-copy.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/copy/money-overview-iphone-copy.png; js/modules/money.js:182
+- **Fix:** Decide first-run on the whole store (any stored transaction, e.g. one cursor read of the date index, or M.importCounts/list limit 1), not the current month; an empty current month draws the normal Overview with its low-data states (invariant 76) and a 'Nothing yet this month · last entry 30 Oct' line.
+- **Devices:** ["mac", "ipadl", "ipad", "iphone", "split", "slide"]
+- **Accounts:** ["copy"]
+
+### MG-45 [P3] Overview's late-income card reads 'the job pay pay has not arrived yet'
+
+- **What:** Dense account with an income rule named 'Job pay' (every 2 weeks) whose 14 Nov occurrence is unconfirmed. #/money (any size) shows the card 'Income · on Fri 27 Nov — the job pay pay has not arrived yet'. The sub-line appends ' pay' to the lower-cased rule name, so any rule whose name already ends in 'pay' (Job pay, Pay, Holiday pay) doubles it, and a rule named 'Student Finance' reads 'the student finance pay' (a grant is not pay). Reproduced twice (mac, after reload).
+- **Root cause:** js/modules/money.js:410 — head(..., "the " + o.name.toLowerCase() + " pay has not arrived yet") hard-codes the word 'pay' after the user's own rule name.
+- **Evidence:** /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/overview-mac-dense.png; js/modules/money.js:410
+- **Fix:** Use the rule's name as written: '<Name> has not arrived yet' (as the notice at js/core/money.js:1835 already does).
+- **Devices:** ["mac", "ipadl", "ipad", "iphone", "split", "slide"]
+- **Accounts:** ["dense"]
+
+### MG-47 [P3] Goal dialog from a pot: the money line reads 'one about every 1 days' / '4.8 a day' with no currency
+
+- **What:** Pots › Make this a goal (bk:goals#2), deadline 31 Mar 2027: a £600 target shows 'The line: 4.8 a day.'; a £100 target (the default for a pot with no target) shows 'The line: one about every 1 days.'; £20 shows 'one about every 6 days'. For money the line should be an amount per day/week (£4.84 a day, £0.80 a day). Reproduced twice.
+- **Root cause:** js/modules/goals.js:1024 — line() formats every target as a count ('N a day' or 'one about every N days'), ignoring the money flag the same function uses at :1015.
+- **Evidence:** /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/pot-goal-line-hint-mac-dense.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/pot-makegoal-dialog-mac-dense.png
+- **Fix:** When money, print U.amount-formatted per-day (or per-week when under £1 a day) figure; never the 'one about every' form.
+- **Devices:** ["mac", "ipad", "iphone"]
+- **Accounts:** ["dense"]
+- **Phase 1 change:** bk:goals#2 (7456781b) exposes it from Money
+
+### MG-50 [P3] The new Imports page (#/money/imports) has no way in, and does not show the counts the QoL item asked for
+
+- **What:** bk:money-goals#4 added the route #/money/imports (title Imports, its own Import… action). No control in the app navigates to it: Money's section tabs do not list it, the settings gear does not, Transactions still has its own Entries/Imports switch, and search has no Money results; it is reachable only by typing the address. On it no section tab is selected. Each row shows the file, range, rows and date, but not the duplicates skipped or rows that could not be read that docs/qol/PLAN.md:487 lists, because the import record stores only n. Checked twice. On the Empty account the page shows three import buttons at once (header 'Import…', the card's 'Import a statement', the side card's 'Import a statement').
+- **Root cause:** js/modules/money.js:151 and :1828-1834 add the view; grep finds no go('imports') or link to it in js/; js/core/money.js:1532-1535 importRows records n only (no skipped/bad).
+- **Evidence:** /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/imports-mac-dense.png; grep -rn 'money/imports' js → none; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/imports-mac-empty.png
+- **Fix:** Point Transactions' 'Imports' switch (and Done's footer) at #/money/imports, or drop the route; record skipped and unreadable counts on the import record and print them on the row.
+- **Devices:** ["mac", "ipad", "iphone"]
+- **Accounts:** ["dense"]
+- **Phase 1 change:** bk:money-goals#4 (4a1d07d2)
+
+### MG-53 [P3] Overview chip says 'Pay due Fri 27 Nov · in 0 days' on the day itself
+
+- **What:** #/money on 27 Nov with Student Finance expected today (after the Job pay was received): the hero chip reads '◷ Pay due Fri 27 Nov · in 0 days'. Should read 'Pay due today'. Seen twice (iphone, mac).
+- **Root cause:** js/modules/money.js:267 — ' · in ' + between(now, nextPay.date) + ' days' with no case for 0.
+- **Evidence:** /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/overview-iphone-dense.png
+- **Fix:** When between(...) === 0 say 'Pay due today'.
+- **Devices:** ["mac", "iphone"]
+- **Accounts:** ["dense"]
+
+### MG-59 [P3] November P3s marked fixed by W4 are still open: search by category or amount (MG-35), reopen a closed pot (MG-36), record a price rise (MG-42), CSV formula cells (MG-44), Year view's pot count (MG-41)
+
+- **What:** MG-35: Transactions search 'Transport', 'Gifts' and '20.20' each find nothing although November holds Transport entries and a £20.20 Costa. MG-36: grep finds no Reopen for a closed pot. MG-42: setPrice still has no caller in js/modules. MG-44: an entry whose payee is =HYPERLINK("http://x") exports as '"=HYPERLINK(""http://x"")"' — quoted but not neutralised, so a spreadsheet still runs it. None of these appears in any W4 commit message (39c1794f, e0070e2f list MG-02..08, 10, 24, 25 only). Each checked twice. MG-41: Year view's 'Set aside £65.00 · 2 pots' still counts the Laptop pot that holds nothing (only Emergency has money).
+- **Root cause:** js/core/money.js listFilter (search haystack payee+note+tags+bank text only); js/core/money.js csvCell (quotes only on , " newline ;); no Reopen in js/modules/money.js closePot; setPrice exported but unused.
+- **Evidence:** eval search results 0/0/0; eval export line '2026-11-20,out,1.00,Other,"=HYPERLINK(...)",...'; grep -n 'setPrice(' js/modules → none
+- **Fix:** November's fixes: add category name and amount to the search haystack; a Closed pots list with Reopen; ask 'From when?' and call setPrice on an amount change with history; prefix a cell starting with = + - @ with an apostrophe.
+- **Devices:** ["mac"]
+- **Accounts:** ["dense"]
+- **Regression of:** MG-35
+
+### MG-65 [P3] Phone import preview: a skipped row's chip pushes the bank-text toggle ▾ onto a line of its own, and the date drops to the bottom
+
+- **What:** Import preview at iphone 402 and Slide Over 375: each 'Already here · skipped' row is merchant + chip on one line, the ▾ toggle alone on the next, then date and balance on a third, with the amount floating beside the first line — three lines for one skipped row and a stray control. New rows lay out cleanly. Seen twice (iphone re-import of midata-autumn, slide preview of santander-online.txt).
+- **Root cause:** css/views/money.css:445 .k-mn-pm wraps (flex-wrap) the chip and the ▾ inside the merchant cell; css/views/money.css:519-525 put the date in the last grid row; a skipped row has an empty span in place of the category, leaving area c empty.
+- **Evidence:** /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/import-preview-reimport-iphone-dense.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/import-preview-slide-txt-empty.png
+- **Fix:** At the phone tier put the date on the first line (as Transactions does), keep the ▾ beside the merchant (nowrap) and let the chip take the empty category row.
+- **Devices:** ["iphone", "slide", "split"]
+- **Accounts:** ["dense", "empty"]
+
+### MG-66 [P3] Cross-app search has no Money domain: pots, recurring rules, merchants and the Imports page are unfindable
+
+- **What:** KOS.search.run('Laptop') returns Specification, Code lessons and Goals (the 'Save for Laptop' goal) but not the Laptop pot; 'Netflix', 'Vodafone' (recurring rules) and 'Greggs' (a merchant with its own page, #/money/merchant/greggs) return nothing. search.js's rule is that what the user authored belongs in the box; pots and rules are authored and carry no credential. With the new Imports route also unlinked (MG-50), Money's sub-pages are reachable only through its own tabs. Whether entries themselves should be searchable is a privacy call (the Assistant reads Money as totals), but names of pots, rules and merchants are not amounts. Checked twice.
+- **Root cause:** js/core/search.js:320-344 run() calls spec, notes, reminders, assignments, calendar, planner, goals, personal cards, media, reports and files domains; there is no money domain.
+- **Evidence:** eval KOS.search.run: Laptop → ['Specification','Code lessons','Goals']; Netflix/Greggs/Vodafone → []
+- **Fix:** Add a moneyDomain listing pots, rules and merchant pages by name (no amounts, nothing when Hide amounts is irrelevant), each opening its Money page; decide explicitly whether single entries stay out.
+- **Devices:** ["mac"]
+- **Accounts:** ["dense"]
+
+## GO · Goals: every goal type's measurement, editor, notices, joins (complete)
+
+Goals on kos-qol-5 (0c93408a). Every new Phase 1 type and entry point works on its happy path: the five 'Make this a goal' entry points (routine, pot, budget, vault title, exam Today) open a seeded editor and save the right links; gov-gold never pays (gold, XP, HP, ledger unchanged; receipt payout 'none'; Goal getter excludes it); repeating goals crossed a week and a month on a fake clock and were judged once with the owner's own figures (study 2.1 h = Home's subject Focus time; 24 blocks = ledger). The SY-38 fix covers editors only: the goal page's Delete/Archive still act by number on a re-keyed goal and hit the OTHER device's goal (GO-28, P0). Title goals store a per-device vault id (GO-29); Restart erases a week-from-start goal's history (GO-31) and lies about exam goals (GO-30).
+
+**Coverage.** {"routes": ["#/goals", "#/goals/week", "#/goals/month", "#/goals/done", "#/goals/<id>", "Home goals card"], "dialogs": ["New goal (templates + types)", "goal editor (study, routine, money pot, budget, vault title, exam, gov-gold)", "⋯ menu Restart/Archive/Delete", "danger Delete confirm", "missed card Restart/Archive"], "sizes": ["mac", "ipadl", "ipad", "iphone", "split", "slide"], "accounts": ["dense", "sample", "empty"], "types": "measured: study-hours, focus-blocks, focus-hours, cards-reviewed, ja-facets, mind-daily15, topics-green, routine-days, money-save, money-spend-under, money-income, money-no-spend, no-overdue, custom-manual, titles-completed, finish-series, specific-title, exam_recall, exam_papers_done, gov-gold, gov-level; code-read only: the rest"}
+
+### GO-28 [P0] After a pull re-keys a colliding goal, the goal page's Delete and Archive act on the OTHER device's goal (the confirm names yours)
+
+- **What:** SY-38's kos-qol-5 fix makes the live item OBJECT follow its new id, so the editor's Save is now correct (checked: smoke196 G2/G3 pass in spirit, and the editor holds G.get(id), the live object). But the goal page holds the goal by NUMBER and by a compute() COPY. Steps (harness slot 2, dense account, twice each): a goal 'MY goal (device A)' with id n; open #/goals/n; ⋯ › Delete… — the danger dialog reads “MY goal (device A)” and its history of periods go; another tab's merge re-keys it (the other device's 'THEIR goal (device B)' takes id n, ours n+1) and this tab takes the write in with KOS.store.sync(); the redraw waits for the open dialog (redraw policy) and the user presses Delete. Result, both runs (n=32, n=54): only [n+1,'MY goal (device A)'] is left — THEIR goal was deleted (and the deletion replicates to the other device by the three-way merge), while the goal the user confirmed deleting survives. Same with ⋯ open when the pull lands, then Archive: THEIR goal archived:true, MINE untouched (n=76). Afterwards the URL #/goals/n shows 'THEIR goal (device B)' under the user's own breadcrumb. Expected: an action acts on the record the user is looking at, whatever its id became.
+- **Root cause:** js/modules/goals.js:565-593 — detail(main, id) closes over the number id (from Number(arg.id), :350) and over g, a compute() row that is a COPY (js/core/goals.js:597 Object.assign({}, g, …)), so Restart/Archive/Delete call G.restart/G.archive/G.remove(g.id) with the old number; the Edit button calls goalDialog(G.get(id)) with the old number (correct only while no redraw is pending). The same holds for every list surface's buttons (hero, cards, missedCard :514-515, done() :539-540) built from row copies. js/core/cloudmerge.js:87-88 registers only goals.completionLedger as a reference to a goal id: notify items 'goal:<id>:…' with arg {id} (js/core/goals.js:1010-1028) and Google Calendar uids 'go:<id>:<date>' (js/core/extgcal.js:480) still name the old id after a re-key.
+- **Evidence:** /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/goals/rekey-delete.js (run twice: left [[33,'MY goal (device A)']] and [[55,'MY goal (device A)']], dialog text 'Delete this goal?“MY goal (device A)”…'); /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/goals/rekey-archive.js (left [[76,'THEIR goal (device B)',archived true],[77,'MY goal (device A)',false]], #/goals/76 shows 'THEIR goal (device B)'); js/modules/goals.js:584-593; js/core/goals.js:597; js/core/cloudmerge.js:87-88
+- **Fix:** Give goals random string ids as Routines and Money already have (SY-38's own fix: 'finish moving goals off counter ids'), so nothing is ever re-keyed; until then resolve the live record at click time — keep the live object from G.get(id) at render and pass live.id (or check createdAt) to remove/archive/restart, refusing with 'This goal changed on another device' when it no longer matches — and register the notice ids/links and extgcal uids as goal references in cloudmerge RECORDS.
+- **Devices:** ["mac", "ipad", "iphone"]
+- **Accounts:** ["dense"]
+- **Regression of:** SY-38
+- **Phase 1 change:** kos-qol-5 SY-38 fix (b115a85a) — partial: editors only
+
+### GO-29 [P1] A title goal (Finish a series / Complete a specific title) stores the vault's per-device row id, so on the other device it measures a different title
+
+- **What:** The goal record syncs in the state document with `linkedEntryId`, the vault row's local IndexedDB autoIncrement id, which mediadb.js says 'never leaves the device' (syncId is the cross-device identity, invariant 32). A second device that pulled the same vault in another order gives the same title another id. Harness (slot 2): on the dense account 'Make this a goal' on 'Collection entry 12' (11 of 51 episodes) saved goal 85 {type finish-series, linkedEntryId 12}. A fresh 'device B' (the Empty namespace) took the same 30 vault rows by syncId in another order (as a pull does: mediadb.add assigns new ids) and the goal record as synced: the goal 'Finish Collection entry 12' now reads 'Collection entry 19' — 18 of 58 episodes — and its page and card show that title and cover; 'Collection entry 12' itself is row 19 there. Same after a reload. A goal whose id is missing on the other device reads 'Linked title is no longer in the vault'. Expected: the goal follows the title on every device.
+- **Root cause:** js/core/goals.js:202 (normalise keeps linkedEntryId, a local mediadb id) and js/core/goals-collection.js:68-86 (linked() reads KOS.mediadb.get(g.linkedEntryId)); js/modules/goals.js:1064 and js/modules/medview.js:1026 save e.id, not e.syncId; js/core/mediadb.js:164-166 ('autoIncrement ids are per-device and never leave the device; syncId is the UUID the cloud rows key on'). Pre-existing (not Phase 1), but Phase 1's 1E 'Make this a goal' from a vault title makes it the common path.
+- **Evidence:** /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/goals/devB.js (onDeviceB [18,58,'Collection entry 19'], sameTitleOnB [12→19,'Collection entry 12']); after reload ['empty','Finish Collection entry 12',12,18,58,'Collection entry 19']; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/goals/detail-mac-empty-deviceB-linked.png
+- **Fix:** Store the title's syncId (params.linkedSyncId) beside or instead of linkedEntryId and resolve it through the syncId index (KOS.mediadb.bySyncId) in linked(), the band and the editor's title picker; migrate existing goals in normalise by looking up the local row once. The Wishlist's linkedEntryId has the same flaw (Collection area).
+- **Devices:** ["mac", "ipad", "iphone"]
+- **Accounts:** ["dense", "empty"]
+- **Phase 1 change:** 1E bk:goals#2 'Make this a goal' from Collection titles (medview.js:1018-1031)
+
+### GO-31 [P1] Restart on a repeating goal whose week runs from its start day deletes every recorded week ('Every period, kept … never deleted')
+
+- **What:** Harness slot 2, dense. A weekly focus-hours goal, 2 h, 'The week runs: from the day it starts' (weekFrom 'start'), started Wed 14 Oct: compute judges six ended weeks into outcomes (10-14 met, 10-21 met, 10-28 ✕, 11-04 ✕, 11-11 ✕, 11-18 met). Goal page ⋯ › Restart → toast 'Focus 2h a week (from Wed) restarted from 27 Nov' → outcomes {} and run 0: the six weeks are gone from the page, the Goals list's 'Every period, kept' card and Reports' periods. Twice (goal 89 from 14 Oct: 6 → 0; goal 90 from 7 Oct: 7 → 0). Control: the same goal on Monday-to-Sunday weeks keeps all six after Restart. The Done tab promises 'Restart makes a new period from today with the same settings; Archive files it away. Neither deletes anything.' The same wipe follows an Edit that moves Starts on such a goal, with no 'history restarts' note (the GO-04 note shows only when the grid control itself changes).
+- **Root cause:** js/core/goals.js:366-377 restart() patches startDate: today; update() :317-321 (GO-04) drops every outcome whose key is not a period of the NEW grid — with weekFrom 'start' the grid is anchored on startDate (periodOf :68-71), so a new weekday re-anchors it and every old key fails; closePeriods :477-483 then re-judges only from the new startDate, so nothing comes back. js/modules/goals.js:998-999 shows the 'history restarts' note only when repeat/weekFrom change, not startDate.
+- **Evidence:** /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/goals/restart-repeat.js (before 6 outcomes, after [] run 0), restart-repeat2.js (7 → []), restart-repeat-mon.js (control: 6 kept); js/modules/goals.js:547 ('Neither deletes anything')
+- **Fix:** Restart of a repeating goal should keep its outcomes: keep the grid's anchor (store the weekday in weekFrom, e.g. 'wed', instead of deriving it from startDate) or exempt keys before the new startDate from the GO-04 prune; and say in the editor when moving Starts re-reads the history.
+- **Devices:** ["mac"]
+- **Accounts:** ["dense"]
+- **Regression of:** GO-04
+- **Phase 1 change:** 1D goals#3 restart (restart path unchanged; same since GO-04's W7 fix)
+
+### GO-30 [P2] Restart on a missed exam goal says 'restarted · 27 Nov – 14 Dec' but the goal stays Missed: its deadline is still read from the exam
+
+- **What:** Harness slot 2, dense. (1) An exam_papers_done goal linked to an upcoming mock with an earlier 'By' of 20 Nov (missed): Goals › Missed card › Restart → toast '3 papers before (by 20 Nov) restarted · 27 Nov – 16 Dec'; compute afterwards: status failed, deadline 2026-11-20, still in the Missed card (stored deadline 2026-12-16 ignored; 16 Dec is also after the exam it follows). (2) An exam_papers_done goal on a mock dated 18 Nov (missed): goal page ⋯ › Restart → toast '2 papers before Past mock restarted · 27 Nov – 14 Dec'; status failed, deadline 2026-11-18. The 1D toast now names a span that never applies, and the action does nothing for an exam goal. Expected: Restart is not offered for an exam goal whose exam (or By) has passed — offer 'Link to an exam' (linkExam) instead — and for one still ahead the new span ends on the exam's date.
+- **Root cause:** js/modules/goals.js:518-524 restart() computes patch.deadline = today + old span and toasts it; js/core/goals.js:550 compute() takes deadlineOf(g) (js/core/goals-exams.js:31-35: params.by, else the exam's date) over g.deadline for exam goals, so the restarted goal is judged against the old past date at once (derive :403 → failed). restart() (js/core/goals.js:366-380) keeps params.by.
+- **Evidence:** /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/goals/restart-exam.js (before ['failed','2026-11-20'], toast '… restarted · 27 Nov – 16 Dec', after ['failed','2026-11-20', stored deadline '2026-12-16', by '2026-11-20'], still in Missed); /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/goals/restart-exam2.js (toast '… restarted · 27 Nov – 14 Dec', after ['failed','2026-11-18'])
+- **Fix:** In restart() (page) and G.restart, for an exam goal: if deadlineOf is past, do not offer Restart (offer Link to an exam); otherwise drop params.by and let the deadline follow the exam, and toast the span compute() will actually use (read it back from compute or deadlineOf).
+- **Devices:** ["mac"]
+- **Accounts:** ["dense"]
+- **Phase 1 change:** 1D goals#3 (restart names the new span)
+
+### GO-32 [P2] Editing an exam goal whose exam has passed shows another exam in the Exam field (the hint names the real one), and that exam cannot be picked
+
+- **What:** Harness slot 2, dense. Goal 88 'Papers done' linked to 'Past mock' (18 Nov). Goal page › Edit: the Exam select reads 'Revision block 24 · Mon 7 Dec' while the hint under it says 'Ends on the exam's date (Wed 18 Nov)…'; the linked exam has no option at all. Save keeps the link to Past mock (links.examId xgxrabut), so what the form showed is not what is saved, and choosing the shown exam is impossible (it is already 'selected', so no change event fires). Twice the same; control goal 87 on an upcoming exam shows its own exam. A met or missed exam goal is exactly the one edited after its exam. Expected: the linked exam is always an option and selected, as GO-25 fixed for titles.
+- **Root cause:** js/modules/goals.js:185-191 examChoices() keeps the current exam (`a.id === keep`) only while filtering KOS.exams.upcoming(), so a past exam never enters the list; drawExam :860-864 then takes a = KOS.exams.get(xs.examId) (the past one) for the hint but builds the select from the list without it, so the browser shows the first option.
+- **Evidence:** /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/goals/editor-pastexam.js (88: selectShows 'Revision block 24 · Mon 7 Dec', optionForLinkedExam false, hint 'Ends on the exam's date (Wed 18 Nov)', afterSave xgxrabut; 87 control fine); /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/goals/editor-gold-slide-dense.png
+- **Fix:** In examChoices, append KOS.exams.get(keep) when it is not among the upcoming (labelled '· passed'), so the select always holds and shows the linked exam.
+- **Devices:** ["mac", "slide"]
+- **Accounts:** ["dense"]
+
+### GO-33 [P2] Sample account: its four goals are saved with type 'manual' (no such type), so the counts 7 of 12 and 6 of 10 read 0 and the goals offer 'Collection' instead of +1
+
+- **What:** Account › Sample, #/goals: the hero reads 'Clear the anime backlog to under ten — 0 of 10 steps · Behind' and the cards '0 of 12 steps', '0 of 1 steps'; the seed gives current 7 and 6. The records are {type:'manual', kind:'auto', current:0}: normalise kept the unknown type id, took it for an automatic goal and zeroed the count. The hero and card action is 'Collection' (opens the vault), not '+1'. KOS.goals.normalise({type:'manual',target:12,current:7}) → ['manual','auto',0], twice. Only the Sample account; the user's real goals use custom-manual.
+- **Root cause:** js/core/sample.js:246-249 seeds type:'manual' (the v2 kind name) instead of type:'custom-manual'; js/core/goals.js:162-165,209 normalise keeps an unknown type and sets auto = raw.kind !== 'manual' (true), so current is forced to 0; js/modules/goals.js:292 offers +1 only for type 'custom-manual'.
+- **Evidence:** /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/goals/goals-mac-sample.png; eval normalise → ['manual','auto',0]; state items [['manual','auto',0,12,'active'],['manual','auto',0,10,'active'],…]
+- **Fix:** Seed type:'custom-manual' (or kind:'manual') in sample.js; optionally map a stored type 'manual' to custom-manual in normalise (LEGACY).
+- **Devices:** ["mac", "ipad", "iphone", "split"]
+- **Accounts:** ["sample"]
+
+### GO-34 [P2] 'Keep Mind Daily 15 days' drops a day the Daily 15 was done without its own Focus entry as soon as the next Daily 15 is done
+
+- **What:** The new mind-daily15 type counts days with a Focus entry whose objective is 'Mind · Daily 15', plus the ONE day held in state.ui.mind.daily (per device, today's run only). The Daily 15 starts its own Focus only when Focus is idle (js/modules/mind.js:709-714): run it while a study stopwatch is already going and it leaves no such entry. Harness slot 2, dense: weekly goal 'Daily 15 x5' from Mon 23 Nov; ui.mind.daily = {day Thu 26, doneAt} → 1 day; then Friday's Daily 15 is done (ui.mind.daily = {day Fri 27}) → still 1 day: Thursday is gone, and a week judged later counts neither unless they had entries. The same day done on the iPad never counts on the Mac (state.ui is per device). Renaming the Focus objective also removes the day. Expected: a day the Daily 15 was finished counts once, on every device, whatever Focus was doing.
+- **Root cause:** js/core/goals.js:957-965 reads the ledger by objective text plus only the latest state.ui.mind.daily; Mind keeps no synced record of the days its Daily 15 was finished (js/modules/mind.js:875 sets d.doneAt on the per-device ui record only).
+- **Evidence:** eval on slot 2 (dense): {thu_only: 1, after_fri_daily: 1}; js/core/goals.js:957-965; js/modules/mind.js:709-714, 875
+- **Fix:** Record the finished day in Mind's synced state (e.g. state.mind.dailyDone[day] = mins, set where d.doneAt is set) and count those days; keep the objective entries only as a fallback for days before it.
+- **Devices:** ["mac"]
+- **Accounts:** ["dense"]
+- **Phase 1 change:** bk:goals#3 mind-daily15 (1E)
+
+### GO-35 [P2] A Money goal's notice prints the raw amount ('£4500 of £600') even with Money's Hide amounts on, and unformatted
+
+- **What:** Harness slot 2, dense. A 'Save for New laptop' pot goal (target £600) reached: KOS.goals.tick() pushed 'Goal reached — Save for New laptop', body '£4500 of £600'. With Money › Hide amounts on (state.ui.moneyHidden true) KOS.goals.notices() still gives body '£4500 of £600' — the same figure Money itself prints as '£4,500.00' and masks when hidden. The body is kept in state.notify (synced to every device, shown in the bell and the Notifications page) and is the text of a device alert when the page is hidden (js/core/notify.js:297). Twice (tick, then notices with Hide amounts on). Expected: a money figure in a notice goes through KOS.money.format and says nothing of the amount while amounts are hidden ('Reached · amounts hidden').
+- **Root cause:** js/core/goals.js:995-1004 amount() builds unit + fmt(n) for a currency unit, bypassing KOS.money.format / formatShown and isHidden(); the Goals page itself uses KOS.goalsUI.word, which does mask (js/modules/goalwords.js:16).
+- **Evidence:** eval slot 2: tick sent 'goal:79:done:2026-11-27' body '£4500 of £600'; with setHidden(true): notices body '£4500 of £600', KOS.money.format(450000) '£4,500.00'; js/core/goals.js:1002
+- **Fix:** In amount(), format currency figures with KOS.money.format(Math.round(v*100)) and, when KOS.money.isHidden(), leave the amounts out of the body.
+- **Devices:** ["mac"]
+- **Accounts:** ["dense"]
+- **Phase 1 change:** 1E bk:goals#2 (pot and budget goals from Money make these common)
+
+### GO-36 [P3] Goal editor's line says 'one about every 1 days' and money lines lack the currency ('6.3 a day')
+
+- **What:** New goal from a weekday routine (target 5 a week): hint 'The line: one about every 1 days. Pace shows once a day has passed.' Exam goal editor (2 papers): 'Now 0 of 2 papers. One about every 1 days gets you there.' Pot goal (£600 by 1 Mar): 'The line: 6.3 a day.' — no £ and one decimal of pounds. Seen in the routine, exam and pot 'Make this a goal' dialogs (each twice).
+- **Root cause:** js/modules/goals.js:1024 ('one about every ' + Math.round(span / t) + ' days' when t < span, and a bare number for money) and :906 (Math.round(days/(t-m.current)) can be 1)
+- **Evidence:** /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/goals/ep-routine.js, ep-pot.js, editor-gold-slide-dense.png
+- **Fix:** Say 'about one a day' when the interval rounds to 1, and format a money rate with KOS.money.format (masked when hidden).
+- **Devices:** ["mac", "slide"]
+- **Accounts:** ["dense"]
+- **Phase 1 change:** 1E bk:goals#2 entry points
+
+### GO-37 [P3] Goals hero counts 'Too early to call' goals as 'on track now' (16 on track beside 2 On-track chips)
+
+- **What:** Dense, #/goals All: the hero's run block reads '3 behind now · 16 on track now · 0 met now' while the cards show 14 'Too early to call' chips and 2 'On track'. Twice (before and after adding goals).
+- **Root cause:** js/modules/goals.js:440-444 counts any truthy _pace other than behind/over (early, ahead, under) as 'on'
+- **Evidence:** eval: runcounts ['3 behind now','16 on track now','0 met now'], earlyChips 14, onTrackChips 2; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/goals/goals-mac-dense.png
+- **Fix:** Count only on-track/ahead/under as on track and leave early out (or add 'too early').
+- **Devices:** ["mac"]
+- **Accounts:** ["dense"]
+- **Regression of:** GO-19
+
+### GO-38 [P3] A title goal's Target field is offered and saved but ignored: 'Finish a series' always reads the title's own episode total
+
+- **What:** Goal 85 'Finish Collection entry 12' (made from the vault editor): Edit › Target 10 › Save stores target 10 but the goal still shows 11 of 51 and is judged against 51. Twice.
+- **Root cause:** js/core/goals-collection.js:72-81 linked() overrides target with entry.progress.total (or 1); js/modules/goals.js:989-995 draws the Target stepper for every type.
+- **Evidence:** eval: stored 10, shown [11, 51]
+- **Fix:** Hide the Target field for specific-title and finish-series (show 'the title's own total') or let the stored target win.
+- **Devices:** ["mac"]
+- **Accounts:** ["dense"]
+- **Phase 1 change:** 1E vault 'Make this a goal'
+
+## JM · Japanese study space (complete)
+
+12 findings: 2 P1, 3 P2, 7 P3, no P0. The worst is one shared defect: KOS.jaRun.mount leaves an exercise live after it is graded, and the two callers without the session's once-guard count every press — a checkpoint can be passed and paid (60 XP · 15 gold · +5 HP) with every first answer wrong (JM-40), and the kana page records, logs and pays one answer once per Enter (JM-41). Phase 1's Japanese features work as specified (practice-only re-practice, leech recovery with Undo and re-flag, immersion through Focus paid by focusAward, lesson returns, checkpoint ✕ confirm, misses + '+ Log' on the end card) with gaps at their edges: the checkpoint guard covers ✕ only (JM-42), leech rows stretch the desk (JM-43), ✕ still goes to the desk (JM-45), a retry exit revives a finished run (JM-47), immersion readers not updated (JM-48). japanese.facets merge whole by `last` (FACET_PATH) so leechBase is safe; study-cleanup batch 7 touched no Japanese file and every lesson item resolves (28 lessons, 440 items). Baked audio: all 759 pack files exist and resolve.
+
+**Coverage.** {"routes": ["#/subject/ja (desk)", "#/japanese/path", "#/japanese/skills", "#/japanese/kana", "#/japanese/reviews", "#/japanese/checkpoints", "#/japanese/checkpoints/cp-H|cp-K (run)", "#/japanese/settings", "#/japanese/licences", "#/japanese/session/reviews", "#/japanese/session/learn-H1|H2|H3|1.1", "#/japanese/session/practice-H1|1.1", "#/ref/ja/H1|1.1|2.1 (Notes, Practice, Reviews tabs; inspector; Core/Media spine)", "#/focus (immersion field, About to Study, completion)", "#/errorlog (ja entry)", "bogus ids (learn-bogus, practice-bogus, ref ZZ9)"], "sizes": ["mac", "ipadl", "ipad", "iphone", "split", "slide"], "accounts": ["dense (mine; Japanese built up by driving lessons, reviews, kana, checkpoints, a Focus immersion session; leeches and due dates set by eval)", "empty"], "notCovered": ["Sample account (it carries no Japanese data, same as Empty for this area)", "the copy account (slot 7 not used)", "audio playback itself (headless): requests and files checked instead", "Speech recognition (sends to Google; not exercised)", "multi-device merge run live (reviewed in code: cloudmerge FACET_PATH)", "mining (no caller of KOS.ja.mine in this build)"], "method": "Driver script answering exercises right or wrong through the runner's own DOM (audit-evidence/.../ja-mind/driver.js), ledger/governor/review-log deltas per action, route sweep for overflow and touch targets at six sizes, cold loads."}
+
+### JM-40 [P1] A checkpoint counts every Check press: answer wrong, then retype (or pick the other option, or redraw) and press again, and the question scores right — Reading shows '200%', and a run whose every first answer was wrong passes and pays 60 XP · 15 gold · +5 HP
+
+- **What:** #/japanese/checkpoints/cp-H on the dense account (mac). (1) For each of the 12 Reading questions: type a wrong reading + Enter (✗ Wrong), then the right reading + Enter, then Enter again; answer Writing/Listening wrong once. Result card: 'Reading 200% ✓ Pass' (stored R clamped to 1), and each question left three 'Next ›' buttons. (2) Second run: every question's FIRST answer wrong (typed 'zzq'; reversed strokes; the wrong one of the two minimal-pair options), then the right one on the same question: result 'Passed. Reading 100% · Writing 100% · Listening 100%', checkpoints['cp-H'] = {scores R1 W1 L1, passAt, paidAt}, one ledger entry {kind:'checkpoint', first:true, award {xp:60, gold:15, hp:5}}, governor +60 XP +15 gold. Expected: one answer per question, as the review session enforces since 9 Nov ('ONE answer per question', jarun.js:494-497): the first verdict counts and the controls lock. Invariant 116 says a checkpoint pays at 80% in every skill; the score it reads is not the learner's.
+- **Root cause:** js/modules/japanese.js:731-736 — the checkpoint's KOS.jaRun.mount callback has no once-guard: it does answered++ and right++ and appends a new 'Next ›' on every call. KOS.jaRun.mount (js/modules/jarun.js:117-130, kana-read 132-138, minimal-pair 196-203, kana-write 154-162) leaves the input, Check button, pad and options live after finish(), so each press calls done(res) again. scores[s] = right / keys.length (japanese.js:721) then exceeds 1; KOS.ja.recordCheckpoint clamps to 1 and pays (js/core/ja.js:327-345). Pre-dates Phase 1 (same code at 4c3fc33:japanese.js:622 and f479433b:657); not in November's list.
+- **Evidence:** /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/ja-mind/checkpoint-result-mac-mine-R200pct.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/ja-mind/checkpoint-result-mac-mine-inflated-pass.png; scripts /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/ja-mind/cp-inflate.js and /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/ja-mind/cp-inflate2.js (eval output: log of 26 questions 'Wrong … then Correct', rec {scores:{R:1,W:1,L:1}, passAt, paidAt}, dxp 60, dgold 15)
+- **Fix:** Give the checkpoint the session's once-guard: a local `done` flag per question that returns on a second call, disables [data-ui~='ja.check'] and the options, and appends one Next. Better, make KOS.jaRun.mount itself lock the exercise after its first finish() (except the near→Retry path) so every caller (session, checkpoint, kana page) is safe. Add a smoke check that presses Check twice in a checkpoint and on the kana page.
+- **Devices:** ["mac"]
+- **Accounts:** ["dense"]
+
+### JM-41 [P1] Kana page: pressing Check or Enter again on one answer records it again — each press is another FSRS review of the same facet, another review-log row, another '+1 XP' and another 'Next ›' (5 presses: reps 5, 5 log rows, +5 XP, set '5 of 20')
+
+- **What:** #/japanese/kana (Mixed) on the dense account after H1 and H2 were started. Read card: type the right reading of さ and press Enter 5 times. Before: facets['k:さ|R'] = {due today, isNew}. After: reps 5 (one answer), 5 review-log rows for ja:k:さ|R, KOS.ja.paidToday() +5, governor XP +5, the set bar '5 of 20', five 'Next ›' buttons. Second repro (し, Check button clicked 3 times): reps 0→3, paid +3, bar 8 of 20. The review session fixed exactly this on 9 Nov ('40 presses made 40 reviews', jarun.js:494-497) but the kana page's two drills never got the guard. Pay is bounded by the 30-a-day cap, but the schedule (reps) and the review log — the FSRS optimiser's input, invariant 111 — are corrupted, and one answer is paid several times (invariant 116: +1 XP a facet answered).
+- **Root cause:** js/modules/japanese.js:477-480 (nextWrite) and 496-505 (nextRead) — the mount callbacks call J().record(ex.key, res), push a result and kanaSync(false) on every call; KOS.jaRun.mount leaves Check/Enter live after finish() (js/modules/jarun.js:117-130, 132-138, 154-162), so each press is a new record(). Pre-dates Phase 1 (f479433b has the same callbacks).
+- **Evidence:** /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/ja-mind/kana-mac-mine-5enter.png; script /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/ja-mind/kana-multi.js (eval: before {due,isNew}, after reps 5, paidTodayDelta 5, xpDelta 5, reviewLogRowsAdded 5, nextButtons 5); second eval on し: repsBefore 0, repsAfter 3, paidDelta 3
+- **Fix:** One answer per question in the kana drills: an `answered` flag in each callback (as jarun.js:494-497) that ignores a second call and disables the card's Check; or lock the exercise inside KOS.jaRun.mount after its first non-near finish() (fixes JM-40 too). Extend smoke83/smoke140 with a double Enter on the kana page asserting one review-log row and +1 XP.
+- **Devices:** ["mac"]
+- **Accounts:** ["dense"]
+
+### JM-42 [P2] A checkpoint in progress is lost without asking when left by Back, the rail or any link: only its ✕ asks 'Leave the checkpoint?' (1D ja-mind#3), the page registers no KOS.view.guard
+
+- **What:** #/japanese/checkpoints/cp-H, answer some Reading questions, then KOS.show('home') (as a rail tap): the address moves to #/home at once, no dialog, the answers are gone. Second repro on cp-K: one answer, then history.back(): lands on the previous page, no dialog. The ✕ in the run head does ask (answered && !finished). Invariant 166: a real navigation 'first asks when the page says leaving would lose unsaved work (KOS.view.guard)' — the checkpoint says it through its own ✕ only.
+- **Root cause:** js/modules/japanese.js:709-714 — leave() is wired to the ✕ button only; checkpointRun never calls KOS.view.guard (js/core/redraw.js:244; the only caller in the app is governor-ui.js:752), so KOS.show/Back navigate freely.
+- **Evidence:** eval: KOS.show('home') mid-cp-H → {hash:'#/home', dialog:[]}; history.back() mid-cp-K → {hash:'#/japanese/checkpoints/cp-H', dialogs:0}; js/modules/japanese.js:709
+- **Fix:** In checkpointRun: KOS.view.guard(function () { return answered && !finished ? { title: 'Leave the checkpoint?', body: 'Your answers so far will not be saved or scored.' } : null; }); keep the ✕ going through KOS.show so it asks once, through the same guard.
+- **Devices:** ["mac"]
+- **Accounts:** ["dense"]
+- **Phase 1 change:** 1D ja-mind#3 (leaving a checkpoint asks first — ✕ only)
+
+### JM-43 [P2] Desk: each set-aside (leech) row in the Rework side card is ~156 px tall, so the row grid stretches Subject analytics with it — 253 px with no leech, 481 px with two, 717 px with four — and its eight tiles float in a mostly empty card (mac 1470)
+
+- **What:** #/subject/ja on the dense account, mac 1470x832. Measured [data-ui~='ja.rework'] and the Subject analytics card heights: 0 leeches 253/253, 2 leeches 481/481, 4 leeches 717/717 (lapses set to 8–10 on hiragana R facets). The analytics card's 2x4 tiles are spread over the stretched height: at four leeches the first tile row sits ~170 px below the card head and the second ~330 px lower, with blank bands between (screenshot). Each leech row stacks glyph, skill chip, reading, 'Set aside' and two full-width-ish buttons ('Relearn from the lesson', 'Back in the schedule') on three lines in a 290 px column; the 5-lapse 'slipping' row is pushed out of the card (limit 4). CLAUDE.md layout rule: no empty gaps or dead space; 'side column never taller than the hero'. iPad portrait (single column) is fine.
+- **Root cause:** js/modules/japanese.js:262-292 (leechRows: .k-ja-leech-row is flex-direction column with an actions row, css/views/japanese.css:204-207) rendered up to 4 deep by reworkCard (japanese.js:305-321) in the side cell of .k-subj-row (css/views/study.css:14, a grid row whose cells stretch); the analytics card distributes its tiles over the stretched height. Phase 1 bk:ja-mind#4.
+- **Evidence:** /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/ja-mind/desk-mac-mine-leeches.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/ja-mind/desk-mac-mine-4leeches.png; eval {rework:253,analytics:253,leechRows:0} → {481,481,2} → {717,717,4}
+- **Fix:** On the desk keep leech rows to one line (glyph · skill · lapses · a single 'Back in the schedule' icon/text button; 'Relearn' lives on the Skill map) and cap the desk card at two rows plus 'N more on the Skill map →'; give .k-subj-row align-items:start (or let the analytics grid keep its natural height) so the side card can never stretch the analytics.
+- **Devices:** ["mac", "ipadl"]
+- **Accounts:** ["dense"]
+- **Phase 1 change:** 1E bk:ja-mind#4 (leech recovery on the desk)
+
+### JM-44 [P2] Lesson inspector 'Due now' and the lesson's Reviews tab count facets the queue holds back today: H1 just passed says 'Due now 10' and lists ten Writing facets as 'due' while Reviews has nothing due (KOS.ja.due() 0)
+
+- **What:** #/ref/ja/H1 right after passing H1 (dense account, mac and iPad). Inspector › Next practice: 'Practice 10 items · Due now 10'; Reviews tab (count 20) lists each kana's W row with Next 'due'. KOS.ja.due() = 0 and the desk's 'Reviews due' tile says 0: the ten k:…|W facets are due today but buried by the sibling rule (their R sibling was reviewed today, JM-11, invariant 113). Second lesson H2 (started): inspector 20 vs queue 10 (the 10 extra are the buried W facets). The learner is told to review ten things the Reviews button will not ask.
+- **Root cause:** js/modules/jatopic.js:372 counts every lesson facet with f.due <= today, and jatopic.js:290 prints 'due' by the same test — neither reads KOS.ja.due() / KOS.jaSrs.queue (js/core/jasrs.js:124-146), which drops a facet whose sibling was reviewed today unless it is over two days overdue.
+- **Evidence:** /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/ja-mind/topic-H1-mac-mine-done.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/ja-mind/topic-H1-ipad-mine-inspector.png; eval [{id:'H1', inspector:10, queue:0, lockedW:10},{id:'H2', inspector:20, queue:10}]
+- **Fix:** Derive both from the queue: due = KOS.ja.due().filter(k => lesson items has split(k).item).length (invariant 26d: one derivation); in the Reviews tab show a buried facet as 'tomorrow' (or 'waits a day') rather than 'due'.
+- **Devices:** ["mac", "ipad"]
+- **Accounts:** ["dense"]
+
+### JM-45 [P3] ✕ on a lesson's session leaves to the desk, not the lesson: always on 'Practise again' (it has no results, so no confirm) and on a learn session before its first answer — 1D ja-mind#1 made only the end card go back to the lesson
+
+- **What:** From #/ref/ja/H1 › Practice › '▶ Practise again' (#/japanese/session/practice-H1), answer two questions, press ✕: lands on #/subject/ja with no dialog. #/japanese/session/learn-H2, press ✕ before answering: #/subject/ja. The end cards of the same sessions say 'Back to the lesson' and go to #/ref/ja/<id>. Two runs each.
+- **Root cause:** js/modules/jarun.js:465-470 — leave() ends with KOS.show('subject','ja') whenever there are no results (practice never has results, jarun.js:500-501); backBtn() (jarun.js:529-533) is the only place that knows lessonId.
+- **Evidence:** eval: practice-H1 → ✕ → {hash:'#/subject/ja', dialog:false}; learn-H2 → ✕ → {hash:'#/subject/ja'}; js/modules/jarun.js:469
+- **Fix:** In leave(): `else if (lessonId) KOS.show('ref', { subject: 'ja', ref: lessonId }); else KOS.show('subject','ja');` (reuse backBtn's target).
+- **Devices:** ["mac"]
+- **Accounts:** ["dense"]
+- **Phase 1 change:** 1E bk:ja-mind#1 / 1D ja-mind#1
+
+### JM-46 [P3] A Japanese miss logged with '+ Log' reaches the Error Log as internal codes and gives its answer away: 'あ (a) — missed R', topic 'k:あ', context 'R · a'; 'Turn into flashcard' then makes a card whose question already holds the answer
+
+- **What:** Review end card › '+ Log' beside あ (dense). The Error Log hub card reads 'Japanese k:あ · あ', title 'あ (a) — missed R', context 'R · a' (screenshot). The facet code (k:あ, R) leaks as JM-29's family codes did, and the reading (the answer to a Reading miss) is in the title. toFlashcard builds q = title + context and a = context ('R · a'), so the flashcard front shows 'a'. Logged twice (あ in one session, て in another, then Undo) — same shape.
+- **Root cause:** js/modules/jarun.js:576-589 — title `it.w + ' (' + sub + ') — missed ' + p.skill`, context `[p.skill, sub]`, topicRef p.item; js/modules/errorlog.js:103-116 toFlashcard copies title/context into the card.
+- **Evidence:** /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/ja-mind/errorlog-mac-mine-ja-entry.png; eval item {topicRef:'k:あ', title:'あ (a) — missed R', context:'R · a', deepLink:{view:'japanese',arg:{page:'path'}}}
+- **Fix:** Title from the skill's name and without the answer ('あ — Reading missed'), context the meaning/reading only for Listening/Writing misses, topicTitle the lesson ('H1 あ and か rows') with topicRef the lesson id and deepLink to it (#/ref/ja/H1) instead of the path.
+- **Devices:** ["mac"]
+- **Accounts:** ["dense"]
+- **Phase 1 change:** U8 '+ Log' pills on the review end card
+
+### JM-47 [P3] Leaving a finished review session during 'Try the misses again' re-saves the finished run: the next visit to Reviews opens on 'Picked up · 30 answered' and the old end card instead of 'Nothing due right now' (and the ✕ warns 'kept and scheduled' about practice answers)
+
+- **What:** Dense account: make kana R facets due, #/japanese/session/reviews, answer to the end with misses (end() drops the run). Press 'Try the misses again', then ✕ → 'Leave the session? What you have answered is kept and scheduled.' → Leave. KOS.sessions.run.get('ja:reviews') now holds the finished session again (sid smwyz5nzbm26rp9, 30 results). Reopen Reviews: chip 'Picked up · 30 answered' and the finished end card with its misses. Control (run dropped by hand): 'Nothing due right now'. Second repro on a fresh set: 'Picked up · 26 answered'. Any review due later that day continues the old ledger entry. Not SY-35 (that is a redraw mid-session).
+- **Root cause:** js/modules/jarun.js:509-519 reask() clears data-done; leave() (jarun.js:465-470) then sees results && !data-done and confirms into end(true), whose last line keepRun()s an early end (jarun.js:610) although the session had already finished and been dropped.
+- **Evidence:** /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/ja-mind/reviews-mac-mine-stale-pickedup.png; eval {dialog:true, runAfterLeave:{sid:'smwyz5nzbm26rp9', n:30}, chip:'Picked up · 30 answered'}; control {first:'Nothing due right now', chip:null}
+- **Fix:** Keep a `finished` flag set by the first end(false); while it is set, ✕ during a retry just shows the end card again (no confirm, no keepRun), and end() never keepRun()s a finished session.
+- **Devices:** ["mac"]
+- **Accounts:** ["dense"]
+- **Phase 1 change:** 1D ja-mind#2 (missed answers with a retry on the review end card)
+
+### JM-48 [P3] Immersion is now logged through Focus (Phase 1) but three readers still look at the dead tally: the Immersion badge counts state.japanese.input (nothing writes it) and stays 'soon', the Today plan still drops Input as not in the app, and About to Study suggests 'Open the notes for Japanese and read the first heading' for a Watching session
+
+- **What:** Desk › 'Log immersion →' opens Focus with Japanese + 'Watching'; a 21-minute stopwatch logged {type:'focus', subject:'ja', metrics.immersion:'watch', secs 1273} paid 24 XP · 2 gold · 4 HP by focusAward (correct) and the desk's 'Input this week' shows 21 m. But: the Immersion badge (achcatalogue.js:374-378) sums japanese.input (KOS.ja.addInput has no caller), so it can never move and stays marked soon; KOS.ja.planDay() still returns input {min 8, inApp:false} and the Today card omits the block (japanese.js:199-201) although the app now runs it; the About to Study sheet's first-action placeholder reads 'Open the notes for Japanese and read the first heading'.
+- **Root cause:** js/core/achcatalogue.js:374-378 and js/core/ja.js:393-399/:433-438 (planDay input inApp:false, JM-38's note) were not moved to the Focus-ledger reading that js/modules/japanese.js:49-62 weekInput() now uses; js/modules/routineplayer.js:363-371 suggestAction knows nothing of immersion.
+- **Evidence:** /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/ja-mind/desk-mac-mine-immersion.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/ja-mind/focus-after-start-mac.png; eval ledger {type:'focus', imm:'watch', secs:1273, award {xp:24,gold:2,hp:4}}; planDay {input:{min:8, inApp:false}}
+- **Fix:** Give KOS.ja one immersion reader (weekInput's ledger sum, by kind and range) and use it for the badge (drop 'soon' once it measures) and for planDay (input inApp: true, its Start opening Focus with the immersion prefilled); suggestAction: 'Start watching / reading / listening' when the session carries immersion.
+- **Devices:** ["mac"]
+- **Accounts:** ["dense"]
+- **Phase 1 change:** 1E bk:ja-mind#5 (immersion through Focus)
+
+### JM-49 [P3] An unknown lesson in a learn route throws and bounces to Home (#/japanese/session/learn-bogus), while practice-bogus says 'Nothing to practise' and #/ref/ja/ZZ9 opens the desk
+
+- **What:** Cold load each route (twice): learn-bogus → #/home; practice-bogus → 'Practise · bogus' with 'Nothing to practise'; #/ref/ja/ZZ9 → #/subject/ja. A stale bookmark or a lesson renamed in a content update lands on Home with no word about Japanese.
+- **Root cause:** js/modules/jarun.js:384-396 — learn mode does `L.items.forEach` with L = KOS.ja.lesson(id) null (startLesson already returned [] for it); the throw is caught by the router and Home is shown.
+- **Evidence:** cold loads: learn-bogus → {h:'#/home'}; practice-bogus → {t:'Practise·bogus', ex:true}; ref/ja/ZZ9 → {h:'#/subject/ja'}
+- **Fix:** In KOS.views.japanese session branch (js/modules/japanese.js:366-371): when the lesson id does not resolve, replace the route with the desk (as ref does) before calling KOS.jaRun.run.
+- **Devices:** ["mac"]
+- **Accounts:** ["dense"]
+
+### JM-50 [P3] Japanese settings: the side 'Licences & credits' card is stretched to the settings card's height (~460 px) around three lines of text, a mostly empty block beside the form (mac)
+
+- **What:** #/japanese/settings, mac 1470: the right column card holds a title, 'Open →' and two lines, then ~360 px of empty card. The CLAUDE.md layout rule (no dead space; side column never taller than its content needs) — the k-ja-twocol grid stretches the side cell.
+- **Root cause:** js/modules/japanese.js:793-795 (settingsPage builds k-ja-twocol with the licences card alone in k-ja-side); the side card stretches with the grid row.
+- **Evidence:** /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/ja-mind/settings-mac-mine.png
+- **Fix:** align-self:start on the side card, or fold the licences link into the settings card as a last row and let the form take the width.
+- **Devices:** ["mac", "ipadl"]
+- **Accounts:** ["dense", "empty"]
+
+### JM-51 [P3] Review session: after an answer is graded the input stays live, so a second Enter repaints the verdict — the card reads '✗ Wrong · It reads su' above 'Grade, from your answer · Easy' (the first answer is the one recorded)
+
+- **What:** #/japanese/session/reviews (dense, mac). Type the right reading, Enter (✓ Correct, Grade Easy, one review recorded); edit the field to a wrong reading and press Enter: the verdict box now says ✗ Wrong while the grade line and the schedule keep Easy. Second repro on ひ via the Check button then Enter: same. The once-guard (jarun.js:494-497) stops a second record but not the second verdict; the same unlocked mount is what lets JM-40/JM-41 count twice.
+- **Root cause:** js/modules/jarun.js:117-130 finish() repaints `out` on every call and nothing disables the input or Enter handler (kana-read 132-138, typed() 214-226, picks() options in minimal-pair 196-203); run() disables only [data-ui~='ja.check'] buttons (jarun.js:498).
+- **Evidence:** /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/ja-mind/review-mac-mine-verdict-flip.png; eval {v1:'✓Correct', v2:'✗Wrong', grade:'Easy · next tomorrow', repsDelta:1}
+- **Fix:** Lock the exercise in KOS.jaRun.mount after a non-near finish(): disable the input(s), options, pad and Check (one change that also closes JM-40 and JM-41).
+- **Devices:** ["mac"]
+- **Accounts:** ["dense"]
+
+## MI · Mind study space (complete)
+
+9 findings: P0 0, P1 3, P2 3, P3 3. Phase 1 moved Mind's reviews onto the shared flashcards session; the pay path around it has holes: the desk's 'One more card set' never logs (MI-20), a reload on #/mind/cards loses the run's entry (MI-22), Restart double-counts (MI-21), and the lesson Cards tab reviews without a ledger entry (MI-24). On phones a lesson's tabs are unreachable (MI-27). Checkpoint, ladder, positions, dialogues, Ask Kurenai's What is sent and the Daily 15 end to end all work; November's fixed P1 (MI-01) and sampled P2/P3s hold.
+
+**Coverage.** {"routes": ["#/subject/mind (desk: hero, Daily card, Continue, Review my Mind cards bar, analytics, Journal card, path strip, milestones)", "#/mind/daily (intro, reviews, sitting, question: Big Question capture with 'Make it the Big Question', BQ line, Field Guide item; done; One more card set from the done screen and from the desk; Exam Season and normal)", "#/mind/cards (cold route, Type/Write/Think, Card stats, Restart, redraw, reload)", "#/mind/path", "#/mind/journal", "#/mind/positions (revisit Keep)", "#/ref/mind/F1.1–F1.8 (Lesson pages, Check on .k-qz markup with keys, Cards tab Study/Deck, inspector status/RAG/checks, checkpoint: cards, apply, map, synthesis, pass/pay, retake)", "Sheets: Ask Kurenai (What is sent; never sent), Quick capture, Explain-back, Position, dialogue (inline, run to its summary, no network)"], "sizes": ["mac", "ipadl", "ipad", "iphone", "split", "slide"], "accounts": ["dense (slot 4 seeded, Mind state built by hand: F1.1–F1.5 finished, cards aged)", "empty", "sample (no Mind data: same as empty for Mind)"], "notCovered": ["copy account (slot 7) — not used", "Tensions: none authored yet (KOS_MIND.TENSIONS empty), so the tension card and question could not be driven", "Ask Kurenai Send and the offline queue (never calls the model, by rule)", "Undo: the shared review session has none; nothing to test", "MI-07 (Exam Season, 0 due) and MI-13/MI-14/MI-17/MI-18/MI-19 not re-driven (open, Phase 3)"]}
+
+### MI-20 [P1] The desk's 'One more card set' (after the Daily 15 is done) rates cards on FSRS but logs no ledger entry and pays nothing; its end screen repeats the first set's '+N XP'
+
+- **What:** Finish the Daily 15's reviews, go back to the Mind desk, press the Daily card's 'One more card set' (shown while cards are still due). The run opens via KOS.show('mind',{page:'daily',mode:'cards'}), which resets d.results but leaves d.logged = true from the first set, so onFinish's `if (d.results.length && !d.logged)` never calls finishReviews. Empty account (27 cards due, Exam Season on): first set 15 × Again → one entry {cards 15, passed 0, pay 0}; desk 'One more card set' → 10 × Good → ledger unchanged (still one entry), d.paid 0, governor XP 0; should be a second entry {cards 10, passed 10, pay 10}. Dense account (18 due): first set 15 Good → entry {cards 18…, pay 15}; desk extra set 3 × Good → no entry, and the done screen reads 'Reviews +15 XP' (the first set's d.paid). The FSRS schedules and the review log move, so the reviews happened but the ledger (study streak activity, Mind goals, Reports) never sees them and the +1 XP a passed card under the 15 cap is lost. The in-page 'One more card set' on the done screen does reset d.logged (mind.js:891) and works. Reproduced on dense and empty, mac. Worse, the reset at line 696 runs on EVERY render that carries mode 'cards' — KOS.rerender() re-enters the view with the same arg — so a redraw mid-set wipes the set's results: rate 2 → d.results 2 → KOS.rerender() → d.results 0 and the run restarts at 'Question · 15 left of 15' (dense). Even once d.logged is reset, a background redraw would drop the ratings before them.
+- **Root cause:** js/modules/mind.js:696 — the mode 'cards' entry resets d.step/d.extra/d.results but not d.logged (nor d.paid); onFinish at js/modules/mind.js:781-784 gates finishReviews on !d.logged; done() at :887 prints the stale d.paid
+- **Evidence:** eval (empty, slot 4): after set 1 ledger [[2026-11-27,15,0,0,0]]; after desk extra set of 10 Good: d.results 10, d.logged true, d.paid 0, ledger still [[2026-11-27,15,0,0,0]], governor.xp 0. Dense: extra set of 3 → ledger unchanged [[2026-11-27,18,18,15,15]], #main 'Done for today. 1 minute: 3 cards. Reviews +15 XP'
+- **Fix:** Do the extra-set reset once, when the set is started (in the desk button's handler or by consuming arg.mode after first use), never in the render: reset d.results, d.logged = false and d.paid = 0 there (one helper shared with the done screen's button, mind.js:891). Then every card set ends in its own finishReviews entry under the 15 XP cap (invariant 137, 5) and a redraw keeps its place (invariant 165).
+- **Devices:** ["mac", "ipadl", "ipad", "iphone", "split", "slide"]
+- **Accounts:** ["dense", "empty"]
+
+### MI-22 [P1] #/mind/cards: a reload, a closed tab or an iPad killing the app mid-run loses the run's ledger entry — the cards are rescheduled but never logged or paid
+
+- **What:** Open 'Review my Mind cards (N due)', rate some cards, then reload (or close the tab / let iPadOS evict the PWA). The ratings already moved FSRS (rateCard saves at once) but the run's results live only in the render's closure and are logged by KOS.view.onDispose or the ✕ button — neither runs on unload. Empty account (13 XP of headroom under the 15 cap): 4 × Good → due 27→23, reload → ledger unchanged ([15,0,0],[2,2,2]), governor XP 2 → 2 (should be one entry {cards 4, passed 4, pay 4} and +4 XP). Dense: 4 × Good then reload → 7 cards moved, no entry for the 4. Coming back starts a fresh run ('Question · 11 left of 11') with no 'Picked up where you left off'. Related to SY-34 (a redraw splits the run in two — re-confirmed: rate 3, KOS.rerender() → entry {cards 3} and 'Question · 15 left of 15'), but this is the loss case, and it is the common way an iPad session ends. The Daily 15 keeps its results in state.ui.mind.daily and survives a reload. Reproduced twice (dense, empty; mac).
+- **Root cause:** js/modules/mind.js:957-965 — results/logged live in cardsPage's closure; finishOnce is registered only with KOS.view.onDispose (not run on pagehide/unload) and the ✕ button; the session runs with runKey null and noSessionLog (mind.js:986-991), so neither KOS.sessions.run nor KOS.sessions.upsert keeps anything
+- **Evidence:** eval (empty, slot 4): before reload ledger reviews [[15,0,0],[2,2,2]], due 23 after 4 rated; after location.reload(): same ledger, governor.xp 2, paidToday 2. Dense: after reload 7 cards due > today, ledger reviews [[18,15],[3,0]] only (the 3 from the SY-34 redraw)
+- **Fix:** Log the run as it goes, as the shared engine does for every other deck (invariant 167): give the Mind session a runKey ('mind:cards:<day>') and log through KOS.sessions.upsert with metrics.kind 'reviews' and pay by difference under the cap — or at least keep results in state.ui.mind (like the Daily's d.results) and finish an unlogged run on the next Mind open. This also fixes SY-34.
+- **Devices:** ["mac", "ipadl", "ipad", "iphone", "split", "slide"]
+- **Accounts:** ["dense", "empty"]
+- **Phase 1 change:** 1E mind#3 (328e6856) and its merge onto the shared session (bb7144ac)
+
+### MI-27 [P1] iPhone and Slide Over: a Mind lesson's tabs (Lesson, Concepts, Cards, Journal, Files) collapse to a 0–5 px scroller under Working, Edit and Learn/Reference — the Cards tab and the rest cannot be reached
+
+- **What:** #/ref/mind/F1.6 and F1.1, empty account. The topic tab row holds the tab scroller, Working (92 px), Edit (66 px) and Mind's Learn/Reference switch (.k-mind-headtools, 166 px). At iphone 402×874 the scroller measures 5 px, at slide 375×796 0 px; the row shows only '› ‹' at the left edge, and hit-testing each tab's centre lands on 'Working', 'Edit' or 'Learn' instead (elementFromPoint: Lesson → topic.work, Cards → topic.edit-bar, Journal → the Learn segment). At 375 the row also overflows #main (scrollWidth 381 vs 375). So on a phone the lesson's Cards tab (the Phase 1 review surface), Concepts and the lesson Journal are unreachable; split (590) keeps a 193 px scroller. Same shared row as CO-43 (Code), but Mind's own switch is a different item: fixing only css/views/code.css would leave Mind broken. Reproduced on F1.6 and F1.1 (iphone), and F1.6 at slide.
+- **Root cause:** js/modules/mindtopic.js:244-255 ctx.modeSwitch returns .k-mind-headtools (css/views/mind.css:177, inline-flex, no shrink rule) into the tab row built by js/modules/topic.js (scroller + Working + Edit); css/views/study.css gives the scroller flex: 1 1 auto; min-inline-size: 0, so it alone absorbs the shortfall down to 0 — no phone tier wraps the row
+- **Evidence:** /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/mind/lesson-top-iphone-empty.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/mind/lesson-top-slide-empty.png; eval: iphone row children [k-scroller 5, k-topic-more 0, Working 92, Edit 66, k-mind-headtools 166]; slide [k-scroller 0, …], #main scrollWidth 381/375
+- **Fix:** Fix the shared row once (CO-43): under 700px let .k-topic-tabrow wrap with the scroller on its own full-width line (flex-basis: 100%) and give the scroller a min-inline-size, or move every space's Learn/Reference switch into the reader's pager row; add a Mind lesson at 402 and 375 to the responsive audit.
+- **Devices:** ["iphone", "slide"]
+- **Accounts:** ["empty"]
+
+### MI-21 [P2] Daily 15 and #/mind/cards: the shared session's '↺ Restart' re-asks cards already rated today, re-rates them on FSRS and counts them twice in the one ledger entry
+
+- **What:** In the Daily 15 reviews (dense, 15 due), rate 3 Good, press ↺ Restart: the run starts again at 'Question · 15 left of 15' with the same first card. Rating 2 more pushes argument:1 and soundness:1 into d.results a second time and re-rates them (argument:1 reps 1→2, ivl 2, same day). Finishing the run logged ONE entry {cards: 18, passed: 18, pay 15} for 15 distinct cards, and the done screen says '18 cards'. Pay is capped at 15 a day, so it overpays only under the cap (5 due → Restart → 10 'passed', +10 XP instead of +5), but the card count reaching goals and Reports is wrong, and a second same-day FSRS rating moves the schedule twice. The same holds for #/mind/cards (same session, results array in the closure). Shuffle is harmless. Reproduced twice (mac, dense).
+- **Root cause:** js/engines/flashcards.js:474-485 restart() rebuilds the queue from the card list given at draw time; Mind's callers (js/modules/mind.js:766-786 Daily, :985-1015 cards page) pass that list once and push every onRate into results without de-duplicating; finishReviews (js/core/mind.js:285-293) counts graded.length
+- **Evidence:** eval (dense): d.results keys ['argument:1','soundness:1','standard-form:1','argument:1','soundness:1'] after Restart; final ledger [2026-11-27, cards 18, passed 18, pay 15]; d.results 18 entries, 15 distinct; #main 'Done for today. 1 minute: 18 cards.'
+- **Fix:** For Mind's runs pass a `noRestart` option (or have restart() drop cards already rated in this run: filter `mine`), and make finishReviews count distinct keys (last grade wins) so one sitting can never count a card twice.
+- **Devices:** ["mac", "ipadl", "ipad", "iphone", "split", "slide"]
+- **Accounts:** ["dense"]
+- **Phase 1 change:** Neon ux-polish T3 (29ee1108) — the Daily's reviews moved onto KOS.flashcards.session, which brought Restart
+
+### MI-24 [P2] A lesson's Cards tab is now a live FSRS review with no ledger entry: rating there schedules cards of a lesson not yet finished, ticks 'First retrieval passed' and Recall, and logs and pays nothing
+
+- **What:** Phase 1 turned the lesson Cards tab from a read-only list into KOS.flashcards.mount over the Mind SRS adapter. Empty account, F1.6 not started (0 of 6 pages, check 0 of 3), its concept's cards not yet introduced: Cards tab → Study shows 'Question · 2 left of 2', '2 new'; rating both Good creates charity:0/1 (adapter's rate() calls M().introduce), schedules them (due 29 Nov, reps 1), sets the shared progress check 4 'First retrieval passed' (progress [false,false,false,true]) and the Recall rung — while the inspector still says 'cards from tomorrow' and the Deck tab says 'These join your reviews the day after you finish the lesson.' No ledger entry is written (sessions +0, XP +0), so these reviews never count as study activity, never reach Mind goals or Reports, and never get the +1 XP a passed card that invariant 137 gives a review block; the engine's end card says 'check Due Today tomorrow', but Mind cards are not in Due Today. The same rating done in the Daily 15 or #/mind/cards is one paid entry. Reproduced twice (F1.6 on empty after deleting its cards; and the dense F1.1 tab re-rating already scheduled cards, ledger unchanged).
+- **Root cause:** js/modules/mindtopic.js:375-392 — renderCards mounts the shared engine with noSessionLog: true, runKey: null and no onFinish → finishReviews; js/modules/mind.js:943-948 (mindSrs().rate) introduces the concept on first rating whatever the lesson's state; the end-card hint is fixed text in js/engines/flashcards.js:454
+- **Evidence:** eval (empty, slot 4): before {checks [F,F,F,F], ladder charity [F,F,F,F], no charity cards}; after rating 2 Good: cards charity:0/1 due 2026-11-29 reps 1, evidence checks [F,F,F,T], peekProgress check [F,F,F,T], ladder [T,F,F,F], finished false, ledger +0, XP +0. Screenshot /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/mind/lesson-cards-mac-empty.png
+- **Fix:** Pick one meaning and say it: either (a) keep the tab as review — log it like the cards page (finishReviews on finish, through the same run record as MI-22) and only offer the session once the lesson is finished (before that, the Deck list with 'from tomorrow'); or (b) make it practice — a self-marked run that moves no schedule (like the checkpoint's cards) and say so. Pass an end-card hint through opts so Mind's says 'They come back in your Daily 15'.
+- **Devices:** ["mac", "ipadl", "ipad", "iphone", "split", "slide"]
+- **Accounts:** ["empty", "dense"]
+- **Phase 1 change:** Neon ux-polish T3 (29ee1108) — the Cards tab on KOS.flashcards.mount
+
+### MI-28 [P2] iPhone and Slide Over: the position sheet's foot squeezes 'Ask Kurenai to push back' into a third of the row, and its label spills over the 'Take this position' button
+
+- **What:** Open a contested lesson's prompt (F1.7, KOS.mindRun.position) at iphone 402: the foot's three buttons share the row equally (Later 20–134, Ask Kurenai to push back 142–256, Take this position 264–382); the middle label needs 134 px in a 114 px button (scrollWidth 134 / clientWidth 114), so its text runs over the primary button and the primary's own label reads 'ake this position' in the screenshot. Slide 375: 129 in 105, and the primary is 110/109. Split 590 fits. The primary is the sheet's one action and its label is the part that gets covered. Reproduced at iphone and slide (empty).
+- **Root cause:** js/modules/mindrun.js:119-126 puts three buttons in the shared .k-dialog-foot; css/components.css:747 (phone tier) gives each .k-btn flex: 1 1 0, so a long label gets a third of the row and overflows instead of wrapping
+- **Evidence:** /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/mind/position-sheet-iphone-empty.png; eval iphone ['Later [20-134] sw114/cw114','Ask Kurenai to push back [142-256] sw134/cw114','Take this position [264-382] sw118/cw118']; slide ['Ask Kurenai to push back [133-238] sw129/cw105','Take this position [246-355] sw110/cw109']
+- **Fix:** Shorten the label ('Push back ↗' or 'Ask Kurenai') or move it out of the foot (an 'Ask Kurenai to push back' link under the objection box), leaving Later and Take this position in the foot; generally let .k-dialog-foot > .k-btn wrap its label (white-space: normal) or take flex-basis auto under 560px.
+- **Devices:** ["iphone", "slide"]
+- **Accounts:** ["empty"]
+
+### MI-91 [P2] Ask Kurenai's 'In your Journal ›' saves the reply to the Journal again: the button keeps its Save listener, and the real Journal already holds one such duplicate
+
+- **What:** Copy account: the Mind Journal (kurenai-os-mind) holds 4 entries, two of them identical — same kind (reflection), same title hash and same 605-character text hash, src {kurenai, check}, lesson F1.1 — saved 8 s apart on 21 Nov. Reproduced on the copy offline with KOS.ai.chat stubbed (no model reached; the stub entries deleted afterwards): KOS.mindRun.ask({lesson:'F1.1', mode:'check'}) › Send › '≋ Save to Journal' → 1 new entry and the button reads 'In your Journal ›'; 600 ms later press 'In your Journal ›' → the sheet closes, #/mind/journal opens, and a SECOND identical entry is stored (run 3). Run 1: two presses at once → 2 entries; run 2: presses 50 ms apart, the label had already changed at 2 ms → 2 entries. So the 8 s gap in the real data is the user pressing 'In your Journal ›' to go and read it. The Mind dialogue's end card (mindrun.js:193-197, 'Dialogue: …' reflections) has the same pattern. Invariant 139 keeps the Journal private and local first; a copy also replicates to kos_mind.
+- **Root cause:** js/modules/mindrun.js:337-345 — the save button is built with el(..., {onclick: save}), and el() binds 'on*' attributes with addEventListener (js/core/ui.js:48); on success the code sets save.onclick = open-the-Journal (:342), which ADDS a second handler instead of replacing the first, so every later press runs KOS.mindJournal.add again (js/core/mindjournal.js:96, a new id each time). Same at js/modules/mindrun.js:197 for the dialogue's saveBtn.
+- **Evidence:** /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/copy/mi-dup.js, mi-dup2.js, mi-dup3.js (eval results: after 2, labelBetween 'In your Journal ›', afterFirst 1, cleaned true); IndexedDB kurenai-os-mind entries: 4, two with equal text and title hashes 8 s apart (counts and hashes only, no text read out); js/modules/mindrun.js:342, :197; js/core/ui.js:48
+- **Fix:** Keep one handler and branch on a saved flag (var savedId = null; onclick: if (savedId) open Journal else add…), or replace the node / removeEventListener; disable the button while the write is pending. Same for the dialogue's saveBtn.
+- **Devices:** ["mac", "ipadl", "ipad", "iphone", "split", "slide"]
+- **Accounts:** ["copy"]
+
+### MI-23 [P3] Daily 15 reviews: after a reload or any redraw mid-run the 'capped at 15' run grows past 15 — the cards beyond the cap slide into the queue
+
+- **What:** Dense, 18 cards due, Exam Season: the intro says '15 cards due · capped at 15' and the run starts 'Question · 15 left of 15'. Rate 5, reload (or any KOS.rerender of the page): the run comes back as 'Question · 13 left of 13', so the sitting becomes 5 + 13 = 18 cards. The progress pips restart at 13 and the run is no longer the 4–5 minutes the plan promised. Reproduced twice (dense, mac: once after a reload, once after a Chrome restart with the run in state.ui).
+- **Root cause:** js/modules/mind.js:763 — reviews() rebuilds the queue as M().due(t) (the first 15 cards CURRENTLY due) minus d.results; the cards already rated are no longer due, so cards 16+ take their place. The cap is applied to what is due now, not to the sitting.
+- **Evidence:** eval (dense, slot 4): d.results 5 after reload, #main fc.count 'Question · 13 left of 13'; KOS.mind.due(today,true).length 13 before the reload
+- **Fix:** Cap the queue by what the sitting has left: `queue.slice(0, Math.max(0, M().DAILY_CARDS - d.results.length))` unless d.extra; or freeze the day's queue in d.queue when the run starts.
+- **Devices:** ["mac", "ipadl", "ipad", "iphone", "split", "slide"]
+- **Accounts:** ["dense"]
+
+### MI-25 [P3] Today/Home's 'Mind · N cards' review item still opens the Daily 15, so once the Daily 15 is done it lands on 'Done for today' instead of the new #/mind/cards run
+
+- **What:** Dense, Daily 15 done today, 26 Mind cards still due: KOS.today.build() gives the Mind review item {n: 26, sub: 'F1 cards'}; its go() calls KOS.show('mind',{page:'daily',mode:'reviews'}), which renders 'Done for today. … Back to Mind · One more card set' — no card on screen; the learner must find a second button (and that button's run is the one MI-20 leaves unlogged). Phase 1 added #/mind/cards ('Review my Mind cards (N due)') exactly for reviewing outside the Daily 15, but the cross-app entry points were not pointed at it. Reproduced twice (dense, mac and iphone).
+- **Root cause:** js/core/today.js:395-396 — base.review.go always routes to the Daily 15 (mode 'reviews' only matters while the Daily is at its intro, js/modules/mind.js:695)
+- **Evidence:** eval (dense, slot 4): today mind item {review:{n:26,label:'Mind',sub:'F1 cards'}, done:true}; after go(): #main 'DAILY 15 · MIND | ✓ Reviews | 心 | Done for today. | … | Back to Mind | One more card set'
+- **Fix:** Route the review item to KOS.show('mind',{page:'cards'}) when today's Daily 15 is done (or always — the Daily item has its own go()), so a due-cards chip opens cards.
+- **Devices:** ["mac", "ipadl", "ipad", "iphone", "split", "slide"]
+- **Accounts:** ["dense"]
+- **Phase 1 change:** 1E mind#3 (328e6856) added #/mind/cards without re-pointing Today's Mind review item
+
+### MI-26 [P3] Mind inspector on a lesson without a written prompt (F1.5, the F1.8 checkpoint) reads '2 of 3 checks · 50%' — the count says thirds, the percentage says quarters
+
+- **What:** JM-02's fix gave Mind's inspector the shared status row (percentage from the shared progress record) beside Mind's own check list. A lesson with no prompt has three checks, but syncChecks writes four slots: [read, check, retrieval, all three]. So 1 of 3 shows 25%, 2 of 3 shows 50%, and 3 of 3 jumps to 100%. Empty account F1.5 (pages read, check passed, no card held yet): '2 of 3 checks', '50%', progress [T,T,F,F], leafPercent 50. Dense F1.8 before its checkpoint passed: '2 of 3 checks · 50%' with a half-filled bar. The desk ring and spine read the same 50%, so only the 'of 3' wording disagrees. Reproduced twice (empty F1.5, dense F1.8; mac).
+- **Root cause:** js/core/mind.js:403 (syncChecks: the fourth slot holds only once the other three do) vs js/modules/mindtopic.js:432 (the row count is rows.length = 3)
+- **Evidence:** /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/mind/inspector-F1.5-mac-empty.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/mind/cp-cards-mac-dense.png (F1.8 '2 of 3 checks 50%'); eval peekProgress('mind','F1.5').check [true,true,false,false]
+- **Fix:** Say the record's own count on a three-check lesson ('2 of 4 checks', the fourth named 'All three done'), or weight the three-check lesson's slots so n of 3 maps to n/3 (write slot 3 as retrieval and slot 4 as check-passed AND read, giving 33/67/100).
+- **Devices:** ["mac", "ipadl", "ipad", "iphone", "split", "slide"]
+- **Accounts:** ["empty", "dense"]
+
+### MI-90 [P3] Mind card review: 'This deck · 10 due · 10 learnt' counts cards never reviewed as learnt
+
+- **What:** Copy account: 10 Mind card records; 6 were rated once (22 Nov), 4 were only introduced by finishing a lesson (reps 0, no last review, due 23 Nov). #/mind/cards at mac and iPhone reads 'THIS DECK 10 due · 10 learnt', and those four cards show as due reviews although they have never been seen in a review. The flashcard engine's 'new' count is for exactly these. Reproduced twice (mac, iPhone).
+- **Root cause:** js/engines/flashcards.js:301-305 counts any card whose schedule has a due date as learnt; js/core/mind.js:222-228 introduce() gives a lesson's cards a record {due: tomorrow, reps: 0} at once, and mind.js's adapter peek (js/modules/mind.js:916-930) passes that due through.
+- **Evidence:** /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/copy/mind-cards-mac-copy.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/copy/mind-cards-iphone-copy.png; js/engines/flashcards.js:304-305; js/core/mind.js:227
+- **Fix:** In the Mind adapter's peek return due only once reps + lapses > 0 (the card counts as new until first rated), or let the engine count 'learnt' by views, not by due.
+- **Devices:** ["mac", "iphone"]
+- **Accounts:** ["copy"]
+
+## CO · Code study space (complete)
+
+Code space on kos-qol-5. Pay (tasks, phone top-up, See the answer, retrieval, Rider project) matches invariant 106 to the unit; checks and coverage follow invariants 107–108; study-cleanup batch 7's Code card keys are sound. New: one P1 layout (a Code lesson's tabs collapse to 0–5 px on iPhone and Slide Over), two P2 runner issues from Phase 1 (SQL boot timeout still kills the loading worker so retries never succeed on a slow link; live help re-downloads the 10 MB runtime on editor focus once its cache is gone, and Settings claims it is on the device) and six P3s. Cite, don't refile: CARBON-1-2 (READS.code omits errorLog — the new Log mistake pill), CARBON-1-3 (state.code.cards merges field by field).
+
+**Coverage.** {"accounts": ["dense (mine, seeded)", "sample", "empty"], "sizes": ["mac", "ipadl", "ipad", "iphone", "split", "slide"], "routes": ["#/subject/code", "#/code/map", "#/code/task/1.1-box", "#/code/task/T1.2-cheap", "#/code/task/7.1-tally", "#/ref/code/1.1", "#/ref/code/T1.2", "#/code/settings", "#/code/capstone/C1", "#/code/skills", "#/code/kata", "#/code/retrieval", "#/code/track/T1", "#/code/project/rp-u10-library (dense, 6 sizes)", "#/subject/code, retrieval, kata, skills (empty, 6 sizes)", "#/subject/code, #/code/task/1.1-hello (sample, 6 sizes)", "cold reloads of #/ref/code/1.2, task 7.1-tally, capstone C3, project rp-bridge-hello, desk"], "flows": ["task fail (compile) → pass → re-run (interp): 12/1/3 once, then 'already passed'", "stretch task 2.9-average 26/3/3", "phone pass 9/1/1 then computer top-up 9/1/2 then nothing", "See the answer → pass pays 0", "infinite loop Run and Check (interp step budget, wasm step budget)", "SQL Run/Check warm and cold; boot timeout under a throttled service worker (300 and 500 kbps)", "full runtime offer, dialog sizes, download, 'Run it', compile error, loop, pass 12/1/3", "Roslyn live help: squiggles, gutter, problem line, completion after 'Console.'; runtime cache evicted", "listing live help on unit 7", "reload mid-Check on the full runtime", "+ Log mistake, Undo present, Error Log hub, Go to source", "topic page reading: dwell + Next + every listing → checks 1–2, studied (1.1, 1.2, 7.1, T1.2)", "retrieval (SQL card) proven: +4 XP, FSRS row, cap counter", "kata intro and first question", "Rider report import (bridge solved fixture): preview, Import 120/30/8, duplicate rejected", "capstone Result missing links (C1, C2)", "Code goal measures vs the ledger (tasks 5, retrievals 1)", "study-cleanup batch 7: every Code flashcard and quiz key unique, explicit keys match original positions, no orphan srs keys"], "notCovered": ["GitHub (never, by rule)", "Kurenai capstone review (no AI)", "a capstone submitted to the end and its pay", "Rider projects other than Bridge B's import", "Track T2 pages and the remaining capstones beyond a render", "copy account (slot 7) pass", "the full runtime's 60 s boot kill on a slow download (CO-39 fix note names it)"]}
+
+### CO-43 [P1] iPhone and Slide Over: a Code lesson's tabs (Notes, Practice, Flashcards, Quiz, Tasks, Files) shrink to a 0–5 px strip — only two overlapping chevrons show
+
+- **What:** #/ref/code/1.1 (and T1.2, every Code lesson) at iphone 402×874 and slide 375×796, dense account. The tab row holds the tab scroller, Working (92 px), Edit (66 px) and Code's Learn/Reference switch (166 px); the scroller is measured at width 5 px (iphone) and 0 px (slide), so the six tabs sit clipped inside it and the row shows just '› ‹' at the left edge (screenshots). Practice, Flashcards, Quiz and Tasks of a lesson cannot be reached on a phone. At 375 the row also overflows #main by 6 px (code.mode right edge 381, #main scrollWidth 381), so the page pans sideways. A CS topic at iphone keeps a 181 px tab scroller (no Learn/Reference switch): Code only. Reproduced on 1.1 and T1.2, at both sizes.
+- **Root cause:** css/views/code.css:240 (.k-topic-tabrow > .k-cx-mode { flex: 0 0 auto }) adds a 166 px fixed item to the row built in js/modules/topic.js (scroller + k-topic-more + Working :359 + Edit :348); css/views/study.css:208/211 gives the scroller flex: 1 1 auto; min-inline-size: 0, so it alone absorbs the shortfall down to 0. No phone tier wraps the row or moves the switch.
+- **Evidence:** /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/code-space/ref-code-1.1-iphone-mine.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/code-space/ref-code-1.1-slide-mine.png; eval iphone: kids ui.scroller W5, topic.work W92, topic.edit-bar W66, code.mode W166; slide: ui.scroller W0; compsci at iphone ui.scroller W181
+- **Fix:** Under 700px let the tab row wrap so the scroller takes its own full-width line (flex-wrap: wrap; .k-topic-tabrow > .k-scroller { flex-basis: 100% }), or move the Learn/Reference switch into the reader's pager row; give the scroller a min-inline-size (e.g. 50%) so it can never collapse.
+- **Devices:** ["iphone", "slide"]
+- **Accounts:** ["dense"]
+
+### CO-39 [P2] SQL on a slow link: the new boot timeout kills a SQLite still loading, so 'Try again' restarts the 700 KB download from zero and never succeeds
+
+- **What:** Cold SQLite (kos-sqlite cache empty), the service worker's network throttled to 500 kbps/150 ms (and again at 300 kbps/300 ms). #/code/task/T1.2-cheap with its own answer, Run pressed three times in a row: every press shows 'Loading SQLite… · 8 s limit', and after 8.28–8.30 s the card '◇ Runner did not start — SQLite took too long to start — your code was not run. Try again.' Each retry is cold again: after all three, Cache Storage kos-sqlite-1.14.2 holds only sql-wasm.js; sql-wasm.wasm (658 KB) is never cached, because the killed worker aborts its fetch. On any link where SQLite takes more than 8 s to arrive (< ~650 kbps), no SQL listing, practice, task or card can ever run, and the message keeps advising a retry that cannot work. Phase 1 (code-space#1) made the boot timeout honest (no longer blames the learner's code) but kept killing the loading worker — the second half of November's CO-19.
+- **Root cause:** js/core/coderun.js:268-276 — the watchdog for a fresh worker (ms = WATCHDOG + 4000, :267) treats '!sqlReady' as a boot timeout and still calls sqlKill() (:273), terminating the worker mid-importScripts / mid-wasm fetch; sqlRun (:262) then makes a new worker that starts the download again. The ready/failed messages from js/labs/sql-worker.js:15-19 are only used to mark state, never to wait.
+- **Evidence:** /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/code-space/sql-boot-timeout-mac-mine.png; t5.js run 3× under swthrottle.mjs 500,150 and 300,300: ms 8277/8295/8289, runnerStatus('sql').state 'failed'; caches.open('kos-sqlite-1.14.2').keys() → only sql-wasm.js
+- **Fix:** On a boot timeout, resolve the run with the runner error but keep the worker alive (do not sqlKill while !sqlReady); let the next Run wait for its 'ready' (or post the request so it is answered once SQLite loads). Only a worker that answered 'failed' or onerror is replaced. Same rule for the full runtime's 60 s WASM_BOOT kill (coderun.js:170-178).
+- **Devices:** ["mac", "ipad", "iphone"]
+- **Accounts:** ["dense"]
+- **Phase 1 change:** 1E code-space#1 (5e959080) / bk:code-space#1 (9ab6d4d8)
+
+### CO-40 [P2] Live help silently re-downloads the 10 MB full runtime when you merely focus any C# editor (even unit 1) once its cache has gone
+
+- **What:** Runtime downloaded (state ready), then kos-csharp-csw-1.2 removed from Cache Storage (what Safari's storage eviction, or the RUNTIME_ID bump csw-1.1 → csw-1.2 that Phase 1 itself shipped with rtPrune, does) while state.ui.code.runtime stays true. Reload, open #/code/task/1.2-types (or 1.1-box, a unit-1 interpreter task), click into the editor without typing: runtime state goes idle → downloading (5 ms) → ready (778 ms locally), and kos-csharp-csw-1.2 is refilled with 78 files (≈10.4 MB transfer). No dialog, no consent, not on a unit 7+ lesson, possibly on cellular on the phone. Reproduced twice (t10.js, t11.js). The same wish-only 'idle' state misleads Code settings: with only kurenai-runtime.json in kos-csharp-csw-1.2, #/code/settings says 'Full .NET runtime · On this device · Starts when a lesson needs it; works offline' and 'Full runtime 28.9 MB' (the size read from the manifest over the network) though nothing of it is on the device and offline it would not start.
+- **Root cause:** js/core/coderun.js:189-192 — rtAssist accepts state 'idle', which runtime() (:120-123) derives from the per-device wish ui().runtime alone, not from the files being on the device; it then calls rtStart(), whose first start IS the download (:151-155). js/modules/codehelp.js:232 asks for problems on the first focus.
+- **Evidence:** t10.js: before {state:'idle', wanted:true}, after focus {state:'ready'}, cachedFiles 78; t11.js: onRuntime idle → downloading → ready; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/code-space/livehelp-task-7.1-mac-mine.png (live help itself working); settings eval with cache holding only kurenai-runtime.json: 'On this device … works offline', 'Full runtime 28.9 MB'
+- **Fix:** Let assist start the worker only when the runtime is known to be on the device: check caches.has('kos-csharp-' + RUNTIME_ID) (or a manifest entry in it) before rtStart, else return null and show keywords only; or record 'present' after a verified warm start rather than reading the wish. Invariant 105: 'typing never starts a download'.
+- **Devices:** ["mac", "ipad", "iphone"]
+- **Accounts:** ["dense"]
+- **Phase 1 change:** 1C Roslyn live help (65ed9950)
+
+### CO-41 [P3] Run now says '4 s limit' but a Check timeout card says 'Stopped after 2 seconds in case 1' — after 112 ms, stopped by the step budget
+
+- **What:** #/code/task/1.1-box, editor `while (true) { }`. Run: the button's new limit chip reads '4 s limit' (9 s on a unit 7+ task, 8 s while SQLite loads). Check: the result card reads 'Stopped after 2 seconds in case 1.' though the case shows 112 ms and Run's own card says 'Your program ran for more than 3,000,001 steps without finishing.' Three different limits for one stop. Phase 1 added the chip; the card's literal was never tied to the runner (November CO-24 covered only Settings' copy).
+- **Root cause:** js/core/codeui.js:266 — the timeout message with a caseNo is a hard-coded 'Stopped after 2 seconds in case N.' instead of the error's own msg (steps or 'Stopped after N seconds' from coderun.js); the chip reads runnerStatus().limitMs (codeui.js bindRun).
+- **Evidence:** t3.js: during Run lim '4 s limit'; Check output 'Case 1 … 112 ms ✗ Did not finish Stopped after 2 seconds in case 1.'; js/modules/code.js:1513 'time limit 2 seconds a run'
+- **Fix:** Print the error's own msg with the case number appended ('… in case 1'); derive every limit from KOS.codeRun.runnerStatus(r).limitMs.
+- **Devices:** ["mac"]
+- **Accounts:** ["dense"]
+- **Phase 1 change:** 1E code-space#1 (5e959080)
+
+### CO-42 [P3] Check's 'Checking…' label lasts only until the first case answers: the shared runner status puts '✓ Check · N tests' back mid-check
+
+- **What:** #/code/task/2.9-average (4 cases) and #/code/task/T1.2-recent (SQL, 2 cases): a MutationObserver on the Check button logs 'Checking…' at 1 ms, then '✓ Check · 4 tests' from the first case's answer (11 ms; 105 ms on SQL) while cases are still running, the button flickering enabled/disabled between cases. On the full runtime or a cold SQLite each case takes hundreds of ms, so the button reads as idle while a check runs; the same happens to the capstone's '✓ Run all tests'.
+- **Root cause:** js/core/codeui.js bindRun apply(): on every status emit it rewrites btn.textContent to baseLabel when state is 'ready' (emitted by coderun.js after each case's reply, e.g. :80, :250) and sets btn.disabled = active, overriding the page's own 'Checking…' / disabled set in js/modules/code.js:745-749; check() runs cases one by one so status returns to 'ready' between them.
+- **Evidence:** t2.js log: dt1 'Checking…' disabled; dt11 '✓ Check · 4 tests' disabled:false; dt11 true; … ; t4.js log dt102 'Checking…', dt105 '✓ Check · 2 tests' runD false
+- **Fix:** Give bindRun a page-owned hold: opts.busy() (true while the page's check is in flight) that keeps the button disabled with its busyLabel; or have check() mark the runner busy for its whole duration.
+- **Devices:** ["mac"]
+- **Accounts:** ["dense"]
+- **Phase 1 change:** 1E bk:code-space#1 (9ab6d4d8)
+
+### CO-44 [P3] '+ Log mistake' on a task files the task's title as the lesson's title: the Error Log shows '1.2 · Halves' for lesson 1.2 'Values and types'
+
+- **What:** #/code/task/1.2-halves, wrong output, Check, '+ Log mistake': the item stored is {topicRef: '1.2', topicTitle: 'Halves'} (the task). The Error Log hub shows the row as 'Code · 1.2 · Halves', and its recurring-topic grouping keys by topicRef but titles the group from the first item, so a later mistake on 1.2-types joins a group called 'Halves'. Every other capture (quiz.js:296) uses the topic's own title. Go to source correctly opens #/code/task/1.2-halves. Reproduced on two captures.
+- **Root cause:** js/modules/code.js:802 — topicTitle: t.title || t.id (the task) beside topicRef: t.lesson; js/modules/errorlog.js:43-45 groups by topicRef with the first item's topicTitle.
+- **Evidence:** /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/code-space/errorlog-code-item-mac-mine.png; t12.js item {topicRef:'1.2', topicTitle:'Halves'}; KOS.code.lesson('1.2').title 'Values and types'
+- **Fix:** topicTitle: C().lesson(t.lesson).title (keep the task's name in title, as it already is).
+- **Devices:** ["mac"]
+- **Accounts:** ["dense"]
+- **Phase 1 change:** U8 (157ac693)
+
+### CO-45 [P3] Capstone Result: the new 'missing' links (and every step change) drop keyboard focus to the page body
+
+- **What:** #/code/capstone/C1 → Result → focus and activate '5 of 5 milestones still failing their acceptance tests →': the Build step draws, document.activeElement is BODY and the scroll stays put; again on C2 with 'A write-up of at least 40 words →' (step writeup, active BODY). A keyboard or screen-reader user lands nowhere and must Tab from the top of the page. Arrow keys on the stepper refocus the tab; clicks and the new Result links do not.
+- **Root cause:** js/modules/codecap.js:89-95 — go(step) saves and calls draw(), which rebuilds the stepper and the body (innerHTML = ''), removing the focused control; only the stepper's keydown handler (:84-87) focuses the new tab.
+- **Evidence:** /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/code-space/capstone-C1-build-after-missing-iphone-mine.png; t15.js after {step:'build', active:'BODY'}; C2 eval {step:'writeup', active:'BODY:'}
+- **Fix:** After draw() in go(), focus the current step tab (or the step panel's heading with tabindex -1) and scroll it into view.
+- **Devices:** ["mac", "iphone"]
+- **Accounts:** ["dense"]
+- **Phase 1 change:** 1D code-space#2 (42650670)
+
+### CO-46 [P3] T1.2 retrieval card asks to 'List the bakery that cost less than £2.00'
+
+- **What:** #/code/retrieval with t1-select due: 'List the bakery that cost less than £2.00: name and price, cheapest first'. The variation drops the category word straight into a plural sentence ('drinks' reads right, 'bakery' does not), so half the variations of this card read ungrammatically. Seen on two variations (1 and 3).
+- **Root cause:** js/data/content/code-t1a.js:939 CATS = ['drinks','bakery'] and :944 'List the ' + cat + ' that cost …' — the dataset value is reused as the noun.
+- **Evidence:** /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/code-space/retrieval-due-mac-mine.png; t17.js text 'List the bakery that cost less than £2.00'
+- **Fix:** Map the category to a phrase for the prompt ({drinks: 'drinks', bakery: 'bakery items'}) while the answer keeps category = 'bakery'.
+- **Devices:** ["mac"]
+- **Accounts:** ["dense"]
+
+### CO-47 [P3] Unit 7+ lesson listings: live help checks with nullable off, so it shows no warning where Run then reports CS8600/CS8602
+
+- **What:** #/ref/code/7.1, first listing edited to `int x = "a"; string s = null; System.Console.WriteLine(s.Length);`, runtime on the device. After 4 s the live help squiggles only the CS0029 error ("a"); Run then prints the error and '2 WARNINGS ⚠ CS8600 line 2 · ⚠ CS8602 line 3'. With the error removed the live help shows nothing at all while Run lists the same two warnings. Task and capstone editors on unit 7+ get nullable on (they pass lesson); the listing editor does not. Reproduced twice.
+- **Root cause:** js/core/codeui.js:724 — the listing's editor({...}) is created without lesson (only the run request carries opts.lesson), and js/modules/codehelp.js:73 derives nullable from opts.lesson's runner, so it falls back to false; invariant 105: nullable reference types are on from unit 7.
+- **Evidence:** t24.js: squig ['error:"a"'] vs Run output '2 WARNINGS CS8600 … CS8602'; without the error: squig [] vs the same 2 warnings
+- **Fix:** Pass lesson: opts.lesson to the listing's editor() (as code.js:636 and codecap.js:214 do).
+- **Devices:** ["mac"]
+- **Accounts:** ["dense"]
+- **Phase 1 change:** 1C Roslyn live help (65ed9950)
 
 ## CARBON · Found by Carbon in batch 1 (omission hunt, sweeps) (complete)
 
