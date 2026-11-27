@@ -155,3 +155,50 @@ counts 4 never-reviewed cards).
   tab scroller holding 6 tabs (mac: 382 px).
 - **MI-21 / MI-23 / MI-25 / MI-26 / MI-28**: not reachable without
   running today's Daily 15 or a position on the copy; no data shows them.
+
+## Code
+
+What the copy holds: units 1.1–1.5 covered (every page read, every
+listing run), 1.2–1.4 complete (four checks), 1.1 and 1.5 waiting only on
+'Proven in retrieval'; 34 lesson records with pages opened (up to units 6,
+B, T1 and T2); 10 of 10 unit-1 tasks passed, each paid once (10 task
+entries, none twice); 21 practice items, each logged once; 13 concepts
+proven; 6 retrieval cards (4 on FSRS, 2 answered 'again' and not yet
+scheduled), 1 due today; 25 question schedules; 10 drafts (one per passed
+task); capstone C1 opened; a GitHub target configured (no token in the
+backup). Ledger: 46 Code entries over 7 days, a 5-day streak (22–26 Nov).
+Stored checks equal the derived ones on every lesson (invariant 107). The
+Daily 20 has no task (every covered task is passed) and reads 'Finish 1.6
+first'. No new finding.
+
+- **CO-40** (live help re-downloads the full runtime): measured on the
+  copy: it bites, by a route the finding did not name — the full backup
+  carries `state.ui.code.runtime: true` verbatim (exportFull/importFull
+  keep state.ui; cloud sync does not), so the restored device has the wish
+  and no `kos-csharp-*` cache. Opening #/code/task/1.2-types (a unit-1
+  interpreter task) and focusing its editor: runtime idle → ready in
+  706 ms locally, `kos-csharp-csw-1.2` filled with 78 files, with no
+  prompt. Any restore onto a new or wiped iPad would download it on the
+  first unit-1 editor focus.
+- **CO-43** (lesson tabs collapse on iPhone): measured on the copy: it
+  bites the user's next lesson — #/ref/code/1.6 at iPhone has a 3 px tab
+  scroller holding 6 tabs.
+- **CO-44** (+ Log mistake files the task title): measured on the copy: the
+  Error Log is empty (0 entries, 0 Code) — no wrong titles stored.
+- **CO-39** (SQL boot timeout): the user has only opened T1.1's pages; no
+  SQL run yet. **CO-41 / CO-42 / CO-45–47**: not reachable from this data
+  (unit 1 only, no capstone result, no unit 7+).
+- Timing on the real data (Page reload at #/home, then
+  KOS.show('subject','code'), twice each, 1× CPU, localhost): cold — the
+  desk drawn in 243–263 ms at mac and iPhone, pulling 32 lazy scripts
+  (~2.3 MB, the Code bundle); warm (after the boot warm-up) 189–192 ms; a
+  unit-1 task page 3–6 ms after the desk; DOMContentLoaded 154–184 ms.
+
+## New findings of this pass
+
+| Id | Severity | Title |
+|---|---|---|
+| MG-90 | P1 | Pre-W4 imports have no record: the real doubled statement can be neither seen nor undone; May–Oct read double |
+| MG-91 | P2 | Overview shows first run whenever the current month is empty and there is no rule or pot |
+| MI-91 | P2 | Ask Kurenai's 'In your Journal ›' saves the reply again (one real duplicate) |
+| MI-90 | P3 | Mind card review counts never-reviewed cards as 'learnt' |
