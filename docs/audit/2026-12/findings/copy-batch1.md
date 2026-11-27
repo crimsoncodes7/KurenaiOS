@@ -94,3 +94,37 @@ Measured 26-27 Nov 2026 on `fa4264d0`.
   rows with `hidden`, `order` or `day` — nothing to lose; `dayReview.config`
   is empty.
 - Goals: all 7 `links.examId` resolve to an assessment.
+
+## Added on 27 Nov (the copy's next day)
+
+- **ST-52 / AP-21**, measured again with the page in front (Page.bringToFront;
+  the earlier runs had a hidden page, which slowed the timers): the content
+  bundles land 5-6 s after a reload at mac and iphone, at 1× and 4× CPU
+  alike. On 27 Nov one flashcard is due (KOS.srs.dueCount() = 1 once the
+  content is in). Reloaded at #/review twice and #/home twice: the Review
+  hero reads '0' cards due and Home 'Cards · 0 due' at 2 s, 8 s and 14 s —
+  the page never redraws, so the user's real due card is hidden until they
+  navigate. 'Next 7 days' reads 13 scheduled cold, 49 warm.
+- **SY-33** (Mind card reviews throw): measured on the copy: 6 of the 10 Mind
+  card records have been reviewed and all 6 are due on 27 Nov, so opening
+  'Review my Mind cards' (KOS.show('mind', {page:'cards'})) throws
+  'KOS.fsrs.recall is not a function' — reproduced twice; the address stays
+  on the previous page. It bites this account today.
+
+## Architecture and performance on the real account
+
+- Boot (Page.reload at #/home, twice each, page in front for the 4× runs):
+  kos-boot 135-362 ms, DOMContentLoaded 179-451 ms at mac and iphone, 1× and
+  4× CPU. The real data does not slow the boot.
+- Page draws at 4× CPU, every bundle loaded (KOS.show to a settled task):
+  slowest Governor (329 ms mac / 531 ms iphone) and Achievements (280 / 594);
+  everything else under 150 ms at mac and 125 ms at iphone (Home 147 / 77,
+  Card stats 109 / 93, the braid 59 / 100, Calendar 52 / 87, a CS topic
+  52 / 124).
+- State document 678 KB of the ~5 MB localStorage budget (about 13%).
+  Sessions are 320 bytes each, so at the 2,000 cap they reach ~640 KB; the
+  Daily Review keeps 60 days; notifications hold 200. Headroom is ample.
+- Full backup (KOS.backupFile.write, in memory, not downloaded): 56.7 MB,
+  25 files, built in about 1 s, `missing` [] and `unreadable` [];
+  snapshotFull({partial:true, files:false}) names nothing missing either.
+  The verified checkpoint of the same data is the heavy path: AP-90.
