@@ -86,3 +86,72 @@ Every `links.examId` resolves. No new finding.
 - **GO-37** (hero counts too-early goals as on track): measured on the
   copy: the hero reads 4 behind · 0 on track · 0 met — no too-early goal
   today, so no inflation.
+
+## Note on the code measured
+
+Slot 7's page was still controlled by the `kos-qol-4` service worker, with
+`kos-qol-5` installed and WAITING (invariant 38: it activates only when the
+user accepts the update), so the Money, Goals and Japanese measurements
+above ran on `fa4264d0`'s pages — `git diff fa4264d0..0c93408a` touches
+none of Money, Goals or Japanese. The Mind cards page threw SY-33's
+'KOS.fsrs.recall is not a function' on it; at ~18:00 the waiting worker
+was activated (SKIP_WAITING, as the app's own update prompt does) and the
+page reloaded, so everything from Mind on runs on `kos-qol-5`. The same
+holds for the user's own devices: SY-33's fix reaches them only once they
+accept the update.
+
+## Japanese
+
+What the copy holds: no Japanese answer at all — 0 facets, 0 checkpoints,
+0 Japanese ledger entries, 0 `ja:` rows in the review log (481 rows, none
+Japanese), 0 mined lines, 0 Focus parts on `ja`, `japanese.input` empty.
+Only lesson pages were opened (H1 two pages, with 13 audio lines heard; H2,
+H4 and K1 one page each). The desk reads Mastery 0%, Lessons 0 / 28, Today
+'H1 · Reviews 0 · New 25 · ≈ 25 min', the Media path 'Calibrating'
+everywhere (mac and iPhone). No new finding.
+
+- **JM-40** (a checkpoint counts every Check press): measured on the copy:
+  0 checkpoints taken, so no checkpoint pay exists, none with a score
+  above 1.
+- **JM-41** (kana Check/Enter records again): measured on the copy: 0
+  facets and 0 Japanese review-log rows, so no duplicate rows in one
+  second for one facet — no impact yet. It bites the first kana session.
+- **JM-44** (Due now counts held-back facets): measured on the copy:
+  `KOS.ja.due()` 0 and no facet exists, so lesson inspectors and the queue
+  agree (0). No impact yet.
+
+## Mind
+
+What the copy holds: 10 card records (6 rated once on 22 Nov, 4 only
+introduced by a lesson), all 10 due on 27 Nov (4–3 days overdue); lessons
+F1.1 and F1.2 done and paid, F1.3 started; 2 explain-backs; 0 positions,
+parked prompts, checkpoints or tensions. Journal: 4 entries (2 insights, 2
+reflections), counted only. Ledger: 2 lesson entries (12 XP each), 1
+reviews entry (6 cards, 6 XP), 3 Focus entries with the Daily 15's
+objective (21, 22 and 24 Nov; 2.6, 2.6 and 4.8 min, 0 pay). The per-device
+Daily 15 record is stale (24 Nov, left on 'reviews', its Focus long
+ended); today's Daily 15 plans 10 reviews, F1.3 from page 2 and the week's
+Big Question. New: **MI-91** (P2, 'In your Journal ›' saves again — the
+real Journal holds one such duplicate) and **MI-90** (P3, '10 learnt'
+counts 4 never-reviewed cards).
+
+- **SY-33** (Mind card reviews throw): measured on the copy: still thrown
+  by the `kos-qol-4` page the slot was running (see the note above);
+  after the `kos-qol-5` worker took over, #/mind/cards opens at mac and
+  iPhone with 10 due and shows the reviewed card's 'recall ≈ 79%'.
+- **MI-20** (One more card set logs nothing): measured on the copy: the
+  Daily 15 has not been finished today, so the extra set is not offered;
+  no unlogged set in the data (every rated card has its 22 Nov reviews
+  entry: 6 rated, 6 logged).
+- **MI-22** (#/mind/cards run lost on reload): measured on the copy: 10
+  cards due, so a run interrupted on the iPad could rate up to 10 cards
+  with no ledger entry. The data shows no sign of it yet (6 cards rated,
+  6 in the ledger).
+- **MI-24** (a lesson's Cards tab rates with no ledger entry): measured on
+  the copy: every rated card's last review (22 Nov) matches the one
+  reviews entry; nothing rated outside a logged run.
+- **MI-27** (lesson tabs collapse on iPhone): measured on the copy: it
+  bites the real lesson in progress — #/ref/mind/F1.3 at iPhone has a 3 px
+  tab scroller holding 6 tabs (mac: 382 px).
+- **MI-21 / MI-23 / MI-25 / MI-26 / MI-28**: not reachable without
+  running today's Daily 15 or a position on the copy; no data shows them.
