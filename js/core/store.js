@@ -693,7 +693,8 @@
       if (!other) { if (cb) cb(false); return; }
       var bj = mJson != null ? mJson : lsJson, base = bj != null ? parseDoc(bj) : null;
       var clean = !!base && KOS.cloudmerge.deepEqual(jclone(state), base);
-      applyDoc(clean ? other : KOS.cloudmerge.merge(base, jclone(state), other, TAB_MERGE).doc);
+      if (clean) applyDoc(other);
+      else { var mm = KOS.cloudmerge.merge(base, jclone(state), other, TAB_MERGE); applyDoc(mm.doc, mm.renames); }
       mJson = rec.json; mRev = rec.rev || 0;
       lastRev = Math.max(lastRev, mRev); health.rev = Math.max(health.rev, mRev);
       health.merges++;
@@ -811,18 +812,54 @@
      row at most, so two rows that share an id never fold into one object
      (December audit DI-33). */
   function rowKey(x) { return typeof x.id + ":" + x.id + (x.kind != null ? "|" + x.kind : ""); }
+  /* a record's creation stamp never changes, so two rows that carry
+     different ones are two records, whatever their ids say. This is the
+     case another TAB brings: its merge re-keyed this device's record and
+     wrote the result, so this tab sees the other device's record under the
+     id its live object holds, with no rename to tell it (SY-38, Carbon's
+     two-tab case). The stamps are cloudmerge's own (sameOrigin's PRECISE). */
+  var STAMPS = ["ts", "created", "createdAt", "addedAt", "added"];
+  function otherOrigin(a, b) {
+    for (var i = 0; i < STAMPS.length; i++) {
+      var f = STAMPS[i];
+      if (a[f] != null && b[f] != null && a[f] !== b[f]) return true;
+    }
+    return false;
+  }
+  function sameStamp(a, b) {
+    var any = false;
+    for (var i = 0; i < STAMPS.length; i++) {
+      var f = STAMPS[i];
+      if (a[f] == null && b[f] == null) continue;
+      if (a[f] !== b[f]) return false;
+      any = true;
+    }
+    return any;
+  }
   function assignList(dst, src) {
     var byId = null;
     if (dst.length && isObj(dst[0]) && dst[0].id != null) {
       byId = {};
       dst.forEach(function (x) { if (isObj(x) && x.id != null && !byId[rowKey(x)]) byId[rowKey(x)] = x; });
     }
-    var out = src.map(function (b) {
+    var displaced = [], fresh = [];
+    var out = src.map(function (b, i) {
       if (byId && isObj(b) && b.id != null) {
         var k = rowKey(b), a = byId[k];
+        if (a && otherOrigin(a, b)) { delete byId[k]; displaced.push(a); fresh.push(i); return b; }
         if (a) { delete byId[k]; assignDeep(a, b); return a; }
+        fresh.push(i);
       }
       return b;
+    });
+    /* a live object that lost its id to another record follows its own
+       record to wherever it now is (its new id), so whoever holds it keeps
+       acting on it */
+    displaced.forEach(function (a) {
+      for (var j = 0; j < fresh.length; j++) {
+        var i = fresh[j], b = out[i];
+        if (b !== a && isObj(b) && sameStamp(a, b)) { assignDeep(a, b); out[i] = a; fresh.splice(j, 1); return; }
+      }
     });
     dst.length = 0;
     for (var i = 0; i < out.length; i++) dst.push(out[i]);
@@ -1101,7 +1138,8 @@
     if (now !== lsJson) return false;
     var other = parseDoc(e.newValue);
     if (!other) return false;
-    applyDoc(KOS.cloudmerge.merge(parseDoc(prevJson), jclone(state), other, TAB_MERGE).doc);
+    var ow = KOS.cloudmerge.merge(parseDoc(prevJson), jclone(state), other, TAB_MERGE);
+    applyDoc(ow.doc, ow.renames);
     health.merges++;
     save();
     redrawQuietly();
@@ -1143,7 +1181,7 @@
           var empty = lsEmpty && seenRev === 0;
           if (!empty && !newer()) return null;
           if (empty || !KOS.cloudmerge) applyDoc(doc);
-          else applyDoc(KOS.cloudmerge.merge(parseDoc(lsJson), jclone(state), doc, TAB_MERGE).doc);
+          else { var rm = KOS.cloudmerge.merge(parseDoc(lsJson), jclone(state), doc, TAB_MERGE); applyDoc(rm.doc, rm.renames); }
           mJson = rec.json; mRev = rec.rev || 0;
           health.recovered = { from: "indexeddb", rev: rec.rev || 0, at: rec.at || null, merged: !empty };
           return health.recovered;

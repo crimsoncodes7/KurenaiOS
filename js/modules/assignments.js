@@ -189,8 +189,14 @@
      open (Home, Calendar, search) render the same thing */
   function detailBody(host, id, o) {
     o = o || {};
+    /* the live record, followed by object: a pull that re-keys it (an old
+       numeric id colliding with another device's) moves the object to its
+       new id, and every action here acts on that, never on the other
+       device's record that took the old id (December audit SY-38) */
+    var held = A().get(id);
+    function rid() { if (held && held.id != null && A().get(held.id) === held) id = held.id; return id; }
     function repaint() {
-      var a = A().get(id);
+      var a = A().get(rid());
       host.innerHTML = "";
       if (!a) { if (o.onGone) o.onGone(); return; }
       var d = dueLine(a);
@@ -200,7 +206,7 @@
         el("span", { class: "k-spacer" }),
         el("button", { type: "button", class: "k-btn k-btn--sm", text: "✎ Edit", onclick: function () {
           if (o.beforeEdit) o.beforeEdit();
-          editModal(id, function () { repaint(); o.onChange && o.onChange(); });
+          editModal(rid(), function () { repaint(); o.onChange && o.onChange(); });
         } }),
         o.onClose ? el("button", { type: "button", class: "k-iconbtn k-iconbtn--sm", "aria-label": "Close", text: "✕", onclick: o.onClose }) : null
       ].filter(Boolean)));
@@ -221,7 +227,7 @@
           el("span", { class: "k-muted k-rt-small", text: major ? (a.countdown === "pin" ? "In countdowns · pinned" : "In countdowns · derived") : (a.countdown === "hide" ? "Not in countdowns · unpinned" : "Not in countdowns") }),
           el("span", { class: "k-spacer" }),
           el("button", { type: "button", class: "k-btn k-btn--sm", "data-ui": "asg.pin", text: major ? "Unpin" : "◆ Pin to countdowns", onclick: function () {
-            A().pinCountdown(id, !major);
+            A().pinCountdown(rid(), !major);
             KOS.a11y.announce(major ? "Unpinned from countdowns." : "Pinned to countdowns.");
             repaint(); o.onChange && o.onChange();
           } }),
@@ -240,20 +246,20 @@
       var subWrap = el("div", { class: "k-asg-subs" });
       subs.forEach(function (s, idx) {
         var cb = el("input", { type: "checkbox", class: "k-box", "aria-label": (s.done ? "Untick " : "Tick ") + s.text,
-          onchange: function () { A().subToggle(id, s.id, cb.checked); repaint(); o.onChange && o.onChange(); } });
+          onchange: function () { A().subToggle(rid(), s.id, cb.checked); repaint(); o.onChange && o.onChange(); } });
         cb.checked = !!s.done;
         subWrap.appendChild(el("div", { class: "k-asg-sub", "data-state": s.done ? "done" : null }, [
           cb, el("span", { class: "k-asg-sub-t", text: s.text }),
           el("button", { type: "button", class: "k-asg-x", "aria-label": "Delete subtask", text: "✕",
             onclick: function () {
               var snap = { id: s.id, text: s.text, done: !!s.done };
-              A().subRemove(id, s.id); repaint(); o.onChange && o.onChange();
+              A().subRemove(rid(), s.id); repaint(); o.onChange && o.onChange();
               KOS.ui.toast("Subtask deleted · " + snap.text, false, { label: "Undo", run: function () {
-                var cur = A().get(id); if (!cur) return;
+                var cur = A().get(rid()); if (!cur) return;
                 var list = (cur.subtasks || []).slice();
                 if (list.some(function (x) { return x && x.id === snap.id; })) return;
                 list.splice(Math.min(idx, list.length), 0, snap);
-                A().update(id, { subtasks: list, status: cur.status === "notStarted" && snap.done ? "inProgress" : cur.status });
+                A().update(rid(), { subtasks: list, status: cur.status === "notStarted" && snap.done ? "inProgress" : cur.status });
                 if (host.isConnected) repaint();
                 o.onChange && o.onChange();
               } });
@@ -262,7 +268,7 @@
       });
       var subIn = el("input", { type: "text", class: "k-asg-subin", "aria-label": "Add a subtask", placeholder: "+ Add a subtask…",
         onkeydown: function (e) {
-          if (e.key === "Enter" && subIn.value.trim()) { A().subAdd(id, subIn.value.trim()); repaint(); o.onChange && o.onChange(); }
+          if (e.key === "Enter" && subIn.value.trim()) { A().subAdd(rid(), subIn.value.trim()); repaint(); o.onChange && o.onChange(); }
         } });
       subWrap.appendChild(subIn);
       host.appendChild(el("section", { class: "k-asg-block", "aria-label": "Subtasks" }, [
@@ -331,7 +337,7 @@
           : s.v === "notStarted" ? "↺ Reopen" : s.label;
         if ((a.status === "complete" || a.status === "submitted") && s.v === "inProgress") label = "↺ Reopen";
         actions.appendChild(el("button", { type: "button", class: "k-btn k-btn--sm", text: label,
-          onclick: function () { A().setStatus(id, s.v); repaint(); o.onChange && o.onChange(); } }));
+          onclick: function () { A().setStatus(rid(), s.v); repaint(); o.onChange && o.onChange(); } }));
       });
       host.appendChild(el("div", { class: "k-asg-foot" }, [
         a.subject ? el("button", { type: "button", class: "k-btn k-btn--primary", "data-intent": "primary", text: "◉ Focus on this", onclick: function () {

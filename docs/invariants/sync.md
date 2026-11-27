@@ -92,7 +92,13 @@ Read this file before editing or testing anything in its domain.
     object to the new id first (`cloudmerge.merge` returns `renames`,
     `replaceState(doc, renames)`), so an editor holding it saves its own
     record, never the other device's that took the old id (December audit
-    SY-38, DI-33; smoke196 G2). An
+    SY-38, DI-33; smoke196 G2). Another TAB's write brings no renames, only
+    a document: two rows under one id whose creation stamps (`ts`,
+    `created`, `createdAt`, `addedAt`, `added`) differ are two records, so
+    the live object follows the row with its own stamp, and a merge whose
+    remote moved this side's record to a new id moves this side's copy and
+    the base's there first, so an unsaved change lands on its own record
+    (smoke196 G3). An
     edit made while that copy was being written is merged and pushed, never
     overwritten. A data URL new in the cloud copy's avatar or banner (an
     upload on an older-version device) takes the slot over a local move.

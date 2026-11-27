@@ -252,6 +252,25 @@
      rest of the record agrees. */
   var PRECISE = ["ts", "created", "createdAt", "addedAt", "added"];
   var NAMES = ["title", "name", "q", "text", "topic"];
+  /* creation stamps: two rows whose stamps differ are two records; two rows
+     with the same (non-empty) stamps are one */
+  function stampsDiffer(a, b) {
+    for (var i = 0; i < PRECISE.length; i++) {
+      var f = PRECISE[i];
+      if (a[f] != null && b[f] != null && a[f] !== b[f]) return true;
+    }
+    return false;
+  }
+  function sameStamps(a, b) {
+    var any = false;
+    for (var i = 0; i < PRECISE.length; i++) {
+      var f = PRECISE[i];
+      if (a[f] == null && b[f] == null) continue;
+      if (a[f] !== b[f]) return false;
+      any = true;
+    }
+    return any;
+  }
   function sameOrigin(a, b) {
     for (var i = 0; i < PRECISE.length; i++) {
       var f = PRECISE[i], x = a[f], y = b[f];
@@ -375,6 +394,35 @@
       ceiling[key] = m;
       return m;
     }
+    /* MOVED: another tab or device already re-keyed this device's record and
+       its document is the remote one — the remote holds a DIFFERENT record
+       (another creation stamp) under the id, and ours under a new id. Our
+       copy and the base's follow it to that id first, so this side's
+       changes merge into our record, never into the other device's
+       (December audit SY-38, Carbon's two-tab case). */
+    RECORDS.forEach(function (spec) {
+      if (!spec.counter && spec.path !== "sessions") return;
+      var L = pathGet(local, spec.path), R = pathGet(remote, spec.path), B = pathGet(base, spec.path);
+      if (!Array.isArray(L) || !Array.isArray(R) || !Array.isArray(B) || !L.length || !R.length) return;
+      var inR = {}, inB = {};
+      R.forEach(function (r) { if (isPlain(r)) inR[String(r[spec.id])] = r; });
+      B.forEach(function (r) { if (isPlain(r)) inB[String(r[spec.id])] = r; });
+      L.forEach(function (rec) {
+        if (!isPlain(rec)) return;
+        var k = String(rec[spec.id]), b = inB[k], r = inR[k];
+        if (!b || !r || !stampsDiffer(b, r) || !sameStamps(rec, b)) return;
+        var moved = null;
+        for (var i = 0; i < R.length; i++) {
+          if (isPlain(R[i]) && String(R[i][spec.id]) !== k && sameStamps(R[i], b)) { moved = R[i]; break; }
+        }
+        if (!moved) return;
+        var oldId = rec[spec.id], newId = moved[spec.id];
+        rec[spec.id] = newId; rewriteRefs(local, spec, oldId, newId);
+        b[spec.id] = newId; rewriteRefs(base, spec, oldId, newId);
+        if (renames) renames.push({ path: spec.path, id: spec.id, from: oldId, to: newId });
+        renamed++;
+      });
+    });
     RECORDS.forEach(function (spec) {
       if (!spec.counter && spec.path !== "sessions") return;   // keyed by a natural key
       var L = pathGet(local, spec.path), R = pathGet(remote, spec.path), B = pathGet(base, spec.path);

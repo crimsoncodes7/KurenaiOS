@@ -304,6 +304,44 @@ step("G2 · a pull that re-keys a held record keeps it, and rows sharing an id s
   delete K.store.state.dayReview.days[day]; K.store.save();
 });
 
+step("G3 · another TAB's write that re-keyed a held record: the held object follows it, clean or dirty (SY-38, Carbon's two-tab case)", async () => {
+  const W = app.window, KEY = "kurenai-os-v1", REVK = KEY + ".rev";
+  const st = K.store.state;
+  /* the other tab's cloud merge re-keyed this device's goal and wrote the
+     result: the other device's goal under the old id, ours under a new one,
+     and no rename reaches this tab — only the document */
+  function otherTabWrites(nid, mine) {
+    const doc = JSON.parse(W.localStorage.getItem(KEY));
+    doc.goals.items = doc.goals.items.filter((g) => g.id !== nid)
+      .concat([{ id: nid, title: "REMOTE " + nid, type: "focus-hours", target: 3, createdAt: 1764000900000 + nid },
+               Object.assign({}, mine, { id: nid + 1 })]);
+    doc.goals.nextId = nid + 2;
+    const rev = (parseInt(W.localStorage.getItem(REVK), 10) || 0) + 1;
+    W.localStorage.setItem(KEY, JSON.stringify(doc));
+    W.localStorage.setItem(REVK, String(rev));
+  }
+  for (const dirty of [false, true]) {
+    const nid = Math.max(st.goals.nextId || 1, ...st.goals.items.map((g) => +g.id || 0).concat(0).map((n) => n + 1)) + 10;
+    st.goals.items.push({ id: nid, title: "LOCAL " + nid, type: "focus-hours", target: 10, createdAt: 1764000000000 + nid });
+    st.goals.nextId = nid + 1;
+    K.store.save(); if (K.store.flush) K.store.flush();
+    const held = st.goals.items.find((g) => g.id === nid);            /* the open editor's object */
+    const mine = JSON.parse(JSON.stringify(held));
+    if (dirty) held.target = 12;                                       /* an unsaved change in this tab */
+    otherTabWrites(nid, mine);
+    K.store.sync();                                                    /* this tab takes the write in */
+    const items = K.store.state.goals.items;
+    assert(items.indexOf(held) !== -1, (dirty ? "dirty" : "clean") + ": the held object is still in the list");
+    eq([held.id, held.title], [nid + 1, "LOCAL " + nid], (dirty ? "dirty" : "clean") + ": it holds this device's goal, under its new id");
+    eq(items.find((g) => g.id === nid).title, "REMOTE " + nid, (dirty ? "dirty" : "clean") + ": the other device's goal keeps the old id");
+    /* the merge follows our record to its new id: an unsaved change lands on it, never on theirs */
+    eq([held.target, items.find((g) => g.id === nid).target], [dirty ? 12 : 10, 3], (dirty ? "dirty" : "clean") + ": each goal keeps its own target");
+    K.goals.update(held.id, { title: "LOCAL " + nid + " (edited)" });  /* Save in the editor: G.update(existing.id, …) */
+    eq(items.find((g) => g.id === nid).title, "REMOTE " + nid, (dirty ? "dirty" : "clean") + ": Save never writes the other device's goal");
+    K.store.state.goals.items = items.filter((g) => g.id !== nid && g.id !== nid + 1); K.store.save(); if (K.store.flush) K.store.flush();
+  }
+});
+
 step("H · the server functions' failure paths (rm:edge-hygiene, EF-01 to EF-08)", () => {
   const fs = require("fs"), path = require("path"), F = path.join(__dirname, "..", "supabase", "functions");
   const read = (f) => fs.readFileSync(path.join(F, f), "utf8");
