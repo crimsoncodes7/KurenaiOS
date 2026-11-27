@@ -788,7 +788,7 @@
               var gone = KOS.ledgerArchive.capped((localSync.sessions || []).concat((theirs && theirs.sessions) || []), res.doc.sessions);
               if (gone.length) KOS.ledgerArchive.archive(gone).catch(function () { /* history only */ });
             }
-            KOS.store.replaceState(res.doc);
+            KOS.store.replaceState(res.doc, res.renames);
             out.stats = res.stats;
           }
           /* per-device keys are this device's alone. New clients never push
