@@ -1,0 +1,726 @@
+{
+ "area": "money-goals",
+ "summary": "Money on 0c93408a (kos-qol-5). No P0. 22 findings: 2 P1, 13 P2, 7 P3. The two P1s are both in the import engine: an entry you typed that adopted a statement row's identity (money-goals#2) is not recognised by the same month's other export, so OFX/QIF/CSV import the payment again (MG-51); and 'Replace it' is offered for any one-day overlap and deletes every entry of the earlier import (a 3-row file wiped 73, MG-61). Phase 1 features mostly work end to end (day chart → Transactions, Select all, Imported source, Imports route, monthly card repeats → Make it recurring, Not yet confirmed with Confirm all/Skip all and Undo, typed matches with adoption and Undo, Make this a goal from pots and budgets) but with gaps: Confirm all double-counts statement matches (MG-48), pot cards make duplicate goals (MG-46), the budget goal starts today and reads 'Under' for an over-budget month (MG-62), the Pots Moves link opens an empty list (MG-64), the Imports page has no way in (MG-50). Several November W4 P2/P3s listed as fixed were never shipped (MG-26, 27, 28, 31, 32, 35, 36, 41, 42, 44 → MG-54..59). Money stayed free of Governor and network traffic (sessions/gold/XP/HP unchanged; only font requests).",
+ "coverage": {
+  "routes": [
+   "#/money",
+   "#/money/transactions",
+   "#/money/budgets",
+   "#/money/recurring",
+   "#/money/pots",
+   "#/money/month (Month and Year)",
+   "#/money/settings",
+   "#/money/imports",
+   "#/money/merchant/greggs",
+   "#/goals/<id> for pot and budget goals"
+  ],
+  "sizes": [
+   "mac",
+   "ipadl",
+   "ipad",
+   "iphone",
+   "split",
+   "slide"
+  ],
+  "accounts": [
+   "dense (Money built through the app: 6 rules, 2 pots, ~100 typed entries, 3-month generated midata statement + Santander fixtures)",
+   "empty",
+   "sample (no Money data, same as empty)"
+  ],
+  "flows": [
+   "import File→Preview→Done for all six fixtures and a generated 75-row statement",
+   "typed-entry matches (name and amount) with adoption and Undo",
+   "Undo import from the Imports page",
+   "Replace",
+   "monthly card repeats suggestion → Make it recurring",
+   "Not yet confirmed: Confirm all, Skip all, Undo, statement match",
+   "day chart → Transactions for a day",
+   "Select all + bulk actions",
+   "Source: Imported (all files)",
+   "Pots Moves link",
+   "Make this a goal from pot hero, pot card and budget",
+   "Hide amounts on every page",
+   "cold load of every sub-route",
+   "entry editor kind switch",
+   "transfer edit",
+   "payday picker",
+   "own-export round trip"
+  ],
+  "notCovered": [
+   "the user's copy (slot 7, separate pass)",
+   "pot pictures (upload) — not exercised",
+   "Money settings › Rules: learning and forgetting a payee rule end to end",
+   "cloud sync of kos_money (signed out by protocol)",
+   "multi-tab and background redraw on Money pages beyond READS",
+   "keyboard/screen-reader pass of the new queue and preview"
+  ]
+ },
+ "findings": [
+  {
+   "id": "MG-45",
+   "severity": "P3",
+   "category": "copy",
+   "title": "Overview's late-income card reads 'the job pay pay has not arrived yet'",
+   "detail": "Dense account with an income rule named 'Job pay' (every 2 weeks) whose 14 Nov occurrence is unconfirmed. #/money (any size) shows the card 'Income · on Fri 27 Nov — the job pay pay has not arrived yet'. The sub-line appends ' pay' to the lower-cased rule name, so any rule whose name already ends in 'pay' (Job pay, Pay, Holiday pay) doubles it, and a rule named 'Student Finance' reads 'the student finance pay' (a grant is not pay). Reproduced twice (mac, after reload).",
+   "rootCause": "js/modules/money.js:410 — head(..., \"the \" + o.name.toLowerCase() + \" pay has not arrived yet\") hard-codes the word 'pay' after the user's own rule name.",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/overview-mac-dense.png; js/modules/money.js:410",
+   "fix": "Use the rule's name as written: '<Name> has not arrived yet' (as the notice at js/core/money.js:1835 already does).",
+   "effort": "S",
+   "devices": [
+    "mac",
+    "ipadl",
+    "ipad",
+    "iphone",
+    "split",
+    "slide"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": null,
+   "regressionOf": null,
+   "invariants": []
+  },
+  {
+   "id": "MG-46",
+   "severity": "P2",
+   "category": "bug",
+   "title": "Pots: a non-lead pot's ⋯ › Make this a goal makes a new goal every time and the card never shows the goal it has",
+   "detail": "#/money/pots with two pots (Laptop leads, Emergency below). Emergency ⋯ › Make this a goal › Save goal, then again: state.goals.items holds two 'Save for Emergency' money-save goals linked to the same pot (ids 11 and 12). The Emergency card shows no goal pill and keeps offering 'Make this a goal'; only the lead pot (potHero) looks for an existing goal and swaps the button for the pill. The preset also invents a £100 target for a pot with no target (Emergency has none) without saying so. Reproduced twice.",
+   "rootCause": "js/modules/money.js:1602 — potCard's menu always lists 'Make this a goal' and the card body never reads KOS.goals; only potHero (js/modules/money.js:1518, 1536-1539) checks g.links.pot. openPotGoal (js/modules/money.js:1588-1594) passes target: p.target ? p.target/100 : 100.",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/pot-emergency-twogoals-mac-dense.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/pot-emergency-goal-dialog-mac-dense.png; eval goals: ['10 Save for Laptop','11 Save for Emergency','12 Save for Emergency']",
+   "fix": "In potCard, look up the pot's money-save goal as potHero does: show the 標 pill (open the goal) and replace the menu item with 'Open goal'; leave the target empty when the pot has none so the reader types it.",
+   "effort": "S",
+   "devices": [
+    "mac",
+    "ipadl",
+    "ipad",
+    "iphone",
+    "split",
+    "slide"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": "bk:goals#2 (7456781b)",
+   "regressionOf": null,
+   "invariants": [
+    "5b"
+   ]
+  },
+  {
+   "id": "MG-47",
+   "severity": "P3",
+   "category": "copy",
+   "title": "Goal dialog from a pot: the money line reads 'one about every 1 days' / '4.8 a day' with no currency",
+   "detail": "Pots › Make this a goal (bk:goals#2), deadline 31 Mar 2027: a £600 target shows 'The line: 4.8 a day.'; a £100 target (the default for a pot with no target) shows 'The line: one about every 1 days.'; £20 shows 'one about every 6 days'. For money the line should be an amount per day/week (£4.84 a day, £0.80 a day). Reproduced twice.",
+   "rootCause": "js/modules/goals.js:1024 — line() formats every target as a count ('N a day' or 'one about every N days'), ignoring the money flag the same function uses at :1015.",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/pot-goal-line-hint-mac-dense.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/pot-makegoal-dialog-mac-dense.png",
+   "fix": "When money, print U.amount-formatted per-day (or per-week when under £1 a day) figure; never the 'one about every' form.",
+   "effort": "S",
+   "devices": [
+    "mac",
+    "ipad",
+    "iphone"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": "bk:goals#2 (7456781b) exposes it from Money",
+   "regressionOf": null,
+   "invariants": [
+    "5b"
+   ]
+  },
+  {
+   "id": "MG-48",
+   "severity": "P2",
+   "category": "data",
+   "title": "Recurring › Confirm all writes a second entry for an occurrence the statement already holds (it only warns)",
+   "detail": "Dense account, midata-autumn.csv imported (73 rows), then a Netflix rule made from Done's 'Make it recurring' (start 12 Nov). Recurring's 'Not yet confirmed' lists Netflix 12 Nov with 'Matches statement · Netflix · 12 Nov — Use statement entry'. Confirm all › Confirm all: the 12 Nov day now holds r:<rule>:2026-11-12 (src rule, £5.99) AND the imported t-… (src csv, £5.99) — £5.99 counted twice in Out, Subscriptions and safe-to-spend. The dialog body says '1 matches an imported statement entry — link it individually if you do not want a second entry', but the bulk action already knows the single candidate. Also matchedCount is filled by async bankMatches callbacks, so a Confirm all pressed before they land says nothing. Reproduced twice (Undo restores 191→179 entries correctly).",
+   "rootCause": "js/modules/money.js:1244-1260 (confirmAll) calls M.confirm for every item; the per-row bankMatches result (js/modules/money.js:1301-1315) is only drawn as a button and never used by confirmAll. Invariant 5a: Confirm OFFERS a stored bank entry instead of making a second one.",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/recurring-confirmall-dialog-mac-dense.png; eval Netflix 12 Nov before ['t-y7otqy6wyx04|csv|599'], after ['r:r-9iafu3vhzmhj:2026-11-12|rule|599','t-y7otqy6wyx04|csv|599']",
+   "fix": "In confirmAll, run bankMatches per item and use M.confirmWith for an item with exactly one candidate (as 'Use statement entry' does), counting those as linked in the dialog; only items with no statement entry get M.confirm.",
+   "effort": "S",
+   "devices": [
+    "mac",
+    "ipad",
+    "iphone"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": "bk:money-goals#6 (104a5873)",
+   "regressionOf": "MG-07",
+   "invariants": [
+    "5a"
+   ]
+  },
+  {
+   "id": "MG-49",
+   "severity": "P2",
+   "category": "bug",
+   "title": "Import preview: a row that pays a recurring rule shows 'Other income', counts as 'to categorise', and the category you pick is thrown away",
+   "detail": "Preview of midata-autumn.csv: 6 'Acme Cafe Ltd Wages' rows matched to the Job pay rule (teal '↻ Job pay' chip) show the picker on 'Other income' in its amber 'choose' state and make up all 6 of the '6 to categorise' count; the 'To categorise' filter lists only them. On import they are stored under the rule's category (Job), and Done says nothing is left to categorise. Choosing 'Allowance' on the 14 Nov row before importing is ignored: the stored entry is r:<rule>:2026-11-14 with cat 'job'. So the preview shows a category that will not be stored, asks for work that is not needed, and offers a choice that has no effect. Reproduced twice (two previews; the override run once). Second run on the Empty account: a 'Phone' rule filed under Subscriptions matches midata-comma's VODAFONE DD row; the preview shows it under Bills (merchant table), picking Food there even offers the 'Always file Vodafone like this' rule, and the stored entry is r:<rule>:2026-10-25 in Subscriptions.",
+   "rootCause": "js/core/money.js:1387-1422 matchRules sets x.match but leaves x.cat/x.catFrom from the merchant table; js/core/money.js:1512 importRows then overwrites f.cat = r.cat for a matched row; js/modules/moneyimp.js:208-215 counts() and :292-305 catControl treat catFrom 'default' as to-categorise regardless of x.match.",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/import-preview-tocategorise-mac-dense.png; eval stored ['r:r-vqtz6fs2tyai:2026-11-14|job|Job pay'] after picking Allowance; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/import-preview-matched-out-mac-empty.png",
+   "fix": "When matchRules links a row, set x.cat = r.cat and x.catFrom = 'rule' (shown as 'the rule'); either disable the picker on a matched row or honour a choice the reader made (f.cat = x.catFrom === 'you' ? x.cat : r.cat).",
+   "effort": "S",
+   "devices": [
+    "mac",
+    "ipad",
+    "iphone"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": null,
+   "regressionOf": null,
+   "invariants": [
+    "5a"
+   ]
+  },
+  {
+   "id": "MG-50",
+   "severity": "P3",
+   "category": "ui",
+   "title": "The new Imports page (#/money/imports) has no way in, and does not show the counts the QoL item asked for",
+   "detail": "bk:money-goals#4 added the route #/money/imports (title Imports, its own Import… action). No control in the app navigates to it: Money's section tabs do not list it, the settings gear does not, Transactions still has its own Entries/Imports switch, and search has no Money results; it is reachable only by typing the address. On it no section tab is selected. Each row shows the file, range, rows and date, but not the duplicates skipped or rows that could not be read that docs/qol/PLAN.md:487 lists, because the import record stores only n. Checked twice. On the Empty account the page shows three import buttons at once (header 'Import…', the card's 'Import a statement', the side card's 'Import a statement').",
+   "rootCause": "js/modules/money.js:151 and :1828-1834 add the view; grep finds no go('imports') or link to it in js/; js/core/money.js:1532-1535 importRows records n only (no skipped/bad).",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/imports-mac-dense.png; grep -rn 'money/imports' js → none; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/imports-mac-empty.png",
+   "fix": "Point Transactions' 'Imports' switch (and Done's footer) at #/money/imports, or drop the route; record skipped and unreadable counts on the import record and print them on the row.",
+   "effort": "S",
+   "devices": [
+    "mac",
+    "ipad",
+    "iphone"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": "bk:money-goals#4 (4a1d07d2)",
+   "regressionOf": null,
+   "invariants": [
+    "5a"
+   ]
+  },
+  {
+   "id": "MG-51",
+   "severity": "P1",
+   "category": "data",
+   "title": "A typed entry that took a statement's identity is not recognised by the same month's other export: OFX/QIF import the payment again",
+   "detail": "Dense account. A typed entry 'Heron Foods' £3.45 on 28 Oct. Import midata-autumn.csv: its HERON FOODS 29/10 £3.45 row is skipped as 'Same as Heron Foods · 28 Oct' and the typed entry adopts the row's identity (money-goals#2) — correct. Then import Santander's OFX (or QIF) of the same October (tools/fixtures/money/santander.ofx): the preview lists '29 Oct · Heron Foods · −£3.45' as NEW, and importing stores a second £3.45 Heron Foods entry (t-xqkfzz1a5pxj, src csv) beside the typed one. The same payment through another export is supposed to be known by day, amount, direction and merchant (dupOf 'similar'), and it is for rows that came in as imports — but not for one a typed entry adopted. Reproduced with OFX twice (import, undo, preview again) and with QIF.",
+   "rootCause": "js/core/money.js:1329 builds the 'similar' index only from t.src === 'csv' rows, and an adopting entry keeps src 'manual' and its own typed date (28 Oct, not the bank's 29 Oct); js/core/money.js:1430-1432 matchTyped then skips it because it now has t.imp. So once adopted, the entry is invisible to both checks.",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/import-preview-ofx-after-adopt-mac-dense.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/import-preview-qif-after-adopt-mac-dense.png; eval range 26–30 Oct: 't-wupfy1octyaz | manual | 345 | Heron Foods' and 't-xqkfzz1a5pxj | csv | 345 | Heron Foods | b-wdzmasea5pxj'",
+   "fix": "Index an adopting entry (t.adopt or t.imp with src manual/rule) in alike under the BANK's date and merchant taken from t.imp/t.bank (keep the bank's date on the identity when adopting), so a second export of the same payment is 'similar'; cover it in smoke149/161.",
+   "effort": "S",
+   "devices": [
+    "mac",
+    "ipad",
+    "iphone"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": "money-goals#2 (64248eb9)",
+   "regressionOf": "MG-01",
+   "invariants": [
+    "5a"
+   ]
+  },
+  {
+   "id": "MG-52",
+   "severity": "P2",
+   "category": "ui",
+   "title": "Money's bar charts: By week heights do not follow the printed amounts, and outgoing bars (By week, Year view) are drawn darker than the card",
+   "detail": "Dense account after the autumn import, #/money at mac and iphone. By week prints £243.87, £147.25, £198.31, £152.35, £71.81; --h is 100%, 60%, 81%, 62%, 29% but the measured bars are 70, 66, 70, 68 and 32 px — the first four look the same height. The past bars are filled with --s3 (oklch 0.14) on a card of oklch 0.20, so they read as holes, not bars. Measured twice (mac, iphone; identical). The Year view (Month and year › Year) uses the same dark fill for its 'Everything' outgoing bars: beside money-goals#1's bright green income bars, August–October's outgoings (£254–£691) are almost invisible on the card (year-mac-dense.png); the legend swatch for 'Everything' is the same near-black.",
+   "rootCause": "css/views/money.css:490-491 — .k-mn-wk is a flex column 100% high holding the value, the bar (block-size: var(--h), a % of the whole column) and the label; the three together overflow and flex-shrink squeezes every bar towards the same height. The bar colour is var(--s3), below the card surface.",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/overview-iphone-dense.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/overview-mac-dense.png; eval [{v:'£243.87',h:'100%',px:70},{v:'£147.25',h:'60%',px:66},{v:'£198.31',h:'81%',px:70},{v:'£152.35',h:'62%',px:68},{v:'£71.81',h:'29%',px:32}]; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/year-mac-dense.png",
+   "fix": "Give the bar its own track (a flex:1 1 0; min-block-size:0 wrapper) and set the bar's height as a % of that track with flex-shrink:0; colour past weeks with a chart token above the surface (as By merchant's bars do).",
+   "effort": "S",
+   "devices": [
+    "mac",
+    "ipadl",
+    "ipad",
+    "iphone",
+    "split",
+    "slide"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": "money-goals#1 (62db01c3) puts bright income bars beside the dark outgoing ones",
+   "regressionOf": null,
+   "invariants": [
+    "26d",
+    "76"
+   ]
+  },
+  {
+   "id": "MG-53",
+   "severity": "P3",
+   "category": "copy",
+   "title": "Overview chip says 'Pay due Fri 27 Nov · in 0 days' on the day itself",
+   "detail": "#/money on 27 Nov with Student Finance expected today (after the Job pay was received): the hero chip reads '◷ Pay due Fri 27 Nov · in 0 days'. Should read 'Pay due today'. Seen twice (iphone, mac).",
+   "rootCause": "js/modules/money.js:267 — ' · in ' + between(now, nextPay.date) + ' days' with no case for 0.",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/overview-iphone-dense.png",
+   "fix": "When between(...) === 0 say 'Pay due today'.",
+   "effort": "S",
+   "devices": [
+    "mac",
+    "iphone"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": null,
+   "regressionOf": null,
+   "invariants": []
+  },
+  {
+   "id": "MG-54",
+   "severity": "P2",
+   "category": "data",
+   "title": "Transactions bulk 'Set category' still files income under a spending category (MG-28 not fixed)",
+   "detail": "Tick one income entry (Gran +£30, Gifts received) › Set category: the menu lists only spending categories; choosing Social stores {kind:'in', cat:'social'}. With Select all over November, the Job pay income (a confirmed rule occurrence) was filed under Food: summary('2026-11').byCat.food = {out: £602.29, income: £120}, so Food's row and 'over budget' figures mix income in. Reproduced twice. There is no Undo for the bulk change either.",
+   "rootCause": "js/modules/money.js (drawBulk → bulkSet) excludes only wishlist and transfer rows; it applies an 'out' category to kind 'in' rows. No W4 commit touched it (git log 4c3fc33..0c93408a).",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/tx-bulk-cat-income-mac-dense.png; eval Gran after: ['in|social']; summary food income 12000",
+   "fix": "As November said: offer In categories for income rows (or skip and name rows whose kind does not fit), and give the bulk change an Undo toast.",
+   "effort": "S",
+   "devices": [
+    "mac",
+    "ipad",
+    "iphone"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": "bk:money-goals#4 Select all (4a1d07d2) makes it one click for the whole month",
+   "regressionOf": "MG-28",
+   "invariants": [
+    "5a"
+   ]
+  },
+  {
+   "id": "MG-55",
+   "severity": "P2",
+   "category": "data",
+   "title": "New entry: switching Out to In still saves the Out category while the picker shows Job (MG-32 not fixed)",
+   "detail": "Transactions › ＋ Add entry › In › amount 12.34 › Save: the Category picker shows 'Job' (value job) but the stored entry is {kind:'in', cat:'food'}. Food then carries £12.34 of income. Reproduced twice (both test entries deleted after).",
+   "rootCause": "js/modules/money.js:855-856 the kind switch (seg … function (k) { kind = k; draw(); }) redraws the select from the In categories but leaves lines[i].cat at the Out default 'food' (line 846); the select's value falls back to its first option while the model keeps 'food'.",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/entry-in-switch-mac-dense.png; eval stored ['in|food|1234','in|food|1234']",
+   "fix": "On a kind switch, reset each line's cat to the new kind's default when it is not one of that kind's categories (November's fix).",
+   "effort": "S",
+   "devices": [
+    "mac",
+    "ipad",
+    "iphone"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": null,
+   "regressionOf": "MG-32",
+   "invariants": [
+    "5a"
+   ]
+  },
+  {
+   "id": "MG-56",
+   "severity": "P2",
+   "category": "data",
+   "title": "Import reads '(3.45)' and '3.45 DR' as money in, and '=1+1' as £11.00 (MG-26 not fixed)",
+   "detail": "A CSV with Date,Description,Amount rows '(3.45)', '3.45 DR' and '=1+1': the preview shows +£3.45, +£3.45 and +£11.00, all as income (Other income), so importing turns two payments out into money in and invents £11. Reproduced twice (mac, iphone previews).",
+   "rootCause": "js/core/moneyimport.js:68-75 amount() strips every character but digits, '.', ',', '-' — brackets, DR/CR and operators are dropped, and the sign is lost.",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/import-preview-mg26-mac-dense.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/stmts/mg26.csv",
+   "fix": "Treat '(n)' and a trailing DR as negative and CR as positive; refuse a cell with any other non-number character (report the row as unreadable instead of guessing).",
+   "effort": "S",
+   "devices": [
+    "mac",
+    "iphone"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": null,
+   "regressionOf": "MG-26",
+   "invariants": [
+    "5a"
+   ]
+  },
+  {
+   "id": "MG-57",
+   "severity": "P2",
+   "category": "data",
+   "title": "Editing a pot move into a between-pots move still keeps the original and adds two (MG-27 not fixed)",
+   "detail": "Edit the 2 Sep '£40 into Emergency' move, set From to Laptop (To stays Emergency), Save: the list now holds the original Emergency +£40 plus a new Laptop −£40 and a second Emergency +£40 — Emergency shows £40 too much and Laptop goes to −£40. Reproduced (and November's evidence is the same code path); the test entries were removed.",
+   "rootCause": "js/modules/money.js:924-930 — the between-pots branch calls M.addTx twice and returns before the 'existing' updateTx at :940, so an edit never touches the entry being edited.",
+   "evidence": "eval transfers before ['2026-10-02|Emergency|in|2500','2026-09-02|Emergency|in|4000'] after [+ '2026-09-02|Laptop|out|4000', '2026-09-02|Emergency|in|4000' twice]",
+   "fix": "When editing, update the existing entry into one half (updateTx) and add only the other (November's fix).",
+   "effort": "S",
+   "devices": [
+    "mac"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": null,
+   "regressionOf": "MG-27",
+   "invariants": [
+    "5a"
+   ]
+  },
+  {
+   "id": "MG-58",
+   "severity": "P2",
+   "category": "bug",
+   "title": "Budgets › Payday picker still does nothing while the month starts on the 1st (MG-31 not fixed)",
+   "detail": "#/money/budgets with 'The 1st' on: choose 15th in 'Payday is the' — the select shows 15th but monthStart stays 1; pressing 'Payday · the 28th' then starts the month on the 28th, not the 15th you chose. Reproduced twice.",
+   "rootCause": "js/modules/money.js:1090 — dayPick's change handler only applies when M.data().monthStart !== 1; the seg's label and value use the fixed payday 28 (:1086).",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/budgets-payday-pick-mac-dense.png; eval monthStart 1 after picking 15 (twice)",
+   "fix": "Picking a day switches to Payday on that day (November's fix).",
+   "effort": "S",
+   "devices": [
+    "mac"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": null,
+   "regressionOf": "MG-31",
+   "invariants": [
+    "5a"
+   ]
+  },
+  {
+   "id": "MG-59",
+   "severity": "P3",
+   "category": "bug",
+   "title": "November P3s marked fixed by W4 are still open: search by category or amount (MG-35), reopen a closed pot (MG-36), record a price rise (MG-42), CSV formula cells (MG-44), Year view's pot count (MG-41)",
+   "detail": "MG-35: Transactions search 'Transport', 'Gifts' and '20.20' each find nothing although November holds Transport entries and a £20.20 Costa. MG-36: grep finds no Reopen for a closed pot. MG-42: setPrice still has no caller in js/modules. MG-44: an entry whose payee is =HYPERLINK(\"http://x\") exports as '\"=HYPERLINK(\"\"http://x\"\")\"' — quoted but not neutralised, so a spreadsheet still runs it. None of these appears in any W4 commit message (39c1794f, e0070e2f list MG-02..08, 10, 24, 25 only). Each checked twice. MG-41: Year view's 'Set aside £65.00 · 2 pots' still counts the Laptop pot that holds nothing (only Emergency has money).",
+   "rootCause": "js/core/money.js listFilter (search haystack payee+note+tags+bank text only); js/core/money.js csvCell (quotes only on , \" newline ;); no Reopen in js/modules/money.js closePot; setPrice exported but unused.",
+   "evidence": "eval search results 0/0/0; eval export line '2026-11-20,out,1.00,Other,\"=HYPERLINK(...)\",...'; grep -n 'setPrice(' js/modules → none",
+   "fix": "November's fixes: add category name and amount to the search haystack; a Closed pots list with Reopen; ask 'From when?' and call setPrice on an amount change with history; prefix a cell starting with = + - @ with an apostrophe.",
+   "effort": "M",
+   "devices": [
+    "mac"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": null,
+   "regressionOf": "MG-35",
+   "invariants": [
+    "5a"
+   ]
+  },
+  {
+   "id": "MG-60",
+   "severity": "P2",
+   "category": "data",
+   "title": "Importing the app's own CSV export over the same data brings back every statement-imported entry as new",
+   "detail": "Transactions › Export CSV for September (48 entries: 30 typed, 18 from the bank statement), then Import… that file: the preview marks the 30 typed entries 'Already here' but lists all 18 imported ones (PureGym, Stagecoach, Spotify, Job pay, Netflix…) as new, so importing doubles them. Invariant 5a says the app's own export reads back without loss; restoring an export onto a device that already has part of it is exactly when the de-duplication matters. Reproduced twice (two previews, 30 already here each time).",
+   "rootCause": "js/core/money.js:1328-1340 previewCSV: an own-export row carries no bank text, so the 'similar' check never runs for it, and stored entries WITH an identity (t.imp) are left out of the legacy date|amount|payee index — only typed entries are found. The own row's imp.k is built from the export's cells, never the bank's, so the identity check misses too.",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/import-preview-own-export-mac-dense.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/stmts/own-export-sep.csv; eval September {manual:30, 'csv+imp':18}",
+   "fix": "For x.own rows, also compare against every stored entry by date, amount, kind and payee (each used once), not only those without an identity; or write the entry's syncId into the export (an 'Id' column) and match on it.",
+   "effort": "S",
+   "devices": [
+    "mac"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": null,
+   "regressionOf": "MG-24",
+   "invariants": [
+    "5a"
+   ]
+  },
+  {
+   "id": "MG-61",
+   "severity": "P1",
+   "category": "data",
+   "title": "Import preview offers 'Replace it' for any one-day overlap, and replacing deletes the whole earlier import (a 3-row file wiped 73 entries)",
+   "detail": "With midata-autumn.csv (20 Aug – 25 Nov, 73 entries) imported, preview a 3-row CSV covering 2–4 Nov: the note says 'Covers the same days as midata-autumn.csv (20 Aug – 25 Nov) · Replace it'. Press it ('Replaces midata-autumn.csv · its entries go once these are in') and import: Done says 'Imported 3 entries · the earlier import replaced'; Aug–Nov now holds 111 entries instead of 181 (all 73 of the earlier file gone, including the months the new file never covered) and 16 recurring occurrences it had paid are open again. Undo on the new import removes only its 3; the old entries come back only by importing the old file again. The offer appeared twice (mac, iphone); the loss measured once, then restored by re-importing. The import record's range is also the ADDED rows' range, not the statement's (midata-semicolon.csv, 25–29 Oct, is recorded as 28–29 Oct).",
+   "rootCause": "js/core/money.js:1316 out.overlaps = any import whose from/to intersects by a day; js/modules/moneyimp.js:224-226 offers Replace on overlaps[0]; js/core/money.js:1550 importRows → undoBatch(opts.replaces) removes every entry of the old batch regardless of the new file's days; js/core/money.js:1532-1533 from/to come from txs (added rows).",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/import-replace-offer-mac-dense.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/import-preview-mg26-iphone-dense.png; eval before {count:181, imports:['midata-semicolon.csv:2','midata-autumn.csv:73'], marks:17} after {count:111, imports:['mg26.csv:3','midata-semicolon.csv:2'], marks:1}",
+   "fix": "Offer Replace only when the new statement covers the old one's days (from ≤ old.from and to ≥ old.to); when replacing, remove only the old entries dated inside the new file's range; record the statement's own first/last day on the import; make Undo of a replacing import restore what it removed.",
+   "effort": "M",
+   "devices": [
+    "mac",
+    "iphone"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": null,
+   "regressionOf": null,
+   "invariants": [
+    "5a"
+   ]
+  },
+  {
+   "id": "MG-62",
+   "severity": "P2",
+   "category": "bug",
+   "title": "Budgets › Make this a goal on an over-budget category shows the month as 'Under · No spending recorded'",
+   "detail": "November Transport: £118.90 spent of a £40.00 budget ('Over by £78.90' on Budgets and the Overview). Transport ⋯ › Make this a goal (bk:goals#2) › Save goal opens 'Keep Transport under budget · This month runs Sun 1 Nov – Mon 30 Nov · ● Under' with THIS MONTH '–  No spending recorded'. The preset leaves Starts on today (27 Nov), so the goal measures November only from 27 Nov (GO-03 partial period), finds nothing and still wears the 'Under' chip, while the page's own header says the month runs from 1 Nov. From the budget row the reader expects the budget's month. Seen twice (mac on save, iphone after reload).",
+   "rootCause": "js/modules/money.js:1121-1127 newGoal preset has no start; js/modules/goals.js goalDialog defaults Starts to today, and js/core/goals.js money-spend-under (:837-849) measures ctx.from = the goal's start, returning current null ('No spending recorded') which the page still draws as Under.",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/budget-makegoal-dialog-mac-dense.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/budget-goal-page-mac-dense.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/budget-goal-page-iphone-dense.png; goal {id:13,target:40,repeat:'month',links:{category:'transport'}}",
+   "fix": "Pass start: M.periodRange(M.periodKey(today())).from in the budget preset (the month Money is showing), and do not draw a status chip while current is null.",
+   "effort": "S",
+   "devices": [
+    "mac",
+    "iphone"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": "bk:goals#2 (7456781b)",
+   "regressionOf": null,
+   "invariants": [
+    "5b"
+   ]
+  },
+  {
+   "id": "MG-63",
+   "severity": "P2",
+   "category": "data",
+   "title": "Overview's 'Left to spend' shows a negative figure (−£10.50) when the month has no income at all",
+   "detail": "Empty account with two November entries (£4.50 Greggs, £6.00 Stagecoach), no income entry and no income rule: #/money's hero reads 'LEFT TO SPEND · NOVEMBER  −£10.50' in 60px, with no 'of … coming in' line. Money has no evidence of what came in, so there is nothing to have left: the invariant says a figure about the rest of the month (left, safe to spend, the projection) is null without its evidence. A student who logs only spending always sees a red-looking negative balance. (When left is null the hero would print £0.00 instead — also a figure without evidence.) Seen twice (mac and iPad landscape, same account).",
+   "rootCause": "js/core/money.js:1056 left = planned || outAll ? planned − outAll : null, so spending alone yields a negative left; js/modules/money.js:277 draws amt(ins.left == null ? 0 : ins.left).",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/overview-ipadl-empty-lowdata.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/overview-mac-empty-lowdata.png",
+   "fix": "left = planned ? planned − outAll : null; with no income, lead the hero with 'Spent this month' (s.outgoings) and a line 'Add an income or a rule to see what is left', never a 0 or negative 'left'.",
+   "effort": "S",
+   "devices": [
+    "mac",
+    "ipadl",
+    "iphone"
+   ],
+   "accounts": [
+    "empty"
+   ],
+   "phase1": null,
+   "regressionOf": null,
+   "invariants": [
+    "5a",
+    "76"
+   ]
+  },
+  {
+   "id": "MG-64",
+   "severity": "P2",
+   "category": "bug",
+   "title": "Pots › Recent moves › 'Transactions →' opens an empty list: it sets Moves but keeps the old date range and Source filter",
+   "detail": "#/money/pots lists two recent moves (2 Sep, 2 Oct, into Emergency). 'Transactions →' (money-goals#3) opens Transactions with Moves selected but the range still 'This month' (1–30 Nov): 'Nothing matches these filters', This view 0 entries. On a second visit after using Source: Imported (all files), the range was Everything but the Source filter stayed on Imported, so the moves (typed transfers) were filtered out again — empty both times. Reproduced twice (mac, iphone).",
+   "rootCause": "js/modules/money.js:1494 the link sets visit.tx.kind = 'transfer' and mode, and resets range only when it is a day; it leaves visit.tx.range (default 'month'), source, cat and search as they were.",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/tx-moves-from-pots-mac-dense.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/tx-moves-from-pots-iphone-dense.png",
+   "fix": "Set visit.tx = {search:'', cat:'', range:'all', tag:'', kind:'transfer', source:'', mode:'entries'} (as seeBatch does), or a range that covers the moves listed.",
+   "effort": "S",
+   "devices": [
+    "mac",
+    "iphone"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": "money-goals#3 (618ab91d)",
+   "regressionOf": null,
+   "invariants": []
+  },
+  {
+   "id": "MG-65",
+   "severity": "P3",
+   "category": "layout",
+   "title": "Phone import preview: a skipped row's chip pushes the bank-text toggle ▾ onto a line of its own, and the date drops to the bottom",
+   "detail": "Import preview at iphone 402 and Slide Over 375: each 'Already here · skipped' row is merchant + chip on one line, the ▾ toggle alone on the next, then date and balance on a third, with the amount floating beside the first line — three lines for one skipped row and a stray control. New rows lay out cleanly. Seen twice (iphone re-import of midata-autumn, slide preview of santander-online.txt).",
+   "rootCause": "css/views/money.css:445 .k-mn-pm wraps (flex-wrap) the chip and the ▾ inside the merchant cell; css/views/money.css:519-525 put the date in the last grid row; a skipped row has an empty span in place of the category, leaving area c empty.",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/import-preview-reimport-iphone-dense.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/money-goals/import-preview-slide-txt-empty.png",
+   "fix": "At the phone tier put the date on the first line (as Transactions does), keep the ▾ beside the merchant (nowrap) and let the chip take the empty category row.",
+   "effort": "S",
+   "devices": [
+    "iphone",
+    "slide",
+    "split"
+   ],
+   "accounts": [
+    "dense",
+    "empty"
+   ],
+   "phase1": null,
+   "regressionOf": null,
+   "invariants": [
+    "47"
+   ]
+  },
+  {
+   "id": "MG-66",
+   "severity": "P3",
+   "category": "arch",
+   "title": "Cross-app search has no Money domain: pots, recurring rules, merchants and the Imports page are unfindable",
+   "detail": "KOS.search.run('Laptop') returns Specification, Code lessons and Goals (the 'Save for Laptop' goal) but not the Laptop pot; 'Netflix', 'Vodafone' (recurring rules) and 'Greggs' (a merchant with its own page, #/money/merchant/greggs) return nothing. search.js's rule is that what the user authored belongs in the box; pots and rules are authored and carry no credential. With the new Imports route also unlinked (MG-50), Money's sub-pages are reachable only through its own tabs. Whether entries themselves should be searchable is a privacy call (the Assistant reads Money as totals), but names of pots, rules and merchants are not amounts. Checked twice.",
+   "rootCause": "js/core/search.js:320-344 run() calls spec, notes, reminders, assignments, calendar, planner, goals, personal cards, media, reports and files domains; there is no money domain.",
+   "evidence": "eval KOS.search.run: Laptop → ['Specification','Code lessons','Goals']; Netflix/Greggs/Vodafone → []",
+   "fix": "Add a moneyDomain listing pots, rules and merchant pages by name (no amounts, nothing when Hide amounts is irrelevant), each opening its Money page; decide explicitly whether single entries stay out.",
+   "effort": "S",
+   "devices": [
+    "mac"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": null,
+   "regressionOf": null,
+   "invariants": [
+    "71"
+   ]
+  }
+ ],
+ "novRecheck": [
+  {
+   "id": "MG-01",
+   "verdict": "fixed",
+   "note": "Re-importing midata-autumn.csv: 75 of 75 rows 'Already here'; two identical Greggs rows on 13 Nov both import. Adopted typed entries are a new gap: MG-51."
+  },
+  {
+   "id": "MG-02",
+   "verdict": "fixed",
+   "note": "midata-comma.csv read by itself (Santander midata CSV, columns named)."
+  },
+  {
+   "id": "MG-03",
+   "verdict": "fixed",
+   "note": "midata-semicolon.csv (leading blank line, ';') and santander-online-excel.csv (3-line preamble) both read."
+  },
+  {
+   "id": "MG-04",
+   "verdict": "fixed",
+   "note": "santander-online.txt, santander.qif and santander.ofx all read and previewed."
+  },
+  {
+   "id": "MG-05",
+   "verdict": "fixed",
+   "note": "Imports list (Transactions › Imports and #/money/imports) with See entries, Replace…, Undo…; Undo removes exactly the batch, re-opens its occurrences and takes back adoptions (typed Heron Foods/Lunch out lose imp/bank/adopt). Replace is a new data-loss path: MG-61."
+  },
+  {
+   "id": "MG-06",
+   "verdict": "fixed",
+   "note": "'£1,234.56' read as 1234.56 in midata-comma and the generated statement."
+  },
+  {
+   "id": "MG-07",
+   "verdict": "regressed",
+   "note": "Import→rule matching and Confirm's 'Your statement already has this' work; the Phase 1 Confirm all bypasses it: MG-48."
+  },
+  {
+   "id": "MG-08",
+   "verdict": "fixed",
+   "note": "Merchants made from bank words (Heron Foods, Greggs, Stagecoach…), Type chip and bank text kept, categories from the merchant table."
+  },
+  {
+   "id": "MG-10",
+   "verdict": "fixed",
+   "note": "Preview footer pinned with Import N entries visible at mac, iphone and slide."
+  },
+  {
+   "id": "MG-23",
+   "verdict": "fixed",
+   "note": "Two GREGGS £2.10 rows on 13 Nov in one statement both imported."
+  },
+  {
+   "id": "MG-24",
+   "verdict": "regressed",
+   "note": "The own export reads back (types, categories), but re-importing it over the same data duplicates every statement-imported entry: MG-60."
+  },
+  {
+   "id": "MG-11",
+   "verdict": "not reproducible",
+   "note": "Month view's In shows received; expected shown apart (not re-measured in detail)."
+  },
+  {
+   "id": "MG-17",
+   "verdict": "fixed",
+   "note": "Money shows the jar header, Goals the mountain, after navigating between them."
+  },
+  {
+   "id": "MG-19",
+   "verdict": "fixed",
+   "note": "This view totals come from listTotals (75 entries, Everything, with 60 rows loaded)."
+  },
+  {
+   "id": "MG-26",
+   "verdict": "still open",
+   "note": "Brackets and DR still read as money in: new finding MG-56."
+  },
+  {
+   "id": "MG-27",
+   "verdict": "still open",
+   "note": "Editing a move into between-pots still adds two: MG-57."
+  },
+  {
+   "id": "MG-28",
+   "verdict": "still open",
+   "note": "Bulk Set category still files income under spending categories: MG-54."
+  },
+  {
+   "id": "MG-29",
+   "verdict": "fixed",
+   "note": "Phase 1 'Not yet confirmed' lists every past occurrence (26), with Confirm all / Skip all and Undo."
+  },
+  {
+   "id": "MG-30",
+   "verdict": "fixed",
+   "note": "Money goals read KOS.money.evidence (code, js/core/goals.js:837-876)."
+  },
+  {
+   "id": "MG-31",
+   "verdict": "still open",
+   "note": "Payday picker ignored while the month starts on the 1st: MG-58."
+  },
+  {
+   "id": "MG-32",
+   "verdict": "still open",
+   "note": "Out→In still saves the Out category: MG-55."
+  },
+  {
+   "id": "MG-33",
+   "verdict": "fixed",
+   "note": "'No date I can read' (js/core/money.js:1197)."
+  },
+  {
+   "id": "MG-35",
+   "verdict": "still open",
+   "note": "Search by category name or amount finds nothing: MG-59."
+  },
+  {
+   "id": "MG-36",
+   "verdict": "still open",
+   "note": "No Reopen for a closed pot: MG-59."
+  },
+  {
+   "id": "MG-37",
+   "verdict": "fixed",
+   "note": "With Hide amounts on, a money goal's page shows masked figures (hidden-goal10-mac-dense.png)."
+  },
+  {
+   "id": "MG-41",
+   "verdict": "still open",
+   "note": "Year view 'Set aside · 2 pots' counts the empty Laptop pot: MG-59."
+  },
+  {
+   "id": "MG-42",
+   "verdict": "still open",
+   "note": "setPrice still has no caller: MG-59."
+  },
+  {
+   "id": "MG-43",
+   "verdict": "fixed",
+   "note": "Preview shows 150 rows then 'Show all N'."
+  },
+  {
+   "id": "MG-44",
+   "verdict": "still open",
+   "note": "Export quotes but does not neutralise =, +, -, @ cells: MG-59."
+  }
+ ]
+}
