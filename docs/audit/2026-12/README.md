@@ -9,7 +9,7 @@ branch. A P0 is fixed on its own branch, `fix/2026-12-<id>`, cut from `main`.
 
 | What | Commit | Diff |
 |---|---|---|
-| The code audited now | `fa4264d0` (main, sw `kos-qol-4`) | |
+| The code audited | Batch 1: `fa4264d0` (main, sw `kos-qol-4`). From Batch 2: `0c93408a` (main, sw `kos-qol-5`: Batch 1's hotfixes, merged into this branch) | `git diff fa4264d0..0c93408a`: the hotfixes only |
 | November's audit | `4c3fc33` (sw `kos-redraw-1`, 3 Nov; every run from 5 Nov on; the first runs of 1–4 Nov used `7371325c`, sw `kos-artshop-1`) | `git diff 4c3fc33..fa4264d0`: the November remediation (W0–W8) and Phase 1, 370 files |
 | Phase 1 alone | `f479433b` (the QoL plan approved, 1A started, 19 Nov; no app change since `f8478101`, sw `kos-integrity-23`) | `git diff f479433b..fa4264d0`: 1A–1F and Neon's batches, 235 files |
 
@@ -75,7 +75,9 @@ node $H stop <n>
 ```
 
 Slots in Batch 1: productivity 1, exams-files-ink 2, study-core 3,
-sync-disruption 4, data-integrity 5, architecture-perf 6.
+sync-disruption 4, data-integrity 5, architecture-perf 6. Batch 2:
+money-goals 1, goals 2, ja-mind 3, mind 4, code-space 5. The copy account
+is always slot 7.
 
 ## Evidence
 
