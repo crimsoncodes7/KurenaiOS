@@ -1,1 +1,1795 @@
-[]
+[
+ {
+  "id": "PR-44",
+  "severity": "P2",
+  "category": "bug",
+  "title": "Pacing row menu 'Move to previous/next week': the toast reads 'Moved to undefined.' and the hint names a week the row does not go to",
+  "detail": "Pacing › w/c 2 Nov › In class 'Binary Trees & Graph Traversal' › ⋯. The menu offers 'Move to previous week · w/c 26 Oct — HALF TERM'. Choosing it moves the row to w/c 19 Oct (wb 2026-11-02 → 2026-10-19, wk 9 → 8) and the toast says 'Moved to undefined.' with Undo (Undo works). Reproduced twice on dense at mac. The same mismatch shows for a personal row whose neighbour is a school-only week (w/c 14 Dec, no personal number) or a break. A move that fails ({ok:false}) also toasts 'Moved to undefined.' because the result object is truthy. Should: the hint names the week the row will land in, and the toast names it too.",
+  "rootCause": "js/modules/pacing.js:1491 and 1507 read res.toWb, but moveEntryWeek returns {ok, prevWb, prevWk, wb, addedWeek} (js/modules/pacing.js:275), so weekAt(undefined) is null; `if (res)` is true for {ok:false}. The hints come from allWks[wkIdx±1] (js/modules/pacing.js:1478-1481), every week including breaks and the other register's weeks, while moveEntryWeek steps through weekListFor(e.source) (js/modules/pacing.js:252).",
+  "evidence": "eval /tmp rowmove.js on dense mac: items ['Move to previous weekw/c 26 Oct — HALF TERM','Move to next weekw/c 9 Nov',…], after [2026-10-19, 8], toast ['Moved to undefined.\\nUndo'], undone [2026-11-02, 9]; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/productivity/pacing-rowmove-toast-mac-dense.png",
+  "fix": "Use res.wb and test res.ok; compute each hint from the same list moveEntryWeek uses (export weekListFor or a pure `neighbourWeek(e, ±1)`), and say 'Adds a new week' only when that list ends. Undo of a move that added a week should drop the week again when it is empty.",
+  "effort": "S",
+  "devices": [
+   "mac",
+   "iphone"
+  ],
+  "accounts": [
+   "dense"
+  ],
+  "phase1": "U4 (25a1b650)",
+  "regressionOf": null,
+  "invariants": [
+   "84"
+  ],
+  "area": "productivity",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "PR-45",
+  "severity": "P2",
+  "category": "data",
+  "title": "A hidden Pacing row still counts in the exam scope, 'next in pacing', and the month/term/year reports' plan totals",
+  "detail": "Hide is a soft delete that every derived read must leave out (invariant 84). On dense, hiding personal row p46 ('Programming constructs…', w/c 12 Oct, ref 4.1.1.2, the only row with that ref): carriedInto(23 Nov) drops 25 → 24 and entriesFor leaves it out, but KOS.exams.pacingCovered('2026-11-26','compsci') stays at 52 leaves (the hidden row still puts 4.1.1.2 in an exam's 'covered by the plan' scope) and KOS.exams.nextInPacing('compsci:4.1.1.2') still answers 2026-10-12. A month/term/year report counts hidden personal rows in 'planned' and 'carried' while the week report does not.",
+  "rootCause": "Readers use KOS.pacing.entries() (every row, hidden included, js/core/pacing.js:621) instead of entriesFor or a filter on hidden: js/core/exams.js:214 (pacingCovered), 602-604 (covered by a ticked row), 611 (nextInPacing); js/core/report.js:1275 (planRows for month/term/year; the week path at 1273 uses entriesFor and skips hidden); js/core/examsession.js:484 and js/modules/examprac.js:614 likewise.",
+  "evidence": "eval hidden.js on dense: before {cov:52,next:'2026-10-12',carried:25}, hidden {cov:52,next:'2026-10-12',carried:24,entriesFor:false}; js/core/report.js:407-413 (planned = rows.length)",
+  "fix": "Give KOS.pacing a `visible()` read (entries().filter(e => !e.hidden)) and use it in every reader outside the page (exams.js, report.js, examsession.js, examprac.js, achcatalogue if wanted), or make entries() skip hidden and give the page an includeHidden option.",
+  "effort": "S",
+  "devices": [
+   "mac"
+  ],
+  "accounts": [
+   "dense"
+  ],
+  "phase1": "U4 (25a1b650)",
+  "regressionOf": null,
+  "invariants": [
+   "84",
+   "121"
+  ],
+  "area": "productivity",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "PR-46",
+  "severity": "P2",
+  "category": "bug",
+  "title": "Pacing: 'Move up' / 'Move down' and the carried row's '→ here' write with no Undo, though every U4 row write is meant to have one",
+  "detail": "Pacing › w/c 23 Nov › CS › My plan › first row ⋯ › Move down: the order changes (Encryption ↔ Hardware) and no toast or Undo appears (#toast empty). A carried row's '→ here' moves it from w/c 12 Oct to w/c 23 Nov and toasts 'Moved into w/c 23 Nov.' with no Undo button. Hide and Move to previous/next week do offer Undo. Reproduced twice each on dense, mac. '→ here' is the more costly one: the row's original week is no longer shown anywhere once it has moved.",
+  "rootCause": "js/modules/pacing.js:1518-1525 (reorderEntry then redraw, no toast); js/modules/pacing.js:1654-1658 ('→ here': updateEntry({wb}) and a plain toast). Invariant 84: 'each write is one Undo'.",
+  "evidence": "eval reorder.js (after order swapped, toast ''), undo2.js {hereToast:'Moved into w/c 23 Nov.', hereBtn:false, hereWb:['2026-10-12','2026-11-23']} on dense mac",
+  "fix": "Toast with Undo on both, as Hide does: reorder Undo = reorderEntry(id, -dir); '→ here' Undo = updateEntry(id, {wb: oldWb}).",
+  "effort": "S",
+  "devices": [
+   "mac"
+  ],
+  "accounts": [
+   "dense"
+  ],
+  "phase1": "U4 (25a1b650)",
+  "regressionOf": null,
+  "invariants": [
+   "84"
+  ],
+  "area": "productivity",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "PR-47",
+  "severity": "P2",
+  "category": "bug",
+  "title": "Calendar countdowns still count down to a showing you skipped ('Skip this showing' is ignored by nextOccurrence)",
+  "detail": "Make a weekly Deadline due in 2 days (dense, harness), open it, Skip this showing for that date. occursOn(ev, that date) is false and the calendar grid drops it, but nextOccurrence still returns the skipped date, so Countdowns (the Calendar side card, Home, a subject's desk) still say '2 d' to 28 Nov instead of moving to 5 Dec. Opening that countdown row then shows the event as 'Skipped on Sat 28 Nov'. Reproduced twice (eval and again after cleanup).",
+  "rootCause": "js/modules/calendar.js:444-463 nextOccurrence steps the rule arithmetically and never reads ev.skip or ev.ext.g.skip (occursOn does, js/modules/calendar.js:424-426); deadlines() (js/modules/calendar.js:506) and so countdowns() take its answer. Skip arrived in 1f251ebe (productivity#9).",
+  "evidence": "eval skipcd.js on dense: {first:'2026-11-28', skip:['2026-11-28'], occursOnSkipped:false, next:'2026-11-28', cd:[['2026-11-28',2]]}",
+  "fix": "In nextOccurrence, after computing a candidate, advance while the candidate is skipped (loop with occursOn or step again, bounded); the reminders' own nextOccurrence is separate and unaffected.",
+  "effort": "S",
+  "devices": [
+   "mac"
+  ],
+  "accounts": [
+   "dense"
+  ],
+  "phase1": "productivity#9 (1f251ebe)",
+  "regressionOf": null,
+  "invariants": [
+   "43",
+   "44"
+  ],
+  "area": "productivity",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "PR-48",
+  "severity": "P2",
+  "category": "bug",
+  "title": "Routines › Settings: switching the three reviews back from 'Per day' to 'Simple' silently overwrites every weekday time with Monday's, with no warning or Undo",
+  "detail": "Sample account, mac. Routines › Settings › The three reviews › Per day; set Monday morning 06:30 and Tuesday 08:15 (slotTime: Mon 06:30, Tue 08:15, Wed 07:00, so U6 itself works). Press Simple: slots.morning.days is cleared and weekday becomes 06:30, so Tuesday's 08:15 is gone (slotTime Tue → 06:30). No confirm, no toast, no Undo; pressing Per day again rebuilds every day from the new simple times. Reproduced twice.",
+  "rootCause": "js/modules/routines.js:695-704 (rvModeSeg onclick, the 'simple' branch): nextSlots[s] = {weekday: resolvedSlotDay(s, 1), weekend: resolvedSlotDay(s, 6), days: null}, written by V().setConfig at once.",
+  "evidence": "eval perday.js on sample mac: slotMon '06:30', slotTue '08:15'; after Simple {weekday:'06:30', tue:'06:30'}, toast ''",
+  "fix": "When the per-day times differ from what Simple can hold, ask first (KOS.ui.confirm: 'Use Monday's and Saturday's times for every day?') or keep `days` stored and stop reading it while Simple is on; either way give a toast with Undo that restores the previous slots.",
+  "effort": "S",
+  "devices": [
+   "mac"
+  ],
+  "accounts": [
+   "sample"
+  ],
+  "phase1": "U6 (be732c13)",
+  "regressionOf": null,
+  "invariants": [
+   "148"
+  ],
+  "area": "productivity",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "PR-49",
+  "severity": "P2",
+  "category": "bug",
+  "title": "Routine player drops a run step two levels down, so a routine that runs a routine that runs another can never be finished in the player ('1 of 2 · partial')",
+  "detail": "Sample account, mac. Routines A (a1, run B), B (b1, run C), C (c1) — all accepted by KOS.routines.check (no loop). Open A's player: it lists 2 steps, 'a1' and '↻ AUDIT B · b1'; B's 'run C' step and C's c1 are missing. Press Done on every step: the player ends on 'AUDIT A · 1 of 2 · partial'; verdicts A 1/2, B 1/2, C 0/1. Ticking A's run step from the Today list instead works (A, B and C all kept), so only the player is wrong. Reproduced twice.",
+  "rootCause": "js/modules/routineplayer.js:70-77 slots(): an inner routine's steps are flattened one level only and `if (x.checkMorning || x.run) return;` throws away the inner routine's own run steps instead of expanding them (or keeping them as one tickable step).",
+  "evidence": "eval nest.js on sample mac: side ['a1','↻ AUDIT B','b1'], counter '1/2', after {A:{n:1,of:2}, B:{n:1,of:2}, C:{n:0,of:1}}, doneText 'AUDIT A · 1 of 2 · partial'; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/productivity/routine-player-nested-mac-sample.png",
+  "fix": "Make slots() recursive (expand x.run with its own rid and group, guarded by a seen set like runsOf), or keep a nested run step as one step whose Done calls R().tick(x.rid, x.id, true) so tickRun handles the chain; or refuse a nested run in check() if one level is the design.",
+  "effort": "S",
+  "devices": [
+   "mac"
+  ],
+  "accounts": [
+   "sample"
+  ],
+  "phase1": "1C routines-in-routines (124f679d)",
+  "regressionOf": null,
+  "invariants": [
+   "142"
+  ],
+  "area": "productivity",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "PR-52",
+  "severity": "P2",
+  "category": "layout",
+  "title": "Reminders on iPad (both orientations): tapping a reminder opens its inspector below the whole list, off screen, with no scroll to it — the new 'Place in a free block' and 'Focus on this' are out of sight",
+  "detail": "Sample account (8 reminders), iPad landscape 1180x820 and portrait 820x1180. Tap 'Email Mr Hart…': the row highlights and nothing else visible changes. The inspector is stacked under the list in the middle column; its action row (Place in a free block · Focus on this, productivity#5) sits at y 1659–1703 on ipadl (viewport 820) and 1669–1713 on ipad (viewport 1180), and the page does not scroll. On dense (28 open reminders) it is further down still. Below 860 px (Split View) the inspector is a sheet and works. Reproduced on both sizes, twice.",
+  "rootCause": "css/views/productivity.css:833-834 (the 1240 tier) turns the three-column .k-rem grid into two and places .k-rem-insp in column 2 after the list, position static; js/modules/reminderspage.js never scrolls the inspector into view or opens it as a sheet at that width (the sheet is only used by the phone tier, css/views/productivity.css:874-876).",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/productivity/rem-insp-ipadl-sample.png, rem-insp-ipad-sample.png; eval rem.insp-actions rect top/bottom 1659/1703 (ipadl, vh 820), 1669/1713 (ipad, vh 1180)",
+  "fix": "Between 860 and 1240 either keep the inspector as a right column and drop the sidebar to the 'Browse sections' button (as the 860 tier already does), or open the inspector in the same compact sheet the phone uses; at least scrollIntoView the inspector on select.",
+  "effort": "M",
+  "devices": [
+   "ipadl",
+   "ipad"
+  ],
+  "accounts": [
+   "sample",
+   "dense"
+  ],
+  "phase1": "productivity#5 (d422b279) put new actions there; the layout predates Phase 1",
+  "regressionOf": null,
+  "invariants": [
+   "47",
+   "50"
+  ],
+  "area": "productivity",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "PR-90",
+  "severity": "P2",
+  "category": "ui",
+  "title": "Calendar on a phone (and Split View / Slide Over): each day's agenda lists the timed events, then every routine, review, Money and goal item in no order — a 07:00 routine sits under a 19:20 lesson and 'All day' comes last",
+  "detail": "Copy account, iphone (402) and slide (375), #/calendar Agenda, week of 23 Nov. Measured from the rendered rows (eval of .k-cal-arow-when in order, twice, at iphone and at slide): Thursday reads 09:00, 10:15, 13:00, 17:30, 19:20, then 07:00, 22:00, 16:00, 07:00, 16:30, 22:00 (the 'From Routines' rows: routine windows and the three review slots); Saturday ends 22:00, 18:00, 15:30, 09:00, 15:00, 22:30, All day. The row's own time column shows the true start, so the day reads out of order; on the copy every day of the week has 4-6 derived rows after its events (12 routines, 3 review slots a day). The desktop week grid places the same items correctly by time. Should: one list per day sorted by start, all-day first, as eventsOn() already sorts the events.",
+  "rootCause": "js/modules/calpage.js:823-861 agendaRows — builds the events (sorted by eventsOn, js/modules/calendar.js:470) and then pushes assignments, reminders and derived items (routine/review windows carry d.time, js/modules/calendar.js:608 and 615) in source order, never sorting the combined rows by time. The order predates Phase 1 (moved from calendar.js into calpage.js by e4b97462, 1F).",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/copy/calendar-iphone-copy.png; eval [...document.querySelectorAll('[data-ui=\"cal.agenda\"] .k-cal-arow')] → '09:00 10:15 13:00 17:30 19:20 07:00 22:00 16:00 07:00 16:30 22:00 …' at iphone and slide",
+  "fix": "In agendaRows collect {when, allDay, node} for every row and sort once (all-day first, then by time, untimed 'Any time'/'Due' last) before returning; reuse the comparator eventsOn uses.",
+  "effort": "S",
+  "devices": [
+   "iphone",
+   "split",
+   "slide"
+  ],
+  "accounts": [
+   "copy"
+  ],
+  "phase1": null,
+  "regressionOf": null,
+  "invariants": [
+   "147"
+  ],
+  "copyPass": true,
+  "area": "productivity",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "PR-50",
+  "severity": "P3",
+  "category": "ui",
+  "title": "Calendar block's 'This week's plan': the tick boxes shrink to 15–16 px wide beside a long row title, so the column of boxes is ragged",
+  "detail": "Empty account, iPhone (also mac). Open a weekly CS lesson block on Thu 3 Dec: the My plan rows' checkboxes measure 18x18, 18x18, 15x18, 15x18, 18x18, 16x18, 18x18, 18x18 — every row whose title is ellipsised squeezes its box. Visible as boxes of different widths in the screenshot. Reproduced twice.",
+  "rootCause": "css/components.css:522 gives .k-check input a size but no flex-shrink: 0; in the .k-cal-plan-row label (css/views/productivity.css:571-573) the long .k-cal-plan-t text takes the space and the input is the item that shrinks.",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/productivity/cal-detail-skip-iphone-empty.png; eval: plan-row boxes ['18x18','18x18','15x18','15x18','18x18','16x18','18x18','18x18']",
+  "fix": ".k-check input { flex: none; } in components.css (fixes every .k-check row).",
+  "effort": "S",
+  "devices": [
+   "iphone",
+   "mac"
+  ],
+  "accounts": [
+   "empty"
+  ],
+  "phase1": "1C UR-29 (1b25e137)",
+  "regressionOf": null,
+  "invariants": [
+   "69"
+  ],
+  "area": "productivity",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "PR-51",
+  "severity": "P3",
+  "category": "copy",
+  "title": "Shift the plan's summary starts a sentence in lower case when 'Both' or 'In class' is picked ('… adding 2 new weeks. ticked rows, exam-planner rows stay anchored.')",
+  "detail": "Pacing › Shift plan… › Register Both, 2w: the live summary reads 'Moves 252 unticked rows (In class & My plan) 2 weeks later, stepping over 5 breaks and adding 2 new weeks. ticked rows, exam-planner rows stay anchored.' Same with From this week on. With My plan the list starts with 'In class rows' so it happens to be capitalised. Reproduced twice (dense, mac).",
+  "rootCause": "js/modules/pacing.js:968-976: the stay list joins lower-case items ('ticked rows', 'exam-planner rows') and only the 'In class rows'/'My plan rows' items are capitalised.",
+  "evidence": "eval shift1.js on dense mac: summaryBoth and summaryFrom strings above",
+  "fix": "Capitalise the first item of the joined list (and join the last pair with 'and').",
+  "effort": "S",
+  "devices": [
+   "mac"
+  ],
+  "accounts": [
+   "dense"
+  ],
+  "phase1": "U4 (25a1b650)",
+  "regressionOf": null,
+  "invariants": [],
+  "area": "productivity",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "EX-54",
+  "severity": "P1",
+  "category": "data",
+  "title": "Finish and log on a sat paper logs an unmarked or part-marked paper as a real score (0/60, 2/60) with no warning — and simply viewing a part marks it 0",
+  "detail": "F201 practice paper 3, dense account, mac: Start timed → Finish → confirm → on the marking screen (part 1(a) of 23 shown, nothing ticked) press 'Finish and log' in the bar. One attempt is logged as 0 of 60 (tracker uid jrk5arni, questions 1(a) got 0, the other 22 null); the Review shows 'Score 0 of 60', '▼ -2 on Practice paper 2', an estimated grade below Pass, and the tracker session pays (+8 XP, +1 gold). Paper 2 with only 1(a) and 1(b) ticked logged as 2 of 60, 'Marks lost 58 of 60', 'Below Pass, 22 to Pass'. 'Finish and log' sits in the bar from the first part on and asks nothing, although toAttempt has a 'not marked' path (marks null) and 'Mark later' exists. The attempt then feeds the exam's Practice cell, the trend, calibration and the grade/score goal (invariant 128 reads 'the best timed paper'). Reproduced on two sittings.",
+  "rootCause": "js/modules/exampaperview.js:450/489 — drawing a part calls `tk(q.n, j)`, which creates an empty tick object; js/core/exampaper.js:274 `marked = !!(ticks[q.n] && ticks[q.n][j])` counts that empty object as marked (got 0), so the total becomes 0 instead of null; and logIt (exampaperview.js:550) sums only the marked parts and never warns that 22 of 23 are unmarked. KOS.attempts.setMarks (557) uses `Object.keys(m).length`, so the two records disagree.",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/exams-files-ink/after-log-ipadl-dense.png; eval KOS.tracker.all() for useq77yy → [k2q7ahpd 2/60], [jrk5arni 0/60, only 1(a) got 0]; sessions award {xp 8, gold 1, hp 2}",
+  "fix": "In toAttempt treat a part as marked only when its tick object has a key (or a level was chosen); when parts remain unmarked, have Finish and log confirm 'n of 23 parts are not marked — log what you marked (scaled), or Mark later', and log marks null when none is marked.",
+  "effort": "S",
+  "devices": [
+   "mac",
+   "ipadl",
+   "ipad"
+  ],
+  "accounts": [
+   "dense"
+  ],
+  "phase1": null,
+  "regressionOf": null,
+  "invariants": [
+   "124",
+   "127",
+   "130b"
+  ],
+  "area": "exams-files-ink",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "EX-59",
+  "severity": "P1",
+  "category": "data",
+  "title": "Ink Text tool: tapping the next table cell (or another spot) with the pen or mouse throws away what was typed in the open box — filling a table keeps only the last cell",
+  "detail": "Topic 4.5.4.1, Handwritten tab, ipadl, mouse (a pen takes the same path). Add a table (UR-12), choose Text, tap cell A1 and type 'A1', tap B1 and type 'B1', tap C1 and type 'C1', then tap outside the page: the stored table is [['','','C1'],…] — A1 and B1 are gone. The same with free text boxes: type 'hello', tap lower down and type 'world' → only 'world' is stored. No message, no Undo for it. Reproduced three times (cells and free text). The only ways to keep a box are ⌘/Ctrl+Enter or tapping outside the page; Escape discards on purpose.",
+  "rootCause": "js/core/inksurface.js:503-504 — openText begins with `closeText(false)` (discard), and the page's pointerdown (onDown, ~575-596) calls `e.preventDefault()` before opening the next box, so the open textarea never blurs and its blur handler (521, which closes with keep=true) never runs. The 1C table makes this the normal way to work (tap cell after cell); the free-text loss predates Phase 1 (same line at f479433b inkui.js:574).",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/exams-files-ink/ink-text-lost-ipadl-dense.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/exams-files-ink/ink-table-typing-ipadl-dense.png; eval listPages: table [['','','C1'],…], text 'world' only",
+  "fix": "In openText call `closeText(true)` (keep) — Escape stays the discard path — so moving to another cell or spot saves the box first.",
+  "effort": "S",
+  "devices": [
+   "mac",
+   "ipadl",
+   "ipad"
+  ],
+  "accounts": [
+   "dense"
+  ],
+  "phase1": "1C UR-12 (da07fa6f)",
+  "regressionOf": null,
+  "invariants": [
+   "132"
+  ],
+  "area": "exams-files-ink",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "EX-63",
+  "severity": "P1",
+  "category": "bug",
+  "title": "Once a past paper with the same bytes joins a written-on file, Files stops seeing its writing: the ✎ badge and 'Has my writing' drop it and 'Download with my writing' silently gives the original",
+  "detail": "Files (dense, mac/ipadl): add worksheet.pdf, write two strokes on page 1 in the viewer (layer file:<fileId>:default, inked {page:2}); the card says '✎ 1 page' and Download gives 'worksheet (with my writing).pdf' with the strokes. Then import the same PDF into Exams › Practice › Paper files (any name). By design (invariant 150) the two show as one file, promoted to kind 'paper' with `alsoPaper` set. From then on KOS.files.writing(r) is 0: the card has no ✎, the 'Has my writing' filter hides it, and withWriting returns {ink:false, name:'worksheet.pdf'}, so Download/Share hand over the plain original with no message — invariant 151 says every Download or Share of a written-on file carries the writing. The writing is still in kurenai-os-ink and the viewer still shows it (it opens file:<fileId>:default), so it is hidden, not lost. Reproduced by eval and on the card.",
+  "rootCause": "js/core/files.js:158 — `inkPrefix(r)` switches to 'paper:' + r.fileId + ':' as soon as `r.alsoPaper` is set, so the existing 'file:<fileId>:default' layer no longer matches; writing() (160-166) and latestLayer() (175-181) only add 'paper:<alsoPaper>:' and never look at the file: layer.",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/exams-files-ink/files-merged-open-ipadl-dense.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/exams-files-ink/download-with-writing-p1.png; eval record alsoPaper 'ppmwxrhurrbhsm1b', ink docs ['file:f90b3a96…:default {b1c2…:2}'], KOS.files.writing(r) 0, withWriting → {ink:false, name:'worksheet.pdf'}",
+  "fix": "Have writing() and latestLayer() read both prefixes for a store-'files' record — 'file:<fileId>:' always, plus 'paper:<alsoPaper>:' when set — and keep inkPrefix for opening only.",
+  "effort": "S",
+  "devices": [
+   "mac",
+   "ipadl",
+   "ipad",
+   "iphone",
+   "split",
+   "slide"
+  ],
+  "accounts": [
+   "dense"
+  ],
+  "phase1": null,
+  "regressionOf": null,
+  "invariants": [
+   "150",
+   "151"
+  ],
+  "area": "exams-files-ink",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "EX-50",
+  "severity": "P2",
+  "category": "bug",
+  "title": "Exam Plan ignores its own 'h a week': at '1 h a week' every week is planned at 2 h (3 h in the last week)",
+  "detail": "An F201 real exam (12 Jan 2027) on the dense account, Plan section, budget select at '1 h a week' (the header reads '1 h a week for Real exam'). KOS.examSession.schedule(a) places 60 min in the first week, then 120 min in each of the next five weeks (topic 30 + paper 90) and 180 min in the week of 4 Jan (topic 30, paper 90, redo 30, cheat sheet 30). Week cards print '2 h 00' / '3 h 00' under a header promising 1 h. Send to the plan writes those rows into Pacing as they are. Reproduced twice (eval and the Plan screenshot). Expected: a paper that does not fit the week's hours is not placed (or the week shows that it is over, and the header's figure is the planned one).",
+  "rootCause": "js/core/examsession.js:464 — `if (fits(d, pm) || !d.items.length) place(...)`: a paper is placed whenever its day is empty, even when `fits` says the week's minutes are spent; the redo, cheat-sheet and night-before items (458–460) are placed with no `fits` check at all.",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/exams-files-ink/exam-f201-plan-mac-dense.png; eval KOS.examSession.schedule(F201) → hours 1, weeks 60,120,120,120,120,120,180,20 min",
+  "fix": "Drop the `|| !d.items.length` escape (or only allow it when the week has nothing yet and say 'over by n min' on the week card); run the fixed last-week items through `fits` too, or show the plan's real weekly total beside the budget.",
+  "effort": "S",
+  "devices": [
+   "mac",
+   "ipadl",
+   "ipad",
+   "iphone",
+   "split",
+   "slide"
+  ],
+  "accounts": [
+   "dense"
+  ],
+  "phase1": null,
+  "regressionOf": null,
+  "invariants": [
+   "126",
+   "130b"
+  ],
+  "area": "exams-files-ink",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "EX-51",
+  "severity": "P2",
+  "category": "copy",
+  "title": "An authored F201 practice paper's side panel calls the papers 'Predicted paper 1/2/3', lists the paper you are on, and describes it as a shape-weighted draw",
+  "detail": "Open #/exams/<F201>/paper/2 (or /1, /3). The 'Another paper' card offers 'Predicted paper 1 ›', 'Predicted paper 2 ›' (the paper already open) and 'Predicted paper 3 ›'. F201 has no Companion, so nothing is predicted (invariant 130: only a full Companion makes a predicted paper); the papers are the authored 'Practice paper 1 · Coastline Energy', '2 · Calderford City Council', '3 · Freshway'. 'Where the questions come from' says 'Original questions written by KurenaiOS for this paper's question shapes, weighted to its high-yield topics and to the shapes due by their pattern … The mark scheme names each question's shape' — none of which is true of an authored paper. 'This paper' says 'about 10 questions a sitting' for an 8-question paper. On paper 4 (a bank draw) the list correctly omits nothing but calls the authored papers just 'Practice paper 1/2/3'. Reproduced on papers 1 and 2, cold and warm.",
+  "rootCause": "js/modules/exampaperview.js:110-117 — the side panel only knows 'practice' vs everything else, so kind 'authored' takes the predicted wording; the seed filter `n !== paper.seed` compares a number with the authored paper's string seed (js/core/exampaper.js:137 `seed: String(n)`), so the current paper is never excluded.",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/exams-files-ink/paper-f201-2-mac-dense.png; eval on /paper/1 → typeof seed 'string', seed buttons ['Predicted paper 1','Predicted paper 2','Predicted paper 3']",
+  "fix": "Give 'authored' its own branch: 'Written whole by KurenaiOS in the board's format — not a board paper', title each link from KOS.examPaper.authoredList (e.g. 'Practice paper 2 · Calderford City Council'), compare seeds as numbers, and use bp.questions only for drawn papers.",
+  "effort": "S",
+  "devices": [
+   "mac",
+   "ipadl",
+   "ipad",
+   "iphone",
+   "split",
+   "slide"
+  ],
+  "accounts": [
+   "dense"
+  ],
+  "phase1": "1B (c0c67c39) — papers 2 and 3 made the list three authored papers",
+  "regressionOf": null,
+  "invariants": [
+   "127",
+   "130"
+  ],
+  "area": "exams-files-ink",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "EX-52",
+  "severity": "P2",
+  "category": "layout",
+  "title": "At 700 px and under (phone, iPad Split View and Slide Over) an exam's header actions vanish with no substitute, and a deep-linked Papers/Plan/Questions section draws under the Cards row",
+  "detail": "iphone 402, split 590, slide 375, dense account, F201 exam. On every section the header's 'Edit scope', '＋ Log a result' and '⋯' (the exam's Edit/Archive/Delete) measure 0×0; on Revise the header's 'Card drill' and '⎙ Print the guide' are gone; on a sat paper (#/exams/<id>/paper/2) '‹ Papers' is 0×0. The only ways round are the All exams list (its row ⋯ and its own '＋ Log a result'). The phone list shows Today, Topics, Revise, Cards and Review (D5), but on an iPad in Split View the same rules apply, so the device the Papers are for loses them. Opening #/exams/<id>/papers at 590 (a link from Today's paper card, search or Home) draws the Papers list directly under the 'Cards · 0 due' row, as if it were the Cards section's content, with no Papers row. Reproduced at iphone and split, twice each.",
+  "rootCause": "css/views/exams.css:1238 — `@media (max-width: 700px) { .k-xs-head .k-ex-actions { display: none; } }` hides the whole action slot (js/modules/examshell.js:260-272 puts every action, and the paper view's '‹ Papers' from js/modules/exampaperview.js:80, in it); js/modules/examshell.js:39 `PHONE` lists only today/topics/revise/cards/review, so a non-phone section's body has no row of its own and lands after the last row drawn (344).",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/exams-files-ink/exam-f201-today-iphone-dense.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/exams-files-ink/exam-f201-papers-split-dense.png; eval at iphone: Edit scope 0x0, ＋ Log a result 0x0, ⋯ 0x0, exams.paper-back 0x0",
+  "fix": "Keep the action slot on the phone as one ⋯ menu (Edit scope, Log a result, Edit, Archive, Delete, and the section's own actions such as Card drill and Print); when a non-phone section is open at ≤700 px give it its own row (or redirect to Today with the 'Papers · on the iPad and Mac' note), and let Split View on a touch iPad keep Papers.",
+  "effort": "M",
+  "devices": [
+   "iphone",
+   "split",
+   "slide"
+  ],
+  "accounts": [
+   "dense"
+  ],
+  "phase1": null,
+  "regressionOf": null,
+  "invariants": [
+   "130b",
+   "50b"
+  ],
+  "area": "exams-files-ink",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "EX-55",
+  "severity": "P2",
+  "category": "bug",
+  "title": "Right after Finish and log, Review says the attempt 'has no recorded journal: it was logged, not sat in the app' — the journal link is still being written",
+  "detail": "Sit a paper timed in the app, Finish, Finish and log: the app opens the attempt's Review, whose timing card reads 'This attempt has no recorded journal: it was logged, not sat in the app, so there is no timing to show.' Reopening the same review a moment later shows 'Minutes per mark … Pacing …' from the journal. Reproduced on both sittings (k2q7ahpd at ipadl, jrk5arni at mac). The first page the user sees after sitting a paper tells them it was not sat in the app.",
+  "rootCause": "js/modules/exampaperview.js:558-567 — logIt calls KOS.attempts.setMarks(rec, …, e.uid) (async IndexedDB get+put, js/core/attempts.js:220-227) and then KOS.show(review) at once; examreview.js:211-216 findRec lists attempts and matches `r.tracker === e.uid` before the put has landed.",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/exams-files-ink/after-log-ipadl-dense.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/exams-files-ink/review-reopen-ipadl-dense.png",
+  "fix": "Navigate to the review from setMarks' callback, or let findRec also match the live/just-ended record by `aid` + `seed` + ended time (or pass the rec uid in the route).",
+  "effort": "S",
+  "devices": [
+   "mac",
+   "ipadl"
+  ],
+  "accounts": [
+   "dense"
+  ],
+  "phase1": null,
+  "regressionOf": null,
+  "invariants": [
+   "130a"
+  ],
+  "area": "exams-files-ink",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "EX-56",
+  "severity": "P2",
+  "category": "touch",
+  "title": "Marking a sat paper on iPad: the scheme's tick chips are 26 px tall — their coarse-pointer 44 px rule is overridden by the base rule below it",
+  "detail": "ipadl (pointer: coarse), the marking screen after Finish: each scheme line's '○ ✓' chip (exams.mchip, also the level's 'a mark inside it' chips) measures 44×26. These are the controls you press most while marking on the iPad. Reproduced at ipadl and ipad.",
+  "rootCause": "css/views/exams.css:820 `@media (pointer: coarse) { .k-ex-mchip { min-block-size: var(--hit-coarse); … } }` comes BEFORE the base rule at 823 `.k-ex-mchip { … min-block-size: var(--sp-26); … }` with the same specificity, so the base rule wins the cascade.",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/exams-files-ink/marking-ipadl-dense.png; eval exams.mchip 44x26 at ipadl",
+  "fix": "Move the coarse-pointer rule after the base rule (or into the `floors` layer); invariant 69.",
+  "effort": "S",
+  "devices": [
+   "ipadl",
+   "ipad"
+  ],
+  "accounts": [
+   "dense"
+  ],
+  "phase1": null,
+  "regressionOf": null,
+  "invariants": [
+   "69"
+  ],
+  "area": "exams-files-ink",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "EX-57",
+  "severity": "P2",
+  "category": "bug",
+  "title": "'+ Log error' on the Ink tab and the exam Review does nothing on its first press after a load: the Error Log capture asks a lazy-loader method that does not exist",
+  "detail": "Cold-load a topic page (ipadl), open Handwritten and press '+ Log error' within the first seconds: no sheet opens (KOS.errorLogUI false before, no .k-dialog-overlay 3 s later). The same on a cold exam Review's Marks lost card '+ Log error' (mac). A second press later works, only because the background warm-up has loaded page-errorlog by then; with Save-Data on (lazy.js:291 skips warming) it would never open until the Error Log page is visited. The post-mortem's costly-card pill works (it logs without the sheet). Also: the Review's capture saves topicRef null and topicTitle = the paper's title, so the Error Log hub lists 'Practice paper 2 · Real exam' as an error-prone TOPIC, and its deep link opens the exam's latest review, not this attempt. Reproduced twice on each surface.",
+  "rootCause": "js/core/errorlog.js:166 — `if (KOS.lazy && KOS.lazy.ensure) KOS.lazy.ensure([\"page-errorlog\"], openNow)`: KOS.lazy has no `ensure` (js/core/lazy.js:519 exports need/needs/…), so when the bundle is not in yet openCapture silently returns. js/modules/examreview.js:132-143 passes no topicRef and a deepLink without `sub: 'a:' + e.uid`.",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/exams-files-ink/review-logerror-cold-mac-dense.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/exams-files-ink/review-logerror-second-mac-dense.png; eval cold ink tab: {before:false, after:true, dialog:false}; error entry err_gh3rk42nps topicRef null",
+  "fix": "Use `KOS.lazy.need('page-errorlog').then(openNow)`; on the Review pass the costliest lost topic as topicRef (lossCols already has it) and `sub: 'a:' + e.uid` in the deep link.",
+  "effort": "S",
+  "devices": [
+   "mac",
+   "ipadl"
+  ],
+  "accounts": [
+   "dense"
+  ],
+  "phase1": "U8 (157ac693)",
+  "regressionOf": null,
+  "invariants": [
+   "168"
+  ],
+  "area": "exams-files-ink",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "EX-58",
+  "severity": "P2",
+  "category": "layout",
+  "title": "The docked ink bar now overflows in Page view on Mac and both iPad orientations: Paste and Table pushed Paper and Float behind the › arrow",
+  "detail": "A topic's Handwritten tab, Page view, docked bar. Measured bar track scrollWidth vs clientWidth: mac 966/774 (Paper's right edge at 1277, Float 1344, past the 1110 px visible end), ipadl 812/732 (Paper 1131, Float 1184 on a 1180 screen), ipad 812/704. Paper and Float — the only way to float the palette — need the scroller arrow; on iPad landscape the Redo button is the last one fully visible. November's EX-38 (open, Phase 3) was this in Side by side only; 1C added two 44 px tools (Paste, UR-10; Table, UR-12) so it now happens on the default Page view at every size above the phone.",
+  "rootCause": "js/core/inksurface.js — the toolbar adds `ink.paste` and `ink.table` to the one row (3515b8cf, da07fa6f) without a narrower layout; the bar is a KOS.ui scroller (.k-ink-barwrap), so the overflow is hidden rather than wrapped.",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/exams-files-ink/inktab-ipadl-dense.png; eval .k-ink-bar scrollWidth/clientWidth mac 966/774, ipadl 812/732, ipad 812/704",
+  "fix": "Group Image, Paste and Table under one 'Insert ▾' tool (or move Paste into the Image tool's options slot), or let the bar wrap to two rows when docked above 860 px, so Paper and Float stay visible.",
+  "effort": "M",
+  "devices": [
+   "mac",
+   "ipadl",
+   "ipad"
+  ],
+  "accounts": [
+   "dense"
+  ],
+  "phase1": "1C UR-10/UR-12 (3515b8cf, da07fa6f)",
+  "regressionOf": null,
+  "invariants": [
+   "132",
+   "50"
+  ],
+  "area": "exams-files-ink",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "EX-61",
+  "severity": "P2",
+  "category": "bug",
+  "title": "'Download with my writing' (and Download the original) on the Mac opens the share sheet instead of downloading",
+  "detail": "Files page on mac (Chrome, which supports Web Share with files): ⋯ › 'Download with my writing' on a written-on PDF calls navigator.share with 'worksheet (with my writing).pdf' (17,344 bytes; its writing is correctly flattened onto page 1) instead of saving it. The same path serves 'Download the original', a topic's Files tab and the viewer's Save a copy. On macOS the share sheet has no plain 'save to Downloads', so the menu item named Download does not download; on the iPad the sheet's Save to Files is a fair stand-in. Reproduced twice with navigator.share stubbed to capture the call; with share available no anchor download ever fires.",
+  "rootCause": "js/core/inkexport.js:115-123 — deliver() prefers navigator.share whenever navigator.canShare({files}) is true, for every caller; js/modules/files.js:159-163 'download' calls deliver, not download().",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/exams-files-ink/download-with-writing-p1.png; eval navigator.canShare(files) true on mac; captured share call ['worksheet (with my writing).pdf 17344']",
+  "fix": "Give deliver a mode: Download items call KOS.inkExport.download (anchor) on a fine pointer / non-touch device and keep the share sheet for Share and for touch iPad/iPhone.",
+  "effort": "S",
+  "devices": [
+   "mac"
+  ],
+  "accounts": [
+   "dense"
+  ],
+  "phase1": null,
+  "regressionOf": null,
+  "invariants": [
+   "151"
+  ],
+  "area": "exams-files-ink",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "EX-62",
+  "severity": "P2",
+  "category": "touch",
+  "title": "Exam Topics: tapping a confidence chip re-sorts the list under your finger (the next tap rates a different topic), and the chip is 24 px tall on touch",
+  "detail": "F201 exam › Topics, the default 'Weakest first' sort, ipadl. Tap the third topic's '○ Rate it' (1.4 The purpose… of big data, y 666): it becomes Red and moves to row 2 (y 621), so the topic now under the finger is another one; tap it again where it now is → Amber; once more → Green, and it jumps to row 15 (y 1206). Tapping the same spot three times to reach Green (the chip cycles Red · Amber · Green, invariant 130b) instead rates three different topics. Each chip measures 53–70 × 24 px with pointer: coarse (invariant 69 wants 44). Reproduced twice.",
+  "rootCause": "js/modules/examshell.js:456 — the rows are `S().weakest(tops)` on every draw and the chip's onTap redraws the section at once, so a rated row moves; css/views/exams.css:1150 `.k-xs-rag { min-block-size: var(--sp-24) }` with no coarse-pointer floor.",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/exams-files-ink/exam-f201-topics-ipadl-dense.png; eval: row index 2 → 1 → 1 → 14 (y 666 → 621 → 621 → 1206) across Red, Amber, Green",
+  "fix": "Keep the order fixed for the visit (sort once into KOS.view.memo and re-sort only on leaving or on the Sort control), or redraw only the chip; give .k-xs-rag the --hit-coarse floor under pointer: coarse.",
+  "effort": "S",
+  "devices": [
+   "ipadl",
+   "ipad",
+   "iphone",
+   "split",
+   "slide",
+   "mac"
+  ],
+  "accounts": [
+   "dense"
+  ],
+  "phase1": null,
+  "regressionOf": null,
+  "invariants": [
+   "130b",
+   "69",
+   "165"
+  ],
+  "area": "exams-files-ink",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "EX-90",
+  "severity": "P2",
+  "category": "data",
+  "title": "Files added before the one-file-per-hash change (v3) never got a hash: adding the same file again stores a second copy and Files shows it twice — 12 of the copy's 25 files",
+  "detail": "Copy account: 12 of 25 records in kurenai-os-files have hash null (added July-October 2026; 11 still hold their bytes, among them 10 CS 4.5.1.1 papers/schemes and an IT handout). Re-adding one of them (its own blob as a new File) through KOS.attach.add, (1) to another topic → {linked:false}, record 31 stored with a real hash, the old one still null; (2) to the SAME topic → {linked:false}, record 32 stored. Files then lists both copies (two size groups duplicated) — invariant 150 says one file per hash with many links. The same holds for the paper twin rule (files.js:76 twin = r.hash && hashes[r.hash]): a Paper-library PDF with the same bytes never joins such a file. Test records removed afterwards (count back to 25).",
+  "rootCause": "js/modules/attachments.js:73-86 — the v3 upgrade back-fills fileId, updatedAt and linkKeys for old rows but never computes hash; add() (attachments.js:169-192) looks up the hash index, which an old row (hash null) can never match. Only Paper-library records get a hash back-fill (js/core/exampapers.js:216-220).",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/copy/files-mac-copy-dupe-readd.png; eval nullHash 12/25, add → {id:31, linked:false}, add same topic → {id:32, linked:false}; js/modules/attachments.js:73",
+  "fix": "A one-time idle back-fill: for records with a blob and no hash, hashOf(blob) → updateFile(rec.fileId, r.hash = h), then merge any two records that now share a hash through the existing link path (KOS.repairs if it merges); mirror exampapers.js:216.",
+  "effort": "M",
+  "devices": [
+   "mac",
+   "ipad"
+  ],
+  "accounts": [
+   "copy"
+  ],
+  "phase1": null,
+  "regressionOf": null,
+  "invariants": [
+   "150"
+  ],
+  "copyPass": true,
+  "area": "exams-files-ink",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "EX-53",
+  "severity": "P3",
+  "category": "layout",
+  "title": "F201 papers: the '(b)(i)' label breaks over two lines and '(ii)' repeats '(b)', on screen and in print",
+  "detail": "Every authored F201 paper (1, 2 and 3) has a linked (i)/(ii) part in question 7 labelled '(b)(i)' and '(b)(ii)'. The label column is one '(a)' wide, so the sheet prints '(b)' on one line and '(i)' on the next, then '(b)' again over '(ii)'. OCR's format (invariant 127, ocr-case: 'lettered and (i)/(ii) parts') prints '(b) (i)' once and '(ii)' alone. Seen in the A4 print of papers 1–3 (sheet 9) and on the same sheet on screen.",
+  "rootCause": "js/modules/exampaperview.js:252 draws `p.label` whole in the fixed-width label cell; the data (js/data/exams/papers/ocr-f201-1.js:193/196, -2.js:190/193, -3.js:189/193) carries the parent letter in both labels.",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/exams-files-ink/print-f201-2-p9.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/exams-files-ink/print-f201-2-w1.pdf",
+  "fix": "In the label cell print a (ii) whose (i) sits just before it as '(ii)' alone, and let the cell take '(b) (i)' on one line (min-content width or nowrap).",
+  "effort": "S",
+  "devices": [
+   "mac",
+   "ipad"
+  ],
+  "accounts": [
+   "dense"
+  ],
+  "phase1": "1B (c0c67c39)",
+  "regressionOf": null,
+  "invariants": [
+   "127"
+  ],
+  "area": "exams-files-ink",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "EX-60",
+  "severity": "P3",
+  "category": "bug",
+  "title": "Copy as TeX keeps a reply with a sentence before its code fence: 'Sure! ```latex …```' renders (as italic prose) and goes on the page",
+  "detail": "Lasso a stroke → Copy as TeX… → paste the reply 'Sure! ```latex\\n\\frac{1}{2} + x^2\\n```' (what a chat model often sends despite the prompt). The preview renders 'Sure!‘‘‘latex ½ + x²‘‘‘' and 'Keep it on the page' is enabled, so the junk is kept as a tex item. A reply of just the fenced block is cleaned correctly, and one with '$$' inside prose is refused with a KaTeX error. The 'kept only once KaTeX renders it' guard does not catch prose, because KaTeX renders words as maths italics.",
+  "rootCause": "js/core/ink.js:282-291 cleanTex strips a fence only when it spans the whole reply (`/^```…```$/`) and the $ pairs only at both ends; js/modules/inktex.js:30-35 texCheck accepts anything KaTeX renders.",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/exams-files-ink/ink-tex-good-ipadl-dense.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/exams-files-ink/ink-tex-bad-ipadl-dense.png",
+  "fix": "In cleanTex take the first fenced block found anywhere in the reply (and the first $$…$$ / \\[…\\] span) before checking; optionally refuse a result containing a run of plain words.",
+  "effort": "S",
+  "devices": [
+   "ipadl"
+  ],
+  "accounts": [
+   "dense"
+  ],
+  "phase1": "1C UR-13 (da07fa6f)",
+  "regressionOf": null,
+  "invariants": [
+   "135"
+  ],
+  "area": "exams-files-ink",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "EX-64",
+  "severity": "P3",
+  "category": "copy",
+  "title": "Files points to 'Exams & Papers › Library' and an 'Exams' Library' card; the place is now Exams & Papers › Practice › Paper files",
+  "detail": "The Files page's 'Getting files in' card ends 'Past papers come in through Exams & Papers › Library.' and the empty Files page offers a card 'Exams' Library'. Since the rework the tab row reads Exams · Timetable · Results · Practice · Load and the library is Practice's 'Paper files' tab (an exam's Papers section calls it 'Manage your paper files'); there is no 'Library' anywhere a student can see. Seen on mac and iphone, dense and Empty.",
+  "rootCause": "js/modules/files.js:374 ('Exams' Library') and js/modules/files.js:401 ('Exams & Papers › Library') were not renamed with the tab (js/modules/examshell.js:109 labels it 'Practice').",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/exams-files-ink/files-after-add-mac-dense.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/exams-files-ink/empty-mac-contact.png",
+  "fix": "Say 'Exams & Papers › Practice › Paper files' (and name the card 'Paper files').",
+  "effort": "S",
+  "devices": [
+   "mac",
+   "iphone"
+  ],
+  "accounts": [
+   "dense",
+   "empty"
+  ],
+  "phase1": null,
+  "regressionOf": null,
+  "invariants": [],
+  "area": "exams-files-ink",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "ST-44",
+  "severity": "P1",
+  "category": "data",
+  "title": "Error Log: the inline pill's 'Undo' beside a re-shown question permanently deletes an older entry, notes and all, with no confirm or Undo",
+  "detail": "Log a mistake from an exam self-mark (or a quiz miss), then later write 'What went wrong' / 'Rule for next time' and tags on it in the hub. Come back to the same question and reveal the mark scheme: the pill finds the existing open entry by its dedupeKey and draws '✓ Logged · Tag reason' + 'Undo'. One tap on Undo deletes the whole entry, including the user's written notes and tags. No confirm, no toast, no way back; the hub's own Delete (inside Edit) at least offers an Undo toast. Measured on Sample, CS 4.2.1.2 exam Q1: entry err_5jpnot0s73 with wrongNote/ruleNote/mistakeTypes set; after Undo it is gone from state.errorLog.items, #toast is empty and the pill is back to '+ Log mistake'. Reproduced twice.",
+  "rootCause": "js/core/errorlog.js:176 adopts ANY open entry with the same dedupeKey as the pill's own 'entry', and the Undo button at js/core/errorlog.js:195-196 calls remove(entry.id) unconditionally, so 'Undo' acts on an entry this pill never created",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/study-core/topic-cs42112-exam-reveal-mac-sample.png; eval: KOS.errorLog.update(id,{wrongNote,ruleNote,mistakeTypes}) → reopen exam tab → Reveal → click [data-ui~=quiz.log-undo] → entry DELETED, toast ''",
+  "fix": "Offer Undo only for an entry this pill created in this render (quickLog's existed=false); for an adopted entry show only '✓ Logged · Tag reason' (opening the editor, whose Delete has the Undo toast). If a remove stays, route it through the same toast-with-restore as the dialog's Delete.",
+  "effort": "S",
+  "devices": [
+   "mac",
+   "ipad",
+   "iphone"
+  ],
+  "accounts": [
+   "sample"
+  ],
+  "phase1": "U7/U8 Error Log (Neon user-custom)",
+  "regressionOf": null,
+  "invariants": [],
+  "area": "study-core",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "ST-52",
+  "severity": "P1",
+  "category": "bug",
+  "title": "Cold start: the curriculum stand-ins are never installed, so the due queue is empty until the content bundles land — Review says 'Queue clear', Card stats 'No review history', Home ticks 'Clear the due flashcards'",
+  "detail": "With 44 cards due (KOS.srs.dueCount() = 44 once the bundles are in), reload the app on #/review, #/review/due/all, #/review/stats or #/home and wait 9-10 s: Review shows '0 cards due · Queue clear', the review run 'Queue clear. Nothing is due', Card stats 'Cards in scope 123 · No review history in this scope', the Study rail has no due badge, and Home's Daily goal shows 'Clear the due flashcards' ticked and struck through. None of these pages redraws when the warm-up loads the bundles; only navigating away and back (or any rerender) shows the 44. Right after boot Object.keys(KOS_CONTENT) holds 52 keys (Japanese and Creatives only) — none of the 448 CS/Maths/IT/Code stand-ins of js/data/lazy-index.js — so KOS.srs.allCards()/dueCards() (built on Object.keys(KOS_CONTENT)) return nothing and KOS.lazy.needsFor('review') asks only for ['ink-ui'], never the content. Reproduced on Sample three times (#/review/due/all twice, #/review, #/review/stats, #/home). Every Home Screen relaunch of the PWA lands here. Pre-dates Phase 1 (same in f479433b).",
+  "rootCause": "index.html:185 runs js/data/lazy-index.js (→ KOS.lazy.install) while the parser is still above the content templates (first content <template data-lazy> at index.html:352); js/core/lazy.js:211 install() takes `known = files()`, which querySelectorAll's only the templates parsed so far (lazy.js:62-76), so `if (!known[bundle]) return;` (lazy.js:218) skips every content row; reviewBundles (lazy.js:342-355) then finds no pend bundles to wait for (invariant 168)",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/study-core/home-cold-mac-sample-44due.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/study-core/review-run-resumed-mac-sample.png; eval 0.8 s after reload: {KOS_CONTENT keys: ja 28, creatives 24; dc:0; needsFor('review'): ['ink-ui']}; 9 s after reload on #/review: '0 cards due' while dueCount() = 44",
+  "fix": "Install the stand-ins once the document is parsed (call install from DOMContentLoaded, or have files() not cache and install re-run for bundles that appear later), or move the lazy-index script below the last <template data-lazy>; add a browser-boot check (boot({lazy:true}) with the real index order) that KOS_CONTENT holds a stub for every index row before the first draw.",
+  "effort": "S",
+  "devices": [
+   "mac",
+   "ipadl",
+   "ipad",
+   "iphone",
+   "split",
+   "slide"
+  ],
+  "accounts": [
+   "sample"
+  ],
+  "phase1": null,
+  "regressionOf": null,
+  "invariants": [
+   "168",
+   "111"
+  ],
+  "area": "study-core",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "ST-45",
+  "severity": "P2",
+  "category": "bug",
+  "title": "Auto-log quiz misses re-creates entries on every redraw: Undo does not stick and a resolved miss comes back as a new open duplicate",
+  "detail": "With 'Auto-log quiz misses' on, answer a CS 4.2.1.2 quiz question wrong: one entry is logged (correct). (a) Tap the pill's Undo, go Home and back to the topic's Quiz tab: the picked-up attempt re-shows the answered question and a NEW entry is created (err_16vaze2nnh after the Undo). (b) Mark that entry resolved (hub or Drill), leave and come back the same day: a second, open entry with the same title is created (err_q0rnt02t03) beside the resolved one; openCount 1 → 2 and the rail count rises. Same for a finished attempt reopened (its last question is re-marked). Reproduced twice each.",
+  "rootCause": "js/engines/quiz.js:251 calls marked() for every already-answered question when an attempt is picked up (show()), and marked() passes auto: getSetting('autoLogQuiz') (quiz.js:306); js/core/errorlog.js:176-179 then quickLogs whenever no OPEN entry has the dedupeKey, so a resolved or undone entry is logged again",
+  "evidence": "eval sequence on Sample: Undo → Home → topic Quiz → items [exam-q, quiz open (new id)]; setStatus(resolved) → Home → topic Quiz → [resolved, open duplicate], openCount 2",
+  "fix": "Auto-log only from answer() (a fresh answer), never from a replayed marked(): pass auto only when the answer was just given. Optionally remember an undone dedupeKey for the run.",
+  "effort": "S",
+  "devices": [
+   "mac"
+  ],
+  "accounts": [
+   "sample"
+  ],
+  "phase1": "U7/U8 Error Log (Neon user-custom)",
+  "regressionOf": null,
+  "invariants": [
+   "167"
+  ],
+  "area": "study-core",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "ST-46",
+  "severity": "P2",
+  "category": "ui",
+  "title": "Error Log titles captured from quizzes and exam questions show raw markup ($LaTeX$, `code`, **bold**) and often the wrong line ('Write a program for:', a data line)",
+  "detail": "The capture builds an entry's title by stripping only HTML tags from the question's text before its first code fence; the hub, the Drill and the capture dialog print it as plain text. Measured over every quiz and exam item of CS, Maths and IT (5,240): 1,812 titles would carry raw $…$ LaTeX, 440 **bold**, 209 backticks, and 366 are under 25 characters because the real question sits after a code block ('Write a program for:', '**Figure 3:**', 'Hand-trace this algorithm with the inputs `4, 6, 3, 2, -1`:'). Example logged on Sample: CS 4.2.1.2 exam Q1 is titled \"`Items = [12, 25, 12, 53]`.\" (the data line, with its backticks) while the question is 'Dry run the algorithm with a table of …'.",
+  "rootCause": "js/engines/quiz.js:287 (quiz) and :667 (exam) take String(q).split(/\\n\\s*```/)[0] and strip only <tags>; js/modules/errorlog.js:732 (hub card h3) and :382 (Drill h2) render the title with text:, never KOS.content.inline + typeset",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/study-core/errorlog-hub-mac-sample-1.png; eval over KOS.content.get(sid,ref) quiz+exam items of every leaf: {latex:1812,bold:440,tick:209,short:366}",
+  "fix": "Render titles and context through KOS.content.inline (and typeset for Maths) in the hub, Drill and dialog; build the title from the question's asking sentence (the last prose paragraph when the stem opens with data or code) and keep the full stem in context.",
+  "effort": "M",
+  "devices": [
+   "mac",
+   "ipadl",
+   "ipad",
+   "iphone",
+   "split",
+   "slide"
+  ],
+  "accounts": [
+   "sample"
+  ],
+  "phase1": "U7/U8 Error Log; Neon study-cleanup (rich exam prompts)",
+  "regressionOf": null,
+  "invariants": [],
+  "area": "study-core",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "ST-47",
+  "severity": "P2",
+  "category": "bug",
+  "title": "'✓ Logged · Tag reason' (and every openCapture) does nothing when tapped before the Error Log bundle has loaded: it calls KOS.lazy.ensure, which does not exist",
+  "detail": "openCapture() opens the capture/edit dialog at once only when page-errorlog is already in; otherwise it asks KOS.lazy.ensure([...]), which is not part of KOS.lazy (need/ready/pending/all/warm/on/...). So a tap before the warm-up has fetched the bundle is silently dropped and never opens later. Reproduced on Sample: reload, then within ~1 s call the pill's path KOS.errorLog.openCapture(entry): after 5 s KOS.errorLogUI had loaded (warm-up) but no dialog ever opened (dialog: false). On a fast local server the warm-up lands ~3 s after boot; with Save-Data (warm() returns early, lazy.js:291), a slow or offline-first start, or a bundle that failed to fetch, the button stays dead until #/errorlog is visited. The same call backs exams' 'lost marks → Log mistake' (examreview.js:134) and the Handwritten tab's capture (inktab.js:149).",
+  "rootCause": "js/core/errorlog.js:166 — `if (KOS.lazy && KOS.lazy.ensure) KOS.lazy.ensure([\"page-errorlog\"], openNow)`; js/core/lazy.js exports need() (a promise), no ensure",
+  "evidence": "eval right after reload: {hadUIAtTap:false, uiNow:true, dialog:false}; typeof KOS.lazy.ensure === 'undefined'",
+  "fix": "KOS.lazy.need('page-errorlog').then(openNow) (as today.js:422 does for page-creatives), with a toast on failure; add a smoke that calls openCapture with the bundle unloaded (boot({lazy:true})).",
+  "effort": "S",
+  "devices": [
+   "mac",
+   "iphone",
+   "ipad"
+  ],
+  "accounts": [
+   "sample"
+  ],
+  "phase1": "U7/U8 Error Log; the 26 Nov move of the hub into page-errorlog",
+  "regressionOf": null,
+  "invariants": [
+   "168"
+  ],
+  "area": "study-core",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "ST-50",
+  "severity": "P2",
+  "category": "bug",
+  "title": "Due today's 'Today so far · Reviewed' and Accuracy count quiz answers and exam self-marks as reviewed cards",
+  "detail": "On Sample, rate a 17-card batch on CS 4.2.1.2 (17 distinct cards, 18 ratings) and answer two of its quiz questions (one right, one wrong). Review › Due today then reads 'Reviewed 19' and 'Accuracy 85%', while the batch said '17 reviewed', Card stats says 'Total reviews 18' and the session fallback above it computes 17. Every quiz answer and exam self-mark (keys q:/e:, src 'question'), redo item (x:) and Creatives theory card is counted, because the filter only excludes Code, Japanese and Mind keys. A student who does three 10-question quizzes and no flashcards sees 'Reviewed 30'.",
+  "rootCause": "js/core/reviewlog.js:99 isCard() = not /^(code|ja|mind):/ — it lets q:, e:, x: rows through; js/modules/due.js:268 counts its distinct keys as 'Reviewed' and g>=3 as accuracy",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/study-core/review-mac-sample-after17.png; eval: reviewLog.range(today) 20 rows, keys q:compsci:4.2.1.2:0 (g3) and :1 (g1) src 'question'; [data-ui~=review.today-n] '19', today-acc '85%'",
+  "fix": "Make isCard exclude src 'question'/'redo' (or key prefixes q:, e:, x:), or count only keys in KOS.srs.curriculumCards + custom cards, as Card stats does with inScope.",
+  "effort": "S",
+  "devices": [
+   "mac"
+  ],
+  "accounts": [
+   "sample"
+  ],
+  "phase1": "1A bk:study-core#1 (review counts from the review log)",
+  "regressionOf": null,
+  "invariants": [
+   "111c",
+   "26d"
+  ],
+  "area": "study-core",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "ST-51",
+  "severity": "P2",
+  "category": "bug",
+  "title": "The Sample account is built with no flashcard schedules: Due today, Card stats and every desk's Cards strip read empty (0 / 1,894)",
+  "detail": "Since 1A the sample builder is its own lazy bundle and runs as soon as it arrives, before the curriculum bundles: KOS.srs.cardsFor() returns no cards then, so the ~40 studied topics' card records (sample.js:66-73) are never written. Rebuilt from scratch on slot 3 (sample localStorage + every -sample IndexedDB deleted, switched back to Sample): sampleSeeded true, 283 sessions (72 flashcard sessions claiming 1,468 cards), but state.srs has 0 keys, while KOS.srs.cardsFor('compsci','4.1.1.1') returns 15 a few seconds later. Result on Sample: Due today '0 cards due', Card stats 'No review history in this scope', the CS desk's Review strip '0 due · — recall · 0 / 1894', topic inspectors 'Cards scheduled 0 / 17' on topics marked studied — the demo account the audits judge 'full' cannot show a review queue.",
+  "rootCause": "js/main.js:347-352 lazy.need('sample') then KOS.sample.ensure() with no wait for the content bundles; js/core/sample.js:67 KOS.srs.cardsFor(...) reads the not-yet-loaded curriculum (invariant 168: anything computed or saved must not miss). Introduced by 0c281eb7 (1A, 'the sample account leaves boot').",
+  "evidence": "eval after rebuild: {seeded:true, srs:0, sessions:283, cardsNow:15}; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/study-core/subject-compsci-mac-sample.png (Cards 0 / 1894)",
+  "fix": "Load the curriculum bundles the builder reads before seeding (KOS.lazy.need(['sample', 'cs-content', 'maths-content', 'it-content']) or a needsFor list in sample.js), and repair an already-seeded Sample namespace that has sampleSeeded but no srs.",
+  "effort": "S",
+  "devices": [
+   "mac",
+   "ipadl",
+   "ipad",
+   "iphone",
+   "split",
+   "slide"
+  ],
+  "accounts": [
+   "sample"
+  ],
+  "phase1": "1A (0c281eb7) sample.js as a lazy bundle",
+  "regressionOf": null,
+  "invariants": [
+   "168"
+  ],
+  "area": "study-core",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "ST-48",
+  "severity": "P3",
+  "category": "bug",
+  "title": "Quick Error Drill: the button's count ignores the hub's filters, and the Drill ignores type, source, status and search, so '(8)' opens 1 of 8 while 2 cards are shown",
+  "detail": "On the hub, filter by mistake type 'Careless / slip' (2 cards listed): the button still reads '▶ Quick Error Drill (8)' and opens 'DRILL · 1 OF 8'. From #/errorlog/compsci/4.2.1.2 (2 cards) the button reads (8) but opens 1 OF 2 (subject+topic are honoured, the rest are not). The filters also never reach the address, so clearing the topic chip leaves #/errorlog/compsci/4.2.1.2 and a reload brings the filter back.",
+  "rootCause": "js/modules/errorlog.js:510-516 — the header (built once in renderAll) counts openItems of all entries and passes only subject/topicRef; renderDrill (:330-333) filters by status 'open' + subject/topicRef only; paintList never calls KOS.router.replaceArg",
+  "evidence": "eval: {filtered:2, btn:'▶ Quick Error Drill (8)', k2:'DRILL · 1 OF 8'}; cold #/errorlog/compsci/4.2.1.2 → 2 cards, button (8), drill 1 OF 2",
+  "fix": "Count and drill the same set the list shows (pass the whole filter to the drill arg, or drill exactly the filtered open ids) and repaint the header count in paintList; mirror subject/topic into the route with replaceArg.",
+  "effort": "S",
+  "devices": [
+   "mac"
+  ],
+  "accounts": [
+   "sample"
+  ],
+  "phase1": "U7/U8 Error Log",
+  "regressionOf": null,
+  "invariants": [],
+  "area": "study-core",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "ST-49",
+  "severity": "P3",
+  "category": "bug",
+  "title": "Quick Error Drill: Undo on 'Marked resolved' restarts the drill at card 1 and loses the run's resolved/revisited tally",
+  "detail": "In the Drill, reveal card 1 of 8 and tap '✓ Got it' → 'DRILL · 2 OF 8' with a 'Marked resolved · Undo' toast. Tap Undo: the drill redraws from scratch at 'DRILL · 1 OF 8' (the undone card plus every card already done), and the end summary's counts restart at 0.",
+  "rootCause": "js/modules/errorlog.js:431 — the toast's run does E().setStatus(cur.id, prevSt); KOS.rerender(), which remounts renderDrill with idx 0 and fresh counters (its state lives in the render closure, not KOS.view.memo, invariant 166)",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/study-core/errorlog-drill-mac-sample.png; eval {a:'DRILL · 1 OF 8', b:'DRILL · 2 OF 8', afterUndo:'DRILL · 1 OF 8'}",
+  "fix": "Keep idx/resolvedN/revisitedN in KOS.view.memo, and on Undo step back one card (idx--, resolvedN--) and repaint instead of rerendering.",
+  "effort": "S",
+  "devices": [
+   "mac"
+  ],
+  "accounts": [
+   "sample"
+  ],
+  "phase1": "U7/U8 Error Log",
+  "regressionOf": null,
+  "invariants": [
+   "166"
+  ],
+  "area": "study-core",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "ST-53",
+  "severity": "P3",
+  "category": "layout",
+  "title": "Topic inspector: once a quiz has a score, 'Quiz best' and its value run together on the left ('Quiz best25% →') instead of the value sitting right like every other row",
+  "detail": "Finish a quiz on Maths S4.1 (3/12): the inspector row reads 'Quiz best25% →' hard against its label, while Card views, Quiz attempts, Recall today etc. right-align their value. Seen on mac (1470) and every width where the inspector shows.",
+  "rootCause": "js/modules/topic.js:931-932 wraps the value in a <button class='k-link k-insp-link'><strong>…</strong></button>; css/views/study.css:409 pushes only a DIRECT `strong` right (`.k-insp-list strong { margin-inline-start: auto }`) and .k-insp-link (study.css:1368) has no auto margin, so the button stays beside the span",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/study-core/topic-mathsS41-quizhistory-mac-sample.png; outerHTML <li><span>Quiz best</span><button class='k-link k-insp-link' …><strong>25%</strong> →</button></li>",
+  "fix": ".k-insp-list .k-insp-link { margin-inline-start: auto; } (css/views/study.css)",
+  "effort": "S",
+  "devices": [
+   "mac",
+   "ipadl"
+  ],
+  "accounts": [
+   "sample"
+  ],
+  "phase1": null,
+  "regressionOf": null,
+  "invariants": [
+   "26d"
+  ],
+  "area": "study-core",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "ST-54",
+  "severity": "P3",
+  "category": "layout",
+  "title": "Quiz history on a phone spends four lines on each question: the ✗ marks, the % and 'today' each get a row of their own",
+  "detail": "Open a quiz's History on iPhone (402) or Slide Over: each row is the question, then the marks on their own line, then the percentage alone at the right, then 'today' alone at the right — about 130 px a row, so twelve items fill five screens with mostly empty space. On the Mac the same row is one line.",
+  "rootCause": "css/views/study.css:1458-1459 — the phone tier makes the grid `minmax(0,1fr) 7ch` and spans marks and when across the whole row; the percentage is auto-placed after the marks (a third row) instead of beside the question",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/study-core/topic-mathsS41-quizhistory-iphone-sample.png",
+  "fix": "At that tier place .k-qz-hist-pct at grid-row 1 / column 2 and put marks and when together on row 2 (one flex line), so a row is two lines.",
+  "effort": "S",
+  "devices": [
+   "iphone",
+   "slide",
+   "split"
+  ],
+  "accounts": [
+   "sample"
+  ],
+  "phase1": null,
+  "regressionOf": null,
+  "invariants": [],
+  "area": "study-core",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "ST-55",
+  "severity": "P3",
+  "category": "data",
+  "title": "The same quiz miss logged from the topic and from Due's 'Questions back' makes two Error Log entries: the dedupe key uses the item's place in the mounted list, not its question key",
+  "detail": "On Sample, miss 'Which is NOT a binomial condition?' in Maths S4.1's Quiz tab and tap '+ Log mistake': entry keyed quiz:maths:S4.1:1:…. The same question asked back by Due today is mounted alone, so its pill computes quiz:maths:S4.1:0:… — it shows '+ Log mistake' instead of '✓ Logged', and a tap adds a second open entry for the same question (state.errorLog.items: …:1:Which is NOT… and …:0:Which is NOT…). Two different questions of a topic asked back on the same day are only kept apart by the 48-character text slice.",
+  "rootCause": "js/engines/quiz.js:300 dedupeKey = 'quiz:'+sid+':'+ref+':'+qi+':'+qPlain.slice(0,48), where qi is the index into the items passed to mountMCQ; js/modules/due.js:384 mounts [item] (qi always 0) although it passes the question's id as item.qk",
+  "evidence": "eval: KOS.quiz.mountMCQ(h,'maths','S4.1',[items[1]],{bare:true,…}) → wrong → pill '+ Log mistake' → keys [quiz:maths:S4.1:1:Which is NOT…, quiz:maths:S4.1:0:Which is NOT…]",
+  "fix": "Build the dedupeKey from the question's schedule key (qkeys[qi] / KOS.questions key 'q:sid:ref:id', which Due already supplies via item.qk) instead of the list position; same for the exam pill (quiz.js:679).",
+  "effort": "S",
+  "devices": [
+   "mac"
+  ],
+  "accounts": [
+   "sample"
+  ],
+  "phase1": "U7/U8 Error Log",
+  "regressionOf": null,
+  "invariants": [
+   "111c"
+  ],
+  "area": "study-core",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "ST-56",
+  "severity": "P3",
+  "category": "ui",
+  "title": "Due today › Questions back: after answering, the primary button reads 'See your score →' and does nothing; the working 'Next question →' sits below it",
+  "detail": "Open Review › Questions back (Sample, Maths S4.1 items due), answer the first question: the card shows a crimson 'See your score → ↵' and, under the card, the run's own 'Next question →'. Clicking 'See your score' leaves the same question on screen ('Question 1 of 3' before and after, quiz.result still hidden). On the Mac at 832 px the real Next is at the fold's edge, so the only visible action is the dead one; Enter (its ↵ hint) is bound to it too.",
+  "rootCause": "js/engines/quiz.js:242-246 always draws quiz.next ('See your score →' on the last of one item) and advance() (quiz.js:313-315) only scrolls to a result that a caller-owned run (own, opts.onFinish) never shows; opts.bare (js/modules/due.js:384) hides the header but not this button",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/study-core/review-questions-run-answered-mac-sample.png; eval {nextText:'See your score →↵', c1:'Question 1 of 3', after click c2:'Question 1 of 3', resultHidden:true}",
+  "fix": "With opts.bare (or own), do not draw quiz.next; let the run's own 'Next question →' take the primary style and the Enter key.",
+  "effort": "S",
+  "devices": [
+   "mac",
+   "iphone"
+  ],
+  "accounts": [
+   "sample"
+  ],
+  "phase1": null,
+  "regressionOf": null,
+  "invariants": [],
+  "area": "study-core",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "ST-57",
+  "severity": "P3",
+  "category": "layout",
+  "title": "Card stats › Due forecast on a phone: the 'over' and 'today' axis labels overprint ('overtoday')",
+  "detail": "On iPhone (402) the first two forecast bars are labelled 'over' (x 66-89) and 'today' (x 82-112): 7 px of overlap, read as one word 'overtoday'. Fine on mac (294-317 / 324-355) and iPad portrait (150-173 / 188-219).",
+  "rootCause": "js/modules/cardstats.js:291-295 labels two adjacent narrow bars (overdue, then today) with words; barChart gives each label only its bar's width",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/study-core/cardstats-iphone-sample.png; label rects at iphone over:66-89, today:82-112",
+  "fix": "Shorten to '!' / 'now' or label 'today' only below 560 px (the bar's hint still names it), or let barChart drop a label that would collide.",
+  "effort": "S",
+  "devices": [
+   "iphone",
+   "slide"
+  ],
+  "accounts": [
+   "sample"
+  ],
+  "phase1": null,
+  "regressionOf": null,
+  "invariants": [
+   "76"
+  ],
+  "area": "study-core",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "ST-90",
+  "severity": "P3",
+  "category": "data",
+  "title": "Home's 'Cards · N learnt' counts every schedule in state.srs: quiz questions and the cards the study clean-up removed — 290 on the copy, 212 real flashcards",
+  "detail": "Copy account, Home's hours card: '0 due Cards · 290 learnt'. Of the 290 schedules with reps>0, 212 are flashcards that exist (KOS.srs.allCards(), CS/Maths/Code), 56 are cards the clean-up removed (keys with no card: 4.5.1.1-4.5.1.3, 4.5.2.1, S1.1, S2.1 and two more) and 22 are Code quiz questions (q:code:1.1-1.5). So the label 'Cards … learnt' overstates by 78 (37%), and the number grows with every quiz answered. Measured twice (eval of KOS.store.state.srs against allCards and the rendered home.fact). The orphan part is noted in DI-30; the question part is new.",
+  "rootCause": "js/modules/home.js:1050 — learnt counts Object.keys(store.state.srs) with reps>0 and never asks KOS.questions.isKey or whether the card still exists (srs keys hold q:/e:/x: question schedules since 5.19).",
+  "evidence": "eval {learntAll:290, learntRealCards:212, orphan:56, learntQ:22, homeFact:'0 due Cards · 290 learnt'}; js/modules/home.js:1050",
+  "fix": "Count over KOS.srs.allCards() (KOS.srs.peek(c.key).reps>0), or at least skip KOS.questions.isKey(k); the same set Card stats uses.",
+  "effort": "S",
+  "devices": [
+   "mac",
+   "iphone"
+  ],
+  "accounts": [
+   "copy"
+  ],
+  "phase1": null,
+  "regressionOf": null,
+  "invariants": [
+   "26d",
+   "111c"
+  ],
+  "copyPass": true,
+  "area": "study-core",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "SY-38",
+  "severity": "P0",
+  "category": "data",
+  "title": "A pull that re-keys a colliding record while its editor is open makes Save overwrite the OTHER device's record (goals, assignments and every counter-id record edited by object)",
+  "detail": "Two devices each add a goal between syncs, both get goals.nextId = 10 (goals still mint per-device counter ids). On this device the goal editor is open on its goal 10 ('LOCAL goal: 10 h of CS', title edited to '…12 h… (edited)'). A pull lands: the merge correctly re-keys the local goal to 11 and keeps the other device's goal as 10 ('REMOTE goal: read 3 books', target 3). The editor stays open; Save writes the edited fields with G.update(existing.id = 10, …): final {id:11, 'LOCAL goal: 10 h of CS', target 10 — edit lost}, {id:10, 'LOCAL goal: 12 h of CS (edited)', target 10 — the other device's goal overwritten}. The next push sends the overwrite to the other device: its goal is gone everywhere, and the edit went to the wrong record. Same with an assignment holding a numeric id (k1.js: the other device's 'REMOTE lab report' maths/inProgress/40%/notes replaced by the local essay's fields). Reproduced at ipad (k1.js assignments, k2.js goals). New assignments, reminders and events take random ids since 1A, but goals, pacing rows, tracker entries, resources, wishlist items, todo items and oop classes still mint counter ids (cloudmerge.js RECORDS), so a collision needs only two devices adding a record before they sync.",
+  "rootCause": "js/core/store.js:807-822 assignList (applyDoc, used by replaceState since 1A bk:data-integrity#5) keeps object identity BY ID: after cloudmerge re-keys the local record (cloudmerge.js:66-110 RECORDS, invariant 33a), the object that held the local record is matched to the merged record that now owns its old id — the OTHER device's — and filled with its fields; the re-keyed local record becomes a new object. Editors hold the record object and save by its id: js/modules/goals.js:1048/1076 G.update(existing.id, fields), js/modules/assignments.js:356/443 A().update(existing.id, patch). Before 1A the held object was detached but the save by id hit the same wrong record. The editor neither learns that its record was re-keyed nor checks that the record it saves is still the one it loaded.",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/sync-disruption/k2.js (ipad): afterPull [{id:11,'LOCAL goal: 10 h of CS'},{id:10,'REMOTE goal: read 3 books',target:3}] → final [{id:11,'LOCAL goal: 10 h of CS'},{id:10,'LOCAL goal: 12 h of CS (edited)',target:10}]; k1.js (ipad): assignment 9999 'REMOTE lab report (other device)' maths → final 'LOCAL essay (this device)' compsci notes 'EDITED in the editor'",
+  "fix": "In applyDoc/assignList, do not reuse a dst object for a src record of a different identity: when the merge re-keyed a record, move the old object to the NEW id (carry a re-key map out of cloudmerge, as refs are rewritten) so references follow their own record; and have editors save against the record they loaded (a createdAt/syncId check, or KOS.store.idOf through the re-key map) and refuse with 'This record changed on another device' otherwise. Finish moving goals (and the other counter arrays) to KOS.store.newId random ids.",
+  "effort": "M",
+  "devices": [
+   "ipad"
+  ],
+  "accounts": [
+   "dense"
+  ],
+  "phase1": "None as cause: saving by the held id hit the other device's record before 1A too; 1A's in-place applyDoc (bk:data-integrity#5) now also fills the held object with the other device's fields",
+  "regressionOf": null,
+  "invariants": [
+   "33a",
+   "33d",
+   "36a"
+  ],
+  "area": "sync-disruption",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "SY-33",
+  "severity": "P1",
+  "category": "bug",
+  "title": "Mind's card reviews (#/mind cards page and the Daily 15) throw 'KOS.fsrs.recall is not a function' on every card already reviewed once: the page is half drawn and the address stays on the previous page",
+  "detail": "Rate a Mind card once through KOS.mind.rateCard (a real record: {reps:1, s:2.31, d:2.12, last, due}); when it is due again, open 'Review my Mind cards' (KOS.show('mind',{page:'cards'})). KOS.show throws TypeError: KOS.fsrs.recall is not a function (mind.js:937 via flashcards.js:94 historyLine ← show :358). The view is left part-drawn: the card shows but the history line, the deck line, the info panel (THIS DECK empty) and the per-card answer pad set-up never run; the router never records the page, so the address stays '#/home' (a reload or Back goes elsewhere) and state.ui.view is not saved. Every later reviewed card throws again on show (3 uncaught exceptions in 10 ratings); ⓘ Card stats (metricsPanel → srs.memory) throws the same. Only a card never reviewed (no reps, no s) draws. Ratings still land in Think/Type mode. From the second review of any card on, this is the normal case. Reproduced at ipad 3 times (m3–m6.js). Found while checking the Phase 1 move of #/mind cards onto the shared flashcard session.",
+  "rootCause": "js/modules/mind.js:937 — mindSrs().memory calls KOS.fsrs.recall(m.s, el), which does not exist; js/core/fsrs.js:209-226 exports retrievability(), not recall (introduced by 29ee1108, Phase 1 T3). Used by js/engines/flashcards.js:68 (metricsPanel) and :94 (historyLine).",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/sync-disruption/mind-cards-reviewed-ipad-dense.png; m5.js {err:'TypeError: KOS.fsrs.recall is not a function', hash:'#/home'} with console EXC ×3 at mind.js:937; m4.js (10 ratings, 3 exceptions)",
+  "fix": "Use KOS.fsrs.retrievability(el, m.s) (check its argument order in fsrs.js:45) in mindSrs().memory, and add a smoke case that shows a reviewed Mind card through KOS.flashcards.session.",
+  "effort": "S",
+  "devices": [
+   "ipad"
+  ],
+  "accounts": [
+   "dense"
+  ],
+  "phase1": "T3 (29ee1108) — Mind flashcards on the shared session",
+  "regressionOf": null,
+  "invariants": [
+   "111",
+   "137"
+  ],
+  "area": "sync-disruption",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "SY-28",
+  "severity": "P2",
+  "category": "bug",
+  "title": "A held update becomes invisible when a topic's Flashcards tab gives way to Quiz (or the deck is remounted after Edit › Done): no chip, no run line, nothing applied",
+  "detail": "Topic #/ref/compsci/4.5.2.1, Flashcards tab open (deck mounted, no card rated). A pull moves progress for this topic: the run line reads 'Updated on another device · it applies when this run ends' and no chip is made. Tap the Quiz tab: KOS.changes.pending() stays {source:'device', why:'task'} but the page shows no chip and the quiz's own run line is hidden and empty (E2: chip null, runLine null). The same after the study editor's Done on the Flashcards tab (the deck remounts with a fresh hidden line). The change only lands when the reader opens a tab without a run (Exam, Notes) or leaves. Measured twice at ipad and split. Expected (165): the chip, or the run line, says what is held for as long as it is held.",
+  "rootCause": "js/core/redraw.js:513-521 — showChip() writes into the run slot and returns before paintChip(), so no chip exists; js/engines/flashcards.js:189 and js/engines/quiz.js:206 mount every new deck/quiz with a hidden, empty [data-run-line] and never call KOS.changes.place() on mount (only at finish, flashcards.js:469, quiz.js:337); the tab click's safePoint (redraw.js:595-600) refuses because runSlot() is truthy (redraw.js:591) and does not re-show anything.",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/sync-disruption/t4.js output (ipad and split): E1 runLine set, E2 {chip:null, runLine:null, pending:{why:'task'}}, E3 applied on Exam tab; t2.js/p4.js: after editor Done {rl:[{hidden:true, txt:''}], chip:null, held:{count:1, areas:{edits:1}}}",
+  "fix": "When safePoint() refuses (or on every tab click with pending), call showChip(); or have the flashcard and quiz engines call KOS.changes.place() once when they mount their heldLine.",
+  "effort": "S",
+  "devices": [
+   "ipad",
+   "split"
+  ],
+  "accounts": [
+   "dense"
+  ],
+  "phase1": null,
+  "regressionOf": null,
+  "invariants": [
+   "165"
+  ],
+  "area": "sync-disruption",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "SY-29",
+  "severity": "P2",
+  "category": "layout",
+  "title": "The held-update chip squeezes a topic's title row: the title and breadcrumb rewrap and the notes jump down 54–125 px under the reader when a pull arrives",
+  "detail": "On a topic page scrolled to the top (#/ref/compsci/4.5.4.3, #/ref/code/1.3), a pull that the page reads shows the 257 px chip in the title row. The title (and the breadcrumb under it) rewraps to more lines, so the notes body moves down while the reader is reading it: CS topic notes y 373→427 (ipad), 319→373 (ipadl), 257→347 (mac); Code 1.3 at ipad the header grows 85→210 px and the notes move 316→441 (title on three lines, breadcrumb on two). Split (590) does not move. Further down the page Chrome's scroll anchoring hides it, but at the top nothing compensates (and Safari's anchoring is weaker). Reproduced on each run (twice per size). Invariant 165 says nothing moves under the reader; the chip itself moves the page.",
+  "rootCause": "js/core/redraw.js:483 chipHost() puts the chip in `.k-topic-head .k-topic-steps` (inserted before ‹ ›, :527); css/views/study.css:186/193 — .k-topic-head is a flex row and .k-topic-steps takes its content width from the title column, so a 257 px chip narrows the title by that much.",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/sync-disruption/topic-chip-shift-mac-dense.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/sync-disruption/code-lesson-chip-ipad-dense.png; t11.js {h0:85.2, h1:210.3, notesY0:316, notesY1:441} (ipad), split unchanged; t12.js per size",
+  "fix": "Give the chip a slot that does not share the title's row width: absolutely position it in the head's actions corner, reserve its inline space up front (the steps' min-inline-size), or ride the tabs row/foot as the phone does; then a chip appearing never reflows the title.",
+  "effort": "S",
+  "devices": [
+   "mac",
+   "ipadl",
+   "ipad"
+  ],
+  "accounts": [
+   "dense"
+  ],
+  "phase1": null,
+  "regressionOf": null,
+  "invariants": [
+   "165"
+  ],
+  "area": "sync-disruption",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "SY-30",
+  "severity": "P2",
+  "category": "bug",
+  "title": "Focus's set-up form (mode, subject, nudge, limit) resets to the last session's settings when another device's or tab's session lands",
+  "detail": "#/focus with no session running. Pick Stopwatch, a 90-minute nudge and the subject Maths (nothing started yet), wait 4.5 s, then a pull that adds a session from another device (sessions moved). The page redraws at once (not a task page, nothing held) and the form comes back as Pomodoro 25/5, nudge 50, subject '' — measured twice (ipad, mac): before {mode:'Stopwatch', ns:'90', subj:'maths'} → after {mode:'Pomodoro 25 / 5', ns:'50', subj:''}. Only the typed objective survives (the typed-text rule). The reader who then taps Start runs a session with the wrong mode and no subject (its pay and the subject's study time follow the subject, invariant 4a). Also with another tab as the source on the Empty account (ea1/eb1/ea2.js: Stopwatch → 'Pomodoro 25 / 5' after tab B saved a session).",
+  "rootCause": "js/modules/focus.js:2263-2290 — the set-up is rebuilt on every render from F().lastConfig (cfg) and held only in the render's closure and controls; js/core/redraw.js:75 READS.focus includes sessions/governor/progress, and focus is neither in TASK (redraw.js:102) nor guarded by KOS.view.hold, so a background change redraws the form at once (redraw.js:657); restore() puts back only text fields (redraw.js:273-277), never selects or the mode buttons.",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/sync-disruption/f3.js output (ipad, mac); f2.js (objective kept, nudge select reverted 90→50)",
+  "fix": "Keep the unsaved set-up in KOS.view.memo('focus.setup') (seeded from lastConfig once per visit) so a redraw draws the reader's choices, or KOS.view.hold() while the form differs from lastConfig.",
+  "effort": "S",
+  "devices": [
+   "ipad",
+   "mac"
+  ],
+  "accounts": [
+   "dense",
+   "empty"
+  ],
+  "phase1": null,
+  "regressionOf": null,
+  "invariants": [
+   "165",
+   "4e"
+  ],
+  "area": "sync-disruption",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "SY-31",
+  "severity": "P2",
+  "category": "bug",
+  "title": "The Error Log's Quick Error Drill starts over at item 1 on Refresh, on the two-minute safe moment and on its own Undo — the place, the revealed card and the run's tallies are lost",
+  "detail": "#/errorlog/drill with 6 open mistakes. Mark two 'Still shaky' (DRILL · 3 OF 6). A pull that moves srs (the drill page reads errorLog/custom/srs) shows the chip correctly and keeps the page; but Refresh (KOS.changes.apply) or the idle safe moment (KOS.changes.safePoint('idle'), what 2 minutes untouched does by itself) redraws it as DRILL · 1 OF 6, unrevealed, with resolvedN/revisitedN back to 0, and the two items just marked come round again. The same with the Undo on 'Marked resolved.' (3 OF 6 → 1 OF 6). A Refresh with nothing relevant also restarts it (3 OF 6 → 1 OF 5). Measured twice (ipad, split). The chip's Refresh promises 'your place is kept'.",
+  "rootCause": "js/modules/errorlog.js:328-334 — renderDrill keeps queue, idx, revealed, resolvedN and revisitedN in the render's closure and recomputes the queue from E().all({status:'open'}) on every render; :442 the Undo runs a plain KOS.rerender(); errorlog is a TASK page (js/core/redraw.js:103) but has no [data-run-line], so safePoint (redraw.js:587-594) applies the held change mid-drill.",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/sync-disruption/e1.js (ipad) {k1:'DRILL · 3 OF 6', kApply:'DRILL · 1 OF 5', revealedApply:false}; e2.js (ipad, split) {kPull:'3 OF 6', kIdle:'1 OF 6', kBeforeUndo:'3 OF 6', kAfterUndo:'1 OF 6'}",
+  "fix": "Keep the drill's queue ids, idx, revealed and tallies in KOS.view.memo('errorlog.drill') (or KOS.sessions.run as the flashcard runs do) and draw from it; mark the drill a run (a [data-run-line] under its kicker) so nothing applies mid-drill; repaint() instead of KOS.rerender() in the Undo.",
+  "effort": "S",
+  "devices": [
+   "ipad",
+   "split"
+  ],
+  "accounts": [
+   "dense"
+  ],
+  "phase1": "U7 (5cbda7e2) — the Universal Error Log",
+  "regressionOf": null,
+  "invariants": [
+   "165",
+   "166"
+  ],
+  "area": "sync-disruption",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "SY-37",
+  "severity": "P2",
+  "category": "bug",
+  "title": "Closing a dialog that opened while focus was on #main (the Daily Review, an unlock, any dialog not opened by a tap) throws the page back to the top",
+  "detail": "After any navigation the router focuses #main. On #/ref/compsci/4.5.4.3 (Page 3 of 7) scroll #stage to 500, open the Daily Review (KOS.reviewSheet.open('evening'), as its auto-open and the header chip's keyboard path do), then Later: the review changes nothing the page reads (KOS.rerender soft with changed [] — no redraw), yet #stage scrolls to 0 at the moment the dialog closes (one scroll event, 500→0). Same at mac (429→0). The page and its note page are kept, only the reader's place in it is lost. Any dialog opened while document.activeElement is #main does it (programmatic opens: the review's auto-open, the unlock overlay, Leave without saving?, a confirm from a keyboard shortcut). Reproduced twice per size (r1.js, r2.js). Not the redraw: the dialog's focus return.",
+  "rootCause": "js/core/ui.js:211 restoreTo = document.activeElement (#main after a navigation) and :275-277 teardown() calls restoreTo.focus() without {preventScroll: true}; focusing #main scrolls its top into view in #stage.",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/sync-disruption/r2.js ipad {a0:'MAIN', whileOpen:500, rr:1, rrArg:'{background:soft, changed:[]}', after50:0, ev:[[1431,0]]}; mac {whileOpen:429, after:0}",
+  "fix": "restoreTo.focus({preventScroll: true}) in teardown (and in the same restore paths in mobile-shell.js if any); invariant 165 keeps the page scroll on every redraw, and a dialog closing should not be the one thing that moves it.",
+  "effort": "S",
+  "devices": [
+   "ipad",
+   "mac"
+  ],
+  "accounts": [
+   "dense"
+  ],
+  "phase1": null,
+  "regressionOf": null,
+  "invariants": [
+   "65",
+   "165",
+   "49"
+  ],
+  "area": "sync-disruption",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "SY-40",
+  "severity": "P2",
+  "category": "bug",
+  "title": "Confirming 'Update ready · Reload now' in one tab reloads every other open tab at once, without asking — a page that holds unsaved work (Edit your seat's draft, an open editor or capture sheet, typed text) loses it",
+  "detail": "Tab B on #/governor/edit with an unsaved change (KOS.view.dirty() true: its guard would ask 'Leave without saving?' on navigation). In tab A the reader confirms the update (pwa.js offerUpdate → SKIP_WAITING): every tab gets controllerchange. Simulated in tab B by dispatching controllerchange on navigator.serviceWorker (the controller exists): tab B reloads within 3 s (the CDP target navigates), comes back on #/governor/edit with dirty false — the draft is gone. Reproduced at ipad and split (u1.js/u2.js). The prompt says 'Your data is unaffected either way'; unsaved drafts, a typed capture sheet or editor field in the other tab are not.",
+  "rootCause": "js/core/pwa.js:96-101 — the controllerchange handler calls KOS.pwa.reloadPage() whenever the tab had a controller; reloadPage (pwa.js:146-152) flushes the store but never consults KOS.view.dirty()/holding() or an open dialog, unlike KOS.show's guard (js/core/redraw.js:151-163, invariant 166).",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/sync-disruption/u1.js (tab B, ipad and split): {dirty:true, ctrl:true} then 'Inspected target navigated or closed'; u2.js after reload {marker:null, dirty:false, h:'#/governor/edit'}",
+  "fix": "In the controllerchange handler of a tab that did not confirm: if KOS.view.dirty() or a dialog/field holds work, show a chip/toast 'Updated — reload when ready' (or the guard's confirm) instead of reloading; reload by itself only when nothing would be lost.",
+  "effort": "S",
+  "devices": [
+   "ipad",
+   "split"
+  ],
+  "accounts": [
+   "dense"
+  ],
+  "phase1": null,
+  "regressionOf": null,
+  "invariants": [
+   "38",
+   "166"
+  ],
+  "area": "sync-disruption",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "SY-32",
+  "severity": "P3",
+  "category": "bug",
+  "title": "Pacing's Shift confirms a different set of rows from the one previewed when a pull lands while the dialog is open (preview 252, shifted 254)",
+  "detail": "#/pacing › Shift plan… › Both › Preview → '252 rows moving'. While step 2 is open, a pull adds two My plan rows from another device in a coming week (the page change is correctly held: pending why 'dialog'). The preview is not redrawn and still says 252; Confirm shift toasts 'Shifted 254 rows 1 week later' — the two rows the reader never saw moved too. Undo puts them back. Reproduced twice at ipad.",
+  "rootCause": "js/modules/pacing.js:778-781 — Confirm calls KOS.pacing.shiftPlan(n, opts), which recomputes shiftPreview() against the live state (pacing.js:183-188) instead of applying the moves the reader previewed (renderStep2's pv); the dialog has no change listener (KOS.changes.on) to repaint step 2 when pacing moves.",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/sync-disruption/pc2.js (ipad): {chips:'252 rows moving', afterPull chips:'252 rows moving', toast:'Shifted 254 rows 1 week later · 1 week added'}",
+  "fix": "Pass the previewed move ids to shiftPlan (move only those still present), or repaint step 2 from KOS.changes.on when 'pacing' moves and say 'The plan changed on another device — preview updated'.",
+  "effort": "S",
+  "devices": [
+   "ipad"
+  ],
+  "accounts": [
+   "dense"
+  ],
+  "phase1": "U4 (25a1b650) — the 2-step Shift preview",
+  "regressionOf": null,
+  "invariants": [
+   "84",
+   "165"
+  ],
+  "area": "sync-disruption",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "SY-34",
+  "severity": "P3",
+  "category": "bug",
+  "title": "A redraw in the middle of 'Review my Mind cards' logs the run so far and starts a new one: two ledger entries for one sitting, and the progress restarts",
+  "detail": "Mind's card page (KOS.show('mind',{page:'cards'})) with 12 due cards: rate 3 (Question · 9 left of 12, no ledger entry yet), then any redraw of the page (KOS.rerender(): the Journal-ready redraw mind.js:231 after a fresh load, or a Refresh) → the page logs a 'mind' reviews entry for the 3 (ledger +1) and draws a new run 'Question · 9 left of 9'; rate 2 more and leave → a second entry (cards 2). One sitting = 2 entries {cards:3},{cards:2}. Pay is per passed card under the daily cap, so the XP total is right, but the run's pips and 'N cards rated' restart and the ledger shows two sessions. The Daily 15 keeps its results in state.ui and does not split. Reproduced twice at ipad.",
+  "rootCause": "js/modules/mind.js:958-965 — cardsPage keeps results/logged in the render's closure and registers finishOnce with KOS.view.onDispose, which runs on every render end including a redraw (js/core/redraw.js:126-133, endRender), not only on leaving; no KOS.sessions.run record is kept, unlike the Daily 15 (mind.js:692, ui.daily).",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/sync-disruption/m7.js (ipad): {c3:'Question · 9 left of 12', l3:0, cAfter:'Question · 9 left of 9', lAfter:1, lEnd:2, entries:[{cards:3},{cards:2}]}",
+  "fix": "Keep the run's results in KOS.view.memo('mind.cards') (or state.ui like the Daily 15) and log in onDispose only when {leaving: true}; or use KOS.sessions.upsert with a sid as the other runs do (invariant 167).",
+  "effort": "S",
+  "devices": [
+   "ipad"
+  ],
+  "accounts": [
+   "dense"
+  ],
+  "phase1": "mind#3 (328e6856) / T3 (29ee1108) — Mind cards outside the Daily 15",
+  "regressionOf": null,
+  "invariants": [
+   "5",
+   "167"
+  ],
+  "area": "sync-disruption",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "SY-35",
+  "severity": "P3",
+  "category": "ui",
+  "title": "A redraw of a Japanese session renumbers it ('4 / 10' becomes '1 / 7') and says 'Picked up · 3 answered', as if the reader had left",
+  "detail": "#/japanese/session/learn-H2: answer three (4 / 10, せ on screen), then a redraw (the chip's Refresh, KOS.changes.apply). The same question comes back with the typed answer kept (SY-09 is fixed: nothing is lost, one ledger entry), but the counter restarts at '1 / 7' and a 'Picked up · 3 answered' chip appears. Invariant 167: a redraw of the page says nothing; the counter should keep counting the session. Reproduced at ipad and split (j6.js).",
+  "rootCause": "js/modules/jarun.js:438-450 — restore() runs on every render and sets resumed = true whenever the run record has results, without telling a redraw (KOS.ui.redrawing / KOS.view.memo) from a return; :462 draws the chip from it; the progress counts only the rebuilt list of what is still to ask.",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/sync-disruption/j6.js: ipad {before:'4 / 10 せ', after:'1 / 7 せ', val:'typed-for-せ', resumedChip:true}; split {before:'4 / 7 ち', after:'1 / 4 ち', resumedChip:true}",
+  "fix": "Mark the visit in KOS.view.memo('ja.run') and show the chip only when the record predates this visit; count the position as results.length + index of the list (total = answered + still to ask).",
+  "effort": "S",
+  "devices": [
+   "ipad",
+   "split"
+  ],
+  "accounts": [
+   "dense"
+  ],
+  "phase1": null,
+  "regressionOf": null,
+  "invariants": [
+   "167"
+  ],
+  "area": "sync-disruption",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "SY-36",
+  "severity": "P3",
+  "category": "a11y",
+  "title": "Creatives' Writing Desk loses keyboard focus and the caret on every redraw (and after ▶ Start a sprint): the paper is drawn after an IndexedDB read, after the redraw has tried to restore focus",
+  "detail": "#/creatives/write/<draft>: focus the paper (cr.paper) with the caret at 3, then a redraw (KOS.rerender(), what the desk's own Sprint button and a Refresh do). Focus lands on <body> at 50 ms and stays there; the new paper exists only after the draft loads. Measured at ipad and mac (c3.js: before 'cr.paper', a50 'BODY', a850 'BODY'). The text survives (the desk saves its own draft), so nothing is lost, but on the iPad the keyboard closes and the caret is gone; 'Start a sprint' calls area.focus() on the old, detached textarea (crwrite.js:196-197). A topic's quick note, drawn synchronously, keeps focus (c4.js).",
+  "rootCause": "js/modules/crwrite.js:28 (load via F().get, async) — the desk and its paper (:114) mount in the callback, after js/core/redraw.js:388 restore(cap) has run synchronously; again() (redraw.js:393-401) re-puts scroll only, never focus; crwrite.js:196-197 focuses the pre-redraw node.",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/sync-disruption/c3.js (ipad, mac) {before:'cr.paper', a50:'BODY|null', a850:'BODY|null', same:false}; c4.js paperSync:false right after KOS.show",
+  "fix": "In redraw.js again(), retry the focus restore (findAgain) while focus is still on body and the reader has not acted; or keep the open draft in KOS.view.memo so the desk draws synchronously on a redraw; in the sprint, focus the paper found after the redraw.",
+  "effort": "S",
+  "devices": [
+   "ipad",
+   "mac"
+  ],
+  "accounts": [
+   "dense"
+  ],
+  "phase1": null,
+  "regressionOf": null,
+  "invariants": [
+   "65",
+   "165"
+  ],
+  "area": "sync-disruption",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "SY-39",
+  "severity": "P3",
+  "category": "bug",
+  "title": "A Google Calendar or Todoist/Google Tasks pull still never reaches the open Calendar or Reminders page (no redraw, no chip) — November's SY-17, marked fixed by W2",
+  "detail": "On #/reminders, a provider pull's write (KOS.ext.inbound(() => KOS.reminders.add(…)) then KOS.ext.changed(), the path exttasks.js:434 takes) leaves the page as it was, with nothing pending (KOS.changes.pending() null) — the reminder appears only on the next redraw (x2.js: before false, after KOS.rerender() true). The same on #/calendar for an event written as extgcal.js:355 does. Waited 3.5 s after 4.3 s untouched; ipad and mac. Only the Connections page listens (connections.js:182). Provider calls were not made (no sign-in in the harness): the write path was driven directly.",
+  "rootCause": "js/core/ext.js:467-477 syncAll ends with changed() (ext.js:394), which calls only KOS.ext.onChange listeners; neither ext.js, extgcal.js nor exttasks.js calls KOS.changes.note(['reminders'|'calendar'], {source:'device'}) after an inbound write, so the change bus (js/core/redraw.js:640-680, invariant 164) never hears of it. Only the read-only copy notes 'ext:gcal' at boot (ext.js:509).",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/sync-disruption/x1.js (ipad, mac): {remShown:false, inState:true, pending:null, calShown:false, calPending:null}; x2.js {before:false, afterRedraw:true}",
+  "fix": "At the end of syncAll (or per provider in runProvider), diff KOS.changes.snapshot() around the inbound writes and call KOS.changes.note(moved, {source:'device'}) so the page redraws or shows the chip like any other background change.",
+  "effort": "S",
+  "devices": [
+   "ipad",
+   "mac"
+  ],
+  "accounts": [
+   "dense"
+  ],
+  "phase1": null,
+  "regressionOf": "SY-17",
+  "invariants": [
+   "164",
+   "158"
+  ],
+  "area": "sync-disruption",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "DI-33",
+  "severity": "P1",
+  "category": "data",
+  "title": "Taking a document in place (cloud land, another tab's save, Restore) merges two rows that share an id into one object: the first row's data is overwritten and saved",
+  "detail": "store.js applyDoc → assignDeep → assignList keeps each row's identity by indexing the CURRENT array by typeof+id and, for every incoming row, re-using the matching current object. When an array holds two rows with the same id, both incoming rows map to the SAME current object: it is assigned the first row, then overwritten with the second, and pushed twice. Measured in the test harness, twice each: (1) Daily Review picks — dayReview.days[d].morning.three = [{kind:'reminder',id:3},{kind:'assignment',id:3},{kind:'event',id:7}] through KOS.store.replaceState(copy of the same state) → memory AND localStorage hold [{assignment 3},{assignment 3},{event 7}]: the reminder pick is gone (review_three_apply.js). Old reminders and assignments both counted from 1 (pre-1A), so a review naming 'reminder 12' and 'assignment 12' is ordinary data. (2) Two ledger entries with id 5 (a focus session on 1 Sep, a quiz on 2 Sep) → after replaceState localStorage holds two copies of the quiz; the focus session, its minutes and its day are lost (dupid_apply.js: storedBefore [[5,1000,'focus'],[5,2000,'quiz']] → storedAfter [[5,2000,'quiz'],[5,2000,'quiz']]). js/core/sessions.js:32-34 says older ledgers may already hold such duplicate ids. The same path runs on EVERY cloud document landing (33d, since 1A 373d8104), every adopt of another tab's write (33c takeIn, since RC5 af71fd27) and every Restore or checkpoint restore (importFull → replaceState) — so the safety net itself corrupts what it restores. KOS.cloudmerge.merge on the same document does not (it re-keys the duplicate, 5 → 6). The user's own data copy was not available, so whether their ledger holds duplicate-id sessions is unmeasured; if it does, this is silent ledger loss on every pull (P0 grade). The seeded test account holds none (dupscan.js).",
+  "rootCause": "js/core/store.js:807-822 — assignList builds byId from dst and returns the same matched object for every src row with that key (no 'used' marker, no check that ids are unique within the array); arrays of refs like the review's {kind,id} picks share ids across kinds by design.",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/data-integrity/review_three_apply.js → {\"memory\":[{\"kind\":\"assignment\",\"id\":3},{\"kind\":\"assignment\",\"id\":3},{\"kind\":\"event\",\"id\":7}],\"stored\":[same]}; dupid_apply.js + inline probe → storedAfter [[5,2000,\"quiz\"],[5,2000,\"quiz\"]], mergeSame [[6,1000,\"focus\"],[5,2000,\"quiz\"]]",
+  "fix": "In assignList re-use a dst object at most once (delete it from byId when taken) and fall back to plain replacement for an array whose src ids are not unique (or whose rows carry `kind`: key such rows by kind+id). Add a smoke196 case: duplicate ids and mixed-kind {kind,id} picks survive replaceState, takeIn and importFull unchanged.",
+  "effort": "S",
+  "devices": [
+   "mac",
+   "ipad",
+   "iphone"
+  ],
+  "accounts": [
+   "dense"
+  ],
+  "phase1": "1A (373d8104) — replaceState in place; the tab adopt path since RC5 (af71fd27)",
+  "regressionOf": null,
+  "invariants": [
+   "33c",
+   "33d",
+   "1a"
+  ],
+  "area": "data-integrity",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "DI-28",
+  "severity": "P2",
+  "category": "data",
+  "title": "The merge's re-key misses four stored event/session ids: a session's metrics.eventId, focus.active.eventId, an assessment's links.calendarId and a correction's metrics.reverses",
+  "detail": "Invariant 33a says EVERY place an id is stored is listed in RECORDS[].refs, so a re-keyed record keeps its links. Measured with KOS.cloudmerge.merge in the test harness (merge_refs.js T1, T3): a first link (no base) of two devices that each hold an old numeric calendar event id 7 (pre-1A records keep their numbers) re-keys the local event to 8 and rewrites calendar.notified, goals links.eventId and the Daily Review picks, but leaves (a) the local Focus session's metrics.eventId = 7, (b) focus.active.eventId = 7 and (c) the local assessment's links.calendarId = 7 all pointing at the REMOTE event 7 ('CS deadline'). (a) is read by Today's directives (js/modules/todo.js:42, HR-29: minutes worked on an event are counted BY metrics.eventId), so that day's 50 study minutes count towards the other device's deadline and the study block loses them; (b) is logged into metrics.eventId when the running session ends (js/modules/focus.js:743); (c) feeds the derived event's alertKey (js/core/exams.js:484). Likewise a re-keyed session (sessions are counter ids and are re-keyed, T3: local 2 -> 4) leaves its Undo correction's metrics.reverses = 2 naming the remote quiz entry (written js/core/sessions.js:231; nothing reads it today, so (d) is latent). New events have random ids since 1A, so the window is: pre-1A numeric events, or any no-base merge (first link of two devices with history).",
+  "rootCause": "js/core/cloudmerge.js:63-66 — the calendar.events spec lists refs notified, goals links.eventId and review only; no {kind:'deep', path:'sessions', field:'metrics.eventId'}, {kind:'deep', path:'focus.active', one:true, field:'eventId'} or {kind:'deep', path:'exams.assessments', map:true, field:'links.calendarId'}; the sessions spec (cloudmerge.js:52) has no refs at all (metrics.reverses).",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/data-integrity/merge_refs.js — T1 {rekeyed:2, events:[[8,'Maths study block'],[7,'CS deadline']], sessions:[[3,'media',null],[4,'focus',7]], focusActiveEventId:7, assessmentCalendarId:7}; T3 correction [3,'correction',2] after local 2 re-keyed to 4; run twice, same result",
+  "fix": "Add the three deep refs to calendar.events and a {kind:'deep', path:'sessions', field:'metrics.reverses'} ref to sessions in RECORDS; extend smoke143 D's every-place check to them.",
+  "effort": "S",
+  "devices": [
+   "mac",
+   "ipad"
+  ],
+  "accounts": [
+   "dense"
+  ],
+  "phase1": "1A (62e9e162) — random ids for new events narrowed but did not close it",
+  "regressionOf": null,
+  "invariants": [
+   "33a"
+  ],
+  "area": "data-integrity",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "DI-29",
+  "severity": "P2",
+  "category": "data",
+  "title": "A first link drops this device's Pacing row customisations (U4 hidden, order, day): pacingTouched does not see them, so the account's plan replaces it",
+  "detail": "U4 added per-row `hidden`, `order` and `day` to Pacing rows. The first-link (no-base) merge replaces this device's whole `pacing` with the account's whenever `pacingTouched` says the device never touched its plan (stripSeeds, js/core/cloudsync.js:474), and `KOS.cloudsync.userData` uses the same test to decide whether the device holds data at all. Measured in the test harness (userdata_u4.js, run twice): on a pristine boot (252 seeded rows) setting entries[0].hidden = true, or order on two rows, or day = 4, leaves userData() === null; flipping `done` returns 'pacing'. So a device whose plan edits are only hides, reorders or weekday moves (and any device at all, when its other data is elsewhere) has those edits overwritten by the account's plan on its first sign-in: hidden rows come back, the order and weekdays reset. The same test also ignores the Daily Review's configuration (`dayReview.config`, incl. U6's per-day slot times): a device whose only change is its review times reads as pristine (userData null) and adopts the account's.",
+  "rootCause": "js/core/cloudsync.js:384-397 — pacingTouched compares done, note, sat, lessonDays, tag, wb and title against the seed row, not hidden, order or day; js/core/cloudsync.js:474 take('pacing') then replaces the device's plan; dayReview.config is in neither SETTINGS (321) nor EVIDENCE_MAPS (306).",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/data-integrity/userdata_u4.js → {\"pristine\":null,\"rows\":252,\"hidden\":null,\"order\":null,\"day\":null,\"done\":\"pacing\",\"reviewCfg\":null,\"errorLogSettings\":null}",
+  "fix": "In pacingTouched compare !!e.hidden, e.order and e.day with the seed row (seed rows have none); count a dayReview.config that differs from KOS.dayReview's defaults as a SETTINGS entry. Add both to smoke135/smoke143's userData cases.",
+  "effort": "S",
+  "devices": [
+   "mac",
+   "ipad"
+  ],
+  "accounts": [
+   "empty"
+  ],
+  "phase1": "U4 (Pacing row hidden/order/day), U6 (per-day review slots)",
+  "regressionOf": "DI-03",
+  "invariants": [
+   "34",
+   "84"
+  ],
+  "area": "data-integrity",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "DI-30",
+  "severity": "P2",
+  "category": "data",
+  "title": "A question schedule whose item is gone (504 removed by the study clean-up, or a fork deletion) is still due for ever: it is counted in 'questions back today' and takes one of the subject's daily cap slots",
+  "detail": "KOS.questions.dueToday() reads every q:/e: key in state.srs (scheduled(), js/core/questions.js:163-170) without asking whether the item still exists; the Due run then passes over a key whose item is gone (js/modules/due.js:341-344). Nothing ever moves or drops that schedule, so it stays overdue for ever. Measured in the test harness (orphan_one.js, twice): 10 real compsci 4.2.1.1 questions due today plus the schedule of q:compsci:4.2.1.1:4 ('Which statement about a static data structure is correct?', removed by the clean-up 3ca78aa5) → dueToday() {total:10, waiting:1, by.compsci:{due:11, cap:10, left:10}}, the orphan holds a cap slot, only 9 runnable, and one real question is pushed to 'waiting'. The Review page's count (due.js:114, 142, 159) says 10 questions while the run serves 9. With N orphans in a subject, N of its 10 daily slots are lost every day; at 10 the subject's questions never come back. Flashcards are not affected (dueCards walks allCards, js/core/srs.js:468), but Home's 'learnt' fact counts every srs key with reps > 0, orphans included (js/modules/home.js:1050). Invariant 87/111c keys themselves hold: the kept items carry their old place (`oi` / third element), spot-checked on 4.2.1.1 (quiz ids 0,1,2,3,5..9; exam 0..3). The user's own data copy was not available, so how many orphans the real account holds is not measured; questions joined the schedule on 16 Nov, so any removed item answered since then is one.",
+  "rootCause": "js/core/questions.js:163-170 — scheduled() lists keys from state.srs, not from the effective material; dueToday() (174-201) counts and caps them before the page resolves them with itemOf().",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/data-integrity/orphan_one.js → {\"orphanResolves\":false,\"total\":10,\"waiting\":1,\"by\":{\"due\":11,\"cap\":10,\"done\":0,\"left\":10},\"orphanTakesSlot\":true,\"realInList\":9,\"runnable\":9}; ids_421.js (4.2.1.1 ids after the clean-up)",
+  "fix": "In dueToday skip a key whose itemOf() is null once its topic's material is loaded (KOS.lazy: a not-yet-loaded topic must not be judged gone), so it neither counts nor takes a cap slot; leave the srs record (a restored item comes back with its schedule). Count Home's 'learnt' over existing cards/questions only.",
+  "effort": "S",
+  "devices": [
+   "mac",
+   "ipad",
+   "iphone"
+  ],
+  "accounts": [
+   "dense"
+  ],
+  "phase1": "Study clean-up (3ca78aa5, 504 items removed)",
+  "regressionOf": null,
+  "invariants": [
+   "111c",
+   "87"
+  ],
+  "area": "data-integrity",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "DI-31",
+  "severity": "P3",
+  "category": "data",
+  "title": "The Wall showcase is an ordered list merged position by position: two devices reordering it can double one badge and silently drop another",
+  "detail": "state.achievements.showcase (up to six badge ids, in order) is not under ATOMIC_PREFIX, so when both devices changed it and the lengths match the merge combines it element by element (cloudmerge.js mergeValue, same-length primitive arrays). Measured with KOS.cloudmerge.merge: base [a,b,c], local [b,a,c], remote [a,c,b] → [b,a,b]; KOS.achievements' normaliser then removes the duplicate (js/core/achievements.js:79), so 'c' leaves the showcase on both devices. Phase 1 (achievements-governor#3, a41c4675) made the Wall autosave every move, so each drag is now a saved change that can meet the other device's. The invariant text for ATOMIC_PREFIX names exactly this failure for the Shrine's tie orders.",
+  "rootCause": "js/core/cloudmerge.js:161 — ATOMIC_PREFIX lists media.shrine.order. and srsCfg.fit.w only; achievements.showcase falls to the element-wise primitive-array branch (cloudmerge.js:520-523).",
+  "evidence": "node -e merge probe (run twice): [[\"b\",\"a\",\"b\"],[\"b\",\"a\",\"d\",\"c\"]] for the two cases; js/core/achievements.js:79, 532",
+  "fix": "Add \"achievements.showcase\" to ATOMIC_PREFIX (a both-sides change is one leaf, local wins) and a case to smoke146.",
+  "effort": "S",
+  "devices": [
+   "mac",
+   "ipad"
+  ],
+  "accounts": [
+   "dense"
+  ],
+  "phase1": "achievements-governor#3 Wall autosave (a41c4675)",
+  "regressionOf": null,
+  "invariants": [
+   "33",
+   "162"
+  ],
+  "area": "data-integrity",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "DI-32",
+  "severity": "P3",
+  "category": "data",
+  "title": "A deleted exam attempt comes back for a sync cycle: kos_attempts pulls BEFORE it pushes its tombstone, and the two-minute overlap re-delivers the row",
+  "detail": "Measured with KOS.attempts and an injected fake cloud (KOS.attempts._setCloudApi, server-stamped updated_at; attempts_resurrect.js, run twice): record and end an attempt, sync twice (pushed 1, then the echo skipped), wait, delete it (local list 0, tombstone queued in attempts.del), sync → {pushed:1, pulled:1}: the pull ran first with the overlap (KOS.sideSync.since), found the row it no longer holds and put it back (local list 1); the tombstone then reached the server. Only the NEXT cycle pulls the tombstone and deletes it (local 0). After a delete the next run is soonSync's 20 s, then nothing until the 30-minute timer or another change, so the attempt sits in the list, the paper's stats and readiness for up to half an hour. Because the cursor is the newest row's own stamp, this hits any deletion of the most recently synced attempt. Money and Mind push first and skip their echo by stamp (js/core/money.js syncCloud, js/core/mindjournal.js:205-246), so they do not. A second, narrower gap: the push ends with kvSet('attempts.del', []) (attempts.js:340), wiping a tombstone that remove() added while the upload was in flight, so that deletion never reaches the server or the other devices.",
+  "rootCause": "js/core/attempts.js:292-347 — syncCloud pulls first and treats a pulled row this device does not hold (`mine` undefined after a local delete) as new, without consulting the pending tombstones in attempts.del; and clears the whole tombstone list after the push instead of only the uids it sent.",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/data-integrity/attempts_resurrect.js → {\"localAfterDelete\":0,\"s3\":{\"pushed\":1,\"pulled\":1,\"deleted\":0},\"localAfterSync\":1,\"serverDeleted\":true,\"s4\":{\"pushed\":0,\"pulled\":0,\"deleted\":1},\"localAfterSync2\":0}",
+  "fix": "Push before pull (invariant 33's order, as money/mind do), or skip a pulled uid that is in attempts.del; after the push remove only the tombstones whose uids were sent.",
+  "effort": "S",
+  "devices": [
+   "mac",
+   "ipad"
+  ],
+  "accounts": [
+   "dense"
+  ],
+  "phase1": null,
+  "regressionOf": null,
+  "invariants": [
+   "32",
+   "33",
+   "36d"
+  ],
+  "area": "data-integrity",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "AP-21",
+  "severity": "P1",
+  "category": "bug",
+  "title": "In a real browser the curriculum stand-ins are never installed: lazy-index.js runs before the content templates are parsed, so every page load counts only Mind/Creatives/Japanese cards until the warm-up (and for good under Save-Data), and a partial Due run pays the backlog bonus",
+  "detail": "Root cause of ST-52 and ST-51 (both predate Phase 1: the order has been the same since W2, 6b19b4bb, 15 Nov). index.html:185 runs js/data/lazy-index.js, which calls KOS.lazy.install() at once; install() builds its bundle list from files() (js/core/lazy.js:62-76), a querySelectorAll over the <template data-lazy> nodes parsed SO FAR. Recorded at the moment KOS_LAZY_INDEX is assigned (a setter in an init script): readyState 'loading', templates seen = [exam-index, ink-ui, exams-deep] — 3 of 44 bundles. Every content row is dropped by 'if (!known[bundle]) return' (lazy.js:219) and the Code registries by 'known[\"content-code\"]' (lazy.js:224), because content-compsci/maths/it/code are templates at index.html:352-479. Only exam-index/exams-deep stand-ins exist. So at boot KOS_CONTENT holds 52 keys (Mind, Creatives, Japanese, which load at boot), 0 stubs; KOS.srs.cardsFor('compsci','4.5.2.1') = 0 (11 once loaded). WHEN: every page load in a real browser (cold or warm, SW or not, any account), not only an empty cache; it lasts until the warm-up brings content-* in, which starts 5 s after kos-interactive (js/main.js:364) — measured 6.2-7.3 s after navigation at mac and at iphone 4x CPU. It is NEVER corrected when (a) navigator.connection.saveData is true (warm() returns at lazy.js:291; Chrome Data Saver / Lite mode) or (b) offline with the bundles uncached: then no stand-in ever misses, so nothing loads. Pages drawn in the window are not redrawn when content arrives (no miss, no lazy.on redraw): the Due page reloaded at #/due showed '3 due · 3 learnt', the Review tab badge 3 and the rail's Study count 3 at 11 s, with all 43 bundles in and 8 cards due (due-reload-11s). NUMBERS: Empty account with 8 cards due yesterday (3 Creatives, 5 CS/Maths/IT): due count 3 at boot, 8 after warm-up; with Save-Data 3 for good, Home's daily goal 'Clear 3 due flashcards (3 overdue)'. PAY (reproduced twice, Save-Data): Due today offers '3 cards · the whole queue'; rating them Good logs a due-review entry with metrics.cleared=true and receipt {xp 26, gold 25, hp 12} — the backlog-cleared bonus (+20 gold, +6 HP, js/core/governor.js:445 via KOS.srs.dueCount()===0) while 5 schedules are still due. SAMPLE (ST-51): js/core/sample.js:66-72 seeds S.srs from KOS.srs.cardsFor(), which returns [] for CS/Maths/IT before content loads, so the Sample account has 0 card schedules (eval: srsKeys 0). Production users see it: the parser behaviour is the browser's, the test loader's is not — tools/lib/app-harness.js builds the whole JSDOM before any script runs, so files() sees all 44 templates and smoke142's zero-miss and eager==lazy checks pass while the browser fails them. Side effect: 220 KB of the 412 KB lazy-index.js (its content and Code rows, the largest file boot parses) is parsed on every load and never used in a browser.",
+  "rootCause": "index.html:185 (lazy-index.js placed before the content <template data-lazy> blocks at 352-479) + js/core/lazy.js:211-224 install() trusting files() while document.readyState==='loading' (lazy.js:62-76 even notes the list is whole only at the end of parsing); js/main.js:364 warm-up as the only path that brings content in when nothing misses; js/core/lazy.js:291 skips warm-up on saveData.",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/due-reload-11s-mac-empty8.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/due-reload-2s-mac-empty8.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/home-savedata-14s-mac-empty8.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/due-savedata-14s-mac-empty8.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/run-due2-mac-empty8.json (atInstall {templates:[exam-index,ink-ui,exams-deep], readyState:loading}); /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/run-due-mac-empty8.json (due 3 → 8 while page stays '3 due'); /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/run-iphone4x-home-empty8.json (cs cards 0 → 11 at 6.6 s); /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/pay-savedata-run2.txt; helper /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/cdp.mjs with sc-due2.json, sc-savedata.json",
+  "fix": "Install the stand-ins only once every template is parsed: move the <script src=\"js/data/lazy-index.js\"> tag below the last <template data-lazy> (index.html, before the page modules and js/main.js, which already read cards), or let install() take the bundle names from the index rows themselves (each row names its bundle) instead of files(). Add a browser-order case to smoke142: a loader that evaluates each boot script with only the HTML above it in the DOM, so files() sees what a parser would. Then re-seed the Sample account (ST-51). The warm-up should not be the only path that brings content in: name the content-* bundles in NEEDS for home/due/review/cardstats (or let reviewBundles fall back to every content bundle with schedules), so Save-Data and a slow warm-up still count every card.",
+  "effort": "S",
+  "devices": [
+   "mac",
+   "iphone"
+  ],
+  "accounts": [
+   "empty",
+   "sample",
+   "mine"
+  ],
+  "phase1": null,
+  "regressionOf": null,
+  "invariants": [
+   "168",
+   "111",
+   "167",
+   "1"
+  ],
+  "area": "architecture-perf",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "AP-22",
+  "severity": "P2",
+  "category": "bug",
+  "title": "KOS.errorLog.openCapture asks for KOS.lazy.ensure, which lazy.js never defined, and the existence guard hides it: every Error Log capture before page-errorlog is in does nothing",
+  "detail": "Root cause of ST-47 and EX-57, checked across the codebase. The page-part API was measured by booting lazy with Save-Data (so the warm-up does not run), snapshotting every KOS namespace's keys, calling KOS.lazy.all() and diffing: 85 namespaces and 8 extended ones (pacing's shift/row edits, errorLog's 9 hub methods, goalsUI's dialogs, achUI, ai.tools/orchestrator, mediaEditors, review.renderStats, routinePlayer.taskChoices) appear only when a bundle loads. Every reference to them from boot code or from another bundle (168 lines, xref.tsv) was read: all but one wait first (KOS.lazy.need / placeholder / NEEDS / PAGES, e.g. all seven 'Make this a goal' buttons, KOS.mediaEditor, KOS.files.open's past paper, Today's Daily Creative, Card stats). The exception is js/core/errorlog.js:161-167: when KOS.errorLogUI is absent it calls KOS.lazy.ensure(['page-errorlog'], openNow), but KOS.lazy (js/core/lazy.js:519-548) exports need/ready/all/… and no ensure; the 'if (KOS.lazy && KOS.lazy.ensure)' guard turns the missing method into a silent no-op. Grep of every KOS.lazy.<method> use in js/ finds no other missing method. Measured twice (Save-Data reload, Home): typeof KOS.lazy.ensure 'undefined'; openCapture({…}) → 0 dialogs after 2.5 s, page-errorlog still not loaded; after KOS.lazy.need('page-errorlog') the same call opens 'Log mistake'. Callers: the inline pill's '✓ Logged · Tag reason' (errorlog.js:189, every topic quiz/exam), '+ Log error' on the Ink tab (inktab.js:155) and the exam Review (examreview.js:137). On a normal boot it works only once the warm-up has reached page-errorlog (5-8 s); under Save-Data or offline-uncached never, until #/errorlog is visited. smoke cannot see it: the test loader is eager, so KOS.errorLogUI exists at boot and the branch never runs.",
+  "rootCause": "js/core/errorlog.js:166 calls a method that does not exist (KOS.lazy.need is the API, js/core/lazy.js:526); the existence-guard idiom (AP-09) hides a hard dependency, and no smoke boots lazy before page-errorlog to press it",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/elcap.txt (two runs of /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/sc-elcap.json via /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/cdp.mjs); /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/api-diff.json and /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/xref.tsv (made by /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/xref.py: every page-part member and every reference outside its bundle); grep -rnoE 'KOS\\.lazy\\.[a-zA-Z_]+' js → 'ensure' only at errorlog.js:166",
+  "fix": "errorlog.js:166 → KOS.lazy.need(['page-errorlog']).then(openNow, function(){ KOS.ui.toast('The Error Log could not load. Check the connection and try again.', true); }); drop the guard. Add to smoke142 a lazy boot (no warm) that presses the pill's Tag reason and asserts the dialog, and a static check that every KOS.lazy.<name> used in js/ is exported by lazy.js.",
+  "effort": "S",
+  "devices": [
+   "mac",
+   "ipad",
+   "iphone"
+  ],
+  "accounts": [
+   "empty",
+   "sample",
+   "mine"
+  ],
+  "phase1": "U7 Error Log (Neon's batch, merged in Phase 1)",
+  "regressionOf": null,
+  "invariants": [
+   "168"
+  ],
+  "area": "architecture-perf",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "AP-23",
+  "severity": "P2",
+  "category": "arch",
+  "title": "The service worker mixes versions after a deploy: stale-while-revalidate writes the new deploy's scripts into the old version's cache, so the old index.html runs new scripts until the update is accepted",
+  "detail": "sw.js says 'a page is always one version' and serves navigations from the index.html cached with the worker's own VERSION (sw.js:255-273, invariant 37). But every same-origin script and stylesheet is stale-while-revalidate into that SAME cache (sw.js:186-199, 280): the first load after a deploy serves the old copy and, in the background, puts the NEW deploy's file into kos-static-<OLD VERSION>. The new worker meanwhile waits for the user's 'Reload now' (invariant 38). If the user says Later, or simply reloads/relaunches the PWA, the next load pairs the old index.html (old template/bundle lists, old script order) with whichever new scripts were refreshed — each file switching only when it is next requested, so lazy bundles stay old until opened. A release that adds a file, moves a function between files or changes a boot part/page part split (1F did all three) can then throw at boot or miss a page part. Reproduced twice with the project's own worker harness: tools/smoke121.test.js step C evaluates sw.js, deploys B, fetches js/core/store.js twice from worker A and logs 'note C: SWR put deploy B's js/core/store.js into kos-static-kos-smoke-a — A's shell now loads B's script (mixed version until the update is accepted)'; the suite records it as a note, never a failure, since 8 Nov (969371e4). It is in no November finding and not in the QoL plan (architecture-perf#3 there is only about re-downloading). A live repro on a non-dev host was attempted (a copy served as kos.test) but the headless worker's precache did not finish in that setup, so the evidence is the worker harness and the code.",
+  "rootCause": "sw.js:280 staleWhileRevalidate(e, STATIC_CACHE) for every same-origin GET, with STATIC_CACHE = 'kos-static-' + VERSION (sw.js:44-45) shared with the shell served at sw.js:261-264; cache.put of the network response at sw.js:190",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/smoke121-noteC.txt (two runs); tools/smoke121.test.js:163-182; sw.js:1-40 header, 186-199, 255-280",
+  "fix": "Serve precached same-origin statics CACHE-FIRST from the worker's own version cache with no background refresh (the precache is already derived from index.html, and a deploy bumps VERSION, invariant 38), keeping SWR only for the CDN runtime cache; anything not precached may go network-then-cache. Turn smoke121's note C into an assertion that A's cache never receives B's bytes.",
+  "effort": "S",
+  "devices": [
+   "mac",
+   "ipad",
+   "iphone"
+  ],
+  "accounts": [
+   "mine"
+  ],
+  "phase1": null,
+  "regressionOf": null,
+  "invariants": [
+   "37",
+   "38"
+  ],
+  "area": "architecture-perf",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "AP-90",
+  "severity": "P2",
+  "category": "perf",
+  "title": "A verified checkpoint of the real account is one 56.7 MB string: 8-13 s at 4x CPU and ~485 MB of extra heap, and the first cloud link, every import, reset and repair waits on it",
+  "detail": "Copy account (the user's 26 Nov backup): KOS.backup.checkpoint('…') at 4x CPU took 12.7 s at mac and 8.0 s at iphone, ok:true, bytes 56.7 MB, and the page's used JS heap rose by 487 MB and 482 MB while it ran (performance.memory before/after, two runs). The snapshot is 30.8 MB of handwriting (140 ink pages, 34,318 strokes, 1.78 M points already packed as integers, so it is volume, not waste), 3.4 MB of Collection rows, 0.7 MB of state and the files' base64. One checkpoint holds the snapshot object, its JSON text, the text read back from IndexedDB, its parse and a second live snapshot at once (backup.js:168-196), which is where the heap goes. Five are kept: about 280 MB of IndexedDB on this account. The streamed backup FILE of the same data (KOS.backupFile.write, DI-09) builds in about 1 s with nothing missing. CLAUDE.md names the one-string checkpoint as a known limit for a very large file set; this account is already there because of ink alone, and it grows with every page written. On an iPhone or iPad tab a ~0.5 GB spike risks the WebContent process being killed in the middle of 'Before linking this device to the cloud' (cloudsync.js:879-881), which the first link requires (invariant 34), or before an import/reset (dataview.js:106, 345).",
+  "rootCause": "js/core/backup.js:168-196 attempt() — JSON.stringify of the whole snapshotFull (backup.js:136-141, store.js:1335) into one string, stored as one record, read back whole and parsed whole, then snapshotFull again for the live check; nothing is split per part or streamed as KOS.backupFile already does.",
+  "evidence": "eval at 4x CPU: mac {ok:true, mb:56.7, ms:12704, heapMB:487}, iphone {ok:true, mb:56.7, ms:7992, heapMB:482}; snapshotFull parts: ink 32.3 M chars, mediaEntries 3.4 M, state 0.68 M; ink pages 140, median 126 KB, largest 819 KB; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/copy/cdp.mjs",
+  "fix": "Store a checkpoint as one record per part (and per file / per ink doc), each with its own SHA-256, and verify part by part — reuse KOS.backupFile's per-line layout — so no step holds the whole account as one string; keep fewer checkpoints when they are large.",
+  "effort": "M",
+  "devices": [
+   "mac",
+   "iphone",
+   "ipad"
+  ],
+  "accounts": [
+   "copy"
+  ],
+  "phase1": null,
+  "regressionOf": null,
+  "invariants": [
+   "1a",
+   "34"
+  ],
+  "copyPass": true,
+  "area": "architecture-perf",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "AP-24",
+  "severity": "P3",
+  "category": "perf",
+  "title": "Settings › Storage's 'First page, this start' is not the first page: kos-boot starts at the first script, not navigation, and ends before a page that waits for its bundles has drawn",
+  "detail": "KOS.lazy.timing().boot is the measure kos-boot from 'kos-boot-start' (js/core/lazy.js:46, the first app script, index.html:151, after the HTML and every stylesheet in <head>) to 'kos-interactive' (js/main.js:363, right after KOS.router.boot()). Two gaps, measured on real reloads: (1) the time before the first script is left out — at mac kos-boot-start fell at 230-914 ms after navigation (e.g. boot shown 199 ms while kos-interactive was at 1,113 ms; iphone 4x: shown 102 ms, interactive at 769 ms); (2) on a route whose page names bundles (#/exams, a topic, the Wall, a vault) router.boot() has only drawn the 'Loading…' stand-in when the mark is taken: #/ref/compsci/4.5.2.1 at iphone 4x showed boot 394 ms, but the real page replaced the placeholder at 1,123 ms after navigation (kos-interactive 538 ms); #/exams 354 ms shown vs page at 757 ms. So the row reads 0.1-0.4 s where the reader waited 0.75-1.4 s, and smoke142 L only checks that the figures exist.",
+  "rootCause": "js/core/lazy.js:46 (start mark at the first script) and js/main.js:363 (end mark before KOS.lazy.placeholder's first real draw, js/core/lazy.js:466-472); js/modules/storage.js:163-170 labels it 'First page'",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/run-mac-warm1.json; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/matrix-empty8.txt; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/fp-empty8.txt (made by /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/fp.sh: probe of #main for [data-ui~=lazy.wait] every 50 ms); helper /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/cdp.mjs",
+  "fix": "Measure from navigation start (performance.measure('kos-boot', {start: 0, end: 'kos-interactive'}) or use performance.timeOrigin) and mark 'kos-first-page' in KOS.lazy.placeholder's draw (or in KOS.show's first real draw), showing that as 'First page'; keep kos-boot as a separate script-time figure if wanted.",
+  "effort": "S",
+  "devices": [
+   "mac",
+   "iphone"
+  ],
+  "accounts": [
+   "empty"
+  ],
+  "phase1": "1F architecture-perf#1 (kos-ready and the Storage rows)",
+  "regressionOf": null,
+  "invariants": [
+   "168"
+  ],
+  "area": "architecture-perf",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "AP-25",
+  "severity": "P3",
+  "category": "docs",
+  "title": "Docs drift after Phase 1: invariant 168 names 32 of the 44 lazy bundles, claims a browser-level guarantee only the jsdom loader gives, and HANDOFF still says new suites start at 196 (196–201 are taken)",
+  "detail": "(1) docs/invariants/ui.md 168 is the contract for loading on first use, but 12 bundles in index.html appear nowhere in it: ink-tex, page-cardstats, page-connections, page-errorlog, page-it, page-matrix, page-notifications, page-player, page-share, page-storage, sample, search-more (script: every data-lazy name vs a backticked mention in the 168 paragraph; docs/ownership.md names only 2 bundles at all). A contributor reading 168 cannot tell that the Error Log, Card stats, Storage, Connections, the Matrix, Notifications, the routine player, the share card, IT's desk, search's extra domains and the Sample account are page parts with boot parts that must keep their tickers. (2) 168 says smoke142 holds 'boot, Home, the background passes … to ZERO misses, and the same account booted eager and lazy to the same saved state'; that is true only of tools/lib/app-harness.js, which parses the whole HTML before running any script — the browser does not (AP-21), so the contract reads as met while production differs. (3) docs/HANDOFF.md:15-17 still gives production as kos-integrity-23 and 'Gate 177/177 … New suites from 196', while CLAUDE.md and docs/SMOKE.md are at kos-qol-4 and 183/183 with suites 196-201 in use — the next suite number in HANDOFF collides. README.md:33 and AGENTS.md:145 still say 106 suites (AP-05, W8 partly; Phase 4 re-baselines them).",
+  "rootCause": "docs/invariants/ui.md:443-531 grew a sentence per batch instead of a table generated from lazy.js PAGES/SPACE_*; docs/HANDOFF.md §00 written 19 Nov and not touched by Phase 1",
+  "evidence": "bash loop over grep -o 'data-lazy=\"[^\"]*\"' index.html vs sed -n '/^168\\./,/^### Responsive/p' docs/invariants/ui.md (12 with 0 mentions); docs/HANDOFF.md:15-17; docs/SMOKE.md:8; CLAUDE.md Current baseline; ls tools/smoke*.test.js = 183 (196-201 present)",
+  "fix": "Replace 168's bundle prose with a short table (bundle → view or reader → boot part), or say the table lives in js/core/lazy.js PAGES/SPACE_DESK/SPACE_TOPIC and smoke142 checks it; add the browser-order caveat until AP-21's fix lands; update HANDOFF §00's production line and 'new suites from 202'.",
+  "effort": "S",
+  "devices": [],
+  "accounts": [],
+  "phase1": "1F (the twelve splits) and Neon's batches",
+  "regressionOf": null,
+  "invariants": [
+   "168"
+  ],
+  "area": "architecture-perf",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "AP-26",
+  "severity": "P3",
+  "category": "arch",
+  "title": "The Reports split copied five helpers into the boot part instead of sharing them: Home's report card and the Reports page each have their own parse, dm, range, weekOf and mono",
+  "detail": "Invariant 168: 'the split is always the same: the boot part exports what the page reads (_k), the page aliases it'. Comparing every 1F boot part with its page part (function names with identical normalised bodies): only reportcard.js/reports.js copy logic — parse, dm, range, weekOf and mono are byte-identical in js/modules/reportcard.js:18-33 and js/modules/reports.js:60-102 (also achievements.js 'A' and inkui.js 'el', one-line accessors, harmless). weekOf is the report's name ('Week of 5 Oct', the month, the term label, '2025–26'), so a change to how a period is named on the Reports page will not reach Home's card. The other ten splits share through _k/getters as the invariant says.",
+  "rootCause": "js/modules/reportcard.js:18-33 (copied at the 1F split, 1F page-reports) rather than exported from the boot part and aliased in reports.js",
+  "evidence": "python pair scan (functions with identical bodies across each boot/page pair): reportcard|reports 5 of 6 shared names identical; js/modules/reportcard.js:18-33; js/modules/reports.js:60-102",
+  "fix": "Export the five from reportcard.js (KOS.reportCard._k or KOS.reportsKit's boot half) and alias them in reports.js; delete the copies.",
+  "effort": "S",
+  "devices": [],
+  "accounts": [],
+  "phase1": "1F page-reports split",
+  "regressionOf": null,
+  "invariants": [
+   "168"
+  ],
+  "area": "architecture-perf",
+  "batch": 1,
+  "areaStatus": "complete"
+ }
+]
