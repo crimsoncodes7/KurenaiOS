@@ -1,0 +1,377 @@
+{
+ "area": "goals",
+ "summary": "Goals on kos-qol-5 (0c93408a). Every new Phase 1 type and entry point works on its happy path: the five 'Make this a goal' entry points (routine, pot, budget, vault title, exam Today) open a seeded editor and save the right links; gov-gold never pays (gold, XP, HP, ledger unchanged; receipt payout 'none'; Goal getter excludes it); repeating goals crossed a week and a month on a fake clock and were judged once with the owner's own figures (study 2.1 h = Home's subject Focus time; 24 blocks = ledger). The SY-38 fix covers editors only: the goal page's Delete/Archive still act by number on a re-keyed goal and hit the OTHER device's goal (GO-28, P0). Title goals store a per-device vault id (GO-29); Restart erases a week-from-start goal's history (GO-31) and lies about exam goals (GO-30).",
+ "coverage": {
+  "routes": [
+   "#/goals",
+   "#/goals/week",
+   "#/goals/month",
+   "#/goals/done",
+   "#/goals/<id>",
+   "Home goals card"
+  ],
+  "dialogs": [
+   "New goal (templates + types)",
+   "goal editor (study, routine, money pot, budget, vault title, exam, gov-gold)",
+   "\u22ef menu Restart/Archive/Delete",
+   "danger Delete confirm",
+   "missed card Restart/Archive"
+  ],
+  "sizes": [
+   "mac",
+   "ipadl",
+   "ipad",
+   "iphone",
+   "split",
+   "slide"
+  ],
+  "accounts": [
+   "dense",
+   "sample",
+   "empty"
+  ],
+  "types": "measured: study-hours, focus-blocks, focus-hours, cards-reviewed, ja-facets, mind-daily15, topics-green, routine-days, money-save, money-spend-under, money-income, money-no-spend, no-overdue, custom-manual, titles-completed, finish-series, specific-title, exam_recall, exam_papers_done, gov-gold, gov-level; code-read only: the rest"
+ },
+ "findings": [
+  {
+   "id": "GO-28",
+   "severity": "P0",
+   "category": "data",
+   "title": "After a pull re-keys a colliding goal, the goal page's Delete and Archive act on the OTHER device's goal (the confirm names yours)",
+   "detail": "SY-38's kos-qol-5 fix makes the live item OBJECT follow its new id, so the editor's Save is now correct (checked: smoke196 G2/G3 pass in spirit, and the editor holds G.get(id), the live object). But the goal page holds the goal by NUMBER and by a compute() COPY. Steps (harness slot 2, dense account, twice each): a goal 'MY goal (device A)' with id n; open #/goals/n; \u22ef \u203a Delete\u2026 \u2014 the danger dialog reads \u201cMY goal (device A)\u201d and its history of periods go; another tab's merge re-keys it (the other device's 'THEIR goal (device B)' takes id n, ours n+1) and this tab takes the write in with KOS.store.sync(); the redraw waits for the open dialog (redraw policy) and the user presses Delete. Result, both runs (n=32, n=54): only [n+1,'MY goal (device A)'] is left \u2014 THEIR goal was deleted (and the deletion replicates to the other device by the three-way merge), while the goal the user confirmed deleting survives. Same with \u22ef open when the pull lands, then Archive: THEIR goal archived:true, MINE untouched (n=76). Afterwards the URL #/goals/n shows 'THEIR goal (device B)' under the user's own breadcrumb. Expected: an action acts on the record the user is looking at, whatever its id became.",
+   "rootCause": "js/modules/goals.js:565-593 \u2014 detail(main, id) closes over the number id (from Number(arg.id), :350) and over g, a compute() row that is a COPY (js/core/goals.js:597 Object.assign({}, g, \u2026)), so Restart/Archive/Delete call G.restart/G.archive/G.remove(g.id) with the old number; the Edit button calls goalDialog(G.get(id)) with the old number (correct only while no redraw is pending). The same holds for every list surface's buttons (hero, cards, missedCard :514-515, done() :539-540) built from row copies. js/core/cloudmerge.js:87-88 registers only goals.completionLedger as a reference to a goal id: notify items 'goal:<id>:\u2026' with arg {id} (js/core/goals.js:1010-1028) and Google Calendar uids 'go:<id>:<date>' (js/core/extgcal.js:480) still name the old id after a re-key.",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/goals/rekey-delete.js (run twice: left [[33,'MY goal (device A)']] and [[55,'MY goal (device A)']], dialog text 'Delete this goal?\u201cMY goal (device A)\u201d\u2026'); /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/goals/rekey-archive.js (left [[76,'THEIR goal (device B)',archived true],[77,'MY goal (device A)',false]], #/goals/76 shows 'THEIR goal (device B)'); js/modules/goals.js:584-593; js/core/goals.js:597; js/core/cloudmerge.js:87-88",
+   "fix": "Give goals random string ids as Routines and Money already have (SY-38's own fix: 'finish moving goals off counter ids'), so nothing is ever re-keyed; until then resolve the live record at click time \u2014 keep the live object from G.get(id) at render and pass live.id (or check createdAt) to remove/archive/restart, refusing with 'This goal changed on another device' when it no longer matches \u2014 and register the notice ids/links and extgcal uids as goal references in cloudmerge RECORDS.",
+   "effort": "M",
+   "devices": [
+    "mac",
+    "ipad",
+    "iphone"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": "kos-qol-5 SY-38 fix (b115a85a) \u2014 partial: editors only",
+   "regressionOf": "SY-38",
+   "invariants": [
+    "33a",
+    "32",
+    "165"
+   ]
+  },
+  {
+   "id": "GO-29",
+   "severity": "P1",
+   "category": "data",
+   "title": "A title goal (Finish a series / Complete a specific title) stores the vault's per-device row id, so on the other device it measures a different title",
+   "detail": "The goal record syncs in the state document with `linkedEntryId`, the vault row's local IndexedDB autoIncrement id, which mediadb.js says 'never leaves the device' (syncId is the cross-device identity, invariant 32). A second device that pulled the same vault in another order gives the same title another id. Harness (slot 2): on the dense account 'Make this a goal' on 'Collection entry 12' (11 of 51 episodes) saved goal 85 {type finish-series, linkedEntryId 12}. A fresh 'device B' (the Empty namespace) took the same 30 vault rows by syncId in another order (as a pull does: mediadb.add assigns new ids) and the goal record as synced: the goal 'Finish Collection entry 12' now reads 'Collection entry 19' \u2014 18 of 58 episodes \u2014 and its page and card show that title and cover; 'Collection entry 12' itself is row 19 there. Same after a reload. A goal whose id is missing on the other device reads 'Linked title is no longer in the vault'. Expected: the goal follows the title on every device.",
+   "rootCause": "js/core/goals.js:202 (normalise keeps linkedEntryId, a local mediadb id) and js/core/goals-collection.js:68-86 (linked() reads KOS.mediadb.get(g.linkedEntryId)); js/modules/goals.js:1064 and js/modules/medview.js:1026 save e.id, not e.syncId; js/core/mediadb.js:164-166 ('autoIncrement ids are per-device and never leave the device; syncId is the UUID the cloud rows key on'). Pre-existing (not Phase 1), but Phase 1's 1E 'Make this a goal' from a vault title makes it the common path.",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/goals/devB.js (onDeviceB [18,58,'Collection entry 19'], sameTitleOnB [12\u219219,'Collection entry 12']); after reload ['empty','Finish Collection entry 12',12,18,58,'Collection entry 19']; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/goals/detail-mac-empty-deviceB-linked.png",
+   "fix": "Store the title's syncId (params.linkedSyncId) beside or instead of linkedEntryId and resolve it through the syncId index (KOS.mediadb.bySyncId) in linked(), the band and the editor's title picker; migrate existing goals in normalise by looking up the local row once. The Wishlist's linkedEntryId has the same flaw (Collection area).",
+   "effort": "S",
+   "devices": [
+    "mac",
+    "ipad",
+    "iphone"
+   ],
+   "accounts": [
+    "dense",
+    "empty"
+   ],
+   "phase1": "1E bk:goals#2 'Make this a goal' from Collection titles (medview.js:1018-1031)",
+   "regressionOf": null,
+   "invariants": [
+    "32",
+    "5b"
+   ]
+  },
+  {
+   "id": "GO-30",
+   "severity": "P2",
+   "category": "bug",
+   "title": "Restart on a missed exam goal says 'restarted \u00b7 27 Nov \u2013 14 Dec' but the goal stays Missed: its deadline is still read from the exam",
+   "detail": "Harness slot 2, dense. (1) An exam_papers_done goal linked to an upcoming mock with an earlier 'By' of 20 Nov (missed): Goals \u203a Missed card \u203a Restart \u2192 toast '3 papers before (by 20 Nov) restarted \u00b7 27 Nov \u2013 16 Dec'; compute afterwards: status failed, deadline 2026-11-20, still in the Missed card (stored deadline 2026-12-16 ignored; 16 Dec is also after the exam it follows). (2) An exam_papers_done goal on a mock dated 18 Nov (missed): goal page \u22ef \u203a Restart \u2192 toast '2 papers before Past mock restarted \u00b7 27 Nov \u2013 14 Dec'; status failed, deadline 2026-11-18. The 1D toast now names a span that never applies, and the action does nothing for an exam goal. Expected: Restart is not offered for an exam goal whose exam (or By) has passed \u2014 offer 'Link to an exam' (linkExam) instead \u2014 and for one still ahead the new span ends on the exam's date.",
+   "rootCause": "js/modules/goals.js:518-524 restart() computes patch.deadline = today + old span and toasts it; js/core/goals.js:550 compute() takes deadlineOf(g) (js/core/goals-exams.js:31-35: params.by, else the exam's date) over g.deadline for exam goals, so the restarted goal is judged against the old past date at once (derive :403 \u2192 failed). restart() (js/core/goals.js:366-380) keeps params.by.",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/goals/restart-exam.js (before ['failed','2026-11-20'], toast '\u2026 restarted \u00b7 27 Nov \u2013 16 Dec', after ['failed','2026-11-20', stored deadline '2026-12-16', by '2026-11-20'], still in Missed); /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/goals/restart-exam2.js (toast '\u2026 restarted \u00b7 27 Nov \u2013 14 Dec', after ['failed','2026-11-18'])",
+   "fix": "In restart() (page) and G.restart, for an exam goal: if deadlineOf is past, do not offer Restart (offer Link to an exam); otherwise drop params.by and let the deadline follow the exam, and toast the span compute() will actually use (read it back from compute or deadlineOf).",
+   "effort": "S",
+   "devices": [
+    "mac"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": "1D goals#3 (restart names the new span)",
+   "regressionOf": null,
+   "invariants": [
+    "128",
+    "5b"
+   ]
+  },
+  {
+   "id": "GO-31",
+   "severity": "P1",
+   "category": "data",
+   "title": "Restart on a repeating goal whose week runs from its start day deletes every recorded week ('Every period, kept \u2026 never deleted')",
+   "detail": "Harness slot 2, dense. A weekly focus-hours goal, 2 h, 'The week runs: from the day it starts' (weekFrom 'start'), started Wed 14 Oct: compute judges six ended weeks into outcomes (10-14 met, 10-21 met, 10-28 \u2715, 11-04 \u2715, 11-11 \u2715, 11-18 met). Goal page \u22ef \u203a Restart \u2192 toast 'Focus 2h a week (from Wed) restarted from 27 Nov' \u2192 outcomes {} and run 0: the six weeks are gone from the page, the Goals list's 'Every period, kept' card and Reports' periods. Twice (goal 89 from 14 Oct: 6 \u2192 0; goal 90 from 7 Oct: 7 \u2192 0). Control: the same goal on Monday-to-Sunday weeks keeps all six after Restart. The Done tab promises 'Restart makes a new period from today with the same settings; Archive files it away. Neither deletes anything.' The same wipe follows an Edit that moves Starts on such a goal, with no 'history restarts' note (the GO-04 note shows only when the grid control itself changes).",
+   "rootCause": "js/core/goals.js:366-377 restart() patches startDate: today; update() :317-321 (GO-04) drops every outcome whose key is not a period of the NEW grid \u2014 with weekFrom 'start' the grid is anchored on startDate (periodOf :68-71), so a new weekday re-anchors it and every old key fails; closePeriods :477-483 then re-judges only from the new startDate, so nothing comes back. js/modules/goals.js:998-999 shows the 'history restarts' note only when repeat/weekFrom change, not startDate.",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/goals/restart-repeat.js (before 6 outcomes, after [] run 0), restart-repeat2.js (7 \u2192 []), restart-repeat-mon.js (control: 6 kept); js/modules/goals.js:547 ('Neither deletes anything')",
+   "fix": "Restart of a repeating goal should keep its outcomes: keep the grid's anchor (store the weekday in weekFrom, e.g. 'wed', instead of deriving it from startDate) or exempt keys before the new startDate from the GO-04 prune; and say in the editor when moving Starts re-reads the history.",
+   "effort": "S",
+   "devices": [
+    "mac"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": "1D goals#3 restart (restart path unchanged; same since GO-04's W7 fix)",
+   "regressionOf": "GO-04",
+   "invariants": [
+    "5b"
+   ]
+  },
+  {
+   "id": "GO-32",
+   "severity": "P2",
+   "category": "bug",
+   "title": "Editing an exam goal whose exam has passed shows another exam in the Exam field (the hint names the real one), and that exam cannot be picked",
+   "detail": "Harness slot 2, dense. Goal 88 'Papers done' linked to 'Past mock' (18 Nov). Goal page \u203a Edit: the Exam select reads 'Revision block 24 \u00b7 Mon 7 Dec' while the hint under it says 'Ends on the exam's date (Wed 18 Nov)\u2026'; the linked exam has no option at all. Save keeps the link to Past mock (links.examId xgxrabut), so what the form showed is not what is saved, and choosing the shown exam is impossible (it is already 'selected', so no change event fires). Twice the same; control goal 87 on an upcoming exam shows its own exam. A met or missed exam goal is exactly the one edited after its exam. Expected: the linked exam is always an option and selected, as GO-25 fixed for titles.",
+   "rootCause": "js/modules/goals.js:185-191 examChoices() keeps the current exam (`a.id === keep`) only while filtering KOS.exams.upcoming(), so a past exam never enters the list; drawExam :860-864 then takes a = KOS.exams.get(xs.examId) (the past one) for the hint but builds the select from the list without it, so the browser shows the first option.",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/goals/editor-pastexam.js (88: selectShows 'Revision block 24 \u00b7 Mon 7 Dec', optionForLinkedExam false, hint 'Ends on the exam's date (Wed 18 Nov)', afterSave xgxrabut; 87 control fine); /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/goals/editor-gold-slide-dense.png",
+   "fix": "In examChoices, append KOS.exams.get(keep) when it is not among the upcoming (labelled '\u00b7 passed'), so the select always holds and shows the linked exam.",
+   "effort": "S",
+   "devices": [
+    "mac",
+    "slide"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": null,
+   "regressionOf": null,
+   "invariants": [
+    "128"
+   ]
+  },
+  {
+   "id": "GO-33",
+   "severity": "P2",
+   "category": "data",
+   "title": "Sample account: its four goals are saved with type 'manual' (no such type), so the counts 7 of 12 and 6 of 10 read 0 and the goals offer 'Collection' instead of +1",
+   "detail": "Account \u203a Sample, #/goals: the hero reads 'Clear the anime backlog to under ten \u2014 0 of 10 steps \u00b7 Behind' and the cards '0 of 12 steps', '0 of 1 steps'; the seed gives current 7 and 6. The records are {type:'manual', kind:'auto', current:0}: normalise kept the unknown type id, took it for an automatic goal and zeroed the count. The hero and card action is 'Collection' (opens the vault), not '+1'. KOS.goals.normalise({type:'manual',target:12,current:7}) \u2192 ['manual','auto',0], twice. Only the Sample account; the user's real goals use custom-manual.",
+   "rootCause": "js/core/sample.js:246-249 seeds type:'manual' (the v2 kind name) instead of type:'custom-manual'; js/core/goals.js:162-165,209 normalise keeps an unknown type and sets auto = raw.kind !== 'manual' (true), so current is forced to 0; js/modules/goals.js:292 offers +1 only for type 'custom-manual'.",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/goals/goals-mac-sample.png; eval normalise \u2192 ['manual','auto',0]; state items [['manual','auto',0,12,'active'],['manual','auto',0,10,'active'],\u2026]",
+   "fix": "Seed type:'custom-manual' (or kind:'manual') in sample.js; optionally map a stored type 'manual' to custom-manual in normalise (LEGACY).",
+   "effort": "S",
+   "devices": [
+    "mac",
+    "ipad",
+    "iphone",
+    "split"
+   ],
+   "accounts": [
+    "sample"
+   ],
+   "phase1": null,
+   "regressionOf": null,
+   "invariants": [
+    "5b"
+   ]
+  },
+  {
+   "id": "GO-34",
+   "severity": "P2",
+   "category": "bug",
+   "title": "'Keep Mind Daily 15 days' drops a day the Daily 15 was done without its own Focus entry as soon as the next Daily 15 is done",
+   "detail": "The new mind-daily15 type counts days with a Focus entry whose objective is 'Mind \u00b7 Daily 15', plus the ONE day held in state.ui.mind.daily (per device, today's run only). The Daily 15 starts its own Focus only when Focus is idle (js/modules/mind.js:709-714): run it while a study stopwatch is already going and it leaves no such entry. Harness slot 2, dense: weekly goal 'Daily 15 x5' from Mon 23 Nov; ui.mind.daily = {day Thu 26, doneAt} \u2192 1 day; then Friday's Daily 15 is done (ui.mind.daily = {day Fri 27}) \u2192 still 1 day: Thursday is gone, and a week judged later counts neither unless they had entries. The same day done on the iPad never counts on the Mac (state.ui is per device). Renaming the Focus objective also removes the day. Expected: a day the Daily 15 was finished counts once, on every device, whatever Focus was doing.",
+   "rootCause": "js/core/goals.js:957-965 reads the ledger by objective text plus only the latest state.ui.mind.daily; Mind keeps no synced record of the days its Daily 15 was finished (js/modules/mind.js:875 sets d.doneAt on the per-device ui record only).",
+   "evidence": "eval on slot 2 (dense): {thu_only: 1, after_fri_daily: 1}; js/core/goals.js:957-965; js/modules/mind.js:709-714, 875",
+   "fix": "Record the finished day in Mind's synced state (e.g. state.mind.dailyDone[day] = mins, set where d.doneAt is set) and count those days; keep the objective entries only as a fallback for days before it.",
+   "effort": "S",
+   "devices": [
+    "mac"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": "bk:goals#3 mind-daily15 (1E)",
+   "regressionOf": null,
+   "invariants": [
+    "5b",
+    "137"
+   ]
+  },
+  {
+   "id": "GO-35",
+   "severity": "P2",
+   "category": "bug",
+   "title": "A Money goal's notice prints the raw amount ('\u00a34500 of \u00a3600') even with Money's Hide amounts on, and unformatted",
+   "detail": "Harness slot 2, dense. A 'Save for New laptop' pot goal (target \u00a3600) reached: KOS.goals.tick() pushed 'Goal reached \u2014 Save for New laptop', body '\u00a34500 of \u00a3600'. With Money \u203a Hide amounts on (state.ui.moneyHidden true) KOS.goals.notices() still gives body '\u00a34500 of \u00a3600' \u2014 the same figure Money itself prints as '\u00a34,500.00' and masks when hidden. The body is kept in state.notify (synced to every device, shown in the bell and the Notifications page) and is the text of a device alert when the page is hidden (js/core/notify.js:297). Twice (tick, then notices with Hide amounts on). Expected: a money figure in a notice goes through KOS.money.format and says nothing of the amount while amounts are hidden ('Reached \u00b7 amounts hidden').",
+   "rootCause": "js/core/goals.js:995-1004 amount() builds unit + fmt(n) for a currency unit, bypassing KOS.money.format / formatShown and isHidden(); the Goals page itself uses KOS.goalsUI.word, which does mask (js/modules/goalwords.js:16).",
+   "evidence": "eval slot 2: tick sent 'goal:79:done:2026-11-27' body '\u00a34500 of \u00a3600'; with setHidden(true): notices body '\u00a34500 of \u00a3600', KOS.money.format(450000) '\u00a34,500.00'; js/core/goals.js:1002",
+   "fix": "In amount(), format currency figures with KOS.money.format(Math.round(v*100)) and, when KOS.money.isHidden(), leave the amounts out of the body.",
+   "effort": "S",
+   "devices": [
+    "mac"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": "1E bk:goals#2 (pot and budget goals from Money make these common)",
+   "regressionOf": null,
+   "invariants": [
+    "95",
+    "98",
+    "5a"
+   ]
+  },
+  {
+   "id": "GO-36",
+   "severity": "P3",
+   "category": "copy",
+   "title": "Goal editor's line says 'one about every 1 days' and money lines lack the currency ('6.3 a day')",
+   "detail": "New goal from a weekday routine (target 5 a week): hint 'The line: one about every 1 days. Pace shows once a day has passed.' Exam goal editor (2 papers): 'Now 0 of 2 papers. One about every 1 days gets you there.' Pot goal (\u00a3600 by 1 Mar): 'The line: 6.3 a day.' \u2014 no \u00a3 and one decimal of pounds. Seen in the routine, exam and pot 'Make this a goal' dialogs (each twice).",
+   "rootCause": "js/modules/goals.js:1024 ('one about every ' + Math.round(span / t) + ' days' when t < span, and a bare number for money) and :906 (Math.round(days/(t-m.current)) can be 1)",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/goals/ep-routine.js, ep-pot.js, editor-gold-slide-dense.png",
+   "fix": "Say 'about one a day' when the interval rounds to 1, and format a money rate with KOS.money.format (masked when hidden).",
+   "effort": "S",
+   "devices": [
+    "mac",
+    "slide"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": "1E bk:goals#2 entry points",
+   "regressionOf": null,
+   "invariants": []
+  },
+  {
+   "id": "GO-37",
+   "severity": "P3",
+   "category": "copy",
+   "title": "Goals hero counts 'Too early to call' goals as 'on track now' (16 on track beside 2 On-track chips)",
+   "detail": "Dense, #/goals All: the hero's run block reads '3 behind now \u00b7 16 on track now \u00b7 0 met now' while the cards show 14 'Too early to call' chips and 2 'On track'. Twice (before and after adding goals).",
+   "rootCause": "js/modules/goals.js:440-444 counts any truthy _pace other than behind/over (early, ahead, under) as 'on'",
+   "evidence": "eval: runcounts ['3 behind now','16 on track now','0 met now'], earlyChips 14, onTrackChips 2; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/goals/goals-mac-dense.png",
+   "fix": "Count only on-track/ahead/under as on track and leave early out (or add 'too early').",
+   "effort": "S",
+   "devices": [
+    "mac"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": null,
+   "regressionOf": "GO-19",
+   "invariants": []
+  },
+  {
+   "id": "GO-38",
+   "severity": "P3",
+   "category": "ui",
+   "title": "A title goal's Target field is offered and saved but ignored: 'Finish a series' always reads the title's own episode total",
+   "detail": "Goal 85 'Finish Collection entry 12' (made from the vault editor): Edit \u203a Target 10 \u203a Save stores target 10 but the goal still shows 11 of 51 and is judged against 51. Twice.",
+   "rootCause": "js/core/goals-collection.js:72-81 linked() overrides target with entry.progress.total (or 1); js/modules/goals.js:989-995 draws the Target stepper for every type.",
+   "evidence": "eval: stored 10, shown [11, 51]",
+   "fix": "Hide the Target field for specific-title and finish-series (show 'the title's own total') or let the stored target win.",
+   "effort": "S",
+   "devices": [
+    "mac"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": "1E vault 'Make this a goal'",
+   "regressionOf": null,
+   "invariants": []
+  }
+ ],
+ "novRecheck": [
+  {
+   "id": "GO-02",
+   "verdict": "fixed",
+   "note": "titles-completed goals made today read 0 on the dense account (1,880 titles); goal getter excludes payout none"
+  },
+  {
+   "id": "GO-06",
+   "verdict": "fixed",
+   "note": "routine-streak/routine-days editor lists Routines (Evening wind-down); routine 'Make this a goal' saves params.routine and measures summary().kept"
+  },
+  {
+   "id": "GO-07",
+   "verdict": "fixed",
+   "note": "habit-streak picker lists Routines' habits on Sample (h:1\u2013h:4)"
+  },
+  {
+   "id": "GO-23",
+   "verdict": "fixed",
+   "note": "five CS leaves with one 0% quiz each band Red (score 0); topics-green goal stays 0, active"
+  },
+  {
+   "id": "GO-25",
+   "verdict": "fixed",
+   "note": "editing a specific-title goal on a completed title keeps linkedEntryId; vault picker shows the current title"
+  },
+  {
+   "id": "GO-03",
+   "verdict": "fixed",
+   "note": "first partial week/month measured from startDate (money goal from 27 Nov ignores 20\u201326 Nov entries; weekly outcomes marked partial)"
+  },
+  {
+   "id": "GO-04",
+   "verdict": "fixed",
+   "note": "grid change prunes overlapping outcomes \u2014 but see GO-31: Restart/Starts change on a weekFrom-start goal deletes all history"
+  },
+  {
+   "id": "GO-05",
+   "verdict": "fixed",
+   "note": "manual goal met at 2/2, target raised to 10 \u2192 active, 2 of 10, receipt kept"
+  },
+  {
+   "id": "GO-08",
+   "verdict": "fixed",
+   "note": "no-overdue from 20 Nov with 3 overdue: breach recorded {at 27 Nov, value 3}, failed"
+  },
+  {
+   "id": "GO-11",
+   "verdict": "fixed",
+   "note": "cards-reviewed subject ja counts a ja session's n (7); ja-facets 7; Reports counts the same m.n"
+  },
+  {
+   "id": "GO-24",
+   "verdict": "fixed",
+   "note": "changing topics-green subject re-baselines (baseline 0 for maths, current 0)"
+  },
+  {
+   "id": "GO-27",
+   "verdict": "fixed",
+   "note": "exam_recall made with 0 rated cards: baseline null, no line, meta 'Appears after 20 rated cards\u2026'"
+  },
+  {
+   "id": "GO-09",
+   "verdict": "fixed",
+   "note": "report.js:755 attributes a period by KOS.goals.periodEnd (code read; not re-measured in Reports)"
+  },
+  {
+   "id": "GO-10",
+   "verdict": "fixed",
+   "note": "missed notice keyed by its deadline (goal:103:missed:2026-11-26) and sent once; second tick sends nothing"
+  },
+  {
+   "id": "GO-18",
+   "verdict": "fixed",
+   "note": "spend-under with no Money records in its range: current null, 'No spending recorded', not Met"
+  },
+  {
+   "id": "GO-19",
+   "verdict": "partly",
+   "note": "hero counts follow the tab and filter, but 'on track now' includes Too early to call (GO-37)"
+  },
+  {
+   "id": "GO-26",
+   "verdict": "fixed",
+   "note": "a met goal leaves pinned(); pin() refuses 'A met or missed goal can't be pinned.'"
+  }
+ ]
+}
