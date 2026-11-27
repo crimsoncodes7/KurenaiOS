@@ -12,6 +12,16 @@ are complete, plus one pass on the user's own data (the copy account, slot 7).
 
 ## The P0, and what was fixed at once
 
+**Shipped 27 Nov 2026 as sw `kos-qol-5`** (main `0c93408a`; immutable
+https://7a10f634.kurenai-os.pages.dev). Carbon approved SY-33 and AP-21 and
+held SY-38. The hold was answered on the same branch (19afe3f0): the
+two-tab adopt and merge now follow a record by its creation stamp, the three
+remaining merge sites pass their renames, and the assignment detail follows
+its live record (smoke196 G3, clean and dirty). The audit branch now carries
+`main`, so Batch 2 runs on `kos-qol-5`. In production after a reload the
+stand-ins are in at 225 ms with the due count right, and a reviewed Mind
+card's memory reads (recall 0.81).
+
 Each fix is on its own branch, cut from `main` (`fa4264d0`), with a
 regression step and the full gate (183/183). None is merged: verify them first.
 
