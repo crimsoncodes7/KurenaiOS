@@ -15,7 +15,19 @@ the service-worker version). Git holds the rest.
   `5bece3e`). `ai-chat` is deployed as version 6 (images for Gemini, 26 October 2026); the
   `kos_reports` migration `20261012000001` is applied; so is `kos_money`
   (`20261019000001`, 19 October 2026), live since the Money and Goals release.
-- Latest release: sw `kos-qol-4` (26 November 2026, `integrate/qol-6`
+- Latest release: sw `kos-qol-5` (27 November 2026, `release/kos-qol-5`
+  into main `b115a85a`; immutable https://7a10f634.kurenai-os.pages.dev):
+  the December audit's Batch 1 hotfixes, verified by Gemini 4 Carbon.
+  SY-38 (P0) and DI-33: a pull or another tab that re-keys a record an
+  editor holds no longer makes Save overwrite the other device's record
+  (renames carried from the merge, rows followed by their creation stamps,
+  each live object taken once; invariant 33d; smoke196 G2, G3). SY-33: Mind
+  card reviews no longer throw on a card reviewed before (smoke201 E).
+  AP-21 (with ST-52, ST-51): `lazy-index.js` runs below the content
+  templates, so the curriculum's stand-ins exist from the first moment and
+  due counts are right at boot, under Save-Data too (invariant 168;
+  smoke142 A). Gate 183. No server change.
+- Previous release: sw `kos-qol-4` (26 November 2026, `integrate/qol-6`
   into main `51befd87`; immutable https://6e0fa0f7.kurenai-os.pages.dev):
   Neon's four branches, user-authorised, merged and reviewed together.
   The Study clean-up (`KOS.content.rich` for cards, quizzes and mark
@@ -30,7 +42,7 @@ the service-worker version). Git holds the rest.
   batch 6, 16 tickets, `#/mind/cards` among them). Boot 5,389,075 bytes
   (Pacing's shift and row edits and the Error Log hub's methods load with
   their pages). Gate 183. No server change.
-- Previous release: sw `kos-qol-3` (21 November 2026, `feat/qol-1a` into
+- Before it: sw `kos-qol-3` (21 November 2026, `feat/qol-1a` into
   main `0a2d6982`; immutable https://ccdf9562.kurenai-os.pages.dev): the QoL
   review's 1F (speed) and 1D (Neon's batch 5). 1F: boot 7.76 → 5.11 MB — the
   labs, examiner's notes, the Assistant's tools and page, the topic page,
