@@ -1,0 +1,436 @@
+{
+ "area": "ja-mind",
+ "summary": "12 findings: 2 P1, 3 P2, 7 P3, no P0. The worst is one shared defect: KOS.jaRun.mount leaves an exercise live after it is graded, and the two callers without the session's once-guard count every press — a checkpoint can be passed and paid (60 XP · 15 gold · +5 HP) with every first answer wrong (JM-40), and the kana page records, logs and pays one answer once per Enter (JM-41). Phase 1's Japanese features work as specified (practice-only re-practice, leech recovery with Undo and re-flag, immersion through Focus paid by focusAward, lesson returns, checkpoint ✕ confirm, misses + '+ Log' on the end card) with gaps at their edges: the checkpoint guard covers ✕ only (JM-42), leech rows stretch the desk (JM-43), ✕ still goes to the desk (JM-45), a retry exit revives a finished run (JM-47), immersion readers not updated (JM-48). japanese.facets merge whole by `last` (FACET_PATH) so leechBase is safe; study-cleanup batch 7 touched no Japanese file and every lesson item resolves (28 lessons, 440 items). Baked audio: all 759 pack files exist and resolve.",
+ "counts": {
+  "P1": 2,
+  "P2": 3,
+  "P3": 7
+ },
+ "coverage": {
+  "routes": [
+   "#/subject/ja (desk)",
+   "#/japanese/path",
+   "#/japanese/skills",
+   "#/japanese/kana",
+   "#/japanese/reviews",
+   "#/japanese/checkpoints",
+   "#/japanese/checkpoints/cp-H|cp-K (run)",
+   "#/japanese/settings",
+   "#/japanese/licences",
+   "#/japanese/session/reviews",
+   "#/japanese/session/learn-H1|H2|H3|1.1",
+   "#/japanese/session/practice-H1|1.1",
+   "#/ref/ja/H1|1.1|2.1 (Notes, Practice, Reviews tabs; inspector; Core/Media spine)",
+   "#/focus (immersion field, About to Study, completion)",
+   "#/errorlog (ja entry)",
+   "bogus ids (learn-bogus, practice-bogus, ref ZZ9)"
+  ],
+  "sizes": [
+   "mac",
+   "ipadl",
+   "ipad",
+   "iphone",
+   "split",
+   "slide"
+  ],
+  "accounts": [
+   "dense (mine; Japanese built up by driving lessons, reviews, kana, checkpoints, a Focus immersion session; leeches and due dates set by eval)",
+   "empty"
+  ],
+  "notCovered": [
+   "Sample account (it carries no Japanese data, same as Empty for this area)",
+   "the copy account (slot 7 not used)",
+   "audio playback itself (headless): requests and files checked instead",
+   "Speech recognition (sends to Google; not exercised)",
+   "multi-device merge run live (reviewed in code: cloudmerge FACET_PATH)",
+   "mining (no caller of KOS.ja.mine in this build)"
+  ],
+  "method": "Driver script answering exercises right or wrong through the runner's own DOM (audit-evidence/.../ja-mind/driver.js), ledger/governor/review-log deltas per action, route sweep for overflow and touch targets at six sizes, cold loads."
+ },
+ "findings": [
+  {
+   "id": "JM-40",
+   "severity": "P1",
+   "category": "bug",
+   "title": "A checkpoint counts every Check press: answer wrong, then retype (or pick the other option, or redraw) and press again, and the question scores right — Reading shows '200%', and a run whose every first answer was wrong passes and pays 60 XP · 15 gold · +5 HP",
+   "detail": "#/japanese/checkpoints/cp-H on the dense account (mac). (1) For each of the 12 Reading questions: type a wrong reading + Enter (✗ Wrong), then the right reading + Enter, then Enter again; answer Writing/Listening wrong once. Result card: 'Reading 200% ✓ Pass' (stored R clamped to 1), and each question left three 'Next ›' buttons. (2) Second run: every question's FIRST answer wrong (typed 'zzq'; reversed strokes; the wrong one of the two minimal-pair options), then the right one on the same question: result 'Passed. Reading 100% · Writing 100% · Listening 100%', checkpoints['cp-H'] = {scores R1 W1 L1, passAt, paidAt}, one ledger entry {kind:'checkpoint', first:true, award {xp:60, gold:15, hp:5}}, governor +60 XP +15 gold. Expected: one answer per question, as the review session enforces since 9 Nov ('ONE answer per question', jarun.js:494-497): the first verdict counts and the controls lock. Invariant 116 says a checkpoint pays at 80% in every skill; the score it reads is not the learner's.",
+   "rootCause": "js/modules/japanese.js:731-736 — the checkpoint's KOS.jaRun.mount callback has no once-guard: it does answered++ and right++ and appends a new 'Next ›' on every call. KOS.jaRun.mount (js/modules/jarun.js:117-130, kana-read 132-138, minimal-pair 196-203, kana-write 154-162) leaves the input, Check button, pad and options live after finish(), so each press calls done(res) again. scores[s] = right / keys.length (japanese.js:721) then exceeds 1; KOS.ja.recordCheckpoint clamps to 1 and pays (js/core/ja.js:327-345). Pre-dates Phase 1 (same code at 4c3fc33:japanese.js:622 and f479433b:657); not in November's list.",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/ja-mind/checkpoint-result-mac-mine-R200pct.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/ja-mind/checkpoint-result-mac-mine-inflated-pass.png; scripts /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/ja-mind/cp-inflate.js and /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/ja-mind/cp-inflate2.js (eval output: log of 26 questions 'Wrong … then Correct', rec {scores:{R:1,W:1,L:1}, passAt, paidAt}, dxp 60, dgold 15)",
+   "fix": "Give the checkpoint the session's once-guard: a local `done` flag per question that returns on a second call, disables [data-ui~='ja.check'] and the options, and appends one Next. Better, make KOS.jaRun.mount itself lock the exercise after its first finish() (except the near→Retry path) so every caller (session, checkpoint, kana page) is safe. Add a smoke check that presses Check twice in a checkpoint and on the kana page.",
+   "effort": "S",
+   "devices": [
+    "mac"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": null,
+   "regressionOf": null,
+   "invariants": [
+    "116",
+    "113"
+   ]
+  },
+  {
+   "id": "JM-41",
+   "severity": "P1",
+   "category": "bug",
+   "title": "Kana page: pressing Check or Enter again on one answer records it again — each press is another FSRS review of the same facet, another review-log row, another '+1 XP' and another 'Next ›' (5 presses: reps 5, 5 log rows, +5 XP, set '5 of 20')",
+   "detail": "#/japanese/kana (Mixed) on the dense account after H1 and H2 were started. Read card: type the right reading of さ and press Enter 5 times. Before: facets['k:さ|R'] = {due today, isNew}. After: reps 5 (one answer), 5 review-log rows for ja:k:さ|R, KOS.ja.paidToday() +5, governor XP +5, the set bar '5 of 20', five 'Next ›' buttons. Second repro (し, Check button clicked 3 times): reps 0→3, paid +3, bar 8 of 20. The review session fixed exactly this on 9 Nov ('40 presses made 40 reviews', jarun.js:494-497) but the kana page's two drills never got the guard. Pay is bounded by the 30-a-day cap, but the schedule (reps) and the review log — the FSRS optimiser's input, invariant 111 — are corrupted, and one answer is paid several times (invariant 116: +1 XP a facet answered).",
+   "rootCause": "js/modules/japanese.js:477-480 (nextWrite) and 496-505 (nextRead) — the mount callbacks call J().record(ex.key, res), push a result and kanaSync(false) on every call; KOS.jaRun.mount leaves Check/Enter live after finish() (js/modules/jarun.js:117-130, 132-138, 154-162), so each press is a new record(). Pre-dates Phase 1 (f479433b has the same callbacks).",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/ja-mind/kana-mac-mine-5enter.png; script /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/ja-mind/kana-multi.js (eval: before {due,isNew}, after reps 5, paidTodayDelta 5, xpDelta 5, reviewLogRowsAdded 5, nextButtons 5); second eval on し: repsBefore 0, repsAfter 3, paidDelta 3",
+   "fix": "One answer per question in the kana drills: an `answered` flag in each callback (as jarun.js:494-497) that ignores a second call and disables the card's Check; or lock the exercise inside KOS.jaRun.mount after its first non-near finish() (fixes JM-40 too). Extend smoke83/smoke140 with a double Enter on the kana page asserting one review-log row and +1 XP.",
+   "effort": "S",
+   "devices": [
+    "mac"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": null,
+   "regressionOf": null,
+   "invariants": [
+    "111",
+    "113",
+    "116"
+   ]
+  },
+  {
+   "id": "JM-42",
+   "severity": "P2",
+   "category": "bug",
+   "title": "A checkpoint in progress is lost without asking when left by Back, the rail or any link: only its ✕ asks 'Leave the checkpoint?' (1D ja-mind#3), the page registers no KOS.view.guard",
+   "detail": "#/japanese/checkpoints/cp-H, answer some Reading questions, then KOS.show('home') (as a rail tap): the address moves to #/home at once, no dialog, the answers are gone. Second repro on cp-K: one answer, then history.back(): lands on the previous page, no dialog. The ✕ in the run head does ask (answered && !finished). Invariant 166: a real navigation 'first asks when the page says leaving would lose unsaved work (KOS.view.guard)' — the checkpoint says it through its own ✕ only.",
+   "rootCause": "js/modules/japanese.js:709-714 — leave() is wired to the ✕ button only; checkpointRun never calls KOS.view.guard (js/core/redraw.js:244; the only caller in the app is governor-ui.js:752), so KOS.show/Back navigate freely.",
+   "evidence": "eval: KOS.show('home') mid-cp-H → {hash:'#/home', dialog:[]}; history.back() mid-cp-K → {hash:'#/japanese/checkpoints/cp-H', dialogs:0}; js/modules/japanese.js:709",
+   "fix": "In checkpointRun: KOS.view.guard(function () { return answered && !finished ? { title: 'Leave the checkpoint?', body: 'Your answers so far will not be saved or scored.' } : null; }); keep the ✕ going through KOS.show so it asks once, through the same guard.",
+   "effort": "S",
+   "devices": [
+    "mac"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": "1D ja-mind#3 (leaving a checkpoint asks first — ✕ only)",
+   "regressionOf": null,
+   "invariants": [
+    "166"
+   ]
+  },
+  {
+   "id": "JM-43",
+   "severity": "P2",
+   "category": "layout",
+   "title": "Desk: each set-aside (leech) row in the Rework side card is ~156 px tall, so the row grid stretches Subject analytics with it — 253 px with no leech, 481 px with two, 717 px with four — and its eight tiles float in a mostly empty card (mac 1470)",
+   "detail": "#/subject/ja on the dense account, mac 1470x832. Measured [data-ui~='ja.rework'] and the Subject analytics card heights: 0 leeches 253/253, 2 leeches 481/481, 4 leeches 717/717 (lapses set to 8–10 on hiragana R facets). The analytics card's 2x4 tiles are spread over the stretched height: at four leeches the first tile row sits ~170 px below the card head and the second ~330 px lower, with blank bands between (screenshot). Each leech row stacks glyph, skill chip, reading, 'Set aside' and two full-width-ish buttons ('Relearn from the lesson', 'Back in the schedule') on three lines in a 290 px column; the 5-lapse 'slipping' row is pushed out of the card (limit 4). CLAUDE.md layout rule: no empty gaps or dead space; 'side column never taller than the hero'. iPad portrait (single column) is fine.",
+   "rootCause": "js/modules/japanese.js:262-292 (leechRows: .k-ja-leech-row is flex-direction column with an actions row, css/views/japanese.css:204-207) rendered up to 4 deep by reworkCard (japanese.js:305-321) in the side cell of .k-subj-row (css/views/study.css:14, a grid row whose cells stretch); the analytics card distributes its tiles over the stretched height. Phase 1 bk:ja-mind#4.",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/ja-mind/desk-mac-mine-leeches.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/ja-mind/desk-mac-mine-4leeches.png; eval {rework:253,analytics:253,leechRows:0} → {481,481,2} → {717,717,4}",
+   "fix": "On the desk keep leech rows to one line (glyph · skill · lapses · a single 'Back in the schedule' icon/text button; 'Relearn' lives on the Skill map) and cap the desk card at two rows plus 'N more on the Skill map →'; give .k-subj-row align-items:start (or let the analytics grid keep its natural height) so the side card can never stretch the analytics.",
+   "effort": "S",
+   "devices": [
+    "mac",
+    "ipadl"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": "1E bk:ja-mind#4 (leech recovery on the desk)",
+   "regressionOf": null,
+   "invariants": [
+    "50"
+   ]
+  },
+  {
+   "id": "JM-44",
+   "severity": "P2",
+   "category": "bug",
+   "title": "Lesson inspector 'Due now' and the lesson's Reviews tab count facets the queue holds back today: H1 just passed says 'Due now 10' and lists ten Writing facets as 'due' while Reviews has nothing due (KOS.ja.due() 0)",
+   "detail": "#/ref/ja/H1 right after passing H1 (dense account, mac and iPad). Inspector › Next practice: 'Practice 10 items · Due now 10'; Reviews tab (count 20) lists each kana's W row with Next 'due'. KOS.ja.due() = 0 and the desk's 'Reviews due' tile says 0: the ten k:…|W facets are due today but buried by the sibling rule (their R sibling was reviewed today, JM-11, invariant 113). Second lesson H2 (started): inspector 20 vs queue 10 (the 10 extra are the buried W facets). The learner is told to review ten things the Reviews button will not ask.",
+   "rootCause": "js/modules/jatopic.js:372 counts every lesson facet with f.due <= today, and jatopic.js:290 prints 'due' by the same test — neither reads KOS.ja.due() / KOS.jaSrs.queue (js/core/jasrs.js:124-146), which drops a facet whose sibling was reviewed today unless it is over two days overdue.",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/ja-mind/topic-H1-mac-mine-done.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/ja-mind/topic-H1-ipad-mine-inspector.png; eval [{id:'H1', inspector:10, queue:0, lockedW:10},{id:'H2', inspector:20, queue:10}]",
+   "fix": "Derive both from the queue: due = KOS.ja.due().filter(k => lesson items has split(k).item).length (invariant 26d: one derivation); in the Reviews tab show a buried facet as 'tomorrow' (or 'waits a day') rather than 'due'.",
+   "effort": "S",
+   "devices": [
+    "mac",
+    "ipad"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": null,
+   "regressionOf": null,
+   "invariants": [
+    "113",
+    "26d"
+   ]
+  },
+  {
+   "id": "JM-45",
+   "severity": "P3",
+   "category": "bug",
+   "title": "✕ on a lesson's session leaves to the desk, not the lesson: always on 'Practise again' (it has no results, so no confirm) and on a learn session before its first answer — 1D ja-mind#1 made only the end card go back to the lesson",
+   "detail": "From #/ref/ja/H1 › Practice › '▶ Practise again' (#/japanese/session/practice-H1), answer two questions, press ✕: lands on #/subject/ja with no dialog. #/japanese/session/learn-H2, press ✕ before answering: #/subject/ja. The end cards of the same sessions say 'Back to the lesson' and go to #/ref/ja/<id>. Two runs each.",
+   "rootCause": "js/modules/jarun.js:465-470 — leave() ends with KOS.show('subject','ja') whenever there are no results (practice never has results, jarun.js:500-501); backBtn() (jarun.js:529-533) is the only place that knows lessonId.",
+   "evidence": "eval: practice-H1 → ✕ → {hash:'#/subject/ja', dialog:false}; learn-H2 → ✕ → {hash:'#/subject/ja'}; js/modules/jarun.js:469",
+   "fix": "In leave(): `else if (lessonId) KOS.show('ref', { subject: 'ja', ref: lessonId }); else KOS.show('subject','ja');` (reuse backBtn's target).",
+   "effort": "S",
+   "devices": [
+    "mac"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": "1E bk:ja-mind#1 / 1D ja-mind#1",
+   "regressionOf": null,
+   "invariants": []
+  },
+  {
+   "id": "JM-46",
+   "severity": "P3",
+   "category": "copy",
+   "title": "A Japanese miss logged with '+ Log' reaches the Error Log as internal codes and gives its answer away: 'あ (a) — missed R', topic 'k:あ', context 'R · a'; 'Turn into flashcard' then makes a card whose question already holds the answer",
+   "detail": "Review end card › '+ Log' beside あ (dense). The Error Log hub card reads 'Japanese k:あ · あ', title 'あ (a) — missed R', context 'R · a' (screenshot). The facet code (k:あ, R) leaks as JM-29's family codes did, and the reading (the answer to a Reading miss) is in the title. toFlashcard builds q = title + context and a = context ('R · a'), so the flashcard front shows 'a'. Logged twice (あ in one session, て in another, then Undo) — same shape.",
+   "rootCause": "js/modules/jarun.js:576-589 — title `it.w + ' (' + sub + ') — missed ' + p.skill`, context `[p.skill, sub]`, topicRef p.item; js/modules/errorlog.js:103-116 toFlashcard copies title/context into the card.",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/ja-mind/errorlog-mac-mine-ja-entry.png; eval item {topicRef:'k:あ', title:'あ (a) — missed R', context:'R · a', deepLink:{view:'japanese',arg:{page:'path'}}}",
+   "fix": "Title from the skill's name and without the answer ('あ — Reading missed'), context the meaning/reading only for Listening/Writing misses, topicTitle the lesson ('H1 あ and か rows') with topicRef the lesson id and deepLink to it (#/ref/ja/H1) instead of the path.",
+   "effort": "S",
+   "devices": [
+    "mac"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": "U8 '+ Log' pills on the review end card",
+   "regressionOf": null,
+   "invariants": []
+  },
+  {
+   "id": "JM-47",
+   "severity": "P3",
+   "category": "bug",
+   "title": "Leaving a finished review session during 'Try the misses again' re-saves the finished run: the next visit to Reviews opens on 'Picked up · 30 answered' and the old end card instead of 'Nothing due right now' (and the ✕ warns 'kept and scheduled' about practice answers)",
+   "detail": "Dense account: make kana R facets due, #/japanese/session/reviews, answer to the end with misses (end() drops the run). Press 'Try the misses again', then ✕ → 'Leave the session? What you have answered is kept and scheduled.' → Leave. KOS.sessions.run.get('ja:reviews') now holds the finished session again (sid smwyz5nzbm26rp9, 30 results). Reopen Reviews: chip 'Picked up · 30 answered' and the finished end card with its misses. Control (run dropped by hand): 'Nothing due right now'. Second repro on a fresh set: 'Picked up · 26 answered'. Any review due later that day continues the old ledger entry. Not SY-35 (that is a redraw mid-session).",
+   "rootCause": "js/modules/jarun.js:509-519 reask() clears data-done; leave() (jarun.js:465-470) then sees results && !data-done and confirms into end(true), whose last line keepRun()s an early end (jarun.js:610) although the session had already finished and been dropped.",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/ja-mind/reviews-mac-mine-stale-pickedup.png; eval {dialog:true, runAfterLeave:{sid:'smwyz5nzbm26rp9', n:30}, chip:'Picked up · 30 answered'}; control {first:'Nothing due right now', chip:null}",
+   "fix": "Keep a `finished` flag set by the first end(false); while it is set, ✕ during a retry just shows the end card again (no confirm, no keepRun), and end() never keepRun()s a finished session.",
+   "effort": "S",
+   "devices": [
+    "mac"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": "1D ja-mind#2 (missed answers with a retry on the review end card)",
+   "regressionOf": null,
+   "invariants": [
+    "167"
+   ]
+  },
+  {
+   "id": "JM-48",
+   "severity": "P3",
+   "category": "bug",
+   "title": "Immersion is now logged through Focus (Phase 1) but three readers still look at the dead tally: the Immersion badge counts state.japanese.input (nothing writes it) and stays 'soon', the Today plan still drops Input as not in the app, and About to Study suggests 'Open the notes for Japanese and read the first heading' for a Watching session",
+   "detail": "Desk › 'Log immersion →' opens Focus with Japanese + 'Watching'; a 21-minute stopwatch logged {type:'focus', subject:'ja', metrics.immersion:'watch', secs 1273} paid 24 XP · 2 gold · 4 HP by focusAward (correct) and the desk's 'Input this week' shows 21 m. But: the Immersion badge (achcatalogue.js:374-378) sums japanese.input (KOS.ja.addInput has no caller), so it can never move and stays marked soon; KOS.ja.planDay() still returns input {min 8, inApp:false} and the Today card omits the block (japanese.js:199-201) although the app now runs it; the About to Study sheet's first-action placeholder reads 'Open the notes for Japanese and read the first heading'.",
+   "rootCause": "js/core/achcatalogue.js:374-378 and js/core/ja.js:393-399/:433-438 (planDay input inApp:false, JM-38's note) were not moved to the Focus-ledger reading that js/modules/japanese.js:49-62 weekInput() now uses; js/modules/routineplayer.js:363-371 suggestAction knows nothing of immersion.",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/ja-mind/desk-mac-mine-immersion.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/ja-mind/focus-after-start-mac.png; eval ledger {type:'focus', imm:'watch', secs:1273, award {xp:24,gold:2,hp:4}}; planDay {input:{min:8, inApp:false}}",
+   "fix": "Give KOS.ja one immersion reader (weekInput's ledger sum, by kind and range) and use it for the badge (drop 'soon' once it measures) and for planDay (input inApp: true, its Start opening Focus with the immersion prefilled); suggestAction: 'Start watching / reading / listening' when the session carries immersion.",
+   "effort": "S",
+   "devices": [
+    "mac"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": "1E bk:ja-mind#5 (immersion through Focus)",
+   "regressionOf": null,
+   "invariants": [
+    "116",
+    "161"
+   ]
+  },
+  {
+   "id": "JM-49",
+   "severity": "P3",
+   "category": "bug",
+   "title": "An unknown lesson in a learn route throws and bounces to Home (#/japanese/session/learn-bogus), while practice-bogus says 'Nothing to practise' and #/ref/ja/ZZ9 opens the desk",
+   "detail": "Cold load each route (twice): learn-bogus → #/home; practice-bogus → 'Practise · bogus' with 'Nothing to practise'; #/ref/ja/ZZ9 → #/subject/ja. A stale bookmark or a lesson renamed in a content update lands on Home with no word about Japanese.",
+   "rootCause": "js/modules/jarun.js:384-396 — learn mode does `L.items.forEach` with L = KOS.ja.lesson(id) null (startLesson already returned [] for it); the throw is caught by the router and Home is shown.",
+   "evidence": "cold loads: learn-bogus → {h:'#/home'}; practice-bogus → {t:'Practise·bogus', ex:true}; ref/ja/ZZ9 → {h:'#/subject/ja'}",
+   "fix": "In KOS.views.japanese session branch (js/modules/japanese.js:366-371): when the lesson id does not resolve, replace the route with the desk (as ref does) before calling KOS.jaRun.run.",
+   "effort": "S",
+   "devices": [
+    "mac"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": null,
+   "regressionOf": null,
+   "invariants": [
+    "65"
+   ]
+  },
+  {
+   "id": "JM-50",
+   "severity": "P3",
+   "category": "layout",
+   "title": "Japanese settings: the side 'Licences & credits' card is stretched to the settings card's height (~460 px) around three lines of text, a mostly empty block beside the form (mac)",
+   "detail": "#/japanese/settings, mac 1470: the right column card holds a title, 'Open →' and two lines, then ~360 px of empty card. The CLAUDE.md layout rule (no dead space; side column never taller than its content needs) — the k-ja-twocol grid stretches the side cell.",
+   "rootCause": "js/modules/japanese.js:793-795 (settingsPage builds k-ja-twocol with the licences card alone in k-ja-side); the side card stretches with the grid row.",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/ja-mind/settings-mac-mine.png",
+   "fix": "align-self:start on the side card, or fold the licences link into the settings card as a last row and let the form take the width.",
+   "effort": "S",
+   "devices": [
+    "mac",
+    "ipadl"
+   ],
+   "accounts": [
+    "dense",
+    "empty"
+   ],
+   "phase1": null,
+   "regressionOf": null,
+   "invariants": []
+  },
+  {
+   "id": "JM-51",
+   "severity": "P3",
+   "category": "bug",
+   "title": "Review session: after an answer is graded the input stays live, so a second Enter repaints the verdict — the card reads '✗ Wrong · It reads su' above 'Grade, from your answer · Easy' (the first answer is the one recorded)",
+   "detail": "#/japanese/session/reviews (dense, mac). Type the right reading, Enter (✓ Correct, Grade Easy, one review recorded); edit the field to a wrong reading and press Enter: the verdict box now says ✗ Wrong while the grade line and the schedule keep Easy. Second repro on ひ via the Check button then Enter: same. The once-guard (jarun.js:494-497) stops a second record but not the second verdict; the same unlocked mount is what lets JM-40/JM-41 count twice.",
+   "rootCause": "js/modules/jarun.js:117-130 finish() repaints `out` on every call and nothing disables the input or Enter handler (kana-read 132-138, typed() 214-226, picks() options in minimal-pair 196-203); run() disables only [data-ui~='ja.check'] buttons (jarun.js:498).",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/ja-mind/review-mac-mine-verdict-flip.png; eval {v1:'✓Correct', v2:'✗Wrong', grade:'Easy · next tomorrow', repsDelta:1}",
+   "fix": "Lock the exercise in KOS.jaRun.mount after a non-near finish(): disable the input(s), options, pad and Check (one change that also closes JM-40 and JM-41).",
+   "effort": "S",
+   "devices": [
+    "mac"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": null,
+   "regressionOf": null,
+   "invariants": [
+    "113"
+   ]
+  }
+ ],
+ "novRecheck": [
+  {
+   "id": "JM-06",
+   "verdict": "fixed",
+   "note": "Media spine on #/ref/ja/1.1, then 1.2, H1, 2.1 all open; no throw, no bounce (spine stays 'media')."
+  },
+  {
+   "id": "JM-07",
+   "verdict": "fixed",
+   "note": "A review of an H4 item wrote check[3] 'Held in reviews' to the progress record (null → [F,F,F,T])."
+  },
+  {
+   "id": "JM-08",
+   "verdict": "fixed",
+   "note": "Reload mid-review: one ledger entry (done:false, paid by difference), 'Picked up · 3 answered', finished as one entry. (Redraw renumbering is SY-35.)"
+  },
+  {
+   "id": "JM-10",
+   "verdict": "fixed",
+   "note": "Learn 1.1 asks every Reading facet first; Listening waits (sibling rule)."
+  },
+  {
+   "id": "JM-11",
+   "verdict": "fixed",
+   "note": "Kana W facets due today stay out of the queue after their R sibling was reviewed today (see JM-44 for the readers that ignore this)."
+  },
+  {
+   "id": "JM-12",
+   "verdict": "fixed",
+   "note": "A brand-new facet answered in 0.5 s grades Good (3), s 2.31."
+  },
+  {
+   "id": "JM-13",
+   "verdict": "fixed",
+   "note": "H3 answered all wrong: 'Not passed yet', session entry 0 XP, no lesson pay, no doneAt, misses kept."
+  },
+  {
+   "id": "JM-14",
+   "verdict": "fixed",
+   "note": "Phase 1 bk:ja-mind#4: set-aside rows, 'Back in the schedule' with Undo, leechBase re-flags after 4 more lapses (pure check 10/11/12 no, 13 yes). Layout issue filed as JM-43."
+  },
+  {
+   "id": "JM-15",
+   "verdict": "still open",
+   "note": "Partly addressed: 'Input this week' now fills from Focus immersion; addInput still has no caller and the Immersion badge reads it (JM-48); Speaking switch and Licences lines unchanged (Phase 3)."
+  },
+  {
+   "id": "JM-16",
+   "verdict": "fixed",
+   "note": "Kana W shows its model only with no reps (practice of a passed lesson shows it for never-written kana); checkpoint Writing shows none."
+  },
+  {
+   "id": "JM-18",
+   "verdict": "fixed",
+   "note": "Phase 1 bk:ja-mind#1: 'Practise again' runs the lesson's facets as practice; facets, ledger, governor and review log unchanged (verified)."
+  },
+  {
+   "id": "JM-19",
+   "verdict": "fixed",
+   "note": "Timeline says Calibrating with thin evidence."
+  },
+  {
+   "id": "JM-20",
+   "verdict": "fixed",
+   "note": "cp-H draws a fresh seed per visit; Listening uses six distinct pairs; Writing shows no model."
+  },
+  {
+   "id": "JM-21",
+   "verdict": "fixed",
+   "note": "ja-reviews / ja-lessons / ja-facets / ja-kana-held / ja-words-stable measure the ledger (56 passed = ledger 56; 2 lessons = 2)."
+  },
+  {
+   "id": "JM-26",
+   "verdict": "fixed",
+   "note": "Assistant has ja_ tools (aitools.js)."
+  },
+  {
+   "id": "JM-27",
+   "verdict": "fixed",
+   "note": "After the pass, an all-wrong retake keeps the passing rows and adds 'Last attempt · Reading 0% …'."
+  },
+  {
+   "id": "JM-32",
+   "verdict": "fixed",
+   "note": "Unearnable badges are marked soon (Immersion still reads the dead tally: JM-48)."
+  },
+  {
+   "id": "JM-38",
+   "verdict": "fixed",
+   "note": "planDay leaves input/output out of the total (now stale since immersion exists: JM-48)."
+  },
+  {
+   "id": "JM-03",
+   "verdict": "still open",
+   "note": "Path checkpoint stones 24x24 and unit stones 28x44, Daily-minutes slider 129x16 on every touch size (Phase 3)."
+  },
+  {
+   "id": "JM-05",
+   "verdict": "still open",
+   "note": "Inspector still says '0 of 1 sessions' (Phase 3)."
+  },
+  {
+   "id": "JM-09",
+   "verdict": "still open",
+   "note": "Topic tab strip still collapsed on iPhone/Slide Over (ui.tab 29x44, Learn/Reference cut at 381 px on 375) (Phase 3)."
+  },
+  {
+   "id": "JM-23",
+   "verdict": "still open",
+   "note": "Kana chart columns past the left edge at 402 and 375 (Phase 3)."
+  },
+  {
+   "id": "JM-34",
+   "verdict": "still open",
+   "note": "Practice tab copy unchanged (Phase 3)."
+  }
+ ]
+}
