@@ -1,12 +1,14 @@
 ---
 name: project-branch-and-release-state
-description: "Which git branch is live, what is deployed — check git before trusting this; prod kos-qol-4 (26 Nov, main e36a8f86: Neon's 4 branches incl. 1E); gate 183; next: Phase 2 planning"
+description: "Which git branch is live, what is deployed — check git before trusting this; prod kos-qol-5 (27 Nov, main 0c93408a: Batch 1 hotfixes); Phase 2 audit on audit/2026-12, Batch 1 done + Carbon-verified, next Batch 2"
 metadata:
   node_type: memory
   type: project
   originSessionId: 2e2dc728-9366-4708-9ad8-6718d38edac2
   modified: 2026-11-17T21:04:49.853Z
 ---
+
+**27 Nov 2026: RELEASED kos-qol-5 (main 0c93408a, immutable https://7a10f634.kurenai-os.pages.dev): the December audit's Batch 1 hotfixes — SY-38 (P0) + DI-33 (re-keyed records follow their live object; renames from cloudmerge; creation-stamp guard for other tabs), SY-33 (Mind fsrs.retrievability), AP-21 (lazy-index.js below the content templates). Phase 2: branch audit/2026-12 (docs only; main merged in), README/CARBON.md/BATCH-1.md in docs/audit/2026-12; Batch 1 (PR EX ST SY DI AP) complete and verified by Gemini 4 Carbon (verdicts in carbon/verdicts-1.json; 69 counted: P0 1, P1 13). User's backup restored offline in harness slot 7 (KOS_OFFLINE=1; profile /tmp/kosqa-7). Next: Batch 2 (MG GO JM MI CO) after the user's go-ahead. Fix worktree /Users/fj/Developer/KurenaiOS-fix (needs assets/code/runtime copied for smoke75/76).**
 
 **26 Nov 2026: RELEASED kos-qol-4 (main e36a8f86, immutable https://6e0fa0f7.kurenai-os.pages.dev): Neon's study-cleanup-1, user-custom-1, ux-polish-1 and qol-batch-6 (all of 1E) merged via integrate/qol-6, mind.js conflict resolved onto KOS.flashcards.session, boot trimmed to 5,389,075 B (11 KB free), Error Log 33a/164 gaps fixed; gate 183/183. No REPORT-6 written (reviewed inline at merge). Next: plan Phase 2. /usr/local/bin/node was missing that day: tests ran with PATH=/usr/local/n/versions/node/24.18.0/bin.**
 
