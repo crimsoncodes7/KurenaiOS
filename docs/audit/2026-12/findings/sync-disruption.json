@@ -1,0 +1,476 @@
+{
+ "area": "sync-disruption",
+ "summary": "Background changes mostly land well now: pulls and other tabs name their keys, task pages hold behind the chip, and place (note page, card, quiz, typed text, vault scroll, iPad #stage scroll) survives Refresh at every iPad size; 23 of the 27 November items re-check as fixed (SY-07 not reproducible; SY-10, SY-13 and SY-17 still open). New: one P0 (SY-38) — when a pull re-keys a colliding counter-id record (goals, still per-device counters) while its editor is open, Save overwrites the other device's record; one P1 (SY-33) — Mind's card reviews throw on any card reviewed before (KOS.fsrs.recall does not exist). P2s: held update lost between run tabs (SY-28), the chip reflowing the topic title (SY-29), Focus set-up reset (SY-30), Error Log drill restarting (SY-31), dialog close scrolling to top (SY-37), an update reload dropping other tabs' unsaved work (SY-40).",
+ "coverage": {
+  "accounts": "dense (slot 4 default, seeded), sample and empty (spot checks: a run held behind another tab's save; Focus set-up reset by another tab). The user's own data copy was NOT available and was not run (a separate pass will do it).",
+  "sizes": "ipad and ipadl throughout; split and slide for scroll restoration (8 pages), the run-tab chip loss and the update reload; mac for the chip reflow, Focus, Writing Desk and dialog close; iphone for the chip in the top bar.",
+  "how": "An in-page fake cloud (smoke135's api installed through KOS.cloudsync._config, linked once, then each 'pull' = a modified account copy + syncNow, so every pull lands through cloudsync's own land()/applyDoc and rerenderCurrent); a second CDP page on the same origin for another tab; Google/Todoist faked through KOS.ext.inbound + KOS.ext.changed (no provider called); controllerchange dispatched for the update reload. Helpers and outputs in /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/sync-disruption/.",
+  "surfaces": [
+   "topic notes (page, scroll, chip), Flashcards/Quiz/Exam tabs incl. run lines, the study editor (Flashcards) under a pull",
+   "Due today run",
+   "Code lesson listings and the chip reflow",
+   "Japanese learn session",
+   "Mind cards page (and the Daily 15 by code)",
+   "Creatives Writing Desk",
+   "Focus set-up and a running Focus session, another tab during Focus",
+   "Error Log hub, capture sheet and Quick Error Drill",
+   "Pacing Shift dialog (both steps)",
+   "Handwritten tab",
+   "Edit your seat",
+   "Reminders quick add, Notifications tabs, Collection Overview tabs, #/anime vault scroll, desk unit strip",
+   "Daily Review open/close over a topic and Home",
+   "re-key collisions with the assignment and goal editors open",
+   "a background change while a lazy page bundle loads (#/goals) — drawn once, no stray Loading",
+   "the update prompt's reload in another tab"
+  ],
+  "notCovered": "The user's copy; the Side by side Handwritten panes (SY-07); a real service-worker update; real provider pulls; the Daily 15 run driven end to end (code read); SY-10 menus (expected open). Observation not filed: one ipad #/goals run lost its scroll after the 600 ms floor cleared (h 2485→1120, t 819→0) but two targeted re-runs (G.compute 144/413 ms) kept it — not reproduced. A pulled progress record without `check` crashes every render (hub.js:87) — produced only by my synthetic doc, not by any writer found, so not filed."
+ },
+ "findings": [
+  {
+   "id": "SY-28",
+   "severity": "P2",
+   "category": "bug",
+   "title": "A held update becomes invisible when a topic's Flashcards tab gives way to Quiz (or the deck is remounted after Edit › Done): no chip, no run line, nothing applied",
+   "detail": "Topic #/ref/compsci/4.5.2.1, Flashcards tab open (deck mounted, no card rated). A pull moves progress for this topic: the run line reads 'Updated on another device · it applies when this run ends' and no chip is made. Tap the Quiz tab: KOS.changes.pending() stays {source:'device', why:'task'} but the page shows no chip and the quiz's own run line is hidden and empty (E2: chip null, runLine null). The same after the study editor's Done on the Flashcards tab (the deck remounts with a fresh hidden line). The change only lands when the reader opens a tab without a run (Exam, Notes) or leaves. Measured twice at ipad and split. Expected (165): the chip, or the run line, says what is held for as long as it is held.",
+   "rootCause": "js/core/redraw.js:513-521 — showChip() writes into the run slot and returns before paintChip(), so no chip exists; js/engines/flashcards.js:189 and js/engines/quiz.js:206 mount every new deck/quiz with a hidden, empty [data-run-line] and never call KOS.changes.place() on mount (only at finish, flashcards.js:469, quiz.js:337); the tab click's safePoint (redraw.js:595-600) refuses because runSlot() is truthy (redraw.js:591) and does not re-show anything.",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/sync-disruption/t4.js output (ipad and split): E1 runLine set, E2 {chip:null, runLine:null, pending:{why:'task'}}, E3 applied on Exam tab; t2.js/p4.js: after editor Done {rl:[{hidden:true, txt:''}], chip:null, held:{count:1, areas:{edits:1}}}",
+   "fix": "When safePoint() refuses (or on every tab click with pending), call showChip(); or have the flashcard and quiz engines call KOS.changes.place() once when they mount their heldLine.",
+   "effort": "S",
+   "devices": [
+    "ipad",
+    "split"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": null,
+   "regressionOf": null,
+   "invariants": [
+    "165"
+   ]
+  },
+  {
+   "id": "SY-29",
+   "severity": "P2",
+   "category": "layout",
+   "title": "The held-update chip squeezes a topic's title row: the title and breadcrumb rewrap and the notes jump down 54–125 px under the reader when a pull arrives",
+   "detail": "On a topic page scrolled to the top (#/ref/compsci/4.5.4.3, #/ref/code/1.3), a pull that the page reads shows the 257 px chip in the title row. The title (and the breadcrumb under it) rewraps to more lines, so the notes body moves down while the reader is reading it: CS topic notes y 373→427 (ipad), 319→373 (ipadl), 257→347 (mac); Code 1.3 at ipad the header grows 85→210 px and the notes move 316→441 (title on three lines, breadcrumb on two). Split (590) does not move. Further down the page Chrome's scroll anchoring hides it, but at the top nothing compensates (and Safari's anchoring is weaker). Reproduced on each run (twice per size). Invariant 165 says nothing moves under the reader; the chip itself moves the page.",
+   "rootCause": "js/core/redraw.js:483 chipHost() puts the chip in `.k-topic-head .k-topic-steps` (inserted before ‹ ›, :527); css/views/study.css:186/193 — .k-topic-head is a flex row and .k-topic-steps takes its content width from the title column, so a 257 px chip narrows the title by that much.",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/sync-disruption/topic-chip-shift-mac-dense.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/sync-disruption/code-lesson-chip-ipad-dense.png; t11.js {h0:85.2, h1:210.3, notesY0:316, notesY1:441} (ipad), split unchanged; t12.js per size",
+   "fix": "Give the chip a slot that does not share the title's row width: absolutely position it in the head's actions corner, reserve its inline space up front (the steps' min-inline-size), or ride the tabs row/foot as the phone does; then a chip appearing never reflows the title.",
+   "effort": "S",
+   "devices": [
+    "mac",
+    "ipadl",
+    "ipad"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": null,
+   "regressionOf": null,
+   "invariants": [
+    "165"
+   ]
+  },
+  {
+   "id": "SY-30",
+   "severity": "P2",
+   "category": "bug",
+   "title": "Focus's set-up form (mode, subject, nudge, limit) resets to the last session's settings when another device's or tab's session lands",
+   "detail": "#/focus with no session running. Pick Stopwatch, a 90-minute nudge and the subject Maths (nothing started yet), wait 4.5 s, then a pull that adds a session from another device (sessions moved). The page redraws at once (not a task page, nothing held) and the form comes back as Pomodoro 25/5, nudge 50, subject '' — measured twice (ipad, mac): before {mode:'Stopwatch', ns:'90', subj:'maths'} → after {mode:'Pomodoro 25 / 5', ns:'50', subj:''}. Only the typed objective survives (the typed-text rule). The reader who then taps Start runs a session with the wrong mode and no subject (its pay and the subject's study time follow the subject, invariant 4a). Also with another tab as the source on the Empty account (ea1/eb1/ea2.js: Stopwatch → 'Pomodoro 25 / 5' after tab B saved a session).",
+   "rootCause": "js/modules/focus.js:2263-2290 — the set-up is rebuilt on every render from F().lastConfig (cfg) and held only in the render's closure and controls; js/core/redraw.js:75 READS.focus includes sessions/governor/progress, and focus is neither in TASK (redraw.js:102) nor guarded by KOS.view.hold, so a background change redraws the form at once (redraw.js:657); restore() puts back only text fields (redraw.js:273-277), never selects or the mode buttons.",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/sync-disruption/f3.js output (ipad, mac); f2.js (objective kept, nudge select reverted 90→50)",
+   "fix": "Keep the unsaved set-up in KOS.view.memo('focus.setup') (seeded from lastConfig once per visit) so a redraw draws the reader's choices, or KOS.view.hold() while the form differs from lastConfig.",
+   "effort": "S",
+   "devices": [
+    "ipad",
+    "mac"
+   ],
+   "accounts": [
+    "dense",
+    "empty"
+   ],
+   "phase1": null,
+   "regressionOf": null,
+   "invariants": [
+    "165",
+    "4e"
+   ]
+  },
+  {
+   "id": "SY-31",
+   "severity": "P2",
+   "category": "bug",
+   "title": "The Error Log's Quick Error Drill starts over at item 1 on Refresh, on the two-minute safe moment and on its own Undo — the place, the revealed card and the run's tallies are lost",
+   "detail": "#/errorlog/drill with 6 open mistakes. Mark two 'Still shaky' (DRILL · 3 OF 6). A pull that moves srs (the drill page reads errorLog/custom/srs) shows the chip correctly and keeps the page; but Refresh (KOS.changes.apply) or the idle safe moment (KOS.changes.safePoint('idle'), what 2 minutes untouched does by itself) redraws it as DRILL · 1 OF 6, unrevealed, with resolvedN/revisitedN back to 0, and the two items just marked come round again. The same with the Undo on 'Marked resolved.' (3 OF 6 → 1 OF 6). A Refresh with nothing relevant also restarts it (3 OF 6 → 1 OF 5). Measured twice (ipad, split). The chip's Refresh promises 'your place is kept'.",
+   "rootCause": "js/modules/errorlog.js:328-334 — renderDrill keeps queue, idx, revealed, resolvedN and revisitedN in the render's closure and recomputes the queue from E().all({status:'open'}) on every render; :442 the Undo runs a plain KOS.rerender(); errorlog is a TASK page (js/core/redraw.js:103) but has no [data-run-line], so safePoint (redraw.js:587-594) applies the held change mid-drill.",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/sync-disruption/e1.js (ipad) {k1:'DRILL · 3 OF 6', kApply:'DRILL · 1 OF 5', revealedApply:false}; e2.js (ipad, split) {kPull:'3 OF 6', kIdle:'1 OF 6', kBeforeUndo:'3 OF 6', kAfterUndo:'1 OF 6'}",
+   "fix": "Keep the drill's queue ids, idx, revealed and tallies in KOS.view.memo('errorlog.drill') (or KOS.sessions.run as the flashcard runs do) and draw from it; mark the drill a run (a [data-run-line] under its kicker) so nothing applies mid-drill; repaint() instead of KOS.rerender() in the Undo.",
+   "effort": "S",
+   "devices": [
+    "ipad",
+    "split"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": "U7 (5cbda7e2) — the Universal Error Log",
+   "regressionOf": null,
+   "invariants": [
+    "165",
+    "166"
+   ]
+  },
+  {
+   "id": "SY-32",
+   "severity": "P3",
+   "category": "bug",
+   "title": "Pacing's Shift confirms a different set of rows from the one previewed when a pull lands while the dialog is open (preview 252, shifted 254)",
+   "detail": "#/pacing › Shift plan… › Both › Preview → '252 rows moving'. While step 2 is open, a pull adds two My plan rows from another device in a coming week (the page change is correctly held: pending why 'dialog'). The preview is not redrawn and still says 252; Confirm shift toasts 'Shifted 254 rows 1 week later' — the two rows the reader never saw moved too. Undo puts them back. Reproduced twice at ipad.",
+   "rootCause": "js/modules/pacing.js:778-781 — Confirm calls KOS.pacing.shiftPlan(n, opts), which recomputes shiftPreview() against the live state (pacing.js:183-188) instead of applying the moves the reader previewed (renderStep2's pv); the dialog has no change listener (KOS.changes.on) to repaint step 2 when pacing moves.",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/sync-disruption/pc2.js (ipad): {chips:'252 rows moving', afterPull chips:'252 rows moving', toast:'Shifted 254 rows 1 week later · 1 week added'}",
+   "fix": "Pass the previewed move ids to shiftPlan (move only those still present), or repaint step 2 from KOS.changes.on when 'pacing' moves and say 'The plan changed on another device — preview updated'.",
+   "effort": "S",
+   "devices": [
+    "ipad"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": "U4 (25a1b650) — the 2-step Shift preview",
+   "regressionOf": null,
+   "invariants": [
+    "84",
+    "165"
+   ]
+  },
+  {
+   "id": "SY-33",
+   "severity": "P1",
+   "category": "bug",
+   "title": "Mind's card reviews (#/mind cards page and the Daily 15) throw 'KOS.fsrs.recall is not a function' on every card already reviewed once: the page is half drawn and the address stays on the previous page",
+   "detail": "Rate a Mind card once through KOS.mind.rateCard (a real record: {reps:1, s:2.31, d:2.12, last, due}); when it is due again, open 'Review my Mind cards' (KOS.show('mind',{page:'cards'})). KOS.show throws TypeError: KOS.fsrs.recall is not a function (mind.js:937 via flashcards.js:94 historyLine ← show :358). The view is left part-drawn: the card shows but the history line, the deck line, the info panel (THIS DECK empty) and the per-card answer pad set-up never run; the router never records the page, so the address stays '#/home' (a reload or Back goes elsewhere) and state.ui.view is not saved. Every later reviewed card throws again on show (3 uncaught exceptions in 10 ratings); ⓘ Card stats (metricsPanel → srs.memory) throws the same. Only a card never reviewed (no reps, no s) draws. Ratings still land in Think/Type mode. From the second review of any card on, this is the normal case. Reproduced at ipad 3 times (m3–m6.js). Found while checking the Phase 1 move of #/mind cards onto the shared flashcard session.",
+   "rootCause": "js/modules/mind.js:937 — mindSrs().memory calls KOS.fsrs.recall(m.s, el), which does not exist; js/core/fsrs.js:209-226 exports retrievability(), not recall (introduced by 29ee1108, Phase 1 T3). Used by js/engines/flashcards.js:68 (metricsPanel) and :94 (historyLine).",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/sync-disruption/mind-cards-reviewed-ipad-dense.png; m5.js {err:'TypeError: KOS.fsrs.recall is not a function', hash:'#/home'} with console EXC ×3 at mind.js:937; m4.js (10 ratings, 3 exceptions)",
+   "fix": "Use KOS.fsrs.retrievability(el, m.s) (check its argument order in fsrs.js:45) in mindSrs().memory, and add a smoke case that shows a reviewed Mind card through KOS.flashcards.session.",
+   "effort": "S",
+   "devices": [
+    "ipad"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": "T3 (29ee1108) — Mind flashcards on the shared session",
+   "regressionOf": null,
+   "invariants": [
+    "111",
+    "137"
+   ]
+  },
+  {
+   "id": "SY-34",
+   "severity": "P3",
+   "category": "bug",
+   "title": "A redraw in the middle of 'Review my Mind cards' logs the run so far and starts a new one: two ledger entries for one sitting, and the progress restarts",
+   "detail": "Mind's card page (KOS.show('mind',{page:'cards'})) with 12 due cards: rate 3 (Question · 9 left of 12, no ledger entry yet), then any redraw of the page (KOS.rerender(): the Journal-ready redraw mind.js:231 after a fresh load, or a Refresh) → the page logs a 'mind' reviews entry for the 3 (ledger +1) and draws a new run 'Question · 9 left of 9'; rate 2 more and leave → a second entry (cards 2). One sitting = 2 entries {cards:3},{cards:2}. Pay is per passed card under the daily cap, so the XP total is right, but the run's pips and 'N cards rated' restart and the ledger shows two sessions. The Daily 15 keeps its results in state.ui and does not split. Reproduced twice at ipad.",
+   "rootCause": "js/modules/mind.js:958-965 — cardsPage keeps results/logged in the render's closure and registers finishOnce with KOS.view.onDispose, which runs on every render end including a redraw (js/core/redraw.js:126-133, endRender), not only on leaving; no KOS.sessions.run record is kept, unlike the Daily 15 (mind.js:692, ui.daily).",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/sync-disruption/m7.js (ipad): {c3:'Question · 9 left of 12', l3:0, cAfter:'Question · 9 left of 9', lAfter:1, lEnd:2, entries:[{cards:3},{cards:2}]}",
+   "fix": "Keep the run's results in KOS.view.memo('mind.cards') (or state.ui like the Daily 15) and log in onDispose only when {leaving: true}; or use KOS.sessions.upsert with a sid as the other runs do (invariant 167).",
+   "effort": "S",
+   "devices": [
+    "ipad"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": "mind#3 (328e6856) / T3 (29ee1108) — Mind cards outside the Daily 15",
+   "regressionOf": null,
+   "invariants": [
+    "5",
+    "167"
+   ]
+  },
+  {
+   "id": "SY-35",
+   "severity": "P3",
+   "category": "ui",
+   "title": "A redraw of a Japanese session renumbers it ('4 / 10' becomes '1 / 7') and says 'Picked up · 3 answered', as if the reader had left",
+   "detail": "#/japanese/session/learn-H2: answer three (4 / 10, せ on screen), then a redraw (the chip's Refresh, KOS.changes.apply). The same question comes back with the typed answer kept (SY-09 is fixed: nothing is lost, one ledger entry), but the counter restarts at '1 / 7' and a 'Picked up · 3 answered' chip appears. Invariant 167: a redraw of the page says nothing; the counter should keep counting the session. Reproduced at ipad and split (j6.js).",
+   "rootCause": "js/modules/jarun.js:438-450 — restore() runs on every render and sets resumed = true whenever the run record has results, without telling a redraw (KOS.ui.redrawing / KOS.view.memo) from a return; :462 draws the chip from it; the progress counts only the rebuilt list of what is still to ask.",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/sync-disruption/j6.js: ipad {before:'4 / 10 せ', after:'1 / 7 せ', val:'typed-for-せ', resumedChip:true}; split {before:'4 / 7 ち', after:'1 / 4 ち', resumedChip:true}",
+   "fix": "Mark the visit in KOS.view.memo('ja.run') and show the chip only when the record predates this visit; count the position as results.length + index of the list (total = answered + still to ask).",
+   "effort": "S",
+   "devices": [
+    "ipad",
+    "split"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": null,
+   "regressionOf": null,
+   "invariants": [
+    "167"
+   ]
+  },
+  {
+   "id": "SY-36",
+   "severity": "P3",
+   "category": "a11y",
+   "title": "Creatives' Writing Desk loses keyboard focus and the caret on every redraw (and after ▶ Start a sprint): the paper is drawn after an IndexedDB read, after the redraw has tried to restore focus",
+   "detail": "#/creatives/write/<draft>: focus the paper (cr.paper) with the caret at 3, then a redraw (KOS.rerender(), what the desk's own Sprint button and a Refresh do). Focus lands on <body> at 50 ms and stays there; the new paper exists only after the draft loads. Measured at ipad and mac (c3.js: before 'cr.paper', a50 'BODY', a850 'BODY'). The text survives (the desk saves its own draft), so nothing is lost, but on the iPad the keyboard closes and the caret is gone; 'Start a sprint' calls area.focus() on the old, detached textarea (crwrite.js:196-197). A topic's quick note, drawn synchronously, keeps focus (c4.js).",
+   "rootCause": "js/modules/crwrite.js:28 (load via F().get, async) — the desk and its paper (:114) mount in the callback, after js/core/redraw.js:388 restore(cap) has run synchronously; again() (redraw.js:393-401) re-puts scroll only, never focus; crwrite.js:196-197 focuses the pre-redraw node.",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/sync-disruption/c3.js (ipad, mac) {before:'cr.paper', a50:'BODY|null', a850:'BODY|null', same:false}; c4.js paperSync:false right after KOS.show",
+   "fix": "In redraw.js again(), retry the focus restore (findAgain) while focus is still on body and the reader has not acted; or keep the open draft in KOS.view.memo so the desk draws synchronously on a redraw; in the sprint, focus the paper found after the redraw.",
+   "effort": "S",
+   "devices": [
+    "ipad",
+    "mac"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": null,
+   "regressionOf": null,
+   "invariants": [
+    "65",
+    "165"
+   ]
+  },
+  {
+   "id": "SY-37",
+   "severity": "P2",
+   "category": "bug",
+   "title": "Closing a dialog that opened while focus was on #main (the Daily Review, an unlock, any dialog not opened by a tap) throws the page back to the top",
+   "detail": "After any navigation the router focuses #main. On #/ref/compsci/4.5.4.3 (Page 3 of 7) scroll #stage to 500, open the Daily Review (KOS.reviewSheet.open('evening'), as its auto-open and the header chip's keyboard path do), then Later: the review changes nothing the page reads (KOS.rerender soft with changed [] — no redraw), yet #stage scrolls to 0 at the moment the dialog closes (one scroll event, 500→0). Same at mac (429→0). The page and its note page are kept, only the reader's place in it is lost. Any dialog opened while document.activeElement is #main does it (programmatic opens: the review's auto-open, the unlock overlay, Leave without saving?, a confirm from a keyboard shortcut). Reproduced twice per size (r1.js, r2.js). Not the redraw: the dialog's focus return.",
+   "rootCause": "js/core/ui.js:211 restoreTo = document.activeElement (#main after a navigation) and :275-277 teardown() calls restoreTo.focus() without {preventScroll: true}; focusing #main scrolls its top into view in #stage.",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/sync-disruption/r2.js ipad {a0:'MAIN', whileOpen:500, rr:1, rrArg:'{background:soft, changed:[]}', after50:0, ev:[[1431,0]]}; mac {whileOpen:429, after:0}",
+   "fix": "restoreTo.focus({preventScroll: true}) in teardown (and in the same restore paths in mobile-shell.js if any); invariant 165 keeps the page scroll on every redraw, and a dialog closing should not be the one thing that moves it.",
+   "effort": "S",
+   "devices": [
+    "ipad",
+    "mac"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": null,
+   "regressionOf": null,
+   "invariants": [
+    "65",
+    "165",
+    "49"
+   ]
+  },
+  {
+   "id": "SY-38",
+   "severity": "P0",
+   "category": "data",
+   "title": "A pull that re-keys a colliding record while its editor is open makes Save overwrite the OTHER device's record (goals, assignments and every counter-id record edited by object)",
+   "detail": "Two devices each add a goal between syncs, both get goals.nextId = 10 (goals still mint per-device counter ids). On this device the goal editor is open on its goal 10 ('LOCAL goal: 10 h of CS', title edited to '…12 h… (edited)'). A pull lands: the merge correctly re-keys the local goal to 11 and keeps the other device's goal as 10 ('REMOTE goal: read 3 books', target 3). The editor stays open; Save writes the edited fields with G.update(existing.id = 10, …): final {id:11, 'LOCAL goal: 10 h of CS', target 10 — edit lost}, {id:10, 'LOCAL goal: 12 h of CS (edited)', target 10 — the other device's goal overwritten}. The next push sends the overwrite to the other device: its goal is gone everywhere, and the edit went to the wrong record. Same with an assignment holding a numeric id (k1.js: the other device's 'REMOTE lab report' maths/inProgress/40%/notes replaced by the local essay's fields). Reproduced at ipad (k1.js assignments, k2.js goals). New assignments, reminders and events take random ids since 1A, but goals, pacing rows, tracker entries, resources, wishlist items, todo items and oop classes still mint counter ids (cloudmerge.js RECORDS), so a collision needs only two devices adding a record before they sync.",
+   "rootCause": "js/core/store.js:807-822 assignList (applyDoc, used by replaceState since 1A bk:data-integrity#5) keeps object identity BY ID: after cloudmerge re-keys the local record (cloudmerge.js:66-110 RECORDS, invariant 33a), the object that held the local record is matched to the merged record that now owns its old id — the OTHER device's — and filled with its fields; the re-keyed local record becomes a new object. Editors hold the record object and save by its id: js/modules/goals.js:1048/1076 G.update(existing.id, fields), js/modules/assignments.js:356/443 A().update(existing.id, patch). Before 1A the held object was detached but the save by id hit the same wrong record. The editor neither learns that its record was re-keyed nor checks that the record it saves is still the one it loaded.",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/sync-disruption/k2.js (ipad): afterPull [{id:11,'LOCAL goal: 10 h of CS'},{id:10,'REMOTE goal: read 3 books',target:3}] → final [{id:11,'LOCAL goal: 10 h of CS'},{id:10,'LOCAL goal: 12 h of CS (edited)',target:10}]; k1.js (ipad): assignment 9999 'REMOTE lab report (other device)' maths → final 'LOCAL essay (this device)' compsci notes 'EDITED in the editor'",
+   "fix": "In applyDoc/assignList, do not reuse a dst object for a src record of a different identity: when the merge re-keyed a record, move the old object to the NEW id (carry a re-key map out of cloudmerge, as refs are rewritten) so references follow their own record; and have editors save against the record they loaded (a createdAt/syncId check, or KOS.store.idOf through the re-key map) and refuse with 'This record changed on another device' otherwise. Finish moving goals (and the other counter arrays) to KOS.store.newId random ids.",
+   "effort": "M",
+   "devices": [
+    "ipad"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": "None as cause: saving by the held id hit the other device's record before 1A too; 1A's in-place applyDoc (bk:data-integrity#5) now also fills the held object with the other device's fields",
+   "regressionOf": null,
+   "invariants": [
+    "33a",
+    "33d",
+    "36a"
+   ]
+  },
+  {
+   "id": "SY-39",
+   "severity": "P3",
+   "category": "bug",
+   "title": "A Google Calendar or Todoist/Google Tasks pull still never reaches the open Calendar or Reminders page (no redraw, no chip) — November's SY-17, marked fixed by W2",
+   "detail": "On #/reminders, a provider pull's write (KOS.ext.inbound(() => KOS.reminders.add(…)) then KOS.ext.changed(), the path exttasks.js:434 takes) leaves the page as it was, with nothing pending (KOS.changes.pending() null) — the reminder appears only on the next redraw (x2.js: before false, after KOS.rerender() true). The same on #/calendar for an event written as extgcal.js:355 does. Waited 3.5 s after 4.3 s untouched; ipad and mac. Only the Connections page listens (connections.js:182). Provider calls were not made (no sign-in in the harness): the write path was driven directly.",
+   "rootCause": "js/core/ext.js:467-477 syncAll ends with changed() (ext.js:394), which calls only KOS.ext.onChange listeners; neither ext.js, extgcal.js nor exttasks.js calls KOS.changes.note(['reminders'|'calendar'], {source:'device'}) after an inbound write, so the change bus (js/core/redraw.js:640-680, invariant 164) never hears of it. Only the read-only copy notes 'ext:gcal' at boot (ext.js:509).",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/sync-disruption/x1.js (ipad, mac): {remShown:false, inState:true, pending:null, calShown:false, calPending:null}; x2.js {before:false, afterRedraw:true}",
+   "fix": "At the end of syncAll (or per provider in runProvider), diff KOS.changes.snapshot() around the inbound writes and call KOS.changes.note(moved, {source:'device'}) so the page redraws or shows the chip like any other background change.",
+   "effort": "S",
+   "devices": [
+    "ipad",
+    "mac"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": null,
+   "regressionOf": "SY-17",
+   "invariants": [
+    "164",
+    "158"
+   ]
+  },
+  {
+   "id": "SY-40",
+   "severity": "P2",
+   "category": "bug",
+   "title": "Confirming 'Update ready · Reload now' in one tab reloads every other open tab at once, without asking — a page that holds unsaved work (Edit your seat's draft, an open editor or capture sheet, typed text) loses it",
+   "detail": "Tab B on #/governor/edit with an unsaved change (KOS.view.dirty() true: its guard would ask 'Leave without saving?' on navigation). In tab A the reader confirms the update (pwa.js offerUpdate → SKIP_WAITING): every tab gets controllerchange. Simulated in tab B by dispatching controllerchange on navigator.serviceWorker (the controller exists): tab B reloads within 3 s (the CDP target navigates), comes back on #/governor/edit with dirty false — the draft is gone. Reproduced at ipad and split (u1.js/u2.js). The prompt says 'Your data is unaffected either way'; unsaved drafts, a typed capture sheet or editor field in the other tab are not.",
+   "rootCause": "js/core/pwa.js:96-101 — the controllerchange handler calls KOS.pwa.reloadPage() whenever the tab had a controller; reloadPage (pwa.js:146-152) flushes the store but never consults KOS.view.dirty()/holding() or an open dialog, unlike KOS.show's guard (js/core/redraw.js:151-163, invariant 166).",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/sync-disruption/u1.js (tab B, ipad and split): {dirty:true, ctrl:true} then 'Inspected target navigated or closed'; u2.js after reload {marker:null, dirty:false, h:'#/governor/edit'}",
+   "fix": "In the controllerchange handler of a tab that did not confirm: if KOS.view.dirty() or a dialog/field holds work, show a chip/toast 'Updated — reload when ready' (or the guard's confirm) instead of reloading; reload by itself only when nothing would be lost.",
+   "effort": "S",
+   "devices": [
+    "ipad",
+    "split"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": null,
+   "regressionOf": null,
+   "invariants": [
+    "38",
+    "166"
+   ]
+  }
+ ],
+ "novRecheck": [
+  {
+   "id": "SY-18",
+   "verdict": "fixed",
+   "note": "t2.js (ipad): a card pulled from another device while the study editor is open survives the editor's later saves (hasRemote:true); the editor merges against its base (editor.js:412-417, edits.js:271-290). See SY-38 for the same class of bug on counter-id records."
+  },
+  {
+   "id": "SY-01",
+   "verdict": "fixed",
+   "note": "s1.js: #stage scroll kept through a background redraw on 8 pages × ipadl/ipad/split/slide (one unreproduced ipad #/goals reset in 1 of 3 runs, see coverage)."
+  },
+  {
+   "id": "SY-02",
+   "verdict": "fixed",
+   "note": "t1.js: notes 'Page 3 of 7' kept through a held pull and Refresh (ipad); the page is kept across visits too."
+  },
+  {
+   "id": "SY-03",
+   "verdict": "fixed",
+   "note": "t5.js: flashcard run 27/30 kept through a pull and a Refresh, one ledger entry by sid, a card rated elsewhere skipped."
+  },
+  {
+   "id": "SY-04",
+   "verdict": "fixed",
+   "note": "t6.js (ipadl): quiz 'Question 3 of 12' and an exam's typed answer kept through Refresh."
+  },
+  {
+   "id": "SY-05",
+   "verdict": "fixed",
+   "note": "Pulls name their keys; a page that does not read them is not redrawn (e1.js: progress pull on the drill, pending null); task pages hold."
+  },
+  {
+   "id": "SY-06",
+   "verdict": "fixed",
+   "note": "r2.js: closing the Daily Review issues a soft rerender with changed [] and redraws nothing; the scroll still jumps, but from the dialog's focus return (new SY-37)."
+  },
+  {
+   "id": "SY-07",
+   "verdict": "not reproducible",
+   "note": "i1.js: the Handwritten tab is held (KOS.view.hold), #stage scroll kept through Refresh at ipadl/ipad; Side by side panes were not re-run."
+  },
+  {
+   "id": "SY-08",
+   "verdict": "fixed",
+   "note": "Typed exam answer and Code listing keep focus/text; a background redraw waits while a field is in use (pending why 'typing')."
+  },
+  {
+   "id": "SY-19",
+   "verdict": "fixed",
+   "note": "v1.js: #/anime scroll at ~36000 px kept through Refresh at ipad and ipadl; a touch-scroll right after the restore is respected."
+  },
+  {
+   "id": "SY-20",
+   "verdict": "fixed",
+   "note": "n2.js: Edit your seat holds (why 'work'), tab and draft kept through Refresh."
+  },
+  {
+   "id": "SY-09",
+   "verdict": "fixed",
+   "note": "j5/j6.js: a Japanese session keeps its answers, question and typed answer through Refresh; one ledger entry. New P3 SY-35 (renumbers, says 'Picked up')."
+  },
+  {
+   "id": "SY-10",
+   "verdict": "still open",
+   "note": "Expected open (Phase 3): KOS.show still closes menus on every redraw (ui.js:1632 closeOpenMenu); not re-reported."
+  },
+  {
+   "id": "SY-11",
+   "verdict": "fixed",
+   "note": "t9.js: Code listing edit kept through Refresh and a plain redraw (codeui.js:709-712)."
+  },
+  {
+   "id": "SY-12",
+   "verdict": "fixed",
+   "note": "Code: a local soft change on a task page is dropped, no redraw, no chip (redraw.js:652-655); not driven end to end."
+  },
+  {
+   "id": "SY-14",
+   "verdict": "fixed",
+   "note": "Code: the retrieval attempt (tries, hint, start) is kept in KOS.sessions.run (code.js:1022-1029); not driven end to end."
+  },
+  {
+   "id": "SY-21",
+   "verdict": "fixed",
+   "note": "n2.js: the CS desk's unit strip keeps scrollLeft 300 through Refresh."
+  },
+  {
+   "id": "SY-22",
+   "verdict": "fixed",
+   "note": "n1.js: Notifications 'Unread' and Collection Overview 'Analytics' tabs kept through a background redraw/Refresh."
+  },
+  {
+   "id": "SY-23",
+   "verdict": "fixed",
+   "note": "Code: the unlock overlay waits while A().quiet(true) on a task page (achievements.js:130); not driven."
+  },
+  {
+   "id": "SY-24",
+   "verdict": "fixed",
+   "note": "n1.js: Reminders quick-add 'half a thou' kept after blur + a pull that redrew the page."
+  },
+  {
+   "id": "SY-25",
+   "verdict": "fixed",
+   "note": "Code: delayed redraws use KOS.view.redrawIfStill (examviews.js:16/119, connections.js); mind.js:52/231 are guarded."
+  },
+  {
+   "id": "SY-26",
+   "verdict": "fixed",
+   "note": "The held-update chip shows on task pages and Refresh applies it (t1.js and throughout); see SY-28/SY-29 for its gaps."
+  },
+  {
+   "id": "SY-15",
+   "verdict": "fixed",
+   "note": "A background redraw now waits while a dialog is open (pc2.js, e3.js: pending why 'dialog'/'task', dialogs and typed text survive)."
+  },
+  {
+   "id": "SY-16",
+   "verdict": "fixed",
+   "note": "Code: boot redraws name their keys (main.js:344 ['*'] soft, :355 ['art']; ext.js:509 ['ext:gcal'])."
+  },
+  {
+   "id": "SY-17",
+   "verdict": "still open",
+   "note": "x1/x2.js: a Google/Todoist inbound write never reaches the Calendar/Reminders page (only a later redraw shows it). Filed as SY-39 (regressionOf SY-17)."
+  },
+  {
+   "id": "SY-27",
+   "verdict": "fixed",
+   "note": "Code: Files repaints only when the list is not busy (files.js:425-437 listBusy/catchUp)."
+  },
+  {
+   "id": "SY-13",
+   "verdict": "still open",
+   "note": "Phase 3 (W3); not re-reported."
+  }
+ ]
+}
