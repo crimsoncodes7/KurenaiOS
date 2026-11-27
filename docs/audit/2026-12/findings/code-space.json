@@ -1,0 +1,358 @@
+{
+ "area": "code-space",
+ "summary": "Code space on kos-qol-5. Pay (tasks, phone top-up, See the answer, retrieval, Rider project) matches invariant 106 to the unit; checks and coverage follow invariants 107–108; study-cleanup batch 7's Code card keys are sound. New: one P1 layout (a Code lesson's tabs collapse to 0–5 px on iPhone and Slide Over), two P2 runner issues from Phase 1 (SQL boot timeout still kills the loading worker so retries never succeed on a slow link; live help re-downloads the 10 MB runtime on editor focus once its cache is gone, and Settings claims it is on the device) and six P3s. Cite, don't refile: CARBON-1-2 (READS.code omits errorLog — the new Log mistake pill), CARBON-1-3 (state.code.cards merges field by field).",
+ "coverage": {
+  "accounts": [
+   "dense (mine, seeded)",
+   "sample",
+   "empty"
+  ],
+  "sizes": [
+   "mac",
+   "ipadl",
+   "ipad",
+   "iphone",
+   "split",
+   "slide"
+  ],
+  "routes": [
+   "#/subject/code",
+   "#/code/map",
+   "#/code/task/1.1-box",
+   "#/code/task/T1.2-cheap",
+   "#/code/task/7.1-tally",
+   "#/ref/code/1.1",
+   "#/ref/code/T1.2",
+   "#/code/settings",
+   "#/code/capstone/C1",
+   "#/code/skills",
+   "#/code/kata",
+   "#/code/retrieval",
+   "#/code/track/T1",
+   "#/code/project/rp-u10-library (dense, 6 sizes)",
+   "#/subject/code, retrieval, kata, skills (empty, 6 sizes)",
+   "#/subject/code, #/code/task/1.1-hello (sample, 6 sizes)",
+   "cold reloads of #/ref/code/1.2, task 7.1-tally, capstone C3, project rp-bridge-hello, desk"
+  ],
+  "flows": [
+   "task fail (compile) → pass → re-run (interp): 12/1/3 once, then 'already passed'",
+   "stretch task 2.9-average 26/3/3",
+   "phone pass 9/1/1 then computer top-up 9/1/2 then nothing",
+   "See the answer → pass pays 0",
+   "infinite loop Run and Check (interp step budget, wasm step budget)",
+   "SQL Run/Check warm and cold; boot timeout under a throttled service worker (300 and 500 kbps)",
+   "full runtime offer, dialog sizes, download, 'Run it', compile error, loop, pass 12/1/3",
+   "Roslyn live help: squiggles, gutter, problem line, completion after 'Console.'; runtime cache evicted",
+   "listing live help on unit 7",
+   "reload mid-Check on the full runtime",
+   "+ Log mistake, Undo present, Error Log hub, Go to source",
+   "topic page reading: dwell + Next + every listing → checks 1–2, studied (1.1, 1.2, 7.1, T1.2)",
+   "retrieval (SQL card) proven: +4 XP, FSRS row, cap counter",
+   "kata intro and first question",
+   "Rider report import (bridge solved fixture): preview, Import 120/30/8, duplicate rejected",
+   "capstone Result missing links (C1, C2)",
+   "Code goal measures vs the ledger (tasks 5, retrievals 1)",
+   "study-cleanup batch 7: every Code flashcard and quiz key unique, explicit keys match original positions, no orphan srs keys"
+  ],
+  "notCovered": [
+   "GitHub (never, by rule)",
+   "Kurenai capstone review (no AI)",
+   "a capstone submitted to the end and its pay",
+   "Rider projects other than Bridge B's import",
+   "Track T2 pages and the remaining capstones beyond a render",
+   "copy account (slot 7) pass",
+   "the full runtime's 60 s boot kill on a slow download (CO-39 fix note names it)"
+  ]
+ },
+ "findings": [
+  {
+   "id": "CO-43",
+   "severity": "P1",
+   "category": "layout",
+   "title": "iPhone and Slide Over: a Code lesson's tabs (Notes, Practice, Flashcards, Quiz, Tasks, Files) shrink to a 0–5 px strip — only two overlapping chevrons show",
+   "detail": "#/ref/code/1.1 (and T1.2, every Code lesson) at iphone 402×874 and slide 375×796, dense account. The tab row holds the tab scroller, Working (92 px), Edit (66 px) and Code's Learn/Reference switch (166 px); the scroller is measured at width 5 px (iphone) and 0 px (slide), so the six tabs sit clipped inside it and the row shows just '› ‹' at the left edge (screenshots). Practice, Flashcards, Quiz and Tasks of a lesson cannot be reached on a phone. At 375 the row also overflows #main by 6 px (code.mode right edge 381, #main scrollWidth 381), so the page pans sideways. A CS topic at iphone keeps a 181 px tab scroller (no Learn/Reference switch): Code only. Reproduced on 1.1 and T1.2, at both sizes.",
+   "rootCause": "css/views/code.css:240 (.k-topic-tabrow > .k-cx-mode { flex: 0 0 auto }) adds a 166 px fixed item to the row built in js/modules/topic.js (scroller + k-topic-more + Working :359 + Edit :348); css/views/study.css:208/211 gives the scroller flex: 1 1 auto; min-inline-size: 0, so it alone absorbs the shortfall down to 0. No phone tier wraps the row or moves the switch.",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/code-space/ref-code-1.1-iphone-mine.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/code-space/ref-code-1.1-slide-mine.png; eval iphone: kids ui.scroller W5, topic.work W92, topic.edit-bar W66, code.mode W166; slide: ui.scroller W0; compsci at iphone ui.scroller W181",
+   "fix": "Under 700px let the tab row wrap so the scroller takes its own full-width line (flex-wrap: wrap; .k-topic-tabrow > .k-scroller { flex-basis: 100% }), or move the Learn/Reference switch into the reader's pager row; give the scroller a min-inline-size (e.g. 50%) so it can never collapse.",
+   "effort": "S",
+   "devices": [
+    "iphone",
+    "slide"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": null,
+   "regressionOf": null,
+   "invariants": [
+    "50",
+    "58"
+   ]
+  },
+  {
+   "id": "CO-39",
+   "severity": "P2",
+   "category": "bug",
+   "title": "SQL on a slow link: the new boot timeout kills a SQLite still loading, so 'Try again' restarts the 700 KB download from zero and never succeeds",
+   "detail": "Cold SQLite (kos-sqlite cache empty), the service worker's network throttled to 500 kbps/150 ms (and again at 300 kbps/300 ms). #/code/task/T1.2-cheap with its own answer, Run pressed three times in a row: every press shows 'Loading SQLite… · 8 s limit', and after 8.28–8.30 s the card '◇ Runner did not start — SQLite took too long to start — your code was not run. Try again.' Each retry is cold again: after all three, Cache Storage kos-sqlite-1.14.2 holds only sql-wasm.js; sql-wasm.wasm (658 KB) is never cached, because the killed worker aborts its fetch. On any link where SQLite takes more than 8 s to arrive (< ~650 kbps), no SQL listing, practice, task or card can ever run, and the message keeps advising a retry that cannot work. Phase 1 (code-space#1) made the boot timeout honest (no longer blames the learner's code) but kept killing the loading worker — the second half of November's CO-19.",
+   "rootCause": "js/core/coderun.js:268-276 — the watchdog for a fresh worker (ms = WATCHDOG + 4000, :267) treats '!sqlReady' as a boot timeout and still calls sqlKill() (:273), terminating the worker mid-importScripts / mid-wasm fetch; sqlRun (:262) then makes a new worker that starts the download again. The ready/failed messages from js/labs/sql-worker.js:15-19 are only used to mark state, never to wait.",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/code-space/sql-boot-timeout-mac-mine.png; t5.js run 3× under swthrottle.mjs 500,150 and 300,300: ms 8277/8295/8289, runnerStatus('sql').state 'failed'; caches.open('kos-sqlite-1.14.2').keys() → only sql-wasm.js",
+   "fix": "On a boot timeout, resolve the run with the runner error but keep the worker alive (do not sqlKill while !sqlReady); let the next Run wait for its 'ready' (or post the request so it is answered once SQLite loads). Only a worker that answered 'failed' or onerror is replaced. Same rule for the full runtime's 60 s WASM_BOOT kill (coderun.js:170-178).",
+   "effort": "S",
+   "devices": [
+    "mac",
+    "ipad",
+    "iphone"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": "1E code-space#1 (5e959080) / bk:code-space#1 (9ab6d4d8)",
+   "regressionOf": null,
+   "invariants": [
+    "105"
+   ]
+  },
+  {
+   "id": "CO-40",
+   "severity": "P2",
+   "category": "bug",
+   "title": "Live help silently re-downloads the 10 MB full runtime when you merely focus any C# editor (even unit 1) once its cache has gone",
+   "detail": "Runtime downloaded (state ready), then kos-csharp-csw-1.2 removed from Cache Storage (what Safari's storage eviction, or the RUNTIME_ID bump csw-1.1 → csw-1.2 that Phase 1 itself shipped with rtPrune, does) while state.ui.code.runtime stays true. Reload, open #/code/task/1.2-types (or 1.1-box, a unit-1 interpreter task), click into the editor without typing: runtime state goes idle → downloading (5 ms) → ready (778 ms locally), and kos-csharp-csw-1.2 is refilled with 78 files (≈10.4 MB transfer). No dialog, no consent, not on a unit 7+ lesson, possibly on cellular on the phone. Reproduced twice (t10.js, t11.js). The same wish-only 'idle' state misleads Code settings: with only kurenai-runtime.json in kos-csharp-csw-1.2, #/code/settings says 'Full .NET runtime · On this device · Starts when a lesson needs it; works offline' and 'Full runtime 28.9 MB' (the size read from the manifest over the network) though nothing of it is on the device and offline it would not start.",
+   "rootCause": "js/core/coderun.js:189-192 — rtAssist accepts state 'idle', which runtime() (:120-123) derives from the per-device wish ui().runtime alone, not from the files being on the device; it then calls rtStart(), whose first start IS the download (:151-155). js/modules/codehelp.js:232 asks for problems on the first focus.",
+   "evidence": "t10.js: before {state:'idle', wanted:true}, after focus {state:'ready'}, cachedFiles 78; t11.js: onRuntime idle → downloading → ready; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/code-space/livehelp-task-7.1-mac-mine.png (live help itself working); settings eval with cache holding only kurenai-runtime.json: 'On this device … works offline', 'Full runtime 28.9 MB'",
+   "fix": "Let assist start the worker only when the runtime is known to be on the device: check caches.has('kos-csharp-' + RUNTIME_ID) (or a manifest entry in it) before rtStart, else return null and show keywords only; or record 'present' after a verified warm start rather than reading the wish. Invariant 105: 'typing never starts a download'.",
+   "effort": "S",
+   "devices": [
+    "mac",
+    "ipad",
+    "iphone"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": "1C Roslyn live help (65ed9950)",
+   "regressionOf": null,
+   "invariants": [
+    "105"
+   ]
+  },
+  {
+   "id": "CO-41",
+   "severity": "P3",
+   "category": "copy",
+   "title": "Run now says '4 s limit' but a Check timeout card says 'Stopped after 2 seconds in case 1' — after 112 ms, stopped by the step budget",
+   "detail": "#/code/task/1.1-box, editor `while (true) { }`. Run: the button's new limit chip reads '4 s limit' (9 s on a unit 7+ task, 8 s while SQLite loads). Check: the result card reads 'Stopped after 2 seconds in case 1.' though the case shows 112 ms and Run's own card says 'Your program ran for more than 3,000,001 steps without finishing.' Three different limits for one stop. Phase 1 added the chip; the card's literal was never tied to the runner (November CO-24 covered only Settings' copy).",
+   "rootCause": "js/core/codeui.js:266 — the timeout message with a caseNo is a hard-coded 'Stopped after 2 seconds in case N.' instead of the error's own msg (steps or 'Stopped after N seconds' from coderun.js); the chip reads runnerStatus().limitMs (codeui.js bindRun).",
+   "evidence": "t3.js: during Run lim '4 s limit'; Check output 'Case 1 … 112 ms ✗ Did not finish Stopped after 2 seconds in case 1.'; js/modules/code.js:1513 'time limit 2 seconds a run'",
+   "fix": "Print the error's own msg with the case number appended ('… in case 1'); derive every limit from KOS.codeRun.runnerStatus(r).limitMs.",
+   "effort": "S",
+   "devices": [
+    "mac"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": "1E code-space#1 (5e959080)",
+   "regressionOf": null,
+   "invariants": []
+  },
+  {
+   "id": "CO-42",
+   "severity": "P3",
+   "category": "ui",
+   "title": "Check's 'Checking…' label lasts only until the first case answers: the shared runner status puts '✓ Check · N tests' back mid-check",
+   "detail": "#/code/task/2.9-average (4 cases) and #/code/task/T1.2-recent (SQL, 2 cases): a MutationObserver on the Check button logs 'Checking…' at 1 ms, then '✓ Check · 4 tests' from the first case's answer (11 ms; 105 ms on SQL) while cases are still running, the button flickering enabled/disabled between cases. On the full runtime or a cold SQLite each case takes hundreds of ms, so the button reads as idle while a check runs; the same happens to the capstone's '✓ Run all tests'.",
+   "rootCause": "js/core/codeui.js bindRun apply(): on every status emit it rewrites btn.textContent to baseLabel when state is 'ready' (emitted by coderun.js after each case's reply, e.g. :80, :250) and sets btn.disabled = active, overriding the page's own 'Checking…' / disabled set in js/modules/code.js:745-749; check() runs cases one by one so status returns to 'ready' between them.",
+   "evidence": "t2.js log: dt1 'Checking…' disabled; dt11 '✓ Check · 4 tests' disabled:false; dt11 true; … ; t4.js log dt102 'Checking…', dt105 '✓ Check · 2 tests' runD false",
+   "fix": "Give bindRun a page-owned hold: opts.busy() (true while the page's check is in flight) that keeps the button disabled with its busyLabel; or have check() mark the runner busy for its whole duration.",
+   "effort": "S",
+   "devices": [
+    "mac"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": "1E bk:code-space#1 (9ab6d4d8)",
+   "regressionOf": null,
+   "invariants": []
+  },
+  {
+   "id": "CO-44",
+   "severity": "P3",
+   "category": "data",
+   "title": "'+ Log mistake' on a task files the task's title as the lesson's title: the Error Log shows '1.2 · Halves' for lesson 1.2 'Values and types'",
+   "detail": "#/code/task/1.2-halves, wrong output, Check, '+ Log mistake': the item stored is {topicRef: '1.2', topicTitle: 'Halves'} (the task). The Error Log hub shows the row as 'Code · 1.2 · Halves', and its recurring-topic grouping keys by topicRef but titles the group from the first item, so a later mistake on 1.2-types joins a group called 'Halves'. Every other capture (quiz.js:296) uses the topic's own title. Go to source correctly opens #/code/task/1.2-halves. Reproduced on two captures.",
+   "rootCause": "js/modules/code.js:802 — topicTitle: t.title || t.id (the task) beside topicRef: t.lesson; js/modules/errorlog.js:43-45 groups by topicRef with the first item's topicTitle.",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/code-space/errorlog-code-item-mac-mine.png; t12.js item {topicRef:'1.2', topicTitle:'Halves'}; KOS.code.lesson('1.2').title 'Values and types'",
+   "fix": "topicTitle: C().lesson(t.lesson).title (keep the task's name in title, as it already is).",
+   "effort": "S",
+   "devices": [
+    "mac"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": "U8 (157ac693)",
+   "regressionOf": null,
+   "invariants": []
+  },
+  {
+   "id": "CO-45",
+   "severity": "P3",
+   "category": "a11y",
+   "title": "Capstone Result: the new 'missing' links (and every step change) drop keyboard focus to the page body",
+   "detail": "#/code/capstone/C1 → Result → focus and activate '5 of 5 milestones still failing their acceptance tests →': the Build step draws, document.activeElement is BODY and the scroll stays put; again on C2 with 'A write-up of at least 40 words →' (step writeup, active BODY). A keyboard or screen-reader user lands nowhere and must Tab from the top of the page. Arrow keys on the stepper refocus the tab; clicks and the new Result links do not.",
+   "rootCause": "js/modules/codecap.js:89-95 — go(step) saves and calls draw(), which rebuilds the stepper and the body (innerHTML = ''), removing the focused control; only the stepper's keydown handler (:84-87) focuses the new tab.",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/code-space/capstone-C1-build-after-missing-iphone-mine.png; t15.js after {step:'build', active:'BODY'}; C2 eval {step:'writeup', active:'BODY:'}",
+   "fix": "After draw() in go(), focus the current step tab (or the step panel's heading with tabindex -1) and scroll it into view.",
+   "effort": "S",
+   "devices": [
+    "mac",
+    "iphone"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": "1D code-space#2 (42650670)",
+   "regressionOf": null,
+   "invariants": []
+  },
+  {
+   "id": "CO-46",
+   "severity": "P3",
+   "category": "content",
+   "title": "T1.2 retrieval card asks to 'List the bakery that cost less than £2.00'",
+   "detail": "#/code/retrieval with t1-select due: 'List the bakery that cost less than £2.00: name and price, cheapest first'. The variation drops the category word straight into a plural sentence ('drinks' reads right, 'bakery' does not), so half the variations of this card read ungrammatically. Seen on two variations (1 and 3).",
+   "rootCause": "js/data/content/code-t1a.js:939 CATS = ['drinks','bakery'] and :944 'List the ' + cat + ' that cost …' — the dataset value is reused as the noun.",
+   "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/code-space/retrieval-due-mac-mine.png; t17.js text 'List the bakery that cost less than £2.00'",
+   "fix": "Map the category to a phrase for the prompt ({drinks: 'drinks', bakery: 'bakery items'}) while the answer keeps category = 'bakery'.",
+   "effort": "S",
+   "devices": [
+    "mac"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": null,
+   "regressionOf": null,
+   "invariants": [
+    "104"
+   ]
+  },
+  {
+   "id": "CO-47",
+   "severity": "P3",
+   "category": "bug",
+   "title": "Unit 7+ lesson listings: live help checks with nullable off, so it shows no warning where Run then reports CS8600/CS8602",
+   "detail": "#/ref/code/7.1, first listing edited to `int x = \"a\"; string s = null; System.Console.WriteLine(s.Length);`, runtime on the device. After 4 s the live help squiggles only the CS0029 error (\"a\"); Run then prints the error and '2 WARNINGS ⚠ CS8600 line 2 · ⚠ CS8602 line 3'. With the error removed the live help shows nothing at all while Run lists the same two warnings. Task and capstone editors on unit 7+ get nullable on (they pass lesson); the listing editor does not. Reproduced twice.",
+   "rootCause": "js/core/codeui.js:724 — the listing's editor({...}) is created without lesson (only the run request carries opts.lesson), and js/modules/codehelp.js:73 derives nullable from opts.lesson's runner, so it falls back to false; invariant 105: nullable reference types are on from unit 7.",
+   "evidence": "t24.js: squig ['error:\"a\"'] vs Run output '2 WARNINGS CS8600 … CS8602'; without the error: squig [] vs the same 2 warnings",
+   "fix": "Pass lesson: opts.lesson to the listing's editor() (as code.js:636 and codecap.js:214 do).",
+   "effort": "S",
+   "devices": [
+    "mac"
+   ],
+   "accounts": [
+    "dense"
+   ],
+   "phase1": "1C Roslyn live help (65ed9950)",
+   "regressionOf": null,
+   "invariants": [
+    "105"
+   ]
+  }
+ ],
+ "novRecheck": [
+  {
+   "id": "CO-04",
+   "verdict": "fixed",
+   "note": "2.9-guess: Run's input is a textarea holding the whole example ('42\\n50\\n30\\n42'); the answer runs ('Correct in 3 guesses')."
+  },
+  {
+   "id": "CO-06",
+   "verdict": "fixed",
+   "note": "With 1.1 and 1.2 studied, Continue points at 1.3."
+  },
+  {
+   "id": "CO-07",
+   "verdict": "fixed",
+   "note": "Retrieval lists 'Next reviews will ask… a different variation each time' with no SM-2 dates; the rating schedules through KOS.fsrs (s 8.2956, d 1, ivl 6, fl set)."
+  },
+  {
+   "id": "CO-17",
+   "verdict": "fixed",
+   "note": "KOS_CODE.CONCEPTS: validation → 3.6, form-validation → T2.17, validation-reports → B.8; KOS_CODE.DUPES empty."
+  },
+  {
+   "id": "CO-32",
+   "verdict": "fixed",
+   "note": "Desk tile reads 'Tasks passed 3 / 227' (passed of core tasks)."
+  },
+  {
+   "id": "CO-38",
+   "verdict": "fixed",
+   "note": "Search groups 'Code lessons' and, in the UI's second pass, 'Code projects and tasks' (found 'box of stars')."
+  },
+  {
+   "id": "CO-01",
+   "verdict": "still open",
+   "note": "Sampled: iPhone desk stage path still shows skewed diamonds and tall squares."
+  },
+  {
+   "id": "CO-02",
+   "verdict": "still open",
+   "note": "Sampled: iPhone Daily 20 and Continue side by side."
+  },
+  {
+   "id": "CO-09",
+   "verdict": "still open",
+   "note": "Sampled: task/kata pages on iPhone titled 'Code'."
+  },
+  {
+   "id": "CO-15",
+   "verdict": "still open",
+   "note": "Partly addressed by 1D code-space#5 (Next task / Back to the lesson after a pass); the clock was not re-checked."
+  },
+  {
+   "id": "CO-16",
+   "verdict": "still open",
+   "note": "Daily 20 'Done today' still says 'haven't proven Input loops in code yet'."
+  },
+  {
+   "id": "CO-19",
+   "verdict": "still open",
+   "note": "Partly: 1E names a boot timeout ('SQLite took too long to start — your code was not run') and the SQL limit chip; the kill-and-retry-cold half remains and is filed as CO-39."
+  },
+  {
+   "id": "CO-20",
+   "verdict": "still open",
+   "note": "SQL task still shows STDIN and an '(none)' input column."
+  },
+  {
+   "id": "CO-24",
+   "verdict": "still open",
+   "note": "Settings still says 'time limit 2 seconds a run'; Phase 1's new '4 s limit' chip makes three limits (CO-41)."
+  },
+  {
+   "id": "CO-25",
+   "verdict": "still open",
+   "note": "'See the answer?' still says 'today's first pass will pay no reward'."
+  },
+  {
+   "id": "CO-26",
+   "verdict": "still open",
+   "note": "Problems tab 0 after a Run compile error; live help now shows a third count in the status bar."
+  },
+  {
+   "id": "CO-27",
+   "verdict": "still open",
+   "note": "Task runtime card still says 'read the listing and its output below'."
+  },
+  {
+   "id": "CO-21",
+   "verdict": "still open",
+   "note": "Partly: 1E colours the runtime/runner card head --code (code.css); the compile-error head was not re-measured."
+  }
+ ]
+}
