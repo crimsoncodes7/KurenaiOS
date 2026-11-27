@@ -1,12 +1,14 @@
 ---
 name: project-branch-and-release-state
-description: "Which git branch is live, what is deployed — check git before trusting this; prod kos-qol-5 (27 Nov, main 0c93408a: Batch 1 hotfixes); Phase 2 audit on audit/2026-12, Batch 1 done + Carbon-verified, next Batch 2"
+description: "Which git branch is live, what is deployed — check git before trusting this; prod kos-qol-5 (main 0c93408a); Phase 2 audit: Batches 1–2 done on audit/2026-12, unmerged fix branches GO-28 + small await Carbon; paused till weekly reset"
 metadata:
   node_type: memory
   type: project
   originSessionId: 2e2dc728-9366-4708-9ad8-6718d38edac2
   modified: 2026-11-17T21:04:49.853Z
 ---
+
+**27 Nov 2026 (paused for the weekly limit): Batch 2 (MG GO JM MI CO) done and pushed on audit/2026-12 (0a1083ce): 67 findings, P0 GO-28. Unmerged, awaiting Carbon then a deploy together: fix/2026-12-GO-28 (42682ed6) and fix/2026-12-small (893b8ffa, ON TOP of GO-28: lazy.need for Error Log capture, search examsDomain, Mind Journal double save). BATCH-2.md lists head 0c93408a, the SY-38 follow-up diff (34e21d43..19afe3f0) for Carbon, MG-61 severity, and Carbon's pause tasks (verify B2, review both branches, Horizontal Sweep 2, pre-hunt Batch 3). User's REAL Money data holds one statement imported twice (MG-90, 31 Oct, 393 entries, ~2x May–Oct) — a repair on the real account needs the user's go-ahead. Next after reset: file Carbon's B2 verdicts, merge+deploy the two branches (kos-qol-6), Batch 3 (CC CM HR SH AA).**
 
 **27 Nov 2026: RELEASED kos-qol-5 (main 0c93408a, immutable https://7a10f634.kurenai-os.pages.dev): the December audit's Batch 1 hotfixes — SY-38 (P0) + DI-33 (re-keyed records follow their live object; renames from cloudmerge; creation-stamp guard for other tabs), SY-33 (Mind fsrs.retrievability), AP-21 (lazy-index.js below the content templates). Phase 2: branch audit/2026-12 (docs only; main merged in), README/CARBON.md/BATCH-1.md in docs/audit/2026-12; Batch 1 (PR EX ST SY DI AP) complete and verified by Gemini 4 Carbon (verdicts in carbon/verdicts-1.json; 69 counted: P0 1, P1 13). User's backup restored offline in harness slot 7 (KOS_OFFLINE=1; profile /tmp/kosqa-7). Next: Batch 2 (MG GO JM MI CO) after the user's go-ahead. Fix worktree /Users/fj/Developer/KurenaiOS-fix (needs assets/code/runtime copied for smoke75/76).**
 
