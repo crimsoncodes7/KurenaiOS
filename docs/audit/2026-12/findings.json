@@ -23,7 +23,12 @@
   ],
   "area": "productivity",
   "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P2: moveEntryWeek (js/modules/pacing.js:275) returns {ok, prevWb, prevWk, wb, addedWeek}, whereas menu handlers (:1491, :1507) test `if (res)` (truthy even on {ok:false}) and read `res.toWb` (undefined -> 'Moved to undefined.'), while menu hints (:1478-1481) read allWks[wkIdx±1] instead of weekListFor(e.source).",
+   "evidence": "Node repro on school row in wb 2026-11-02: KOS.pacing.moveEntryWeek(id, -1) returned { ok: true, prevWb: '2026-11-02', prevWk: 9, wb: '2026-10-19', addedWeek: null } (no toWb key), stepping over 2026-10-26 half-term while allWks[wkIdx-1] pointed at 2026-10-26."
+  }
  },
  {
   "id": "PR-45",
@@ -49,7 +54,12 @@
   ],
   "area": "productivity",
   "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P2 (invariant 84): external callers read KOS.pacing.entries() without filtering `!e.hidden` at js/core/exams.js:214,602,611, js/core/report.js:1275, js/core/examsession.js:484, js/modules/examprac.js:614, and js/core/achcatalogue.js:439,446.",
+   "evidence": "Node repro on seeded account: hid compsci 4.1.1.2 personal row -> entriesFor excluded it (false), while KOS.exams.pacingCovered stayed 123 and nextInPacing('compsci:4.1.1.2') still returned '2026-10-12'."
+  }
  },
  {
   "id": "PR-46",
@@ -74,7 +84,12 @@
   ],
   "area": "productivity",
   "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P2 (invariant 84): js/modules/pacing.js:1519,1524 ('Move up'/'Move down') calls reorderEntry with no toast or Undo, and :1656-1657 ('→ here' on carried rows) calls updateEntry({wb}) with a plain toast lacking an Undo action.",
+   "evidence": "Verified directly at js/modules/pacing.js:1517-1526 and :1653-1660."
+  }
  },
  {
   "id": "PR-47",
@@ -100,7 +115,12 @@
   ],
   "area": "productivity",
   "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P2: js/modules/calendar.js:444-463 nextOccurrence advances recurrence arithmetically without consulting occursOn / ev.skip / ev.ext.g.skip, so deadlines() and countdowns() still target a skipped date.",
+   "evidence": "Node repro: weekly deadline on 2026-09-26 with skip:['2026-09-26'] gave occursOn('2026-09-26') === false but nextOccurrence(ev, '2026-09-24') === '2026-09-26'."
+  }
  },
  {
   "id": "PR-48",
@@ -125,7 +145,12 @@
   ],
   "area": "productivity",
   "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P2: js/modules/routines.js:703-706 overwrites every review slot on switching 'Per day' -> 'Simple' with `{ on: o.on, weekday: resolvedSlotDay(s, 1), weekend: resolvedSlotDay(s, 6), days: null }` (which dayreview.js normalise drops), discarding Tue–Fri/Sun custom times immediately with no confirmation or Undo.",
+   "evidence": "Verified at js/modules/routines.js:694-706 and js/core/dayreview.js:100-107."
+  }
  },
  {
   "id": "PR-49",
@@ -150,7 +175,12 @@
   ],
   "area": "productivity",
   "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P2: KOS.routines.check allows A -> run B -> run C (returns null), and ticking from Today cascades through tickRun, but js/modules/routineplayer.js:75 (`if (x.checkMorning || x.run) return;`) drops inner run steps after one level so C is never shown or ticked in the player.",
+   "evidence": "Node repro: created routines C ('c1'), B ('b1', run C), A ('a1', run B); KOS.routines.check(A) === null, opened KOS.routinePlayer.open(A.id) -> player dialog omitted 'c1' (hasC1InPlayer: false)."
+  }
  },
  {
   "id": "PR-52",
@@ -178,7 +208,12 @@
   ],
   "area": "productivity",
   "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P2: at 861–1240 px (ipadl 1180, ipad 820), css/views/productivity.css:833-834 stacks .k-rem-insp statically below the reminder list in column 2 instead of keeping a third column or opening the compact sheet, and reminderspage.js never scrolls it into view on selection.",
+   "evidence": "Verified css/views/productivity.css:833-834 and inspected rem-insp-ipadl-sample.png (selected row highlighted with zero visible inspector in the 820 px viewport)."
+  }
  },
  {
   "id": "PR-90",
@@ -206,7 +241,12 @@
   "copyPass": true,
   "area": "productivity",
   "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P2: js/modules/calpage.js:823-861 agendaRows appends sorted timed/all-day calendar events, then assignments, reminders, and derived routine/review/money/goal items in source order without sorting the combined day list by time.",
+   "evidence": "Verified at js/modules/calpage.js:823-861."
+  }
  },
  {
   "id": "PR-50",
@@ -232,7 +272,12 @@
   ],
   "area": "productivity",
   "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P3: css/components.css:522 sets `.k-check input { inline-size: var(--sp-18); block-size: var(--sp-18); }` without `flex-shrink: 0` (`flex: none`), allowing long plan-row labels in `.k-cal-plan-row` to compress checkboxes to 15–16 px wide.",
+   "evidence": "Verified css/components.css:522 and inspected cal-detail-skip-iphone-empty.png (visibly narrower boxes on ellipsised rows 3, 4, and 6)."
+  }
  },
  {
   "id": "PR-51",
@@ -255,7 +300,47 @@
   "invariants": [],
   "area": "productivity",
   "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P3, with minor precision note: at js/modules/pacing.js:968-976, picking 'Both' (`pick.source === 'both'`) starts the sentence in lowercase ('ticked rows, exam-planner rows stay anchored.'), whereas picking 'In class' (`pick.source === 'school'`) actually starts capitalised ('My plan rows, ticked rows stay anchored.') and only lacks 'and' before the final item.",
+   "evidence": "Verified at js/modules/pacing.js:968-976."
+  }
+ },
+ {
+  "id": "EX-52",
+  "severity": "P1",
+  "category": "layout",
+  "title": "At 700 px and under (phone, iPad Split View and Slide Over) an exam's header actions vanish with no substitute, and a deep-linked Papers/Plan/Questions section draws under the Cards row",
+  "detail": "iphone 402, split 590, slide 375, dense account, F201 exam. On every section the header's 'Edit scope', '＋ Log a result' and '⋯' (the exam's Edit/Archive/Delete) measure 0×0; on Revise the header's 'Card drill' and '⎙ Print the guide' are gone; on a sat paper (#/exams/<id>/paper/2) '‹ Papers' is 0×0. The only ways round are the All exams list (its row ⋯ and its own '＋ Log a result'). The phone list shows Today, Topics, Revise, Cards and Review (D5), but on an iPad in Split View the same rules apply, so the device the Papers are for loses them. Opening #/exams/<id>/papers at 590 (a link from Today's paper card, search or Home) draws the Papers list directly under the 'Cards · 0 due' row, as if it were the Cards section's content, with no Papers row. Reproduced at iphone and split, twice each.",
+  "rootCause": "css/views/exams.css:1238 — `@media (max-width: 700px) { .k-xs-head .k-ex-actions { display: none; } }` hides the whole action slot (js/modules/examshell.js:260-272 puts every action, and the paper view's '‹ Papers' from js/modules/exampaperview.js:80, in it); js/modules/examshell.js:39 `PHONE` lists only today/topics/revise/cards/review, so a non-phone section's body has no row of its own and lands after the last row drawn (344).",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/exams-files-ink/exam-f201-today-iphone-dense.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/exams-files-ink/exam-f201-papers-split-dense.png; eval at iphone: Edit scope 0x0, ＋ Log a result 0x0, ⋯ 0x0, exams.paper-back 0x0",
+  "fix": "Keep the action slot on the phone as one ⋯ menu (Edit scope, Log a result, Edit, Archive, Delete, and the section's own actions such as Card drill and Print); when a non-phone section is open at ≤700 px give it its own row (or redirect to Today with the 'Papers · on the iPad and Mac' note), and let Split View on a touch iPad keep Papers.",
+  "effort": "M",
+  "devices": [
+   "iphone",
+   "split",
+   "slide"
+  ],
+  "accounts": [
+   "dense"
+  ],
+  "phase1": null,
+  "regressionOf": null,
+  "invariants": [
+   "130b",
+   "50b"
+  ],
+  "area": "exams-files-ink",
+  "batch": 1,
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "RECLASSIFY",
+   "severity": "P1",
+   "note": "Upgraded P2 -> P1 against README.md's scale ('a layout that hides or blocks a control'): css/views/exams.css:1238 sets `.k-xs-head .k-ex-actions { display: none; }` at <=700 px (phone, iPad Split View 590 px, Slide Over 375 px), completely hiding Revise's 'Card drill' and '⎙ Print the guide' (which exist nowhere else in the UI), 'Edit scope' on scoped exams, and '‹ Papers', while non-PHONE deep-linked sections render orphaned beneath the 'Cards' row (examshell.js:39,344-353).",
+   "evidence": "Verified css/views/exams.css:1238, js/modules/examshell.js:39,260-272,335-353, js/modules/examrevise.js:49-52, and inspected exam-f201-today-iphone-dense.png and exam-f201-papers-split-dense.png."
+  },
+  "auditSeverity": "P2"
  },
  {
   "id": "EX-54",
@@ -284,7 +369,12 @@
   ],
   "area": "exams-files-ink",
   "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P1: js/modules/exampaperview.js:450,487 calls tk(q.n, j) when rendering a part, mutating M.ticks[q.n][j] = {}, and js/core/exampaper.js:274 treats any truthy ticks[q.n][j] object as marked (got: 0), so Finish and log records 0/60 (or partial marks out of 60) with no warning and pays a tracker session.",
+   "evidence": "Node repro on OCR F201 paper 1: KOS.examPaper.toAttempt(paper, { [q0.n]: { 0: {} } }, { timed: true, mins: 60 }) returned { marks: 0, max: 60, q0got: 0, q1got: null } instead of marks: null."
+  }
  },
  {
   "id": "EX-59",
@@ -311,7 +401,12 @@
   ],
   "area": "exams-files-ink",
   "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P1: js/core/inksurface.js:504 calls closeText(false) at the start of openText, while onDown (:586) calls e.preventDefault() so the active textarea never blurs before the next cell/spot opens — discarding every typed table cell or text box except the last.",
+   "evidence": "Node repro on KOS.inkUI.surface with 3x3 table: _textAt cell (0,0) -> value='A1' -> _textAt cell (0,1) -> value='B1' -> _closeText() produced row 0 ['', 'B1', ''] ('A1' lost)."
+  }
  },
  {
   "id": "EX-63",
@@ -342,7 +437,12 @@
   ],
   "area": "exams-files-ink",
   "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P1 (violates invariant 151): js/core/files.js:158 switches inkPrefix(r) from 'file:<fileId>:' to 'paper:<fileId>:' whenever r.alsoPaper is truthy, so writing() (:163) and latestLayer() (:177) stop checking 'file:<fileId>:' and return 0 / null even though the strokes remain in kurenai-os-ink.",
+   "evidence": "Node repro: saved stroke to 'file:fid_test_1:default'; KOS.files.writing(r) returned 1 with alsoPaper:null and 0 with alsoPaper:'pap_99', and withWriting returned { name: 'worksheet.pdf', ink: false }."
+  }
  },
  {
   "id": "EX-50",
@@ -373,7 +473,12 @@
   ],
   "area": "exams-files-ink",
   "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P2: at '1 h a week', js/core/examsession.js:464 places a 90-min paper whenever `!d.items.length` even though `fits(d, pm)` is false, and :458-460 places redo (30m), cheat sheet (30m), and night-before (20m) items with no `fits` check at all.",
+   "evidence": "Node repro on OCR F201 with hours=1: KOS.examSession.schedule(f201) produced weekly totals [15, 90, 90, 90, 90, 90, 90, 170, 0] min under a 60 min/week budget."
+  }
  },
  {
   "id": "EX-51",
@@ -404,35 +509,12 @@
   ],
   "area": "exams-files-ink",
   "batch": 1,
-  "areaStatus": "complete"
- },
- {
-  "id": "EX-52",
-  "severity": "P2",
-  "category": "layout",
-  "title": "At 700 px and under (phone, iPad Split View and Slide Over) an exam's header actions vanish with no substitute, and a deep-linked Papers/Plan/Questions section draws under the Cards row",
-  "detail": "iphone 402, split 590, slide 375, dense account, F201 exam. On every section the header's 'Edit scope', '＋ Log a result' and '⋯' (the exam's Edit/Archive/Delete) measure 0×0; on Revise the header's 'Card drill' and '⎙ Print the guide' are gone; on a sat paper (#/exams/<id>/paper/2) '‹ Papers' is 0×0. The only ways round are the All exams list (its row ⋯ and its own '＋ Log a result'). The phone list shows Today, Topics, Revise, Cards and Review (D5), but on an iPad in Split View the same rules apply, so the device the Papers are for loses them. Opening #/exams/<id>/papers at 590 (a link from Today's paper card, search or Home) draws the Papers list directly under the 'Cards · 0 due' row, as if it were the Cards section's content, with no Papers row. Reproduced at iphone and split, twice each.",
-  "rootCause": "css/views/exams.css:1238 — `@media (max-width: 700px) { .k-xs-head .k-ex-actions { display: none; } }` hides the whole action slot (js/modules/examshell.js:260-272 puts every action, and the paper view's '‹ Papers' from js/modules/exampaperview.js:80, in it); js/modules/examshell.js:39 `PHONE` lists only today/topics/revise/cards/review, so a non-phone section's body has no row of its own and lands after the last row drawn (344).",
-  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/exams-files-ink/exam-f201-today-iphone-dense.png; /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/exams-files-ink/exam-f201-papers-split-dense.png; eval at iphone: Edit scope 0x0, ＋ Log a result 0x0, ⋯ 0x0, exams.paper-back 0x0",
-  "fix": "Keep the action slot on the phone as one ⋯ menu (Edit scope, Log a result, Edit, Archive, Delete, and the section's own actions such as Card drill and Print); when a non-phone section is open at ≤700 px give it its own row (or redirect to Today with the 'Papers · on the iPad and Mac' note), and let Split View on a touch iPad keep Papers.",
-  "effort": "M",
-  "devices": [
-   "iphone",
-   "split",
-   "slide"
-  ],
-  "accounts": [
-   "dense"
-  ],
-  "phase1": null,
-  "regressionOf": null,
-  "invariants": [
-   "130b",
-   "50b"
-  ],
-  "area": "exams-files-ink",
-  "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P2 (invariant 127, 130): js/modules/exampaperview.js:110-118 branches only on `paper.kind === 'practice'`, sending `kind === 'authored'` (OCR F201 papers 1–3) down the Companion 'Predicted paper' copy path, while `n !== paper.seed` compares number `n` against string `paper.seed` ('2'), failing to exclude the currently open paper.",
+   "evidence": "Node repro: KOS.examPaper.build(f201, '2') returned { kind: 'authored', seed: '2' } (typeof seed === 'string'); verified exampaperview.js:110-118."
+  }
  },
  {
   "id": "EX-55",
@@ -458,7 +540,12 @@
   ],
   "area": "exams-files-ink",
   "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P2: js/modules/exampaperview.js:560,569 fires async IndexedDB `KOS.attempts.setMarks(...)` and immediately calls `KOS.show('exams', { id: a.id, tab: 'review', sub: 'a:' + e.uid })`, so `examreview.js:211-216` `findRec` queries `r.tracker === e.uid` before the IndexedDB put commits and falsely renders 'it was logged, not sat in the app'.",
+   "evidence": "Verified at js/modules/exampaperview.js:558-570 and js/modules/examreview.js:210-217."
+  }
  },
  {
   "id": "EX-56",
@@ -484,7 +571,12 @@
   ],
   "area": "exams-files-ink",
   "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P2 (invariant 69): css/views/exams.css:820 places `@media (pointer: coarse) { .k-ex-mchip { min-block-size: var(--hit-coarse); ... } }` above the equal-specificity base rule `.k-ex-mchip { min-block-size: var(--sp-26); ... }` at :823, overriding the 44 px coarse-pointer floor down to 26 px.",
+   "evidence": "Verified cascade order directly at css/views/exams.css:820-824."
+  }
  },
  {
   "id": "EX-57",
@@ -510,7 +602,12 @@
   ],
   "area": "exams-files-ink",
   "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P2: two distinct bugs verified — (1) js/core/errorlog.js:166 calls non-existent KOS.lazy.ensure (shared with ST-47), dropping cold '+ Log error' taps on Handwritten and Exam Review; (2) js/modules/examreview.js:116-124 passes no topicRef and sets topicTitle to the paper title with deepLink missing `sub: 'a:' + e.uid`.",
+   "evidence": "Verified typeof KOS.lazy.ensure === 'undefined' at js/core/errorlog.js:166 and inspected js/modules/examreview.js:116-124."
+  }
  },
  {
   "id": "EX-58",
@@ -538,7 +635,12 @@
   ],
   "area": "exams-files-ink",
   "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P2: Phase 1 1C added `ink.paste` and `ink.table` (js/core/inksurface.js:1043,1046) into the single-row `.k-ink-bar` scroller, pushing Paper and Float past the visible track width in docked Page view on Mac and both iPad orientations.",
+   "evidence": "Verified js/core/inksurface.js:1043,1046 and audit toolbar geometry."
+  }
  },
  {
   "id": "EX-61",
@@ -563,7 +665,12 @@
   ],
   "area": "exams-files-ink",
   "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P2: js/modules/files.js:159-163 routes explicit 'Download' menu actions through `KOS.inkExport.deliver` (js/core/inkexport.js:115-123), which invokes `navigator.share({ files })` whenever `navigator.canShare` returns true — opening the macOS Share sheet instead of downloading on desktop Chrome/Safari.",
+   "evidence": "Verified at js/core/inkexport.js:114-123 and js/modules/files.js:148-165."
+  }
  },
  {
   "id": "EX-62",
@@ -595,7 +702,12 @@
   ],
   "area": "exams-files-ink",
   "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P2 (invariant 69, 130b): js/modules/examshell.js:456 re-runs `S().weakest(tops)` on every tap redraw so cycling Red -> Amber -> Green jumps the row out from under the user's finger, and css/views/exams.css:1150 sets `.k-xs-rag { min-block-size: var(--sp-24); }` with no `--hit-coarse` floor.",
+   "evidence": "Verified at js/modules/examshell.js:456 and css/views/exams.css:1150."
+  }
  },
  {
   "id": "EX-90",
@@ -622,7 +734,12 @@
   "copyPass": true,
   "area": "exams-files-ink",
   "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P2 (invariant 150): js/modules/attachments.js:73-86 v3 IndexedDB upgrade back-filled `fileId`, `updatedAt`, and `linkKeys` without computing `hash`, so pre-v3 files carry `hash: null` and fail deduplication and past-paper twin pairing when re-added.",
+   "evidence": "Verified at js/modules/attachments.js:73-86 and :169-192."
+  }
  },
  {
   "id": "EX-53",
@@ -648,7 +765,12 @@
   ],
   "area": "exams-files-ink",
   "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P3 (invariant 127): js/data/exams/papers/ocr-f201-1.js:193,196 (and -2.js, -3.js) store `label: '(b)(i)'` and `'(b)(ii)'`, which js/modules/exampaperview.js:252 renders verbatim inside the narrow 1-token label column so `(b)(i)` wraps onto two lines and `(b)` repeats on `(ii)`.",
+   "evidence": "Verified at js/modules/exampaperview.js:252 and js/data/exams/papers/ocr-f201-1.js:193-196."
+  }
  },
  {
   "id": "EX-60",
@@ -673,7 +795,12 @@
   ],
   "area": "exams-files-ink",
   "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P3: `KOS.ink.geo.cleanTex` (js/core/ink.js:282-291) anchors fence stripping to `/^```...```$/`, leaving leading chat prose intact, and KaTeX renders plain words + backticks as maths italics/quotes without throwing.",
+   "evidence": "Node repro: KOS.ink.geo.cleanTex('Sure! ```latex\\n\\\\frac{1}{2} + x^2\\n```') returned the unstripped string verbatim."
+  }
  },
  {
   "id": "EX-64",
@@ -698,7 +825,12 @@
   "invariants": [],
   "area": "exams-files-ink",
   "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P3: js/modules/files.js:374 (`Exams' Library`) and :401 (`Exams & Papers › Library`) still use the pre-rework tab name instead of `Exams & Papers › Practice › Paper files`.",
+   "evidence": "Verified at js/modules/files.js:374,401 and js/modules/examshell.js:109."
+  }
  },
  {
   "id": "ST-44",
@@ -723,7 +855,12 @@
   "invariants": [],
   "area": "study-core",
   "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P1: js/core/errorlog.js:176 adopts any open entry matching dedupeKey, and the inline pill's Undo button (:195-196) calls remove(entry.id) unconditionally with no confirmation and no Undo toast, permanently deleting older user-written wrongNote/ruleNote/mistakeTypes.",
+   "evidence": "Node repro: created entry with wrongNote/ruleNote/mistakeTypes, mounted KOS.errorLog.inlinePill with matching dedupeKey, clicked .k-el-inline-undo -> KOS.errorLog.get(id) became null with no Undo toast."
+  }
  },
  {
   "id": "ST-52",
@@ -754,7 +891,12 @@
   ],
   "area": "study-core",
   "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P1 symptom of AP-21 (index.html:185 parser-order bug): cold boot on #/review, #/due, #/review/stats, or #/home sees 0 curriculum stand-ins, reviewBundles() requests only ['ink-ui'], and the mounted page never redraws when warm-up finishes. Closed by origin/fix/2026-12-AP-21.",
+   "evidence": "Incremental lazy boot in Node with 5 curriculum schedules due: KOS.srs.dueCount() === 0 at boot on fa4264d0 vs exact count at boot on origin/fix/2026-12-AP-21; #/cardstats under Save-Data renders 442 scheduled / 5,092 in scope with 0 misses on fix branch."
+  }
  },
  {
   "id": "ST-45",
@@ -779,7 +921,12 @@
   ],
   "area": "study-core",
   "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P2: js/engines/quiz.js:251 replays marked(qi, answered[qi]) on every show()/pickup of an in-progress or reopened quiz, and marked() (:306) unconditionally passes `auto: KOS.errorLog.getSetting('autoLogQuiz', false)`, re-creating undone or resolved entries whenever no open entry matches dedupeKey.",
+   "evidence": "Verified at js/engines/quiz.js:251,306 and js/core/errorlog.js:176-179."
+  }
  },
  {
   "id": "ST-46",
@@ -807,7 +954,12 @@
   "invariants": [],
   "area": "study-core",
   "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P2: js/engines/quiz.js:287 and :667 slice before the first code fence and strip only HTML tags (leaving raw LaTeX `$...$`, `**bold**`, backticks, or pre-fence setup lines), and js/modules/errorlog.js:382,732 renders cur.title / it.title via plain `text:` instead of KOS.content.inline + typeset.",
+   "evidence": "Verified at js/engines/quiz.js:287,667 and js/modules/errorlog.js:382,732."
+  }
  },
  {
   "id": "ST-47",
@@ -834,7 +986,12 @@
   ],
   "area": "study-core",
   "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P2: js/core/errorlog.js:166 guards and calls `KOS.lazy.ensure(['page-errorlog'], openNow)`, which does not exist on KOS.lazy (`need` is the promise API), turning every openCapture tap before page-errorlog warms into a silent no-op (permanent under Save-Data until #/errorlog is visited).",
+   "evidence": "Verified in Node: typeof KOS.lazy.ensure === 'undefined'; js/core/errorlog.js:161-167."
+  }
  },
  {
   "id": "ST-50",
@@ -860,7 +1017,12 @@
   ],
   "area": "study-core",
   "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P2: js/core/reviewlog.js:99 defines `isCard(r)` as `!/^(code|ja|mind):/.test(String(r.key))`, letting `q:`, `e:`, and `x:` question/redo schedule rows through into js/modules/due.js:268's 'Today so far · Reviewed' and 'Accuracy' figures.",
+   "evidence": "Verified at js/core/reviewlog.js:99 and js/modules/due.js:265-271."
+  }
  },
  {
   "id": "ST-51",
@@ -890,7 +1052,43 @@
   ],
   "area": "study-core",
   "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P2, with root-cause correction: sample.js:67 does NOT need the heavy content-* bundles loaded before seeding — KOS.srs.cardsFor() only needs c.key from the stand-ins. The true root cause for fresh Sample boots is AP-21 (index.html:185), closed by origin/fix/2026-12-AP-21 (442 srs keys seeded with 0 content-* bundles loaded). Only sample.js:353's early exit on existing sampleSeeded:true profiles remains if an already-broken Sample namespace is not reset.",
+   "evidence": "Incremental lazy boot with kurenai-os-data-mode='sample': state.srs keys = 0 on fa4264d0 vs 442 on origin/fix/2026-12-AP-21 with lazy.loaded containing js/core/sample.js and zero content-* bundles."
+  }
+ },
+ {
+  "id": "ST-56",
+  "severity": "P2",
+  "category": "ui",
+  "title": "Due today › Questions back: after answering, the primary button reads 'See your score →' and does nothing; the working 'Next question →' sits below it",
+  "detail": "Open Review › Questions back (Sample, Maths S4.1 items due), answer the first question: the card shows a crimson 'See your score → ↵' and, under the card, the run's own 'Next question →'. Clicking 'See your score' leaves the same question on screen ('Question 1 of 3' before and after, quiz.result still hidden). On the Mac at 832 px the real Next is at the fold's edge, so the only visible action is the dead one; Enter (its ↵ hint) is bound to it too.",
+  "rootCause": "js/engines/quiz.js:242-246 always draws quiz.next ('See your score →' on the last of one item) and advance() (quiz.js:313-315) only scrolls to a result that a caller-owned run (own, opts.onFinish) never shows; opts.bare (js/modules/due.js:384) hides the header but not this button",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/study-core/review-questions-run-answered-mac-sample.png; eval {nextText:'See your score →↵', c1:'Question 1 of 3', after click c2:'Question 1 of 3', resultHidden:true}",
+  "fix": "With opts.bare (or own), do not draw quiz.next; let the run's own 'Next question →' take the primary style and the Enter key.",
+  "effort": "S",
+  "devices": [
+   "mac",
+   "iphone"
+  ],
+  "accounts": [
+   "sample"
+  ],
+  "phase1": null,
+  "regressionOf": null,
+  "invariants": [],
+  "area": "study-core",
+  "batch": 1,
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "RECLASSIFY",
+   "severity": "P2",
+   "note": "Upgraded P3 -> P2 against README.md's scale ('it works [via the second button below] but is wrong or awkward'): in Due › Questions back, answering a question reveals a primary crimson button 'See your score → ↵' (`quiz.next`, bound to Enter) that does nothing at all when clicked or triggered via Enter because `result.hidden` stays true on caller-owned `bare`/`onFinish` runs, while the working 'Next question →' sits below the card.",
+   "evidence": "Verified at js/engines/quiz.js:242-246,313-315 and js/modules/due.js:384."
+  },
+  "auditSeverity": "P3"
  },
  {
   "id": "ST-48",
@@ -913,32 +1111,12 @@
   "invariants": [],
   "area": "study-core",
   "batch": 1,
-  "areaStatus": "complete"
- },
- {
-  "id": "ST-49",
-  "severity": "P3",
-  "category": "bug",
-  "title": "Quick Error Drill: Undo on 'Marked resolved' restarts the drill at card 1 and loses the run's resolved/revisited tally",
-  "detail": "In the Drill, reveal card 1 of 8 and tap '✓ Got it' → 'DRILL · 2 OF 8' with a 'Marked resolved · Undo' toast. Tap Undo: the drill redraws from scratch at 'DRILL · 1 OF 8' (the undone card plus every card already done), and the end summary's counts restart at 0.",
-  "rootCause": "js/modules/errorlog.js:431 — the toast's run does E().setStatus(cur.id, prevSt); KOS.rerender(), which remounts renderDrill with idx 0 and fresh counters (its state lives in the render closure, not KOS.view.memo, invariant 166)",
-  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/study-core/errorlog-drill-mac-sample.png; eval {a:'DRILL · 1 OF 8', b:'DRILL · 2 OF 8', afterUndo:'DRILL · 1 OF 8'}",
-  "fix": "Keep idx/resolvedN/revisitedN in KOS.view.memo, and on Undo step back one card (idx--, resolvedN--) and repaint instead of rerendering.",
-  "effort": "S",
-  "devices": [
-   "mac"
-  ],
-  "accounts": [
-   "sample"
-  ],
-  "phase1": "U7/U8 Error Log",
-  "regressionOf": null,
-  "invariants": [
-   "166"
-  ],
-  "area": "study-core",
-  "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P3: js/modules/errorlog.js:510-516 computes the header's Quick Error Drill count from unfiltered `openItems` and passes only `subject`/`topicRef` to `renderDrill` (:330-334), ignoring type/source/status/search filters, and `paintList` never syncs cleared topic chips via `KOS.router.replaceArg`.",
+   "evidence": "Verified at js/modules/errorlog.js:330-334,510-516,665-690."
+  }
  },
  {
   "id": "ST-53",
@@ -964,7 +1142,12 @@
   ],
   "area": "study-core",
   "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P3: js/modules/topic.js:931-932 wraps Quiz best's `<strong>` inside `<button class='k-link k-insp-link'>`, while css/views/study.css:409 applies `margin-inline-start: auto` only to `.k-insp-list strong` (so `strong` auto-margins inside the shrink-wrapped button instead of pushing `.k-insp-link` to the right).",
+   "evidence": "Verified at js/modules/topic.js:931-932 and css/views/study.css:409,1368."
+  }
  },
  {
   "id": "ST-54",
@@ -989,7 +1172,12 @@
   "invariants": [],
   "area": "study-core",
   "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P3: at `max-width: 560px` (css/views/study.css:1457-1460), `.k-qz-hist-marks` and `.k-qz-hist-when` both span `1 / -1` without placing `.k-qz-hist-pct` on row 1 col 2, breaking each quiz-history item across four lines.",
+   "evidence": "Verified at css/views/study.css:1457-1460."
+  }
  },
  {
   "id": "ST-55",
@@ -1014,31 +1202,12 @@
   ],
   "area": "study-core",
   "batch": 1,
-  "areaStatus": "complete"
- },
- {
-  "id": "ST-56",
-  "severity": "P3",
-  "category": "ui",
-  "title": "Due today › Questions back: after answering, the primary button reads 'See your score →' and does nothing; the working 'Next question →' sits below it",
-  "detail": "Open Review › Questions back (Sample, Maths S4.1 items due), answer the first question: the card shows a crimson 'See your score → ↵' and, under the card, the run's own 'Next question →'. Clicking 'See your score' leaves the same question on screen ('Question 1 of 3' before and after, quiz.result still hidden). On the Mac at 832 px the real Next is at the fold's edge, so the only visible action is the dead one; Enter (its ↵ hint) is bound to it too.",
-  "rootCause": "js/engines/quiz.js:242-246 always draws quiz.next ('See your score →' on the last of one item) and advance() (quiz.js:313-315) only scrolls to a result that a caller-owned run (own, opts.onFinish) never shows; opts.bare (js/modules/due.js:384) hides the header but not this button",
-  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/study-core/review-questions-run-answered-mac-sample.png; eval {nextText:'See your score →↵', c1:'Question 1 of 3', after click c2:'Question 1 of 3', resultHidden:true}",
-  "fix": "With opts.bare (or own), do not draw quiz.next; let the run's own 'Next question →' take the primary style and the Enter key.",
-  "effort": "S",
-  "devices": [
-   "mac",
-   "iphone"
-  ],
-  "accounts": [
-   "sample"
-  ],
-  "phase1": null,
-  "regressionOf": null,
-  "invariants": [],
-  "area": "study-core",
-  "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P3: js/engines/quiz.js:301 builds `dedupeKey` with `qi` (index into the `items` array passed to `mountMCQ`), which is always `0` when Due's 'Questions back' mounts `[item]` alone (js/modules/due.js:384), instead of using `item.qk` / `qkeys[qi]`.",
+   "evidence": "Verified at js/engines/quiz.js:301 and js/modules/due.js:382-385."
+  }
  },
  {
   "id": "ST-57",
@@ -1064,7 +1233,12 @@
   ],
   "area": "study-core",
   "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P3: js/modules/cardstats.js:291-295 places adjacent `'over'` and `'today'` labels on 15 narrow forecast bars, causing horizontal text collision below 560 px.",
+   "evidence": "Verified at js/modules/cardstats.js:291-295."
+  }
  },
  {
   "id": "ST-90",
@@ -1092,7 +1266,42 @@
   "copyPass": true,
   "area": "study-core",
   "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P3: js/modules/home.js:1050 counts every key in `store.state.srs` with `reps > 0` as `'Cards · N learnt'`, including `q:`/`e:`/`x:` question schedules and orphaned keys from removed curriculum cards.",
+   "evidence": "Verified at js/modules/home.js:1050."
+  }
+ },
+ {
+  "id": "ST-49",
+  "severity": "P3",
+  "category": "bug",
+  "title": "Quick Error Drill: Undo on 'Marked resolved' restarts the drill at card 1 and loses the run's resolved/revisited tally",
+  "detail": "In the Drill, reveal card 1 of 8 and tap '✓ Got it' → 'DRILL · 2 OF 8' with a 'Marked resolved · Undo' toast. Tap Undo: the drill redraws from scratch at 'DRILL · 1 OF 8' (the undone card plus every card already done), and the end summary's counts restart at 0.",
+  "rootCause": "js/modules/errorlog.js:431 — the toast's run does E().setStatus(cur.id, prevSt); KOS.rerender(), which remounts renderDrill with idx 0 and fresh counters (its state lives in the render closure, not KOS.view.memo, invariant 166)",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/study-core/errorlog-drill-mac-sample.png; eval {a:'DRILL · 1 OF 8', b:'DRILL · 2 OF 8', afterUndo:'DRILL · 1 OF 8'}",
+  "fix": "Keep idx/resolvedN/revisitedN in KOS.view.memo, and on Undo step back one card (idx--, resolvedN--) and repaint instead of rerendering.",
+  "effort": "S",
+  "devices": [
+   "mac"
+  ],
+  "accounts": [
+   "sample"
+  ],
+  "phase1": "U7/U8 Error Log",
+  "regressionOf": null,
+  "invariants": [
+   "166"
+  ],
+  "area": "study-core",
+  "batch": 1,
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "REJECTED",
+   "note": "Duplicate (strict subset) of SY-31: describes the exact same `renderDrill` closure-state + `KOS.rerender()` Undo reset at js/modules/errorlog.js:328-334,431 that SY-31 already covers alongside Refresh and idle safePoint."
+  },
+  "rejected": true
  },
  {
   "id": "SY-38",
@@ -1119,7 +1328,12 @@
   ],
   "area": "sync-disruption",
   "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "P0 confirmed: rekeyCollisions re-keys the local colliding record in the merged doc while assignList (js/core/store.js:807-822) reuses live objects by old id, binding the open editor's held reference/id to the remote record so Save overwrites the other device's record and syncs the overwrite out. Hold origin/fix/2026-12-SY-38 until multi-tab takeIn/mergeIn and the 3 missed store.js merge sites (mirrorTakeIn:695, overwrittenWrite:1083, recoverFromMirror:1125) also preserve origin identity.",
+   "evidence": "Reproduced single-tab and two-tab in Node on goals.items (id 50 -> 51): on fa4264d0 both overwrite REMOTE goal; on origin/fix/2026-12-SY-38 single-tab passes smoke196 G2, but two-tab (Tab B syncing, Tab A holding open editor in both clean-adopt and dirty-merge states) still leaves held.id === 50 ('REMOTE goal') and overwrites it on Save."
+  }
  },
  {
   "id": "SY-33",
@@ -1145,7 +1359,12 @@
   ],
   "area": "sync-disruption",
   "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Ruling on lead's severity question: CONFIRMED at P1 against README.md's scale (not P0). flashcards.js:358 throws TypeError at mind.js:937 after mounting the card face and rating buttons, breaking URL/view state, THIS DECK, Card stats, and Type/Write pads, but in default Think mode cards can still be flipped, rated to 0 due, and advance Daily 15 to 'sitting' with zero data loss. Closed cleanly by origin/fix/2026-12-SY-33.",
+   "evidence": "Node boot + KOS.show('mind',{page:'cards'}) and #/mind/daily click on [data-ui~='mind.daily-go']: threw 'KOS.fsrs.recall is not a function', location.hash stayed '#/home', padDrawn null; flipping + clicking Good cleared all 3 due cards (due left 0) with 0 data corruption."
+  }
  },
  {
   "id": "SY-28",
@@ -1171,7 +1390,12 @@
   ],
   "area": "sync-disruption",
   "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P2 (invariant 165): js/core/redraw.js:513-521 writes a held update into `[data-run-line]` without creating the header chip; switching from Flashcards to Quiz (or remounting after Edit -> Done) mounts a fresh hidden empty `[data-run-line]` without calling `KOS.changes.place()`, and `safePoint('turn')` (:591) bails because `runSlot()` is truthy, leaving the held update invisible.",
+   "evidence": "Verified at js/core/redraw.js:513-521,587-601, js/engines/flashcards.js:189, and js/engines/quiz.js:206."
+  }
  },
  {
   "id": "SY-29",
@@ -1198,7 +1422,12 @@
   ],
   "area": "sync-disruption",
   "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P2 (invariant 165): js/core/redraw.js:483 inserts the 257 px `.k-held-chip` inside `.k-topic-head .k-topic-steps`, stealing inline flex width from the topic title/breadcrumb and pushing the notes body down 54–125 px on desktop/iPad when a background pull arrives.",
+   "evidence": "Verified at js/core/redraw.js:483,527 and css/views/study.css:186-195."
+  }
  },
  {
   "id": "SY-30",
@@ -1226,7 +1455,12 @@
   ],
   "area": "sync-disruption",
   "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P2: `#/focus` is not in `TASK` (js/core/redraw.js:102) and reads `sessions`/`governor`/`progress` (:75), while `js/modules/focus.js:2263-2290` rebuilds set-up mode/subject/nudge/limit from `lastConfig` on every render rather than `KOS.view.memo` (and `redraw.js` restores text inputs only, not selects or mode buttons).",
+   "evidence": "Verified at js/core/redraw.js:75,102,273-277 and js/modules/focus.js:2263-2290."
+  }
  },
  {
   "id": "SY-31",
@@ -1253,7 +1487,12 @@
   ],
   "area": "sync-disruption",
   "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P2 (invariant 165, 166): js/modules/errorlog.js:329-334 holds queue, idx, revealed, resolvedN, and revisitedN in renderDrill's local closure instead of KOS.view.memo, mounts no [data-run-line] (so safePoint('idle') applies held updates mid-drill), and calls KOS.rerender() on Undo (:431), resetting the drill to card 1.",
+   "evidence": "Verified at js/modules/errorlog.js:329-334,426-435 and js/core/redraw.js:103,587-594."
+  }
  },
  {
   "id": "SY-37",
@@ -1281,7 +1520,46 @@
   ],
   "area": "sync-disruption",
   "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P2 (invariant 165): js/core/ui.js:211 captures `restoreTo = document.activeElement` (`#main` after any navigation) and `:276` calls `restoreTo.focus()` without `{ preventScroll: true }`, scrolling `#stage` back to 0 whenever a programmatically opened dialog (Daily Review, unlock, shortcut confirm) closes.",
+   "evidence": "Verified at js/core/ui.js:211,275-277."
+  }
+ },
+ {
+  "id": "SY-39",
+  "severity": "P2",
+  "category": "bug",
+  "title": "A Google Calendar or Todoist/Google Tasks pull still never reaches the open Calendar or Reminders page (no redraw, no chip) — November's SY-17, marked fixed by W2",
+  "detail": "On #/reminders, a provider pull's write (KOS.ext.inbound(() => KOS.reminders.add(…)) then KOS.ext.changed(), the path exttasks.js:434 takes) leaves the page as it was, with nothing pending (KOS.changes.pending() null) — the reminder appears only on the next redraw (x2.js: before false, after KOS.rerender() true). The same on #/calendar for an event written as extgcal.js:355 does. Waited 3.5 s after 4.3 s untouched; ipad and mac. Only the Connections page listens (connections.js:182). Provider calls were not made (no sign-in in the harness): the write path was driven directly.",
+  "rootCause": "js/core/ext.js:467-477 syncAll ends with changed() (ext.js:394), which calls only KOS.ext.onChange listeners; neither ext.js, extgcal.js nor exttasks.js calls KOS.changes.note(['reminders'|'calendar'], {source:'device'}) after an inbound write, so the change bus (js/core/redraw.js:640-680, invariant 164) never hears of it. Only the read-only copy notes 'ext:gcal' at boot (ext.js:509).",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/sync-disruption/x1.js (ipad, mac): {remShown:false, inState:true, pending:null, calShown:false, calPending:null}; x2.js {before:false, afterRedraw:true}",
+  "fix": "At the end of syncAll (or per provider in runProvider), diff KOS.changes.snapshot() around the inbound writes and call KOS.changes.note(moved, {source:'device'}) so the page redraws or shows the chip like any other background change.",
+  "effort": "S",
+  "devices": [
+   "ipad",
+   "mac"
+  ],
+  "accounts": [
+   "dense"
+  ],
+  "phase1": null,
+  "regressionOf": "SY-17",
+  "invariants": [
+   "164",
+   "158"
+  ],
+  "area": "sync-disruption",
+  "batch": 1,
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "RECLASSIFY",
+   "severity": "P2",
+   "note": "Upgraded P3 -> P2 against README.md's scale (and regression of November's SY-17, invariant 164): js/core/ext.js:467-477 `syncAll` saves inbound Google Calendar / Todoist / Google Tasks changes and calls `KOS.ext.changed()` without notifying `KOS.changes.note(['calendar'|'reminders'], { source: 'device' })`, so an open Calendar or Reminders view never redraws or shows a held-update chip.",
+   "evidence": "Verified at js/core/ext.js:394,467-477: zero KOS.changes.note calls in ext.js, extgcal.js, or exttasks.js on inbound sync."
+  },
+  "auditSeverity": "P3"
  },
  {
   "id": "SY-40",
@@ -1308,7 +1586,12 @@
   ],
   "area": "sync-disruption",
   "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P2 (invariant 166): js/core/pwa.js:97-101 calls `KOS.pwa.reloadPage()` immediately on `controllerchange` in every open tab that had a controller, flushing `KOS.store` (:149) without checking `KOS.view.dirty()`, `KOS.view.holding()`, or open dialogs — discarding unsaved drafts in sibling tabs.",
+   "evidence": "Verified at js/core/pwa.js:96-101,146-152."
+  }
  },
  {
   "id": "SY-32",
@@ -1334,7 +1617,12 @@
   ],
   "area": "sync-disruption",
   "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P3: js/modules/pacing.js:779 (`pace.shift-go`) calls `KOS.pacing.shiftPlan(n, shiftOpts())`, recomputing `shiftPreview` against live `state.pacing` rather than shifting the exact row IDs shown in Step 2's preview or refreshing Step 2 when `pacing` changes during the open dialog.",
+   "evidence": "Verified at js/modules/pacing.js:183-188,777-784."
+  }
  },
  {
   "id": "SY-34",
@@ -1360,7 +1648,12 @@
   ],
   "area": "sync-disruption",
   "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P3 (invariant 167): js/modules/mind.js:958-965 keeps `results` in `cardsPage`'s render closure and registers `finishOnce` via `KOS.view.onDispose`, which fires on every redraw (not only navigation away), logging a partial session and restarting the run counter.",
+   "evidence": "Verified at js/modules/mind.js:958-965 and js/core/redraw.js:126-133."
+  }
  },
  {
   "id": "SY-35",
@@ -1386,7 +1679,12 @@
   ],
   "area": "sync-disruption",
   "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P3 (invariant 167): js/modules/jarun.js:438-443 sets `resumed = true` whenever `RR.get(RUNKEY)` holds prior results without distinguishing an in-place redraw from returning to the page, displaying `'Picked up · N answered'` and renumbering progress over only the remaining items.",
+   "evidence": "Verified at js/modules/jarun.js:438-463."
+  }
  },
  {
   "id": "SY-36",
@@ -1413,34 +1711,81 @@
   ],
   "area": "sync-disruption",
   "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P3: js/modules/crwrite.js:28 loads the draft asynchronously from IndexedDB, mounting the textarea after `redraw.js:388` `restore(cap)` has already attempted synchronous focus restoration (`again()` only retries scroll), and `:196-197` calls `area.focus()` on the detached pre-rerender textarea.",
+   "evidence": "Verified at js/modules/crwrite.js:28,195-197 and js/core/redraw.js:388-401."
+  }
  },
  {
-  "id": "SY-39",
-  "severity": "P3",
-  "category": "bug",
-  "title": "A Google Calendar or Todoist/Google Tasks pull still never reaches the open Calendar or Reminders page (no redraw, no chip) — November's SY-17, marked fixed by W2",
-  "detail": "On #/reminders, a provider pull's write (KOS.ext.inbound(() => KOS.reminders.add(…)) then KOS.ext.changed(), the path exttasks.js:434 takes) leaves the page as it was, with nothing pending (KOS.changes.pending() null) — the reminder appears only on the next redraw (x2.js: before false, after KOS.rerender() true). The same on #/calendar for an event written as extgcal.js:355 does. Waited 3.5 s after 4.3 s untouched; ipad and mac. Only the Connections page listens (connections.js:182). Provider calls were not made (no sign-in in the harness): the write path was driven directly.",
-  "rootCause": "js/core/ext.js:467-477 syncAll ends with changed() (ext.js:394), which calls only KOS.ext.onChange listeners; neither ext.js, extgcal.js nor exttasks.js calls KOS.changes.note(['reminders'|'calendar'], {source:'device'}) after an inbound write, so the change bus (js/core/redraw.js:640-680, invariant 164) never hears of it. Only the read-only copy notes 'ext:gcal' at boot (ext.js:509).",
-  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/sync-disruption/x1.js (ipad, mac): {remShown:false, inState:true, pending:null, calShown:false, calPending:null}; x2.js {before:false, afterRedraw:true}",
-  "fix": "At the end of syncAll (or per provider in runProvider), diff KOS.changes.snapshot() around the inbound writes and call KOS.changes.note(moved, {source:'device'}) so the page redraws or shows the chip like any other background change.",
+  "id": "DI-29",
+  "severity": "P1",
+  "category": "data",
+  "title": "A first link drops this device's Pacing row customisations (U4 hidden, order, day): pacingTouched does not see them, so the account's plan replaces it",
+  "detail": "U4 added per-row `hidden`, `order` and `day` to Pacing rows. The first-link (no-base) merge replaces this device's whole `pacing` with the account's whenever `pacingTouched` says the device never touched its plan (stripSeeds, js/core/cloudsync.js:474), and `KOS.cloudsync.userData` uses the same test to decide whether the device holds data at all. Measured in the test harness (userdata_u4.js, run twice): on a pristine boot (252 seeded rows) setting entries[0].hidden = true, or order on two rows, or day = 4, leaves userData() === null; flipping `done` returns 'pacing'. So a device whose plan edits are only hides, reorders or weekday moves (and any device at all, when its other data is elsewhere) has those edits overwritten by the account's plan on its first sign-in: hidden rows come back, the order and weekdays reset. The same test also ignores the Daily Review's configuration (`dayReview.config`, incl. U6's per-day slot times): a device whose only change is its review times reads as pristine (userData null) and adopts the account's.",
+  "rootCause": "js/core/cloudsync.js:384-397 — pacingTouched compares done, note, sat, lessonDays, tag, wb and title against the seed row, not hidden, order or day; js/core/cloudsync.js:474 take('pacing') then replaces the device's plan; dayReview.config is in neither SETTINGS (321) nor EVIDENCE_MAPS (306).",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/data-integrity/userdata_u4.js → {\"pristine\":null,\"rows\":252,\"hidden\":null,\"order\":null,\"day\":null,\"done\":\"pacing\",\"reviewCfg\":null,\"errorLogSettings\":null}",
+  "fix": "In pacingTouched compare !!e.hidden, e.order and e.day with the seed row (seed rows have none); count a dayReview.config that differs from KOS.dayReview's defaults as a SETTINGS entry. Add both to smoke135/smoke143's userData cases.",
   "effort": "S",
   "devices": [
+   "mac",
+   "ipad"
+  ],
+  "accounts": [
+   "empty"
+  ],
+  "phase1": "U4 (Pacing row hidden/order/day), U6 (per-day review slots)",
+  "regressionOf": "DI-03",
+  "invariants": [
+   "34",
+   "84"
+  ],
+  "area": "data-integrity",
+  "batch": 1,
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "RECLASSIFY",
+   "severity": "P1",
+   "note": "Upgraded P2 -> P1 against README.md's scale ('a feature that does not work'): first-link local-data preservation (invariant 34, regression of DI-03) fails completely when a device's local customisations are U4 Pacing hides/reorders/weekday assignments or U6 Daily Review per-day slot times, silently overwriting user edits with the remote seed/account plan on sign-in (only the raw prelink KV backup prevents P0).",
+   "evidence": "Node repro on seeded pristine boot: setting pacing.entries[0].hidden=true, entries[1].order=5, entries[2].day=4 left KOS.cloudsync.userData(state) === null (js/core/cloudsync.js:384-400); stripSeeds(:473) then replaces mine.pacing whole."
+  },
+  "auditSeverity": "P2"
+ },
+ {
+  "id": "DI-30",
+  "severity": "P1",
+  "category": "data",
+  "title": "A question schedule whose item is gone (504 removed by the study clean-up, or a fork deletion) is still due for ever: it is counted in 'questions back today' and takes one of the subject's daily cap slots",
+  "detail": "KOS.questions.dueToday() reads every q:/e: key in state.srs (scheduled(), js/core/questions.js:163-170) without asking whether the item still exists; the Due run then passes over a key whose item is gone (js/modules/due.js:341-344). Nothing ever moves or drops that schedule, so it stays overdue for ever. Measured in the test harness (orphan_one.js, twice): 10 real compsci 4.2.1.1 questions due today plus the schedule of q:compsci:4.2.1.1:4 ('Which statement about a static data structure is correct?', removed by the clean-up 3ca78aa5) → dueToday() {total:10, waiting:1, by.compsci:{due:11, cap:10, left:10}}, the orphan holds a cap slot, only 9 runnable, and one real question is pushed to 'waiting'. The Review page's count (due.js:114, 142, 159) says 10 questions while the run serves 9. With N orphans in a subject, N of its 10 daily slots are lost every day; at 10 the subject's questions never come back. Flashcards are not affected (dueCards walks allCards, js/core/srs.js:468), but Home's 'learnt' fact counts every srs key with reps > 0, orphans included (js/modules/home.js:1050). Invariant 87/111c keys themselves hold: the kept items carry their old place (`oi` / third element), spot-checked on 4.2.1.1 (quiz ids 0,1,2,3,5..9; exam 0..3). The user's own data copy was not available, so how many orphans the real account holds is not measured; questions joined the schedule on 16 Nov, so any removed item answered since then is one.",
+  "rootCause": "js/core/questions.js:163-170 — scheduled() lists keys from state.srs, not from the effective material; dueToday() (174-201) counts and caps them before the page resolves them with itemOf().",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/data-integrity/orphan_one.js → {\"orphanResolves\":false,\"total\":10,\"waiting\":1,\"by\":{\"due\":11,\"cap\":10,\"done\":0,\"left\":10},\"orphanTakesSlot\":true,\"realInList\":9,\"runnable\":9}; ids_421.js (4.2.1.1 ids after the clean-up)",
+  "fix": "In dueToday skip a key whose itemOf() is null once its topic's material is loaded (KOS.lazy: a not-yet-loaded topic must not be judged gone), so it neither counts nor takes a cap slot; leave the srs record (a restored item comes back with its schedule). Count Home's 'learnt' over existing cards/questions only.",
+  "effort": "S",
+  "devices": [
+   "mac",
    "ipad",
-   "mac"
+   "iphone"
   ],
   "accounts": [
    "dense"
   ],
-  "phase1": null,
-  "regressionOf": "SY-17",
+  "phase1": "Study clean-up (3ca78aa5, 504 items removed)",
+  "regressionOf": null,
   "invariants": [
-   "164",
-   "158"
+   "111c",
+   "87"
   ],
-  "area": "sync-disruption",
+  "area": "data-integrity",
   "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "RECLASSIFY",
+   "severity": "P1",
+   "note": "Upgraded P2 -> P1 against README.md's scale ('a feature that does not work, a wrong number of ... progress'): js/core/questions.js:163-201 counts and caps every due `q:`/`e:` key in state.srs before checking whether the question still exists (504 items removed in 3ca78aa5, or deleted forks). Orphans inflate Review's due count and permanently consume up to all 10 daily cap slots per subject, starving real questions.",
+   "evidence": "Verified at js/core/questions.js:163-201 and js/modules/due.js:341-344: scheduled() iterates Object.keys(state.srs) directly and dueToday() allocates b.left / list slots before itemOf() resolution."
+  },
+  "auditSeverity": "P2"
  },
  {
   "id": "DI-33",
@@ -1469,7 +1814,12 @@
   ],
   "area": "data-integrity",
   "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P1 (reaches P0-grade silent data loss if duplicate-id sessions or same-number cross-kind review picks exist): js/core/store.js:807-822 assignList indexes dst by typeof+id without kind and without consuming matched objects, aliasing two same-id rows onto one object and saving two copies of the second row over the first. Closed in origin/fix/2026-12-SY-38.",
+   "evidence": "Verified in smoke196 G2 against fa4264d0 vs origin/fix/2026-12-SY-38: morning.three [{reminder,3},{assignment,3},{event,7}] collapsed to two assignment-3 rows on fa4264d0 and survived intact on fix branch."
+  }
  },
  {
   "id": "DI-28",
@@ -1495,62 +1845,12 @@
   ],
   "area": "data-integrity",
   "batch": 1,
-  "areaStatus": "complete"
- },
- {
-  "id": "DI-29",
-  "severity": "P2",
-  "category": "data",
-  "title": "A first link drops this device's Pacing row customisations (U4 hidden, order, day): pacingTouched does not see them, so the account's plan replaces it",
-  "detail": "U4 added per-row `hidden`, `order` and `day` to Pacing rows. The first-link (no-base) merge replaces this device's whole `pacing` with the account's whenever `pacingTouched` says the device never touched its plan (stripSeeds, js/core/cloudsync.js:474), and `KOS.cloudsync.userData` uses the same test to decide whether the device holds data at all. Measured in the test harness (userdata_u4.js, run twice): on a pristine boot (252 seeded rows) setting entries[0].hidden = true, or order on two rows, or day = 4, leaves userData() === null; flipping `done` returns 'pacing'. So a device whose plan edits are only hides, reorders or weekday moves (and any device at all, when its other data is elsewhere) has those edits overwritten by the account's plan on its first sign-in: hidden rows come back, the order and weekdays reset. The same test also ignores the Daily Review's configuration (`dayReview.config`, incl. U6's per-day slot times): a device whose only change is its review times reads as pristine (userData null) and adopts the account's.",
-  "rootCause": "js/core/cloudsync.js:384-397 — pacingTouched compares done, note, sat, lessonDays, tag, wb and title against the seed row, not hidden, order or day; js/core/cloudsync.js:474 take('pacing') then replaces the device's plan; dayReview.config is in neither SETTINGS (321) nor EVIDENCE_MAPS (306).",
-  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/data-integrity/userdata_u4.js → {\"pristine\":null,\"rows\":252,\"hidden\":null,\"order\":null,\"day\":null,\"done\":\"pacing\",\"reviewCfg\":null,\"errorLogSettings\":null}",
-  "fix": "In pacingTouched compare !!e.hidden, e.order and e.day with the seed row (seed rows have none); count a dayReview.config that differs from KOS.dayReview's defaults as a SETTINGS entry. Add both to smoke135/smoke143's userData cases.",
-  "effort": "S",
-  "devices": [
-   "mac",
-   "ipad"
-  ],
-  "accounts": [
-   "empty"
-  ],
-  "phase1": "U4 (Pacing row hidden/order/day), U6 (per-day review slots)",
-  "regressionOf": "DI-03",
-  "invariants": [
-   "34",
-   "84"
-  ],
-  "area": "data-integrity",
-  "batch": 1,
-  "areaStatus": "complete"
- },
- {
-  "id": "DI-30",
-  "severity": "P2",
-  "category": "data",
-  "title": "A question schedule whose item is gone (504 removed by the study clean-up, or a fork deletion) is still due for ever: it is counted in 'questions back today' and takes one of the subject's daily cap slots",
-  "detail": "KOS.questions.dueToday() reads every q:/e: key in state.srs (scheduled(), js/core/questions.js:163-170) without asking whether the item still exists; the Due run then passes over a key whose item is gone (js/modules/due.js:341-344). Nothing ever moves or drops that schedule, so it stays overdue for ever. Measured in the test harness (orphan_one.js, twice): 10 real compsci 4.2.1.1 questions due today plus the schedule of q:compsci:4.2.1.1:4 ('Which statement about a static data structure is correct?', removed by the clean-up 3ca78aa5) → dueToday() {total:10, waiting:1, by.compsci:{due:11, cap:10, left:10}}, the orphan holds a cap slot, only 9 runnable, and one real question is pushed to 'waiting'. The Review page's count (due.js:114, 142, 159) says 10 questions while the run serves 9. With N orphans in a subject, N of its 10 daily slots are lost every day; at 10 the subject's questions never come back. Flashcards are not affected (dueCards walks allCards, js/core/srs.js:468), but Home's 'learnt' fact counts every srs key with reps > 0, orphans included (js/modules/home.js:1050). Invariant 87/111c keys themselves hold: the kept items carry their old place (`oi` / third element), spot-checked on 4.2.1.1 (quiz ids 0,1,2,3,5..9; exam 0..3). The user's own data copy was not available, so how many orphans the real account holds is not measured; questions joined the schedule on 16 Nov, so any removed item answered since then is one.",
-  "rootCause": "js/core/questions.js:163-170 — scheduled() lists keys from state.srs, not from the effective material; dueToday() (174-201) counts and caps them before the page resolves them with itemOf().",
-  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/data-integrity/orphan_one.js → {\"orphanResolves\":false,\"total\":10,\"waiting\":1,\"by\":{\"due\":11,\"cap\":10,\"done\":0,\"left\":10},\"orphanTakesSlot\":true,\"realInList\":9,\"runnable\":9}; ids_421.js (4.2.1.1 ids after the clean-up)",
-  "fix": "In dueToday skip a key whose itemOf() is null once its topic's material is loaded (KOS.lazy: a not-yet-loaded topic must not be judged gone), so it neither counts nor takes a cap slot; leave the srs record (a restored item comes back with its schedule). Count Home's 'learnt' over existing cards/questions only.",
-  "effort": "S",
-  "devices": [
-   "mac",
-   "ipad",
-   "iphone"
-  ],
-  "accounts": [
-   "dense"
-  ],
-  "phase1": "Study clean-up (3ca78aa5, 504 items removed)",
-  "regressionOf": null,
-  "invariants": [
-   "111c",
-   "87"
-  ],
-  "area": "data-integrity",
-  "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P2 (invariant 33a): js/core/cloudmerge.js:66-69 omits deep refs for `sessions[].metrics.eventId`, `focus.active.eventId`, and `exams.assessments.*.links.calendarId` on `calendar.events`, and `:52` omits `sessions[].metrics.reverses` on `sessions`.",
+   "evidence": "Node repro via KOS.cloudmerge.merge(null, local, remote): local event 7 re-keyed to 8 while focus session metrics.eventId, focus.active.eventId, and assessment links.calendarId all stayed 7 (pointing at remote deadline), and local session 2 re-keyed to 4 while correction metrics.reverses stayed 2."
+  }
  },
  {
   "id": "DI-31",
@@ -1577,7 +1877,12 @@
   ],
   "area": "data-integrity",
   "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P3: `achievements.showcase` is omitted from `ATOMIC_PREFIX` at js/core/cloudmerge.js:134, so same-length reorders on two devices merge element-by-element (:527-530), duplicating one badge ID and dropping another after normaliser deduplication.",
+   "evidence": "Node repro: KOS.cloudmerge.merge({achievements:{showcase:['a','b','c']}}, {achievements:{showcase:['b','a','c']}}, {achievements:{showcase:['a','c','b']}}) -> ['b','a','b'] ('c' lost)."
+  }
  },
  {
   "id": "DI-32",
@@ -1605,7 +1910,12 @@
   ],
   "area": "data-integrity",
   "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P3 (invariant 33, 36d): js/core/attempts.js:263-296 pulls with a 2-minute overlap before pushing pending tombstones in `attempts.del` (re-inserting a just-deleted attempt for one sync cycle), and `:340` clears `attempts.del` with `[]` instead of filtering only sent UIDs.",
+   "evidence": "Verified at js/core/attempts.js:263-342."
+  }
  },
  {
   "id": "AP-21",
@@ -1636,36 +1946,12 @@
   ],
   "area": "architecture-perf",
   "batch": 1,
-  "areaStatus": "complete"
- },
- {
-  "id": "AP-22",
-  "severity": "P2",
-  "category": "bug",
-  "title": "KOS.errorLog.openCapture asks for KOS.lazy.ensure, which lazy.js never defined, and the existence guard hides it: every Error Log capture before page-errorlog is in does nothing",
-  "detail": "Root cause of ST-47 and EX-57, checked across the codebase. The page-part API was measured by booting lazy with Save-Data (so the warm-up does not run), snapshotting every KOS namespace's keys, calling KOS.lazy.all() and diffing: 85 namespaces and 8 extended ones (pacing's shift/row edits, errorLog's 9 hub methods, goalsUI's dialogs, achUI, ai.tools/orchestrator, mediaEditors, review.renderStats, routinePlayer.taskChoices) appear only when a bundle loads. Every reference to them from boot code or from another bundle (168 lines, xref.tsv) was read: all but one wait first (KOS.lazy.need / placeholder / NEEDS / PAGES, e.g. all seven 'Make this a goal' buttons, KOS.mediaEditor, KOS.files.open's past paper, Today's Daily Creative, Card stats). The exception is js/core/errorlog.js:161-167: when KOS.errorLogUI is absent it calls KOS.lazy.ensure(['page-errorlog'], openNow), but KOS.lazy (js/core/lazy.js:519-548) exports need/ready/all/… and no ensure; the 'if (KOS.lazy && KOS.lazy.ensure)' guard turns the missing method into a silent no-op. Grep of every KOS.lazy.<method> use in js/ finds no other missing method. Measured twice (Save-Data reload, Home): typeof KOS.lazy.ensure 'undefined'; openCapture({…}) → 0 dialogs after 2.5 s, page-errorlog still not loaded; after KOS.lazy.need('page-errorlog') the same call opens 'Log mistake'. Callers: the inline pill's '✓ Logged · Tag reason' (errorlog.js:189, every topic quiz/exam), '+ Log error' on the Ink tab (inktab.js:155) and the exam Review (examreview.js:137). On a normal boot it works only once the warm-up has reached page-errorlog (5-8 s); under Save-Data or offline-uncached never, until #/errorlog is visited. smoke cannot see it: the test loader is eager, so KOS.errorLogUI exists at boot and the branch never runs.",
-  "rootCause": "js/core/errorlog.js:166 calls a method that does not exist (KOS.lazy.need is the API, js/core/lazy.js:526); the existence-guard idiom (AP-09) hides a hard dependency, and no smoke boots lazy before page-errorlog to press it",
-  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/elcap.txt (two runs of /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/sc-elcap.json via /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/cdp.mjs); /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/api-diff.json and /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/xref.tsv (made by /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/xref.py: every page-part member and every reference outside its bundle); grep -rnoE 'KOS\\.lazy\\.[a-zA-Z_]+' js → 'ensure' only at errorlog.js:166",
-  "fix": "errorlog.js:166 → KOS.lazy.need(['page-errorlog']).then(openNow, function(){ KOS.ui.toast('The Error Log could not load. Check the connection and try again.', true); }); drop the guard. Add to smoke142 a lazy boot (no warm) that presses the pill's Tag reason and asserts the dialog, and a static check that every KOS.lazy.<name> used in js/ is exported by lazy.js.",
-  "effort": "S",
-  "devices": [
-   "mac",
-   "ipad",
-   "iphone"
-  ],
-  "accounts": [
-   "empty",
-   "sample",
-   "mine"
-  ],
-  "phase1": "U7 Error Log (Neon's batch, merged in Phase 1)",
-  "regressionOf": null,
-  "invariants": [
-   "168"
-  ],
-  "area": "architecture-perf",
-  "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Ruling on lead's severity question: CONFIRMED at P1 against README.md's scale ('a wrong number of money, pay, time or progress'; state.srs is uncorrupted and navigating after warm-up or visiting a subject desk works round it). index.html:185 runs js/data/lazy-index.js when only 3 of 44 <template data-lazy> blocks are parsed, dropping all 448 curriculum stand-ins. Closed cleanly by origin/fix/2026-12-AP-21.",
+   "evidence": "Incremental HTML-parser simulation in Node (document.readyState === 'loading' filtering querySelectorAll('template[data-lazy]') to parsed offset): fa4264d0 installs 52 KOS_CONTENT keys (0 stand-ins) and misses curriculum due cards; origin/fix/2026-12-AP-21 installs 500 keys and counts all due cards at boot with 0 misses."
+  }
  },
  {
   "id": "AP-23",
@@ -1693,7 +1979,12 @@
   ],
   "area": "architecture-perf",
   "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P2 (invariant 37, 38): `sw.js:280` serves same-origin JS/CSS via `staleWhileRevalidate(e, STATIC_CACHE)` (`kos-static-<OLD VERSION>`), writing a new deploy's scripts into the old worker's versioned cache while navigations keep serving the old `index.html` until 'Reload now' is accepted.",
+   "evidence": "Verified at sw.js:44-45,186-199,255-280 and tools/smoke121.test.js:163-182."
+  }
  },
  {
   "id": "AP-90",
@@ -1722,7 +2013,12 @@
   "copyPass": true,
   "area": "architecture-perf",
   "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P2: js/core/backup.js:168-196 `attempt()` serialises the entire `snapshotFull` (including ink strokes and base64 attachments) into one string, writes and reads it back whole from IndexedDB, `JSON.parse`s it, and runs a second `snapshotFull` to verify — causing an ~485 MB heap spike and 8–13 s block at 4x CPU on the 56.7 MB real-account backup.",
+   "evidence": "Verified at js/core/backup.js:168-196 and js/core/store.js:1335-1430."
+  }
  },
  {
   "id": "AP-24",
@@ -1748,7 +2044,12 @@
   ],
   "area": "architecture-perf",
   "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P3: `kos-boot` measures from `js/core/lazy.js:46` (after HTML `<head>` and stylesheets) to `js/main.js:363` (`kos-interactive`, before lazy route bundles finish replacing the `'Loading…'` placeholder), understating `'First page, this start'` in Settings › Storage.",
+   "evidence": "Verified at js/core/lazy.js:46, js/main.js:363, and js/modules/storage.js:163-170."
+  }
  },
  {
   "id": "AP-25",
@@ -1769,7 +2070,12 @@
   ],
   "area": "architecture-perf",
   "batch": 1,
-  "areaStatus": "complete"
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P3: verified all three drift claims — 12 of 44 `<template data-lazy>` bundles are unmentioned in `docs/invariants/ui.md` §168, §168 claims browser-level zero-miss parity that `app-harness.js` only tested eagerly-parsed (AP-21), and `docs/HANDOFF.md:15-17` still says `kos-integrity-23` / `177/177` / `New suites from 196` while suites 196–201 exist.",
+   "evidence": "Node check over index.html vs docs/invariants/ui.md §168: 44 bundles total, 12 missing (`search-more`, `ink-tex`, `page-it`, `page-player`, `page-cardstats`, `page-storage`, `page-connections`, `page-errorlog`, `page-matrix`, `page-notifications`, `page-share`, `sample`); docs/HANDOFF.md:15-17 verified."
+  }
  },
  {
   "id": "AP-26",
@@ -1789,6 +2095,182 @@
    "168"
   ],
   "area": "architecture-perf",
+  "batch": 1,
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "CONFIRMED",
+   "note": "Confirmed P3 (invariant 168): `js/modules/reportcard.js:18-33` duplicates `parse`, `dm`, `range`, `weekOf`, and `mono` verbatim from `js/modules/reports.js:60-102` instead of exporting them on the boot part (`_k`) and aliasing in `reports.js`.",
+   "evidence": "Verified identical helper definitions at js/modules/reportcard.js:18-33 and js/modules/reports.js:60-102."
+  }
+ },
+ {
+  "id": "AP-22",
+  "severity": "P2",
+  "category": "bug",
+  "title": "KOS.errorLog.openCapture asks for KOS.lazy.ensure, which lazy.js never defined, and the existence guard hides it: every Error Log capture before page-errorlog is in does nothing",
+  "detail": "Root cause of ST-47 and EX-57, checked across the codebase. The page-part API was measured by booting lazy with Save-Data (so the warm-up does not run), snapshotting every KOS namespace's keys, calling KOS.lazy.all() and diffing: 85 namespaces and 8 extended ones (pacing's shift/row edits, errorLog's 9 hub methods, goalsUI's dialogs, achUI, ai.tools/orchestrator, mediaEditors, review.renderStats, routinePlayer.taskChoices) appear only when a bundle loads. Every reference to them from boot code or from another bundle (168 lines, xref.tsv) was read: all but one wait first (KOS.lazy.need / placeholder / NEEDS / PAGES, e.g. all seven 'Make this a goal' buttons, KOS.mediaEditor, KOS.files.open's past paper, Today's Daily Creative, Card stats). The exception is js/core/errorlog.js:161-167: when KOS.errorLogUI is absent it calls KOS.lazy.ensure(['page-errorlog'], openNow), but KOS.lazy (js/core/lazy.js:519-548) exports need/ready/all/… and no ensure; the 'if (KOS.lazy && KOS.lazy.ensure)' guard turns the missing method into a silent no-op. Grep of every KOS.lazy.<method> use in js/ finds no other missing method. Measured twice (Save-Data reload, Home): typeof KOS.lazy.ensure 'undefined'; openCapture({…}) → 0 dialogs after 2.5 s, page-errorlog still not loaded; after KOS.lazy.need('page-errorlog') the same call opens 'Log mistake'. Callers: the inline pill's '✓ Logged · Tag reason' (errorlog.js:189, every topic quiz/exam), '+ Log error' on the Ink tab (inktab.js:155) and the exam Review (examreview.js:137). On a normal boot it works only once the warm-up has reached page-errorlog (5-8 s); under Save-Data or offline-uncached never, until #/errorlog is visited. smoke cannot see it: the test loader is eager, so KOS.errorLogUI exists at boot and the branch never runs.",
+  "rootCause": "js/core/errorlog.js:166 calls a method that does not exist (KOS.lazy.need is the API, js/core/lazy.js:526); the existence-guard idiom (AP-09) hides a hard dependency, and no smoke boots lazy before page-errorlog to press it",
+  "evidence": "/Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/elcap.txt (two runs of /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/sc-elcap.json via /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/cdp.mjs); /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/api-diff.json and /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/xref.tsv (made by /Users/fj/Developer/KurenaiOS-519/audit-evidence/2026-12/shots/architecture-perf/xref.py: every page-part member and every reference outside its bundle); grep -rnoE 'KOS\\.lazy\\.[a-zA-Z_]+' js → 'ensure' only at errorlog.js:166",
+  "fix": "errorlog.js:166 → KOS.lazy.need(['page-errorlog']).then(openNow, function(){ KOS.ui.toast('The Error Log could not load. Check the connection and try again.', true); }); drop the guard. Add to smoke142 a lazy boot (no warm) that presses the pill's Tag reason and asserts the dialog, and a static check that every KOS.lazy.<name> used in js/ is exported by lazy.js.",
+  "effort": "S",
+  "devices": [
+   "mac",
+   "ipad",
+   "iphone"
+  ],
+  "accounts": [
+   "empty",
+   "sample",
+   "mine"
+  ],
+  "phase1": "U7 Error Log (Neon's batch, merged in Phase 1)",
+  "regressionOf": null,
+  "invariants": [
+   "168"
+  ],
+  "area": "architecture-perf",
+  "batch": 1,
+  "areaStatus": "complete",
+  "carbon": {
+   "verdict": "REJECTED",
+   "note": "Duplicate of ST-47 (and the lazy-load half of EX-57): identical defect, root cause, and 1-line fix at js/core/errorlog.js:166 (`KOS.lazy.ensure` -> `KOS.lazy.need`). AP's 168-callsite xref sweep is valuable negative verification that no other page-part caller has this bug, but it should not be double-counted as a separate remediation item."
+  },
+  "rejected": true
+ },
+ {
+  "id": "CARBON-1-1",
+  "severity": "P1",
+  "category": "bug",
+  "title": "Global search's Exams & Papers domain throws 'all.filter is not a function' on every query, making all assessments unsearchable",
+  "detail": "Add any assessment in Exams & Papers (or use the seeded/sample exams) and search its title, subject, or paper in global search (`KOS.search.run`). Once the `search-more` bundle loads, `examsDomain` reads `KOS.store.state.exams.assessments` — which is a keyed object map `{ [id]: assessment }` (invariant 120), never an Array — and calls `all.filter(...)`. That throws `TypeError: all.filter is not a function` on every search keystroke; `KOS.search.run`'s `safe()` wrapper (`js/core/search.js:331`) catches and silences the exception, so global search returns 0 exam matches on every account and viewport.",
+  "rootCause": "js/core/searchmore.js:104-106 — `var all = (ex && ex.assessments) || []; var out = all.filter(...)` treats the `state.exams.assessments` object map as an array instead of calling `KOS.exams.all()` or `Object.values(...)`; `js/core/search.js:331` swallows the thrown TypeError.",
+  "evidence": "Node boot + KOS.lazy.all() + KOS.exams.add({title:'UniqueQuantumExam2027',...}): typeof state.exams.assessments === 'object' (Array.isArray false); KOS.search.run('UniqueQuantumExam2027', cb) returned [] on done=true; calling KOS.search.more.sync[2] directly threw 'TypeError: all.filter is not a function'.",
+  "fix": "In `js/core/searchmore.js:105`, read `var all = KOS.exams && KOS.exams.all ? KOS.exams.all() : Object.values((ex && ex.assessments) || {});` and add a smoke assertion that `KOS.search.run` finds an added assessment by title.",
+  "effort": "S",
+  "devices": [
+   "mac",
+   "ipadl",
+   "ipad",
+   "iphone",
+   "split",
+   "slide"
+  ],
+  "accounts": [
+   "dense",
+   "sample",
+   "empty",
+   "copy"
+  ],
+  "phase1": "1F search-more split (js/core/searchmore.js)",
+  "regressionOf": null,
+  "invariants": [
+   "71",
+   "120"
+  ],
+  "area": "carbon-1",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "CARBON-1-3",
+  "severity": "P1",
+  "category": "data",
+  "title": "cloudmerge merges state.srs and state.code.cards field by field instead of atomically by latest review, discarding newer reviews and creating chimera FSRS/leech records",
+  "detail": "When two devices review the same curriculum/custom flashcard, scheduled `q:`/`e:` question (`state.srs[key]`), or Code card (`state.code.cards[id]`) before syncing — or one device un-leeches a card (`leech: null, leechBase: 8`) while the other reviewed it — `KOS.cloudmerge.merge` merges the FSRS record key-by-key instead of keeping the more recent review whole. On a three-way merge where Local rated Good on 2026-09-20 (`s: 25, due: '2026-10-15'`) and Remote rated Again on 2026-09-24 (`s: 1.5, due: '2026-09-25', lapses: 8, leech: true`), Local wins same-key conflicts (`preferRemote: false`), discarding Remote's newer review and keeping `s: 25, due: '2026-10-15'`, while grafting Remote's newly added `leech: true` (or `leechBase`) onto the same record — leaving a corrupted chimera schedule.",
+  "rootCause": "js/core/cloudmerge.js:141,496-521 — `FACET_PATH = /^(japanese\\.facets|mind\\.cards)\\.[^.]+$/` protects only Japanese facets and Mind cards; `srs.<key>` (whose keys also contain dots, e.g. `compsci:4.5.2.1:0`) and `code.cards.<id>` fall through to plain-object per-field `mergeValue`.",
+  "evidence": "Node repro via KOS.cloudmerge.merge(base, local, remote): `merged.doc.srs['compsci:4.2.1.1:0']` produced `{ reps: 8, lapses: 8, s: 25, d: 6.5, ivl: 25, due: '2026-10-15', last: '2026-09-20', leech: true }` (Remote's newer Sep 24 review lost while its `leech: true` was grafted onto Local's Sep 20 schedule); `code.cards['u1-swap']` similarly mixed Local's `s: 6, due: '2026-09-26'` with Remote's `lapses: 1`.",
+  "fix": "Widen `FACET_PATH` in `js/core/cloudmerge.js:141` to `/^(japanese\\.facets\\.[^.]+|mind\\.cards\\.[^.]+|code\\.cards\\.[^.]+|srs\\..+)$/` (every `srs[key]` record holds primitive fields only) and break `last` ties safely so `leech`/`leechBase` and FSRS stability/due always travel together; add a regression case in `smoke135`/`smoke146`.",
+  "effort": "S",
+  "devices": [
+   "mac",
+   "ipadl",
+   "ipad",
+   "iphone",
+   "split",
+   "slide"
+  ],
+  "accounts": [
+   "dense",
+   "sample",
+   "copy"
+  ],
+  "phase1": "Phase 1 `leechBase` (`js/core/srs.js:268`) widened the chimera surface; base `srs`/`code.cards` omission predates Phase 1",
+  "regressionOf": null,
+  "invariants": [
+   "33",
+   "111",
+   "111b",
+   "113"
+  ],
+  "area": "carbon-1",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "CARBON-1-2",
+  "severity": "P2",
+  "category": "arch",
+  "title": "redraw.js READS omits state keys read by five views (#/files misses folders, #/mind/daily misses exams, #/calendar misses sessions, #/code and #/japanese miss errorLog), and smoke139 N fails to cover them",
+  "detail": "Horizontal Sweep 1 against invariant 164 found five undeclared top-level state dependencies in `js/core/redraw.js`: (1) `READS.files` (:96) and `STUDY` (:54, for a topic's Files tab) omit `'folders'` (1C UR-14 `state.folders`, read by `js/modules/files.js:263` and `js/core/files.js:145`), so creating, renaming, or deleting a folder in another tab or via cloud sync leaves `KOS.changes.relevant('files', null, ['folders']) === false` (no chip, no redraw; and `files.js:217` only clears a deleted `p.folder` on full view remount, not inside `paintFolders()`); (2) `READS.mind` (:73) omits `'exams'`, though `#/mind/daily` (`js/modules/mind.js:689,742-753` -> `KOS.mind.daily()`) reads `state.exams` to switch into `'Exam Season: reviews only'`; (3) `READS.calendar` (:77) omits `'sessions'`, though `js/modules/calendar.js:595` (`KOS.exams.startState` -> `startBy` -> `weeklyHours`) reads `state.sessions` to compute derived exam start-by dates; (4) `READS.code` (:71) and `READS.japanese` (:72) omit `'errorLog'`, though `js/modules/code.js:792` and `js/modules/jarun.js:580` mount `KOS.errorLog.inlinePill` (reading `state.errorLog`). `smoke139 N` missed all five because `seedAccount` seeds 0 files/folders and no active exam `startBy`, `SURF.reads` only traps keys already present on `Object.keys(state)`, and `tools/lib/view-surfaces.js` omits `['mind', { page: 'daily' }]` and post-answer study states.",
+  "rootCause": "js/core/redraw.js:54,71-73,77,96 missing `'folders'`, `'exams'`, `'sessions'`, and `'errorLog'`; js/modules/files.js:261 `paintFolders()` not resetting deleted `p.folder`; tools/lib/view-surfaces.js:20,28,42 lacking seeded file/folder/exam coverage and `mind:daily`.",
+  "evidence": "Node repro: (1) on `#/files` with a file attached, mutating `state.folders` gave `KOS.changes.diff === ['folders']`, `KOS.changes.relevant('files', null, ['folders']) === false`, `pending === null`; (2) running `SURF.reads` with optional state keys, 1 file, and 1 exam seeded immediately flagged `MISS: calendar -> ['sessions']`, `MISS: files -> ['folders']`, `MISS: mind {\"page\":\"daily\"} -> ['exams']`.",
+  "fix": "Add `'folders'` to `READS.files` and `STUDY`, `'exams'` to `READS.mind`, `'sessions'` to `READS.calendar`, and `'errorLog'` to `READS.code` and `READS.japanese` in `js/core/redraw.js`; reset stale `p.folder` in `paintFolders()` (`js/modules/files.js:263`); pre-populate optional state keys + 1 file/folder/exam and add `['mind', { page: 'daily' }]` in `tools/lib/view-surfaces.js`.",
+  "effort": "S",
+  "devices": [
+   "mac",
+   "ipadl",
+   "ipad",
+   "iphone",
+   "split",
+   "slide"
+  ],
+  "accounts": [
+   "dense",
+   "sample",
+   "copy"
+  ],
+  "phase1": "1C UR-14 (state.folders), U7/U8 (state.errorLog)",
+  "regressionOf": null,
+  "invariants": [
+   "164",
+   "165"
+  ],
+  "area": "carbon-1",
+  "batch": 1,
+  "areaStatus": "complete"
+ },
+ {
+  "id": "CARBON-1-4",
+  "severity": "P2",
+  "category": "arch",
+  "title": "Phase 1 Universal Error Log (`state.errorLog`) is missing from global search, Assistant domain tools, document tallies, cloudmerge `SET_FIELDS`, and flashcard-push Undo",
+  "detail": "Omission hunt + Sweep 1.4 across Phase 1's Universal Error Log (`f479433b..fa4264d0`) found five cross-cutting contract omissions: (1) Global search (`js/core/search.js`, `js/core/searchmore.js`, invariant 71) adds only the static `'Error Log'` page row in `PAGES` (`7734300b`) and never searches `state.errorLog.items` (`title`, `wrongNote`, `ruleNote`, `topicTitle`); (2) Assistant tools (`js/core/aitools.js:2796`, invariant 71a: 'Assistant tools cover every domain') only adds `'errorlog'` to `navigate`'s enum, with zero read/log/resolve tools for `KOS.errorLog`; (3) `KOS.store.tally()` (`js/core/store.js:1146`) omits `errorLog.items` from Restore and first-link before/after counts; (4) `SET_FIELDS` (`js/core/cloudmerge.js:124`) omits `mistakeTypes`, so two devices tagging different mistake types on the same entry do not union them as a set; (5) `toFlashcard` (`js/modules/errorlog.js:437-442,753-759`) creates a custom card and sets `cardId` with a plain toast lacking Undo, contrary to `js/modules/errorlog.js:4` ('every write passes through KOS.errorLog with Undo').",
+  "rootCause": "js/core/searchmore.js:248 (no `errorLogDomain`), js/core/aitools.js:2796 (no `errorlog_*` tools), js/core/store.js:1146 (`TALLY`), js/core/cloudmerge.js:124 (`SET_FIELDS`), and js/modules/errorlog.js:441,757 (toast without Undo).",
+  "evidence": "Grep + AST/runtime verification across `js/core/search.js`, `js/core/searchmore.js`, `js/core/aitools.js`, `js/core/store.js`, `js/core/cloudmerge.js`, and `js/modules/errorlog.js`.",
+  "fix": "Add `errorLogDomain` in `js/core/searchmore.js`, `errorlog_list`/`errorlog_add`/`errorlog_resolve` tools in `js/core/aitools.js`, `['errorLog.items', 'logged mistakes']` in `js/core/store.js:1146`, `mistakeTypes: true` in `js/core/cloudmerge.js:124` `SET_FIELDS`, and an Undo callback on `toFlashcard`'s toast (`KOS.srs.removeCustom(r.cardId)` + `E().update(id, { cardId: null })`).",
+  "effort": "M",
+  "devices": [
+   "mac",
+   "ipadl",
+   "ipad",
+   "iphone",
+   "split",
+   "slide"
+  ],
+  "accounts": [
+   "dense",
+   "sample",
+   "empty",
+   "copy"
+  ],
+  "phase1": "U7/U8 Universal Error Log (5cbda7e2, 7734300b)",
+  "regressionOf": null,
+  "invariants": [
+   "66",
+   "71",
+   "71a"
+  ],
+  "area": "carbon-1",
   "batch": 1,
   "areaStatus": "complete"
  }
